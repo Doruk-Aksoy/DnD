@@ -21,11 +21,11 @@ echo Packing all files into pk7's...
 
 SET sevenzip="%PROGRAMFILES%\7-zip\7z.exe"
 FOR /F "tokens=*" %%g in ('git describe --tags') do (SET version=%%g)
-%sevenzip% u -t7z dnd_%version%.pk7 .\dnd\* -mx=9
-%sevenzip% d dnd_%version%.pk7 TEXTURES -x!TEXTURES\
-%sevenzip% rn dnd_%version%.pk7 TEXTURES_ TEXTURES
-%sevenzip% u -t7z dnd_monsters_%version%.pk7 .\monsters\* -mx=9
-%sevenzip% u -t7z dnd_onlyammo_%version%.pk7 .\onlyammo\* -mx=9
+%sevenzip% u -t7z dnd%version%.pk7 .\dnd\* -mx=9
+%sevenzip% d dnd%version%.pk7 TEXTURES -x!TEXTURES\
+%sevenzip% rn dnd%version%.pk7 TEXTURES_ TEXTURES
+%sevenzip% u -t7z dnd_monsters%version%.pk7 .\monsters\* -mx=9
+%sevenzip% u -t7z dnd_onlyammo%version%.pk7 .\onlyammo\* -mx=9
 
 echo Done.
 @echo on
