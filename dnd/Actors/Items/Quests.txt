@@ -1,0 +1,190 @@
+enum {
+	QUEST_HPOVER50,
+	QUEST_ONLYONEWEAPON,
+	QUEST_NODYING,
+	QUEST_10SPREES,
+	QUEST_HEALFOR500,
+	QUEST_KILL10BOSSES,
+	QUEST_KILL20ELITES,
+	QUEST_USENOARTIFACT,
+	QUEST_USENOACCESSORY,
+	QUEST_NOHEALINGPICKUP,
+	QUEST_ONLYPISTOLWEAPONS,
+	QUEST_NOSHOTGUNS,
+	QUEST_NOARMORS,
+	QUEST_SPAREZOMBIES,
+	QUEST_NOSUPERWEAPONS,
+	QUEST_ONLYNOTALENTWEAPONS,
+	QUEST_ONLYSPECIALAMMO,
+	QUEST_SPEND25K,
+	QUEST_KILLDREAMINGGOD,
+	QUEST_KILLTORRASQUE,
+	QUEST_KILLMORDECQAI,
+	QUEST_KILLGODSLAYER
+};
+
+Actor QuestCompletionToken : Inventory {
+	inventory.maxamount 0xFF
+}
+
+Actor DnD_StackableQuestBonus : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 10
+	+IGNORESKILL
+}
+
+Actor QuestArmorBonus : BasicArmorBonus {
+	inventory.pickupmessage "Picked up a max armor bonus."
+	inventory.icon "ARM1A0"
+	armor.savepercent 33.33333
+	armor.saveamount 0
+	armor.maxsaveamount 200
+	armor.maxbonus 150
+	armor.maxbonusmax 500
+	+COUNTITEM
+	+INVENTORY.ALWAYSPICKUP
+}
+
+Actor DnD_QuestState1 : DnD_Info { }
+Actor DnD_QuestState2 : DnD_Info { }
+
+// Quest Rewards
+Actor DnD_QuestReward_RegenCap : DnD_Boolean { }
+
+Actor DnD_QuestReward_15PercentDamage : PowerDamage {
+	damagefactor "normal", 1.15
+	powerup.duration 0x7FFFFFFF
+}
+
+Actor DnD_QuestReward_100BonusCap : DnD_Boolean { }
+
+Actor DnD_QuestReward_KillingSpree15 : DnD_Boolean { }
+
+Actor DnD_QuestReward_HealingIncrease25 : DnD_Boolean { }
+
+Actor DnD_QuestReward_ReducedBossDmg : PowerProtection {
+	damagefactor "normal", 1.0
+
+	DamageFactor "Cyber", 0.85
+	DamageFactor "CyberBullet", 0.85
+	DamageFactor "CyberFire", 0.85
+	DamageFactor "CyberLightning", 0.85
+	DamageFactor "CyberIce", 0.85
+	DamageFactor "CyberSlow", 0.85
+	DamageFactor "CyberGreen", 0.85
+	
+	DamageFactor "BigSpider", 0.85
+	DamageFactor "BigSpiderBullet", 0.85
+	DamageFactor "BigSpiderFire", 0.85
+	DamageFactor "BigSpiderGreen", 0.85
+	DamageFactor "BigSpiderVoid", 0.85
+	DamageFactor "BigSpiderTornado", 0.85
+	DamageFactor "BigSpiderPercent", 0.85
+	DamageFactor "BigSpiderIce", 0.85
+	DamageFactor "BigSpiderYellow", 0.85
+	DamageFactor "BigSpiderDark", 0.85
+	
+	powerup.duration 0x7FFFFFFF
+}
+
+Actor DnD_QuestReward_EliteDropBonus : DnD_Boolean { }
+Actor DnD_QuestReward_ExtraArtiDmg : DnD_Boolean { }
+
+Actor DnD_QuestReward_ArtiDmgPower : Powerdamage {
+	damagefactor "normal", 1.25
+	powerup.duration -15
+}
+
+Actor DnD_QuestReward_EnergyDamage : PowerDamage { 
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
+	
+	DamageFactor "Energy", 1.3
+	DamageFactor "EnergyFull", 1.3
+	DamageFactor "P_Rail", 1.3
+	DamageFactor "P_RailFull", 1.3
+}
+
+Actor DnD_QuestReward_HealingAndCapIncrease : DnD_Boolean { }
+
+Actor DnD_QuestReward_Slot2DmgIncrease : DnD_Boolean { }
+Actor DnD_QuestReward_ShotgunDmgIncrease : DnD_Boolean { }
+
+Actor DnD_ArmorCapBonus : DnD_Boolean { }
+Actor DnD_QuestReward_ArmorCapIncrease : DnD_Boolean { }
+
+Actor DnD_QuestReward_UndeadDamageIncrease : PowerDamage {
+	damagefactor "normal", 1.0
+	DamageFactor "BulletMagicX", 1.3
+	DamageFactor "Magic", 1.3
+	DamageFactor "MagicFire", 1.3
+	DamageFactor "SoulType", 1.3
+	DamageFactor "Explosives_Magic", 1.3
+	
+	DamageFactor "BulletMagicXFull", 1.3
+	DamageFactor "MagicFull", 1.3
+	DamageFactor "MagicFireFull", 1.3
+	DamageFactor "SoulTypeFull", 1.3
+	DamageFactor "Explosives_MagicFull", 1.3
+	
+	powerup.duration 0x7FFFFFFF
+}
+
+Actor DnD_QuestReward_SuperWeaponDamage : PowerDamage {
+	damagefactor "normal", 1.25
+	powerup.duration 0x7FFFFFFF
+}
+
+Actor DnD_QuestReward_TalentIncrease : DnD_Boolean { }
+Actor DnD_QuestReward_SpecialAmmoDamage : DnD_Boolean { }
+Actor DnD_QuestReward_MoreCredit : DnD_Boolean { }
+
+// Quest checker items (these items will be checked for completion of quests)
+Actor DnD_HealthLess50 : DnD_Boolean { }
+Actor DnD_WeaponFiredOther : DnD_Boolean { }
+Actor DnD_BerserkQuest_SpreeCounter : DnD_Info { }
+Actor DnD_MasterHealerQuest_HealAmount : DnD_Info { }
+Actor DnD_BossKillQuest_Counter : DnD_Info { }
+Actor DnD_EliteKillQuest_Counter : DnD_Info { }
+Actor DnD_UseNoArtifact : DnD_Boolean { }
+Actor DnD_UsingEnergy : DnD_Boolean { }
+Actor DnD_UsingEnergyFailed : DnD_Boolean { }
+Actor DnD_UseNoHealth : DnD_Boolean { }
+
+Actor DnD_UseOnlyPistol : DnD_Boolean { }
+
+Actor DnD_UseNoShotgun : DnD_Boolean { }
+
+Actor DnD_BoughtArmor : DnD_Boolean { }
+Actor DnD_ShotUndead : DnD_Boolean { }
+
+Actor DnD_UsedSuperWeapon : DnD_Boolean { }
+
+Actor DnD_UsedNonTalent : DnD_Boolean { }
+Actor DnD_UsedNonSpecial : DnD_Boolean { }
+Actor DnD_MoneySpentQuest : DnD_Info { }
+
+Actor DnD_QuestReward_DreamingGodBonus : DnD_Boolean { }
+Actor DnD_QuestReward_TorrasqueBonus : DnD_Boolean { }
+Actor DnD_QuestReward_MordecqaiBonus : PowerDamage { 
+	damagefactor "normal", 1.0
+	
+	damagefactor "Fire", 2.0
+	damagefactor "FireFull", 2.0
+	DamageFactor "Melee_Fire", 2.0
+	DamageFactor "Melee_FireFull", 2.0
+	
+	damagefactor "Lightning", 2.0
+	damagefactor "LightningFull", 2.0
+	
+	damagefactor "P_Ice", 2.0
+	damagefactor "P_IceFull", 2.0
+	
+	damagefactor "AcidRifle", 2.0
+	damagefactor "AcidRifleFull", 2.0
+	
+	powerup.duration 0x7FFFFFFF
+}
+Actor DnD_QuestReward_GodSlayerBonus : DnD_Boolean { }

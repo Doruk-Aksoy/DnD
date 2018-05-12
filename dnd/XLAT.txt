@@ -1,0 +1,6 @@
+include "xlat/doom.txt"
+
+11 = USE,		ACS_ExecuteAlways (1003)
+51 = USE,		ACS_ExecuteAlways (1003, 0, 1)
+52 = WALK,		ACS_ExecuteAlways (1003)
+124 = WALK,		ACS_ExecuteAlways (1003, 0, 1)

@@ -1,0 +1,679 @@
+Actor DreamerBurnCount : Inventory {
+	inventory.amount 1
+	inventory.maxamount 70 // decrease by one every 35 tic
+}
+
+actor pistolcasing
+{
+	PROJECTILE
+	+CLIENTSIDEONLY
+	+DONTSPLASH
+	+DOOMBOUNCE
+	-ACTIVATEIMPACT
+	-NOGRAVITY
+	-NOBLOCKMAP
+	bouncefactor 0.6
+	scale 0.1
+    Radius 3
+    SeeSound "Weapons/bulletcasing"
+    States
+    {
+    Spawn:
+		MCAS ABCDEFGH 2
+    Death:
+        MCAS C 0 A_Jump (85, "death1", "death2", "death3")
+        MCAS C 0 A_Jump (85, "death1", "death2", "death3")
+        MCAS C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		MCAS A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		MCAS C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		MCAS E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		MCAS G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+actor revolvercasing {
+	PROJECTILE
+	+CLIENTSIDEONLY
+	+DONTSPLASH
+	+DOOMBOUNCE
+	-ACTIVATEIMPACT
+	-NOGRAVITY
+	-NOBLOCKMAP
+	bouncefactor 0.6
+	scale 0.25
+    Radius 3
+    SeeSound "Weapons/bulletcasing"
+	States {
+		Spawn:
+			PCSN ABCDEFGH 3
+			loop
+		Death:
+			TNT1 A 0
+			TNT1 A 0 A_Jump(255,"Death1","Death2","Death3","Death4")
+			TNT1 A 1
+			loop
+		Death1:
+			PCSN B 2100
+			PCSN BBBBBBBBBB 1 A_FadeOut(0.1)
+			Stop
+		Death2:
+			PCSN D 2100
+			PCSN DDDDDDDDDD 1 A_FadeOut(0.1)
+			Stop
+		Death3:
+			PCSN H 2100
+			PCSN HHHHHHHHHH 1 A_FadeOut(0.1)
+			Stop
+		Death4:
+			PCSN I 2100
+			PCSN IIIIIIIIII 1 A_FadeOut(0.1)
+			Stop
+    }
+}
+
+actor shotguncasing
+{
+	PROJECTILE
+	+CLIENTSIDEONLY
+	+DONTSPLASH
+	+DOOMBOUNCE
+	-ACTIVATEIMPACT
+	-NOGRAVITY
+	-NOBLOCKMAP
+	bouncefactor 0.6
+	scale 0.25
+    Radius 3
+    seesound "Weapons/shotguncasing"
+    States
+    {
+    Spawn:
+        LCSC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+    Death:
+        LCSC C 0 A_Jump (85, "death1", "death2", "death3")
+        LCSC C 0 A_Jump (85, "death1", "death2", "death3")
+        LCSC C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		LCSC A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		LCSC C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		LCSC E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		LCSC G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+actor leadspittercasing : shotguncasing
+{
+	Scale 0.15
+    States
+    {
+    Spawn:
+        L2SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L2SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+    Death:
+        L2SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L2SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L2SC C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		L2SC A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		L2SC C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		L2SC E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		L2SC G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+actor flechettecasing : shotguncasing
+{
+    States
+    {
+    Spawn:
+        L3SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L3SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+    Death:
+        L3SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L3SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L3SC C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		L3SC A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		L3SC C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		L3SC E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		L3SC G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+actor electriccasing : shotguncasing
+{
+    States
+    {
+    Spawn:
+        L4SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L4SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+    Death:
+        L4SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L4SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L4SC C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		L4SC A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		L4SC C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		L4SC E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		L4SC G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+actor piercecasing : shotguncasing
+{
+    States
+    {
+    Spawn:
+        L5SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        L5SC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+    Death:
+        L5SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L5SC C 0 A_Jump (85, "death1", "death2", "death3")
+        L5SC C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		L5SC A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		L5SC C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		L5SC E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		L5SC G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+actor exshotguncasing : shotguncasing
+{
+	Translation "13:15=94:96", "16:47=80:111", "48:79=80:95", "174:191=96:111", "208:223=80:95", "236:239=94:97"
+    States
+    {
+    Spawn:
+        LCSC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        LCSC H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+    Death:
+        LCSC C 0 A_Jump (85, "death1", "death2", "death3")
+        LCSC C 0 A_Jump (85, "death1", "death2", "death3")
+        LCSC C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		LCSC A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		LCSC C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		LCSC E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		LCSC G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+actor bulletcasing
+{
+	PROJECTILE
+	+CLIENTSIDEONLY
+	+DONTSPLASH
+	+DOOMBOUNCE
+	-ACTIVATEIMPACT
+	-NOGRAVITY
+	-NOBLOCKMAP
+	bouncefactor 0.6
+	scale 0.2
+    Radius 3
+    SeeSound "Weapons/bulletcasing"
+    States
+    {
+    Spawn:
+        MCAS A 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS A 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS B 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS B 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS C 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS C 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS D 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS D 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS E 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS E 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS F 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS F 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS G 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS G 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS H 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS H 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS A 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS A 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS B 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS B 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS C 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS C 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS D 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS D 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS E 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS E 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS F 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS F 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS G 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS G 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS H 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+        MCAS H 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+    Death:
+        MCAS C 0 A_Jump (85, "death1", "death2", "death3")
+        MCAS C 0 A_Jump (85, "death1", "death2", "death3")
+        MCAS C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+		MCAS A 10 a_fadeout(0.05)
+        goto death0
+		death1:
+		MCAS C 10 a_fadeout(0.05)
+        goto death1
+		death2:
+		MCAS E 10 a_fadeout(0.05)
+        goto death2
+		death3:
+		MCAS G 10 a_fadeout(0.05)
+        goto death3
+    }
+}
+
+Actor silverbulletcasing : bulletcasing {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.13,1.13,1.13]", "80:111=%[0.13,0.35,0.47]:[0.95,1.22,2.00]"
+}
+
+actor shotgunsmoke
+{
+	vspeed 3
+	renderstyle translucent
+	scale 0.05
+	alpha 0.25
+	+clientsideonly
+	+NOGRAVITY
+	States
+	{
+		spawn:
+		death:
+		SMOK ABCDEFGHIJKLNOPQ 1
+		stop
+	}
+}
+
+actor chaingunsmoke
+{
+	vspeed 3
+	renderstyle translucent
+	scale 0.04
+	alpha 0.25
+	+clientsideonly
+	+NOGRAVITY
+	States
+	{
+		spawn:
+		death:
+		SMOK ABCDEFGHIJKLNOPQ 1
+		stop
+	}
+}
+
+actor CASINGSMOKE
+{
+	vspeed 1
+	renderstyle translucent
+	scale 0.025
+	alpha 0.2
+	+clientsideonly
+	+NOGRAVITY
+	States
+	{
+		spawn:
+		death:
+		SMOK ABCDEFGHIJKLNOPQ 1
+		stop
+	}
+}
+
+actor bulletCASINGSMOKE
+{
+	vspeed 1
+	renderstyle translucent
+	scale 0.02
+	alpha 0.18
+	+clientsideonly
+	+NOGRAVITY
+	States
+	{
+		spawn:
+		death:
+		SMOK ABCDEFGHIJKLNOPQ 1
+		stop
+	}
+}
+
+ACTOR AkimboClipDrop
+{
+   Radius 3
+   Height 5
+   Speed 8
+   Scale 0.2
+   BounceSound "Clip/Akimbo"
+   PROJECTILE
+   -NOGRAVITY
+   +BOUNCEONACTORS
+   +BOUNCEONCEILINGS
+   Gravity 0.75
+   BounceType Doom
+   BounceCount 3
+   BounceFactor 0.6
+   +CLIENTSIDEONLY
+   States
+   {
+   Spawn:
+      CLP1 A 0
+      CLP1 ABCDEFGH 1
+      Loop
+   Death:
+      CLP1 A 0 A_SpawnItemEx("AkimboClipLand")
+      stop
+   }
+}
+
+actor AkimboClipLand
+{
+	-NOGRAVITY
+	+FLOORCLIP
+	+CLIENTSIDEONLY
+    Scale 0.2
+	States
+	{
+	Spawn:
+	  TNT1 A 0
+	  TNT1 A 0 A_Jump(256, "Spawn1","Spawn2")
+	  stop
+	Spawn1:
+	  CLP1 J 1
+	  Goto Ded
+	Spawn2:
+	  CLP1 K 1
+	  Goto Ded
+	Ded:
+	  "####" "#" 210 A_CheckSight("Fadying")
+	  Loop
+	Fadying:
+	  "####" "#" 1 A_FadeOut(0.1)
+	  Wait
+   }
+}
+
+ACTOR AcidRifleClipDrop : AkimboClipDrop
+{
+   Scale 0.45
+   BounceSound "weapons/largeclip"
+   States
+   {
+   Spawn:
+      CLP3 ABCDEFGH 1
+      Loop
+   Death:
+      TNT1 A 0 A_SpawnItemEx("AcidClipLand")
+      stop
+   }
+}
+
+actor AcidClipLand
+{
+	-NOGRAVITY
+	+FLOORCLIP
+	+CLIENTSIDEONLY
+    Scale 0.45
+	States
+	{
+	Spawn:
+	  TNT1 A 0
+	  TNT1 A 0 A_Jump(256, "Spawn1","Spawn2")
+	  stop
+	Spawn1:
+	  CLP3 C 1
+	  Goto Ded
+	Spawn2:
+	  CLP3 F 1
+	  Goto Ded
+	Ded:
+	  "####" "#" 210 A_CheckSight("Fadying")
+	  Loop
+	Fadying:
+	  "####" "#" 1 A_FadeOut(0.1)
+	  Wait
+   }
+}
+
+ACTOR MGClip2Drop : AkimboClipDrop
+{
+   Scale 0.7
+   BounceSound "weapons/largeclip"
+   States
+   {
+   Spawn:
+      CLP2 A 0
+      CLP2 ABCD 1
+      Loop
+   Death:
+      CLP2 A 0 A_SpawnItemEx("MGClip2Land")
+      stop
+   }
+}
+
+actor MGClip2Land
+{
+	-NOGRAVITY
+	+FLOORCLIP
+	+CLIENTSIDEONLY
+    Scale 0.7
+	States
+	{
+	Spawn:
+	  TNT1 A 0
+	  CLP2 A 1 A_FadeOut(0.05)
+	  Loop
+   }
+}
+
+Actor FlameThrowerFuelTankDrop : AkimboClipDrop {
+   Scale 0.9
+   BounceSound "Flamethrower/FuelBounce"
+   States {
+	   Spawn:
+		  FTAN ABCDEFGH 1
+		  Loop
+	   Death:
+		  TNT1 A 0 A_SpawnItemEx("FlameThrowerFuelTankDropLand")
+		  stop
+   }
+}
+
+actor FlameThrowerFuelTankDropLand
+{
+	-NOGRAVITY
+	+FLOORCLIP
+	+CLIENTSIDEONLY
+    Scale 0.9
+	States
+	{
+	Spawn:
+	  TNT1 A 0 NoDelay A_Jump(128, "Flip")
+	  FTAN C 1 A_FadeOut(0.05)
+	  Loop
+	Flip:
+	  FTAN G 1 A_FadeOut(0.05)
+	  Loop
+   }
+}

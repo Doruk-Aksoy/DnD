@@ -1,0 +1,1250 @@
+ACTOR FusionSpider : Arachno2
+{
+  OBITUARY "%o was vaporized by a fusion cannon Arachnotron"
+  Health 500
+  Radius 64
+  Height 64
+  Mass 600
+  Speed 12
+  PainChance 128   
+  SEESOUND "baby/sight"
+  PainSound "Arachnotron/Pain"
+  DEATHSOUND "baby/death"
+  ACTIVESOUND "baby/active"
+  DamageFactor "Arachno", 0.0
+  DamageFactor "ArachnoExp", 0.0
+  DamageFactor "ArachnoBullet", 0.0
+  DamageFactor "ArachnoFire", 0.0
+  DamageFactor "ArachnoVoid", 0.0
+  DamageFactor "ArachnoGreen", 0.0
+  DamageFactor "ArachnoYellow", 0.0
+  MONSTER
+  Species "Spider"
+  Tag "Fusion Spider"
+  +DONTHURTSPECIES
+  +FloorClip
+  +MissileMore
+  +MissileEvenMore
+  +DONTBLAST
+  states
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_FUSIONSPIDER, DND_ENERGY_WEAKNESS)
+Idle:
+    FSPI AB 10 A_Look
+    Loop
+  See:
+    FSPI A 20 Fast
+    FSPI A 3 Fast A_BabyMetal
+    FSPI ABBCC 3 Fast A_Chase
+    FSPI D 3 Fast A_BabyMetal
+    FSPI DEEFF 3 Fast A_Chase
+    Goto See+1
+  Missile:
+    FSPI A 16 Fast BRIGHT A_FaceTarget
+    FSPI A 0 A_FaceTarget
+    FSPI G 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,0)
+    FSPI H 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,5)
+    FSPI A 0 A_FaceTarget
+    FSPI G 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,2)
+    FSPI H 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,-5)
+    FSPI A 0 A_FaceTarget
+    FSPI G 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,-2)
+    FSPI H 0 BRIGHT A_CustomMissile("FusionShot",24,0,10)
+    FSPI H 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,-10)
+    FSPI H 1 BRIGHT A_SpidRefire
+    Goto Missile+1
+  Pain:
+    FSPI I 3 Fast
+	TNT1 A 0 A_SpawnDebris("MetalScrap")
+    FSPI I 3 Fast A_Pain
+    Goto See+1
+  Death:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+  GaveSoul:
+    FSPI J 20 A_Scream
+    FSPI K 7 A_NoBlocking
+	TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+    FSPI LMNO 7
+    FSPI P -1 A_KillMaster
+    Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		FSPI J 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    FSPI PONMLKJ 5
+    Goto See+1
+  }
+}
+
+ACTOR FusionShot
+{
+  Radius 10
+  Height 10
+  Speed 18
+  Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))  
+  DamageType "ArachnoVoid"
+  Scale 1.0   
+  RENDERSTYLE Add
+  SEESOUND "fusionspid/see" 
+  DEATHSOUND "Enforcer/Hit"
+  PROJECTILE
+  Decal PlasmaScorchLower
+  Scale 0.75
+  +DONTBLAST
+  states
+  {
+  Spawn:
+  	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    FPLS AAABBB 1 BRIGHT A_SpawnItemEx("FusionTrail", -(MomX/1.6), -(MomY/1.6), (MomZ/1.6*-1), (MomX/1.6), (MomY/1.6), (MomZ/1.6), -Angle, 138)
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    FPLS CDEFG 3 BRIGHT
+    Stop
+  }
+}
+
+ACTOR FusionTrail
+{
+  Scale 0.75
+  Radius 8
+  Height 6
+  Damage 0
+  Projectile
+  +NoBlockMap
+  +DONTSPLASH
+  RenderStyle Add
+  Alpha 0.5
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    FPLS A 0
+    FPLS A 0 A_Jump(128, 4)
+    FPLS AAABBB 2 Bright A_FadeOut(0.12)
+    Loop
+  }
+}
+
+ACTOR HellforgeSpider : DnD_BaseEnemy
+{
+  OBITUARY "%o was charred to smithereens by a Hellforge Spider"
+  Health 700
+  Radius 64
+  Height 64
+  Mass 600
+  Scale 1.1
+  Speed 12
+  PainChance 128   
+  SEESOUND "baby/sight"
+  PAINSOUND "demon/pain2"
+  DEATHSOUND "baby/death"
+  ACTIVESOUND "baby/active"
+  DropItem "SoulAmmoSpawner", 128
+  MONSTER
+  +FloorClip
+  +MissileMore
+  +MissileEvenMore
+	Species "Spider"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	DamageFactor "Arachno", 0.0
+	DamageFactor "ArachnoExp", 0.0
+	DamageFactor "ArachnoBullet", 0.0
+	DamageFactor "ArachnoFire", 0.0
+	DamageFactor "ArachnoVoid", 0.0
+	DamageFactor "ArachnoGreen", 0.0
+	DamageFactor "ArachnoYellow", 0.0
+	Tag "Hellforge Spider"
+  +QUICKTORETALIATE
+  states
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_HELLFORGESPIDER)
+Idle:
+    TNT1 A 0 A_TakeInventory("MultiShot", 99)
+    ESPD AB 10 A_Look
+    Loop
+  See:
+    TNT1 A 0 A_TakeInventory("MultiShot", 99)
+    ESPD A 20 Fast
+    ESPD A 3 Fast A_BabyMetal
+    ESPD ABBCC 3 Fast A_Chase
+    ESPD D 3 Fast A_BabyMetal
+    ESPD DEEFF 3 Fast A_Chase
+    Goto See+2
+  Missile:
+    ESPD A 16 Fast A_FaceTarget
+    ESPD G 3 Fast BRIGHT
+	TNT1 A 0 A_JumpIfInventory("MultiShot", 4, "Multi")
+	TNT1 A 0 A_FaceTarget
+    ESPD H 3 Fast BRIGHT A_CustomMissile("HFSpiderShot",24)
+	TNT1 A 0 A_GiveInventory("MultiShot", 1)
+    ESPD G 3 Fast BRIGHT
+	TNT1 A 0 A_FaceTarget
+    ESPD H 3 Fast BRIGHT A_CustomMissile("HFSpiderShot",24)
+	TNT1 A 0 A_GiveInventory("MultiShot", 1)
+    ESPD G 3 Fast BRIGHT
+	TNT1 A 0 A_FaceTarget
+    ESPD H 3 Fast BRIGHT A_CustomMissile("HFSpiderShot",24)
+	TNT1 A 0 A_GiveInventory("MultiShot", 1)
+    ESPD H 1 BRIGHT A_SpidRefire
+    Goto Missile+1
+  Multi:
+    ESPD G 3 Fast BRIGHT
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_CustomMissile("HFSpiderShot",24,0, -5)
+	TNT1 A 0 A_CustomMissile("HFSpiderShot",24,0, -10)
+	TNT1 A 0 A_CustomMissile("HFSpiderShot",24,0, 5)
+	TNT1 A 0 A_CustomMissile("HFSpiderShot",24,0, 10)	
+    ESPD H 3 Fast BRIGHT A_CustomMissile("HFSpiderShot",24)  
+	TNT1 A 0 A_TakeInventory("MultiShot", 99)
+	Goto Missile+1
+  Pain:
+    TNT1 A 0 A_TakeInventory("MultiShot", 99)
+    ESPD I 3 Fast
+    ESPD I 3 Fast A_Pain
+    Goto See+2
+  Death:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+  GaveSoul: 
+    ESPD J 20 A_Scream
+    ESPD K 7 A_NoBlocking
+	TNT1 AAAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+    ESPD LMNO 7
+    ESPD P -1 A_KillMaster
+    Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		ESPD J 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+    ESPD PONMLKJ 5
+    Goto See+2
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+  }
+}
+
+Actor Multishot : Inventory { inventory.maxamount 4 }
+
+Actor HellForgeSpiderExp : BaseExplosionDamage
+{
+	DamageType "ArachnoVoid"
+	Obituary "%o was charred to smithereens by a Hellforge Spider"
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+		Stop
+	}
+}
+
+ACTOR HFSpiderShot
+{
+  Radius 8
+  Height 10
+  Speed 36
+  Damage (random(15,30) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "ArachnoVoid"
+  Scale 1.0   
+  RENDERSTYLE Add
+  SEESOUND "HFSpid/See" 
+  DEATHSOUND "HFSpid/Die"
+  PROJECTILE
+  Decal PlasmaScorchLower
+  Scale 0.825
+  +DONTBLAST
+  states
+  {
+  Spawn:
+  	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    ESPJ AB 3 Bright
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 A 0 A_SpawnItem("HellForgeSpiderExp")
+    ESPJ CDEFGHI 2 Bright
+    Stop
+  }
+}
+
+ACTOR RailArachnotron : Arachno2
+{
+	//$Category "ZDoom Monster pack"
+	Health 450
+	Radius 64
+	Height 64
+	Mass 600
+	Speed 12
+	PainChance 192
+	Damage 30
+	Monster
+	+FLOORCLIP
+	Species "Spider"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	DamageFactor "Arachno", 0.0
+	DamageFactor "ArachnoExp", 0.0
+	DamageFactor "ArachnoBullet", 0.0
+	DamageFactor "ArachnoFire", 0.0
+	DamageFactor "ArachnoVoid", 0.0
+	DamageFactor "ArachnoGreen", 0.0
+	DamageFactor "ArachnoYellow", 0.0
+	SeeSound "baby/sight"
+	PainSound "Arachnotron/Pain"
+	DeathSound "baby/death"
+	ActiveSound "baby/active"
+	Obituary "%o was railed by an arachnotron."
+	Tag "Rail Arachnotron"
+	Decal RedRailScorch
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_RAILARACHNOTRON, DND_ENERGY_WEAKNESS)
+	Idle:
+		RSPI AB 10 A_Look
+		Loop
+	See:
+		RSPI A 20 Fast
+		RSPI A 3 Fast A_BabyMetal
+		RSPI ABBCC 3 Fast A_Chase
+		RSPI D 3 Fast A_BabyMetal
+		RSPI DEEFF 3 Fast A_Chase
+		Goto See+1
+	Missile:
+		RSPI A 0 A_PlaySound ("baby/chargerailgun")
+		RSPI A 16 Fast A_FaceTarget
+		RSPI G 16 Fast A_FaceTarget
+		RSPI H 4 Fast A_CustomRailgun (25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 0, AA0000, FF0000, 0, 1, 0, "ArachnoPuff")
+		RSPI G 8 Fast
+		Goto See+1
+	Pain:
+		RSPI I 3 Fast
+		TNT1 A 0 A_SpawnDebris("MetalScrap")
+		RSPI I 3 Fast A_Pain
+		Goto See+1
+	Death:
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+	GaveSoul:	
+		RSPI J 20 A_Scream
+		RSPI K 7 A_NoBlocking
+		TNT1 AAAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		RSPI LMNO 7
+		RSPI P -1 A_KillMaster
+		Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		RSPI J 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul		
+    Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		RSPI P 5
+		RSPI ONMLKJ 5
+		Goto See+1
+	}
+}
+
+Actor ArachnoPuff : BulletPuff
+{	
+	Obituary "%o was railed by an arachnotron."
+	DamageType "Arachno"
+	States
+	{
+	  Spawn:
+		TNT1 A 1
+		Goto Melee
+	  Melee:
+		TNT1 A 1
+		Stop
+	}
+}
+
+Actor ArachnoBullet : ZombieBullet {
+	Damage (random(1, 4) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ArachnoBullet"
+}
+
+ACTOR BabyDemolisher : Arachno2
+{
+  Health 700
+  PainChance 64
+  Scale 1.2
+  Height 64
+  Radius 64
+  Mass 600
+  Speed 8
+  SeeSound "minidemo/sight"
+  ActiveSound "minidemo/active"
+  Painsound "monsters/fusionitepain"
+  DeathSound "minidemo/death"
+  AttackSound ""
+  DropItem "SoulAmmoSpawner", 128
+  DamageFactor "Arachno", 0.0
+  DamageFactor "ArachnoExp", 0.0
+  DamageFactor "ArachnoBullet", 0.0
+  DamageFactor "ArachnoFire", 0.0
+  DamageFactor "ArachnoVoid", 0.0
+  DamageFactor "ArachnoGreen", 0.0
+  DamageFactor "ArachnoYellow", 0.0
+  Tag "Baby Demolisher"
+  Species "Arachno"
+  MONSTER
+  +MISSILEMORE
+  +MISSILEEVENMORE
+  +DONTHURTSPECIES
+  +BOSSDEATH
+  +DONTBLAST
+  Obituary "%o didn't expect demons to create this kind of a spider."
+  States
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BABYDEMOLISHER, DND_ENERGY_WEAKNESS | DND_MOBILITY)
+Idle:
+    MSPI A 10 A_Look
+    Loop
+  See:
+    TNT1 A 0 A_Jump(64,"Rush")
+    MSPI A 2 Fast A_BabyMetal
+    MSPI ABBCC 2 Fast A_Chase
+    MSPI D 2 Fast A_BabyMetal
+    MSPI DEEFF 2 Fast A_Chase
+    Goto See
+  Rush:
+	TNT1 A 0 A_BabyMetal
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostA",0,0,0,0,0,0,0,128)		
+	MSPI A 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostA",0,0,0,0,0,0,0,128)		
+	MSPI A 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostB",0,0,0,0,0,0,0,128)
+	MSPI B 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostB",0,0,0,0,0,0,0,128)
+	MSPI B 1 A_Chase	
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostC",0,0,0,0,0,0,0,128)
+	MSPI C 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostC",0,0,0,0,0,0,0,128)
+	MSPI C 1 A_Chase
+	TNT1 A 0 A_BabyMetal	
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostD",0,0,0,0,0,0,0,128)
+	MSPI D 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostD",0,0,0,0,0,0,0,128)
+	MSPI D 1 A_Chase	
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostE",0,0,0,0,0,0,0,128)
+	MSPI E 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostE",0,0,0,0,0,0,0,128)
+	MSPI E 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostF",0,0,0,0,0,0,0,128)
+	MSPI F 1 A_Chase
+	TNT1 A 0 A_SpawnItemEx("BabyDemoGhostF",0,0,0,0,0,0,0,128)
+	MSPI F 1 A_Chase	
+	TNT1 A 0 A_Jump(192,"See")		
+	Loop	
+  Missile:
+    TNT1 A 0 A_Jump(128,"Plasma")
+  Normal:
+    TNT1 A 0 A_PlaySound("monsters/darkmasterwind")
+    MSPI A 10 Fast A_FaceTarget
+	TNT1 A 0 Bright A_PlaySoundEx("weapons/minigunfire","Weapon")
+	TNT1 AA 0 A_CustomMissile("ArachnoBullet", 28, 0, frandom(-25.0, 25.0), 0, 0)
+    MSPI Q 2 Fast Bright
+    MSPI R 2 Fast Bright A_PlaySound("monsters/darkmasterwind2")
+	TNT1 A 0 A_Jump(8,"See")
+    TNT1 A 0 A_SpidRefire
+    Goto Normal+2
+  Plasma:	
+    TNT1 A 0 A_PlaySound("weapons/plasmacharge")
+    MSPI A 10 Fast A_FaceTarget
+    MSPI H 3 Fast Bright A_CustomMissile("BabyDemoBall",20,0,Random(-16,16))
+    MSPI G 3 Fast Bright A_CustomMissile("BabyDemoBall",20,0,Random(-16,16))
+    TNT1 A 0 A_Jump(8,"See")
+    TNT1 A 0 A_SpidRefire
+    Goto Plasma+2
+  Pain:
+    TNT1 A 0 A_Jump(128,"PainMissile")
+    MSPI I 12 Fast A_Pain
+    Goto See
+  PainMissile:
+	MSPI I 12 Fast A_Pain
+    Goto Missile
+  Death:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+  GaveSoul: 
+    MSPI I 25 A_Scream
+	MSPI J 6
+	TNT1 AAAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	MSP2 KKKKKKKK 3 Bright A_CustomMissile("ExplosionFX", random(20,40), random(10,-10), random(0,360), 2, random(0,360))
+    MSPI L 6 A_NoBlocking
+    MSPI MN 6
+    MSPI O 6
+    MSPI P -1 A_KillMaster
+    Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		MSPI I 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+    MSPI PONMLKJ 5
+    Goto See+1
+  }
+}
+
+ACTOR BabyDemoGhostA
+{
+Alpha 0.7
+Scale 1.2
+RENDERSTYLE Translucent
++CLIENTSIDEONLY
++NOINTERACTION
+States
+{
+Spawn:
+    TNT1 A 3
+    MSPI A 2 A_FadeOut(0.10)
+    Goto Spawn+1
+    }
+}
+
+ACTOR BabyDemoGhostB : BabyDemoGhostA
+{   
+States
+{
+Spawn:
+    TNT1 A 3
+    MSPI B 2 A_FadeOut(0.10)
+    Goto Spawn+1
+    }
+}
+
+ACTOR BabyDemoGhostC : BabyDemoGhostA
+{   
+States
+{
+Spawn:
+    TNT1 A 3
+    MSPI C 2 A_FadeOut(0.10)
+    Goto Spawn+1
+    }
+}
+
+ACTOR BabyDemoGhostD : BabyDemoGhostA
+{   
+States
+{
+Spawn:
+    TNT1 A 3
+    MSPI D 2 A_FadeOut(0.10)
+    Goto Spawn+1
+    }
+}
+
+ACTOR BabyDemoGhostE : BabyDemoGhostA
+{   
+States
+{
+Spawn:
+    TNT1 A 3
+    MSPI D 2 A_FadeOut(0.10)
+    Goto Spawn+1
+    }
+}
+
+ACTOR BabyDemoGhostF : BabyDemoGhostA
+{   
+States
+{
+Spawn:
+    TNT1 A 3
+    MSPI D 2 A_FadeOut(0.10)
+    Goto Spawn+1
+    }
+}
+
+ACTOR BabyDemoBall : FusionShot
+{
+  Speed 25
+  Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "ArachnoGreen"
+  SeeSound "weapons/plasmaf"
+  DeathSound "weapons/plasmax"
+  States
+  {
+  Spawn:
+  	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    CFX6 A 1 Bright A_SpawnItemEx("BabyDemoTrail",0,0,0,0,0,0,0,128,0)
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    TNT1 A 0 A_SpawnDebris("GreenSparkFX")
+    CFX6 BCDE 3 Bright
+    Stop
+  }
+}
+
+ACTOR BabyDemoTrail
+{
+Scale 0.75
+Radius 2
+Height 2
++NOGRAVITY
++NOBLOCKMAP
++CLIENTSIDEONLY
+States
+{
+Spawn:
+	TNT1 A 1
+    CFX6 A 1 Bright A_FadeOut(0.15)
+    Goto Spawn+1
+    }
+}
+
+actor GreenSparkFX : ExplosiveSpark
+{
+	Renderstyle Add
+	Alpha 0.8
+    States
+    {
+      Spawn:
+        DXSK C 1 BRIGHT A_FadeOut(0.01)
+        loop
+    }
+}
+
+Actor Vore : DnD_BaseEnemy
+{
+  //$Category Monsters
+  Health 700
+  Speed 6
+  Radius 48
+  Height 64
+  XSCale 1.3
+  YScale 1.2
+  Mass 1000
+  PainChance 40
+  RadiusDamageFactor 0.75
+  Monster
+  +FloorClip
+  +NoTarget
+  +BOSSDEATH
+  +DONTBLAST
+  +USEKILLSCRIPTS
+  Obituary "%o couldn't escape a vore."
+  SeeSound "Vore/Sight"
+  ActiveSound "Vore/Active"
+  PainSound "Vore/Pain"
+  DeathSound "Vore/Death"
+  DamageFactor "Arachno", 0.0
+  DamageFactor "ArachnoExp", 0.0
+  DamageFactor "ArachnoBullet", 0.0
+  DamageFactor "ArachnoFire", 0.0
+  DamageFactor "ArachnoVoid", 0.0
+  DamageFactor "ArachnoGreen", 0.0
+  DamageFactor "ArachnoYellow", 0.0
+  DamageFactor "Fire", 0.5
+  DamageFactor "P_Ice", 0.5
+  DropItem "SoulAmmoSpawner", 128  
+  Species "Arachno"
+  Tag "Vore"
+  +DONTHURTSPECIES
+  States
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VORE, DND_HOMING)
+Idle:
+    VORE D 10 A_Look
+	Loop
+  See:
+    VORE AA 3 Fast A_Chase
+    VORE B 7 Fast A_Chase
+    VORE CC 3 Fast A_Chase
+    VORE D 7 Fast A_Chase
+    VORE EE 3 Fast A_Chase
+    VORE F 7 Fast A_Chase
+	Loop
+  Melee:
+  Missile:
+    TNT1 A 0 A_PlaySoundEx("Vore/Attack", "Body")
+	VORE GHHHH 4 Fast Bright A_FaceTarget
+	VORE II 4 Fast Bright A_FaceTarget
+	VORE J 8 Fast Bright A_CustomMissile("VoreFirepod", 32, 0, 0)
+    VORE JJ 4 Fast Bright A_FaceTarget
+	Goto See
+  Pain:
+	VORE K 4 Fast
+	VORE K 4 Fast A_Pain
+	Goto See
+  Death:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+  GaveSoul:
+	VORE L 6
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	VORE M 6 A_Scream
+	VORE N 6	
+	VORE O 6 A_NoBlocking
+	VORE P 8
+	VORE Q -1 A_KillMaster
+	Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		VORE L 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+    VORE QPONML 6
+    Goto See
+  }
+}
+
+Actor VoreExp : BaseExplosionDamage
+{
+	DamageType "ArachnoVoid"
+	Obituary "%o was no match for an archon of hell."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 90)
+		Stop
+	}
+}
+
+Actor VoreFirepod
+{
+  Radius 6
+  Height 8
+  Speed 16
+  FastSpeed 24
+  Damage (Random(20, 40) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "ArachnoVoid"
+  Projectile
+  +SeekerMissile
+  +DONTBLAST
+  RenderStyle Add
+  Alpha 0.85
+  SeeSound "Vore/Throw"
+  DeathSound "Vore/Hit"
+  Decal "RevenantScorch"
+  States
+  {
+  Spawn:
+  	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA A 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA A 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA B 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA B 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA C 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA C 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_JumpIfTargetInLOS(1, 360, 1)
+    Loop
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA A 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    VOBA A 1 Bright A_SpawnItemEx("VoreFirepodTrail", random(5, -5), 0, random(5, -1), 0, 0, 0, 180)
+    TNT1 A 0 A_JumpIfTargetInLOS(1, 360, 1)
+    Goto Spawn+5
+    TNT1 AAA 0 Bright A_SeekerMissile(90, 90, SMF_PRECISE)
+    Goto Spawn+5
+  Death:
+	TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    TNT1 A 0 A_SpawnItem("VoreExp")
+    VOBA DEFGHI 4 Bright
+    Stop
+  }
+}
+
+
+Actor VoreFirepodTrail
+{
+  Radius 1
+  Height 1
+  Speed 0
+  Projectile
+  RenderStyle Add
+  Alpha 0.9
+  +NoClip
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+  Death:
+    TNT1 A 3
+    VOBT ABCDE 3 Bright
+    Stop
+  }
+}
+
+Actor CommandoBullet1 : ZombieBullet {
+	Damage (random(1, 5) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ArachnoBullet"
+}
+
+Actor CommandoExplosion : BaseExplosionDamage {
+	Obituary "%o was torn to shreds by the chaingun commando."
+	DamageType "ArachnoExp"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(2 * random(4,5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+		Stop
+	}
+}
+
+Actor CommandoBullet2 : ZombieBullet {
+	Damage (random(1, 5) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ArachnoBullet"
+	States {
+		Death:
+		XDeath:
+			TNT1 A 0 A_SetScale(0.55, 0.55)
+			TNT1 AA 0 A_SpawnItem("ExpShellSoundEmitter")
+			TNT1 AA 0 A_SpawnDebris("ExplosiveSpark", 1)
+			TNT1 A 0 A_Jump(128, "Flip")
+			DKSX A 2
+			TNT1 A 0 A_SpawnItem("CommandoExplosion")
+			DKSX BCDEFG 2
+			DKSX HIJKL 1
+		Stop
+		Flip:
+			DKSX M 2
+			TNT1 A 0 A_SpawnItem("CommandoExplosion")
+			DKSX NOPQRS 2
+			DKSX TUVWX 1
+		Stop
+	}
+}
+
+Actor ChaingunCommando : ChaingunMajor
+{
+	Health 550
+	PainChance 64
+	Speed 10
+	Scale 1.1
+	Obituary "%o was torn to shreds by the chaingun commando."
+    SeeSound "ChaingunCommando/See"
+    PainSound "ChaingunCommando/Pain"
+    DeathSound "ChaingunCommando/Die"
+    DropItem "Chaingun" 0
+    DropItem "Clip"	
+	DropItem "Clip"	
+	+NODROPOFF
+	Species "Spider"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	DamageFactor "Arachno", 0.0
+	DamageFactor "ArachnoExp", 0.0
+	DamageFactor "ArachnoBullet", 0.0
+	DamageFactor "ArachnoFire", 0.0
+	DamageFactor "ArachnoVoid", 0.0
+	DamageFactor "ArachnoGreen", 0.0
+	DamageFactor "ArachnoYellow", 0.0
+	DamageFactor "Fire", 1.5
+	Tag "Chaingun Commando"
+  States
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CHAINGUNCOMMANDO, DND_SILVER_WEAKNESS | DND_MOBILITY)
+Idle:
+    CPSX AB 10 A_Look
+    Loop
+  See:
+    CPSX ABCD 4 Fast A_Chase
+    Loop
+  Missile:
+    TNT1 A 0 A_Jump(96, "ShockFire")
+    CPSX E 8 Fast Bright A_FaceTarget
+	TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+	TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
+    CPSX F 3 Fast Bright A_CustomMissile("CommandoBullet1", 32, 8, frandom(-22.5, 22.5))
+	TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+	TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
+	CPSX E 3 Fast Bright A_CustomMissile("CommandoBullet1", 32, 8, frandom(-22.5, 22.5))
+    CPSX F 1 Bright A_CPosRefire
+    Goto Missile+2
+  ShockFire:
+    TNT1 A 0 A_PlaySound("weapons/minigunup", CHAN_WEAPON)
+    CPSX Q 24 Fast A_FaceTarget
+    CPSX E 8 Fast Bright A_FaceTarget
+	TNT1 A 0 A_SpawnItemEx ("exshotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+	TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
+    CPSX F 3 Fast Bright A_CustomMissile("CommandoBullet2", 32, 8, frandom(-22.5, 22.5))
+	TNT1 A 0 A_SpawnItemEx ("exshotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+	TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
+	CPSX E 3 Fast Bright A_CustomMissile("CommandoBullet2", 32, 8, frandom(-22.5, 22.5))
+	CPSX F 1 Bright A_CPosRefire
+	Goto ShockFire+3
+  Pain:
+    CPSX G 3 Fast
+    CPSX G 3 Fast A_Pain
+	TNT1 A 0 A_Jump(128, "Dash")
+    Goto See
+  Dash:
+    TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_Jump(128, "OtherSide")
+	TNT1 A 0 ThrustThing(angle*256/360 + 64, 10, 0, 0)
+	Goto Missile
+  OtherSide:
+    TNT1 A 0 ThrustThing(angle*256/360 + 192, 10, 0, 0)
+	Goto Missile
+  Death:
+    CPSX H 5 A_StopSound(CHAN_WEAPON)
+    CPSX I 5 A_Scream
+    CPSX J 5 A_Fall
+	TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+    CPSX KLMNO 5
+    CPSX P -1 A_KillMaster
+    Stop
+  XDeath:
+  Death.Explosives:
+	TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+	TNT1 A 0 A_StopSound(CHAN_WEAPON)
+  	TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0) 
+	CPSX G 2 A_XSCream
+	CPSX G 1 A_NoBlocking
+	TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	TNT1 A -1 A_KillMaster
+    Stop
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    CPSX P 5
+    CPSX ONMLKJIH 5
+    Goto See
+		Death.P_Ice:
+			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+  }	
+}
+
+Actor ChaingunGeneral : ChaingunMajor
+{
+	Health 550
+	PainChance 64
+	Speed 10
+	Scale 1.1
+	Obituary "%o was pinned to the wall by the chaingun general."
+    SeeSound "BChaingunner/See"
+    PainSound "BChaingunner/Pain"
+    DeathSound "BChaingunner/Die"
+	ActiveSound "BChaingunner/Act"
+    DropItem "Chaingun" 0
+	+NODROPOFF
+	Species "Spider"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	DamageFactor "Arachno", 0.0
+	DamageFactor "ArachnoExp", 0.0
+	DamageFactor "ArachnoBullet", 0.0
+	DamageFactor "ArachnoFire", 0.0
+	DamageFactor "ArachnoVoid", 0.0
+	DamageFactor "ArachnoGreen", 0.0
+	DamageFactor "ArachnoYellow", 0.0
+	DamageFactor "Fire", 1.5
+	DropItem "Nailgun2Pickup", 128
+	Tag "Chaingun General"
+  States
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CHAINGUNGENERAL, DND_SILVER_WEAKNESS)
+Idle:
+    ECMI AB 10 A_Look
+    Loop
+  See:
+    ECMI ABCD 4 Fast A_Chase
+    Loop
+  Missile:
+    ECMI U 8 Fast A_FaceTarget
+	TNT1 A 0 A_PlaySound("weapons/NG2Fire")
+    ECMI F 3 Fast Bright A_CustomMissile("NailProjectileWeak", 36, 14)
+	TNT1 A 0 A_PlaySound("weapons/NG2Fire")
+	ECMI E 3 Fast Bright A_CustomMissile("NailProjectileWeak", 36, 14)
+    ECMI F 1 Bright A_CPosRefire
+    Goto Missile+2
+  Pain:
+    ECMI G 3 Fast
+    ECMI G 3 Fast A_Pain
+    Goto See
+  Death:
+    ECMI H 5 A_GiveToTarget("DnD_ShotUndead", 1)
+    ECMI I 5 A_Scream
+    ECMI J 5 A_Fall
+    ECMI KL 5
+    ECMI M -1 A_KillMaster
+    Stop
+  XDeath:
+  Death.Explosives:
+	TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+  	TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0) 
+	ECMI N 2 A_XSCream
+	ECMI N 1 A_NoBlocking
+	TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	ECMI OPQR 3
+	ECMI S -1 A_KillMaster
+    Stop
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    ECMI LKJIH 5
+    Goto See
+		Death.P_Ice:
+			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+  }	
+}
+
+Actor NailProjectileWeak : NailProjectile {
+	Damage (7 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Speed 36
+	DamageType "Arachno"
+	+THRUGHOST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			NAI2 AAAA 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+		Loop
+	}
+}
+
+Actor Legionnaire : UndeadEnemy {
+	Health 600
+	PainChance 48
+	Speed 14
+	Height 64
+	Radius 32
+	Obituary "%o didn't expect to fight against well trained Legionnaires."
+    SeeSound "Legionnaire/See"
+    PainSound "Legionnaire/Pain"
+    DeathSound "Legionnaire/Die"
+	ActiveSound "Legionnaire/Act"
+	DropItem "Cell", 128
+	Species "Spider"
+	MONSTER
+	+NODROPOFF
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	DamageFactor "Arachno", 0.0
+	DamageFactor "ArachnoExp", 0.0
+	DamageFactor "ArachnoBullet", 0.0
+	DamageFactor "ArachnoFire", 0.0
+	DamageFactor "ArachnoVoid", 0.0
+	DamageFactor "ArachnoGreen", 0.0
+	DamageFactor "ArachnoYellow", 0.0
+	DamageFactor "Fire", 1.5
+	Tag "Legionnaire"
+	MeleeRange 84
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LEGIONNAIRE, DND_SILVER_WEAKNESS | DND_MOBILITY)
+		Idle:
+			LEGN A 10 A_Look
+		Loop
+		See:
+			LEGN BC 3 Fast A_Chase
+			LEGN D 5 Fast A_Chase
+			LEGN EF 3 Fast A_Chase
+			LEGN G 5 Fast A_Chase
+		Loop
+		Melee:
+			LEGN H 5 Fast A_PlaySound("Weapons/KickSwing")
+			LEGN I 5 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMissile("LegionnaireBash")
+			LEGN J 4 Fast A_CustomMeleeAttack(random(5, 10) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")), "weapons/vblhit", "", "Knockback")
+			LEGN IH 3 Fast
+			TNT1 A 0 A_Jump(192, "Missile")
+		Goto See
+		Missile:
+			LEGN A 6 Fast A_FaceTarget
+			LEGN L 3 Fast Bright A_CustomMissile("LegionnaireMissile", 60, 16, 0)
+			TNT1 A 0 A_FaceTarget
+			LEGN A 4 Fast A_JumpIfCloser(84, "Melee")
+			LEGN L 3 Fast Bright A_CustomMissile("LegionnaireMissile", 60, 16, 0)
+			TNT1 A 0 A_FaceTarget
+			LEGN A 4 Fast A_JumpIfCloser(84, "Melee")
+			LEGN L 3 Fast Bright A_CustomMissile("LegionnaireMissile2", 60, 16, 0)
+			TNT1 A 0 A_FaceTarget
+			LEGN A 4 Fast A_MonsterRefire(64, "See")
+		Goto Missile + 1
+		Dash:
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_Jump(128, "OtherSide")
+			TNT1 A 0 ThrustThing(angle*256/360 + 64, 10, 0, 0)
+		Goto Missile
+		OtherSide:
+			TNT1 A 0 ThrustThing(angle*256/360 + 192, 10, 0, 0)
+		Goto Missile
+		Pain:
+			LEGN K 3 Fast
+			LEGN K 3 Fast A_Pain
+			TNT1 A 0 A_Jump(128, "Dash")
+		Goto See
+		Death:
+			LEGN M 7 A_Scream
+			LEGN N 6 A_NoBlocking
+			LEGN OPQ 4
+			LEGN R -1 A_KillMaster
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			LEGN QPONM 4
+		Goto See
+		Death.P_Ice:
+			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}	
+}
+
+Actor LegionnaireBash {
+	radius 5
+	height 5
+	speed 28
+	DamageType "Arachno"
+	damage (5 * random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	deathsound "weapons/vblhit"
+	PROJECTILE
+	+SEEKERMISSILE
+	+DONTBLAST
+	States {
+		spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 AA 1 A_SeekerMissile(90, 90, SMF_PRECISE)
+			stop
+		death:
+			TNT1 A 0 A_Quake(4, 17, 0, 256)
+			TNT1 A 1 A_Blast(0, 4, 40, 20)
+			TNT1 A 1
+		stop
+	}
+}
+
+Actor LegionnaireTrail1 {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 0.75
+	Scale 0.4
+	States {
+		Spawn:
+			LEGN S 1 Bright A_FadeOut(0.025)
+		Loop
+	}
+}
+
+Actor LegionnaireMissile {
+	Speed 30
+	Radius 6
+	Height 12
+	Damage (5 * random(2, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Arachno"
+	SeeSound "Legionnaire/Fire"
+	DeathSound "Legionnaire/Hit"
+	Renderstyle Add
+	Alpha 0.9
+	Scale 0.4
+	PROJECTILE
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			LEGN S -1 Bright
+		Stop
+		Death:
+			LGP0 A 3 Bright
+			TNT1 A 0 A_SpawnItem("RedParticleSpawner")
+			LGP0 BCDEFGH 3 Bright
+		Stop
+	}
+}
+
+ACTOR LegionnaireTrail2 {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1
+			KN2M FGFG 7 BRIGHT
+		Stop
+	}
+}
+
+Actor LegionnaireMissile2 : LegionnaireMissile {
+	Speed 20
+	const int dx = 8;
+	var int user_count;
+	+SEEKERMISSILE
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			LEGN S 2 Bright A_SeekerMissile(25, 10, SMF_CURSPEED)
+			TNT1 A 0 A_SpawnItemEx("LegionnaireTrail2", 0, dx + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("LegionnaireTrail2", 0, -dx + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("LegionnaireTrail2", 0, dx * sin(user_count * 30), dx + dx * cos(user_count * 30))
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 12)
+		Loop
+	}
+}

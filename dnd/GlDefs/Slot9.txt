@@ -1,0 +1,562 @@
+pointlight SoulRenderGreen1
+{
+	color 0.25 0.8 0.25
+	size 32
+}
+
+pointlight SoulRenderGreen2
+{
+	color 0.25 0.8 0.25
+	size 36
+}
+
+pointlight SoulRenderGreen3
+{
+	color 0.25 0.8 0.25
+	size 40
+}
+
+pointlight SoulRenderGreen4
+{
+	color 0.25 0.85 0.25
+	size 44
+}
+
+pointlight SoulRenderGreen5
+{
+	color 0.25 0.9 0.25
+	size 48
+}
+
+pointlight SoulRenderGreen6
+{
+	color 0.25 0.95 0.25
+	size 52
+}
+
+pointlight SoulRenderGreen7
+{
+	color 0.25 1.0 0.25
+	size 56
+}
+
+object BladePuff2
+{
+	frame VFX3A { light SoulRenderGreen1 }
+	frame VFX3B { light SoulRenderGreen2 }
+	frame VFX3C { light SoulRenderGreen3 }
+	frame VFX3D { light SoulRenderGreen4 }
+	frame VFX3E { light SoulRenderGreen5 }
+	frame VFX3F { light SoulRenderGreen6 }
+	frame VFX3G { light SoulRenderGreen7 }
+	frame VFX3H { light SoulRenderGreen5 }
+	frame VFX3I { light SoulRenderGreen3 }
+	frame VFX3J { light SoulRenderGreen1 }
+	
+	frame VFX1A { light SoulRenderGreen1 }
+	frame VFX1B { light SoulRenderGreen3 }
+	frame VFX1C { light SoulRenderGreen5 }
+	frame VFX1D { light SoulRenderGreen7 }
+	frame VFX1E { light SoulRenderGreen5 }
+	frame VFX1F { light SoulRenderGreen3 }
+	frame VFX1G { light SoulRenderGreen1 }
+}
+
+object BladePuff2_FullDMG
+{
+	frame VFX3A { light SoulRenderGreen1 }
+	frame VFX3B { light SoulRenderGreen2 }
+	frame VFX3C { light SoulRenderGreen3 }
+	frame VFX3D { light SoulRenderGreen4 }
+	frame VFX3E { light SoulRenderGreen5 }
+	frame VFX3F { light SoulRenderGreen6 }
+	frame VFX3G { light SoulRenderGreen7 }
+	frame VFX3H { light SoulRenderGreen5 }
+	frame VFX3I { light SoulRenderGreen3 }
+	frame VFX3J { light SoulRenderGreen1 }
+	
+	frame VFX1A { light SoulRenderGreen1 }
+	frame VFX1B { light SoulRenderGreen3 }
+	frame VFX1C { light SoulRenderGreen5 }
+	frame VFX1D { light SoulRenderGreen7 }
+	frame VFX1E { light SoulRenderGreen5 }
+	frame VFX1F { light SoulRenderGreen3 }
+	frame VFX1G { light SoulRenderGreen1 }
+}
+
+pointlight SoulRenderRed1
+{
+	color 0.8 0.25 0.25
+	size 32
+}
+
+pointlight SoulRenderRed2
+{
+	color 0.8 0.25 0.25
+	size 36
+}
+
+pointlight SoulRenderRed3
+{
+	color 0.85 0.25 0.25
+	size 40
+}
+
+pointlight SoulRenderRed4
+{
+	color 0.9 0.25 0.25
+	size 44
+}
+
+pointlight SoulRenderRed5
+{
+	color 0.95 0.25 0.25
+	size 48
+}
+
+object BladePuff3
+{
+	frame VFX6A { light SoulRenderRed1 }
+	frame VFX6B { light SoulRenderRed2 }
+	frame VFX6C { light SoulRenderRed3 }
+	frame VFX6D { light SoulRenderRed2 }
+	frame VFX6E { light SoulRenderRed1 }
+	
+	frame HADER { light SoulRenderRed1 }
+	frame HADES { light SoulRenderRed2 }
+	frame HADET { light SoulRenderRed3 }
+	frame HADEU { light SoulRenderRed4 }
+	frame HADEV { light SoulRenderRed5 }
+	frame HADEW { light SoulRenderRed3 }
+	frame HADEX { light SoulRenderRed1 }
+}
+
+object BladePuff3_FullDMG
+{
+	frame VFX6A { light SoulRenderRed1 }
+	frame VFX6B { light SoulRenderRed2 }
+	frame VFX6C { light SoulRenderRed3 }
+	frame VFX6D { light SoulRenderRed2 }
+	frame VFX6E { light SoulRenderRed1 }
+	
+	frame HADER { light SoulRenderRed1 }
+	frame HADES { light SoulRenderRed2 }
+	frame HADET { light SoulRenderRed3 }
+	frame HADEU { light SoulRenderRed4 }
+	frame HADEV { light SoulRenderRed5 }
+	frame HADEW { light SoulRenderRed3 }
+	frame HADEX { light SoulRenderRed1 }
+}
+
+pointlight HFCannonEx1
+{
+	color 0.8 0.2 0.0
+	size 48
+}
+
+pointlight HFCannonEx2
+{
+	color 0.8 0.2 0.0
+	size 40
+}
+
+pointlight HFCannonEx3
+{
+	color 0.8 0.2 0.0
+	size 32
+}
+
+pointlight HFCannonEx4
+{
+	color 0.8 0.2 0.0
+	size 24
+}
+
+pointlight HFCannonEx5
+{
+	color 0.8 0.2 0.0
+	size 16
+}
+
+object Ripper1
+{
+	frame RIP1D { light HFCannonEx1 }
+	frame RIP1E { light HFCannonEx2 }
+	frame RIP1F { light HFCannonEx3 }
+	frame RIP1G { light HFCannonEx4 }
+	frame RIP1H { light HFCannonEx5 }
+}
+
+object Ripper1_FullDMG
+{
+	frame RIP1D { light HFCannonEx1 }
+	frame RIP1E { light HFCannonEx2 }
+	frame RIP1F { light HFCannonEx3 }
+	frame RIP1G { light HFCannonEx4 }
+	frame RIP1H { light HFCannonEx5 }
+}
+
+object Ripper2
+{
+	frame RIP2C { light HFCannonEx2 }
+	frame RIP2D { light HFCannonEx2 }
+	frame RIP2E { light HFCannonEx3 }
+	frame RIP2F { light HFCannonEx3 }
+	frame RIP2G { light HFCannonEx4 }
+	frame RIP2H { light HFCannonEx5 }
+}
+
+object Ripper2_FullDMG
+{
+	frame RIP2C { light HFCannonEx2 }
+	frame RIP2D { light HFCannonEx2 }
+	frame RIP2E { light HFCannonEx3 }
+	frame RIP2F { light HFCannonEx3 }
+	frame RIP2G { light HFCannonEx4 }
+	frame RIP2H { light HFCannonEx5 }
+}
+
+object Ripper2Proj
+{
+	frame RIP2C { light HFCannonEx2 }
+	frame RIP2D { light HFCannonEx2 }
+	frame RIP2E { light HFCannonEx3 }
+	frame RIP2F { light HFCannonEx3 }
+	frame RIP2G { light HFCannonEx4 }
+	frame RIP2H { light HFCannonEx5 }
+}
+
+object Ripper2Proj_FullDMG
+{
+	frame RIP2C { light HFCannonEx2 }
+	frame RIP2D { light HFCannonEx2 }
+	frame RIP2E { light HFCannonEx3 }
+	frame RIP2F { light HFCannonEx3 }
+	frame RIP2G { light HFCannonEx4 }
+	frame RIP2H { light HFCannonEx5 }
+}
+
+pointlight EnforcerLight
+{
+	color 0.8 0.4 0.2
+	size 24
+}
+
+object EnforcerPlasma
+{
+	frame TRAC { light EnforcerLight }
+}
+
+object EnforcerPlasma_FullDMG
+{
+	frame TRAC { light EnforcerLight }
+}
+
+pointlight VenomLight1
+{
+	color 0.1 0.8 0.1
+	size 16
+}
+
+object Barbshot
+{
+	frame SBRDA { light VenomLight1 }
+}
+
+object Barbshot_FullDMG
+{
+	frame SBRDA { light VenomLight1 }
+}
+
+flickerlight2 VenomLight2
+{
+    color 0.2 1.0 0.2
+    size 24
+    secondarySize 48
+    interval 1
+}
+
+pointlight VenomLight3
+{
+	color 0.2 1.0 0.2
+	size 48
+}
+
+pointlight VenomLight4
+{
+	color 0.2 1.0 0.2
+	size 40
+}
+
+pointlight VenomLight5
+{
+	color 0.2 1.0 0.2
+	size 32
+}
+
+pointlight VenomLight6
+{
+	color 0.2 1.0 0.2
+	size 24
+}
+
+pointlight VenomLight7
+{
+	color 0.2 1.0 0.2
+	size 16
+}
+
+pointlight VenomLight8
+{
+	color 0.2 1.0 0.2
+	size 8
+}
+
+object AcidShot
+{
+	frame BNADA { light VenomLight2 }
+	frame BNADB { light VenomLight2 }
+	frame BNADC { light VenomLight2 }
+	frame BNADD { light VenomLight2 }
+	
+	frame BNADE { light VenomLight3 }
+	frame BNADF { light VenomLight4 }
+	frame BNADG { light VenomLight5 }
+	frame BNADH { light VenomLight6 }
+	frame BNADI { light VenomLight7 }
+	frame BNADJ { light VenomLight8 }
+}
+
+object AcidShot_FullDMG
+{
+	frame BNADA { light VenomLight2 }
+	frame BNADB { light VenomLight2 }
+	frame BNADC { light VenomLight2 }
+	frame BNADD { light VenomLight2 }
+	
+	frame BNADE { light VenomLight3 }
+	frame BNADF { light VenomLight4 }
+	frame BNADG { light VenomLight5 }
+	frame BNADH { light VenomLight6 }
+	frame BNADI { light VenomLight7 }
+	frame BNADJ { light VenomLight8 }
+}
+
+pulselight DNBFGFLASH
+{
+    color 0.2 1.0 0.2
+    size 256
+    secondarySize 0
+    interval 1.25
+}
+
+Object DNBFGGLDEFThingy
+{
+    frame TNT1A { light DNBFGFLASH }
+}
+
+pointlight DNBFGFLIGHT
+{
+    color 0.1 1.0 0.1
+    size 128
+}
+
+Object DNBFGBall
+{
+    frame NBFP { light DNBFGFLIGHT }
+}
+
+pointlight DNBFGFLIGHT2
+{
+    color 0.1 1.0 0.1
+    size 72
+}
+
+Object DNBFGBallSmall
+{
+    frame NBFP { light DNBFGFLIGHT2 }
+}
+
+flickerlight DSPARILBALL
+{
+    color 0.3 0.3 1.0
+    size 56
+    secondarySize 64
+    chance 0.5
+}
+
+flickerlight DSPARILBALL_X1
+{
+    color 0.3 0.3 1.0
+    size 64
+    secondarySize 72
+    chance 0.3
+}
+
+flickerlight DSPARILBALL_X2
+{
+    color 0.2 0.2 0.8
+    size 80
+    secondarySize 88
+    chance 0.3
+}
+
+flickerlight DSPARILBALL_X3
+{
+    color 0.1 0.1 0.6
+    size 88
+    secondarySize 92
+    chance 0.3
+}
+
+flickerlight DSPARILBALL_X4
+{
+    color 0.0 0.0 0.4
+    size 82
+    secondarySize 86
+    chance 0.3
+}
+
+flickerlight DSPARILBALL_X5
+{
+    color 0.0 0.0 0.2
+    size 82
+    secondarySize 86
+    chance 0.3
+}
+
+object DarkServantMissileSmall {
+    frame FX16A { light DSPARILBALL }
+    frame FX16B { light DSPARILBALL }
+    frame FX16C { light DSPARILBALL }
+
+    frame FX16G { light DSPARILBALL_X1 }
+    frame FX16H { light DSPARILBALL_X2 }
+    frame FX16I { light DSPARILBALL_X3 }
+    frame FX16J { light DSPARILBALL_X4 }
+    frame FX16K { light DSPARILBALL_X5 }
+    frame FX16L { light DSPARILBALL_X5 }
+}
+
+object DarkServantMissileSmall_Full {
+    frame FX16A { light DSPARILBALL }
+    frame FX16B { light DSPARILBALL }
+    frame FX16C { light DSPARILBALL }
+
+    frame FX16G { light DSPARILBALL_X1 }
+    frame FX16H { light DSPARILBALL_X2 }
+    frame FX16I { light DSPARILBALL_X3 }
+    frame FX16J { light DSPARILBALL_X4 }
+    frame FX16K { light DSPARILBALL_X5 }
+    frame FX16L { light DSPARILBALL_X5 }
+}
+
+pulselight DarkServantLight2 {
+	color 0.5 0.5 1.0
+	size 24
+	secondarysize 48
+	interval 0.75
+}
+
+pointlight DarkServantLight3 {
+	color 0.5 0.5 1.0
+	size 48
+}
+
+pointlight DarkServantLight3 {
+	color 0.5 0.5 1.0
+	size 40
+}
+
+pointlight DarkServantLight3 {
+	color 0.5 0.5 1.0
+	size 32
+}
+
+pointlight DarkServantLight3 {
+	color 0.5 0.5 1.0
+	size 24
+}
+
+pointlight DarkServantLight3 {
+	color 0.5 0.5 1.0
+	size 16
+}
+
+object DarkServantMissileBig {
+	frame FX18A { light DarkServantLight2 }
+	frame FX18B { light DarkServantLight2 }
+	
+	frame FX18C { light DarkServantLight3 }
+	frame FX18D { light DarkServantLight4 }
+	frame FX18E { light DarkServantLight5 }
+	frame FX18F { light DarkServantLight6 }
+	frame FX18G { light DarkServantLight7 }
+}
+
+object DarkServantMissileBig_Full {
+	frame FX18A { light DarkServantLight2 }
+	frame FX18B { light DarkServantLight2 }
+	
+	frame FX18C { light DarkServantLight3 }
+	frame FX18D { light DarkServantLight4 }
+	frame FX18E { light DarkServantLight5 }
+	frame FX18F { light DarkServantLight6 }
+	frame FX18G { light DarkServantLight7 }
+}
+
+pointlight PBolterLight1 {
+	color 0.45 0.45 1.0
+	size 36
+}
+
+pointlight PBolterLight2 {
+	color 0.45 0.45 1.0
+	size 64
+}
+
+pointlight PBolterLight3 {
+	color 0.45 0.45 1.0
+	size 48
+}
+
+pointlight PBolterLight4 {
+	color 0.45 0.45 1.0
+	size 16
+}
+
+object PlasmaBolterProj {
+	frame PBL9I { light PBolterLight1 }
+	frame PBL9J { light PBolterLight1 }
+	
+	frame PBL9K { light PBolterLight2 }
+	frame PBL9L { light PBolterLight3 }
+	frame PBL9M { light PBolterLight4 }
+}
+
+object PlasmaBolterProj_FullDMG {
+	frame PBL9I { light PBolterLight1 }
+	frame PBL9J { light PBolterLight1 }
+	
+	frame PBL9K { light PBolterLight2 }
+	frame PBL9L { light PBolterLight3 }
+	frame PBL9M { light PBolterLight4 }
+}
+
+object PlasmaBolterProj2 {
+	frame PBL9I { light PBolterLight1 }
+	frame PBL9J { light PBolterLight1 }
+	
+	frame PBL9K { light PBolterLight2 }
+	frame PBL9L { light PBolterLight3 }
+	frame PBL9M { light PBolterLight4 }
+}
+
+object PlasmaBolterProj2_FullDMG {
+	frame PBL9I { light PBolterLight1 }
+	frame PBL9J { light PBolterLight1 }
+	
+	frame PBL9K { light PBolterLight2 }
+	frame PBL9L { light PBolterLight3 }
+	frame PBL9M { light PBolterLight4 }
+}

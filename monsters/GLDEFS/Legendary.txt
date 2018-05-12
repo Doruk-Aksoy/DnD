@@ -1,0 +1,255 @@
+pointlight TchernoLight
+{
+	color 0.2 0.3 0.8
+	size 32
+}
+
+pointlight TchernoLight2
+{
+	color 0.2 0.3 0.8
+	size 64
+}
+
+pointlight TchernoLight3
+{
+	color 0.2 0.3 0.8
+	size 48
+}
+
+pointlight TchernoLight4
+{
+	color 0.2 0.3 0.7
+	size 40
+}
+
+object TchernobogMissile
+{
+	frame TROKA { light TchernoLight }
+	frame TROKB { light TchernoLight }
+	frame TROKC { light TchernoLight }
+	frame TROKD { light TchernoLight }
+	frame TROKE { light TchernoLight }
+}
+
+object TchernobogMissile2
+{
+	frame TROKA { light TchernoLight }
+	frame TROKB { light TchernoLight }
+	frame TROKC { light TchernoLight }
+	frame TROKD { light TchernoLight }
+	frame TROKE { light TchernoLight }
+}
+
+object TchernoExplosion
+{
+	frame TEX2A { light TchernoLight2 }
+	frame TEX2B { light TchernoLight2 }
+	frame TEX2C { light TchernoLight2 }
+	frame TEX2D { light TchernoLight3 }
+	frame TEX2E { light TchernoLight3 }
+	frame TEX2F { light TchernoLight3 }
+	frame TEX2G { light TchernoLight3 }
+	frame TEX2H { light TchernoLight3 }
+	frame TEX2I { light TchernoLight4 }
+	frame TEX2J { light TchernoLight4 }
+	frame TEX2K { light TchernoLight4 }
+	frame TEX2L { light TchernoLight4 }
+}
+
+object TchernoExplosionHigh
+{
+	frame TEX2A { light TchernoLight2 }
+	frame TEX2B { light TchernoLight2 }
+	frame TEX2C { light TchernoLight2 }
+	frame TEX2D { light TchernoLight3 }
+	frame TEX2E { light TchernoLight3 }
+	frame TEX2F { light TchernoLight3 }
+	frame TEX2G { light TchernoLight3 }
+	frame TEX2H { light TchernoLight3 }
+	frame TEX2I { light TchernoLight4 }
+	frame TEX2J { light TchernoLight4 }
+	frame TEX2K { light TchernoLight4 }
+	frame TEX2L { light TchernoLight4 }
+}
+
+pulselight GargoyleEyeBlastFlash
+{
+	Color 0.2 0.4 1.0
+	Size 48
+	secondarySize 64
+	interval 1
+}
+
+pointlight GargoyleBallFlash
+{
+	color 0.2 0.4 1.0
+	size 24
+}
+
+Object SplitParticleAfterLight
+{
+	frame TNT1 { light GargoyleEyeBlastFlash }
+}
+
+object SplitParticle1
+{
+	frame EYEBA { light GargoyleBallFlash }
+	frame EYEBB { light GargoyleBallFlash }
+	frame EYEBC { light GargoyleBallFlash }
+	frame EYEBD { light GargoyleBallFlash }
+}
+
+object SplitParticle2
+{
+	frame EYEBA { light GargoyleBallFlash }
+	frame EYEBB { light GargoyleBallFlash }
+	frame EYEBC { light GargoyleBallFlash }
+	frame EYEBD { light GargoyleBallFlash }
+}
+
+object SplitParticle3
+{
+	frame EYEBA { light GargoyleBallFlash }
+	frame EYEBB { light GargoyleBallFlash }
+	frame EYEBC { light GargoyleBallFlash }
+	frame EYEBD { light GargoyleBallFlash }
+}
+
+object SplitParticle4
+{
+	frame EYEBA { light GargoyleBallFlash }
+	frame EYEBB { light GargoyleBallFlash }
+	frame EYEBC { light GargoyleBallFlash }
+	frame EYEBD { light GargoyleBallFlash }
+}
+
+object SplitParticle5
+{
+	frame EYEBA { light GargoyleBallFlash }
+	frame EYEBB { light GargoyleBallFlash }
+	frame EYEBC { light GargoyleBallFlash }
+	frame EYEBD { light GargoyleBallFlash }
+}
+
+flickerlight MordecqaiLight1 {
+	color 0.8 0.8 0.1
+	size 40
+	secondarysize 64
+	chance 0.666
+}
+
+flickerlight MordecqaiLight2 {
+	color 1.0 1.0 0.25
+	size 56
+	secondarysize 84
+	chance 0.75
+}
+
+object Mordecqai {
+	frame MORDE { light MordecqaiLight1 }
+	frame MORDF { light MordecqaiLight2 }
+}
+
+flickerlight InqPulseLight1 {
+	color 0.25 0.8 0.25
+	size 30
+	secondarysize 40
+	chance 0.75
+}
+
+pointlight InqPulseLight2 {
+	color 0.25 0.8 0.25
+	size 60
+}
+
+pointlight InqPulseLight3 {
+	color 0.25 0.8 0.25
+	size 30
+}
+
+pointlight InqPulseLight4 {
+	color 0.25 0.8 0.25
+	size 15
+}
+
+object InquisitorPulse {
+	frame TORP { light InqPulseLight1 }
+	frame TWAVA { light InqPulseLight2 }
+	frame TWAVB { light InqPulseLight3 }
+	frame TWAVC { light InqPulseLight4 }
+}
+
+pointlight InqFireLight {
+	color 0.75 0.75 0.1
+	size 64
+	offset 0 40 0
+}
+
+pointlight InqGrenadeLight {
+	color 0.75 0.75 0.1
+	size 48
+	offset 0 96 0
+}
+
+flickerlight2 InqFlyLight1 {
+    color 0.5 0.5 1.0
+    size 80
+    secondarySize 84
+    interval 1
+	offset -40 24 0
+}
+
+flickerlight2 InqFlyLight2 {
+    color 0.33 0.33 1.0
+    size 64
+    secondarySize 72
+    interval 1
+	offset -40 24 0
+}
+
+object GodSlayer {
+	frame ROB4F { light InqFireLight }
+	frame ROB4J { light InqGrenadeLight }
+	frame ROB4H { light InqFlyLight1 }
+	frame ROB4I { light InqFlyLight2 }
+}
+
+object GodSlayerBullet {
+	frame DKSXA { light EXPSHELL1 }
+	frame DKSXB { light EXPSHELL1 }
+	frame DKSXC { light EXPSHELL1 }
+	frame DKSXD { light EXPSHELL2 }
+	frame DKSXE { light EXPSHELL2 }
+	frame DKSXF { light EXPSHELL2 }
+	frame DKSXG { light EXPSHELL2 }
+	frame DKSXH { light EXPSHELL3 }
+	frame DKSXI { light EXPSHELL3 }
+	frame DKSXJ { light EXPSHELL3 }
+	frame DKSXK { light EXPSHELL4 }
+	frame DKSXL { light EXPSHELL4 }
+	
+	frame DKSXM { light EXPSHELL1 }
+	frame DKSXN { light EXPSHELL1 }
+	frame DKSXO { light EXPSHELL1 }
+	frame DKSXP { light EXPSHELL2 }
+	frame DKSXQ { light EXPSHELL2 }
+	frame DKSXR { light EXPSHELL2 }
+	frame DKSXS { light EXPSHELL2 }
+	frame DKSXT { light EXPSHELL3 }
+	frame DKSXU { light EXPSHELL3 }
+	frame DKSXV { light EXPSHELL3 }
+	frame DKSXW { light EXPSHELL4 }
+	frame DKSXX { light EXPSHELL4 }
+}
+
+object InquisitorShot2 {
+    frame BNG2A { light INQSHOT_X1 }
+    frame BNG2B { light INQSHOT_X2 }
+    frame BNG2C { light INQSHOT_X3 }
+    frame BNG2D { light INQSHOT_X4 }
+    frame BNG2E { light INQSHOT_X5 }
+    frame BNG2F { light INQSHOT_X6 }
+    frame BNG2G { light INQSHOT_X7 }
+    frame BNG2H { light INQSHOT_X8 }
+    frame BNG2I { light INQSHOT_X9 }
+}

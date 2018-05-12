@@ -1,0 +1,2193 @@
+actor STDarkImp : DnD_BaseEnemy
+{
+	//$Category Monsters
+    Health 80
+    Radius 20
+    Height 56
+    Speed 9
+    PainChance 200
+    MONSTER 
+    +FLOORCLIP
+	+DONTBLAST
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    MeleeSound "imp/melee"
+    Obituary "%o was cursed by a dark imp."
+    HitObituary "%o was touched by a dark imp."
+	Species "Imp"
+	+DONTHURTSPECIES
+	+USEKILLSCRIPTS
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	PainSound "Imp/Pain"
+	Tag "Dark Imp"
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DARKIMP1)
+	Idle:
+        DRKS AB 10 A_Look
+        Loop
+    See:
+        DRKS AABBCCDD 3 Fast A_Chase
+        Loop
+    Melee:
+    Missile:
+        DRKS EF 8 Fast A_FaceTarget
+        DRKS G 6 Fast A_CustomComboAttack("DarkFast", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+        Goto See
+    Pain:
+        DRKS H 2 Fast
+        DRKS H 2 Fast A_Pain
+        Goto See
+    Death:
+        DRKS I 8
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+        DRKS J 8 A_Scream
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:
+        DRKS K 6
+        DRKS L 6 A_Fall
+        DRKS M -1
+        Stop
+    XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:	
+        DRKI N 5
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+        DRKI O 5 A_XScream
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+        DRKI P 5
+        DRKI Q 5 A_Fall
+        DRKI RST 5
+        DRKI U -1
+        Stop
+	  GiveSoulN:
+		DRKS K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		DRKI N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX		
+    Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+        DRKS ML 8
+        DRKS KJI 6
+        Goto See
+    }
+}
+
+actor DarkFast
+{
+    Radius 8
+    Height 6
+    Speed 18
+    Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpVoid"
+    PROJECTILE
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    MISSILEHEIGHT 0
+    Decal DoomImpScorch
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+        DKB1 AABB 2 Bright A_SpawnItem("DarkImpBallTrail")
+        Loop
+    Death:
+		TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+		TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+        DKB1 CDE 4 Bright
+        Stop
+    }
+}
+
+Actor DarkImpBallTrail {
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	+NOINTERACTION
+	Renderstyle Add
+	Alpha 0.75
+	States {
+		Spawn:
+			TNT1 A 1
+		SpawnLoop:
+			DKB1 AAAABBBB 1 Bright A_FadeOut(0.075)
+		Loop
+	}
+}
+
+actor NamiDarkImp : DnD_BaseEnemy
+{
+	//$Category Monsters
+    Health 90
+    Radius 20
+    Height 56
+    Speed 8
+    PainChance 200
+    MONSTER 
+    +FLOORCLIP
+	+DONTBLAST
+    SeeSound "imp/sight"
+    PainSound "Imp/Pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    MeleeSound "imp/melee"
+    Obituary "%o was cursed by a dark imp."
+    HitObituary "%o was touched by a dark imp."
+	Species "Imp"
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	Tag "Dark Imp"
+	+DONTHURTSPECIES
+	+USEKILLSCRIPTS
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DARKIMP2, DND_HOMING)
+	Idle:
+        DRKI AB 10 A_Look
+        Loop
+    See:
+        DRKI AABBCCDD 3 Fast A_Chase
+        Loop
+    Melee:
+    Missile:
+        DRKI EF 8 Fast A_FaceTarget
+        DRKI G 6 Fast A_CustomComboAttack("DarkSeeker", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+        Goto See
+    Pain:
+        DRKI H 2 Fast
+        DRKI H 2 Fast A_Pain
+        Goto See
+    Death:
+        DRKI I 8
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+        DRKI J 8 A_Scream
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:
+        DRKI K 6
+        DRKI L 6 A_Fall
+        DRKI M -1
+        Stop
+    XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:
+        DRKI N 5
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+        DRKI O 5 A_XScream
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+        DRKI P 5
+        DRKI Q 5 A_Fall
+        DRKI RST 5
+        DRKI U -1
+        Stop
+	  GiveSoulN:
+		DRKI K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		DRKI N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX		
+    Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+        DRKI ML 8
+        DRKI KJI 6
+        Goto See
+    }
+}
+
+actor DarkSeeker
+{
+    Radius 8
+    Height 6
+    Speed 9
+    Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpVoid"
+    +SEEKERMISSILE
+	+DONTBLAST
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    Decal DoomImpScorch
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		TNT1 A 0 A_SpawnItem("DarkImpBallTrail")
+        DKB1 A 2 Bright A_SeekerMissile (5, 10)
+		TNT1 A 0 A_SpawnItem("DarkImpBallTrail")
+		DKB1 A 2 Bright
+		TNT1 A 0 A_SpawnItem("DarkImpBallTrail")
+		DKB1 B 2 Bright A_SeekerMissile (5, 10)
+		TNT1 A 0 A_SpawnItem("DarkImpBallTrail")
+		DKB1 B 2 Bright
+        Loop
+    Death:
+		TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+		TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+        DKB1 CDE 4 Bright
+        Stop
+    }
+}
+
+actor VoidDarkImp : DnD_BaseEnemy
+{
+	//$Category Monsters
+    Health 100
+    Radius 20
+    Height 56
+    Speed 7
+    PainChance 200
+    MONSTER 
+    +FLOORCLIP
+	+DONTBLAST
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    MeleeSound "imp/melee"
+    Obituary "%o was cursed by a dark imp."
+    HitObituary "%o was touched by a dark imp."
+	Species "Imp"
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	Tag "Void Dark Imp"
+	+DONTHURTSPECIES
+	+USEKILLSCRIPTS
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VOIDDARKIMP)
+	Idle:
+        DRKV AB 10 A_Look
+        Loop
+    See:
+        DRKV AABBCCDD 3 Fast A_Chase
+        Loop
+    Melee:
+        DRKV EF 8 Fast A_FaceTarget
+        DRKV G 6 Fast A_CustomComboAttack("DarkNormal", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+        Goto See
+    Missile:
+        DRKV E 0 A_Jump(64,4)
+        DRKV EF 8 Fast A_FaceTarget
+        DRKV G 6 Fast A_CustomMissile("DarkNormal", 32, 0, 0)
+        Goto Missile+7
+        DRKV IJ 8 Fast Bright A_FaceTarget
+        DRKV K 6 Fast Bright A_CustomMissile("DarkStrong", 32, 0, 0)
+        DRKV E 0 A_Jump(64,4)
+        DRKV EF 8 Fast A_FaceTarget
+        DRKV G 6 Fast A_CustomMissile("DarkNormal", 32, 0, 0)
+        Goto See
+        DRKV IJ 8 Fast Bright A_FaceTarget
+        DRKV K 6 Fast Bright A_CustomMissile("DarkStrong", 32, 0, 0)
+        Goto See
+    Pain:
+        DRKV H 2 Fast
+        DRKV H 2 Fast A_Pain
+        Goto See
+    Death:
+        DRKV L 8
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+        DRKV M 8 A_Scream
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:	
+        DRKV N 5
+        DRKV O 5 A_Fall
+        DRKV P -1
+        Stop
+    XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:	
+        DRKI N 5
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+        DRKI O 5 A_XScream
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+        DRKI P 5
+        DRKI Q 5 A_Fall
+        DRKI RST 5
+        DRKI U -1
+        Stop
+	  GiveSoulN:
+		DRKV N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		DRKI N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX		
+    Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+        DRKV PO 8
+        DRKV NML 6
+        Goto See
+    }
+}
+
+actor DarkNormal
+{
+    Radius 8
+    Height 6
+    Speed 9
+    Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpVoid"
+    PROJECTILE
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    Decal DoomImpScorch
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+        DKB1 AABB 2 Bright A_SpawnItem("DarkImpBallTrail")
+        Loop
+    Death:
+		TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+		TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+        DKB1 CDE 4 Bright
+        Stop
+    }
+}
+
+actor DarkStrong
+{
+    Radius 8
+    Height 6
+    Speed 9
+    Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpVoid"
+    PROJECTILE
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    Decal DoomImpScorch
+	Translation "192:193=48:51", "194:194=17:17", "195:199=171:175", "200:206=176:188", "207:241=45:46", "242:246=46:47"
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+        DKB1 AB 4 Bright A_SpawnItemEx("DarkTail", 0, 0, 0, 0, 0, 0, 0, 128)
+        Loop
+    Death:
+		TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+		TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+        DKB1 CDE 4 Bright
+        Stop
+    }
+}
+
+actor DarkTail
+{
+    PROJECTILE
+    RENDERSTYLE ADD
+    +NOCLIP
+    ALPHA 0.5
+	+CLIENTSIDEONLY
+    States
+    {
+    Spawn:
+        DKBT ABCDEF 2 Bright
+        Stop
+    }
+}
+
+actor NetherDarkImp : DnD_BaseEnemy
+{
+    Health 100
+    Radius 20
+    Height 56
+    Speed 9
+    PainChance 100
+    Mass 500
+    Scale 1.1
+    MONSTER 
+    +FLOORCLIP
+	+DONTBLAST
+	+USEKILLSCRIPTS
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    MeleeSound "imp/melee"
+    Obituary "%o was cursed by a dark imp."
+    HitObituary "%o was touched by a dark imp."
+	Translation "16:49=112:122", "48:51=112:113", "160:167=112:119", "168:191=114:120", "197:206=160:166", "208:223=116:117", "232:235=116:119", "248:254=115:121"
+	Species "Imp"
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	BloodColor "Green"
+	Tag "Nether Dark Imp"
+	+DONTHURTSPECIES	
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_NETHERDARKIMP)
+	Idle:
+        DRKV AB 10 A_Look
+        Loop
+    See:
+        DRKV AABBCCDD 3 Fast A_Chase
+        Loop
+    Melee:
+        DRKV IJ 8 Fast A_FaceTarget
+        DRKV K 6 Fast A_CustomComboAttack("InfernoBall", 32, 6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+        Goto See
+    Missile:
+        DRKV E 1 A_Jump (255, "Attack1", "Attack2")
+        Goto See
+    Attack1:
+        DRKV EF 8 Fast A_FaceTarget
+        DRKV G 6 Fast A_CustomMissile ("NetherLightning", 32, 0, 0)
+        Goto See
+    Attack2:
+        DRKV IJ 8 Fast A_FaceTarget
+        DRKV K 6 Fast A_CustomMissile ("InfernoBall", 32, 0, 0)
+        Goto See
+    Pain:
+        DRKV H 2 Fast
+        DRKV H 2 Fast A_Pain
+        Goto See
+    Death:
+        DRKV L 8
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+        DRKV M 8 A_Scream
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:	
+        DRKV N 5
+        DRKV O 5 A_Fall
+        DRKV P -1
+        Stop
+    XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+		TNT1 AAA 0 A_SpawnItem("NashGore_GibGenerator_Green",0,0,0,0)
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:	
+        DRKV Q 5
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator_Green",0,0,0,0)
+        DRKV R 5 A_XScream
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator_Green",0,0,0,0)	
+        DRKV S 5
+        DRKV T 5 A_Fall
+        DRKV UVW 5
+        DRKV X -1
+        Stop
+	  GiveSoulN:
+		DRKV N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		DRKV Q 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX		
+    Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+        DRKV PO 8
+        DRKV NML 6
+        Goto See
+    }
+}
+
+actor InfernoBall
+{
+    Radius 8
+    Height 6
+    Speed 20
+    Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Imp"
+    PROJECTILE
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    Decal DoomImpScorch
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+        IBAL AAAABBBB 1 Bright A_SpawnItemEx ("InfernoBallTrail", 0, 0, 0, random(0, -4), random(-2, 2), random(-2, 2), 0, 0, 0)
+        Loop
+    Death:
+        IBAL CDE 4 Bright
+        Stop
+    }
+}
+
+actor InfernoBallTrail
+{
+    Radius 1
+    Height 1
+    Speed 0
+    Damage 0
+    +NOGRAVITY
+    Scale 0.2
+	+CLIENTSIDEONLY
+    States
+    {
+    Spawn:
+        ITRL ABCDEFGHIJKLMN 1 Bright
+        stop
+    }
+}
+
+actor NetherLightning
+{
+    Radius 8
+    Height 6
+    Speed 24
+    Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	DamageType "Imp"
+    PROJECTILE
+    +RIPPER
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.75
+    Scale 0.75
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    Decal DoomImpScorch
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+        NLIT AA 1 Bright A_SpawnItemEx ("NetherLightningTrail", 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        NLIT A 0 Bright A_SpawnItemEx ("NetherLightningSpark", 0, 0, 0, random(0, -4), random(-2, 2), random(-2, 2), 0, 0, 0)
+        NLIT AA 1 Bright A_SpawnItemEx ("NetherLightningTrail", 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        NLIT A 0 Bright A_SpawnItemEx ("NetherLightningSpark", 0, 0, 0, random(0, -4), random(-2, 2), random(-2, 2), 0, 0, 0)
+        loop
+    Death:
+        NLIT ABCDEFG 1 Bright
+        Stop
+    }
+}
+
+actor NetherLightningTrail
+{
+    Radius 8
+    Height 6
+    Speed 1
+    Damage 0
+    PROJECTILE
+	+THRUACTORS
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.75
+    Scale 0.75
+	+CLIENTSIDEONLY
+    States
+    {
+    Spawn:
+        NLIT A 1 A_FadeOut (0.025)
+        NLIT A 0 A_Jump (32, "Spark")
+        loop
+    Spark:
+        NLIT A 0 A_SpawnItemEx ("NetherLightningSpark", 0, 0, 0, random(0, -4), random(-2, 2), random(-2, 2), 0, 0, 0)
+        goto Spawn
+    }
+}
+
+actor NetherLightningSpark
+{
+    Radius 1
+    Height 1
+    Speed 0
+    Damage 0
+    +NOGRAVITY
+    Scale 0.3
+	+CLIENTSIDEONLY
+    States
+    {
+    Spawn:
+        NLIT BCDEFG 1 Bright
+        stop
+    }
+}
+
+Actor ImpAbomination : DoomImp2
+{
+	Health 80
+	Tag "Imp Abomination"
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_IMPABOM)
+	Idle:
+	  TRO5 AB 10 A_Look
+	  Loop
+	See:
+	  TRO5 AABBCCDD 3 Fast A_Chase
+	  Loop
+  	Melee:
+  	Missile:
+	  TRO5 EF 8 Fast A_FaceTarget
+	  TRO5 G 6 Fast A_CustomComboAttack("DoomImpBall",32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)),"imp/melee")
+	  Goto See
+  	Pain:
+	  TRO5 H 2 Fast
+	  TRO5 H 2 Fast A_Pain
+	  Goto See
+  	Death:
+	  TRO5 I 8
+	  TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	  TRO5 J 8 A_Scream
+	  TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:  
+	  TRO5 K 6
+	  TRO5 L 6 A_NoBlocking
+	  IMP0 M -1
+	  Stop
+  	XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+	  TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:  
+	  IMP0 N 5
+	  TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+	  IMP0 O 5 A_XScream
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+	  IMP0 P 5
+	  IMP0 Q 5 A_NoBlocking
+	  IMP0 RST 5
+	  IMP0 U -1
+	  Stop
+	  GiveSoulN:
+		TRO5 K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		IMP0 N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX	  
+  	Raise:
+	  TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  IMP0 M 8
+	  TRO5 L 8
+	  TRO5 KJI 6
+	  Goto See
+	}
+}
+
+Actor STImp : DoomImp2
+{
+    Health 55
+    Radius 20
+    Height 56
+    Speed 11
+    PainChance 200
+    MONSTER 
+    +FLOORCLIP
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    Obituary "%o was burned by an imp."
+    HitObituary "%o was slashed by an imp."
+	Tag "Imp"
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_STIMP)
+	Idle:
+	  TRO3 AB 10 A_Look
+	  Loop
+    See:
+	  TRO3 AABBCCDD 3 Fast A_Chase
+	  Loop
+    Melee:
+    Missile:
+	  TRO3 EF 8 Fast A_FaceTarget
+	  TRO3 G 6 Fast A_CustomComboAttack("SmallImpBall",32,2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)),"imp/melee")
+	  Goto See
+    Pain:
+	  TRO3 H 2 Fast
+	  TRO3 H 2 Fast A_Pain
+	  Goto See
+    Death:
+	  TRO3 I 8
+	  TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	  TRO3 J 8 A_Scream
+	  TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:
+	  TRO3 K 6
+	  TRO3 L 6 A_Fall
+	  TRO3 M -1
+	  Stop
+    XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	  TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:
+	  IMP0 N 5
+	  TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	  IMP0 O 5 A_XScream
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	  IMP0 P 5
+	  IMP0 Q 5 A_Fall
+	  IMP0 RST 5
+	  IMP0 U -1
+	  Stop
+	  GiveSoulN:
+		TRO3 K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		IMP0 N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX	  
+    Raise:
+	  TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  TRO3 ML 8
+	  TRO3 KJI 6
+	  Goto See
+    }
+}
+
+Actor SmallImpBall
+{
+    Radius 8
+    Height 6
+    Speed 18
+	FastSpeed 20
+    Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Imp"
+    Scale .75
+    PROJECTILE
+	+DONTBLAST
+	+RANDOMIZE
+    RenderStyle Add
+    Alpha 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    Decal DoomImpScorch
+    States
+    {
+		Spawn:	
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BAL1 AB 2 Bright A_SpawnItemEx("ImpBallTrail",0,0,0,0,0,0,0,128,0)	
+        Loop
+		Death:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			BAL1 CDE 6 bright
+		Stop
+    }   
+}
+
+Actor VoidImp : DoomImp2
+{
+    Health 65
+    Radius 20
+    Height 56
+    Speed 7
+    PainChance 200
+    MONSTER 
+    +FLOORCLIP
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    Obituary "%o was burned by an imp."
+    HitObituary "%o was slashed by an imp."
+	Tag "Imp"
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VOIDIMP)
+	Idle:
+      TRO4 AB 10 A_Look
+      Loop
+    See:
+      TRO4 AABBCCDD 3 Fast A_Chase
+      Loop
+    Melee:
+    Missile:
+	  TRO4 EF 8 Fast A_FaceTarget
+      TNT1 A 0 A_Jump(128,2)
+      TRO4 G 6 Fast A_TroopAttack
+      Goto See
+      TRO4 G 6 Fast A_CustomComboAttack("LargeImpBall",32,3 * random(1,8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)),"imp/melee")
+      Goto See
+    Pain:
+      TRO4 H 2 Fast
+      TRO4 H 2 Fast A_Pain
+      Goto See
+    Death:
+      TRO4 I 8
+	  TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+      TRO4 J 8 A_Scream
+	  TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:
+      TRO4 K 6
+      TRO4 L 6 A_NoBlocking
+      TRO4 M -1
+      Stop
+    XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	  TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+	  TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:  
+      IMP0 N 5
+	  TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+      IMP0 O 5 A_XScream
+	  TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+      IMP0 P 5
+      IMP0 Q 5 A_NoBlocking
+      IMP0 RST 5
+      IMP0 U -1
+      Stop
+	  GiveSoulN:
+		TRO4 K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		IMP0 N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX	  
+    Raise:
+	  TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+      TRO4 ML 8
+      TRO4 KJI 6
+      Goto See
+    }
+} 
+
+Actor LargeImpBall
+{
+    Radius 6
+    Scale 1.75
+    Height 8
+    Speed 10
+    FastSpeed 20
+    Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Imp"
+    PROJECTILE
+	+DONTBLAST
+    +RANDOMIZE
+    RenderStyle Add
+    Alpha 1
+    Decal DoomImpScorch
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+		Spawn:	
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BAL1 AB 2 Bright A_SpawnItemEx("ImpBallTrail",0,0,0,0,0,0,0,128,0)	
+        Loop
+		Death:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			BAL1 CDE 6 bright
+		Stop
+    }
+}
+
+actor SoulHarvester : DnD_BaseEnemy
+{
+    Health 100
+    Radius 20
+    Height 56
+    Speed 8
+    PainChance 160
+    MONSTER 
+    +FLOORCLIP
+	+DONTBLAST
+    SeeSound "harvester/sight"
+    PainSound "imp/pain"
+    DeathSound "harvester/death"
+    ActiveSound "imp/active"
+    MeleeSound "imp/melee"
+    Obituary "%o couldn't evade the soul harvester's attack."
+    MissileType SoulHarvesterBall
+    MeleeDamage 3
+	BloodColor "66 66 66"
+	Species "Imp"
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	DamageFactor "ImpFire", 0.0
+	Tag "Soul Harvester"
+	+DONTHURTSPECIES
+	+USEKILLSCRIPTS
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SOULHARVESTER, DND_HOMING)
+	Idle:
+        SLHV AB 10 A_Look
+        Loop
+    See:
+        SLHV AABBCCDD 3 Fast A_Chase
+        Loop
+    Melee:
+    Missile:
+        SLHV EFG 4 Fast A_FaceTarget
+        SLHV HIJK 5 Fast Bright A_FaceTarget
+        SLHV L 8 Fast Bright A_MissileAttack
+        SLHV M 10 Fast
+        Goto See
+    Pain:
+    	SLHV N 3 Fast
+    	SLHV N 3 Fast A_Pain
+    	Goto See
+    Death:
+        SLHV O 7 A_Scream
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+	GaveSoulN:		
+        SLHV PQR 7 
+        SLHV S 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32, 0, 0, 0, 0, SXF_CLIENTSIDE)
+        SLHV T 5 A_Fall
+        SLHV UV 5
+        SLHV W -1
+        Stop
+    XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+	    TNT1 A 0 A_SpawnDebris("NashGore_Gib9_G",0)
+	    TNT1 A 0 A_SpawnDebris("NashGore_Gib10_G",0)
+	    TNT1 A 0 A_SpawnDebris("NashGore_Gib11_G",0)
+	    TNT1 A 0 A_SpawnDebris("NashGore_Gib11_G",0)
+	    TNT1 A 0 A_SpawnItem("NashGore_GibGenerator_G",0,0,0,0)
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	GaveSoulX:
+        SLHV X 6 A_Xscream
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator_G",0,0,0,0)
+        SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32, 0, 0, 0, 0, SXF_CLIENTSIDE)
+        SLHV Z 6
+        SLHV [ 6 A_Fall
+        SLHV ] 6
+        SLHW A -1
+        Stop
+	  GiveSoulN:
+		SLHV P 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		SLHV X 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX		
+    Raise:
+	    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+        SLHV WVUTSRQPO 5
+        Goto See
+    }
+}
+
+actor SoulHarvesterBall
+{
+    Radius 8
+    Height 6
+    Scale 0.4
+    Speed 9
+    Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpMagic"
+    +SEEKERMISSILE
+	+DONTBLAST
+    PROJECTILE
+    Renderstyle ADD
+    SeeSound "harvester/scream"
+    DeathSound "imp/shotx"
+	Decal DoomImpScorch
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+    	SHBA A  0 Bright A_SpawnItemEx("SoulBallTrail", 0, 0, 0, 0, 0, 0, 180, 128)
+        SHBA AB 2 Bright A_SeekerMissile (10,20)
+        Loop
+    Death:
+		TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+        SHBA CDEFGHIJKL 4 Bright
+        Stop
+    }
+}
+
+actor SoulHarvesterGhost
+{
+    RENDERSTYLE ADD
+    ALPHA 0.7
+    +NOINTERACTION
+	+CLIENTSIDEONLY
+    States {
+		Spawn:
+			SHGH A 0 NoDelay A_PlaySound("Harvester/Ghost")
+			SHGH ABCDEFG 4 Bright
+        Stop
+    }
+}
+
+actor SoulBallTrail
+{
+    Radius 1
+    Height 1
+    Speed 0
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.5
+    +NOCLIP
+	+CLIENTSIDEONLY
+    States
+    {
+    Spawn:
+    Death:
+    	SBTR H 6 
+        SBTR ABCDEFG 4 Bright
+        Stop
+    }
+}
+
+actor PyroImp : DnD_BaseEnemy
+{
+	//$Category monsters
+    Health 60
+    Radius 20
+    Height 56
+    Speed 9
+    PainChance 200
+	Mass 1000
+    MONSTER 
+    +FLOORCLIP
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    MeleeSound "imp/melee"
+    Obituary "%o was burned by a pyro imp."
+    HitObituary "%o was cut open by a pyro imp."
+	Species "Imp"
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	Tag "Pyro Imp"
+    States
+    {
+    Spawn:	
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_PYROIMP, DND_DEATH)
+	Idle:
+        PRIM AB 10 A_Look
+        Loop
+    See:
+        PRIM AABBCCDD 3 Fast A_Chase
+        Loop
+    Melee:
+		PRIM EF 8 Fast A_FaceTarget
+        PRIM G 6 Fast A_CustomComboAttack("PyroImpBall", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+    Missile:
+		PRIM E 0 A_JumpIfCloser(256, "Missile1")
+		PRIM EF 8 Fast A_FaceTarget
+        PRIM G 6 Fast A_CustomMissile ("PyroImpBallNoGravity", 32, 12, 0, 0, 0)
+		Goto See
+	Missile1:
+        PRIM EF 6 Fast A_FaceTarget
+        PRIM G 5 Fast A_CustomMissile ("PyroImpBall", 32, 12, 0, 2, 10)
+		PRIM EF 6 Fast A_FaceTarget
+        PRIM G 5 Fast A_CustomMissile ("PyroImpBall", 32, 12, 0, 2, 10)
+		PRIM EF 6 Fast A_FaceTarget
+        PRIM G 5 Fast A_CustomMissile ("PyroImpBall", 32, 12, 0, 2, 10)
+		Goto See
+    Pain:
+        PRIM H 4 Fast A_Pain
+        Goto See
+    Death:
+        PRIM N 5 A_SpawnItemEx ("PyroImpExplosion", 0, 0, 30)
+		TNT1 AAAA 0 A_CustomMissile ("PyroImpBall", 32, 0, random(0, 360), CMF_AIMDIRECTION, random(-4, -8))
+        PRIM O 5 A_XScream
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+	GaveSoul:
+        PRIM P 5
+        PRIM Q 5 A_Fall
+        PRIM RST 5
+        PRIM U -1
+        Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		PRIM P 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+    Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+        PRIM UTSRQPON 4
+        Goto See
+    }
+}
+
+Actor PyroImpExp1 : BaseExplosionDamage
+{
+	DamageType "ImpFire"
+	Obituary "%o was burned by a pyro imp."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 56, 1)
+		Stop
+	}
+}
+
+actor PyroImpBall : DoomImpBall2
+{
+  renderstyle Add
+  DamageType "ImpFire"
+  Obituary "%o was burned by a pyro imp."
+  +RANDOMIZE
+  +LOWGRAVITY
+  -NOGRAVITY
+  states
+  {
+  Spawn:
+    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    BAL1 A 1 bright
+    BAL1 A 0 bright A_SpawnItemEx ("PyroImpBallFire", random(1,-1), random(1,-1), random(1,-1), 0, 0, 0 , random(0,360), 16, 0)
+    BAL1 B 1 bright
+    BAL1 B 0 bright A_SpawnItemEx ("PyroImpBallFire", random(1,-1), random(1,-1), random(1,-1), 0, 0, 0 , random(0,360), 16, 0)
+    loop
+  Death:
+	BAL1 C 0 bright A_CustomMissile ("PyroImpBallFire2", 0, 0, 0, 0)
+    BAL1 C 4 bright A_SpawnItem("PyroImpExp1")
+    BAL1 CCCCCCCCC 0 bright A_SpawnItemEx ("PyroImpBallFire", random(1,-1), random(1,-1), random(1,-1), 6, 0, random(1,-1) , random(0,360), 0, 0)
+    BAL1 DE 4 bright
+    stop
+  }
+}
+
+actor PyroImpBallNoGravity : PyroImpBall
+{
+	+NOGRAVITY
+	-LOWGRAVITY
+	states
+  	{
+  Death:
+    BAL1 C 4 bright A_SpawnItem("PyroImpExp1")
+    BAL1 CCCCCCCCC 0 bright A_SpawnItemEx ("PyroImpBallFire", random(1,-1), random(1,-1), random(1,-1), 6, 0, random(1,-1) , random(0,360), 0, 0)
+    BAL1 DE 4 bright
+    stop
+  }
+}
+
+actor PyroImpFire
+{
+  radius 6
+  height 8
+  scale 0.7
+  renderstyle Add
+  +NOBLOCKMAP
+  +NOGRAVITY
+  +MISSILE
+  +NOTELEPORT
+  +DONTSPLASH
+  +RANDOMIZE
+  +CLIENTSIDEONLY
+  states
+  {
+  Spawn:
+    CFCF ABCDEFGHIJKLMNOP 2 bright 
+    stop
+  }
+}
+
+actor PyroImpBallFire : PyroImpFire
+{
+  scale 0.4
+  states
+  {
+  Spawn:
+    TNT1 A 2
+    CFCF ABCDEFGHIJKLMNOP 1 bright 
+    stop
+  }
+}
+
+Actor PyroImpExp2 : BaseExplosionDamage
+{
+	DamageType "ImpFire"
+	Obituary "%o was burned by a pyro imp."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 56, 1)
+		Stop
+	}
+}
+
+actor PyroImpBallFire2
+{
+  DamageType "ImpFire"
+  scale 2.0
+  Radius 8
+  Height 40
+  renderstyle Add
+  alpha 0.90
+  PROJECTILE
+  -NOGRAVITY
+  +LOWGRAVITY
+  +NOEXPLODEFLOOR
+  +NODAMAGETHRUST
+  +THRUGHOST
+  DONTHURTSHOOTER
+  states
+  {
+  Spawn:
+    CFCF PON 2 bright 
+	CFCF A 1 bright A_PlaySound("weapons/onfire")
+	CFCF A 1 bright A_SpawnItem("PyroImpExp2")
+	CFCF BCDEFGHIJKLM 2 bright A_SpawnItem("PyroImpExp2")
+	CFCF A 1 bright A_PlaySound ("weapons/onfire")
+	CFCF A 1 bright A_SpawnItem("PyroImpExp2")
+	CFCF BCDEFGHIJKLM 2 bright A_SpawnItem("PyroImpExp2")
+	CFCF A 1 bright A_PlaySound ("weapons/onfire")
+	CFCF A 1 bright A_SpawnItem("PyroImpExp2")
+	CFCF BCDEFGHIJKLM 2 bright A_SpawnItem("PyroImpExp2")
+	CFCF NOP 2 bright 
+    stop
+  }
+}
+
+Actor PyroImpExp3 : BaseExplosionDamage
+{
+	DamageType "ImpFire"
+	Obituary "%o was burned by a pyro imp."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(random(4, 16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 1)
+		Stop
+	}
+}
+
+actor PyroImpExplosion
+{
+  radius 6
+  height 8
+  damage 0
+  DamageType "ImpFire"
+  scale 0.8
+  renderstyle Add
+  alpha 0.7
+  +NOBLOCKMAP
+  +NOGRAVITY
+  states
+  {
+  Spawn:
+    MISL B 0 bright A_PlaySound ("weapons/rocklx")
+  	MISL B 4 bright A_SpawnItem("PyroImpExp3")
+	MISL CDE 6 bright
+	stop
+  }
+}
+
+actor Devil : DoomImp2
+{
+  obituary "%o was fried by a Devil."
+  hitobituary "%o was flayed by a Devil."
+  health 85
+  radius 20
+  height 56
+  mass 120
+  speed 10
+  painchance 160
+  +MISSILEMORE
+  +MISSILEEVENMORE
+  +DONTHURTSPECIES
+  seesound "monster/dvlsit"
+  painsound "monster/dvlpai"
+  deathsound "monster/dvldth"
+  activesound "monster/dvlact"
+  DamageFactor "Imp", 0.0
+  DamageFactor "ImpMagic", 0.0
+  DamageFactor "ImpFire", 0.0
+  DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+  Tag "Devil"
+  MONSTER
+  +FLOORCLIP
+  +USEKILLSCRIPTS
+  states
+  {
+  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DEVIL)
+	Idle:
+    TRO2 AB 10 A_Look
+    Loop
+  See:
+    TRO2 AABBCCDD 3 Fast A_Chase
+    loop
+  Melee:
+  Missile:
+    TRO2 EF 6 Fast A_FaceTarget
+    TRO2 G 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+    TRO2 B 2 Fast
+    TRO2 VW 6 Fast A_FaceTarget
+    TRO2 X 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+    TRO2 E 0 A_Jump(160, "GiveUp")
+    TRO2 D 2 Fast
+    TRO2 EF 6 Fast A_FaceTarget
+    TRO2 G 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+    TRO2 B 2 Fast
+    TRO2 VW 6 Fast A_FaceTarget
+    TRO2 X 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+  GiveUp:
+	TNT1 A 0
+    goto See
+  Pain:
+    TRO2 H 3 Fast
+    TRO2 H 3 Fast A_Pain
+    goto See
+  Death:
+    TRO2 I 8
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+    TRO2 J 8 A_Scream
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+  GaveSoulN:
+    TRO2 K 6
+    TRO2 L 6 A_NoBlocking
+    TRO2 M -1
+    stop
+  XDeath:
+  Death.Explosives:
+  Death.ExplosivesFull:
+  Death.Explosives_Magic:
+  Death.Explosives_MagicFull:
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+    TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)   
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+  GaveSoulX:	
+    TRO2 N 5
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+    TRO2 O 5 A_XScream
+	TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+    TRO2 P 5
+    TRO2 Q 5 A_NoBlocking
+    TRO2 RST 5
+    TRO2 U -1
+    stop
+	  GiveSoulN:
+		TRO2 K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		TRO2 N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX  
+  Raise:
+    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TRO2 ML 8
+    TRO2 KJI 6
+    goto See
+  }
+}
+
+actor Vulgar : DnD_BaseEnemy
+{
+  obituary "%o was poisoned by a vulgar."
+  hitobituary "A Vulgar had %o for lunch."
+  health 70
+  Gibhealth -10
+  radius 20
+  height 56
+  mass 120
+  speed 8
+  painchance 180
+  +DONTHURTSPECIES
+  +DONTBLAST
+  +USEKILLSCRIPTS
+  seesound "monster/vulsit"
+  painsound "monster/vulpai"
+  deathsound "monster/vuldth"
+  activesound "monster/vulact"
+  DamageFactor "Imp", 0.0
+  DamageFactor "ImpMagic", 0.0
+  DamageFactor "ImpFire", 0.0
+  DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+  Tag "Vulgar"
+//  DropItem "VenomPickup", 192
+  MONSTER
+	Species "Imp"
+  +FLOORCLIP
+  states
+  {
+  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VULGAR, DND_POISON)
+	Idle:
+    VULG AB 10 A_Look
+    loop
+  See:
+    VULG AABBCCDD 3 Fast A_Chase
+    loop
+  Melee:
+    Missile:
+    VULG E 8 Fast A_FaceTarget
+    VULG F 1 Fast A_PlaySound("monster/vulswg")
+    VULG F 7 Fast A_FaceTarget
+    VULG G 6 Fast A_CustomMeleeAttack(4 * random(1, 8), "monster/vulhit")
+    goto See
+  Missile:
+    VULG EF 8 Fast A_FaceTarget
+    VULG G 6 Fast A_CustomMissile("VulgarShot",37,0,0,0,0)
+    goto See
+  Pain:
+    VULG H 2 Fast
+    VULG H 2 Fast A_Pain
+    goto See
+  Death:
+    VULG I 8
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+  GaveSoulN:
+    VULG J 8 A_Scream
+	TNT1 A 0 A_JumpIfInventory("NoDrop", 1, "Skip1") 
+	TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DnD Item Dropchance", 75), "DropN")
+  Skip1:
+    VULG KL 6
+    VULG M 6 A_NoBlocking
+    VULG N -1
+    stop
+  DropN:
+    TNT1 A 0 A_SpawnItemEx("VenomPickup", 0, 0, 8, 0, 0, 4)
+  Goto Skip1
+  XDeath:
+  Death.Explosives:
+  Death.ExplosivesFull:
+  Death.Explosives_Magic:
+  Death.Explosives_MagicFull:
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+	TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+ 	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+  GaveSoulX:
+    VULG O 5
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0) 
+    VULG P 5 A_XScream
+	TNT1 A 0 A_JumpIfInventory("NoDrop", 1, "Skip2") 
+	TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DnD Item Dropchance", 75), "DropX")
+  Skip2:
+	TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0) 
+    VULG Q 5
+    VULG R 5 A_NoBlocking
+    VULG STU 5
+    VULG V -1
+    stop
+  DropX:
+    TNT1 A 0 A_SpawnItemEx("VenomPickup", 0, 0, 8, 0, 0, 4)
+  Goto Skip2
+	  GiveSoulN:
+		TRO4 K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		TRO4 K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX	  
+  Raise:
+    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+    VULG ML 8
+    VULG KJI 6
+    goto See
+  }
+}
+
+ACTOR VulgarShot
+{
+   Radius 8
+   Height 16
+   Speed 10
+   Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+   DamageType "ImpPoison_Vulgar"
+   RENDERSTYLE ADD
+   ALPHA 0.67
+   PROJECTILE
+   +THRUGHOST
+   +DONTBLAST
+   Seesound "monster/vulsh1"
+   DeathSound "monster/vulsh2"
+   Decal "DoomImpScorch"
+   States
+   {
+   Spawn:
+	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+   SpawnLoop:
+      FVUL AAABBB 1 Bright A_SpawnItemEx("BarbTrail",0,0,0,0,0,0,0,128,0)
+      loop
+   Death:
+      TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+      FVUL CDEF 4 Bright
+      stop
+   }
+}
+
+Actor UndeadMage : UndeadEnemy
+{
+	Radius 20
+	Height 56
+	Speed 8
+	Scale 0.95
+	PainChance 184
+	Monster
+	+FLOORCLIP
+    SeeSound "UndeadInitiate/See"
+    ActiveSound "UndeadInitiate/Act"
+    painsound "UndeadInitiate/Pain"
+    deathsound "UndeadInitiate/Death"
+	Obituary "%o succumbed to an Undead Mage's magic."
+	Health 80
+	Species "Imp"
+	+DONTHURTSPECIES
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	Tag "Undead Mage"
+	+NODAMAGETHRUST
+	+DONTBLAST
+	+NODROPOFF
+	+USEKILLSCRIPTS
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_UNDEADMAGE, DND_SILVER_WEAKNESS | DND_RESURRECT)
+	Idle:
+		CMYS AB 10 A_Look
+		Loop
+	See:
+		TNT1 A 0 A_JumpIfHealthLower(30, "NoRaise")
+		CMYS AABBCCDD 3 Fast A_VileChase
+		Loop
+	NoRaise:
+		CMYS AABBCCDD 3 Fast A_FastChase
+		Loop
+	Missile:
+		CMYS E 8 Fast A_FaceTarget
+		CMYS F 0 Bright A_CustomMissile ("CultMysticShot",46,-5,0,1,0)
+		CMYS F 0 Bright A_CustomMissile ("CultMysticShot",46,5,0,1,0)
+		CMYS F 8 Fast Bright A_PlaySound("monster/culatk")
+		Goto See
+	Pain:
+		CMYS G 3 Fast
+		CMYS G 3 Fast A_Pain
+		Goto See
+	Heal:
+	    CMYS E 0 A_PlaySound("monster/cultre")
+		CMYS E 0 A_ChangeFlag("NoPain",1)
+		CMYS E 20 Fast DamageThing(10)
+		CMYS E 0 A_ChangeFlag("NoPain",0)
+		Goto See
+	Death:
+		CMYS H 6
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		CMYS I 6 A_PlayerScream
+		CMYS JK 6
+		CMYS L 6 A_NoBlocking
+		CMYS M 6
+		CMYS N -1
+		Stop 
+	XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		CMYS O 5 A_XScream
+		CMYS P 5
+		CMYS R 5 A_NoBlocking
+		CMYS STUVW 5
+		CMYS X -1
+		Stop
+	Raise:
+	    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		CMYS M 0 A_ChangeFlag("NoPain",0)
+		CMYS MLKJIH 5
+		Goto See
+	}
+}
+
+ACTOR CultMysticShot {
+  Speed 20
+  Radius 4
+  Height 4
+  Damage (Random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "ImpMagic"
+  PROJECTILE
+  +NoDamageThrust
+  +ThruGhost
+  +WindThrust
+  +DONTBLAST
+  Renderstyle Add
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+      CMYP A 2 Bright
+      CMYP B 2 Bright
+      loop
+   Death:
+	  TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+      CMYP CDEF 3 Bright
+      stop
+  }
+}
+
+ACTOR Shadow : DnD_BaseEnemy
+{
+	//$Category Monsters
+	Health 85
+	Radius 20
+	Height 56
+	Mass 100
+	RenderStyle "Translucent"
+	Alpha 0.7
+	Speed 8
+	PainChance 200
+	Monster
+	+FLOORCLIP
+	PainSound "Shadow/pain"
+	DeathSound "Shadow/death"
+	ActiveSound "Shadow/active"
+	Obituary "%o was assassinated by a shadow."
+	MissileType ShadowBallX
+	Species "Imp"
+	+DONTHURTSPECIES
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	Tag "Shadow"
+	+USEKILLSCRIPTS
+	+GHOST
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SHADOW, DND_GHOST)
+	Idle:
+		TROX A 5 A_Look
+		Loop
+	See:
+		TROX AAA 1 Fast A_Chase
+		TROX A 0 A_CustomMissile("ShadowGhostA", 0, 0, 0)
+		TROX BBB 1 Fast A_Chase
+		TROX B 0 A_CustomMissile("ShadowGhostB", 0, 0, 0)
+		TROX CCC 1 Fast A_Chase
+		TROX C 0 A_CustomMissile("ShadowGhostC", 0, 0, 0)
+		TROX DDD 1 Fast A_Chase
+		TROX D 0 A_CustomMissile("ShadowGhostD", 0, 0, 0)
+		TROX AAA 1 Fast A_Chase
+		TROX A 0 A_CustomMissile("ShadowGhostA", 0, 0, 0)
+		TROX BBB 1 Fast A_Chase
+		TROX B 0 A_CustomMissile("ShadowGhostB", 0, 0, 0)
+		TROX CCC 1 Fast A_Chase
+		TROX C 0 A_CustomMissile("ShadowGhostC", 0, 0, 0)
+		TROX DDD 1 Fast A_Chase
+		TROX D 0 A_CustomMissile("ShadowGhostD", 0, 0, 0)
+		Goto See+1
+	Missile:
+		TROX E 30 Fast A_FaceTarget
+		TROX F 5  Fast
+		TROX G 5 Fast BRIGHT A_MissileAttack
+		TROX F 5 Fast
+		TROX E 20 Fast
+		TROX E 1 A_SpidRefire
+		Goto Missile+1      
+	Pain:
+		TROX H 4 Fast
+		TROX H 4 Fast A_Pain
+		Goto See+1
+	Death:
+		TROX I 6 A_Scream
+		TROX J 1
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+    GaveSoul:
+		TROX J 4
+		TROX K 5 A_CustomMissile("Shadowtorso", 0, 0, 0)
+		TROX L 5 A_Fall
+		TROX MNO 6 
+		TROX P -1
+		Stop
+    GiveSoul:
+		TROX J 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+    Goto GaveSoul
+	XDeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+	Death.Explosives_Magic:
+	Death.Explosives_MagicFull:
+		TROX W 5
+		TROX X 4 A_XScream
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+    GaveSoulX:
+		TROX Y 4 
+		TROX Z 4 A_Fall
+ 		TROX ] 4
+ 		TROX [ 4
+		TROX "\" -1
+		Stop
+    GiveSoulX:
+		TROX Y 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+    Goto GaveSoulX
+	Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		TROX M 8
+		TROX KLJI 8
+		Goto See
+	}
+}
+
+ACTOR Shadowtorso
+{
+	Radius 12
+	Height 15
+	Speed 1
+	Mass 5000
+	RenderStyle "Translucent"
+	alpha 0.7
+	+Doombounce
+	+MOVEWITHSECTOR
+	+CLIENTSIDEONLY
+      States
+	{
+	Spawn:
+         TROX QRS 5
+         TROX T 5 A_Fall
+         TROX U 5
+         TROX V -1
+         Stop
+	}
+} 
+
+
+
+//===========================================================================
+//
+// Shadow fireball
+//
+//===========================================================================
+ACTOR ShadowBallX
+{
+	Radius 6
+	Height 8
+	Speed 20
+	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Imp"
+	Projectile
+	+RANDOMIZE
+	RenderStyle "ADD"
+	Alpha 0.75
+	SeeSound "Shadow/attack"
+	DeathSound "imp/shotx"
+	MissileType ShadowTrailX
+	Missileheight 0
+	Decal DoomImpScorch
+	States
+	{
+	Spawn: 
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		SBAL ABC 4 BRIGHT A_MissileAttack
+		Loop
+	Death:
+		SBAL C 5 Bright
+		SBAL DEFGH 4 BRIGHT
+		Stop
+	}
+}
+
+actor ShadowTrailX
+{
+    Radius 1
+    Height 1
+    Speed 0
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.6
+    +NOCLIP
+	+CLIENTSIDEONLY
+    States
+    {
+    Spawn:
+     SHTR ABCDEF 4 Bright
+        Stop       
+    }
+}
+
+//============================================================================
+//
+//Shadow "Ghosts"
+//
+//============================================================================
+ACTOR ShadowGhostA
+{
+	Radius 4
+	Height 8
+	Speed 0
+	Damage 0
+	Mass 75
+	RenderStyle "Translucent"
+	Alpha 0.3
+	PROJECTILE
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		TROX A 10
+		Stop
+	}
+}
+
+ACTOR ShadowGhostB : ShadowGhostA
+{
+	States
+	{
+	Spawn:
+		TROX B 10
+		Stop
+	}
+}
+
+ACTOR ShadowGhostC : ShadowGhostA
+{
+	States
+	{
+	Spawn:
+		TROX C 10
+		Stop
+	}
+}
+
+ACTOR ShadowGhostD : ShadowGhostA
+{
+	States
+	{
+	Spawn:
+		TROX D 10
+		Stop
+	}
+}
+
+Actor Roach : DnD_BaseEnemy {
+	Health 80
+	Radius 20
+	Height 56
+	Speed 12
+	PainChance 64
+	Mass 200
+	BloodColor "DarkGreen"
+	MONSTER
+	+DontHurtSpecies
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	SeeSound "Roach/Sight"
+	PainSound "Roach/Pain"
+	DeathSound "Roach/Death"
+	ActiveSound "Roach/Active"
+	Obituary "%o was poisoned by a Roach."
+	Scale 1.1
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison_Vulgar", 0.0
+	DamageFactor "ImpPoison_Roach", 0.0
+	Tag "Roach"
+	Species "Imp"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ROACH, DND_POISON | DND_HEAL)
+		Idle:
+			ROAC AA 3 Fast A_Look
+			ROAC A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+		Loop
+		See:
+			ROAC BB 2 Fast A_Chase
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			ROAC CC 2 Fast A_Chase
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			ROAC DD 2 Fast A_Chase
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			ROAC EE 2 Fast A_Chase
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+		Loop
+		Melee:
+		Missile:
+			ROAC AA 3 Fast A_FaceTarget
+			ROAC AA 3 Fast A_FaceTarget
+			ROAC FF 3 Fast A_FaceTarget
+			ROAC G 0 A_CustomMissile("RoachBall", 32, -4, 1)
+			ROAC G 6 Fast A_CustomMissile("RoachBall", 32, 4, -1)
+		Goto See
+		Pain:
+			ROAC H 3 Fast
+			ROAC H 3 Fast A_Pain
+			ROAC H 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+		Goto See
+		Death:
+			ROAC I 8 A_ScreamAndUnblock
+			TNT1 A 0 A_JumpIfInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+			ROAC JKL 6
+			ROAC M -1
+		Stop
+		XDeath:
+			ROAC I 4 A_XScream
+			TNT1 A 0 A_JumpIfInventory("Ability_SoulStealer", 1, "GiveSoulX")
+		GaveSoulX:
+			ROAC NOP 6
+			ROAC Q 6 A_NoBlocking
+			ROAC RS 6
+			ROAC T -1
+		Stop
+		GiveSoul:
+			ROAC J 1
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+			TNT1 A 0 A_GiveToTarget("Souls", 1)  
+		Goto GaveSoulX
+		GiveSoulX:
+			ROAC N 1
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+			TNT1 A 0 A_GiveToTarget("Souls", 1)  
+		Goto GaveSoulX
+		Raise:
+			ROAC MLKJI 5
+		Goto See
+	}
+}
+
+Actor RoachExp : BaseExplosionDamage {
+	Obituary "%o was poisoned by a Roach."
+	Damage (Random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpPoison_Roach"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 A_Explode(5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 32, 0)
+		Stop
+	}
+}
+
+Actor RoachBall : DoomImpBall
+{
+  Damage (Random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "ImpPoison_Roach"
+  Height 5
+  Radius 3
+  Scale 0.6
+  Speed 24
+  Decal PlasmaScorchLower
+  SeeSound "Roach/Fire"
+  DeathSound "Roach/Hit"
+  +DONTBLAST
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    RCHB AAAABBBB 1 Bright A_SpawnItemEx("RoachBallTrail", -(MomX/1.2), -(MomY/1.2), (MomZ/1.2*-1), (MomX/1.2), (MomY/1.2), (MomZ/1.2), -Angle, 138)
+    Loop
+  Death:
+    TNT1 A 0 A_SpawnItem("RoachExp")
+    RCHB CDEFG 3 Bright
+    Stop
+  }
+}
+
+Actor RoachBallTrail
+{
+  Projectile
+  RenderStyle Add
+  Alpha 0.5
+  Scale 0.6
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    RCHB AABB 2 Bright A_FadeOut(0.05)
+    Loop
+  }
+}

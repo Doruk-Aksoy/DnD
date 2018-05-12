@@ -1,0 +1,393 @@
+Actor Menu_Setup : DnD_Boolean { }
+
+Actor QuestWasPicked : DnD_Boolean { }
+
+// Holds character index of this logged in player
+Actor DnD_CharacterID : DnD_Info { }
+
+Actor Exp : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor ExpVisual : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	+IGNORESKILL
+}
+
+Actor SpreeXP : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Level : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	+IGNORESKILL
+}
+
+Actor LevelExp : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor Credit : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor Budget : Ammo {
+	inventory.amount 1
+	inventory.maxamount 1000
+	+IGNORESKILL
+}
+
+Actor LevelCredit : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor ActiveQuestID : Inventory {
+	inventory.maxamount 0xFF
+}
+
+Actor CreditGiver : Credit { // test actor
+	inventory.amount 0xFFFFFF
+}
+
+Actor AttributePoint : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0xFFF
+	+IGNORESKILL
+}
+
+Actor TalentPoint : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0xFFFF
+	+IGNORESKILL
+}
+
+Actor PerkPoint : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x3FF
+	+IGNORESKILL
+}
+
+Actor PSTAT_Strength : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	+IGNORESKILL
+}
+
+Actor PSTAT_Dexterity : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	+IGNORESKILL
+}
+
+Actor PSTAT_Charisma : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	+IGNORESKILL
+}
+
+Actor PSTAT_Bulkiness : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	+IGNORESKILL
+}
+
+Actor PSTAT_Vitality : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	+IGNORESKILL
+}
+
+Actor PSTAT_Intellect : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	+IGNORESKILL
+}
+
+Actor Perk_Sharpshooting : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Endurance : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Wisdom : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Greed : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Medic : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Munitionist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Deadliness : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Savagery : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor Perk_Luck : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor CriticalHit : PowerDamage {
+	Damagefactor "normal", 2.0
+	powerup.duration 10 // adjust this to the delay in the loop it is given
+}
+
+Actor MapDifficultyClientside : Inventory {
+	inventory.maxamount 4
+}
+
+Actor LeveledUp : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 7
+}
+
+Actor PerkedUp : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor TalentedUp : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor MenuOption : Inventory {
+	inventory.maxamount 255
+}
+
+// Used for left/right move, 1 = L, 2 = R
+Actor MenuLR : Inventory {
+	inventory.maxamount 2
+}
+
+// Used for left/right move, 1 = U, 2 = D
+Actor MenuUD : Inventory {
+	inventory.maxamount 2
+}
+
+Actor MenuPosX : Inventory {
+	inventory.maxamount 255
+}
+
+Actor ActiveBox : Inventory {
+	inventory.maxamount 255
+}
+
+Actor ActivePopupBox : Inventory {
+	inventory.maxamount 255
+}
+
+Actor ActiveMainBox : Inventory {
+	inventory.maxamount 255
+}
+
+Actor Mouse_X : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Mouse_Y : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor MenuMainPosY : Inventory {
+	inventory.maxamount 255
+}
+
+Actor ShowingMenu : Inventory { 
+	inventory.maxamount 255
+}
+
+Actor MadeChoice : DnD_Boolean { }
+
+Actor StatBoostGiver : DND_Activator
+{
+	radius 20
+	height 16
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Attribute Point!\c-"
+	inventory.pickupsound "items/pickup"
+    +COUNTITEM
+    +INVENTORY.ALWAYSPICKUP	
+	states
+	{
+		Spawn:
+			BASC ABCD 3 Bright
+		Loop
+		Pickup:
+			TNT1 A 0 A_GiveInventory("AttributePoint", 1)
+		Stop
+	}
+}
+
+Actor Ability_Kick : DnD_Boolean { }
+Actor Ability_Reloader : DnD_Boolean { }
+Actor Ability_Dash : DnD_Boolean { }
+Actor Ability_Arcanery : DnD_Boolean { }
+Actor Ability_AntiPoison : DnD_Boolean { }
+Actor Ability_ExplosionMastery : DnD_Boolean { }
+Actor Ability_HeartSeeker : DnD_Boolean { }
+Actor Ability_Regeneration : DnD_Boolean { }
+Actor Ability_Temporal : DnD_Boolean { }
+Actor Ability_SoulStealer : DnD_Boolean { }
+Actor Ability_MonsterInfo : DnD_Boolean { }
+
+Actor TemporalSphere : CustomInventory
+{
+	inventory.maxamount 1
+	inventory.icon "AMSPA0"
+	Inventory.UseSound "weapons/pickup"
+	+INVBAR
+	States
+	{
+		Use:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(896), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(897, 0)
+		Stop
+	}
+}
+
+Actor DashDisabled : DnD_Boolean { }
+
+Actor PoisonImmunity : PowerProtection { 
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Poison", 0.25
+}
+
+Actor DashEffect : PowerSpeed {
+	powerup.duration 16
+	Speed 1.0
+}
+
+Actor RegenEffect : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItem("RegenEffectSpawner")
+			TNT1 A 0 A_SetBlend("24 90 24", 0.3, 15)
+		Stop
+	}
+}
+
+Actor RegenStopper : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
+Actor DnD_PopupHack : DnD_Boolean { }
+Actor DnD_SellConfirm : DnD_Boolean { }
+Actor DnD_PopupError : DnD_Boolean { }
+Actor DnD_PopupSell : DnD_Boolean { }
+Actor DnD_PopupReset : DnD_Boolean { }
+Actor DnD_PopupResetMade : DnD_Boolean { }
+
+Actor DnD_ShowPopup : PowerDamage {
+	powerup.duration -1
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_ShowSellPopup : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_ShowKillBonus : PowerDamage {
+	powerup.duration -6
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_ShowItemBonus : PowerDamage {
+	powerup.duration -6
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_ShowSecretBonus : PowerDamage {
+	powerup.duration -6
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_ShowBonusBonus : PowerDamage {
+	powerup.duration -6
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_ClickTicker : PowerDamage {
+	powerup.duration 3
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_PopupID : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor DnD_Character : Inventory {
+	inventory.maxamount 0xFF
+}
+
+Actor KillSpreeOn : DnD_Boolean { }
+
+Actor DnD_SpreeCountdownRunning : DnD_Boolean { }
+
+Actor DnD_SpreeTimer : Inventory {
+	inventory.maxamount 140 // 4 * 35
+}
+
+Actor DnD_MultikillCounter : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor HardcoreDebuff : PowerProtection {
+	damagefactor "normal", 1.15
+	powerup.duration 0x7FFFFFFF
+}
+
+Actor Menu_LRCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 7
+}
+
+Actor DashDelay : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 35
+}
+
+Actor CanLoad : DnD_Boolean { }

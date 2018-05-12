@@ -1,0 +1,986 @@
+enum {
+	RES_RAREARMOR,
+	RES_SUPERARMOR,
+	RES_MEDKITSTORE,
+	RES_ACCESSORY,
+	
+	RES_FLECHETTE,
+	RES_PIERCING,
+	RES_ELECTRIC,
+	RES_NITRO,
+	
+	RES_SONICGRENADE,
+	RES_HEGRENADE,
+	
+	RES_DOUBLESPECIALCAP,
+	
+	RES_SLOT1OCCULT,
+	RES_SLOT2LUXURY,
+	RES_SLOT3LUXURY,
+	RES_SLOT4LUXURY,
+	RES_SLOT5LUXURY,
+	RES_SLOT6LUXURY,
+	RES_SLOT7LUXURY,
+	
+	RES_SLOT1UPG1,
+	RES_SLOT1UPG2,
+	
+	RES_SLOT2UPG1,
+	RES_SLOT2UPG2,
+	
+	RES_SLOT3UPG1,
+	RES_SLOT3UPG2,
+	RES_SLOT3SSGUPG1,
+	RES_SLOT3SSGUPG2,
+	
+	RES_SLOT4UPG1,
+	RES_SLOT4UPG2,
+	RES_SLOT4UPG3,
+	
+	RES_SLOT5UPG1,
+	RES_SLOT5GL,
+	RES_SLOT5UPG2,
+	RES_SLOT5UPG3,
+	
+	RES_SLOT6UPG1,
+    RES_SLOT6UPG2,
+	
+	RES_SLOT7UPG1,
+	RES_SLOT7UPG2,
+	
+	RES_OCCULTABILITY,
+	RES_SLOT8REVEAL,
+	RES_NANOTECH,
+	RES_OCCULTARTIFACT
+};
+
+Actor TechLevel : Ammo {
+	inventory.amount 1
+	inventory.maxamount 30
+	+IGNORESKILL
+}
+
+Actor StoredMedkit : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 100
+	+IGNORESKILL
+}
+
+Actor MedkitItem : CustomInventory {
+	inventory.maxamount 1
+	inventory.icon "PORMEICO"
+	+INVENTORY.INVBAR
+	+INVENTORY.UNDROPPABLE
+	inventory.amount 1
+	inventory.maxamount 16000
+	States {
+		Use:
+			MEDI A 0 A_JumpIfInventory("StoredMedkit", 1, "TryHeal")
+		End:
+			TNT1 A 0
+			Fail
+		TryHeal:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(819, 2), "DoHeal")
+			Goto End
+		DoHeal:
+			TNT1 A 0 A_PlaySound("Items/fieldkit")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Portable Kit Script")
+			Fail
+	}
+}
+
+/*
+=============================
+=== DISCOVERED RESEARCHES ===
+=============================
+*/
+
+Actor Research_SuperArmor : DnD_Boolean { }
+Actor Research_RareArmors : DnD_Boolean { }
+Actor Research_MedkitStore : DnD_Boolean { }
+Actor Research_AccessoryTap : DnD_Boolean { }
+
+Actor Research_FlechetteShell : DnD_Boolean { }
+Actor Research_PiercingShell : DnD_Boolean { }
+Actor Research_ElectricShell : DnD_Boolean { }
+Actor Research_NitroShell : DnD_Boolean { }
+
+Actor Research_HEGrenade : DnD_Boolean { }
+Actor Research_SonicGrenade : DnD_Boolean { }
+
+Actor Research_DoubleSpecialCap : DnD_Boolean { }
+
+Actor Research_Slot1Occult : DnD_Boolean { }
+Actor Research_Slot2Luxury : DnD_Boolean { }
+Actor Research_Slot3Luxury : DnD_Boolean { }
+Actor Research_Slot4Luxury : DnD_Boolean { }
+Actor Research_Slot5Luxury : DnD_Boolean { }
+Actor Research_Slot6Luxury : DnD_Boolean { }
+Actor Research_Slot7Luxury : DnD_Boolean { }
+
+Actor Research_Slot1Upgrade1 : DnD_Boolean { }
+Actor Research_Slot1Upgrade2 : DnD_Boolean { }
+Actor Research_Slot2Upgrade1 : DnD_Boolean { }
+Actor Research_Slot2Upgrade2 : DnD_Boolean { }
+Actor Research_Slot3Upgrade1 : DnD_Boolean { }
+Actor Research_Slot3Upgrade2 : DnD_Boolean { }
+Actor Research_Slot3SSGUpgrade1 : DnD_Boolean { }
+Actor Research_Slot3SSGUpgrade2 : DnD_Boolean { }
+Actor Research_Slot4Upgrade1 : DnD_Boolean { }
+Actor Research_Slot4Upgrade2 : DnD_Boolean { }
+Actor Research_Slot4Upgrade3 : DnD_Boolean { }
+Actor Research_Slot5Upgrade1 : DnD_Boolean { }
+Actor Research_Slot5Upgrade2 : DnD_Boolean { }
+Actor Research_Slot5Upgrade3 : DnD_Boolean { }
+Actor Research_Slot5GL : DnD_Boolean { }
+Actor Research_Slot6Upgrade1 : DnD_Boolean { }
+Actor Research_Slot6Upgrade2 : DnD_Boolean { }
+Actor Research_Slot7Upgrade1 : DnD_Boolean { }
+Actor Research_Slot7Upgrade2 : DnD_Boolean { }
+
+Actor Research_OccultAbility : DnD_Boolean { }
+Actor Research_Slot8Reveal : DnD_Boolean { }
+Actor Research_NanoTech : DnD_Boolean { } // for abilities that give resist or regen
+Actor Research_OccultArtifact : DnD_Boolean { }
+
+/*
+=============================
+== ACCOMPLISHED RESEARCHES ==
+=============================
+*/
+
+Actor Done_SuperArmor : DnD_Boolean { }
+Actor Done_RareArmors : DnD_Boolean { }
+Actor Done_MedkitStore : DnD_Boolean { }
+Actor Done_AccessoryTap : DnD_Boolean { }
+
+Actor Done_FlechetteShell : DnD_Boolean { }
+Actor Done_PiercingShell : DnD_Boolean { }
+Actor Done_ElectricShell : DnD_Boolean { }
+Actor Done_NitroShell : DnD_Boolean { }
+
+Actor Done_HEGrenade : DnD_Boolean { }
+Actor Done_SonicGrenade : DnD_Boolean { }
+
+Actor Done_DoubleSpecialCap : DnD_Boolean { }
+
+Actor Done_Slot1Occult : DnD_Boolean { }
+Actor Done_Slot2Luxury : DnD_Boolean { }
+Actor Done_Slot3Luxury : DnD_Boolean { }
+Actor Done_Slot4Luxury : DnD_Boolean { }
+Actor Done_Slot5Luxury : DnD_Boolean { }
+Actor Done_Slot6Luxury : DnD_Boolean { }
+Actor Done_Slot7Luxury : DnD_Boolean { }
+
+Actor Done_Slot1Upgrade1 : DnD_Boolean { }
+Actor Done_Slot1Upgrade2 : DnD_Boolean { }
+Actor Done_Slot2Upgrade1 : DnD_Boolean { }
+Actor Done_Slot2Upgrade2 : DnD_Boolean { }
+Actor Done_Slot3Upgrade1 : DnD_Boolean { }
+Actor Done_Slot3Upgrade2 : DnD_Boolean { }
+Actor Done_Slot3SSGUpgrade1 : DnD_Boolean { }
+Actor Done_Slot3SSGUpgrade2 : DnD_Boolean { }
+Actor Done_Slot4Upgrade1 : DnD_Boolean { }
+Actor Done_Slot4Upgrade2 : DnD_Boolean { }
+Actor Done_Slot4Upgrade3 : DnD_Boolean { }
+Actor Done_Slot5Upgrade1 : DnD_Boolean { }
+Actor Done_Slot5Upgrade2 : DnD_Boolean { }
+Actor Done_Slot5Upgrade3 : DnD_Boolean { }
+Actor Done_Slot5GL : DnD_Boolean { }
+Actor Done_Slot6Upgrade1 : DnD_Boolean { }
+Actor Done_Slot6Upgrade2 : DnD_Boolean { }
+Actor Done_Slot7Upgrade1 : DnD_Boolean { }
+Actor Done_Slot7Upgrade2 : DnD_Boolean { }
+
+Actor Done_OccultAbility : DnD_Boolean { }
+Actor Done_Slot8Reveal : DnD_Boolean { }
+Actor Done_NanoTech : DnD_Boolean { }
+Actor Done_OccultArtifact : DnD_Boolean { }
+
+// *******************
+//		MODULES
+// *******************
+
+Actor ResearchModule_MP : DnD_DroppedItem {
+	Radius 20
+	Height 24
+	States {
+		Spawn:
+			TNT1 A 1
+		Goto SpawnNormal
+		Variant1:
+			RC01 A 0 
+		Goto SpawnInit
+		Variant2:
+			TNT1 A 0 A_SetScale(0.75, 0.75)
+		VL:
+			RC01 C 0
+		Goto SpawnInit
+		
+		SpawnNormal:
+			TNT1 A 0 A_Jump(128, "Variant1", "Variant2")
+			RC01 B 0
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, 1)
+			"####" "#" 16
+		SpawnLoop:
+			"####" "#" 1 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+		
+		See:
+		CheckPickup:
+			"####" "#" 1 A_JumpIfCloser(32, "Pickup")
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		goto SpawnLoop
+
+		Pickup:
+			"####" "#" 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", 1), "PickupSuccess")
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		goto PickupFail
+
+		PickupFail:
+			"####" "#" 1
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		goto SpawnLoop
+
+		PickupSuccess:
+//			"####" "#" 0 ACS_ExecuteAlways(985, 0, 2, mass - 1, 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Give Research", 0, mass - 1)
+		stop
+	}
+}
+
+Actor ResearchSoundPlayer : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlaySound("items/research", 7)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+// The following are SP drop modules, for MP, the one above is used
+
+Actor ResearchModule : CustomInventory {
+	inventory.pickupsound "items/research"
+	inventory.pickupmessage ""
+	+FLOATBOB
+	+NEVERRESPAWN
+	States {
+		Spawn:
+			TNT1 A 1
+		Goto SpawnNormal
+		SpawnNormal:
+			TNT1 A 0 A_Jump(128, "Variant1", "Variant2")
+			RC01 B 1 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+		Variant1:
+			RC01 A 1 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+		Variant2:
+			TNT1 A 0 A_SetScale(0.75, 0.75)
+		VL:
+			RC01 C 1 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+	}
+}
+
+Actor ResearchModule_RareArmors : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_RAREARMOR, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_RAREARMOR), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_RAREARMOR)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_RAREARMOR)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_SuperArmor : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SUPERARMOR, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SUPERARMOR), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SUPERARMOR)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SUPERARMOR)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_MedkitStore : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_MEDKITSTORE, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_MEDKITSTORE), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_MEDKITSTORE)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_MEDKITSTORE)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_AccessoryTap : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_ACCESSORY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_ACCESSORY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_ACCESSORY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_ACCESSORY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_FlechetteShell : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_FLECHETTE, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_FLECHETTE), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_FLECHETTE)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_FLECHETTE)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_PiercingShell : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_PIERCING, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_PIERCING), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_PIERCING)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_PIERCING)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_ElectricShell : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_ELECTRIC, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_ELECTRIC), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_ELECTRIC)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_ELECTRIC)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_NitroShell : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_NITRO, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_NITRO), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_NITRO)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_NITRO)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_HEGrenade : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_HEGRENADE, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_HEGRENADE), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_HEGRENADE)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_HEGRENADE)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_SonicGrenade : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SONICGRENADE, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SONICGRENADE), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SONICGRENADE)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SONICGRENADE)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_DoubleSpecialCap : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_DOUBLESPECIALCAP, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_DOUBLESPECIALCAP), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_DOUBLESPECIALCAP)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_DOUBLESPECIALCAP)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot1Occult : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT1OCCULT, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT1OCCULT), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT1OCCULT)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT1OCCULT)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot2Luxury : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT2LUXURY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT2LUXURY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT2LUXURY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT2LUXURY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot3Luxury : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT3LUXURY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3LUXURY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3LUXURY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3LUXURY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot4Luxury : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT4LUXURY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4LUXURY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4LUXURY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4LUXURY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot5Luxury : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT5LUXURY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5LUXURY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5LUXURY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5LUXURY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot6Luxury : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT6LUXURY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT6LUXURY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT6LUXURY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT6LUXURY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot7Luxury : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT7LUXURY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT7LUXURY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT7LUXURY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT7LUXURY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot1Upgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT1UPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT1UPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT1UPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT1UPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot1Upgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT1UPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT1UPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT1UPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT1UPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot2Upgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT2UPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT2UPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT2UPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT2UPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot2Upgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT2UPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT2UPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT2UPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT2UPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot3Upgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT3UPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3UPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3UPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3UPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot3Upgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT3UPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3UPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3UPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3UPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot3SSGUpgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT3SSGUPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3SSGUPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3SSGUPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3SSGUPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot3SSGUpgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT3SSGUPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3SSGUPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3SSGUPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3SSGUPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot4Upgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT4UPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4UPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4UPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4UPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot4Upgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT4UPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4UPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4UPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4UPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot4Upgrade3 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT4UPG3, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4UPG3), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4UPG3)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4UPG3)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot5Upgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT5UPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5UPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5UPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5UPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot5Upgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT5UPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5UPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5UPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5UPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot5Upgrade3 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT5UPG3, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5UPG3), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5UPG3)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5UPG3)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot5GL : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT5GL, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5GL), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5GL)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5GL)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot6Upgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT6UPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT6UPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT6UPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT6UPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot6Upgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT6UPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT6UPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT6UPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT6UPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot7Upgrade1 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT7UPG1, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT7UPG1), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT7UPG1)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT7UPG1)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot7Upgrade2 : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT7UPG2, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT7UPG2), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT7UPG2)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT7UPG2)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_OccultAbility : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_OCCULTABILITY, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_OCCULTABILITY), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_OCCULTABILITY)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_OCCULTABILITY)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_Slot8Reveal : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLOT8REVEAL, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT8REVEAL), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT8REVEAL)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT8REVEAL)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_NanoTech : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_NANOTECH, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_NANOTECH), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_NANOTECH)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_NANOTECH)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_OccultArtifact : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_OCCULTARTIFACT, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_OCCULTARTIFACT), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_OCCULTARTIFACT)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_OCCULTARTIFACT)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}

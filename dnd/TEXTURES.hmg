@@ -1,0 +1,227 @@
+Sprite "SMG2A0", 500, 200
+{
+	Offset 95, 4
+	Patch "A_BASE1", 279, 77
+	Patch "A_HAND1", 249, 112
+	Patch "A_BASE2", 271, 127
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2B0", 500, 200
+{
+	Offset 94, 4
+	Patch "A_FIRE1", 86, -19
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2C0", 500, 200
+{
+	Offset 93, 3
+	Patch "A_FIRE2", 86, -19
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2D0", 500, 200
+{
+	Offset 94, 4
+	Patch "A_FIRE2", 89, -16
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2E0", 500, 200
+{
+	Offset 93, 3
+	Patch "A_FIRE1", 89, -16
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2F0", 500, 200
+{
+	Offset 89, -1
+	Patch "A_BASE1", 279, 77
+	Patch "A_HAND1", 249, 112
+	Patch "A_BASE2", 287, 152
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2G0", 500, 200
+{
+	Offset 92, 1
+	Patch "A_BASE1", 279, 77
+	Patch "A_HAND1", 249, 112
+	Patch "A_BASE2", 277, 138
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2H0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 245, 110
+	Patch "A_BASE1", 283, 71
+	Patch "A_BASE2", 275, 124
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2I0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 221, 119
+	Patch "A_BASE1", 294, 64
+	Patch "A_BASE2", 286, 117
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2J0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 199, 153
+	Patch "A_RBASE2", 227, 142
+	Patch "A_RBASE1", 151, 61
+}
+
+Sprite "SMG2K0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 183, 169
+	Patch "A_RBASE2", 235, 135
+	Patch "A_RBASE1", 159, 54
+}
+
+Sprite "SMG2L0", 500, 200
+{
+	Offset 90, -3
+	Patch "A_RBASE2", 226, 143
+	Patch "A_RBASE1", 168, 52
+}
+
+Sprite "SMG2M0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_RBASE2", 215, 156
+	Patch "A_RBASE1", 178, 54
+}
+
+Sprite "SMG2N0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_RBASE2", 211, 165
+	Patch "A_RBASE1", 183, 54
+}
+
+Sprite "SMG2O0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_RBASE1", 189, 56
+}
+
+Sprite "SMG2P0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 235, 174
+	Patch "A_RBASE2", 219, 150
+	Patch "A_RBASE1", 172, 55
+}
+
+Sprite "SMG2Q0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 242, 171
+	Patch "A_RBASE2", 226, 147
+	Patch "A_RBASE1", 161, 59
+}
+
+Sprite "SMG2R0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 244, 169
+	Patch "A_RBASE2", 228, 145
+	Patch "A_RBASE1", 157, 60
+}
+
+Sprite "SMG2S0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 245, 168
+	Patch "A_RBASE2", 229, 144
+	Patch "A_RBASE1", 153, 63
+}
+
+Sprite "SMG2T0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 248, 165
+	Patch "A_RBASE2", 232, 141
+	Patch "A_RBASE1", 156, 60
+}
+
+Sprite "SMG2U0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 255, 160
+	Patch "A_RBASE2", 239, 136
+	Patch "A_RBASE1", 163, 55
+}
+
+Sprite "SMG2V0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 250, 160
+	Patch "A_RBASE2", 234, 136
+	Patch "A_RBASE1", 158, 55
+}
+
+Sprite "SMG2W0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 235, 164
+	Patch "A_RBASE2", 229, 140
+	Patch "A_RBASE1", 153, 59
+}
+
+Sprite "SMG2X0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 220, 146
+	Patch "A_RBASE2", 221, 142
+	Patch "A_RBASE1", 145, 61
+}
+
+Sprite "SMG2Y0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 228, 122
+	Patch "A_BASE1", 285, 77
+	Patch "A_BASE2", 293, 151
+	{
+		Style Overlay
+	}
+}
+
+Sprite "SMG2Z0", 500, 200
+{
+	Offset 90, 0
+	Patch "A_HAND2", 246, 114
+	Patch "A_BASE1", 279, 72
+	Patch "A_BASE2", 286, 144
+	{
+		Style Overlay
+	}
+}

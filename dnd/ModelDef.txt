@@ -1,0 +1,83 @@
+Model Tracer { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model ZombieBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model SGTracer {
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model LeadSpitterTracer { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer2.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model EnforcerPlasma { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer3.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 5.0 5.0 2.0
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model EnforcerPlasma_FullDMG { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer3.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 5.0 5.0 2.0
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model SunBeamDamager
+{
+   Path "Models/Tracers"
+   Model 0 "tracer.md3"
+   Skin 0 "tracer4.png"
+   Scale 1.0 1.0 1.0
+   PITCHFROMMOMENTUM
+   FrameIndex FX01 A 0 0
+}
+
+Model SunBeamDamager_FullDMG
+{
+   Path "Models/Tracers"
+   Model 0 "tracer.md3"
+   Skin 0 "tracer4.png"
+   Scale 1.0 1.0 1.0
+   PITCHFROMMOMENTUM
+   FrameIndex FX01 A 0 0
+}
+
+Model GreenTracer
+{
+   Path "Models/Tracers"
+   Model 0 "tracer.md3"
+   Skin 0 "tracer5.png"
+   Scale 1.0 1.0 1.0
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}

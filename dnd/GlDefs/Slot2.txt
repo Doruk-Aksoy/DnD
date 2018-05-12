@@ -1,0 +1,177 @@
+object NewBulletPuff
+{
+    frame PUFFA { light BPUFF1 }
+    frame PUFFB { light BPUFF2 }
+}
+
+object SpiderMBulletPuff {
+    frame PUFFA { light BPUFF1 }
+    frame PUFFB { light BPUFF2 }
+}
+
+object NewBulletPuffMag {
+    frame PUFFA { light BPUFF1 }
+    frame PUFFB { light BPUFF2 }
+}
+
+object MagnumPuff {
+    frame MPUFA { light BPUFF1 }
+    frame MPUFB { light BPUFF2 }
+}
+
+object NewBulletPuff_FullDMG
+{
+    frame PUFFA { light BPUFF1 }
+    frame PUFFB { light BPUFF2 }
+}
+
+object NewBulletPuffMag_FullDMG {
+    frame PUFFA { light BPUFF1 }
+    frame PUFFB { light BPUFF2 }
+}
+
+PointLight DiabloistFlare1
+{
+Color 1.0 0.2 0.0
+Size 32
+}
+
+PointLight DiabloistFlare2
+{
+Color 1.0 0.4 0.0
+Size 48
+}
+
+PointLight DiabloistFlare3
+{
+Color 1.0 0.4 0.0
+Size 40
+}
+
+PointLight DiabloistFlare4
+{
+Color 0.8 0.3 0.0
+Size 32
+}
+
+PointLight DiabloistFlare5
+{
+Color 0.6 0.2 0.0
+Size 24
+}
+
+PointLight DiabloistFlare6
+{
+Color 0.5 0.1 0.0
+Size 16
+}
+
+Object RubyShot
+{
+	Frame VBALA { Light DiabloistFlare1 }
+	Frame VBALB { Light DiabloistFlare1 }
+	Frame WBALC { Light DiabloistFlare2 }
+	Frame WBALD { Light DiabloistFlare3 }
+	Frame WBALE { Light DiabloistFlare4 }
+	Frame WBALF { Light DiabloistFlare5 }
+	Frame WBALG { Light DiabloistFlare6 }
+}
+
+Object RubyShot_FullDMG
+{
+	Frame VBALA { Light DiabloistFlare1 }
+	Frame VBALB { Light DiabloistFlare1 }
+	Frame WBALC { Light DiabloistFlare2 }
+	Frame WBALD { Light DiabloistFlare3 }
+	Frame WBALE { Light DiabloistFlare4 }
+	Frame WBALF { Light DiabloistFlare5 }
+	Frame WBALG { Light DiabloistFlare6 }
+}
+
+FlickerLight DMissileTrail1
+{
+Color 1.0 0.4 0.0
+Size 40
+SecondarySize 44
+Chance 0.5
+}
+
+FlickerLight DMissileTrail2
+{
+Color 1.0 0.4 0.0
+Size 48
+SecondarySize 56
+Chance 0.4
+}
+
+flickerlight DMissileTrail3
+{
+Color 1.0 0.4 0.0
+Size 64
+SecondarySize 72
+Chance 0.4
+}
+
+FlickerLight DMissileTrail4
+{
+Color 0.7 0.2 0.0
+Size 48
+SecondarySize 56
+Chance 0.4
+}
+
+FlickerLight DMissileTrail5
+{
+Color 0.5 0.1 0.0
+Size 32
+SecondarySize 40
+Chance 0.4
+}
+
+FlickerLight DMissileTrail6
+{
+Color 0.2 0.0 0.0
+Size 24
+SecondarySize 32
+Chance 0.4
+}
+
+Object RubyFlameMissile
+{
+Frame CFFXB { Light DMissileTrail2 }
+Frame CFFXC { Light DMissileTrail3 }
+Frame CFFXD { Light DMissileTrail3 }
+Frame CFFXE { Light DMissileTrail3 }
+Frame CFFXF { Light DMissileTrail3 }
+Frame CFFXG { Light DMissileTrail3 }
+Frame CFFXH { Light DMissileTrail3 }
+Frame CFFXI { Light DMissileTrail3 }
+Frame CFFXJ { Light DMissileTrail4 }
+Frame CFFXK { Light DMissileTrail5 }
+Frame CFFXL { Light DMissileTrail6 }
+}
+
+Object RubyFlameMissile_FullDMG
+{
+Frame CFFXB { Light DMissileTrail2 }
+Frame CFFXC { Light DMissileTrail3 }
+Frame CFFXD { Light DMissileTrail3 }
+Frame CFFXE { Light DMissileTrail3 }
+Frame CFFXF { Light DMissileTrail3 }
+Frame CFFXG { Light DMissileTrail3 }
+Frame CFFXH { Light DMissileTrail3 }
+Frame CFFXI { Light DMissileTrail3 }
+Frame CFFXJ { Light DMissileTrail4 }
+Frame CFFXK { Light DMissileTrail5 }
+Frame CFFXL { Light DMissileTrail6 }
+}
+
+Object RubyCircleFlame
+{
+Frame CFFX { Light DMissileTrail1 }
+}
+
+Object RubyCircleFlame_FullDMG
+{
+Frame CFFX { Light DMissileTrail1 }
+}

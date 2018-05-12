@@ -1,0 +1,7 @@
+enum {
+	DND_CHARMID_0,
+	DND_CHARMID_1,
+	DND_CHARMID_2,
+};
+
+Actor DnD_CharmInfo : DnD_Info { }

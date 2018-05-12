@@ -1,0 +1,86 @@
+LEGEND:
+
+- Nerf
++ Buff
+! New feature
+* Bugfix / Tweak
+
+=====================
+== DND RPG RELATED ==
+=====================
+
+! Backpacks can also drop chests now!
+! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
+! "Bulkiness" now increases armor cap by 4.
+! "Strength" increases armor and health cap by 0.5% per point.
+- "Strength" no longer increases armor cap by 4.
+! The ability to dash now uses a new key. Bind this, and use it while on the move to gain a burst of speed in the direction you're moving.
+	- Due to the flexibility added to the dash, a few things are nerfed:
+		- Dash cooldown is increased to 35 tics from 27.
+		- Dash speed reduced to 12.0 from 20.0.
+		- There's a necessary input delay of 3 tics. (Prevents spamming the ability)
+* Stat descriptions on "DnD Menu" is now written below them instead of the corner.
+* "Bulkiness" percentage value on stat menu now uses correct formula. (It used the older formula)
+* Grouped loadout pages into one section, just like the shop section for weapons.
+* Chest open messages are only visible to the player trying to open them now.
+* "Natural Talent" quest now properly checks if you have used a talented weapon.
+* Hopefully fixed an abuse related to "Hardcore" and exiting maps while dying.
+* Fixed a bug that prevented you from switching special ammo mode despite having ammo in the magazine.
+* "Necro Armor" spikes go through players now.
+* "Necro Armor" spikes now deal full damage if "Nether Mask" is equipped.
+* "Strength" and "Bulkiness" stats now correctly mention they increase your knockback resist.
+* Fixed a problem related to chest drops and respawning items.
+* Fixed a bug where "Violence Orb" bonuses weren't included in damage calculation.
+* Reworked damage scaling calculation to use integers instead of fixed point. This should eliminate overflows and allow you to reach higher damage outputs for each damage source.
+* Adjusted hitboxes of all grenades.
+* The numbers shown for "Credit" and "Exp" gain bonuses at stat menu are now correct.
+* Fixed a typo that stated "Intellect" stat gave 0.15% bonus of talent. (Gives 0.1% still)
+* New accessories of previous version do drop now. Oops.
+* You can't use "Portable Shield" with "Invulnerability Sphere" anymore.
+* "Destruction Generator" knockback is now properly remedied with "Gryphon Boots".
+* Fixed one of the "Wanderer" player sprites not translating properly.
+* Fixed some bugs related to accessories using powerups not having their effects save properly.
+* Reduced the scale on one of the research sprites.
+* Reworked research dropping: You now only see one research drop and every other player will also see only their drop.
+* "Necro Armor" now scales from "Intellect" instead of "Dexterity".
+* Cleaned up scaling code of "Necro Armor".
+* "Demon Heart" now properly uses ammo when "Hand of Artemis" is used.
+* Fixed a bug where damage type bonuses weren't saved properly to the database in "Hardcore" and "Softcore" modes.
+* Fixed a bug where "Heavy Grenade Launcher" let you shoot 2 grenades without loading if you had "Nether Mask" equipped.
+* Elite default spawn level is now 20 in both "Hardcore" and "Softcore" modes.
+* Fixed a bug where armor bonuses did not increase your armor after reaching that armor's capacity.
+* Fixed a small problem regarding chest drop rates.
+* Fixed old damage method for "Soul Reaver" when "Nether Mask" was equipped. This results in equal damage when it's equipped instead of a bit less.
+* Fixed a bug that caused "Lich Arm" to actually reduce damage of all weapons... oops.
++ "Hardcore" and "Softcore" damage amp reduced to 15% from 25%.
++ Monster damage values in "Hardcore" and "Softcore" now scale by 4% instead of 5%.
+* "Natural Talent" bonus is now properly applied to all damage types.
++ "Armor Bonus" now increases your armor up to x3 of the capacity of that armor, plus the bonuses.
++ "Celestial Relic" now slows by 20% down from 25%.
+- "Chest Key" drop rate reduced to 1.5% from 2.5.
+- "Necro Armor" now uses new talent scaling values instead of old ones. (This is a bit of a nerf)
++ Fixed a bug that caused "Savagery" to give only 1% bonus to crit damage instead of 10%.
++ Health and armor caps increased to 32k.
+- "Destruction Generator" primary ball explosion radius reduced to 384, full damage radius reduced to 192. (Reduced by 50%)
+	- This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
+* "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
+
+=====================
+== MONSTER RELATED ==
+=====================
+
+! "RIPPER" type attacks now have 50% less damage scaling.
+* Hopefully fixed "Azazel" death sound not being global.
+* "Sludge Giant" splits now scale properly with level.
+* "Abomination" small shots no longer go through other Mancubus type monsters.
+* Added "MOVEWITHSECTOR" to "Hellsmith" hammer and "Terminator" debris.
+* Reworked all minion summon methods to properly set master-child relations. (They properly use the summoner's level now)
+* "Blood Lich" minions spawned on death now give exp and credit.
+* "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.
+- "Blood Lich" fire breath damage halved.
+- "Terminator" red grenade after hit damage reduced to (1,2) from (4,32).
+- "Hades Elemental" lightning bolt damage has been halved from 16 to 8.
+- "Hades Elemental" lightning bolt attack has a cooldown of 5 seconds. (Lightnings last 5 seconds, for reference)
+- Reduced chance to teleport on "Flesh Wizard" a little.
+- Reduced aggressiveness of "Flesh Wizard" homing shots.
+- "Flesh Wizard" homing shot explosion damage reduced to 10 from 30.

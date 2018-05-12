@@ -1,0 +1,134 @@
+Model EnforcerPlasma2 { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer3.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 5.0 5.0 2.0
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model EnforcerPlasma3 { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer3.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 5.0 5.0 2.0
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model RangerBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model RapidFireBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model SMGZombieBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model UndeadInitiateBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model MajorBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model MephistoBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model ArachnoBullet { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model CommandoBullet1 { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model CommandoBullet2 { 
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model UndeadPriestBullet {
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model BigSpiderBullet {
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model PhyteBullet {
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}
+
+Model TerminatorBullet {
+   Path "Models/Tracers"
+   SKIN 0 "tracer1.tga"
+   MODEL 0 "Tracer.md3"
+   Scale 4.5 4.5 1.5
+   PITCHFROMMOMENTUM
+   FrameIndex TRAC A 0 0
+}

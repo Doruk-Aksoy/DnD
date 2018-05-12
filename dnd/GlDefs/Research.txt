@@ -1,0 +1,451 @@
+pointlight DuskLight1
+{
+    color 1.0 0.0 1.0
+    size 40
+}
+
+pointlight DuskLight2
+{
+    color 0.85 0.0 0.85
+    size 28
+}
+
+pointlight DuskLight3
+{
+    color 0.7 0.0 0.7
+    size 12
+}
+
+object SwordDuskPuff {
+	frame VFX4B { light DuskLight1 }
+	frame VFX4C { light DuskLight1 }
+	frame VFX4D { light DuskLight1 }
+	frame VFX4E { light DuskLight2 }
+	frame VFX4F { light DuskLight2 }
+	frame VFX4G { light DuskLight3 }
+	frame VFX4H { light DuskLight3 }
+}
+
+flickerlight InfernoPuffLight1
+{
+    color 1.0 0.5 0.0
+    size 40
+    secondarySize 44
+    chance 0.5
+}
+
+flickerlight InfernoPuffLight2
+{
+    color 0.8 0.45 0.0
+    size 48
+    secondarySize 52
+    chance 0.5
+}
+
+pointlight InfernoPuffLight3
+{
+    color 0.6 0.4 0.0
+    size 30
+}
+
+pointlight InfernoPuffLight4
+{
+    color 0.5 0.35 0.0
+    size 18
+}
+
+pointlight InfernoPuffLight5
+{
+    color 0.4 0.3 0.0
+    size 6
+}
+
+flickerlight InfernoProjLight {
+	color 1.0 0.5 0.0
+    size 72
+    secondarysize 66
+    chance 0.4
+}
+
+object InfernoSwordPuff {
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordPuff_FullDMG {
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_1 {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_2 {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_3 {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_4 {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_5 {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_1_FullDMG {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_2_FullDMG {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_3_FullDMG {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_4_FullDMG {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+object InfernoSwordMissile_5_FullDMG {
+	frame DKATA { light InfernoProjLight }
+	frame DKATB { light InfernoProjLight }
+	frame DKATC { light InfernoProjLight }
+
+	frame DKATD { light InfernoPuffLight1 }
+	frame DKATE { light InfernoPuffLight1 }
+	frame DKATF { light InfernoPuffLight1 }
+	frame DKATG { light InfernoPuffLight2 }
+	frame DKATH { light InfernoPuffLight2 }
+	frame DKATI { light InfernoPuffLight2 }
+	frame DKATJ { light InfernoPuffLight2 }
+	frame DKATK { light InfernoPuffLight3 }
+	frame DKATL { light InfernoPuffLight4 }
+	frame DKATM { light InfernoPuffLight5 }
+}
+
+flickerlight PlasmaCannonBallLight1 {
+	color 0.45 0.45 1.0
+	size 16
+	secondarysize 32
+	chance 0.33
+}
+
+flickerlight PlasmaCannonBallLight2 {
+	color 0.45 0.45 1.0
+	size 20
+	secondarysize 48
+	chance 0.33
+}
+
+object PlasmaCannonBall {
+	frame NPSB { light PlasmaCannonBallLight1 }
+	frame PLNS { light PlasmaCannonBallLight2 }
+}
+
+pointlight IonPuffLight1 {
+	color 1.0 0.15 0.15
+	size 48
+}
+
+pointlight IonPuffLight2 {
+	color 1.0 0.15 0.15
+	size 40
+}
+
+pointlight IonPuffLight3 {
+	color 1.0 0.15 0.15
+	size 32
+}
+
+pointlight IonPuffLight4 {
+	color 1.0 0.15 0.15
+	size 24
+}
+
+pointlight IonPuffLight5 {
+	color 1.0 0.15 0.15
+	size 16
+}
+
+pointlight IonPuffLight6 {
+	color 1.0 0.15 0.15
+	size 8
+}
+
+object IonPuff {
+	frame IOPFA { light IonPuffLight1 }
+	frame IOPFB { light IonPuffLight2 }
+	frame IOPFC { light IonPuffLight3 }
+	frame IOPFD { light IonPuffLight4 }
+	frame IOPFE { light IonPuffLight5 }
+	frame IOPFF { light IonPuffLight6 }
+}
+
+FlickerLight2 FlameThrowerFire {
+	Offset 0 2 0
+	Color 0.15 0.04 0.0
+	Size 40
+	SecondarySize 60
+	Interval 2.0
+}
+
+Object FTFire {	
+	Frame FRFX { Light FlameThrowerFire }
+}
+
+Object FTFire_Full {	
+	Frame FRFX { Light FlameThrowerFire }
+}
+
+FlickerLight2 DropFlame {
+	Offset 0 0 0
+	Color 0.15 0.04 0.0
+	Size 20
+	SecondarySize 30
+	Interval 2.0
+}
+
+Object DropFire {
+	Frame FLME { Light DropFlame }
+}
+
+object DropFire_Full {
+	Frame FLME { Light DropFlame }
+}
+
+pointlight MeteorLauncherLight1 {
+	color 1.0 0.4 0.0
+	size 24
+}
+
+pointlight MeteorLauncherLight2 {
+	color 1.0 0.4 0.0
+	size 64
+}
+
+flickerlight MeteorLauncherLight3 {
+	color 1.0 0.4 0.0
+	size 40
+	secondarysize 80
+}
+
+object MeteorMissile {
+	frame RW6AE { light MeteorLauncherLight1 }
+	frame RW6AF { light MeteorLauncherLight2 }
+	frame RW6AG { light MeteorLauncherLight3 }
+	frame RW6AH { light MeteorLauncherLight3 }
+	frame RW6AI { light MeteorLauncherLight3 }
+	frame RW6AJ { light MeteorLauncherLight3 }
+}
+
+object MeteorMissile_Full {
+	frame RW6AE { light MeteorLauncherLight1 }
+	frame RW6AF { light MeteorLauncherLight2 }
+	frame RW6AG { light MeteorLauncherLight3 }
+	frame RW6AH { light MeteorLauncherLight3 }
+	frame RW6AI { light MeteorLauncherLight3 }
+	frame RW6AJ { light MeteorLauncherLight3 }
+}
+
+pointlight MeteorLauncherLight4 {
+	color 1.0 0.4 0.0
+	size 28
+}
+
+pointlight MeteorLauncherLight5 {
+	color 1.0 0.4 0.0
+	size 24
+}
+
+pointlight MeteorLauncherLight6 {
+	color 1.0 0.4 0.0
+	size 16
+}
+
+pointlight MeteorLauncherLight7 {
+	color 1.0 0.4 0.0
+	size 12
+}
+
+object MeteorMissileSplit_1 {
+	frame RW6FI { light MeteorLauncherLight4 }
+	frame RW6FJ { light MeteorLauncherLight5 }
+	frame RW6FK { light MeteorLauncherLight6 }
+	frame RW6FL { light MeteorLauncherLight7 }
+}
+
+object MeteorMissileSplit_1Full {
+	frame RW6FI { light MeteorLauncherLight4 }
+	frame RW6FJ { light MeteorLauncherLight5 }
+	frame RW6FK { light MeteorLauncherLight6 }
+	frame RW6FL { light MeteorLauncherLight7 }
+}
+
+object MeteorMissileSplit_2 {
+	frame RW6FI { light MeteorLauncherLight4 }
+	frame RW6FJ { light MeteorLauncherLight5 }
+	frame RW6FK { light MeteorLauncherLight6 }
+	frame RW6FL { light MeteorLauncherLight7 }
+}
+
+object MeteorMissileSplit_2Full {
+	frame RW6FI { light MeteorLauncherLight4 }
+	frame RW6FJ { light MeteorLauncherLight5 }
+	frame RW6FK { light MeteorLauncherLight6 }
+	frame RW6FL { light MeteorLauncherLight7 }
+}
+
+flickerlight AcidLight {
+	color 0.0 0.75 0.0
+    size 24
+    secondarysize 32
+    chance 0.4
+}
+
+object AcidPuff {
+	frame RIF2 { light AcidLight }
+}
+
+object AcidPuff_FullDMG {
+	frame RIF2 { light AcidLight }
+}

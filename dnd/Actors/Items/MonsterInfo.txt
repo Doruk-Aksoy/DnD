@@ -1,0 +1,388 @@
+Actor TargetMaximumHealth : DnD_Info {}
+Actor TargetCurrentHealth : DnD_Info {}
+Actor TargetLevel : DnD_Info {}
+Actor TargetIsWhat : DnD_Info {}
+Actor TargetHealthBarColor : DnD_Info {}
+Actor TargetTraits : DnD_Info {}
+Actor TargetTraits2 : DnD_Info {}
+Actor TargetNameSkip : DnD_Info {}
+Actor TargetTag : DnD_Info {}
+Actor TargetIsElite : DnD_Boolean {}
+Actor DontRun : DnD_Boolean {}
+
+// Identification of the monster
+Actor MonsterID : DnD_Info {}
+Actor MonsterTraits : DnD_Info {}
+Actor MonsterTraits2 : DnD_Info {}
+Actor MonsterLevel : DnD_Info {}
+Actor MonsterBaseHealth : DnD_Info {}
+Actor MonsterMaxHealth : DnD_Info {}
+Actor MonsterNameSkip : DnD_Info {}
+Actor EnemyInDisguise : DnD_Boolean {}
+Actor ForcedMonsterLevel : DnD_Info {}
+Actor FriendlyInDisguise : DnD_Boolean {} 
+Actor MonsterIsElite : DnD_Boolean {}
+
+Actor LegendaryKills : DnD_Info { }
+Actor LegendaryDamageDealt : DnD_Info { }
+
+// Monster IDs - Classic
+
+enum {
+	DND_ZOMBIEMANID,
+	DND_SHOTGUNNERID,
+	DND_CHAINGUNGUYID,
+	DND_DEMONID,
+	DND_SPECTREID,
+	DND_IMPID,
+	DND_CACODEMONID,
+	DND_PAINELEMENTALID,
+	DND_LOSTSOULID,
+	DND_REVENANTID,
+	DND_HELLKNIGHTID,
+	DND_BARONID,
+	DND_FATSOID,
+	DND_ARCHVILEID,
+	DND_ARACHNOTRONID,
+	DND_SPIDERMASTERMINDID,
+	DND_CYBERDEMONID,
+	DND_NAZIID
+};
+
+// Monster Traits
+
+enum {
+	// Traitset 1
+	
+	DND_MELEE_RESIST, // obsolete
+	
+	DND_ENERGY_WEAKNESS,
+	DND_SILVER_WEAKNESS,
+	DND_FIRE_WEAKNESS = DND_SILVER_WEAKNESS << 1,
+	DND_ICE_WEAKNESS = DND_FIRE_WEAKNESS << 1,
+	DND_MAGIC_WEAKNESS = DND_ICE_WEAKNESS << 1,
+	
+	DND_EXPLOSIVE_RESIST = DND_MAGIC_WEAKNESS << 1,
+	DND_EXPLOSIVE_IMMUNE = DND_EXPLOSIVE_RESIST << 1,
+	DND_EXPLOSIVE_NONE = DND_EXPLOSIVE_IMMUNE << 1,
+	DND_BULLET_RESIST = DND_EXPLOSIVE_NONE << 1,
+	DND_GHOST = DND_BULLET_RESIST << 1,
+	DND_HARDENED_SKIN = DND_GHOST << 1,
+	DND_REFLECTIVE = DND_HARDENED_SKIN << 1,
+	DND_MINIONS = DND_REFLECTIVE << 1,
+	DND_CURSE = DND_MINIONS << 1,
+	DND_HEAL = DND_CURSE << 1,
+	DND_BLOCK = DND_HEAL << 1,
+	DND_SPLIT = DND_BLOCK << 1,
+	DND_RAISE = DND_SPLIT << 1,
+	DND_TELEPORT = DND_RAISE << 1,
+	DND_RESURRECT = DND_TELEPORT << 1,
+	DND_MOBILITY = DND_RESURRECT << 1,
+	DND_HOMING = DND_MOBILITY << 1,
+	DND_POISON = DND_HOMING << 1,
+	DND_DEATH = DND_POISON << 1,
+	DND_RAGE = DND_DEATH << 1,
+	DND_PIERCE = DND_RAGE << 1,
+	DND_AGGRESSIVE = DND_PIERCE << 1,
+	DND_EXTRAFAST = DND_AGGRESSIVE << 1,
+	DND_FASTREACTION = DND_EXTRAFAST << 1,
+	DND_NOPAIN = DND_FASTREACTION << 1,
+	
+	// Traitset 2
+	
+	DND_BULLET_IMMUNE = 1,
+	DND_ENERGY_RESIST = DND_BULLET_IMMUNE << 1,
+	DND_ENERGY_IMMUNE = DND_ENERGY_RESIST << 1,
+	DND_MAGIC_RESIST = DND_ENERGY_IMMUNE << 1,
+	DND_MAGIC_IMMUNE = DND_MAGIC_RESIST << 1,
+	DND_ELEMENTAL_RESIST = DND_MAGIC_IMMUNE << 1,
+	DND_ELEMENTAL_IMMUNE = DND_ELEMENTAL_RESIST << 1,
+	DND_EXTRASTRONG = DND_ELEMENTAL_IMMUNE << 1,
+	DND_VITAL = DND_EXTRASTRONG << 1,
+	DND_ARMORPEN = DND_VITAL << 1,
+	
+	DND_LEGENDARY = 1073741824
+};
+
+const int DND_MONSTERSCALESCRIPT = 962;
+
+const int DND_FORCEDLEVEL = 7;
+const int DND_PASSLEVEL = 8;
+
+Actor ExplosiveResist : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	DamageFactor "Explosives", 0.5
+	DamageFactor "Explosives_Magic", 0.5
+}
+
+Actor ExplosiveImmunity : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	DamageFactor "Explosives", 0
+	DamageFactor "Explosives_Magic", 0
+}
+
+Actor PhysicalResist : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	DamageFactor "Bullet", 0.75
+	DamageFactor "BulletMagicX", 0.75
+	DamageFactor "Melee", 0.5
+	DamageFactor "Melee_Magic", 0.5
+	DamageFactor "Melee_UndeadXtra", 0.5
+}
+
+Actor PhysicalImmunity : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	DamageFactor "Bullet", 0.0
+	DamageFactor "BulletMagicX", 0.0
+	DamageFactor "Melee", 0.0
+	DamageFactor "Melee_Magic", 0.0
+	DamageFactor "Melee_UndeadXtra", 0.0
+}
+
+Actor MagicResist : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	DamageFactor "normal", 1.0
+	DamageFactor "BulletMagicX", 0.5
+	DamageFactor "Magic", 0.5
+	DamageFactor "MagicFire", 0.5
+	DamageFactor "Explosives_Magic", 0.5
+	DamageFactor "SoulType", 0.5
+	DamageFactor "Painless_Sun", 0.5
+}
+
+Actor MagicImmunity : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	DamageFactor "normal", 1.0
+	DamageFactor "BulletMagicX", 0.0
+	DamageFactor "Magic", 0.0
+	DamageFactor "MagicFire", 0.0
+	DamageFactor "Explosives_Magic", 0.0
+	DamageFactor "SoulType", 0.0
+	DamageFactor "Painless_Sun", 0.0
+}
+
+Actor ElementalResist : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	DamageFactor "normal", 1.0
+	DamageFactor "P_Ice", 0.5
+	DamageFactor "Ice", 0.5
+	DamageFactor "AcidRifle", 0.5
+	DamageFactor "Fire", 0.5
+	DamageFactor "ExplosivesFire", 0.5
+	DamageFactor "Lightning", 0.5
+}
+
+Actor ElementalImmunity : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	DamageFactor "normal", 1.0
+	DamageFactor "P_Ice", 0.0
+	DamageFactor "Ice", 0.0
+	DamageFactor "AcidRifle", 0.0
+	DamageFactor "Fire", 0.0
+	DamageFactor "ExplosivesFire", 0.0
+	DamageFactor "Lightning", 0.0
+}
+
+Actor FireImmunity : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	DamageFactor "normal", 1.0
+	DamageFactor "Fire", 0.0
+	DamageFactor "ExplosivesFire", 0.0
+}
+
+Actor EnergyResist : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "LaserPistolBullet", 0.5
+	damagefactor "LeadSpitterBullet", 0.5
+	damagefactor "P_Rail", 0.5
+	damagefactor "Energy", 0.5
+	damagefactor "Gauss", 0.5
+}
+
+Actor EnergyImmunity : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "LaserPistolBullet", 0.0
+	damagefactor "LeadSpitterBullet", 0.0
+	damagefactor "P_Rail", 0.0
+	damagefactor "Energy", 0.0
+	damagefactor "Gauss", 0.0
+}
+
+Actor MakeExplosiveResist : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("ExplosiveResist", 1)
+		Stop
+	}
+}
+
+Actor MakeExplosiveHighResist : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NORADIUSDMG", 1)
+		Stop
+	}
+}
+
+Actor MakeExplosiveFullImmune : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("ExplosiveImmunity", 1)
+			TNT1 A 0 A_ChangeFlag("NORADIUSDMG", 1)
+		Stop
+	}
+}
+
+Actor MakeHardenedSkin : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("DONTRIP", 1)
+		Stop
+	}
+}
+
+Actor MakeGhost : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("GHOST", 1)
+		Stop
+	}
+}
+
+Actor MakeReflective : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("REFLECTIVE", 1)
+		Stop
+	}
+}
+
+Actor MakeAggressive : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("MISSILEMORE", 1)
+			TNT1 A 0 A_ChangeFlag("MISSILEEVENMORE", 1)
+			TNT1 A 0 A_ChangeFlag("NOFEAR", 1)
+		Stop
+	}
+}
+
+Actor MakeFaster : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("ALWAYSFAST", 1)
+		Stop
+	}
+}
+
+Actor MakeRetaliate : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("QUICKTORETALIATE", 1)
+		Stop
+	}
+}
+
+Actor MakePierce : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("PIERCEARMOR", 1)
+		Stop
+	}
+}
+
+Actor MakeNoPain : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+		Stop
+	}
+}
+
+Actor MakeMagicResist : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("MagicResist", 1)
+		Stop
+	}
+}
+
+Actor MakeMagicImmune : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("MagicImmunity", 1)
+		Stop
+	}
+}
+
+Actor MakeElementalResist : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("ElementalResist", 1)
+		Stop
+	}
+}
+
+Actor MakeElementalImmune : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("ElementalImmunity", 1)
+		Stop
+	}
+}
+
+Actor MakePhysicalResist : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("PhysicalResist", 1)
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+		Stop
+	}
+}
+
+Actor MakePhysicalImmune : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("PhysicalImmunity", 1)
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+		Stop
+	}
+}
+
+Actor MakeEnergyResist : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("EnergyResist", 1)
+		Stop
+	}
+}
+
+Actor MakeEnergyImmune : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("EnergyImmunity", 1)
+		Stop
+	}
+}
+
+Actor MakeFireImmune : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("FireImmunity", 1)
+		Stop
+	}
+}
+
+Actor RunEliteFXScript : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Elite Special FX", 0)
+		Stop
+	}
+}

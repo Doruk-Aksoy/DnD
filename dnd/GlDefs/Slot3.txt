@@ -1,0 +1,153 @@
+pointlight EXPSHELL1
+{
+    color 0.9 0.6 0.0
+    size 32
+}
+
+flickerlight EXPSHELL2
+{
+    color 0.9 0.6 0.0
+    size 24
+    secondarySize 32
+    chance 0.3
+}
+
+flickerlight EXPSHELL3
+{
+    color 0.4 0.2 0.0
+    size 16
+    secondarySize 24
+    chance 0.3
+}
+
+flickerlight EXPSHELL4
+{
+    color 0.2 0.1 0.0
+    size 8
+    secondarySize 16
+    chance 0.3
+}
+
+object ExplodingPuff
+{
+	frame DKSXA { light EXPSHELL1 }
+	frame DKSXB { light EXPSHELL1 }
+	frame DKSXC { light EXPSHELL1 }
+	frame DKSXD { light EXPSHELL2 }
+	frame DKSXE { light EXPSHELL2 }
+	frame DKSXF { light EXPSHELL2 }
+	frame DKSXG { light EXPSHELL2 }
+	frame DKSXH { light EXPSHELL3 }
+	frame DKSXI { light EXPSHELL3 }
+	frame DKSXJ { light EXPSHELL3 }
+	frame DKSXK { light EXPSHELL4 }
+	frame DKSXL { light EXPSHELL4 }
+	
+	frame DKSXM { light EXPSHELL1 }
+	frame DKSXN { light EXPSHELL1 }
+	frame DKSXO { light EXPSHELL1 }
+	frame DKSXP { light EXPSHELL2 }
+	frame DKSXQ { light EXPSHELL2 }
+	frame DKSXR { light EXPSHELL2 }
+	frame DKSXS { light EXPSHELL2 }
+	frame DKSXT { light EXPSHELL3 }
+	frame DKSXU { light EXPSHELL3 }
+	frame DKSXV { light EXPSHELL3 }
+	frame DKSXW { light EXPSHELL4 }
+	frame DKSXX { light EXPSHELL4 }
+}
+
+object ExplodingPuff_FullDMG
+{
+	frame DKSXA { light EXPSHELL1 }
+	frame DKSXB { light EXPSHELL1 }
+	frame DKSXC { light EXPSHELL1 }
+	frame DKSXD { light EXPSHELL2 }
+	frame DKSXE { light EXPSHELL2 }
+	frame DKSXF { light EXPSHELL2 }
+	frame DKSXG { light EXPSHELL2 }
+	frame DKSXH { light EXPSHELL3 }
+	frame DKSXI { light EXPSHELL3 }
+	frame DKSXJ { light EXPSHELL3 }
+	frame DKSXK { light EXPSHELL4 }
+	frame DKSXL { light EXPSHELL4 }
+	
+	frame DKSXM { light EXPSHELL1 }
+	frame DKSXN { light EXPSHELL1 }
+	frame DKSXO { light EXPSHELL1 }
+	frame DKSXP { light EXPSHELL2 }
+	frame DKSXQ { light EXPSHELL2 }
+	frame DKSXR { light EXPSHELL2 }
+	frame DKSXS { light EXPSHELL2 }
+	frame DKSXT { light EXPSHELL3 }
+	frame DKSXU { light EXPSHELL3 }
+	frame DKSXV { light EXPSHELL3 }
+	frame DKSXW { light EXPSHELL4 }
+	frame DKSXX { light EXPSHELL4 }
+}
+
+object ExplodingPuffNoSelfDmg
+{
+	frame DKSXA { light EXPSHELL1 }
+	frame DKSXB { light EXPSHELL1 }
+	frame DKSXC { light EXPSHELL1 }
+	frame DKSXD { light EXPSHELL2 }
+	frame DKSXE { light EXPSHELL2 }
+	frame DKSXF { light EXPSHELL2 }
+	frame DKSXG { light EXPSHELL2 }
+	frame DKSXH { light EXPSHELL3 }
+	frame DKSXI { light EXPSHELL3 }
+	frame DKSXJ { light EXPSHELL3 }
+	frame DKSXK { light EXPSHELL4 }
+	frame DKSXL { light EXPSHELL4 }
+	
+	frame DKSXM { light EXPSHELL1 }
+	frame DKSXN { light EXPSHELL1 }
+	frame DKSXO { light EXPSHELL1 }
+	frame DKSXP { light EXPSHELL2 }
+	frame DKSXQ { light EXPSHELL2 }
+	frame DKSXR { light EXPSHELL2 }
+	frame DKSXS { light EXPSHELL2 }
+	frame DKSXT { light EXPSHELL3 }
+	frame DKSXU { light EXPSHELL3 }
+	frame DKSXV { light EXPSHELL3 }
+	frame DKSXW { light EXPSHELL4 }
+	frame DKSXX { light EXPSHELL4 }
+}
+
+object ExplodingPuffNoSelfDmg_FullDMG
+{
+	frame DKSXA { light EXPSHELL1 }
+	frame DKSXB { light EXPSHELL1 }
+	frame DKSXC { light EXPSHELL1 }
+	frame DKSXD { light EXPSHELL2 }
+	frame DKSXE { light EXPSHELL2 }
+	frame DKSXF { light EXPSHELL2 }
+	frame DKSXG { light EXPSHELL2 }
+	frame DKSXH { light EXPSHELL3 }
+	frame DKSXI { light EXPSHELL3 }
+	frame DKSXJ { light EXPSHELL3 }
+	frame DKSXK { light EXPSHELL4 }
+	frame DKSXL { light EXPSHELL4 }
+	
+	frame DKSXM { light EXPSHELL1 }
+	frame DKSXN { light EXPSHELL1 }
+	frame DKSXO { light EXPSHELL1 }
+	frame DKSXP { light EXPSHELL2 }
+	frame DKSXQ { light EXPSHELL2 }
+	frame DKSXR { light EXPSHELL2 }
+	frame DKSXS { light EXPSHELL2 }
+	frame DKSXT { light EXPSHELL3 }
+	frame DKSXU { light EXPSHELL3 }
+	frame DKSXV { light EXPSHELL3 }
+	frame DKSXW { light EXPSHELL4 }
+	frame DKSXX { light EXPSHELL4 }
+}
+
+object SlayerExplosionFX {
+	frame IREPE { light ROCKET_X1 }
+	frame IREPF { light ROCKET_X1 }
+	frame IREPG { light ROCKET_X2 }
+	frame IREPH { light ROCKET_X2 }
+	frame IREPI { light ROCKET_X3 }
+}

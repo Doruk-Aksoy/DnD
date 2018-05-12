@@ -1,0 +1,385 @@
+flickerlight LICHFIRE
+{
+    color 1.0 0.7 0.0
+    size 48
+    secondarySize 56
+    chance 0.5
+}
+
+flickerlight LICHFIRE_X1
+{
+    color 0.9 0.4 0.0
+    size 56
+    secondarySize 64
+    chance 0.5
+}
+
+flickerlight LICHFIRE_X2
+{
+    color 0.7 0.1 0.0
+    size 48
+    secondarySize 56
+    chance 0.5
+}
+
+flickerlight LICHFIRE_X3
+{
+    color 0.4 0.0 0.0
+    size 40
+    secondarySize 48
+    chance 0.5
+}
+
+flickerlight LICHFIRE_X4
+{
+    color 0.2 0.0 0.0
+    size 32
+    secondarySize 40
+    chance 0.5
+}
+
+object BeastFlame
+{
+    frame FX06A { light LICHFIRE }
+    frame FX06B { light LICHFIRE }
+    frame FX06C { light LICHFIRE }
+
+    frame FX06D { light LICHFIRE_X1 }
+    frame FX06E { light LICHFIRE_X2 }
+    frame FX06F { light LICHFIRE_X3 }
+    frame FX06G { light LICHFIRE_X4 }
+}
+
+Object SentRmissile
+{
+    frame SEF1A { light LICHFIRE }
+    frame SEF1B { light LICHFIRE }
+    frame SEF1C { light LICHFIRE }
+
+    frame SEF1D { light LICHFIRE_X1 }
+    frame SEF1E { light LICHFIRE_X2 }
+    frame SEF1F { light LICHFIRE_X3 }
+    frame SEF1G { light LICHFIRE_X4 }
+	frame SEF1H { light LICHFIRE_X4 }
+}
+
+Flickerlight SentinelFire1
+{
+Color 0.0 1.0 0.0
+Size 24
+SecondarySize 32
+Chance 0.3
+Offset 0 8 0
+}
+
+Flickerlight SentinelFire2
+{
+Color 0.0 1.0 0.0
+Size 40
+SecondarySize 48
+Chance 0.3
+Offset 0 24 0
+}
+
+Flickerlight SentinelFire3
+{
+Color 0.0 1.0 0.0
+Size 64
+SecondarySize 72
+Chance 0.3
+Offset 0 32 0
+}
+
+Flickerlight SentinelFire4
+{
+Color 0.0 0.8 0.0
+Size 64
+SecondarySize 72
+Chance 0.3
+Offset 0 40 0
+}
+
+Flickerlight SentinelFire4
+{
+Color 0.0 0.8 0.0
+Size 64
+SecondarySize 72
+Chance 0.3
+Offset 0 48 0
+}
+
+Flickerlight SentinelFire6
+{
+Color 0.0 0.6 0.0
+Size 48
+SecondarySize 56
+Chance 0.3
+Offset 0 64 0
+}
+
+Flickerlight SentinelFire7
+{
+Color 0.0 0.4 0.0
+Size 32
+SecondarySize 40
+Chance 0.3
+Offset 0 72 0
+}
+
+Flickerlight SentinelFire8
+{
+Color 0.0 0.2 0.0
+Size 16
+SecondarySize 24
+Chance 0.3
+Offset 0 80 0
+}
+
+object SentGmissile {
+	frame CFX6A { light SentinelFire4 }
+	frame CFX6BCDE { light SentinelFire6 }
+}
+
+Object GCSpawner
+{
+	frame SEF2 { light SentinelFire1 }
+	
+	Frame FIREA { Light SentinelFire1 }
+	Frame FIREB { Light SentinelFire2 }
+	Frame FIREC { Light SentinelFire3 }
+	Frame FIRED { Light SentinelFire4 }
+	Frame FIREE { Light SentinelFire5 }
+	Frame FIREF { Light SentinelFire6 }
+	Frame FIREG { Light SentinelFire7 }
+	Frame FIREH { Light SentinelFire8 }
+}
+
+Pointlight DiscipleShot11
+{
+Color 1.0 1.0 1.0
+Size 32
+}
+
+Pointlight DiscipleShot12
+{
+Color 1.0 1.0 1.0
+Size 48
+}
+
+Pointlight DiscipleShot13
+{
+Color 1.0 1.0 1.0
+Size 40
+}
+
+Pointlight DiscipleShot14
+{
+Color 1.0 1.0 1.0
+Size 24
+}
+
+Pointlight DiscipleShot15
+{
+Color 1.0 1.0 1.0
+Size 16
+}
+
+Pointlight DiscipleShot16
+{
+Color 1.0 1.0 1.0
+Size 8
+}
+
+Object DiscipleShot1
+{
+Frame CFX2A { Light DiscipleShot11 }
+Frame CFX2B { Light DiscipleShot11 }
+Frame CFX2C { Light DiscipleShot11 }
+Frame CFX2D { Light DiscipleShot11 }
+Frame CFX2E { Light DiscipleShot12 }
+Frame CFX2F { Light DiscipleShot13 }
+Frame CFX2G { Light DiscipleShot14 }
+Frame CFX2H { Light DiscipleShot15 }
+Frame CFX2I { Light DiscipleShot16 }
+}
+
+Pointlight DiscipleShot21
+{
+Color 1.0 0.3 0.3
+Size 48
+}
+
+Pointlight DiscipleShot22
+{
+Color 1.0 0.3 0.3
+Size 56
+}
+
+Pointlight DiscipleShot23
+{
+Color 0.7 0.2 0.2
+Size 64
+}
+
+Pointlight DiscipleShot24
+{
+Color 0.5 0.1 0.1
+Size 72
+}
+
+Pointlight DiscipleShot25
+{
+Color 0.3 0.0 0.0
+Size 64
+}
+
+Pointlight DiscipleShot26
+{
+Color 0.1 0.0 0.0
+Size 56
+}
+
+Object DiscipleShot2
+{
+Frame CFX3A { Light DiscipleShot21 }
+Frame CFX3B { Light DiscipleShot21 }
+Frame CFX3C { Light DiscipleShot22 }
+Frame CFX3D { Light DiscipleShot23 }
+Frame CFX3E { Light DiscipleShot24 }
+Frame CFX3F { Light DiscipleShot25 }
+Frame CFX3G { Light DiscipleShot26 }
+}
+
+Pointlight DiscipleFire11
+{
+Color 1.0 1.0 1.0
+Size 24
+Offset 0 48 0
+}
+
+Pointlight DiscipleFire12
+{
+Color 1.0 1.0 1.0
+Size 24
+Offset 0 32 0
+}
+
+Pointlight DiscipleFire21
+{
+Color 1.0 0.0 0.0
+Size 24
+Offset 0 48 0
+}
+
+Pointlight DiscipleFire22
+{
+Color 1.0 0.0 0.0
+Size 24
+Offset 0 32 0
+}
+
+Object ShadowDisciple
+{
+Frame DISCC { Light DiscipleFire11 }
+Frame DISCD { Light DiscipleFire12 }
+Frame DISCE { Light DiscipleFire21 }
+Frame DISCF { Light DiscipleFire22 }
+}
+
+FlickerLight2 ArbiterLight
+{
+	Color 1.0 0.6 0.0
+	Size 70
+	SecondarySize 95
+	Offset 0 32 0
+	Interval 2.0
+}
+
+object HellArbiter {
+	frame ARBTA { light ArbiterLight }
+	frame ARBTB { light ArbiterLight }
+	frame ARBTC { light ArbiterLight }
+	frame ARBTD { light ArbiterLight }
+	frame ARBTE { light ArbiterLight }
+}
+
+Pointlight ArbiterFireBall1
+{
+Color 0.6 0.2 0.0
+Size 32
+}
+
+Pointlight ArbiterFireBall2
+{
+Color 0.8 0.4 0.0
+Size 48
+}
+
+Pointlight ArbiterFireBall5
+{
+Color 0.8 0.4 0.0
+Size 40
+}
+
+Pointlight ArbiterFireBall6
+{
+Color 0.8 0.4 0.0
+Size 32
+}
+
+Pointlight ArbiterFireBall3
+{
+Color 0.6 0.2 0.0
+Size 24
+}
+
+Pointlight ArbiterFireBall4
+{
+Color 0.4 0.0 0.0
+Size 16
+}
+
+object ArbiterFireBall {
+	frame ARBMAB { light ArbiterFireBall1 }
+	frame ARBMC { light ArbiterFireBall2 }
+	frame ARBMD { light ArbiterFireBall3 }
+	frame ARBME { light ArbiterFireBall4 }
+}
+
+object ArbiterSeeker {
+	frame ARBM { light ArbiterFireBall1 }
+	
+	frame HRFXA { light ArbiterFireBall2 }
+	frame HRFXB { light ArbiterFireBall5 }
+	frame HRFXC { light ArbiterFireBall6 }
+	frame HRFXD { light ArbiterFireBall3 }
+	frame HRFXE  { light ArbiterFireBall4 }
+}
+
+FlickerLight2 ArbiterFlameLight
+{
+	Color 1.0 0.6 0.0
+	Size 40
+	SecondarySize 64
+	Offset 0 32 0
+	Interval 2.0
+}
+
+FlickerLight2 ArbiterFlameLight2
+{
+	Color 1.0 0.6 0.0
+	Size 20
+	SecondarySize 40
+	Offset 0 32 0
+	Interval 2.0
+}
+
+object ArbiterFlameFX {
+	frame ARBMJ { light ArbiterFlameLight }
+	frame ARBMK { light ArbiterFlameLight }
+	frame ARBML { light ArbiterFlameLight }
+	frame ARBMM { light ArbiterFlameLight }
+	frame ARBMN { light ArbiterFlameLight }
+	frame ARBMO { light ArbiterFlameLight }
+	frame ARBMPQRS { light ArbiterFlameLight2 }
+}

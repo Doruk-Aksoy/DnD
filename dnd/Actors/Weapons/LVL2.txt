@@ -1,0 +1,1348 @@
+Actor " Pistol " : Pistol
+{
+	Weapon.SlotNumber 2
+	Weapon.AmmoGive 0
+	Weapon.SelectionOrder 2700
+	attacksound ""
+	Decal "BulletChip"
+	+INVENTORY.UNDROPPABLE
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 2.1
+    Weapon.BobRangeY 0.3
+    Weapon.BobRangeX 0.6
+	States
+	{
+	  Ready:
+		COLT A 1 A_WeaponReady
+		Loop
+	  Deselect:
+		TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+	  DeselectLoop:
+		COLT A 1 A_Lower
+		TNT1 A 0 A_Lower
+		Loop
+	  Select:
+		TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
+		TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+		TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_PISTOL)
+		TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 15)
+	  SelectLoop:
+		COLT A 1 A_Raise
+		TNT1 A 0 A_Raise
+		Loop
+	  Fire:
+	    TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-0.75, 0.75), 0, 0, frandom(-0.5, 0.5))
+		TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		COLF A 1 Bright A_GiveInventory("PistolShooter", 1)
+	  FireEnd:
+	    TNT1 A 0 A_GunFlash
+		TNT1 A 0 A_PlayWeaponsound("Weapons/NewPist")
+		COLF B 1 Bright A_SetPitch(pitch - 2.0)
+		COLF C 1 Bright A_SetPitch(pitch + 1.0)
+		COLT B 1 A_SetPitch(pitch + 1.0)
+		COLT B 2
+		TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*20,0,32+(sin(-pitch)*20),0,-8,random(4,8),0,0,0)
+		COLT C 1
+		COLX AB 1
+		COLT D 1
+		COLX CD 1
+		COLT E 1
+		COLX EF 1
+		COLT B 1 A_ReFire
+		COLX GH 1 A_ReFire
+	    Goto Ready
+	  Hold:
+	    TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-0.75, 0.75), 0, 0, frandom(-0.5, 0.5))
+		TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		COLF A 1 Bright A_GiveInventory("PistolShooter", 1)
+		Goto FireEnd
+	  Flash:
+		TNT1 A 3 Bright A_Light1
+		TNT1 A 3 Bright A_Light0
+		Goto LightDone
+	}
+}
+
+Actor PistolShooter : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0.5,0,1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(0.5,0,1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+		Stop
+	}
+}
+
+// Sprites by mik57
+Actor " Akimbo Pistols " : Pistol {
+	Weapon.SlotNumber 2
+	Weapon.AmmoGive 0
+	Weapon.AmmoUse1 0
+	Weapon.AmmoType1 "Clip"
+	Weapon.SelectionOrder 2000
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 2.1
+    Weapon.BobRangeY 0.3
+    Weapon.BobRangeX 0.6
+	attacksound ""
+	Decal "BulletChip"
+	Tag "Akimbo Pistols"
+	+INVENTORY.UNDROPPABLE
+	+AMMO_OPTIONAL
+	+ALT_AMMO_OPTIONAL
+	States {
+		Spawn:
+			NPIS F -1
+		Stop
+		Ready:
+			PS2G A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			PS2G A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_AKIMBOPISTOL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 35)
+	  SelectLoop:
+			PS2G A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		CheckLeft:
+			TNT1 A 0 A_JumpIfInventory("AkimboClipLeft", 1, "ContinueLeftFire")
+			PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload
+		CheckRight:
+			TNT1 A 0 A_JumpIfInventory("AkimboClipRight", 1, "ContinueRightFire")
+			PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload		
+		Fire:
+			TNT1 A 0 A_GiveInventory("AkimboFireMode", ACS_ExecuteWithResult(994, 1))
+			TNT1 A 0 A_JumpIfInventory("AkimboFireMode", 3, "RightFire")
+			TNT1 A 0 A_JumpIfInventory("AkimboFireMode", 2, "LeftFire")
+			//PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload
+		RightFire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueRightFire")
+			TNT1 A 0 A_JumpIfInventory("AkimboClipRight", 1, "ContinueRightFire")
+		Goto CheckLeft
+		ContinueRightFire:
+			PS2G B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_Playsound("Weapons/NewPist2", CHAN_WEAPON)
+			TNT1 A 0 A_GiveInventory("AkimboShooter_R", 1)
+			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*22,10,31+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			PS2G B 2 bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			PS2G C 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			PS2G D 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_GiveInventory("FireLeft", 1)
+			TNT1 A 0 A_TakeInventory("AkimboFireMode", 0)
+			TNT1 A 0 A_Refire
+		Goto Ready
+		LeftFire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueLeftFire")
+			TNT1 A 0 A_JumpIfInventory("AkimboClipLeft", 1, "ContinueLeftFire")
+		Goto CheckRight
+		ContinueLeftFire:
+			PS2G E 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_Playsound("Weapons/NewPist2", 6)
+			TNT1 A 0 A_GiveInventory("AkimboShooter_L", 1)
+			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*22,-10,31+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			PS2G E 2 bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			PS2G F 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			PS2G G 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_TakeInventory("FireLeft", 1)
+			TNT1 A 0 A_TakeInventory("AkimboFireMode", 0)
+			TNT1 A 0 A_Refire
+		Goto Ready
+		Reload:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 1, 1), "ContinueReload")
+			PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueReload:
+			TNT1 A 0 A_TakeInventory("AkimboFireMode", 0)
+			PS2S JKLMN 1
+			TNT1 A 0 A_GiveInventory("AkimboReloadDecider", 1)
+			PS2S OP 1
+			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "CoolReload")
+			TNT1 A 0 A_JumpIfInventory("LoadLeft", 1, "LoadLeft")
+		LoadRight:
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2ClipO")
+			TNT1 A 0 A_FireCustomMissile("AkimboClipDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			PISR A 1 Offset(52, 98)
+			PISR A 1 Offset(48, 90)
+			PISR A 1 Offset(44, 82)
+			PISR A 1 Offset(40, 74)
+			PISR A 1 Offset(36, 66)
+			PISR A 1 Offset(32, 58)
+			PISR A 1 Offset(28, 50)
+			PISR A 1 Offset(24, 42)
+			PISR A 1 Offset(20, 34)
+			PISR A 1 Offset(16, 33)
+			PISR A 1 Offset(17, 32)
+			PISR A 1 Offset(18, 33)
+			PISR A 1 Offset(19, 34)
+			PISR A 1 Offset(20, 35)
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2ClipI")
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 1, 1)
+			PISR C 1 Offset(20, 35)
+			PISR C 1 Offset(19, 34)
+			PISR D 1 Offset(18, 33)
+			PISR D 1 Offset(17, 32)
+			PISR E 1 Offset(17, 33)
+			PISR E 1 Offset(17, 34)
+			PISR F 1 Offset(18, 35)
+			PISR F 1 Offset(19, 36)
+			PISR A 1 Offset(20, 42)
+			PISR A 1 Offset(21, 51)
+			PISR A 1 Offset(22, 60)
+			PISR A 1 Offset(23, 69)
+			PISR A 1 Offset(24, 78)
+			PISR A 1 Offset(25, 87)
+			PISR A 1 Offset(26, 96)
+			TNT1 A 9 Offset(0, 104)
+		Goto Finish
+		LoadLeft:
+			TNT1 A 0 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2ClipO")
+			TNT1 A 0 A_FireCustomMissile("AkimboClipDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			PISR H 1 Offset(0, 98)
+			PISR H 1 Offset(4, 90)
+			PISR H 1 Offset(8, 82)
+			PISR H 1 Offset(12, 74)
+			PISR H 1 Offset(16, 66)
+			PISR H 1 Offset(20, 58)
+			PISR H 1 Offset(24, 50)
+			PISR H 1 Offset(28, 42)
+			PISR H 1 Offset(32, 34)
+			PISR H 1 Offset(36, 33)
+			PISR H 1 Offset(35, 32)
+			PISR H 1 Offset(31, 33)
+			PISR H 1 Offset(30, 34)
+			PISR H 1 Offset(29, 35)
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2ClipI")
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 1, 0)
+			PISR J 1 Offset(29, 35)
+			PISR J 1 Offset(28, 34)
+			PISR K 1 Offset(27, 33)
+			PISR K 1 Offset(26, 32)
+			PISR L 1 Offset(26, 33)
+			PISR L 1 Offset(26, 34)
+			PISR M 1 Offset(27, 35)
+			PISR M 1 Offset(28, 36)
+			PISR H 1 Offset(29, 42)
+			PISR H 1 Offset(30, 51)
+			PISR H 1 Offset(31, 60)
+			PISR H 1 Offset(32, 69)
+			PISR H 1 Offset(33, 78)
+			PISR H 1 Offset(34, 87)
+			PISR H 1 Offset(35, 96)
+			TNT1 A 9 Offset(0, 104)
+			TNT1 A 0 A_JumpIFInventory("Clip", 1, "ContinueRightReloadCheck")
+		Goto Finish
+		ContinueRightReloadCheck:
+			TNT1 A 0 A_JumpIfInventory("LoadRight", 1, "LoadRight")
+		Finish:
+			TNT1 A 0 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2Ready")
+			TNT1 A 1 Offset(0, 32)
+			PS2S OPNMLKJ 1
+		Goto Ready
+		
+		CoolReload:
+			TNT1 A 0 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 2
+			PS2S OPNMLKJ 1
+			PS2R A 2
+			PS2R B 1 Offset(0, 31)
+			PS2R B 1 Offset(0, 30)
+			PS2R C 2 Offset(0, 32)
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2ClipO")
+			TNT1 A 0 A_FireCustomMissile("AkimboClipDrop", frandom(-12.0, 12.0), 9, 0, 0)
+			TNT1 A 0 A_FireCustomMissile("AkimboClipDrop", frandom(-12.0, 12.0), -9, 0, 0)
+			PS2R D 2
+			PS2R F 1 Offset(0, 32)
+			PS2R F 1 Offset(0, 37)
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2ClipI")
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 1, 0)
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 1, 1)
+			PS2R E 1 Offset(0, 33)
+			PS2R E 1 Offset(0, 29)
+			PS2R A 1 Offset(0, 25)
+			PS2R A 1 Offset(0, 29)
+			PS2R A 1 Offset(0, 32)
+			TNT1 A 0 A_PlayWeaponSound("Weapons/NewPist2Ready")
+		Goto Ready
+		
+		Failure:
+			PS2G A 1
+			Goto Ready
+		Flash:
+			TNT1 A 3 A_Light1
+			TNT1 A 3 A_Light0
+		Goto LightDone
+	}
+}
+
+Actor AkimboFireMode : Inventory {
+	inventory.maxamount 3
+}
+
+Actor FireLeft : DND_Boolean { }
+
+Actor LoadRight : DND_Boolean { }
+
+Actor LoadLeft : DND_Boolean { }
+
+Actor AkimboReloadDecider : DND_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_TakeInventory("LoadLeft", 1)
+			TNT1 A 0 A_TakeInventory("LoadRight", 1)
+			TNT1 A 0 A_JumpIfInventory("AkimboClipLeft", 0, "CheckRight")
+		LoadLeft:
+			TNT1 A 0 A_GiveInventory("LoadLeft", 1)
+		CheckRight:
+			TNT1 A 0 A_JumpIFInventory("AkimboClipRight", 0, "NoReload")
+			TNT1 A 0 A_GiveInventory("LoadRight", 1)
+		Stop
+		NoReload:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor AkimboShooter_R : DND_Activator {
+	states {
+	Use:
+		TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+		TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+		TNT1 A 0 A_TakeInventory("AkimboClipRight", 1)
+	NoTake:
+		TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-0.75, 0.75), 0, 0, frandom(-0.5, 0.5))
+		TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 20 * cos(-pitch), 6, 35 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+		TNT1 A 0 A_FireBullets(3.5, 2.5, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff", FBF_NORANDOM)
+		Stop
+	Full:
+		TNT1 A 0 A_FireBullets(3.5, 2.5, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff_FullDMG", FBF_NORANDOM)
+		Stop
+	}
+}
+
+Actor AkimboShooter_L : DND_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("AkimboClipLeft", 1)
+		NoTake:
+			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-0.75, 0.75), 0, 0, frandom(-0.5, 0.5))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 20 * cos(-pitch), -6, 35 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(3.5, 2.5, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff", FBF_NORANDOM)
+			Stop
+		Full:
+			TNT1 A 0 A_FireBullets(3.5, 2.5, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff_FullDMG", FBF_NORANDOM)
+			Stop
+	}
+}
+
+Actor Magnum : Weapon {
+	Weapon.SlotNumber 2
+	Weapon.AmmoGive 0
+	Weapon.AmmoUse1 0
+	Weapon.AmmoUse2 0
+	Weapon.AmmoType1 "Clip"
+	Weapon.AmmoType2 "BulletSize_6"
+	Weapon.SelectionOrder 1850
+	attacksound ""
+	Decal "BulletChip"
+	+INVENTORY.UNDROPPABLE
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 1.8
+    Weapon.BobRangeY 0.3
+    Weapon.BobRangeX 0.7
+	const int magnum_clip = 6;
+	States {
+		Spawn:
+			REVP A -1
+		Stop
+		Ready:
+			REVO A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			REVO A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_MAGNUM)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 25, 4 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 50)
+		SelectLoop:
+			REVO A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("BulletSize_6", 1, "ContinueFire")
+		Goto Reload
+		ContinueFire:
+			REVO A 3
+			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-0.75, 0.75), 0, 0, frandom(-0.5, 0.5))
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_GiveInventory("MagnumShooter", 1)
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_PlayWeaponsound("Weapons/magnumfire")
+			// don't place a_setpitch right after bullets are fired
+			REVO B 1 Bright // these are structured like this for a reason: online, they bug out if you constantly hold the fire button and switch weapons
+			TNT1 A 0 A_SetPitch(pitch - 8.0)
+			REVO B 1 Bright
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO C 1 Bright
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO C 1 Bright
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO D 1
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO D 1
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO D 1
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO E 1
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO E 1
+			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			REVO E 1
+			REVO F 3
+			REVO ED 2
+			REVO A 3 A_Refire
+	    Goto Ready
+		NoReload:
+			REVO A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		Reload:
+			TNT1 A 0 A_JumpIfInventory("Clip", magnum_clip, "CheckReload")
+			REVO A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		CheckReload:
+			TNT1 A 0 A_JumpIfInventory("BulletSize_6", 0, "NoReload")
+		DoReload:
+			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
+			REVO DEFDG 2
+			TNT1 A 0 A_PlaySound("weapons/magnumopen", 6)
+			REVO HI 2
+			TNT1 A 10
+			TNT1 A 0 A_PlaySound("weapons/magnumout", 6)
+			TNT1 A 5
+		ReloadLoop:
+			TNT1 A 0 A_JumpIfInventory("Clip", magnum_clip, "ContinueReload")
+		Goto FinishReload
+		ContinueReload:
+			TNT1 A 0 A_TakeInventory("Clip", magnum_clip)
+			TNT1 A 0 A_GiveInventory("BulletSize_6", 1)
+			TNT1 A 0 A_SpawnItemEx ("revolvercasing",cos(-pitch)*20, 2, 26+(sin(-pitch)*36),0,random(5, 8), random(0, 1),0,0,0)
+			TNT1 A 0 A_PlaySound("Weapons/magnumload", 6)
+			TNT1 AAA 5  A_JumpIf(!ACS_ExecuteWithResult(994, 9), "FinishReload")
+			TNT1 A 0 A_JumpIfInventory("BulletSize_6", 6, "FinishReload")
+		Goto ReloadLoop
+		FinishReload:
+			TNT1 A 10
+			TNT1 A 0 A_PlaySound("weapons/magnumin", 6)
+			REVO JKGDEDA 2
+		Goto Ready
+	
+		ReloadFaster:
+			REVO DEFDG 1
+			TNT1 A 0 A_PlaySound("weapons/magnumopen", 6)
+			REVO HI 1
+			TNT1 A 5
+			TNT1 A 0 A_PlaySound("weapons/magnumout", 6)
+			TNT1 A 2
+		ReloadLoopFaster:
+			TNT1 A 0 A_JumpIfInventory("Clip", magnum_clip, "ContinueReloadFaster")
+		Goto FinishReloadFaster
+		ContinueReloadFaster:
+			TNT1 A 0 A_TakeInventory("Clip", magnum_clip)
+			TNT1 A 0 A_GiveInventory("BulletSize_6", 1)
+			TNT1 A 0 A_SpawnItemEx ("revolvercasing",cos(-pitch)*20, 2, 26+(sin(-pitch)*36),0,random(5, 8), random(0, 1),0,0,0)
+			TNT1 A 0 A_PlaySound("Weapons/magnumload", 6)
+			TNT1 AAA 2  A_JumpIf(!ACS_ExecuteWithResult(994, 9), "FinishReloadFaster")
+			TNT1 A 0 A_JumpIfInventory("BulletSize_6", 6, "FinishReloadFaster")
+		Goto ReloadLoopFaster
+		FinishReloadFaster:
+			TNT1 A 5
+			TNT1 A 0 A_PlaySound("weapons/magnumin", 6)
+			REVO JKGDEDA 1
+		Goto Ready
+	}
+}
+
+Actor MagnumShooter : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("BulletSize_6", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0.1, 0.1, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuffMag", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_BALLISTIC, DND_ISPISTOL), 0, 0, "None", "None", 0, 0, "NewBulletPuffMag", 1.0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(0.1, 0.1, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuffMag_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_BALLISTIC, DND_ISPISTOL), 0, 0, "None", "None", 0, 0, "NewBulletPuffMag_FullDMG", 1.0)
+		Stop
+	}
+}
+
+Actor "Laser Pistol" : Weapon {
+	Weapon.SlotNumber 2
+	Weapon.AmmoGive 0
+	Weapon.AmmoUse 0
+	Weapon.AmmoType "LPistolCharge"
+	Weapon.SelectionOrder 1850
+	attacksound ""
+	Decal "LaserPistolDecal"
+	+INVENTORY.UNDROPPABLE
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 1.8
+    Weapon.BobRangeY 0.2
+    Weapon.BobRangeX 0.6
+	States {
+		Ready:
+			PBLT A 1 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_StopSound(5)
+			TNT1 A 0 A_StopSound(6)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+		DeselectLoop:
+			PBLT A 1 A_Lower
+			PBLT A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_LASERPISTOL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5, 3 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 10, 3 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 15, 3 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_3, 20, 3 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_4, 25, 3 | (6 << 16))
+		SelectLoop:
+			PBLT A 1 A_Raise
+			PBLT A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			PBLT B 1 Bright
+			TNT1 A 0 A_GiveInventory("LaserPistolShooter1", 1)
+			TNT1 A 0 A_SetPitch(pitch-0.7)
+			TNT1 A 0 A_FireCustomMissile("LeadSpitterTracer", 0, 0, frandom(-2.0, 2.0), 0, 0, frandom(-1.25, 1.25))
+			TNT1 A 0 A_PlayWeaponSound("weapons/laserpistolfire")
+			TNT1 A 0 A_TakeInventory("LPistolCharge", 0)
+			PBLT B 1 Bright
+			PBLT C 1 Offset(3, 30) A_SetPitch(pitch + 0.35)
+			PBLT C 1 Offset(6, 27) A_SetPitch(pitch + 0.35)
+			PBLT C 1 Offset(8, 30)
+			PBLT C 1 Offset(2, 33)
+			PBLT A 1 Offset(0, 32)
+			PBLT A 3
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_PlaySound("Weapons/laserpistolcharge", 5)
+		ChargeLoop:
+			PBLT A 1 A_GiveInventory("LPistolCharge", 1)
+			TNT1 A 0 A_PlaySound("weapons/laserpistolcloop", 6, 1, 1)
+			PBLT A 1 A_Refire("ChargeLoop")
+		Release:
+			TNT1 A 0 A_StopSound(5)
+			TNT1 A 0 A_StopSound(6)
+			TNT1 A 0 A_JumpIfInventory("LPistolCharge", 100, "Fire4")
+			TNT1 A 0 A_JumpIfInventory("LPistolCharge", 75, "Fire3")
+			TNT1 A 0 A_JumpIfInventory("LPistolCharge", 50, "Fire2")
+			TNT1 A 0 A_JumpIfInventory("LPistolCharge", 25, "Fire1")
+		Goto Fire
+		Fire1:
+			TNT1 A 0 A_TakeInventory("LPistolCharge", 0)
+			PBLT B 2 Bright
+			TNT1 A 0 A_GiveInventory("LaserPistolShooter2", 1)
+			TNT1 A 0 A_SetPitch(pitch-1.4)
+			TNT1 A 0 A_FireCustomMissile("LeadSpitterTracer", 0, 0, 4)
+			TNT1 A 0 A_PlayWeaponSound("weapons/laserpistolfire2")
+			PBLT B 1 Bright
+			PBLT C 1 Offset(3, 30) A_SetPitch(pitch + 0.7)
+			PBLT C 1 Offset(6, 27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(6,27)
+			PBLT D 1 Offset(8,25)
+			PBLT D 1 Offset(6,27)
+			PBLT D 1 Offset(3,30)
+			PBLT C 1 Offset(2,32)
+			PBLT C 1 Offset(1,33)
+			PBLT A 1 Offset(1,32)
+			PBLT A 5 Offset(0, 32) A_Refire("AltFire")
+		Goto Ready
+		Fire2:
+			TNT1 A 0 A_TakeInventory("LPistolCharge", 0)
+			PBLT B 2 Bright
+			TNT1 A 0 A_GiveInventory("LaserPistolShooter3", 1)
+			TNT1 A 0 A_SetPitch(pitch-2.1)
+			TNT1 A 0 A_FireCustomMissile("LeadSpitterTracer", 0, 0, 4)
+			TNT1 A 0 A_PlayWeaponSound("weapons/laserpistolfire2")
+			PBLT B 1 Bright
+			PBLT C 1 Offset(3, 30) A_SetPitch(pitch + 0.7)
+			PBLT C 1 Offset(6, 27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(6,27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(8,25)
+			PBLT D 1 Offset(6,27)
+			PBLT D 1 Offset(3,30)
+			PBLT C 1 Offset(2,32)
+			PBLT C 1 Offset(1,33)
+			PBLT A 1 Offset(1,32)
+			PBLT A 5 Offset(0, 32) A_Refire("AltFire")
+		Goto Ready
+		Fire3:
+			TNT1 A 0 A_TakeInventory("LPistolCharge", 0)
+			PBLT B 2 Bright
+			TNT1 A 0 A_GiveInventory("LaserPistolShooter4", 1)
+			TNT1 A 0 A_SetPitch(pitch-2.8)
+			TNT1 A 0 A_FireCustomMissile("LeadSpitterTracer", 0, 0, 4)
+			TNT1 A 0 A_PlayWeaponSound("weapons/laserpistolfire2")
+			PBLT B 1 Bright
+			PBLT C 1 Offset(3, 30) A_SetPitch(pitch + 0.7)
+			PBLT C 1 Offset(6, 27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(6,27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(8,25) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(6,27)
+			PBLT D 1 Offset(3,30)
+			PBLT C 1 Offset(2,32)
+			PBLT C 1 Offset(1,33)
+			PBLT A 1 Offset(1,32)
+			PBLT A 5 Offset(0, 32) A_Refire("AltFire")
+		Goto Ready
+		Fire4:
+			TNT1 A 0 A_TakeInventory("LPistolCharge", 0)
+			PBLT B 2 Bright
+			TNT1 A 0 A_GiveInventory("LaserPistolShooter5", 1)
+			TNT1 A 0 A_SetPitch(pitch-3.5)
+			TNT1 A 0 A_FireCustomMissile("LeadSpitterTracer", 0, 0, 4)
+			TNT1 A 0 A_PlayWeaponSound("weapons/laserpistolfire2")
+			PBLT B 1 Bright
+			PBLT C 1 Offset(3, 30) A_SetPitch(pitch + 0.7)
+			PBLT C 1 Offset(6, 27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(6,27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(8,25) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(6,27) A_SetPitch(pitch + 0.7)
+			PBLT D 1 Offset(3,30)
+			PBLT C 1 Offset(2,32)
+			PBLT C 1 Offset(1,33)
+			PBLT A 1 Offset(1,32)
+			PBLT A 5 Offset(0, 32) A_Refire("AltFire")
+		Goto Ready
+		Spawn:
+			PBLT Z -1
+		Stop
+	}
+}
+
+Actor LaserPistolShooter1 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(2.0, 1.25, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_ISPISTOL), "LaserPistolPuff", FBF_NORANDOM | FBF_NORANDOMPUFFZ)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(2.0, 1.25, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_ISPISTOL), "LaserPistolPuff_FullDMG", FBF_NORANDOM | FBF_NORANDOMPUFFZ)
+		Stop
+	}
+}
+
+Actor LaserPistolShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2", 2.0, 0, 192)
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2_FullDMG", 2.0, 0, 192)
+		Stop
+	}
+}
+
+Actor LaserPistolShooter3 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2", 2.0, 0, 224)
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2_FullDMG", 2.0, 0, 224)
+		Stop
+	}
+}
+
+Actor LaserPistolShooter4 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2", 2.0, 0, 256)
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2_FullDMG", 2.0, 0, 256)
+		Stop
+	}
+}
+
+Actor LaserPistolShooter5 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2", 2.0, 0, 288)
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_ENERGY, DND_ISPISTOL), 8, 1, "36 36 99", "60 60 90", RGF_EXPLICITANGLE, 0, "LaserPistolPuff2_FullDMG", 2.0, 0, 288)
+		Stop
+	}
+}
+
+Actor LPistolCharge : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 100
+	ammo.backpackmaxamount 100
+	+IGNORESKILL
+}
+
+Actor LaserPistolPuff {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	+PUFFONACTORS
+	Scale 0.1
+	RenderStyle Add
+	Alpha 0.99
+	+MTHRUSPECIES
+	+FOILINVUL
+	Translation "0:255=%[0,0,0]:[0.6,1.0,1.8]"
+	DamageType "Energy"
+	var int user_scaler;	// this one is to easily tweak the inherited versions
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SetUserVar("user_scaler", 1) 
+		TNT1 a 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
+	Type1:
+		DB21 ABCDEFGHI 1 Bright A_SetScale(scaleX + user_scaler * 0.01)
+		Stop
+	Type2:
+		DB21 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+	Type3:
+		DB22 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+	Type4:
+		DB22 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+	Type5:
+		DB23 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+	Type6:
+		DB23 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+	Type7:
+		DB24 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+	Type8:
+		DB24 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+	}
+}
+
+Actor LaserPistolPuff_FullDMG : LaserPistolPuff {
+	DamageType "EnergyFull"
+}
+
+Actor LaserPistolPuff2 : LaserPistolPuff {
+	Scale 0.1
+	States {
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SetUserVar("user_scaler", 3)
+		TNT1 a 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
+		Goto Type1
+	}
+}
+
+Actor LaserPistolPuff2_FullDMG : LaserPistolPuff {
+	DamageType "EnergyFull"
+}
+
+ACTOR ScatterGun : Weapon
+{
+   Inventory.PickupSound "misc/w_pkup"
+   Inventory.PickupMessage "You got the Scatter Pistol!"
+   Weapon.AmmoType1 "Clip"
+   Weapon.AmmoType2 "Clip"
+   Weapon.AmmoGive 0
+   Weapon.AmmoUse1 1
+   Weapon.AmmoUse2 1
+   Tag "Scatter Pistol"
+   Weapon.BobStyle InverseSmooth
+   Weapon.BobSpeed 2.1
+   Weapon.BobRangeY 0.3
+   Weapon.BobRangeX 0.6
+   Weapon.SlotNumber 2
+   States
+   {
+   Spawn:
+      SPPP A -1
+      Loop
+   Ready:
+      SPRP A 1 A_WeaponReady
+      Loop
+   Deselect:
+      TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+      SPRP A 1 A_Lower
+	  TNT1 A 0 A_Lower
+      Loop  
+   Select:
+	  TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
+	  TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	  TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SCATTERGUN)
+	  TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5, 2 | (4 << 16))
+	  TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 3, 2 | (4 << 16))
+   SelectLoop:
+      SPRP A 1 A_Raise
+	  TNT1 A 0 A_Raise
+      Loop 
+  Fire:
+      TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+	  TNT1 A 0 A_PlaySound("SPRPSHOT")
+	  SPRP E 1 Bright 
+      TNT1 A 0 A_GiveInventory("ScatterShooter1", 1)
+	  TNT1 A 0 A_GunFlash
+	  SPRP F 1 Bright
+	  SPRP G 1
+	  TNT1 A 0 A_CheckReload
+	  TNT1 A 0 A_PlaySound("SPRPSHOT")
+	  SPRP E 1 Bright 
+	  TNT1 A 0 A_GiveInventory("ScatterShooter1", 1)
+	  TNT1 A 0 A_GunFlash
+	  SPRP F 1 Bright
+	  SPRP G 1
+	  TNT1 A 0 A_CheckReload
+	  TNT1 A 0 A_PlaySound("SPRPSHOT")
+	  SPRP E 1 Bright 
+	  TNT1 A 0 A_GiveInventory("ScatterShooter1", 1)
+	  TNT1 A 0 A_GunFlash
+	  SPRP F 1 Bright
+	  SPRP G 1	  
+	  SPRP D 4
+	  SPRP G 3
+	  SPRP CBA 3
+	  SPRP A 4
+	  SPRP A 1 A_ReFire
+      Goto Ready  	  
+  AltFire:
+	  TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+	  TNT1 A 0 A_PlaySound("SPRPSHOT")
+	  SPRP E 1 Bright 
+	  TNT1 A 0 A_GiveInventory("ScatterShooter2", 1)
+	  TNT1 A 0 A_GunFlash
+	  SPRP F 1 Bright
+	  SPRP G 1
+	  SPRP D 3
+	  SPRP G 2
+	  SPRP CBA 2
+	  SPRP A 1
+	  SPRP A 1 A_ReFire
+      Goto Ready  
+   Flash:
+      TNT1 A 1 Bright A_Light1
+	  TNT1 A 1 Bright A_Light0
+      Stop
+   }
+}
+
+Actor ScatterShooter1 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("ScatterPShot", 0, 1, 0, 0, random(-3,3), 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("ScatterPShot_FullDMG", 0, 1, 0, 0, random(-3,3), 0)
+		Stop
+	}
+}
+
+Actor ScatterShooter2 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("ScatterPShot", 0, 1)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("ScatterPShot_FullDMG", 0, 1)
+		Stop
+	}
+}
+
+ACTOR ScatterPShot : FastProjectile
+{
+   Speed 50
+   Radius 4
+   Height 4
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL))
+   DamageType "Bullet"
+   Scale 0.25
+   PROJECTILE
+   +BRIGHT
+   RenderStyle Add
+   MissileHeight 8
+   MissileType "ScatterPShotTrail"
+   SeeSound "NDLSHOT"
+   +FOILINVUL
+   +MTHRUSPECIES
+   States
+   {
+   Spawn:
+      SPPJ A 1
+	  TNT1 A 0 A_SpawnItemEx("ScatterShotGlow", 0, 0, 0, 0, 0, 0, 0, 32)
+      Loop
+   Death:
+      TNT1 A 0
+	  TNT1 A 0 A_PlaySound("SPRPIMPT")
+	  TNT1 A 0 A_SetScale(0.20)
+	  TNT1 AAAAAA 0 A_CustomMissile("ScatterSpark",0,0,random(0,360),CMF_AIMDIRECTION,random(0,12))
+      SPRI ABCDE 1
+      Stop
+   }
+}
+
+Actor ScatterPShot_FullDMG : ScatterPShot {
+	DamageType "BulletFull"
+	States {
+		Death:
+			TNT1 A 0
+			TNT1 A 0 A_PlaySound("SPRPIMPT")
+			TNT1 A 0 A_SetScale(0.20)
+			TNT1 AAAAA 0 A_CustomMissile("ScatterSpark_FullDMG",0,0,random(0,360),CMF_AIMDIRECTION,random(0,12))
+			SPRI ABCDE 1
+		Stop
+	}
+}
+
+ACTOR ScatterSpark
+{
+   Speed 16
+   Radius 4
+   Height 4
+   Scale 0.15
+   Gravity 0.3
+   PROJECTILE
+   +BRIGHT
+   -NOGRAVITY
+   +DROPOFF 
+   +THRUACTORS
+   RenderStyle Add
+   States
+   {
+   Spawn:
+      SPPJ A 1
+	  TNT1 A 0 A_SpawnItemEx("ScatterShotGlowSmall", 0, 0, 0, 0, 0, 0, 0, 32)
+	  TNT1 A 0 A_SpawnItemEx("ScatterShotXDMG", 0, 0, 0, 0, 0, 0, 0, 32)
+      Loop
+   Death:
+      TNT1 A 0
+	  TNT1 A 0 A_PlaySound("SPRPIMPT",5,0.12,0)
+	  TNT1 A 0 A_SetScale(0.08)
+      SPRI ABCDE 1
+      Stop
+   }
+}
+
+ACTOR ScatterSpark_FullDMG : ScatterSpark {
+    States {
+		Spawn:
+			SPPJ A 1
+			TNT1 A 0 A_SpawnItemEx("ScatterShotGlowSmall", 0, 0, 0, 0, 0, 0, 0, 32)
+			TNT1 A 0 A_SpawnItemEx("ScatterShotXDMG_FullDMG", 0, 0, 0, 0, 0, 0, 0, 32)
+		Loop
+	}
+}
+
+ACTOR ScatterShotXDMG
+{                 
+   Speed 2
+   Radius 6
+   Height 7
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL))
+   DamageType "Bullet"
+   PROJECTILE
+   +NODAMAGETHRUST
+   +FOILINVUL
+   +MTHRUSPECIES
+   States
+   {
+   Spawn:
+      TNT1 A 1
+      Stop
+   Death:
+      TNT1 A 0
+      Stop
+   }
+}
+
+ACTOR ScatterShotXDMG_FullDMG : ScatterShotXDMG {
+	DamageType "BulletFull"
+}
+
+Actor RubyWand : Weapon {
+	Inventory.PickupSound ""
+	Inventory.PickupMessage "You got the Ruby Wand!"
+	Obituary "%k toasted %o."
+	Weapon.AmmoType "RubyAmmo"
+	Weapon.AmmoGive 0
+	Weapon.SelectionOrder 2400
+	Weapon.AmmoUse 1
+	Weapon.SlotNumber 2
+	+WEAPON.AMMO_OPTIONAL
+	States {
+		Spawn:
+			WAND F -1 Bright
+		Loop
+		Ready:
+			WAND A 1 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+		DeselectLoop:
+			WAND A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			  TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
+			  TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			  TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_RUBYWAND)
+			  TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5, 2 | (4 << 16))
+			  TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 25)
+			  TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 8, 4 | (8 << 16))
+			  TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_3, 24)
+	    SelectLoop:
+			WAND A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			WAND A 0 A_JumpIfNoAmmo("Fire2")
+			WAND A 3 Bright 
+			WAND B 0 A_GunFlash
+			WAND B 0 A_PlayWeaponSound("RubyWand/Fire")
+			WAND B 1 Bright Offset(0, 33)
+			WAND B 1 Bright Offset(0, 35)
+			WAND B 1 Bright Offset(0, 38)
+			WAND C 1 Bright Offset(0, 42) A_GiveInventory("RubyShooter", 1)
+			WAND C 1 Bright Offset(0, 41)
+			WAND C 1 Bright Offset(0, 40)
+			WAND C 1 Bright Offset(0, 39)
+			WAND A 1 Offset(0, 36)
+			WAND A 1 Offset(0, 35)
+			WAND A 1 Offset(0, 34)
+			WAND A 1 Offset(0, 33)
+			WAND A 1 Offset(0, 33)
+		Goto Ready
+		Fire2:
+			WAND A 3 Bright 
+			WAND B 0 A_GunFlash
+			WAND B 0 A_PlayWeaponSound("RubyWand/Fire")
+			WAND B 1 Bright Offset(0, 33)
+			WAND B 1 Bright Offset(0, 35)
+			WAND B 1 Bright Offset(0, 38)
+			WAND C 1 Bright Offset(0, 42) A_GiveInventory("RubyShooterSingle", 1)
+			WAND C 1 Bright Offset(0, 41)
+			WAND C 1 Bright Offset(0, 40)
+			WAND C 1 Bright Offset(0, 39)
+			WAND A 1 Offset(0, 36)
+			WAND A 1 Offset(0, 35)
+			WAND A 1 Offset(0, 34)
+			WAND A 1 Offset(0, 33)
+			WAND A 1 Offset(0, 33)
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("RubyAmmo", 7, "ContinueAlt")
+			WAND A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueAlt:
+			WAND A 1 Offset(0, 33)
+			WAND A 1 Offset(-1, 34)
+			WAND A 1 Offset(1, 32)
+			WAND A 1 Offset(0, 33)
+			WAND A 1 Offset(-1, 32)
+			WAND A 1 Offset(1, 33)
+			WAND A 3 Bright Offset(0, 33)
+			WAND B 0 A_GunFlash
+			WAND B 0 A_PlayWeaponSound("RubyWand/Alt")
+			WAND B 1 Bright Offset(0, 33)
+			WAND B 1 Bright Offset(0, 35)
+			WAND B 1 Bright Offset(0, 38)
+			WAND C 1 Bright Offset(0, 42) A_GiveInventory("RubyAltShooter", 1)
+			WAND C 1 Bright Offset(0, 41)
+			WAND C 1 Bright Offset(0, 40)
+			WAND C 1 Bright Offset(0, 39)
+			WAND A 1 Offset(0, 36)
+			WAND A 1 Offset(0, 35)
+			WAND A 1 Offset(0, 34)
+			WAND A 1 Offset(0, 33)
+			WAND A 6 A_WeaponReady(WRF_NOSECONDARY | WRF_NOSWITCH)
+		Goto Ready
+	}
+}
+
+Actor RubyShooterSingle : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("RubyShot",0,0,0,0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("RubyShot_FullDMG",0,0,0,0)
+		Stop
+	}
+}
+
+Actor RubyShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("RubyShot",0,1,0,0)
+			TNT1 A 0 A_FireCustomMissile("RubyShot",-3,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RubyShot",3,0,0,0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("RubyShot_FullDMG",0,1,0,0)
+			TNT1 A 0 A_FireCustomMissile("RubyShot_FullDMG",-3,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RubyShot_FullDMG",3,0,0,0)
+		Stop
+	}
+}
+
+Actor RubyAltShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("RubyAmmo", 7)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("RubyFlameMissile",0,0,0,0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("RubyFlameMissile_FullDMG",0,0,0,0)
+		Stop
+	}
+}
+
+Actor RubyShot {
+	Radius 3
+	Height 6
+	Speed 30
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_USETARGET | DND_ISPISTOL))
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.75
+	DeathSound "RubyWand/Hit"
+	DamageType "Fire"
+	+THRUGHOST
+	+FORCEXYBILLBOARD
+	+MTHRUSPECIES
+	States {
+		Spawn:
+			VBAL AB 3 Bright A_SpawnItem("RubyFireTrail")
+		loop
+		Death:
+			TNT1 A 0 A_SpawnItem("RedParticleSpawner")
+			WBAL FGHIJ 3 Bright
+		Stop
+	}
+}
+
+Actor RubyShot_FullDMG : RubyShot {
+	DamageType "FireFull"
+	-THRUGHOST
+}
+
+Actor RubyFiretrail {   
+   +NOINTERACTION
+   +CLIENTSIDEONLY
+   +FORCEXYBILLBOARD
+   RENDERSTYLE ADD
+   ALPHA 0.75
+   States {
+	   Spawn:
+		  TNT1 A 2 bright
+		  RUFX AB 2 bright
+		  RUFX C 2 Bright A_SetTranslucent (0.33)
+		  RUFX DEF 2 BRIGHT
+	  Stop 
+   }
+}
+
+Actor RubyFlameTrail {
+	Height 1
+	Radius 1
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			CFFX NOP 3 Bright
+		Stop
+	}
+}
+
+Actor RubyCircleFlame {
+	Radius 6
+	Height 12
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ELEMENTAL, DND_USETARGET | DND_ISPISTOL))
+	DamageType "Fire"
+	Projectile
+	RenderStyle Add
+	DeathSound "ClericFlameCircle"
+	const float rubyspeed = 5.0;
+	+THRUGHOST
+	+MTHRUSPECIES
+	States {
+		Spawn:
+			CFCF A 4 Bright
+			CFCF B 2 Bright A_ChangeVelocity(rubyspeed * cos(angle), rubyspeed * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF C 2 Bright
+			CFCF D 1 Bright
+			CFCF E 2 Bright
+			CFCF F 2 Bright A_ChangeVelocity(rubyspeed * cos(angle), rubyspeed * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF G 1 Bright
+			CFCF HI 2 Bright
+			CFCF J 1 Bright A_ChangeVelocity(rubyspeed * cos(angle), rubyspeed * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF K 2 Bright
+			CFCF LM 3 Bright
+			CFCF N 2 Bright A_ChangeVelocity(rubyspeed * cos(angle), rubyspeed * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF O 3 Bright
+			CFCF P 2 Bright
+		Stop
+		Death:
+			CFCF QR 3 Bright
+			CFCF S 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET | DND_ISPISTOL), 24, 0)
+			CFCF TUVWXYZ 3 Bright
+		Stop
+	}
+}
+
+Actor RubyCircleFlame_FullDMG : RubyCircleFlame {
+	DamageType "FireFull"
+	+FORCERADIUSDMG
+	-THRUGHOST
+	States {
+		Death:
+			CFCF QR 3 Bright
+			CFCF S 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET | DND_ISPISTOL), 24, 0)
+			CFCF TUVWXYZ 3 Bright
+		Stop
+	}
+}
+
+Actor RubyFlameMissile : FastProjectile {
+	Speed 128
+	Radius 14
+	Height 8
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET | DND_ISPISTOL))
+	DamageType "Fire"
+	RenderStyle Add
+	+INVISIBLE
+	+THRUGHOST
+	+MTHRUSPECIES
+	States {
+		Spawn:
+			TNT1 A 0
+			CFFX A 3 Bright ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_RUBYFLAME, 32, 0)
+			TNT1 A 0 A_ChangeFlag("INVISIBLE", 0)
+		Goto NoExplode
+		Death:
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 135, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame", 0, 0, 335, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItem("RedParticleSpawner")
+		NoExplode:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeFlag("INVISIBLE", 0)
+			CFFX ABC 3 Bright
+			CFFX D 4 Bright
+			CFFX E 3 Bright
+			CFFX F 4 Bright
+			CFFX G 3 Bright
+			CFFX H 4 Bright
+			CFFX I 3 Bright
+			CFFX J 4 Bright
+			CFFX K 3 Bright
+			CFFX L 4 Bright
+			CFFX M 3 Bright
+		Stop
+	}
+}
+
+Actor RubyFlameMissile_FullDMG : RubyFlameMissile {
+	DamageType "FireFull"
+	-THRUGHOST
+	States {
+		Spawn:
+			TNT1 A 0
+			CFFX A 3 Bright ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_RUBYFLAME, 32, 2)
+			TNT1 A 0 A_ChangeFlag("INVISIBLE", 0)
+		Goto NoExplode
+		Death:
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 135, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_FullDMG", 0, 0, 335, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0
+		NoExplode:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeFlag("INVISIBLE", 0)
+			CFFX ABC 3 Bright
+			CFFX D 4 Bright
+			CFFX E 3 Bright
+			CFFX F 4 Bright
+			CFFX G 3 Bright
+			CFFX H 4 Bright
+			CFFX I 3 Bright
+			CFFX J 4 Bright
+			CFFX K 3 Bright
+			CFFX L 4 Bright
+			CFFX M 3 Bright
+		Stop
+	}
+}

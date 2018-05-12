@@ -1,0 +1,40 @@
+RPG/LevelUp			RPGLVLUP
+RPG/KillBonus		RPGKILLS
+RPG/ItemBonus		RPGITEMS
+RPG/SecretBonus		RPGSCRTS
+RPG/BonusBonus		RPGBNBNS
+
+RPG/MenuOpen		RPGMOPN
+RPG/MenuClose		RPGMCLS
+RPG/MenuMove		RPGMOVE
+RPG/MenuChoose		RPGMSEL
+RPG/MenuError		RPGMERR
+RPG/MenuBuy			RPGMBUY
+RPG/MenuSell		RPGMSELL
+RPG/MenuSellConfirm	RPGMCNFR
+
+Bonus/Received		BONRECEI
+Weapon/Popup		WEPPOPUP
+
+Killstreak1			KILLSTR1
+Killstreak2			KILLSTR2
+Killstreak3			KILLSTR3
+$random Killstreak/Show { Killstreak1 Killstreak2 Killstreak3 }
+
+Agamotto/Defense	HOLYFX1
+Agamotto/Offense	HOLYFX2
+
+Quest/View			QSTVIEW
+Quest/Close			QSTCLOSE
+Quest/Announce		QSTANNCE
+Quest/Done			QSTDONE
+Quest/Fail			QSTFAIL
+
+Items/OrbUse		ORBUSE
+Items/OrbDrop		ORBDROP
+$limit Items/OrbDrop 0
+Items/OrbPick		ORBPICK
+Items/ChestKey		CHESTKEY
+
+Chest/Open			CHSTOPEN
+Chest/Locked		CHSTLOCK

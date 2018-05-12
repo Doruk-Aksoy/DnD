@@ -1,0 +1,166 @@
+const int chest_droprate = 64;
+
+enum {
+	CKEY_BRONZE,
+	CKEY_SILVER,
+	CKEY_GOLD
+};
+
+ACTOR ChestKey : Inventory {
+	Inventory.PickupMessage "\ccBonus pickup  : \c[Y5]Chest Key\c-"
+	Inventory.PickupSound "Items/ChestKey"
+	Inventory.UseSound "Chest/Open"
+	Inventory.MaxAmount 50
+	+INVBAR
+	+NEVERRESPAWN
+	Inventory.InterHubAmount 50
+	Tag "Chest key"
+	States {
+		Spawn:
+			SBKY A -1
+		Stop
+	}
+}
+
+Actor BronzeChestKey : ChestKey {
+	Inventory.Icon "BRNZKY"
+	Inventory.PickupMessage "\ccBonus pickup  : \c[Y5]Bronze Chest Key\c-"
+	States {
+		Spawn:
+			SBKY A -1
+		Stop
+	}
+}
+
+Actor SilverChestKey : ChestKey {
+	Inventory.Icon "SLVRKY"
+	Inventory.PickupMessage "\ccBonus pickup  : \c[Y5]Silver Chest Key\c-"
+	States {
+		Spawn:
+			SBKY B -1
+		Stop
+	}
+}
+
+Actor GoldChestKey : ChestKey {
+	Inventory.Icon "GOLDKY"
+	Inventory.PickupMessage "\ccBonus pickup  : \c[Y5]Gold Chest Key\c-"
+	States {
+		Spawn:
+			SBKY C -1
+		Stop
+	}
+}
+
+ACTOR DNDBronzeChest {
+	Height 32
+	Radius 16
+	Tag "Bronze Chest"
+	+USESPECIAL
+	Activation THINGSPEC_ThingTargets
+	States {
+		Spawn:
+			SUBX A 0
+			SUBX A 0 A_JumpIfInTargetInventory("BronzeChestKey",1,"Open")
+			SUBX A 0 A_GiveToTarget("BronzeChestMsg")
+			SUBX A 1 A_ClearTarget
+		Loop
+		Open:
+			TNT1 A 0 A_TakeFromTarget("BronzeChestKey", 1)
+			SUBX A 3
+		DropContent:
+			SUBX B 5 A_PlaySound("Chest/Open")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Drop Orb")
+			TNT1 AAAAAAA 0 A_SpawnItemEx("SmallCreditSpawner")
+			TNT1 AAAAA 0 A_SpawnItemEx("SmallCreditSpawner_Elite")
+			TNT1 A 0 A_SpawnItemEx("BudgetDropper_Low")
+			SUBX B -1
+		Stop
+	}
+}
+
+ACTOR DNDSilverChest : DNDBronzeChest {
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_JumpIfInTargetInventory("SilverChestKey", 1, "Open")
+			TNT1 A 0 A_GiveToTarget("SilverChestMsg")
+			SUBX C 1 A_ClearTarget
+		Loop
+		Open:
+			TNT1 A 0 
+			TNT1 A 0 A_TakeFromTarget("SilverChestKey", 1)
+			SUBX C 3
+		DropContent:
+			SUBX D 5 A_PlaySound("Chest/Open")
+			TNT1 AA 0 ACS_NamedExecuteAlways("DnD Drop Orb")
+			TNT1 AAAA 0 A_SpawnItemEx("MediumCreditSpawner")
+			TNT1 AA 0 A_SpawnItemEx("MediumCreditSpawner_Elite")
+			TNT1 A 0 A_SpawnItemEx("BudgetDropper_Medium")
+			TNT1 A 0 A_GiveInventory("ChestResearchDropper", 1)
+			SUBX D -1
+		Stop
+	}
+}
+
+ACTOR DNDGoldChest : DNDBronzeChest {
+	States {
+		Spawn:
+			SUBX C 0
+			SUBX C 0 A_JumpIfInTargetInventory("GoldChestKey", 1, "Open")
+			SUBX C 0 A_GiveToTarget("GoldChestMsg")
+			SUBX E 1 A_ClearTarget
+		Loop
+		Open:
+			TNT1 A 0 
+			TNT1 A 0 A_TakeFromTarget("GoldChestKey", 1)
+			SUBX E 3
+		DropContent:
+			SUBX F 5 A_PlaySound("Chest/Open")
+			TNT1 AAA 0 ACS_NamedExecuteAlways("DnD Drop Orb")
+			TNT1 AAAAAA 0 A_SpawnItemEx("LargeCreditSpawner_Elite")
+			TNT1 A 0 A_SpawnItemEx("BudgetDropper_High")
+			TNT1 A 0 A_GiveInventory("ResearchDropItem", 1)
+			SUBX F -1
+		Stop
+	}
+}
+
+Actor ChestResearchDropper : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_Jump(128, "Failed")
+			TNT1 A 0 A_GiveInventory("ResearchDropItem", 1)
+		Stop
+		Failed:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor BronzeChestMsg : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_PlaySound("Chest/Locked")
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 4, CKEY_BRONZE)
+		Stop
+	}
+}
+
+Actor SilverChestMsg : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_PlaySound("Chest/Locked")
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 4, CKEY_SILVER)
+		Stop
+	}
+}
+
+Actor GoldChestMsg : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_PlaySound("Chest/Locked")
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 4, CKEY_GOLD)
+		Stop
+	}
+}

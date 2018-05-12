@@ -1,0 +1,28 @@
+Actor FleshWizardSlow1 : PowerSpeed {
+	Speed 0.75
+	Powerup.duration -2
+	powerup.color "Red2" 0.15
+}
+
+Actor FleshWizardSlow2 : PowerSpeed {
+	Speed 0.5
+	powerup.duration 52
+	powerup.color "Red2" 0.125
+}
+
+Actor FleshWizardWeaken : PowerDamage {
+	powerup.duration 52
+	damagefactor "normal", 0.75
+}
+
+Actor FleshWizardSnare : PowerSpeed {
+	Speed 0
+	powerup.duration -1
+	powerup.color "Red2" 0.15
+}
+
+Actor TorrasqueSnare : PowerSpeed {
+	Speed 0
+	powerup.duration 45
+	powerup.color "Gray" 0.15
+}

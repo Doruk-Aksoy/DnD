@@ -1,0 +1,254 @@
+Actor AllMapOnlyOnce : DnD_Boolean { }
+
+Actor AllMapGiver : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("Allmap", 1)
+			TNT1 A 0 A_GiveInventory("AllMapOnlyOnce", 1)
+		Stop
+	}
+}
+
+Actor BackpackCounter : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 70
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 70
+	+IGNORESKILL
+}
+
+Actor NewInfrared : Infrared replaces Infrared {
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Infrared!\c-"
+	inventory.pickupsound "items/infraredpick"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+		Goto Super::Spawn
+	}
+}
+
+Actor NewBackPack : CustomInventory {
+	States {
+		Spawn:
+			BPAK A -1
+		Loop
+		Pickup: // check success cond moved below
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 0)
+		Stop
+	}
+}
+
+Actor NewBackPackPickup : CustomInventory replaces Backpack {
+	Height 16
+	Radius 12
+	Renderstyle Translucent
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BACKPACK)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+		Idle:
+			BPAK A -1
+		Stop
+		IdlePicked:
+			BPAK A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Shared Item Check"), "ActualPickup")
+		Goto Failed
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Shared Item Clear Semaphore", 0)
+		Fail
+		ActualPickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(994, 0), "Success")
+		Goto Failed
+		Success:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Shared Item Pickup", 0)
+			TNT1 A 0 A_GiveInventory("BackpackPickMSG", 1)
+			TNT1 A 0 A_GiveInventory("NewBackpack", 1)
+		Fail
+	}
+}
+
+Actor Backpack_SP : NewBackPackPickup {
+	inventory.pickupmessage "\ccItem Pickup   : \c[Y5]Backpack\c-"
+	inventory.pickupsound "Items/backpack"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+			BPAK A -1
+		Stop
+		IdlePicked:
+			BPAK A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(994, 0), "Success")
+		Goto Failed
+		Failed:
+			TNT1 A 0
+		Fail
+		Success:
+			TNT1 A 0 A_GiveInventory("NewBackpack", 1)
+		Stop
+	}
+}
+
+Actor BackpackPickMSG : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 3, SHI_BACKPACK)
+			TNT1 A 0 A_PlaySound("Items/backpack", 6)
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
+
+Actor NewAllMap : Allmap replaces Allmap {
+    inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Area Map!\c-"
+	inventory.pickupsound "items/allmap"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+		SpawnIdle:
+			PMAP AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("AllMapFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+	}
+}
+
+Actor EvilSphere : Powerupgiver
+{
+ inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Evil Sphere! Monsters flee from you!\c-"
+ Powerup.Color GoldMap
+ inventory.maxamount 0
+ inventory.pickupsound "items/evilsphere"
+ powerup.type "Frightener"
+ powerup.duration 1400
+ +AUTOACTIVATE
+ +INVENTORY.ALWAYSPICKUP
+ +COUNTITEM
+ States
+ {
+	Spawn:
+		HELS AAAABBBBCCCCDDDD 1 Bright A_SpawnItemEx("EvilSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+	Loop
+ }
+}
+
+ACTOR NewBerserk : CustomInventory replaces Berserk
+{
+  +COUNTITEM
+  +INVENTORY.ALWAYSPICKUP
+  inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Berserk!\c-"
+  Inventory.PickupSound "misc/p_pkup"
+  States
+  {
+  Spawn:
+    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+  SpawnIdle:
+    XNSR A 1 A_SpawnItemEx("AllMapFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+    Loop
+  Pickup:
+    TNT1 A 0 A_GiveInventory("PowerStrength")
+    TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 0, 3)
+	TNT1 A 0 A_JumpIfInventory(" Fists ", 1, "FistUp")
+  Stop
+  FistUp:
+    TNT1 A 0 A_SelectWeapon(" Fists ")
+    Stop
+  }
+}
+
+Actor InvulnerabilitySphere2 : InvulnerabilitySphere replaces InvulnerabilitySphere
+{
+	inventory.pickupsound "items/invul"
+	Inventory.PickupAnnouncerEntry ""
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Invulnerability!\c-"
+	
+	States {
+		Spawn:
+			PINV AAAAABBBBBCCCCCDDDDDEEEEEFFFFFEEEEEDDDDDCCCCCBBBBB 1 Bright A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+	}
+}
+
+ACTOR RadSuit2 : Radsuit replaces Radsuit
+{
+	inventory.pickupsound "items/radsuit"
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Radsuit\c-"
+	States {
+		Spawn:
+		    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+		SpawnIdle:
+			SUIT A 1 Bright A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+	}
+}
+
+Actor SoulSphere2 : CustomInventory replaces SoulSphere
+{
+	Inventory.PickupAnnouncerEntry ""
+	inventory.pickupsound "items/soulsphere"
+    SpawnID 25
+    +COUNTITEM
+    inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Soulsphere! 100 health!\c-"
+    States
+    {
+		Spawn:
+		    SOUL AAAAAABBBBBBCCCCCCDDDDDDCCCCCCBBBBBB 1 Bright A_SpawnItemEx("SoulSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("TaltosUp", 1, "Failed")
+		    TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 1)
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+  }
+}
+
+Actor MegaSphere2 : CustomInventory
+{ 
+	Inventory.PickupAnnouncerEntry ""
+	inventory.pickupsound "items/megasphere"
+    SpawnID 132
+    +COUNTITEM
+    +INVENTORY.ALWAYSPICKUP
+    inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Megasphere! 200 health and armor!\c-"
+    States
+    {
+		Spawn:
+		  MEGA AAAAAABBBBBBCCCCCCDDDDDD 1 Bright A_SpawnItemEx("MegaSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+		Pickup:
+		  TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200)
+		  TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 200, 2)
+		Stop
+  }	
+}
+
+Actor UberSphere : CustomInventory
+{
+  inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Uber Sphere! 300 health and armor!\c-"
+  inventory.pickupsound "items/ubersphere"
+  +COUNTITEM
+  +INVENTORY.AUTOACTIVATE
+  +INVENTORY.ALWAYSPICKUP
+  states
+  {
+  Spawn:
+    CARN AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+    loop
+  Pickup: 
+    TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300)
+    TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 300, 2)
+    stop
+  }
+}
+
+Actor Megaspherespawner : Randomspawner replaces MegaSphere
+{
+	DropItem "MegaSphere2", 255, 16
+	DropItem "UberSphere", 255, 4
+}

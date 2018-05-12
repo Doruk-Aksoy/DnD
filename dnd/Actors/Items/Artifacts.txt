@@ -1,0 +1,448 @@
+Actor FieldKit : CustomInventory
+{
+  Inventory.PickupMessage "You got a field kit"
+  Inventory.PickupSound "Misc/I_PkUp"
+  Inventory.UseSound "Items/fieldkit"
+  Inventory.Icon "FKITC0"
+  Inventory.MaxAmount 3
+  Inventory.InterHubAmount 3
+  +INVENTORY.UNDROPPABLE
+  +INVENTORY.INVBAR
+  +INVENTORY.PERSISTENTPOWER
+  States
+  {
+  Spawn:
+    FKIT A -1
+	Stop
+	Use:
+		TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(819, 1), "Failed")
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 25 + 13 * ACS_ExecuteWithResult(918, 2, 1))
+		TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+	Stop
+	GiveQuestDmg:
+		TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+	Stop
+	Failed:
+		TNT1 A 1
+	Fail
+  }
+}
+
+actor Salvationsphere : CustomInventory
+{
+  Inventory.PickupMessage "Salvationsphere!"
+  Inventory.Amount 1
+  Inventory.MaxAmount 1
+  Inventory.PickupSound "misc/p_pkup"
+  Inventory.UseSound "items/salvation"
+  Inventory.Icon "ARTISALV"
+  Renderstyle Add
+  +INVENTORY.FANCYPICKUPSOUND
+  +INVENTORY.UNDROPPABLE
+  +INVBAR
+  +COUNTITEM
+  +FLOATBOB
+  states
+  {
+  Spawn:
+	SALV ABCDE 3 Bright
+	loop
+  Use:
+ 	TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100 + 50 * ACS_ExecuteWithResult(918, 2, 1), 1)
+	TNT1 A 0 A_GiveInventory("Salvate")
+	TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+	TNT1 A 0 A_GiveInventory("SalvationEffectGiver")
+	TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+	Stop
+	GiveQuestDmg:
+	TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+	Stop
+  }
+}
+
+//Alternate Salvation
+
+actor Salvate : ArtiTeleport
+{
+  +INVENTORY.AUTOACTIVATE
+  +INVENTORY.ALWAYSPICKUP
+}
+
+Actor PortableShield : CustomInventory
+{
+  Inventory.PickupMessage "Shield!"
+  Inventory.Amount 1
+  Inventory.MaxAmount 3
+  Inventory.PickupSound "misc/p_pkup"
+  Inventory.UseSound "items/shield"
+  Inventory.Icon "ELPDP"
+  Inventory.InterHubAmount 3
+  +INVENTORY.UNDROPPABLE
+  +INVENTORY.PERSISTENTPOWER
+  +INVBAR
+  States
+  {
+	Spawn:
+		ELPD A -1
+	Stop
+	Use:
+		TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 14), "Failed") // invul sphere
+		TNT1 A 0 A_JumpIfInventory("P_Invulnerable", 1, "Failed")
+		TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+		TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
+		TNT1 A 0 A_GiveInventory("ShieldPowerupGiver", 1)
+		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+	Stop
+	GiveQuestDmg:
+		TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+	Stop
+	Better:
+		TNT1 A 0 A_GiveInventory("ShieldPowerupGiver2", 1)
+		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+	Stop
+	Failed:
+		TNT1 A 0
+	Fail
+  }
+}
+
+Actor ShieldPowerupGiver : PowerInvulnerable
+{
+	powerup.duration -5
+	Powerup.Color Goldmap
+	+INVENTORY.ADDITIVETIME
+}
+
+Actor ShieldPowerupGiver2 : PowerInvulnerable
+{
+	powerup.duration 262 // 7.5 seconds approx
+	Powerup.Color Goldmap
+	+INVENTORY.ADDITIVETIME
+}
+
+Actor FakeBloodPower : PowerDrain
+{
+	powerup.duration -30
+	Powerup.Color "192 5 5"
+}
+
+Actor FakeBloodPowerBetter : PowerDrain
+{
+	powerup.duration -45
+	Powerup.Color "192 5 5"
+}
+
+Actor BloodRune : CustomInventory
+{
+	inventory.pickupmessage "Rune!"
+	inventory.maxamount 1
+	inventory.icon "BRUICO"
+	+INVENTORY.UNDROPPABLE
+	+INVBAR
+	States
+	{
+		Spawn:
+			ELPD A -1
+		Stop
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+			TNT1 A 1 ACS_NamedExecuteAlways("DnD Player On Hit", 0, 0)
+		Stop
+	}
+}
+
+Actor TripleDamage : CustomInventory
+{
+	inventory.pickupmessage "Rune!"
+	inventory.maxamount 1
+	inventory.usesound "items/triple"
+	inventory.icon "ARTIDMG"
+	+INVENTORY.UNDROPPABLE
+	+INVBAR
+	States
+	{
+		Spawn:
+			TNT1 A 1
+		Stop
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+			TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
+			TNT1 A 0 A_GiveInventory("TripleDamagePower", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+		Stop
+		GiveQuestDmg:
+			TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+		Stop
+		Better:
+			TNT1 A 0 A_GiveInventory("TripleDamagePower2", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+		Stop
+	}
+}
+
+Actor TripleDamagePower : PowerDamage
+{
+	damagefactor "normal", 3.0
+	powerup.duration -15
+	Powerup.Color Redmap
+}
+
+
+Actor TripleDamagePower2 : PowerDamage
+{
+	damagefactor "normal", 4.5
+	powerup.duration 787
+	Powerup.Color Redmap
+}
+
+Actor BookPuff : BulletPuff {
+	+MTHRUSPECIES
+	+PUFFONACTORS
+	DamageType "BookOfTheDead"
+	States {
+		Crash:
+			TNT1 A 1
+		Stop
+		Spawn:
+			TNT1 AA 0 A_PlaySound("items/bookofthedeadhit")
+			TNT1 A 0 A_GiveToTarget("Souls", 1)
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("UndeadParticleFX",0,0,8,random(-4, 4),random(-4, 4),random(2, 5),0,143)
+			SRBA EE 2 A_SpawnItemEx("UndeadParticleFX",0,0,8,random(-4, 4),random(-4, 4),random(2, 5),0,143)
+			SRBA FF 2 A_SpawnItemEx("UndeadParticleFX",0,0,8,random(-4, 4),random(-4, 4),random(2, 5),0,143)
+			SRBA GG 2 A_SpawnItemEx("UndeadParticleFX",0,0,8,random(-4, 4),random(-4, 4),random(2, 5),0,143)
+			SRBA HH 2 A_SpawnItemEx("UndeadParticleFX",0,0,8,random(-4, 4),random(-4, 4),random(2, 5),0,143)
+			SRBA I 4
+			SRBA J 2
+		Fade:
+			SRBA J 1 A_Fadeout(0.035)
+		Loop
+	}
+}
+
+Actor BookofTheDead : CustomInventory
+{
+	inventory.maxamount 1
+	inventory.icon "BOTDG0"
+	inventory.usesound "items/bookofthedead"
+	+INVENTORY.UNDROPPABLE
+	+INVBAR
+	Decal ""
+	States
+	{
+		Spawn:
+			TNT1 A 1
+		Stop
+		Use:
+			TNT1 A 0 A_AlertMonsters
+			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+			TNT1 A 0 A_SpawnItemEx("UndeadParticleFX2", 32, 0)
+			// improve this later
+			TNT1 A 0 A_FireBullets(0.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff",  FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(2.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(4.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(6.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(9.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(11.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(13.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(15.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(18.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(20.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(22.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(23.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(24.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(27.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(29.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(31.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(33.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(36.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(38.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(40.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(42.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(45.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(47.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(49.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(51.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(54.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(56.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(58.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(60.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(63.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(65.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(67.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(69.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(72.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(74.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(76.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(78.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(81.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(83.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(85.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(87.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(90.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-2.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-4.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-6.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-9.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-11.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-13.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-15.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-18.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-20.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-22.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-24.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-27.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-29.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-31.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-33.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-36.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-38.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-40.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-42.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-45.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-47.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-49.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-51.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-54.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-56.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-58.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-60.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-63.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-65.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-67.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-69.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-72.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-74.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-76.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-78.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-81.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-83.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-85.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-87.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_FireBullets(-90.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_OCCULT, DND_ISARTIFACT |  DND_USETARGET) * random(5, 6), "BookPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+		Stop
+		GiveQuestDmg:
+			TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+		Stop
+	}
+}
+
+Actor UndeadParticleFX
+{
+	Height 1
+	Radius 1
+	Alpha 0.75
+	Renderstyle Add
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	Scale 0.75
+	States
+	{
+		Spawn:
+			SRBA D 2 A_FadeOut(0.075)
+		Loop
+	}
+}
+
+Actor UndeadParticleFX2 : UndeadParticleFX {
+	Alpha 0.9
+	Scale 1.15
+	States {
+		Spawn:
+			SRBA K 2 A_FadeOut(0.075)
+		Loop
+	}
+}
+
+Actor BladeVortex : CustomInventory
+{
+	inventory.maxamount 1
+	inventory.icon "SHRUB0"
+	inventory.usesound "items/bladevortex"
+	+INVENTORY.UNDROPPABLE
+	+INVBAR
+	States
+	{
+		Spawn:
+			TNT1 A 1
+		Stop
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+			TNT1 A 0 A_AlertMonsters
+			TNT1 A 0 A_SetBlend("FF FF FF", 1.0, 35)
+			TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
+			TNT1 A 0 A_GiveInventory("VortexTimer", 1)
+			TNT1 A 0 ACS_ExecuteAlways(974, 0, 128)
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+		Stop
+		GiveQuestDmg:
+			TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+		Stop
+		Better:
+			TNT1 A 0 A_GiveInventory("VortexTimer2", 1)
+			TNT1 A 0 ACS_ExecuteAlways(974, 0, 128)
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
+		Stop
+	}
+}
+
+Actor VortexTimer : PowerProtection
+{
+	damagefactor "normal", 0.5
+	powerup.duration -20
+}
+
+Actor VortexTimer2 : PowerProtection
+{
+	damagefactor "normal", 0.25
+	powerup.duration -30
+}
+
+Actor VortexBlade
+{
+	PROJECTILE
+	+RIPPER
+	Species "Player"
+	+THRUSPECIES
+	+NOCLIP
+	+NODAMAGETHRUST
+	+FORCERADIUSDMG
+	Radius 5
+	Height 8
+	Speed 8
+	Scale 0.4
+	Damage (0)
+	DamageType "Magic"
+	
+	States
+	{
+		Spawn:
+			SHFL ABCD 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Scale", 40, TALENT_MELEE, DND_ISARTIFACT | DND_USETARGET), 18 * (1.0 + 0.5 * ACS_ExecuteWithResult(918, 2, 1, DND_USETARGET)), 0)
+		Loop
+		Death:
+			TNT1 A 2
+		Stop		
+	}
+}
+
+Actor StatReset : CustomInventory {
+  Inventory.PickupMessage "You got a stat reset wowo"
+  Inventory.PickupSound "Misc/I_PkUp"
+  Inventory.Icon "SRESA0"
+  Inventory.MaxAmount 1
+  +INVENTORY.UNDROPPABLE
+  +INVBAR
+  States
+  {
+	Spawn:
+		TNT1 A -1
+	Stop
+	Use:
+		TNT1 A 0 A_PlaySound("items/statreset", CHAN_AUTO)
+		TNT1 A 0 ACS_ExecuteAlways(832)
+	Stop
+  }
+}
+
+Actor DnD_Artifact_MapBits : DnD_Info { }

@@ -1,0 +1,54 @@
+Actor ImpSpawner : DnD_MonsterSpawner replaces DoomImp {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_IMPID)
+		SpawnLoop:
+			TNT1 A 1
+		Loop
+		Vanilla:
+			TNT1 A 1 A_SpawnItemEx("DoomImp2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var1:
+			TNT1 A 1 A_SpawnItemEx("STDarkImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var2:
+			TNT1 A 1 A_SpawnItemEx("VoidDarkImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var3:
+			TNT1 A 1 A_SpawnItemEx("NetherDarkImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var4:
+			TNT1 A 1 A_SpawnItemEx("Roach", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var5:
+			TNT1 A 1 A_SpawnItemEx("NamiDarkImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var6:
+			TNT1 A 1 A_SpawnItemEx("ImpAbomination", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var7:
+			TNT1 A 1 A_SpawnItemEx("STImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var8:
+			TNT1 A 1 A_SpawnItemEx("VoidImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var9:
+			TNT1 A 1 A_SpawnItemEx("SoulHarvester", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var10:
+			TNT1 A 1 A_SpawnItemEx("Shadow", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var11:
+			TNT1 A 1 A_SpawnItemEx("PyroImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var12:
+			TNT1 A 1 A_SpawnItemEx("Devil", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var13:
+			TNT1 A 1 A_SpawnItemEx("Vulgar", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var14:
+			TNT1 A 1 A_SpawnItemEx("UndeadMage", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+	}
+}

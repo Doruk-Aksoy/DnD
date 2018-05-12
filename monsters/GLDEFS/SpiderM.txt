@@ -1,0 +1,848 @@
+object BFGBallDemolisher
+{
+    frame BFS1A { light BFGBALL }
+    frame BFS1B { light BFGBALL }
+
+    frame BFE1A { light BFGBALL_X1 }
+    frame BFE1B { light BFGBALL_X2 }
+    frame BFE1C { light BFGBALL_X3 }
+    frame BFE1D { light BFGBALL_X1 }
+    frame BFE1E { light BFGBALL_X4 }
+    frame BFE1F { light BFGBALL_X5 }
+}
+
+object BFGExtraDemolisher {
+    frame BFE2A { light BFGBALL    }
+    frame BFE2B { light BFGBALL_X1 }
+    frame BFE2C { light BFGBALL_X4 }
+    frame BFE2D { light BFGBALL_X5 }
+}
+
+PointLight DemolisherAttack11
+{
+Color 1.0 1.0 0.0
+Size 64
+Offset 0 30 0
+}
+
+PointLight DemolisherAttack12
+{
+Color 1.0 1.0 0.0
+Size 92
+Offset 0 30 0
+}
+
+PointLight DemolisherAttack21
+{
+Color 0.3 1.0 0.3
+Size 64
+Offset 0 30 0
+}
+
+PointLight DemolisherAttack22
+{
+Color 0.3 1.0 0.3
+Size 96
+Offset 0 30 0
+}
+
+Pointlight DemolisherExplode1
+{
+Color 1.0 0.3 0.0
+Size 48
+}
+
+Pointlight DemolisherExplode2
+{
+Color 1.0 0.3 0.0
+Size 56
+}
+
+Pointlight DemolisherExplode3
+{
+Color 1.0 0.5 0.0
+Size 64
+}
+
+Pointlight DemolisherExplode4
+{
+Color 1.0 0.5 0.0
+Size 80
+}
+
+Pointlight DemolisherExplode5
+{
+Color 1.0 0.5 0.0
+Size 96
+}
+
+Pointlight DemolisherExplode6
+{
+Color 1.0 0.5 0.0
+Size 128
+}
+
+Pointlight DemolisherExplode7
+{
+Color 0.6 0.2 0.0
+Size 96
+}
+
+Pointlight DemolisherExplode8
+{
+Color 0.5 0.0 0.0
+Size 64
+}
+
+Pointlight DemolisherExplode9
+{
+Color 0.3 0.0 0.0
+Size 32
+}
+
+Object Demolisher
+{
+Frame DEMOG { Light DemolisherAttack11 }
+Frame DEMOH { Light DemolisherAttack12 }
+Frame DEMOT { Light DemolisherAttack21 }
+Frame DEMOU { Light DemolisherAttack22 }
+Frame DEMOJ { Light DemolisherExplode1 }
+Frame DEMOK { Light DemolisherExplode2 }
+Frame DEMOL { Light DemolisherExplode3 }
+Frame DEMOM { Light DemolisherExplode4 }
+Frame DEMON { Light DemolisherExplode5 }
+Frame DEMOO { Light DemolisherExplode6 }
+Frame DEMOP { Light DemolisherExplode7 }
+Frame DEMOQ { Light DemolisherExplode8 }
+Frame DEMOR { Light DemolisherExplode9 }
+}
+
+//Brightmaps
+
+BrightMap Sprite DEMOG1
+{
+Map "graphics/brightmaps/BMDEMOG1.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOG2G8
+{
+Map "graphics/brightmaps/BMDEMOG2.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOG3G7
+{
+Map "graphics/brightmaps/BMBLACK.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOG4G6
+{
+Map "graphics/brightmaps/BMBLACK.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOG5
+{
+Map "graphics/brightmaps/BMBLACK.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOH1
+{
+Map "graphics/brightmaps/BMDEMOH1.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOH2H8
+{
+Map "graphics/brightmaps/BMDEMOH2.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOH3H7
+{
+Map "graphics/brightmaps/BMDEMOH3.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOH4H6
+{
+Map "graphics/brightmaps/BMDEMOH4.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOH5
+{
+Map "graphics/brightmaps/BMDEMOH5.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOJ0
+{
+Map "graphics/brightmaps/BMDEMOJ0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOK0
+{
+Map "graphics/brightmaps/BMDEMOK0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOL0
+{
+Map "graphics/brightmaps/BMDEMOL0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOM0
+{
+Map "graphics/brightmaps/BMDEMOM0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMON0
+{
+Map "graphics/brightmaps/BMDEMON0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOO0
+{
+Map "graphics/brightmaps/BMDEMOO0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOP0
+{
+Map "graphics/brightmaps/BMDEMOP0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOQ0
+{
+Map "graphics/brightmaps/BMDEMOQ0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOR0
+{
+Map "graphics/brightmaps/BMDEMOR0.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOT1
+{
+Map "graphics/brightmaps/BMDEMOT1.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOT2T8
+{
+Map "graphics/brightmaps/BMDEMOT2.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOT3T7
+{
+Map "graphics/brightmaps/BMDEMOT3.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOT4T6
+{
+Map "graphics/brightmaps/BMBLACK.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOT5
+{
+Map "graphics/brightmaps/BMBLACK.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOU1
+{
+Map "graphics/brightmaps/BMDEMOU1.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOU2U8
+{
+Map "graphics/brightmaps/BMDEMOU2.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOU3U7
+{
+Map "graphics/brightmaps/BMDEMOU3.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOU4U6
+{
+Map "graphics/brightmaps/BMDEMOU4.png"
+DisableFullBright
+}
+
+BrightMap Sprite DEMOU5
+{
+Map "graphics/brightmaps/BMDEMOU5.png"
+DisableFullBright
+}
+
+FlickerLight2 ArachnophyteWalk
+{
+color 1.0 0.8 0.2
+size 48
+secondarySize 56
+interval 1
+offset 0 40 0
+}
+
+FlickerLight2 ArachnophyteAttack
+{
+color 1.0 0.8 0.2
+size 56
+secondarySize 64
+interval 1
+offset 0 80 0
+}
+
+FlickerLight2 ArachnophyteDeath1
+{
+color 1.0 0.8 0.2
+size 52
+secondarySize 56
+interval 0.5
+offset 0 40 0
+}
+
+FlickerLight2 ArachnophyteDeath2
+{
+color 1.0 0.8 0.2
+size 60
+secondarySize 64
+interval 0.5
+offset 0 40 0
+}
+
+FlickerLight2 ArachnophyteDeath3
+{
+color 1.0 0.8 0.2
+size 76
+secondarySize 80
+interval 0.5
+offset 0 40 0
+}
+
+FlickerLight2 ArachnophyteDeath4
+{
+color 1.0 0.8 0.2
+size 72
+secondarySize 76
+interval 0.5
+offset 0 40 0
+}
+
+FlickerLight2 ArachnophyteDeath5
+{
+color 1.0 0.8 0.2
+size 64
+secondarySize 68
+interval 0.5
+offset 0 40 0
+}
+
+PointLight ArachnophyteDeath6
+{
+color 1.0 0.8 0.2
+size 50
+}
+
+Object Arachnophyte
+{
+Frame APYTA { Light ArachnophyteWalk }
+Frame APYTB { Light ArachnophyteWalk }
+Frame APYTC { Light ArachnophyteAttack }
+Frame APYTD { Light ArachnophyteAttack }
+Frame APYTE { Light ArachnophyteDeath1 }
+Frame APYTF { Light ArachnophyteDeath2 }
+Frame APYTG { Light ArachnophyteDeath3 }
+Frame APYTH { Light ArachnophyteDeath4 }
+Frame APYTI { Light ArachnophyteDeath5 }
+Frame APYTJ { Light ArachnophyteDeath6 }
+}
+
+pointlight QueenBFGLight
+{
+    color 0.6 0.0 0.6
+    size 64
+}
+
+pointlight QueenBFG_XP1
+{
+    color 1.0 0.0 1.0
+    size 84
+}
+
+pointlight QueenBFG_XP2
+{
+    color 1.0 0.0 1.0
+    size 76
+}
+
+pointlight QueenBFG_XP3
+{
+    color 1.0 0.0 1.0
+    size 64
+}
+
+pointlight QueenBFG_XP4
+{
+    color 1.0 0.0 1.0
+    size 56
+}
+
+pointlight QueenBFG_XP5
+{
+    color 1.0 0.0 1.0
+    size 48
+}
+
+pointlight QueenBFG_XP6
+{
+    color 0.9 0.0 0.9
+    size 40
+}
+
+object QueenBFG
+{
+	frame XBTSA { light QueenBFGLight }
+	frame XBTSB { light QueenBFGLight }
+	frame XBTSC { light QueenBFGLight }
+	frame XBTSD { light QueenBFGLight }
+	frame XBTSE { light QueenBFGLight }
+	frame XBTSF { light QueenBFGLight }
+	frame XBTSG { light QueenBFGLight }
+	frame XBTSH { light QueenBFGLight }
+	frame XBTSI { light QueenBFGLight }
+	frame XBTSJ { light QueenBFGLight }
+	frame XBTSK { light QueenBFG_XP1 }
+	frame XBTSL { light QueenBFG_XP1 }
+	frame XBTSM { light QueenBFG_XP2 }
+	frame XBTSN { light QueenBFG_XP2 }
+	frame XBTSO { light QueenBFG_XP3 }
+	frame XBTSP { light QueenBFG_XP3 }
+	frame XBTSQ { light QueenBFG_XP4 }
+	frame XBTSR { light QueenBFG_XP4 }
+	frame XBTSS { light QueenBFG_XP5 }
+	frame XBTST { light QueenBFG_XP5 }
+	frame XBTSU { light QueenBFG_XP6 }
+	frame XBTSV { light QueenBFG_XP6 }
+	frame XBTSW { light QueenBFG_XP6 }
+}
+
+pointlight QueenPlasma
+{
+	color 0.1 1.0 0.1
+	size 48
+}
+
+pointlight QueenPlasma_XP1
+{
+	color 0.1 1.0 0.1
+	size 40
+}
+
+pointlight QueenPlasma_XP2
+{
+	color 0.1 1.0 0.1
+	size 32
+}
+
+pointlight QueenPlasma_XP3
+{
+	color 0.1 1.0 0.1
+	size 24
+}
+
+object QueenPlasmaBlast
+{
+	frame EBLTG { light QueenPlasma }
+	frame EBLTH { light QueenPlasma }
+	frame EBLTI { light QueenPlasma_XP1 }
+	frame EBLTJ { light QueenPlasma_XP2 }
+	frame EBLTK { light QueenPlasma_XP3 }
+}
+
+flickerlight IRONLICH1
+{
+    color 1.0 0.4 0.0
+    size 64
+    secondarySize 72
+    chance 0.3
+    offset 0 40 0
+}
+
+flickerlight IRONLICH2
+{
+    color 1.0 0.7 0.0
+    size 80
+    secondarySize 88
+    chance 0.3
+    offset 0 44 0
+}
+
+flickerlight IRONLICH3
+{
+    color 0.8 0.4 0.0
+    size 64
+    secondarySize 72
+    chance 0.3
+    offset 0 48 0
+}
+
+flickerlight IRONLICH4
+{
+    color 0.4 0.0 0.0
+    size 48
+    secondarySize 56
+    chance 0.3
+    offset 0 40 0
+}
+
+object Goldlich
+{
+    frame GLICD { light IRONLICH1 }
+    frame GLICE { light IRONLICH2 }
+    frame GLICF { light IRONLICH3 }
+    frame GLICG { light IRONLICH4 }
+}
+
+PulseLight DARKBALL1
+{
+    color 1.0 1.0 1.0
+    size 32
+    secondarySize 48
+    interval 1.0
+    subtractive 1
+}
+
+PulseLight DARKBALL2
+{
+    color 1.0 1.0 1.0
+    size 48
+    secondarySize 96
+    interval 0.4
+    subtractive 1
+}
+
+object GoldLichBounce
+{
+    frame FXA1A { light DARKBALL1 }
+    frame FXA1B { light DARKBALL1 }
+    frame FXA1C { light DARKBALL1 }
+    frame FXA1D { light DARKBALL2 }
+    frame FXA1E { light DARKBALL2 }
+    frame FXA1F { light DARKBALL2 }
+}
+
+object GoldLichBounce2
+{
+    frame FXA1A { light DARKBALL1 }
+    frame FXA1B { light DARKBALL1 }
+    frame FXA1C { light DARKBALL1 }
+    frame FXA1D { light DARKBALL2 }
+    frame FXA1E { light DARKBALL2 }
+    frame FXA1F { light DARKBALL2 }
+}
+
+object GoldLichFire
+{
+    frame FX06A { light LICHFIRE }
+    frame FX06B { light LICHFIRE }
+    frame FX06C { light LICHFIRE }
+
+    frame FX06D { light LICHFIRE_X1 }
+    frame FX06E { light LICHFIRE_X2 }
+    frame FX06F { light LICHFIRE_X3 }
+    frame FX06G { light LICHFIRE_X4 }
+}
+
+object IronLichGreenAttack {
+	frame CFX6A { light SentinelFire4 }
+	frame CFX6BCDE { light SentinelFire6 }
+}
+
+object IronLichFireAttack {
+	frame VFBLA { light VOLCANOBALL1 }
+	frame VFBLB { light VOLCANOBALL2 }
+    frame XPL1A { light TIMEBOMB_X1 }
+    frame XPL1B { light TIMEBOMB_X2 }
+    frame XPL1C { light TIMEBOMB_X3 }
+    frame XPL1D { light TIMEBOMB_X4 }
+    frame XPL1E { light TIMEBOMB_X5 }
+    frame XPL1F { light TIMEBOMB_X5 }
+}
+
+pointlight IronLichIce {
+	color 0.8 0.8 1.0
+	size 40
+}
+
+flickerlight IronLichIce2 {
+	color 0.8 0.8 1.0
+	size 32
+	secondarysize 48
+	chance 0.3
+}
+
+pointlight IronLichIce3 {
+	color 0.8 0.8 1.0
+	size 16
+}
+
+flickerlight IronLichIce4 {
+	color 0.8 0.8 1.0
+	size 16
+	secondarysize 24
+	chance 0.4
+}
+
+Object IronLichIceAttack {
+	frame FX39ABC { light IronLichIce }
+	frame FX39DEFG { light IronLichIce2 }
+}
+
+object IronLichIceShard {
+	frame FX39HIJ { light IronLichIce3 }
+	frame FX39DEFG { light IronLichIce4 }
+}
+
+object YetiIce {
+	frame FX39ABC { light IronLichIce }
+	frame FX39DEFG { light IronLichIce2 }
+}
+
+object YetiIceShard {
+	frame FX39HIJ { light IronLichIce3 }
+	frame FX39DEFG { light IronLichIce4 }
+}
+
+
+pointlight IronLichDark1 {
+	color 0.4 0.0 0.4
+	size 40
+}
+
+pointlight IronLichDark2 {
+	color 0.4 0.0 0.4
+	size 32
+}
+
+pointlight IronLichDark3 {
+	color 0.4 0.0 0.4
+	size 24
+}
+
+
+pointlight IronLichDark4 {
+	color 0.4 0.0 0.4
+	size 16
+}
+
+pointlight IronLichDark5 {
+	color 0.4 0.0 0.4
+	size 8
+}
+
+object IronLichDarkness {
+	frame LBA2A { light IronLichDark1 }
+	frame LBA2G { light IronLichDark2 }
+	frame LBA2H { light IronLichDark3 }
+	frame LBA2I { light IronLichDark4 }
+	frame LBA2J { light IronLichDark5 }
+}
+
+flickerlight IronLichEnergy1 {
+	color 0.75 0.75 0.0
+	size 40
+	secondarysize 64
+	chance 0.3
+}
+
+pointlight IronLichEnergy2 {
+	color 0.65 0.65 0.0
+	size 40
+}
+
+pointlight IronLichEnergy3 {
+	color 0.6 0.6 0.0
+	size 32
+}
+
+pointlight IronLichEnergy4 {
+	color 0.55 0.55 0.0
+	size 24
+}
+
+pointlight IronLichEnergy5 {
+	color 0.5 0.5 0.0
+	size 16
+}
+
+object IronLichEnergyAttack {
+	frame STARAB { light IronLichEnergy1 }
+	frame STARC { light IronLichEnergy2 }
+	frame STARD { light IronLichEnergy3 }
+	frame STARE { light IronLichEnergy4 }
+	frame STARF { light IronLichEnergy5 }
+}
+
+object IronLichFireSky {
+	frame VFBL { light VOLCANOBALL1 }
+}
+
+object SpiderOverlordMissile {
+	frame CFX6A { light SentinelFire4 }
+	frame CFX6BCDE { light SentinelFire6 }
+}
+
+object VolcanoTBlast2Lich
+{
+    frame VFBL { light VOLCANOBALL1 }
+}
+
+flickerlight GAUNTLETBOOM1
+{
+    color 1.0 0.0 1.0
+    size 64
+    secondarySize 64
+    chance 0.3
+}
+flickerlight GAUNTLETBOOM2
+{
+    color 1.0 0.0 1.0
+    size 96
+    secondarySize 96
+    chance 0.3
+}
+flickerlight GAUNTLETBOOM3
+{
+    color 1.0 0.0 1.0
+    size 128
+    secondarySize 128
+    chance 0.3
+}
+flickerlight GAUNTLETBOOM4
+{
+    color 1.0 0.0 1.0
+    size 160
+    secondarySize 160
+    chance 0.3
+}
+flickerlight GAUNTLETBOOM5
+{
+    color 1.0 0.0 1.0
+    size 192
+    secondarySize 192
+    chance 0.3
+}
+
+object DarkLichVortex {
+    frame GNF1A { light DISCIPLEBALL }
+    frame GNF1B { light DISCIPLEBALL }
+    frame GNF1C { light DISCIPLEBALL }
+
+    frame GNF1D { light DISCIPLEBALL  }
+    frame GNF1E { light DISCIPLEBALL  }
+    frame GNF1F { light GAUNTLETBOOM1 }
+    frame GNF1G { light GAUNTLETBOOM1 }
+    frame GNF1H { light GAUNTLETBOOM1 }
+    frame GNF1I { light GAUNTLETBOOM2 }
+    frame GNF1J { light GAUNTLETBOOM2 }
+    frame GNF1K { light GAUNTLETBOOM2 }
+    frame GNF1L { light GAUNTLETBOOM3 }
+    frame GNF1M { light GAUNTLETBOOM3 }
+    frame GNF1N { light GAUNTLETBOOM4 }
+    frame GNF1O { light GAUNTLETBOOM4 }
+    frame GNF1P { light GAUNTLETBOOM5 }
+    frame GNF1Q { light GAUNTLETBOOM5 }
+    frame GNF1R { light GAUNTLETBOOM4 }
+    frame GNF1S { light GAUNTLETBOOM4 }
+    frame GNF1T { light GAUNTLETBOOM3 }
+    frame GNF1U { light GAUNTLETBOOM3 }
+    frame GNF1V { light GAUNTLETBOOM2 }
+    frame GNF1W { light GAUNTLETBOOM2 }
+    frame GNF1X { light GAUNTLETBOOM1 }
+    frame GNF1Y { light GAUNTLETBOOM1 }
+    frame GNF1Z { light GAUNTLETBOOM1 }
+}
+
+flickerlight DISCIPLEBALL
+{
+    color 1.0 0.0 1.0
+    size 32
+    secondarySize 40
+    chance 0.3
+}
+
+flickerlight DISCIPLEBALL_X1
+{
+    color 0.7 0.0 0.7
+    size 16
+    secondarySize 24
+    chance 0.3
+}
+
+flickerlight DISCIPLEBALL_X2
+{
+    color 0.3 0.0 0.3
+    size 8
+    secondarySize 16
+    chance 0.3
+}
+
+object DarkLichHomingBall
+{
+	frame BSBSF { light DISCIPLEBALL    }
+	frame BSBSG { light DISCIPLEBALL    }
+	frame BSBSH { light DISCIPLEBALL    }
+	frame BSBSI { light DISCIPLEBALL_X1 }
+	frame BSBSJ { light DISCIPLEBALL_X1 }
+	frame BSBSK { light DISCIPLEBALL_X1 }
+	frame BSBSL { light DISCIPLEBALL_X2 }
+	frame BSBSM { light DISCIPLEBALL_X2 }
+}
+
+object PhyteBullet
+{
+	frame DKSXA { light EXPSHELL1 }
+	frame DKSXB { light EXPSHELL1 }
+	frame DKSXC { light EXPSHELL1 }
+	frame DKSXD { light EXPSHELL2 }
+	frame DKSXE { light EXPSHELL2 }
+	frame DKSXF { light EXPSHELL2 }
+	frame DKSXG { light EXPSHELL2 }
+	frame DKSXH { light EXPSHELL3 }
+	frame DKSXI { light EXPSHELL3 }
+	frame DKSXJ { light EXPSHELL3 }
+	frame DKSXK { light EXPSHELL4 }
+	frame DKSXL { light EXPSHELL4 }
+	
+	frame DKSXM { light EXPSHELL1 }
+	frame DKSXN { light EXPSHELL1 }
+	frame DKSXO { light EXPSHELL1 }
+	frame DKSXP { light EXPSHELL2 }
+	frame DKSXQ { light EXPSHELL2 }
+	frame DKSXR { light EXPSHELL2 }
+	frame DKSXS { light EXPSHELL2 }
+	frame DKSXT { light EXPSHELL3 }
+	frame DKSXU { light EXPSHELL3 }
+	frame DKSXV { light EXPSHELL3 }
+	frame DKSXW { light EXPSHELL4 }
+	frame DKSXX { light EXPSHELL4 }
+}

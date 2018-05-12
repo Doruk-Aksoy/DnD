@@ -1,0 +1,101 @@
+Player/Pain25_1				PLYPN41
+Player/Pain25_2				PLYPN42
+$random Player/Pain25 { Player/Pain25_1 Player/Pain25_2 }
+
+Player/Pain50_1				PLYPN31
+Player/Pain50_2				PLYPN32
+$random Player/Pain50 { Player/Pain50_1 Player/Pain50_2 }
+
+Player/Pain75_1				PLYPN21
+Player/Pain75_2				PLYPN22
+$random Player/Pain75 { Player/Pain75_1 Player/Pain75_2 }
+
+Player/Pain100_1			PLYPN11
+Player/Pain100_2			PLYPN12
+$random Player/Pain100 { Player/Pain100_1 Player/Pain100_2 }
+
+Player/Die1					PLYDIE1
+Player/Die2					PLYDIE2
+Player/Die3					PLYDIE3
+Player/Die4					PLYDIE4
+$random Player/Die { Player/Die1 Player/Die2 Player/Die3 Player/Die4 }
+
+Player/HardLand1			PLYFLL1
+Player/HardLand2			PLYFLL2
+$random Player/HardLand	 { Player/HardLand1 Player/HardLand2 }
+
+Player/Drown1				PLYDRWN1
+Player/Drown2				PLYDRWN2
+$random Player/Drown { Player/Drown1 Player/Drown2 }
+
+Player/SlimeBurn1			PLYSBRN1
+Player/SlimeBurn2			PLYSBRN2
+$random Player/SlimeBurn { Player/SlimeBurn1 Player/SlimeBurn2 }
+
+$playeralias			TheMarine		Male		*pain100		Player/Pain100
+$playeralias			TheMarine		Male		*pain75			Player/Pain75
+$playeralias			TheMarine		Male		*pain50			Player/Pain50
+$playeralias			TheMarine		Male		*pain25			Player/Pain25
+$playersound			TheMarine		Male		*land			PLYLAND
+$playersound			TheMarine		Male		*jump			PLYJUMP
+$playeralias			TheMarine		Male		*death			Player/Die
+$playersound			TheMarine		Male		*usefail		PLYUSE
+$playeralias			TheMarine		Male		*grunt			Player/HardLand
+$playersound			TheMarine		Male		*surface		PLYSURF
+// bug with the below, it plays when player respawns
+//$playersound			TheMarine		Male		*gasp			PLYGASP
+$playeralias			TheMarine		Male		*pain-drowning	Player/Drown
+$playeralias			TheMarine		Male		*pain-slime		Player/SlimeBurn
+$playersound			TheMarine		Male		*death-drowning	PLYDROWN
+$playersound			TheMarine		Male		*taunt			PLYTNT
+
+Hobo/Pain1					HOBOPN1
+Hobo/Pain2					HOBOPN2
+Hobo/Pain3					HOBOPN3
+$random Hobo/SoftPain { Hobo/Pain1 Hobo/Pain2 }
+$random Hobo/HardPain { Hobo/Pain1 Hobo/Pain2 Hobo/Pain2 Hobo/Pain3 Hobo/Pain3 Hobo/Pain3 Hobo/Pain3 }
+
+$playersound			TheHobo			Male		*pain100		HOBOPN1
+$playeralias			TheHobo			Male		*pain75			Hobo/SoftPain
+$playeralias			TheHobo			Male		*pain50			Hobo/HardPain
+$playeralias			TheHobo			Male		*pain25			Hobo/HardPain
+$playersound			TheHobo			Male		*land			HOBOOOF
+$playersounddup			TheHobo			Male		*grunt			*land
+$playersound			TheHobo			Male		*usefail		HOBOUSE
+$playersound			TheHobo			Male		*death			HOBODIE
+$playersound			TheHobo			Male		*taunt			HOBOTNT
+
+Punisher/Die1			DSMDEAD1
+Punisher/Die2			DSMDEAD2
+$random Punisher/Die { Punisher/Die1 Punisher/Die2 }
+Punisher/Pain1			DSMOUCH
+Punisher/Pain2			DSMPAIN1
+Punisher/Pain3			DSMPAIN2
+Punisher/Pain4			DSMPAIN3
+$random Punisher/PainLow { Punisher/Pain1 Punisher/Pain2 }
+$random Punisher/Pain { Punisher/Pain1 Punisher/Pain2 Punisher/Pain3 Punisher/Pain4 }
+
+$playeralias			Punisher			Male		*pain100		Punisher/PainLow
+$playeralias			Punisher			Male		*pain75			Punisher/Pain
+$playeralias			Punisher			Male		*pain50			Punisher/Pain
+$playeralias			Punisher			Male		*pain25			Punisher/Pain
+$playersound			Punisher			Male		*land			PUNLAND
+$playersounddup			Punisher			Male		*grunt			*land
+$playersound			Punisher			Male		*usefail		DSMNOWAY
+$playeralias			Punisher			Male		*death			Punisher/Die
+$playersound			Punisher			Male		*taunt			PUNTNT
+
+Wanderer/Die1			WANDIE1
+Wanderer/Die2			WANDIE2
+Wanderer/Die3			WANDIE3
+$random Wanderer/Die { Wanderer/Die1 Wanderer/Die2 Wanderer/Die3 }
+
+$playersound			Wanderer			Male		*pain100		WANPAIN
+$playersound			Wanderer			Male		*pain75			WANPAIN
+$playersound			Wanderer			Male		*pain50			WANPAIN
+$playersound			Wanderer			Male		*pain25			WANPAIN
+$playersound			Wanderer			Male		*land			WANLAND
+$playersounddup			Wanderer			Male		*grunt			*land
+$playersound			Wanderer			Male		*usefail		WANFAIL
+$playeralias			Wanderer			Male		*death			Wanderer/Die
+$playersound			Wanderer			Male		*taunt			WANTNT

@@ -1,0 +1,1642 @@
+// Sprites by Eriance
+Actor "Plasma Rifle" : PlasmaRifle
+{	
+   Weapon.Slotnumber 6
+   Weapon.SelectionOrder 300
+   +INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.7
+	Weapon.AmmoGive 0
+   States
+   {
+   Spawn:
+      NRAI E -1
+      Stop
+   Ready:
+      NRAI Y 3 A_WeaponReady
+      Loop
+   Deselect:
+      TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+      TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+	  TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+   DeselectLoop:
+      NRAI Y 1 A_Lower
+	  TNT1 A 0 A_Lower
+      Loop
+   Select:
+      TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+      TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+	  TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+	  TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	  TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_PLASMARIFLE)
+	  TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5, 4 | (8 << 16))
+	SelectLoop:
+      NRAI Y 1 A_Raise
+	  TNT1 A 0 A_Raise
+      Loop
+   Fire:
+      TNT1 A 0 A_Jump(256, "Fire1", "Fire2", "Fire3", "Fire4")
+   Fire1:
+	  NRAI A 1 Bright A_Gunflash
+	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  NRAI A 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI X 3 A_Refire
+      Goto Cooldown
+   Fire2:
+	  NRAI B 1 Bright A_Gunflash
+	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  NRAI B 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI X 3 A_Refire
+      Goto Cooldown
+   Fire3:
+	  NRAI C 1 Bright A_Gunflash
+	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  NRAI C 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI X 3 A_Refire
+      Goto Cooldown
+   Fire4:
+	  NRAI D 1 Bright A_Gunflash
+	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  NRAI D 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI X 3 A_Refire  
+   Cooldown:
+	  NRAI F 1 A_PlaySound("Weapons/PlasmaCharge")
+	  NRAI GHIJKLMNMLKJIHGF 1
+	  Goto Ready
+   Flash:
+      TNT1 A 1 A_Light1
+      TNT1 A 1 A_Light2
+      TNT1 A 1 A_Light1
+      TNT1 A 1 A_Light0
+      stop
+   }
+}
+
+// Sprites by Eriance
+Actor "Upgraded Plasma Rifle" : PlasmaRifle {	
+	Weapon.Slotnumber 6
+	Weapon.AmmoType2 "PlasmaOverheat"
+	Tag "Nuclear Plasma Rifle"
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.7
+	Weapon.AmmoGive 0
+	States {
+		Spawn:
+			QNPL Z -1
+		Stop
+		Ready:
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady(WRF_NOSWITCH)
+		ReadyLoop:
+			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_NUCLEARPR, 1 | (1 << 16))
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
+			QNPL A 1 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+		    TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			QNPL A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_NUCLEARPLASMARIFLE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 6, 6 | (10 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 10, 1 | (3 << 16))
+	    SelectLoop:
+			QNPL A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireCont")
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 0, "Beep")
+		FireCont:
+			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
+			TNT1 A 0 A_Jump(256, "Fire1", "Fire2", "Fire3", "Fire4")
+		Fire1:
+			QNPL B 1 Bright A_Gunflash
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			QNPL B 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			TNT1 A 0 A_Refire
+			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
+		Goto Cooldown
+		Fire2:
+			QNPL C 1 Bright A_Gunflash("FlashB")
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			QNPL C 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			TNT1 A 0 A_Refire
+			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
+		Goto Cooldown
+		Fire3:
+			QNPL E 1 Bright A_Gunflash
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			QNPL E 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			TNT1 A 0 A_Refire
+			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
+		Goto Cooldown
+		Fire4:
+			QNPL F 1 Bright A_Gunflash("FlashB")
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			QNPL F 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			TNT1 A 0 A_Refire 
+			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
+		Goto Cooldown
+		Beep:
+			TNT1 A 0 A_PlaySound("weapons/plasmabeep", 5)
+		Cooldown:
+			QNPL A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+		Goto Ready
+		Flash:
+			TNT1 A 0 A_Light0
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 4, 2)
+			TNT1 A 6
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 8, 2)
+			QNP1 X 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 12, 2)
+			QNP1 W 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 16, 2)
+			QNP1 V 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 20, 2)
+			QNP1 U 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 24, 2)
+			QNP1 T 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 28, 2)
+			QNP1 S 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 32, 2)
+			QNP1 R 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 36, 2)
+			QNP1 Q 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 40, 2)
+			QNP1 P 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 44, 2)
+			QNP1 O 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 48, 2)
+			QNP1 N 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 52, 2)
+			QNP1 M 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 56, 2)
+			QNP1 L 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 60, 2)
+			QNP1 K 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 64, 2)
+			QNP1 J 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 68, 2)
+			QNP1 I 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 72, 2)
+			QNP1 H 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 76, 2)
+			QNP1 G 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 80, 2)
+			QNP1 F 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 84, 2)
+			QNP1 E 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 88, 2)
+			QNP1 D 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 92, 2)
+			QNP1 C 6 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 96, 2)
+			QNP1 B 6 Bright
+			Goto FlashFinish
+			QNP1 A 6 Bright
+		    FlashFinish:
+			TNT1 A 0 A_Light0
+			Goto LightDone
+			FlashB:
+			TNT1 A 0 A_Light1
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 4, 2)
+			TNT1 A 4
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 8, 2)
+			QNP2 X 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 12, 2)
+			QNP2 W 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 16, 2)
+			QNP2 V 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 20, 2)
+			QNP2 U 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 24, 2)
+			QNP2 T 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 28, 2)
+			QNP2 S 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 32, 2)
+			QNP2 R 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 36, 2)
+			QNP2 Q 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 40, 2)
+			QNP2 P 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 44, 2)
+			QNP2 O 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 48, 2)
+			QNP2 N 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 52, 2)
+			QNP2 M 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 56, 2)
+			QNP2 L 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 60, 2)
+			QNP2 K 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 64, 2)
+			QNP2 J 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 68, 2)
+			QNP2 I 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 72, 2)
+			QNP2 H 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 76, 2)
+			QNP2 G 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 80, 2)
+			QNP2 F 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 84, 2)
+			QNP2 E 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 88, 2)
+			QNP2 D 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 92, 2)
+			QNP2 C 4 Bright
+			Goto FlashFinish
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 96, 2)
+			QNP2 B 4 Bright
+			Goto FlashFinish
+			QNP2 A 4 Bright
+			Goto FlashFinish
+		FlashC:
+			TNT1 A 0 A_Light0
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 4, 2)
+			TNT1 A 6
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 8, 2)
+			QNP1 X 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 12, 2)
+			QNP1 W 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 16, 2)
+			QNP1 V 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 20, 2)
+			QNP1 U 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 24, 2)
+			QNP1 T 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 28, 2)
+			QNP1 S 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 32, 2)
+			QNP1 R 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 36, 2)
+			QNP1 Q 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 40, 2)
+			QNP1 P 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 44, 2)
+			QNP1 O 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 48, 2)
+			QNP1 N 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 52, 2)
+			QNP1 M 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 56, 2)
+			QNP1 L 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 60, 2)
+			QNP1 K 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 64, 2)
+			QNP1 J 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 68, 2)
+			QNP1 I 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 72, 2)
+			QNP1 H 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 76, 2)
+			QNP1 G 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 80, 2)
+			QNP1 F 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 84, 2)
+			QNP1 E 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 88, 2)
+			QNP1 D 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 92, 2)
+			QNP1 C 6 Bright
+			Stop
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 96, 2)
+			QNP1 B 6 Bright
+			Stop
+			QNP1 A 6 Bright
+			Stop
+	}
+}
+
+Actor PlasmaBallX : PlasmaBall
+{
+	+MTHRUSPECIES
+	+DONTBLAST
+	Damage(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET))
+	DamageType "Energy"
+	Decal "PlasmaScorchX"
+	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.05,2.00]", "4:4=4:4", "224:229=224:229"
+	
+	States {
+		Spawn:
+			PLSS AAABBB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+		Goto Super::Death
+	}
+}
+
+Actor PlasmaBallX_FullDMG : PlasmaBallX {
+	DamageType "EnergyFull"
+}
+
+Actor PlasmaShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("PlasmaBallX")
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("PlasmaBallX_FullDMG")
+		Stop
+	}
+}
+
+Actor NewPlasmaExp1 : BaseExplosionDamage {
+	DamageType "Energy"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 48, 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 48)
+		Stop
+	}
+}
+
+Actor NewPlasmaExp2 : BaseExplosionDamage {
+	DamageType "Energy"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 48, 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 48)
+		Stop
+	}
+}
+
+Actor NewPlasmaBall : PlasmaBallX
+{
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET))
+	DamageType "Energy"
+	Decal "NewPlasmaDecal"
+	SeeSound "Weapons/newplasmafire"
+	Alpha 0.85
+	Renderstyle Add
+	Scale 0.15
+	Deathsound "weapons/plasmahit"
+	Translation 0
+	States
+	{
+		Spawn:
+			BFLR AB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			TNT1 A 0 A_SpawnItem("NewPlasmaExplosion")
+			TNT1 A 1 A_SpawnItem("NewPlasmaExp1")
+		Stop
+		LessDmg:
+			TNT1 A 0 A_SpawnItem("NewPlasmaExplosion")
+			TNT1 A 1 A_SpawnItem("NewPlasmaExp2")
+		Stop
+	}
+}
+
+Actor NewPlasmaBall_FullDMG : NewPlasmaBall {
+	DamageType "EnergyFull"
+	+FORCERADIUSDMG
+}
+
+actor PlasmaSparkFX : ExplosiveSpark
+{
+	Renderstyle Add
+	Alpha 0.8
+    States
+    {
+      Spawn:
+        DXSK B 1 BRIGHT A_FadeOut(0.01)
+        loop
+    }
+}
+
+Actor NewPlasmaExplosion
+{
+	Radius 1
+	Height 1
+	Alpha 0.85
+	Renderstyle Add
+	Scale 0.35
+	+NOINTERACTION
+	States
+	{
+		Spawn:
+			TNT1 A 0 A_SetTranslucent(0.75)
+			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
+			TXP1 ABCD 1 Bright A_Fadeout(0.05)
+			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
+			TXP1 EFGH 1 Bright A_Fadeout(0.05)
+			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
+			TXP1 IJKL 1 Bright A_Fadeout(0.05)
+			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
+			TXP1 MNOP 1 Bright A_Fadeout(0.05)
+		Stop
+	}
+}
+
+Actor PlasmaShooter2 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_GiveInventory("PlasmaOverheat", 2)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("NewPlasmaBall")
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("NewPlasmaBall_FullDMG")
+		Stop
+	}
+}
+
+Actor "Upgraded Plasma Rifle2" : Weapon {
+    Weapon.Slotnumber 6
+    Weapon.SelectionOrder 300
+    +INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.35
+	Weapon.BobRangeX 0.6
+	Weapon.AmmoGive 0
+	Weapon.AmmoUse1 2
+	Weapon.AmmoUse2 2
+	Weapon.AmmoType1 "Cell"
+	Weapon.AmmoType2 "Cell"
+	Tag "Turel Cannon"
+	States {
+		Spawn:
+			TURL X -1
+		Stop
+		Ready:
+			TURL A 1 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TURL A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_TURELCANNON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 125)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 80)
+	    SelectLoop:
+			TURL A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TURL BC 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("weapons/turelfire")
+			TNT1 A 0 A_GunFlash
+			TNT1 AAA 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*20,2 + random(0, 3),27+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 Radius_Quake (1, 4, 0, 1, 0)
+			TNT1 A 0 A_GiveInventory("TurelShooter", 1)
+			TURL DEFG 1 Bright
+			TURL H 2
+			TURL A 3 A_Refire
+		Goto Ready
+		Hold:
+			TURL BC 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("weapons/turelfire")
+			TNT1 A 0 A_GunFlash
+			TNT1 AAA 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*20,2 + random(0, 3),27+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 Radius_Quake (1, 4, 0, 1, 0)
+			TNT1 A 0 A_GiveInventory("TurelShooter2", 1)
+			TURL DEFG 1 Bright
+			TURL H 2
+			TURL A 3 A_Refire
+		Goto Ready
+		AltFire:
+			TURL BC 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("weapons/turelfire")
+			TNT1 A 0 A_GunFlash
+			TNT1 AAA 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*20,2 + random(0, 3),27+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 Radius_Quake (1, 4, 0, 1, 0)
+			TNT1 A 0 A_GiveInventory("TurelShooter", 1)
+			TURL DEFG 1 Bright
+			TURL H 2
+			TURL A 7
+		Goto Ready
+	   Flash:
+		  TNT1 A 1 A_Light1
+		  TNT1 A 1 A_Light2
+		  TNT1 A 1 A_Light1
+		  TNT1 A 1 A_Light0
+		  stop
+	}
+}
+
+Actor TurelShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff", 0, 0, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff_FullDMG", 0, 0, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+		Stop
+	}
+}
+
+Actor TurelShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff", 6.4, 3.2, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff_FullDMG", 6.4, 3.2, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+		Stop
+	}
+}
+
+Actor TurelPuff : BulletPuff {
+	Height 24
+	Radius 12
+	DamageType "Energy"
+	Renderstyle Add
+	Alpha 0.75
+	Scale 0.8
+	Vspeed 0
+	Species "Player"
+	+FORCEXYBILLBOARD
+	+NOGRAVITY
+	+ALWAYSPUFF
+	+MTHRUSPECIES
+	+THRUSPECIES
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+NOTELEPORT
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			LTNG AABBCCDDEEFFGG 1 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor TurelPuff_FullDMG : TurelPuff {
+	DamageType "EnergyFull"
+}
+
+Actor TurelParticle {
+	Height 10
+	Radius 6
+	Renderstyle Add
+	Alpha 0.75
+	+NOGRAVITY
+	+NOTELEPORT
+	+CLIENTSIDEONLY
+	Scale 0.375
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_Recoil(-9.6)
+			TNT1 A 1
+			TNT1 A 0 A_Stop
+			LPUF AABB 1 Bright A_FadeOut(0.075)
+			LPUF CDE 1 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor NailCounter : DND_Boolean { }
+
+Actor "Nailgun" : Weapon
+{
+	Weapon.Slotnumber 6
+	Weapon.SelectionOrder 315
+	Weapon.AmmoType "NailgunAmmo"
+	Weapon.AmmoType2 "NailgunAmmo"
+	Weapon.AmmoGive 15
+	Weapon.Ammouse 1
+	Weapon.AmmoUse2 2
+    Inventory.PickupSound "weapons/pickup"
+    Inventory.PickupMessage "You got the nailgun!"
+	Obituary "%o was nailed by %k's nailgun."
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.7
+	States
+	{
+		Spawn:
+			NAIG A -1
+		Stop
+		Ready:
+			DNLG A 1 A_weaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			DNLG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_NAILGUN)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 1, 13 | (21 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 20)
+	    SelectLoop:
+			DNLG A 1 A_Raise
+			TNT1 A 0 A_Raise		
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("NailCounter", 1, "Fire2")
+			DNLG BC 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,-3,36+(sin(-pitch)*20),0,0,2,0,0,0)
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_GiveInventory("NailShooter1", 1)
+			DNLG DE 1 Bright
+			TNT1 A 0 A_GiveInventory("NailCounter", 1)
+			DNLG K 3 A_Refire
+		Goto Ready
+		Fire2:
+			DNLG FG 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,3,36+(sin(-pitch)*20),0,0,2,0,0,0)
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_GiveInventory("NailShooter2", 1)
+			DNLG HI 1 Bright
+			TNT1 A 0 A_TakeInventory("NailCounter", 1)
+			DNLG J 3 A_Refire
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("NailCounter", 1, "AltFire2")
+			DNLG BC 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
+			TNT1 AA 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,-3,36+(sin(-pitch)*20),0,0,2,0,0,0)
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_GiveInventory("NailShooter3", 1)
+			DNLG DE 1 Bright
+			TNT1 A 0 A_GiveInventory("NailCounter", 1)
+			DNLG K 3 A_Refire
+			TNT1 A 0 A_PlaySound("Weapons/lavanail")
+		Goto Ready
+		AltFire2:
+			DNLG FG 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
+			TNT1 AA 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,3,36+(sin(-pitch)*20),0,0,2,0,0,0)
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_GiveInventory("NailShooter4", 1)
+			DNLG HI 1 Bright
+			TNT1 A 0 A_TakeInventory("NailCounter", 1)
+			DNLG J 3 A_Refire
+			TNT1 A 0 A_PlaySound("Weapons/lavanail")
+		Goto Ready
+	    Flash:
+		    TNT1 A 3 A_Light1
+		    TNT1 A 4 A_Light2
+		    TNT1 A 3 A_Light1
+		    TNT1 A 2 A_Light0
+		stop
+	}
+}
+
+Actor NailShooter1 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, -6)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("NailProjectile_FullDMG", 0, 1, -6)
+		Stop
+	}
+}
+
+Actor NailShooter2 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, 6)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("NailProjectile_FullDMG", 0, 1, 6)
+		Stop
+	}
+}
+
+Actor NailShooter3 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, -6)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile_FullDMG", 0, 1, -6)
+		Stop
+	}
+}
+
+Actor NailShooter4 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, 6)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile_FullDMG", 0, 1, 6)
+		Stop
+	}
+}
+
+Actor NailProjectile
+{
+  Projectile
+  Radius 3
+  Height 4
+  Speed 40
+  Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+  DamageType "Magic"
+  Scale 0.5
+  +RIPPER
+  +DONTBLAST
+  +MTHRUSPECIES
+  +BloodSplatter
+  +DONTREFLECT
+  +NODAMAGETHRUST
+  +THRUGHOST
+  SeeSound ""
+  DeathSound ""
+  Decal "BulletChip"
+  States
+  {
+  Spawn:
+    NAIL AAAA 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+    TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+    Loop
+  Death:
+    TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    NLPJ A 0 A_PlaySound("Weapons/NailRic")
+	NLPJ BCDEFG 2
+    Stop
+  }
+}
+
+Actor NailProj_Damager : DnD_FakeDamager {
+	Radius 3
+	Height 4
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+	DamageType "MagicFull"
+	Speed 32
+}
+
+Actor NailProjectile_FullDMG : NailProjectile {
+	+THRUACTORS
+	States {
+		Spawn:
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+		Loop
+	}
+}
+
+Actor NailExplosion : BaseExplosionDamage {
+	Obituary "%o was burned alive by %k's lava nails."
+	DamageType "MagicFire"
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET), 32, 0)
+		Stop
+	}
+}
+
+Actor NailExplosion_FullDMG : NailExplosion {
+	DamageType "MagicFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor LavaNailProjectile : NailProjectile {
+	+FOILINVUL
+	States {
+		Spawn:
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+		Loop
+	    Death:
+			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			NLPJ A 0 A_PlaySound("Weapons/NailRic")
+			NLPJ BCDEFG 2
+		Stop
+	}
+}
+
+Actor LavaNailProjectile_FullDMG : LavaNailProjectile {
+	States {
+		Spawn:
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			TNT1 A 0 A_CustomMissile("NailProj_Damager")
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			TNT1 A 0 A_CustomMissile("NailProj_Damager")
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			TNT1 A 0 A_CustomMissile("NailProj_Damager")
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_SpawnItem("NailExplosion")
+			TNT1 A 0 A_CustomMissile("NailProj_Damager")
+			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+		Loop
+	}
+}
+
+Actor NailBlur       
+{
+  Height 8
+  Radius 1
+  Damage 0
+  Scale 0.6
+  Speed 0.2
+  RenderStyle Translucent
+  Alpha 0.75
+  +NoGravity
+  +DropOff
+  +NoTeleport
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    NAIL A 1 A_FadeOut(0.35)
+    Loop
+  }
+}
+
+Actor NailBlur2 : NailBlur {
+	States {
+		Spawn:
+			NAI2 A 1 A_FadeOut(0.35)
+		Loop
+	}
+}
+
+ACTOR Basilisk : Weapon {	
+	Inventory.PickupMessage "You got the basilisk!"
+	Obituary "%k toasted %o with the basilisk."
+	Weapon.AmmoType1 "BasiliskAmmo"
+	Weapon.AmmoType2 "LoadedBasilisk"
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive 25
+	Weapon.SelectionOrder 375
+	Weapon.SlotNumber 6
+	Weapon.AmmoUse1 1
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.7
+	+ALT_AMMO_OPTIONAL
+	+NOALERT
+	States {
+		Spawn:
+			WBAS A -1 Bright
+		Loop
+		Ready:
+			BASG A 3 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			BASG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_BASILISK)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 6, 3 | (8 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 12, 6 | (12 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 96)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_3, 32)
+	    SelectLoop:
+			BASG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_AlertMonsters
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_JumpIfInventory("LoadedBasilisk", 1, "Fire2")
+			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1)
+			BASG E 2 Bright A_SetPitch(pitch - 0.5)
+			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1) 
+			BASG F 2 Bright A_SetPitch(pitch - 0.5)
+			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1)
+			BASG G 2 Bright A_SetPitch(pitch - 0.5)
+			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1)
+			BASG H 2 Bright A_SetPitch(pitch - 0.5)
+			TNT1 A 0 A_Refire
+			BASG IJKL 2 Bright
+			BASG A 2
+			BASG B 3
+			BASG C 4
+			BASG D 5
+		Goto Ready
+		Fire2:
+			BASG E 2 Bright
+			TNT1 A 0 Radius_Quake(6,4,0,1,0)
+			TNT1 A 0 A_GiveInventory("BasiliskShooter2", 1) 
+			BASG F 2 Bright A_SetPitch(pitch - 0.5)
+			TNT1 A 0 A_TakeInventory("LoadedBasilisk", 1)
+			BASG G 2 Bright
+			TNT1 A 0 Radius_Quake(6,4,0,1,0)
+			TNT1 A 0 A_GiveInventory("BasiliskShooter2", 1) 
+			BASG H 2 Bright A_SetPitch(pitch - 0.5)
+			TNT1 A 0 A_Refire("Fire")
+			BASG IJKL 2 Bright
+			BASG A 2
+			BASG B 3
+			BASG C 4
+			BASG D 5
+		Goto Ready
+		AltFire:
+		Reload:
+			TNT1 A 0 A_JumpIfInventory("LoadedBasilisk", 0, "Full")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueLoad")
+			TNT1 A 0 A_JumpIfInventory("BasiliskAmmo", 8, "ContinueLoad")
+			BASG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueLoad:
+			BASG A 2 Offset(6, 35)
+			BASG A 2 Offset(12, 38)
+			BASG A 2 Offset(18, 41)
+			BASG A 2 Offset(24, 44)
+			BASG A 2 Offset(30, 47)
+			BASG A 2 Offset(32, 50)
+			TNT1 A 0 A_PlaySound("weapons/basiliskload", 6)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("BasiliskAmmo", 8)
+		NoTake:
+			TNT1 A 0 A_GiveInventory("LoadedBasilisk", 1)
+			BASG A 2 Offset(32, 44)
+			BASG A 2 Offset(32, 48)
+			BASG A 2 Offset(28, 44)
+			BASG A 2 Offset(24, 40)
+			BASG A 2 Offset(20, 36)
+			BASG A 2 Offset(16, 35)
+			BASG A 2 Offset(12, 34)
+			BASG A 2 OFfset(8, 33)
+			BASG A 2 Offset(2, 32)
+		Goto Ready
+		Full:
+			BASG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		Flash:
+			TNT1 A 1
+			TNT1 A 1 A_Light1
+			TNT1 A 1 A_Light2
+			TNT1 A 1 A_Light0
+		stop   
+   }
+}
+
+Actor BasiliskShooter1 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall", Frandom(-2.5,2.5), 1, 0, 0, 1, frandom(-2.0, 2.0))
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall_FullDMG", Frandom(-2.5,2.5), 1, 0, 0, 1, frandom(-2.0, 2.0))
+		Stop
+	}
+}
+
+Actor BasiliskShooter2 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall2",Frandom(-2.5,2.5),0,0,0,0,Frandom(-2,2))
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall2_FullDMG",Frandom(-2.5,2.5),0,0,0,0,Frandom(-2,2))
+		Stop
+	}
+}
+
+ACTOR BasiliskBall : FastProjectile {
+   Radius 5
+   Height 8
+   Speed 96
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+   DamageType "MagicFire"
+   RenderStyle ADD
+   Damagetype fire
+   PROJECTILE
+   +FOILINVUL
+   +FORCEXYBILLBOARD
+   +MTHRUSPECIES
+   +DONTBLAST
+   SeeSound "weapons/magic1"
+   DeathSound "weapons/firex5"
+   States
+   {
+   Spawn: 
+      BMIS A -1 Bright 
+      Stop
+   Death:
+      TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+      IMFX QRSTUVW 3 Bright
+      stop
+   }
+}
+
+Actor BasiliskBall_FullDMG : BasiliskBall {
+	DamageType "MagicFireFull"
+}
+
+ACTOR BasiliskBall2 : Cacodemonball {
+   RenderStyle Normal
+   Speed 25
+   Alpha 1
+   Radius 8
+   Height 16
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET))
+   DamageType "MagicFire"
+   SeeSound "weapons/basiliskfire2"
+   DeathSound "weapons/basiliskexpl2"
+   Species "Player"
+   +MTHRUSPECIES
+   +DONTBLAST
+   +FOILINVUL
+   +FORCERADIUSDMG
+   States
+   {
+   Spawn:
+      BASF AB 3 Bright A_SpawnItemEx("BasiliskPuff",0,0,0,0,0,0,0,8)
+      loop
+   Death:
+      TNT1 A 0 A_SetTranslucent(0.85, 1)
+	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	  TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+	  TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET), 96, 1)	  
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,30,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,90,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,150,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,210,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,270,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,330,0,0)
+      BASF DEFGH 3 Bright
+      stop
+   LessDmg:
+	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET) / 2, 96, 0)
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET) / 2, 96, 1)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,30,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,90,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,150,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,210,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,270,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,330,0,0)
+      BASF DEFGH 3 Bright
+      stop
+   }
+}
+
+Actor BasiliskBall2_FullDMG : BasiliskBall2 {
+	DamageType "MagicFireFull"
+    States {
+    Death:
+      TNT1 A 0 A_SetTranslucent(0.85, 1)
+	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	  TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+	  TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET), 96, 1)	  
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,30,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,90,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,150,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,210,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,270,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,330,0,0)
+      BASF DEFGH 3 Bright
+      stop
+    LessDmg:
+	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 2, 96, 0)
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 2, 96, 1)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,30,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,90,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,150,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,210,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,270,0,0)
+	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,330,0,0)
+      BASF DEFGH 3 Bright
+      stop
+   }
+}
+
+ACTOR BasiliskBall3 : BasiliskBall2 {
+   RenderStyle Normal
+   Radius 3
+   Height 5
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+   DamageType "MagicFire"
+   DeathSound "weapons/basiliskexpl3"
+   +THRUACTORS
+   +MTHRUSPECIES
+   +DONTBLAST
+   +FOILINVUL
+   States
+   {
+   Spawn:
+	  HIB1 A 3 Bright
+	  HIB1 B 3 Bright A_ChangeFlag("THRUACTORS", 0)
+	  HIB1 AB 3 Bright
+      goto Spawn+3
+   Death:
+      TNT1 A 0 A_SetTranslucent(0.75,1)
+	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	  TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+	  TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+      HIB1 C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET), 32, 1)
+      HIB1 DEFG 3 Bright
+      stop
+   LessDmg:
+      TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET) / 2, 32, 0)
+      HIB1 C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET) / 2, 32, 1)
+      HIB1 DEFG 3 Bright
+      stop
+   }
+}
+
+Actor BasiliskBall3_FullDMG : BasiliskBall3 {
+	DamageType "MagicFireFull"
+	+FORCERADIUSDMG
+}
+
+ACTOR BasiliskPuff {
+   RENDERSTYLE ADD
+   ALPHA 0.75
+   +NOGRAVITY
+   +CLIENTSIDEONLY
+   States {
+	  Spawn:
+		TNT1 A 3 Bright
+		HLBL CDEFGHI 3 BRIGHT
+      Stop 
+   }
+}
+
+Actor "Upgraded Plasma Rifle3" : Weapon {
+   Weapon.Slotnumber 6
+   Weapon.SelectionOrder 300
+   +INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.5
+	Weapon.BobRangeX 0.8
+	Weapon.AmmoGive 0
+	Weapon.AmmoUse 1
+	Weapon.AmmoType "EverIce"
+	Tag "Frost Fang"
+	States {
+		Ready:
+			FSTF B 0 A_Jump(1, "Glow")
+			FSTF B 1 A_WeaponReady
+		Loop
+		Glow:
+			FSTF CCCCCCCCCC 1 A_WeaponReady
+			FSTF CCCCCCCCC 1 A_WeaponReady
+			FSTF CCCCCCCC 1 A_WeaponReady
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5, 3 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 3, 2 | (3 << 16))
+		SelectLoop:
+			FSTF B 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Deselect:
+		    TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+		DeselectLoop:
+			FSTF B 1 A_Lower
+			TNT1 A 0 A_lower
+		Loop
+		Fire:
+			FSTF B 3
+			FSTF C 4
+			FSTF D 5
+		Hold:
+			TNT1 A 0 A_PlayWeaponSound("FrostFang/Fire1")
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			FSTF E 1 Bright Offset(0, 32) A_GiveInventory("FrostFangShooter", 1)
+			FSTF E 2 Bright Offset(1, 33) A_GiveInventory("FrostFangShooter", 1)
+			FSTF E 1 Bright Offset(-1, 35) A_GiveInventory("FrostFangShooter", 1)
+			FSTF E 2 Bright Offset(0, 36) A_GiveInventory("FrostFangShooter", 1)
+			FSTF E 1 Bright Offset(1, 38) A_GiveInventory("FrostFangShooter", 1)
+			FSTF D 2 Offset(0, 36)
+			FSTF D 2 Offset(0, 34)
+			FSTF D 2 Offset(1, 32)
+			FSTF D 3 A_Refire
+			FSTF C 4 Offset(1, 33)
+			FSTF B 3 Offset(1, 33)
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAlt")
+			TNT1 A 0 A_JumpIfInventory("EverIce", 30, "ContinueAlt")
+			FSTF B 1 A_WeaponReady(WRF_NOFIRE)
+		Goto Ready
+		ContinueAlt:
+			FSTF B 3
+			FSTF C 4
+			FSTF D 5
+			FSTF D 1 Offset(1, 33)
+			FSTF D 1 Offset(-1, 35)
+			FSTF D 1 Offset(0, 36)
+			FSTF D 1 Offset(1, 38)
+			TNT1 A 0 A_PlayWeaponSound("Frostfang/Altfire")
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
+			FSTF E 1 Bright Offset(0, 32) A_GiveInventory("FrostFangShooter2", 1)
+			FSTF E 2 Bright Offset(1, 33)
+			FSTF E 1 Bright Offset(-1, 35)
+			FSTF E 2 Bright Offset(0, 36)
+			FSTF E 1 Bright Offset(1, 38)
+			FSTF D 2 Offset(0, 36)
+			FSTF D 2 Offset(0, 34)
+			FSTF D 2 Offset(1, 32)
+			FSTF D 3
+			FSTF C 4 Offset(1, 33)
+			FSTF B 3 Offset(0, 32)
+			FSTF B 20 Offset(0, 32)
+		Goto Ready
+		Spawn:
+			FSTF A -1
+		Loop
+	}
+}
+
+Actor FrostFangShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 1, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+		Stop
+		NoTake:
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 0, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+		Stop
+		Full:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FullNoTake")
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard_FullDMG", 0, 1, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+		Stop
+		FullNoTake:
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard_FullDMG", 0, 0, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+		Stop
+	}
+}
+
+Actor FrostFangShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("EverIce", 30)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("FrostFangBall", 0, 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("FrostFangBall_FullDMG", 0, 0)
+		Stop
+	}
+}
+
+Actor FrostFangShard {
+	Speed 40
+	Radius 6
+	Height 8
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_USETARGET))
+	DamageType "P_Ice"
+	Projectile
+	DeathSound "FrostFang/Hit1"
+	Scale 0.75
+	RenderStyle Translucent
+	Alpha 0.8
+	+THRUGHOST
+	+MTHRUSPECIES
+	States {
+		Spawn:
+			FFSD AAABBBCCC 1 Bright A_SpawnItemEx("FrostFangFog", -(MomX/1.4), -(MomY/1.4), (MomZ/1.4*-1), (MomX/1.4), (MomY/1.4), (MomZ/1.4), -Angle, 138)
+		Loop
+		Death:
+			FFSD DEFGH 5 Bright
+		Stop
+	}
+}
+
+Actor FrostFangShard_Glowing : FrostFangShard {
+	Speed 28
+	Renderstyle Add
+	States {
+		Spawn:
+			FX39 HIJ 3 Bright
+		Loop
+		Death:
+			FX39 DEFG 3 Bright
+		Stop
+	}
+}
+
+Actor FrostFangShard_FullDMG : FrostFangShard {
+	DamageType "P_IceFull"
+	-THRUGHOST
+}
+
+Actor FrostFangShard_Glowing_FullDMG : FrostFangShard_Glowing {
+	DamageType "P_IceFull"
+	Renderstyle Add
+	-THRUGHOST
+}
+
+Actor FrostFangBall {
+	Radius 10
+	Height 16
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	DamageType "P_Ice"
+	+RIPPER
+	+BLOODLESSIMPACT
+	+THRUGHOST
+	+MTHRUSPECIES
+	Speed 8
+	RenderStyle Add
+	Alpha 1.0
+	Scale 2.25
+	Projectile
+	DeathSound "FrostFang/Hit2"
+	ReactionTime 45
+	var int user_count;
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 A 3 Bright A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 B 3 Bright A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 C 3 Bright A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Death:
+			FFBL CDEFG 4 Bright
+		Stop
+	}
+}
+
+Actor FrostFangBall_Damager : DnD_FakeDamager {
+	Radius 10
+	Height 16
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	DamageType "P_IceFull"
+	Speed 16
+	+NOBLOOD
+}
+
+Actor FrostFangBall_FullDMG : FrostFangBall {
+	DamageType "P_IceFull"
+	+THRUACTORS
+	-THRUGHOST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 A 3 Bright A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 B 3 Bright A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 C 3 Bright A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_FullDMG", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+	}
+}
+
+Actor FrostFangBallParticle {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.6
+	States {
+		Spawn:
+			FFFG A 1 A_FadeOut(0.05)
+		Loop
+	}
+}
+
+Actor FrostFangFog : FrostFangBallParticle {
+	Alpha 0.1
+	XScale 0.4
+	YScale 0.2
+	States {
+		Spawn:
+			FFFG A 1 A_FadeOut(0.025)
+		Loop
+	}
+}
+
+Actor FrostFangFog2 : FrostFangBallParticle {
+	XScale 0.6
+	YScale 0.4
+	States {
+		Spawn:
+			FFFG A 1 A_FadeOut(0.0066)
+		Loop
+	}
+}

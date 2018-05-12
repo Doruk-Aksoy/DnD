@@ -1,0 +1,67 @@
+Dreamer/See			DREAMSEE
+Dreamer/Act			DREAMACT
+Dreamer/Pain		DREAMPN
+Dreamer/Cast		DREAMCAS
+$limit Dreamer/Cast 0
+Dreamer/Hoof		DREAMHOF
+Dreamer/Burn		DREAMBUR
+$limit Dreamer/Burn 0
+Dreamer/Die			DREAMDIE
+Dreamer/Blast		DREAMBLS
+Dreamer/BlastExp	DREAMBEX
+Dreamer/Soul		DREAMSOL
+Dreamer/Thunder		DREAMTHN
+
+Torrasque/Melee		TORMEL
+Torrasque/Miss		TORMIS
+Torrasque/MaceHit	TORMHIT
+Torrasque/MaceSwing	TORMSWN
+Torrasque/See		TORSEE
+Torrasque/Pain		TORPAIN
+Torrasque/Die		TORDIE
+Torrasque/Act1		TORACT1
+Torrasque/Act2 		TORACT2
+$random Torrasque/Act { Torrasque/Act1 Torrasque/Act2 }
+Torrasque/Hook		TORHOOK
+Torrasque/HookHit	TORHOOKH
+Torrasque/HookGo	TORHOOKG
+Torrasque/Step1		TORSTEP1
+Torrasque/Step2		TORSTEP2
+Torrasque/Step3		TORSTEP3
+$random Torrasque/Step { Torrasque/Step1 Torrasque/Step2 Torrasque/Step3 }
+
+Mordecqai/FlameUp	MORFUP
+Mordecqai/FlameFire	MORFFIRE
+$limit Mordecqai/FlameFire 0
+Mordecqai/FlameEnd	MORFEND
+Mordecqai/Step		MORSTEP
+Mordecqai/See		MORSEE
+Mordecqai/Die		MORDIE
+Mordecqai/HitFloor	MORHITF
+Mordecqai/Belch		MORBELCH
+Mordecqai/Buzz		MORBUZZ
+Mordecqai/BuzzHit	MORBUZZH
+Mordecqai/SmallHit	MORSBH
+Mordecqai/Lightning	MORLIGH
+
+GodSlayer/See				GSLYSEE
+GodSlayer/Act				GSLYACT
+GodSlayer/HardHit			HARDHIT
+GodSlayer/HardStep			HARDSTEP
+GodSlayer/DeathExp			INQDTHXP
+GodSlayer/BigDeathExp		INQBIGXP
+GodSlayer/Fire				GSBATTK
+GodSlayer/Jump				GSJUMP
+GodSlayer/Charge			GSCHARGE
+GodSlayer/ChargeBegin		GSCHRGB
+GodSlayer/PulseFire			GSPFIRE
+GodSlayer/PulseHit			GSPULHT
+GodSlayer/ChargeGo			GSCHRGF
+GodSlayer/Torpedo			GSTORP
+GodSlayer/Grenade			GSGRENF
+GodSlayer/GrenadeExp		HRLEXP
+GodSlayer/Land				GSLANDH
+GodSlayer/shrapnel1 		shrapnl1
+GodSlayer/shrapnel2 		shrapnl2
+GodSlayer/shrapnel3 		shrapnl3
+$RANDOM shrapnel { GodSlayer/shrapnel1 GodSlayer/shrapnel2 GodSlayer/shrapnel3 }

@@ -1,0 +1,29 @@
+clearplayerclasses
+    addplayerclass TheDoomGuy
+	addplayerclass TheMarine
+	addplayerclass TheHobo
+	addplayerclass ThePunisher
+	addplayerclass TheWanderer
+	
+alias sethardcore "puke 1000 0"
+alias setsoftcore "puke 1000 1"
+
+alias loadme "puke 1001 %1"
+alias setchar "puke 1003 %1"
+alias skipload "puke 1004"
+
+AddKeySection "DnD Keys" DNDKEYS
+	AddMenuKey "DnD Menu" upgs
+	Alias upgs "Puke 900"
+	AddMenuKey "DnD Dash" dashuse
+	Alias dashuse "Puke 997"
+	AddMenuKey "Toggle Weapon Tip Boxes" tips
+	Alias tips "Puke 899"
+	AddMenuKey "Current Weapon Tip" curweptip
+	Alias curweptip "Puke -903"
+	AddMenuKey "Drop Temporary Weapon" droptemp
+	Alias droptemp "Puke 905 0"
+	AddMenuKey "Toggle Special Effects" fx
+	Alias fx "Puke 919"
+	AddMenuKey "View Current Quest" quest
+	Alias quest "Puke -1002"

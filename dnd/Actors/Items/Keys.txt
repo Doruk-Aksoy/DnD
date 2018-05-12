@@ -1,0 +1,95 @@
+ACTOR RedCardS2 : RedCard replaces RedCard {
+	inventory.pickupmessage "\cgRed\cf keycard\c-"
+	inventory.icon "STKEYS2"
+	inventory.pickupsound "keys/keycard"
+	Tag "Red Card"
+	States {
+		Spawn:
+			RKEY AB 4 Bright
+			RKEY CD 4
+			RKEY EF 4 Bright
+			RKEY GH 4
+			RKEY IJ 4 Bright
+			RKEY KL 4
+		loop
+	}
+}
+
+ACTOR YellowCardS2 : YellowCard replaces YellowCard {
+   inventory.pickupmessage "\ckYellow\cf keycard\c-"
+   inventory.icon "STKEYS1"
+   inventory.pickupsound "keys/keycard"
+   Tag "Yellow Card"
+	States {
+		Spawn:
+			YKEY AB 4 Bright
+			YKEY CD 4
+			YKEY EF 4 Bright
+			YKEY GH 4
+			YKEY IJ 4 Bright
+			YKEY KL 4
+		loop
+	}
+}
+
+ACTOR BlueCardS2 : BlueCard replaces BlueCard {
+   inventory.pickupmessage "\chBlue\cf keycard\c-"
+   inventory.icon "STKEYS0"
+   inventory.pickupsound "keys/keycard"
+   Tag "Blue Card"
+	States {
+		Spawn:
+			BKEY AB 4 Bright
+			BKEY CD 4
+			BKEY EF 4 Bright
+			BKEY GH 4
+			BKEY IJ 4 Bright
+			BKEY KL 4
+		loop
+	}
+}
+
+ACTOR RedSkullS2 : RedSkull replaces RedSkull {
+   inventory.pickupmessage "\cgRed\cf skull\c-"
+   inventory.icon "STKEYS5"
+   inventory.pickupsound "keys/skull"
+   Tag "Red Skull"
+	States {
+		Spawn:
+		  SK11 AB 4 Bright
+		  SK11 CD 4
+		  SK11 EF 4 Bright
+		  SK11 GH 4
+		loop
+	}
+}
+
+ACTOR YellowSkullS2 : YellowSkull replaces YellowSkull {
+   inventory.pickupmessage "\ckYellow\cf skull\c-"
+   inventory.icon "STKEYS4"
+   inventory.pickupsound "keys/skull"
+   Tag "Yellow Skull"
+	States {
+		Spawn:
+		  SK12 AB 4 Bright
+		  SK12 CD 4
+		  SK12 EF 4 Bright
+		  SK12 GH 4
+		loop
+	}
+}
+
+ACTOR BlueSkullS2 : BlueSkull replaces BlueSkull {
+   inventory.pickupmessage "\chBlue\cf skull\c-"
+   inventory.icon "STKEYS3"
+   inventory.pickupsound "keys/skull"
+   Tag "Blue Skull"
+	States {
+		Spawn:
+		  SK13 AB 4 Bright
+		  SK13 CD 4
+		  SK13 EF 4 Bright
+		  SK13 GH 4
+		loop
+	}
+}

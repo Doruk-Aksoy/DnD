@@ -1,0 +1,948 @@
+Actor NewClip : CustomInventory replaces Clip {
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Clip x 10\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			CLIP A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Clip", 10 + ACS_ExecuteWithResult(918, 0, 1, 10))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor DroppedClip : NewClip {
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Clip x 5\c-"
+	States {
+		Spawn:
+			CLIP A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Clip", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor NewClipbox : CustomInventory {
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Clip Box x 50\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			AMMO A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Clip", 50 + ACS_ExecuteWithResult(918, 0, 1, 50))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor NewShell : CustomInventory replaces Shell {
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Shell x 4\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			SHEL A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 1, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Shell", 4 + ACS_ExecuteWithResult(918, 0, 1, 4))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor NewShellBox : CustomInventory {
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Shell Box x 20\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			SBOX A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 1, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Shell", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Slot3AmmoContainer : CustomInventory {
+	Radius 20
+	Height 20
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Slot 3 Ammos\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			SLO3 A -1
+		Stop 
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Shell", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
+			TNT1 A 0 A_GiveInventory("ExplodingShell", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
+			TNT1 A 0 A_GiveInventory("SlayerAmmo", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
+			TNT1 A 0 A_GiveInventory("PcanAmmo", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
+			TNT1 A 0 A_GiveInventory("NitrogenCanister", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Slot3AmmoBigSpawner : RandomSpawner replaces ShellBox {
+	DropItem "NewShellBox", 255, 16
+	DropItem "Slot3AmmoContainer", 255, 8
+}
+
+Actor Slot4AmmoContainer : Slot3AmmoContainer {
+	Translation "78:78=5:5", "125:126=108:109", "154:159=96:106"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Slot 4 Ammos\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			AMMO A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0), "Failed")
+			TNT1 A 0 A_GiveInventory("Clip", 50 + ACS_ExecuteWithResult(918, 0, 1, 50))
+			TNT1 A 0 A_GiveInventory("EbonyAmmo", 12 + ACS_ExecuteWithResult(918, 0, 1, 16))
+			TNT1 A 0 A_GiveInventory("EbonyAmmoX", 6 + ACS_ExecuteWithResult(918, 0, 1, 8))
+			TNT1 A 0 A_GiveInventory("RiotgunShell", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
+			TNT1 A 0 A_GiveInventory("AcidAmmo", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
+			TNT1 A 0 A_GiveInventory("RubyAmmo", 43 + ACS_ExecuteWithResult(918, 0, 1, 43))
+			TNT1 A 0 A_GiveInventory("ViperAmmo", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
+			TNT1 A 0 A_GiveInventory("DSealAmmo", 50 + ACS_ExecuteWithResult(918, 0, 1, 50))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Slot4AmmoBigSpawner : Randomspawner replaces ClipBox
+{
+	DropItem "NewClipbox", 255, 16
+	DropItem "Slot4AmmoContainer", 255, 8
+}
+
+Actor RocketAmmo2 : CustomInventory replaces RocketAmmo
+{ 
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Rocket x 1\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			ROCK A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 2, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("RocketAmmo", 1 + ACS_ExecuteWithResult(918, 0, 1, 1))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor RocketBox2 : CustomInventory { 
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Rocket Box x 5\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			BROK A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 2, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("RocketAmmo", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Slot5AmmoContainer : Slot3AmmoContainer
+{
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Slot 5 Ammos\c-"
+	Radius 20
+	Height 16
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			SLO5 A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 2), "Failed")
+			TNT1 A 0 A_GiveInventory("RocketAmmo", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
+			TNT1 A 0 A_GiveInventory("Grenades", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
+			TNT1 A 0 A_GiveInventory("MISAmmo", 6 + ACS_ExecuteWithResult(918, 0, 1, 6))
+			TNT1 A 0 A_GiveInventory("MeteorAmmo", 4 + ACS_ExecuteWithResult(918, 0, 1, 4))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Slot5AmmoBigSpawner : Randomspawner replaces RocketBox
+{
+	DropItem "RocketBox2", 255, 16
+	DropItem "Slot5AmmoContainer", 255, 8
+}
+
+Actor Cell2 : CustomInventory replaces Cell
+{ 
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Cell x 20\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			CELL A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 3, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Cell", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Cellpack2 : CustomInventory {
+	inventory.pickupsound "items/ammo"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Cell Pack x 100\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			CELP A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 3, 1), "Failed")
+			TNT1 A 0 A_GiveInventory("Cell", 100 + ACS_ExecuteWithResult(918, 0, 1, 100))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Slot6AmmoContainer : Slot3AmmoContainer {
+	Translation "238:238=197:197", "167:167=196:196"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Slot 6 Ammos\c-"
+	Radius 20
+	Height 16
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Limited Respawn Item Init", 0)
+			UPGC A -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 3), "Failed")
+			TNT1 A 0 A_GiveInventory("Cell", 100 + ACS_ExecuteWithResult(918, 0, 1, 100))
+			TNT1 A 0 A_GiveInventory("NailgunAmmo", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
+			TNT1 A 0 A_GiveInventory("GaussRound", 10 + ACS_ExecuteWithResult(918, 0, 1, 10))
+			TNT1 A 0 A_GiveInventory("BasiliskAmmo", 16 + ACS_ExecuteWithResult(918, 0, 1, 40))
+			TNT1 A 0 A_GiveInventory("Fuel", 75 + ACS_ExecuteWithResult(918, 0, 1, 75))
+			TNT1 A 0 A_GiveInventory("LightningCell", 105 + ACS_ExecuteWithResult(918, 0, 1, 105))
+			TNT1 A 0 A_GiveInventory("EverIce", 80 + ACS_ExecuteWithResult(918, 0, 1, 80))
+			TNT1 A 0 A_GiveInventory("ThunderAmmo", 66 + ACS_ExecuteWithResult(918, 0, 1, 66))
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor Slot6AmmoBigSpawner : Randomspawner replaces Cellpack
+{
+	DropItem "Cellpack2", 255, 16
+	DropItem "Slot6AmmoContainer", 255, 8
+}
+
+Actor Souls : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 75
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 75
+	inventory.icon "AMM3A0"
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 1\c-"
+	States
+	{
+		Spawn:
+			AMM3 ABCD 4 Bright
+		Loop
+	}
+}
+
+Actor LargeSouls : Souls
+{
+	inventory.amount 5
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 5\c-"
+	States
+	{
+		Spawn:
+			AMM3 EFGH 4 Bright
+		Loop
+	}
+}
+
+Actor SoulAmmoSpawner : Randomspawner
+{
+	DropItem "Souls", 255, 3
+	DropItem "LargeSouls", 255, 1
+}
+
+Actor AkimboClipLeft : Ammo {
+	inventory.amount 1
+	inventory.maxamount 12
+	inventory.icon "ACLIPICO"
+	+IGNORESKILL
+}
+
+Actor AkimboClipRight : Ammo {
+	inventory.amount 1
+	inventory.maxamount 12
+	inventory.icon "ACLIPICO"
+	+IGNORESKILL
+}
+
+Actor BulletSize_6 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 6
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 6
+	inventory.icon "REVAICO"
+	+IGNORESKILL
+}
+
+Actor ShellSize_2 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 2
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 2
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
+Actor ShellSize_8 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 8
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 8
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
+Actor ShellSize_8N : Ammo {
+	inventory.amount 1
+	inventory.maxamount 8
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 8
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
+Actor ShellSize_10 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 10
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
+Actor ShellSize_12 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 12
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 12
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
+Actor ExplodingShell : Ammo
+{
+	inventory.amount 4
+	inventory.maxamount 40
+	inventory.icon "ESHAA0"
+	ammo.backpackamount 4
+	ammo.backpackmaxamount 80
+	inventory.pickupmessage "\cdAmmo pickup: \cfExplosive Shells (4)\c-"
+	inventory.pickupsound "items/ammo"
+	+IGNORESKILL
+	States
+	{
+		Spawn:
+			ESHA A -1
+		Stop
+	}
+}
+
+Actor MGClip : Ammo {
+	inventory.amount 1
+	inventory.maxamount 50
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 50
+	inventory.icon "CLIPA0"
+	+IGNORESKILL
+}
+
+Actor MGClip2 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 60
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 60
+	inventory.icon "CLIPA0"
+	+IGNORESKILL
+}
+
+Actor MGClip3 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 75
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 75
+	inventory.icon "CLIPA0"
+	+IGNORESKILL
+}
+
+Actor MGClip4 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 40
+	inventory.icon "CLIPA0"
+	+IGNORESKILL
+}
+
+Actor MGClip5 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 31
+	inventory.icon "CLIPA0"
+	+IGNORESKILL
+}
+
+Actor EbonyAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 60
+	ammo.backpackamount 1
+	ammo.backpackmaxamount 120
+	inventory.icon "EBOPA0"
+	+IGNORESKILL
+}
+
+Actor EbonyAmmoX : Ammo {
+	inventory.amount 1
+	inventory.maxamount 30
+	ammo.backpackamount 1
+	ammo.backpackmaxamount 60
+	inventory.icon "EBOPE0"
+	+IGNORESKILL
+}
+
+Actor Grenades : Ammo
+{
+	inventory.amount 3
+	inventory.maxamount 50
+	inventory.icon "GBUNA0"
+	ammo.backpackamount 3
+	ammo.backpackmaxamount 100
+	inventory.pickupmessage "Picked up 3 grenade shells."
+	inventory.pickupsound "items/ammo"
+	+IGNORESKILL
+	States
+	{
+		Spawn:
+			GBUN A -1
+		Stop
+	}
+}
+
+ACTOR MISAmmo : Ammo
+{
+   Inventory.Amount 2
+   Inventory.MaxAmount 80
+   Ammo.BackpackAmount 2
+   Ammo.BackpackMaxAmount 160
+   Inventory.PickupMessage "You picked up two missiles."
+   inventory.pickupsound "items/ammo"
+   Inventory.Icon "AHRLA0"
+   +IGNORESKILL
+   States
+   {
+   Spawn:
+      AHRL A -1
+      Loop
+   }
+}
+
+Actor NailgunAmmo : Ammo
+{
+	inventory.amount 20
+	inventory.maxamount 175
+	inventory.icon "NPAKA0"
+	ammo.backpackamount 5
+	ammo.backpackmaxamount 350
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Nails x 10\c-"
+	inventory.pickupsound "items/ammo"
+	+IGNORESKILL
+	States
+	{
+		Spawn:
+			NPAK A -1
+		Stop
+	}
+}
+
+Actor GaussRound : Ammo {
+	inventory.amount 5
+	inventory.maxamount 75
+	inventory.icon "GAUSICO"
+	+IGNORESKILL
+}
+
+Actor BasiliskAmmo : Ammo {
+	inventory.amount 20
+	inventory.maxamount 250
+	inventory.icon "BASIA01"
+	+IGNORESKILL
+}
+
+Actor LoadedBasilisk : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor SlayerAmmo : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 40
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 40
+	+IGNORESKILL
+}
+
+Actor PCanAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 35
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 35
+	inventory.icon "PCNIC1"
+	+IGNORESKILL
+}
+
+Actor PCanClip : Ammo {
+	inventory.amount 1
+	inventory.maxamount 5
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 5
+	+IGNORESKILL
+}
+
+Actor Fuel : Ammo {
+	inventory.amount 1
+	inventory.maxamount 250
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 250
+	inventory.icon "FUAMA0"
+	+IGNORESKILL
+}
+
+Actor FuelClip : Ammo {
+	inventory.amount 1
+	inventory.maxamount 75
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 75
+	+IGNORESKILL
+}
+
+Actor IonAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 180
+	ammo.backpackamount 10
+	ammo.backpackmaxamount 180
+	inventory.icon "IOAMA0"
+	+IGNORESKILL
+}
+
+Actor MeteorAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	ammo.backpackamount 5
+	ammo.backpackmaxamount 40
+	+IGNORESKILL
+}
+
+Actor LightningCell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 375
+	ammo.backpackamount 15
+	ammo.backpackmaxamount 375
+	+IGNORESKILL
+}
+
+Actor NitrogenCanister : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	ammo.backpackamount 5
+	ammo.backpackmaxamount 40
+	+IGNORESKILL
+}
+
+Actor RiotgunShell : Ammo {
+	inventory.amount 1
+	Inventory.MaxAmount 160
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 160
+	inventory.icon "RIOTJ0"
+	+IGNORESKILL
+}
+
+actor RiotgunClip : Ammo {
+	inventory.amount 1
+	Inventory.MaxAmount 8
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 8
+	+IGNORESKILL
+}
+
+Actor AcidAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 160
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 160
+	inventory.icon "D97AA0"
+	+IGNORESKILL
+}
+
+Actor AcidClip : Ammo {
+	inventory.amount 1
+	inventory.maxamount 28
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 28
+	+IGNORESKILL
+}
+
+Actor EverIce : Ammo {
+	Inventory.Amount 1
+	Inventory.MaxAmount 240
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 240
+	+IGNORESKILL
+}
+
+Actor RubyAmmo : Ammo {
+	Inventory.Amount 1
+	Inventory.MaxAmount 175
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 175
+	inventory.icon "RBAMA0"
+	+IGNORESKILL
+}
+
+Actor ThunderAmmo : Ammo {
+	Inventory.Amount 1
+	Inventory.MaxAmount 200
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 200
+	inventory.icon "D95AA0"
+	+IGNORESKILL
+}
+
+Actor HeavyGLCounter : Ammo {
+	Inventory.Amount 1
+	Inventory.MaxAmount 3
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 3
+	+IGNORESKILL
+}
+
+Actor ViperAmmo : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 80
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 80
+	inventory.icon "C_H2A1"
+	+IGNORESKILL
+}
+
+Actor DSealAmmo : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 200
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 200
+	inventory.icon "DEMSICO"
+	+IGNORESKILL
+}
+
+//////////////////////////////
+//      TEMPORARY AMMO      //
+//////////////////////////////
+
+Actor SawedoffCounter : Ammo
+{
+	inventory.maxamount 2
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 2
+	+IGNORESKILL
+}
+
+Actor SawedoffShell : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 48
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 48
+	inventory.icon "SWSHEL"
+	+IGNORESKILL
+}
+
+Actor BladeHits : Ammo
+{
+   Inventory.Amount 1
+   Inventory.MaxAmount 100
+   Ammo.BackpackAmount 0
+   Ammo.BackpackMaxAmount 100
+   Inventory.Icon "STTPRCNT"
+   +IGNORESKILL
+}
+
+ACTOR BladeCharge : Ammo
+{
+   Inventory.Amount 1
+   Inventory.MaxAmount 100
+   Ammo.BackpackAmount 0
+   Ammo.BackpackMaxAmount 100
+   Inventory.PickupMessage "Blade Charged."
+   Inventory.Icon "STTPRCNT"
+   +IGNORESKILL
+   States
+   {
+   Spawn:
+      TNT1 A 1
+      Stop
+   }
+}
+
+Actor SMGAmmo : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 200
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 200
+	inventory.icon "SMGAMM"
+	+IGNORESKILL
+}
+
+Actor IronBalls : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 100
+	inventory.icon "IBALLS"
+	+IGNORESKILL
+}
+
+ACTOR GoreMode : Ammo
+{
+     Inventory.Amount 1
+     Inventory.MaxAmount 1
+     Ammo.BackpackAmount 0
+     Ammo.BackpackMaxAmount 1
+}
+
+Actor BloodAmmo : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 80
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 80
+	inventory.icon "BLOAMM"
+	+IGNORESKILL
+}
+
+Actor LaserAmmo : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 150
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 150
+	inventory.icon "LASAMM"
+	+IGNORESKILL
+}
+
+Actor VenomAmmo : Ammo
+{
+	inventory.amount 1
+	inventory.maxamount 90
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 90
+	inventory.icon "VENOAMM"
+	+IGNORESKILL
+}
+
+Actor HeartAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 5
+	inventory.icon "HARTAMM"
+	+IGNORESKILL
+}
+
+Actor BigNail : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	inventory.icon "D98AA0"
+	+IGNORESKILL
+}
+
+Actor DarkServantEnergy : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	inventory.icon "D99AA0"
+	+IGNORESKILL
+}
+
+Actor BerettaAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 48
+	inventory.icon "BERTA0"
+	+IGNORESKILL
+}
+
+Actor PlasmaBolterAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 125
+	inventory.icon "PBL9Y0"
+	+IGNORESKILL
+}
+
+/*
+==========================
+=== SPECIAL AMMO TYPES ===
+==========================
+*/
+
+Actor AmmoMode : Inventory {
+	inventory.maxamount 6
+}
+
+Actor FlechetteShell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	inventory.icon "SAM1A0"
+}
+
+Actor ElectricShell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	inventory.icon "SAM2A0"
+}
+
+Actor PiercingShell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	inventory.icon "SAM3A0"
+}
+
+Actor NitroShell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	inventory.icon "SAM4A0"
+}
+
+Actor A40mmSonicGrenade : Ammo {
+	inventory.amount 1
+	inventory.maxamount 25
+	inventory.icon "GAM1A0"
+}
+
+Actor A40mmHEGrenade : Ammo {
+	inventory.amount 1
+	inventory.maxamount 25
+	inventory.icon "GAM2A0"
+}
+
+/*
+==========================
+===   Overheat Stuff   ===
+==========================
+*/
+
+Actor DnD_OverheatCanReduce : DnD_Boolean { }
+
+Actor PlasmaOverHeat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor ShockerOverheat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor IonOverHeat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor FreezerOverheat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}

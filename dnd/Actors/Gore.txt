@@ -1,0 +1,936 @@
+// Gib generator fixed by LilWhiteMouse - thanks LWM!
+actor NashGore_GibGenerator 
+{ 
++CLIENTSIDEONLY
+states 
+	{ 
+	Spawn: 
+     TNT1 A 0 
+	 TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+     TNT1 A 0 A_Jump(128, 8) 
+     TNT1 A 0 A_Jump(128, 4) 
+     TNT1 A 0 A_Jump(128, 2) 
+     TNT1 A 1 A_SpawnDebris("NashGore_Gib1", 1) 
+     stop 
+	 TNT1 A 1 A_SpawnDebris("NashGore_Gib2", 1) 
+     stop 
+     TNT1 A 0 A_Jump(128, 2) 
+     TNT1 A 1 A_SpawnDebris("NashGore_Gib3", 1) 
+     stop 
+     TNT1 A 1 A_SpawnDebris("NashGore_Gib4", 1) 
+     stop 
+     TNT1 A 0 A_Jump(128, 4) 
+     TNT1 A 0 A_Jump(128, 2) 
+     TNT1 A 1 A_SpawnDebris("NashGore_Gib5", 1) 
+     stop 
+     TNT1 A 1 A_SpawnDebris("NashGore_Gib6", 1) 
+     stop 
+     TNT1 A 0 A_Jump(128, 2) 
+     TNT1 A 1 A_SpawnDebris("NashGore_Gib7", 1) 
+     stop 
+     TNT1 A 1 A_SpawnDebris("NashGore_Gib8", 1) 
+     stop 
+   } 
+} 
+
+Actor NashGore_GibGenerator_G : NashGore_GibGenerator
+{
+	Translation "168:191=96:111", "16:47=96:111"
+}
+
+Actor NashGore_GibGenerator_Green : NashGore_GibGenerator
+{
+	Translation "168:191=112:127", "32:47=112:127"
+}
+
+Actor NashGore_GibGenerator_Blue : NashGore_GibGenerator
+{
+	Translation "168:191=192:207", "32:47=192:207"
+}
+
+Actor NashGore_GibGenerator_Purple : NashGore_GibGenerator
+{
+	Translation "168:191=250:254", "32:47=250:254"
+}
+
+// Gib 1
+actor NashGore_Gib1
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 GIB1 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB1 A 3500
+	 GIB1 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 2
+actor NashGore_Gib2
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB2 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB2 A 3500
+	 GIB2 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 3
+actor NashGore_Gib3
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB3 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB3 A 3500
+	 GIB3 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 4
+actor NashGore_Gib4
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB4 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB4 A 3500
+	 GIB4 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 5
+actor NashGore_Gib5
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB5 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB5 A 3500
+	 GIB5 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 6
+actor NashGore_Gib6
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB6 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB6 A 3500
+	 GIB6 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 7
+actor NashGore_Gib7
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB7 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB7 A 3500
+	 GIB7 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 8
+actor NashGore_Gib8
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB8 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB8 A 3500
+	 GIB8 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+// Gib 9 (hand)
+actor NashGore_Gib9
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB9 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB9 A 3500
+	 GIB9 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+Actor NashGore_Gib9_G : NashGore_Gib9
+{
+	Translation "168:191=96:111", "16:47=96:111"
+}
+
+// Gib 10 (arm)
+actor NashGore_Gib10
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIB0 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIB0 A 3500
+	 GIB0 AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+Actor NashGore_Gib10_G : NashGore_Gib10
+{
+	Translation "168:191=96:111", "16:47=96:111"
+}
+
+// Gib 11 (eyeball)
+actor NashGore_Gib11
+{
+health 1
+radius 8
+height 8
+mass 1
+scale 0.75
++CORPSE
++NOTELEPORT
++CLIENTSIDEONLY
++MOVEWITHSECTOR
+states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+	 GIBI A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+	 loop
+	Crash:
+	 GIBI A 3500
+	 GIBI AAAAAAAAAA 7 A_FadeOut(0.1)
+	 stop
+	}
+}
+
+Actor NashGore_Gib11_G : NashGore_Gib11
+{
+	Translation "168:191=96:111", "16:47=96:111"
+}
+
+// Modify the internal Blood actor to spawn flying blood
+actor NashGore_Blood : Blood replaces Blood {
+	+DONTSPLASH
+	+EXPLODEONWATER
+	+NOBLOCKMAP
+	+NOGRAVITY
+	-ALLOWPARTICLES 
+	+FORCEXYBILLBOARD
+	states {
+		Spawn:
+		TNT1 AAA 0
+		TNT1 A 5 A_SpawnItemEx("RealBlood", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
+
+Actor RealBlood {
+	Mass 5
+	+NOBLOCKMAP
+	+CLIENTSIDEONLY
+	+NOTELEPORT
+	-ALLOWPARTICLES
+	
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_Jump(128, "Var1", "Var2", "Var3", "Var4")
+			BLUD C 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+			BLUD BA 8
+		stop
+		Var1:
+			TNT1 A 0 A_SpawnItem("BloodVariant1", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_FlyingBlood",1)
+			BLUD CBA 8
+		Stop
+		Var2:
+			TNT1 A 0 A_SpawnItem("BloodVariant2", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_FlyingBlood",1)
+			BLUD BA 8
+		Stop
+		Var3:
+			TNT1 A 0 A_SpawnItem("BloodVariant3", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_FlyingBlood",1)
+			BLUD BA 8
+		Stop
+		Var4:
+			TNT1 A 0 A_SpawnItem("BloodVariant4", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_FlyingBlood",1)
+			BLUD CBA 8
+		Stop
+	}
+}
+
+Actor BloodVariant1
+{
+	+NOBLOCKMAP
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	States
+	{
+		Spawn:
+			NBLU ABCDEF 3
+		Stop
+	}
+}
+
+Actor BloodVariant2 : BloodVariant1
+{
+	Scale 1.1
+	States
+	{
+		Spawn:
+			NBL2 ABCD 4
+		Stop
+	}
+}
+
+Actor BloodVariant3 : BloodVariant1
+{
+	Scale 1.1
+	States
+	{
+		Spawn:
+			NBL3 ABCDEF 3
+		Stop
+	}
+}
+
+Actor BloodVariant4 : BloodVariant1
+{
+	Scale 1.1
+	States
+	{
+		Spawn:
+			NBL4 ABCDE 3
+		Stop
+	}
+}
+
+actor NashGore_BloodSplatter : BloodSplatter replaces BloodSplatter
+{
+ +CLIENTSIDEONLY
+ states
+ {
+  Spawn:
+  TNT1 A 0
+  TNT1 A 0 A_Jump(128, "Var1", "Var2", "Var3")
+  BLUD C 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+  BLUD B 8
+  BLUD A 8
+  stop
+    Var1:
+	TNT1 A 0 A_SpawnItem("BloodVariant1", 0, 0, 0, 1)
+	TNT1 A 0 A_SpawnDebris("NashGore_FlyingBlood",1)
+	Stop
+	Var2:
+	TNT1 A 0 A_SpawnItem("BloodVariant2", 0, 0, 0, 1)
+	TNT1 A 0 A_SpawnDebris("NashGore_FlyingBlood",1)
+	Stop
+	Var3:
+	TNT1 A 0 A_SpawnItem("BloodVariant3", 0, 0, 0, 1)
+	TNT1 A 0 A_SpawnDebris("NashGore_FlyingBlood",1)
+	Stop
+ }
+}
+
+// Blood sprite that flies outwards and leaves trails behind
+actor NashGore_FlyingBlood
+{
+ game Doom
+ scale 0.75
+ health 1
+ radius 8
+ height 1
+ mass 1
+ +CORPSE
+ +NOTELEPORT
+ +NOBLOCKMAP
+ +CLIENTSIDEONLY
+ states
+ {
+ Spawn:
+  TNT1 A 0
+  TNT1 A 0
+  TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+  TNT1 A 0 A_Jump(128, "Variant2", "Variant3", "Variant4", "Variant5", "Variant6", "Variant7")
+ SpawnLoop:
+  TNT1 A 0 A_JumpIf(waterlevel > 1, "Remove")
+  B000 A 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 A 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 A 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 A 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 B 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 B 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 B 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 B 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 C 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 C 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 C 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 C 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 D 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 D 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 D 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 D 1
+  loop
+  Variant2:
+  TNT1 A 0 A_JumpIf(waterlevel > 1, "Remove")
+  B000 E 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 E 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 E 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 E 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 F 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 F 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 F 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 F 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 G 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 G 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 G 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 G 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 H 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 H 1 A_JumpIf(waterlevel > 1, "Remove")
+  B000 H 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 H 1  
+  Loop
+  Variant3:
+  TNT1 AAA 0 A_SpawnItemEx ("BloodTrail2", 0, 0, 8, random(-5, 5), random(-8, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+  Stop
+  Variant4:
+  TNT1 AAA 0 A_SpawnItemEx ("BloodTrail3", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+  Stop
+  Variant5:
+  TNT1 AAA 0 A_SpawnItemEx ("BloodTrail4", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+  Stop
+  Variant6:
+  TNT1 AA 0 A_SpawnItemEx ("BloodTrail5", 0, 0, 8, 3 * random(-2, 2), 3 * random(-2, 2), random(3, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+  Stop
+  Variant7:
+  TNT1 AA 0 A_SpawnItemEx ("BloodTrail6", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+  Stop
+ Crash:
+  TNT1 A 1 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
+  stop
+ Remove:
+	TNT1 A 1
+ Stop
+ }
+}
+
+Actor NashGore_FlyingBlood_Green : NashGore_FlyingBlood {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.09,1.10,0.67]"
+}
+
+actor NashGore_BloodSpot
+{
+ game Doom
+ radius 12
+ height 2
+ mass 1
+ +NOTELEPORT
+ -NOBLOCKMAP
+ +CLIENTSIDEONLY
+ states
+ {
+ Spawn:
+  TNT1 A 0
+  TNT1 A 0 A_PlaySound("bloodsplat")
+  TNT1 A 0 A_Jump(256,"S1", "S2", "S3", "S4", "S5")
+  S1:
+  BSPT A 750
+  stop
+  S2:
+  BSPT B 750
+  stop
+  S3:
+  BSPT C 750
+  stop
+  S4:
+  BSPT D 750
+  stop
+  S5:
+  GIBX ABCDEF 6
+  Stop
+  
+ }
+}
+
+Actor BloodTrail2 {
+	Mass 0
+	renderstyle Translucent
+	Decal "BloodSplat"
+	+LOWGRAVITY
+	+NOTELEPORT
+	+NOBLOCKMAP
+	+FORCEXYBILLBOARD
+	+CLIENTSIDEONLY
+	+DontSplash
+	+MISSILE
+	Height 2
+	Radius 2
+	Speed 4
+	alpha 0.5
+	scale 1.0
+	-NOGRAVITY
+	+THRUACTORS
+	Gravity 0.3
+	states {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(waterlevel > 1, "NoSpawn")
+			BTRL DEFG 4
+		stop
+		Death:
+			TNT1 A 0 A_Jump(64, "NoSpawn")
+			TNT1 A 1 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
+		Stop
+		NoSpawn:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor BloodTrail3 : BloodTrail2 {
+	Speed 4
+	alpha 0.7
+	scale 1.1
+	Gravity 0.7
+}
+
+Actor BloodTrail4 : BloodTrail2 {
+	Speed 6
+	alpha 0.7
+	scale 1.1
+	Gravity 0.9
+}
+
+Actor BloodTrail5 : BloodTrail2 {
+	Alpha 1.0
+	Radius 8
+    Height 8
+    Speed 10
+    Scale 1.2
+    SeeSound "misc/gorehit4"
+    DeathSound "misc/gorehit1"
+	Decal "BloodSplat"
+    States
+    {
+    Spawn:
+	    TNT1 A 0 A_JumpIf(waterlevel > 1, "NoSpawn")
+		TNT1 A 0 A_Jump(128, "Var1", "Var2")
+	SpawnLoop:
+        BTRL IJ 3 A_SpawnItemEx ("BloodTrail2", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_JumpIF(z - floorz < 2, "Death")
+		TNT1 A 0 A_JumpIf(waterlevel > 2, "Death")
+		BTRL KL 3 A_SpawnItemEx ("BloodTrail2", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+        Loop
+	Var1:
+        BTRL IJ 3 A_SpawnItemEx ("BloodTrail3", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_JumpIF(z - floorz < 2, "Death")
+		TNT1 A 0 A_JumpIf(waterlevel > 2, "Death")
+		BTRL KL 3 A_SpawnItemEx ("BloodTrail3", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+        Loop
+	Var2:
+        BTRL IJ 3 A_SpawnItemEx ("BloodTrail4", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_JumpIF(z - floorz < 2, "Death")
+		TNT1 A 0 A_JumpIf(waterlevel > 2, "Death")
+		BTRL KL 3 A_SpawnItemEx ("BloodTrail4", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+        Loop
+    Death:
+        TNT1 A 0 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
+        GIBX ABCDEF 5
+        Stop
+    }
+}
+
+Actor BloodTrail6 : BloodTrail2 {
+	Speed 4
+	alpha 1.0
+	+NOGRAVITY
+	+THRUACTORS
+	Gravity 0.3
+	Scale 0.35
+	Decal "BloodSplat"
+	states {
+		Spawn:
+			TNT1 A 0 A_Jump(256, "Var1", "Var2", "Var3", "Var4")
+		Var1:
+			BLER GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG 1 A_FadeOut(0.07)
+		stop
+		Var2:
+			BLER HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH 1 A_FadeOut(0.07)
+		stop
+		Var3:
+			BLER IIIIIIIIIIIIIIIIIIIIIIIIIIIIIII 1 A_FadeOut(0.07)
+		stop
+		Var4:
+			BLER JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ 1 A_FadeOut(0.07)
+		stop
+	}
+}
+
+// Blood trails spawned by FlyingBlood
+actor NashGore_FlyingBloodTrail
+{
+ game Doom
+ scale 0.70
+ mass 1
+ +LOWGRAVITY
+ +NOTELEPORT
+ +NOBLOCKMAP
+ +CLIENTSIDEONLY
+ states
+ {
+  Spawn:
+  BTRL ABCD 4
+  stop
+ }
+}
+
+actor NashGore_FlyingBloodTrail2 : NashGore_FlyingBloodTrail
+{
+ states
+ {
+  Spawn:
+	B000 EFGH 4
+  stop
+ }
+}
+
+Actor MetalScrap
+{
+ game Doom
+ scale 0.6
+ radius 8
+ height 1
+ health 1
+ mass 1
+ +CORPSE
+ +NOTELEPORT
+ +NOBLOCKMAP
+ +CLIENTSIDEONLY
+ +MOVEWITHSECTOR
+ -NOGRAVITY
+ States
+ {
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+		TNT1 A 0 A_Jump(256, "Var1", "Var2", "Var3", "Var4", "Var5")
+	Var1:
+		TNT1 A 1 A_SpawnDebris("MetalPiece1") 
+	Stop
+	Var2:
+		TNT1 A 1 A_SpawnDebris("MetalPiece2") 
+	Stop
+	Var3:
+		TNT1 A 1 A_CustomMissile("XJunk1", 0, 0, random(0, 360), 2, random(0, 360))
+	Stop
+	Var4:
+		TNT1 A 1 A_CustomMissile("XJunk2", 0, 0, random(0, 360), 2, random(0, 360))
+	Stop
+	Var5:
+		TNT1 A 1 A_CustomMissile("XJunk3", 0, 0, random(0, 360), 2, random(0, 360))
+	Stop
+ }
+}
+
+Actor MetalPiece1 : MetalScrap
+{
+	States
+	{
+		Spawn:
+			SCRP ABCD 3
+		Loop
+		Crash:
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
+			SCRP AAAAAAAAA 140 A_FadeOut(0.1)
+		Stop
+		2:
+			SCRP BBBBBBBBB 140 A_FadeOut(0.1)
+		Stop	
+		3:
+			SCRP CCCCCCCCC 140 A_FadeOut(0.1)
+		Stop
+		4:
+			SCRP DDDDDDDDD 140 A_FadeOut(0.1)
+		Stop	
+	}
+}
+
+Actor MetalPiece2 : MetalPiece1
+{
+	States
+	{
+		Spawn:
+			SCRP EFGH 3
+		Loop
+		Crash:
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
+			SCRP EEEEEEEEE 140 A_FadeOut(0.1)
+		Stop
+		2:
+			SCRP FFFFFFFFF 140 A_FadeOut(0.1)
+		Stop	
+		3:
+			SCRP GGGGGGGGG 140 A_FadeOut(0.1)
+		Stop
+		4:
+			SCRP HHHHHHHHH 140 A_FadeOut(0.1)
+		Stop	
+	}	
+}
+
+ACTOR XJunk1
+{
+    +CLIENTSIDEONLY
+	+DONTSPLASH
+	+DOOMBOUNCE
+	+NOTELEPORT
+	+MOVEWITHSECTOR
+	+THRUACTORS
+	+MISSILE
+    Radius 8
+    Height 8
+	BounceFactor 0.5
+    Speed 14
+	Gravity 0.8
+	Decal None
+    Scale 0.6
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+	SpawnLoop:
+	    TNT1 A 0 A_JumpIf(waterlevel > 1, "Splash")
+        JNK6 ABCD 3
+        Loop
+    Death:
+
+        //TNT1 A 0 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
+        JNK6 A 2000
+        Stop
+    Splash:
+        TNT1 A 1
+		JNK6 A -1
+        Stop
+    }
+}
+
+
+ACTOR XJunk2: XJunk1
+{
+    BounceFactor 0.3
+    States
+    {
+    Spawn:
+	    TNT1 A 0 A_JumpIf(waterlevel > 1, "Splash")
+        JNK7 ABCD 3
+        Loop
+    Death:
+
+        //TNT1 A 0 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
+        JNK7 A 2000
+        Stop
+    Splash:
+        TNT1 A 1
+		JNK7 A -1
+        Stop
+    }
+}
+
+
+ACTOR XJunk3: XJunk1
+{
+    BounceFactor 0.7
+    States
+    {
+    Spawn:
+	    TNT1 A 0 A_JumpIf(waterlevel > 1, "Splash")
+        JNK8 ABCD 3
+        Loop
+    Death:
+
+        //TNT1 A 0 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
+        JNK8 A 2000
+        Stop
+    Splash:
+        TNT1 A 1
+		JNK8 A -1
+        Stop
+    }
+}

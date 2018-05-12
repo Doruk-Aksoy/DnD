@@ -1,0 +1,7 @@
+Actor DnD_Button_Timer : Inventory {
+	inventory.maxamount 9
+}
+
+Actor DnD_LeftArrowButton_Timer : DnD_Button_Timer { }
+Actor DnD_ReturnArrowButton_Timer : DnD_Button_Timer { }
+Actor DnD_RightArrowButton_Timer : DnD_Button_Timer { }

@@ -1,0 +1,313 @@
+enum {
+	DND_ORB_ENHANCE,
+	DND_ORB_CORRUPT,
+	DND_ORB_SPIRIT,
+	DND_ORB_REPENT,
+	DND_ORB_AFFLUENCE,
+	DND_ORB_CALAMITY,
+	DND_ORB_PROSPERITY,
+	DND_ORB_WISDOM,
+	DND_ORB_GREED,
+	DND_ORB_VIOLENCE,
+	DND_ORB_FORTITUDE,
+	DND_ORB_SIN,
+	DND_ORB_RICHES,
+	DND_ORB_HOLDING
+};
+
+Actor OrbUseType : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor OrbResult : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor AffluenceCounter : Inventory {
+	inventory.maxamount 4
+}
+
+Actor DnD_Orb : CustomInventory {
+	radius 20
+	height 16
+	inventory.amount 1
+	inventory.maxamount 200
+	Inventory.InterHubAmount 200
+	inventory.pickupsound "Items/OrbPick"
+	inventory.usesound "Items/OrbUse"
+	+INVENTORY.INVBAR
+	+INVENTORY.UNDROPPABLE
+	+INVENTORY.PERSISTENTPOWER
+	Scale 0.9
+}
+
+Actor CorruptOrb_DamageReduction : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 0.25
+}
+
+Actor OrbOfEnhancement : DnD_Orb {
+	inventory.icon "ORB1D0"
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Enhancement\c-"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB1 C -1 Bright
+		Stop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_ENHANCE), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_ENHANCE)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofCorruption : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Corruption\c-"
+	inventory.icon "ORB1B0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB1 AAAAAA 1 Bright A_FadeOut(0.075)
+			ORB1 AAAAAA 1 Bright A_FadeIn(0.075)
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_CORRUPT), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_CORRUPT)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofSpirit : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Spirit\c-"
+	inventory.icon "ORB1I0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB1 EFGH 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_SPIRIT), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_SPIRIT)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofRepentance : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Repentance\c-"
+	inventory.icon "ORB1Z0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB1 TUVWX 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_REPENT), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_REPENT)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofAffluence : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Affluence\c-"
+	inventory.icon "ORB3A0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB2 WXYZYX 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_AFFLUENCE), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_AFFLUENCE)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofCalamity : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Calamity\c-"
+	inventory.icon "ORB1N0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB1 JKLM 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_CALAMITY), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_CALAMITY)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofProsperity : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Prosperity\c-"
+	inventory.icon "ORB1S0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB1 OPQR 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_PROSPERITY), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_PROSPERITY)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofWisdom : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Wisdom\c-"
+	inventory.icon "ORB2J0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB2 FGHI 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_WISDOM), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_WISDOM)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofGreed : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Greed\c-"
+	inventory.icon "ORB3E0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB3 BCDC 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_GREED), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_GREED)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofViolence : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Violence\c-"
+	inventory.icon "ORB2O0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB2 KLMN 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_VIOLENCE), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_VIOLENCE)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofFortitude : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Fortitude\c-"
+	inventory.icon "ORB2V0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB2 PQRSTU 2 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_FORTITUDE), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_FORTITUDE)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofSin : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Sin\c-"
+	inventory.icon "ORB2E0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB2 ABCD 3 Bright
+		Loop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_SIN), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_SIN)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofRiches : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Riches\c-"
+	inventory.icon "ORB3G0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB3 F -1 Bright
+		Stop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_RICHES), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_RICHES)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}
+
+Actor OrbofHolding : DnD_Orb {
+	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Holding\c-"
+	inventory.icon "ORB3I0"
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnFrame:
+			ORB3 H -1 Bright
+		Stop
+		Use:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_HOLDING), "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_HOLDING)
+		Stop
+		Failed:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+		Fail
+	}
+}

@@ -1,0 +1,163 @@
+flickerlight ENHANCEORBLIGHT
+{
+    color 0.75 0.75 0.0
+    size 24
+    secondarySize 42
+    chance 0.5
+}
+
+object OrbOfEnhancement {
+	frame ORB1C { light ENHANCEORBLIGHT }
+}
+
+pointlight BASICBOOST1
+{
+	color 1.0 1.0 1.0
+	size 24
+}
+
+pointlight BASICBOOST2
+{
+	color 0.7 0.0 0.0
+	size 24
+}
+
+pointlight BASICBOOST3
+{
+	color 0.0 0.0 0.7
+	size 24
+}
+
+pointlight BASICBOOST4
+{
+	color 0.7 0.0 0.7
+	size 24
+}
+
+object OrbofSpirit
+{
+	frame ORB1E { light BASICBOOST1 }
+	frame ORB1F { light BASICBOOST2 }
+	frame ORB1G { light BASICBOOST3 }
+	frame ORB1H { light BASICBOOST4 }
+}
+
+flickerlight CALAMITYLIGHT {
+	color 0.75 0.75 0.75
+	size 24
+	secondarysize 42
+	chance 0.5
+}
+
+object OrbofCalamity {
+	frame ORB1 { light CALAMITYLIGHT }
+}
+
+pulselight CORRUPTIONLIGHT {
+	color 1.0 0.333 0.333
+	size 24
+	secondarysize 48
+	interval 0.5
+}
+
+object OrbofCorruption {
+	frame ORB1 { light CORRUPTIONLIGHT }
+}
+
+pointlight PROSPERITYLIGHT {
+	color 1.0 0.45 0.45
+	size 32
+}
+
+object OrbofProsperity {
+	frame ORB1 { light PROSPERITYLIGHT }
+}
+
+pulselight REPENTLIGHT {
+	color 0.75 0.75 0.0
+	size 24
+	secondarysize 48
+	interval 0.75
+}
+
+object OrbofRepentance {
+	frame ORB1 { light REPENTLIGHT }
+}
+
+pointlight WISDOMLIGHT {
+	color 0.33 0.33 1.0
+	size 32
+}
+
+object OrbofWisdom {
+	frame ORB2 { light WISDOMLIGHT }
+}
+
+pointlight GREEDLIGHT {
+	color 0.33 0.45 0.0
+	size 32
+}
+
+object OrbofGreed {
+	frame ORB3 { light GREEDLIGHT }
+}
+
+flickerlight VIOLENCELIGHT {
+	color 1.0 0.25 0.25
+	size 24
+	secondarysize 48
+	chance 0.5
+}
+
+object OrbofViolence {
+	frame ORB2 { light VIOLENCELIGHT }
+}
+
+pulselight FORTITUDELIGHT {
+	color 0.66 0.66 0.0
+	size 24
+	secondarysize 48
+	interval 0.75
+}
+
+object OrbofFortitude {
+	frame ORB2 { light FORTITUDELIGHT }
+}
+
+pulselight AFFLUENCELIGHT {
+	color 0.8 0.8 0.0
+	size 24
+	secondarysize 48
+	interval 1.0
+}
+
+object OrbofAffluence {
+	frame ORB2 { light AFFLUENCELIGHT }
+}
+
+pointlight SINLIGHT {
+	color 1.0 0.2 0.2
+	size 32
+}
+
+object OrbofSin {
+	frame ORB2 { light SINLIGHT }
+}
+
+pointlight RICHESLIGHT {
+	color 0.75 0.85 0.45
+	size 32
+}
+
+object OrbofRiches {
+	frame ORB3 { light RICHESLIGHT }
+}
+
+pointlight HOLDINGLIGHT {
+	color 0.6 0.25 0.15
+	size 32
+}
+
+object OrbofHolding {
+	frame ORB3 { light HOLDINGLIGHT }
+}

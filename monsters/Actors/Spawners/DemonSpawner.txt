@@ -1,0 +1,48 @@
+Actor DemonSpawner : DnD_MonsterSpawner replaces Demon {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_DEMONID)
+		SpawnLoop:
+			TNT1 A 1
+		Loop
+		Vanilla:
+			TNT1 A 1 A_SpawnItemEx("Demon2x", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var1:
+			TNT1 A 1 A_SpawnItemEx("BloodDemonClone", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var2:
+			TNT1 A 1 A_SpawnItemEx("BloodFiend", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var3:
+			TNT1 A 1 A_SpawnItemEx("CyberFiend", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var4:
+			TNT1 A 1 A_SpawnItemEx("FlameDemon", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var5:
+			TNT1 A 1 A_SpawnItemEx("StoneImp", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var6:
+			TNT1 A 1 A_SpawnItemEx("Scavenger", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var7:
+			TNT1 A 1 A_SpawnItemEx("SoulEater", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var8:
+			TNT1 A 1 A_SpawnItemEx("Nhumcign", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var9:
+			TNT1 A 1 A_SpawnItemEx("StoneDemon", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var10:
+			TNT1 A 1 A_SpawnItemEx("BigBruty", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var11:
+			TNT1 A 1 A_SpawnItemEx("Satyr", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var12:
+			TNT1 A 1 A_SpawnItemEx("EarthGolem", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+	}
+}

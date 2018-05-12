@@ -1,0 +1,556 @@
+Flickerlight2 BabyCacoBallA
+{
+ Color 0.0 0.0 1.0
+ Offset 0 2 0
+ Size 24
+ SecondarySize 32
+ Interval 0.01
+}
+
+Flickerlight2 BabyCacoBallB
+{
+ Color 0.0 0.0 1.0
+ Offset 0 2 0
+ Size 30
+ SecondarySize 40
+ Interval 0.01
+}
+
+Flickerlight2 BabyCacoBallC
+{
+ Color 0.0 0.0 1.0
+ Offset 0 2 0
+ Size 36
+ SecondarySize 48
+ Interval 0.01
+}
+
+Flickerlight2 BabyCacoBallD
+{
+ Color 0.0 0.0 0.7
+ Offset 0 2 0
+ Size 50
+ SecondarySize 55
+ Interval 0.01
+}
+
+Flickerlight2 BabyCacoBallE
+{
+ Color 0.0 0.0 0.2
+ Offset 0 2 0
+ Size 55
+ SecondarySize 60
+ Interval 0.01
+}
+
+Object BabyCacoBall
+{
+ Frame BCABA { Light BabyCacoBallA }
+ Frame BCABB { Light BabyCacoBallB }
+ Frame BCABC { Light BabyCacoBallC }
+ Frame BCABD { Light BabyCacoBallD }
+ Frame BCABE { Light BabyCacoBallE }
+}
+
+Pointlight Fleshspawnball1
+{
+Color 0.6 0.2 0.4
+Size 32
+}
+
+Pointlight Fleshspawnball2
+{
+Color 0.6 0.2 0.4
+Size 24
+}
+
+Pointlight Fleshspawnball3
+{
+Color 0.6 0.2 0.4
+Size 28
+}
+
+Pointlight Fleshspawnball4
+{
+Color 0.6 0.2 0.4
+Size 40
+}
+
+Pointlight Fleshspawnball5
+{
+Color 0.8 0.4 0.3
+Size 36
+}
+
+Pointlight Fleshspawnball6
+{
+Color 0.8 0.3 0.2
+Size 32
+}
+
+Pointlight Fleshspawnball7
+{
+Color 0.6 0.2 0.0
+Size 32
+}
+
+Pointlight Fleshspawnball8
+{
+Color 0.4 0.1 0.0
+Size 32
+}
+
+Pointlight Fleshspawnball9
+{
+Color 0.6 0.2 0.4
+Size 32
+}
+
+Pointlight Fleshspawnball10
+{
+Color 0.5 0.2 0.3
+Size 32
+}
+
+Pointlight Fleshspawnball11
+{
+Color 0.4 0.1 0.2
+Size 32
+}
+
+Pointlight Fleshspawnball12
+{
+Color 0.3 0.1 0.1
+Size 32
+}
+
+Pointlight Fleshspawnball13
+{
+Color 0.2 0.0 0.0
+Size 32
+}
+
+Object Fleshspawnball
+{
+Frame FLBLA { Light Fleshspawnball1 }
+Frame FLBLB { Light Fleshspawnball2 }
+Frame FLBLC { Light Fleshspawnball3 }
+Frame FLBLD { Light Fleshspawnball4 }
+Frame FLBLE { Light Fleshspawnball5 }
+Frame FLBLF { Light Fleshspawnball6 }
+Frame FLBLG { Light Fleshspawnball7 }
+Frame FLBLH { Light Fleshspawnball8 }
+Frame FLBLI { Light Fleshspawnball9 }
+Frame FLBLJ { Light Fleshspawnball10 }
+Frame FLBLK { Light Fleshspawnball11 }
+Frame FLBLL { Light Fleshspawnball12 }
+Frame FLBLM { Light Fleshspawnball13 }
+}
+
+
+//Brightmaps
+
+BrightMap Sprite FLSPG1
+{
+    Map "graphics/brightmaps/BMFLSPG1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPG2G8
+{
+    Map "graphics/brightmaps/BMFLSPG2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPG4G6
+{
+    Map "graphics/brightmaps/BMFLSPG4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPG5
+{
+    Map "graphics/brightmaps/BMFLSPG5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPH1
+{
+    Map "graphics/brightmaps/BMFLSPH1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPH2H8
+{
+    Map "graphics/brightmaps/BMFLSPH2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPH3H7
+{
+    Map "graphics/brightmaps/BMFLSPH3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPH4H6
+{
+    Map "graphics/brightmaps/BMFLSPH4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite FLSPH5
+{
+    Map "graphics/brightmaps/BMFLSPH5.png"
+	DisableFullBright
+}
+
+
+//Dynamic lights
+
+Pointlight ShadowBall
+{
+Color 1.0 0.0 0.0
+Size 32
+}
+
+Pointlight ShadowBall2
+{
+Color 1.0 0.0 0.0
+Size 44
+}
+
+Pointlight ShadowBall3
+{
+Color 1.0 0.0 0.0
+Size 48
+}
+
+Pointlight ShadowBall4
+{
+Color 0.6 0.0 0.0
+Size 36
+}
+
+Pointlight ShadowBall5
+{
+Color 0.4 0.0 0.0
+Size 24
+}
+
+Object ShadowBall
+{
+Frame SBALA { Light ShadowBall }
+Frame SBALB { Light ShadowBall }
+Frame SBALC { Light ShadowBall }
+Frame SBALD { Light ShadowBall1 }
+Frame SBALE { Light ShadowBall2 }
+Frame SBALF { Light ShadowBall3 }
+Frame SBALG { Light ShadowBall4 }
+Frame SBALH { Light ShadowBall5 }
+}
+
+//Dynamic Lights
+
+PointLight GuardianExplode1
+{
+Color 1.0 0.6 0.2
+Size 64
+Offset 0 16 0
+}
+
+PointLight GuardianExplode2
+{
+Color 0.7 0.4 0.0
+Size 72
+Offset 0 16 0
+}
+
+PointLight GuardianExplode3
+{
+Color 0.6 0.3 0.0
+Size 72
+Offset 0 16 0
+}
+
+PointLight GuardianExplode4
+{
+Color 0.5 0.2 0.0
+Size 64
+Offset 0 16 0
+}
+
+Object Guardian
+{
+Frame CUBEF { Light GuardianExplode1 }
+Frame CUBEG { Light GuardianExplode2 }
+Frame CUBEH { Light GuardianExplode3 }
+Frame CUBEI { Light GuardianExplode4 }
+}
+
+PointLight CubeShot1
+{
+Color 1.0 0.2 0.0
+Size 32
+}
+
+PointLight CubeShot2
+{
+Color 1.0 0.4 0.0
+Size 48
+}
+
+PointLight CubeShot3
+{
+Color 1.0 0.4 0.0
+Size 40
+}
+
+PointLight CubeShot4
+{
+Color 0.8 0.3 0.0
+Size 32
+}
+
+PointLight CubeShot5
+{
+Color 0.6 0.2 0.0
+Size 24
+}
+
+PointLight CubeShot6
+{
+Color 0.5 0.1 0.0
+Size 16
+}
+
+Object CubeShot
+{
+Frame CBALA { Light CubeShot1 }
+Frame CBALB { Light CubeShot1 }
+Frame CBALC { Light CubeShot2 }
+Frame CBALD { Light CubeShot3 }
+Frame CBALE { Light CubeShot4 }
+Frame CBALF { Light CubeShot5 }
+Frame CBALG { Light CubeShot6 }
+}
+
+//Brightmaps
+
+BrightMap Sprite CUBED1
+{
+	Map "graphics/brightmaps/BMCUBED1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBED2D8
+{
+	Map "graphics/brightmaps/BMCUBED2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBED3D7
+{
+	Map "graphics/brightmaps/BMCUBED3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBED4D6
+{
+	Map "graphics/brightmaps/BMCUBED4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBED5
+{
+	Map "graphics/brightmaps/BMCUBED5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEE1
+{
+	Map "graphics/brightmaps/BMCUBEE1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEE2E8
+{
+	Map "graphics/brightmaps/BMCUBEE2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEE3E7
+{
+	Map "graphics/brightmaps/BMCUBEE3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEE4E6
+{
+	Map "graphics/brightmaps/BMCUBEE4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEE5
+{
+	Map "graphics/brightmaps/BMCUBEE5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEF0
+{
+	Map "graphics/brightmaps/BMCUBEF0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEG0
+{
+	Map "graphics/brightmaps/BMCUBEG0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEH0
+{
+	Map "graphics/brightmaps/BMCUBEH0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CUBEI0
+{
+	Map "graphics/brightmaps/BMCUBEI0.png"
+	DisableFullBright
+}
+
+PulseLight ForgottenOne1
+{
+Color 1.0 0.5 0.0
+Size 42
+SecondarySize 50
+Interval 2.5
+Offset 0 8 0
+}
+
+PointLight ForgottenOne2
+{
+Color 1.0 0.3 0.0
+Size 48
+}
+
+PointLight ForgottenOne3
+{
+Color 1.0 0.1 0.0
+Size 52
+}
+
+PointLight ForgottenOne4
+{
+Color 0.7 0.0 0.0
+Size 42
+}
+
+PointLight ForgottenOne5
+{
+Color 0.4 0.0 0.0
+Size 32
+}
+
+Object ForgottenOne
+{
+Frame FRGOA { Light ForgottenOne1 }
+Frame FRGOB { Light ForgottenOne1 }
+Frame FRGOC { Light ForgottenOne1 }
+Frame FRGOD { Light ForgottenOne1 }
+Frame FRGOE { Light ForgottenOne1 }
+Frame FRGOF { Light ForgottenOne1 }
+Frame FRGOG { Light ForgottenOne2 }
+Frame FRGOH { Light ForgottenOne3 }
+Frame FRGOI { Light ForgottenOne4 }
+Frame FRGOJ { Light ForgottenOne5 }
+}
+
+Flickerlight2 WatcherE
+{
+ Color 0.8 0.0 0.8
+ Offset 0 8 0
+ Size 40
+ SecondarySize 50
+ Interval 0.002
+}
+
+Flickerlight2 WatcherF
+{
+ Color 1.0 0.0 1.0
+ Offset 0 8 0
+ Size 45
+ SecondarySize 55
+ Interval 0.002
+}
+
+Flickerlight2 WatcherG
+{
+ Color 0.6 0.0 0.6
+ Offset 0 8 0
+ Size 50
+ SecondarySize 60
+ Interval 0.002
+}
+
+Flickerlight2 WatcherShotA
+{
+ Color 1.0 0.0 1.0
+ Offset 0 2 0
+ Size 30
+ SecondarySize 40
+ Interval 0.01
+}
+
+Flickerlight2 WatcherShotB
+{
+ Color 1.0 0.0 1.0
+ Offset 0 2 0
+ Size 35
+ SecondarySize 45
+ Interval 0.01
+}
+
+Flickerlight2 WatcherShotC
+{
+ Color 1.0 0.0 1.0
+ Offset 0 2 0
+ Size 50
+ SecondarySize 55
+ Interval 0.01
+}
+
+Flickerlight2 WatcherShotD
+{
+ Color 0.7 0.0 0.7
+ Offset 0 2 0
+ Size 60
+ SecondarySize 65
+ Interval 0.01
+}
+
+Flickerlight2 WatcherShotE
+{
+ Color 0.2 0.0 0.2
+ Offset 0 2 0
+ Size 65
+ SecondarySize 70
+ Interval 0.01
+}
+
+Object Watcher
+{
+ Frame WATCE { Light WatcherE }
+ Frame WATCF { Light WatcherF }
+ Frame WATCG { Light WatcherG }
+}
+
+Object WatcherShot
+{
+ Frame FWATA { Light WatcherShotA }
+ Frame FWATB { Light WatcherShotB }
+ Frame FWATC { Light WatcherShotC }
+ Frame FWATD { Light WatcherShotD }
+ Frame FWATE { Light WatcherShotE }
+}

@@ -1,0 +1,772 @@
+pointlight GREENAXE
+{
+    color 0.0 1.0 0.0
+    size 32
+}
+
+flickerlight GREENAXE_X1
+{
+    color 0.0 0.7 0.0
+    size 32
+    secondarySize 48
+    chance 0.3
+}
+
+flickerlight GREENAXE_X2
+{
+    color 0.0 0.4 0.0
+    size 48
+    secondarySize 56
+    chance 0.3
+}
+
+flickerlight GREENAXE_X3
+{
+    color 0.0 0.2 0.0
+    size 56
+    secondarySize 64
+    chance 0.3
+}
+
+pointlight REDAXE
+{
+    color 1.0 0.0 0.0
+    size 32
+}
+
+flickerlight REDAXE_X1
+{
+    color 0.7 0.0 0.0
+    size 32
+    secondarySize 48
+    chance 0.3
+}
+
+flickerlight REDAXE_X2
+{
+    color 0.4 0.0 0.0
+    size 48
+    secondarySize 56
+    chance 0.3
+}
+
+flickerlight REDAXE_X3
+{
+    color 0.2 0.0 0.0
+    size 56
+    secondarySize 64
+    chance 0.3
+}
+
+object KnightAxe2
+{
+    frame SPAXA { light GREENAXE }
+    frame SPAXB { light GREENAXE }
+    frame SPAXC { light GREENAXE }
+
+    frame SPAXD { light GREENAXE_X1 }
+    frame SPAXE { light GREENAXE_X2 }
+    frame SPAXF { light GREENAXE_X3 }
+}
+
+object RedAxe2
+{
+    frame RAXEA { light REDAXE }
+    frame RAXEB { light REDAXE }
+
+    frame RAXEC { light REDAXE_X1 }
+    frame RAXED { light REDAXE_X2 }
+    frame RAXEE { light REDAXE_X3 }
+}
+
+//Dynamic Lights
+PointLight DeathIncarnate
+{
+Color 1.0 0.0 0.0
+Offset 0 54 0
+Size 32
+}
+
+Pointlight IncarnateExplode1
+{
+Color 0.8 0.0 0.0
+Offset 0 54 0
+Size 32
+}
+
+Pointlight IncarnateExplode2
+{
+Color 0.85 0.0 0.0
+Offset 0 54 0
+Size 40
+}
+
+Pointlight IncarnateExplode3
+{
+Color 0.9 0.0 0.0
+Offset 0 54 0
+Size 48
+}
+
+Pointlight IncarnateExplode4
+{
+Color 1.0 0.0 0.0
+Offset 0 54 0
+Size 80
+}
+
+Pointlight IncarnateExplode5
+{
+Color 1.0 0.0 0.0
+Offset 0 54 0
+Size 72
+}
+
+Pointlight IncarnateExplode6
+{
+Color 0.7 0.0 0.0
+Offset 0 54 0
+Size 56
+}
+
+Pointlight IncarnateExplode7
+{
+Color 0.5 0.0 0.0
+Offset 0 54 0
+Size 48
+}
+
+Pointlight IncarnateExplode8
+{
+Color 0.3 0.0 0.0
+Offset 0 54 0
+Size 24
+}
+
+Object Incarnate
+{
+Frame INCAU { Light DeathIncarnate }
+Frame INCXA { Light IncarnateExplode1 }
+Frame INCXB { Light IncarnateExplode2 }
+Frame INCXC { Light IncarnateExplode3 }
+Frame INCXD { Light IncarnateExplode4 }
+Frame INCXE { Light IncarnateExplode5 }
+Frame INCXF { Light IncarnateExplode6 }
+Frame INCXG { Light IncarnateExplode7 }
+Frame INCXH { Light IncarnateExplode8 }
+}
+
+
+//Brightmaps
+BrightMap Sprite INCAA1D1
+{
+Map "graphics/brightmaps/BMINCAA1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAA2D8
+{
+Map "graphics/brightmaps/BMINCAA2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAA3D7
+{
+Map "graphics/brightmaps/BMINCAA3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAA4D6
+{
+Map "graphics/brightmaps/BMINCAA4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAA5D5
+{
+Map "graphics/brightmaps/BMINCAA5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAA6D4
+{
+Map "graphics/brightmaps/BMINCAA6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAA7D3
+{
+Map "graphics/brightmaps/BMINCAA7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAA8D2
+{
+Map "graphics/brightmaps/BMINCAA8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB1E1
+{
+Map "graphics/brightmaps/BMINCAB1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB2E8
+{
+Map "graphics/brightmaps/BMINCAB2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB3E7
+{
+Map "graphics/brightmaps/BMINCAB3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB4E6
+{
+Map "graphics/brightmaps/BMINCAB4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB5E5
+{
+Map "graphics/brightmaps/BMINCAB5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB6E4
+{
+Map "graphics/brightmaps/BMINCAB6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB7E3
+{
+Map "graphics/brightmaps/BMINCAB7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAB8E2
+{
+Map "graphics/brightmaps/BMINCAB8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC1F1
+{
+Map "graphics/brightmaps/BMINCAC1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC2F8
+{
+Map "graphics/brightmaps/BMINCAC2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC3F7
+{
+Map "graphics/brightmaps/BMINCAC3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC4F6
+{
+Map "graphics/brightmaps/BMINCAC4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC5F5
+{
+Map "graphics/brightmaps/BMINCAC5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC6F4
+{
+Map "graphics/brightmaps/BMINCAC6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC7F3
+{
+Map "graphics/brightmaps/BMINCAC7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAC8F2
+{
+Map "graphics/brightmaps/BMINCAC8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG1R1
+{
+Map "graphics/brightmaps/BMINCAG1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG2R8
+{
+Map "graphics/brightmaps/BMINCAG2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG3R7
+{
+Map "graphics/brightmaps/BMINCAG3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG4R6
+{
+Map "graphics/brightmaps/BMINCAG4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG5R5
+{
+Map "graphics/brightmaps/BMINCAG5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG6R4
+{
+Map "graphics/brightmaps/BMINCAG6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG7R3
+{
+Map "graphics/brightmaps/BMINCAG7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAG8R2
+{
+Map "graphics/brightmaps/BMINCAG8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH1S1
+{
+Map "graphics/brightmaps/BMINCAH1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH2S8
+{
+Map "graphics/brightmaps/BMINCAH2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH3S7
+{
+Map "graphics/brightmaps/BMINCAH3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH4S6
+{
+Map "graphics/brightmaps/BMINCAH4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH5S5
+{
+Map "graphics/brightmaps/BMINCAH5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH6S4
+{
+Map "graphics/brightmaps/BMINCAH6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH7S3
+{
+Map "graphics/brightmaps/BMINCAH7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAH8S2
+{
+Map "graphics/brightmaps/BMINCAH8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAI1T1
+{
+Map "graphics/brightmaps/BMINCAI1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAI2T8
+{
+Map "graphics/brightmaps/BMINCAI2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAI3T7
+{
+Map "graphics/brightmaps/BMINCAI3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAI4T6
+{
+Map "graphics/brightmaps/BMINCAI4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAI6T4
+{
+Map "graphics/brightmaps/BMINCAI6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAI7T3
+{
+Map "graphics/brightmaps/BMINCAI7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAI8T2
+{
+Map "graphics/brightmaps/BMINCAI8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ1
+{
+Map "graphics/brightmaps/BMINCAJ1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ2
+{
+Map "graphics/brightmaps/BMINCAJ2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ3
+{
+Map "graphics/brightmaps/BMINCAJ3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ4
+{
+Map "graphics/brightmaps/BMINCAJ4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ5
+{
+Map "graphics/brightmaps/BMINCAJ5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ6
+{
+Map "graphics/brightmaps/BMINCAJ6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ7
+{
+Map "graphics/brightmaps/BMINCAJ7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAJ8
+{
+Map "graphics/brightmaps/BMINCAJ8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK1
+{
+Map "graphics/brightmaps/BMINCAK1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK2
+{
+Map "graphics/brightmaps/BMINCAK2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK3
+{
+Map "graphics/brightmaps/BMINCAK3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK4
+{
+Map "graphics/brightmaps/BMINCAK4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK5
+{
+Map "graphics/brightmaps/BMINCAK5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK6
+{
+Map "graphics/brightmaps/BMINCAK6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK7
+{
+Map "graphics/brightmaps/BMINCAK7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAK8
+{
+Map "graphics/brightmaps/BMINCAK8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL1
+{
+Map "graphics/brightmaps/BMINCAL1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL2
+{
+Map "graphics/brightmaps/BMINCAL2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL3
+{
+Map "graphics/brightmaps/BMINCAL3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL4
+{
+Map "graphics/brightmaps/BMINCAL4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL5
+{
+Map "graphics/brightmaps/BMINCAL5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL6
+{
+Map "graphics/brightmaps/BMINCAL6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL7
+{
+Map "graphics/brightmaps/BMINCAL7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAL8
+{
+Map "graphics/brightmaps/BMINCAL8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU1
+{
+Map "graphics/brightmaps/BMINCAU1.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU2
+{
+Map "graphics/brightmaps/BMINCAU2.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU3
+{
+Map "graphics/brightmaps/BMINCAU3.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU4
+{
+Map "graphics/brightmaps/BMINCAU4.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU5
+{
+Map "graphics/brightmaps/BMINCAU5.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU6
+{
+Map "graphics/brightmaps/BMINCAU6.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU7
+{
+Map "graphics/brightmaps/BMINCAU7.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCAU8
+{
+Map "graphics/brightmaps/BMINCAU8.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXA0
+{
+Map "graphics/brightmaps/BMINCXA0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXB0
+{
+Map "graphics/brightmaps/BMINCXB0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXC0
+{
+Map "graphics/brightmaps/BMINCXC0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXD0
+{
+Map "graphics/brightmaps/BMINCXD0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXE0
+{
+Map "graphics/brightmaps/BMINCXE0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXF0
+{
+Map "graphics/brightmaps/BMINCXF0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXG0
+{
+Map "graphics/brightmaps/BMINCXG0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXH0
+{
+Map "graphics/brightmaps/BMINCXH0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXI0
+{
+Map "graphics/brightmaps/BMINCXI0.png"
+DisableFullBright
+}
+
+BrightMap Sprite INCXJ0
+{
+Map "graphics/brightmaps/BMINCXJ0.png"
+DisableFullBright
+}
+
+pointlight Rail
+{
+    color 1.0 0.7 0.0
+    size 24
+}
+
+object railtrail
+{
+    frame MISLB { light Rail }
+    frame MISLC { light Rail }
+    frame MISLD { light Rail }
+}
+
+object railpow
+{
+    frame MISLB { light Rail }
+    frame MISLC { light Rail }
+    frame MISLD { light Rail }
+}
+
+pulselight YetiLight {
+	color 0.86 0.86 1.0
+	size 48
+	secondarysize 64
+	interval 1
+	Offset 0 24 0
+}
+
+object Yeti {
+	frame YETI { light YetiLight }
+}
+
+object DarkServantMissile1 {
+    frame FX16A { light DSPARILBALL }
+    frame FX16B { light DSPARILBALL }
+    frame FX16C { light DSPARILBALL }
+
+    frame FX16G { light DSPARILBALL_X1 }
+    frame FX16H { light DSPARILBALL_X2 }
+    frame FX16I { light DSPARILBALL_X3 }
+    frame FX16J { light DSPARILBALL_X4 }
+    frame FX16K { light DSPARILBALL_X5 }
+    frame FX16L { light DSPARILBALL_X5 }
+}
+
+object DarkServantMissile2 {
+	frame FX18A { light DarkServantLight2 }
+	frame FX18B { light DarkServantLight2 }
+	
+	frame FX18C { light DarkServantLight3 }
+	frame FX18D { light DarkServantLight4 }
+	frame FX18E { light DarkServantLight5 }
+	frame FX18F { light DarkServantLight6 }
+	frame FX18G { light DarkServantLight7 }
+}
+
+Object CrawlerPoisonBall {
+	frame D2FX { light BARONBALL }
+    frame D5FXG { light BARONBALL_X1 }
+    frame D5FXH { light BARONBALL_X1 }
+    frame D5FXI { light BARONBALL_X2 }
+    frame D5FXJ { light BARONBALL_X2 }
+    frame D5FXK { light BARONBALL_X3 }
+    frame D5FXL { light BARONBALL_X3 }
+}
+
+FLICKERLIGHT DraugrLight
+{
+Color 0.8 0 0
+Size 32
+SecondarySize 42
+Chance 0.2
+}
+
+object DraugrSeeker {
+	frame NREBA { light DraugrLight }
+	frame NREBB { light DraugrLight }
+}

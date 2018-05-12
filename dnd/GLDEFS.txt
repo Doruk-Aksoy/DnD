@@ -1,0 +1,348 @@
+#include "GLDefs/Items.txt"
+#include "GLDefs/Orbs.txt"
+#include "GLDefs/Special.txt"
+#include "GLDefs/Slot1.txt"
+#include "GLDefs/Slot2.txt"
+#include "GLDefs/Slot3.txt"
+#include "GLDefs/Slot4.txt"
+#include "GLDefs/Slot5.txt"
+#include "GLDefs/Slot6.txt"
+#include "GLDefs/Slot7.txt"
+#include "GLDefs/Slot8.txt"
+#include "GLDefs/Slot9.txt"
+#include "GLDefs/Research.txt"
+#include "GLDefs/Replacements.txt"
+#include "GLDefs/Brightmaps.txt"
+
+flickerlight2 PLASMAATK {
+    color 0.5 0.5 1.0
+    size 42
+    secondarySize 60
+    interval 1
+    offset 0 40 0
+}
+
+flickerlight2 GREENATK {
+    color 0.5 1.0 0.5
+    size 42
+    secondarySize 60
+    interval 1
+    offset 0 40 0
+}
+
+flickerlight2 REDATK {
+    color 1.0 0.5 0.5
+    size 42
+    secondarySize 60
+    interval 1
+    offset 0 40 0
+}
+
+flickerlight2 PURPLEATK {
+    color 1.0 0.5 1.0
+    size 42
+    secondarySize 60
+    interval 1
+    offset 0 40 0
+}
+
+flickerlight2 GRAYATK {
+    color 1.0 1.0 1.0
+    size 48
+    secondarySize 64
+    interval 1
+    offset 0 40 0
+}
+
+object TheDoomguy {
+    frame DPLYF { light RANGERATK }
+	frame DPLPA { light PLASMAATK }
+	frame DPLPB { light GREENATK }
+	frame DPLPC { light REDATK }
+	frame DPLPD { light PURPLEATK }
+	frame DPLPE { light GRAYATK }
+}
+
+object TheMarine {
+    frame PLAYF { light RANGERATK }
+	frame PLYPA { light PLASMAATK }
+	frame PLYPB { light GREENATK }
+	frame PLYPC { light REDATK }
+	frame PLYPD { light PURPLEATK }
+	frame PLYPE { light GRAYATK }
+}
+
+object TheHobo {
+    frame PRENF { light RANGERATK }
+	frame PRNPA { light PLASMAATK }
+	frame PRNPB { light GREENATK }
+	frame PRNPC { light REDATK }
+	frame PRNPD { light PURPLEATK }
+	frame PRNPE { light GRAYATK }
+}
+
+object ThePunisher {
+    frame BLAZF { light RANGERATK }
+	frame PPUNA { light PLASMAATK }
+	frame PPUNB { light GREENATK }
+	frame PPUNC { light REDATK }
+	frame PPUND { light PURPLEATK }
+	frame PPUNE { light GRAYATK }
+}
+
+object TheWanderer {
+    frame MNK1F { light RANGERATK }
+	frame MNKPA { light PLASMAATK }
+	frame MNKPB { light GREENATK }
+	frame MNKPC { light REDATK }
+	frame MNKPD { light PURPLEATK }
+	frame MNKPE { light GRAYATK }
+}
+
+object Zombieman2 {
+	frame ZHRFF { light ZOMBIEATK }
+}
+
+object DoomImpBall2
+{
+    frame BAL1A { light IMPBALL    }
+    frame BAL1B { light IMPBALL    }
+
+    frame BAL1C { light IMPBALL_X1 }
+    frame BAL1D { light IMPBALL_X2 }
+    frame BAL1E { light IMPBALL_X3 }
+}
+
+object CacoBall {
+    frame BAL2A { light CACOBALL }
+    frame BAL2B { light CACOBALL }
+
+    frame BAL2C { light CACOBALL_X1 }
+    frame BAL2D { light CACOBALL_X2 }
+    frame BAL2E { light CACOBALL_X3 }
+}
+
+object LostSoul2 {
+    frame SKULA { light LOSTSOUL    }
+    frame SKULB { light LOSTSOUL    }
+    frame SKULC { light LOSTSOUL    }
+    frame SKULD { light LOSTSOUL    }
+    frame SKULE { light LOSTSOUL    }
+    frame SKULF { light LOSTSOUL    }
+    frame SKULG { light LOSTSOUL    }
+
+    frame SKULH { light LOSTSOUL_X1 }
+    frame SKULI { light LOSTSOUL_X2 }
+    frame SKULJ { light LOSTSOUL_X3 }
+    frame SKULK { light LOSTSOUL_X4 }
+}
+
+object LostSoulNoExp {
+    frame SKULA { light LOSTSOUL    }
+    frame SKULB { light LOSTSOUL    }
+    frame SKULC { light LOSTSOUL    }
+    frame SKULD { light LOSTSOUL    }
+    frame SKULE { light LOSTSOUL    }
+    frame SKULF { light LOSTSOUL    }
+    frame SKULG { light LOSTSOUL    }
+
+    frame SKULH { light LOSTSOUL_X1 }
+    frame SKULI { light LOSTSOUL_X2 }
+    frame SKULJ { light LOSTSOUL_X3 }
+    frame SKULK { light LOSTSOUL_X4 }
+}
+
+pointlight BARONBALL
+{
+    color 0.0 1.0 0.0
+    size 64
+}
+
+flickerlight BARONBALL_X1
+{
+    color 0.0 0.7 0.0
+    size 80
+    secondarySize 88
+    chance 0.25
+}
+
+flickerlight BARONBALL_X2
+{
+    color 0.0 0.4 0.0
+    size 96
+    secondarySize 104
+    chance 0.25
+}
+
+flickerlight BARONBALL_X3
+{
+    color 0.0 0.2 0.0
+    size 112
+    secondarySize 120
+    chance 0.25
+}
+
+object BaronBall2
+{
+    frame BAL7AB { light BARONBALL    }
+
+    frame BAL7C { light BARONBALL_X1 }
+    frame BAL7D { light BARONBALL_X2 }
+    frame BAL7E { light BARONBALL_X3 }
+}
+
+object RevenantTracerFixed
+{
+    frame FATBA { light TRACER    }
+    frame FATBB { light TRACER    }
+
+    frame FBXPA { light TRACER_X1 }
+    frame FBXPB { light TRACER_X2 }
+    frame FBXPC { light TRACER_X3 }
+}
+
+object FatShot2
+{
+    frame MANFA { light IMPBALL   }
+    frame MANFB { light IMPBALL   }
+
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object ArachnotronPlasma2
+{
+    frame APLSA { light ARACHPLAS }
+    frame APLSB { light ARACHPLAS }
+
+    frame APBXA { light ARACHPLAS_X1 }
+    frame APBXB { light ARACHPLAS_X2 }
+    frame APBXC { light ARACHPLAS_X2 }
+    frame APBXD { light ARACHPLAS_X3 }
+    frame APBXE { light ARACHPLAS_X4 }
+}
+
+object CyberdemonRocket
+{
+    frame MISLA { light ROCKET }
+
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+//===============
+// Glowing Flats
+//===============
+
+flickerlight BURNRUN
+{
+    color 1.0 1.0 0.0
+    size 80
+    secondarySize 60
+    chance 0.3
+    offset 0 40 0
+}
+
+flickerlight BURNRUN2
+{
+    color 1.0 1.0 0.0
+    size 70
+    secondarySize 50
+    chance 0.3
+    offset 0 20 0
+}
+
+flickerlight BURNRUN3
+{
+    color 1.0 1.0 0.0
+    size 30
+    secondarySize 15
+    chance 0.3
+    offset 0 20 0
+}
+
+object BurnDeath1
+{
+    frame FGUYA { light BURNRUN }
+    frame FGUYB { light BURNRUN }
+    frame FGUYC { light BURNRUN }
+    frame FGUYD { light BURNRUN }
+    frame FGUYE { light BURNRUN }
+    frame FGUYF { light BURNRUN }
+    frame FGUYG { light BURNRUN }
+    frame FGUYH { light BURNRUN }
+    frame FGUYI { light BURNRUN }
+    frame FGUYJ { light BURNRUN }
+    frame FGUYK { light BURNRUN }
+    frame FGUYL { light BURNRUN2 }
+    frame FGUYM { light BURNRUN2 }
+    frame FGUYN { light BURNRUN2 }
+    frame FGUYO { light BURNRUN2 }
+    frame FGUYP { light BURNRUN2 }
+    frame FGUYQ { light BURNRUN3 }
+    frame FGUYR { light BURNRUN3 }
+    frame FGUYS { light BURNRUN3 }
+}
+
+// Taken from complexdoom
+
+Glow
+{
+	Flats
+	{
+	FWATER1
+	FWATER2
+	FWATER3
+	FWATER4
+    BLOOD1
+	BLOOD2
+	BLOOD3
+	BLOOD4	
+	NUKAGE1
+	NUKAGE2
+	NUKAGE3
+	LAVA1
+	LAVA2
+	LAVA3
+	LAVA4
+	SLIME01
+	SLIME02
+	SLIME03
+	SLIME04
+	SLIME05
+	SLIME06
+	SLIME07
+	SLIME08
+	SLIME09
+	SLIME10
+	SLIME11
+	SLIME12	
+	RROCK01
+	RROCK02		
+	RROCK05
+	RROCK06
+	RROCK07
+	RROCK08	
+	DOORBLU
+	DOORBLU2
+	DOORRED
+	DOORRED2
+	DOORYEL
+	DOORYEL2
+	GRNLITE1
+	TLITE6_1
+	TLITE6_4
+	TLITE6_6
+	FLAT17
+	FLAT2
+	FLAT22
+	FLOOR1_7	
+	CEIL3_3
+	CEIL3_4
+	GATE1
+	GATE3
+	GATE4	
+	}
+}

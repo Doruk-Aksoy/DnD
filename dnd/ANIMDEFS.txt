@@ -1,0 +1,37 @@
+warp2 flat LAVA1
+warp2 flat LAVA2
+warp2 flat LAVA3
+warp2 flat LAVA4
+
+texture BASIA01
+	range BASIA03 tics 4.0 oscillate
+
+texture BASIB01
+	range BASIB03 tics 4.0 oscillate
+	
+texture SLAYAM01
+	range SLAYAM04 tics 4.0 oscillate
+	
+texture ARM4A1
+	range ARM4A3 tics 4.0 oscillate
+	
+texture AR12A1
+	range AR12A4 tics 4.0 oscillate
+	
+texture PCNIC1
+	range PCNIC3 tics 3.0 oscillate
+	
+texture IONAMM1
+	range IONAMM2 tics 4.0 oscillate
+	
+texture LAAM1
+	range LAAM3 tics 4.0 oscillate
+	
+texture D98AB1
+	range D98AB3 tics 3.0 oscillate
+	
+texture D97A1
+	range D97A4 tics 4.0
+	
+texture EICEAM1
+	range EICEAM4 tics 4.0

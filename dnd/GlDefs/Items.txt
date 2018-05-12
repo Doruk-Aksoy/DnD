@@ -1,0 +1,240 @@
+pointlight THEREDARMOR1
+{
+    color 0.6 0.0 0.0
+    size 48
+}
+
+pointlight THEREDARMOR2
+{
+    color 0.6 0.0 0.0
+    size 32
+}
+
+pointlight YELLOWARMOR1
+{
+    color 0.6 0.6 0.0
+    size 48
+}
+
+pointlight YELLOWARMOR2
+{
+    color 0.6 0.6 0.0
+    size 32
+}
+
+object NewHealthBonus
+{
+    frame BON1 { light HEALTHPOTION }
+}
+
+object NewArmorBonus
+{
+    frame BON2 { light ARMORBONUS }
+}
+
+object MaxHealthBonusPickup
+{
+	frame BON1 { light MAXHEALTHPOTION }
+}
+
+pulselight MAXARMORBONUS2
+{
+    color 0.8 0.0 0.0
+    size 16
+    secondarySize 14
+    interval 1.0
+}
+
+object SoulSphere2
+{
+	frame SOUL { light SOULSPHERE }
+}
+
+object MegaSphere2
+{
+    frame MEGAA0 { light MEGASPHERE1 }
+    frame MEGAB0 { light MEGASPHERE2 }
+    frame MEGAC0 { light MEGASPHERE3 }
+    frame MEGAD0 { light MEGASPHERE4 }
+}
+
+object InvulnerabilitySphere2
+{
+    frame PINV { light INVULN }
+}
+
+pulselight UBERLIGHT
+{
+    color 0.6 0.0 0.0
+    size 38
+    secondarySize 48
+    interval 2.0
+    offset 0 16 0
+}
+
+object UberSphere
+{
+	frame CARN { light UBERLIGHT }
+}
+
+pulselight EvilSphereLight
+{
+    color 1.0 1.0 0.0
+    size 32
+    secondarySize 48
+    interval 2.0
+}
+
+object EvilSphere
+{
+	frame HELS { light EvilSphereLight }
+}
+
+pulselight SoulLight1
+{
+    color 1.0 1.0 1.0
+    size 24
+    secondarySize 32
+    interval 2.0
+}
+
+pulselight SoulLight2
+{
+    color 1.0 1.0 1.0
+    size 32
+    secondarySize 40
+    interval 2.0
+}
+
+object Souls
+{
+	frame AMM3 { light SoulLight1 }
+}
+
+object LargeSouls
+{
+	frame AMM3 { light SoulLight2 }
+}
+
+pointlight UndeadFXLight1
+{
+	color 0.4 0.4 0.4
+	size 24
+}
+
+pointlight UndeadFXLight2
+{
+	color 0.4 0.4 0.4
+	size 32
+}
+
+pointlight UndeadFXLight3
+{
+	color 0.4 0.4 0.4
+	size 40
+}
+
+pointlight UndeadFXLight4
+{
+	color 0.4 0.4 0.4
+	size 48
+}
+
+object BookPuff
+{
+	frame SRBAE { light UndeadFXLight1 }
+	frame SRBAF { light UndeadFXLight2 }
+	frame SRBAG { light UndeadFXLight3 }
+	frame SRBAH { light UndeadFXLight4 }
+	frame SRBAI { light UndeadFXLight3 }
+	frame SRBAJ { light UndeadFXLight2 }
+}
+
+// Keys
+object BlueCardS2
+{
+    frame BKEY { light HEALTHPOTION }
+}
+
+object BlueSkullS2
+{
+    frame BSKU { light HEALTHPOTION }
+}
+
+object YellowCardS2
+{
+    frame YKEY { light YELLOWKEY }
+}
+
+object YellowSkullS2
+{
+    frame YSKU { light YELLOWKEY }
+}
+
+object RedCardS2
+{
+    frame RKEY { light REDKEY }
+}
+
+object RedSkullS2
+{
+    frame RSKU { light REDKEY }
+}
+
+flickerlight2 SalvationLight
+{
+	color 0.75 0.75 1.0
+	size 48
+	secondarysize 64
+	interval 1
+}
+
+object SalvationGlow
+{
+	frame TNT1A { light SalvationLight }
+}
+
+pulselight RedKeyLight {
+	color 1.0 0.15 0.15
+	size 16
+	secondarysize 40
+	interval 1
+}
+
+pulselight BlueKeyLight {
+	color 0.15 0.15 1.0
+	size 16
+	secondarysize 40
+	interval 1
+}
+
+pulselight YellowKeyLight {
+	color 1.0 1.0 0.15
+	size 16
+	secondarysize 40
+	interval 1
+}
+
+object RedCardS2 {
+	frame RKEY { light RedKeyLight }
+}
+
+object BlueCardS2 {
+	frame BKEY { light BlueKeyLight }
+}
+
+object YellowCardS2 {
+	frame YKEY { light YellowKeyLight }
+}
+
+object RedSkullS2 {
+	frame SK11 { light RedKeyLight }
+}
+
+object BlueSkullS2 {
+	frame SK13 { light BlueKeyLight }
+}
+
+object YellowSkullS2 {
+	frame SK12 { light YellowKeyLight }
+}

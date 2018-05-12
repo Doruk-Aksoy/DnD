@@ -1,0 +1,140 @@
+object BFGBallUpgraded
+{
+    frame BFS1A { light BFGBALL }
+    frame BFS1B { light BFGBALL }
+
+    frame BFE1A { light BFGBALL_X1 }
+    frame BFE1B { light BFGBALL_X2 }
+    frame BFE1C { light BFGBALL_X3 }
+    frame BFE1D { light BFGBALL_X1 }
+    frame BFE1E { light BFGBALL_X4 }
+    frame BFE1F { light BFGBALL_X5 }
+}
+
+object BFGBallUpgraded_FullDMG
+{
+    frame BFS1A { light BFGBALL }
+    frame BFS1B { light BFGBALL }
+
+    frame BFE1A { light BFGBALL_X1 }
+    frame BFE1B { light BFGBALL_X2 }
+    frame BFE1C { light BFGBALL_X3 }
+    frame BFE1D { light BFGBALL_X1 }
+    frame BFE1E { light BFGBALL_X4 }
+    frame BFE1F { light BFGBALL_X5 }
+}
+
+object BFGExtraUpgraded
+{
+    frame BFOGA { light BFGBALL    }
+	frame BFOGB { light BFGBALL    }
+    frame BFOGC { light BFGBALL_X1 }
+	frame BFOGD { light BFGBALL_X1 }
+    frame BFOGE { light BFGBALL_X4 }
+	frame BFOGF { light BFGBALL_X4 }
+    frame BFOGG { light BFGBALL_X5 }
+}
+
+object BFGExtraUpgraded_fullDmg
+{
+    frame BFOGA { light BFGBALL    }
+	frame BFOGB { light BFGBALL    }
+    frame BFOGC { light BFGBALL_X1 }
+	frame BFOGD { light BFGBALL_X1 }
+    frame BFOGE { light BFGBALL_X4 }
+	frame BFOGF { light BFGBALL_X4 }
+    frame BFOGG { light BFGBALL_X5 }
+}
+
+object BFGExtra2
+{
+    frame BFE2A { light BFGBALL    }
+    frame BFE2B { light BFGBALL_X1 }
+    frame BFE2C { light BFGBALL_X4 }
+    frame BFE2D { light BFGBALL_X5 }
+}
+
+pointlight Devastator {
+	color 0.9 0.6 0.0
+	size 24
+}
+
+object DevastatorRocket {
+	frame DEVM { light Devastator }
+}
+
+object DevastatorRocket_FullDMG {
+	frame DEVM { light Devastator }
+}
+
+object DevastatorExplosion {
+	frame EXP6A { light EXPSHELL1 }
+	frame EXP6B { light EXPSHELL1 }
+	frame EXP6C { light EXPSHELL2 }
+	frame EXP6D { light EXPSHELL2 }
+	frame EXP6E { light EXPSHELL3 }
+	frame EXP6F { light EXPSHELL3 }
+	frame EXP6G { light EXPSHELL4 }
+	frame EXP6H { light EXPSHELL4 }
+	
+	frame EXP7A { light EXPSHELL1 }
+	frame EXP7B { light EXPSHELL1 }
+	frame EXP7C { light EXPSHELL2 }
+	frame EXP7D { light EXPSHELL2 }
+	frame EXP7E { light EXPSHELL3 }
+	frame EXP7F { light EXPSHELL3 }
+	frame EXP7G { light EXPSHELL4 }
+	frame EXP7H { light EXPSHELL4 }
+	
+	frame EXP8A { light EXPSHELL1 }
+	frame EXP8B { light EXPSHELL1 }
+	frame EXP8C { light EXPSHELL2 }
+	frame EXP8D { light EXPSHELL2 }
+	frame EXP8E { light EXPSHELL3 }
+	frame EXP8F { light EXPSHELL3 }
+	frame EXP8G { light EXPSHELL4 }
+	frame EXP8H { light EXPSHELL4 }
+	
+	frame EXP9A { light EXPSHELL1 }
+	frame EXP9B { light EXPSHELL1 }
+	frame EXP9C { light EXPSHELL2 }
+	frame EXP9D { light EXPSHELL2 }
+	frame EXP9E { light EXPSHELL3 }
+	frame EXP9F { light EXPSHELL3 }
+	frame EXP9G { light EXPSHELL4 }
+	frame EXP9H { light EXPSHELL4 }
+	
+	frame EXP0A { light EXPSHELL1 }
+	frame EXP0B { light EXPSHELL1 }
+	frame EXP0C { light EXPSHELL2 }
+	frame EXP0D { light EXPSHELL2 }
+	frame EXP0E { light EXPSHELL3 }
+	frame EXP0F { light EXPSHELL3 }
+	frame EXP0G { light EXPSHELL4 }
+	frame EXP0H { light EXPSHELL4 }
+}
+
+object BFGBall2
+{
+    frame BFS1A { light BFGBALL }
+    frame BFS1B { light BFGBALL }
+
+    frame BFE1A { light BFGBALL_X1 }
+    frame BFE1B { light BFGBALL_X2 }
+    frame BFE1C { light BFGBALL_X3 }
+    frame BFE1D { light BFGBALL_X1 }
+    frame BFE1E { light BFGBALL_X4 }
+    frame BFE1F { light BFGBALL_X5 }
+}
+
+object BFGBall2_FullDMG {
+    frame BFS1A { light BFGBALL }
+    frame BFS1B { light BFGBALL }
+
+    frame BFE1A { light BFGBALL_X1 }
+    frame BFE1B { light BFGBALL_X2 }
+    frame BFE1C { light BFGBALL_X3 }
+    frame BFE1D { light BFGBALL_X1 }
+    frame BFE1E { light BFGBALL_X4 }
+    frame BFE1F { light BFGBALL_X5 }
+}

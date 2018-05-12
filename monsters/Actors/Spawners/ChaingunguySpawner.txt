@@ -1,0 +1,39 @@
+Actor ChaingunguySpawner : DnD_MonsterSpawner replaces Chaingunguy {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_CHAINGUNGUYID)
+		SpawnLoop:
+			TNT1 A 1
+		Loop
+		Vanilla:
+			TNT1 A 1 A_SpawnItemEx("Cgguy2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var1:
+			TNT1 A 1 A_SpawnItemEx("QuakeZombieChaingun", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var2:
+			TNT1 A 1 A_SpawnItemEx("Machinegunguy", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var3:
+			TNT1 A 1 A_SpawnItemEx("UndeadInitiate", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var4:
+			TNT1 A 1 A_SpawnItemEx("Chaingunguy2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var5:
+			TNT1 A 1 A_SpawnItemEx("ChaingunMajor", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var6:
+			TNT1 A 1 A_SpawnItemEx("MrRobot", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var7:
+			TNT1 A 1 A_SpawnItemEx("ZSec", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var8:
+			TNT1 A 1 A_SpawnItemEx("ZSPecOpsMachinegun", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var9:
+			TNT1 A 1 A_SpawnItemEx("PlasmaZombie", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+	}
+}

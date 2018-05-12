@@ -1,0 +1,283 @@
+Pointlight FusionShot
+{
+Color 1.0 0.0 1.0
+Size 30
+}
+
+Pointlight FusionShot2
+{
+Color 1.0 0.0 1.0
+Size 35
+}
+
+Pointlight FusionShot3
+{
+Color 0.7 0.0 0.7
+Size 30
+}
+
+Pointlight FusionShot4
+{
+Color 0.4 0.0 0.4
+Size 25
+}
+
+Pointlight FusionShot5
+{
+Color 0.3 0.0 0.3
+Size 16
+}
+
+Pointlight FusionShot6
+{
+Color 0.2 0.0 0.2
+Size 8
+}
+
+Object FusionShot
+{
+Frame FPLSA { Light FusionShot }
+Frame FPLSB { Light FusionShot }
+Frame FPLSC { Light FusionShot2 }
+Frame FPLSD { Light FusionShot3 }
+Frame FPLSE { Light FusionShot4 }
+Frame FPLSF { Light FusionShot5 }
+Frame FPLSG { Light FusionShot6 }
+}
+
+Object HFSpiderShot
+{
+Frame ESPJA { Light FusionShot }
+Frame ESPJB { Light FusionShot }
+Frame ESPJC { Light FusionShot2 }
+Frame ESPJD { Light FusionShot3 }
+Frame ESPJE { Light FusionShot4 }
+Frame ESPJF { Light FusionShot5 }
+Frame ESPJG { Light FusionShot6 }
+Frame ESPJH { Light FusionShot6 }
+Frame ESPJI { Light FusionShot6 }
+}
+
+FLICKERLIGHT GPBall1
+{
+Color 0.1 0.8 0
+Size 32
+SecondarySize 38
+Chance 0.2
+}
+
+POINTLIGHT GPBallExplode1
+{
+Color 0.1 0.8 0
+OffSet 0 0 0
+Size 32
+}
+
+POINTLIGHT GPBallExplode2
+{
+Color 0.1 0.8 0
+OffSet 0 0 0
+Size 34
+}
+
+POINTLIGHT GPBallExplode3
+{
+Color 0.1 0.8 0
+OffSet 0 0 0
+Size 36
+}
+
+POINTLIGHT GPBallExplode4
+{
+Color 0.1 0.8 0
+OffSet 0 0 0
+Size 32
+}
+
+POINTLIGHT GPBallExplode5
+{
+Color 0.1 0.8 0
+OffSet 0 0 0
+Size 26
+}
+
+OBJECT BabyDemoBall
+{
+Frame CFX6A { Light GPBall1 }
+Frame CFX6B { Light GPBallExplode3 }
+Frame CFX6C { Light GPBallExplode3 }
+Frame CFX6D { Light GPBallExplode4 }
+Frame CFX6E { Light GPBallExplode5 }
+}
+
+object SentGmissile
+{
+Frame CFX6A { Light GPBall1 }
+Frame CFX6B { Light GPBallExplode3 }
+Frame CFX6C { Light GPBallExplode3 }
+Frame CFX6D { Light GPBallExplode4 }
+Frame CFX6E { Light GPBallExplode5 }
+}
+
+pointlight WEAKENBALL1
+{
+    color 0.1 0.7 0.0
+    size 56
+}
+
+pointlight WEAKENBALL2
+{
+    color 0.1 0.7 0.0
+    size 72
+}
+
+pointlight WEAKENBALL3
+{
+    color 0.1 0.7 0.0
+    size 88
+}
+
+pointlight WEAKENBALL4
+{
+    color 0.1 0.7 0.0
+    size 104
+}
+
+object WeakenerBall
+{
+    frame CMFBA { light WEAKENBALL1 }
+    frame CMFBB { light WEAKENBALL1 }
+    frame CMFBC { light WEAKENBALL2 }
+    frame CMFBD { light WEAKENBALL3 }
+    frame CMFBE { light WEAKENBALL4 }
+}
+
+Pointlight RailArachnotronAttack
+{
+Color 1.0 0.0 0.0
+Size 55
+}
+
+Object RailArachnotron
+{
+Frame RSPIH { Light RailArachnotronAttack }
+}
+
+Pointlight Vore1
+{
+Color 0.7 0.2 0.7
+Size 25
+Offset -15 53 0
+}
+
+Pointlight Vore2
+{
+Color 0.7 0.2 0.7
+Size 25
+Offset 8 55 0
+}
+
+Pointlight Vore3
+{
+Color 0.7 0.2 0.7
+Size 15
+Offset 24 20 0
+}
+
+Object Vore
+{
+Frame VOREG { Light Vore1 }
+Frame VOREH { Light Vore1 }
+Frame VOREI { Light Vore2 }
+Frame VOREJ { Light Vore3 }
+}
+
+
+Pulselight VoreFirepod1
+{
+Color 1.0 0.3 1.0
+Size 32
+SecondarySize 40
+Interval 1.2
+}
+
+Pointlight VoreFirepod2
+{
+Color 1.0 0.4 1.0
+Size 38
+}
+
+Pointlight VoreFirepod3
+{
+Color 1.0 0.6 0.4
+Size 42
+}
+
+Pointlight VoreFirepod4
+{
+Color 0.8 0.5 0.3
+Size 42
+}
+
+Pointlight VoreFirepod5
+{
+Color 0.6 0.4 0.2
+Size 32
+}
+
+Pointlight VoreFirepod6
+{
+Color 0.4 0.25 0.2
+Size 32
+}
+
+Pointlight VoreFirepod7
+{
+Color 0.2 0.2 0.0
+Size 32
+}
+
+Object VoreFirepod
+{
+Frame VOBAA { Light VoreFirepod1 }
+Frame VOBAB { Light VoreFirepod1 }
+Frame VOBAC { Light VoreFirepod1 }
+Frame VOBAD { Light VoreFirepod2 }
+Frame VOBAE { Light VoreFirepod3 }
+Frame VOBAF { Light VoreFirepod4 }
+Frame VOBAG { Light VoreFirepod5 }
+Frame VOBAH { Light VoreFirepod6 }
+}
+
+object CommandoBullet2
+{
+	frame DKSXA { light EXPSHELL1 }
+	frame DKSXB { light EXPSHELL1 }
+	frame DKSXC { light EXPSHELL1 }
+	frame DKSXD { light EXPSHELL2 }
+	frame DKSXE { light EXPSHELL2 }
+	frame DKSXF { light EXPSHELL2 }
+	frame DKSXG { light EXPSHELL2 }
+	frame DKSXH { light EXPSHELL3 }
+	frame DKSXI { light EXPSHELL3 }
+	frame DKSXJ { light EXPSHELL3 }
+	frame DKSXK { light EXPSHELL4 }
+	frame DKSXL { light EXPSHELL4 }
+	
+	frame DKSXM { light EXPSHELL1 }
+	frame DKSXN { light EXPSHELL1 }
+	frame DKSXO { light EXPSHELL1 }
+	frame DKSXP { light EXPSHELL2 }
+	frame DKSXQ { light EXPSHELL2 }
+	frame DKSXR { light EXPSHELL2 }
+	frame DKSXS { light EXPSHELL2 }
+	frame DKSXT { light EXPSHELL3 }
+	frame DKSXU { light EXPSHELL3 }
+	frame DKSXV { light EXPSHELL3 }
+	frame DKSXW { light EXPSHELL4 }
+	frame DKSXX { light EXPSHELL4 }
+}
+
+object NailProjectileWeak {
+	frame NAI2 { light LavaNail }
+}

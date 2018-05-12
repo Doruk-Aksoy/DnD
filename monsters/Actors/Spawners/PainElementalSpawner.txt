@@ -1,0 +1,33 @@
+Actor PainElementalSpawner : DnD_MonsterSpawner replaces PainElemental {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_PAINELEMENTALID)
+		SpawnLoop:
+			TNT1 A 1
+		Loop
+		Vanilla:
+			TNT1 A 0 A_SpawnItemEx("PainElemental2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var1:
+			TNT1 A 0 A_SpawnItemEx("BloodLich", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var2:
+			TNT1 A 0 A_SpawnItemEx("Helemental", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var3:
+			TNT1 A 0 A_SpawnItemEx("HellArbiter", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var4:
+			TNT1 A 0 A_SpawnItemEx("Defiler", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var5:
+			TNT1 A 0 A_SpawnItemEx("TorturedSoul", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var6:
+			TNT1 A 0 A_SpawnItemEx("ShadowDisciple", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var7:
+			TNT1 A 0 A_SpawnItemEx("DESentinel", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+	}
+}

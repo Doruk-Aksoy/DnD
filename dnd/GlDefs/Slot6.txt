@@ -1,0 +1,279 @@
+object PlasmaBallX
+{
+    frame PLSSA { light PLASMABALL }
+    frame PLSSB { light PLASMABALL }
+
+    frame PLSEA { light PLASMA_X1 }
+    frame PLSEB { light PLASMA_X2 }
+    frame PLSEC { light PLASMA_X2 }
+    frame PLSED { light PLASMA_X3 }
+    frame PLSEE { light PLASMA_X4 }
+}
+
+object PlasmaBallX_FullDMG {
+    frame PLSSA { light PLASMABALL }
+    frame PLSSB { light PLASMABALL }
+
+    frame PLSEA { light PLASMA_X1 }
+    frame PLSEB { light PLASMA_X2 }
+    frame PLSEC { light PLASMA_X2 }
+    frame PLSED { light PLASMA_X3 }
+    frame PLSEE { light PLASMA_X4 }
+}
+
+object NewPlasmaBall
+{
+    frame BFLR { light PLASMABALL }
+    frame BFLR { light PLASMABALL }
+}
+
+object NewPlasmaBall_FullDMG
+{
+    frame BFLR { light PLASMABALL }
+    frame BFLR { light PLASMABALL }
+}
+
+Object NewPlasmaExplosion
+{
+    frame TXP1A { light PLASMA_X1 }
+	frame TXP1B { light PLASMA_X1 }
+	frame TXP1C { light PLASMA_X1 }
+	frame TXP1D { light PLASMA_X1 }
+	frame TXP1E { light PLASMA_X1 }
+    frame TXP1F { light PLASMA_X2 }
+    frame TXP1G { light PLASMA_X2 }
+    frame TXP1H { light PLASMA_X3 }
+    frame TXP1I { light PLASMA_X4 }
+	frame TXP1J { light PLASMA_X4 }
+	frame TXP1K { light PLASMA_X4 }
+	frame TXP1L { light PLASMA_X4 }
+	frame TXP1M { light PLASMA_X4 }
+	frame TXP1N { light PLASMA_X4 }
+	frame TXP1O { light PLASMA_X4 }
+	frame TXP1P { light PLASMA_X4 }
+}
+
+flickerlight LavaNail
+{
+    color 0.9 0.6 0.0
+    size 16
+    secondarySize 24
+    chance 0.3
+}
+
+object LavaNailProjectile {
+	frame NAI2 { light LavaNail }
+}
+
+object LavaNailProjectile_FullDMG {
+	frame NAI2 { light LavaNail }
+}
+
+pointlight BasiliskLight1 {
+    color 0.9 0.9 0.0
+    size 24
+}
+
+pointlight BasiliskLight2 {
+    color 0.9 0.9 0.0
+    size 40
+}
+
+pointlight BasiliskLight3 {
+    color 0.9 0.9 0.0
+    size 36
+}
+
+pointlight BasiliskLight4 {
+    color 0.9 0.9 0.0
+    size 32
+}
+
+pointlight BasiliskLight5 {
+    color 0.9 0.9 0.0
+    size 28
+}
+
+flickerlight2 BasiliskLight7
+{
+	color 0.9 0.9 0.0
+	size 24
+	secondarysize 36
+	interval 1
+}
+
+object BasiliskBall {
+    frame BMISA { light BasiliskLight1 }
+    frame IMFXQ { light BasiliskLight2 }
+	frame IMFXR { light BasiliskLight2 }
+	frame IMFXS { light BasiliskLight3 }
+	frame IMFXT { light BasiliskLight3 }
+	frame IMFXU { light BasiliskLight4 }
+	frame IMFXV { light BasiliskLight4 }
+	frame IMFXW { light BasiliskLight5 }
+}
+
+object BasiliskBall_FullDMG {
+    frame BMISA { light BasiliskLight1 }
+    frame IMFXQ { light BasiliskLight2 }
+	frame IMFXR { light BasiliskLight2 }
+	frame IMFXS { light BasiliskLight3 }
+	frame IMFXT { light BasiliskLight3 }
+	frame IMFXU { light BasiliskLight4 }
+	frame IMFXV { light BasiliskLight4 }
+	frame IMFXW { light BasiliskLight5 }
+}
+
+object BasiliskBall2 {
+	frame BASFAB { light BasiliskLight6 }
+	frame BASFCD { light BasiliskLight2 }
+	frame BASFEF { light BasiliskLight3 }
+	frame BASFG { light BasiliskLight4 }
+	frame BASFH { light BasiliskLight5 }
+}
+
+object BasiliskBall2_FullDMG {
+	frame BASFAB { light BasiliskLight6 }
+	frame BASFCD { light BasiliskLight2 }
+	frame BASFEF { light BasiliskLight3 }
+	frame BASFG { light BasiliskLight4 }
+	frame BASFH { light BasiliskLight5 }
+}
+
+object BasiliskBall3 {
+    frame HIB1AB { light BasiliskLight1 }
+	
+	frame HIB1C { light BasiliskLight2 }
+	frame HIB1D { light BasiliskLight3 }
+	frame HIB1E { light BasiliskLight4 }
+	frame HIB1F { light BasiliskLight5 }
+	frame HIB1G { light BasiliskLight5 }
+}
+
+object BasiliskBall3_FullDMG {
+    frame HIB1AB { light BasiliskLight1 }
+	
+	frame HIB1C { light BasiliskLight2 }
+	frame HIB1D { light BasiliskLight3 }
+	frame HIB1E { light BasiliskLight4 }
+	frame HIB1F { light BasiliskLight5 }
+	frame HIB1G { light BasiliskLight5 }
+}
+
+PulseLight FrostFangShard1
+{
+Color 0.0 0.0 0.4
+Size 24
+SecondarySize 32
+Interval 3.0
+}
+
+PointLight FrostFangShard2
+{
+Color 0.0 0.0 0.5
+Size 32
+}
+
+PointLight FrostFangShard3
+{
+Color 0.0 0.0 0.7
+Size 40
+}
+
+PointLight FrostFangShard4
+{
+Color 0.0 0.0 0.55
+Size 44
+}
+
+PointLight FrostFangShard5
+{
+Color 0.0 0.0 0.3
+Size 28
+}
+
+PointLight FrostFangShard6
+{
+Color 0.0 0.0 0.1
+Size 16
+}
+
+PointLight FrostFangBall1
+{
+Color 0.5 0.5 1.0
+Size 64
+}
+
+PointLight FrostFangBall2
+{
+Color 0.7 0.7 1.0
+Size 64
+}
+
+PointLight FrostFangBall3
+{
+Color 0.7 0.7 1.0
+Size 72
+}
+
+PointLight FrostFangBall4
+{
+Color 0.4 0.4 1.0
+Size 64
+}
+
+PointLight FrostFangBall5
+{
+Color 0.3 0.3 0.5
+Size 48
+}
+
+PointLight FrostFangBall6
+{
+Color 0.1 0.1 0.3
+Size 32
+}
+
+Object FrostFangShard
+{
+	Frame FFSDA { Light FrostFangShard1 }
+	Frame FFSDB { Light FrostFangShard1 }
+	Frame FFSDC { Light FrostFangShard1 }
+	Frame FFSDD { Light FrostFangShard2 }
+	Frame FFSDE { Light FrostFangShard3 }
+	Frame FFSDF { Light FrostFangShard4 }
+	Frame FFSDG { Light FrostFangShard5 }
+	Frame FFSDH { Light FrostFangShard6 }
+}
+
+Object FrostFangShard_FullDMG
+{
+	Frame FFSDA { Light FrostFangShard1 }
+	Frame FFSDB { Light FrostFangShard1 }
+	Frame FFSDC { Light FrostFangShard1 }
+	Frame FFSDD { Light FrostFangShard2 }
+	Frame FFSDE { Light FrostFangShard3 }
+	Frame FFSDF { Light FrostFangShard4 }
+	Frame FFSDG { Light FrostFangShard5 }
+	Frame FFSDH { Light FrostFangShard6 }
+}
+
+Object FrostFangBall
+{
+	Frame TNT1 { Light FrostFangBall1 }
+	Frame FFBLC { Light FrostFangBall2 }
+	Frame FFBLD { Light FrostFangBall3 }
+	Frame FFBLE { Light FrostFangBall4 }
+	Frame FFBLF { Light FrostFangBall5 }
+	Frame FFBLG { Light FrostFangBall6 }
+}
+
+Object FrostFangBall_FullDMG
+{
+	Frame TNT1 { Light FrostFangBall1 }
+	Frame FFBLC { Light FrostFangBall2 }
+	Frame FFBLD { Light FrostFangBall3 }
+	Frame FFBLE { Light FrostFangBall4 }
+	Frame FFBLF { Light FrostFangBall5 }
+	Frame FFBLG { Light FrostFangBall6 }
+}

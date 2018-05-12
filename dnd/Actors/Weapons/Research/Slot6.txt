@@ -1,0 +1,800 @@
+Actor ResPlasma1 : Weapon {
+	Weapon.SelectionOrder 1600
+	Weapon.SlotNumber 6
+    Inventory.PickupSound "weapons/pickup"
+    Inventory.PickupMessage "You got the flame thrower!"	
+    Obituary "%o was burned to a crisp by %k's flame thrower."
+	Weapon.AmmoType1 "Fuel"
+	Weapon.AmmoType2 "FuelClip"
+	Weapon.AmmoUse2 0
+	Weapon.AmmoUse1 0
+	Weapon.AmmoGive1 60
+	+WEAPON.NOALERT
+	AttackSound ""
+	+INVENTORY.UNDROPPABLE
+	Tag "Flamethrower"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.5
+	Weapon.BobRangeX 0.8
+	States {
+		Spawn:
+			RW05 X -1
+		Stop
+		Ready:
+			RW05 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			RW05 A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_FLAMETHROWER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 1, 1 | (8 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 5)
+	    SelectLoop:
+			RW05 A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireContinue")
+			TNT1 A 0 A_JumpIfInventory("FuelClip", 1, "FireContinue")
+		Goto Reload
+		FireContinue:
+			RW05 B 1 Bright A_AlertMonsters
+			TNT1 A 0 A_GiveInventory("FlameThrowerShooter", 1)
+			RW05 B 1 Bright A_GiveInventory("FlameThrowerShooter_NoAmmo", 1)
+			RW05 C 1 Bright A_GiveInventory("FlameThrowerShooter", 1)
+			RW05 C 1 Bright A_GiveInventory("FlameThrowerShooter", 1)
+			RW05 D 1 Bright A_GiveInventory("FlameThrowerShooter", 1)
+			RW05 D 1 Bright A_GiveInventory("FlameThrowerShooter_NoAmmo", 1)
+			RW05 E 3 Bright A_Refire("Fire")
+		FireEnd:
+			RW05 FGHI 2
+			RW05 A 2	
+		Goto Ready
+		Reload:
+			TNT1 A 0 A_JumpIfInventory("Fuel", 1, "ContinueReload")
+			RW05 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueReload:
+			TNT1 A 0 A_JumpIfInventory("FuelClip", 0, "Failed")
+			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
+			RW05 J 3
+			TNT1 A 0 A_PlayWeaponSound("FlameThrower/Out")
+			RW05 K 3
+			TNT1 A 0 A_FireCustomMissile("FlameThrowerFuelTankDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			RW05 LMNO 3
+			RW05 P 18
+		ReloadLoop:
+			TNT1 A 0 A_JumpIfInventory("FuelClip", 0, "ReloadFinish")
+			TNT1 A 0 A_JumpIfInventory("Fuel", 1, "ReloadGive")
+		Goto ReloadFinish
+		ReloadGive:
+			TNT1 A 0 A_TakeInventory("Fuel", 1)
+			TNT1 A 0 A_GiveInventory("FuelClip", 1)
+		Goto ReloadLoop
+		ReloadFinish:
+			TNT1 A 0 A_PlayWeaponSound("FlameThrower/In")
+			RW05 Q 4
+			RW05 RSTU 4
+			RW05 A 2
+		Goto Ready
+		Failed:
+			RW05 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		
+		ReloadFaster:
+			RW05 J 1
+			TNT1 A 0 A_PlayWeaponSound("FlameThrower/Out")
+			RW05 K 2
+			TNT1 A 0 A_FireCustomMissile("FlameThrowerFuelTankDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			RW05 LM 1
+			RW05 NO 2
+			RW05 P 9
+		ReloadLoopFast:
+			TNT1 A 0 A_JumpIfInventory("FuelClip", 0, "ReloadFinishFast")
+			TNT1 A 0 A_JumpIfInventory("Fuel", 1, "ReloadGiveFast")
+		Goto ReloadFinishFast
+		ReloadGiveFast:
+			TNT1 A 0 A_TakeInventory("Fuel", 1)
+			TNT1 A 0 A_GiveInventory("FuelClip", 1)
+		Goto ReloadLoopFast
+		ReloadFinishFast:
+			TNT1 A 0 A_PlayWeaponSound("FlameThrower/In")
+			RW05 Q 2
+			RW05 RSTU 2
+			RW05 A 1
+		Goto Ready
+		Flash:
+		  TNT1 A 4 A_Light1
+		  TNT1 A 3 A_Light2
+		  TNT1 A 0 A_Light0
+		  stop
+	}
+}
+
+Actor FTExplosion1 : BaseExplosionDamage {
+	DamageType "ExplosivesFire"
+	+NODAMAGETHRUST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 8)
+		Stop
+		LessDmg:
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 8, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion2 : FTExplosion1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 16)
+		Stop
+		LessDmg:
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 16, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion3 : FTExplosion1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 32)
+		Stop
+		LessDmg:
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 32, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion4 : FTExplosion1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 64)
+		Stop
+		LessDmg:
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 64, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion1_NoSelf : FTExplosion1 {
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 8, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion2_NoSelf : FTExplosion1 {
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 16, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion3_NoSelf : FTExplosion1 {
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 32, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion4_NoSelf : FTExplosion1 {
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET), 64, 0)
+		Stop
+	}
+}
+
+Actor FTExplosion1_Full : FTExplosion1 {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTExplosion2_Full : FTExplosion2 {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTExplosion3_Full : FTExplosion3 {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTExplosion4_Full : FTExplosion4 {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTExplosion1_Full_NoSelf : FTExplosion1_NoSelf {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTExplosion2_Full_NoSelf : FTExplosion2_NoSelf {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTExplosion3_Full_NoSelf : FTExplosion3_NoSelf {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTExplosion4_Full_NoSelf : FTExplosion4_NoSelf {
+	DamageType "ExplosivesFireFull"
+	+FORCERADIUSDMG
+}
+
+Actor FTFire {
+	Radius 2
+	Height 4
+	Speed 16
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_USETARGET))
+	Projectile
+	RenderStyle Add
+	DamageType Fire
+	Alpha 0.67
+	Scale 0.67
+	SeeSound "Flamethrower/Fire"
+	DeathSound "Flamethrower/Hit"
+	+MTHRUSPECIES
+	States {
+		Spawn:
+			TNT1 A 2
+			FRFX ABCD 2 bright A_SpawnItem("FTExplosion1_NoSelf")
+			TNT1 A 0 A_LowGravity
+			FRFX EFG 2 bright A_SpawnItem("FTExplosion2_NoSelf")
+			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3_NoSelf")
+			FRFX KLM 2 bright A_SpawnItem("FTExplosion4_NoSelf")
+			FRFX NO 2 bright
+		Stop
+		Death:
+			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3")
+			TNT1 A 0 A_CustomMissile("DropFire", 0, 0, 0, 4)
+			FRFX KLM 2 bright A_SpawnItem("FTExplosion4")
+			FRFX NO 2 bright
+		Stop
+	}
+}
+
+Actor FTFire_Full : FTFire {
+	DamageType "FireFull"
+	States {
+		Spawn:
+			TNT1 A 2
+			FRFX ABCD 2 bright A_SpawnItem("FTExplosion1_Full_NoSelf")
+			TNT1 A 0 A_LowGravity
+			FRFX EFG 2 bright A_SpawnItem("FTExplosion2_Full_NoSelf")
+			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3_Full_NoSelf")
+			FRFX KLM 2 bright A_SpawnItem("FTExplosion4_Full_NoSelf")
+			FRFX NO 2 bright
+		Stop
+		Death:
+			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3_Full")
+			TNT1 A 0 A_CustomMissile("DropFire_Full", 0, 0, 0, 4)
+			FRFX KLM 2 bright A_SpawnItem("FTExplosion4_Full")
+			FRFX NO 2 bright
+		Stop
+	}
+}
+
+Actor DropFire {
+	Radius 2
+	Height 32
+	Projectile
+	RenderStyle Add
+	DamageType Fire
+	Alpha 0.90
+	+THRUSPECIES
+	-NoGravity
+	+LowGravity
+	+NoExplodeFloor
+	+NoDamageThrust
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetScale(frandom(0.925, 1.0), frandom(0.925, 1.0))
+			TNT1 A 0 A_Jump(128, "Var2", "Var3", "Var4")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+		Var2:
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+		Var3:
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+		Var4:
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+		Death:
+			FLME B 2 bright A_SetScale(0.925, 0.925)
+			FLME C 2 bright A_SetScale(0.85, 0.85)
+			FLME D 2 bright A_SetScale(0.775, 0.775)
+			FLME E 2 bright A_SetScale(0.7, 0.7)
+			FLME F 2 bright A_SetScale(0.625, 0.625)
+			FLME G 2 bright A_SetScale(0.55, 0.55)
+			FLME H 2 bright A_SetScale(0.475, 0.475)
+			FLME I 2 bright A_SetScale(0.4, 0.4)
+			FLME J 2 bright A_SetScale(0.325, 0.325)
+			FLME K 2 bright A_SetScale(0.25, 0.25)
+			FLME L 2 bright A_SetScale(0.175, 0.175)
+			FLME M 2 bright A_SetScale(0.1, 0.1)
+			FLME N 2 bright A_SetScale(0.025, 0.025)
+		Stop
+	}
+}
+
+Actor DropFire_Full : DropFire {
+	DamageType "FireFull"
+	+FORCERADIUSDMG
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetScale(frandom(0.925, 1.0), frandom(0.925, 1.0))
+			TNT1 A 0 A_Jump(128, "Var2", "Var3", "Var4")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+		Var2:
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+		Var3:
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+		Var4:
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
+			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
+			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
+			TNT1 A 0 A_Jump(192, "Death")
+		Loop
+	}
+}
+
+Actor FlameThrowerShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("FuelClip", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("FTFire", 0, 1, Random(-4, 4), 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("FTFire_Full", 0, 1, Random(-4, 4), 0)
+		Stop
+	}
+}
+
+Actor FlameThrowerShooter_NoAmmo : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("FTFire", 0, 1, Random(-4, 4), 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("FTFire_Full", 0, 1, Random(-4, 4), 0)
+		Stop
+	}
+}
+
+Actor LightningStacks : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 100
+	+IGNORESKILL
+}
+
+const int lg_dmg_min = 9;
+const int lg_dmg_max = 12;
+
+// Taken from D4forDoom mod, prob most of this is by MajorCooke
+Actor ResPlasma2 : Weapon {
+	Weapon.SelectionOrder 1600
+	Weapon.SlotNumber 6
+    Inventory.PickupSound "weapons/pickup"
+    Inventory.PickupMessage "You got the lightning gun!"	
+    Obituary "%o was shocked by %k's lightning gun."
+	Weapon.AmmoType1 "LightningCell"
+	Weapon.AmmoType2 "LightningStacks"
+	Weapon.AmmoUse2 0
+	Weapon.AmmoUse1 1
+	Weapon.AmmoGive1 60
+	+WEAPON.NOAUTOAIM
+	AttackSound ""
+	+INVENTORY.UNDROPPABLE
+	Tag "Lightning Gun"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.0
+	Weapon.BobRangeY 0.5
+	Weapon.BobRangeX 0.8
+	States {
+		Spawn:
+			LTGS A -1
+		Stop
+		Ready:
+			TNT1 A 0 A_StopSound(7)
+		ReadyLoop:
+			LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			TNT1 A 0 A_TakeInventory("LightningStacks", 5)
+		Loop
+		Deselect:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 A_TakeInventory("LightningStacks", 0)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+			LGNI A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_LIGHTNINGGUN)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 1, lg_dmg_min | (lg_dmg_max << 16))
+	    SelectLoop:
+			LGNI A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_PlaySound("LightningGun/Fire", CHAN_WEAPON, 1, 1)
+			TNT1 A 0 A_PlaySound("LightningGun/Loop", 7, 0.5, 1)
+		HoldPt1:
+			TNT1 A 0 A_GunFlash
+			LGNF A 1 Bright A_GiveInventory("LGShooter_Ammo", 1)
+			LGNF B 1 Bright A_GiveInventory("LGShooter_NoAmmo", 1)
+			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
+			LGNF A 2 A_ReFire("HoldPt2")		//it has 2 stages of fire, to be able to do the "quick tap"
+		Goto EndHold
+		HoldPt2:
+			LGNF A 0 A_GunFlash
+			LGNF C 1 Bright A_GiveInventory("LGShooter_Ammo", 1)
+			LGNF A 1 Bright A_GiveInventory("LGShooter_NoAmmo", 1)
+			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
+			LGNI B 2 A_ReFire("HoldPt3")
+		Goto EndHold
+		HoldPt3:
+			LGNF A 0 A_GunFlash
+			LGNF B 1 Bright A_GiveInventory("LGShooter_Ammo", 1)
+			LGNF C 1 Bright A_GiveInventory("LGShooter_NoAmmo", 1)
+			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
+			LGNI C 2 A_ReFire("HoldPt1")
+		Goto EndHold
+		EndHold:
+			TNT1 A 0 A_TakeInventory("LightningStacks", 5)
+			LGNI A 1
+			TNT1 A 0 A_StopSound(7)
+			LGNI A 1 A_PlaySound("LightningGun/FireEnd", CHAN_WEAPON)
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("LightningCell", 3, "ContinueAlt")
+			TNT1 A 0 A_TakeInventory("LightningStacks", 5)
+			LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSECONDARY)
+		Goto Ready
+		ContinueAlt:
+			LGNG A 3 A_PlaySound("LightningGun/Fire", CHAN_WEAPON, 1, 1)
+			LGNG B 3
+		Goto AlternateHold
+		AlternateHold:
+			TNT1 A 0 A_JumpIfInventory("LightningCell", 3, "ContinueHold")
+			LGNG B 1
+		Goto AltEndHold
+		ContinueHold:
+			TNT1 A 0 A_GunFlash			
+			LGNG C 1 Bright A_GiveInventory("LGAltShooter", 1)
+			TNT1 A 0 A_GiveInventory("LightningStacks", 3)
+			TNT1 A 0 A_GiveInventory("LGAltShooter", 1)
+			LGNG D 1 Bright A_GiveInventory("LGAmmoTaker", 1)
+			LGNG B 1 A_ReFire("AlternateHold")		
+		Goto AltEndHold
+		AltEndHold:
+			LGNI A 0 A_PlaySound("LightningGun/FireEnd", CHAN_WEAPON)
+			LGNG B 1 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSECONDARY | WRF_NOBOB) 
+			TNT1 A 0 A_StopSound(7)
+			LGNG B 2 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSECONDARY | WRF_NOBOB)
+			LGNG A 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSECONDARY | WRF_NOBOB)
+		Goto Ready
+		
+		Flash:
+		  TNT1 A 4 A_Light1
+		  TNT1 A 3 A_Light2
+		  TNT1 A 0 A_Light0
+		  stop
+	}
+}
+
+Actor LGShooter_Ammo : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), 4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffSEX",0,0,512,0,18,0,"D4LGTrail")
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), 4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "LGPuff_Full",0,0,512,0,18,0,"D4LGTrail")
+		Stop
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full2")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffSEX",0,0,512,0,18,0,"D4LGTrail")
+		Stop
+		Full2:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuff_Full",0,0,512,0,18,0,"D4LGTrail")
+		Stop
+	}
+}
+
+Actor LGShooter_NoAmmo : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffNoPain",0,0,512,0,18,0,"D4LGTrail")
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffNoPain_Full",0,0,512,0,18,0,"D4LGTrail")
+		Stop
+	}
+}
+
+Actor LGAltShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff",frandom(-12.0, 12.0),frandom(-5.5, 5.5),384,0,9.0,0,"LGAltTrail")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_NoPain",frandom(-12.0, 12.0),frandom(-5.5, 5.5),384,0,9.0,0,"LGAltTrail")
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_Full",frandom(-12.0, 12.0),frandom(-5.5, 5.5),384,0,9.0,0,"LGAltTrail")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_NoPain_Full",frandom(-12.0, 12.0),frandom(-5.5, 5.5),384,0,9.0,0,"LGAltTrail")
+		Stop
+	}
+}
+
+Actor LGAmmoTaker : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("LightningCell", 3)
+		NoTake:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor LGPuffSEX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+PUFFONACTORS
+	+ALWAYSPUFF
+	+PUFFGETSOWNER
+	+MTHRUSPECIES
+	Scale 0.35
+	Renderstyle Add
+	Height 4
+	Radius 2
+	DamageType "Lightning"
+	States {
+		Spawn:
+			TNT1 A 0 NODELAY A_Jump(256, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)
+			DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 1 BRIGHT A_Jump(256, "Play")
+		Play:
+			"----" "##" 2 Bright
+		Stop
+	}
+}
+
+Actor LGPuff_Full : LGPuffSEX {
+	DamageType "LightningFull"
+}
+
+Actor LGPuffNoPain : LGPuffSEX {
+	+PAINLESS
+	+BLOODLESSIMPACT
+}
+
+Actor LGPuffNoPain_Full : LGPuffNoPain {
+	DamageType "LightningFull"
+}
+
+Actor D4LGTrail {
+	+NOINTERACTION
+	Scale 0.16
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
+	+FORCEXYBILLBOARD
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Warp(AAPTR_TARGET,x,y,z,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE)
+			TNT1 A 0 A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(-2.0, 2.0),frandom(-2.0, 2.0),frandom(-2.0, 2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,224)
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+		1:
+			HSP2 A 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		2:
+			HSP2 B 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		3:
+			HSP2 C 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		4:
+			HSP2 D 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		5:
+			HSP2 E 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		6:
+			HSP2 F 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		7:
+			HSP2 G 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		8:
+			HSP2 H 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		9:
+			HSP2 I 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+		10:
+			HSP2 J 1 BRIGHT A_FadeOut(0.125)
+			TNT1 A 0 A_Warp(AAPTR_TARGET,cos(-pitch),8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+		Loop
+	}
+}
+
+Actor LGAltTrail : D4LGTrail {
+	Translation "0:255=%[0,0,0]:[0.7,0.4,1.5]"
+}
+
+Actor LGAltPuff : LGPuffSEX {
+	Translation "0:255=%[0,0,0]:[0.7,0.4,1.5]"
+}
+
+Actor LGAltPuff_Full : LGAltPuff {
+	DamageType "LightningFull"
+}
+
+Actor LGAltPuff_NoPain : LGAltPuff {
+	+PAINLESS
+}
+
+Actor LGAltPuff_NoPain_Full : LGAltPuff_NoPain {
+	DamageType "LightningFull"
+}

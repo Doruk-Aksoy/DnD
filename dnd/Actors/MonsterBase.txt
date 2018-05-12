@@ -1,0 +1,530 @@
+Actor DnD_Zombieman : Zombieman { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_Shotgunner : Shotgunguy { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_Chaingunguy : Chaingunguy { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_Demon : Demon { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_Spectre : Spectre { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_DoomImp : DoomImp { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_LostSoul : LostSoul { 
+	States {
+		Idle:
+			SKUL AB 10 Bright A_Look
+		Loop
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_Cacodemon : CacoDemon { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_PainElemental : PainElemental { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_Revenant : Revenant { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_Hellknight : Hellknight { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+			TNT1 A 1 A_KillMaster
+		Stop
+	}
+}
+
+Actor DnD_BaronOfHell : BaronOfHell { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+			TNT1 A 1 A_KillMaster
+		Stop
+	}
+}
+
+Actor DnD_Fatso : Fatso { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+			TNT1 A 1 A_KillMaster
+		Stop
+	}
+}
+
+Actor DnD_Arachnotron : Arachnotron { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+			TNT1 A 1 A_KillMaster
+		Stop
+	}
+}
+
+Actor DnD_ArchVile : ArchVile { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}
+
+Actor DnD_SpiderMasterMind : SpiderMasterMind { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+			TNT1 A 1 A_KillMaster
+		Stop
+	}
+}
+
+Actor DnD_Cyberdemon : Cyberdemon { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+			TNT1 A 1 A_KillMaster
+		Stop
+	}
+}
+
+Actor DnD_WolfensteinSS : WolfensteinSS { 
+	States {
+		Death.MagicSealing:
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Stop
+	}
+}

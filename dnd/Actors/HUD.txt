@@ -1,0 +1,54 @@
+Actor HPOver100 : DnD_Boolean { }
+Actor HPNormal : DnD_Boolean { }
+Actor HPBelow50 : DnD_Boolean { }
+Actor HPBelow25 : DnD_Boolean { }
+
+Actor HPOverAmount : Inventory {
+	inventory.maxamount 100
+}
+
+Actor ARMOver100 : DnD_Boolean { }
+Actor ARMNormal : DnD_Boolean { }
+Actor ARMBelow50 : DnD_Boolean { }
+Actor ARMBelow25 : DnD_Boolean { }
+
+Actor ARMOverAmount : Inventory {
+	inventory.maxamount 100
+}
+
+Actor SetMapInfo : PowerDamage { 
+	damagefactor "normal", 1.0
+	powerup.duration 1
+}
+
+Actor SetDashInfo : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 1
+}
+
+Actor ShowMapInfo : DnD_Boolean { }
+Actor H_UnderPar : DnD_Boolean { }
+Actor H_KillsAchieved : DnD_Boolean { }
+Actor H_ItemsAchieved : DnD_Boolean { }
+Actor H_SecretsAchieved : DnD_Boolean { }
+
+Actor H_InfiniteAmmo : DnD_Boolean { }
+
+Actor H_WeaponSlot1 : DnD_Boolean { }
+Actor H_WeaponSlot2 : DnD_Boolean { }
+Actor H_WeaponSlot3 : DnD_Boolean { }
+Actor H_WeaponSlot3X : DnD_Boolean { }
+Actor H_WeaponSlot4 : DnD_Boolean { }
+Actor H_WeaponSlot5 : DnD_Boolean { }
+Actor H_WeaponSlot6 : DnD_Boolean { }
+Actor H_WeaponSlot7 : DnD_Boolean { }
+Actor H_WeaponSlot8 : DnD_Boolean { }
+Actor H_WeaponSlot9 : DnD_Boolean { }
+
+Actor H_PrimaryGreen : DnD_Boolean { }
+Actor H_PrimaryYellow : DnD_Boolean { }
+Actor H_PrimaryRed : DnD_Boolean { }
+
+Actor H_SecondaryGreen : DnD_Boolean { }
+Actor H_SecondaryYellow : DnD_Boolean { }
+Actor H_SecondaryRed : DnD_Boolean { }

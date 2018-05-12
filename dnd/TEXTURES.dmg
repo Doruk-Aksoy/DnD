@@ -1,0 +1,453 @@
+Sprite D1N0E0, 136, 12 {
+	Offset 48, 16
+	Patch DAMGCROS, 76, 0
+}
+
+Sprite D1N0C0, 136, 12 {
+	Offset 48, 16
+	Patch DAMGCSH, 76, 0
+}
+
+Sprite D1N0A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM0, 64, 0
+}
+
+Sprite D1N1A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM1, 64, 0
+}
+
+Sprite D1N2A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM2, 64, 0
+}
+
+Sprite D1N3A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM3, 64, 0
+}
+
+Sprite D1N4A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM4, 64, 0
+}
+
+Sprite D1N5A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM5, 64, 0
+}
+
+Sprite D1N6A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM6, 64, 0
+}
+
+Sprite D1N7A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM7, 64, 0
+}
+
+Sprite D1N8A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM8, 64, 0
+}
+
+Sprite D1N9A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM9, 64, 0
+}
+
+Sprite D1NPA0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGPLUS, 51, 0
+}
+
+Sprite D2N0A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM0, 56, 0
+}
+
+Sprite D2N1A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM1, 56, 0
+}
+
+Sprite D2N2A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM2, 56, 0
+}
+
+Sprite D2N3A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM3, 56, 0
+}
+
+Sprite D2N4A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM4, 56, 0
+}
+
+Sprite D2N5A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM5, 56, 0
+}
+
+Sprite D2N6A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM6, 56, 0
+}
+
+Sprite D2N7A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM7, 56, 0
+}
+
+Sprite D2N8A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM8, 56, 0
+}
+
+Sprite D2N9A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM9, 56, 0
+}
+
+Sprite D2NPA0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGPLUS, 43, 0
+}
+
+Sprite D3N0A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM0, 48, 0
+}
+
+Sprite D3N1A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM1, 48, 0
+}
+
+Sprite D3N2A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM2, 48, 0
+}
+
+Sprite D3N3A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM3, 48, 0
+}
+
+Sprite D3N4A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM4, 48, 0
+}
+
+Sprite D3N5A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM5, 48, 0
+}
+
+Sprite D3N6A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM6, 48, 0
+}
+
+Sprite D3N7A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM7, 48, 0
+}
+
+Sprite D3N8A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM8, 48, 0
+}
+
+Sprite D3N9A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM9, 48, 0
+}
+
+Sprite D3NPA0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGPLUS, 35, 0
+}
+
+Sprite D4N0A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM0, 40, 0
+}
+
+Sprite D4N1A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM1, 40, 0
+}
+
+Sprite D4N2A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM2, 40, 0
+}
+
+Sprite D4N3A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM3, 40, 0
+}
+
+Sprite D4N4A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM4, 40, 0
+}
+
+Sprite D4N5A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM5, 40, 0
+}
+
+Sprite D4N6A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM6, 40, 0
+}
+
+Sprite D4N7A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM7, 40, 0
+}
+
+Sprite D4N8A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM8, 40, 0
+}
+
+Sprite D4N9A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM9, 40, 0
+}
+
+Sprite D4NPA0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGPLUS, 27, 0
+}
+
+Sprite D5N1A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM1, 32, 0
+}
+
+Sprite D5N2A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM2, 32, 0
+}
+
+Sprite D5N3A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM3, 32, 0
+}
+
+Sprite D5N4A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM4, 32, 0
+}
+
+Sprite D5N5A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM5, 32, 0
+}
+
+Sprite D5N6A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM6, 32, 0
+}
+
+Sprite D5N7A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM7, 32, 0
+}
+
+Sprite D5N8A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM8, 32, 0
+}
+
+Sprite D5N9A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM9, 32, 0
+}
+
+Sprite D5NPA0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGPLUS, 19, 0
+}
+
+Sprite D6N1A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM1, 24, 0
+}
+
+Sprite D6N2A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM2, 24, 0
+}
+
+Sprite D6N3A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM3, 24, 0
+}
+
+Sprite D6N4A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM4, 24, 0
+}
+
+Sprite D6N5A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM5, 24, 0
+}
+
+Sprite D6N6A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM6, 24, 0
+}
+
+Sprite D6N7A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM7, 24, 0
+}
+
+Sprite D6N8A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM8, 24, 0
+}
+
+Sprite D6N9A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM9, 24, 0
+}
+
+Sprite D6NPA0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGPLUS, 11, 0
+}
+
+Sprite D7N1A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM1, 16, 0
+}
+
+Sprite D7N2A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM2, 16, 0
+}
+
+Sprite D7N3A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM3, 16, 0
+}
+
+Sprite D7N4A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM4, 16, 0
+}
+
+Sprite D7N5A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM5, 16, 0
+}
+
+Sprite D7N6A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM6, 16, 0
+}
+
+Sprite D7N7A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM7, 16, 0
+}
+
+Sprite D7N8A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM8, 16, 0
+}
+
+Sprite D7N9A0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGNUM9, 16, 0
+}
+
+Sprite D7NPA0, 136, 12
+{
+	Offset 48, 16
+	Patch DAMGPLUS, 3, 0
+}

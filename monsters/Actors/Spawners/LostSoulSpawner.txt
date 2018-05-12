@@ -1,0 +1,30 @@
+Actor LostSoulSpawner : DnD_MonsterSpawner replaces LostSoul {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_LOSTSOULID)
+		SpawnLoop:
+			TNT1 A 1
+		Loop
+		Vanilla:
+			TNT1 A 0 A_SpawnItemEx("LostSoul2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var1:
+			TNT1 A 0 A_SpawnItemEx("BabyCaco", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var2:
+			TNT1 A 0 A_SpawnItemEx("ESoul", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var3:
+			TNT1 A 0 A_SpawnItemEx("Watcher", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var4:
+			TNT1 A 0 A_SpawnItemEx("Fleshspawn", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var5:
+			TNT1 A 0 A_SpawnItemEx("GuardianCube", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var6:
+			TNT1 A 0 A_SpawnItemEx("ForgottenOne", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+	}
+}

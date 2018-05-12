@@ -1,0 +1,11 @@
+brightmap sprite PAKMB0
+{
+	map "graphics/brightmaps/beretta/BMBERFR1.png"
+	disablefullbright
+}
+
+brightmap sprite PAKMG0
+{
+	map "graphics/brightmaps/beretta/BMBERFR2.png"
+	disablefullbright
+}

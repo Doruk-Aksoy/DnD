@@ -1,0 +1,157 @@
+CLEARLOCKS
+
+Lock 1
+{
+	RedCardS2
+	Message "$PD_REDC"
+	RemoteMessage "$PD_REDCO"
+	Mapcolor 255 0 0
+	LockedSound "keys/nokeycard"
+}
+
+Lock 2 Doom
+{
+	BlueCardS2
+	Message "$PD_BLUEC"
+	RemoteMessage "$PD_BLUECO"
+	Mapcolor 0 0 255
+	LockedSound "keys/nokeycard"
+}
+
+
+Lock 3 Doom
+{
+	YellowCardS2
+	Message "$PD_YELLOWC"
+	RemoteMessage "$PD_YELLOWCO"
+	Mapcolor 255 255 0
+	LockedSound "keys/nokeycard"
+}
+
+
+Lock 4 Doom
+{
+	RedSkullS2
+	Message "$PD_REDS"
+	RemoteMessage "$PD_REDSO"
+	Mapcolor 255 0 0
+	LockedSound "keys/noskullkey"
+}
+
+
+Lock 5 Doom
+{
+	BlueSkullS2
+	Message "$PD_BLUES"
+	RemoteMessage "$PD_BLUESO"
+	Mapcolor 0 0 255
+	LockedSound "keys/noskullkey"
+}
+
+
+Lock 6 Doom
+{
+	YellowSkullS2
+	Message "$PD_YELLOWS"
+	RemoteMessage "$PD_YELLOWSO"
+	Mapcolor 255 255 0
+	LockedSound "keys/noskullkey"
+}
+
+
+Lock 129 Doom
+{
+	Any { RedCardS2 RedSkullS2 KeyGreen }
+	Message "$PD_REDK"
+	RemoteMessage "$PD_REDO"
+	Mapcolor 255 0 0
+	LockedSound "keys/noskullkey"
+}
+
+
+Lock 130 Doom
+{
+	Any { BlueCardS2 BlueSkullS2 KeyBlue }
+	Message "$PD_BLUEK"
+	RemoteMessage "$PD_BLUEO"
+	Mapcolor 0 0 255
+	LockedSound "keys/noskullkey"
+}
+
+
+Lock 131 Doom
+{
+	Any { YellowCardS2 YellowSkullS2 KeyYellow }
+	Message "$PD_YELLOWK"
+	RemoteMessage "$PD_YELLOWO"
+	Mapcolor 255 255 0
+	LockedSound "keys/noskullkey"
+}
+
+
+Lock 132 Doom
+{
+	Any { RedCardS2 RedSkullS2 }
+	Message "$PD_REDK"
+	RemoteMessage "$PD_REDO"
+	Mapcolor 255 0 0
+	LockedSound "keys/nokeycard"
+}
+
+
+Lock 133 Doom
+{
+	Any { BlueCardS2 BlueSkullS2 }
+	Message "$PD_BLUEK"
+	RemoteMessage "$PD_BLUEO"
+	Mapcolor 0 0 255
+	LockedSound "keys/nokeycard"
+}
+
+
+Lock 134 Doom
+{
+	Any { YellowCardS2 YellowSkullS2 }
+	Message "$PD_YELLOWK"
+	RemoteMessage "$PD_YELLOWO"
+	Mapcolor 255 255 0
+	LockedSound "keys/nokeycard"
+}
+
+Lock 100
+{
+	Message "$PD_ANY"
+	RemoteMessage "$PD_ANYOBJ"
+	Mapcolor 128 128 255
+	LockedSound "keys/noskullkey"
+}
+
+Lock 228
+{
+	Message "$PD_ANY"
+	RemoteMessage "$PD_ANYOBJ"
+	Mapcolor 128 128 255
+}
+
+Lock 229 Doom
+{
+	Any { BlueCardS2 BlueSkullS2 KeyBlue}
+	Any { YellowCardS2 YellowSkullS2 KeyYellow}
+	Any { RedCardS2 RedSkullS2 KeyGreen}
+	Message "$PD_ALL3"
+	RemoteMessage "$PD_ALL3O"
+	LockedSound "keys/noskullkey"
+}
+
+Lock 101 Doom
+{
+	BlueCardS2
+	BlueSkullS2
+	YellowCardS2
+	YellowSkullS2
+	RedCardS2
+	RedSkullS2
+	Message "$PD_ALL6"
+	RemoteMessage "$PD_ALL6O"
+	LockedSound "keys/noskullkey"
+}

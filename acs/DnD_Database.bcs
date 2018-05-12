@@ -1,0 +1,984 @@
+#library "DND_DB"
+#include "zcommon.h"
+
+#include "DnD_Common.h"
+#include "DnD_MenuConstants.h"
+#include "DnD_Weapons.h"
+#include "DnD_Research.h"
+#include "DnD_DatabaseRows.h"
+#include "DnD_TempWeps.h"
+#include "DnD_Ammo.h"
+#include "DnD_SpecialAmmo.h"
+#include "DnD_Stat.h"
+#include "DnD_Orbs.h"
+
+#define DND_MAX_CHARS 4
+
+enum {
+	DND_LOGIN_NOCHAR,
+	DND_LOGIN_SETCHAROK,
+	DND_LOGIN_SETCHARINGAME,
+	DND_LOGIN_NOTINGAME,
+	DND_LOGIN_NOTHARDCORE,
+	DND_LOGIN_INCOUNTDOWN,
+	DND_LOGIN_NOTLOGGED,
+	DND_LOGIN_NOTIME,
+	DND_LOGIN_WARNSETCHARLIMIT,
+	DND_CHARLOADED
+};
+
+/*
+
+-- PLAYER STUFF SAVE --
+
+* Save weapons in three ints, use bits. There are enough weapons to fit in 96 bits.
+* Save artifacts and accessories the same way, each occupying an int. For artifacts having more than 1 carryable value, use 2-3 bits.
+* Save player stats like this => 8 bits from an int for each stat, 4 stats can fit in this way. Rest of the stats can occupy their place similarly.
+* Save backpack counts to the 5th stat's int, starting from bit 8. Max backpack count is < 64, so 6 bits is enough.
+* Save all perk counts into an int. Max perk count is 10, so 4 bits needed. 8 perks, so 32 bits is enough.
+* Save health and armor into one int. Health max can be around 65536, so assume 16 bits. Armor can be max around same so both can fit.
+* Save armor type as a new int with each bit as an armor type.
+* For every weapon ammo, safest way to go is use an int for each type. Their limits are dynamic and annoying to use bits with.
+* For Talents, each talent can go up to 100. 8 bits per talent. Store 4 talent per int. We need 2 ints because we got 6 talents.
+* For exp, level and credit use one int each.
+* For abilities use one int, each ability occupies one bit.
+* For researches, things are a bit tricky. A research can be 0 (NA), 1 (KNOWN) or 2 (DONE). We need 2 bits to state the value of a research. We got 29 researches atm. 2 x 29 = 58 bits. Use two ints.
+* Finally for leftover stat and perk points, use one int. A player can have at most 1023 stats, so 10 bits. Assuming the same for perks, 10 more bits for that.
+* For budget, use an int's first 10 bits. (Budget limit is 1000)
+*!! For orbs, each take 8 bits. Can support 8 different types of orbs in 2 ints.
+* For weapons that the orbs are used, for compat with weapon mods (extra stats etc.) we must store each weapon data individually. For each weapon, do the following:
+	- Weapon enhancement %, from 0 - 25, in first 5 bits.
+	- Rest of the 27 bits will be used for mod saving.
+
+*/
+
+void ResetPlayer() {
+	int i;
+	SetInventory("ReflectCount", 0);
+	SetInventory("Intervened", 0);
+	SetInventory("CanIntervene", 1);
+	TakeInventory("SetMyLives", 1);
+	SetInventory("ShowingMenu", 0);
+	
+	// take all weapons
+	for(i = 0; i < MAXWEPS; ++i)
+		TakeInventory(Weapons[i][WEAPON_NAME], 1);
+	for(i = 1; i <= 9; ++i)
+		TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
+	
+	// take all abilities
+	for(i = 0; i < MAXABILITIES; ++i)
+		SetInventory(AbilityInfo[i], 0);
+	
+	// take all research stuff
+	for(i = 0; i < MAX_RESEARCHES; ++i) {
+		SetInventory(StrParam(s:"Done_", s:Research_List[i]), 0);
+		SetInventory(StrParam(s:"Research_", s:Research_List[i]), 0);
+	}
+	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
+}
+
+void RestoreResearchItems() {
+	if(CheckResearchStatus(RES_DOUBLESPECIALCAP) == RES_DONE)
+		DoubleSpecialAmmoCapacity();
+		
+}
+
+str GetCharField(str fname, int char_id) {
+	return StrParam(s:"C", d:char_id, s:"_", s:fname);
+}
+
+void SavePlayerData(int pnum) {
+	int temp, tid = pnum + P_TIDSTART, i, j;
+	int char_id = Clamp_Between(CheckActorInventory(tid, "DnD_CharacterID"), 1, DND_MAX_CHARS);
+	str pacc = GetPlayerAccountName(pnum);
+	// save weapons
+	for(i = 0; i < MAXWEPS; ++i) {
+		j = i / 32;
+		if(CheckActorInventory(tid, Weapons[i][WEAPON_NAME])) {
+			temp = SetBit(temp, i - 32 * j);
+			if(i >= TEMPBEGIN)
+				SetDBEntry(GetCharField(DND_DB_TEMPAMMO, char_id), pacc, CheckActorInventory(tid, TemporaryAmmos[i - TEMPBEGIN]));
+		}
+		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed or we hit maxweps
+			// send temp over
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:j + 1), char_id), pacc, temp);
+			temp = 0;
+		}
+	}
+	
+	// save stats of player (can fit 4 stats in one int, using 7 bits)
+	temp = CheckActorInventory(tid, "PSTAT_Strength");
+	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Dexterity")) << 8;
+	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Bulkiness")) << 16;
+	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Charisma")) << 24;
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc, temp);
+	
+	// save vitality, backpack count and active accessory
+	temp = CheckActorInventory(tid, "PSTAT_Vitality");
+	// backpack covers 6 bits max (count = 55 < 63)
+	temp |= CheckActorInventory(tid, "BackpackCounter") << 8; // for backpack
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, temp);
+	
+	// save intellect
+	temp = CheckActorInventory(tid, "PSTAT_Intellect");
+	temp <<= 16;
+	temp |= CheckActorInventory(tid, "TalentPoint");
+	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
+	
+	// save perks (use 4 bits per perk, max is 10 for a perk)
+	temp = CheckActorInventory(tid, "Perk_Sharpshooting");
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Endurance")) << 4;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Wisdom")) << 8;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Greed")) << 12;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Medic")) << 16;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Munitionist")) << 20;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Deadliness")) << 24;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Savagery")) << 28;
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, temp);
+	
+	// save perks - 2
+	temp = CheckActorInventory(tid, "Perk_Luck");
+	SetDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc, temp);
+	
+	// save health and armor
+	temp = GetActorProperty(tid, APROP_HEALTH);
+	temp <<= 16;
+	temp |= CheckActorInventory(tid, "Armor");
+	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, temp);
+	
+	// save armor type
+	temp = 0;
+	for(i = 0; i < MAXARMORS; ++i) {
+		if(i >= 1 && i <= 4) { // green to red armor have variations that don't spawn
+			if(GetArmorType(ArmorTypes[i], pnum) || GetArmorType(StrParam(s:ArmorTypes[i], d:2), pnum)) {
+				temp = SetBit(temp, i);
+				break;
+			}
+		}
+		else {
+			if(GetArmorType(ArmorTypes[i], pnum)) {
+				temp = SetBit(temp, i);
+				break;
+			}
+		}
+	}
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, temp);
+	
+	// save ammo counts
+	for(i = 0; i < MAXSHOPAMMOS; ++i) {
+		temp = CheckActorInventory(tid, AmmoInfo[i][AMMO_NAME]);
+		// send temp over
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][AMMO_NAME]), pacc, temp);
+	}
+	
+	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
+		temp = CheckActorInventory(tid, SuperSpecialAmmos[i]);
+		// send temp over
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SuperSpecialAmmos[i]), pacc, temp);
+		
+	}
+	
+	// save weapon clips/magazines that use them
+	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
+		temp = CheckActorInventory(tid, ClipAmmoTypes[i]);
+		// send temp over
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:ClipAmmoTypes[i]), pacc, temp);
+	}
+	
+	// save talents (8 bits per talent, can save 4 talents in one int)
+	temp = 0;
+	for(i = 0; i < 4; ++i)
+		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i])) << (8 * i);
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc, temp);
+	
+	temp = 0;
+	for(i = 4; i < MAX_TALENTS; ++i)
+		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i])) << (8 * (i - 4));
+	SetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc, temp);
+	
+	// save exp, credit and level (when loading give expvisual, amt = exp % levelcurve[level])
+	temp = CheckActorInventory(tid, "Exp");
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, temp);
+	
+	temp = CheckActorInventory(tid, "Credit");
+	//send temp over
+	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, temp);
+	
+	temp = CheckActorInventory(tid, "Level");
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, temp);
+	
+	// save abilities
+	temp = 0;
+	for(i = 0; i < MAXABILITIES; ++i) {
+		if(CheckActorInventory(tid, AbilityInfo[i]))
+			temp = SetBit(temp, i);
+	}
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc, temp);
+	
+	// save unspent attribute/perk points
+	temp = CheckActorInventory(tid, "AttributePoint");
+	temp |= (0x7FF & CheckActorInventory(tid, "PerkPoint")) << 11;
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, temp);
+	
+	// save accessories and artifacts
+	temp = 0;
+	for(i = 0; i < MAX_ACCESSORY; ++i) {
+		if(CheckActorInventory(tid, StrParam(s:"Accessory_", d:i + 1)))
+			temp = SetBit(temp, i);
+	}
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, temp);
+	
+	// save active accessories
+	SetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc, CheckActorInventory(tid, "Accessory_Index"));
+	
+	temp = 0;
+	// fieldkits can have 3, assume 3 bits. (Maybe in future) Portable Shields hold 3 as well. Rest are all 1. Do not save automap.
+	// Take fieldkit and portable shields last
+	// this guy breaks the loop sequence so take him first
+	temp |= CheckActorInventory(tid, "SalvationSphere");
+	for(i = 3; i < MAXARTIFACTS - 3; ++i) {
+		if(CheckActorInventory(tid, ArtifactInfo[i][ARTI_NAME]))
+			temp = SetBit(temp, i - 2); // because 0th bit is for salvation sphere
+	}
+	// last 3 won't be saved and these two arent saved yet, so anything besides these are saved until here
+	temp |= CheckActorInventory(tid, "FieldKit") << (MAXARTIFACTS - 5); 
+	temp |= CheckActorInventory(tid, "PortableShield") << (MAXARTIFACTS - 3);
+	temp |= CheckActorInventory(tid, "StatReset") << (MAXARTIFACTS - 1);
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, temp);
+	
+	temp = 0;
+	// save researches
+	for(i = 0; i < MAX_RESEARCHES; ++i) {
+		j = i / 16;
+		temp |= CheckActorResearchStatus(tid, i) << (2 * (i - 16 * j));
+		if(j != (i + 1) / 16 || i == MAX_RESEARCHES - 1) {
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH, char_id), d:j + 1), pacc, temp);
+			temp = 0;
+		}
+	}
+	
+	// save budget
+	temp = CheckActorInventory(tid, "Budget");
+	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, temp);
+	
+	// save quests
+	temp = CheckActorInventory(tid, "DnD_QuestState1");
+	SetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc, temp);
+	temp = CheckActorInventory(tid, "DnD_QuestState2");
+	SetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc, temp);
+	
+	// save player's lifetime
+	temp = CheckActorInventory(tid, "RoundsSurvived");
+	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, temp);
+	
+	// save weapon checkers
+	temp = 0;
+	for(i = 0; i < MAX_WEPCONDITION_CHECKERS; ++i)
+		if(CheckActorInventory(tid, WeaponConditionCheckers[i]))
+			temp |= 1 << i;
+	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, temp);
+	
+	// save player's orbs
+	temp = 0;
+	for(i = 0; i < MAX_ORBS; i += 4) {
+		for(j = 0; j < 4 && i + j < MAX_ORBS; ++j)
+			temp |= CheckActorInventory(tid, OrbList[i + j][ORB_NAME]) << (8 * j);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBS, char_id), d:(i >> 2) + 1), pacc, temp);
+		temp = 0;
+	}
+	// save player's weapon mods
+	temp = 0;
+	for(i = 0; i < MAXWEPS; ++i) {
+		// check mods
+		// enhancement orbs used
+		temp = Player_Weapon_Infos[pnum][i].enchants;
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
+		// orb bonus
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, i));
+		for(j = 0; j < MAX_WEP_BONUSES; ++j) {
+			temp = Player_Weapon_Infos[pnum][i].wep_bonuses[j].amt;
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
+			// orb bonus
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT + j, i));
+		}
+		// rest of the mods
+		
+	}
+	
+	// save stored medkit
+	SetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc, CheckActorInventory(tid, "StoredMedkit"));
+	
+	// save player stat bonuses from sources besides orrbs
+	SetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc, Player_Bonuses[pnum].hp_flat_bonus);
+	SetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc, Player_Bonuses[pnum].armor_flat_bonus);
+	SetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc, Player_Bonuses[pnum].hp_percent_bonus);
+	SetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc, Player_Bonuses[pnum].armor_percent_bonus);
+	SetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc, Player_Bonuses[pnum].greed_percent_bonus);
+	SetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc, Player_Bonuses[pnum].wisdom_percent_bonus);
+	SetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc, Player_Bonuses[pnum].speed_bonus);
+	SetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc, Player_Bonuses[pnum].drop_chance);
+	SetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc, Player_Bonuses[pnum].holding);
+	
+	// damage type bonuses
+	for(i = 0; i < MAX_TALENTS; ++i) {
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_DAMAGETYPEBONUS, char_id), d:i), pacc, Player_Bonuses[pnum].damage_type_bonus[i]);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i));
+	}
+	// bonuses from orbs
+	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_SPEED, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HOLDING, -1));
+	
+	// save chest keys
+	temp = 0;
+	for(i = 0; i < MAX_CHEST_KEYS; ++i)
+		temp |= CheckActorInventory(tid, ChestKeyTypes[i]) << (i * 6);
+	SetDBentry(GetCharField(DND_DB_KEYS, char_id), pacc, temp);
+}
+
+void SavePlayerOrbData(int pnum) {
+	int i, j;
+	int char_id = Clamp_Between(CheckInventory("DnD_CharacterID"), 1, DND_MAX_CHARS), temp, tid = pnum + P_TIDSTART;
+	str pacc = GetPlayerAccountName(pnum);
+	
+	// save stats of player (can fit 4 stats in one int, using 7 bits)
+	temp = CheckActorInventory(tid, "PSTAT_Strength");
+	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Dexterity")) << 8;
+	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Bulkiness")) << 16;
+	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Charisma")) << 24;
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc, temp);
+	
+	// save vitality, backpack count and active accessory
+	temp = CheckActorInventory(tid, "PSTAT_Vitality");
+	// backpack covers 6 bits max (count = 55 < 63)
+	temp |= CheckActorInventory(tid, "BackpackCounter") << 8; // for backpack
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, temp);
+	
+	// save intellect
+	temp = CheckActorInventory(tid, "PSTAT_Intellect");
+	temp <<= 16;
+	temp |= CheckActorInventory(tid, "TalentPoint");
+	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
+	
+	// save perks (use 4 bits per perk, max is 10 for a perk)
+	temp = CheckActorInventory(tid, "Perk_Sharpshooting");
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Endurance")) << 4;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Wisdom")) << 8;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Greed")) << 12;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Medic")) << 16;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Munitionist")) << 20;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Deadliness")) << 24;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Savagery")) << 28;
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, temp);
+	
+	// save perks - 2
+	temp = CheckActorInventory(tid, "Perk_Luck");
+	SetDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc, temp);
+	
+	// save health and armor
+	temp = GetActorProperty(tid, APROP_HEALTH);
+	temp <<= 16;
+	temp |= CheckActorInventory(tid, "Armor");
+	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, temp);
+	
+	// save armor type
+	temp = 0;
+	for(i = 0; i < MAXARMORS; ++i) {
+		if(i >= 1 && i <= 4) { // green to red armor have variations that don't spawn
+			if(GetArmorType(ArmorTypes[i], pnum) || GetArmorType(StrParam(s:ArmorTypes[i], d:2), pnum)) {
+				temp = SetBit(temp, i);
+				break;
+			}
+		}
+		else {
+			if(GetArmorType(ArmorTypes[i], pnum)) {
+				temp = SetBit(temp, i);
+				break;
+			}
+		}
+	}
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, temp);
+	
+	// save ammo counts
+	for(i = 0; i < MAXSHOPAMMOS; ++i) {
+		temp = CheckActorInventory(tid, AmmoInfo[i][AMMO_NAME]);
+		// send temp over
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][AMMO_NAME]), pacc, temp);
+	}
+	
+	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
+		temp = CheckActorInventory(tid, SuperSpecialAmmos[i]);
+		// send temp over
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SuperSpecialAmmos[i]), pacc, temp);
+		
+	}
+	
+	// save weapon clips/magazines that use them
+	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
+		temp = CheckActorInventory(tid, ClipAmmoTypes[i]);
+		// send temp over
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:ClipAmmoTypes[i]), pacc, temp);
+	}
+	
+	// bonuses from orbs
+	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_SPEED, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1));
+	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HOLDING, -1));
+	
+	// damage type bonuses
+	for(i = 0; i < MAX_TALENTS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i));
+	
+	for(i = 0; i < MAXWEPS; ++i) {
+		// check mods
+		// enhancement orbs used
+		// orb bonus
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, i));
+		for(j = 0; j < MAX_WEP_BONUSES; ++j)
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT + j, i));
+		// rest of the mods
+		
+	}
+	
+	temp = CheckActorInventory(tid, "Credit");
+	//send temp over
+	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, temp);
+	
+	// save budget
+	temp = CheckActorInventory(tid, "Budget");
+	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, temp);
+}
+
+// Loads from database and gives necessary items
+void LoadPlayerData(int pnum, int char_id) {
+	// assumes all checks have been performed before reaching this function
+	int i = 0, j = 0;
+	str pacc = GetPlayerAccountName(pnum);
+	
+	// reset weapons
+	ResetPlayer();
+	
+	// read weapons
+	int temp = GetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:1), char_id), pacc);
+	for(i = 0; i < MAXWEPS; ++i) {
+		j = i / 32;
+		if(IsSet(temp, i - 32 * j)) {
+			if(i >= TEMPBEGIN) // if we have a temporary weapon, load it's ammo first so it's not taken away
+				SetInventory(TemporaryAmmos[i - TEMPBEGIN], GetDBEntry(GetCharField(DND_DB_TEMPAMMO, char_id), pacc));
+			GiveInventory(Weapons[i][WEAPON_NAME], 1);
+		}
+		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed
+			// update bitset
+			temp = GetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:j + 2), char_id), pacc);
+		}
+	}
+		
+	// read stats
+	temp = GetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc);
+	SetInventory("PSTAT_Strength", temp & 0xFF);
+	temp >>= 8;
+	SetInventory("PSTAT_Dexterity", temp & 0xFF);
+	temp >>= 8;
+	SetInventory("PSTAT_Bulkiness", temp & 0xFF);
+	temp >>= 8;
+	SetInventory("PSTAT_Charisma", temp & 0xFF);
+	
+	temp = GetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc);
+	SetInventory("PSTAT_Vitality", temp & 0xFF);
+	temp >>= 8;
+	SetInventory("BackpackCounter", temp & 0xFF);
+	SetAllAmmoCapacities();
+	
+	// intellect + talent point
+	temp = GetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc);
+	SetInventory("TalentPoint", temp & 0xFFFF);
+	temp >>= 16;
+	SetInventory("PSTAT_Intellect", temp & 0xFF);
+	
+	// read perks - 1
+	temp = GetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc);
+	SetInventory("Perk_Sharpshooting", temp & 0xF);
+	temp >>= 4;
+	SetInventory("Perk_Endurance", temp & 0xF);
+	temp >>= 4;
+	SetInventory("Perk_Wisdom", temp & 0xF);
+	temp >>= 4;
+	SetInventory("Perk_Greed", temp & 0xF);
+	temp >>= 4;
+	SetInventory("Perk_Medic", temp & 0xF);
+	temp >>= 4;
+	SetInventory("Perk_Munitionist", temp & 0xF);
+	temp >>= 4;
+	SetInventory("Perk_Deadliness", temp & 0xF);
+	temp >>= 4;
+	SetInventory("Perk_Savagery", temp & 0xF);
+	
+	// read perks - 2
+	temp = GetDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc);
+	SetInventory("Perk_Luck", temp & 0xF);
+	
+	// read health and armor
+	temp = GetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc);
+	// make sure charms and shit are added here too
+	int armor = temp & 0xFFFF;
+	temp >>= 16;
+	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+	SetActorProperty(0, APROP_HEALTH, (temp & 0xFFFF) ? temp & 0xFFFF : DND_BASE_HEALTH);
+	
+	// read armor type
+	// reset whatever armor might have been on the player at the time
+	SetInventory("Armor", 0);
+	SetInventory("DnD_ArmorType", 0);
+	temp = GetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc);
+	for(i = 0; i < MAXARMORS; ++i) {
+		if(IsSet(temp, i)) {
+			GiveInventory(ArmorTypes[i], 1);
+			GiveInventory("DnD_ArmorBonus", armor - 1);
+			SetInventory("DnD_ArmorType", i + 1);
+			break;
+		}
+	}
+	
+	// read each ammo count
+	for(i = 0; i < MAXSHOPAMMOS; ++i) {
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][AMMO_NAME]), pacc);
+		SetInventory(AmmoInfo[i][AMMO_NAME], temp);
+	}
+	
+	// read special ammos
+	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SuperSpecialAmmos[i]), pacc);
+		SetInventory(SuperSpecialAmmos[i], temp);
+	}
+	
+	// read clip ammos
+	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:ClipAmmoTypes[i]), pacc);
+		SetInventory(ClipAmmoTypes[i], temp);
+	}
+	
+	// read talents
+	temp = GetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc);
+	for(i = 0; i < 4; ++i) {
+		SetInventory(TalentNames[i], temp & 0xFF);
+		temp >>= 8;
+	}
+	
+	temp = GetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc);
+	for(i = 4; i < MAX_TALENTS; ++i) {
+		SetInventory(TalentNames[i], temp & 0xFF);
+		temp >>= 8;
+	}
+	
+	// read level
+	SetInventory("Level", GetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc));
+	
+	// read exp
+	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);
+	SetAmmoCapacity("ExpVisual", GetExpLimit());
+	SetInventory("ExpVisual", temp);
+	SetInventory("Exp", temp);
+	
+	// read credits
+	SetInventory("Credit", GetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc));
+	
+	// read abilities
+	temp = GetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc);
+	for(i = 0; i < MAXABILITIES; ++i) {
+		if(IsSet(temp, i))
+			GiveInventory(AbilityInfo[i], 1);
+	}
+	
+	// read unspent attribute/perk points
+	temp = GetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc);
+	SetInventory("AttributePoint", temp & 0x7FF);
+	temp >>= 11;
+	SetInventory("PerkPoint", temp & 0x7FF);
+	
+	// read accessories
+	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);
+	for(i = 0; i < MAX_ACCESSORY; ++i)
+		SetInventory(StrParam(s:"Accessory_", d:i + 1), !!(temp & (1 << i)));
+	// save active accessories
+	SetInventory("Accessory_Index", GetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc));
+	DecideAccessories();
+	
+	temp = GetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc);
+	// read artifacts
+	SetInventory("SalvationSphere", temp & 1);
+	for(i = 3; i < MAXARTIFACTS - 3; ++i)
+		// because 0th bit is for salvation sphere
+		SetInventory(ArtifactInfo[i][ARTI_NAME], !!(temp & (1 << (i - 2)))); // these have only 1 carry limit
+	// at this point MAXARTIFACTS - 3 bits are occupied
+	temp >>= (MAXARTIFACTS - 5);
+	SetInventory("FieldKit", temp & 0x3);
+	temp >>= 2;
+	SetInventory("PortableShield", temp & 0x3);
+	temp >>= 2;
+	SetInventory("StatReset", temp & 1);
+
+	// read researches
+	for(i = 0; i < MAX_RESEARCHES / 16; ++i) {
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH, char_id), d: i + 1), pacc);
+		for(j = 0; j < 16; ++j) {
+			if(temp & 0x2) // researched
+				GiveInventory(StrParam(s:"Done_", s:Research_List[j + 16 * i]), 1);
+			if(temp & 0x1) // discovered
+				GiveInventory(StrParam(s:"Research_", s:Research_List[j + 16 * i]), 1);
+			temp >>= 2; // skip two bits per research
+		}
+	}
+	
+	// read budget
+	temp = GetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc);
+	SetInventory("Budget", temp);
+	
+	// load quest states and give rewards accordingly
+	// for now only load state 1 because quest amount < 32
+	temp = GetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc);
+	SetInventory("DnD_QuestState1", temp);
+	for(i = 0; i < MAX_QUESTS; ++i)
+		if(IsSet(temp, i))
+			GiveInventory(Quest_List[i].qreward, 1);
+		
+	if(!CheckInventory("HardcoreDebuff"))
+		GiveInventory("HardcoreDebuff", 1);
+	
+	// load player's orbs
+	temp = 0;
+	for(i = 0; i < MAX_ORBS; i += 4) {
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBS, char_id), d:(i >> 2) + 1), pacc);
+		for(j = 0; j < 4 && i + j < MAX_ORBS; ++j) {
+			SetInventory(OrbList[i + j][ORB_NAME], temp & 0xFF);
+			temp >>= 8;
+		}
+	}
+	
+	// load weapon checkers
+	temp = GetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc);
+	for(i = 0; i < MAX_WEPCONDITION_CHECKERS; ++i)
+		if(IsSet(temp, i))
+			GiveInventory(WeaponConditionCheckers[i], 1);
+	
+	
+	// load player's weapon mods
+	for(i = 0; i < MAXWEPS; ++i) {
+		// check mods
+		// enhancement orbs used
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc);
+		Player_Weapon_Infos[pnum][i].enchants = temp & 0xFF;
+		SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc));
+		for(j = 0; j < MAX_WEP_BONUSES; ++j) {
+			Player_Weapon_Infos[pnum][i].wep_bonuses[j].amt = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc);
+			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT + j, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc));
+		}
+		// rest of the mods
+		// to do: figure out loading these efficiently later
+	}
+	
+	// load stored medkit
+	temp = GetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc);
+	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
+	SetInventory("StoredMedkit", temp);
+	
+	// read player stat bonuses from orbs and other sources
+	Player_Bonuses[pnum].hp_flat_bonus = GetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc);
+	Player_Bonuses[pnum].armor_flat_bonus = GetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc);
+	Player_Bonuses[pnum].hp_percent_bonus = GetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc);
+	Player_Bonuses[pnum].armor_percent_bonus = GetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc);
+	Player_Bonuses[pnum].greed_percent_bonus = GetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc);
+	Player_Bonuses[pnum].wisdom_percent_bonus = GetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc);
+	Player_Bonuses[pnum].speed_bonus = GetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc);
+	Player_Bonuses[pnum].drop_chance = GetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc);
+	Player_Bonuses[pnum].holding = GetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc);
+	
+	// damage type bonuses
+	for(i = 0; i < MAX_TALENTS; ++i) {
+		Player_Bonuses[pnum].damage_type_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_DAMAGETYPEBONUS, char_id), d:i), pacc);
+		SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc));
+	}
+	
+	// load keys
+	temp = GetDBEntry(GetCharField(DND_DB_KEYS, char_id), pacc);
+	for(i = 0; i < MAX_CHEST_KEYS; ++i) {
+		GiveInventory(ChestKeyTypes[i], temp & 0x3F);
+		temp >>= 6;
+	}
+
+	// load bonuses from orbs
+	SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, GetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, GetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, GetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, GetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, GetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, GetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_SPEED, -1, GetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, GetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_HOLDING, -1, GetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc));
+	
+	// Restoration steps
+	RestoreRPGStat(RES_PLAYERSPEED);
+	UpdatePlayerKnockbackResist();
+	
+	// Research stuff
+	RestoreResearchItems();
+	
+	// we must do this here after loading
+	SyncAllClientsideVariables();
+}
+
+// on Hardcore death, wipeout all data related to this player
+void WipeoutPlayerData(int pnum, int cid) {
+	int i, j, char_id = Clamp_Between(cid, 1, DND_MAX_CHARS);
+	str pacc = GetPlayerAccountName(pnum);
+	for(i = 1; i <= (MAXWEPS / 32) + 1; ++i)
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:i), char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_TEMPAMMO, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, 0);
+	
+	// reset ammo counts
+	SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[0][AMMO_NAME]), pacc, 50); // clip
+	for(i = 1; i < MAXSHOPAMMOS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][AMMO_NAME]), pacc, 0);
+	
+	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SuperSpecialAmmos[i]), pacc, 0);
+	
+	// reset weapon clips/magazines that use them
+	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
+		str amm = StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:ClipAmmoTypes[i]);
+		SetDBEntry(amm, pacc, GetAmmoCapacity(amm));
+	}
+	
+	SetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, 1);
+	SetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_RESEARCH_1, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_RESEARCH_2, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_RESEARCH_3, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);
+	
+	SetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_KEYS, char_id), pacc, 0);
+	
+	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, 0);
+	
+	for(i = 0; i < MAX_ORBS; i += 4)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBS, char_id), d:(i >> 2) + 1), pacc, 0);
+
+	for(i = 0; i < MAXWEPS; ++i) {
+		// enhancement orbs used
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, 0);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, 0);
+		for(j = 0; j < MAX_WEP_BONUSES; ++j) {
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
+		}
+		// rest of the mods
+	}
+	
+	// damage type bonuses
+	for(i = 0; i < MAX_TALENTS; ++i) {
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_DAMAGETYPEBONUS, char_id), d:i), pacc, 0);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
+	}
+}
+
+// Handle all database stuff now
+Script "DND Player Save" OPEN {
+	while(1) {
+		if(HardcoreSet && MapChanged) {
+			BeginDBTransaction();
+			for(int i = 0; i < MAXPLAYERS; ++i) {
+				// don't save peoples stuff while they are in load period
+				if(PlayerInGame(i) && PlayerIsLoggedIn(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && !PlayerSaved[i]) {
+					if(GetCVar("dnd_hardcore") && PlayerDied[i])
+						continue; // don't save this player as they died
+					SavePlayerData(i);
+					PlayerSaved[i] = 1;
+					Log(s:"Saving player ", d:i, s:"'s data.");
+				}
+			}
+			EndDBTransaction();
+		}
+		Delay(35);
+	}
+}
+
+Script 1001 (int char_id) NET {
+	// if not hardcore don't bother trying to load
+	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) {
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTHARDCORE);
+		Terminate;
+	}
+	if(!PlayerInGame(PlayerNumber())) {
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTINGAME);
+		Terminate;
+	}
+	
+	// if gamestate is countdown don't let them because it'll be reset anyways
+	if(GetGameModeState() == GAMESTATE_COUNTDOWN) {
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_INCOUNTDOWN);
+		Terminate;
+	}
+	
+	char_id = Clamp_Between(char_id, 1, DND_MAX_CHARS);
+	SetInventory("DnD_CharacterID", char_id);
+	
+	// not logged in we don't care
+	if(!PlayerIsLoggedIn(PlayerNumber())) {
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTLOGGED);
+		Terminate;
+	}
+	// handle no data case -- only let people to load their stuff if there really is some data
+	if(!GetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), GetPlayerAccountName(PlayerNumber()))) {
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOCHAR);
+		Terminate;
+	}
+	
+	// prevent people from loading their stuff to escape death, prevent loading if a save on this player happened already!
+	if(PlayerLoaded[PlayerNumber()])
+		Terminate;
+	
+	if(!CheckInventory("CanLoad")) {
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTIME);
+		Terminate;
+	}
+	
+	PlayerLoaded[PlayerNumber()] = 1;
+	TakeInventory("CanLoad", 1);
+	ACS_NamedExecuteAlways("DnD Login Message", 0, DND_CHARLOADED);
+	LoadPlayerData(PlayerNumber(), char_id);
+}
+
+Script 1003 (int char_id) NET {
+	if(!PlayerLoaded[PlayerNumber()]) {
+		char_id = Clamp_Between(char_id, 1, DND_MAX_CHARS);
+		SetInventory("DnD_CharacterID", char_id);
+		if(char_id < 1 || char_id > DND_MAX_CHARS)
+			ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_WARNSETCHARLIMIT);
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_SETCHAROK, char_id);
+	}
+	else
+		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_SETCHARINGAME);
+}
+
+Script "DND Database Reset On Death" DEATH {
+	// remove player saved data if they die once in hardcore, if they are loaded
+	int pnum = PlayerNumber(), cid = CheckInventory("DnD_CharacterID");
+	if(HardcoreSet && PlayerIsLoggedIn(pnum) && PlayerLoaded[pnum]) {
+		if(GetCVar("dnd_hardcore")) {
+			BeginDBTransaction();
+			WipeoutPlayerData(pnum, cid);
+			EndDBTransaction();
+		}
+		PlayerLoaded[pnum] = 0;
+	}
+}
+
+Script "DnD Login Message" (int msg_no, int extra) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber() && msg_no != DND_CHARLOADED)
+		Terminate;
+	switch(msg_no) {
+		case DND_LOGIN_NOCHAR:
+			Log(s:"\cgLOGIN ERROR :   Login failed due to non-existant character! Character numbers should be between 1 - ", d:DND_MAX_CHARS, s:" and must've been declared previously using \"setchar\" command.");
+		break;
+		case DND_LOGIN_SETCHAROK:
+			Log(s:"SETCHAR :   	  Character successfully set to \cd", d:extra, s:"\c-.");
+		break;
+		case DND_LOGIN_SETCHARINGAME:
+			Log(s:"\cgSETCHAR ERROR:  Couldn't set character, already loaded another character!");
+		break;
+		case DND_LOGIN_NOTINGAME:
+			Log(s:"\cgLOAD ERROR :    You have to be in game to use this!");
+		break;
+		case DND_LOGIN_NOTHARDCORE:
+			Log(s:"\cgLOAD ERROR :    Gamemode is either not set to hardcore or softcore, or server tried to set both!");
+		break;
+		case DND_LOGIN_INCOUNTDOWN:
+			Log(s:"\cgLOAD ERROR :    Can't load during countdown!");
+		break;
+		case DND_LOGIN_NOTLOGGED:
+			Log(s:"\cgLOAD ERROR :    You have to be logged in for this to work!");
+		break;
+		case DND_LOGIN_NOTIME:
+			Log(s:"\cgLOAD ERROR :    The load time for this map is over!");
+		break;
+		case DND_LOGIN_WARNSETCHARLIMIT:
+			Log(s:"\cgSETCHAR WARNING:  Entered number not in range of 1 - ", d:DND_MAX_CHARS, s:", setting it to nearest limit!");
+		break;
+		case DND_CHARLOADED:
+			Log(n:0, s:" has loaded a character (Level ", d:CheckActorInventory(P_TIDSTART + PlayerNumber(), "Level"), s:")!");
+		break;
+	}
+}
+
+Script "DnD Save Player Orb and Stat Data" (int pnum) {
+	if(HardcoreSet && PlayerInGame(pnum) && PlayerIsLoggedIn(pnum) && !CheckActorInventory(pnum + P_TIDSTART, "CanLoad")) {
+		// if somehow you died...
+		if(GetCVar("dnd_hardcore") && PlayerDied[pnum])
+			Terminate;
+		BeginDBTransaction();
+			SavePlayerOrbData(pnum);
+		EndDBTransaction();
+	}
+}

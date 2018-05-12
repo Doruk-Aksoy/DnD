@@ -1,0 +1,129 @@
+pulselight EXCALIBOOM
+{
+    color 0.25 1.0 0.25
+    size 48
+    secondarysize 144
+    interval 0.4
+}
+
+pointlight EXCALIBOLT
+{
+    color 0.25 1.0 0.25
+    size 48
+}
+
+object ExcalibatBall
+{
+	frame ECAL { light EXCALIBOLT }
+    frame D3BX { light EXCALIBOOM }
+}
+
+object ExcalibatBall_FullDMG
+{
+	frame ECAL { light EXCALIBOLT }
+    frame D3BX { light EXCALIBOOM }
+}
+
+flickerlight FDKatanaNormalSlashLight1
+{
+    color 0.1 0.1 0.1
+    size 15
+    secondarySize 20
+    chance 0.5
+}
+
+flickerlight FDKatanaNormalSlashLight2
+{
+    color 0.3 0.3 0.3
+    size 20
+    secondarySize 30
+    chance 0.5
+}
+
+flickerlight FDKatanaNormalSlashLight3
+{
+    color 0.15 0.15 0.15
+    size 25
+    secondarySize 35
+    chance 0.5
+}
+
+flickerlight FDKatanaNormalSlashLight4
+{
+    color 0.05 0.05 0.05
+    size 30
+    secondarySize 40
+    chance 0.5
+}
+
+pulselight FDKatanaBigLight
+{
+    color 0.15 0.3 0.7
+    size 30
+    secondarySize 40
+    interval 0.1
+}
+
+pulselight FDKatanaBigLight2
+{
+    color 0.05 0.1 0.25
+    size 30
+    secondarySize 40
+    interval 0.1
+}
+
+pulselight FDKatanaBigLight3
+{
+    color 0.0 0.05 0.1
+    size 20
+    secondarySize 30
+    interval 0.1
+}
+
+pulselight FDKatanaBigLight4
+{
+    color 0.0 0.0 0.05
+    size 10
+    secondarySize 20
+    interval 0.1
+}
+
+pulselight FDKatanaSmallLight
+{
+    color 0.1 0.2 0.5
+    size 20
+    secondarySize 30
+    interval 0.1
+}
+
+pulselight FDKatanaSlashLight1
+{
+    color 0.05 0.2 0.5
+    size 15
+    secondarySize 20
+    interval 0.1
+}
+
+pulselight FDKatanaSlashLight2
+{
+    color 0.1 0.25 0.6
+    size 20
+    secondarySize 30
+    interval 0.1
+}
+
+pulselight FDKatanaSlashLight3
+{
+    color 0.15 0.3 0.7
+    size 25
+    secondarySize 35
+    interval 0.1
+}
+
+pulselight FDKatanaSlashLight4
+{
+    color 0.2 0.4 0.9
+    size 30
+    secondarySize 40
+    interval 0.1
+}

@@ -1,0 +1,1400 @@
+#library "DND_MENU"
+#include "zcommon.h"
+
+#include "DnD_MenuFuncs.h"
+
+/*
+- Main idea here is simple. There are two main scripts: One draws the menu CLIENTSIDE, the other receives button info and stuff from client and vital info from server.
+- There are A TON of helper functions to formulate things. Getters are all over the place.
+- Everything in the shop has an ID associated with it.
+- Everything is flexible and can be customized very easily (!!!). The essential code for input listeners etc are provided, and can be changed at will depending on the menu pages to achieve
+different behavior.
+
+============= ADDING NEW WEAPONS TO SHOP =============
+
+1) Add it to DnD_Weapons.h
+2) Add constant to DnD_MenuConstants.h, modify begin/last macros if position of them has changed
+3) Add price, shop menu labels, shop menu helper text, research requirements (if any) and WeaponDrawInfo to DnD_MenuTables.h
+4) Add weapon tip to DnD.h
+5) Increment box count of whichever slot page it belongs to in DnD_MenuFuncs => LoadPane function
+6) Done!
+*/
+
+// Shows the menu
+Script 900 (void) NET {
+	if(StatListOpened[PlayerNumber()]) {
+		SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+		TakeInventory("P_Frozen", 1);
+		StatListOpened[PlayerNumber()] = 0;
+		SetInventory("ShowingMenu", 0);
+		SetInventory("MenuOption", 5);
+		SetInventory("MenuPosX", 0);
+		SetInventory("ActiveBox", 0);
+		SetInventory("ActiveMainBox", 0);
+		SetInventory("MadeChoice", 0);
+		SetInventory("DnD_PopupId", 0);
+		TakeInventory("DnD_ShowPopup", 1);
+		TakeInventory("DnD_ShowSellPopup", 1);
+		TakeInventory("DnD_SellConfirm", 1);
+		DecideAccessories();
+		//SetInventory("MenuPosY", 5);
+		LocalAmbientSound("RPG/MenuClose", 127);
+		ACS_NamedExecuteAlways("DND Menu Draw", 0);
+	}
+	else {
+		if(!PlayerIsSpectator(PlayerNumber()) && !CheckInventory("ParsingData")) {
+			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+			GiveInventory("P_Frozen", 1);
+			StatListOpened[PlayerNumber()] = 1;
+			SetInventory("ShowingMenu", 1);
+			SetInventory("MenuOption", MENU_MAIN);
+			SetInventory("MenuPosX", 0);
+			SetInventory("ActiveBox", 0);
+			SetInventory("ActiveMainBox", 0);
+			SetInventory("Mouse_X", HUDMAX_XF / 2);
+			SetInventory("Mouse_Y", HUDMAX_YF / 2);
+			LocalAmbientSound("RPG/MenuOpen", 127);
+			ACS_NamedExecuteAlways("DND Menu Draw", 0);
+			ACS_NamedExecuteAlways("DND Menu Input Handle", 0);
+		}
+		else {
+			SetHudSize(800, 600, 1);
+			HudMessage(s: "You have to be in the game to use the menu"; HUDMSG_FADEINOUT, MENUUSEID, CR_GOLD, 400.4, 2.1, 4.0, 1.0, 1.0);
+		}
+	}
+}
+
+Script "DND Menu Popup Handle" (void) {
+	while(CheckInventory("DnD_ShowPopup") || CheckInventory("DnD_ShowSellPopup"))
+		Delay(1);
+	TakeInventory("DnD_PopupHack", 1);
+	TakeInventory("DnD_PopupError", 1);
+	TakeInventory("DnD_PopupSell", 1);
+	TakeInventory("DnD_PopupFullAmmo", 1);
+}
+
+Script "DND Server Box Receive" (int boxid, int mainboxid) NET {
+	GiveActorInventory(ActivatorTID(), "DND_ACK", 1);
+	SetActorInventory(ActivatorTID(), "ActiveBox", boxid);
+	SetActorInventory(ActivatorTID(), "ActiveMainBox", mainboxid);
+}
+
+Script "DND Menu Cleanup" (void) CLIENTSIDE {
+	DeleteText(RPGMENUID);
+	DeleteText(RPGMENUBACKGROUNDID);
+	DeleteText(RPGMENULARRID);
+	DeleteText(RPGMENURETARRID);
+	DeleteText(RPGMENURARRID);
+	DeleteText(RPGMENUHELPID);
+	DeleteText(RPGMENUNAMEID);
+	DeleteText(RPGMENUHELPCORNERID);
+	DeleteText(RPGMENUHELPCORNERIDMAIN);
+	DeleteText(RPGMENUCURSORID);
+	DeleteText(RPGMENUPAGEID);
+	DeleteText(RPGMENUPAGEID - 1);
+	
+	DeleteTextRange(RPGMENUINFOID, RPGMENULISTID);
+	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
+
+	// login screen for hardcore
+	DeleteText(DND_HARDCORE_SCREENID);
+}
+
+Script "DND On Disconnect Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
+	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
+}
+
+Script "DND Menu Draw" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber()) Terminate;
+	
+	int animcounter = 0, framecounter = 0, pnum = PlayerNumber(), temp;
+	int popupid, i = 0, j = 0, k = 0, mousex, mousey;
+	str toshow;
+	bool drawlit = 0;
+	int curopt, curopt_prev = MENU_NULL;
+	int boxid, boxid_prev = MAINBOX_NONE, mainboxid, mainboxid_prev = MAINBOX_NONE;
+	auto CurrentPane = GetPane();
+	
+	if(!CheckInventory("ShowingMenu")) { // close the menu
+		// reset variables
+		boxid_prev = MAINBOX_NONE;
+		mainboxid_prev = MAINBOX_NONE;
+		curopt_prev = MENU_NULL;
+		drawlit = 0;
+		animcounter = framecounter = 0;
+		
+		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
+		ResetPane(CurrentPane);
+	}
+	else {
+		while(CheckInventory("ShowingMenu")) {
+			// Load cursor stuff
+			mousex = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
+			mousey = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
+			SetInventory("Mouse_X", mousex);
+			SetInventory("Mouse_Y", mousey);
+			curopt = CheckInventory("MenuOption");
+			popupid = CheckInventory("DnD_PopupId");
+			
+			if(curopt != curopt_prev) {
+				ResetPane(CurrentPane);
+				LoadPane(CurrentPane, curopt);
+				ScrollPos = 0;
+				k = 0;
+			}
+			curopt_prev = curopt;
+			
+			// set to none or sth if this is up
+			if(CheckInventory("DnD_SellConfirm")) {
+				boxid = CheckInventory("ActiveBox");
+				mainboxid = CheckInventory("ActiveMainBox");
+			}
+			else {
+				boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, curopt);
+				mainboxid = GetTriggeredBoxOnMainPane(mousex, mousey);
+				SetInventory("ActiveBox", boxid);
+				SetInventory("ActiveMainBox", mainboxid);
+			}
+			NamedRequestScriptPuke("DND Server Box Receive", boxid, mainboxid);
+			drawlit = 0;
+			
+			// play sound if box changed
+			// ifs are seperate because scroll pos should only change if current in-pane box is changed
+			if(boxid != boxid_prev && boxid != MAINBOX_NONE) {
+				if(curopt != MENU_LOAD4)
+					ScrollPos = 0;
+				LocalAmbientSound("RPG/MenuMove", 127);
+			}
+			if(mainboxid_prev != mainboxid && mainboxid != MAINBOX_NONE)
+				LocalAmbientSound("RPG/MenuMove", 127);
+			boxid_prev = boxid;
+			mainboxid_prev = mainboxid;
+
+			SetHudSize(384, 200, 1);
+			SetFont("DND_STAT");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 192.0, 100.0, 0.0, 0.0);
+			SetFont("DND_STAB");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 192.0, 100.0, 0.0, 0.0);
+			// the 3 buttons at bottom
+			DrawClickableButton("LARR", mainboxid, MAINBOX_LARR, RPGMENULARRID, 218.0, 184.0, "LARRO", "LARR_P");
+			DrawClickableButton("RETARR", mainboxid, MAINBOX_RET, RPGMENURETARRID, 251.0, 184.0, "RETARRO", "RETARR_P");
+			DrawClickableButton("RARR", mainboxid, MAINBOX_RARR, RPGMENURARRID, 284.0, 184.0, "RARRO", "RARR_P");
+			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+			DrawCursor();
+			SetFont("SMALLFONT");
+			DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
+			DeleteText(RPGMENUPAGEID);
+			DeleteText(RPGMENUPAGEID - 1);
+			if(curopt == MENU_STAT1) {
+				HudMessage(s:"--- Player Stats ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				SetHudClipRect(192, 56, 256, 144, 256, 1);
+				HudMessage(s:"\c[Y5]Level: \c-", d:CheckInventory("Level"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Experience: \c-", d:CheckInventory("Exp"), s:" / ", d:LevelCurve[CheckInventory("Level") - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Attribute Points: \c-", d:CheckInventory("AttributePoint"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0, 0);
+				
+				DrawToggledLabel("Strength", STAT_BASE + CheckInventory("PSTAT_Strength"), boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 160.0);
+				DrawToggledLabel("Dexterity", STAT_BASE + CheckInventory("PSTAT_Dexterity"), boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 332.1, 160.0);
+				DrawToggledLabel("Bulkiness", STAT_BASE + CheckInventory("PSTAT_Bulkiness"), boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 176.0);
+				DrawToggledLabel("Charisma", STAT_BASE + CheckInventory("PSTAT_Charisma"), boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 332.1, 176.0);
+				DrawToggledLabel("Vitality", STAT_BASE + CheckInventory("PSTAT_Vitality"), boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 192.0);
+				DrawToggledLabel("Intellect", STAT_BASE + CheckInventory("PSTAT_Intellect"), boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 332.1, 192.0);
+			
+				SetHudClipRect(184, 208, 256, 64, 256, 1);
+				if(boxid != MAINBOX_NONE)
+					HudMessage(s:"* ", s:AttributeExplanation[boxid - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0, 0);
+				
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_STAT2) {
+				i = CheckInventory("PSTAT_Bulkiness");
+				
+				HudMessage(s:"--- Current Gains ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:((DND_STR_GAIN * CheckInventory("PSTAT_Strength")) >> 16) * 100, s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetSpawnHealth() - DND_BASE_HEALTH, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetArmorCap() - DND_BASE_ARMOR, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+				if(i > 100)
+					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * 100 + (i - 100) * DND_BULKINESS_GAIN_AFTER100), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
+				else
+					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * CheckInventory("PSTAT_Bulkiness")), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_DEX_GAIN * CheckInventory("PSTAT_Dexterity")), s:"%\c- physical damage"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 128.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_INT_GAIN * CheckInventory("PSTAT_Intellect")), s:"%\c- magic damage"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 144.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * CheckInventory("PSTAT_Charisma")), s:"%\c- discount"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 160.0, 0.0, 0.0);
+				if(GetBonusPlayerSpeed(pnum) >= 0)
+					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 176.0, 0.0, 0.0);
+				else
+					HudMessage(s:"- \c[Q2]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 176.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * (GetDropChance(pnum, 0) - 1.0)), s:"%\c- drop chance"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 192.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:CalculateWisdomBonus(), s:"%\c- exp bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 208.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:CalculateGreedBonus(), s:"%\c- credit bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 192.1, 224.0, 0.0, 0.0);
+				if(GetCVar("survival")) {
+					HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 190.1, 256.0, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 190.1, 272.0, 0.0, 0.0);
+				}
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_STAT3) {
+				ListenScroll(-128, 0);
+			
+				toshow = "";
+				j = 0;
+				HudMessage(s:"--- Quest Bonuses ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				for(i = 0; i < MAX_QUESTS; ++i) {
+					if(IsQuestComplete(0, i)) {
+						toshow = StrParam(s:toshow, s:"\cf*\c- ", s:Quest_Description[i][QUEST_REW], s:"\n\n");
+						++j;
+					}
+				}
+				SetHudClipRect(192, 56, 256, 448, 256); // 48 because 64 is begin, text one line len is 16, 48 is max allowed lines, 16 x 3.
+				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 64.1 + 2.0 * ScrollPos, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0, 0);
+			
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_PERK) {
+				HudMessage(s:"--- Player Perks ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				
+				HudMessage(s:"\c[Y5]Perks Available: \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
+				
+				for(i = 0; i < DND_PERKS; ++i)
+					DrawToggledLabel(PerkLabels[i][PERK_LABEL], CheckInventory(PerkLabels[i][PERK_ITEM]), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
+			}
+			else if(curopt == MENU_LOAD) {
+				HudMessage(s:"--- Loadout Selection ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawBoxText("Weapon Loadout", boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Item Loadout", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Talent Loadout", boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Accessory Loadout", boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_LOAD1) {
+				// handle scale here in the future, doesn't get to fit all weps
+				ListenScroll(-32 * (i / 3 + k / 8), 0);
+
+				HudMessage(s:"--- Weapons Acquired ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				SetHudClipRect(192, 64, 256, 512, 256, 1);
+				i = 0, k = 0;
+				for(j = 0; j < MAXWEPS; ++j) {
+					// make this part into a function later
+					if(CheckInventory(Weapons[j][WEAPON_NAME])) {
+						HudMessage(s:"\c[Y5]", d:i + 1, s:". ", s:"\c[R5]", s:Weapons[j][WEAPON_TAG], s:":\c- \c[Y5]Slot - ", s:Weapons[j][WEAPON_SLOT]; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i, CR_WHITE, 192.1, 64.1 + 48.0 * i + 16.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+						ShowWeaponIcon(j, i, k);
+						temp = GetWeaponEnchantDisplay(pnum, j);
+						if(temp) {
+							HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 1, CR_WHITE, 256.1, 80.1 + 48.0 * i + 16.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+							++k;
+						}
+						temp = GetCritChanceDisplay(pnum, j);
+						if(temp) {
+							HudMessage(s:"\c[Y5]* Crit Chance: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 2, CR_WHITE, 256.1, 80.1 + 48.0 * i + 16.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+							++k;
+						}
+						if(HasCritDamageBonus(pnum, j)) {
+							HudMessage(s:"\c[Y5]* Crit Damage: \c[Q9]", f:GetCritDamageDisplay(pnum, j), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 3, CR_WHITE, 256.1, 80.1 + 48.0 * i + 16.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+							++k;
+						}
+						temp = GetBonusDamageDisplay(pnum, j);
+						if(temp) {
+							if(temp > 0)
+								HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 4, CR_WHITE, 256.1, 80.1 + 48.0 * i + 16.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+							else
+								HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q2]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 4, CR_WHITE, 256.1, 80.1 + 48.0 * i + 16.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+							++k;
+						}
+						++i;
+					}
+				}
+				SetHudClipRect(0, 0, 0, 0, 0, 0);
+			}
+			else if(curopt == MENU_LOAD2) {
+				HudMessage(s:"--- Items Acquired ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				j = 0;
+				for(i = SHOP_FIRSTARTI_INDEX; i <= SHOP_LASTDRAWNARTI_INDEX; ++i) {
+					if(CheckInventory(ShopItemNames[i][SHOPNAME_ITEM])) {
+						HudMessage(s:"\c[Y5]", s:ShopItemNames[i][SHOPNAME_TAG], s:": \cj", d:CheckInventory(ShopItemNames[i][SHOPNAME_ITEM]); HUDMSG_PLAIN, RPGMENUITEMID - 1 - i + SHOP_FIRSTARTI_INDEX, CR_WHITE, 184.1, 64.0 + j, 0.0, 0.0);
+						j += 16.0;
+					}
+				}
+			}
+			else if(curopt == MENU_LOAD3) {
+				HudMessage(s:"--- Talents Acquired ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				for(i = 0; i < MAX_TALENTS; ++i) {
+					toshow = TalentTypeNames[i];
+					HudMessage(s:"\c[Y5]", s:toshow, s:" Talent:"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 184.1, 64.0 + 16.0 * i, 0.0, 0.0);
+					if(i != TALENT_OCCULT)
+						j = DND_DEX_GAIN * GetDexterity();
+					else
+						j = DND_INT_GAIN * GetIntellect();
+					HudMessage(f:ftrunc((DND_TALENT_INCREASE + j) * CheckInventory(TalentNames[i])), s:"% (\cd", d:CheckInventory(TalentNames[i]), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - i - MAX_TALENTS - 2, CR_WHITE, 448.2, 64.0 + 16.0 * i, 0.0, 0.0);
+				}
+			}
+			else if(curopt == MENU_LOAD4) {
+				if(!k)
+					ResetPane(CurrentPane);
+				// if RES_ACCESSORY is not made, don't let player do anything here
+				if(CheckResearchStatus(RES_ACCESSORY) != RES_DONE)
+					HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				else {
+					ListenScroll(-72 * (i / 3), 0);
+
+					HudMessage(s:"--- Current Accessories ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+					i = 0;
+					SetHudClipRect(192, 52, 256, 512, 256, 1);
+					for(j = 0; j < MAX_ACCESSORY; ++j) {
+						if(CheckInventory(AccessoryList[j])) {
+							if(!k) { // don't keep adding boxes
+								auto r = LoadRect(curopt, j); // j is accessory index, we load x index from rect list
+								// 95 is how much one label is moved down, i counts labels
+								AddBoxToPane_Points(CurrentPane, r.topleft_x, r.topleft_y - 95.0 * i, r.botright_x, r.botright_y - 95.0 * i);
+							}
+							if(boxid == i + 1) {
+								HudMessage(s:"\c[B1]", s:AccessoryNames[j]; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i, CR_GREEN, 316.4, 52.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+								HudMessage(s:StrParam(s:"+ ", s:AccessoryBenefits[j], s:"\n\c[D4]- ", s:AccessoryNegatives[j]); HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i - 1, CR_GREEN, 192.1, 84.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+							}
+							else if(IsAccessoryEquipped(0, 1 << j)) {
+								HudMessage(s:AccessoryNames[j]; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i, CR_GOLD, 316.4, 52.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+								HudMessage(s:StrParam(s:"\c[V2]+ ", s:AccessoryBenefits[j], s:"\n\c[C5]- ", s:AccessoryNegatives[j]); HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i - 1, CR_GREEN, 192.1, 84.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+							}
+							else {
+								HudMessage(s:"\c[Y5]", s:AccessoryNames[j]; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i, CR_WHITE, 316.4, 52.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+								HudMessage(s:StrParam(s:"+ ", s:AccessoryBenefits[j], s:"\n\c[I7]- ", s:AccessoryNegatives[j]); HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i - 1, CR_WHITE, 192.1, 84.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+							}
+							ShowAccessoryIcon(j, i);
+							++i;
+						}
+					}
+					k = 1;
+					SetHudClipRect(0, 0, 0, 0, 0);
+				}
+			}
+			else if(curopt == MENU_SHOP) {
+				HudMessage(s:"--- DnD Shop ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				DrawBoxText("Weapons Menu", boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Ammunition Menu", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Abilities Menu", boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Artifacts Menu", boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Talents Menu", boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Armors Menu", boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_SHOP_WEAPON) {
+				HudMessage(s:"--- WEAPONS ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = 0; i < 8; ++i) {
+					if(boxid == MBOX_1 + i)
+						HudMessage(s:"\c[B1]Slot ", d:i + 1, s:"\c- <--"; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+					else
+						HudMessage(s:"\c[Y5]Slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+				}
+
+				HudMessage(s:"\c[Y5]LEGEND\n* \c[J7][\c[S7]R\c[J7]] - Replaces slot weapon.\n* \c[J7][\c[E3]L\c[J7]] - Luxury weapon.\n\c[J7]        Can carry at most 1."; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 192.1, 240.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_WEAPON1) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON1_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-32, 0);
+				
+				HudMessage(s:"--- SLOT 1 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+			
+				for(i = SHOP_WEAPON1_BEGIN; i <= SHOP_WEAPON_SLOT1END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON1_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_WEAPON2) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON2_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-16, 0);
+				
+				HudMessage(s:"--- SLOT 2 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON2_BEGIN; i <= SHOP_WEAPON_SLOT2END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON2_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_WEAPON3_1) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON31_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-16, 0);
+
+				HudMessage(s:"--- SLOT 3 (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON31_BEGIN; i <= SHOP_WEAPON_SLOT31END; ++i) {
+					DrawToggledImage(i, i - SHOP_WEAPON31_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+				}
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_WEAPON3_2) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON32_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-16, 0);
+
+				HudMessage(s:"--- SLOT 3 (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON32_BEGIN; i <= SHOP_WEAPON_SLOT32END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON32_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_WEAPON4) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON4_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-16, 0);
+
+				HudMessage(s:"--- SLOT 4 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON4_BEGIN; i <= SHOP_WEAPON_SLOT4END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON4_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_WEAPON5) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON5_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-32, 0);
+
+				HudMessage(s:"--- SLOT 5 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON5_BEGIN; i <= SHOP_WEAPON_SLOT5END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON5_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_WEAPON6) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON6_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-16, 0);
+				HudMessage(s:"--- SLOT 6 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON6_BEGIN; i <= SHOP_WEAPON_SLOT6END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON6_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_WEAPON7) {
+				if(boxid != -1 && WeaponDrawInfo[SHOP_WEAPON7_BEGIN + boxid - 1].flags & OBJ_USESCROLL)
+					ListenScroll(-16, 0);
+				
+				HudMessage(s:"--- SLOT 7 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON7_BEGIN; i <= SHOP_WEAPON_SLOT7END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON7_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_WEAPON8) {
+				HudMessage(s:"--- SLOT 8 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_WEAPON8_BEGIN; i <= SHOP_WEAPON_SLOT8END; ++i)
+					DrawToggledImage(i, i - SHOP_WEAPON8_BEGIN, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_AMMO1) {
+				HudMessage(s:"--- AMMUNITION (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+
+				for(i = SHOP_FIRSTAMMO_INDEX; i <= SHOP_LASTAMMO1_INDEX; ++i)
+					DrawToggledImage(i, i - SHOP_FIRSTAMMO_INDEX, AmmoDrawInfo[i - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_AMMO2) {
+				HudMessage(s:"--- AMMUNITION (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+
+				for(i = SHOP_FIRSTAMMO2_INDEX; i <= SHOP_LASTAMMO2_INDEX; ++i)
+					DrawToggledImage(i, i - SHOP_FIRSTAMMO2_INDEX, AmmoDrawInfo[i - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_AMMO3) {
+				HudMessage(s:"--- AMMUNITION (3) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+
+				for(i = SHOP_FIRSTAMMO3_INDEX; i <= SHOP_LASTAMMO3_INDEX; ++i)
+					DrawToggledImage(i, i - SHOP_FIRSTAMMO3_INDEX, AmmoDrawInfo[i - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_AMMO_SPECIAL1) {
+				HudMessage(s:"--- SPECIAL AMMUNITION ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+
+				for(i = SHOP_FIRSTAMMOSPECIAL_INDEX; i <= SHOP_LASTAMMO_SPECIALINDEX; ++i)
+					DrawToggledImage(i, i - SHOP_FIRSTAMMOSPECIAL_INDEX, AmmoDrawInfo[i - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_ABILITY_1) {
+				HudMessage(s:"--- ABILITIES (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_ABILITY1_BEGIN; i <= SHOP_ABILITY1_END; ++i)
+					DrawToggledImage(i, i - SHOP_ABILITY1_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_ABILITY_2) {
+				HudMessage(s:"--- ABILITIES (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = SHOP_ABILITY2_BEGIN; i <= SHOP_LASTABILITY_INDEX; ++i)
+					DrawToggledImage(i, i - SHOP_ABILITY2_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_ARTIFACT) {
+				HudMessage(s:"--- ARTIFACTS ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = 0; i < MAXARTIFACTS; ++i)
+					DrawToggledImage(SHOP_FIRSTARTI_INDEX + i, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI_INDEX + i][SHOPINFO_MAX], CR_RED);
+			}
+			else if(curopt == MENU_SHOP_TALENT) {
+				HudMessage(s:"--- TALENTS ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i = 0; i < MAX_TALENTS; ++i)
+					DrawToggledImage(SHOP_TALENT_BEGIN + i, i, OBJ_TALENT, CR_WHITE, CR_GREEN, TalentNames[i], TALENT_CAP, CR_RED);
+			}
+			else if(curopt == MENU_SHOP_ARMOR1) {
+				HudMessage(s:"--- ARMORS (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i  = 0; i < PAGE1_ARMOR_COUNT; ++i)
+					DrawToggledImage(SHOP_ARMOR_GREEN + i, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "Armor", ArmorBaseAmounts[i + 1], CR_RED);
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_ARMOR2) {
+				HudMessage(s:"--- ARMORS (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+				
+				for(i  = 0; i < PAGE2_ARMOR_COUNT; ++i)
+					DrawToggledImage(SHOP_FIRSTARMOR2_INDEX + i, i, ArmorDrawInfo[PAGE1_ARMOR_COUNT + i].flags, CR_WHITE, CR_GREEN, "Armor", ArmorBaseAmounts[i + PAGE1_ARMOR_COUNT + 1], CR_RED);
+
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_RESEARCH) {
+				i = CheckInventory("MenuPosX");
+				k = CheckResearchStatus(i);
+				j = CheckInventory("Budget");
+				
+				HudMessage(s:"--- RESEARCH PANEL ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				if(i != DND_RESEARCH_BEGIN)
+					HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+				else
+					DeleteText(RPGMENUPAGEID - 1);
+				if(i != DND_RESEARCH_END)
+					HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				else
+					DeleteText(RPGMENUPAGEID);
+				
+				if(j)
+					HudMessage(s:"\c[Y5]Budget: \c-", d:j, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]Budget: \c-0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+				
+				HudMessage(s:"\c[Y5]Entry\c- #", d:ResearchEntryNumbers[i]; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 280.1, 80.0, 0.0, 0.0);
+				if(k != RES_NA)
+					HudMessage(s:"\c[Y5]Cost: \cj$\c-", d:ResearchCosts[i], s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]Cost: ???\c-"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
+				
+				if(k < RES_DONE)
+					SetFont("RESBLAK");
+				else
+					SetFont("RESDONE");
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+				
+				if(k == RES_NA)
+					SetFont("RESNONE");
+				else
+					SetFont(GetResearchImage(i));
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
+				
+				SetFont("SMALLFONT");
+				if(k != RES_NA) {
+					SetHudClipRect(192, 144, 256, 96, 256, 1);
+					HudMessage(s:ResearchDescription[i]; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
+					SetHudClipRect(0, 0, 0, 0, 0);
+				}
+				
+				DrawBoxText("Research!", boxid, MBOX_1, RPGMENUITEMIDEND + 2, 316.0, 240.0, "\c[B1]", "\c[Y5]");				
+			}
+			else if(curopt == MENU_ABILITY) {
+				HudMessage(s:"--- Abilities Learned ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				for(i = 0; i < MAXABILITIES; ++i) {
+					toshow = "\c[G8]N/A";
+					if(CheckInventory(ShopItemNames[SHOP_ABILITY1_BEGIN + i][SHOPNAME_ITEM]))
+						toshow = "\cdLearned\c-";
+					HudMessage(s:"\c[Y5]", s:ShopItemNames[SHOP_ABILITY1_BEGIN + i][SHOPNAME_TAG], s:": \c-", s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
+				}
+					
+				str dashstatus = "\cgDisabled";
+				if(!CheckInventory("DashDisabled"))
+					dashstatus = "\cdEnabled";
+				if(boxid == MBOX_1)
+					HudMessage(s:"\c[B1]Dash: ", s:dashstatus; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]Dash: ", s:dashstatus; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_MAIN) {
+				ListenScroll(-32, 0);
+				
+				HudMessage(s:"--- Welcome to the DnD Menu! ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				ShowBobby();
+				SetHudClipRect(192, 152, 256, 192, 256, 1);
+				for(i = 0; i < MAX_HELPTEXT_MAIN; ++i)
+					HudMessage(s:"\cv*\c- ", s:HelpText_Main[i]; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 152.1 + 4.0 * ScrollPos + 96.0 * i, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP) {
+				HudMessage(s:"--- DnD Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				
+				DrawBoxText("Character Loading Help", boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Research Help", boxid, MBOX_2, RPGMENUITEMID - 1, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Damage Types Help", boxid, MBOX_3, RPGMENUITEMID - 2, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Orbs Help", boxid, MBOX_4, RPGMENUITEMID - 3, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Legendary Monster Codex", boxid, MBOX_5, RPGMENUITEMID - 4, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Monster Modifiers", boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				
+				str mapinfo = "\cgDisabled";
+				if(CheckInventory("ShowMapInfo"))
+					mapinfo = "\cdEnabled";
+				DrawBoxText(StrParam(s:"Show Map Info: ", s:mapinfo), boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 244.0, "\c[B1]", "\c[Y5]");
+				if(CheckInventory("SetMapInfo")) {
+					SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
+					SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
+				}
+			}
+			else if(curopt == MENU_HELP_CHARACTER) {
+				ListenScroll(-96, 0);
+				HudMessage(s:"--- DnD Character Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				SetHudClipRect(192, 64, 256, 192, 256, 1);
+				
+				for(i = 0; i < MAX_HELPTEXT_CHARACTER; ++i)
+					HudMessage(s:"\c[Y5]* \c-", s:HelpText_Character[i]; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 64.1 + 72.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_RESEARCHES) {
+				ListenScroll(-32, 0);
+				HudMessage(s:"--- DnD Researches Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				SetHudClipRect(192, 64, 256, 192, 256, 1);
+				
+				for(i = 0; i < MAX_HELPTEXT_RESEARCH; ++i)
+					HudMessage(s:"\c[Y5]* \c-", s:HelpText_Research[i]; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 64.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_DAMAGETYPES) {
+				ListenScroll(-96, 0);
+				HudMessage(s:"--- DnD Damage Types Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 64, 256, 384, 256, 1);
+				for(i = 0; i < MAX_HELPTEXT_DAMAGETYPES; ++i) {
+					HudMessage(s:HelpText_DamageTypes[i]; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 64.1 + 80.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+					ShowDamageTypeIcon(i);
+				}
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_ORBS) {
+				ListenScroll(-144, 0);
+				HudMessage(s:"--- DnD Orbs Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 60, 256, 384, 256, 1);
+				for(i = 0; i < MAX_HELPTEXT_ORBS; ++i) {
+					HudMessage(s:HelpText_Orbs[i]; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 96.0 * i + 8.0 * ScrollPos, 0.0, 0.0);
+					ShowOrbIcon(i);
+				}
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_LEGMONS) {
+				ListenScroll(-64 * (j / 2), 0);
+				HudMessage(s:"--- Legendary Monster Codex ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 52, 256, 384, 256, 1);
+				j = 0;
+				for(i = 0; i < MAX_LEGMONS_TEXT; ++i) {
+					if(HasKilledLegendary(i)) {
+						HudMessage(s:LegendaryMonsterText[i]; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 112.1 + 144.0 * j + 4.0 * ScrollPos, 0.0, 0.0);
+						ShowLegendaryMonsterIcon(i, j);
+						++j;
+					}
+				}
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_MMODS) {
+				ListenScroll(-48 * (i / 2), 0);
+				HudMessage(s:"--- Elite Monster Modifiers ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 52, 256, 384, 256, 1);
+				for(i = 0; i < MAX_MONSTER_MODS; ++i) {
+					HudMessage(s:"\c[Y5]", s:Help_EliteModLabel[i]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * i, CR_WHITE, 192.1, 96.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+					HudMessage(s:Help_EliteModExplanation[i]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * i - 1, CR_WHITE, 192.1, 112.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				}
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			
+			DrawHelpCorner(curopt, boxid);
+			// Main menu side bar
+			
+			// Side bar options with animations
+			if(CheckInventory("AttributePoint") && !(framecounter % 2)) {
+				if(mainboxid == MAINBOX_STATS)
+					drawlit = 1;
+				HudMessage(s:"\c[B3]Stats\c-"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+			} 
+			else {
+				if(mainboxid == MAINBOX_STATS)
+					HudMessage(s:"\c[B1]Stats\c-"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]Stats\c-"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+			}
+			
+			if(CheckInventory("PerkPoint") && !(framecounter % 2)) {
+				if(mainboxid == MAINBOX_PERK)
+					drawlit = 1;
+				HudMessage(s:"\c[B3]Perks\c-"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+			}
+			else {
+				if(mainboxid == MAINBOX_PERK)
+					HudMessage(s:"\c[B1]Perks\c-"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]Perks\c-"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+			}
+			
+			// Rest of the side bar options
+			if(mainboxid == MAINBOX_LOAD)
+				HudMessage(s:"\c[B1]Loadout\c-"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0, 0.0);
+			else
+				HudMessage(s:"\c[Y5]Loadout\c-"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0, 0.0);
+			
+			if(mainboxid == MAINBOX_SHOP)
+				HudMessage(s:"\c[B1]Shop\c-"; HUDMSG_PLAIN, RPGMENULISTID - 3, -1, 96.0, 221.0, 0.0, 0.0);
+			else
+				HudMessage(s:"\c[Y5]Shop\c-"; HUDMSG_PLAIN, RPGMENULISTID - 3, -1, 96.0, 221.0, 0.0, 0.0);
+			
+			if(mainboxid == MAINBOX_RESEARCH)
+				HudMessage(s:"\c[B1]Research\c-"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0, 0.0);
+			else
+				HudMessage(s:"\c[Y5]Research\c-"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0, 0.0);
+			
+			if(mainboxid == MAINBOX_ABILITY)
+				HudMessage(s:"\c[B1]Abilities\c-"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0, 0.0);
+			else
+				HudMessage(s:"\c[Y5]Abilities\c-"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0, 0.0);
+			
+			if(mainboxid == MAINBOX_HELP)
+				HudMessage(s:"\c[B1]Help\c-"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0, 0.0);
+			else
+				HudMessage(s:"\c[Y5]Help\c-"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0, 0.0);
+			
+			HudMessage(s:"\c[Y5]Lasted: \cj", d:CheckInventory("RoundsSurvived"); HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
+			
+			DrawHighLightBar(mainboxid, drawlit);
+			// Main Menu Side Bar Ends
+			
+			// Handle all types of popups
+			HandlePopups(popupid);
+			
+			Delay(1);
+			
+			animcounter++;
+			if(animcounter == 17) {
+				animcounter = 0;
+				framecounter = (++framecounter) % 3;
+			}
+			
+			// retry ack
+			if(!CheckInventory("DND_ACK"))
+				NamedRequestScriptPuke("DND Server Box Receive", boxid, mainboxid);
+		}
+	}
+}
+
+Script "DND Menu Input Handle" (void) {
+	int curposx, curopt, credit, buystatus = 0, temp, page = -1;
+	int pnum = PlayerNumber();
+	int boxid, mainboxid;
+	FlushStack(pnum);
+	while(CheckInventory("ShowingMenu") == 1) { // first screen
+		curposx = CheckInventory("MenuPosX");
+		boxid = CheckInventory("ActiveBox");
+		mainboxid = CheckInventory("ActiveMainBox");
+		curopt = CheckInventory("MenuOption");
+		credit = CheckInventory("Credit");
+		
+		// This handles the popup messages in the shop
+		if(!CheckInventory("DnD_PopupHack") && CheckInventory("DnD_ShowPopup")) {
+			GiveInventory("DnD_PopupHack", 1); // make this only execute one script
+			ACS_NamedExecuteAlways("DND Menu Popup Handle", 0);
+		}
+		
+		// Easy change to main menu sub parts
+		
+		if(mainboxid != MAINBOX_NONE) {
+			ListenInput(0, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				HandleButtonClick(mainboxid);
+				if(mainboxid == MAINBOX_STATS)
+					UpdateMenuPosition(0, MENU_STAT1);
+				else if(mainboxid == MAINBOX_PERK)
+					UpdateMenuPosition(0, MENU_PERK);
+				else if(mainboxid == MAINBOX_LOAD)
+					UpdateMenuPosition(0, MENU_LOAD);
+				else if(mainboxid == MAINBOX_SHOP)
+					UpdateMenuPosition(0, MENU_SHOP);
+				else if(mainboxid == MAINBOX_RESEARCH)
+					UpdateMenuPosition(0, MENU_RESEARCH);
+				else if(mainboxid == MAINBOX_ABILITY)
+					UpdateMenuPosition(0, MENU_ABILITY);
+				else if(mainboxid == MAINBOX_HELP)
+					UpdateMenuPosition(0, MENU_HELP);
+				SetInventory("MadeChoice", 0);
+			}
+		}
+		
+		if(curopt == MENU_STAT1) { // stat screen
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice")) {
+				if(CheckInventory("AttributePoint") && boxid != MAINBOX_NONE) { // tried to level stat, so you must have some attrib point
+					// here we check if option was left click or right click, right click consumes whatever we can on the given selection
+					if(CheckInventory("MadeChoice") == 1)
+						temp = 1;
+					else
+						temp = Min(CheckInventory("AttributePoint"), DND_STAT_MAX - CheckInventory(StatNames[boxid - 1 + DND_ATTRIB_BEGIN]));
+				
+					if(boxid == MBOX_1 && CheckInventory("PSTAT_Strength") < DND_STAT_MAX) { // str
+						GiveInventory("PSTAT_Strength", temp);
+						TakeInventory("AttributePoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						UpdatePlayerKnockbackResist();
+					}
+					else if(boxid == MBOX_2 && CheckInventory("PSTAT_Dexterity") < DND_STAT_MAX) { // dex
+						GiveInventory("PSTAT_Dexterity", temp);
+						TakeInventory("AttributePoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_3 && CheckInventory("PSTAT_Bulkiness") < DND_STAT_MAX) { // bul
+						GiveInventory("PSTAT_Bulkiness", temp);
+//						GiveInventory("MaxArmorBonusNew", 2);
+						TakeInventory("AttributePoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_4 && CheckInventory("PSTAT_Charisma") < DND_STAT_MAX) { // chr
+						GiveInventory("PSTAT_Charisma", temp);
+						TakeInventory("AttributePoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_5 && CheckInventory("PSTAT_Vitality") < DND_STAT_MAX) { // vit
+						GiveInventory("PSTAT_Vitality", temp);
+//						GiveInventory("MaxHealthBonusNew", DND_VIT_INCREASE);
+						SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+						TakeInventory("AttributePoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_6 && CheckInventory("PSTAT_Intellect") < DND_STAT_MAX) { // int
+						GiveInventory("PSTAT_Intellect", temp);
+						TakeInventory("AttributePoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+				}
+				SetInventory("MadeChoice", 0);
+			}
+			
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_STAT2);
+		}
+		else if(curopt == MENU_STAT2) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_STAT1);
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_STAT3);
+		}
+		else if(curopt == MENU_STAT3) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_STAT2);
+		}
+		else if(curopt == MENU_PERK) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice")) {
+				if(CheckInventory("PerkPoint") && boxid != MAINBOX_NONE) { // tried to level perk, so you must have some perk point
+					// same check as above
+					if(CheckInventory("MadeChoice") == 1)
+						temp = 1;
+					else
+						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - CheckInventory(StatNames[boxid - 1 + DND_PERK_BEGIN]));
+				
+					if(boxid == MBOX_1 && CheckInventory("Perk_Sharpshooting") < DND_PERK_MAX) { // sharp
+						GiveInventory("Perk_Sharpshooting", temp);
+						TakeInventory("PerkPoint", temp);
+						CleanSharpEndPerks(RES_PERK_SHARP);
+						UpdateSharpEndPerks(RES_PERK_SHARP);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_2 && CheckInventory("Perk_Endurance") < DND_PERK_MAX) { // end
+						GiveInventory("Perk_Endurance", temp);
+						TakeInventory("PerkPoint", temp);
+						CleanSharpEndPerks(RES_PERK_ENDURANCE);
+						UpdateSharpEndPerks(RES_PERK_ENDURANCE);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_3 && CheckInventory("Perk_Wisdom") < DND_PERK_MAX) { // wisdom
+						GiveInventory("Perk_Wisdom", temp);
+						TakeInventory("PerkPoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_4 && CheckInventory("Perk_Greed") < DND_PERK_MAX) { // greed
+						GiveInventory("Perk_Greed", temp);
+						TakeInventory("PerkPoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_5 && CheckInventory("Perk_Medic") < DND_PERK_MAX) { // medic
+						GiveInventory("Perk_Medic", temp);
+						SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
+						TakeInventory("PerkPoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_6 && CheckInventory("Perk_Munitionist") < DND_PERK_MAX) { // munitionist
+						GiveInventory("Perk_Munitionist", temp);
+						TakeInventory("PerkPoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+                    else if(boxid == MBOX_7 && CheckInventory("Perk_Deadliness") < DND_PERK_MAX) { // deadliness
+                        GiveInventory("Perk_Deadliness", temp);
+						TakeInventory("PerkPoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_8 && CheckInventory("Perk_Savagery") < DND_PERK_MAX) { // savagery
+                        GiveInventory("Perk_Savagery", temp);
+						TakeInventory("PerkPoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					else if(boxid == MBOX_9 && CheckInventory("Perk_Luck") < DND_PERK_MAX) { // luck
+						GiveInventory("Perk_Luck", temp);
+						TakeInventory("PerkPoint", temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+				}
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+		}
+		else if(curopt == MENU_LOAD) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid > 0)
+					UpdateMenuPosition(0, MENU_LOAD + boxid);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+		}
+		else if(curopt == MENU_LOAD1) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_LOAD);
+		}
+		else if(curopt == MENU_LOAD2) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_LOAD);
+		}
+		else if(curopt == MENU_LOAD3) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_LOAD);
+		}
+		else if(curopt == MENU_LOAD4) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid >= MBOX_1) {
+					// figure out which accessory this player might have pressed
+					// start linear search from acc_1, until last to find matching acc, equip or unequip if needed
+					int i = 0; // count how many we have to skip
+					temp = 0;
+					for(i = 0; i < MAX_ACCESSORY && temp < boxid; ++i) {
+						if(CheckInventory(AccessoryList[i]))
+							++temp;
+					}
+					--i; // we overcount by one
+					// i will be the accessory we must toggle now
+					if(IsAccessoryEquipped(0, 1 << i)) {
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						UnequipAccessory(1 << i);
+					}
+					else if(!ReachedAccessoryLimit()) {
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						EquipAccessory(1 << i);
+					}
+					else {
+						// make into some popup function later
+						LocalAmbientSound("RPG/MenuError", 127);
+						GiveInventory("DnD_ShowPopup", 1);
+						GiveInventory("DnD_PopupError", 1);
+						SetInventory("DnD_PopupId", POPUP_MAXACCESSORYEQUIPPED);
+					}
+				}
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_LOAD);
+			SetInventory("MadeChoice", 0);
+		}
+		else if(curopt == MENU_SHOP) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid == MBOX_1)
+					page = MENU_SHOP_WEAPON;
+				else if(boxid == MBOX_2)
+					page = MENU_SHOP_AMMO1;
+				else if(boxid == MBOX_3)
+					page = MENU_SHOP_ABILITY_1;
+				else if(boxid == MBOX_4)
+					page = MENU_SHOP_ARTIFACT;
+				else if(boxid == MBOX_5)
+					page = MENU_SHOP_TALENT;
+				else if(boxid == MBOX_6)
+					page = MENU_SHOP_ARMOR1;
+				if(boxid != MAINBOX_NONE && page != -1)
+					UpdateMenuPosition(0, page);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+		}
+		else if(curopt == MENU_SHOP_WEAPON) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE && boxid < MBOX_9) {
+					// 2nd page of shotguns is not the next
+					if(MENU_SHOP_WEAPON1 + boxid - 1 >= MENU_SHOP_WEAPON3_2)
+						boxid++;
+					UpdateMenuPosition(0, MENU_SHOP_WEAPON1 + boxid - 1);
+				}
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+		}
+		else if(curopt == MENU_SHOP_WEAPON1) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) { // buy
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON1_BEGIN, SHOP_WEAPON_SLOT1END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) // sell
+				ProcessTrade(boxid - 1, SHOP_WEAPON1_BEGIN, SHOP_WEAPON_SLOT1END, TRADE_SELL);
+				
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+		}
+		else if(curopt == MENU_SHOP_WEAPON2) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON2_BEGIN, SHOP_WEAPON_SLOT2END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON2_BEGIN, SHOP_WEAPON_SLOT2END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+		}
+		else if(curopt == MENU_SHOP_WEAPON3_1) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON31_BEGIN, SHOP_WEAPON_SLOT31END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON31_BEGIN, SHOP_WEAPON_SLOT31END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON3_2);
+		}
+		else if(curopt == MENU_SHOP_WEAPON3_2) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_SCROLL, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON32_BEGIN, SHOP_WEAPON_SLOT32END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON32_BEGIN, SHOP_WEAPON_SLOT32END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON3_1);
+		}
+		else if(curopt == MENU_SHOP_WEAPON4) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON4_BEGIN, SHOP_WEAPON_SLOT4END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON4_BEGIN, SHOP_WEAPON_SLOT4END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+		}
+		else if(curopt == MENU_SHOP_WEAPON5) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON5_BEGIN, SHOP_WEAPON_SLOT5END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON5_BEGIN, SHOP_WEAPON_SLOT5END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+		}
+		else if(curopt == MENU_SHOP_WEAPON6) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON6_BEGIN, SHOP_WEAPON_SLOT6END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON6_BEGIN, SHOP_WEAPON_SLOT6END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+		}
+		else if(curopt == MENU_SHOP_WEAPON7) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON7_BEGIN, SHOP_WEAPON_SLOT7END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON7_BEGIN, SHOP_WEAPON_SLOT7END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+		}
+		else if(curopt == MENU_SHOP_WEAPON8) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_WEAPON8_BEGIN, SHOP_WEAPON_SLOT8END, TRADE_BUY | TRADE_WEAPON);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+				ProcessTrade(boxid - 1, SHOP_WEAPON8_BEGIN, SHOP_WEAPON_SLOT8END, TRADE_SELL);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_WEAPON);
+		}
+		else if(curopt == MENU_SHOP_AMMO1) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					HandleAmmoPurchase(boxid, SHOP_FIRSTAMMO_INDEX, boxid - 1, false);
+				SetInventory("MadeChoice", 0);
+			} // ammos have alternate functionality for sell
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+				HandleAmmoPurchase(boxid, SHOP_FIRSTAMMO_INDEX, boxid - 1, true);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP);
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_SHOP_AMMO2);
+		}
+		else if(curopt == MENU_SHOP_AMMO2) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 2);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					HandleAmmoPurchase(boxid, SHOP_FIRSTAMMO2_INDEX, AMMO_PAGE2_BEGIN + boxid - 1, false);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+				HandleAmmoPurchase(boxid, SHOP_FIRSTAMMO2_INDEX, AMMO_PAGE2_BEGIN + boxid - 1, true);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_AMMO1);
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_SHOP_AMMO3);
+		}
+        else if(curopt == MENU_SHOP_AMMO3) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 2);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					HandleAmmoPurchase(boxid, SHOP_FIRSTAMMO3_INDEX, AMMO_PAGE3_BEGIN + boxid - 1, false);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+				HandleAmmoPurchase(boxid, SHOP_FIRSTAMMO3_INDEX, AMMO_PAGE3_BEGIN + boxid - 1, true);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_AMMO2);
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_SHOP_AMMO_SPECIAL1);
+		}
+		else if(curopt == MENU_SHOP_AMMO_SPECIAL1) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					HandleAmmoPurchase(boxid, SHOP_FIRSTAMMOSPECIAL_INDEX, AMMO_PAGESPECIAL_BEGIN + boxid - 1, false);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+				HandleAmmoPurchase(boxid, SHOP_FIRSTAMMOSPECIAL_INDEX, AMMO_PAGESPECIAL_BEGIN + boxid - 1, true);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_AMMO3);
+		}
+		else if(curopt == MENU_SHOP_ABILITY_1) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_ABILITY1_BEGIN, SHOP_ABILITY1_END, TRADE_BUY | TRADE_ABILITY);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP);
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_SHOP_ABILITY_2);
+		}
+		else if(curopt == MENU_SHOP_ABILITY_2) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_ABILITY2_BEGIN, SHOP_LASTABILITY_INDEX, TRADE_BUY | TRADE_ABILITY);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_ABILITY_1);
+		}
+		else if(curopt == MENU_SHOP_ARTIFACT) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_FIRSTARTI_INDEX, SHOP_LASTARTI_INDEX, TRADE_BUY | TRADE_ARTIFACT);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP);
+		}
+		else if(curopt == MENU_SHOP_TALENT) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_TALENT_BEGIN, SHOP_LASTTALENT_INDEX, TRADE_BUY | TRADE_TALENT);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP);
+		}
+		else if(curopt == MENU_SHOP_ARMOR1) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_ARMORPAGE1_BEGIN, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+				ProcessTrade(boxid - 1, SHOP_ARMORPAGE1_BEGIN, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP);
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT)
+				UpdateMenuPosition(0, MENU_SHOP_ARMOR2);
+		}
+		else if(curopt == MENU_SHOP_ARMOR2) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(boxid - 1, SHOP_ARMORPAGE2_BEGIN, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR);
+				SetInventory("MadeChoice", 0);
+			}
+			else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+				ProcessTrade(boxid - 1, SHOP_ARMORPAGE2_BEGIN, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_SHOP_ARMOR1);
+		}
+		else if(curopt == MENU_RESEARCH) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR, curposx, 0, MAX_RESEARCHES - 1);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid == MBOX_1) {
+					buystatus = CanResearch(curposx);
+					if(!buystatus) {
+						TakeInventory("Budget", ResearchCosts[curposx]);
+						LocalAmbientSound("items/research", 127);
+						CompleteResearch(curposx);
+					}
+					else {
+						LocalAmbientSound("RPG/MenuError", 127);
+						GiveInventory("DnD_ShowPopup", 1);
+					}
+				}
+				else if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+					ReturnToMain();
+				SetInventory("MadeChoice", 0);
+			}
+		}
+		else if(curopt == MENU_ABILITY) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid == MBOX_1) {
+					SetInventory("DashDisabled", !CheckInventory("DashDisabled"));
+					ACS_NamedExecuteAlways("DnD Toggle User Dash", 0);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+		}
+		else if(curopt == MENU_HELP) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
+					page = MENU_HELP_BEGIN + boxid - 1;
+				else if(boxid > MENU_HELP_END - MENU_HELP_BEGIN + 1) {
+					GiveInventory("SetMapInfo", 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				if(boxid != MAINBOX_NONE && page != -1)
+					UpdateMenuPosition(0, page);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+		}
+		else if(curopt >= MENU_HELP_BEGIN && curopt <= MENU_HELP_END) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(0, MENU_HELP);
+		}
+		HandleClickableButtonFrames();
+		Delay(1);
+	}
+}
+
+Script "DnD Toggle User Dash" (void) CLIENTSIDE {
+	SetCVar("dnd_dashstatus", !GetCVar("dnd_dashstatus"));
+}

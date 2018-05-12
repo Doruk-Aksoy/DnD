@@ -1,0 +1,4086 @@
+ACTOR Cardinal : HalfMechanicalEnemy
+{ 
+   Health 4500
+   Speed 7
+   Radius 40
+   Height 110
+   PainChance 50
+   Mass 700
+   Meleedamage 10 
+   SeeSound "cardinal/see"
+   PainSound "cardinal/pain"
+   ActiveSound "demon/active"
+   DeathSound "cardinal/death"
+   Missiletype "Cardinal_Rocket"
+   MissileHeight 72
+   DropItem "SoulAmmoSpawner", 128
+   MONSTER
+   bloodcolor green
+	Species "Cyber"
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	Tag "Dark Cardinal"
+	+QUICKTORETALIATE
+	+DONTHURTSPECIES   
+	+NORADIUSDMG
+	+BOSS
+	+DONTBLAST
+	+USEKILLSCRIPTS
+   Obituary "%o was blessed by the dark cardinal."  
+   States 
+   { 
+   Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CARDINAL, DND_ENERGY_WEAKNESS | DND_RAGE | DND_EXPLOSIVE_IMMUNE)
+	Idle:
+      CARD AB 4 Bright A_Look
+      Loop
+   See:
+	  TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+      CARD AABBAABBAABB 2 Fast Bright A_Chase 
+      loop
+   Missile:
+      TNT1 A 0 A_jump(128, "Missile2", "Missile3")
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+      Goto See
+   Missile2:
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
+      Goto See
+   Missile3:
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      Goto See
+   Missile4:
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+      CARD C 4 Fast Bright A_FaceTarget
+      CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+      Goto See
+   Retaliate:
+	  TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+	  TNT1 A 0 A_PlaySound("cardinal/see", CHAN_AUTO)
+	  TNT1 A 0 A_SetTranslucent(0.75, 1)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD AA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SpawnItemEx("CardinalImage", 0, 0, 0, 0, 0, 0, 0)
+	  CARD BB 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+	  TNT1 A 0 A_SetTranslucent(1.0, 0)
+      Goto Missile4
+   Pain: 
+      CARD A 4 Fast Bright
+	  TNT1 A 0 A_Pain
+	  TNT1 A 0 A_SpawnDebris("MetalScrap")
+	  TNT1 A 0 A_Jump(192, "Retaliate")
+      Goto See
+   Death:
+	  TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "Givesoul")
+   GaveSoul:
+      CARD E 8 Bright
+      CARD F 8 Bright A_Scream
+	  TNT1 A 0 A_NoBlocking
+      TNT1 AAA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 72, 0, 0, 0, 0, 128)
+	  CARD GGGG 2 Bright A_SpawnItemEx("ExplosionFXGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+	  TNT1 AAA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 72, 0, 0, 0, 0, 128)
+	  CARD HHHH 2 Bright A_SpawnItemEx("ExplosionFXGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+	  TNT1 AAA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 72, 0, 0, 0, 0, 128)
+	  TNT1 AAA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 72, 0, 0, 0, 0, 128)
+      CARD IIII 2 Bright A_SpawnItemEx("ExplosionFXGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+	  CARD JJJJ 2 Bright A_SpawnItemEx("ExplosionFXGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+	  TNT1 AAA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 72, 0, 0, 0, 0, 128)
+	  CARD KKKK 2 Bright A_SpawnItemEx("ExplosionFXGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+	  TNT1 AAA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 72, 0, 0, 0, 0, 128)
+	  CARD LLLL 2 Bright A_SpawnItemEx("ExplosionFXGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+      TNT1 A -1 A_KillMaster
+	  Stop 
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		CARD E 1 Bright
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+		TNT1 A 0 A_GiveToTarget("Souls", 3)
+	  Goto GaveSoul	 
+   } 
+}
+
+Actor CardinalImage {
+	Height 2
+	Radius 2
+	Alpha 0.75
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			CARD A 1 A_FadeOut(0.05)
+		Loop
+	}
+}
+
+Actor CardinalExp1 : BaseExplosionDamage
+{
+	DamageType "CyberExp"
+	Obituary "%o was blessed by the dark cardinal."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+		Stop
+	}
+}
+
+ACTOR Cardinal_Rocket
+{
+	Radius 11
+	Height 8
+	Speed 28
+	Damage (20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Cyber"
+	Projectile
+	+DONTBLAST
+	+RANDOMIZE
+	+DEHEXPLOSION
+	+ROCKETTRAIL
+	SeeSound "weapons/rocklf"
+	DeathSound "weapons/rocklx"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		CROC AB 4 Bright
+		Loop
+	Death:
+	    TNT1 AAA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		TNT1 A 0 A_SpawnItemEx ("BFGFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+		TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+		TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+		CROC C 8 Bright A_SpawnItem("CardinalExp1")
+		CROC D 6 Bright
+		CROC E 4 Bright
+		Stop
+	}
+}
+//====================
+Actor CardinalExp2 : BaseExplosionDamage
+{
+	DamageType "Cyber"
+	Obituary "%o was blessed by the dark cardinal."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 84, 0)
+		Stop
+	}
+}
+
+ACTOR FireT
+{
+	+NOBLOCKMAP
+	+NOTELEPORT
+	+NOGRAVITY
+	+DONTBLAST
+	RenderStyle Add
+	DamageType "Cyber"
+    Alpha 0.9
+	States
+	{
+	Spawn:
+		FIRE ABCDEFGH 6 Bright A_SpawnItem("CardinalExp2")
+		Stop
+	}
+}
+//====================
+ACTOR faintGhost1
+{
+	Radius 1
+	Height 1
+	Speed 0
+	Damage 0
+	Mass 100
+	translation "168 : 191 = 112 : 127"
+	RenderStyle Translucent
+	Alpha 0.9
+	PROJECTILE
+	scale .25
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 Thing_ChangeTid(0,390)
+	HEAD A 2 A_fadeout(0.05)
+	loop
+	}
+}
+//====================
+ACTOR faintGhost2 : faintGhost1
+{
+	scale 1
+	States
+	{
+	Spawn:
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 Thing_ChangeTid(0,390)
+	HEAD A 2 A_fadeout(0.05)
+	loop
+	}
+}
+//====================
+ACTOR faintGhost3 : faintGhost1
+{
+	scale 1
+	States
+	{
+	Spawn:
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 Thing_ChangeTid(0,390)
+	CARD AB 2 A_fadeout(0.05)
+	loop
+	}
+}
+//====================
+ACTOR painball : BaronBall2
+{
+translation "112 : 127 = 192 : 207"
+DamageType "Cyber"
+	States
+	{
+	Spawn:
+		BAL7 AB 4 BRIGHT
+		Loop
+	}
+}
+//====================
+actor DeathBall : BaronBall2
+{
+  Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "CyberGreen"
+  +SEEKERMISSILE 
+  scale .7
+  Speed 32
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    BAL7 A 4 BRIGHT A_SeekerMissile(8, 8)
+    BAL7 A 0 A_SpawnItem("BallTail", 0, 0)
+    BAL7 B 4 BRIGHT A_SeekerMissile(8, 8)
+    BAL7 A 0 A_SpawnItem("BallTail", 0, 0)
+    Loop
+  }
+}
+//====================
+ACTOR BallTail : faintGhost1
+{
+	scale .6
+	States
+	{
+	Spawn:
+	 TNT1 A 0 A_FaceTarget
+	 TNT1 A 0 Thing_ChangeTid(0,390)
+	 BAL7 AB 2 A_fadeout(0.05)
+	loop
+	}
+}
+//====================
+ACTOR CardinalPlasma  
+{
+	Radius 11
+	Height 8
+	Speed 24
+	Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberGreen"
+	Projectile
+	+FLOATBOB
+	+DONTBLAST
+	SeeSound "imp/attack"
+	DeathSound ""
+	scale 1.25
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		CRTA J 1 Bright A_SpawnItem("plasmaTail", 0, 0)
+	 Loop
+	Death:
+	 TNT1 A 0 A_FaceTarget
+	 TNT1 A 0 Thing_ChangeTid(0,390)
+	 CRTA J 2 A_fadeout(0.05)
+		Stop
+	}
+}
+//====================
+ACTOR plasmaTail
+{
+	Radius 1
+	Height 1
+	Speed 0
+	Damage 0
+	Mass 100
+	+FLOATBOB
+	PROJECTILE
+	scale .66
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+	 TNT1 A 0 A_FaceTarget
+	 TNT1 A 0 Thing_ChangeTid(0,390)
+	 CRTA IHGFEDCBABCDEFGHIJ 2 BRIGHT A_fadeout(0.05)
+	loop
+	}
+}
+
+ACTOR TerminatorX : HalfMechanicalEnemy { 
+	Health 5750 
+	Radius 40
+	Height 110
+	Mass 1500 
+	Speed 12 
+	PainChance 8
+	DamageFactor "Painless_Sun", 1.3
+	scale 1.4
+	MONSTER
+	Obituary "%o was liquidated by a Terminator."
+	+FLOORCLIP 
+	+MISSILEMORE
+	+BOSS
+	Species "Cyber"
+	+DONTHURTSPECIES
+	+NORADIUSDMG
+	+DONTRIP
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	Missiletype Grenadeblast
+	Damagefactor "Redblast", 0.0
+	SeeSound "monster/termsit" 
+	PainSound "monster/termpin" 
+	DeathSound "monster/termdth"
+	ActiveSound "Terminator/termact"
+	DropItem "SoulAmmoSpawner", 128
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "Lightning", 0.5
+	Tag "Terminator"
+	States 
+   { 
+   Spawn: 
+   		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_TERMINATOR, DND_ENERGY_WEAKNESS | DND_HARDENED_SKIN | DND_HOMING | DND_EXPLOSIVE_IMMUNE)
+	Idle:
+       TERM AB 10 A_Look 
+       Loop 
+   See:
+       TERM A 1 A_Playsound("Terminator/terstepA")
+       TERM A 3 Fast A_Chase
+       TERM A 4 Fast A_Chase
+       TERM B 4 Fast A_Chase
+       TERM B 4 Fast A_Chase
+       TERM C 1 A_Playsound("Terminator/terstepA")
+       TERM C 3 Fast A_Chase 
+       TERM C 4 Fast A_Chase
+       TERM D 4 Fast A_Chase
+       TERM D 4 Fast A_Chase
+       Loop 
+   Pain:
+       TERM L 3 Fast 	
+	   TNT1 A 0 A_SpawnDebris("MetalScrap")
+       TERM L 3 Fast A_Pain
+       Goto See
+   Missile:
+       TERM E 0 A_Jump(160, "Bullets", "RedStar") 
+   Blaster:
+       TERM EE 4 Fast A_FaceTarget
+       TERM F 8 Fast Bright A_CustomMissile("TerminatorBlaster", 56, 20,0,0)
+       TERM E 0 A_jump(144, "Refire")
+       Goto See
+   Refire:
+       TERM E 8 Fast A_Spidrefire
+       Goto Blaster
+   Bullets:
+       TERM G 2 Fast A_Facetarget
+	   TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 44, 58, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+	   TNT1 A 0 A_CustomMissile("TerminatorBullet", 60, -18, frandom(-8.0, 8.0), 0, frandom(-4.0, 4.0))
+       TERM H 1 Bright A_CustomMissile("TerminatorBullet", 60, -18, frandom(-15.0, 15.0), 0, frandom(-8.0, 8.0))
+       TERM H 1 Bright A_Playsound("Terminator/tershotB")
+       TERM G 2 Fast A_Facetarget
+	   TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 44, 58, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+       TNT1 A 0 A_CustomMissile("TerminatorBullet", 60, -18, frandom(-8.0, 8.0), 0, frandom(-4.0, 4.0))
+	   TERM I 1 Bright A_CustomMissile("TerminatorBullet", 60, -18, frandom(-15.0, 15.0), 0, frandom(-8.0, 8.0))
+       TERM I 1 Bright A_Playsound("Terminator/tershotB")
+       TERM G 0 A_jump(24, "RedStar")
+       TERM G 1 A_Spidrefire
+       Goto Bullets
+   RedStar:
+       TERM J 0 A_JumpIfCloser(224, "RedGrenade")
+   RedStarGo:
+       TERM JJ 4 Fast A_Facetarget
+       TERM K 8 Bright A_CustomMissile("Redstar", 42, -15, 0, 0)
+       Goto See
+   RedGrenade:
+       TNT1 A 0 A_Jump(48, "RedStarGo")
+       TERM JJ 4 Fast A_Facetarget
+       TERM K 8 Fast Bright A_CustomMissile("Redgrenade", 46, -15, 0, 0)
+       Goto See
+   Death:
+	   TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "Givesoul")
+   GaveSoul:  
+       TERM M 6 A_Scream
+	   TNT1 A 0 A_Fall
+       TERM N 4 A_NoBlocking
+       TERM OPQ 4 Bright
+       TERM R 0 Bright A_FaceTarget
+       TERM R 0 Bright A_SpawnItemEx("TerminatorHead", 15, 0, 90, 10, 0, 0, -170, 128)
+       TERM R 0 Bright A_SpawnItemEx("TerminatorShoulder", 60, 0, 75, 8, 0, 0, -70, 128)
+       TERM R 4 Bright A_SpawnItemEx("TerminatorArm", 60, 0, 0, 3, 0, 0, -90, 128)
+       TERM SSTTUUVV 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+	   TERM WW 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+	   TERM XXXYYY 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+       TERM Z 1 A_Playsound("Terminator/terstepA")
+       TERM Z 5 
+       TERM [ -1 A_KillMaster
+       Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		TERM M 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+		TNT1 A 0 A_GiveToTarget("Souls", 3)
+	  Goto GaveSoul	   
+   } 
+}
+
+Actor TerminatorExp1 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o was liquidated by a Terminator."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(40 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+		Stop
+	}
+}
+
+ACTOR TerminatorBlaster
+{
+   Radius 8
+   Height 12
+   Speed 28
+   Damage (15 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+   DamageType "CyberFire"
+   PROJECTILE
+   RENDERSTYLE ADD
+   alpha 0.85
+   +DONTBLAST
+   +THRUGHOST
+   SeeSound "monster/brufir"
+   DeathSound "weapons/hellex"
+   DONTHURTSHOOTER
+   Decal RevenantScorch
+   States
+   {
+   Spawn: 
+	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+   SpawnLoop:
+      0LST A 1 Bright 
+      loop
+   Death:
+	  TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	  TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+      0LST B 6 Bright A_SpawnItem("TerminatorExp1")
+      0LST CDEFGHIJKL 3 Bright 
+      stop
+   }
+}
+
+actor Redstar
+{
+    Radius 10
+    Height 20
+    Speed 16
+    Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberEnergy"
+    Scale 0.6
+    +SEEKERMISSILE
+	+DONTBLAST
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.8
+    SeeSound "Terminator/tershotA"
+    DeathSound "imp/shotx"
+    Decal CacoScorch
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+        TPR9 ABCD 3 Bright A_SeekerMissile (10,15)
+        Loop
+    Death:
+	    TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	    TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+        TPR9 EFGHIJKLMNO 3 Bright
+        Stop
+    }
+}
+
+actor Redgrenade
+{
+    Radius 6
+    Height 12
+    Speed 24
+    Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberEnergy"
+    PROJECTILE
+    +DoomBounce
+    -NoGravity
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.8
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+    	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+    	TGND A 1 Bright Thrustthingz(0, 24, 0, 1)
+    	TGND A 1 Bright A_Playsound("Terminator/tershotA")
+    	TGND BBBBCCCCAAAA 1 Bright A_SpawnItemEx("grenadetrail2",0,0,0,0,0,0,0,128)
+    	TGND A 0 A_Jumpifcloser(48, 1)
+        Goto Spawn+3
+    Death:
+	    TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	    TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    	STAR E 3 Bright A_SpawnItem("TerminatorExp1")
+    	TNT1 A 0 A_custommissile("grenadeblast",0,0,0,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+    	TNT1 A 0 A_custommissile("grenadeblast",0,0,20,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+    	TNT1 A 0 A_custommissile("grenadeblast",0,0,40,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+    	TNT1 A 0 A_custommissile("grenadeblast",0,0,60,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+    	TNT1 A 0 A_custommissile("grenadeblast",0,0,80,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,100,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,120,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,140,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,160,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,180,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,200,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,220,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,240,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,260,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,280,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,300,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,320,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        TNT1 A 0 A_custommissile("grenadeblast",0,0,340,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+        STAR FGHIJKLMNO 3 Bright
+        Stop
+    }
+}
+
+ACTOR Grenadetrail2
+{       
+   	PROJECTILE
+   	+NOCLIP
+	Renderstyle ADD
+	Alpha 0.6
+	Damage 0
+	+CLIENTSIDEONLY
+	States
+	{   
+	Spawn:
+	    TGTR ABCDEFGHI 4 Bright 
+	    Stop
+	}
+}  
+
+
+actor Grenadeblast
+{
+    Radius 6
+    Height 12
+    Speed 5
+    Damage (random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	DamageType "CyberEnergy"
+    PROJECTILE
+    RENDERSTYLE ADD
+    +Ripper
+	+DONTBLAST
+    ALPHA 0.8
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+    	TGBL ABCDEFGHIJK 2 Bright
+        stop
+    }
+}
+
+
+Actor TerminatorBullet : UndeadInitiateBullet {
+	DamageType "CyberBullet"
+	States {
+		Death:
+			TPUF A 2 Bright
+			TPUF A 0 A_Jump(128,10)
+			TPUF BCDEFGH 2 Bright
+	    Stop
+			TPUF IJKLMNO 2 Bright 
+		Stop
+		XDeath:
+			TNT1 A 1
+		Stop
+	}
+}
+
+ACTOR TerminatorArm
+{
+	Radius 12
+	Height 15
+	Speed 3
+	Mass 1000
+	scale 1.4
+	+DOOMBOUNCE
+	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
+	-SOLID
+      States
+	{
+	Spawn:
+         TARM A 5
+         TARM B 5 A_Fall 
+         TARM CDE 5
+         TARM F -1
+         Stop
+	}
+}
+
+actor TerminatorHead
+{
+    Radius 6
+    Height 8
+    Speed 10
+    Mass 1000
+    +DOOMBOUNCE
+    +DROPOFF
+    +Missile
+	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
+	-SOLID
+    scale 1.4
+    
+    States
+    {
+    Spawn:
+    	THAD DEFGHABC 2
+        loop
+    Death:
+    	THAD I -1
+        loop
+    }
+}
+
+actor TerminatorShoulder
+{
+    Radius 8
+    Height 8
+    Speed 8
+    Mass 1000
+    +DOOMBOUNCE
+    +DROPOFF
+    +Missile
+	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
+	-SOLID
+    scale 1.4
+    
+    States
+    {
+    Spawn:
+    	TSHO ABCDEFGH 2
+        loop
+    Death:
+    	TSHO I -1
+        loop
+    }
+}
+
+Actor Thamuz : Cyberdemon2
+{
+  Health 4750
+  Speed 16
+  PainChance 35
+  Mass 2000
+  Scale 1.1
+  Bloodcolor "00 AA 00"
+  Monster
+  +Boss
+  +NoRadiusDMG
+  +FloorClip
+	Species "Cyber"
+	+DONTHURTSPECIES  
+	+DONTBLAST
+  SeeSound "Thamuz/Idlesight"
+  PainSound "Thamuz/Pain"
+  DeathSound "Thamuz/death"
+  ActiveSound "Thamuz/Idlesight"
+  Obituary "%o fell before Thamuz."
+  DropItem "SoulAmmoSpawner", 128
+  DamageFactor "Cyber", 0.0
+  DamageFactor "CyberEnergy", 0.0
+  DamageFactor "CyberExp", 0.0
+  DamageFactor "CyberBullet", 0.0
+  DamageFactor "CyberFire", 0.0
+  DamageFactor "CyberSlow", 0.0
+  	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+  Translation "1:2=247:247", "16:47=120:127", "48:72=90:111", "73:79=5:8", "128:140=101:111", "141:143=5:7", "144:151=5:7", "160:167=112:127", "169:191=119:127", "208:223=114:123", "224:231=112:113", "232:235=124:127", "236:239=247:247"
+  Tag "Thamuz"
+  States
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_THAMUZ, DND_ENERGY_WEAKNESS | DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
+Idle:
+    CYBR A 10 A_Look
+    Loop
+  See:
+    TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+    CYBR A 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostA",0,0,0,0,0,0,0,128)
+    CYBR A 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostA",0,0,0,0,0,0,0,128)
+    CYBR B 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostB",0,0,0,0,0,0,0,128)
+    CYBR B 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostB",0,0,0,0,0,0,0,128)
+    CYBR C 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostC",0,0,0,0,0,0,0,128)
+    CYBR C 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostC",0,0,0,0,0,0,0,128)
+    CYBR D 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostD",0,0,0,0,0,0,0,128)
+    CYBR D 3 Fast A_Chase
+    TNT1 A 0 A_SpawnItemEx("DarkCyberGhostD",0,0,0,0,0,0,0,128)
+	TNT1 D 0 A_PlaySoundEx("Hectebus/Step", "SoundSlot7", 0)
+    Loop
+  Missile:
+    TNT1 A 0 A_Jump(160,"Var1", "Var2", "Var3")
+    CYBR AE 5 Fast A_FaceTarget
+    CYBR E 5 Fast A_FaceTarget
+    CYBR F 10 Fast A_CustomMissile("DCBMiss1",56,-25,0)
+    CYBR E 15 Fast A_FaceTarget
+	TNT1 A 0 A_Jump(128, "Refire")
+    Goto See
+  Refire:
+    TNT1 A 0 A_MonsterRefire(64, "See")
+    Goto Missile
+  Var1:
+    TNT1 A 0 A_SetInvulnerable
+	TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+    CYBR G 20 Fast A_PlaySound("Apocalypse/cast")
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,20)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,40)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,60)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,80)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,100)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,120)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,140)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,160)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-20)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-40)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-60)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-80)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-100)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-120)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-140)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,-160)
+    TNT1 A 0 A_CustomMissile("DCBMiss3",50,0,180)
+    CYBR G 10 Fast A_CustomMissile("DCBMiss3",50,0,0)
+    CYBR GGGGGGGG 10 Fast
+	TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+    TNT1 A 0 A_UnsetInvulnerable
+    CYBR G 10 Fast
+    Goto See
+	Var2:
+    CYBR AE 3 Fast A_FaceTarget
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    CYBR E 4 Fast A_FaceTarget
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+    Goto See
+	Var3:
+    CYBR AE 3 Fast A_FaceTarget
+    CYBR E 12 Fast A_FaceTarget
+    CYBR E 4 Fast A_FaceTarget
+	TNT1 A 0 A_CustomMissile("DCBMiss2",56,-25,-16)
+	TNT1 A 0 A_CustomMissile("DCBMiss2",56,-25,-8)
+	TNT1 A 0 A_CustomMissile("DCBMiss2",56,-25,8)
+	TNT1 A 0 A_CustomMissile("DCBMiss2",56,-25,16)
+    CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
+	Goto See
+  Pain:
+    TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+    CYBR G 2 Fast
+    CYBR G 2 Fast A_Pain
+    Goto See
+  Death:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+  GaveSoul:
+    CYBR H 5
+    CYBR I 5 A_Scream
+    TNT1 A 0 A_SpawnItemEx("BDS",0,0,0,0,0,0,0,128)
+    CYBR JJJKKKLLLMMMNNNOOO 2 A_SpawnItemEx("ExplosionFXGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+    TNT1 A 0 A_NoBlocking
+	CYBR P -1 A_KillMaster
+    Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		CYBR H 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+		TNT1 A 0 A_GiveToTarget("Souls", 3)
+	  Goto GaveSoul
+  }
+}
+
+Actor BDS
+{   
+  Radius 1
+  Height 1
+  Speed 1
+  SeeSound "Thamuz/death2"
+  Projectile
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    TNT1 A 1
+  Stop
+  }
+}
+
+Actor DarkCyberGhostA
+{   
+  Radius 2
+  Height 2
+  Speed 0
+  Scale 1.1
+  Projectile
+  RenderStyle Translucent
+  +CLIENTSIDEONLY
+  Translation "1:2=247:247", "16:47=120:127", "48:72=90:111", "73:79=5:8", "128:140=101:111", "141:143=5:7", "144:151=5:7", "160:167=112:127", "169:191=119:127", "208:223=114:123", "224:231=112:113", "232:235=124:127", "236:239=247:247"
+  Alpha 0.6
+  States
+  {
+  Spawn:
+    TNT1 A 3
+    CYBR A 3 A_FadeOut(0.10)
+    Goto Spawn+1
+  }
+}
+
+Actor DarkCyberGhostB : DarkCyberGhostA
+{   
+  States
+  {
+  Spawn:
+    TNT1 A 3
+    CYBR B 3 A_FadeOut(0.10)
+    Goto Spawn+1
+  }
+}
+
+Actor DarkCyberGhostC : DarkCyberGhostA
+{   
+  States
+  {
+  Spawn:
+    TNT1 A 3
+    CYBR C 3 A_FadeOut(0.10)
+    Goto Spawn+1
+  }
+}
+
+Actor DarkCyberGhostD : DarkCyberGhostA
+{   
+  States
+  {
+  Spawn:
+    TNT1 A 3
+    CYBR D 3 A_FadeOut(0.10)
+    Goto Spawn+1
+  }
+}
+
+Actor ThamuzExp1 : BaseExplosionDamage
+{
+	DamageType "CyberGreenExp"
+	Obituary "%o fell before Thamuz."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(140 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 140, 0)
+		Stop
+	}
+}
+
+Actor DCBMiss1
+{
+  Radius 12
+  Height 12
+  Speed 16
+  Damage (16 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "CyberGreen"
+  Projectile
+  +SeekerMissile
+  +ExtremeDeath
+  +DONTBLAST
+  Renderstyle Add
+  SeeSound "q2weapon/bfgball"
+  DeathSound "q2weapon/bfgballexplo"
+  Decal BFGLightning
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    CBTS A 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS A 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS B 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS B 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS C 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS C 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS D 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS D 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS E 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS E 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS F 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS F 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS G 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS G 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS H 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS H 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS I 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS I 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    CBTS J 1 Bright A_SeekerMissile(1,90)
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    CBTS J 1 Bright
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+    TNT1 A 0 A_SpawnItemEx("DCBM1Trail",0,0,0,0,0,0,0,128)
+    Loop
+  Death:
+	TNT1 AA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 A 0 A_SpawnItemEx ("BFGFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+	TNT1 AAAAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAAAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    CBTS K 2 Bright A_SpawnItem("ThamuzExp1")
+    CBTS LMNOPQRSTUVW 2 Bright
+    Stop
+  }
+}
+
+Actor DCBM1Trail
+{   
+  Radius 1
+  Height 1
+  Speed 0
+  Scale 0.8
+  +Noclip
+  Projectile
+  RenderStyle Add
+  Alpha 0.6
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    TNT1 A 4
+    CBTS LMNOPQRSTUVW 2 A_FadeOut
+    Stop
+  }
+}
+
+Actor DCBMiss2
+{
+  Radius 12
+  Height 8
+  Health 5
+  Speed 28
+  Damage (12 * random(3, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET))) 
+  +DONTBLAST
+  DamageType "Cyber"
+  RenderStyle Add
+  Projectile
+  SeeSound "q2weapon/rocketlauncherfire"
+  DeathSound "q2weapon/rocketexplo"
+  Decal RevenantScorch
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    THZ4 A 2 Bright 
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    FSFX DEFGHIJKLM 2 Bright
+    Stop
+  }
+}
+
+Actor DCBMiss3
+{
+  Radius 1
+  Height 1
+  Health 5
+  Speed 8
+  Damage 0
+  DamageType "Cyber"
+  Scale 2
+  RenderStyle Add
+  +BloodLessImpact
+  +Ripper
+  +DontSplash
+  +DONTBLAST
+  Projectile
+  SeeSound "h2necromancer/magiccast"
+  States
+  {
+  Spawn:
+    TNT1 A 2 A_Gravity
+    Loop
+  Death:
+    FSFX NOPQRSTNOPQRST 3
+    TNT1 A 0 A_CustomMissile("DCBMiss3M",0,0,180)
+    Stop
+  }
+}
+
+Actor ThamuzExp2 : BaseExplosionDamage
+{
+	DamageType "CyberGreen"
+	Obituary "%o fell before Thamuz."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+		Stop
+	}
+}
+
+Actor DCBMiss3M
+{
+  Radius 10
+  Height 10
+  Speed 28
+  Damage (15 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "CyberGreen"
+  Scale 1.3
+  +FloorHugger
+  +DONTBLAST
+  RenderStyle Add
+  Projectile
+  DeathSound "comet/explosion"
+  Decal RevenantScorch
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    FSFX NOPQRSTNOPQRST 3 A_SpawnItemEx("DCBMiss3MG",0,0,0,0,0,0,0,128)
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    TNT1 A 0 A_SpawnItem("ThamuzExp2")
+    FSFX UVW 3
+    Stop
+  }
+}
+
+
+Actor DCBMiss3MG
+{   
+  Radius 1
+  Height 1
+  Speed 0
+  Scale 0.8
+  +Noclip
+  Projectile
+  RenderStyle Add
+  Alpha 0.6
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    TNT1 A 4
+    FSFX NOPQRST 3
+    Stop
+  }
+}
+
+actor Azazel : DnD_BaseEnemy {
+    Health 5250
+    Radius 40
+    Height 96
+	Scale 1.3
+    Speed 12
+    PainChance 20
+    Mass 1500
+    MONSTER 
+    +FLOORCLIP
+    +MISSILEEVENMORE
+	+DONTHURTSPECIES
+    +MISSILEMORE
+    +NORADIUSDMG
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	+BOSS
+	+BOSSDEATH
+    MinMissileChance 20
+    SeeSound "azazel/see"
+    PainSound "azazel/pain"
+    DeathSound "azazel/die"
+    ActiveSound "azazel/act"
+    MeleeSound "baron/melee"
+    Obituary "%o was slaughtered by Azazel"
+	DropItem "SoulAmmoSpawner", 128
+	Species "Cyber"
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	Tag "Azazel"
+    MeleeDamage 8
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_GiveInventory("MakeElementalResist", 1)
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_AZAZEL, DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE, DND_ELEMENTAL_RESIST)
+	Idle:
+        AZEW A 5 A_Look
+        Loop
+    See:
+        AZEW AABB 3 Fast A_Chase
+		TNT1 D 0 A_PlaySoundEx("Hectebus/Step", "SoundSlot7", 0)
+		AZEW CCDD 3 Fast A_Chase
+		TNT1 D 0 A_PlaySoundEx("Hectebus/Step", "SoundSlot7", 0)
+        Loop
+    Missile:
+	  TNT1 A 0 A_Jump(64, "MDoubleSerie", "SpreadSerie")
+	  TNT1 A 0 A_Jump(128,"MRightHand")
+    MLeftHand:
+	  TNT1 A 0 A_PlaySound("Goat/Attack")
+	  AZEA D 4 Fast A_FaceTarget
+	  AZEA E 4 Fast A_FaceTarget
+	  AZEA F 7 Fast A_CustomMissile("SatyrLordMissile1",38,-5,0)
+	  Goto see
+    MRightHand:
+	  TNT1 A 0 A_PlaySound("Goat/Attack")
+	  AZEA A 4 Fast A_FaceTarget
+	  AZEA B 4 Fast A_FaceTarget
+	  AZEA C 7 Fast A_CustomMissile("SatyrLordMissile2",38,5,0)
+	  Goto see	
+    MDoubleSerie:
+	  TNT1 A 0 A_PlaySoundEx("missile1charge","SoundSlot5")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA D 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,-20,66,0,0,0,32)
+	  AZEA E 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,-9,52,0,0,0,32)
+	  AZEA F 6 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,4,34,0,0,0,32)
+	  TNT1 A 0 A_PlaySoundEx("missile2charge","SoundSlot6")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA A 4 Fast A_SpawnItemEx("SatyrLordMissileDual2Fake",10,20,66,0,0,0,32)
+	  AZEA B 4 Fast A_SpawnItemEx("SatyrLordMissileDual2Fake",10,9,52,0,0,0,32)
+	  AZEA C 6 Fast A_SpawnItemEx("SatyrLordMissileDual2Fake",10,-4,34,0,0,0,32)
+	  TNT1 A 0 A_PlaySound("Goat/Attack")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA D 4 Fast A_CustomMissile("SatyrLordMissileDual1Real",66,-20,0)
+	  AZEA E 4 Fast A_CustomMissile("SatyrLordMissileDual1Real",52,-9,0)
+	  AZEA F 6 Fast A_CustomMissile("SatyrLordMissileDual1Real",34,4,0)
+	  TNT1 A 0 A_PlaySound("Goat/Attack")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA A 4 Fast A_CustomMissile("SatyrLordMissileDual2Real",66,20,0)
+	  AZEA B 4 Fast A_CustomMissile("SatyrLordMissileDual2Real",52,9,0)
+	  AZEA C 6 Fast A_CustomMissile("SatyrLordMissileDual2Real",34,-4,0)
+	  Goto see  
+	SpreadSerie:
+	  TNT1 A 0 A_PlaySoundEx("missile1charge","SoundSlot5")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA D 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,-32,52,0,0,0,32)
+	  AZEA E 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,-18,44,0,0,0,32)
+	  AZEA F 6 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,-4,36,0,0,0,32)
+	  TNT1 A 0 A_PlaySoundEx("missile1charge","SoundSlot6")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA A 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,32,52,0,0,0,32)
+	  AZEA B 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,18,44,0,0,0,32)
+	  AZEA C 6 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,4,36,0,0,0,32)
+	  TNT1 A 0 A_PlaySound("Goat/Attack")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA D 4 Fast A_CustomMissile("SatyrLordMissileDual1Real",52,-32,-4)
+	  AZEA E 4 Fast A_CustomMissile("SatyrLordMissileDual1Real",44,-18,-8)
+	  AZEA F 6 Fast A_CustomMissile("SatyrLordMissileDual1Real",36,-4,-16)
+	  TNT1 A 0 A_PlaySound("Goat/Attack")
+	  TNT1 A 0 A_FaceTarget
+	  AZEA A 4 Fast A_CustomMissile("SatyrLordMissileDual1Real",52,32,4)
+	  AZEA B 4 Fast A_CustomMissile("SatyrLordMissileDual1Real",44,18,8)
+	  AZEA C 6 Fast A_CustomMissile("SatyrLordMissileDual1Real",36,4,16)
+	  Goto See
+    Melee:
+	Goto Missile
+    Pain:
+        AZEP A 2 Fast
+        AZEP A 2 Fast A_Pain
+		TNT1 A 0 A_Jump(128, "NoCircle")
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 10 * random(10,16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,0)
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,45)
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,-45)
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,90)
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,-90)
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,135)
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,-135)
+		AZEP A 1 A_CustomMissile("SLGroundFire",0,0,180)
+		AZEP A 4 Fast
+	NoCircle:
+		TNT1 A 0
+        Goto See
+    Death:
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+	GaveSoul:
+		AZED AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+        TNT1 A 0 A_SpawnItem("AzazelBoom", 0, 40)
+		TNT1 AAAAAAAAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		AZED B 5 A_Scream
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		AZED C 5
+        AZED D 4 A_Fall
+        AZED E 4
+        AZED FFFGGGGGGGGGGGGGG 1 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+        AZED G 3 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		AZED G 6 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		AZED G 10 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		AZED G 25 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		AZED G 40 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		AZED GGG 60 A_SpawnItemEx("AzazelSmoke", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		AZED G -1 A_KillMaster
+        Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		AZED A 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+		TNT1 A 0 A_GiveToTarget("Souls", 3)
+	  Goto GaveSoul	
+    }
+}
+
+Actor AzazelSmoke : msxgen_smoke
+{
+	Scale 0.85
+}
+
+Actor AzazelBoom : msxBarrelboom1
+{
+	Scale 1.35
+	States
+	{
+		Spawn:
+			TNT1 AAA 0 A_PlaySound("HFSpid/Die")
+		Goto Super::Spawn
+	}
+}
+
+//*************************************************
+//*************************************************
+Actor AzazelExp1 : BaseExplosionDamage
+{
+	DamageType "Cyber"
+	Obituary "%o was slaughtered by Azazel"
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(36 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 48, 0)
+		Stop
+	}
+}
+
+actor SLGroundFire
+{
+	Projectile
+	Speed 16
+	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	+RIPPER
+	Scale 0.4
+	+FLOORHUGGER
+	+DONTBLAST
+	SeeSound "groundfirestart"
+	RenderStyle Add
+	DamageType "Cyber"
+	Alpha 0.9
+	Decal Scorch
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		FX03 B 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 C 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 D 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 E 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 F 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 G 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 H 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 I 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 J 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 K 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 L 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 M 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 N 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 O 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 P 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 Q 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 R 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 S 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 T 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 U 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 V 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 W 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 X 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		FX03 Y 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
+		TNT1 A 0 A_SpawnItem("AzazelExp1")
+		Loop
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+Actor SLGFXtraSpawner
+{
+	+NOCLIP
+	RenderStyle None
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		PLAY AAA 0 A_SpawnItemEx("SLGFXtra",0,0,0,random(3,-3),random(3,-3),random(3,-3),0)
+		Stop
+	}
+}
+
+Actor SLGFXtra
+{
+	Projectile
+	Damage 0
+	+NOCLIP
+	Speed 0
+	Radius 1
+	+DONTBLAST
+	Height 1
+	Scale 0.09
+	RenderStyle Add
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		STAR P 3 Bright
+		STAR P 0 A_Jump(128,1)
+		Loop
+		STAR P 3 Bright
+		STAR P 1 Bright A_FadeOut
+		Wait
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+//*************************************************
+//*************************************************
+Actor SatyrLordMissile1
+{
+	Projectile
+	Radius 8
+	Height 16
+	Speed 24
+	Damage (19 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Cyber"
+	Scale 0.65
+	RenderStyle Add
+	SeeSound "redballbsee"
+	DeathSound "redballbdeth"
+	Translation "192:207=172:191"
+	Decal PlasmaScorchLower
+	+DONTBLAST
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		ANFB AAA 1 Bright A_CustomMissile("SLM1Trail",random(-5,5),random(8,-8),0)
+		ANFB BBB 1 Bright A_CustomMissile("SLM1Trail",random(-5,5),random(8,-8),0)
+		ANFB CCC 1 Bright A_CustomMissile("SLM1Trail",random(-5,5),random(8,-8),0)
+		Loop
+	Death:
+		ANFB DEFG 3 Bright
+		Stop
+	}
+}
+
+
+Actor SLM1Trail
+{
+	Projectile
+	-NOGRAVITY
+	Gravity 0.4
+	+NOCLIP
+	Damage 0
+	DamageType "Cyber"
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.5
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		TNT1 A 0 ThrustThingZ(0,random(-3,8),0,1)
+		SHTR ABCDDE 3 Bright
+		SHTR F 1 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+
+
+
+
+//*************************************************
+//*************************************************
+Actor SatyrLordMissile2
+{
+	Speed 18
+	damage (15 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	scale 0.35
+	radius 6
+	height 12
+	RENDERSTYLE ADD
+	Alpha 0.75
+	PROJECTILE
+	DamageType "Cyber"
+	+SEEKERMISSILE
+	+DONTBLAST
+	seesound "whiteballbsee"
+	deathsound "whiteballbdeth"
+	states
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		PSMM A 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		PSMM A 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		PSMM B 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		PSMM B 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		PSMM C 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		PSMM C 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+
+		PSMM D 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		PSMM E 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		PSMM F 2 Bright A_SeekerMissile(25,10)
+		TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
+		goto Spawn+12
+	Death:
+		PSMM GGHHIIJJKKLLMM 2 Bright A_FadeOut(0.05)
+		stop
+	}
+}
+
+
+Actor SLM2Trail
+{
+	Projectile
+	+NOCLIP
+	Damage 0
+	RenderStyle Add
+	Alpha 0.45
+	Scale 0.9
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		TNT1 A 2
+		PUF2 BDFHJLNPRTVXZ 1
+		PUF3 B 1 A_FadeOut(0.2)
+		Wait
+	}
+}
+
+//*************************************************
+//*************************************************
+Actor SatyrLordMissileDual1Fake
+{
+	Projectile
+	Speed 0
+	Scale 0.34
+	RenderStyle Add
+	SeeSound "waitingballsspawn"
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		MSP4 ABCD 2
+		MSP4 ABCD 2
+		MSP4 ABCD 2
+		MSP4 ABCD 2
+		Stop
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+Actor SatyrLordMissileDual1Real
+{
+	Projectile
+	Speed 32
+	Scale 0.34
+	RenderStyle Add
+	Damage (12 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Cyber"
+	Radius 6
+	height 12
+	SeeSound "redballssee"
+	DeathSound "redballsdeth"
+	Decal DoomImpScorch
+	+DONTBLAST
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		MSP4 A 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		MSP4 A 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		MSP4 B 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		MSP4 B 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		MSP4 C 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		MSP4 C 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		MSP4 D 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		MSP4 D 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
+		Loop
+	Death:
+	    TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	    TNT1 AAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+	    TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		MSP1 GHIJKLMNO 2
+		Stop
+	}
+}
+
+Actor SLMD1RTrail
+{
+	Projectile
+	-NOGRAVITY
+	Gravity 0.4
+	+NOCLIP
+	Damage 0
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.3
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		TNT1 A 0 ThrustThingZ(0,random(-3,5),0,1)
+		SHTR ABCDDE 3 Bright
+		SHTR F 1 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+//*************************************************
+
+Actor SatyrLordMissileDual2Fake
+{
+	Projectile
+	Speed 0
+	Scale 0.8
+	RenderStyle Add
+	Alpha 0.75
+	SeeSound "waitingballsspawn"
+	Translation "112:127=80:111"
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		CSSF DEDE 2 Bright
+		CSSF DEDE 2 Bright
+		CSSF DEDE 2 Bright
+		CSSF DEDE 2 Bright
+		Stop
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+Actor SatyrLordMissileDual2Real
+{
+	Projectile
+	Speed 24
+	Radius 6
+	Damage (16 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Cyber"
+	Scale 0.8
+	RenderStyle Add
+	Alpha 0.75
+	+DONTBLAST
+	+SeekerMissile
+	Translation "112:127=80:111"
+	SeeSound "whiteballssee"
+	DeathSound "whiteballsdeth"
+	height 12
+	Decal PlasmaScorchLower
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		CSSF D 1 Bright A_SeekerMissile(10,10)
+		TNT1 AAA 0 A_CustomMissile("SLMD2RTrail",random(5,-5),random(5,-5),0)
+		CSSF D 1 Bright A_SeekerMissile(10,10)
+		TNT1 AAA 0 A_CustomMissile("SLMD2RTrail",random(5,-5),random(5,-5),0)
+		CSSF E 1 Bright A_SeekerMissile(10,10)
+		TNT1 AAA 0 A_CustomMissile("SLMD2RTrail",random(5,-5),random(5,-5),0)
+		CSSF E 1 Bright A_SeekerMissile(10,10)
+		TNT1 AAA 0 A_CustomMissile("SLMD2RTrail",random(5,-5),random(5,-5),0)
+		Loop
+	Death:
+	    TNT1 A 0 A_SpawnItemEx("WhiteParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	    TNT1 AAA 0 A_CustomMissile("ExplosionFX10", 0, 0, random(0,360), 2, random(0,360))
+	    TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		CSSF GHI 4 Bright 
+		CSSF I 1 Bright A_FadeOut
+		Wait
+	}
+}
+
+Actor SLMD2RTrail
+{
+	Projectile
+	Speed 0
+	Damage 0
+	+NOCLIP
+	RenderStyle Add
+	Alpha 0.5
+	Scale 0.25
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		PUF2 BCDEFGHIJKL 1 
+		PUF2 L 1 A_FadeOut(0.2)
+		Wait
+	}
+}
+
+ACTOR HellsmithX : DnD_BaseEnemy
+{ 
+	Health 6000
+	Radius 40
+	Height 110
+	Mass 5000 
+	Speed 16 
+	PainChance 16
+	MONSTER
+	Obituary "%o was no match for the might of the Hellsmith."
+	HitObituary "%o was crushed under the Hellsmith's hoof." 
+	+FLOORCLIP
+	+NORADIUSDMG 
+	+BOSS
+	+BOSSDEATH
+	+FIRERESIST
+	+NOTARGET
+	+MISSILEEVENMORE
+	+NOTARGET
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+DONTRIP
+	+NOFEAR
+	+USEKILLSCRIPTS
+	Species "Cyber"
+	MeleeDamage 20
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "Fire", 0.0
+	DamageFactor "P_Ice", 1.5
+	DamageFactor "P_IceFull", 1.5
+	DropItem "SoulAmmoSpawner", 128
+	MeleeRange 86
+	SeeSound "monster/smitht"
+	PainSound "monster/smithp" 
+	DeathSound "monster/smithd" 
+	ActiveSound "monster/smitha"
+	MeleeSound "monster/hamhit"
+	Tag "Hell Smith"
+	States 
+   {    
+   Spawn: 
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_HELLSMITH, DND_ICE_WEAKNESS | DND_HARDENED_SKIN | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
+	Idle:
+       BSMT AB 10 A_Look 
+       Loop 
+   See: 
+       TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+       BSMT A 0 A_UnSetInvulnerable 
+       BSMT A 3 Fast A_Playsound ("monster/fihoof") 
+       BSMT ABB 3 Fast A_Chase 
+       BSMT C 3 Fast A_Playsound ("monster/fihoof") 
+       BSMT CDD 3 Fast A_Chase
+       Loop
+   Melee:
+       BSMT E 6 Fast A_FaceTarget
+       BSMT F 1 A_Playsound ("monster/hamswg")
+       BSMT F 5 Fast A_FaceTarget
+       BSMT G 10 Fast A_CustomMeleeAttack(20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/hamhit", "")
+       BSMT B 0 A_Jump (192,1)
+       Goto See
+       BSMT J 6 Fast A_FaceTarget
+       BSMT K 1 A_Playsound ("monster/hamswg")
+       BSMT K 5 Fast A_FaceTarget
+       BSMT L 10 Fast A_MeleeAttack
+       Goto See      
+   RerollMissile:
+	   TNT1 A 0 A_Jump(256, "Missile1", "Missile2", "Missile3")
+   Goto Missile1
+   Missile:
+       TNT1 A 0 A_Jump(160, "Missile1", "Missile2", "Missile3")
+   Charge:
+	   TNT1 A 0 A_JumpIfCloser(420, "ContinueCharge")
+   Goto RerollMissile
+   ContinueCharge:
+       BSMT O 1
+	   TNT1 A 0 A_Playsound ("weapons/suldth")
+	   TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+       BSMT O 2 Fast A_SetInvulnerable
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+	   TNT1 A 0 A_SpawnItem("HellSmithChargeExp", 0, 55)
+       BSMT O 4 Fast A_SkullAttack
+       BSMT O 0 A_SpawnItemEx("SmithGhost",0,0,0,0,0,0,0,128,0)
+       BSMT O 0 A_Stop
+       BSMT O 1
+       Goto See
+   Missile1:
+       BSMT E 6 Fast A_FaceTarget
+       BSMT H 6 Fast A_PlaySound ("monster/hamswg")
+       BSMT N 0 A_PLaySound ("weapons/hellfi") 
+       BSMT I 0 A_CustomMissile ("Hellshot2",52,0,0)
+       BSMT I 0 A_CustomMissile ("Hellshot2",52,0,8)
+       BSMT I 12 Fast A_CustomMissile ("Hellshot2",52,0,-8)
+       BSMT I 0 A_Jump (128,8)
+       BSMT B 6 Fast
+       BSMT J 6 Fast A_FaceTarget
+       BSMT M 6 A_PlaySound ("monster/hamswg")
+       BSMT N 1 Fast A_PLaySound ("weapons/hellfi") 
+       BSMT N 0 A_CustomMissile ("Hellshot2",52,0,0)
+       BSMT N 0 A_CustomMissile ("Hellshot2",52,0,8)
+       BSMT N 11 Fast A_CustomMissile ("Hellshot2",52,0,-8)
+       BSMT N 0 A_Jump (128,1)
+       Goto See
+       BSMT N 0
+       Goto Missile2
+   Missile2:
+       BSMT E 6 Fast A_FaceTarget
+       BSMT F 1 A_Playsound ("monster/hamswg")
+       BSMT F 5 Fast A_FaceTarget
+       BSMT G 0 A_CustomMissile("STracer",0,0,15,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,30,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,45,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,60,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,0,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,-15,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,-30,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,-45,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,-60,0)	   
+       BSMT G 10 Fast A_Playsound("monster/hamflr")
+       BSMT B 0 A_Jump (128,1)
+       Goto See
+       BSMT N 0
+       Goto Missile3
+   Missile3:
+       BSMT J 6 Fast A_FaceTarget
+       BSMT K 1 A_Playsound ("monster/hamswg")
+       BSMT K 5 Fast A_FaceTarget
+       BSMT G 0 A_CustomMissile("STracer",0,0,45,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,90,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,135,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,180,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,225,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,270,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,315,0)
+       BSMT G 0 A_CustomMissile("STracer",0,0,0,0)
+       BSMT L 10 Fast A_Playsound("monster/hamflr")
+       Goto See           
+   Pain: 
+       TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+       BSMT P 10 Fast A_Pain
+       BSMT P 0 A_Jump (128, 1)
+       Goto See
+       BSMT E 0 A_SetInvulnerable
+	   TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+       BSMT E 6 A_FaceTarget
+       BSMT F 1 A_Playsound ("monster/hamswg")
+       BSMT F 5 A_FaceTarget
+       BSMT F 0 A_CustomMissile("PentaLine1",0,0,-72,2)
+       BSMT F 0 A_CustomMissile("PentaLine1",0,0,-144,2)
+       BSMT F 0 A_CustomMissile("PentaLine1",0,0,-216,2)
+       BSMT F 0 A_CustomMissile("PentaLine1",0,0,-288,2)
+       BSMT F 0 A_CustomMissile("PentaLine1",0,0,0,2)
+       BSMT G 1 A_Playsound ("monster/hamflr")
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	   TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
+       BSMT G 7 Fast ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+       BSMT B 0 A_UnSetInvulnerable
+	   TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+       Goto See
+   Death:
+       BSMT F 0 A_CustomMissile("PentaLine3",0,0,-72,2)
+       BSMT F 0 A_CustomMissile("PentaLine3",0,0,-144,2)
+       BSMT F 0 A_CustomMissile("PentaLine3",0,0,-216,2)
+       BSMT F 0 A_CustomMissile("PentaLine3",0,0,-288,2)
+       BSMT F 0 A_CustomMissile("PentaLine3",0,0,0,2)
+       BSMT F 0 Radius_Quake(6,250,2,64,8)
+       BSMT P 250 A_CustomMissile("SmithDFSpawner",0,0,0,0)
+       BSMT Q 6 A_CustomMissile("SmithHammer",128,-40,-30,0)
+       BSMT Q 0 A_CustomMissile("SmithFire",0,0,0,2)
+       BSMT R 6 A_Scream
+	   TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+	GaveSoul:	   
+       BSMT R 0 A_CustomMissile("SmithFire",0,0,0,2)
+	   TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+       BSMT S 6
+	   BSMT TU 6
+       BSMT V 0 A_CustomMissile("SmithFire",0,0,0,2)
+       BSMT V 6 A_NoBlocking 
+       BSMT V 6 
+       BSMT X 6
+       BSMT X 0 A_CustomMissile("SmithFire",0,0,0,2)
+       BSMT Y -1 A_KillMaster 
+   Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		BSMT R 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+		TNT1 A 0 A_GiveToTarget("Souls", 3)
+	  Goto GaveSoul	 
+   } 
+}
+
+Actor HellSmithChargeExp : BaseExplosionDamage {
+	Obituary "%o was trampled by a Hellsmith."
+	DamageType "Cyber"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 144, 0, 0, 65)
+		Stop
+	}
+}
+
+ACTOR SmithFire
+{   
+   Radius 2
+   Height 2
+   Damage 0
+   +NOCLIP
+   Speed 0
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.75
+   SeeSound "Weapons/hellex"
+   +CLIENTSIDEONLY
+   +DONTSPLASH
+   States
+   {
+   Spawn:
+      MNSM A 3 Bright
+      MNSM B 3 Bright
+      MNSM CDEFGHIJKLMNOPQ 3 Bright
+      stop
+   }
+}
+
+ACTOR SmithGhost
+{
+	Radius 40
+	Height 70
+	Speed 1
+	Damage 0
+	RenderStyle Translucent
+	Alpha 0.5
+	PROJECTILE
+	+CLIENTSIDEONLY
+	+DONTSPLASH
+	states
+	{
+		Spawn:
+			BSMT O 35
+			BSMT O 2 A_FadeOut(0.1)
+		goto Spawn+1
+	}
+}
+
+ACTOR PentaLine1
+{
+	Radius 0
+	Height 32
+	Speed 200
+	Alpha 0.85
+	PROJECTILE
+	+CLIENTSIDEONLY
+    +FLOORHUGGER
+    +NOCLIP
+	+DONTSPLASH
+	+DONTBLAST
+    SeeSound "weapons/diasht"
+	states
+	{
+		Spawn:
+           TNT1 A 1
+           TNT1 A 0 A_CustomMissile("PentaLine2",0,0,-198,2)
+           TNT1 A 0 A_CustomMissile("PentaLine2",0,0,198,2)
+	   stop
+	}
+}
+
+ACTOR PentaLine2
+{
+	Radius 0
+	Height 32
+	Speed 16
+	Alpha 0.85
+	PROJECTILE
+	+CLIENTSIDEONLY
+    +FLOORHUGGER
+    +NOCLIP
+	+DONTBLAST
+	states
+	{
+		Spawn:
+           TNT1 AAAAAAAAAAAAAAAA 1 A_SpawnItem("PentaFire",0,0)
+	   stop
+	}
+}
+
+Actor SmithExplosion1 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o was turned to crisps by a Hellsmith."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192, 1)
+		Stop
+	}	
+}
+
+Actor SmithExplosion2 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o was turned to crisps by a Hellsmith."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 32, 1)
+		Stop
+	}	
+}
+
+ACTOR PentaFire
+{
+	Radius 0
+	Height 32
+	Speed 0
+    DamageType "CyberFire"
+    RenderStyle Add
+	Alpha 0.85
+    ReactionTime 2
+	PROJECTILE
+	+CLIENTSIDEONLY
+    +FLOORHUGGER
+    +DONTSPLASH
+    -NOGRAVITY
+	+DONTBLAST
+	states
+	{
+	   Spawn:
+           CFCF A 1 Bright
+           CFCF A 2 Bright A_PlaySound("weapons/onfire")
+           CFCF BCDEFGHIJKLM 2 Bright
+           CFCF A 0 Bright A_CountDown
+	   loop
+       Death:
+           CFCF NOP 3 Bright
+       stop
+	}
+}
+
+ACTOR SmithDFSpawner
+{
+	Radius 0
+	Height 1
+	Speed 0
+	Damage 0
+    ReactionTime 50
+	Alpha 0.5
+	PROJECTILE
+	+CLIENTSIDEONLY
+    +NOEXPLODEFLOOR
+	+DONTBLAST
+    States
+	{
+	Spawn:
+          TNT1 A 6 A_CustomMissile("SmithDeathFire",0,0,0,2,90)
+	      TNT1 A 0 A_CountDown
+          Loop
+        Death:
+          TNT1 A 1
+        stop
+	}
+}
+
+ACTOR SmithDeathFire
+{
+   Radius 2
+   Height 2
+   Speed 16
+   Damage 0
+   PROJECTILE
+   RENDERSTYLE ADD
+   DamageType "CyberFire"
+   ALPHA 0.67
+   Scale 2.75
+   SeeSound "weapons/bigbrn"
+   +NOCLIP
+   +CLIENTSIDEONLY
+   +DONTSPLASH
+   States
+   {
+   Spawn:
+	  TNT1 A 0
+	  TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+      FRFX JKLMNOP 2 Bright
+      stop
+   Death:
+      TNT1 A 1
+      stop
+   }
+}
+
+ACTOR PentaLine3
+{
+	Radius 0
+	Height 32
+	Speed 200
+	Alpha 0.85
+	PROJECTILE
+	+CLIENTSIDEONLY
+    +FLOORHUGGER
+    +NOCLIP
+	+DONTBLAST
+    SeeSound "weapons/diasht"
+	states
+	{
+	Spawn:
+           TNT1 A 1
+           TNT1 A 0 A_CustomMissile("PentaLine4",0,0,-198,2)
+           TNT1 A 0 A_CustomMissile("PentaLine4",0,0,198,2)
+	   stop
+	}
+}
+
+ACTOR PentaLine4
+{
+	Radius 0
+	Height 32
+	Speed 16
+	Alpha 0.85
+	PROJECTILE
+	+CLIENTSIDEONLY
+    +FLOORHUGGER
+    +NOCLIP
+	+DONTBLAST
+	states
+	{
+	Spawn:
+           TNT1 AAAAAAAAAAAAAAAA 1 A_SpawnItem("PentaFire2",0,0)
+	   stop
+	}
+}
+
+ACTOR PentaFire2
+{
+	Radius 0
+	Height 32
+	Speed 0
+    RenderStyle Add
+	Alpha 0.85
+    ReactionTime 7
+	PROJECTILE
+	+CLIENTSIDEONLY
+    +FLOORHUGGER
+    +DONTSPLASH
+    -NOGRAVITY
+	+DONTBLAST
+	states
+	{
+	Spawn:
+           CFCF A 1 Bright
+           CFCF A 2 Bright A_PlaySound("weapons/onfire")
+           CFCF BCDEFGHIJKLM 3 Bright
+           CFCF A 0 Bright A_CountDown
+	   loop
+        Death:
+           CFCF NOP 3 Bright
+           stop
+	}
+}
+
+Actor SmithExplosion3 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o was turned to crisps by a Hellsmith."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 1)
+		Stop
+	}	
+}
+
+ACTOR STracer
+{
+   Radius 5
+   Height 5
+   Speed 15
+   Damage (10 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+   RenderStyle ADD
+   DamageType "CyberFire"
+   Alpha 0.67
+   PROJECTILE
+   +FLOORHUGGER
+   +THRUGHOST
+   -NOGRAVITY
+   +DONTSPLASH
+   +DONTBLAST
+   Seesound "weapons/diasht"
+   DeathSound "weapons/firex3"   
+   States
+   {
+   Spawn:
+	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+   SpawnLoop:
+      TNT1 A 1 Bright A_CStaffMissileSlither
+      TNT1 A 0 Bright A_SpawnItem("STracerPuff",0,0)
+      loop
+   Death:
+      FTRA K 4 Bright
+      FTRA L 4 Bright A_SpawnItem("SmithExplosion3")
+      FTRA MNO 3 Bright
+      stop
+   }
+}
+
+Actor SmithExplosion4 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o was turned to crisps by a Hellsmith."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 4, 1)
+		Stop
+	}	
+}
+
+ACTOR STracerPuff
+{
+   Radius 1
+   Height 1
+   Speed 0
+   RENDERSTYLE ADD
+   DamageType "CyberFire"
+   ALPHA 0.67
+   PROJECTILE
+   +FLOORHUGGER
+   -NOGRAVITY
+   +DONTSPLASH
+   +DONTBLAST
+   States
+   {
+   Spawn:
+      FTRA ABCDEFGHIJ 3 Bright A_SpawnItem("SmithExplosion4")
+      stop
+   }
+}
+
+ACTOR SmithHammer
+{
+   Radius 5
+   Height 5
+   Speed 2
+   Damage 0
+   PROJECTILE
+   -NOGRAVITY
+   +LOWGRAVITY
+   +CLIENTSIDEONLY
+   +MOVEWITHSECTOR
+   DeathSound "monsters/hamflr"   
+   States
+   {
+   Spawn:
+      MAUL A 3  
+      MAUL B 4
+      MAUL C 5
+      goto Spawn+2
+   Death:
+      MAUL D -1 
+      stop
+   }
+}
+
+Actor SmithExplosion5 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o was blown up by a Hell Smith."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 1)
+		Stop
+	}	
+}
+
+ACTOR Hellshot2
+{
+   Radius 8
+   Height 12
+   Speed 26
+   Damage (10 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+   PROJECTILE
+   RENDERSTYLE ADD
+   DamageType "CyberFire"
+   ALPHA 0.95
+   DeathSound "weapons/hellex"
+   DONTHURTSHOOTER
+   +THRUGHOST
+   +DONTSPLASH
+   +DONTBLAST
+   Decal "Scorch"
+   States
+   {
+   Spawn: 
+	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+   SpawnLoop:
+      HEPA ABCDEF 3 Bright A_SpawnItemEx("RedPuff",0,0,0,0,0,0,0,8)
+      loop
+   Death:
+      MSP1 G 3 Bright
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,0,6)
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,45,6)
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,90,6)
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,135,6)
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,180,6)
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,225,6)
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,270,6)
+      TNT1 A 0 A_CustomMissile("HellBoom",0,0,315,6)
+      MSP1 H 3 Bright A_SpawnItem("SmithExplosion5")
+      MSP1 IJKLMNOP 3 Bright
+      stop
+   }
+}
+
+ACTOR HellBoom
+{
+   Radius 8
+   Height 8
+   Speed 6
+   Damage 0
+   PROJECTILE
+   +RIPPER
+   +THRUGHOST
+   +BLOODLESSIMPACT
+   +DONTSPLASH
+   +DONTBLAST
+   SeeSound "weapons/firex3"
+   ALPHA 0.80
+   States
+   {
+   Spawn:
+      TNT1 AAAAA 6 A_SpawnItem("HellFX",0,0)
+      Stop
+   }
+}
+
+Actor SmithExplosion6 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o was turned to crisps by a Bloodseeker."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96)
+		Stop
+	}	
+}
+
+ACTOR HellFX
+{   
+   Radius 5
+   Height 5
+   Speed 0
+   Damage 0
+   PROJECTILE
+   RENDERSTYLE ADD
+   Damagetype "CyberFire"
+   ALPHA 0.80
+   SeeSound "weapons/firex3"
+   +DONTSPLASH
+   +DONTBLAST
+   States
+   {
+   Spawn:
+      MSP1 G 3 Bright
+      MSP1 H 3 Bright A_SpawnItem("SmithExplosion6")
+      MSP1 IJKLMNOP 3 Bright
+      stop
+   }
+}
+
+ACTOR AvatarOfChaos : MagicalEnemy { 
+	Health 5500
+	PainChance 4
+	PainChance "Explosives", 0
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	DropItem "SoulAmmoSpawner", 128
+	Speed 15 
+	Scale 1.15
+	Radius 40 
+	Height 96 
+	Mass 0x7FFFFFFF
+	MONSTER
+	+FLOORCLIP
+	+NORADIUSDMG 
+	+BOSS 
+	+NOTARGET
+	+DONTBLAST
+	+QUICKTORETALIATE
+	+NOFEAR
+	+USEKILLSCRIPTS
+	Obituary "%o was smitten by the Avatar of Chaos."
+	SeeSound "monster/avasit" 
+	PainSound "monster/avapai" 
+	DeathSound "monster/avadth" 
+	ActiveSound "monster/avaact"
+	Tag "Avatar of Chaos"
+	var int user_count;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_GiveInventory("MakeElementalImmune", 1)
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_AVATAR, DND_MAGIC_WEAKNESS | DND_HOMING | DND_MINIONS | DND_EXPLOSIVE_IMMUNE, DND_ELEMENTAL_IMMUNE)
+			TNT1 A 0 ACS_ExecuteAlways(964, 0, 0)
+		Idle:
+			TNT1 A 0 ACS_ExecuteAlways(968, 0)
+			AVAT AB 10 A_Look 
+		Loop 
+		See: 
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+			AVAT AABBCCDD 3 Fast A_Chase 
+		Loop 
+		Missile:
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 0)
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+			TNT1 A 0 A_Jump(160, "Missile2", "Missile3")
+			TNT1 A 0 A_Jump(256, "Missile1", "Missile4")
+		Goto Missile1
+		Missile1: // Red Lightning
+			TNT1 A 0 A_FaceTarget
+			AVAT E 1 Bright A_PlaySound ("monster/avaatk")
+			TNT1 A 0 ACS_ExecuteAlways(973, 0, 2)
+			AVAT EEEEEEEEEEEEEEEEEEEEEEEEEEEE 2 Fast Bright A_FaceTarget
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 1)
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+			AVAT F 1 Bright A_PlaySound ("MageLightningFire")
+			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,15,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,15,2,-45)
+			TNT1 A  0 A_CustomMissile ("RedLiteTop",0,0,0,2,45)
+			TNT1 A  0 A_CustomMissile ("RedLiteBot",0,0,0,2,-45)
+			TNT1 A  0 A_CustomMissile ("RedLiteTop",0,0,-15,2,45)
+			AVAT F 14 Fast Bright A_CustomMissile ("RedLiteBot",0,0,-15,2,-45)
+			TNT1 A 0 A_FaceTarget
+			AVAT F 1 Bright A_PlaySound ("MageLightningFire")
+			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,15,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,15,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,0,2,45)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,0,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,-15,2,45)
+			AVAT F 14 Fast Bright A_CustomMissile ("RedLiteBot",0,0,-15,2,-45)
+			TNT1 A 0 A_FaceTarget
+			AVAT F 1 Bright A_PlaySound ("MageLightningFire")
+			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,15,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,15,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,0,2,45)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,0,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,-15,2,45)
+			AVAT F 14 Fast Bright A_CustomMissile ("RedLiteBot",0,0,-15,2,-45)
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 2)
+		Goto See
+		Missile2: // Blue Ball
+			TNT1 A 0  A_FaceTarget
+			AVAT I 1 Bright A_PlaySound ("monster/avaatk")
+			TNT1 A 0 ACS_ExecuteAlways(973, 0, 2)
+			AVAT IIIIIIIIIIIIIIIIIIIIIIIIIIII 2 Fast Bright A_FaceTarget 
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 1)
+			AVAT JJJJJJJ 3 Fast Bright A_CustomMissile("AvatarIceJet", 56, 0, frandom(-6, 6))
+			TNT1 A 0 A_FaceTarget
+			AVAT JJJJJJJ 3 Fast Bright A_CustomMissile("AvatarIceJet", 56, 0, frandom(-6, 6))
+			TNT1 A 0 A_FaceTarget
+			AVAT JJJJJJJ 3 Fast Bright A_CustomMissile("AvatarIceJet", 56, 0, frandom(-6, 6))
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 2)
+		Goto See
+		Missile3:
+			TNT1 A 0 A_FaceTarget
+			AVAT K 1 Bright A_PlaySound ("monster/avaatk")
+			TNT1 A 0 ACS_ExecuteAlways(973, 0, 2)
+			AVAT KKKKKKKKKKKKKKKKKKKKKKKKKKKK 2 Fast Bright A_FaceTarget
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 1)
+			TNT1 A 0 A_CustomMissile ("AvaFireBall", 56, 0, 12)
+			TNT1 A 0 A_CustomMissile ("AvaFireBall", 56, 0, 6)
+			TNT1 A 0 A_CustomMissile ("AvaFireBall", 56, 0, -6)
+			TNT1 A 0 A_CustomMissile ("AvaFireBall", 56, 0, -12)
+		Missile3Loop:
+			TNT1 A 0 A_JumpIf(user_count == 48, "Missile3Finish")
+			AVAT L 2 Fast Bright A_CustomMissile ("AvaFireBall", 56, 0, 25 * sin(15 * user_count))
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Missile3Finish:
+			AVAT L 1 Bright ACS_ExecuteAlways(967, 0, 2)
+		Goto See
+		Missile4:
+			TNT1 A 0 A_FaceTarget
+			AVAT G 1 Bright A_PlaySound ("monster/avaatk")
+			TNT1 A 0 ACS_ExecuteAlways(973, 0, 2)
+			AVAT GGGGGGGGGGGGGGGGGGGGGGGGGGGG 2 Bright A_FaceTarget
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 1)
+			TNT1 A 0 A_ChangeFlag("GHOST", 1)
+			TNT1 A 0 A_SetTranslucent(0.5)
+			AVAT H 1 Bright A_PlaySound("items/bookofthedead")
+			TNT1 A 0 A_SpawnItemEx("AvatarEvilSmile", 16, 0, 36, 0, 0, 4, 0, SXF_CLIENTSIDE)
+			TNT1 A 0 ACS_ExecuteAlways(973, 0, 1)
+			AVAT H 120 Fast Bright
+			TNT1 A 0 A_ChangeFlag("GHOST", 0)
+			TNT1 A 0 A_SetTranslucent(1.0)
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 2)
+		Goto See
+		Pain: 
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 2)
+			AVAT M 4 Fast 
+			AVAT M 4 Fast A_Pain 
+		Goto See 
+		Death:
+			TNT1 A 0 A_SetTranslucent(1.0)
+			TNT1 A 0 ACS_ExecuteAlways(967, 0, 3)
+			TNT1 A 0 A_CustomMissile("SorcBall1Projectile", 90, 0, 0, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SorcBall2Projectile", 90, 0, 60, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SorcBall3Projectile", 90, 0, 120, CMF_AIMDIRECTION)
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+			AVAT N 7 Bright A_KillChildren
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			AVAT O 7 Bright A_Scream
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			AVAT P 7 Bright
+			TNT1 A 0 A_KillChildren
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			AVAT Q 7 Bright 
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			TNT1 A 0 A_NoBlocking
+			AVAT RSTU 7 Bright
+			AVAT V -1 A_KillMaster
+		Stop
+		GiveSoul:
+		Death.BookOfTheDead:
+			AVAT N 1 Bright
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+			TNT1 A 0 A_GiveToTarget("Souls", 3)
+		Goto GaveSoul
+		
+		// override because of special interaction of cubes
+		Death.MagicSealing:
+			"####" "#" 0 ACS_ExecuteAlways(967, 0, 3)
+			"####" "#" 0 A_KillChildren
+			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
+			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
+			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
+			"####" "#" 0 A_FadeTo (0, 0.1, 0)
+			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+			TNT1 A 1 A_KillMaster
+		Stop
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 ACS_ExecuteAlways(967, 0, 3)
+			"####" "#" 0 A_KillChildren
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+   } 
+}
+
+Actor AvatarBallSet : Inventory {
+	inventory.maxamount 1
+}
+
+Actor AvatarDead : Inventory {
+	inventory.maxamount 1
+}
+
+Actor AvatarAttack : Inventory {
+	inventory.maxamount 1
+}
+
+Actor AvatarOnAttack : Inventory {
+	inventory.maxamount 1
+}
+
+Actor SorcBallBase {
+	+NOINTERACTION
+    Radius 2
+    Height 2
+	Speed 16
+}
+
+Actor SorcBall1New : SorcBallBase {
+	+CLIENTSIDEONLY
+	var int user_angle;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetUserVar("user_angle", 0)
+			TNT1 A 0 ACS_ExecuteAlways(970, 0, 0, 1, 32)
+		SpawnLoop:
+			SBMP A 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))
+			SBMP A 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMP B 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP B 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP C 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP C 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))					
+			SBMP D 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))
+			SBMP D 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))					
+			SBMP E 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP E 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))				
+			SBMP F 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMP F 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))				
+			SBMP G 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMP G 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP H 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMP H 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP I 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMP I 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP J 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP J 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP K 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP K 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP L 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP L 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP M 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP M 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP N 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP N 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP O 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMP O 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMP P 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMP P 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+		Loop
+		Death:
+			TNT1 A 1 A_SpawnItemEx("ExplosionFXMagic", 0, 0, 0, 0, 0, 0, 0, 128)
+		Stop
+	}
+}
+
+Actor SorcBall2New : SorcBallBase {
+	+CLIENTSIDEONLY
+	var int user_angle;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetUserVar("user_angle", 60)
+			TNT1 A 0 ACS_ExecuteAlways(970, 0, 0, 2, 32)
+		SpawnLoop:
+			SBMB A 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))
+			SBMB A 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMB B 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB B 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB C 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB C 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))					
+			SBMB D 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))
+			SBMB D 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))					
+			SBMB E 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB E 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))				
+			SBMB F 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMB F 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))				
+			SBMB G 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMB G 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB H 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMB H 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB I 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMB I 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB J 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB J 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB K 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB K 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB L 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB L 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB M 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB M 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB N 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB N 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB O 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMB O 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMB P 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMB P 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+		Loop
+		Death:
+			TNT1 A 1 A_SpawnItemEx("ExplosionFXMagicBlue", 0, 0, 0, 0, 0, 0, 0, 128)
+		Stop
+	}
+}
+
+Actor SorcBall3New : SorcBallBase {
+	+CLIENTSIDEONLY
+	var int user_angle;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetUserVar("user_angle", 120)
+			TNT1 A 0 ACS_ExecuteAlways(970, 0, 0, 3, 32)
+		SpawnLoop:
+			SBMG A 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))
+			SBMG A 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMG B 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG B 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG C 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG C 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))					
+			SBMG D 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))
+			SBMG D 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))					
+			SBMG E 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG E 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))				
+			SBMG F 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMG F 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))				
+			SBMG G 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMG G 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG H 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMG H 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG I 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMG I 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG J 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG J 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG K 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG K 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG L 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG L 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG M 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG M 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG N 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG N 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG O 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))			
+			SBMG O 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+			SBMG P 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))		
+			SBMG P 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(969) == -2, "Death")
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_ExecuteWithResult(969))	
+		Loop
+		Death:
+			TNT1 A 1 A_SpawnItemEx("ExplosionFXMagicYellow", 0, 0, 0, 0, 0, 0, 0, 128)
+		Stop
+	}
+}
+
+Actor SorcBallProjectileBase {
+	PROJECTILE
+	Speed 8
+	Height 10
+	Radius 5
+	+FULLVOLDEATH
+	+CANBOUNCEWATER
+	+NOWALLBOUNCESND
+	-NOGRAVITY
+    -ACTIVATEIMPACT
+    -ACTIVATEPCROSS
+	Gravity 0.075
+	BounceType Hexen
+	BounceCount 5
+	BounceSound "SorcererBallBounce"
+    DeathSound "SorcererBigBallExplode"
+}
+
+Actor SorcBall1Projectile : SorcBallProjectileBase {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			SBMP ABCDEFGHIJKLMNOP 2 Bright
+		Loop
+		Death:
+			TNT1 AA 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_ChangeFlag("NOBOUNCESOUND", 1)
+			SBS4 D 5 Bright A_Explode(192 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192)
+			SBS4 E 5 Bright
+			SBS4 FGH 6 Bright
+		Stop
+	}
+}
+
+Actor SorcBall2Projectile : SorcBallProjectileBase {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			SBMB ABCDEFGHIJKLMNOP 2 Bright
+		Loop
+		Death:
+			TNT1 AA 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_ChangeFlag("NOBOUNCESOUND", 1)
+			SBS3 D 5 Bright A_Explode(192 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192)
+			SBS3 E 5 Bright
+			SBS3 FGH 6 Bright
+		Stop
+	}
+}
+
+Actor SorcBall3Projectile : SorcBallProjectileBase {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			SBMG ABCDEFGHIJKLMNOP 2 Bright
+		Loop
+		Death:
+			TNT1 AA 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_ChangeFlag("NOBOUNCESOUND", 1)
+			SBS2 D 5 Bright A_Explode(192 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192)
+			SBS2 E 5 Bright
+			SBS2 FGH 6 Bright
+		Stop
+	}
+}
+
+ACTOR RedLiteTop : LightningCeiling {
+	DamageType "CyberLightning"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			MLFX A 2 Bright A_LightningZap
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			MLFX B 2 Bright A_LightningClip
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			MLFX C 2 Bright A_LightningClip
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			MLFX D 2 Bright A_LightningClip
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+	}
+}
+
+Actor LightningZap2 : LightningZap replaces LightningZap {
+	Damage (random(6, 18) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberLightning"
+	+THRUGHOST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+ACTOR RedLiteBot : LightningFloor {
+	DamageType "CyberLightning"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			MLFX E 2 Bright A_LightningZap
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			MLFX F 2 Bright A_LightningClip
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			MLFX G 2 Bright A_LightningClip
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			MLFX H 2 Bright A_LightningClip
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+	}
+}
+
+ACTOR AvaFireBall {
+   Radius 9
+   Height 18
+   Speed 24
+   Damage (7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+   DamageType "CyberFire"
+   ExplosionDamage 12
+   ExplosionRadius 40
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.80
+   +THRUGHOST
+   +DONTBLAST
+   SeeSound "Beast/Attack"
+   DeathSound "weapons/phoenixhit"
+   Decal "RevenantScorch"
+   States
+   {
+   Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+      AFX5 ABC 3 Bright
+      loop
+   Death:
+	  TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	  TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+      AFX5 D 3 Bright A_Explode
+      AFX5 EFGH 3 Bright
+      stop
+   }
+}
+
+Actor AvatarIceJet {
+	Radius 14
+	Height 12
+	Speed 20
+	Damage (random(8, 16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	DamageType "CyberIce"
+	PROJECTILE
+	+RIPPER
+	+BLOODLESSIMPACT
+	+DONTBLAST
+	RenderStyle Translucent
+	Alpha 0.5
+	SeeSound "Avatar/IceJet"
+	DeathSound "Avatar/IceJet"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			AVIC ABC 4 BRIGHT
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			AVIC DEFG 4 BRIGHT
+		Stop
+	}
+}
+
+ACTOR HolyMissile2 {
+   Radius 4
+   Height 4
+   Speed 22
+   Damage (5 * random(8, 12) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+   DamageType "Cyber"
+   PROJECTILE
+   Species "ThruDecor"
+   +SEEKERMISSILE
+   +THRUSPECIES
+   +DONTBLAST
+   RENDERSTYLE ADD
+   ALPHA 0.7
+   MissileType HolyMissileTrail
+   SeeSound "Avatar/SoulFire"
+   DeathSound "Avatar/SoulXP"
+   Decal "Scorch"
+   States
+   {
+   Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+      SPIR A 1 Bright A_CustomMissile("HolyMissileTrail",0,0,0,0)
+	  TNT1 A 0 A_SeekerMissile(10, 16, SMF_PRECISE)
+      SPIR B 1 Bright A_CustomMissile("HolyMissileTrail",0,0,0,0)
+	  TNT1 A 0 A_SeekerMissile(10, 16, SMF_PRECISE)
+      SPIR A 1 Bright A_CustomMissile("HolyMissileTrail",0,0,0,0)
+	  TNT1 A 0 A_SeekerMissile(10, 16, SMF_PRECISE)
+      SPIR B 1 Bright A_CustomMissile("HolyMissileTrail",0,0,0,0)
+	  TNT1 A 0 A_SeekerMissile(10, 16, SMF_PRECISE)
+      SPIR A 1 Bright A_CustomMissile("HolyMissileTrail",0,0,0,0)
+	  TNT1 A 0 A_SeekerMissile(10, 16, SMF_PRECISE)
+      SPIR B 1 Bright A_CustomMissile("HolyMissileTrail",0,0,0,0)
+      Loop
+   Death:
+	  TNT1 A 0 A_SpawnItemEx("WhiteParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	  TNT1 AAA 0 A_CustomMissile("ExplosionFX10", 0, 0, random(0,360), 2, random(0,360))
+	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+      SPIR KLMNO 3 Bright
+      Stop
+   }
+}
+
+ACTOR HolyMissileTrail {
+   Radius 3
+   Height 3
+   Speed 15
+   PROJECTILE
+   RENDERSTYLE ADD
+   Alpha 0.7
+   +CLIENTSIDEONLY
+   states
+   {
+   Spawn:
+      SPIR QRS 3
+   Death:
+      SPIR C 3 BRIGHT
+      SPIR D 3 BRIGHT
+      Stop
+   }
+}
+
+Actor AcolyteSummonBall {
+	Speed 15
+	Radius 22
+	Height 65
+	+NOBLOCKMAP
+	+MISSILE
+	+NOTELEPORT
+	+DONTBLAST
+	SeeSound "Avatar/Bishop"
+	States {
+		Spawn:
+			SBS3 ABC 2 Bright
+		Loop
+		Death:
+			SBS2 D 4 Bright A_Stop
+			TNT1 A 0 A_SpawnItemEx("ShadowPriest2", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER)
+			SBS2 EFGH 4 Bright
+		Stop
+	}
+}
+
+Actor AcolyteSummoner : CustomInventory {
+	inventory.maxamount 1
+	+AUTOACTIVATE
+	+ALWAYSPICKUP
+	
+	States {
+		Use:
+			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 90)
+			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 180)
+			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 270)
+		Stop
+	}
+}
+
+Actor AvatarEvilSmile {
+	Radius 2
+	Height 2
+	Renderstyle Add
+	Alpha 0.25
+	Scale 1.25
+	+NOGRAVITY
+	+NOCLIP
+	+CLIENTSIDEONLY
+	
+	States {
+		Spawn:
+			SRBA EEFFGG 1 Bright A_Fadein(0.1)
+			TNT1 A 0 A_Stop
+			SRBA H 105 Bright
+			SRBA IIIIJJJJ 1 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor Thanatos : HalfMechanicalEnemy {
+	Translation "0:255=%[0.00,0.00,0.00]:[0.81,0.53,0.53]", "16:47=16:47", "168:255=168:255", "80:111=80:111"
+	Obituary "%o was wiped off the face of Earth by a Thanatos."
+	Health 6500
+	Radius 40
+	Height 110 
+	Mass 16384
+	Speed 20
+	PainChance 8
+	Scale 1.15
+	MONSTER
+	Species "Cyber"
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "Lightning", 1.5
+	+NOTARGET 
+	+FLOORCLIP 
+	+NORADIUSDMG 
+	+BOSS 
+	+DONTHURTSPECIES
+	+MISSILEMORE
+	+MISSILEEVENMORE 
+	+QUICKTORETALIATE
+	+USEKILLSCRIPTS
+	SeeSound "monster/annsee" 
+	PainSound "monster/annpain" 
+	DeathSound "monster/anndie" 
+	ActiveSound "monster/annact" 
+	Tag "Thanatos"
+	States {    
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_GiveInventory("MakeExplosiveFullImmune", 1)
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_THANATOS, DND_ENERGY_WEAKNESS | DND_EXPLOSIVE_NONE | DND_HOMING)
+		Idle:
+			4NNI AB 10 A_Look 
+		Loop 
+		See: 
+			4NNI A 3 Fast A_Playsound ("monster/annhoof")
+			4NNI ABBCC 3 Fast A_Chase 
+			4NNI D 3 Fast A_Playsound ("monster/annhoof") 
+			4NNI D 3 Fast A_Chase 
+		Loop 
+		Missile:
+			TNT1 A 0 A_JumpIfCloser(288, "Stomp")
+		Rockets:
+			TNT1 A 0 A_Jump(144, "Mini", "Homing")
+			4NNI E 6 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("CyberdemonRocket2",56,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("CyberdemonRocket2",56,-30,0)
+			4NNI E 12 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("CyberdemonRocket2",56,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("CyberdemonRocket2",56,-30,0) 
+			4NNI E 12 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("CyberdemonRocket2",56,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("CyberdemonRocket2",56,-30,0)
+		Goto See
+		Homing:
+			4NNI E 6 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("ThanatosRocket",56,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosRocket",56,-30,0)
+			4NNI E 12 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("ThanatosRocket",56,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosRocket",56,-30,0) 
+			4NNI E 12 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("ThanatosRocket",56,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosRocket",56,-30,0)
+		Goto See
+		Mini:
+			4NNI E 6 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosMiniRocket",64,-30,0)
+			4NNI E 12 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosMiniRocket",64,-30,0) 
+			4NNI E 12 Fast A_FaceTarget 
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,-30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
+			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30,0)
+			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosMiniRocket",64,-30,0)
+		Goto See
+		Stomp:
+			TNT1 A 0 A_Jump(64, "Rockets")
+			ANMA AA 6 Fast A_FaceTarget
+			TNT1 A 0 A_SpawnItem("CyberdemonStomper")
+			TNT1 A 0 A_SpawnItemEx("StompFX", 24)
+			TNT1 A 0 A_SpawnItemEx("SlamAftermathSpawner")
+			TNT1 A 0 A_PlaySound("cyberdemon/slam", 5)
+			TNT1 A 0 A_playSound("cyberdemon/slamadd", 6)
+			ANMA B 9 Fast
+			ANMA BB 9 Fast A_FaceTarget
+		Goto See
+		Pain: 
+			4NNI G 10 Fast A_Pain 
+		Goto See 
+		Death:
+			4NNI H 10 Bright
+			4NNI I 10 Bright A_Scream 
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			4NNI JJJJJ 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			4NNI KKKKK 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			4NNI LLLLL 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+			TNT1 A 0 A_NoBlocking
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			4NNI MMMMM 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:	
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			4NNI NNNNN 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			4NNI OOOOO 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			4NNI P 30 
+			4NNI P -1 A_KillMaster
+		Stop
+		GiveSoul:
+		Death.BookOfTheDead:
+			4NNI N 1 Bright
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+			TNT1 A 0 A_GiveToTarget("Souls", 3)
+		Goto GaveSoul
+   }
+}
+
+Actor ThanatosExp1 : BaseExplosionDamage {
+	DamageType "CyberExp"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+		Stop
+	}
+}
+
+ACTOR ThanatosRocket {
+	Radius 8
+	Height 11
+	Speed 20
+	Damage (100 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberExp"
+	PROJECTILE
+	DeathSound "weapons/heavyrlexp"
+	+SeekerMissile
+	+MTHRUSPECIES
+	+Rockettrail
+	+THRUGHOST
+	+FORCEXYBILLBOARD
+	+FORCERADIUSDMG
+	+EXPLODEONWATER
+	+DONTBLAST
+	SeeSound "weapons/heavyrlfire"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			HMIS AA 4 Bright
+		SpawnLoop:
+			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			HMIS A 2 Bright A_SeekerMissile (10, 25)
+			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			HMIS A 2 Bright
+			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			HMIS A 2 Bright A_SeekerMissile (10, 25)
+			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			HMIS A 2 Bright A_PlaySound("Weapons/HeatSeek", 7)
+		Loop
+		Death:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 A_SetTranslucent (0.75,1)
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))	
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			MACX A 2 Bright A_SpawnItem("ThanatosExp1")
+			MACX BCDEFGHIJ 2 Bright
+		stop
+	}
+}
+
+Actor CyberdemonRocket2 : CyberdemonRocket {
+	Speed 28
+}
+
+Actor CyberdemonStomper : BaseExplosionDamage {
+	DamageType "CyberSlow"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 4 A_Explode(160 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 224, 0)
+			TNT1 A 4 A_Explode(116 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 256, 0)
+			TNT1 A 4 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 288, 0)
+		Stop
+	}
+}
+
+ACTOR SlamFX {
+	Radius 12
+	Height 16
+	RenderStyle Translucent
+	Alpha 0.1
+	PROJECTILE
+	Speed 8
+	+CLIENTSIDEONLY
+	+DROPOFF
+	-NOGRAVITY
+	+FORCERADIUSDMG
+	+BLOODLESSIMPACT
+	+FloorHugger
+	+RIPPER
+	States {
+		Spawn:
+	    	IDGA CCAABBCCC 10
+		Death:
+			IDGA C 1
+	    Stop
+	}
+}
+
+Actor SlamAftermathSpawner {
+	Height 2
+	Radius 2
+	PROJECTILE
+	Speed 1
+	+HEXENBOUNCE
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetPitch(0.0)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 0, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 10, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 20, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 30, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 40, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 50, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 60, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 70, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 80, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 90, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 100, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 110, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 120, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 130, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 140, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 150, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 160, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 170, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 180, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 190, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 200, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 210, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 220, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 230, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 240, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 250, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 260, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 270, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 280, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 290, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 300, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 310, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 320, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 330, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 340, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SlamFX", 0, 0, 350, CMF_AIMDIRECTION)
+		Stop
+	}
+}
+
+Actor StompFX {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 1.0
+	Scale 1.5
+	States {
+		Spawn:
+			CJFX ABC 3 Bright A_FadeOut(0.05)
+			CJFX DEFGH 2 Bright A_FadeOut(0.05)
+			CJFX IJK 3 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor ThanatosExp2 : BaseExplosionDamage {
+	DamageType "CyberExp"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+		Stop
+	}
+}
+
+Actor ThanatosMiniRocket {
+	PROJECTILE
+	Speed 22
+	Damage (32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberExp"
+	SeeSound "weapons/devastatorfire"
+	DeathSound "Weapons/DevastatorExpl"
+	Height 8
+	Radius 4
+	Scale 0.45
+	+THRUGHOST
+	+MTHRUSPECIES
+	+FOILINVUL
+	+FORCERADIUSDMG
+	+NODAMAGETHRUST
+	+SEEKERMISSILE
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			DEVM AA 2 Bright
+			TNT1 A 0 A_ScaleVelocity(1.5)
+		SpawnLoop:
+			TNT1 A 0 A_SpawnItem("DevastatorSmoke")
+			DEVM A 2 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlareSmall", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAA 0 A_CustomMissile("DevastatorSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 1 A_SpawnItem("ThanatosExp2")
+			TNT1 A 1 A_SpawnItem("DevastatorExplosion")
+		Stop
+	}
+}
+
+Actor LowerThanHP : DnD_Boolean { }
+
+actor Cerberus : DnD_BaseEnemy {
+	obituary "%o didn't approach Cerberus the right way."
+	health 6000
+	radius 40
+	height 110
+	mass 1576
+	speed 8
+	painchance 16
+	seesound "Cerberus/See"
+	painsound "Cerberus/Pain"
+	deathsound "Cerberus/Die"
+	activesound "Cerberus/See"
+	Scale 1.15
+	MONSTER
+	+FLOORCLIP
+	+BOSS
+	+DONTHURTSPECIES
+	+NOTarget
+	+NORADIUSDMG
+	+USEKILLSCRIPTS
+	+DONTRIP
+	Species "Cyber"
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	DropItem "SoulAmmoSpawner", 128
+	MinMissileChance 32
+	Tag "Cerberus"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_GiveInventory("MagicImmunity", 1)
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CERBERUS, DND_RAGE | DND_EXPLOSIVE_IMMUNE | DND_HARDENED_SKIN, DND_MAGIC_IMMUNE)
+		Idle:
+			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "Idle2")
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB A 14 A_Look
+		loop
+		Idle2:
+			CERB N 14 A_Look
+		loop
+		See:
+			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "See2")
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+		SeeGo:
+			CERB B 2 Fast A_Chase
+			CERB B 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERB C 2 Fast A_Chase
+			CERB C 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERB D 2 Fast A_Chase
+			CERB D 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERB E 2 Fast A_Chase
+			CERB E 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERB F 2 Fast A_Chase
+			CERB F 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+		loop
+		See2:
+			CERX A 2 Fast A_Chase
+			CERX A 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERX B 2 Fast A_Chase
+			CERX B 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERX C 2 Fast A_Chase
+			CERX C 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERX D 2 Fast A_Chase
+			CERX D 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			CERX E 2 Fast A_Chase
+			CERX E 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+		loop
+		Missile:
+			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "MissileSingle")
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CYBR F 0 A_Jump(70, "Pattern1")
+			CERB G 9 Fast A_FaceTarget 
+			CERB H 8 Fast A_FaceTarget
+			CYBR H 0 A_CustomMissile ("CerberusShot", 45, 24, 0, CMF_AIMOFFSET)
+			CYBR H 0 A_CustomMissile ("CerberusShot", 45, -24, 0, CMF_AIMOFFSET)
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB I 8 Fast 
+			CERB J 7 Fast
+		Goto See
+		MissileSingle:
+			CERX F 3 Fast A_FaceTarget 
+			CERX G 4 Fast A_FaceTarget 
+			CRB2 J 0 A_CustomMissile ("CerberusShot", 45, 24)
+			CERB N 5 Fast 
+			CERB N 3 Fast A_SentinelRefire
+		Goto Missile
+		Pattern1:
+			CERB G 5 Fast A_FaceTarget 
+			CERB H 9 Fast A_FaceTarget
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, 24, -36, CMF_AIMOFFSET | CMF_AIMDIRECTION, -5)
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, -24, 36, CMF_AIMOFFSET | CMF_AIMDIRECTION, -5)
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB I 6 Fast
+			CERB J 6 Fast
+			CERB H 5 A_FaceTarget
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, 24, 0, CMF_AIMOFFSET)
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, -24, 0, CMF_AIMOFFSET) 
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB I 6 Fast 
+			CERB J 6 Fast
+			CERB H 5 A_FaceTarget
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, 24, -18, CMF_AIMOFFSET | CMF_AIMDIRECTION, -5)
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, -24, -18, CMF_AIMOFFSET | CMF_AIMDIRECTION, -5) 
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB I 6 Fast
+			CERB J 6 Fast
+			CERB H 5 A_FaceTarget
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, 24, 0, CMF_AIMOFFSET)
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, -24, 0, CMF_AIMOFFSET) 
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB I 6 Fast
+			CERB J 6 Fast
+			CERB H 5 A_FaceTarget
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, 24, 14, CMF_AIMOFFSET | CMF_AIMDIRECTION, -5)
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, -24, 14, CMF_AIMOFFSET | CMF_AIMDIRECTION, -5) 
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB I 6 Fast
+			CERB J 6 Fast
+			CERB H 5 A_FaceTarget
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, 24, 0, CMF_AIMOFFSET)
+			CYBR H 0 A_CustomMissile("CerberusShot", 45, -24, 0, CMF_AIMOFFSET) 
+			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB I 6 Fast
+			CERB J 6 Fast
+		Goto See
+		Pain:
+			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB K 6 Fast A_Pain
+			CERB L 6 Fast A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+		goto See
+		PainX:
+			TNT1 A 0 A_GiveInventory("LowerThanHp", 1)
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+			TNT1 A 0 A_ChangeFlag("MISSILEMORE", 1)
+			TNT1 A 0 A_ChangeFlag("MISSILEEVENMORE", 1)
+			TNT1 A 0 A_GiveInventory("MonsterTraits", DND_AGGRESSIVE)
+			TNT1 A 0 A_GiveInventory("MonsterTraits", DND_NOPAIN)
+			TNT1 A 0 A_TakeInventory("MonsterTraits", DND_RAGE)
+			CERB K 7 Fast A_Pain
+			CERB LM 7 Fast
+		goto Missile
+		Death:
+			CERX H 6 A_Scream
+		GaveSoul:
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItem("NashGore_FlyingBlood",0,0,0,0)
+			CERX I 6 A_Fall
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItem("NashGore_FlyingBlood",0,0,0,0)
+			CERX J 6
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItem("NashGore_FlyingBlood",0,0,0,0)
+			CERX KKKKKKKKKKKKKKKKKKKKKKKKKKKK 2 A_SpawnItemEx("NashGore_FlyingBlood",random[Cerberus](25,-25),(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](8,24),random[Cerberus](2,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood",random[Cerberus](25,-25),(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](8,24),random[Cerberus](2,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			CERX L 10
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood",random[Cerberus](25,-15),(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](8,24),random[Cerberus](2,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			CERX M 10
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood",random[Cerberus](25,-5),(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](8,24),random[Cerberus](2,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			CERX N 10
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood",random[Cerberus](25,5),(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](8,24),random[Cerberus](2,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			CERX O 10
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood",random[Cerberus](25,15),(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](8,24),random[Cerberus](2,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			CERX P 10
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood",25,(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](4,12),random[Cerberus](8,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			CERX Q 10
+			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood",random[Cerberus](25,35),(random[Cerberus](-1,1)*25)+random[Cerberus](-6,6),random[Cerberus](8,24),random[Cerberus](2,4),random[Cerberus](-2,2),random[Cerberus](-1,3))
+			CERX Q -1 A_KillMaster
+		stop
+		GiveSoul:
+		Death.BookOfTheDead:
+			CERX H 1
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+			TNT1 A 0 A_GiveToTarget("Souls", 3)
+		Goto GaveSoul
+	}
+}
+
+Actor CerberusExp1 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o didn't approach Cerberus the right way."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+		Stop
+	}
+}
+
+Actor CerberusExp2 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o didn't approach Cerberus the right way."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+		Stop
+	}
+}
+
+Actor CerberusExp3 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o didn't approach Cerberus the right way."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+		Stop
+	}
+}
+
+Actor CerberusExp4 : BaseExplosionDamage
+{
+	DamageType "CyberFire"
+	Obituary "%o didn't approach Cerberus the right way."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 56, 0)
+		Stop
+	}
+}
+
+actor CerberusShot { 
+	Decal Scorch
+	radius 8
+	height 16
+	speed 24
+	damage (10 * random(8, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberFire"
+	renderstyle Add
+	Scale 0.75
+	seesound "Cerberus/Fire"
+	Deathsound "Cerberus/Explode"
+	PROJECTILE
+	+DONTBLAST
+	states {
+		Spawn:   
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 A_PlaySound("Cerberus/MissileFly", 7, 1.0, 1)
+		SpawnLoop:
+			NAPP ABCDE 2 bright A_SpawnItemEx("BFireTrail",0+random[Cerberus](-5,5),0+random[Cerberus](-5,5),0+random[Cerberus](-5,5),0,0,1,0,128)
+		loop
+		Death:
+			TNT1 A 0 A_StopSound(7)
+			LLSX A 5 Bright A_SpawnItem("CerberusExp1")
+			LLSX BCD 4 Bright A_SpawnItem("CerberusExp2")
+			LLSX EFG 3 Bright A_SpawnItem("CerberusExp3")
+			LLSX HI 3 Bright A_SpawnItem("CerberusExp4")
+			LLSX J 3 Bright
+			LLSX K 3
+		stop
+	}
+}

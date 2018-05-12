@@ -1,0 +1,2617 @@
+actor Lavademon : FireElementalEnemy
+{
+  obituary "%o was charred by a Lava Giant."
+  health 1000
+  radius 24
+  height 64
+  mass 1000
+  speed 12
+  painchance 96
+  seesound "lavdsit"
+  painsound "lavdpain"
+  deathsound "lavddie"
+  activesound "lavdsit"
+  meleerange 64
+  DamageFactor "Barons", 0.0
+  DamageFactor "BaronsExp", 0.0
+  DamageFactor "BaronsPoison", 0.0
+  DamageFactor "BaronsFire", 0.0
+  DamageFactor "BaronGreen", 0.0
+  DamageFactor "BaronGreenFire", 0.0
+  DamageFactor "BaronPlasma", 0.0
+  DamageFactor "BaronVoid", 0.0
+  DamageFactor "BaronYellow", 0.0
+  DamageFactor "BaronsMagic", 0.0
+  DamageFactor "BaronsMagicFire", 0.0
+  DamageFactor "Painless_Sun", 1.3
+  DamageFactor "Bullet", 0.75
+  DamageFactor "Melee", 0.5
+  DamageFactor "Melee_Magic", 0.5
+  Tag "Lava Demon"
+  MONSTER
+  Species "HK"
+  +NOBLOOD
+  +DONTRIP
+  +DONTHURTSPECIES
+  +NORADIUSDMG
+  +DONTBLAST
+  +USEKILLSCRIPTS
+  states
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LAVADEMON, DND_MAGIC_WEAKNESS | DND_ICE_WEAKNESS | DND_MELEE_RESIST | DND_BULLET_RESIST | DND_EXPLOSIVE_IMMUNE | DND_HARDENED_SKIN)
+Idle:
+    LAVD H 0 bright A_jump(128,2)    
+    LAVD H 0 bright A_CustomMissile("IceGuyWisp1",70,0) 
+    LAVD H 10 bright A_Look
+    loop
+  See:
+    LAVD A 0 bright A_SpawnItemEx("firestep",0,-5,0)
+    LAVD A 6 Fast bright A_Chase
+    LAVD B 0 bright A_jump(128,1)    
+    LAVD B 0 bright A_CustomMissile("IceGuyWisp1",70,0)
+    LAVD B 6 Fast bright A_Chase
+    LAVD C 0 bright A_SpawnItemEx("firestep",0,5,0)    
+    LAVD C 6 Fast bright A_Chase
+    LAVD D 0 bright A_jump(128,1)
+    LAVD D 0 bright A_CustomMissile("IceGuyWisp2",70,0)    
+    LAVD D 6 Fast bright A_Chase
+    loop
+  Melee:
+    LAVD EF 5 Fast bright A_facetarget
+    LAVD G 0 bright A_custommissile("PhoenixFX3",49,16,0,1)    
+    LAVD G 2 Fast bright A_custommissile("PhoenixFX3",49,-21,0,1)    
+    LAVD G 0 bright A_custommissile("PhoenixFX3",49,16,0,1)    
+    LAVD G 2 Fast bright A_custommissile("PhoenixFX3",49,-21,0,1)    
+    LAVD G 0 bright A_custommissile("PhoenixFX3",49,16,0,1)    
+    LAVD G 2 Fast bright A_custommissile("PhoenixFX3",49,-21,0,1)    
+    LAVD G 0 bright A_custommissile("PhoenixFX3",49,16,0,1)    
+    LAVD G 2 Fast bright A_custommissile("PhoenixFX3",49,-21,0,1)    
+    LAVD G 0 bright A_custommissile("PhoenixFX3",49,16,0,1)    
+    LAVD G 2 Fast bright A_custommissile("PhoenixFX3",49,-21,0,1)
+    goto melee+2
+    goto see
+  Missile:
+    LAVD E 0 bright A_CustomMissile("firestep",0,-5,0)
+    LAVD E 0 bright A_CustomMissile("firestep",0,5,0)    
+    LAVD EF 5 Fast bright A_FaceTarget
+    LAVD G 0 bright A_CustomMissile("beastball2", 45,-21,0,1)    
+    LAVD G 10 Fast bright A_CustomMissile("beastball2", 45,16,0,1)
+    goto See
+  Pain:
+    LAVD E 3 Fast bright
+	TNT1 A 0 A_PlaySound("lavdpain")
+    LAVD E 3 Fast bright A_Pain
+    goto See
+  Death:
+ 	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+  GaveSoul:
+    LAVD S 8 bright A_Scream
+	TNT1 AAAAAAAAA 0 A_SpawnItemEx("LavaDemonSmoke", 0, 0, 24, 2, 0, 2, random(0, 360))
+    LAVD TTTT 2 bright A_CustomMissile("Volcanoblast2", 16, 0, random(0, 360))
+    LAVD UVW 8 bright    
+    LAVD X 8 bright A_NoBlocking
+    LAVD Y 60 bright
+	LAVD Y -1 A_KillMaster
+    stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		LAVD S 1 Bright
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+    LAVD XWVUTS 6
+	Goto See
+  }
+}
+
+Actor PuffyC : Puffy {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+		Goto Super::Spawn
+	}
+}
+
+Actor LavaDemonSmoke : msxgen_smoke
+{
+	Scale 0.55
+}
+
+actor phoenixFX3 : PhoenixFX2
+{
+	seesound "weapons/phoenixpowshoot"
+	damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsFire"
+	Speed 12
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+Actor VolcanoBlast2 : VolcanoBlast
+{
+	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damagetype "BaronsFire"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+Actor VolcanoTBlast2 : VolcanoTBlast replaces VolcanoTBlast
+{
+	Damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damagetype "BaronsFire"
+	Speed 3
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+Actor VolcanoExp : BaseExplosionDamage
+{
+	DamageType "BaronsFire"
+	Obituary "%o was charred by a lavademon."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 32)
+		Stop
+	}
+}
+
+actor BeastBall2 : Volcanoblast2
+{
+  radius 9
+  height 8
+  speed 15
+  damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  seesound "lavdatk"
+  deathsound "weapons/phoenixhit"
+  damagetype "BaronsFire"
+  Projectile
+  states
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    VFBL A 0 bright A_CustomMissile ("wraithfx2",0,0)
+    VFBL A 4 bright A_SpawnItemEx("PuffyC", random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, 
+									0,0,0,0,SXF_ABSOLUTEPOSITION, 64)
+    VFBL B 4 bright A_SpawnItemEx("PuffyC", random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, 
+									0,0,0,0,SXF_ABSOLUTEPOSITION, 64)
+    loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 0, CMF_TRACKOWNER)
+	TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 90, CMF_TRACKOWNER)
+	TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 180, CMF_TRACKOWNER)
+	TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 270, CMF_TRACKOWNER)
+    XPL1 A 4 BRIGHT A_SpawnItem("VolcanoExp")
+    XPL1 BCDEF 4 bright
+    stop
+  }
+}
+ 
+actor firestep
+{
+ radius 1
+ height 1
+ speed 0
+ damage 0
+ +CLIENTSIDEONLY
+ states
+ {
+ Spawn:
+	 TNT1 AA 0 A_PlaySound("world/lavasizzle")
+     LVAS A 3 bright
+     LVAS B 3 bright A_CustomMissile("lavasmoke1",0,0)
+     LVAS CDEF 3 bright
+     stop
+ }
+}
+     
+actor lavasmoke1
+{
+ radius 1
+ height 1
+ speed 0
+ damage 0
+ renderstyle translucent
+ alpha 0.5
+ +CLIENTSIDEONLY
+ states
+ {
+ Spawn:
+     LVAS GHIJK 3 bright
+     stop
+ }
+}      
+
+
+ACTOR LordofHeresy : DnD_BaseEnemy
+{ 
+    Health 1100 
+    Radius 20 
+    Height 56 
+    Speed 9 
+    PainChance 50
+    BloodColor "7D 9D 59"
+    Mass 1000
+    MONSTER 
+	+FLOORCLIP
+    Species "HK"
+    +DONTHURTSPECIES	
+	+DONTBLAST
+	+USEKILLSCRIPTS
+    Obituary "%o was annihilated by the heresy lord." 
+    SeeSound "LordOfHeresy/sight" 
+    PainSound "demon/pain" 
+    DeathSound "LordOfHeresy/death" 
+    ActiveSound "LordOfHeresy/act"  
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	Translation "16:43=52:77", "33:33=220:220", "34:37=[155,91,19]:[155,91,19]", "38:40=[135,67,7]:[135,67,7]", "41:43=[115,43,0]:[115,43,0]", "44:48=237:239", "190:191=238:238"
+	Tag "Lord of Heresy"
+    States 
+    { 
+    Spawn: 
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LORDOFHERESY)
+	Idle:
+        LOHS AB 10 A_Look 
+        Loop 
+    See: 
+        LOHS AABBCCDD 4 Fast A_Chase 
+        Loop 
+    Missile: 
+        LOHS E 0 A_Jump(85,5) 
+        LOHS E 0 A_Jump(128,9)
+        LOHS E 8 Fast A_FaceTarget 
+        LOHS F 8 Fast A_FaceTarget 
+        LOHS G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee") 
+        Goto See 
+        LOHS E 8 Fast A_FaceTarget 
+        LOHS F 8 Fast A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 8) 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 0) 
+        LOHS G 8 Fast A_Custommissile ("BaronBall", 32, 0, -8) 
+        Goto See 
+        LOHS E 8 Fast A_FaceTarget 
+        LOHS F 8 Fast A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, -20) 
+        LOHS G 8 Fast A_Custommissile ("BaronBall", 32, 0, 0) 
+        LOHS E 8 Fast A_FaceTarget 
+        LOHS F 8 Fast A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 20) 
+        LOHS G 8 Fast A_Custommissile ("BaronBall", 32, 0, 0) 
+        LOHS E 8 Fast A_FaceTarget 
+        LOHS F 8 Fast A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, -12) 
+        LOHS G 8 Fast A_Custommissile ("BaronBall", 32, 0, 12) 
+        Goto See 
+    Pain: 
+        LOHS H 5 Fast 
+        LOHS H 5 Fast A_Pain 
+        Goto See 
+    Death: 
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+	GaveSoul:
+        LOHS I 8
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+        LOHS J 8 A_Scream 
+        LOHS K 4
+		LOHS K 4 A_Fall
+        LOHS LMN 8
+        LOHS O -1 A_KillMaster
+        Stop 
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		LOHS I 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul		
+    Raise: 
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+        LOHS ONMLKJI 5 
+        Goto See 
+    } 
+}
+
+Actor Cybruiser : MechanicalEnemy
+{ 
+  Health 1500 
+  Radius 24 
+  Height 64 
+  Mass 1000 
+  Speed 8 
+  PainChance 20 
+  Monster
+  Obituary "%o was blown away by a Cybruiser."
+  HitObituary "%o was smashed by a Cybruiser."
+  DamageFactor "Painless_Sun", 1.3
+  +FloorClip
+  +MissileMore
+  +BossDeath
+  +NOBLOOD
+  +DONTRIP
+  Species "HK"
+  +DONTHURTSPECIES
+  +DONTBLAST
+  +USEKILLSCRIPTS
+  SeeSound "monster/brusit" 
+  PainSound "baron/pain" 
+  DeathSound "monster/brudth"
+  MeleeSound "baron/melee"
+  DamageFactor "Barons", 0.0
+  DamageFactor "BaronsExp", 0.0
+  DamageFactor "BaronsPoison", 0.0
+  DamageFactor "BaronsFire", 0.0
+  DamageFactor "BaronGreen", 0.0
+  DamageFactor "BaronGreenFire", 0.0
+  DamageFactor "BaronPlasma", 0.0
+  DamageFactor "BaronVoid", 0.0
+  DamageFactor "BaronYellow", 0.0
+  DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+  Tag "Cybruiser"
+  States 
+  { 
+  Spawn: 
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CYBRUISER, DND_ENERGY_WEAKNESS | DND_BULLET_RESIST | DND_HARDENED_SKIN)
+Idle:
+    CRUS AB 10 A_Look 
+    Loop 
+  See:
+    CRUS A 1 A_Playsound("monster/bruwlk")
+    CRUS A 2 Fast A_Chase
+    CRUS A 3 Fast A_Chase
+    CRUS BB 3 Fast A_Chase
+    CRUS C 1 A_Playsound("monster/bruwlk")
+    CRUS C 2 Fast A_Chase
+    CRUS C 3 Fast A_Chase 
+    CRUS DD 3 Fast A_Chase
+    Loop 
+  Missile:
+    TNT1 A 0 A_Jump(96, "Single")
+    CRUS E 8 Fast A_FaceTarget 
+    CRUS F 12 Fast Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+    CRUS E 12 Fast A_FaceTarget
+    CRUS F 12 Fast Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+    CRUS E 12 Fast A_FaceTarget
+    CRUS F 12 Fast Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+    Goto See
+  Single:
+    CRUS E 8 Fast A_FaceTarget 
+    CRUS F 12 Fast Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+  Goto See
+  Melee:
+    CRUS GH 8 Fast A_FaceTarget
+    CRUS I 8 Fast A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+    Goto See
+  Pain: 
+    CRUS J 2 Fast 
+    CRUS J 2 Fast A_Pain 
+    Goto See 
+  Death: 
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+  GaveSoul:
+    CRUS K 6 Bright A_Scream
+    CRUS LLLMMMNNN 2 Bright A_SpawnItemEx("ExplosionFXSmall", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+	CRUS O 6 Bright A_NoBlocking
+    CRUS QR 6 Bright
+    CRUS S 6
+    CRUS T -1 A_KillMaster
+    Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		CRUS K 1 Bright
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul  
+  Raise:
+    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+    CRUS SRQONMLK 6
+	Goto See
+  } 
+}
+
+Actor CybrusExp : BaseExplosionDamage
+{
+	DamageType "BaronsExp"
+	Obituary "%o was blown away by a Cybruiser."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+		Stop
+	}
+}
+
+Actor BruiserMissile
+{
+  Radius 8
+  Height 12
+  Speed 28
+  Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "Barons"
+  Scale 1.0
+  SpawnID 251
+  Projectile
+  RenderStyle Normal
+  +ThruGhost
+  +DONTBLAST
+  SeeSound "monster/brufir"
+  DeathSound "weapons/hellex"
+  DontHurtShooter
+  Decal Scorch
+  States
+  {
+  Spawn: 
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    FBRS A 1 Bright
+    FBRS A 1 Bright A_SpawnItemEx("BruiserTrail",0,0,0,0,0,0,0,128)
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+	TNT1 AAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+	TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+	TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+	TNT1 AAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+	TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+    TNT1 A 0 A_SetTranslucent(0.67,1)
+    BAL3 C 6 Bright
+    BAL3 D 6 Bright A_SpawnItem("CybrusExp")
+    BAL3 E 6 Bright
+    Stop
+  }
+}
+
+Actor BruiserTrail
+{   
+  Radius 3
+  Height 3
+  RenderStyle Translucent
+  Alpha 0.67
+  Projectile
+   +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    TNT1 A 3 Bright
+    PUFF ABCD 4 BRIGHT
+    Stop 
+  }
+}
+
+Actor BruiserDemon : DnD_BaseEnemy
+{
+  Health 1500
+  Radius 24
+  Height 64
+  Mass 1500
+  Speed 8
+  PainChance 15
+  Monster
+  +BossDeath
+  +FloorClip
+  +LookAllAround
+  +MISSILEMORE
+  +MissileEvenMore
+  Species "HK"
+  +DONTHURTSPECIES  
+  +DONTBLAST
+  +USEKILLSCRIPTS
+  SeeSound "superbaron/scream"
+  PainSound "superbaron/pain"
+  DeathSound "superbaron/death"
+  ActiveSound "superbaron/act"
+  MeleeSound "baron/melee"
+  Obituary "%o was slaughtered by a Bruiserdemon."
+  HitObituary "%o was cremated by a Bruiserdemon."
+  Scale 1.15
+  DropItem "SoulAmmoSpawner", 128
+  DamageFactor "P_Ice", 1.5
+  DamageFactor "Barons", 0.0
+  DamageFactor "BaronsExp", 0.0
+  DamageFactor "BaronsPoison", 0.0
+  DamageFactor "BaronsFire", 0.0
+  DamageFactor "BaronGreen", 0.0
+  DamageFactor "BaronGreenFire", 0.0
+  DamageFactor "BaronPlasma", 0.0
+  DamageFactor "BaronVoid", 0.0
+  DamageFactor "BaronYellow", 0.0
+  DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+  Tag "Bruiser Demon"
+  States
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BRUISERDEMON)
+Idle:
+    BRUS AB 10 Bright A_Look 
+    Loop
+  See:
+    BRUS AAABBBCCCDDD 2 Fast Bright A_Chase
+    Loop
+  Melee:
+    BRUS E 6 Fast Bright A_FaceTarget
+    BRUS F 6 Fast Bright A_FaceTarget
+    BRUS G 6 Fast Bright A_CustomComboAttack("BruiserBall", 32, 20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+    Goto See
+  Missile:
+    BRUS E 0 Bright A_Jump(144, 8)
+    BRUS EF 6 Fast Bright A_FaceTarget
+    BRUS G 6 Fast Bright A_CustomMissile("BruiserBall")
+    BRUS G 0 Bright A_Jump(96, 1)
+    Goto See
+    BRUS HI 6 Fast Bright A_FaceTarget
+    BRUS J 6 Fast Bright A_CustomMissile("BruiserBall")
+    Goto See
+    BRUS E 0 Bright A_Jump(96, 20)
+    BRUS E 6 Fast Bright A_FaceTarget
+    BRUS F 4 Fast Bright A_FaceTarget
+    BRUS F 2 Fast Bright A_Custommissile("BruiserBall2",56,0,-40,0)
+    BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,-30,0)
+    BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,-20,0)
+    BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,-10,0)
+    BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,0,0)
+    BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,10,0)
+    BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,20,0)
+    BRUS G 0 Bright A_Jump(96, 1)
+    Goto See
+    BRUS H 6 Fast Bright A_FaceTarget
+    BRUS I 4 Fast Bright A_FaceTarget
+    BRUS I 2 Fast Bright A_Custommissile("BruiserBall2",56,0,40,0)
+    BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,30,0)
+    BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,20,0)
+    BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,10,0)
+    BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,0,0)
+    BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,-10,0)
+    BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,-20,0)
+    Goto See
+	TNT1 A 0 A_PlaySound("superbaron/clap")
+    BRUS KL 6 Fast Bright A_FaceTarget
+    BRUS M 2 Fast Bright A_Custommissile("BruiserFireSpawner",16,0,-15,0)
+    BRUS M 2 Fast Bright A_Custommissile("BruiserFireSpawner",16,0,0,0)
+    BRUS M 2 Fast Bright A_Custommissile("BruiserFireSpawner",16,0,15,0)
+    Goto See
+  Pain:
+    BRUS N 5 Fast Bright A_Pain
+     Goto See
+  Death:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+  GaveSoul:
+    BRUD A 6 Bright A_Scream
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+    BRUD BCD 4 Bright 
+    BRUD EFG 4 Bright
+    BRUD H 4 Bright A_Fall
+    BRUD IJKLMNOP 4 Bright
+    BRUD QRSTUV 4
+    BRUD W -1 A_KillMaster
+    Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		BRUD A 1 Bright
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	TNT1 A 0 A_GiveInventory("NoDrop", 1)
+	BRUD VUTSRQ 4
+	BRUD PONMLKJIHGFEDCBA 4 Bright
+	Goto See
+  }
+}
+
+Actor BruiserBall
+{
+  Radius 16
+  Height 16
+  Speed 18
+  Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "BaronsFire"
+  Projectile
+  +Randomize
+  +DONTBLAST
+  RenderStyle "ADD"
+  Alpha 0.9
+  SeeSound "imp/attack"
+  DeathSound "imp/shotx"
+  Decal Scorch
+  States
+  {
+  Spawn: 
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    BRBA AABB 2 Bright A_SpawnItemEx("BruiserBallTrail", 0, 0, 0, 0, 0, 0, 0, 128)
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    BRBA KLMNOPQRSTUVWX 3 Bright
+    Stop
+  }
+}
+
+Actor BruiserBall2
+{
+  Radius 8
+  Height 8
+  Speed 10
+  Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "BaronsFire"
+  Projectile
+  +Randomize
+  +DONTBLAST
+  RenderStyle Add
+  Alpha 0.9
+  SeeSound "imp/attack"
+  DeathSound "imp/shotx"
+  Decal BaronScorch
+  States
+  {
+  Spawn: 
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+    BRB2 AB 6 Bright 
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    BRB2 CDEFGHI 3 Bright
+    Stop
+  }
+}
+
+Actor BruiserFireSpawner
+{
+  Radius 8
+  Height 8
+  Speed 12
+  Damage 0
+  +Ripper
+  +FloorHugger
+  +BloodlessImpact
+  +DONTBLAST
+  Projectile
+  MissileType BruiserFire
+  Missileheight 0
+  States
+  {
+  Spawn: 
+    TNT1 A 3 Bright A_MissileAttack
+    TNT1 A 3
+    TNT1 A 3
+    Loop
+  Death:  
+    TNT1 A 6
+    Stop
+  }
+}
+
+Actor BruiserBallTrail
+{
+  Radius 1
+  Height 1
+  Speed 0
+  Projectile
+  RenderStyle Add
+  Alpha 0.70
+   +CLIENTSIDEONLY
+  +NoClip
+  States
+  {
+  Spawn:
+    BRBA CDEFGHIJ 4 Bright
+    Stop       
+  }
+}
+
+Actor BruiserExp : BaseExplosionDamage
+{
+	DamageType "BaronsFire"
+	Obituary "%o was slaughtered by a Bruiserdemon."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+		Stop
+	}
+}
+
+Actor BruiserFire
+{
+  Radius 1
+  Height 1
+  Speed 0
+  Damage (12 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "BaronsFire"
+  Projectile
+  RenderStyle Add
+  Alpha 0.9
+  +NoClip
+  +FloorHugger
+  +DONTBLAST
+  SeeSound "weapons/rocklx"
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+  SpawnLoop:
+	TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+    XXBF AB 3 Bright
+    XXBF C 3 Bright A_SpawnItem("BruiserExp")
+    XXBF DEFGHIJKLMNOPQRST 3 Bright
+    Stop       
+   }
+}
+
+ACTOR Bormereth : FireElementalEnemy
+{
+    Health 1200
+    Radius 24
+    Height 64
+    Speed 10
+    PainChance 75
+    Mass 2500
+    BloodColor Red
+    MONSTER 
+    +MISSILEEVENMORE
+    +FLOORCLIP
+    +BOSSDEATH
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	Species "Barons"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	DropItem "SoulAmmoSpawner", 96
+    SeeSound "Bormereth/See"
+    PainSound "Bormereth/Pain"
+    ActiveSound "Bormereth/Act"
+    DeathSound "Bormereth/die"
+	MeleeSound "weapons/vblhit"
+    Obituary "%o was incinerated by the rage of Bormereth."
+    HitObituary "%o was smashed by Bormereth."
+	Tag "Bormereth"
+    States
+    {
+    Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BORMERETH, DND_ICE_WEAKNESS | DND_MAGIC_WEAKNESS | DND_HOMING | DND_BLOCK)
+	Idle:
+        BORM A 10 A_Look
+        Loop
+    See:
+        BORM AABBCCDD 4 Fast A_Chase
+        Loop
+    Missile:
+	  TNT1 A 0 A_Jump(60,"Missile2")
+
+	  TNT1 A 0 A_Jump(128,17)
+	  BORM E 6 Fast A_FaceTarget
+	  BORM F 6 Fast A_FaceTarget
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM G 6 Fast Bright A_CustomMissile("WraithFX12",25,0,0)
+	  BORM E 6 Fast A_FaceTarget
+	  BORM F 6 Fast A_FaceTarget
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM G 6 Fast Bright A_CustomMissile("WraithFX12",25,0,0)
+	  BORM E 6 Fast A_FaceTarget
+	  BORM F 6 Fast A_FaceTarget
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM G 6 Fast Bright A_CustomMissile("WraithFX12",25,0,0)
+	  BORM E 6 Fast A_FaceTarget
+	  BORM F 6 Fast A_FaceTarget
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM G 6 Fast Bright A_CustomMissile("WraithFX12",25,0,0)
+	  Goto see
+
+	  TNT1 A 0 A_Jump(128,9)
+	  BORM E 6 Fast A_FaceTarget
+	  BORM F 3 Fast A_FaceTarget
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM F 3 Fast Bright A_CustomMissile("WraithFX12",31,10,0)
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM G 3 Fast Bright A_CustomMissile("WraithFX12",28,5,0)
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM G 3 Fast Bright A_CustomMissile("WraithFX12",25,0,0)
+	  Goto see
+
+	  BORM E 6 Fast A_FaceTarget
+	  BORM F 6 Fast A_FaceTarget
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missilesimple","SoundSlot5")
+	  BORM G 0 A_CustomMissile("WraithFX12",25,0,20)
+	  BORM G 0 A_CustomMissile("WraithFX12",25,0,0)
+	  BORM G 0 A_CustomMissile("WraithFX12",25,0,-20)
+	  BORM G 6 Fast Bright 
+	  Goto see
+    Missile2:
+	  BORM F 5 Fast A_FaceTarget
+	  TNT1 A 0 A_PlaySoundEx("bormereth/missile2prepare","SoundSlot5")
+	  TNT1 A 0 A_SpawnItemEx("PossEttFakeFireBall",5,25,64,0,0,0,0,128)
+	  BORM EEEEE 5 Fast A_FaceTarget
+	  BORM E 3 Fast A_FaceTarget
+	  TNT1 A 0 A_CustomMissile("PossEttFireBall",64,25,0)
+	  BORM F 5 Fast A_FaceTarget
+	  BORM G 5 Fast A_FaceTarget
+	  goto see
+    Melee:
+	  TNT1 A 0 A_PlaySound("weapons/hamswg")
+	  BORM E 6 Fast A_FaceTarget
+	  BORM F 6 Fast A_FaceTarget
+	  BORM G 6 Fast A_CustomMeleeAttack(8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "weapons/vblhit")
+	  BORM E 0 A_CPosRefire
+	  Goto see
+    Pain:
+        BORM H 2 Fast
+	    TNT1 A 0 A_SpawnItem("BormerethPainExp")
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,0,CMF_AIMDIRECTION, 0)
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,90,CMF_AIMDIRECTION, 0)
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,180,CMF_AIMDIRECTION, 0)
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,270,CMF_AIMDIRECTION, 0)
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,45,CMF_AIMDIRECTION, 0)
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,135,CMF_AIMDIRECTION, 0)
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,-45,CMF_AIMDIRECTION, 0)
+	    TNT1 A 0 A_CustomMissile("FirePillarShot",8,0,-135,CMF_AIMDIRECTION, 0)
+        BORM H 2 Fast A_Pain
+		TNT1 A 0 A_SetInvulnerable
+        BORM H 16 Fast
+        BORM H 2 Fast A_UnSetInvulnerable
+        Goto See
+    Death:
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+	GaveSoul:
+	    TNT1 A 0 A_PlaySound("misc/gibbed")
+        BORB A 5 A_Scream
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+        BORB B 5 A_SpawnItemEx("DBigEttinMace", 0, 0, 32, 3, 0, 0, -90, 128)
+		TNT1 AAAA 0 A_SpawnItemEx("PEFBExploFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+        TNT1 A 0 A_NoBlocking
+		BORB CCCCC 1 A_SpawnItemEx("PEFBExploFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		TNT1 A 0 A_Fall
+		BORB DDDDD 1 A_SpawnItemEx("PEFBExploFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+        BORB EEEEFFFFFGGGGG 1 A_SpawnItemEx("PEFBExploFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		BORB HIJK 5
+        BORB L -1 A_KillMaster
+        Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		BORB A 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul		
+    Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	    TNT1 A 0 A_GiveInventory("NoDrop", 1)
+        BORM QPONMLKJI 5
+        Goto See
+    }
+}
+
+
+actor DBigEttinMace
+{
+	+CLIENTSIDEONLY
+    +DOOMBOUNCE
+    Speed 3
+    States
+    {
+    Spawn:
+        BORB MNOPQR 5
+        BORB S -1
+        Stop
+    }
+}
+
+Actor WraithFX12 : WraithFX1
+{
+	DeathSound "bormereth/missilesimpledeath"
+	Scale 0.85
+	Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsFire"
+	Decal DoomImpScorch
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+Actor PossEttFakeFireBall : WraithFX1
+{
+	+NOCLIP
+	Damage 0
+	Speed 0
+	Scale 1.1
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		TNT1 AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL A 1 Bright A_SetTranslucent(0.1)
+		WRBL A 1 Bright A_SetTranslucent(0.15)
+		WRBL A 1 Bright A_SetTranslucent(0.2)
+		TNT1 AAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL B 1 Bright A_SetTranslucent(0.25)
+		WRBL B 1 Bright A_SetTranslucent(0.3)
+		WRBL B 1 Bright A_SetTranslucent(0.35)
+		TNT1 AAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL C 1 Bright A_SetTranslucent(0.4)
+		WRBL C 1 Bright A_SetTranslucent(0.45)
+		WRBL C 1 Bright A_SetTranslucent(0.5)
+		TNT1 AAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL A 1 Bright A_SetTranslucent(0.55)
+		WRBL A 1 Bright A_SetTranslucent(0.6)
+		WRBL A 1 Bright A_SetTranslucent(0.65)
+		TNT1 AAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL B 1 Bright A_SetTranslucent(0.7)
+		WRBL B 1 Bright A_SetTranslucent(0.75)
+		WRBL B 1 Bright A_SetTranslucent(0.8)
+		TNT1 AAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL C 1 Bright A_SetTranslucent(0.85)
+		WRBL C 1 Bright A_SetTranslucent(0.9)
+		WRBL C 1 Bright A_SetTranslucent(0.95)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL A 3 Bright 
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL B 3 Bright 
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		WRBL C 3 Bright 
+		Stop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		Goto Super::Death
+	}
+}
+
+Actor BormerethExp : BaseExplosionDamage
+{
+	DamageType "Barons"
+	Obituary "%o was incinerated by the rage of Bormereth."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 80)
+		Stop
+	}
+}
+
+Actor BormerethPainExp : BaseExplosionDamage {
+	DamageType "BaronsMagic"
+	Obituary "%o was incinerated by the rage of Bormereth."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(9 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 A 1 A_Explode(9 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 84, 0)
+			TNT1 A 1 A_Explode(9 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 A_Explode(9 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 108, 0)
+			TNT1 A 1 A_Explode(9 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 120, 0)
+			TNT1 A 1 A_Explode(9 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 132, 0)
+		Stop
+	}
+}
+
+Actor PossEttFireBall: WraithFX1
+{
+	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Scale 1.1
+	Speed 20
+	+SEEKERMISSILE
+	+DONTBLAST
+	SeeSound "bormereth/missile2fired"
+	DeathSound "bormereth/missile2death"
+	DamageType "BaronsMagic"
+	Decal DoomImpScorch
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360),128)
+		WRBL A 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		WRBL A 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		WRBL A 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360),128)
+		WRBL B 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		WRBL B 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		WRBL B 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360),128)
+		WRBL C 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		WRBL C 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		WRBL C 1 Bright A_SeekerMissile(5,5)
+		TNT1 A 0 A_SpawnItemEx("PEFBTrail",0,0,0,0,0,0,0,128)
+		Loop
+	Death:
+		TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+		TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		TNT1 A 0 A_CustomMissile("PEFBExplo",0,0,0)
+		TNT1 A 0 A_SpawnItem("BormerethExp")
+		TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("WraithFX23",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360),128)
+		TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360),128)
+		WRBL DEF 3 Bright
+		WRBL GHI 3
+		Stop
+}
+}	
+
+Actor WraithFX22
+{
+	Projectile
+	Damage 0
+	+RIPPER
+	+BLOODLESSIMPACT
+	+CLIENTSIDEONLY
+	Speed 0
+	Radius 1
+	Height 1
+	Scale 0.75
+	States
+	{
+	Spawn:
+		WRBL KLKL 2 Bright
+		TNT1 A 0 A_Jump(128,1)
+		Loop
+		WRBL MNOP 2 Bright
+		WRBL P 1 Bright A_FadeOut
+		Wait
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+Actor WraithFX23
+{
+	Projectile
+	Damage 0
+	+CLIENTSIDEONLY
+	+RIPPER
+	+BLOODLESSIMPACT
+	Speed 0
+	Radius 1
+	Height 1
+	States
+	{
+	Spawn:
+		WRBL KLKL 2 Bright
+		TNT1 A 0 A_Jump(128,1)
+		Loop
+		WRBL MNOP 2 Bright
+		WRBL P 1 Bright A_FadeOut
+		Wait
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+Actor PEFBExplo
+{
+	Projectile
+	Speed 0
+	Damage 0
+	+CLIENTSIDEONLY
+	+NOCLIP
+	RenderStyle Add
+	Alpha 0.6
+	States
+	{
+	Spawn:
+		FX58 ABCDEFGHIJKLMNOPQ 1 Bright
+		Stop
+	}
+}
+
+Actor PEFBExploFX
+{
+	+NOGRAVITY
+	+CLIENTSIDEONLY
+	Scale 0.7
+	Height 2
+	Radius 2
+	Alpha 0.75
+	Renderstyle Add
+	States
+	{
+		Spawn:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			FX58 ABCDEFGHIJKLMNOPQ 1 Bright A_FadeOut(0.035)
+		Stop
+	}
+}
+
+Actor PEFBTrail
+{
+	Projectile
+	Speed 0
+	Damage 0
+	+NOCLIP
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	Scale 0.4
+	Alpha 0.45
+	States
+	{
+	Spawn:
+		FX50 ABCDEFG 1 
+		FX50 HIJKLMNOPQR 1 
+		Stop
+	}
+}
+
+
+//-------------------------------------------------------
+
+Actor FirePillarShot
+{
+	+MISSILE
+	+NOINTERACTION
+	+THRUACTORS
+	+DONTBLAST
+	+CLIENTSIDEONLY
+	Speed 2
+	Radius 2
+	Height 2
+	Scale 0.65
+	ReactionTime 24
+	const int maxdur = 24;
+	States
+	{
+	Spawn:
+		DGFL A 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL B 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL C 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL D 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL E 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL F 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL G 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL H 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL I 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL J 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL K 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL L 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL M 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL N 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL O 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL P 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL Q 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL R 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL S 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL T 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL U 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL V 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		TNT1 A 0 A_CountDown
+		DGFL W 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime), WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
+		Stop
+	}
+}
+
+ACTOR BloodSeeker : DnD_BaseEnemy
+{
+  OBITUARY "%o was killed by a blood seeker."
+  Bloodcolor "ff 0f 83"
+  Health 1000
+  Radius 24
+  Height 64
+  Mass 750
+  Speed 12
+  MeleeRange 160
+  GibHealth -75
+  PainChance 144
+  SEESOUND "Beast/See"
+  PAINSOUND "Beast/pain"
+  DEATHSOUND "Beast/die"
+  ACTIVESOUND "Beast/Act"
+  DropItem "SoulAmmoSpawner", 96
+  DamageFactor "Barons", 0.0
+  DamageFactor "BaronsExp", 0.0
+  DamageFactor "BaronsPoison", 0.0
+  DamageFactor "BaronsFire", 0.0
+  DamageFactor "BaronGreen", 0.0
+  DamageFactor "BaronGreenFire", 0.0
+  DamageFactor "BaronPlasma", 0.0
+  DamageFactor "BaronVoid", 0.0
+  DamageFactor "BaronYellow", 0.0
+  DamageFactor "BaronsMagic", 0.0
+  DamageFactor "BaronsMagicFire", 0.0
+  Tag "Blood Seeker"
+  MONSTER
+  +USEKILLSCRIPTS
+  +FloorClip
+  +DONTBLAST
+  states
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BLOODSEEKER, DND_RAGE)
+Idle:
+    TNT1 A 0 A_TakeInventory("BeastTransform", 1)
+    BDE2 AB 10 A_Look
+    Loop
+  See:
+    TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(961, 0), "NormalSee")
+  Goto Transform
+  NormalSee:
+    TNT1 A 0 A_TakeInventory("BeastTransform", 1)
+    BDE2 ABCDEF 6 Fast A_Chase
+  Goto See
+  Transform:
+    TNT1 A 0 A_JumpIfInventory("BeastTransform", 1, "SkipSound")
+    TNT1 A 0 A_PlaySound("Beast/Lust")
+	TNT1 A 0 A_GiveInventory("BeastTransform", 1)
+  SkipSound:
+    BDE2 AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile2")
+    BDE2 AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile2")
+    BDE2 AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile2")
+    Goto Missile2
+  Missile:
+    BDE2 H 6 Fast A_FaceTarget
+	TNT1 A 0 A_playSound("Beast/Attack")
+    BDE2 I 6 Fast A_CustomMissile("BeastFireBall", 56, 0, 0)
+	TNT1 A 0 A_CustomMissile("BeastFireBall", 56, 0, 8)
+    TNT1 A 0 A_CustomMissile("BeastFireBall", 56, 0, -8)
+    Goto See
+  Missile2:
+    BDE2 H 6 Fast A_FaceTarget
+	TNT1 A 0 A_playSound("Beast/Attack")
+    BDE2 I 6 Fast A_CustomMissile("BeastFireBall", 56, 0, 0)
+	TNT1 A 0 A_CustomMissile("BeastFireBall", 56, 0, 8)
+    TNT1 A 0 A_CustomMissile("BeastFireBall", 56, 0, -8)  
+	TNT1 A 0 A_JumpIfCloser(160, "Spit")
+    BDE2 H 6 Fast A_FaceTarget
+	TNT1 A 0 A_playSound("Beast/Attack")
+	TNT1 A 0 A_CustomMissile("BeastFireBall", 56, 0, 8)
+    BDE2 I 6 Fast A_CustomMissile("BeastFireBall", 56, 0, -8)
+    TNT1 A 0 A_CustomMissile("BeastFireBall", 56, 0, 0)
+	TNT1 A 0 A_JumpIfCloser(160, "Spit")
+    BDE2 H 6 Fast A_FaceTarget
+	TNT1 A 0 A_playSound("Beast/Attack")
+	TNT1 A 0 A_CustomMissile("BeastFireBall", 52, -16)
+    TNT1 A 0 A_CustomMissile("BeastFireBall", 44, 0)
+	TNT1 A 0 A_CustomMissile("BeastFireBall", 68, 0)	
+    BDE2 I 6 Fast A_CustomMissile("BeastFireBall", 52, 16)	
+    Goto See
+  Spit:
+    BDE2 H 6 Fast A_FaceTarget
+	TNT1 A 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	TNT1 AAA 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	TNT1 AAA 0 A_CustomMissile("BeastFlame", 56, 0, random(1, 5)*(2*random(0,1)-1))
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	BDE2 H 3 Fast  
+    Goto See
+  Melee:
+    BDE2 H 6 Fast A_FaceTarget
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	TNT1 A 0 A_FaceTarget
+	BDE2 I 2 Fast A_CustomMissile("BeastFlame", 56)
+	BDE2 H 3 Fast
+  Goto See
+  Pain:
+    BDE2 G 4 Fast A_Pain
+    Goto See
+  Death:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+  GaveSoulN:
+    BDE2 R 8
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	TNT1 A 0 A_NoBlocking
+    BDE2 S 8 A_Scream
+    BDE2 TUVWX 6
+    BDE2 Y 6
+    BDE2 Z -1 A_KillMaster
+    Stop
+  XDeath:
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoulX")
+  GaveSoulX:
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+    BDE2 J 6
+	TNT1 A 0 A_NoBlocking
+	BDE2 K 6 A_Scream
+	BDE2 LMNOP 6
+	BDE2 Q -1 A_KillMaster
+    Stop
+	  GiveSoulN:
+		BDE2 R 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+		BDE2 J 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX  
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+    TNT1 A 0 A_TakeInventory("BeastTransform", 1)
+	TNT1 A 0 A_GiveInventory("NoDrop", 1)
+    BDE2 YXWVUT 6
+	BDE2 SR 8
+	Goto See
+  }
+}
+
+Actor BeastTransform : DnD_Boolean { }
+
+Actor BeastFireBall {
+	Radius 6
+	Height 8
+	Speed 24
+	PROJECTILE
+	Damage (5*random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsFire"
+	DeathSound "weapons/phoenixhit"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			FX14 ABC 4 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			FX14 DE 6 Bright
+			FX14 FGH 4 Bright
+		Stop
+	}
+}
+
+Actor BeastExp1 : BaseExplosionDamage
+{
+	DamageType "BaronsFire"
+	Obituary "%o was turned to crisps by a Bloodseeker."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 48)
+		Stop
+	}
+}
+
+Actor BeastExp2 : BeastExp1
+{
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(4, 48)
+		Stop
+	}
+}
+
+Actor BeastFlame
+{
+	Radius 6
+	Height 8
+	Speed 28
+	PROJECTILE
+	Scale 0.75
+	Damage (5*random(1,2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsFire"
+	DeathSound "weapons/phoenixhit"
+	+DONTBLAST
+	States
+	{
+		spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 A 0 A_PlaySound ("weapons/burning")
+			FX06 ABC 4 Bright A_SpawnItem("BeastExp1")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			FX06 DEFG 3 Bright A_SpawnItem("BeastExp2")
+		Stop
+	}
+}
+
+Actor Barbatos : BaronofHell2 {
+	Species "HK"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	DamageFactor "Fire", 1.5
+	DamageFactor "P_Ice", 1.5
+	DamageFactor "Lightning", 1.5
+	BloodColor "Red"
+	+DONTBLAST
+	Scale 0.75
+	RadiusDamageFactor 0.5
+	Translation "0:255=%[0.00,0.00,0.00]:[0.76,0.67,0.50]", "0:47=0:47", "80:111=80:111", "160:191=160:191", "208:235=208:235"
+	SeeSound "cyber/sight"
+	PainSound "demon/pain2"
+	DeathSound "cyber/death"
+	ActiveSound "cyber/active"
+	Obituary "%o was sent to the pits of hell by a Barbatos."
+	Tag "Barbatos"
+	Speed 12
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BARBATOS, DND_FIRE_WEAKNESS | DND_ICE_WEAKNESS | DND_EXPLOSIVE_RESIST)
+		Idle:
+			CYBR AB 10 A_Look
+		Loop
+		See:
+			CYBR A 3 Fast A_Hoof
+			CYBR ABBCC 3 Fast A_Chase
+			CYBR D 3 Fast A_Metal
+			CYBR D 3 Fast A_Chase
+		Loop
+		Melee:
+		Missile:
+			CYBR E 6 Fast A_FaceTarget
+			CYBR F 12 Fast A_CustomMissile("CyberdemonRocketWeak",36,-24)
+			CYBR E 12 Fast A_FaceTarget
+			CYBR F 12 Fast A_CustomMissile("CyberdemonRocketWeak",36,-24)
+			CYBR E 12 Fast A_FaceTarget
+			CYBR F 12 Fast A_CustomMissile("CyberdemonRocketWeak",36,-24)
+		Goto See
+		Pain:
+			CYBR G 10 Fast A_Pain
+		Goto See
+		Death:
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+		GaveSoul:
+			CYBR H 10
+			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+			CYBR I 10 A_Scream
+			CYBR JKL 10
+			CYBR M 10 A_NoBlocking
+			CYBR NO 10
+			CYBR P 30
+			CYBR P -1 A_KillMaster
+		Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		CYBR H 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul
+		Raise:
+			CYBR ONMLKJIH 4
+		Goto See
+	}
+}
+
+Actor CyberdemonRocketWeakExplosion : BaseExplosionDamage
+{
+	DamageType "BaronsExp"
+	Obituary "%o was sent to the pits of hell by a Barbatos."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96)
+		Stop
+	}
+}
+
+Actor CyberdemonRocketWeak : CyberdemonRocket {
+	DamageType "Barons"
+	Damage (6 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Obituary "%o was sent to the pits of hell by a Barbatos."
+	Scale 0.85
+	Speed 20
+	States {
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			MISL B 8 Bright A_SpawnItem("CyberdemonRocketWeakExplosion")
+			MISL C 6 Bright
+			MISL D 4 Bright
+		Stop
+	}
+}
+
+Actor ShadowWizard : SkullWizard
+{
+  Obituary "%o was lobotomized by a Shadow Wizard."
+  Health 900
+  Radius 21
+  Height 64
+  PainChance 32
+  Species "HK"
+  MissileType "SkullWizardProjectile"
+  PainSound "H2ShadowWizard/Pain"
+  DeathSound "H2ShadowWizard/Death"
+  ActiveSound "H2ShadowWizard/Sight"
+  MeleeSound "H2ShadowWizard/Melee"
+  Tag "Shadow Wizard"
+  States
+  {
+  Spawn:
+	TNT1 A 0
+	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SHADOWWIZARD, DND_MAGIC_WEAKNESS | DND_TELEPORT | DND_HOMING)
+Idle:
+    SHWZ A 1 A_Look
+    Loop
+  See:
+    SHWZ AAAAAABBBBBBB 4 Fast A_Chase
+    Loop
+  Melee:
+    SHWZ C 6 Fast Bright A_FaceTarget
+	TNT1 A 0 A_FaceTarget
+	TNT1 A 0 A_CustomMeleeAttack(10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+	TNT1 A 0 A_CustomMissile("SkullWizardPush", 40)
+	SHWZ D 6 Fast Bright A_FaceTarget
+    Goto See
+  Missile:
+	SHWZ C 0 A_Jump(128, "Teleport")
+  Attack:
+    SHWZ C 8 Fast A_FaceTarget
+    SHWZ D 8 Fast Bright A_FaceTarget
+    SHWZ D 8 Fast Bright A_CustomMissile("ShadowWizardProjectile", 40, 0, 0)
+    SHWZ D 0 Bright A_Jump(80, 2)
+    SHWZ D 0 Bright A_SpidReFire
+    Goto Missile+1
+    SHWZ D 0
+    Goto See
+  Teleport:
+    SHWZ C 0 A_JumpIfCloser(512, 1)
+    Goto See
+    TNT1 A 0 A_ChangeFlag("NoTeleport", 1)
+    TNT1 A 0 A_ChangeFlag("NoDropOff", 0)
+    SHWZ C 8 A_PlaySoundEx("H2ShadowWizard/Teleport", "SoundSlot7", 0)
+    SHWZ DEF 8 Fast Bright
+    TNT1 A 0 A_Stop
+    TNT1 A 0 A_StopSoundEx("SoundSlot7")
+    TNT1 A 0 A_SpawnItemEx("SkullWizardTeleport", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 A 0 A_ChangeFlag(Invulnerable, 1)
+    TNT1 A 0 A_UnSetShootable
+    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+    TNT1 AAA 3 Fast A_Wander
+    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+    TNT1 AAA 3 Fast A_Wander
+    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+    TNT1 AAA 3 Fast A_Wander
+    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+    TNT1 AAA 3 Fast A_Wander
+	TNT1 A 0 A_ChangeFlag(Invulnerable, 0)
+    TNT1 A 0 A_SetShootable
+	TNT1 A 0 A_PlaySound("Wizard/Appear", 7)
+    SKWZ A 0 A_SpawnItemEx("SkullWizardTeleport", 0, 0, 0, 0, 0, 0, 0, 128)
+    SHWZ A 0 A_ChangeFlag("NoDropOff", 1)
+    SHWZ A 0 A_ChangeFlag("NoTeleport", 0)
+	TNT1 A 0 A_Jump(224, "Attack")
+    Goto See
+  Pain:
+    SHWZ A 3 Fast
+    SHWZ A 3 Fast A_Pain
+    SHWZ A 0 A_Jump(128, "Teleport")
+    Goto See
+  Death:
+    SHWZ G 5 A_Scream
+	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+  GaveSoul:
+    SHWZ HIJ 5 bright
+	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+	SHWZ K 5 bright
+	SHWZ LM 5 bright
+    SHWZ N 5
+    SHWZ O 0 A_NoBlocking
+	SHWZ O 5 bright
+    SHWZ P -1 A_KillMaster
+    Stop
+  Raise:
+	TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	SHWZ ON 5
+	SHWZ MLKJIH 5 Bright
+	SHWZ G 5
+	Goto See
+		GiveSoul:
+		Death.BookOfTheDead:
+			SHWZ H 1 Bright
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+			TNT1 A 0 A_GiveToTarget("Souls", 1)  
+		Goto GaveSoul
+   }
+}
+
+Actor ShadowWizardProjectile : SkullWizardProjectile
+{
+	Damage (random(3, 6) * 6 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	SeeSound "H2ShadowWizard/Fire"
+    DeathSound "H2ShadowWizard/Hit"
+}
+
+ACTOR Kjaroch : HellKnight2
+{
+	Health 1650
+	PainChance 32
+	SeeSound "Kjaroch/See"
+	PainSound "Kjaroch/pain"
+	DeathSound "Kjaroch/death"
+	ActiveSound "Kjaroch/Act"
+	Obituary "%o was burned by the infernal flames of a Kjaroch."
+	HitObituary "%o was torn apart by a Kjaroch."
+	Translation  "0:47=[202,102,121]:[0,0,0]", "0:12=0:12", "13:15=1:2", "48:72=102:111", "73:79=6:8", "79:79=8:8", "137:141=110:112", "141:143=5:5", "144:150=109:109", "151:164=6:110", "190:191=[4,2,2]:[0,0,0]"
+	Speed 9
+	DamageFactor "Lightning", 1.5
+	Tag "Kjaroch"
+	+MISSILEMORE
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_KJAROCH, DND_POISON)
+	Idle:
+		LOHS AB 10 A_Look
+		Loop
+	See:
+		LOHS AABBCCDD 2 Fast A_Chase
+		Loop
+	Pain:
+		LOHS H 3 Fast
+		LOHS H 3 Fast A_Pain
+		Goto See
+	Melee:
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS E 4 Fast A_FaceTarget
+		LOHS F 4 Fast A_FaceTarget
+		TNT1 A 0 A_CustomMeleeAttack(30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "")
+		LOHS G 4 Fast A_FaceTarget
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS P 4 Fast A_FaceTarget
+		LOHS Q 4 Fast A_FaceTarget
+		TNT1 A 0 A_CustomMeleeAttack(30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "")
+		LOHS R 4 Fast A_FaceTarget
+	Goto See
+	Missile:
+		TNT1 A 0 A_Jump(112, "Missile2", "Missile3")
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS EF 6 Fast A_FaceTarget
+		LOHS G 6 Fast A_BasicAttack (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "KjarochBall1", 32)
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS PQ 6 Fast A_FaceTarget
+		LOHS R 6 Fast A_BasicAttack (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "KjarochBall1", 32)
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS EF 6 Fast A_FaceTarget
+		LOHS G 6 Fast A_BasicAttack (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "KjarochBall1", 32)
+		Goto See
+	Missile2:
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS EF 6 Fast A_FaceTarget
+		LOHS G 6 Fast A_BasicAttack (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "KjarochBall2", 36)
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS PQ 6 Fast A_FaceTarget
+		LOHS R 6 Fast A_BasicAttack (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "KjarochBall2", 36)
+		Goto See
+	Missile3:
+		TNT1 A 0 A_Jump(128, "Other")
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS EF 6 Fast A_FaceTarget
+		LOHS G 6 Fast A_BasicAttack (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "KjarochGroundFlames", 1)
+		Goto See
+	Other:
+		TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+		LOHS PQ 6 Fast A_FaceTarget
+		LOHS R 6 Fast A_BasicAttack (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Kjaroch/Hit", "KjarochGroundFlames", 1)
+		TNT1 A 0 A_CustomMissile("KjarochGroundFlames", 0, 0, -9, CMF_AIMDIRECTION)
+		TNT1 A 0 A_CustomMissile("KjarochGroundFlames", 0, 0, 9, CMF_AIMDIRECTION)
+		Goto See
+	Death:
+		LOHS I 8
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+	GaveSoul:
+		LOHS J 2 A_Scream
+		LOHS JJJ 2 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		LOHS KKKK 2 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		TNT1 A 0 A_NoBlocking
+		LOHS LLLL 2 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		LOHS MN 8
+		LOHS O -1 A_KillMaster
+		Stop
+	Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		LOHS ONMLKJI 8
+		Goto See
+	GiveSoul:
+	Death.BookOfTheDead:
+			LOHS J 1
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+			TNT1 A 0 A_GiveToTarget("Souls", 1)  
+		Goto GaveSoul
+	}
+}
+
+Actor KjarochBall1Trail {
+	Renderstyle Add
+	Alpha 0.66
+	+NOGRAVITY
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	
+	States {
+		Spawn:
+			TNT1 A 2
+			BAL7 AB 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+
+Actor KjarochBall1 : BaronBall2 {
+	Damage (5 * random(4, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsPoison"
+	Decal "BaronScorch"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BAL7 AABB 2 Bright A_SpawnItem("KjarochBall1Trail")
+		Loop
+	}
+}
+
+Actor KjarochBall2 : KjarochBall1 {
+	Damage (5 * random(2, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	SeeSound "Kjaroch/Missile2"
+	DeathSound "redballbdeth"
+	Decal "BaronScorch"
+	Scale 1.1
+	Height 16
+	Radius 10
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			D4FX AAABBB 1 Bright A_SpawnItem("KjarochBall2Trail")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 0 A_SpawnItem("KjarochBall2Explosion")
+			D4FX CCCDDDEEE 1 Bright A_CustomMissile("KjarochBall2Pieces", 0, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, random(-16, 16))
+			D4FX FGH 3 Bright
+		Stop
+	}
+}
+
+Actor KjarochBall2Trail {
+	RenderStyle Add
+	Alpha 0.66
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	+NOINTERACTION
+	States {
+		Spawn:
+			D4TR DEFGH 1
+		Stop
+	}
+}
+
+Actor KjarochBall2Explosion : BaseExplosionDamage
+{
+	DamageType "Barons"
+	Obituary  "%o was burned by the infernal flames of a Kjaroch."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96)
+		Stop
+	}
+}
+
+Actor KjarochBall2Pieces {
+	Damage (2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsPoison"
+	PROJECTILE
+	Speed 16
+	Height 8
+	Radius 5
+	-NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BPBL AB 2 Bright
+		Loop
+		Death:
+			BPBL CDEFG 2 Bright
+		Stop
+	}
+}
+
+Actor KjarochGroundFlames
+{
+  Radius 10
+  Height 10
+  Speed 20
+  Damage (4 * random(3, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  DamageType "BaronsPoison"
+  Scale 1.3
+  +FloorHugger
+  +DONTBLAST
+  RenderStyle Add
+  Projectile
+  DeathSound "comet/explosion"
+  Decal "RevenantScorch"
+  States
+  {
+	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+	SpawnLoop:
+		FSFX NOPQRSTNOPQRST 3 A_SpawnItemEx("KjarochGroundFlamesTrail",0,0,0,0,0,0,0,128)
+    Loop
+  Death:
+	TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+	TNT1 AAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, random(0, 16),random(-4,4),random(-4,4),random(1,4), 48, 128) 
+    TNT1 A 0 A_SpawnItem("KjarochGroundFlamesExplosion")
+    FSFX UVW 3
+    Stop
+  }
+}
+
+Actor KjarochGroundFlamesExplosion : BaseExplosionDamage
+{
+	DamageType "Barons"
+	Obituary  "%o was burned by the infernal flames of a Kjaroch."
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(36 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96)
+		Stop
+	}
+}
+
+Actor KjarochGroundFlamesTrail
+{   
+  Radius 1
+  Height 1
+  Speed 0
+  Scale 0.8
+  +Noclip
+  Projectile
+  RenderStyle Add
+  Alpha 0.6
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    TNT1 A 4
+    FSFX NOPQRST 3
+    Stop
+  }
+}
+
+Actor MagmaSerpent : DnD_BaseEnemy {
+	Health 900
+	Radius 24
+	Height 64
+	Speed 13
+	PainChance 64
+	Mass 640
+	BloodColor "Orange"
+	DamageFactor "Fire", 0.5
+	DamageFactor "Ice", 1.5
+	damagefactor "P_Ice", 1.5
+	damagefactor "P_IceFull", 1.5
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	RadiusDamageFactor 0.5
+	DropItem "SoulAmmoSpawner", 128
+	Species "HK"
+	MONSTER
+	+FLOORCLIP
+	+MISSILEMORE
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+NORADIUSDMG
+	+USEKILLSCRIPTS
+	SeeSound "ChaosSerpent/See"
+	AttackSound "ChaosSerpent/Melee"
+	PAINSOUND "Beast/pain"
+	DeathSound "ChaosSerpent/Die"
+	ActiveSound "ChaosSerpent/See"
+	Obituary "%o was blasted by a Magma Serpent."
+	HitObituary "%o was swallowed by a Magma Serpent."
+	Tag "Magma Serpent"
+	const int ChunkFlags = SXF_TRANSFERTRANSLATION|SXF_ABSOLUTEVELOCITY;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_MAGMASERPENT, DND_ICE_WEAKNESS | DND_EXPLOSIVE_IMMUNE)
+		Idle:
+			RDMN AA 10 A_Look
+		Loop
+		See:
+			RDMN ABCD 4 Fast A_Chase
+		Loop
+		Pain:
+			RDMN E 4 Fast
+			RDMN E 4 Fast A_Pain
+		Goto See
+		Missile:
+			RDMN E 5 Fast A_FaceTarget
+			RDMN F 6 Fast A_FaceTarget
+			RDMN E 0 A_JumpIfCloser(300, "Breath")
+			RDMN G 5 Fast BRIGHT A_CustomMissile("Lavaball",64,0,0,0)
+		goto see
+		Breath:
+			TNT1 A 0 A_Jump(128, "Spit")
+			RDMN G 0 A_PlaySoundEx("weapons/burning", auto)
+			RDMN G 0 A_FaceTarget
+			RDMN GGG 2 Fast bright A_CustomMissile("BeastFlame", 65, 0, random(-10,10), CMF_CHECKTARGETDEAD)
+			RDMN G 0 A_PlaySoundEx("weapons/burning", auto)
+			RDMN G 0 A_FaceTarget
+			RDMN GGG 2 Fast bright A_CustomMissile("BeastFlame", 65, 0, random(-10,10), CMF_CHECKTARGETDEAD)
+			RDMN G 0 A_PlaySoundEx("weapons/burning", auto)
+			RDMN G 0 A_FaceTarget
+			RDMN GGG 2 Fast bright A_CustomMissile("BeastFlame", 65, 0, random(-10,10), CMF_CHECKTARGETDEAD)
+			RDMN G 0 A_PlaySoundEx("weapons/burning", auto)
+			RDMN G 0 A_FaceTarget
+			RDMN GGG 2 Fast bright A_CustomMissile("BeastFlame", 65, 0, random(-10,10), CMF_CHECKTARGETDEAD)
+			RDMN G 0 A_PlaySoundEx("weapons/burning", auto)
+			RDMN G 0 A_FaceTarget
+			RDMN GGG 2 Fast bright A_CustomMissile("BeastFlame", 65, 0, random(-10,10), CMF_CHECKTARGETDEAD)
+		goto See
+		Spit:
+			TNT1 A 0 A_PlaySoundEx("weapons/burning", auto)
+			TNT1 A 0 A_FaceTarget
+			RDMN GGGG 2 Fast bright A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 12, 0, -5, frandom(-4.8, 4.8))
+			TNT1 AA 0 A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 12, 0, -5, frandom(-4.8, 4.8))
+			TNT1 A 0 A_PlaySoundEx("weapons/burning", auto)
+			TNT1 A 0 A_FaceTarget
+			RDMN GGGG 2 Fast bright A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 16, 0, -5, frandom(-4.8, 4.8))
+			TNT1 AA 0 A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 12, 0, -5, frandom(-4.8, 4.8))
+			TNT1 A 0 A_PlaySoundEx("weapons/burning", auto)
+			TNT1 A 0 A_FaceTarget
+			RDMN GGGG 2 Fast bright A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 20, 0, -5, frandom(-4.8, 4.8))
+			TNT1 AA 0 A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 12, 0, -5, frandom(-4.8, 4.8))
+			TNT1 A 0 A_PlaySoundEx("weapons/burning", auto)
+			TNT1 A 0 A_FaceTarget
+			RDMN GGGG 2 Fast bright A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 24, 0, -5, frandom(-4.8, 4.8))
+			TNT1 AA 0 A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 12, 0, -5, frandom(-4.8, 4.8))
+			TNT1 A 0 A_PlaySoundEx("weapons/burning", auto)
+			TNT1 A 0 A_FaceTarget
+			RDMN GGGG 2 Fast bright A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 28, 0, -5, frandom(-4.8, 4.8))
+			TNT1 AA 0 A_SpawnItemEx("VolcanoTBlast2", 0, 0, 68, 12, 0, -5, frandom(-4.8, 4.8))
+		Goto See
+		Melee:
+			RDMN E 5 Fast A_FaceTarget
+			RDMN F 7 Fast A_FaceTarget
+			RDMN G 5 Fast A_CustomMeleeAttack(random[DemonAttack1](4,16)*2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+		Goto See
+		Death:
+			RDMN H 6
+			RDMN I 0 A_SpawnItemEx("MagmaChunk1", 0,0,45, 1+(random[DemonChunks](0,255)*0.015625),
+						   1+(random[DemonChunks](0,255)*0.015625), ChunkFlags, 90)
+			RDMN I 0 A_SpawnItemEx("MagmaChunk2", 0,0,45, 1+(random[DemonChunks](0,255)*0.015625),
+						   1+(random[DemonChunks](0,255)*0.015625), ChunkFlags, 270)
+			RDMN I 0 A_SpawnItemEx("MagmaChunk3", 0,0,45, 1+(random[DemonChunks](0,255)*0.015625),
+						   1+(random[DemonChunks](0,255)*0.015625), ChunkFlags, 270)
+			RDMN I 0 A_SpawnItemEx("MagmaChunk4", 0,0,45, 1+(random[DemonChunks](0,255)*0.015625),
+						   1+(random[DemonChunks](0,255)*0.015625), ChunkFlags, 270)
+			RDMN I 6 A_SpawnItemEx("MagmaChunk5", 0,0,45, 1+(random[DemonChunks](0,255)*0.015625),
+						   1+(random[DemonChunks](0,255)*0.015625), ChunkFlags, 270)
+			TNT1 A 0 A_JumpIfInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+			RDMN J 1
+			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+			RDMN J 6 A_Scream
+			RDMN K 6 A_NoBlocking
+			RDMN L 6  A_QueueCorpse
+			RDMN MNO 6
+			RDMN P -1 A_KillMaster
+		Stop
+		Raise:
+			RDMN PONMLKJIH 5
+		Goto See
+		GiveSoul:
+		Death.BookOfTheDead:
+			RDMN J 1
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+			TNT1 A 0 A_GiveToTarget("Souls", 1)  
+		Goto GaveSoul
+	}
+}
+
+
+
+ACTOR MagmaChunk1 : DemonChunk
+{
+  +CLIENTSIDEONLY
+  +MOVEWITHSECTOR
+  States
+  {
+  Spawn:
+    RDMA A 4
+    RDMA A 10
+    RDMA A 20
+    Wait
+  Death:
+    RDMA A -1
+    Stop
+  }
+}
+
+ACTOR MagmaChunk2 : DemonChunk
+{
+  +CLIENTSIDEONLY
+  +MOVEWITHSECTOR
+  States
+  {
+  Spawn:
+    RDMB A 4
+    RDMB A 10
+    RDMB A 20
+    Wait
+  Death:
+    RDMB A -1
+    Stop
+  }
+}
+
+ACTOR MagmaChunk3 : DemonChunk
+{
+  +CLIENTSIDEONLY
+  +MOVEWITHSECTOR
+  States
+  {
+  Spawn:
+    RDMC A 4
+    RDMC A 10
+    RDMC A 20
+    Wait
+  Death:
+    RDMC A -1
+    Stop
+  }
+}
+
+ACTOR MagmaChunk4 : DemonChunk
+{
+  +CLIENTSIDEONLY
+  +MOVEWITHSECTOR
+  States
+  {
+  Spawn:
+    RDMD A 4
+    RDMD A 10
+    RDMD A 20
+    Wait
+  Death:
+    RDMD A -1
+    Stop
+  }
+}
+
+ACTOR MagmaChunk5 : DemonChunk
+{
+  +CLIENTSIDEONLY
+  +MOVEWITHSECTOR
+  States
+  {
+  Spawn:
+    RDME A 4
+    RDME A 10
+    RDME A 20
+    Wait
+  Death:
+    RDME A -1
+    Stop
+  }
+}
+
+Actor DreadKnight : BlackKnight {
+	Translation "3:3=40:40", "80:111=%[0.00,0.00,0.00]:[1.43,0.31,0.31]"
+	Health 900
+	Scale 1.1
+	RadiusDamageFactor 1.0
+	HitObituary "%o was dismembered by a dread knight."
+	Obituary "%o cowered away in fear of a dread knight's power."
+	SeeSound "DreadKnight/See"
+	ActiveSound "DreadKnight/Act"
+	PainSound "DreadKnight/pain"
+	DeathSound "DreadKnight/Die"
+	DamageType "Barons"
+	Renderstyle Translucent
+	+NOFEAR
+	+BOSSDEATH
+	+NODAMAGETHRUST
+	+DONTBLAST
+	+PIERCEARMOR
+	Species "BaronOfHell"
+	Tag "Dread Knight"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_GiveInventory("MakeElementalResist", 1)
+			TNT1 A 0 A_GiveInventory("MakeMagicResist", 1)
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DREADKNIGHT, DND_SILVER_WEAKNESS | DND_BULLET_RESIST | DND_PIERCE | DND_MOBILITY | DND_HARDENED_SKIN, DND_ELEMENTAL_RESIST | DND_MAGIC_RESIST)
+		Idle:
+			KNGT E 5 A_Look
+		Loop
+		See:
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+			TNT1 A 0 A_UnsetInvulnerable
+			KNGT AABBCCDD 2 Fast A_Chase
+		Loop
+		Rush:
+			KNGT ABCD 2 Fast A_Chase("Melee", "Charge")
+			TNT1 A 0 A_JumpIfInventory("DreadShield", 1, "Rush")
+		Goto See
+		Melee:
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+			KNGT E 3 Fast A_FaceTarget
+			KNGT F 2 Fast A_FaceTarget
+			KNGT F 0 A_PlaySound("dknight/swing")
+			KNGT GH 2 Fast
+			KNGT I 3 Fast A_CustomMeleeAttack(random(8, 28) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "dknight/melee", "", "Dread")
+			KNGT J 4 Fast A_CustomMeleeAttack(random(8, 28) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "dknight/melee", "", "Dread")
+			KNGT E 2 Fast
+		Goto See
+		Missile:
+			TNT1 A 0 A_JumpIfCloser(224, "Shield")
+		Skulls:
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+			KNGT E 4 Fast A_FaceTarget
+			KNGT F 3 Fast A_FaceTarget
+			KNGT GH 3 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMissile("DreadSkull", 32, -16)
+			TNT1 A 0 A_CustomMissile("DreadSkull", 32, 16)
+			KNGT I 4 Fast A_CustomMissile("DreadSkull", 48)
+			TNT1 A 0 A_CustomMissile("KFireBall",32,0,-12)
+			TNT1 A 0 A_CustomMissile("KFireBall",32,0,-8)
+			TNT1 A 0 A_CustomMissile("KFireBall",32,0,-4)
+			TNT1 A 0 A_CustomMissile("KFireBall",32,0,0)
+			TNT1 A 0 A_CustomMissile("KFireBall",32,0,4)
+			TNT1 A 0 A_CustomMissile("KFireBall",32,0,8)
+			TNT1 A 0 A_CustomMissile("KFireBall",32,0,12)
+			KNGT E 2 Fast
+		Goto See
+		Charge:
+			TNT1 A 0 A_TakeInventory("KnightTimer", 0)
+			TNT1 A 0 A_PlaySound("DreadKnight/See")
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14) // script sets velocity, ensures no dropoff
+			TNT1 A 0 A_ChangeFlag("SKULLFLY", 1)
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+			TNT1 A 0 A_SetInvulnerable
+		ChargeLoop:
+			TNT1 A 0 A_JumpIfInventory("KnightTimer", 0, "Rush")
+			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14)
+			KNGT ABCD 2 Fast A_FaceTarget
+			TNT1 A 0 A_GiveInventory("KnightTimer", 1)
+		Loop
+		Shield:
+			TNT1 A 0 A_JumpIfInventory("DreadShield", 1, "Charge")
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+			KNGT EFG 3 Fast
+			TNT1 A 0 A_PlaySound("items/bookofthedead")
+			TNT1 A 0 A_GiveInventory("DreadShield", 1)
+			TNT1 A 0 A_ChangeFlag("GHOST", 1)
+			TNT1 A 0 A_SetTranslucent(0.5)
+			KNGT IE 3 Fast
+		Goto Charge
+		Pain:
+			TNT1 A 0 A_ChangeFlag("GHOST", 0)
+			TNT1 A 0 A_TakeInventory("DreadShield", 1)
+			TNT1 A 0 A_SetTranslucent(1.0)
+			KNGT E 3 Fast A_Pain
+			KNGT E 3 Fast
+		Goto See
+		Raise:
+			TNT1 A 0 A_SetTranslucent(1.0)
+			TNT1 A 0 A_ChangeFlag("GHOST", 0)
+			TNT1 A 0 A_TakeInventory("DreadShield", 1)
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			KNGT QPONLMK 3
+		Goto See
+		Death:
+			TNT1 A 0 A_SetTranslucent(1.0)
+			TNT1 A 0 A_ChangeFlag("GHOST", 0)
+			TNT1 A 0 A_TakeInventory("DreadShield", 1)
+			KNGT K 6 A_Scream
+			KNGT L 5
+			KNGT M 5
+			TNT1 A 0 A_NoBlocking
+			KNGT NOPQ 5
+			KNGT R -1 A_KillMaster
+		Stop
+		Ice:
+			"----" G 5 A_GenericFreezeDeath
+			"----" G 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor DreadShield : DnD_Boolean { }
+
+Actor KnightTimer : Inventory {
+	inventory.maxamount 20
+}
+
+Actor DreadSkull {
+	PROJECTILE
+	Damage (12 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsMagicFire"
+	+NODAMAGETHRUST
+	+PIERCEARMOR
+	+DONTBLAST
+	Renderstyle Add
+	Speed 18
+	Scale 0.6
+	SeeSound "H2SkullWizard/Fire"
+    DeathSound "H2SkullWizard/Hit"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 A 0 A_BishopMissileWeave
+			IFX1 A 1 A_CustomMissile("KBallTrail",0,0,-90,0)
+			IFX1 A 1 A_BishopMissileWeave
+			TNT1 A 0 A_BishopMissileWeave
+			IFX1 B 1 A_CustomMissile("KBallTrail",0,0,90,0)
+			IFX1 B 1 A_BishopMissileWeave
+		Loop
+		Death:
+			IFX1 IJKL 4 Bright
+		Stop
+	}
+}
+
+Actor MagmaGolem : MagicalEnemy { 
+    Health 900
+    Speed 6
+	Scale 1.35
+    Height 64
+    Radius 24
+    Mass 4096
+    PainChance 48
+    ReactionTime 8
+    MONSTER
+    SeeSound "EarthGolem/See"
+    PainSound "EarthGolem/Pain"
+    DeathSound "EarthGolem/Death"
+    ActiveSound "EarthGolem/Act"
+    Obituary "%o was melted by a Magma Golem." 
+	Species "HK"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	DamageFactor "Painless_Sun", 1.3
+	damagefactor "Fire", 0
+	DamageFactor "Melee_Fire", 0
+	damagefactor "P_Ice", 1.5
+	damagefactor "P_IceFull", 1.5
+	Tag "Magma Golem"
+	BloodColor "D7 15 15"
+	MeleeRange 76
+	MaxTargetRange 428
+	+DONTHURTSPECIES
+	+USEKILLSCRIPTS
+    +FLOORCLIP
+	+DONTBLAST
+	+DONTRIP
+    States { 
+		Spawn: 
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_MAGMAGOLEM, DND_HARDENED_SKIN | DND_DEATH | DND_SILVER_WEAKNESS | DND_EXPLOSIVE_RESIST)
+			TNT1 A 0 A_GiveInventory("MakeExplosiveResist", 1)
+		Idle:
+		   GOL2 AB 10 A_Look
+	    Loop 
+		See: 
+			GOL2 AABBCCDD 2 Fast A_Chase
+	    Loop 
+		Melee: 
+			TNT1 A 0 A_PlaySound("Golem/Swing")
+			TNT1 A 0 A_Jump(128, "OtherMelee")
+			GOL2 E 6 Fast A_FaceTarget
+			GOL2 F 2 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMeleeAttack(8 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
+			GOL2 FG 4 Fast 
+		Goto See
+		OtherMelee:
+			GOL2 R 6 Fast A_FaceTarget
+			GOL2 S 2 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMeleeAttack(8 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
+			GOL2 ST 4 Fast 
+		Goto See
+		Missile:
+			GOl2 Q 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(80, "Melee")
+			GOl2 Q 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(80, "Melee")
+			GOl2 Q 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(80, "Melee")
+			GOl2 Q 4 A_FaceTarget
+			TNT1 A 0 A_Jump(144, "MagmaNade")
+			TNT1 A 0 A_FaceTarget
+			GOL2 U 3 Fast Bright
+			TNT1 A 0 A_FaceTarget
+			GOL2 U 7 Fast Bright A_CustomMissile("beastball2", 40)
+			TNT1 A 0 A_FaceTarget
+			GOL2 U 7 Fast Bright A_CustomMissile("beastball2", 40)
+			TNT1 A 0 A_FaceTarget
+			GOL2 U 7 Fast Bright A_CustomMissile("beastball2", 40)
+		Goto See
+		MagmaNade:
+			GOL2 U 5 Fast Bright A_FaceTarget
+			GOL2 U 2 Fast Bright A_CustomMissile("MagmaGolemNade", 40, 0, 0, CMF_OFFSETPITCH, 16)
+		Goto See
+		Pain: 
+		   GOL2 H 4 Fast
+		   GOL2 H 4 Fast A_Pain
+		   Goto See
+		Death: 
+		   GOL2 I 5
+		   GOL2 J 4 A_Scream
+		   GOL2 KKKK 1 A_CustomMissile("VolcanoTBlast2", random(16, 32), 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-1, 18))
+		   TNT1 A 0 A_SpawnItemEx("GolemSoul", 0, 0, 10, 0, 0, 1)
+		   TNT1 A 0 A_NoBlocking
+		   GOL2 LLLLMMMM 1 A_CustomMissile("VolcanoTBlast2", random(16, 32), 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-1, 18))
+		   GOL2 NO 4 
+		   GOL2 P -1 
+		   Stop
+		Raise: 
+		   TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		   GOL2 ONMLKJI 3
+		   Goto See 
+    } 
+}
+
+Actor MagmaGolemExp : BaseExplosionDamage {
+	DamageType "BaronsMagicFire"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+		Stop
+	}
+}
+
+Actor MagmaGolemExp_2 : MagmaGolemExp {
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+		Stop
+	}
+}
+
+Actor MagmaGolemExp_3 : MagmaGolemExp {
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 48, 0)
+		Stop
+	}
+}
+
+Actor MagmaGolemNade {
+	PROJECTILE
+	Damage (25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsMagicFire"
+	Speed 20
+	Height 18
+	Radius 9
+	BounceType Hexen
+	BounceCount 6
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	BounceSound "SorcererBallBounce"
+	Gravity 1.5
+	Scale 1.15
+	+CANBOUNCEWATER
+	+USEBOUNCESTATE
+	-NOGRAVITY
+	States {
+		Spawn:
+			VFBL AABB 2 Bright A_SpawnItemEx("PuffyC", random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, 0, 0, 0, 0, SXF_ABSOLUTEPOSITION, 64)
+		Loop
+		Bounce.Wall:
+		Bounce.Floor:
+			 TNT1 AAAAA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
+			 TNT1 AA 0 A_CustomMissile("MagmaGolemNade_2", 0, 0, 45 * random(0, 8), CMF_TRACKOWNER)
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 AAA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 90 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 AAA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 180 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 AAA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 270 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			XPL1 ABC 4 Bright A_SpawnItem("MagmaGolemExp")
+			XPL1 DEF 4 bright
+		Stop
+	}
+}
+
+Actor MagmaGolemNade_2 : MagmaGolemNade {
+	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Scale 1.0
+	Speed 20
+	States {
+		Bounce.Wall:
+		Bounce.Floor:
+			 TNT1 AAA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
+			 TNT1 AAAA 0 A_CustomMissile("MagmaGolemNade_3", 0, 0, 45 * random(0, 8), CMF_TRACKOWNER)
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 AA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 90 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 AA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 180 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 AA 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 270 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			XPL1 ABC 4 Bright A_SpawnItem("MagmaGolemExp_2")
+			XPL1 DEF 4 bright
+		Stop
+	}
+}
+
+Actor MagmaGolemNade_3 : MagmaGolemNade {
+	Damage (10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Speed 20
+	Scale 0.75
+	States {
+		Bounce.Wall:
+		Bounce.Floor:
+		Bounce.Ceiling:
+			 TNT1 AA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
+		Goto Spawn
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 90 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 180 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 270 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
+			XPL1 ABC 4 Bright A_SpawnItem("MagmaGolemExp_3")
+			XPL1 DEF 4 bright
+		Stop
+	}
+}

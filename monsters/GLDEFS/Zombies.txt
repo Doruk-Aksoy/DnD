@@ -1,0 +1,611 @@
+flickerlight2 RANGERATK
+{
+    color 1.0 0.8 0.2
+    size 48
+    secondarySize 56
+    interval 1
+    offset 0 40 0
+}
+
+object ZombieManGray {
+	frame ZHR2F { light ZOMBIEATK }
+}
+
+object MachinegunGuy {
+	frame EASSF { light RANGERATK }
+}
+
+object UndeadHunter
+{
+    frame 1175F { light ZOMBIEATK }
+}
+
+object UndeadPriest {
+	frame UNDPF { light RANGERATK }
+}
+
+object UndeadInitiate
+{
+    frame 1102F { light ZOMBIEATK }
+	frame 1102Y { light ZOMBIEATK }
+}
+
+object UndeadRogue
+{
+    frame 1083F { light ZOMBIEATK }
+	frame 1083Y { light ZOMBIEATK }
+	frame 1083Z { light ZOMBIEATK }
+}
+
+Object FormerRanger
+{
+	Frame BPOSF { Light RANGERATK }
+}
+
+Object QuakeZombie
+{
+	Frame QZOMF { Light RANGERATK }
+}
+
+Object QuakeZombieShotgun
+{
+	Frame QZOMF { Light RANGERATK }
+}
+
+flickerlight2 ENFLIGHT
+{
+    color 1.0 0.2 0.2
+    size 48
+    secondarySize 56
+    interval 1
+    offset 0 40 0
+}
+
+Object QuakeZombieChaingun
+{
+	Frame QZOMF { Light ENFLIGHT }
+}
+
+Object MrRobot
+{
+	Frame MROBF { Light ENFLIGHT }
+	Frame MROBR { light EXPSHELL1 }
+	Frame MROBS { light EXPSHELL1 }
+	Frame MROBT { light EXPSHELL2 }
+	Frame MROBU { light EXPSHELL2 }
+	Frame MROBV { light EXPSHELL3 }
+	Frame MROBW { light EXPSHELL4 }
+}
+
+//brightmap definitions
+brightmap sprite BPOSF1
+{
+	map "graphics/brightmaps/BMBPOSF1.png"
+	disablefullbright
+}
+
+brightmap sprite BPOSF2F8
+{
+	map "graphics/brightmaps/BMBPOSF2.png"
+	disablefullbright
+}
+
+brightmap sprite BPOSF3F7
+{
+	map "graphics/brightmaps/BMBPOSF3.png"
+	disablefullbright
+}
+
+brightmap sprite BPOSF4F6
+{
+	map "graphics/brightmaps/BMBPOSF4.png"
+	disablefullbright
+}
+
+brightmap sprite BPOSF5
+{
+	map "graphics/brightmaps/BMBPOSF5.png"
+	disablefullbright
+}
+
+object SMGGuy
+{
+    frame PDWPF { light RANGERATK }
+}
+
+BrightMap Sprite RFTRE1
+{
+	Map "graphics/brightmaps/BMRFTRE1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRE2E8
+{
+	Map "graphics/brightmaps/BMRFTRE2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRE3E7
+{
+	Map "graphics/brightmaps/BMRFTRE3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRE4E6
+{
+	Map "graphics/brightmaps/BMBLACK.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRE5
+{
+	Map "graphics/brightmaps/BMBLACK.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRF1
+{
+	Map "graphics/brightmaps/BMRFTRF1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRF2F8
+{
+	Map "graphics/brightmaps/BMRFTRF2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRF3F7
+{
+	Map "graphics/brightmaps/BMRFTRF3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRF4F6
+{
+	Map "graphics/brightmaps/BMRFTRF4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite RFTRF5
+{
+	Map "graphics/brightmaps/BMRFTRF5.png"
+	DisableFullBright
+}
+
+Object RapidFireTrooper
+{
+	Frame RFTRF { Light RANGERATK }
+}
+
+object ZombieMan2
+{
+    frame POSSF { light RANGERATK }
+}
+
+object ZombieMarine
+{
+	frame UDM2F { light RANGERATK }
+}
+
+object LOSZombieMan
+{
+	frame ZSEXF { light RANGERATK }
+}
+
+object PistolZombie
+{
+	frame POSPF { light RANGERATK }
+}
+
+object SMGGuy
+{
+	frame PDWPF { light RANGERATK }
+}
+
+object ShotgunGuy2
+{
+    frame ZSSHF { light RANGERATK }
+}
+
+flickerlight2 SSGATK
+{
+    color 1.0 0.8 0.2
+    size 56
+    secondarySize 64
+    interval 1
+    offset 0 40 0
+}
+
+object SSGZombie
+{
+	frame GPOSF { light SSGATK }
+}
+
+object ZSpecOpsShotgun
+{
+	frame ZSP1F { light RANGERATK }
+}
+
+object LOSSuperShotgunGuy
+{
+	frame ZSS2F { light SSGATK }
+}
+
+object LOSShotgunGuy
+{
+	frame ZSSGF { light RANGERATK }
+}
+
+Object SawedOffShotgunGuy
+{
+	Frame ZSDOF { Light RANGERATK }
+}
+
+Object SawedOffShotgunGuy
+{
+	Frame AZSGF { Light RANGERATK }
+}
+
+BrightMap Sprite AZSGE1
+{
+	Map "graphics/brightmaps/BMASGZE1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite AZSGE2E8
+{
+	Map "graphics/brightmaps/BMASGZE2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite AZSGE3E7
+{
+	Map "graphics/brightmaps/BMASGZE3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite AZSGF1
+{
+	Map "graphics/brightmaps/BMASGZF1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite AZSGF2F8
+{
+	Map "graphics/brightmaps/BMASGZF2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite AZSGF3F7
+{
+	Map "graphics/brightmaps/BMASGZF3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite AZSGF4F6
+{
+	Map "graphics/brightmaps/BMASGZF4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite AZSGF5
+{
+	Map "graphics/brightmaps/BMASGZF5.png"
+	DisableFullBright
+}
+
+Object Cgguy2
+{
+	Frame ZCCHE { Light RANGERATK }
+	Frame ZCCHF { Light RANGERATK }
+}
+
+Object ChaingunGuy2
+{
+	Frame DPOSE { Light RANGERATK }
+	Frame DPOSF { Light RANGERATK }
+}
+
+BrightMap Sprite DPOSE1
+{
+    Map "graphics/brightmaps/BMDPOSE1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSE2
+{
+    Map "graphics/brightmaps/BMDPOSE2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSE3
+{
+    Map "graphics/brightmaps/BMDPOSE3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSE4
+{
+    Map "graphics/brightmaps/BMDPOSE4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSE6
+{
+    Map "graphics/brightmaps/BMDPOSE6.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSE7
+{
+    Map "graphics/brightmaps/BMDPOSE7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSE8
+{
+    Map "graphics/brightmaps/BMDPOSE8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF1
+{
+    Map "graphics/brightmaps/BMDPOSF1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF2
+{
+    Map "graphics/brightmaps/BMDPOSF2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF3
+{
+    Map "graphics/brightmaps/BMDPOSF3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF4
+{
+    Map "graphics/brightmaps/BMDPOSF4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF5
+{
+    Map "graphics/brightmaps/BMDPOSF5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF6
+{
+    Map "graphics/brightmaps/BMDPOSF6.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF7
+{
+    Map "graphics/brightmaps/BMDPOSF7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite DPOSF8
+{
+    Map "graphics/brightmaps/BMDPOSF8.png"
+	DisableFullBright
+}
+
+Object ChaingunMajor
+{
+	Frame CPS2F { Light RANGERATK }
+}
+
+Object ChaingunCommando
+{
+	Frame CPSXF { Light RANGERATK }
+}
+
+Object ChaingunGeneral
+{
+	Frame ECMIF { Light RANGERATK }
+}
+
+BrightMap Sprite CPS2E1
+{
+	Map "graphics/brightmaps/BMCPS2E1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2E2E8
+{
+	Map "graphics/brightmaps/BMCPS2E2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2E3E7
+{
+	Map "graphics/brightmaps/BMCPS2E3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2E4E6
+{
+	Map "graphics/brightmaps/BMCPS2E4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2F1
+{
+	Map "graphics/brightmaps/BMCPS2F1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2F2F8
+{
+	Map "graphics/brightmaps/BMCPS2F2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2F3F7
+{
+	Map "graphics/brightmaps/BMCPS2F3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2F4F6
+{
+	Map "graphics/brightmaps/BMCPS2F4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite CPS2F5
+{
+	Map "graphics/brightmaps/BMCPS2F5.png"
+	DisableFullBright
+}
+
+PointLight ZSecAttack
+{
+	Color 1.0 0.8 0.2
+	Size 28
+}
+
+Object ZSec
+{
+	Frame ZSECF { Light ZSecAttack }
+}
+
+//dynamic lights
+Pointlight MGUNZSPECOPS
+{
+	Color 1.0 1.0 0.0
+	Size 24
+}
+
+Object ZSpecOpsMachinegun
+{
+	Frame ZSP2F { Light MGUNZSPECOPS }
+}
+
+//brightmaps
+BrightMap Sprite ZSP2F1
+{
+	Map "graphics/brightmaps/BMZSP2F1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP2F2F8
+{
+	Map "graphics/brightmaps/BMZSP2F2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP2F3F7
+{
+	Map "graphics/brightmaps/BMZSP2F3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP2F4F6
+{
+	Map "graphics/brightmaps/BMZSP2F4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP2F5
+{
+	Map "graphics/brightmaps/BMZSP2F5.png"
+	DisableFullBright
+}
+
+//dynamic lights
+Pointlight SGUNZSPECOPS
+{
+	Color 1.0 0.6 0.0
+	Size 24
+}
+
+Object ZSpecOpsShotgun
+{
+	Frame ZSP1F { Light SGUNZSPECOPS }
+}
+
+Object LOSShotgunGuy
+{
+	Frame ZSSGF { light SGUNZSPECOPS }
+}
+
+object LOSSuperShotgunGuy
+{
+	Frame ZSS2F { light SGUNZSPECOPS }
+}
+
+Object LosZombieMan
+{
+	Frame ZSEXF { light RANGERATK }
+}
+
+//brightmaps
+BrightMap Sprite ZSP1F1
+{
+	Map "graphics/brightmaps/BMZSP1F1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP1F2F8
+{
+	Map "graphics/brightmaps/BMZSP1F2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP1F3F7
+{
+	Map "graphics/brightmaps/BMZSP1F3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP1F4F6
+{
+	Map "graphics/brightmaps/BMZSP1F4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ZSP1F5
+{
+	Map "graphics/brightmaps/BMZSP1F5.png"
+	DisableFullBright
+}
+
+object EnforcerPlasma2
+{
+	frame TRAC { light EnforcerLight }
+}
+
+object EnforcerPlasma3
+{
+	frame TRAC { light EnforcerLight }
+}
+
+PointLight PlasmaZombieAttack
+{
+	Color 0.0 0.0 1.0
+	Size 28
+}
+
+Object PlasmaZombie
+{
+	Frame ZMAYF { Light PlasmaZombieAttack }
+}
+
+object ZombiePlasma {
+    frame PLSSA { light PLASMABALL }
+    frame PLSSB { light PLASMABALL }
+
+    frame PLSEA { light PLASMA_X1 }
+    frame PLSEB { light PLASMA_X2 }
+    frame PLSEC { light PLASMA_X2 }
+    frame PLSED { light PLASMA_X3 }
+    frame PLSEE { light PLASMA_X4 }
+}

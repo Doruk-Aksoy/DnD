@@ -1,0 +1,248 @@
+STRETCHER BloodStretcher
+{
+	StretchTime	10
+	GoalY 2
+}
+
+SLIDER BloodSlider
+{
+	SlideTime 10
+	DistY -132
+}
+
+COMBINER BloodSmearer
+{
+	BloodStretcher
+	BloodSlider
+}
+
+DECAL RBloodSplat01
+{
+	Pic BSPLAT01
+	Shade "50 00 00"
+	X-Scale 0.26
+	Y-Scale 0.26
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat02
+{
+	Pic BSPLAT02
+	Shade "50 00 00"
+	X-Scale 0.28
+	Y-Scale 0.28
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat03
+{
+	Pic BSPLAT03
+	Shade "50 00 00"
+	X-Scale 0.26
+	Y-Scale 0.26
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat04
+{
+	Pic BSPLAT04
+	Shade "50 00 00"
+	X-Scale 0.28
+	Y-Scale 0.28
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat05
+{
+	Pic BSPLAT05
+	Shade "50 00 00"
+	X-Scale 0.26
+	Y-Scale 0.26
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat06
+{
+	Pic BSPLAT06
+	Shade "50 00 00"
+	X-Scale 0.3
+	Y-Scale 0.6
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat07
+{
+	Pic BSPLAT07
+	Shade "50 00 00"
+	X-Scale 0.28
+	Y-Scale 0.28
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat08
+{
+	Pic BSPLAT08
+	Shade "50 00 00"
+	X-Scale 0.26
+	Y-Scale 0.26
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat09
+{
+	Pic BSPLAT09
+	Shade "50 00 00"
+	X-Scale 0.28
+	Y-Scale 0.28
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat10
+{
+	Pic BSPLAT10
+	Shade "50 00 00"
+	X-Scale 0.26
+	Y-Scale 0.26
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat11
+{
+	Pic BSPLAT11
+	Shade "50 00 00"
+	X-Scale 0.64
+	Y-Scale 0.64
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat12
+{
+	Pic BSPLAT12
+	Shade "50 00 00"
+	X-Scale 0.68
+	Y-Scale 0.68
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat13
+{
+	Pic BSPLAT13
+	Shade "50 00 00"
+	X-Scale 0.68
+	Y-Scale 0.68
+	RandomFlipX
+	RandomFlipY
+}
+
+DECAL RBloodSplat14
+{
+	Pic BSPLAT14
+	Shade "50 00 00"
+	X-Scale 0.64
+	Y-Scale 0.64
+	RandomFlipX
+	RandomFlipY
+}
+
+decal RBloodSuper01
+{
+	pic BLUDSPT1
+	shade "52 00 00"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+}
+
+decal RBloodSuper02
+{
+	pic BLUDSPT1
+	shade "52 00 00"
+	x-scale 1
+	y-scale 1
+	randomflipx
+}
+
+decal RBloodSuper03
+{
+	pic BLUDSPT3
+	shade "52 00 00"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+}
+
+decal RBloodSuper04
+{
+	pic BLUDSPT5
+	shade "52 00 00"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+}
+
+DECALGROUP BloodSplat
+{
+	RBloodSplat01 6
+	RBloodSplat02 6
+	RBloodSplat03 6
+	RBloodSplat04 6
+	RBloodSplat05 6
+	RBloodSplat06 6
+	RBloodSplat07 6
+	RBloodSplat08 6
+	RBloodSplat09 6
+	RBloodSplat10 6
+	RBloodSplat11 6
+	RBloodSplat12 6
+	RBloodSplat13 6
+	RBloodSplat14 6
+	RBloodSuper04 6
+	RBloodSuper03 6
+	RBloodSuper02 6
+	RBloodSuper01 6
+	BloodSmear1	  6
+	BloodSmear2	  6
+}
+
+DECAL BloodSmear1
+{
+	Pic BSMEAR1
+	X-Scale 0.46
+	Y-Scale 0.46
+	Shade "50 00 00"
+	RandomFlipX
+	RandomFlipY
+	Animator BloodSmearer
+}
+
+DECAL BloodSmear2
+{
+	Pic BSMEAR2
+	X-Scale 0.44
+	Y-Scale 0.44
+	Shade "50 00 00"
+	RandomFlipX
+	RandomFlipY
+	Animator BloodSmearer
+}
+
+DECALGROUP BloodSmear
+{
+	BloodSmear1 6
+	BloodSmear2 6
+}

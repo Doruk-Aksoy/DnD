@@ -1,0 +1,12 @@
+flickerlight2 ShockLight
+{
+	color 0.8 0.2 0.8
+	size 64
+	secondarysize 108
+	interval 1
+}
+
+Object ShockLighter
+{
+	frame TNT1A { light ShockLight }
+}

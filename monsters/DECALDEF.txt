@@ -1,0 +1,2 @@
+Generator PaladinBall				DoomImpScorch
+Generator PaladinGrenade			Scorch

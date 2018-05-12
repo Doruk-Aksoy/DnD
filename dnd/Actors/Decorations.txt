@@ -1,0 +1,493 @@
+// Tech lamp ---------------------------------------------------------------
+
+Actor TechLamp3 : TechLamp replaces TechLamp
+{
+	Species "ThruDecor"
+}
+
+// Tech lamp 2 -------------------------------------------------------------
+
+Actor TechLamp22 : TechLamp2 replaces TechLamp2
+{
+	Species "ThruDecor"
+}
+
+// Column ------------------------------------------------------------------
+
+Actor Column3 : Column replaces Column
+{
+	Species "ThruDecor"
+}
+
+// Tall green column -------------------------------------------------------
+
+Actor TallGreenColumn3 : TallGreenColumn
+{
+	Species "ThruDecor"
+}
+
+// Short green column ------------------------------------------------------
+
+Actor ShortGreenColumn3 : ShortGreenColumn
+{
+	Species "ThruDecor"
+}
+
+// Tall red column ---------------------------------------------------------
+
+Actor TallRedColumn3 : TallRedColumn replaces TallRedColumn
+{
+	Species "ThruDecor"
+}
+
+// Short red column --------------------------------------------------------
+
+Actor ShortRedColumn3 : ShortRedColumn replaces ShortRedColumn
+{
+	Species "ThruDecor"
+}
+
+// Skull column ------------------------------------------------------------
+
+Actor SkullColumn3 : SkullColumn replaces SkullColumn
+{
+	Species "ThruDecor"
+}
+
+// Heart column ------------------------------------------------------------
+
+Actor HeartColumn3 : HeartColumn replaces HeartColumn
+{
+	Species "ThruDecor"
+}
+
+// Evil eye ----------------------------------------------------------------
+
+Actor EvilEye2 : EvilEye replaces EvilEye
+{
+	Species "ThruDecor"
+	states {
+		Spawn:
+			SEYE abcdef 3 bright
+		loop
+	}
+}
+
+// Floating skull ----------------------------------------------------------
+
+Actor FloatingSkull2 : FloatingSkull replaces FloatingSkull
+{
+	Species "ThruDecor"
+	states {
+		spawn:
+			FSKX abcdef 4 bright
+		loop
+	}
+}
+
+// Torch tree --------------------------------------------------------------
+
+Actor TorchTree2 : TorchTree replaces TorchTree
+{
+	Species "ThruDecor"
+}
+
+// Blue torch --------------------------------------------------------------
+
+Actor BlueTorch2 : BlueTorch replaces BlueTorch
+{
+	Scale 0.5
+	Species "ThruDecor"
+	States {
+		Spawn:
+			TTRB ABCDEFGHIJKLM 2 Bright
+		loop
+	}
+}
+
+// Green torch -------------------------------------------------------------
+
+Actor GreenTorch2 : BlueTorch2 replaces GreenTorch
+{
+	translation "192:207=112:127","240:247=11:12"
+	Species "ThruDecor"
+}
+
+// Red torch ---------------------------------------------------------------
+
+Actor RedTorch2 : BlueTorch2 replaces RedTorch
+{
+	translation "192:207=168:184","240:247=185:191"
+	Species "ThruDecor"
+}
+
+// Short blue torch --------------------------------------------------------
+
+Actor ShortBlueTorch2 : ShortBlueTorch replaces ShortBlueTorch
+{
+	translation "96:111=192:207","5:8=240:247"
+	Species "ThruDecor"
+	Scale 0.5
+	States {
+		Spawn:
+			STRB ABCDEFGHIJKLM 2 bright
+		Loop
+	}
+}
+
+// Short green torch -------------------------------------------------------
+
+Actor ShortGreenTorch2 : ShortBlueTorch2 replaces ShortGreenTorch
+{
+	translation "192:207=112:127","240:247=11:12"
+	Species "ThruDecor"
+}
+
+// Short red torch ---------------------------------------------------------
+
+Actor ShortRedTorch2 : ShortBlueTorch2 replaces ShortRedTorch
+{
+	translation "192:207=168:184","240:247=185:191"
+	Species "ThruDecor"
+}
+
+// Stalagtite --------------------------------------------------------------
+
+Actor Stalagtite2 : Stalagtite replaces Stalagtite
+{
+	Species "ThruDecor"
+}
+
+// Tech pillar -------------------------------------------------------------
+
+Actor TechPillar2 : TechPillar replaces TechPillar
+{
+	Species "ThruDecor"
+}
+
+// Candelabra --------------------------------------------------------------
+
+Actor Candelabra2 : Candelabra replaces Candelabra
+{
+	Species "ThruDecor"
+	Scale 0.5
+	States {
+		Spawn: 
+			SCBR ABCDEFGHIJKLM 2 bright
+		Loop
+	}
+}
+
+// Candle Stick --------------------------------------------------------------
+
+Actor Candlestick2 : Candlestick replaces Candlestick
+{
+	Scale 0.5
+	states {
+		Spawn:
+			SCAN ABCDEFGHIJKLM 2 bright
+		Loop
+	}
+}
+
+// Bloody twitch -----------------------------------------------------------
+
+Actor BloodyTwitch2 : BloodyTwitch replaces BloodyTwitch
+{
+	Species "ThruDecor"
+}
+
+// Meat 2 ------------------------------------------------------------------
+
+Actor Meat22 : Meat2 replaces Meat2
+{
+	Species "ThruDecor"
+}
+
+// Meat 3 ------------------------------------------------------------------
+
+Actor Meat32 : Meat3 replaces Meat3
+{
+	Species "ThruDecor"
+}
+
+// Meat 4 ------------------------------------------------------------------
+
+Actor Meat42 : Meat4 replaces Meat4
+{
+	Species "ThruDecor"
+}
+
+// Meat 5 ------------------------------------------------------------------
+
+Actor Meat52 : Meat5 replaces Meat5
+{
+	Species "ThruDecor"
+}
+
+// Head on a stick ---------------------------------------------------------
+
+Actor HeadOnAStick2 : HeadOnAStick replaces HeadOnAStick
+{
+	Species "ThruDecor"
+}
+
+// Heads (plural!) on a stick ----------------------------------------------
+
+Actor HeadsOnAStick2 : HeadsOnAStick replaces HeadsOnAStick
+{
+	Species "ThruDecor"
+	States {
+		Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(256, "spawn1", "spawn2", "spawn3")
+		goto spawn1
+		
+		spawn1:
+		POL2 A -1
+		Stop
+		
+		spawn2:
+		POL9 A -1
+		stop
+		
+		spawn3:
+		PL10 A -1
+		stop
+	}
+}
+
+// Head candles ------------------------------------------------------------
+
+Actor HeadCandles2 : HeadCandles replaces HeadCandles
+{
+	Species "ThruDecor"
+	States {
+		Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(255, "spawn1", "spawn2")
+		goto spawn1
+		
+		Spawn1:
+		POL3 ABCDCB 4 Bright
+		loop
+		
+		Spawn2:
+		POL3 EFGHGF 4 Bright
+		loop
+	}
+}
+
+// Dead on a stick ---------------------------------------------------------
+
+Actor DeadStick2 : DeadStick replaces DeadStick
+{
+	Species "ThruDecor"
+	States {
+		Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(256, "spawn1", "spawn2", "spawn3", "spawn4")
+		goto spawn1
+		
+		Spawn1:
+		POL1 A -1
+		Stop
+		
+		Spawn2:
+		POL7 A -1
+		stop
+		
+		Spawn3:
+		POL8 A -1
+		stop
+		
+		Spawn4:
+		POL0 A -1
+		stop
+	}
+}
+
+// Still alive on a stick --------------------------------------------------
+
+Actor LiveStick2 : LiveStick replaces LiveStick
+{
+	Species "ThruDecor"
+}
+
+// Big tree ----------------------------------------------------------------
+
+Actor BigTree3 : BigTree replaces BigTree
+{
+	Species "ThruDecor"
+	States {
+		Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(256, "spawn1", "spawn2", "spawn3")
+		goto spawn1
+		
+		Spawn1:
+		TRE2 A -1
+		Stop
+		
+		Spawn2:
+		TRE3 A -1
+		Stop
+		
+		Spawn3:
+		TRE4 A -1
+		Stop
+	}
+}
+
+// Burning barrel ----------------------------------------------------------
+
+Actor BurningBarrel2 : BurningBarrel replaces BurningBarrel {
+	Species "ThruDecor"
+	Scale 0.5
+	translation "112:125=96:109"
+	states {
+		Spawn:
+			BURB ABCDEFGHIJKLM 2 bright
+		Loop
+	}
+}
+
+// Hanging with no guts ----------------------------------------------------
+
+Actor HangNoGuts2 : HangNoGuts replaces HangNoGuts
+{
+	Species "ThruDecor"
+	States {
+		Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(256, "spawn1", "spawn2")
+		goto spawn1
+		Spawn1:
+		HDB1 A -1
+		Stop
+		Spawn2:
+		HDB7 a -1
+		stop
+	}
+}
+
+// Hanging from bottom with no brain ---------------------------------------
+
+Actor HangBNoBrain2 : HangBNoBrain replaces HangBNoBrain
+{
+	Species "ThruDecor"
+}
+
+// Hanging from top, looking down ------------------------------------------
+
+Actor HangTLookingDown2 : HangTLookingDown replaces HangTLookingDown
+{
+	Species "ThruDecor"
+}
+
+// Hanging from top, looking up --------------------------------------------
+
+Actor HangTLookingUp2 : HangTLookingUp replaces HangTLookingUp
+{
+	Species "ThruDecor"
+}
+
+// Hanging from top, skully ------------------------------------------------
+
+Actor HangTSkull2 : HangTSkull replaces HangTSkull
+{
+	Species "ThruDecor"
+}
+
+// Hanging from top without a brain ----------------------------------------
+
+Actor HangTNoBrain2 : HangTNoBrain replaces HangTNoBrain
+{
+	Species "ThruDecor"
+}
+
+// Grey stalagmite (unused Doom sprite, definition taken from Skulltag -----
+
+Actor Stalagmite2 : Stalagmite replaces Stalagmite
+{
+	Species "ThruDecor"
+}
+
+// SMOOTH STUFF
+
+actor sexybarrel : explosivebarrel replaces explosivebarrel {
+	states {
+		spawn:
+			BAR1 ABCDEFGHIJKLM 3
+		loop
+		death:
+			SEXP A 5 Bright
+			SEXP B 5 Bright A_Scream
+			TNT1 A 0 a_quake (3,10,0,8,0)
+			TNT1 A 0 a_quake (1,25,0,16,0)
+			SEXP C 3 Bright
+			SEXP c 2 Bright
+			BEXP d 3 Bright A_Explode
+			BEXP FGHIJKLMN 2 Bright
+			BEXP N 1050 Bright A_BarrelDestroy
+			BEXP N 5 A_Respawn
+		Wait
+	}
+}
+
+ACTOR NewDeadPlayer : DeadMarine replaces DeadMarine
+{
+states
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(256, "spawn1", "spawn2", "spawn3", "spawn4", "spawn5", "spawn6", "spawn7")
+	goto spawn1
+	
+	Spawn1:
+	PLAY N -1
+    Stop
+	
+	Spawn2:
+	PLD1 a -1
+	stop
+	
+	Spawn3:
+	PLD2 a -1
+	stop
+	
+	Spawn4:
+	PLD3 a -1
+	stop
+	
+	Spawn5:
+	PLD4 a -1
+	stop
+	
+	Spawn6:
+	PLD5 a -1
+	stop
+	
+	Spawn7:
+	PLD6 a -1
+	stop
+	}
+}
+
+ACTOR NewLookUpGuy : HangTLookingUp replaces HangTLookingUp {
+	Species "ThruDecor"
+	states {
+		Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(255, "spawn1", "spawn2")
+		goto spawn1
+		
+		Spawn1:
+			HDB5 A -1
+		stop
+		
+		Spawn2:
+			HDB8 a -1
+		stop
+	}
+}

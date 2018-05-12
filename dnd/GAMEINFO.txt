@@ -1,0 +1,2 @@
+StartupColors = "FFA500", "040404"
+StartupTitle = "Death and Decay"

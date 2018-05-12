@@ -1,0 +1,869 @@
+const int DND_SPECIALAMMOMSG_SCRIPT = 902;
+const int DND_SPECIALAMMO_SCRIPT = 917;
+
+enum {
+	AMMO_TYPE_SHELL,
+	AMMO_TYPE_MGGRENADE,
+	AMMO_TYPE_GRENADE,
+	AMMO_TYPE_SHELL2
+};
+
+enum {
+	AMMO_SHELL,
+	AMMO_FLECHETTE,
+	AMMO_PIERCING,
+	AMMO_ELECTRIC,
+	
+	AMMO_BULLET,
+	AMMO_GRENADE,
+	AMMO_40MMSONIC,
+	AMMO_40MMHEGRENADE,
+	
+	AMMO_RIOTSHELL,
+	AMMO_NITROGENSHELL,
+	AMMO_EXPLOSIVESHELL
+};
+
+enum {
+	SSAM_FLECHETTE,
+	SSAM_MAGNUM,
+	SSAM_SHOCK,
+	
+	SSAM_40MMHE,
+	SSAM_40MMSONIC,
+    
+    SSAM_NITROSHELL
+};
+
+enum {
+	SPWEP_SG,
+	SPWEP_SSG,
+	SPWEP_MG,
+	SPWEP_GL
+};
+
+Actor FlechetteShellShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlayWeaponSound("Shells/Flechette")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("FlechetteShell", 1)
+		NoTake:
+			TNT1 A 0 A_FireBullets(8.4, 5.8, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_FLECHETTE, TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK), "FlechettePuff", FBF_NORANDOM)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("FlechetteShell", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_SHELL) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot3", 1, "SetSG")
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3X", 0)
+		Stop
+		SetSG:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3", 0)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor MagnumShellShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlayWeaponSound("Shells/Pierce")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("PiercingShell", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(6.4, 4.8, 10, 0, "MagnumPuff", FBF_NORANDOM)
+			TNT1 AAAAAAAAAAAA 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_MAGNUM, TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_Rail", 6.4, 4.8)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireBullets(6.4, 4.8, 10, 0, "MagnumPuff_FullDMG", FBF_NORANDOM)
+			TNT1 AAAAAAAAAAAA 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_MAGNUM, TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_Rail", 6.4, 4.8)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("PiercingShell", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_SHELL) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot3", 1, "SetSG")
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3X", 0)
+		Stop
+		SetSG:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3", 0)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor ShockShellShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlayWeaponSound("Shells/Shock")
+			TNT1 A 0 A_PlaySound("Shells/Shock2", 7)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("ElectricShell", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(7.2, 5.2, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_SHOCK, TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK), "ShockShellPuff", FBF_NORANDOM)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireBullets(7.2, 5.2, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_SHOCK, TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK), "ShockShellPuff_FullDMG", FBF_NORANDOM)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("ElectricShell", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_SHELL) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot3", 1, "SetSG")
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3X", 0)
+		Stop
+		SetSG:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3", 0)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+// used for mgs and stuff, not GL
+Actor GrenadeShooterGeneric : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_40MMHEGRENADE, "HE")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_40MMSONIC, "Sonic")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("Grenades", 1)
+		NoTake:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade", 0, 0, 0, 4)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_FullDMG", 0, 0, 0, 4)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_BULLET) // 0 is shell position
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_BULLET)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+		HE:
+			TNT1 A 0 A_GiveInventory("HEGrenadeShooter", 1)
+		Stop
+		Sonic:
+			TNT1 A 0 A_GiveInventory("SonicGrenadeShooter", 1)
+		Stop
+	}
+}
+
+Actor GrenadeShooterGL : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_5X", AMMO_40MMHEGRENADE, "HE")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_5X", AMMO_40MMSONIC, "Sonic")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("Grenades", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade", 0, 0, 0, 4)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_FullDMG", 0, 0, 0, 4)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE) // 0 is shell position
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_5X", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_5X", AMMO_GRENADE)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+		HE:
+			TNT1 A 0 A_GiveInventory("HEGrenadeShooter", 1)
+		Stop
+		Sonic:
+			TNT1 A 0 A_GiveInventory("SonicGrenadeShooter", 1)
+		Stop
+	}
+}
+
+Actor HEGrenadeShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("A40mmHEGrenade", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("HEGrenadeX", 0, 0, 0, 4)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireCustomMissile("HEGrenadeX_Full", 0, 0, 0, 4)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("A40mmHEGrenade", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot4", 1, "SetMG")
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_5X", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_5X", AMMO_GRENADE)
+		Stop
+		SetMG:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_GRENADE)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor SonicGrenadeShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("A40mmSonicGrenade", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("SonicGrenade", 0, 0, 0, 4)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireCustomMissile("SonicGrenade_Full", 0, 0, 0, 4)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("A40mmSonicGrenade", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot4", 1, "SetMG")
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_5X", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_5X", AMMO_GRENADE)
+		Stop
+		SetMG:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_GRENADE)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor HEGrenadeX {
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET))
+	Damagetype "Explosives"
+	Speed 24
+	Radius 8
+	Height 16
+	Scale 0.675
+	BounceSound "WeaponGL/40MMHBounce"
+	Deathsound "Weapons/grenadexpl2"
+	BounceCount 4
+	BounceFactor 0.66
+	Gravity 0.66
+	BounceType Doom
+	const int iterations = 18;
+	var int user_count;
+	+DONTBLAST
+	+THRUGHOST
+	+EXPLODEONWATER
+	+MTHRUSPECIES
+	States {
+		Spawn:
+		    TNT1 A 0 NoDelay A_JumpIf(z-floorz < 8, "Nosmoke")
+			NGLP D 6 A_SpawnItem("GrenadeSmoke")
+			TNT1 A 0 A_JumpIf(z-floorz < 8, "Nosmoke")
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 0)
+		Loop
+		NoSmoke:
+		    TNT1 A 0 A_ChangeFlag("NOGRAVITY", 0)
+			NGLP D 3
+		Goto Spawn
+		Death:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_SpawnItem("NewGrenadeExplosion")
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == iterations, "ContinueExp")
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, user_count * 360.0 / iterations, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		ContinueExp:
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 A 0 Radius_Quake(6, 35, 0, 5, 0)
+			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			NGLP D 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET), 256)
+		Stop
+		LessDmg:
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET) / 2, 256)
+			NGLP D 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET) / 2, 256, 0)
+		Stop
+	}
+}
+
+Actor HEGrenadeX_Full : HEGrenadeX {
+	Damagetype "ExplosivesFull"
+	+FORCERADIUSDMG
+	-THRUGHOST
+	States {
+		Death:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_SpawnItem("NewGrenadeExplosion")
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == iterations, "ContinueExp")
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, user_count * 360.0 / iterations, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		ContinueExp:
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 A 0 Radius_Quake(6, 35, 0, 5, 0)
+			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			NGLP D 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET), 256)
+		Stop
+		LessDmg:
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET) / 2, 256)
+			NGLP D 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET) / 2, 256, 0)
+		Stop
+	}
+}
+
+Actor HEGrenadeTrailsTrail {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Alpha 0.8
+	Renderstyle Add
+	Scale 0.4
+	States {
+		Spawn:
+			MEXP MNOP 2 Bright
+		Stop
+	}
+}
+
+Actor HEGrenadeTrails {
+	Radius 5
+	Height 8
+	Speed 6
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE | (1 << 16), TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET))
+	Damagetype "Fire"
+	PROJECTILE
+	BounceCount 6
+	+MTHRUSPECIES
+	+DOOMBOUNCE
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0
+			GRTL A 3 Bright ThrustThingZ(0, random(8,16), 0, 1)
+			TNT1 A 0 A_SpawnItem("HEGrenadeTrailsTrail")
+			GRTL B 3 Bright ThrustThingZ(0, random(8,16), 0, 1)
+			TNT1 A 0 A_SpawnItem("HEGrenadeTrailsTrail")
+			GRTL A 3 Bright ThrustThingZ(0, random(8,16), 0, 1)
+			TNT1 A 0 A_SpawnItem("HEGrenadeTrailsTrail")
+			GRTL B 3 Bright ThrustThingZ(0, random(8,16), 0, 1)
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 0)
+		SpawnLoop:
+			GRTL AB 3 Bright A_SpawnItem("HEGrenadeTrailsTrail")
+		Loop
+		Death:
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE | (2 << 16), TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET), 128)
+		    TNT1 A 0 A_PlaySound("WeaponGL/40MMHHit")
+			GRTL EFGHI 2 Bright			
+		Stop
+	}
+}
+
+Actor HEGrenadeTrails_Full : HEGrenadeTrails {
+	DamageType "FireFull"
+	+FORCERADIUSDMG
+}
+
+Actor SonicGrenadeExp1 : BaseExplosionDamage {
+	DamageType "Energy"
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMSONIC, TALENT_ENERGY, DND_ISSPECIALAMMO | DND_USETARGET) / 4, 160, 0)
+		Stop
+	}
+}
+
+Actor SonicGrenadeExp2 : BaseExplosionDamage {
+	DamageType "Energy"
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMSONIC, TALENT_ENERGY, DND_ISSPECIALAMMO | DND_USETARGET) / 2, 160, 0)
+		Stop
+	}
+}
+
+Actor SonicGrenadeExp3 : BaseExplosionDamage {
+	DamageType "Energy"
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMSONIC, TALENT_ENERGY, DND_ISSPECIALAMMO | DND_USETARGET) / 4, 160, 0)
+		Stop
+	}
+}
+
+Actor SonicGrenadeExp1_Full : SonicGrenadeExp1 {
+	DamageType "EnergyFull"
+	+FORCERADIUSDMG
+}
+
+Actor SonicGrenadeExp2_Full : SonicGrenadeExp2 {
+	DamageType "EnergyFull"
+	+FORCERADIUSDMG
+}
+
+Actor SonicGrenadeExp3_Full : SonicGrenadeExp3 {
+	DamageType "EnergyFull"
+	+FORCERADIUSDMG
+}
+
+Actor SonicGrenade {
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMSONIC, TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET))
+	Damagetype "Explosives"
+	Speed 32
+	Radius 8
+	Height 16
+	BounceSound "WeaponGL/40MMSonicBounce"
+	BounceCount 5
+	BounceFactor 0.66
+	Gravity 0.66
+	BounceType Doom
+	+MTHRUSPECIES
+	+DONTBLAST
+	+THRUGHOST
+	+FOILINVUL
+	-NOGRAVITY
+	+EXPLODEONWATER
+	const int lim = 4;
+	var int user_count;
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			CAPS AB 3
+		Loop
+		Death:
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetScale(1.275, 1.275)
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == lim, "Vanish")
+			TNT1 A 0 A_PlaySound("WeaponGL/40MMSonicExp")
+			TNT1 A 0 A_SpawnItemEx ("GrayFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 0 A_SpawnItem("WhiteParticleSpawner")
+			CAPX A 4 A_SpawnItem("SonicGrenadeExp1")
+			CAPX B 4 A_SpawnItem("SonicGrenadeExp2")
+			CAPX C 4 A_SpawnItem("SonicGrenadeExp3")
+			CAPX DEFG 2
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Vanish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor SonicGrenade_Full : SonicGrenade {
+	DamageType "ExplosivesFull"
+	-THRUGHOST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			CAPS AB 3
+		Loop
+		Death:
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetScale(1.275, 1.275)
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == lim, "Vanish")
+			TNT1 A 0 A_PlaySound("WeaponGL/40MMSonicExp")
+			TNT1 A 0 A_SpawnItemEx ("GrayFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 0 A_SpawnItem("WhiteParticleSpawner")
+			CAPX A 4 A_SpawnItem("SonicGrenadeExp1_Full")
+			CAPX B 4 A_SpawnItem("SonicGrenadeExp2_Full")
+			CAPX C 4 A_SpawnItem("SonicGrenadeExp3_Full")
+			CAPX DEFG 2
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Vanish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor FlechettePuff : NewBulletPuff {
+	DamageType "BulletFull"
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+MTHRUSPECIES
+	+MISSILE
+	Scale 0.65
+	States {
+		Spawn:
+			PUFF A 0
+			TNT1 AAAAA 0 A_SpawnItemEx("OrangeBallParticle5", 0, 0, frandom(-2.4, 2.4), frandom(-4.8, 4.8), frandom(-4.8, 4.8), frandom(-4.8, 4.8), 0, 128)
+			TNT1 AAA 0 A_CustomMissile("FlechetteShot", random(-4, 4), 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, random(-3, 3))
+			MPU9 A 4 A_PlaySound("Shells/FlechetteRic")
+			MPU9 B 4
+			MPU9 CDE 4
+		stop
+	}
+}
+
+Actor FlechetteShot {
+   Speed 16
+   Radius 4
+   Height 4
+   Damage 0
+   DamageType "BulletFull"
+   Scale 0.2
+   PROJECTILE
+   +BRIGHT
+   RenderStyle Add
+   Gravity 0.75
+   -NOGRAVITY
+   +FOILINVUL
+   +THRUACTORS
+ 
+   States
+   {
+   Spawn:
+      SPPJ A 1 NoDelay A_CustomMissile("FlechetteDamager", 0, 0, 0, CMF_TRACKOWNER)
+	  TNT1 A 0 A_SpawnItemEx("ScatterPShotTrail", 0, 0, 8, 0, 0, 0, 0, SXF_CLIENTSIDE)
+	  TNT1 A 0 A_SpawnItemEx("ScatterShotGlow", 0, 0, 0, 0, 0, 0, 0, 32)
+      Loop
+   Death:
+      TNT1 A 0
+	  TNT1 A 0 A_SetScale(0.20)
+	  TNT1 AA 0 A_CustomMissile("FlechetteSpark",0,0,random(0,360),CMF_TRACKOWNER | CMF_AIMDIRECTION,random(0,12))
+      TNT1 A 1 A_SpawnItem("FlechetteHitSpark")
+      Stop
+   }
+}
+
+Actor FlechetteHitSpark {
+	Scale 0.15
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			MPU9 A 4
+			MPU9 B 4
+			MPU9 CDE 4
+		stop
+	}
+}
+
+ACTOR FlechetteSpark
+{
+   Speed 8
+   Radius 4
+   Height 4
+   Scale 0.125
+   Gravity 0.3
+   PROJECTILE
+   +BRIGHT
+   -NOGRAVITY
+   +DROPOFF 
+   +THRUACTORS
+   +DONTBLAST
+   RenderStyle Add
+   States
+   {
+   Spawn:
+      SPPJ A 1
+	  TNT1 A 0 A_SpawnItemEx("ScatterShotGlowSmall", 0, 0, 0, 0, 0, 0, 0, 32)
+	  TNT1 A 0 A_CustomMissile("FlechetteDamagerTiny", 0, 0, 0, CMF_TRACKOWNER)
+      Loop
+   Death:
+      TNT1 A 0
+	  TNT1 A 0 A_PlaySound("SPRPIMPT",5,0.12,0)
+	  TNT1 A 0 A_SetScale(0.08)
+      SPRI ABCDE 1
+      Stop
+   }
+}
+
+Actor FlechetteDamager : DnD_FakeDamager {
+	Radius 4
+	Height 4
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_FLECHETTE | (1 << 16), TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK | DND_USETARGET))
+	DamageType "BulletFull"
+	Speed 16
+	+PAINLESS
+}
+
+ACTOR FlechetteDamagerTiny : DnD_FakeDamager {                 
+   Speed 8
+   Radius 4
+   Height 4
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_FLECHETTE | (2 << 16), TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK | DND_USETARGET))
+   DamageType "BulletFull"
+   +NODAMAGETHRUST
+   +PAINLESS
+   +FOILINVUL
+}
+
+Actor ShockShellPuff : BulletPuff {
+	DamageType "Bullet"
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+MTHRUSPECIES
+	+MISSILE
+	Scale 0.65
+	States {
+		Spawn:
+		Melee:
+			PUFF A 0
+			TNT1 AAAAA 0 A_SpawnItemEx("BlueParticle5", 0, 0, frandom(-2.4, 2.4), frandom(-4.8, 4.8), frandom(-4.8, 4.8), frandom(-4.8, 4.8), 0, 128)
+			TNT1 A 0 A_SpawnItemEx("ShockDamager", 16 * cos(angle), 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			MPU9 A 4 A_PlaySound("puff/ric")
+			MPU9 B 4
+			MPU9 CDE 4
+		stop
+	}
+}
+
+Actor ShockShellPuff_FullDMG : ShockShellPuff {
+	DamageType "BulletFull"
+	States {
+		Spawn:
+			PUFF A 0
+			TNT1 AAAAA 0 A_SpawnItemEx("BlueParticle5", 0, 0, frandom(-2.4, 2.4), frandom(-4.8, 4.8), frandom(-4.8, 4.8), frandom(-4.8, 4.8), 0, 128)
+			TNT1 A 0 A_SpawnItemEx("ShockDamagerFull", 16 * cos(angle), 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			MPU9 A 4 A_PlaySound("puff/ric")
+			MPU9 B 4
+			MPU9 CDE 4
+		stop
+	}
+}
+
+Actor ShockDamager : BaseExplosionDamage {
+	DamageType "Energy"
+	var int user_count;
+	const int lim = 5;
+	+FOILINVUL
+	+FORCEPAIN
+	+THRUACTORS
+	+NOCLIP
+	+NODAMAGETHRUST
+	Height 1
+	Radius 1
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count == lim, "Vanish")
+			TNT1 AAAA 0 A_SpawnItemEx("ShockShellFX", 0, 0, frandom(-4, 4), frandom(-4, 4), frandom(-4, 4), frandom(-2.4, 2.4), 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_PlaySound("Shells/ShockHit")
+			TNT1 A 8 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_SHOCK | (1 << 16), TALENT_ELEMENTAL, DND_ISSPECIALAMMO | DND_USETARGET | DND_ISBOOMSTICK), 48, 0)
+		Loop
+		Vanish:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor ShockDamagerFull : ShockDamager {
+	Damagetype "EnergyFull"
+	+FORCERADIUSDMG
+}
+
+Actor ShockShellFX {
+	Renderstyle Add
+	Alpha 0.875
+	Height 2
+	Radius 2
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetScale(frandom(0.45, 1.0), frandom(0.45, 1.0))
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
+			TSFX ABC 3 Bright
+		Stop
+		2:
+			TSFX DEF 3 Bright
+		Stop
+		3:
+			TSFX GHI 3 Bright
+		Stop
+		4:
+			TSFX JKL 3 Bright
+		Stop
+	}
+}
+
+Actor NitroWind {
+	PROJECTILE
+	Speed 7
+	Radius 5
+	Height 10
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_NITROSHELL, TALENT_ELEMENTAL, DND_ISSPECIALAMMO | DND_USETARGET))
+	DamageType "P_Ice"
+	Scale 0.5
+	Alpha 0.9
+	Renderstyle Add
+	BounceType "Doom"
+	+RIPPER
+	+BLOODLESSIMPACT
+	+CANBOUNCEWATER
+	+NODAMAGETHRUST
+	+PAINLESS
+	States {
+		Spawn:
+			RF34 JKLMNOPQRSTUVWX 5 A_FadeOut(0.05)
+		Loop
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor NitroWind_Damager : DnD_FakeDamager {
+	Radius 3
+	Height 4
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_NITROSHELL, TALENT_ELEMENTAL, DND_ISSPECIALAMMO | DND_USETARGET))
+	DamageType "P_IceFull"
+	Speed 9
+	+PAINLESS
+}
+
+Actor NitroWindFull {
+	DamageType "P_IceFull"
+	+THRUACTORS
+	States {
+		Spawn:
+			RF34 J 5 NoDelay A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 K 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 L 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 M 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 N 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 O 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 P 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 Q 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 R 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 S 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 T 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 U 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 V 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 W 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 X 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+		Loop
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor NitroShellPuff : BulletPuff {
+	DamageType "P_Ice"
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+MISSILE
+	Scale 0.35
+	States {
+		Spawn:
+		Melee:
+			PUFF A 0
+			TNT1 AA 0 A_CustomMissile("NitroWind", 0, 0, frandom(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, frandom(0, 360))
+			TNT1 A 0 A_PlaySound("Weapons/glahit")
+			D3FX GHI 4
+			D3FX JK 3
+			D3FX L 2
+		stop
+	}
+}
+
+Actor NitroShellPuff_FullDMG : NitroShellPuff {
+	DamageType "P_IceFull"
+	States {
+		Spawn:
+		Melee:
+			PUFF A 0
+			TNT1 AA 0 A_CustomMissile("NitroWindFull", 0, 0, frandom(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, frandom(0, 360))
+			TNT1 A 0 A_PlaySound("weapons/cryobowloop", 6)
+			D3FX GHI 4 A_PlaySound("Weapons/glahit")
+			D3FX JK 3
+			D3FX L 2
+		stop
+	}
+}
+
+Actor SpecialAmmoMode_3 : Ammo {
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor SpecialAmmoMode_3X : Ammo {
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor SpecialAmmoMode_4 : Ammo {
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor SpecialAmmoMode_5 : Ammo {
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor SpecialAmmoMode_5X : Ammo {
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor AmmoChangeMessage : Ammo {
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor AmmoSwitchCooldown : PowerDamage {
+	powerup.duration 20
+	damagefactor "normal", 1.0
+}
+
+Actor NoAmmoMessage : PowerDamage {
+	powerup.duration 5
+	damagefactor "normal", 1.0
+}

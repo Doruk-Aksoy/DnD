@@ -1,0 +1,7 @@
+Actor DnD_MonsterSpawner {
+	Monster
+	Radius 1
+	Height 1
+	-COUNTKILL
+	+NOGRAVITY
+}

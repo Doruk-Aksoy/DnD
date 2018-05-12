@@ -1,0 +1,15 @@
+Actor P_HealthCap : Ammo {
+	inventory.amount 1
+	inventory.maxamount 32000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_ArmorCap : Ammo { 
+	inventory.amount 1
+	inventory.maxamount 32000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}

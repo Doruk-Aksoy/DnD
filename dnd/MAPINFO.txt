@@ -1,0 +1,5 @@
+gameinfo {
+	norandomplayerclass = true
+	//translator = "XLAT.txt"
+	intermissionmusic = "INTER1"
+}

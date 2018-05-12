@@ -1,0 +1,405 @@
+BrightMap Sprite SRG2A1C1
+{
+	Map "graphics/brightmaps/BMSRG2A1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2A2C8
+{
+	Map "graphics/brightmaps/BMSRG2A2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2A3C7
+{
+	Map "graphics/brightmaps/BMSRG2A3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2B1D1
+{
+	Map "graphics/brightmaps/BMSRG2B1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2B2D8
+{
+	Map "graphics/brightmaps/BMSRG2B2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2B3D7
+{
+	Map "graphics/brightmaps/BMSRG2B3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2C2A8
+{
+	Map "graphics/brightmaps/BMSRG2C2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2C3A7
+{
+	Map "graphics/brightmaps/BMSRG2C3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2D2B8
+{
+	Map "graphics/brightmaps/BMSRG2D2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2D3B7
+{
+	Map "graphics/brightmaps/BMSRG2D3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2E1
+{
+	Map "graphics/brightmaps/BMSRG2E1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2E2
+{
+	Map "graphics/brightmaps/BMSRG2E2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2E3
+{
+	Map "graphics/brightmaps/BMSRG2E3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2E7
+{
+	Map "graphics/brightmaps/BMSRG2E7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2E8
+{
+	Map "graphics/brightmaps/BMSRG2E8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2F1
+{
+	Map "graphics/brightmaps/BMSRG2F1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2F2
+{
+	Map "graphics/brightmaps/BMSRG2F2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2F3
+{
+	Map "graphics/brightmaps/BMSRG2F3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2F7
+{
+	Map "graphics/brightmaps/BMSRG2F7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2F8
+{
+	Map "graphics/brightmaps/BMSRG2F8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2G1
+{
+	Map "graphics/brightmaps/BMSRG2G1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2G2
+{
+	Map "graphics/brightmaps/BMSRG2G2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2G3
+{
+	Map "graphics/brightmaps/BMSRG2G3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2G7
+{
+	Map "graphics/brightmaps/BMSRG2G7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2G8
+{
+	Map "graphics/brightmaps/BMSRG2G8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2H1
+{
+	Map "graphics/brightmaps/BMSRG2H1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2H2
+{
+	Map "graphics/brightmaps/BMSRG2H2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2H3
+{
+	Map "graphics/brightmaps/BMSRG2H3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2H4
+{
+	Map "graphics/brightmaps/BMSRG2H4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SRG2H8
+{
+	Map "graphics/brightmaps/BMSRG2H8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2A1
+{
+	Map "graphics/brightmaps/BMSAR2A1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2A2A8
+{
+	Map "graphics/brightmaps/BMSAR2A2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2A3A7
+{
+	Map "graphics/brightmaps/BMSAR2A3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2B1
+{
+	Map "graphics/brightmaps/BMSAR2B1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2B2B8
+{
+	Map "graphics/brightmaps/BMSAR2B2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2B3B7
+{
+	Map "graphics/brightmaps/BMSAR2B3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2C1
+{
+	Map "graphics/brightmaps/BMSAR2C1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2C2C8
+{
+	Map "graphics/brightmaps/BMSAR2C2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2C3C7
+{
+	Map "graphics/brightmaps/BMSAR2C3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2D1
+{
+	Map "graphics/brightmaps/BMSAR2D1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2D2D8
+{
+	Map "graphics/brightmaps/BMSAR2D2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2D3D7
+{
+	Map "graphics/brightmaps/BMSAR2D3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2E1
+{
+	Map "graphics/brightmaps/BMSAR2E1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2E2
+{
+	Map "graphics/brightmaps/BMSAR2E2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2E8
+{
+	Map "graphics/brightmaps/BMSAR2E8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2F1
+{
+	Map "graphics/brightmaps/BMSAR2F1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2F2
+{
+	Map "graphics/brightmaps/BMSAR2F2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2F8
+{
+	Map "graphics/brightmaps/BMSAR2F8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2G1
+{
+	Map "graphics/brightmaps/BMSAR2G1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2G2
+{
+	Map "graphics/brightmaps/BMSAR2G2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2G8
+{
+	Map "graphics/brightmaps/BMSAR2G8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2H1
+{
+	Map "graphics/brightmaps/BMSAR2H1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2H2
+{
+	Map "graphics/brightmaps/BMSAR2H2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2H3
+{
+	Map "graphics/brightmaps/BMSAR2H3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2H4
+{
+	Map "graphics/brightmaps/BMSAR2H4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2H8
+{
+	Map "graphics/brightmaps/BMSAR2H3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2I0
+{
+	Map "graphics/brightmaps/BMSAR2I0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2O0
+{
+	Map "graphics/brightmaps/BMSAR2O0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2P0
+{
+	Map "graphics/brightmaps/BMSAR2P0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2Q0
+{
+	Map "graphics/brightmaps/BMSAR2Q0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2R0
+{
+	Map "graphics/brightmaps/BMSAR2R0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2S0
+{
+	Map "graphics/brightmaps/BMSAR2S0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2T0
+{
+	Map "graphics/brightmaps/BMSAR2T0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2U0
+{
+	Map "graphics/brightmaps/BMSAR2U0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2V0
+{
+	Map "graphics/brightmaps/BMSAR2V0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite SAR2W0
+{
+	Map "graphics/brightmaps/BMSAR2W0.png"
+	DisableFullBright
+}
+
+Object EarthGolemShot
+{
+	Frame FVULA { Light VulgarShot }
+	Frame FVULB { Light VulgarShot }
+	Frame FVULC { Light VulgarShot2 }
+	Frame FVULD { Light VulgarShot3 }
+	Frame FVULE { Light VulgarShot4 }
+	Frame FVULF { Light VulgarShot5 }
+}

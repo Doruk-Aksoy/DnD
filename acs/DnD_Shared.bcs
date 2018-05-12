@@ -1,0 +1,97 @@
+#library "DND_SHRD"
+#include "zcommon.h"
+
+#include "DnD_Shared.h"
+
+Script "DND Shared Item Check" (void) {
+	int res = 1;
+	int pid = ActivatorTID();
+	// find which item this guy is really closest to
+	int closest = GetClosestSharedItem(pid);
+	printbold(d:closest);
+	if(closest != -1 && !CheckInventory("P_BusyPicking")) {
+		// check if this item was picked up
+		// prevent multiple pickup calls from being handled for the same player while this is being processed
+		if(!Shared_Item_Info[closest].semaphore[pid - P_TIDSTART]) {
+			printbold(s:"Pickup state before ", d:Shared_Item_Info[closest].pickup_state[pid - P_TIDSTART]);
+			if(!Shared_Item_Info[closest].pickup_state[pid - P_TIDSTART]) {
+				GiveInventory("P_BusyPicking", 1);
+				Shared_Item_Info[closest].semaphore[pid - P_TIDSTART] = 1;
+				printbold(s:"Can pick ", d:closest);
+				SetInventory("DnD_SharedItemTID", closest + 1);
+			}
+		}
+		res = Shared_Item_Info[closest].pickup_state[pid - P_TIDSTART];
+	}
+	SetResultValue(res);
+}
+
+Script "DND Shared Item Pickup" (void) {
+	int pid = ActivatorTID();
+	int closest = 0;
+	// find which item this guy is really closest to
+	closest = CheckInventory("DnD_SharedItemTID") - 1;
+	printbold(s:"Attempt ", d:closest, s: " ", d:Shared_Item_Info[closest].pickup_state[pid - P_TIDSTART]);
+	if(closest != -1 && !Shared_Item_Info[closest].pickup_state[pid - P_TIDSTART]) {
+		ACS_ExecuteAlways(801, 0, closest + SHARED_ITEM_TID_BEGIN);
+		Shared_Item_Info[closest].pickup_state[pid - P_TIDSTART] = 1;
+		Shared_Item_Info[closest].semaphore[pid - P_TIDSTART] = 1;
+		printbold(s:"Picked ", d:closest, s: " ", d:Shared_Item_Info[closest].pickup_state[pid - P_TIDSTART]);
+		SetInventory("DnD_SharedItemTID", 0);
+		TakeInventory("P_BusyPicking", 1);
+	}
+}
+
+Script "DND Shared Item Init" (int type) {
+	if(GameType() != GAME_SINGLE_PLAYER) {
+		printbold(s:"I am ", d:SHARED_ITEM_TID_BEGIN + shared_item_counter);
+		Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + shared_item_counter++);
+	}
+	else {
+		Spawn(SP_SharedItems[type], GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+		Thing_Remove(0);
+	}
+}
+
+Script "DND Shared Item Clear Semaphore" (void) {
+	int pid = ActivatorTID();
+	// find which item this guy is really closest to
+	int closest = CheckActorInventory(pid, "DnD_SharedItemTID") - 1;
+	if(closest != -1 && !CheckInventory("P_BusyPicking")) {
+		printbold(s:"Clearing semaphore ", d:closest);
+		Shared_Item_Info[closest].semaphore[pid - P_TIDSTART] = 0;
+	}
+}
+
+Script 800 ENTER CLIENTSIDE {
+	while(1) {
+		if(PlayerNumber() == ConsolePlayerNumber()) {
+			for(int i = 0; i < shared_item_queue_count; ++i) {
+				SetActorProperty(shared_item_clientside_queue[i], APROP_ALPHA, 0.25);
+				SetActorState(shared_item_clientside_queue[i], "IdlePicked", 0);
+			}
+			shared_item_queue_count = 0;
+		}
+		Delay(5);
+	}
+}
+
+Script 801(int tid) CLIENTSIDE {
+	if(PlayerNumber() == ConsolePlayerNumber())
+		shared_item_clientside_queue[shared_item_queue_count++] = tid;
+}
+
+Script "DND Limited Respawn Item Init" (void) {
+	if(!GetCVar("dnd_enable_limiteditems") || GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	if(!ActivatorTID()) {
+		Thing_ChangeTID(0, LIMITED_RESPAWN_TID_BEGIN + limitedrespawn_item_counter);
+		LimitedItem_Respawns[limitedrespawn_item_counter++] = GetCVar("dnd_limitedrespawn_amount");
+	}
+	else {
+		if(!LimitedItem_Respawns[ActivatorTID() - LIMITED_RESPAWN_TID_BEGIN])
+			Thing_Remove(ActivatorTID());
+		else
+			LimitedItem_Respawns[ActivatorTID() - LIMITED_RESPAWN_TID_BEGIN]--;
+	}
+}

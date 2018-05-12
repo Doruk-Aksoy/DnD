@@ -1,0 +1,1647 @@
+Actor " Fists " : Fist
+{
+	Weapon.SlotNumber 1
+	+WEAPON.NOALERT
+	+INVENTORY.UNDROPPABLE
+	Obituary "%o had %p shit beaten by %k."
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 2.1
+    Weapon.BobRangeY 0.4
+    Weapon.BobRangeX 0.7
+	Weapon.SelectionOrder 99999
+	Tag "Fists"
+	States
+	{
+		Ready:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			PUNK A 1 A_WeaponReady
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			//TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_FIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 10, 1 | (3 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 15, 12 | (16 << 16))
+		SelectLoop:
+			PUNK A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Deselect:
+			TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+		DeSelectLoop:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
+			PUNK A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+	    Fire:
+			TNT1 A 0 A_PlaySound("weapons/fistmiss")
+			TNT1 A 0 A_JumpIfInventory("FistSide", 1, "Other")
+			PUNK BC 1
+			PUNK D 2 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_GiveInventory("FistSide", 1)
+			PUNK CB 2
+			PUNK A 5 A_ReFire
+		goto Ready
+		Other:
+			PUNK EF 1
+			PUNK G 2 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_TakeInventory("FistSide", 1)
+			PUNK FE 2
+			PUNK A 5 A_ReFire
+		goto Ready
+		Altfire:
+			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "ContinueAltFire")
+			PUNK A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueAltFire:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 ACS_ExecuteAlways(920, 0, 0)
+			PUNK H 1 Offset(0, 34) A_SetAngle(angle - 36)
+			PUNK H 1 Offset(0, 36) A_SetAngle(angle - 36)
+			PUNK I 1 Offset(0, 34) A_SetAngle(angle - 36)
+			PKFS I 1 Offset(0, 36) A_SetAngle(angle - 36)
+			PKFS J 1 Offset(0, 36) A_SetAngle(angle - 36)
+			TNT1 A 0 A_Playsound("Weapons/KickSwing")
+			MLEG AA 1 Offset(16, 32) A_SetAngle(angle - 36)
+			MLEG BB 1 A_SetAngle(angle - 18)
+			MLEG CC 1 A_SetAngle(angle - 9)
+			MLEG D 1 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_SetAngle(angle - 9)
+			MLEG D 1 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_SetAngle(angle - 9)
+			MLEG E 1 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_SetAngle(angle - 9)
+			MLEG E 1 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_SetAngle(angle - 9)
+			MLEG F 1 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_SetAngle(angle - 9)
+			MLEG F 1 A_GiveInventory("FistDamager", 1)
+			TNT1 A 0 A_SetAngle(angle - 9)
+			MLEG F 1 A_GiveInventory("FistDamager", 1)
+			MLEG G 2
+			MLEG H 2 ACS_ExecuteAlways(920, 0, 1)
+			PUNK J 1 Offset(0, 36)
+			PUNK H 1 Offset(0, 36)
+			PUNK H 1 Offset(0, 34)
+			PUNK I 1 Offset(0, 36)
+			PUNK I 1 Offset(0, 34)
+		goto Ready   
+	}
+}
+
+Actor FistDamager : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("PowerStrength", 1, "FireX")
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full3")
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), 1, 0, "FistPuff")
+		Stop
+		FireX:
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full4")
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), 1, 0, "FistPuff")
+		Stop
+		Full3:
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), 1, 0, "FistPuff_FullDMG")
+		Stop
+		Full4:
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), 1, 0, "FistPuff_FullDMG")
+		Stop
+	}
+}
+
+Actor FistSide : DnD_Boolean { }
+
+ACTOR " Chainsaw " : Chainsaw
+{
+  Weapon.Slotnumber 1
+  Weapon.BobStyle InverseSmooth
+  Weapon.BobSpeed 2.1
+  Weapon.BobRangeY 0.4
+  Weapon.BobRangeX 0.7
+  Inventory.PickupSound "weapons/pickup"
+  Weapon.UpSound "weapons/sawup"
+  Decal "ChainsawMark"
+  States
+  {
+  Ready:
+    TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+	TNT1 A 0 A_PlayWeaponSound("weapons/sawidle")
+    SAWG CD 4 A_WeaponReady
+    Loop
+  Deselect:
+	TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+  DeSelectLoop:
+	TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
+    SAWG C 1 A_Lower
+	TNT1 A 0 A_Lower
+    Loop
+  Select:
+	TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_CHAINSAW)
+	TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 4, 1 | (10 << 16))
+  DeSelectLoop:
+	TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+    SAWG C 1 A_Raise
+	TNT1 A 0 A_Raise
+    Loop
+  Fire:
+	TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+	TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full")
+    SAWG AB 4 A_Saw("weapons/sawfull", "weapons/sawhit", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "ChainsawPuff", SF_NORANDOM)
+	TNT1 A 0 A_Refire
+	SAWG B 4
+    Goto Ready
+  Full:
+    SAWG AB 4 A_Saw("weapons/sawfull", "weapons/sawhit", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "ChainsawPuff_FullDMG", SF_NORANDOM)
+	TNT1 A 0 A_Refire
+	SAWG B 4
+    Goto Ready
+  Spawn:
+    CSAW A -1
+    Stop
+  }
+}
+
+// Sprites by Eriance
+ACTOR "Upgraded Chainsaw" : Chainsaw
+{
+  Weapon.Kickback 0
+  Weapon.SlotNumber 1
+  Weapon.SelectionOrder 2200
+  Weapon.UpSound "weapons/sawup2"
+  Inventory.PickupMessage "$GOTCHAINSAW"
+  Inventory.PickupSound "weapons/pickup"
+  Obituary "$OB_MPCHAINSAW"
+  Tag "Dual Chainsaw"
+  +WEAPON.MELEEWEAPON
+  +INVENTORY.UNDROPPABLE
+  Weapon.BobStyle InverseSmooth
+  Weapon.BobSpeed 2.1
+  Weapon.BobRangeY 0.4
+  Weapon.BobRangeX 0.7
+  Decal "ChainsawMark"
+  States
+  {
+  Ready:
+    TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+	TNT1 A 0 A_PlayWeaponSound("weapons/sawidle2")
+    SAW2 CD 4 A_WeaponReady
+    Loop
+  Deselect:
+	TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+  DeSelectLoop:
+	TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
+    SAW2 C 1 A_Lower
+	TNT1 A 0 A_Lower
+    Loop
+  Select:
+	TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_DOUBLECHAINSAW)
+	TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 4, 1 | (10 << 16))
+  SelectLoop:
+	TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+    SAW2 C 1 A_Raise
+	TNT1 A 0 A_Raise
+    Loop
+  Fire:
+	TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+    TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full")
+    TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff", SF_NORANDOM)
+    SAW2 A 4
+	TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff", SF_NORANDOM)
+	SAW2 B 4
+    SAWG B 0 A_ReFire
+    Goto Ready
+  Full:
+    TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff_FullDMG", SF_NORANDOM)
+    SAW2 A 4
+	TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff_FullDMG", SF_NORANDOM)
+	SAW2 B 4
+    SAWG B 0 A_ReFire
+    Goto Ready
+  Spawn:
+    CSW2 A -1
+    Stop
+  }
+}
+
+ACTOR Sickle : Weapon {
+    +MELEEWEAPON
+	+NOALERT
+	Weapon.KickBack 0
+	Weapon.SlotNumber 1
+	+UNDROPPABLE
+	Weapon.SelectionOrder 88888
+	Tag "Sickle of the Necromancer"
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 1.6
+    Weapon.BobRangeY 0.4
+    Weapon.BobRangeX 0.7
+    States {
+		Spawn:
+			TNT1 A 1
+		Stop
+		Select:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SICKLE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5, 8 | (12 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 5, 15 | (18 << 16))
+		SelectLoop:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			SCKL A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Deselect:
+			TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+		DeSelectLoop:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
+			SCKL A 1 A_lower
+			TNT1 A 0 A_lower
+		Loop
+		Ready:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			SCKL A 1 Offset(0, 32) A_weaponready
+		Loop
+		Fire:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			SCKL A 1 Offset (32,32)
+			SCKL A 1 Offset (28,34)
+			SCKL A 1 Offset (24,36)
+			TNT1 A 0 A_PlayWeaponSound("weapons/bigswing")
+			SCKL B 1 Offset (22,32)
+			SCKL B 1 Offset (15,32)
+			SCKL B 1 Offset (10,32)
+			SCKL C 1 Offset (20,33) A_GiveInventory("SickleShooter1", 1)
+			SCKL C 1 Offset (12,34) A_GiveInventory("SickleShooter1", 1)
+			SCKL C 1 Offset (0,36) A_GiveInventory("SickleShooter1", 1)
+			SCKL C 1 Offset (-10,36)
+			SCKL D 1 Offset (40,36)
+			SCKL D 1 Offset (36,39)
+			SCKL D 1 Offset (32,42)
+			TNT1 A 4 Offset(0, 32)
+			TNT1 A 0 A_ReFire
+			TNT1 A 2 Offset(-1, 72)
+			SCKL A 1 Offset(-1, 72)
+			SCKL A 1 Offset(-1, 62)
+			SCKL A 1 Offset(-1, 52)
+			SCKL A 1 Offset(-1, 42)
+			SCKL A 1 Offset(-1, 32)
+			TNT1 A 0 Offset(0, 32)
+		goto Ready
+		Altfire:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "ContinueAltFire")
+			SCKL A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueAltFire:
+			SCKL A 1 Offset (32,32)
+			SCKL A 1 Offset (28,34)
+			SCKL A 1 Offset (24,36)
+			SCKL A 1 Offset (20,38)
+		AltHold:
+			TNT1 A 0 A_PlayWeaponSound("weapons/bigswing")
+			SCKL I 1 Offset (36,38)
+			SCKL I 1 Offset (34,34)
+			SCKL I 1 Offset (32,32)
+			SCKL I 1 Offset (30,30)
+			SCKL J 1 Offset (31,31)
+			SCKL J 1 Offset (33,33)
+			SCKL K 1 Offset (35,35)
+			SCKL K 1 Offset (36,36)
+			SCKL L 1 Offset (38,28)
+			SCKL L 1 Offset (32,32)
+			SCKL L 1 Offset (28,38)
+			SCKL H 1 Offset (39,32) A_GiveInventory("SickleShooter2", 1)
+			SCKL H 1 Offset (34,40) A_GiveInventory("SickleShooter2", 1)
+			SCKL H 1 Offset (29,48) A_GiveInventory("SickleShooter2", 1)
+			SCKL H 1 Offset(24, 56)
+			SCKL H 1 Offset(19, 64)
+			SCKL H 1 Offset(14, 72)
+			TNT1 A 6 Offset(0, 32)
+			TNT1 A 0 A_ReFire("AltHold")
+			TNT1 A 2 Offset(-1, 72)
+			SCKL A 1 Offset(-1, 72)
+			SCKL A 1 Offset(-1, 62)
+			SCKL A 1 Offset(-1, 52)
+			SCKL A 1 Offset(-1, 42)
+			SCKL A 1 Offset(-1, 32)
+			TNT1 A 0 Offset(0, 32)
+		Goto Ready
+    }
+}
+
+Actor SickleShooter1 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "SicklePuff", FBF_NOFLASH | FBF_NORANDOM, 136)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "SicklePuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
+		Stop
+	}
+}
+
+Actor SickleShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_FireBullets(0,0,1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISOCCULT), "SicklePuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
+		Stop
+	}
+}
+
+ACTOR Excalibat : Weapon {
+    +MELEEWEAPON
+	+NOALERT
+	Weapon.KickBack 300
+	Weapon.SlotNumber 1
+	+UNDROPPABLE
+	Weapon.SelectionOrder 88888
+	Weapon.AmmoUse1 0
+	Weapon.AmmoUse2 0
+	Weapon.AmmoType1 "BatCharge"
+	Weapon.AmmoType2 "Souls"
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 1.6
+    Weapon.BobRangeY 0.4
+    Weapon.BobRangeX 0.7
+	const int rate = 4;
+    States {
+		Spawn:
+			EBAT A -1
+		Stop
+		Select:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_EXCALIBAT)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5, 4 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 25, 4 | (6 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 128)
+		SelectLoop:
+			EXCL A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Deselect:
+			TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
+		DeSelectLoop:
+			EXCL A 1 A_lower
+			TNT1 A 0 A_lower
+		Loop
+		Ready:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			EXCL A 6 A_weaponready
+			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL B 6 A_weaponready
+			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL C 6 A_weaponready
+			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL D 6 A_weaponready
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL E 6 A_weaponready
+			TNT1 A 0 A_Jump(128, "LookAround")
+			TNT1 A 0 A_Jump(16, "Blink")
+		ContinueReady:
+			EXCL D 6 A_weaponready
+			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL C 6 A_weaponready
+			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL B 6 A_weaponready
+			TNT1 A 0 A_Jump(16, "Blink")
+		Goto Ready
+		LookAround:
+			TNT1 A 0 A_Jump(128, "LookAround2")
+			EXCL FGHG 6 A_WeaponReady
+		Goto ContinueReady
+		LookAround2:
+			EXCL HFG 6 A_WeaponReady
+		Goto ContinueReady
+		Blink:
+			EXCL IJKJI 4 A_WeaponReady
+		Goto Ready
+		Fire:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			EXCL A 1 Offset(8, 30)
+			EXCL A 1 Offset(20, 28)
+			EXCL A 1 Offset(36, 26)
+		FireHold:
+			EXCL L 1 Offset(271, 32) A_SetPitch(pitch - 1.0, SPF_INTERPOLATE)
+			TNT1 A 0 A_PlayWeaponSound("weapons/batswing")
+			EXCL L 1 Offset(284, 23) A_SetPitch(pitch - 1.0, SPF_INTERPOLATE)
+			EXCL L 1 Offset(299, 13) A_SetPitch(pitch - 1.0, SPF_INTERPOLATE)
+			EXCL L 1 Offset(270, 19) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			EXCL L 1 Offset(234, 26) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			EXCL L 1 Offset(203, 29) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			TNT1 A 0 A_GiveInventory("ExcalibatShooter1", 1)
+			EXCL O 1 Offset(171, -2) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			TNT1 A 0 A_GiveInventory("ExcalibatShooter2", 1)
+			EXCL P 1 Offset(80, 14) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			TNT1 A 0 A_GiveInventory("ExcalibatShooter3", 1)
+			EXCL Q 1 Offset(-7, 50) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			TNT1 A 0 A_GiveInventory("ExcalibatShooter4", 1)
+			EXCL R 1 Offset(-75, 91) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			EXCL R 1 Offset(-128, 106) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			EXCL R 1 Offset(-185, 125) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			EXCL R 1 Offset(-232, 149) A_SetPitch(pitch + 0.3, SPF_INTERPOLATE)
+			TNT1 A 4
+			TNT1 A 0 A_Refire("FireHold")
+			EXCL A 1 Offset(-28, 132)
+			EXCL A 1 Offset(-20, 112)
+			EXCL A 1 Offset(-12, 92)
+			EXCL A 1 Offset(-6, 72)
+			EXCL A 1 Offset(-3, 52)
+			EXCL A 1 Offset(-2, 42)
+			EXCL A 1 Offset(-1, 32)
+		goto Ready
+		Altfire:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "ContinueAltFire")
+			EXCL A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueAltFire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "YeahDoIt")
+			TNT1 A 0 A_JumpIfInventory("Souls", 3, "YeahDoIt")
+			EXCL A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		YeahDoIt:
+			TNT1 A 0 A_PlayWeaponSound("weapons/batcharge")
+		ContinueAltFireLoop:
+			EXCL A 2 A_GiveInventory("BatCharge", rate)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(994, 3), "CleanFinish")
+			EXCL B 2 A_GiveInventory("BatCharge", rate - 1)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(994, 3), "CleanCharges1")
+			EXCL C 2 A_GiveInventory("BatCharge", rate)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(994, 3), "CleanCharges2")
+			EXCL D 2 A_GiveInventory("BatCharge", rate - 1)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(994, 3), "CleanCharges3")
+			EXCL E 2 A_GiveInventory("BatCharge", rate - 1)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(994, 3), "CleanCharges4")
+			EXCL D 2 A_GiveInventory("BatCharge", rate - 1)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(994, 3), "CleanCharges3")
+			EXCL C 2 A_GiveInventory("BatCharge", rate)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(994, 3), "CleanCharges2")
+			EXCL B 2 A_GiveInventory("BatCharge", rate - 1)
+			TNT1 A 0 A_JumpIfInventory("BatCharge", 0, "AltFireUnleash")
+			TNT1 A 0 A_Refire("ContinueAltFireLoop")
+		Goto CleanCharges1
+		CleanCharges4:
+			EXCL D 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		CleanCharges3:
+			EXCL C 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		CleanCharges2:
+			EXCL B 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		CleanCharges1:
+			EXCL A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		CleanFinish:
+			TNT1 A 0 A_TakeInventory("BatCharge", 0)
+		Goto Ready
+		AltFireUnleash:
+			TNT1 A 0 A_PlayWeaponSound("weapons/batfire")
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "AltFull")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "AltFull")
+			EXCL A 1 Offset(8, 30)
+			EXCL A 1 Offset(20, 28)
+			EXCL A 1 Offset(36, 26)
+			TNT1 A 0 A_TakeInventory("BatCharge", 0)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("Souls", 3)
+		NoTake:
+			EXCL U 1 Bright Offset(289, 9) A_FireCustomMissile("ExcalibatBall", -32, 0)
+			EXCL U 1 Bright Offset(263, 7) A_FireCustomMissile("ExcalibatBall", -28, 0)
+			EXCL U 1 Bright Offset(244, -3) A_FireCustomMissile("ExcalibatBall", -24, 0)
+			EXCL U 1 Bright Offset(214, -4) A_FireCustomMissile("ExcalibatBall", -20, 0)
+			EXCL V 1 Bright Offset(204, -3) A_FireCustomMissile("ExcalibatBall", -16, 0)
+			EXCL V 1 Bright Offset(185, -2) A_FireCustomMissile("ExcalibatBall", -12, 0)
+			EXCL V 1 Bright Offset(141, 5) A_FireCustomMissile("ExcalibatBall", -8, 0)
+			EXCL V 1 Bright Offset(115, 9) A_FireCustomMissile("ExcalibatBall", -4, 0)
+			TNT1 A 0 A_FireCustomMissile("ExcalibatBall", 0, 0)
+			EXCL W 1 Bright Offset(103, -6) A_FireCustomMissile("ExcalibatBall", 4, 0)
+			EXCL W 1 Bright Offset(82, -11) A_FireCustomMissile("ExcalibatBall", 8, 0)
+			EXCL W 1 Bright Offset(39, -6) A_FireCustomMissile("ExcalibatBall", 12, 0)
+			EXCL X 1 Bright Offset(-93, 16) A_FireCustomMissile("ExcalibatBall", 16, 0)
+			EXCL X 1 Bright Offset(-127, 32) A_FireCustomMissile("ExcalibatBall", 20, 0)
+			EXCL X 1 Bright Offset(-168, 49) A_FireCustomMissile("ExcalibatBall", 24, 0)
+			EXCL X 1 Bright Offset(-218, 62) A_FireCustomMissile("ExcalibatBall", 28, 0)
+			TNT1 A 1 Offset(0, 32) A_FireCustomMissile("ExcalibatBall", 32, 0)
+			TNT1 A 5 Offset(0, 32)
+			EXCL A 1 Offset(-1, 132)
+			EXCL A 1 Offset(-1, 112)
+			EXCL A 1 Offset(-1, 92)
+			EXCL A 1 Offset(-1, 72)
+			EXCL A 1 Offset(-1, 52)
+			EXCL A 1 Offset(-1, 42)
+			EXCL A 1 Offset(-1, 32)
+		Goto Ready
+		AltFull:
+			EXCL A 1 Offset(8, 30)
+			EXCL A 1 Offset(20, 28)
+			EXCL A 1 Offset(36, 26)
+			TNT1 A 0 A_TakeInventory("BatCharge", 0)
+			EXCL U 1 Bright Offset(289, 9) A_FireCustomMissile("ExcalibatBall_FullDMG", -32, 0)
+			EXCL U 1 Bright Offset(263, 7) A_FireCustomMissile("ExcalibatBall_FullDMG", -28, 0)
+			EXCL U 1 Bright Offset(244, -3) A_FireCustomMissile("ExcalibatBall_FullDMG", -24, 0)
+			EXCL U 1 Bright Offset(214, -4) A_FireCustomMissile("ExcalibatBall_FullDMG", -20, 0)
+			EXCL V 1 Bright Offset(204, -3) A_FireCustomMissile("ExcalibatBall_FullDMG", -16, 0)
+			EXCL V 1 Bright Offset(185, -2) A_FireCustomMissile("ExcalibatBall_FullDMG", -12, 0)
+			EXCL V 1 Bright Offset(141, 5) A_FireCustomMissile("ExcalibatBall_FullDMG", -8, 0)
+			EXCL V 1 Bright Offset(115, 9) A_FireCustomMissile("ExcalibatBall_FullDMG", -4, 0)
+			TNT1 A 0 A_FireCustomMissile("ExcalibatBall_FullDMG", 0, 0)
+			EXCL W 1 Bright Offset(103, -6) A_FireCustomMissile("ExcalibatBall_FullDMG", 4, 0)
+			EXCL W 1 Bright Offset(82, -11) A_FireCustomMissile("ExcalibatBall_FullDMG", 8, 0)
+			EXCL W 1 Bright Offset(39, -6) A_FireCustomMissile("ExcalibatBall_FullDMG", 12, 0)
+			EXCL X 1 Bright Offset(-93, 16) A_FireCustomMissile("ExcalibatBall_FullDMG", 16, 0)
+			EXCL X 1 Bright Offset(-127, 32) A_FireCustomMissile("ExcalibatBall_FullDMG", 20, 0)
+			EXCL X 1 Bright Offset(-168, 49) A_FireCustomMissile("ExcalibatBall_FullDMG", 24, 0)
+			EXCL X 1 Bright Offset(-218, 62) A_FireCustomMissile("ExcalibatBall_FullDMG", 28, 0)
+			TNT1 A 1 Offset(0, 32) A_FireCustomMissile("ExcalibatBall_FullDMG", 32, 0)
+			EXCL A 1 Offset(-1, 132)
+			EXCL A 1 Offset(-1, 112)
+			EXCL A 1 Offset(-1, 92)
+			EXCL A 1 Offset(-1, 72)
+			EXCL A 1 Offset(-1, 52)
+			EXCL A 1 Offset(-1, 42)
+			EXCL A 1 Offset(-1, 32)
+		Goto Ready
+    }
+}
+
+Actor BatCharge : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 100
+	+IGNORESKILL
+}
+
+Actor ExcalibatShooter1 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(-18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(-18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor ExcalibatShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(0.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor ExcalibatShooter3 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor ExcalibatShooter4 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(36.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(36.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor ExcalibatBall {
+	PROJECTILE
+	Speed 32
+	Height 10
+	Radius 5
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET))
+	DamageType "Explosives_Magic"
+	ReactionTime 10
+	Renderstyle Add
+	SeeSound "weapons/batlaunch"
+	DeathSound "weapons/bathit"
+	+EXTREMEDEATH
+	+FOILINVUL
+	+THRUGHOST
+	+MTHRUSPECIES
+	+NODAMAGETHRUST
+	States {
+		Spawn:
+			ECAL A 3 Bright A_CountDown
+		Loop
+		Death:
+			TNT1 AA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET), 128, 0, 0, 128)
+			TNT1 A 0 A_SetScale(0.625, 0.625)
+			D3BX ABCDEFG 2 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor ExcalibatBall_FullDMG : ExcalibatBall {
+	DamageType "Explosives_MagicFull"
+	-THRUGHOST
+	+FORCERADIUSDMG
+}
+
+Actor KatanaUnsheated : DnD_Boolean { }
+Actor KatanaIdleTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+}
+
+ACTOR Katana : Weapon {
+	Weapon.SlotNumber 1
+	Weapon.SelectionOrder 6
+	Obituary "%o was eviscerated by %k."
+	Tag "Katana"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.5
+	Weapon.BobRangeX 0.2
+	Weapon.BobRangeY 0.5
+	+WEAPON.NOAUTOAIM
+	States {
+		Spawn:
+			JFIS Z -1
+		Stop
+		Ready:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_JumpIfInventory ("KatanaUnsheated", 1, "ReadyUnsheathed")
+			TNT1 A 1 A_WeaponReady
+		Loop
+		ReadyUnsheathed:
+			TNT1 A 0 A_GiveInventory("KatanaIdleTimer", 1)
+		ReadyUnsheathedLoop:
+			JFIS D 1 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("KatanaIdleTimer", 1, "IdleReady")
+		Goto ForcedSheathe
+		IdleReady:
+			JFIS D 1 A_WeaponReady
+		Goto ReadyUnsheathedLoop
+	
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_KATANA)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 20)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 12)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 10)
+		SelectLoop:
+			TNT1 A 0 A_Raise
+		Loop
+		Deselect:
+			TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_PDead", 1, "DeselectLoop")
+			TNT1 A 0 A_JumpIfInventory ("KatanaUnsheated", 1, "DeselectSheathe")
+			TNT1 A 1
+			TNT1 A 0 A_TakeInventory("KatanaIdleTimer", 1)
+			TNT1 A 0 A_StopSound(7)
+		DeselectLoop:
+			TNT1 A 0 A_Lower
+		Loop
+		DeselectSheathe:
+			TNT1 A 0 A_StopSound(7)
+			JIA1 FFGGHH 1 A_JumpIfInventory("DnD_PDead", 1, "DeselectLoop")
+			TNT1 A 0 A_TakeInventory ("KatanaUnsheated", 1)
+			TNT1 A 0 A_TakeInventory("KatanaIdleTimer", 1)
+			TNT1 A 0 A_PlaySound("jpcpfist/sheathe", CHAN_WEAPON, 1.0, 0, 1.5)
+			JIA1 HIJ 2
+			JIA1 K 3
+			JIA1 L 8
+			JIA1 MN 2
+		Goto DeselectLoop
+
+		Fire:
+			TNT1 A 0 A_JumpIfInventory ("KatanaUnsheated", 1, "FireUnsheathed")
+		IaiSlash:
+			TNT1 A 0 A_PlaySound("jpcpfist/iai", CHAN_WEAPON, 1.0, 0, 1.5)
+			JIA1 AB 1
+		IaiSlashNormal:
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JIA1 C 1 A_GiveInventory("KatanaShooter1", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JIA1 D 1 A_GiveInventory("KatanaShooter2", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JIA1 E 1 A_GiveInventory("KatanaShooter3", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter4", 1)
+		Goto IaiSlashFinish
+		IaiSlashFinish:
+			TNT1 AAAAAAAA 1
+			TNT1 AAAAAAA 1 A_Refire ("SwitchToStandard")
+		ForcedSheathe:
+			JIA1 F 2
+			TNT1 A 0 A_TakeInventory ("KatanaUnsheated", 1)
+			JIA1 GH 2
+			TNT1 A 0 A_PlaySound("jpcpfist/sheathe", CHAN_WEAPON, 1.0, 0, 1.5)
+			JIA1 HIJ 2
+			JIA1 K 3
+			TNT1 A 0 A_JumpIfInventory("Ability_Kick", 1, "ForcedSheatheQuick")
+			JIA1 L 8
+			JIA1 MN 2
+		Goto Ready
+		ForcedSheatheQuick:
+			JIA1 LLLLLLLL 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOBOB | WRF_NOSWITCH)
+			JIA1 MMNN 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOBOB | WRF_NOSWITCH)
+		Goto Ready
+
+		SwitchToStandard:
+			TNT1 A 0 A_GiveInventory ("KatanaUnsheated", 1)
+		Goto LeftSlash
+
+		FireUnsheathed:
+			JFIS EF 1
+			TNT1 A 3
+		Goto LeftSlash
+		LeftSlash:
+			TNT1 A 0 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			JFIS G 1
+		LeftSlashNormal:
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
+		Goto LeftSlashFinish
+		LeftSlashFinish:
+			JFIS K 1
+			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "SlashQuickFinish")
+			TNT1 AAAAAAAA 1
+			TNT1 AAAAAAA 1 A_Refire ("RightSlash")
+			JFIS ABC 2
+		Goto Ready
+		SlashQuickFinish:
+			TNT1 A 1
+			TNT1 AAAAAAA 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOBOB | WRF_NOSWITCH)
+			TNT1 AAAAAAA 1 A_Refire ("RightSlash")
+			JFIS ABC 2
+		Goto Ready
+
+		RightSlash:
+			TNT1 A 0 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			JFIS L 1
+		RightSlashNormal:
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
+		Goto RightSlashFinish
+		RightSlashFinish:
+			JFIS P 1
+			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "SlashQuickFinish")
+			TNT1 AAAAAAAA 1
+			TNT1 AAAAAAA 1 A_Refire ("LeftSlash")
+			JFIS ABC 2
+		Goto Ready
+		
+		Altfire:
+			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "ContinueAltFire")
+			TNT1 A 0 A_JumpIfInventory ("KatanaUnsheated", 1, "NothingUnsheathed")
+			TNT1 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		NothingUnsheathed:
+			JFIS D 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueAltFire:
+			TNT1 A 0 A_JumpIfInventory ("KatanaUnsheated", 1, "ComboUnsheathed")
+			JIA1 A 1
+			JIA1 B 1 A_PlaySound("jpcpfist/iai", CHAN_WEAPON, 1.0, 0, 1.5)
+			JIA1 C 1 A_GiveInventory("KatanaShooter1", 1)
+			JIA1 D 1 A_GiveInventory("KatanaShooter2", 1)
+			JIA1 E 1 A_GiveInventory("KatanaShooter3", 1)
+			TNT1 A 0 A_GiveInventory("KatanaShooter4", 1)
+			TNT1 AAAA 1
+			JFIS L 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
+			JFIS P 1
+			TNT1 A 2
+			JFIS G 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
+			JFIS K 1
+			TNT1 A 2
+			JFIS L 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
+			JFIS P 1
+			TNT1 A 2
+			JFIS G 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
+			JFIS K 1
+			TNT1 A 2
+			TNT1 A 0 A_PlaySound("jpcpfist/iai2", CHAN_WEAPON, 1.0, 0, 1.5)
+			JFIS AB 1
+			JFIS C 2 A_GiveInventory("KatanaShooter13", 1)
+			TNT1 A 0 A_Recoil(-3.6)
+			JFIS D 3 A_GiveInventory("KatanaShooter14", 1)
+			JFIS C 2 A_GiveInventory("KatanaShooter13", 1)
+			TNT1 A 0 A_GiveInventory ("KatanaUnsheated", 1)
+			JFIS BA 1
+		Goto ForcedSheathe
+		ComboUnsheathed:
+			JFIS DA 1
+			TNT1 A 0 A_PlaySound("jpcpfist/iai2", CHAN_WEAPON, 1.0, 0, 1.5)
+			JFIS AB 1
+			JFIS C 2 A_GiveInventory("KatanaShooter13", 1)
+			TNT1 A 0 A_Recoil(-3.6)
+			JFIS D 3 A_GiveInventory("KatanaShooter14", 1)
+			JFIS C 2 A_GiveInventory("KatanaShooter13", 1)
+			TNT1 A 0 A_GiveInventory ("KatanaUnsheated", 1)
+			JFIS BA 1
+			TNT1 A 1
+			JFIS L 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
+			JFIS P 1
+			JFIS G 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
+			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash2", 0, 0)
+			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
+			JFIS K 1
+			TNT1 A 0 A_PlaySound("jpcpfist/iai2", CHAN_WEAPON, 1.0, 0, 1.5)
+			JFIS AB 1
+			JFIS C 2 A_GiveInventory("KatanaShooter13", 1)
+			TNT1 A 0 A_Recoil(-3.6)
+			JFIS D 3 A_GiveInventory("KatanaShooter14", 1)
+			JFIS C 2 A_GiveInventory("KatanaShooter13", 1)
+			JFIS BA 1
+		Goto ForcedSheathe
+	}
+}
+
+Actor KatanaShooter1 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter3 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter4 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter5 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter6 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter7 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter8 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter9 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter10 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter11 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (-8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (-8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter12 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (-24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (-24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+		Stop
+	}
+}
+
+Actor KatanaShooter13 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (0, 0, -1, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff", FBF_NOFLASH | FBF_NORANDOM, 112)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (0, 0, -1, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 112)
+		Stop
+	}
+}
+
+Actor KatanaShooter14 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (0, 0, -1, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff", FBF_NOFLASH | FBF_NORANDOM, 136)
+			TNT1 A 0 A_FireCustomMissile("KatanaShockWave", 0, 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (0, 0, -1, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
+			TNT1 A 0 A_FireCustomMissile("KatanaShockWave_FullDMG", 0, 0)
+		Stop
+	}
+}
+
+Actor KatanaBlocker {
+	Species "Player"
+	Radius 28
+	Height 56
+	+SHOOTABLE
+	+THRUSPECIES
+	+NOBLOOD
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 2
+		Stop
+	}
+}
+
+ACTOR KatanaProjectileSlash {
+	Radius 4
+	Height 4
+	Speed 50
+	Mass 0x7fffffff
+	Species "Player"
+	Projectile
+	+THRUACTORS
+	+THRUSPECIES
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItem("KatanaBlocker")
+			TNT1 A 1 A_Stop
+		Stop
+		Death:
+			TNT1 A 0
+		Stop
+	}
+}
+
+ACTOR KatanaProjectileSlash2 : KatanaProjectileSlash{
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItem("KatanaBlocker")
+			TNT1 A 1 A_Stop
+		Stop
+		Death:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor KatanaHitFlesh : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor KatanaHitSpark : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor KatanaPuff : BulletPuff
+{ 
+  Scale 0.8
+  DamageType "Melee"
+  +MTHRUSPECIES
+  +HITTRACER
+  +NOEXTREMEDEATH
+  +PUFFONACTORS
+  +PUFFGETSOWNER
+  -ALLOWPARTICLES
+  -RANDOMIZE
+  States
+  {
+   Spawn:
+   XDeath:
+	TNT1 A 0
+	TNT1 A 0 A_CheckFlag ("NOBLOOD", "Crash", AAPTR_TRACER)
+	TNT1 A 0 A_Jump(256, "BleedingTarget")
+	Goto BleedingTarget
+   Melee:
+   Crash:
+	TNT1 A 0 A_Jump(256, "SparkingTarget")
+	Goto SparkingTarget
+	
+   BleedingTarget:
+	TNT1 A 0 A_JumpIfInventory ("KatanaHitFlesh", 1, 3, AAPTR_TARGET)
+	TNT1 A 0 A_GiveInventory ("KatanaHitFlesh", 1, AAPTR_TARGET)
+    TNT1 A 0 A_PlaySound("jpcpfist/hit", CHAN_WEAPON, 1.0, 0, 1.8)
+	TNT1 A 0
+	Stop
+	
+   SparkingTarget:
+	TNT1 A 0 A_JumpIfInventory ("KatanaHitSpark", 1, 3, AAPTR_TARGET)
+	TNT1 A 0 A_GiveInventory ("KatanaHitSpark", 1, AAPTR_TARGET)
+    TNT1 A 0 A_PlaySound("jpcpfist/hitwall", CHAN_WEAPON, 1.0, 0, 1.6)
+    TNT1 A 0 A_Jump (256, 1,2,3,4,5,6,7)
+    TNT1 AAAAAAA 0 A_SpawnItemEx ("FDJPCPSwordSpark", frandom(-2.0,2.0),frandom(-2.0,2.0),frandom(-2.0,2.0) ,frandom(-5.0,5.0),frandom(-5.0,5.0),frandom(-1.0,4.0), 0, SXF_NOCHECKPOSITION)
+	TNT1 A 0 A_Jump(256, "Animation")
+	Goto Animation
+   Animation:
+	JNSL A 1 Bright Light("FDNormalKatanaSlashLight1")
+	JNSL B 1 Bright Light("FDNormalKatanaSlashLight2")
+	JNSL C 1 Bright Light("FDNormalKatanaSlashLight3")
+	JNSL D 1 Bright Light("FDNormalKatanaSlashLight4")
+    Stop
+  }
+}
+
+Actor KatanaPuff_FullDMG : KatanaPuff {
+	DamageType "MeleeFull"
+}
+
+Actor KatanaPuff2 : KatanaPuff
+{ 
+  States
+  {
+   Animation:
+	TNT1 A 0 A_SetScale (scalex - (scalex * 2), scaley)
+	JNSL A 1 Bright Light("FDNormalKatanaSlashLight1")
+	JNSL B 1 Bright Light("FDNormalKatanaSlashLight2")
+	JNSL C 1 Bright Light("FDNormalKatanaSlashLight3")
+	JNSL D 1 Bright Light("FDNormalKatanaSlashLight4")
+    Stop
+  }
+}
+
+Actor KatanaPuff2_FullDMG : KatanaPuff2 {
+	DamageType "MeleeFull"
+}
+
+Actor KatanaPuff3 : KatanaPuff
+{ 
+  States
+  {
+   Animation:
+	JNSL E 1 Bright Light("FDNormalKatanaSlashLight1")
+	JNSL F 1 Bright Light("FDNormalKatanaSlashLight2")
+	JNSL G 1 Bright Light("FDNormalKatanaSlashLight3")
+	JNSL H 1 Bright Light("FDNormalKatanaSlashLight4")
+    Stop
+  }
+}
+
+Actor KatanaPuff3_FullDMG : KatanaPuff3 {
+	DamageType "MeleeFull"
+}
+
+Actor FDJPCPSwordSpark { 
+	Renderstyle Add
+	Scale 0.02
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_SetScale (scalex * frandom(0.5,1.5))
+		FadeLoop:
+			OGLP F 1 Bright A_FadeTo (0, 0.05, 1)
+		Loop
+	}
+}
+
+Actor KatanaShockWaveTrail {
+	RenderStyle Add
+	Alpha 0.625
+	Translation "0:255=%[0.00,0.00,0.00]:[0.94,1.04,1.06]"
+	Scale 1.625
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			DAET AAABBBCCCDDDEEE 1 A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor KatanaShockWave {
+	Projectile
+	Speed 60
+	Radius 1
+	Height 1
+	Damage (0)
+	DamageType "Melee"
+	Renderstyle Add
+	Alpha 0.875
+	Translation "0:255=%[0.00,0.00,0.00]:[0.94,1.04,1.06]"
+	Scale 1.625
+	+THRUACTORS
+	+MTHRUSPECIES
+	States {
+		Spawn:
+			DAET A 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 72, 0)
+			DAET A 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 72, 0)
+			TNT1 A 0 A_ScaleVelocity(0.75)
+			DAET B 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 88, 0)
+			DAET B 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 88, 0)
+			TNT1 A 0 A_ScaleVelocity(0.75)
+			DAET C 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 114, 0)
+			DAET C 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 114, 0)
+			TNT1 A 0 A_ScaleVelocity(0.75)
+			DAET D 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 130, 0)
+			DAET D 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 130, 0)
+			TNT1 A 0 A_ScaleVelocity(0.75)
+			DAET E 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
+			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 130, 0)
+			DAET E 1 Bright
+		Stop
+	}
+}
+
+Actor KatanaShockWave_FullDMG : KatanaShockWave {
+	DamageType "MeleeFull"
+	+FORCERADIUSDMG
+}
+
+// Sprites by Eriance
+Actor "Dusk Blade" : Weapon {
+	Scale 0.8
+	Weapon.SlotNumber 1
+	Weapon.SelectionOrder 1600
+	Weapon.AmmoType1 "SwordHitCharge"
+	Weapon.AmmoType2 "Souls"
+	Weapon.AmmoUse2 0
+	Inventory.PickupMessage "You got the blade!!!11"
+	Obituary "%o was removed by %k's Dusk Blade."
+	Tag "Dusk Blade"
+    +INVENTORY.UNDROPPABLE
+	+WEAPON.NOAUTOFIRE
+	+WEAPON.NOALERT
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 2.1
+    Weapon.BobRangeY 0.4
+    Weapon.BobRangeX 0.7
+	States {
+		Spawn:
+			VORP X -1 
+		Stop
+		Ready:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_JumpIfInventory("DuskMode", 1, "DuskReady")
+			VORP A 1 A_WeaponReady
+		Loop
+		DuskReady:
+			VORP JKLM 4 Bright A_WeaponReady(WRF_NOSWITCH)
+		Goto Ready
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+		DeselectLoop:
+			VORP A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_DUSKBLADE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 25)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 24)
+		SelectLoop:
+			VORP A 1 A_Raise
+			TNT1 A 0 A_Raise
+		loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("DuskMode", 1, "FireDusk")
+			VORP B 3
+			TNT1 A 0 A_GiveInventory("SwordHitCharge", 5)
+			TNT1 A 0 A_Refire
+			VORP B 1
+			VORP C 1 A_AlertMonsters
+			TNT1 A 0 A_PlaySound("Sword/Swing")
+			VORP D 1
+			VORP EFGH 1 A_GiveInventory("DuskBladeShooter1", 1)
+			TNT1 A 0 A_TakeInventory("SwordHitCharge", 100)
+			VORP I 1
+			TNT1 A 6
+		Goto PreReady
+		FireDusk:
+			VORP B 1 A_AlertMonsters
+			VORP N 1 Bright
+			TNT1 A 0 A_PlaySound("Sword/Swing")
+			VORP O 1 Bright
+			VORP PQRS 1 Bright A_GiveInventory("DuskBladeShooter2", 1)
+			VORP T 1 Bright
+			TNT1 A 6
+		Goto PreReady
+		Altfire:
+			TNT1 A 0 A_JumpIfInventory("Ability_Kick", 1, "CheckAltAmmo")
+		Goto DoNothing
+		CheckAltAmmo:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAltFire")
+			TNT1 A 0 A_JumpIfInventory("Souls", 11, "ContinueAltFire")
+		DoNothing:
+			TNT1 A 0 A_JumpIfInventory("DuskMode", 1, "DuskDoNothing")
+			VORP A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		DuskDoNothing:
+			VORP J 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueAltFire:
+			TNT1 A 0 A_JumpIfInventory("DuskMode", 1, "DoNothing")
+			VORP A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_SetBlend("60 00 60", 0.85, 9)
+			TNT1 A 0 A_GiveInventory("DuskMode", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FinishAlt")
+			VORP M 1
+			TNT1 A 0 A_TakeInventory("Souls", 11)
+		FinishAlt:
+			VORP M 1
+			TNT1 A 0 A_PlaySound("DuskMode/Activate")
+			VORP M 3
+		Goto Ready
+		PreReady:
+			TNT1 A 0 A_JumpIfInventory("DuskMode", 1, "DuskPreReady")
+			VORS EDCBA 1
+			TNT1 A 0 A_Refire
+		Goto Ready
+		DuskPreReady:
+			VORS FGHI 1 Bright
+			VORP J 1 Bright
+			TNT1 A 0 A_Refire
+		Goto Ready
+	}
+}
+
+Actor DuskBladeShooter1 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff", 96)
+		Stop
+		Full:
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff_FullDMG", 96)
+		Stop
+	}
+}
+
+Actor DuskBladeShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_CustomPunch(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff", 96, 0.25)
+			TNT1 A 0 A_FireCustomMissile("DuskSlash")
+		Stop
+		Full:
+			TNT1 A 0 A_CustomPunch(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff_FullDMG", 96, 0.25)
+			TNT1 A 0 A_FireCustomMissile("DuskSlash_FullDMG")
+		Stop	
+	}
+}
+
+Actor DuskMode : PowerSpeed {
+	Speed 1.15
+	powerup.color "60 00 60"
+	powerup.duration -8
+}
+
+Actor SwordHitCharge : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor DuskArmorBonus : ArmorBonus {
+	Armor.Saveamount 3
+	Armor.MaxSaveAmount 450
+}
+
+Actor SwordPuff {
+	Damagetype "Melee"
+	Radius 1
+	Height 1
+	PROJECTILE
+	RENDERSTYLE Translucent
+	ALPHA 0.66
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+MTHRUSPECIES
+	+LOOKALLAROUND
+	+FORCEXYBILLBOARD
+	States {
+		Spawn:
+			VFX2 A 0
+			TNT1 A 0 A_GiveToTarget("DuskHealFX", 1)
+			TNT1 A 0 A_GiveToTarget("DuskArmorBonus", 1)
+			TNT1 A 0 A_SpawnItem("SwordDuskPuff")
+			TNT1 A 1 A_PlaySound("Sword/Hit")
+		Stop
+		Crash:
+			VFX2 A 0
+			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			VFX2 A 3 A_PlaySound("Sword/HitWall")
+			VFX2 BCDE 3
+		Stop
+	}
+}
+
+Actor SwordPuff_FullDMG : SwordPuff {
+	DamageType "MeleeFull"
+}
+
+Actor SwordDuskPuff {
+	Renderstyle Add
+	Alpha 0.85
+	Translation "0:255=%[0.00,0.00,0.00]:[1.52,0.43,1.88]"
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			VFX4 BCDEFGH 3 Bright
+		Stop
+	}
+}
+
+Actor DuskHealFXSpawner : SoulEffectSpawner {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.46,0.52,1.96]"
+}
+
+Actor DuskHealFX : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItem("DuskHealFXSpawner")
+		Stop
+	}
+}
+
+Actor DuskExplosion : BaseExplosionDamage {
+	DamageType "Magic"
+	+NODAMAGETHRUST
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET), 64, 0, 0, 64)
+		Stop
+	}
+}
+
+Actor DuskExplosion_FullDMG : DuskExplosion {
+	DamageType "Magic_Full"
+	+FORCERADIUSDMG
+}
+
+Actor DuskSlash {
+	Radius 8
+	Height 16
+	Speed 28
+	Damage 0
+	DamageType "Magic"
+	PROJECTILE
+	Renderstyle Add
+	Alpha 0.9
+	Scale 0.55
+	ReactionTime 11
+	+THRUACTORS
+	+EXTREMEDEATH
+	+NODAMAGETHRUST
+	States {
+		Spawn:
+			TNT1 AA 0 A_PlaySound("Sword/SWave")
+		SpawnLoop:
+			VFX4 I 1 Bright A_SpawnItem("DuskSlashTrail",0,0)
+			TNT1 A 0 A_CustomMissile("DuskExplosion", -18, -56, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("DuskExplosion", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("DuskExplosion", 18, 56, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			TNT1 A 0 A_CountDown
+		Loop
+	}
+}
+
+Actor DuskSlash_FullDMG : DuskSlash {
+	DamageType "Magic_Full"
+	States {
+		Spawn:
+			TNT1 AA 0 A_PlaySound("Sword/SWave")
+		SpawnLoop:
+			VFX4 I 1 Bright A_SpawnItem("DuskSlashTrail",0,0)
+			TNT1 A 0 A_CustomMissile("DuskExplosion_FullDMG", -18, -56, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("DuskExplosion_FullDMG", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("DuskExplosion_FullDMG", 18, 56, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_FadeOut(0.05)
+			TNT1 A 0 A_CountDown
+		Loop
+	}
+}
+
+Actor DuskSlashTrail {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Renderstyle Add
+	Scale 0.55
+	Alpha 0.9
+	States {
+		Spawn:
+			TNT1 A 1
+		SpawnLoop:
+			VFX4 I 2 Bright A_FadeOut(0.10)
+		Loop
+	}
+}

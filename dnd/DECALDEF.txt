@@ -1,0 +1,257 @@
+decal PlasmaScorchLower1X
+{
+	pic PLASMA1
+	shade "00 00 00"
+	x-scale 0.3
+	y-scale 0.3
+	randomflipx
+	randomflipy
+}
+
+decal PlasmaScorch1X
+{
+	pic PLSSA0
+	add 1.0
+	fullbright
+	animator GoAway
+	lowerdecal PlasmaScorchLower1
+}
+
+decal PlasmaScorchLower2X
+{
+	pic PLASMA2
+	shade "00 00 00"
+	x-scale 0.3
+	y-scale 0.3
+	randomflipx
+	randomflipy
+}
+
+decal PlasmaScorch2X
+{
+	pic PLSSB0
+	add 1.0
+	fullbright
+	animator GoAway
+	lowerdecal PlasmaScorchLower2
+}
+
+decalgroup PlasmaScorchX
+{
+	PlasmaScorch1X	1
+	PlasmaScorch2X	1
+}
+
+decal NewPlasmaScorch
+{
+	pic SCORCH1
+	shade "00 00 00"
+	x-scale 0.35
+	y-scale 0.35
+	randomflipx
+	randomflipy
+}
+
+decal NewPlasmaDecal1
+{
+       pic BFLRA0
+       shade "08 08 10"
+	   add 0.9
+	   x-scale 0.15
+	   y-scale 0.15
+	   animator GoAway2
+	   lowerdecal NewPlasmaScorch
+}
+
+decal NewPlasmaDecal2
+{
+       pic BFLRB0
+       shade "08 08 10"
+	   add 0.9
+	   x-scale 0.15
+	   y-scale 0.15
+	   animator GoAway2
+	   lowerdecal NewPlasmaScorch
+}
+
+decalgroup NewPlasmaDecal
+{
+	NewPlasmaDecal1 1
+	NewPlasmaDecal2 1
+}
+
+decal LeadBulletDecal {
+	pic QFX1B0
+	shade "08 08 10"
+	add 0.9
+	x-scale 0.03
+	y-scale 0.03
+	animator GoAway2
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal RedRailScorchLower1
+{
+	Pic CBALSCR1
+	Shade "00 00 00"
+	X-Scale 0.1
+	Y-Scale 0.1
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal RedRailScorchLower2
+{
+	Pic CBALSCR2
+	Shade "00 00 00"
+	X-scale 0.1
+	Y-scale 0.1
+	RandomFlipX
+	RandomFlipY
+}
+
+DecalGroup RedRailScorchLower
+{
+	RedRailScorchLower1 1
+	RedRailScorchLower2 1
+}
+
+Decal RedRailScorch1
+{
+	Pic CBALSCR1
+	Shade "56 00 00"
+	FullBright
+	X-Scale 0.2
+	Y-Scale 0.2
+	Animator GoAway
+	LowerDecal RedRailScorchLower
+}
+
+Decal RedRailScorch2
+{
+	Pic CBALSCR2
+	Shade "56 00 00"
+	FullBright
+	X-Scale 0.2
+	Y-Scale 0.2
+	Animator GoAway
+	LowerDecal RedRailScorchLower
+}
+
+DecalGroup RedRailScorch
+{
+	RedRailScorch1 1
+	RedRailScorch2 1
+}
+
+Decal LeadScorch {
+	pic QFX1A0
+	x-scale 0.03
+	y-scale 0.03
+	add 0.35
+	FullBright
+	randomflipx
+	randomflipy
+	animator GoAway
+}
+
+DECAL ChainsawMarkLower1 {
+	Pic SAWMARK
+	Shade "00 00 00"
+	X-scale 0.2
+	Y-scale 0.4
+	RandomFlipx
+	RandomFlipy
+}
+
+DECAL ChainsawMark {
+	Pic SAWMARK
+	FullBright
+	Shade "FF C8 00"
+	X-scale 0.125
+	Y-scale 0.35
+	RandomFlipx
+	RandomFlipy
+	LowerDecal ChainsawMarkLower1
+	Animator GoAway
+}
+
+decal LaserPistolDecal
+{
+	pic PLSDECAL
+	x-scale 0.05
+	y-scale 0.05
+	randomflipx
+	randomflipy
+	shade "96C2FF"
+	Fullbright
+	animator ToBlack
+}
+
+Generator " Chainsaw " ChainsawMark
+Generator "Upgraded Chainsaw" ChainsawMark
+
+decal AcidBulletChip1
+{
+	pic CHIP1
+	translucent 0.85
+	shade "00 1F 00"
+	x-scale 0.5
+	y-scale 0.5
+	randomflipx
+	randomflipy
+}
+
+decal AcidBulletChip2
+{
+	pic CHIP2
+	translucent 0.85
+	shade "00 1F 00"
+	x-scale 0.5
+	y-scale 0.5
+	randomflipx
+	randomflipy
+}
+
+decal AcidBulletChip3
+{
+	pic CHIP3
+	translucent 0.85
+	shade "00 1F 00"
+	x-scale 0.5
+	y-scale 0.5
+	randomflipx
+	randomflipy
+}
+
+decal AcidBulletChip4
+{
+	pic CHIP4
+	translucent 0.85
+	shade "00 1F 00"
+	x-scale 0.5
+	y-scale 0.5
+	randomflipx
+	randomflipy
+}
+
+decal AcidBulletChip5
+{
+	pic CHIP5
+	translucent 0.85
+	shade "00 1F 00"
+	x-scale 0.5
+	y-scale 0.5
+	randomflipx
+	randomflipy
+}
+
+decalgroup AcidBulletChip
+{
+	BulletChip1	1
+	BulletChip2	1
+	BulletChip3	1
+	BulletChip4	1
+	BulletChip5	1
+}

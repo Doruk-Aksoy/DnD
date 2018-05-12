@@ -1,0 +1,579 @@
+NullSound				dsempty
+
+HunterTalisman/Activate	HUNTALM
+VeilOfAssassin/Active	VEILACT
+
+Weapons/FistWall		PUNWALL
+Weapons/KickSwing		KICKSWIN
+Weapons/fisthit1		FISTHIT1
+Weapons/fisthit2		FISTHIT2
+Weapons/fisthit3		FISTHIT3
+Weapons/fisthit4		FISTHIT4
+Weapons/fisthit5		FISTHIT5
+Weapons/fisthit6		FISTHIT6
+$random Weapons/fisthit { Weapons/fisthit1 Weapons/fisthit2 Weapons/fisthit3 Weapons/fisthit4 Weapons/fisthit5 Weapons/fisthit6 }
+Weapons/fistmiss1		FISTMIS1
+Weapons/fistmiss2		FISTMIS2
+Weapons/fistmiss3		FISTMIS3
+$random Weapons/fistmiss { Weapons/fistmiss1 Weapons/fistmiss2 Weapons/fistmiss3 }
+$volume Weapons/fistmiss 0.55
+
+DemonSeal/debuff							JDEBUFF
+DemonSeal/debuffloop						JDEBUFFL
+jpcpplasmarifle/idle						JPLAIDLE
+jpcpplasmarifle/fire						JPLAFIRE
+$limit jpcpplasmarifle/fire 	0
+jpcpplasmarifle/hit							JPLAHIT
+$limit jpcpplasmarifle/hit 		0
+jpcpplasmarifle/seal1						JSEAL1
+jpcpplasmarifle/seal2						JSEAL2
+$random jpcpplasmarifle/seal { jpcpplasmarifle/seal1 jpcpplasmarifle/seal2 }
+$limit jpcpplasmarifle/seal 	0
+
+jpcpfist/swing1								JFISFIR1
+jpcpfist/swing2								JFISFIR2
+jpcpfist/swing3								JFISFIR3
+jpcpfist/swing4								JFISFIR4
+$random jpcpfist/swing { jpcpfist/swing1 jpcpfist/swing2 jpcpfist/swing3 jpcpfist/swing4 }
+$limit jpcpfist/swing			0
+jpcpfist/iai1								JFISIAI1
+jpcpfist/iai2								JFISIAI2
+jpcpfist/iai3								JFISIAI3
+jpcpfist/iai4								JFISIAI4
+$random jpcpfist/iai { jpcpfist/iai1 jpcpfist/iai2 jpcpfist/iai3 jpcpfist/iai4 }
+$limit jpcpfist/iai				0
+jpcpfist/hit1								JFISHIT1
+jpcpfist/hit2								JFISHIT2
+jpcpfist/hit3								JFISHIT3
+jpcpfist/hit4								JFISHIT4
+jpcpfist/hit5								JFISHIT5
+$random jpcpfist/hit { jpcpfist/hit1 jpcpfist/hit2 jpcpfist/hit3 jpcpfist/hit4 jpcpfist/hit5 }
+$limit jpcpfist/hit				0
+jpcpfist/hitwall1							JFISWAL1
+jpcpfist/hitwall2							JFISWAL2
+jpcpfist/hitwall3							JFISWAL3
+jpcpfist/hitwall4							JFISWAL4
+$random jpcpfist/hitwall { jpcpfist/hitwall1 jpcpfist/hitwall2 jpcpfist/hitwall3 jpcpfist/hitwall4 }
+$limit jpcpfist/hitwall			0
+jpcpfist/sheathe							JFISSHEA
+$limit jpcpfist/sheathe			0
+
+PlasmaBolter/Fire		PBLTRFR
+
+RubyWand/Fire			dsfirmfi
+RubyWand/Hit1			RBWNH1
+RubyWand/Hit2			RBWNH2
+RubyWand/Hit3			RBWNH3
+RubyWand/Alt			RBWNALT
+$random RubyWand/Hit { RubyWand/Hit1 RubyWand/Hit2 RubyWand/Hit3 }
+$limit RubyWand/Hit1 0
+$limit RubyWand/Hit2 0
+$limit RubyWand/Hit3 0
+
+Weapons/HeatSeek		HEATSEEK
+Weapons/Scope			WEPZOOM
+
+Weapons/ShotgunInsert	SGNINS
+Weapons/ShotgunClose	SGNCLS
+Weapons/ShotgunOpen		SGNOPN
+
+Armors/NecroShard		ELICP
+Armors/NecroShardHit	ELICPH
+
+Weapons/MFGFire			MFGFIRE
+Weapons/MFGCharge		MFGCHARG
+Weapons/MFGExplode		MFGEXPLO
+
+Weapons/bigswing		WMELSWNG
+weapons/swinghit1		WMELHIT1
+weapons/swinghit2		WMELHIT2
+$random weapons/swinghit { weapons/swinghit1 weapons/swinghit2 }
+weapons/swingwall		WMELWALL
+weapons/batswing		EBATSWNG
+weapons/batcharge		EBATCHRG
+weapons/batlaunch		EBATLAUN
+weapons/batfire			EBATFIRE
+weapons/bathit			EBATHIT
+
+weapons/slayergo		SLAYGO
+weapons/slayerspin		SLAYSPIN
+weapons/slayerfire		SLAYFIRE
+
+SPRPSHOT SPRPSHOT
+$Limit SPRPSHOT 0
+
+SPRPIMPT SPRPIMPT
+$Limit SPRPIMPT	0
+
+NDLSHOT NDLSHOT
+$Limit NDLSHOT	0
+
+$volume Weapons/SawScreech 0.45
+$random Weapons/SawScreech { chainsaw/hitwall1 chainsaw/hitwall2 chainsaw/hitwall3 chainsaw/hitwall4 }
+chainsaw/hitwall1	DSSAWAL1
+chainsaw/hitwall2	DSSAWAL2
+chainsaw/hitwall3	DSSAWAL3
+chainsaw/hitwall4	DSSAWAL4
+$random Weapons/SawHit { CSHIT01 CSHIT02 CSHIT03 CSHIT04 }
+CSHIT01	DSSAWH1
+CSHIT02	DSSAWH2
+CSHIT03	DSSAWH3
+CSHIT04	DSSAWH4
+$limit CSHIT01 0
+$limit CSHIT02 0
+$limit CSHIT03 0
+$limit CSHIT04 0
+
+weapons/sawup2			SAWUP
+weapons/sawidle2		SAWIDLE
+weapons/sawfull2 		SAWFUL
+weapons/sawhit2			SAWHIT
+
+Weapons/NewPist			NEWPIST
+
+Weapons/NewPist2A		PISTOL_A
+Weapons/NewPist2B		PISTOL_B
+Weapons/NewPist2C		PISTOL_C
+$random Weapons/NewPist2 { Weapons/NewPist2A Weapons/NewPist2B Weapons/NewPist2C }
+$limit Weapons/NewPist2 0
+
+Clip/Akimbo1	SDKCLIP1
+Clip/Akimbo2	SDKCLIP2
+Clip/Akimbo3	SDKCLIP3
+Clip/Akimbo4	SDKCLIP4
+Clip/Akimbo5	SDKCLIP5
+Clip/Akimbo6	SDKCLIP6
+$random Clip/Akimbo { Clip/Akimbo1 Clip/Akimbo2 Clip/Akimbo3 Clip/Akimbo4 Clip/Akimbo5 Clip/Akimbo6 }
+$volume Clip/Akimbo 0.5
+
+Weapons/magnumfire		MAGFIRE
+Weapons/magnumout		MAGOUT
+Weapons/magnumin		MAGIN
+Weapons/magnumopen		MAGOPEN
+Weapons/magnumload		MAGLOAD
+
+Weapons/NewPist2ClipO	NEWPCO
+Weapons/NewPist2ClipI	NEWPCI
+Weapons/NewPist2Ready	NEWPRD
+
+weapons/laserpistolfire		LASPISF
+weapons/laserpistolfire2	LASPISF
+weapons/laserpistolcharge	LASPISC
+weapons/laserpistolcloop	LASPISL
+
+Weapons/sgun1pump		SGN1P
+weapons/sgun1fire		SGN1F
+
+weapons/shotgunfire	    SGUNFIRE
+weapons/shotgunfirenew	SGN2FIR
+weapons/shotguncocknew	SGN2CCK
+weapons/shotgunloadnew	SGN2INS
+weapons/ssgfire			SSGFIRE
+weapons/ssgfirenew		SSGFIREN
+weapons/ssgopen			DSD2OPN
+weapons/ssgload			DSD2LOAD
+weapons/ssgclose		DSD2CLS
+weapons/hunssgfire		HSSGF1
+weapons/hunssgfirefast	HSSGF2
+
+weapons/autosgfire		ASGFIRE
+weapons/autosgopen		ASGOPEN
+weapons/autosgload		ASGLOAD
+
+weapons/erasrel1		ERASREL1
+weapons/erasrel2		ERASREL2
+weapons/erasrel3		ERASREL3
+$random weapons/erascock { weapons/erasrel1 weapons/erasrel2 weapons/erasrel3 }
+weapons/erasfire		ERASFIR
+weapons/erasfire2		ERASFIR2
+
+weapons/expshotgunfire	EXSGFIRE
+weapons/expshotgunpump	EXSGPUMP
+weapons/expshotgunxpl	EXSGXPL
+$volume weapons/expshotgunxpl 0.3
+$limit weapons/expshotgunxpl 0
+
+Leadspitter/fireloop LEADFIRE
+Leadspitter/firetail LEADTAIL
+Leadspitter/burst LEADBURS
+Leadspitter/eject LEADEJEC
+Leadspitter/reload LEADLOAD
+Leadspitter/dryfire LEADEMPT
+
+Weapons/ebonyfire		IBAFIRE
+$limit Weapons/ebonyfire 0
+Weapons/EbonyAlt		IBAALT
+Weapons/EbonyHiss		IBAHISS
+Weapons/ebonybounce		IBABNC
+Weapons/ebonyexplode	IBAXPL
+
+weapons/mgfire			MGFIRE
+weapons/mgfirenew		MGFIRE2
+weapons/mgready			MGRDY
+weapons/mgload			MGLOAD
+weapons/mgwarn			MGWARN
+weapons/mgfire2			MGFIRE2
+weapons/mg2clipin		MG2CIN
+weapons/mg2clipout		MG2COUT
+weapons/mg2ready		MG2RDY
+
+weapons/demgfira		MGFIRA
+weapons/demgfirb		MGFIRB
+weapons/demgfirc		MGFIRC
+weapons/demgfird		MGFIRD
+$random weapons/mgfiresoft { weapons/demgfira weapons/demgfirb weapons/demgfirc weapons/demgfird }
+
+$random weapons/largeclip { lc1 lc2 lc3 lc4 lc5 lc6 }
+lc1 MGCLP21
+lc2 MGCLP22
+lc3 MGCLP23
+lc4 MGCLP24
+lc5 MGCLP25
+lc6 MGCLP26
+
+weapons/minigunfire		CGUNFIRE
+Throttle/Up			CHNGUP
+Throttle/WindUp		CHNGWUP
+Throttle/Loop		CHNGLOOP
+Throttle/WindDown	CHNGWDWN
+Throttle/Fire		CHNGFIRE
+Throttle/Add		CHNGADD //Croteam/Serious Sam 2
+Throttle/Dry		CHNGDRY
+
+weapons/newrocketfire	RLANFIR
+weapons/glauncherfire   GRNFIRE
+weapons/glauncherfiren  GRNFIR2
+weapons/glauncherload	GRNREL
+weapons/grenadexpl		GRNEXP
+weapons/grenadexpl2		GRNEXP2
+$limit weapons/grenadexpl2 0
+weapons/gbnc1			GRNBNC1
+weapons/gbnc2			GRNBNC2
+$random weapons/grenadebounce { weapons/gbnc1 weapons/gbnc2 }
+
+weapons/mercuryfire		MERCFIRE
+weapons/mercuryexp		MERCEXP
+
+weapons/heavyrlfire		HRLFIR
+weapons/heavyrlexp		HRLEXP
+
+weapons/newplasmafire	DSPLASMX
+$limit weapons/newplasmafire 0
+weapons/plasmahit		DSPLASH
+weapons/plasmacharge	PLASCH
+weapons/plasmabeep		PLASBEP
+weapons/nailfire		NAILFIRE
+weapons/nailflight		NAILFLY
+weapons/nailric1		NAILRIC1
+weapons/nailric2		NAILRIC2
+weapons/nailric3		NAILRIC3
+weapons/lavanail		NAILLAVA
+$random weapons/nailric { weapons/nailric1 weapons/nailric2 weapons/nailric3 }
+
+weapons/turelfire		TURELFIR
+
+FrostFang/Fire1	FSTFFIR1
+$limit FrostFang/Fire1 0
+FrostFang/Hit1	FSTFHIT1
+FrostFang/Hit2	FSTFHIT2
+FrostFang/Altfire1 FSTFAF1
+FrostFang/Altfire2 FSTFAF2
+FrostFang/Altfire3 FSTFAF3
+$random Frostfang/Altfire { FrostFang/Altfire1 FrostFang/Altfire2 FrostFang/Altfire3 }
+$limit Frostfang/Altfire1 0
+$limit Frostfang/Altfire2 0
+$limit Frostfang/Altfire3 0
+
+weapons/basiliskload	BASILOAD
+weapons/basiliskfire2	METRFIRE
+weapons/basiliskexpl2	dshadexp
+weapons/basiliskexpl3	dshadexp
+$limit weapons/basiliskfire2 8
+$limit weapons/basiliskexpl2 8
+$limit weapons/basiliskexpl3 4
+
+weapons/newbfgfire		DSBFG2
+
+weapons/devastatorfire1	DEVAFIR1
+weapons/devastatorfire2	DEVAFIR2
+weapons/devastatorfire3	DEVAFIR3
+weapons/devastatorfire4	DEVAFIR4
+$random weapons/devastatorfire { weapons/devastatorfire1 weapons/devastatorfire2 weapons/devastatorfire3 weapons/devastatorfire4 }
+$limit weapons/devastatorfire 0
+$limit weapons/devastatorfire1 0
+$limit weapons/devastatorfire2 0
+$limit weapons/devastatorfire3 0
+$limit weapons/devastatorfire4 0
+weapons/devastatorexpl	DEVAXPL
+$limit weapons/devastatorexpl 0
+$volume weapons/devastatorexpl 0.35
+
+weapons/gaussfire		GAUSFIRE
+weapons/gaussbegin		GAUSBEGN
+weapons/gausszoom		GAUSZOOM
+
+weapons/newrailfire		RAILFIR
+weapons/burning			FLBURN
+weapons/deathstexp1		DSTEXP1
+weapons/deathstexp2		DSTEXP2
+weapons/deathstfire		DSTFIRE
+weapons/deathstfire2	DSTFIR2
+
+weapons/boltfi          dsboltfi
+weapons/boltf2          dsboltf2
+door/flsd1a             dsflsd1a
+
+Weapons/SunStaffFire			SUNFIRE
+Weapons/SunStaffFire2			SUNFIRE2
+Weapons/SunStaffLoop			SUNLOOP
+Weapons/SunStaffRecharge		SUNRCHR
+Weapons/SunStaffHit				SUNHIT
+Weapons/SunStaffCharge			SUNCHRG
+Weapons/SunStaffMelt			SUNALTH
+Weapons/SunbeamHit				SUNBHIT
+$limit Weapons/SunbeamHit 8
+
+Weapons/SReaverBegin 	SRVBEGN
+Weapons/SReaverLoop		SRVLOOP
+$limit Weapons/SReaverLoop 0
+Weapons/SReaverFire		SRVFIRE
+Weapons/SReaverOpen		SRVOPEN
+Weapons/SReaverGhost	SRVGHST
+Weapons/SReaverExpl		SRVXPL
+
+Weapons/glahit			DSGLAHIT
+
+weapons/macefi dsmacefi
+weapons/maceex dsmaceex
+
+Weapons/SmallLightning	SMLLITE
+Weapons/SmallLightningH	SMLLITEH
+Weapons/BigLightning	BIGLITE
+Weapons/BigLightningH	BIGLITEH
+weapons/gauntletscharge		gntchg
+weapons/gauntletsrip		gntrip
+weapons/gauntletsactivate gntact
+
+Weapons/NG2Fire			NG2FIRE
+Weapons/NG2HitWall		NG2HW
+Weapons/NG2HitTarget	NG2HT
+
+Weapons/BerettaFire		BERTFIRE
+$limit Weapons/BerettaFire 0
+
+// ITEMS
+
+items/armor				QARMOR
+items/stimpack			QHEAL1
+items/medikit			QHEAL2
+items/invul				INVULGET
+items/radsuit			RADSTGET
+items/talentcapsule		TLNTPC
+
+keys/noskullkey			NOSKULL
+keys/nokeycard			NOCARD
+keys/keycard			CARDGET
+keys/skull				SKULLGET
+
+weapons/pick1			WEAPGET
+weapons/pick2			WEAPGET2
+weapons/pick3			WEAPGET3
+weapons/pick4			WEAPGET4
+weapons/pick5			WEAPGET5
+$random weapons/pickup { weapons/pick1 weapons/pick2 weapons/pick3 weapons/pick4 weapons/pick5 }
+
+items/pickup			BONPICK
+items/backpack			BPACKGET
+items/upgrade			UPGCGET
+items/soulsphere		SSPHGET
+items/megasphere		MEGAGET
+items/ubersphere		UBERSPH
+items/evilsphere		EVILSPH
+items/fieldkit			FKITUSE
+items/bloodrun			BRUNUSE
+items/salvation			DSALVATE
+items/shield			DSSHIEL
+items/triple			DSTRIPL
+items/bookofthedead		DSBOTDF
+items/bookofthedeadhit	DSBOTDH
+items/bladevortex		DSVORT
+items/trigger			DSTRIG
+items/allmap			MAPPICK
+items/stat				STATPICK
+items/armorbonus		ARBONPIK
+items/infraredpick		INFRPICK
+items/statreset			STATRES
+
+items/credit			CREDPICK
+items/research			RESRPICK
+
+items/pickup1			BPGET1
+items/pickup2			BPGET2
+items/pickup3			BPGET3
+items/pickup4			BPGET4
+items/pickup5			BPGET5
+$random items/ammo { items/pickup1 items/pickup2 items/pickup3 items/pickup4 items/pickup5 }
+
+//SHOUT out to legacy of suffering for these awesome sounds
+Weapons/shotguncasing1     SHELCAS1
+Weapons/shotguncasing2     SHELCAS2
+Weapons/shotguncasing3     SHELCAS3 
+Weapons/shotguncasing4     SHELCAS4
+
+$Random Weapons/shotguncasing
+{
+ Weapons/shotguncasing1
+ Weapons/shotguncasing2
+ Weapons/shotguncasing3
+ Weapons/shotguncasing4
+}
+
+Weapons/mincase1     BULLCAS1
+Weapons/mincase2     BULLCAS2
+Weapons/mincase3     BULLCAS3
+weapons/mincase4	 BULLCAS4 
+
+$Random Weapons/bulletcasing
+{
+ Weapons/mincase1
+ Weapons/mincase2
+ Weapons/mincase3
+ Weapons/mincase4
+}
+
+// Splashes
+slime				dsmuck
+slimesmall			dsmucksm
+water				dsgloop
+watersmall			dsfloush
+burn				dsburn
+burnsmall			dsburnsm
+blood1				dssplat1
+blood2				dssplat2
+$RANDOM blood { blood1 blood2 }
+bloodsmall1			dssplat3
+bloodsmall2			dssplat4
+$RANDOM bloodsmall { bloodsmall1 bloodsmall2 }
+
+// World Sounds / Terrain sounds
+
+world/drip			dsempty
+$random world/watersplash		{dssplash dssplas2 water}
+dssplash	dssplash
+dssplas2	dssplas2
+world/watersplashsmall		dssplsml
+world/sludgegloop		dsploosh
+world/sludgegloopsmall		dsplosml
+world/lavasizzle		dslvsiz
+world/lavsiz2			dslvsiz2
+world/lavasizzlesmall		dslavsml
+
+$limit world/watersplash 0
+$limit world/sludgegloop 0
+$limit world/lavasizzle 0
+$limit world/drip 0
+$limit world/hotsiz 0
+
+// Ricochet Sounds
+$random puff/ric 		{ puff/ric1 puff/ric2 puff/ric3 puff/ric4 puff/ric5 puff/ric6 puff/ric7 puff/ric8 }
+puff/ric1 			dsrich1
+puff/ric2 			dsrich2
+puff/ric3 			dsrich3
+puff/ric4 			dsrich4
+puff/ric5 			dsrich5
+puff/ric6 			dsrich6
+puff/ric7 			dsrich7
+puff/ric8 			dsrich8
+
+// Temporary Weapons
+Sawedoff/Fire1		SAWNF1
+Sawedoff/Fire2		SAWNF2
+Sawedoff/Load		SAWNLOD
+
+weapons/vblhit      dsvblhit
+weapons/vblhi2      dsvblhi2
+weapons/vblhi3      dsvblhi3
+weapons/vblwal      dsvblwal
+weapons/vblwa2      dsvblwa2
+weapons/vblswg      dsvblswg
+weapons/hamswg      dshamswg
+
+weapons/gorfi1                dsgorfi1
+weapons/gorfi2                dsgorfi2
+weapons/gorhit                dsgorhit
+weapons/gorsuc                dsgorsuc
+
+weapons/crabfi                dscrabfi
+weapons/crabex                dscrabex
+weapons/crabf2                dscrabf2
+weapons/crabx2                dscrabx2
+weapons/wiggl1                dswiggl1
+weapons/wiggl2                dswiggl2
+
+Weapons/Heartbeat			SWHEARTB
+Weapons/HeartSqueeze		SWHEARTS
+Weapons/HeartBurn			HRTBURN
+
+// Burning
+Player/Burn					  DSBRNNG
+Burn/Death1					  DSBURN1
+Burn/Death2 				  DSBURN2
+Burn/Death3					  DSBURN3
+$random Burn/Death { Burn/Death1 Burn/Death2 Burn/Death3 }
+
+Reflection/On			REFLON
+Reflection/Off			REFLOFF
+
+Intervention			INTERVE
+
+RareDrop				RAREDROP
+Items/Accessory			RAREPICK
+
+Player/Move1			BOOTS1
+Player/Move2			BOOTS2
+Player/Move3			BOOTS3
+Player/Move4			BOOTS4
+
+$random Player/Move { Player/Move1 Player/Move2 Player/Move3 Player/Move4 }
+$volume Player/Move 0.25
+$volume Player/Move1 0.25
+$volume Player/Move2 0.25
+$volume Player/Move3 0.25
+$volume Player/Move4 0.25
+
+Player/Dash1			PLDASH1
+Player/Dash2			PLDASH2
+Player/Dash3			PLDASH3
+Player/Dash4			PLDASH4
+$random Player/Dash { Player/Dash1 Player/Dash2 Player/Dash3 Player/Dash4 }
+
+Ability/Regen			ABREGEN
+
+
+$random misc/xdeath		{ misc/xdeath1a misc/xdeath1b misc/xdeath1c misc/xdeath1d misc/xdeath1e misc/xdeath1f misc/xdeath2a misc/xdeath2b misc/xdeath2c misc/xdeath2d misc/xdeath2e misc/xdeath2f misc/xdeath3a misc/xdeath3b misc/xdeath3c misc/xdeath4a misc/xdeath4b misc/xdeath4c }
+misc/xdeath1a			dsxdth1a
+misc/xdeath1b			dsxdth1b
+misc/xdeath1c			dsxdth1c
+misc/xdeath1d			dsxdth1d
+misc/xdeath1e			dsxdth1e
+misc/xdeath1f			dsxdth1f
+misc/xdeath1g			dsxdth1g
+$random misc/xdeath1		{ misc/xdeath1a misc/xdeath1b misc/xdeath1c misc/xdeath1d misc/xdeath1e misc/xdeath1f misc/xdeath1g }
+misc/xdeath4a			dsxdth4a
+misc/xdeath4b			dsxdth4b
+misc/xdeath4c			dsxdth4c
+$random misc/xdeath4		{ misc/xdeath4a misc/xdeath4b misc/xdeath4c }
+
+bloodsplat1 dsblud01
+bloodsplat2 dsblud02
+bloodsplat3 dsblud03
+bloodsplat4 dsblud04
+bloodsplat5 dsblud05
+bloodsplat6 dsblud06
+
+$random bloodsplat { misc/xdeath1c misc/xdeath1f misc/xdeath1g bloodsplat1 bloodsplat2 bloodsplat3 bloodsplat4 bloodsplat5 bloodsplat6 }
+$limit bloodsplat 1
+
+$volume misc/xdeath 0.5
+$volume misc/xdeath1 0.5
+$volume misc/xdeath4 0.5

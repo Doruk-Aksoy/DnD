@@ -1,0 +1,1358 @@
+Actor ZombieMan2 : DnD_Zombieman
+{ 
+	+DONTBLAST
+	+USEKILLSCRIPTS
+    GibHealth -10
+	DropItem "Clip", 0
+	DropItem "DroppedClip"
+	DamageFactor "BulletMagicX", 3.0
+	DamageFactor "BulletMagicXFull", 3.0
+	DamageFactor "Melee_UndeadXtra", 3.0
+	DamageFactor "Melee_UndeadXtraFull", 3.0
+	DamageFactor "Fire", 1.5
+	DamageFactor "FireFull", 1.5
+	Tag "Zombieman"
+	States
+	{
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEMANID, DND_SILVER_WEAKNESS)
+		Idle:
+			ZHRF AB 10 A_Look
+		Loop
+		See:
+			ZHRF AABBCCDD 4 Fast A_Chase
+		Loop
+		Missile:
+			ZHRF E 10 Fast A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 A 0 A_PlaySound ("grunt/attack")
+			ZHRF F 8 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+			ZHRF E 8 Fast
+		Goto See
+		Pain:
+			ZHRF G 3 Fast
+			ZHRF G 3 Fast A_Pain
+		Goto See
+		Death:
+			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			TNT1 A 0 A_Jump(128, "Death2")
+			ZHRF H 5
+			ZHRF I 5 A_Scream
+			ZHRF J 5 A_NoBlocking
+			ZHRF K 5
+			ZHRF L -1
+		Stop
+		Death2:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+			ZHRF V 5
+			ZHRF W 5 A_Scream
+			ZHRF X 5 A_NoBlocking
+			ZHRF Y 5
+			ZHRF Z -1
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Raise2")
+			ZHRF K 5
+			ZHRF JIH 5
+		Goto See
+		Raise2:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			ZHRF Y 5
+			ZHRF XWV 5
+		Goto See
+		XDeath:
+		Death.Explosives:
+		Death.ExplosivesFull:
+			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			ZHRF M 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			ZHRF N 5 A_XScream
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			ZHRF O 5 A_NoBlocking
+			ZHRF PQRST 5
+			ZHRF U -1
+		Stop
+		Death.P_Ice:
+			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor ZombieBullet : ProjBullet {
+	Damage (random(1,5) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+Actor ZombieBullet_Pierce : ZombieBullet {
+	DamageType "BulletFull"
+	+PIERCEARMOR
+}
+
+Actor ZombieMan3 : Zombieman2 replaces Zombieman { }
+
+Actor Shotgunguy2 : DnD_Shotgunner { 
+    GibHealth -10
+	DropItem "Shotgun", 0
+	DropItem "ShotgunPickup_Drop"
+	DamageFactor "BulletMagicX", 3.0
+	DamageFactor "BulletMagicXFull", 3.0
+	DamageFactor "Melee_UndeadXtra", 3.0
+	DamageFactor "Melee_UndeadXtraFull", 3.0
+	DamageFactor "Fire", 1.5
+	DamageFactor "FireFull", 1.5
+	Tag "Shotgunner"
+	+USEKILLSCRIPTS
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SHOTGUNNERID, DND_SILVER_WEAKNESS)
+		Idle:
+			ZSSH AB 10 A_Look
+		Loop
+		See:
+			ZSSH AABBCCDD 3 Fast A_Chase
+		Loop
+		Missile:
+			ZSSH E 10 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("shotguy/attack", CHAN_WEAPON)
+			TNT1 AA 0 A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+			ZSSH F 10 Fast bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+			ZSSH V 5 Fast
+			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			ZSSH WV 5 Fast
+		Goto See
+		Pain:
+			ZSSH G 3 Fast
+			ZSSH G 3 Fast A_Pain
+		Goto See
+		Death:
+			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			ZSSH H 5
+			ZSSH I 5 A_Scream
+			ZSSH J 5 A_NoBlocking
+			ZSSH K 5
+			ZSSH L -1
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			ZSSH KJIH 5
+		Goto See
+		XDeath:
+		Death.Explosives:
+		Death.ExplosivesFull:
+			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)  
+			ZSSH M 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)  
+			ZSSH N 5 A_XScream
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)  
+			ZSSH O 5 A_NoBlocking
+			ZSSH PQRST 5
+			ZSSH U -1
+		Stop
+		Death.P_Ice:
+			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor Shotgunguy3 : Shotgunguy2 replaces Shotgunguy { }
+
+Actor Cgguy2 : DnD_Chaingunguy { 
+	DropItem Chaingun, 0
+	DropItem "MachinegunPickup_Drop"
+	DamageFactor "BulletMagicX", 3.0
+	DamageFactor "BulletMagicXFull", 3.0
+	DamageFactor "Melee_UndeadXtra", 3.0
+	DamageFactor "Melee_UndeadXtraFull", 3.0
+	DamageFactor "Fire", 1.5
+	DamageFactor "FireFull", 1.5
+	Tag "Chaingunner"
+	+USEKILLSCRIPTS
+	+DONTBLAST
+	States {
+	  Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CHAINGUNGUYID, DND_SILVER_WEAKNESS)
+		Idle:
+		ZCCH AB 10 Fast A_Look
+		Loop
+	  See:
+		ZCCH AABBCCDD 3 Fast A_Chase
+		Loop
+	  Missile:
+		ZCCH U 10 Fast A_FaceTarget
+		TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+		TNT1 A 0 A_PlaySound("chainguy/attack", CHAN_WEAPON)
+		ZCCH F 4 Fast bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+		TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+		TNT1 A 0 A_PlaySound("chainguy/attack", CHAN_WEAPON)
+		ZCCH E 4 Fast bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+		ZCCH F 1 A_CPosRefire
+		Goto Missile+1
+	  Pain:
+		ZCCH G 3 Fast
+		ZCCH G 3 Fast A_Pain
+		Goto See
+	  Death:
+		ZCCH H 5 A_GiveToTarget("DnD_ShotUndead", 1)
+		ZCCH I 5 A_Scream
+		ZCCH J 5 A_NoBlocking
+		ZCCH KLM 5
+		ZCCH N -1
+		Stop
+	  Raise:
+	    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		ZCCH MLKJIH 5
+		Goto See
+	Xdeath:
+	Death.Explosives:
+	Death.ExplosivesFull:
+		TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		ZCCH O 5 
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		ZCCH P 5 A_XScream
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		ZCCH Q 5 A_NoBlocking
+		ZCCH RS 5
+		ZCCH T -1	
+		Stop
+		Death.P_Ice:
+			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor Cgguy3 : Cgguy2 replaces Chaingunguy { }
+
+Actor Demon2x : DnD_Demon 
+{ 
+	Species "Demon"
+	+DONTHURTSPECIES
+	+USEKILLSCRIPTS
+	+DONTBLAST
+	DamageFactor "Demon", 0.0
+	DamageFactor "DemonPoison_EarthGolem", 0.0
+	DamageFactor "DemonFire", 0.0
+	DamageFactor "DemonMagic", 0.0
+	Tag "Demon"
+	States
+	{
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DEMONID)
+		Goto Super::Spawn
+		Death:
+			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+			TNT1 A 0
+		Goto Super::Death
+		Death.BookOfTheDead:
+		GiveSoul:
+			SARG I 1
+			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+			TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	    Goto GaveSoul
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		Goto Super::Raise
+		Melee:
+			SARG EF 8 Fast A_FaceTarget
+			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+		goto See
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor Demon3x : Demon2x replaces Demon { }
+
+Actor Spectre2 : DnD_Spectre 
+{ 
+	Species "Demon"
+	+DONTHURTSPECIES
+	DamageFactor "Demon", 0.0
+	DamageFactor "DemonPoison_EarthGolem", 0.0
+	DamageFactor "DemonFire", 0.0
+	DamageFactor "DemonMagic", 0.0
+	Tag "Spectre"
+	+GHOST
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SPECTREID)
+		Goto Super::Spawn
+		Death:
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+		TNT1 A 0
+		Goto Super::Death
+		Death.BookOfTheDead:
+		GiveSoul:
+		SARG I 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	    Goto GaveSoul
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		Goto Super::Raise
+		Melee:
+			SARG EF 8 Fast A_FaceTarget
+			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+		goto See
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor Spectre3 : Spectre2 replaces Spectre { }
+
+Actor DoomImp2 : DnD_DoomImp  { 
+	Species "Imp"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	DamageFactor "Imp", 0.0
+	DamageFactor "ImpMagic", 0.0
+	DamageFactor "ImpFire", 0.0
+	DamageFactor "ImpVoid", 0.0
+	DamageFactor "ImpPoison", 0.0
+	PainSound "Imp/Pain"
+	Tag "Imp"
+	States {
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_IMPID)
+	  Idle:
+		IMP0 AB 10 Fast A_Look
+		Loop
+	  See:
+		IMP0 AABBCCDD 3 Fast A_Chase
+		Loop
+	  Melee:
+	  Missile:
+		IMP0 EF 8 Fast A_FaceTarget
+		IMP0 G 6 Fast A_CustomComboAttack("DoomImpBall", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+		Goto See
+	  Pain:
+		IMP0 H 2 Fast
+		IMP0 H 2 Fast A_Pain
+		Goto See
+	  DeathS:
+		IMP0 I 8
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		IMP0 J 8 A_Scream
+		IMP0 K 6
+		IMP0 L 6 A_NoBlocking
+		IMP0 M -1
+		Stop
+	  Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		IMP0 MLKJI 8
+		Goto See
+		Death:
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
+		GaveSoulN:
+		TNT1 A 0
+		Goto DeathS
+		Xdeath:
+		Death.Explosives:
+		Death.ExplosivesFull:
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
+	    GaveSoulX:
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		IMP0 N 5
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		IMP0 O 5 A_XScream
+		TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		IMP0 P 5
+		IMP0 Q 5 A_NoBlocking
+		IMP0 RST 5
+		IMP0 U -1
+		Stop
+	  GiveSoulN:
+		IMP0 I 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulN
+	  GiveSoulX:
+	  Death.BookOfTheDead:
+		IMP0 N 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoulX
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor DoomImp3 : DoomImp2 replaces DoomImp { }
+
+ACTOR ImpBallTrail {
+	Height 1
+	Radius 1
+	+NOGRAVITY
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 1
+			DIBT GHIJKL 1 A_FadeOut(0.1)
+		Stop
+	}
+}
+
+Actor DoomImpBall2 : DoomImpBall replaces DoomImpBall
+{
+	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpFire"
+	+DONTBLAST
+	Decal "DoomImpScorch"
+	States {
+		Spawn:	
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BAL1 AB 2 Bright A_SpawnItemEx("ImpBallTrail",0,0,0,0,0,0,0,128,0)	
+        Loop
+		Death:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			BAL1 CDE 3 Bright
+        Stop
+	}
+}
+
+Actor LostSoul2 : DnD_LostSoul 
+{ 
+	Damage (3 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	DamageType "Melee"
+	DamageFactor "BulletMagicX", 3.0
+	DamageFactor "BulletMagicXFull", 3.0
+	DamageFactor "Melee_UndeadXtra", 3.0
+	DamageFactor "Melee_UndeadXtraFull", 3.0
+	PainSound "LostSoul/Pain"
+	Tag "Lost Soul"
+	+NOBLOOD
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LOSTSOULID, DND_MOBILITY)
+		Goto Super::Spawn
+		Death:
+			TNT1 AAAAAA 0 A_CustomMissile("LostSoulSmoke", 32, 0, random(0,360), 2, random(0,360))
+		Goto Super::Death
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor LostSoul3 : LostSoul2 replaces LostSoul { }
+
+Actor LostSoulNoExp : DnD_LostSoul {
+	Damage (3 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	DamageType "Melee"
+	DamageFactor "BulletMagicX", 3.0
+	DamageFactor "BulletMagicXFull", 3.0
+	DamageFactor "Melee_UndeadXtra", 3.0
+	DamageFactor "Melee_UndeadXtraFull", 3.0
+	PainSound "LostSoul/Pain"
+	Tag "Lost Soul"
+	+NOBLOOD
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LOSTSOULID, DND_MOBILITY)
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		Idle:
+			SKUL AA 1 Bright A_LookEx(0, 0, 0, 0, 0, "Atack")
+		Goto Super::Idle
+		Atack:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
+			SKUL A 1 Bright
+		Goto Super::See
+		GoAttack:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_FaceTarget
+			SKUL D 4 Bright A_SkullAttack
+			SKUL CD 4 Bright
+		Goto Missile+2
+	}
+}
+
+Actor CacoDemon2 : DnD_Cacodemon 
+{ 
+    BloodColor "Blue"
+	Species "Cacodemon"
+	DamageFactor "Caco", 0.0
+	DamageFactor "CacoMagic", 0.0
+	DamageFactor "CacoMagicOrange", 0.0
+	DamageFactor "CacoExp", 0.0
+	DamageFactor "CacoFire", 0.0
+	DamageFactor "CacoPoison", 0.0
+	Painsound "Cacodemon/Pain"
+	Tag "Cacodemon"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CACODEMONID)
+	  Goto Super::Spawn
+	  Death:
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+	  GaveSoul:
+		HEAD G 8
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		HEAD H 8 A_Scream
+		HEAD IJ 8
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator_Blue",0,0,0,0)
+		HEAD K 8 A_NoBlocking
+		HEAD L -1 A_SetFloorClip
+		Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		HEAD G 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul		
+	  Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  Goto Super::Raise
+		Missile:
+			HEAD BC 5 Fast A_FaceTarget
+			HEAD D 5 Fast bright A_CustomComboAttack("CacoBall", 32, 10 * random(1, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+		goto See
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor CacoBall : Cacodemonball replaces Cacodemonball
+{
+	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	+DONTBLAST
+	DamageType "Caco"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Pierce Check")
+		Goto Super::Spawn
+		Death:
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		Goto Super::Death
+	}
+}
+
+Actor Cacodemon3 : Cacodemon2 replaces CacoDemon { }
+
+Actor PainElemental2 : DnD_PainElemental 
+{
+	Species "PainElemental"
+	DamageFactor "Paine", 0.0
+	DamageFactor "PaineExp", 0.0
+	DamageFactor "PaineCurse", 0.0
+	DamageFactor "PaineFire", 0.0
+	DamageFactor "PainePoison", 0.0
+	DamageFactor "PaineMagic", 0.0
+	DamageFactor "PaineMagicFire", 0.0
+	Tag "Pain Elemental"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_PAINELEMENTALID, DND_MINIONS | DND_SPLIT)
+	  Goto Super::Spawn
+		Missile:
+		   PAIN DE 5 Fast A_FaceTarget
+		   PAIN F 5 Fast bright A_FaceTarget
+		   PAIN F 0 A_SpawnItemEx("LostSoulNoExp", 56, 0, 0, 0, 0, 0, 0, SXF_SETMASTER)
+		Goto See
+		 Death:
+		   TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		 GaveSoul:	 
+		   PAIN H 8 bright
+		   PAIN I 8 bright A_Scream
+		   PAIN JK 8 bright
+		   TNT1 AAA 0 A_CustomMissile("ExplosionFX6", 32, 0, random(0,360), 2, random(0,360))
+		   TNT1 A 0 A_FaceTarget
+		   TNT1 A 0 A_SpawnItemEx("LostSoul2", 20, 0, 0, -9, 9, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+		   TNT1 A 0 A_SpawnItemEx("LostSoul2", 0, 0, 0, 9, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+		   PAIN L 8 bright A_SpawnItemEx("LostSoul2", -20, 0, 0, 9, 9, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+		   PAIN M 8 bright
+		   stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		PAIN H 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor PainElemental3 : PainElemental2 replaces PainElemental { }
+
+Actor Revenant2 : DnD_Revenant
+{
+	Species "Skeleton"
+	DamageFactor "Rev", 0.0
+	DamageFactor "RevEnergy", 0.0
+	DamageFactor "RevExp", 0.0
+	DamageFactor "RevMagic", 0.0
+	DamageFactor "RevIce", 0.0
+	DamageFactor "RevSludge", 0.0
+	PainSound "Revenant/Pain"
+	DamageFactor "BulletMagicX", 3.0
+	DamageFactor "BulletMagicXFull", 3.0
+	DamageFactor "Melee_UndeadXtra", 3.0
+	DamageFactor "Melee_UndeadXtraFull", 3.0
+	Tag "Revenant"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_REVENANTID, DND_SILVER_WEAKNESS)
+	  Goto Super::Spawn
+		Pain:
+			TNT1 A 0 A_SpawnDebris("MetalScrap")
+		Goto Super::Pain
+		Death:
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+		TNT1 A 0
+		Goto Super::Death
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		SKEL L 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul
+	  Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  Goto Super::Raise
+	  Melee:
+		SKEL G 0 A_FaceTarget
+		SKEL G 6 Fast A_SkelWhoosh
+		SKEL H 6 Fast A_FaceTarget
+		SKEL I 6 Fast A_CustomMeleeAttack(6 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "skeleton/melee", "")
+	  Goto See
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+actor RevenantTracerFixed : RevenantTracer replaces RevenantTracer {
+  Decal RevenantScorch
+  DamageType "Rev"
+  Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  +DONTBLAST
+  +THRUGHOST
+  States {
+    Spawn:
+      TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+      TNT1 A 0 A_Jump(128, "Homing")
+    Dumbfire:
+      FATB AB 2 Bright
+      Loop
+    Homing:
+      FATB A 1 Bright A_Tracer
+      FATB A 1 Bright A_Tracer
+      FATB B 1 Bright A_Tracer
+      FATB B 1 Bright A_Tracer
+      Loop
+	  Death:
+	  	TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+		TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+		TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+	  Goto Super::Death
+  }
+}
+
+Actor Revenant3 : Revenant2 replaces Revenant { }
+
+Actor HellKnight2 : DnD_HellKnight 
+{ 
+	BloodColor "7D 9D 59"
+	Species "HK"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	PainSound "HellKnight/Pain"
+	Tag "Hell Knight"
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_HELLKNIGHTID)
+	  Goto Super::Spawn
+		Death:
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+		GaveSoul:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		Goto Super::Death
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		BOS2 I 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul		
+	  Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  Goto Super::Raise
+		Melee:
+		Missile:
+			BOS2 EF 8 Fast A_FaceTarget
+			BOS2 G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+		Goto See
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor Baronball2 : BaronBall replaces BaronBall
+{
+	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronGreen"
+	Decal "BaronScorch"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+		Death:
+			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		Goto Super::Death
+	}
+}
+
+Actor HellKnight3 : HellKnight2 replaces HellKnight { }
+
+Actor BaronOfHell2 : DnD_BaronOfHell 
+{ 
+	BloodColor "7D 9D 59"
+	Species "HK"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	Tag "Baron of Hell"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BARONID)
+	  Goto Super::Spawn
+		Death:
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+		GaveSoul:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		TNT1 A 0 A_KillMaster
+		Goto Super::Death
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		BOSS I 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul
+	  Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  Goto Super::Raise
+		Melee:
+		Missile:
+			BOSS EF 8 Fast A_FaceTarget
+			BOSS G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+		Goto See
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}	
+}
+
+Actor BaronOfHell3 : BaronOfHell2 replaces BaronOfHell { }
+
+Actor Mancubus2 : DnD_Fatso 
+{ 
+	Species "Fatso"
+	DamageFactor "Fatty", 0.0
+	DamageFactor "FattyPlasma", 0.0
+	DamageFactor "FattyExp", 0.0
+	DamageFactor "FattyBullet", 0.0
+	DamageFactor "FattyFire", 0.0
+	DamageFactor "FattyIce", 0.0
+	DamageFactor "FatsoCorrupt", 0.0
+	DamageFactor "FattyVoidFire", 0.0
+	DamageFactor "FattyMagic", 0.0
+	Tag "Mancubus"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_FATSOID)
+	  Goto Super::Spawn
+		Death:
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+			FATT K 6
+			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+			FATT L 6 A_Scream
+			FATT M 6 A_NoBlocking
+			FATT N 6
+			TNT1 AAAAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			FATT OPQRS 6
+			TNT1 A 0 A_KillMaster
+			FATT T -1 A_BossDeath
+		Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		FATT K 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul	
+	  Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  Goto Super::Raise
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor Mancubus3 : Mancubus2 replaces Fatso { }
+
+Actor FatShot2 : Fatshot replaces Fatshot
+{
+	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "FattyFire"
+	+THRUGHOST
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+		Death:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		Goto Super::Death
+	}
+}
+
+Actor Arachno2 : DnD_Arachnotron 
+{ 
+	Species "Spider"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	DamageFactor "Arachno", 0.0
+	DamageFactor "ArachnoExp", 0.0
+	DamageFactor "ArachnoBullet", 0.0
+	DamageFactor "ArachnoFire", 0.0
+	DamageFactor "ArachnoVoid", 0.0
+	DamageFactor "ArachnoGreen", 0.0
+	DamageFactor "ArachnoYellow", 0.0
+	PainSound "Arachnotron/Pain"
+	DamageFactor "Energy", 1.25
+	DamageFactor "EnergyFull", 1.25
+	DamageFactor "P_Rail", 1.25
+	DamageFactor "P_RailFull", 1.25
+	DamageFactor "Lightning", 1.25
+	DamageFactor "LightningFull", 1.25
+	Tag "Arachnotron"
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ARACHNOTRONID, DND_ENERGY_WEAKNESS)
+	  Goto Super::Spawn
+		Pain:
+			TNT1 A 0 A_SpawnDebris("MetalScrap")
+		Goto Super::Pain
+	    Death:
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "Givesoul")
+		GaveSoul:	
+			BSPI J 20 A_Scream
+			BSPI K 7 A_NoBlocking
+			TNT1 AAAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			BSPI LMNO 7
+			TNT1 A 0 A_KillMaster
+			BSPI P -1 A_BossDeath
+		Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		BSPI J 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul		
+	  Raise:
+		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+	  Goto Super::Raise
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor ArachnotronPlasma2 : ArachnotronPlasma replaces ArachnotronPlasma
+{
+	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ArachnoYellow"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+		Death:
+			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+		Goto Super::Death
+	}
+}
+
+Actor ArachnotronPlasma2_Pierce : ArachnotronPlasma2 {
+	DamageType "ArachnoYellowFull"
+	+PIERCEARMOR
+}
+
+Actor Arachno3 : Arachno2 replaces Arachnotron { }
+
+Actor ArchVile2 : DnD_ArchVile
+{
+	Species "AV"
+	DamageFactor "Vile", 0.0
+	DamageFactor "VileBullet", 0.0
+	DamageFactor "VilePacify", 0.0
+	DamageFactor "VileStun", 0.0
+	DamageFactor "VileGhost", 0.0
+	DamageFactor "VileFire", 0.0
+	DamageFactor "VileCurse", 0.0
+	DamageFactor "VileBlue", 0.0
+	DamageFactor "VileBlueFire", 0.0
+	DamageFactor "VileMagic", 0.0
+	Tag "Arch Vile"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ARCHVILEID, DND_RESURRECT)
+	  Goto Super::Spawn
+		Death:
+		TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+		GaveSoul:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
+		Goto Super::Death
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		VILE Q 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
+		TNT1 A 0 A_GiveToTarget("Souls", 1)  
+	  Goto GaveSoul
+		Missile:
+			VILE G 0 BRIGHT A_VileStart
+			VILE G 10 Fast BRIGHT A_FaceTarget
+			VILE H 8 Fast BRIGHT A_VileTarget
+			VILE IJKLMN 8 Fast BRIGHT A_FaceTarget
+			VILE O 8 Fast BRIGHT A_VileAttack("vile/stop", 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 70 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 70, 1.0, "VileFire")
+			VILE P 20 Fast BRIGHT
+		Goto See
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor ArchVile3 : ArchVile2 replaces ArchVile { 
+	DamageFactor "Vile", 0.0
+	DamageFactor "VileFire", 0.0
+	DamageFactor "VileCurse", 0.0
+}
+
+Actor SpiderMastermind2 : DnD_SpiderMasterMind
+{
+	Species "Spider2"
+	DropItem "SoulAmmoSpawner", 128
+	PainSound "SpiderMastermind/Pain"
+	DamageFactor "BigSpider", 0
+	DamageFactor "BigSpiderExp", 0
+	DamageFactor "BigSpiderBullet", 0
+	DamageFactor "BigSpiderFire", 0
+	DamageFactor "BigSpiderGreen", 0
+	DamageFactor "BigSpiderVoid", 0
+	DamageFactor "BigSpiderTornado", 0
+	DamageFactor "BigSpiderPercent", 0
+	DamageFactor "BigSpiderIce", 0
+	DamageFactor "BigSpiderYellow", 0
+	DamageFactor "BigSpiderDark", 0
+	AttackSound ""
+	DamageFactor "Energy", 1.25
+	DamageFactor "EnergyFull", 1.25
+	DamageFactor "P_Rail", 1.25
+	DamageFactor "P_RailFull", 1.25
+	DamageFactor "Lightning", 1.25
+	DamageFactor "LightningFull", 1.25
+	Tag "Spider Mastermind"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States {
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SPIDERMASTERMINDID, DND_ENERGY_WEAKNESS | DND_EXPLOSIVE_RESIST)
+	  Goto Super::Spawn
+	  See:
+	    TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+		SPID A 3 Fast A_Metal
+		SPID ABB 3 Fast A_Chase
+		SPID C 3 Fast A_Metal
+		SPID CDD 3 Fast A_Chase
+		SPID E 3 Fast A_Metal
+		SPID EFF 3 Fast A_Chase
+		Loop
+	  Missile:
+		TNT1 A 0 A_PlaySound("weapons/minigunup", 7)
+		SMAS T 8 Fast A_FaceTarget
+		SMAS U 7 Fast A_FaceTarget
+		SMAS T 6 Fast A_FaceTarget
+		SMAS U 5 Fast A_FaceTarget
+		SMAS T 4 Fast A_FaceTarget
+		SMAS U 3 Fast A_FaceTarget
+	  MissileLoop:
+	    TNT1 A 0 A_StopSound(7)
+	    TNT1 A 0 A_FaceTarget
+		TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunSpin", 7)
+		TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunFire", CHAN_WEAPON, 1, 1, 0.4)
+		TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+		TNT1 A 0 A_CustomMissile("Tracer", 64, -12, frandom(-8.0, 8.0), 0, frandom(-2.0, 2.0))
+		TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+		TNT1 AA 0 A_CustomMissile("SpiderMBullet", 32, 0, frandom(-22.5, 22.5))
+		SPID G 3 Fast Bright A_CustomMissile("SpiderMBullet", 32, 0, frandom(-22.5, 22.5))
+		TNT1 A 0 A_CustomMissile("Tracer", 64, -12, frandom(-8.0, 8.0), 0, frandom(-2.0, 2.0))
+		TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+		TNT1 AA 0 A_CustomMissile("SpiderMBullet", 32, 0, frandom(-22.5, 22.5))
+		SPID H 3 Fast Bright A_CustomMissile("SpiderMBullet", 32, 0, frandom(-22.5, 22.5))
+		SPID H 1 Fast Bright A_MonsterRefire(24, "MissileFinish")
+	  Loop
+	  MissileFinish:
+	    TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+		TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunEnd", CHAN_WEAPON, 1, 0, 0.4)
+		TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunSpinEnd", 7)
+		SMAS U 3 A_FaceTarget
+		SMAS T 4 Fast A_FaceTarget
+		SMAS U 5 Fast A_FaceTarget
+		SMAS T 6 Fast A_FaceTarget
+		SMAS U 7 Fast A_FaceTarget
+		SMAS T 8 Fast A_FaceTarget
+	  Goto See
+	  Pain:
+		  TNT1 A 0 A_GiveInventory("SpiderFireChecker", 1)
+		  TNT1 A 0 A_SpawnDebris("MetalScrap")
+	  Goto Super::Pain
+	  Death:
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
+	  GaveSoul:
+		SPID J 2 A_Scream
+		TNT1 A 0 A_StopSound(7)
+		TNT1 A 0 A_StopSound(CHAN_WEAPON)
+		TNT1 A 0 A_GiveInventory("SpiderFireChecker", 1)
+		SPID J 18
+		SPID K 2 A_NoBlocking
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID KKKK 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID LLLLL 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID MMMMM 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID NNNNN 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID OOOOO 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID PPPPP 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID QQQQQ 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SPID RRRRR 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+		SPID S 5
+		TNT1 A 0 A_KillMaster
+		SPID S -1 A_BossDeath
+		Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		SPID J 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+		TNT1 A 0 A_GiveToTarget("Souls", 3)
+	  Goto GaveSoul
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}	
+}
+
+Actor SpiderMBullet : ZombieBullet {
+	DamageType "BigSpiderBullet"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+Actor SpiderMastermind3 : SpiderMastermind2 replaces SpiderMastermind { }
+
+Actor SpiderFireChecker : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Finish")
+		Stop
+		Finish:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunEnd", CHAN_WEAPON, 1, 0, 0.4)
+		Stop
+	}
+}
+
+Actor Cyberdemon2 : DnD_Cyberdemon
+{
+	Species "Cyber"
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	DropItem "SoulAmmoSpawner", 128
+	PainSound "CyberDemon/Pain"
+	DamageFactor "Energy", 1.25
+	DamageFactor "EnergyFull", 1.25
+	DamageFactor "P_Rail", 1.25
+	DamageFactor "P_RailFull", 1.25
+	DamageFactor "Lightning", 1.25
+	DamageFactor "LightningFull", 1.25
+	Tag "Cyberdemon"
+	+DONTHURTSPECIES
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States
+	{
+	  Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CYBERDEMONID, DND_ENERGY_WEAKNESS | DND_EXPLOSIVE_RESIST)
+	  Goto Super::Spawn
+		Pain:
+			TNT1 A 0 A_SpawnDebris("MetalScrap")
+		Goto Super::Pain
+	    Missile:
+		CYBR E 6 Fast A_FaceTarget
+		CYBR F 12 Fast A_CustomMissile("CyberdemonRocket",42,-28)
+		CYBR E 12 Fast A_FaceTarget
+		CYBR F 12 Fast A_CustomMissile("CyberdemonRocket",42,-28)
+		CYBR E 12 Fast A_FaceTarget
+		CYBR F 12 Fast A_CustomMissile("CyberdemonRocket",42,-28)
+		Goto See
+		Death:
+	    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
+		GaveSoul:	
+		CYBR H 10
+		CYBR I 10 A_Scream
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		CYBR JJJJJ 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		CYBR KKKKK 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		TNT1 A 0 A_NoBlocking
+		CYBR LLLLL 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		CYBR MMMMM 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		CYBR NNNNN 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		CYBR OOOOO 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+		CYBR P 5
+		TNT1 A 0 A_KillMaster
+		CYBR P -1 A_BossDeath
+		Stop
+	  GiveSoul:
+	  Death.BookOfTheDead:
+		CYBR H 1
+		TNT1 A 0 A_SpawnItem("SoulEffectSpawnerLarge")
+		TNT1 A 0 A_GiveToTarget("Souls", 3)
+	  Goto GaveSoul		
+		Death.P_Ice:
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 0 A_KillMaster
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}	
+}
+
+Actor CyberdemonExp : BaseExplosionDamage {
+	DamageType "CyberExp"
+	Obituary "$OB_CYBORG"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+		Stop
+	}
+}
+
+Actor CyberdemonRocket : Rocket {
+	Decal "Scorch"
+	Damage (20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberExp"
+	Speed 24
+	+THRUGHOST
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+		Death:
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			MISL B 8 Bright A_SpawnItem("CyberdemonExp")
+			MISL C 6 Bright
+			MISL D 4 Bright
+		Stop
+	}	
+}
+
+Actor Cyberdemon3 : Cyberdemon2 replaces Cyberdemon { }
+
+Actor WolfensteinSS2 : DnD_WolfensteinSS { 
+	Tag "SS Nazi"
+	+USEKILLSCRIPTS
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_NAZIID)
+		Idle:
+			SSWV AB 10 A_Look
+		Loop
+		Missile:
+			SSWV E 10 Fast A_FaceTarget
+			SSWV F 10 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("shotguy/attack", CHAN_WEAPON)
+			SSWV G 4 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+			SSWV F 6 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("shotguy/attack", CHAN_WEAPON)
+			SSWV G 4 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+			SSWV F 1 A_CPosRefire
+		Goto Missile+1
+		Death.P_Ice:
+			"----" "#" 0 ACS_ExecuteAlways(830, 0, 15, 7)
+			"----" "#" 4 A_GenericFreezeDeath
+			"----" "#" 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor WolfensteinSS3 : WolfensteinSS2 replaces WolfensteinSS { }

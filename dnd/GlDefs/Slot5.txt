@@ -1,0 +1,111 @@
+object RocketX
+{
+    frame MISLA { light ROCKET }
+
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object RocketX_FullDMG
+{
+    frame MISLA { light ROCKET }
+
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object NewRocket
+{
+    frame MICM { light ROCKET }
+
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object NewRocket_FullDMG
+{
+    frame MICM { light ROCKET }
+
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object CyberdemonRocket
+{
+    frame MISLA { light ROCKET }
+
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object NormalGrenade
+{
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object NormalGrenade_FullDMG
+{
+    frame MISLB { light ROCKET_X1 }
+    frame MISLC { light ROCKET_X2 }
+    frame MISLD { light ROCKET_X3 }
+}
+
+object NewGrenadeExplosion
+{
+    frame GRXPD { light ROCKET_X1 }
+	frame GRXPE { light ROCKET_X1 }
+	frame GRXPF { light ROCKET_X1 }
+	frame GRXPG { light ROCKET_X1 }
+	frame GRXPH { light ROCKET_X1 }
+	frame GRXPI { light ROCKET_X1 }
+	frame GRXPJ { light ROCKET_X1 }
+	frame GRXPK { light ROCKET_X1 }
+    frame GRXPL { light ROCKET_X2 }
+	frame GRXPM { light ROCKET_X2 }
+	frame GRXPN { light ROCKET_X2 }
+	frame GRXPO { light ROCKET_X2 }
+	frame GRXPP { light ROCKET_X2 }
+	frame GRXPQ { light ROCKET_X2 }
+    frame GRXPR { light ROCKET_X3 }
+	frame GRXPS { light ROCKET_X3 }
+	frame GRXPT { light ROCKET_X3 }
+	frame GRXPU { light ROCKET_X3 }
+	frame GRXPV { light ROCKET_X3 }
+}
+
+Object HomRocket1
+{
+	frame HMISA { light ROCKET }
+	frame MACXA { light ROCKET_X1 }
+	frame MACXB { light ROCKET_X1 }
+	frame MACXC { light ROCKET_X1 }
+	frame MACXD { light ROCKET_X2 }
+	frame MACXE { light ROCKET_X2 }
+	frame MACXF { light ROCKET_X2 }
+	frame MACXG { light ROCKET_X2 }
+	frame MACXH { light ROCKET_X3 }
+	frame MACXI { light ROCKET_X3 }
+	frame MACXJ { light ROCKET_X3 }
+}
+
+Object HomRocket1_FullDMG
+{
+	frame HMISA { light ROCKET }
+	frame MACXA { light ROCKET_X1 }
+	frame MACXB { light ROCKET_X1 }
+	frame MACXC { light ROCKET_X1 }
+	frame MACXD { light ROCKET_X2 }
+	frame MACXE { light ROCKET_X2 }
+	frame MACXF { light ROCKET_X2 }
+	frame MACXG { light ROCKET_X2 }
+	frame MACXH { light ROCKET_X3 }
+	frame MACXI { light ROCKET_X3 }
+	frame MACXJ { light ROCKET_X3 }
+}

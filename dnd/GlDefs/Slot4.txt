@@ -1,0 +1,222 @@
+pointlight EBONBALL1 {
+	color 1.0 0.5 0.0
+	size 48
+}
+
+pointlight EBONBALL2 {
+	color 1.0 0.5 0.0
+	size 40
+}
+
+pointlight EBONBALL3 {
+	color 1.0 0.5 0.0
+	size 32
+}
+
+pointlight EBONBALL4 {
+	color 1.0 0.5 0.0
+	size 24
+}
+
+pointlight EBONBALL5 {
+	color 1.0 0.5 0.0
+	size 16
+}
+
+Object EbonyBalls {
+	frame BAXPA { light EBONBALL1 }
+	frame BAXPB { light EBONBALL2 }
+	frame BAXPC { light EBONBALL3 }
+	frame BAXPD { light EBONBALL4 }
+	frame BAXPE { light EBONBALL5 }
+	frame BAXPF { light EBONBALL5 }
+}
+
+Object EbonyBalls_FullDMG {
+	frame BAXPA { light EBONBALL1 }
+	frame BAXPB { light EBONBALL2 }
+	frame BAXPC { light EBONBALL3 }
+	frame BAXPD { light EBONBALL4 }
+	frame BAXPE { light EBONBALL5 }
+	frame BAXPF { light EBONBALL5 }
+}
+
+Object EbonyBalls2 {
+	frame BAXPA { light EBONBALL1 }
+	frame BAXPB { light EBONBALL2 }
+	frame BAXPC { light EBONBALL3 }
+	frame BAXPD { light EBONBALL4 }
+	frame BAXPE { light EBONBALL5 }
+	frame BAXPF { light EBONBALL5 }
+}
+
+Object EbonyBalls2_FullDMG {
+	frame BAXPA { light EBONBALL1 }
+	frame BAXPB { light EBONBALL2 }
+	frame BAXPC { light EBONBALL3 }
+	frame BAXPD { light EBONBALL4 }
+	frame BAXPE { light EBONBALL5 }
+	frame BAXPF { light EBONBALL5 }
+}
+
+pulselight FDOfudaGlow
+{
+    color 0.8 0.0 0.0
+    size 30
+    secondarySize 35
+    interval 0.4
+}
+
+pulselight FDOfudaSoftGlow
+{
+    color 0.3 0.0 0.0
+    size 18
+    secondarySize 24
+    interval 2.5
+}
+
+flickerlight FDOfudaBlueGlow0
+{
+    color 0.1 0.15 0.9
+    size 60
+    secondarySize 65
+    chance 0.5
+}
+
+flickerlight FDOfudaBlueGlow1
+{
+    color 0.08 0.1 0.8
+    size 50
+    secondarySize 55
+    chance 0.5
+}
+
+flickerlight FDOfudaBlueGlow2
+{
+    color 0.08 0.05 0.6
+    size 40
+    secondarySize 45
+    chance 0.5
+}
+
+flickerlight FDOfudaBlueGlow3
+{
+    color 0.05 0.03 0.6
+    size 30
+    secondarySize 35
+    chance 0.5
+}
+
+flickerlight FDOfudaBlueGlow4
+{
+    color 0.02 0.01 0.4
+    size 20
+    secondarySize 25
+    chance 0.5
+}
+
+flickerlight FDOfudaRedFlash0
+{
+    color 1.0 0.0 0.0
+    size 100
+    secondarySize 105
+    chance 0.5
+}
+
+flickerlight FDOfudaRedFlash1
+{
+    color 0.8 0.0 0.0
+    size 80
+    secondarySize 85
+    chance 0.5
+}
+
+flickerlight FDOfudaRedFlash2
+{
+    color 0.6 0.0 0.0
+    size 60
+    secondarySize 65
+    chance 0.5
+}
+
+flickerlight FDOfudaRedFlash3
+{
+    color 0.4 0.0 0.0
+    size 40
+    secondarySize 45
+    chance 0.5
+}
+
+flickerlight FDOfudaRedFlash4
+{
+    color 0.2 0.0 0.0
+    size 20
+    secondarySize 25
+    chance 0.5
+}
+
+object DemonSealImpactFX
+{
+    frame OFUDH { light FDOfudaGlow1 }
+    frame OFUDI { light FDOfudaGlow2 }
+    frame OFUDJ { light FDOfudaGlow3 }
+    frame OFUDK { light FDOfudaGlow4 }
+    frame OFUDL { light FDOfudaGlow5 }
+    frame OFUDM { light FDOfudaGlow6 }
+}
+
+pulselight FDOfudaGlow1
+{
+    color 0.8 0.0 0.0
+    size 40
+    secondarySize 45
+    interval 0.4
+}
+
+pulselight FDOfudaGlow2
+{
+    color 0.7 0.0 0.0
+    size 35
+    secondarySize 40
+    interval 0.4
+}
+
+pulselight FDOfudaGlow3
+{
+    color 0.6 0.0 0.0
+    size 30
+    secondarySize 35
+    interval 0.4
+}
+
+pulselight FDOfudaGlow4
+{
+    color 0.5 0.0 0.0
+    size 25
+    secondarySize 30
+    interval 0.4
+}
+
+pulselight FDOfudaGlow5
+{
+    color 0.4 0.0 0.0
+    size 20
+    secondarySize 25
+    interval 0.4
+}
+
+pulselight FDOfudaGlow6
+{
+    color 0.3 0.0 0.0
+    size 15
+    secondarySize 20
+    interval 0.4
+}
+
+flickerlight FDDebuffSmallRedGlow
+{
+    color 0.3 0.0 0.0
+    size 10
+    secondarySize 15
+    chance 0.5
+}
