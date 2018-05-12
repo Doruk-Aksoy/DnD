@@ -1,7 +1,7 @@
 @echo off
 
 echo Build.bat -- Based on deguix's dnd_pk7_build.bat
-echo -------------------
+echo ------------------------------------------------
 echo.
 echo This batch file will create .pk7 in solid mode for releasing (good on
 echo compression, slow in update speed). Also will use current git head tag.
