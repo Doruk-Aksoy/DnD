@@ -1,7 +1,7 @@
 REM for %%F in (*.bcs) do %bcc% "%%~nF.bcs" "..\pk3\acs\%%~nF.lmp"
 
-test -d "..\dnd\acs\" || mkdir "..\dnd\acs\"
-test -d "..\monsters\acs\" || mkdir "..\monsters\acs\"
+if not exist "..\dnd\acs" mkdir "..\dnd\acs"
+if not exist "..\monsters\acs" mkdir "..\monsters\acs"
 
 %bcc% "dnd.bcs" "..\dnd\acs\dnd.lmp"
 %bcc% "dnd_database.bcs" "..\dnd\acs\dnd_db.lmp"

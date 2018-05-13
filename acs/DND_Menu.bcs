@@ -209,31 +209,41 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_STAT2) {
+				ListenScroll(-32, 0);
+				SetHudClipRect(192, 56, 256, 224, 256, 1);
+				
 				i = CheckInventory("PSTAT_Bulkiness");
+				temp = 64.0 + 4.0 * ScrollPos;
 				
 				HudMessage(s:"--- Current Gains ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:((DND_STR_GAIN * CheckInventory("PSTAT_Strength")) >> 16) * 100, s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:GetSpawnHealth() - DND_BASE_HEALTH, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:GetArmorCap() - DND_BASE_ARMOR, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:((DND_STR_GAIN * CheckInventory("PSTAT_Strength")) >> 16) * 100, s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, temp, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetSpawnHealth() - DND_BASE_HEALTH, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, temp + 16.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetArmorCap() - DND_BASE_ARMOR, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, temp + 32.0, 0.0, 0.0);
 				if(i > 100)
-					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * 100 + (i - 100) * DND_BULKINESS_GAIN_AFTER100), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
+					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * 100 + (i - 100) * DND_BULKINESS_GAIN_AFTER100), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, temp + 48.0, 0.0, 0.0);
 				else
-					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * CheckInventory("PSTAT_Bulkiness")), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_DEX_GAIN * CheckInventory("PSTAT_Dexterity")), s:"%\c- physical damage"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 128.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_INT_GAIN * CheckInventory("PSTAT_Intellect")), s:"%\c- magic damage"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 144.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * CheckInventory("PSTAT_Charisma")), s:"%\c- discount"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 160.0, 0.0, 0.0);
+					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * CheckInventory("PSTAT_Bulkiness")), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, temp + 48.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_DEX_GAIN * CheckInventory("PSTAT_Dexterity")), s:"%\c- physical damage"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, temp + 64.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_INT_GAIN * CheckInventory("PSTAT_Intellect")), s:"%\c- magic damage"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, temp + 80.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * CheckInventory("PSTAT_Charisma")), s:"%\c- discount"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, temp + 96.0, 0.0, 0.0);
 				if(GetBonusPlayerSpeed(pnum) >= 0)
-					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 176.0, 0.0, 0.0);
+					HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, temp + 112.0, 0.0, 0.0);
 				else
-					HudMessage(s:"- \c[Q2]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 176.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * (GetDropChance(pnum, 0) - 1.0)), s:"%\c- drop chance"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 192.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:CalculateWisdomBonus(), s:"%\c- exp bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 208.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:CalculateGreedBonus(), s:"%\c- credit bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 192.1, 224.0, 0.0, 0.0);
-				if(GetCVar("survival")) {
-					HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 190.1, 256.0, 0.0, 0.0);
-					HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 190.1, 272.0, 0.0, 0.0);
-				}
+					HudMessage(s:"- \c[Q2]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, temp + 112.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * (GetDropChance(pnum, 0) - 1.0)), s:"%\c- drop chance"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, temp + 128.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:CalculateWisdomBonus(), s:"%\c- exp bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, temp + 144.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:CalculateGreedBonus(), s:"%\c- credit bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 192.1, temp + 160.0, 0.0, 0.0);
 			
+				for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i)
+					HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentTypeNames[i], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 12 - i, CR_WHITE, 192.1, temp + 176.0 + 16.0 * i, 0.0, 0.0);
+				
+				// 256.0, -5
+				
+				if(GetCVar("survival")) {
+					HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 25, CR_WHITE, 190.1, temp + 272.0, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 190.1, temp + 288.0, 0.0, 0.0);
+				}
+				SetHudClipRect(0, 0, 0, 0, 0, 0);
 				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 			}

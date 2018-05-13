@@ -248,6 +248,10 @@ int GetBonusDamageDisplay(int pnum, int wep) {
 	return ftrunc(base);
 }
 
+int GetDamageTypeBonus(int pnum, int dtype) {
+	return Player_Bonuses[pnum].damage_type_bonus[dtype] + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
+}
+
 void ShowWeaponIcon(int wep, int i, int k) {
 	SetHudSize(640, 480, 1);
 	SetFont(Weapons[wep][WEAPON_ICON]);
