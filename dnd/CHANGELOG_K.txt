@@ -13,13 +13,17 @@ LEGEND:
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
 ! "Bulkiness" now increases armor cap by 4.
 ! "Strength" increases armor and health cap by 0.5% per point.
+! You can now allocate your stats and perks in bulk using alt fire on the menu!
 - "Strength" no longer increases armor cap by 4.
 ! The ability to dash now uses a new key. Bind this, and use it while on the move to gain a burst of speed in the direction you're moving.
 	- Due to the flexibility added to the dash, a few things are nerfed:
 		- Dash cooldown is increased to 35 tics from 27.
 		- Dash speed reduced to 12.0 from 20.0.
 		- There's a necessary input delay of 3 tics. (Prevents spamming the ability)
+! Using orbs now saves all possible data that could be altered by an orb.
+! Cleaned up text description for shop weapons, and introduced icons to represent their properties instead.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
+* A small delay of 7 tics has been added to consecutive orb uses.
 * "Bulkiness" percentage value on stat menu now uses correct formula. (It used the older formula)
 * Grouped loadout pages into one section, just like the shop section for weapons.
 * Chest open messages are only visible to the player trying to open them now.
@@ -39,12 +43,14 @@ LEGEND:
 * You can't use "Portable Shield" with "Invulnerability Sphere" anymore.
 * "Destruction Generator" knockback is now properly remedied with "Gryphon Boots".
 * Fixed one of the "Wanderer" player sprites not translating properly.
+* Changed how "Orb of Sin" takes your stats a little bit.
 * Fixed some bugs related to accessories using powerups not having their effects save properly.
 * Reduced the scale on one of the research sprites.
 * Reworked research dropping: You now only see one research drop and every other player will also see only their drop.
 * "Necro Armor" now scales from "Intellect" instead of "Dexterity".
 * Cleaned up scaling code of "Necro Armor".
 * "Demon Heart" now properly uses ammo when "Hand of Artemis" is used.
+* Fixed a bug that caused "Basilisk" to deal fire damage instead of magic damage.
 * Fixed a bug where damage type bonuses weren't saved properly to the database in "Hardcore" and "Softcore" modes.
 * Fixed a bug where "Heavy Grenade Launcher" let you shoot 2 grenades without loading if you had "Nether Mask" equipped.
 * Elite default spawn level is now 20 in both "Hardcore" and "Softcore" modes.
@@ -64,6 +70,7 @@ LEGEND:
 - "Destruction Generator" primary ball explosion radius reduced to 384, full damage radius reduced to 192. (Reduced by 50%)
 	- This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
 * "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
++ "Razorfang" skull shot can hit ghosts now.
 
 =====================
 == MONSTER RELATED ==

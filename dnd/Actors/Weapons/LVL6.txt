@@ -1147,7 +1147,6 @@ ACTOR BasiliskBall : FastProjectile {
    Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
    DamageType "MagicFire"
    RenderStyle ADD
-   Damagetype fire
    PROJECTILE
    +FOILINVUL
    +FORCEXYBILLBOARD
