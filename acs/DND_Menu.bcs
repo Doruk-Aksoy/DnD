@@ -231,8 +231,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				else
 					HudMessage(s:"- \c[Q2]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, temp + 112.0, 0.0, 0.0);
 				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * (GetDropChance(pnum, 0) - 1.0)), s:"%\c- drop chance"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, temp + 128.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:CalculateWisdomBonus(), s:"%\c- exp bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, temp + 144.0, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:CalculateGreedBonus(), s:"%\c- credit bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 192.1, temp + 160.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:CalculateWisdomBonus(pnum), s:"%\c- exp bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, temp + 144.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:CalculateGreedBonus(pnum), s:"%\c- credit bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 192.1, temp + 160.0, 0.0, 0.0);
 			
 				for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i)
 					HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentTypeNames[i], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 12 - i, CR_WHITE, 192.1, temp + 176.0 + 16.0 * i, 0.0, 0.0);

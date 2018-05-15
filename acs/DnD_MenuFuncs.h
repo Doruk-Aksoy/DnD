@@ -17,12 +17,12 @@ void UpdateMenuPosition(int x, int option) {
 	LocalAmbientSound("RPG/MenuChoose", 127);
 }
 
-int CalculateWisdomBonus() {
-	return Player_Bonuses[PlayerNumber()].wisdom_percent_bonus + CheckInventory("Perk_Wisdom") * BASE_WISDOM_GAIN;
+int CalculateWisdomBonus(int pnum) {
+	return Player_Bonuses[PlayerNumber()].wisdom_percent_bonus + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1) + CheckInventory("Perk_Wisdom") * BASE_WISDOM_GAIN;
 }
 
-int CalculateGreedBonus() {
-	return Player_Bonuses[PlayerNumber()].greed_percent_bonus + CheckInventory("Perk_Greed") * BASE_WISDOM_GAIN;
+int CalculateGreedBonus(int pnum) {
+	return Player_Bonuses[PlayerNumber()].greed_percent_bonus + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1) + CheckInventory("Perk_Greed") * BASE_WISDOM_GAIN;
 }
 
 str CurrentWeapon() {

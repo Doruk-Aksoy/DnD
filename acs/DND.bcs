@@ -560,7 +560,7 @@ Script "DND On Kill" KILL {
 		if(!GetCVar("dnd_allresearchesfound")) {
 			// make it less likely to drop
 			addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-			//if(RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
+			if(RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
 				SpawnResearch();
 		}
 		
@@ -666,9 +666,12 @@ Script "DND Show Kill Digits" (int exp, int credit, int hasstuff) CLIENTSIDE {
 		credit /= 10;
 	}
 	
-	if(CheckActorInventory(tid, "Perk_Wisdom") || haswisdom) {
+	// if there's something to show
+	exp = exptemp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") / 100;
+	exp += (exptemp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
+	if(exp) {
 		digitlen = 1;
-		exp = exptemp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") / 100;
+		printbold(d:ConsolePlayerNumber());
 		
 		if(haswisdom) {
 			bonus = exptemp;
@@ -677,6 +680,7 @@ Script "DND Show Kill Digits" (int exp, int credit, int hasstuff) CLIENTSIDE {
 			bonus >>= 1;
 		}
 		exp += bonus;
+		
 		exptemp = exp;
 		while(exp) {
 			edigit = exp % 10;
@@ -695,9 +699,10 @@ Script "DND Show Kill Digits" (int exp, int credit, int hasstuff) CLIENTSIDE {
 		}
 	}
 	
-	if(CheckActorInventory(tid, "Perk_Greed") || hasgreed) {
+	credit = credtemp * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") / 100;
+	credit += (credtemp * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
+	if(credit) {
 		digitlen = 1;
-		credit = credtemp * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") / 100;
 		
 		if(hasgreed) {
 			bonus = credtemp;
