@@ -93,7 +93,7 @@ Script "DND Menu Cleanup" (void) CLIENTSIDE {
 	DeleteText(RPGMENUPAGEID);
 	DeleteText(RPGMENUPAGEID - 1);
 	
-	DeleteTextRange(RPGMENUINFOID, RPGMENULISTID);
+	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
 	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
 
 	// login screen for hardcore
@@ -809,7 +809,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			
 			// Handle all types of popups
 			HandlePopups(popupid);
-			
+			HandleWeaponInfoPanel(curopt, animcounter, boxid);
 			Delay(1);
 			
 			animcounter++;

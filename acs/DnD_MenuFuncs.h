@@ -252,6 +252,73 @@ int GetDamageTypeBonus(int pnum, int dtype) {
 	return Player_Bonuses[pnum].damage_type_bonus[dtype] + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
 }
 
+int GetWeaponBeginIndexFromOption(int curopt) {
+	switch(curopt) {
+		case MENU_SHOP_WEAPON1:
+		return SHOP_WEAPON1_BEGIN;
+		case MENU_SHOP_WEAPON2:
+		return SHOP_WEAPON2_BEGIN;
+		case MENU_SHOP_WEAPON3_1:
+		return SHOP_WEAPON31_BEGIN;
+		case MENU_SHOP_WEAPON3_2:
+		return SHOP_WEAPON32_BEGIN;
+		case MENU_SHOP_WEAPON4:
+		return SHOP_WEAPON4_BEGIN;
+		case MENU_SHOP_WEAPON5:
+		return SHOP_WEAPON5_BEGIN;
+		case MENU_SHOP_WEAPON6:
+		return SHOP_WEAPON6_BEGIN;
+		case MENU_SHOP_WEAPON7:
+		return SHOP_WEAPON7_BEGIN;
+		case MENU_SHOP_WEAPON8:
+		return SHOP_WEAPON8_BEGIN;
+	}
+	return 0;
+}
+
+void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
+	int wid = GetWeaponBeginIndexFromOption(curopt);
+	int imgcount = 0;
+	wid += boxid - 1;
+	DeleteTextRange(RPGMENUWEAPONPANELID - 8, RPGMENUWEAPONPANELID - 1);
+	if(CheckItemRequirements(wid, RES_KNOWN, WeaponDrawInfo[wid - SHOP_WEAPON_BEGIN].flags)) {
+		SetHudSize(HUDMAX_X * 2, HUDMAX_Y * 2, 1);
+		for(int i = 0; i < MAX_WEAPON_PROPERTIES; ++i) {
+			if(IsSet(WeaponProperties[wid], i)) {
+				SetFont(WeaponPropertyImages[i]);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID - i - 1, -1, -64.0 + (imgcount & 1) * 64.0, -160.0 + ypos * 8.0 + (imgcount / 2) * 40.0, 0.0, 0.0);
+				++imgcount;
+			}
+		}
+	}
+}
+
+void HandleWeaponInfoPanel(int curopt, int animcounter, int boxid) {
+	static int ypos = 0;
+	bool mode = 0;
+	// pull down = 1
+	if(curopt >= MENU_SHOP_WEAPON1 && curopt <= MENU_SHOP_WEAPON8)
+		mode = 1;
+	if(mode) {
+		if(ypos < 25)
+			++ypos;
+	}
+	else {
+		if(ypos > 0)
+			--ypos;
+	}
+	SetFont("DND_PANL");
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID, -1, -12.0, -64.0 + ypos * 4.0, 0.0, 0.0);
+	
+	if(boxid != MAINBOX_NONE)
+		HandleWeaponPropertyImages(curopt, boxid, ypos);
+	else
+		DeleteTextRange(RPGMENUWEAPONPANELID - 8, RPGMENUWEAPONPANELID - 1);
+	
+	SetFont("SMALLFONT");
+}
+
 void ShowWeaponIcon(int wep, int i, int k) {
 	SetHudSize(640, 480, 1);
 	SetFont(Weapons[wep][WEAPON_ICON]);
