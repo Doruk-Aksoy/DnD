@@ -223,7 +223,7 @@ Actor ResearchModule_MP : DnD_DroppedItem {
 			TNT1 A 0 A_Jump(128, "Variant1", "Variant2")
 			RC01 B 0
 		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_RESEARCH)
 			"####" "#" 16
 		SpawnLoop:
 			"####" "#" 1 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
@@ -237,7 +237,7 @@ Actor ResearchModule_MP : DnD_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			"####" "#" 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", 1), "PickupSuccess")
+			"####" "#" 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_RESEARCH), "PickupSuccess")
 			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		goto PickupFail
 

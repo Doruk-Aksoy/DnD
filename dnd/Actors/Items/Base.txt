@@ -360,3 +360,8 @@ Actor DnD_BonusBonusShower : DnD_Activator {
 		Stop
 	}
 }
+
+enum {
+	DND_SPECIAL_RESEARCH = 1,
+	DND_SPECIAL_ORB = 2
+};

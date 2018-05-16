@@ -22,6 +22,7 @@ LEGEND:
 		- There's a necessary input delay of 3 tics. (Prevents spamming the ability)
 ! Using orbs now saves all possible data that could be altered by an orb.
 ! Cleaned up text description for shop weapons, and introduced icons to represent their properties instead.
+! All "Orb" drops are now calculated per player. Each player gets their own unique drop depending on their luck!
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
 * A small delay of 7 tics has been added to consecutive orb uses.
 * "Bulkiness" percentage value on stat menu now uses correct formula. (It used the older formula)
@@ -33,6 +34,7 @@ LEGEND:
 * "Necro Armor" spikes go through players now.
 * "Necro Armor" spikes now deal full damage if "Nether Mask" is equipped.
 * "Strength" and "Bulkiness" stats now correctly mention they increase your knockback resist.
+* Your "Wisdom" and "Greed" bonuses from sources besides perks will also show correctly on a monster kill as bonuses.
 * Fixed a problem related to chest drops and respawning items.
 * Fixed a bug where "Violence Orb" bonuses weren't included in damage calculation.
 * Reworked damage scaling calculation to use integers instead of fixed point. This should eliminate overflows and allow you to reach higher damage outputs for each damage source.
