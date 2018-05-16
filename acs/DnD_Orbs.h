@@ -1303,10 +1303,18 @@ void ResetOrbData(int pnum) {
 	}
 }
 
-void SpawnOrb() {
+void SpawnOrb(int pnum) {
 	int w = random(1, ORB_MAXWEIGHT), i = 0;
 	for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
-	SpawnDrop(OrbList[i][ORB_NAME], 24.0, 16, 0, 0);
+	SpawnDrop(StrParam(s:OrbList[i][ORB_NAME], s:"_Drop"), 24.0, 16, pnum + 1, i);
+}
+
+void SpawnOrbForAll() {
+	for(int j = 0; j < MAXPLAYERS; ++j) {
+		int w = random(1, ORB_MAXWEIGHT), i = 0;
+		for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+		SpawnDrop(StrParam(s:OrbList[i][ORB_NAME], s:"_Drop"), 24.0, 16, j + 1, i);
+	}
 }
 
 #endif

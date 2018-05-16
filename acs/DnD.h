@@ -132,6 +132,11 @@ enum {
 	DND_WDMG_HASSTRSCALING = 4096
 };
 
+enum {
+	DND_SPECIAL_RESEARCH = 1,
+	DND_SPECIAL_ORB = 2
+};
+
 int setplayer = 0;
 // see if map changed or not
 
@@ -985,5 +990,14 @@ void HandleChestSpawn() {
 			SpawnDrop("DNDGoldChest", 0, 0, 0, 0);
 		else
 			SpawnDrop("DNDBronzeChest", 0, 0, 0, 0);
+	}
+}
+
+void HandleOrbDrop() {
+	int addchance = (Clamp_Between(GetCVar("dnd_orb_dropchanceadd"), 0, 100) << 16) / 100;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		// run each player's chance, drop for corresponding player only
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))
+			SpawnOrb(i);
 	}
 }
