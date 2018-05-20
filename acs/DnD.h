@@ -234,7 +234,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Soul Render is an unholy melee weapon. Each hit makes the weapon become less durable. Alt fire toggles life drain mode. \ceTemporary Weapon.",
 	 "A standard UAC submachine gun. Each bullet does 15 damage. \ceTemporary Weapon.",
 	 "The arm-cannon of a Corpulent. Shoots metallic cannon balls that split on impact. Alt fire shoots tiny ripping cannon balls. \ceTemporary Weapon.",
-	 "The spine of a Bloodfiend. Shoots tiny explosive pukes. Alt fire changes it to a limited range hitscan. \ceTemporary Weapon.",
+	 "The spine of a Bloodfiend. Shoots tiny explosive pukes. Alt fire changes it to a limited range hitscan. Can't hit \cughosts\c-. \ceTemporary Weapon.",
 	 "The laser rifle shoots a laser or two, if using alt fire, each doing 20-45 damage. \cfIgnores \cfshields. \ceTemporary Weapon.",
 	 "The torso of a Vulgar. Shoots acidic bones. Alt fire shoots bouncing acid bombs. Can't hit \cughosts\c-. \ceTemporary Weapon.",
 	 "A demon heart. Squeeze to damage all enemies  in an area.\cfIgnores shields. \ceTemporary Weapon.",
