@@ -1312,13 +1312,6 @@ Script "DND Menu Input Handle" (void) {
 					ProcessTrade(boxid - 1, SHOP_TALENT_BEGIN, SHOP_LASTTALENT_INDEX, TRADE_BUY | TRADE_TALENT);
 				SetInventory("MadeChoice", 0);
 			}
-			//else if(CheckInventory("MadeChoice") == 2) {
-			//	if(boxid != MAINBOX_NONE)
-			//		HudMessage(f:ftrunc((DND_TALENT_INCREASE + j) * CheckInventory(TalentNames[i])), s:"% (\cd", d:CheckInventory(TalentNames[i]), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - i - MAX_TALENTS - 2, CR_WHITE, 448.2, 64.0 + 16.0 * i, 0.0, 0.0);
-			//		for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i)
-			//			ProcessTrade(boxid - 1, SHOP_TALENT_BEGIN, SHOP_LASTTALENT_INDEX, TRADE_BUY | TRADE_TALENT);
-			//	SetInventory("MadeChoice", 0);
-			}
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
 				UpdateMenuPosition(0, MENU_SHOP);
 		}
