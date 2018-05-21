@@ -23,6 +23,7 @@ LEGEND:
 ! Using orbs now saves all possible data that could be altered by an orb.
 ! Cleaned up text description for shop weapons, and introduced icons to represent their properties instead.
 ! All "Orb" drops are now calculated per player. Each player gets their own unique drop depending on their luck!
+! Redone the accessory page of "DnD Menu". Now split into 4 pages with each page having 5 accessories shown total.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
 * A small delay of 7 tics has been added to consecutive orb uses.
 * "Bulkiness" percentage value on stat menu now uses correct formula. (It used the older formula)
@@ -46,12 +47,17 @@ LEGEND:
 * "Destruction Generator" knockback is now properly remedied with "Gryphon Boots".
 * Fixed one of the "Wanderer" player sprites not translating properly.
 * Changed how "Orb of Sin" takes your stats a little bit.
+* "Bloodfiend Spine" weapon tip correctly states that the mainfire can't hit ghosts.
+* Fixed a little inconsistency with how the fireballs are spawned on "Death Staff" altfire with "Nether Mask" equipped.
+* Fixed inconsistency with damage dealing on "Death Staff".
 * Fixed some bugs related to accessories using powerups not having their effects save properly.
 * Reduced the scale on one of the research sprites.
+* "Toxicology" ability now applies to all kinds of poison damage. (Previously it ignored special behavior poisons like "Roach" monster's ticking poison.)
 * Reworked research dropping: You now only see one research drop and every other player will also see only their drop.
 * "Necro Armor" now scales from "Intellect" instead of "Dexterity".
 * Cleaned up scaling code of "Necro Armor".
 * "Demon Heart" now properly uses ammo when "Hand of Artemis" is used.
+* "Orb of Affluence" bonus is reflected properly now on the message.
 * Fixed a bug that caused "Basilisk" to deal fire damage instead of magic damage.
 * Fixed a bug where damage type bonuses weren't saved properly to the database in "Hardcore" and "Softcore" modes.
 * Fixed a bug where "Heavy Grenade Launcher" let you shoot 2 grenades without loading if you had "Nether Mask" equipped.

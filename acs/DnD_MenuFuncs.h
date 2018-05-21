@@ -434,7 +434,7 @@ void DrawHelpCorner (int opt, int boxid) {
 void ShowAccessoryIcon(int acc, int i) {
 	SetHudSize(640, 480, 1);
 	SetFont(AccessoryImages[acc]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i - 2, CR_WHITE, 421.4, 96.1 + 144.0 * i + 6.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * i - 2, CR_WHITE, 421.4, 75.1 + 48.0 * i, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -734,6 +734,30 @@ void DrawToggledImage(int itemid, int onposy, int objectflag, int offcolor, int 
 			HudMessage(s:weptype, s:toshow, s:itemtag; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
 			HudMessage(s:colorprefix, s:"$", d:price; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 2, color, 440.2, 80.0 + 16.0 * onposy, 0.0, 0.0);
 		}
+	}
+}
+
+void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
+	int pos = id - ACCESSORY_PER_PAGE * (page - MENU_FIRST_ACCESSORY_PAGE);
+	if(CheckInventory(AccessoryList[id])) {
+		if(boxid == pos + 1) {
+			HudMessage(s:"\c[B1]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
+			
+			SetHudClipRect(192, 32, 256, 256, 256, 1);
+			HudMessage(s:StrParam(s:"+ ", s:AccessoryBenefits[id], s:"\n\c[D4]- ", s:AccessoryNegatives[id]); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos - 1, CR_GREEN, 192.1, 212.1, 0.0, 0.0);
+			SetHudClipRect(0, 0, 0, 0, 0, 0);
+		}
+		else if(IsAccessoryEquipped(0, 1 << id))
+			HudMessage(s:"\c[C5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
+		else
+			HudMessage(s:"\c[Y5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
+		ShowAccessoryIcon(id, pos);
+	}
+	else {
+		if(boxid == pos + 1)
+			HudMessage(s:"\c[B1]--- N / A ---"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
+		else
+			HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
 	}
 }
 
@@ -1149,6 +1173,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 211.0, 162.0, 206.0 }, // loadout 2
 			{ 289.0, 195.0, 178.0, 190.0 }, // loadout 3
 			{ 289.0, 181.0, 169.0, 174.0 }, // loadout 4
+			{ -1, -1, -1, -1 }
 		},
 		// loadout 1
 		{
@@ -1162,27 +1187,34 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// loadout 4 -- all the clickables in the respective order (95 diff on y, scrollpos adds (1 per movement) x 4 in loadout speed)
-		// we really only generate the y positions for the boxes, and what the boxes are is arbitrary
-		// we save x pairs here and load
+		// loadout for accessories below
 		{
-			{ 226.0, 268.0, 102.0, 260.0 },
-			{ 224.0, 268.0, 107.0, 260.0 },
-			{ 210.0, 268.0, 119.0, 260.0 },
-			{ 240.0, 268.0, 87.0, 260.0 },
-			{ 216.0, 268.0, 113.0, 260.0 },
-			{ 240.0, 268.0, 90.0, 260.0 },
-			{ 213.0, 268.0, 116.0, 260.0 },
-			{ 208.0, 268.0, 120.0, 260.0 },
-			{ 207.0, 268.0, 120.0, 260.0 },
-			{ 226.0, 268.0, 102.0, 260.0 },
-			{ 242.0, 268.0, 86.0, 260.0 },
-			{ 220.0, 268.0, 108.0, 260.0 },
-			{ 197.0, 268.0, 131.0, 260.0 },
-			{ 232.0, 268.0, 97.0, 260.0 },
-			{ 226.0, 268.0, 106.0, 260.0 },
-			{ 244.0, 268.0, 86.0, 260.0 },
-			{ 236.0, 268.0, 96.0, 260.0 },
+			{ 226.0, 252.0, 102.0, 242.0 },
+			{ 224.0, 220.0, 107.0, 210.0 },
+			{ 210.0, 188.0, 119.0, 178.0 },
+			{ 240.0, 156.0, 87.0, 146.0 },
+			{ 216.0, 124.0, 113.0, 114.0 },
+			{ -1, -1, -1, -1 },
+		},
+		{
+			{ 240.0, 252.0, 90.0, 242.0 },
+			{ 213.0, 220.0, 116.0, 210.0 },
+			{ 208.0, 188.0, 120.0, 178.0 },
+			{ 207.0, 156.0, 120.0, 146.0 },
+			{ 226.0, 124.0, 102.0, 114.0 },
+			{ -1, -1, -1, -1 }
+		},
+		{
+			{ 242.0, 252.0, 86.0, 242.0 },
+			{ 220.0, 220.0, 108.0, 210.0 },
+			{ 197.0, 188.0, 131.0, 178.0 },
+			{ 232.0, 156.0, 97.0, 146.0 },
+			{ 226.0, 124.0, 106.0, 114.0 },
+			{ -1, -1, -1, -1 }
+		},
+		{
+			{ 244.0, 252.0, 86.0, 242.0 },
+			{ 236.0, 220.0, 96.0, 210.0 },
 			{ -1, -1, -1, -1 }
 		},
 		// shop
@@ -1478,9 +1510,6 @@ void LoadPane(menu_pane_T& p, int menu_page) {
 int GetPageScrollOffset(int page) {
 	int base = 0;
 	switch (page) {
-		case MENU_LOAD4:
-			base = 3.9625;
-		break;
 		default:
 			base = 0;
 		break;

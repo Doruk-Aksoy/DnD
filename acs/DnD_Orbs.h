@@ -840,8 +840,8 @@ void RecentOrb_FindDifference(int pnum) {
 	}
 }
 
-void DoSinOrbMessage(int val) {
-	int pts = (val & 0x7F) * pow(2, CheckInventory("AffluenceCounter"));
+void DoSinOrbMessage(int val, int affluence) {
+	int pts = (val & 0x7F) * affluence;
 	str temp = "";
 	if(pts > 1)
 		temp = StrParam(s:"\cjOrb of Sin takes \cg", d:pts, s:"\cj random stat points ");
@@ -850,20 +850,20 @@ void DoSinOrbMessage(int val) {
 	//Log(s:"type ", d: (val >> 8) & 0x7);
 	switch((val >> 8) & 0x7) {
 		case SINORB_STAT:
-			Log(s:temp, s:"and grants \cd", d:(val >> 11) * GetAffluenceBonus(), s:" stat points!");
+			Log(s:temp, s:"and grants \cd", d:(val >> 11) * affluence, s:" stat points!");
 		break;
 		case SINORB_PERK:
-			pts = (val >> 11) * pow(2, CheckInventory("AffluenceCounter"));
+			pts = (val >> 11) * affluence;
 			if(pts > 1)
 				Log(s:temp, s:"and grants \cd", d:pts, s:" random perks!");
 			else
 				Log(s:temp, s:"and grants \cd", d:pts, s:" random perk!");
 		break;
 		case SINORB_CRIT:
-			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITGIVE * GetAffluenceBonus() * 100), s:"% crit chance to \cd", s:Weapons[val >> 11][WEAPON_TAG], s:"\c-!");
+			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% crit chance to \cd", s:Weapons[val >> 11][WEAPON_TAG], s:"\c-!");
 		break;
 		case SINORB_CRITDMG:
-			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITDMGGIVE * GetAffluenceBonus() * 100), s:"% crit damage to \cd", s:Weapons[val >> 11][WEAPON_TAG], s:"\c-!");
+			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITDMGGIVE * affluence * 100), s:"% crit damage to \cd", s:Weapons[val >> 11][WEAPON_TAG], s:"\c-!");
 		break;
 		/*case SINORB_RES:
 			pts = pow(2, CheckInventory("AffluenceCounter"));
@@ -1064,9 +1064,8 @@ void HandleCorruptOrbUse(int type) {
 	}
 }
 
-void DoCorruptOrbMessage(int val) {
+void DoCorruptOrbMessage(int val, int affluence) {
 	// val just has the option, except for stat case which has which stat it is << 8
-	int temp = GetAffluenceBonus();
 	switch(val & 0xF) {
 		case CORRUPTORB_NOTHING:
 			Log(s:"\cjOrb of Corruption does \cgnothing!");
@@ -1075,38 +1074,38 @@ void DoCorruptOrbMessage(int val) {
 			Log(s:"\cjOrb of Corruption \cgtakes away all your ammo!");
 		break;
 		case CORRUPTORB_TAKEBACKPACK:
-			Log(s:"\cjOrb of Corruption \cgtakes away ", d:temp, s:" of your backpacks!");
+			Log(s:"\cjOrb of Corruption \cgtakes away ", d:affluence, s:" of your backpacks!");
 		break;
 		case CORRUPTORB_TAKEDMG:
-			Log(s:"\cjOrb of Corruption takes \cg", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * temp), s:"% damage\cj from \cv", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption takes \cg", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% damage\cj from \cv", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
 			Log(s:"\cjOrb of Corruption \cgreduces your damage by 75%\cj for this map!");
 		break;
 		case CORRUPTORB_TAKEHP:
-			Log(s:"\cjOrb of Corruption \cgreduces your life cap by ", d:CORRUPTORB_HPTAKE * temp, s:"\cj!");
+			Log(s:"\cjOrb of Corruption \cgreduces your life cap by ", d:CORRUPTORB_HPTAKE * affluence, s:"\cj!");
 		break;
 		case CORRUPTORB_TAKESPEED:
-			Log(s:"\cjOrb of Corruption \cgreduces your movement speed by ", f:ftrunc(CORRUPTORB_SPEEDTAKE * temp * 100), s:"%\cj!");
+			Log(s:"\cjOrb of Corruption \cgreduces your movement speed by ", f:ftrunc(CORRUPTORB_SPEEDTAKE * affluence * 100), s:"%\cj!");
 		break;
 		
 		case CORRUPTORB_ADDCRIT:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITGIVE * temp * 100), s:"%\cj increased crit chance to \cv", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj increased crit chance to \cv", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_ADDCRITDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * temp * 100), s:"%\cj crit damage to ", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj crit damage to ", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_ADDDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_DMGGIVE * temp * 100), s:"%\cj increased damage to ", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj increased damage to ", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_ADDSPEED:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * temp * 100), s:"%\cj increased movement speed!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * affluence * 100), s:"%\cj increased movement speed!");
 		break;
 		case CORRUPTORB_DROPCHANCE:
-			Log(s:"\cjOrb of Corruption increases your drop chance by \cv", f:ftrunc(CORRUPTORB_DROPCHANCEGIVE * temp * 100), s:"%\cj!");
+			Log(s:"\cjOrb of Corruption increases your drop chance by \cv", f:ftrunc(CORRUPTORB_DROPCHANCEGIVE * affluence * 100), s:"%\cj!");
 		break;
 		case CORRUPTORB_GIVESTAT:
-			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * temp, s:" ", s:StatLabels[val >> 8], s:"\cj points!");
+			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", s:StatLabels[val >> 8], s:"\cj points!");
 		break;
 	}
 }
@@ -1173,22 +1172,22 @@ void UndoCorruptOrbEffect() {
 	}
 }
 
-void HandleOrbUseMessage(int orbtype, int val) {
+void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 	if(ConsolePlayerNumber() != PlayerNumber()) 
 		return;
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Enhancement improves \cd", s:Weapons[val][WEAPON_TAG], s:"\cv damage by \cd", d:GetAffluenceBonus() * ENHANCEORB_BONUS, s:"%\c-!");
+				Log(s:"\cjOrb of Enhancement improves \cd", s:Weapons[val][WEAPON_TAG], s:"\cv damage by \cd", d:affluence * ENHANCEORB_BONUS, s:"%\c-!");
 			else
 				Log(s:"\cgYou're maxed out on enhancements, Orb of Enhancement failed!");
 		break;
 		case DND_ORB_CORRUPT:
-			DoCorruptOrbMessage(val);
+			DoCorruptOrbMessage(val, affluence);
 		break;
 		case DND_ORB_SPIRIT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Spirit grants you with \cv", d:GetAffluenceBonus(), s:" \cd", s:StatLabels[val], s:"\cv!");
+				Log(s:"\cjOrb of Spirit grants you with \cv", d:affluence, s:" \cd", s:StatLabels[val], s:"\cv!");
 			else
 				Log(s:"\cgYou're maxed out on stats, Orb of Spirit failed!");
 		break;
@@ -1200,7 +1199,7 @@ void HandleOrbUseMessage(int orbtype, int val) {
 		break;
 		case DND_ORB_AFFLUENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Affluence will improve the effect of the next orb used by \cd", d:GetAffluenceBonus(), s: "\c- times!");
+				Log(s:"\cjOrb of Affluence will improve the effect of the next orb used by \cd", d:affluence, s: "\c- times!");
 			else
 				Log(s:"\cgYou've reachde max stacks of Orb of Affluence. (\ck", d:1 << AFFLUENCE_MAX, s:"\cg)");
 		break;
@@ -1212,39 +1211,39 @@ void HandleOrbUseMessage(int orbtype, int val) {
 		break;
 		case DND_ORB_PROSPERITY:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Prosperity grants \cd", d:GetAffluenceBonus(), s:" armor and health cap\cv increase!");
+				Log(s:"\cjOrb of Prosperity grants \cd", d:affluence, s:" armor and health cap\cv increase!");
 			else
 				Log(s:"\cgMax prosperity bonus reached! (\ck+", d:PROSPERITY_MAX, s:"\c-)");
 		break;
 		case DND_ORB_FORTITUDE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Fortitude grants \cd", d:GetAffluenceBonus(), s:"% armor and health cap\cv increase!");
+				Log(s:"\cjOrb of Fortitude grants \cd", d:affluence, s:"% armor and health cap\cv increase!");
 			else
 				Log(s:"\cgMax fortitude bonus reached! (\ck", d:FORTITUDE_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_WISDOM:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Wisdom grants \cd", d:GetAffluenceBonus(), s:"% experience gain\cv increase!");
+				Log(s:"\cjOrb of Wisdom grants \cd", d:affluence, s:"% experience gain\cv increase!");
 			else
 				Log(s:"\cgMax wisdom bonus reached! (\ck", d:WISDOMORB_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_GREED:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Greed grants \cd", d:GetAffluenceBonus(), s:"% credit gain\cv increase!");
+				Log(s:"\cjOrb of Greed grants \cd", d:affluence, s:"% credit gain\cv increase!");
 			else
 				Log(s:"\cgMax greed bonus reached! (\ck", d:GREEDORB_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_VIOLENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Violence grants \cd", d:GetAffluenceBonus(), s:"% ", s:TalentTypeNames[val], s:" Damage\cv increase!");
+				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentTypeNames[val], s:" Damage\cv increase!");
 			else
 				Log(s:"\cgMax violence bonus reached! (\ck", d:VIOLENCEORB_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_SIN:
 			if(val != 0x7FFFFFFF)
-				DoSinOrbMessage(val);
+				DoSinOrbMessage(val, affluence);
 			else
-				Log(s:"\cgYou don't have enough allocated states! Need at least \ck", d:SINORB_MAX_TAKE * GetAffluenceBonus(), s:"\c-!");
+				Log(s:"\cgYou don't have enough allocated states! Need at least \ck", d:SINORB_MAX_TAKE * affluence, s:"\c-!");
 		break;
 		case DND_ORB_RICHES:
 			if(!(val >> 16)) // exp
@@ -1256,7 +1255,7 @@ void HandleOrbUseMessage(int orbtype, int val) {
 		break;
 		case DND_ORB_HOLDING:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Holding grants \cd", f:ftrunc(val * 100), s:"% increased ammo capacity!");
+				Log(s:"\cjOrb of Holding grants \cd", f:ftrunc(val * affluence * 100), s:"% increased ammo capacity!");
 			else
 				Log(s:"\cgYou're maxed out on holding bonuses! (\ck", f:ftrunc(HOLDING_MAX * 100), s:"\c-)!");
 		break;

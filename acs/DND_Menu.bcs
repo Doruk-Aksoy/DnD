@@ -42,7 +42,8 @@ Script 900 (void) NET {
 		ACS_NamedExecuteAlways("DND Menu Draw", 0);
 	}
 	else {
-		if(!PlayerIsSpectator(PlayerNumber()) && !CheckInventory("ParsingData")) {
+		// a little extra check for singleplayer case
+		if((GameType() == GAME_SINGLE_PLAYER || !PlayerIsSpectator(PlayerNumber())) && !CheckInventory("ParsingData")) {
 			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 			GiveInventory("P_Frozen", 1);
 			StatListOpened[PlayerNumber()] = 1;
@@ -161,8 +162,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			// play sound if box changed
 			// ifs are seperate because scroll pos should only change if current in-pane box is changed
 			if(boxid != boxid_prev && boxid != MAINBOX_NONE) {
-				if(curopt != MENU_LOAD4)
-					ScrollPos = 0;
+				ScrollPos = 0;
 				LocalAmbientSound("RPG/MenuMove", 127);
 			}
 			if(mainboxid_prev != mainboxid && mainboxid != MAINBOX_NONE)
@@ -342,44 +342,23 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 					HudMessage(f:ftrunc((DND_TALENT_INCREASE + j) * CheckInventory(TalentNames[i])), s:"% (\cd", d:CheckInventory(TalentNames[i]), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - i - MAX_TALENTS - 2, CR_WHITE, 448.2, 64.0 + 16.0 * i, 0.0, 0.0);
 				}
 			}
-			else if(curopt == MENU_LOAD4) {
-				if(!k)
-					ResetPane(CurrentPane);
+			else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
 				// if RES_ACCESSORY is not made, don't let player do anything here
 				if(CheckResearchStatus(RES_ACCESSORY) != RES_DONE)
 					HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 				else {
-					ListenScroll(-72 * (i / 3), 0);
-
-					HudMessage(s:"--- Current Accessories ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-					i = 0;
-					SetHudClipRect(192, 52, 256, 512, 256, 1);
-					for(j = 0; j < MAX_ACCESSORY; ++j) {
-						if(CheckInventory(AccessoryList[j])) {
-							if(!k) { // don't keep adding boxes
-								auto r = LoadRect(curopt, j); // j is accessory index, we load x index from rect list
-								// 95 is how much one label is moved down, i counts labels
-								AddBoxToPane_Points(CurrentPane, r.topleft_x, r.topleft_y - 95.0 * i, r.botright_x, r.botright_y - 95.0 * i);
-							}
-							if(boxid == i + 1) {
-								HudMessage(s:"\c[B1]", s:AccessoryNames[j]; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i, CR_GREEN, 316.4, 52.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
-								HudMessage(s:StrParam(s:"+ ", s:AccessoryBenefits[j], s:"\n\c[D4]- ", s:AccessoryNegatives[j]); HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i - 1, CR_GREEN, 192.1, 84.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
-							}
-							else if(IsAccessoryEquipped(0, 1 << j)) {
-								HudMessage(s:AccessoryNames[j]; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i, CR_GOLD, 316.4, 52.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
-								HudMessage(s:StrParam(s:"\c[V2]+ ", s:AccessoryBenefits[j], s:"\n\c[C5]- ", s:AccessoryNegatives[j]); HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i - 1, CR_GREEN, 192.1, 84.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
-							}
-							else {
-								HudMessage(s:"\c[Y5]", s:AccessoryNames[j]; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i, CR_WHITE, 316.4, 52.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
-								HudMessage(s:StrParam(s:"+ ", s:AccessoryBenefits[j], s:"\n\c[I7]- ", s:AccessoryNegatives[j]); HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_ACCESSORYITEMS * i - 1, CR_WHITE, 192.1, 84.1 + 96.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
-							}
-							ShowAccessoryIcon(j, i);
-							++i;
-						}
-					}
-					k = 1;
-					SetHudClipRect(0, 0, 0, 0, 0);
+					HudMessage(s:"--- Current Accessories #", d:curopt - MENU_FIRST_ACCESSORY_PAGE + 1, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+					// init limits
+					i = ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE);
+					k = Min(i + ACCESSORY_PER_PAGE, MAX_ACCESSORY);
+					for(j = i; j < k; ++j)
+						DrawAccessory(j, boxid, curopt, CurrentPane);
 				}
+				
+				if(curopt != MENU_LAST_ACCESSORY_PAGE)
+					HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				if(curopt != MENU_FIRST_ACCESSORY_PAGE)
+					HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_SHOP) {
 				HudMessage(s:"--- DnD Shop ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1028,27 +1007,26 @@ Script "DND Menu Input Handle" (void) {
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
 				UpdateMenuPosition(0, MENU_LOAD);
 		}
-		else if(curopt == MENU_LOAD4) {
-			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
+		else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice") == 1) {
 				if(boxid >= MBOX_1) {
-					// figure out which accessory this player might have pressed
-					// start linear search from acc_1, until last to find matching acc, equip or unequip if needed
-					int i = 0; // count how many we have to skip
-					temp = 0;
-					for(i = 0; i < MAX_ACCESSORY && temp < boxid; ++i) {
-						if(CheckInventory(AccessoryList[i]))
-							++temp;
+					// i is the accessory to toggle
+					temp = boxid + ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE) - 1;
+					// I don't have this
+					if(!CheckInventory(AccessoryList[temp])) {
+						LocalAmbientSound("RPG/MenuError", 127);
+						GiveInventory("DnD_ShowPopup", 1);
+						GiveInventory("DnD_PopupError", 1);
+						SetInventory("DnD_PopupId", POPUP_ACCESSORYNOTFOUND);
 					}
-					--i; // we overcount by one
-					// i will be the accessory we must toggle now
-					if(IsAccessoryEquipped(0, 1 << i)) {
+					else if(IsAccessoryEquipped(0, 1 << temp)) { // I have and already equipped it
 						LocalAmbientSound("RPG/MenuChoose", 127);
-						UnequipAccessory(1 << i);
+						UnequipAccessory(1 << temp);
 					}
-					else if(!ReachedAccessoryLimit()) {
+					else if(!ReachedAccessoryLimit()) { // I don't have this, and didn't equip
 						LocalAmbientSound("RPG/MenuChoose", 127);
-						EquipAccessory(1 << i);
+						EquipAccessory(1 << temp);
 					}
 					else {
 						// make into some popup function later
@@ -1060,8 +1038,16 @@ Script "DND Menu Input Handle" (void) {
 				}
 				SetInventory("MadeChoice", 0);
 			}
-			else if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
-				UpdateMenuPosition(0, MENU_LOAD);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
+				if(curopt != MENU_FIRST_ACCESSORY_PAGE)
+					UpdateMenuPosition(0, curopt - 1);
+				else
+					UpdateMenuPosition(0, MENU_LOAD);
+			}
+			else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT) {
+				if(curopt != MENU_LAST_ACCESSORY_PAGE)
+					UpdateMenuPosition(0, curopt + 1);
+			}
 			SetInventory("MadeChoice", 0);
 		}
 		else if(curopt == MENU_SHOP) {

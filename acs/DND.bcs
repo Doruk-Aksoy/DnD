@@ -2990,9 +2990,9 @@ Script "DND HeavyGL Check" (int x, int y, int z) {
 	SetResultValue(res);
 }
 
-Script "DND Orb Use Message" (void) CLIENTSIDE {
+Script "DND Orb Use Message" (int affluence) CLIENTSIDE {
 	Delay(5);
-	HandleOrbUseMessage(CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"));
+	HandleOrbUseMessage(CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence);
 }
 
 Script "DND Orb Use Check" (int orbtype) {
@@ -3001,7 +3001,7 @@ Script "DND Orb Use Check" (int orbtype) {
 
 Script "DND Orb Use" (int orbtype) {
 	HandleOrbUse(orbtype);
-	ACS_NamedExecuteAlways("DND Orb Use Message", 0);
+	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
 	ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, PlayerNumber());
 	Delay(2);
 	if(orbtype != DND_ORB_AFFLUENCE)
