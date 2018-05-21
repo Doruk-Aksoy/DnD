@@ -4,7 +4,7 @@
 #include "DnD_Common.h"
 
 #define SHARED_ITEM_TID_BEGIN 17000
-#define SHARED_ITEM_TID_MAX 2048
+#define SHARED_ITEM_TYPE_TIDS_MAX 512
 
 #define LIMITED_RESPAWN_TID_BEGIN 19049
 #define LIMITED_RESPAWN_TID_END 29049
@@ -44,14 +44,11 @@ str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 	"TalentCapsule_SP"
 };
 
-struct sif {
-	bool semaphore[MAXPLAYERS];
-	bool pickup_state[MAXPLAYERS];
-};
-
 int shared_item_counter = 0;
+int shared_type_items_counter[MAX_SHARED_ITEM_TYPES] = {0,0,0,0,0,0,0,0};
+bool Shared_Item_pickup_state[MAX_SHARED_ITEM_TYPES][SHARED_ITEM_TYPE_TIDS_MAX][MAXPLAYERS];
+
 int limitedrespawn_item_counter = 0;
-struct sif Shared_Item_Info[SHARED_ITEM_TID_MAX];
 int LimitedItem_Respawns[LIMITED_RESPAWN_MAX];
 
 // allow max 16 items
@@ -59,31 +56,18 @@ int shared_item_queue_count = 0;
 int shared_item_clientside_queue[16];
 
 // expects player tid for now
-int GetClosestSharedItem(int tid) {
+int GetClosestSharedItem(int tid, int type) {
 	int closest = -1;
-	int mindist = 40.0, curdist = 0, i = 0;
-	for(i = 0; i < shared_item_counter; ++i) {
-		if(Shared_Item_Info[i].pickup_state[tid - P_TIDSTART])
+	int mindist = 80.0, curdist = 0, i = 0;
+	for(i = 0; i < shared_type_items_counter[type]; ++i) {
+		if(Shared_Item_pickup_state[type][i][tid - P_TIDSTART])
 			continue;
-		curdist = fdistance(tid, SHARED_ITEM_TID_BEGIN + i);
+		curdist = fdistance(tid, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + i);
 		if(curdist <= mindist) {
 			mindist = curdist;
 			closest = i;
 		}
 	}
-	// if this is picked, search again for another candidate on the same dist (handles corner case: stacked item)
-	/*if(Shared_Item_Info[closest].pickup_state[tid - P_TIDSTART]) {
-		closest = -1;
-		for(i = 0; i < shared_item_counter; ++i) {
-			if(Shared_Item_Info[i].pickup_state[tid - P_TIDSTART])
-				continue;
-			curdist = fdistance(tid, SHARED_ITEM_TID_BEGIN + i);
-			if(curdist == mindist) {
-				closest = i;
-				break;
-			}
-		}
-	}*/
 	return closest;
 }
 
