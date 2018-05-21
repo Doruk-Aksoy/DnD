@@ -257,17 +257,16 @@ ACTOR "Soul Render" : Weapon
 {
    Inventory.PickupMessage "You got the Soul Render!"
    Obituary "%k sliced and diced %o to pieces."
-   Weapon.AmmoType "BladeCharge"
+   Weapon.AmmoType "BladeHits"
    Weapon.SelectionOrder 6666
-   Weapon.AmmoUse 100
    +WEAPON.AXEBLOOD
    +AMMO_OPTIONAL
    +ALT_AMMO_OPTIONAL
    +WEAPON.NOALERT
    Weapon.AmmoUse 0
    Weapon.AmmoGive 0
-   Weapon.AmmoType "BladeCharge"
-   Weapon.AmmoType2 "BladeHits"
+   Weapon.AmmoType "BladeHits"
+   Weapon.AmmoType2 "BladeCharge"
    Weapon.AmmoGive2 0
    Weapon.AmmoUse2 0
    Weapon.Slotnumber 9
@@ -290,17 +289,15 @@ ACTOR "Soul Render" : Weapon
 	  VBLG A 1 Offset(0, 72)
 	  VBLG A 1 Offset(0, 80)
 	  VBLG A 1 Offset(0, 88)
-	  TNT1 A 0 A_JumpIfInventory("BladeHits", 100, "RemoveCont") 
-   Goto RiseBack
-   RemoveCont:
+	  TNT1 A 0 A_JumpIfInventory("BladeHits", 1, "RiseBack") 
 	  VBLG A 1 Offset(0, 96)
 	  TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
       TNT1 A 0 A_TakeInventory("BladeCharge", 100)
-	  TNT1 A 0 A_TakeInventory("BladeHits", 100)
+	  TNT1 A 0 A_TakeInventory("BladeHits", 0)
 	  TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
 	  TNT1 A 0 A_TakeInventory("Soul Render", 1)
 	  TNT1 A 1
-      Stop	  
+      Stop
 	RiseBack:
 		VBLG A 1 Offset(0, 88)
 		VBLG A 1 Offset(0, 80)
@@ -312,13 +309,15 @@ ACTOR "Soul Render" : Weapon
     Goto Ready
    Ready:
 	  TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
-      TNT1 A 0 A_JumpIfInventory("BladeHits", 100, "Remove")
 	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+      TNT1 A 0 A_JumpIfInventory("BladeHits", 1, "NoRemove")
+	Goto Remove
+	NoRemove:
 	  TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
       TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "ChargeReady")
 	  TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainReady")
       VBLG A 1 A_WeaponReady
-      Loop
+	Goto Ready
    DrainReady:
       TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
       VB2G A 1 Bright A_WeaponReady
@@ -379,7 +378,6 @@ ACTOR "Soul Render" : Weapon
    Fire:
 	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
       // This fixes the A_Refire not making you go to Ready for the removal of the weapon
-	  TNT1 A 0 A_JumpIfInventory("BladeHits", 100, "Remove")
       TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Fire2")
 	  TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainFire")
       VBLG B 3 A_AlertMonsters
@@ -416,7 +414,7 @@ ACTOR "Soul Render" : Weapon
 	  TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
 	  TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
       TNT1 A 0 A_SetInvulnerable
-	  TNT1 A 0 A_GiveInventory("BladeHits", 15)
+	  TNT1 A 0 A_TakeInventory("BladeHits", 15)
 	  TNT1 A 0 A_TakeInventory("BladeCharge", 100)
 	  TNT1 A 0 Radius_Quake(6,6,0,1,0)
       VB3G G 1 Bright A_GiveInventory("SoulRenderShooter3", 1)
@@ -442,10 +440,12 @@ ACTOR "Soul Render" : Weapon
       TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 	  TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "TakeDrain")
 	  TNT1 A 0 A_GiveInventory("DrainMode", 1)
+	  TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Ready") //Skip regular/green if charge is at 100%
 	  VB2G AB 3 Bright
    Goto Ready
    TakeDrain:
 	  TNT1 A 0 A_TakeInventory("DrainMode", 1)
+	  TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Ready") //Skip regular/green if charge is at 100%
 	  VBLG A 6
    Goto Ready
    DrainFire:
@@ -697,6 +697,7 @@ ACTOR BladePuff1
       VFX2 A 0
       VFX2 A 1 A_PlaySound("weapons/vblhit")
       VFX2 A 2 A_GiveToTarget("BladeCharge", 5)
+	  VFX2 A 2 A_TakeFromTarget("BladeHits", 1)
       VFX2 BCDE 3
       Stop
    Crash:
@@ -731,6 +732,7 @@ ACTOR BladePuff2
       VFX3 A 1 Bright A_PlaySound("weapons/vblhi2")
       TNT1 A 0 A_GivetoTarget("SoulRenderHealerWeak", 1)
       VFX3 A 2 Bright A_GiveToTarget("BladeCharge", 15)
+	  VFX3 A 2 Bright A_TakeFromTarget("BladeHits", 2)
 	  TNT1 AAAAAAAAAAAAAAA 0 A_CustomMissile("SwordFXGreen", random(0, 8), random(-4, 4), random(0, 360), 0, random(-16, 16))
       VFX3 BCDEFGHIJ 3 Bright
       Stop
@@ -758,6 +760,7 @@ ACTOR BladePuff3 : BladePuff2
       VFX6 A 1 Bright A_PlaySound("weapons/vblhi3")
       TNT1 A 0 A_GivetoTarget("SoulRenderHealer", 1)
       VFX6 A 2 Bright A_GiveToTarget("BladeCharge", 15)
+	  VFX6 A 2 Bright A_TakeFromTarget("BladeHits", 2)
 	  TNT1 AAAAAAAAAAAAAAA 0 A_CustomMissile("SwordFXRed", random(0, 8), random(-4, 4), random(0, 360), 0, random(-16, 16))
       VFX6 BCDE 3 Bright
       Stop
@@ -781,7 +784,7 @@ Actor SoulRenderHealerWeak : CustomInventory
 	States
 	{
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(818, 0, 10)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 10)
 		Stop
 	}
 }
@@ -792,7 +795,7 @@ Actor SoulRenderHealer: SoulRenderHealerWeak
 	{
 		Pickup:
 			TNT1 A 0 A_GiveInventory("Souls", 2)
-			TNT1 A 0 ACS_ExecuteAlways(818, 0, 30)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 30)
 		Stop
 	}
 }
@@ -813,7 +816,7 @@ Actor SoulRenderPickup : CustomInventory
 		Fail
 		Success:
 			TNT1 A 0 A_GiveInventory("Soul Render", 1)
-			TNT1 A 0 A_TakeInventory("BladeHits", 100)
+			TNT1 A 0 A_TakeInventory("BladeCharge", 100)
 			TNT1 A 0 A_GiveInventory("BladeHits", 15*random(0,3))
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop

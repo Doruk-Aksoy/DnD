@@ -1317,12 +1317,12 @@ Script 962 (int monsterid, int traits, int traits2) {
 Script 957 (int category) {
     // count and initialization
 	int i = 0;
+    // add up total count and weight sum of category
     if(!Monster_VariationCounts[category]) {
-        // add up total count and weight sum of category
         for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != -1; Monster_CategoryWeightSum[category] += Monster_Weights[category][i], ++i);
-        Monster_VariationCounts[category] = i + 1;
-    }
-    
+		Monster_VariationCounts[category] = i;
+	}
+		
     int sum = Monster_CategoryWeightSum[category];
     int picked = 0;
     // for each bin, do condition check, see if roll fits in a range
@@ -1345,14 +1345,8 @@ Script 957 (int category) {
 		while(!picked) {
 			roll = random(0, sum);
 			bin = 0;
-			for(i = Monster_Weights[category][0]; i < sum && i < roll; ++bin) {
-				// don't go over array index below
-				if(bin >= Monster_VariationCounts[category] - 1) {
-					++bin;
-					break;
-				}
-				i += Monster_Weights[category][bin + 1];
-			}
+			for(i = Monster_Weights[category][bin]; bin <= Monster_VariationCounts[category] && i < roll; ++bin)
+				i += Monster_Weights[category][bin];
 			// go to vanilla if bin is 0
 			if(!bin) {
 				SetActorState(0, "Vanilla", true);

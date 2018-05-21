@@ -767,7 +767,7 @@ void ProcessTrade (int posy, int low, int high, int tradeflag) {
 	int itemid, price, buystatus;
 	if(tradeflag & TRADE_BUY) {
 		itemid = low + posy;
-		if(itemid <= high && CheckInventory("MadeChoice")) {
+		if(itemid <= high) {
 			// consider the research if this item has any
 			if(!CheckItemRequirements(itemid, RES_DONE, GetItemFlags(itemid))) {
 				ShowNeedResearchPopup();
