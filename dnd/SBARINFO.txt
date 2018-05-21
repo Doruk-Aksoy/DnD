@@ -478,11 +478,11 @@ statusbar normal, fullscreenoffsets {
           // and the bar frame in "normal" color
           InInventory H_PrimaryGreen
           {
-			IsSelected "Soul Render" {
+			/*IsSelected "Soul Render" {
 				drawimage "H_ARFW01", -185, -48;
 				drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -45;
 				drawnumber 4, HUDFONT2_DOOM, NCRed, ammo1, -189, -47;
-			}
+			}*/
 			
 			IsSelected " Shotgun ", "Upgraded Shotgun" {
 				drawimage "H_BRFRMX", -185, -48;
@@ -574,7 +574,7 @@ statusbar normal, fullscreenoffsets {
 				}
 			}
 			
-			IsSelected not "Soul Render", " Shotgun " {
+			IsSelected not " Shotgun " {
 				IsSelected not "Upgraded Shotgun", "ResShotgun1" {
 					IsSelected not " Machine Gun ", "ResMG1" {
 						IsSelected not "ResMG2" {
@@ -698,11 +698,11 @@ statusbar normal, fullscreenoffsets {
           // and the bar frame in glowing "normal"
           InInventory H_PrimaryRed
           {
-		    IsSelected "Soul Render" {
+		    /*IsSelected "Soul Render" {
 			    drawimage "H_BRFRMX", -185, -48;
 			    drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -45;
 			    drawnumber 4, HUDFONT2_DOOM, NCGreen, ammo1, -189, -47;
-			}
+			}*/
 			
 			IsSelected " Shotgun ", "Upgraded Shotgun" {
 			    drawimage "H_BRFRMX", -185, -48;
@@ -794,7 +794,7 @@ statusbar normal, fullscreenoffsets {
 				}
 			}
 			
-			IsSelected not "Soul Render", " Shotgun " {
+			IsSelected not " Shotgun " {
 				IsSelected not "Upgraded Shotgun", "ResShotgun1" {
 					IsSelected not " Machine Gun ", "ResMG1" {
 						IsSelected not "ResMG2" {
@@ -811,7 +811,7 @@ statusbar normal, fullscreenoffsets {
 
           InInventory H_SecondaryGreen
           {
-			IsSelected "Upgraded Plasma Rifle", "Soul Render" {
+			IsSelected "Upgraded Plasma Rifle" {
 				drawimage "H_ARFW01", -185, -74;
 				drawbar "H_BRFILR", "H_BRFBGR", ammo2, horizontal, reverse, -182, -71;
 				drawnumber 4, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
@@ -829,7 +829,7 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 4, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
 			}
 			
-			IsSelected not "Upgraded Plasma Rifle", "Soul Render" {
+			IsSelected not "Upgraded Plasma Rifle" {
 				IsSelected not "SawedOff", "ResBfg1" {
 					drawimage "H_BRFRMX", -185, -74;
 					drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
@@ -847,7 +847,7 @@ statusbar normal, fullscreenoffsets {
 
           InInventory H_SecondaryRed
           {
-			IsSelected "Upgraded Plasma Rifle", "Soul Render" {
+			IsSelected "Upgraded Plasma Rifle" {
 				drawimage "H_BRFRMX", -185, -74;
 				drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
 				drawnumber 4, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
@@ -865,7 +865,7 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 4, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
 			}
 			
-			IsSelected not "Upgraded Plasma Rifle", "Soul Render" {
+			IsSelected not "Upgraded Plasma Rifle" {
 				IsSelected not "SawedOff", "ResBfg1" {
 					drawimage "H_ARFW01", -185, -74;
 					drawbar "H_BRFILR", "H_BRFBGR", ammo2, horizontal, reverse, -182, -71;

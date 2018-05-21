@@ -184,7 +184,7 @@ str Weapons[MAXWEPS][7] = {
 	 { "Soul Reaver",						"Soul Reaver",				"8",		"Souls",			" ",							"GotReaver",				"REAVICO"				},
 	 
 	 { "Sawedoff",							"Sawedoff",					"9",		"SawedoffShell",	"SawedoffCounter",		        "GotSawedoff",				"SAWNICO"			    },
-	 { "Soul Render",						"Soul Render",				"9",		"BladeCharge",		"BladeHits",				    "GotSoul",					"SWOICO"			    },
+	 { "Soul Render",						"Soul Render",				"9",		"BladeHits",		"BladeCharge",				    "GotSoul",					"SWOICO"			    },
 	 { "SMG",								"SMG",						"9",		"SMGAmmo",			" ",							"GotSMG",					"SMGICO"  			    },
 	 { "Hellforge Cannon",				    "Hellforge Cannon",			"9",		"IronBalls",		"IronBalls",					"GotHell",					"WHFCA0"  			    },
 	 { "Bloodfiend Spine",				    "Bloodfiend Spine",			"9",		"BloodAmmo",		"BloodAmmo",			        "GotGore",					"WGORA0"  			    },
