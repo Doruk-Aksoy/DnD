@@ -391,7 +391,7 @@ Actor VolcanoFireball6Fire_FullDMG : VolcanoFireball6Fire {
 
 ACTOR LichPuff : PhoenixPuff
 {
-		Scale 2.0
+	Scale 2.0
 }
 
 Actor HellFireLinkFExp : BaseExplosionDamage {
@@ -468,18 +468,23 @@ Actor HellFireLinkF
 Actor HellFireLinkF_FullDMG : HellFireLinkF {
 	DamageType "SoulTypeFull"
 	States {
-  Death:
-    TNT1 A 0 A_Stop
-	TNT1 A 0 A_PlaySound("weapons/deathstexp2")
-	TNT1 A 0 A_SpawnItemEx ("DeathStaffFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
-	TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-    FX13 I 4 Bright A_SpawnItem("HellFireLinkFExp_FullDMG")
-    FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Rise_FullDMG", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
-    Stop
-  LessDmg:
-    FX13 I 4 Bright A_SpawnItem("HellFireLinkFExp2_FullDMG")
-    FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Rise_FullDMG", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
-    Stop
+		Spawn:
+			TNT1 A 0
+			TNT1 AAAAAAAAAA 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+			TNT1 A 0 A_CountDown
+		Loop
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_PlaySound("weapons/deathstexp2")
+			TNT1 A 0 A_SpawnItemEx ("DeathStaffFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			FX13 I 4 Bright A_SpawnItem("HellFireLinkFExp_FullDMG")
+			FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Rise_FullDMG", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
+		Stop
+		LessDmg:
+			FX13 I 4 Bright A_SpawnItem("HellFireLinkFExp2_FullDMG")
+			FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Rise_FullDMG", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
+		Stop
 	}
 }
 
@@ -504,7 +509,7 @@ Actor HellFireLinkC : HellFireLinkF
     Stop
   LessDmg:
     FX13 I 4 Bright A_SpawnItem("HellFireLinkFExp2")
-    FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Rise", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
+    FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Fall", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
     Stop
   }	
 }
@@ -516,7 +521,7 @@ Actor HellFireLinkC_FullDMG : HellFireLinkC
   {
   Spawn:
     TNT1 A 0
-    TNT1 AAAAAAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
+    TNT1 AAAAAAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 A_CountDown
   Loop
   Death:
@@ -529,7 +534,7 @@ Actor HellFireLinkC_FullDMG : HellFireLinkC
     Stop
   LessDmg:
     FX13 I 4 Bright A_SpawnItem("HellFireLinkFExp2_FullDMG")
-    FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Rise_FullDMG", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
+    FX13 JJJJKKKKLLLLMMMM 1 Bright A_SpawnItemEx("VolcanoFireball6NOFIRE_Fall_FullDMG", random(-2,2), random(-2,2), 0, random(-4,4), random(-4,4))
     Stop
   }	
 }
@@ -542,13 +547,13 @@ Actor HellFireLinkFL : HellFireLinkF
     TNT1 A 0
     TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 A_CountDown
   Loop
   }
@@ -559,7 +564,7 @@ Actor HellFireLinkFL_FullDMG : HellFireLinkF_FullDMG {
   {
   Spawn:
     TNT1 A 0
-    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
+    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
 	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
@@ -581,13 +586,13 @@ Actor HellFireLinkFR : HellFireLinkFL
     TNT1 A 0
     TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
 	TNT1 A 0 A_CountDown
   Loop
   }
@@ -599,7 +604,7 @@ Actor HellFireLinkFR_FullDMG : HellFireLinkFL_FullDMG
   {
   Spawn:
     TNT1 A 0
-    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailF", random(-4,4), random(-4,4))
+    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
 	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailF_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
@@ -621,13 +626,13 @@ Actor HellFireLinkCL : HellFireLinkC
     TNT1 A 0
     TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 A_CountDown
   Loop
   }
@@ -639,7 +644,7 @@ Actor HellFireLinkCL_FullDMG : HellFireLinkC_FullDMG
   {
   Spawn:
     TNT1 A 0
-    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
+    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
 	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360+64, 8, 0, 0)
@@ -661,13 +666,13 @@ Actor HellFireLinkCR : HellFireLinkCL
     TNT1 A 0
     TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
-	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
+	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
 	TNT1 A 0 A_CountDown
   Loop	
   }
@@ -679,7 +684,7 @@ Actor HellFireLinkCR_FullDMG : HellFireLinkCL_FullDMG
   {
   Spawn:
     TNT1 A 0
-    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC", random(-4,4), random(-4,4))
+    TNT1 AAAAAA 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)
 	TNT1 A 2 Bright A_SpawnItemEx("HellFireTrailC_FullDMG", random(-4,4), random(-4,4))
 	TNT1 A 0 ThrustThing(angle*256/360-64, 8, 0, 0)

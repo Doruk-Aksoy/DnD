@@ -44,6 +44,8 @@
 #define FIELDKITMAX 3
 #define RESETMAX 1
 
+#define ACCESSORY_PER_PAGE 5
+
 typedef struct rect {
 	int topleft_x;
 	int topleft_y;
@@ -1069,9 +1071,9 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 };
 
 str AttributeExplanation[MAXATTRIBUTES] = {
-	"Increases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \qKnockback Resist\c- by 50.",
+	"Increases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.",
 	"Increases \cfNon-Magical Talent Bonuses\c- by 0.1%.",
-	"Increases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \qKnockback Resist\c- by 25.",
+	"Increases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.",
 	"Reduces \cishop prices\c- by 0.5%.",
 	"Increases \cgHealth\c- Cap by 4.",
 	"Increases \cmOccult Talent Bonus\c- by 0.1%."
@@ -1181,7 +1183,7 @@ str AccessoryBenefits[MAX_ACCESSORY] = {
 	"Gives x2 elemental damage to a single element for 15 seconds. This works in a rotation.",
 	"Gives 25% increased health and armor capacity.",
 	"Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage they replenish 3% of your max health on kill.",
-	"On a critical hit, your next crit's damage is doubled. Expending this crit heals you for 10% of missing health. Lasts for 5 seconds or until you expend the crit."
+	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 10% of missing health. Lasts for 5 seconds or until you expend the crit."
 };
 
 str AccessoryNegatives[MAX_ACCESSORY] = {
@@ -1386,7 +1388,7 @@ str AbilityHelpText[MAXABILITIES + 1] = {
 	"You reload twice as fast.",
 	"Gain dodge moves (tap the move keys to dash).",
 	"Artifact power increases by 50%.",
-	"Gain poison resistance.",
+	"Gain 75% poison resistance.",
 	"Your explosives hurt you 50% less.",
 	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.",
 	"Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.",
@@ -1729,10 +1731,11 @@ enum {
 	POPUP_NEEDDISCOVER,
 	POPUP_ALREADYRESEARCHED,
 	POPUP_MAXACCESSORYEQUIPPED,
-	POPUP_NOTALENTPOINT
+	POPUP_NOTALENTPOINT,
+	POPUP_ACCESSORYNOTFOUND
 };
 
-#define MAX_POPUPS POPUP_NOTALENTPOINT + 1
+#define MAX_POPUPS POPUP_ACCESSORYNOTFOUND + 1
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -1744,7 +1747,8 @@ str PopupText[MAX_POPUPS] = {
 	"You need to discover\nthis research!",
 	"You already did this\nresearch!",
 	"Unequip some accesso-\nries first!",
-	"You need to acquire\ntalent points!"
+	"You need to acquire\ntalent points!",
+	"You don't have this\naccessory yet!"
 };
 
 #define MAX_HELPTEXT_RESEARCH 5
@@ -1793,7 +1797,7 @@ str HelpText_Orbs[MAX_HELPTEXT_ORBS] = {
 	"\c[Y5]Orb of Violence\nIncreases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category.",
 	"\c[Y5]Orb of Fortitude\nIncreases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-.",
 	"\c[Y5]Orb of Sin\nA pact with the devil itself, trading anywhere from \cg1 to 8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!",
-	"\c[Y5]Orb of Riches\nGrants a random resource on use. Can grant experience, credit or budget. Base values are \d5%\c- of your current level's experience, \cd2000\c- and \cd5k\c- respectively.",
+	"\c[Y5]Orb of Riches\nGrants a random resource on use. Can grant experience, credit or budget. Base values are \cd5%\c- of your current level's experience, \cd2000\c- and \cd5k\c- respectively.",
 	"\c[Y5]Orb of Holding\nIncreases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons."
 };
 
