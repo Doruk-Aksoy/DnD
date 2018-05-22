@@ -202,7 +202,7 @@ Actor YellowArmorPickup : CustomInventory {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_YELLOWARMOR), "ActualPickup")
-		Fail
+		Goto Failed
 		ActualPickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW), "Success")
 		Fail
@@ -268,7 +268,7 @@ Actor RedArmorPickup : CustomInventory {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_REDARMOR), "ActualPickup")
-		Fail
+		Goto Failed
 		ActualPickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED), "Success")
 		Fail
