@@ -189,8 +189,8 @@ str WeaponPickupText[MAXWEPS] = {
 	 
 	 "An accurate and a very reliable weapon. Each bullet does 15-20 damage. Alt fire reloads. Clip size is 50. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.", 
 	 "Finest machine guns UAC has to offer. Bullets do 25 damage in a 1.6 by 0.8 spread. Clip size is 60. Can zoom.",
-	 "Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 15 damage, reduce monster damage and resistance by 50%. If the monster is below 10% health, culls the monster.",
 	 "Lead Spitter is a super sonic bullet shooter shooting 2 bullets doing 18 damage in a 6.4 by 4.8 spread. Clip size is 75. \cfIgnores shields.",
+	 "Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 15 damage, reduce monster damage and resistance by 50%. If the monster is below 10% health, culls the monster.",
 	 "Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40. Can use \cigrenades\c-.",
 	 "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
 	 "Fires bullets doing 15 damage on hit and 5-15 damage in a 40 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 64 damage and release toxic cloud doing 5-15 damage in 96 unit radius.",

@@ -1182,7 +1182,7 @@ str AccessoryBenefits[MAX_ACCESSORY] = {
 	"Soul capacity becomes 150 and ultimate weapons do x2.5 damage.",
 	"Gives x2 elemental damage to a single element for 15 seconds. This works in a rotation.",
 	"Gives 25% increased health and armor capacity.",
-	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 10% of missing health. Lasts for 5 seconds or until you expend the crit.",
+	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 15% of missing health. Lasts for 5 seconds or until you expend the crit.",
 	"Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill."
 };
 
@@ -1781,6 +1781,16 @@ str HelpText_DamageTypes[MAX_HELPTEXT_DAMAGETYPES] = {
 	"\c[Y5]Explosive\n\nMany weapons that feature explosions use this damage type. Mostly found in \c[Y5]Slot 5\c- weapons.",
 	"\c[Y5]Energy\n\nGeneral category of the plasma type weapons. Mostly found in \c[Y5]Slot 6\c- and \c[Y5]7\c- weapons. Mechanical enemies take extra damage from this type.",
 	"\c[Y5]Elemental\n\nThis damage type is found in weapons that utilize any of the four elements in their attacks. This type is generally spread out in the weapon slots."
+};
+
+str HelpText_WeaponProp[MAX_WEAPON_PROPERTIES] = {
+	"\c[Y5]Through Ghost\n\nCan't hit enemies with the \cughost\c- modifier.",
+	"\c[Y5]Self Damage\n\nWeapon can inflict \ciself damage\c-.",
+	"\c[Y5]Overheat\n\nWeapon will \cgoverheat\c- on continuous use.",
+	"\c[Y5]Ignores Shields\n\nWeapon can \cfignore shields\c- or any kind of \cfinvulnerability\c- on monsters.",
+	"\c[Y5]Alternate Ammo\n\nWeapon supports usage of \cvalternate ammo\c- through altfire.",
+	"\c[Y5]Ripper\n\nWeapon has attacks that rip through enemies unless they have the \"Hardened Skin\" modifier.",
+	"\c[Y5]Irreducable\n\nWeapon has attacks that can't be mitigated by any resistance.",
 };
 
 #define MAX_HELPTEXT_ORBS MAX_ORBS
