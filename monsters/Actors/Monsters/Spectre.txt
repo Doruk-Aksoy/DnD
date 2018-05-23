@@ -10,7 +10,7 @@ Actor Lurker : Bloodfiend
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LURKER, DND_GHOST)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LURKER, DND_GHOST)
 Idle:
     SAR2 AB 10 A_Look
     Loop
@@ -28,7 +28,7 @@ Actor FlameDemonGhost : FlameDemon
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_FLAMEDEMON, DND_GHOST | DND_EXPLOSIVE_IMMUNE)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_FLAMEDEMON, DND_GHOST | DND_EXPLOSIVE_IMMUNE)
 Idle:
     SARG AB 10 A_Look
     Loop
@@ -69,7 +69,7 @@ ACTOR NightmareSpectre : DnD_BaseEnemy
    {
    Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_NIGHTMAREDEMON, DND_GHOST | DND_MOBILITY)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_NIGHTMAREDEMON, DND_GHOST | DND_MOBILITY)
 	Idle:
       SARG AB 8 A_Look
       Loop
@@ -124,7 +124,7 @@ Actor Gravedigger : Demon2x {
 	States {
 	  Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_GRAVEDIGGER, DND_MOBILITY | DND_GHOST)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_GRAVEDIGGER, DND_MOBILITY | DND_GHOST)
 	  Idle:
 		SARG AB 10 A_Look
 		Loop
@@ -150,7 +150,7 @@ Actor Devourer : Demon2x {
 	States {
 	  Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DEVOURER, DND_MOBILITY | DND_GHOST)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DEVOURER, DND_MOBILITY | DND_GHOST)
 	  Idle:
 		SARG AB 10 A_Look
 		Loop
@@ -167,7 +167,7 @@ Actor SoulEaterGhost : SoulEater {
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SOULEATER, DND_GHOST)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SOULEATER, DND_GHOST)
 Idle:
     SOEA AB 10 A_Look
     Loop
@@ -182,7 +182,7 @@ Actor NhumCignGhost : NhumCign {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 ACS_ExecuteAlways(964, 0, 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_NHUMCIGN, DND_MOBILITY | DND_RAGE | DND_GHOST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_NHUMCIGN, DND_MOBILITY | DND_RAGE | DND_GHOST)
 		Idle:
 			SOEA AB 10 A_Look
 		Loop

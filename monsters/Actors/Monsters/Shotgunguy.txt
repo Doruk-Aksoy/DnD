@@ -24,7 +24,7 @@ ACTOR SSGZombie : UndeadEnemy
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIESSG, DND_SILVER_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIESSG, DND_SILVER_WEAKNESS)
 	Idle:
 		GPOS A 10 A_Look
 		Loop
@@ -110,7 +110,7 @@ Actor ZSpecOpsShotgun : UndeadEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZSPECSG, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZSPECSG, DND_SILVER_WEAKNESS)
 Idle:
     ZSP1 AAAAAAAAAABBBBBBBBBB 1 A_Look
     Loop
@@ -176,7 +176,7 @@ States
  {
  Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SGLOS, DND_MOBILITY | DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SGLOS, DND_MOBILITY | DND_SILVER_WEAKNESS)
 Idle:
  ZSSG E 10 A_Look
  Loop
@@ -286,7 +286,7 @@ States
  {
  Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SSGLOS, DND_MOBILITY | DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SSGLOS, DND_MOBILITY | DND_SILVER_WEAKNESS)
 Idle:
  ZSS2 A 10 A_Look
  Loop
@@ -389,7 +389,7 @@ actor SawedOffShotgunGuy : UndeadEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SAWEDOFF1, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SAWEDOFF1, DND_SILVER_WEAKNESS)
 Idle:
     ZSDO AB 10 A_Look
     loop
@@ -451,7 +451,7 @@ actor SawedOffShotgunGuy2 : SawedOffShotgunGuy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SAWEDOFF2, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SAWEDOFF2, DND_SILVER_WEAKNESS)
 Idle:
     AZSG AB 10 A_Look
     loop
@@ -512,7 +512,7 @@ Actor QuakeZombieShotgun : QuakeZombie
     {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEQUAKE2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEQUAKE2)
 		Idle:
 			QZOM AB 10 A_Look
 			Loop
@@ -537,7 +537,7 @@ actor UndeadRogue : UndeadHunter {
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ROGUE, DND_MOBILITY | DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ROGUE, DND_MOBILITY | DND_SILVER_WEAKNESS)
 Idle:
     1083 A 10 A_Look
     loop

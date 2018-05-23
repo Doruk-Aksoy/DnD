@@ -40,7 +40,7 @@ actor Lavademon : FireElementalEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LAVADEMON, DND_MAGIC_WEAKNESS | DND_ICE_WEAKNESS | DND_MELEE_RESIST | DND_BULLET_RESIST | DND_EXPLOSIVE_IMMUNE | DND_HARDENED_SKIN)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LAVADEMON, DND_MAGIC_WEAKNESS | DND_ICE_WEAKNESS | DND_MELEE_RESIST | DND_BULLET_RESIST | DND_EXPLOSIVE_IMMUNE | DND_HARDENED_SKIN)
 Idle:
     LAVD H 0 bright A_jump(128,2)    
     LAVD H 0 bright A_CustomMissile("IceGuyWisp1",70,0) 
@@ -284,7 +284,7 @@ ACTOR LordofHeresy : DnD_BaseEnemy
     { 
     Spawn: 
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LORDOFHERESY)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LORDOFHERESY)
 	Idle:
         LOHS AB 10 A_Look 
         Loop 
@@ -387,7 +387,7 @@ Actor Cybruiser : MechanicalEnemy
   { 
   Spawn: 
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CYBRUISER, DND_ENERGY_WEAKNESS | DND_BULLET_RESIST | DND_HARDENED_SKIN)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CYBRUISER, DND_ENERGY_WEAKNESS | DND_BULLET_RESIST | DND_HARDENED_SKIN)
 Idle:
     CRUS AB 10 A_Look 
     Loop 
@@ -560,7 +560,7 @@ Actor BruiserDemon : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BRUISERDEMON)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BRUISERDEMON)
 Idle:
     BRUS AB 10 Bright A_Look 
     Loop
@@ -828,7 +828,7 @@ ACTOR Bormereth : FireElementalEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BORMERETH, DND_ICE_WEAKNESS | DND_MAGIC_WEAKNESS | DND_HOMING | DND_BLOCK)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BORMERETH, DND_ICE_WEAKNESS | DND_MAGIC_WEAKNESS | DND_HOMING | DND_BLOCK)
 	Idle:
         BORM A 10 A_Look
         Loop
@@ -1311,7 +1311,7 @@ ACTOR BloodSeeker : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BLOODSEEKER, DND_RAGE)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BLOODSEEKER, DND_RAGE)
 Idle:
     TNT1 A 0 A_TakeInventory("BeastTransform", 1)
     BDE2 AB 10 A_Look
@@ -1552,7 +1552,7 @@ Actor Barbatos : BaronofHell2 {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BARBATOS, DND_FIRE_WEAKNESS | DND_ICE_WEAKNESS | DND_EXPLOSIVE_RESIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BARBATOS, DND_FIRE_WEAKNESS | DND_ICE_WEAKNESS | DND_EXPLOSIVE_RESIST)
 		Idle:
 			CYBR AB 10 A_Look
 		Loop
@@ -1650,7 +1650,7 @@ Actor ShadowWizard : SkullWizard
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SHADOWWIZARD, DND_MAGIC_WEAKNESS | DND_TELEPORT | DND_HOMING)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SHADOWWIZARD, DND_MAGIC_WEAKNESS | DND_TELEPORT | DND_HOMING)
 Idle:
     SHWZ A 1 A_Look
     Loop
@@ -1762,7 +1762,7 @@ ACTOR Kjaroch : HellKnight2
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_KJAROCH, DND_POISON)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_KJAROCH, DND_POISON)
 	Idle:
 		LOHS AB 10 A_Look
 		Loop
@@ -2052,7 +2052,7 @@ Actor MagmaSerpent : DnD_BaseEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_MAGMASERPENT, DND_ICE_WEAKNESS | DND_EXPLOSIVE_IMMUNE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_MAGMASERPENT, DND_ICE_WEAKNESS | DND_EXPLOSIVE_IMMUNE)
 		Idle:
 			RDMN AA 10 A_Look
 		Loop
@@ -2260,7 +2260,7 @@ Actor DreadKnight : BlackKnight {
 			TNT1 A 0
 			TNT1 A 0 A_GiveInventory("MakeElementalResist", 1)
 			TNT1 A 0 A_GiveInventory("MakeMagicResist", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DREADKNIGHT, DND_SILVER_WEAKNESS | DND_BULLET_RESIST | DND_PIERCE | DND_MOBILITY | DND_HARDENED_SKIN, DND_ELEMENTAL_RESIST | DND_MAGIC_RESIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DREADKNIGHT, DND_SILVER_WEAKNESS | DND_BULLET_RESIST | DND_PIERCE | DND_MOBILITY | DND_HARDENED_SKIN, DND_ELEMENTAL_RESIST | DND_MAGIC_RESIST)
 		Idle:
 			KNGT E 5 A_Look
 		Loop
@@ -2437,7 +2437,7 @@ Actor MagmaGolem : MagicalEnemy {
     States { 
 		Spawn: 
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_MAGMAGOLEM, DND_HARDENED_SKIN | DND_DEATH | DND_SILVER_WEAKNESS | DND_EXPLOSIVE_RESIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_MAGMAGOLEM, DND_HARDENED_SKIN | DND_DEATH | DND_SILVER_WEAKNESS | DND_EXPLOSIVE_RESIST)
 			TNT1 A 0 A_GiveInventory("MakeExplosiveResist", 1)
 		Idle:
 		   GOL2 AB 10 A_Look

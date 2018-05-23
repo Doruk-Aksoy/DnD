@@ -22,7 +22,7 @@ Actor ChaingunGuy2 : UndeadEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DOUBLEGUNNER, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DOUBLEGUNNER, DND_SILVER_WEAKNESS)
 Idle:
     DPOS AB 10 A_Look
     Loop
@@ -106,7 +106,7 @@ Actor ChaingunMajor : ChaingunGuy2
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CGMAJOR, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CGMAJOR, DND_SILVER_WEAKNESS)
 Idle:
     CPS2 AB 10 A_Look
     Loop
@@ -191,7 +191,7 @@ actor ZSec : UndeadEnemy
   {
   Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZSEC, DND_SILVER_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZSEC, DND_SILVER_WEAKNESS)
 	Idle:
     ZSEC E 1 A_Look
     loop
@@ -361,7 +361,7 @@ Actor ZSpecOpsMachinegun : UndeadEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZSPECMG, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZSPECMG, DND_SILVER_WEAKNESS)
 Idle:
     ZSP2 AAAAAAAAAABBBBBBBBBB 1 A_Look
     Loop
@@ -440,7 +440,7 @@ Actor QuakeZombieChaingun : QuakeZombie
     {
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEQUAKE3, DND_SILVER_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEQUAKE3, DND_SILVER_WEAKNESS)
 	Idle:
 		QZOM AB 10 A_Look
 		Loop
@@ -480,7 +480,7 @@ actor UndeadInitiate : UndeadRogue {
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_INITIATE, DND_MOBILITY | DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_INITIATE, DND_MOBILITY | DND_SILVER_WEAKNESS)
 Idle:
     1102 A 10 A_Look
     loop
@@ -568,7 +568,7 @@ Actor MrRobot : MechanicalEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_MRROBOT, DND_ENERGY_WEAKNESS | DND_BULLET_RESIST | DND_MOBILITY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_MRROBOT, DND_ENERGY_WEAKNESS | DND_BULLET_RESIST | DND_MOBILITY)
 		Idle:
 			MROB A 4 A_Look
 		Loop
@@ -690,7 +690,7 @@ Actor MachinegunGuy : Cgguy2 {
 	States {
 	  Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEMG, DND_SILVER_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEMG, DND_SILVER_WEAKNESS)
 	Idle:
 		EASS AB 10 A_Look
 		Loop
@@ -766,7 +766,7 @@ ACTOR PlasmaZombie : UndeadEnemy {
     DropItem "PlasmaBolterPickup"
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_PLASMAZOMBIE, DND_SILVER_WEAKNESS)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_PLASMAZOMBIE, DND_SILVER_WEAKNESS)
 		Idle:
 			ZMAY AB 10 A_Look
 		Loop

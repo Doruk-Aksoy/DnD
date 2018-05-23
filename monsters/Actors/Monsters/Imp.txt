@@ -31,7 +31,7 @@ actor STDarkImp : DnD_BaseEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DARKIMP1)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DARKIMP1)
 	Idle:
         DRKS AB 10 A_Look
         Loop
@@ -176,7 +176,7 @@ actor NamiDarkImp : DnD_BaseEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DARKIMP2, DND_HOMING)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DARKIMP2, DND_HOMING)
 	Idle:
         DRKI AB 10 A_Look
         Loop
@@ -313,7 +313,7 @@ actor VoidDarkImp : DnD_BaseEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VOIDDARKIMP)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_VOIDDARKIMP)
 	Idle:
         DRKV AB 10 A_Look
         Loop
@@ -504,7 +504,7 @@ actor NetherDarkImp : DnD_BaseEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_NETHERDARKIMP)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_NETHERDARKIMP)
 	Idle:
         DRKV AB 10 A_Look
         Loop
@@ -703,7 +703,7 @@ Actor ImpAbomination : DoomImp2
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_IMPABOM)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_IMPABOM)
 	Idle:
 	  TRO5 AB 10 A_Look
 	  Loop
@@ -791,7 +791,7 @@ Actor STImp : DoomImp2
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_STIMP)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_STIMP)
 	Idle:
 	  TRO3 AB 10 A_Look
 	  Loop
@@ -912,7 +912,7 @@ Actor VoidImp : DoomImp2
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VOIDIMP)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_VOIDIMP)
 	Idle:
       TRO4 AB 10 A_Look
       Loop
@@ -1049,7 +1049,7 @@ actor SoulHarvester : DnD_BaseEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SOULHARVESTER, DND_HOMING)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SOULHARVESTER, DND_HOMING)
 	Idle:
         SLHV AB 10 A_Look
         Loop
@@ -1214,7 +1214,7 @@ actor PyroImp : DnD_BaseEnemy
     {
     Spawn:	
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_PYROIMP, DND_DEATH)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_PYROIMP, DND_DEATH)
 	Idle:
         PRIM AB 10 A_Look
         Loop
@@ -1462,7 +1462,7 @@ actor Devil : DoomImp2
   {
   Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DEVIL)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DEVIL)
 	Idle:
     TRO2 AB 10 A_Look
     Loop
@@ -1574,7 +1574,7 @@ actor Vulgar : DnD_BaseEnemy
   {
   Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VULGAR, DND_POISON)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_VULGAR, DND_POISON)
 	Idle:
     VULG AB 10 A_Look
     loop
@@ -1721,7 +1721,7 @@ Actor UndeadMage : UndeadEnemy
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_UNDEADMAGE, DND_SILVER_WEAKNESS | DND_RESURRECT)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_UNDEADMAGE, DND_SILVER_WEAKNESS | DND_RESURRECT)
 	Idle:
 		CMYS AB 10 A_Look
 		Loop
@@ -1841,7 +1841,7 @@ ACTOR Shadow : DnD_BaseEnemy
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SHADOW, DND_GHOST)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SHADOW, DND_GHOST)
 	Idle:
 		TROX A 5 A_Look
 		Loop
@@ -2079,7 +2079,7 @@ Actor Roach : DnD_BaseEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ROACH, DND_POISON | DND_HEAL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ROACH, DND_POISON | DND_HEAL)
 		Idle:
 			ROAC AA 3 Fast A_Look
 			ROAC A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))

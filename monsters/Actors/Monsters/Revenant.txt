@@ -35,7 +35,7 @@ ACTOR Incarnate : UndeadEnemy
    {
    Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_INCARNATE, DND_SILVER_WEAKNESS | DND_RAISE)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_INCARNATE, DND_SILVER_WEAKNESS | DND_RAISE)
 	Idle:
        INCA AB 10 A_Look
        Loop
@@ -167,7 +167,7 @@ ACTOR BeamRevenant : Revenant2
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BEAMREVENANT, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BEAMREVENANT, DND_SILVER_WEAKNESS)
 Idle:
     RASK AB 10 A_Look
     Loop
@@ -307,7 +307,7 @@ ACTOR Cadaver : Revenant2
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CADAVER, DND_SILVER_WEAKNESS | DND_HOMING | DND_DEATH)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CADAVER, DND_SILVER_WEAKNESS | DND_HOMING | DND_DEATH)
 Idle:
     RASK AB 10 A_Look
     Loop
@@ -501,7 +501,7 @@ actor Widowmaker : Revenant2
 	states{
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_WIDOWMAKER, DND_SILVER_WEAKNESS | DND_DEATH | DND_HOMING)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WIDOWMAKER, DND_SILVER_WEAKNESS | DND_DEATH | DND_HOMING)
 Idle:
     WDMK AB 10 A_Look
     Loop
@@ -1133,7 +1133,7 @@ ACTOR AxeKnight : MagicalBulletResistantEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_AXEKNIGHT, DND_SILVER_WEAKNESS | DND_BULLET_RESIST | DND_MELEE_RESIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_AXEKNIGHT, DND_SILVER_WEAKNESS | DND_BULLET_RESIST | DND_MELEE_RESIST)
 		Idle:
 			XNIG AB 10 A_Look
 		Loop
@@ -1308,7 +1308,7 @@ Actor Yeti : IceElementalEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_YETI, DND_MAGIC_WEAKNESS | DND_FIRE_WEAKNESS | DND_REFLECTIVE | DND_GHOST | DND_HARDENED_SKIN | DND_BULLET_RESIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_YETI, DND_MAGIC_WEAKNESS | DND_FIRE_WEAKNESS | DND_REFLECTIVE | DND_GHOST | DND_HARDENED_SKIN | DND_BULLET_RESIST)
 		Idle:
 			YETI A 10 A_Look
 		Loop
@@ -1562,7 +1562,7 @@ Actor SludgeGiant : DnD_BaseEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SLUDGEGIANT, DND_SPLIT | DND_POISON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SLUDGEGIANT, DND_SPLIT | DND_POISON)
 		Idle:
 			SLDM H 5 A_Look
 		Loop
@@ -1649,7 +1649,7 @@ Actor SludgeGiantSplit : SludgeGiant {
 	+THRUSPECIES
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SLUDGEGIANT, DND_POISON | DND_SPLIT)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SLUDGEGIANT, DND_POISON | DND_SPLIT)
 		Idle:
 			SLDM H 5 A_Look
 		Loop
@@ -1750,7 +1750,7 @@ Actor SludgeGiantSplitFinal : SludgeGiant {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SLUDGEGIANT, DND_POISON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SLUDGEGIANT, DND_POISON)
 		Idle:
 			SLDM H 5 A_Look
 		Loop
@@ -1853,7 +1853,7 @@ Actor DarkServant : MagicalEnemy {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 A_SetUserVar("user_teleport", 0)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DARKSERVANT, DND_MAGIC_WEAKNESS | DND_SILVER_WEAKNESS | DND_PIERCE | DND_HOMING | DND_TELEPORT)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DARKSERVANT, DND_MAGIC_WEAKNESS | DND_SILVER_WEAKNESS | DND_PIERCE | DND_HOMING | DND_TELEPORT)
 		Idle:
 			DSON AB 10 A_Look
 		Loop
@@ -2058,7 +2058,7 @@ Actor Crawler : DnD_BaseEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CRAWLER, DND_HOMING | DND_POISON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CRAWLER, DND_HOMING | DND_POISON)
 		Idle:
 			GDMN AA 10 A_Look
 		Loop
@@ -2285,7 +2285,7 @@ ACTOR Draugr : UndeadEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DRAUGR, DND_SILVER_WEAKNESS | DND_MOBILITY | DND_HOMING)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DRAUGR, DND_SILVER_WEAKNESS | DND_MOBILITY | DND_HOMING)
 		Idle:
 			SKE2 AB 10 A_Look
 		Loop
