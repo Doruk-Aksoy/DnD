@@ -46,7 +46,8 @@
 #define DND_PERK_MAX 10
 
 #define CELESTIAL_BOOST 25 // percent
-#define DND_VEIL_FACTOR 10 // percent
+#define DND_VEIL_FACTOR 20 // percent
+#define DND_VEIL_FACTORUP 3
 #define DND_HUNTERTALISMAN_HEALFACTOR 33
 
 // RPG ELEMENTS

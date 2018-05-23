@@ -41,6 +41,14 @@ statusbar normal, fullscreenoffsets {
 			InInventory VeilCooldown {
 				DrawImage "AC16C0", 68, -154;
 			}
+			
+			InInventory HunterTalismanCheck {
+				DrawImage "AC17C0", 68, -174;
+			}
+			
+			InInventory HunterTalismanCooldown {
+				DrawImage "AC17D0", 68, -174;
+			}
 		}
 		InInventory ShowMapInfo {
 			drawimage "SPREEBAK", 131, -181;
@@ -74,6 +82,14 @@ statusbar normal, fullscreenoffsets {
 			InInventory VeilCooldown {
 				DrawImage "AC16C0", 188, -128;
 			}
+			
+			InInventory HunterTalismanCheck {
+				DrawImage "AC17C0", 188, -148;
+			}
+			
+			InInventory HunterTalismanCooldown {
+				DrawImage "AC17D0", 188, -148;
+			}
 		}
 	}
 	
@@ -93,6 +109,14 @@ statusbar normal, fullscreenoffsets {
 			InInventory VeilCooldown {
 				DrawImage "AC16C0", 54, -154;
 			}
+			
+			InInventory HunterTalismanCheck {
+				DrawImage "AC17C0", 54, -144;
+			}
+			
+			InInventory HunterTalismanCooldown {
+				DrawImage "AC17D0", 54, -144;
+			}
 		}
 		InInventory ShowMapInfo {
 			InInventory AgamottoOffense {
@@ -108,6 +132,14 @@ statusbar normal, fullscreenoffsets {
 			
 			InInventory VeilCooldown {
 				DrawImage "AC16C0", 174, -128;
+			}
+			
+			InInventory HunterTalismanCheck {
+				DrawImage "AC17C0", 174, -148;
+			}
+			
+			InInventory HunterTalismanCooldown {
+				DrawImage "AC17D0", 174, -148;
 			}
 		}
 	}
@@ -138,28 +170,28 @@ statusbar normal, fullscreenoffsets {
       drawimage "H_BRFRMX", 93, -48;
       drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -45;
       drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 96, -45;
-      drawnumber 4, HUDFONT2_DOOM, NCBlue, health, alignment(left), 189, -47;
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 189, -47;
     }
 
     InInventory HPNormal
     {
       drawimage "H_BRFRMX", 93, -48;
       drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -45;
-      drawnumber 4, HUDFONT2_DOOM, NCGreen, health, alignment(left), 189, -47;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 189, -47;
     }
 
     InInventory HPBelow50
     {
       drawimage "H_HPWG01", 93, -48;
       drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 96, -45;
-      drawnumber 4, HUDFONT2_DOOM, NCYellow, health, alignment(left), 189, -47;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 189, -47;
     }
 
     InInventory HPBelow25
     {
       drawimage "H_HPFC01", 93, -48;
       drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 96, -45;
-      drawnumber 4, HUDFONT2_DOOM, NCRed, health, alignment(left), 189, -47;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 189, -47;
     }
 
     // Armor --------------------------------------------------------------------------------------------
@@ -174,7 +206,7 @@ statusbar normal, fullscreenoffsets {
       drawimage "H_BRFRMX", 93, -74; // Bar frame
       drawbar "H_BRFILG", "H_BRFBGG", armor P_ArmorCap, horizontal, 96, -71; // Bar
       drawbar "H_BRFILB", "H_BRFBGB", ARMOverAmount, horizontal, 96, -71; // Bar (over 100)
-      drawnumber 4, HUDFONT2_DOOM, NCBlue, armor, alignment(left), 189, -73; // Counter
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, armor, alignment(left), 189, -73; // Counter
     }
 
     // If armor is in "good" state, draw the bar and counter in green color
@@ -182,7 +214,7 @@ statusbar normal, fullscreenoffsets {
     {
       drawimage "H_BRFRMX", 93, -74;
       drawbar "H_BRFILG", "H_BRFBGG", armor P_ArmorCap, horizontal, 96, -71;
-      drawnumber 4, HUDFONT2_DOOM, NCGreen, armor, alignment(left), 189, -73;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, armor, alignment(left), 189, -73;
     }
 
     // If armor is in "warning" state, draw the bar and counter in yellow color
@@ -190,7 +222,7 @@ statusbar normal, fullscreenoffsets {
     {
       drawimage "H_BRFRMX", 93, -74;
       drawbar "H_BRFILY", "H_BRFBGY", armor P_ArmorCap, horizontal, 96, -71;
-      drawnumber 4, HUDFONT2_DOOM, NCYellow, armor, alignment(left), 189, -73;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, armor, alignment(left), 189, -73;
     }
 
     // If armor is in "critical" state, draw the bar and counter in red color,
@@ -199,7 +231,7 @@ statusbar normal, fullscreenoffsets {
     {
       drawimage "H_ARFW01", 93, -74;
       drawbar "H_BRFILR", "H_BRFBGR", armor P_ArmorCap, horizontal, 96, -71;
-      drawnumber 4, HUDFONT2_DOOM, NCRed, armor, alignment(left), 189, -73;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, armor, alignment(left), 189, -73;
     }
   }
 
@@ -214,28 +246,28 @@ statusbar normal, fullscreenoffsets {
       drawimage "H_BRFRMX", 93, -61;
       drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -58;
       drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 96, -58;
-      drawnumber 4, HUDFONT2_DOOM, NCBlue, health, alignment(left), 189, -60;
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 189, -60;
     }
 
     InInventory HPNormal
     {
       drawimage "H_BRFRMX", 93, -61;
       drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -58;
-      drawnumber 4, HUDFONT2_DOOM, NCGreen, health, alignment(left), 189, -60;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 189, -60;
     }
 
     InInventory HPBelow50
     {
       drawimage "H_HPWG01", 93, -61;
       drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 96, -58;
-      drawnumber 4, HUDFONT2_DOOM, NCYellow, health, alignment(left), 189, -60;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 189, -60;
     }
 
     InInventory HPBelow25
     {
       drawimage "H_HPFC01", 93, -61;
       drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 96, -58;
-      drawnumber 4, HUDFONT2_DOOM, NCRed, health, alignment(left), 189, -60;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 189, -60;
     }
   }
 

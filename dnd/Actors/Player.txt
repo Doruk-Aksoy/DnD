@@ -25,6 +25,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
 	Player.StartItem "Accessory_0"
@@ -368,6 +369,7 @@ Actor TheMarine : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
 	Player.StartItem "Accessory_0"
@@ -702,6 +704,7 @@ Actor TheHobo : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
 	Player.StartItem "Accessory_0"
@@ -1036,6 +1039,7 @@ Actor ThePunisher : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
 	Player.StartItem "Accessory_0"
@@ -1370,6 +1374,7 @@ Actor TheWanderer : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
 	Player.StartItem "Accessory_0"

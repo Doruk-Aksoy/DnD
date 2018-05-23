@@ -748,16 +748,16 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 			SetHudClipRect(0, 0, 0, 0, 0, 0);
 		}
 		else if(IsAccessoryEquipped(0, 1 << id))
-			HudMessage(s:"\c[C5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[C5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 		else
-			HudMessage(s:"\c[Y5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 		ShowAccessoryIcon(id, pos);
 	}
 	else {
 		if(boxid == pos + 1)
-			HudMessage(s:"\c[B1]--- N / A ---"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[B1]--- N / A ---"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 		else
-			HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 72.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 	}
 }
 
@@ -1169,10 +1169,10 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// loadout
 		{
-			{ 289.0, 229.0, 179.0, 222.0 }, // loadout 1
-			{ 289.0, 211.0, 162.0, 206.0 }, // loadout 2
-			{ 289.0, 195.0, 178.0, 190.0 }, // loadout 3
-			{ 289.0, 181.0, 169.0, 174.0 }, // loadout 4
+			{ 289.0, 229.0, 164.0, 222.0 }, // loadout 1
+			{ 289.0, 211.0, 188.0, 206.0 }, // loadout 2
+			{ 289.0, 195.0, 170.0, 190.0 }, // loadout 3
+			{ 289.0, 181.0, 143.0, 174.0 }, // loadout 4
 			{ -1, -1, -1, -1 }
 		},
 		// loadout 1
@@ -1463,6 +1463,10 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 178.0, 158.0 }, // leg
 			{ 289.0, 149.0, 179.0, 142.0 }, // mods
 			{ 296.0, 81.0, 182.0, 73.0 }, // show info
+			{ -1, -1, -1, -1 }
+		},
+		// help char
+		{
 			{ -1, -1, -1, -1 }
 		},
 		// help res
