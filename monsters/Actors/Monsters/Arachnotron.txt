@@ -30,7 +30,7 @@ ACTOR FusionSpider : Arachno2
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_FUSIONSPIDER, DND_ENERGY_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_FUSIONSPIDER, DND_ENERGY_WEAKNESS)
 Idle:
     FSPI AB 10 A_Look
     Loop
@@ -171,7 +171,7 @@ ACTOR HellforgeSpider : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_HELLFORGESPIDER)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLFORGESPIDER)
 Idle:
     TNT1 A 0 A_TakeInventory("MultiShot", 99)
     ESPD AB 10 A_Look
@@ -322,7 +322,7 @@ ACTOR RailArachnotron : Arachno2
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_RAILARACHNOTRON, DND_ENERGY_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_RAILARACHNOTRON, DND_ENERGY_WEAKNESS)
 	Idle:
 		RSPI AB 10 A_Look
 		Loop
@@ -423,7 +423,7 @@ ACTOR BabyDemolisher : Arachno2
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BABYDEMOLISHER, DND_ENERGY_WEAKNESS | DND_MOBILITY)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BABYDEMOLISHER, DND_ENERGY_WEAKNESS | DND_MOBILITY)
 Idle:
     MSPI A 10 A_Look
     Loop
@@ -680,7 +680,7 @@ Actor Vore : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_VORE, DND_HOMING)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_VORE, DND_HOMING)
 Idle:
     VORE D 10 A_Look
 	Loop
@@ -887,7 +887,7 @@ Actor ChaingunCommando : ChaingunMajor
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CHAINGUNCOMMANDO, DND_SILVER_WEAKNESS | DND_MOBILITY)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CHAINGUNCOMMANDO, DND_SILVER_WEAKNESS | DND_MOBILITY)
 Idle:
     CPSX AB 10 A_Look
     Loop
@@ -996,7 +996,7 @@ Actor ChaingunGeneral : ChaingunMajor
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CHAINGUNGENERAL, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CHAINGUNGENERAL, DND_SILVER_WEAKNESS)
 Idle:
     ECMI AB 10 A_Look
     Loop
@@ -1095,7 +1095,7 @@ Actor Legionnaire : UndeadEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_LEGIONNAIRE, DND_SILVER_WEAKNESS | DND_MOBILITY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LEGIONNAIRE, DND_SILVER_WEAKNESS | DND_MOBILITY)
 		Idle:
 			LEGN A 10 A_Look
 		Loop

@@ -10,7 +10,7 @@ Actor ZombieManGray : Zombieman2
 	{
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEGRAY, DND_SILVER_WEAKNESS)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEGRAY, DND_SILVER_WEAKNESS)
 		Idle:
 			ZHR2 V 10 A_Look
 		Loop
@@ -94,7 +94,7 @@ actor FormerRanger : UndeadEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIERANGER, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIERANGER, DND_SILVER_WEAKNESS)
 Idle:
     BPOS AB 10 A_Look
     loop
@@ -197,7 +197,7 @@ ACTOR SMGGuy : ZombieMan2
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIESMG, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIESMG, DND_SILVER_WEAKNESS)
 Idle:
     PDWP AB 10 Fast A_Look
     loop
@@ -283,7 +283,7 @@ ACTOR RapidFireTrooper : UndeadEnemy
    { 
    Spawn: 
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIERAPID, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIERAPID, DND_SILVER_WEAKNESS)
 Idle:
       RFTR AB 10 A_Look 
       Loop 
@@ -368,7 +368,7 @@ ACTOR ZombieMarine : UndeadEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEMARINE, DND_SILVER_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEMARINE, DND_SILVER_WEAKNESS)
 	Idle:
         UDM2 AB 10 A_Look
         Loop
@@ -433,7 +433,7 @@ States
  {
  Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIELOS, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIELOS, DND_SILVER_WEAKNESS)
 Idle:
  ZSEX AB 10 A_Look
  Loop
@@ -513,7 +513,7 @@ ACTOR PistolZombie : UndeadEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEPISTOL, DND_SILVER_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEPISTOL, DND_SILVER_WEAKNESS)
 	Idle:
         POSP AB 10 A_Look
         Loop
@@ -594,7 +594,7 @@ ACTOR QuakeZombie : UndeadEnemy
     {
     Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEQUAKE1, DND_SILVER_WEAKNESS)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEQUAKE1, DND_SILVER_WEAKNESS)
 	Idle:
         QZOM AB 10 A_Look
         Loop
@@ -688,7 +688,7 @@ actor UndeadHunter : UndeadEnemy {
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ZOMBIEHUNTER, DND_MOBILITY, DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEHUNTER, DND_MOBILITY, DND_SILVER_WEAKNESS)
 Idle:
     1175 A 10 A_Look
     loop
@@ -784,7 +784,7 @@ actor Prophet : UndeadEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_PROPHET, DND_GHOST | DND_SILVER_WEAKNESS)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_PROPHET, DND_GHOST | DND_SILVER_WEAKNESS)
 Idle:
     PRPH AB 10 A_Look
     loop

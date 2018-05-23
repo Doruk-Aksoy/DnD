@@ -29,7 +29,7 @@ ACTOR BabyCaco : DnD_BaseEnemy
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BABYCACO)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BABYCACO)
 	Idle:
 		CACB A 10 A_Look
 		Loop
@@ -124,7 +124,7 @@ Actor Fleshspawn : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_FLESHSPAWN, DND_MOBILITY)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_FLESHSPAWN, DND_MOBILITY)
 Idle:
     FLSP AB 8 A_Look
     loop
@@ -397,7 +397,7 @@ ACTOR ESoul : UndeadEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ETHEREALSOUL, DND_SILVER_WEAKNESS | DND_TELEPORT | DND_BULLET_RESIST | DND_MELEE_RESIST)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ETHEREALSOUL, DND_SILVER_WEAKNESS | DND_TELEPORT | DND_BULLET_RESIST | DND_MELEE_RESIST)
 Idle:
     ETHS ABCD 10 bright A_Look
     loop
@@ -507,7 +507,7 @@ Actor GuardianCube : MagicalBulletResistantEnemy
   { 
   Spawn: 
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_GUARDIANCUBE, DND_MAGIC_WEAKNESS | DND_BULLET_RESIST, DND_MELEE_RESIST)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_GUARDIANCUBE, DND_MAGIC_WEAKNESS | DND_BULLET_RESIST, DND_MELEE_RESIST)
 	Idle:
     CUBE A 10 A_Look 
     Loop 
@@ -623,7 +623,7 @@ Actor ForgottenOne : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_FORGOTTENONE, DND_MOBILITY)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_FORGOTTENONE, DND_MOBILITY)
 Idle:
     FRGO A 0 Bright
     FRGO A 0 Bright A_ChangeFlag("FloatBob", 1)
@@ -695,7 +695,7 @@ ACTOR Watcher : DnD_BaseEnemy {
    { 
    Spawn: 
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_WATCHER, DND_PIERCE)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WATCHER, DND_PIERCE)
 	Idle:
        WATC A 10 A_Look 
        Loop 

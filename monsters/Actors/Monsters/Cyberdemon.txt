@@ -39,7 +39,7 @@ ACTOR Cardinal : HalfMechanicalEnemy
    { 
    Spawn:
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CARDINAL, DND_ENERGY_WEAKNESS | DND_RAGE | DND_EXPLOSIVE_IMMUNE)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CARDINAL, DND_ENERGY_WEAKNESS | DND_RAGE | DND_EXPLOSIVE_IMMUNE)
 	Idle:
       CARD AB 4 Bright A_Look
       Loop
@@ -458,7 +458,7 @@ ACTOR TerminatorX : HalfMechanicalEnemy {
    { 
    Spawn: 
    		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_TERMINATOR, DND_ENERGY_WEAKNESS | DND_HARDENED_SKIN | DND_HOMING | DND_EXPLOSIVE_IMMUNE)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_TERMINATOR, DND_ENERGY_WEAKNESS | DND_HARDENED_SKIN | DND_HOMING | DND_EXPLOSIVE_IMMUNE)
 	Idle:
        TERM AB 10 A_Look 
        Loop 
@@ -834,7 +834,7 @@ Actor Thamuz : Cyberdemon2
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_THAMUZ, DND_ENERGY_WEAKNESS | DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_THAMUZ, DND_ENERGY_WEAKNESS | DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
 Idle:
     CYBR A 10 A_Look
     Loop
@@ -1303,7 +1303,7 @@ actor Azazel : DnD_BaseEnemy {
     Spawn:
 		TNT1 A 0
 		TNT1 A 0 A_GiveInventory("MakeElementalResist", 1)
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_AZAZEL, DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE, DND_ELEMENTAL_RESIST)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_AZAZEL, DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE, DND_ELEMENTAL_RESIST)
 	Idle:
         AZEW A 5 A_Look
         Loop
@@ -1917,7 +1917,7 @@ ACTOR HellsmithX : DnD_BaseEnemy
    {    
    Spawn: 
 		TNT1 A 0
-		TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_HELLSMITH, DND_ICE_WEAKNESS | DND_HARDENED_SKIN | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLSMITH, DND_ICE_WEAKNESS | DND_HARDENED_SKIN | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
 	Idle:
        BSMT AB 10 A_Look 
        Loop 
@@ -2631,7 +2631,7 @@ ACTOR AvatarOfChaos : MagicalEnemy {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 A_GiveInventory("MakeElementalImmune", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_AVATAR, DND_MAGIC_WEAKNESS | DND_HOMING | DND_MINIONS | DND_EXPLOSIVE_IMMUNE, DND_ELEMENTAL_IMMUNE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_AVATAR, DND_MAGIC_WEAKNESS | DND_HOMING | DND_MINIONS | DND_EXPLOSIVE_IMMUNE, DND_ELEMENTAL_IMMUNE)
 			TNT1 A 0 ACS_ExecuteAlways(964, 0, 0)
 		Idle:
 			TNT1 A 0 ACS_ExecuteAlways(968, 0)
@@ -3497,7 +3497,7 @@ Actor Thanatos : HalfMechanicalEnemy {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 A_GiveInventory("MakeExplosiveFullImmune", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_THANATOS, DND_ENERGY_WEAKNESS | DND_EXPLOSIVE_NONE | DND_HOMING)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_THANATOS, DND_ENERGY_WEAKNESS | DND_EXPLOSIVE_NONE | DND_HOMING)
 		Idle:
 			4NNI AB 10 A_Look 
 		Loop 
@@ -3858,7 +3858,7 @@ actor Cerberus : DnD_BaseEnemy {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 A_GiveInventory("MagicImmunity", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CERBERUS, DND_RAGE | DND_EXPLOSIVE_IMMUNE | DND_HARDENED_SKIN, DND_MAGIC_IMMUNE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CERBERUS, DND_RAGE | DND_EXPLOSIVE_IMMUNE | DND_HARDENED_SKIN, DND_MAGIC_IMMUNE)
 		Idle:
 			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "Idle2")
 			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")

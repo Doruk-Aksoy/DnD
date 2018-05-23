@@ -24,7 +24,7 @@ actor BloodSatyr : Satyr {
     States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BLOODSATYR, DND_HEAL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BLOODSATYR, DND_HEAL)
 		Idle:
 			STYR AB 10 A_Look
 		Loop
@@ -235,7 +235,7 @@ Actor HellWarrior : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_HELLWARRIOR, DND_BLOCK)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLWARRIOR, DND_BLOCK)
 Idle:
     HWAR AB 10 A_Look
     Loop
@@ -448,7 +448,7 @@ Actor HellsFury : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_HELLSFURY, DND_HOMING)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLSFURY, DND_HOMING)
 Idle:
     HFRY AB 10 A_Look
     Loop
@@ -602,7 +602,7 @@ Actor ArchonOfHell : HellKnight2
   { 
   Spawn: 
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ARCHON)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ARCHON)
 Idle:
     BOS4 AB 10 A_Look 
     Loop 
@@ -798,7 +798,7 @@ Actor WarlordOfHell : DnD_BaseEnemy
   { 
   Spawn: 
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_WARLORD, DND_EXPLOSIVE_IMMUNE)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WARLORD, DND_EXPLOSIVE_IMMUNE)
 Idle:
     BOS2 AB 10 A_Look 
     Loop 
@@ -957,7 +957,7 @@ ACTOR ShadowBeast : DnD_BaseEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SHADOWBEAST, DND_RAGE)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SHADOWBEAST, DND_RAGE)
 Idle:
     BDEM AB 10 A_Look
     Loop
@@ -1234,7 +1234,7 @@ actor BlackKnight : UndeadBulletResistantEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_BLACKKNIGHT, DND_SILVER_WEAKNESS | DND_BULLET_RESIST | DND_MELEE_RESIST | DND_HARDENED_SKIN | DND_EXPLOSIVE_RESIST | DND_MOBILITY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BLACKKNIGHT, DND_SILVER_WEAKNESS | DND_BULLET_RESIST | DND_MELEE_RESIST | DND_HARDENED_SKIN | DND_EXPLOSIVE_RESIST | DND_MOBILITY)
 		Idle:
 			KNGT E 5 A_Look
 		Loop
@@ -1384,7 +1384,7 @@ Actor SkullWizard : MagicalEnemy
   {
   Spawn:
 	TNT1 A 0
-	TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_SKULLWIZARD, DND_MAGIC_WEAKNESS | DND_HOMING | DND_TELEPORT)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SKULLWIZARD, DND_MAGIC_WEAKNESS | DND_HOMING | DND_TELEPORT)
 Idle:
     SKWZ A 1 A_Look
     Loop
@@ -1600,7 +1600,7 @@ Actor CyborgWarrior : MechanicalExplosiveResistEnemy {
 	States  { 
 		Spawn: 
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CYBORGWARRIOR, DND_NOPAIN | DND_ENERGY_WEAKNESS | DND_HOMING | DND_BULLET_RESIST | DND_MELEE_RESIST | DND_HARDENED_SKIN | DND_EXPLOSIVE_RESIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CYBORGWARRIOR, DND_NOPAIN | DND_ENERGY_WEAKNESS | DND_HOMING | DND_BULLET_RESIST | DND_MELEE_RESIST | DND_HARDENED_SKIN | DND_EXPLOSIVE_RESIST)
 		Idle:
 			QQMN AB 10 A_Look 
 		Loop 
@@ -1773,7 +1773,7 @@ ACTOR ChaosSerpent : DnD_BaseEnemy {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_CHAOSSERPENT)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_CHAOSSERPENT)
 		Idle:
 			DEMN AA 10 A_Look
 		Loop
@@ -1919,7 +1919,7 @@ Actor MoonSatyr : Satyr {
 			TNT1 A 0
 			TNT1 A 0 A_GiveInventory("MakeEnergyResist", 1)
 			TNT1 A 0 A_GiveInventory("MakeElementalResist", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_MOONSATYR, 0, DND_ELEMENTAL_RESIST | DND_ENERGY_RESIST)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_MOONSATYR, 0, DND_ELEMENTAL_RESIST | DND_ENERGY_RESIST)
 		Idle:
 			STYR AB 10 A_Look
 		Loop
@@ -2119,7 +2119,7 @@ Actor IceGolem : MagicalEnemy {
 			TNT1 A 0
 			TNT1 A 0 A_GiveInventory("MakePhysicalResist", 1)
 			TNT1 A 0 A_GiveInventory("MakeElementalImmune", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_ICEGOLEM, DND_HEAL | DND_HARDENED_SKIN | DND_BULLET_RESIST | DND_SILVER_WEAKNESS, DND_ELEMENTAL_IMMUNE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ICEGOLEM, DND_HEAL | DND_HARDENED_SKIN | DND_BULLET_RESIST | DND_SILVER_WEAKNESS, DND_ELEMENTAL_IMMUNE)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Translucency Weave")
 		Idle:
 		   GOL3 AB 10 A_Look

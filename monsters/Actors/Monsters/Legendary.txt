@@ -43,7 +43,7 @@ Actor DreamingGod : DnD_BaseEnemy {
 			TNT1 A 0 NoDelay A_GiveInventory("MakeMagicImmune", 1)
 			TNT1 A 0 A_GiveInventory("MakeElementalImmune", 1)
 			TNT1 A 0 A_GiveInventory("MakeHardenedSkin", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_DREAMER, 0, DND_LEGENDARY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DREAMER, 0, DND_LEGENDARY)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Dreamer Burn", 0, dreamer_burn * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")))
 		Idle:
 			TCHR A 10 A_Look
@@ -993,7 +993,7 @@ Actor Torrasque : DnD_BaseEnemy {
 			TNT1 A 0 A_GiveInventory("MakePhysicalResist", 1)
 			TNT1 A 0 A_GiveInventory("ExplosiveResist", 1)
 			TNT1 A 0 A_GiveInventory("MakeEnergyResist", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_TORRASQUE, 0, DND_LEGENDARY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_TORRASQUE, 0, DND_LEGENDARY)
 		Idle:
 			DNB2 A 5 A_Look
 		loop
@@ -1401,7 +1401,7 @@ Actor Mordecqai : DnD_BaseEnemy {
 			TNT1 A 0 NoDelay A_GiveInventory("MakeFireImmune", 1)
 			TNT1 A 0 A_GiveInventory("MakeHardenedSkin", 1)
 			TNT1 A 0 A_GiveInventory("MakeExplosiveFullImmune", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_MORDECQAI, 0, DND_LEGENDARY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_MORDECQAI, 0, DND_LEGENDARY)
 		Idle:
 			MORD A 10 A_Look
 		loop
@@ -1798,7 +1798,7 @@ Actor GodSlayer : MechanicalEnemy {
 			TNT1 A 0 NoDelay A_GiveInventory("MakePhysicalImmune", 1)
 			TNT1 A 0 A_GiveInventory("MakeHardenedSkin", 1)
 			TNT1 A 0 A_GiveInventory("MakeExplosiveHighResist", 1)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERSCALESCRIPT, 0, DND_GODSLAYER, 0, DND_LEGENDARY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_GODSLAYER, 0, DND_LEGENDARY)
 		Idle:
 			ROB4 A 10 A_Look
 		Loop
