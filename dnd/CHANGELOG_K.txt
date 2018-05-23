@@ -24,6 +24,7 @@ LEGEND:
 ! Cleaned up text description for shop weapons, and introduced icons to represent their properties instead.
 ! All "Orb" drops are now calculated per player. Each player gets their own unique drop depending on their luck!
 ! Redone the accessory page of "DnD Menu". Now split into 4 pages with each page having 5 accessories shown total.
+! Added a new help page to describe weapon properties.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
 * A small delay of 7 tics has been added to consecutive orb uses.
 * "Bulkiness" percentage value on stat menu now uses correct formula. (It used the older formula)
@@ -42,6 +43,7 @@ LEGEND:
 * Reworked damage scaling calculation to use integers instead of fixed point. This should eliminate overflows and allow you to reach higher damage outputs for each damage source.
 * Adjusted hitboxes of all grenades.
 * Dash toggle works again.
+* Fixed "Lead Spitter" and "Demon Sealer" having swapped description.
 * The numbers shown for "Credit" and "Exp" gain bonuses at stat menu are now correct.
 * Fixed a typo that stated "Intellect" stat gave 0.15% bonus of talent. (Gives 0.1% still)
 * New accessories of previous version do drop now. Oops.

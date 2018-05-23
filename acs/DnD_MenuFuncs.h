@@ -335,6 +335,24 @@ void ShowDamageTypeIcon(int dmg) {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
+void ShowWeaponPropertyIcon(int id) {
+	int offset = 0.0;
+	SetHudSize(640, 480, 1);
+	SetHudClipRect(192, 72, 320, 384, 320, 1);
+	SetFont(WeaponPropertyImages[id]);
+	
+	if(id == 2)
+		offset = -24.0;
+	else if(id == 3)
+		offset = -16.0;
+	else if(id == 6)
+		offset = -8.0;
+	
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos, 0.0, 0.0);
+	SetFont("SMALLFONT");
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+}
+
 void ShowOrbIcon(int id) {
 	SetFont(OrbIcons[id]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_HELPTEXT_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 96.0 * id + 8.0 * ScrollPos, 0.0, 0.0);
@@ -1457,15 +1475,20 @@ rect_T& LoadRect(int menu_page, int id) {
 		// help
 		{
 			{ 289.0, 229.0, 179.0, 222.0 }, // char
-			{ 289.0, 213.0, 162.0, 206.0 }, // res
-			{ 289.0, 197.0, 178.0, 190.0 }, // dmg
-			{ 289.0, 181.0, 178.0, 174.0 }, // orb
-			{ 289.0, 165.0, 178.0, 158.0 }, // leg
-			{ 289.0, 149.0, 179.0, 142.0 }, // mods
+			{ 289.0, 213.0, 162.0, 206.0 }, // weapon prop
+			{ 289.0, 197.0, 178.0, 190.0 }, // res
+			{ 289.0, 181.0, 178.0, 174.0 }, // dmg
+			{ 289.0, 165.0, 178.0, 158.0 }, // orb
+			{ 289.0, 149.0, 179.0, 142.0 }, // leg
+			{ 289.0, 133.0, 179.0, 126.0 }, // mods
 			{ 296.0, 81.0, 182.0, 73.0 }, // show info
 			{ -1, -1, -1, -1 }
 		},
 		// help char
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help weapon properties
 		{
 			{ -1, -1, -1, -1 }
 		},
