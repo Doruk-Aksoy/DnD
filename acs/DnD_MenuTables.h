@@ -1182,8 +1182,8 @@ str AccessoryBenefits[MAX_ACCESSORY] = {
 	"Soul capacity becomes 150 and ultimate weapons do x2.5 damage.",
 	"Gives x2 elemental damage to a single element for 15 seconds. This works in a rotation.",
 	"Gives 25% increased health and armor capacity.",
-	"Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage they replenish 3% of your max health on kill.",
-	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 10% of missing health. Lasts for 5 seconds or until you expend the crit."
+	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 10% of missing health. Lasts for 5 seconds or until you expend the crit.",
+	"Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill."
 };
 
 str AccessoryNegatives[MAX_ACCESSORY] = {
@@ -1202,8 +1202,8 @@ str AccessoryNegatives[MAX_ACCESSORY] = {
 	"Any other weapon does 90% reduced damage.",
 	"Other elements do 50% less damage.",
 	"Slows you down by 20%.",
-	"Your overall crit damage is halved.",
-	"On expending your doubled crit, never crit for 10 seconds."
+	"On expending your doubled crit, never crit for 10 seconds.",
+	"Your overall crit damage is halved."
 };
 
 struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {

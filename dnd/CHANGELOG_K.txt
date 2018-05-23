@@ -31,6 +31,7 @@ LEGEND:
 * Chest open messages are only visible to the player trying to open them now.
 * "Natural Talent" quest now properly checks if you have used a talented weapon.
 * Hopefully fixed an abuse related to "Hardcore" and exiting maps while dying.
+* HP and Armor limits on your hud can go to 5 digit numbers now.
 * Fixed a bug that prevented you from switching special ammo mode despite having ammo in the magazine.
 * "Necro Armor" spikes go through players now.
 * "Necro Armor" spikes now deal full damage if "Nether Mask" is equipped.
@@ -40,6 +41,7 @@ LEGEND:
 * Fixed a bug where "Violence Orb" bonuses weren't included in damage calculation.
 * Reworked damage scaling calculation to use integers instead of fixed point. This should eliminate overflows and allow you to reach higher damage outputs for each damage source.
 * Adjusted hitboxes of all grenades.
+* Dash toggle works again.
 * The numbers shown for "Credit" and "Exp" gain bonuses at stat menu are now correct.
 * Fixed a typo that stated "Intellect" stat gave 0.15% bonus of talent. (Gives 0.1% still)
 * New accessories of previous version do drop now. Oops.

@@ -423,6 +423,11 @@ Script "DND Mugshot Grin" (void) CLIENTSIDE {
 	SetMugshotState("Grin");
 }
 
+// Make sure clients are aware too
+Script "DND On Kill CS" KILL CLIENTSIDE {
+	GiveInventory("Mo_Died", 1);
+}
+
 // Used for exp and credit calculations
 Script "DND On Kill" KILL {
 	GiveInventory("Mo_Died", 1);
@@ -1197,7 +1202,7 @@ script 922 (int actor_num, int radius, int totalactors) {
 // Till 922 are reserved for mons.c
 
 // Monster scaler -- add scaling stuff here
-Script 962 (int monsterid, int traits, int traits2) {
+Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 	if(!CheckInventory("DontRun")) {
 		if(!ActivatorTID())
 			GiveMonsterTID();
@@ -2158,6 +2163,7 @@ Script "DnD Check Special Match" (int multispecial) {
 		res = who - P_TIDSTART == sp - 1;
 	else if(multispecial == DND_SPECIAL_RESEARCH || multispecial == DND_SPECIAL_ORB)
 		res = who - P_TIDSTART == (sp & 0xFFFF) - 1;
+	printbold(d:res);
 	SetResultValue(res);
 }
 
@@ -3083,6 +3089,7 @@ Script "DnD Talisman Mark" (void) CLIENTSIDE {
 	Spawn("HunterTalismanFX", GetActorX(0), GetActorY(0), GetActorZ(0) + 48.0, DND_TALISMAN_MARK);
 	SetActivator(DND_TALISMAN_MARK);
 	SetPointer(AAPTR_TARGET, this);
+	SetActorProperty(0, APROP_TARGETTID, this);
 	Thing_ChangeTID(DND_TALISMAN_MARK, 0);
 }
 
@@ -3110,4 +3117,8 @@ Script "DnD Give Orb" (int sp) {
 	GiveInventory("OrbSoundPlayer", 1);
 	ACS_NamedExecuteAlways("DnD Orb Message", 0, sp >> 16);
 	GiveInventory(OrbList[sp >> 16][ORB_NAME], 1);
+}
+
+Script "DnD Drop Research" (void) {
+	SpawnResearch();
 }

@@ -442,6 +442,15 @@ void SavePlayerOrbData(int pnum) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:ClipAmmoTypes[i]), pacc, temp);
 	}
 	
+	// save player's orbs
+	temp = 0;
+	for(i = 0; i < MAX_ORBS; i += 4) {
+		for(j = 0; j < 4 && i + j < MAX_ORBS; ++j)
+			temp |= CheckActorInventory(tid, OrbList[i + j][ORB_NAME]) << (8 * j);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBS, char_id), d:(i >> 2) + 1), pacc, temp);
+		temp = 0;
+	}
+	
 	// bonuses from orbs
 	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1));
 	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1));

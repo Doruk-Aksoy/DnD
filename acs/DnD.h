@@ -854,7 +854,7 @@ int GetCritModifier() {
 			TakeInventory("VeilNextAttack", 1);
 			GiveInventory("VeilCooldown", 1);
 			GiveInventory("VeilHealFXSpawner", 1);
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetMissingHealth() / DND_VEIL_FACTOR);
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, (DND_VEIL_FACTORUP * GetMissingHealth()) / DND_VEIL_FACTOR);
 		}
 	}
 	return base;

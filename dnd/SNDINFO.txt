@@ -3,6 +3,10 @@ NullSound				dsempty
 HunterTalisman/Activate	HUNTALM
 VeilOfAssassin/Active	VEILACT
 
+VeilOfAssassin/Drain1	VEILDRA1
+VeilOfAssassin/Drain2	VEILDRA2
+$random VeilOfAssassin/Drain { VeilOfAssassin/Drain1 VeilOfAssassin/Drain2 }
+
 Weapons/FistWall		PUNWALL
 Weapons/KickSwing		KICKSWIN
 Weapons/fisthit1		FISTHIT1

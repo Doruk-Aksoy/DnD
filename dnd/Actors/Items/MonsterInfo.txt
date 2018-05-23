@@ -104,8 +104,6 @@ enum {
 	DND_LEGENDARY = 1073741824
 };
 
-const int DND_MONSTERSCALESCRIPT = 962;
-
 const int DND_FORCEDLEVEL = 7;
 const int DND_PASSLEVEL = 8;
 
