@@ -1851,6 +1851,7 @@ Script 989 (int pnum) DISCONNECT {
 	ResetPlayerBonuses(pnum);
 	ResetMostRecentOrb(pnum);
 	ResetOrbData(pnum);
+	RecalculateTotalLevel();
 }
 
 // End of level checks

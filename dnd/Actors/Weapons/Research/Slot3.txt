@@ -787,7 +787,7 @@ Actor ResSSG1 : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_PLASMACANNON)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 20)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 40)
 	    SelectLoop:
 			RW02 X 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -900,55 +900,31 @@ Actor PlasmaCannonShooter : DnD_Activator {
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(0), 0, 0, 0, 1, 4 * sin(0))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(15), 0, 0, 0, 1, 4 * sin(15))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(30), 0, 0, 0, 1, 4 * sin(30))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(45), 0, 0, 0, 1, 4 * sin(45))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(60), 0, 0, 0, 1, 4 * sin(60))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(75), 0, 0, 0, 1, 4 * sin(75))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(90), 0, 0, 0, 1, 4 * sin(90))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(105), 0, 0, 0, 1, 4 * sin(105))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(120), 0, 0, 0, 1, 4 * sin(120))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(135), 0, 0, 0, 1, 4 * sin(135))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(150), 0, 0, 0, 1, 4 * sin(150))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(165), 0, 0, 0, 1, 4 * sin(165))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(180), 0, 0, 0, 1, 4 * sin(180))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(195), 0, 0, 0, 1, 4 * sin(195))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(210), 0, 0, 0, 1, 4 * sin(210))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(225), 0, 0, 0, 1, 4 * sin(225))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(240), 0, 0, 0, 1, 4 * sin(240))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(255), 0, 0, 0, 1, 4 * sin(255))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(270), 0, 0, 0, 1, 4 * sin(270))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(285), 0, 0, 0, 1, 4 * sin(285))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(300), 0, 0, 0, 1, 4 * sin(300))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(315), 0, 0, 0, 1, 4 * sin(315))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(330), 0, 0, 0, 1, 4 * sin(330))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(345), 0, 0, 0, 1, 4 * sin(345))
 		Stop
 		Full:
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(0), 0, 0, 0, 1, 4 * sin(0))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(15), 0, 0, 0, 1, 4 * sin(15))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(30), 0, 0, 0, 1, 4 * sin(30))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(45), 0, 0, 0, 1, 4 * sin(45))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(60), 0, 0, 0, 1, 4 * sin(60))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(75), 0, 0, 0, 1, 4 * sin(75))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(90), 0, 0, 0, 1, 4 * sin(90))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(105), 0, 0, 0, 1, 4 * sin(105))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(120), 0, 0, 0, 1, 4 * sin(120))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(135), 0, 0, 0, 1, 4 * sin(135))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(150), 0, 0, 0, 1, 4 * sin(150))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(165), 0, 0, 0, 1, 4 * sin(165))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(180), 0, 0, 0, 1, 4 * sin(180))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(195), 0, 0, 0, 1, 4 * sin(195))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(210), 0, 0, 0, 1, 4 * sin(210))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(225), 0, 0, 0, 1, 4 * sin(225))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(240), 0, 0, 0, 1, 4 * sin(240))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(255), 0, 0, 0, 1, 4 * sin(255))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(270), 0, 0, 0, 1, 4 * sin(270))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(285), 0, 0, 0, 1, 4 * sin(285))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(300), 0, 0, 0, 1, 4 * sin(300))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(315), 0, 0, 0, 1, 4 * sin(315))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(330), 0, 0, 0, 1, 4 * sin(330))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(345), 0, 0, 0, 1, 4 * sin(345))
 		Stop
 	}
 }
@@ -958,23 +934,19 @@ Actor PlasmaCannonShooter2 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 1, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 3, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 5, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 7, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 6, 0, 0, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -1, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -3, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -5, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -7, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -4, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -6, 0, 0, 0, 1)
 		Stop
 		Full:
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 1, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 3, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 5, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 7, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 6, 0, 0, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -1, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -3, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -5, 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -7, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -4, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -6, 0, 0, 0, 1)
 		Stop
 	}
 }
@@ -993,6 +965,7 @@ Actor PlasmaCannonBall {
 	Decal "Scorch"
 	+MTHRUSPECIES
 	+DONTREFLECT
+	+FOILINVUL
 	States {
 		Spawn:
 			NPSB ABCDEFGHIJKL 1 Bright
@@ -1062,7 +1035,7 @@ Actor ResSSG2 : Weapon {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireCheck2")
-			TNT1 A 0 A_JumpIfInventory("ShockerOverheat", 80, "DoNothing")
+			TNT1 A 0 A_JumpIfInventory("ShockerOverheat", 81, "DoNothing")
 		FireCheck2:
 			TNT1 A 0 A_JumpIfInventory("Cell", 3, "ContinueFire")
 		DoNothing:
@@ -1111,7 +1084,7 @@ Actor ResSSG2 : Weapon {
 			WSON A 6 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIfInventory("Cell", 3, "ContinueAltCheck")
+			TNT1 A 0 A_JumpIfInventory("Cell", 5, "ContinueAltCheck")
 		Goto DoNothing
 		ContinueAltCheck:
 			TNT1 A 0 A_JumpIfInventory("ShockerOverheat", 10, "ContinueAltFire")
@@ -1169,7 +1142,7 @@ Actor ShockerShooter2 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("Cell", 3)
+			TNT1 A 0 A_TakeInventory("Cell", 5)
 			TNT1 A 0 A_TakeInventory("ShockerOverheat", 10)
 		NoTake:
 			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("ShockerSmokes", 16 * cos(-pitch), frandom(-3.6, 3.6), (24 + frandom(-1.8, 1.8)) * (1 + sin(-pitch)), frandom(2.4, 4.8), frandom(-2.4, 2.4), frandom(2, 3), 0)

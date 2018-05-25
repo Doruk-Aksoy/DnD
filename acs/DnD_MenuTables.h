@@ -956,8 +956,8 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_NONE,
 	WPROP_RIPPER,
 	WPROP_NONE,
-	WPROP_NONE,
 	WPROP_IGNORESHIELD,
+	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_SELFDMG | WPROP_CANTHITGHOST,
@@ -1024,8 +1024,8 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of gas streams doing 5 damage.",
 	"Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
 	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
-	"Fires 24 plasma balls in a circular fashion, each doing 20 damage. Has a clip size of 5.",
-	"Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 108-180 damage in 96 unit radius.",
+	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
+	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	
 	"Silver Gun fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",

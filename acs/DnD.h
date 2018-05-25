@@ -1001,3 +1001,11 @@ void HandleOrbDrop() {
 			SpawnOrb(i);
 	}
 }
+
+void RecalculateTotalLevel() {
+	total_level = 0;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
+			total_level += GetStat(STAT_LVL);
+	}
+}
