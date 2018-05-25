@@ -947,7 +947,6 @@ bool PlayersReadyForHardcore() {
 }
 
 void SpawnTalentCapsule() {
-	Log(s:"Spawning Talent Capsule");
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(int i = 0; i < MAXPLAYERS; ++i)
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
