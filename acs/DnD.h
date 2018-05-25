@@ -134,7 +134,8 @@ enum {
 
 enum {
 	DND_SPECIAL_RESEARCH = 1,
-	DND_SPECIAL_ORB = 2
+	DND_SPECIAL_ORB = 2,
+	DND_SPECIAL_TALENTCAPSULE = 4,
 };
 
 int setplayer = 0;
@@ -490,6 +491,8 @@ void CalculateMapDifficulty() {
 		MapDifficulty = DND_EASY;
 	else
 		MapDifficulty = DND_VERYEASY;
+	
+	SetInventory("MapDifficultyClientside", MapDifficulty);
 }
 
 enum {
@@ -503,20 +506,22 @@ enum {
 };
 
 int CalculateBonus(int bonustype) {
+	int mdifficulty = CheckInventory("MapDifficultyClientside");
+	
 	if(bonustype == BONUS_KILL) {
 		// add 5% for each difficulty level
-		return BONUS_EXP_RATE * (MapDifficulty + 1);
+		return BONUS_EXP_RATE * (mdifficulty + 1);
 	}
 	else if(bonustype == BONUS_ITEM) {
 		// add 250 credit for each difficulty level
-		return BONUS_CREDIT_RATE * (MapDifficulty + 1);
+		return BONUS_CREDIT_RATE * (mdifficulty + 1);
 	}
 	else if(bonustype == BONUS_SECRET) {
 		// add 2 budget for each difficulty level
-		return BONUS_SECRET_RATE * (MapDifficulty + 1);
+		return BONUS_SECRET_RATE * (mdifficulty + 1);
 	}
 	else if(bonustype == BONUS_BONUS) {
-		return BONUS_SECRET_RATE * 2 * (MapDifficulty + 1);
+		return BONUS_SECRET_RATE * 2 * (mdifficulty + 1);
 	}
 	return 1;
 }
@@ -549,7 +554,7 @@ void DistributeBonus(int bonustype) {
 	int bval = 0, temp = 0, i = 0;
 	if(bonustype == BONUS_KILL) {
 		bval = CalculateBonus(BONUS_KILL);
-		temp = GetStat(STAT_LVLEXP) * bval / 100;
+		temp = LevelCurve[GetStat(STAT_LVL)] * bval / 100;
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				GiveActorInventory(i + P_TIDSTART, "DnD_KillBonusShower", 1);
@@ -942,13 +947,14 @@ bool PlayersReadyForHardcore() {
 }
 
 void SpawnTalentCapsule() {
+	Log(s:"Spawning Talent Capsule");
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(int i = 0; i < MAXPLAYERS; ++i)
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
 				SpawnDrop("TalentCapsule", 0, 0, i + 1, 1);
 	}
 	else
-		SpawnDrop("TalentCapsule_SP", 0, 0, i + 1, 1);
+		SpawnDrop("TalentCapsule_SP", 0, 0, 1, 1);
 }
 
 void SpawnChestKey(int tid, bool isElite) {
@@ -972,7 +978,7 @@ void SpawnResearch() {
 	}
 	else {
 		if(!CheckResearchStatus(temp))
-			SpawnDrop(StrParam(s:"ResearchModule_", s:Research_List[temp]), 24.0, 16, i + 1, 1);
+			SpawnDrop(StrParam(s:"ResearchModule_", s:Research_List[temp]), 24.0, 16, 1, 1);
 	}
 }
 
