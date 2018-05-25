@@ -874,7 +874,7 @@ actor "SMG" : Weapon
 {
   Weapon.SelectionOrder 6666
   Weapon.Slotnumber 9
-  Weapon.AmmoUse 1
+  Weapon.AmmoUse 0
   Weapon.AmmoGive 0
   Scale 0.65
   Weapon.AmmoType "SmgAmmo"
@@ -973,6 +973,7 @@ SelectLoop:
 Actor SMGShooter : DnD_Activator {
 	states {
 	Use:
+		TNT1 A 0 A_TakeInventory("SMGAmmo", 1)
 		TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 		TNT1 A 0 A_FireBullets(8, 1.2, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
@@ -2421,7 +2422,7 @@ ACTOR "Demon Heart" : Weapon {
 	Weapon.AmmoType "HeartAmmo"
 	Weapon.AmmoGive 0
 	Weapon.SelectionOrder 6666
-	Weapon.AmmoUse 1
+	Weapon.AmmoUse 0
 	Weapon.SlotNumber 9
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.1
@@ -2632,11 +2633,7 @@ Actor HeartAttack : AkimboShooter_L {
 	states {
 	Use:
 		TNT1 A 0 A_FireBullets(0.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_USEAMMO | FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
-		TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "TakeAmmo")
-	Goto SkipAmmo
-	TakeAmmo:
 		TNT1 A 0 A_TakeInventory("HeartAmmo", 1) // take ammo from this temp weapon
-	SkipAmmo:
 		TNT1 A 0 A_FireBullets(1.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_FireBullets(2.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_FireBullets(3.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
@@ -3391,7 +3388,7 @@ Actor Berettas : Weapon {
 	Inventory.PickupSound "weapons/pickup"
 	inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Akimbo Berettas - 9"
 	weapon.ammotype "BerettaAmmo"
-	weapon.ammouse 1
+	weapon.ammouse 0
 	weapon.ammogive 0
 	Decal "BulletChip"
 	YScale 0.59
@@ -3483,6 +3480,7 @@ Actor BerettaShooter_R : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-2.75, 2.75), 0, 0, frandom(-2.5, 2.5))
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 20 * cos(-pitch), 9, 35 * (1 + sin(-pitch)), 2, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*22,10,31+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			TNT1 A 0 A_TakeInventory("BerettaAmmo", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireBullets(3.2, 2.4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff")
 		Stop
@@ -3499,6 +3497,7 @@ Actor BerettaShooter_L : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-2.75, 2.75), 0, 0, frandom(-2.5, 2.5))
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 20 * cos(-pitch), -9, 35 * (1 + sin(-pitch)), 2, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*22,-10,31+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			TNT1 A 0 A_TakeInventory("BerettaAmmo", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireBullets(3.2, 2.4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISPISTOL), "NewBulletPuff")
 		Stop

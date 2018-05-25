@@ -922,10 +922,7 @@ Script 896 (void) {
 
 Script 897 (void) {
 	int i = random(0, MAXTEMPWEPS - 1);
-	GiveInventory(TemporaryWeapons[i], 1);
-	// Soul Render exception
-	if(i != 1)
-		GiveInventory(TemporaryAmmos[i], 999);
+	GiveInventory(TemporaryAmmos[i], 999);
 	SetWeapon(TemporaryWeapons[i]);
 	LocalAmbientSound("weapons/pickup", 127);
 }
@@ -1143,6 +1140,10 @@ Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
 			Thing_Remove(0);
 	}
 	else if(extra == DND_SPECIAL_ORB) {
+		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
+			Thing_Remove(0);
+	}
+	else if(extra == DND_SPECIAL_TALENTCAPSULE) {
 		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
 			Thing_Remove(0);
 	}
@@ -1888,7 +1889,7 @@ Script 991 ENTER {
 	SetInventory("LevelExp", 0);
 	SetInventory("LevelCredit", 0);
 	setInventory("AllMapOnlyOnce", 0);
-	SetInventory("MapDifficultyClientside", MapDifficulty);
+	//SetInventory("MapDifficultyClientside", MapDifficulty);
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
 	SetInventory("DnD_BoughtArmor", 0);
 	int pnum = PlayerNumber(), curlvl, i = 0;
@@ -2162,7 +2163,7 @@ Script "DnD Check Special Match" (int multispecial) {
 	who = ActivatorTID();
 	if(!multispecial)
 		res = who - P_TIDSTART == sp - 1;
-	else if(multispecial == DND_SPECIAL_RESEARCH || multispecial == DND_SPECIAL_ORB)
+	else if(multispecial == DND_SPECIAL_RESEARCH || multispecial == DND_SPECIAL_ORB || multispecial == DND_SPECIAL_TALENTCAPSULE)
 		res = who - P_TIDSTART == (sp & 0xFFFF) - 1;
 	printbold(d:res);
 	SetResultValue(res);
