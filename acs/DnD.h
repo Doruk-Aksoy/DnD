@@ -554,9 +554,9 @@ void DistributeBonus(int bonustype) {
 	int bval = 0, temp = 0, i = 0;
 	if(bonustype == BONUS_KILL) {
 		bval = CalculateBonus(BONUS_KILL);
-		temp = LevelCurve[GetStat(STAT_LVL)] * bval / 100;
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
+				temp = CheckActorInventory(i + P_TIDSTART, "LevelExp") * bval / 100;
 				GiveActorInventory(i + P_TIDSTART, "DnD_KillBonusShower", 1);
 				GiveActorInventory(i + P_TIDSTART, "Exp", temp);
 				GiveActorInventory(i + P_TIDSTART, "ExpVisual", temp);

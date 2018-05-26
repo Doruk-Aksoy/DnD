@@ -1139,11 +1139,7 @@ Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
 		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1 || CheckActorResearchStatus(ConsolePlayerNumber() + P_TIDSTART, sp >> 16))
 			Thing_Remove(0);
 	}
-	else if(extra == DND_SPECIAL_ORB) {
-		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
-			Thing_Remove(0);
-	}
-	else if(extra == DND_SPECIAL_TALENTCAPSULE) {
+	else if(extra == DND_SPECIAL_ORB || extra == DND_SPECIAL_TALENTCAPSULE) {
 		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
 			Thing_Remove(0);
 	}
