@@ -698,6 +698,8 @@ Actor AgamottoDefense : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 }
 
+Actor LichCheck : DnD_Boolean { }
+
 Actor LichPower : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 0x7FFFFFFF
@@ -901,7 +903,7 @@ const int HUNTERTALISMAN_DIST = 384;
 Actor HunterTalismanEffector : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 A_RadiusGive("HunterTalismanMarker", 384, RGF_MONSTERS)
+			TNT1 A 0 A_RadiusGive("HunterTalismanMarker", 432, RGF_MONSTERS)
 			TNT1 A 0 A_SpawnItemEx("HunterTalismanNovaFX", 0, 0, 24, 9)
 			TNT1 A 0 A_SpawnItemEx("HunterTalismanNovaFX", 0, 0, 24, 9, 9)
 			TNT1 A 0 A_SpawnItemEx("HunterTalismanNovaFX", 0, 0, 24, -9)

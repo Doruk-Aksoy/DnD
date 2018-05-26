@@ -43,6 +43,7 @@ LEGEND:
 * Reworked damage scaling calculation to use integers instead of fixed point. This should eliminate overflows and allow you to reach higher damage outputs for each damage source.
 * Adjusted hitboxes of all grenades.
 * Dash toggle works again.
+* Monster levels should now stay consistent when players leave.
 * Fixed "Lead Spitter" and "Demon Sealer" having swapped description.
 * The numbers shown for "Credit" and "Exp" gain bonuses at stat menu are now correct.
 * Fixed a typo that stated "Intellect" stat gave 0.15% bonus of talent. (Gives 0.1% still)
@@ -83,6 +84,9 @@ LEGEND:
 	- This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
 * "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
 + "Razorfang" skull shot can hit ghosts now.
++ "Plasma Cannon" now ignores shields.
+* "Plasma Cannon" readjusted to shoot 12 projectiles instead of 24. Damage unchanged.
+- "Shocker" uses 5 ammo for the alt up from 3.
 
 =====================
 == MONSTER RELATED ==

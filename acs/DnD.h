@@ -556,7 +556,7 @@ void DistributeBonus(int bonustype) {
 		bval = CalculateBonus(BONUS_KILL);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
-				temp = CheckActorInventory(i + P_TIDSTART, "LevelExp") * bval / 100;
+				temp = GetActorStat(i + P_TIDSTART, STAT_LVLEXP) * bval / 100;
 				GiveActorInventory(i + P_TIDSTART, "DnD_KillBonusShower", 1);
 				GiveActorInventory(i + P_TIDSTART, "Exp", temp);
 				GiveActorInventory(i + P_TIDSTART, "ExpVisual", temp);
@@ -1004,5 +1004,13 @@ void HandleOrbDrop() {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))
 			SpawnOrb(i);
+	}
+}
+
+void RecalculateTotalLevel() {
+	total_level = 0;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
+			total_level += GetStat(STAT_LVL);
 	}
 }
