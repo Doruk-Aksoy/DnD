@@ -1139,11 +1139,7 @@ Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
 		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1 || CheckActorResearchStatus(ConsolePlayerNumber() + P_TIDSTART, sp >> 16))
 			Thing_Remove(0);
 	}
-	else if(extra == DND_SPECIAL_ORB) {
-		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
-			Thing_Remove(0);
-	}
-	else if(extra == DND_SPECIAL_TALENTCAPSULE) {
+	else if(extra == DND_SPECIAL_ORB || extra == DND_SPECIAL_TALENTCAPSULE) {
 		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
 			Thing_Remove(0);
 	}
@@ -1670,7 +1666,7 @@ Script 981 ENTER CLIENTSIDE {
 					SetFont ("MONFONT");
 					for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
 						if(IsSet(traits, i)) {
-							HudMessage(s:MonsterTraits[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+							HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_1), s:MonsterTraits[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
 							++j;
 						}
 					}
@@ -1679,7 +1675,7 @@ Script 981 ENTER CLIENTSIDE {
 					SetFont ("MONFONT");
 					for(i = 0; i < MAX_MONSTER_TRAITS2; ++i) {
 						if(IsSet(traits2, i)) {
-							HudMessage(s:MonsterTraits2[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+							HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_2), s:MonsterTraits2[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
 							++j;
 						}
 					}

@@ -3179,7 +3179,9 @@ Actor Nailgun2 : Weapon {
 		ContinueNorm:
 			NLCG A 0 A_PlayWeaponSound("Weapons/NG2Fire")
 			NLCF A 1 bright Offset(0, 32) A_GiveInventory("Nailgun2Shooter", 1)
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
 			NLCG A 0 A_Recoil(0.4)
+		NoRecoil:
 			NLCG A 0 Radius_Quake(2,6,0,1,0)
 			NLCG B 1 Offset(0, 35)
 			NLCG C 1 Offset(0, 34)

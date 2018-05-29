@@ -686,8 +686,6 @@ Actor GryphonCheck : DnD_Boolean { }
 
 Actor AgamottoCheck : Dnd_Boolean { }
 
-Actor LichCheck : Dnd_Boolean { }
-
 Actor AgamottoOffense : PowerDamage {
 	damagefactor "normal", 2.5
 	powerup.duration 0x7FFFFFFF

@@ -317,7 +317,9 @@ Actor ResShotgun2 : Weapon {
 			Loop
 		Fire:
 			BOWG A 0 A_GunFlash
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
 			BOWG A 0 A_Recoil(4.0)
+		NoRecoil:
 			BOWG A 0 A_PlaySound("weapons/cryobowshot")
 			BOWG A 0 A_PlaySound("weapons/cryobowfire", CHAN_WEAPON)
 			BOWF A 2 Bright A_GiveInventory("CryoShooter_1", 1)
@@ -348,7 +350,9 @@ Actor ResShotgun2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("CryoBowCooldown", 1, "Failed")
 			BOWG A 1
 			BOWG A 0 A_GunFlash
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoilAlt")
 			BOWG A 0 A_Recoil(4.0)
+		NoRecoilAlt:
 			BOWG A 0 A_PlaySound("weapons/cryobowshot")
 			BOWG A 0 A_PlaySound("weapons/cryobowfire", CHAN_WEAPON)
 			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuffAlt", FBF_NORANDOM, 384)
@@ -1049,7 +1053,9 @@ Actor ResSSG2 : Weapon {
 			TNT1 A 0 A_PlaySound("Shocker/Fire2", 7)
 			TNT1 A 0 A_GiveInventory("ShockerOverheat", 20)
 			WSON B 1 Bright A_GiveInventory("ShockerShooter", 1)
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
 			TNT1 A 0 A_Recoil(2)
+		NoRecoil:
 			WSON A 1 offset(3,36)
 			TNT1 AAAAAA 0 A_SpawnItemEx("ElectDrSpark", frandom(48.0, 72.0) + 20 * cos(pitch), frandom(-10.0, 10.0), frandom(24.0, 48.0) + sin(-pitch) * 16, frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(-2.0, 2.0), 0, SXF_NOCHECKPOSITION)
 			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("ElectDrSpark", frandom(8.0, 40.0) + 20 * cos(pitch), frandom(-12.0, 12.0), frandom(24.0, 48.0) + sin(-pitch) * 16, frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(-2.0, 2.0), 0, SXF_NOCHECKPOSITION, 64)
@@ -1097,7 +1103,9 @@ Actor ResSSG2 : Weapon {
 			TNT1 A 0 A_PlaySound("Shocker/Fire2", 6)
 			TNT1 A 0 A_PlaySound("Shocker/Smokes", 7)
 			WSON B 1 Bright A_GiveInventory("ShockerShooter2", 1)
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoilAlt")
 			TNT1 A 0 A_Recoil(2)
+		NoRecoilAlt:
 			TNT1 AAAAAA 0 A_SpawnItemEx("ElectDrSpark", frandom(48.0, 72.0) + 20 * cos(pitch), frandom(-10.0, 10.0), frandom(24.0, 48.0) + sin(-pitch) * 16, frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(-2.0, 2.0), 0, SXF_NOCHECKPOSITION)
 			TNT1 AAAAAAAAAAAAAAA 0 A_SpawnItemEx("ElectDrSpark", frandom(8.0, 40.0) + 20 * cos(pitch), frandom(-12.0, 12.0), frandom(24.0, 48.0) + sin(-pitch) * 16, frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(-2.0, 2.0), 0, SXF_NOCHECKPOSITION, 64)
 			WSON A 1 offset(3,36)
