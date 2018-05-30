@@ -1045,26 +1045,23 @@ actor DemonSealEffectChecker : DnD_Activator {
 
 Actor DemonSealEffectSuccess : PowerProtection {
 	damagefactor "normal", 1.0
-	Powerup.Duration 15
+	Powerup.Duration 18
 }
 
 ACTOR DemonSealingDamage {
-	Radius 6
-	Height 6
+	Radius 8
+	Height 16
 	Speed 60
 	Damage (0x3FFFFFFF)
 	DamageType "MagicSealing"
 	+THRUSPECIES
 	+NODAMAGETHRUST
 	+BLOODLESSIMPACT
-	+FORCEXYBILLBOARD
 	+EXPLODEONWATER
 	+HITTRACER
 	+NOEXTREMEDEATH
+	+FOILINVUL
 	Projectile
-	RenderStyle Add
-	Alpha 1.0
-	Scale 1.0
 	Species "Player"
 	States {
 		Spawn:

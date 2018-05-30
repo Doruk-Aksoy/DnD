@@ -2552,7 +2552,6 @@ Script "DND Weapon Damage Retrieve" (int dmg_id, int talent_type, int flags) {
 	else if(flags & DND_WDMG_USETRACER)
 		SetActivator(0, AAPTR_TRACER);
 	int res = 0, pnum = PlayerNumber(), wepid = GetWeaponPosFromTable(), temp;
-	
 	// get the damage
 	if(!(flags & DND_WDMG_ISSPECIALAMMO))
 		res = GetCachedPlayerDamage(dmg_id);
@@ -2581,9 +2580,9 @@ Script "DND Weapon Damage Retrieve" (int dmg_id, int talent_type, int flags) {
 	// include the talent bonus now
 	// occult uses intellect
 	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
-		res = res * (1000 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * GetIntellect()) / 1000;
+		res = res * (1000 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type])) / 1000;
 	else
-		res = res * (1000 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * GetDexterity()) / 1000;
+		res = res * (1000 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type])) / 1000;
 	if(active_quest_id == QUEST_ONLYNOTALENTWEAPONS && CheckInventory(TalentNames[talent_type]))
 		GiveInventory(Quest_Checkers[QUEST_ONLYNOTALENTWEAPONS], 1);
 	// crit chance
@@ -2617,9 +2616,9 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetStat(STAT_BUL)) / 100;
 	// talent bonus
 	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * GetIntellect()) / 100;
+		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type])) / 100;
 	else
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * GetDexterity()) / 100;
+		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type])) / 100;
 	// finally crit chance
 	if(CheckCritChance()) {
 		dmg = dmg * GetCritModifier() / 100;
