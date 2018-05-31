@@ -2428,7 +2428,6 @@ ACTOR "Demon Heart" : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.5
-	+THRUGHOST
 	States {
 		Spawn:
 			TNT1 A -1 Bright
@@ -2605,6 +2604,7 @@ Actor HeartAttackPuff : BulletPuff {
 	+ALWAYSPUFF
 	+PUFFGETSOWNER
     +MTHRUSPECIES
+	+THRUGHOST
 	States {
 		Crash:
 			TNT1 A 1
@@ -2624,6 +2624,11 @@ Actor HeartAttackPuff : BulletPuff {
     }
 }
 
+Actor HeartAttackPuff_FullDMG : BulletPuff {
+	+FORCERADIUSDMG
+	-THRUGHOST
+}
+
 Actor HeartAttack : AkimboShooter_L {
 	+INVENTORY.ALWAYSPICKUP
 	+INVENTORY.AUTOACTIVATE
@@ -2632,8 +2637,10 @@ Actor HeartAttack : AkimboShooter_L {
 	-INVENTORY.INVBAR
 	states {
 	Use:
-		TNT1 A 0 A_FireBullets(0.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_USEAMMO | FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_TakeInventory("HeartAmmo", 1) // take ammo from this temp weapon
+		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
+		TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+		TNT1 A 0 A_FireBullets(0.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_FireBullets(1.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_FireBullets(2.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_FireBullets(3.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
@@ -2714,6 +2721,89 @@ Actor HeartAttack : AkimboShooter_L {
 		TNT1 A 0 A_FireBullets(-42.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_FireBullets(-43.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		TNT1 A 0 A_FireBullets(-45.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		Stop
+	Full:
+		TNT1 A 0 A_FireBullets(0.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(1.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(2.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(3.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(4.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(5.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(6.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(7.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(9.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(10.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(11.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(12.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(13.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(14.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(15.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(16.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(18.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(19.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(20.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(21.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(22.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(23.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(24.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(25.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(27.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(28.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(29.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(30.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(31.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(32.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(33.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(34.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(36.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(37.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(38.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(39.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(40.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(41.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(42.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(43.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(45.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-1.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-2.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-3.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-4.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-5.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-6.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-7.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-9.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-10.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-11.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-12.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-13.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-14.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-15.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-16.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-18.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-19.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-20.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-21.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-22.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-23.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-24.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-25.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-27.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-28.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-29.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-30.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-31.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-32.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-33.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-34.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-36.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-37.125, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-38.25, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-39.375, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-40.5, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-41.625, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-42.75, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-43.875, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
+		TNT1 A 0 A_FireBullets(-45.0, 0.0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "HeartAttackPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE, 4096)
 		Stop
 	}
 }

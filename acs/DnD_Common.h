@@ -269,4 +269,16 @@ Script 964 (int which) {
 	}
 }
 
+//mod works the same on negative and positive numbers as % does in positive numbers
+//From: https://stackoverflow.com/questions/4003232/how-to-code-a-modulo-operator-in-c-c-obj-c-that-handles-negative-numbers
+int mod (int a, int b)
+{
+   if(b < 0) //you can check for b == 0 separately and do what you want
+     return mod(a, -b);   
+   int ret = a % b;
+   if(ret < 0)
+     ret+=b;
+   return ret;
+}
+
 #endif

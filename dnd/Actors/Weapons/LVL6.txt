@@ -893,6 +893,7 @@ Actor NailProj_Damager : DnD_FakeDamager {
 }
 
 Actor NailProjectile_FullDMG : NailProjectile {
+	-THRUGHOST
 	+THRUACTORS
 	States {
 		Spawn:
@@ -924,6 +925,7 @@ Actor NailExplosion : BaseExplosionDamage {
 Actor NailExplosion_FullDMG : NailExplosion {
 	DamageType "MagicFireFull"
 	+FORCERADIUSDMG
+	-THRUGHOST
 }
 
 Actor LavaNailProjectile : NailProjectile {
@@ -949,6 +951,7 @@ Actor LavaNailProjectile : NailProjectile {
 }
 
 Actor LavaNailProjectile_FullDMG : LavaNailProjectile {
+	-THRUGHOST
 	States {
 		Spawn:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)

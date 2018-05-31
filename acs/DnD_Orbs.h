@@ -585,32 +585,73 @@ int HandleSinOrbBonus(int type) {
 	switch(type) {
 		case SINORB_STAT:
 			// give random stat points
+			int stat_indexes_left = 6;
+			int stat_indexes[6] = {
+				STAT_STR,
+				STAT_DEX,
+				STAT_BUL,
+				STAT_CHR,
+				STAT_VIT,
+				STAT_INT
+			};
+			
+			Player_MostRecent_Orb[pnum].val4 = INT_MIN; //Make sure the full 32-bit range is used
+			Player_MostRecent_Orb[pnum].val5 = INT_MIN;
+			
 			for(i = 0; i < GetAffluenceBonus() * SINORB_STATGIVE; ++i) {
-				do {
-					temp = random(STAT_STR, STAT_INT);
-				} while(GetStat(i) == DND_STAT_FULLMAX && loop++ != MAX_ITER);
-				Player_MostRecent_Orb[pnum].sins_cant_repent = GetStat(i) == DND_STAT_FULLMAX;
-				GiveStat(temp, 1);
-				// 6 stats, can give max of 64 on 1 stat. 8 x 6 = 48 bits needed. 2 ints
-				if(temp < 4)
-					Player_MostRecent_Orb[pnum].val4 += 1 << (SINORB_STATSAVEBITS * temp);
-				else
-					Player_MostRecent_Orb[pnum].val5 += 1 << (SINORB_STATSAVEBITS * (temp - 4));
+				while(stat_indexes_left > 0) {
+					temp = random(0, stat_indexes_left-1);
+					if (GetStat(stat_indexes[temp]) < 200)
+						break;
+					stat_indexes[temp] = stat_indexes[--stat_indexes_left];
+				}
+				if (stat_indexes_left > 0) {
+					GiveStat(stat_indexes[temp], 1);
+					// 6 stats, can give max of 64 on 1 stat. 8 x 6 = 48 bits needed. 2 ints
+					if(stat_indexes[temp] < STAT_INT)
+						Player_MostRecent_Orb[pnum].val4 += pow(65, temp);
+					else
+						Player_MostRecent_Orb[pnum].val5 += temp;
+				}
+				else {
+					GiveInventory("StatPoint", 1);
+					Player_MostRecent_Orb[pnum].val5 += 65;
+				}
 			}
 		return SINORB_STATGIVE;
 		case SINORB_PERK:
 			// give a random perk
+			int perk_indexes_left = DND_PERKS;
+			int perk_indexes[DND_PERKS] = {
+				STAT_SHRP,
+				STAT_END,
+				STAT_WIS,
+				STAT_GRE,
+				STAT_MED,
+				STAT_MUN,
+				STAT_DED,
+				STAT_SAV,
+				STAT_LUCK
+			};
+			Player_MostRecent_Orb[pnum].val4 = INT_MIN; //Make sure the full 32-bit range is used
+			//val5 is using regular positive number.
+			
 			for(i = 0; i < GetAffluenceBonus() * SINORB_PERKGIVE; ++i) {
-				do {
-					temp = random(STAT_SHRP, STAT_SAV);
-				} while(GetStat(i + DND_PERK_BEGIN) == DND_PERK_MAX && loop++ != MAX_ITER);
-				Player_MostRecent_Orb[pnum].sins_cant_repent = GetStat(i + DND_PERK_BEGIN) == DND_PERK_MAX;
-				GiveStat(temp, 1);
-				// int_max is 10 digits, max give is 16
-				if((Player_MostRecent_Orb[pnum].val4 / (pow(10, temp - STAT_SHRP))) % 10 != 9)
-					Player_MostRecent_Orb[pnum].val4 += pow(10, temp - STAT_SHRP);
-				else
-					Player_MostRecent_Orb[pnum].val5 += pow(10, temp - STAT_SHRP);
+				while(perk_indexes_left > 0) {
+					temp = random(0, perk_indexes_left-1);
+					if (GetStat(perk_indexes[temp]) < DND_PERK_MAX)
+						break;
+					perk_indexes[temp] = perk_indexes[--perk_indexes_left];
+				}
+				if (perk_indexes_left > 0) {
+					GiveStat(perk_indexes[temp], 1);
+					// int_max is 10 digits, max give is 16 (packed array)
+					Player_MostRecent_Orb[pnum].val4 += pow(11, temp);
+				}
+				else {
+					GiveInventory("PerkPoint", 1);
+					Player_MostRecent_Orb[pnum].val5 += temp;
+				}
 			}
 		return SINORB_PERKGIVE;
 		/*case SINORB_RES:
@@ -730,34 +771,42 @@ void RevertLastOrbEffect() {
 
 void UndoSinOrbEffect() {
 	// val3 holds affluence on first 5 bits
-	int pnum = PlayerNumber(), i;
+	int pnum = PlayerNumber(), i, temp;
 	switch ((Player_MostRecent_Orb[pnum].val3 & 0b111100000) >> 5) {
 		case SINORB_STAT:
-			if(!Player_MostRecent_Orb[pnum].sins_cant_repent) {
-				// val4 and val5 hold stat values that we currently have gained, so we take them away
-				for(i = STAT_STR; i <= STAT_INT; ++i) {
-					if(i < 4) {
-						TakeStat(i, Player_MostRecent_Orb[pnum].val4 & SINORB_STATSAVEMASK);
-						Player_MostRecent_Orb[pnum].val4 >>= SINORB_STATSAVEBITS;
-					}
-					else {
-						TakeStat(i, Player_MostRecent_Orb[pnum].val5 & SINORB_STATSAVEMASK);
-						Player_MostRecent_Orb[pnum].val5 >>= SINORB_STATSAVEBITS;
-					}
-				}
+			// val4 and val5 hold stat values that we currently have gained, so we take them away
+			for(i = STAT_STR; i < STAT_INT; ++i) {
+				TakeStat(i, mod(Player_MostRecent_Orb[pnum].val4,65));
+				Player_MostRecent_Orb[pnum].val4 /= 65;
 			}
+			TakeStat(STAT_INT, mod(Player_MostRecent_Orb[pnum].val5,65));
+			Player_MostRecent_Orb[pnum].val5 /= 65;
+			//Remove allocated stats randomly until enough perk points are available
+			//Unlike the orb of sin use, there's no way to have less stats then the ones being taken - thus loop can be simpler
+			
+			while (CheckInventory("StatPoint") < mod(Player_MostRecent_Orb[pnum].val5, 65)) {
+				temp = random(STAT_STR, STAT_INT);
+				if (GetStat(temp) > 0) {
+					TakeStat(temp, 1);
+					GiveInventory("StatPoint", 1); }}
+			TakeInventory("StatPoint", Player_MostRecent_Orb[pnum].val5);
 		break;
 		case SINORB_PERK:
-			if(!Player_MostRecent_Orb[pnum].sins_cant_repent) {
-				for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i) {
-					TakeStat(i, Player_MostRecent_Orb[pnum].val4 % 10);
-					TakeStat(i, Player_MostRecent_Orb[pnum].val5 % 10);
-					Player_MostRecent_Orb[pnum].val4 /= 10;
-					Player_MostRecent_Orb[pnum].val5 /= 10;
-				}
-				// after operation perk checks
-				UpdatePerkStuff();
+			for(i = DND_PERK_BEGIN; i < DND_PERK_END; ++i) {
+				TakeStat(i, mod(Player_MostRecent_Orb[pnum].val4,11));
+				Player_MostRecent_Orb[pnum].val4 /= 11;
 			}
+			//Remove allocated perks randomly until enough perk points are available
+			//Unlike the orb of sin use, there's no way to have less perks then the ones being taken - thus loop can be simpler
+			while (CheckInventory("PerkPoint") < Player_MostRecent_Orb[pnum].val5) {
+				temp = random(STAT_SHRP, STAT_LUCK);
+				if (GetStat(temp) > 0) {
+					TakeStat(temp, 1);
+					GiveInventory("PerkPoint", 1); }}
+			TakeInventory("PerkPoint", Player_MostRecent_Orb[pnum].val5);
+			
+			// after operation perk checks
+			UpdatePerkStuff();
 		break;
 		case SINORB_CRIT:
 			//printbold(d: Player_MostRecent_Orb[pnum].val5, s: " ", f:Player_Weapon_Infos[pnum][Player_MostRecent_Orb[pnum].val5].wep_bonuses[WEP_BONUS_CRIT].amt, s: " ", f:Player_MostRecent_Orb[pnum].val4);
