@@ -322,8 +322,8 @@ Actor Souls : Ammo
 
 Actor LargeSouls : Souls
 {
-	inventory.amount 5
-	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 5\c-"
+	inventory.amount 3
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 3\c-"
 	States
 	{
 		Spawn:

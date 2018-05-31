@@ -71,11 +71,11 @@ Actor TheDoomGuy : DnD_PlayerBase {
 		Loop
 		See:
 			DPLY A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			DPLY A 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			DPLY A 5
 			DPLY B 5 A_GiveInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		See2:
-			DPLY C 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			DPLY C 5
 			DPLY D 5 A_TakeInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		Missile:
@@ -415,11 +415,11 @@ Actor TheMarine : DnD_PlayerBase {
 		Loop
 		See:
 			PLAY A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			PLAY A 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			PLAY A 5
 			PLAY B 5 A_GiveInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		See2:
-			PLAY C 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			PLAY C 5
 			PLAY D 5 A_TakeInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		Missile:
@@ -750,11 +750,11 @@ Actor TheHobo : DnD_PlayerBase {
 		Loop
 		See:
 			PREN A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			PREN A 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			PREN A 5
 			PREN B 5 A_GiveInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		See2:
-			PREN C 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			PREN C 5
 			PREN D 5 A_TakeInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		Missile:
@@ -1085,11 +1085,11 @@ Actor ThePunisher : DnD_PlayerBase {
 		Loop
 		See:
 			BLAZ A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			BLAZ A 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			BLAZ A 5
 			BLAZ B 5 A_GiveInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		See2:
-			BLAZ C 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			BLAZ C 5
 			BLAZ D 5 A_TakeInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		Missile:
@@ -1420,11 +1420,11 @@ Actor TheWanderer : DnD_PlayerBase {
 		Loop
 		See:
 			MNK1 A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			MNK1 A 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			MNK1 A 5
 			MNK1 B 5 A_GiveInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		See2:
-			MNK1 C 5 A_SpawnItemEx("PlayerStepSound", 0, 0, 0, 0, 0, -10, 0,0, 0)
+			MNK1 C 5
 			MNK1 D 5 A_TakeInventory("P_StepTaken", 1)
 		Goto SpawnGo
 		Missile:
@@ -2012,25 +2012,6 @@ ACTOR BurnDeath1
         FGUT T -1
         Stop
     }
-}
-
-actor PlayerStepSound {
-	PROJECTILE
-	+NOBLOOD
-	+DONTBLAST
-	damage 0
-	radius 4
-	Height 2
-	deathsound "Player/Move"
-	States {
-		Spawn:
-			TNT1 A 1
-		Stop
-		Death:
-			TNT1 A 0
-			TNT1 A 1
-		Stop
-	}
 }
 
 Actor P_Damaged : PowerDamage {

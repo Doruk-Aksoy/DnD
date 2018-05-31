@@ -84,6 +84,22 @@ Actor ZombieMan2 : DnD_Zombieman
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -173,6 +189,22 @@ Actor Shotgunguy2 : DnD_Shotgunner {
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -247,6 +279,22 @@ Actor Cgguy2 : DnD_Chaingunguy {
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -269,18 +317,6 @@ Actor Demon2x : DnD_Demon
 			TNT1 A 0
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DEMONID)
 		Goto Super::Spawn
-		Death:
-			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-		GaveSoul:
-			TNT1 A 0
-		Goto Super::Death
-		Death.BookOfTheDead:
-		GiveSoul:
-			SARG I 1
-			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-			TNT1 A 0 A_GiveToTarget("Souls", 1)  
-	    Goto GaveSoul
 		Raise:
 			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
 		Goto Super::Raise
@@ -292,6 +328,22 @@ Actor Demon2x : DnD_Demon
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -337,6 +389,22 @@ Actor Spectre2 : DnD_Spectre
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -425,6 +493,22 @@ Actor DoomImp2 : DnD_DoomImp  {
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -491,6 +575,22 @@ Actor LostSoul2 : DnD_LostSoul
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -526,6 +626,22 @@ Actor LostSoulNoExp : DnD_LostSoul {
 			SKUL D 4 Bright A_SkullAttack
 			SKUL CD 4 Bright
 		Goto Missile+2
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -578,6 +694,22 @@ Actor CacoDemon2 : DnD_Cacodemon
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -648,6 +780,22 @@ Actor PainElemental2 : DnD_PainElemental
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -704,6 +852,22 @@ Actor Revenant2 : DnD_Revenant
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -784,6 +948,22 @@ Actor HellKnight2 : DnD_HellKnight
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -857,6 +1037,22 @@ Actor BaronOfHell2 : DnD_BaronOfHell
 			"----" "#" 0 A_KillMaster
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}	
 }
 
@@ -911,6 +1107,22 @@ Actor Mancubus2 : DnD_Fatso
 			"----" "#" 0 A_KillMaster
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -988,6 +1200,22 @@ Actor Arachno2 : DnD_Arachnotron
 			"----" "#" 0 A_KillMaster
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -1061,6 +1289,22 @@ Actor ArchVile2 : DnD_ArchVile
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -1190,6 +1434,22 @@ Actor SpiderMastermind2 : DnD_SpiderMasterMind
 			"----" "#" 0 A_KillMaster
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}	
 }
 
@@ -1290,6 +1550,22 @@ Actor Cyberdemon2 : DnD_Cyberdemon
 			"----" "#" 0 A_KillMaster
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}	
 }
 
@@ -1352,6 +1628,22 @@ Actor WolfensteinSS2 : DnD_WolfensteinSS {
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 1 A_FreezeDeathChunks
 		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 

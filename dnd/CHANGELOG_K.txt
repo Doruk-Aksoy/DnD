@@ -25,6 +25,9 @@ LEGEND:
 ! All "Orb" drops are now calculated per player. Each player gets their own unique drop depending on their luck!
 ! Redone the accessory page of "DnD Menu". Now split into 4 pages with each page having 5 accessories shown total.
 ! Added a new help page to describe weapon properties.
+! Monster traits are now color coded.
+* Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
+* Changed how footstep sounds are generated. They get faster and louder the faster you move.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
 * A small delay of 7 tics has been added to consecutive orb uses.
 * "Bulkiness" percentage value on stat menu now uses correct formula. (It used the older formula)
@@ -49,6 +52,7 @@ LEGEND:
 * Fixed a typo that stated "Intellect" stat gave 0.15% bonus of talent. (Gives 0.1% still)
 * New accessories of previous version do drop now. Oops.
 * You can't use "Portable Shield" with "Invulnerability Sphere" anymore.
+* "Silver Gun" renamed to "White Death" due to mass confusion. :/
 * "Destruction Generator" knockback is now properly remedied with "Gryphon Boots".
 * Fixed one of the "Wanderer" player sprites not translating properly.
 * Changed how "Orb of Sin" takes your stats a little bit.
@@ -73,6 +77,8 @@ LEGEND:
 * Fixed a small problem regarding chest drop rates.
 * Fixed old damage method for "Soul Reaver" when "Nether Mask" was equipped. This results in equal damage when it's equipped instead of a bit less.
 * Fixed a bug that caused "Lich Arm" to actually reduce damage of all weapons... oops.
+* Fixed a bug where "Occult Armor" wasn't increasing the damage of some weapons with "Nether Mask" equipped.
+* Added a few things to hopefully ensure "Demon Sealer" to properly seal monsters.
 * "Nuclear Plasma Rifle" now properly overheats with "Hand of Artemis" equipped.
 * The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", S"hocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
 + "Hardcore" and "Softcore" damage amp reduced to 15% from 25%.
@@ -87,10 +93,21 @@ LEGEND:
 - "Destruction Generator" primary ball explosion radius reduced to 384, full damage radius reduced to 192. (Reduced by 50%)
 	* This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
 * "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
+- "Destruction Generator" fire rate reduced by 7 tics.
+* Reduced the volume of looping sound of "Soul Reaver".
 + "Razorfang" skull shot can hit ghosts now.
 + "Plasma Cannon" now ignores shields.
 * "Plasma Cannon" readjusted to shoot 12 projectiles instead of 24. Damage unchanged.
++ "Acid Rifle" bullet damage increased to 18 from 15.
++ "Acid Rifle" after impact and poison cloud damage increased to 10-15 from 5-15.
++ "Acid Rifle" after impact damage radius increased to 48 from 40.
++ "Acid Rifle" bolt hit damage increased to 40-60 from 30-60.
++ "Acid Rifle" bolt explosion damage increased to 96 from 64.
++ "Ebony Cannon" cannon ball damage increased to 32-48 from 16-40.
++ "Ebony Cannon" projectile speed increased to 36 from 24.
++ "Ebony Cannon" scatter projectile speed increased to 18 from 16.
 - "Shocker" uses 5 ammo for the alt up from 3.
++ "Slayer" hooks travel approximately 30% farther.
 
 =====================
 == MONSTER RELATED ==
@@ -104,6 +121,7 @@ LEGEND:
 * Reworked all minion summon methods to properly set master-child relations. (They properly use the summoner's level now)
 * "Blood Lich" minions spawned on death now give exp and credit.
 * "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.
+* "Bruiser Demon" now bleeds fire. (Only VFX)
 - "Blood Lich" fire breath damage halved.
 - "Terminator" red grenade after hit damage reduced to (1,2) from (4,32).
 - "Hades Elemental" lightning bolt damage has been halved from 16 to 8.
