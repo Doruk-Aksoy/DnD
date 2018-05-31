@@ -4,6 +4,7 @@
 #include "DnD_MenuConstants.h"
 #include "DnD_Defs.h"
 #include "DnD_Orbs.h"
+#include "DnD_ElitePow.h"
 
 #define MAXATTRIBUTES 6
 
@@ -1851,45 +1852,13 @@ str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 	"LEG_GODS"
 };
 
-#define MAX_MONSTER_MODS 35
-str Help_EliteModLabel[MAX_MONSTER_MODS] = {
-	"Explosive Resist",
-	"High Explosive Resist",
-	"Explosive Immune",
-	"Physical Resist",
-	"Ghost",
-	"Hardened Skin",
-	"Reflective",
-	"Summon Minion",
-	"Can Curse",
-	"Can Heal",
-	"Can Block",
-	"Can Split",
-	"Can Raise",
-	"Can Teleport",
-	"Resurrect Fallen",
-	"Mobility",
-	"Homing",
-	"Poisonous",
-	"Death Surprise",
-	"Rage",
-	"Pierces Armor",
-	"Aggressive",
-	"Extra Fast",
-	"Fast Reaction",
-	"No Pain",
-	"Physical Immune",
-	"Energy Resist",
-	"Energy Immune",
-	"Magic Resist",
-	"Magic Immune",
-	"Elemental Resist",
-	"Elemental Immune",
-	"Extra Strong",
-	"Vital",
-	"Armor Penetration"
-};
+#define DND_TRAIT1_STARTSHOW DND_EXPLOSIVE_RESIST_POW // first trait to show
+#define DND_TRAIT1_LASTSHOW DND_NOPAIN_POW
+#define DND_TRAIT2_STARTSHOW DND_BULLET_IMMUNE_POW
+#define DND_TRAIT2_LASTSHOW DND_ARMORPEN_POW
+#define DND_TRAIT_SKIP DND_EXPLOSIVE_RESIST_POW // amount of traits to skip
 
+#define MAX_MONSTER_MODS DND_TRAIT2_LASTSHOW - DND_TRAIT2_STARTSHOW + DND_TRAIT1_LASTSHOW - DND_TRAIT1_STARTSHOW + 2
 str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster takes 50% reduced damage from explosives.",
 	"Monster is immune to area damage.",

@@ -256,63 +256,6 @@ int IsBoss(int monsterid) {
 	return 0;
 }
 
-#define MAX_MONSTER_TRAITS 31
-#define MONSTER_TRAITID 1103
-#define MONSTER_BARID MONSTER_TRAITID + MAX_MONSTER_TRAITS + 1
-// up to 1102 is occupied by barfillid, 1102 included
-#define MONSTER_BARFILLID 1001
-#define MONSTER_TEXTID 1000
-#define MONSTER_NAMEID 999
-
-str MonsterTraits[MAX_MONSTER_TRAITS] = {
-	"Energy Weakness",
-	"Silver Weakness",
-	"Fire Weakness",
-	"Ice Weakness",
-	"Magic Weakness",
-	
-	"Explosive Resist",
-	"High Explosive Resist",
-	"Explosive Immune",
-	"Physical Resist",
-	"Ghost",
-	"Hardened Skin",	// ripper immune
-	"Reflective",
-	"Summon Minion",
-	"Can Curse",		// monsters with curses
-	"Can Heal",		// monsters with healing
-	"Can Block",		// shielded monster
-	"Can Split",
-	"Can Raise",
-	"Can Teleport",
-	"Resurrect Fallen",	// arch vile
-	"Mobility",	// dashes, fast speed etc
-	"Homing",
-	"Poisonous",
-	"Death Surprise",	// monsters with dangerous deaths
-	"Rage", // monsters that get angry after a certain condition
-	"Pierces Armor", // monsters that ignore player armor
-	"Aggressive", // more aggression
-	"Extra Fast", // nightmare fast
-	"Fast Reaction", // quicktoretaliate
-	"No Pain",
-	"Magic Resist"
-};
-
-#define MAX_MONSTER_TRAITS2 10
-str MonsterTraits2[MAX_MONSTER_TRAITS2] = {
-	"Physical Immune",
-	"Energy Resist",
-	"Energy Immune",
-	"Magic Resist",
-	"Magic Immune",
-	"Elemental Resist",
-	"Elemental Immune",
-	"Extra Strong",
-	"Vital",
-	"Armor Penetration"
-};
-
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX
 #define MAX_MONSTER_CATEGORIES 17
 #define MAX_MONSTER_VARIATIONS 15

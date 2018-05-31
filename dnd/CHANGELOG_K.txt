@@ -53,6 +53,7 @@ LEGEND:
 * Fixed one of the "Wanderer" player sprites not translating properly.
 * Changed how "Orb of Sin" takes your stats a little bit.
 * "Bloodfiend Spine" weapon tip correctly states that the mainfire can't hit ghosts.
+* All monster kill bonus exp is now properly distributed.
 * Fixed a little inconsistency with how the fireballs are spawned on "Death Staff" altfire with "Nether Mask" equipped.
 * Fixed inconsistency with damage dealing on "Death Staff".
 * Fixed some bugs related to accessories using powerups not having their effects save properly.
@@ -63,6 +64,7 @@ LEGEND:
 * Cleaned up scaling code of "Necro Armor".
 * "Demon Heart" now properly uses ammo when "Hand of Artemis" is used.
 * "Orb of Affluence" bonus is reflected properly now on the message.
+* "SMG" and "Akimbo Berettas" now work properly with "Artemis Hand" equipped.
 * Fixed a bug that caused "Basilisk" to deal fire damage instead of magic damage.
 * Fixed a bug where damage type bonuses weren't saved properly to the database in "Hardcore" and "Softcore" modes.
 * Fixed a bug where "Heavy Grenade Launcher" let you shoot 2 grenades without loading if you had "Nether Mask" equipped.
@@ -71,6 +73,8 @@ LEGEND:
 * Fixed a small problem regarding chest drop rates.
 * Fixed old damage method for "Soul Reaver" when "Nether Mask" was equipped. This results in equal damage when it's equipped instead of a bit less.
 * Fixed a bug that caused "Lich Arm" to actually reduce damage of all weapons... oops.
+* "Nuclear Plasma Rifle" now properly overheats with "Hand of Artemis" equipped.
+* The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", S"hocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
 + "Hardcore" and "Softcore" damage amp reduced to 15% from 25%.
 + Monster damage values in "Hardcore" and "Softcore" now scale by 4% instead of 5%.
 * "Natural Talent" bonus is now properly applied to all damage types.
@@ -81,7 +85,7 @@ LEGEND:
 + Fixed a bug that caused "Savagery" to give only 1% bonus to crit damage instead of 10%.
 + Health and armor caps increased to 32k.
 - "Destruction Generator" primary ball explosion radius reduced to 384, full damage radius reduced to 192. (Reduced by 50%)
-	- This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
+	* This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
 * "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
 + "Razorfang" skull shot can hit ghosts now.
 + "Plasma Cannon" now ignores shields.

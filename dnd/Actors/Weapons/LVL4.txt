@@ -525,7 +525,6 @@ Actor MGShooter : DND_Activator {
 	}
 }
 
-// Sprites from Redfaction + edits from Geoffrey and IvanDobrovski
 Actor "Upgraded Machine Gun" : Chaingun
 {
 	Weapon.SelectionOrder 720
@@ -762,7 +761,9 @@ Actor "Upgraded Machine Gun2" : Weapon {
 		QUAF B 1 BRIGHT A_GiveInventory("LeadShooter", 1)
 		TNT1 A 0 A_GiveInventory("LeadAnim", 1)
 	AnimFinish:
+		TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
 		TNT1 A 0 A_Recoil(0.35)
+	NoRecoil:
 		TNT1 A 0 A_SetPitch(pitch - 0.8)
 		QUAG B 2
 		QUAG A 0 A_Refire
@@ -1044,26 +1045,23 @@ actor DemonSealEffectChecker : DnD_Activator {
 
 Actor DemonSealEffectSuccess : PowerProtection {
 	damagefactor "normal", 1.0
-	Powerup.Duration 15
+	Powerup.Duration 18
 }
 
 ACTOR DemonSealingDamage {
-	Radius 6
-	Height 6
+	Radius 8
+	Height 16
 	Speed 60
 	Damage (0x3FFFFFFF)
 	DamageType "MagicSealing"
 	+THRUSPECIES
 	+NODAMAGETHRUST
 	+BLOODLESSIMPACT
-	+FORCEXYBILLBOARD
 	+EXPLODEONWATER
 	+HITTRACER
 	+NOEXTREMEDEATH
+	+FOILINVUL
 	Projectile
-	RenderStyle Add
-	Alpha 1.0
-	Scale 1.0
 	Species "Player"
 	States {
 		Spawn:
@@ -1345,6 +1343,7 @@ actor " Minigun " : Chaingun {
 			CHNG A 0 A_JumpIfNoAmmo("NoMoreMangling")
 		Goto ToastMcFire
 		ToastMcFire:
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "ToastMcFireNoRecoil")
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
 			TNT1 A 0 A_TakeInventory("MinigunSpin", 1)
 			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
@@ -1432,6 +1431,87 @@ actor " Minigun " : Chaingun {
 			CHNF A 0 A_SetPitch(Pitch-0.35)
 			CHNF H 1 Bright
 			CHNG A 0 A_ReFire("ToastMcFire")
+		Goto WindDownAfterFire
+		ToastMcFireNoRecoil: // copied here to reduce load on server with many if checks
+			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
+			TNT1 A 0 A_TakeInventory("MinigunSpin", 1)
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			CHNF A 0 A_PlaySound("Throttle/Fire",1,0.8,1)
+			CHNF A 0 A_PlaySound("Throttle/Add",5,0.9,1)
+			CHNF A 0 A_Quake(3,8,0,2,"none")
+
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter", 1)
+			CHNF A 0 A_AlertMonsters
+			CHNF A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 1 Bright A_SetPitch(Pitch-0.35)
+			TNT1 A 0 A_GiveInventory("MinigunFiring", 1)
+
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter_Ammoless", 1)
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 0 A_SetPitch(Pitch-0.35)
+			CHNF B 1 Bright
+
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter", 1)
+			CHNF A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 0 A_SetPitch(Pitch-0.35)
+			CHNF C 1 Bright
+
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter_Ammoless", 1)
+			//CHNF A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 0 A_SetPitch(Pitch-0.35)
+			CHNF D 1 Bright
+
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter", 1)
+			CHNF A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 0 A_SetPitch(Pitch-0.35)
+			CHNF E 1 Bright
+
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter_Ammoless", 1)
+			//CHNF A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 0 A_SetPitch(Pitch-0.35)
+			CHNF F 1 Bright
+
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter", 1)
+			CHNF A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 0 A_SetPitch(Pitch-0.35)
+			CHNF G 1 Bright
+
+			CHNF A 0 A_JumpIfNoAmmo("NoMoreMangling")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			TNT1 A 0 A_GiveInventory("ThrottleShooter_Ammoless", 1)
+			CHNF A 0 A_AlertMonsters
+			//CHNF A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*20,12,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
+			CHNF A 0 A_SetAngle(Angle-0.25)
+			CHNF A 0 A_SetPitch(Pitch-0.35)
+			CHNF H 1 Bright
+			CHNG A 0 A_ReFire("ToastMcFireNoRecoil")
 		Goto WindDownAfterFire
 		NoMoreMangling:
 			CHNG A 0 A_PlaySound("Throttle/Dry",1,0.8,1)
