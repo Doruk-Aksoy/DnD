@@ -1640,7 +1640,7 @@ Actor "Soul Reaver" : Weapon {
 		Loop
 		Fire:
 			SREA A 1 A_JumpIfInventory("SphereMade", 2, "NoMoreSphere")
-			TNT1 A 0 A_PlaySound("Weapons/SReaverBegin", 6)
+			TNT1 A 0 A_PlaySound("Weapons/SReaverBegin", 6, 0.6)
 			SREA CDEFGHIJ 4 Bright
 			TNT1 A 0 A_Refire
 			TNT1 A 0 A_PlayWeaponSound("Weapons/SReaverFire")

@@ -64,11 +64,8 @@ actor BloodSatyr : Satyr {
 			STYR H 3 Fast
 			STYR H 3 Fast A_Pain
 		Goto See
-		Death:
-			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-		GaveSoul:	
+		Death:	
 			STYR I 5
-			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
 			STYR J 5 A_Scream
 			STYR K 6
 			STYR L 7 A_Fall
@@ -76,19 +73,25 @@ actor BloodSatyr : Satyr {
 			STYR N 4
 			STYR O -1
 		Stop
-	  GiveSoul:
-	  Death.BookOfTheDead:
-		STYR I 1
-		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-		TNT1 A 0 A_GiveToTarget("Souls", 1)  
-	  Goto GaveSoul	
 		Raise:
 			STYR ONMLKJI 8
 		Goto See
-	    Ice:
-			"----" G 5 A_GenericFreezeDeath
-			"----" G 1 A_FreezeDeathChunks
-		Wait
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
     }
 }
 
@@ -197,110 +200,115 @@ Actor SatyrMissile : BaronBall
 	}
 }
 
-Actor HellWarrior : DnD_BaseEnemy
-{
-  Health 400
-  Speed 8
-  Radius 24
-  Height 64
-  PainChance 50
-  Mass 1000
-  SeeSound "knight/sight"
-  PainSound "HellKnight/Pain"
-  DeathSound "knight/death"
-  ActiveSound "knight/active"
-  MeleeSound "baron/melee"
-  ReactionTime 8
+Actor HellWarrior : DnD_BaseEnemy {
+	Health 400
+	Speed 8
+	Radius 24
+	Height 64
+	PainChance 50
+	Mass 1000
+	SeeSound "knight/sight"
+	PainSound "HellKnight/Pain"
+	DeathSound "knight/death"
+	ActiveSound "knight/active"
+	MeleeSound "baron/melee"
+	ReactionTime 8
 	Species "HK"
 	+DONTHURTSPECIES  
 	+DONTBLAST
 	+USEKILLSCRIPTS
-  Monster
-  +FloorClip
-  Obituary "%o was tagged by the hell warrior's fireball."
-  HitObituary "%o was torn apart by a hell warrior."
-  DamageFactor "Barons", 0.0
-  DamageFactor "BaronsExp", 0.0
-  DamageFactor "BaronsPoison", 0.0
-  DamageFactor "BaronsFire", 0.0
-  DamageFactor "BaronGreen", 0.0
-  DamageFactor "BaronGreenFire", 0.0
-  DamageFactor "BaronPlasma", 0.0
-  DamageFactor "BaronVoid", 0.0
-  DamageFactor "BaronYellow", 0.0
-  DamageFactor "BaronsMagic", 0.0
+	Monster
+	+FloorClip
+	Obituary "%o was tagged by the hell warrior's fireball."
+	HitObituary "%o was torn apart by a hell warrior."
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
 	DamageFactor "BaronsMagicFire", 0.0
-  Tag "Hell Warrior"
-  States
-  {
-  Spawn:
-	TNT1 A 0
-	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLWARRIOR, DND_BLOCK)
-Idle:
-    HWAR AB 10 A_Look
-    Loop
-  See: 
-    TNT1 A 0 A_UnSetInvulnerable
-    HWAR AABBCCDD 3 Fast A_Chase
-    Loop
-  Missile:
-    HWAR E 0 A_Jump(128, 4)
-    HWAR EF 8 Fast A_FaceTarget
-    HWAR G 8 Fast A_CustomComboAttack("HellWarriorBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
-    Goto See
-    HWAR H 0 A_Jump(128, 6)
-    HWAR H 0 A_SetInvulnerable
-    HWAR H 6 Fast A_FaceTarget
-    HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
-    HWAR H 6 Fast A_FaceTarget
-    HWAR H 0 A_UnSetInvulnerable
-    Goto See
-    HWAR H 0 A_SetInvulnerable
-	TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
-    HWAR H 6 Fast A_FaceTarget
-    HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
-    HWAR H 16 Fast A_SpidRefire
-    HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
-    HWAR H 6 Fast A_FaceTarget
-	TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
-    HWAR H 0 A_UnSetInvulnerable
-    Goto See  
-  Melee: 
-    HWAR EF 8 Fast A_FaceTarget 
-    HWAR G 8 Fast A_ComboAttack 
-    Goto See 
-  Pain:
-    TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
-    HWAR J 6 Fast A_Pain 
-    HWAR H 0 A_SetInvulnerable
-	TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
-    HWAR HHHHHHH 6 Fast A_FaceTarget 
-    HWAR H 0 A_UnSetInvulnerable
-	TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
-    Goto See 
-  Death: 
-    HWAE K 0 A_FaceTarget
-    HWAR K 5 A_SpawnItemEx("HellWarriorShield", 0, 0, 25, 6, 0, 0, 60, 128)
-	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-    HWAR L 5 A_Scream
-	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-  GaveSoul:
-    HWAR M 5
-    HWAR N 5 A_NoBlocking 
-    HWAR OPQRS 5  
-    HWAR T -1 
-    Stop
-  GiveSoul:
-  Death.BookOfTheDead:
-    HWAR M 1
-	TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-	TNT1 A 0 A_GiveToTarget("Souls", 1)  
-  Goto GaveSoul
-  Raise: 
-    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
-    HWAR QPONMLK 5 
-    Goto See 
-  } 
+	Tag "Hell Warrior"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLWARRIOR, DND_BLOCK)
+		Idle:
+			HWAR AB 10 A_Look
+		Loop
+		See: 
+			TNT1 A 0 A_UnSetInvulnerable
+			HWAR AABBCCDD 3 Fast A_Chase
+		Loop
+		Missile:
+			HWAR E 0 A_Jump(128, 4)
+			HWAR EF 8 Fast A_FaceTarget
+			HWAR G 8 Fast A_CustomComboAttack("HellWarriorBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+		Goto See
+			HWAR H 0 A_Jump(128, 6)
+			HWAR H 0 A_SetInvulnerable
+			HWAR H 6 Fast A_FaceTarget
+			HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
+			HWAR H 6 Fast A_FaceTarget
+			HWAR H 0 A_UnSetInvulnerable
+		Goto See
+			HWAR H 0 A_SetInvulnerable
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+			HWAR H 6 Fast A_FaceTarget
+			HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
+			HWAR H 16 Fast A_SpidRefire
+			HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
+			HWAR H 6 Fast A_FaceTarget
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			HWAR H 0 A_UnSetInvulnerable
+		Goto See  
+		Melee: 
+			HWAR EF 8 Fast A_FaceTarget 
+			HWAR G 8 Fast A_ComboAttack 
+		Goto See 
+		Pain:
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			HWAR J 6 Fast A_Pain 
+			HWAR H 0 A_SetInvulnerable
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+			HWAR HHHHHHH 6 Fast A_FaceTarget 
+			HWAR H 0 A_UnSetInvulnerable
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+		Goto See 
+		Death: 
+			HWAE K 0 A_FaceTarget
+			HWAR K 5 A_SpawnItemEx("HellWarriorShield", 0, 0, 25, 6, 0, 0, 60, 128)
+			HWAR L 5 A_Scream
+			HWAR M 5
+			HWAR N 5 A_NoBlocking 
+			HWAR OPQRS 5  
+			HWAR T -1 
+		Stop
+		Raise: 
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			HWAR QPONMLK 5 
+		Goto See 
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	} 
 }
 
 Actor HellWarriorBall
@@ -411,93 +419,98 @@ Actor HellWarriorShield
   }
 }
 
-Actor HellsFury : DnD_BaseEnemy
-{
-  //$Category Monsters
-  Health 600
-  Radius 24
-  Height 64
-  Speed 8
-  PainChance 50
-  Mass 1000
-  MONSTER
-  +FLOORCLIP
-  SeeSound "baron/sight"
-  ActiveSound "baron/active"
-  PainSound "baron/pain"
-  DeathSound "baron/death"
-  Obituary "%o felt the wrath of Hell's Fury"
-  HitObituary "%o got ripped apart by Hell's Fury"
-  DamageFactor "Barons", 0.0
-  DamageFactor "BaronsExp", 0.0
-  DamageFactor "BaronsPoison", 0.0
-  DamageFactor "BaronsFire", 0.0
-  DamageFactor "BaronGreen", 0.0
-  DamageFactor "BaronGreenFire", 0.0
-  DamageFactor "BaronPlasma", 0.0
-  DamageFactor "BaronVoid", 0.0
-  DamageFactor "BaronYellow", 0.0
-  DamageFactor "BaronsMagic", 0.0
+Actor HellsFury : DnD_BaseEnemy {
+	//$Category Monsters
+	Health 600
+	Radius 24
+	Height 64
+	Speed 8
+	PainChance 50
+	Mass 1000
+	MONSTER
+	+FLOORCLIP
+	SeeSound "baron/sight"
+	ActiveSound "baron/active"
+	PainSound "baron/pain"
+	DeathSound "baron/death"
+	Obituary "%o felt the wrath of Hell's Fury"
+	HitObituary "%o got ripped apart by Hell's Fury"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
 	DamageFactor "BaronsMagicFire", 0.0
-  Tag "Hell's Fury"
+	Tag "Hell's Fury"
 	Species "HK"
 	+DONTHURTSPECIES  
 	+DONTBLAST
 	+USEKILLSCRIPTS
-  States
-  {
-  Spawn:
-	TNT1 A 0
-	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLSFURY, DND_HOMING)
-Idle:
-    HFRY AB 10 A_Look
-    Loop
-  See:
-    HFRY AABBCCDD 4 Fast A_Chase
-    Loop
-  Missile:
-    HFRY E 0 A_Jump(96, "Missile2")
-    HFRY EF 8 Fast A_FaceTarget
-    HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
-    Goto See
-  Missile2:
-    HFRY P 8 Fast A_FaceTarget
-    HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, -45)
-    HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, 0)
-    HFRY Q 8 Fast A_CustomMissile("SoulHarvesterBall", 60, 0, 45)
-    Goto See
-    Melee:
-    HFRY EF 8 Fast A_FaceTarget
-    HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
-    Goto See
-  Pain:
-    HFRY H 2 Fast
-    HFRY H 2 Fast A_Pain
-    Goto See
-  Death:
-	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-  GaveSoul: 
-    HFRY I 8 A_Scream
-	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-    TNT1 A 0 A_FaceTarget
-    TNT1 A 0 A_SpawnItemEx("HellsFurySkull", 0, 0, 60, 5, 0, 0, 10 * random(-2, 2), 128)
-    HFRY J 8 
-    HFRY K 8
-    HFRY L 8 A_Fall
-    HFRY MN 8
-    HFRY O -1
-    Stop
-	  GiveSoul:
-	  Death.BookOfTheDead:
-		HFRY I 1
-		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-		TNT1 A 0 A_GiveToTarget("Souls", 1)  
-	  Goto GaveSoul	
-  Raise:
-    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
-    HFRY NMLKJI 8
-    Goto See
-   }
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HELLSFURY, DND_HOMING)
+		Idle:
+			HFRY AB 10 A_Look
+		Loop
+		See:
+			HFRY AABBCCDD 4 Fast A_Chase
+		Loop
+		Missile:
+			HFRY E 0 A_Jump(96, "Missile2")
+			HFRY EF 8 Fast A_FaceTarget
+			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+		Goto See
+		Missile2:
+			HFRY P 8 Fast A_FaceTarget
+			HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, -45)
+			HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, 0)
+			HFRY Q 8 Fast A_CustomMissile("SoulHarvesterBall", 60, 0, 45)
+		Goto See
+		Melee:
+			HFRY EF 8 Fast A_FaceTarget
+			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+		Goto See
+		Pain:
+			HFRY H 2 Fast
+			HFRY H 2 Fast A_Pain
+		Goto See
+		Death:
+			HFRY I 8 A_Scream
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx("HellsFurySkull", 0, 0, 60, 5, 0, 0, 10 * random(-2, 2), 128)
+			HFRY J 8 
+			HFRY K 8
+			HFRY L 8 A_Fall
+			HFRY MN 8
+			HFRY O -1
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			HFRY NMLKJI 8
+		Goto See
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	}
 }
 
 Actor HellsFuryBall 
@@ -561,121 +574,126 @@ Actor HellsFurySkull
   }
 }
 
-Actor ArchonOfHell : HellKnight2
-{ 
-  Health 700 
-  Radius 24 
-  Height 64 
-  Mass 1000 
-  Speed 8 
-  PainChance 20 
-  Monster
-  Obituary "%o was no match for an archon of hell."
-  HitObituary "%o was ripped apart by an archon of hell."
-  BloodColor "20 60 20"
-  +NoTarget
-  +FloorClip
-  +MissileMore
-  +BossDeath
-  +DONTBLAST
-  +USEKILLSCRIPTS
+Actor ArchonOfHell : HellKnight2 { 
+	Health 700 
+	Radius 24 
+	Height 64 
+	Mass 1000 
+	Speed 8 
+	PainChance 20 
+	Monster
+	Obituary "%o was no match for an archon of hell."
+	HitObituary "%o was ripped apart by an archon of hell."
+	BloodColor "20 60 20"
+	+NoTarget
+	+FloorClip
+	+MissileMore
+	+BossDeath
+	+DONTBLAST
+	+USEKILLSCRIPTS
 	Species "HK"
 	+DONTHURTSPECIES  
-  SeeSound "monster/ar2sit" 
-  PainSound "baron/pain" 
-  DeathSound "monster/ar2dth"
-  MeleeSound "baron/melee"
-  DropItem "SoulAmmoSpawner", 128
-  DamageFactor "Barons", 0.0
-  DamageFactor "BaronsExp", 0.0
-  DamageFactor "BaronsPoison", 0.0
-  DamageFactor "BaronsFire", 0.0
-  DamageFactor "BaronGreen", 0.0
-  DamageFactor "BaronGreenFire", 0.0
-  DamageFactor "BaronPlasma", 0.0
-  DamageFactor "BaronVoid", 0.0
-  DamageFactor "BaronYellow", 0.0
-  DamageFactor "BaronsMagic", 0.0
+	SeeSound "monster/ar2sit" 
+	PainSound "baron/pain" 
+	DeathSound "monster/ar2dth"
+	MeleeSound "baron/melee"
+	DropItem "SoulAmmoSpawner", 128
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
 	DamageFactor "BaronsMagicFire", 0.0
-  Tag "Archon of Hell"
-  States 
-  { 
-  Spawn: 
-	TNT1 A 0
-	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ARCHON)
-Idle:
-    BOS4 AB 10 A_Look 
-    Loop 
-  See:
-    BOS4 AABBCCDD 3 Fast A_Chase 
-    Loop 
-  Missile:
-    BOS4 B 0 A_Jump(128,15)
-    BOS4 EF 8 Fast Bright A_FaceTarget 
-    BOS4 G 0 Bright A_CustomMissile("BaronBall",28,0,0,0)
-    BOS4 G 0 Bright A_CustomMissile("BaronBall",28,0,-4,0)
-    BOS4 G 3 Fast Bright A_CustomMissile("BaronBall",28,0,4,0)
-    BOS4 H 3 Fast Bright
-    BOS4 H 0 A_Jump(64,8)
-    BOS4 IJ 8 Fast Bright A_FaceTarget 
-    BOS4 K 0 Bright A_CustomMissile("BaronBall",28,0,0,0)
-    BOS4 K 0 Bright A_CustomMissile("BaronBall",28,0,-4,0)
-    BOS4 K 3 Fast Bright A_CustomMissile("BaronBall",28,0,4,0)
-    BOS4 L 3 Fast Bright
-    BOS4 L 0 A_Jump(64,1)
-    Goto See
-    BOS4 MN 8 Fast Bright A_FaceTarget
-    BOS4 O 0 Bright A_Jump(128,3)
-    BOS4 O 4 Fast Bright A_CustomMissile("ArchonComet",28,0,0,0)
-    BOS4 P 4 Fast Bright
-    Goto See
-    BOS4 O 0 A_CustomMissile("BaronBall",28,0,-6,0)
-    BOS4 O 0 A_CustomMissile("BaronBall",28,0,-4,0)
-    BOS4 O 0 A_CustomMissile("BaronBall",28,0,-2,0)
-    BOS4 O 0 A_CustomMissile("BaronBall",28,0,2,0)
-    BOS4 O 0 A_CustomMissile("BaronBall",28,0,4,0)
-    BOS4 O 3 Fast Bright A_CustomMissile("BaronBall",28,0,6,0)
-    BOS4 P 3 Fast Bright
-    Goto See
-  Melee:
-    BOS4 EF 8 Fast Bright A_FaceTarget 
-    BOS4 G 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
-    BOS4 H 3 Fast Bright
-    BOS4 H 0 A_Jump(128,1)
-    Goto See
-    BOS4 IJ 8 Fast Bright A_FaceTarget 
-    BOS4 K 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
-    BOS4 L 3 Fast Bright
-    BOS4 L 0 A_Jump(64,1)
-    Goto See
-    BOS4 MN 8 Fast Bright A_FaceTarget
-    BOS4 O 3 Fast Bright A_CustomMeleeAttack(20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
-    BOS4 P 3 Fast Bright
-    Goto See
-  Pain: 
-    BOS4 Q 2 Fast 
-    BOS4 Q 2 Fast A_Pain 
-    Goto See 
-  Death:
-    TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-  GaveSoul:
-    BOS4 R 6 Bright 
-	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-    BOS4 S 6 Bright A_Scream 
-    BOS4 T 6 Bright 
-    BOS4 U 6 Bright A_NoBlocking 
-    BOS4 VW 6 Bright 
-    BOS4 X 6 Bright A_CustomMissile("ArchonSoul",86,0,0,2,90)
-    BOS4 YZ 6 Bright 
-    BOS4 [ 6 Bright
-    Stop
-	  GiveSoul:
-	  Death.BookOfTheDead:
-		BOS4 R 1 Bright
-		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-		TNT1 A 0 A_GiveToTarget("Souls", 1)  
-	  Goto GaveSoul	
-  } 
+	Tag "Archon of Hell"
+	States { 
+		Spawn: 
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ARCHON)
+		Idle:
+			BOS4 AB 10 A_Look 
+		Loop 
+		See:
+			BOS4 AABBCCDD 3 Fast A_Chase 
+		Loop 
+		Missile:
+			BOS4 B 0 A_Jump(128,15)
+			BOS4 EF 8 Fast Bright A_FaceTarget 
+			BOS4 G 0 Bright A_CustomMissile("BaronBall",28,0,0,0)
+			BOS4 G 0 Bright A_CustomMissile("BaronBall",28,0,-4,0)
+			BOS4 G 3 Fast Bright A_CustomMissile("BaronBall",28,0,4,0)
+			BOS4 H 3 Fast Bright
+			BOS4 H 0 A_Jump(64,8)
+			BOS4 IJ 8 Fast Bright A_FaceTarget 
+			BOS4 K 0 Bright A_CustomMissile("BaronBall",28,0,0,0)
+			BOS4 K 0 Bright A_CustomMissile("BaronBall",28,0,-4,0)
+			BOS4 K 3 Fast Bright A_CustomMissile("BaronBall",28,0,4,0)
+			BOS4 L 3 Fast Bright
+			BOS4 L 0 A_Jump(64,1)
+		Goto See
+			BOS4 MN 8 Fast Bright A_FaceTarget
+			BOS4 O 0 Bright A_Jump(128,3)
+			BOS4 O 4 Fast Bright A_CustomMissile("ArchonComet",28,0,0,0)
+			BOS4 P 4 Fast Bright
+		Goto See
+			BOS4 O 0 A_CustomMissile("BaronBall",28,0,-6,0)
+			BOS4 O 0 A_CustomMissile("BaronBall",28,0,-4,0)
+			BOS4 O 0 A_CustomMissile("BaronBall",28,0,-2,0)
+			BOS4 O 0 A_CustomMissile("BaronBall",28,0,2,0)
+			BOS4 O 0 A_CustomMissile("BaronBall",28,0,4,0)
+			BOS4 O 3 Fast Bright A_CustomMissile("BaronBall",28,0,6,0)
+			BOS4 P 3 Fast Bright
+		Goto See
+		Melee:
+			BOS4 EF 8 Fast Bright A_FaceTarget 
+			BOS4 G 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS4 H 3 Fast Bright
+			BOS4 H 0 A_Jump(128,1)
+		Goto See
+			BOS4 IJ 8 Fast Bright A_FaceTarget 
+			BOS4 K 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS4 L 3 Fast Bright
+			BOS4 L 0 A_Jump(64,1)
+		Goto See
+			BOS4 MN 8 Fast Bright A_FaceTarget
+			BOS4 O 3 Fast Bright A_CustomMeleeAttack(20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS4 P 3 Fast Bright
+		Goto See
+		Pain: 
+			BOS4 Q 2 Fast 
+			BOS4 Q 2 Fast A_Pain 
+		Goto See 
+		Death:
+			BOS4 R 6 Bright 
+			BOS4 S 6 Bright A_Scream 
+			BOS4 T 6 Bright 
+			BOS4 U 6 Bright A_NoBlocking 
+			BOS4 VW 6 Bright 
+			BOS4 X 6 Bright A_CustomMissile("ArchonSoul",86,0,0,2,90)
+			BOS4 YZ 6 Bright 
+			BOS4 [ 6 Bright
+		Stop
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	} 
 }
 
 Actor ArchonExp : BaseExplosionDamage
@@ -760,109 +778,114 @@ Actor ArchonCometTrail
   }
 }
 
-Actor WarlordOfHell : DnD_BaseEnemy
-{ 
-  Health 650
-  Radius 24
-  Height 64 
-  Speed 10 
-  PainChance 50
-  Scale 1.1
-  Mass 1000
-  BloodColor "39 59 9F"
-  Species "Barons"
-  DamageFactor "Barons", 0.0
-  DamageFactor "BaronsExp", 0.0
-  DamageFactor "BaronsPoison", 0.0
-  DamageFactor "BaronsFire", 0.0
-  DamageFactor "BaronGreen", 0.0
-  DamageFactor "BaronGreenFire", 0.0
-  DamageFactor "BaronPlasma", 0.0
-  DamageFactor "BaronVoid", 0.0
-  DamageFactor "BaronYellow", 0.0
-  DamageFactor "BaronsMagic", 0.0
+Actor WarlordOfHell : DnD_BaseEnemy { 
+	Health 650
+	Radius 24
+	Height 64 
+	Speed 10 
+	PainChance 50
+	Scale 1.1
+	Mass 1000
+	BloodColor "39 59 9F"
+	Species "Barons"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
 	DamageFactor "BaronsMagicFire", 0.0
-  Monster
-  +FloorClip
-  +DONTBLAST
-  +NoRadiusDmg
-  +USEKILLSCRIPTS
-  Obituary "%o was extingished by the warlord of hell." 
-  SeeSound "warlord/sight" 
-  PainSound "warlord/pain" 
-  DeathSound "warlord/death" 
-  ActiveSound "warlord/active" 
-  Translation "1:2=8:0", "13:15=5:7", "48:64=90:110", "64:70=109:112", "70:83=5:10", "110:123=196:207", "80:111=80:111", "124:127=242:245", "128:141=102:111", "143:149=104:114", "142:143=5:5", "148:151=5:7"
-  Tag "Warlord of Hell"
-  States 
-  { 
-  Spawn: 
-	TNT1 A 0
-	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WARLORD, DND_EXPLOSIVE_IMMUNE)
-Idle:
-    BOS2 AB 10 A_Look 
-    Loop 
-  See: 
-    BOS2 AABBCCDD 4 Fast A_Chase 
-    Loop 
-  Missile: 
-    BOS2 E 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 3, "Missile3") 
-    BOS2 E 0 A_JumpIfHealthLower(2 * ACS_ExecuteWithResult(961, 7) / 3, "Missile2")
-    BOS2 E 6 Fast A_FaceTarget 
-    BOS2 F 6 Fast A_FaceTarget 
-    BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0)
-    Goto See
-  Missile2:
-    BOS2 E 6 Fast A_FaceTarget 
-    BOS2 F 6 Fast A_FaceTarget 
-    BOS2 G 0 A_Custommissile("WarlordOfHellBall", 32, 0, 8) 
-    BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0)
-    BOS2 X 6 Fast A_FaceTarget 
-    BOS2 Y 6 Fast A_FaceTarget 
-    BOS2 R 0 A_Custommissile("WarlordOfHellBall", 32, 0, 0) 
-    BOS2 Z 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, -8)
-    Goto See 
-  Missile3:
-    BOS2 E 6 Fast A_FaceTarget 
-    BOS2 F 6 Fast A_FaceTarget 
-    BOS2 G 0 A_Custommissile("WarlordOfHellBall", 32, 0, -20) 
-    BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0) 
-    BOS2 X 6 Fast A_FaceTarget 
-    BOS2 Y 6 Fast A_FaceTarget 
-    BOS2 R 0 A_Custommissile("WarlordOfHellBall", 32, 0, 20) 
-    BOS2 Z 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0) 
-    BOS2 E 6 Fast A_FaceTarget 
-    BOS2 F 6 Fast A_FaceTarget 
-    BOS2 G 0 A_Custommissile("WarlordOfHellBall", 32, 0, -12) 
-    BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 12) 
-    Goto See 
-  Pain: 
-    BOS2 H 5 Fast 
-    BOS2 H 5 Fast A_Pain 
-    Goto See 
-  Death: 
-	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "giveSoul")
-  GaveSoul:
-    BOS2 I 12 
-	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-    BOS2 J 12 A_Scream 
-    BOS2 K 6
-	BOS2 K 6 A_Fall
-    BOS2 LMN 12 
-    BOS2 O -1 
-    Stop 
-	  GiveSoul:
-	  Death.BookOfTheDead:
-		BOS2 I 1
-		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-		TNT1 A 0 A_GiveToTarget("Souls", 1)  
-	  Goto GaveSoul	
-  Raise: 
-    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
-    TNT1 A 0 A_GiveInventory("NoDrop", 1)
-    BOS2 ONMLKJI 5 
-    Goto See
-  } 
+	Monster
+	+FloorClip
+	+DONTBLAST
+	+NoRadiusDmg
+	+USEKILLSCRIPTS
+	Obituary "%o was extingished by the warlord of hell." 
+	SeeSound "warlord/sight" 
+	PainSound "warlord/pain" 
+	DeathSound "warlord/death" 
+	ActiveSound "warlord/active" 
+	Translation "1:2=8:0", "13:15=5:7", "48:64=90:110", "64:70=109:112", "70:83=5:10", "110:123=196:207", "80:111=80:111", "124:127=242:245", "128:141=102:111", "143:149=104:114", "142:143=5:5", "148:151=5:7"
+	Tag "Warlord of Hell"
+	States { 
+		Spawn: 
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WARLORD, DND_EXPLOSIVE_IMMUNE)
+		Idle:
+			BOS2 AB 10 A_Look 
+		Loop 
+		See: 
+			BOS2 AABBCCDD 4 Fast A_Chase 
+		Loop 
+		Missile: 
+			BOS2 E 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 3, "Missile3") 
+			BOS2 E 0 A_JumpIfHealthLower(2 * ACS_ExecuteWithResult(961, 7) / 3, "Missile2")
+			BOS2 E 6 Fast A_FaceTarget 
+			BOS2 F 6 Fast A_FaceTarget 
+			BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0)
+		Goto See
+		Missile2:
+			BOS2 E 6 Fast A_FaceTarget 
+			BOS2 F 6 Fast A_FaceTarget 
+			BOS2 G 0 A_Custommissile("WarlordOfHellBall", 32, 0, 8) 
+			BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0)
+			BOS2 X 6 Fast A_FaceTarget 
+			BOS2 Y 6 Fast A_FaceTarget 
+			BOS2 R 0 A_Custommissile("WarlordOfHellBall", 32, 0, 0) 
+			BOS2 Z 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, -8)
+		Goto See 
+		Missile3:
+			BOS2 E 6 Fast A_FaceTarget 
+			BOS2 F 6 Fast A_FaceTarget 
+			BOS2 G 0 A_Custommissile("WarlordOfHellBall", 32, 0, -20) 
+			BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0) 
+			BOS2 X 6 Fast A_FaceTarget 
+			BOS2 Y 6 Fast A_FaceTarget 
+			BOS2 R 0 A_Custommissile("WarlordOfHellBall", 32, 0, 20) 
+			BOS2 Z 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 0) 
+			BOS2 E 6 Fast A_FaceTarget 
+			BOS2 F 6 Fast A_FaceTarget 
+			BOS2 G 0 A_Custommissile("WarlordOfHellBall", 32, 0, -12) 
+			BOS2 G 6 Fast A_Custommissile("WarlordOfHellBall", 32, 0, 12) 
+		Goto See 
+		Pain: 
+			BOS2 H 5 Fast 
+			BOS2 H 5 Fast A_Pain 
+		Goto See 
+		Death: 
+			BOS2 I 12 
+			BOS2 J 12 A_Scream 
+			BOS2 K 6
+			BOS2 K 6 A_Fall
+			BOS2 LMN 12 
+			BOS2 O -1 
+		Stop 	
+		Raise: 
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 A_GiveInventory("NoDrop", 1)
+			BOS2 ONMLKJI 5 
+		Goto See
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	} 
 }
 
 Actor WarlordOfHellBall
@@ -918,156 +941,154 @@ Actor WarlordBallTrail
 	}
 }
 
-ACTOR ShadowBeast : DnD_BaseEnemy
-{
-  OBITUARY "%o was killed by a shadow beast."
-  Bloodcolor "70 AC 00"
-  Health 400
-  Radius 24
-  Height 64
-  Mass 500
-  Speed 12
-  MeleeRange 96
-  GibHealth -75
-  PainChance 144
-  SEESOUND "shadowbeast/sight"
-  PAINSOUND "shadowbeast/pain"
-  DEATHSOUND "shadowbeast/death"
-  ACTIVESOUND "shadowbeast/active"
-  DropItem "SoulAmmoSpawner", 96
-  MONSTER
-  DamageFactor "Barons", 0.0
-  DamageFactor "BaronsExp", 0.0
-  DamageFactor "BaronsPoison", 0.0
-  DamageFactor "BaronsFire", 0.0
-  DamageFactor "BaronGreen", 0.0
-  DamageFactor "BaronGreenFire", 0.0
-  DamageFactor "BaronPlasma", 0.0
-  DamageFactor "BaronVoid", 0.0
-  DamageFactor "BaronYellow", 0.0
-  DamageFactor "BaronsMagic", 0.0
+ACTOR ShadowBeast : DnD_BaseEnemy {
+	OBITUARY "%o was killed by a shadow beast."
+	Bloodcolor "70 AC 00"
+	Health 400
+	Radius 24
+	Height 64
+	Mass 500
+	Speed 12
+	MeleeRange 96
+	GibHealth -75
+	PainChance 144
+	SEESOUND "shadowbeast/sight"
+	PAINSOUND "shadowbeast/pain"
+	DEATHSOUND "shadowbeast/death"
+	ACTIVESOUND "shadowbeast/active"
+	DropItem "SoulAmmoSpawner", 96
+	MONSTER
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
 	DamageFactor "BaronsMagicFire", 0.0
-  Species "HK"
-  Tag "Shadow Beast"
-  +DONTHURTSPECIES
-  +FloorClip
-  +DONTBLAST
-  +USEKILLSCRIPTS
-  states
-  {
-  Spawn:
-	TNT1 A 0
-	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SHADOWBEAST, DND_RAGE)
-Idle:
-    BDEM AB 10 A_Look
-    Loop
-  See:
-    TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "Run") 
-    BDEM ABCDEF 6 Fast A_Chase
-    Loop
-  Run:
-    TNT1 A 0 A_PlaySound("shadowbeast/sight")
-    BDEM AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile")
-    BDEM AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile")
-    BDEM AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile")
-    Goto Missile
-  Missile:
-    TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "Missile2") 
-    TNT1 A 0 A_Jump(90, 5)
-    BDEM H 6 Fast A_FaceTarget
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball1", 56, 0, -8)
-    BDEM I 6 Fast A_CustomMissile ("ShadowBeast_Ball1", 56, 0, 8)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball1", 56, 0, 0)
-    Goto See
-    BDEM H 4 Fast A_FaceTarget
-    BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, -16)
-    BDEM I 0 A_FaceTarget
-    BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, -8)
-    BDEM I 0 A_FaceTarget
-    BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 0)
-    BDEM I 0 A_FaceTarget
-    BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 8)
-    BDEM I 0 A_FaceTarget
-    BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 16)
-    BDEM I 0 A_FaceTarget
-    BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 32)
-    Goto See
-  Missile2:
-    TNT1 A 0 A_Jump(90, 15)
-  Spit:
-    BDEM H 6 Fast A_FaceTarget
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
-    Goto See
-    BDEM H 16 Fast A_FaceTarget
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -64)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 64)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -56)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 56)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -48)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 48)    
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -40)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 40)    
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -32)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 32)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -24)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 24)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -16)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 16)    
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -8)
-    BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 8)    
-    BDEM I 6 Fast A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 0)
-    Goto See
-  Pain:
-    BDEM G 4 Fast A_Pain
-    Goto See
-  Death:
-	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulN")
-  GaveSoulN:
-    BDEM R 8
-	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-    BDEM S 8 A_Scream
-	TNT1 A 0 A_NoBlocking
-    BDEM TUVWX 6
-    BDEM Y 6
-    BDEM Z -1
-    Stop
-  XDeath:
-	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoulX")
-  GaveSoulX:
-    BDEM J 6
-	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-	BDEM K 6 A_Scream
-	TNT1 A 0 A_NoBlocking
-	BDEM LMNOPQ 6
-    Stop
-	  GiveSoulN:
-		BDEM R 1
-		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-		TNT1 A 0 A_GiveToTarget("Souls", 1)  
-	  Goto GaveSoulN
-	  GiveSoulX:
-		BDEM J 1
-		TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-		TNT1 A 0 A_GiveToTarget("Souls", 1)  
-	  Goto GaveSoulX	  
-  Raise:
-    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
-    BDEM YXWVUT 6
-	BDEM SR 8
-	Goto See
-  }
+	Species "HK"
+	Tag "Shadow Beast"
+	+DONTHURTSPECIES
+	+FloorClip
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	states {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SHADOWBEAST, DND_RAGE)
+		Idle:
+			BDEM AB 10 A_Look
+		Loop
+		See:
+			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "Run") 
+			BDEM ABCDEF 6 Fast A_Chase
+		Loop
+		Run:
+			TNT1 A 0 A_PlaySound("shadowbeast/sight")
+			BDEM AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile")
+			BDEM AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile")
+			BDEM AABBCCDDEEFF 2 Fast A_Chase("Spit","Missile")
+		Goto Missile
+		Missile:
+			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "Missile2") 
+			TNT1 A 0 A_Jump(90, 5)
+			BDEM H 6 Fast A_FaceTarget
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball1", 56, 0, -8)
+			BDEM I 6 Fast A_CustomMissile ("ShadowBeast_Ball1", 56, 0, 8)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball1", 56, 0, 0)
+		Goto See
+			BDEM H 4 Fast A_FaceTarget
+			BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, -16)
+			BDEM I 0 A_FaceTarget
+			BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, -8)
+			BDEM I 0 A_FaceTarget
+			BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 0)
+			BDEM I 0 A_FaceTarget
+			BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 8)
+			BDEM I 0 A_FaceTarget
+			BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 16)
+			BDEM I 0 A_FaceTarget
+			BDEM I 4 Fast A_CustomMissile ("ShadowBeast_Ball2", 56, 0, 32)
+		Goto See
+		Missile2:
+			TNT1 A 0 A_Jump(90, 15)
+		Spit:
+			BDEM H 6 Fast A_FaceTarget
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+			BDEM I 2 Fast A_CustomMissile ("ShadowBeast_BallFire", 56, 0, random(-8,8))
+		Goto See
+			BDEM H 16 Fast A_FaceTarget
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -64)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 64)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -56)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 56)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -48)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 48)    
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -40)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 40)    
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -32)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 32)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -24)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 24)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -16)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 16)    
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, -8)
+			BDEM I 0 A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 8)    
+			BDEM I 6 Fast A_CustomMissile ("ShadowBeast_Ball3", 56, 0, 0)
+		Goto See
+		Pain:
+			BDEM G 4 Fast A_Pain
+		Goto See
+		Death:
+			BDEM R 8
+			BDEM S 8 A_Scream
+			TNT1 A 0 A_NoBlocking
+			BDEM TUVWX 6
+			BDEM Y 6
+			BDEM Z -1
+		Stop
+		XDeath:
+			BDEM J 6
+			BDEM K 6 A_Scream
+			TNT1 A 0 A_NoBlocking
+			BDEM LMNOPQ 6
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			BDEM YXWVUT 6
+			BDEM SR 8
+		Goto See
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	}
 }
 
 ACTOR ShadowBeast_BallFire
@@ -1286,20 +1307,28 @@ actor BlackKnight : UndeadBulletResistantEnemy {
 		Goto See
 		Death:
 			KNGT K 6 A_Scream
-			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-		GaveSoul:
 			KNGT L 5
 			KNGT M 5
 			TNT1 A 0 A_NoBlocking
 			KNGT NOPQ 5
 			KNGT R -1
 		Stop
-		GiveSoul:
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
 		Death.BookOfTheDead:
-			KNGT L 1
-			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-			TNT1 A 0 A_GiveToTarget("Souls", 1)  
-		Goto GaveSoul
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
        
@@ -1344,130 +1373,135 @@ ACTOR KBallTrail
 	}
 }
 
-Actor SkullWizard : MagicalEnemy
-{
-  Obituary "%o succumbed to a Skull Wizard's magic."
-  Health 500
-  Radius 21
-  Height 64
-  Mass 120
-  Speed 6
-  PainChance 48
-  MeleeRange 96
-  MeleeDamage 4
-  MissileType "SkullWizardProjectile"
-  SeeSound "H2SkullWizard/Sight"
-  PainSound "H2SkullWizard/Pain"
-  DeathSound "H2SkullWizard/Death"
-  ActiveSound "H2SkullWizard/Sight"
-  MeleeSound "H2SkullWizard/Melee"
-  Monster
-  Species "HK"
-  DamageFactor "Barons", 0.0
-  DamageFactor "BaronsExp", 0.0
-  DamageFactor "BaronsPoison", 0.0
-  DamageFactor "BaronsFire", 0.0
-  DamageFactor "BaronGreen", 0.0
-  DamageFactor "BaronGreenFire", 0.0
-  DamageFactor "BaronPlasma", 0.0
-  DamageFactor "BaronVoid", 0.0
-  DamageFactor "BaronYellow", 0.0
-  DamageFactor "BaronsMagic", 0.0
+Actor SkullWizard : MagicalEnemy {
+	Obituary "%o succumbed to a Skull Wizard's magic."
+	Health 500
+	Radius 21
+	Height 64
+	Mass 120
+	Speed 6
+	PainChance 48
+	MeleeRange 96
+	MeleeDamage 4
+	MissileType "SkullWizardProjectile"
+	SeeSound "H2SkullWizard/Sight"
+	PainSound "H2SkullWizard/Pain"
+	DeathSound "H2SkullWizard/Death"
+	ActiveSound "H2SkullWizard/Sight"
+	MeleeSound "H2SkullWizard/Melee"
+	Monster
+	Species "HK"
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
 	DamageFactor "BaronsMagicFire", 0.0
-  Tag "Skull Wizard"
-  +FloorClip
-  +DontHurtSpecies
-  +MissileMore
-  +DONTBLAST
-  +USEKILLSCRIPTS
-  States
-  {
-  Spawn:
-	TNT1 A 0
-	TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SKULLWIZARD, DND_MAGIC_WEAKNESS | DND_HOMING | DND_TELEPORT)
-Idle:
-    SKWZ A 1 A_Look
-    Loop
-  See:
-    SKWZ AAAAAABBBBBBB 4 Fast A_Chase
-    Loop
-  Melee:
-    SKWZ C 6 Fast Bright A_FaceTarget
-	TNT1 A 0 A_FaceTarget
-	TNT1 A 0 A_CustomMeleeAttack(10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), "", "")
-	TNT1 A 0 A_CustomMissile("SkullWizardPush", 40)
-	SKWZ D 6 Fast Bright A_FaceTarget
-    Goto See
-  Missile:
-    SKWZ C 0 A_Jump(128, "Teleport")
-  Attack:
-    SKWZ C 8 Fast A_FaceTarget
-    SKWZ D 8 Fast Bright A_FaceTarget
-    SKWZ D 8 Fast Bright A_CustomMissile("SkullWizardProjectile", 40, 0, 0)
-    SKWZ D 0 Bright A_Jump(80, 2)
-    SKWZ D 0 Bright A_SpidReFire
-    Goto Missile+1
-    SKWZ D 0
-    Goto See
-  Teleport:
-    SKWZ C 0 A_JumpIfCloser(512, 1)
-    Goto See
-    SKWZ C 8 Fast A_PlaySoundEx("H2SkullWizard/Teleport", "SoundSlot7", 0)
-    SKWZ DEF 8 Fast Bright
-    TNT1 A 0 A_Stop
-    TNT1 A 0 A_StopSoundEx("SoundSlot7")
-    TNT1 A 0 A_SpawnItemEx("SkullWizardTeleport", 0, 0, 0, 0, 0, 0, 0, 128) //Remove the 33 for Doom
-    TNT1 A 0 A_ChangeFlag("NoTeleport", 1)
-    TNT1 A 0 A_ChangeFlag("NoDropOff", 0)
-	TNT1 A 0 A_ChangeFlag(Invulnerable, 1)
-    TNT1 A 0 A_UnSetShootable
-    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
-    TNT1 AAA 3 Fast A_Wander
-    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
-    TNT1 AAA 3 Fast A_Wander
-    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
-    TNT1 AAA 3 Fast A_Wander
-    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
-    TNT1 AAA 3 Fast A_Wander
-	SKWZ A 0 A_ChangeFlag(Invulnerable, 0)
-    SKWZ A 0 A_SetShootable
-	TNT1 A 0 A_PlaySound("Wizard/Appear", 7)
-    SKWZ A 0 A_SpawnItemEx("SkullWizardTeleport", 0, 0, 0, 0, 0, 0, 0, 128)
-    SKWZ A 0 A_ChangeFlag("NoDropOff", 1)
-    SKWZ A 0 A_ChangeFlag("NoTeleport", 0)
-	TNT1 A 0 A_Jump(128, "Attack")
-    Goto See
-  Pain:
-    SKWZ A 3 Fast
-    SKWZ A 3 Fast A_Pain
-    SKWZ A 0 A_Jump(96, "Teleport")
-    Goto See
-  Death:
-    SKWZ G 5 A_Scream
-	TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-  GaveSoul:
-    SKWZ HIJ 5 bright
-	TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
-	SKWZ K 5 bright
-	SKWZ LM 5 bright
-    SKWZ N 5
-    SKWZ O 0 A_NoBlocking
-	SKWZ O 5 Bright
-    SKWZ P -1
-    Stop
-  Raise:
-    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
-	SKWZ ON 5
-	SKWZ MLKJIH 5 Bright
-	SKWZ G 5
-	Goto See
-		GiveSoul:
+	Tag "Skull Wizard"
+	+FloorClip
+	+DontHurtSpecies
+	+MissileMore
+	+DONTBLAST
+	+USEKILLSCRIPTS
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SKULLWIZARD, DND_MAGIC_WEAKNESS | DND_HOMING | DND_TELEPORT)
+		Idle:
+			SKWZ A 1 A_Look
+		Loop
+		See:
+			SKWZ AAAAAABBBBBBB 4 Fast A_Chase
+		Loop
+		Melee:
+			SKWZ C 6 Fast Bright A_FaceTarget
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_CustomMeleeAttack(10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), "", "")
+			TNT1 A 0 A_CustomMissile("SkullWizardPush", 40)
+			SKWZ D 6 Fast Bright A_FaceTarget
+		Goto See
+		Missile:
+			SKWZ C 0 A_Jump(128, "Teleport")
+		Attack:
+			SKWZ C 8 Fast A_FaceTarget
+			SKWZ D 8 Fast Bright A_FaceTarget
+			SKWZ D 8 Fast Bright A_CustomMissile("SkullWizardProjectile", 40, 0, 0)
+			SKWZ D 0 Bright A_Jump(80, 2)
+			SKWZ D 0 Bright A_SpidReFire
+			Goto Missile+1
+			SKWZ D 0
+		Goto See
+		Teleport:
+			SKWZ C 0 A_JumpIfCloser(512, 1)
+		Goto See
+			SKWZ C 8 Fast A_PlaySoundEx("H2SkullWizard/Teleport", "SoundSlot7", 0)
+			SKWZ DEF 8 Fast Bright
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_StopSoundEx("SoundSlot7")
+			TNT1 A 0 A_SpawnItemEx("SkullWizardTeleport", 0, 0, 0, 0, 0, 0, 0, 128) //Remove the 33 for Doom
+			TNT1 A 0 A_ChangeFlag("NoTeleport", 1)
+			TNT1 A 0 A_ChangeFlag("NoDropOff", 0)
+			TNT1 A 0 A_ChangeFlag(Invulnerable, 1)
+			TNT1 A 0 A_UnSetShootable
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+			TNT1 AAA 3 Fast A_Wander
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+			TNT1 AAA 3 Fast A_Wander
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+			TNT1 AAA 3 Fast A_Wander
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
+			TNT1 AAA 3 Fast A_Wander
+			SKWZ A 0 A_ChangeFlag(Invulnerable, 0)
+			SKWZ A 0 A_SetShootable
+			TNT1 A 0 A_PlaySound("Wizard/Appear", 7)
+			SKWZ A 0 A_SpawnItemEx("SkullWizardTeleport", 0, 0, 0, 0, 0, 0, 0, 128)
+			SKWZ A 0 A_ChangeFlag("NoDropOff", 1)
+			SKWZ A 0 A_ChangeFlag("NoTeleport", 0)
+			TNT1 A 0 A_Jump(128, "Attack")
+		Goto See
+		Pain:
+			SKWZ A 3 Fast
+			SKWZ A 3 Fast A_Pain
+			SKWZ A 0 A_Jump(96, "Teleport")
+		Goto See
+		Death:
+			SKWZ G 5 A_Scream
+			SKWZ HIJ 5 bright
+			SKWZ K 5 bright
+			SKWZ LM 5 bright
+			SKWZ N 5
+			SKWZ O 0 A_NoBlocking
+			SKWZ O 5 Bright
+			SKWZ P -1
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			SKWZ ON 5
+			SKWZ MLKJIH 5 Bright
+			SKWZ G 5
+		Goto See
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
 		Death.BookOfTheDead:
-			SKWZ H 1 Bright
-			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-			TNT1 A 0 A_GiveToTarget("Souls", 1)  
-		Goto GaveSoul
-   }
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	}
 }
 
 Actor SkullWizardPush {
@@ -1635,24 +1669,32 @@ Actor CyborgWarrior : MechanicalExplosiveResistEnemy {
 			QQMN A 2 Fast
 		Goto See 
 		Death: 
-			TNT1 A 0 A_JumpIfInTargetInventory("Ability_SoulStealer", 1, "GiveSoul")
-		GaveSoul:
 			QQMN J 6 A_Scream
 			TNT1 A 0 A_NoBlocking
 			QQMN KL 5
 			QQMN M 4
 			QQMN N -1 A_BossDeath
-		Stop
-		GiveSoul:
-		Death.BookOfTheDead:
-			QQMN J 1
-			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-			TNT1 A 0 A_GiveToTarget("Souls", 1)  
-		Goto GaveSoul  
+		Stop 
 		Raise:
 			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
 			QQMN MLKJ 6
 		Goto See
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	} 
 }
 
@@ -1815,10 +1857,7 @@ ACTOR ChaosSerpent : DnD_BaseEnemy {
 					   frandom[DemonChunks](1, 4.984375)*sin(angle-90), 8, 270, ChunkFlags)
 			DEMN I 6 A_SpawnItemEx("Demon1Chunk5C", 0, 0, 45, frandom[DemonChunks](1, 4.984375)*cos(angle-90),
 					   frandom[DemonChunks](1, 4.984375)*sin(angle-90), 8, 270, ChunkFlags)
-			TNT1 A 0 A_JumpIfInventory("Ability_SoulStealer", 1, "GiveSoul")
-		GaveSoul:
 			DEMN J 1
-			TNT1 A 0 ACS_ExecuteAlways(982, 0, 2)
 			DEMN J 5 A_Scream
 			DEMN K 6 A_NoBlocking
 			DEMN L 6 A_QueueCorpse
@@ -1828,12 +1867,22 @@ ACTOR ChaosSerpent : DnD_BaseEnemy {
 		Raise:
 			DEMN PONMLKJIH 5
 		Goto See
-		GiveSoul:
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
 		Death.BookOfTheDead:
-			DEMN J 1
-			TNT1 A 0 A_SpawnItem("SoulEffectSpawner")
-			TNT1 A 0 A_GiveToTarget("Souls", 1)  
-		Goto GaveSoul
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	}
 }
 
@@ -2239,7 +2288,23 @@ Actor IceGolem : MagicalEnemy {
 			GOL3 L 1 A_SetScale(0.95, 0.95)
 			GOL3 L 1 A_SetScale(1.0, 1.0)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
-		   Goto See
+		Goto See
+
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
     } 
 }
 

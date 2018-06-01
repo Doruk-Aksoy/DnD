@@ -100,10 +100,14 @@
 
 #define DND_MAX_DIGITLEN 7
 
+#define DND_BOSS_SOULGIVE 4
+
 bool Quest_Pick_Done = 0;
 bool PlayerCanLoad[MAXPLAYERS] = { 0 };
 
 // RPG ELEMENTS END
+
+#define DefStepSound "Player/Move"
 
 // thunderstaff info things
 #define DND_THUNDERSTAFF_MAXTARGETS 5
@@ -194,9 +198,9 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 15 damage, reduce monster damage and resistance by 50%. If the monster is below 10% health, culls the monster.",
 	 "Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40. Can use \cigrenades\c-.",
 	 "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
-	 "Fires bullets doing 15 damage on hit and 5-15 damage in a 40 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 64 damage and release toxic cloud doing 5-15 damage in 96 unit radius.",
+	 "Fires acid rounds doing 18 damage on hit and 10-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius.",
 	 "Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin. Can't hit \cughosts.",
-	 "The ebony cannon shoots bouncing balls of death. 16 - 40 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs. \cfIgnores shields.",
+	 "The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs. \cfIgnores shields.",
 	 
 	 "A true classic. Just don't blow yourself up. Can be \cdreplaced. Can't hit \cughosts.",
 	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 144 unit radius. Can't hit \cughosts.",
@@ -981,11 +985,6 @@ void SpawnResearch() {
 	}
 }
 
-bool IsBossType() {
-	int id = CheckInventory("MonsterID");
-	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id >= DND_BOSS_BEGIN;
-}
-
 void HandleChestSpawn() {
 	if(!SpawnedChests) {
 		int r = random(0, 100);
@@ -1007,10 +1006,51 @@ void HandleOrbDrop() {
 	}
 }
 
+void HandleSoulDrop() {
+	if(IsDemon()) {
+		str drop = "Souls";
+		if(IsBoss())
+			drop = "LargeSouls";
+		SpawnDrop(drop, GetActorProperty(0, APROP_HEIGHT) / 2, 12, 0, 0);
+	}
+}
+
+void HandleOtherDrops(int target) {
+	if(IsZombie())
+		GiveActorInventory(target, "DnD_ShotUndead", 1);
+	if(CheckInventory("MagicCausedDeath")) {
+		// Soul Stealer case
+		if(CheckActorInventory(target, "Ability_SoulStealer"))
+			HandleSoulDrop();
+		TakeInventory("MagicCausedDeath", 1);
+	}
+	else if(CheckInventory("BookofDeadCausedDeath")) {
+		GiveActorInventory(target, "Souls", 1 + DND_BOSS_SOULGIVE * IsBoss());
+		Spawn("SoulEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+		TakeInventory("BookofDeadCausedDeath", 1);
+	}
+	
+	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(target - P_TIDSTART, CheckInventory("MonsterIsElite"), CHANCE_HEART))
+		SpawnDrop("DemonHeartPickup", 24.0, 16, 0, 0);
+}
+
 void RecalculateTotalLevel() {
 	total_level = 0;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
 			total_level += GetStat(STAT_LVL);
 	}
+}
+
+int GetPVelocity(void) {
+	int vel;
+	int x = GetActorVelX(0);
+	int y = GetActorVelY(0);
+	int angle = VectorAngle(x, y);
+   
+	if(((angle + 0.125) % 0.5) > 0.25)
+		vel = FixedDiv(y, sin(angle));
+	else
+		vel = FixedDiv(x, cos(angle));
+	return vel >> 16;
 }

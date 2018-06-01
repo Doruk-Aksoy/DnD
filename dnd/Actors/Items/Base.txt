@@ -1,3 +1,22 @@
+/*
+// Copy to all monsters (until cleaner solution is found)
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+*/
+
 actor DND_DroppedItem {
 	+LOOKALLAROUND
 	+NOTIMEFREEZE

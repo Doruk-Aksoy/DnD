@@ -602,6 +602,7 @@ Actor OccultPower : PowerDamage {
 	damagefactor "Melee_Magic", 1.5
 	damagefactor "Melee_MagicFull", 1.5
 	damagefactor "Magic", 1.5
+	damagefactor "MagicFull", 1.5
 	damagefactor "Explosives_Magic", 1.5
 	damagefactor "Explosives_MagicFull", 1.5
 	damagefactor "MagicFire", 1.5

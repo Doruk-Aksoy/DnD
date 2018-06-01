@@ -26,6 +26,9 @@ Actor MonsterIsElite : DnD_Boolean {}
 Actor LegendaryKills : DnD_Info { }
 Actor LegendaryDamageDealt : DnD_Info { }
 
+Actor MagicCausedDeath : DnD_Boolean { }
+Actor BookofDeadCausedDeath : DnD_Boolean { }
+
 // Monster IDs - Classic
 
 enum {

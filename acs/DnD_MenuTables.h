@@ -627,7 +627,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
 	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
 	
-	{ "Silver Gun",						    "Silver Gun",						WEPCHECK_SLOT3L,		"1"	        },
+	{ "Silver Gun",						    "White Death",						WEPCHECK_SLOT3L,		"1"	        },
 	{ "Slayer",								"Slayer",							WEPCHECK_SLOT3L,		"1"		    },
 		
 	{ "Upgraded Machine Gun",				"Heavy Machine Gun",				WEPCHECK_SLOT4,  		"0"     	},
@@ -1028,7 +1028,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	
-	"Silver Gun fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
+	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",
 	
 	"Finest machine guns UAC has to offer. Bullets do 25 damage in a 1.6 by 0.8 spread. Has a clip size of 60. Can zoom.",
@@ -1036,9 +1036,9 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 15 damage, reduce monster damage and resistance by 50%. If the monster is below 10% health, culls the monster.",
 	"Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40.",
 	"Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Reload when full to use other ammo.",
-	"Fires bullets doing 15 damage on hit and 5-15 damage in a 40 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 64 damage and release toxic cloud doing 5-15 damage in 96 unit radius.",
+	"Fires acid rounds doing 18 damage on hit and 5-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius.",
 	"Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin.",
-	"The ebony cannon shoots bouncing balls of death. 16 - 40 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
+	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
 	
 	"The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 128 unit radius.",
 	"Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds.",
@@ -1394,7 +1394,7 @@ str AbilityHelpText[MAXABILITIES + 1] = {
 	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.",
 	"Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.",
 	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.",
-	"Demons give souls on kill.",
+	"Demons drop souls when killed with an occult weapon.",
 	"Can see monster health, mods and level.",
 	"Toggles dashing."
 };
