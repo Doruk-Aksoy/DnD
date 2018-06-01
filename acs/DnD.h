@@ -985,6 +985,18 @@ void SpawnResearch() {
 	}
 }
 
+void SpawnAccessory() {
+	int id;
+	if(HardcoreSet) {
+		do {
+			id = random(1, MAX_ACCESSORY);
+		} while(id == DND_REPLACE_THIS_ACCESSORY);
+	}
+	else
+		id = random(1, MAX_ACCESSORY);
+	SpawnDrop(StrParam(s:"Accessory_", d:id), 0, 0, 0, 0);
+}
+
 void HandleChestSpawn() {
 	if(!SpawnedChests) {
 		int r = random(0, 100);

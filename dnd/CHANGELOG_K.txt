@@ -26,6 +26,7 @@ LEGEND:
 ! Redone the accessory page of "DnD Menu". Now split into 4 pages with each page having 5 accessories shown total.
 ! Added a new help page to describe weapon properties.
 ! Monster traits are now color coded.
+! Monsters now have little icons to the two sides of the health bar to indicate their base monster type. (Demonic, Undead etc.)
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
 * Changed how footstep sounds are generated. They get faster and louder the faster you move.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.

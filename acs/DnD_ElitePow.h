@@ -110,6 +110,7 @@ enum {
 #define MONSTER_BARFILLID 1001
 #define MONSTER_TEXTID 1000
 #define MONSTER_NAMEID 999
+#define MONSTER_TYPEICONID 998
 
 str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Energy Weakness",

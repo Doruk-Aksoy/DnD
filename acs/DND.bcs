@@ -593,7 +593,7 @@ Script "DND On Kill" KILL {
 			if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
 				if((total_level / PlayerCount()) >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
 					// we can drop the spawner
-					SpawnDrop("AccessorySpawner", 0, 0, 0, 0);
+					SpawnAccessory();
 				}
 			}
 		}
@@ -1648,6 +1648,9 @@ Script 981 ENTER CLIENTSIDE {
 				
 				SetHudSize(800, 600, 0);
 				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
+				SetFont(MonsterTypeIcons[GetMonsterType(monid)]);
+				HudMessage(s:"a"; 1, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, 1);
+				HudMessage(s:"a"; 1, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, 1);
 				// inner text
 				SetFont ("MONFONT");
 				HudMessage(s:"Lvl: ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; 1, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, 1);

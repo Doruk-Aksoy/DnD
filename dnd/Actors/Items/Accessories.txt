@@ -121,15 +121,11 @@ Actor Accessory_5 : Accessory_1 {
 	inventory.pickupmessage "\ccAccessory     : \c[Y5]Angelic Ankh!\c-"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special GameMode"), "SpawnReplacement")
 			TNT1 A 0 ThrustThingZ(0, 16, 0, 0)
 			TNT1 A 0 A_PlaySound("RareDrop")
 		SpawnLoop:
 			ACC5 A 24 A_SpawnItem("AccessoryEffectSpawner")
 		Loop
-		SpawnReplacement:
-			TNT1 A 0 A_SpawnItem("Accessory_15")
-		Stop
 	}
 }
 
