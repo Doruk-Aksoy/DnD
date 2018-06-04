@@ -685,7 +685,6 @@ Script "DND Show Kill Digits" (int exp, int credit, int hasstuff) CLIENTSIDE {
 	exp += (exptemp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
 	if(exp) {
 		digitlen = 1;
-		printbold(d:ConsolePlayerNumber());
 		
 		if(haswisdom) {
 			bonus = exptemp;
@@ -2149,7 +2148,7 @@ Script 994 (int type, int extra) {
         // check riotgun mode switch possibility
         int norm = !!CheckInventory("RiotgunShell"), nitro = !!CheckInventory("NitroShell"), explo = !!CheckInventory("ExplodingShell");
         // only let switching if more than 1 is available
-        res = (norm & nitro) || (norm & explo) || (nitro & explo);
+        res = norm || explo || nitro;
     }
 	else if(type == 14)
 		res = GetActorProperty(0, APROP_INVULNERABLE);
@@ -2382,7 +2381,8 @@ Script "DND Riotgun Decide" (void) {
 		mode = "ExplodingShell";
 	else if(CheckInventory("SpecialAmmoMode_4") == AMMO_NITROGENSHELL)
 		mode = "NitroShell";
-	if(CheckInventory("RiotgunClip") == GetAmmoCapacity("RiotgunClip") || CheckInventory("RiotgunClip") == CheckInventory(mode))
+	// either clip full or special ammo clip full
+	if((CheckInventory("RiotgunClip") == GetAmmoCapacity("RiotgunClip") || CheckInventory("RiotgunClip") == CheckInventory(mode)) && CanSwitchMode(AMMO_TYPE_SHELL2, SPWEP_MG))
 		SetInventory("RiotgunReloadModeDecide", 2); // mode switch
 	else if(CheckInventory("RiotgunClip") < GetAmmoCapacity("RiotgunClip") && CheckInventory(mode) > CheckInventory("RiotgunClip"))
 		SetInventory("RiotgunReloadModeDecide", 1); // reload

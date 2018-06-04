@@ -395,9 +395,8 @@ actor ResMG2 : Weapon {
 			// put frame names here
 			RIO3 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Reload")
 			RIO2 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Reload")
-			RIOT A 0 A_JumpIfInventory("RiotgunShell", 1, "ContinueReload")
-			RIOT A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Failed
+			RIOT A 0
+		Goto ContinueReload
 		Nitro_Reload:
 			RIO2 A 0 A_JumpIfInventory("NitroShell", 1, "ContinueReload_Nitro")
 			RIO2 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -496,8 +495,8 @@ actor ResMG2 : Weapon {
 		Reload2:
 			RIO3 F 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Reload2")
 			RIO2 F 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Reload2")
-			RIOT G 0 A_JumpIfInventory("RiotgunShell", 1, "ContinueReload2")
-		Goto Failed2
+			RIOT G 0
+		Goto ContinueReload2
 		ContinueReload2:
 			"####" "#" 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			"####" "#" 0 ACS_NamedExecuteAlways("DND Riotgun Decide")
