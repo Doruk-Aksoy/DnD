@@ -2999,6 +2999,10 @@ Script "DND Orb Use Message" (int affluence) CLIENTSIDE {
 	HandleOrbUseMessage(CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence);
 }
 
+Script "DND Orb Use Message (Server)" (void) {
+	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
+}
+
 Script "DND Orb Use Check" (int orbtype) {
 	SetResultValue(CanUseOrb(orbtype));
 }

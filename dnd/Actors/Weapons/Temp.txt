@@ -2596,7 +2596,7 @@ Actor HeartAttackPuff : BulletPuff {
 	Height 2
 	RenderStyle Add
 	Vspeed 0
-	DamageType "MagicFull"
+	DamageType "Magic"
 	var int user_dmg;
 	+FOILINVUL
 	+DONTSPLASH
@@ -2625,6 +2625,7 @@ Actor HeartAttackPuff : BulletPuff {
 }
 
 Actor HeartAttackPuff_FullDMG : BulletPuff {
+	DamageType "MagicFull"
 	+FORCERADIUSDMG
 	-THRUGHOST
 }
