@@ -775,15 +775,15 @@ void UndoSinOrbEffect() {
 		case SINORB_STAT:
 			// val4 and val5 hold stat values that we currently have gained, so we take them away
 			for(i = STAT_STR; i < STAT_INT; ++i) {
-				TakeStat(i, mod(Player_MostRecent_Orb[pnum].val4,65));
+				TakeStat(i, Player_MostRecent_Orb[pnum].val4 % 65);
 				Player_MostRecent_Orb[pnum].val4 /= 65;
 			}
-			TakeStat(STAT_INT, mod(Player_MostRecent_Orb[pnum].val5,65));
+			TakeStat(STAT_INT, Player_MostRecent_Orb[pnum].val5 % 65);
 			Player_MostRecent_Orb[pnum].val5 /= 65;
 			//Remove allocated stats randomly until enough perk points are available
 			//Unlike the orb of sin use, there's no way to have less stats then the ones being taken - thus loop can be simpler
 			
-			while (CheckInventory("StatPoint") < mod(Player_MostRecent_Orb[pnum].val5, 65)) {
+			while (CheckInventory("StatPoint") < (Player_MostRecent_Orb[pnum].val5 % 65)) {
 				temp = random(STAT_STR, STAT_INT);
 				if (GetStat(temp) > 0) {
 					TakeStat(temp, 1);
@@ -792,10 +792,10 @@ void UndoSinOrbEffect() {
 		break;
 		case SINORB_PERK:
 			for(i = DND_PERK_BEGIN; i < STAT_LUCK-1; ++i) {
-				TakeStat(i, mod(Player_MostRecent_Orb[pnum].val4,11));
+				TakeStat(i, Player_MostRecent_Orb[pnum].val4 % 11);
 				Player_MostRecent_Orb[pnum].val4 /= 11;
 			}
-			TakeStat(STAT_LUCK, mod(Player_MostRecent_Orb[pnum].val5,11));
+			TakeStat(STAT_LUCK, Player_MostRecent_Orb[pnum].val5 % 11);
 			Player_MostRecent_Orb[pnum].val5 /= 11;
 			
 			//Remove allocated perks randomly until enough perk points are available
