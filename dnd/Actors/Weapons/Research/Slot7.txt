@@ -42,7 +42,7 @@ Actor ResBFG1 : Weapon {
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_IONCANNON)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 125)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 64)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 160)
 	    SelectLoop:
 			RW04 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -248,18 +248,21 @@ Actor IonPuff : BulletPuff {
 			TNT1 A 0 A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET), 160)
 			IOPF A 3 bright A_PlaySound("IonCannon/Hit")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET), 160)
-			IOPF BC 3 Bright
-			IOPF DEF 2 Bright
+			IOPF B 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 80)
+			IOPF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 3, 60)
+			IOPF D 2 Bright
+			IOPF EF 2 Bright
 		Stop
 		LesSDmg:
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 160, 0)
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 160)
 			IOPF A 3 bright A_PlaySound("IonCannon/Hit")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 160, 0)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 160)
-			IOPF BC 3 Bright
-			IOPF DEF 2 Bright
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 4, 80)
+			IOPF B 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 4, 80, 0)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 6, 60)
+			IOPF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 6, 60, 0)
+			IOPF D 2 Bright
+			IOPF EF 2 Bright
 		Stop
 	}
 }

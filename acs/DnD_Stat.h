@@ -227,6 +227,7 @@ enum {
 	DND_ACCESSORY_VEIL = 32768,
 	DND_ACCESSORY_HUNTERTALISMAN = 65536,
 };
+#define DND_REPLACE_THIS_ACCESSORY 5 // angelic ankh
 #define MAX_ACCESSORY 17
 #define DND_ACCESSORY_BASELIMIT 2
 
@@ -819,6 +820,9 @@ enum {
 void SlowPlayer(int amt, int mode, int pnum) {
 	if(!pnum)
 		pnum = PlayerNumber();
+	// don't slow if player has gryphon boots
+	if(CheckActorInventory(P_TIDSTART + pnum, "GryphonCheck") && !(mode & SF_FREEZE))
+		return;
 	if(mode & SF_FREEZE) {
 		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 		SetActorProperty(0, APROP_SPEED, 0.0);

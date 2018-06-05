@@ -593,7 +593,7 @@ Script "DND On Kill" KILL {
 			if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
 				if((total_level / PlayerCount()) >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
 					// we can drop the spawner
-					SpawnDrop("AccessorySpawner", 0, 0, 0, 0);
+					SpawnAccessory();
 				}
 			}
 		}
@@ -685,7 +685,6 @@ Script "DND Show Kill Digits" (int exp, int credit, int hasstuff) CLIENTSIDE {
 	exp += (exptemp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
 	if(exp) {
 		digitlen = 1;
-		printbold(d:ConsolePlayerNumber());
 		
 		if(haswisdom) {
 			bonus = exptemp;
@@ -1648,6 +1647,9 @@ Script 981 ENTER CLIENTSIDE {
 				
 				SetHudSize(800, 600, 0);
 				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
+				SetFont(MonsterTypeIcons[GetMonsterType(monid)]);
+				HudMessage(s:"a"; 1, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, 1);
+				HudMessage(s:"a"; 1, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, 1);
 				// inner text
 				SetFont ("MONFONT");
 				HudMessage(s:"Lvl: ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; 1, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, 1);
@@ -2146,7 +2148,7 @@ Script 994 (int type, int extra) {
         // check riotgun mode switch possibility
         int norm = !!CheckInventory("RiotgunShell"), nitro = !!CheckInventory("NitroShell"), explo = !!CheckInventory("ExplodingShell");
         // only let switching if more than 1 is available
-        res = (norm & nitro) || (norm & explo) || (nitro & explo);
+        res = norm || explo || nitro;
     }
 	else if(type == 14)
 		res = GetActorProperty(0, APROP_INVULNERABLE);
@@ -2379,7 +2381,8 @@ Script "DND Riotgun Decide" (void) {
 		mode = "ExplodingShell";
 	else if(CheckInventory("SpecialAmmoMode_4") == AMMO_NITROGENSHELL)
 		mode = "NitroShell";
-	if(CheckInventory("RiotgunClip") == GetAmmoCapacity("RiotgunClip") || CheckInventory("RiotgunClip") == CheckInventory(mode))
+	// either clip full or special ammo clip full
+	if((CheckInventory("RiotgunClip") == GetAmmoCapacity("RiotgunClip") || CheckInventory("RiotgunClip") == CheckInventory(mode)) && CanSwitchMode(AMMO_TYPE_SHELL2, SPWEP_MG))
 		SetInventory("RiotgunReloadModeDecide", 2); // mode switch
 	else if(CheckInventory("RiotgunClip") < GetAmmoCapacity("RiotgunClip") && CheckInventory(mode) > CheckInventory("RiotgunClip"))
 		SetInventory("RiotgunReloadModeDecide", 1); // reload

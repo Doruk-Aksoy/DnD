@@ -1058,9 +1058,9 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage.",
 	
 	"The newest BFG model 32768 devastates with 600 - 900 damage on impact and 384 damage in a 160 unit radius. Shoots 64 tracers.",
-	"Devastator launches four mini rockets each doing 32 to 80 with 32 radius damage in 72 units.",
+	"Devastator launches four mini rockets each doing 64 to 80 with 32 radius damage in 96 units.",
 	"Fires a destructive orb doing 425 damage on impact and 384 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage in a 256 unit radius. Does self damage.",
-	"Fires ionized energy doing 125 impact and 128 area damage in 160 unit radius.",
+	"Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60.",
 	"Launches a ball of lightning that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in a large radius.",
 	"Gauss Rifle fires a magnetic pulse dealing 100 on hit and 192 radius damage in a 96 unit radius. Alt fire zooms, amplifying the damage for each zoom.",
 	"This baby can rip through concrete with ease. Each shot does multiples of 92 damage. Alt fire charges up the next shot, up to 2 times.",

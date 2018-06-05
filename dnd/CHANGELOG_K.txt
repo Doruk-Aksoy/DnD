@@ -26,6 +26,7 @@ LEGEND:
 ! Redone the accessory page of "DnD Menu". Now split into 4 pages with each page having 5 accessories shown total.
 ! Added a new help page to describe weapon properties.
 ! Monster traits are now color coded.
+! Monsters now have little icons to the two sides of the health bar to indicate their base monster type. (Demonic, Undead etc.)
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
 * Changed how footstep sounds are generated. They get faster and louder the faster you move.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
@@ -80,7 +81,7 @@ LEGEND:
 * Fixed a bug where "Occult Armor" wasn't increasing the damage of some weapons with "Nether Mask" equipped.
 * Added a few things to hopefully ensure "Demon Sealer" to properly seal monsters.
 * "Nuclear Plasma Rifle" now properly overheats with "Hand of Artemis" equipped.
-* The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", S"hocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
+* The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", "Shocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
 + "Hardcore" and "Softcore" damage amp reduced to 15% from 25%.
 + Monster damage values in "Hardcore" and "Softcore" now scale by 4% instead of 5%.
 * "Natural Talent" bonus is now properly applied to all damage types.
@@ -94,7 +95,10 @@ LEGEND:
 	* This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
 * "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
 - "Destruction Generator" fire rate reduced by 7 tics.
+* "Minigun" no longer slows players when "Gryphon Boots" are equipped.
+* You can now properly rev the "Minigun" right after fire and be ready to fire immediately.
 * Reduced the volume of looping sound of "Soul Reaver".
+* "Riot Cannon" can properly switch modes even if it runs out of ammo on its main mode.
 + "Razorfang" skull shot can hit ghosts now.
 + "Plasma Cannon" now ignores shields.
 * "Plasma Cannon" readjusted to shoot 12 projectiles instead of 24. Damage unchanged.
@@ -108,6 +112,9 @@ LEGEND:
 + "Ebony Cannon" scatter projectile speed increased to 18 from 16.
 - "Shocker" uses 5 ammo for the alt up from 3.
 + "Slayer" hooks travel approximately 30% farther.
++ "Ion Cannon" explosion now does 160 explosion damage up front in 160 unit radius, then 80 in 80 then 53 in 60.
++ "Devastator 5000" does 64-80 explosion damage up from 32-80.
++ "Devastator 5000" explosion radius increased to 96 from 72.
 
 =====================
 == MONSTER RELATED ==

@@ -43,7 +43,6 @@ enum {
 	SPWEP_GL
 };
 
-
 str SuperSpecialAmmos[MAX_SPECIAL_AMMOS] = {
 	"FlechetteShell", 
 	"PiercingShell",
@@ -140,6 +139,19 @@ int GetSpecialAmmoMode(int ammo_category, int weptype) {
 	return CheckInventory(StrParam(s:"SpecialAmmoMode", s:suffix));
 }
 
+bool CanSwitchMode(int ammo_category, int weptype) {
+	int curweap = CheckInventory("DnD_WeaponID");
+	int mode = GetSpecialAmmoMode(ammo_category, weptype);
+	int prevmode = mode;
+	// while can cycle through on next, if no ammo keep searching and take mod
+	do {
+		mode = (mode + 1) % (SpecialAmmoLimits[ammo_category] + 1);
+		if(!mode)
+			mode = SpecialAmmoBase[ammo_category];
+	} while(!HasAmmoForSpecialMode(mode, ammo_category, curweap));
+	return prevmode != mode;
+}
+
 // if this runs when player has no ammo, big trouble. Make sure decorate of weapons dont allow it!
 void SetSpecialAmmoMode(int ammo_category, int weptype) {
 	int curweap = CheckInventory("DnD_WeaponID");
@@ -150,7 +162,7 @@ void SetSpecialAmmoMode(int ammo_category, int weptype) {
 		if(!mode)
 			mode = SpecialAmmoBase[ammo_category];
 	} while(!HasAmmoForSpecialMode(mode, ammo_category, curweap));
-		
+	
 	str suffix = GetSpecialAmmoSuffix(weptype);
 	SetInventory(StrParam(s:"SpecialAmmoMode", s:suffix), mode);
 	SetInventory("AmmoChangeMessage", mode);
