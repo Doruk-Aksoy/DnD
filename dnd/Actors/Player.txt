@@ -459,7 +459,7 @@ Actor TheMarine : DnD_PlayerBase {
 			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0, 1)
 			PLAY G 4 
-			PLAY G 4 A_Pain
+			PLAY G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
 		Pain.VileGhost:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
@@ -794,7 +794,7 @@ Actor TheHobo : DnD_PlayerBase {
 			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0, 1)
 			PREN G 4 
-			PREN G 4 A_Pain
+			PREN G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
 		Pain.VileGhost:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
@@ -1129,7 +1129,7 @@ Actor ThePunisher : DnD_PlayerBase {
 			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0, 1)
 			BLAZ G 4 
-			BLAZ G 4 A_Pain
+			BLAZ G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
 		Pain.VileGhost:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)

@@ -1962,3 +1962,9 @@ Actor GolemSoul {
 		Stop
 	}
 }
+
+Actor GenericParticleFX {
+	RenderStyle Add
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+}

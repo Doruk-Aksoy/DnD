@@ -3148,3 +3148,10 @@ Script "DnD Footstep Sound" ENTER CLIENTSIDE {
 		Delay(DelayTime);
 	}
 }
+
+Script "DnD Player Pain Sound" (void) CLIENTSIDE {
+	int ptype = CheckInventory("DnD_Character");
+	// special pain sound range handling for hobo, punisher and marine
+	if(ptype >= 2 && ptype <= 4)
+		HandlePlayerPainSound(ptype);
+}

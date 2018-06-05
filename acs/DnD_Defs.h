@@ -67,4 +67,38 @@ int IsHardcore() {
 	return HardcoreSet;
 }
 
+void HandlePlayerPainSound(int pclass) {
+	int curhp = GetActorProperty(0, APROP_HEALTH);
+	int maxhp = GetSpawnHealth();
+	int hpratio = (curhp * 100) / maxhp;
+	printbold(d:hpratio);
+	switch(pclass) {
+		case 2:
+			// marine -- has 2 sounds for each quarter like so: Player/Pain25
+			if(hpratio <= 25)
+				PlaySound(0, "Player/Pain25", CHAN_BODY, 1.0);
+			else if(hpratio <= 50)
+				PlaySound(0, "Player/Pain50", CHAN_BODY, 1.0);
+			else if(hpratio <= 50)
+				PlaySound(0, "Player/Pain75", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "Player/Pain100", CHAN_BODY, 1.0);
+		break;
+		case 3:
+			// hobo
+			if(hpratio <= 50)
+				PlaySound(0, "Hobo/HardPain", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "Hobo/SoftPain", CHAN_BODY, 1.0);
+		break;
+		case 4:
+			// punisher
+			if(hpratio <= 50)
+				PlaySound(0, "Punisher/Pain", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "Punisher/PainLow", CHAN_BODY, 1.0);
+		break;
+	}
+}
+
 #endif
