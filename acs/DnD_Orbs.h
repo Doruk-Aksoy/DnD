@@ -579,39 +579,79 @@ bool HasOrbsBesidesCalamity() {
 	return false;
 }
 
+//WORKAROUND: Function arrays are not supported. See: https://zandronum.com/tracker/view.php?id=2472&nbn=5)
+int perk_indexes[DND_PERKS];
+int stat_indexes[6];
+
 int HandleSinOrbBonus(int type) {
 	int temp, loop = 0, i;
 	int pnum = PlayerNumber();
 	switch(type) {
 		case SINORB_STAT:
 			// give random stat points
+			int stat_indexes_left = 6;
+			stat_indexes[0] = STAT_STR;
+			stat_indexes[1] = STAT_DEX;
+			stat_indexes[2] = STAT_BUL;
+			stat_indexes[3] = STAT_CHR;
+			stat_indexes[4] = STAT_VIT;
+			stat_indexes[5] = STAT_INT;
+			 //Make sure the full 32-bit range is used
+			printbold(s:"starting vals - stats: ", d:Player_MostRecent_Orb[pnum].val4, s:", ", d:Player_MostRecent_Orb[pnum].val5);
 			for(i = 0; i < GetAffluenceBonus() * SINORB_STATGIVE; ++i) {
-				do {
-					temp = random(STAT_STR, STAT_INT);
-				} while(GetStat(i) == DND_STAT_FULLMAX && loop++ != MAX_ITER);
-				Player_MostRecent_Orb[pnum].sins_cant_repent = GetStat(i) == DND_STAT_FULLMAX;
-				GiveStat(temp, 1);
-				// 6 stats, can give max of 64 on 1 stat. 8 x 6 = 48 bits needed. 2 ints
-				if(temp < 4)
-					Player_MostRecent_Orb[pnum].val4 += 1 << (SINORB_STATSAVEBITS * temp);
-				else
-					Player_MostRecent_Orb[pnum].val5 += 1 << (SINORB_STATSAVEBITS * (temp - 4));
+				while(stat_indexes_left > 0) {
+					temp = random(0, stat_indexes_left-1);
+					if (GetStat(stat_indexes[temp]) < DND_STAT_FULLMAX)
+						break;
+					stat_indexes[temp] = stat_indexes[--stat_indexes_left];
+				}
+				if (stat_indexes_left > 0) {
+					GiveStat(stat_indexes[temp], 1);
+					// 6 stats, can give max of 64 on 1 stat. 8 x 6 = 48 bits needed. 2 ints
+					if(stat_indexes[temp] < STAT_INT)
+						Player_MostRecent_Orb[pnum].val4 += pow(65, stat_indexes[temp]);
+					else
+						Player_MostRecent_Orb[pnum].val5 += 1;
+				}
+				else {
+					GiveInventory("StatPoint", 1);
+					Player_MostRecent_Orb[pnum].val5 += 65;
+				}
 			}
+			printbold(s:"ending vals - stats: ", d:Player_MostRecent_Orb[pnum].val4, s:", ", d:Player_MostRecent_Orb[pnum].val5);
 		return SINORB_STATGIVE;
 		case SINORB_PERK:
-			// give a random perk
+			int perk_indexes_left = DND_PERKS;
+			perk_indexes[0] = STAT_SHRP;
+			perk_indexes[1] = STAT_END;
+			perk_indexes[2] = STAT_WIS;
+			perk_indexes[3] = STAT_GRE;
+			perk_indexes[4] = STAT_MED;
+			perk_indexes[5] = STAT_MUN;
+			perk_indexes[6] = STAT_DED;
+			perk_indexes[7] = STAT_SAV;
+			perk_indexes[8] = STAT_LUCK;
 			for(i = 0; i < GetAffluenceBonus() * SINORB_PERKGIVE; ++i) {
-				do {
-					temp = random(STAT_SHRP, STAT_SAV);
-				} while(GetStat(i + DND_PERK_BEGIN) == DND_PERK_MAX && loop++ != MAX_ITER);
-				Player_MostRecent_Orb[pnum].sins_cant_repent = GetStat(i + DND_PERK_BEGIN) == DND_PERK_MAX;
-				GiveStat(temp, 1);
-				// int_max is 10 digits, max give is 16
-				if((Player_MostRecent_Orb[pnum].val4 / (pow(10, temp - STAT_SHRP))) % 10 != 9)
-					Player_MostRecent_Orb[pnum].val4 += pow(10, temp - STAT_SHRP);
-				else
-					Player_MostRecent_Orb[pnum].val5 += pow(10, temp - STAT_SHRP);
+				while(perk_indexes_left > 0) {
+					temp = random(0, perk_indexes_left-1);
+					printbold(s:"temp: ",d:temp,s:"perk: ",d:perk_indexes[temp],s:"left: ",d:perk_indexes_left);
+					if (GetStat(perk_indexes[temp]) < DND_PERK_MAX)
+						break;
+					perk_indexes[temp] = perk_indexes[--perk_indexes_left];
+				}
+				if (perk_indexes_left > 0) {
+					GiveStat(perk_indexes[temp], 1);
+					// int_max is 10 digits, max give is 16
+					if (perk_indexes[temp] < STAT_LUCK)
+						Player_MostRecent_Orb[pnum].val4 += pow(11, perk_indexes[temp]-DND_PERK_BEGIN);
+					else
+						Player_MostRecent_Orb[pnum].val5 += 1;
+				} else {
+					GiveInventory("PerkPoint", 1);
+					Player_MostRecent_Orb[pnum].val5 += 11;
+				}
 			}
+			printbold(s:"ending vals - perks: ", d:Player_MostRecent_Orb[pnum].val4, s:", ", d:Player_MostRecent_Orb[pnum].val5);
 		return SINORB_PERKGIVE;
 		/*case SINORB_RES:
 			int s = 0;
@@ -730,34 +770,45 @@ void RevertLastOrbEffect() {
 
 void UndoSinOrbEffect() {
 	// val3 holds affluence on first 5 bits
-	int pnum = PlayerNumber(), i;
+	int pnum = PlayerNumber(), i, temp;
 	switch ((Player_MostRecent_Orb[pnum].val3 & 0b111100000) >> 5) {
 		case SINORB_STAT:
-			if(!Player_MostRecent_Orb[pnum].sins_cant_repent) {
-				// val4 and val5 hold stat values that we currently have gained, so we take them away
-				for(i = STAT_STR; i <= STAT_INT; ++i) {
-					if(i < 4) {
-						TakeStat(i, Player_MostRecent_Orb[pnum].val4 & SINORB_STATSAVEMASK);
-						Player_MostRecent_Orb[pnum].val4 >>= SINORB_STATSAVEBITS;
-					}
-					else {
-						TakeStat(i, Player_MostRecent_Orb[pnum].val5 & SINORB_STATSAVEMASK);
-						Player_MostRecent_Orb[pnum].val5 >>= SINORB_STATSAVEBITS;
-					}
-				}
+			// val4 and val5 hold stat values that we currently have gained, so we take them away
+			for(i = STAT_STR; i < STAT_INT; ++i) {
+				TakeStat(i, Player_MostRecent_Orb[pnum].val4 % 65);
+				Player_MostRecent_Orb[pnum].val4 /= 65;
 			}
+			TakeStat(STAT_INT, Player_MostRecent_Orb[pnum].val5 % 65);
+			Player_MostRecent_Orb[pnum].val5 /= 65;
+			//Remove allocated stats randomly until enough perk points are available
+			//Unlike the orb of sin use, there's no way to have less stats then the ones being taken - thus loop can be simpler
+			
+			while (CheckInventory("StatPoint") < (Player_MostRecent_Orb[pnum].val5 % 65)) {
+				temp = random(STAT_STR, STAT_INT);
+				if (GetStat(temp) > 0) {
+					TakeStat(temp, 1);
+					GiveInventory("StatPoint", 1); }}
+			TakeInventory("StatPoint", Player_MostRecent_Orb[pnum].val5);
 		break;
 		case SINORB_PERK:
-			if(!Player_MostRecent_Orb[pnum].sins_cant_repent) {
-				for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i) {
-					TakeStat(i, Player_MostRecent_Orb[pnum].val4 % 10);
-					TakeStat(i, Player_MostRecent_Orb[pnum].val5 % 10);
-					Player_MostRecent_Orb[pnum].val4 /= 10;
-					Player_MostRecent_Orb[pnum].val5 /= 10;
-				}
-				// after operation perk checks
-				UpdatePerkStuff();
+			for(i = DND_PERK_BEGIN; i < STAT_LUCK-1; ++i) {
+				TakeStat(i, Player_MostRecent_Orb[pnum].val4 % 11);
+				Player_MostRecent_Orb[pnum].val4 /= 11;
 			}
+			TakeStat(STAT_LUCK, Player_MostRecent_Orb[pnum].val5 % 11);
+			Player_MostRecent_Orb[pnum].val5 /= 11;
+			
+			//Remove allocated perks randomly until enough perk points are available
+			//Unlike the orb of sin use, there's no way to have less perks then the ones being taken - thus loop can be simpler
+			while (CheckInventory("PerkPoint") < Player_MostRecent_Orb[pnum].val5) {
+				temp = random(STAT_SHRP, STAT_LUCK);
+				if (GetStat(temp) > 0) {
+					TakeStat(temp, 1);
+					GiveInventory("PerkPoint", 1); }}
+			TakeInventory("PerkPoint", Player_MostRecent_Orb[pnum].val5);
+			
+			// after operation perk checks
+			UpdatePerkStuff();
 		break;
 		case SINORB_CRIT:
 			//printbold(d: Player_MostRecent_Orb[pnum].val5, s: " ", f:Player_Weapon_Infos[pnum][Player_MostRecent_Orb[pnum].val5].wep_bonuses[WEP_BONUS_CRIT].amt, s: " ", f:Player_MostRecent_Orb[pnum].val4);
@@ -1243,7 +1294,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 			if(val != 0x7FFFFFFF)
 				DoSinOrbMessage(val, affluence);
 			else
-				Log(s:"\cgYou don't have enough allocated states! Need at least \ck", d:SINORB_MAX_TAKE * affluence, s:"\c-!");
+				Log(s:"\cgYou don't have enough allocated stat points! Need at least \ck", d:SINORB_MAX_TAKE * affluence, s:"\c-!");
 		break;
 		case DND_ORB_RICHES:
 			if(!(val >> 16)) // exp

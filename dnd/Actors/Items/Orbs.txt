@@ -107,7 +107,7 @@ Actor OrbOfEnhancement : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -145,7 +145,7 @@ Actor OrbofCorruption : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -208,7 +208,7 @@ Actor OrbofSpirit : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -259,7 +259,7 @@ Actor OrbofRepentance : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -313,7 +313,7 @@ Actor OrbofAffluence : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -370,7 +370,7 @@ Actor OrbofCalamity : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -421,7 +421,7 @@ Actor OrbofProsperity : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -472,7 +472,7 @@ Actor OrbofWisdom : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -523,7 +523,7 @@ Actor OrbofGreed : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -574,7 +574,7 @@ Actor OrbofViolence : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -625,7 +625,7 @@ Actor OrbofFortitude : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -676,7 +676,7 @@ Actor OrbofSin : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -727,7 +727,7 @@ Actor OrbofRiches : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
@@ -759,7 +759,7 @@ Actor OrbofHolding : DnD_Orb {
 			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
 		Stop
 		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
 		Fail
 	}
 }
