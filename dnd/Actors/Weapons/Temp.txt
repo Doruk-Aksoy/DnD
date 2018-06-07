@@ -2604,7 +2604,6 @@ Actor HeartAttackPuff : BulletPuff {
 	+ALWAYSPUFF
 	+PUFFGETSOWNER
     +MTHRUSPECIES
-	+THRUGHOST
 	States {
 		Crash:
 			TNT1 A 1
