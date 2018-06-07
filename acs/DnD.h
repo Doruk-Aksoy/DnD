@@ -67,7 +67,7 @@
 
 #define DND_DEMONBANE_GAIN 50
 
-#define DND_CYBERNETICARMOR_AMOUNT 200
+#define DND_CYBERNETICARMOR_AMOUNT 300
 #define DND_RAVAGERARMOR_AMOUNT 250
 
 #define DND_HEALTHEXPSCALE 5
@@ -509,9 +509,7 @@ enum {
 	BONUS_SECRET_RATE = 3,
 };
 
-int CalculateBonus(int bonustype) {
-	int mdifficulty = CheckInventory("MapDifficultyClientside");
-	
+int CalculateBonus(int bonustype, int mdifficulty) {
 	if(bonustype == BONUS_KILL) {
 		// add 5% for each difficulty level
 		return BONUS_EXP_RATE * (mdifficulty + 1);
@@ -531,7 +529,7 @@ int CalculateBonus(int bonustype) {
 }
 
 void ShowBonusMessage(int bonustype) {
-	int bval = CalculateBonus(bonustype);
+	int bval = CalculateBonus(bonustype,CheckInventory("MapDifficultyClientside"));
 	SetHudSize(800, 600, 1);
 	SetFont("BIGFONT");
 	switch(bonustype) {
@@ -557,7 +555,7 @@ void ShowBonusMessage(int bonustype) {
 void DistributeBonus(int bonustype) {
 	int bval = 0, temp = 0, i = 0;
 	if(bonustype == BONUS_KILL) {
-		bval = CalculateBonus(BONUS_KILL);
+		bval = CalculateBonus(BONUS_KILL,MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				temp = GetActorStat(i + P_TIDSTART, STAT_LVLEXP) * bval / 100;
@@ -568,7 +566,7 @@ void DistributeBonus(int bonustype) {
 		}
 	}
 	else if(bonustype == BONUS_ITEM) {
-		bval = CalculateBonus(BONUS_ITEM);
+		bval = CalculateBonus(BONUS_ITEM,MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				GiveActorInventory(i + P_TIDSTART, "DnD_ItemBonusShower", 1);
@@ -577,7 +575,7 @@ void DistributeBonus(int bonustype) {
 		}
 	}
 	else if(bonustype == BONUS_SECRET) {
-		bval = CalculateBonus(BONUS_SECRET);
+		bval = CalculateBonus(BONUS_SECRET,MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				GiveActorInventory(i + P_TIDSTART, "DnD_SecretBonusShower", 1);

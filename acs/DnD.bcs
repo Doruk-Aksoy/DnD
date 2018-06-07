@@ -2351,10 +2351,7 @@ Script 999 ENTER {
 				amt = lim * DND_REGEN_PERCENT / 100;
 				lim >>= 1; // half limit for this armor
 				if(cur && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS) && cur < lim && !CheckInventory("P_Damaged")) {
-					if(cur < lim - amt)
-						GiveInventory("NewArmorBonus", amt);
-					else
-						GiveInventory("NewArmorBonus", lim - cur);
+					GiveInventory("NewArmorBonus", Min(amt,lim - cur));
 					GiveInventory("CyberneticEffect", 1);
 					LocalAmbientSound("items/armorbonus", 127);
 				}
