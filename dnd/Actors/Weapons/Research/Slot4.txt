@@ -675,10 +675,10 @@ actor ResMG2 : Weapon {
 		
 		
 		ModeSwitch:
-			RIOT A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
-			TNT1 A 0 A_JumpIfInventory("RiotGunFireMode", 1, "MS_Alt")
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_MS")
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_MS")
+			"####" "#" 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+			"####" "#" 0 A_JumpIfInventory("RiotGunFireMode", 1, "MS_Alt")
+			"####" "#" 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_MS")
+			"####" "#" 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_MS")
 			RIOT A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto ModeSwitchCont
 		Nitro_MS:
@@ -688,8 +688,8 @@ actor ResMG2 : Weapon {
 			RIO3 A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto ModeSwitchCont
 		MS_Alt:
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_MS_Alt")
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_MS_Alt")
+			"####" "#" 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_MS_Alt")
+			"####" "#" 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_MS_Alt")
 			RIOT G 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto ModeSwitchCont
 		Nitro_MS_Alt:

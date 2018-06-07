@@ -951,7 +951,7 @@ Actor LavaNailProjectile : NailProjectile {
 }
 
 Actor LavaNailProjectile_FullDMG : LavaNailProjectile {
-	-THRUGHOST
+	+THRUACTORS
 	States {
 		Spawn:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
@@ -1640,5 +1640,4 @@ Actor FrostFangFog2 : FrostFangBallParticle {
 		Spawn:
 			FFFG A 1 A_FadeOut(0.0066)
 		Loop
-	}
-}
+	}}

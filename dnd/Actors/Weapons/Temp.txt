@@ -2627,7 +2627,6 @@ Actor HeartAttackPuff : BulletPuff {
 Actor HeartAttackPuff_FullDMG : BulletPuff {
 	DamageType "MagicFull"
 	+FORCERADIUSDMG
-	-THRUGHOST
 }
 
 Actor HeartAttack : AkimboShooter_L {
