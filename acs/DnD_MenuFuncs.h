@@ -1758,11 +1758,11 @@ void HandleWeaponPageInput(int boxid, int wbegin, int wend, int pageprev, int pa
 	ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 	if(CheckInventory("MadeChoice") == 1) {
 		if(boxid != MAINBOX_NONE)
-			ProcessTrade(boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON);
+			ProcessTrade(boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
 		SetInventory("MadeChoice", 0);
 	}
 	else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
-		ProcessTrade(boxid - 1, wbegin, wend, TRADE_SELL);
+		ProcessTrade(boxid - 1, wbegin, wend, TRADE_SELL, false);
 	if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_WEAPON);
