@@ -1429,3 +1429,460 @@ Actor AcidBolt_FullDMG : AcidBolt {
 		Stop
 	}
 }
+
+Actor FusionAttackCounter : Inventory {
+	inventory.maxamount 5
+}
+
+Actor FusionWeaponHeight : Inventory {
+	inventory.maxamount 5
+}
+
+Actor ResMG4 : Weapon {
+	Weapon.SelectionOrder 800
+	Weapon.SlotNumber 4
+    Inventory.PickupSound "weapons/pickup"
+    Inventory.PickupMessage "You got the Fusion Blaster!"	
+    Obituary "%o was gunned down by %k's machinegun."
+	Weapon.AmmoType1 "FusionCell"
+	Weapon.AmmoType2 "MGClip6"
+	Weapon.AmmoUse1 0
+	Weapon.AmmoUse2 0
+	Weapon.AmmoGive1 0
+	Decal "LaserPistolDecal"
+	+WEAPON.NOALERT
+	AttackSound ""
+	+INVENTORY.UNDROPPABLE
+	Tag "Fusion Blaster"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.0
+	Weapon.BobRangeY 0.5
+	Weapon.BobRangeX 0.6
+	States {
+		Spawn:
+			FUSP A -1
+		Stop
+		Ready:
+			FUSF B 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
+			FUSF B 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_FUSIONBLASTER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 25)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 150)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 5)
+	    SelectLoop:
+			FUSF B 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("FusionAttackCounter", 0, "FireEnd")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide")
+			TNT1 A 0 A_JumpIfInventory("MGClip6", 1, "FireDecide")
+		Goto Reload
+		FireDecide:
+			TNT1 A 0 A_TakeInventory("FusionWeaponHeight", 0)
+			TNT1 A 0 A_Jump(256, "Fire1", "Fire2", "Fire3", "Fire4", "Fire5", "Fire6")
+		Fire1:
+			FUSF A 2 Bright A_AlertMonsters
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
+			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 0.15)
+			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
+			FUSF B 1
+		Goto Fire
+		Fire2:
+			FUSF C 2 Bright A_AlertMonsters
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
+			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 0.15)
+			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
+			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 1)
+			FUSF D 1
+		Goto Fire
+		Fire3:
+			FUSF E 2 Bright A_AlertMonsters
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
+			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 0.15)
+			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
+			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 2)
+			FUSF F 1
+		Goto Fire
+		Fire4:
+			FUSF G 2 Bright A_AlertMonsters
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
+			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 0.15)
+			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
+			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 3)
+			FUSF H 1
+		Goto Fire
+		Fire5:
+			FUSF I 2 Bright A_AlertMonsters
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
+			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 0.15)
+			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
+			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 4)
+			FUSF J 1
+		Goto Fire
+		Fire6:
+			FUSF K 2 Bright A_AlertMonsters
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
+			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 0.15)
+			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
+			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 5)
+			FUSF J 1
+		Goto Fire
+		FireEnd:
+			TNT1 A 0 A_JumpIfInventory("FusionWeaponHeight", 5, "FireEnd_5")
+			TNT1 A 0 A_JumpIfInventory("FusionWeaponHeight", 4, "FireEnd_4")
+			TNT1 A 0 A_JumpIfInventory("FusionWeaponHeight", 3, "FireEnd_3")
+			TNT1 A 0 A_JumpIfInventory("FusionWeaponHeight", 2, "FireEnd_2")
+			TNT1 A 0 A_JumpIfInventory("FusionWeaponHeight", 1, "FireEnd_1")
+		FireEnd_5:
+			FUSF B 1 Offset(5, 27)
+		FireEnd_4:
+			FUSF B 1 Offset(4, 28)
+		FireEnd_3:
+			FUSF B 1 Offset(3, 29)
+		FireEnd_2:
+			FUSF B 1 Offset(2, 30)
+		FireEnd_1:
+			FUSF B 1 Offset(1, 31)
+		FireEndLast:
+			FUSF B 1 Offset(0, 32) A_TakeInventory("FusionAttackCounter", 0)
+			FUSF B 2 A_Refire("Fire")
+			FUSF B 2	
+		Goto Ready
+		
+		Reload:
+			TNT1 A 0 A_JumpIfInventory("FusionCell", 1, "ContinueReload")
+			FUSF B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueReload:
+			TNT1 A 0 A_JumpIfInventory("MGClip6", 0, "Failed")
+			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
+			FUSG A 4
+			FUSG B 3
+			FUSG CD 2
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/Out")
+			FUSG E 3
+			TNT1 A 0 A_FireCustomMissile("FusionBatteryDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			FUSG F 20
+			FUSG F 2 Offset(1, 30)
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/In")
+			FUSG F 3 Offset(3, 27)
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 6)
+			FUSG ED 3
+			FUSG C 2
+			FUSG BA 1
+		Goto Ready
+		Failed:
+			FUSG B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ReloadFaster:
+			TNT1 A 0 A_JumpIfInventory("MGClip6", 0, "Failed")
+			FUSG A 2
+			FUSG B 1
+			FUSG CD 1
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/Out")
+			FUSG E 1
+			TNT1 A 0 A_FireCustomMissile("FusionBatteryDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			FUSG F 10
+			FUSG F 1 Offset(1, 30)
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/In")
+			FUSG F 1 Offset(3, 27)
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 6)
+			FUSG ED 1
+			FUSG C 1
+			FUSG BA 1
+		Goto Ready
+		
+		
+		Flash:
+			TNT1 A 4 A_Light1
+			TNT1 A 3 A_Light2
+			TNT1 A 0 A_Light0
+		stop
+		
+		Altfire:
+			TNT1 A 0 A_JumpIfInventory("MGClip6", 20, "ContinueAlt")
+			TNT1 A 0 A_JumpIfInventory("FusionCell", 1, "Reload")
+			FUSF B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueAlt:
+			FUSG B 3
+			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/Alt")
+			TNT1 A 0 A_GiveInventory("FusionBlasterShooter2", 1)
+			FUSF E 1 Bright
+			TNT1 A 0 A_SetPitch(pitch - 4.0)
+			FUSF E 1 Bright
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
+			TNT1 A 0 A_Recoil(3.6)
+		NoRecoil:
+			FUSF B 1 Offset(54, 41) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(54, 41) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(129, 53) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(125, 52) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(121, 51) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(114, 50) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(107, 49) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(100, 48) A_SetPitch(pitch + 0.5)
+			FUSF B 1 Offset(93, 47)
+			FUSF B 1 Offset(86, 46)
+			FUSF B 1 Offset(79, 45)
+			FUSF B 1 Offset(72, 44)
+			FUSF B 1 Offset(65, 43)
+			FUSF B 1 Offset(58, 42)
+			FUSF B 1 Offset(51, 41)
+			FUSF B 1 Offset(44, 40)
+			FUSF B 1 Offset(40, 39)
+			FUSF B 1 Offset(36, 38)
+			FUSF B 1 Offset(32, 37)
+			FUSF B 1 Offset(28, 36)
+			FUSF B 1 Offset(24, 35)
+			FUSF B 1 Offset(20, 34)
+			FUSF B 1 Offset(14, 33)
+			FUSF B 1 Offset(8, 32)
+			FUSF B 1 Offset(2, 32)
+			FUSF B 8 Offset(0, 32)
+		Goto Ready
+	}
+}
+
+Actor FusionBlasterShooter : DND_Activator {
+	states {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("MGClip6", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("FusionBlasterProjectile", frandom(-2.4, 2.4), 0, 8, 0, 0, frandom(-1.6, 1.6))
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("FusionBlasterProjectile_FullDMG", frandom(-2.4, 2.4), 0, 8, 0, 0, frandom(-1.6, 1.6))
+		Stop
+	}
+}
+
+Actor FusionBlasterShooter2 : DND_Activator {
+	states {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("MGClip6", 20)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("FusionBlasterGrenade", 0, 0, 8, 30, 0, 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("FusionBlasterGrenade_FullDMG", 0, 0, 8, 38, 0, 0)
+		Stop
+	}
+}
+
+Actor FusionBlasterProjectile : FastProjectile {
+	var int user_tics;
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Player Damage Scale", user_tics, TALENT_ENERGY, DND_USETARGET) + ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET))
+	DamageType "Energy"
+	Speed 72
+	+MTHRUSPECIES
+	+FOILINVUL
+	RenderStyle Add
+	Alpha 0.75
+	Height 10
+	Radius 5
+	const float inc_rate = 0.01;
+	const int dmg_rate = 2;
+	DeathSound "FusionBlaster/Hit"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_tics", 0)
+		SpawnLoop:
+			FUS9 A 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			FUS9 A 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			FUS9 B 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			FUS9 B 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			FUS9 C 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			FUS9 C 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
+			FUS9 DEF 2 Bright
+		stop
+	}
+}
+
+Actor FusionBlasterProjectile_FullDMG : FusionBlasterProjectile {
+	DamageType "EnergyFull"
+}
+
+Actor FusionBlasterGrenade {
+	var int user_tics;
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Player Damage Scale", user_tics, TALENT_ENERGY, DND_USETARGET) + ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET))
+	DamageType "Energy"
+	Speed 36
+	+MTHRUSPECIES
+	+FOILINVUL
+	-NOGRAVITY
+	RenderStyle Add
+	Alpha 0.75
+	Scale 1.125
+	Height 20
+	Radius 10
+	const float inc_rate = 0.0025;
+	const int dmg_rate = 5;
+	DeathSound "FusionBlaster/Hit2"
+	Gravity 0.875
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_tics", 0)
+		SpawnLoop:
+			FUG9 A 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 A 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 A 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 B 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 B 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 B 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 C 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 C 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 C 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 D 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 D 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			FUG9 D 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
+			TNT1 A 0 A_SpawnItemEx("FusionBlasterGrenadeTrail", 0, 0, 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+		Loop
+		Death:
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAAAAAA 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,0,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,20,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,40,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,60,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,80,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,100,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,120,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,140,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,160,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,180,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,200,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,220,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,240,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,260,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,280,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,300,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,320,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper",0,0,340,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			FUG9 EFGH 3 Bright
+			FUG9 IJKLMNO 3
+		stop
+	}
+}
+
+Actor FusionBlasterGrenade_FullDMG : FusionBlasterGrenade {
+	DamageType "EnergyFull"
+	States {
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAAAAAA 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,0,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,20,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,40,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,60,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,80,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,100,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,120,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,140,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,160,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,180,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,200,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,220,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,240,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,260,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,280,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,300,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,320,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			TNT1 A 0 A_custommissile("FusionBlasterGrenadeRipper_FullDMG",0,0,340,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
+			FUG9 EFGH 3 Bright
+			FUG9 IJKLMNO 3
+		stop
+	}
+}
+
+ACTOR FusionBlasterGrenadeTrail {
+	Renderstyle ADD
+	Alpha 0.6
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {   
+		Spawn:
+			FUG8 ABCDEFGHI 4 Bright 
+	    Stop
+	}
+}
+
+Actor FusionBlasterGrenadeRipper {
+    Radius 6
+    Height 12
+    Speed 6
+    Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ENERGY, DND_USETARGET))
+	DamageType "Energy"
+    PROJECTILE
+    RENDERSTYLE ADD
+    +Ripper
+	+DONTBLAST
+	+BLOODLESSIMPACT
+    ALPHA 0.8
+    States {
+		Spawn:
+			FUG7 ABCDEFGHIJK 2 Bright
+        stop
+    }
+}
+
+Actor FusionBlasterGrenadeRipper_Damager : DnD_FakeDamager {
+	Radius 6
+	Height 12
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ENERGY, DND_USETARGET))
+	DamageType "EnergyFull"
+	Speed 12
+}
+
+Actor FusionBlasterGrenadeRipper_FullDMG : FusionBlasterGrenadeRipper {
+	-RIPPER
+	+THRUACTORS
+	DamageType "EnergyFull"
+	States {
+		Spawn:
+			FUG7 AABBCCDDEEFFGGHHIIJJKK 1 Bright A_CustomMissile("FusionBlasterGrenadeRipper_Damager", 0, 0, 0, CMF_TRACKOWNER)
+		Stop
+	}
+}

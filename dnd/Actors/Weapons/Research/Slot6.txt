@@ -798,3 +798,402 @@ Actor LGAltPuff_NoPain : LGAltPuff {
 Actor LGAltPuff_NoPain_Full : LGAltPuff_NoPain {
 	DamageType "LightningFull"
 }
+
+Actor ResPlasma3 : Weapon {	
+	Weapon.Slotnumber 6
+	Weapon.SelectionOrder 600
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.0
+	Weapon.BobRangeY 0.35
+	Weapon.BobRangeX 0.65
+	Weapon.AmmoGive 0
+	Weapon.AmmoType1 "Cell"
+	Weapon.AmmoType2 "RebounderOverheat"
+	Weapon.AmmoUse1 1
+	Weapon.AmmoUse2 0
+	Tag "Rebounder"
+	States {
+		Spawn:
+			DGAP A -1
+		Stop
+		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_REBOUNDER, 4 | (10 << 16))
+		ReadyLoop:
+			DGAG A 3 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+		DeselectLoop:
+			DGAG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_REBOUNDER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 25)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 150)
+		SelectLoop:
+			DGAG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireContinue")
+			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 100, "Nothing")
+		FireContinue:
+			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
+			DGAF A 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("Rebounder/Fire")
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke2", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 A_GiveInventory("RebounderShooter", 1)
+			TNT1 A 0 A_GiveInventory("RebounderCooldownGiver", 1)
+			DGAF BCDEFG 1
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "AltFireAmmoCheck")
+			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 100, "Nothing")
+		AltFireAmmoCheck:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "AltFireCont")
+			TNT1 A 0 A_JumpIfInventory("Cell", 20, "AltFireCont")
+			DGAG A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+		Goto Ready
+		AltFireCont:
+			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
+			DGXF A 2 Bright
+			TNT1 A 0 A_PlayWeaponSound("Rebounder/AltFire")
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke2", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 A_GiveInventory("RebounderShooter2", 1)
+			TNT1 A 0 A_GiveInventory("RebounderCooldownGiver", 1)
+			DGXF B 1
+			TNT1 A 0 A_SetPitch(pitch - 5.0)
+			DGXF CDEF 1 A_SetPitch(pitch + 0.5)
+			DGAE ABCD 1 A_SetPitch(pitch + 0.5)
+			DGAR AA 1 A_SetPitch(pitch + 0.5)
+			DGAR BCDE 2
+			DGAR F 8
+			DGAR GHI 3
+			DGAR JKLM 2
+			DGAG A 4
+		Goto Ready
+		
+		Nothing:
+			DGAG A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+		Goto Ready
+		
+		Flash:
+			TNT1 A 1 A_Light1
+			TNT1 A 1 A_Light2
+			TNT1 A 1 A_Light1
+			TNT1 A 1 A_Light0
+		stop
+	}
+}
+
+Actor RebounderShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("RebounderOverheat", 4)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 96, "SuperBounce")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 72, "ThreeBounce")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 48, "TwoBounce")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 24, "OneBounce")
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectile", 1, 1, 9)
+		Stop
+		SuperBounce:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB4", 1, 1, 9)
+		Stop
+		ThreeBounce:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB3", 1, 1, 9)
+		Stop
+		TwoBounce:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB2", 1, 1, 9)
+		Stop
+		OneBounce:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB1", 1, 1, 9)
+		Stop
+		Full:
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 96, "SuperBounce_FullDMG")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 72, "ThreeBounce_FullDMG")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 48, "TwoBounce_FullDMG")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 24, "OneBounce_FullDMG")
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectile_FullDMG", 1, 1, 9)
+		Stop
+		SuperBounce_FullDMG:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB4_FullDMG", 1, 1, 9)
+		Stop
+		ThreeBounce_FullDMG:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB3_FullDMG", 1, 1, 9)
+		Stop
+		TwoBounce_FullDMG:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB2_FullDMG", 1, 1, 9)
+		Stop
+		OneBounce_FullDMG:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB1_FullDMG", 1, 1, 9)
+		Stop
+	}
+}
+
+Actor RebounderShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("Cell", 20)
+		NoTake:
+			TNT1 A 0 A_GiveInventory("RebounderOverheat", 24)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileAlt", 1, 1, 9)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("RebounderProjectileAlt_FullDMG", 1, 1, 9)
+		Stop
+	}
+}
+
+Actor RebounderProjectile {
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET))
+	DamageType "Energy"
+	Height 16
+	Radius 8
+	Speed 32
+	Scale 0.25
+	Renderstyle Add
+	Alpha 0.85
+	Deathsound "Rebounder/Hit"
+	+DONTREFLECT
+	States {
+		Spawn:
+			REBP A 1 Bright A_SpawnItemEx("RebounderTrail")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItem("RebounderHitFX")
+		Stop
+	}
+}
+
+Actor RebounderProjectileB1 : RebounderProjectile {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectile", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectile", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderProjectileB2 : RebounderProjectile {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderProjectileB3 : RebounderProjectile {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderProjectileB4 : RebounderProjectile {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB3", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB3", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderTrail {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Scale 0.25
+	Renderstyle Add
+	Alpha 0.85
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			REBP A 1 Bright A_FadeOut(0.15)
+		Loop
+	}
+}
+
+Actor RebounderHitFX {
+	Renderstyle Add
+	Alpha 0.85
+	Scale 1.15
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			REBP BC 3 Bright
+			REBP DEF 2 Bright
+		Stop
+	}
+}
+
+Actor RebounderProjectile_FullDMG : RebounderProjectile {
+	DamageType "EnergyFull"
+}
+
+Actor RebounderProjectileB1_FullDMG : RebounderProjectile_FullDMG {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectile_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectile_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderProjectileB2_FullDMG : RebounderProjectile_FullDMG {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderProjectileB3_FullDMG : RebounderProjectile_FullDMG {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderProjectileB4_FullDMG : RebounderProjectile_FullDMG {
+	States {
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB3_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB3_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto Super::Death
+	}
+}
+
+Actor RebounderCooldownGiver : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("RebounderOverHeat", 0, "Give")
+		Stop
+		Give:
+			TNT1 A 0 A_GiveInventory("RebounderCooldown", 1)
+		Stop
+	}
+}
+
+Actor RebounderCooldown : PowerDamage {
+	powerup.duration -3
+	damagefactor "normal", 1.0
+}
+
+Actor RebounderProjectileAlt {
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET))
+	DamageType "Energy"
+	Height 24
+	Radius 12
+	Speed 48
+	Scale 0.5
+	Renderstyle Add
+	Alpha 0.85
+	Deathsound "Rebounder/Hit"
+	+DONTREFLECT
+	+HITTRACER
+	+FOILINVUL
+	States {
+		Spawn:
+			REBP A 1 Bright A_SpawnItemEx("RebounderTrail2")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItem("RebounderHitFX2")
+			TNT1 A 0 A_CheckFlag("DONTRIP", "BigExplosion", AAPTR_TRACER)
+			TNT1 A 0 A_CheckFlag("INVULNERABLE", "BigExplosion", AAPTR_TRACER)
+			TNT1 A 1 A_CheckFlag("REFLECTIVE", "BigExplosion", AAPTR_TRACER)
+		Cont:
+			TNT1 AAAAAA 1 A_JumpIfInventory("DnD_Boolean", 1, "RealExplosion")
+		Stop
+		BigExplosion:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+		Goto Cont
+		RealExplosion:
+			TNT1 A 0 Radius_Quake(5, 10, 0, 4, 0)
+			TNT1 A 0 A_SpawnItem("RebounderExplosion")
+			TNT1 A 0 A_PlaySound("Rebounder/AltHit", 7)
+			TNT1 A 1 A_SpawnItemEx("RebounderHitFX3")
+		Stop
+	}
+}
+
+Actor RebounderExplosion : BaseExplosionDamage {
+	DamageType "Explosives"
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 AAAA 6 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET), 256, 0)
+		Stop
+	}
+}
+
+Actor RebounderExplosion_FullDMG : RebounderExplosion {
+	DamageType "ExplosivesFull"
+	+FORCERADIUSDMG
+}
+
+Actor RebounderProjectileAlt_FullDMG : RebounderProjectileAlt {
+	DamageType "EnergyFull"
+	States {
+		Death:
+			TNT1 A 0 A_SpawnItem("RebounderHitFX2")
+			TNT1 A 0 A_CheckFlag("DONTRIP", "BigExplosion", AAPTR_TRACER)
+			TNT1 A 0 A_CheckFlag("INVULNERABLE", "BigExplosion", AAPTR_TRACER)
+			TNT1 A 1 A_CheckFlag("REFLECTIVE", "BigExplosion", AAPTR_TRACER)
+		Cont:
+			TNT1 AAAAAA 1 A_JumpIfInventory("DnD_Boolean", 1, "RealExplosion")
+		Stop
+		BigExplosion:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+		Goto Cont
+		RealExplosion:
+			TNT1 A 0 Radius_Quake(5, 10, 0, 4, 0)
+			TNT1 A 0 A_SpawnItem("RebounderExplosion_FullDMG")
+			TNT1 A 0 A_PlaySound("Rebounder/AltHit", 7)
+			TNT1 A 1 A_SpawnItemEx("RebounderHitFX3")
+		Stop
+	}
+}
+
+Actor RebounderHitFX2 : RebounderHitFX {
+	Scale 1.5
+}
+
+Actor RebounderHitFX3 : RebounderHitFX {
+	Scale 1.0
+	States {
+		Spawn:
+			REBP GH 3 Bright
+			REBP IJKLMNO 2 Bright
+		Stop
+	}
+}
+
+Actor RebounderTrail2 : RebounderTrail {
+	Scale 0.4
+}

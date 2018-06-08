@@ -695,8 +695,7 @@ ACTOR Grenadetrail2
 	    TGTR ABCDEFGHI 4 Bright 
 	    Stop
 	}
-}  
-
+}
 
 actor Grenadeblast
 {
@@ -720,7 +719,6 @@ actor Grenadeblast
         stop
     }
 }
-
 
 Actor TerminatorBullet : UndeadInitiateBullet {
 	DamageType "CyberBullet"

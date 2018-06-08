@@ -1,16 +1,6 @@
 #include "DnD_MenuTables.h"
 
-void UpdateMenuPosition(int x, int option) {
-	if(x >= 0) {
-		// push unique pages
-		if(CheckInventory("MenuOption") != option) {
-			menu_stack_T? stack = GetMenuStack(PlayerNumber());
-			PushStack(PlayerNumber(), option);
-		}
-	}
-	else
-		x = 0;
-	SetInventory("MenuPosX", x);
+void UpdateMenuPosition(int option) {
 	SetInventory("MenuLR", 0);
 	SetInventory("MenuUD", 0);
 	SetInventory("MenuOption", option);
@@ -252,6 +242,28 @@ int GetDamageTypeBonus(int pnum, int dtype) {
 	return Player_Bonuses[pnum].damage_type_bonus[dtype] + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
 }
 
+int GetWeaponPage(int boxid) {
+	switch(boxid) {
+		case MBOX_1:
+		return MENU_SHOP_WEAPON1;
+		case MBOX_2:
+		return MENU_SHOP_WEAPON2;
+		case MBOX_3:
+		return MENU_SHOP_WEAPON3_1;
+		case MBOX_4:
+		return MENU_SHOP_WEAPON4_1;
+		case MBOX_5:
+		return MENU_SHOP_WEAPON5;
+		case MBOX_6:
+		return MENU_SHOP_WEAPON6_1;
+		case MBOX_7:
+		return MENU_SHOP_WEAPON7;
+		case MBOX_8:
+		return MENU_SHOP_WEAPON8;
+	}
+	return 0;
+}
+
 int GetWeaponBeginIndexFromOption(int curopt) {
 	switch(curopt) {
 		case MENU_SHOP_WEAPON1:
@@ -262,18 +274,64 @@ int GetWeaponBeginIndexFromOption(int curopt) {
 		return SHOP_WEAPON31_BEGIN;
 		case MENU_SHOP_WEAPON3_2:
 		return SHOP_WEAPON32_BEGIN;
-		case MENU_SHOP_WEAPON4:
-		return SHOP_WEAPON4_BEGIN;
+		case MENU_SHOP_WEAPON4_1:
+		return SHOP_WEAPON41_BEGIN;
+		case MENU_SHOP_WEAPON4_2:
+		return SHOP_WEAPON42_BEGIN;
 		case MENU_SHOP_WEAPON5:
 		return SHOP_WEAPON5_BEGIN;
-		case MENU_SHOP_WEAPON6:
-		return SHOP_WEAPON6_BEGIN;
+		case MENU_SHOP_WEAPON6_1:
+		return SHOP_WEAPON61_BEGIN;
+		case MENU_SHOP_WEAPON6_2:
+		return SHOP_WEAPON62_BEGIN;
 		case MENU_SHOP_WEAPON7:
 		return SHOP_WEAPON7_BEGIN;
 		case MENU_SHOP_WEAPON8:
 		return SHOP_WEAPON8_BEGIN;
 	}
 	return 0;
+}
+
+int GetWeaponEndIndexFromOption(int curopt) {
+	switch(curopt) {
+		case MENU_SHOP_WEAPON1:
+		return SHOP_WEAPON_SLOT1END;
+		case MENU_SHOP_WEAPON2:
+		return SHOP_WEAPON_SLOT2END;
+		case MENU_SHOP_WEAPON3_1:
+		return SHOP_WEAPON_SLOT31END;
+		case MENU_SHOP_WEAPON3_2:
+		return SHOP_WEAPON_SLOT32END;
+		case MENU_SHOP_WEAPON4_1:
+		return SHOP_WEAPON_SLOT41END;
+		case MENU_SHOP_WEAPON4_2:
+		return SHOP_WEAPON_SLOT42END;
+		case MENU_SHOP_WEAPON5:
+		return SHOP_WEAPON_SLOT5END;
+		case MENU_SHOP_WEAPON6_1:
+		return SHOP_WEAPON_SLOT61END;
+		case MENU_SHOP_WEAPON6_2:
+		return SHOP_WEAPON_SLOT62END;
+		case MENU_SHOP_WEAPON7:
+		return SHOP_WEAPON_SLOT7END;
+		case MENU_SHOP_WEAPON8:
+		return SHOP_WEAPON_SLOT8END;
+	}
+	return 0;
+}
+
+int GetWeaponSlotFromWeaponID(int wepid) {
+	return ParseInt(Weapons[wepid][WEAPON_SLOT]);
+}
+
+str GetWeaponToTake(int wepid) {
+	int slot = GetWeaponSlotFromWeaponID(wepid);
+	if(slot != 8) {
+		if(!ParseInt(ShopItemNames[wepid][SHOPNAME_TYPE]))
+			return ShopWeaponTake[slot];
+		return "";
+	}
+	return "";
 }
 
 void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
@@ -384,11 +442,11 @@ str GetWeaponShopIcon(int id) {
 		skip += 1;
 	if(id >= SHOP_WEAPON3SSG_BEGIN)
 		skip += 1;
-	if(id >= SHOP_WEAPON4_BEGIN)
+	if(id >= SHOP_WEAPON41_BEGIN)
 		skip += 1;
 	if(id >= SHOP_WEAPON5_BEGIN)
 		skip += 1;
-	if(id >= SHOP_WEAPON6_BEGIN)
+	if(id >= SHOP_WEAPON61_BEGIN)
 		skip += 1;
 	if(id >= SHOP_WEAPON7_BEGIN)
 		skip += 1;
@@ -816,7 +874,7 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 							int fix = IsSpecialFixWeapon(itemid);
 							if(fix != -1) {
 								int weptype = SpecialAmmoFixWeapons[fix][1];
-								SetInventory(StrParam(s:"SpecialAmmoMode", s:GetSpecialAmmoSuffix(weptype)), SpecialAmmoBase[SpecialAmmoFixWeapons[fix][2]]);
+								SetInventory(StrParam(s:"SpecialAmmoMode", s:GetSpecialAmmoSuffix(weptype)), SpecialAmmoRanges[SpecialAmmoFixWeapons[fix][2]][0]);
 							}
 						}
 						if(tradeflag & TRADE_ARTIFACT)
@@ -874,7 +932,7 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 				TakeInventory("DnD_ShowSellPopup", 1);
 				SetInventory("DnD_PopupID", 0);
 				SetInventory("ActivePopupBox", 0);
-				str totake = ShopWeaponTake[itemid];
+				str totake = GetWeaponToTake(itemid);
 				if(StrCmp(totake, " "))
 					GiveInventory(totake, 1);
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
@@ -1303,7 +1361,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ -1, -1, -1, -1 }
 		},
-		// wep 4
+		// wep 4 - 1
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
@@ -1312,7 +1370,12 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ -1, -1, -1, -1 }
+		},
+		// wep 4 - 2
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
+			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ -1, -1, -1, -1 }
 		},
 		// wep 5
@@ -1327,7 +1390,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
-		// wep 6
+		// wep 6 - 1
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
@@ -1335,7 +1398,14 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ -1, -1, -1, -1 }
+			
+		},
+		// wep 6 - 2
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
+			{ 289.0, 229.0, 120.0, 223.0 }, // w2
+			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ -1, -1, -1, -1 }
 		},
 		// wep 7
@@ -1393,6 +1463,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
+			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ -1, -1, -1, -1 }
 		},
 		// ammo special
@@ -1647,11 +1718,57 @@ void HandleButtonClick(int boxid) {
 		}
 		else if(boxid == MAINBOX_LARR) {
 			stack.stackptr = stack.stackptr > 0 ? stack.stackptr - 1 : 0;
-			UpdateMenuPosition(-1, stack.stack_elems[stack.stackptr]);
+			UpdateMenuPosition(stack.stack_elems[stack.stackptr]);
 		}
 		else if(boxid == MAINBOX_RARR) {
 			stack.stackptr = stack.stackptr < stack.cursize - 1 ? stack.stackptr + 1 : stack.cursize - 1;
-			UpdateMenuPosition(-1, stack.stack_elems[stack.stackptr]);
+			UpdateMenuPosition(stack.stack_elems[stack.stackptr]);
 		}
 	}
+}
+
+// opt is menu page, multipage is for when one option can lead to multiple weapon pages
+void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scrollamt) {
+	int begin = GetWeaponBeginIndexFromOption(opt);
+	int end = GetWeaponEndIndexFromOption(opt);
+	
+	if(multipage > 0)
+		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+	if(multipage > 1 || multipage < 0)
+		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+	
+	if(boxid != -1 && WeaponDrawInfo[begin + boxid - 1].flags & OBJ_USESCROLL)
+		ListenScroll(scrollamt, 0);
+	
+	// negative indicates last page
+	if(multipage < 0)
+		multipage = -multipage;
+
+	if(multipage)
+		HudMessage(s:"--- SLOT ", d:slotid, s:" (", d:multipage, s:") ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	else
+		HudMessage(s:"--- SLOT ", d:slotid, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+	
+	for(int i = begin; i <= end; ++i)
+		DrawToggledImage(i, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+}
+
+void HandleWeaponPageInput(int boxid, int wbegin, int wend, int pageprev, int pagenext) {
+	ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+	if(CheckInventory("MadeChoice") == 1) {
+		if(boxid != MAINBOX_NONE)
+			ProcessTrade(boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON);
+		SetInventory("MadeChoice", 0);
+	}
+	else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
+		ProcessTrade(boxid - 1, wbegin, wend, TRADE_SELL);
+	if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
+		if(pageprev == -1) // no page for left, use default
+			UpdateMenuPosition(MENU_SHOP_WEAPON);
+		else
+			UpdateMenuPosition(pageprev);
+	}
+	else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT && pagenext != -1)
+		UpdateMenuPosition(pagenext);
 }

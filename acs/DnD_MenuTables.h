@@ -114,9 +114,11 @@ int WeaponBeginIndexes[SHOP_MAXWEAPON_PAGES] = {
 	SHOP_WEAPON2_BEGIN,
 	SHOP_WEAPON31_BEGIN,
 	SHOP_WEAPON32_BEGIN,
-	SHOP_WEAPON4_BEGIN,
+	SHOP_WEAPON41_BEGIN,
+	SHOP_WEAPON42_BEGIN,
 	SHOP_WEAPON5_BEGIN,
-	SHOP_WEAPON6_BEGIN,
+	SHOP_WEAPON61_BEGIN,
+	SHOP_WEAPON62_BEGIN,
 	SHOP_WEAPON7_BEGIN,
 	SHOP_WEAPON8_BEGIN
 };
@@ -254,7 +256,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 3750,  1 },
 		{ 3250,  1 },
 		
-		// 3
+		// 3 - 1
 		{ 4000,  1 },
 		{ 4500,  1 },
 		{ 4350,  1 },
@@ -264,16 +266,20 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 5500,  1 },
 		{ 5750,  1 },
 		
+		// 3 - 2
 		{ 5250,  1 },
 		{ 5250,  1 },
 		
-		// 4
+		// 4 - 1
 		{ 4000,  1 },
 		{ 4500,  1 },
 		{ 6000,  1 },
 		{ 5750,  1 },
         { 6500,  1 },
 		{ 7000,  1 },
+		{ 8250,  1 },
+		
+		// 4 - 2
 		{ 5250,	 1 },
 		{ 4800,  1 },
 		
@@ -287,12 +293,16 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 4000,  1 },
 		{ 5000,  1 },
 		
-		// 6
+		// 6 - 1
 		{ 4000,  1 },
 		{ 4500,  1 },
 		{ 6500,  1 },
 		{ 4800,  1 },
         { 5250,  1 },
+		{ 6000,  1 },
+		
+		// 6 - 2
+		{ 7000,  1 },
 		{ 5000,  1 },
 		{ 5500,  1 },
 		
@@ -343,6 +353,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 75,		1 },
 		{ 275,		1 },
 		{ 65,       1 },
+		{ 90,		1 },
 		
 		// Special Ammunition
 		{ 475,	    1 },
@@ -414,8 +425,8 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 	
 	// wep slot 1
 		{ -1, -1, -1 },
-		{ RES_SLOT1OCCULT, -1, -1 },
 		{ -1, -1, -1 },
+		{ RES_SLOT1OCCULT, -1, -1 },
 		{ RES_SLOT1UPG2, -1, -1 },
 		{ RES_SLOT1UPG1, -1, -1 },
 		{ RES_SLOT1OCCULT, -1, -1 },
@@ -429,7 +440,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT2LUXURY, -1, -1 },
 		{ RES_SLOT2LUXURY, -1, -1 },
 		
-	// wep slot 3
+	// wep slot 3 - 1
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT3UPG1, -1, -1 },
@@ -443,13 +454,16 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT3LUXURY, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
 		
-	// wep slot 4
+	// wep slot 4 - 1
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT4UPG1, -1, -1 },
 		{ RES_SLOT4UPG2, -1, -1 },
 		{ RES_SLOT4UPG3, -1, -1 },
+		{ RES_SLOT4UPG4, -1, -1 },
+		
+	// wep slot 4 - 2
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		
@@ -463,12 +477,16 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT5LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
 		
-	// wep slot 6
+	// wep slot 6 - 1
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT6UPG1, -1, -1 },
 		{ RES_SLOT6UPG2, -1, -1 },
+		{ RES_SLOT6UPG3, -1, -1 },
+		
+	// wep slot 6 - 2
+		{ RES_SLOT6LUXURY, -1, -1 },
 		{ RES_SLOT6LUXURY, -1, -1 },
 		{ RES_SLOT6LUXURY, -1, -1 },
 		
@@ -518,6 +536,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT2UPG2, -1, -1 },
 		{ RES_SLOT7UPG2, -1, -1 },
 		{ -1, -1, -1 },
+		{ RES_SLOT4UPG4, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -604,8 +623,8 @@ enum {
 // rework these later reducing weapon names from two cols
 str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "Upgraded Chainsaw",					"Dual Chainsaw",					WEPCHECK_SLOT1,			"0"  	    },
-	{ "Excalibat",							"Excalibat",						WEPCHECK_SLOT1,			"0"		    },
 	{ "Katana",								"Katana",							WEPCHECK_SLOT1,			"0"			},
+	{ "Excalibat",							"Excalibat",						WEPCHECK_SLOT1,			"0"		    },
 	{ "ResMelee1",							"Inferno Sword",					WEPCHECK_SLOT1,			"0"			},
 	{ "Dusk Blade",							"Dusk Blade",						WEPCHECK_SLOT1L,		"1"			},
 	{ "Sickle",								"Necro's Sickle",					WEPCHECK_SLOT1L,		"1"		    },
@@ -636,6 +655,8 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResMG1",								"Templar MG",						WEPCHECK_SLOT4,			"0"		    },
 	{ "ResMG2",                             "Riot Cannon",                      WEPCHECK_SLOT4,      	"0"         },
 	{ "ResMG3",								"Acid Rifle",						WEPCHECK_SLOT4,			"0"			},
+	{ "ResMG4",								"Fusion Blaster",					WEPCHECK_SLOT4,			"0"			},
+	
 	{ " Minigun ",							"Minigun",							WEPCHECK_SLOT4L,   		"1"		    },
 	{ "Ebony Cannon",						"Ebony Cannon",						WEPCHECK_SLOT4L,   		"1"		    },
 	
@@ -653,6 +674,9 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "Upgraded Plasma Rifle3",				"Frost Fang",						WEPCHECK_SLOT6,			"0"		    },
 	{ "ResPlasma1",							"Flamethrower",						WEPCHECK_SLOT6,			"0"		    },
 	{ "ResPlasma2",                         "Lightning Gun",                    WEPCHECK_SLOT6,      	"0"         },
+	{ "ResPlasma3",							"Rebounder",						WEPCHECK_SLOT6,			"0"			},
+	
+	{ "RhinoRifle",							"Rhino AR",							WEPCHECK_SLOT6L,		"1"			},
 	{ "Nailgun",							"Nailgun",							WEPCHECK_SLOT6L,		"1"	        },
 	{ "Basilisk",							"Basilisk",							WEPCHECK_SLOT6L,		"1"	        },
 	
@@ -697,6 +721,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ViperAmmo",							"Viper Mana",						"",						"0"		 	},
 	{ "ThunderAmmo",						"Thunder Mana",						"",						"0"			},
 	{ "DSealAmmo",							"Dark Seals",						"",						"0"			},
+	{ "FusionCell",							"Fusion Cell",						"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -775,13 +800,15 @@ str DamageTypeIcons[MAX_DAMAGE_TYPES] = {
 };
 
 int WeaponDamageTypes[MAXSHOPWEAPONS] = {
+	// 1
+	DTYPE_MELEE,
 	DTYPE_MELEE,
 	DTYPE_MELEE | DTYPE_OCCULT,
-	DTYPE_MELEE,
 	DTYPE_MELEE | DTYPE_ELEMENTAL,
 	DTYPE_MELEE | DTYPE_OCCULT,
 	DTYPE_MELEE | DTYPE_OCCULT,
 	
+	// 2
 	DTYPE_BULLET,
 	DTYPE_BULLET,
 	DTYPE_ENERGY,
@@ -790,6 +817,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ELEMENTAL,
 	DTYPE_BULLET,
 	
+	// 3 - 1
 	DTYPE_SHELL,
 	DTYPE_SHELL,
 	DTYPE_SHELL,
@@ -799,18 +827,24 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ENERGY,
 	DTYPE_ELEMENTAL,
 	
+	// 3 - 2
 	DTYPE_SHELL | DTYPE_EXPLOSIVE,
 	DTYPE_OCCULT,
 	
+	// 4 - 1
 	DTYPE_BULLET,
 	DTYPE_ENERGY,
 	DTYPE_OCCULT,
 	DTYPE_BULLET,
 	DTYPE_SHELL,
 	DTYPE_ELEMENTAL,
+	DTYPE_ENERGY,
+	
+	// 4 - 2
 	DTYPE_BULLET,
 	DTYPE_OCCULT,
 	
+	// 5
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
 	DTYPE_OCCULT,
@@ -820,14 +854,20 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
 	
+	// 6 - 1
 	DTYPE_ENERGY,
 	DTYPE_ENERGY,
 	DTYPE_ELEMENTAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_ELEMENTAL,
+	DTYPE_ENERGY,
+	
+	// 6 - 2
+	DTYPE_BULLET,
 	DTYPE_OCCULT,
 	DTYPE_OCCULT,
 	
+	// 7
 	DTYPE_ENERGY,
 	DTYPE_EXPLOSIVE,
 	DTYPE_ENERGY,
@@ -836,6 +876,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ENERGY | DTYPE_EXPLOSIVE,
 	DTYPE_ENERGY,
 	
+	// 8
 	DTYPE_OCCULT,
 	DTYPE_OCCULT,
 	DTYPE_OCCULT,
@@ -843,13 +884,15 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 };
 
 struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
+	// 1
 	{ OBJ_WEP | OBJ_HASCHOICE, 												-1 						},
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_EXCALIBAT		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								-1						},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_EXCALIBAT		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_INFERNOSWORD	},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DUSKBLADE		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SICKLE			},
 	
+	// 2
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_AKIMBOPISTOL	},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_MAGNUM			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_LASERPISTOL	},
@@ -858,6 +901,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RUBYWAND		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SCATTERPISTOL	},
 	
+	// 3 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_PURIFIER		},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_AUTOSG			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG1			},
@@ -867,18 +911,24 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG1		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG2		},
 	
+	// 3 - 2
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SILVER			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SLAYER			},
 	
+	// 4 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_HMG			},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_LEAD			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_DSEAL			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESMG1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESMG2			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG3			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG4			},
+	
+	// 4 - 2
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_MINIGUN		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_EBONY			},
 	
+	// 5
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_TORPEDO		},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_MERC			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESRL1			},
@@ -888,14 +938,20 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_ROTARYGL		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_HEAVYML		},
 	
+	// 6 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_NUCLEARPL		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_TUREL			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_FROSTFANG		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESPL1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL2			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL3			},
+	
+	// 6 - 2
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RHINO			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_NAIL			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_BASILISK		},
 	
+	// 7
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_BFG			},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_DEVA			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_MFG			},
@@ -904,6 +960,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_GAUSS			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RAIL			},
 	
+	// 8
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_DEATHSTAFF		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RAZOR			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SUN			},
@@ -936,13 +993,15 @@ str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
 
 // holds can hit ghost etc. kind of information
 int WeaponProperties[MAXSHOPWEAPONS] = {
+	// 1
+	WPROP_NONE,
 	WPROP_NONE,
 	WPROP_IGNORESHIELD,
-	WPROP_NONE,
 	WPROP_CANTHITGHOST,
 	WPROP_NONE,
 	WPROP_IRREDUCIBLE,
 	
+	// 2
 	WPROP_NONE,
 	WPROP_IGNORESHIELD,
 	WPROP_IGNORESHIELD,
@@ -951,6 +1010,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_CANTHITGHOST,
 	WPROP_IGNORESHIELD | WPROP_IRREDUCIBLE,
 	
+	// 3 - 1
 	WPROP_ALTAMMO,
 	WPROP_NONE,
 	WPROP_ALTAMMO,
@@ -960,18 +1020,24 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_IGNORESHIELD,
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	
+	// 3 - 2
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
-	WPROP_SELFDMG | WPROP_CANTHITGHOST,
+	WPROP_SELFDMG | WPROP_CANTHITGHOST | WPROP_RIPPER,
 	
+	// 4 - 1
 	WPROP_NONE,
 	WPROP_IGNORESHIELD,
 	WPROP_NONE,
 	WPROP_ALTAMMO,
 	WPROP_ALTAMMO,
 	WPROP_NONE,
+	WPROP_IGNORESHIELD | WPROP_RIPPER,
+	
+	// 4 - 2
 	WPROP_CANTHITGHOST,
 	WPROP_IGNORESHIELD,
 	
+	// 5
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
@@ -981,14 +1047,20 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	
+	// 6 - 1
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_SELFDMG,
 	WPROP_RIPPER,
 	WPROP_RIPPER | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG,
 	WPROP_NONE,
+	WPROP_OVERHEAT,
+	
+	// 6 - 2
+	WPROP_ALTAMMO,
 	WPROP_RIPPER | WPROP_CANTHITGHOST,
 	WPROP_IGNORESHIELD,
 	
+	// 7
 	WPROP_IGNORESHIELD,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_IRREDUCIBLE,
@@ -997,6 +1069,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_IGNORESHIELD | WPROP_RIPPER,
 	
+	// 8
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
 	WPROP_RIPPER,
 	WPROP_IGNORESHIELD | WPROP_RIPPER,
@@ -1005,8 +1078,8 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 						 
 str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Double the blade, double the fun! Twice as much damage, same firing rate. Forces pain.",
-	"Does 80 - 120 damage per swing. Melee does triple damage against undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability.",
 	"Unsheathing does 140 damage, normal firing does 84. Altfire allows swinging combos to do massive damage. Normal swings block projectiles. Altfire requires Melee Expertise ability.",
+	"Does 80 - 120 damage per swing. Melee does triple damage against undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability.",
 	"60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire shoots 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Alt fire requires Melee Expertise ability.",
 	"Does 100 - 400 damage per hit depending on charge . Alt fire makes you shoot a wave doing 24 damage in a 104 unit radius, run 15% faster but can't change weapons. Alt fire requires Melee Expertise ability.",
 	"Sickle steals life from enemies on hit. Does 40 - 60 damage 3 times. Alt fire swings for irreducable 75 - 90 damage 3 times. Altfire requires Melee Expertise ability.",
@@ -1037,6 +1110,8 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40.",
 	"Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Reload when full to use other ammo.",
 	"Fires acid rounds doing 18 damage on hit and 5-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius.",
+	"Fires in bursts of 5 each doing 25 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 150 damage and releasing rippers doing 5 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-",
+	
 	"Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin.",
 	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
 	
@@ -1054,11 +1129,14 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Launches 5 ice shards doing 15 - 30 damage in a 7.5 by 7.5 spread. Alt fire launches a glacial orb launching ice shards all around with itself doing 6-9 damage and rips through enemies.",
 	"Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.",
 	"UAC offers this shockingly deadly weapon that can shoot lightning doing 9-12 damage. Alt fire shoots forked lightning. Keep firing and damage increases by 4% per stack. Stacks additively.",
+	"Fires projectiles doing 25 damage. For every 24 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.",
+	
+	"Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 spread. Alt fire zooms, allowing for higher precision but loss of rapid fire. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
 	"Shoots nails which do 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.",
 	"Shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage.",
 	
 	"The newest BFG model 32768 devastates with 600 - 900 damage on impact and 384 damage in a 160 unit radius. Shoots 64 tracers.",
-	"Devastator launches four mini rockets each doing 64 to 80 with 32 radius damage in 96 units.",
+	"Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units.",
 	"Fires a destructive orb doing 425 damage on impact and 384 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage in a 256 unit radius. Does self damage.",
 	"Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60.",
 	"Launches a ball of lightning that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in a large radius.",
@@ -1236,6 +1314,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_VIPER				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_THUNDER			},
 	{ OBJ_AMMO,													SHOP_AMMO_DSEAL				},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FUSION			},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1252,30 +1331,31 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	10,
 	5,
 	40,
-	
 	8,
 	8,
 	4,
 	4,
 	5,
 	15,
+	
 	20,
 	5,
 	6,
 	17,
-    
     4,
     8,
     5,
     30,
     25,
     8,
+	
     18,
 	16,
 	25,
 	4,
 	10,
 	25,
+	30,
 	
 	8,
 	8,
@@ -1291,30 +1371,31 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"shells.",
 	"rockets.",
 	"cells.",
-	
 	"explosive shells for the Silver Gun.",
 	"cannon balls for the Ebony Cannon.",
 	"shrapnel balls for the Ebony Cannon.",
 	"heavy missiles for the Heavy Missile Launcher.",
 	"grenades for the Grenade Launcher.",
 	"nails for the Nail Gun.",
+	
 	"lava ammo for the Basilisk.",
 	"gauss rounds for the Gauss Rifle.",
 	"slayer essences for the Slayer.",
 	"ruby crystals for the Ruby Wand.",
-	
 	"plasma charge for the Plasma Cannon.",
 	"riot shells for the Riot Cannon.",
 	"meteors for the Meteor Launcher.",
 	"fuel for the Flame Thrower.",
 	"lightning cells for the Lightning Gun.",
 	"nitrogen canisters for the Nitrogen Crossbow.",
+	
 	"ion cells for the Ion Cannon.",
 	"acid clips for the Acid Rifle.",
 	"ever ice for the Frost Fang and Freezer Cannon.",
 	"viper essence for the Viper Staff.",
 	"thunder mana for the Thunder Staff.",
 	"dark seals for the Demon Sealer.",
+	"fusion cells for the Fusion Blaster.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -1412,74 +1493,17 @@ struct draw_info AbilityDrawInfo[MAXABILITIES] = {
 	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_SOUL		 						},
 	{ OBJ_ABILITY, 								SHOP_ABILITY_MONSTERINFO	 					}
 };
-									 
-str ShopWeaponTake[MAXSHOPWEAPONS] = {
+						
+// max 8 slots						
+str ShopWeaponTake[MAXNORMALWEPSLOTS] = {
 	" Chainsaw ",
-	" Chainsaw ",
-	" Chainsaw ",
-	" Chainsaw ",
-	" ",
-	" ",
-	
 	" Pistol ",
-	" Pistol ",
-	" Pistol ",
-	" Pistol ",
-	" Pistol ",
-	" ",
-	" ",
-	
 	" Shotgun ",
-	" Shotgun ",
-	" Shotgun ",
-	" Shotgun ",
-	
 	" Super Shotgun ",
-	" Super Shotgun ",
-	" Super Shotgun ",
-	" Super Shotgun ",
-	
-	" ",
-	" ",
-	
 	" Machine Gun ",
-	" Machine Gun ",
-	" Machine Gun ",
-	" Machine Gun ",
-	" Machine Gun ",
-	" Machine Gun ",
-	" ",
-	" ",
-	
 	"Rocket Launcher",
-	"Rocket Launcher",
-	"Rocket Launcher",
-	"Rocket Launcher",
-	"Rocket Launcher",
-	" ",
-	" ",
-	" ",
-	
 	"Plasma Rifle",
-	"Plasma Rifle",
-	"Plasma Rifle",
-	"Plasma Rifle",
-	"Plasma Rifle",
-	" ",
-	" ",
-	
-	"BFG 9000",
-	"BFG 9000",
-	"BFG 9000",
-	"BFG 9000",
-	"BFG 9000",
-	" ",
-	" ",
-	
-	" ",
-	" ",
-	" ",
-	" "
+	"BFG 9000"
 };
 
 int ResearchEntryNumbers[MAX_RESEARCHES] = {
@@ -1578,6 +1602,7 @@ int ResearchCosts[MAX_RESEARCHES] = {
     45,
     60,
 	55,
+	60,
 	
 	50,
 	10,
@@ -1586,6 +1611,7 @@ int ResearchCosts[MAX_RESEARCHES] = {
 	
 	50,
     55,
+	60,
 	
 	60,
 	65,
@@ -1635,6 +1661,7 @@ str Research_Images[MAX_RESEARCHES] = {
     "RESBAK21",
     "RESBAK32",
 	"RESBAK36",
+	"RESBAK42",
 	
     "RESBAK22",
     "RESBAK23",
@@ -1643,6 +1670,7 @@ str Research_Images[MAX_RESEARCHES] = {
 	
     "RESBAK24",
     "RESBAK25",
+	"RESBAK43",
 	
     "RESBAK26",
 	"RESBAK38",
@@ -1669,40 +1697,42 @@ str ResearchDescription[MAX_RESEARCHES] = {
 	
 	"New generation backpacks are super lightweight, marines can carry these to double the capacity of their special ammo types.",
 	
-	"Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe.",
-	"Some can say pistols are useless but we beg to differ. Some pistols can be quite potent. Unlocks Scatter Pistol and Ruby Wand.",
-	"Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks Silver Gun and Slayer.",
-	"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Minigun and Ebony Cannon.",
-	"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL and Heavy Missile Launcher.",
-	"Destorying things has never been this fun! Demons sure know how to kill things... Unlocks Nailgun and Basilisk.",
-	"If you think you need a bit of sniping, try these! Unlocks Railgun and Gauss Rifle.",
+	"Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe (1).",
+	"Some can say pistols are useless but we beg to differ. Some pistols can be quite potent. Unlocks Scatter Pistol and Ruby Wand (2).",
+	"Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks Silver Gun and Slayer (3).",
+	"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Minigun and Ebony Cannon (4).",
+	"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL and Heavy Missile Launcher (5).",
+	"Destroying things has never been this fun! Demons sure know how to kill things... Unlocks Rhino AR, Nailgun and Basilisk (6).",
+	"If you think you need a bit of sniping, try these! Unlocks Railgun and Gauss Rifle (7).",
 	
-	"A fine discovery buried in hell. Dusk blade hits real hard and lets its user experience the dusk mode. Unlocks Dusk Blade. (1)",
-	"Buried deep in the bowels of the earth, inferno sword is everything a pyromaniac would want! Shoot flames, cut enemies down! Unlocks Inferno Sword.(1)",
+	"A fine discovery buried in hell. Dusk blade hits real hard and lets its user experience the dusk mode. Unlocks Dusk Blade (1).",
+	"Buried deep in the bowels of the earth, inferno sword is everything a pyromaniac would want! Shoot flames, cut enemies down! Unlocks Inferno Sword (1).",
 	
-	"Some of the zombies were using quite improved versions of your weaponry. Now we can utilize this for your slot 2 weapons. Unlocks Assault Rifle. (2)",
+	"Some of the zombies were using quite improved versions of your weaponry. Now we can utilize this for your slot 2 weapons. Unlocks Assault Rifle (2).",
 	"An intriguing weapon, capable of summoning mobile snake traps or just shoot them directly! Unlocks Viper Staff (2).",
 	
-	"Through many investments we can now utilize better shotgun mechanics. Unlocks Deadlock. (3)",
-	"Sometimes it's better to just cool things down when things get heated up. Unlocks Nitrogen Crossbow. (3)",
+	"Through many investments we can now utilize better shotgun mechanics. Unlocks Deadlock (3).",
+	"Sometimes it's better to just cool things down when things get heated up. Unlocks Nitrogen Crossbow (3).",
    
-    "Our scientists were obsessed with creating energy in fixed bursts and now they can! Unlocks Plasma Cannon. (3)",
-	"Destroy your enemies with a good style. Put holes in them and burn them after with heat! Unlocks Shocker. (3)",
+    "Our scientists were obsessed with creating energy in fixed bursts and now they can! Unlocks Plasma Cannon (3).",
+	"Destroy your enemies with a good style. Put holes in them and burn them after with heat! Unlocks Shocker (3).",
 	
-	"Finally an answer to the undead menace, this silver bullet shooting machine gun will make quick work of undeads and magical creatures alike! Unlocks Templar MG. (4)",
+	"Finally an answer to the undead menace, this silver bullet shooting machine gun will make quick work of undeads and magical creatures alike! Unlocks Templar MG (4).",
 	"A combination of chaingun and shotgun, this fierce weapon is going to make demon paste. Can also use alternate shells. Unlocks Riot Cannon (4).",
     "We now have perfect material to contain powerful acid to use against demons! A very potent rifle. Unlocks Acid Rifle (4).",
+	"We can produce small scale fusion reactions at will to produce super powered energy blasts. Unlocks Fusion Blaster (4).",
 	
-	"Using energies of demons we can now create meteors at will and so can you! Unlocks Meteor Launcher. (5)",
-	"It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both. (5)",
-	"A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher. (5)",
-	"When you're desperate to get some ice for your drink, there's always a solution! Unlocks Freezer Cannon. (5)",
+	"Using energies of demons we can now create meteors at will and so can you! Unlocks Meteor Launcher (5).",
+	"It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both (5).",
+	"A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher (5).",
+	"When you're desperate to get some ice for your drink, there's always a solution! Unlocks Freezer Cannon (5).",
 	
-	"Burning enemies to crisps is never boring! Unlocks Flame Thrower. (6)",
-	"For when you want to make a shocking entrance. Unlocks Lightning Gun. (6)",
+	"Burning enemies to crisps is never boring! Unlocks Flame Thrower (6).",
+	"For when you want to make a shocking entrance. Unlocks Lightning Gun (6).",
+	"Show your love for bouncing particles! Shoot to your hearts content with Rebounder (6).",
     
-	"We have miniguns, laser cannons and other various toys but not an Ion Cannon... Now we do! (7)",
-	"An ominous staff, capable of electrocuting large groups of enemies at once. Unlocks Thunder Staff. (7)",
+	"We have miniguns, laser cannons and other various toys but not an Ion Cannon (7)... Now we do!",
+	"An ominous staff, capable of electrocuting large groups of enemies at once. Unlocks Thunder Staff (7).",
 	
 	"With this groundbreaking research, we can now utilize powers of the demons to empower ourselves! Unlocks certain abilities.",
 	"Powerful demons can teach us a lot of things. Now we can utilize their immense power for even better weapons! Unlocks slot 8 weapons.",

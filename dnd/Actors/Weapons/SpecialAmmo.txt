@@ -5,7 +5,8 @@ enum {
 	AMMO_TYPE_SHELL,
 	AMMO_TYPE_MGGRENADE,
 	AMMO_TYPE_GRENADE,
-	AMMO_TYPE_SHELL2
+	AMMO_TYPE_SHELL2,
+	AMMO_TYPE_ONLYBIGNADE
 };
 
 enum {
@@ -39,7 +40,8 @@ enum {
 	SPWEP_SG,
 	SPWEP_SSG,
 	SPWEP_MG,
-	SPWEP_GL
+	SPWEP_GL,
+	SPWEP_SLOT6
 };
 
 Actor FlechetteShellShooter : DnD_Activator {
@@ -159,6 +161,39 @@ Actor GrenadeShooterGeneric : DnD_Activator {
 	}
 }
 
+Actor GrenadeShooterGeneric_6 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_6", AMMO_40MMHEGRENADE, "HE")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_6", AMMO_40MMSONIC, "Sonic")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("Grenades", 1)
+		NoTake:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade", 0, 0, 0, 4)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_FullDMG", 0, 0, 0, 4)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_BULLET) // 0 is shell position
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_6", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_6", AMMO_BULLET)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+		HE:
+			TNT1 A 0 A_GiveInventory("HEGrenadeShooter", 1)
+		Stop
+		Sonic:
+			TNT1 A 0 A_GiveInventory("SonicGrenadeShooter", 1)
+		Stop
+	}
+}
+
 Actor GrenadeShooterGL : DnD_Activator {
 	States {
 		Pickup:
@@ -205,14 +240,21 @@ Actor HEGrenadeShooter : DnD_Activator {
 		Goto CheckMode
 		CheckMode:
 			TNT1 A 0 A_JumpIfInventory("A40mmHEGrenade", 1, "Nothing")
-			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot6", 1, "SetAR")
 			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot4", 1, "SetMG")
 			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_5X", 0)
 			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_5X", AMMO_GRENADE)
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE)
 		Stop
 		SetMG:
 			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
-			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_GRENADE)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_BULLET)
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_BULLET)
+		Stop
+		SetAR:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_6", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_6", AMMO_BULLET)
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_BULLET)
 		Stop
 		Nothing:
 			TNT1 A 0
@@ -234,14 +276,21 @@ Actor SonicGrenadeShooter : DnD_Activator {
 		Goto CheckMode
 		CheckMode:
 			TNT1 A 0 A_JumpIfInventory("A40mmSonicGrenade", 1, "Nothing")
-			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot6", 1, "SetAR")
 			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot4", 1, "SetMG")
 			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_5X", 0)
 			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_5X", AMMO_GRENADE)
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE)
 		Stop
 		SetMG:
 			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
-			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_GRENADE)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_BULLET)
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_BULLET)
+		Stop
+		SetAR:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_6", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_6", AMMO_BULLET)
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_BULLET)
 		Stop
 		Nothing:
 			TNT1 A 0
@@ -256,11 +305,11 @@ Actor HEGrenadeX {
 	Speed 24
 	Radius 8
 	Height 16
-	Scale 0.675
+	Scale 0.6
 	BounceSound "WeaponGL/40MMHBounce"
 	Deathsound "Weapons/grenadexpl2"
 	BounceCount 4
-	BounceFactor 0.66
+	BounceFactor 0.2
 	Gravity 0.66
 	BounceType Doom
 	const int iterations = 18;
@@ -442,7 +491,7 @@ Actor SonicGrenade {
 	Height 16
 	BounceSound "WeaponGL/40MMSonicBounce"
 	BounceCount 5
-	BounceFactor 0.66
+	BounceFactor 0.33
 	Gravity 0.66
 	BounceType Doom
 	+MTHRUSPECIES
@@ -854,6 +903,11 @@ Actor SpecialAmmoMode_5X : Ammo {
 }
 
 Actor AmmoChangeMessage : Ammo {
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
+Actor SpecialAmmoMode_6 : Ammo {
 	inventory.maxamount 10
 	+IGNORESKILL
 }

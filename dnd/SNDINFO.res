@@ -1,3 +1,18 @@
+Rebounder/Fire		REBOFIRE
+Rebounder/Hit		REBOHIT
+Rebounder/AltFire1	REBOAFI1
+Rebounder/AltFire2	REBOAFI2
+$random Rebounder/AltFire { Rebounder/AltFire1 Rebounder/AltFire2 }
+Rebounder/AltHit	REBOAHIT
+
+FusionBlaster/fire  FUSBFIRE
+FusionBlaster/Hit	FUSBHIT
+$limit FusionBlaster/fire 0
+FusionBlaster/Out	FUSBOUT
+FusionBlaster/In	FUSBIN
+FusionBlaster/Alt	FUSBALT
+FusionBlaster/Hit2	FUSBHIT2
+
 ViperStaff/Fire		VIPRFIR
 ViperStaff/Scream	VIPRSCRM
 ViperStaff/Charge	VIPRCHR
