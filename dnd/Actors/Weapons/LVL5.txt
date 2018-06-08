@@ -530,7 +530,7 @@ Actor NormalGrenade
 	-NOGRAVITY
 	BounceType Doom
 	Bouncecount 4
-	BounceFactor 0.66
+	BounceFactor 0.33
 	Gravity 0.66
 	DeathSound "Weapons/grenadexpl"
 	States

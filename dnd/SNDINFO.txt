@@ -1,5 +1,37 @@
 NullSound				dsempty
 
+RhinoRifle/Fire1		RHINFIR1
+RhinoRifle/Fire2		RHINFIR2
+RhinoRifle/Fire3		RHINFIR3
+RhinoRifle/Fire4		RHINFIR4
+$random RhinoRifle/Fire { RhinoRifle/Fire1 RhinoRifle/Fire2 RhinoRifle/Fire3 RhinoRifle/Fire4 }
+$limit RhinoRifle/Fire1 0
+$limit RhinoRifle/Fire2 0
+$limit RhinoRifle/Fire3 0
+$limit RhinoRifle/Fire4 0
+$limit RhinoRifle/Fire 0
+RhinoRifle/ClipIn		RHINCLI
+RhinoRifle/ClipOut		RHINCLO
+RhinoRifle/Cock			RHINCOC
+
+GenericGL/Fire1			MGRNFR1
+GenericGL/Fire2			MGRNFR2
+GenericGL/Fire3			MGRNFR3
+GenericGL/Fire4			MGRNFR4
+$random GenericGL/Fire { GenericGL/Fire1 GenericGL/Fire2 GenericGL/Fire3 GenericGL/Fire4 }
+GenericGL/Insert1		MGRNADD1
+GenericGL/Insert2		MGRNADD2
+GenericGL/Insert3		MGRNADD3
+GenericGL/Insert4		MGRNADD4
+GenericGL/Insert5		MGRNADD5
+$random GenericGL/Insert { GenericGL/Insert1 GenericGL/Insert2 GenericGL/Insert3 GenericGL/Insert4 GenericGL/Insert5 }
+GenericGL/Open			MGRNOPEN
+GenericGL/Close			MGRNCLOS
+GenericGL/FireAdd		MGRNFIRX
+$limit GenericGL/Fire 0
+$limit GenericGL/FireAdd 0
+
+
 HunterTalisman/Activate	HUNTALM
 VeilOfAssassin/Active	VEILACT
 

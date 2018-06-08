@@ -1,3 +1,10 @@
+enum {
+	DND_AMMOSLOT_CLIP,
+	DND_AMMOSLOT_SHELL,
+	DND_AMMOSLOT_ROCKET,
+	DND_AMMOSLOT_CELL
+};
+
 Actor NewClip : CustomInventory replaces Clip {
 	inventory.pickupsound "items/ammo"
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Clip x 10\c-"
@@ -108,11 +115,7 @@ Actor Slot3AmmoContainer : CustomInventory {
 		Stop 
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Shell", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
-			TNT1 A 0 A_GiveInventory("ExplodingShell", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
-			TNT1 A 0 A_GiveInventory("SlayerAmmo", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
-			TNT1 A 0 A_GiveInventory("PcanAmmo", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
-			TNT1 A 0 A_GiveInventory("NitrogenCanister", 15 + ACS_ExecuteWithResult(918, 0, 1, 15))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_SHELL)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -137,14 +140,7 @@ Actor Slot4AmmoContainer : Slot3AmmoContainer {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0), "Failed")
-			TNT1 A 0 A_GiveInventory("Clip", 50 + ACS_ExecuteWithResult(918, 0, 1, 50))
-			TNT1 A 0 A_GiveInventory("EbonyAmmo", 12 + ACS_ExecuteWithResult(918, 0, 1, 16))
-			TNT1 A 0 A_GiveInventory("EbonyAmmoX", 6 + ACS_ExecuteWithResult(918, 0, 1, 8))
-			TNT1 A 0 A_GiveInventory("RiotgunShell", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
-			TNT1 A 0 A_GiveInventory("AcidAmmo", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
-			TNT1 A 0 A_GiveInventory("RubyAmmo", 43 + ACS_ExecuteWithResult(918, 0, 1, 43))
-			TNT1 A 0 A_GiveInventory("ViperAmmo", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
-			TNT1 A 0 A_GiveInventory("DSealAmmo", 50 + ACS_ExecuteWithResult(918, 0, 1, 50))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_CLIP)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -212,10 +208,7 @@ Actor Slot5AmmoContainer : Slot3AmmoContainer
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 2), "Failed")
-			TNT1 A 0 A_GiveInventory("RocketAmmo", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
-			TNT1 A 0 A_GiveInventory("Grenades", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
-			TNT1 A 0 A_GiveInventory("MISAmmo", 6 + ACS_ExecuteWithResult(918, 0, 1, 6))
-			TNT1 A 0 A_GiveInventory("MeteorAmmo", 4 + ACS_ExecuteWithResult(918, 0, 1, 4))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_ROCKET)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -283,14 +276,7 @@ Actor Slot6AmmoContainer : Slot3AmmoContainer {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 3), "Failed")
-			TNT1 A 0 A_GiveInventory("Cell", 100 + ACS_ExecuteWithResult(918, 0, 1, 100))
-			TNT1 A 0 A_GiveInventory("NailgunAmmo", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
-			TNT1 A 0 A_GiveInventory("GaussRound", 10 + ACS_ExecuteWithResult(918, 0, 1, 10))
-			TNT1 A 0 A_GiveInventory("BasiliskAmmo", 16 + ACS_ExecuteWithResult(918, 0, 1, 40))
-			TNT1 A 0 A_GiveInventory("Fuel", 75 + ACS_ExecuteWithResult(918, 0, 1, 75))
-			TNT1 A 0 A_GiveInventory("LightningCell", 105 + ACS_ExecuteWithResult(918, 0, 1, 105))
-			TNT1 A 0 A_GiveInventory("EverIce", 80 + ACS_ExecuteWithResult(918, 0, 1, 80))
-			TNT1 A 0 A_GiveInventory("ThunderAmmo", 66 + ACS_ExecuteWithResult(918, 0, 1, 66))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_CELL)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -465,6 +451,24 @@ Actor MGClip5 : Ammo {
 	inventory.maxamount 31
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 31
+	inventory.icon "CLIPA0"
+	+IGNORESKILL
+}
+
+Actor MGClip6 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 40
+	inventory.icon "FBATB0"
+	+IGNORESKILL
+}
+
+Actor MGClip7 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 75
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 75
 	inventory.icon "CLIPA0"
 	+IGNORESKILL
 }
@@ -723,6 +727,15 @@ Actor DSealAmmo : Ammo {
 	+IGNORESKILL
 }
 
+Actor FusionCell : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 240
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 240
+	inventory.icon "FBATA0"
+	+IGNORESKILL
+}
+
 //////////////////////////////
 //      TEMPORARY AMMO      //
 //////////////////////////////
@@ -941,6 +954,13 @@ Actor IonOverHeat : Ammo {
 }
 
 Actor FreezerOverheat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor RebounderOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
 	Inventory.Icon "STTPRCNT"

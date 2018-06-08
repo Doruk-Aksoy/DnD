@@ -220,3 +220,103 @@ flickerlight FDDebuffSmallRedGlow
     secondarySize 15
     chance 0.5
 }
+
+flickerlight FusionBlasterLight1
+{
+    color 0.5 0.5 1.0
+    size 16
+    secondarySize 32
+    chance 0.5
+}
+
+pointlight FusionBlasterLight2 {
+	color 0.5 0.5 1.0
+	size 32
+}
+
+pointlight FusionBlasterLight3 {
+	color 0.5 0.5 1.0
+	size 24
+}
+pointlight FusionBlasterLight4 {
+	color 0.5 0.5 1.0
+	size 16
+}
+
+object FusionBlasterProjectile {
+	frame FUS9A { light FusionBlasterLight1 }
+	frame FUS9B { light FusionBlasterLight1 }
+	frame FUS9C { light FusionBlasterLight1 }
+	frame FUS9D { light FusionBlasterLight2 }
+	frame FUS9E { light FusionBlasterLight3 }
+	frame FUS9F { light FusionBlasterLight4 }
+}
+
+object FusionBlasterProjectile_FullDMG {
+	frame FUS9A { light FusionBlasterLight1 }
+	frame FUS9B { light FusionBlasterLight1 }
+	frame FUS9C { light FusionBlasterLight1 }
+	frame FUS9D { light FusionBlasterLight2 }
+	frame FUS9E { light FusionBlasterLight3 }
+	frame FUS9F { light FusionBlasterLight4 }
+}
+
+flickerlight FusionBlasterLight5
+{
+    color 0.5 0.5 1.0
+    size 32
+    secondarySize 48
+    chance 0.5
+}
+
+pointlight FusionBlasterLight6 {
+    color 0.5 0.5 1.0
+    size 48
+}
+
+pointlight FusionBlasterLight7 {
+    color 0.5 0.5 1.0
+    size 30
+}
+
+pointlight FusionBlasterLight8 {
+    color 0.5 0.5 1.0
+    size 12
+}
+
+pointlight FusionBlasterLight9 {
+    color 0.5 0.5 1.0
+    size 8
+}
+
+object FusionBlasterGrenade {
+	frame FUG9A { light FusionBlasterLight5 }
+	frame FUG9B { light FusionBlasterLight5 }
+	frame FUG9C { light FusionBlasterLight5 }
+	frame FUG9D { light FusionBlasterLight5 }
+	
+	frame FUG9E { light FusionBlasterLight6 }
+	frame FUG9F { light FusionBlasterLight6 }
+	frame FUG9G { light FusionBlasterLight7 }
+	frame FUG9H { light FusionBlasterLight7 }
+	frame FUG9I { light FusionBlasterLight8 }
+	frame FUG9J { light FusionBlasterLight8 }
+	frame FUG9K { light FusionBlasterLight9 }
+	frame FUG9L { light FusionBlasterLight9 }
+}
+
+object FusionBlasterGrenade_FullDMG {
+	frame FUG9A { light FusionBlasterLight5 }
+	frame FUG9B { light FusionBlasterLight5 }
+	frame FUG9C { light FusionBlasterLight5 }
+	frame FUG9D { light FusionBlasterLight5 }
+	
+	frame FUG9E { light FusionBlasterLight6 }
+	frame FUG9F { light FusionBlasterLight6 }
+	frame FUG9G { light FusionBlasterLight7 }
+	frame FUG9H { light FusionBlasterLight7 }
+	frame FUG9I { light FusionBlasterLight8 }
+	frame FUG9J { light FusionBlasterLight8 }
+	frame FUG9K { light FusionBlasterLight9 }
+	frame FUG9L { light FusionBlasterLight9 }
+}

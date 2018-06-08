@@ -32,6 +32,7 @@ enum {
 	DND_WEAPON_ERASUS,
 	DND_WEAPON_PLASMACANNON,
 	DND_WEAPON_SHOCKER,
+	
 	DND_WEAPON_SILVERGUN,
 	DND_WEAPON_SLAYER,
 	
@@ -42,6 +43,8 @@ enum {
 	DND_WEAPON_TEMPLARMG,
 	DND_WEAPON_RIOTCANNON,
 	DND_WEAPON_ACIDRIFLE,
+	DND_WEAPON_FUSIONBLASTER,
+	
 	DND_WEAPON_MINIGUN,
 	DND_WEAPON_EBONYCANNON,
 	
@@ -61,6 +64,9 @@ enum {
 	DND_WEAPON_FROSTFANG,
 	DND_WEAPON_FLAMETHROWER,
 	DND_WEAPON_LIGHTNINGGUN,
+	DND_WEAPON_REBOUNDER,
+	
+	DND_WEAPON_RHINORIFLE,
 	DND_WEAPON_NAILGUN,
 	DND_WEAPON_BASILISK,
 	
@@ -109,9 +115,10 @@ enum {
 str Weapons[MAXWEPS][7] = { 		     
 	 { " Fists ",							"Fist",						"1",		" ",				" ",							"StartOnly",				"FISTICO"				},
 	 { " Chainsaw ",						"Chainsaw",					"1",		" ",				" ",							"GotChainsaw",				"CSAWA0"				},
+	 
 	 { "Upgraded Chainsaw",					"Dual Chainsaw",			"1",		" ",				" ",							"GotChainsaw",				"CSW2A0"				},
-	 { "Excalibat",							"Excalibat",				"1",		"BatCharge",		"Souls",						"GotChainsaw",				"EBATICO"				},
 	 { "Katana",							"Katana",					"1",		" ",				" ",							"GotChainsaw",				"JFISZ0"				},
+	 { "Excalibat",							"Excalibat",				"1",		"BatCharge",		"Souls",						"GotChainsaw",				"EBATICO"				},
 	 { "ResMelee1",							"Inferno Sword",			"1",		"Souls",			" ",							"GotChainsaw",				"INFSICO1"				},
 	 { "Dusk Blade",						"Dusk Blade",				"1",		"SwordHitCharge",	"Souls",						"GotChainsaw",				"DUSKBICO"				},
      { "Sickle",							"Necromancer's Sickle", 	"1",		" ",				" ",							"GotChainsaw",				"SICKLICO"  			},
@@ -122,6 +129,7 @@ str Weapons[MAXWEPS][7] = {
 	 { "Laser Pistol",						"Laser Pistol",				"2",		"LPistolCharge",	" ",							"GotLaserPistol",			"PBLTZ0" 				},
 	 { "ResPistol1",						"Assault Rifle",			"2",		"Clip",				"MGClip5",					    "GotAR",					"4AFLA0"				},
 	 { "ResPistol2",						"Viper Staff",				"2",		"ViperAmmo",		" ",							"GotViper",					"VIPAZ0"				},
+	 
 	 { "RubyWand",							"Ruby Wand",				"2",		"RubyAmmo",			" ",							"GotRubyWand",				"WANDF0"				},
 	 { "ScatterGun",						"Scatter Pistol",			"2",		"Clip",				" ",							"GotScatterPistol",			"SPPPA0" 				},
 	 
@@ -147,6 +155,8 @@ str Weapons[MAXWEPS][7] = {
 	 { "ResMG1",							"Templar MG",				"4",		"Clip",				"MGClip4",				    	"GotMG",					"RW03X0"				},
 	 { "ResMG2",                            "Riot Cannon",              "4",        "RiotgunShell",     "RiotgunClip",                  "GotMG",                    "RIOTI0"                },
      { "ResMG3",							"Acid Rifle",				"4", 		"AcidAmmo",			"AcidClip",						"GotMG",					"RIF2Y0"				},
+     { "ResMG4",							"Fusion Blaster",			"4",		"FusionCell",		"MGClip6",						"GotMG",					"FUSPA0"				},
+	 
 	 { " Minigun ",							"Minigun",					"4",		"Clip",				" ",							"GotCG",					"CHNGX0"				},
 	 { "Ebony Cannon",						"Ebony Cannon",				"4",		"EbonyAmmo",		"EbonyAmmoX",			        "GotEbony",					"EBONICO"				},
 	 
@@ -166,6 +176,9 @@ str Weapons[MAXWEPS][7] = {
 	 { "Upgraded Plasma Rifle3",			"Frost Fang",				"6",		"EverIce",			" ",							"GotPL",					"FSTFICO"				},
 	 { "ResPlasma1",						"Flamethrower",				"6",		"Fuel",				"FuelClip",					    "GotPL",					"RW05X0"				},
 	 { "ResPlasma2",                        "Lightning Gun",            "6",        "LightningCell",    "LightningStacks",              "GotPL",                    "LTGSA0"                },
+	 { "ResPlasma3",						"Rebounder",				"6",		"Cell",				"RebounderOverheat",			"GotPL",					"DGAPA0"				},
+	 
+	 { "RhinoRifle",						"Rhino Assault Rifle",		"6",		"Clip",				"MGClip7",						"GotPL",					"MAXPA0"				},
 	 { "Nailgun",							"Nail Gun",					"6",		"NailgunAmmo",		" ",							"GotNail",					"NAIGA0"				},
 	 { "Basilisk",							"Basilisk",					"6",		"BasiliskAmmo",		"LoadedBasilisk",			    "GotBasilisk",				"BASICO"				},
 	 
@@ -238,31 +251,33 @@ enum {
 	DND_OVERHEAT_SHOCKER,
 	DND_OVERHEAT_FREEZER,
 	DND_OVERHEAT_NUCLEARPR,
-	DND_OVERHEAT_ION
+	DND_OVERHEAT_ION,
+	DND_OVERHEAT_REBOUNDER
 };
 
-#define MAXOVERHEATWEPS DND_OVERHEAT_ION + 1
+#define MAXOVERHEATWEPS DND_OVERHEAT_REBOUNDER + 1
 str WeaponOverheatItems[MAXOVERHEATWEPS] = {
 	"ShockerOverheat",
 	"FreezerOverheat",
 	"PlasmaOverheat",
-	"IonOverheat"
+	"IonOverheat",
+	"RebounderOverheat"
 };
 
 // 32 overheat weapons supported
 int PlayerRunsOverheat[MAXPLAYERS] = { 0 };
 
-#define MAXWEPUPGRADES 7
+#define MAXWEPUPGRADES 9
 #define MAXNORMALWEPSLOTS 8
 str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
-	{ " Chainsaw ", "Upgraded Chainsaw", "Katana", "Excalibat", "ResMelee1", "" },
-	{ "Magnum", " Akimbo Pistols ", "Laser Pistol", "ResPistol1", "ResPistol2", "" },
-	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "ResShotgun1", "ResShotgun2", "", "" },
-	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "ResSSG1", "ResSSG2", "", "" },
-	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3" },
-	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "ResRL1", "ResRL2", "ResRL3", "" },
-	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "" },
-	{ "BFG 9000", "Upgraded BFG 9000", "Devastator", "MFG", "ResBFG1", "ResBFG2", "" },
+	{ " Chainsaw ", "Upgraded Chainsaw", "Katana", "Excalibat", "ResMelee1", "", "", "", "" },
+	{ "Magnum", " Akimbo Pistols ", "Laser Pistol", "ResPistol1", "ResPistol2", "", "", "", "" },
+	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "ResShotgun1", "ResShotgun2", "", "", "", "" },
+	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "ResSSG1", "ResSSG2", "", "", "", "" },
+	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "" },
+	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "ResRL1", "ResRL2", "ResRL3", "", "", "" },
+	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "ResPlasma3", "" },
+	{ "BFG 9000", "Upgraded BFG 9000", "Devastator", "MFG", "ResBFG1", "ResBFG2", "", "", "" },
 };
 
 // weapon mod data, mod_id contains the modifier, low and high are the rolled values

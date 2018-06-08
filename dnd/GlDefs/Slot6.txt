@@ -277,3 +277,129 @@ Object FrostFangBall_FullDMG
 	Frame FFBLF { Light FrostFangBall5 }
 	Frame FFBLG { Light FrostFangBall6 }
 }
+
+pointlight RebounderLight1 {
+	color 0.0 0.75 0.75
+	size 28
+}
+
+object RebounderProjectile {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB1 {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB2 {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB3 {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB4 {
+	frame RBPA { light RebounderLight1 }
+}
+
+
+object RebounderProjectile_FullDMG {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB1_FullDMG {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB2_FullDMG {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB3_FullDMG {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileB4_FullDMG {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileAlt {
+	frame RBPA { light RebounderLight1 }
+}
+
+object RebounderProjectileAlt_FullDMG {
+	frame RBPA { light RebounderLight1 }
+}
+
+pointlight RebounderLight2 {
+	color 0.0 0.75 0.75
+	size 36
+}
+
+pointlight RebounderLight3 {
+	color 0.0 0.75 0.75
+	size 24
+}
+
+pointlight RebounderLight4 {
+	color 0.0 0.75 0.75
+	size 12
+}
+
+object RebounderHitFX {
+	frame REBPB { light RebounderLight2 }
+	frame REBPC { light RebounderLight3 }
+	frame REBPD { light RebounderLight4 }
+}
+
+object RebounderHitFX2 {
+	frame REBPB { light RebounderLight2 }
+	frame REBPC { light RebounderLight3 }
+	frame REBPD { light RebounderLight4 }
+}
+
+pointlight RebounderLight5 {
+	color 0.0 0.85 0.85
+	size 64
+}
+
+pointlight RebounderLight6 {
+	color 0.0 0.85 0.85
+	size 56
+}
+
+pointlight RebounderLight7 {
+	color 0.0 0.85 0.85
+	size 48
+}
+
+pointlight RebounderLight8 {
+	color 0.0 0.85 0.85
+	size 40
+}
+
+pointlight RebounderLight9 {
+	color 0.0 0.85 0.85
+	size 32
+}
+
+pointlight RebounderLight10 {
+	color 0.0 0.85 0.85
+	size 24
+}
+
+pointlight RebounderLight11 {
+	color 0.0 0.85 0.85
+	size 16
+}
+
+object RebounderHitFX3 {
+	frame REBPG { light RebounderLight5 }
+	frame REBPH { light RebounderLight6 }
+	frame REBPI { light RebounderLight7 }
+	frame REBPJ { light RebounderLight8 }
+	frame REBPK { light RebounderLight9 }
+	frame REBPL { light RebounderLight10 }
+	frame REBPM { light RebounderLight11 }
+}

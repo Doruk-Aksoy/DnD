@@ -36,6 +36,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 	
 	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
 	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartItem "SpecialAmmoMode_6", 4
 	
 	Player.StartItem "Clip", 50
 	
@@ -44,6 +45,8 @@ Actor TheDoomGuy : DnD_PlayerBase {
 	Player.StartItem "MGClip3", 75
 	Player.StartItem "MGClip4", 40
 	Player.StartItem "MGClip5", 31
+	Player.StartItem "MGClip6", 40
+	Player.StartItem "MGClip7", 75
 	Player.StartItem "AcidClip", 28
 	
 	Player.StartItem "AkimboClipLeft", 12
@@ -380,6 +383,7 @@ Actor TheMarine : DnD_PlayerBase {
 	
 	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
 	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartItem "SpecialAmmoMode_6", 4
 	
 	Player.StartItem "Clip", 50
 	
@@ -388,6 +392,8 @@ Actor TheMarine : DnD_PlayerBase {
 	Player.StartItem "MGClip3", 75
 	Player.StartItem "MGClip4", 40
 	Player.StartItem "MGClip5", 31
+	Player.StartItem "MGClip6", 40
+	Player.StartItem "MGClip7", 75
 	Player.StartItem "AcidClip", 28
 	
 	Player.StartItem "AkimboClipLeft", 12
@@ -715,6 +721,7 @@ Actor TheHobo : DnD_PlayerBase {
 	
 	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
 	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartItem "SpecialAmmoMode_6", 4
 	
 	Player.StartItem "Clip", 50
 	
@@ -723,6 +730,8 @@ Actor TheHobo : DnD_PlayerBase {
 	Player.StartItem "MGClip3", 75
 	Player.StartItem "MGClip4", 40
 	Player.StartItem "MGClip5", 31
+	Player.StartItem "MGClip6", 40
+	Player.StartItem "MGClip7", 75
 	Player.StartItem "AcidClip", 28
 	
 	Player.StartItem "AkimboClipLeft", 12
@@ -1050,6 +1059,7 @@ Actor ThePunisher : DnD_PlayerBase {
 	
 	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
 	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartItem "SpecialAmmoMode_6", 4
 	
 	Player.StartItem "Clip", 50
 	
@@ -1058,6 +1068,8 @@ Actor ThePunisher : DnD_PlayerBase {
 	Player.StartItem "MGClip3", 75
 	Player.StartItem "MGClip4", 40
 	Player.StartItem "MGClip5", 31
+	Player.StartItem "MGClip6", 40
+	Player.StartItem "MGClip7", 75
 	Player.StartItem "AcidClip", 28
 	
 	Player.StartItem "AkimboClipLeft", 12
@@ -1385,6 +1397,7 @@ Actor TheWanderer : DnD_PlayerBase {
 	
 	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
 	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartItem "SpecialAmmoMode_6", 4
 	
 	Player.StartItem "Clip", 50
 	
@@ -1393,6 +1406,8 @@ Actor TheWanderer : DnD_PlayerBase {
 	Player.StartItem "MGClip3", 75
 	Player.StartItem "MGClip4", 40
 	Player.StartItem "MGClip5", 31
+	Player.StartItem "MGClip6", 40
+	Player.StartItem "MGClip7", 75
 	Player.StartItem "AcidClip", 28
 	
 	Player.StartItem "AkimboClipLeft", 12

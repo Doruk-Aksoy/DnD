@@ -9,6 +9,8 @@ LEGEND:
 == DND RPG RELATED ==
 =====================
 
+! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle".
+! Added new researches: "Fusion Blaster", "Rebounder".
 ! Backpacks can also drop chests now!
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
 ! "Bulkiness" now increases armor cap by 4.
@@ -43,8 +45,11 @@ LEGEND:
 * "Necro Armor" spikes now deal full damage if "Nether Mask" is equipped.
 * "Strength" and "Bulkiness" stats now correctly mention they increase your knockback resist.
 * Your "Wisdom" and "Greed" bonuses from sources besides perks will also show correctly on a monster kill as bonuses.
+* Changed placement of some slot 1 weapons.
+* Fixed a typo in "Slot 6 Luxury" research.
 * Fixed a problem related to chest drops and respawning items.
 * Fixed a bug where "Violence Orb" bonuses weren't included in damage calculation.
+* Fixed a bug where slot 6 ammo container didn't give "Ion Ammo".
 * Reworked damage scaling calculation to use integers instead of fixed point. This should eliminate overflows and allow you to reach higher damage outputs for each damage source.
 * Adjusted hitboxes of all grenades.
 * Dash toggle works again.
@@ -81,6 +86,7 @@ LEGEND:
 * Fixed a bug that caused "Lich Arm" to actually reduce damage of all weapons... oops.
 * Fixed a bug where "Occult Armor" wasn't increasing the damage of some weapons with "Nether Mask" equipped.
 * Added a few things to hopefully ensure "Demon Sealer" to properly seal monsters.
+* Changed grenade bouncing a bit.
 * "Nuclear Plasma Rifle" now properly overheats with "Hand of Artemis" equipped.
 * The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", "Shocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
 + "Hardcore" and "Softcore" damage amp reduced to 15% from 25%.
@@ -100,6 +106,7 @@ LEGEND:
 * You can now properly rev the "Minigun" right after fire and be ready to fire immediately.
 * Reduced the volume of looping sound of "Soul Reaver".
 * "Riot Cannon" can properly switch modes even if it runs out of ammo on its main mode.
+* "Freezer Cannon" overheat bar fixed to work in reverse to ammo count.
 + "Razorfang" skull shot can hit ghosts now.
 + "Plasma Cannon" now ignores shields.
 * "Plasma Cannon" readjusted to shoot 12 projectiles instead of 24. Damage unchanged.
@@ -116,6 +123,7 @@ LEGEND:
 + "Ion Cannon" explosion now does 160 explosion damage up front in 160 unit radius, then 80 in 80 then 53 in 60.
 + "Devastator 5000" does 64-80 explosion damage up from 32-80.
 + "Devastator 5000" explosion radius increased to 96 from 72.
++ "Devastator 5000" fires 5 projectiles up from 4 and uses 5 ammo instead of 8.
 
 =====================
 == MONSTER RELATED ==

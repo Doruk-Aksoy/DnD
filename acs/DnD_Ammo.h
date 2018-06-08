@@ -33,10 +33,11 @@ enum {
 	AMMO_RUBY,
 	AMMO_THUNDER,
 	AMMO_VIPER,
-	AMMO_DEMONSEAL
+	AMMO_DEMONSEAL,
+	AMMO_FUSIONCELL
 };
 
-#define MAXAMMOTYPES AMMO_DEMONSEAL + 1
+#define MAXAMMOTYPES AMMO_FUSIONCELL + 1
 
 str AmmoTypes[MAXAMMOTYPES] = { 
 	"Clip",    
@@ -65,7 +66,8 @@ str AmmoTypes[MAXAMMOTYPES] = {
 	"RubyAmmo",
 	"ThunderAmmo",
 	"ViperAmmo",
-	"DSealAmmo"
+	"DSealAmmo",
+	"FusionCell"
 };
 
 int InitialCapacity[MAXAMMOTYPES] = { 
@@ -95,7 +97,40 @@ int InitialCapacity[MAXAMMOTYPES] = {
 	175,
 	200,
 	80,
-	200
+	200,
+	240
+};
+
+// ratios based on initial capacities
+int AmmoContainerValues[MAXAMMOTYPES] = {
+	50,
+	20,
+	5,
+	100,
+	5,
+	6,
+	40,
+	15,
+	0,
+	12,
+	6,
+	16,
+	10,
+	15,
+	15,
+	60,
+	75,
+	4,
+	105,
+	15,
+	40,
+	40,
+	80,
+	43,
+	66,
+	20,
+	50,
+	48
 };
 
 enum {
@@ -108,10 +143,42 @@ enum {
 #define MAX_SLOTS DND_AMMOSLOT_CELL + 1
 #define MAX_AMMOTYPES_PER_SLOT 9
 int SlotAmmos[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
-	{ AMMO_CLIP, AMMO_EBONY1, AMMO_EBONY2, AMMO_RIOT, AMMO_ACID, AMMO_RUBY, AMMO_VIPER, AMMO_DEMONSEAL, -1 },
+	{ AMMO_CLIP, AMMO_EBONY1, AMMO_EBONY2, AMMO_RIOT, AMMO_ACID, AMMO_RUBY, AMMO_VIPER, AMMO_DEMONSEAL, AMMO_FUSIONCELL },
 	{ AMMO_SHELL, AMMO_EXSHELL, AMMO_SLAYER, AMMO_PCANNON, AMMO_NITROGENCANISTER, -1 },
 	{ AMMO_ROCKET, AMMO_GRENADE, AMMO_HMISSILE, AMMO_METEOR, -1 },
 	{ AMMO_CELL, AMMO_NAIL, AMMO_LAVA, AMMO_GAUSS, AMMO_ION, AMMO_FUEL, AMMO_LIGHTNING, AMMO_EVERICE, AMMO_THUNDER }
+};
+
+#define MAXCLIPAMMOTYPES 28
+str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
+	"SpecialAmmoMode_3",
+	"SpecialAmmoMode_3X",
+	"SpecialAmmoMode_4",
+	"SpecialAmmoMode_5",
+	"SpecialAmmoMode_5X",
+	"GoreMode",
+	"BladeCharge",
+	"SawedoffCounter",
+	"AkimboClipLeft",
+	"AkimboClipRight",
+	"BulletSize_6",
+	"ShellSize_2",
+	"ShellSize_8",
+	"ShellSize_8N",
+	"ShellSize_10",
+	"ShellSize_12",
+	"MGClip",
+	"MGClip2",
+	"MGClip3",
+	"MGClip4",
+	"MGClip5",
+	"MGClip6",
+	"MGClip7",
+	"LoadedBasilisk",
+	"PCanClip",
+	"RiotgunClip",
+	"AcidClip",
+	"HeavyGLCounter"
 };
 
 void SetAllAmmoCapacities() {
@@ -142,6 +209,19 @@ bool CheckAmmoPickup(int slot, bool simple) {
 			res = res && CheckInventory(AmmoTypes[SlotAmmos[slot][i]]) == GetAmmoCapacity(AmmoTypes[SlotAmmos[slot][i]]);
 	}
 	return res;
+}
+
+void HandleAmmoContainerPickup(int ctype) {
+	int amt = 0, index = 0;
+	for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && SlotAmmos[ctype][i] != -1; ++i) {
+		index = SlotAmmos[ctype][i];
+		amt = AmmoContainerValues[index];
+		amt += (CheckInventory("Perk_Munitionist") * amt * DND_MUNITION_GAIN) / 100;
+		if(!amt)
+			amt = 1;
+		
+		GiveInventory(AmmoTypes[index], amt);
+	}
 }
 
 #endif

@@ -40,6 +40,7 @@ Thanks to:
 - LoganMTM (Sprites)
 - Tormentor667 (Realm667)
 - TheMightyHeracross (Sprites)
+- Cage (Sprites)
 - Rachael (Fluids.wad)
 - Alterworldruler (Acid Rifle sprites)
 - Scroton (Projectile interception code)

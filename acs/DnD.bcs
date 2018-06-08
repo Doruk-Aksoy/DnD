@@ -1028,7 +1028,7 @@ script 916 RESPAWN CLIENTSIDE {
 // For each ammo category, use a multiple of 10 to store values
 Script 917 (int ammo_category, int weptype) {
     // if a change did occur
-	if(HasSpecialAmmoForWeapon(ammo_category) != SpecialAmmoBase[ammo_category]) {
+	if(HasSpecialAmmoForWeapon(ammo_category) != SpecialAmmoRanges[ammo_category][0]) {
 		SetSpecialAmmoMode(ammo_category, weptype);
 		if(ammo_category == AMMO_TYPE_SHELL)
 			SetInventory(Weapons[GetCurrentWeaponID()][WEAPON_AMMO2], 0);
@@ -1048,15 +1048,6 @@ Script 918 (int type, int acc, int notarget) {
 	if(!type) { 
 		if(!acc) // get strength
 			res = CheckInventory("PSTAT_Strength");
-		else {
-			if(CheckInventory("Perk_Munitionist")) {
-				res = (CheckInventory("Perk_Munitionist") * notarget * DND_MUNITION_GAIN) / 100;
-				if(!res)
-					res = 1;
-			}
-			else
-				res = 0;
-		}
 	}
 	else if(type == 1) { // check for accessory
 		int tid = ActivatorTID();
@@ -2262,7 +2253,7 @@ Script 997 (void) NET {
 	}
 }
 
-// reload script
+// reload script -- rewrite sometime
 Script 998 (int wepnum, int side, int extra) {
 	int base, amt;
 	str totake, baseammo = "Clip";
@@ -2307,6 +2298,15 @@ Script 998 (int wepnum, int side, int extra) {
 		base = GetAmmoCapacity("AcidClip");
 		baseammo = "AcidAmmo";
 		totake = "AcidClip";
+	}
+	else if(wepnum == 6) {
+		base = GetAmmoCapacity("MGClip6");
+		baseammo = "FusionCell";
+		totake = "MGClip6";
+	}
+	else if(wepnum == 7) {
+		base = GetAmmoCapacity("MGClip7");
+		totake = "MGClip7";
 	}
 	
 	amt = base - CheckInventory(totake);
@@ -2501,6 +2501,11 @@ Script 1002 (void) NET CLIENTSIDE {
 		LocalAmbientSound("Quest/Close", 127);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
+}
+
+// a fancy ammo pickup script to make it easier to add new ammo types to slots
+Script "DND Ammo Container Pickup" (int ctype) {
+	HandleAmmoContainerPickup(ctype);
 }
 
 Script "DND Quest Complete" (int isFail) CLIENTSIDE {

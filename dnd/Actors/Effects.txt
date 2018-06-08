@@ -1637,6 +1637,23 @@ Actor PlasmaSmoke : RocketSmoke {
 	}
 }
 
+Actor PlasmaSmoke2 : RocketSmoke {
+	Alpha 0.75
+	RenderStyle Add
+	Scale 0.375
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+			TNT1 A 0 A_SetScale(frandom(0.25, 0.375), frandom(0.25, 0.375))
+			PLNS ABCDEFGHI 1 A_FadeIn(0.025)
+			PLNS JKLMNOP 1 A_FadeOut(0.035)
+		Stop
+	}
+}
+
 // By Tormentor667
 Actor SoulUseEffect
 {

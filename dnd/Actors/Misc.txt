@@ -647,6 +647,38 @@ actor MGClip2Land
    }
 }
 
+ACTOR FusionBatteryDrop : AkimboClipDrop
+{
+   Scale 0.7
+   BounceSound "weapons/largeclip"
+   States
+   {
+   Spawn:
+      FBAT CDEFGHIJ 1
+      Loop
+   Death:
+      TNT1 A 0 A_SpawnItemEx("FusionBatteryDropLand")
+      stop
+   }
+}
+
+actor FusionBatteryDropLand : MGClip2Land {
+	Scale 0.7
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump("1", "2")
+		1:
+			FBAT C 0
+		Goto Vanish
+		2:
+			FBAT G 0
+		Vanish:
+			"####" "#" 1 A_FadeOut(0.05)
+		Loop
+   }
+}
+
+
 Actor FlameThrowerFuelTankDrop : AkimboClipDrop {
    Scale 0.9
    BounceSound "Flamethrower/FuelBounce"

@@ -40,6 +40,7 @@ enum {
 	RES_SLOT4UPG1,
     RES_SLOT4UPG2,
 	RES_SLOT4UPG3,
+	RES_SLOT4UPG4,
 	
 	RES_SLOT5UPG1,
 	RES_SLOT5GL,
@@ -48,6 +49,7 @@ enum {
 	
 	RES_SLOT6UPG1,
     RES_SLOT6UPG2,
+	RES_SLOT6UPG3,
 	
 	RES_SLOT7UPG1,
 	RES_SLOT7UPG2,
@@ -102,6 +104,7 @@ str Research_List[MAX_RESEARCHES] = {
 	"Slot4Upgrade1",
     "Slot4Upgrade2",
 	"Slot4Upgrade3",
+	"Slot4Upgrade4",
 	
 	"Slot5Upgrade1",
 	"Slot5GL",
@@ -110,6 +113,7 @@ str Research_List[MAX_RESEARCHES] = {
 	
 	"Slot6Upgrade1",
     "Slot6Upgrade2",
+	"Slot6Upgrade3",
 	
 	"Slot7Upgrade1",
 	"Slot7Upgrade2",
@@ -159,6 +163,7 @@ str Research_Label[MAX_RESEARCHES] = {
     "Templar Machine Gun (4)",
     "Riot Cannon (4)",
 	"Acid Rifle (4)",
+	"Fusion Blaster (4)",
 	
     "Meteor Launcher (5)",
     "Grenade Launcher (5)",
@@ -167,6 +172,7 @@ str Research_Label[MAX_RESEARCHES] = {
 	
     "Flamethrower (6)",
     "Lightning Gun (6)",
+	"Rebounder (6)",
 	
     "Ion Cannon (7)",
 	"Thunder Staff (7)",

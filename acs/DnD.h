@@ -51,7 +51,6 @@
 
 #define DND_BUDGET_BASE 3
 #define DND_MAX_SHARE 4
-#define DND_MUNITION_GAIN 10
 #define DND_SPREE_AMOUNT 4 * TICRATE // 4 * 35
 #define DND_SPREE_PER 15
 #define DND_SPREE_TRIGGER DND_SPREE_PER - 1 // -1 because current monster killed doesn't count
@@ -199,6 +198,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40. Can use \cigrenades\c-.",
 	 "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
 	 "Fires acid rounds doing 18 damage on hit and 10-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius.",
+	 "Fires in bursts of 5 each doing 25 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 150 damage and releasing rippers doing 5 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-",
 	 "Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin. Can't hit \cughosts.",
 	 "The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs. \cfIgnores shields.",
 	 
@@ -218,12 +218,15 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Launches 5 ice shards doing 15 - 30 damage in a 7.5 by 7.5 spread. Alt fire launches a glacial orb launching ice shards all around with itself doing 6-9 damage and rips through enemies. Can't hit \cughosts.",
 	 "Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.",
 	 "UAC offers this shockingly deadly weapon that can shoot lightning doing 9-12 damage. Alt fire shoots forked lightning. Keep firing and da- mage increases by 4% per stack. Stacks additively.",
+	 "Fires projectiles doing 25 damage. For every 24 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.",
+	 
+	 "Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 spread. Alt fire zooms, allowing for higher precision but loss of rapid fire. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
 	 "An interesting demonic artifact shooting nails. Each nail does 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.\c- Can't hit \cughosts.",
 	 "Basilisk is said to be the ancient weapon of hell's most elite warriors. If not loaded, shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage. \cf Ignores shields.",
 	 
 	 "BFG 6000, an older model but still capable. Can be \cdreplaced.\cf Ignores shields.",
 	 "The newest BFG model 32768, devastates with 600 - 900 damage on impact and 384 damage in a 160 unit radius. Also shoots 64 tracers instead of 40.",
-	 "Devastator launches four mini rockets each doing 64 to 80 with 32 radius damage in 96 units. Can't hit \cughosts. \c-\cfIgnores shields.",
+	 "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units. Can't hit \cughosts. \c-\cfIgnores shields.",
 	 "Fires a destructive orb doing 425 damage on impact and 384 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. \cfIgnores shields.",
 	 "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60. Can \cgoverheat\c-. \cfIngores shields\c-. Can't hit \cughosts\c-.",
 	 "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.\c- Does full damage regardless.",
