@@ -609,6 +609,7 @@ ACTOR "Heavy Missile Launcher" : Weapon
    Inventory.PickupMessage "You got the Heavy Missile Launcher!"
    Obituary "%o couldn't dodge %k's missiles."
    Weapon.AmmoType "MISAmmo"
+   Weapon.AmmoType2 "MISAmmo"
    Weapon.AmmoGive 2
    Weapon.AmmoUse1 1
    Weapon.AmmoUse2 1

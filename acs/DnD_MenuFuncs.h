@@ -839,8 +839,9 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 
 // will process item selections depending on given valid range
 // support for selling other stuff is here, it's just a few extra lines in the serverside script to handle the process
-void ProcessTrade (int posy, int low, int high, int tradeflag) {
+void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 	int itemid, price, buystatus;
+	int loopnumber = 0;
 	if(tradeflag & TRADE_BUY) {
 		itemid = low + posy;
 		if(itemid <= high) {
@@ -849,47 +850,52 @@ void ProcessTrade (int posy, int low, int high, int tradeflag) {
 				ShowNeedResearchPopup();
 			}
 			else {
-				// now consider money and other things as factors
-				price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
-				buystatus = CanTrade(itemid, tradeflag, price);
-				if(!buystatus) {
-					// consider researches before handing out
-					TakeInventory("Credit", price);
-					// for money quest
-					GiveInventory("DnD_MoneySpentQuest", price);
-					if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
-						HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorBaseAmounts[itemid - SHOP_FIRSTARMOR_INDEX + 1], tradeflag & TRADE_ARMOR_REPLACE);
-					}
-					else
-						GiveInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
-					if(tradeflag & TRADE_WEAPON) {
-						LocalAmbientSound("weapons/pickup", 127);
-						TakeInventory(GetWeaponToTake(itemid), 1);	
-						GiveInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
-						SetWeapon(ShopItemNames[itemid][SHOPNAME_ITEM]);
-                        // fix special ammo cursor
-                        int fix = IsSpecialFixWeapon(itemid);
-                        if(fix != -1) {
-                            int weptype = SpecialAmmoFixWeapons[fix][1];
-							// pull the ammo category and fix it
-                            SetInventory(StrParam(s:"SpecialAmmoMode", s:GetSpecialAmmoSuffix(weptype)), SpecialAmmoRanges[SpecialAmmoFixWeapons[fix][2]][0]);
-                        }
-                    }
-					else if(tradeflag & TRADE_AMMO)
-						LocalAmbientSound("items/ammo", 127);
-					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_TALENT)) {
+				//loop 
+				do {
+					loopnumber++;
+					// now consider money and other things as factors
+					price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+					buystatus = CanTrade(itemid, tradeflag, price);
+					if(!buystatus) {
+						// consider researches before handing out
+						TakeInventory("Credit", price);
+						// for money quest
+						GiveInventory("DnD_MoneySpentQuest", price);
+						if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
+							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorBaseAmounts[itemid - SHOP_FIRSTARMOR_INDEX + 1], tradeflag & TRADE_ARMOR_REPLACE);
+						}
+						else
+							GiveInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
+						if(tradeflag & TRADE_WEAPON) {
+							TakeInventory(ShopWeaponTake[itemid], 1);	
+							GiveInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
+							SetWeapon(ShopItemNames[itemid][SHOPNAME_ITEM]);
+							// fix special ammo cursor
+							int fix = IsSpecialFixWeapon(itemid);
+							if(fix != -1) {
+								int weptype = SpecialAmmoFixWeapons[fix][1];
+								SetInventory(StrParam(s:"SpecialAmmoMode", s:GetSpecialAmmoSuffix(weptype)), SpecialAmmoRanges[SpecialAmmoFixWeapons[fix][2]][0]);
+							}
+						}
 						if(tradeflag & TRADE_ARTIFACT)
 							SetInventory("DnD_Artifact_MapBits", SetBit(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX));
 						if(tradeflag & TRADE_TALENT)
 							TakeInventory("TalentPoint", 1);
-						LocalAmbientSound("Bonus/Received", 127);
 					}
+				} while (givefull && !buystatus);
+				//sound (mostly)
+				if (buystatus && loopnumber==1) {
+						LocalAmbientSound("RPG/MenuError", 127);
+						GiveInventory("DnD_ShowPopup", 1);
+				} else {
+					if(tradeflag & TRADE_WEAPON)
+						LocalAmbientSound("weapons/pickup", 127);
+					else if(tradeflag & TRADE_AMMO)
+						LocalAmbientSound("items/ammo", 127);
+					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_TALENT))
+						LocalAmbientSound("Bonus/Received", 127);
 					else if(tradeflag & TRADE_ARMOR)
 						LocalAmbientSound("items/armor", 127);
-				}
-				else {
-					LocalAmbientSound("RPG/MenuError", 127);
-					GiveInventory("DnD_ShowPopup", 1);
 				}
 			}
 		}
