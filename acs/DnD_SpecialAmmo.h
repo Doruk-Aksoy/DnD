@@ -165,9 +165,15 @@ bool CanSwitchMode(int ammo_category, int weptype) {
 	int curweap = CheckInventory("DnD_WeaponID");
 	int mode = GetSpecialAmmoRangeIndex(ammo_category, weptype);
 	int prevmode = mode;
+	int failsafe = 0;
 	// while can cycle through on next, if no ammo keep searching and take mod
 	do {
 		mode = (mode + 1) % SPECIALAMMO_PERWEAPON_MAX;
+		++failsafe;
+		if(failsafe == SPECIALAMMO_PERWEAPON_MAX)
+			return false;
+		if(SpecialAmmoRanges[ammo_category][mode] == -1)
+			continue;
 	} while(!HasAmmoForSpecialMode(mode, ammo_category, curweap));
 	return prevmode != mode;
 }
@@ -175,11 +181,19 @@ bool CanSwitchMode(int ammo_category, int weptype) {
 // if this runs when player has no ammo, big trouble. Make sure decorate of weapons dont allow it!
 void SetSpecialAmmoMode(int ammo_category, int weptype) {
 	int curweap = CheckInventory("DnD_WeaponID");
-	int mode = GetSpecialAmmoMode(ammo_category, weptype);
+	int mode = GetSpecialAmmoRangeIndex(ammo_category, weptype);
+	int failsafe = 0;
 	// while can cycle through on next, if no ammo keep searching and take mod
 	do {
 		mode = (mode + 1) % SPECIALAMMO_PERWEAPON_MAX;
+		++failsafe;
+		if(failsafe == SPECIALAMMO_PERWEAPON_MAX)
+			break;
+		if(SpecialAmmoRanges[ammo_category][mode] == -1)
+			continue;
 	} while(!HasAmmoForSpecialMode(mode, ammo_category, curweap));
+	if(SpecialAmmoRanges[ammo_category][mode] == -1)
+		mode = 0;
 	str suffix = GetSpecialAmmoSuffix(weptype);
 	SetInventory(StrParam(s:"SpecialAmmoMode", s:suffix), SpecialAmmoRanges[ammo_category][mode]);
 	SetInventory("AmmoChangeMessage", SpecialAmmoRanges[ammo_category][mode]);

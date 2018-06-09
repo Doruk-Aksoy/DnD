@@ -29,6 +29,7 @@ LEGEND:
 ! Added a new help page to describe weapon properties.
 ! Monster traits are now color coded.
 ! Monsters now have little icons to the two sides of the health bar to indicate their base monster type. (Demonic, Undead etc.)
+* All weapons that can use alternate ammo now have a mode switching animation.
 * Player pain sounds for "Marine", "Hobo" and "Punisher" now respect health ratios properly.
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
 * Changed how footstep sounds are generated. They get faster and louder the faster you move.
@@ -46,6 +47,7 @@ LEGEND:
 * "Strength" and "Bulkiness" stats now correctly mention they increase your knockback resist.
 * Your "Wisdom" and "Greed" bonuses from sources besides perks will also show correctly on a monster kill as bonuses.
 * Changed placement of some slot 1 weapons.
+* Fixed a bug where "Grenade Launcher" wouldn't fire alternate ammo if it had no normal grenades left.
 * Fixed a typo in "Slot 6 Luxury" research.
 * Fixed a problem related to chest drops and respawning items.
 * Fixed a bug where "Violence Orb" bonuses weren't included in damage calculation.

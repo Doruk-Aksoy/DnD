@@ -709,3 +709,76 @@ actor FlameThrowerFuelTankDropLand
 	  Loop
    }
 }
+
+ACTOR RhinoCasing {
+	PROJECTILE
+	-NOGRAVITY
+	-NOBLOCKMAP
+	+BOUNCEONACTORS
+	+CLIENTSIDEONLY
+	BounceType Doom
+	BounceSound "Weapons/bulletcasing"
+	BounceFactor 0.5
+	WallBounceFactor 0.2
+	Mass 5
+	Radius 3
+	Height 3
+	Scale 0.125
+	States {
+		Spawn:
+			8CS6 ABCDEFGH 2 A_SpawnItemEx("casingsmoke")
+		Loop
+		Death:
+			8CS6 A 0 A_Jump(256, "Death1", "Death2", "Death3")
+		Death1:
+			8CS6 A 1000
+			8CS6 A 1 A_FadeOut(0.1)
+		Wait
+		Death2:
+			8CS6 C 1000
+			8CS6 C 1 A_FadeOut(0.1)
+		Wait
+		Death3:
+			8CS6 G 1000
+			8CS6 G 1 A_FadeOut(0.1)
+		Wait
+	}
+}
+
+ACTOR RhinoClipDrop : AkimboClipDrop
+{
+   Scale 1.0
+   BounceSound "weapons/largeclip"
+   States
+   {
+   Spawn:
+      25MM ABCDEFGH 2
+      Loop
+   Death:
+      TNT1 A 0 A_SpawnItemEx("RhinoClipLand")
+      stop
+   }
+}
+
+actor RhinoClipLand {
+	-NOGRAVITY
+	+FLOORCLIP
+	+CLIENTSIDEONLY
+	Scale 1.0
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "1", "2", "3")
+		1:
+			25MM A 0
+		Goto FadeLoop
+		2:
+			25MM C 0
+		Goto FadeLoop
+		3:
+			25MM G 0
+		Goto FadeLoop
+		FadeLoop:
+			"####" "#" 1 A_FadeOut(0.05)
+		Loop
+	}
+}

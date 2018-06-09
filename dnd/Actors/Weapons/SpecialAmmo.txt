@@ -204,15 +204,9 @@ Actor GrenadeShooterGL : DnD_Activator {
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("NormalGrenade", 0, 0, 0, 4)
-		Goto CheckMode
+		Stop
 		Full:
 			TNT1 A 0 A_FireCustomMissile("NormalGrenade_FullDMG", 0, 0, 0, 4)
-		Goto CheckMode
-		CheckMode:
-			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "Nothing")
-			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_GRENADE) // 0 is shell position
-			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_5X", 0)
-			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_5X", AMMO_GRENADE)
 		Stop
 		Nothing:
 			TNT1 A 0
@@ -309,9 +303,9 @@ Actor HEGrenadeX {
 	BounceSound "WeaponGL/40MMHBounce"
 	Deathsound "Weapons/grenadexpl2"
 	BounceCount 4
-	BounceFactor 0.2
+	BounceFactor 0.4
 	Gravity 0.66
-	BounceType Doom
+	BounceType Grenade
 	const int iterations = 18;
 	var int user_count;
 	+DONTBLAST
@@ -493,7 +487,7 @@ Actor SonicGrenade {
 	BounceCount 5
 	BounceFactor 0.33
 	Gravity 0.66
-	BounceType Doom
+	BounceType Grenade
 	+MTHRUSPECIES
 	+DONTBLAST
 	+THRUGHOST

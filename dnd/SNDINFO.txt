@@ -9,7 +9,6 @@ $limit RhinoRifle/Fire1 0
 $limit RhinoRifle/Fire2 0
 $limit RhinoRifle/Fire3 0
 $limit RhinoRifle/Fire4 0
-$limit RhinoRifle/Fire 0
 RhinoRifle/ClipIn		RHINCLI
 RhinoRifle/ClipOut		RHINCLO
 RhinoRifle/Cock			RHINCOC
@@ -28,7 +27,10 @@ $random GenericGL/Insert { GenericGL/Insert1 GenericGL/Insert2 GenericGL/Insert3
 GenericGL/Open			MGRNOPEN
 GenericGL/Close			MGRNCLOS
 GenericGL/FireAdd		MGRNFIRX
-$limit GenericGL/Fire 0
+$limit GenericGL/Fire1 0
+$limit GenericGL/Fire2 0
+$limit GenericGL/Fire3 0
+$limit GenericGL/Fire4 0
 $limit GenericGL/FireAdd 0
 
 

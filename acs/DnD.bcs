@@ -3155,6 +3155,10 @@ Script "DnD Footstep Sound" ENTER CLIENTSIDE {
 	}
 }
 
+Script "DnD Weapon Can Switch Mode" (int ammo_category, int weptype) {
+	SetResultValue(CanSwitchMode(ammo_category, weptype));
+}
+
 Script "DnD Player Pain Sound" (void) CLIENTSIDE {
 	int ptype = CheckInventory("DnD_Character");
 	// special pain sound range handling for hobo, punisher and marine
