@@ -1703,7 +1703,7 @@ Actor RhinoRifle : Weapon
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 2, 32 * (1 + sin(-pitch)), 2, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("RhinoCasing",cos(pitch)*28,-2,32+(sin(-pitch)*20),0,-8,random(4,10),0,0,0)
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,5,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-			TNT1 A 0 A_PlaySound("RhinoRifle/Fire")
+			TNT1 A 0 A_PlaySound("RhinoRifle/Fire", CHAN_AUTO)
 			MARF A 1 Bright
 			TNT1 A 0 A_SetPitch(pitch - 0.75)
 			MARF BC 2
@@ -1717,7 +1717,7 @@ Actor RhinoRifle : Weapon
 			TNT1 A 0 A_SpawnItemEx ("RhinoCasing", 10 + cos(pitch)*28,-2,32+(sin(-pitch)*20),0,-8,random(4,10),0,0,0)
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke", 10 + cos(-pitch)*20,0,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 A_GiveInventory("RhinoShooter2", 1)
-			TNT1 A 0 A_PlaySound("RhinoRifle/Fire")
+			TNT1 A 0 A_PlaySound("RhinoRifle/Fire", CHAN_AUTO)
 			MAZF A 1 Bright
 			TNT1 A 0 A_SetPitch(pitch - 1.5)
 			MAZF BBC 1 A_SetPitch(pitch + 0.5)

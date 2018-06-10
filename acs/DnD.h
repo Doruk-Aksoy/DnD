@@ -205,6 +205,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "A true classic. Just don't blow yourself up. Can be \cdreplaced. Can't hit \cughosts.",
 	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 144 unit radius. Can't hit \cughosts.",
 	 "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.",
+	 "Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 30 explosion damage in 96 unit radius. The shells explode 320 units to scatter 3 explosive particles each doing 20 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
 	 "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well. Main meteor \cfignores shields\c-.",
 	 "Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Alt fire loads more grenades in the chamber. At most 3 additional grenades. Can't hit \cughosts.",
 	 "Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius. Can \cgoverheat\c-.",

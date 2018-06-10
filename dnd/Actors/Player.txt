@@ -61,6 +61,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 	Player.StartItem "ShellSize_8N", 8
 	Player.StartItem "ShellSize_10", 10
 	Player.StartItem "ShellSize_12", 12
+	Player.StartItem "ShellSize_18", 18
 	
 	States {
 		Spawn:
@@ -408,6 +409,7 @@ Actor TheMarine : DnD_PlayerBase {
 	Player.StartItem "ShellSize_8N", 8
 	Player.StartItem "ShellSize_10", 10
 	Player.StartItem "ShellSize_12", 12
+	Player.StartItem "ShellSize_18", 18
 	
 	States {
 		Spawn:
@@ -746,6 +748,7 @@ Actor TheHobo : DnD_PlayerBase {
 	Player.StartItem "ShellSize_8N", 8
 	Player.StartItem "ShellSize_10", 10
 	Player.StartItem "ShellSize_12", 12
+	Player.StartItem "ShellSize_18", 18
 	
 	States {
 		Spawn:
@@ -1084,6 +1087,7 @@ Actor ThePunisher : DnD_PlayerBase {
 	Player.StartItem "ShellSize_8N", 8
 	Player.StartItem "ShellSize_10", 10
 	Player.StartItem "ShellSize_12", 12
+	Player.StartItem "ShellSize_18", 18
 	
 	States {
 		Spawn:
@@ -1422,6 +1426,7 @@ Actor TheWanderer : DnD_PlayerBase {
 	Player.StartItem "ShellSize_8N", 8
 	Player.StartItem "ShellSize_10", 10
 	Player.StartItem "ShellSize_12", 12
+	Player.StartItem "ShellSize_18", 18
 	
 	States {
 		Spawn:

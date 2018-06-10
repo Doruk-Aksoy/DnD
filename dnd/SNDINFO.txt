@@ -1,5 +1,15 @@
 NullSound				dsempty
 
+Vindicator/Fire1		VINDFIR1
+Vindicator/Fire2		VINDFIR2
+Vindicator/Fire3		VINDFIR3
+Vindicator/Fire4		VINDFIR4
+$random Vindicator/Fire { Vindicator/Fire1 Vindicator/Fire2 Vindicator/Fire3 Vindicator/Fire4 }
+Vindicator/Clipin		VINDIN
+Vindicator/Clipout		VINDOUT
+Vindicator/FlakExp		VINDFEXP
+Vindicator/PuffExp		VINDPEXP
+
 RhinoRifle/Fire1		RHINFIR1
 RhinoRifle/Fire2		RHINFIR2
 RhinoRifle/Fire3		RHINFIR3

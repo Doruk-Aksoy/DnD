@@ -782,3 +782,88 @@ actor RhinoClipLand {
 		Loop
 	}
 }
+
+actor FlakShellCasing : shotguncasing {
+	scale 0.25
+    States {
+		Spawn:
+			8CS8 A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 A 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 B 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 C 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 D 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 E 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 F 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 G 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+			8CS8 H 1 A_SpawnItemEx ("casingsmoke", 0, 0, 0, 0, 0, 1, 0,0, 0) 
+		Death:
+			8CS8 C 0 A_Jump (85, "death1", "death2", "death3")
+			8CS8 C 0 A_Jump (85, "death1", "death2", "death3")
+			8CS8 C 0 A_Jump (85, "death1", "death2", "death3")
+		death0:
+			8CS8 A 10 a_fadeout(0.05)
+		Loop
+		death1:
+			8CS8 C 10 a_fadeout(0.05)
+		Loop
+		death2:
+			8CS8 E 10 a_fadeout(0.05)
+		Loop
+		death3:
+			8CS8 G 10 a_fadeout(0.05)
+		Loop
+    }
+}
+
+ACTOR FlakClipDrop : AkimboClipDrop
+{
+   Scale 1.0
+   BounceSound "weapons/largeclip"
+   States
+   {
+   Spawn:
+      CLP4 ABCDEFGH 2
+      Loop
+   Death:
+      TNT1 A 0 A_SpawnItemEx("FlakClipLand")
+      stop
+   }
+}
+
+actor FlakClipLand {
+	-NOGRAVITY
+	+FLOORCLIP
+	+CLIENTSIDEONLY
+	Scale 1.0
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "1", "2", "3")
+		1:
+			CLP4 A 0
+		Goto FadeLoop
+		2:
+			CLP4 C 0
+		Goto FadeLoop
+		3:
+			CLP4 G 0
+		Goto FadeLoop
+		FadeLoop:
+			"####" "#" 1 A_FadeOut(0.05)
+		Loop
+	}
+}

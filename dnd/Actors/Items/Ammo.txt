@@ -392,6 +392,23 @@ Actor ShellSize_12 : Ammo {
 	+IGNORESKILL
 }
 
+Actor ShellSize_18 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 18
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 18
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
+Actor FlakShell : Ammo {
+	inventory.amount 4
+	inventory.maxamount 40
+	inventory.icon "FSHLA0"
+	ammo.backpackamount 4
+	ammo.backpackmaxamount 80
+}
+
 Actor ExplodingShell : Ammo
 {
 	inventory.amount 4

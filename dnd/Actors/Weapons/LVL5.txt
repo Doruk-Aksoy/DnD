@@ -364,6 +364,370 @@ Actor RocketShooter3 : DnD_Activator {
 	}
 }
 
+ACTOR "Upgraded Rocket Launcher3" : Weapon {
+	Weapon.SelectionOrder 600
+	Weapon.AmmoUse1 0
+	Weapon.AmmoUse2 0
+	Weapon.AmmoGive 0
+	Weapon.AmmoType1 "FlakShell"
+	Weapon.AmmoType2 "ShellSize_18"
+	Weapon.SlotNumber 5
+	Inventory.PickupMessage "$GOTSHOTGUN2"
+	Inventory.PickupSound "weapons/pickup"
+	Obituary "$OB_MPSSHOTGUN"
+	Tag "Vindicator"
+	Decal "BulletChip"
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.7
+	Weapon.BobRangeX 0.8
+	States {
+		Ready:
+			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "ZoomReady")
+			VS9G A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+		ZoomReady:
+			V9ZG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+		Deselect:
+			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "UnzoomDeselect")
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+		DeselectLoop:
+			VS9G A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_VINDICATOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 5)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 18)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 20)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_3, 30)
+		SelectLoop:
+			VS9G A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueFire")
+			TNT1 A 0 A_JumpIfInventory("ShellSize_18", 1, "ContinueFire")
+		Goto Reload
+		ContinueFire:
+			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "FireZoom")
+			VS9F A 2 Bright
+			TNT1 A 0 A_PlaySound("Vindicator/Fire", CHAN_AUTO)
+			TNT1 A 0 A_GunFlash
+			TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 5, 34 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_GiveInventory("VindicatorShooter", 1)
+			TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(5, 10), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+			VS9F B 1 A_SetPitch(pitch - 5.0)
+			VS9F B 1 A_SetPitch(pitch + 1.0)
+			VS9F B 1 A_SetPitch(pitch + 1.0)
+			VS9F CC 1 A_SetPitch(pitch + 1.0)
+			TNT1 A 0 A_SpawnItemEx ("FlakShellCasing",cos(-pitch)*28, 24, 30+(sin(-pitch)*36),0,random(5, 8), random(1, 8),0,0,0)
+			TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(5, 10), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+			VS9F D 2
+			VS9F EFG 2 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(5, 10), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+			VS9G A 2
+			VS9G A 2 A_Refire
+		Goto Ready
+		FireZoom:
+			V9ZF A 2 Bright
+			TNT1 A 0 A_PlaySound("Vindicator/Fire", CHAN_AUTO)
+			TNT1 A 0 A_GunFlash
+			TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 5, 34 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_GiveInventory("VindicatorShooter2", 1)
+			TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, 0, 36+(sin(-pitch)*20),0,0,2,0,0,0)
+			V9ZF B 1 A_SetPitch(pitch - 3.0)
+			V9ZF B 1 A_SetPitch(pitch + 1.0)
+			V9ZF B 1 A_SetPitch(pitch + 1.0)
+			V9ZF C 2 A_SetPitch(pitch + 1.0)
+			TNT1 A 0 A_SpawnItemEx ("FlakShellCasing",cos(-pitch)*28, 24, 30+(sin(-pitch)*36),0,random(5, 8), random(1, 8),0,0,0)
+			TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, 0, 36+(sin(-pitch)*20),0,0,2,0,0,0)
+			V9ZF D 2
+			V9ZF EFG 2 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, 0, 36+(sin(-pitch)*20),0,0,2,0,0,0)
+			V9ZG A 4
+		Goto Ready
+		
+		Reload:
+			TNT1 A 0 A_JumpIfInventory("FlakShell", 1, "ContinueCheck")
+			VS9G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		ContinueCheck:
+			TNT1 A 0 A_JumpIfInventory("ShellSize_18", 0, "NoReload")
+			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "UnzoomReload")
+		ReloadZoomCont:
+			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
+		DoReload:
+			VS9R ABCDE 2
+			VS9R F 3 A_PlayWeaponSound("Vindicator/Clipout")
+			VS9R GHIJK 2
+			TNT1 A 0 A_FireCustomMissile("FlakClipDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			VS9R L 35
+		ReloadLoop:
+			TNT1 A 0 A_JumpIfInventory("FlakShell", 1, "ContinueReload")
+		Goto FinishReload
+		ContinueReload:
+			TNT1 A 0 A_JumpIfInventory("ShellSize_18", 0, "FinishReload")
+			TNT1 A 0 A_TakeInventory("FlakShell", 1)
+			TNT1 A 0 A_GiveInventory("ShellSize_18", 1)
+		Goto ReloadLoop
+		FinishReload:
+			VS9R MNOPQ 2
+			VS9R R 3 A_PlayWeaponSound("Vindicator/Clipin")
+			VS9R STUVWX 2
+		Goto Ready
+
+		DoReloadFaster:
+			VS9R ABCDE 1
+			VS9R F 2 A_PlayWeaponSound("Vindicator/Clipout")
+			VS9R GHIJK 1
+			TNT1 A 0 A_FireCustomMissile("FlakClipDrop", frandom(-12.0, 12.0), 0, 0, 0)
+			VS9R L 17
+		ReloadLoopFaster:
+			TNT1 A 0 A_JumpIfInventory("FlakShell", 1, "ContinueReloadFaster")
+		Goto FinishReloadFaster
+		ContinueReloadFaster:
+			TNT1 A 0 A_JumpIfInventory("ShellSize_18", 0, "FinishReloadFaster")
+			TNT1 A 0 A_TakeInventory("FlakShell", 1)
+			TNT1 A 0 A_GiveInventory("ShellSize_18", 1)
+		Goto ReloadLoopFaster
+		FinishReloadFaster:
+			VS9R MNOPQ 1
+			VS9R R 2 A_PlayWeaponSound("Vindicator/Clipin")
+			VS9R STUVWX 1
+		Goto Ready
+		NoReload:
+			VS9G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "UnZoom")
+			VS9Z A 1
+			VS9Z B 1
+			VS9Z C 1 A_ZoomFactor(2.0)
+			TNT1 A 0 A_PlaySound("Weapons/Scope", CHAN_WEAPON)
+			VS9Z D 1 A_GiveInventory("VindicatorZoomed", 1)
+			VS9Z E 1 
+			VS9Z F 1
+		Goto Ready
+		UnZoom:
+			VS9Z F 1 A_ZoomFactor(1.0)
+			TNT1 A 0 A_PlaySound("Weapons/Scope", CHAN_WEAPON)
+			VS9Z E 1 A_TakeInventory("VindicatorZoomed", 1)
+			VS9Z D 1
+			VS9Z C 1
+			VS9Z B 1
+			VS9Z A 1
+		Goto Ready
+		UnZoomDeselect:
+			VS9Z F 1 A_ZoomFactor(1.0)
+			TNT1 A 0 A_PlaySound("Weapons/Scope", CHAN_WEAPON)
+			VS9Z E 1 A_TakeInventory("VindicatorZoomed", 1)
+			VS9Z D 1
+			VS9Z C 1
+			VS9Z B 1
+			VS9Z A 1
+		Goto DeselectLoop
+		UnZoomReload:
+			VS9Z F 1 A_ZoomFactor(1.0)
+			TNT1 A 0 A_PlaySound("Weapons/Scope", CHAN_WEAPON)
+			VS9Z E 1 A_TakeInventory("VindicatorZoomed", 1)
+			VS9Z D 1
+			VS9Z C 1
+			VS9Z B 1
+			VS9Z A 1
+		Goto ReloadZoomCont
+
+		Flash:
+			TNT1 A 4 Bright A_Light1
+			TNT1 A 3 Bright A_Light2
+		Goto LightDone
+		Spawn:
+			VS9P X -1
+		Stop
+	}
+}
+
+Actor VindicatorZoomed : DnD_Boolean { }
+
+Actor VindicatorShooter : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (10.4, 7.8, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (10.4, 7.8, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO, 320)
+		Stop
+	}
+}
+
+Actor VindicatorShooter2 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets (5.2, 3.9, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets (5.2, 3.9, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO, 320)
+		Stop
+	}
+}
+
+Actor FlakShellPuff : BulletPuff {
+	DamageType "Bullet"
+	+MTHRUSPECIES
+	+PUFFGETSOWNER
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	Renderstyle Add
+	Alpha 1.0
+	Scale 0.5
+	VSpeed 0
+	States {
+		Crash:
+			TNT1 A 0
+			TNT1 AAA 0 A_CustomMissile("FlakProjectile", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
+		Spawn:
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET), 96, 1)
+			FP97 A 2 Bright A_PlaySound("Vindicator/PuffExp")
+			FP97 BCDEFGHI 2 Bright
+		stop
+	}
+}
+
+Actor FlakShellPuff_FullDMG : FlakShellPuff {
+	DamageType "BulletFull"
+	States {
+		Crash:
+			TNT1 A 0
+			TNT1 AAA 0 A_CustomMissile("FlakProjectile_FullDMG", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
+		Spawn:
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET), 96, 1)
+			FP97 A 2 Bright A_PlaySound("Vindicator/PuffExp")
+			FP97 BCDEFGHI 2 Bright
+		stop
+	}
+}
+
+ACTOR FlakProjectile : FastProjectile {
+	PROJECTILE
+	Height 4
+	Radius 2
+	RenderStyle Add
+	Alpha 1.0
+	Speed 48
+	DeathSound "Vindicator/FlakExp"
+	MissileType "FlakProjectileTrail"
+	MissileHeight 4
+	ReactionTime 8
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET))
+	DamageType "Explosives"
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_ScaleVelocity(0.1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Target Fix")
+			TNT1 A 1
+			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
+			TNT1 A 0 A_ScaleVelocity(1.0)
+		SpawnLoop:
+			TNT1 A 0 A_CountDown
+			DPTC A 1 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
+			TNT1 A 0 A_SpawnItemEx("FlakProjectileExplosionFX1")
+		Goto Finish
+		2:
+			TNT1 A 0 A_SpawnItemEx("FlakProjectileExplosionFX2")
+		Goto Finish
+		3:
+			TNT1 A 0 A_SpawnItemEx("FlakProjectileExplosionFX3")
+		Goto Finish
+		4:
+			TNT1 A 0 A_SpawnItemEx("FlakProjectileExplosionFX4")
+		Goto Finish
+		Finish:
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET), 96, 1)
+			TNT1 A 5
+		Stop
+	}
+}
+
+Actor FlakProjectile_FullDMG : FlakProjectile {
+	DamageType "ExplosivesFull"
+	+FORCERADIUSDMG
+}
+
+Actor FlakProjectileExplosionFX1 {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 0.925
+	Scale 0.35
+	States {
+		Spawn:
+			DEXP ABCDEFGHIJK 2 Bright
+		Stop
+	}
+}
+
+Actor FlakProjectileExplosionFX2 : FlakProjectileExplosionFX1 {
+	States {
+		Spawn:
+			DXP2 ABCDEFGHIJKLMNOPQR 2 Bright
+		Stop
+	}
+}
+
+Actor FlakProjectileExplosionFX3 : FlakProjectileExplosionFX1 {
+	States {
+		Spawn:
+			DXP3 ABCDEFGHIJKLMNOP 2 Bright
+		Stop
+	}
+}
+
+Actor FlakProjectileExplosionFX4 : FlakProjectileExplosionFX1 {
+	States {
+		Spawn:
+			DXP4 ABCDEFGHIJKLMNOPQ 2 Bright
+		Stop
+	}
+}
+
+Actor FlakProjectileTrail {
+	RenderStyle Add
+	Alpha 1.0
+	+NOBLOCKMONST
+	+NOTELEPORT
+	+FORCEXYBILLBOARD
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+THRUACTORS
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			DPTC BCDEFGHIJ 1 Bright
+		Stop
+	}
+}
+
 // Sprites by Eriance
 Actor "Grenade Launcher" : RocketLauncher
 {
@@ -541,7 +905,7 @@ Actor NormalGrenade
 	BounceType Grenade
 	Bouncecount 4
 	BounceFactor 0.345
-	Gravity 0.66
+	Gravity 0.84
 	DeathSound "Weapons/grenadexpl"
 	States
 	{

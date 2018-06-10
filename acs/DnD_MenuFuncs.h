@@ -253,7 +253,7 @@ int GetWeaponPage(int boxid) {
 		case MBOX_4:
 		return MENU_SHOP_WEAPON4_1;
 		case MBOX_5:
-		return MENU_SHOP_WEAPON5;
+		return MENU_SHOP_WEAPON5_1;
 		case MBOX_6:
 		return MENU_SHOP_WEAPON6_1;
 		case MBOX_7:
@@ -278,8 +278,10 @@ int GetWeaponBeginIndexFromOption(int curopt) {
 		return SHOP_WEAPON41_BEGIN;
 		case MENU_SHOP_WEAPON4_2:
 		return SHOP_WEAPON42_BEGIN;
-		case MENU_SHOP_WEAPON5:
-		return SHOP_WEAPON5_BEGIN;
+		case MENU_SHOP_WEAPON5_1:
+		return SHOP_WEAPON51_BEGIN;
+		case MENU_SHOP_WEAPON5_2:
+		return SHOP_WEAPON52_BEGIN;
 		case MENU_SHOP_WEAPON6_1:
 		return SHOP_WEAPON61_BEGIN;
 		case MENU_SHOP_WEAPON6_2:
@@ -306,8 +308,10 @@ int GetWeaponEndIndexFromOption(int curopt) {
 		return SHOP_WEAPON_SLOT41END;
 		case MENU_SHOP_WEAPON4_2:
 		return SHOP_WEAPON_SLOT42END;
-		case MENU_SHOP_WEAPON5:
-		return SHOP_WEAPON_SLOT5END;
+		case MENU_SHOP_WEAPON5_1:
+		return SHOP_WEAPON_SLOT51END;
+		case MENU_SHOP_WEAPON5_2:
+		return SHOP_WEAPON_SLOT52END;
 		case MENU_SHOP_WEAPON6_1:
 		return SHOP_WEAPON_SLOT61END;
 		case MENU_SHOP_WEAPON6_2:
@@ -444,7 +448,7 @@ str GetWeaponShopIcon(int id) {
 		skip += 1;
 	if(id >= SHOP_WEAPON41_BEGIN)
 		skip += 1;
-	if(id >= SHOP_WEAPON5_BEGIN)
+	if(id >= SHOP_WEAPON51_BEGIN)
 		skip += 1;
 	if(id >= SHOP_WEAPON61_BEGIN)
 		skip += 1;
@@ -1378,7 +1382,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ -1, -1, -1, -1 }
 		},
-		// wep 5
+		// wep 5 - 1
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
@@ -1386,8 +1390,13 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ -1, -1, -1, -1 }
+		},
+		// wep 5 - 2
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
+			{ 289.0, 229.0, 120.0, 223.0 }, // w2
+			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ -1, -1, -1, -1 }
 		},
 		// wep 6 - 1
@@ -1464,6 +1473,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// ammo special

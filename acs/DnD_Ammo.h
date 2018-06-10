@@ -34,10 +34,11 @@ enum {
 	AMMO_THUNDER,
 	AMMO_VIPER,
 	AMMO_DEMONSEAL,
-	AMMO_FUSIONCELL
+	AMMO_FUSIONCELL,
+	AMMO_FLAKSHELL
 };
 
-#define MAXAMMOTYPES AMMO_FUSIONCELL + 1
+#define MAXAMMOTYPES AMMO_FLAKSHELL + 1
 
 str AmmoTypes[MAXAMMOTYPES] = { 
 	"Clip",    
@@ -67,7 +68,8 @@ str AmmoTypes[MAXAMMOTYPES] = {
 	"ThunderAmmo",
 	"ViperAmmo",
 	"DSealAmmo",
-	"FusionCell"
+	"FusionCell",
+	"FlakShell"
 };
 
 int InitialCapacity[MAXAMMOTYPES] = { 
@@ -98,7 +100,8 @@ int InitialCapacity[MAXAMMOTYPES] = {
 	200,
 	80,
 	200,
-	240
+	240,
+	40
 };
 
 // ratios based on initial capacities
@@ -130,7 +133,8 @@ int AmmoContainerValues[MAXAMMOTYPES] = {
 	66,
 	20,
 	50,
-	48
+	48,
+	15
 };
 
 enum {
@@ -145,11 +149,11 @@ enum {
 int SlotAmmos[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	{ AMMO_CLIP, AMMO_EBONY1, AMMO_EBONY2, AMMO_RIOT, AMMO_ACID, AMMO_RUBY, AMMO_VIPER, AMMO_DEMONSEAL, AMMO_FUSIONCELL },
 	{ AMMO_SHELL, AMMO_EXSHELL, AMMO_SLAYER, AMMO_PCANNON, AMMO_NITROGENCANISTER, -1 },
-	{ AMMO_ROCKET, AMMO_GRENADE, AMMO_HMISSILE, AMMO_METEOR, -1 },
+	{ AMMO_ROCKET, AMMO_GRENADE, AMMO_HMISSILE, AMMO_METEOR, AMMO_FLAKSHELL, -1 },
 	{ AMMO_CELL, AMMO_NAIL, AMMO_LAVA, AMMO_GAUSS, AMMO_ION, AMMO_FUEL, AMMO_LIGHTNING, AMMO_EVERICE, AMMO_THUNDER }
 };
 
-#define MAXCLIPAMMOTYPES 28
+#define MAXCLIPAMMOTYPES 29
 str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"SpecialAmmoMode_3",
 	"SpecialAmmoMode_3X",
@@ -167,6 +171,7 @@ str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"ShellSize_8N",
 	"ShellSize_10",
 	"ShellSize_12",
+	"ShellSize_18",
 	"MGClip",
 	"MGClip2",
 	"MGClip3",

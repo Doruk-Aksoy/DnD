@@ -2155,7 +2155,7 @@ Script "DnD Check Special Match" (int multispecial) {
 		res = who - P_TIDSTART == sp - 1;
 	else if(multispecial == DND_SPECIAL_RESEARCH || multispecial == DND_SPECIAL_ORB || multispecial == DND_SPECIAL_TALENTCAPSULE)
 		res = who - P_TIDSTART == (sp & 0xFFFF) - 1;
-	printbold(d:res);
+	//printbold(d:res);
 	SetResultValue(res);
 }
 
@@ -3157,6 +3157,18 @@ Script "DnD Footstep Sound" ENTER CLIENTSIDE {
 
 Script "DnD Weapon Can Switch Mode" (int ammo_category, int weptype) {
 	SetResultValue(CanSwitchMode(ammo_category, weptype));
+}
+
+Script "DnD Get Target of Target" (void) {
+	SetActivatorToTarget(0);
+	SetActivatorToTarget(0);
+	SetResultValue(ActivatorTID());
+}
+
+Script "DnD Target Fix" (void) {
+	int tid = ACS_NamedExecuteWithResult("DnD Get Target of Target");
+	SetActorProperty(0, APROP_TARGETTID, tid);
+	SetPointer(AAPTR_TARGET, tid);
 }
 
 Script "DnD Player Pain Sound" (void) CLIENTSIDE {
