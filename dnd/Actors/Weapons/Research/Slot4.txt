@@ -1599,7 +1599,7 @@ Actor ResMG4 : Weapon {
 			FUSG BA 1
 		Goto Ready
 		Failed:
-			FUSG B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			FUSF B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ReloadFaster:
 			TNT1 A 0 A_JumpIfInventory("MGClip6", 0, "Failed")
@@ -1698,10 +1698,10 @@ Actor FusionBlasterShooter2 : DND_Activator {
 			TNT1 A 0 A_TakeInventory("MGClip6", 20)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireCustomMissile("FusionBlasterGrenade", 0, 0, 8, 30, 0, 0)
+			TNT1 A 0 A_FireCustomMissile("FusionBlasterGrenade", 1, 0, 8, 8, 0, 0)
 		Stop
 		Full:
-			TNT1 A 0 A_FireCustomMissile("FusionBlasterGrenade_FullDMG", 0, 0, 8, 38, 0, 0)
+			TNT1 A 0 A_FireCustomMissile("FusionBlasterGrenade_FullDMG", 1, 0, 8, 8, 0, 0)
 		Stop
 	}
 }

@@ -846,7 +846,7 @@ Actor ResPlasma3 : Weapon {
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireContinue")
 			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 100, "Nothing")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 97, "Nothing")
 		FireContinue:
 			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
 			DGAF A 1 Bright
@@ -860,7 +860,7 @@ Actor ResPlasma3 : Weapon {
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "AltFireAmmoCheck")
 			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 100, "Nothing")
+			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 77, "Nothing")
 		AltFireAmmoCheck:
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "AltFireCont")
 			TNT1 A 0 A_JumpIfInventory("Cell", 20, "AltFireCont")
