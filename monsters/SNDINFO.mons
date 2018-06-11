@@ -713,7 +713,6 @@ monster/sendth                  dssendth
 weapons/boltfi                  dsboltfi
 monster/disht1					dsdisht1
 weapons/bigbrn                  dsbigbrn
-weapons/firex2                  dsfirex2
 weapons/firex3                  dsfirex3
 weapons/smlbrn                  dssmlbrn
 
@@ -888,7 +887,6 @@ monster/dknswg dsdknswg
 
 monster/dkndrt VORPGO
 monster/dkball  dkatt
-weapons/firex2 dsfirex2
 monster/dknmsl dsdknmsl
 weapons/boom1 dsboom1
 weapons/boltfi dsboltfi

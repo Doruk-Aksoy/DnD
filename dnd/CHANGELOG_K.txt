@@ -9,7 +9,7 @@ LEGEND:
 == DND RPG RELATED ==
 =====================
 
-! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle".
+! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator".
 ! Added new researches: "Fusion Blaster", "Rebounder".
 ! Backpacks can also drop chests now!
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
@@ -30,6 +30,7 @@ LEGEND:
 ! Monster traits are now color coded.
 ! Monsters now have little icons to the two sides of the health bar to indicate their base monster type. (Demonic, Undead etc.)
 ! Talents can be brought in bulks now.
+! Ammo page on the menu has been revamped! Now you can purchase your ammo in a cleaner, more organized fasion seperated to their categories.
 * All weapons that can use alternate ammo now have a mode switching animation.
 * Player pain sounds for "Marine", "Hobo" and "Punisher" now respect health ratios properly.
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.

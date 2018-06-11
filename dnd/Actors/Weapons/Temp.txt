@@ -1316,7 +1316,6 @@ ACTOR Ripper2Trail
    +CLIENTSIDEONLY
 	RenderStyle Add
 	Alpha 0.5
-   DeathSound "weapons/firex2"
    States
    {
    Spawn:

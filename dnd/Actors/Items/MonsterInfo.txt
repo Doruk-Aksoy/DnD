@@ -172,6 +172,7 @@ Actor ElementalResist : PowerProtection {
 	DamageFactor "P_Ice", 0.5
 	DamageFactor "Ice", 0.5
 	DamageFactor "AcidRifle", 0.5
+	damagefactor "Desolator", 0.5
 	DamageFactor "Fire", 0.5
 	DamageFactor "ExplosivesFire", 0.5
 	DamageFactor "Lightning", 0.5
@@ -183,6 +184,7 @@ Actor ElementalImmunity : PowerProtection {
 	DamageFactor "P_Ice", 0.0
 	DamageFactor "Ice", 0.0
 	DamageFactor "AcidRifle", 0.0
+	damagefactor "Desolator", 0.0
 	DamageFactor "Fire", 0.0
 	DamageFactor "ExplosivesFire", 0.0
 	DamageFactor "Lightning", 0.0

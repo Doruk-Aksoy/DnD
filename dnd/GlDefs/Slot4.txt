@@ -320,3 +320,35 @@ object FusionBlasterGrenade_FullDMG {
 	frame FUG9K { light FusionBlasterLight9 }
 	frame FUG9L { light FusionBlasterLight9 }
 }
+
+flickerlight DesolatorLight {
+	color 0.15 1.0 0.15
+	size 16
+	secondarysize 32
+	chance 0.5
+}
+
+object DesolatorPuff {
+	frame DES5A { light DesolatorLight }
+	frame DES5B { light DesolatorLight }
+	frame DES5C { light DesolatorLight }
+	frame DES5D { light DesolatorLight }
+	frame DES5E { light DesolatorLight }
+	frame DES5F { light DesolatorLight }
+}
+
+object DesolatorPuff_FullDMG {
+	frame DES5A { light DesolatorLight }
+	frame DES5B { light DesolatorLight }
+	frame DES5C { light DesolatorLight }
+	frame DES5D { light DesolatorLight }
+	frame DES5E { light DesolatorLight }
+	frame DES5F { light DesolatorLight }
+}
+
+flickerlight DesolatorGreenGlow {
+    color 0.0 0.3 0.0
+    size 10
+    secondarySize 15
+    chance 0.5
+}

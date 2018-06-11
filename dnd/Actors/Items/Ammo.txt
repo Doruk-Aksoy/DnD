@@ -753,6 +753,15 @@ Actor FusionCell : Ammo {
 	+IGNORESKILL
 }
 
+Actor DesolatorAmmo : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 175
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 175
+	inventory.icon "DES4Y0"
+	+IGNORESKILL
+}
+
 //////////////////////////////
 //      TEMPORARY AMMO      //
 //////////////////////////////
@@ -978,6 +987,13 @@ Actor FreezerOverheat : Ammo {
 }
 
 Actor RebounderOverheat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor DesolatorOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
 	Inventory.Icon "STTPRCNT"

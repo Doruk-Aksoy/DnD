@@ -16,6 +16,7 @@ Thanks to:
 - thehadnot (Sounds)
 - ijonTichy (Codebase for railgun particle draw)
 - Daedalus (Sprites and code for various special effects)
+- Noozearts (Sprites)
 - Gifty (Sprites)
 - MagicWazard (Sprites)
 - Bloax (Sprites, Graphics)

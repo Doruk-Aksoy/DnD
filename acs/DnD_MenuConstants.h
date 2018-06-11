@@ -1,6 +1,9 @@
 #ifndef DND_MENUCONSTANTS_IN
 #define DND_MENUCONSTANTS_IN
 
+#include "DnD_Ammo.h"
+#include "DnD_SpecialAmmo.h"
+
 #define DND_QUICKBUY_POPUPID 0xFFFF
 
 // Box definitions for clickables
@@ -76,9 +79,12 @@ enum {
 	MENU_SHOP_WEAPON7,
 	MENU_SHOP_WEAPON8,
 	
-	MENU_SHOP_AMMO1,
-	MENU_SHOP_AMMO2,
-	MENU_SHOP_AMMO3,
+	MENU_SHOP_AMMOSELECT,
+	// the following 4 are for ammo categories
+	MENU_SHOP_AMMO_1,
+	MENU_SHOP_AMMO_2,
+	MENU_SHOP_AMMO_3,
+	MENU_SHOP_AMMO_4,
 	MENU_SHOP_AMMO_SPECIAL1,
 	
 	MENU_SHOP_ABILITY_1,
@@ -147,6 +153,7 @@ enum {
 		SHOP_WEP_RESMG4,
 		
 	// wep slot 4 - 2
+		SHOP_WEP_DESOLATOR,
 		SHOP_WEP_MINIGUN,
 		SHOP_WEP_EBONY,
 
@@ -191,7 +198,7 @@ enum {
 		SHOP_WEP_SUN,
 		SHOP_WEP_REAVER,
 
-	// ammo - 1
+	// ammo list
 		SHOP_AMMO_CLIP,
 		SHOP_AMMO_SHELL,
 		SHOP_AMMO_ROCKET,
@@ -202,8 +209,6 @@ enum {
 		SHOP_AMMO_MIS,
 		SHOP_AMMO_GL,
 		SHOP_AMMO_NAIL,
-
-	// ammo 2
 		SHOP_AMMO_BASILISK,
 		SHOP_AMMO_GAUSS,
 		SHOP_AMMO_SLAYER,
@@ -214,8 +219,6 @@ enum {
 		SHOP_AMMO_FUEL,
 		SHOP_AMMO_LG,
 		SHOP_AMMO_NITROGEN,
-
-	// ammo 3
 		SHOP_AMMO_ION,
 		SHOP_AMMO_ACID,
 		SHOP_AMMO_EVERICE,
@@ -224,6 +227,7 @@ enum {
 		SHOP_AMMO_DSEAL,
 		SHOP_AMMO_FUSION,
 		SHOP_AMMO_FLAK,
+		SHOP_AMMO_DESOLATOR,
 
 	// ammo special
 		SHOP_AMMO_FLECHETTE,
@@ -287,13 +291,12 @@ enum {
 
 #define MAXSHOPITEMS SHOP_ARTI_RESET + 1
 
+#define SHOP_FIRSTAMMO_PAGE MENU_SHOP_AMMO_1
+#define SHOP_FIRSTAMMO_INDEX SHOP_AMMO_CLIP
 #define SHOP_FIRSTARMOR_INDEX SHOP_ARMOR_GREEN
 #define SHOP_FIRSTARMOR2_INDEX SHOP_ARMOR_MONOLITH
 #define SHOP_ARMORPAGE1_BEGIN SHOP_FIRSTARMOR_INDEX
 #define SHOP_ARMORPAGE2_BEGIN SHOP_FIRSTARMOR2_INDEX
-#define SHOP_FIRSTAMMO_INDEX SHOP_AMMO_CLIP
-#define SHOP_FIRSTAMMO2_INDEX SHOP_AMMO_BASILISK
-#define SHOP_FIRSTAMMO3_INDEX SHOP_AMMO_ION
 #define SHOP_FIRSTAMMOSPECIAL_INDEX SHOP_AMMO_FLECHETTE
 #define SHOP_FIRSTARTI_INDEX SHOP_ARTI_KIT
 #define SHOP_ABILITY1_BEGIN SHOP_ABILITY_KICK
@@ -307,7 +310,7 @@ enum {
 #define SHOP_WEAPON3SSG_BEGIN SHOP_WEP_HSSG
 #define SHOP_WEAPON32_BEGIN SHOP_WEP_SILVER
 #define SHOP_WEAPON41_BEGIN SHOP_WEP_HMG
-#define SHOP_WEAPON42_BEGIN SHOP_WEP_MINIGUN
+#define SHOP_WEAPON42_BEGIN SHOP_WEP_DESOLATOR
 #define SHOP_WEAPON51_BEGIN SHOP_WEP_TORPEDO
 #define SHOP_WEAPON52_BEGIN SHOP_WEP_GRENADE
 #define SHOP_WEAPON61_BEGIN SHOP_WEP_NUCLEARPL
@@ -329,10 +332,7 @@ enum {
 #define SHOP_WEAPON_SLOT7END SHOP_WEP_RAIL
 #define SHOP_WEAPON_SLOT8END SHOP_WEP_REAVER
 
-#define SHOP_LASTAMMO_INDEX SHOP_AMMO_SLAYER
-#define SHOP_LASTAMMO1_INDEX SHOP_AMMO_NAIL
-#define SHOP_LASTAMMO2_INDEX SHOP_AMMO_NITROGEN
-#define SHOP_LASTAMMO3_INDEX SHOP_AMMO_FLAK
+#define SHOP_LASTAMMO_PAGE MENU_SHOP_AMMO_SPECIAL1
 #define SHOP_LASTAMMO_SPECIALINDEX SHOP_AMMO_HEGRENADE
 #define SHOP_LASTWEP_INDEX SHOP_WEP_REAVER
 #define SHOP_ABILITY1_END SHOP_ABILITY_REGEN
@@ -362,46 +362,6 @@ enum {
 #define AMMO_PAGE2_BEGIN SHOP_FIRSTAMMO2_INDEX - SHOP_FIRSTAMMO_INDEX
 #define AMMO_PAGE3_BEGIN SHOP_FIRSTAMMO3_INDEX - SHOP_FIRSTAMMO_INDEX
 #define AMMO_PAGESPECIAL_BEGIN SHOP_FIRSTAMMOSPECIAL_INDEX - SHOP_FIRSTAMMO_INDEX
-str AmmoInfo[MAXSHOPAMMOS][2] = {
-	{ "CLIPA0",			"Clip"								},
-	{ "SHELA0",			"Shell"								},
-	{ "ROCKA0",			"RocketAmmo"						},
-	{ "CELLA0",			"Cell"								},
-	{ "ESHAA0",			"ExplodingShell"					},
-	{ "EBOPA0",			"EbonyAmmo"						    },
-	{ "EBOPE0",			"EbonyAmmoX"						},
-	{ "AHRLA0",			"MISAmmo"							},
-	{ "GBUNA0",			"Grenades" 							},
-	{ "NPAKA0",			"NailgunAmmo"						},
-	
-	{ "BASIA01",		"BasiliskAmmo"						},
-	{ "GAUSICO",		"GaussRound"						},
-	{ "SLAYAM01",		"SlayerAmmo"						},
-	{ "RBAMA0",			"RubyAmmo"							},
-	{ "PCNIC1",         "PCanAmmo"                          },
-	{ "RIOTJ0",         "RiotgunShell"                      },
-	{ "LAAM1",          "MeteorAmmo"                        },
-	{ "FUAMA0",         "Fuel"                              },
-	{ "D98AB1",         "LightningCell"                     },
-	{ "D97A1",          "NitrogenCanister"                  },
-	
-	{ "IONAMM1",        "IonAmmo"                           },
-	{ "D97AA0",			"AcidAmmo"							},
-	{ "EICEAM1",		"EverIce"							},
-	{ "C_H2A1",			"ViperAmmo"							},
-	{ "D95AA0",			"ThunderAmmo"						},
-	{ "DEMSICO",		"DSealAmmo"							},
-	{ "FBATA0",			"FusionCell"						},
-	{ "FSHLA0",			"FlakShell"							},
-
-	{ "SAM1A0",			"FlechetteShell"				    },
-	{ "SAM3A0",			"PiercingShell"						},
-	{ "SAM2A0",			"ElectricShell"						},
-	{ "SAM4A0",         "NitroShell"                        },
-	
-	{ "GAM1A0",			"A40MMSonicGrenade"			        },
-	{ "GAM2A0",			"A40MMHEGrenade"				    }
-};
 
 str AbilityInfo[MAXABILITIES] = {
 	"Ability_Kick",

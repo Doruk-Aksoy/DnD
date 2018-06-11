@@ -3,6 +3,7 @@
 
 #include "DnD_DamageCache.h"
 #include "DnD_Weapons.h"
+#include "DnD_Ammo.h"
 
 enum {
 	SSAM_FLECHETTE,
@@ -17,6 +18,17 @@ enum {
 
 #define MAX_SPECIAL_AMMOS SSAM_NITROSHELL + 1
 #define MAX_SPECIALAMMO_DAMAGEINDEX 3
+
+ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS] = {
+	{ "SAM1A0",			"FlechetteShell",				40,			8		},
+	{ "SAM3A0",			"PiercingShell",				40,			8		},
+	{ "SAM2A0",			"ElectricShell",				40,			8		},
+	{ "SAM4A0",         "NitroShell",                   40,			8		},
+	
+	{ "GAM1A0",			"A40MMSonicGrenade",			25,			5		},
+	{ "GAM2A0",			"A40MMHEGrenade",				25,			5		}
+};
+
 pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {
 	{ { 25, 0, 0 }, { 6, 0, 0 }, { 3, 0, 0 } },
 	{ { 35, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
@@ -42,17 +54,6 @@ enum {
 	SPWEP_MG,
 	SPWEP_GL,
 	SPWEP_SLOT6
-};
-
-str SuperSpecialAmmos[MAX_SPECIAL_AMMOS] = {
-	"FlechetteShell", 
-	"PiercingShell",
-	"ElectricShell",
-	
-	"A40mmSonicGrenade",
-	"A40mmHEGrenade",
-    
-    "NitroShell"
 };
 
 enum {
@@ -201,7 +202,7 @@ void SetSpecialAmmoMode(int ammo_category, int weptype) {
 
 void DoubleSpecialAmmoCapacity() {
 	for(int i = 0; i < MAX_SPECIAL_AMMOS; ++i)
-		SetAmmoCapacity(SuperSpecialAmmos[i], GetAmmoCapacity(SuperSpecialAmmos[i]) * 2);
+		SetAmmoCapacity(SpecialAmmoInfo[i].ammo_name, SpecialAmmoInfo[i].initial_capacity * 2);
 }
 
 #endif

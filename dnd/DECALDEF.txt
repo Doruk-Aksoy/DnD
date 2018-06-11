@@ -1,3 +1,15 @@
+colorchanger ToBlack2
+{
+	FadeStart	2.0
+	FadeTime	6.0
+}
+
+fader DecalFade
+{
+	DecayStart	2.0
+	DecayTime	10.0
+}
+
 decal PlasmaScorchLower1X
 {
 	pic PLASMA1
@@ -254,4 +266,40 @@ decalgroup AcidBulletChip
 	BulletChip3	1
 	BulletChip4	1
 	BulletChip5	1
+}
+
+Combiner DesolatorAnim
+{
+	ToBlack2
+	DecalFade
+}
+
+decal DesoScorch1 {
+	pic CBALSCR1
+	translucent 0.15
+	shade "00 ff 00"
+	fullbright
+	randomflipx
+	randomflipy
+	x-scale 0.875
+	y-scale 0.875
+	animator DesolatorAnim
+}
+
+decal DesoScorch2 {
+	pic CBALSCR2
+	translucent 0.15
+	shade "00 ff 00"
+	fullbright
+	randomflipx
+	randomflipy
+	x-scale 0.875
+	y-scale 0.875
+	animator DesolatorAnim
+}
+
+decalgroup DesolatorDecal
+{
+	DesoScorch1	1
+	DesoScorch2	1
 }

@@ -103,9 +103,6 @@ enum {
 
 // Box enums end
 
-#define SHOP_FIRSTAMMO_PAGE MENU_SHOP_AMMO1
-#define SHOP_LASTAMMO_PAGE MENU_SHOP_AMMO_SPECIAL1
-
 #define SHOP_MAXWEAPON_PAGES MENU_SHOP_WEAPON8 - MENU_SHOP_WEAPON1 + 1
 #define SHOP_MAXAMMO_PAGES SHOP_LASTAMMO_PAGE - SHOP_FIRSTAMMO_PAGE + 1
 
@@ -122,13 +119,6 @@ int WeaponBeginIndexes[SHOP_MAXWEAPON_PAGES] = {
 	SHOP_WEAPON62_BEGIN,
 	SHOP_WEAPON7_BEGIN,
 	SHOP_WEAPON8_BEGIN
-};
-
-int AmmoBeginIndexes[SHOP_MAXAMMO_PAGES] = {
-	SHOP_FIRSTAMMO_INDEX,
-	SHOP_FIRSTAMMO2_INDEX,
-	SHOP_FIRSTAMMO3_INDEX,
-	SHOP_FIRSTAMMOSPECIAL_INDEX
 };
 
 // Holds the players' current maximum page visit indexes
@@ -281,6 +271,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 8250,  1 },
 		
 		// 4 - 2
+		{ 6750,  1 },
 		{ 5250,	 1 },
 		{ 4800,  1 },
 		
@@ -358,6 +349,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 275,		1 },
 		{ 65,       1 },
 		{ 90,		1 },
+		{ 100,		1 },
 		{ 85,		1 },
 		
 		// Special Ammunition
@@ -471,6 +463,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 	// wep slot 4 - 2
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
+		{ RES_SLOT4LUXURY, -1, -1 },
 		
 	// wep slot 5 - 1
 		{ -1, -1, -1 },
@@ -546,6 +539,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ RES_SLOT4UPG4, -1, -1 },
 		{ -1, -1, -1 },
+		{ RES_SLOT4LUXURY, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -666,6 +660,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResMG3",								"Acid Rifle",						WEPCHECK_SLOT4,			"0"			},
 	{ "ResMG4",								"Fusion Blaster",					WEPCHECK_SLOT4,			"0"			},
 	
+	{ "Desolator",							"Desolator Cannon",					WEPCHECK_SLOT4L,		"1"			},
 	{ " Minigun ",							"Minigun",							WEPCHECK_SLOT4L,   		"1"		    },
 	{ "Ebony Cannon",						"Ebony Cannon",						WEPCHECK_SLOT4L,   		"1"		    },
 	
@@ -733,6 +728,8 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ThunderAmmo",						"Thunder Mana",						"",						"0"			},
 	{ "DSealAmmo",							"Dark Seals",						"",						"0"			},
 	{ "FusionCell",							"Fusion Cell",						"",						"0"			},
+	{ "FlakShell",							"Flak Shell",						"",						"0"			},
+	{ "DesolatorAmmo",						"Desolator Rounds",					"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -852,6 +849,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ENERGY,
 	
 	// 4 - 2
+	DTYPE_ELEMENTAL,
 	DTYPE_BULLET,
 	DTYPE_OCCULT,
 	
@@ -939,6 +937,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG4			},
 	
 	// 4 - 2
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DESOLATOR		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_MINIGUN		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_EBONY			},
 	
@@ -983,7 +982,6 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SUN			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_REAVER			}
 };
-
 
 // Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
 enum {
@@ -1051,6 +1049,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_IGNORESHIELD | WPROP_RIPPER,
 	
 	// 4 - 2
+	WPROP_NONE,
 	WPROP_CANTHITGHOST,
 	WPROP_IGNORESHIELD,
 	
@@ -1132,6 +1131,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires acid rounds doing 18 damage on hit and 5-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius.",
 	"Fires in bursts of 5 each doing 25 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 150 damage and releasing rippers doing 5 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-",
 	
+	"Desolator fires highly toxic rounds doing 30 damage. Every subsequent hit to a target makes them take 10% more damage from elemental attacks, stacks maximum 5 times. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius.",
 	"Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin.",
 	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
 	
@@ -1307,6 +1307,57 @@ str AccessoryNegatives[MAX_ACCESSORY] = {
 	"Your overall crit damage is halved."
 };
 
+// This mapper is used when transitioning from ammo tables to menu tables
+int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
+	// category 1
+	{
+		SHOP_AMMO_CLIP,
+		SHOP_AMMO_RUBY,
+		SHOP_AMMO_VIPER,
+		SHOP_AMMO_DSEAL,
+		SHOP_AMMO_RIOTSHELL,
+		SHOP_AMMO_ACID,
+		SHOP_AMMO_FUSION,
+		SHOP_AMMO_DESOLATOR,
+		SHOP_AMMO_EBONY,
+		SHOP_AMMO_EBONYX
+	},
+	// category 2
+	{
+		SHOP_AMMO_SHELL,
+		SHOP_AMMO_PCAN,
+		SHOP_AMMO_NITROGEN,
+		SHOP_AMMO_EXPSHELL,
+		SHOP_AMMO_SLAYER,
+		-1
+	},
+	// category 3
+	{
+		SHOP_AMMO_ROCKET,
+		SHOP_AMMO_FLAK,
+		SHOP_AMMO_METEOR,
+		SHOP_AMMO_GL,
+		SHOP_AMMO_MIS,
+		-1
+	},
+	// category 4
+	{
+		SHOP_AMMO_CELL,
+		SHOP_AMMO_EVERICE,
+		SHOP_AMMO_FUEL,
+		SHOP_AMMO_LG,
+		SHOP_AMMO_NAIL,
+		SHOP_AMMO_BASILISK,
+		SHOP_AMMO_ION,
+		SHOP_AMMO_THUNDER,
+		SHOP_AMMO_GAUSS
+	},
+	// category 5 (not buyable -- souls etc)
+	{
+		-1
+	}
+};
+
 struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_CLIP 				},
 	{ OBJ_AMMO,													SHOP_AMMO_SHELL				},
@@ -1338,6 +1389,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_DSEAL				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FUSION			},
 	{ OBJ_AMMO,													SHOP_AMMO_FLAK				},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1380,6 +1432,7 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	25,
 	30,
 	5,
+	20,
 	
 	8,
 	8,
@@ -1421,6 +1474,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"dark seals for the Demon Sealer.",
 	"fusion cells for the Fusion Blaster.",
 	"flak shells for the Vindicator.",
+	"desolator rounds for the Desolator Cannon.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -1725,7 +1779,7 @@ str ResearchDescription[MAX_RESEARCHES] = {
 	"Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe (1).",
 	"Some can say pistols are useless but we beg to differ. Some pistols can be quite potent. Unlocks Scatter Pistol and Ruby Wand (2).",
 	"Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks Silver Gun and Slayer (3).",
-	"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Minigun and Ebony Cannon (4).",
+	"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Desolator Cannon, Minigun and Ebony Cannon (4).",
 	"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL and Heavy Missile Launcher (5).",
 	"Destroying things has never been this fun! Demons sure know how to kill things... Unlocks Rhino AR, Nailgun and Basilisk (6).",
 	"If you think you need a bit of sniping, try these! Unlocks Railgun and Gauss Rifle (7).",

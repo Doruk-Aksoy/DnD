@@ -164,6 +164,17 @@ Actor ExplosionFX4 : ExplosionFX1 {
 	}
 }
 
+Actor DesolatorExplosionFX : ExplosionFX4 {
+	Scale 0.875
+	-CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 1
+			FXPG ABBCDEFGHIJKLM 1 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
 Actor ExplosionFX5 : ExplosionFX1 {
 	Speed 1
 	Scale 0.45
@@ -1984,4 +1995,34 @@ Actor GenericParticleFX {
 	RenderStyle Add
 	+CLIENTSIDEONLY
 	+NOGRAVITY
+}
+
+Actor DesolatorHitFX {
+	Gravity 0.675
+	Alpha 1.0
+	Scale 0.325
+	Renderstyle Add
+    health 5
+    radius 1
+    height 1
+    Speed 18
+    PROJECTILE
+    +NOBLOCKMAP
+    +DONTSPLASH
+    +RANDOMIZE
+    -NOGRAVITY
+    -SOLID
+    +CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+		1:
+			DES5 I 0
+		Goto FadeLoop
+		2:
+			DES5 J 0
+		FadeLoop:
+			"####" "#" 1 A_FadeOut(0.015)
+		Loop
+	}
 }

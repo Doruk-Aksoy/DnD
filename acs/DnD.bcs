@@ -2059,7 +2059,7 @@ Script 994 (int type, int extra) {
 	int res = 0;
 	if(!type) {
 		// check less because theres orb of holding now
-		if(GetAmmoCapacity("Shell") < GetMaximumAmmoCapacity(AMMO_SHELL))
+		if(GetAmmoCapacity("Shell") < GetMaximumAmmoCapacity(DND_AMMOSLOT_SHELL, AMMO_SHELL))
 		  res = 1;
 	}
 	if(type == 1) {
@@ -2185,24 +2185,26 @@ Script "DnD Player On Hit" (int power) {
 
 // Backpack / Research script
 Script 996 (int type, int id) {
-	int j, temp;
+	int i, j, temp;
     if(!type) {
-        for(j = 0; j < MAXAMMOTYPES; ++j) {
-            if(GetCVar("dnd_firstbackpackold") && !CheckInventory("BackpackCounter"))
-                SetAmmoCapacity(AmmoTypes[j], AmmoCapWithBonuses(InitialCapacity[j] << 1));
-            else
-               SetAmmoCapacity(AmmoTypes[j], AmmoCapWithBonuses(GetAmmoCapacity(AmmoTypes[j]) + InitialCapacity[j] / DND_BACKPACK_RATIO)); 
-            GiveInventory(AmmoTypes[j], InitialCapacity[j] / 20);
-        }
+		for(i = 0; i < MAX_SLOTS - 1; ++i)
+			for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+				if(GetCVar("dnd_firstbackpackold") && !CheckInventory("BackpackCounter"))
+					SetAmmoCapacity(AmmoInfo[i][j].ammo_name, AmmoCapWithBonuses(AmmoInfo[i][j].initial_capacity << 1));
+				else
+				   SetAmmoCapacity(AmmoInfo[i][j].ammo_name, AmmoCapWithBonuses(GetAmmoCapacity(AmmoInfo[i][j].ammo_name) + AmmoInfo[i][j].initial_capacity / DND_BACKPACK_RATIO)); 
+				GiveInventory(AmmoInfo[i][j].ammo_name, AmmoInfo[i][j].initial_capacity / 20);
+			}
 		// give additional ones for db save
 		if(GetCVar("dnd_firstbackpackold"))
 			GiveInventory("BackpackCounter", 4);
         GiveInventory("BackpackCounter", 1);
         // Reduce if over the limits
-		for(j = 0; j < MAXAMMOTYPES; ++j) {
-			if(GetAmmoCapacity(AmmoTypes[j]) > GetMaximumAmmoCapacity(j))
-				SetAmmoCapacity(AmmoTypes[j], GetMaximumAmmoCapacity(j));
-		}
+		for(i = 0; i < MAX_SLOTS - 1; ++i)
+			for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+				if(GetAmmoCapacity(AmmoInfo[i][j].ammo_name) > GetMaximumAmmoCapacity(i, j))
+					SetAmmoCapacity(AmmoInfo[i][j].ammo_name, GetMaximumAmmoCapacity(i, j));
+			}
 		ACS_ExecuteAlways(993, 0, 1);
     }
     else if(type == 1) {
@@ -2683,6 +2685,51 @@ Script "DND Demon Seal FX" (void) {
 		}
 		//StopSound(tracer, 7);
 	}
+}
+
+Script "DND Desolator FX Spawn" (int tracer) CLIENTSIDE {
+	Spawn("DesolatorDebuffFXSpawner", GetActorX(tracer), GetActorY(tracer), GetActorZ(tracer), 0);
+}
+
+Script "DND Desolator Debuff FX" (void) {
+	int tracer = ActivatorTID();
+	if(CheckActorInventory(tracer, "DesolatorStack1")) {
+		TakeActorInventory(tracer, "DesolatorStack1", 1);
+		GiveActorInventory(tracer, "DesolatorStack2", 1);
+	}
+	else if(CheckActorInventory(tracer, "DesolatorStack2")) {
+		TakeActorInventory(tracer, "DesolatorStack2", 1);
+		GiveActorInventory(tracer, "DesolatorStack3", 1);
+	}
+	else if(CheckActorInventory(tracer, "DesolatorStack3")) {
+		TakeActorInventory(tracer, "DesolatorStack3", 1);
+		GiveActorInventory(tracer, "DesolatorStack4", 1);
+	}
+	else if(CheckActorInventory(tracer, "DesolatorStack4")) {
+		TakeActorInventory(tracer, "DesolatorStack4", 1);
+		GiveActorInventory(tracer, "DesolatorStack5", 1);
+	}
+	else if(!CheckActorInventory(tracer, "DesolatorStack5"))
+		GiveActorInventory(tracer, "DesolatorStack1", 1);
+	
+	GiveActorInventory(tracer, "DesolatorScriptRunning", 1);
+	if(CheckActorInventory(tracer, "DesolatorScriptRunning") == 2)
+		Terminate;
+	while(
+			isActorAlive(tracer) &&
+			(
+				CheckActorInventory(tracer, "DesolatorStack1") || 
+				CheckActorInventory(tracer, "DesolatorStack2") ||
+				CheckActorInventory(tracer, "DesolatorStack3") ||
+				CheckActorInventory(tracer, "DesolatorStack4") ||
+				CheckActorInventory(tracer, "DesolatorStack5")
+			)
+		)
+	{
+		ACS_NamedExecuteAlways("DND Desolator FX Spawn", 0, tracer);
+		Delay(1);
+	}
+	TakeActorInventory(tracer, "DesolatorScriptRunning", 2);
 }
 
 Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {

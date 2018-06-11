@@ -461,7 +461,7 @@ int GetItemBeginIndex(int opt) {
 	if(opt >= MENU_SHOP_WEAPON1 && opt <= MENU_SHOP_WEAPON8)
 		return WeaponBeginIndexes[opt - MENU_SHOP_WEAPON1];
 	if(opt >= SHOP_FIRSTAMMO_PAGE && opt <= SHOP_LASTAMMO_PAGE)
-		return AmmoBeginIndexes[opt - SHOP_FIRSTAMMO_PAGE];
+		return MenuAmmoIndexMap[opt - SHOP_FIRSTAMMO_PAGE][0];
 	if(opt == MENU_SHOP_ARMOR2)
 		return PAGE1_ARMOR_COUNT;
 	return 0;
@@ -486,9 +486,16 @@ void DrawHelpCorner (int opt, int boxid) {
 	auto CurrentPane = GetPane();
 	if(boxid < CurrentPane.cursize) {
 		// some exceptions here
-		if(opt >= MENU_SHOP_AMMO1 && opt <= MENU_SHOP_AMMO_SPECIAL1) {
-			beginindex = GetItemBeginIndex(opt) - SHOP_FIRSTAMMO_INDEX;
-			toshow = GetTextWithResearch(AmmoInfo[boxid + beginindex][AMMO_ICON], "", AmmoDrawInfo[boxid + beginindex].res_id, RES_KNOWN, AmmoDrawInfo[boxid + beginindex].flags);
+		if(opt >= SHOP_FIRSTAMMO_PAGE && opt <= SHOP_LASTAMMO_PAGE) {
+			int shopindex = 0;
+			if(opt != MENU_SHOP_AMMO_SPECIAL1) {
+				shopindex = MenuAmmoIndexMap[opt - SHOP_FIRSTAMMO_PAGE][boxid];
+				toshow = GetTextWithResearch(AmmoInfo[opt - SHOP_FIRSTAMMO_PAGE][boxid + beginindex].ammo_icon, "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
+			}
+			else {
+				shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + boxid;
+				toshow = GetTextWithResearch(SpecialAmmoInfo[boxid].ammo_icon, "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
+			}
 		}
 		else {
 			beginindex = GetItemBeginIndex(opt);
@@ -1078,7 +1085,7 @@ void ListenScroll(int condx_min, int condx_max) {
 	}
 }
 
-void HandleAmmoPurchase(int boxid, int index_beg, int arr_index, bool givefull) {
+void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull) {
 	int itemid = index_beg + boxid - 1;
 	
 	if(!CheckItemRequirements(itemid, RES_DONE, GetItemFlags(itemid))) {
@@ -1090,12 +1097,15 @@ void HandleAmmoPurchase(int boxid, int index_beg, int arr_index, bool givefull) 
 		int buystatus = CanTrade(itemid, TRADE_BUY, price);
 		
 		if(!buystatus) {
-			int amt = AmmoCounts[arr_index], count = 1;
+			int amt = AmmoCounts[index_beg + boxid - SHOP_FIRSTAMMO_INDEX], count = 1;
 			amt += ACS_ExecuteWithResult(918, 0, 1, amt);
 			
 			// if we are maxing the ammo
 			if(givefull) {
-				count += (GetAmmoCapacity(AmmoInfo[arr_index][AMMO_NAME]) - CheckInventory(AmmoInfo[arr_index][AMMO_NAME])) / amt;
+				if(slot != -1)
+					count += (GetAmmoCapacity(AmmoInfo[slot][boxid - 1].ammo_name) - CheckInventory(AmmoInfo[slot][boxid - 1].ammo_name)) / amt;
+				else
+					count += (GetAmmoCapacity(SpecialAmmoInfo[boxid - 1].ammo_name) - CheckInventory(SpecialAmmoInfo[boxid - 1].ammo_name)) / amt;
 				price = price * count;
 				if(price > CheckInventory("Credit")) {
 					count = CheckInventory("Credit") / GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
@@ -1106,7 +1116,7 @@ void HandleAmmoPurchase(int boxid, int index_beg, int arr_index, bool givefull) 
 			
 			TakeInventory("Credit", price);
 			LocalAmbientSound("items/ammo", 127);
-			GiveInventory(AmmoInfo[arr_index][AMMO_NAME], amt * count);
+			GiveInventory(AmmoInfo[slot][boxid - 1].ammo_name, amt * count);
 			
 			GiveInventory("DnD_MoneySpentQuest", price);
 		}
@@ -1380,6 +1390,7 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
+			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ -1, -1, -1, -1 }
 		},
 		// wep 5 - 1
@@ -1436,6 +1447,15 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ -1, -1, -1, -1 }
 		},
+		// ammo select
+		{
+			{ 289.0, 229.0, 179.0, 222.0 }, // 1
+			{ 289.0, 211.0, 162.0, 206.0 }, // 2
+			{ 289.0, 195.0, 178.0, 190.0 }, // 3
+			{ 289.0, 181.0, 169.0, 174.0 }, // 4
+			{ 289.0, 167.0, 169.0, 160.0 }, // 4
+			{ -1, -1, -1, -1 }
+		},
 		// ammo 1
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
@@ -1457,11 +1477,6 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
-			{ 289.0, 117.0, 120.0, 111.0 }, // w9
-			{ 289.0, 101.0, 104.0, 95.0 }, // w10
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 3
@@ -1471,9 +1486,19 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
+			{ -1, -1, -1, -1 }
+		},
+		// ammo 4
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
+			{ 289.0, 229.0, 120.0, 223.0 }, // w2
+			{ 289.0, 213.0, 120.0, 207.0 }, // w3
+			{ 289.0, 197.0, 120.0, 191.0 }, // w4
+			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 289.0, 117.0, 120.0, 111.0 }, // w9
 			{ -1, -1, -1, -1 }
 		},
 		// ammo special
@@ -1764,6 +1789,40 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 		DrawToggledImage(i, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
 }
 
+void HandleAmmoPageDraw(int opt, int slot, int multipage, bool specialammo) {
+	int shopindex = 0;
+	int i;
+	
+	if(multipage > 0)
+		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+	if(multipage > 1 || multipage < 0)
+		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+	
+	// negative indicates last page
+	if(multipage < 0)
+		multipage = -multipage;
+	
+	if(!specialammo)
+		HudMessage(s:"--- AMMO CATEGORY ", d:slot + 1, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	else
+		HudMessage(s:"--- SPECIAL AMMO ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	
+	HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+
+	if(!specialammo) {
+		for(i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
+			shopindex = MenuAmmoIndexMap[slot][i];
+			DrawToggledImage(shopindex, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+		}
+	}
+	else {
+		for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
+			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
+			DrawToggledImage(shopindex, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+		}
+	}
+}
+
 void HandleWeaponPageInput(int boxid, int wbegin, int wend, int pageprev, int pagenext) {
 	ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 	if(CheckInventory("MadeChoice") == 1) {
@@ -1776,6 +1835,35 @@ void HandleWeaponPageInput(int boxid, int wbegin, int wend, int pageprev, int pa
 	if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_WEAPON);
+		else
+			UpdateMenuPosition(pageprev);
+	}
+	else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT && pagenext != -1)
+		UpdateMenuPosition(pagenext);
+}
+
+void HandleAmmoPageInput(int slot, int boxid, int pageprev, int pagenext, bool specialammo) {
+	int beginindex = MenuAmmoIndexMap[slot][boxid - 1];
+	
+	if(specialammo) {
+		beginindex = SHOP_FIRSTAMMOSPECIAL_INDEX;
+		slot = -1;
+	}
+	
+	ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+	if(CheckInventory("MadeChoice") == 1) {
+		if(boxid != MAINBOX_NONE)
+			HandleAmmoPurchase(slot, boxid, beginindex, false);
+		SetInventory("MadeChoice", 0);
+	} // ammos have alternate functionality for sell
+	else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+		HandleAmmoPurchase(slot, boxid, beginindex, true);
+		SetInventory("MadeChoice", 0);
+	}
+	
+	if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
+		if(pageprev == -1) // no page for left, use default
+			UpdateMenuPosition(MENU_SHOP_AMMOSELECT);
 		else
 			UpdateMenuPosition(pageprev);
 	}

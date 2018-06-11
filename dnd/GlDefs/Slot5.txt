@@ -139,3 +139,104 @@ object HomRocket1NH_FullDMG
 	frame MACXI { light ROCKET_X3 }
 	frame MACXJ { light ROCKET_X3 }
 }
+
+flickerlight INQSHOT_X1
+{
+    color 1.0 0.8 0.0
+    size 56
+    secondarySize 64
+    chance 0.3
+}
+
+flickerlight INQSHOT_X2
+{
+    color 1.0 0.7 0.0
+    size 64
+    secondarySize 72
+    chance 0.3
+}
+
+flickerlight INQSHOT_X3
+{
+    color 0.8 0.45 0.0
+    size 72
+    secondarySize 80
+    chance 0.3
+}
+
+flickerlight INQSHOT_X4
+{
+    color 0.5 0.3 0.0
+    size 80
+    secondarySize 84
+    chance 0.3
+}
+
+flickerlight INQSHOT_X5
+{
+    color 1.0 0.6 0.0
+    size 56
+    secondarySize 60
+    chance 0.3
+}
+
+flickerlight INQSHOT_X6
+{
+    color 1.0 0.7 0.0
+    size 60
+    secondarySize 64
+    chance 0.3
+}
+
+flickerlight INQSHOT_X7
+{
+    color 1.0 0.7 0.0
+    size 64
+    secondarySize 68
+    chance 0.3
+}
+
+flickerlight INQSHOT_X8
+{
+    color 1.0 0.6 0.0
+    size 40
+    secondarySize 48
+    chance 0.3
+}
+
+flickerlight INQSHOT_X9
+{
+    color 1.0 0.4 0.0
+    size 24
+    secondarySize 32
+    chance 0.3
+}
+
+object InquisitorShot
+{
+    frame FP97A { light INQSHOT_X1 }
+    frame FP97B { light INQSHOT_X2 }
+    frame FP97C { light INQSHOT_X3 }
+    frame FP97D { light INQSHOT_X4 }
+    frame FP97E { light INQSHOT_X5 }
+    frame FP97F { light INQSHOT_X6 }
+    frame FP97G { light INQSHOT_X7 }
+    frame FP97H { light INQSHOT_X8 }
+    frame FP97I { light INQSHOT_X9 }
+}
+
+object FlakProjectileExplosionFX1 {
+	frame DEXP { light INQSHOT_X8 }
+}
+
+object FlakProjectileExplosionFX2 {
+	frame DXP2 { light INQSHOT_X8 }
+}
+
+object FlakProjectileExplosionFX3 {
+	frame DXP3 { light INQSHOT_X8 }
+}
+
+object FlakProjectileExplosionFX4 {
+	frame DXP4 { light INQSHOT_X8 }
+}

@@ -142,6 +142,8 @@ Actor GotSilver : DnD_Boolean { }
 Actor GotSlayer : DnD_Boolean { }
 Actor GotMG : DnD_Boolean { }
 Actor GotCG : DnD_Boolean { }
+Actor GotDesolator : DnD_Boolean { }
+Actor GotRhino : DnD_Boolean { }
 Actor GotEbony : DnD_Boolean { }
 Actor GotRL : DnD_Boolean { }
 Actor GotGL : DnD_Boolean { }

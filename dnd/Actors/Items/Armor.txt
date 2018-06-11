@@ -643,6 +643,8 @@ Actor ElementalPower : PowerDamage {
 	
 	damagefactor "AcidRifle", 1.5
 	damagefactor "AcidRifleFull", 1.5
+	damagefactor "Desolator", 1.5
+	damagefactor "DesolatorFull", 1.5
 	
 	powerup.duration 0x7FFFFFFF
 }

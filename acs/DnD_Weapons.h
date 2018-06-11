@@ -45,6 +45,7 @@ enum {
 	DND_WEAPON_ACIDRIFLE,
 	DND_WEAPON_FUSIONBLASTER,
 	
+	DND_WEAPON_DESOLATOR,
 	DND_WEAPON_MINIGUN,
 	DND_WEAPON_EBONYCANNON,
 	
@@ -158,6 +159,7 @@ str Weapons[MAXWEPS][7] = {
      { "ResMG3",							"Acid Rifle",				"4", 		"AcidAmmo",			"AcidClip",						"GotMG",					"RIF2Y0"				},
      { "ResMG4",							"Fusion Blaster",			"4",		"FusionCell",		"MGClip6",						"GotMG",					"FUSPA0"				},
 	 
+	 { "Desolator",							"Desolator Cannon",			"4",		"DesolatorAmmo",	"DesolatorOverheat",			"GotDesolator",				"DES4X0"				},
 	 { " Minigun ",							"Minigun",					"4",		"Clip",				" ",							"GotCG",					"CHNGX0"				},
 	 { "Ebony Cannon",						"Ebony Cannon",				"4",		"EbonyAmmo",		"EbonyAmmoX",			        "GotEbony",					"EBONICO"				},
 	 
@@ -168,6 +170,7 @@ str Weapons[MAXWEPS][7] = {
 	 { "ResRL1",							"Meteor Launcher",			"5",		"MeteorAmmo",		" ",							"GotRL",					"RW06X0"				},
 	 { "ResRL2",							"Heavy Grenade Launcher",	"5",		"Grenades",			"HeavyGLCounter",				"GotRL",					"GLAUX0"				},
 	 { "ResRL3",							"Freezer Cannon",			"5",		"EverIce",			"FreezerOverheat",				"GotRL",					"FRZCZ0"				},
+	 
 	 { "Grenade Launcher",					"G. Launcher",				"5",		"Grenades",			" ",							"GotGL",					"NGLPA0"				},
 	 { "Upgraded Grenade Launcher",		    "Rotary G. Launcher",		"5",		"Grenades",			" ",							"GotGL",					"RTGLICO"				},
 	 { "Heavy Missile Launcher",			"H. M. Launcher",			"5",		"MISAmmo",			" ",							"GotHML",					"WMLNA0"				},
@@ -180,7 +183,7 @@ str Weapons[MAXWEPS][7] = {
 	 { "ResPlasma2",                        "Lightning Gun",            "6",        "LightningCell",    "LightningStacks",              "GotPL",                    "LTGSA0"                },
 	 { "ResPlasma3",						"Rebounder",				"6",		"Cell",				"RebounderOverheat",			"GotPL",					"DGAPA0"				},
 	 
-	 { "RhinoRifle",						"Rhino Assault Rifle",		"6",		"Clip",				"MGClip7",						"GotPL",					"MAXPA0"				},
+	 { "RhinoRifle",						"Rhino Assault Rifle",		"6",		"Clip",				"MGClip7",						"GotRhino",					"MAXPA0"				},
 	 { "Nailgun",							"Nail Gun",					"6",		"NailgunAmmo",		" ",							"GotNail",					"NAIGA0"				},
 	 { "Basilisk",							"Basilisk",					"6",		"BasiliskAmmo",		"LoadedBasilisk",			    "GotBasilisk",				"BASICO"				},
 	 
@@ -254,16 +257,18 @@ enum {
 	DND_OVERHEAT_FREEZER,
 	DND_OVERHEAT_NUCLEARPR,
 	DND_OVERHEAT_ION,
-	DND_OVERHEAT_REBOUNDER
+	DND_OVERHEAT_REBOUNDER,
+	DND_OVERHEAT_DESOLATOR
 };
 
-#define MAXOVERHEATWEPS DND_OVERHEAT_REBOUNDER + 1
+#define MAXOVERHEATWEPS DND_OVERHEAT_DESOLATOR + 1
 str WeaponOverheatItems[MAXOVERHEATWEPS] = {
 	"ShockerOverheat",
 	"FreezerOverheat",
 	"PlasmaOverheat",
 	"IonOverheat",
-	"RebounderOverheat"
+	"RebounderOverheat",
+	"DesolatorOverheat"
 };
 
 // 32 overheat weapons supported

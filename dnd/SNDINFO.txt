@@ -1,4 +1,19 @@
 NullSound				dsempty
+weapons/firex2          dsfirex2
+
+Desolator/Fire1			DESOFIR1
+Desolator/Fire2			DESOFIR2
+Desolator/Fire3			DESOFIR3
+Desolator/Fire4			DESOFIR4
+$random Desolator/Fire { Desolator/Fire1 Desolator/Fire2 Desolator/Fire3 Desolator/Fire4 }
+$limit Desolator/Fire1 0
+$limit Desolator/Fire2 0
+$limit Desolator/Fire3 0
+$limit Desolator/Fire4 0
+Desolator/Hit			dsfirex2
+$limit Desolator/Hit 0
+Desolator/RevUp			DESOSPIN
+Desolator/RevDown		DESODOWN
 
 Vindicator/Fire1		VINDFIR1
 Vindicator/Fire2		VINDFIR2
