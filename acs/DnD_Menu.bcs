@@ -391,7 +391,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			else if(curopt == MENU_SHOP_WEAPON3_1)
 				HandleWeaponPageDraw(curopt, 1, 3, boxid, -16);
 			else if(curopt == MENU_SHOP_WEAPON3_2)
-				HandleWeaponPageDraw(curopt, -2, 3, boxid, -16);
+				HandleWeaponPageDraw(curopt, -2, 3, boxid, -32);
 			else if(curopt == MENU_SHOP_WEAPON4_1)
 				HandleWeaponPageDraw(curopt, 1, 4, boxid, -16);
 			else if(curopt == MENU_SHOP_WEAPON4_2)

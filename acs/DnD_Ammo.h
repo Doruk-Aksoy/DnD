@@ -34,6 +34,7 @@ enum {
 	AMMO_SHELL = 0,
 	AMMO_PCANNON,
 	AMMO_NITROGENCANISTER,
+	AMMO_HADES,
 	AMMO_EXSHELL,
 	AMMO_SLAYER,
 	
@@ -87,6 +88,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ "SHELA0",			"Shell",					50,			20		},
 		{ "PCNIC1",         "PCanAmmo",                 35,			15		},
 		{ "D97A1",          "NitrogenCanister",         40,			15		},
+		{ "STRGY0",			"HadesAmmo",				32,			8		},
 		{ "ESHAA0",			"ExplodingShell",			40,			15		},
 		{ "SLAYAM01",		"SlayerAmmo",				40,			15		},
 		{ "",				"",							-1,			0		}
@@ -120,7 +122,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	}
 };
 
-#define MAXCLIPAMMOTYPES 29
+#define MAXCLIPAMMOTYPES 30
 str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"SpecialAmmoMode_3",
 	"SpecialAmmoMode_3X",
@@ -138,6 +140,7 @@ str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"ShellSize_8N",
 	"ShellSize_10",
 	"ShellSize_12",
+	"ShellSize_16",
 	"ShellSize_18",
 	"MGClip",
 	"MGClip2",

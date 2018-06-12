@@ -392,6 +392,15 @@ Actor ShellSize_12 : Ammo {
 	+IGNORESKILL
 }
 
+Actor ShellSize_16 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 16
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 16
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
 Actor ShellSize_18 : Ammo {
 	inventory.amount 1
 	inventory.maxamount 18
@@ -759,6 +768,15 @@ Actor DesolatorAmmo : Ammo {
 	Ammo.BackpackAmount 0
 	Ammo.BackpackMaxAmount 175
 	inventory.icon "DES4Y0"
+	+IGNORESKILL
+}
+
+Actor HadesAmmo : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 32
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 32
+	inventory.icon "STRGY0"
 	+IGNORESKILL
 }
 

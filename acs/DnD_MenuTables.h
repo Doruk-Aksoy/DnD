@@ -258,6 +258,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 5750,  1 },
 		
 		// 3 - 2
+		{ 6500,  1 },
 		{ 5250,  1 },
 		{ 5250,  1 },
 		
@@ -317,7 +318,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 25000, 1 },
 		
 		// Ammunition
-		// Basic Ammunition
+		// Ammo 1
 		{ 20,		1 },
 		{ 30,		1 },
 		{ 40,		1 },
@@ -329,7 +330,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 25,       1 },
 		{ 65,       1 },
 		
-		// Ammo Page 2
+		// Ammo 2
 		{ 100,      1 },
 		{ 100,      1 },
 		{ 90,       1 },
@@ -341,7 +342,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
         { 90,       1 },
         { 70,       1 },
 		
-		// Ammo Page 3
+		// Ammo 3
         { 150,      1 },
 		{ 110,		1 },
 		{ 100,		1 },
@@ -350,7 +351,8 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 65,       1 },
 		{ 90,		1 },
 		{ 100,		1 },
-		{ 85,		1 },
+		{ 115,		1 },
+		{ 100,		1 },
 		
 		// Special Ammunition
 		{ 475,	    1 },
@@ -448,6 +450,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT3SSGUPG2, -1, -1 },
 		
 	// wep slot 3 - 2
+		{ RES_SLOT3SSGUPG3, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
 		
@@ -540,6 +543,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT4UPG4, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
+		{ RES_SLOT3SSGUPG3, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -649,6 +653,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
 	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
 	
+	{ "ResSSG3",							"Hades Shotgun",					WEPCHECK_SLOT3X,		"0"			},
 	{ "Silver Gun",						    "White Death",						WEPCHECK_SLOT3L,		"1"	        },
 	{ "Slayer",								"Slayer",							WEPCHECK_SLOT3L,		"1"		    },
 		
@@ -730,6 +735,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "FusionCell",							"Fusion Cell",						"",						"0"			},
 	{ "FlakShell",							"Flak Shell",						"",						"0"			},
 	{ "DesolatorAmmo",						"Desolator Rounds",					"",						"0"			},
+	{ "HadesAmmo",							"Hades Shells",						"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -836,6 +842,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ELEMENTAL,
 	
 	// 3 - 2
+	DTYPE_SHELL | DTYPE_ELEMENTAL,
 	DTYPE_SHELL | DTYPE_EXPLOSIVE,
 	DTYPE_OCCULT,
 	
@@ -924,6 +931,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG2		},
 	
 	// 3 - 2
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESSSG3		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SILVER			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SLAYER			},
 	
@@ -1036,6 +1044,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	
 	// 3 - 2
+	WPROP_RIPPER | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_SELFDMG | WPROP_CANTHITGHOST | WPROP_RIPPER,
 	
@@ -1049,14 +1058,14 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_IGNORESHIELD | WPROP_RIPPER,
 	
 	// 4 - 2
-	WPROP_NONE,
+	WPROP_OVERHEAT,
 	WPROP_CANTHITGHOST,
 	WPROP_IGNORESHIELD,
 	
 	// 5 - 1
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
-	WPROP_SELFDMG,
+	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER,
 	WPROP_RIPPER | WPROP_OVERHEAT,
@@ -1120,6 +1129,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	
+	"Fires 15 shells doing 10 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",
 	
@@ -1327,6 +1337,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_SHELL,
 		SHOP_AMMO_PCAN,
 		SHOP_AMMO_NITROGEN,
+		SHOP_AMMO_HADES,
 		SHOP_AMMO_EXPSHELL,
 		SHOP_AMMO_SLAYER,
 		-1
@@ -1390,6 +1401,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FUSION			},
 	{ OBJ_AMMO,													SHOP_AMMO_FLAK				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1433,6 +1445,7 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	30,
 	5,
 	20,
+	6,
 	
 	8,
 	8,
@@ -1475,6 +1488,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"fusion cells for the Fusion Blaster.",
 	"flak shells for the Vindicator.",
 	"desolator rounds for the Desolator Cannon.",
+	"hades shells for the Hades Auto Shotgun.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -1619,6 +1633,7 @@ int ResearchEntryNumbers[MAX_RESEARCHES] = {
 	
 	7995,
 	8001,
+	8671,
 	
 	8010,
     9507,
@@ -1677,6 +1692,7 @@ int ResearchCosts[MAX_RESEARCHES] = {
 	
 	50,
 	55,
+	65,
 	
     45,
     60,
@@ -1736,6 +1752,7 @@ str Research_Images[MAX_RESEARCHES] = {
 	
     "RESBAK20",
 	"RESBAK37",
+	"RESBAK44",
 	
     "RESBAK21",
     "RESBAK32",
@@ -1795,6 +1812,7 @@ str ResearchDescription[MAX_RESEARCHES] = {
    
     "Our scientists were obsessed with creating energy in fixed bursts and now they can! Unlocks Plasma Cannon (3).",
 	"Destroy your enemies with a good style. Put holes in them and burn them after with heat! Unlocks Shocker (3).",
+	"Hades... the god of underworld. Or so they say. His powers are now yours to command! Unlocks Hades Auto Shotgun (3).",
 	
 	"Finally an answer to the undead menace, this silver bullet shooting machine gun will make quick work of undeads and magical creatures alike! Unlocks Templar MG (4).",
 	"A combination of chaingun and shotgun, this fierce weapon is going to make demon paste. Can also use alternate shells. Unlocks Riot Cannon (4).",

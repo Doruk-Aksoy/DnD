@@ -36,6 +36,7 @@ enum {
 	
 	RES_SLOT3SSGUPG1,
 	RES_SLOT3SSGUPG2,
+	RES_SLOT3SSGUPG3,
 	
 	RES_SLOT4UPG1,
     RES_SLOT4UPG2,
@@ -100,6 +101,7 @@ str Research_List[MAX_RESEARCHES] = {
 	
 	"Slot3SSGUpgrade1",
 	"Slot3SSGUpgrade2",
+	"Slot3SSGUpgrade3",
 	
 	"Slot4Upgrade1",
     "Slot4Upgrade2",
@@ -159,6 +161,7 @@ str Research_Label[MAX_RESEARCHES] = {
 	
     "Plasma Cannon (3)",
 	"Shocker (3)",
+	"Hades Auto Shotgun (3)",
 	
     "Templar Machine Gun (4)",
     "Riot Cannon (4)",

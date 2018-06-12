@@ -1,3 +1,27 @@
+Hades/Load		STNGCLOD
+Hades/Clipout	STNGCOUT
+Hades/Clipin		STNGCIN
+Hades/Fire1		STNGFIR1
+Hades/Fire2		STNGFIR2
+$random Hades/Fire { Hades/Fire1 Hades/Fire2 }
+Hades/Add1		STNGADD1
+Hades/Add2		STNGADD2
+$random Hades/Add { Hades/Add1 Hades/Add2 }
+
+$limit Hades/FireImpact 0
+Hades/FireImpact		STNFIRI
+
+$limit Hades/FireFX 0
+$random Hades/FireFX { Hades/FireFX1 Hades/FireFX2 Hades/FireFX3 Hades/FireFX4 }
+
+Hades/FireFX1		STNFIR1
+Hades/FireFX2		STNFIR2
+Hades/FireFX3		STNFIR3
+Hades/FireFX4		STNFIR4
+
+$limit Hades/FireFX5 0
+Hades/FireFX5		STNFIR5
+
 Rebounder/Fire		REBOFIRE
 Rebounder/Hit		REBOHIT
 Rebounder/AltFire1	REBOAFI1

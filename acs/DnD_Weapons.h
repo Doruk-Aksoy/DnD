@@ -27,11 +27,13 @@ enum {
 	DND_WEAPON_KILLSTORM,
 	DND_WEAPON_DEADLOCK,
 	DND_WEAPON_NITROGENCROSSBOW,
+	
 	DND_WEAPON_SUPERSHOTGUN,
 	DND_WEAPON_HEAVYSUPERSHOTGUN,
 	DND_WEAPON_ERASUS,
 	DND_WEAPON_PLASMACANNON,
 	DND_WEAPON_SHOCKER,
+	DND_WEAPON_STINGRAY,
 	
 	DND_WEAPON_SILVERGUN,
 	DND_WEAPON_SLAYER,
@@ -146,6 +148,7 @@ str Weapons[MAXWEPS][7] = {
 	 { "Upgraded Super Shotgun2",		    "Erasus",					"3",		"Shell",			"ShellSize_2",			    	"GotSSG",					"ERASICO"		   		},
 	 { "ResSSG1",							"Plasma Cannon",			"3",		"PCanAmmo",			"PCanClip",				    	"GotSSG",					"RW02]0"				},
      { "ResSSG2",							"Shocker",					"3",		"Cell",				"IonOverheat",					"GotSSG",					"WSONC0"				},
+	 { "ResSSG3",							"Hades Shotgun",			"3",		"HadesAmmo",		"ShellSize_16",					"GotSSG",					"STRGX0"				},
 	 
 	 { "Silver Gun",						"Silver Gun",				"3",		"ExplodingShell",	" ",							"GotSilver",				"EXSGX0"				},
 	 { "Slayer",							"Slayer",					"3",		"SlayerAmmo",		" ",							"GotSlayer",				"SLYPA0"				},

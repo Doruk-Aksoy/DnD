@@ -636,6 +636,7 @@ ACTOR FlakProjectile : FastProjectile {
 	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET))
 	DamageType "Explosives"
 	+THRUACTORS
+	+THRUGHOST
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_ScaleVelocity(0.1)
@@ -672,6 +673,7 @@ ACTOR FlakProjectile : FastProjectile {
 Actor FlakProjectile_FullDMG : FlakProjectile {
 	DamageType "ExplosivesFull"
 	+FORCERADIUSDMG
+	-THRUGHOST
 }
 
 Actor FlakProjectileExplosionFX1 {

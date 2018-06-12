@@ -301,12 +301,17 @@ Script 819 (int type) {
 	SetResultValue(res);
 }
 // Health kits end here
-
 Script 825 ENTER {
     while(PlayerInGame(PlayerNumber())) {
         // additional hack for the slayer weapon's dynamic alt fire
-        if(CheckWeapon("Slayer") && (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) && !CheckInventory("SlayerTimer"))
-            GiveInventory("SlayerBack", 1);
+		if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) {
+			if(CheckWeapon("Slayer") && !CheckInventory("SlayerTimer"))
+				GiveInventory("SlayerBack", 1);
+			if(CheckWeapon("ResSSG3") && CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstTimer")) {
+				GiveInventory("MakeHadesBurst", 1);
+				TakeInventory("HadesBurstFired", 1);
+			}
+		}
         SetInventory("MedkitItem", CheckInventory("StoredMedKit"));
         SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_HEALTH));
         TakeInventory("FadeIntensity", 1);
@@ -3216,6 +3221,12 @@ Script "DnD Target Fix" (void) {
 	int tid = ACS_NamedExecuteWithResult("DnD Get Target of Target");
 	SetActorProperty(0, APROP_TARGETTID, tid);
 	SetPointer(AAPTR_TARGET, tid);
+}
+
+Script "test" (void) {
+	printbold(d:GetActorProperty(0, APROP_TARGETTID), s: " ", d:GetActorProperty(0, APROP_MASTERTID));
+	SetActivatorToTarget(0);
+	printbold(d:ActivatorTID());
 }
 
 Script "DnD Player Pain Sound" (void) CLIENTSIDE {

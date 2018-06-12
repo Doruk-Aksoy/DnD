@@ -9,8 +9,8 @@ LEGEND:
 == DND RPG RELATED ==
 =====================
 
-! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator".
-! Added new researches: "Fusion Blaster", "Rebounder".
+! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun".
+! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun".
 ! Backpacks can also drop chests now!
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
 ! "Bulkiness" now increases armor cap by 4.
@@ -106,6 +106,7 @@ LEGEND:
 	* This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
 * "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
 - "Destruction Generator" fire rate reduced by 7 tics.
++ "Killstorm" pellet damage increased to 20 from 18.
 * "Minigun" no longer slows players when "Gryphon Boots" are equipped.
 * You can now properly rev the "Minigun" right after fire and be ready to fire immediately.
 * Reduced the volume of looping sound of "Soul Reaver".

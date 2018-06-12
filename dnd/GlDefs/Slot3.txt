@@ -151,3 +151,17 @@ object SlayerExplosionFX {
 	frame IREPH { light ROCKET_X2 }
 	frame IREPI { light ROCKET_X3 }
 }
+
+pointlight HadesShellLight
+{
+    color 0.3 0.1 0
+    size 32
+    dontlightself 1
+}
+
+pointlight SmallHadesShellLight
+{
+    color 0.3 0.1 0
+    size 24
+    dontlightself 1
+}
