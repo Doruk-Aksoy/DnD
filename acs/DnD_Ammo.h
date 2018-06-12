@@ -76,7 +76,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ "RBAMA0",			"RubyAmmo",					175,		43		},
 		{ "C_H2A1",			"ViperAmmo",				80,			20		},
 		{ "DEMSICO",		"DSealAmmo",				200,		50		},
-		{ "RIOTJ0",         "RiotgunShell",				160, 		40		},
+		{ "RIOTJ0",			"RiotgunShell",				160, 		40		},
 		{ "D97AA0",			"AcidAmmo",					160,		40		},
 		{ "FBATA0",			"FusionCell",				240,		48		},
 		{ "DES4Y0",			"DesolatorAmmo",			175,		42		},
@@ -86,8 +86,8 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	// category 2 -- shell box
 	{
 		{ "SHELA0",			"Shell",					50,			20		},
-		{ "PCNIC1",         "PCanAmmo",                 35,			15		},
-		{ "D97A1",          "NitrogenCanister",         40,			15		},
+		{ "PCNIC1",			"PCanAmmo",					35,			15		},
+		{ "D97A1",			"NitrogenCanister",			40,			15		},
 		{ "STRGY0",			"HadesAmmo",				32,			8		},
 		{ "ESHAA0",			"ExplodingShell",			40,			15		},
 		{ "SLAYAM01",		"SlayerAmmo",				40,			15		},
@@ -97,7 +97,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	{
 		{ "ROCKA0",			"RocketAmmo",				50,			5		},
 		{ "FSHLA0",			"FlakShell",				40,			10		},
-		{ "LAAM1",          "MeteorAmmo",               40,			4		},
+		{ "LAAM1",			"MeteorAmmo",				40,			4		},
 		{ "GBUNA0",			"Grenades", 				50,			5		},
 		{ "AHRLA0",			"MISAmmo",					80,			6		},
 		{ "",				"",							-1,			0		}
@@ -106,11 +106,11 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	{
 		{ "CELLA0",			"Cell",						300,		100		},
 		{ "EICEAM1",		"EverIce",					240,		80		},
-		{ "FUAMA0",         "Fuel",                     250,		75		},
-		{ "D98AB1",         "LightningCell",            375,		105		},
+		{ "FUAMA0",			"Fuel",						250,		75		},
+		{ "D98AB1",			"LightningCell",			375,		105		},
 		{ "NPAKA0",			"NailgunAmmo",				175,		40		},
 		{ "BASIA01",		"BasiliskAmmo",				250,		16		},
-		{ "IONAMM1",        "IonAmmo",                 	180,		60		},
+		{ "IONAMM1",		"IonAmmo",					180,		60		},
 		{ "D95AA0",			"ThunderAmmo",				200,		66		},
 		{ "GAUSICO",		"GaussRound",				75,			10		},
 		{ "",				"",							-1,			0		}

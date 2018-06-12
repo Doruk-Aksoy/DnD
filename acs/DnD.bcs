@@ -1840,6 +1840,7 @@ Script 989 (int pnum) DISCONNECT {
 	PlayerLoaded[pnum] = 0;
 	PlayerCanLoad[pnum] = 0;
 	PlayerDied[pnum] = 0;
+	PlayerSaved[pnum] = 0;
 	// reset weapon mod variable
 	ResetWeaponMods(pnum);
 	ResetPlayerBonuses(pnum);

@@ -15,8 +15,8 @@ LEGEND:
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
 ! "Bulkiness" now increases armor cap by 4.
 ! "Strength" increases armor and health cap by 0.5% per point.
+	- "Strength" no longer increases armor cap by 4.
 ! You can now allocate your stats and perks in bulk using alt fire on the menu!
-- "Strength" no longer increases armor cap by 4.
 ! The ability to dash now uses a new key. Bind this, and use it while on the move to gain a burst of speed in the direction you're moving.
 	- Due to the flexibility added to the dash, a few things are nerfed:
 		- Dash cooldown is increased to 35 tics from 27.
@@ -49,6 +49,7 @@ LEGEND:
 * "Strength" and "Bulkiness" stats now correctly mention they increase your knockback resist.
 * Your "Wisdom" and "Greed" bonuses from sources besides perks will also show correctly on a monster kill as bonuses.
 * Changed placement of some slot 1 weapons.
+* Made an attempt at fixing people losing their characters in "Softcore" when map ends when they were dead.
 * Fixed a bug where "Grenade Launcher" wouldn't fire alternate ammo if it had no normal grenades left.
 * Fixed a typo in "Slot 6 Luxury" research.
 * Fixed a problem related to chest drops and respawning items.
