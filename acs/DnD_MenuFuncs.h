@@ -1,10 +1,23 @@
 #include "DnD_MenuTables.h"
 
-void UpdateMenuPosition(int option) {
+void SetPage(int option) {
+	SetInventory("MenuPosX", 0);
 	SetInventory("MenuLR", 0);
 	SetInventory("MenuUD", 0);
 	SetInventory("MenuOption", option);
 	LocalAmbientSound("RPG/MenuChoose", 127);
+}
+
+void UpdateMenuPosition(int option) {
+	if(CheckInventory("MenuOption") != option) {
+		menu_stack_T? stack = GetMenuStack(PlayerNumber());
+		PushStack(PlayerNumber(), option);
+	}
+	SetPage(option);
+}
+
+void UpdateMenuFromStack(int option) {
+	SetPage(option);
 }
 
 int CalculateWisdomBonus(int pnum) {
@@ -593,12 +606,12 @@ int GetMenuTalentBonus(int posy) {
 }
 
 // returns 0 for buy being possible
-int CanResearch(int res_id) {
-	int finish_check = !CheckInventory(StrParam(s:"Done_", s:Research_List[res_id]));
-	int found_check = CheckInventory(StrParam(s:"Research_", s:Research_List[res_id]));
-	int budget_check = CheckInventory("Budget") >= ResearchCosts[res_id];
+bool CanResearch(int respage, int resid) {
+	int finish_check = !CheckInventory(StrParam(s:"Done_", s:Research_List[resid]));
+	int found_check = CheckInventory(StrParam(s:"Research_", s:Research_List[resid]));
+	int budget_check = CheckInventory("Budget") >= ResearchInfo[respage][resid].res_cost;
 	if(finish_check && found_check && budget_check)
-		return 0;
+		return false;
 	GiveInventory("DnD_PopupError", 1);
 	if(!found_check)
 		SetInventory("DnD_PopupId", POPUP_NEEDDISCOVER);
@@ -606,7 +619,7 @@ int CanResearch(int res_id) {
 		SetInventory("DnD_PopupId", POPUP_ALREADYRESEARCHED);
 	else
 		SetInventory("DnD_PopupId", POPUP_NOBUDGET);
-	return 1;
+	return true;
 }
 
 // returns 0 for buy being possible, read end of function for other details
@@ -1127,10 +1140,6 @@ void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull) {
 	}
 }
 
-str GetResearchImage(int pos) {
-    return Research_Images[pos];
-}
-
 int GetCursorPos(int input, int mt) {
 	int res = 0, speed, ds;
 	switch(mt) {
@@ -1454,7 +1463,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 211.0, 162.0, 206.0 }, // 2
 			{ 289.0, 195.0, 178.0, 190.0 }, // 3
 			{ 289.0, 181.0, 169.0, 174.0 }, // 4
-			{ 289.0, 167.0, 169.0, 160.0 }, // 4
+			{ 289.0, 167.0, 169.0, 160.0 }, // 5 - special
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 1
@@ -1578,7 +1587,41 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ -1, -1, -1, -1 }
 		},
-		// research
+		// research - main
+		{
+			{ 289.0, 229.0, 179.0, 222.0 }, // 1
+			{ 289.0, 211.0, 162.0, 206.0 }, // 2
+			{ 289.0, 195.0, 178.0, 190.0 }, // 3
+			{ 289.0, 181.0, 169.0, 174.0 }, // 4
+			{ -1, -1, -1, -1 }
+		},
+		// research - guns
+		{
+			{ 289.0, 229.0, 179.0, 222.0 }, // 1
+			{ 289.0, 211.0, 162.0, 206.0 }, // 2
+			{ -1, -1, -1, -1 }
+		},
+		// research - body
+		{
+			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ -1, -1, -1, -1 }
+		},
+		// research - ammo
+		{
+			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ -1, -1, -1, -1 }
+		},
+		// research - slotguns
+		{
+			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ -1, -1, -1, -1 }
+		},
+		// research - luxury guns
+		{
+			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ -1, -1, -1, -1 }
+		},
+		// research - utility
 		{
 			{ 202.0, 84.0, 128.0, 76.0 }, // res
 			{ -1, -1, -1, -1 }
@@ -1755,11 +1798,11 @@ void HandleButtonClick(int boxid) {
 		}
 		else if(boxid == MAINBOX_LARR) {
 			stack.stackptr = stack.stackptr > 0 ? stack.stackptr - 1 : 0;
-			UpdateMenuPosition(stack.stack_elems[stack.stackptr]);
+			UpdateMenuFromStack(stack.stack_elems[stack.stackptr]);
 		}
 		else if(boxid == MAINBOX_RARR) {
 			stack.stackptr = stack.stackptr < stack.cursize - 1 ? stack.stackptr + 1 : stack.cursize - 1;
-			UpdateMenuPosition(stack.stack_elems[stack.stackptr]);
+			UpdateMenuFromStack(stack.stack_elems[stack.stackptr]);
 		}
 	}
 }
@@ -1871,4 +1914,76 @@ void HandleAmmoPageInput(int slot, int boxid, int pageprev, int pagenext, bool s
 	}
 	else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT && pagenext != -1)
 		UpdateMenuPosition(pagenext);
+}
+
+void HandleResearchPageDraw(int page, int boxid) {
+	int posx = CheckInventory("MenuPosX");
+	int status = CheckResearchStatus(ResearchInfo[page][posx].res_id);
+	int budget = CheckInventory("Budget");
+
+	HudMessage(s:"--- RESEARCH PANEL ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+
+	if(posx)
+		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+	else
+		DeleteText(RPGMENUPAGEID - 1);
+	if(ResearchInfo[page][posx + 1].res_id != -1)
+		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+	else
+		DeleteText(RPGMENUPAGEID);
+
+	if(budget)
+		HudMessage(s:"\c[Y5]Budget: \c-", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+	else
+		HudMessage(s:"\c[Y5]Budget: \c-0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+
+	HudMessage(s:"\c[Y5]Entry\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 280.1, 80.0, 0.0, 0.0);
+	if(status != RES_NA)
+		HudMessage(s:"\c[Y5]Cost: \cj$\c-", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
+	else
+		HudMessage(s:"\c[Y5]Cost: ???\c-"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
+
+	if(status < RES_DONE)
+		SetFont("RESBLAK");
+	else
+		SetFont("RESDONE");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+
+	if(status == RES_NA)
+		SetFont("RESNONE");
+	else
+		SetFont(ResearchStringInfo[page][posx].res_icon);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
+
+	SetFont("SMALLFONT");
+	if(status != RES_NA) {
+		SetHudClipRect(192, 144, 256, 96, 256, 1);
+		HudMessage(s:ResearchStringInfo[page][posx].res_desc; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
+		SetHudClipRect(0, 0, 0, 0, 0);
+	}
+
+	DrawBoxText("Research!", boxid, MBOX_1, RPGMENUITEMIDEND + 2, 316.0, 240.0, "\c[B1]", "\c[Y5]");
+}
+
+void HandleResearchPageInput(int page, int boxid, int curposx) {
+	bool buystatus = 0;
+	if(ResearchInfo[page][curposx + 1].res_id != -1)
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR, curposx, 0, MAX_RESEARCHES - 1);
+	else
+		ListenInput(LISTEN_LEFT | LISTEN_FASTLR, curposx, 0, MAX_RESEARCHES - 1);
+	if(CheckInventory("MadeChoice") == 1) {
+		if(boxid == MBOX_1) {
+			buystatus = CanResearch(page, curposx);
+			if(!buystatus) {
+				TakeInventory("Budget", ResearchInfo[page][curposx].res_cost);
+				LocalAmbientSound("items/research", 127);
+				CompleteResearch(ResearchInfo[page][curposx].res_id);
+			}
+			else {
+				LocalAmbientSound("RPG/MenuError", 127);
+				GiveInventory("DnD_ShowPopup", 1);
+			}
+		}
+		SetInventory("MadeChoice", 0);
+	}
 }

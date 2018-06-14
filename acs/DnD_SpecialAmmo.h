@@ -200,9 +200,4 @@ void SetSpecialAmmoMode(int ammo_category, int weptype) {
 	SetInventory("AmmoChangeMessage", SpecialAmmoRanges[ammo_category][mode]);
 }
 
-void DoubleSpecialAmmoCapacity() {
-	for(int i = 0; i < MAX_SPECIAL_AMMOS; ++i)
-		SetAmmoCapacity(SpecialAmmoInfo[i].ammo_name, SpecialAmmoInfo[i].initial_capacity * 2);
-}
-
 #endif

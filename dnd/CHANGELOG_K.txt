@@ -10,7 +10,7 @@ LEGEND:
 =====================
 
 ! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun".
-! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun".
+! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun", "Bio-Enhancement - I, II and III", "Exoskeleton I, II and III", "Impact Protection I, II and III".
 ! Backpacks can also drop chests now!
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
 ! "Bulkiness" now increases armor cap by 4.
@@ -31,6 +31,8 @@ LEGEND:
 ! Monsters now have little icons to the two sides of the health bar to indicate their base monster type. (Demonic, Undead etc.)
 ! Talents can be brought in bulks now.
 ! Ammo page on the menu has been revamped! Now you can purchase your ammo in a cleaner, more organized fasion seperated to their categories.
+! "Plasma Cannon" now has improved sprites.
+! "Super Armor" research now requires "Rare Armors" research to be completed.
 * All weapons that can use alternate ammo now have a mode switching animation.
 * Player pain sounds for "Marine", "Hobo" and "Punisher" now respect health ratios properly.
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
@@ -39,6 +41,7 @@ LEGEND:
 * A small delay of 7 tics has been added to consecutive orb uses.
 * "Bulkiness" percentage value on stat menu now uses correct formula. (It used the older formula)
 * Grouped loadout pages into one section, just like the shop section for weapons.
+* Picking "Berserk" now counts towards the "Master Healer" quest.
 * Chest open messages are only visible to the player trying to open them now.
 * "Natural Talent" quest now properly checks if you have used a talented weapon.
 * Hopefully fixed an abuse related to "Hardcore" and exiting maps while dying.

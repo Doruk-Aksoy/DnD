@@ -106,6 +106,13 @@ bool PlayerCanLoad[MAXPLAYERS] = { 0 };
 
 // RPG ELEMENTS END
 
+enum {
+	DND_ANNOUNCER_QUEST,
+	DND_ANNOUNCER_ATTRIBPOINT,
+	DND_ANNOUNCER_LEGENDARYMONSTER,
+	DND_ANNOUNCER_RESEARCHDISCOVER
+};
+
 #define DefStepSound "Player/Move"
 
 // thunderstaff info things
@@ -977,7 +984,11 @@ void SpawnChestKey(int tid, bool isElite) {
 
 void SpawnResearch() {
 	// spawn copies of this research
-	int temp = random(0, MAX_RESEARCHES - 1);
+	int temp = 0;
+	// roll another if this has nodrop flag on it
+	do {
+		temp = random(0, MAX_RESEARCHES - 1);
+	} while(ResearchFlags[temp].res_flags & RESF_NODROP);
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// spawn this only if this isn't already found by the player
@@ -1071,4 +1082,18 @@ int GetPVelocity(void) {
 	else
 		vel = FixedDiv(x, cos(angle));
 	return vel >> 16;
+}
+
+void HandleHealDependencyCheck() {
+	// Research dependencies
+	if(CheckInventory("Research_Body_Hp_1_Tracker") == GetAmmoCapacity("Research_Body_Hp_1_Tracker") && CheckResearchStatus(RES_BIO1) == RES_NA)
+		GiveResearch(RES_BIO1, true);
+	
+	// Quest records
+	if(active_quest_id == QUEST_HEALFOR500 && !IsQuestComplete(ActivatorTID(), active_quest_id) && CheckInventory("DnD_MasterHealerQuest_HealAmount") >= DND_QUEST_MASTERHEALER_REQ)
+		CompleteQuest(ActivatorTID(), active_quest_id);
+	
+	// Skin O' My Teeth check
+	if(active_quest_id == QUEST_NOHEALINGPICKUP)
+		FailQuest(ActivatorTID(), active_quest_id);
 }

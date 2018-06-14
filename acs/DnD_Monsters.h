@@ -2,6 +2,7 @@
 #define DND_MONSTERS_IN
 
 #include "DnD_Common.h"
+#include "DnD_Research.h"
 #include "DnD_Orbs.h"
 #include "DnD_Stat.h"
 
@@ -88,12 +89,12 @@ int DP_AnglesGeneric[5] = {
 	0.80
 };
 
-int GetHealthCapActor(int t) {
-	return DND_VIT_INCREASE * CheckActorInventory(t, "PSTAT_Vitality");
-}
-
 int GetHealthMaxActor(int t) {
-    return 100 + GetHealthCapActor(t);
+	int caller = ActivatorTID();
+	SetActivator(t);
+	int cap = GetSpawnHealth();
+	SetActivator(caller);
+    return cap;
 }
 
 #define MAX_DND_COLLIDERS 1

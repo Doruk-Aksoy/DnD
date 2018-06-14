@@ -477,53 +477,23 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_RESEARCH) {
-				i = CheckInventory("MenuPosX");
-				k = CheckResearchStatus(i);
-				j = CheckInventory("Budget");
+				HudMessage(s:"--- RESEARCH MENU ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
-				HudMessage(s:"--- RESEARCH PANEL ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				
-				if(i != DND_RESEARCH_BEGIN)
-					HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-				else
-					DeleteText(RPGMENUPAGEID - 1);
-				if(i != DND_RESEARCH_END)
-					HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-				else
-					DeleteText(RPGMENUPAGEID);
-				
-				if(j)
-					HudMessage(s:"\c[Y5]Budget: \c-", d:j, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
-				else
-					HudMessage(s:"\c[Y5]Budget: \c-0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
-				
-				HudMessage(s:"\c[Y5]Entry\c- #", d:ResearchEntryNumbers[i]; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 280.1, 80.0, 0.0, 0.0);
-				if(k != RES_NA)
-					HudMessage(s:"\c[Y5]Cost: \cj$\c-", d:ResearchCosts[i], s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
-				else
-					HudMessage(s:"\c[Y5]Cost: ???\c-"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
-				
-				if(k < RES_DONE)
-					SetFont("RESBLAK");
-				else
-					SetFont("RESDONE");
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
-				
-				if(k == RES_NA)
-					SetFont("RESNONE");
-				else
-					SetFont(GetResearchImage(i));
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
-				
-				SetFont("SMALLFONT");
-				if(k != RES_NA) {
-					SetHudClipRect(192, 144, 256, 96, 256, 1);
-					HudMessage(s:ResearchDescription[i]; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
-					SetHudClipRect(0, 0, 0, 0, 0);
-				}
-				
-				DrawBoxText("Research!", boxid, MBOX_1, RPGMENUITEMIDEND + 2, 316.0, 240.0, "\c[B1]", "\c[Y5]");				
+				DrawBoxText("Research Category: Body", boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Research Category: Ammo", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Research Category: Guns", boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Research Category: Utility", boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
 			}
+			else if(curopt == MENU_RESEARCH_GUNS) {
+				HudMessage(s:"--- RESEARCH: GUNS ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawBoxText("Sub Category: Slot Guns", boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Sub Category: Luxury Gun Bundles", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END)
+				HandleResearchPageDraw(curopt - SHOP_RESPAGE_BEGIN, boxid);
 			else if(curopt == MENU_ABILITY) {
 				HudMessage(s:"--- Abilities Learned ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
@@ -1164,24 +1134,35 @@ Script "DND Menu Input Handle" (void) {
 				UpdateMenuPosition(MENU_SHOP_ARMOR1);
 		}
 		else if(curopt == MENU_RESEARCH) {
-			ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR, curposx, 0, MAX_RESEARCHES - 1);
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
 			if(CheckInventory("MadeChoice") == 1) {
-				if(boxid == MBOX_1) {
-					buystatus = CanResearch(curposx);
-					if(!buystatus) {
-						TakeInventory("Budget", ResearchCosts[curposx]);
-						LocalAmbientSound("items/research", 127);
-						CompleteResearch(curposx);
-					}
-					else {
-						LocalAmbientSound("RPG/MenuError", 127);
-						GiveInventory("DnD_ShowPopup", 1);
-					}
-				}
-				else if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
-					ReturnToMain();
+				if(boxid == MBOX_1)
+					UpdateMenuPosition(MENU_RESEARCH_BODY);
+				if(boxid == MBOX_2)
+					UpdateMenuPosition(MENU_RESEARCH_AMMO);
+				if(boxid == MBOX_3)
+					UpdateMenuPosition(MENU_RESEARCH_GUNS);
+				if(boxid == MBOX_4)
+					UpdateMenuPosition(MENU_RESEARCH_UTILITY);
 				SetInventory("MadeChoice", 0);
 			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				ReturnToMain();
+		}
+		else if(curopt == MENU_RESEARCH_GUNS) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, curposx, 0, 1);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid == MBOX_1)
+					UpdateMenuPosition(MENU_RESEARCH_SLOTGUNS);
+				if(boxid == MBOX_2)
+					UpdateMenuPosition(MENU_RESEARCH_LUXURYGUNS);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(MENU_RESEARCH);
+		}
+		else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END) {
+			HandleResearchPageInput(curopt - SHOP_RESPAGE_BEGIN, boxid, curposx);
 		}
 		else if(curopt == MENU_ABILITY) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);

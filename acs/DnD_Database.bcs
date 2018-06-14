@@ -40,7 +40,7 @@ enum {
 * For Talents, each talent can go up to 100. 8 bits per talent. Store 4 talent per int. We need 2 ints because we got 6 talents.
 * For exp, level and credit use one int each.
 * For abilities use one int, each ability occupies one bit.
-* For researches, things are a bit tricky. A research can be 0 (NA), 1 (KNOWN) or 2 (DONE). We need 2 bits to state the value of a research. We got 29 researches atm. 2 x 29 = 58 bits. Use two ints.
+* For researches, things are a bit tricky. A research can be 0 (NA), 1 (KNOWN) or 2 (DONE). We need 2 bits to state the value of a research.
 * Finally for leftover stat and perk points, use one int. A player can have at most 1023 stats, so 10 bits. Assuming the same for perks, 10 more bits for that.
 * For budget, use an int's first 10 bits. (Budget limit is 1000)
 *!! For orbs, each take 8 bits. Can support 8 different types of orbs in 2 ints.
@@ -267,6 +267,10 @@ void SavePlayerData(int pnum) {
 			temp = 0;
 		}
 	}
+	
+	// save research trackers
+	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, CheckActorInventory(tid, ResearchTrackers[i]));
 	
 	// save budget
 	temp = CheckActorInventory(tid, "Budget");
@@ -673,6 +677,12 @@ void LoadPlayerData(int pnum, int char_id) {
 		}
 	}
 	
+	HandleResearchBonuses();
+	
+	// read research trackers
+	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
+		SetInventory(ResearchTrackers[i], GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc));
+	
 	// read budget
 	temp = GetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc);
 	SetInventory("Budget", temp);
@@ -838,6 +848,9 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, 0);
+	
+	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, 0);
 	
 	for(i = 0; i < MAX_ORBS; i += 4)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBS, char_id), d:(i >> 2) + 1), pacc, 0);

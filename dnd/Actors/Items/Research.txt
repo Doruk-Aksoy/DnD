@@ -54,7 +54,17 @@ enum {
 	RES_OCCULTABILITY,
 	RES_SLOT8REVEAL,
 	RES_NANOTECH,
-	RES_OCCULTARTIFACT
+	RES_OCCULTARTIFACT,
+	
+	RES_BIO1,
+	RES_BIO2,
+	RES_BIO3,
+	RES_EXO1,
+	RES_EXO2,
+	RES_EXO3,
+	RES_IMP1,
+	RES_IMP2,
+	RES_IMP3
 };
 
 Actor TechLevel : Ammo {
@@ -151,6 +161,16 @@ Actor Research_Slot8Reveal : DnD_Boolean { }
 Actor Research_NanoTech : DnD_Boolean { } // for abilities that give resist or regen
 Actor Research_OccultArtifact : DnD_Boolean { }
 
+Actor Research_Body_Hp_1 : DnD_Boolean { }
+Actor Research_Body_Hp_2 : DnD_Boolean { }
+Actor Research_Body_Hp_3 : DnD_Boolean { }
+Actor Research_Body_Ar_1 : DnD_Boolean { }
+Actor Research_Body_Ar_2 : DnD_Boolean { }
+Actor Research_Body_Ar_3 : DnD_Boolean { }
+Actor Research_Body_Im_1 : DnD_Boolean { }
+Actor Research_Body_Im_2 : DnD_Boolean { }
+Actor Research_Body_Im_3 : DnD_Boolean { }
+
 /*
 =============================
 == ACCOMPLISHED RESEARCHES ==
@@ -208,9 +228,83 @@ Actor Done_Slot8Reveal : DnD_Boolean { }
 Actor Done_NanoTech : DnD_Boolean { }
 Actor Done_OccultArtifact : DnD_Boolean { }
 
+Actor Done_Body_Hp_1 : DnD_Boolean { }
+Actor Done_Body_Hp_2 : DnD_Boolean { }
+Actor Done_Body_Hp_3 : DnD_Boolean { }
+Actor Done_Body_Ar_1 : DnD_Boolean { }
+Actor Done_Body_Ar_2 : DnD_Boolean { }
+Actor Done_Body_Ar_3 : DnD_Boolean { }
+Actor Done_Body_Im_1 : DnD_Boolean { }
+Actor Done_Body_Im_2 : DnD_Boolean { }
+Actor Done_Body_Im_3 : DnD_Boolean { }
+
+// ****************************
+//		DEPENDENCY TRACKERS
+// ****************************
+
+// track player finding 25000 health collect
+Actor Research_Body_Hp_1_Tracker : Ammo {
+	inventory.amount 1
+	inventory.maxamount 25000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 25000
+	+IGNORESKILL
+}
+
+Actor Research_Body_Ar_1_Tracker : Ammo {
+	inventory.amount 1
+	inventory.maxamount 25000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 25000
+	+IGNORESKILL
+}
+
+Actor Research_Body_Im_1_Tracker : Ammo {
+	inventory.amount 1
+	inventory.maxamount 50
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 50
+	+IGNORESKILL
+}
+
+// ****************************
+//		RESEARCH BONUSES
+// ****************************
+
+// this section is for bonuses that a research provides as soon as it is done
+
+Actor ImpactProtection_1 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	
+	damagefactor "Explosives", 0.9
+	damagefactor "ExplosivesFull", 0.9
+	damagefactor "Explosives_Magic", 0.9
+	damagefactor "Explosives_MagicFull", 0.9
+}
+
+Actor ImpactProtection_2 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	
+	damagefactor "Explosives", 0.75
+	damagefactor "ExplosivesFull", 0.75
+	damagefactor "Explosives_Magic", 0.75
+	damagefactor "Explosives_MagicFull", 0.75
+}
+
+Actor ImpactProtection_3 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	
+	damagefactor "Explosives", 0.6
+	damagefactor "ExplosivesFull", 0.6
+	damagefactor "Explosives_Magic", 0.6
+	damagefactor "Explosives_MagicFull", 0.6
+}
+
 // *******************
 //		MODULES
 // *******************
+
+// Make a module if the research is intended to be droppable
 
 Actor ResearchModule_MP : DnD_DroppedItem {
 	Radius 20

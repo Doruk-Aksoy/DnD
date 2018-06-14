@@ -39,6 +39,7 @@
 #define DND_BASE_PLAYER_MASS 100
 
 #define DND_STAT_FULLMAX 200
+#define DND_BASE_ARMOR_SHOW 100
 #define DND_BASE_ARMOR 200
 #define DND_BASE_ARMORCAP 300
 
@@ -50,6 +51,14 @@
 #define DND_VEIL_FACTOR 20 // percent
 #define DND_VEIL_FACTORUP 3
 #define DND_HUNTERTALISMAN_HEALFACTOR 33
+
+#define BIO_HP_ADD_1 5
+#define BIO_HP_ADD_2 6
+#define BIO_HP_ADD_3 9
+
+#define EXO_AR_ADD_1 5
+#define EXO_AR_ADD_2 6
+#define EXO_AR_ADD_3 9
 
 // RPG ELEMENTS
 int Exp_ColorSet[8] = { 4, 16, 112, 160, 176, 196, 231, 251 };
@@ -494,12 +503,22 @@ int CalculateHealthCapBonuses() {
 	return res;
 }
 
+int GetResearchHealthBonuses() {
+	return BIO_HP_ADD_1 * CheckInventory("Done_Body_Hp_1") + BIO_HP_ADD_2 * CheckInventory("Done_Body_Hp_2") + BIO_HP_ADD_3 * CheckInventory("Done_Body_Hp_3");
+}
+
+int GetResearchArmorBonuses() {
+	return EXO_AR_ADD_1 * CheckInventory("Done_Body_Ar_1") + EXO_AR_ADD_2 * CheckInventory("Done_Body_Ar_2") + EXO_AR_ADD_3 * CheckInventory("Done_Body_Ar_3");
+}
+
 int GetSpawnHealth() {
 	int res = CalculateHealthCapBonuses() + DND_BASE_HEALTH + DND_VIT_INCREASE * CheckInventory("PSTAT_Vitality");
 	// consider percent bonuses
 	res += (res * (GetDataFromOrbBonus(PlayerNumber(), OBI_HPPERCENT, -1)) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
 	res += (res * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
+	// research bonuses
+	res += (res * GetResearchHealthBonuses()) / 100;
 	
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH))
 		res >>= 1;
@@ -523,21 +542,24 @@ int CalculateArmorCapBonuses() {
 
 // used for displaying to hud
 int GetArmorCap() {
-	int res = CalculateArmorCapBonuses() + DND_BASE_ARMOR + DND_ARMOR_PER_BUL * CheckInventory("PSTAT_Bulkiness");
+	// see if this DND_BASE_ARMOR_SHOW breaks anything
+	int res = CalculateArmorCapBonuses() + DND_BASE_ARMOR_SHOW + DND_ARMOR_PER_BUL * CheckInventory("PSTAT_Bulkiness");
 	res += res * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
 	res += (res * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
-	
+	res += (res * GetResearchArmorBonuses()) / 100;
 	return res;
 }
 
 // used for deciding armor pickup values
 int GetArmorSpecificCap(int amt) {
-	if(amt != 1) { // any other armor besides the armor bonuses
+	if(amt != 1) { 
+		// any other armor besides the armor bonuses
 		amt += CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * CheckInventory("PSTAT_Bulkiness");
 		amt += amt * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
 		amt += (amt * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 		amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
+		amt += (amt * GetResearchArmorBonuses()) / 100;
 	}
 	else // exception for armor bonus
 		amt = GetArmorCap() >> 1;
@@ -566,10 +588,14 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 		amount = amount * cap / 100;
 		// allow it to fill up to x3 of the armor cap
 		cap *= 3;
-		if(armor + amount < cap)
+		if(armor + amount < cap) {
 			GiveInventory("DnD_ArmorBonus", amount);
-		else
+			GiveInventory("Research_Body_Ar_1_Tracker", amount);
+		}
+		else {
 			GiveInventory("DnD_ArmorBonus", cap - armor);
+			GiveInventory("Research_Body_Ar_1_Tracker", cap - armor);
+		}
 	}
 	else {
 		// only give the actual armor if my tier is higher!
@@ -589,17 +615,17 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 		// respect the cap of the currently equipped armor
 		cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
 		// set armor count
-		if(armor + amount > cap)
+		if(armor + amount > cap) {
 			GiveInventory("DnD_ArmorBonus", cap - armor);
-		else
+			GiveInventory("Research_Body_Ar_1_Tracker", cap - armor);
+		}
+		else {
 			GiveInventory("DnD_ArmorBonus", amount);
+			GiveInventory("Research_Body_Ar_1_Tracker", amount);
+		}
 	}
 	
-	// check for thick skin quest
-	if(active_quest_id == QUEST_NOARMORS && !CheckInventory(Quest_Checkers[active_quest_id])) {
-		GiveInventory(Quest_Checkers[active_quest_id], 1);
-		FailQuest(ActivatorTID(), active_quest_id);
-	}
+	HandleArmorDependencyCheck();
 }
 
 int Calculate_Stats() {
@@ -843,6 +869,18 @@ void UpdateLegendaryKill(int pnum, int mon_id) {
 
 int GetPlayerWeaponEnchant(int pnum, int wepid) {
 	return GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wepid) + Player_Weapon_Infos[pnum][wepid].enchants;
+}
+
+void HandleArmorDependencyCheck() {
+	// Research Dependency
+	if(CheckInventory("Research_Body_Ar_1_Tracker") == GetAmmoCapacity("Research_Body_Ar_1_Tracker") && CheckResearchStatus(RES_EXO1) == RES_NA)
+		GiveResearch(RES_EXO1, true);
+
+	// check for thick skin quest
+	if(active_quest_id == QUEST_NOARMORS && !CheckInventory(Quest_Checkers[active_quest_id])) {
+		GiveInventory(Quest_Checkers[active_quest_id], 1);
+		FailQuest(ActivatorTID(), active_quest_id);
+	}
 }
 
 #endif
