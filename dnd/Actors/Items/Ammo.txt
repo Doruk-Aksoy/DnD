@@ -956,6 +956,12 @@ Actor NitroShell : Ammo {
 	inventory.icon "SAM4A0"
 }
 
+Actor SlugShell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 40
+	inventory.icon "SAM5A0"
+}
+
 Actor A40mmSonicGrenade : Ammo {
 	inventory.amount 1
 	inventory.maxamount 25

@@ -412,7 +412,11 @@ statusbar normal, fullscreenoffsets {
 			InInventory SpecialAmmoMode_3, 1 {
 				InInventory SpecialAmmoMode_3, 2 {
 					InInventory SpecialAmmoMode_3, 3 {
-						drawimage "ELECICO", -80, -54, center, 18, 18;
+						InInventory SpecialAmmoMode_3, 11 {
+							drawimage "SLUGICO", -80, -54, center, 18, 18;
+						}
+						else
+							drawimage "ELECICO", -80, -54, center, 18, 18;
 					}
 					else {
 						drawimage "MAGSICO", -80, -54, center, 18, 18;
@@ -556,8 +560,14 @@ statusbar normal, fullscreenoffsets {
 				InInventory SpecialAmmoMode_3, 1 {
 					InInventory SpecialAmmoMode_3, 2 {
 						InInventory SpecialAmmoMode_3, 3 {
-							drawbar "H_BRFILG", "H_BRFBGG", ammo ElectricShell, horizontal, reverse, -182, -45;
-							drawnumber 4, HUDFONT2_DOOM, NCGreen, ammo ElectricShell, -189, -47;
+							InInventory SpecialAmmoMode_3, 11 {
+								drawbar "H_BRFILG", "H_BRFBGG", ammo SlugShell, horizontal, reverse, -182, -45;
+								drawnumber 4, HUDFONT2_DOOM, NCGreen, ammo SlugShell, -189, -47;
+							}
+							else {
+								drawbar "H_BRFILG", "H_BRFBGG", ammo ElectricShell, horizontal, reverse, -182, -45;
+								drawnumber 4, HUDFONT2_DOOM, NCGreen, ammo ElectricShell, -189, -47;
+							}
 						}
 						else {
 							drawbar "H_BRFILG", "H_BRFBGG", ammo PiercingShell, horizontal, reverse, -182, -45;
@@ -675,8 +685,14 @@ statusbar normal, fullscreenoffsets {
 				InInventory SpecialAmmoMode_3, 1 {
 					InInventory SpecialAmmoMode_3, 2 {
 						InInventory SpecialAmmoMode_3, 3 {
-							drawbar "H_BRFILY", "H_BRFBGY", ammo ElectricShell, horizontal, reverse, -182, -45;
-							drawnumber 4, HUDFONT2_DOOM, NCYellow, ammo ElectricShell, -189, -47;
+							InInventory SpecialAmmoMode_3, 11 {
+								drawbar "H_BRFILY", "H_BRFBGY", ammo SlugShell, horizontal, reverse, -182, -45;
+								drawnumber 4, HUDFONT2_DOOM, NCYellow, ammo SlugShell, -189, -47;
+							}
+							else {
+								drawbar "H_BRFILY", "H_BRFBGY", ammo ElectricShell, horizontal, reverse, -182, -45;
+								drawnumber 4, HUDFONT2_DOOM, NCYellow, ammo ElectricShell, -189, -47;
+							}
 						}
 						InInventory not SpecialAmmoMode_3, 3 {
 							drawbar "H_BRFILY", "H_BRFBGY", ammo PiercingShell, horizontal, reverse, -182, -45;
@@ -800,20 +816,26 @@ statusbar normal, fullscreenoffsets {
 				InInventory SpecialAmmoMode_3, 1 {
 					InInventory SpecialAmmoMode_3, 2 {
 						InInventory SpecialAmmoMode_3, 3 {
-							drawbar "H_BRFILR", "H_BRFBGR", ammo ElectricShell, horizontal, reverse, -182, -45;
-							drawnumber 4, HUDFONT2_DOOM, NCRed, ammo ElectricShell, -189, -47;
+							InInventory SpecialAmmoMode_3, 11 {
+								drawbar "H_BRFILR", "H_BRFBGR", ammo SlugShell, horizontal, reverse, -182, -45;
+								drawnumber 4, HUDFONT2_DOOM, NCRed, ammo SlugShell, -189, -47;
+							}
+							else {
+								drawbar "H_BRFILR", "H_BRFBGR", ammo ElectricShell, horizontal, reverse, -182, -45;
+								drawnumber 4, HUDFONT2_DOOM, NCRed, ammo ElectricShell, -189, -47;
+							}
 						}
-						InInventory not SpecialAmmoMode_3, 3 {
+						else {
 							drawbar "H_BRFILR", "H_BRFBGR", ammo PiercingShell, horizontal, reverse, -182, -45;
 							drawnumber 4, HUDFONT2_DOOM, NCRed, ammo PiercingShell, -189, -47;
 						}
 					}
-					InInventory not SpecialAmmoMode_3, 2 {
+					else {
 						drawbar "H_BRFILR", "H_BRFBGR", ammo FlechetteShell, horizontal, reverse, -182, -45;
 						drawnumber 4, HUDFONT2_DOOM, NCRed, ammo FlechetteShell, -189, -47;
 					}
 				}
-				InInventory not SpecialAmmoMode_3, 1 {
+				else {
 					drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -45;
 					drawnumber 4, HUDFONT2_DOOM, NCRed, ammo1, -189, -47;
 				}

@@ -9,6 +9,7 @@ enum {
 	SSAM_FLECHETTE,
 	SSAM_MAGNUM,
 	SSAM_SHOCK,
+	SSAM_SLUG,
 	
 	SSAM_40MMHE,
 	SSAM_40MMSONIC,
@@ -24,6 +25,7 @@ ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS] = {
 	{ "SAM3A0",			"PiercingShell",				40,			8		},
 	{ "SAM2A0",			"ElectricShell",				40,			8		},
 	{ "SAM4A0",         "NitroShell",                   40,			8		},
+	{ "SAM5A0",			"SlugShell",					40,			8		},
 	
 	{ "GAM1A0",			"A40MMSonicGrenade",			25,			5		},
 	{ "GAM2A0",			"A40MMHEGrenade",				25,			5		}
@@ -33,6 +35,7 @@ pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {
 	{ { 25, 0, 0 }, { 6, 0, 0 }, { 3, 0, 0 } },
 	{ { 35, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	{ { 25, 0, 0 }, { 10, 0, 0 }, { -1, -1, -1 } },
+	{ { 300, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	
 	{ { 288, 0, 0 }, { 1, 8, 16 }, { 10, 0, 0 } },
 	{ { 144, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
@@ -56,6 +59,7 @@ enum {
 	SPWEP_SLOT6
 };
 
+// add whatever new ammo comes to below the last!!! Important!
 enum {
 	AMMO_BASICSHELL,
 	AMMO_FLECHETTE,
@@ -69,7 +73,8 @@ enum {
     
     AMMO_RIOTSHELL,
     AMMO_NITROGENSHELL,
-    AMMO_EXPLOSIVESHELL
+    AMMO_EXPLOSIVESHELL,
+	AMMO_SLUGSHELL
 };
 
 enum {
@@ -77,10 +82,11 @@ enum {
 	AMMO_TYPE_MGGRENADE,
 	AMMO_TYPE_GRENADE,
     AMMO_TYPE_SHELL2,
-	AMMO_TYPE_ONLYBIGNADE
+	AMMO_TYPE_ONLYBIGNADE,
+	AMMO_TYPE_HEAVYSHELLS
 };
 
-#define SPECIALAMMO_TYPE_MAX AMMO_TYPE_ONLYBIGNADE + 1
+#define SPECIALAMMO_TYPE_MAX AMMO_TYPE_HEAVYSHELLS + 1
 // this is the maximum amount of special ammo types a single weapon can use
 // The array below accepts the order of ammo types used for weapons, this is the accepted range of ammo types
 #define SPECIALAMMO_PERWEAPON_MAX 4
@@ -89,11 +95,12 @@ int SpecialAmmoRanges[SPECIALAMMO_TYPE_MAX][SPECIALAMMO_PERWEAPON_MAX] = {
 	{ AMMO_BULLET, AMMO_BASICGRENADE, AMMO_40MMSONIC, AMMO_40MMHEGRENADE },
 	{ AMMO_BASICGRENADE, AMMO_40MMSONIC, AMMO_40MMHEGRENADE, -1 },
 	{ AMMO_RIOTSHELL, AMMO_NITROGENSHELL, AMMO_EXPLOSIVESHELL, -1 },
-	{ AMMO_BULLET, AMMO_40MMHEGRENADE, -1, -1 }
+	{ AMMO_BULLET, AMMO_40MMHEGRENADE, -1, -1 },
+	{ AMMO_BASICSHELL, AMMO_PIERCING, AMMO_ELECTRIC, AMMO_SLUGSHELL }
 };
 
 #define MAXSPECIALAMMOCATEGORY 2
-#define MAXSPECIALAMMOTYPES AMMO_EXPLOSIVESHELL + 1
+#define MAXSPECIALAMMOTYPES AMMO_SLUGSHELL + 1
 #define SPECIALAMMO_NAME 0
 #define SPECIALAMMO_TAG 1
 str SpecialAmmoNames[MAXSPECIALAMMOTYPES][2] = {
@@ -109,7 +116,8 @@ str SpecialAmmoNames[MAXSPECIALAMMOTYPES][2] = {
     
     {       "RiotgunShell",             "\cgRiot Shells"                    },
     {       "NitroShell",               "\c[E3]Nitrogen Shells"             },
-    {       "ExplodingShell",           "\cuExplosive Shells"               }
+    {       "ExplodingShell",           "\cuExplosive Shells"               },
+	{		"SlugShell",				"\crSlug Shells"					}
 };
 
 str GetSpecialAmmoSuffix(int weptype) {

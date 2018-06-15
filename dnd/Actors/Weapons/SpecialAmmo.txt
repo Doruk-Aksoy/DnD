@@ -6,7 +6,8 @@ enum {
 	AMMO_TYPE_MGGRENADE,
 	AMMO_TYPE_GRENADE,
 	AMMO_TYPE_SHELL2,
-	AMMO_TYPE_ONLYBIGNADE
+	AMMO_TYPE_ONLYBIGNADE,
+	AMMO_TYPE_HEAVYSHELLS
 };
 
 enum {
@@ -22,13 +23,15 @@ enum {
 	
 	AMMO_RIOTSHELL,
 	AMMO_NITROGENSHELL,
-	AMMO_EXPLOSIVESHELL
+	AMMO_EXPLOSIVESHELL,
+	AMMO_SLUGSHELL
 };
 
 enum {
 	SSAM_FLECHETTE,
 	SSAM_MAGNUM,
 	SSAM_SHOCK,
+	SSAM_SLUG,
 	
 	SSAM_40MMHE,
 	SSAM_40MMSONIC,
@@ -114,6 +117,34 @@ Actor ShockShellShooter : DnD_Activator {
 		Goto CheckMode
 		CheckMode:
 			TNT1 A 0 A_JumpIfInventory("ElectricShell", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_SHELL) // 0 is shell position
+			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot3", 1, "SetSG")
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3X", 0)
+		Stop
+		SetSG:
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3", 0)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor SlugShellShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlayWeaponSound("Shells/Slug")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("SlugShell", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0.75, 0.75, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_SLUG, TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK), "SlugShellPuff", FBF_NORANDOM)
+		Goto CheckMode
+		Full:
+			TNT1 A 0 A_FireBullets(0.75, 0.75, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_SLUG, TALENT_BALLISTIC, DND_ISSPECIALAMMO | DND_ISBOOMSTICK), "SlugShellPuff", FBF_NORANDOM)
+		Goto CheckMode
+		CheckMode:
+			TNT1 A 0 A_JumpIfInventory("SlugShell", 1, "Nothing")
 			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_SHELL) // 0 is shell position
 			TNT1 A 0 A_JumpIfInventory("H_WeaponSlot3", 1, "SetSG")
 			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_3X", 0)
@@ -574,6 +605,30 @@ Actor FlechettePuff : NewBulletPuff {
 	}
 }
 
+Actor SlugShellPuff : NewBulletPuff {
+	+PUFFONACTORS
+	+ALWAYSPUFF
+	+PUFFGETSOWNER
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 AAA 0 A_SpawnItemEx("BigPuffFX_Main", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
+			TNT1 A 0 A_PlaySound("puff/ric")
+			TNT1 AA 0 A_SpawnItemEx("BigPuffFX_Flash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
+			TNT1 A 0 A_SpawnItemEx("BigPuffFX_Spark1", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
+			TNT1 A 0 A_SpawnItemEx("BigPuffFX_Spark2", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
+			TNT1 A 0
+			TNT1 AAA 0 A_SpawnItemEx("BigPuffFX_Smoke", 0, 0, 0, frandom(0.15,0.25), 0, frandom(-0.1,0.45), 0, SXF_CLIENTSIDE, 0)
+			TNT1 A 0 A_SpawnDebris("SparkPuff", 1)
+			TNT1 A 0 A_SpawnItemEx("WallHitSpark", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
+			PUFF A 4 bright
+			PUFF B 4
+			PUFF CD 4
+		Stop
+	}
+}
+
 Actor FlechetteShot {
    Speed 16
    Radius 4
@@ -872,37 +927,37 @@ Actor NitroShellPuff_FullDMG : NitroShellPuff {
 }
 
 Actor SpecialAmmoMode_3 : Ammo {
-	inventory.maxamount 10
+	inventory.maxamount 24
 	+IGNORESKILL
 }
 
 Actor SpecialAmmoMode_3X : Ammo {
-	inventory.maxamount 10
+	inventory.maxamount 24
 	+IGNORESKILL
 }
 
 Actor SpecialAmmoMode_4 : Ammo {
-	inventory.maxamount 10
+	inventory.maxamount 24
 	+IGNORESKILL
 }
 
 Actor SpecialAmmoMode_5 : Ammo {
-	inventory.maxamount 10
+	inventory.maxamount 24
 	+IGNORESKILL
 }
 
 Actor SpecialAmmoMode_5X : Ammo {
-	inventory.maxamount 10
+	inventory.maxamount 24
 	+IGNORESKILL
 }
 
 Actor AmmoChangeMessage : Ammo {
-	inventory.maxamount 10
+	inventory.maxamount 24
 	+IGNORESKILL
 }
 
 Actor SpecialAmmoMode_6 : Ammo {
-	inventory.maxamount 10
+	inventory.maxamount 24
 	+IGNORESKILL
 }
 

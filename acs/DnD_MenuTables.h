@@ -1674,6 +1674,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_NITRO, 2309, 45
 		},
 		{
+			RES_SLUGSHELL, 2316, 50
+		},
+		{
 			RES_SONICGRENADE, 2411, 55
 		},
 		{
@@ -1879,6 +1882,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK33",
 			"Always nice to greet your adversaries with some ice. Allows Riot Cannon to use Nitrogen Shells."
+		},
+		{
+			"RESBAK54",
+			"You can treat your shotgun like a sniper rifle now. Allows Deadlock to use Slug Shells, which can \cfignore shields\c-."
 		},
 		{
 			"RESBAK9",

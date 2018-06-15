@@ -13,6 +13,7 @@ enum {
 	RES_PIERCING,
 	RES_ELECTRIC,
     RES_NITRO,
+	RES_SLUGSHELL,
 	
 	RES_SONICGRENADE,
 	RES_HEGRENADE,
@@ -87,6 +88,7 @@ str Research_List[MAX_RESEARCHES] = {
 	"PiercingShell",
 	"ElectricShell",
     "NitroShell",
+	"SlugShell",
 
 	"SonicGrenade",
 	"HEGrenade",
@@ -157,6 +159,7 @@ str Research_Label[MAX_RESEARCHES] = {
     "Magnum Shells",
     "Electric Shells",
     "Nitrogen Shells",
+	"Slug Shells",
     
     "High Explosive Grenades",
     "Sonic Grenades",
@@ -252,6 +255,7 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
     { 0, -1 },
     { 0, -1 },
     { 0, -1 },
+	{ 0, -1 },
     
     { 0, -1 },
     { 0, -1 },

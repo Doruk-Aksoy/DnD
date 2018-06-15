@@ -199,6 +199,7 @@ $limit ThunderStaff/Thunder 0
 
 Shells/Flechette		FLECHFIR
 Shells/FlechetteRic		FLECRIC
+Shells/Slug				SHSLUGFR
 Shells/Pierce			PIERCFIR
 Shells/Shock			ELECTFIR
 Shells/Shock2			ELECFIR2
