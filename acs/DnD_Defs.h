@@ -71,7 +71,6 @@ void HandlePlayerPainSound(int pclass) {
 	int curhp = GetActorProperty(0, APROP_HEALTH);
 	int maxhp = GetSpawnHealth();
 	int hpratio = (curhp * 100) / maxhp;
-	printbold(d:hpratio);
 	switch(pclass) {
 		case 2:
 			// marine -- has 2 sounds for each quarter like so: Player/Pain25
