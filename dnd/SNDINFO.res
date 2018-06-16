@@ -1,3 +1,8 @@
+WoT/Idle		WOTIDLE
+WoT/Fire		WOTFIRE
+WoT/Alt			WOTALT
+WoT/Heal		WOTHEAL
+
 Hades/Load		STNGCLOD
 Hades/Clipout	STNGCOUT
 Hades/Clipin		STNGCIN

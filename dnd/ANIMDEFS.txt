@@ -35,3 +35,6 @@ texture D97A1
 	
 texture EICEAM1
 	range EICEAM4 tics 4.0
+	
+texture DBLUD1
+	range DBLUD3 tics 4.0

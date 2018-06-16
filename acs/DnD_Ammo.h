@@ -34,6 +34,7 @@ enum {
 	AMMO_SHELL = 0,
 	AMMO_PCANNON,
 	AMMO_NITROGENCANISTER,
+	AMMO_DEMONBLOOD,
 	AMMO_HADES,
 	AMMO_EXSHELL,
 	AMMO_SLAYER,
@@ -88,6 +89,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ "SHELA0",			"Shell",					50,			20		},
 		{ "PCNIC1",			"PCanAmmo",					35,			15		},
 		{ "D97A1",			"NitrogenCanister",			40,			15		},
+		{ "DBLUD1",			"DemonBlood",				60,			25		},
 		{ "STRGY0",			"HadesAmmo",				32,			8		},
 		{ "ESHAA0",			"ExplodingShell",			40,			15		},
 		{ "SLAYAM01",		"SlayerAmmo",				40,			15		},
@@ -202,6 +204,10 @@ void HandleAmmoContainerPickup(int slot) {
 		
 		GiveInventory(AmmoInfo[slot][i].ammo_name, amt);
 	}
+}
+
+void GiveAmmo(int amt, int slot, int t) {
+	GiveInventory(AmmoInfo[slot][t].ammo_name, amt + (amt * CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN) / 100);
 }
 
 #endif

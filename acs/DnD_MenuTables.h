@@ -252,12 +252,13 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 4500,  1 },
 		{ 4350,  1 },
         { 4500,  1 },
+		{ 5250,  1 },
 		{ 5000,  1 },
 		{ 5250,  1 },
 		{ 5500,  1 },
-		{ 5750,  1 },
 		
 		// 3 - 2
+		{ 5750,  1 },
 		{ 6500,  1 },
 		{ 5250,  1 },
 		{ 5250,  1 },
@@ -354,11 +355,16 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 115,		1 },
 		{ 100,		1 },
 		
+		// Ammo 4
+		{ 500,		1 },
+		
 		// Special Ammunition
 		{ 475,	    1 },
 		{ 825,	    1 },
 		{ 925,	    1 },
         { 875,      1 },
+		{ 1250,		1 },
+		
 		{ 925,      1 },
 		{ 1250,	    1 },
 		
@@ -444,6 +450,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ RES_SLOT3UPG1, -1, -1 },
 		{ RES_SLOT3UPG2, -1, -1 },
+		{ RES_SLOT3UPG3, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT3SSGUPG1, -1, -1 },
@@ -544,6 +551,9 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT3SSGUPG3, -1, -1 },
+		
+	// ammo 4
+		{ RES_SLOT3UPG3, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -648,11 +658,12 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "Upgraded Shotgun2", 					"Killstorm",						WEPCHECK_SLOT3,			"0" 		},
 	{ "ResShotgun1",						"Deadlock",							WEPCHECK_SLOT3,			"0"		    },
 	{ "ResShotgun2",                        "Nitrogen Crossbow",                WEPCHECK_SLOT3,     	"0"         },
+	{ "ResShotgun3",                        "Wheel of Torment",                	WEPCHECK_SLOT3,     	"0"         },
 	{ "Upgraded Super Shotgun",			    "Heavy SSG",						WEPCHECK_SLOT3X,		"0" 		},
 	{ "Upgraded Super Shotgun2",		    "Erasus",							WEPCHECK_SLOT3X,		"0" 		},
 	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
+
 	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
-	
 	{ "ResSSG3",							"Hades Shotgun",					WEPCHECK_SLOT3X,		"0"			},
 	{ "Silver Gun",						    "White Death",						WEPCHECK_SLOT3L,		"1"	        },
 	{ "Slayer",								"Slayer",							WEPCHECK_SLOT3L,		"1"		    },
@@ -736,11 +747,14 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "FlakShell",							"Flak Shell",						"",						"0"			},
 	{ "DesolatorAmmo",						"Desolator Rounds",					"",						"0"			},
 	{ "HadesAmmo",							"Hades Shells",						"",						"0"			},
+	{ "DemonBlood",							"Vial of Demon Blood",				"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
 	{ "ElectricShell",						"Shock Shells",						"",						"0"		    },
 	{ "NitroShell",                         "Nitrogen Shells",                  "",                     "0"         },
+	{ "SlugShell",							"Slug Shells",						"",						"0"			},
+	
 	{ "A40mmSonicGrenade",				    "Sonic Grenades",					"",						"0"		    },
 	{ "A40mmHEGrenade",					    "HE Grenades",						"",						"0"		    },
 	
@@ -836,12 +850,14 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_SHELL,
 	DTYPE_SHELL,
 	DTYPE_ELEMENTAL,
+	DTYPE_OCCULT | DTYPE_MELEE,
 	DTYPE_SHELL,
 	DTYPE_SHELL,
 	DTYPE_ENERGY,
-	DTYPE_ELEMENTAL,
+	
 	
 	// 3 - 2
+	DTYPE_ELEMENTAL,
 	DTYPE_SHELL | DTYPE_ELEMENTAL,
 	DTYPE_SHELL | DTYPE_EXPLOSIVE,
 	DTYPE_OCCULT,
@@ -925,12 +941,13 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_AUTOSG			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG2			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG3			},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_HSSG			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_ERASUS			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG1		},
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG2		},
 	
 	// 3 - 2
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG2		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESSSG3		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SILVER			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SLAYER			},
@@ -1038,12 +1055,13 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_NONE,
 	WPROP_ALTAMMO,
 	WPROP_NONE,
+	WPROP_NONE,
 	WPROP_RIPPER,
 	WPROP_NONE,
 	WPROP_IGNORESHIELD,
-	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	
 	// 3 - 2
+	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	WPROP_RIPPER | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_SELFDMG | WPROP_CANTHITGHOST | WPROP_RIPPER,
@@ -1124,11 +1142,12 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Killstorm is an automatic shotgun, shooting 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Has a shell capacity of 10.",
 	"Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.",
 	"Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of gas streams doing 5 damage.",
+	"An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
 	"Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
 	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
-	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	
+	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	"Fires 15 shells doing 10 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",
@@ -1337,6 +1356,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_SHELL,
 		SHOP_AMMO_PCAN,
 		SHOP_AMMO_NITROGEN,
+		SHOP_AMMO_DEMONBLOOD,
 		SHOP_AMMO_HADES,
 		SHOP_AMMO_EXPSHELL,
 		SHOP_AMMO_SLAYER,
@@ -1402,12 +1422,14 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_FLAK				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DEMONBLOOD		},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_PIERCING			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ELECTRIC			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NITROSHELL		},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SLUGSHELL			},
 	
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SONICGRENADE		},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEGRENADE			}
@@ -1446,11 +1468,13 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	5,
 	20,
 	6,
+	12,
 	
 	8,
 	8,
 	8,
     8,
+	8,
 	
 	5,
 	5
@@ -1489,11 +1513,13 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"flak shells for the Vindicator.",
 	"desolator rounds for the Desolator Cannon.",
 	"hades shells for the Hades Auto Shotgun.",
+	"vials of demon blood for the Wheel of Torment.",
 	
 	"flechette shells.",
 	"magnum shells.",
 	"electric shells.",
 	"nitrogen shells.",
+	"slug shells.",
 	
 	"sonic grenades.",
 	"high-ex grenades."
@@ -1618,7 +1644,7 @@ enum {
 	RESPAGE_UTILITY,
 };
 
-#define MENU_MAXRES_PERPAGE 23
+#define MENU_MAXRES_PERPAGE 24
 res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	// body
 	{
@@ -1708,6 +1734,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			RES_SLOT3UPG2, 8015, 50
+		},
+		{
+			RES_SLOT3UPG3, 8278, 60
 		},
 		{
 			RES_SLOT3SSGUPG1, 7995, 50
@@ -1928,6 +1957,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK31",
 			"Sometimes it's better to just cool things down when things get heated up. Unlocks Nitrogen Crossbow (3)."
+		},
+		{
+			"RESBAK55",
+			"A strange artifact designed to inflict unimaginable torment on demons. Unlocks Wheel of Torment (3)."
 		},
 		{
 			"RESBAK20",

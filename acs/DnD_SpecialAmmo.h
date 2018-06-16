@@ -9,15 +9,14 @@ enum {
 	SSAM_FLECHETTE,
 	SSAM_MAGNUM,
 	SSAM_SHOCK,
+	SSAM_NITROSHELL,
 	SSAM_SLUG,
 	
-	SSAM_40MMHE,
 	SSAM_40MMSONIC,
-    
-    SSAM_NITROSHELL
+	SSAM_40MMHE
 };
 
-#define MAX_SPECIAL_AMMOS SSAM_NITROSHELL + 1
+#define MAX_SPECIAL_AMMOS SSAM_40MMHE + 1
 #define MAX_SPECIALAMMO_DAMAGEINDEX 3
 
 ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS] = {
@@ -28,19 +27,19 @@ ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS] = {
 	{ "SAM5A0",			"SlugShell",					40,			8		},
 	
 	{ "GAM1A0",			"A40MMSonicGrenade",			25,			5		},
-	{ "GAM2A0",			"A40MMHEGrenade",				25,			5		}
+	{ "GAM2A0",			"A40MMHEGrenade",				25,			5		},
+
 };
 
 pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {
 	{ { 25, 0, 0 }, { 6, 0, 0 }, { 3, 0, 0 } },
 	{ { 35, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	{ { 25, 0, 0 }, { 10, 0, 0 }, { -1, -1, -1 } },
+	{ { 2, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	{ { 300, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	
 	{ { 288, 0, 0 }, { 1, 8, 16 }, { 10, 0, 0 } },
-	{ { 144, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
-	
-	{ { 2, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } }
+	{ { 144, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } }
 };
 
 int GetSpecialAmmoDamage(int id1, int id2) {

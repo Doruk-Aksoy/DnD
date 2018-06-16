@@ -27,6 +27,7 @@ enum {
 	DND_WEAPON_KILLSTORM,
 	DND_WEAPON_DEADLOCK,
 	DND_WEAPON_NITROGENCROSSBOW,
+	DND_WEAPON_WHEELOFTORMENT,
 	
 	DND_WEAPON_SUPERSHOTGUN,
 	DND_WEAPON_HEAVYSUPERSHOTGUN,
@@ -142,6 +143,7 @@ str Weapons[MAXWEPS][7] = {
 	 { "Upgraded Shotgun2",					"Auto Shotgun",				"3",		"Shell",			"ShellSize_10",			        "GotShotgun",				"UASGICO"				},
 	 { "ResShotgun1",						"Deadlock",					"3",		"Shell",			"ShellSize_12",			        "GotShotgun",				"RW01X0"				},
 	 { "ResShotgun2",                       "Nitrogen Crossbow",        "3",        "NitrogenCanister", " ",                            "GotShotgun",               "WBOWA0"                },
+	 { "ResShotgun3",						"Wheel of Torment",			"3",		"DemonBlood",		" ",							"GotShotgun",				"WWOPA0"				},
 	 
 	 { " Super Shotgun ",					"Super Shotgun",			"3",		"Shell",			" ",							"GotSSG",					"SHS1Z0"				},
 	 { "Upgraded Super Shotgun",			"H. S. Shotgun",			"3",		"Shell",			" ",							"GotSSG",					"SSGPA0"				},
@@ -282,7 +284,7 @@ int PlayerRunsOverheat[MAXPLAYERS] = { 0 };
 str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
 	{ " Chainsaw ", "Upgraded Chainsaw", "Katana", "Excalibat", "ResMelee1", "", "", "", "" },
 	{ "Magnum", " Akimbo Pistols ", "Laser Pistol", "ResPistol1", "ResPistol2", "", "", "", "" },
-	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "ResShotgun1", "ResShotgun2", "", "", "", "" },
+	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "ResShotgun1", "ResShotgun2", "ResShotgun3", "", "", "" },
 	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "ResSSG1", "ResSSG2", "", "", "", "" },
 	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "" },
 	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher2", "ResRL1", "ResRL2", "ResRL3", "", "" },

@@ -230,7 +230,9 @@ Script "DnD Portable Kit Script" (void) {
 }
 
 // Health Kits Script (Used by Portable Medikits as well, ported here)
-Script "DnD Health Pickup" (int amt, int isspecial) {
+Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
+	if(useTarget)
+		SetActivatorToTarget(0);
 	int curhp = GetActorProperty(0, APROP_HEALTH);
 	int healthcap = GetSpawnHealth();
 	int bonus = GetHealingBonuses();
@@ -637,6 +639,7 @@ Script "DND On Kill" KILL {
 	// if marked by talisman
 	pnum = CheckInventory("HunterTalismanMarkBool");
 	haswisdom = isBoss();
+	hasgreed = isDemon();
 	SetInventory("HunterTalismanMarkBool", 0);
 	
 	// required delay for transition from specific death state labels
@@ -651,6 +654,12 @@ Script "DND On Kill" KILL {
 		GiveInventory("Research_Body_Im_1_Tracker", 1);
 		if(CheckInventory("Research_Body_Im_1_Tracker") == GetAmmoCapacity("Research_Body_Im_1_Tracker") && CheckResearchStatus(RES_IMP1) == RES_NA)
 			GiveResearch(RES_IMP1, true);
+	}
+	
+	if(hasgreed) {
+		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
+		if(CheckInventory("Research_Slot3Upgrade3_Tracker") == GetAmmoCapacity("Research_Slot3Upgrade3_Tracker") && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA)
+			GiveResearch(RES_SLOT3UPG3, true);
 	}
 	
 	// Kill spree
@@ -1310,6 +1319,9 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 		}
 		
 		if(GetCVar("dnd_enable_elites") && RollEliteChance() && total_level / pcount > GetCVar("dnd_elite_spawnlevel") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY)) {
+			// hopefully people won't turn to elites?
+			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
+				Terminate;
 			GiveInventory("MonsterIsElite", 1);
 			
 			// Elite bonuses
@@ -2025,6 +2037,7 @@ Script 991 ENTER {
 	if(HardcoreSet && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 	
+	SetInventory("DnD_PTotalLevel", total_level);
 	// for zombie quest to work
 	TakeInventory("DnD_ShotUndead", 1);
 	TakeInventory("ParsingData", 1);
@@ -3259,4 +3272,18 @@ Script "DnD Research Fancy Message" (int res_id) CLIENTSIDE {
 	Log(s:ResearchPrefix, s:Research_Label[res_id], s:"!");
 	LocalAmbientSound("items/research", 127);
 	ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_RESEARCHDISCOVER, res_id);
+}
+
+Script "DnD Is Demon" (void) {
+	SetActivator(0, AAPTR_TRACER);
+	SetResultValue(ActivatorTID() && IsDemon());
+}
+
+Script "DnD Give Ammo" (int slot, int ammotype, int amount) {
+	GiveAmmo(amount, slot, ammotype);
+}
+
+Script "DnD Give Ammo To Target" (int slot, int ammotype, int amount) {
+	SetActivatorToTarget(0);
+	GiveAmmo(amount, slot, ammotype);
 }

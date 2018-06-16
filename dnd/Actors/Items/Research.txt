@@ -8,6 +8,7 @@ enum {
 	RES_PIERCING,
 	RES_ELECTRIC,
 	RES_NITRO,
+	RES_SLUGSHELL,
 	
 	RES_SONICGRENADE,
 	RES_HEGRENADE,
@@ -30,6 +31,7 @@ enum {
 	
 	RES_SLOT3UPG1,
 	RES_SLOT3UPG2,
+	RES_SLOT3UPG3,
 	RES_SLOT3SSGUPG1,
 	RES_SLOT3SSGUPG2,
 	RES_SLOT3SSGUPG3,
@@ -119,6 +121,7 @@ Actor Research_FlechetteShell : DnD_Boolean { }
 Actor Research_PiercingShell : DnD_Boolean { }
 Actor Research_ElectricShell : DnD_Boolean { }
 Actor Research_NitroShell : DnD_Boolean { }
+Actor Research_SlugShell : DnD_Boolean { }
 
 Actor Research_HEGrenade : DnD_Boolean { }
 Actor Research_SonicGrenade : DnD_Boolean { }
@@ -139,6 +142,7 @@ Actor Research_Slot2Upgrade1 : DnD_Boolean { }
 Actor Research_Slot2Upgrade2 : DnD_Boolean { }
 Actor Research_Slot3Upgrade1 : DnD_Boolean { }
 Actor Research_Slot3Upgrade2 : DnD_Boolean { }
+Actor Research_Slot3Upgrade3 : DnD_Boolean { }
 Actor Research_Slot3SSGUpgrade1 : DnD_Boolean { }
 Actor Research_Slot3SSGUpgrade2 : DnD_Boolean { }
 Actor Research_Slot3SSGUpgrade3 : DnD_Boolean { }
@@ -186,6 +190,7 @@ Actor Done_FlechetteShell : DnD_Boolean { }
 Actor Done_PiercingShell : DnD_Boolean { }
 Actor Done_ElectricShell : DnD_Boolean { }
 Actor Done_NitroShell : DnD_Boolean { }
+Actor Done_SlugShell : DnD_Boolean { }
 
 Actor Done_HEGrenade : DnD_Boolean { }
 Actor Done_SonicGrenade : DnD_Boolean { }
@@ -206,6 +211,7 @@ Actor Done_Slot2Upgrade1 : DnD_Boolean { }
 Actor Done_Slot2Upgrade2 : DnD_Boolean { }
 Actor Done_Slot3Upgrade1 : DnD_Boolean { }
 Actor Done_Slot3Upgrade2 : DnD_Boolean { }
+Actor Done_Slot3Upgrade3 : DnD_Boolean { }
 Actor Done_Slot3SSGUpgrade1 : DnD_Boolean { }
 Actor Done_Slot3SSGUpgrade2 : DnD_Boolean { }
 Actor Done_Slot3SSGUpgrade3 : DnD_Boolean { }
@@ -241,6 +247,14 @@ Actor Done_Body_Im_3 : DnD_Boolean { }
 // ****************************
 //		DEPENDENCY TRACKERS
 // ****************************
+
+Actor Research_Slot3Upgrade3_Tracker : Ammo {
+	inventory.amount 1
+	inventory.maxamount 50000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 50000
+	+IGNORESKILL
+}
 
 // track player finding 25000 health collect
 Actor Research_Body_Hp_1_Tracker : Ammo {
@@ -522,6 +536,23 @@ Actor ResearchModule_NitroShell : ResearchModule {
 		Success:
 			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_NITRO)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_NITRO)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_SlugShell : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_SLUGSHELL, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLUGSHELL), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLUGSHELL)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLUGSHELL)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
 	}

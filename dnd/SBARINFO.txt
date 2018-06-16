@@ -407,6 +407,10 @@ statusbar normal, fullscreenoffsets {
 			drawimage "EICEAM1", -80, -55, center, 18, 18; // won't animate ammo icon for some reason
 		}
 		
+		IsSelected "ResShotgun3" {
+			drawimage "DBLUD1", -80, -55, center, 18, 18; // won't animate ammo icon for some reason
+		}
+		
 		// Special Ammo Weapons
 		IsSelected " Shotgun ", "ResShotgun1" {
 			InInventory SpecialAmmoMode_3, 1 {
@@ -504,7 +508,9 @@ statusbar normal, fullscreenoffsets {
 										IsSelected not "ResShotgun2", "ResMG2" {
 											IsSelected not "Upgraded Plasma Rifle3", "Dusk Blade" {
 												IsSelected not "ResMG4", "RhinoRifle" {
-													drawimage ammoicon1, -80, -54, center, 18, 18;
+													IsSelected not "ResShotgun3" {
+														drawimage ammoicon1, -80, -54, center, 18, 18;
+													}
 												}
 											}
 										}
@@ -1044,6 +1050,9 @@ statusbar normal, fullscreenoffsets {
 		IsSelected "ResPlasma2" {
 			drawimage "D98AB1", -80, -55, center, 18, 18; // won't animate ammo icon for some reason
 		}
+		IsSelected "ResShotgun3" {
+			drawimage "DBLUD1", -80, -55, center, 18, 18; // won't animate ammo icon for some reason
+		}
 		
 		IsSelected "Grenade Launcher" {
 			InInventory SpecialAmmoMode_5X, 6 {
@@ -1064,7 +1073,9 @@ statusbar normal, fullscreenoffsets {
 				IsSelected not "ResSSG1", "ResRL1" {
 					IsSelected not "Grenade Launcher", "ResPlasma2" {
 						IsSelected not "ResShotgun2", "Upgraded Plasma Rifle3" {
-							drawimage ammoicon1, -80, -54, center, 18, 18;
+							IsSelected not "ResShotgun3" {
+								drawimage ammoicon1, -80, -54, center, 18, 18;
+							}
 						}
 					}
 				}

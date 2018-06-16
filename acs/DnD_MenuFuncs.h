@@ -1383,6 +1383,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
+			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ -1, -1, -1, -1 }
 		},
 		// wep 4 - 1
@@ -1488,6 +1489,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
+			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 3
@@ -1520,6 +1522,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
+			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ -1, -1, -1, -1 }
 		},
 		// ability shop - 1
@@ -1857,7 +1860,7 @@ void HandleAmmoPageDraw(int opt, int slot, int multipage, bool specialammo) {
 	if(!specialammo) {
 		for(i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
 			shopindex = MenuAmmoIndexMap[slot][i];
-			DrawToggledImage(shopindex, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			DrawToggledImage(shopindex, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[shopindex][SHOPNAME_CONDITION], 1, CR_RED);
 		}
 	}
 	else {

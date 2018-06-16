@@ -36,6 +36,7 @@ enum {
 	
 	RES_SLOT3UPG1,
     RES_SLOT3UPG2,
+	RES_SLOT3UPG3,
 	
 	RES_SLOT3SSGUPG1,
 	RES_SLOT3SSGUPG2,
@@ -111,6 +112,7 @@ str Research_List[MAX_RESEARCHES] = {
 	
 	"Slot3Upgrade1",
     "Slot3Upgrade2",
+	"Slot3Upgrade3",
 	
 	"Slot3SSGUpgrade1",
 	"Slot3SSGUpgrade2",
@@ -182,6 +184,7 @@ str Research_Label[MAX_RESEARCHES] = {
 	
     "Deadlock Shotgun (3)",
     "Nitrogen Crossbow (3)",
+	"Wheel of Torment (3)",
 	
     "Plasma Cannon (3)",
 	"Shocker (3)",
@@ -228,6 +231,7 @@ enum {
 
 enum {
 	RES_REQID_SUPERARMOR,
+	RES_REQID_WHEEL,
 	RES_REQID_BIO1,
 	RES_REQID_BIO2,
 	RES_REQID_BIO3,
@@ -278,6 +282,7 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	
     { 0, -1 },
     { 0, -1 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_WHEEL },
 	
     { 0, -1 },
 	{ 0, -1 },
@@ -330,6 +335,10 @@ res_dependency_T ResearchDependencies[MAX_RES_REQID] = {
 	},
 	{
 			-1,
+		{ 	-1, 					-1 	}
+	},
+	{
+			-1,
 		{ 	-1 							},
 	},
 	{
@@ -367,6 +376,7 @@ res_dependency_T ResearchDependencies[MAX_RES_REQID] = {
 };
 
 enum {
+	RES_TRACKER_WHEEL,
 	RES_TRACKER_BIO1,
 	RES_TRACKER_EXO1,
 	RES_TRACKER_IMP1
@@ -374,6 +384,7 @@ enum {
 
 #define MAX_RESEARCH_TRACKERS RES_TRACKER_IMP1 + 1
 str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
+	"Research_Slot3Upgrade3",
 	"Research_Body_Hp_1_Tracker",
 	"Research_Body_Ar_1_Tracker",
 	"Research_Body_Im_1_Tracker"

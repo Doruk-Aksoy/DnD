@@ -762,6 +762,281 @@ Actor CryoWindFull : CryoWind {
 	}
 }
 
+Actor ResShotgun3 : Weapon {
+	Weapon.AmmoType "DemonBlood" 
+	Weapon.AmmoGive 4
+	Weapon.SelectionOrder 900
+	Weapon.SlotNumber 3
+	Weapon.AmmoUse 1
+	Tag "Wheel of Torment"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.5
+	Weapon.BobRangeX 0.8
+	States {
+		Spawn:
+			WWOP A -1 
+		Loop
+		Ready:
+			TNT1 A 0 A_GiveInventory("TaltosTaker", 1)
+			WOPG A 0 A_TakeInventory("BaneCount",1)
+			WOPG A 1 A_WeaponReady
+			WOPG AAAAA 5 A_WeaponReady 
+			WOPG B 0 A_PlaySound("WoT/Idle",0,3.0)
+			WOPG BCD 3 A_WeaponReady
+		Goto Ready
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
+		DeselectLoop:
+			WOPG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_WHEELOFTORMENT)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 160)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 192)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 10, 1 | (2 << 16))
+		SelectLoop:
+			WOPG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			WOPG W 3 Bright A_PlaySound("WoT/Fire")
+			WOPG X 6 Bright A_GiveInventory("WoTShooter", 1)
+			WOPG YH 3 Bright 
+			WOPG NOPQRSTUV 2 Bright
+			WOPG A 0 A_Refire
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_GiveInventory("TaltosChecker", 1)
+			TNT1 A 0 A_JumpIfInventory("BaneCount", 1, "AltBane")
+			WOPG I 4 Bright A_GiveInventory("BaneCount", 1)
+		AltBane:
+			TNT1 A 0 A_PlaySound("WoT/Alt")
+			WOPG JKL 4 Bright A_GiveInventory("WoTShooter2", 1)
+			WOPG M 4 Bright A_GiveInventory("WoTShooter3", 1)
+			WOPG I 4 A_Refire
+			TNT1 A 0 A_TakeInventory("BaneCount", 1)
+		Goto Ready 
+	}
+}
+
+Actor WoTShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "BloodFX2A", 1, 1024)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT), "BloodFX2A_FullDMG", 1, 1024)
+		Stop
+	}
+}
+
+Actor WoTShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_HASSTRSCALING), "BloodFX3", FBF_NORANDOM, 84)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_HASSTRSCALING), "BloodFX3_FullDMG", FBF_NORANDOM, 84)
+		Stop
+	}
+}
+
+Actor WoTShooter3 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_HASSTRSCALING), "BloodDrainFX", FBF_NORANDOM, 84)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_HASSTRSCALING), "BloodDrainFX_FullDMG", FBF_NORANDOM, 84)
+		Stop
+	}
+}
+
+Actor WoTHitFX {
+   Radius 3
+   Height 3
+   RENDERSTYLE ADD
+   Alpha 0.75
+   Damagetype "Magic"
+   +PUFFONACTORS
+   +NOGRAVITY
+   +FORCEXYBILLBOARD
+   +MTHRUSPECIES
+   States {
+		Crash:
+			TNT1 A 1
+		stop
+		Spawn:
+			BLFX ABCDEF 3 BRIGHT
+		stop	
+   }
+}
+
+Actor BloodFXB : WoTHitFX {
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			BLFX ABCDEF 3 BRIGHT
+		stop	
+	}
+}
+
+Actor BloodDrainFX : WoTHitFX {
+   +PUFFGETSOWNER
+   +HITTRACER
+   States {
+		Crash:
+			TNT1 A 2 BRIGHT
+		stop
+		Spawn:
+			BLFX A 2 NoDelay A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon"), "GiveAmmo")
+		Goto Super::Spawn
+		GiveAmmo:
+			BLF2 A 3 BRIGHT ACS_NamedExecuteAlways("DnD Give Ammo To Target", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
+			BLF2 BCDEF 3 BRIGHT
+		stop	
+   }
+}
+
+Actor BloodDrainFX_FullDMG : BloodDrainFX {
+	DamageType "MagicFull"
+}
+
+Actor BloodFX2A : WoTHitFX {
+	Alpha 1.0
+	+ALWAYSPUFF
+	+EXTREMEDEATH
+	+PUFFGETSOWNER
+	+NODAMAGETHRUST
+	+HITTRACER
+	+LOOKALLAROUND 
+	States {
+		Crash:
+			BLBA ABCD 3 Bright A_FadeOut(0.1)
+			BLF2 ABCDEF 3 A_FadeOut(0.1)
+		stop
+		Spawn:
+			BLBA E 2 NoDelay A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon"), "SuperDamage")
+		Goto SkipDamage
+		SuperDamage:
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("BloodFXB", 0, 0, 0, frandom(-5, 5), 0, frandom(-5, 5), Frandom(0,360), SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET), 160, 0, 0, 96)
+		SkipDamage:
+			BLBA E 3 Bright
+			TNT1 A 0 A_RearrangePointers(AAPTR_DEFAULT,AAPTR_DEFAULT,AAPTR_TARGET)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("WoTHealer", 0, 0, 0, CMF_TRACKOWNER)
+			BLBA FGH 3 Bright	  
+		stop
+	}
+}
+
+Actor BloodFX2A_FullDMG : BloodFX2A {
+	DamageType "MagicFull"
+	+FORCERADIUSDMG
+}
+
+Actor BloodFX3 : WoTHitFX {
+	Scale 0.75
+	States {
+		Crash:
+			TNT1 A 2 BRIGHT
+		stop
+		Spawn:
+			BLFX ABCDEF 3 BRIGHT
+		stop
+	}
+}
+
+Actor BloodFX3_FullDMG : BloodFX3 {
+	DamageType "MagicFull"
+}
+
+ACTOR BaneCount: DnD_Boolean { }
+
+actor WoTHealer {
+	Height 6
+	Radius 6
+	RenderStyle "Add"
+	Scale 0.5
+	Speed 15
+	PROJECTILE
+	+FORCEXYBILLBOARD
+	+SEEKERMISSILE
+	+THRUACTORS
+	const int pickdist = 30;
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_ScaleVelocity(0.1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Target Fix")
+			TNT1 A 1 
+			TNT1 A 0 A_ScaleVelocity(1.0)
+		SpawnLoop:
+			HPMI A 3 Bright A_SeekerMissile(10, 15)
+			TNT1 A 0 A_JumpIfCloser(pickdist, "GotIt")
+			HPMI B 3 Bright A_SeekerMissile(10, 15)
+			TNT1 A 0 A_JumpIfCloser(pickdist, "GotIt")
+			HPMI C 3 Bright A_SeekerMissile(10, 15)
+			TNT1 A 0 A_JumpIfCloser(pickdist, "GotIt")
+			HPMI D 3 Bright A_SeekerMissile(10, 15)
+			TNT1 A 0 A_JumpIfCloser(pickdist, "GotIt")
+			HPMI E 3 Bright A_SeekerMissile(10, 15)
+			TNT1 A 0 A_JumpIfCloser(pickdist, "GotIt")
+			HPMI F 3 Bright A_SeekerMissile(10, 15)
+			TNT1 A 0 A_JumpIfCloser(pickdist, "GotIt")
+		Loop
+		GotIt:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_PlaySound("WoT/Heal")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 2, 5, 1)
+		Death:
+			HPMI A 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_SetScale(0.48, 0.48)
+			HPMI A 1 Bright
+			TNT1 A 0 A_SetScale(0.46, 0.46)
+			HPMI A 1 Bright
+			TNT1 A 0 A_SetScale(0.44, 0.44)
+			HPMI B 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_SetScale(0.41, 0.41)
+			HPMI B 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_SetScale(0.38, 0.38)
+			HPMI B 1 Bright
+			TNT1 A 0 A_SetScale(0.35, 0.35)
+			HPMI C 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_SetScale(0.31, 0.31)
+			HPMI C 1 Bright
+			TNT1 A 0 A_SetScale(0.27, 0.27)
+			HPMI C 1 Bright
+			TNT1 A 0 A_SetScale(0.23, 0.23)
+			HPMI D 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_SetScale(0.22, 0.22)
+			HPMI D 1 Bright
+			TNT1 A 0 A_SetScale(0.21, 0.21)
+			HPMI D 1 Bright 
+			TNT1 A 0 A_SetScale(0.20, 0.20)
+			HPMI E 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_SetScale(0.19, 0.19)
+			HPMI E 1 Bright
+			TNT1 A 0 A_SetScale(0.18, 0.18)
+			HPMI E 1 Bright
+			TNT1 A 0 A_SetScale(0.17, 0.17)
+			HPMI F 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_SetScale(0.16, 0.16)
+			HPMI F 1 Bright
+			TNT1 A 0 A_SetScale(0.15, 0.15)
+			HPMI F 1 Bright
+		Stop
+	}
+}
+
 Actor ResSSG1 : Weapon {
 	radius 20
 	height 16

@@ -5,6 +5,50 @@ enum {
 	DND_AMMOSLOT_CELL
 };
 
+enum {
+	// category 2
+	AMMO_CLIP = 0,
+	AMMO_RUBY,
+	AMMO_VIPER,
+	AMMO_DEMONSEAL,
+	AMMO_RIOT,
+	AMMO_ACID,
+	AMMO_FUSIONCELL,
+	AMMO_DESOLATOR,
+	AMMO_EBONY1,
+	AMMO_EBONY2,
+	
+	// category 3
+	AMMO_NSHELL = 0,
+	AMMO_PCANNON,
+	AMMO_NITROGENCANISTER,
+	AMMO_DEMONBLOOD,
+	AMMO_HADES,
+	AMMO_EXSHELL,
+	AMMO_SLAYER,
+	
+	// category 4
+	AMMO_ROCKET = 0,
+	AMMO_FLAKSHELL,
+	AMMO_METEOR,
+	AMMO_NGRENADE,
+	AMMO_HMISSILE,
+	
+	// category 5
+	AMMO_CELL = 0,
+	AMMO_EVERICE,
+	AMMO_FUEL,
+	AMMO_LIGHTNING,
+	AMMO_NAIL,
+	AMMO_LAVA,
+	AMMO_ION,
+	AMMO_THUNDER,
+	AMMO_GAUSS,
+	
+	// category 6 (soul weapons -- only 1 ammo type here)
+	AMMO_SOUL = 0
+};
+
 Actor NewClip : CustomInventory replaces Clip {
 	inventory.pickupsound "items/ammo"
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Clip x 10\c-"
@@ -777,6 +821,15 @@ Actor HadesAmmo : Ammo {
 	Ammo.BackpackAmount 0
 	Ammo.BackpackMaxAmount 32
 	inventory.icon "STRGY0"
+	+IGNORESKILL
+}
+
+Actor DemonBlood : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 60
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 60
+	inventory.icon "DBLUD1"
 	+IGNORESKILL
 }
 

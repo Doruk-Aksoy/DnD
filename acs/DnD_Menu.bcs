@@ -425,7 +425,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			else if(curopt == MENU_SHOP_AMMO_4)
 				HandleAmmoPageDraw(curopt, DND_AMMOSLOT_CELL, 0, false);
 			else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
-				HandleAmmoPageDraw(curopt, DND_AMMOSLOT_CELL, 0, true);
+				HandleAmmoPageDraw(curopt, -1, 0, true);
 			else if(curopt == MENU_SHOP_ABILITY_1) {
 				HudMessage(s:"--- ABILITIES (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
@@ -488,7 +488,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				HudMessage(s:"--- RESEARCH: GUNS ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				DrawBoxText("Sub Category: Slot Guns", boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Sub Category: Luxury Gun Bundles", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Sub Category: Luxury Bundles", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
 				
 				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 			}
@@ -533,10 +533,11 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				DrawBoxText("Legendary Monster Codex", boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 176.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("Monster Modifiers", boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 192.0, "\c[B1]", "\c[Y5]");
 				
+				HudMessage(s:"\c[Y5]Average Monster Level: \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
 				str mapinfo = "\cgDisabled";
 				if(CheckInventory("ShowMapInfo"))
 					mapinfo = "\cdEnabled";
-				DrawBoxText(StrParam(s:"Show Map Info: ", s:mapinfo), boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 244.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText(StrParam(s:"Show Map Info: ", s:mapinfo), boxid, MBOX_8, RPGMENUITEMID - 8, 192.1, 244.0, "\c[B1]", "\c[Y5]");
 				if(CheckInventory("SetMapInfo")) {
 					SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
 					SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
