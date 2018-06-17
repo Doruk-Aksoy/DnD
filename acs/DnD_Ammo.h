@@ -32,6 +32,7 @@ enum {
 	
 	// category 3
 	AMMO_SHELL = 0,
+	AMMO_EMERALDMANA,
 	AMMO_PCANNON,
 	AMMO_NITROGENCANISTER,
 	AMMO_DEMONBLOOD,
@@ -87,6 +88,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	// category 2 -- shell box
 	{
 		{ "SHELA0",			"Shell",					50,			20		},
+		{ "EMEAA0",			"EmeraldMana",				90,			36		},
 		{ "PCNIC1",			"PCanAmmo",					35,			15		},
 		{ "D97A1",			"NitrogenCanister",			40,			15		},
 		{ "DBLUD1",			"DemonBlood",				60,			25		},

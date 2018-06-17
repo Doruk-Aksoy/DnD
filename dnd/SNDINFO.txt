@@ -1,6 +1,12 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+EmeraldWand/Fire		EMERFIRE
+EmeraldWand/Alt			EMERALT
+EmeraldWand/AltHit		EMERALTH
+EmeraldWand/Rain		EMERRAIN
+EmeraldWand/Explode		EMEREXP
+
 Desolator/Fire1			DESOFIR1
 Desolator/Fire2			DESOFIR2
 Desolator/Fire3			DESOFIR3

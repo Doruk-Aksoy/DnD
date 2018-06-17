@@ -49,6 +49,8 @@
 
 #define INTERVENTION_DURATION TICRATE * 8
 
+#define DND_EMERALD_TRANSLATIONID 7000
+
 #define DND_BUDGET_BASE 3
 #define DND_MAX_SHARE 4
 #define DND_SPREE_AMOUNT 4 * TICRATE // 4 * 35
@@ -187,6 +189,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Typical boomstick, now spreads vertically too. 10 pellets, each doing 10-15 damage. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.",
 	 "The purifier shotgun, spread's with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads. Can use \cialternate\c- ammo.",
 	 "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Alt fire reloads.",
+	 "Creates 5 blasts doing 20 damage each in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, and releases an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.",
 	 "Deadlocks fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12. Can use \cialternate\c- ammo.",
 	 "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.",
 	 "An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",

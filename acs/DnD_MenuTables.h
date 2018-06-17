@@ -250,6 +250,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		// 3 - 1
 		{ 4000,  1 },
 		{ 4500,  1 },
+		{ 5000,  1 },
 		{ 4350,  1 },
         { 4500,  1 },
 		{ 5250,  1 },
@@ -357,6 +358,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		
 		// Ammo 4
 		{ 500,		1 },
+		{ 85,		1 },
 		
 		// Special Ammunition
 		{ 475,	    1 },
@@ -446,6 +448,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT2LUXURY, -1, -1 },
 		
 	// wep slot 3 - 1
+		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT3UPG1, -1, -1 },
@@ -554,6 +557,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		
 	// ammo 4
 		{ RES_SLOT3UPG3, -1, -1 },
+		{ -1, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -656,6 +660,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	
 	{ "Upgraded Shotgun",					"Purifier",							WEPCHECK_SLOT3,			"0"  		},
 	{ "Upgraded Shotgun2", 					"Killstorm",						WEPCHECK_SLOT3,			"0" 		},
+	{ "Upgraded Shotgun3", 					"Emerald Wand",						WEPCHECK_SLOT3,			"0" 		},
 	{ "ResShotgun1",						"Deadlock",							WEPCHECK_SLOT3,			"0"		    },
 	{ "ResShotgun2",                        "Nitrogen Crossbow",                WEPCHECK_SLOT3,     	"0"         },
 	{ "ResShotgun3",                        "Wheel of Torment",                	WEPCHECK_SLOT3,     	"0"         },
@@ -748,6 +753,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "DesolatorAmmo",						"Desolator Rounds",					"",						"0"			},
 	{ "HadesAmmo",							"Hades Shells",						"",						"0"			},
 	{ "DemonBlood",							"Vial of Demon Blood",				"",						"0"			},
+	{ "EmeraldMana",						"Emerald Mana",						"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -848,6 +854,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	// 3 - 1
 	DTYPE_SHELL,
 	DTYPE_SHELL,
+	DTYPE_ELEMENTAL,
 	DTYPE_SHELL,
 	DTYPE_ELEMENTAL,
 	DTYPE_OCCULT | DTYPE_MELEE,
@@ -939,6 +946,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	// 3 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_PURIFIER		},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_AUTOSG			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_EMERALDWAND	},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG2			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG3			},
@@ -1053,6 +1061,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	// 3 - 1
 	WPROP_ALTAMMO,
 	WPROP_NONE,
+	WPROP_CANTHITGHOST,
 	WPROP_ALTAMMO,
 	WPROP_NONE,
 	WPROP_NONE,
@@ -1140,6 +1149,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	
 	"Purifier shoots 15 pellets each doing 15 damage in a 3.6 by 3.6 and a shell capacity of 8.",
 	"Killstorm is an automatic shotgun, shooting 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Has a shell capacity of 10.",
+	"Creates 5 blasts doing 20 damage each in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, and releases an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.",
 	"Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.",
 	"Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of gas streams doing 5 damage.",
 	"An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
@@ -1354,6 +1364,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	// category 2
 	{
 		SHOP_AMMO_SHELL,
+		SHOP_AMMO_EMERALDMANA,
 		SHOP_AMMO_PCAN,
 		SHOP_AMMO_NITROGEN,
 		SHOP_AMMO_DEMONBLOOD,
@@ -1423,6 +1434,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DEMONBLOOD		},
+	{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1469,6 +1481,7 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	20,
 	6,
 	12,
+	18,
 	
 	8,
 	8,
@@ -1514,6 +1527,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"desolator rounds for the Desolator Cannon.",
 	"hades shells for the Hades Auto Shotgun.",
 	"vials of demon blood for the Wheel of Torment.",
+	"emerald mana for the Emerald Wand.",
 	
 	"flechette shells.",
 	"magnum shells.",

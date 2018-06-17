@@ -9,7 +9,7 @@ LEGEND:
 == DND RPG RELATED ==
 =====================
 
-! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun", "Wheel of Torment".
+! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun", "Wheel of Torment", "Emerald Wand".
 ! Added a new special ammo type: "Slug Shell".
 ! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun", "Bio-Enhancement - I, II and III", "Exoskeleton I, II and III", "Impact Protection I, II and III", "Slug Shells", "Wheel of Torment".
 ! Backpacks can also drop chests now!

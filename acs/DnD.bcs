@@ -642,6 +642,9 @@ Script "DND On Kill" KILL {
 	hasgreed = isDemon();
 	SetInventory("HunterTalismanMarkBool", 0);
 	
+	if(isZombie())
+		GiveActorInventory(target, "DnD_ShotUndead", 1);
+	
 	// required delay for transition from specific death state labels
 	Delay(1);
 	
@@ -3286,4 +3289,17 @@ Script "DnD Give Ammo" (int slot, int ammotype, int amount) {
 Script "DnD Give Ammo To Target" (int slot, int ammotype, int amount) {
 	SetActivatorToTarget(0);
 	GiveAmmo(amount, slot, ammotype);
+}
+
+Script "DnD Emerald Death" (void) {
+	int this = ActivatorTID();
+	SetActivatorToTarget(0);
+	int target = ActivatorTID();
+	if(CheckInventory("NetherCheck"))
+		Spawn("EmeraldDeathActor_FullDMG", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, target + DND_EMERALD_TIDADD);
+	else
+		Spawn("EmeraldDeathActor", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, target + DND_EMERALD_TIDADD);
+	SetActivator(target + DND_EMERALD_TIDADD);
+	SetPointer(AAPTR_TARGET, target);
+	Thing_ChangeTID(0, 0);
 }

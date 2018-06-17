@@ -20,6 +20,7 @@ enum {
 	
 	// category 3
 	AMMO_NSHELL = 0,
+	AMMO_EMERALDMANA,
 	AMMO_PCANNON,
 	AMMO_NITROGENCANISTER,
 	AMMO_DEMONBLOOD,
@@ -830,6 +831,15 @@ Actor DemonBlood : Ammo {
 	Ammo.BackpackAmount 0
 	Ammo.BackpackMaxAmount 60
 	inventory.icon "DBLUD1"
+	+IGNORESKILL
+}
+
+Actor EmeraldMana : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 90
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 90
+	inventory.icon "EMEAA0"
 	+IGNORESKILL
 }
 

@@ -652,6 +652,271 @@ Actor KillstormShooter : DnD_Activator {
 	}
 }
 
+ACTOR "Upgraded Shotgun3" : Weapon {
+	Weapon.AmmoType "EmeraldMana"
+	Weapon.AmmoGive 12
+	Weapon.SelectionOrder 1200
+	Weapon.SlotNumber 3
+	Weapon.AmmoUse 1
+	Weapon.KickBack 100
+	+UNDROPPABLE
+	Tag "Emerald Wand"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.8
+	States {
+		Spawn:
+			JADE C -1 Bright
+		Loop
+		Ready:
+			JADE A 1 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+		DeselectLoop:
+			JADE A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_GreenFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_EMERALDWAND)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 20)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 150)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 8, 1 | (4 << 16))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_3, 100)
+		SelectLoop:
+			JADE A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			JADE B 1 Bright Offset(0, 48)
+			TNT1 A 0 A_PlaySound("EmeraldWand/Fire")
+			TNT1 A 0 A_GiveInventory("EmeraldShooter", 1)
+			JADE B 1 bright offset(0, 42) A_SetPitch(pitch - 0.4)
+			JADE B 1 bright offset(0, 42) A_SetPitch(pitch + 0.2)
+			JADE A 1 offset(0, 49) A_SetPitch(pitch + 0.2)
+			JADE A 1 offset(0, 50)
+			JADE A 1 offset(0, 49)
+			JADE A 1 offset(0, 46)
+			JADE A 1 offset(0, 43)
+			JADE A 1 offset(0, 40)
+			JADE A 1 offset(0, 37)
+			JADE A 1 offset(0, 35)
+			JADE A 1 Offset(0, 33)
+			JADE A 1 Offset(0, 32)
+			TNT1 A 0 offset(0, 35) a_refire
+			JADE A 1 Offset(0, 33)
+		goto ready
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("EmeraldMana", 5, "ContinueAlt")
+		Goto Nothing
+		ContinueAlt:
+			TNT1 A 0 A_JumpIfInventory("EmeraldRainCooldown", 1, "Nothing")
+			JADE B 1 Bright Offset(0, 48)
+			TNT1 A 0 A_PlaySound("EmeraldWand/Alt")
+			TNT1 A 0 A_GiveInventory("EmeraldShooter2", 1)
+			TNT1 A 0 A_GiveInventory("EmeraldRainCooldown", 1)
+			JADE B 1 bright offset(0, 42) A_SetPitch(pitch - 0.4)
+			JADE B 1 bright offset(0, 42) A_SetPitch(pitch + 0.2)
+			JADE A 1 offset(0, 49) A_SetPitch(pitch + 0.2)
+			JADE A 1 offset(0, 50)
+			JADE A 1 offset(0, 49)
+			JADE A 1 offset(0, 46)
+			JADE A 1 offset(0, 43)
+			JADE A 1 offset(0, 40)
+			JADE A 1 offset(0,  37)
+			JADE A 1 offset(0, 35)
+			TNT1 A 0 offset(0, 35) a_refire
+			JADE A 1 Offset(0, 33)
+			JADE A 18 A_WeaponReady(WRF_NOSECONDARY | WRF_NOSWITCH)
+		goto ready
+		Nothing:
+			JADE A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+	}
+}
+
+Actor EmeraldRainCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+}
+
+Actor EmeraldShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 AAAAA 0 A_FireCustomMissile("GreenTracer", frandom(-6, 6),0,0,0,0, frandom(-4.25, 4.25))
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireBullets(6, 4.25, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), "EmeraldPuff", FBF_USEAMMO | FBF_NORANDOM)
+		Stop
+		Full:
+			TNT1 A 0 A_FireBullets(6, 4.25, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), "EmeraldPuff_FullDMG", FBF_USEAMMO | FBF_NORANDOM)
+		Stop
+	}
+}
+
+Actor EmeraldShooter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("EmeraldMana", 4)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("EmeraldRainer")
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("EmeraldRainer_FullDMG")
+		Stop
+	}
+}
+
+actor EmeraldPuff {
+	renderstyle Add
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+PUFFONACTORS
+	+BLOODLESSIMPACT
+	+MTHRUSPECIES
+	Damagetype "Emerald"
+	Scale 0.5
+	states {
+		Spawn:
+			IDSE AABBCCDD 1 bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor EmeraldPuff_FullDMG : EmeraldPuff {
+	DamageType "EmeraldFull"
+}
+
+Actor EmeraldRainer {
+	Radius 6
+	Height 8
+	Speed 30
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	DamageType "Emerald"
+	DeathSound "EmeraldWand/AltHit"
+	PROJECTILE
+	+MTHRUSPECIES 
+	+NODAMAGETHRUST
+	+THRUGHOST
+	+DONTBLAST
+	RENDERSTYLE Add
+	var int user_count;
+	const int raindrops = 84;
+	const int r = 128;
+	States {
+		Spawn:
+			JWPR AAAAAABBBBBBCCCCCC 1 Bright A_SpawnItemEx("JadeTrail")
+		loop
+		Death:
+			TNT1 A 0 A_PlaySound("EmeraldWand/Rain")
+			JWPR DDDDD 1 Bright A_SpawnItemEx("EmeraldRain", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+			JWPR EEEEEFFFFFGGGGG 1 Bright A_SpawnItemEx("EmeraldRain", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == raindrops, "Finish")
+			TNT1 AA 0 A_SpawnItemEx("EmeraldRain", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+			TNT1 A 1 A_SpawnItemEx("EmeraldRain", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor EmeraldRainer_FullDMG : EmeraldRainer {
+	DamageType "EmeraldFull"
+	-THRUGHOST
+	States {
+		Death:
+			TNT1 A 0 A_PlaySound("EmeraldWand/Rain")
+			JWPR DDDDD 1 Bright A_SpawnItemEx("EmeraldRain_FullDMG", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+			JWPR EEEEEFFFFFGGGGG 1 Bright A_SpawnItemEx("EmeraldRain_FullDMG", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == raindrops, "Finish")
+			TNT1 AA 0 A_SpawnItemEx("EmeraldRain_FullDMG", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+			TNT1 A 1 A_SpawnItemEx("EmeraldRain_FullDMG", frandom(-r, r), frandom(-r, r), ceilingz - 10, 0, 0, -40, 0, SXF_TRANSFERPOINTERS | SXF_ABSOLUTEVELOCITY)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+	}
+}
+
+Actor EmeraldRain {
+	PROJECTILE
+	Radius 3
+	Height 6
+	Speed 40
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ELEMENTAL, DND_USETARGET))
+	DamageType "Emerald"
+	Renderstyle Add
+	Alpha 1.0
+	+MTHRUSPECIES 
+	+NODAMAGETHRUST
+	+THRUGHOST
+	+DONTBLAST
+	+NOCLIP
+	+CEILINGHUGGER
+	States {
+		Spawn:
+			JADE D 1
+			TNT1 A 0 A_ChangeFlag("NOCLIP", 0)
+			TNT1 A 0 A_ChangeFlag("CEILINGHUGGER", 0)
+		SpawnLoop:
+			JADE D 1 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_Stop
+			JADE EFGHI 3 Bright
+		Stop
+	}
+}
+
+Actor EmeraldRain_FullDMG : EmeraldRain {
+	DamageType "EmeraldFull"
+	-THRUGHOST
+}
+
+ACTOR JadeTrail {   
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Renderstyle Add
+	States {
+		Spawn:
+			JWPR AAAAABBBBBCCCCC 1 Bright A_Fadeout(0.1)
+		Stop 
+	}
+}
+
+Actor EmeraldDeathActor {
+	PROJECTILE
+	Radius 3
+	Height 6
+	Speed 0
+	Damage (0)
+	DamageType "Emerald"
+	SeeSound "EmeraldWand/Explode"
+	Renderstyle Add
+	Alpha 1.0
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 AAAAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, frandom(-5, 5), frandom(-5, 5), frandom(-5, 5))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET), 96, 0, 0, 64)
+		Stop
+	}
+}
+
+Actor EmeraldDeathActor_FullDMG : EmeraldDeathActor {
+	DamageType "EmeraldFull"
+	+FORCERADIUSDMG
+}
+
 // Sprites by Eriance
 ACTOR " Super Shotgun " : Weapon
 {

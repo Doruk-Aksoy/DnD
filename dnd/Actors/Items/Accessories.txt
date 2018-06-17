@@ -370,6 +370,10 @@ Actor DemonBaneReduction : PowerDamage {
 	damagefactor "P_IceFull", 0.25
 	damagefactor "AcidRifle", 0.25
 	damagefactor "AcidRifleFull", 0.25
+	damagefactor "Desolator", 0.25
+	damagefactor "DesolatorFull", 0.25
+	damagefactor "Emerald", 0.25
+	damagefactor "EmeraldFull", 0.25
 }
 
 Actor NetherCheck : DnD_Boolean {}
@@ -730,6 +734,10 @@ Actor LichPower : PowerDamage {
 	
 	damagefactor "AcidRifle", 0.1
 	damagefactor "AcidRifleFull", 0.1
+	damagefactor "Desolator", 0.1
+	damagefactor "DesolatorFull", 0.1
+	damagefactor "Emerald", 0.1
+	damagefactor "EmeraldFull", 0.1
 	
 	damagefactor "Magic", 0.1
 	damagefactor "Explosives_Magic", 0.1
@@ -763,6 +771,8 @@ Actor ElementPower_Fire : PowerDamage {
 	damagefactor "AcidRifleFull", 0.5
 	damagefactor "Desolator", 0.5
 	damagefactor "DesolatorFull", 0.5
+	damagefactor "Emerald", 0.5
+	damagefactor "EmeraldFull", 0.5
 }
 
 Actor ElementPower_Ice : PowerDamage {
@@ -786,6 +796,8 @@ Actor ElementPower_Ice : PowerDamage {
 	damagefactor "AcidRifleFull", 0.5
 	damagefactor "Desolator", 0.5
 	damagefactor "DesolatorFull", 0.5
+	damagefactor "Emerald", 0.5
+	damagefactor "EmeraldFull", 0.5
 }
 
 Actor ElementPower_Lightning : PowerDamage {
@@ -809,6 +821,8 @@ Actor ElementPower_Lightning : PowerDamage {
 	damagefactor "AcidRifleFull", 0.5
 	damagefactor "Desolator", 0.5
 	damagefactor "DesolatorFull", 0.5
+	damagefactor "Emerald", 0.5
+	damagefactor "EmeraldFull", 0.5
 }
 
 Actor ElementPower_Earth : PowerDamage {
@@ -819,6 +833,8 @@ Actor ElementPower_Earth : PowerDamage {
 	damagefactor "AcidRifleFull", 2.0
 	damagefactor "Desolator", 2.0
 	damagefactor "DesolatorFull", 2.0
+	damagefactor "Emerald", 2.0
+	damagefactor "EmeraldFull", 2.0
 	
 	damagefactor "Lightning", 0.5
 	damagefactor "LightningFull", 0.5
