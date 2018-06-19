@@ -1746,3 +1746,29 @@ BrightMap Sprite ROACO0
 Map "graphics/brightmaps/BMROACO0.png"
 DisableFullBright
 }
+
+object Devil2Ball
+{
+    frame DVB9A { light IMPBALL    }
+    frame DVB9B { light IMPBALL    }
+
+    frame DVB9H { light IMPBALL_X1 }
+    frame DVB9I { light IMPBALL_X1 }
+    frame DVB9J { light IMPBALL_X2 }
+    frame DVB9K { light IMPBALL_X2 }
+    frame DVB9L { light IMPBALL_X3 }
+    frame DVB9M { light IMPBALL_X3 }
+}
+
+object Devil2Ball2
+{
+    frame DVB9A { light IMPBALL    }
+    frame DVB9B { light IMPBALL    }
+
+    frame DVB9H { light IMPBALL_X1 }
+    frame DVB9I { light IMPBALL_X1 }
+    frame DVB9J { light IMPBALL_X2 }
+    frame DVB9K { light IMPBALL_X2 }
+    frame DVB9L { light IMPBALL_X3 }
+    frame DVB9M { light IMPBALL_X3 }
+}

@@ -233,6 +233,112 @@ Actor Bloodtrail
   }
 }
 
+Actor Ravager : Demon2x {
+	Health 250
+	PainChance 96
+	Speed 16
+	Mass 1024
+	+USEKILLSCRIPTS
+	Obituary "%o died from the toxic blood of a Ravager."
+	HitObituary "%o was bitten by a Ravager."
+	SeeSound "Monster/sg2sit"
+	AttackSound "Monster/sg2atk"
+	PainSound "demon/Pain2"
+	DeathSound "demon/Death"
+	ActiveSound "demon/sg2act"
+	DamageFactor "Demon", 0.0
+	DamageFactor "DemonPoison_EarthGolem", 0.0
+	DamageFactor "DemonFire", 0.0
+	DamageFactor "DemonMagic", 0.0
+	DropItem "SpinePickup"
+	Tag "Ravager"
+	MaxTargetRange 288
+	Scale 1.15
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_RAVAGER)
+		Idle:
+			SAR3 AB 10 A_Look
+		Loop
+		See:
+			SAR3 AABBCCDD 2 Fast A_Chase
+		Loop
+		Melee:
+			SAR3 EF 6 Fast A_FaceTarget
+			SAR3 G 6 Fast A_CustomMeleeAttack(random(5, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+		Goto See
+		Missile:
+			SAR3 GE 5 Fast A_FaceTarget
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, frandom(-4, 4))
+			TNT1 A 0 A_FaceTarget
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, frandom(-4, 4))
+			TNT1 A 0 A_FaceTarget
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, frandom(-4, 4))
+			TNT1 A 0 A_FaceTarget
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, frandom(-4, 4))
+			TNT1 A 0 A_FaceTarget
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, frandom(-4, 4))
+			TNT1 A 0 A_FaceTarget
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, frandom(-4, 4))
+			TNT1 A 0 A_FaceTarget
+		Goto See
+		Retaliate:
+			SAR3 GE 5 Fast A_FaceTarget
+			TNT1 A 0  A_CustomMissile("Bloodshot_Grav", 27, 0)
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, -2)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0  A_CustomMissile("Bloodshot_Grav", 27, 0)
+			SAR3 F 5 Fast A_CustomMissile("Bloodshot_Grav", 27, 0, 2)
+			SAR3 EG 5 Fast
+		Goto See
+		Pain:
+			SAR3 H 2 Fast
+			SAR3 H 2 Fast A_Pain
+			TNT1 A 0 A_Jump(128, "Retaliate")
+		Goto See
+		Death:
+			SAR3 I 8
+			SAR3 J 8 A_Scream
+			SAR3 K 4
+			SAR3 L 4 A_NoBlocking
+			SAR3 M 4
+			SAR3 N -1
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			SAR3 NMLKJI 5
+		Goto See
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	}
+}
+
+Actor Bloodshot_Grav : Bloodshot {
+	Speed 24
+	SeeSound "Weapons/bloodf"
+	-NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ThrustThingZ(0, 18, 0, 0)
+		Goto Super::Spawn
+	}
+}
+
 ACTOR CyberFiend : HalfMechanicalEnemy { 
     Health 300
     Speed 10 

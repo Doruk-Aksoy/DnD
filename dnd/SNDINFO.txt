@@ -6,6 +6,7 @@ EmeraldWand/Alt			EMERALT
 EmeraldWand/AltHit		EMERALTH
 EmeraldWand/Rain		EMERRAIN
 EmeraldWand/Explode		EMEREXP
+$limit EmeraldWand/Explode 6
 
 Desolator/Fire1			DESOFIR1
 Desolator/Fire2			DESOFIR2

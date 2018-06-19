@@ -44,5 +44,8 @@ Actor DemonSpawner : DnD_MonsterSpawner replaces Demon {
 		Var12:
 			TNT1 A 1 A_SpawnItemEx("EarthGolem", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Var13:
+			TNT1 A 1 A_SpawnItemEx("Ravager", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

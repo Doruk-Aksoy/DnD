@@ -165,3 +165,120 @@ pointlight SmallHadesShellLight
     size 24
     dontlightself 1
 }
+
+pointlight EmeraldLight {
+    color 0.0 0.7 0.0
+    size 12
+}
+
+object EmeraldPuff
+{
+	frame IDSE { light EmeraldLight }
+}
+
+object EmeraldPuff_FullDMG
+{
+	frame IDSE { light EmeraldLight }
+}
+
+pointlight EmeraldRainerLight1
+{
+    color 0.4 1.0 0.4
+    size 48
+}
+
+pointlight EmeraldRainerLight2
+{
+    color 0.4 1.0 0.4
+    size 64
+}
+
+pointlight EmeraldRainerLight3
+{
+    color 0.2 0.7 0.2
+    size 56
+}
+
+pointlight EmeraldRainerLight4
+{
+    color 0.0 0.4 0.0
+    size 48
+}
+
+pointlight EmeraldRainerLight5
+{
+    color 0.0 0.2 0.0
+    size 40
+}
+
+object EmeraldRainer {
+    frame JWPRA { light EmeraldRainerLight1 }
+    frame JWPRB { light EmeraldRainerLight1 }
+    frame JWPRC { light EmeraldRainerLight1 }
+
+    frame JWPRD { light EmeraldRainerLight2 }
+    frame JWPRE { light EmeraldRainerLight3 }
+    frame JWPRF { light EmeraldRainerLight4 }
+    frame JWPRG { light EmeraldRainerLight5 }
+}
+
+object EmeraldRainer_FullDMG {
+    frame JWPRA { light EmeraldRainerLight1 }
+    frame JWPRB { light EmeraldRainerLight1 }
+    frame JWPRC { light EmeraldRainerLight1 }
+
+    frame JWPRD { light EmeraldRainerLight2 }
+    frame JWPRE { light EmeraldRainerLight3 }
+    frame JWPRF { light EmeraldRainerLight4 }
+    frame JWPRG { light EmeraldRainerLight5 }
+}
+
+pointlight EmeraldRainLight1
+{
+    color 0.0 1.0 0.0
+    size 48
+}
+
+pointlight EmeraldRainLight2
+{
+    color 0.4 1.0 0.4
+    size 72
+}
+
+pointlight EmeraldRainLight3
+{
+    color 0.3 0.8 0.3
+    size 60
+}
+
+pointlight EmeraldRainLight4
+{
+    color 0.1 0.5 0.1
+    size 48
+}
+
+pointlight EmeraldRainLight5
+{
+    color 0.0 0.3 0.0
+    size 36
+}
+
+object EmeraldRain {
+    frame JADED { light EmeraldRainLight1 }
+    frame JADEE { light EmeraldRainLight1 }
+
+    frame JADEF { light EmeraldRainLight2 }
+    frame JADEG { light EmeraldRainLight3 }
+    frame JADEH { light EmeraldRainLight4 }
+    frame JADEI { light EmeraldRainLight5 }
+}
+
+object EmeraldRain_FullDMG {
+    frame JADED { light EmeraldRainLight1 }
+    frame JADEE { light EmeraldRainLight1 }
+
+    frame JADEF { light EmeraldRainLight2 }
+    frame JADEG { light EmeraldRainLight3 }
+    frame JADEH { light EmeraldRainLight4 }
+    frame JADEI { light EmeraldRainLight5 }
+}

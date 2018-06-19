@@ -70,6 +70,7 @@ enum {
 	MONSTER_BRUTY,
 	MONSTER_SATYR,
 	MONSTER_EARTHGOLEM,
+	MONSTER_RAVAGER,
 	
 	// Spectre
 	MONSTER_LURKER,
@@ -88,6 +89,7 @@ enum {
 	MONSTER_SOULHARVESTER,
 	MONSTER_PYROIMP,
 	MONSTER_DEVIL,
+	MONSTER_DEVIL2,
 	MONSTER_VULGAR,
 	MONSTER_UNDEADMAGE,
 	MONSTER_SHADOW,
@@ -365,6 +367,7 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_MAGICAL_POW,
+	DND_MTYPE_DEMON_POW,
 	
 	// Spectre
 	DND_MTYPE_DEMON_POW,
@@ -373,6 +376,7 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_DEMON_POW,
 	
 	// Imp
+	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_DEMON_POW,
@@ -537,7 +541,7 @@ bool IsUndead() {
 
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX
 #define MAX_MONSTER_CATEGORIES 17
-#define MAX_MONSTER_VARIATIONS 15
+#define MAX_MONSTER_VARIATIONS 16
 int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
     // Zombieman
     { 16, 16, 8, 12, 8, 8, 8, 8, 16, 12, 8, -1 },
@@ -546,11 +550,11 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
     // Chaingunguy
     { 8, 8, 8, 6, 4, 4, 4, 3, 4, 6, -1 },
     // Demon
-    { 16, 16, 12, 8, 12, 16, 8, 10, 7, 8, 10, 10, 6, -1 },
+    { 16, 16, 12, 8, 12, 16, 8, 10, 7, 8, 10, 10, 6, 6, -1 },
     // Spectre
-    { 1, 1, 1, 1, 1, 1, 1, 1, -1 },
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, -1 },
     // Imp
-    { 16, 8, 8, 8, 8, 8, 16, 16, 16, 12, 12, 8, 8, 8, 10 },
+    { 16, 8, 8, 8, 8, 8, 16, 16, 16, 12, 12, 8, 8, 8, 10, 10 },
     // Caco
     { 16, 16, 16, 12, 12, 10, 16, 16, 16, 12, 9, -1 },
     // Pain Elemental
