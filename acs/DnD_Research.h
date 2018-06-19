@@ -1,6 +1,8 @@
 #ifndef DND_RESEARCH_IN
 #define DND_RESEARCH_IN
 
+#include "DnD_SpecialAmmo.h"
+
 enum {
 	RES_RAREARMOR,
 	RES_SUPERARMOR,
@@ -11,6 +13,7 @@ enum {
 	RES_PIERCING,
 	RES_ELECTRIC,
     RES_NITRO,
+	RES_SLUGSHELL,
 	
 	RES_SONICGRENADE,
 	RES_HEGRENADE,
@@ -33,6 +36,7 @@ enum {
 	
 	RES_SLOT3UPG1,
     RES_SLOT3UPG2,
+	RES_SLOT3UPG3,
 	
 	RES_SLOT3SSGUPG1,
 	RES_SLOT3SSGUPG2,
@@ -59,12 +63,21 @@ enum {
 	RES_SLOT8REVEAL,
 	RES_NANOTECH,
 	RES_OCCULTARTIFACT,
+	
+	RES_BIO1,
+	RES_BIO2,
+	RES_BIO3,
+	RES_EXO1,
+	RES_EXO2,
+	RES_EXO3,
+	RES_IMP1,
+	RES_IMP2,
+	RES_IMP3
 };
 
-
 #define DND_RESEARCH_BEGIN RES_RAREARMOR
-#define DND_RESEARCH_END RES_OCCULTARTIFACT
-#define MAX_RESEARCHES RES_OCCULTARTIFACT + 1
+#define DND_RESEARCH_END RES_IMP3
+#define MAX_RESEARCHES DND_RESEARCH_END + 1
 str ResearchPrefix = "\ccResearch Item : \c[Y5]Discovered ";
 str Research_List[MAX_RESEARCHES] = {
 	"RareArmors",
@@ -76,6 +89,7 @@ str Research_List[MAX_RESEARCHES] = {
 	"PiercingShell",
 	"ElectricShell",
     "NitroShell",
+	"SlugShell",
 
 	"SonicGrenade",
 	"HEGrenade",
@@ -98,6 +112,7 @@ str Research_List[MAX_RESEARCHES] = {
 	
 	"Slot3Upgrade1",
     "Slot3Upgrade2",
+	"Slot3Upgrade3",
 	
 	"Slot3SSGUpgrade1",
 	"Slot3SSGUpgrade2",
@@ -123,7 +138,17 @@ str Research_List[MAX_RESEARCHES] = {
 	"OccultAbility",
 	"Slot8Reveal",
 	"NanoTech",
-	"OccultArtifact"
+	"OccultArtifact",
+	
+	"Body_Hp_1",
+	"Body_Hp_2",
+	"Body_Hp_3",
+	"Body_Ar_1",
+	"Body_Ar_2",
+	"Body_Ar_3",
+	"Body_Im_1",
+	"Body_Im_2",
+	"Body_Im_3"
 };
 
 str Research_Label[MAX_RESEARCHES] = {
@@ -136,6 +161,7 @@ str Research_Label[MAX_RESEARCHES] = {
     "Magnum Shells",
     "Electric Shells",
     "Nitrogen Shells",
+	"Slug Shells",
     
     "High Explosive Grenades",
     "Sonic Grenades",
@@ -158,6 +184,7 @@ str Research_Label[MAX_RESEARCHES] = {
 	
     "Deadlock Shotgun (3)",
     "Nitrogen Crossbow (3)",
+	"Wheel of Torment (3)",
 	
     "Plasma Cannon (3)",
 	"Shocker (3)",
@@ -183,7 +210,184 @@ str Research_Label[MAX_RESEARCHES] = {
     "Occult Abilities",
     "Slot 8 Weapons",
     "Nano Technology",
-    "Occult Artifacts"
+    "Occult Artifacts",
+	
+	"Bio-Enhancement - I",
+	"Bio-Enhancement - II",
+	"Bio-Enhancement - III",
+	"Exoskeleton - I",
+	"Exoskeleton - II",
+	"Exoskeleton - III",
+	"Impact Protection - I",
+	"Impact Protection - II",
+	"Impact Protection - III",
+};
+
+enum {
+	RESF_NODROP = 1,
+	RESF_HASREQUIREMENT = 2,
+	RESF_UNLOCKSOTHER = 4
+};
+
+enum {
+	RES_REQID_SUPERARMOR,
+	RES_REQID_WHEEL,
+	RES_REQID_BIO1,
+	RES_REQID_BIO2,
+	RES_REQID_BIO3,
+	RES_REQID_EXO1,
+	RES_REQID_EXO2,
+	RES_REQID_EXO3,
+	RES_REQID_IMP1,
+	RES_REQID_IMP2,
+	RES_REQID_IMP3,
+};
+#define LAST_RES_REQID RES_REQID_IMP3
+
+typedef struct {
+	int res_flags;
+	int res_req_id;
+} res_req_info_T;
+
+res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
+	{ RESF_UNLOCKSOTHER, RES_REQID_SUPERARMOR },
+	{ RESF_NODROP, RES_REQID_SUPERARMOR },
+	{ 0, -1 },
+    { 0, -1 },
+   
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+	{ 0, -1 },
+    
+    { 0, -1 },
+    { 0, -1 },
+    
+	{ 0, -1 },
+    
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+    
+	{ 0, -1 },
+	{ 0, -1 },
+	
+    { 0, -1 },
+	{ 0, -1 },
+	
+    { 0, -1 },
+    { 0, -1 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_WHEEL },
+	
+    { 0, -1 },
+	{ 0, -1 },
+	{ 0, -1 },
+	
+    { 0, -1 },
+    { 0, -1 },
+	{ 0, -1 },
+	{ 0, -1 },
+	
+    { 0, -1 },
+    { 0, -1 },
+	{ 0, -1 },
+	{ 0, -1 },
+	
+    { 0, -1 },
+    { 0, -1 },
+	{ 0, -1 },
+	
+    { 0, -1 },
+	{ 0, -1 },
+    
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+    { 0, -1 },
+	
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_BIO1 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_BIO2 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_BIO3 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_EXO1 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_EXO2 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_EXO3 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP1 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP2 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP3 },
+};
+
+#define MAX_RES_REQID LAST_RES_REQID + 1
+#define MAX_RES_DEPENDENCIES 2
+typedef struct {
+	int unlocks;
+	int dependencies[MAX_RES_DEPENDENCIES];
+} res_dependency_T;
+
+res_dependency_T ResearchDependencies[MAX_RES_REQID] = {
+	{
+			RES_SUPERARMOR,
+		{ 	RES_RAREARMOR, 			-1 	}
+	},
+	{
+			-1,
+		{ 	-1, 					-1 	}
+	},
+	{
+			-1,
+		{ 	-1 							},
+	},
+	{
+			RES_BIO2,
+		{ 	RES_REQID_BIO1, 		-1 	},
+	},
+	{	
+			RES_BIO3,
+		{	RES_REQID_BIO2, 		-1 	},
+	},
+	{
+			-1,
+		{	-1							},
+	},
+	{
+			RES_EXO2,
+		{	RES_REQID_EXO1,			-1	},
+	},
+	{
+			RES_EXO3,
+		{	RES_REQID_EXO2,			-1	}
+	},
+	{
+			-1,
+		{	-1,						-1	}
+	},
+	{
+			RES_IMP2,
+		{	RES_REQID_IMP1,			-1	}
+	},
+	{
+			RES_IMP3,
+		{	RES_REQID_IMP2,			-1	}
+	}
+};
+
+enum {
+	RES_TRACKER_WHEEL,
+	RES_TRACKER_BIO1,
+	RES_TRACKER_EXO1,
+	RES_TRACKER_IMP1
+};
+
+#define MAX_RESEARCH_TRACKERS RES_TRACKER_IMP1 + 1
+str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
+	"Research_Slot3Upgrade3",
+	"Research_Body_Hp_1_Tracker",
+	"Research_Body_Ar_1_Tracker",
+	"Research_Body_Im_1_Tracker"
 };
 
 enum {
@@ -209,11 +413,29 @@ int CheckActorResearchStatus(int tid, int res_id) {
 	return RES_NA;
 }
 
-void GiveResearch(int res_id) {
+void GiveResearch(int res_id, bool fancy) {
+	if(fancy)
+		ACS_NamedExecuteAlways("DnD Research Fancy Message", 0, res_id);
 	GiveInventory(StrParam(s:"Research_", s:Research_List[res_id]), 1);
 }
 
+// This place handles researches that depend on others being researched
+void HandleDependentResearch(int res_id) {
+	// bio research 2-3 needs previous ones
+	if(ResearchFlags[res_id].res_flags & RESF_UNLOCKSOTHER) {
+		int reqid = ResearchFlags[res_id].res_req_id;
+		bool canDo = true;
+		for(int i = 0; i < MAX_RES_DEPENDENCIES && ResearchDependencies[reqid].unlocks != -1; ++i)
+			if(!CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]))
+				canDo = false;
+		// check if all requirements are met
+		if(canDo)
+			GiveResearch(ResearchDependencies[reqid].unlocks, true);
+	}
+}
+
 void CompleteResearch(int res_id) {
+	HandleDependentResearch(res_id);
 	GiveInventory(StrParam(s:"Done_", s:Research_List[res_id]), 1);
 	if(res_id == RES_DOUBLESPECIALCAP)
 		DoubleSpecialAmmoCapacity();
@@ -230,11 +452,25 @@ bool HasIncompleteResearches() {
 
 void GiveAndDoAllResearch() {
 	for(int i = 0; i < MAX_RESEARCHES; ++i) {
-		GiveResearch(i);
+		GiveResearch(i, false);
 		CompleteResearch(i);
 	}
 	GiveInventory("MedkitItem", 1);
 	DoubleSpecialAmmoCapacity();
+}
+
+void DoubleSpecialAmmoCapacity() {
+	for(int i = 0; i < MAX_SPECIAL_AMMOS; ++i)
+		SetAmmoCapacity(SpecialAmmoInfo[i].ammo_name, SpecialAmmoInfo[i].initial_capacity * 2);
+}
+
+void HandleResearchBonuses() {
+	if(CheckResearchStatus(RES_IMP3))
+		GiveInventory("ImpactProtection_3", 1);
+	else if(CheckResearchStatus(RES_IMP2))
+		GiveInventory("ImpactProtection_2", 1);
+	else if(CheckResearchStatus(RES_IMP1))
+		GiveInventory("ImpactProtection_1", 1);
 }
 
 #endif

@@ -35,7 +35,6 @@ Actor ZombieMan2 : DnD_Zombieman
 			ZHRF G 3 Fast A_Pain
 		Goto See
 		Death:
-			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
 			TNT1 A 0 A_Jump(128, "Death2")
 			ZHRF H 5
 			ZHRF I 5 A_Scream
@@ -65,7 +64,6 @@ Actor ZombieMan2 : DnD_Zombieman
 		XDeath:
 		Death.Explosives:
 		Death.ExplosivesFull:
-			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
@@ -79,11 +77,6 @@ Actor ZombieMan2 : DnD_Zombieman
 			ZHRF PQRST 5
 			ZHRF U -1
 		Stop
-		Death.P_Ice:
-			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
 		
 		Death.Melee_Magic:
 		Death.Melee_MagicFull:
@@ -156,7 +149,6 @@ Actor Shotgunguy2 : DnD_Shotgunner {
 			ZSSH G 3 Fast A_Pain
 		Goto See
 		Death:
-			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
 			ZSSH H 5
 			ZSSH I 5 A_Scream
 			ZSSH J 5 A_NoBlocking
@@ -170,7 +162,6 @@ Actor Shotgunguy2 : DnD_Shotgunner {
 		XDeath:
 		Death.Explosives:
 		Death.ExplosivesFull:
-			TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
@@ -184,11 +175,6 @@ Actor Shotgunguy2 : DnD_Shotgunner {
 			ZSSH PQRST 5
 			ZSSH U -1
 		Stop
-		Death.P_Ice:
-			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
 		
 		Death.Melee_Magic:
 		Death.Melee_MagicFull:
@@ -247,7 +233,6 @@ Actor Cgguy2 : DnD_Chaingunguy {
 		ZCCH G 3 Fast A_Pain
 		Goto See
 	  Death:
-		ZCCH H 5 A_GiveToTarget("DnD_ShotUndead", 1)
 		ZCCH I 5 A_Scream
 		ZCCH J 5 A_NoBlocking
 		ZCCH KLM 5
@@ -260,7 +245,6 @@ Actor Cgguy2 : DnD_Chaingunguy {
 	Xdeath:
 	Death.Explosives:
 	Death.ExplosivesFull:
-		TNT1 A 0 A_GiveToTarget("DnD_ShotUndead", 1)
 		TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 		TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 		TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
@@ -274,11 +258,6 @@ Actor Cgguy2 : DnD_Chaingunguy {
 		ZCCH RS 5
 		ZCCH T -1	
 		Stop
-		Death.P_Ice:
-			"----" "#" 0 A_GiveToTarget("DnD_ShotUndead", 1)
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
 		
 		Death.Melee_Magic:
 		Death.Melee_MagicFull:

@@ -37,6 +37,7 @@
 #define DND_DB_PLAYERWEPCHECKERS "DnD_PlayerWepCheckers"
 #define DND_DB_MISC "DnD_PlayerMiscallenous"
 #define DND_DB_KEYS "DnD_PlayerChestKeys"
+#define DND_DB_RESEARCHTRACKER "DnD_ResearchTracker"
 
 #define DND_DB_FLATHPBONUS "DnD_FlatHPBonus"
 #define DND_DB_FLATARMBONUS "DnD_FlatARMBonus"

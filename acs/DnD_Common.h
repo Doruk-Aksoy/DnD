@@ -20,29 +20,32 @@
 #define AVATAR_BASE_TID 5000
 #define PURP_DEM_TID 13000
 
+#define DND_EMERALD_TIDADD 100
+
 /*
 ////////////////
 // TID RANGES //
 ////////////////
 
 1. 1000 - 1063 = Players
-2. 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
-3. 3000 - 3063 = Initial railgun trail ID
-4. 3500 - 3563 = In-between trails ID for railgun
-5. 5000+ = Avatar TID
-6. 7000+ = Avatar soul projectiles TID
-7. 11000+ = Avatar Cubes TID
-8. 13000+ = Nhumcign TID
-9. 14000+ = Zealot TID
-10. 15000+ = Zealot Shield TID
-11. 17000 - 19048 = Shared item IDs
-12. 19049 - 29049 = Limited Respawn Ammos
-13. 29050 - 29150 = Charm drops on field
-14. 32768 = Special FX TID
-15. 32769 = Thunder Staff temporary damager tid
-16. 40000 - 42048 = Thunder Staff Ring tid
-17. 42049 - Talisman Mark tid
-18. Anything above 66000 => any monster tid
+2. 1100 - 1163 = Emerald Death Actors
+3. 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
+4. 3000 - 3063 = Initial railgun trail ID
+5. 3500 - 3563 = In-between trails ID for railgun
+6. 5000+ = Avatar TID
+7. 7000+ = Avatar soul projectiles TID
+8. 11000+ = Avatar Cubes TID
+9. 13000+ = Nhumcign TID
+10. 14000+ = Zealot TID
+11. 15000+ = Zealot Shield TID
+12. 17000 - 19048 = Shared item IDs
+13. 19049 - 29049 = Limited Respawn Ammos
+14. 29050 - 29150 = Charm drops on field
+15. 32768 = Special FX TID
+16. 32769 = Thunder Staff temporary damager tid
+17. 40000 - 42048 = Thunder Staff Ring tid
+18. 42049 - Talisman Mark tid
+19. Anything above 66000 => any monster tid
 */
 
 int AvatarTID = 0;

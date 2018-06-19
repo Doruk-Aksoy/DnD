@@ -250,14 +250,16 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		// 3 - 1
 		{ 4000,  1 },
 		{ 4500,  1 },
+		{ 5000,  1 },
 		{ 4350,  1 },
         { 4500,  1 },
+		{ 5250,  1 },
 		{ 5000,  1 },
 		{ 5250,  1 },
 		{ 5500,  1 },
-		{ 5750,  1 },
 		
 		// 3 - 2
+		{ 5750,  1 },
 		{ 6500,  1 },
 		{ 5250,  1 },
 		{ 5250,  1 },
@@ -354,11 +356,17 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 115,		1 },
 		{ 100,		1 },
 		
+		// Ammo 4
+		{ 500,		1 },
+		{ 85,		1 },
+		
 		// Special Ammunition
 		{ 475,	    1 },
 		{ 825,	    1 },
 		{ 925,	    1 },
         { 875,      1 },
+		{ 1250,		1 },
+		
 		{ 925,      1 },
 		{ 1250,	    1 },
 		
@@ -442,8 +450,10 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 	// wep slot 3 - 1
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		{ RES_SLOT3UPG1, -1, -1 },
 		{ RES_SLOT3UPG2, -1, -1 },
+		{ RES_SLOT3UPG3, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT3SSGUPG1, -1, -1 },
@@ -544,6 +554,10 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT3SSGUPG3, -1, -1 },
+		
+	// ammo 4
+		{ RES_SLOT3UPG3, -1, -1 },
+		{ -1, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -646,13 +660,15 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	
 	{ "Upgraded Shotgun",					"Purifier",							WEPCHECK_SLOT3,			"0"  		},
 	{ "Upgraded Shotgun2", 					"Killstorm",						WEPCHECK_SLOT3,			"0" 		},
+	{ "Upgraded Shotgun3", 					"Emerald Wand",						WEPCHECK_SLOT3,			"0" 		},
 	{ "ResShotgun1",						"Deadlock",							WEPCHECK_SLOT3,			"0"		    },
 	{ "ResShotgun2",                        "Nitrogen Crossbow",                WEPCHECK_SLOT3,     	"0"         },
+	{ "ResShotgun3",                        "Wheel of Torment",                	WEPCHECK_SLOT3,     	"0"         },
 	{ "Upgraded Super Shotgun",			    "Heavy SSG",						WEPCHECK_SLOT3X,		"0" 		},
 	{ "Upgraded Super Shotgun2",		    "Erasus",							WEPCHECK_SLOT3X,		"0" 		},
 	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
+
 	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
-	
 	{ "ResSSG3",							"Hades Shotgun",					WEPCHECK_SLOT3X,		"0"			},
 	{ "Silver Gun",						    "White Death",						WEPCHECK_SLOT3L,		"1"	        },
 	{ "Slayer",								"Slayer",							WEPCHECK_SLOT3L,		"1"		    },
@@ -736,11 +752,15 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "FlakShell",							"Flak Shell",						"",						"0"			},
 	{ "DesolatorAmmo",						"Desolator Rounds",					"",						"0"			},
 	{ "HadesAmmo",							"Hades Shells",						"",						"0"			},
+	{ "DemonBlood",							"Vial of Demon Blood",				"",						"0"			},
+	{ "EmeraldMana",						"Emerald Mana",						"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
 	{ "ElectricShell",						"Shock Shells",						"",						"0"		    },
 	{ "NitroShell",                         "Nitrogen Shells",                  "",                     "0"         },
+	{ "SlugShell",							"Slug Shells",						"",						"0"			},
+	
 	{ "A40mmSonicGrenade",				    "Sonic Grenades",					"",						"0"		    },
 	{ "A40mmHEGrenade",					    "HE Grenades",						"",						"0"		    },
 	
@@ -834,14 +854,17 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	// 3 - 1
 	DTYPE_SHELL,
 	DTYPE_SHELL,
+	DTYPE_ELEMENTAL,
 	DTYPE_SHELL,
 	DTYPE_ELEMENTAL,
+	DTYPE_OCCULT | DTYPE_MELEE,
 	DTYPE_SHELL,
 	DTYPE_SHELL,
 	DTYPE_ENERGY,
-	DTYPE_ELEMENTAL,
+	
 	
 	// 3 - 2
+	DTYPE_ELEMENTAL,
 	DTYPE_SHELL | DTYPE_ELEMENTAL,
 	DTYPE_SHELL | DTYPE_EXPLOSIVE,
 	DTYPE_OCCULT,
@@ -923,14 +946,16 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	// 3 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_PURIFIER		},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_AUTOSG			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_EMERALDWAND	},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG2			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG3			},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_HSSG			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_ERASUS			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG1		},
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG2		},
 	
 	// 3 - 2
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG2		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESSSG3		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SILVER			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SLAYER			},
@@ -1036,14 +1061,16 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	// 3 - 1
 	WPROP_ALTAMMO,
 	WPROP_NONE,
+	WPROP_CANTHITGHOST,
 	WPROP_ALTAMMO,
+	WPROP_NONE,
 	WPROP_NONE,
 	WPROP_RIPPER,
 	WPROP_NONE,
 	WPROP_IGNORESHIELD,
-	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	
 	// 3 - 2
+	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	WPROP_RIPPER | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_SELFDMG | WPROP_CANTHITGHOST | WPROP_RIPPER,
@@ -1122,13 +1149,15 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	
 	"Purifier shoots 15 pellets each doing 15 damage in a 3.6 by 3.6 and a shell capacity of 8.",
 	"Killstorm is an automatic shotgun, shooting 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Has a shell capacity of 10.",
+	"Creates 5 blasts doing 20 damage each in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, and releases an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.",
 	"Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.",
 	"Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of gas streams doing 5 damage.",
+	"An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
 	"Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
 	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
-	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	
+	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	"Fires 15 shells doing 10 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",
@@ -1335,8 +1364,10 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	// category 2
 	{
 		SHOP_AMMO_SHELL,
+		SHOP_AMMO_EMERALDMANA,
 		SHOP_AMMO_PCAN,
 		SHOP_AMMO_NITROGEN,
+		SHOP_AMMO_DEMONBLOOD,
 		SHOP_AMMO_HADES,
 		SHOP_AMMO_EXPSHELL,
 		SHOP_AMMO_SLAYER,
@@ -1402,12 +1433,15 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_FLAK				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DEMONBLOOD		},
+	{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_PIERCING			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ELECTRIC			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NITROSHELL		},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SLUGSHELL			},
 	
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SONICGRENADE		},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEGRENADE			}
@@ -1446,11 +1480,14 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	5,
 	20,
 	6,
+	12,
+	18,
 	
 	8,
 	8,
 	8,
     8,
+	8,
 	
 	5,
 	5
@@ -1489,11 +1526,14 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"flak shells for the Vindicator.",
 	"desolator rounds for the Desolator Cannon.",
 	"hades shells for the Hades Auto Shotgun.",
+	"vials of demon blood for the Wheel of Torment.",
+	"emerald mana for the Emerald Wand.",
 	
 	"flechette shells.",
 	"magnum shells.",
 	"electric shells.",
 	"nitrogen shells.",
+	"slug shells.",
 	
 	"sonic grenades.",
 	"high-ex grenades."
@@ -1599,243 +1639,475 @@ str ShopWeaponTake[MAXNORMALWEPSLOTS] = {
 	"BFG 9000"
 };
 
-int ResearchEntryNumbers[MAX_RESEARCHES] = {
-	4301,
-	4300,
-	3531,
-	6914,
-	
-	2302,
-	2303,
-	2304,
-    2309,
-	
-	2411,
-	2412,
-	
-	2440,
-	
-	611,
-	640,
-	783,
-	831,
-	895,
-	899,
-	909,
-	
-	6709,
-	
-	6880,
-	7982,
-	
-	7991,
-    8015,
-	
-	7995,
-	8001,
-	8671,
-	
-	8010,
-    9507,
-	8763,
-	
-	8277,
-	8216,
-	8219,
-	7066,
-	
-	8433,
-    4811,
-	
-	8566,
-	9104,
-	
-	5779,
-	9999,
-	7744,
-	3616,
-	4569
+typedef struct {
+	int res_id;
+	int res_number;
+	int res_cost;
+} res_info_T;
+
+typedef struct {
+	str res_icon;
+	str res_desc;
+} res_info_str_T;
+
+enum {
+	RESPAGE_BODY,
+	RESPAGE_AMMO,
+	RESPAGE_SLOTGUNS,
+	RESPAGE_LUXURYGUNS,
+	RESPAGE_UTILITY,
 };
 
-int ResearchCosts[MAX_RESEARCHES] = {
-	60,
-	80,
-	55,
-	105,
-	
-	40,
-	45,
-	45,
-    45,
-	
-	55,
-	55,
-	
-	75,
-	
-	40,
-	40,
-	45,
-	45,
-	45,
-	45,
-	55,
-	
-	50,
-	45,
-	
-	40,
-	50,
-	
-	45,
-    50,
-	
-	50,
-	55,
-	65,
-	
-    45,
-    60,
-	55,
-	60,
-	
-	50,
-	10,
-	55,
-	50,
-	
-	50,
-    55,
-	60,
-	
-	60,
-	65,
-	
-	105,
-	140,
-	85,
-	75
+#define MENU_MAXRES_PERPAGE 24
+res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
+	// body
+	{
+		{
+			RES_NANOTECH, 3616, 85
+		},
+		{
+			RES_OCCULTABILITY, 9999, 105
+		},
+		{
+			RES_BIO1, 7452, 50
+		},
+		{
+			RES_BIO2, 7453, 85
+		},
+		{
+			RES_BIO3, 7454, 120
+		},
+		{
+			RES_EXO1, 7460, 50
+		},
+		{
+			RES_EXO2, 7461, 85
+		},
+		{
+			RES_EXO3, 7462, 120
+		},
+		{
+			RES_IMP1, 8006, 45
+		},
+		{
+			RES_IMP2, 8007, 75
+		},
+		{
+			RES_IMP3, 8008, 105
+		},
+		{
+			-1, -1, -1
+		}
+	},
+	// special ammo types
+	{
+		{
+			RES_FLECHETTE, 2302, 40
+		},
+		{
+			RES_PIERCING, 2303, 45
+		},
+		{
+			RES_ELECTRIC, 2304, 45
+		},
+		{
+			RES_NITRO, 2309, 45
+		},
+		{
+			RES_SLUGSHELL, 2316, 50
+		},
+		{
+			RES_SONICGRENADE, 2411, 55
+		},
+		{
+			RES_HEGRENADE, 2412, 55
+		},
+		{
+			RES_DOUBLESPECIALCAP, 2440, 75
+		},
+		{
+			-1, -1, -1
+		}
+	},
+	// slot guns
+	{
+		{
+			RES_SLOT1UPG1, 6709, 50
+		},
+		{
+			RES_SLOT1UPG2, 6711, 45
+		},
+		{
+			RES_SLOT2UPG1, 6880, 40
+		},
+		{
+			RES_SLOT2UPG2, 7982, 50
+		},
+		{
+			RES_SLOT3UPG1, 7991, 45
+		},
+		{
+			RES_SLOT3UPG2, 8015, 50
+		},
+		{
+			RES_SLOT3UPG3, 8278, 60
+		},
+		{
+			RES_SLOT3SSGUPG1, 7995, 50
+		},
+		{
+			RES_SLOT3SSGUPG2, 8001, 55
+		},
+		{
+			RES_SLOT3SSGUPG3, 8671, 65
+		},
+		{
+			RES_SLOT4UPG1, 8010, 45
+		},
+		{
+			RES_SLOT4UPG2, 9507, 60
+		},
+		{
+			RES_SLOT4UPG3, 8763, 55
+		},
+		{
+			RES_SLOT4UPG4, 	8277, 60
+		},
+		{
+			RES_SLOT5UPG1, 8216, 50
+		},
+		{
+			RES_SLOT5UPG2, 8219, 55
+		},
+		{
+			RES_SLOT5UPG3, 7066, 50
+		},
+		{
+			RES_SLOT5GL, 8433, 10
+		},
+		{
+			RES_SLOT6UPG1, 4811, 50
+		},
+		{
+			RES_SLOT6UPG2, 8566, 55
+		},
+		{
+			RES_SLOT6UPG3, 9104, 60
+		},
+		{
+			RES_SLOT7UPG1, 5395, 60
+		},
+		{
+			RES_SLOT7UPG2, 5411, 65
+		},
+		{
+			-1, -1, -1
+		}
+	},
+	// luxury guns
+	{
+		{
+			RES_SLOT1OCCULT, 611, 40
+		},
+		{
+			RES_SLOT2LUXURY, 640, 40
+		},
+		{
+			RES_SLOT3LUXURY, 783, 45
+		},
+		{
+			RES_SLOT4LUXURY, 831, 45
+		},
+		{
+			RES_SLOT5LUXURY, 895, 45
+		},
+		{
+			RES_SLOT6LUXURY, 899, 45
+		},
+		{
+			RES_SLOT7LUXURY, 909, 55
+		},
+		{
+			RES_SLOT8REVEAL, 7744, 140
+		},
+		{
+			-1, -1, -1
+		}
+	},
+	// utility
+	{
+		{
+			RES_RAREARMOR, 4301, 60
+		},
+		{
+			RES_SUPERARMOR, 4300, 80
+		},
+		{
+			RES_MEDKITSTORE, 3531, 55
+		},
+		{
+			RES_ACCESSORY, 6914, 105
+		},
+		{
+			RES_OCCULTARTIFACT, 4569, 75
+		},
+		{
+			-1, -1, -1
+		}
+	}
 };
 
-str Research_Images[MAX_RESEARCHES] = {
-    "RESBAK1",
-    "RESBAK2",
-    "RESBAK3",
-    "RESBAK4",
-    
-    "RESBAK5",
-    "RESBAK6",
-    "RESBAK7",
-    "RESBAK33",
-    
-    "RESBAK8",
-    "RESBAK9",
-    
-    "RESBAK10",
-    
-    "RESBAK11",
-    "RESBAK12",
-    "RESBAK13",
-    "RESBAK14",
-    "RESBAK15",
-    "RESBAK16",
-    "RESBAK17",
-    
-	"RESBAK34",
-	"RESBAK35",
-	
-    "RESBAK18",
-	"RESBAK41",
-	
-    "RESBAK19",
-    "RESBAK31",
-	
-    "RESBAK20",
-	"RESBAK37",
-	"RESBAK44",
-	
-    "RESBAK21",
-    "RESBAK32",
-	"RESBAK36",
-	"RESBAK42",
-	
-    "RESBAK22",
-    "RESBAK23",
-	"RESBAK39",
-	"RESBAK40",
-	
-    "RESBAK24",
-    "RESBAK25",
-	"RESBAK43",
-	
-    "RESBAK26",
-	"RESBAK38",
-    
-    "RESBAK27",
-    "RESBAK28",
-    "RESBAK29",
-    "RESBAK30"
-};
-
-str ResearchDescription[MAX_RESEARCHES] = {
-	"By using parts from fallen enemies, we can manufacture armors of varying properties.",
-	"With this breakthrough technology, we can start distributing state of the art armors to the marines, blocking 100% of the damage. Unlocks Monolith Armor.",
-	"Instead of wasting medikits, by using this new technology we can allow marines to store the medikits picked up permanently. \cgMedic\c- perk increases the cap by 15% each.",
-	"Unlocking the occult secrets of demonic energy, we can allow marines to use ancient trophies they come across. Allows use of accessories.",
-
-	"Our scientists managed to create a highly ballistic shell that can scatter around and pierce targets, \cfignoring shields\c-.",
-	"We can now utilize the same bullets used by magnum handguns on shotguns. Magnum shells penetrate any target.",
-	"When you need some extra zap to go with your shell burst, we can use these now. They constantly lock enemies in their pain state and \cfignore shields\c-.",
-	"Always nice to greet your adversaries with some ice. Allows Riot Cannon to use Nitrogen Shells.",
-    
-	"For when normal grenades are insufficient, try a Heavy Explosive one. Unlocks HE Grenades.",
-	"Sometimes it is not raw power you need, but some sustained damage. Unlocks Sonic Grenades.",
-	
-	"New generation backpacks are super lightweight, marines can carry these to double the capacity of their special ammo types.",
-	
-	"Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe (1).",
-	"Some can say pistols are useless but we beg to differ. Some pistols can be quite potent. Unlocks Scatter Pistol and Ruby Wand (2).",
-	"Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks Silver Gun and Slayer (3).",
-	"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Desolator Cannon, Minigun and Ebony Cannon (4).",
-	"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL and Heavy Missile Launcher (5).",
-	"Destroying things has never been this fun! Demons sure know how to kill things... Unlocks Rhino AR, Nailgun and Basilisk (6).",
-	"If you think you need a bit of sniping, try these! Unlocks Railgun and Gauss Rifle (7).",
-	
-	"A fine discovery buried in hell. Dusk blade hits real hard and lets its user experience the dusk mode. Unlocks Dusk Blade (1).",
-	"Buried deep in the bowels of the earth, inferno sword is everything a pyromaniac would want! Shoot flames, cut enemies down! Unlocks Inferno Sword (1).",
-	
-	"Some of the zombies were using quite improved versions of your weaponry. Now we can utilize this for your slot 2 weapons. Unlocks Assault Rifle (2).",
-	"An intriguing weapon, capable of summoning mobile snake traps or just shoot them directly! Unlocks Viper Staff (2).",
-	
-	"Through many investments we can now utilize better shotgun mechanics. Unlocks Deadlock (3).",
-	"Sometimes it's better to just cool things down when things get heated up. Unlocks Nitrogen Crossbow (3).",
-   
-    "Our scientists were obsessed with creating energy in fixed bursts and now they can! Unlocks Plasma Cannon (3).",
-	"Destroy your enemies with a good style. Put holes in them and burn them after with heat! Unlocks Shocker (3).",
-	"Hades... the god of underworld. Or so they say. His powers are now yours to command! Unlocks Hades Auto Shotgun (3).",
-	
-	"Finally an answer to the undead menace, this silver bullet shooting machine gun will make quick work of undeads and magical creatures alike! Unlocks Templar MG (4).",
-	"A combination of chaingun and shotgun, this fierce weapon is going to make demon paste. Can also use alternate shells. Unlocks Riot Cannon (4).",
-    "We now have perfect material to contain powerful acid to use against demons! A very potent rifle. Unlocks Acid Rifle (4).",
-	"We can produce small scale fusion reactions at will to produce super powered energy blasts. Unlocks Fusion Blaster (4).",
-	
-	"Using energies of demons we can now create meteors at will and so can you! Unlocks Meteor Launcher (5).",
-	"It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both (5).",
-	"A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher (5).",
-	"When you're desperate to get some ice for your drink, there's always a solution! Unlocks Freezer Cannon (5).",
-	
-	"Burning enemies to crisps is never boring! Unlocks Flame Thrower (6).",
-	"For when you want to make a shocking entrance. Unlocks Lightning Gun (6).",
-	"Show your love for bouncing particles! Shoot to your hearts content with Rebounder (6).",
-    
-	"We have miniguns, laser cannons and other various toys but not an Ion Cannon (7)... Now we do!",
-	"An ominous staff, capable of electrocuting large groups of enemies at once. Unlocks Thunder Staff (7).",
-	
-	"With this groundbreaking research, we can now utilize powers of the demons to empower ourselves! Unlocks certain abilities.",
-	"Powerful demons can teach us a lot of things. Now we can utilize their immense power for even better weapons! Unlocks slot 8 weapons.",
-	"Nano-technology is finally here! Unlocks certain abilities.",
-	"Artifacts have always been an elusive aspect. However with demon technology we can harness even more! Unlocks certain artifacts."
-	
+res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
+	// body
+	{
+		{
+			"RESBAK29",
+			"Nano-technology is finally here! Unlocks certain abilities."
+		},
+		{
+			"RESBAK27",
+			"With this groundbreaking research, we can now utilize powers of the demons to empower ourselves! Unlocks certain abilities."
+		},
+		{
+			"RESBAK45",
+			"UAC has new bionic enhancements to allow you to withstand more punishment. Increases health capacity by 5%."
+		},		
+		{
+			"RESBAK46",
+			"Second enhancement to your body, with improved bionic elements. Increases health capacity by a further 6%."
+		},
+		{
+			"RESBAK47",
+			"Top notch bionic material with super-soldier injections to make you even stronger. Increases health capacity by a further 9%."
+		},
+		{
+			"RESBAK48",
+			"UAC can now field their soldiers with exoskeletons, making your armors better. Increases armor capacity by 5%."
+		},
+		{
+			"RESBAK49",
+			"Exoskeleton material is improved to be made even more durable. Increases armor capacity by a further 6%."
+		},
+		{
+			"RESBAK50",
+			"UAC found the ultimate material to create exoskeletons with. Increases armor capacity by a further 9%."
+		},
+		{
+			"RESBAK51",
+			"After studying the hide of several Cyberdemons you have sent, we can improve your body to make you take 10% less damage from your explosives."
+		},
+		{
+			"RESBAK52",
+			"Studying further, we can now improve the previous enhancement to make you take 25% less damage instead."
+		},
+		{
+			"RESBAK53",
+			"Superior impact protection. You take 40% less damage from your explosive attacks."
+		},
+		{
+			"", ""
+		}
+	},
+	// special ammo types
+	{
+		{
+			"RESBAK5",
+			"Our scientists managed to create a highly ballistic shell that can scatter around and pierce targets, \cfignoring shields\c-."
+		},
+		{
+			"RESBAK6",
+			"We can now utilize the same bullets used by magnum handguns on shotguns. Magnum shells penetrate any target."
+		},
+		{
+			"RESBAK7",
+			"When you need some extra zap to go with your shell burst, we can use these now. They constantly lock enemies in their pain state and \cfignore shields\c-."
+		},
+		{
+			"RESBAK33",
+			"Always nice to greet your adversaries with some ice. Allows Riot Cannon to use Nitrogen Shells."
+		},
+		{
+			"RESBAK54",
+			"You can treat your shotgun like a sniper rifle now. Allows Deadlock to use Slug Shells, which can \cfignore shields\c-."
+		},
+		{
+			"RESBAK9",
+			"Sometimes it is not raw power you need, but some sustained damage. Unlocks Sonic Grenades."
+		},
+		{
+			"RESBAK8",
+			"For when normal grenades are insufficient, try a Heavy Explosive one. Unlocks HE Grenades."
+		},
+		{
+			"RESBAK10",
+			"New generation backpacks are super lightweight, marines can carry these to double the capacity of their special ammo types."
+		},
+		{
+			"", ""
+		}
+	},
+	// slot guns
+	{
+		{
+			"RESBAK34",
+			"A fine discovery buried in hell. Dusk blade hits real hard and lets its user experience the dusk mode. Unlocks Dusk Blade (1)."
+		},
+		{
+			"RESBAK35",
+			"Buried deep in the bowels of the earth, inferno sword is everything a pyromaniac would want! Shoot flames, cut enemies down! Unlocks Inferno Sword (1)."
+		},
+		{
+			"RESBAK18",
+			"Some of the zombies were using quite improved versions of your weaponry. Now we can utilize this for your slot 2 weapons. Unlocks Assault Rifle (2)."
+		},
+		{
+			"RESBAK41",
+			"An intriguing weapon, capable of summoning mobile snake traps or just shoot them directly! Unlocks Viper Staff (2)."
+		},
+		{
+			"RESBAK19",
+			"Through many investments we can now utilize better shotgun mechanics. Unlocks Deadlock (3)."
+		},
+		{
+			"RESBAK31",
+			"Sometimes it's better to just cool things down when things get heated up. Unlocks Nitrogen Crossbow (3)."
+		},
+		{
+			"RESBAK55",
+			"A strange artifact designed to inflict unimaginable torment on demons. Unlocks Wheel of Torment (3)."
+		},
+		{
+			"RESBAK20",
+			"Our scientists were obsessed with creating energy in fixed bursts and now they can! Unlocks Plasma Cannon (3)."
+		},
+		{
+			"RESBAK37",
+			"Destroy your enemies with a good style. Put holes in them and burn them after with heat! Unlocks Shocker (3)."
+		},
+		{
+			"RESBAK44",
+			"Hades... the god of underworld. Or so they say. His powers are now yours to command! Unlocks Hades Auto Shotgun (3)."
+		},
+		{
+			"RESBAK21",
+			"Finally an answer to the undead menace, this silver bullet shooting machine gun will make quick work of undeads and magical creatures alike! Unlocks Templar MG (4)."
+		},
+		{
+			"RESBAK32",
+			"A combination of chaingun and shotgun, this fierce weapon is going to make demon paste. Can also use alternate shells. Unlocks Riot Cannon (4)."
+		},
+		{
+			"RESBAK36",
+			"We now have perfect material to contain powerful acid to use against demons! A very potent rifle. Unlocks Acid Rifle (4)."
+		},
+		{
+			"RESBAK42",
+			"We can produce small scale fusion reactions at will to produce super powered energy blasts. Unlocks Fusion Blaster (4)."
+		},
+		{
+			"RESBAK22",
+			"Using energies of demons we can now create meteors at will and so can you! Unlocks Meteor Launcher (5)."
+		},
+		{
+			"RESBAK39",
+			"It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both (5)."
+		},
+		{
+			"RESBAK40",
+			"When you're desperate to get some ice for your drink, there's always a solution! Unlocks Freezer Cannon (5)."
+		},
+		{
+			"RESBAK23",
+			"A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher (5)."
+		},
+		{
+			"RESBAK24",
+			"Burning enemies to crisps is never boring! Unlocks Flame Thrower (6)."
+		},
+		{
+			"RESBAK25",
+			"For when you want to make a shocking entrance. Unlocks Lightning Gun (6)."
+		},
+		{
+			"RESBAK43",
+			"Show your love for bouncing particles! Shoot to your hearts content with Rebounder (6)."
+		},
+		{
+			"RESBAK26",
+			"We have miniguns, laser cannons and other various toys but not an Ion Cannon (7)... Now we do!"
+		},
+		{
+			"RESBAK38",
+			"An ominous staff, capable of electrocuting large groups of enemies at once. Unlocks Thunder Staff (7)."
+		},
+		{
+			"", ""
+		}
+	},
+	// luxury guns
+	{
+		{
+			"RESBAK11",
+			"Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe (1)."
+		},
+		{
+			"RESBAK12",
+			"Some can say pistols are useless but we beg to differ. Some pistols can be quite potent. Unlocks Scatter Pistol and Ruby Wand (2)."
+		},
+		{
+			"RESBAK13",
+			"Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks Silver Gun and Slayer (3)."
+		},
+		{
+			"RESBAK14",
+			"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Desolator Cannon, Minigun and Ebony Cannon (4)."
+		},
+		{
+			"RESBAK15",
+			"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL and Heavy Missile Launcher (5)."
+		},
+		{
+			"RESBAK16",
+			"Destroying things has never been this fun! Demons sure know how to kill things... Unlocks Rhino AR, Nailgun and Basilisk (6)."
+		},
+		{
+			"RESBAK17",
+			"If you think you need a bit of sniping, try these! Unlocks Railgun and Gauss Rifle (7)."
+		},
+		{
+			"RESBAK28",
+			"Powerful demons can teach us a lot of things. Now we can utilize their immense power for even better weapons! Unlocks slot 8 weapons."
+		},
+		{
+			"", ""
+		}
+	},
+	// utility
+	{
+		{
+			"RESBAK1",
+			"By using parts from fallen enemies, we can manufacture armors of varying properties."
+		},
+		{
+			"RESBAK2",
+			"With this breakthrough technology, we can start distributing state of the art armors to the marines, blocking 100% of the damage. Unlocks Monolith Armor."
+		},
+		{
+			"RESBAK3",
+			"Instead of wasting medikits, by using this new technology we can allow marines to store the medikits picked up permanently. \cgMedic\c- perk increases the cap by 15% each."
+		},
+		{
+			"RESBAK4",
+			"Unlocking the occult secrets of demonic energy, we can allow marines to use ancient trophies they come across. Allows use of accessories."
+		},
+		{
+			"RESBAK30",
+			"Artifacts have always been an elusive aspect. However with demon technology we can harness even more! Unlocks certain artifacts."
+		},
+		{
+			"", ""
+		}
+	}
 };
 
 // put only those that concern menu here

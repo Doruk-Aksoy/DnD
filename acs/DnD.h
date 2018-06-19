@@ -49,6 +49,8 @@
 
 #define INTERVENTION_DURATION TICRATE * 8
 
+#define DND_EMERALD_TRANSLATIONID 7000
+
 #define DND_BUDGET_BASE 3
 #define DND_MAX_SHARE 4
 #define DND_SPREE_AMOUNT 4 * TICRATE // 4 * 35
@@ -105,6 +107,13 @@ bool Quest_Pick_Done = 0;
 bool PlayerCanLoad[MAXPLAYERS] = { 1 };
 
 // RPG ELEMENTS END
+
+enum {
+	DND_ANNOUNCER_QUEST,
+	DND_ANNOUNCER_ATTRIBPOINT,
+	DND_ANNOUNCER_LEGENDARYMONSTER,
+	DND_ANNOUNCER_RESEARCHDISCOVER
+};
 
 #define DefStepSound "Player/Move"
 
@@ -180,8 +189,10 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Typical boomstick, now spreads vertically too. 10 pellets, each doing 10-15 damage. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.",
 	 "The purifier shotgun, spread's with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads. Can use \cialternate\c- ammo.",
 	 "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Alt fire reloads.",
+	 "Creates 5 blasts doing 20 damage each in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, and releases an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.",
 	 "Deadlocks fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12. Can use \cialternate\c- ammo.",
 	 "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.",
+	 "An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
 	 
 	 "Same old buckshot we all love! Can be \cdreplaced.",
 	 "Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
@@ -983,7 +994,11 @@ void SpawnChestKey(int tid, bool isElite) {
 
 void SpawnResearch() {
 	// spawn copies of this research
-	int temp = random(0, MAX_RESEARCHES - 1);
+	int temp = 0;
+	// roll another if this has nodrop flag on it
+	do {
+		temp = random(0, MAX_RESEARCHES - 1);
+	} while(ResearchFlags[temp].res_flags & RESF_NODROP);
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// spawn this only if this isn't already found by the player
@@ -1077,4 +1092,18 @@ int GetPVelocity(void) {
 	else
 		vel = FixedDiv(x, cos(angle));
 	return vel >> 16;
+}
+
+void HandleHealDependencyCheck() {
+	// Research dependencies
+	if(CheckInventory("Research_Body_Hp_1_Tracker") == GetAmmoCapacity("Research_Body_Hp_1_Tracker") && CheckResearchStatus(RES_BIO1) == RES_NA)
+		GiveResearch(RES_BIO1, true);
+	
+	// Quest records
+	if(active_quest_id == QUEST_HEALFOR500 && !IsQuestComplete(ActivatorTID(), active_quest_id) && CheckInventory("DnD_MasterHealerQuest_HealAmount") >= DND_QUEST_MASTERHEALER_REQ)
+		CompleteQuest(ActivatorTID(), active_quest_id);
+	
+	// Skin O' My Teeth check
+	if(active_quest_id == QUEST_NOHEALINGPICKUP)
+		FailQuest(ActivatorTID(), active_quest_id);
 }

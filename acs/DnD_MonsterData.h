@@ -531,6 +531,10 @@ bool IsZombie() {
 	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_ZOMBIE_POW;
 }
 
+bool IsUndead() {
+	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_UNDEAD_POW;
+}
+
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX
 #define MAX_MONSTER_CATEGORIES 17
 #define MAX_MONSTER_VARIATIONS 15

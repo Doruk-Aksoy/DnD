@@ -211,6 +211,10 @@ Actor RoundsSurvived : Ammo
 	+IGNORESKILL
 }
 
+Actor DnD_PTotalLevel : inventory {
+	inventory.maxamount 6400
+}
+
 Actor P_Damage : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF

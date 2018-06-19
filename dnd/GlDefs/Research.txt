@@ -449,3 +449,100 @@ object AcidPuff {
 object AcidPuff_FullDMG {
 	frame RIF2 { light AcidLight }
 }
+
+flickerlight WheelOfTormentLight1 {
+	color 1.0 0.25 0.25
+	size 20
+	secondarysize 40
+	chance 0.5
+}
+
+pointlight WheelOfTormentLight2 {
+	color 1.0 0.25 0.25
+	size 30
+}
+
+pointlight WheelOfTormentLight3 {
+	color 1.0 0.25 0.25
+	size 26
+}
+
+pointlight WheelOfTormentLight4 {
+	color 1.0 0.25 0.25
+	size 22
+}
+
+pointlight WheelOfTormentLight5 {
+	color 1.0 0.25 0.25
+	size 18
+}
+
+
+pointlight WheelOfTormentLight6 {
+	color 1.0 0.25 0.25
+	size 14
+}
+
+
+pointlight WheelOfTormentLight7 {
+	color 1.0 0.25 0.25
+	size 10
+}
+
+object BloodFX2A {
+	frame BLBA { light WheelOfTormentLight1 }
+	
+	frame BLF2A { light WheelOfTormentLight2 }
+	frame BLF2B { light WheelOfTormentLight3 }
+	frame BLF2C { light WheelOfTormentLight4 }
+	frame BLF2D { light WheelOfTormentLight5 }
+	frame BLF2E { light WheelOfTormentLight6 }
+	frame BLF2F { light WheelOfTormentLight7 }
+}
+
+object BloodFX2A_FullDMG {
+	frame BLBA { light WheelOfTormentLight1 }
+	
+	frame BLF2A { light WheelOfTormentLight2 }
+	frame BLF2B { light WheelOfTormentLight3 }
+	frame BLF2C { light WheelOfTormentLight4 }
+	frame BLF2D { light WheelOfTormentLight5 }
+	frame BLF2E { light WheelOfTormentLight6 }
+	frame BLF2F { light WheelOfTormentLight7 }
+}
+
+object BloodDrainFX {
+	frame BLF2A { light WheelOfTormentLight2 }
+	frame BLF2B { light WheelOfTormentLight3 }
+	frame BLF2C { light WheelOfTormentLight4 }
+	frame BLF2D { light WheelOfTormentLight5 }
+	frame BLF2E { light WheelOfTormentLight6 }
+	frame BLF2F { light WheelOfTormentLight7 }
+}
+
+object BloodDrainFX_FullDMG {
+	frame BLF2A { light WheelOfTormentLight2 }
+	frame BLF2B { light WheelOfTormentLight3 }
+	frame BLF2C { light WheelOfTormentLight4 }
+	frame BLF2D { light WheelOfTormentLight5 }
+	frame BLF2E { light WheelOfTormentLight6 }
+	frame BLF2F { light WheelOfTormentLight7 }
+}
+
+object BloodFX3 {
+	frame BLFXA { light WheelOfTormentLight4 }
+	frame BLFXB { light WheelOfTormentLight5 }
+	frame BLFXC { light WheelOfTormentLight5 }
+	frame BLFXD { light WheelOfTormentLight6 }
+	frame BLFXE { light WheelOfTormentLight6 }
+	frame BLFXF { light WheelOfTormentLight7 }
+}
+
+object BloodFX3_FullDMG {
+	frame BLFXA { light WheelOfTormentLight4 }
+	frame BLFXB { light WheelOfTormentLight5 }
+	frame BLFXC { light WheelOfTormentLight5 }
+	frame BLFXD { light WheelOfTormentLight6 }
+	frame BLFXE { light WheelOfTormentLight6 }
+	frame BLFXF { light WheelOfTormentLight7 }
+}
