@@ -102,7 +102,7 @@
 #define DND_BOSS_SOULGIVE 4
 
 bool Quest_Pick_Done = 0;
-bool PlayerCanLoad[MAXPLAYERS] = { 0 };
+bool PlayerCanLoad[MAXPLAYERS] = { 1 };
 
 // RPG ELEMENTS END
 
@@ -951,8 +951,14 @@ void HandleCashDrops(int pnum, bool isElite) {
 // 0 means they are ready
 bool PlayersReadyForHardcore() {
 	bool res = 0;
+	int players_notready = 0;
 	for(int i = 0; i < MAXPLAYERS; ++i)
+	{
 		res |= PlayerCanLoad[i];
+		if (PlayerCanLoad[i]) players_notready++;
+	}
+	if (players_notready != CheckInventory("PlayersNotReady"))
+		SetInventory("PlayersNotReady", players_notready);
 	return res;
 }
 

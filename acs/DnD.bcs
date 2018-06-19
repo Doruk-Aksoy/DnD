@@ -1840,7 +1840,7 @@ Script 989 (int pnum) DISCONNECT {
 	PlayerLoaded[pnum] = 0;
 	PlayerCanLoad[pnum] = 0;
 	PlayerDied[pnum] = 0;
-	PlayerSaved[pnum] = 0;
+	SetActorInventory(pnum + P_TIDSTART, "PlayerWillBeSaved", 0);
 	// reset weapon mod variable
 	ResetWeaponMods(pnum);
 	ResetPlayerBonuses(pnum);
@@ -1855,7 +1855,6 @@ Script 990 UNLOADING {
 	MapChanged = 1;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		tid = P_TIDSTART + i;
-		PlayerSaved[i] = 0;
 	    if(!PlayerDied[i] && GetActorProperty(tid, APROP_HEALTH) > 0) {
 		    GiveActorInventory(tid, "LevelToken", 1);
 			StatListOpened[i] = 0;
@@ -1883,10 +1882,14 @@ Script 991 ENTER {
 	SetInventory("LevelExp", 0);
 	SetInventory("LevelCredit", 0);
 	setInventory("AllMapOnlyOnce", 0);
-	//SetInventory("MapDifficultyClientside", MapDifficulty);
+	//SetInventory("MapDifficultyClientside", MapDifficulty); //Already to be set somewhere else.
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
 	SetInventory("DnD_BoughtArmor", 0);
 	int pnum = PlayerNumber(), curlvl, i = 0;
+	int temp = 0;
+	bool wait_other_players = false;
+	SetInventory("PlayersNotReady", PlayerCount());
+	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	
 	GiveInventory("ParsingData", 1);
 	// begin hardcore countdown
@@ -1894,18 +1897,38 @@ Script 991 ENTER {
 		GiveInventory("P_Frozen", 1);
 		while(GetGameModeState() == GAMESTATE_COUNTDOWN)
 			Delay(17);
-		PlayerCanLoad[pnum] = 1;
-		GiveInventory("CanLoad", 1);
 		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 		SetPlayerProperty(0, 2, PROP_INVULNERABILITY);
+		
+		SetInventory("PlayerWillBeSaved", 1); //It's set to 0 after player is saved - player will get saved this map.
 		// display countdown timer
-		ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
+		if (!PlayerLoaded[pnum]) {
+			PlayerCanLoad[pnum] = 1;
+			SetInventory("CanLoad", 1);
+			
+			ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
+		} else
+			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
+		
 		// 0 means they are ready
 		while(PlayersReadyForHardcore() && i < (DND_HARDCORE_LOADTIME << 1) && PlayerInGame(pnum)) {
+			//Update logged in status to client as needed by hardcode timer.
+			if (CheckInventory("PlayerIsLoggedIn") != PlayerIsLoggedIn(pnum))
+				SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum));
 			// we loaded, reduce on wait time
-			if(!CheckInventory("CanLoad"))
+			if((!CheckInventory("CanLoad")) && (!wait_other_players)) {
 				PlayerCanLoad[pnum] = 0;
+				if (PlayersReadyForHardcore()) {
+					wait_other_players = true;
+					ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0);
+				}
+			}
 			++i;
+			if ((i == (DND_HARDCORE_LOADTIME << 1)) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad"))
+				if (ACS_NamedExecuteWithResult("DnD Load Character Check", 0, pnum) == 9) //DND_CHARLOADED
+					ACS_ExecuteAlways(1001,0,0);
+				else if (ACS_NamedExecuteWithResult("DnD Create Character Check", 0, pnum) == 1) //DND_LOGIN_SETCHAROK
+					ACS_ExecuteAlways(1003,0,0);
 			Delay(18);
 		}
 	}
@@ -1914,10 +1937,12 @@ Script 991 ENTER {
 		PlayerCanLoad[pnum] = 0;
 		Terminate;
 	}
+	SetInventory("PlayersNotReady", 0);
 	
 	if(HardcoreSet) {
+		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
-		Delay(17 * DND_MAX_MONSTERDELAY);
+		//Delay(17 * DND_MAX_MONSTERDELAY); //Unecessary delay here (monsters already wait for maxlvl to be set).
 	}
 	
 	// Load period is finished, now check for level stats
@@ -1925,7 +1950,7 @@ Script 991 ENTER {
 	PlayerDied[pnum] = 0;
 	TakeInventory("DnD_PDead", 1);
 	SpawnedChests = 1;
-	TakeInventory("CanLoad", 1);
+	SetInventory("CanLoad", 0); //Usually it is 0 at this point, but make sure it is anyways.
 	PlayerCanLoad[pnum] = 0;
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
@@ -3109,19 +3134,52 @@ Script "DND Hardcore Timer" (void) CLIENTSIDE {
 	SetFont("BIGFONT");
 	SetHudSize(640, 480, 0);
 	for(int i = 0; i < DND_HARDCORE_LOADTIME << 1 && PlayerInGame(PlayerNumber()) && CheckInventory("CanLoad"); ++i) {
-		HudMessage(s:"You have \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- seconds to load your character!\n    You can skip using \"\cjskipload\c-\" command."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+		if (CheckInventory("PlayerIsLoggedIn"))
+			HudMessage(s:"You have \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- seconds to load your character!\nIgnore or skip with \"\cjskipload\c-\" command to load or create new auto-saved char.\n"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+		else
+			HudMessage(s:"You have \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- seconds to login to load your character!\nIgnore or skip with \"\cjskipload\c-\" command to use none.\n\n\crAn auto-saved char will not be created until login!\c-"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+
 		Delay(TICRATE / 2);
 	}
-	HudMessage(s:"Loading Monsters..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
-	Delay(17 * DND_MAX_MONSTERDELAY);
+}
+
+Script "DND Wait For Other Players Message" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	SetFont("BIGFONT");
+	SetHudSize(640, 480, 0);
+	if (CheckInventory("PlayersNotReady") == 1)
+		HudMessage(s:"Waiting for \cd", d:CheckInventory("PlayersNotReady"), s:"\c- player to load character..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+	else
+		HudMessage(s:"Waiting for \cd", d:CheckInventory("PlayersNotReady"), s:"\c- players to load character..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+}
+
+Script "DND Hardcore Monster Message" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	SetFont("BIGFONT");
+	SetHudSize(640, 480, 0);
+	HudMessage(s:"Loading monsters..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+	Delay(17 * (DND_MAX_MONSTERDELAY+2)); //Add 2 seconds to it to allow player script to finish first.
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 }
 
 // skip wait for load on this guy
 Script 1004 (void) NET {
-	if(PlayerInGame(PlayerNumber()) && CheckInventory("CanLoad")) {
-		TakeInventory("CanLoad", 1);
-		PlayerCanLoad[PlayerNumber()] = 0;
+	int pnum = PlayerNumber();
+	if (PlayerInGame(pnum) && CheckInventory("CanLoad"))
+	{
+		if (PlayerIsLoggedIn(pnum))
+		{
+			if (ACS_NamedExecuteWithResult("DnD Load Character Check", 0, pnum) == 9) //DND_CHARLOADED
+				ACS_ExecuteAlways(1001,0,0);
+			else if (ACS_NamedExecuteWithResult("DnD Create Character Check", 0, pnum) == 1) //DND_LOGIN_SETCHAROK
+				ACS_ExecuteAlways(1003,0,0);
+		}
+		else {
+			SetInventory("CanLoad", 0);
+			PlayerCanLoad[pnum] = 0;
+		}
 	}
 }
 
