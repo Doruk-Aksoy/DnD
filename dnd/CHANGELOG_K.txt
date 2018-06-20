@@ -141,7 +141,9 @@ LEGEND:
 == MONSTER RELATED ==
 =====================
 
+! Added new variants to "Imp" and "Demon" categories.
 ! "RIPPER" type attacks now have 50% less damage scaling.
++ All "Legendary" monsters have been buffed in terms of health, and some in terms of rate of fire.
 * Hopefully fixed "Azazel" death sound not being global.
 * "Sludge Giant" splits now scale properly with level.
 * "Abomination" small shots no longer go through other Mancubus type monsters.

@@ -1522,6 +1522,164 @@ actor Devil : DoomImp2 {
 	}
 }
 
+actor Devil2 : Devil {
+	health 125
+	states {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DEVIL2)
+		Idle:
+			TRO6 AB 8 A_Look
+		Loop
+		See:
+			TRO6 AABBCCDD 2 Fast A_Chase
+		loop
+		Melee:
+		Missile:
+			TNT1 A 0 A_Jump(128, "Lob")
+			TRO6 EF 5 Fast A_FaceTarget
+			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 B 2 Fast
+			TRO6 HI 5 Fast A_FaceTarget
+			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 E 0 A_Jump(160, "GiveUp")
+			TRO6 B 2 Fast
+			TRO6 EF 5 Fast A_FaceTarget
+			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 B 2 Fast
+			TRO6 HI 5 Fast A_FaceTarget
+			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+		GiveUp:
+			TNT1 A 0
+		goto See
+		Lob:
+			TRO6 EF 5 Fast A_FaceTarget
+			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball2", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 B 2 Fast
+			TRO6 HI 5 Fast A_FaceTarget
+			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball2", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+		Goto See
+		Pain:
+			TRO6 K 3 Fast
+			TRO6 K 3 Fast A_Pain
+		goto See
+		Death:
+			TRO6 L 6
+			TRO6 M 6 A_Scream
+			TRO6 N 4
+			TRO6 O 4 A_NoBlocking
+			TRO6 P -1
+		stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TRO6 ON 5
+			TRO6 ML 3
+		goto See
+		
+		XDeath:
+		Death.Explosives:
+		Death.ExplosivesFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TRO6 Q 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TRO6 R 5 A_XScream
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TRO6 S 5
+			TRO6 T 5 A_NoBlocking
+			TRO6 UVW 5
+			TRO6 X -1
+		stop
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	}
+}
+
+actor Devil2Ball {
+    Radius 8
+    Height 6
+    Speed 24
+    Damage (3 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ImpFire"
+    PROJECTILE
+	+DONTBLAST
+    RENDERSTYLE ADD
+    ALPHA 0.75
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    Decal DoomImpScorch
+    States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			DVB9 AABB 2 Bright A_SpawnItem("Devil2BallTrail")
+        Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			DVB9 HIJKLM 3 Bright
+        Stop
+    }
+}
+
+Actor Devil2Ball2 : Devil2Ball {
+	WeaveIndexZ 12
+	var int user_count;
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count == 2, "NormalLoop")
+			DVB9 A 2 Bright A_SpawnItem("Devil2BallTrail")
+			TNT1 A 0 A_Weave(0, 1, 0, 8)
+			DVB9 A 2 Bright A_SpawnItem("Devil2BallTrail")
+			TNT1 A 0 A_Weave(0, 1, 0, 8)
+			DVB9 B 2 Bright A_SpawnItem("Devil2BallTrail")
+			TNT1 A 0 A_Weave(0, 1, 0, 8)
+			DVB9 B 2 Bright A_SpawnItem("Devil2BallTrail")
+			TNT1 A 0 A_Weave(0, 1, 0, 8)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+        Loop
+		NormalLoop:
+			DVB9 AABB 2 Bright A_SpawnItem("Devil2BallTrail")
+        Loop
+	}
+}
+
+Actor Devil2BallTrail {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 0.75
+	States {
+		Spawn:
+			TNT1 A 1
+			DVB9 CDEFG 2 A_FadeOut(0.1)
+		Stop
+	}
+}
+
 actor Vulgar : DnD_BaseEnemy {
 	obituary "%o was poisoned by a vulgar."
 	hitobituary "A Vulgar had %o for lunch."

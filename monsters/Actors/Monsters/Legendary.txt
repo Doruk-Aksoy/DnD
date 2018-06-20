@@ -1,7 +1,7 @@
 Actor DreamingGod : DnD_BaseEnemy {
 	tag "The Dreaming God"
 	obituary "%o was disintegrated for gazing upon The Dreaming God."
-	health 12500
+	health 20000
 	radius 40
 	height 110
 	ProjectilePassHeight 160
@@ -960,7 +960,7 @@ Actor TchernoLightning {
 
 Actor Torrasque : DnD_BaseEnemy {
 	obituary "%o got smashed by the Torrasque."
-	health 9500
+	health 16500
 	radius 32
 	height 96
 	mass 1000
@@ -1384,7 +1384,7 @@ Actor TorrasqueGrabber {
 Actor Mordecqai : DnD_BaseEnemy {
 	tag "Mordecqai"
 	obituary "%o couldn't stand against the might of Mordecqai."
-	health 10000
+	health 18500
 	radius 40
 	height 110
 	ProjectilePassHeight 160
@@ -1411,7 +1411,7 @@ Actor Mordecqai : DnD_BaseEnemy {
 	const int flame_timer = 24;
 	const int seeker_count = 12;
 	const int spread_factor = 6;
-	const int flame_dist = 768;
+	const int flame_dist = 820;
 	const int ang_inc = 20;
 	var int user_count;
 	BloodColor "FF A5 00"
@@ -1618,7 +1618,7 @@ Actor MordecqaiFlame {
 	Scale 0.41
 	radius 4
 	height 6
-	speed 34
+	speed 38
 	damagetype "Fire"
 	decal "FlameScorch"
 	states {
@@ -1654,7 +1654,7 @@ Actor MordecqaiSeeker {
 	Decal DoomImpScorch
 	States {
 		Spawn:
-			MDQB ABAB 4 Bright
+			MDQB AB 4 Bright
 		SpawnLoop:
 			TNT1 A 0 A_SpawnItem("MordecqaiSeekerTrail")
 			MDQB A 2 Bright A_SeekerMissile(15, 25, SMF_LOOK)
@@ -1700,7 +1700,7 @@ Actor MordecqaiLightning {
 	Projectile
 	Damage (0)
 	DamageType "Lightning"
-	Speed 24
+	Speed 32
 	Height 16
 	Radius 8
 	Renderstyle Add
@@ -1714,27 +1714,27 @@ Actor MordecqaiLightning {
 	const int mball_inc = 15;
 	States {
 		Spawn:
-			MORZ A 3 Bright A_SpawnItem("MordecqaiLightningExp")
+			MORZ A 2 Bright A_SpawnItem("MordecqaiLightningExp")
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(1, 90), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(91, 180), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(181, 270), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(271, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			MORZ B 3 Bright A_SpawnItem("MordecqaiLightningExp")
+			MORZ B 2 Bright A_SpawnItem("MordecqaiLightningExp")
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(1, 90), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(91, 180), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(181, 270), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(271, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			MORZ C 3 Bright A_SpawnItem("MordecqaiLightningExp")
+			MORZ C 2 Bright A_SpawnItem("MordecqaiLightningExp")
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(1, 90), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(91, 180), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(181, 270), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(271, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			MORZ D 3 Bright A_SpawnItem("MordecqaiLightningExp")
+			MORZ D 2 Bright A_SpawnItem("MordecqaiLightningExp")
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(1, 90), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(91, 180), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(181, 270), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(271, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			MORZ E 3 Bright A_SpawnItem("MordecqaiLightningExp")
+			MORZ E 2 Bright A_SpawnItem("MordecqaiLightningExp")
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(1, 90), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(91, 180), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("MordecqaiSmallBall", 0, 0, frandom(181, 270), CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1799,7 +1799,7 @@ Actor MordecqaiLightningFX : MordecqaiSmallBall {
 Actor GodSlayer : MechanicalEnemy {
 	tag "God Slayer"
 	obituary "%o saw UAC's biggest invention gone rogue and that was it."
-	health 9000
+	health 13500
 	radius 40
 	height 110
 	ProjectilePassHeight 160

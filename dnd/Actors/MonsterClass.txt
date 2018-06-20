@@ -2,6 +2,7 @@ Actor DnD_BaseEnemy {
 	MONSTER
 	States {
 		Death.MagicSealing:
+			"####" "#" 0 A_Stop
 			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
@@ -29,6 +30,7 @@ Actor DnD_BaseEnemy {
 		Death.Emerald:
 		Death.EmeraldFull:
 			"####" "#" 0 A_Scream
+			"####" "#" 0 A_Stop
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
 			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
 			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)

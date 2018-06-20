@@ -35,7 +35,7 @@ enum {
 	DND_WEAPON_ERASUS,
 	DND_WEAPON_PLASMACANNON,
 	DND_WEAPON_SHOCKER,
-	DND_WEAPON_STINGRAY,
+	DND_WEAPON_HADES,
 	
 	DND_WEAPON_SILVERGUN,
 	DND_WEAPON_SLAYER,
@@ -286,8 +286,8 @@ int PlayerRunsOverheat[MAXPLAYERS] = { 0 };
 str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
 	{ " Chainsaw ", "Upgraded Chainsaw", "Katana", "Excalibat", "ResMelee1", "", "", "", "" },
 	{ "Magnum", " Akimbo Pistols ", "Laser Pistol", "ResPistol1", "ResPistol2", "", "", "", "" },
-	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "ResShotgun1", "ResShotgun2", "ResShotgun3", "", "", "" },
-	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "ResSSG1", "ResSSG2", "", "", "", "" },
+	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "Upgraded Shotgun3", "ResShotgun1", "ResShotgun2", "ResShotgun3", "", "" },
+	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "ResSSG1", "ResSSG2", "ResSSG3", "", "", "" },
 	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "" },
 	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher2", "ResRL1", "ResRL2", "ResRL3", "", "" },
 	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "ResPlasma3", "" },
