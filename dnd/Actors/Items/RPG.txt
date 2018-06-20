@@ -405,4 +405,3 @@ Actor PlayersNotReady : Inventory {
 	inventory.maxamount 64 //MAXPLAYERS
 }
 Actor PlayerIsLoggedIn : DnD_Boolean { }
-Actor PlayerWillBeSaved : DnD_Boolean { }

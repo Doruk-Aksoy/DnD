@@ -875,12 +875,12 @@ void WipeoutPlayerData(int pnum, int cid) {
 
 // Handle all database stuff now
 Script "DND Player Save" OPEN {
-//	while(1) {
+	while(1) {
 		if(HardcoreSet && MapChanged) {
 			BeginDBTransaction();
 			for(int i = 0; i < MAXPLAYERS; ++i) {
 				// don't save peoples stuff while they are in load period
-				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && CheckActorInventory(i + P_TIDSTART, "PlayerWillBeSaved")) {
+				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
 					if (PlayerIsLoggedIn(i)) {
 						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
 						if(GetCVar("dnd_hardcore") && PlayerDied[i])
@@ -889,13 +889,13 @@ Script "DND Player Save" OPEN {
 						PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
 						Log(s:"Saving player ", d:i, s:"'s data.");
 					}
-					SetActorInventory(i + P_TIDSTART, "PlayerWillBeSaved", 0); //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
+					PlayerWillBeSaved[i] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
 				}
 			}
 			EndDBTransaction();
 		}
-//		Delay(35);
-//	}
+		Delay(35);
+	}
 }
 
 void load_char(int char_id, int pnum) {

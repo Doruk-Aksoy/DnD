@@ -1868,7 +1868,7 @@ Script 989 (int pnum) DISCONNECT {
 	PlayerLoaded[pnum] = 0;
 	PlayerCanLoad[pnum] = 0;
 	PlayerDied[pnum] = 0;
-	SetActorInventory(pnum + P_TIDSTART, "PlayerWillBeSaved", 0);
+	PlayerWillBeSaved[pnum] = false;
 	// reset weapon mod variable
 	ResetWeaponMods(pnum);
 	ResetPlayerBonuses(pnum);
@@ -1927,8 +1927,8 @@ Script 991 ENTER {
 			Delay(17);
 		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 		SetPlayerProperty(0, 2, PROP_INVULNERABILITY);
-		
-		SetInventory("PlayerWillBeSaved", 1); //It's set to 0 after player is saved - player will get saved this map.
+
+		PlayerWillBeSaved[pnum] = true;
 		// display countdown timer
 		if (!PlayerLoaded[pnum]) {
 			PlayerCanLoad[pnum] = 1;
