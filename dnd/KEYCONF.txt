@@ -10,7 +10,17 @@ alias setsoftcore "puke 1000 1"
 
 alias loadme "puke 1001 %1"
 alias setchar "puke 1003 %1"
+
+alias createchar "puke 1003 %1"
+alias cc "puke 1003 %1"
+alias loadchar "puke 1001 %1"
+alias lc "puke 1001 %1"
+
 alias skipload "puke 1004"
+alias sl "puke 1004"
+
+alias transferchar "puke 1005 %1"
+alias tc "puke 1005 %1"
 
 AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Menu" upgs
@@ -27,3 +37,21 @@ AddKeySection "DnD Keys" DNDKEYS
 	Alias fx "Puke 919"
 	AddMenuKey "View Current Quest" quest
 	Alias quest "Puke -1002"
+	
+AddKeySection "DnD Hard/Softcore Keys" DNDKEYS2
+	AddMenuKey "Skip character loading" sl
+	
+AddKeySection "DnD Hard/Softcore Keys (Login Required)" DNDKEYS3
+	AddMenuKey "Create #1 character" "cc 1"
+	AddMenuKey "Create #2 character" "cc 2"
+	AddMenuKey "Create #3 character" "cc 3"
+	AddMenuKey "Create #4 character" "cc 4"
+	AddMenuKey "Load #1 character" "lc 1"
+	AddMenuKey "Load #2 character" "lc 2"
+	AddMenuKey "Load #3 character" "lc 3"
+	AddMenuKey "Load #4 character" "lc 4"
+	AddMenuKey "Transfer character to #0" "tc 0"
+	AddMenuKey "Transfer character to #1" "tc 1"
+	AddMenuKey "Transfer character to #2" "tc 2"
+	AddMenuKey "Transfer character to #3" "tc 3"
+	AddMenuKey "Transfer character to #4" "tc 4"

@@ -401,3 +401,8 @@ Actor DashDelay : PowerProtection {
 }
 
 Actor CanLoad : DnD_Boolean { }
+Actor PlayersNotReady : Inventory {
+	inventory.maxamount 64 //MAXPLAYERS
+}
+Actor PlayerIsLoggedIn : DnD_Boolean { }
+Actor DnD_TransfCharacterID : DnD_Info { }

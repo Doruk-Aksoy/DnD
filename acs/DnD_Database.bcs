@@ -10,19 +10,22 @@
 #include "DnD_Stat.h"
 #include "DnD_Orbs.h"
 
-#define DND_MAX_CHARS 4
+#define DND_MAX_CHARS 5
 
 enum {
 	DND_LOGIN_NOCHAR,
-	DND_LOGIN_SETCHAROK,
-	DND_LOGIN_SETCHARINGAME,
+	DND_LOGIN_CREATECHAROK,
+	DND_LOGIN_CHARINUSE,
+	DND_LOGIN_NOCHARINUSE,
 	DND_LOGIN_NOTINGAME,
 	DND_LOGIN_NOTHARDCORE,
 	DND_LOGIN_INCOUNTDOWN,
 	DND_LOGIN_NOTLOGGED,
 	DND_LOGIN_NOTIME,
-	DND_LOGIN_WARNSETCHARLIMIT,
-	DND_CHARLOADED
+	DND_LOGIN_CHARNOTINRANGE,
+	DND_LOGIN_TRANSFSAMESLOT,
+	DND_CHARLOADED,
+	DND_LOGIN_CHARTRANSFERRED,
 };
 
 /*
@@ -86,9 +89,9 @@ str GetCharField(str fname, int char_id) {
 	return StrParam(s:"C", d:char_id, s:"_", s:fname);
 }
 
-void SavePlayerData(int pnum) {
+void SavePlayerData(int pnum, int char_id) {
 	int temp, tid = pnum + P_TIDSTART, i, j;
-	int char_id = Clamp_Between(CheckActorInventory(tid, "DnD_CharacterID"), 1, DND_MAX_CHARS);
+	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS-1); //DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = GetPlayerAccountName(pnum);
 	// save weapons
 	for(i = 0; i < MAXWEPS; ++i) {
@@ -357,9 +360,10 @@ void SavePlayerData(int pnum) {
 	SetDBentry(GetCharField(DND_DB_KEYS, char_id), pacc, temp);
 }
 
-void SavePlayerOrbData(int pnum) {
+void SavePlayerOrbData(int pnum, int char_id) {
 	int i, j;
-	int char_id = Clamp_Between(CheckInventory("DnD_CharacterID"), 1, DND_MAX_CHARS), temp, tid = pnum + P_TIDSTART;
+	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS-1);
+	int temp, tid = pnum + P_TIDSTART; //DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = GetPlayerAccountName(pnum);
 	
 	// save stats of player (can fit 4 stats in one int, using 7 bits)
@@ -880,77 +884,117 @@ Script "DND Player Save" OPEN {
 			BeginDBTransaction();
 			for(int i = 0; i < MAXPLAYERS; ++i) {
 				// don't save peoples stuff while they are in load period
-				if(PlayerInGame(i) && PlayerIsLoggedIn(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && !PlayerSaved[i]) {
-					// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
-					if(/*GetCVar("dnd_hardcore") && */PlayerDied[i])
-						continue; // don't save this player as they died
-					SavePlayerData(i);
-					PlayerSaved[i] = 1;
-					Log(s:"Saving player ", d:i, s:"'s data.");
+				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
+					if (PlayerIsLoggedIn(i)) {
+						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
+						if(GetCVar("dnd_hardcore") && PlayerDied[i])
+							continue; // don't save this player as they died
+						if (PlayerTransferred[i]) {
+							WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+							SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
+							PlayerTransferred[i] = false;
+						}
+						SavePlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+						PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
+						Log(s:"Saving player ", d:i, s:"'s data.");
+					}
+					PlayerWillBeSaved[i] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
 				}
 			}
 			EndDBTransaction();
 		}
-		Delay(35);
+		Delay(70);
 	}
+}
+
+void load_char(int pnum, int char_id) {
+	SetInventory("DnD_CharacterID", char_id);
+	PlayerLoaded[pnum] = 1;
+	SetInventory("CanLoad", 0);
+	LoadPlayerData(pnum, char_id);
+}
+
+int check_load_char(int pnum, int char_id) {
+	// if not hardcore don't bother trying to load
+	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if(!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
+	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
+	// if gamestate is countdown don't let them because it'll be reset anyways
+	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
+	if(char_id < 0 || char_id > DND_MAX_CHARS-1) return DND_LOGIN_CHARNOTINRANGE;
+	// handle no data case -- only let people to load their stuff if there really is some data
+	if(!GetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), GetPlayerAccountName(pnum))) return DND_LOGIN_NOCHAR;
+	// prevent people from loading their stuff to escape death, prevent loading if a save on this player happened already!
+	if(PlayerLoaded[pnum]) return DND_LOGIN_CHARINUSE;
+	if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME;
+	return DND_CHARLOADED;
+}
+
+Script "DnD Load Character Check" (int pnum, int char_id) {
+	SetResultValue(check_load_char(pnum, char_id));	
 }
 
 Script 1001 (int char_id) NET {
-	// if not hardcore don't bother trying to load
-	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) {
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTHARDCORE);
-		Terminate;
-	}
-	if(!PlayerInGame(PlayerNumber())) {
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTINGAME);
-		Terminate;
-	}
-	
-	// if gamestate is countdown don't let them because it'll be reset anyways
-	if(GetGameModeState() == GAMESTATE_COUNTDOWN) {
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_INCOUNTDOWN);
-		Terminate;
-	}
-	
-	char_id = Clamp_Between(char_id, 1, DND_MAX_CHARS);
+	int pnum = PlayerNumber();
+	int result = check_load_char(pnum, char_id);
+	if (result == DND_CHARLOADED) load_char(pnum, char_id);
+	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
+}
+
+void create_char(int pnum, int char_id) {
 	SetInventory("DnD_CharacterID", char_id);
-	
-	// not logged in we don't care
-	if(!PlayerIsLoggedIn(PlayerNumber())) {
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTLOGGED);
-		Terminate;
-	}
-	// handle no data case -- only let people to load their stuff if there really is some data
-	if(!GetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), GetPlayerAccountName(PlayerNumber()))) {
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOCHAR);
-		Terminate;
-	}
-	
-	// prevent people from loading their stuff to escape death, prevent loading if a save on this player happened already!
-	if(PlayerLoaded[PlayerNumber()])
-		Terminate;
-	
-	if(!CheckInventory("CanLoad")) {
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_NOTIME);
-		Terminate;
-	}
-	
-	PlayerLoaded[PlayerNumber()] = 1;
-	TakeInventory("CanLoad", 1);
-	ACS_NamedExecuteAlways("DnD Login Message", 0, DND_CHARLOADED);
-	LoadPlayerData(PlayerNumber(), char_id);
+	PlayerLoaded[pnum] = 1;
+	SetInventory("CanLoad", 0); //Let create char end loading timer
+}
+
+int check_create_char(int pnum, int char_id) {
+	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
+	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
+	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
+	if(char_id < 0 || char_id > DND_MAX_CHARS-1) return DND_LOGIN_CHARNOTINRANGE;
+	if(PlayerLoaded[pnum]) return DND_LOGIN_CHARINUSE;
+	//if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME; //For now, allow player to setchar until end of map manually.
+	return DND_LOGIN_CREATECHAROK;
+}
+
+Script "DnD Create Character Check" (int pnum, int char_id) {
+	SetResultValue(check_create_char(pnum, char_id));	
 }
 
 Script 1003 (int char_id) NET {
-	if(!PlayerLoaded[PlayerNumber()]) {
-		char_id = Clamp_Between(char_id, 1, DND_MAX_CHARS);
-		SetInventory("DnD_CharacterID", char_id);
-		if(char_id < 1 || char_id > DND_MAX_CHARS)
-			ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_WARNSETCHARLIMIT);
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_SETCHAROK, char_id);
+	int pnum = PlayerNumber();
+	int result = check_create_char(pnum, char_id);
+	if (result == DND_LOGIN_CREATECHAROK) create_char(pnum, char_id);
+	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
+}
+
+void transfer_char(int pnum, int char_id) {
+	if(char_id == CheckInventory("DnD_CharacterID"))
+		PlayerTransferred[pnum] = false;
+	else {
+		PlayerTransferred[pnum] = true;
+		SetInventory("DnD_TransfCharacterID", char_id);
 	}
-	else
-		ACS_NamedExecuteAlways("DnD Login Message", 0, DND_LOGIN_SETCHARINGAME);
+}
+
+int check_transfer_char(int pnum, int char_id) {
+	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
+	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
+	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
+	if(!PlayerLoaded[pnum]) return DND_LOGIN_NOCHARINUSE;
+	if(char_id < 0 || char_id > DND_MAX_CHARS-1) return DND_LOGIN_CHARNOTINRANGE;
+	
+	if(char_id == CheckInventory("DnD_CharacterID")) return DND_LOGIN_TRANSFSAMESLOT;
+	return DND_LOGIN_CHARTRANSFERRED;
+}
+
+Script 1005 (int char_id) NET {
+	int pnum = PlayerNumber();
+	int result = check_transfer_char(pnum, char_id);
+	if ((result == DND_LOGIN_CHARTRANSFERRED) || (result == DND_LOGIN_TRANSFSAMESLOT)) transfer_char(pnum, char_id);
+	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
 }
 
 Script "DND Database Reset On Death" DEATH {
@@ -959,46 +1003,55 @@ Script "DND Database Reset On Death" DEATH {
 	if(HardcoreSet && PlayerIsLoggedIn(pnum) && PlayerLoaded[pnum]) {
 		if(GetCVar("dnd_hardcore")) {
 			BeginDBTransaction();
-			WipeoutPlayerData(pnum, cid);
+			WipeoutPlayerData(pnum, cid); //it can't get any more wiped than this (also comes here if char is created and not saved).
 			EndDBTransaction();
 		}
 		PlayerLoaded[pnum] = 0;
 	}
 }
 
-Script "DnD Login Message" (int msg_no, int extra) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber() && msg_no != DND_CHARLOADED)
+Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum && msg_no != DND_CHARLOADED)
 		Terminate;
 	switch(msg_no) {
 		case DND_LOGIN_NOCHAR:
-			Log(s:"\cgLOGIN ERROR :   Login failed due to non-existant character! Character numbers should be between 1 - ", d:DND_MAX_CHARS, s:" and must've been declared previously using \"setchar\" command.");
+			Log(s:"\cgLOAD CHAR ERROR: Loading failed due to non-existent character! Character slot number should be between 0 - ", d:DND_MAX_CHARS-1, s:" and must've been declared previously using \"setchar\" command.");
 		break;
-		case DND_LOGIN_SETCHAROK:
-			Log(s:"SETCHAR :   	  Character successfully set to \cd", d:extra, s:"\c-.");
+		case DND_LOGIN_CREATECHAROK:
+			Log(s:"CREATE CHAR: Character successfully created on slot \cd", d:extra, s:"\c-.");
 		break;
-		case DND_LOGIN_SETCHARINGAME:
-			Log(s:"\cgSETCHAR ERROR:  Couldn't set character, already loaded another character!");
+		case DND_LOGIN_CHARINUSE:
+			Log(s:"\cgCHAR ERROR: Can't do this while a character is already loaded!");
+		break;
+		case DND_LOGIN_NOCHARINUSE:
+			Log(s:"\cgCHAR ERROR: Can't do this if no characters are loaded!");
 		break;
 		case DND_LOGIN_NOTINGAME:
-			Log(s:"\cgLOAD ERROR :    You have to be in game to use this!");
+			Log(s:"\cgCHAR ERROR: You have to be in game to use this!");
 		break;
 		case DND_LOGIN_NOTHARDCORE:
-			Log(s:"\cgLOAD ERROR :    Gamemode is either not set to hardcore or softcore, or server tried to set both!");
+			Log(s:"\cgCHAR ERROR: Gamemode is either not set to hardcore or softcore, or server tried to set both!");
 		break;
 		case DND_LOGIN_INCOUNTDOWN:
-			Log(s:"\cgLOAD ERROR :    Can't load during countdown!");
+			Log(s:"\cgCHAR ERROR: Can't do this during countdown!");
 		break;
 		case DND_LOGIN_NOTLOGGED:
-			Log(s:"\cgLOAD ERROR :    You have to be logged in for this to work!");
+			Log(s:"\cgCHAR ERROR: You have to be logged in for this to work!");
 		break;
 		case DND_LOGIN_NOTIME:
-			Log(s:"\cgLOAD ERROR :    The load time for this map is over!");
+			Log(s:"\cgCHAR ERROR: The load time for this map is over!");
 		break;
-		case DND_LOGIN_WARNSETCHARLIMIT:
-			Log(s:"\cgSETCHAR WARNING:  Entered number not in range of 1 - ", d:DND_MAX_CHARS, s:", setting it to nearest limit!");
+		case DND_LOGIN_CHARNOTINRANGE:
+			Log(s:"\cgCHAR ERROR: Character slot number needs to be between 0 - ", d:DND_MAX_CHARS, s:"!");
+		break;
+		case DND_LOGIN_TRANSFSAMESLOT:
+			Log(s:"TRANSFER CHAR: Character will remain at the current slot \cd", d:extra, s:"\c- on character save.");
 		break;
 		case DND_CHARLOADED:
-			Log(n:0, s:" has loaded a character (Level ", d:CheckActorInventory(P_TIDSTART + PlayerNumber(), "Level"), s:")!");
+			Log(n:0, s:" has loaded a character (Level ", d:CheckActorInventory(P_TIDSTART + pnum, "Level"), s:")!");
+		break;
+		case DND_LOGIN_CHARTRANSFERRED:
+			Log(s:"TRANSFER CHAR: Character will be transferred to slot \cd", d:extra, s:"\c- on character save. Previous character on that slot will be deleted!");
 		break;
 	}
 }
@@ -1009,7 +1062,7 @@ Script "DnD Save Player Orb and Stat Data" (int pnum) {
 		if(GetCVar("dnd_hardcore") && PlayerDied[pnum])
 			Terminate;
 		BeginDBTransaction();
-			SavePlayerOrbData(pnum);
+			SavePlayerOrbData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
 		EndDBTransaction();
 	}
 }
