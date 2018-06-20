@@ -104,7 +104,7 @@
 #define DND_BOSS_SOULGIVE 4
 
 bool Quest_Pick_Done = 0;
-bool PlayerCanLoad[MAXPLAYERS] = { 1 };
+bool PlayerCanLoad[MAXPLAYERS] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 // RPG ELEMENTS END
 
@@ -965,8 +965,10 @@ bool PlayersReadyForHardcore() {
 	int players_notready = 0;
 	for(int i = 0; i < MAXPLAYERS; ++i)
 	{
-		res |= PlayerCanLoad[i];
-		if (PlayerCanLoad[i]) players_notready++;
+		if (PlayerInGame(i)) {
+			res |= PlayerCanLoad[i];
+			if (PlayerCanLoad[i]) players_notready++;
+		}
 	}
 	if (players_notready != CheckInventory("PlayersNotReady"))
 		SetInventory("PlayersNotReady", players_notready);

@@ -19,6 +19,9 @@ alias lc "puke 1001 %1"
 alias skipload "puke 1004"
 alias sl "puke 1004"
 
+alias transferchar "puke 1005 %1"
+alias tc "puke 1005 %1"
+
 AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Menu" upgs
 	Alias upgs "Puke 900"
@@ -47,3 +50,8 @@ AddKeySection "DnD Hard/Softcore Keys (Login Required)" DNDKEYS3
 	AddMenuKey "Load #2 character" "lc 2"
 	AddMenuKey "Load #3 character" "lc 3"
 	AddMenuKey "Load #4 character" "lc 4"
+	AddMenuKey "Transfer character to #0" "tc 0"
+	AddMenuKey "Transfer character to #1" "tc 1"
+	AddMenuKey "Transfer character to #2" "tc 2"
+	AddMenuKey "Transfer character to #3" "tc 3"
+	AddMenuKey "Transfer character to #4" "tc 4"

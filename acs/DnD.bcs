@@ -1953,9 +1953,9 @@ Script 991 ENTER {
 			}
 			++i;
 			if ((i == (DND_HARDCORE_LOADTIME << 1)) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad"))
-				if (ACS_NamedExecuteWithResult("DnD Load Character Check", 0, pnum) == 9) //DND_CHARLOADED
+				if (ACS_NamedExecuteWithResult("DnD Load Character Check", pnum, 0) == 11) //DND_CHARLOADED
 					ACS_ExecuteAlways(1001,0,0);
-				else if (ACS_NamedExecuteWithResult("DnD Create Character Check", 0, pnum) == 1) //DND_LOGIN_SETCHAROK
+				else if (ACS_NamedExecuteWithResult("DnD Create Character Check", pnum, 0) == 1) //DND_LOGIN_CREATECHAROK
 					ACS_ExecuteAlways(1003,0,0);
 			Delay(18);
 		}
@@ -1976,6 +1976,7 @@ Script 991 ENTER {
 	// Load period is finished, now check for level stats
 	ACS_NamedExecute("DnD Bonus Detect", 0);
 	PlayerDied[pnum] = 0;
+	PlayerTransferred[pnum] = false;
 	TakeInventory("DnD_PDead", 1);
 	SpawnedChests = 1;
 	SetInventory("CanLoad", 0); //Usually it is 0 at this point, but make sure it is anyways.
@@ -3167,9 +3168,9 @@ Script "DND Hardcore Timer" (void) CLIENTSIDE {
 	SetHudSize(640, 480, 0);
 	for(int i = 0; i < DND_HARDCORE_LOADTIME << 1 && PlayerInGame(PlayerNumber()) && CheckInventory("CanLoad"); ++i) {
 		if (CheckInventory("PlayerIsLoggedIn"))
-			HudMessage(s:"You have \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- seconds to load your character!\nIgnore or skip with \"\cjskipload\c-\" command to load or create new auto-saved char.\n"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+			HudMessage(s:"You have \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- seconds to load your character!\n\crIgnore or skip with \"\cjskipload\c-\cr\" command to load or create new auto-saved char (slot \cd0\c-\cr).\c-\n"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
 		else
-			HudMessage(s:"You have \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- seconds to login to load your character!\nIgnore or skip with \"\cjskipload\c-\" command to use none.\n\n\crAn auto-saved char will not be created until login!\c-"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+			HudMessage(s:"You have \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- seconds to login to load your character!\n\crIgnore or skip with \"\cjskipload\c-\cr\" command to use none.\c-\n\n\csAn auto-saved char will not be created until login!\c-"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
 
 		Delay(TICRATE / 2);
 	}
@@ -3203,9 +3204,9 @@ Script 1004 (void) NET {
 	{
 		if (PlayerIsLoggedIn(pnum))
 		{
-			if (ACS_NamedExecuteWithResult("DnD Load Character Check", 0, pnum) == 9) //DND_CHARLOADED
+			if (ACS_NamedExecuteWithResult("DnD Load Character Check", pnum, 0) == 11) //DND_CHARLOADED
 				ACS_ExecuteAlways(1001,0,0);
-			else if (ACS_NamedExecuteWithResult("DnD Create Character Check", 0, pnum) == 1) //DND_LOGIN_SETCHAROK
+			else if (ACS_NamedExecuteWithResult("DnD Create Character Check", pnum, 0) == 1) //DND_LOGIN_CREATECHAROK
 				ACS_ExecuteAlways(1003,0,0);
 		}
 		else {
