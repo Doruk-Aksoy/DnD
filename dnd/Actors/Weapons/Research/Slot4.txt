@@ -271,6 +271,7 @@ actor ResMG2 : Weapon {
 		
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("RiotGunFireMode", 1, "Fire2")
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide")
 			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "FireDecide")
 		Goto Reload
 		FireDecide:
@@ -357,6 +358,7 @@ actor ResMG2 : Weapon {
 		
 
 		Fire2:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide2")
 			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "FireDecide2")
 		Goto Reload2
 		FireDecide2:
@@ -1630,6 +1632,7 @@ Actor ResMG4 : Weapon {
 		stop
 		
 		Altfire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAlt")
 			TNT1 A 0 A_JumpIfInventory("MGClip6", 20, "ContinueAlt")
 			TNT1 A 0 A_JumpIfInventory("FusionCell", 1, "Reload")
 			FUSF B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)

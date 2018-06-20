@@ -606,10 +606,11 @@ int GetMenuTalentBonus(int posy) {
 }
 
 // returns 0 for buy being possible
-bool CanResearch(int respage, int resid) {
-	int finish_check = !CheckInventory(StrParam(s:"Done_", s:Research_List[resid]));
-	int found_check = CheckInventory(StrParam(s:"Research_", s:Research_List[resid]));
-	int budget_check = CheckInventory("Budget") >= ResearchInfo[respage][resid].res_cost;
+bool CanResearch(int respage, int posx) {
+	int status = CheckResearchStatus(ResearchInfo[respage][posx].res_id);
+	int finish_check = status != RES_DONE;
+	int found_check = status == RES_KNOWN;
+	int budget_check = CheckInventory("Budget") >= ResearchInfo[respage][posx].res_cost;
 	if(finish_check && found_check && budget_check)
 		return false;
 	GiveInventory("DnD_PopupError", 1);

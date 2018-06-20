@@ -596,6 +596,7 @@ Actor ResPlasma2 : Weapon {
 			LGNI A 1 A_PlaySound("LightningGun/FireEnd", CHAN_WEAPON)
 		Goto Ready
 		AltFire:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAlt")
 			TNT1 A 0 A_JumpIfInventory("LightningCell", 3, "ContinueAlt")
 			TNT1 A 0 A_TakeInventory("LightningStacks", 5)
 			LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSECONDARY)
@@ -605,6 +606,7 @@ Actor ResPlasma2 : Weapon {
 			LGNG B 3
 		Goto AlternateHold
 		AlternateHold:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueHold")
 			TNT1 A 0 A_JumpIfInventory("LightningCell", 3, "ContinueHold")
 			LGNG B 1
 		Goto AltEndHold

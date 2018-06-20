@@ -36,5 +36,8 @@ $limit Items/OrbDrop 0
 Items/OrbPick		ORBPICK
 Items/ChestKey		CHESTKEY
 
+Items/ElixirDrop	ELXPICK
+Items/ElixirPick	ELXUSE
+
 Chest/Open			CHSTOPEN
 Chest/Locked		CHSTLOCK

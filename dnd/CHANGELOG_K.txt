@@ -100,6 +100,7 @@ LEGEND:
 * Changed grenade bouncing a bit.
 * "Nuclear Plasma Rifle" now properly overheats with "Hand of Artemis" equipped.
 * The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", "Shocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
++ "Orb of Prosperity" max limit increased to +1000 from +500.
 + "Hardcore" and "Softcore" damage amp reduced to 15% from 25%.
 + Monster damage values in "Hardcore" and "Softcore" now scale by 4% instead of 5%.
 * "Natural Talent" bonus is now properly applied to all damage types.
@@ -108,7 +109,7 @@ LEGEND:
 - "Chest Key" drop rate reduced to 1.5% from 2.5.
 - "Necro Armor" now uses new talent scaling values instead of old ones. (This is a bit of a nerf)
 + Fixed a bug that caused "Savagery" to give only 1% bonus to crit damage instead of 10%.
-+ Health and armor caps increased to 32k.
++ Health and armor caps increased to 65k.
 - "Destruction Generator" primary ball explosion radius reduced to 384, full damage radius reduced to 192. (Reduced by 50%)
 	* This is only the portion that hurts the player. The majority of the damage has the old radius and still doesn't hurt the player.
 * "Destruction Generator" now hurts players on direct ball hit properly. (Previously it only hurt if you had "Explosion Mastery")
@@ -117,6 +118,8 @@ LEGEND:
 * "Minigun" no longer slows players when "Gryphon Boots" are equipped.
 * You can now properly rev the "Minigun" right after fire and be ready to fire immediately.
 * Reduced the volume of looping sound of "Soul Reaver".
+* Fixed "Hand of Artemis" not working as intended with many weapons that use clip systems.
+* Fixed "Hand of Artemis" not working as intended with altfires of some weapons.
 * "Riot Cannon" can properly switch modes even if it runs out of ammo on its main mode.
 * "Freezer Cannon" overheat bar fixed to work in reverse to ammo count.
 + "Razorfang" skull shot can hit ghosts now.
@@ -130,7 +133,7 @@ LEGEND:
 + "Ebony Cannon" cannon ball damage increased to 32-48 from 16-40.
 + "Ebony Cannon" projectile speed increased to 36 from 24.
 + "Ebony Cannon" scatter projectile speed increased to 18 from 16.
-- "Shocker" uses 5 ammo for the alt up from 3.
+- "Shocker" uses 5 ammo for both its attacks now instead of 3 on primary and 5 on alt.
 + "Slayer" hooks travel approximately 30% farther.
 + "Ion Cannon" explosion now does 160 explosion damage up front in 160 unit radius, then 80 in 80 then 53 in 60.
 + "Devastator 5000" does 64-80 explosion damage up from 32-80.

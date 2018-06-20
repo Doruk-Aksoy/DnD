@@ -23,6 +23,7 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Charms.txt"
 #include "Actors/Items/Orbs.txt"
 #include "Actors/Items/Chest.txt"
+#include "Actors/Items/Elixir.txt"
 
 #include "Actors/Hud.txt"
 #include "Actors/Effects.txt"

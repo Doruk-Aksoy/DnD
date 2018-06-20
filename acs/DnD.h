@@ -5,7 +5,7 @@
 #include "DnD_TempWeps.h"
 #include "DnD_DamageCache.h"
 #include "DnD_Ammo.h"
-#include "DnD_Stat.h"
+#include "DnD_Elixirs.h"
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
 

@@ -1,0 +1,39 @@
+Actor ElixirBase : DnD_DroppedItem {
+	Radius 20
+	Height 24
+	States {
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ELIXIR)
+			"####" "#" 0 A_PlaySound("Items/ElixirDrop")
+			"####" "#" 16 Bright
+		SpawnLoop:
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Loop
+		
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_ELIXIR), "PickupSuccess")
+		goto PickupFail
+
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
+		
+		PickupSuccess:
+			TNT1 A 0 A_PlaySound("Items/ElixirPick")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Elixir", 0, mass - 1)
+		stop
+	}
+}
+
+Actor ElixirOfHealth_Drop : ElixirBase {
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}

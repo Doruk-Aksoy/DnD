@@ -12,7 +12,7 @@
 #define MAX_ITER 200
 
 #define ENHANCEORB_MAX 25 // 25% bonus
-#define PROSPERITY_MAX 500 // 500 max
+#define PROSPERITY_MAX 1000 // 500 max
 #define FORTITUDE_MAX 200 // 200% max
 #define WISDOMORB_MAX 250
 #define GREEDORB_MAX 250

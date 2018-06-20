@@ -3211,6 +3211,17 @@ Script "DnD Give Orb" (int sp) {
 	GiveInventory(OrbList[sp >> 16][ORB_NAME], 1);
 }
 
+Script "DnD Elixir Message" (int id) CLIENTSIDE {
+	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:ElixirList[id][ORB_TAG], s:"!\c-"));
+}
+
+Script "DnD Give Elixir" (int sp) {
+	SetActivator((sp & 0xFFFF) + P_TIDSTART);
+	GiveInventory("ElixirSoundPlayer", 1);
+	ACS_NamedExecuteAlways("DnD Elixir Message", 0, sp >> 16);
+	GiveInventory(ElixirList[sp >> 16][ORB_NAME], 1);
+}
+
 Script "DnD Drop Research" (void) {
 	SpawnResearch();
 }

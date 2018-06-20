@@ -250,9 +250,9 @@ Actor Done_Body_Im_3 : DnD_Boolean { }
 
 Actor Research_Slot3Upgrade3_Tracker : Ammo {
 	inventory.amount 1
-	inventory.maxamount 50000
+	inventory.maxamount 5
 	ammo.backpackamount 0
-	ammo.backpackmaxamount 50000
+	ammo.backpackmaxamount 5
 	+IGNORESKILL
 }
 
