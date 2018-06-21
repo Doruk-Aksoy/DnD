@@ -34,6 +34,7 @@ LEGEND:
 ! Ammo page on the menu has been revamped! Now you can purchase your ammo in a cleaner, more organized fasion seperated to their categories.
 ! "Plasma Cannon" has improved sprites.
 ! Added average monster level as a display in the "Help" section of DnD menu.
+! Chests now have a chance to drop "Elixirs"! These are pickups that permanently increase your stats.
 * "Super Armor" research now requires "Rare Armors" research to be completed. 
 * "Deadlock" can now use the "Slug" shell type. However the "Flechette" is removed from its pool.
 * All weapons that can use alternate ammo now have a mode switching animation.

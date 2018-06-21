@@ -37,3 +37,75 @@ Actor ElixirOfHealth_Drop : ElixirBase {
 		Goto Super::SpawnInit
 	}
 }
+
+Actor ElixirOfArmor_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[0.69,1.73,0.54]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor ElixirOfProsperity_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[1.01,0.61,0.61]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor ElixirOfLife_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[1.41,0.27,0.27]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor ElixirOfStrongness_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[0.20,0.87,0.30]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor EElixirOfFortitude_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[0.55,0.34,0.34]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor ElixirOfSpeed_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[1.93,1.87,0.56]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor ElixirOfDamage_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[1.84,0.94,0.12]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor ElixirOfLuck_Drop : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[0.86,1.05,0.84]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}

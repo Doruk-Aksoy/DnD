@@ -20,6 +20,7 @@ enum {
 	DND_SYNC_WISDOMPERCENT_BONUS,
 	
 	DND_SYNC_HOLDING,
+	DND_SYNC_LUCK,
 	
 	DND_SYNC_DAMAGEBULLET,
 	DND_SYNC_DAMAGEMELEE,
@@ -59,6 +60,8 @@ int GetPlayerSyncValue(int pos, int extra, bool isOrb) {
 			return Player_Bonuses[pnum].wisdom_percent_bonus;
 			case DND_SYNC_HOLDING:
 			return Player_Bonuses[pnum].holding;
+			case DND_SYNC_LUCK:
+			return Player_Bonuses[pnum].luck;
 			case DND_SYNC_DAMAGEBULLET:
 			return Player_Bonuses[pnum].damage_type_bonus[TALENT_BULLET];
 			case DND_SYNC_DAMAGEENERGY:
@@ -161,6 +164,9 @@ void SetSyncValue(int pos, int val, int extra, bool isOrb) {
 			break;
 			case DND_SYNC_HOLDING:
 				Player_Bonuses[pnum].holding = val;
+			break;
+			case DND_SYNC_LUCK:
+				Player_Bonuses[pnum].luck = val;
 			break;
 			case DND_SYNC_DAMAGEBULLET:
 				Player_Bonuses[pnum].damage_type_bonus[TALENT_BULLET] = val;

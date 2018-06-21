@@ -1869,6 +1869,7 @@ Script 989 (int pnum) DISCONNECT {
 	PlayerCanLoad[pnum] = 0;
 	PlayerDied[pnum] = 0;
 	PlayerWillBeSaved[pnum] = false;
+	PlayerTransferred[pnum] = false;
 	// reset weapon mod variable
 	ResetWeaponMods(pnum);
 	ResetPlayerBonuses(pnum);
@@ -2669,7 +2670,7 @@ Script "DND Weapon Damage Retrieve" (int dmg_id, int talent_type, int flags) {
 	// finally apply damage type bonuses
 	temp = GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type);
 	if(temp)
-		res = res * (100 + temp) / 100;
+		res = res * (100 + temp + Player_Bonuses[pnum].damage_type_bonus[talent_type]) / 100;
 	
 	SetResultValue(res);
 }
@@ -2698,7 +2699,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	}
 	int temp = GetDataFromOrbBonus(PlayerNumber(), OBI_DAMAGETYPE, talent_type);
 	if(temp)
-		dmg = dmg * (100 + temp) / 100;
+		dmg = dmg * (100 + temp + Player_Bonuses[PlayerNumber()].damage_type_bonus[talent_type]) / 100;
 	SetResultValue(dmg);
 }
 
@@ -3221,7 +3222,11 @@ Script "DnD User Dash Status Receive" (int status) NET {
 }
 
 Script "DnD Drop Orb" (void) {
-	SpawnOrbForAll();
+	SpawnOrbForAll(1);
+}
+
+Script "DnD Chest Opened" (int ctype) {
+	HandleChestDrops(ctype);
 }
 
 Script "DnD Check Special GameMode" (void) {
@@ -3271,6 +3276,7 @@ Script "DnD Give Orb" (int sp) {
 }
 
 Script "DnD Elixir Message" (int id) CLIENTSIDE {
+	ActivatorSound("Items/ElixirPick", 127);
 	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:ElixirList[id][ORB_TAG], s:"!\c-"));
 }
 
@@ -3278,7 +3284,7 @@ Script "DnD Give Elixir" (int sp) {
 	SetActivator((sp & 0xFFFF) + P_TIDSTART);
 	GiveInventory("ElixirSoundPlayer", 1);
 	ACS_NamedExecuteAlways("DnD Elixir Message", 0, sp >> 16);
-	GiveInventory(ElixirList[sp >> 16][ORB_NAME], 1);
+	HandleElixirPickup(ElixirList[sp >> 16][ORB_NAME]);
 }
 
 Script "DnD Drop Research" (void) {

@@ -2340,6 +2340,7 @@ ACTOR Draugr : UndeadEnemy {
 			SKE2 AB 10 A_Look
 		Loop
 		See:
+			TNT1 A 0 A_SetShootable
 			SKE2 AABBCCDDEEFF 2 Fast A_Chase
 		Loop
 		Melee:

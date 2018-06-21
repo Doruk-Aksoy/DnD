@@ -118,6 +118,8 @@ typedef struct {
 	int drop_chance;
 	int holding;
 	
+	int luck;
+	
 	int damage_type_bonus[MAX_TALENTS];
 } pstat_T;
 
@@ -648,7 +650,7 @@ int GetDropChance(int pnum, bool isElite) {
 	if(isElite && CheckActorInventory(pnum + P_TIDSTART, "DnD_QuestReward_EliteDropBonus"))
 		base += DND_ELITEDROP_GAIN;
 	// luck benefits are multiplicative
-	base = FixedMul(base, 1.0 + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck"));
+	base = FixedMul(base, 1.0 + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck") + Player_Bonuses[pnum].luck);
 	return base;
 }
 
@@ -814,6 +816,7 @@ void ResetPlayerBonuses(int pnum) {
 	Player_Bonuses[pnum].speed_bonus = 0;
 	Player_Bonuses[pnum].drop_chance = 0;
 	Player_Bonuses[pnum].holding = 0;
+	Player_Bonuses[pnum].luck = 0;
 	
 	for(int i = 0; i < MAX_TALENTS; ++i)
 		Player_Bonuses[pnum].damage_type_bonus[i] = 0;

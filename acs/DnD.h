@@ -299,6 +299,12 @@ str SpreeText[MAX_SPREE_TEXT] = {
 #define SILVERCHEST_DROPWEIGHT 37
 #define GOLDCHEST_DROPWEIGHT 50
 
+enum {
+	DND_CHESTTYPE_BRONZE,
+	DND_CHESTTYPE_SILVER,
+	DND_CHESTTYPE_GOLD
+};
+
 bool SpawnedChests = 0;
 
 str ChestKeyText[CHEST_KEY_TEXT_MAX] = {
@@ -1036,6 +1042,16 @@ void HandleChestSpawn() {
 		else
 			SpawnDrop("DNDBronzeChest", 0, 0, 0, 0);
 	}
+}
+
+void HandleChestDrops(int ctype) {
+	HandleElixirDrop(true);
+	if(ctype == DND_CHESTTYPE_BRONZE)
+		SpawnOrbForAll(1);
+	else if(ctype == DND_CHESTTYPE_SILVER)
+		SpawnOrbForAll(2);
+	else if(ctype == DND_CHESTTYPE_GOLD)
+		SpawnOrbForAll(3);
 }
 
 void HandleOrbDrop() {
