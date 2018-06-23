@@ -33,6 +33,7 @@ enum {
 	// category 3
 	AMMO_SHELL = 0,
 	AMMO_EMERALDMANA,
+	AMMO_HELLSMAWAMMO,
 	AMMO_PCANNON,
 	AMMO_NITROGENCANISTER,
 	AMMO_DEMONBLOOD,
@@ -89,6 +90,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	{
 		{ "SHELA0",			"Shell",					50,			20		},
 		{ "EMEAA0",			"EmeraldMana",				90,			36		},
+		{ "HMAWA1",			"HellsMawAmmo",				60,			24		},
 		{ "PCNIC1",			"PCanAmmo",					35,			15		},
 		{ "D97A1",			"NitrogenCanister",			40,			15		},
 		{ "DBLUD1",			"DemonBlood",				60,			25		},
@@ -164,7 +166,7 @@ void SetAllAmmoCapacities() {
 	int cap;
 	// last slot is for souls, we don't increase it here
 	for(int i = 0; i < MAX_SLOTS - 1; ++i)
-		for(int j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			cap = AmmoInfo[i][j].initial_capacity;
 			SetAmmoCapacity(AmmoInfo[i][j].ammo_name, AmmoCapWithBonuses(cap + CheckInventory("BackpackCounter") * cap / DND_BACKPACK_RATIO));
 		}

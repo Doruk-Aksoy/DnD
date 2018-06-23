@@ -12,6 +12,7 @@
 #define MAX_SMALL_CHARMS_USED 4
 #define MAX_MEDIUM_CHARMS_USED 2
 #define MAX_LARGE_CHARMS_USED 1
+#define MAX_CHARMS_EQUIPPABLE MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED
 
 #define MAX_CHARMS_ON_FIELD 128
 #define MAX_CHARMS_ON_PLAYER 20
@@ -21,7 +22,7 @@
 #define NULL_CHARM -1
 
 #define DND_CHARMTID_BEGIN 29050
-#define DND_CHARMTID_END 29150
+#define DND_CHARMTID_END DND_CHARMTID_BEGIN + MAX_CHARMS_ON_FIELD
 
 #define CHARM_TIER_VARIANCE_LOWER 15
 #define CHARM_TIER_VARIANCE_HIGHER 5
@@ -90,45 +91,33 @@ typedef struct {
 
 charm_info_T Charms_On_Field[MAX_CHARMS_ON_FIELD];
 charm_info_T Charms_On_Players[MAXPLAYERS][MAX_CHARMS_ON_PLAYER];
+// holds indexes to charms used that are on players
+int Charms_Used[MAXPLAYERS][MAX_CHARMS_EQUIPPABLE];
 
-void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
+int GetFreeCharmSpotOnPlayer(int player_index) {
 	int pos = -1, i;
 	for(i = 0; i < MAX_CHARMS_ON_PLAYER; ++i)
 		if(Charms_On_Players[player_index][i].charm_type == NULL_CHARM) {
 			pos = i;
 			break;
 		}
+	return pos;
+}
+
+void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
+	int pos = GetFreeCharmSpotOnPlayer(player_index);
 	if(pos == -1)
 		return;
 	// copy now
-	Charms_On_Players[player_index][pos].charm_type = Charms_On_Field[field_index].charm_type;
-	Charms_On_Players[player_index][pos].charm_image = Charms_On_Field[field_index].charm_image;
-	Charms_On_Players[player_index][pos].charm_level = Charms_On_Field[field_index].charm_level;
-	for(i = 0; i < MAX_CHARM_ATTRIBUTE_FLAGSETS; ++i)
-		Charms_On_Players[player_index][pos].charm_attributes[i] = Charms_On_Field[field_index].charm_attributes[i];
-	
-	// the leftover spot is a null charm
-	Charms_On_Field[field_index].charm_type = NULL_CHARM;
+	CopyCharm(true, field_index, player_index, pos);
 }
 
 void CopyCharmInfo_PlayerToField(int pcharm_index, int player_index) {
-	int pos = -1, i;
-	for(i = 0; i < MAX_CHARMS_ON_FIELD; ++i)
-		if(Charms_On_Field[i].charm_type == NULL_CHARM) {
-			pos = i;
-			break;
-		}
+	int pos = CreateCharm();
 	if(pos == -1)
 		return;
 	// copy now
-	Charms_On_Field[pos].charm_type = Charms_On_Players[player_index][pcharm_index].charm_type;
-	Charms_On_Field[pos].charm_image = Charms_On_Players[player_index][pcharm_index].charm_image;
-	Charms_On_Field[pos].charm_level = Charms_On_Players[player_index][pcharm_index].charm_level;
-	for(i = 0; i < MAX_CHARM_ATTRIBUTE_FLAGSETS; ++i)
-		Charms_On_Field[pos].charm_attributes[i] = Charms_On_Players[player_index][pcharm_index].charm_attributes[i];
 	
-	// the leftover spot is a null charm
-	Charms_On_Players[player_index][pcharm_index].charm_type = NULL_CHARM;
 }
 
 // based on average player level
@@ -137,16 +126,21 @@ int GetWeightedCharmTier() {
 	return ((total_level / PlayerCount()) + random(-CHARM_TIER_VARIANCE_LOWER, CHARM_TIER_VARIANCE_HIGHER)) / CHARM_TIER_SEPERATOR;
 }
 
-void DropCharm(bool fromMonster) {
-	if(fromMonster) {
-		int c = CreateCharm();
-		if(c != -1) {
-			RollCharmInfo(c, random(0, MAX_CHARM_TYPES - 1), GetWeightedCharmTier(), 1);
-		}
+// monsters dropping charms
+void SpawnCharm() {
+	int c = CreateCharm();
+	if(c != -1) {
+		// c is the index on the field now
+		RollCharmInfo(c, random(0, MAX_CHARM_TYPES - 1), GetWeightedCharmTier(), 1);
+		
 	}
-	else {
-		// player dropped so copy from player to field
-	}
+}
+
+// players dropping charms
+void DropCharm(int pcharm_index, int player_index) {
+	int pos = CreateCharm();
+	// copy now
+	CopyCharm(false, pos, player_index, pcharm_index);
 }
 
 bool CheckCharmAttribute(int charm_pos, int attrib_index, bool onField, int pnum) {
@@ -175,6 +169,30 @@ void AddAttributeToCharm(int charm_pos, int attrib) {
 	if(Charms_On_Field[charm_pos].charm_attrib_count < Charm_MaxAffixes[Charms_On_Field[charm_pos].charm_type]) {
 		++Charms_On_Field[charm_pos].charm_attrib_count;
 		Charms_On_Field[charm_pos].charm_attributes[attrib / 32] |= 1 << attrib;
+	}
+}
+
+void CopyCharm(bool fieldToPlayer, int fieldpos, int player_index, int pcharm_index) {
+	int i;
+	if(!fieldToPlayer) {
+		Charms_On_Field[fieldpos].charm_type = Charms_On_Players[player_index][pcharm_index].charm_type;
+		Charms_On_Field[fieldpos].charm_image = Charms_On_Players[player_index][pcharm_index].charm_image;
+		Charms_On_Field[fieldpos].charm_level = Charms_On_Players[player_index][pcharm_index].charm_level;
+		for(i = 0; i < MAX_CHARM_ATTRIBUTE_FLAGSETS; ++i)
+			Charms_On_Field[fieldpos].charm_attributes[i] = Charms_On_Players[player_index][pcharm_index].charm_attributes[i];
+		
+		// the leftover spot is a null charm
+		Charms_On_Players[player_index][pcharm_index].charm_type = NULL_CHARM;
+	}
+	else {
+		Charms_On_Players[player_index][pcharm_index].charm_type = Charms_On_Field[fieldpos].charm_type;
+		Charms_On_Players[player_index][pcharm_index].charm_image = Charms_On_Field[fieldpos].charm_image;
+		Charms_On_Players[player_index][pcharm_index].charm_level = Charms_On_Field[fieldpos].charm_level;
+		for(i = 0; i < MAX_CHARM_ATTRIBUTE_FLAGSETS; ++i)
+			Charms_On_Players[player_index][pcharm_index].charm_attributes[i] = Charms_On_Field[fieldpos].charm_attributes[i];
+		
+		// the leftover spot is a null charm
+		Charms_On_Field[fieldpos].charm_type = NULL_CHARM;
 	}
 }
 

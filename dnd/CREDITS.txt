@@ -12,6 +12,7 @@ Thanks to:
 - Kappes Buur (Sprites?)
 - Nash (Codebase for gore)
 - Tiberium Soul / TheRailgunner (Heavy MG Sprites)
+- TheRailgunner (Sprites)
 - Vegeta (Sprites)
 - thehadnot (Sounds)
 - DavidN (Sprites)

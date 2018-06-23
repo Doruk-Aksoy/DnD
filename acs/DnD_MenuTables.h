@@ -259,6 +259,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 5500,  1 },
 		
 		// 3 - 2
+		{ 6000,	 1 },
 		{ 5750,  1 },
 		{ 6500,  1 },
 		{ 5250,  1 },
@@ -359,6 +360,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		// Ammo 4
 		{ 500,		1 },
 		{ 85,		1 },
+		{ 90,		1 },
 		
 		// Special Ammunition
 		{ 475,	    1 },
@@ -456,10 +458,11 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT3UPG3, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
-		{ RES_SLOT3SSGUPG1, -1, -1 },
-		{ RES_SLOT3SSGUPG2, -1, -1 },
 		
 	// wep slot 3 - 2
+		{ -1, -1, -1 },
+		{ RES_SLOT3SSGUPG1, -1, -1 },
+		{ RES_SLOT3SSGUPG2, -1, -1 },
 		{ RES_SLOT3SSGUPG3, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
@@ -558,12 +561,14 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 	// ammo 4
 		{ RES_SLOT3UPG3, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
 		{ RES_PIERCING, -1, -1 },
 		{ RES_ELECTRIC, -1, -1 },
 		{ RES_NITRO, -1, -1 },
+		{ RES_SLUGSHELL, -1, -1 },
 		{ RES_SONICGRENADE, -1, -1 },
 		{ RES_HEGRENADE, -1, -1 },
 		
@@ -666,8 +671,9 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResShotgun3",                        "Wheel of Torment",                	WEPCHECK_SLOT3,     	"0"         },
 	{ "Upgraded Super Shotgun",			    "Heavy SSG",						WEPCHECK_SLOT3X,		"0" 		},
 	{ "Upgraded Super Shotgun2",		    "Erasus",							WEPCHECK_SLOT3X,		"0" 		},
+	
+	{ "Upgraded Super Shotgun3",		    "Hell's Maw",						WEPCHECK_SLOT3X,		"0" 		},
 	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
-
 	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
 	{ "ResSSG3",							"Hades Shotgun",					WEPCHECK_SLOT3X,		"0"			},
 	{ "Silver Gun",						    "White Death",						WEPCHECK_SLOT3L,		"1"	        },
@@ -754,6 +760,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "HadesAmmo",							"Hades Shells",						"",						"0"			},
 	{ "DemonBlood",							"Vial of Demon Blood",				"",						"0"			},
 	{ "EmeraldMana",						"Emerald Mana",						"",						"0"			},
+	{ "HellsMawAmmo",						"Hell Fire",						"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -860,10 +867,10 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_OCCULT | DTYPE_MELEE,
 	DTYPE_SHELL,
 	DTYPE_SHELL,
-	DTYPE_ENERGY,
-	
 	
 	// 3 - 2
+	DTYPE_EXPLOSIVE | DTYPE_OCCULT,
+	DTYPE_ENERGY,
 	DTYPE_ELEMENTAL,
 	DTYPE_SHELL | DTYPE_ELEMENTAL,
 	DTYPE_SHELL | DTYPE_EXPLOSIVE,
@@ -952,9 +959,10 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSG3			},
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_HSSG			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_ERASUS			},
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG1		},
 	
 	// 3 - 2
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_HELLSMAW		},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG1		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESSSG2		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESSSG3		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SILVER			},
@@ -1067,9 +1075,10 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_NONE,
 	WPROP_RIPPER,
 	WPROP_NONE,
-	WPROP_IGNORESHIELD,
 	
 	// 3 - 2
+	WPROP_CANTHITGHOST | WPROP_SELFDMG,
+	WPROP_IGNORESHIELD,
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	WPROP_RIPPER | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
@@ -1155,8 +1164,9 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
 	"Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
 	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
-	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
 	
+	"Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
+	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
 	"Fires 15 shells doing 10 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
@@ -1365,6 +1375,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	{
 		SHOP_AMMO_SHELL,
 		SHOP_AMMO_EMERALDMANA,
+		SHOP_AMMO_HELLSMAW,
 		SHOP_AMMO_PCAN,
 		SHOP_AMMO_NITROGEN,
 		SHOP_AMMO_DEMONBLOOD,
@@ -1435,6 +1446,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DEMONBLOOD		},
 	{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
+	{ OBJ_AMMO,													SHOP_AMMO_HELLSMAW			},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1482,6 +1494,7 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	6,
 	12,
 	18,
+	10,
 	
 	8,
 	8,
@@ -1528,6 +1541,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"hades shells for the Hades Auto Shotgun.",
 	"vials of demon blood for the Wheel of Torment.",
 	"emerald mana for the Emerald Wand.",
+	"hell fire canisters for the Hell's Maw.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -2294,6 +2308,12 @@ str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster deals twice as much damage.",
 	"Monster has twice as much health.",
 	"Monster ignores armor of player with every attack."
+};
+
+str CharmBoxLabels[MAX_CHARM_TYPES][2] = {
+	{ "SCHNOR", "SCHSEL" },
+	{ "MCHNOR", "MCHSEL" },
+	{ "LCHNOR", "LCHSEL" }
 };
 
 #endif

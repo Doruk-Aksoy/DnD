@@ -282,3 +282,4 @@ object EmeraldRain_FullDMG {
     frame JADEH { light EmeraldRainLight4 }
     frame JADEI { light EmeraldRainLight5 }
 }
+

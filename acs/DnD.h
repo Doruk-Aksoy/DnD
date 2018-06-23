@@ -197,6 +197,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Same old buckshot we all love! Can be \cdreplaced.",
 	 "Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
 	 "Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
+	 "Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
 	 "Fires 24 plasma balls in a circular fashion each doing 20 damage. Has a clip size of 5.",
 	 "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 108-180 damage in 96 unit radius. \cfIgnores shields.",
 	 "Fires 15 shells doing 10 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.",

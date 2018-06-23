@@ -26,7 +26,7 @@ Actor DnD_ArmorType : DnD_Info { }
 Actor DnD_ArmorBonus : BasicArmorBonus {
 	Armor.SavePercent 33.335
 	Armor.SaveAmount 1
-	Armor.MaxSaveAmount 32000
+	Armor.MaxSaveAmount 65000
 	inventory.icon "BON2A0"
 }
 

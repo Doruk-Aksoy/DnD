@@ -1609,6 +1609,10 @@ Actor RocketSmoke {
 	}
 }
 
+Actor RocketSmoke_Small : RocketSmoke {
+	Scale 0.25
+}
+
 Actor ThunderSmoke : RocketSmoke {
 	Speed 2
 	Scale 0.45

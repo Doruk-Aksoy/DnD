@@ -38,3 +38,6 @@ texture EICEAM1
 	
 texture DBLUD1
 	range DBLUD3 tics 4.0
+	
+texture HMAWA1
+	range HMAWA3 tics 4.0 oscillate

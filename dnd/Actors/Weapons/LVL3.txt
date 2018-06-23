@@ -1387,6 +1387,327 @@ Actor ErasusShooter2 : DnD_Activator {
 	}
 }
 
+Actor "Upgraded Super Shotgun3" : Weapon {
+	Weapon.SlotNumber 3
+	weapon.selectionorder 1600
+	weapon.kickback 100
+	weapon.ammotype "HellsMawAmmo"
+	weapon.ammouse 0
+	weapon.ammogive 6
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.9
+	Tag "Hell's Maw"
+	+WEAPON.NOAUTOAIM
+	states {
+		Spawn:
+			HLMW X -1
+		stop
+		Ready:
+			TNT1 A 0 A_GiveInventory("HellsMawSynthActive", 1)
+			HLMW P 1 A_GunFlash("Flash", GFF_NOEXTCHANGE)
+		LIdle:
+			HLMW P 1 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			TNT1 A 0 A_JumpIfInventory("HellsMawFiringRight", 1, "LightLeft")
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("HellsMawSynthActive", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawSynthFireLeft", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawSynthFireRight", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawFiringLeft", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawFiringRight", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+		DeselectLoop:
+			HLMW A 1 A_Lower
+			TNT1 A 0 A_Lower
+		loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_HELLSMAW)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 45)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 30)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 20)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_3, 15)
+		SelectLoop:
+			HLMW A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+		LFire:
+			HLMW P 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ContinueLeftFire")
+        Goto LIdle
+		ContinueLeftFire:
+			HLMW P 3 A_WeaponReady(WRF_NOFIRE)
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ReallyLeftFire")
+		Goto LIdle
+		ReallyLeftFire:
+			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 7)
+			TNT1 A 0 A_GiveInventory("HellsMawFiringLeft", 1)
+			TNT1 A 0 A_GiveInventory("HellsMawShooter_Left", 1)
+			HLMW HI 2 Bright A_WeaponReady(WRF_NOFIRE)
+			TNT1 A 0 A_TakeInventory("HellsMawFiringLeft", 1)
+			HLMW JK 2 Bright A_WeaponReady(WRF_NOFIRE)
+			HLMW R 2 A_WeaponReady(WRF_NOFIRE)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+        Goto LIdle
+		LightLeft:
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW E 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW E 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW E 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW F 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW F 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW F 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW G 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW G 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW G 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+		Goto LIdle
+		
+		Flash:
+			HLMW Q 4
+		RIdle:
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthActive", 1, "ContinueRIdle")
+		Goto StopFlash
+		ContinueRIdle:
+			HLMW Q 1
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			TNT1 A 0 A_JumpIfInventory("HellsMawFiringLeft", 1, "LightRight")
+		Goto RIdle
+		StopFlash:
+			TNT1 A 0
+		Stop
+
+		RFire:
+			HLMW Q 1
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ContinueRightFire")
+		Goto RIdle
+		ContinueRightFire:
+			HLMW Q 3
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ReallyRightFire")
+		Goto RIdle
+		ReallyRightFire:
+			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 6)
+			TNT1 A 0 A_GiveInventory("HellsMawFiringRight", 1)
+			TNT1 A 0 A_GiveInventory("HellsMawShooter_Right", 1)
+			HLMW LM 2 Bright
+			TNT1 A 0 A_TakeInventory("HellsMawFiringRight", 1)
+			HLMW NO 2 Bright
+			HLMW S 2
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+		Goto RIdle
+		LightRight:
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW C 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW C 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW C 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW D 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW D 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW D 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+		Goto RIdle
+    }
+}
+
+Actor HellsMawFiringLeft : DnD_Boolean {}
+Actor HellsMawFiringRight : DnD_Boolean {}
+Actor HellsMawSynthActive : DnD_Boolean {}
+Actor HellsMawSynthFireLeft : DnD_Boolean {}
+Actor HellsMawSynthFireRight : DnD_Boolean {}
+
+Actor HellsMawShooter_Left : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("HellsMawAmmo", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("HellsMawRocket", -1, 0, -12)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", -1, 0, 4, 0)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", -1, 0, -12, 16)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", -1, 0, -28, 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("HellsMawRocket_FullDMG", -1, 0, -12)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket_FullDMG", -1, 0, 4, 0)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket_FullDMG", -1, 0, -12, 16)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket_FullDMG", -1, 0, -28, 0)
+		Stop
+	}
+}
+
+Actor HellsMawShooter_Right : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("HellsMawAmmo", 1)
+		NoTake:
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("HellsMawRocket", 1, 0, 12)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", 1, 0, 28, 0)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", 1, 0, 12, 16)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", 1, 0, -4, 0)
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("HellsMawRocket_FullDMG", 1, 0, 12)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket_FullDMG", 1, 0, 28, 0)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket_FullDMG", 1, 0, 12, 16)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket_FullDMG", 1, 0, -4, 0)
+		Stop
+	}
+}
+
+Actor HellsMawRocket {
+	PROJECTILE
+	Speed 35
+	Radius 8
+	Height 16
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT))
+	Damagetype "Explosives"
+	Scale 1.15
+	ReactionTime 20
+	States {
+		Spawn:
+			HLML A 1 Bright A_SpawnItemEx("HellsMawRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)
+			TNT1 A 0 A_CountDown
+		loop
+		Death:
+			TNT1 A 0 A_JumpIf(reactiontime == 0, "Split")
+			TNT1 A 0 A_PlaySound("weapons/heavyrlexp")
+		ContinueDying:
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetTranslucent(0.85, 1)
+			HLML B 3 Bright
+			HLML CDEF 3 Bright
+		stop
+		Split:
+			TNT1 A 0 A_PlaySound("weapons/grenadexpl")
+			TNT1 AAAAAA 0 A_SpawnItemEx("HellsMawMiniRocket_Split", 0, 0, 0, 0, 0, frandom(-8, 8), frandom(-16, 16), SXF_TRANSFERPOINTERS)
+		Goto ContinueDying
+		XDeath:
+		Crash:
+			TNT1 A 0 A_SetTranslucent(0.85, 1)
+			TNT1 A 0 A_PlaySound("Vindicator/FlakExp")
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlareSmall", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			HLML B 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT), 64, 0, 0, 64) 
+			HLML CDEF 3 Bright
+		stop
+	}
+}
+
+Actor HellsMawRocket_FullDMG : HellsMawRocket {
+	DamageType "ExplosivesFull"
+	+FORCERADIUSDMG
+	States {
+		Death:
+			TNT1 A 0 A_JumpIf(reactiontime == 0, "Split")
+			TNT1 A 0 A_PlaySound("weapons/heavyrlexp")
+		ContinueDying:
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetTranslucent(0.85, 1)
+			HLML B 3 Bright
+			HLML CDEF 3 Bright
+		stop
+		Split:
+			TNT1 A 0 A_PlaySound("weapons/grenadexpl")
+			TNT1 AAAAAA 0 A_SpawnItemEx("HellsMawMiniRocket_Split_FullDMG", 0, 0, 0, 0, 0, frandom(-8, 8), frandom(-16, 16), SXF_TRANSFERPOINTERS)
+		Goto ContinueDying
+	}
+}
+
+Actor HellsMawRocketTrail {
+	Alpha 0.75
+	Scale 0.75
+	Renderstyle Add
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 2
+			OPUF ABCD 1 Bright
+		STop
+	}
+}
+
+Actor HellsMawMiniRocket : HellsMawRocket {
+	ReactionTime 20
+	DeathSound "weapons/maceex"
+	+THRUGHOST
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT))
+	States {
+		Spawn:
+			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
+			TNT1 A 0 A_CountDown
+		loop
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetTranslucent(0.8,1)
+			TNT1 AAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			HLML L 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT), 32, 1, 0, 32)
+			HLML MNOPQR 3 Bright 
+		stop
+	}
+}
+
+Actor HellsMawMiniRocket_Split : HellsMawMiniRocket {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(35 * cos(angle), 35 * sin(angle), velz, CVF_REPLACE)
+		Goto Super::Spawn
+	}
+}
+
+Actor HellsMawMiniRocket_Split_FullDMG : HellsMawMiniRocket_Split {
+	DamageType "ExplosivesFull"
+	+FORCERADIUSDMG
+	-THRUGHOST
+}
+
+Actor HellsMawMiniRocket_FullDMG : HellsMawMiniRocket {
+	DamageType "ExplosivesFull"
+	+FORCERADIUSDMG
+	-THRUGHOST
+}
+
+Actor HellsMawMiniRocketTrail : HellsMawRocketTrail {
+	Scale 1.0
+	States {
+		Spawn:
+			TNT1 A 2
+			HLML HIJK 1 Bright
+		Stop
+	}
+}
+
 // An exploding shotgun, idk where the graphics come from
 Actor "Silver Gun" : Weapon
 {

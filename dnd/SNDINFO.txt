@@ -1,6 +1,9 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+HellsMaw/Fire			HMAWFIRE
+$limit HellsMaw/Fire 0
+
 EmeraldWand/Fire		EMERFIRE
 EmeraldWand/Alt			EMERALT
 EmeraldWand/AltHit		EMERALTH

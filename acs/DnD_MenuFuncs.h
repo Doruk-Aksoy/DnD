@@ -1280,6 +1280,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 211.0, 188.0, 206.0 }, // loadout 2
 			{ 289.0, 195.0, 170.0, 190.0 }, // loadout 3
 			{ 289.0, 181.0, 143.0, 174.0 }, // loadout 4
+			{ 289.0, 163.0, 143.0, 156.0 }, // loadout 5
 			{ -1, -1, -1, -1 }
 		},
 		// loadout 1
@@ -1292,6 +1293,17 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// loadout 3
 		{
+			{ -1, -1, -1, -1 }
+		},
+		// loadout for charms
+		{
+			{ 290.0, 125.0, 250.0, 87.0 },
+			{ 226.0, 125.0, 186.0, 87.0 },
+			{ 162.0, 125.0, 122.0, 87.0 },
+			{ 98.0, 125.0, 58.0, 87.0 },
+			{ 258.0, 197.0, 218.0, 143.0 },
+			{ 129.0, 197.0, 89.0, 143.0 },
+			{ 194.0, 268.0, 153.0, 184.0 },
 			{ -1, -1, -1, -1 }
 		},
 		// loadout for accessories below
@@ -1386,6 +1398,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
+			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ -1, -1, -1, -1 }
 		},
 		// wep 4 - 1
@@ -1493,6 +1506,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 289.0, 117.0, 120.0, 111.0 }, // w9
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 3
@@ -1992,4 +2006,20 @@ void HandleResearchPageInput(int page, int boxid, int curposx) {
 		}
 		SetInventory("MadeChoice", 0);
 	}
+}
+
+void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) {
+	str charmborderpic = CharmBoxLabels[charm_type][boxid == thisboxid];
+	str charmpic = "";
+	int pnum = PlayerNumber();
+	int charmid = Charms_Used[pnum][boxid - 1];
+	// if there is a charm here
+	if(charmid) {
+		charmpic = Charms_On_Players[pnum][charmid].charm_image;
+		SetFont(charmpic);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	}
+	SetFont(charmborderpic);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	SetFont("SMALLFONT");
 }

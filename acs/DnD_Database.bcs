@@ -787,7 +787,7 @@ void LoadPlayerData(int pnum, int char_id) {
 
 // on Hardcore death, wipeout all data related to this player
 void WipeoutPlayerData(int pnum, int cid) {
-	int i, j, char_id = Clamp_Between(cid, 1, DND_MAX_CHARS);
+	int i, j, char_id = Clamp_Between(cid, 0, DND_MAX_CHARS - 1);
 	str pacc = GetPlayerAccountName(pnum);
 	for(i = 1; i <= (MAXWEPS / 32) + 1; ++i)
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:i), char_id), pacc, 0);

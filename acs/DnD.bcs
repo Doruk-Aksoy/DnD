@@ -309,7 +309,24 @@ Script 819 (int type) {
 // Health kits end here
 Script 825 ENTER {
     while(PlayerInGame(PlayerNumber())) {
-        // additional hack for the slayer weapon's dynamic alt fire
+        // additional hack for the slayer/hells maw weapon's dynamic fire modes
+		if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive")) {
+			if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK) 
+				GiveInventory("HellsMawSynthFireLeft", 1);
+			else 
+				TakeInventory("HellsMawSynthFireLeft", 1);
+			
+			if (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) 
+				GiveInventory("HellsMawSynthFireRight", 1);
+			else 
+				TakeInventory("HellsMawSynthFireRight", 1);
+				
+			if(isAlive() && (CheckInventory("HellsMawFiringRight") || CheckInventory("HellsMawFiringLeft")))
+				SetActorState(0, "Melee");
+		}
+
+		TakeInventory("SynthFireLeft", 0x7FFFFFFF);
+		TakeInventory("SynthFireRight", 0x7FFFFFFF);
 		if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) {
 			if(CheckWeapon("Slayer") && !CheckInventory("SlayerTimer"))
 				GiveInventory("SlayerBack", 1);
@@ -323,6 +340,8 @@ Script 825 ENTER {
         TakeInventory("FadeIntensity", 1);
         Delay(const:1);
     }
+	TakeInventory("HellsMawSynthFireLeft", 1);
+	TakeInventory("HellsMawSynthFireRight", 1);
 }
 
 // from woc
@@ -2250,7 +2269,7 @@ Script 996 (int type, int id) {
 	int i, j, temp;
     if(!type) {
 		for(i = 0; i < MAX_SLOTS - 1; ++i)
-			for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 				if(GetCVar("dnd_firstbackpackold") && !CheckInventory("BackpackCounter"))
 					SetAmmoCapacity(AmmoInfo[i][j].ammo_name, AmmoCapWithBonuses(AmmoInfo[i][j].initial_capacity << 1));
 				else
@@ -2263,7 +2282,7 @@ Script 996 (int type, int id) {
         GiveInventory("BackpackCounter", 1);
         // Reduce if over the limits
 		for(i = 0; i < MAX_SLOTS - 1; ++i)
-			for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 				if(GetAmmoCapacity(AmmoInfo[i][j].ammo_name) > GetMaximumAmmoCapacity(i, j))
 					SetAmmoCapacity(AmmoInfo[i][j].ammo_name, GetMaximumAmmoCapacity(i, j));
 			}
@@ -3333,7 +3352,6 @@ Script "DnD Target Fix" (void) {
 }
 
 Script "test" (void) {
-	printbold(d:GetActorProperty(0, APROP_TARGETTID), s: " ", d:GetActorProperty(0, APROP_MASTERTID));
 	SetActivatorToTarget(0);
 	printbold(d:ActivatorTID());
 }

@@ -543,9 +543,13 @@ int CalculateArmorCapBonuses() {
 }
 
 // used for displaying to hud
-int GetArmorCap() {
-	// see if this DND_BASE_ARMOR_SHOW breaks anything
-	int res = CalculateArmorCapBonuses() + DND_BASE_ARMOR_SHOW + DND_ARMOR_PER_BUL * CheckInventory("PSTAT_Bulkiness");
+int GetArmorCap(bool useMenuShow) {
+	// see if this DND_BASE_ARMOR_SHOW breaks anything -- breaks armor shards
+	int res = CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * CheckInventory("PSTAT_Bulkiness");
+	if(useMenuShow)
+		res += DND_BASE_ARMOR_SHOW;
+	else
+		res += DND_BASE_ARMOR;
 	res += res * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
 	res += (res * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
@@ -564,7 +568,7 @@ int GetArmorSpecificCap(int amt) {
 		amt += (amt * GetResearchArmorBonuses()) / 100;
 	}
 	else // exception for armor bonus
-		amt = GetArmorCap() >> 1;
+		amt = GetArmorCap(false) >> 1;
 	return amt;
 }
 
@@ -581,13 +585,13 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 		// if we had no armor
 		if(!armor) {
 			SetInventory("DnD_ArmorType", armor_type + 1);
-			cap = GetArmorCap() >> 1;
+			cap = GetArmorCap(false) >> 1;
 		}
 		else {
 			cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
 		}
 		// just add 1 to current armor if meets requirements
-		amount = amount * cap / 100;
+		amount = (amount * cap) / 100;
 		// allow it to fill up to x3 of the armor cap
 		cap *= 3;
 		if(armor + amount < cap) {
