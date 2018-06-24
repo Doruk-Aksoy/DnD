@@ -653,6 +653,8 @@ Script "DND On Kill" KILL {
 				}
 			}
 		}
+		
+		HandleCharmLootDrop(pnum);
 	}
 	
 	// if marked by talisman
@@ -1188,7 +1190,7 @@ Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
 		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1 || CheckActorResearchStatus(ConsolePlayerNumber() + P_TIDSTART, sp >> 16))
 			Thing_Remove(0);
 	}
-	else if(extra == DND_SPECIAL_ORB || extra == DND_SPECIAL_TALENTCAPSULE) {
+	else if(extra & (DND_SPECIAL_ORB | DND_SPECIAL_TALENTCAPSULE | DND_SPECIAL_ELIXIR | DND_SPECIAL_CHARM)) {
 		if(ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
 			Thing_Remove(0);
 	}
@@ -2234,7 +2236,7 @@ Script "DnD Check Special Match" (int multispecial) {
 	who = ActivatorTID();
 	if(!multispecial)
 		res = who - P_TIDSTART == sp - 1;
-	else if(multispecial == DND_SPECIAL_RESEARCH || multispecial == DND_SPECIAL_ORB || multispecial == DND_SPECIAL_TALENTCAPSULE)
+	else if(multispecial == DND_SPECIAL_RESEARCH || (multispecial & DND_SPECIAL_ORB | DND_SPECIAL_TALENTCAPSULE | DND_SPECIAL_ELIXIR | DND_SPECIAL_CHARM))
 		res = who - P_TIDSTART == (sp & 0xFFFF) - 1;
 	//printbold(d:res);
 	SetResultValue(res);
@@ -3396,4 +3398,14 @@ Script "DnD Emerald Death" (void) {
 	SetActivator(target + DND_EMERALD_TIDADD);
 	SetPointer(AAPTR_TARGET, target);
 	Thing_ChangeTID(0, 0);
+}
+
+Script "DnD Charm Message" (int id) CLIENTSIDE {
+	Log(s:StrParam(s:"\ccCharm pickup:   \c[Y5]", s:Charm_TypeName[id], s:"!\c-"));
+}
+
+Script "DnD Charm Pickup" (int sp) {
+	SetActivator((sp & 0xFFFF) + P_TIDSTART);
+	ACS_NamedExecuteAlways("DnD Charm Message", 0, Charms_On_Field[sp >> 16].charm_type);
+	HandleCharmPickup(sp >> 16);
 }

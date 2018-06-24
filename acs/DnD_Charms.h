@@ -3,6 +3,7 @@
 
 #include "DnD_CharmAttribs.h"
 #include "DnD_Common.h"
+#include "DnD_Inventory.h"
 
 #define MAX_CHARM_ATTRIBUTE_FLAGSETS 2
 #define MAX_CHARM_LEVEL 100
@@ -26,6 +27,8 @@
 
 #define CHARM_TIER_VARIANCE_LOWER 15
 #define CHARM_TIER_VARIANCE_HIGHER 5
+
+#define DND_BASE_CHARMRATE 0.005
 
 enum {
 	DND_CHARM_SMALL,
@@ -126,16 +129,6 @@ int GetWeightedCharmTier() {
 	return ((total_level / PlayerCount()) + random(-CHARM_TIER_VARIANCE_LOWER, CHARM_TIER_VARIANCE_HIGHER)) / CHARM_TIER_SEPERATOR;
 }
 
-// monsters dropping charms
-void SpawnCharm() {
-	int c = CreateCharm();
-	if(c != -1) {
-		// c is the index on the field now
-		RollCharmInfo(c, random(0, MAX_CHARM_TYPES - 1), GetWeightedCharmTier(), 1);
-		
-	}
-}
-
 // players dropping charms
 void DropCharm(int pcharm_index, int player_index) {
 	int pos = CreateCharm();
@@ -152,9 +145,11 @@ bool CheckCharmAttribute(int charm_pos, int attrib_index, bool onField, int pnum
 	return false;
 }
 
-void RollCharmInfo(int charm_pos, int charm_type, int charm_tier, bool onField) {
+void RollCharmInfo(int charm_pos, int charm_tier, bool onField) {
 	// roll random attributes for the charm
+	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 	int count = random(2, 2 * (charm_type + 1)), i, roll;
+	Charms_On_Field[charm_pos].charm_level = charm_tier;
 	while(i < count) {
 		do {
 			roll = random(0, LAST_CHARM_ATTRIBUTE);
@@ -205,6 +200,22 @@ int CreateCharm() {
 			break;
 		}
 	return pos;
+}
+
+// monsters dropping charms
+void SpawnCharm(int pnum) {
+	int c = CreateCharm();
+	if(c != -1) {
+		// c is the index on the field now
+		RollCharmInfo(c, GetWeightedCharmTier(), 1);
+		SpawnDrop("CharmDrop", 16.0, 10, pnum + 1, c);
+	}
+}
+
+// move this from field to player's inventory
+void HandleCharmPickup(int charm_index) {
+	int pcharm_index = GetFreeCharmSpotOnPlayer(PlayerNumber());
+	CopyCharm(true, charm_index, PlayerNumber(), pcharm_index);
 }
 
 #endif

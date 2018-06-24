@@ -1171,7 +1171,7 @@ void DrawCursor() {
 	else
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
-	//Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
+	Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - ((CheckInventory("Mouse_X") & MMASK)) + 0.1, HUDMAX_YF - ((CheckInventory("Mouse_Y") & MMASK)) + 0.1, 0.2, 0.0);
 }
 
@@ -1180,14 +1180,35 @@ bool point_in_box(rect_T? box, int mx, int my, int yoffset) {
 	return (mx <= box.topleft_x && mx >= box.botright_x && my <= box.topleft_y - yoffset && my >= box.botright_y - yoffset);
 }
 
+bool point_in_inventory_box(rect_T? box, int mx, int my) {
+	return (mx <= box.topleft_x && mx >= box.botright_x && my <= box.topleft_y && my >= box.botright_y);
+}
+
 menu_pane_T& GetPane() {
 	static menu_pane_T pane;
+	return pane;
+}
+
+menu_inventory_T& GetInventoryPane() {
+	static menu_inventory_T pane;
 	return pane;
 }
 
 // deepcopy to avoid accidental overriding
 void AddBoxToPane(menu_pane_T& p, rect_T& box) {
 	if(p.cursize < MAX_MENU_BOXES) {
+		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
+		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
+		p.MenuRectangles[p.cursize].botright_x = box.botright_x;
+		p.MenuRectangles[p.cursize].botright_y = box.botright_y;
+		p.cursize++;
+	}
+	else
+		Log(s:"Menu box limit exceeded.");
+}
+
+void AddBoxToInventory(menu_inventory_T? p, rect_T& box) {
+	if(p.cursize < MAX_INVENTORY_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
 		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
 		p.MenuRectangles[p.cursize].botright_x = box.botright_x;
@@ -1699,6 +1720,38 @@ rect_T& LoadRect(int menu_page, int id) {
 	return bp[menu_page][id];
 }
 
+// specialized one for inventory view
+rect_T& LoadInventoryViewRect(int id) {
+	// this is the top left box, ie 0, 0
+	static rect_T bp[MAX_INVENTORY_BOXES];
+	
+	// construct for first time, these can be constructed easily from base coordinates
+	if(!InventoryBoxesSetup) {
+		for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
+			for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = INVENTORYBOX_BASEX_RECT - 32.0 * j;
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOX_BASEY_RECT - 32.0 * i;
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_x = INVENTORYBOX_BASEX_RECT - 32.0 * j - 32.0;
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOX_BASEY_RECT - 32.0 * i - 32.0;
+			}
+		InventoryBoxesSetup = true;
+	}
+	return bp[id];
+}
+
+void LoadInventoryView(menu_inventory_T& p) {
+	p.cursize = 0;
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		auto r = LoadInventoryViewRect(i);
+		if(r.topleft_x != -1) {
+			// Log(s:"Adding box: ", f:bp[menu_page][i].topleft_x, s: " ", f:bp[menu_page][i].topleft_y, s: " ", f:bp[menu_page][i].botright_x, s: " ", f:bp[menu_page][i].botright_y);
+			AddBoxToInventory(p, r);
+		}
+		else
+			break;
+	}
+}
+
 void LoadPane(menu_pane_T& p, int menu_page) {
 	p.cursize = 0;
 	for(int i = 0; i < MAX_MENU_BOXES; ++i) {
@@ -1732,7 +1785,19 @@ int GetTriggeredBoxOnPane(menu_pane_T& p, int mx, int my, int curopt) {
 	return MAINBOX_NONE;
 }
 
+int GetTriggeredBoxOnInventoryPane(menu_inventory_T& p, int mx, int my) {
+	if(mx >= 400.0 || my <= 64.0 || mx <= 82.0 || my >= 260.0)
+		return MAINBOX_NONE;
+	for(int i = 0; i < p.cursize; ++i) {
+		if(point_in_inventory_box(p.MenuRectangles[i], mx, my))
+			return i + 1;
+	}
+	return MAINBOX_NONE;
+}
+
 int GetTriggeredBoxOnMainPane(int mx, int my) {
+	if(CheckInventory("DnD_InventoryView"))
+		return MAINBOX_NONE;
 	if(mx < 105.0 || my < 16.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < MAX_MAIN_BOXES; ++i) {
@@ -2022,4 +2087,31 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	SetFont(charmborderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
 	SetFont("SMALLFONT");
+}
+
+void DrawInventoryBlock(int boxid, int idx, int idy) {
+	int bid = idx * MAXINVENTORYBLOCKS_VERT + idy;
+	SetFont("LDTBOX");
+	if(boxid - 1 == bid)
+		SetFont("LDTBOXS");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - bid - 1, CR_WHITE, INVENTORYBOX_BASEX - (MAXINVENTORYBLOCKS_VERT - idy - 1) * 32.0, INVENTORYBOX_BASEY - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * 32.0, 0.0, 0.0);
+}
+
+void HandleInventoryView(int boxid) {
+	SetFont("LDTSCRN");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID, CR_WHITE, HUDMAX_XF / 2, HUDMAX_YF / 2, 0.0, 0.0);
+	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
+		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
+			DrawInventoryBlock(boxid, i, j);
+		}
+	}
+	SetFont("SMALLFONT");
+}
+
+void HandleCharmPageInputs(int boxid) {
+	if(CheckInventory("MadeChoice") == 1) {
+		if(boxid != MAINBOX_NONE) {
+			GiveInventory("DnD_InventoryView", 1);
+		}
+	}
 }

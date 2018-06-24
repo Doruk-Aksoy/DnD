@@ -92,10 +92,10 @@ Script "DND Menu Cleanup" (void) CLIENTSIDE {
 	DeleteText(RPGMENUNAMEID);
 	DeleteText(RPGMENUHELPCORNERID);
 	DeleteText(RPGMENUHELPCORNERIDMAIN);
-	DeleteText(RPGMENUCURSORID);
 	DeleteText(RPGMENUPAGEID);
 	DeleteText(RPGMENUPAGEID - 1);
 	
+	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
 	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
 
@@ -117,7 +117,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 	int curopt, curopt_prev = MENU_NULL;
 	int boxid, boxid_prev = MAINBOX_NONE, mainboxid, mainboxid_prev = MAINBOX_NONE;
 	auto CurrentPane = GetPane();
-	
+	auto InventoryPane = GetInventoryPane();
+
 	if(!CheckInventory("ShowingMenu")) { // close the menu
 		// reset variables
 		boxid_prev = MAINBOX_NONE;
@@ -153,7 +154,10 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				mainboxid = CheckInventory("ActiveMainBox");
 			}
 			else {
-				boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, curopt);
+				if(!CheckInventory("DnD_InventoryView"))
+					boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, curopt);
+				else
+					boxid = GetTriggeredBoxOnInventoryPane(InventoryPane, mousex, mousey);
 				mainboxid = GetTriggeredBoxOnMainPane(mousex, mousey);
 				SetInventory("ActiveBox", boxid);
 				SetInventory("ActiveMainBox", mainboxid);
@@ -187,6 +191,19 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
 			DeleteText(RPGMENUPAGEID);
 			DeleteText(RPGMENUPAGEID - 1);
+			
+			if(CheckInventory("DnD_InventoryView")) {
+				LoadInventoryView(InventoryPane);
+				HandleInventoryView(boxid);
+				k = 1;
+			}
+			else {
+				if(k) {
+					DeleteTextRange(RPGMENUCURSORID + 1, RPGMENUINVENTORYID);
+					k = 0;
+				}
+			}
+			
 			if(curopt == MENU_STAT1) {
 				HudMessage(s:"--- Player Stats ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				SetHudClipRect(192, 56, 256, 144, 256, 1);
@@ -761,9 +778,18 @@ Script "DND Menu Input Handle" (void) {
 		
 		// Easy change to main menu sub parts
 		
+		if(CheckInventory("DnD_InventoryView")) {
+			ListenInput(0, 0, 0, 0);
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid == MAINBOX_NONE)
+					TakeInventory("DnD_InventoryView", 1);
+			}
+		}
+		
 		if(mainboxid != MAINBOX_NONE) {
 			ListenInput(0, 0, 0, 0);
 			if(CheckInventory("MadeChoice") == 1) {
+				TakeInventory("DnD_InventoryView", 1);
 				HandleButtonClick(mainboxid);
 				if(mainboxid == MAINBOX_STATS)
 					UpdateMenuPosition(MENU_STAT1);
@@ -956,6 +982,7 @@ Script "DND Menu Input Handle" (void) {
 		}
 		else if(curopt == MENU_LOAD_CHARM) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			HandleCharmPageInputs(boxid);
 			SetInventory("MadeChoice", 0);
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
 				UpdateMenuPosition(MENU_LOAD);

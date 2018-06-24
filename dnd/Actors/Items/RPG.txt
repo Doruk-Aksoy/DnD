@@ -329,6 +329,7 @@ Actor DnD_PopupError : DnD_Boolean { }
 Actor DnD_PopupSell : DnD_Boolean { }
 Actor DnD_PopupReset : DnD_Boolean { }
 Actor DnD_PopupResetMade : DnD_Boolean { }
+Actor DnD_InventoryView : DnD_Boolean { }
 
 Actor DnD_ShowPopup : PowerDamage {
 	powerup.duration -1

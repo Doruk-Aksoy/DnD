@@ -47,6 +47,12 @@
 
 #define ACCESSORY_PER_PAGE 5
 
+#define INVENTORYBOX_BASEX HUDMAX_XF / 2 + 128.4
+#define INVENTORYBOX_BASEY HUDMAX_YF / 2 + 64.0
+
+#define INVENTORYBOX_BASEX_RECT 384.0
+#define INVENTORYBOX_BASEY_RECT 240.0
+
 typedef struct rect {
 	int topleft_x;
 	int topleft_y;
@@ -60,6 +66,11 @@ typedef struct mp {
 	int cursize;
 } menu_pane_T;
 
+typedef struct mi {
+	rect_T MenuRectangles[MAX_INVENTORY_BOXES];
+	int cursize;
+} menu_inventory_T;
+
 #define MAX_STACK_ELEMS 16
 typedef struct menu_stack {
 	int stack_elems[MAX_STACK_ELEMS];
@@ -70,6 +81,7 @@ typedef struct menu_stack {
 // Scroll defs
 
 int ScrollPos = 0;
+bool InventoryBoxesSetup = false;
 
 #define FIRST_CLICKABLE_BOXID MAINBOX_LARR
 #define LAST_CLICKABLE_BOXID MAINBOX_RARR
@@ -173,7 +185,8 @@ enum {
  // MENU IDS
 enum {
 	RPGMENUCURSORID = 224,
-	RPGMENUPAGEID = 226,
+	RPGMENUINVENTORYID = 325,
+	RPGMENUPAGEID = 326,
 	RPGMENUID,
 	RPGMENULARRID,
 	RPGMENURARRID,

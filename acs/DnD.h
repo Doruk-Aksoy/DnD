@@ -148,6 +148,8 @@ enum {
 	DND_SPECIAL_RESEARCH = 1,
 	DND_SPECIAL_ORB = 2,
 	DND_SPECIAL_TALENTCAPSULE = 4,
+	DND_SPECIAL_ELIXIR = 8,
+	DND_SPECIAL_CHARM = 16
 };
 
 int setplayer = 0;
@@ -1061,6 +1063,17 @@ void HandleOrbDrop() {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))
 			SpawnOrb(i);
+	}
+}
+
+void HandleCharmLootDrop(bool isElite) {
+	int addchance = 0;
+	if(isElite)
+		addchance = DND_ELITE_BASEDROP / 2;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		// run each player's chance, drop for corresponding player only
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance))
+			SpawnCharm(i);
 	}
 }
 

@@ -39,5 +39,7 @@ Items/ChestKey		CHESTKEY
 Items/ElixirDrop	ELXPICK
 Items/ElixirPick	ELXUSE
 
+Items/CharmDrop		CHRMDROP
+
 Chest/Open			CHSTOPEN
 Chest/Locked		CHSTLOCK
