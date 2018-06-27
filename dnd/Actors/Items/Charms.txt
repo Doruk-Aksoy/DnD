@@ -28,9 +28,17 @@ Actor CharmBase : DnD_DroppedItem {
 		Goto PickupSuccess
 		
 		PickupSuccess:
-			TNT1 A 0 A_PlaySound("Items/CharmPick")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charm Pickup", 0, mass - 1)
 		stop
+	}
+}
+
+Actor CharmSoundPlayer : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlaySound("Items/CharmPick")
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
 	}
 }
 

@@ -35,6 +35,8 @@ Script 900 (void) NET {
 		SetInventory("ActiveMainBox", 0);
 		SetInventory("MadeChoice", 0);
 		SetInventory("DnD_PopupId", 0);
+		SetInventory("DnD_SelectedInventoryBox", 0);
+		TakeInventory("DnD_InventoryView", 1);
 		TakeInventory("DnD_ShowPopup", 1);
 		TakeInventory("DnD_ShowSellPopup", 1);
 		TakeInventory("DnD_SellConfirm", 1);
@@ -169,7 +171,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			// ifs are seperate because scroll pos should only change if current in-pane box is changed
 			if(boxid != boxid_prev && boxid != MAINBOX_NONE) {
 				ScrollPos = 0;
-				LocalAmbientSound("RPG/MenuMove", 127);
+				if(!CheckInventory("DnD_InventoryView"))
+					LocalAmbientSound("RPG/MenuMove", 127);
 			}
 			if(mainboxid_prev != mainboxid && mainboxid != MAINBOX_NONE)
 				LocalAmbientSound("RPG/MenuMove", 127);
@@ -982,7 +985,7 @@ Script "DND Menu Input Handle" (void) {
 		}
 		else if(curopt == MENU_LOAD_CHARM) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
-			HandleCharmPageInputs(boxid);
+			HandleItemPageInputs(pnum, boxid);
 			SetInventory("MadeChoice", 0);
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
 				UpdateMenuPosition(MENU_LOAD);

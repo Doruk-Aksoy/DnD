@@ -1,6 +1,8 @@
 #ifndef DND_SYNC_IN
 #define DND_SYNC_IN
 
+#include "DnD_Charms.h"
+
 #define DND_SYNC_NONORB 0
 #define DND_SYNC_ORB 1
 
@@ -32,9 +34,78 @@ enum {
 	DND_SYNC_WEPBONUS_CRIT,
 	DND_SYNC_WEPBONUS_CRITDMG,
 	DND_SYNC_WEPBONUS_CRITPERCENT,
-	DND_SYNC_WEPBONUS_DMG
+	DND_SYNC_WEPBONUS_DMG,
+	
+	DND_SYNC_ITEMTOPLEFTBOX,
+	DND_SYNC_ITEMWIDTH,
+	DND_SYNC_ITEMHEIGHT,
+	DND_SYNC_ITEMIMAGE,
+	DND_SYNC_ITEMTYPE,
+	DND_SYNC_ITEMSUBTYPE,
+	DND_SYNC_ITEMLEVEL,
+	DND_SYNC_ITEMSATTRIBCOUNT,
+	DND_SYNC_ITEMATTRIBUTES_ID,
+	DND_SYNC_ITEMATTRIBUTES_VAL
 };
-#define MAX_SYNC_VARS DND_SYNC_WEPBONUS_DMG + 1
+#define MAX_SYNC_VARS DND_SYNC_ITEMATTRIBUTES_VAL + 1
+
+enum {
+	DND_SYNC_ITEMSOURCE_CHARMUSED,
+	DND_SYNC_ITEMSOURCE_PLAYERINVENTORY
+};
+
+int GetPlayerItemSyncValue(int which, int extra, int sub, int source) {
+	int pnum = PlayerNumber();
+	if(source == DND_SYNC_ITEMSOURCE_CHARMUSED){
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+			return Charms_Used[pnum][extra].width;
+			case DND_SYNC_ITEMHEIGHT:
+			return Charms_Used[pnum][extra].height;
+			case DND_SYNC_ITEMIMAGE:
+			return Charms_Used[pnum][extra].item_image;
+			case DND_SYNC_ITEMTYPE:
+			return Charms_Used[pnum][extra].item_type;
+			case DND_SYNC_ITEMSUBTYPE:
+			return Charms_Used[pnum][extra].item_subtype;
+			case DND_SYNC_ITEMLEVEL:
+			return Charms_Used[pnum][extra].item_level;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+			return Charms_Used[pnum][extra].topleftboxid;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+			return Charms_Used[pnum][extra].attrib_count;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+			return Charms_Used[pnum][extra].attributes[sub].attrib_id;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+			return Charms_Used[pnum][extra].attributes[sub].attrib_val;
+		}
+	}
+	else if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+			return PlayerInventoryList[pnum][extra].width;
+			case DND_SYNC_ITEMHEIGHT:
+			return PlayerInventoryList[pnum][extra].height;
+			case DND_SYNC_ITEMIMAGE:
+			return PlayerInventoryList[pnum][extra].item_image;
+			case DND_SYNC_ITEMTYPE:
+			return PlayerInventoryList[pnum][extra].item_type;
+			case DND_SYNC_ITEMSUBTYPE:
+			return PlayerInventoryList[pnum][extra].item_subtype;
+			case DND_SYNC_ITEMLEVEL:
+			return PlayerInventoryList[pnum][extra].item_level;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+			return PlayerInventoryList[pnum][extra].topleftboxid;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+			return PlayerInventoryList[pnum][extra].attrib_count;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_id;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_val;
+		}
+	}
+	return 0;
+}
 
 int GetPlayerSyncValue(int pos, int extra, bool isOrb) {
 	int pnum = PlayerNumber();
@@ -129,6 +200,78 @@ int GetPlayerSyncValue(int pos, int extra, bool isOrb) {
 		}
 	}
 	return 0;
+}
+
+void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
+	int pnum = PlayerNumber();
+	if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+				Charms_Used[pnum][extra].width = val;
+			break;
+			case DND_SYNC_ITEMHEIGHT:
+				Charms_Used[pnum][extra].height = val;
+			break;
+			case DND_SYNC_ITEMIMAGE:
+				Charms_Used[pnum][extra].item_image = val;
+			break;
+			case DND_SYNC_ITEMTYPE:
+				Charms_Used[pnum][extra].item_type = val;
+			break;
+			case DND_SYNC_ITEMSUBTYPE:
+				Charms_Used[pnum][extra].item_subtype = val;
+			break;
+			case DND_SYNC_ITEMLEVEL:
+				Charms_Used[pnum][extra].item_level = val;
+			break;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+				Charms_Used[pnum][extra].topleftboxid = val;
+			break;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+				Charms_Used[pnum][extra].attrib_count = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+				Charms_Used[pnum][extra].attributes[sub].attrib_id = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+				Charms_Used[pnum][extra].attributes[sub].attrib_val = val;
+			break;
+		}
+	}
+	else if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+				PlayerInventoryList[pnum][extra].width = val;
+			break;
+			case DND_SYNC_ITEMHEIGHT:
+				PlayerInventoryList[pnum][extra].height = val;
+			break;
+			case DND_SYNC_ITEMIMAGE:
+				PlayerInventoryList[pnum][extra].item_image = val;
+			break;
+			case DND_SYNC_ITEMTYPE:
+				PlayerInventoryList[pnum][extra].item_type = val;
+			break;
+			case DND_SYNC_ITEMSUBTYPE:
+				PlayerInventoryList[pnum][extra].item_subtype = val;
+			break;
+			case DND_SYNC_ITEMLEVEL:
+				PlayerInventoryList[pnum][extra].item_level = val;
+			break;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+				PlayerInventoryList[pnum][extra].topleftboxid = val;
+			break;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+				PlayerInventoryList[pnum][extra].attrib_count = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+				PlayerInventoryList[pnum][extra].attributes[sub].attrib_id = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+				PlayerInventoryList[pnum][extra].attributes[sub].attrib_val = val;
+			break;
+		}
+	}
 }
 
 void SetSyncValue(int pos, int val, int extra, bool isOrb) {
@@ -269,24 +412,55 @@ void SetSyncValue(int pos, int val, int extra, bool isOrb) {
 
 void SyncClientsideVariable(int var, int extra, bool isOrb) {
 	if(!isOrb) {
-		if(var == DND_SYNC_WEAPONENHANCE || var >= DND_SYNC_WEPBONUS_CRIT)
+		if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
 			ACS_NamedExecuteAlways("DND Clientside Syncer", 0, var, GetPlayerSyncValue(var, extra, DND_SYNC_NONORB), extra);
 		else
 			ACS_NamedExecuteAlways("DND Clientside Syncer", 0, var, GetPlayerSyncValue(var, 0, DND_SYNC_NONORB), 0);
 	}
 	else {
-		if(var == DND_SYNC_WEAPONENHANCE || var >= DND_SYNC_WEPBONUS_CRIT)
+		if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
 			ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue(var, extra, DND_SYNC_ORB), extra);
 		else
 			ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue(var, 0, DND_SYNC_ORB), 0);
 	}
 }
 
+void SyncItemData(int itemid, int source) {
+	int i, j, h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source), w = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+	// synchronize the topleftboxid for all adjacent ones
+	int topboxid = GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source);
+	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+		for(i = 0; i < h; ++i)
+			for(j = 0; j < w; ++j)
+				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), topboxid, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
+	}
+	else
+		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), topboxid, itemid);
+	
+	for(i = DND_SYNC_ITEMWIDTH; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)
+		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, i | (source << 16), GetPlayerItemSyncValue(i, itemid, -1, source), itemid);
+	
+	h = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
+	for(i = 0; i < h; ++i) {
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_VAL; ++j)
+			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, j | (source << 16), GetPlayerItemSyncValue(j, itemid, i, source), itemid | (i << 16));
+	}
+}
+
+void SyncItemData_Null(int itemid, int source) {
+	int h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source), w = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+	for(int i = 0; i < h; ++i)
+		for(int j = 0; j < w; ++j) {
+			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), 0, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
+			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | (source << 16), DND_ITEM_NULL, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
+		}
+}
+
 void SyncAllClientsideVariables() {
 	int i, j;
 	// sync others
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || i >= DND_SYNC_WEPBONUS_CRIT) {
+		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPBONUS_CRIT && i <= DND_SYNC_WEPBONUS_DMG)) {
 			for(j = 0; j < MAXWEPS; ++j)
 				ACS_NamedExecuteAlways("DND Clientside Syncer", 0, i, GetPlayerSyncValue(i, j, DND_SYNC_NONORB), j);
 		}
@@ -295,7 +469,7 @@ void SyncAllClientsideVariables() {
 	}
 	// sync orbs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || i >= DND_SYNC_WEPBONUS_CRIT) {
+		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPBONUS_CRIT && i <= DND_SYNC_WEPBONUS_DMG)) {
 			for(j = 0; j < MAXWEPS; ++j)
 				ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue(i, j, DND_SYNC_ORB), j);
 		}

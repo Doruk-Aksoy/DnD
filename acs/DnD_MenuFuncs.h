@@ -1171,7 +1171,7 @@ void DrawCursor() {
 	else
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
-	Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
+	//Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - ((CheckInventory("Mouse_X") & MMASK)) + 0.1, HUDMAX_YF - ((CheckInventory("Mouse_Y") & MMASK)) + 0.1, 0.2, 0.0);
 }
 
@@ -2073,45 +2073,180 @@ void HandleResearchPageInput(int page, int boxid, int curposx) {
 	}
 }
 
+void ResetInventoryLitState() {
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		InventoryBoxLit[i] = false;
+}
+
+void CleanInventoryInfo() {
+	DeleteTextRange(RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 13, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES);
+}
+
 void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) {
 	str charmborderpic = CharmBoxLabels[charm_type][boxid == thisboxid];
 	str charmpic = "";
 	int pnum = PlayerNumber();
-	int charmid = Charms_Used[pnum][boxid - 1];
+	
+	// fixes background being lit on first row boxes
+	if(CheckInventory("DnD_InventoryView"))
+		charmborderpic = CharmBoxLabels[charm_type][0];
+	
 	// if there is a charm here
-	if(charmid) {
-		charmpic = Charms_On_Players[pnum][charmid].charm_image;
-		SetFont(charmpic);
+	if(Charms_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
+		charmpic = Charms_Used[pnum][thisboxid - 1].item_image;
+		SetFont(Item_Images[charmpic]);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		
+		if(boxid == thisboxid)
+			DrawInventoryInfo(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		else if(boxid == MAINBOX_NONE)
+			CleanInventoryInfo();
 	}
 	SetFont(charmborderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
-void DrawInventoryBlock(int boxid, int idx, int idy) {
-	int bid = idx * MAXINVENTORYBLOCKS_VERT + idy;
-	SetFont("LDTBOX");
-	if(boxid - 1 == bid)
+void DrawInventoryBlock(int boxid, int idx, int idy, int bid, bool hasItem) {
+	int offset = 0;
+	// inventory icon
+	if(hasItem) {
+		offset = PlayerInventoryList[PlayerNumber()][bid].item_subtype * 16.0;
+		SetFont(Item_Images[PlayerInventoryList[PlayerNumber()][bid].item_image]);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - bid - MAX_INVENTORY_BOXES - 2, CR_WHITE, INVENTORYBOX_BASEX - (MAXINVENTORYBLOCKS_VERT - idy - 1) * 32.0, INVENTORYBOX_ITEMBASEY + idx * 32.0 + offset, 0.0, 0.0);
+	}
+	
+	// gray inventory chunks
+	if(InventoryBoxLit[bid])
 		SetFont("LDTBOXS");
+	else if(PlayerInventoryList[PlayerNumber()][bid].topleftboxid)
+		SetFont("LDTBOXO");
+	else
+		SetFont("LDTBOX");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - bid - 1, CR_WHITE, INVENTORYBOX_BASEX - (MAXINVENTORYBLOCKS_VERT - idy - 1) * 32.0, INVENTORYBOX_BASEY - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * 32.0, 0.0, 0.0);
 }
 
+void DrawInventoryInfo(int topboxid, int source) {
+	int pnum = PlayerNumber(), mx, my;
+	int i = 0, j, temp, val;
+	
+	DeleteTextRange(RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 13, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES);
+	if(topboxid != -1 && GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source) != DND_ITEM_NULL) {
+		mx = HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) + 16.1 , my = HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) + 16.1;
+		SetFont("LDTITINF");
+		// to force them to appear in window
+		if(my > 152.0)
+			my = 152.1;
+		if(mx > 272.0)
+			mx = 272.1;
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, 0.0);
+		mx += 64.0;
+		my += 40.0;
+		mx &= MMASK;
+		my &= MMASK;
+		mx += 0.4;
+		my += 0.1;
+		// show item details
+		SetFont(Item_Images[GetPlayerItemSyncValue(DND_SYNC_ITEMIMAGE, topboxid, -1, source)]);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 32.0, my - 32.0, 0.0, 0.0);
+		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+		mx *= 3; my *= 3;
+		mx /= 2; my /= 2;
+		mx &= MMASK;
+		my &= MMASK;
+		mx += 0.4;
+		my += 0.1;
+		SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 192, 256, 1);
+		SetFont("SMALLFONT");
+		if(GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source) == DND_ITEM_CHARM) {
+			HudMessage(s:Charm_Tiers[GetPlayerItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetPlayerItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; 
+				HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, 0.0
+			);
+		}
+		i = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
+		for(j = 0; j < i; ++j) {
+			temp = GetPlayerItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
+			val = GetPlayerItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
+			if(val > 0)
+				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, 0.0);
+			else
+				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, 0.0);
+		}
+		SetHudClipRect(0, 0, 0, 0, 0);
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	}
+}
+
 void HandleInventoryView(int boxid) {
+	int bid, topboxid = -1;
+	bool hasItem;
 	SetFont("LDTSCRN");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID, CR_WHITE, HUDMAX_XF / 2, HUDMAX_YF / 2, 0.0, 0.0);
+	ResetInventoryLitState();
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DrawInventoryBlock(boxid, i, j);
+			topboxid = -1;
+			bid = i * MAXINVENTORYBLOCKS_VERT + j;
+			if(boxid != MAINBOX_NONE)
+				topboxid = PlayerInventoryList[PlayerNumber()][boxid - 1].topleftboxid - 1;
+			hasItem = PlayerInventoryList[PlayerNumber()][bid].item_type != DND_ITEM_NULL;
+			
+			// highlight checking
+			if(boxid - 1 == bid || topboxid != -1) {
+				InventoryBoxLit[boxid - 1] = true;
+				if(topboxid != -1) {
+					// all boxes in range of this should be highlighted
+					for(int p = 0; p < PlayerInventoryList[PlayerNumber()][topboxid].height; ++p) {
+						for(int s = 0; s < PlayerInventoryList[PlayerNumber()][topboxid].width; ++s)
+							InventoryBoxLit[topboxid + s + p * MAXINVENTORYBLOCKS_VERT] = true;
+					}
+				}
+			}
+			
+			DrawInventoryBlock(boxid, i, j, bid, hasItem);
+			
+			// draw popup for inventory info
+			if(boxid != MAINBOX_NONE)
+				DrawInventoryInfo(topboxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			else
+				CleanInventoryInfo();
 		}
 	}
 	SetFont("SMALLFONT");
 }
 
-void HandleCharmPageInputs(int boxid) {
+void HandleItemPageInputs(int pnum, int boxid) {
 	if(CheckInventory("MadeChoice") == 1) {
 		if(boxid != MAINBOX_NONE) {
-			GiveInventory("DnD_InventoryView", 1);
+			if(!CheckInventory("DnD_InventoryView")) {
+				SetInventory("DnD_SelectedInventoryBox", boxid);
+				GiveInventory("DnD_InventoryView", 1);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+			}
+			else {
+				// now track our choices made in the inventory view
+				int charm_sel = CheckInventory("DnD_SelectedInventoryBox");
+				int charm_type = 0;
+				int topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
+				if(charm_sel <= MBOX_4) // small charm replacement
+					charm_type = DND_CHARM_SMALL;
+				else if(charm_sel <= MBOX_6) // medium charm replacement
+					charm_type = DND_CHARM_MEDIUM;
+				else // grand charm replacement
+					charm_type = DND_CHARM_LARGE;
+				--charm_sel;
+				if(topboxid != -1 && PlayerInventoryList[pnum][topboxid].item_type == DND_ITEM_CHARM && PlayerInventoryList[pnum][topboxid].item_subtype == charm_type) {
+					if(MakeCharmUsed(charm_sel, topboxid, charm_type)) {
+						LocalAmbientSound("Items/CharmDrop", 127);
+						TakeInventory("DnD_InventoryView", 1);
+						SetInventory("DnD_SelectedInventoryBox", 0);
+					}
+					else
+						LocalAmbientSound("RPG/MenuError", 127);
+				}
+				else
+					LocalAmbientSound("RPG/MenuError", 127);
+			}
 		}
 	}
 }

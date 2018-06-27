@@ -237,6 +237,10 @@ Actor ShowingMenu : Inventory {
 	inventory.maxamount 255
 }
 
+Actor DnD_SelectedInventoryBox : Inventory {
+	inventory.maxamount 255
+}
+
 Actor MadeChoice : DnD_Boolean { }
 
 Actor StatBoostGiver : DND_Activator

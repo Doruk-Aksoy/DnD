@@ -24,9 +24,17 @@ Actor ElixirBase : DnD_DroppedItem {
 		goto SpawnLoop
 		
 		PickupSuccess:
-			TNT1 A 0 A_PlaySound("Items/ElixirPick")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Elixir", 0, mass - 1)
 		stop
+	}
+}
+
+Actor ElixirSoundPlayer : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlaySound("Items/ElixirPick")
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
 	}
 }
 
