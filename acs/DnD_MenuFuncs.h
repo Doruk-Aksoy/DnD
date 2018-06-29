@@ -979,7 +979,7 @@ void HandlePopups(int id) {
 
 	SetHudSize(480, 320, 1);
 	SetFont("DND_ERR");
-	HudMessage(s:"A"; HUDMSG_FADEOUT, RPGMENUITEMID - 45, -1, 216.1, 128.1, 1.0, 1.0);
+	HudMessage(s:"A"; HUDMSG_FADEOUT, RPGMENUPOPUPID, -1, 216.1, 128.1, 1.0, 1.0);
 	SetFont("SMALLFONT");
 	str toshow = "", title = " ";
 	if(popuptype == POPUP_ERROR) {
@@ -992,8 +992,8 @@ void HandlePopups(int id) {
 		toshow = StrParam(s:"Are you sure you\nwant to sell your\n\cd", s:ShopItemNames[id][SHOPNAME_TAG], s:"\c- ?");
 	}
 
-	HudMessage(s:title; HUDMSG_FADEOUT, RPGMENUITEMID - 46, -1, 316.4, 136.1, 1.0, 1.0);
-	HudMessage(s:toshow; HUDMSG_FADEOUT, RPGMENUITEMID - 47, CR_GOLD, 224.1, 160.1, 1.0, 1.0);
+	HudMessage(s:title; HUDMSG_FADEOUT, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0, 1.0);
+	HudMessage(s:toshow; HUDMSG_FADEOUT, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0, 1.0);
 }
 
 void DrawHighLightBar (int posy, int drawlit) {
@@ -1325,6 +1325,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 258.0, 197.0, 218.0, 143.0 },
 			{ 129.0, 197.0, 89.0, 143.0 },
 			{ 194.0, 268.0, 153.0, 184.0 },
+			{ 220.0, 76.0, 106.0, 68.0 },
 			{ -1, -1, -1, -1 }
 		},
 		// loadout for accessories below
@@ -2075,7 +2076,7 @@ void HandleResearchPageInput(int page, int boxid, int curposx) {
 
 void ResetInventoryLitState() {
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i)
-		InventoryBoxLit[i] = false;
+		InventoryBoxLit[i] = BOXLIT_STATE_OFF;
 }
 
 void CleanInventoryInfo() {
@@ -2115,10 +2116,14 @@ void DrawInventoryBlock(int boxid, int idx, int idy, int bid, bool hasItem) {
 		SetFont(Item_Images[PlayerInventoryList[PlayerNumber()][bid].item_image]);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - bid - MAX_INVENTORY_BOXES - 2, CR_WHITE, INVENTORYBOX_BASEX - (MAXINVENTORYBLOCKS_VERT - idy - 1) * 32.0, INVENTORYBOX_ITEMBASEY + idx * 32.0 + offset, 0.0, 0.0);
 	}
+	else // refresh picture if swapped
+		DeleteText(RPGMENUINVENTORYID - bid - MAX_INVENTORY_BOXES - 2);
 	
 	// gray inventory chunks
-	if(InventoryBoxLit[bid])
+	if(InventoryBoxLit[bid] == BOXLIT_STATE_CURSORON)
 		SetFont("LDTBOXS");
+	else if(InventoryBoxLit[bid] == BOXLIT_STATE_CLICK)
+		SetFont("LDTBOXC");
 	else if(PlayerInventoryList[PlayerNumber()][bid].topleftboxid)
 		SetFont("LDTBOXO");
 	else
@@ -2178,27 +2183,42 @@ void DrawInventoryInfo(int topboxid, int source) {
 }
 
 void HandleInventoryView(int boxid) {
-	int bid, topboxid = -1;
+	int bid, topboxid = -1, prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
 	bool hasItem;
 	SetFont("LDTSCRN");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID, CR_WHITE, HUDMAX_XF / 2, HUDMAX_YF / 2, 0.0, 0.0);
 	ResetInventoryLitState();
+	int s, p;
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			topboxid = -1;
 			bid = i * MAXINVENTORYBLOCKS_VERT + j;
 			if(boxid != MAINBOX_NONE)
 				topboxid = PlayerInventoryList[PlayerNumber()][boxid - 1].topleftboxid - 1;
-			hasItem = PlayerInventoryList[PlayerNumber()][bid].item_type != DND_ITEM_NULL;
+			
+			hasItem = PlayerInventoryList[PlayerNumber()][bid].topleftboxid - 1 == bid && PlayerInventoryList[PlayerNumber()][bid].item_type != DND_ITEM_NULL;
+			
+			// click coloring
+			if(prevclick != -1) {
+				if(PlayerInventoryList[PlayerNumber()][prevclick].topleftboxid) {
+					prevclick = PlayerInventoryList[PlayerNumber()][prevclick].topleftboxid - 1;
+					for(p = 0; p < PlayerInventoryList[PlayerNumber()][prevclick].height; ++p) {
+						for(s = 0; s < PlayerInventoryList[PlayerNumber()][prevclick].width; ++s)
+							InventoryBoxLit[prevclick + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CLICK;
+					}
+				}
+				else
+					InventoryBoxLit[prevclick] = BOXLIT_STATE_CLICK;
+			}
 			
 			// highlight checking
 			if(boxid - 1 == bid || topboxid != -1) {
-				InventoryBoxLit[boxid - 1] = true;
+				InventoryBoxLit[boxid - 1] = BOXLIT_STATE_CURSORON;
 				if(topboxid != -1) {
 					// all boxes in range of this should be highlighted
-					for(int p = 0; p < PlayerInventoryList[PlayerNumber()][topboxid].height; ++p) {
-						for(int s = 0; s < PlayerInventoryList[PlayerNumber()][topboxid].width; ++s)
-							InventoryBoxLit[topboxid + s + p * MAXINVENTORYBLOCKS_VERT] = true;
+					for(p = 0; p < PlayerInventoryList[PlayerNumber()][topboxid].height; ++p) {
+						for(s = 0; s < PlayerInventoryList[PlayerNumber()][topboxid].width; ++s)
+							InventoryBoxLit[topboxid + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CURSORON;
 					}
 				}
 			}
@@ -2215,37 +2235,85 @@ void HandleInventoryView(int boxid) {
 	SetFont("SMALLFONT");
 }
 
+void HandleInventoryViewClicks(int boxid, int topboxid) {
+	int bid;
+	if(!CheckInventory("DnD_SelectedInventoryBox")) {
+		SetInventory("DnD_SelectedInventoryBox", boxid);
+	}
+	else {
+		// we clicked somewhere with an item
+		if(topboxid && CheckInventory("DnD_SelectedInventoryBox") != topboxid) {
+			SwapItems(topboxid - 1, CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+			// handle item carry functionality here
+		} // this second click is surely an empty spot
+		else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
+			SwapItems(boxid - 1, CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		
+		}
+		SetInventory("DnD_SelectedInventoryBox", 0);
+	}
+	LocalAmbientSound("RPG/MenuChoose", 127);
+}
+
+void HandleGenericInventoryViewInputs(int boxid) {
+	ListenInput(0, 0, 0, 0);
+	if(CheckInventory("MadeChoice") == 1) {
+		if(boxid == MAINBOX_NONE) {
+			TakeInventory("DnD_InventoryView", 1);
+			SetInventory("DnD_SelectedInventoryBox", 0);
+			SetInventory("DnD_SelectedCharmBox", 0);
+			LocalAmbientSound("RPG/MenuClose", 127);
+		}
+	}
+}
+
 void HandleItemPageInputs(int pnum, int boxid) {
 	if(CheckInventory("MadeChoice") == 1) {
 		if(boxid != MAINBOX_NONE) {
+			// we pressed a charm box or view inventory box
 			if(!CheckInventory("DnD_InventoryView")) {
-				SetInventory("DnD_SelectedInventoryBox", boxid);
 				GiveInventory("DnD_InventoryView", 1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
+				if(boxid != MBOX_8) // mark our previous box selection if we clicked on a charm
+					SetInventory("DnD_SelectedCharmBox", boxid);
 			}
 			else {
 				// now track our choices made in the inventory view
-				int charm_sel = CheckInventory("DnD_SelectedInventoryBox");
+				int charm_sel = CheckInventory("DnD_SelectedCharmBox");
 				int charm_type = 0;
 				int topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
-				if(charm_sel <= MBOX_4) // small charm replacement
-					charm_type = DND_CHARM_SMALL;
-				else if(charm_sel <= MBOX_6) // medium charm replacement
-					charm_type = DND_CHARM_MEDIUM;
-				else // grand charm replacement
-					charm_type = DND_CHARM_LARGE;
-				--charm_sel;
-				if(topboxid != -1 && PlayerInventoryList[pnum][topboxid].item_type == DND_ITEM_CHARM && PlayerInventoryList[pnum][topboxid].item_subtype == charm_type) {
-					if(MakeCharmUsed(charm_sel, topboxid, charm_type)) {
-						LocalAmbientSound("Items/CharmDrop", 127);
-						TakeInventory("DnD_InventoryView", 1);
-						SetInventory("DnD_SelectedInventoryBox", 0);
+				if(charm_sel) {
+					if(charm_sel <= MBOX_4) // small charm replacement
+						charm_type = DND_CHARM_SMALL;
+					else if(charm_sel <= MBOX_6) // medium charm replacement
+						charm_type = DND_CHARM_MEDIUM;
+					else // grand charm replacement
+						charm_type = DND_CHARM_LARGE;
+					--charm_sel;
+					if(topboxid != -1 && PlayerInventoryList[pnum][topboxid].item_type == DND_ITEM_CHARM) {
+						if(MakeCharmUsed(charm_sel, topboxid, charm_type)) {
+							LocalAmbientSound("Items/CharmDrop", 127);
+							TakeInventory("DnD_InventoryView", 1);
+							SetInventory("DnD_SelectedCharmBox", 0);
+						}
+						else {
+							GiveInventory("DnD_PopupError", 1);
+							GiveInventory("DnD_ShowPopup", 1);
+							SetInventory("DnD_PopupId", POPUP_CHARMMISMATCH);
+							LocalAmbientSound("RPG/MenuError", 127);
+						}
 					}
-					else
+					else {
+						GiveInventory("DnD_PopupError", 1);
+						GiveInventory("DnD_ShowPopup", 1);
+						SetInventory("DnD_PopupId", POPUP_NOITEMTHERE);
 						LocalAmbientSound("RPG/MenuError", 127);
+					}
 				}
-				else
-					LocalAmbientSound("RPG/MenuError", 127);
+				else {
+					// normal clicking functionality on inventory view
+					HandleInventoryViewClicks(boxid, topboxid + 1);
+				}
 			}
 		}
 	}

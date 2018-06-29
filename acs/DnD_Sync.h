@@ -37,16 +37,17 @@ enum {
 	DND_SYNC_WEPBONUS_DMG,
 	
 	DND_SYNC_ITEMTOPLEFTBOX,
+	DND_SYNC_ITEMTYPE,
+	DND_SYNC_ITEMSUBTYPE,
 	DND_SYNC_ITEMWIDTH,
 	DND_SYNC_ITEMHEIGHT,
 	DND_SYNC_ITEMIMAGE,
-	DND_SYNC_ITEMTYPE,
-	DND_SYNC_ITEMSUBTYPE,
 	DND_SYNC_ITEMLEVEL,
 	DND_SYNC_ITEMSATTRIBCOUNT,
 	DND_SYNC_ITEMATTRIBUTES_ID,
 	DND_SYNC_ITEMATTRIBUTES_VAL
 };
+
 #define MAX_SYNC_VARS DND_SYNC_ITEMATTRIBUTES_VAL + 1
 
 enum {
@@ -425,19 +426,34 @@ void SyncClientsideVariable(int var, int extra, bool isOrb) {
 	}
 }
 
-void SyncItemData(int itemid, int source) {
-	int i, j, h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source), w = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+void SyncItemData(int itemid, int source, int wprev, int hprev) {
+	int i, j, h, w, bid;
+	// we must know previous height/width for proper sync
+	if(wprev != -1)
+		w = wprev;
+	else
+		w = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+	if(hprev != -1)
+		h = hprev;
+	else
+		h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
+		
 	// synchronize the topleftboxid for all adjacent ones
-	int topboxid = GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source);
 	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 		for(i = 0; i < h; ++i)
-			for(j = 0; j < w; ++j)
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), topboxid, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
+			for(j = 0; j < w; ++j) {
+				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
+				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source), bid);
+				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, bid, -1, source), bid);
+			}
 	}
-	else
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), topboxid, itemid);
+	else {
+		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
+		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
+	}
 	
-	for(i = DND_SYNC_ITEMWIDTH; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)
+	// skip top left box and item type, we handled it
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)
 		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, i | (source << 16), GetPlayerItemSyncValue(i, itemid, -1, source), itemid);
 	
 	h = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
@@ -447,13 +463,50 @@ void SyncItemData(int itemid, int source) {
 	}
 }
 
-void SyncItemData_Null(int itemid, int source) {
-	int h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source), w = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+void SyncItemData_Null(int itemid, int source, int wprev, int hprev) {
+	int h, w;
+	if(wprev != -1)
+		w = wprev;
+	else
+		w = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+	if(hprev != -1)
+		h = hprev;
+	else
+		h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
+	
 	for(int i = 0; i < h; ++i)
 		for(int j = 0; j < w; ++j) {
 			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), 0, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
 			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | (source << 16), DND_ITEM_NULL, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
 		}
+}
+
+// a more efficient syncer for the server
+void SyncItemPointers(int itemid, int source, int wprev, int hprev) {
+	int i, j, h, w, bid;
+	// we must know previous height/width for proper sync
+	if(wprev != -1)
+		w = wprev;
+	else
+		w = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+	if(hprev != -1)
+		h = hprev;
+	else
+		h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
+		
+	// synchronize the topleftboxid for all adjacent ones
+	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+		for(i = 0; i < h; ++i)
+			for(j = 0; j < w; ++j) {
+				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
+				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source), bid);
+				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, bid, -1, source), bid);
+			}
+	}
+	else {
+		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
+		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | (source << 16), GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
+	}
 }
 
 void SyncAllClientsideVariables() {

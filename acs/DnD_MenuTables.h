@@ -55,7 +55,13 @@
 #define INVENTORYBOX_BASEX_RECT 384.0
 #define INVENTORYBOX_BASEY_RECT 240.0
 
-bool InventoryBoxLit[MAX_INVENTORY_BOXES];
+enum {
+	BOXLIT_STATE_OFF,
+	BOXLIT_STATE_CURSORON,
+	BOXLIT_STATE_CLICK
+};
+
+int InventoryBoxLit[MAX_INVENTORY_BOXES];
 
 typedef struct rect {
 	int topleft_x;
@@ -189,8 +195,9 @@ enum {
  // MENU IDS
 enum {
 	RPGMENUCURSORID = 100,
-	RPGMENUINVENTORYID = 325,
-	RPGMENUPAGEID = 326,
+	RPGMENUPOPUPID = 105,
+	RPGMENUINVENTORYID = 339,
+	RPGMENUPAGEID = 340,
 	RPGMENUID,
 	RPGMENULARRID,
 	RPGMENURARRID,
@@ -2163,10 +2170,12 @@ enum {
 	POPUP_ALREADYRESEARCHED,
 	POPUP_MAXACCESSORYEQUIPPED,
 	POPUP_NOTALENTPOINT,
-	POPUP_ACCESSORYNOTFOUND
+	POPUP_ACCESSORYNOTFOUND,
+	POPUP_CHARMMISMATCH,
+	POPUP_NOITEMTHERE
 };
 
-#define MAX_POPUPS POPUP_ACCESSORYNOTFOUND + 1
+#define MAX_POPUPS POPUP_NOITEMTHERE + 1
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2179,7 +2188,9 @@ str PopupText[MAX_POPUPS] = {
 	"You already did this\nresearch!",
 	"Unequip some accesso-\nries first!",
 	"You need to acquire\ntalent points!",
-	"You don't have this\naccessory yet!"
+	"You don't have this\naccessory yet!",
+	"Mismatching charm\ntype!",
+	"No item selected!"
 };
 
 #define MAX_HELPTEXT_RESEARCH 5

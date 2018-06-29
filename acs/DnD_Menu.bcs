@@ -35,6 +35,7 @@ Script 900 (void) NET {
 		SetInventory("ActiveMainBox", 0);
 		SetInventory("MadeChoice", 0);
 		SetInventory("DnD_PopupId", 0);
+		SetInventory("DnD_SelectedCharmBox", 0);
 		SetInventory("DnD_SelectedInventoryBox", 0);
 		TakeInventory("DnD_InventoryView", 1);
 		TakeInventory("DnD_ShowPopup", 1);
@@ -377,6 +378,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 352.1, 152.0);
 				
 				DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 288.1, 96.0);
+				
+				DrawBoxText("View Inventory", boxid, MBOX_8, RPGMENUITEMID, 316.4, 248.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
 				// if RES_ACCESSORY is not made, don't let player do anything here
@@ -782,11 +785,7 @@ Script "DND Menu Input Handle" (void) {
 		// Easy change to main menu sub parts
 		
 		if(CheckInventory("DnD_InventoryView")) {
-			ListenInput(0, 0, 0, 0);
-			if(CheckInventory("MadeChoice") == 1) {
-				if(boxid == MAINBOX_NONE)
-					TakeInventory("DnD_InventoryView", 1);
-			}
+			HandleGenericInventoryViewInputs(boxid);
 		}
 		
 		if(mainboxid != MAINBOX_NONE) {

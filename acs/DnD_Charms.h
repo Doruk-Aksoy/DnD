@@ -70,10 +70,13 @@ void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
 }
 
 // players dropping charms
-void DropCharm(int pcharm_index, int player_index) {
-	int pos = CreateItemSpot();
-	// copy now
-	CopyItem(false, pos, player_index, pcharm_index);
+void DropCharm(int player_index, int pcharm_index, bool forAll) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		// copy now
+		CopyItem(false, c, player_index, pcharm_index);
+		forAll ? SpawnDrop("CharmDrop", 16.0, 16, 0, c) : SpawnDrop("CharmDrop", 16.0, 16, player_index + 1, c);
+	}
 }
 
 void RollCharmInfo(int charm_pos, int charm_tier, bool onField) {
@@ -143,9 +146,8 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 	else {
 		// this means we must swap charms
 		if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL)
-			SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 		else {
-			printbold(s:"was empty");
 			// just zero the stuff in inventory, and copy them into charms used
 			Charms_Used[pnum][use_id].width = PlayerInventoryList[pnum][item_index].width;
 			Charms_Used[pnum][use_id].height = PlayerInventoryList[pnum][item_index].height;
@@ -163,24 +165,9 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			// the leftover spot is a null charm
 			int wtemp = PlayerInventoryList[pnum][item_index].width;
 			int htemp = PlayerInventoryList[pnum][item_index].height;
-			PlayerInventoryList[pnum][item_index].item_subtype = 0;
-			PlayerInventoryList[pnum][item_index].item_image = 0;
-			PlayerInventoryList[pnum][item_index].item_level = 0;
-			for(j = 0; j < PlayerInventoryList[pnum][item_index].attrib_count; ++j) {
-				PlayerInventoryList[pnum][item_index].attributes[j].attrib_id = 0;
-				PlayerInventoryList[pnum][item_index].attributes[j].attrib_val = 0;
-			}
-			PlayerInventoryList[pnum][item_index].attrib_count = 0;
-			for(j = 0; j < htemp; ++j)
-				for(i = 0; i < wtemp; ++i) {
-					PlayerInventoryList[pnum][item_index + j * MAXINVENTORYBLOCKS_VERT + i].topleftboxid = 0;
-					PlayerInventoryList[pnum][item_index + j * MAXINVENTORYBLOCKS_VERT + i].item_type = DND_ITEM_NULL;
-					SyncItemData_Null(item_index + j * MAXINVENTORYBLOCKS_VERT + i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-				}
-			PlayerInventoryList[pnum][item_index].width = 0;
-			PlayerInventoryList[pnum][item_index].height = 0;
-			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			FreeItem(pnum, item_index);
+			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
+			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
 		}
 		return true;
 	}
