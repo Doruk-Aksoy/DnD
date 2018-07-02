@@ -7,6 +7,7 @@ Actor CharmBase : DnD_DroppedItem {
 			"####" "#" 0 A_PlaySound("Items/CharmDrop")
 			"####" "#" 16 Bright
 		SpawnLoop:
+		Idle:
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
 		
@@ -25,7 +26,8 @@ Actor CharmBase : DnD_DroppedItem {
 		
 		PickupCheck2:
 			// Check if player has remaining inventory space
-		Goto PickupSuccess
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", 0, mass - 1), "PickupSuccess")
+		Goto PickupFail
 		
 		PickupSuccess:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charm Pickup", 0, mass - 1)

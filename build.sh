@@ -19,8 +19,6 @@ echo Packing all files into pk7's..."
 
 version=`git describe --tags`
 7z u -t7z dnd$version.pk7 ./dnd/* -mx=9 >/dev/null
-7z d dnd$version.pk7 TEXTURES -x!TEXTURES/ >/dev/null
-7z rn dnd$version.pk7 TEXTURES_ TEXTURES >/dev/null
 7z u -t7z dnd_monsters$version.pk7 ./monsters/* -mx=9 >/dev/null
 7z u -t7z dnd_onlyammo$version.pk7 ./onlyammo/* -mx=9 >/dev/null
 

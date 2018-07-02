@@ -2144,7 +2144,7 @@ void DrawInventoryInfo(int topboxid, int source) {
 			my = 152.1;
 		if(mx > 272.0)
 			mx = 272.1;
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, INVENTORY_INFO_ALPHA);
 		mx += 64.0;
 		my += 40.0;
 		mx &= MMASK;
@@ -2153,7 +2153,7 @@ void DrawInventoryInfo(int topboxid, int source) {
 		my += 0.1;
 		// show item details
 		SetFont(Item_Images[GetPlayerItemSyncValue(DND_SYNC_ITEMIMAGE, topboxid, -1, source)]);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 32.0, my - 32.0, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 32.0, my - 32.0, 0.0, INVENTORY_INFO_ALPHA);
 		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 		mx *= 3; my *= 3;
 		mx /= 2; my /= 2;
@@ -2165,7 +2165,7 @@ void DrawInventoryInfo(int topboxid, int source) {
 		SetFont("SMALLFONT");
 		if(GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source) == DND_ITEM_CHARM) {
 			HudMessage(s:Charm_Tiers[GetPlayerItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetPlayerItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; 
-				HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, 0.0
+				HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA
 			);
 		}
 		i = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
@@ -2173,9 +2173,9 @@ void DrawInventoryInfo(int topboxid, int source) {
 			temp = GetPlayerItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
 			val = GetPlayerItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
 			if(val > 0)
-				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, 0.0);
+				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 			else
-				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, 0.0);
+				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -2240,18 +2240,43 @@ void HandleInventoryViewClicks(int boxid, int topboxid) {
 	if(!CheckInventory("DnD_SelectedInventoryBox")) {
 		SetInventory("DnD_SelectedInventoryBox", boxid);
 	}
-	else {
-		// we clicked somewhere with an item
-		if(topboxid && CheckInventory("DnD_SelectedInventoryBox") != topboxid) {
-			SwapItems(topboxid - 1, CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-			// handle item carry functionality here
-		} // this second click is surely an empty spot
-		else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
-			SwapItems(boxid - 1, CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-		
+	else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
+		// if neither are empty spots
+		int pnum = PlayerNumber();
+		int epos, ipos;
+		bool boxidon = PlayerInventoryList[pnum][boxid - 1].item_type != DND_ITEM_NULL;
+		bool prevselecton = PlayerInventoryList[pnum][CheckInventory("DnD_SelectedInventoryBox") - 1].item_type != DND_ITEM_NULL;
+		if(boxidon && prevselecton) {
+			// if both of them point to the same pointer, we need to move this item instead
+			if(PlayerInventoryList[pnum][boxid - 1].topleftboxid == PlayerInventoryList[pnum][CheckInventory("DnD_SelectedInventoryBox") - 1].topleftboxid) {
+				ipos = CheckInventory("DnD_SelectedInventoryBox") - 1;
+				epos = boxid - 1;
+				if(IsFreeSpot(ipos, epos))
+					MoveItem(ipos, epos);
+			}
+			else
+				SwapItems(boxid - 1, CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		}
+		else {
+			// find which one has an item, and move it
+			if(!boxidon) {
+				epos = boxid - 1;
+				ipos = CheckInventory("DnD_SelectedInventoryBox") - 1;
+			}
+			else {
+				epos = CheckInventory("DnD_SelectedInventoryBox") - 1;
+				ipos = boxid - 1;
+			}
+			// epos holds the empty position now
+			// make sure we aren't both empty slots
+			if((boxidon || prevselecton) && IsFreeSpot(ipos, epos)) {
+				MoveItem(ipos, epos);
+			}
 		}
 		SetInventory("DnD_SelectedInventoryBox", 0);
 	}
+	else
+		SetInventory("DnD_SelectedInventoryBox", 0);
 	LocalAmbientSound("RPG/MenuChoose", 127);
 }
 

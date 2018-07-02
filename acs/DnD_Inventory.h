@@ -101,7 +101,7 @@ int CreateItemSpot() {
 	return pos;
 }
 
-void FreeItem(int pnum, int item_index) {
+void FreeItem(int pnum, int item_index, bool dontSync) {
 	int i, j;
 	int wtemp = PlayerInventoryList[pnum][item_index].width;
 	int htemp = PlayerInventoryList[pnum][item_index].height;
@@ -120,7 +120,24 @@ void FreeItem(int pnum, int item_index) {
 		}
 	PlayerInventoryList[pnum][item_index].width = 0;
 	PlayerInventoryList[pnum][item_index].height = 0;
-	SyncItemData_Null(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
+	if(!dontSync)
+		SyncItemData_Null(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
+}
+
+void FreeSpot(int pnum, int item_index) {
+	int j;
+	PlayerInventoryList[pnum][item_index].item_subtype = 0;
+	PlayerInventoryList[pnum][item_index].item_image = 0;
+	PlayerInventoryList[pnum][item_index].item_level = 0;
+	for(j = 0; j < PlayerInventoryList[pnum][item_index].attrib_count; ++j) {
+		PlayerInventoryList[pnum][item_index].attributes[j].attrib_id = 0;
+		PlayerInventoryList[pnum][item_index].attributes[j].attrib_val = 0;
+	}
+	PlayerInventoryList[pnum][item_index].attrib_count = 0;
+	PlayerInventoryList[pnum][item_index].topleftboxid = 0;
+	PlayerInventoryList[pnum][item_index].item_type = DND_ITEM_NULL;
+	PlayerInventoryList[pnum][item_index].width = 0;
+	PlayerInventoryList[pnum][item_index].height = 0;
 }
 
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
@@ -138,7 +155,7 @@ int GetFreeSpotForItem(int item_index, int player_index) {
 			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
 				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
 					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL)
+					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
 						unfit = true;
 				}
 			}
@@ -197,7 +214,7 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 		}
 
 		// the leftover spot is a null charm
-		FreeItem(player_index, item_index);
+		FreeItem(player_index, item_index, false);
 	}
 	else {
 		// handle the box management
@@ -234,70 +251,91 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 	SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 }
 
-// if ipos1 has enough space to acommodate ipos2
-bool CanSwapItems(int ipos1, int ipos2) {
+// check if clicked spot is free for the item we want to put
+bool IsFreeSpot(int itempos, int emptypos) {
 	int pnum = PlayerNumber();
-	int i, j;
-	int w1, w2, h1, h2;
-	int bid = 0, temp;
-	// from ipos2 to ipos1
-	// if null don't check, this is a free spot
-	if(PlayerInventoryList[pnum][ipos2].item_type != DND_ITEM_NULL) {
-		temp = PlayerInventoryList[pnum][ipos2].topleftboxid - 1;
-		w2 = PlayerInventoryList[pnum][temp].width;
-		h2 = PlayerInventoryList[pnum][temp].height;
-		for(i = 0; i < h2; ++i) {
-			for(j = 0; j < w2; ++j) {
-				bid = ipos1 + j + i * MAXINVENTORYBLOCKS_VERT;
-				if(bid >= MAX_INVENTORY_BOXES)
-					return false;
-				// if the pointer here doesn't point to us or not empty
-				if(PlayerInventoryList[pnum][bid].topleftboxid - 1 != ipos1 && PlayerInventoryList[pnum][bid].item_type != DND_ITEM_NULL)
-					return false;
-			}
-		}
-	}
-	// from ipos1 to ipos2
-	if(PlayerInventoryList[pnum][ipos1].item_type != DND_ITEM_NULL) {
-		temp = PlayerInventoryList[pnum][ipos1].topleftboxid - 1;
-		w1 = PlayerInventoryList[pnum][temp].width;
-		h1 = PlayerInventoryList[pnum][temp].height;
-		for(i = 0; i < h1; ++i) {
-			for(j = 0; j < w1; ++j) {
-				bid = ipos2 + j + i * MAXINVENTORYBLOCKS_VERT;
-				if(bid >= MAX_INVENTORY_BOXES)
-					return false;
-				// if the pointer here doesn't point to us or not empty
-				if(PlayerInventoryList[pnum][bid].topleftboxid - 1 != ipos2 && PlayerInventoryList[pnum][bid].item_type != DND_ITEM_NULL)
-					return false;
-			}
+	int temp = PlayerInventoryList[pnum][itempos].topleftboxid - 1;
+	int w = PlayerInventoryList[pnum][temp].width;
+	int h = PlayerInventoryList[pnum][temp].height;
+	int offset = temp - itempos;
+	int bid = 0;
+	
+	for(int i = 0; i < h; ++i) {
+		for(int j = 0; j < w; ++j) {
+			bid = emptypos + offset + j + i * MAXINVENTORYBLOCKS_VERT;
+			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
+				return false;
+			// if not empty and it's not us
+			if(PlayerInventoryList[pnum][bid].topleftboxid && PlayerInventoryList[pnum][bid].topleftboxid - 1 != temp)
+				return false;
 		}
 	}
 	return true;
 }
 
-void SwapItemProperty(int ipos1, int ipos2, int property, int source1, int source2) {
+// assumes both spots have an item
+// if ipos1 has enough space to acommodate ipos2
+bool CanSwapItems(int ipos1, int ipos2, int offset1, int offset2) {
+	int pnum = PlayerNumber();
+	int i, j;
+	int w1, w2, h1, h2;
+	int bid = 0, tb1, tb2;
+	// from ipos2 to ipos1
+	tb1 = PlayerInventoryList[pnum][ipos1].topleftboxid - 1;
+	tb2 = PlayerInventoryList[pnum][ipos2].topleftboxid - 1;
+	w2 = PlayerInventoryList[pnum][tb2].width;
+	h2 = PlayerInventoryList[pnum][tb2].height;
+	for(i = 0; i < h2; ++i) {
+		for(j = 0; j < w2; ++j) {
+			bid = ipos1 + offset2 + j + i * MAXINVENTORYBLOCKS_VERT;
+			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
+				return false;
+			if(PlayerInventoryList[pnum][bid].topleftboxid - 1 != tb1 && PlayerInventoryList[pnum][bid].item_type != DND_ITEM_NULL)
+				return false;
+		}
+	}
+	// from ipos1 to ipos2
+	w1 = PlayerInventoryList[pnum][tb1].width;
+	h1 = PlayerInventoryList[pnum][tb1].height;
+	for(i = 0; i < h1; ++i) {
+		for(j = 0; j < w1; ++j) {
+			bid = ipos2 + offset1 + j + i * MAXINVENTORYBLOCKS_VERT;
+			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
+				return false;
+			if(PlayerInventoryList[pnum][bid].topleftboxid - 1 != tb2 && PlayerInventoryList[pnum][bid].item_type != DND_ITEM_NULL)
+				return false;
+		}
+	}
+	return true;
+}
+
+void SwapItemProperty(int ipos1, int ipos2, int property, int source1, int source2, int offset1, int offset2) {
 	int pnum = PlayerNumber();
 	int temp;
 	int i;
 	int ht, wt;
 	
 	int h1, h2, w1, w2;
+	int itype1, itype2;
+	
+	int tb1, tb2;
 	
 	switch(property) {
 		case DND_SYNC_ITEMTOPLEFTBOX:
-			h1 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos1, -1, source1);
-			h2 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos2, -1, source2);
-			w1 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos1, -1, source1);
-			w2 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos2, -1, source2);
+			tb1 = GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos1, -1, source1) - 1;
+			tb2 = GetPlayerItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos2, -1, source2) - 1;
+			h1 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, tb1, -1, source1);
+			h2 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, tb2, -1, source2);
+			w1 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, tb1, -1, source1);
+			w2 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, tb2, -1, source2);
 			// reset pointers
 			for(ht = 0; ht < h1; ++ht)
 				for(wt = 0; wt < w1; ++wt)
-					SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, 0, source1);
+					SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, tb1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, 0, source1);
 			
 			for(ht = 0; ht < h2; ++ht)
 				for(wt = 0; wt < w2; ++wt)
-					SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, 0, source2);
+					SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, tb2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, 0, source2);
 					
 			// handle the leftover pointers
 			// update pointers for new scale
@@ -305,7 +343,7 @@ void SwapItemProperty(int ipos1, int ipos2, int property, int source1, int sourc
 			if(source1 == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 				for(ht = 0; ht < h2; ++ht) {
 					for(wt = 0; wt < w2; ++wt)
-						SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, ipos1 + 1, source1);
+						SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos1 + offset2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, ipos1 + offset2 + 1, source1);
 				}
 			}
 			else
@@ -314,34 +352,36 @@ void SwapItemProperty(int ipos1, int ipos2, int property, int source1, int sourc
 			if(source2 == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 				for(ht = 0; ht < h1; ++ht) {
 					for(wt = 0; wt < w1; ++wt)
-						SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, ipos2 + 1, source2);
+						SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos2 + offset1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, ipos2 + offset1 + 1, source2);
 				}
 			}
 			else
 				SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos2, -1, ipos2 + 1, source2);
 		break;
 		case DND_SYNC_ITEMTYPE:
-			h1 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos1, -1, source1);
-			h2 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos2, -1, source2);
-			w1 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos1, -1, source1);
-			w2 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos2, -1, source2);
-			int itype1 = GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, ipos1, -1, source1);
-			int itype2 = GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, ipos2, -1, source2);
+			tb1 = ipos1 + offset1;
+			tb2 = ipos2 + offset2;
+			h1 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, tb1, -1, source1);
+			h2 = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, tb2, -1, source2);
+			w1 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, tb1, -1, source1);
+			w2 = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, tb2, -1, source2);
+			itype1 = GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, tb1, -1, source1);
+			itype2 = GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, tb2, -1, source2);
 			// reset pointers
 			for(ht = 0; ht < h1; ++ht)
 				for(wt = 0; wt < w1; ++wt)
-					SetItemSyncValue(DND_SYNC_ITEMTYPE, ipos1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, DND_ITEM_NULL, source1);
+					SetItemSyncValue(DND_SYNC_ITEMTYPE, tb1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, DND_ITEM_NULL, source1);
 			
 			for(ht = 0; ht < h2; ++ht)
 				for(wt = 0; wt < w2; ++wt)
-					SetItemSyncValue(DND_SYNC_ITEMTYPE, ipos2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, DND_ITEM_NULL, source2);
-					
+					SetItemSyncValue(DND_SYNC_ITEMTYPE, tb2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, DND_ITEM_NULL, source2);
+			
 			// handle the leftover pointers
 			// update pointers for new scale
 			if(source1 == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 				for(ht = 0; ht < h2; ++ht) {
 					for(wt = 0; wt < w2; ++wt)
-						SetItemSyncValue(DND_SYNC_ITEMTYPE, ipos1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, itype2, source1);
+						SetItemSyncValue(DND_SYNC_ITEMTYPE, ipos1 + offset2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, itype2, source1);
 				}
 			}
 			else
@@ -350,7 +390,7 @@ void SwapItemProperty(int ipos1, int ipos2, int property, int source1, int sourc
 			if(source2 == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 				for(ht = 0; ht < h1; ++ht) {
 					for(wt = 0; wt < w1; ++wt)
-						SetItemSyncValue(DND_SYNC_ITEMTYPE, ipos2 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, itype1, source2);
+						SetItemSyncValue(DND_SYNC_ITEMTYPE, ipos2 + offset1 + wt + ht * MAXINVENTORYBLOCKS_VERT, -1, itype1, source2);
 				}
 			}
 			else
@@ -362,68 +402,156 @@ void SwapItemProperty(int ipos1, int ipos2, int property, int source1, int sourc
 		case DND_SYNC_ITEMSUBTYPE:
 		case DND_SYNC_ITEMLEVEL:
 		case DND_SYNC_ITEMSATTRIBCOUNT:
-			temp = GetPlayerItemSyncValue(property, ipos1, -1, source1);
-			SetItemSyncValue(property, ipos1, -1, GetPlayerItemSyncValue(property, ipos2, -1, source2), source1);
-			SetItemSyncValue(property, ipos2, -1, temp, source2);
+			tb1 = ipos1 + offset1;
+			tb2 = ipos2 + offset2;
+			temp = GetPlayerItemSyncValue(property, tb1, -1, source1);
+			SetItemSyncValue(property, ipos1 + offset2, -1, GetPlayerItemSyncValue(property, tb2, -1, source2), source1);
+			SetItemSyncValue(property, ipos2 + offset1, -1, temp, source2);
 		break;
 		case DND_SYNC_ITEMATTRIBUTES_ID:
 		case DND_SYNC_ITEMATTRIBUTES_VAL:
-			wt = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, ipos1, -1, source1);
-			ht = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, ipos2, -1, source2);
+			tb1 = ipos1 + offset1;
+			tb2 = ipos2 + offset2;
+			wt = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, tb1, -1, source1);
+			ht = GetPlayerItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, tb2, -1, source2);
 			// if my attrib count now is higher, I need to take from whoever had the higher one before
 			if(wt > ht) {
 				for(i = 0; i < wt; ++i) {
 					// ipos2 had more attributes, it covers a larger space, take them all
-					temp = GetPlayerItemSyncValue(property, ipos2, i, source2);
-					SetItemSyncValue(property, ipos2, i, GetPlayerItemSyncValue(property, ipos1, i, source1), source2);
-					SetItemSyncValue(property, ipos1, i, temp, source1);
+					temp = GetPlayerItemSyncValue(property, tb2, i, source2);
+					SetItemSyncValue(property, ipos2 + offset1, i, GetPlayerItemSyncValue(property, tb1, i, source1), source2);
+					SetItemSyncValue(property, ipos1 + offset2, i, temp, source1);
 				}
 			}
 			else {
 				for(i = 0; i < ht; ++i) {
 					// ipos1 had more attributes, it covers a larger space, take them all
-					temp = GetPlayerItemSyncValue(property, ipos1, i, source1);
-					SetItemSyncValue(property, ipos1, i, GetPlayerItemSyncValue(property, ipos2, i, source2), source1);
-					SetItemSyncValue(property, ipos2, i, temp, source2);
+					temp = GetPlayerItemSyncValue(property, tb1, i, source1);
+					SetItemSyncValue(property, ipos1 + offset2, i, GetPlayerItemSyncValue(property, tb2, i, source2), source1);
+					SetItemSyncValue(property, ipos2 + offset1, i, temp, source2);
 				}
 			}
 		break;
 	}
 }
 
-// for swapping items
+// for swapping items -- assumes neither are null
 void SwapItems(int ipos1, int ipos2, int source1, int source2, bool dontSync) {
 	// check if there's enough space
-	if(CanSwapItems(ipos1, ipos2)) {
-		printbold(s:"can swap");
+	// find if there is some sort of offset we must take care of, this matters only if we are swapping in inventory
+	int offset1 = 0, offset2 = 0;
+	if(source1 == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)
+		offset1 = PlayerInventoryList[PlayerNumber()][ipos1].topleftboxid - 1 - ipos1;
+	if(source2 == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)
+		offset2 = PlayerInventoryList[PlayerNumber()][ipos2].topleftboxid - 1 - ipos2;
+	if(CanSwapItems(ipos1, ipos2, offset1, offset2)) {
+		// we need difference in height and width to the topboxid of this item, then we can anchor it properly
+		// divide by max_vert to get height
 		int i, j;
-		int h1p = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos1, -1, source1);
-		int h2p = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos2, -1, source2);
-		int w1p = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos1, -1, source1); 
-		int w2p = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos2, -1, source2);
+		int h1p = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos1 + offset1, -1, source1);
+		int h2p = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos2 + offset2, -1, source2);
+		int w1p = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos1 + offset1, -1, source1); 
+		int w2p = GetPlayerItemSyncValue(DND_SYNC_ITEMWIDTH, ipos2 + offset2, -1, source2);
 		
 		for(i = DND_SYNC_ITEMBEGIN; i <= DND_SYNC_ITEMEND; ++i)
-			SwapItemProperty(ipos1, ipos2, i, source1, source2);
+			SwapItemProperty(ipos1, ipos2, i, source1, source2, offset1, offset2);
 		
 		// for large swaps, a big sync at the end is way more favorable
 		if(!dontSync) {
-			if(GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, ipos1, -1, source1) == DND_ITEM_NULL)
-				SyncItemData_Null(ipos1, source1, w1p, h1p);
+			if(GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, ipos1, -1, source1) == DND_ITEM_NULL) {
+				SyncItemData_Null(ipos1 + offset1, source1, w1p, h1p);
+			}
 			else {
-				printbold(s:"item 1 ", d:w1p, s: " ", d:h1p);
-				SyncItemPointers(ipos1, source1, w1p, h1p);
-				SyncItemData(ipos1, source1, -1, -1);
+				SyncItemPointers(ipos1 + offset1, source1, w1p, h1p);
+				SyncItemData(ipos1 + offset2, source1, -1, -1);
 			}
 				
-			if(GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, ipos2, -1, source2) == DND_ITEM_NULL)
-				SyncItemData_Null(ipos2, source2, w2p, h2p);
+			if(GetPlayerItemSyncValue(DND_SYNC_ITEMTYPE, ipos2, -1, source2) == DND_ITEM_NULL) {
+				SyncItemData_Null(ipos2 + offset2, source2, w2p, h2p);
+			}
 			else {
-				printbold(s:"item 2 ", d:w2p, s: " ", d:h2p);
-				SyncItemPointers(ipos2, source2, w2p, h2p);
-				SyncItemData(ipos2, source2, -1, -1);
+				SyncItemPointers(ipos2 + offset2, source2, w2p, h2p);
+				SyncItemData(ipos2 + offset1, source2, -1, -1);
 			}
 		}
 	}
+}
+
+/*
+	0  1  2  3  4
+	9 10 11 12 13
+   18 19 20 21 22
+   27 28 29 30 31
+*/
+
+bool InventoryBoxContainsPoint(int point, int boxleft, int w, int h) {
+	// for every line, check if point falls into a linear range
+	for(int i = 0; i < h; ++i)
+		if(boxleft + i * MAXINVENTORYBLOCKS_VERT <= point && boxleft + i * MAXINVENTORYBLOCKS_VERT + w - 1 >= point)
+			return true;
+	return false;
+}
+
+void MoveItem(int itempos, int emptypos) {
+	int pnum = PlayerNumber();
+	int tb = PlayerInventoryList[pnum][itempos].topleftboxid - 1;
+	int offset = tb - itempos;
+	
+	int i, j, bid;
+	
+	int w = PlayerInventoryList[pnum][tb].width;
+	int h = PlayerInventoryList[pnum][tb].height;
+
+	// these two mark box ids that have been modified, ie. need updates
+	// if the boxes aren't in range of itempos, they will need to be nulled
+	bool set1 = false;
+	bool set2 = false;
+	
+	int temp = emptypos + offset;
+	
+	for(i = 0; i < h; ++i) 
+		for(j = 0; j < w; ++j) {
+			bid = temp + j + i * MAXINVENTORYBLOCKS_VERT;
+			if(!InventoryBoxContainsPoint(tb + j + i * MAXINVENTORYBLOCKS_VERT, temp, w, h)) {
+				if(tb + j + i * MAXINVENTORYBLOCKS_VERT < 32)
+					set1 |= 1 << (tb + j + i * MAXINVENTORYBLOCKS_VERT);
+				else
+					set2 |= 1 << (tb + j + i * MAXINVENTORYBLOCKS_VERT);
+			}
+		}
+	
+	PlayerInventoryList[pnum][temp].width = w;
+	PlayerInventoryList[pnum][temp].height = h;
+	PlayerInventoryList[pnum][temp].item_subtype = PlayerInventoryList[pnum][tb].item_subtype;
+	PlayerInventoryList[pnum][temp].item_image = PlayerInventoryList[pnum][tb].item_image;
+	PlayerInventoryList[pnum][temp].item_level = PlayerInventoryList[pnum][tb].item_level;
+	PlayerInventoryList[pnum][temp].attrib_count = PlayerInventoryList[pnum][tb].attrib_count;
+	for(i = 0; i < PlayerInventoryList[pnum][temp].attrib_count; ++i) {
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = PlayerInventoryList[pnum][tb].attributes[i].attrib_id;
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_val = PlayerInventoryList[pnum][tb].attributes[i].attrib_val;
+	}
+	for(i = 0; i < h; ++i)
+		for(j = 0; j < w; ++j) {
+			PlayerInventoryList[pnum][temp + i * MAXINVENTORYBLOCKS_VERT + j].item_type = PlayerInventoryList[pnum][tb].item_type;
+			PlayerInventoryList[pnum][temp + i * MAXINVENTORYBLOCKS_VERT + j].topleftboxid = temp + 1;
+		}
+
+	if(set1 || set2) {
+		for(i = 0; i < 32; ++i)
+			if(IsSet(set1, i))
+				FreeSpot(pnum, i);
+			
+		for(i = 0; i < MAX_INVENTORY_BOXES - 32; ++i)
+			if(IsSet(set2, i))
+				FreeSpot(pnum, i + 32);
+		SyncItemPointers(tb, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, w, h);
+	}
+	else {
+		// Simply null the leftover spot, no collision happened
+		FreeItem(pnum, tb, false);
+	}
+	
+	SyncItemData(emptypos + offset, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, -1, -1);
 }
 
 void ResetPlayerInventory(int pnum) {

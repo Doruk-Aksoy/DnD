@@ -3415,5 +3415,11 @@ Script "DnD Charm Pickup" (int sp) {
 	SetActivator((sp & 0xFFFF) + P_TIDSTART);
 	GiveInventory("CharmSoundPlayer", 1);
 	ACS_NamedExecuteAlways("DnD Charm Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
-	int item_on_player = HandleCharmPickup(sp >> 16);
+	HandleCharmPickup(sp >> 16);
+}
+
+Script "DnD Player Has Spot For Item" (int sp) {
+	SetActivator((sp & 0xFFFF) + P_TIDSTART);
+	int pnum = PlayerNumber();
+	SetResultValue(GetFreeSpotForItem(sp >> 16, pnum) != -1);
 }

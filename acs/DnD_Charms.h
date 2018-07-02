@@ -165,7 +165,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			// the leftover spot is a null charm
 			int wtemp = PlayerInventoryList[pnum][item_index].width;
 			int htemp = PlayerInventoryList[pnum][item_index].height;
-			FreeItem(pnum, item_index);
+			FreeItem(pnum, item_index, false);
 			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
 		}
