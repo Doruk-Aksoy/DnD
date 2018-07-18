@@ -108,13 +108,6 @@ bool PlayerCanLoad[MAXPLAYERS] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 
 // RPG ELEMENTS END
 
-enum {
-	DND_ANNOUNCER_QUEST,
-	DND_ANNOUNCER_ATTRIBPOINT,
-	DND_ANNOUNCER_LEGENDARYMONSTER,
-	DND_ANNOUNCER_RESEARCHDISCOVER
-};
-
 #define DefStepSound "Player/Move"
 
 // thunderstaff info things

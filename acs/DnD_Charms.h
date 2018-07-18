@@ -47,22 +47,18 @@ int Charm_MaxUsable[MAX_CHARM_TYPES] = {
 	1
 };
 
-#define MAX_CHARM_AFFIXTIERS 4
-#define CHARM_TIER_SEPERATOR 100 / MAX_ITEM_AFFIXTIERS
-#define CHARM_ATTRIBLEVEL_SEPERATOR MAX_ITEM_LEVEL / MAX_CHARM_AFFIXTIERS
-
 str Charm_Tiers[MAX_CHARM_AFFIXTIERS] = {
-	"\cmWhispering",
-	"\cuFine",
-	"\crSupreme",
-	"\cfMajestic"
+	"\c[C8]Whispering",
+	"\c[C3]Fine",
+	"\c[C1]Supreme",
+	"\c[C5]Majestic"
 };
 
 // holds indexes to charms used that are on players
 global inventory_T 12: Charms_Used[MAXPLAYERS][MAX_CHARMS_EQUIPPABLE];
 
 void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
-	int pos = GetFreeSpotForItem(field_index, player_index);
+	int pos = GetFreeSpotForItem(field_index, player_index, DND_SYNC_ITEMSOURCE_FIELD);
 	if(pos == -1)
 		return;
 	// copy now
@@ -75,7 +71,8 @@ void DropCharm(int player_index, int pcharm_index, bool forAll) {
 	if(c != -1) {
 		// copy now
 		CopyItem(false, c, player_index, pcharm_index);
-		forAll ? SpawnDrop("CharmDrop", 16.0, 16, 0, c) : SpawnDrop("CharmDrop", 16.0, 16, player_index + 1, c);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		forAll ? SpawnDropFacing(InventoryDropActors[DND_INVDROP_CHARM], 16.0, 16, 256, c) : SpawnDropFacing(InventoryDropActors[DND_INVDROP_CHARM], 16.0, 16, player_index + 1, c);
 	}
 }
 
@@ -125,13 +122,14 @@ void SpawnCharm(int pnum) {
 	if(c != -1) {
 		// c is the index on the field now
 		RollCharmInfo(c, RollItemLevel(), 1);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 	}
 }
 
 // move this from field to player's inventory
 int HandleCharmPickup(int item_index) {
-	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber());
+	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
 	CopyItem(true, item_index, PlayerNumber(), pcharm_index);
 	return pcharm_index;
 }
@@ -165,7 +163,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			// the leftover spot is a null charm
 			int wtemp = PlayerInventoryList[pnum][item_index].width;
 			int htemp = PlayerInventoryList[pnum][item_index].height;
-			FreeItem(pnum, item_index, false);
+			FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
 		}

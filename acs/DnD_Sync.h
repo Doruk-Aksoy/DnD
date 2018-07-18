@@ -52,11 +52,15 @@ enum {
 
 enum {
 	DND_SYNC_ITEMSOURCE_CHARMUSED,
-	DND_SYNC_ITEMSOURCE_PLAYERINVENTORY
+	DND_SYNC_ITEMSOURCE_PLAYERINVENTORY,
+	DND_SYNC_ITEMSOURCE_FIELD,
+	DND_SYNC_ITEMSOURCE_TRADEVIEW,		// trade view array
 };
 
 int GetPlayerItemSyncValue(int which, int extra, int sub, int source) {
 	int pnum = PlayerNumber();
+	if(sub > 65535) // alternate use for sub
+		pnum = (sub >> 16) - 1;
 	if(source == DND_SYNC_ITEMSOURCE_CHARMUSED){
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
@@ -81,6 +85,30 @@ int GetPlayerItemSyncValue(int which, int extra, int sub, int source) {
 			return Charms_Used[pnum][extra].attributes[sub].attrib_val;
 		}
 	}
+	else if(source == DND_SYNC_ITEMSOURCE_FIELD){
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+			return Inventories_On_Field[extra].width;
+			case DND_SYNC_ITEMHEIGHT:
+			return Inventories_On_Field[extra].height;
+			case DND_SYNC_ITEMIMAGE:
+			return Inventories_On_Field[extra].item_image;
+			case DND_SYNC_ITEMTYPE:
+			return Inventories_On_Field[extra].item_type;
+			case DND_SYNC_ITEMSUBTYPE:
+			return Inventories_On_Field[extra].item_subtype;
+			case DND_SYNC_ITEMLEVEL:
+			return Inventories_On_Field[extra].item_level;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+			return Inventories_On_Field[extra].topleftboxid;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+			return Inventories_On_Field[extra].attrib_count;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+			return Inventories_On_Field[extra].attributes[sub].attrib_id;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+			return Inventories_On_Field[extra].attributes[sub].attrib_val;
+		}
+	}
 	else if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
@@ -103,6 +131,30 @@ int GetPlayerItemSyncValue(int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_val;
+		}
+	}
+	else if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW){
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+			return TradeViewList[pnum][extra].width;
+			case DND_SYNC_ITEMHEIGHT:
+			return TradeViewList[pnum][extra].height;
+			case DND_SYNC_ITEMIMAGE:
+			return TradeViewList[pnum][extra].item_image;
+			case DND_SYNC_ITEMTYPE:
+			return TradeViewList[pnum][extra].item_type;
+			case DND_SYNC_ITEMSUBTYPE:
+			return TradeViewList[pnum][extra].item_subtype;
+			case DND_SYNC_ITEMLEVEL:
+			return TradeViewList[pnum][extra].item_level;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+			return TradeViewList[pnum][extra].topleftboxid;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+			return TradeViewList[pnum][extra].attrib_count;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+			return TradeViewList[pnum][extra].attributes[sub].attrib_id;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+			return TradeViewList[pnum][extra].attributes[sub].attrib_val;
 		}
 	}
 	return 0;
@@ -239,6 +291,40 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			break;
 		}
 	}
+	else if(source == DND_SYNC_ITEMSOURCE_FIELD) {
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+				Inventories_On_Field[extra].width = val;
+			break;
+			case DND_SYNC_ITEMHEIGHT:
+				Inventories_On_Field[extra].height = val;
+			break;
+			case DND_SYNC_ITEMIMAGE:
+				Inventories_On_Field[extra].item_image = val;
+			break;
+			case DND_SYNC_ITEMTYPE:
+				Inventories_On_Field[extra].item_type = val;
+			break;
+			case DND_SYNC_ITEMSUBTYPE:
+				Inventories_On_Field[extra].item_subtype = val;
+			break;
+			case DND_SYNC_ITEMLEVEL:
+				Inventories_On_Field[extra].item_level = val;
+			break;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+				Inventories_On_Field[extra].topleftboxid = val;
+			break;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+				Inventories_On_Field[extra].attrib_count = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+				Inventories_On_Field[extra].attributes[sub].attrib_id = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+				Inventories_On_Field[extra].attributes[sub].attrib_val = val;
+			break;
+		}
+	}
 	else if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
@@ -270,6 +356,40 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 				PlayerInventoryList[pnum][extra].attributes[sub].attrib_val = val;
+			break;
+		}
+	}
+	else if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW) {
+		switch(which) {
+			case DND_SYNC_ITEMWIDTH:
+				TradeViewList[pnum][extra].width = val;
+			break;
+			case DND_SYNC_ITEMHEIGHT:
+				TradeViewList[pnum][extra].height = val;
+			break;
+			case DND_SYNC_ITEMIMAGE:
+				TradeViewList[pnum][extra].item_image = val;
+			break;
+			case DND_SYNC_ITEMTYPE:
+				TradeViewList[pnum][extra].item_type = val;
+			break;
+			case DND_SYNC_ITEMSUBTYPE:
+				TradeViewList[pnum][extra].item_subtype = val;
+			break;
+			case DND_SYNC_ITEMLEVEL:
+				TradeViewList[pnum][extra].item_level = val;
+			break;
+			case DND_SYNC_ITEMTOPLEFTBOX:
+				TradeViewList[pnum][extra].topleftboxid = val;
+			break;
+			case DND_SYNC_ITEMSATTRIBCOUNT:
+				TradeViewList[pnum][extra].attrib_count = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_ID:
+				TradeViewList[pnum][extra].attributes[sub].attrib_id = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_VAL:
+				TradeViewList[pnum][extra].attributes[sub].attrib_val = val;
 			break;
 		}
 	}
@@ -437,9 +557,9 @@ void SyncItemData(int itemid, int source, int wprev, int hprev) {
 		h = hprev;
 	else
 		h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
-		
+	
 	// synchronize the topleftboxid for all adjacent ones
-	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+	if(IsSourceInventoryView(source)) {
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
@@ -495,7 +615,7 @@ void SyncItemPointers(int itemid, int source, int wprev, int hprev) {
 		h = GetPlayerItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
 		
 	// synchronize the topleftboxid for all adjacent ones
-	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+	if(IsSourceInventoryView(source)) {
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;

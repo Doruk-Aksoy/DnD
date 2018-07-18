@@ -251,7 +251,15 @@ int ftrunc(int x) {
 void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
 	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0) + zoffset, DND_DROP_TID);
 	ThrustThing(random(0, 255), random(2, 5), 0, DND_DROP_TID);
-	ThrustThingZ(DND_DROP_TID, thrust, 0, 0);
+	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
+	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
+	Thing_ChangeTID(DND_DROP_TID, 0);
+}
+
+void SpawnDropFacing(str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
+	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0) + zoffset, DND_DROP_TID);
+	ThrustThing(GetActorAngle(0) >> 8, 6, 0, DND_DROP_TID);
+	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
 	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
 	Thing_ChangeTID(DND_DROP_TID, 0);
 }
@@ -270,6 +278,15 @@ Script 964 (int which) {
 			Thing_ChangeTID(0, ZEALOT_BASE_TID + (ZealotTID++));
 		break;
 	}
+}
+
+void DeleteText(int textid) {
+	HudMessage(s:""; HUDMSG_PLAIN, textid, -1, 160.0, 100.0, 0.0, 0.0);
+}
+
+void DeleteTextRange(int r1, int r2) {
+	for(int i = 0; i < r2 - r1 + 1; i++)
+		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, 0.0, 0.0);
 }
 
 #endif

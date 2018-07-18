@@ -27,6 +27,8 @@
 #define DND_TALENTPOINT_MARK 4
 #define DND_MUNITION_GAIN 10
 
+#define DND_HARDCORE_DROPRATEBONUS 0.15
+
 #define BASE_WISDOM_GAIN 10
 #define BASE_GREED_GAIN 10
 
@@ -59,6 +61,14 @@
 #define EXO_AR_ADD_1 5
 #define EXO_AR_ADD_2 6
 #define EXO_AR_ADD_3 9
+
+enum {
+	DND_ANNOUNCER_QUEST,
+	DND_ANNOUNCER_ATTRIBPOINT,
+	DND_ANNOUNCER_LEGENDARYMONSTER,
+	DND_ANNOUNCER_RESEARCHDISCOVER,
+	DND_ANNOUNCER_TRADEREQUEST
+};
 
 // RPG ELEMENTS
 int Exp_ColorSet[8] = { 4, 16, 112, 160, 176, 196, 231, 251 };
@@ -655,6 +665,8 @@ int GetDropChance(int pnum, bool isElite) {
 		base += DND_ELITEDROP_GAIN;
 	// luck benefits are multiplicative
 	base = FixedMul(base, 1.0 + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck") + Player_Bonuses[pnum].luck);
+	if(GetCVar("dnd_hardcore"))
+		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 	return base;
 }
 
@@ -887,6 +899,36 @@ void HandleArmorDependencyCheck() {
 	if(active_quest_id == QUEST_NOARMORS && !CheckInventory(Quest_Checkers[active_quest_id])) {
 		GiveInventory(Quest_Checkers[active_quest_id], 1);
 		FailQuest(ActivatorTID(), active_quest_id);
+	}
+}
+
+// break all trades between this player and others
+void BreakTradesBetween(int pnum) {
+	int i;
+	int tid;
+	// check all trades of all players, clean players who have going one with this guy
+	for(int j = 0; j < MAXPLAYERS; ++j) {
+		if(PlayerInGame(j)) {
+			tid = j + P_TIDSTART;
+			if(pnum > 31) {
+				if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32)) 
+					SetActorInventory(tid, "DnD_TradeEngaged_2", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32));
+			}
+			else if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum)) 
+				SetActorInventory(tid, "DnD_TradeEngaged_1", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum));
+		}
+	}
+}
+
+void BreakAllTrades() {
+	int tid;
+	for(int j = 0; j < MAXPLAYERS; ++j) {
+		if(PlayerInGame(j)) {
+			tid = j + P_TIDSTART;
+			SetActorInventory(tid, "DnD_TradeEngaged_1", 0);
+			SetActorInventory(tid, "DnD_TradeEngaged_2", 0);
+			TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
+		}
 	}
 }
 
