@@ -1,5 +1,6 @@
 #library "DND"
 #include "zcommon.h"
+#nocompact
 
 #include "DnD_Defs.h"
 #include "DnD_MonsterData.h"
@@ -2548,7 +2549,7 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 		HudMessage(s:"You have discovered the following\nresearch: \cd", s:Research_Label[extra], s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_TRADEREQUEST) {
 		LocalAmbientSound("TradeRequest", 127);
-		HudMessage(s:"You have a trade request from:\n", n:extra; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(s:"You have a trade request from:\n", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
 	}
 }
 
@@ -3207,6 +3208,10 @@ Script "DND Clientside Orb Syncer" (int var, int to, int extra) CLIENTSIDE {
 
 Script "DND Clientside Item Syncer" (int var, int to, int extra) CLIENTSIDE {
 	SetItemSyncValue(var & 0xFFFF, extra & 0xFFFF, extra >> 16, to, var >> 16);
+}
+
+Script "DND Clientside Item Syncer Player" (int var, int to, int extra) CLIENTSIDE {
+	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, (extra >> 16) | ((var & 0xFF00) << 8), to, var >> 16);
 }
 
 Script "DND Hardcore Timer" (void) CLIENTSIDE {

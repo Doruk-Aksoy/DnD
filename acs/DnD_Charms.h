@@ -143,8 +143,9 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 	}
 	else {
 		// this means we must swap charms
-		if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL)
+		if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
 			SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		}
 		else {
 			// just zero the stuff in inventory, and copy them into charms used
 			Charms_Used[pnum][use_id].width = PlayerInventoryList[pnum][item_index].width;
@@ -154,7 +155,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			Charms_Used[pnum][use_id].item_image = PlayerInventoryList[pnum][item_index].item_image;
 			Charms_Used[pnum][use_id].item_level = PlayerInventoryList[pnum][item_index].item_level;
 			Charms_Used[pnum][use_id].attrib_count = PlayerInventoryList[pnum][item_index].attrib_count;
-			Charms_Used[pnum][use_id].topleftboxid = 0;
+			Charms_Used[pnum][use_id].topleftboxid = use_id + 1;
 			for(i = 0; i < Charms_Used[pnum][use_id].attrib_count; ++i) {
 				Charms_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
 				Charms_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
@@ -163,7 +164,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			// the leftover spot is a null charm
 			int wtemp = PlayerInventoryList[pnum][item_index].width;
 			int htemp = PlayerInventoryList[pnum][item_index].height;
-			FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+			FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
 		}
@@ -172,7 +173,9 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 }
 
 void ResetPlayerCharmsUsed(int pnum) {
-	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+	for(int i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
+		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+			SyncItemData_Null(i, DND_SYNC_ITEMSOURCE_CHARMUSED, Charms_Used[pnum][i].width, Charms_Used[pnum][i].height);
 		Charms_Used[pnum][i].item_type = DND_ITEM_NULL;
 		Charms_Used[pnum][i].width = 0;
 		Charms_Used[pnum][i].height = 0;

@@ -906,7 +906,7 @@ void HandleArmorDependencyCheck() {
 void BreakTradesBetween(int pnum) {
 	int i;
 	int tid;
-	// check all trades of all players, clean players who have going one with this guy
+	// check all trades of all players, clean players who have one going with this guy
 	for(int j = 0; j < MAXPLAYERS; ++j) {
 		if(PlayerInGame(j)) {
 			tid = j + P_TIDSTART;

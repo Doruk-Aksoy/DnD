@@ -2221,10 +2221,11 @@ enum {
 	POPUP_CHARMMISMATCH,
 	POPUP_NOITEMTHERE,
 	POPUP_TARGETISTRADING,
-	POPUP_YOUARETRADING
+	POPUP_YOUARETRADING,
+	POPUP_NOSPACEFORTRADE
 };
 
-#define MAX_POPUPS POPUP_YOUARETRADING + 1
+#define MAX_POPUPS POPUP_NOSPACEFORTRADE + 1
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2241,7 +2242,8 @@ str PopupText[MAX_POPUPS] = {
 	"Mismatching charm\ntype!",
 	"No item selected!",
 	"Selected player is\ntrading with someone\nelse!",
-	"You can't trade while\nalready in a trade!"
+	"You can't trade while\nalready in a trade!",
+	"Not enough space for\ntrade offerings!"
 };
 
 #define MAX_HELPTEXT_RESEARCH 5
