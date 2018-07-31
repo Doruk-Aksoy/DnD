@@ -71,6 +71,10 @@ enum {
     LEVEL_MAX
 };
 
+int XorBit(int x, int n) {
+	return x ^ (1 << n);
+}
+
 int SetBit(int x, int n) {
 	return x | (1 << n);
 }

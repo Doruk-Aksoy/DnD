@@ -23,6 +23,8 @@
 #define CHARM_TIER_SEPERATOR 100 / MAX_ITEM_AFFIXTIERS
 #define CHARM_ATTRIBLEVEL_SEPERATOR MAX_ITEM_LEVEL / MAX_CHARM_AFFIXTIERS
 
+#define MAX_EXTRA_INVENTORY_PAGES 10
+
 // MENU IDS
 // Moved here because of dependencies
 enum {
@@ -116,9 +118,10 @@ str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
 
 // holds inventories of all players
 global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
-#define MAX_INVENTORIES_ON_FIELD 256
+#define MAX_INVENTORIES_ON_FIELD 384
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
 global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
 
 #define INVSOURCE_PLAYER PlayerInventoryList
 #define INVSOURCE_CHARMUSED Charms_Used
@@ -466,7 +469,9 @@ bool IsFreeSpot_Trade(int itempos, int emptypos, int itemsource, int emptysource
 }
 
 bool IsSourceInventoryView(int source) {
-	return source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY || source == DND_SYNC_ITEMSOURCE_TRADEVIEW;
+	// just in case we receive this with page numbers in it
+	source &= 0xFFFF;
+	return source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY || source == DND_SYNC_ITEMSOURCE_TRADEVIEW || source == DND_SYNC_ITEMSOURCE_STASH;
 }
 
 // assumes both spots have an item
@@ -926,7 +931,7 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 
 void ResetPlayerInventory(int pnum) {
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL)
+		if(PlayerInventoryList[pnum][i].topleftboxid - 1 == i)
 			SyncItemData_Null(i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][i].width, PlayerInventoryList[pnum][i].height);
 		PlayerInventoryList[pnum][i].item_type = DND_ITEM_NULL;
 		PlayerInventoryList[pnum][i].width = 0;
@@ -946,7 +951,7 @@ void ResetPlayerInventory(int pnum) {
 
 void ResetTradeViewList(int pnum) {
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(TradeViewList[pnum][i].item_type != DND_ITEM_NULL)
+		if(TradeViewList[pnum][i].topleftboxid - 1 == i)
 			SyncItemData_Null(i, DND_SYNC_ITEMSOURCE_TRADEVIEW, TradeViewList[pnum][i].width, TradeViewList[pnum][i].height);
 		TradeViewList[pnum][i].item_type = DND_ITEM_NULL;
 		TradeViewList[pnum][i].width = 0;
@@ -979,6 +984,28 @@ void ResetFieldInventory() {
 			Inventories_On_Field[i].attributes[j].attrib_val = 0;
 		}
 		Inventories_On_Field[i].attrib_count = 0;
+	}
+}
+
+void ResetPlayerStash(int pnum) {
+	for(int p = 0; p < MAX_EXTRA_INVENTORY_PAGES; ++p) {
+		for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+			if(PlayerStashList[pnum][p][i].topleftboxid - 1 == i)
+				SyncItemData_Null(i, DND_SYNC_ITEMSOURCE_STASH | (p << 16), PlayerStashList[pnum][p][i].width, PlayerStashList[pnum][p][i].height);
+			PlayerStashList[pnum][p][i].item_type = DND_ITEM_NULL;
+			PlayerStashList[pnum][p][i].width = 0;
+			PlayerStashList[pnum][p][i].height = 0;
+			PlayerStashList[pnum][p][i].item_image = 0;
+			PlayerStashList[pnum][p][i].item_type = 0;
+			PlayerStashList[pnum][p][i].item_subtype = 0;
+			PlayerStashList[pnum][p][i].item_level = 0;
+			PlayerStashList[pnum][p][i].topleftboxid = 0;
+			for(int j = 0; j < PlayerStashList[pnum][p][i].attrib_count; ++j) {
+				PlayerStashList[pnum][p][i].attributes[j].attrib_id = 0;
+				PlayerStashList[pnum][p][i].attributes[j].attrib_val = 0;
+			}
+			PlayerStashList[pnum][p][i].attrib_count = 0;
+		}
 	}
 }
 

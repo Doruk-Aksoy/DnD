@@ -21,45 +21,11 @@ void UpdateMenuFromStack(int option) {
 }
 
 void ShowPopup(int popupid, bool isSell, int activebox) {
-	if(isSell) {
-		GiveInventory("DnD_SellConfirm", 1);
-		TakeInventory("DnD_ShowPopup", 1);
-		TakeInventory("DnD_PopupError", 1);
-		GiveInventory("DnD_PopupSell", 1);
-		GiveInventory("DnD_ShowSellPopup", 1);
-		SetInventory("DnD_PopupID", activebox);
-		SetInventory("ActivePopupBox", activebox);
-	}
-	else {
-		GiveInventory("DnD_ShowPopup", 1);
-		GiveInventory("DnD_PopupError", 1);
-		TakeInventory("DnD_PopupSell", 1);
-		TakeInventory("DnD_ShowSellPopup", 1);
-		SetInventory("ActivePopupBox", 0);
-		SetInventory("DnD_PopupID", popupid);
-	}
-	TakeInventory("DnD_ShowingPopup", 1);
+	ACS_NamedExecuteAlways("DnD Menu Popup", 0, Playernumber() | (popupid << 16), isSell, activebox);
 }
 
-void ShowActorPopup(int tid, int popupid, bool isSell, int activebox) {
-	if(isSell) {
-		GiveActorInventory(tid, "DnD_SellConfirm", 1);
-		TakeActorInventory(tid, "DnD_ShowPopup", 1);
-		TakeActorInventory(tid, "DnD_PopupError", 1);
-		GiveActorInventory(tid, "DnD_PopupSell", 1);
-		GiveActorInventory(tid, "DnD_ShowSellPopup", 1);
-		SetActorInventory(tid, "DnD_PopupID", activebox);
-		SetActorInventory(tid, "ActivePopupBox", activebox);
-	}
-	else {
-		GiveActorInventory(tid, "DnD_ShowPopup", 1);
-		GiveActorInventory(tid, "DnD_PopupError", 1);
-		TakeActorInventory(tid, "DnD_PopupSell", 1);
-		TakeActorInventory(tid, "DnD_ShowSellPopup", 1);
-		SetActorInventory(tid, "ActivePopupBox", 0);
-		SetActorInventory(tid, "DnD_PopupID", popupid);
-	}
-	TakeActorInventory(tid, "DnD_ShowingPopup", 1);
+void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
+	ACS_NamedExecuteAlways("DnD Menu Popup", 0, pnum | (popupid << 16), isSell, activebox);
 }
 
 int CalculateWisdomBonus(int pnum) {
@@ -191,10 +157,7 @@ int ParseInt(str InputString) {
 }
 
 void ShowNeedResearchPopup() {
-	LocalAmbientSound("RPG/MenuError", 127);
-	GiveInventory("DnD_ShowPopup", 1);
-	GiveInventory("DnD_PopupError", 1);
-	SetInventory("DnD_PopupId", POPUP_NEEDRESEARCH); // popup for research
+	ShowPopup(POPUP_NEEDRESEARCH, false, 0);
 }
 
 void DrawCornerText(int opt, int boxid) {
@@ -943,7 +906,7 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 				} while (givefull && !buystatus);
 				//sound (mostly)
 				if (buystatus && loopnumber == 1)
-					GiveInventory("DnD_ShowPopup", 1);
+					ShowPopup(buystatus, false, 0);
 				else {
 					if(tradeflag & TRADE_WEAPON)
 						LocalAmbientSound("weapons/pickup", 127);
@@ -989,35 +952,6 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 		}
 		SetInventory("MadeChoice", 0);
 	}
-}
-
-// 0 for buy being possible, 2 if credits was not enough, 1 if credits was enough but you are maxed on the item and 3 if neither were satisfied 4 if item can't be sold
-void HandlePopups(int id) {
-	if(!CheckInventory("DnD_ShowPopup") && !CheckInventory("DnD_ShowSellPopup") || CheckInventory("DnD_ShowingPopup"))
-		return;
-	GiveInventory("DnD_ShowingPopup", 1);
-	int popuptype = POPUP_ERROR;
-	if(CheckInventory("DnD_PopupSell"))
-		popuptype = POPUP_SELL;
-
-	SetHudSize(480, 320, 1);
-	SetFont("DND_ERR");
-	HudMessage(s:"A"; HUDMSG_FADEOUT, RPGMENUPOPUPID, -1, 216.1, 128.1, 1.0, 1.0);
-	SetFont("SMALLFONT");
-	str toshow = "", title = " ";
-	if(popuptype == POPUP_ERROR) {
-		title = "\c[Q2]ERROR";
-		// id is minimum 1
-		toshow = PopupText[id];
-		LocalAmbientSound("RPG/MenuError", 127);
-	}
-	else if(popuptype == POPUP_SELL) {
-		title = "\c[Q2]CONFIRM";
-		toshow = StrParam(s:"Are you sure you\nwant to sell your\n\cd", s:ShopItemNames[id][SHOPNAME_TAG], s:"\c- ?");
-	}
-
-	HudMessage(s:title; HUDMSG_FADEOUT, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0, 1.0);
-	HudMessage(s:toshow; HUDMSG_FADEOUT, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0, 1.0);
 }
 
 void DrawHighLightBar (int posy, int drawlit) {
@@ -1159,7 +1093,7 @@ void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull) {
 			GiveInventory("DnD_MoneySpentQuest", price);
 		}
 		else
-			GiveInventory("DnD_ShowPopup", 1);
+			ShowPopup(buystatus, false, 0);
 	}
 }
 
@@ -1336,12 +1270,14 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// loadout
 		{
-			{ 289.0, 229.0, 164.0, 222.0 }, // loadout 1
-			{ 289.0, 213.0, 188.0, 206.0 }, // loadout 2
-			{ 289.0, 197.0, 170.0, 190.0 }, // loadout 3
-			{ 289.0, 181.0, 143.0, 174.0 }, // loadout 4
-			{ 289.0, 165.0, 143.0, 158.0 }, // loadout 5
-			{ 289.0, 149.0, 143.0, 142.0 }, // loadout 6
+			{ 289.0, 229.0, 223.0, 222.0 }, // loadout 1
+			{ 289.0, 213.0, 248.0, 206.0 }, // loadout 2
+			{ 289.0, 197.0, 227.0, 190.0 }, // loadout 3
+			{ 289.0, 181.0, 214.0, 174.0 }, // loadout 4
+			{ 289.0, 165.0, 245.0, 158.0 }, // loadout 5
+			{ 289.0, 149.0, 234.0, 142.0 }, // loadout 6
+			{ 289.0, 133.0, 195.0, 126.0 }, // loadout 7
+			{ 289.0, 117.0, 229.0, 110.0 }, // loadout 8
 			{ -1, -1, -1, -1 }
 		},
 		// loadout 1
@@ -1353,6 +1289,14 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ -1, -1, -1, -1 }
 		},
 		// loadout 3
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// loadout inventory
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// loadout stash
 		{
 			{ -1, -1, -1, -1 }
 		},
@@ -1800,6 +1744,40 @@ rect_T& LoadInventoryViewRect(int id) {
 	return bp[id];
 }
 
+rect_T& LoadStashViewRect(int id) {
+	// this is the top left box, ie 0, 0
+	// left and right boxes
+	static rect_T bp[2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES];
+	int i, j;
+	// construct for first time, these can be constructed easily from base coordinates
+	if(!StashBoxesSetup) {
+		// stash
+		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
+			for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j;
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOXTRADE_TOP_BASEY_RECT - TRADEBOX_SKIP * i;
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j - TRADEBOX_SKIP;
+				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOXTRADE_TOP_BASEY_RECT - TRADEBOX_SKIP * i - TRADEBOX_SKIP;
+			}
+		// inventory
+		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
+			for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
+				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j;
+				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOXTRADE_BOT_BASEY_RECT - TRADEBOX_SKIP * i;
+				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j - TRADEBOX_SKIP;
+				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOXTRADE_BOT_BASEY_RECT - TRADEBOX_SKIP * i - TRADEBOX_SKIP;
+			}
+		for(i = 0; i < MAX_EXTRA_INVENTORY_PAGES; ++i) {
+			bp[2 * MAX_INVENTORY_BOXES + i].topleft_x = STASHTAB_BUTTON_TOPLEFT_X - i * STASHTAB_BUTTON_INCREMENT_X;
+			bp[2 * MAX_INVENTORY_BOXES + i].topleft_y = STASHTAB_BUTTON_TOPLEFT_Y;
+			bp[2 * MAX_INVENTORY_BOXES + i].botright_x = STASHTAB_BUTTON_BOTRIGHT_X - i * STASHTAB_BUTTON_INCREMENT_X;
+			bp[2 * MAX_INVENTORY_BOXES + i].botright_y = STASHTAB_BUTTON_BOTRIGHT_Y;
+		}
+		StashBoxesSetup = true;
+	}
+	return bp[id];
+}
+
 rect_T& LoadTradeViewRect(int id) {
 	// this is the top left box, ie 0, 0
 	// + 2 for confirm and cancel buttons
@@ -1873,6 +1851,19 @@ void LoadInventoryView(menu_inventory_T& p) {
 	}
 }
 
+void LoadStashView(menu_trade_T& p) {
+	p.cursize = 0;
+	for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES; ++i) {
+		auto r = LoadStashViewRect(i);
+		if(r.topleft_x != -1) {
+			// Log(s:"Adding box: ", f:bp[menu_page][i].topleft_x, s: " ", f:bp[menu_page][i].topleft_y, s: " ", f:bp[menu_page][i].botright_x, s: " ", f:bp[menu_page][i].botright_y);
+			AddBoxToTrade(p, r);
+		}
+		else
+			break;
+	}
+}
+
 void LoadPane(menu_pane_T& p, int menu_page) {
 	p.cursize = 0;
 	for(int i = 0; i < MAX_MENU_BOXES; ++i) {
@@ -1926,8 +1917,18 @@ int GetTriggeredBoxOnTradePane(menu_trade_T& p, int mx, int my) {
 	return MAINBOX_NONE;
 }
 
+int GetTriggeredBoxOnStashPane(menu_trade_T& p, int mx, int my) {
+	if(mx >= 304.0 || my <= 27.0 || mx <= 68.0 || my >= 293.0)
+		return MAINBOX_NONE;
+	for(int i = 0; i < p.cursize; ++i) {
+		if(point_in_inventory_box(p.MenuRectangles[i], mx, my))
+			return i + 1;
+	}
+	return MAINBOX_NONE;
+}
+
 int GetTriggeredBoxOnMainPane(int mx, int my) {
-	if(CheckInventory("DnD_InventoryView") || CheckInventory("InTradeView"))
+	if(CheckInventory("DnD_InventoryView") || CheckInventory("InTradeView") || CheckInventory("DnD_StashView"))
 		return MAINBOX_NONE;
 	if(mx < 105.0 || my < 16.0)
 		return MAINBOX_NONE;
@@ -2196,7 +2197,7 @@ void HandleResearchPageInput(int page, int boxid, int curposx) {
 				CompleteResearch(ResearchInfo[page][curposx].res_id);
 			}
 			else
-				GiveInventory("DnD_ShowPopup", 1);
+				ShowPopup(buystatus, false, 0);
 		}
 		SetInventory("MadeChoice", 0);
 	}
@@ -2236,7 +2237,7 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	SetFont("SMALLFONT");
 }
 
-void DrawInventoryBlock(int boxid, int idx, int idy, int bid, bool hasItem, int basex, int basey, int skip, int idbase, int source, int pnum, int boff, int itemskipx, int itemskipy, int scale) {
+void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int basey, int skip, int idbase, int source, int pnum, int boff, int itemskipx, int itemskipy, int scale) {
 	int offset = 0;
 	// inventory icon
 	if(hasItem) {
@@ -2244,19 +2245,22 @@ void DrawInventoryBlock(int boxid, int idx, int idy, int bid, bool hasItem, int 
 		offset = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, bid, (pnum + 1) << 16, source) * scale;
 		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, bid, (pnum + 1) << 16, source)]);
 		if(scale == TRADEITEMOFFSETSCALE) {
-			if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW)
-				HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 3.0, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0, 0.0, 0.0);
-			else
-				HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx - 4.0, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0, 0.0, 0.0);
+			if(basex == STASHBOX_BASEX_UP) {
+				HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0, 0.0, 0.0);
+			}
+			else {
+				if(source & 0xFFFF == DND_SYNC_ITEMSOURCE_TRADEVIEW)
+					HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 3.0, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0, 0.0, 0.0);
+				else
+					HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx - 4.0, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0, 0.0, 0.0);
+			}
 		}
 		else
 			HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset, 0.0, 0.0);
 	}
 	else // refresh picture if swapped
 		DeleteText(idbase - bid - boff - MAX_INVENTORY_BOXES - 2);
-	
 	// gray inventory chunks
-	
 	if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_CURSORON)
 		SetFont("LDTBOXS");
 	else if(CheckActorInventory(pnum + P_TIDSTART, "DnD_Trade_Confirmed"))
@@ -2359,8 +2363,10 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 					InventoryBoxLit[temp + offset + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CLICK;
 			}
 		}
-		else
-			InventoryBoxLit[prevclick] = BOXLIT_STATE_CLICK;
+		else {
+			if(((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_STASH && CheckInventory("DnD_PlayerPreviousPage") == CheckInventory("DnD_PlayerCurrentPage")) || (source & 0xFFFF) != DND_SYNC_ITEMSOURCE_STASH)
+				InventoryBoxLit[prevclick] = BOXLIT_STATE_CLICK;
+		}
 	}
 	
 	// highlight checking
@@ -2384,9 +2390,9 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 	}
 	
 	if(dimx == HUDMAX_X)
-		DrawInventoryBlock(boxid, bh, bw, bid, hasItem, basex, basey, skip, idbase, source, pnum, offset, 32.0, 32.0, 16.0);
+		DrawInventoryBlock(bh, bw, bid, hasItem, basex, basey, skip, idbase, source, pnum, offset, 32.0, 32.0, 16.0);
 	else
-		DrawInventoryBlock(boxid, bh, bw, bid, hasItem, basex, basey, skip, idbase, source, pnum, offset, 32.0, 32.0, TRADEITEMOFFSETSCALE);
+		DrawInventoryBlock(bh, bw, bid, hasItem, basex, basey, skip, idbase, source, pnum, offset, 32.0, 32.0, TRADEITEMOFFSETSCALE);
 }
 
 void HandleInventoryView(int boxid) {
@@ -2403,7 +2409,7 @@ void HandleInventoryView(int boxid) {
 	SetFont("SMALLFONT");
 }
 
-void HandleInventoryViewClicks(int boxid, int topboxid) {
+void HandleInventoryViewClicks(int boxid) {
 	int bid;
 	if(!CheckInventory("DnD_SelectedInventoryBox")) {
 		SetInventory("DnD_SelectedInventoryBox", boxid);
@@ -2453,9 +2459,13 @@ void HandleGenericInventoryViewInputs(int boxid) {
 	if(CheckInventory("MadeChoice") == 1) {
 		if(boxid == MAINBOX_NONE && !CheckInventory("DnD_SelectedInventoryBox")) {
 			TakeInventory("DnD_InventoryView", 1);
+			TakeInventory("DnD_StashView", 1);
 			SetInventory("DnD_SelectedInventoryBox", 0);
 			SetInventory("DnD_SelectedCharmBox", 0);
-			LocalAmbientSound("RPG/MenuClose", 127);
+			if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
+				UpdateMenuPosition(MENU_LOAD);
+			else
+				LocalAmbientSound("RPG/MenuClose", 127);
 		}
 	}
 }
@@ -2497,7 +2507,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				}
 				else {
 					// normal clicking functionality on inventory view
-					HandleInventoryViewClicks(boxid, topboxid + 1);
+					HandleInventoryViewClicks(boxid);
 				}
 			}
 		}
@@ -2518,13 +2528,27 @@ void EngageTrade(int engager, int recipient) {
 	else
 		SetActorInventory(recipient + P_TIDSTART, "DnD_TradeEngaged_1", SetBit(CheckActorInventory(recipient + P_TIDSTART, "DnD_TradeEngaged_1"), engager));
 	
-	GiveActorInventory(recipient + P_TIDSTART, "DnD_TradeAcceptWindow", 1);
-	GiveActorInventory(engager + P_TIDSTART, "DnD_TradeAcceptWindow", 1);
-	
 	if(recipient > 31)
 		SetActorInventory(engager + P_TIDSTART, "DnD_TradeEngaged_2", SetBit(CheckActorInventory(engager + P_TIDSTART, "DnD_TradeEngaged_2"), recipient - 32));
 	else
 		SetActorInventory(engager + P_TIDSTART, "DnD_TradeEngaged_1", SetBit(CheckActorInventory(engager + P_TIDSTART, "DnD_TradeEngaged_1"), recipient));
+}
+
+void ToggleMuteTrade(int mutenum) {
+	if(mutenum > 31)
+		SetInventory("DnD_TradeMute_2", XorBit(CheckInventory("DnD_TradeMute_2"), mutenum - 32));
+	else
+		SetInventory("DnD_TradeMute_1", XorBit(CheckInventory("DnD_TradeMute_1"), mutenum));
+}
+
+bool TradeMuteStatus(int source, int target) {
+	bool res = false;
+	int check = CheckActorInventory(source + P_TIDSTART, "DnD_TradeMute_1");
+	if(target > 31) {
+		check = CheckActorInventory(source + P_TIDSTART, "DnD_TradeMute_2");
+		target -= 32;
+	}
+	return IsSet(check, target);
 }
 
 bool IsTrading(int pnum) {
@@ -2640,11 +2664,13 @@ void HandleInventoryViewTrade(int boxid) {
 
 // Just takes care of backend trade details
 void CancelTrade(int pnum) {
-	TakeActorInventory(pnum + P_TIDSTART, "InTradeView", 1);
-	TakeActorInventory(pnum + P_TIDSTART, "DnD_TradeSpaceFit", 1);
-	SetActorInventory(pnum + P_TIDSTART, "DnD_TradeEngaged_1", 0);
-	SetActorInventory(pnum + P_TIDSTART, "DnD_TradeEngaged_2", 0);
-	SetActorInventory(pnum + P_TIDSTART, "DnD_SelectedInventoryBox", 0);
+	int tid = pnum + P_TIDSTART;
+	TakeActorInventory(tid, "InTradeView", 1);
+	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
+	TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
+	SetActorInventory(tid, "DnD_TradeEngaged_1", 0);
+	SetActorInventory(tid, "DnD_TradeEngaged_2", 0);
+	SetActorInventory(tid, "DnD_SelectedInventoryBox", 0);
 }
 
 void CancelTradeRoutine(int tradee) {
@@ -2706,23 +2732,16 @@ void HandleTradeViewButtonClicks(int boxid) {
 						
 						// if other side's confirmation is set, transfer items
 						if(CheckActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed")) {
-							TransferTradeItems(bid, PlayerNumber());
-							TransferTradeItems(PlayerNumber(), bid);
-							// take away confirmation stuff
-							TakeInventory("DnD_Trade_Confirmed", 1);
-							TakeActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 1);
-							// finish trade view related stuff
-							GiveInventory("DnD_Trade_Cooldown", 1);
-							GiveActorInventory(bid + P_TIDSTART, "DnD_Trade_Cooldown", 1);
-							CancelTrade(PlayerNumber());
-							CancelTrade(bid);
+							// start countdown, when it's ready, proceed
+							ACS_NamedExecuteAlways("DnD Trade Countdown", 0, PlayerNumber(), bid);
+							ACS_NamedExecuteAlways("DnD Trade Counter", 0, PlayerNumber(), bid);
 						}
 					}
 					else {
 						// unconfirm the trade
 						if(!ok_from_tradee) {
 							SetActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 0);
-							ShowActorPopup(bid + P_TIDSTART, POPUP_NOSPACEFORTRADE, false, 0);
+							ShowActorPopup(bid, POPUP_NOSPACEFORTRADE, false, 0);
 						}
 						else {
 							SetInventory("DnD_Trade_Confirmed", 0);
@@ -2735,7 +2754,6 @@ void HandleTradeViewButtonClicks(int boxid) {
 					// cancel confirmation
 					TakeInventory("DnD_Trade_Confirmed", 1);
 					TakeInventory("DnD_TradeSpaceFit", 1);
-					GiveInventory("DnD_Trade_ConfirmButtonPress", 1);
 				}
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
@@ -2761,12 +2779,12 @@ void HandleTradeViewButtonClicks(int boxid) {
 					int soffset = MAX_INVENTORY_BOXES;
 					
 					// set up source and offsets
-					if(boxid >= 2 * MAX_INVENTORY_BOXES) {
+					if(boxid > 2 * MAX_INVENTORY_BOXES) {
 						isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
 						ioffset = 2 * MAX_INVENTORY_BOXES;
 					}
 					
-					if(CheckInventory("DnD_SelectedInventoryBox") >= 2 * MAX_INVENTORY_BOXES) {
+					if(CheckInventory("DnD_SelectedInventoryBox") > 2 * MAX_INVENTORY_BOXES) {
 						ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
 						soffset = 2 * MAX_INVENTORY_BOXES;
 					}
@@ -2824,5 +2842,151 @@ void HandleTradeViewButtonClicks(int boxid) {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
 		}
+	}
+}
+
+void HandleStashView(int boxid) {
+	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
+	int pnum = PlayerNumber(), i, j;
+	int curpages = CheckInventory("DnD_PlayerCurrentPage") - 1;
+	int color;
+	SetFont("LDTSCRN");
+	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, 452.4, 120.0, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, 452.4, 360.0, 0.0, 0.0);
+	
+	ResetInventoryLitState();
+	CleanInventoryInfo();
+	
+	// draw stash at top
+	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
+		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
+			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHBOX_BASEX_UP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_STASH | (curpages << 16), pnum, TRADE_RES_X, TRADE_RES_Y);
+		}
+	}
+	// draw our inventory below
+	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
+		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
+			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHBOX_BASEX_UP, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, TRADE_RES_X, TRADE_RES_Y);
+		}
+	}
+	
+	// stash buttons
+	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
+		if(CheckInventory(StrParam(s:"DnD_ButtonPress_", d:i + 1)) || curpages == i) {
+			SetFont("DND_SBC");
+			color = CR_GREEN;
+		}
+		else if(boxid == STASHBUTTON_BOXID_START + i) {
+			SetFont("DND_SBO");
+			color = CR_GREEN;
+		}
+		else {
+			SetFont("DND_SBN");
+			color = CR_CYAN;
+		}
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 6 * MAX_INVENTORY_BOXES - 2 * i, CR_WHITE, 388.4 + 15.0 * i, 210.0, 0.0, 0.0);
+		SetFont("SMALLFONT");
+		HudMessage(d:i + 1; HUDMSG_PLAIN, RPGMENUINVENTORYID - 6 * MAX_INVENTORY_BOXES - 1 - 2 * i, color, 388.4 + 15.0 * i, 210.0, 0.0, 0.0);
+	}
+	
+	SetFont("SMALLFONT");
+	HudMessage(s:"\c[W3]Stash"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
+	HudMessage(s:"\c[W3]Inventory"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 3, CR_WHITE, 452.4, 270.0, 0.0, 0.0);
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+}
+
+void HandleStashViewClicks(int boxid) {
+	int temp = 0;
+	if(!CheckInventory("DnD_SelectedInventoryBox") && boxid < STASHBUTTON_BOXID_START) {
+		SetInventory("DnD_SelectedInventoryBox", boxid);
+		LocalAmbientSound("RPG/MenuChoose", 127);
+		SetInventory("DnD_PlayerPreviousPage", CheckInventory("DnD_PlayerCurrentPage"));
+	}
+	else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
+		if(boxid >= STASHBUTTON_BOXID_START) {
+			// because fucking ACS is stupid somehow this is 2 when evaluated normally...
+			temp = -(STASHBUTTON_BOXID_START - boxid);
+			if(temp < CheckInventory("DnD_PlayerInventoryPages")) {
+				GiveInventory(StrParam(s:"DnD_ButtonPress_", d:temp + 1), 1);
+				SetInventory("DnD_PlayerCurrentPage", temp + 1);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+			}
+		}
+		else {
+			int ioffset = 0;
+			int soffset = 0;
+			int cpage = CheckInventory("DnD_PlayerCurrentPage") - 1;
+			int ppage = CheckInventory("DnD_PlayerPreviousPage") - 1;
+			int ssource = DND_SYNC_ITEMSOURCE_STASH | (ppage << 16);
+			int isource = DND_SYNC_ITEMSOURCE_STASH | (cpage << 16);
+			
+			// set up source and offsets
+			if(boxid > MAX_INVENTORY_BOXES) {
+				isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+				ioffset = MAX_INVENTORY_BOXES;
+			}
+			
+			if(CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) {
+				ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+				soffset = MAX_INVENTORY_BOXES;
+			}
+			
+			// if neither are empty spots
+			int pnum = PlayerNumber();
+			int epos, ipos;
+			bool boxidon = GetItemSyncValue(DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL;
+			bool prevselecton = GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL;
+			if(boxidon && prevselecton) {
+				// if both of them point to the same pointer, we need to move this item instead
+				if(isource == ssource && GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, boxid - 1 - ioffset, -1, isource) == GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource)) {
+					ipos = CheckInventory("DnD_SelectedInventoryBox") - 1;
+					epos = boxid - 1;
+					/*
+					// swap because the ipos place is changed
+					temp = ssource;
+					ssource = isource;
+					isource = temp;
+					temp = soffset;
+					soffset = ioffset;
+					ioffset = temp;
+					*/
+					if(IsFreeSpot_Trade(ipos - ioffset, epos - soffset, isource, ssource))
+						MoveItemTrade(ipos - ioffset, epos - soffset, isource, ssource);
+				}
+				else
+					SwapItems(boxid - 1 - ioffset, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, isource, ssource, false);
+			}
+			else {
+				// find which one has an item, and move it
+				if(!boxidon) {
+					epos = boxid - 1;
+					ipos = CheckInventory("DnD_SelectedInventoryBox") - 1;
+					// swap because the ipos place is changed
+					temp = ssource;
+					ssource = isource;
+					isource = temp;
+					temp = soffset;
+					soffset = ioffset;
+					ioffset = temp;
+				}
+				else {
+					epos = CheckInventory("DnD_SelectedInventoryBox") - 1;
+					ipos = boxid - 1;
+				}
+				// epos holds the empty position now
+				// make sure we aren't both empty slots
+				if((boxidon || prevselecton) && IsFreeSpot_Trade(ipos - ioffset, epos - soffset, isource, ssource)) {
+					MoveItemTrade(ipos - ioffset, epos - soffset, isource, ssource);
+				}
+			}
+			SetInventory("DnD_SelectedInventoryBox", 0);
+			LocalAmbientSound("RPG/MenuChoose", 127);
+		}
+	}
+	else {
+		SetInventory("DnD_SelectedInventoryBox", 0);
+		SetInventory("DnD_PlayerPreviousPage", CheckInventory("DnD_PlayerCurrentPage"));
+		LocalAmbientSound("RPG/MenuChoose", 127);
 	}
 }

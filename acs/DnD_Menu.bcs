@@ -38,6 +38,7 @@ Script 900 (void) NET {
 		SetInventory("DnD_SelectedCharmBox", 0);
 		SetInventory("DnD_SelectedInventoryBox", 0);
 		TakeInventory("DnD_InventoryView", 1);
+		TakeInventory("DnD_StashView", 1);
 		TakeInventory("InTradeView", 1);
 		TakeInventory("DnD_ShowPopup", 1);
 		TakeInventory("DnD_ShowSellPopup", 1);
@@ -166,13 +167,15 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				mainboxid = CheckInventory("ActiveMainBox");
 			}
 			else {
-				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView"))
+				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
 					boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, curopt);
 				else {
 					if(CheckInventory("DnD_InventoryView"))
 						boxid = GetTriggeredBoxOnInventoryPane(InventoryPane, mousex, mousey);
 					else if(CheckInventory("InTradeView"))
 						boxid = GetTriggeredBoxOnTradePane(TradePane, mousex, mousey);
+					else if(CheckInventory("DnD_StashView")) // I used the trade pane variable to hold the stash content
+						boxid = GetTriggeredBoxOnStashPane(TradePane, mousex, mousey);
 				}
 				mainboxid = GetTriggeredBoxOnMainPane(mousex, mousey);
 				SetInventory("ActiveBox", boxid);
@@ -185,7 +188,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			// ifs are seperate because scroll pos should only change if current in-pane box is changed
 			if(boxid != boxid_prev && boxid != MAINBOX_NONE) {
 				ScrollPos = 0;
-				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView"))
+				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
 					LocalAmbientSound("RPG/MenuMove", 127);
 			}
 			if(mainboxid_prev != mainboxid && mainboxid != MAINBOX_NONE)
@@ -206,22 +209,26 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			DrawCursor();
 			SetFont("SMALLFONT");
 			DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
-			DeleteText(RPGMENUPAGEID);
-			DeleteText(RPGMENUPAGEID - 1);
+			DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);
 			
 			if(CheckInventory("DnD_InventoryView")) {
 				LoadInventoryView(InventoryPane);
 				HandleInventoryView(boxid);
-				k = 1;
+				j = 1;
+			}
+			else if(CheckInventory("DnD_StashView")) {
+				LoadStashView(TradePane);
+				HandleStashView(boxid);
+				j = 1;
 			}
 			else if(CheckInventory("InTradeView")) {
 				LoadTradeView(TradePane);
-				k = 1;
+				j = 1;
 			}
 			else {
-				if(k) {
-					DeleteTextRange(RPGMENUCURSORID + 1, RPGMENUINVENTORYID);
-					k = 0;
+				if(j) {
+					DeleteTextRange(RPGMENUPOPUPID + 1, RPGMENUINVENTORYID);
+					j = 0;
 				}
 			}
 			
@@ -316,12 +323,14 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			else if(curopt == MENU_LOAD) {
 				HudMessage(s:"--- Loadout Selection ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
-				DrawBoxText("Weapon Loadout", boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Item Loadout", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Talent Loadout", boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Charms Loadout", boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Accessory Loadout", boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Trading", boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Weapons", boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Items", boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Talents", boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Inventory", boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Stash", boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Charms", boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Accessories", boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Trading", boxid, MBOX_8, RPGMENUITEMID - 8, 192.1, 208.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_LOAD1) {
 				// handle scale here in the future, doesn't get to fit all weps
@@ -384,6 +393,12 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 					HudMessage(f:ftrunc((DND_TALENT_INCREASE + j) * CheckInventory(TalentNames[i])), s:"% (\cd", d:CheckInventory(TalentNames[i]), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - i - MAX_TALENTS - 2, CR_WHITE, 448.2, 64.0 + 16.0 * i, 0.0, 0.0);
 				}
 			}
+			else if(curopt == MENU_LOAD_INVENTORY) {
+				HudMessage(s:"--- Inventory ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_LOAD_STASH) {
+				HudMessage(s:"--- Stash ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			}
 			else if(curopt == MENU_LOAD_CHARM) {
 				HudMessage(s:"--- Charms Equipped ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
@@ -425,6 +440,11 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 									toshow = StrParam(s:"\cd- \c-", n:i + 1, s: "\c[D4] X");
 								else
 									toshow = StrParam(s:"\cd- \c-", n:i + 1);
+								
+								if(TradeMuteStatus(pnum, i))
+									toshow = StrParam(s:toshow, s:" \cg M");
+								if(TradeMuteStatus(i, pnum))
+									toshow = StrParam(s:toshow, s:" \cm M");
 								// add this as a clickable box
 								if(!k) // don't keep adding boxes
 									AddBoxToPane_Points(CurrentPane, 277.0, 260.0 - 16.0 * (j - temp), 180.0, 252.0 - 16.0 * (j - temp));
@@ -443,7 +463,6 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 					HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUITEMID - 32, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 				if(curopt != MENU_FIRST_TRADE)
 					HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUITEMID - 33, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-				
 			}
 			else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
 				// if RES_ACCESSORY is not made, don't let player do anything here
@@ -811,7 +830,6 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			// Main Menu Side Bar Ends
 			
 			// Handle all types of popups
-			HandlePopups(popupid);
 			HandleWeaponInfoPanel(curopt, animcounter, boxid);
 			Delay(1);
 			
@@ -833,7 +851,6 @@ Script "DND Menu Input Handle" (void) {
 	int pnum = PlayerNumber();
 	int boxid, mainboxid;
 	FlushStack(pnum);
-	bool taketrades = false;
 	while(CheckInventory("ShowingMenu") == 1) { // first screen
 		curposx = CheckInventory("MenuPosX");
 		boxid = CheckInventory("ActiveBox");
@@ -848,14 +865,14 @@ Script "DND Menu Input Handle" (void) {
 		
 		// Easy change to main menu sub parts
 		
-		if(CheckInventory("DnD_InventoryView")) {
+		if(CheckInventory("DnD_InventoryView") || CheckInventory("DnD_StashView"))
 			HandleGenericInventoryViewInputs(boxid);
-		}
 		
 		if(mainboxid != MAINBOX_NONE) {
 			ListenInput(0, 0, 0, 0);
 			if(CheckInventory("MadeChoice") == 1) {
 				TakeInventory("DnD_InventoryView", 1);
+				TakeInventory("DnD_StashView", 1);
 				HandleButtonClick(mainboxid);
 				if(mainboxid == MAINBOX_STATS)
 					UpdateMenuPosition(MENU_STAT1);
@@ -1022,10 +1039,15 @@ Script "DND Menu Input Handle" (void) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice") == 1) {
 				if(boxid > 0) {
-					if(boxid == MBOX_6)
+					if(boxid == MBOX_8)
 						UpdateMenuPosition(MENU_LOAD_TRADE1);
-					else
+					else {
+						if(MENU_LOAD + boxid == MENU_LOAD_INVENTORY)
+							GiveInventory("DnD_InventoryView", 1);
+						else if(MENU_LOAD + boxid == MENU_LOAD_STASH)
+							GiveInventory("DnD_StashView", 1);
 						UpdateMenuPosition(MENU_LOAD + boxid);
+					}
 				}
 				SetInventory("MadeChoice", 0);
 			}
@@ -1050,6 +1072,28 @@ Script "DND Menu Input Handle" (void) {
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
 				UpdateMenuPosition(MENU_LOAD);
 		}
+		else if(curopt == MENU_LOAD_INVENTORY) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice")) {
+				HandleInventoryViewClicks(boxid);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
+				TakeInventory("DnD_InventoryView", 1);
+				UpdateMenuPosition(MENU_LOAD);
+			}
+		}
+		else if(curopt == MENU_LOAD_STASH) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			if(CheckInventory("MadeChoice")) {
+				HandleStashViewClicks(boxid);
+				SetInventory("MadeChoice", 0);
+			}
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
+				TakeInventory("DnD_StashView", 1);
+				UpdateMenuPosition(MENU_LOAD);
+			}
+		}
 		else if(curopt == MENU_LOAD_CHARM) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			HandleItemPageInputs(pnum, boxid);
@@ -1059,53 +1103,69 @@ Script "DND Menu Input Handle" (void) {
 		}
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
-			if(CheckInventory("MadeChoice") == 1) {
-				if(boxid >= MBOX_1 && !CheckInventory("DnD_Trade_Cooldown")) {
-					// we aren't in trade panel
-					if(!CheckInventory("InTradeView")) {
-						// we need to find which player this box corresponds to
-						i = 0, temp = 0;
-						// how many we skip
-						j = MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE);
-						for(; i < MAXPLAYERS && temp < boxid + j; ++i)
-							if(PlayerInGame(i) && i != pnum)
-								++temp;
-						// i - 1 is the player number
-						--i;
-						if(!IsTrading(pnum)) {
-							// handle trade protocol, initiate the request
-							if(!IsTrading(i)) {
-								EngageTrade(pnum, i);
-								SetActivator(i + P_TIDSTART);
-								ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_TRADEREQUEST, pnum, i + 1);
-								SetActivator(pnum + P_TIDSTART);
+			if(CheckInventory("MadeChoice")) {
+				if(boxid >= MBOX_1) {
+					// we need to find which player this box corresponds to
+					i = 0, temp = 0;
+					// how many we skip
+					j = MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE);
+					for(; i < MAXPLAYERS && temp < boxid + j; ++i)
+						if(PlayerInGame(i) && i != pnum)
+							++temp;
+					// i - 1 is the player number
+					--i;
+					// left click
+					if(CheckInventory("MadeChoice") == 1) {
+						if(!CheckInventory("DnD_Trade_Cooldown")) {
+							// we aren't in trade panel
+							if(!CheckInventory("InTradeView")) {
+								if(!IsTrading(pnum)) {
+									// handle trade protocol, initiate the request
+									if(!IsTrading(i)) {
+										if(!TradeMuteStatus(i, pnum)) {
+											EngageTrade(pnum, i);
+											SetActivator(i + P_TIDSTART);
+											ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_TRADEREQUEST, pnum, i + 1);
+											SetActivator(pnum + P_TIDSTART);
+											ACS_NamedExecuteAlways("DnD Trade Window", 0, pnum, false);
+											ACS_NamedExecuteAlways("DnD Trade Window", 0, i, true);
+											LocalAmbientSound("RPG/MenuChoose", 127);
+										}
+										else
+											ShowActorPopup(pnum, POPUP_YOUAREMUTED, false, 0);
+									}
+									else
+										ShowActorPopup(pnum, POPUP_TARGETISTRADING, false, 0);
+								}
+								else {
+									// trade accept window is given to the other party, who engaged this
+									if(IsTradingWith(pnum, i) && CheckInventory("DnD_TradeAcceptWindow")) {
+										if(!TradeMuteStatus(i, pnum)) {
+											// handle trade now, other party accepted
+											GiveInventory("InTradeView", 1);
+											GiveActorInventory(i + P_TIDSTART, "InTradeView", 1);
+											LocalAmbientSound("RPG/MenuChoose", 127);
+										}
+										else
+											ShowActorPopup(pnum, POPUP_YOUAREMUTED, false, 0);
+									}
+									else
+										ShowActorPopup(pnum, POPUP_TARGETISTRADING, false, 0);
+								}
 							}
 							else {
-								LocalAmbientSound("RPG/MenuError", 127);
-								GiveInventory("DnD_ShowPopup", 1);
-								GiveInventory("DnD_PopupError", 1);
-								SetInventory("DnD_PopupId", POPUP_TARGETISTRADING);
-							}
-						}
-						else {
-							// trade accept window is given to the other party, who engaged this
-							if(IsTradingWith(pnum, i) && CheckInventory("DnD_TradeAcceptWindow")) {
-								// handle trade now, other party accepted
-								GiveInventory("InTradeView", 1);
-								GiveActorInventory(i + P_TIDSTART, "InTradeView", 1);
-							}
-							else {
-								LocalAmbientSound("RPG/MenuError", 127);
-								GiveInventory("DnD_ShowPopup", 1);
-								GiveInventory("DnD_PopupError", 1);
-								SetInventory("DnD_PopupId", POPUP_YOUARETRADING);
+								// we are in trade panel now, handle boxes accordingly
+								// give some time for the synchronization to settle in
+								HandleTradeViewButtonClicks(boxid);
 							}
 						}
 					}
 					else {
-						// we are in trade panel now, handle boxes accordingly
-						// give some time for the synchronization to settle in
-						HandleTradeViewButtonClicks(boxid);
+						// right click mutes people
+						if(!CheckInventory("InTradeView")) {
+							ToggleMuteTrade(i);
+							LocalAmbientSound("RPG/MenuChoose", 127);
+						}
 					}
 				}
 			}
@@ -1385,13 +1445,6 @@ Script "DND Menu Input Handle" (void) {
 				UpdateMenuPosition(MENU_HELP);
 		}
 		HandleClickableButtonFrames();
-		if(CheckInventory("DnD_TradeAcceptWindow"))
-			taketrades = true;
-		else {
-			if(taketrades && !CheckInventory("InTradeView"))
-				BreakTradesBetween(pnum);
-			taketrades = false;
-		}
 		Delay(1);
 	}
 }
@@ -1403,4 +1456,115 @@ Script "DnD Toggle User Dash" (void) CLIENTSIDE {
 Script "DnD Trade Cancel Button" (void) {
 	Delay(4);
 	CancelTradeRoutine(GetTradee());
+}
+
+Script "DnD Trade Countdown" (int p1, int p2) CLIENTSIDE {
+	if(ConsolePlayerNumber() != p1 && ConsolePlayerNumber() != p2)
+		Terminate;
+	// Handle timer display
+	int lim = 7 * Clamp_Between(GetCVar("dnd_trade_timer"), 1, 10);
+	int count = 0;
+	
+	SetFont("BIGFONT");
+	while(count < lim && CheckActorInventory(p1 + P_TIDSTART, "DnD_Trade_Confirmed") && CheckActorInventory(p2 + P_TIDSTART, "DnD_Trade_Confirmed")) {
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		HudMessage(s:"\c[W3]", d:(lim - count + 6) / 7; HUDMSG_PLAIN, RPGMENUTRADECOUNTDOWNID, -1, 110.4, 160.0, 0.0, 0.0);
+		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+		Delay(5);
+		++count;
+	}
+	
+	DeleteText(RPGMENUTRADECOUNTDOWNID);
+}
+
+// p1 is us
+Script "DnD Trade Counter" (int p1, int p2) {
+	int lim = 7 * Clamp_Between(GetCVar("dnd_trade_timer"), 1, 10);
+	int count = 0;
+	while(count < lim && CheckActorInventory(p1 + P_TIDSTART, "DnD_Trade_Confirmed") && CheckActorInventory(p2 + P_TIDSTART, "DnD_Trade_Confirmed")) {
+		Delay(5);
+		++count;
+	}
+	if(count == lim) {
+		TransferTradeItems(p1, p2);
+		TransferTradeItems(p2, p1);
+		// take away confirmation stuff
+		TakeInventory("DnD_Trade_Confirmed", 1);
+		TakeActorInventory(p2 + P_TIDSTART, "DnD_Trade_Confirmed", 1);
+		// finish trade view related stuff
+		GiveInventory("DnD_Trade_Cooldown", 1);
+		GiveActorInventory(p2 + P_TIDSTART, "DnD_Trade_Cooldown", 1);
+		CancelTrade(p1);
+		CancelTrade(p2);
+	}
+}
+
+Script "DnD Trade Window" (int pnum, int giveWindow) {
+	SetActivator(pnum + P_TIDSTART);
+	
+	if(giveWindow)
+		GiveInventory("DnD_TradeAcceptWindow", 1);
+	
+	int lim = 5 * Clamp_Between(GetCVar("dnd_trade_window"), 5, 20);
+	for(int i = 0; i < lim && !CheckInventory("InTradeView"); ++i)
+		Delay(7);
+	
+	if(!CheckInventory("InTradeView")) {
+		BreakTradesBetween(pnum);
+		TakeInventory("DnD_TradeAcceptWindow", 1);
+	}
+}
+
+Script "DnD Menu Popup" (int pnum, int isSell, int activebox) {
+	SetActivator((pnum & 0xFFFF) + P_TIDSTART);
+	if(isSell) {
+		GiveInventory("DnD_SellConfirm", 1);
+		TakeInventory("DnD_ShowPopup", 1);
+		TakeInventory("DnD_PopupError", 1);
+		GiveInventory("DnD_PopupSell", 1);
+		GiveInventory("DnD_ShowSellPopup", 1);
+		SetInventory("DnD_PopupID", activebox);
+		SetInventory("ActivePopupBox", activebox);
+	}
+	else {
+		GiveInventory("DnD_ShowPopup", 1);
+		GiveInventory("DnD_PopupError", 1);
+		TakeInventory("DnD_PopupSell", 1);
+		TakeInventory("DnD_ShowSellPopup", 1);
+		SetInventory("ActivePopupBox", 0);
+		SetInventory("DnD_PopupID", activebox);
+	}
+	
+	ACS_NamedExecuteAlways("DnD Menu Popup Show", 0, pnum >> 16, pnum & 0xFFFF);
+}
+
+Script "DnD Menu Popup Show" (int id, int pnum) CLIENTSIDE {
+	// 0 for buy being possible, 2 if credits was not enough, 1 if credits was enough but you are maxed on the item and 3 if neither were satisfied 4 if item can't be sold
+	SetActivator(pnum + P_TIDSTART);
+	
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	
+	int popuptype = POPUP_ERROR;
+	if(CheckInventory("DnD_PopupSell"))
+		popuptype = POPUP_SELL;
+
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	SetFont("DND_ERR");
+	HudMessage(s:"A"; HUDMSG_FADEOUT, RPGMENUPOPUPID, -1, 216.1, 128.1, 1.0, 1.0);
+	SetFont("SMALLFONT");
+	str toshow = "", title = "";
+	if(popuptype == POPUP_ERROR) {
+		title = "\c[Q2]ERROR";
+		// id is minimum 1
+		toshow = PopupText[id];
+		LocalAmbientSound("RPG/MenuError", 127);
+	}
+	else if(popuptype == POPUP_SELL) {
+		title = "\c[Q2]CONFIRM";
+		toshow = StrParam(s:"Are you sure you\nwant to sell your\n\cd", s:ShopItemNames[id][SHOPNAME_TAG], s:"\c- ?");
+	}
+
+	HudMessage(s:title; HUDMSG_FADEOUT, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0, 1.0);
+	HudMessage(s:toshow; HUDMSG_FADEOUT, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0, 1.0);
 }

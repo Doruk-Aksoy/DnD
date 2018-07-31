@@ -1899,6 +1899,7 @@ Script 989 (int pnum) DISCONNECT {
 	ResetPlayerInventory(pnum);
 	ResetPlayerCharmsUsed(pnum);
 	ResetTradeViewList(pnum);
+	ResetPlayerStash(pnum);
 	// reset weapon mod variable
 	ResetWeaponMods(pnum);
 	ResetPlayerBonuses(pnum);
@@ -3207,7 +3208,7 @@ Script "DND Clientside Orb Syncer" (int var, int to, int extra) CLIENTSIDE {
 }
 
 Script "DND Clientside Item Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetItemSyncValue(var & 0xFFFF, extra & 0xFFFF, extra >> 16, to, var >> 16);
+	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
 }
 
 Script "DND Clientside Item Syncer Player" (int var, int to, int extra) CLIENTSIDE {
