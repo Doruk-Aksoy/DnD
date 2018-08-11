@@ -8,6 +8,7 @@
 #include "DnD_Elixirs.h"
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
+#include "DnD_Chestkey.h"
 
 #define PERK_GAIN_RATE 5
 
@@ -288,26 +289,11 @@ str SpreeText[MAX_SPREE_TEXT] = {
 	"HOLY SHIT"
 };
 
-#define CHEST_KEY_TEXT_MAX 3
 #define DND_GOLDCHESTKEY_DROPRATE 0.1
 #define DND_SILVERCHESTKEY_DROPRATE 0.25
 
 #define SILVERCHEST_DROPWEIGHT 37
 #define GOLDCHEST_DROPWEIGHT 50
-
-enum {
-	DND_CHESTTYPE_BRONZE,
-	DND_CHESTTYPE_SILVER,
-	DND_CHESTTYPE_GOLD
-};
-
-bool SpawnedChests = 0;
-
-str ChestKeyText[CHEST_KEY_TEXT_MAX] = {
-	"\ccNotice        : You need a \ceBronze\c- Chest Key to open this!",
-	"\ccNotice        : You need a \cuSilver\c- Chest Key to open this!",
-	"\ccNotice        : You need a \cfGold\c- Chest Key to open this!"
-};
 
 #define AMMODISPLAY_ID 1000
 
@@ -987,15 +973,6 @@ void SpawnTalentCapsule() {
 		SpawnDrop("TalentCapsule_SP", 0, 0, 1, 1);
 }
 
-void SpawnChestKey(int tid, bool isElite) {
-	if(RunDefaultDropChance(tid, isElite, DND_GOLDCHESTKEY_DROPRATE))
-		SpawnDrop("GoldChestKey", 0, 0, 0, 0);
-	else if(RunDefaultDropChance(tid, isElite, DND_SILVERCHESTKEY_DROPRATE))
-		SpawnDrop("SilverChestKey", 0, 0, 0, 0);
-	else
-		SpawnDrop("BronzeChestKey", 0, 0, 0, 0);
-}
-
 void SpawnResearch() {
 	// spawn copies of this research
 	int temp = 0;
@@ -1054,7 +1031,7 @@ void HandleOrbDrop() {
 	int addchance = (Clamp_Between(GetCVar("dnd_orb_dropchanceadd"), 0, 100) << 16) / 100;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))
+		if(PlayerInGame(i) /*&& IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance)*/)
 			SpawnOrb(i);
 	}
 }

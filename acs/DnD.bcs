@@ -613,14 +613,13 @@ Script "DND On Kill" KILL {
 			SpawnTalentCapsule();
 		
 		// Chest Key
-		if(RunDefaultDropChance(target - P_TIDSTART, pnum, DND_CHESTKEY_DROPRATE))
-			SpawnChestKey(target - P_TIDSTART, pnum);
+		HandleChestKeyDrop(pnum);
 		
 		// if elite, roll orb and equipment drops
-		if(pnum) {
+		//if(pnum) {
 			// handle orb drops
 			HandleOrbDrop();
-		}
+		//}
 		
 		// accessory drops (accept only from cyber and spider masterminds)
 		if(IsBoss()) {
@@ -3473,4 +3472,37 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 		Terminate;
 	int field_index = sp >> 16;
 	DrawInventoryInfo_Field(field_index, DND_SYNC_ITEMSOURCE_FIELD, 24.4, 80.1);
+}
+
+Script "DnD Orb Pickup" (int sp) {
+	if((sp & 0xFFFF) == 255)
+		SetActivatorToTarget(0);
+	else
+		SetActivator((sp & 0xFFFF) + P_TIDSTART);
+	ACS_NamedExecuteAlways("DnD Orb Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
+	GiveInventory("OrbSoundPlayer", 1);
+	HandleStackedPickup(sp >> 16);
+}
+
+Script "DnD Chestkey Message" (int id) CLIENTSIDE {
+	Log(s:StrParam(s:"\ccBonus pickup  : \c[Y5]", s:ChestKeyList[id][CHESTKEY_TAG], s:"!\c-"));
+}
+
+Script "DnD Chestkey Pickup" (int sp) {
+	if((sp & 0xFFFF) == 255)
+		SetActivatorToTarget(0);
+	else
+		SetActivator((sp & 0xFFFF) + P_TIDSTART);
+	ACS_NamedExecuteAlways("DnD Chestkey Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
+	GiveInventory("ChestkeySoundPlayer", 1);
+	HandleStackedPickup(sp >> 16);
+}
+
+Script "DnD Try Open Chestkey" (int keytype) {
+	int res = CheckPlayerInventoryList(GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
+	if(res != -1) {
+		SetActivatorToTarget(0);
+		UsePlayerItem(PlayerNumber(), res);
+	}
+	SetResultValue(res != -1);
 }

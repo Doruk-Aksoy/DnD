@@ -167,17 +167,22 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				mainboxid = CheckInventory("ActiveMainBox");
 			}
 			else {
-				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
-					boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, curopt);
-				else {
-					if(CheckInventory("DnD_InventoryView"))
+				if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
+					if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
+						boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, curopt);
+					else if(CheckInventory("DnD_InventoryView"))
 						boxid = GetTriggeredBoxOnInventoryPane(InventoryPane, mousex, mousey);
 					else if(CheckInventory("InTradeView"))
 						boxid = GetTriggeredBoxOnTradePane(TradePane, mousex, mousey);
 					else if(CheckInventory("DnD_StashView")) // I used the trade pane variable to hold the stash content
 						boxid = GetTriggeredBoxOnStashPane(TradePane, mousex, mousey);
 				}
-				mainboxid = GetTriggeredBoxOnMainPane(mousex, mousey);
+				else
+					boxid = GetTriggeredBoxOnCraftingPane(InventoryPane, mousex, mousey);
+				if(CheckInventory("DnD_InventoryView") || CheckInventory("InTradeView") || CheckInventory("DnD_StashView") || (curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_LAST))
+					mainboxid = MAINBOX_NONE;
+				else
+					mainboxid = GetTriggeredBoxOnMainPane(mousex, mousey);
 				SetInventory("ActiveBox", boxid);
 				SetInventory("ActiveMainBox", mainboxid);
 			}
@@ -329,8 +334,9 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				DrawBoxText("Inventory", boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("Stash", boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("Charms", boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Accessories", boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("Trading", boxid, MBOX_8, RPGMENUITEMID - 8, 192.1, 208.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Crafting", boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Accessories", boxid, MBOX_8, RPGMENUITEMID - 8, 192.1, 208.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("Trading", boxid, MBOX_9, RPGMENUITEMID - 9, 192.1, 224.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_LOAD1) {
 				// handle scale here in the future, doesn't get to fit all weps
@@ -416,6 +422,15 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 288.1, 96.0);
 				
 				DrawBoxText("View Inventory", boxid, MBOX_8, RPGMENUITEMID, 316.4, 248.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON) {
+				SetHudSize(384, 200, 1);
+				SetFont("CRFTVW");
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 1, CR_CYAN, 164.0, 100.0, 0.0, 0.0);
+				SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+				SetFont("SMALLFONT");
+				HandleCraftingView(InventoryPane, boxid, curopt, k);
+				k = 1;
 			}
 			else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 				HudMessage(s:"--- Arrange a Trade ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1039,7 +1054,7 @@ Script "DND Menu Input Handle" (void) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice") == 1) {
 				if(boxid > 0) {
-					if(boxid == MBOX_8)
+					if(boxid == MBOX_9)
 						UpdateMenuPosition(MENU_LOAD_TRADE1);
 					else {
 						if(MENU_LOAD + boxid == MENU_LOAD_INVENTORY)
@@ -1075,7 +1090,7 @@ Script "DND Menu Input Handle" (void) {
 		else if(curopt == MENU_LOAD_INVENTORY) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice")) {
-				HandleInventoryViewClicks(boxid);
+				HandleInventoryViewClicks(boxid, CheckInventory("MadeChoice"));
 				SetInventory("MadeChoice", 0);
 			}
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
@@ -1086,7 +1101,7 @@ Script "DND Menu Input Handle" (void) {
 		else if(curopt == MENU_LOAD_STASH) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice")) {
-				HandleStashViewClicks(boxid);
+				HandleStashViewClicks(boxid, CheckInventory("MadeChoice"));
 				SetInventory("MadeChoice", 0);
 			}
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
@@ -1100,6 +1115,33 @@ Script "DND Menu Input Handle" (void) {
 			SetInventory("MadeChoice", 0);
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
 				UpdateMenuPosition(MENU_LOAD);
+		}
+		else if(curopt == MENU_LOAD_CRAFTING) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			
+			if(CheckInventory("MadeChoice") == 1) {
+				if(boxid == CRAFTING_WEAPON_BOXID + 1)
+					UpdateMenuPosition(MENU_LOAD_CRAFTING_WEAPON);
+				else if(boxid == CRAFTING_INVENTORY_BOXID + 1)
+					UpdateMenuPosition(MENU_LOAD_CRAFTING_INVENTORY);
+			}
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(MENU_LOAD);
+		}
+		else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(MENU_LOAD_CRAFTING);
+		}
+		else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
+			
+			SetInventory("MadeChoice", 0);
+			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
+				UpdateMenuPosition(MENU_LOAD_CRAFTING);
 		}
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
@@ -1166,6 +1208,8 @@ Script "DND Menu Input Handle" (void) {
 							ToggleMuteTrade(i);
 							LocalAmbientSound("RPG/MenuChoose", 127);
 						}
+						else
+							HandleTradeViewButtonClicks(boxid);
 					}
 				}
 			}

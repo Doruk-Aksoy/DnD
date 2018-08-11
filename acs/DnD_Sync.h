@@ -43,6 +43,7 @@ enum {
 	DND_SYNC_ITEMHEIGHT,
 	DND_SYNC_ITEMIMAGE,
 	DND_SYNC_ITEMLEVEL,
+	DND_SYNC_ITEMSTACK,
 	DND_SYNC_ITEMSATTRIBCOUNT,
 	DND_SYNC_ITEMATTRIBUTES_ID,
 	DND_SYNC_ITEMATTRIBUTES_VAL
@@ -109,6 +110,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return Inventories_On_Field[extra].item_subtype;
 			case DND_SYNC_ITEMLEVEL:
 			return Inventories_On_Field[extra].item_level;
+			case DND_SYNC_ITEMSTACK:
+			return Inventories_On_Field[extra].item_stack;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 			return Inventories_On_Field[extra].topleftboxid;
 			case DND_SYNC_ITEMSATTRIBCOUNT:
@@ -133,6 +136,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].item_subtype;
 			case DND_SYNC_ITEMLEVEL:
 			return PlayerInventoryList[pnum][extra].item_level;
+			case DND_SYNC_ITEMSTACK:
+			return PlayerInventoryList[pnum][extra].item_stack;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 			return PlayerInventoryList[pnum][extra].topleftboxid;
 			case DND_SYNC_ITEMSATTRIBCOUNT:
@@ -157,6 +162,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return TradeViewList[pnum][extra].item_subtype;
 			case DND_SYNC_ITEMLEVEL:
 			return TradeViewList[pnum][extra].item_level;
+			case DND_SYNC_ITEMSTACK:
+			return TradeViewList[pnum][extra].item_stack;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 			return TradeViewList[pnum][extra].topleftboxid;
 			case DND_SYNC_ITEMSATTRIBCOUNT:
@@ -181,6 +188,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return PlayerStashList[pnum][page][extra].item_subtype;
 			case DND_SYNC_ITEMLEVEL:
 			return PlayerStashList[pnum][page][extra].item_level;
+			case DND_SYNC_ITEMSTACK:
+			return PlayerStashList[pnum][page][extra].item_stack;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 			return PlayerStashList[pnum][page][extra].topleftboxid;
 			case DND_SYNC_ITEMSATTRIBCOUNT:
@@ -356,6 +365,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			case DND_SYNC_ITEMLEVEL:
 				Inventories_On_Field[extra].item_level = val;
 			break;
+			case DND_SYNC_ITEMSTACK:
+				Inventories_On_Field[extra].item_stack = val;
+			break;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 				Inventories_On_Field[extra].topleftboxid = val;
 			break;
@@ -389,6 +401,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			break;
 			case DND_SYNC_ITEMLEVEL:
 				PlayerInventoryList[pnum][extra].item_level = val;
+			break;
+			case DND_SYNC_ITEMSTACK:
+				PlayerInventoryList[pnum][extra].item_stack = val;
 			break;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 				PlayerInventoryList[pnum][extra].topleftboxid = val;
@@ -424,6 +439,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			case DND_SYNC_ITEMLEVEL:
 				TradeViewList[pnum][extra].item_level = val;
 			break;
+			case DND_SYNC_ITEMSTACK:
+				TradeViewList[pnum][extra].item_stack = val;
+			break;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 				TradeViewList[pnum][extra].topleftboxid = val;
 			break;
@@ -457,6 +475,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			break;
 			case DND_SYNC_ITEMLEVEL:
 				PlayerStashList[pnum][page][extra].item_level = val;
+			break;
+			case DND_SYNC_ITEMSTACK:
+				PlayerStashList[pnum][page][extra].item_stack = val;
 			break;
 			case DND_SYNC_ITEMTOPLEFTBOX:
 				PlayerStashList[pnum][page][extra].topleftboxid = val;
@@ -664,6 +685,13 @@ void SyncItemData(int itemid, int source, int wprev, int hprev) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_VAL; ++j)
 			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, j | payload, GetItemSyncValue(j, itemid, i, source), itemid | (i << 16));
 	}
+}
+
+void SyncItemStack(int itemid, int source) {
+	int page = source >> 16;
+	int raw_source = source & 0xFFFF;
+	int payload = (raw_source << 8) | (page << 16);
+	ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
 }
 
 // this runs a specialized way of sending the player number in the input as well

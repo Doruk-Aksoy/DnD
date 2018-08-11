@@ -179,8 +179,6 @@ void AddOrbBonusData(int pnum, int bonus, int extra, int val) {
 #define MAX_ORBS_BITS getpow2(MAX_ORBS)
 #define MAX_ORBS_BITONES (1 << (MAX_ORBS_BITS)) - 1
 
-#define ORB_NAME 0
-#define ORB_TAG 1
 str OrbList[MAX_ORBS][2] = {
 	{ "OrbOfEnhancement", "Orb of Enhancement" },
 	{ "OrbOfCorruption", "Orb of Corruption" },
@@ -196,6 +194,24 @@ str OrbList[MAX_ORBS][2] = {
 	{ "OrbofSin", "Orb of Sin" },
 	{ "OrbofRiches", "Orb of Riches" },
 	{ "OrbofHolding", "Orb of Holding" }
+};
+
+#define MAX_HELPTEXT_ORBS MAX_ORBS
+str HelpText_Orbs[MAX_HELPTEXT_ORBS] = {
+	"\c[Y5]Orb of Enhancement\nAllows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg25%\c- total.",
+	"\c[Y5]Orb of Corruption\nThis orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?",
+	"\c[Y5]Orb of Spirit\nGrants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight.",
+	"\c[Y5]Orb of Repentance\nAllows you to undo the effects of the most recently used orb. You can't undo the effects undone by this orb or the \c[Y5]Orb of Riches\c-.",
+	"\c[Y5]Orb of Affluence\nDoubles the effect of the next orb. This effect can stack with itself up to a multiplier of \cg16\c-.",
+	"\c[Y5]Orb of Calamity\nTurns a random orb into another. It won't work if you have no other orbs or if you only have these orbs.",
+	"\c[Y5]Orb of Prosperity\nIncreases health and armor caps by \cd1\c- up to a maximum of \cg500\c-.",
+	"\c[Y5]Orb of Wisdom\nIncreases experience gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.",
+	"\c[Y5]Orb of Greed\nIncreases credit gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.",
+	"\c[Y5]Orb of Violence\nIncreases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category.",
+	"\c[Y5]Orb of Fortitude\nIncreases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-.",
+	"\c[Y5]Orb of Sin\nA pact with the devil itself, trading anywhere from \cg1 to 8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!",
+	"\c[Y5]Orb of Riches\nGrants a random resource on use. Can grant experience, credit or budget. Base values are \cd5%\c- of your current level's experience, \cd2000\c- and \cd5k\c- respectively.",
+	"\c[Y5]Orb of Holding\nIncreases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons."
 };
 
 // percentages
@@ -1357,19 +1373,42 @@ void ResetOrbData(int pnum) {
 }
 
 void SpawnOrb(int pnum) {
-	int w = random(1, ORB_MAXWEIGHT), i = 0;
-	for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
-	SpawnDrop(StrParam(s:OrbList[i][ORB_NAME], s:"_Drop"), 24.0, 16, pnum + 1, i);
+	int c = CreateItemSpot();
+	if(c != -1) {
+		int w = random(1, ORB_MAXWEIGHT), i = 0;
+		for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+		// c is the index on the field now
+		RollOrbInfo(c, i, true);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SpawnDrop(OrbList[i][ORB_NAME], 24.0, 16, pnum + 1, c);
+	}
 }
 
 void SpawnOrbForAll(int repeats) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
-			int w = random(1, ORB_MAXWEIGHT), i = 0;
-			for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
-			SpawnDrop(StrParam(s:OrbList[i][ORB_NAME], s:"_Drop"), 24.0, 16, j + 1, i);
+			int c = CreateItemSpot();
+			if(c != -1) {
+				int w = random(1, ORB_MAXWEIGHT), i = 0;
+				for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+				RollOrbInfo(c, i, true);
+				SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+				SpawnDrop(OrbList[i][ORB_NAME], 24.0, 16, j + 1, c);
+			}
 		}
 	}
+}
+
+void RollOrbInfo(int item_pos, int orbtype, bool onField) {
+	// roll random attributes for the charm
+	Inventories_On_Field[item_pos].item_level = 1;
+	Inventories_On_Field[item_pos].item_stack = 1; // orbs have default stack of 1
+	Inventories_On_Field[item_pos].item_type = DND_ITEM_ORB;
+	Inventories_On_Field[item_pos].item_subtype = orbtype;
+	Inventories_On_Field[item_pos].width = 1;
+	Inventories_On_Field[item_pos].height = 1;
+	Inventories_On_Field[item_pos].attrib_count = 0;
+	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_ORB_BEGIN + orbtype;
 }
 
 #endif

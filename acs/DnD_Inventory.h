@@ -25,6 +25,26 @@
 
 #define MAX_EXTRA_INVENTORY_PAGES 10
 
+#define MAXSTACKS_ORB 128
+#define MAXSTACKS_CKEY 32
+
+#define ORB_NAME 0
+#define ORB_TAG 1
+
+enum {
+	DND_CHESTTYPE_BRONZE,
+	DND_CHESTTYPE_SILVER,
+	DND_CHESTTYPE_GOLD
+};
+
+#define CHEST_KEY_TEXT_MAX DND_CHESTTYPE_GOLD + 1
+
+str ChestkeyHelpText[CHEST_KEY_TEXT_MAX] = {
+	"\c[Y5]Bronze Chest Key\nOpens a mysterious bronze chest.",
+	"\c[Y5]Silver Chest Key\nOpens a mysterious silver chest.",
+	"\c[Y5]Gold Chest Key\nOpens a mysterious gold chest."
+};
+
 // MENU IDS
 // Moved here because of dependencies
 enum {
@@ -39,7 +59,16 @@ enum {
 	DND_ITEM_BOOT,
 	DND_ITEM_GLOVE,
 	DND_ITEM_NECKLACE,
-	DND_ITEM_RING
+	DND_ITEM_RING,
+	DND_ITEM_ORB,
+	DND_ITEM_CHESTKEY
+};
+
+// only orbs
+#define MAX_CRAFTITEMTYPES 1
+
+int CraftItemTypes[MAX_CRAFTITEMTYPES] = {
+	DND_ITEM_ORB
 };
 
 typedef struct {
@@ -54,6 +83,7 @@ typedef struct it {
 	int item_type;									// what type of item it is
 	int item_subtype;								// subtype for items that have it (charms etc)
 	int item_level;									// what level this item is
+	int item_stack;									// the stack of the item (if applicable)
 	int topleftboxid;								// used to determine the owning pointer (-1 of this is the pointer)
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
@@ -89,8 +119,45 @@ enum {
 #define DND_LARGECHARM_IMAGEBEGIN IM_LCHRM1
 #define DND_LARGECHARM_IMAGEEND IM_LCHRM3
 
-#define MAX_ITEM_IMAGES IM_LCHRM3 + 1
+enum {
+	IIMG_SC_1,
+	IIMG_SC_2,
+	IIMG_SC_3,
+	
+	IIMG_MC_1,
+	IIMG_MC_2,
+	IIMG_MC_3,
+	
+	IIMG_LC_1,
+	IIMG_LC_2,
+	IIMG_LC_3,
+	
+	IIMG_ORB_1,
+	IIMG_ORB_2,
+	IIMG_ORB_3,
+	IIMG_ORB_4,
+	IIMG_ORB_5,
+	IIMG_ORB_6,
+	IIMG_ORB_7,
+	IIMG_ORB_8,
+	IIMG_ORB_9,
+	IIMG_ORB_10,
+	IIMG_ORB_11,
+	IIMG_ORB_12,
+	IIMG_ORB_13,
+	IIMG_ORB_14,
+	
+	IIMG_CKEY_1,
+	IIMG_CKEY_2,
+	IIMG_CKEY_3
+};
+
+#define ITEM_IMAGE_ORB_BEGIN IIMG_ORB_1
+#define ITEM_IMAGE_KEY_BEGIN IIMG_CKEY_1
+
+#define MAX_ITEM_IMAGES IIMG_CKEY_3 + 1
 str Item_Images[MAX_ITEM_IMAGES] = {
+	// charms
 	"SCHRM1",
 	"SCHRM2",
 	"SCHRM3",
@@ -101,7 +168,63 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	
 	"LCHRM1",
 	"LCHRM2",
-	"LCHRM3"
+	"LCHRM3",
+	
+	// orbs
+	"ORB1D0",
+	"ORB1B0",
+	"ORB1I0",
+	"ORB1Z0",
+	"ORB3A0",
+	"ORB1N0",
+	"ORB1S0",
+	"ORB2J0",
+	"ORB3E0",
+	"ORB2O0",
+	"ORB2V0",
+	"ORB2E0",
+	"ORB3G0",
+	"ORB3I0",
+	
+	"SBKGA0",
+	"SBKGB0",
+	"SBKGC0"
+};
+
+#define IOFFSET_X 0
+#define IOFFSET_Y 1
+// this is used to properly adjust images of items that don't get fit in trade/stash views
+int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 }
 };
 
 enum {
@@ -114,7 +237,6 @@ str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
 
 #define ITEMLEVEL_VARIANCE_LOWER 15
 #define ITEMLEVEL_VARIANCE_HIGHER 7
-
 
 // holds inventories of all players
 global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
@@ -145,6 +267,7 @@ void FreeItem(int item_index, int source, bool dontSync) {
 	SetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, -1, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMIMAGE, item_index, -1, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMLEVEL, item_index, -1, 0, source);
+	SetItemSyncValue(DND_SYNC_ITEMSTACK, item_index, -1, 0, source);
 	temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	for(j = 0; j < temp; ++j) {
 		SetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, i, 0, source);
@@ -171,6 +294,7 @@ void FreeItem_Player(int item_index, int source, bool dontSync, int pnum) {
 	SetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, pn, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMIMAGE, item_index, pn, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMLEVEL, item_index, pn, 0, source);
+	SetItemSyncValue(DND_SYNC_ITEMSTACK, item_index, pn, 0, source);
 	temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, pn, source);
 	for(j = 0; j < temp; ++j) {
 		SetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, i | pn, 0, source);
@@ -193,6 +317,7 @@ void FreeSpot(int item_index, int source) {
 	SetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, -1, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMIMAGE, item_index, -1, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMLEVEL, item_index, -1, 0, source);
+	SetItemSyncValue(DND_SYNC_ITEMSTACK, item_index, -1, 0, source);
 	
 	temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	for(j = 0; j < temp; ++j) {
@@ -212,6 +337,7 @@ void FreeSpot_Player(int item_index, int source, int pnum) {
 	SetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, pn, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMIMAGE, item_index, pn, 0, source);
 	SetItemSyncValue(DND_SYNC_ITEMLEVEL, item_index, pn, 0, source);
+	SetItemSyncValue(DND_SYNC_ITEMSTACK, item_index, pn, 0, source);
 	
 	temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, pn, source);
 	for(j = 0; j < temp; ++j) {
@@ -225,6 +351,16 @@ void FreeSpot_Player(int item_index, int source, int pnum) {
 	SetItemSyncValue(DND_SYNC_ITEMHEIGHT, item_index, pn, 0, source);
 }
 
+int GetStackValue(int type) {
+	switch (type) {
+		case DND_ITEM_ORB:
+		return MAXSTACKS_ORB;
+		case DND_ITEM_CHESTKEY:
+		return MAXSTACKS_CKEY;
+	}
+	return 0;
+}
+
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
 int GetFreeSpotForItem(int item_index, int player_index, int source) {
 	int i = 0, j = 0;
@@ -233,6 +369,42 @@ int GetFreeSpotForItem(int item_index, int player_index, int source) {
 	int h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, item_index, (player_index + 1) << 16, source);
 	bool unfit = false;
 
+	// try every line
+	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
+		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
+			// if width matches, try height from here on then and if unfit, restart at a new coordinate
+			unfit = false;
+			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
+				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
+					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
+					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
+						unfit = true;
+				}
+			}
+			// we return top left corner box id
+			if(wcheck == w && hcheck == h && !unfit)
+				return j * MAXINVENTORYBLOCKS_VERT + i;
+		}
+	}
+	return -1;
+}
+
+int GetFreeSpotForItemWithStack(int item_index, int player_index, int source) {
+	int i = 0, j = 0;
+	int bid = 0, wcheck = 0, hcheck = 0;
+	int w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, item_index, (player_index + 1) << 16, source);
+	int h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, item_index, (player_index + 1) << 16, source);
+	bool unfit = false;
+	
+	// first search for any spot on our inventory for a stack item of this type
+	int type = GetItemSyncValue(DND_SYNC_ITEMTYPE, item_index, (player_index + 1) << 16, source);
+	int sub = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, (player_index + 1) << 16, source);
+	int maxstack = GetStackValue(type);
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		if(PlayerInventoryList[player_index][i].item_type == type && PlayerInventoryList[player_index][i].item_subtype == sub && PlayerInventoryList[player_index][i].item_stack < maxstack)
+			return i;
+			
+	// didn't work, find new spot
 	// try every line
 	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
@@ -271,6 +443,34 @@ int GetFreeSpotForItem_Trade(int item_index, int source_player, int player_index
 					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES) {
 						unfit = true;
 					}
+				}
+			}
+			// we return top left corner box id
+			if(wcheck == w && hcheck == h && !unfit)
+				return j * MAXINVENTORYBLOCKS_VERT + i;
+		}
+	}
+	return -1;
+}
+
+// this actually checks for free spots in the given source
+int GetFreeSpotForItem_InPlace(int item_index, int player_index, int source) {
+	int i = 0, j = 0;
+	int bid = 0, wcheck = 0, hcheck = 0;
+	int w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, item_index, (player_index + 1) << 16, source);
+	int h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, item_index, (player_index + 1) << 16, source);
+	bool unfit = false;
+
+	// try every line
+	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
+		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
+			// if width matches, try height from here on then and if unfit, restart at a new coordinate
+			unfit = false;
+			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
+				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
+					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
+					if(GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, (player_index + 1) << 16, source) != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
+						unfit = true;
 				}
 			}
 			// we return top left corner box id
@@ -379,6 +579,7 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 		Inventories_On_Field[fieldpos].item_subtype = PlayerInventoryList[player_index][wtemp].item_subtype;
 		Inventories_On_Field[fieldpos].item_image = PlayerInventoryList[player_index][wtemp].item_image;
 		Inventories_On_Field[fieldpos].item_level = PlayerInventoryList[player_index][wtemp].item_level;
+		Inventories_On_Field[fieldpos].item_stack = PlayerInventoryList[player_index][wtemp].item_stack;
 		Inventories_On_Field[fieldpos].attrib_count = PlayerInventoryList[player_index][wtemp].attrib_count;
 		Inventories_On_Field[fieldpos].topleftboxid = 0;
 		for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
@@ -391,30 +592,46 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 	}
 	else {
 		// handle the box management
-		wtemp = Inventories_On_Field[fieldpos].width;
-		htemp = Inventories_On_Field[fieldpos].height;
-		PlayerInventoryList[player_index][item_index].width = wtemp;
-		PlayerInventoryList[player_index][item_index].height = htemp;
-		PlayerInventoryList[player_index][item_index].item_subtype = Inventories_On_Field[fieldpos].item_subtype;
-		PlayerInventoryList[player_index][item_index].item_image = Inventories_On_Field[fieldpos].item_image;
-		PlayerInventoryList[player_index][item_index].item_level = Inventories_On_Field[fieldpos].item_level;
-		PlayerInventoryList[player_index][item_index].attrib_count = Inventories_On_Field[fieldpos].attrib_count;
-		for(k = 0; k < PlayerInventoryList[player_index][item_index].attrib_count; ++k) {
-			PlayerInventoryList[player_index][item_index].attributes[k].attrib_id = Inventories_On_Field[fieldpos].attributes[k].attrib_id;
-			PlayerInventoryList[player_index][item_index].attributes[k].attrib_val = Inventories_On_Field[fieldpos].attributes[k].attrib_val;
+		// is this a stack item and does it already contain an item of this type?
+		// ex type = orb, subtype = enhancement
+		if(
+			Inventories_On_Field[fieldpos].item_stack && 
+			Inventories_On_Field[fieldpos].item_type == PlayerInventoryList[player_index][item_index].item_type && 
+			Inventories_On_Field[fieldpos].item_subtype == PlayerInventoryList[player_index][item_index].item_subtype &&
+			PlayerInventoryList[player_index][item_index].item_stack < GetStackValue(Inventories_On_Field[fieldpos].item_type)
+		) {
+			// just add to the stack
+			++PlayerInventoryList[player_index][item_index].item_stack;
 		}
-		for(i = 0; i < htemp; ++i)
-			for(j = 0; j < wtemp; ++j) {
-				PlayerInventoryList[player_index][item_index + i * MAXINVENTORYBLOCKS_VERT + j].item_type = Inventories_On_Field[fieldpos].item_type;
-				PlayerInventoryList[player_index][item_index + i * MAXINVENTORYBLOCKS_VERT + j].topleftboxid = item_index + 1;
+		else {
+			// no?
+			wtemp = Inventories_On_Field[fieldpos].width;
+			htemp = Inventories_On_Field[fieldpos].height;
+			PlayerInventoryList[player_index][item_index].width = wtemp;
+			PlayerInventoryList[player_index][item_index].height = htemp;
+			PlayerInventoryList[player_index][item_index].item_subtype = Inventories_On_Field[fieldpos].item_subtype;
+			PlayerInventoryList[player_index][item_index].item_image = Inventories_On_Field[fieldpos].item_image;
+			PlayerInventoryList[player_index][item_index].item_level = Inventories_On_Field[fieldpos].item_level;
+			PlayerInventoryList[player_index][item_index].item_stack = Inventories_On_Field[fieldpos].item_stack;
+			PlayerInventoryList[player_index][item_index].attrib_count = Inventories_On_Field[fieldpos].attrib_count;
+			for(k = 0; k < PlayerInventoryList[player_index][item_index].attrib_count; ++k) {
+				PlayerInventoryList[player_index][item_index].attributes[k].attrib_id = Inventories_On_Field[fieldpos].attributes[k].attrib_id;
+				PlayerInventoryList[player_index][item_index].attributes[k].attrib_val = Inventories_On_Field[fieldpos].attributes[k].attrib_val;
 			}
-		// the leftover spot is a null charm
+			for(i = 0; i < htemp; ++i)
+				for(j = 0; j < wtemp; ++j) {
+					PlayerInventoryList[player_index][item_index + i * MAXINVENTORYBLOCKS_VERT + j].item_type = Inventories_On_Field[fieldpos].item_type;
+					PlayerInventoryList[player_index][item_index + i * MAXINVENTORYBLOCKS_VERT + j].topleftboxid = item_index + 1;
+				}
+		}
+		// the leftover spot is a null item
 		Inventories_On_Field[fieldpos].width = 1;
 		Inventories_On_Field[fieldpos].height = 1;
 		Inventories_On_Field[fieldpos].item_type = DND_ITEM_NULL;
 		Inventories_On_Field[fieldpos].item_subtype = 0;
 		Inventories_On_Field[fieldpos].item_image = 0;
 		Inventories_On_Field[fieldpos].item_level = 0;
+		Inventories_On_Field[fieldpos].item_stack = 0;
 		for(k = 0; k < Inventories_On_Field[fieldpos].attrib_count; ++k) {
 			Inventories_On_Field[fieldpos].attributes[k].attrib_id = 0;
 			Inventories_On_Field[fieldpos].attributes[k].attrib_val = 0;
@@ -422,6 +639,39 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 		Inventories_On_Field[fieldpos].attrib_count = 0;
 		SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 	}
+}
+
+// clones an item on this player's inventory, if no spot is found it won't bother
+int CloneItem(int item_index, int source, bool dontSync) {
+	int temp;
+	int c = GetFreeSpotForItem_InPlace(item_index, PlayerNumber(), source);
+	if(c != -1) {
+		int wtemp = GetItemSyncValue(DND_SYNC_ITEMWIDTH, item_index, -1, source);
+		int htemp = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, item_index, -1, source);
+		int i, j, k;
+		SetItemSyncValue(DND_SYNC_ITEMWIDTH, c, -1, wtemp, source);
+		SetItemSyncValue(DND_SYNC_ITEMHEIGHT, c, -1, htemp, source);
+		SetItemSyncValue(DND_SYNC_ITEMSUBTYPE, c, -1, GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, -1, source), source);
+		SetItemSyncValue(DND_SYNC_ITEMIMAGE, c, -1, GetItemSyncValue(DND_SYNC_ITEMIMAGE, item_index, -1, source), source);
+		SetItemSyncValue(DND_SYNC_ITEMLEVEL, c, -1, GetItemSyncValue(DND_SYNC_ITEMLEVEL, item_index, -1, source), source);
+		SetItemSyncValue(DND_SYNC_ITEMSTACK, c, -1, GetItemSyncValue(DND_SYNC_ITEMSTACK, item_index, -1, source), source);
+		temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
+		SetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, c, -1, temp, source);
+		for(k = 0; k < temp; ++k) {
+			SetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, c, k, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, k, source), source);
+			SetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, c, k, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, k, source), source);
+		}
+		for(i = 0; i < htemp; ++i)
+			for(j = 0; j < wtemp; ++j) {
+				temp = c + i * MAXINVENTORYBLOCKS_VERT + j;
+				SetItemSyncValue(DND_SYNC_ITEMTYPE, temp, -1, GetItemSyncValue(DND_SYNC_ITEMTYPE, item_index, -1, source), source);
+				SetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, temp, -1, c + 1, source);
+			}
+		if(!dontSync)
+			SyncItemData(c, source, -1, -1);
+		return c;
+	}
+	return -1;
 }
 
 // check if clicked spot is free for the item we want to put
@@ -617,6 +867,7 @@ void SwapItemProperty(int ipos1, int ipos2, int property, int source1, int sourc
 		case DND_SYNC_ITEMIMAGE:
 		case DND_SYNC_ITEMSUBTYPE:
 		case DND_SYNC_ITEMLEVEL:
+		case DND_SYNC_ITEMSTACK:
 		case DND_SYNC_ITEMSATTRIBCOUNT:
 			tb1 = ipos1 + offset1;
 			tb2 = ipos2 + offset2;
@@ -656,18 +907,45 @@ void SwapItems(int ipos1, int ipos2, int source1, int source2, bool dontSync) {
 	// check if there's enough space
 	// find if there is some sort of offset we must take care of, this matters only if we are swapping in inventory
 	int offset1 = 0, offset2 = 0;
+	int i, j, h1p, h2p, w1p, w2p;
 	if(IsSourceInventoryView(source1))
 		offset1 = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos1, -1, source1) - 1 - ipos1;
 	if(IsSourceInventoryView(source2))
 		offset2 = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, ipos2, -1, source2) - 1 - ipos2;
-	if(CanSwapItems(ipos1, ipos2, offset1, offset2, source1, source2)) {
+		
+	// if both items are stack items and are of same types, add stack on top of the other
+	h1p = GetItemSyncValue(DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, source1);
+	h2p = GetItemSyncValue(DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, source2);
+	w1p = GetItemSyncValue(DND_SYNC_ITEMTYPE, ipos1 + offset1, -1, source1);
+	if(
+		h1p && h2p &&
+		w1p == GetItemSyncValue(DND_SYNC_ITEMTYPE, ipos2 + offset2, -1, source2) &&
+		GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, ipos1 + offset1, -1, source1) == GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, ipos2 + offset2, -1, source2)
+	)
+	{
+		w2p = GetStackValue(w1p);
+		// add stack of ipos2 to ipos1
+		if(h1p + h2p < w2p) {
+			SetItemSyncValue(DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, h1p + h2p, source1);
+			SyncItemStack(ipos1 + offset1, source1);
+			// dispose of 2nd item
+			FreeItem(ipos2 + offset2, source2, false);
+		}
+		else {
+			// set stack of h1p to max, then set the stack of ipos2 to whatever is left
+			SetItemSyncValue(DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, h2p - w2p + h1p, source2);
+			SetItemSyncValue(DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, w2p, source1);
+			SyncItemStack(ipos1 + offset1, source1);
+			SyncItemStack(ipos2 + offset2, source2);
+		}
+	}
+	else if(CanSwapItems(ipos1, ipos2, offset1, offset2, source1, source2)) {
 		// we need difference in height and width to the topboxid of this item, then we can anchor it properly
 		// divide by max_vert to get height
-		int i, j;
-		int h1p = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos1 + offset1, -1, source1);
-		int h2p = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos2 + offset2, -1, source2);
-		int w1p = GetItemSyncValue(DND_SYNC_ITEMWIDTH, ipos1 + offset1, -1, source1); 
-		int w2p = GetItemSyncValue(DND_SYNC_ITEMWIDTH, ipos2 + offset2, -1, source2);
+		h1p = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos1 + offset1, -1, source1);
+		h2p = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, ipos2 + offset2, -1, source2);
+		w1p = GetItemSyncValue(DND_SYNC_ITEMWIDTH, ipos1 + offset1, -1, source1); 
+		w2p = GetItemSyncValue(DND_SYNC_ITEMWIDTH, ipos2 + offset2, -1, source2);
 		
 		for(i = DND_SYNC_ITEMBEGIN; i <= DND_SYNC_ITEMEND; ++i)
 			SwapItemProperty(ipos1, ipos2, i, source1, source2, offset1, offset2);
@@ -741,6 +1019,7 @@ void MoveItem(int itempos, int emptypos) {
 	PlayerInventoryList[pnum][temp].item_subtype = PlayerInventoryList[pnum][tb].item_subtype;
 	PlayerInventoryList[pnum][temp].item_image = PlayerInventoryList[pnum][tb].item_image;
 	PlayerInventoryList[pnum][temp].item_level = PlayerInventoryList[pnum][tb].item_level;
+	PlayerInventoryList[pnum][temp].item_stack = PlayerInventoryList[pnum][tb].item_stack;
 	PlayerInventoryList[pnum][temp].attrib_count = PlayerInventoryList[pnum][tb].attrib_count;
 	for(i = 0; i < PlayerInventoryList[pnum][temp].attrib_count; ++i) {
 		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = PlayerInventoryList[pnum][tb].attributes[i].attrib_id;
@@ -807,6 +1086,7 @@ void MoveItemTrade(int itempos, int emptypos, int itemsource, int emptysource) {
 	SetItemSyncValue(DND_SYNC_ITEMSUBTYPE, temp, -1, GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(DND_SYNC_ITEMIMAGE, temp, -1, GetItemSyncValue(DND_SYNC_ITEMIMAGE, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(DND_SYNC_ITEMLEVEL, temp, -1, GetItemSyncValue(DND_SYNC_ITEMLEVEL, tb, -1, itemsource), emptysource);
+	SetItemSyncValue(DND_SYNC_ITEMSTACK, temp, -1, GetItemSyncValue(DND_SYNC_ITEMSTACK, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, temp, -1, GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, tb, -1, itemsource), emptysource);
 	bid = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, temp, -1, emptysource);
 	for(i = 0; i < bid; ++i) {
@@ -855,6 +1135,7 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 	SetItemSyncValue(DND_SYNC_ITEMSUBTYPE, temp, (p_empty + 1) << 16, GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, tb, (p_item + 1) << 16, itemsource), emptysource);
 	SetItemSyncValue(DND_SYNC_ITEMIMAGE, temp, (p_empty + 1) << 16, GetItemSyncValue(DND_SYNC_ITEMIMAGE, tb, (p_item + 1) << 16, itemsource), emptysource);
 	SetItemSyncValue(DND_SYNC_ITEMLEVEL, temp, (p_empty + 1) << 16, GetItemSyncValue(DND_SYNC_ITEMLEVEL, tb, (p_item + 1) << 16, itemsource), emptysource);
+	SetItemSyncValue(DND_SYNC_ITEMSTACK, temp, (p_empty + 1) << 16, GetItemSyncValue(DND_SYNC_ITEMSTACK, tb, (p_item + 1) << 16, itemsource), emptysource);
 	SetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, temp, (p_empty + 1) << 16, GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, tb, (p_item + 1) << 16, itemsource), emptysource);
 	bid = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, temp, (p_empty + 1) << 16, emptysource);
 	for(i = 0; i < bid; ++i) {
@@ -892,8 +1173,8 @@ void TransferTradeItems(int from, int to) {
 
 void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 	int pnum = PlayerNumber();
-	int i = 0, j, temp, val;
-	DeleteTextRange(RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 13, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES);
+	int stack, itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source), offset = 0.0;
+	DeleteTextRange(RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES);
 	if(topboxid != -1 && GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source) != DND_ITEM_NULL) {
 		SetHudSize(480, 320, 1);
 		SetFont("LDTITINF");
@@ -901,7 +1182,16 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 		by += 10.0;
 		// show item details
 		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, topboxid, -1, source)]);
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 1, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		if(itype == DND_ITEM_ORB)
+			offset = 6.0;
+		else if(itype == DND_ITEM_CHESTKEY)
+			offset = 3.0;
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 1, CR_WHITE, bx, by + offset, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, topboxid, -1, source);
+		if(stack) {
+			SetFont("SMALLFONT");
+			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 14, CR_GREEN, bx + 96.2, by + 6.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		}
 		SetHudSize(720, 480, 1);
 		bx *= 3; by *= 3;
 		bx /= 2; by /= 2;
@@ -910,12 +1200,19 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 		bx += 0.4;
 		by += 48.1;
 		SetHudClipRect(-96, 80, 256, 224, 256, 1);
-		SetFont("SMALLFONT");
-		if(GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source) == DND_ITEM_CHARM) {
-			HudMessage(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
-		}
+		DrawInventoryText_Field(topboxid, source, bx, by, itype);
+		SetHudClipRect(0, 0, 0, 0, 0);
+	}
+}
+
+void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype) {
+	int i, j;
+	int val, temp;
+	SetFont("SMALLFONT");
+	if(itype == DND_ITEM_CHARM) {
+		HudMessage(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; 
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+		);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
@@ -925,7 +1222,14 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 			else
 				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, bx, by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
-		SetHudClipRect(0, 0, 0, 0, 0);
+	}
+	else if(itype == DND_ITEM_ORB) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
+		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	else if(itype == DND_ITEM_CHESTKEY) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
+		HudMessage(s:ChestkeyHelpText[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 }
 
@@ -940,6 +1244,7 @@ void ResetPlayerInventory(int pnum) {
 		PlayerInventoryList[pnum][i].item_type = 0;
 		PlayerInventoryList[pnum][i].item_subtype = 0;
 		PlayerInventoryList[pnum][i].item_level = 0;
+		PlayerInventoryList[pnum][i].item_stack = 0;
 		PlayerInventoryList[pnum][i].topleftboxid = 0;
 		for(int j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 			PlayerInventoryList[pnum][i].attributes[j].attrib_id = 0;
@@ -960,6 +1265,7 @@ void ResetTradeViewList(int pnum) {
 		TradeViewList[pnum][i].item_type = 0;
 		TradeViewList[pnum][i].item_subtype = 0;
 		TradeViewList[pnum][i].item_level = 0;
+		TradeViewList[pnum][i].item_stack = 0;
 		TradeViewList[pnum][i].topleftboxid = 0;
 		for(int j = 0; j < TradeViewList[pnum][i].attrib_count; ++j) {
 			TradeViewList[pnum][i].attributes[j].attrib_id = 0;
@@ -978,6 +1284,7 @@ void ResetFieldInventory() {
 		Inventories_On_Field[i].item_type = 0;
 		Inventories_On_Field[i].item_subtype = 0;
 		Inventories_On_Field[i].item_level = 0;
+		Inventories_On_Field[i].item_stack = 0;
 		Inventories_On_Field[i].topleftboxid = 0;
 		for(int j = 0; j < Inventories_On_Field[i].attrib_count; ++j) {
 			Inventories_On_Field[i].attributes[j].attrib_id = 0;
@@ -999,6 +1306,7 @@ void ResetPlayerStash(int pnum) {
 			PlayerStashList[pnum][p][i].item_type = 0;
 			PlayerStashList[pnum][p][i].item_subtype = 0;
 			PlayerStashList[pnum][p][i].item_level = 0;
+			PlayerStashList[pnum][p][i].item_stack = 0;
 			PlayerStashList[pnum][p][i].topleftboxid = 0;
 			for(int j = 0; j < PlayerStashList[pnum][p][i].attrib_count; ++j) {
 				PlayerStashList[pnum][p][i].attributes[j].attrib_id = 0;
@@ -1007,6 +1315,114 @@ void ResetPlayerStash(int pnum) {
 			PlayerStashList[pnum][p][i].attrib_count = 0;
 		}
 	}
+}
+
+void CopyItemSource(int fieldpos, int player_index, int item_index, int source) {
+	int i, j, k, wtemp, htemp;
+	wtemp = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, item_index, -1, source) - 1;
+	Inventories_On_Field[fieldpos].width = GetItemSyncValue(DND_SYNC_ITEMWIDTH, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].height = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_type = GetItemSyncValue(DND_SYNC_ITEMTYPE, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_subtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_image = GetItemSyncValue(DND_SYNC_ITEMIMAGE, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_level = GetItemSyncValue(DND_SYNC_ITEMLEVEL, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].attrib_count = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].topleftboxid = 0;
+	for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
+		Inventories_On_Field[fieldpos].attributes[i].attrib_id = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, wtemp, i, source);
+		Inventories_On_Field[fieldpos].attributes[i].attrib_val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, wtemp, i, source);
+	}
+
+	// the leftover spot is a null item
+	FreeItem(wtemp, source, false);
+}
+
+void DropItemToField(int player_index, int pitem_index, bool forAll, int source) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, pitem_index, -1, source);
+		int stype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, pitem_index, -1, source);
+		// copy now
+		CopyItemSource(c, player_index, pitem_index, source);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		str droptype = InventoryDropActors[DND_INVDROP_CHARM];
+		if(itype == DND_ITEM_ORB)
+			droptype = OrbList[stype][0];
+		
+		forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
+	}
+}
+
+// move this from field to player's inventory
+int HandleStackedPickup(int item_index) {
+	// make sure this item actually gets placed on top of an item that has some stack, if any
+	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
+	CopyItem(true, item_index, PlayerNumber(), porb_index);
+	return porb_index;
+}
+
+int CheckPlayerInventoryList(int pnum, int itemtype, int subtype) {
+	int i;
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		if(PlayerInventoryList[pnum][i].item_type == itemtype && PlayerInventoryList[pnum][i].item_subtype == subtype)
+			return i;
+	return -1;
+}
+
+// can only use items in inventory
+void UsePlayerItem(int pnum, int item_index) {
+	if(PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_ORB || PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHESTKEY) {
+		--PlayerInventoryList[pnum][item_index].item_stack;
+		if(PlayerInventoryList[pnum][item_index].item_stack)
+			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		else {
+			FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
+		}
+	}
+}
+
+// we only have orbs as crafting material atm
+bool IsCraftingItem(int itype) {
+	switch(itype) {
+		case DND_ITEM_ORB:
+		return true;
+	}
+	return false;
+}
+
+// will count crafting materials the player has currently in their inventory
+int CountCraftingMaterials() {
+	int pnum = PlayerNumber();
+	int res = 0;
+	bool unique_orbs = 0;
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
+			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
+				++res;
+				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
+			}
+		}
+	}
+	return res;
+}
+
+int GetNextUniqueCraftingMaterial(int itemtype, int current) {
+	int pnum = PlayerNumber();
+	int res = 0, i;
+	bool unique_orbs = 0;
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
+			if(PlayerInventoryList[pnum][i].item_type == itemtype && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
+				++res;
+				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
+				// return the item's index
+				if(res > current)
+					return i;
+			}
+		}
+	}
+	return -1;
 }
 
 #endif

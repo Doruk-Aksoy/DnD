@@ -65,22 +65,12 @@ void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
 	CopyItem(true, field_index, player_index, pos);
 }
 
-// players dropping charms
-void DropCharm(int player_index, int pcharm_index, bool forAll) {
-	int c = CreateItemSpot();
-	if(c != -1) {
-		// copy now
-		CopyItem(false, c, player_index, pcharm_index);
-		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		forAll ? SpawnDropFacing(InventoryDropActors[DND_INVDROP_CHARM], 16.0, 16, 256, c) : SpawnDropFacing(InventoryDropActors[DND_INVDROP_CHARM], 16.0, 16, player_index + 1, c);
-	}
-}
-
 void RollCharmInfo(int charm_pos, int charm_tier, bool onField) {
 	// roll random attributes for the charm
 	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 	int count = random(2, 2 * (charm_type + 1)), i, roll;
 	Inventories_On_Field[charm_pos].item_level = charm_tier;
+	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack
 	Inventories_On_Field[charm_pos].item_type = DND_ITEM_CHARM;
 	Inventories_On_Field[charm_pos].item_subtype = charm_type;
 	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
@@ -154,6 +144,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			Charms_Used[pnum][use_id].item_subtype = PlayerInventoryList[pnum][item_index].item_subtype;
 			Charms_Used[pnum][use_id].item_image = PlayerInventoryList[pnum][item_index].item_image;
 			Charms_Used[pnum][use_id].item_level = PlayerInventoryList[pnum][item_index].item_level;
+			Charms_Used[pnum][use_id].item_stack = PlayerInventoryList[pnum][item_index].item_stack;
 			Charms_Used[pnum][use_id].attrib_count = PlayerInventoryList[pnum][item_index].attrib_count;
 			Charms_Used[pnum][use_id].topleftboxid = use_id + 1;
 			for(i = 0; i < Charms_Used[pnum][use_id].attrib_count; ++i) {
@@ -183,6 +174,7 @@ void ResetPlayerCharmsUsed(int pnum) {
 		Charms_Used[pnum][i].item_type = 0;
 		Charms_Used[pnum][i].item_subtype = 0;
 		Charms_Used[pnum][i].item_level = 0;
+		Charms_Used[pnum][i].item_stack = 0;
 		Charms_Used[pnum][i].topleftboxid = 0;
 		for(int j = 0; j < Charms_Used[pnum][i].attrib_count; ++j) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = 0;

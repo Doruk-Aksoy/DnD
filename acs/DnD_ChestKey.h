@@ -1,0 +1,60 @@
+#ifndef DND_CKEY_IN
+#define DND_CKEY_IN
+
+#include "DnD_Inventory.h"
+
+#define CHESTKEY_NAME 0
+#define CHESTKEY_TAG 1
+str ChestKeyList[CHEST_KEY_TEXT_MAX][2] = {
+	{ "BronzeChestKey", "Bronze Chest Key" },
+	{ "SilverChestKey", "Silver Chest Key" },
+	{ "GoldChestKey", "Gold Chest Key" }
+};
+
+str ChestKeyText[CHEST_KEY_TEXT_MAX] = {
+	"\ccNotice        : You need a \ceBronze\c- Chest Key to open this!",
+	"\ccNotice        : You need a \cuSilver\c- Chest Key to open this!",
+	"\ccNotice        : You need a \cfGold\c- Chest Key to open this!"
+};
+
+bool SpawnedChests = 0;
+
+void RollChestkeyInfo(int item_pos, int keytype, bool onField) {
+	// roll random attributes for the charm
+	Inventories_On_Field[item_pos].item_level = 1;
+	Inventories_On_Field[item_pos].item_stack = 1; // orbs have default stack of 1
+	Inventories_On_Field[item_pos].item_type = DND_ITEM_CHESTKEY;
+	Inventories_On_Field[item_pos].item_subtype = keytype;
+	Inventories_On_Field[item_pos].width = 1;
+	Inventories_On_Field[item_pos].height = 1;
+	Inventories_On_Field[item_pos].attrib_count = 0;
+	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_KEY_BEGIN + keytype;
+}
+
+void HandleChestKeyDrop(bool isElite) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		// run each player's chance, drop for corresponding player only
+		if(PlayerInGame(i) /*&& IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_CHESTKEY_DROPRATE)*/)
+			SpawnChestKey(i, isElite);
+	}
+}
+
+void SpawnChestKey(int pnum, bool isElite) {
+	int res = 0;
+	int c = CreateItemSpot();
+	if(c != -1) {
+		if(RunDefaultDropChance(pnum, isElite, DND_GOLDCHESTKEY_DROPRATE))
+			res = DND_CHESTTYPE_GOLD;
+		else if(RunDefaultDropChance(pnum, isElite, DND_SILVERCHESTKEY_DROPRATE))
+			res = DND_CHESTTYPE_SILVER;
+		else
+			res = DND_CHESTTYPE_BRONZE;
+
+		// c is the index on the field now
+		RollChestkeyInfo(c, res, true);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SpawnDrop(ChestKeyList[res][ORB_NAME], 24.0, 16, pnum + 1, c);
+	}
+}
+
+#endif

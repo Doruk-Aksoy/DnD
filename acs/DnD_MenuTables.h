@@ -111,6 +111,27 @@
 #define TRADEITEMOFFSETSCALE 4.0
 #define TRADEITEMSKIP 3 * 32.0 / 2
 
+#define CRAFTING_BOX_BEGIN_X 44.0
+#define CRAFTING_BOX_BEGIN_Y 60.0
+
+// left right buttons at material side 
+#define MAX_CRAFTING_ADDITIONALBUTTONS 2 + MENU_LOAD_CRAFTING_LAST - MENU_LOAD_CRAFTING_FIRST + 1
+
+#define MAX_CRAFTING_ITEMBOXES 20
+#define MAX_CRAFTING_MATERIALBOXES 12
+#define MATERIALBOX_OFFSET MAX_CRAFTING_ITEMBOXES
+
+#define MAX_CRAFTING_NORMAL_BOXES MAX_CRAFTING_MATERIALBOXES + MAX_CRAFTING_ITEMBOXES
+#define MAX_CRAFTING_BOXES MAX_CRAFTING_NORMAL_BOXES + MAX_CRAFTING_ADDITIONALBUTTONS
+
+#define CRAFTING_WEAPON_BOXID MAX_CRAFTING_NORMAL_BOXES
+#define CRAFTING_INVENTORY_BOXID MAX_CRAFTING_NORMAL_BOXES + 1
+
+#define CRAFTING_MATERIALBOX_X 92.0
+#define CRAFTING_MATERIALBOX_Y 264.0
+#define CRAFTING_MATERIALBOX_SKIPX 12.0
+#define CRAFTING_MATERIALBOX_SKIPY 4.0
+
 // MENU IDS
 // Moved here because of dependencies
 enum {
@@ -177,9 +198,14 @@ typedef struct menu_stack {
 // Scroll defs
 
 int ScrollPos = 0;
-bool InventoryBoxesSetup = false;
-bool TradeBoxesSetup = false;
-bool StashBoxesSetup = false;
+
+enum {
+	INVENTORY_SETUP_BIT = 0,
+	TRADEVIEW_SETUP_BIT = 1,
+	STASH_SETUP_BIT = 2,
+	CRAFTING_SETUP_BIT = 4,
+};
+int PaneSetup = 0;
 
 #define FIRST_CLICKABLE_BOXID MAINBOX_LARR
 #define LAST_CLICKABLE_BOXID MAINBOX_RARR
@@ -2306,41 +2332,6 @@ str HelpText_WeaponProp[MAX_WEAPON_PROPERTIES] = {
 	"\c[Y5]Alternate Ammo\n\nWeapon supports usage of \cvalternate ammo\c- through altfire.",
 	"\c[Y5]Ripper\n\nWeapon has attacks that rip through enemies unless they have the \"Hardened Skin\" modifier.",
 	"\c[Y5]Irreducable\n\nWeapon has attacks that can't be mitigated by any resistance.",
-};
-
-#define MAX_HELPTEXT_ORBS MAX_ORBS
-str HelpText_Orbs[MAX_HELPTEXT_ORBS] = {
-	"\c[Y5]Orb of Enhancement\nAllows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg25%\c- total.",
-	"\c[Y5]Orb of Corruption\nThis orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?",
-	"\c[Y5]Orb of Spirit\nGrants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight.",
-	"\c[Y5]Orb of Repentance\nAllows you to undo the effects of the most recently used orb. You can't undo the effects undone by this orb or the \c[Y5]Orb of Riches\c-.",
-	"\c[Y5]Orb of Affluence\nDoubles the effect of the next orb. This effect can stack with itself up to a multiplier of \cg16\c-.",
-	"\c[Y5]Orb of Calamity\nTurns a random orb into another. It won't work if you have no other orbs or if you only have these orbs.",
-	"\c[Y5]Orb of Prosperity\nIncreases health and armor caps by \cd1\c- up to a maximum of \cg500\c-.",
-	"\c[Y5]Orb of Wisdom\nIncreases experience gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.",
-	"\c[Y5]Orb of Greed\nIncreases credit gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.",
-	"\c[Y5]Orb of Violence\nIncreases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category.",
-	"\c[Y5]Orb of Fortitude\nIncreases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-.",
-	"\c[Y5]Orb of Sin\nA pact with the devil itself, trading anywhere from \cg1 to 8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!",
-	"\c[Y5]Orb of Riches\nGrants a random resource on use. Can grant experience, credit or budget. Base values are \cd5%\c- of your current level's experience, \cd2000\c- and \cd5k\c- respectively.",
-	"\c[Y5]Orb of Holding\nIncreases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons."
-};
-
-str OrbIcons[MAX_HELPTEXT_ORBS] = {
-	"ORB1D0",
-	"ORB1B0",
-	"ORB1I0",
-	"ORB1Z0",
-	"ORB3A0",
-	"ORB1N0",
-	"ORB1S0",
-	"ORB2J0",
-	"ORB3E0",
-	"ORB2O0",
-	"ORB2V0",
-	"ORB2E0",
-	"ORB3G0",
-	"ORB3I0"
 };
 
 #define MAX_HELPTEXT_MAIN 3
