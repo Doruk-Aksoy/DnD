@@ -619,10 +619,10 @@ Script "DND On Kill" KILL {
 		HandleChestKeyDrop(pnum);
 		
 		// if elite, roll orb and equipment drops
-		//if(pnum) {
+		if(pnum) {
 			// handle orb drops
 			HandleOrbDrop();
-		//}
+		}
 		
 		// accessory drops (accept only from cyber and spider masterminds)
 		if(IsBoss()) {
@@ -961,19 +961,27 @@ Script 903 (void) NET CLIENTSIDE {
 // temporary drops
 Script 905 (int mode) NET {
 	if(!mode) {
-		int curweap = GetCurrentWeaponID() - TEMPBEGIN; // to put it in range of the temporary weapons 0 - 7
+		int curweap = GetCurrentWeaponID() - TEMPBEGIN; // to put it in range of the temporary weapons
 		int amt;
 		// valid range, no drop spam and not able to while firing and has ammo to spare
-		if(curweap >= 0 && curweap < MAXTEMPWEPS && !CheckInventory("DropItemCooldown") && CheckInventory("TempWeaponReady") && (amt = CheckInventory(TemporaryAmmos[curweap]))) {
-			int temptid = ActivatorTID() + P_TEMPTID;
-			GiveInventory("DropItemCooldown", 1);
-			SpawnForced(TemporaryWeaponDrops[curweap], GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
-			SetActorProperty(temptid, APROP_MASS, amt);
-			ThrustThing(GetActorAngle(0) >> 8, 16, 0, temptid);
-			ThrustThingZ(temptid, 8, 0, 0);
-			Thing_ChangeTID(temptid, 0); // clear tid to prevent stupid shit
-			GiveInventory("ForceWeaponRemove", 1);
-			CleanTempAmmo();
+		// gross hax, fix later
+		if(curweap >= 0 && curweap < MAXTEMPWEPS && !CheckInventory("DropItemCooldown") && CheckInventory("TempWeaponReady")) {
+			if(curweap > DND_TEMPAMMO_BLADEHITS)
+				amt = CheckInventory(TemporaryAmmos[curweap + 1]);
+			else
+				amt = CheckInventory(TemporaryAmmos[curweap]);
+			
+			if(amt) {
+				int temptid = ActivatorTID() + P_TEMPTID;
+				GiveInventory("DropItemCooldown", 1);
+				SpawnForced(TemporaryWeaponDrops[curweap], GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
+				SetActorProperty(temptid, APROP_MASS, amt);
+				ThrustThing(GetActorAngle(0) >> 8, 16, 0, temptid);
+				ThrustThingZ(temptid, 8, 0, 0);
+				Thing_ChangeTID(temptid, 0); // clear tid to prevent stupid shit
+				GiveInventory("ForceWeaponRemove", 1);
+				CleanTempAmmo();
+			}
 		}
 	}
 }
@@ -1751,15 +1759,19 @@ Script 986 (int wepnum, int type) {
 		who = ActivatorTID();
 	}
 	wepnum -= TEMPBEGIN;
-	int t = 0;
+	int t = 0, j = 0;
 	for(int i = 0; i < MAXTEMPWEPS; ++i) {
+		// gross hack, fix later
+		j = i;
+		if(i > DND_TEMPAMMO_BLADEHITS)
+			++j;
 		if(i == wepnum) {   
 			// do we have max ammo on this weapon
-			if(CheckActorInventory(who, TemporaryAmmos[i]) == GetAmmoCapacity(TemporaryAmmos[i]))
+			if(CheckActorInventory(who, TemporaryAmmos[j]) == GetAmmoCapacity(TemporaryAmmos[j]))
 			  ++t;
 		}
 		else if(CheckActorInventory(who, TemporaryWeapons[i])) { // do I have any temp weapon
-			if(!CheckActorInventory(who, TemporaryAmmos[i])) // hack to prevent a desync problem
+			if(!CheckActorInventory(who, TemporaryAmmos[j])) // hack to prevent a desync problem
 				TakeActorInventory(who, TemporaryWeapons[i], 1);
 			else
 				++t;

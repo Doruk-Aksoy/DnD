@@ -55,7 +55,7 @@ enum {
 
 #define MAXTEMPAMMO DND_TEMPAMMO_PLASMABOLTERAMMO + 1
 str TemporaryAmmos[MAXTEMPAMMO] = { 
-	"SawedoffShell", 
+	"SawedoffShell",
 	"BladeHits", 
 	"BladeCharge",
 	"SMGAmmo", 

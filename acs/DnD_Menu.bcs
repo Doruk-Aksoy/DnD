@@ -167,9 +167,11 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				SetInventory("DnD_PlayerPrevItemIndex", 0);
 			}
 			
-			if(curopt_prev <= MENU_LOAD_CRAFTING_LAST && curopt_prev >= MENU_LOAD_CRAFTING) {
+			// cleanup
+			if(curopt_prev <= MENU_LOAD_CRAFTING_LAST && curopt_prev >= MENU_LOAD_CRAFTING)
 				DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES, RPGMENUID - 2);
-			}
+			if(curopt_prev >= MENU_LOAD_INVENTORY && curopt_prev <= MENU_LOAD_CHARM)
+				CleanInventoryInfo();
 			
 			curopt_prev = curopt;
 			
