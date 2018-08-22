@@ -47,11 +47,13 @@ int Charm_MaxUsable[MAX_CHARM_TYPES] = {
 	1
 };
 
-str Charm_Tiers[MAX_CHARM_AFFIXTIERS] = {
+// level 100 = perfect
+str Charm_Tiers[MAX_CHARM_AFFIXTIERS + 1] = {
 	"\c[C8]Whispering",
 	"\c[C3]Fine",
 	"\c[C1]Supreme",
-	"\c[C5]Majestic"
+	"\c[C5]Majestic",
+	"\c[L7]Perfect"
 };
 
 // holds indexes to charms used that are on players
@@ -106,6 +108,13 @@ void AddAttributeToCharm(int charm_pos, int attrib) {
 	}
 }
 
+void AddAttributeToItem(int item_pos, int attrib) {
+	int pnum = PlayerNumber();
+	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
+	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
+	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low, Inv_Attribute_Info[attrib].attrib_high) * (1 + (Inv_Attribute_Info[attrib].attrib_level_modifier * PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+}
+
 // monsters dropping charms
 void SpawnCharm(int pnum) {
 	int c = CreateItemSpot();
@@ -134,7 +143,9 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 	else {
 		// this means we must swap charms
 		if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
+			RemoveItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 		}
 		else {
 			// just zero the stuff in inventory, and copy them into charms used
@@ -158,6 +169,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
+			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 		}
 		return true;
 	}

@@ -96,17 +96,17 @@ Actor FistDamager : DnD_Activator {
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("PowerStrength", 1, "FireX")
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full3")
-			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), 1, 0, "FistPuff")
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), 1, 0, "FistPuff")
 		Stop
 		FireX:
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full4")
-			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), 1, 0, "FistPuff")
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), 1, 0, "FistPuff")
 		Stop
 		Full3:
-			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), 1, 0, "FistPuff_FullDMG")
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), 1, 0, "FistPuff_FullDMG")
 		Stop
 		Full4:
-			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), 1, 0, "FistPuff_FullDMG")
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), 1, 0, "FistPuff_FullDMG")
 		Stop
 	}
 }
@@ -150,12 +150,12 @@ ACTOR " Chainsaw " : Chainsaw
   Fire:
 	TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 	TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full")
-    SAWG AB 4 A_Saw("weapons/sawfull", "weapons/sawhit", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "ChainsawPuff", SF_NORANDOM)
+    SAWG AB 4 A_Saw("weapons/sawfull", "weapons/sawhit", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "ChainsawPuff", SF_NORANDOM)
 	TNT1 A 0 A_Refire
 	SAWG B 4
     Goto Ready
   Full:
-    SAWG AB 4 A_Saw("weapons/sawfull", "weapons/sawhit", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "ChainsawPuff_FullDMG", SF_NORANDOM)
+    SAWG AB 4 A_Saw("weapons/sawfull", "weapons/sawhit", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "ChainsawPuff_FullDMG", SF_NORANDOM)
 	TNT1 A 0 A_Refire
 	SAWG B 4
     Goto Ready
@@ -210,16 +210,16 @@ ACTOR "Upgraded Chainsaw" : Chainsaw
   Fire:
 	TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
     TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full")
-    TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff", SF_NORANDOM)
+    TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "DChainsawPuff", SF_NORANDOM)
     SAW2 A 4
-	TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff", SF_NORANDOM)
+	TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "DChainsawPuff", SF_NORANDOM)
 	SAW2 B 4
     SAWG B 0 A_ReFire
     Goto Ready
   Full:
-    TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff_FullDMG", SF_NORANDOM)
+    TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "DChainsawPuff_FullDMG", SF_NORANDOM)
     SAW2 A 4
-	TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "DChainsawPuff_FullDMG", SF_NORANDOM)
+	TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "DChainsawPuff_FullDMG", SF_NORANDOM)
 	SAW2 B 4
     SAWG B 0 A_ReFire
     Goto Ready
@@ -340,10 +340,10 @@ Actor SickleShooter1 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "SicklePuff", FBF_NOFLASH | FBF_NORANDOM, 136)
+			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "SicklePuff", FBF_NOFLASH | FBF_NORANDOM, 136)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "SicklePuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
+			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "SicklePuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
 		Stop
 	}
 }
@@ -351,7 +351,7 @@ Actor SickleShooter1 : DnD_Activator {
 Actor SickleShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_FireBullets(0,0,1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISOCCULT), "SicklePuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
+			TNT1 A 0 A_FireBullets(0,0,1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "SicklePuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
 		Stop
 	}
 }
@@ -518,6 +518,7 @@ ACTOR Excalibat : Weapon {
 			EXCL A 1 Offset(20, 28)
 			EXCL A 1 Offset(36, 26)
 			TNT1 A 0 A_TakeInventory("BatCharge", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 3)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("Souls", 3)
 		NoTake:
@@ -593,10 +594,10 @@ Actor ExcalibatShooter1 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(-18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(-18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets(-18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(-18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -606,10 +607,10 @@ Actor ExcalibatShooter2 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(0.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(0.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets(0.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(0.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -619,10 +620,10 @@ Actor ExcalibatShooter3 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets(18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(18.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -632,10 +633,10 @@ Actor ExcalibatShooter4 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(36.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(36.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets(36.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets(36.0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), "ExcalibatPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -645,7 +646,7 @@ Actor ExcalibatBall {
 	Speed 32
 	Height 10
 	Radius 5
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1))
 	DamageType "Explosives_Magic"
 	ReactionTime 10
 	Renderstyle Add
@@ -656,13 +657,15 @@ Actor ExcalibatBall {
 	+THRUGHOST
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
+	var int user_exprad;
 	States {
 		Spawn:
 			ECAL A 3 Bright A_CountDown
 		Loop
 		Death:
+			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET), 128, 0, 0, 128)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1), 128 * (1.0 + user_exprad * exprad_factor), 0, 0, 128 * (1.0 + user_exprad * exprad_factor))
 			TNT1 A 0 A_SetScale(0.625, 0.625)
 			D3BX ABCDEFG 2 Bright A_FadeOut(0.075)
 		Stop
@@ -949,12 +952,12 @@ Actor KatanaShooter1 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -963,12 +966,12 @@ Actor KatanaShooter2 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -977,12 +980,12 @@ Actor KatanaShooter3 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -991,10 +994,10 @@ Actor KatanaShooter4 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff3_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1003,12 +1006,12 @@ Actor KatanaShooter5 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1017,12 +1020,12 @@ Actor KatanaShooter6 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1031,12 +1034,12 @@ Actor KatanaShooter7 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1045,10 +1048,10 @@ Actor KatanaShooter8 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff2_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1057,12 +1060,12 @@ Actor KatanaShooter9 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (24, -12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (16, -8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1071,12 +1074,12 @@ Actor KatanaShooter10 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (8, -4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1085,12 +1088,12 @@ Actor KatanaShooter11 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (-8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (-16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (-8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
-			TNT1 A 0 A_FireBullets (-16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-8, 4, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-16, 8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1099,10 +1102,10 @@ Actor KatanaShooter12 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (-24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (-24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
+			TNT1 A 0 A_FireBullets (-24, 12, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 100)
 		Stop
 	}
 }
@@ -1111,10 +1114,10 @@ Actor KatanaShooter13 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (0, 0, -1, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff", FBF_NOFLASH | FBF_NORANDOM, 112)
+			TNT1 A 0 A_FireBullets (0, 0, -1, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_NOFLASH | FBF_NORANDOM, 112)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (0, 0, -1, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 112)
+			TNT1 A 0 A_FireBullets (0, 0, -1, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 112)
 		Stop
 	}
 }
@@ -1123,11 +1126,11 @@ Actor KatanaShooter14 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (0, 0, -1, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff", FBF_NOFLASH | FBF_NORANDOM, 136)
+			TNT1 A 0 A_FireBullets (0, 0, -1, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff", FBF_NOFLASH | FBF_NORANDOM, 136)
 			TNT1 A 0 A_FireCustomMissile("KatanaShockWave", 0, 0)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (0, 0, -1, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE), "KatanaPuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
+			TNT1 A 0 A_FireBullets (0, 0, -1, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISSLOT1), "KatanaPuff_FullDMG", FBF_NOFLASH | FBF_NORANDOM, 136)
 			TNT1 A 0 A_FireCustomMissile("KatanaShockWave_FullDMG", 0, 0)
 		Stop
 	}
@@ -1320,32 +1323,34 @@ Actor KatanaShockWave {
 	Alpha 0.875
 	Translation "0:255=%[0.00,0.00,0.00]:[0.94,1.04,1.06]"
 	Scale 1.625
+	var int user_exprad;
 	+THRUACTORS
 	+MTHRUSPECIES
 	States {
 		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			DAET A 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 72, 0)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1), 72 * (1.0 + user_exprad * exprad_factor), 0)
 			DAET A 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 72, 0)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1), 72 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 0 A_ScaleVelocity(0.75)
 			DAET B 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 88, 0)
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1) / 2, 88 * (1.0 + user_exprad * exprad_factor), 0)
 			DAET B 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 88, 0)
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1) / 2, 88 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 0 A_ScaleVelocity(0.75)
 			DAET C 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 114, 0)
+			TNT1 A 0 A_Explode(2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1), 114 * (1.0 + user_exprad * exprad_factor), 0)
 			DAET C 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET), 114, 0)
+			TNT1 A 0 A_Explode(2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1), 114 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 0 A_ScaleVelocity(0.75)
 			DAET D 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 130, 0)
+			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1) / 2, 130 * (1.0 + user_exprad * exprad_factor), 0)
 			DAET D 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 130, 0)
+			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1) / 2, 130 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 0 A_ScaleVelocity(0.75)
 			DAET E 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
-			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET) / 2, 130, 0)
+			TNT1 A 0 A_Explode(5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1) / 2, 130 * (1.0 + user_exprad * exprad_factor), 0)
 			DAET E 1 Bright
 		Stop
 	}
@@ -1445,6 +1450,7 @@ Actor "Dusk Blade" : Weapon {
 			VORP A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_SetBlend("60 00 60", 0.85, 9)
 			TNT1 A 0 A_GiveInventory("DuskMode", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 11)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FinishAlt")
 			VORP M 1
 			TNT1 A 0 A_TakeInventory("Souls", 11)
@@ -1471,10 +1477,10 @@ Actor DuskBladeShooter1 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff", 96)
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), 1, 0, "SwordPuff", 96)
 		Stop
 		Full:
-			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff_FullDMG", 96)
+			TNT1 A 0 A_CustomPunch(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), 1, 0, "SwordPuff_FullDMG", 96)
 		Stop
 	}
 }
@@ -1484,11 +1490,11 @@ Actor DuskBladeShooter2 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_CustomPunch(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff", 96, 0.25)
+			TNT1 A 0 A_CustomPunch(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), 1, 0, "SwordPuff", 96, 0.25)
 			TNT1 A 0 A_FireCustomMissile("DuskSlash")
 		Stop
 		Full:
-			TNT1 A 0 A_CustomPunch(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT), 1, 0, "SwordPuff_FullDMG", 96, 0.25)
+			TNT1 A 0 A_CustomPunch(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_MELEE, DND_ISOCCULT | DND_ISSLOT1), 1, 0, "SwordPuff_FullDMG", 96, 0.25)
 			TNT1 A 0 A_FireCustomMissile("DuskSlash_FullDMG")
 		Stop	
 	}
@@ -1575,9 +1581,11 @@ Actor DuskHealFX : DnD_Activator {
 Actor DuskExplosion : BaseExplosionDamage {
 	DamageType "Magic"
 	+NODAMAGETHRUST
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET), 64, 0, 0, 64)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1), 64 * (1.0 + user_exprad * exprad_factor), 0, 0, 64 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }

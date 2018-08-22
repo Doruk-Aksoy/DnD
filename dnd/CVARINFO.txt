@@ -3,6 +3,7 @@ user bool dnd_showmapinfo = false;
 user bool dnd_nodash = false;
 user bool dnd_nofx = false;
 user bool dnd_dashstatus = false;
+user bool dnd_expcreditnumbers = true;
 
 server bool dnd_hardcore = false;
 server bool dnd_softcore = false;
@@ -35,6 +36,11 @@ server int dnd_shop_artifact_scale = 1;
 server int dnd_shop_ability_scale = 1;
 server int dnd_shop_talent_scale = 1;
 server int dnd_shop_armor_scale = 1;
+
+server int dnd_maxmonsterlevel = 100;
+
+server int dnd_trade_timer = 5;
+server int dnd_trade_window = 10;
 
 server int dnd_monsterlevel_low = 1;
 server int dnd_monsterlevel_high = 2;

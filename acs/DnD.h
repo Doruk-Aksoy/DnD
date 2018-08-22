@@ -135,7 +135,16 @@ enum {
 	DND_WDMG_USETRACER = 512,
 	DND_WDMG_ISRIPPER = 1024,
 	DMG_WDMG_NECROBULK = 2048,
-	DND_WDMG_HASSTRSCALING = 4096
+	DND_WDMG_HASSTRSCALING = 4096,
+	DND_WDMG_ISSLOT1 = 8192,
+	DND_WDMG_ISSLOT2 = 16384,
+	DND_WDMG_ISSLOT3 = 32768,
+	DND_WDMG_ISSLOT4 = 65536,
+	DND_WDMG_ISSLOT5 = 131072,
+	DND_WDMG_ISSLOT6 = 262144,
+	DND_WDMG_ISSLOT7 = 524288,
+	DND_WDMG_ISSLOT8 = 1048576,
+	DND_WDMG_ISSLOT9 = 2097152
 };
 
 enum {
@@ -196,7 +205,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
 	 "Fires 24 plasma balls in a circular fashion each doing 20 damage. Has a clip size of 5.",
 	 "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 108-180 damage in 96 unit radius. \cfIgnores shields.",
-	 "Fires 15 shells doing 10 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.",
+	 "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.",
 	 
 	 "The explosive shotgun, the best there is. Fires 10 pellets, each doing 15 on hit. Each pellet does 32-48 damage in a small area. Does self damage. \cfIgnores shields.",
 	 "Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius, \cfignoring \cfshields\c-. Blades return to you after travelling a bit. Can't hit \cughosts.",
@@ -836,9 +845,13 @@ bool CheckCritChance() {
 	// add current weapon crit bonuses
 	chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
 	chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
+	chance += (Player_Bonuses[pnum].crit_chance << 16) / 100;
 	// add percent bonus
-	if(chance)
-		chance = FixedMul(chance, 1.0 + Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid));
+	if(chance) {
+		chance = FixedMul(chance, 1.0 + Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt 
+									  + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT 
+									  + (Player_Bonuses[pnum].crit_percent << 16) / 100, wepid));
+	}
 	
 	res = chance >= random(0, 1.0);
 	
@@ -856,6 +869,7 @@ int GetCritModifier() {
 	// weapon bonus
 	bonus += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt >> 16;
 	bonus += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
+	bonus += Player_Bonuses[pnum].crit_damage;
 	base += bonus;
 	if(CheckInventory("HunterTalismanCheck"))
 		base >>= 1;
@@ -927,7 +941,7 @@ void CheckMapExitQuest(int pnum, int qid) {
 void HandleCashDrops(int pnum, bool isElite) {
 	int basechance = 1.0;
 	int addedchance = (Clamp_Between(GetCVar("dnd_credit_droprateadd"), 0, 100) << 16) / 100;
-	
+	int luck = GetDropChance(pnum, isElite);
 	if(isElite) {
 		basechance -= DND_ELITE_CREDITCHANCE_BONUS;
 		basechance -= GetDropChance(pnum, isElite);
@@ -936,7 +950,7 @@ void HandleCashDrops(int pnum, bool isElite) {
 	basechance = random(0, basechance); // reduced max number implies increased chances of getting
 	for(int i = 0; i < MAXCREDITDROPS; ++i) {
 		if(CheckInventory("MonsterBaseHealth") >= CreditDropThresholds[i]) {
-			if(basechance > CreditDropChances[i] + addedchance)
+			if(basechance - addedchance - luck > CreditDropChances[i])
 				continue;
 			if(isElite)
 				GiveInventory(CreditEliteDroppers[i], 1);
@@ -1108,4 +1122,13 @@ void HandleHealDependencyCheck() {
 	// Skin O' My Teeth check
 	if(active_quest_id == QUEST_NOHEALINGPICKUP)
 		FailQuest(ActivatorTID(), active_quest_id);
+}
+
+int GetWeaponSlotFromFlag(int flags) {
+	// the first 14 bits are unnecessary
+	flags >>= 14;
+	for(int i = 0; i < 32; ++i)
+		if(IsSet(flags, i))
+			return i;
+	return 0;
 }

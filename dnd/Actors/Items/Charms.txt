@@ -1,11 +1,11 @@
-Actor CharmBase : DnD_DroppedItem {
+Actor InventoryBase : DnD_DroppedItem {
 	Radius 20
 	Height 24
 	States {
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
-			"####" "#" 0 A_PlaySound("Items/CharmDrop")
-			"####" "#" 16 Bright
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
 		SpawnLoop:
 		Idle:
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
@@ -17,7 +17,7 @@ Actor CharmBase : DnD_DroppedItem {
 		goto SpawnLoop
 		
 		Pickup:
-			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_ELIXIR), "PickupCheck2")
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
 		goto PickupFail
 
 		PickupFail:
@@ -26,11 +26,18 @@ Actor CharmBase : DnD_DroppedItem {
 		
 		PickupCheck2:
 			// Check if player has remaining inventory space
-			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", 0, mass - 1), "PickupSuccess")
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charm Pickup", 0, mass - 1)
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Charm Pickup", 0, mass - 1)
 		stop
 	}
 }
@@ -44,11 +51,11 @@ Actor CharmSoundPlayer : CustomInventory {
 	}
 }
 
-Actor CharmDrop : CharmBase {
+Actor CharmDrop : InventoryBase {
 	Scale 1.15
 	States {
 		Spawn:
-			IBAG A 0
+			IBAG A 0 NoDelay A_PlaySound("Items/CharmDrop")
 		Goto Super::SpawnInit
 	}
 }

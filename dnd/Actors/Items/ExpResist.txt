@@ -1,0 +1,799 @@
+Actor ExplosionResist_1 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.99
+	damagefactor "ExplosivesFull", 0.99
+	damagefactor "Explosives_Magic", 0.99
+	damagefactor "Explosives_MagicFull", 0.99
+}
+
+Actor ExplosionResist_2 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.98
+	damagefactor "ExplosivesFull", 0.98
+	damagefactor "Explosives_Magic", 0.98
+	damagefactor "Explosives_MagicFull", 0.98
+}
+
+Actor ExplosionResist_3 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.97
+	damagefactor "ExplosivesFull", 0.97
+	damagefactor "Explosives_Magic", 0.97
+	damagefactor "Explosives_MagicFull", 0.97
+}
+
+Actor ExplosionResist_4 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.96
+	damagefactor "ExplosivesFull", 0.96
+	damagefactor "Explosives_Magic", 0.96
+	damagefactor "Explosives_MagicFull", 0.96
+}
+
+Actor ExplosionResist_5 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.95
+	damagefactor "ExplosivesFull", 0.95
+	damagefactor "Explosives_Magic", 0.95
+	damagefactor "Explosives_MagicFull", 0.95
+}
+
+Actor ExplosionResist_6 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.94
+	damagefactor "ExplosivesFull", 0.94
+	damagefactor "Explosives_Magic", 0.94
+	damagefactor "Explosives_MagicFull", 0.94
+}
+
+Actor ExplosionResist_7 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.93
+	damagefactor "ExplosivesFull", 0.93
+	damagefactor "Explosives_Magic", 0.93
+	damagefactor "Explosives_MagicFull", 0.93
+}
+
+Actor ExplosionResist_8 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.92
+	damagefactor "ExplosivesFull", 0.92
+	damagefactor "Explosives_Magic", 0.92
+	damagefactor "Explosives_MagicFull", 0.92
+}
+
+Actor ExplosionResist_9 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.91
+	damagefactor "ExplosivesFull", 0.91
+	damagefactor "Explosives_Magic", 0.91
+	damagefactor "Explosives_MagicFull", 0.91
+}
+
+Actor ExplosionResist_10 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.9
+	damagefactor "ExplosivesFull", 0.9
+	damagefactor "Explosives_Magic", 0.9
+	damagefactor "Explosives_MagicFull", 0.9
+}
+
+Actor ExplosionResist_11 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.89
+	damagefactor "ExplosivesFull", 0.89
+	damagefactor "Explosives_Magic", 0.89
+	damagefactor "Explosives_MagicFull", 0.89
+}
+
+Actor ExplosionResist_12 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.88
+	damagefactor "ExplosivesFull", 0.88
+	damagefactor "Explosives_Magic", 0.88
+	damagefactor "Explosives_MagicFull", 0.88
+}
+
+Actor ExplosionResist_13 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.87
+	damagefactor "ExplosivesFull", 0.87
+	damagefactor "Explosives_Magic", 0.87
+	damagefactor "Explosives_MagicFull", 0.87
+}
+
+Actor ExplosionResist_14 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.86
+	damagefactor "ExplosivesFull", 0.86
+	damagefactor "Explosives_Magic", 0.86
+	damagefactor "Explosives_MagicFull", 0.86
+}
+
+Actor ExplosionResist_15 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.85
+	damagefactor "ExplosivesFull", 0.85
+	damagefactor "Explosives_Magic", 0.85
+	damagefactor "Explosives_MagicFull", 0.85
+}
+
+Actor ExplosionResist_16 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.84
+	damagefactor "ExplosivesFull", 0.84
+	damagefactor "Explosives_Magic", 0.84
+	damagefactor "Explosives_MagicFull", 0.84
+}
+
+Actor ExplosionResist_17 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.83
+	damagefactor "ExplosivesFull", 0.83
+	damagefactor "Explosives_Magic", 0.83
+	damagefactor "Explosives_MagicFull", 0.83
+}
+
+Actor ExplosionResist_18 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.82
+	damagefactor "ExplosivesFull", 0.82
+	damagefactor "Explosives_Magic", 0.82
+	damagefactor "Explosives_MagicFull", 0.82
+}
+
+Actor ExplosionResist_19 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.81
+	damagefactor "ExplosivesFull", 0.81
+	damagefactor "Explosives_Magic", 0.81
+	damagefactor "Explosives_MagicFull", 0.81
+}
+
+Actor ExplosionResist_20 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.8
+	damagefactor "ExplosivesFull", 0.8
+	damagefactor "Explosives_Magic", 0.8
+	damagefactor "Explosives_MagicFull", 0.8
+}
+
+Actor ExplosionResist_21 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.79
+	damagefactor "ExplosivesFull", 0.79
+	damagefactor "Explosives_Magic", 0.79
+	damagefactor "Explosives_MagicFull", 0.79
+}
+
+Actor ExplosionResist_22 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.78
+	damagefactor "ExplosivesFull", 0.78
+	damagefactor "Explosives_Magic", 0.78
+	damagefactor "Explosives_MagicFull", 0.78
+}
+
+Actor ExplosionResist_23 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.77
+	damagefactor "ExplosivesFull", 0.77
+	damagefactor "Explosives_Magic", 0.77
+	damagefactor "Explosives_MagicFull", 0.77
+}
+
+Actor ExplosionResist_24 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.76
+	damagefactor "ExplosivesFull", 0.76
+	damagefactor "Explosives_Magic", 0.76
+	damagefactor "Explosives_MagicFull", 0.76
+}
+
+Actor ExplosionResist_25 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.75
+	damagefactor "ExplosivesFull", 0.75
+	damagefactor "Explosives_Magic", 0.75
+	damagefactor "Explosives_MagicFull", 0.75
+}
+
+Actor ExplosionResist_26 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.74
+	damagefactor "ExplosivesFull", 0.74
+	damagefactor "Explosives_Magic", 0.74
+	damagefactor "Explosives_MagicFull", 0.74
+}
+
+Actor ExplosionResist_27 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.73
+	damagefactor "ExplosivesFull", 0.73
+	damagefactor "Explosives_Magic", 0.73
+	damagefactor "Explosives_MagicFull", 0.73
+}
+
+Actor ExplosionResist_28 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.72
+	damagefactor "ExplosivesFull", 0.72
+	damagefactor "Explosives_Magic", 0.72
+	damagefactor "Explosives_MagicFull", 0.72
+}
+
+Actor ExplosionResist_29 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.71
+	damagefactor "ExplosivesFull", 0.71
+	damagefactor "Explosives_Magic", 0.71
+	damagefactor "Explosives_MagicFull", 0.71
+}
+
+Actor ExplosionResist_30 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.7
+	damagefactor "ExplosivesFull", 0.7
+	damagefactor "Explosives_Magic", 0.7
+	damagefactor "Explosives_MagicFull", 0.7
+}
+
+Actor ExplosionResist_31 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.69
+	damagefactor "ExplosivesFull", 0.69
+	damagefactor "Explosives_Magic", 0.69
+	damagefactor "Explosives_MagicFull", 0.69
+}
+
+Actor ExplosionResist_32 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.68
+	damagefactor "ExplosivesFull", 0.68
+	damagefactor "Explosives_Magic", 0.68
+	damagefactor "Explosives_MagicFull", 0.68
+}
+
+Actor ExplosionResist_33 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.67
+	damagefactor "ExplosivesFull", 0.67
+	damagefactor "Explosives_Magic", 0.67
+	damagefactor "Explosives_MagicFull", 0.67
+}
+
+Actor ExplosionResist_34 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.66
+	damagefactor "ExplosivesFull", 0.66
+	damagefactor "Explosives_Magic", 0.66
+	damagefactor "Explosives_MagicFull", 0.66
+}
+
+Actor ExplosionResist_35 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.65
+	damagefactor "ExplosivesFull", 0.65
+	damagefactor "Explosives_Magic", 0.65
+	damagefactor "Explosives_MagicFull", 0.65
+}
+
+Actor ExplosionResist_36 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.64
+	damagefactor "ExplosivesFull", 0.64
+	damagefactor "Explosives_Magic", 0.64
+	damagefactor "Explosives_MagicFull", 0.64
+}
+
+Actor ExplosionResist_37 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.63
+	damagefactor "ExplosivesFull", 0.63
+	damagefactor "Explosives_Magic", 0.63
+	damagefactor "Explosives_MagicFull", 0.63
+}
+
+Actor ExplosionResist_38 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.62
+	damagefactor "ExplosivesFull", 0.62
+	damagefactor "Explosives_Magic", 0.62
+	damagefactor "Explosives_MagicFull", 0.62
+}
+
+Actor ExplosionResist_39 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.61
+	damagefactor "ExplosivesFull", 0.61
+	damagefactor "Explosives_Magic", 0.61
+	damagefactor "Explosives_MagicFull", 0.61
+}
+
+Actor ExplosionResist_40 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.6
+	damagefactor "ExplosivesFull", 0.6
+	damagefactor "Explosives_Magic", 0.6
+	damagefactor "Explosives_MagicFull", 0.6
+}
+
+Actor ExplosionResist_41 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.59
+	damagefactor "ExplosivesFull", 0.59
+	damagefactor "Explosives_Magic", 0.59
+	damagefactor "Explosives_MagicFull", 0.59
+}
+
+Actor ExplosionResist_42 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.58
+	damagefactor "ExplosivesFull", 0.58
+	damagefactor "Explosives_Magic", 0.58
+	damagefactor "Explosives_MagicFull", 0.58
+}
+
+Actor ExplosionResist_43 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.57
+	damagefactor "ExplosivesFull", 0.57
+	damagefactor "Explosives_Magic", 0.57
+	damagefactor "Explosives_MagicFull", 0.57
+}
+
+Actor ExplosionResist_44 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.56
+	damagefactor "ExplosivesFull", 0.56
+	damagefactor "Explosives_Magic", 0.56
+	damagefactor "Explosives_MagicFull", 0.56
+}
+
+Actor ExplosionResist_45 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.55
+	damagefactor "ExplosivesFull", 0.55
+	damagefactor "Explosives_Magic", 0.55
+	damagefactor "Explosives_MagicFull", 0.55
+}
+
+Actor ExplosionResist_46 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.54
+	damagefactor "ExplosivesFull", 0.54
+	damagefactor "Explosives_Magic", 0.54
+	damagefactor "Explosives_MagicFull", 0.54
+}
+
+Actor ExplosionResist_47 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.53
+	damagefactor "ExplosivesFull", 0.53
+	damagefactor "Explosives_Magic", 0.53
+	damagefactor "Explosives_MagicFull", 0.53
+}
+
+Actor ExplosionResist_48 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.52
+	damagefactor "ExplosivesFull", 0.52
+	damagefactor "Explosives_Magic", 0.52
+	damagefactor "Explosives_MagicFull", 0.52
+}
+
+Actor ExplosionResist_49 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.51
+	damagefactor "ExplosivesFull", 0.51
+	damagefactor "Explosives_Magic", 0.51
+	damagefactor "Explosives_MagicFull", 0.51
+}
+
+Actor ExplosionResist_50 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.5
+	damagefactor "ExplosivesFull", 0.5
+	damagefactor "Explosives_Magic", 0.5
+	damagefactor "Explosives_MagicFull", 0.5
+}
+
+Actor ExplosionResist_51 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.49
+	damagefactor "ExplosivesFull", 0.49
+	damagefactor "Explosives_Magic", 0.49
+	damagefactor "Explosives_MagicFull", 0.49
+}
+
+Actor ExplosionResist_52 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.48
+	damagefactor "ExplosivesFull", 0.48
+	damagefactor "Explosives_Magic", 0.48
+	damagefactor "Explosives_MagicFull", 0.48
+}
+
+Actor ExplosionResist_53 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.47
+	damagefactor "ExplosivesFull", 0.47
+	damagefactor "Explosives_Magic", 0.47
+	damagefactor "Explosives_MagicFull", 0.47
+}
+
+Actor ExplosionResist_54 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.46
+	damagefactor "ExplosivesFull", 0.46
+	damagefactor "Explosives_Magic", 0.46
+	damagefactor "Explosives_MagicFull", 0.46
+}
+
+Actor ExplosionResist_55 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.45
+	damagefactor "ExplosivesFull", 0.45
+	damagefactor "Explosives_Magic", 0.45
+	damagefactor "Explosives_MagicFull", 0.45
+}
+
+Actor ExplosionResist_56 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.44
+	damagefactor "ExplosivesFull", 0.44
+	damagefactor "Explosives_Magic", 0.44
+	damagefactor "Explosives_MagicFull", 0.44
+}
+
+Actor ExplosionResist_57 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.43
+	damagefactor "ExplosivesFull", 0.43
+	damagefactor "Explosives_Magic", 0.43
+	damagefactor "Explosives_MagicFull", 0.43
+}
+
+Actor ExplosionResist_58 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.42
+	damagefactor "ExplosivesFull", 0.42
+	damagefactor "Explosives_Magic", 0.42
+	damagefactor "Explosives_MagicFull", 0.42
+}
+
+Actor ExplosionResist_59 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.41
+	damagefactor "ExplosivesFull", 0.41
+	damagefactor "Explosives_Magic", 0.41
+	damagefactor "Explosives_MagicFull", 0.41
+}
+
+Actor ExplosionResist_60 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.4
+	damagefactor "ExplosivesFull", 0.4
+	damagefactor "Explosives_Magic", 0.4
+	damagefactor "Explosives_MagicFull", 0.4
+}
+
+Actor ExplosionResist_61 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.39
+	damagefactor "ExplosivesFull", 0.39
+	damagefactor "Explosives_Magic", 0.39
+	damagefactor "Explosives_MagicFull", 0.39
+}
+
+Actor ExplosionResist_62 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.38
+	damagefactor "ExplosivesFull", 0.38
+	damagefactor "Explosives_Magic", 0.38
+	damagefactor "Explosives_MagicFull", 0.38
+}
+
+Actor ExplosionResist_63 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.37
+	damagefactor "ExplosivesFull", 0.37
+	damagefactor "Explosives_Magic", 0.37
+	damagefactor "Explosives_MagicFull", 0.37
+}
+
+Actor ExplosionResist_64 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.36
+	damagefactor "ExplosivesFull", 0.36
+	damagefactor "Explosives_Magic", 0.36
+	damagefactor "Explosives_MagicFull", 0.36
+}
+
+Actor ExplosionResist_65 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.35
+	damagefactor "ExplosivesFull", 0.35
+	damagefactor "Explosives_Magic", 0.35
+	damagefactor "Explosives_MagicFull", 0.35
+}
+
+Actor ExplosionResist_66 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.34
+	damagefactor "ExplosivesFull", 0.34
+	damagefactor "Explosives_Magic", 0.34
+	damagefactor "Explosives_MagicFull", 0.34
+}
+
+Actor ExplosionResist_67 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.33
+	damagefactor "ExplosivesFull", 0.33
+	damagefactor "Explosives_Magic", 0.33
+	damagefactor "Explosives_MagicFull", 0.33
+}
+
+Actor ExplosionResist_68 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.32
+	damagefactor "ExplosivesFull", 0.32
+	damagefactor "Explosives_Magic", 0.32
+	damagefactor "Explosives_MagicFull", 0.32
+}
+
+Actor ExplosionResist_69 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.31
+	damagefactor "ExplosivesFull", 0.31
+	damagefactor "Explosives_Magic", 0.31
+	damagefactor "Explosives_MagicFull", 0.31
+}
+
+Actor ExplosionResist_70 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.3
+	damagefactor "ExplosivesFull", 0.3
+	damagefactor "Explosives_Magic", 0.3
+	damagefactor "Explosives_MagicFull", 0.3
+}
+
+Actor ExplosionResist_71 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.29
+	damagefactor "ExplosivesFull", 0.29
+	damagefactor "Explosives_Magic", 0.29
+	damagefactor "Explosives_MagicFull", 0.29
+}
+
+Actor ExplosionResist_72 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.28
+	damagefactor "ExplosivesFull", 0.28
+	damagefactor "Explosives_Magic", 0.28
+	damagefactor "Explosives_MagicFull", 0.28
+}
+
+Actor ExplosionResist_73 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.27
+	damagefactor "ExplosivesFull", 0.27
+	damagefactor "Explosives_Magic", 0.27
+	damagefactor "Explosives_MagicFull", 0.27
+}
+
+Actor ExplosionResist_74 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.26
+	damagefactor "ExplosivesFull", 0.26
+	damagefactor "Explosives_Magic", 0.26
+	damagefactor "Explosives_MagicFull", 0.26
+}
+
+Actor ExplosionResist_75 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.25
+	damagefactor "ExplosivesFull", 0.25
+	damagefactor "Explosives_Magic", 0.25
+	damagefactor "Explosives_MagicFull", 0.25
+}
+
+Actor ExplosionResist_76 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.24
+	damagefactor "ExplosivesFull", 0.24
+	damagefactor "Explosives_Magic", 0.24
+	damagefactor "Explosives_MagicFull", 0.24
+}
+
+Actor ExplosionResist_77 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.23
+	damagefactor "ExplosivesFull", 0.23
+	damagefactor "Explosives_Magic", 0.23
+	damagefactor "Explosives_MagicFull", 0.23
+}
+
+Actor ExplosionResist_78 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.22
+	damagefactor "ExplosivesFull", 0.22
+	damagefactor "Explosives_Magic", 0.22
+	damagefactor "Explosives_MagicFull", 0.22
+}
+
+Actor ExplosionResist_79 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.21
+	damagefactor "ExplosivesFull", 0.21
+	damagefactor "Explosives_Magic", 0.21
+	damagefactor "Explosives_MagicFull", 0.21
+}
+
+Actor ExplosionResist_80 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.2
+	damagefactor "ExplosivesFull", 0.2
+	damagefactor "Explosives_Magic", 0.2
+	damagefactor "Explosives_MagicFull", 0.2
+}
+
+Actor ExplosionResist_81 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.19
+	damagefactor "ExplosivesFull", 0.19
+	damagefactor "Explosives_Magic", 0.19
+	damagefactor "Explosives_MagicFull", 0.19
+}
+
+Actor ExplosionResist_82 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.18
+	damagefactor "ExplosivesFull", 0.18
+	damagefactor "Explosives_Magic", 0.18
+	damagefactor "Explosives_MagicFull", 0.18
+}
+
+Actor ExplosionResist_83 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.17
+	damagefactor "ExplosivesFull", 0.17
+	damagefactor "Explosives_Magic", 0.17
+	damagefactor "Explosives_MagicFull", 0.17
+}
+
+Actor ExplosionResist_84 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.16
+	damagefactor "ExplosivesFull", 0.16
+	damagefactor "Explosives_Magic", 0.16
+	damagefactor "Explosives_MagicFull", 0.16
+}
+
+Actor ExplosionResist_85 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.15
+	damagefactor "ExplosivesFull", 0.15
+	damagefactor "Explosives_Magic", 0.15
+	damagefactor "Explosives_MagicFull", 0.15
+}
+
+Actor ExplosionResist_86 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.14
+	damagefactor "ExplosivesFull", 0.14
+	damagefactor "Explosives_Magic", 0.14
+	damagefactor "Explosives_MagicFull", 0.14
+}
+
+Actor ExplosionResist_87 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.13
+	damagefactor "ExplosivesFull", 0.13
+	damagefactor "Explosives_Magic", 0.13
+	damagefactor "Explosives_MagicFull", 0.13
+}
+
+Actor ExplosionResist_88 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.12
+	damagefactor "ExplosivesFull", 0.12
+	damagefactor "Explosives_Magic", 0.12
+	damagefactor "Explosives_MagicFull", 0.12
+}
+
+Actor ExplosionResist_89 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.11
+	damagefactor "ExplosivesFull", 0.11
+	damagefactor "Explosives_Magic", 0.11
+	damagefactor "Explosives_MagicFull", 0.11
+}
+
+Actor ExplosionResist_90 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.1
+	damagefactor "ExplosivesFull", 0.1
+	damagefactor "Explosives_Magic", 0.1
+	damagefactor "Explosives_MagicFull", 0.1
+}
+
+Actor ExplosionResist_91 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.09
+	damagefactor "ExplosivesFull", 0.09
+	damagefactor "Explosives_Magic", 0.09
+	damagefactor "Explosives_MagicFull", 0.09
+}
+
+Actor ExplosionResist_92 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.08
+	damagefactor "ExplosivesFull", 0.08
+	damagefactor "Explosives_Magic", 0.08
+	damagefactor "Explosives_MagicFull", 0.08
+}
+
+Actor ExplosionResist_93 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.07
+	damagefactor "ExplosivesFull", 0.07
+	damagefactor "Explosives_Magic", 0.07
+	damagefactor "Explosives_MagicFull", 0.07
+}
+
+Actor ExplosionResist_94 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.06
+	damagefactor "ExplosivesFull", 0.06
+	damagefactor "Explosives_Magic", 0.06
+	damagefactor "Explosives_MagicFull", 0.06
+}
+
+Actor ExplosionResist_95 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.05
+	damagefactor "ExplosivesFull", 0.05
+	damagefactor "Explosives_Magic", 0.05
+	damagefactor "Explosives_MagicFull", 0.05
+}
+
+Actor ExplosionResist_96 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.04
+	damagefactor "ExplosivesFull", 0.04
+	damagefactor "Explosives_Magic", 0.04
+	damagefactor "Explosives_MagicFull", 0.04
+}
+
+Actor ExplosionResist_97 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.03
+	damagefactor "ExplosivesFull", 0.03
+	damagefactor "Explosives_Magic", 0.03
+	damagefactor "Explosives_MagicFull", 0.03
+}
+
+Actor ExplosionResist_98 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.02
+	damagefactor "ExplosivesFull", 0.02
+	damagefactor "Explosives_Magic", 0.02
+	damagefactor "Explosives_MagicFull", 0.02
+}
+
+Actor ExplosionResist_99 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.01
+	damagefactor "ExplosivesFull", 0.01
+	damagefactor "Explosives_Magic", 0.01
+	damagefactor "Explosives_MagicFull", 0.01
+}
+
+Actor ExplosionResist_100 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "Explosives", 0.0
+	damagefactor "ExplosivesFull", 0.0
+	damagefactor "Explosives_Magic", 0.0
+	damagefactor "Explosives_MagicFull", 0.0
+}

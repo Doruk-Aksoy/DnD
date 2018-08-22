@@ -28,8 +28,17 @@
 #define MAXSTACKS_ORB 128
 #define MAXSTACKS_CKEY 32
 
+#define HUD_DII_FIELD_MULT 6
+
 #define ORB_NAME 0
 #define ORB_TAG 1
+
+#define MAX_EXPRESIST_VAL 100
+
+enum {
+	IPROCESS_ADD,
+	IPROCESS_REMOVE
+};
 
 enum {
 	DND_CHESTTYPE_BRONZE,
@@ -43,6 +52,14 @@ str ChestkeyHelpText[CHEST_KEY_TEXT_MAX] = {
 	"\c[Y5]Bronze Chest Key\nOpens a mysterious bronze chest.",
 	"\c[Y5]Silver Chest Key\nOpens a mysterious silver chest.",
 	"\c[Y5]Gold Chest Key\nOpens a mysterious gold chest."
+};
+
+#define CHESTKEY_NAME 0
+#define CHESTKEY_TAG 1
+str ChestKeyList[CHEST_KEY_TEXT_MAX][2] = {
+	{ "BronzeChestKey", "Bronze Chest Key" },
+	{ "SilverChestKey", "Silver Chest Key" },
+	{ "GoldChestKey", "Gold Chest Key" }
 };
 
 // MENU IDS
@@ -61,7 +78,8 @@ enum {
 	DND_ITEM_NECKLACE,
 	DND_ITEM_RING,
 	DND_ITEM_ORB,
-	DND_ITEM_CHESTKEY
+	DND_ITEM_CHESTKEY,
+	DND_ITEM_WEAPON
 };
 
 // only orbs
@@ -69,6 +87,14 @@ enum {
 
 int CraftItemTypes[MAX_CRAFTITEMTYPES] = {
 	DND_ITEM_ORB
+};
+
+#define MAX_CRAFTABLEITEMTYPES 4
+int CraftableItemTypes[MAX_CRAFTABLEITEMTYPES] = {
+	DND_ITEM_CHARM,
+	DND_ITEM_BOOT,
+	DND_ITEM_HELM,
+	DND_ITEM_NECKLACE
 };
 
 typedef struct {
@@ -146,6 +172,9 @@ enum {
 	IIMG_ORB_12,
 	IIMG_ORB_13,
 	IIMG_ORB_14,
+	IIMG_ORB_15,
+	IIMG_ORB_16,
+	IIMG_ORB_17,
 	
 	IIMG_CKEY_1,
 	IIMG_CKEY_2,
@@ -185,6 +214,9 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	"ORB2E0",
 	"ORB3G0",
 	"ORB3I0",
+	"ORB3K0",
+	"ORB3M0",
+	"ORB3O0",
 	
 	"SBKGA0",
 	"SBKGB0",
@@ -207,6 +239,9 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 0.0, 0.0 },
 	{ 0.0, 0.0 },
 	
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
@@ -419,6 +454,38 @@ int GetFreeSpotForItemWithStack(int item_index, int player_index, int source) {
 			}
 			// we return top left corner box id
 			if(wcheck == w && hcheck == h && !unfit)
+				return j * MAXINVENTORYBLOCKS_VERT + i;
+		}
+	}
+	return -1;
+}
+
+int GetFreeSpotForSingleSpotItem(int player_index, int type, int sub) {
+	int i = 0, j = 0;
+	int bid = 0, wcheck = 0, hcheck = 0;
+	bool unfit = false;
+	
+	// first search for any spot on our inventory for a stack item of this type
+	int maxstack = GetStackValue(type);
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		if(PlayerInventoryList[player_index][i].item_type == type && PlayerInventoryList[player_index][i].item_subtype == sub && PlayerInventoryList[player_index][i].item_stack < maxstack)
+			return i;
+			
+	// didn't work, find new spot
+	// try every line
+	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
+		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
+			// if width matches, try height from here on then and if unfit, restart at a new coordinate
+			unfit = false;
+			for(hcheck = 0; !unfit && hcheck < 1 && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
+				for(wcheck = 0; !unfit && wcheck < 1 && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
+					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
+					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
+						unfit = true;
+				}
+			}
+			// we return top left corner box id
+			if(wcheck == 1 && hcheck == 1 && !unfit)
 				return j * MAXINVENTORYBLOCKS_VERT + i;
 		}
 	}
@@ -968,6 +1035,12 @@ void SwapItems(int ipos1, int ipos2, int source1, int source2, bool dontSync) {
 				SyncItemData(ipos2 + offset1, source2, -1, -1);
 			}
 		}
+		
+		// update orb item pointer
+		if(Player_MostRecent_Orb[PlayerNumber()].p_tempwep == ipos1)
+			Player_MostRecent_Orb[PlayerNumber()].p_tempwep = ipos2;
+		else if(Player_MostRecent_Orb[PlayerNumber()].p_tempwep == ipos2)
+			Player_MostRecent_Orb[PlayerNumber()].p_tempwep = ipos1;
 	}
 }
 
@@ -1046,6 +1119,10 @@ void MoveItem(int itempos, int emptypos) {
 		FreeItem(tb, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 	}
 	
+	// update orb item pointer
+	if(Player_MostRecent_Orb[pnum].p_tempwep == itempos)
+		Player_MostRecent_Orb[pnum].p_tempwep = emptypos;
+	
 	SyncItemData(temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, -1, -1);
 }
 
@@ -1115,6 +1192,10 @@ void MoveItemTrade(int itempos, int emptypos, int itemsource, int emptysource) {
 		FreeItem(tb, itemsource, false);
 	}
 	
+	// as soon as this item is offered for a trade it can't be edited
+	if(Player_MostRecent_Orb[PlayerNumber()].p_tempwep == itempos && itemsource == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)
+		Player_MostRecent_Orb[PlayerNumber()].p_tempwep = 0;
+	
 	SyncItemData(temp, emptysource, -1, -1);
 }
 
@@ -1174,11 +1255,11 @@ void TransferTradeItems(int from, int to) {
 void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 	int pnum = PlayerNumber();
 	int stack, itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source), offset = 0.0;
-	DeleteTextRange(RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES);
-	if(topboxid != -1 && GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source) != DND_ITEM_NULL) {
+	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
+	if(topboxid != -1 && itype != DND_ITEM_NULL) {
 		SetHudSize(480, 320, 1);
 		SetFont("LDTITINF");
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		by += 10.0;
 		// show item details
 		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, topboxid, -1, source)]);
@@ -1186,11 +1267,11 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 			offset = 6.0;
 		else if(itype == DND_ITEM_CHESTKEY)
 			offset = 3.0;
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 1, CR_WHITE, bx, by + offset, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, bx, by + offset, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, topboxid, -1, source);
 		if(stack) {
 			SetFont("SMALLFONT");
-			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 14, CR_GREEN, bx + 96.2, by + 6.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, bx + 96.2, by + 6.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		SetHudSize(720, 480, 1);
 		bx *= 3; by *= 3;
@@ -1211,26 +1292,410 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		HudMessage(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
 			if(val > 0)
-				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx, by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx, by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 			else
-				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, bx, by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, bx, by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(itype == DND_ITEM_ORB) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 	else if(itype == DND_ITEM_CHESTKEY) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:ChestkeyHelpText[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:ChestkeyHelpText[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
+}
+
+void CopyItemSource(int fieldpos, int player_index, int item_index, int source) {
+	int i, j, k, wtemp, htemp;
+	wtemp = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, item_index, -1, source) - 1;
+	Inventories_On_Field[fieldpos].width = GetItemSyncValue(DND_SYNC_ITEMWIDTH, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].height = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_type = GetItemSyncValue(DND_SYNC_ITEMTYPE, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_subtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_image = GetItemSyncValue(DND_SYNC_ITEMIMAGE, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_level = GetItemSyncValue(DND_SYNC_ITEMLEVEL, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].item_stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].attrib_count = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, wtemp, -1, source);
+	Inventories_On_Field[fieldpos].topleftboxid = 0;
+	for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
+		Inventories_On_Field[fieldpos].attributes[i].attrib_id = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, wtemp, i, source);
+		Inventories_On_Field[fieldpos].attributes[i].attrib_val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, wtemp, i, source);
+	}
+
+	// the leftover spot is a null item
+	FreeItem(wtemp, source, false);
+}
+
+void DropItemToField(int player_index, int pitem_index, bool forAll, int source) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, pitem_index, -1, source);
+		int stype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, pitem_index, -1, source);
+		// copy now
+		CopyItemSource(c, player_index, pitem_index, source);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		str droptype = InventoryDropActors[DND_INVDROP_CHARM];
+		if(itype == DND_ITEM_ORB)
+			droptype = OrbList[stype][0];
+		else if(itype == DND_ITEM_CHESTKEY)
+			droptype = ChestKeyList[stype][CHESTKEY_NAME];
+		forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
+	}
+}
+
+// move this from field to player's inventory
+int HandleStackedPickup(int item_index) {
+	// make sure this item actually gets placed on top of an item that has some stack, if any
+	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
+	CopyItem(true, item_index, PlayerNumber(), porb_index);
+	return porb_index;
+}
+
+int CheckPlayerInventoryList(int pnum, int itemtype, int subtype) {
+	int i;
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		if(PlayerInventoryList[pnum][i].item_type == itemtype && PlayerInventoryList[pnum][i].item_subtype == subtype)
+			return i;
+	return -1;
+}
+
+// can only use items in inventory
+void UsePlayerItem(int pnum, int item_index) {
+	if(PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_ORB || PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHESTKEY) {
+		--PlayerInventoryList[pnum][item_index].item_stack;
+		if(PlayerInventoryList[pnum][item_index].item_stack)
+			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		else {
+			FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
+		}
+	}
+}
+
+void UsePlayerItem_Count(int pnum, int item_index, int count) {
+	PlayerInventoryList[pnum][item_index].item_stack = Clamp_Between(PlayerInventoryList[pnum][item_index].item_stack - count, 0, PlayerInventoryList[pnum][item_index].item_stack);
+	if(PlayerInventoryList[pnum][item_index].item_stack)
+		SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	else {
+		FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
+	}
+}
+
+// uses items from stash (needed for certain functions)
+void UsePlayerStashItem_Count(int pnum, int page, int item_index, int count) {
+	PlayerStashList[pnum][page][item_index].item_stack = Clamp_Between(PlayerStashList[pnum][page][item_index].item_stack - count, 0, PlayerStashList[pnum][page][item_index].item_stack);
+	if(PlayerStashList[pnum][page][item_index].item_stack)
+		SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_STASH | (page << 16));
+	else {
+		FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_STASH | (page << 16), false, pnum);
+	}
+}
+
+// we only have orbs as crafting material atm
+bool IsCraftingItem(int itype) {
+	switch(itype) {
+		case DND_ITEM_ORB:
+		return true;
+	}
+	return false;
+}
+
+bool IsCraftableItem(int itype) {
+	switch(itype) {
+		case DND_ITEM_CHARM:
+		case DND_ITEM_BOOT:
+		case DND_ITEM_HELM:
+		case DND_ITEM_NECKLACE:
+		case DND_ITEM_GLOVE:
+		case DND_ITEM_WEAPON:
+		return true;
+	}
+	return false;
+}
+
+// will count crafting materials the player has currently in their inventory
+int CountCraftingMaterials() {
+	int pnum = PlayerNumber();
+	int res = 0;
+	bool unique_orbs = 0;
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
+			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
+				++res;
+				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
+			}
+		}
+	}
+	return res;
+}
+
+int GetNextUniqueCraftingMaterial(int itemtype, int current) {
+	int pnum = PlayerNumber();
+	int res = 0, i;
+	bool unique_orbs = 0;
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
+			if(PlayerInventoryList[pnum][i].item_type == itemtype && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
+				++res;
+				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
+				// return the item's index
+				if(res > current)
+					return i;
+			}
+		}
+	}
+	return -1;
+}
+
+int GetNextUniqueCraftableMaterial(int current) {
+	int pnum = PlayerNumber();
+	int res = 0, i;
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		if(IsCraftableItem(PlayerInventoryList[pnum][i].item_type) && PlayerInventoryList[pnum][i].height) {
+			++res;
+			// return the item's index
+			if(res > current)
+				return i;
+		}
+	}
+	return -1;
+}
+
+int GetTotalStackOfMaterial(int itemid) {
+	int pnum = PlayerNumber();
+	int res = 0;
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		if(PlayerInventoryList[pnum][i].item_type == PlayerInventoryList[pnum][itemid].item_type && PlayerInventoryList[pnum][i].item_subtype == PlayerInventoryList[pnum][itemid].item_subtype)
+			res += PlayerInventoryList[pnum][i].item_stack;
+	return res;
+}
+
+bool IsSelfUsableItem(int itype, int isubtype) {
+	switch(itype) {
+		case DND_ITEM_ORB:
+			switch(isubtype) {
+				case DND_ORB_ENHANCE:
+				case DND_ORB_REFINEMENT:
+				case DND_ORB_SCULPTING:
+				case DND_ORB_ELEVATION:
+				return false;
+			}
+		break;
+	}
+	return true;
+}
+
+void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int method) {
+	int atype = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
+	int aval = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
+	int i;
+	switch(atype) {
+		case INV_HP_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].hp_flat_bonus += aval;
+			else
+				Player_Bonuses[pnum].hp_flat_bonus -= aval;
+		break;
+		case INV_ARMOR_INCREASE:
+				if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].armor_flat_bonus += aval;
+			else
+				Player_Bonuses[pnum].armor_flat_bonus -= aval;
+		break;
+		case INV_HPPERCENT_INCREASE:
+				if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].hp_percent_bonus += aval;
+			else
+				Player_Bonuses[pnum].hp_percent_bonus -= aval;
+		break;
+		case INV_ARMORPERCENT_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].armor_percent_bonus += aval;
+			else
+				Player_Bonuses[pnum].armor_percent_bonus -= aval;
+		break;
+		case INV_SPEED_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].speed_bonus += aval;
+			else
+				Player_Bonuses[pnum].speed_bonus -= aval;
+		break;
+		case INV_MAGAZINE_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].magazine_increase += aval;
+			else
+				Player_Bonuses[pnum].magazine_increase -= aval;
+			for(i = 0; i < MAX_MAGAZINES; ++i)
+				SetAmmoCapacity(WeaponMagazineList[i], (GetAmmoCapacity(WeaponMagazineList[i]) * (100 + Player_Bonuses[pnum].magazine_increase)) / 100);
+		break;
+    
+		case INV_FLATPHYS_DAMAGE:
+			if(method == IPROCESS_ADD) {
+				// includes melee
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_BULLET] += aval;
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_MELEE] += aval;
+			}
+			else {
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_BULLET] -= aval;
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_MELEE] -= aval;
+			}
+		break;
+		case INV_FLATENERGY_DAMAGE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ENERGY] += aval;
+			else
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ENERGY] -= aval;
+		break;
+		case INV_FLATEXP_DAMAGE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_EXPLOSIVE] += aval;
+			else
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_EXPLOSIVE] -= aval;
+		break;
+		case INV_FLATMAGIC_DAMAGE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_OCCULT] += aval;
+			else
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_OCCULT] -= aval;
+		break;
+		case INV_FLATELEM_DAMAGE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ELEMENTAL] += aval;
+			else
+				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ELEMENTAL] -= aval;
+		break;
+		
+		case INV_SLOT1_DAMAGE:
+		case INV_SLOT2_DAMAGE:
+		case INV_SLOT3_DAMAGE:
+		case INV_SLOT4_DAMAGE:
+		case INV_SLOT5_DAMAGE:
+		case INV_SLOT6_DAMAGE:
+		case INV_SLOT7_DAMAGE:
+		case INV_SLOT8_DAMAGE:
+		case INV_TEMPWEP_DAMAGE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].slot_damage_bonus[atype - INV_SLOT1_DAMAGE] += aval;
+			else
+				Player_Bonuses[pnum].slot_damage_bonus[atype - INV_SLOT1_DAMAGE] -= aval;
+		break;
+		
+		case INV_PELLET_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].pellet_increase += aval;
+			else
+				Player_Bonuses[pnum].pellet_increase -= aval;
+		break;
+	
+		case INV_EXPLOSION_RADIUS:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].explosion_radius += aval;
+			else
+				Player_Bonuses[pnum].explosion_radius -= aval;
+		break;
+		case INV_EXPLOSIVE_RESIST:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].explosion_resist += aval;
+			else
+				Player_Bonuses[pnum].explosion_resist -= aval;
+			for(i = 0; i < MAX_EXPRESIST_VAL; ++i)
+				TakeInventory(StrParam(s:"ExplosionResist_", d:i + 1), 1);
+			GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(Player_Bonuses[pnum].explosion_resist, 1, MAX_EXPRESIST_VAL)), 1);
+		break;
+		
+		case INV_AMMOGAIN_CHANCE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].ammo_chance += aval;
+			else
+				Player_Bonuses[pnum].ammo_chance -= aval;
+		break;
+		case INV_AMMOGAIN_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].ammo_gain += aval;
+			else
+				Player_Bonuses[pnum].ammo_gain -= aval;
+		break;
+		
+		case INV_REGENCAP_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].regen_cap += aval;
+			else
+				Player_Bonuses[pnum].regen_cap -= aval;
+		break;
+		
+		case INV_CRITCHANCE_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].crit_chance += aval;
+			else
+				Player_Bonuses[pnum].crit_chance -= aval;
+		break;
+		case INV_CRITPERCENT_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].crit_percent += aval;
+			else
+				Player_Bonuses[pnum].crit_percent -= aval;
+		break;
+		case INV_CRITDAMAGE_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].crit_damage += aval;
+			else
+				Player_Bonuses[pnum].crit_damage -= aval;
+		break;
+		
+		case INV_KNOCKBACK_RESIST:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].knockback_resist += aval;
+			else
+				Player_Bonuses[pnum].knockback_resist -= aval;
+			UpdatePlayerKnockbackResist();
+		break;
+		case INV_DAMAGEPERCENT_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].damage_percent += aval;
+			else
+				Player_Bonuses[pnum].damage_percent -= aval;
+		break;
+		case INV_ACCURACY_INCREASE:
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].accuracy += aval;
+			else
+				Player_Bonuses[pnum].accuracy -= aval;
+			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
+			SetActorProperty(0, APROP_ACCURACY, Clamp_Between(Player_Bonuses[pnum].accuracy, 0, DND_ACCURACY_CAP));
+		break;
+	}
+}
+
+// Applies item stats to player
+void ApplyItemFeatures(int item_index, int source) {
+	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
+	int pnum = PlayerNumber();
+	for(int i = 0; i < ac; ++i)
+		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_ADD);
+}
+
+// Removes an applied list of item stats from player
+void RemoveItemFeatures(int item_index, int source) {
+	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
+	int pnum = PlayerNumber();
+	for(int i = 0; i < ac; ++i)
+		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_REMOVE);
+}
+
+int GetCraftableItemCount() {
+	int res = 0, pnum = PlayerNumber();
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		if(IsCraftableItem(PlayerInventoryList[pnum][i].item_type) && PlayerInventoryList[pnum][i].height)
+			++res;
+	return res;
 }
 
 void ResetPlayerInventory(int pnum) {
@@ -1241,7 +1706,7 @@ void ResetPlayerInventory(int pnum) {
 		PlayerInventoryList[pnum][i].width = 0;
 		PlayerInventoryList[pnum][i].height = 0;
 		PlayerInventoryList[pnum][i].item_image = 0;
-		PlayerInventoryList[pnum][i].item_type = 0;
+		PlayerInventoryList[pnum][i].item_type = DND_ITEM_NULL;
 		PlayerInventoryList[pnum][i].item_subtype = 0;
 		PlayerInventoryList[pnum][i].item_level = 0;
 		PlayerInventoryList[pnum][i].item_stack = 0;
@@ -1281,7 +1746,7 @@ void ResetFieldInventory() {
 		Inventories_On_Field[i].width = 0;
 		Inventories_On_Field[i].height = 0;
 		Inventories_On_Field[i].item_image = 0;
-		Inventories_On_Field[i].item_type = 0;
+		Inventories_On_Field[i].item_type = DND_ITEM_NULL;
 		Inventories_On_Field[i].item_subtype = 0;
 		Inventories_On_Field[i].item_level = 0;
 		Inventories_On_Field[i].item_stack = 0;
@@ -1303,7 +1768,7 @@ void ResetPlayerStash(int pnum) {
 			PlayerStashList[pnum][p][i].width = 0;
 			PlayerStashList[pnum][p][i].height = 0;
 			PlayerStashList[pnum][p][i].item_image = 0;
-			PlayerStashList[pnum][p][i].item_type = 0;
+			PlayerStashList[pnum][p][i].item_type = DND_ITEM_NULL;
 			PlayerStashList[pnum][p][i].item_subtype = 0;
 			PlayerStashList[pnum][p][i].item_level = 0;
 			PlayerStashList[pnum][p][i].item_stack = 0;
@@ -1315,114 +1780,6 @@ void ResetPlayerStash(int pnum) {
 			PlayerStashList[pnum][p][i].attrib_count = 0;
 		}
 	}
-}
-
-void CopyItemSource(int fieldpos, int player_index, int item_index, int source) {
-	int i, j, k, wtemp, htemp;
-	wtemp = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, item_index, -1, source) - 1;
-	Inventories_On_Field[fieldpos].width = GetItemSyncValue(DND_SYNC_ITEMWIDTH, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].height = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].item_type = GetItemSyncValue(DND_SYNC_ITEMTYPE, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].item_subtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].item_image = GetItemSyncValue(DND_SYNC_ITEMIMAGE, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].item_level = GetItemSyncValue(DND_SYNC_ITEMLEVEL, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].item_stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].attrib_count = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].topleftboxid = 0;
-	for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
-		Inventories_On_Field[fieldpos].attributes[i].attrib_id = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, wtemp, i, source);
-		Inventories_On_Field[fieldpos].attributes[i].attrib_val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, wtemp, i, source);
-	}
-
-	// the leftover spot is a null item
-	FreeItem(wtemp, source, false);
-}
-
-void DropItemToField(int player_index, int pitem_index, bool forAll, int source) {
-	int c = CreateItemSpot();
-	if(c != -1) {
-		int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, pitem_index, -1, source);
-		int stype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, pitem_index, -1, source);
-		// copy now
-		CopyItemSource(c, player_index, pitem_index, source);
-		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		str droptype = InventoryDropActors[DND_INVDROP_CHARM];
-		if(itype == DND_ITEM_ORB)
-			droptype = OrbList[stype][0];
-		
-		forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
-	}
-}
-
-// move this from field to player's inventory
-int HandleStackedPickup(int item_index) {
-	// make sure this item actually gets placed on top of an item that has some stack, if any
-	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
-	CopyItem(true, item_index, PlayerNumber(), porb_index);
-	return porb_index;
-}
-
-int CheckPlayerInventoryList(int pnum, int itemtype, int subtype) {
-	int i;
-	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
-		if(PlayerInventoryList[pnum][i].item_type == itemtype && PlayerInventoryList[pnum][i].item_subtype == subtype)
-			return i;
-	return -1;
-}
-
-// can only use items in inventory
-void UsePlayerItem(int pnum, int item_index) {
-	if(PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_ORB || PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHESTKEY) {
-		--PlayerInventoryList[pnum][item_index].item_stack;
-		if(PlayerInventoryList[pnum][item_index].item_stack)
-			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-		else {
-			FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
-		}
-	}
-}
-
-// we only have orbs as crafting material atm
-bool IsCraftingItem(int itype) {
-	switch(itype) {
-		case DND_ITEM_ORB:
-		return true;
-	}
-	return false;
-}
-
-// will count crafting materials the player has currently in their inventory
-int CountCraftingMaterials() {
-	int pnum = PlayerNumber();
-	int res = 0;
-	bool unique_orbs = 0;
-	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
-			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
-				++res;
-				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
-			}
-		}
-	}
-	return res;
-}
-
-int GetNextUniqueCraftingMaterial(int itemtype, int current) {
-	int pnum = PlayerNumber();
-	int res = 0, i;
-	bool unique_orbs = 0;
-	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
-			if(PlayerInventoryList[pnum][i].item_type == itemtype && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
-				++res;
-				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
-				// return the item's index
-				if(res > current)
-					return i;
-			}
-		}
-	}
-	return -1;
 }
 
 #endif

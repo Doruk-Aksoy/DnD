@@ -205,22 +205,24 @@ Actor " Shotgun " : Weapon {
 Actor ShotgunShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_8N, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_8N", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 3, "Electric")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 2, "Magnum")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 1, "Flechette")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SHELL, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake2")
 			TNT1 A 0 A_TakeInventory("Shell", 1)
 		NoTake2:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_PlayWeaponSound("weapons/sgun1fire")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (5.6, 5.6, 10, random(2, 3) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff", FBF_NORANDOM)  
+			TNT1 A 0 A_FireBullets (5.6 * (1.0 - accuracy * accuracy_factor), 5.6 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 10), random(2, 3) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM)  
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (5.6, 5.6, 10, random(2, 3) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff_FullDMG", FBF_NORANDOM)  
+			TNT1 A 0 A_FireBullets (5.6 * (1.0 - accuracy * accuracy_factor), 5.6 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 10), random(2, 3) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM)  
 		Stop
 		Flechette:
 			TNT1 A 0 A_GiveInventory("FlechetteShellShooter", 1)
@@ -459,22 +461,24 @@ Actor "Upgraded Shotgun" : Weapon
 Actor PurifierShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_8, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_8", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 3, "Electric")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 2, "Magnum")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 1, "Flechette")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SHELL, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake2")
 			TNT1 A 0 A_TakeInventory("Shell", 1)
 		NoTake2:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_PlayWeaponSound("weapons/shotgunfirenew")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (3.6, 3.6, 15, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff", FBF_NORANDOM) 
+			TNT1 A 0 A_FireBullets (3.6 * (1.0 - accuracy * accuracy_factor), 3.6 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 15), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM) 
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (3.6, 3.6, 15, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff_FullDMG", FBF_NORANDOM) 
+			TNT1 A 0 A_FireBullets (3.6 * (1.0 - accuracy * accuracy_factor), 3.6 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 15), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM) 
 		Stop
 		Flechette:
 			TNT1 A 0 A_GiveInventory("FlechetteShellShooter", 1)
@@ -641,14 +645,15 @@ Actor KillstormShooter : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_10, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_10", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (7.2, 5.2, 12, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (7.2 * (1.0 - accuracy * accuracy_factor), 5.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 12), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (7.2, 5.2, 12, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (7.2 * (1.0 - accuracy * accuracy_factor), 5.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 12), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 	}
 }
@@ -750,12 +755,13 @@ Actor EmeraldRainCooldown : PowerDamage {
 Actor EmeraldShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_EMERALDMANA, 1)
 			TNT1 AAAAA 0 A_FireCustomMissile("GreenTracer", frandom(-6, 6),0,0,0,0, frandom(-4.25, 4.25))
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(6, 4.25, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), "EmeraldPuff", FBF_USEAMMO | FBF_NORANDOM)
+			TNT1 A 0 A_FireBullets(6.0 * (1.0 - accuracy * accuracy_factor), 4.25 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_ISSLOT3), "EmeraldPuff", FBF_USEAMMO | FBF_NORANDOM)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets(6, 4.25, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL), "EmeraldPuff_FullDMG", FBF_USEAMMO | FBF_NORANDOM)
+			TNT1 A 0 A_FireBullets(6.0 * (1.0 - accuracy * accuracy_factor), 4.25 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_ISSLOT3), "EmeraldPuff_FullDMG", FBF_USEAMMO | FBF_NORANDOM)
 		Stop
 	}
 }
@@ -763,6 +769,7 @@ Actor EmeraldShooter : DnD_Activator {
 Actor EmeraldShooter2 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_EMERALDMANA, 5)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("EmeraldMana", 5)
 		NoTake:
@@ -799,7 +806,7 @@ Actor EmeraldRainer {
 	Radius 6
 	Height 8
 	Speed 30
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3))
 	DamageType "Emerald"
 	DeathSound "EmeraldWand/AltHit"
 	PROJECTILE
@@ -853,7 +860,7 @@ Actor EmeraldRain {
 	Radius 3
 	Height 6
 	Speed 40
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3))
 	DamageType "Emerald"
 	Renderstyle Add
 	Alpha 1.0
@@ -903,13 +910,14 @@ Actor EmeraldDeathActor {
 	DamageType "Emerald"
 	Renderstyle Add
 	Alpha 1.0
+	var int user_exprad;
 	+THRUACTORS
 	States {
 		Spawn:
-			TNT1 A 0
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_PlaySound("EmeraldWand/Explode")
 			TNT1 AAAAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, frandom(-5, 5), frandom(-5, 5), frandom(-5, 5))
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET), 96, 0, 0, 64)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3), 96 * (1.0 + user_exprad * exprad_factor), 0, 0, 64 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -1021,12 +1029,13 @@ ACTOR " Super Shotgun " : Weapon
 Actor SSGShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SHELL, 2)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (11.2, 7.1, 20, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (11.2 * (1.0 - accuracy * accuracy_factor), 7.1 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 20), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (11.2, 7.1, 20, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (11.2 * (1.0 - accuracy * accuracy_factor), 7.1  * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 20), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 	}
 }
@@ -1178,14 +1187,31 @@ ACTOR "Upgraded Super Shotgun" : Weapon
 Actor HeavySSGShooter1 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SHELL, 2)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(9.6, 5.8, 14, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
-			TNT1 AAAAAAAAAAAAAA 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_Rail", 9.6, 5.8, 384)
+			TNT1 A 0 A_FireBullets(9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 14), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pellet Shooter", 0, 14, DND_PELLETACTOR_HSSG, 0)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets(9.6, 5.8, 14, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
-			TNT1 AAAAAAAAAAAAAA 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_RailFull", 9.6, 5.8, 384)
+			TNT1 A 0 A_FireBullets(9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 14), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pellet Shooter", 0, 14, DND_PELLETACTOR_HSSG, 1)
+		Stop
+	}
+}
+
+Actor HeavySSGRailPellet : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_Rail", 9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), 384)
+		Stop
+	}
+}
+
+Actor HeavySSGRailPellet_FullDMG : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_RailFull", 9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), 384)
 		Stop
 	}
 }
@@ -1358,15 +1384,16 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
 Actor ErasusShooter1 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_2, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_2", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (9.0, 6.4, 18, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (9.0 * (1.0 - accuracy * accuracy_factor), 6.4 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 18), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (9.0, 6.4, 18, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (9.0 * (1.0 - accuracy * accuracy_factor), 6.4 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 18), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 	}
 }
@@ -1374,15 +1401,16 @@ Actor ErasusShooter1 : DnD_Activator {
 Actor ErasusShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_2, 2)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_2", 2)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (12.8, 8.2, 36, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (14.8 * (1.0 - accuracy * accuracy_factor), 10.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 36), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (12.8, 8.2, 36, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (14.8 * (1.0 - accuracy * accuracy_factor), 10.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 36), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
 		Stop
 	}
 }
@@ -1542,6 +1570,7 @@ Actor HellsMawSynthFireRight : DnD_Boolean {}
 Actor HellsMawShooter_Left : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_HELLSMAWAMMO, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("HellsMawAmmo", 1)
 		NoTake:
@@ -1563,6 +1592,7 @@ Actor HellsMawShooter_Left : DnD_Activator {
 Actor HellsMawShooter_Right : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_HELLSMAWAMMO, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("HellsMawAmmo", 1)
 		NoTake:
@@ -1586,12 +1616,15 @@ Actor HellsMawRocket {
 	Speed 35
 	Radius 8
 	Height 16
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 	Damagetype "Explosives"
 	Scale 1.15
 	ReactionTime 20
+	var int user_exprad;
 	States {
 		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+		SpawnLoop:
 			HLML A 1 Bright A_SpawnItemEx("HellsMawRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)
 			TNT1 A 0 A_CountDown
 		loop
@@ -1607,7 +1640,7 @@ Actor HellsMawRocket {
 		stop
 		Split:
 			TNT1 A 0 A_PlaySound("weapons/grenadexpl")
-			TNT1 AAAAAA 0 A_SpawnItemEx("HellsMawMiniRocket_Split", 0, 0, 0, 0, 0, frandom(-8, 8), frandom(-16, 16), SXF_TRANSFERPOINTERS)
+			TNT1 AAAAAA 0 A_SpawnItemEx("HellsMawMiniRocket_Split", 0, 0, 0, 0, 0, frandom(-8, 8) * (1.0 - accuracy * accuracy_factor), frandom(-16, 16) * (1.0 - accuracy * accuracy_factor), SXF_TRANSFERPOINTERS)
 		Goto ContinueDying
 		XDeath:
 		Crash:
@@ -1616,7 +1649,7 @@ Actor HellsMawRocket {
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlareSmall", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
-			HLML B 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT), 64, 0, 0, 64) 
+			HLML B 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 64 * (1.0 + user_exprad * exprad_factor), 0, 0, 64 * (1.0 + user_exprad * exprad_factor)) 
 			HLML CDEF 3 Bright
 		stop
 	}
@@ -1638,7 +1671,7 @@ Actor HellsMawRocket_FullDMG : HellsMawRocket {
 		stop
 		Split:
 			TNT1 A 0 A_PlaySound("weapons/grenadexpl")
-			TNT1 AAAAAA 0 A_SpawnItemEx("HellsMawMiniRocket_Split_FullDMG", 0, 0, 0, 0, 0, frandom(-8, 8), frandom(-16, 16), SXF_TRANSFERPOINTERS)
+			TNT1 AAAAAA 0 A_SpawnItemEx("HellsMawMiniRocket_Split_FullDMG", 0, 0, 0, 0, 0, frandom(-8, 8) * (1.0 - accuracy * accuracy_factor), frandom(-16, 16) * (1.0 - accuracy * accuracy_factor), SXF_TRANSFERPOINTERS)
 		Goto ContinueDying
 	}
 }
@@ -1661,9 +1694,11 @@ Actor HellsMawMiniRocket : HellsMawRocket {
 	ReactionTime 20
 	DeathSound "weapons/maceex"
 	+THRUGHOST
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 	States {
 		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+		SpawnLoop:
 			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
 			TNT1 A 0 A_CountDown
 		loop
@@ -1672,7 +1707,7 @@ Actor HellsMawMiniRocket : HellsMawRocket {
 			TNT1 A 0 A_SetTranslucent(0.8,1)
 			TNT1 AAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
-			HLML L 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT), 32, 1, 0, 32)
+			HLML L 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 32 * (1.0 + user_exprad * exprad_factor), 1, 0, 32 * (1.0 + user_exprad * exprad_factor))
 			HLML MNOPQR 3 Bright 
 		stop
 	}
@@ -1795,13 +1830,14 @@ Actor "Silver Gun" : Weapon
 Actor SilverShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_EXSHELL, 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (6.4, 4.8, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "ExplodingPuff", FBF_NORANDOM | FBF_USEAMMO)
-			TNT1 A 0 A_FireBullets (6.4, 4.8, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "ExplodingPuffNoSelfDmg", FBF_NORANDOM)  
+			TNT1 A 0 A_FireBullets (6.4 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "ExplodingPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (6.4 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "ExplodingPuffNoSelfDmg", FBF_NORANDOM)  
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (6.4, 4.8, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "ExplodingPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
-			TNT1 A 0 A_FireBullets (6.4, 4.8, 5, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "ExplodingPuffNoSelfDmg_FullDMG", FBF_NORANDOM)  
+			TNT1 A 0 A_FireBullets (6.4 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "ExplodingPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets (6.4 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "ExplodingPuffNoSelfDmg_FullDMG", FBF_NORANDOM)  
 		Stop
 	}
 }
@@ -1858,20 +1894,22 @@ Actor ExplodingPuff : BulletPuff
 	+EXTREMEDEATH
 	+MTHRUSPECIES
 	+FOILINVUL
+	var int user_exprad;
 	States
 	{
 		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 0 A_SpawnItem("ExpShellSoundEmitter")
 			TNT1 AA 0 A_SpawnDebris("ExplosiveSpark", 1)
 			DKSX M 2
 			TNT1 A 0 A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessSelfDmg")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK), 96)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3), 96 * (1.0 + user_exprad * exprad_factor))
 			DKSX NOPQRS 2
 			DKSX TUVWX 1
 		Stop
 		LessSelfDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK) / 2, 96)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK) / 2, 96, 0)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3) / 2, 96 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3) / 2, 96 * (1.0 + user_exprad * exprad_factor), 0)
 			DKSX NOPQRS 2
 			DKSX TUVWX 1
 		Stop
@@ -1888,10 +1926,11 @@ Actor ExplodingPuffNoSelfDmg : ExplodingPuff
 	States
 	{
 		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 0 A_SpawnItem("ExpShellSoundEmitter")
 			TNT1 AA 0 A_SpawnDebris("ExplosiveSpark", 1)
 			DKSX A 2
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK), 96, 0)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3), 96 * (1.0 + user_exprad * exprad_factor), 0)
 			DKSX BCDEFG 2
 			DKSX HIJKL 1
 		Stop
@@ -1969,6 +2008,7 @@ ACTOR Slayer : Weapon {
 Actor SlayerShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SLAYER, 1)
 			TNT1 A 0 A_GiveInventory("SlayerTimer", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
@@ -2012,10 +2052,11 @@ Actor SlayerBack : PowerDamage {
 Actor SlayerExp : BaseExplosionDamage {
 	DamageType "Explosives_Magic"
 	+FOILINVUL
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 AA 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT), 108)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 AA 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 108 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -2030,9 +2071,9 @@ Actor SlayerExp2 : SlayerExp {
 	DamageType "Explosives_Magic"
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT), 108, 0)
-			TNT1 A 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT), 108)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 108 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 A 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 108 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -2064,7 +2105,7 @@ Actor SlayerHook {
 	Height 12
 	Radius 6
 	Speed 28
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 	DamageType "Magic"
 	var int user_count;
 	SeeSound "weapons/slayergo"
@@ -2174,7 +2215,7 @@ Actor ReturnSlayerHook : SlayerHook {
 Actor SlayerHook_Damager : DnD_FakeDamager {
 	Radius 8
 	Height 4
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 	DamageType "MagicFull"
 	Speed 20
 	Species "Player"
@@ -2184,7 +2225,7 @@ Actor SlayerHook_Damager : DnD_FakeDamager {
 Actor SlayerHook_Damager2 : SlayerHook_Damager {
 	Radius 8
 	Height 4
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 	DamageType "MagicFull"
 	Speed 20
 	+RIPPER

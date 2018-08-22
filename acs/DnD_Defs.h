@@ -78,7 +78,7 @@ void HandlePlayerPainSound(int pclass) {
 				PlaySound(0, "Player/Pain25", CHAN_BODY, 1.0);
 			else if(hpratio <= 50)
 				PlaySound(0, "Player/Pain50", CHAN_BODY, 1.0);
-			else if(hpratio <= 50)
+			else if(hpratio <= 75)
 				PlaySound(0, "Player/Pain75", CHAN_BODY, 1.0);
 			else
 				PlaySound(0, "Player/Pain100", CHAN_BODY, 1.0);
@@ -96,6 +96,13 @@ void HandlePlayerPainSound(int pclass) {
 				PlaySound(0, "Punisher/Pain", CHAN_BODY, 1.0);
 			else
 				PlaySound(0, "Punisher/PainLow", CHAN_BODY, 1.0);
+		break;
+		case 6:
+			// cyborg
+			if(hpratio <= 50)
+				PlaySound(0, "CyborgPlayer/PainLow", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "CyborgPlayer/PainHigh", CHAN_BODY, 1.0);
 		break;
 	}
 }

@@ -13,6 +13,8 @@ LEGEND:
 ! Added a new special ammo type: "Slug Shell".
 ! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun", "Bio-Enhancement - I, II and III", "Exoskeleton I, II and III", "Impact Protection I, II and III", "Slug Shells", "Wheel of Torment".
 ! Backpacks can also drop chests now!
+! Added a new player character: "Cyborg".
+! Added a new CVar: "dnd_maxmonsterlevel" to help server hosts declare the max monster level. This CVar is unaffected by softcore or hardcore.
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
 ! "Bulkiness" now increases armor cap by 4.
 ! "Strength" increases armor and health cap by 0.5% per point.
@@ -25,6 +27,7 @@ LEGEND:
 		- There's a necessary input delay of 3 tics. (Prevents spamming the ability)
 ! Using orbs now saves all possible data that could be altered by an orb.
 ! Cleaned up text description for shop weapons, and introduced icons to represent their properties instead.
+! Removed exp and credit numbers are removed. Replaced with messages that pop 1.5 seconds after you kill a monster.
 ! All "Orb" drops are now calculated per player. Each player gets their own unique drop depending on their luck!
 ! Redone the accessory page of "DnD Menu". Now split into 4 pages with each page having 5 accessories shown total.
 ! Added a new help page to describe weapon properties.
@@ -35,9 +38,13 @@ LEGEND:
 ! "Plasma Cannon" has improved sprites.
 ! Added average monster level as a display in the "Help" section of DnD menu.
 ! Chests now have a chance to drop "Elixirs"! These are pickups that permanently increase your stats.
+! "Hardcore" mode now has 15% increased drop rates for any kind of drop.
+* "Luck" stat now affects coin drops.
+* Coin messages won't display if their worth is below 25 credits anymore.
 * "Super Armor" research now requires "Rare Armors" research to be completed. 
 * "Deadlock" can now use the "Slug" shell type. However the "Flechette" is removed from its pool.
 * All weapons that can use alternate ammo now have a mode switching animation.
+* "Soul Render" blade charge is also saved to database now in hardcore/softcore modes.
 * Player pain sounds for "Marine", "Hobo" and "Punisher" now respect health ratios properly.
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
 * Changed how footstep sounds are generated. They get faster and louder the faster you move.
@@ -124,6 +131,7 @@ LEGEND:
 * "Riot Cannon" can properly switch modes even if it runs out of ammo on its main mode.
 * "Freezer Cannon" overheat bar fixed to work in reverse to ammo count.
 + "Razorfang" skull shot can hit ghosts now.
+- "Erasus" altfire spread increased to 14.8 by 10.2 from 12.8 by 8.2.
 + "Plasma Cannon" now ignores shields.
 * "Plasma Cannon" readjusted to shoot 12 projectiles instead of 24. Damage unchanged.
 + "Acid Rifle" bullet damage increased to 18 from 15.
@@ -155,6 +163,7 @@ LEGEND:
 * Reworked all minion summon methods to properly set master-child relations. (They properly use the summoner's level now)
 * "Blood Lich" minions spawned on death now give exp and credit.
 * "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.
+- "Avatar of Chaos" no longer becomes ghostly during his soul attack.
 * "Bruiser Demon" now bleeds fire. (Only VFX)
 - "Blood Lich" fire breath damage halved.
 - "Terminator" red grenade after hit damage reduced to (1,2) from (4,32).

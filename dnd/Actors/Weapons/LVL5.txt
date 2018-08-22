@@ -52,6 +52,7 @@ Actor "Rocket Launcher" : RocketLauncher
 Actor RocketShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("RocketX", 0, 1, 0, 0)
@@ -134,12 +135,14 @@ Actor "Upgraded Rocket Launcher" : RocketLauncher {
 Actor RocketX : Rocket {
 	+MTHRUSPECIES
 	Decal "Scorch"
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 	DamageType "Explosives"
 	+DONTBLAST
 	+THRUGHOST
+	var int user_exprad;
 	States {
 		Death:
+			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
@@ -147,13 +150,13 @@ Actor RocketX : Rocket {
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET), 144)
+			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 144 * (1.0 + user_exprad * exprad_factor))
 			MISL C 6 Bright
 			MISL D 4 Bright
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 144, 0)
-			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 144)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 144 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 144 * (1.0 + user_exprad * exprad_factor))
 			MISL C 6 Bright
 			MISL D 4 Bright
 		Stop
@@ -170,16 +173,18 @@ Actor NewRocket : RocketX
 {
 	Speed 52
 	SeeSound ""
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 	DamageType "Explosives"
 	Decal "Scorch"
 	Scale 1.15
 	+DONTREFLECT
+	var int user_exprad;
 	States {
 		Spawn:
 			MICM A -1 Bright
 		Stop
 		Death:
+			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
@@ -187,13 +192,13 @@ Actor NewRocket : RocketX
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET), 128)
+			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 128 * (1.0 + user_exprad * exprad_factor))
 			MISL C 6 Bright
 			MISL D 4 Bright
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 128, 0)
-			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 128)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 128 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 128 * (1.0 + user_exprad * exprad_factor))
 			MISL C 6 Bright
 			MISL D 4 Bright
 		Stop
@@ -209,6 +214,7 @@ Actor NewRocket_FullDMG : NewRocket {
 Actor RocketShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("NewRocket", 0, 1, 0, 0)
 		Stop
@@ -287,7 +293,7 @@ Actor MercurySmoke : RocketSmoke {
 Actor MercuryRocket : RocketX {
 	Speed 16
 	SeeSound ""
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 	DamageType "Explosives"
 	Decal "Scorch"
 	Scale 1.1
@@ -295,9 +301,10 @@ Actor MercuryRocket : RocketX {
 	+SCREENSEEKER
 	+THRUGHOST
 	+SEEKERMISSILE
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			HMMS C 12
 			TNT1 A 0 A_ChangeVelocity(velx * 2.75, vely * 2.75, velz * 2.75, CVF_REPLACE)
 		SpawnLoop:
@@ -314,32 +321,32 @@ Actor MercuryRocket : RocketX {
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-			MISL BBBB 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET), 160)
+			MISL BBBB 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 160 * (1.0 + user_exprad * exprad_factor))
 			TNT1 AAAAAAAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 360))
-			MISL CCC 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET), 160)
+			MISL CCC 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 160 * (1.0 + user_exprad * exprad_factor))
 			TNT1 AAAAAAAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 360))
-			MISL D 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET), 160)
+			MISL D 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 160 * (1.0 + user_exprad * exprad_factor))
 			MISL D 2 Bright
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
-			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 3, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
-			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 3, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
-			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 3, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
-			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 3, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 3, 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 3, 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 3, 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL B 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 3, 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 AAAAAAAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 360))
-			MISL C 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 3, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
-			MISL C 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 3, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
-			MISL C 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 3, 128)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
+			MISL C 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 3, 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL C 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 3, 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL C 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 3, 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 AAAAAAAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 360))
-			MISL D 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160)
+			MISL D 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor))
 			MISL D 2 Bright
 		Stop
 	}
@@ -354,6 +361,7 @@ Actor MercuryRocket_FullDMG : MercuryRocket {
 Actor RocketShooter3 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("MercuryRocket", 1, 1, 0, 0)
@@ -557,15 +565,16 @@ Actor VindicatorZoomed : DnD_Boolean { }
 Actor VindicatorShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (10.4, 7.8, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
+			TNT1 A 0 A_FireBullets (10.4 * (1.0 - accuracy * accuracy_factor), 7.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 10), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT5), "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (10.4, 7.8, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO, 320)
+			TNT1 A 0 A_FireBullets (10.4 * (1.0 - accuracy * accuracy_factor), 7.8 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 10), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT5), "FlakShellPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO, 320)
 		Stop
 	}
 }
@@ -573,15 +582,16 @@ Actor VindicatorShooter : DnD_Activator {
 Actor VindicatorShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets (5.2, 3.9, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
+			TNT1 A 0 A_FireBullets (5.2 * (1.0 - accuracy * accuracy_factor), 3.9 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 10), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT5), "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
 		Stop
 		Full:
-			TNT1 A 0 A_FireBullets (5.2, 3.9, 10, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK), "FlakShellPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO, 320)
+			TNT1 A 0 A_FireBullets (5.2 * (1.0 - accuracy * accuracy_factor), 3.9 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 10), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT5), "FlakShellPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO, 320)
 		Stop
 	}
 }
@@ -601,7 +611,7 @@ Actor FlakShellPuff : BulletPuff {
 			TNT1 A 0
 			TNT1 AAA 0 A_CustomMissile("FlakProjectile", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
 		Spawn:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET), 96, 1)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			FP97 A 2 Bright A_PlaySound("Vindicator/PuffExp")
 			FP97 BCDEFGHI 2 Bright
 		stop
@@ -615,7 +625,7 @@ Actor FlakShellPuff_FullDMG : FlakShellPuff {
 			TNT1 A 0
 			TNT1 AAA 0 A_CustomMissile("FlakProjectile_FullDMG", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
 		Spawn:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET), 96, 1)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			FP97 A 2 Bright A_PlaySound("Vindicator/PuffExp")
 			FP97 BCDEFGHI 2 Bright
 		stop
@@ -633,7 +643,7 @@ ACTOR FlakProjectile : FastProjectile {
 	MissileType "FlakProjectileTrail"
 	MissileHeight 4
 	ReactionTime 8
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5))
 	DamageType "Explosives"
 	+THRUACTORS
 	+THRUGHOST
@@ -664,7 +674,7 @@ ACTOR FlakProjectile : FastProjectile {
 			TNT1 A 0 A_SpawnItemEx("FlakProjectileExplosionFX4")
 		Goto Finish
 		Finish:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET), 96, 1)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			TNT1 A 5
 		Stop
 	}
@@ -880,6 +890,7 @@ Actor "Upgraded Grenade Launcher" : RocketLauncher
 Actor GrenadeShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_GRENADE, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("NewGrenade", 0, 1, 0, 4)
@@ -894,7 +905,7 @@ Actor NormalGrenade
 {
 	speed 28
 	PROJECTILE
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 	DamageType "Explosives"
 	BounceSound "weapons/grenadebounce"
 	Scale 1.0
@@ -910,12 +921,14 @@ Actor NormalGrenade
 	BounceFactor 0.345
 	Gravity 0.84
 	DeathSound "Weapons/grenadexpl"
+	var int user_exprad;
 	States
 	{
 		Spawn:
 			NGLP B 5 A_SpawnItem("GrenadeSmoke")
 		Loop
 		Death:
+			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
@@ -924,13 +937,13 @@ Actor NormalGrenade
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET), 144)
+			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 144 * (1.0 + user_exprad * exprad_factor))
 			MISL C 6 Bright
 			MISL D 4 Bright	
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 144, 0)
-			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 144)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 144 * (1.0 + user_exprad * exprad_factor), 0)
+			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 144 * (1.0 + user_exprad * exprad_factor))
 			MISL C 6 Bright
 			MISL D 4 Bright	
 		Stop
@@ -946,14 +959,16 @@ Actor NormalGrenade_FullDMG : NormalGrenade {
 Actor NewGrenade : NormalGrenade
 {
 	Scale 0.55
-	Damage (2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET))
+	Damage (2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 	DeathSound "Weapons/grenadexpl2"
+	var int user_exprad;
 	States
 	{
 		Spawn:
 			NGLP C 5 A_SpawnItem("GrenadeSmoke")
 		Loop
 		Death:
+			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
@@ -962,12 +977,12 @@ Actor NewGrenade : NormalGrenade
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 176)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 192 * (1.0 + user_exprad * exprad_factor))
 			TNT1 A 1 A_SpawnItem("NewGrenadeExplosion")
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 192)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 192, 0)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 192 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 192 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 1 A_SpawnItem("NewGrenadeExplosion")
 		Stop
 	}
@@ -1055,7 +1070,7 @@ ACTOR HomRocket1
    Radius 8
    Height 11
    Speed 32
-   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET))
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
    DamageType "Explosives"
    PROJECTILE
    DeathSound "weapons/heavyrlexp"
@@ -1069,6 +1084,7 @@ ACTOR HomRocket1
    +DONTBLAST
 //   +SCREENSEEKER
    SeeSound ""
+   var int user_exprad;
    States
    {
    Spawn:
@@ -1077,6 +1093,7 @@ ACTOR HomRocket1
       HMIS A 2 Bright
       goto Spawn+2
    Death:
+	  TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
       TNT1 A 0 A_SetTranslucent (0.75,1)
 	  TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 	  TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
@@ -1085,12 +1102,12 @@ ACTOR HomRocket1
 	  TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 	  TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 	  TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-      MACX A 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 160)
+      MACX A 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 160 * (1.0 + user_exprad * exprad_factor))
       MACX BCDEFGHIJ 2 Bright
       stop
 	  LessDmg:
-	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160, 0)
-      MACX A 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 160)
+	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor), 0)
+      MACX A 2 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 160 * (1.0 + user_exprad * exprad_factor))
       MACX BCDEFGHIJ 2 Bright
       stop
    }
@@ -1113,6 +1130,7 @@ Actor HomRocket1NH_FullDMG : HomRocket1_FullDMG {
 Actor MissileShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_HMISSILE, 2)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 	        TNT1 A 0 A_FireCustomMissile ("HomRocket1",-4,1,0,0)
@@ -1128,6 +1146,7 @@ Actor MissileShooter : DnD_Activator {
 Actor MissileShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_HMISSILE, 2)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 	        TNT1 A 0 A_FireCustomMissile ("HomRocket1NH", 0,1,-8,0)

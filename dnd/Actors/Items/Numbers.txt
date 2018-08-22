@@ -15,6 +15,16 @@ actor DigitBase
 	}
 }
 
+Actor ThousandSymbol : DigitBase {
+	States { 
+		Spawn:
+			D1N0 K 10 BRIGHT
+		SpawnLoop:
+			D1N0 K 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
+	} 
+}
+
 Actor CashSymbol : DigitBase {
 	States { 
 		Spawn:

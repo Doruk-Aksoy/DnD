@@ -99,3 +99,38 @@ $playersounddup			Wanderer			Male		*grunt			*land
 $playersound			Wanderer			Male		*usefail		WANFAIL
 $playeralias			Wanderer			Male		*death			Wanderer/Die
 $playersound			Wanderer			Male		*taunt			WANTNT
+
+CyborgPlayer/Die1		PCYGDIE1
+CyborgPlayer/Die2		PCYGDIE2
+CyborgPlayer/Die3		PCYGDIE3
+$random CyborgPlayer/Die { CyborgPlayer/Die1 CyborgPlayer/Die2 CyborgPlayer/Die3 }
+
+CyborgPlayer/Pain1		PCYGPN1
+CyborgPlayer/Pain2		PCYGPN2
+CyborgPlayer/Pain3		PCYGPN3
+CyborgPlayer/Pain4		PCYGPN4
+$random CyborgPlayer/PainLow { CyborgPlayer/Pain1 CyborgPlayer/Pain2 }
+$random CyborgPlayer/PainHigh { CyborgPlayer/Pain3 CyborgPlayer/Pain4 }
+
+CyborgPlayer/Taunt1		PCYGTNT1
+CyborgPlayer/Taunt2		PCYGTNT2
+CyborgPlayer/Taunt3		PCYGTNT3
+CyborgPlayer/Taunt4		PCYGTNT4
+CyborgPlayer/Taunt5		PCYGTNT5
+CyborgPlayer/Taunt6		PCYGTNT6
+$random CyborgPlayer/Taunt { CyborgPlayer/Taunt1 CyborgPlayer/Taunt2 CyborgPlayer/Taunt3 CyborgPlayer/Taunt4 CyborgPlayer/Taunt5 CyborgPlayer/Taunt6 }
+
+CyborgPlayer/Jump1		PCYGJUM1
+CyborgPlayer/Jump2		PCYGJUM2
+$random CyborgPlayer/Jump { CyborgPlayer/Jump1 CyborgPlayer/Jump2 }
+
+$playeralias			TheCyborg		Male		*pain100		CyborgPlayer/PainHigh
+$playeralias			TheCyborg		Male		*pain75			CyborgPlayer/PainHigh
+$playeralias			TheCyborg		Male		*pain50			CyborgPlayer/PainLow
+$playeralias			TheCyborg		Male		*pain25			CyborgPlayer/PainLow
+$playersound			TheCyborg		Male		*land			PLYLAND
+$playeralias			TheCyborg		Male		*jump			CyborgPlayer/Jump
+$playeralias			TheCyborg		Male		*death			CyborgPlayer/Die
+$playersound			TheCyborg		Male		*usefail		PCYGUSE
+$playersound			TheCyborg		Male		*grunt			PCYGLAND
+$playeralias			TheCyborg		Male		*taunt			CyborgPlayer/Taunt

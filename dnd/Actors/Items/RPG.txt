@@ -210,7 +210,7 @@ Actor MenuPosX : Inventory {
 }
 
 Actor ActiveBox : Inventory {
-	inventory.maxamount 255
+	inventory.maxamount 0xFFFFFFFF
 }
 
 Actor ActivePopupBox : Inventory {
@@ -234,6 +234,10 @@ Actor MenuMainPosY : Inventory {
 }
 
 Actor ShowingMenu : Inventory { 
+	inventory.maxamount 255
+}
+
+Actor DnD_SelectedCharmBox : Inventory {
 	inventory.maxamount 255
 }
 
@@ -334,9 +338,41 @@ Actor DnD_PopupSell : DnD_Boolean { }
 Actor DnD_PopupReset : DnD_Boolean { }
 Actor DnD_PopupResetMade : DnD_Boolean { }
 Actor DnD_InventoryView : DnD_Boolean { }
+Actor DnD_StashView : DnD_Boolean { }
+
+Actor DnD_ButtonPressTimer : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor DnD_Trade_CancelButtonPress : DnD_ButtonPressTimer {
+	powerup.duration 5
+}
+
+Actor DnD_Trade_ConfirmButtonPress : DnD_ButtonPressTimer {
+	powerup.duration 5
+}
+
+Actor DnD_ButtonPress_1 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_2 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_3 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_4 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_5 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_6 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_7 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_8 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_9 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_10 : DnD_ButtonPressTimer { }
+
+Actor DnD_Trade_Cooldown : DnD_ButtonPressTimer {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}
+
+Actor DnD_Trade_Confirmed : DnD_Boolean { }
 
 Actor DnD_ShowPopup : PowerDamage {
-	powerup.duration -1
+	powerup.duration 3
 	damagefactor "normal", 1.0
 }
 
@@ -378,6 +414,36 @@ Actor DnD_Character : Inventory {
 	inventory.maxamount 0xFF
 }
 
+Actor DnD_Crafting_MaterialPage : Inventory {
+	inventory.maxamount 10
+}
+
+Actor DnD_Crafting_ItemPage : Inventory {
+	inventory.maxamount 10
+}
+
+Actor DnD_PlayerItemIndex : Inventory {
+	inventory.maxamount 45
+}
+
+Actor DnD_PlayerPrevItemIndex : Inventory {
+	inventory.maxamount 45
+}
+
+Actor DnD_PlayerInventoryPages : Inventory {
+	inventory.maxamount 10
+}
+
+Actor DnD_PlayerCurrentPage : Inventory {
+	inventory.maxamount 10
+}
+
+Actor DnD_PlayerPreviousPage : Inventory {
+	inventory.maxamount 10
+}
+
+Actor DnD_TradeSpaceFit : DnD_Boolean { }
+
 Actor KillSpreeOn : DnD_Boolean { }
 
 Actor DnD_SpreeCountdownRunning : DnD_Boolean { }
@@ -411,3 +477,26 @@ Actor PlayersNotReady : Inventory {
 }
 Actor PlayerIsLoggedIn : DnD_Boolean { }
 Actor DnD_TransfCharacterID : DnD_Info { }
+
+Actor DnD_RefreshPane : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+// Two bitsets
+Actor DnD_TradeEngaged_1 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor DnD_TradeEngaged_2 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+// Two bitsets
+Actor DnD_TradeMute_1 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor DnD_TradeMute_2 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}

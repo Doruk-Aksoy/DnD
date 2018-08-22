@@ -25,6 +25,8 @@ Actor TheDoomGuy : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DnD_PlayerInventoryPages", 1
+	Player.StartItem "DnD_PlayerCurrentPage", 1
 	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
@@ -374,6 +376,8 @@ Actor TheMarine : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DnD_PlayerInventoryPages", 1
+	Player.StartItem "DnD_PlayerCurrentPage", 1
 	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
@@ -714,6 +718,8 @@ Actor TheHobo : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DnD_PlayerInventoryPages", 1
+	Player.StartItem "DnD_PlayerCurrentPage", 1
 	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
@@ -1054,6 +1060,8 @@ Actor ThePunisher : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DnD_PlayerInventoryPages", 1
+	Player.StartItem "DnD_PlayerCurrentPage", 1
 	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
@@ -1394,6 +1402,8 @@ Actor TheWanderer : DnD_PlayerBase {
 	Player.ColorRange 112, 127
 	+NOSKIN
 	
+	Player.StartItem "DnD_PlayerInventoryPages", 1
+	Player.StartItem "DnD_PlayerCurrentPage", 1
 	Player.StartItem "DontRun"
 	Player.StartItem "HPNormal"
 	Player.StartItem "Menu_Setup"
@@ -1722,6 +1732,348 @@ Actor TheWandererFrozen {
 		Ice:
 			MNK1 G 5 A_GenericFreezeDeath
 			MNK1 G 1 A_FreezeDeathChunks
+		Wait
+	}
+}
+
+Actor TheCyborg : DnD_PlayerBase {
+	Player.StartItem "DnD_Character", 6
+	Player.Face "CYG"
+	Player.DisplayName "Cyborg"
+	Player.SoundClass "TheCyborg"
+	Player.ColorRange 112, 127
+	+NOSKIN
+	
+	Player.StartItem "DnD_PlayerInventoryPages", 1
+	Player.StartItem "DnD_PlayerCurrentPage", 1
+	Player.StartItem "DontRun"
+	Player.StartItem "HPNormal"
+	Player.StartItem "Menu_Setup"
+	Player.StartItem "Accessory_0"
+	
+	Player.StartItem "StartOnly"
+	Player.StartItem "NoRewardsGiven"
+	Player.StartItem "SetMyLives"
+	
+	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
+	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartItem "SpecialAmmoMode_6", 4
+	
+	Player.StartItem "Clip", 50
+	
+	Player.StartItem "MGClip", 50
+	Player.StartItem "MGClip2", 60
+	Player.StartItem "MGClip3", 75
+	Player.StartItem "MGClip4", 40
+	Player.StartItem "MGClip5", 31
+	Player.StartItem "MGClip6", 40
+	Player.StartItem "MGClip7", 75
+	Player.StartItem "AcidClip", 28
+	
+	Player.StartItem "AkimboClipLeft", 12
+	Player.StartItem "AkimboClipRight", 12
+	Player.StartItem "RiotgunClip", 8
+	Player.StartItem "BulletSize_6", 6
+	Player.StartItem "PCanClip", 5
+	Player.StartItem "FuelClip", 75
+	
+	Player.StartItem "ShellSize_2", 2
+	Player.StartItem "ShellSize_8", 8
+	Player.StartItem "ShellSize_8N", 8
+	Player.StartItem "ShellSize_10", 10
+	Player.StartItem "ShellSize_12", 12
+	Player.StartItem "ShellSize_16", 16
+	Player.StartItem "ShellSize_18", 18
+	
+	States {
+		Spawn:
+			PLY6 A 1
+		SpawnGo:
+			PLY6 A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
+			PLY6 A 6
+			PLY6 A 0 A_Jump(256, 2)
+			PLY6 C 6
+			PLY6 A 0
+		Loop
+		See:
+			PLY6 A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
+			PLY6 A 5
+			PLY6 B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto SpawnGo
+		See2:
+			PLY6 C 5
+			PLY6 D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto SpawnGo
+		Missile:
+			PLY6 E 12 
+		Goto SpawnGo
+		Melee:
+			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
+			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
+			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
+			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
+			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
+			PLY6 F 6 BRIGHT
+		Goto Missile
+		PlasmaFire:
+			PLZ6 A 6 Bright
+		Goto Missile
+		GreenFire:
+			PLZ6 B 6 Bright
+		Goto Missile
+		RedFire:
+			PLZ6 C 6 Bright
+		Goto Missile
+		PurpleFire:
+			PLZ6 D 6 Bright
+		Goto Missile
+		GrayFire:
+			PLZ6 E 6 Bright
+		Goto Missile
+		
+		
+	    Pain:
+			// unspecified damage types
+			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		PainAnim:
+			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
+			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
+			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0, 1)
+			PLY6 G 4 
+			PLY6 G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto SpawnGo
+		Pain.VileGhost:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
+			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
+		Goto PainAnim
+		Pain.BigSpiderPercent:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
+		Goto PainAnim
+		Pain.BigSpiderTornado:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
+		Goto PainAnim
+		Pain.PaineCurse:
+			TNT1 A 0 A_GiveInventory("Cursed",1)
+			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
+		Goto PainAnim
+		Pain.VileCurse:
+			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
+			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
+			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
+		Goto PainAnim
+		Pain.VilePacify:
+			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
+			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
+		Goto PainAnim
+		Pain.VisionDimmer:
+			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
+		Goto PainAnim
+		Pain.FatsoCorrupt:
+			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
+			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
+		Goto PainAnim
+		Pain.CyberSlow:
+			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
+		Goto PainAnim
+		// Ice category
+		Pain.RevIce:
+		Pain.FattyIce:
+		Pain.CyberIce:
+		Pain.BigSpiderIce:
+			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Black Category
+		Pain.BigSpiderDark:
+			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Dark Blue
+		Pain.VileBlueFire:
+			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Less dark blue
+		Pain.VileBlue:
+			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Fire category
+		Pain.Fire:
+		Pain.ImpFire:
+		Pain.DemonFire:
+		Pain.CacoFire:
+		Pain.FattyFire:
+		Pain.PaineFire:
+		Pain.BaronsFire:
+		Pain.VileFire:
+		Pain.BigSpiderFire:
+		Pain.CacoMagicOrange:
+		Pain.PaineMagicFire:
+			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Poison (or generic green) Category
+		Pain.ImpPoison_Roach:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
+		Goto PoisonContinue
+		Pain.ImpPoison_Vulgar:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
+		Goto PoisonContinue
+		Pain.DemonPoison_EarthGolem:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
+		Goto PoisonContinue
+		Pain.RevSludge:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
+		Goto PoisonContinue
+		Pain.RevPoison_Crawler:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
+		Goto PoisonContinue
+		Pain.CacoPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
+		Goto PoisonContinue
+		Pain.PainePoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
+		Goto PoisonContinue
+		Pain.BaronsPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
+		Goto PoisonContinue
+		Pain.Slime:
+		Pain.ArachnoGreen:
+		Pain.Poison:
+		PoisonContinue:
+			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Yellow stuff
+		Pain.ArachnoYellow:
+			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Other Yellow
+		Pain.BaronYellow:
+		Pain.BigSpiderYellow:
+			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Energy (Blue)
+		Pain.BaronPlasma:
+			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Baron Green
+		Pain.BaronGreen:
+		Pain.BaronGreenFire:
+		Pain.CyberGreen:
+		Pain.CyberGreenExp:
+		Pain.BigSpiderGreen:
+			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		// Void Category
+		Pain.ImpVoid:
+		Pain.ArachnoVoid:
+		Pain.FattyVoidFire:
+		Pain.BaronVoid:
+		Pain.BigSpiderVoid:
+			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainAnim
+		Pain.VileSlow:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
+			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
+		Goto Pain
+		Pain.VileLeash:
+			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
+			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
+		Goto Pain
+		Pain.VileSnare:
+			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
+		Goto Pain
+		Pain.DreamerBurner:
+			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
+		Goto Pain
+		Pain.LegendaryPhysicalSnare:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
+		Goto Pain
+		
+		
+		Death:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			PLY6 H 10
+			PLY6 I 10 A_PlayerScream
+			PLY6 J 10 A_NoBlocking
+			PLY6 KLM 10
+			PLY6 N -1
+		Stop
+		Xdeath:
+		Death.Explosives:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
+			PLY6 O 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLY6 P 5 A_XScream
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLY6 Q 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLY6 RSTUV 5
+			PLY6 W -1
+		Stop
+		Death.ImpFire:
+		Death.CacoFire:
+		Death.PaineFire:
+		Death.BaronsFire:
+		Death.FattyFire:
+		Death.ArachnoFire:
+		Death.VileFire:
+		Death.BigSpiderFire:
+		Death.Fire:
+			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PlayerBurn
+		Death.FattyVoidFire:
+			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PlayerBurn
+		Death.VileBlueFire:
+			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PlayerBurn
+		Death.BaronGreenFire:
+			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		PlayerBurn:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			PLY6 G 3
+			TNT1 A 0 A_Fall
+			TNT1 A 0 A_Scream
+			TNT1 A 0 A_Playsound("Burn/Death", 6)
+			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
+			BLAN A -1
+		Stop
+		Death.CyberIce:
+		Death.RevIce:
+		Death.FattyIce:
+		Death.BigSpiderIce:
+	    Ice:
+			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			TNT1 A 0 A_NoBlocking
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
+			TNT1 A 0 A_PlaySound("misc/freeze")
+			TNT1 A 1 A_SpawnItemEx("TheCyborgFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+			TNT1 A -1
+		Stop
+	}
+}
+
+Actor TheCyborgFrozen {
+	+CLIENTSIDEONLY
+	Translation Ice
+	States  {
+		Spawn:
+			PLY6 G 35
+			TNT1 A 0 A_Die("Ice")
+			PLY6 G 1 A_IceGuyDie
+			PLY6 G -1
+		Stop
+		Ice:
+			PLY6 G 5 A_GenericFreezeDeath
+			PLY6 G 1 A_FreezeDeathChunks
 		Wait
 	}
 }

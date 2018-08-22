@@ -409,7 +409,7 @@ Actor PlasmaBallX : PlasmaBall
 {
 	+MTHRUSPECIES
 	+DONTBLAST
-	Damage(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET))
+	Damage(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6))
 	DamageType "Energy"
 	Decal "PlasmaScorchX"
 	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.05,2.00]", "4:4=4:4", "224:229=224:229"
@@ -431,6 +431,7 @@ Actor PlasmaBallX_FullDMG : PlasmaBallX {
 Actor PlasmaShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("PlasmaBallX")
 		Stop
@@ -442,29 +443,31 @@ Actor PlasmaShooter : DnD_Activator {
 
 Actor NewPlasmaExp1 : BaseExplosionDamage {
 	DamageType "Energy"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 48, 0)
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 48)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6), 48 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6), 48 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
 
 Actor NewPlasmaExp2 : BaseExplosionDamage {
 	DamageType "Energy"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 48, 0)
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET) / 2, 48)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6) / 2, 48 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6) / 2, 48 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
 
 Actor NewPlasmaBall : PlasmaBallX
 {
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6))
 	DamageType "Energy"
 	Decal "NewPlasmaDecal"
 	SeeSound "Weapons/newplasmafire"
@@ -535,6 +538,7 @@ Actor NewPlasmaExplosion
 Actor PlasmaShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_GiveInventory("PlasmaOverheat", 2)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
@@ -633,11 +637,12 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 Actor TurelShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 2)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff", 0, 0, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_ISSLOT6), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff", 0, 0, 768, 27, 3.5, 1.0, "TurelParticle", 4)
 		Stop
 		Full:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff_FullDMG", 0, 0, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_ISSLOT6), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff_FullDMG", 0, 0, 768, 27, 3.5, 1.0, "TurelParticle", 4)
 		Stop
 	}
 }
@@ -645,11 +650,12 @@ Actor TurelShooter : DnD_Activator {
 Actor TurelShooter2 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 2)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff", 6.4, 3.2, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_ISSLOT6), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff", 6.4 * (1.0 - accuracy * accuracy_factor), 3.2 * (1.0 - accuracy * accuracy_factor), 768, 27, 3.5, 1.0, "TurelParticle", 4)
 		Stop
 		Full:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff_FullDMG", 6.4, 3.2, 768, 27, 3.5, 1.0, "TurelParticle", 4)
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_ISSLOT6), 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff_FullDMG", 6.4 * (1.0 - accuracy * accuracy_factor), 3.2 * (1.0 - accuracy * accuracy_factor), 768, 27, 3.5, 1.0, "TurelParticle", 4)
 		Stop
 	}
 }
@@ -802,6 +808,7 @@ Actor "Nailgun" : Weapon
 Actor NailShooter1 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, -6)
@@ -815,6 +822,7 @@ Actor NailShooter1 : DnD_Activator {
 Actor NailShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, 6)
@@ -828,6 +836,7 @@ Actor NailShooter2 : DnD_Activator {
 Actor NailShooter3 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 2)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, -6)
@@ -841,6 +850,7 @@ Actor NailShooter3 : DnD_Activator {
 Actor NailShooter4 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 2)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, 6)
@@ -857,7 +867,7 @@ Actor NailProjectile
   Radius 3
   Height 4
   Speed 40
-  Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+  Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
   DamageType "Magic"
   Scale 0.5
   +RIPPER
@@ -887,7 +897,7 @@ Actor NailProjectile
 Actor NailProj_Damager : DnD_FakeDamager {
 	Radius 3
 	Height 4
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
 	DamageType "MagicFull"
 	Speed 32
 }
@@ -916,7 +926,7 @@ Actor NailExplosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET), 32, 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
 		Stop
 	}
 }
@@ -1090,6 +1100,7 @@ ACTOR Basilisk : Weapon {
 			BASG A 2 Offset(30, 47)
 			BASG A 2 Offset(32, 50)
 			TNT1 A 0 A_PlaySound("weapons/basiliskload", 6)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LAVA, 8)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("BasiliskAmmo", 8)
 		NoTake:
@@ -1119,12 +1130,13 @@ ACTOR Basilisk : Weapon {
 Actor BasiliskShooter1 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LAVA, 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireCustomMissile("BasiliskBall", Frandom(-2.5,2.5), 1, 0, 0, 1, frandom(-2.0, 2.0))
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall", Frandom(-2.5, 2.5) * (1.0 - accuracy * accuracy_factor), 1, 0, 0, 1, frandom(-2.0, 2.0) * (1.0 - accuracy * accuracy_factor))
 		Stop
 		Full:
-			TNT1 A 0 A_FireCustomMissile("BasiliskBall_FullDMG", Frandom(-2.5,2.5), 1, 0, 0, 1, frandom(-2.0, 2.0))
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall_FullDMG", Frandom(-2.5, 2.5) * (1.0 - accuracy * accuracy_factor), 1, 0, 0, 1, frandom(-2.0, 2.0) * (1.0 - accuracy * accuracy_factor))
 		Stop
 	}
 }
@@ -1132,12 +1144,13 @@ Actor BasiliskShooter1 : DnD_Activator {
 Actor BasiliskShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LAVA, 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireCustomMissile("BasiliskBall2",Frandom(-2.5,2.5),0,0,0,0,Frandom(-2,2))
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall2",Frandom(-2.5, 2.5) * (1.0 - accuracy * accuracy_factor),0,0,0,0,Frandom(-2,2) * (1.0 - accuracy * accuracy_factor))
 		Stop
 		Full:
-			TNT1 A 0 A_FireCustomMissile("BasiliskBall2_FullDMG",Frandom(-2.5,2.5),0,0,0,0,Frandom(-2,2))
+			TNT1 A 0 A_FireCustomMissile("BasiliskBall2_FullDMG",Frandom(-2.5, 2.5) * (1.0 - accuracy * accuracy_factor),0,0,0,0,Frandom(-2,2) * (1.0 - accuracy * accuracy_factor))
 		Stop
 	}
 }
@@ -1146,7 +1159,7 @@ ACTOR BasiliskBall : FastProjectile {
    Radius 5
    Height 8
    Speed 96
-   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
    DamageType "MagicFire"
    RenderStyle ADD
    PROJECTILE
@@ -1178,7 +1191,7 @@ ACTOR BasiliskBall2 : Cacodemonball {
    Alpha 1
    Radius 8
    Height 16
-   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET))
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
    DamageType "MagicFire"
    SeeSound "weapons/basiliskfire2"
    DeathSound "weapons/basiliskexpl2"
@@ -1187,18 +1200,20 @@ ACTOR BasiliskBall2 : Cacodemonball {
    +DONTBLAST
    +FOILINVUL
    +FORCERADIUSDMG
+   var int user_exprad;
    States
    {
    Spawn:
       BASF AB 3 Bright A_SpawnItemEx("BasiliskPuff",0,0,0,0,0,0,0,8)
       loop
    Death:
+	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET)
       TNT1 A 0 A_SetTranslucent(0.85, 1)
 	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 	  TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 	  TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET), 96, 1)	  
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), 96 * (1.0 + user_exprad * exprad_factor), 1)	  
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,30,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,90,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,150,0,0)
@@ -1208,8 +1223,8 @@ ACTOR BasiliskBall2 : Cacodemonball {
       BASF DEFGH 3 Bright
       stop
    LessDmg:
-	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET) / 2, 96, 0)
-      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET) / 2, 96, 1)
+	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6) / 2, 96 * (1.0 + user_exprad * exprad_factor), 0)
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6) / 2, 96 * (1.0 + user_exprad * exprad_factor), 1)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,30,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,90,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,150,0,0)
@@ -1225,12 +1240,13 @@ Actor BasiliskBall2_FullDMG : BasiliskBall2 {
 	DamageType "MagicFireFull"
     States {
     Death:
+	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET)
       TNT1 A 0 A_SetTranslucent(0.85, 1)
 	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 	  TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 	  TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET), 96, 1)	  
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), 96 * (1.0 + user_exprad * exprad_factor), 1)	  
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,30,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,90,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,150,0,0)
@@ -1240,8 +1256,8 @@ Actor BasiliskBall2_FullDMG : BasiliskBall2 {
       BASF DEFGH 3 Bright
       stop
     LessDmg:
-	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 2, 96, 0)
-      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 2, 96, 1)
+	  TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6) / 2, 96 * (1.0 + user_exprad * exprad_factor), 0)
+      BASF C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6) / 2, 96 * (1.0 + user_exprad * exprad_factor), 1)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,30,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,90,0,0)
 	  BASF D 0 Bright A_SpawnItemEx("BasiliskBall3_FullDMG",0,0,0,35,0,0,150,0,0)
@@ -1257,7 +1273,7 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
    RenderStyle Normal
    Radius 3
    Height 5
-   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
    DamageType "MagicFire"
    DeathSound "weapons/basiliskexpl3"
    +THRUACTORS
@@ -1272,17 +1288,18 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 	  HIB1 AB 3 Bright
       goto Spawn+3
    Death:
+      TNT1 A 0 ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET)
       TNT1 A 0 A_SetTranslucent(0.75,1)
 	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 	  TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 	  TNT1 A 0 A_JumpIFInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-      HIB1 C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET), 32, 1)
+      HIB1 C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), 32 * (1.0 + user_exprad * exprad_factor), 1)
       HIB1 DEFG 3 Bright
       stop
    LessDmg:
-      TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET) / 2, 32, 0)
-      HIB1 C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET) / 2, 32, 1)
+      TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6) / 2, 32 * (1.0 + user_exprad * exprad_factor), 0)
+      HIB1 C 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6) / 2, 32 * (1.0 + user_exprad * exprad_factor), 1)
       HIB1 DEFG 3 Bright
       stop
    }
@@ -1408,19 +1425,20 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 Actor FrostFangShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 1, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 1, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
 		Stop
 		NoTake:
-			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 0, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 0, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
 		Stop
 		Full:
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FullNoTake")
-			TNT1 A 0 A_FireCustomMissile("FrostFangShard_FullDMG", 0, 1, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard_FullDMG", 0, 1, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
 		Stop
 		FullNoTake:
-			TNT1 A 0 A_FireCustomMissile("FrostFangShard_FullDMG", 0, 0, frandom(-7.5, 7.5), frandom(-7.5, 7.5))
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard_FullDMG", 0, 0, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
 		Stop
 	}
 }
@@ -1428,6 +1446,7 @@ Actor FrostFangShooter : DnD_Activator {
 Actor FrostFangShooter2 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 30)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("EverIce", 30)
 		NoTake:
@@ -1444,7 +1463,7 @@ Actor FrostFangShard {
 	Speed 40
 	Radius 6
 	Height 8
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6))
 	DamageType "P_Ice"
 	Projectile
 	DeathSound "FrostFang/Hit1"
@@ -1490,7 +1509,7 @@ Actor FrostFangShard_Glowing_FullDMG : FrostFangShard_Glowing {
 Actor FrostFangBall {
 	Radius 10
 	Height 16
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6))
 	DamageType "P_Ice"
 	+RIPPER
 	+BLOODLESSIMPACT
@@ -1554,7 +1573,7 @@ Actor FrostFangBall {
 Actor FrostFangBall_Damager : DnD_FakeDamager {
 	Radius 10
 	Height 16
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6))
 	DamageType "P_IceFull"
 	Speed 16
 	+NOBLOOD
@@ -1937,15 +1956,16 @@ Actor HadFullEmptyClip : DnD_Boolean { }
 Actor RhinoShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_MGCLIP7, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("MGClip7", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(7.2, 4.8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets(7.2 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISSLOT6), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
 			Stop
 		Full:
-			TNT1 A 0 A_FireBullets(7.2, 4.8, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets(7.2 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISSLOT6), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
 			Stop
 	}
 }
@@ -1953,15 +1973,16 @@ Actor RhinoShooter : DnD_Activator {
 Actor RhinoShooter2 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_MGCLIP7, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("MGClip7", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(0.75, 0.75, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets(0.75 * (1.0 - accuracy * accuracy_factor), 0.75 * (1.0 - accuracy * accuracy_factor), -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISSLOT6), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)
 			Stop
 		Full:
-			TNT1 A 0 A_FireBullets(0.75, 0.75, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_FireBullets(0.75 * (1.0 - accuracy * accuracy_factor), 0.75 * (1.0 - accuracy * accuracy_factor), -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISSLOT6), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)
 			Stop
 	}
 }

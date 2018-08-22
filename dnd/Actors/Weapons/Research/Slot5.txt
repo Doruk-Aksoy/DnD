@@ -83,14 +83,16 @@ Actor MeteorMissileTrail {
 Actor MeteorMissileExplosion : BaseExplosionDamage {
 	DamageType "Magic"
 	+FOILINVUL
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "Lessdmg")
-			TNT1 A 1 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET), 192)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "Lessdmg")
+			TNT1 A 1 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5), 192 * (1.0 + user_exprad * exprad_factor))
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 2, 192, 0)
-			TNT1 A 1 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 2, 192)
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 2, 192 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 A 1 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 2, 192 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -102,14 +104,16 @@ Actor MeteorMissileExplosionFull : MeteorMissileExplosion {
 
 Actor MeteorMissileExplosion2 : BaseExplosionDamage {
 	DamageType "Magic"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "Lessdmg")
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 2, 96)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "Lessdmg")
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 2, 96 * (1.0 + user_exprad * exprad_factor))
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 4, 96, 0)
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 4, 96)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 4, 96 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 4, 96 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -121,14 +125,16 @@ Actor MeteorMissileExplosion2Full : MeteorMissileExplosion2 {
 
 Actor MeteorMissileExplosion3 : BaseExplosionDamage {
 	DamageType "Magic"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "Lessdmg")
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 4, 128)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "Lessdmg")
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 4, 128 * (1.0 + user_exprad * exprad_factor))
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 8, 96, 0)
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 8, 96)
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 8, 96 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 8, 96 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -143,7 +149,7 @@ Actor MeteorMissileSplit_1 {
 	Height 14
 	Radius 7
 	Speed 25
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5))
 	DamageType "Magic"
 	BounceSound "MeteorLauncher/Bounce"
 	DeathSound "MeteorLauncher/HitSmall"
@@ -197,7 +203,7 @@ Actor MeteorMissileSplit_2 : MeteorMissileSplit_1 {
 	Height 8
 	Radius 4
 	Speed 18
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET) / 4)
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5) / 4)
 	const float projvel = 13.5;
 	States {
 		Spawn:
@@ -241,7 +247,7 @@ Actor MeteorMissile {
 	Height 20
 	Radius 10
 	Speed 30
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT5))
 	DamageType "Magic"
 	Deathsound "MeteorLauncher/Hit"
 	const float projvel = 13.5;
@@ -295,6 +301,7 @@ Actor MeteorMissile_Full : MeteorMissile {
 Actor MeteorShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_METEOR, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_GiveInventory("NetherCheck", 1, "Full")
@@ -398,6 +405,7 @@ ACTOR ResRL2 : Weapon {
 Actor HeavyGrenadeShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_GRENADE, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("Grenades", 1)
 		NoTake:
@@ -427,6 +435,7 @@ Actor HeavyGrenadeShooter : DnD_Activator {
 Actor HeavyGrenadeShooter2 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_GRENADE, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("Grenades", 1)
 		NoTake:
@@ -437,15 +446,17 @@ Actor HeavyGrenadeShooter2 : DnD_Activator {
 
 Actor HeavyGrenadeExp : BaseExplosionDamage {
 	DamageType "Explosives"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 128, 0, 0, 32)
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET), 128, 1, 0, 32)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_JumpIfInTargetInventory("Ability_ExplosionMastery", 1, "LessDmg")
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 128 * (1.0 + user_exprad * exprad_factor), 0, 0, 32 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), 128 * (1.0 + user_exprad * exprad_factor), 1, 0, 32 * (1.0 + user_exprad * exprad_factor))
 		Stop
 		LessDmg:
-			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 128, 0, 0, 32)
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET) / 2, 128, 1, 0, 32)
+			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 128 * (1.0 + user_exprad * exprad_factor), 0, 0, 32 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5) / 2, 128 * (1.0 + user_exprad * exprad_factor), 1, 0, 32 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -461,7 +472,7 @@ Actor HeavyGrenade {
 	Height 12
 	Speed 24
 	Projectile
-	Damage (2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET))
+	Damage (2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 	DamageType "Explosives"
 	Gravity 0.6
 	BounceFactor 0.3
@@ -539,7 +550,7 @@ Actor HeavyGrenadeShrapnel {
 	Projectile
 	Height 4
 	Radius 2
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_BALLISTIC, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT5))
 	Speed 20
 	Decal "BulletChip"
 	DamageType "Bullet"
@@ -578,7 +589,7 @@ Actor HeavyGrenadeShrapnel {
 Actor HeavyGrenadeShrapnel_Damager : DnD_FakeDamager {
 	Radius 2
 	Height 4
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_BALLISTIC, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT5))
 	DamageType "BulletFull"
 	Speed 20
 }
@@ -699,6 +710,7 @@ Actor ResRL3 : Weapon {
 Actor FreezerShooter1 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 5)
 			TNT1 A 0 A_GiveInventory("FreezerOverheat", 5)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("EverIce", 5)
@@ -715,6 +727,7 @@ Actor FreezerShooter1 : DnD_Activator {
 Actor FreezerShooter2 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 5)
 			TNT1 A 0 A_GiveInventory("FreezerOverheat", 10)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("EverIce", 5)
@@ -786,9 +799,11 @@ Actor FreezeSparklet {
 
 Actor FreezeBallBigExp : BaseExplosionDamage {
 	DamageType "P_Ice"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ELEMENTAL, DND_USETARGET), 176, 0, 0, 64)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT5), 176 * (1.0 + user_exprad * exprad_factor), 0, 0, 64 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -801,7 +816,7 @@ Actor FreezeBallBigExp_FullDMG : FreezeBallBigExp {
 Actor FreezeBall {
 	PROJECTILE
 	Speed 36
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT5))
 	DamageType "P_Ice"
 	Height 20
 	Radius 10
@@ -879,9 +894,11 @@ Actor FreezeBall_FullDMG : FreezeBall {
 
 Actor FreezeBallSmallExp : BaseExplosionDamage {
 	DamageType "P_Ice"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET), 64, 0, 0, 16)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT5), 64 * (1.0 + user_exprad * exprad_factor), 0, 0, 16 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -894,7 +911,7 @@ Actor FreezeBallSmallExp_FullDMG : FreezeBallSmallExp {
 Actor FreezeBallSmall {
 	PROJECTILE
 	Speed 20
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT5))
 	DamageType "P_Ice"
 	Height 10
 	Radius 5
@@ -924,7 +941,7 @@ Actor FreezeBallSmall {
 Actor FreezeBallSmall_Damager : DnD_FakeDamager {
 	Radius 3
 	Height 4
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT5))
 	DamageType "P_IceFull"
 	Speed 20
 }

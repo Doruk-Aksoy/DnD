@@ -12,7 +12,10 @@ enum {
 	DND_ORB_FORTITUDE,
 	DND_ORB_SIN,
 	DND_ORB_RICHES,
-	DND_ORB_HOLDING
+	DND_ORB_HOLDING,
+	DND_ORB_REFINEMENT,
+	DND_ORB_SCULPTING,
+	DND_ORB_ELEVATION
 };
 
 // a little precaution for database operation and acs syncs to work properly
@@ -33,42 +36,23 @@ Actor AffluenceCounter : Inventory {
 	inventory.maxamount 4
 }
 
-Actor DnD_Orb : CustomInventory {
-	radius 20
-	height 16
-	inventory.amount 1
-	inventory.maxamount 200
-	Inventory.InterHubAmount 200
-	inventory.pickupsound "Items/OrbPick"
-	+INVENTORY.INVBAR
-	+INVENTORY.UNDROPPABLE
-	+INVENTORY.PERSISTENTPOWER
-	Scale 0.9
-	States {
-		Nothing:
-			TNT1 A 0
-		Fail
-	}
-}
-
 Actor OrbSoundPlayer : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_PlaySound("Items/OrbPick", 7)
-			TNT1 A 0 A_SetBlend("45 99 45", 0.8-6, 17)
+			TNT1 A 0 A_SetBlend("45 99 45", 0.6, 17)
 		Stop
 	}
 }
 
-Actor DnD_DroppedOrbBase : DnD_DroppedItem {
-	Radius 20
-	Height 24
+Actor OrbDrop : InventoryBase {
 	States {
 		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
 		SpawnLoop:
+		Idle:
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
 		
@@ -78,46 +62,35 @@ Actor DnD_DroppedOrbBase : DnD_DroppedItem {
 		goto SpawnLoop
 		
 		Pickup:
-			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_ORB), "PickupSuccess")
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
 		goto PickupFail
 
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
 		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
 		PickupSuccess:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Orb", 0, mass - 1)
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Orb Pickup", 0, mass - 1)
 		stop
 	}
 }
 
-Actor OrbOfEnhancement : DnD_Orb {
-	inventory.icon "ORB1D0"
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Enhancement\c-"
+Actor OrbOfEnhancement : OrbDrop {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-			ORB1 C -1 Bright
-		Stop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_ENHANCE), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_ENHANCE)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbOfEnhancement_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB1 C 0
+			ORB1 C 0 Bright NoDelay A_PlaySound("Items/OrbDrop")
 		Goto Super::SpawnInit
 	}
 }
@@ -127,649 +100,320 @@ Actor CorruptOrb_DamageReduction : PowerDamage {
 	damagefactor "normal", 0.25
 }
 
-Actor OrbofCorruption : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Corruption\c-"
-	inventory.icon "ORB1B0"
+Actor OrbofCorruption : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB1 AAAAAA 1 Bright A_FadeOut(0.075)
-			ORB1 AAAAAA 1 Bright A_FadeIn(0.075)
-		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_CORRUPT), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_CORRUPT)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofCorruption_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB1 A 0
-		Goto SpawnInit
-		
+			ORB1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
 		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
 		SpawnLoop:
-			ORB1 A 1 Bright A_FadeOut(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeOut(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeOut(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeOut(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeOut(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeOut(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeIn(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeIn(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeIn(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeIn(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeIn(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 A 1 Bright A_FadeIn(0.075)
-			ORB1 A 0 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Idle:
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 0 A_FadeIn(0.075)
 		Loop
 	}
 }
 
-Actor OrbofSpirit : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Spirit\c-"
-	inventory.icon "ORB1I0"
+Actor OrbofSpirit : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB1 EFGH 3 Bright
-		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_SPIRIT), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_SPIRIT)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbOfSpirit_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB1 E 0
-		Goto SpawnInit
-		
+			ORB1 E 0 NoDelay A_PlaySound("Items/OrbDrop")
 		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
 		SpawnLoop:
-			ORB1 E 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 E 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 E 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 G 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 G 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 G 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Idle:
+			ORB1 FFFGGGHHHEEE 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
-	}
-}
-
-Actor OrbofRepentance : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Repentance\c-"
-	inventory.icon "ORB1Z0"
-	states {
-		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB1 TUVWX 3 Bright
-		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_REPENT), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_REPENT)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofRepentance_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB1 T 0
-		Goto SpawnInit
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB1 T 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 T 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 T 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 U 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 U 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 U 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 V 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 V 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 V 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 W 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 W 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 W 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
-	}
-}
-
-Actor OrbofAffluence : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Affluence\c-"
-	inventory.icon "ORB3A0"
-	states {
-		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB2 WXYZYX 3 Bright
-		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_AFFLUENCE), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_AFFLUENCE)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofAffluence_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB2 W 0
-		Goto SpawnInit
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB2 W 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 W 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 W 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Y 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Y 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Y 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Z 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Z 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Z 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Y 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Y 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Y 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 X 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
 	}
 }
 
-Actor OrbofCalamity : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Calamity\c-"
-	inventory.icon "ORB1N0"
+Actor OrbofRepentance : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB1 JKLM 3 Bright
+			ORB1 T 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB1 UUUVVVWWWXXXTTT 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_CALAMITY), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_CALAMITY)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofCalamity_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB1 J 0
-		Goto SpawnInit
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB1 J 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 J 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 J 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 K 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 K 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 K 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
-	}
-}
-
-Actor OrbofProsperity : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Prosperity\c-"
-	inventory.icon "ORB1S0"
-	states {
-		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB1 OPQR 3 Bright
-		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_PROSPERITY), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_PROSPERITY)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofProsperity_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB1 O 0
-		Goto SpawnInit
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB1 O 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 O 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 O 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 P 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 P 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 P 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 Q 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 Q 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 Q 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 R 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 R 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB1 R 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
 	}
 }
 
-Actor OrbofWisdom : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Wisdom\c-"
-	inventory.icon "ORB2J0"
+Actor OrbofAffluence : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB2 FGHI 3 Bright
+			ORB2 W 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB2 XXXYYYZZZYYYXXXWWW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_WISDOM), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_WISDOM)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofWisdom_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB2 F 0
-		Goto SpawnInit
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB2 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 G 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 G 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 G 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 I 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 I 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 I 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
-	}
-}
-
-Actor OrbofGreed : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Greed\c-"
-	inventory.icon "ORB3E0"
-	states {
-		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB3 BCDC 3 Bright
-		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_GREED), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_GREED)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofGreed_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB3 B 0
-		Goto SpawnInit
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB3 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
 	}
 }
 
-Actor OrbofViolence : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Violence\c-"
-	inventory.icon "ORB2O0"
+Actor OrbofCalamity : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB2 KLMN 3 Bright
+			ORB1 J 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB1 KKKLLLMMMJJJ 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_VIOLENCE), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_VIOLENCE)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofViolence_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB2 K 0
-		Goto SpawnInit
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB2 K 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 K 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 K 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 N 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 N 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 N 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
-	}
-}
-
-Actor OrbofFortitude : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Fortitude\c-"
-	inventory.icon "ORB2V0"
-	states {
-		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB2 PQRSTU 2 Bright
-		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_FORTITUDE), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_FORTITUDE)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofFortitude_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB2 P 0
-		Goto SpawnInit
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB2 P 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 P 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Q 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 Q 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 R 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 R 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 S 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 S 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 T 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 T 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 U 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 U 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
 	}
 }
 
-Actor OrbofSin : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Sin\c-"
-	inventory.icon "ORB2E0"
+Actor OrbofProsperity : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB2 ABCD 3 Bright
+			ORB1 O 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB1 PPPQQQRRROOO 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_SIN), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_SIN)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
-	}
-}
-
-Actor OrbofSin_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
-		Spawn:
-			ORB2 A 0
-		Goto SpawnInit
 		
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_ORB)
-			"####" "#" 0 A_PlaySound("Items/OrbDrop")
-			"####" "#" 16 Bright
-		SpawnLoop:
-			ORB2 A 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 A 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 A 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB2 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-		Loop
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+		
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
 	}
 }
 
-Actor OrbofRiches : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Riches\c-"
-	inventory.icon "ORB3G0"
+Actor OrbofWisdom : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB3 F -1 Bright
-		Stop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_RICHES), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_RICHES)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
+			ORB2 F 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB2 GGGHHHIIIFFF 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Loop
+		
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+		
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
 	}
 }
 
-Actor OrbofRiches_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
+Actor OrbofGreed : OrbDrop {
+	states {
 		Spawn:
-			ORB3 F 0
+			ORB3 B 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB3 CCCDDDCCCBBB 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Loop
+		
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+		
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
+	}
+}
+
+Actor OrbofViolence : OrbDrop {
+	states {
+		Spawn:
+			ORB2 K 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB2 LLLMMMNNNKKK 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Loop
+		
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+		
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
+	}
+}
+
+Actor OrbofFortitude : OrbDrop {
+	states {
+		Spawn:
+			ORB2 P 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB2 QQRRSSTTUUPP 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Loop
+		
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+		
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
+	}
+}
+
+Actor OrbofSin : OrbDrop {
+	states {
+		Spawn:
+			ORB2 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright
+		SpawnLoop:
+		Idle:
+			ORB2 BBBCCCDDDAAA 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Loop
+		
+		See:
+		CheckPickup:
+			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+		
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
+	}
+}
+
+Actor OrbofRiches : OrbDrop {
+	states {
+		Spawn:
+			ORB3 F 0 NoDelay A_PlaySound("Items/OrbDrop")
 		Goto Super::SpawnInit
 	}
 }
 
-Actor OrbofHolding : DnD_Orb {
-	inventory.pickupmessage "\ccOrb pickup:     \c[Y5]Orb of Holding\c-"
-	inventory.icon "ORB3I0"
+Actor OrbofHolding : OrbDrop {
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
-		SpawnFrame:
-			ORB3 H -1 Bright
-		Stop
-		Use:
-			TNT1 A 0 A_JumpIfInventory("OrbUseDelay", 1, "Nothing")
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Orb Use Check", DND_ORB_HOLDING), "Failed")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use", 0, DND_ORB_HOLDING)
-			TNT1 A 0 A_PlaySound("Items/OrbUse", 7)
-			TNT1 A 0 A_GiveInventory("OrbUseDelay", 1)
-		Stop
-		Failed:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Orb Use Message (Server)")
-		Fail
+			ORB3 H 0 NoDelay A_PlaySound("Items/OrbDrop")
+		Goto Super::SpawnInit
 	}
 }
 
-Actor OrbofHolding_Drop : DnD_DroppedOrbBase {
-	Radius 20
-	Height 24
-	States {
+Actor OrbofRefinement : OrbDrop {
+	states {
 		Spawn:
-			ORB3 H 0
+			ORB3 J 0 NoDelay A_PlaySound("Items/OrbDrop")
+		Goto Super::SpawnInit
+	}
+}
+
+Actor OrbofSculpting : OrbDrop {
+	states {
+		Spawn:
+			ORB3 L 0 NoDelay A_PlaySound("Items/OrbDrop")
+		Goto Super::SpawnInit
+	}
+}
+
+Actor OrbofElevation : OrbDrop {
+	states {
+		Spawn:
+			ORB3 N 0 NoDelay A_PlaySound("Items/OrbDrop")
 		Goto Super::SpawnInit
 	}
 }

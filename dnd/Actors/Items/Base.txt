@@ -17,6 +17,11 @@
 		Goto Death
 */
 
+// every 10 points contribute 0.01%
+const float accuracy_factor = 0.00001;
+// variable "score" is representing explosion radius
+const float exprad_factor = 0.01;
+
 actor DND_DroppedItem {
 	+LOOKALLAROUND
 	+NOTIMEFREEZE
@@ -277,6 +282,20 @@ Actor WeaponZoomCooldown : PowerDamage {
 	powerup.duration 15
 }
 
+Actor DnD_PressedUse : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor DnD_PlayerViewsItem : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 9
+}
+
+Actor InTradeView : DnD_Boolean { }
+
+Actor DnD_TradeAcceptWindow : DnD_Boolean { }
+
 ACTOR ProjBullet : FastProjectile {
 	Radius 1
 	Height 1
@@ -328,7 +347,16 @@ enum {
 	DND_USETRACER = 512,
 	DND_ISRIPPER = 1024, // special scaling used for rippers
 	DND_NECROBULK = 2048,
-	DND_HASSTRSCALING = 4096 // also scales from str
+	DND_HASSTRSCALING = 4096, // also scales from str
+	DND_ISSLOT1 = 8192,
+	DND_ISSLOT2 = 16384,
+	DND_ISSLOT3 = 32768,
+	DND_ISSLOT4 = 65536,
+	DND_ISSLOT5 = 131072,
+	DND_ISSLOT6 = 262144,
+	DND_ISSLOT7 = 524288,
+	DND_ISSLOT8 = 1048576,
+	DND_ISSLOT9 = 2097152
 };
 
 enum {
@@ -385,10 +413,27 @@ Actor DnD_BonusBonusShower : DnD_Activator {
 	}
 }
 
+Actor DnD_ExpCredit_Timer : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 55
+}
+
+Actor DnD_Exp_Counter : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor DnD_Credit_Counter : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
 enum {
 	DND_SPECIAL_RESEARCH = 1,
 	DND_SPECIAL_ORB = 2,
 	DND_SPECIAL_TALENTCAPSULE = 4,
 	DND_SPECIAL_ELIXIR = 8,
 	DND_SPECIAL_CHARM = 16
+};
+
+enum {
+	DND_PELLETACTOR_HSSG
 };

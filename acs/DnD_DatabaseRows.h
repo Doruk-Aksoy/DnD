@@ -29,7 +29,6 @@
 #define DND_DB_BUDGET "DND_PlayerBudget"
 #define DND_DB_QUESTSTATE1 "DnD_PlayerQuest_1"
 #define DND_DB_QUESTSTATE2 "DnD_PlayerQuest_2"
-#define DND_DB_ORBS "DnD_PlayerOrbs_"
 #define DND_DB_WEAPONQUALITY "DnD_WeaponQuality_"
 #define DND_DB_WEAPONBONUS "DnD_WeaponBonus_"
 #define DND_DB_STOREDKIT "DnD_StoredKit"
@@ -39,6 +38,7 @@
 #define DND_DB_KEYS "DnD_PlayerChestKeys"
 #define DND_DB_RESEARCHTRACKER "DnD_ResearchTracker"
 
+// Player stats
 #define DND_DB_FLATHPBONUS "DnD_FlatHPBonus"
 #define DND_DB_FLATARMBONUS "DnD_FlatARMBonus"
 #define DND_DB_PERCENTHPBONUS "DnD_PercentHPBonus"
@@ -48,6 +48,23 @@
 #define DND_DB_SPEEDBONUS "DnD_SpeedBonus"
 #define DND_DB_DROPCHANCEBONUS "DnD_DropChanceBonus"
 #define DND_DB_HOLDINGBONUS "DnD_HoldingBonus"
+#define DND_DB_DAMAGETYPEBONUS "DnD_DamageType_"
+#define DND_DB_LUCKBONUS "DnD_Luck_"
+#define DND_DB_FLATDAMAGEBONUS "DnD_FlatDamageBonus_"
+#define DND_DB_SLOTDAMAGEBONUS "DnD_SlotDamageBonus_"
+#define DND_DB_MAGAZINEBONUS "DnD_MagazineBonus"
+#define DND_DB_PELLETBONUS "DnD_PelletBonus"
+#define DND_DB_EXPLOSIONRADIUSBONUS "DnD_ExplosionRadiusBonus"
+#define DND_DB_EXPLOSIONRESISTBONUS "DnD_ExplosionResistBonus"
+#define DND_DB_AMMOGAINBONUS "DnD_AmmoGainBonus"
+#define DND_DB_AMMOCHANCEBONUS "DnD_AmmoChanceBonus"
+#define DND_DB_REGENCAPBONUS "DnD_RegenCapBonus"
+#define DND_DB_CRITCHANCEBONUS "DnD_CritChanceBonus"
+#define DND_DB_CRITPERCENTBONUS "DnD_CritPercentBonus"
+#define DND_DB_CRITDAMAGEBONUS "DnD_CritDamageBonus"
+#define DND_DB_KNOCKBACKBONUS "DnD_KnockbackBonus"
+#define DND_DB_DAMAGEBONUS "DnD_DamageBonus"
+#define DND_DB_ACCURACYBONUS "DnD_AccuracyBonus"
 
 #define DND_DB_ORBFLATHPBONUS "DnD_Orb_FlatHPBonus"
 #define DND_DB_ORBFLATARMBONUS "DnD_Orb_FlatARMBonus"
@@ -62,8 +79,24 @@
 #define DND_DB_ORBWEAPONBONUS "DnD_Orb_WeaponBonus_"
 #define DND_DB_ORBWEAPONQUALITY "DnD_Orb_WeaponQuality_"
 
-#define DND_DB_DAMAGETYPEBONUS "DnD_DamageType_"
 #define DND_DB_ORBDAMAGETYPEBONUS "DnD_Orb_DamageType_"
+
+#define DND_DB_PLAYERINVENTORY "DnD_PlayerInventory_"
+#define DND_DB_PLAYERINVENTORYFIELD_WIDTH "Width"
+#define DND_DB_PLAYERINVENTORYFIELD_HEIGHT "Height"
+#define DND_DB_PLAYERINVENTORYFIELD_IMAGE "Image"
+#define DND_DB_PLAYERINVENTORYFIELD_TYPE "Type"
+#define DND_DB_PLAYERINVENTORYFIELD_SUBTYPE "SubType"
+#define DND_DB_PLAYERINVENTORYFIELD_LEVEL "Level"
+#define DND_DB_PLAYERINVENTORYFIELD_STACK "Stack"
+#define DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT "AttributeCount"
+#define DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL "AttributeVal"
+#define DND_DB_PLAYERINVENTORYFIELD_ATTRIBID "AttributeID"
+
+#define DND_DB_CHARMUSED "CharmsUsed_"
+
+#define DND_DB_STASHPAGE "StashPage_"
+#define DND_DB_STASH_PAGES "DnD_PlayerStashPages"
 
 global bool 6: PlayerLoaded[];
 

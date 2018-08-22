@@ -75,6 +75,8 @@
 
 #define STASHBOX_TOP_BASEX_RECT 275.0
 
+#define HUD_DII_MULT 14
+
 #define INVENTORYBOXTRADE_BOT_BASEX_RECT 465.0
 #define INVENTORYBOXTRADE_BOT_BASEY_RECT 133.0
 
@@ -111,18 +113,29 @@
 #define TRADEITEMOFFSETSCALE 4.0
 #define TRADEITEMSKIP 3 * 32.0 / 2
 
-#define CRAFTING_BOX_BEGIN_X 44.0
-#define CRAFTING_BOX_BEGIN_Y 60.0
-
 // left right buttons at material side 
-#define MAX_CRAFTING_ADDITIONALBUTTONS 2 + MENU_LOAD_CRAFTING_LAST - MENU_LOAD_CRAFTING_FIRST + 1
+#define MAX_CRAFTING_ADDITIONALBUTTONS 4 + (MENU_LOAD_CRAFTING_LAST - MENU_LOAD_CRAFTING_FIRST + 1)
 
-#define MAX_CRAFTING_ITEMBOXES 20
+#define MAX_CRAFTING_ITEMBOXES 16
 #define MAX_CRAFTING_MATERIALBOXES 12
-#define MATERIALBOX_OFFSET MAX_CRAFTING_ITEMBOXES
+#define CRAFTING_IMAGE_COUNT 4
+#define MATERIALBOX_OFFSET MAX_CRAFTING_ITEMBOXES * CRAFTING_IMAGE_COUNT - 7
+#define MATERIALBOX_OFFSET_BOXID MAX_CRAFTING_ITEMBOXES
 
 #define MAX_CRAFTING_NORMAL_BOXES MAX_CRAFTING_MATERIALBOXES + MAX_CRAFTING_ITEMBOXES
 #define MAX_CRAFTING_BOXES MAX_CRAFTING_NORMAL_BOXES + MAX_CRAFTING_ADDITIONALBUTTONS
+#define CRAFTINGARROWBOX_OFFSET MAX_CRAFTING_NORMAL_BOXES
+
+#define MATERIALARROW_HUDID MATERIALBOX_OFFSET + MAX_CRAFTING_MATERIALBOXES
+#define MATERIALARROW_ID MAX_CRAFTING_BOXES - 2
+
+#define CRAFTING_PAGEARROW_ID MAX_CRAFTING_BOXES - 4
+
+#define CRAFTING_PAGEARROWL_X 466.0
+#define CRAFTING_PAGEARROWL_Y 36.0
+#define CRAFTING_PAGEARROWR_X 142.0
+#define CRAFTING_PAGEARROW_XSIZE 12.0
+#define CRAFTING_PAGEARROW_YSIZE 8.0
 
 #define CRAFTING_WEAPON_BOXID MAX_CRAFTING_NORMAL_BOXES
 #define CRAFTING_INVENTORY_BOXID MAX_CRAFTING_NORMAL_BOXES + 1
@@ -131,6 +144,20 @@
 #define CRAFTING_MATERIALBOX_Y 264.0
 #define CRAFTING_MATERIALBOX_SKIPX 12.0
 #define CRAFTING_MATERIALBOX_SKIPY 4.0
+
+#define CRAFTING_WEAPONBOXDRAW_X 68.0
+#define CRAFTING_WEAPONBOXDRAW_Y 60.0
+
+#define CRAFTING_ITEMBOX_X 445.0
+#define CRAFTING_ITEMBOX_Y 293.0
+#define CRAFTING_ITEMBOX_SKIPX 12.0
+#define CRAFTING_ITEMBOX_SKIPY 4.0
+
+#define CRAFTING_LARR_X 98.0
+#define CRAFTING_LARR_Y 40.0
+#define CRAFTING_RARR_X 23.0
+#define CRAFTING_ARROW_X_SKIP 12.0
+#define CRAFTING_ARROW_Y_SKIP 8.0
 
 // MENU IDS
 // Moved here because of dependencies
@@ -260,8 +287,6 @@ int WeaponBeginIndexes[SHOP_MAXWEAPON_PAGES] = {
 // Holds the players' current maximum page visit indexes
 #define MENUMAXPAGES MENU_ABILITY + 1
 #define MAX_MENU_BOXPAGES MENU_ABILITY + 1
-
-rect_T BoxList[MENUMAXPAGES][MAX_MENU_BOXES];
 
 // Input Listener Flags
 enum { 
@@ -1283,7 +1308,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
-	"Fires 15 shells doing 10 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
+	"Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",
 	
@@ -2267,10 +2292,13 @@ enum {
 	POPUP_TARGETISTRADING,
 	POPUP_YOUARETRADING,
 	POPUP_NOSPACEFORTRADE,
-	POPUP_YOUAREMUTED
+	POPUP_YOUAREMUTED,
+	POPUP_ITEMNEEDSTARGET,
+	POPUP_MATERIALCANTUSE,
+	POPUP_ITEMTYPEMISMATCH
 };
 
-#define MAX_POPUPS POPUP_YOUAREMUTED + 1
+#define MAX_POPUPS POPUP_ITEMTYPEMISMATCH + 1
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2289,7 +2317,10 @@ str PopupText[MAX_POPUPS] = {
 	"Selected player is\ntrading with someone\nelse!",
 	"You can't trade while\nalready in a trade!",
 	"Not enough space for\ntrade offerings!",
-	"Targeted player has\nmuted you from\ntrading!"
+	"Targeted player has\nmuted you from\ntrading!",
+	"Material requires\nanother item to\nbe used on!",
+	"Conditions for the\nmaterial not met!",
+	"Mismatching item\ntype!"
 };
 
 #define MAX_HELPTEXT_RESEARCH 5

@@ -2,10 +2,8 @@
 #define DND_MONSTERS_IN
 
 #include "DnD_Common.h"
-#include "DnD_Research.h"
-#include "DnD_Orbs.h"
-#include "DnD_Stat.h"
-
+#include "DnD_CommonStat.h"
+#include "DnD_MonsterData.h"
 
 #define AVATAR_SOUL_TID 2000
 #define AVATAR_CUBE_TID 6000

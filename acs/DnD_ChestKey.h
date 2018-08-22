@@ -3,14 +3,6 @@
 
 #include "DnD_Inventory.h"
 
-#define CHESTKEY_NAME 0
-#define CHESTKEY_TAG 1
-str ChestKeyList[CHEST_KEY_TEXT_MAX][2] = {
-	{ "BronzeChestKey", "Bronze Chest Key" },
-	{ "SilverChestKey", "Silver Chest Key" },
-	{ "GoldChestKey", "Gold Chest Key" }
-};
-
 str ChestKeyText[CHEST_KEY_TEXT_MAX] = {
 	"\ccNotice        : You need a \ceBronze\c- Chest Key to open this!",
 	"\ccNotice        : You need a \cuSilver\c- Chest Key to open this!",

@@ -6,7 +6,7 @@ Actor CreditItem : CustomInventory {
 }
 
 Actor Credit_01 : CreditItem {
-	inventory.pickupmessage "\ccCredit Pickup : \c[Y5]$1\c-"
+	inventory.pickupmessage ""
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay A_Jump(128, "Flip")
@@ -22,7 +22,7 @@ Actor Credit_01 : CreditItem {
 }
 
 Actor Credit_02 : CreditItem {
-	inventory.pickupmessage "\ccCredit Pickup : \c[Y5]$5\c-"
+	inventory.pickupmessage ""
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay A_Jump(128, "Flip")

@@ -19,6 +19,8 @@ Thanks to:
 - ijonTichy (Codebase for railgun particle draw)
 - Daedalus (Sprites and code for various special effects)
 - Noozearts (Sprites)
+- TODM (Sprites)
+- Sky Driver (Graphics)
 - Gifty (Sprites)
 - MagicWazard (Sprites)
 - Bloax (Sprites, Graphics)

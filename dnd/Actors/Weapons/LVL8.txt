@@ -59,6 +59,7 @@ ACTOR "Death Staff" : Weapon {
 			LICS JKLMNOPQRSTU 1 Bright
 			TNT1 A 0 A_GunFlash
 			TNT1 A 0 A_PlayWeaponSound ("weapons/deathstfire")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 9)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("Souls", 9)
 		NoTake:
@@ -77,6 +78,7 @@ ACTOR "Death Staff" : Weapon {
 Actor DeathStaffShooter1 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile ("VolcanoFireball5", 0, 1, 0, 0)
@@ -116,7 +118,7 @@ Actor VolcanoFireBall5Exp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode (2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 128)
+			TNT1 A 1 A_Explode (2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		Stop
 	}
 }
@@ -128,11 +130,12 @@ Actor VolcanoFireBall5Exp_FullDMG : VolcanoFireBall5Exp {
 
 Actor VolcanoFireBall5Exp2 : BaseExplosionDamage {
 	DamageType "SoulType"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_Explode (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 128)
-			TNT1 A 1 A_Explode (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 128, 0)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_Explode (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 128 * (1.0 + user_exprad * exprad_factor))
+			TNT1 A 1 A_Explode (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 128 * (1.0 + user_exprad * exprad_factor), 0)
 		Stop
 	}
 }
@@ -146,7 +149,7 @@ ACTOR VolcanoFireball5 {
 	Radius 16
 	Height 32
 	Speed 40
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 	DamageType "SoulType"
 	PROJECTILE
 	SeeSound "weapons/deathstfire"
@@ -227,7 +230,7 @@ ACTOR VolcanoFireball6
 		Radius 8
 		Height 16
 		Speed 5
-		Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+		Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 		DamageType "SoulType"
 		PROJECTILE
 		+RIPPER
@@ -271,7 +274,7 @@ Actor VolcanoFireball6Exp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 64, 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
 		Stop
 	}
 }
@@ -283,7 +286,7 @@ Actor VolcanoFireball6Exp_FullDMG : VolcanoFireball6Exp {
 
 Actor VolcanoFireball6NOFIRE_Fall : VolcanoFireball6
 {
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 	Species "Player"
 	DamageType "SoulType"
 	+THRUSPECIES
@@ -360,7 +363,7 @@ ACTOR VolcanoFireball6Fire
 		Radius 15
 		Height 38
 		Speed 1
-		Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER) / 2)
+		Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2)
 		DamageType "SoulType"
 		Scale 1.0
 		BounceFactor 0.0
@@ -399,7 +402,7 @@ Actor HellFireLinkFExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 96)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		Stop
 	}
 }
@@ -411,11 +414,12 @@ Actor HellFireLinkFExp_FullDMG : HellFireLinkFExp {
 
 Actor HellFireLinkFExp2 : BaseExplosionDamage {
 	DamageType "SoulType"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER) / 2, 96, 0)
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER) / 2, 96)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, 96 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, 96 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -431,7 +435,7 @@ Actor HellFireLinkF
   Radius 6
   Height 12
   Speed 24
-  Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+  Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
   DamageType "SoulType"
   Alpha 0.85
   Renderstyle add
@@ -700,12 +704,13 @@ Actor HellFireLinkCR_FullDMG : HellFireLinkCL_FullDMG
 
 Actor HellFireTrailFExp : BaseExplosionDamage {
 	DamageType "SoulType"
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 AA 4 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 72, 0)
-			TNT1 AAAA 5 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 72, 0)
-			TNT1 AAA 4 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 72, 0)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 AA 4 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 72 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 AAAA 5 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 72 * (1.0 + user_exprad * exprad_factor), 0)
+			TNT1 AAA 4 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 72 * (1.0 + user_exprad * exprad_factor), 0)
 		Stop
 	}
 }
@@ -829,6 +834,7 @@ ACTOR Razorfang : Weapon
 	  RAZG A 4
       Goto Ready
    Secondary:
+	  TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 4)
       TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueNoTake")
       RAZG A 0 A_JumpIfInventory("Souls", 4, "Continue")
       Goto AltFire
@@ -867,7 +873,7 @@ ACTOR RazorShot1
    Radius 4
    Height 8
    Speed 50
-   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
    DamageType "SoulType"
    PROJECTILE
    +THRUGHOST
@@ -923,7 +929,7 @@ ACTOR RazorShot1_FullDMG : RazorShot1 {
 Actor RazorShot1_Damager : DnD_FakeDamager {
 	Radius 4
 	Height 8
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 	DamageType "SoulType"
 	Speed 32
 }
@@ -933,7 +939,7 @@ ACTOR RazorShot2
    Radius 2
    Height 4
    Speed 35
-   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+   Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
    DamageType "SoulType"
    PROJECTILE
    +THRUGHOST
@@ -967,7 +973,7 @@ Actor RazorShot2_FullDMG : RazorShot2 {
 Actor RazorShot2_Damager : DnD_FakeDamager {
 	Radius 2
 	Height 4
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 	DamageType "SoulTypeFull"
 	Speed 32
 }
@@ -994,7 +1000,7 @@ Actor RazorSkullExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 40,0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 40 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
 		Stop
 	}
 }
@@ -1005,7 +1011,7 @@ Actor RazorSkullExp_FullDMG : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 40,0)
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 40 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
 		Stop
 	}
 }
@@ -1015,7 +1021,7 @@ ACTOR RazorSkull
    Radius 8
    Height 11
    Speed 25
-   Damage (random(1, 2) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+   Damage (random(1, 2) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
    DamageType "SoulType"
    PROJECTILE
    ReactionTime 210
@@ -1087,7 +1093,7 @@ ACTOR RazorSkull_FullDMG : RazorSkull {
 Actor RazorShot3_Damager : DnD_FakeDamager {
 	Radius 2
 	Height 4
-	Damage (random(1, 2) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+	Damage (random(1, 2) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 	DamageType "SoulTypeFull"
 	Speed 28
 }
@@ -1121,17 +1127,18 @@ ACTOR RazorCount : Ammo {
 Actor RazorShooter1 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 2)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("RazorShot1",0,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",-3,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",3,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",-6,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",6,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",-9,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",9,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",-12,0,0,0,0)
-			TNT1 A 0 A_FireCustomMissile("RazorShot1",12,1,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",-3 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",3 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",-6 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",6 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",-9 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",9 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",-12 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RazorShot1",12 * (1.0 - accuracy * accuracy_factor),1,0,0,0)
 		Stop
 		Full:
 			TNT1 A 0 A_FireCustomMissile("RazorShot1_FullDMG",0,0,0,0,0)
@@ -1251,6 +1258,7 @@ SelectLoop:
     Goto FinishFire
   TakeAmmo:
     TNT1 A 0 A_TakeInventory("BeamCounter", 3)
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 1)
 	TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 	TNT1 A 0 A_TakeInventory("Souls", 1)
   NoTake:
@@ -1269,6 +1277,7 @@ SelectLoop:
     LTBR M 1 A_WeaponReady
     Loop
   AltFire:
+    TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 5)
     TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "Continue")
     TNT1 A 0 A_JumpIfInventory("Souls", 5, "Continue")
 	LTBR B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -1311,7 +1320,7 @@ Actor BeamCounter : Inventory
 ACTOR LightBeam : FastProjectile
 {
 	Speed 192
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 	DamageType "SoulType"
 	Radius 12
 	Height 8
@@ -1355,7 +1364,7 @@ Actor SunShooter : DnD_Activator {
 		Stop
 		Full:
 			// damage tripled for compensation of lack of ripper
-			TNT1 A 0 A_RailAttack(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_ISSUPER), 0, 0, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "LightSmoke2", 0, 0, 960, 27, 9.0, 1.0, "LightBeamSmoke", 0)
+			TNT1 A 0 A_RailAttack(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_ISSUPER | DND_ISSLOT8), 0, 0, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "LightSmoke2", 0, 0, 960, 27, 9.0, 1.0, "LightBeamSmoke", 0)
 		Stop
 	}
 }
@@ -1434,7 +1443,7 @@ Actor SunBurstExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 128, 0)
+			TNT1 A 1 A_Explode(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
 		Stop
 	}
 }
@@ -1445,7 +1454,7 @@ Actor SunBurstExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 128, 0)
+			TNT1 A 1 A_Explode(4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
 		Stop
 	}
 }
@@ -1534,7 +1543,7 @@ Actor SunBeamDamager : FastProjectile {
 	Radius 8
 	Height 8
 	Speed 48
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER))
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 	Decal "PlasmaScorchLower"
 	Projectile
 	+FORCEXYBILLBOARD
@@ -1705,6 +1714,7 @@ Actor SoulReaverDeflect {
 Actor SoulReaverShooter : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 15)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("SoulReaverSphere", 0, 1)
@@ -1782,10 +1792,11 @@ Actor SoulReaverExp1 : BaseExplosionDamage {
 	+FORCERADIUSDMG
 	+EXTREMEDEATH
 	+FOILINVUL
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 48, 0, 0, 48)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 48 * (1.0 + user_exprad * exprad_factor), 0, 0, 48 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }
@@ -1795,10 +1806,11 @@ Actor SoulReaverExp2 : BaseExplosionDamage {
 	+FORCERADIUSDMG
 	+EXTREMEDEATH
 	+FOILINVUL
+	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER), 160, 0, 0, 160)
+			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 160 * (1.0 + user_exprad * exprad_factor), 0, 0, 160 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
 }

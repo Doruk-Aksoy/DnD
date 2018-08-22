@@ -349,8 +349,29 @@ int GetWeaponSlotFromWeaponID(int wepid) {
 str GetWeaponToTake(int wepid) {
 	int slot = GetWeaponSlotFromWeaponID(wepid);
 	if(slot != 8) {
-		if(!ParseInt(ShopItemNames[wepid][SHOPNAME_TYPE]))
-			return ShopWeaponTake[slot];
+		if(!ParseInt(ShopItemNames[wepid][SHOPNAME_TYPE])) {
+			if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
+				return ShopWeaponTake[0];
+			else if(wepid >= SHOP_WEAPON2PISTOL_BEGIN && wepid <= SHOP_WEAPON2PISTOL_END)
+				return ShopWeaponTake[1];
+			else if(wepid >= SHOP_WEAPON3SG_BEGIN && wepid <= SHOP_WEAPON3SG_END) {
+				// little hack here to fix special ammos after refunding weapon
+				SetInventory("SpecialAmmoMode_3", AMMO_BASICSHELL);
+				return ShopWeaponTake[2];
+			}
+			else if(wepid >= SHOP_WEAPON3SSG_BEGIN && wepid <= SHOP_WEAPON3SSG_END)
+				return ShopWeaponTake[3];
+			else if(wepid >= SHOP_WEAPON4CG_BEGIN && wepid <= SHOP_WEAPON4CG_END) {
+				SetInventory("SpecialAmmoMode_4", AMMO_BULLET);
+				return ShopWeaponTake[4];
+			}
+			else if(wepid >= SHOP_WEAPON5RL_BEGIN && wepid <= SHOP_WEAPON5RL_END)
+				return ShopWeaponTake[5];
+			else if(wepid >= SHOP_WEAPON6PL_BEGIN && wepid <= SHOP_WEAPON6PL_END)
+				return ShopWeaponTake[6];
+			else if(wepid >= SHOP_WEAPON7BFG_BEGIN && wepid <= SHOP_WEAPON7BFG_END)
+				return ShopWeaponTake[7];
+		}
 		return "";
 	}
 	return "";
@@ -872,6 +893,7 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 	int itemid, price, buystatus;
 	int loopnumber = 0;
+	str totake;
 	if(tradeflag & TRADE_BUY) {
 		itemid = low + posy;
 		if(itemid <= high) {
@@ -880,7 +902,7 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 				ShowNeedResearchPopup();
 			}
 			else {
-				//loop 
+				// loop 
 				do {
 					loopnumber++;
 					// now consider money and other things as factors
@@ -897,7 +919,9 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 						else
 							GiveInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
 						if(tradeflag & TRADE_WEAPON) {
-							TakeInventory(ShopWeaponTake[itemid], 1);	
+							totake = GetWeaponToTake(itemid);
+							if(StrCmp(totake, ""))
+								TakeInventory(totake, 1);	
 							GiveInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
 							SetWeapon(ShopItemNames[itemid][SHOPNAME_ITEM]);
 							// fix special ammo cursor
@@ -951,8 +975,8 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 				TakeInventory("DnD_ShowSellPopup", 1);
 				SetInventory("DnD_PopupID", 0);
 				SetInventory("ActivePopupBox", 0);
-				str totake = GetWeaponToTake(itemid);
-				if(StrCmp(totake, " "))
+				totake = GetWeaponToTake(itemid);
+				if(StrCmp(totake, ""))
 					GiveInventory(totake, 1);
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
@@ -1136,7 +1160,7 @@ void DrawCursor() {
 	else
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
-	Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
+	//Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - ((CheckInventory("Mouse_X") & MMASK)) + 0.1, HUDMAX_YF - ((CheckInventory("Mouse_Y") & MMASK)) + 0.1, 0.2, 0.0);
 }
 
@@ -1162,6 +1186,22 @@ menu_inventory_T& GetInventoryPane() {
 menu_trade_T& GetTradePane() {
 	static menu_trade_T pane;
 	return pane;
+}
+
+void DisableBoxesInPane(menu_inventory_T& p, int beg, int end) {
+	for(int i = beg; i <= end; ++i)
+		p.MenuRectangles[i].topleft_x = -1;
+}
+
+void DisableBoxInPane(menu_inventory_T& p, int i) {
+	p.MenuRectangles[i].topleft_x = -1;
+}
+
+void EnableBoxWithPoints(menu_inventory_T& p, int box, int tx, int ty, int bx, int by) {
+	p.MenuRectangles[box].topleft_x = tx;
+	p.MenuRectangles[box].topleft_y = ty;
+	p.MenuRectangles[box].botright_x = bx;
+	p.MenuRectangles[box].botright_y = by;
 }
 
 // deepcopy to avoid accidental overriding
@@ -1859,7 +1899,7 @@ rect_T& LoadCraftingViewRect(int id) {
 	if(!IsSet(PaneSetup, CRAFTING_SETUP_BIT)) {
 		// for all the boxes, load them with -1 to denote "disabled" boxes
 		// we'll manually load points for eligible boxes in respective crafting regions
-		for(int i = 0; i < MAX_CRAFTING_NORMAL_BOXES; ++i) {
+		for(int i = 0; i < MAX_CRAFTING_BOXES; ++i) {
 			bp[i].topleft_x = -1;
 			bp[i].topleft_y = -1;
 			bp[i].botright_x = -1;
@@ -1972,7 +2012,7 @@ int GetTriggeredBoxOnInventoryPane(menu_inventory_T& p, int mx, int my) {
 }
 
 int GetTriggeredBoxOnCraftingPane(menu_inventory_T& p, int mx, int my) {
-	if(mx >= 470.0 || my <= 24.0 || mx <= 8.0 || my >= 293.0)
+	if(mx >= 470.0 || my <= 24.0 || mx <= 4.0 || my >= 293.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
 		if(point_in_inventory_box(p.MenuRectangles[i], mx, my)) {
@@ -2282,7 +2322,7 @@ void ResetInventoryLitState() {
 }
 
 void CleanInventoryInfo() {
-	DeleteTextRange(RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES);
+	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 
 void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) {
@@ -2375,7 +2415,8 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 		pn = (PlayerNumber() + 1) << 16;
 	else
 		pn = (pnum + 1) << 16;
-		
+	if(CheckInventory("DnD_SelectedCharmBox"))
+		DrawInventoryInfo_Field(CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 24.4, 0.1);
 	int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, pn, source);
 	if(GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, pn, source) != DND_ITEM_NULL) {
 		mx = HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) + 16.1 , my = HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) + 16.1;
@@ -2395,11 +2436,11 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 				my = INVENTORYINFO_TRADEVIEW_WRAPY + 0.1;
 		}
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, INVENTORY_INFO_ALPHA);
 		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, topboxid, pn, source);
 		if(stack) {
 			SetFont("SMALLFONT");
-			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		mx += 64.0;
 		my += 40.0;
@@ -2413,7 +2454,7 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 		else if(itype == DND_ITEM_CHESTKEY)
 			offset = 8.0;
 		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, topboxid, pn, source)]);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0, INVENTORY_INFO_ALPHA);
 		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 		mx *= 3; mx /= 2;
 		my *= 3; my /= 2;
@@ -2433,25 +2474,25 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		HudMessage(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, pn, source)], s:" Charm"; 
-			HUDMSG_PLAIN, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA
 		);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source);
 			if(val > 0)
-				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 			else
-				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(itype == DND_ITEM_ORB) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 	else if(itype == DND_ITEM_CHESTKEY) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:ChestkeyHelpText[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:ChestkeyHelpText[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 }
 
@@ -2676,8 +2717,12 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						else
 							ShowPopup(POPUP_CHARMMISMATCH, false, 0);
 					}
-					else
-						ShowPopup(POPUP_NOITEMTHERE, false, 0);
+					else {
+						if(topboxid == -1)
+							ShowPopup(POPUP_NOITEMTHERE, false, 0);
+						else
+							ShowPopup(POPUP_ITEMTYPEMISMATCH, false, 0);
+					}
 				}
 				else {
 					// normal clicking functionality on inventory view
@@ -3239,53 +3284,279 @@ void HandleStashViewClicks(int boxid, int choice) {
 	}
 }
 
-void DisableBoxesInPane(menu_inventory_T& p, int beg, int end) {
-	for(int i = beg; i <= end; ++i)
-		p.MenuRectangles[i].topleft_x = -1;
-}
-
-void EnableBoxWithPoints(menu_inventory_T& p, int box, int tx, int ty, int bx, int by) {
-	p.MenuRectangles[box].topleft_x = tx;
-	p.MenuRectangles[box].topleft_y = ty;
-	p.MenuRectangles[box].botright_x = bx;
-	p.MenuRectangles[box].botright_y = by;
-}
-
 void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 	int mcount = CountCraftingMaterials();
 	int i;
 	int tx, ty, bx, by;
+	int page = CheckInventory("DnD_Crafting_MaterialPage");
+	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
 	if(mcount) {
-		if(!k) {
+		if(!k || CheckInventory("DnD_RefreshPane")) {
 			// add predefined size boxes for use
-			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount; ++i) {
+			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES * (page + 1) && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i) {
 				tx = CRAFTING_MATERIALBOX_X - (32.0 + CRAFTING_MATERIALBOX_SKIPX) * (i % 2);
 				ty = CRAFTING_MATERIALBOX_Y - (32.0 + CRAFTING_MATERIALBOX_SKIPY) * (i / 2);
 				bx = tx - 32.0;
 				by = ty - 32.0;
-				EnableBoxWithPoints(p, i + MATERIALBOX_OFFSET, tx, ty, bx, by);
+				EnableBoxWithPoints(p, i + MATERIALBOX_OFFSET_BOXID, tx, ty, bx, by);
 			}
 		}
 		for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
-			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount; ++i) {
-				if(boxid - 1 == MATERIALBOX_OFFSET + i)
+			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i) {
+				tx = GetNextUniqueCraftingMaterial(CraftItemTypes[ty], i + MAX_CRAFTING_MATERIALBOXES * page);
+				bx = GetTotalStackOfMaterial(tx);
+				if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
+					DrawCraftingInventoryInfo(DND_ITEM_ORB, tx, bx);
+					SetInventory("DnD_PlayerItemIndex", tx);
 					SetFont("CRFBX_H2");
+				}
+				else if(prevclick == MATERIALBOX_OFFSET_BOXID + i) {
+					SetInventory("DnD_PlayerPrevItemIndex", tx);
+					SetFont("CRFBX_H2");
+				}
 				else
 					SetFont("CRFBX_N2");
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 2 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
-				tx = GetNextUniqueCraftingMaterial(CraftItemTypes[ty], i);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
 				if(tx != -1) {
 					SetFont(Item_Images[PlayerInventoryList[PlayerNumber()][tx].item_image]);
-					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 2 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
+					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
+					if(bx > 0) {
+						SetFont("SMALLFONT");
+						HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0, 0.0);
+					}
 				}
 			}
 		}
+		SetFont("SMALLFONT");
 		// draw next page button and enable it for use
 		if(mcount > MAX_CRAFTING_MATERIALBOXES) {
-		
+			if(page) {
+				// remember to send -1 of the actual box here
+				EnableBoxWithPoints(p, MATERIALARROW_ID - 1, CRAFTING_LARR_X, CRAFTING_LARR_Y, CRAFTING_LARR_X - CRAFTING_ARROW_X_SKIP, CRAFTING_LARR_Y - CRAFTING_ARROW_Y_SKIP);
+				DrawBoxText("<=", boxid, MATERIALARROW_ID, RPGMENUID - MATERIALARROW_HUDID - 1, 388.0, 284.0, "\c[B1]", "\c[Y5]");
+			}
+			else
+				DisableBoxInPane(p, MATERIALARROW_ID - 1);
+			if(mcount - MAX_CRAFTING_MATERIALBOXES * (page + 1) > 0) {
+				EnableBoxWithPoints(p, MATERIALARROW_ID, CRAFTING_RARR_X, CRAFTING_LARR_Y, CRAFTING_RARR_X - CRAFTING_ARROW_X_SKIP, CRAFTING_LARR_Y - CRAFTING_ARROW_Y_SKIP);
+				DrawBoxText("=>", boxid, MATERIALARROW_ID + 1, RPGMENUID - MATERIALARROW_HUDID, 464.0, 284.0, "\c[B1]", "\c[Y5]");
+			}
+			else
+				DisableBoxInPane(p, MATERIALARROW_ID);
 		}
 	}
 	SetFont("SMALLFONT");
+}
+
+void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
+	int i, j = 0, mcount = GetWeaponCount();
+	int tx, ty, bx, by;
+	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
+	int page = CheckInventory("DnD_Crafting_ItemPage");
+	if(mcount) {
+		if(!k || CheckInventory("DnD_RefreshPane")) {
+			// add predefined size boxes for use
+			for(i = 0; i < MAX_CRAFTING_ITEMBOXES * (page + 1) && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
+				tx = CRAFTING_ITEMBOX_X - (64.0 + CRAFTING_ITEMBOX_SKIPX) * (i % 4);
+				ty = CRAFTING_ITEMBOX_Y - (64.0 + CRAFTING_ITEMBOX_SKIPY) * (i / 4);
+				bx = tx - 64.0;
+				by = ty - 64.0;
+				EnableBoxWithPoints(p, i, tx, ty, bx, by);
+			}
+		}
+		// first count over the weapons we must skip
+		for(i = 0; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
+			if(CheckInventory(Weapons[i][WEAPON_NAME]))
+				++j;
+		if(j)
+			++i;
+		j = 0;
+		// i will count onwards from here
+		for(; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES && j < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
+			if(CheckInventory(Weapons[i][WEAPON_NAME])) {
+				if(boxid - 1 == j) {
+					SetInventory("DnD_PlayerItemIndex", i);
+					DrawCraftingInventoryInfo(DND_ITEM_WEAPON, i, 0);
+					SetFont("CRFBX_H");
+				}
+				else if(prevclick == j) {
+					SetInventory("DnD_PlayerPrevItemIndex", i);
+					SetFont("CRFBX_H");
+				}
+				else
+					SetFont("CRFBX_N");
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
+				SetFont(Weapons[i][WEAPON_ICON64]);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
+				++j;
+			}
+		}
+		SetFont("SMALLFONT");
+		// draw next page button and enable it for use
+		if(mcount > MAX_CRAFTING_ITEMBOXES) {
+			if(mcount - MAX_CRAFTING_ITEMBOXES * (page + 1) > 0) {
+				EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID, CRAFTING_PAGEARROWR_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWR_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
+				DrawBoxText("=>", boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
+			}
+			else
+				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID);
+		}
+	}
+	SetFont("SMALLFONT");
+}
+
+void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
+	int i, j = 0, mcount = GetCraftableItemCount();
+	int tx, ty, bx, by;
+	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
+	int page = CheckInventory("DnD_Crafting_ItemPage");
+	if(mcount) {
+		if(!k || CheckInventory("DnD_RefreshPane")) {
+			// add predefined size boxes for use
+			for(i = 0; i < MAX_CRAFTING_ITEMBOXES * (page + 1) && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
+				tx = CRAFTING_ITEMBOX_X - (64.0 + CRAFTING_ITEMBOX_SKIPX) * (i % 4);
+				ty = CRAFTING_ITEMBOX_Y - (64.0 + CRAFTING_ITEMBOX_SKIPY) * (i / 4);
+				bx = tx - 64.0;
+				by = ty - 64.0;
+				EnableBoxWithPoints(p, i, tx, ty, bx, by);
+			}
+		}
+		// first count over the items we must skip
+		bx = PlayerNumber();
+		for(i = 0; i < MAX_INVENTORY_BOXES && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
+			if(IsCraftableItem(PlayerInventoryList[bx][i].item_type) && PlayerInventoryList[bx][i].height)
+				++j;
+		if(j)
+			++i;
+		j = 0;
+		for(i = 0; i < MAX_CRAFTING_ITEMBOXES && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
+			tx = GetNextUniqueCraftableMaterial(i + MAX_CRAFTING_ITEMBOXES * page);
+			if(tx != -1) {
+				if(boxid - 1 == j) {
+					DrawCraftingInventoryInfo(PlayerInventoryList[bx][tx].item_type, tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+					SetInventory("DnD_PlayerItemIndex", tx);
+					SetFont("CRFBX_H");
+				}
+				else if(prevclick == j) {
+					SetInventory("DnD_PlayerPrevItemIndex", tx);
+					SetFont("CRFBX_H");
+				}
+				else
+					SetFont("CRFBX_N");
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
+				SetFont(Item_Images[PlayerInventoryList[bx][tx].item_image]);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
+				++j;
+			}
+		}
+		SetFont("SMALLFONT");
+		// draw next page button and enable it for use
+		if(mcount > MAX_CRAFTING_ITEMBOXES) {
+			if(mcount - MAX_CRAFTING_ITEMBOXES * (page + 1) > 0) {
+				EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID, CRAFTING_PAGEARROWR_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWR_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
+				DrawBoxText("=>", boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
+			}
+			else
+				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID);
+		}
+	}
+	SetFont("SMALLFONT");
+}
+
+// extra1 is used for item position in inventory list
+// extra1 is topboxid for items, extra2 works as source for inventory related things (used charms vs player inventory etc.)
+void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
+	int offset, stack = 0;
+	int mx = HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) + 16.1; 
+	int my = HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) + 16.1;
+	int pn = PlayerNumber();
+	SetFont("LDTITINF");
+	// to force them to appear in window
+	if(mx > INVENTORYINFO_NORMALVIEW_WRAPX)
+		mx = INVENTORYINFO_NORMALVIEW_WRAPX + 0.1;
+	if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
+		my = INVENTORYINFO_NORMALVIEW_WRAPY + 0.1;
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, INVENTORY_INFO_ALPHA);
+	if(GetStackValue(itype) && extra2) {
+		SetFont("SMALLFONT");
+		HudMessage(d:extra2; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	mx += 64.0;
+	my += 40.0;
+	mx &= MMASK;
+	my &= MMASK;
+	mx += 0.4;
+	my += 0.1;
+	// show item details
+	if(itype == DND_ITEM_ORB)
+		offset = 16.0;
+	if(itype != DND_ITEM_WEAPON)
+		SetFont(Item_Images[PlayerInventoryList[pn][extra1].item_image]);
+	else
+		SetFont(Weapons[extra1][WEAPON_ICON64]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0, INVENTORY_INFO_ALPHA);
+	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+	mx *= 3; mx /= 2;
+	my *= 3; my /= 2;
+	mx &= MMASK;
+	my &= MMASK;
+	mx += 0.4;
+	my += 0.1;
+	SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 192, 256, 1);
+	DrawCraftingInventoryText(itype, extra1, extra2, mx, my);
+	SetHudClipRect(0, 0, 0, 0, 0);
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+}
+
+void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my) {
+	int i, j, temp, val;
+	SetFont("SMALLFONT");
+	if(itype == DND_ITEM_CHARM) {
+		HudMessage(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, extra1, -1, extra2) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)], s:" Charm"; 
+			HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA
+		);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
+		for(j = 0; j < i; ++j) {
+			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
+			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
+			if(val > 0)
+				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
+			else
+				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
+		}
+	}
+	else if(itype == DND_ITEM_ORB) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	else if(itype == DND_ITEM_WEAPON) {
+		j = PlayerNumber();
+		i = 0;
+		HudMessage(s:"\c[R5]", s:Weapons[extra1][WEAPON_TAG], s:":\c- \c[Y5]Slot - ", s:Weapons[extra1][WEAPON_SLOT]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+		temp = GetWeaponEnchantDisplay(j, extra1);
+		if(temp) {
+			HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 40.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+		temp = GetCritChanceDisplay(j, extra1);
+		if(temp) {
+			HudMessage(s:"\c[Y5]* Crit Chance: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 56.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+		if(HasCritDamageBonus(j, extra1)) {
+			HudMessage(s:"\c[Y5]* Crit Damage: \c[Q9]", f:GetCritDamageDisplay(j, extra1), s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 6, CR_WHITE, mx + 56.0, my + 72.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+		temp = GetBonusDamageDisplay(j, extra1);
+		if(temp) {
+			if(temp > 0)
+				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 7, CR_WHITE, mx + 56.0, my + 88.0 + 16.0 * i, 0.0, 0.0);
+			else
+				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q2]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 8, CR_WHITE, mx + 56.0, my + 88.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+	}
 }
 
 void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
@@ -3293,24 +3564,156 @@ void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
 	HudMessage(s:"\c[Y5]Materials"; HUDMSG_PLAIN, RPGMENUID - 2, CR_CYAN, 424.0, 32.0, 0.0, 0.0);
 	
 	// load rectangles
-	if(!k) {
+	if(!k || CheckInventory("DnD_RefreshPane")) {
 		ResetInventoryPane(p);
 		LoadCraftingView(p);
 	}
 	
+	CleanInventoryInfo();
 	HandleMaterialDraw(p, boxid, curopt, k);
-	
 	if(curopt == MENU_LOAD_CRAFTING) {
 		DrawBoxText("Weapons Crafting", boxid, CRAFTING_WEAPON_BOXID + 1, RPGMENUID - 3, 24.1, 32.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("Inventory Crafting", boxid, CRAFTING_INVENTORY_BOXID + 1, RPGMENUID - 4, 24.1, 48.0, "\c[B1]", "\c[Y5]");
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
-		DisableBoxesInPane(p, CRAFTING_WEAPON_BOXID, CRAFTING_INVENTORY_BOXID);
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUID - 3, CR_CYAN, 24.1, 288.0, 0.0, 0.0);
+		if(!k || CheckInventory("DnD_RefreshPane"))
+			EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
+		DrawBoxText("<=", boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+		HandleCraftingWeaponDraw(p, boxid, k);
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
-	DisableBoxesInPane(p, CRAFTING_WEAPON_BOXID, CRAFTING_INVENTORY_BOXID);
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUID - 3, CR_CYAN, 24.1, 288.0, 0.0, 0.0);
+		if(!k || CheckInventory("DnD_RefreshPane"))
+			EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
+		DrawBoxText("<=", boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+		HandleCraftingInventoryDraw(p, boxid, k);
 	}
 	SetFont("SMALLFONT");
+}
+
+void HandleCraftingInputs(int boxid, int curopt) {
+	int choice = CheckInventory("MadeChoice"), pnum = PlayerNumber();
+	int prevselect;
+	if(choice) {
+		int itemindex = ((boxid >> 8) & 0xFF);
+		int previtemindex = (boxid >> 16);
+		boxid = (boxid & 0xFF);
+		if(boxid != MAINBOX_NONE && boxid != CheckInventory("DnD_SelectedInventoryBox")) {
+			if(choice == 1) {
+				// arrows in material part, left and right respectively
+				if(boxid == MATERIALARROW_ID) {
+					TakeInventory("DnD_Crafting_MaterialPage", 1);
+					GiveInventory("DnD_RefreshPane", 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				if(boxid == MATERIALARROW_ID + 1) {
+					GiveInventory("DnD_Crafting_MaterialPage", 1);
+					GiveInventory("DnD_RefreshPane", 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				
+				// marking a material in case they need something to be used on
+				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
+					SetInventory("DnD_SelectedInventoryBox", boxid);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				
+				// bottom arrows for crafting
+				if(boxid == CRAFTING_PAGEARROW_ID) {
+					if(!CheckInventory("DnD_Crafting_ItemPage")) {
+						if(curopt == MENU_LOAD_CRAFTING_WEAPON || curopt == MENU_LOAD_CRAFTING_INVENTORY)
+							UpdateMenuPosition(MENU_LOAD_CRAFTING);
+					}
+					else {
+						TakeInventory("DnD_Crafting_ItemPage", 1);
+						GiveInventory("DnD_RefreshPane", 1);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+					SetInventory("DnD_SelectedInventoryBox", 0);
+				}
+				if(boxid == CRAFTING_PAGEARROW_ID + 1) {
+					GiveInventory("DnD_Crafting_ItemPage", 1);
+					GiveInventory("DnD_RefreshPane", 1);
+					SetInventory("DnD_SelectedInventoryBox", 0);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				
+				
+				if(curopt == MENU_LOAD_CRAFTING) {
+					if(boxid == CRAFTING_WEAPON_BOXID + 1)
+						UpdateMenuPosition(MENU_LOAD_CRAFTING_WEAPON);
+					else if(boxid == CRAFTING_INVENTORY_BOXID + 1)
+						UpdateMenuPosition(MENU_LOAD_CRAFTING_INVENTORY);
+				}
+				else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
+					if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
+						SetInventory("DnD_SelectedInventoryBox", boxid);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+				}
+				else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+					if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
+						SetInventory("DnD_SelectedInventoryBox", boxid);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
+				}
+			}
+			else if(choice == 2) {
+				// using an orb in material part
+				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
+					if(IsSelfUsableItem(PlayerInventoryList[pnum][itemindex].item_type, PlayerInventoryList[pnum][itemindex].item_subtype)) {
+						if(HandleMaterialUse(pnum, itemindex, 0, 0))
+							UsePlayerItem(pnum, itemindex);
+						else
+							ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
+					}
+					else if(!CheckInventory("DnD_SelectedInventoryBox"))
+						ShowPopup(POPUP_ITEMNEEDSTARGET, false, 0);
+					else {
+						// figure out which type of item this is
+						// sort out selected box from boxid etc., we need boxid to be on material
+						prevselect = CheckInventory("DnD_SelectedInventoryBox") - 1;
+						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
+							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
+								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON))
+									UsePlayerItem(pnum, itemindex);
+								else
+									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
+							}
+							else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_CHARM))
+									UsePlayerItem(pnum, itemindex);
+								else
+									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+			SetInventory("DnD_SelectedInventoryBox", 0);
+	}
+}
+
+// returns success of use of item
+bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
+	bool res = false;
+	int itype = PlayerInventoryList[pnum][itemindex].item_type;
+	int isubtype = PlayerInventoryList[pnum][itemindex].item_subtype;
+	if(!IsCraftableItem(targettype)) {
+		if(itype == DND_ITEM_ORB) {
+			res = CanUseOrb(isubtype, 0);
+			if(res) {
+				ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, 0);
+			}
+		}
+	}
+	else if(itype == DND_ITEM_ORB) {
+		res = CanUseOrb(isubtype, target);
+		if(res) {
+			ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, target);
+		}
+	}
+	
+	return res;
 }

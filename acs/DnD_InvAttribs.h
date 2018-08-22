@@ -1,6 +1,12 @@
 #ifndef DND_INV_ATTRIBS_IN
 #define DND_INV_ATTRIBS_IN
 
+// formula for accuracy:
+// every 10 points contribute 0.01%
+// applied as follows: X = spread of weapon, X * (1.0 - accuracy * factor_per_point), capped at 80 000 accuracy (80%)
+
+#define DND_ACCURACY_CAP 80000
+
 enum {
 	INV_HP_INCREASE,
 	INV_ARMOR_INCREASE,
@@ -61,11 +67,11 @@ str Inv_Attribute_Names[MAX_INV_ATTRIBUTE_TYPES] = {
 	"% Speed",
 	"% magazine size",
 	
-	" physical damage to attacks",
-	" energy damage to attacks",
-	" explosive damage to attacks",
-	" magic damage to attacks",
-	" elemental damage to attacks",
+	" physical damage to such attacks",
+	" energy damage to such attacks",
+	" explosive damage to such attacks",
+	" magic damage to such attacks",
+	" elemental damage to such attacks",
 	
 	"% slot 1 weapon damage",
 	"% slot 2 weapon damage",
@@ -77,10 +83,10 @@ str Inv_Attribute_Names[MAX_INV_ATTRIBUTE_TYPES] = {
 	"% slot 8 weapon damage",
 	"% temporary weapon damage",
 	
-	"% pellets on shells",
+	"% more pellets on shells",
 	
-	"% explosion radius",
-	"% explosion resist",
+	"% increased explosion radius",
+	"% reduced self explosion damage",
 	
 	"% chance to gain ammo back on firing",
 	"% ammo gain from pickups",
@@ -93,7 +99,7 @@ str Inv_Attribute_Names[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	" to knockback resist",
 	"% increased damage",
-	"% increased accuracy"
+	" to accuracy rating"
 };
 
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
@@ -110,23 +116,23 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 4, 2 },
 	{ 1, 4, 2 },
 	
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
-	{ 5, 10, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
+	{ 1, 8, 2 },
 	
-	{ 5, 10, 2 },
+	{ 3, 8, 2 },
 	
-	{ 4, 8, 3 },
-	{ 5, 10, 2 },
+	{ 1, 4, 4 },
+	{ 1, 5, 2 },
 	
 	{ 1, 5, 2 },
-	{ 1, 10, 2 },
+	{ 1, 3, 2 },
 	
 	{ 1, 25, 5 },
 	
@@ -135,8 +141,35 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 10, 2 },
 	
 	{ 25, 100, 10 },
-	{ 1, 10, 2 },
-	{ 5, 20, 2 }
+	{ 1, 5, 2 },
+	{ 4, 125, 20 }
+};
+
+#define MAX_MAGAZINES 23
+str WeaponMagazineList[MAX_MAGAZINES] = {
+	"SawedoffCounter",
+	"AkimboClipLeft",
+	"AkimboClipRight",
+	"BulletSize_6",
+	"ShellSize_2",
+	"ShellSize_8",
+	"ShellSize_8N",
+	"ShellSize_10",
+	"ShellSize_12",
+	"ShellSize_16",
+	"ShellSize_18",
+	"MGClip",
+	"MGClip2",
+	"MGClip3",
+	"MGClip4",
+	"MGClip5",
+	"MGClip6",
+	"MGClip7",
+	"LoadedBasilisk",
+	"PCanClip",
+	"RiotgunClip",
+	"AcidClip",
+	"HeavyGLCounter"
 };
 
 #endif

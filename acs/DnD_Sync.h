@@ -847,6 +847,50 @@ void SyncItemPointers_Player(int itemid, int source, int wprev, int hprev, int p
 	}
 }
 
+void SyncItemAttributes(int itemid, int source) {
+	int i, j, temp;
+	int page = source >> 16;
+	int raw_source = source & 0xFFFF;
+	int payload = (raw_source << 8) | (page << 16);
+	ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMSATTRIBCOUNT | payload, GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source), itemid);
+	
+	temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
+	for(i = 0; i < temp; ++i) {
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_VAL; ++j)
+			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, j | payload, GetItemSyncValue(j, itemid, i, source), itemid | (i << 16));
+	}
+}
+
+void SyncAllItemData(int source) {
+	int i, j, pnum = PlayerNumber();
+	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+		for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+			if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL)
+				SyncItemData(i, source, -1, -1);
+			else
+				SyncItemData_Null(i, source, 1, 1);
+		}
+	}
+	else if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
+		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
+			if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+				SyncItemData(i, source, -1, -1);
+			else
+				SyncItemData_Null(i, source, 1, 1);
+		}
+	}
+	else if(source == DND_SYNC_ITEMSOURCE_STASH) {
+		for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
+			for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
+				if(PlayerStashList[pnum][i][j].item_type != DND_ITEM_NULL)
+					SyncItemData(j, source | (i << 16), -1, -1);
+				else
+					SyncItemData_Null(j, source | (i << 16), 1, 1);
+			}
+		}
+	}
+}
+
 void SyncAllClientsideVariables() {
 	int i, j;
 	// sync others
