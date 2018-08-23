@@ -619,10 +619,10 @@ Script "DND On Kill" KILL {
 		HandleChestKeyDrop(pnum);
 		
 		// if elite, roll orb and equipment drops
-		if(pnum) {
+		//if(pnum) {
 			// handle orb drops
 			HandleOrbDrop();
-		}
+		//}
 		
 		// accessory drops (accept only from cyber and spider masterminds)
 		if(IsBoss()) {
@@ -703,6 +703,9 @@ Script "DND On Kill" KILL {
 }
 
 Script "DND Show Kill Digits" (int exp, int credit, int hasstuff) CLIENTSIDE {
+	// spectators shouldn't see this
+	if(!PlayerInGame(ConsolePlayerNumber()))
+		Terminate;
 	int tid = ConsolePlayerNumber() + P_TIDSTART;
 	exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
 	exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
@@ -1113,7 +1116,10 @@ Script "DND Special FX Handle" OPEN CLIENTSIDE {
 }
 
 Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
-	if(!extra) {
+	// remove if spectator
+	if(!PlayerInGame(ConsolePlayerNumber()))
+		Thing_Remove(0);
+	else if(!extra) {
 		if(ConsolePlayerNumber() != sp - 1)
 			Thing_Remove(0);
 	}
@@ -3258,6 +3264,8 @@ Script "DnD Give Research" (int sp) {
 }
 
 Script "DnD Orb Message" (int id) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
 	Log(s:StrParam(s:"\ccOrb pickup:     \c[Y5]", s:OrbList[id][ORB_TAG], s:"!\c-"));
 }
 

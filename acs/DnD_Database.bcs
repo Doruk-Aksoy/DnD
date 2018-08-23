@@ -1118,7 +1118,7 @@ Script "DND Player Save" OPEN {
 						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
 						if(GetCVar("dnd_hardcore") && PlayerDied[i])
 							continue; // don't save this player as they died
-						if (PlayerTransferred[i]) {
+						if(PlayerTransferred[i]) {
 							WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
 							SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
 							PlayerTransferred[i] = false;

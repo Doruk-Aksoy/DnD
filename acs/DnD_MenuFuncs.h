@@ -2656,7 +2656,7 @@ void HandleInventoryViewClicks(int boxid, int choice) {
 			else
 				SetInventory("DnD_SelectedInventoryBox", 0);
 		}
-		else if(CheckInventory("DnD_SelectedInventoryBox")) {
+		else if(CheckInventory("DnD_SelectedInventoryBox") && GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
 			// drop selected item
 			DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("DnD_SelectedInventoryBox", 0);
@@ -2732,7 +2732,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			}
 		}
 		else {
-			if(CheckInventory("DnD_InventoryView") && CheckInventory("DnD_SelectedInventoryBox")) {
+			if(CheckInventory("DnD_InventoryView") && CheckInventory("DnD_SelectedInventoryBox") && GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
 				// drop selected item
 				DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				SetInventory("DnD_SelectedInventoryBox", 0);
@@ -2920,6 +2920,14 @@ void ReturnTradeItems(int pnum) {
 		}
 }
 
+void HandleTradeCountdown(int p1, int p2) {
+	SetActivator(p1 + P_TIDSTART);
+	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p1);
+	SetActivator(p2 + P_TIDSTART);
+	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p2);
+	ACS_NamedExecuteAlways("DnD Trade Counter", 0, p1, p2);
+}
+
 void HandleTradeViewButtonClicks(int boxid) {
 	int bid = GetTradee();
 	int ioffset = 0, isource, soffset = 0, ssource;
@@ -2954,8 +2962,7 @@ void HandleTradeViewButtonClicks(int boxid) {
 						// if other side's confirmation is set, transfer items
 						if(CheckActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed")) {
 							// start countdown, when it's ready, proceed
-							ACS_NamedExecuteAlways("DnD Trade Countdown", 0, PlayerNumber(), bid);
-							ACS_NamedExecuteAlways("DnD Trade Counter", 0, PlayerNumber(), bid);
+							HandleTradeCountdown(bid, PlayerNumber());
 						}
 					}
 					else {
@@ -3072,10 +3079,12 @@ void HandleTradeViewButtonClicks(int boxid) {
 						soffset = 2 * MAX_INVENTORY_BOXES;
 					}
 					
-					// drop selected item
-					DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
-					SetInventory("DnD_SelectedInventoryBox", 0);
-					ActivatorSound("Items/Drop", 127);
+					if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
+						// drop selected item
+						DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
+						SetInventory("DnD_SelectedInventoryBox", 0);
+						ActivatorSound("Items/Drop", 127);
+					}
 				}
 			}
 		}
@@ -3251,10 +3260,12 @@ void HandleStashViewClicks(int boxid, int choice) {
 					soffset = MAX_INVENTORY_BOXES;
 				}
 				
-				// drop selected item
-				DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
-				SetInventory("DnD_SelectedInventoryBox", 0);
-				ActivatorSound("Items/Drop", 127);
+				if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
+					// drop selected item
+					DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
+					SetInventory("DnD_SelectedInventoryBox", 0);
+					ActivatorSound("Items/Drop", 127);
+				}
 			}
 		}
 		else {

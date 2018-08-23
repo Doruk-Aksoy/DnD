@@ -731,32 +731,48 @@ int TakeOrbFromPlayer(int otype, int amt) {
 	return res;
 }
 
+// very badly coded, improve later
 void GiveOrbToPlayer(int otype, int amt) {
 	int res = 0, pnum = PlayerNumber();
 	int i, j;
 	// try to find space in player inventory first
 	i = GetFreeSpotForSingleSpotItem(pnum, DND_ITEM_ORB, otype);
 	if(i != -1) {
-		// implant this item here, and add as many stacks as we can to this
-		PlayerInventoryList[pnum][i].item_level = 1;
-		PlayerInventoryList[pnum][i].item_type = DND_ITEM_ORB;
-		PlayerInventoryList[pnum][i].item_subtype = otype;
-		PlayerInventoryList[pnum][i].width = 1;
-		PlayerInventoryList[pnum][i].height = 1;
-		PlayerInventoryList[pnum][i].attrib_count = 0;
-		PlayerInventoryList[pnum][i].item_image = ITEM_IMAGE_ORB_BEGIN + otype;
-		PlayerInventoryList[pnum][i].topleftboxid = i + 1;
 		j = GetStackValue(DND_ITEM_ORB);
-		if(amt < j) {
-			PlayerInventoryList[pnum][i].item_stack += amt - res;
-			res = amt;
+		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL) {
+			// we can add to this item's stack
+			if(amt - res < j - PlayerInventoryList[pnum][i].item_stack) {
+				PlayerInventoryList[pnum][i].item_stack += amt - res;
+				res = amt;
+			}
+			else {
+				// difference is added
+				res += j - PlayerInventoryList[pnum][i].item_stack;
+				PlayerInventoryList[pnum][i].item_stack = j;
+			}
+			SyncItemStack(i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		}
 		else {
-			// difference is added
-			res += j - PlayerInventoryList[pnum][i].item_stack;
-			PlayerInventoryList[pnum][i].item_stack = j;
+			// implant this item here, and add as many stacks as we can to this
+			PlayerInventoryList[pnum][i].item_level = 1;
+			PlayerInventoryList[pnum][i].item_type = DND_ITEM_ORB;
+			PlayerInventoryList[pnum][i].item_subtype = otype;
+			PlayerInventoryList[pnum][i].width = 1;
+			PlayerInventoryList[pnum][i].height = 1;
+			PlayerInventoryList[pnum][i].attrib_count = 0;
+			PlayerInventoryList[pnum][i].item_image = ITEM_IMAGE_ORB_BEGIN + otype;
+			PlayerInventoryList[pnum][i].topleftboxid = i + 1;
+			if(amt - res < j - PlayerInventoryList[pnum][i].item_stack) {
+				PlayerInventoryList[pnum][i].item_stack += amt - res;
+				res = amt;
+			}
+			else {
+				// difference is added
+				res += j - PlayerInventoryList[pnum][i].item_stack;
+				PlayerInventoryList[pnum][i].item_stack = j;
+			}
+			SyncItemData(i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 1, 1);
 		}
-		SyncItemData(i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 1, 1);
 	}
 	
 	if(res < amt) {
@@ -774,7 +790,7 @@ void GiveOrbToPlayer(int otype, int amt) {
 					PlayerStashList[pnum][i][j].item_image = ITEM_IMAGE_ORB_BEGIN + otype;
 					PlayerStashList[pnum][i][j].topleftboxid = j + 1;
 					
-					if(amt < GetStackValue(DND_ITEM_ORB)) {
+					if(amt - res < GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack) {
 						PlayerStashList[pnum][i][j].item_stack += amt - res;
 						res = amt;
 					}
@@ -785,7 +801,7 @@ void GiveOrbToPlayer(int otype, int amt) {
 					SyncItemData(j, DND_SYNC_ITEMSOURCE_STASH | (i << 16), 1, 1);
 				}
 				else if(PlayerStashList[pnum][i][j].item_type == DND_ITEM_ORB && PlayerStashList[pnum][i][j].item_subtype == otype) {
-					if(amt < GetStackValue(DND_ITEM_ORB)) {
+					if(amt - res < GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack) {
 						PlayerStashList[pnum][i][j].item_stack += amt - res;
 						res = amt;
 					}
