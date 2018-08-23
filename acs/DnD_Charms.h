@@ -130,6 +130,7 @@ void SpawnCharm(int pnum) {
 int HandleCharmPickup(int item_index) {
 	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
 	CopyItem(true, item_index, PlayerNumber(), pcharm_index);
+	ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	return pcharm_index;
 }
 
@@ -171,6 +172,9 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
 			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 		}
+		// save to database on use
+		ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		return true;
 	}
 }

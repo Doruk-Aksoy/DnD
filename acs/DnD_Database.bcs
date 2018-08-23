@@ -193,9 +193,79 @@ void SavePlayerInventoryStuff(int pnum, int char_id, int tid, str pacc, int flag
 	}
 }
 
+void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
+	if(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) && PlayerIsLoggedIn(pnum)) {
+		BeginDBTransaction();
+		int tid = pnum + P_TIDSTART, i, j, k, temp;
+		char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
+		str pacc = GetPlayerAccountName(pnum);
+		
+		int w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+		int h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
+		int page = source >> 16;
+		source &= 0xFFFF;
+		if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+			for(i = 0; i < w; ++i) {
+				for(j = 0; j < h; ++j) {
+					temp = itemid + i + j * MAXINVENTORYBLOCKS_VERT;
+					// save item stuff
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_WIDTH), char_id), pacc, PlayerInventoryList[pnum][itemid].width);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_HEIGHT), char_id), pacc, PlayerInventoryList[pnum][itemid].height);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMAGE), char_id), pacc, PlayerInventoryList[pnum][itemid].item_image);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), char_id), pacc, PlayerInventoryList[pnum][itemid].item_type);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_SUBTYPE), char_id), pacc, PlayerInventoryList[pnum][itemid].item_subtype);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, PlayerInventoryList[pnum][itemid].item_level);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, PlayerInventoryList[pnum][itemid].item_stack);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, PlayerInventoryList[pnum][itemid].attrib_count);
+					for(k = 0; k < PlayerInventoryList[pnum][itemid].attrib_count; ++k) {
+						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_val);
+						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_id);
+					}
+				}
+			}
+		}
+		else if(source == DND_SYNC_ITEMSOURCE_STASH) {
+			for(i = 0; i < w; ++i) {
+				for(j = 0; j < h; ++j) {
+					temp = itemid + i + j * MAXINVENTORYBLOCKS_VERT;
+					// save item stuff
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_WIDTH), pacc, PlayerStashList[pnum][page][temp].width);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_HEIGHT), pacc, PlayerStashList[pnum][page][temp].height);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMAGE), pacc, PlayerStashList[pnum][page][temp].item_image);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), pacc, PlayerStashList[pnum][page][temp].item_type);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_SUBTYPE), pacc, PlayerStashList[pnum][page][temp].item_subtype);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc, PlayerStashList[pnum][page][temp].item_level);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc, PlayerStashList[pnum][page][temp].item_stack);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc, PlayerStashList[pnum][page][temp].attrib_count);
+					for(k = 0; k < PlayerStashList[pnum][page][temp].attrib_count; ++k) {
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_val);
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_id);
+					}
+				}
+			}
+		}
+		else {
+			// charms used
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_WIDTH), char_id), pacc, Charms_Used[pnum][itemid].width);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_HEIGHT), char_id), pacc, Charms_Used[pnum][itemid].height);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_IMAGE), char_id), pacc, Charms_Used[pnum][itemid].item_image);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), char_id), pacc, Charms_Used[pnum][itemid].item_type);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_SUBTYPE), char_id), pacc, Charms_Used[pnum][itemid].item_subtype);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, Charms_Used[pnum][itemid].item_level);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, Charms_Used[pnum][itemid].item_stack);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, Charms_Used[pnum][itemid].attrib_count);
+			for(j = 0; j < Charms_Used[pnum][itemid].attrib_count; ++j) {
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_val);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_id);
+			}
+		}
+		EndDBTransaction();
+	}
+}
+
 void SavePlayerData(int pnum, int char_id) {
 	int temp, tid = pnum + P_TIDSTART, i, j;
-	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS-1); //DnD_CharacterID defaults to 1 if no cmds are used.
+	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS-1); // DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = GetPlayerAccountName(pnum);
 	// save weapons
 	for(i = 0; i < MAXWEPS; ++i) {
@@ -1116,7 +1186,7 @@ Script "DND Player Save" OPEN {
 				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
 					if (PlayerIsLoggedIn(i)) {
 						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
-						if(GetCVar("dnd_hardcore") && PlayerDied[i])
+						if((GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) && PlayerDied[i])
 							continue; // don't save this player as they died
 						if(PlayerTransferred[i]) {
 							WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
@@ -1294,4 +1364,8 @@ Script "DnD Save Player Orb and Stat Data" (int pnum) {
 			SavePlayerOrbData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
 		EndDBTransaction();
 	}
+}
+
+Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {
+	SavePlayerItem(pnum_char & 0xFFFF, pnum_char >> 16, itemid, source);
 }
