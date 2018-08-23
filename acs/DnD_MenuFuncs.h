@@ -2686,6 +2686,7 @@ void HandleGenericInventoryViewInputs(int boxid) {
 }
 
 void HandleItemPageInputs(int pnum, int boxid) {
+	int charm_sel, charm_type, topboxid;
 	if(CheckInventory("MadeChoice") == 1) {
 		if(boxid != MAINBOX_NONE) {
 			// we pressed a charm box or view inventory box
@@ -2697,9 +2698,9 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			}
 			else {
 				// now track our choices made in the inventory view
-				int charm_sel = CheckInventory("DnD_SelectedCharmBox");
-				int charm_type = 0;
-				int topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
+				charm_sel = CheckInventory("DnD_SelectedCharmBox");
+				charm_type = 0;
+				topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
 				if(charm_sel) {
 					if(charm_sel <= MBOX_4) // small charm replacement
 						charm_type = DND_CHARM_SMALL;
@@ -2738,6 +2739,20 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				SetInventory("DnD_SelectedInventoryBox", 0);
 				ActivatorSound("Items/Drop", 127);
 			}
+		}
+	}
+	else if(CheckInventory("MadeChoice") == 2) {
+		// mbox 8 is the view inventory button
+		if(boxid != MAINBOX_NONE && boxid != MBOX_8 && Charms_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
+			// try to drop item
+			charm_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			if(charm_sel != -1) {
+				LocalAmbientSound("Items/CharmDrop", 127);
+				RemoveItemFeatures(boxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED);
+				MoveItemTrade(boxid - 1, charm_sel, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			}
+			else
+				ShowPopup(POPUP_NOSPOTFORITEM, false, 0);
 		}
 	}
 }

@@ -2295,10 +2295,11 @@ enum {
 	POPUP_YOUAREMUTED,
 	POPUP_ITEMNEEDSTARGET,
 	POPUP_MATERIALCANTUSE,
-	POPUP_ITEMTYPEMISMATCH
+	POPUP_ITEMTYPEMISMATCH,
+	POPUP_NOSPOTFORITEM
 };
 
-#define MAX_POPUPS POPUP_ITEMTYPEMISMATCH + 1
+#define MAX_POPUPS POPUP_NOSPOTFORITEM + 1
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2320,7 +2321,8 @@ str PopupText[MAX_POPUPS] = {
 	"Targeted player has\nmuted you from\ntrading!",
 	"Material requires\nanother item to\nbe used on!",
 	"Conditions for the\nmaterial not met!",
-	"Mismatching item\ntype!"
+	"Mismatching item\ntype!",
+	"No free spot to\nplace the item!"
 };
 
 #define MAX_HELPTEXT_RESEARCH 5
