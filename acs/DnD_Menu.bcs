@@ -704,7 +704,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			else if(curopt == MENU_HELP_CHARACTER) {
 				ListenScroll(-96, 0);
 				HudMessage(s:"--- DnD Character Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				SetHudClipRect(192, 64, 288, 192, 288, 1);
+				SetHudClipRect(192, 64, 256, 192, 256, 1);
 				
 				for(i = 0; i < MAX_HELPTEXT_CHARACTER; ++i)
 					HudMessage(s:"\c[Y5]* \c-", s:HelpText_Character[i]; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 64.1 + 72.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
@@ -744,7 +744,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				SetHudClipRect(0, 0, 0, 0);
 			}
 			else if(curopt == MENU_HELP_ORBS) {
-				ListenScroll(-144, 0);
+				ListenScroll(-192, 0);
 				HudMessage(s:"--- DnD Orbs Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				SetHudClipRect(192, 60, 256, 384, 256, 1);

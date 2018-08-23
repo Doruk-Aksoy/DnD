@@ -224,17 +224,17 @@ str HelpText_Orbs[MAX_HELPTEXT_ORBS] = {
 2.5
 1.5
 8
-15
-10
-10
+13.5
+9
+9
 5
 5
 2.5
 2.5
 2.5
+3.5
+3.5
 2
-2
-1.5
 */
 
 int OrbDropWeights[MAX_ORBS] = {
@@ -244,17 +244,17 @@ int OrbDropWeights[MAX_ORBS] = {
 	325,
 	340,
 	420,
-	570,
-	670,
-	770,
-	820,
-	870,
-	895,
-	920,
+	555,
+	645,
+	735,
+	785,
+	835,
+	860,
+	885,
+	910,
 	945,
-	965,
-	985,
-	1000,
+	980,
+	1000
 };
 
 #define ENHANCEORB_BONUS 1
@@ -509,7 +509,7 @@ void HandleOrbUse (int orbtype, int extra) {
 			do {
 				temp = PickRandomOrb();
 			} while(temp == DND_ORB_CALAMITY);
-			GiveOrbToPlayer(temp, i);
+			ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, temp, i);
 			res += temp * 100;
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
@@ -956,7 +956,7 @@ void RevertLastOrbEffect() {
 		case DND_ORB_CALAMITY:
 			// find out how many this player does really have left, and give back that many (will give none if you used up all!)
 			i = TakeOrbFromPlayer(Player_MostRecent_Orb[pnum].values[0] / 100, Player_MostRecent_Orb[pnum].values[1]);
-			GiveOrbToPlayer(Player_MostRecent_Orb[pnum].values[0] % 100, i);
+			ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, Player_MostRecent_Orb[pnum].values[0] % 100, i);
 		break;
 		case DND_ORB_PROSPERITY:
 			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, Player_MostRecent_Orb[pnum].values[0]);
@@ -1686,6 +1686,11 @@ void RollOrbInfo(int item_pos, int orbtype, bool onField) {
 	Inventories_On_Field[item_pos].height = 1;
 	Inventories_On_Field[item_pos].attrib_count = 0;
 	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_ORB_BEGIN + orbtype;
+}
+
+Script "DnD Give Orb Delayed" (int type, int amt) {
+	Delay(1);
+	GiveOrbToPlayer(type, amt);
 }
 
 #endif

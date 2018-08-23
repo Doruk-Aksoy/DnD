@@ -1928,7 +1928,7 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SLOT4UPG4, 	8277, 60
 		},
 		{
-			RES_SLOT5UPG1, 8216, 50
+			RES_SLOT5UPG1, 8433, 50
 		},
 		{
 			RES_SLOT5UPG2, 8219, 55
@@ -1937,7 +1937,7 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SLOT5UPG3, 7066, 50
 		},
 		{
-			RES_SLOT5GL, 8433, 10
+			RES_SLOT5GL, 8216, 10
 		},
 		{
 			RES_SLOT6UPG1, 4811, 50
@@ -2164,7 +2164,7 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			"RESBAK39",
-			"It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both (5)."
+			"A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher (5)."
 		},
 		{
 			"RESBAK40",
@@ -2172,7 +2172,7 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			"RESBAK23",
-			"A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher (5)."
+			"It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both (5)."
 		},
 		{
 			"RESBAK24",
