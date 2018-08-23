@@ -8,7 +8,7 @@
 #include "DnD_Elixirs.h"
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
-#include "DnD_Chestkey.h"
+#include "DnD_ChestKey.h"
 
 #define PERK_GAIN_RATE 5
 

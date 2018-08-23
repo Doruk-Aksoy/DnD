@@ -20,8 +20,6 @@ echo Packing all files into pk7's...
 
 SET sevenzip="%PROGRAMFILES%\7-zip\7z.exe"
 %sevenzip% u -t7z dnd.pk7 .\dnd\* -mx=9 -ms=off >nul
-%sevenzip% d dnd.pk7 TEXTURES -x!TEXTURES\ >nul
-%sevenzip% rn dnd.pk7 TEXTURES_ TEXTURES >nul
 %sevenzip% u -t7z dnd_monsters.pk7 .\monsters\* -mx=9 -ms=off >nul
 %sevenzip% u -t7z dnd_onlyammo.pk7 .\onlyammo\* -mx=9 -ms=off >nul
 
