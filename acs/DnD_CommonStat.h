@@ -145,7 +145,7 @@ typedef struct {
 	int accuracy;
 } pstat_T;
 
-global pstat_T 4: Player_Bonuses[MAXPLAYERS];
+global pstat_T 16: Player_Bonuses[MAXPLAYERS];
 
 enum {
 	SF_FREEZE = 1

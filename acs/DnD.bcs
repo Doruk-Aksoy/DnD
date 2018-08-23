@@ -1896,7 +1896,6 @@ Script 991 ENTER {
 	bool wait_other_players = false;
 	SetInventory("PlayersNotReady", PlayerCount());
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
-	
 	GiveInventory("ParsingData", 1);
 	// begin hardcore countdown
 	if(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore"))) {
@@ -1980,6 +1979,8 @@ Script 991 ENTER {
 			GiveAndDoAllResearch();
 		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 	}
+	else
+		ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
 	
 	// if map changed, reset accessory stuff
 	if(MapChanged) {
@@ -2048,6 +2049,14 @@ Script 991 ENTER {
 	// for zombie quest to work
 	TakeInventory("DnD_ShotUndead", 1);
 	TakeInventory("ParsingData", 1);
+}
+
+Script "Force Sync Player Global Data" (void) {
+	Delay(DND_SYNC_DELAY);
+	SyncAllItemData(DND_SYNC_ITEMSOURCE_CHARMUSED);
+	SyncAllItemData(DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
+	SyncAllClientsideVariables();
 }
 
 // Control for ammo capacity

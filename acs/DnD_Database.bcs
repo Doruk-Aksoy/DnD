@@ -1271,7 +1271,7 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 			Log(s:"\cgCHAR ERROR: The load time for this map is over!");
 		break;
 		case DND_LOGIN_CHARNOTINRANGE:
-			Log(s:"\cgCHAR ERROR: Character slot number needs to be between 0 - ", d:DND_MAX_CHARS-1, s:"!");
+			Log(s:"\cgCHAR ERROR: Character slot number needs to be between 0 - ", d:DND_MAX_CHARS - 1, s:"!");
 		break;
 		case DND_LOGIN_TRANSFSAMESLOT:
 			Log(s:"TRANSFER CHAR: Character will remain at the current slot \cd", d:extra, s:"\c- on character save.");
