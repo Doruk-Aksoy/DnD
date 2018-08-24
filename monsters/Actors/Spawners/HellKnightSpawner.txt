@@ -44,5 +44,8 @@ Actor HellKnightSpawner : DnD_MonsterSpawner replaces HellKnight {
 		Var12:
 			TNT1 A 0 A_SpawnItemEx("IceGolem", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Var13:
+			TNT1 A 0 A_SpawnItemEx("Gladiator", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

@@ -46,6 +46,8 @@ Actor OrbSoundPlayer : DnD_Activator {
 }
 
 Actor OrbDrop : InventoryBase {
+	Renderstyle Translucent
+	Alpha 0.0
 	States {
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)

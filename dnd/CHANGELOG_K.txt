@@ -12,7 +12,9 @@ LEGEND:
 ! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun", "Wheel of Torment", "Emerald Wand".
 ! Added a new special ammo type: "Slug Shell".
 ! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun", "Bio-Enhancement - I, II and III", "Exoskeleton I, II and III", "Impact Protection I, II and III", "Slug Shells", "Wheel of Torment".
+! Added 3 new orbs: "Orb of Refinement", "Orb of Sculpting", "Orb of Elevation".
 ! Backpacks can also drop chests now!
+	- Every other item's chest drop rate is now 10%.
 ! Added a new player character: "Cyborg".
 ! Added a new CVar: "dnd_maxmonsterlevel" to help server hosts declare the max monster level. This CVar is unaffected by softcore or hardcore.
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
@@ -149,20 +151,44 @@ LEGEND:
 + "Devastator 5000" explosion radius increased to 96 from 72.
 + "Devastator 5000" fires 5 projectiles up from 4 and uses 5 ammo instead of 8.
 
+* Orb drop chances have been changed. They are now:
+	- Orb of Enhancement: 15%
+	- Orb of Corruption: 5%
+	- Orb of Spirit: 10%
+	- Orb of Repentance: 2.5%
+	- Orb of Affluence: 1.5%
+	- Orb of Calamity: 8%
+	- Orb of Prosperity: 13.5%
+	- Orb of Wisdom: 9%
+	- Orb of Greed: 9%
+	- Orb of Violence: 5%
+	- Orb of Fortitude: 5%
+	- Orb of Sin: 2.5%
+	- Orb of Riches: 2.5%
+	- Orb of Holding: 2.5%
+	- Orb of Refinement: 3.5%
+	- Orb of Sculpting: 3.5%
+	- Orb of Elevation: 2%
+
 =====================
 == MONSTER RELATED ==
 =====================
 
-! Added new variants to "Imp" and "Demon" categories.
+! Added new variants to "Imp", "Demon", "Chaingunner", "Arachnotron", "Hell Knight" and "Baron of Hell" categories.
 ! "RIPPER" type attacks now have 50% less damage scaling.
 + All "Legendary" monsters have been buffed in terms of health, and some in terms of rate of fire.
 * Hopefully fixed "Azazel" death sound not being global.
 * "Sludge Giant" splits now scale properly with level.
 * "Abomination" small shots no longer go through other Mancubus type monsters.
 * Added "MOVEWITHSECTOR" to "Hellsmith" hammer and "Terminator" debris.
+* Added missing comma at the end of "Hell's Fury" obituary.
+* Added missing commas to some monsters in "Arachnotron" tier.
+* "Warlord of Hell" now mentions the "Rage" property when monster scan is available.
++ Increased hitbox of "Bloodseeker" fireballs to 16x16 from 12x8.
 * Reworked all minion summon methods to properly set master-child relations. (They properly use the summoner's level now)
 * "Blood Lich" minions spawned on death now give exp and credit.
 * "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.
+- "Bloodfiend" blood shot damage reduced to 2 - 12 from 2 - 16.
 - "Avatar of Chaos" no longer becomes ghostly during his soul attack.
 * "Bruiser Demon" now bleeds fire. (Only VFX)
 - "Blood Lich" fire breath damage halved.

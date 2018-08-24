@@ -22,6 +22,11 @@
 
 #define DND_EMERALD_TIDADD 100
 
+#define ASPECT_4_3 (4.0 / 3)
+#define ASPECT_5_4 1.25
+#define ASPECT_16_9 (16.0 / 9)
+#define ASPECT_16_10 1.6
+
 /*
 ////////////////
 // TID RANGES //
@@ -56,7 +61,8 @@ global int 0: MapChanged;
 global int 5: HardcoreSet;
 global bool 7: PlayerDied[MAXPLAYERS];
 
-int screenres1 = -1, screenres2 = -1;
+#define MAX_SCREENRES_OFFSETS 4
+int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1 };
 int total_level = 0, min_level = INT_MAX, max_level = INT_MIN;
 int active_quest_id = -1;
 int dnd_monster_tid = DND_MONSTERTID_BEGIN;

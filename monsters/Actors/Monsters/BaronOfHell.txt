@@ -252,7 +252,6 @@ actor lavasmoke1
  }
 }      
 
-
 ACTOR LordofHeresy : DnD_BaseEnemy { 
     Health 1100 
     Radius 20 
@@ -1497,8 +1496,8 @@ ACTOR BloodSeeker : DnD_BaseEnemy {
 Actor BeastTransform : DnD_Boolean { }
 
 Actor BeastFireBall {
-	Radius 6
-	Height 8
+	Radius 8
+	Height 16
 	Speed 24
 	PROJECTILE
 	Damage (5*random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
@@ -2705,6 +2704,267 @@ Actor MagmaGolemNade_3 : MagmaGolemNade {
 			TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 14, 0, 270 + random(-12, 12), CMF_TRACKOWNER, random(0, 16))
 			XPL1 ABC 4 Bright A_SpawnItem("MagmaGolemExp_3")
 			XPL1 DEF 4 bright
+		Stop
+	}
+}
+
+const float warmaster_ratio = 0.25;
+
+ACTOR Warmaster : DnD_BaseEnemy { 
+    Health 1250
+    Radius 20 
+    Height 56 
+    Speed 12
+    PainChance 32
+    Mass 1000
+    MONSTER 
+	+FLOORCLIP
+    Species "HK"
+    +DONTHURTSPECIES	
+	+DONTBLAST
+	+USEKILLSCRIPTS
+    Obituary "%o never stood a chance against a Warmaster." 
+    SeeSound "Warmaster/See" 
+    PainSound "Warmaster/pain" 
+    DeathSound "Warmaster/Die" 
+    ActiveSound "Warmaster/act"  
+	DamageFactor "Barons", 0.0
+	DamageFactor "BaronsExp", 0.0
+	DamageFactor "BaronsPoison", 0.0
+	DamageFactor "BaronsFire", 0.0
+	DamageFactor "BaronGreen", 0.0
+	DamageFactor "BaronGreenFire", 0.0
+	DamageFactor "BaronPlasma", 0.0
+	DamageFactor "BaronVoid", 0.0
+	DamageFactor "BaronYellow", 0.0
+	DamageFactor "BaronsMagic", 0.0
+	DamageFactor "BaronsMagicFire", 0.0
+	Tag "Warmaster"
+	Scale 1.1
+	+NOINFIGHTING
+	+NOTARGET
+    States { 
+		Spawn: 
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WARMASTER, DND_HEAL | DND_RAGE | DND_REFLECTIVE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Warmaster Rage")
+		Idle:
+			BOSX AB 10 A_Look 
+		Loop 
+		See:
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			TNT1 A 0 A_UnSetReflectiveInvulnerable
+			TNT1 A 0 A_GiveInventory("WarmasterActive", 1)
+		SeeLoop:
+			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "SeeRage")
+			BOSX AA 4 Fast A_Chase 
+			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "SeeRage_B")
+			BOSX BB 4 Fast A_Chase 
+			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "SeeRage_C")
+			BOSX CC 4 Fast A_Chase 
+			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "SeeRage_D")
+			BOSX DD 4 Fast A_Chase 
+		Loop
+		SeeRage:
+			BOSX AA 3 Fast A_Chase
+		SeeRage_B:
+			BOSX BB 3 Fast A_Chase
+		SeeRage_C:
+			BOSX CC 3 Fast A_Chase
+		SeeRage_D:
+			BOSX DD 3 Fast A_Chase
+		Goto SeeLoop
+		Missile: 
+			TNT1 A 0 A_Jump(96, "Roar")
+		MissileGo:
+			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "RageMissile")
+			BOSX E 7 Fast A_FaceTarget 
+			TNT1 A 0 A_PlaySound("Warmaster/Attack")
+			BOSX F 6 Fast A_FaceTarget 
+			BOSX G 6 Fast A_CustomComboAttack("WarmasterFireBall_Explode", 38, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee") 
+			TNT1 A 0 A_Jump(128, "MissileGo")
+		Goto See 
+		Melee:
+			TNT1 A 0 A_PlaySound("Warmaster/Attack")
+			BOSX E 2 Fast A_FaceTarget
+			TNT1 A 0 A_Recoil(-1.6)
+			BOSX E 3 Fast A_FaceTarget
+			TNT1 A 0 A_Recoil(-2.0)
+			BOSX F 2 Fast A_FaceTarget
+			TNT1 A 0 A_Recoil(-2.4)
+			BOSX F 3 Fast A_FaceTarget
+			TNT1 A 0 A_Recoil(-2.8)
+			BOSX G 5 Fast A_CustomComboAttack("WarmasterFireBall", 32, 10 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+		Goto See
+		RageMissile:
+			BOSX E 6 Fast A_FaceTarget 
+			TNT1 A 0 A_PlaySound("Warmaster/Attack")
+			BOSX F 5 Fast A_FaceTarget 
+			TNT1 A 0 A_Custommissile ("WarmasterFireBall", 38, 0, 8) 
+			BOSX G 2 Fast A_Custommissile ("WarmasterFireBall", 38, 0, 0)
+			BOSX G 4 Fast A_Custommissile ("WarmasterFireBall", 38, 0, -8) 
+			BOSX E 6 Fast A_FaceTarget 
+			TNT1 A 0 A_PlaySound("Warmaster/Attack")
+			BOSX F 5 Fast A_FaceTarget 
+			LOHS G 0 A_Custommissile ("WarmasterFireBall_Explode", 38, 0, -20) 
+			BOSX G 4 Fast A_Custommissile ("WarmasterFireBall", 38, 0, 0) 
+			BOSX E 5 Fast A_FaceTarget 
+			TNT1 A 0 A_PlaySound("Warmaster/Attack")
+			BOSX F 4 Fast A_FaceTarget 
+			LOHS G 0 A_Custommissile ("WarmasterFireBall_Explode", 38, 0, 20) 
+			BOSX G 3 Fast A_Custommissile ("WarmasterFireBall", 38, 0, 0) 
+			BOSX E 4 Fast A_FaceTarget 
+			TNT1 A 0 A_PlaySound("Warmaster/Attack")
+			BOSX F 3 Fast A_FaceTarget 
+			LOHS G 0 A_Custommissile ("WarmasterFireBall", 38, 0, -12) 
+			BOSX G 3 Fast A_Custommissile ("WarmasterFireBall", 38, 0, 12) 
+		Goto See 
+		Roar:
+			TNT1 A 0 A_JumpIfInventory("RoarCooldown", 1, "MissileGo")
+			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "RoarGo")
+		Goto MissileGo
+		RoarGo:
+			BOSX H 3 Fast A_PlaySound("Warmaster/Roar")
+			TNT1 A 0 A_GiveInventory("RoarCooldown", 1)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx("WarmasterRoarFX", 2, 0, 40, 0, 0, 2)
+			TNT1 A 0 A_RadiusGive("WarmasterBuff", 288, RGF_MONSTERS, 1)
+			BOSX H 8 Fast 
+		Goto See
+		Pain: 
+			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "PainRage")
+			BOSX H 5 Fast 
+			BOSX H 5 Fast A_Pain 
+		Goto See 
+		PainRage:
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx("WarmasterDeflectFX", 20, 0, 48)
+			BOSX H 5 Fast A_SetReflectiveInvulnerable
+			TNT1 A 0 A_SpawnItemEx("WarmasterDeflectFX", 20, 0, 48)
+			BOSX H 5 Fast A_Pain
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			TNT1 A 0 A_UnSetReflectiveInvulnerable
+		Goto See
+		Death: 
+			BOSX I 6 A_TakeInventory("WarmasterActive", 1)
+			TNT1 AA 0 A_Scream
+			BOSX J 5 
+			BOSX K 4
+			BOSX K 3 A_Fall
+			BOSX LMN 3
+			BOSX O -1 A_KillMaster
+			Stop 
+		Raise: 
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 A_GiveInventory("NoDrop", 1)
+			BOSX ONMLKJI 4 
+		Goto See 
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+    }
+}
+
+Actor WarmasterBuff : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon - Self"), "Give")
+		Stop
+		Give:
+			TNT1 A 0 HealThing(ACS_ExecuteWithResult(961, 7) * warmaster_ratio)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Warmaster Protect FX Trigger")
+		Stop
+	}
+}
+
+Actor WarmasterFireBall : GladiatorFireBall {
+	Speed 32
+}
+
+Actor WarmasterFireBall_Explode : GladiatorFireBall_Explode {
+	Speed 28
+}
+
+Actor WarmasterActive : DnD_Boolean { }
+Actor WarmasterRage : DnD_Boolean { }
+
+Actor RoarCooldown : PowerProtection {
+	powerup.duration -10
+	damagefactor "normal", 1.0
+}
+
+Actor WarmasterProtect : PowerProtection {
+	powerup.duration -5
+	damagefactor "normal", 0.75
+}
+
+Actor WarmasterDeflectFX {
+	Translation "0:255=%[0.00,0.00,0.00]:[0.83,0.83,0.83]"
+	Scale 0.85
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	RenderStyle add
+	Alpha 0.8
+	States  { 
+		Spawn: 
+			R075 ABCDEFFGHIJKLMNOP 1 BRIGHT A_FadeOut(0.03)
+		Stop 
+	} 
+}
+
+Actor WarmasterProtectFX {
+	Translation "0:255=%[0.00,0.00,0.00]:[0.83,0.83,0.83]"
+	Scale 0.3
+    RenderStyle Add
+    Alpha 0.85
+    +FORCEXYBILLBOARD
+	+NOGRAVITY
+	+THRUACTORS
+    +NOINTERACTION
+	+CLIENTSIDEONLY
+    States {
+		Spawn:
+			TNT1 A 0
+			DES5 K 1 Bright Light("WarmasterGrayGlow") A_FadeTo (0, 0.03, 1)
+		Wait
+    }
+}
+
+actor WarmasterProtectFXSpawner {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+    States {
+		Spawn:
+			TNT1 AA 0 NoDelay A_SpawnItemEx("WarmasterProtectFX", frandom(-42.0, 42.0),frandom(-42.0,42.0),frandom(24.0,60.0), 0,0,2, 0, SXF_NOCHECKPOSITION)
+			TNT1 A 1
+		Stop
+    }
+}
+
+Actor WarmasterRoarFX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Renderstyle Add
+	Alpha 0.9
+	States {
+		Spawn:
+			BOSX PQ 5 Bright
+			BOSX R 15 Bright
+			BOSX ST 5 Bright
 		Stop
 	}
 }

@@ -1524,6 +1524,7 @@ actor Devil : DoomImp2 {
 
 actor Devil2 : Devil {
 	health 125
+	Painchance 128
 	states {
 		Spawn:
 			TNT1 A 0

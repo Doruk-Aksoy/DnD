@@ -56,6 +56,7 @@ enum {
 	MONSTER_ZSEC,
 	MONSTER_ZSPECMG,
 	MONSTER_PLASMAZOMBIE,
+	MONSTER_BERSERKERGUY,
 	
 	// Demon
 	MONSTER_BLOODDEMON,
@@ -71,6 +72,7 @@ enum {
 	MONSTER_SATYR,
 	MONSTER_EARTHGOLEM,
 	MONSTER_RAVAGER,
+	MONSTER_PUREBREDDEMON,
 	
 	// Spectre
 	MONSTER_LURKER,
@@ -152,6 +154,7 @@ enum {
 	MONSTER_CHAOSSERPENT,
 	MONSTER_MOONSATYR,
 	MONSTER_ICEGOLEM,
+	MONSTER_GLADIATOR,
 
 	// Baron
 	MONSTER_LAVADEMON,
@@ -166,6 +169,7 @@ enum {
 	MONSTER_MAGMASERPENT,
 	MONSTER_DREADKNIGHT,
 	MONSTER_MAGMAGOLEM,
+	MONSTER_WARMASTER,
 	
 	// Fatso
 	MONSTER_CORPULENT,
@@ -187,6 +191,7 @@ enum {
 	MONSTER_CHAINGUNGENERAL,
 	MONSTER_CHAINGUNCOMMANDO,
 	MONSTER_LEGIONNAIRE,
+	MONSTER_MANTICORE,
 	
 	// ArchVile
 	MONSTER_DIABLOIST,
@@ -353,6 +358,7 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW,
 	DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW,
 	DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW,
+	DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW,
 	
 	// Demon
 	DND_MTYPE_DEMON_POW,
@@ -367,6 +373,7 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_MAGICAL_POW,
+	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_DEMON_POW,
 	
 	// Spectre
@@ -449,6 +456,7 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_MAGICAL_POW,
+	DND_MTYPE_DEMON_POW,
 
 	// Baron
 	DND_MTYPE_DEMON_POW,
@@ -463,6 +471,7 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_DEMON_POW,
 	DND_MTYPE_UNDEAD_POW,
 	DND_MTYPE_MAGICAL_POW,
+	DND_MTYPE_DEMON_POW,
 	
 	// Fatso
 	DND_MTYPE_DEMON_POW,
@@ -484,6 +493,7 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW,
 	DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW,
 	DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW,
+	DND_MTYPE_DEMON_POW,
 	
 	// ArchVile
 	DND_MTYPE_DEMON_POW,
@@ -548,9 +558,9 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
     // Shotgunguy
     { 16, 4, 8, 6, 4, 4, 6, 6, 4, -1 },
     // Chaingunguy
-    { 8, 8, 8, 6, 4, 4, 4, 3, 4, 6, -1 },
+    { 8, 8, 8, 6, 4, 4, 4, 3, 4, 6, 3, -1 },
     // Demon
-    { 16, 16, 12, 8, 12, 16, 8, 10, 7, 8, 10, 10, 6, 6, -1 },
+    { 16, 16, 12, 8, 12, 16, 8, 10, 7, 8, 10, 10, 6, 6, 4, -1 },
     // Spectre
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, -1 },
     // Imp
@@ -564,15 +574,15 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
     // Revenant
     { 16, 16, 12, 12, 8, 9, 9, 8, 9, 10, 9, -1 },
     // HellKnight
-    { 12, 16, 14, 12, 10, 10, 10, 10, 8, 12, 12, 10, 6, -1	},
+    { 12, 16, 14, 12, 10, 10, 10, 10, 8, 12, 12, 10, 6, 6, -1 },
     // Baron
-    { 16, 16, 16, 12, 12, 10, 10, 8, 8, 8, 10, 6, 6, -1 },
+    { 16, 16, 16, 12, 12, 10, 10, 8, 8, 8, 10, 6, 6, 4, -1 },
     // Fatso
     { 16, 12, 12, 10, 10, 8, 10, 12, 16, 5, -1 },
     // ArchVile
     { 16, 8, 8, 12, 8, 8, 6, 6, 6, 5, -1 },
     // Arachno
-    { 16, 16, 16, 12, 10, 8, 10, 10, 8, -1 },
+    { 16, 16, 16, 12, 10, 8, 10, 10, 8, 6, -1 },
     // Spider Mastermind
     { 16, 10, 10, 12, 8, 8, 8, 10, 6, -1 },
     // Cyberdemon

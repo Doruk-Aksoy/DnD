@@ -25,6 +25,8 @@
 
 #define DND_TORRASQUE_MACEID 800
 
+#define WARMASTER_DIST 288.0
+
 typedef struct {
 	int time;
 	int growtime;

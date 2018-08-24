@@ -12,11 +12,6 @@
 
 #define PERK_GAIN_RATE 5
 
-#define ASPECT_4_3 (4.0 / 3)
-#define ASPECT_5_4 1.25
-#define ASPECT_16_9 (16.0 / 9)
-#define ASPECT_16_10 1.6
-
 #define BASEPISTCLIP 12
 #define BASEMGCLIP 50
 #define BASEHMGCLIP 60
@@ -1060,7 +1055,7 @@ void HandleCharmLootDrop(bool isElite) {
 		addchance = DND_ELITE_BASEDROP / 2;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) /*&& IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance)*/)
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance))
 			SpawnCharm(i);
 	}
 }

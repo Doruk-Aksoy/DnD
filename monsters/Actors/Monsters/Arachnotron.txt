@@ -1,5 +1,5 @@
 ACTOR FusionSpider : Arachno2 {
-	OBITUARY "%o was vaporized by a fusion cannon Arachnotron"
+	OBITUARY "%o was vaporized by a fusion cannon Arachnotron."
 	Health 500
 	Radius 64
 	Height 64
@@ -142,7 +142,7 @@ ACTOR FusionTrail
 }
 
 ACTOR HellforgeSpider : DnD_BaseEnemy {
-	OBITUARY "%o was charred to smithereens by a Hellforge Spider"
+	OBITUARY "%o was charred to smithereens by a Hellforge Spider."
 	Health 700
 	Radius 64
 	Height 64
@@ -1295,5 +1295,155 @@ Actor LegionnaireMissile2 : LegionnaireMissile {
 			TNT1 A 0 A_SpawnItemEx("LegionnaireTrail2", 0, dx * sin(user_count * 30), dx + dx * cos(user_count * 30))
 			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 12)
 		Loop
+	}
+}
+
+ACTOR Manticore : Arachno2 {
+	OBITUARY "%o was blown away by a Manticore."
+	Health 650
+	Radius 64
+	Height 64
+	Mass 2048
+	Speed 12
+	PainChance 96   
+	SEESOUND "Manticore/See"
+	PainSound "Manticore/Pain"
+	DEATHSOUND "Manticore/death"
+	ACTIVESOUND "Manticore/Act"
+	DamageFactor "Arachno", 0.0
+	DamageFactor "ArachnoExp", 0.0
+	DamageFactor "ArachnoBullet", 0.0
+	DamageFactor "ArachnoFire", 0.0
+	DamageFactor "ArachnoVoid", 0.0
+	DamageFactor "ArachnoGreen", 0.0
+	DamageFactor "ArachnoYellow", 0.0
+	MONSTER
+	Species "Spider"
+	Tag "Manticore"
+	Scale 0.825
+	+DONTHURTSPECIES
+	+FloorClip
+	+MissileMore
+	+MissileEvenMore
+	+NORADIUSDMG
+	+DONTBLAST
+	+DONTRIP
+	states {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_MANTICORE, DND_HARDENED_SKIN | DND_EXPLOSIVE_IMMUNE)
+		Idle:
+			DNET AB 10 A_Look
+		Loop
+		See:
+			DNET AABB 4 A_Chase
+			TNT1 A 0 A_PlaySound("hectebus/step")
+			DNET CCDD 4 A_Chase
+			TNT1 A 0 A_PlaySound("hectebus/step")
+		Loop
+		Missile:
+			DNET EF 9 A_FaceTarget
+			TNT1 A 0 A_Jump(128, "Repeated")
+			DNET G 8 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("ManticoreRocket", 82, -16, 0, CMF_AIMOFFSET)
+			DNET H 5 bright A_CustomMissile("ManticoreRocket", 82, 17, 0, CMF_AIMOFFSET)
+			DNET G 8 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("ManticoreRocket", 82, -16, 0, CMF_AIMOFFSET)
+			DNET H 5 bright A_CustomMissile("ManticoreRocket", 82, 17, 0, CMF_AIMOFFSET)
+			DNET G 8 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("ManticoreRocket", 82, -16, 0, CMF_AIMOFFSET)
+			DNET H 5 bright A_CustomMissile("ManticoreRocket", 82, 17, 0, CMF_AIMOFFSET)
+			DNET G 8 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("ManticoreRocket", 82, -16, 0, CMF_AIMOFFSET)
+			DNET H 5 bright A_CustomMissile("ManticoreRocket", 82, 17, 0, CMF_AIMOFFSET)
+			DNET G 5
+		Goto See
+		Repeated:
+			DNET G 8 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("ManticoreRocket", 82, -16, 0, CMF_AIMOFFSET)
+			DNET H 5 bright A_CustomMissile("ManticoreRocket", 82, 17, 0, CMF_AIMOFFSET)
+			DNET G 1 A_SpidRefire
+		Loop
+		Pain:
+			DNET E 3 Fast
+			TNT1 A 0 A_SpawnDebris("MetalScrap")
+			DNET E 3 Fast A_Pain
+		Goto See+1
+		Death:
+			DNET I 8 A_Scream
+			DNET J 6 A_NoBlocking
+			DNET KLMNOPQ 5 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			DNET R -1 A_KillMaster
+		Stop
+		Raise:
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			DNET QPONMLKJI 5
+		Goto See+1
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	}
+}
+
+Actor ManticoreRocketSmoke {
+	Renderstyle Translucent
+	Alpha 0.8
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			MPU9 AAABBBCCCDDDEEE 1 A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor ManticoreRocket {
+	PROJECTILE
+	Damage (4 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "ArachnoExp"
+	SeeSound "weapons/devastatorfire"
+	Deathsound "Weapons/DevastatorExpl"
+	Speed 28
+	Height 12
+	Radius 6
+	+DONTREFLECT
+	+THRUGHOST
+	States {
+		Spawn:
+			DEVM A 2 A_SpawnItemEx("ManticoreRocketSmoke", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlareSmall", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 A 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAA 0 A_CustomMissile("DevastatorSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 1 A_SpawnItem("ManticoreExp")
+			TNT1 A 1 A_SpawnItem("DevastatorExplosion")
+		Stop
+	}
+}
+
+Actor ManticoreExp : BaseExplosionDamage {
+	DamageType "ArachnoExp"
+	Obituary "%o was blown away by a Manticore."
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+		Stop
 	}
 }

@@ -565,7 +565,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			else if(curopt == MENU_SHOP_WEAPON7)
 				HandleWeaponPageDraw(curopt, 0, 7, boxid, -16);
 			else if(curopt == MENU_SHOP_WEAPON8)
-				HandleWeaponPageDraw(curopt, 1, 4, boxid, 0);
+				HandleWeaponPageDraw(curopt, 0, 8, boxid, 0);
 			else if(curopt == MENU_SHOP_AMMOSELECT) {
 				HudMessage(s:"--- AMMUNITIONS ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);

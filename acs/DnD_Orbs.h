@@ -1652,8 +1652,8 @@ void SpawnOrb(int pnum) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int w = random(1, ORB_MAXWEIGHT), i = 0;
-		//for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
-		i = random(DND_ORB_ENHANCE, DND_ORB_ELEVATION);
+		for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+		//i = random(DND_ORB_ENHANCE, DND_ORB_ELEVATION);
 		// c is the index on the field now
 		RollOrbInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);

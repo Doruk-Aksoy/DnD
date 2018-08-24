@@ -1,5 +1,95 @@
 weapons/smg DSSMG
 
+Manticore/See					MANTISEE
+Manticore/Pain					MANTIPN
+Manticore/Death					MANTIDIE
+Manticore/Act					MANTIACT
+
+Warmaster/See					WARMSSEE
+Warmaster/Roar					WARMSROR
+Warmaster/Act					WARMSACT
+Warmaster/Die1					WARMSDY1
+$limit Warmaster/Die1 0
+Warmaster/Die2					WARMSDY2
+$limit Warmaster/Die2 0
+$random Warmaster/Die { Warmaster/Die1 Warmaster/Die2 }
+Warmaster/Attack1				WARMSAT1
+Warmaster/Attack2				WARMSAT2
+Warmaster/Attack3				WARMSAT3
+Warmaster/Attack4				WARMSAT4
+Warmaster/Attack5				WARMSAT5
+Warmaster/Attack6				WARMSAT6
+$random Warmaster/Attack { Warmaster/Attack1 Warmaster/Attack2 Warmaster/Attack3 Warmaster/Attack4 Warmaster/Attack5 Warmaster/Attack6 }
+Warmaster/Pain1					WARMSPN1
+Warmaster/Pain2					WARMSPN2
+Warmaster/Pain3					WARMSPN3
+Warmaster/Pain4					WARMSPN4
+$random Warmaster/Pain { Warmaster/Pain1 Warmaster/Pain2 Warmaster/Pain3 Warmaster/Pain4 }
+
+Gladiator/See					GLADSEE
+Gladiator/Die					GLADDIE
+Gladiator/Act					GLADACT
+Gladiator/Pain1					GLADPN1
+Gladiator/Pain2					GLADPN2
+Gladiator/Pain3					GLADPN3
+$random Gladiator/Pain { Gladiator/Pain1 Gladiator/Pain2 Gladiator/Pain3 }
+Gladiator/Attack1				GLADATK1
+Gladiator/Attack2				GLADATK2
+Gladiator/Attack3				GLADATK3
+$random Gladiator/Attack { Gladiator/Attack1 Gladiator/Attack2 Gladiator/Attack3 }
+
+$random FancyZombie/sight {FancyZombie/sight1 FancyZombie/sight2 FancyZombie/sight3 FancyZombie/sight4 FancyZombie/sight5 FancyZombie/sight6 FancyZombie/sight7 FancyZombie/sight8 FancyZombie/sight9 FancyZombie/sight10 FancyZombie/sight11 FancyZombie/sight12 FancyZombie/sight13 FancyZombie/sight14}
+FancyZombie/sight1            zcsi1
+FancyZombie/sight2            zcsi2
+FancyZombie/sight3            zcsi3
+FancyZombie/sight4            zcsi4
+FancyZombie/sight5            zcsi5
+FancyZombie/sight6            zcsi6
+FancyZombie/sight7            zcsi7
+FancyZombie/sight8            zcsi8
+FancyZombie/sight9            zcsi9
+FancyZombie/sight10           zcsi10
+FancyZombie/sight11           zcsi11
+FancyZombie/sight12           zcsi12
+FancyZombie/sight13           zcsi13
+FancyZombie/sight14           zcsi14
+
+$random FancyZombie/pain {FancyZombie/pain1 FancyZombie/pain2 FancyZombie/pain3 FancyZombie/pain4 FancyZombie/pain5 FancyZombie/pain6}
+FancyZombie/pain1              zcpain1
+FancyZombie/pain2              zcpain2
+FancyZombie/pain3              zcpain3
+FancyZombie/pain4              zcpain4
+FancyZombie/pain5              zcpain5
+FancyZombie/pain6              zcpain6
+
+$random FancyZombie/idle {FancyZombie/idle1 FancyZombie/idle2 FancyZombie/idle3 FancyZombie/idle4 FancyZombie/idle5 FancyZombie/idle6 FancyZombie/idle7}
+FancyZombie/idle1              zcidle1
+FancyZombie/idle2              zcidle2
+FancyZombie/idle3              zcidle3
+FancyZombie/idle4              zcidle4
+FancyZombie/idle5              zcidle5
+FancyZombie/idle6              zcidle6
+FancyZombie/idle7              zcidle7
+
+$random FancyZombie/attack {FancyZombie/attack1 FancyZombie/attack2 FancyZombie/attack3 FancyZombie/attack4 FancyZombie/attack5 FancyZombie/attack6}
+FancyZombie/attack1              zcatk1
+FancyZombie/attack2              zcatk2
+FancyZombie/attack3              zcatk3
+FancyZombie/attack4              zcatk4
+FancyZombie/attack5              zcatk5
+FancyZombie/attack6              zcatk6
+
+$random FancyZombie/death {FancyZombie/death1 FancyZombie/death2 FancyZombie/death3 FancyZombie/death4 FancyZombie/death5 FancyZombie/death6}
+FancyZombie/death1             zcdth1
+FancyZombie/death2             zcdth2
+FancyZombie/death3             zcdth3
+FancyZombie/death4             zcdth4
+FancyZombie/death5             zcdth5
+FancyZombie/death6             zcdth6
+FancyZombie/death7             zcdth7
+
+PurebredDemon/Thud		PUREDEMT
+
 Golem/Slide				GOLMSLID
 EarthGolem/See			EGLMSEE
 EarthGolem/Pain			EGLMPAIN
@@ -12,7 +102,6 @@ GoldGolem/Step			GGOLSTEP
 GoldGolem/LaserCharge	GGOLLASC
 GoldGolem/LaserHit		GGOLLASH
 GoldGolem/LaserFire		GGOLLASF
-GoldGolem/Step			GGOLSTEP
 GoldGolem/Fall			GGOLFALL
 GoldGolem/Melee			GGOLHIT
 GoldGolem/Swing			GGOLSWNG

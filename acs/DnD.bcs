@@ -619,10 +619,10 @@ Script "DND On Kill" KILL {
 		HandleChestKeyDrop(pnum);
 		
 		// if elite, roll orb and equipment drops
-		//if(pnum) {
+		if(pnum) {
 			// handle orb drops
 			HandleOrbDrop();
-		//}
+		}
 		
 		// accessory drops (accept only from cyber and spider masterminds)
 		if(IsBoss()) {
@@ -990,21 +990,20 @@ Script 905 (int mode) NET {
 }
 
 // 906 to 914 reserved
-
 script 915 enter CLIENTSIDE {
-	if (GetAspectRatio() == ASPECT_5_4) { screenres1 = 0.0; screenres2 =0.0; }
-	if (GetAspectRatio() == ASPECT_4_3) { screenres1 = 0.0; screenres2 =0.0; }
-	if (GetAspectRatio() == ASPECT_16_9) { screenres1 = 108.0; screenres2 = 110.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { screenres1 = 64.0; screenres2 = 76.0; }
+	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
+	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 64.0; ScreenResOffsets[1] = 76.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
 	delay(70);
 	restart;
 }
 
 script 916 RESPAWN CLIENTSIDE {
-	if (GetAspectRatio() == ASPECT_5_4) { screenres1 = 0.0; screenres2 =0.0; }
-	if (GetAspectRatio() == ASPECT_4_3) { screenres1 = 0.0; screenres2 =0.0; }
-	if (GetAspectRatio() == ASPECT_16_9) { screenres1 = 108.0; screenres2 = 110.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { screenres1 = 64.0; screenres2 = 76.0; }
+	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
+	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 64.0; ScreenResOffsets[1] = 76.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
 	delay(70);
 	restart;
 }
@@ -1498,15 +1497,15 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 		LocalAmbientSound("Weapon/Popup", 127);
 		SetHudSize(640, 480, 1);
 		SetFont("MSGBOX2");
-		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 515.0 + screenres2, 120.0, 4.0, 1.0, 1.0);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 515.0 + ScreenResOffsets[1], 120.0, 4.0, 1.0, 1.0);
 		SetFont(Weapons[itemnum][WEAPON_ICON]);
-		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEICO, CR_UNTRANSLATED, 537.1 + screenres2, 80.0, 4.0, 1.0, 1.0);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEICO, CR_UNTRANSLATED, 537.1 + ScreenResOffsets[1], 80.0, 4.0, 1.0, 1.0);
 		SetFont("OBJFONT");
-		HudMessage(s:Weapons[itemnum][WEAPON_SLOT]; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, 416.0 + screenres2, 68.0, 4.0, 1.0, 1.0);
+		HudMessage(s:Weapons[itemnum][WEAPON_SLOT]; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, 416.0 + ScreenResOffsets[1], 68.0, 4.0, 1.0, 1.0);
 
 		SetHudSize(960, 600, 1);
-		SetHudClipRect((632.0 + 3 * screenres2 / 2) >> 16, 96, 320, 128, 320, 1);
-		HudMessage(s:WeaponPickupText[itemnum]; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 632.1 + 3 * screenres2 / 2, 104.1, 4.0, 1.0, 1.0);
+		SetHudClipRect((632.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 96, 320, 128, 320, 1);
+		HudMessage(s:WeaponPickupText[itemnum]; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 632.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 4.0, 1.0, 1.0);
 		SetHudClipRect(0, 0, 0, 0);
 	}
 }
@@ -2492,20 +2491,20 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 		LocalAmbientSound("Quest/Announce", 127);
 	SetHudSize(640, 480, 1);
 	SetFont("QUESTPOP");
-	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 570.0 + screenres2, 80.0, 4.0, 1.0, 1.0);
+	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 570.0 + ScreenResOffsets[1], 80.0, 4.0, 1.0, 1.0);
 	SetFont("OBJFONT");
 	SetHudSize(960, 600, 1);
 	if(num == DND_ANNOUNCER_QUEST)
-		HudMessage(s:"New Quest! Press \cvview quest\c- key!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 740.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(s:"New Quest! Press \cvview quest\c- key!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 740.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_ATTRIBPOINT)
-		HudMessage(s:"You have unspent attribute points!\n    Spend them in \cvDnD Menu!\c-"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(s:"You have unspent attribute points!\n    Spend them in \cvDnD Menu!\c-"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_LEGENDARYMONSTER)
-		HudMessage(s:"A legendary monster now walks this\nland... Be wary.\c-"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(s:"A legendary monster now walks this\nland... Be wary.\c-"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
-		HudMessage(s:"You have discovered the following\nresearch: \cd", s:Research_Label[extra], s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(s:"You have discovered the following\nresearch: \cd", s:Research_Label[extra], s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_TRADEREQUEST) {
 		LocalAmbientSound("TradeRequest", 127);
-		HudMessage(s:"You have a trade request from:\n", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * screenres2 / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(s:"You have a trade request from:\n", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
 	}
 }
 
@@ -2520,27 +2519,27 @@ Script 1002 (void) NET CLIENTSIDE {
 		LocalAmbientSound("Quest/View", 127);
 		SetHudSize(640, 480, 1);
 		SetFont("QSTBOX2");
-		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 496.0 + screenres2, 136.0, 4.0, 1.0, 1.0);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 496.0 + ScreenResOffsets[1], 136.0, 4.0, 1.0, 1.0);
 		SetHudSize(960, 600, 1);
 		SetFont("OBJFONT");
 		HudMessage
 		(
 			s:"\cf", s:Quest_Description[qid][QUEST_NAME];
-			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 576.1 + 3 * screenres2 / 2, 112.1, 4.0, 1.0, 1.0
+			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 576.1 + 3 * ScreenResOffsets[1] / 2, 112.1, 4.0, 1.0, 1.0
 		);
 		// requirement
-		SetHudClipRect((576.0 + 3 * screenres2 / 2) >> 16, 128, 384, 64, 384, 1);
+		SetHudClipRect((576.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 128, 384, 64, 384, 1);
 		HudMessage
 		(
 			s:"\c-\c[Y5]REQ: \c-", s:Quest_Description[qid][QUEST_REQ];
-			HUDMSG_FADEINOUT, UPGRADETEXTID, CR_WHITE, 576.1 + 3 * screenres2 / 2, 136.1, 4.0, 1.0, 1.0
+			HUDMSG_FADEINOUT, UPGRADETEXTID, CR_WHITE, 576.1 + 3 * ScreenResOffsets[1] / 2, 136.1, 4.0, 1.0, 1.0
 		);
 		// reward
-		SetHudClipRect((576.0 + 3 * screenres2 / 2) >> 16, 176, 384, 64, 384, 1);
+		SetHudClipRect((576.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 176, 384, 64, 384, 1);
 		HudMessage
 		(
 			s:"\c-\cdREW: \c-", s:Quest_Description[qid][QUEST_REW];
-			HUDMSG_FADEINOUT, SURVIVEICO, CR_WHITE, 576.1 + 3 * screenres2 / 2, 184.1, 4.0, 1.0, 1.0
+			HUDMSG_FADEINOUT, SURVIVEICO, CR_WHITE, 576.1 + 3 * ScreenResOffsets[1] / 2, 184.1, 4.0, 1.0, 1.0
 		);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		// progress
@@ -2558,7 +2557,7 @@ Script 1002 (void) NET CLIENTSIDE {
 			HudMessage
 			(
 				s:"Progress: ", s:color, d:progress, s:"%\c-";
-				HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_WHITE, 576.1 + 3 * screenres2 / 2, 232.1, 4.0, 1.0, 1.0
+				HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_WHITE, 576.1 + 3 * ScreenResOffsets[1] / 2, 232.1, 4.0, 1.0, 1.0
 			);
 		}
 		Delay(35 * 5);
@@ -2581,12 +2580,12 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 	int addx = 0.0;
 	if(qid == QUEST_SPEND25K) // fixes a weird display bug
 		addx = -40.0;
-	while(screenres1 == -1)
+	while(ScreenResOffsets[0] == -1)
 		Delay(17);
 	GiveInventory("TipBoxOpen", 1);
 	SetHudSize(640, 480, 1);
 	SetFont("QUESTBOX");
-	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 512.0 + screenres2 + addx, 120.0, 3.0, 1.0, 1.0);
+	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 512.0 + ScreenResOffsets[1] + addx, 120.0, 3.0, 1.0, 1.0);
 	SetHudSize(960, 600, 1);
 	SetFont("OBJFONT");
 	if(!isFail) {
@@ -2595,7 +2594,7 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 		(
 			s:"\cf", s:Quest_Description[qid][QUEST_NAME],
 			s:"\c-\n\c[Y5]Quest completed!";
-			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 624.1 + 3 * screenres2 / 2, 104.1, 3.0, 1.0, 1.0
+			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 624.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 3.0, 1.0, 1.0
 		);
 	}
 	else {
@@ -2604,7 +2603,7 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 		(
 			s:"\cf", s:Quest_Description[qid][QUEST_NAME],
 			s:"\c-\n\c[B1]Quest failed!";
-			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 624.1 + 3 * screenres2 / 2, 104.1, 3.0, 1.0, 1.0
+			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 624.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 3.0, 1.0, 1.0
 		);
 	}
 }
@@ -3374,6 +3373,10 @@ Script "DnD Is Demon" (void) {
 	SetResultValue(ActivatorTID() && IsDemon());
 }
 
+Script "DnD Is Demon - Self" (void) {
+	SetResultValue(ActivatorTID() && IsDemon());
+}
+
 Script "DnD Give Ammo" (int slot, int ammotype, int amount) {
 	GiveAmmo(amount, slot, ammotype);
 }
@@ -3454,6 +3457,8 @@ Script "DnD Orb Pickup" (int sp) {
 }
 
 Script "DnD Chestkey Message" (int id) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
 	Log(s:StrParam(s:"\ccBonus pickup  : \c[Y5]", s:ChestKeyList[id][CHESTKEY_TAG], s:"!\c-"));
 }
 
@@ -3516,4 +3521,58 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 		else
 			GiveInventory(TemporaryAmmos[ammo], amount);
 	}
+}
+
+// in here because dnd_mons.bcs can't access values of the variables used below
+Script "DnD Warmaster Rage" (void) {
+	while(!CheckInventory("WarmasterActive"))
+		Delay(17);
+	int i, tidlim, dist;
+	while(CheckInventory("WarmasterActive")) {
+		bool found = false;
+		// try to see if there's at least one monster that is closest to this
+		for(i = DND_MONSTERTID_BEGIN; i < dnd_monster_tid && !found; ++i) {
+			if(IsActorAlive(i)) {
+				dist = fdistance(0, i);
+				// no self find
+				if(dist >= 2.0 && dist <= WARMASTER_DIST)
+					found = true;
+			}
+		}
+		tidlim = AVATAR_BASE_TID + AvatarTID;
+		// clean this part later
+		for(i = AVATAR_BASE_TID; i < tidlim && !found; ++i) {
+			if(IsActorAlive(i)) {
+				dist = fdistance(0, i);
+				if(dist <= WARMASTER_DIST)
+					found = true;
+			}
+		}
+		tidlim = ZEALOT_BASE_TID + ZealotTID;
+		for(i = ZEALOT_BASE_TID; i < tidlim && !found; ++i) {
+			if(IsActorAlive(i)) {
+				dist = fdistance(0, i);
+				if(dist <= WARMASTER_DIST)
+					found = true;
+			}
+		}
+		tidlim = PURP_DEM_TID + PurpDemTID;
+		for(i = PURP_DEM_TID; i < tidlim && !found; ++i) {
+			if(IsActorAlive(i)) {
+				dist = fdistance(0, i);
+				if(dist <= WARMASTER_DIST)
+					found = true;
+			}
+		}
+		
+		if(found)
+			GiveInventory("WarmasterRage", 1);
+		else
+			TakeInventory("WarmasterRage", 1);
+		Delay(35);
+	}
+}
+
+Script "DnD Get Aspect For Inventory View" (void) CLIENTSIDE {
+	SetResultValue(ScreenResOffsets[2]);
 }

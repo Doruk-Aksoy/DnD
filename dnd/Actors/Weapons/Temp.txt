@@ -131,7 +131,7 @@ SelectLoop:
 	AltFire:
 	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 	  TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "Fire")
-	  TNT1 A 0 A_JumpIfInventory("SawedoffShell", 0, "Continue")
+	  TNT1 A 0 A_JumpIfInventory("SawedoffShell", 2, "Continue")
 	  TSWN A 1
 	Goto Fire
 	Continue:

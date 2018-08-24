@@ -1,4 +1,4 @@
-#library "DND"
+#library "DNDMONS"
 #include "zcommon.h"
 
 #include "DnD_Intercept.h"
@@ -647,5 +647,19 @@ script "DnD Draw Pentagram" (int fxID) CLIENTSIDE {
 	for (i = alpha; i > 0; i -= 16) {
 		DrawPentagram(cX, cY, cZ + 2.0, size, i, pentaangle, fxID);
 		Delay(1);
+	}
+}
+
+Script "DnD Warmaster Protect FX" (void) CLIENTSIDE {
+	Spawn("WarmasterProtectFXSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+}
+
+Script "DnD Warmaster Protect FX Trigger" (void) {
+	if(CheckInventory("WarmasterProtect"))
+		Terminate;
+	GiveInventory("WarmasterProtect", 1);
+	while(IsAlive() && CheckInventory("WarmasterProtect")) {
+		ACS_NamedExecuteAlways("DnD Warmaster Protect FX", 0);
+		Delay(2);
 	}
 }
