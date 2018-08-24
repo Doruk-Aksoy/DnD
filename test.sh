@@ -18,8 +18,8 @@ cd ..
 echo "
 Packing all files into pk7's..."
 
-7z u -t7z dnd.pk7 ./dnd/* -mx=9 -ms=off >/dev/null
-7z u -t7z dnd_monsters.pk7 ./monsters/* -mx=9 -ms=off >/dev/null
-7z u -t7z dnd_onlyammo.pk7 ./onlyammo/* -mx=9 -ms=off >/dev/null
+7z u -t7z dnd.pk7 -uq0 ./dnd/* -mx=9 -ms=off >/dev/null
+7z u -t7z dnd_monsters.pk7 -uq0 ./monsters/* -mx=9 -ms=off >/dev/null
+7z u -t7z dnd_onlyammo.pk7 -uq0 ./onlyammo/* -mx=9 -ms=off >/dev/null
 
 echo "Done."
