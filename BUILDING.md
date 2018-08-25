@@ -1,45 +1,79 @@
 # Death and Decay
 ## Building from Source
 ### Windows
-#### How to prepare
+#### Command Prompt Notes
+* How to run it:
+  * Windows 10: 1. Click the search button and type: `Command Prompt` and click on the desktop app.
+  * Windows 7 and below: Click **Start**, then click **Run...**, type `cmd`).
+* To switch to another drive in the prompt: type the driver letter then `:`.
 
-**Note:** Remember, whenever using cd at command prompt to switch to the drive where the files are contained, by typing the drive letter then colon ":" as in "d:".
+#### Preparing
+1. Go to https://just-install.it/ and go to cmd promt with admin priviledges.
+2. Type `just-install 7zip git bcc` (or just install the components you don't have installed).
 
-1. Install [7zip](https://www.7-zip.org/download.html) x64 on x64 systems and x86 on x86 systems at the path indicated by installer (otherwise change path in build.bat or test.bat).
-2. Download [bcc](https://github.com/wormt/bcc/releases), and extract it.
-3. (Optional, but extremely recommended) Set environment variable bcc to the full path to bcc executable. Example: `C:/games/bcc/bcc.exe`. How to do it in detail:
-   1. Either go to `Control Panel/System` then `Advanced System Settings` OR
-      If you have search enabled, you can type: `View Advanced System Settings`.
-   2. Go `Advanced` tab.
-   3. Click `Environment Variables...`.
-   4. On the `User variables for username` section, click `New...`.
-   5. Variable name is `bcc`, then click `Browse File...` and look for the bcc.exe (which is in the bcc folder you unpacked).
-   6. Then click `OK`.
-4. Install Git for Windows in default folder, making sure it uses Windows command prompt with just git.
-   Download [git-for-windows](https://git-scm.com/download/win). Just do the default options, but you may select your favorite text editor. Now pick between the Tortoise Git way, or the git for windows way:
-   1. The Tortoise Git way - provides very nice context menus on Windows (Extremely recommended):
-      1. Download and install [Tortoise Git](https://tortoisegit.org/download/) (select x64 on x64 systems, otherwise select x86)
-      2. Open Windows Explorer.
-      3. Go to folder where you would like dnd to be downloaded.
-      4. Right click on background (don't right click any items).
-      5. Select `Git Clone...`
-      6. Under URL type: `https://github.com/Doruk-Aksoy/DnD`
-      7. Click `Close` when finished.
-   2. The git-for-windows way - for those who like the command prompt.
-      1. Run the command prompt.
-      2. CD to the folder where you would like DnD to be downloaded: `cd path/to/contain`
-      3. Type the follows to download the files: `git clone https://github.com/Doruk-Aksoy/DnD.git`
+#### To continue, there are 2 useable git tools:
+#### Either Git-for-windows (default)
+Git-for-windows is for those who like the command prompt.
 
-#### How to build
+##### Installing DnD
+1. Run the command prompt.
+2. CD to the folder where you would like DnD to be downloaded: `cd path/to/contain`
+3. Type the following to download the files: `git clone https://github.com/Doruk-Aksoy/DnD.git`
 
+##### Updating DnD (not needed after installing)
 1. Run the command prompt.
 2. CD to the DnD folder: `cd path/to/DnD`
-3. (If not done the Optional 3rd preparation step part) Type this (where fullpathtobccexecutable is the full path to bcc executable): `SET bcc=fullpathtobccexecutable.`
-4. Run either test.bat (if updating files often) or build.bat (if releasing): `test.bat`
+3. Type `git pull` - If it doesn't fail, go to step 5.
+4. It failed, changes need to be reset. It will succeed if all following is typed:
+```
+git fetch --all
+git reset --hard origin/master
+git pull
+```
+5. Rebuild - follow **How to Build** instructions again.
+
+#### Or Tortoise Git
+Provides very nice context menus.
+
+##### Preparing
+1. Go to cmd prompt with admin priviledges, type `just-install tortoisegit` (if you don't have it installed already).
+
+##### Installing DnD
+1. Open Windows Explorer.
+2. Go to folder where you would like dnd to be downloaded.
+3. Right click on background (don't right click any items).
+4. Select `Git Clone...`
+5. On URL field type: `https://github.com/Doruk-Aksoy/DnD`
+6. Click `Close` when finished.
+ 
+##### Updating DnD (not needed after installing)
+1. Open your DnD folder on Windows Explorer.
+2. Right click on the background of the folder, then click Tortoise Git, then click Pull.
+3. Click OK.
+4. If anything red shows up, something failed. Regardless of the outcome, click close. If succeeded, go to step 10.
+5. If something failed, right click Tortoise Git. On the menu that opens, click Fetch. Then click OK. Then click close.
+7. Right click again on folder background. Click Tortoise Git. Click Show Log.
+8. Select commit with (Master) tag, then right click it, and click "reset to this commit". Then select **Hard** reset type. Then click OK. Then click close.
+9. Right click again on folder background. Click Tortoise Git. Click Pull. Click OK. Click close.
+10. Rebuild - follow **How to Build** instructions again.
+
+#### Building the DnD pk7s
+1. Run the command prompt.
+2. CD to the DnD folder: `cd path/to/DnD`
+4. Type either `test.bat` (if updating files often) or `build.bat` (if releasing).
 5. Make sure when creating server/playing offline that you're using these files.
 
-#### How to update
-1. Run the command prompt.
+### Linux
+#### Preparing
+1. Install `p7zip` and `git` packages.
+2. Download [bcc](https://github.com/wormt/bcc/releases), and extract it (easiest to extract it on your home folder).
+
+#### Installing
+1. Open the terminal.
+2. Type the following to download the files: `git clone https://github.com/Doruk-Aksoy/DnD.git`
+
+#### Updating (not needed after installing)
+1. Open the terminal.
 2. CD to the DnD folder: `cd path/to/DnD`
 3. Do git pull - If it doesn't fail, go to step 5: `git pull`
 4. It failed, changes need to be reset. It will succeed if all following is typed:
@@ -50,31 +84,13 @@ git pull
 ```
 5. Rebuild - follow **How to Build** instructions again.
 
-### Linux
-#### How to prepare
-
-1. Install `p7zip` and `git` packages.
-2. Download [bcc](https://github.com/wormt/bcc/releases), and extract it (easiest to extract it on your home folder).
-3. Open the terminal. Type the follows to download the files: `git clone https://github.com/Doruk-Aksoy/DnD.git`
-
-#### How to build
+#### Building the pk7s
 1. Open the terminal.
 2. CD to the DnD folder: `cd path/to/DnD`
 3. Set the bcc environment variable (just needed once in a terminal for any amount of builds). Type - where fullpathtobccexecutable is the full path to executable: `export bcc=fullpathtobccexecutable`
-4. Run the test.sh (if updating files often) or build.sh (if releasing). Type: `./test.sh`
+4. Type `./test.sh` (if updating files often) or `./build.sh` (if releasing).
 5. Make sure when creating server/playing offline that you're using these files.
 
-#### How to update
-1. Run the terminal.
-2. CD to the DnD folder: `cd path/to/DnD`
-3. Do git pull - If it doesn't fail, go to step 5: `git pull`
-4. It failed, changes need to be reset. It will succeed if all following is typed:
-```
-git fetch --all
-git reset --hard origin/master
-git pull
-```
-5. Rebuild - follow **How to Build** instructions again.
 
 ## Recommendations
 - Add the main DnD folder to the wad paths. This prevents having to move the wad whenever adjusting the source code or new versions.
