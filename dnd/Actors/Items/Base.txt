@@ -156,6 +156,7 @@ Actor GotPL : DnD_Boolean { }
 Actor GotBFG : DnD_Boolean { }
 Actor GotGauss : DnD_Boolean { }
 Actor GotRail : DnD_Boolean { }
+Actor GotDRay:  DnD_Boolean { }
 Actor GotNail : DnD_Boolean { }
 Actor GotBasilisk : DnD_Boolean { }
 Actor GotDeath : DnD_Boolean { }
@@ -436,4 +437,10 @@ enum {
 
 enum {
 	DND_PELLETACTOR_HSSG
+};
+
+enum {
+	DND_STACKEDITEM_ORB,
+	DND_STACKEDITEM_CHESTKEY,
+	DND_STACKEDITEM_ELIXIR
 };

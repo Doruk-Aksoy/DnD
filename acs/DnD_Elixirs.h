@@ -6,36 +6,9 @@
 #define DND_ELIXIR_CHESTDROPRATE 0.25
 #define DND_ELIXIR_DROPRATE 0.05
 
-enum {
-	DND_ELIXIR_HEALTH,
-	DND_ELIXIR_ARMOR,
-	DND_ELIXIR_HPARMOR,
-	DND_ELIXIR_HPPERCENT,
-	DND_ELIXIR_ARMORPERCENT,
-	DND_ELIXIR_HPARMORPERCENT,
-	DND_ELIXIR_SPEED,
-	DND_ELIXIR_DAMAGE,
-	DND_ELIXIR_LUCK
-};
-#define MAX_ELIXIRS DND_ELIXIR_LUCK + 1
-
 #define SIMPLE_ELIXIR_AMOUNT 5
 #define PERCENT_ELIXIR_AMOUNT 1
-#define SIMPLE_ELIXIR_AMOUNT_F 0.1
-
-#define ELIXIR_NAME 0
-#define ELIXIR_TAG 1
-str ElixirList[MAX_ELIXIRS][2] = {
-	{ "ElixirOfHealth", "Elixir of Health" },
-	{ "ElixirOfArmor", "Elixir of Armor" },
-	{ "ElixirOfProsperity", "Elixir of Prosperity" },
-	{ "ElixirOfLife", "Elixir of Life" },
-	{ "ElixirOfStrongness", "Elixir of Strongness" },
-	{ "ElixirOfFortitude", "Elixir of Fortitude" },
-	{ "ElixirOfSpeed", "Elixir of Speed" },
-	{ "ElixirOfDamage", "Elixir of Damage" },
-	{ "ElixirOfLuck", "Elixir of Luck" }
-};
+#define SIMPLE_ELIXIR_AMOUNT_F 0.01
 
 /*
 percentages
@@ -64,7 +37,7 @@ int ElixirDropWeights[MAX_ELIXIRS] = {
 	1000
 };
 
-void HandleElixirPickup(int eid) {
+void HandleElixirUse(int eid) {
 	int pnum = PlayerNumber();
 	switch(eid) {
 		case DND_ELIXIR_HEALTH:
@@ -106,16 +79,21 @@ void HandleElixirPickup(int eid) {
 			}
 		break;
 		case DND_ELIXIR_LUCK:
-			Player_Bonuses[pnum].luck += SIMPLE_ELIXIR_AMOUNT;
+			Player_Bonuses[pnum].luck += SIMPLE_ELIXIR_AMOUNT << 16;
 			SyncClientsideVariable(DND_SYNC_LUCK, -1, DND_SYNC_NONORB);
 		break;
 	}
 }
 
 void SpawnElixir(int pnum) {
-	int w = random(1, ELIXIR_MAXWEIGHT), i = 0;
-	for(; i < MAX_ELIXIRS && ElixirDropWeights[i] < w; ++i);
-	SpawnDrop(StrParam(s:ElixirList[i][ELIXIR_NAME], s:"_Drop"), 24.0, 16, pnum + 1, i);
+	int c = CreateItemSpot();
+	if(c != -1) {
+		int w = random(1, ELIXIR_MAXWEIGHT), i = 0;
+		for(; i < MAX_ELIXIRS && ElixirDropWeights[i] < w; ++i);
+		RollElixirInfo(c, i, true);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SpawnDrop(StrParam(s:ElixirList[i][ELIXIR_NAME], s:"_Drop"), 24.0, 16, pnum + 1, c);
+	}
 }
 
 void HandleElixirDrop(bool isChest) {
@@ -125,6 +103,18 @@ void HandleElixirDrop(bool isChest) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, false, chance))
 			SpawnElixir(i);
 	}
+}
+
+void RollElixirInfo(int item_pos, int etype, bool onField) {
+	// roll random attributes for the charm
+	Inventories_On_Field[item_pos].item_level = 1;
+	Inventories_On_Field[item_pos].item_stack = 1; // orbs have default stack of 1
+	Inventories_On_Field[item_pos].item_type = DND_ITEM_ELIXIR;
+	Inventories_On_Field[item_pos].item_subtype = etype;
+	Inventories_On_Field[item_pos].width = 1;
+	Inventories_On_Field[item_pos].height = 1;
+	Inventories_On_Field[item_pos].attrib_count = 0;
+	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_ELIXIR_BEGIN + etype;
 }
 
 #endif

@@ -42,6 +42,7 @@ enum {
 	
 	// category 5
 	AMMO_CELL = 0,
+	AMMO_DEVASTATOR,
 	AMMO_EVERICE,
 	AMMO_FUEL,
 	AMMO_LIGHTNING,
@@ -907,6 +908,15 @@ Actor HellsMawAmmo : Ammo {
 	+IGNORESKILL
 }
 
+Actor DevastatorAmmo : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 270
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 270
+	inventory.icon "DEVIAM0"
+	+IGNORESKILL
+}
+
 //////////////////////////////
 //      TEMPORARY AMMO      //
 //////////////////////////////
@@ -1145,6 +1155,13 @@ Actor RebounderOverheat : Ammo {
 }
 
 Actor DesolatorOverheat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor DeathRayOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
 	Inventory.Icon "STTPRCNT"

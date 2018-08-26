@@ -15,7 +15,9 @@ Thanks to:
 - TheRailgunner (Sprites)
 - Vegeta (Sprites)
 - thehadnot (Sounds)
+- s3ntey (Sprites)
 - Eradrop (Sprites)
+- deguix (Code, Github Documentation)
 - DavidN (Sprites)
 - ijonTichy (Codebase for railgun particle draw)
 - Daedalus (Sprites and code for various special effects)
@@ -67,4 +69,4 @@ Thanks to:
 - Xaser (Effects, graphics)
 - Mark Knight (some sound effects)
 - James Stanfield (Duke4.net, AMC TC) for various sprites.
-- 3D Realms, Bethesda Software, Blizzard, Monolith, ID Software, Raven Software for various graphics and sounds.
+- 3D Realms, Bethesda Software, Blizzard, Monolith, ID Software, Relic, THQ, Raven Software for various graphics and sounds.

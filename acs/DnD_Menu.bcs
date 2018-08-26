@@ -63,6 +63,10 @@ Script 900 (void) NET {
 	else {
 		// a little extra check for singleplayer case
 		if((GameType() == GAME_SINGLE_PLAYER || !PlayerIsSpectator(PlayerNumber())) && !CheckInventory("ParsingData")) {
+			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
+				TakeInventory("DnD_SyncMe", 1);
+				ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
+			}
 			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 			GiveInventory("P_Frozen", 1);
 			StatListOpened[PlayerNumber()] = 1;
@@ -342,7 +346,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]Perks Available: \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
 				
 				for(i = 0; i < DND_PERKS; ++i)
-					DrawToggledLabel(PerkLabels[i][PERK_LABEL], CheckInventory(PerkLabels[i][PERK_ITEM]), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
+					DrawToggledLabel(StatLabels[DND_PERK_BEGIN + i], CheckInventory(StatNames[DND_PERK_BEGIN + i]), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
 			}
 			else if(curopt == MENU_LOAD) {
 				HudMessage(s:"--- Loadout Selection ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);

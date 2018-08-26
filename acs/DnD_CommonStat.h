@@ -122,7 +122,7 @@ typedef struct {
 	int drop_chance;
 	int holding;
 	
-	int luck;
+	int luck; // this is in fixed!
 	
 	int damage_type_bonus[MAX_TALENTS];
 	

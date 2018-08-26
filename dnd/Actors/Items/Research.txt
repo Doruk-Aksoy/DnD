@@ -66,7 +66,9 @@ enum {
 	RES_EXO3,
 	RES_IMP1,
 	RES_IMP2,
-	RES_IMP3
+	RES_IMP3,
+	
+	RES_STASHTAB
 };
 
 Actor TechLevel : Ammo {
@@ -175,6 +177,8 @@ Actor Research_Body_Im_1 : DnD_Boolean { }
 Actor Research_Body_Im_2 : DnD_Boolean { }
 Actor Research_Body_Im_3 : DnD_Boolean { }
 
+Actor Research_StashTab : DnD_Boolean { }
+
 /*
 =============================
 == ACCOMPLISHED RESEARCHES ==
@@ -243,6 +247,8 @@ Actor Done_Body_Ar_3 : DnD_Boolean { }
 Actor Done_Body_Im_1 : DnD_Boolean { }
 Actor Done_Body_Im_2 : DnD_Boolean { }
 Actor Done_Body_Im_3 : DnD_Boolean { }
+
+Actor Done_StashTab : DnD_Boolean { }
 
 // ****************************
 //		DEPENDENCY TRACKERS
@@ -1165,6 +1171,23 @@ Actor ResearchModule_OccultArtifact : ResearchModule {
 		Success:
 			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_OCCULTARTIFACT)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_OCCULTARTIFACT)
+			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
+		Stop
+	}
+}
+
+Actor ResearchModule_StashTab : ResearchModule {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, RES_STASHTAB, 1)
+		Goto SpawnNormal
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_STASHTAB), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_STASHTAB)
+			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_STASHTAB)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
 	}

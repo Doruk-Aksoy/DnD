@@ -19,16 +19,26 @@ enum {
 #define MAX_SPECIAL_AMMOS SSAM_40MMHE + 1
 #define MAX_SPECIALAMMO_DAMAGEINDEX 3
 
-ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS] = {
-	{ "SAM1A0",			"FlechetteShell",				40,			8		},
-	{ "SAM3A0",			"PiercingShell",				40,			8		},
-	{ "SAM2A0",			"ElectricShell",				40,			8		},
-	{ "SAM4A0",         "NitroShell",                   40,			8		},
-	{ "SAM5A0",			"SlugShell",					40,			8		},
-	
-	{ "GAM1A0",			"A40MMSonicGrenade",			25,			5		},
-	{ "GAM2A0",			"A40MMHEGrenade",				25,			5		},
+str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS][2] = {
+	{	"SAM1A0",			"FlechetteShell"		},
+	{	"SAM3A0",			"PiercingShell"			},
+	{	"SAM2A0",			"ElectricShell"			},
+	{	"SAM4A0",         	"NitroShell"			},
+	{	"SAM5A0",			"SlugShell"				},
+		
+	{	"GAM1A0",			"A40MMSonicGrenade"		},
+	{	"GAM2A0",			"A40MMHEGrenade"		}
+};
 
+ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS] = {
+	{ 	40,			8		},
+	{ 	40,			8		},
+	{ 	40,			8		},
+	{   40,			8		},
+	{ 	40,			8		},
+	
+	{ 	25,			5		},
+	{ 	25,			5		}
 };
 
 pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {

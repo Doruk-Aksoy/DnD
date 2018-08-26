@@ -84,7 +84,7 @@ Actor OrbDrop : InventoryBase {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Orb Pickup", 0, mass - 1)
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
 		stop
 	}
 }

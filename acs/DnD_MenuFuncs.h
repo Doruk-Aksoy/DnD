@@ -529,11 +529,11 @@ void DrawHelpCorner (int opt, int boxid) {
 			int shopindex = 0;
 			if(opt != MENU_SHOP_AMMO_SPECIAL1) {
 				shopindex = MenuAmmoIndexMap[opt - SHOP_FIRSTAMMO_PAGE][boxid];
-				toshow = GetTextWithResearch(AmmoInfo[opt - SHOP_FIRSTAMMO_PAGE][boxid + beginindex].ammo_icon, "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
+				toshow = GetTextWithResearch(AmmoInfo_Str[opt - SHOP_FIRSTAMMO_PAGE][boxid + beginindex][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
 			}
 			else {
 				shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + boxid;
-				toshow = GetTextWithResearch(SpecialAmmoInfo[boxid].ammo_icon, "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
+				toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
 			}
 		}
 		else {
@@ -1102,15 +1102,15 @@ void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull) {
 		int buystatus = CanTrade(itemid, TRADE_BUY, price);
 		
 		if(!buystatus) {
-			int amt = AmmoCounts[index_beg + boxid - SHOP_FIRSTAMMO_INDEX], count = 1;
+			int amt = AmmoCounts[index_beg - SHOP_FIRSTAMMO_INDEX], count = 1;
 			amt += ACS_ExecuteWithResult(918, 0, 1, amt);
 			
 			// if we are maxing the ammo
 			if(givefull) {
 				if(slot != -1)
-					count += (GetAmmoCapacity(AmmoInfo[slot][boxid - 1].ammo_name) - CheckInventory(AmmoInfo[slot][boxid - 1].ammo_name)) / amt;
+					count += (GetAmmoCapacity(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME]) - CheckInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME])) / amt;
 				else
-					count += (GetAmmoCapacity(SpecialAmmoInfo[boxid - 1].ammo_name) - CheckInventory(SpecialAmmoInfo[boxid - 1].ammo_name)) / amt;
+					count += (GetAmmoCapacity(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME]) - CheckInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME])) / amt;
 				price = price * count;
 				if(price > CheckInventory("Credit")) {
 					count = CheckInventory("Credit") / GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
@@ -1118,10 +1118,12 @@ void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull) {
 				}
 			}
 			// check how much of this we can really afford
-			
 			TakeInventory("Credit", price);
 			LocalAmbientSound("items/ammo", 127);
-			GiveInventory(AmmoInfo[slot][boxid - 1].ammo_name, amt * count);
+			if(slot != -1)
+				GiveInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME], amt * count);
+			else
+				GiveInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME], amt * count);
 			
 			GiveInventory("DnD_MoneySpentQuest", price);
 		}
@@ -1555,6 +1557,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// wep 8
@@ -1621,6 +1624,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ 289.0, 117.0, 120.0, 111.0 }, // w9
+			{ 289.0, 101.0, 104.0, 95.0 }, // w10
 			{ -1, -1, -1, -1 }
 		},
 		// ammo special
@@ -2340,7 +2344,7 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 		SetFont(Item_Images[charmpic]);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
-		if(boxid == thisboxid) {
+		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView")) {
 			CleanInventoryInfo();
 			DrawInventoryInfo(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, HUDMAX_X, HUDMAX_Y);
 		}
@@ -2416,7 +2420,7 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 	else
 		pn = (pnum + 1) << 16;
 	if(CheckInventory("DnD_SelectedCharmBox"))
-		DrawInventoryInfo_Field(CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 24.4, 0.1);
+		DrawInventoryInfo_Field(CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 24.4, 0.1, true);
 	int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, pn, source);
 	if(GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, pn, source) != DND_ITEM_NULL) {
 		mx = HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) + 16.1 , my = HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) + 16.1;
@@ -2449,7 +2453,7 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 		mx += 0.4;
 		my += 0.1;
 		// show item details
-		if(itype == DND_ITEM_ORB)
+		if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR)
 			offset = 16.0;
 		else if(itype == DND_ITEM_CHESTKEY)
 			offset = 8.0;
@@ -2492,7 +2496,11 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 	}
 	else if(itype == DND_ITEM_CHESTKEY) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:ChestkeyHelpText[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:ChestKeyList[temp][CHESTKEY_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	else if(itype == DND_ITEM_ELIXIR) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
+		HudMessage(s:"\c[Y5]", s:ElixirList[temp][ELIXIR_TAG], s:"\n", s:ElixirList[temp][ELIXIR_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 }
 
@@ -3336,7 +3344,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 				tx = GetNextUniqueCraftingMaterial(CraftItemTypes[ty], i + MAX_CRAFTING_MATERIALBOXES * page);
 				bx = GetTotalStackOfMaterial(tx);
 				if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
-					DrawCraftingInventoryInfo(DND_ITEM_ORB, tx, bx);
+					DrawCraftingInventoryInfo(CraftItemTypes[ty], tx, bx);
 					SetInventory("DnD_PlayerItemIndex", tx);
 					SetFont("CRFBX_H2");
 				}
@@ -3519,7 +3527,7 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	mx += 0.4;
 	my += 0.1;
 	// show item details
-	if(itype == DND_ITEM_ORB)
+	if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR)
 		offset = 16.0;
 	if(itype != DND_ITEM_WEAPON)
 		SetFont(Item_Images[PlayerInventoryList[pn][extra1].item_image]);
@@ -3559,6 +3567,10 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 	else if(itype == DND_ITEM_ORB) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	else if(itype == DND_ITEM_ELIXIR) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		HudMessage(s:"\c[Y5]", s:ElixirList[temp][ELIXIR_TAG], s:"\n", s:ElixirList[temp][ELIXIR_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 	else if(itype == DND_ITEM_WEAPON) {
 		j = PlayerNumber();
@@ -3691,7 +3703,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				// using an orb in material part
 				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
 					if(IsSelfUsableItem(PlayerInventoryList[pnum][itemindex].item_type, PlayerInventoryList[pnum][itemindex].item_subtype)) {
-						if(HandleMaterialUse(pnum, itemindex, 0, 0))
+						if(HandleMaterialUse(pnum, itemindex, 0, DND_ITEM_NULL))
 							UsePlayerItem(pnum, itemindex);
 						else
 							ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
@@ -3736,6 +3748,10 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 			if(res) {
 				ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, 0);
 			}
+		}
+		else if(itype == DND_ITEM_ELIXIR) {
+			res = true;
+			ACS_NamedExecuteAlways("DnD Elixir Use", 0, isubtype);
 		}
 	}
 	else if(itype == DND_ITEM_ORB) {

@@ -9,3 +9,28 @@ brightmap sprite PAKMG0
 	map "graphics/brightmaps/beretta/BMBERFR2.png"
 	disablefullbright
 }
+
+Brightmap Sprite ERWEA0 {
+	map "graphics/brightmaps/DeathRay/ERWEBMA.png"
+	disablefullbright
+}
+
+Brightmap Sprite ERWEB0 {
+	map "graphics/brightmaps/DeathRay/ERWEBMB.png"
+	disablefullbright
+}
+
+Brightmap Sprite ERWEC0 {
+	map "graphics/brightmaps/DeathRay/ERWEBMC.png"
+	disablefullbright
+}
+
+Brightmap Sprite ERWED0 {
+	map "graphics/brightmaps/DeathRay/ERWEBMD.png"
+	disablefullbright
+}
+
+Brightmap Sprite ERWEE0 {
+	map "graphics/brightmaps/DeathRay/ERWEBME.png"
+	disablefullbright
+}

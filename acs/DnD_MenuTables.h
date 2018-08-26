@@ -351,20 +351,6 @@ struct draw_info {
 	int res_id;
 };
 
-#define PERK_LABEL 0
-#define PERK_ITEM 1
-str PerkLabels[DND_PERKS][2] = {
-	{ "Sharpshooting", "Perk_Sharpshooting" },
-	{ "Endurance", "Perk_Endurance" },
-	{ "Wisdom", "Perk_Wisdom" },
-	{ "Greed", "Perk_Greed" },
-	{ "Medic", "Perk_Medic" },
-	{ "Munitionist", "Perk_Munitionist" },
-	{ "Deadliness", "Perk_Deadliness" },
-	{ "Savagery", "Perk_Savagery" },
-	{ "Luck", "Perk_Luck" }
-};
-
 #define SHOPINFO_PRICE 0
 #define SHOPINFO_MAX 1
 int ShopInfo[MAXSHOPITEMS][2] = 
@@ -451,8 +437,10 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 16000,  1 },
 		{ 16000,  1 },
 		{ 18000,  1 },
-		{ 7500,  1 },
-		{ 7500,  1 },
+		
+		{ 9500,  1 },
+		{ 1000,  1 },
+		{ 12500,  1 },
 		
 		// 8
 		{ 25000, 1 },
@@ -501,6 +489,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 500,		1 },
 		{ 85,		1 },
 		{ 90,		1 },
+		{ 125,		1 },
 		
 		// Special Ammunition
 		{ 475,	    1 },
@@ -702,6 +691,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT3UPG3, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -860,6 +850,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResBFG2",							"Thunder Staff",					WEPCHECK_SLOT7,			"0"			},
 	{ "Gauss Rifle",						"Gauss Rifle",						WEPCHECK_SLOT7L,		"1"     	},
 	{ "Rail Gun",							"Railgun",							WEPCHECK_SLOT7L,		"1"     	},
+	{ "Death Ray",							"Death Ray",						WEPCHECK_SLOT7L			"1"			},
 	
 	{ "Death Staff",						"Death Staff",						WEPCHECK_SLOT8L,		"1"		    },
 	{ "RazorFang",							"Razorfang",						WEPCHECK_SLOT8L,		"1"    	    },
@@ -901,6 +892,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "DemonBlood",							"Vial of Demon Blood",				"",						"0"			},
 	{ "EmeraldMana",						"Emerald Mana",						"",						"0"			},
 	{ "HellsMawAmmo",						"Hell Fire",						"",						"0"			},
+	{ "DevastatorAmmo",						"Devastator Ammo",					"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -1064,6 +1056,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ELEMENTAL,
 	DTYPE_ENERGY | DTYPE_EXPLOSIVE,
 	DTYPE_ENERGY,
+	DTYPE_ENERGY | DTYPE_EXPLOSIVE,
 	
 	// 8
 	DTYPE_OCCULT,
@@ -1156,6 +1149,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESBFG2		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_GAUSS			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RAIL			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DEATHRAY		},
 	
 	// 8
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_DEATHSTAFF		},
@@ -1272,6 +1266,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_IGNORESHIELD | WPROP_RIPPER,
+	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	
 	// 8
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
@@ -1353,6 +1348,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Launches a ball of lightning that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in a large radius.",
 	"Gauss Rifle fires a magnetic pulse dealing 100 on hit and 192 radius damage in a 96 unit radius. Alt fire zooms, amplifying the damage for each zoom.",
 	"This baby can rip through concrete with ease. Each shot does multiples of 92 damage. Alt fire charges up the next shot, up to 2 times.",
+	"Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 200 damage both on impact and in a 160 unit radius.",
 	
 	"Fires meteors of magic bursting on impact. Alt fire fires three columns of fire on the floor and ceiling that travel and explode in flames.",
 	"Fires magical bone shards that rip through. Alt fire switches the mode to shoot three demon shredders that seek demons.",
@@ -1536,6 +1532,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	// category 4
 	{
 		SHOP_AMMO_CELL,
+		SHOP_AMMO_DEVASTATOR,
 		SHOP_AMMO_EVERICE,
 		SHOP_AMMO_FUEL,
 		SHOP_AMMO_LG,
@@ -1584,9 +1581,11 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_FLAK				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
+	
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DEMONBLOOD		},
 	{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
 	{ OBJ_AMMO,													SHOP_AMMO_HELLSMAW			},
+	{ OBJ_AMMO,													SHOP_AMMO_DEVASTATOR		},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1632,9 +1631,11 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	5,
 	20,
 	6,
+	
 	12,
 	18,
 	10,
+	33,
 	
 	8,
 	8,
@@ -1679,9 +1680,11 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"flak shells for the Vindicator.",
 	"desolator rounds for the Desolator Cannon.",
 	"hades shells for the Hades Auto Shotgun.",
+	
 	"vials of demon blood for the Wheel of Torment.",
 	"emerald mana for the Emerald Wand.",
 	"hell fire canisters for the Hell's Maw.",
+	"rockets for the Devastator.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -2006,6 +2009,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_OCCULTARTIFACT, 4569, 75
 		},
 		{
+			RES_STASHTAB, 9704, 300
+		},
+		{
 			-1, -1, -1
 		}
 	}
@@ -2257,6 +2263,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK30",
 			"Artifacts have always been an elusive aspect. However with demon technology we can harness even more! Unlocks certain artifacts."
+		},
+		{
+			"RESBAK56",
+			"UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs."
 		},
 		{
 			"", ""

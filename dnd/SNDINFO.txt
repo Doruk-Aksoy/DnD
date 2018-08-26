@@ -1,6 +1,19 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Deathray/Fire			DRAYFIRE
+Deathray/Loop			DRAYLOOP
+Deathray/Fly			DRAYFLY
+Deathray/Hit			DRAYHIT
+Deathray/LaserFire1		DRAYLFR1
+Deathray/LaserFire2		DRAYLFR2
+Deathray/LaserFire3		DRAYLFR3
+$random Deathray/LaserFire { Deathray/LaserFire1 Deathray/LaserFire2 Deathray/LaserFire3 }
+Deathray/LaserHit		DRAYLHIT
+Deathray/LaserExplode1	DRAYLEX1
+Deathray/LaserExplode2	DRAYLEX2
+$random Deathray/LaserExplode { Deathray/LaserExplode1 Deathray/LaserExplode2 }
+
 HellsMaw/Fire			HMAWFIRE
 $limit HellsMaw/Fire 0
 

@@ -10,6 +10,8 @@
 #include "DnD_SpecialTrails.h"
 #include "DnD_ChestKey.h"
 
+#define DEATHRAY_MARKER_TID_ADD 1000
+
 #define PERK_GAIN_RATE 5
 
 #define BASEPISTCLIP 12
@@ -150,6 +152,12 @@ enum {
 	DND_SPECIAL_CHARM = 16
 };
 
+enum {
+	DND_STACKEDITEM_ORB,
+	DND_STACKEDITEM_CHESTKEY,
+	DND_STACKEDITEM_ELIXIR
+};
+
 int setplayer = 0;
 // see if map changed or not
 
@@ -249,6 +257,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.\c- Does full damage regardless.",
 	 "Gauss Rifle fires a magnetic pulse dealing 100 direct hit damage and 192 radius damage in a 96 unit radius. Alt fire zooms and amplifies the damage for each zoom. Can't hit \cughosts.\c- \cfIgnores shields.",
 	 "This baby can rip through concrete with ease. Each shot does multiples of 92. Alt fire charges up the next shot up to 2 times. \cfIgnores shields.",
+	 "Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 200 damage on both impact and in a 160 unit radius, \cfignoring shields.\c-",
 	 
 	 "A magical staff, using demon souls as energy. Fires meteors of magic, bursting on impact. Alt fire fires 3 columns of fire both on floor and ceiling that travel and explode in flames. \cfIgnores shields.",
 	 "This once was the ribcage of a powerful demon. Fires magical bone shards that rip through. Alt fire switches the mode to shoot three demon shredders that seek demons.",
@@ -1055,7 +1064,7 @@ void HandleCharmLootDrop(bool isElite) {
 		addchance = DND_ELITE_BASEDROP / 2;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance))
+		if(PlayerInGame(i) /*&& IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance)*/)
 			SpawnCharm(i);
 	}
 }

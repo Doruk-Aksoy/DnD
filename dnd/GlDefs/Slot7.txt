@@ -138,3 +138,17 @@ object BFGBall2_FullDMG {
     frame BFE1E { light BFGBALL_X4 }
     frame BFE1F { light BFGBALL_X5 }
 }
+
+pulselight DRayLight {
+	color 1.0 0.25 0.25
+	size 18
+	secondarysize 36
+	interval 1
+}
+
+flickerlight DRayLight2 {
+	color 1.0 0.25 0.25
+	size 36
+	secondarysize 52
+	chance 0.75
+}

@@ -57,6 +57,7 @@ enum {
 	
 	// category 5
 	AMMO_CELL = 0,
+	AMMO_DEVASTATOR,
 	AMMO_EVERICE,
 	AMMO_FUEL,
 	AMMO_LIGHTNING,
@@ -72,66 +73,123 @@ enum {
 
 #define MAXAMMOTYPES AMMO_SOUL + 1
 
+// don't make tables with strings and ints... weird fuckups happen
 typedef struct {
-	str ammo_icon;
-	str ammo_name;
 	int initial_capacity;
 	int container_value;
 } ammo_info_T;
 
-ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
+#define AMMOINFO_ICON 0
+#define AMMOINFO_NAME 1
+str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 	// category 1 -- clip box
 	{
-		{ "CLIPA0",			"Clip",						200,		50		},
-		{ "RBAMA0",			"RubyAmmo",					175,		43		},
-		{ "C_H2A1",			"ViperAmmo",				80,			20		},
-		{ "DEMSICO",		"DSealAmmo",				200,		50		},
-		{ "RIOTJ0",			"RiotgunShell",				160, 		40		},
-		{ "D97AA0",			"AcidAmmo",					160,		40		},
-		{ "FBATA0",			"FusionCell",				240,		48		},
-		{ "DES4Y0",			"DesolatorAmmo",			175,		42		},
-		{ "EBOPA0",			"EbonyAmmo",				60,			12		},
-		{ "EBOPE0",			"EbonyAmmoX",				30,			6		},
+		{		"CLIPA0",			"Clip"					},
+		{		"RBAMA0",			"RubyAmmo"				},
+		{		"C_H2A1",			"ViperAmmo"				},			
+		{		"DEMSICO",			"DSealAmmo"				},			
+		{		"RIOTJ0",			"RiotgunShell"			},
+		{		"D97AA0",			"AcidAmmo"				},
+		{		"FBATA0",			"FusionCell"			},
+		{		"DES4Y0",			"DesolatorAmmo"			},
+		{		"EBOPA0",			"EbonyAmmo"				},
+		{		"EBOPE0",			"EbonyAmmoX"			}
 	},
 	// category 2 -- shell box
 	{
-		{ "SHELA0",			"Shell",					50,			20		},
-		{ "EMEAA0",			"EmeraldMana",				90,			36		},
-		{ "HMAWA1",			"HellsMawAmmo",				60,			24		},
-		{ "PCNIC1",			"PCanAmmo",					35,			15		},
-		{ "D97A1",			"NitrogenCanister",			40,			15		},
-		{ "DBLUD1",			"DemonBlood",				60,			25		},
-		{ "STRGY0",			"HadesAmmo",				32,			8		},
-		{ "ESHAA0",			"ExplodingShell",			40,			15		},
-		{ "SLAYAM01",		"SlayerAmmo",				40,			15		},
-		{ "",				"",							-1,			0		}
+		{		"SHELA0",			"Shell"					},
+		{		"EMEAA0",			"EmeraldMana"			},
+		{		"HMAWA1",			"HellsMawAmmo"			},
+		{		"PCNIC1",			"PCanAmmo"				},
+		{		"D97A1",			"NitrogenCanister"		},
+		{		"DBLUD1",			"DemonBlood"			},
+		{		"STRGY0",			"HadesAmmo"				},
+		{		"ESHAA0",			"ExplodingShell"		},
+		{		"SLAYAM01",			"SlayerAmmo"			},
+		{		"",					""						}
 	},
 	// category 3 -- rocket box
 	{
-		{ "ROCKA0",			"RocketAmmo",				50,			5		},
-		{ "FSHLA0",			"FlakShell",				40,			10		},
-		{ "LAAM1",			"MeteorAmmo",				40,			4		},
-		{ "GBUNA0",			"Grenades", 				50,			5		},
-		{ "AHRLA0",			"MISAmmo",					80,			6		},
-		{ "",				"",							-1,			0		}
+		{		"ROCKA0",			"RocketAmmo"			},
+		{		"FSHLA0",			"FlakShell"				},
+		{		"LAAM1",			"MeteorAmmo"			},
+		{		"GBUNA0",			"Grenades"				},
+		{		"AHRLA0",			"MISAmmo"				},
+		{		"",					"",						}
 	},
 	// category 4 -- cell box
 	{
-		{ "CELLA0",			"Cell",						300,		100		},
-		{ "EICEAM1",		"EverIce",					240,		80		},
-		{ "FUAMA0",			"Fuel",						250,		75		},
-		{ "D98AB1",			"LightningCell",			375,		105		},
-		{ "NPAKA0",			"NailgunAmmo",				175,		40		},
-		{ "BASIA01",		"BasiliskAmmo",				250,		16		},
-		{ "IONAMM1",		"IonAmmo",					180,		60		},
-		{ "D95AA0",			"ThunderAmmo",				200,		66		},
-		{ "GAUSICO",		"GaussRound",				75,			10		},
-		{ "",				"",							-1,			0		}
+		{		"CELLA0",			"Cell"					},
+		{		"DEVIAM0",			"DevastatorAmmo"		},
+		{		"EICEAM1",			"EverIce"				},
+		{		"FUAMA0",			"Fuel"					},
+		{		"D98AB1",			"LightningCell"			},
+		{		"NPAKA0",			"NailgunAmmo"			},
+		{		"BASIA01",			"BasiliskAmmo"			},
+		{		"IONAMM1",			"IonAmmo"				},
+		{		"D95AA0",			"ThunderAmmo"			},
+		{		"GAUSICO",			"GaussRound"			}
 	},
 	// category 5 -- soul ammo
 	{
-		{ "AMM3A0",			"Souls",					75,			0		},
-		{ "",				"",							-1,			0		}
+		{		"AMM3A0",			"Souls"					},
+		{		"",					""						}
+	}
+};
+
+ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
+	// category 1 -- clip box
+	{
+		{ 		200,		50 		},
+		{ 		175,		43		},
+		{ 		80,			20		},
+		{ 		200,		50		},
+		{ 		160, 		40		},
+		{ 		160,		40		},
+		{ 		240,		48		},
+		{ 		75,			42		},
+		{ 		60,			12		},
+		{ 		30,			6		}
+	},
+	// category 2 -- shell box
+	{
+		{ 		50,			20		},
+		{ 		90,			36		},
+		{ 		60,			24		},
+		{ 		35,			15		},
+		{ 		40,			15		},
+		{ 		60,			25		},
+		{ 		32,			8		},
+		{ 		40,			15		},
+		{ 		40,			15		},
+		{ 		-1,			0		}
+	},
+	// category 3 -- rocket box
+	{
+		{ 		50,			5		},
+		{ 		40,			10		},
+		{ 		40,			4		},
+		{  		50,			5		},
+		{ 		80,			6		},
+		{ 		-1,			0		}
+	},
+	// category 4 -- cell box
+	{
+		{		300,		100		},
+		{ 		270,		90		},
+		{ 		240,		80		},
+		{ 		250,		75		},
+		{ 		375,		105		},
+		{ 		175,		40		},
+		{ 		250,		16		},
+		{ 		180,		60		},
+		{ 		200,		66		},
+		{ 		75,			10		}
+	},
+	// category 5 -- soul ammo
+	{
+		{ 		75,			0		},
+		{ 		-1,			0		}
 	}
 };
 
@@ -210,7 +268,7 @@ void SetAllAmmoCapacities() {
 	for(int i = 0; i < MAX_SLOTS - 1; ++i)
 		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			cap = AmmoInfo[i][j].initial_capacity;
-			SetAmmoCapacity(AmmoInfo[i][j].ammo_name, AmmoCapWithBonuses(cap + CheckInventory("BackpackCounter") * cap / DND_BACKPACK_RATIO));
+			SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoCapWithBonuses(cap + CheckInventory("BackpackCounter") * cap / DND_BACKPACK_RATIO));
 		}
 }
 
@@ -232,10 +290,10 @@ int GetMaximumAmmoCapacity(int slot, int t) {
 }
 
 bool CheckAmmoPickup(int slot, bool simple) {
-	bool res = CheckInventory(AmmoInfo[slot][0].ammo_name) == GetAmmoCapacity(AmmoInfo[slot][0].ammo_name);
+	bool res = CheckInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME]) == GetAmmoCapacity(AmmoInfo_Str[slot][0][AMMOINFO_NAME]);
 	if(!simple) {
 		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
-			res = res && CheckInventory(AmmoInfo[slot][i].ammo_name) == GetAmmoCapacity(AmmoInfo[slot][i].ammo_name);
+			res = res && CheckInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME]) == GetAmmoCapacity(AmmoInfo_Str[slot][i][AMMOINFO_NAME]);
 	}
 	return res;
 }
@@ -248,12 +306,12 @@ void HandleAmmoContainerPickup(int slot) {
 		if(!amt)
 			amt = 1;
 		
-		GiveInventory(AmmoInfo[slot][i].ammo_name, amt);
+		GiveInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME], amt);
 	}
 }
 
 void GiveAmmo(int amt, int slot, int t) {
-	GiveInventory(AmmoInfo[slot][t].ammo_name, amt + (amt * CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN) / 100);
+	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt + (amt * CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN) / 100);
 }
 
 #endif

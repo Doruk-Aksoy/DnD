@@ -6,8 +6,6 @@
 #define DND_SYNC_NONORB 0
 #define DND_SYNC_ORB 1
 
-#define DND_SYNC_DELAY 50
-
 enum {
 	DND_SYNC_WEAPONENHANCE,
 	

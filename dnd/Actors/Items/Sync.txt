@@ -13,3 +13,5 @@ Actor P_ArmorCap : Ammo {
 	ammo.backpackmaxamount 0
 	+IGNORESKILL
 }
+
+Actor DnD_SyncMe : DnD_Boolean { }

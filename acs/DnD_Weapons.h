@@ -83,12 +83,14 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 
 	 { "BFG 9000",							"BFG 6000",					"7",		"Cell",				" ",							"GotBFG",					"PRDCX0",		"WEPICO64"	},
 	 { "Upgraded BFG 9000",					"BFG 32768",				"7",		"Cell",				" ",							"GotBFG",					"DEBFA0",		"WEPICO65"	},
-	 { "Devastator",						"Devastator 5000",			"7",		"Cell",				" ",							"GotBFG", 					"DEVAZ0",		"WEPICO66"	},
+	 { "Devastator",						"Devastator 5000",			"7",		"DevastatorAmmo",	" ",							"GotBFG", 					"DEVAZ0",		"WEPICO66"	},
 	 { "MFG",								"Destruction Generator",	"7",		"Cell",				" ",							"GotBFG",					"BFGPA0",		"WEPICO67"	},
 	 { "ResBFG1",							"Ion Cannon",				"7",		"IonAmmo",			"IonOverHeat",			        "GotBFG",					"RW04X0",		"WEPICO68"	},
 	 { "ResBFG2",							"Thunder Staff",			"7",		"ThunderAmmo",		"ThunderRangeCounter",			"GotBFG",					"APOPA0",		"WEPICO69"	},
+	 
 	 { "Gauss Rifle",						"Gauss Rifle",				"7",		"GaussRound",		" ",							"GotGauss",					"GAUSZ0",		"WEPICO70"	},
 	 { "Rail gun",							"Rail Gun",					"7",		"Cell",				" ",							"GotRail",					"WRALA0",		"WEPICO71"	},
+	 { "Death Ray",							"Death Ray",				"7",		"IonAmmo",			"DeathrayOverheat",				"GotDRay",					"ERWEX0",		"WEPICO88"	},
 	 
 	 { "Death Staff",						"Death Staff",				"8",		"Souls",			"Souls",						"GotDeath",					"LICICO",		"WEPICO72"	},
 	 { "Razorfang",						    "Razorfang",				"8",		"Souls",			"Souls",						"GotRazor",					"WRAZA0",		"WEPICO73"	},
@@ -152,17 +154,19 @@ enum {
 	DND_OVERHEAT_NUCLEARPR,
 	DND_OVERHEAT_ION,
 	DND_OVERHEAT_REBOUNDER,
-	DND_OVERHEAT_DESOLATOR
+	DND_OVERHEAT_DESOLATOR,
+	DND_OVERHEAT_DEATHRAY
 };
 
-#define MAXOVERHEATWEPS DND_OVERHEAT_DESOLATOR + 1
+#define MAXOVERHEATWEPS DND_OVERHEAT_DEATHRAY + 1
 str WeaponOverheatItems[MAXOVERHEATWEPS] = {
 	"ShockerOverheat",
 	"FreezerOverheat",
 	"PlasmaOverheat",
 	"IonOverheat",
 	"RebounderOverheat",
-	"DesolatorOverheat"
+	"DesolatorOverheat",
+	"DeathRayOverheat"
 };
 
 // 32 overheat weapons supported

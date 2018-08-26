@@ -32,25 +32,25 @@
 // TID RANGES //
 ////////////////
 
-1. 1000 - 1063 = Players
-2. 1100 - 1163 = Emerald Death Actors
-3. 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
-4. 3000 - 3063 = Initial railgun trail ID
-5. 3500 - 3563 = In-between trails ID for railgun
-6. 5000+ = Avatar TID
-7. 7000+ = Avatar soul projectiles TID
-8. 11000+ = Avatar Cubes TID
-9. 13000+ = Nhumcign TID
-10. 14000+ = Zealot TID
-11. 15000+ = Zealot Shield TID
-12. 17000 - 19048 = Shared item IDs
-13. 19049 - 29049 = Limited Respawn Ammos
-14. 29050 - 29150 = Charm drops on field
-15. 32768 = Special FX TID
-16. 32769 = Thunder Staff temporary damager tid
-17. 40000 - 42048 = Thunder Staff Ring tid
-18. 42049 - Talisman Mark tid
-19. Anything above 66000 => any monster tid
+* 1000 - 1063 = Players
+* 1100 - 1163 = Emerald Death Actors
+* 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
+* 2000 - 2063 = Deathray marker TID for players
+* 3000 - 3063 = Initial railgun trail ID
+* 3500 - 3563 = In-between trails ID for railgun
+* 5000+ = Avatar TID
+* 7000+ = Avatar soul projectiles TID
+* 11000+ = Avatar Cubes TID
+* 13000+ = Nhumcign TID
+* 14000+ = Zealot TID
+* 15000+ = Zealot Shield TID
+* 17000 - 19048 = Shared item IDs
+* 19049 - 29049 = Limited Respawn Ammos
+* 32768 = Special FX TID
+* 32769 = Thunder Staff temporary damager tid
+* 40000 - 42048 = Thunder Staff Ring tid
+* 42049 - Talisman Mark tid
+* Anything above 66000 => any monster tid
 */
 
 int AvatarTID = 0;
@@ -297,6 +297,12 @@ void DeleteText(int textid) {
 void DeleteTextRange(int r1, int r2) {
 	for(int i = 0; i < r2 - r1 + 1; i++)
 		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, 0.0, 0.0);
+}
+
+int VectorPitch (Int t1, Int t2, int dx, int dy, int adj) {
+	If(adj != 0)
+		adj = adj << 16;
+	Return(VectorAngle(AproxDistance(dx, dy), GetActorZ(t1) - (GetActorZ(t2) - adj)));
 }
 
 #endif

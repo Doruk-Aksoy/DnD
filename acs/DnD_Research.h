@@ -72,11 +72,13 @@ enum {
 	RES_EXO3,
 	RES_IMP1,
 	RES_IMP2,
-	RES_IMP3
+	RES_IMP3,
+	
+	RES_STASHTAB
 };
 
 #define DND_RESEARCH_BEGIN RES_RAREARMOR
-#define DND_RESEARCH_END RES_IMP3
+#define DND_RESEARCH_END RES_STASHTAB
 #define MAX_RESEARCHES DND_RESEARCH_END + 1
 str ResearchPrefix = "\ccResearch Item : \c[Y5]Discovered ";
 str Research_List[MAX_RESEARCHES] = {
@@ -148,7 +150,9 @@ str Research_List[MAX_RESEARCHES] = {
 	"Body_Ar_3",
 	"Body_Im_1",
 	"Body_Im_2",
-	"Body_Im_3"
+	"Body_Im_3",
+	
+	"StashTab"
 };
 
 str Research_Label[MAX_RESEARCHES] = {
@@ -221,6 +225,8 @@ str Research_Label[MAX_RESEARCHES] = {
 	"Impact Protection - I",
 	"Impact Protection - II",
 	"Impact Protection - III",
+	
+	"Increased Stash Tabs"
 };
 
 enum {
@@ -319,6 +325,8 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP1 },
 	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP2 },
 	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP3 },
+	
+	{ 0, -1 },
 };
 
 #define MAX_RES_REQID LAST_RES_REQID + 1
@@ -461,7 +469,7 @@ void GiveAndDoAllResearch() {
 
 void DoubleSpecialAmmoCapacity() {
 	for(int i = 0; i < MAX_SPECIAL_AMMOS; ++i)
-		SetAmmoCapacity(SpecialAmmoInfo[i].ammo_name, SpecialAmmoInfo[i].initial_capacity * 2);
+		SetAmmoCapacity(SpecialAmmoInfo_Str[i][AMMOINFO_NAME], SpecialAmmoInfo[i].initial_capacity * 2);
 }
 
 void HandleResearchBonuses() {

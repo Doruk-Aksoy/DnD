@@ -201,7 +201,7 @@ Script 703 DEATH {
 	TakeInventory("DnD_SellConfirm", 1);
 	//SetInventory("MenuPosY", 5);
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
-	
+	BreakTradesBetween(PlayerNumber());
 	
 	if(GetCVar("Survival")) {
 		if(CheckInventory("CurrentLives"))
@@ -1032,7 +1032,7 @@ Script 918 (int type, int acc, int notarget) {
 		if(!acc) // get strength
 			res = CheckInventory("PSTAT_Strength");
 		else // get munitionist stuff
-			res = res * (Player_Bonuses[PlayerNumber()].ammo_gain + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN) / 100;
+			res = (res * (Player_Bonuses[PlayerNumber()].ammo_gain + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
 	}
 	else if(type == 1) { // check for accessory
 		int tid = ActivatorTID();
@@ -1979,7 +1979,7 @@ Script 991 ENTER {
 		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 	}
 	else
-		ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
+		GiveInventory("DnD_SyncMe", 1);
 	
 	// if map changed, reset accessory stuff
 	if(MapChanged) {
@@ -2051,7 +2051,6 @@ Script 991 ENTER {
 }
 
 Script "Force Sync Player Global Data" (void) {
-	Delay(DND_SYNC_DELAY);
 	SyncAllItemData(DND_SYNC_ITEMSOURCE_CHARMUSED);
 	SyncAllItemData(DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
@@ -2242,10 +2241,10 @@ Script 996 (int type, int id) {
 		for(i = 0; i < MAX_SLOTS - 1; ++i)
 			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 				if(GetCVar("dnd_firstbackpackold") && !CheckInventory("BackpackCounter"))
-					SetAmmoCapacity(AmmoInfo[i][j].ammo_name, AmmoCapWithBonuses(AmmoInfo[i][j].initial_capacity << 1));
+					SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoCapWithBonuses(AmmoInfo[i][j].initial_capacity << 1));
 				else
-				   SetAmmoCapacity(AmmoInfo[i][j].ammo_name, AmmoCapWithBonuses(GetAmmoCapacity(AmmoInfo[i][j].ammo_name) + AmmoInfo[i][j].initial_capacity / DND_BACKPACK_RATIO)); 
-				GiveInventory(AmmoInfo[i][j].ammo_name, AmmoInfo[i][j].initial_capacity / 20);
+				   SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoCapWithBonuses(GetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME]) + AmmoInfo[i][j].initial_capacity / DND_BACKPACK_RATIO)); 
+				GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoInfo[i][j].initial_capacity / 20);
 			}
 		// give additional ones for db save
 		if(GetCVar("dnd_firstbackpackold"))
@@ -2254,8 +2253,8 @@ Script 996 (int type, int id) {
         // Reduce if over the limits
 		for(i = 0; i < MAX_SLOTS - 1; ++i)
 			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-				if(GetAmmoCapacity(AmmoInfo[i][j].ammo_name) > GetMaximumAmmoCapacity(i, j))
-					SetAmmoCapacity(AmmoInfo[i][j].ammo_name, GetMaximumAmmoCapacity(i, j));
+				if(GetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME]) > GetMaximumAmmoCapacity(i, j))
+					SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], GetMaximumAmmoCapacity(i, j));
 			}
 		ACS_ExecuteAlways(993, 0, 1);
     }
@@ -3147,12 +3146,13 @@ Script "DnD Timed Monster" (int time) {
 
 Script "DnD Overheat Reduction" (int index, int rate) {
 	int d = (rate & 0xFFFF0000) >> 16;
+	rate &= 0x0000FFFF;
 	// prevent multiple copies, also dont keep this busy if we got no overheat bonus
 	if(!IsSet(PlayerRunsOverheat[PlayerNumber()], index) && !CheckInventory("DnD_QuestReward_GodSlayerBonus")) {
 		PlayerRunsOverheat[PlayerNumber()] = SetBit(PlayerRunsOverheat[PlayerNumber()], index);
 		while(CheckInventory(WeaponOverheatItems[index])) {
 			if(CheckInventory("DnD_OverheatCanReduce"))
-				TakeInventory(WeaponOverheatItems[index], rate & 0xFFFF);
+				TakeInventory(WeaponOverheatItems[index], rate);
 			Delay(d);
 		}
 		PlayerRunsOverheat[PlayerNumber()] = ClearBit(PlayerRunsOverheat[PlayerNumber()], index);
@@ -3291,11 +3291,24 @@ Script "DnD Elixir Message" (int id) CLIENTSIDE {
 	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:ElixirList[id][ORB_TAG], s:"!\c-"));
 }
 
-Script "DnD Give Elixir" (int sp) {
-	SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	GiveInventory("ElixirSoundPlayer", 1);
-	ACS_NamedExecuteAlways("DnD Elixir Message", 0, sp >> 16);
-	HandleElixirPickup(ElixirList[sp >> 16][ORB_NAME]);
+Script "DnD Stacked Item Pickup" (int sp, int type) {
+	if((sp & 0xFFFF) == 255)
+		SetActivatorToTarget(0);
+	else
+		SetActivator((sp & 0xFFFF) + P_TIDSTART);
+	if(type == DND_STACKEDITEM_ORB) {
+		ACS_NamedExecuteAlways("DnD Orb Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
+		GiveInventory("OrbSoundPlayer", 1);
+	}
+	else if(type == DND_STACKEDITEM_CHESTKEY) {
+		ACS_NamedExecuteAlways("DnD Chestkey Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
+		GiveInventory("ChestkeySoundPlayer", 1);
+	}
+	else if(type == DND_STACKEDITEM_ELIXIR) {
+		ACS_NamedExecuteAlways("DnD Elixir Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
+		GiveInventory("ElixirSoundPlayer", 1);
+	}
+	HandleStackedPickup(sp >> 16);
 }
 
 Script "DnD Drop Research" (void) {
@@ -3443,33 +3456,13 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	int field_index = sp >> 16;
-	DrawInventoryInfo_Field(field_index, DND_SYNC_ITEMSOURCE_FIELD, 24.4, 80.1);
-}
-
-Script "DnD Orb Pickup" (int sp) {
-	if((sp & 0xFFFF) == 255)
-		SetActivatorToTarget(0);
-	else
-		SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Orb Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
-	GiveInventory("OrbSoundPlayer", 1);
-	HandleStackedPickup(sp >> 16);
+	DrawInventoryInfo_Field(field_index, DND_SYNC_ITEMSOURCE_FIELD, 24.4, 80.1, false);
 }
 
 Script "DnD Chestkey Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	Log(s:StrParam(s:"\ccBonus pickup  : \c[Y5]", s:ChestKeyList[id][CHESTKEY_TAG], s:"!\c-"));
-}
-
-Script "DnD Chestkey Pickup" (int sp) {
-	if((sp & 0xFFFF) == 255)
-		SetActivatorToTarget(0);
-	else
-		SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Chestkey Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
-	GiveInventory("ChestkeySoundPlayer", 1);
-	HandleStackedPickup(sp >> 16);
 }
 
 Script "DnD Try Open Chestkey" (int keytype) {
@@ -3513,11 +3506,11 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	if(random(1, 100) <= Player_Bonuses[PlayerNumber()].ammo_chance) {
 		if(slot != DND_AMMOSLOT_MAGAZINE)
-			GiveInventory(AmmoInfo[slot][ammo].ammo_name, amount);
+			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
 		else if(slot != DND_AMMOSLOT_SPECIAL)
 			GiveInventory(ClipAmmoTypes[ammo], amount);
 		else if(slot != DND_AMMOSLOT_TEMPORARY)
-			GiveInventory(SpecialAmmoInfo[ammo].ammo_name, amount);
+			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
 		else
 			GiveInventory(TemporaryAmmos[ammo], amount);
 	}
@@ -3575,4 +3568,69 @@ Script "DnD Warmaster Rage" (void) {
 
 Script "DnD Get Aspect For Inventory View" (void) CLIENTSIDE {
 	SetResultValue(ScreenResOffsets[2]);
+}
+
+Script "DnD Elixir Use Message" (int eid) CLIENTSIDE {
+	LocalAmbientSound("Items/ElixirPick", 127);
+	Log(s:"\c[Y5]", s:ElixirList[eid][ELIXIR_TAG], s:": ", s:ElixirList[eid][ELIXIR_DESC]);
+}
+
+Script "DnD Elixir Use" (int eid) {
+	ACS_NamedExecuteAlways("DnD Elixir Use Message", 0, eid);
+	HandleElixirUse(eid);
+}
+
+Script "DnD DeathRay Marker TID" (void) {
+	Thing_ChangeTID(0, GetActorProperty(0, APROP_TARGETTID) + DEATHRAY_MARKER_TID_ADD);
+}
+
+Script "DnD DeathRay Laser Aim" (int adj) {
+	int target = GetActorProperty(0, APROP_TARGETTID) + DEATHRAY_MARKER_TID_ADD;
+	if(!ThingCount(T_NONE, target))
+		terminate;
+	int xdiff = GetActorX(target) - GetActorX(0);
+	int ydiff = GetActorY(target) - GetActorY(0);
+	SetActorProperty(0, APROP_HEALTH, target);
+	SetActorProperty(0, APROP_MASS, (360 * VectorAngle(xdiff, ydiff)) >> 16);
+	SetActorPitch(0, VectorPitch(0, target, xdiff, ydiff, adj));
+}
+
+Script "DnD Deathray Laser Trail" (int density, int target) CLIENTSIDE {
+	int oX = GetActorX(0);
+	int oY = GetActorY(0);
+	int oZ = GetActorZ(0);
+
+    int grX; int grY;  int grZ;
+    int vX;  int vY;   int vZ;
+    int nX;  int nY;   int nZ;
+    int bX;  int bY;   int bZ;
+    int magnitude;
+    int pointCount;
+    int pointOffset;
+	
+    grX = GetActorX(target);
+    grY = GetActorY(target);
+    grZ = GetActorZ(target);
+	
+    vX   = grX - oX;
+	vY   = grY - oY;
+	vZ   = grZ - oZ;
+	
+    magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
+    pointCount  = magnitude / density;
+    pointOffset = magnitude - (pointCount * density);
+
+    if (magnitude != 0) {
+        nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
+
+        int i; int j;
+        for (i = 1; i < pointCount; i++) {
+            j = (i * density) + pointOffset;
+            bX = (nX * j) + oX;
+            bY = (nY * j) + oY;
+            bZ = (nZ * j) + oZ;
+
+            Spawn("DeathRayLaserTrail", bX, bY, bZ);
+        }
+    }
 }

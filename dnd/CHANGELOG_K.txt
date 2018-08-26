@@ -9,7 +9,8 @@ LEGEND:
 == DND RPG RELATED ==
 =====================
 
-! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun", "Wheel of Torment", "Emerald Wand".
+! Added charms and revamped inventory system! More on that below.
+! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun", "Wheel of Torment", "Emerald Wand", "Death Ray".
 ! Added a new special ammo type: "Slug Shell".
 ! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun", "Bio-Enhancement - I, II and III", "Exoskeleton I, II and III", "Impact Protection I, II and III", "Slug Shells", "Wheel of Torment".
 ! Added 3 new orbs: "Orb of Refinement", "Orb of Sculpting", "Orb of Elevation".
@@ -150,6 +151,10 @@ LEGEND:
 + "Devastator 5000" does 64-80 explosion damage up from 32-80.
 + "Devastator 5000" explosion radius increased to 96 from 72.
 + "Devastator 5000" fires 5 projectiles up from 4 and uses 5 ammo instead of 8.
+* "Devastator 5000" now uses its own ammo type. The ammo capacity is now 270 down from 300 of the old "Cell".
+- "Devastator 5000" rockets no longer clump together when aiming at an enemy.
+- "Railgun" price increased to 10000 from 7500.
+- "Gauss Rifle" price increased to 9500 from 7500.
 
 * Orb drop chances have been changed. They are now:
 	- Orb of Enhancement: 15%
@@ -169,6 +174,74 @@ LEGEND:
 	- Orb of Refinement: 3.5%
 	- Orb of Sculpting: 3.5%
 	- Orb of Elevation: 2%
+	
+=================================
+== INVENTORY SYSTEM AND CHARMS ==
+=================================
+
+* Inventory system brings you the classic RPG experience with inventory management and stuff to carry around!
+* You can access this system in your loadout. It has 5 new sections: "Inventory", "Stash", "Charms", "Crafting" and "Trading".
+* To pick any item you find on the floor, simply press "Use" while on top of them. You can omit pressing this to instead inspect the item.
+* Multiple item types have been turned to utilize this new system. "Orbs" and "Chest Keys" are some of those.
+* All inventory drop rolls are player instanced. This means, at every monster death your luck is rolled. Some players might get drops while others don't.
+
+Note: In the following contexts, left and right clicks imply your "fire" and "altfire" keys respectively.
+
+1. Inventory
+
+	- This is your basic inventory, a 5 x 9 grid. You can store your items acquired through your gameplay here.
+	- You can move things by left clicking on them once and clicking another place to put them in.
+	- To drop the items, simply left click them and click outside the inventory box. (The gray outline)
+	- If items have stacks, you can do as follows:
+		- Halve the stack by left clicking on the item followed by a right click.
+		- Simply take one out of the stack by right clicking without any left clicks.
+	- This information is wiped out if you die in "Hardcore" mode.
+	- For any kind of "Crafting", this place will be used as reference and not your "Stash".
+
+2. Stash
+
+	- This is your storage. You can put whatever you feel like in here.
+	- This place supports 10 additional stash tabs you can purhcase. You can do so in the Research Menu's "Utility" section.
+	- The items in here are NOT wiped out if you die in "Hardcore".
+
+3. Charms
+
+	- This is the current state of the inventory stuff. For proof of concept, there are only charms to be used at the moment.
+	- 3 types of charms exist: "Small", "Medium" and "Grand".
+	- You can select any of the boxes to put a charm in there using left click.
+	- When you select a box it'll show you a view of your inventory. Any charm selected will be used.
+	- You can only use a charm fit for the spot. Ex: You can't place a "Grand" charm in place of a "Medium" charm etc.
+	- Small charms can have at most 2 attributes, medium 3 and grand 5.
+	- The values on attributes are rolled depending on the item level. Item level is hidden, but there are tiers based on the item's level to simplify.
+	- There are 5 item tiers at every 25 levels. At 100 level, the item rolls perfect values.
+	- You'll see a different prefix on the charms depending on their tier, so you can tell their roll quality easier.
+	- There are plenty of new attributes to play around! Explore!
+	- To unequip, simply use altfire on the charm slot.
+	
+4. Crafting
+
+	- Crafting is done with orbs for the time being. There are some orbs that help you craft your charms!
+	- You can simply left click on an item to craft and then right click on the material of your choosing to use it on the item.
+	- If the material requires no target to be used on simply right click on it to use.
+
+Note: If you move an item after it's been crafted, that item will no longer be eligible for an "Orb of Repentance".
+The above includes moving it around in inventory, putting it to stash or putting it up for trade.
+
+5. Trading
+
+	- You can send a trade request to players by left clicking on their names.
+	- If the player has a red "X" next to them, that means that player isn't available for trading.
+	- If the player has a red "M" next to them, that means you muted that player for trade requests.
+	- If the player as a black "M" next to them, that means that player has muted you for trade requests.
+	- You can mute players by right clicking on their names.
+	- If a player has sent you a trade request and it's pending, you'll see a cyan "V" symbol next to their name.
+	- Left clicking on a pending trade request will take you to trade view.
+	- You can place items to trade panel simply by following the usual item moving rules. You can only move items from your "Inventory".
+	- After you're done, press "Confirm". If both players press "Confirm", a countdown of 5 seconds will go. At the end, the items will be traded.
+	- If for whatever reason you exit menu or press "Cancel" to quit the trade view, press "Confirm" again to change your mind, the trade will be cancelled.
+	- At map exits all trade deals are broken regardless of their countdown state. Items will not be transferred!
+	- If you die while you're trading it will be broken as well.
+	- Values of items can vary, depending on what they contain. As of this moment there is no way to trade credits or budget.
 
 =====================
 == MONSTER RELATED ==

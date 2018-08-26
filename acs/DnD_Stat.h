@@ -48,7 +48,6 @@ str TalentTypeNames[MAX_TALENTS] = {
 };
 
 #define DND_PERKS DND_PERK_END - DND_PERK_BEGIN + 1
-
 str StatLabels[STAT_LVLCRED + 1] = {
 	"Strength",
 	"Dexterity",

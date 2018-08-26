@@ -325,6 +325,7 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 	inventory.pickupmessage "\ccWeapon pickup: \c[Y5]Devastator 5000"
 	Weapon.SlotNumber 7
 	Weapon.SelectionOrder 500
+	Weapon.AmmoType "DevastatorAmmo"
 	+INVENTORY.UNDROPPABLE
 	Tag "Devastator 5000"
 	Weapon.BobStyle InverseSmooth
@@ -334,6 +335,7 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 	Weapon.AmmoGive 0
 	Weapon.AmmoUse 1
 	-NOAUTOFIRE
+	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
 			DEVA A 1 A_WeaponReady
@@ -437,7 +439,7 @@ Actor DevastatorRocket_FullDMG : DevastatorRocket {
 Actor DevastatorShooter1 : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 5)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 AAAAA 0 A_FireCustomMissile("DevastatorRocket", frandom(-3.2, 0.0) * (1.0 - accuracy * accuracy_factor), 1, -12, 0, 0, frandom(-1.8, 1.8) * (1.0 - accuracy * accuracy_factor))
 		Stop
@@ -450,7 +452,7 @@ Actor DevastatorShooter1 : DnD_Activator {
 Actor DevastatorShooter2 : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 5)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 AAAAA 0 A_FireCustomMissile("DevastatorRocket", frandom(0.0, 3.2) * (1.0 - accuracy * accuracy_factor), 1, 12, 0, 0, frandom(-1.8, 1.8) * (1.0 - accuracy * accuracy_factor))
 		Stop
@@ -1623,4 +1625,326 @@ Actor GaussFX3 : GaussFX1 {
 Actor GaussFX4 : GaussFX1 {
 	Alpha 1.0
 	Scale 0.7
+}
+
+// sprites by s3ntey
+ACTOR "Death Ray" : Weapon
+{	
+	Inventory.PickupSound "weapons/pickup"
+	Inventory.PickupMessage "You got the death ray!"
+	Obituary "%o met death at the hands of %k."
+	Weapon.AmmoType1 "IonAmmo"
+	Weapon.AmmoType2 "DeathRayOverheat"
+	Weapon.AmmoGive 36
+	Weapon.AmmoUse 3
+	Weapon.SlotNumber 7
+	+INVENTORY.UNDROPPABLE
+	+NOAUTOAIM
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.35
+	Weapon.BobRangeX 0.6
+	States {
+		Spawn:
+			ERWE X -1
+		Loop
+		Ready: 
+			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
+		ReadyLoop:
+			TNT1 A 0 A_PlayWeaponSound("Deathray/Loop")
+			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_DEATHRAY, 10 | (17 << 16))
+			ERWE AABBCCDDAABBCCDDAABBCCDD 1 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
+			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+		DeselectLoop:
+			ERWE E 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_DEATHRAY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 300)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 75)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 200)
+		SelectLoop:
+			ERWE E 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireCont")
+			TNT1 A 0 A_JumpIfInventory("DeathRayCooldown", 1, "NoAction")
+			TNT1 A 0 A_JumpIfInventory("DeathRayOverheat", 0, "NoAction")
+		FireCont:
+			ERWE E 1 Offset(0, 34)
+			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
+			ERWE E 1 Offset(0, 38)
+			TNT1 A 0 A_GunFlash
+			ERWE F 1 Bright Offset(0, 42)
+			ERWE F 1 Bright Offset(0, 45)
+			ERWE F 1 Bright Offset(1, 47)
+			TNT1 A 0 A_GiveInventory("DeathRayShooter", 1)
+			ERWE G 1 Bright Offset(1, 52)
+			ERWE G 1 Bright Offset(1, 55)
+			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
+			TNT1 A 0 A_Recoil(2.8)
+		NoRecoil:
+			ERWE G 1 Bright Offset(2, 60)
+			ERWE H 1 Bright Offset(3, 66)
+			ERWE H 1 Bright Offset(3, 68)
+			ERWE H 1 Bright Offset(3, 70)
+			ERWE I 1 Bright Offset(3, 71)
+			ERWE I 1 Bright Offset(3, 71)
+			ERWE I 1 Bright Offset(3, 70)
+			ERWE F 1 Bright Offset(3, 69)
+			ERWE F 1 Bright Offset(3, 67)
+			ERWE E 1 Offset(2, 65)
+			ERWE E 1 Offset(2, 63)
+			ERWE E 1 Offset(2, 60)
+			ERWE E 1 Offset(2, 58)
+			ERWE E 1 Offset(1, 54)
+			ERWE E 1 Offset(0, 49)
+			ERWE E 1 Offset(0, 45)
+			ERWE E 1 Offset(0, 40)
+			ERWE E 1 Offset(0, 37)
+			ERWE E 1 Offset(0, 34)
+			TNT1 A 0 A_JumpIfInventory("DeathRayOverheat", 0, "Overheat")
+			ERWE E 1 Offset(0, 33)
+		Goto Ready
+		Overheat:
+			TNT1 A 0 A_GiveInventory("DeathRayCooldown", 1)
+		NoAction:
+			ERWE E 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
+			ERWE E 2 A_PlayWeaponSound("PlasmaCannon/Charge")
+			ERWE E 2 A_FireBullets(0, 0, 1, 0, "DeathrayPuff")
+			TNT1 A 0 A_GiveInventory("DeathRayTrigger", 1)
+			ERWE E 10
+		Goto Ready
+		Flash:
+			TNT1 A 4 A_Light1
+			TNT1 A 4 A_Light2
+			TNT1 A 1 A_Light1
+			TNT1 A 0 A_Light0
+		stop
+	}
+}
+
+Actor DeathRayTrigger : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor DeathRayShooter : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_ION, 6)
+			TNT1 A 0 A_PlaySound("DeathRay/Fire", 5)
+			TNT1 A 0 A_GiveInventory("DeathRayOverheat", 40)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 36 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_FireCustomMissile("DeathRayProjectile")
+		Stop
+		Full:
+			TNT1 A 0 A_FireCustomMissile("DeathRayProjectile_FullDMG")
+		Stop
+	}
+}
+
+Actor DeathrayCooldown : PowerDamage {
+	powerup.duration 87
+	damagefactor "normal", 1.0
+}
+
+Actor DeathrayPuff {
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	+NOINTERACTION
+	+BLOODLESSIMPACT
+	+PUFFGETSOWNER
+	States {
+		Spawn:
+			TNT1 A 8 NoDelay ACS_NamedExecuteAlways("DnD DeathRay Marker TID")
+		Stop
+	}
+}
+
+Actor DeathRayProjectile {
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
+	DamageType "Energy"
+	Height 20
+	Radius 10
+	Speed 8
+	Renderstyle None
+	Deathsound "Deathray/Hit"
+	var int user_count;
+	var int user_exprad;
+	const int r = 18;
+	const float f = 7.5;
+	+MTHRUSPECIES
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+			
+		SpawnLoop:
+			TNT1 A 0 A_JumpIfInTargetInventory("DeathRayTrigger", 1, "LaserFire")
+			TNT1 A 0 A_SpawnItemEx("DeathRayTrail", 0, r * sin(f * user_count), r * cos(f * user_count))
+			TNT1 A 1 Light("DRayLight") A_SpawnItemEx("DeathRayTrail", 0, r * sin(f * user_count + 180), r * cos(f * user_count + 180))
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 24) // 180 / 7.5
+		Loop
+		LaserFire:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetAngle(0) // this is necessary!
+			TNT1 A 2 Light("DRayLight2") ACS_NamedExecuteAlways("DnD DeathRay Laser Aim", 0, 32)
+			TNT1 A 0 A_PlaySound("DeathRay/LaserFire")
+			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("DeathRayTrailSpark", frandom(19.0, -19.0), frandom(19.0, -19.0), frandom(19.0, -19.0))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Deathray Laser Trail", 0, 20, health)
+			TNT1 A 3 Light("DRayLight2") A_CustomMissile("DeathRayLaser", 0, 0, mass, CMF_TRACKOWNER | CMF_AIMDIRECTION, -pitch)
+		Stop
+		Death:
+			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET), 96 * (1.0 + user_exprad * exprad_factor), 0, 0, 96 * (1.0 + user_exprad * exprad_factor))
+		Stop
+	}
+}
+
+Actor DeathRayProjectile_FullDMG : DeathRayProjectile {
+	DamageType "EnergyFull"
+	+FORCERADIUSDMG
+	States {
+		LaserFire:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetAngle(0) // this is necessary!
+			TNT1 A 2 ACS_NamedExecuteAlways("DnD DeathRay Laser Aim", 0, 32)
+			TNT1 A 0 A_PlaySound("DeathRay/LaserFire")
+			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("DeathRayTrailSpark", frandom(19.0, -19.0), frandom(19.0, -19.0), frandom(19.0, -19.0))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Deathray Laser Trail", 0, 20, health)
+			TNT1 A 3 A_CustomMissile("DeathRayLaser_FullDMG", 0, 0, mass, CMF_TRACKOWNER | CMF_AIMDIRECTION, -pitch)
+		Stop
+	}
+}
+
+Actor DeathRayTrail {
+	Renderstyle Add
+	Alpha 0.85
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Scale 0.85
+	States {
+		Spawn:
+			ERWE J 1 Bright A_FadeOut(0.085)
+		Loop
+	}
+}
+
+Actor DeathRayLaserTrail {
+	RenderStyle Add
+	Scale 0.1875
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			ERWE K 2 Bright A_SpawnItemEx("DeathRayTrailSpark", frandom(4.0, -4.0), frandom(4.0, -4.0), frandom(4.0, -4.0))
+			ERWE K 2 bright A_SetScale(ScaleX, ScaleY - 0.0875)
+		SpawnLoop:
+			ERWE K 1 bright A_FadeOut(0.095)
+			TNT1 A 0 A_SetScale(ScaleX - 0.01, ScaleY - 0.01)
+		Loop
+	}
+}
+
+Actor DeathRayTrailSpark : DeathRayLaserTrail { 
+    Scale 0.0125
+    Alpha 0.95
+    States {
+		Spawn:
+			ERWE K 3 NoDelay Bright A_ChangeVelocity (frandom(-0.8, 0.8), frandom(-0.8, 0.8), frandom(-0.8, 0.8), CVF_RELATIVE)
+			TNT1 A 0 A_SetScale(ScaleX - 0.00075)
+			ERWE K 1 bright A_FadeOut(0.05)
+		Loop
+    }
+}
+
+ACTOR DeathRayLaserExplode {
+	Renderstyle Add
+	Scale 0.5
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	states {
+		Spawn:
+			ERWL ABCDEFGHIJKLMNOPQRS 1 bright A_FadeOut(0.05)
+		stop
+	}
+}
+
+Actor DeathRayExp : BaseExplosionDamage {
+	DamageType "Explosives"
+	var int user_exprad;
+	+FORCERADIUSDMG
+	States {
+		Spawn:
+			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET), 160 * (1.0 + user_exprad * exprad_factor), 0, 0, 160 * (1.0 + user_exprad * exprad_factor))
+		Stop
+	}
+}
+
+Actor DeathRayExp_FullDMG : DeathRayExp {
+	DamageType "ExplosivesFull"
+}
+
+ACTOR DeathRayLaser : FastProjectile {
+	Speed 512
+	Radius 8
+	Height 16
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
+	DamageType "Energy"
+	Renderstyle Add
+	+FOILINVUL
+	+NODAMAGETHRUST
+	+EXTREMEDEATH
+	+FORCERADIUSDMG
+	+MTHRUSPECIES
+	DeathSound "Deathray/LaserHit"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 1 A_PlaySound("DeathRay/Fly", 5, 1.0, 1)
+		Loop
+		Death:
+			TNT1 A 0 A_PlaySound("Deathray/LaserExplode", 5)
+			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("DeathRayTrailSpark",frandom(19.0, -19.0), frandom(19.0, -19.0), frandom(19.0, -19.0))
+			TNT1 A 0 A_SpawnItemEx("DeathRayLaserExplode")
+			TNT1 A 0 A_SpawnItem("DeathRayExp")
+			TNT1 BCD 4
+		stop
+	}
+}
+
+Actor DeathRayLaser_FullDMG : DeathRayLaser {
+	DamageType "EnergyFull"
+	States {
+		Death:
+			TNT1 A 0 A_PlaySound("Deathray/LaserExplode", 5)
+			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("DeathRayTrailSpark",frandom(19.0, -19.0), frandom(19.0, -19.0), frandom(19.0, -19.0))
+			TNT1 A 0 A_SpawnItemEx("DeathRayLaserExplode")
+			TNT1 A 0 A_SpawnItem("DeathRayExp_FullDMG")
+			TNT1 BCD 4
+		stop
+	}
 }

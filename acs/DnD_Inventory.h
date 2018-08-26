@@ -28,7 +28,7 @@
 #define MAXSTACKS_ORB 128
 #define MAXSTACKS_CKEY 32
 
-#define HUD_DII_FIELD_MULT 6
+#define HUD_DII_FIELD_MULT 10
 
 #define ORB_NAME 0
 #define ORB_TAG 1
@@ -48,18 +48,42 @@ enum {
 
 #define CHEST_KEY_TEXT_MAX DND_CHESTTYPE_GOLD + 1
 
-str ChestkeyHelpText[CHEST_KEY_TEXT_MAX] = {
-	"\c[Y5]Bronze Chest Key\nOpens a mysterious bronze chest.",
-	"\c[Y5]Silver Chest Key\nOpens a mysterious silver chest.",
-	"\c[Y5]Gold Chest Key\nOpens a mysterious gold chest."
-};
 
 #define CHESTKEY_NAME 0
 #define CHESTKEY_TAG 1
-str ChestKeyList[CHEST_KEY_TEXT_MAX][2] = {
-	{ "BronzeChestKey", "Bronze Chest Key" },
-	{ "SilverChestKey", "Silver Chest Key" },
-	{ "GoldChestKey", "Gold Chest Key" }
+#define CHESTKEY_DESC 2
+str ChestKeyList[CHEST_KEY_TEXT_MAX][3] = {
+	{ "BronzeChestKey", "Bronze Chest Key", "\c[Y5]Bronze Chest Key\nOpens a mysterious bronze chest." },
+	{ "SilverChestKey", "Silver Chest Key", "\c[Y5]Silver Chest Key\nOpens a mysterious silver chest." },
+	{ "GoldChestKey", "Gold Chest Key", "\c[Y5]Gold Chest Key\nOpens a mysterious gold chest." }
+};
+
+enum {
+	DND_ELIXIR_HEALTH,
+	DND_ELIXIR_ARMOR,
+	DND_ELIXIR_HPARMOR,
+	DND_ELIXIR_HPPERCENT,
+	DND_ELIXIR_ARMORPERCENT,
+	DND_ELIXIR_HPARMORPERCENT,
+	DND_ELIXIR_SPEED,
+	DND_ELIXIR_DAMAGE,
+	DND_ELIXIR_LUCK
+};
+#define MAX_ELIXIRS DND_ELIXIR_LUCK + 1
+
+#define ELIXIR_NAME 0
+#define ELIXIR_TAG 1
+#define ELIXIR_DESC 2
+str ElixirList[MAX_ELIXIRS][3] = {
+	{ "ElixirOfHealth", "Elixir of Health", "Adds 5 to your health cap." },
+	{ "ElixirOfArmor", "Elixir of Armor", "Adds 5 to your armor cap." },
+	{ "ElixirOfProsperity", "Elixir of Prosperity", "Adds 5 to your health and armor caps." },
+	{ "ElixirOfLife", "Elixir of Life", "Increases health cap by 1%." },
+	{ "ElixirOfStrongness", "Elixir of Strongness", "Increases armor cap by 1%." },
+	{ "ElixirOfFortitude", "Elixir of Fortitude", "Increases health and armor caps by 1%." },
+	{ "ElixirOfSpeed", "Elixir of Speed", "Increases your speed by 1%."  },
+	{ "ElixirOfDamage", "Elixir of Damage", "Adds 1% damage to all damage types." },
+	{ "ElixirOfLuck", "Elixir of Luck", "Gives 5% increased drop rate." }
 };
 
 // MENU IDS
@@ -79,14 +103,16 @@ enum {
 	DND_ITEM_RING,
 	DND_ITEM_ORB,
 	DND_ITEM_CHESTKEY,
+	DND_ITEM_ELIXIR,
 	DND_ITEM_WEAPON
 };
 
 // only orbs
-#define MAX_CRAFTITEMTYPES 1
+#define MAX_CRAFTITEMTYPES 2
 
 int CraftItemTypes[MAX_CRAFTITEMTYPES] = {
-	DND_ITEM_ORB
+	DND_ITEM_ORB,
+	DND_ITEM_ELIXIR
 };
 
 #define MAX_CRAFTABLEITEMTYPES 4
@@ -178,13 +204,24 @@ enum {
 	
 	IIMG_CKEY_1,
 	IIMG_CKEY_2,
-	IIMG_CKEY_3
+	IIMG_CKEY_3,
+	
+	IIMG_ELIX_HEALTH,
+	IIMG_ELIX_ARMOR,
+	IIMG_ELIX_HPARMOR,
+	IIMG_ELIX_HPPERCENT,
+	IIMG_ELIX_ARMORPERCENT,
+	IIMG_ELIX_HPARMORPERCENT,
+	IIMG_ELIX_SPEED,
+	IIMG_ELIX_DAMAGE,
+	IIMG_ELIX_LUCK
 };
 
 #define ITEM_IMAGE_ORB_BEGIN IIMG_ORB_1
 #define ITEM_IMAGE_KEY_BEGIN IIMG_CKEY_1
+#define ITEM_IMAGE_ELIXIR_BEGIN IIMG_ELIX_HEALTH
 
-#define MAX_ITEM_IMAGES IIMG_CKEY_3 + 1
+#define MAX_ITEM_IMAGES IIMG_ELIX_LUCK + 1
 str Item_Images[MAX_ITEM_IMAGES] = {
 	// charms
 	"SCHRM1",
@@ -220,7 +257,17 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	
 	"SBKGA0",
 	"SBKGB0",
-	"SBKGC0"
+	"SBKGC0",
+	
+	"ELIX01",
+	"ELIX02",
+	"ELIX03",
+	"ELIX04",
+	"ELIX05",
+	"ELIX06",
+	"ELIX07",
+	"ELIX08",
+	"ELIX09"
 };
 
 #define IOFFSET_X 0
@@ -259,7 +306,17 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
-	{ 7.0, 7.0 }
+	{ 7.0, 7.0 },
+	
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 },
+	{ 0.0, 10.0 }
 };
 
 enum {
@@ -1252,7 +1309,8 @@ void TransferTradeItems(int from, int to) {
 	}
 }
 
-void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
+// outside source implies this was called from the menu, not in the game
+void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOutsideSource) {
 	int pnum = PlayerNumber();
 	int stack, itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source), offset = 0.0;
 	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
@@ -1267,6 +1325,8 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 			offset = 6.0;
 		else if(itype == DND_ITEM_CHESTKEY)
 			offset = 3.0;
+		else if(itype == DND_ITEM_ELIXIR)
+			offset = 8.0;
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, bx + ScreenResOffsets[2], by + offset, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, topboxid, -1, source);
 		if(stack) {
@@ -1280,10 +1340,15 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by) {
 		by &= 0xFFFF0000;
 		bx += 0.4;
 		by += 48.1;
+		offset = 0;
+		if(isOutsideSource) {
+			offset = -64;
+			by -= 8.0;
+		}
 		if(ScreenResOffsets[2] > 0)
-			SetHudClipRect(-96 + 72, 80, 256 + 72, 224, 256 + 72, 1);
+			SetHudClipRect(-96 + 72, 80 + offset, 256 + 72, 224, 256 + 72, 1);
 		else
-			SetHudClipRect(-96, 80, 256, 224, 256, 1);
+			SetHudClipRect(-96, 80 + offset, 256, 224, 256, 1);
 		DrawInventoryText_Field(topboxid, source, bx, by, itype);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
@@ -1313,7 +1378,11 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 	}
 	else if(itype == DND_ITEM_CHESTKEY) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:ChestkeyHelpText[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:ChestKeyList[temp][CHESTKEY_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	else if(itype == DND_ITEM_ELIXIR) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
+		HudMessage(s:"\c[Y5]", s:ElixirList[temp][ELIXIR_TAG], s:"\n", s:ElixirList[temp][ELIXIR_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 }
 
@@ -1373,7 +1442,7 @@ int CheckPlayerInventoryList(int pnum, int itemtype, int subtype) {
 
 // can only use items in inventory
 void UsePlayerItem(int pnum, int item_index) {
-	if(PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_ORB || PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHESTKEY) {
+	if(IsUsableItem(PlayerInventoryList[pnum][item_index].item_type)) {
 		--PlayerInventoryList[pnum][item_index].item_stack;
 		if(PlayerInventoryList[pnum][item_index].item_stack)
 			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -1402,10 +1471,22 @@ void UsePlayerStashItem_Count(int pnum, int page, int item_index, int count) {
 	}
 }
 
+// a safeguard pretty much for use player item
+bool isUsableItem(int itype) {
+	switch(itype) {
+		case DND_ITEM_ORB:
+		case DND_ITEM_CHESTKEY:
+		case DND_ITEM_ELIXIR:
+		return true;
+	}
+	return false;
+}
+
 // we only have orbs as crafting material atm
 bool IsCraftingItem(int itype) {
 	switch(itype) {
 		case DND_ITEM_ORB:
+		case DND_ITEM_ELIXIR:
 		return true;
 	}
 	return false;
@@ -1429,11 +1510,16 @@ int CountCraftingMaterials() {
 	int pnum = PlayerNumber();
 	int res = 0;
 	bool unique_orbs = 0;
+	bool unique_elixirs = 0;
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
 			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
 				++res;
 				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
+			}
+			else if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ELIXIR&& !IsSet(unique_elixirs, PlayerInventoryList[pnum][i].item_subtype)) {
+				++res;
+				unique_elixirs = SetBit(unique_elixirs, PlayerInventoryList[pnum][i].item_subtype);
 			}
 		}
 	}
@@ -1443,12 +1529,12 @@ int CountCraftingMaterials() {
 int GetNextUniqueCraftingMaterial(int itemtype, int current) {
 	int pnum = PlayerNumber();
 	int res = 0, i;
-	bool unique_orbs = 0;
+	bool unique_items = 0;
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
-			if(PlayerInventoryList[pnum][i].item_type == itemtype && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
+			if(PlayerInventoryList[pnum][i].item_type == itemtype && !IsSet(unique_items, PlayerInventoryList[pnum][i].item_subtype)) {
 				++res;
-				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
+				unique_items = SetBit(unique_items, PlayerInventoryList[pnum][i].item_subtype);
 				// return the item's index
 				if(res > current)
 					return i;
@@ -1483,6 +1569,7 @@ int GetTotalStackOfMaterial(int itemid) {
 
 bool IsSelfUsableItem(int itype, int isubtype) {
 	switch(itype) {
+		// do all exceptions in here
 		case DND_ITEM_ORB:
 			switch(isubtype) {
 				case DND_ORB_ENHANCE:
