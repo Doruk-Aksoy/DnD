@@ -1405,106 +1405,30 @@ struct draw_info ArtifactDrawInfo[MAXARTIFACTS] = {
 	{ OBJ_ARTI | OBJ_HASCHOICE,								-1											},
 	{ OBJ_ARTI | OBJ_HASCHOICE,								-1											}
 };
-	 
-str AccessoryNames[MAX_ACCESSORY] = { 
-	"Wisdom Talisman", 
-	"Greed Talisman", 
-	"Demon Bane", 
-	"Amulet of Hellfire", 
-	"Angelic Ankh", 
-	"Reflection Pendant", 
-	"Nether Mask", 
-	"Taltos Ring", 
-	"Hate Shard",
-	"Hand of Artemis",
-	"Scroll of Agamotto",
-	"Gryphon Boots",
-	"Lich Arm",
-	"Sigil of Elements",
-	"Celestial Relic",
-	"Veil of the Assassin",
-	"Hunter's Talisman"
-};
 
-str AccessoryList[MAX_ACCESSORY] = {
-	"Accessory_1",
-	"Accessory_2",
-	"Accessory_3",
-	"Accessory_4",
-	"Accessory_5",
-	"Accessory_6",
-	"Accessory_7",
-	"Accessory_8",
-	"Accessory_9",
-	"Accessory_10",
-	"Accessory_11",
-	"Accessory_12",
-	"Accessory_13",
-	"Accessory_14",
-	"Accessory_15",
-	"Accessory_16",
-	"Accessory_17"
-};
-
-// make this automated later
-str AccessoryImages[MAX_ACCESSORY] = { 
-	"ACC1B0", 
-	"ACC2B0", 
-	"ACC3B0", 
-	"ACC4B0", 
-	"ACC5B0", 
-	"ACC6B0", 
-	"ACC7B0", 
-	"ACC8B0", 
-	"ACC9B0",
-	"AC10B0",
-	"AC11B0",
-	"AC12B0",
-	"AC13B0",
-	"AC14B0",
-	"AC15B0",
-	"AC16B0",
-	"AC17B0"
-};
-
-str AccessoryBenefits[MAX_ACCESSORY] = {
-	"Increases exp gain by 50%.",
-	"Increases credit gain by 50%.",
-	"Increases damage of occult weapons by 100%.",
-	"Protects from all fire damage and hazards by 75%.",
-	"When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once very map.",
-	"When hit, 20% chance to go invulnerable and reflective for 5 seconds. Can happen only 5 times every map.",
-	"All your weapons can hit ghosts and do irreducable damage.",
-	"Recover health from melee attacks and become a ghost.",
-	"Reflect damage back to enemies. Attackers take x2 more damage for 5 seconds.",
-	"Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.",
-	"Do 150% more damage while standing.",
-	"Gives 25% movement speed, immunity to curses and fall damage, and knockback immunity.",
-	"Soul capacity becomes 150 and ultimate weapons do x2.5 damage.",
-	"Gives x2 elemental damage to a single element for 15 seconds. This works in a rotation.",
-	"Gives 25% increased health and armor capacity.",
-	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 15% of missing health. Lasts for 5 seconds or until you expend the crit.",
-	"Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill."
-};
-
-str AccessoryNegatives[MAX_ACCESSORY] = {
-	"Reduces credit gain by 50%.",
-	"Reduces experience gain by 50%.",
-	"Reduces other damages by 75%.",
-	"Increases ice damage taken by 75%.",
-	"Your health cap is halved. (Never below 100)",
-	"While active, move 25% slower.",
-	"Take 50% more damage.",
-	"Health items are unpickable. Only Megasphere or Berserk can be picked that give health.",
-	"Non-melee damage reduced by 50%.",
-	"Do 50% less damage.",
-	"Take 30% more damage while moving.",
-	"Can't regenerate.",
-	"Any other weapon does 90% reduced damage.",
-	"Other elements do 50% less damage.",
-	"Slows you down by 20%.",
-	"On expending your doubled crit, never crit for 10 seconds.",
-	"Your overall crit damage is halved."
+#define ACCESSORY_TAG 0
+#define ACCESSORY_NAME 1
+#define ACCESSORY_ICON 2
+#define ACCESSORY_PRO 3
+#define ACCESSORY_CON 4
+str AccessoryInfo[MAX_ACCESSORY][5] = { 
+	{ "Wisdom Talisman", 		"Accessory_1", 		"ACC1B0", "Increases exp gain by 50%.", "Reduces credit gain by 50%." },
+	{ "Greed Talisman", 		"Accessory_2", 		"ACC2B0", "Increases credit gain by 50%.", "Reduces experience gain by 50%." },
+	{ "Demon Bane", 			"Accessory_3", 		"ACC3B0", "Increases damage of occult weapons by 100%.", "Reduces other damages by 75%." },
+	{ "Amulet of Hellfire", 	"Accessory_4", 		"ACC4B0", "Protects from all fire damage and hazards by 75%.", "Increases ice damage taken by 75%." },
+	{ "Angelic Ankh", 			"Accessory_5", 		"ACC5B0", "When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once very map.", "Your health cap is halved. (Never below 100)" },
+	{ "Reflection Pendant", 	"Accessory_6", 		"ACC6B0", "When hit, 20% chance to go invulnerable and reflective for 5 seconds. Can happen only 5 times every map.", "While active, move 25% slower." },
+	{ "Nether Mask", 			"Accessory_7", 		"ACC7B0", "All your weapons can hit ghosts and do irreducable damage.", "Take 50% more damage." },
+	{ "Taltos Ring", 			"Accessory_8", 		"ACC8B0", "Recover health from melee attacks and become a ghost.", "Health items are unpickable. Only Megasphere or Berserk can be picked that give health." },
+	{ "Hate Shard", 			"Accessory_9", 		"ACC9B0", "Reflect damage back to enemies. Attackers take x2 more damage for 5 seconds.", "Non-melee damage reduced by 50%." },
+	{ "Hand of Artemis", 		"Accessory_10", 	"AC10B0", "Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.", "Do 50% less damage." },
+	{ "Scroll of Agamotto", 	"Accessory_11", 	"AC11B0", "Do 150% more damage while standing.", "Take 30% more damage while moving." },
+	{ "Gryphon Boots", 			"Accessory_12", 	"AC12B0", "Gives 25% movement speed, immunity to curses and fall damage, and knockback immunity.", "Can't regenerate." },
+	{ "Lich Arm", 				"Accessory_13", 	"AC13B0", "Soul capacity becomes 150 and ultimate weapons do x2.5 damage.", "Any other weapon does 90% reduced damage." },
+	{ "Sigil of Elements", 		"Accessory_14", 	"AC14B0", "Gives x2 elemental damage to a single element for 15 seconds. This works in a rotation.", "Other elements do 50% less damage." },
+	{ "Celestial Relic", 		"Accessory_15", 	"AC15B0", "Gives 25% increased health and armor capacity.", "Slows you down by 20%." },
+	{ "Veil of the Assassin", 	"Accessory_16", 	"AC16B0", "After a crit, your next crit's damage is doubled. Expend this crit to heal for 15% of missing health. Lasts for 5 seconds or until you expend the crit.", "On expending your doubled crit, never crit for 10 seconds." },
+	{ "Hunter's Talisman", 		"Accessory_17", 	"AC17B0", "Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill.", "Your overall crit damage is halved." }
 };
 
 // This mapper is used when transitioning from ammo tables to menu tables

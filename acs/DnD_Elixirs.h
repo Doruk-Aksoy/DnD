@@ -92,7 +92,7 @@ void SpawnElixir(int pnum) {
 		for(; i < MAX_ELIXIRS && ElixirDropWeights[i] < w; ++i);
 		RollElixirInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(StrParam(s:InventoryInfo[i + ELIXIR_BEGIN][SITEM_NAME], s:"_Drop"), 24.0, 16, pnum + 1, c);
+		SpawnDrop(InventoryInfo[i + ELIXIR_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
 	}
 }
 

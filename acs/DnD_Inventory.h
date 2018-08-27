@@ -2,6 +2,7 @@
 #define DND_INVENTORY_IN
 
 #include "DnD_InvInfo.h"
+#include "DnD_UniqueItems.h"
 
 #define MAXINVENTORYBLOCKS_HORIZ 5
 #define MAXINVENTORYBLOCKS_VERT 9
@@ -11,8 +12,6 @@
 #define MAX_ITEM_LEVEL 100
 #define MAX_ITEM_AFFIXTIERS 4
 #define ITEM_TIER_SEPERATOR 100 / MAX_ITEM_AFFIXTIERS
-
-#define MAX_ITEM_ATTRIBUTES 9
 
 #define DND_SYNC_ITEMBEGIN DND_SYNC_ITEMTOPLEFTBOX
 #define DND_SYNC_ITEMEND DND_SYNC_ITEMATTRIBUTES_VAL
@@ -62,40 +61,6 @@ enum {
 	DND_ITEM_ELIXIR,
 	DND_ITEM_WEAPON
 };
-
-// only orbs
-#define MAX_CRAFTITEMTYPES 2
-
-int CraftItemTypes[MAX_CRAFTITEMTYPES] = {
-	DND_ITEM_ORB,
-	DND_ITEM_ELIXIR
-};
-
-#define MAX_CRAFTABLEITEMTYPES 4
-int CraftableItemTypes[MAX_CRAFTABLEITEMTYPES] = {
-	DND_ITEM_CHARM,
-	DND_ITEM_BOOT,
-	DND_ITEM_HELM,
-	DND_ITEM_NECKLACE
-};
-
-typedef struct {
-	int attrib_val;
-	int attrib_id;
-} attr_inf_T;
-
-typedef struct it {
-	int width;										// width in inventory space
-	int height;										// height in inventory space
-	int item_image;									// image of item from image list
-	int item_type;									// what type of item it is (>65535 implies this item is a unique, >> 16 - 1 gives unique id)
-	int item_subtype;								// subtype for items that have it (charms etc)
-	int item_level;									// what level this item is
-	int item_stack;									// the stack of the item (if applicable)
-	int topleftboxid;								// used to determine the owning pointer (-1 of this is the pointer)
-	int attrib_count;								// count of attributes
-	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
-} inventory_T;
 
 typedef struct imove {
 	int width;

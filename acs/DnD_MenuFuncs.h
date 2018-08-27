@@ -561,7 +561,7 @@ void DrawHelpCorner (int opt, int boxid) {
 
 void ShowAccessoryIcon(int acc, int i) {
 	SetHudSize(640, 480, 1);
-	SetFont(AccessoryImages[acc]);
+	SetFont(AccessoryInfo[acc][ACCESSORY_ICON]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * i - 2, CR_WHITE, 421.4, 75.1 + 48.0 * i, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -880,18 +880,18 @@ void DrawToggledImage(int itemid, int onposy, int objectflag, int offcolor, int 
 
 void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 	int pos = id - ACCESSORY_PER_PAGE * (page - MENU_FIRST_ACCESSORY_PAGE);
-	if(CheckInventory(AccessoryList[id])) {
+	if(CheckInventory(AccessoryInfo[id][ACCESSORY_NAME])) {
 		if(boxid == pos + 1) {
-			HudMessage(s:"\c[B1]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[B1]", s:AccessoryInfo[id][ACCESSORY_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 			
 			SetHudClipRect(192, 32, 256, 256, 256, 1);
-			HudMessage(s:StrParam(s:"+ ", s:AccessoryBenefits[id], s:"\n\c[D4]- ", s:AccessoryNegatives[id]); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos - 1, CR_GREEN, 192.1, 212.1, 0.0, 0.0);
+			HudMessage(s:StrParam(s:"+ ", s:AccessoryInfo[id][ACCESSORY_PRO], s:"\n\c[D4]- ", s:AccessoryInfo[id][ACCESSORY_CON]); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos - 1, CR_GREEN, 192.1, 212.1, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0, 0);
 		}
 		else if(IsAccessoryEquipped(0, 1 << id))
-			HudMessage(s:"\c[C5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[C5]", s:AccessoryInfo[id][ACCESSORY_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 		else
-			HudMessage(s:"\c[Y5]", s:AccessoryNames[id]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", s:AccessoryInfo[id][ACCESSORY_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 		ShowAccessoryIcon(id, pos);
 	}
 	else {
@@ -3727,8 +3727,10 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				// using an orb in material part
 				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
 					if(IsSelfUsableItem(PlayerInventoryList[pnum][itemindex].item_type, PlayerInventoryList[pnum][itemindex].item_subtype)) {
-						if(HandleMaterialUse(pnum, itemindex, 0, DND_ITEM_NULL))
+						if(HandleMaterialUse(pnum, itemindex, 0, DND_ITEM_NULL)) {
+							GiveInventory("DnD_RefreshPane", 1);
 							UsePlayerItem(pnum, itemindex);
+						}
 						else
 							ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 					}
@@ -3740,14 +3742,18 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						prevselect = CheckInventory("DnD_SelectedInventoryBox") - 1;
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
-								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON))
+								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON)) {
+									GiveInventory("DnD_RefreshPane", 1);
 									UsePlayerItem(pnum, itemindex);
+								}
 								else
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
 							else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
-								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_CHARM))
+								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_CHARM)) {
+									GiveInventory("DnD_RefreshPane", 1);
 									UsePlayerItem(pnum, itemindex);
+								}
 								else
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
