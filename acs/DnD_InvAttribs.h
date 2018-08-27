@@ -145,7 +145,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 4, 125, 20 }
 };
 
-#define MAX_MAGAZINES 23
+#define MAX_MAGAZINES 24
 str WeaponMagazineList[MAX_MAGAZINES] = {
 	"SawedoffCounter",
 	"AkimboClipLeft",
@@ -169,7 +169,36 @@ str WeaponMagazineList[MAX_MAGAZINES] = {
 	"PCanClip",
 	"RiotgunClip",
 	"AcidClip",
-	"HeavyGLCounter"
+	"HeavyGLCounter",
+	"FuelClip"
+};
+
+// Used for base when increasing these using magazine cap increase
+int WeaponMagazineCaps[MAX_MAGAZINES] = {
+	2,
+	12,
+	12,
+	6,
+	2,
+	8,
+	8,
+	10,
+	12,
+	16,
+	18,
+	50,
+	60,
+	75,
+	40,
+	31,
+	40,
+	75,
+	10,
+	5,
+	8,
+	28,
+	3,
+	75
 };
 
 #endif

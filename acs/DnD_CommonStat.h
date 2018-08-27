@@ -26,6 +26,8 @@
 #define DND_TALENTPOINT_MARK 4
 #define DND_MUNITION_GAIN 10
 
+#define DND_SAVAGERY_BONUS 10
+
 #define PERK_MEDICBONUS 10 // percent
 #define PERK_MEDICSTOREBONUS 15
 #define PERK_DEADLINESS_BONUS 0.02
@@ -213,12 +215,14 @@ int CalculateHealthCapBonuses() {
 
 int GetSpawnHealth() {
 	int res = CalculateHealthCapBonuses() + DND_BASE_HEALTH + DND_VIT_INCREASE * CheckInventory("PSTAT_Vitality");
-	// consider percent bonuses
-	res += (res * (Player_Orb_Data[PlayerNumber()].orb_stat_bonuses.hp_percent_bonus) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
+	// consider percent bonuses from here on
+	res += (res * (Player_Orb_Data[PlayerNumber()].orb_stat_bonuses.hp_percent_bonus + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus"))) / 100;
 	res += (res * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	// research bonuses
 	res += (res * GetResearchHealthBonuses()) / 100;
+	// player bonus
+	res += (res * Player_Bonuses[PlayerNumber()].hp_percent_bonus) / 100;
 	
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH))
 		res >>= 1;

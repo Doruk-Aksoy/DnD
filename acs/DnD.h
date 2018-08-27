@@ -62,8 +62,6 @@
 
 #define DND_MAX_MONSTERDELAY 5
 
-#define DND_SAVAGERY_BONUS 10
-
 #define DND_DEMONBANE_GAIN 50
 
 #define DND_CYBERNETICARMOR_AMOUNT 300
@@ -697,7 +695,7 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	1
 };
 
-#define MAXDNDFLAGS 49
+#define MAXDNDFLAGS 50
 str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monsterbars",
 	"dnd_monsterscale",
@@ -728,6 +726,7 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_shop_ability_scale",
 	"dnd_shop_talent_scale",
 	"dnd_shop_armor_scale",
+	"dnd_shop_account_scale",
 	
 	"dnd_monsterlevel_low",
 	"dnd_monsterlevel_high",
@@ -785,6 +784,7 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	2,
 	1,
 	1,
+	1,
 	
 	1,
 	6,
@@ -836,62 +836,6 @@ int CheckHardcoreSettings() {
 // make these actually global sometime
 int Monster_VariationCounts[MAX_MONSTER_CATEGORIES] = { 0 };
 int Monster_CategoryWeightSum[MAX_MONSTER_CATEGORIES] = { 0 };
-
-int CheckDeadlinessCrit() {
-	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS;
-}
-
-bool CheckCritChance() {
-	// veil disables crits for the cooldown period
-	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
-		return 0;
-	bool res = 0;
-	int chance = CheckDeadlinessCrit(), pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
-	// add current weapon crit bonuses
-	chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
-	chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
-	chance += (Player_Bonuses[pnum].crit_chance << 16) / 100;
-	// add percent bonus
-	if(chance) {
-		chance = FixedMul(chance, 1.0 + Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt 
-									  + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT 
-									  + (Player_Bonuses[pnum].crit_percent << 16) / 100, wepid));
-	}
-	
-	res = chance >= random(0, 1.0);
-	
-	if(res && CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
-		GiveInventory("VeilMarkTimer", 1);
-		ActivatorSound("VeilOfAssassin/Active", 97);
-	}
-	
-	return chance >= random(0, 1.0);
-}
-
-int GetCritModifier() {
-	int base = DND_BASE_CRITMODIFIER; // 200, which is x2 more damage
-	int bonus = DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery"), pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
-	// weapon bonus
-	bonus += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt >> 16;
-	bonus += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
-	bonus += Player_Bonuses[pnum].crit_damage;
-	base += bonus;
-	if(CheckInventory("HunterTalismanCheck"))
-		base >>= 1;
-	if(CheckInventory("VeilMarkTimer")) {
-		if(!CheckInventory("VeilNextAttack"))
-			GiveInventory("VeilNextAttack", 1);
-		else {
-			base <<= 1;
-			TakeInventory("VeilMarkTimer", 1);
-			TakeInventory("VeilNextAttack", 1);
-			GiveInventory("VeilCooldown", 1);
-			GiveInventory("VeilHealFXSpawner", 1);
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, (DND_VEIL_FACTORUP * GetMissingHealth()) / DND_VEIL_FACTOR);
-		}
-	}
-	return base;
-}
 
 void HandleHunterTalisman() {
 	if(CheckInventory("HunterTalismanCheck") && !CheckInventory("HunterTalismanCooldown")) {

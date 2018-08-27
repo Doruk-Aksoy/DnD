@@ -1,6 +1,8 @@
 #ifndef DND_INVENTORY_IN
 #define DND_INVENTORY_IN
 
+#include "DnD_InvInfo.h"
+
 #define MAXINVENTORYBLOCKS_HORIZ 5
 #define MAXINVENTORYBLOCKS_VERT 9
 
@@ -38,52 +40,6 @@
 enum {
 	IPROCESS_ADD,
 	IPROCESS_REMOVE
-};
-
-enum {
-	DND_CHESTTYPE_BRONZE,
-	DND_CHESTTYPE_SILVER,
-	DND_CHESTTYPE_GOLD
-};
-
-#define CHEST_KEY_TEXT_MAX DND_CHESTTYPE_GOLD + 1
-
-
-#define CHESTKEY_NAME 0
-#define CHESTKEY_TAG 1
-#define CHESTKEY_DESC 2
-str ChestKeyList[CHEST_KEY_TEXT_MAX][3] = {
-	{ "BronzeChestKey", "Bronze Chest Key", "\c[Y5]Bronze Chest Key\nOpens a mysterious bronze chest." },
-	{ "SilverChestKey", "Silver Chest Key", "\c[Y5]Silver Chest Key\nOpens a mysterious silver chest." },
-	{ "GoldChestKey", "Gold Chest Key", "\c[Y5]Gold Chest Key\nOpens a mysterious gold chest." }
-};
-
-enum {
-	DND_ELIXIR_HEALTH,
-	DND_ELIXIR_ARMOR,
-	DND_ELIXIR_HPARMOR,
-	DND_ELIXIR_HPPERCENT,
-	DND_ELIXIR_ARMORPERCENT,
-	DND_ELIXIR_HPARMORPERCENT,
-	DND_ELIXIR_SPEED,
-	DND_ELIXIR_DAMAGE,
-	DND_ELIXIR_LUCK
-};
-#define MAX_ELIXIRS DND_ELIXIR_LUCK + 1
-
-#define ELIXIR_NAME 0
-#define ELIXIR_TAG 1
-#define ELIXIR_DESC 2
-str ElixirList[MAX_ELIXIRS][3] = {
-	{ "ElixirOfHealth", "Elixir of Health", "Adds 5 to your health cap." },
-	{ "ElixirOfArmor", "Elixir of Armor", "Adds 5 to your armor cap." },
-	{ "ElixirOfProsperity", "Elixir of Prosperity", "Adds 5 to your health and armor caps." },
-	{ "ElixirOfLife", "Elixir of Life", "Increases health cap by 1%." },
-	{ "ElixirOfStrongness", "Elixir of Strongness", "Increases armor cap by 1%." },
-	{ "ElixirOfFortitude", "Elixir of Fortitude", "Increases health and armor caps by 1%." },
-	{ "ElixirOfSpeed", "Elixir of Speed", "Increases your speed by 1%."  },
-	{ "ElixirOfDamage", "Elixir of Damage", "Adds 1% damage to all damage types." },
-	{ "ElixirOfLuck", "Elixir of Luck", "Gives 5% increased drop rate." }
 };
 
 // MENU IDS
@@ -1309,6 +1265,18 @@ void TransferTradeItems(int from, int to) {
 	}
 }
 
+int GetInventoryInfoOffset(int itype) {
+	switch(itype) {
+		case DND_ITEM_CHESTKEY:
+		return CHESTKEY_BEGIN;
+		case DND_ITEM_ELIXIR:
+		return ELIXIR_BEGIN;
+		case DND_ITEM_ORB:
+		return ORBS_BEGIN;
+	}
+	return 0;
+}
+
 // outside source implies this was called from the menu, not in the game
 void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOutsideSource) {
 	int pnum = PlayerNumber();
@@ -1372,17 +1340,9 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
-	else if(itype == DND_ITEM_ORB) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-	}
-	else if(itype == DND_ITEM_CHESTKEY) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:ChestKeyList[temp][CHESTKEY_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-	}
-	else if(itype == DND_ITEM_ELIXIR) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:"\c[Y5]", s:ElixirList[temp][ELIXIR_TAG], s:"\n", s:ElixirList[temp][ELIXIR_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
+		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 }
 
@@ -1417,9 +1377,9 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		str droptype = InventoryDropActors[DND_INVDROP_CHARM];
 		if(itype == DND_ITEM_ORB)
-			droptype = OrbList[stype][0];
+			droptype = InventoryInfo[stype + ORBS_BEGIN][SITEM_NAME];
 		else if(itype == DND_ITEM_CHESTKEY)
-			droptype = ChestKeyList[stype][CHESTKEY_NAME];
+			droptype = InventoryInfo[stype + CHESTKEY_BEGIN][SITEM_NAME];
 		forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 	}
 }
@@ -1593,38 +1553,45 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].hp_flat_bonus += aval;
 			else
 				Player_Bonuses[pnum].hp_flat_bonus -= aval;
+			SyncClientsideVariable(DND_SYNC_HPFLAT_BONUS, 0, DND_SYNC_NONORB);
 		break;
 		case INV_ARMOR_INCREASE:
-				if(method == IPROCESS_ADD)
+			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].armor_flat_bonus += aval;
 			else
 				Player_Bonuses[pnum].armor_flat_bonus -= aval;
+			SyncClientsideVariable(DND_SYNC_ARMORFLAT_BONUS, 0, DND_SYNC_NONORB);
 		break;
 		case INV_HPPERCENT_INCREASE:
-				if(method == IPROCESS_ADD)
+			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].hp_percent_bonus += aval;
 			else
 				Player_Bonuses[pnum].hp_percent_bonus -= aval;
+			SyncClientsideVariable(DND_SYNC_HPPERCENT_BONUS, 0, DND_SYNC_NONORB);
 		break;
 		case INV_ARMORPERCENT_INCREASE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].armor_percent_bonus += aval;
 			else
 				Player_Bonuses[pnum].armor_percent_bonus -= aval;
+			SyncClientsideVariable(DND_SYNC_ARMORPERCENT_BONUS, 0, DND_SYNC_NONORB);
 		break;
 		case INV_SPEED_INCREASE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].speed_bonus += aval;
 			else
 				Player_Bonuses[pnum].speed_bonus -= aval;
+			SyncClientsideVariable(DND_SYNC_SPEED, 0, DND_SYNC_NONORB);
 		break;
 		case INV_MAGAZINE_INCREASE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].magazine_increase += aval;
 			else
 				Player_Bonuses[pnum].magazine_increase -= aval;
+			// add onto the base capacities, not current capacities
 			for(i = 0; i < MAX_MAGAZINES; ++i)
-				SetAmmoCapacity(WeaponMagazineList[i], (GetAmmoCapacity(WeaponMagazineList[i]) * (100 + Player_Bonuses[pnum].magazine_increase)) / 100);
+				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + Player_Bonuses[pnum].magazine_increase)) / 100);
+			SyncClientsideVariable(DND_SYNC_MAGAZINEINCREASE, 0, DND_SYNC_NONORB);
 		break;
     
 		case INV_FLATPHYS_DAMAGE:
@@ -1637,30 +1604,36 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_BULLET] -= aval;
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_MELEE] -= aval;
 			}
+			SyncClientsideVariable(DND_SYNC_DAMAGEBULLET, 0, DND_SYNC_NONORB);
+			SyncClientsideVariable(DND_SYNC_DAMAGEMELEE, 0, DND_SYNC_NONORB);
 		break;
 		case INV_FLATENERGY_DAMAGE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ENERGY] += aval;
 			else
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ENERGY] -= aval;
+			SyncClientsideVariable(DND_SYNC_DAMAGEENERGY, 0, DND_SYNC_NONORB);
 		break;
 		case INV_FLATEXP_DAMAGE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_EXPLOSIVE] += aval;
 			else
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_EXPLOSIVE] -= aval;
+			SyncClientsideVariable(DND_SYNC_DAMAGEEXPLOSIVE, 0, DND_SYNC_NONORB);
 		break;
 		case INV_FLATMAGIC_DAMAGE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_OCCULT] += aval;
 			else
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_OCCULT] -= aval;
+			SyncClientsideVariable(DND_SYNC_DAMAGEOCCULT, 0, DND_SYNC_NONORB);
 		break;
 		case INV_FLATELEM_DAMAGE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ELEMENTAL] += aval;
 			else
 				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ELEMENTAL] -= aval;
+			SyncClientsideVariable(DND_SYNC_DAMAGEELEMENTAL, 0, DND_SYNC_NONORB);
 		break;
 		
 		case INV_SLOT1_DAMAGE:
@@ -1676,6 +1649,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].slot_damage_bonus[atype - INV_SLOT1_DAMAGE] += aval;
 			else
 				Player_Bonuses[pnum].slot_damage_bonus[atype - INV_SLOT1_DAMAGE] -= aval;
+			SyncClientsideVariable(DND_SYNC_SLOT1DAMAGE + atype - INV_SLOT1_DAMAGE, 0, DND_SYNC_NONORB);
 		break;
 		
 		case INV_PELLET_INCREASE:
@@ -1683,6 +1657,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].pellet_increase += aval;
 			else
 				Player_Bonuses[pnum].pellet_increase -= aval;
+			SyncClientsideVariable(DND_SYNC_PELLETINCREASE, 0, DND_SYNC_NONORB);
 		break;
 	
 		case INV_EXPLOSION_RADIUS:
@@ -1690,6 +1665,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].explosion_radius += aval;
 			else
 				Player_Bonuses[pnum].explosion_radius -= aval;
+			SyncClientsideVariable(DND_SYNC_EXPLOSIONRADIUS, 0, DND_SYNC_NONORB);
 		break;
 		case INV_EXPLOSIVE_RESIST:
 			if(method == IPROCESS_ADD)
@@ -1699,6 +1675,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 			for(i = 0; i < MAX_EXPRESIST_VAL; ++i)
 				TakeInventory(StrParam(s:"ExplosionResist_", d:i + 1), 1);
 			GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(Player_Bonuses[pnum].explosion_resist, 1, MAX_EXPRESIST_VAL)), 1);
+			SyncClientsideVariable(DND_SYNC_EXPLOSIVERESIST, 0, DND_SYNC_NONORB);
 		break;
 		
 		case INV_AMMOGAIN_CHANCE:
@@ -1706,12 +1683,14 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].ammo_chance += aval;
 			else
 				Player_Bonuses[pnum].ammo_chance -= aval;
+			SyncClientsideVariable(DND_SYNC_AMMOGAINCHANCE, 0, DND_SYNC_NONORB);
 		break;
 		case INV_AMMOGAIN_INCREASE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].ammo_gain += aval;
 			else
 				Player_Bonuses[pnum].ammo_gain -= aval;
+			SyncClientsideVariable(DND_SYNC_AMMOGAININCREASE, 0, DND_SYNC_NONORB);
 		break;
 		
 		case INV_REGENCAP_INCREASE:
@@ -1719,6 +1698,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].regen_cap += aval;
 			else
 				Player_Bonuses[pnum].regen_cap -= aval;
+			SyncClientsideVariable(DND_SYNC_REGENCAP, 0, DND_SYNC_NONORB);
 		break;
 		
 		case INV_CRITCHANCE_INCREASE:
@@ -1726,18 +1706,21 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].crit_chance += aval;
 			else
 				Player_Bonuses[pnum].crit_chance -= aval;
+			SyncClientsideVariable(DND_SYNC_CRITCHANCE, 0, DND_SYNC_NONORB);
 		break;
 		case INV_CRITPERCENT_INCREASE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].crit_percent += aval;
 			else
 				Player_Bonuses[pnum].crit_percent -= aval;
+			SyncClientsideVariable(DND_SYNC_CRITCHANCEPERCENT, 0, DND_SYNC_NONORB);
 		break;
 		case INV_CRITDAMAGE_INCREASE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].crit_damage += aval;
 			else
 				Player_Bonuses[pnum].crit_damage -= aval;
+			SyncClientsideVariable(DND_SYNC_CRITDAMAGE, 0, DND_SYNC_NONORB);
 		break;
 		
 		case INV_KNOCKBACK_RESIST:
@@ -1746,12 +1729,14 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 			else
 				Player_Bonuses[pnum].knockback_resist -= aval;
 			UpdatePlayerKnockbackResist();
+			SyncClientsideVariable(DND_SYNC_KNOCKBACKRESIST, 0, DND_SYNC_NONORB);
 		break;
 		case INV_DAMAGEPERCENT_INCREASE:
 			if(method == IPROCESS_ADD)
 				Player_Bonuses[pnum].damage_percent += aval;
 			else
 				Player_Bonuses[pnum].damage_percent -= aval;
+			SyncClientsideVariable(DND_SYNC_DAMAGEPERCENT, 0, DND_SYNC_NONORB);
 		break;
 		case INV_ACCURACY_INCREASE:
 			if(method == IPROCESS_ADD)
@@ -1760,6 +1745,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 				Player_Bonuses[pnum].accuracy -= aval;
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_ACCURACY, Clamp_Between(Player_Bonuses[pnum].accuracy, 0, DND_ACCURACY_CAP));
+			SyncClientsideVariable(DND_SYNC_ACCURACY, 0, DND_SYNC_NONORB);
 		break;
 	}
 }

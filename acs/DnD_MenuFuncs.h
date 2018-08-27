@@ -70,6 +70,8 @@ int GetItemFlags(int itemid) {
 		return ArtifactDrawInfo[itemid - SHOP_FIRSTARTI_INDEX].flags;
 		case TYPE_ABILITY:
 		return AbilityDrawInfo[itemid - SHOP_ABILITY1_BEGIN].flags;
+		case TYPE_ACCOUNT:
+		return OBJ_HASCHOICE | OBJ_RESEARCH;
 	}
 	return 0;
 }
@@ -456,13 +458,13 @@ void ShowWeaponPropertyIcon(int id) {
 
 void ShowOrbIcon(int id) {
 	SetFont(Item_Images[id + ITEM_IMAGE_ORB_BEGIN]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_HELPTEXT_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 96.0 * id + 8.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 96.0 * id + 8.0 * ScrollPos, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
 void ShowLegendaryMonsterIcon(int id, int j) {
 	SetFont(LegendaryMonsterIcons[id]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_HELPTEXT_ORBS - id - 2, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
@@ -581,6 +583,8 @@ int GetItemType(int id) {
 		return TYPE_TALENT;
 	else if(id <= SHOP_LASTARMOR_INDEX)
 		return TYPE_ARMOR;
+	else if(id <= SHOP_ACCOUNT_END)
+		return TYPE_ACCOUNT;
 	else
 		return TYPE_ARTI;
 	return TYPE_WEAPON;
@@ -601,6 +605,8 @@ int ShopScale(int amount, int id) {
 		return amount * Clamp_Between(GetCVar("dnd_shop_artifact_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_ARMOR:
 		return amount * Clamp_Between(GetCVar("dnd_shop_armor_scale"), 1, SHOP_SCALE_MAX);
+		case TYPE_ACCOUNT:
+		return amount * Clamp_Between(GetCVar("dnd_shop_account_scale"), 1, SHOP_SCALE_MAX);
 	}
 	return 1;
 }
@@ -768,7 +774,7 @@ void DrawToggledImage(int itemid, int onposy, int objectflag, int offcolor, int 
 			// if not ammo, talent or armor
 			if(!(objectflag & (OBJ_AMMO | OBJ_TALENT | OBJ_ARMOR))) {
 				// if not artifact and owning it (basically has weapon)
-				if(!(objectflag & OBJ_ARTI) && CheckInventory(itemname)) {
+				if(!(objectflag & (OBJ_ARTI | OBJ_ACCOUNT)) && CheckInventory(itemname)) {
 					color = oncolor;
 					colorprefix = "\c[M3]";
 					toshow = "\c[M3]";
@@ -854,6 +860,14 @@ void DrawToggledImage(int itemid, int onposy, int objectflag, int offcolor, int 
 					HudMessage(s:"* ", s:AbilityHelpText[itemid - SHOP_ABILITY1_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
+			else if(objectflag & OBJ_ACCOUNT) {
+				SetHudClipRect(192, 208, 256, 64, 256, 1);
+				if(objectflag & OBJ_USESCROLL)
+					HudMessage(s:"* ", s:AccountPurchaseExplanation[itemid - SHOP_ACCOUNT_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos, 0.0, 0.0);
+				else
+					HudMessage(s:"* ", s:AccountPurchaseExplanation[itemid - SHOP_ACCOUNT_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0, 0);
+			}
 			HudMessage(s:weptype, s:"\c[B1]", s:itemtag; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
 			HudMessage(s:colorprefix, s:"--> $", d:price; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 2, color, 440.2, 80.0 + 16.0 * onposy, 0.0, 0.0);
 		}
@@ -886,6 +900,20 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 		else
 			HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 	}
+}
+
+void ResetWeaponStats(int wepid) {
+	int pnum = PlayerNumber();
+	Player_Weapon_Infos[pnum][wepid].enchants = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_DMG].amt = 0;
+	SyncClientsideVariable(DND_SYNC_WEAPONENHANCE, wepid, DND_SYNC_NONORB);
+	SyncClientsideVariable(DND_SYNC_WEPBONUS_CRIT, wepid, DND_SYNC_NONORB);
+	SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITDMG, wepid, DND_SYNC_NONORB);
+	SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITPERCENT, wepid, DND_SYNC_NONORB);
+	SyncClientsideVariable(DND_SYNC_WEPBONUS_DMG, wepid, DND_SYNC_NONORB);
 }
 
 // will process item selections depending on given valid range
@@ -945,7 +973,7 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 						LocalAmbientSound("weapons/pickup", 127);
 					else if(tradeflag & TRADE_AMMO)
 						LocalAmbientSound("items/ammo", 127);
-					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_TALENT))
+					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_TALENT | TRADE_ACCOUNT))
 						LocalAmbientSound("Bonus/Received", 127);
 					else if(tradeflag & TRADE_ARMOR)
 						LocalAmbientSound("items/armor", 127);
@@ -980,6 +1008,8 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 					GiveInventory(totake, 1);
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
+				// reset buffs of weapon
+				ResetWeaponStats(itemid);
 				GiveInventory("Credit", price);
 			}
 		}
@@ -1432,12 +1462,13 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// shop
 		{
-			{ 289.0, 229.0, 179.0, 222.0 }, // wep
-			{ 289.0, 211.0, 162.0, 206.0 }, // ammo
-			{ 289.0, 195.0, 178.0, 190.0 }, // ability
-			{ 289.0, 181.0, 169.0, 174.0 }, // arti
-			{ 289.0, 164.0, 183.0, 158.0 }, // talent
-			{ 289.0, 148.0, 188.0, 142.0 }, // armor
+			{ 289.0, 229.0, 179.0, 221.0 }, // wep
+			{ 289.0, 213.0, 162.0, 205.0 }, // ammo
+			{ 289.0, 197.0, 178.0, 189.0 }, // ability
+			{ 289.0, 181.0, 169.0, 173.0 }, // arti
+			{ 289.0, 165.0, 183.0, 157.0 }, // talent
+			{ 289.0, 149.0, 188.0, 141.0 }, // armor
+			{ 289.0, 133.0, 183.0, 125.0 }, // account
 			{ -1, -1, -1, -1 }
 		},
 		// wep
@@ -1701,6 +1732,11 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
+			{ -1, -1, -1, -1 }
+		},
+		// account
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ -1, -1, -1, -1 }
 		},
 		// research - main
@@ -2490,17 +2526,9 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
-	else if(itype == DND_ITEM_ORB) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-	}
-	else if(itype == DND_ITEM_CHESTKEY) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:ChestKeyList[temp][CHESTKEY_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-	}
-	else if(itype == DND_ITEM_ELIXIR) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-		HudMessage(s:"\c[Y5]", s:ElixirList[temp][ELIXIR_TAG], s:"\n", s:ElixirList[temp][ELIXIR_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
+		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 }
 
@@ -2753,7 +2781,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 	}
 	else if(CheckInventory("MadeChoice") == 2) {
 		// mbox 8 is the view inventory button
-		if(boxid != MAINBOX_NONE && boxid != MBOX_8 && Charms_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
+		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && boxid != MBOX_8 && Charms_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
 			// try to drop item
 			charm_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			if(charm_sel != -1) {
@@ -3564,13 +3592,9 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
-	else if(itype == DND_ITEM_ORB) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-		HudMessage(s:HelpText_Orbs[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-	}
-	else if(itype == DND_ITEM_ELIXIR) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-		HudMessage(s:"\c[Y5]", s:ElixirList[temp][ELIXIR_TAG], s:"\n", s:ElixirList[temp][ELIXIR_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR) {
+		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) + GetInventoryInfoOffset(itype);
+		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 	else if(itype == DND_ITEM_WEAPON) {
 		j = PlayerNumber();

@@ -175,47 +175,6 @@ void AddOrbBonusData(int pnum, int bonus, int extra, int val) {
 #define MAX_ORBS_BITS getpow2(MAX_ORBS)
 #define MAX_ORBS_BITONES (1 << (MAX_ORBS_BITS)) - 1
 
-str OrbList[MAX_ORBS][2] = {
-	{ "OrbOfEnhancement", "Orb of Enhancement" },
-	{ "OrbOfCorruption", "Orb of Corruption" },
-	{ "OrbOfSpirit", "Orb of Spirit" },
-	{ "OrbofRepentance", "Orb of Repentance" },
-	{ "OrbofAffluence", "Orb of Affluence" },
-	{ "OrbofCalamity", "Orb of Calamity" },
-	{ "OrbofProsperity", "Orb of Prosperity" },
-	{ "OrbofWisdom", "Orb of Wisdom" },
-	{ "OrbofGreed", "Orb of Greed" },
-	{ "OrbofViolence", "Orb of Violence" },
-	{ "OrbofFortitude", "Orb of Fortitude" },
-	{ "OrbofSin", "Orb of Sin" },
-	{ "OrbofRiches", "Orb of Riches" },
-	{ "OrbofHolding", "Orb of Holding" },
-	{ "OrbofRefinement", "Orb of Refinement" },
-	{ "OrbofSculpting", "Orb of Sculpting" },
-	{ "OrbofElevation", "Orb of Elevation" }
-};
-
-#define MAX_HELPTEXT_ORBS MAX_ORBS
-str HelpText_Orbs[MAX_HELPTEXT_ORBS] = {
-	"\c[Y5]Orb of Enhancement\nAllows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg25%\c- total.",
-	"\c[Y5]Orb of Corruption\nThis orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?",
-	"\c[Y5]Orb of Spirit\nGrants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight.",
-	"\c[Y5]Orb of Repentance\nAllows you to undo the effects of the most recently used orb. You can't undo the effects undone by this orb or the \c[Y5]Orb of Riches\c-.",
-	"\c[Y5]Orb of Affluence\nDoubles the effect of the next orb. This effect can stack with itself up to a multiplier of \cg16\c-.",
-	"\c[Y5]Orb of Calamity\nTurns a random orb into another. It won't work if you have no other orbs or if you only have these orbs.",
-	"\c[Y5]Orb of Prosperity\nIncreases health and armor caps by \cd1\c- up to a maximum of \cg500\c-.",
-	"\c[Y5]Orb of Wisdom\nIncreases experience gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.",
-	"\c[Y5]Orb of Greed\nIncreases credit gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.",
-	"\c[Y5]Orb of Violence\nIncreases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category.",
-	"\c[Y5]Orb of Fortitude\nIncreases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-.",
-	"\c[Y5]Orb of Sin\nA pact with the devil itself, trading anywhere from \cg1\c- to \cg8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!",
-	"\c[Y5]Orb of Riches\nGrants a random resource on use. Can grant experience, credit or budget. Base values are \cd5%\c- of your current level's experience, \cd2000\c- and \cd5k\c- respectively.",
-	"\c[Y5]Orb of Holding\nIncreases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons.",
-	"\c[Y5]Orb of Refinement\nRerolls the attribute values of the selected item.",
-	"\c[Y5]Orb of Sculpting\nRemoves a random attribute entirely from the selected item.",
-	"\c[Y5]Orb of Elevation\nAdds a random attribute that's not already present to the selected item, if it has capacity."
-};
-
 // percentages
 /*
 15
@@ -1510,7 +1469,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_REPENT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Repentance reverts the effects of \cv", s:OrbList[val][ORB_TAG], s:"\cj!");
+				Log(s:"\cjOrb of Repentance reverts the effects of \cv", s:InventoryInfo[val + ORBS_BEGIN][ORB_TAG], s:"\cj!");
 			else
 				Log(s:"\cgNo orb used or tried to revert effects of Orb of Repentance!");
 		break;
@@ -1522,7 +1481,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_CALAMITY:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Calamity turns your \ck", s:OrbList[val % 100][ORB_TAG], s:"\cv to an \cd", s:OrbList[val / 100][ORB_TAG], s:"\cv!");
+				Log(s:"\cjOrb of Calamity turns your \ck", s:InventoryInfo[(val % 100) + ORBS_BEGIN][ORB_TAG], s:"\cv to an \cd", s:InventoryInfo[(val / 100) + ORBS_BEGIN][ORB_TAG], s:"\cv!");
 			else
 				Log(s:"\cgNo other orb found to convert!");
 		break;
@@ -1657,7 +1616,7 @@ void SpawnOrb(int pnum) {
 		// c is the index on the field now
 		RollOrbInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(OrbList[i][ORB_NAME], 24.0, 16, pnum + 1, c);
+		SpawnDrop(InventoryInfo[i + SITEM_NAME][ORB_NAME], 24.0, 16, pnum + 1, c);
 	}
 }
 
@@ -1670,7 +1629,7 @@ void SpawnOrbForAll(int repeats) {
 				for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
 				RollOrbInfo(c, i, true);
 				SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-				SpawnDrop(OrbList[i][ORB_NAME], 24.0, 16, j + 1, c);
+				SpawnDrop(InventoryInfo[i + SITEM_NAME][ORB_NAME], 24.0, 16, j + 1, c);
 			}
 		}
 	}

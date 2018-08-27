@@ -3,7 +3,7 @@
 
 #include "DnD_Inventory.h"
 
-str ChestKeyText[CHEST_KEY_TEXT_MAX] = {
+str ChestKeyText[MAX_CHESTKEYS] = {
 	"\ccNotice        : You need a \ceBronze\c- Chest Key to open this!",
 	"\ccNotice        : You need a \cuSilver\c- Chest Key to open this!",
 	"\ccNotice        : You need a \cfGold\c- Chest Key to open this!"
@@ -45,7 +45,7 @@ void SpawnChestKey(int pnum, bool isElite) {
 		// c is the index on the field now
 		RollChestkeyInfo(c, res, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(ChestKeyList[res][ORB_NAME], 24.0, 16, pnum + 1, c);
+		SpawnDrop(InventoryInfo[res + CHESTKEY_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
 	}
 }
 

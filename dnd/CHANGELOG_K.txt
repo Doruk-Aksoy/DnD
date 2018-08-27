@@ -42,6 +42,7 @@ LEGEND:
 ! Added average monster level as a display in the "Help" section of DnD menu.
 ! Chests now have a chance to drop "Elixirs"! These are pickups that permanently increase your stats.
 ! "Hardcore" mode now has 15% increased drop rates for any kind of drop.
+! When you sell a weapon, all bonuses on it are lost.
 * "Luck" stat now affects coin drops.
 * Coin messages won't display if their worth is below 25 credits anymore.
 * "Super Armor" research now requires "Rare Armors" research to be completed. 
@@ -203,6 +204,8 @@ Note: In the following contexts, left and right clicks imply your "fire" and "al
 	- This is your storage. You can put whatever you feel like in here.
 	- This place supports 10 additional stash tabs you can purhcase. You can do so in the Research Menu's "Utility" section.
 	- The items in here are NOT wiped out if you die in "Hardcore".
+	- You can buy new stash tabs after you discover a required research.
+	- New stash tabs are bought from the new "Account Menu" section of the shop.
 
 3. Charms
 

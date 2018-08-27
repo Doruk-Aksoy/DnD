@@ -3,9 +3,6 @@
 
 #include "DnD_Charms.h"
 
-#define DND_SYNC_NONORB 0
-#define DND_SYNC_ORB 1
-
 enum {
 	DND_SYNC_WEAPONENHANCE,
 	
@@ -31,6 +28,29 @@ enum {
 	DND_SYNC_DAMAGEENERGY,
 	DND_SYNC_DAMAGEELEMENTAL,
 	
+	DND_SYNC_MAGAZINEINCREASE,
+	DND_SYNC_SLOT1DAMAGE,
+	DND_SYNC_SLOT2DAMAGE,
+	DND_SYNC_SLOT3DAMAGE,
+	DND_SYNC_SLOT4DAMAGE,
+	DND_SYNC_SLOT5DAMAGE,
+	DND_SYNC_SLOT6DAMAGE,
+	DND_SYNC_SLOT7DAMAGE,
+	DND_SYNC_SLOT8DAMAGE,
+	DND_SYNC_SLOT9DAMAGE,
+	DND_SYNC_PELLETINCREASE,
+	DND_SYNC_EXPLOSIONRADIUS,
+	DND_SYNC_EXPLOSIVERESIST,
+	DND_SYNC_AMMOGAINCHANCE,
+	DND_SYNC_AMMOGAININCREASE,
+	DND_SYNC_REGENCAP,
+	DND_SYNC_CRITCHANCE,
+	DND_SYNC_CRITCHANCEPERCENT,
+	DND_SYNC_CRITDAMAGE,
+	DND_SYNC_KNOCKBACKRESIST,
+	DND_SYNC_DAMAGEPERCENT,
+	DND_SYNC_ACCURACY,
+	
 	DND_SYNC_WEPBONUS_CRIT,
 	DND_SYNC_WEPBONUS_CRITDMG,
 	DND_SYNC_WEPBONUS_CRITPERCENT,
@@ -49,7 +69,7 @@ enum {
 	DND_SYNC_ITEMATTRIBUTES_VAL
 };
 
-#define MAX_SYNC_VARS DND_SYNC_ITEMATTRIBUTES_VAL + 1
+#define MAX_SYNC_VARS DND_SYNC_WEPBONUS_DMG + 1
 
 enum {
 	DND_SYNC_ITEMSOURCE_CHARMUSED,
@@ -249,6 +269,43 @@ int GetPlayerSyncValue(int pos, int extra, bool isOrb) {
 			return Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt;
 			case DND_SYNC_WEPBONUS_DMG:
 			return Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_DMG].amt;
+			// new item attributes
+			case DND_SYNC_MAGAZINEINCREASE:
+			return Player_Bonuses[pnum].magazine_increase;
+			case DND_SYNC_SLOT1DAMAGE:
+			case DND_SYNC_SLOT2DAMAGE:
+			case DND_SYNC_SLOT3DAMAGE:
+			case DND_SYNC_SLOT4DAMAGE:
+			case DND_SYNC_SLOT5DAMAGE:
+			case DND_SYNC_SLOT6DAMAGE:
+			case DND_SYNC_SLOT7DAMAGE:
+			case DND_SYNC_SLOT8DAMAGE:
+			case DND_SYNC_SLOT9DAMAGE:
+			return Player_Bonuses[pnum].slot_damage_bonus[pos - DND_SYNC_SLOT1DAMAGE];
+			case DND_SYNC_PELLETINCREASE:
+			return Player_Bonuses[pnum].pellet_increase;
+			case DND_SYNC_EXPLOSIONRADIUS:
+			return Player_Bonuses[pnum].explosion_radius;
+			case DND_SYNC_EXPLOSIVERESIST:
+			return Player_Bonuses[pnum].explosion_resist;
+			case DND_SYNC_AMMOGAINCHANCE:
+			return Player_Bonuses[pnum].ammo_chance;
+			case DND_SYNC_AMMOGAININCREASE:
+			return Player_Bonuses[pnum].ammo_gain;
+			case DND_SYNC_REGENCAP:
+			return Player_Bonuses[pnum].regen_cap;
+			case DND_SYNC_CRITCHANCE:
+			return Player_Bonuses[pnum].crit_chance;
+			case DND_SYNC_CRITCHANCEPERCENT:
+			return Player_Bonuses[pnum].crit_percent;
+			case DND_SYNC_CRITDAMAGE:
+			return Player_Bonuses[pnum].crit_damage;
+			case DND_SYNC_KNOCKBACKRESIST:
+			return Player_Bonuses[pnum].knockback_resist;
+			case DND_SYNC_DAMAGEPERCENT:
+			return Player_Bonuses[pnum].damage_percent;
+			case DND_SYNC_ACCURACY:
+			return Player_Bonuses[pnum].accuracy;
 		}
 	}
 	else {
@@ -561,6 +618,57 @@ void SetSyncValue(int pos, int val, int extra, bool isOrb) {
 			break;
 			case DND_SYNC_WEPBONUS_DMG:
 				Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_DMG].amt = val;
+			break;
+			
+			// new item attributes
+			case DND_SYNC_MAGAZINEINCREASE:
+				Player_Bonuses[pnum].magazine_increase = val;
+			break;
+			case DND_SYNC_SLOT1DAMAGE:
+			case DND_SYNC_SLOT2DAMAGE:
+			case DND_SYNC_SLOT3DAMAGE:
+			case DND_SYNC_SLOT4DAMAGE:
+			case DND_SYNC_SLOT5DAMAGE:
+			case DND_SYNC_SLOT6DAMAGE:
+			case DND_SYNC_SLOT7DAMAGE:
+			case DND_SYNC_SLOT8DAMAGE:
+			case DND_SYNC_SLOT9DAMAGE:
+				Player_Bonuses[pnum].slot_damage_bonus[pos - DND_SYNC_SLOT1DAMAGE] = val;
+			break;
+			case DND_SYNC_PELLETINCREASE:
+				Player_Bonuses[pnum].pellet_increase = val;
+			break;
+			case DND_SYNC_EXPLOSIONRADIUS:
+				Player_Bonuses[pnum].explosion_radius = val;
+			break;
+			case DND_SYNC_EXPLOSIVERESIST:
+				Player_Bonuses[pnum].explosion_resist = val;
+			break;
+			case DND_SYNC_AMMOGAINCHANCE:
+				Player_Bonuses[pnum].ammo_chance = val;
+			break;
+			case DND_SYNC_AMMOGAININCREASE:
+				Player_Bonuses[pnum].ammo_gain = val;
+			break;
+			case DND_SYNC_REGENCAP:
+				Player_Bonuses[pnum].regen_cap = val;
+			break;
+			case DND_SYNC_CRITCHANCE:
+				Player_Bonuses[pnum].crit_chance = val;
+			break;
+			case DND_SYNC_CRITCHANCEPERCENT:
+				Player_Bonuses[pnum].crit_percent = val;
+			break;
+			case DND_SYNC_CRITDAMAGE:
+				Player_Bonuses[pnum].crit_damage = val;
+			break;
+			case DND_SYNC_KNOCKBACKRESIST:
+				Player_Bonuses[pnum].knockback_resist = val;
+			break;
+			case DND_SYNC_DAMAGEPERCENT:
+				Player_Bonuses[pnum].damage_percent = val;
+			case DND_SYNC_ACCURACY:
+				Player_Bonuses[pnum].accuracy = val;
 			break;
 		}
 	}

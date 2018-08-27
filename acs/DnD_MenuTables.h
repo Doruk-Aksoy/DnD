@@ -307,7 +307,8 @@ enum {
    OBJ_HASCHOICE = 64,
    OBJ_RESEARCH = 128, // requires some research to be available,
    OBJ_RESEARCH_ATLEASTONE = 256, // only requires one of the research reqs to be met
-   OBJ_USESCROLL = 512 // has some text on page that use scrolling
+   OBJ_USESCROLL = 512, // has some text on page that use scrolling
+   OBJ_ACCOUNT = 1024
 };
 
 // Trade options
@@ -320,7 +321,8 @@ enum {
 	TRADE_ARTIFACT = 32,
 	TRADE_TALENT = 64,
 	TRADE_ARMOR = 128,
-	TRADE_ARMOR_REPLACE = 256
+	TRADE_ARMOR_REPLACE = 256,
+	TRADE_ACCOUNT = 512
 };
 
 // Popup Definitions
@@ -337,7 +339,8 @@ enum {
 	TYPE_ABILITY,
 	TYPE_TALENT,
 	TYPE_ARTI,
-	TYPE_ARMOR
+	TYPE_ARMOR,
+	TYPE_ACCOUNT
 };
 		
 struct coord {
@@ -543,6 +546,9 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 15000, 1 },
 		{ 17000, 1 },
 		{ 12000, 1 },
+		
+		// Account
+		{ 1500000, MAX_EXTRA_INVENTORY_PAGES },
 
 		// Artifacts, here for convenience. Index = MAXSHOPITEMS - MAXARTIFACTS
 		{ 1250,          FIELDKITMAX  		},
@@ -742,6 +748,9 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_RAREARMOR, -1, -1 },
 		{ RES_RAREARMOR, -1, -1 },
 		
+	// account
+		{ RES_STASHTAB, -1, -1 },
+		
 	// arti
 		{ -1, -1, -1 },
 		{ RES_OCCULTARTIFACT, -1, -1 },
@@ -938,6 +947,8 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "NecroArmor",							"Necro Armor",						"",						"0"		    },
 	{ "KnightArmor",						"Knight Armor",						"",						"0"		    },
 	{ "RavagerArmor",						"Ravager Armor",					"",						"0"		    },
+	
+	{ "DnD_PlayerInventoryPages",			"Extra Stash Tab",					"",						"0"			},
 
 	{ "FieldKit",							"Field Kit",						"",						"0"		    },
 	{ "SalvationSphere",					"Salvation Sphere",					"",						"0"		    },
@@ -1376,6 +1387,10 @@ str ArtifactExplanation[MAXARTIFACTS] = {
 	"Reveals the current map to you.",
 	"Increases ammo capacity.",
 	"Resets your stats back to zero. You can reassign."
+};
+
+str AccountPurchaseExplanation[MAXACCOUNTITEMS] = {
+	"Adds an extra stash tab to your account."
 };
 
 struct draw_info ArtifactDrawInfo[MAXARTIFACTS] = {

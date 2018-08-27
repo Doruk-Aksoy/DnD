@@ -3276,19 +3276,19 @@ Script "DnD Give Research" (int sp) {
 Script "DnD Orb Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:StrParam(s:"\ccOrb pickup:     \c[Y5]", s:OrbList[id][ORB_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccOrb pickup:     \c[Y5]", s:InventoryInfo[id + ORBS_BEGIN][SITEM_TAG], s:"!\c-"));
 }
 
 Script "DnD Give Orb" (int sp) {
 	SetActivator((sp & 0xFFFF) + P_TIDSTART);
 	GiveInventory("OrbSoundPlayer", 1);
 	ACS_NamedExecuteAlways("DnD Orb Message", 0, sp >> 16);
-	GiveInventory(OrbList[sp >> 16][ORB_NAME], 1);
+	GiveInventory(InventoryInfo[(sp >> 16) + ORBS_BEGIN][SITEM_NAME], 1);
 }
 
 Script "DnD Elixir Message" (int id) CLIENTSIDE {
 	ActivatorSound("Items/ElixirPick", 127);
-	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:ElixirList[id][ORB_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:InventoryInfo[id + ELIXIR_BEGIN][SITEM_TAG], s:"!\c-"));
 }
 
 Script "DnD Stacked Item Pickup" (int sp, int type) {
@@ -3462,7 +3462,7 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 Script "DnD Chestkey Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:StrParam(s:"\ccBonus pickup  : \c[Y5]", s:ChestKeyList[id][CHESTKEY_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccBonus pickup  : \c[Y5]", s:InventoryInfo[id + CHESTKEY_BEGIN][SITEM_TAG], s:"!\c-"));
 }
 
 Script "DnD Try Open Chestkey" (int keytype) {
@@ -3572,7 +3572,7 @@ Script "DnD Get Aspect For Inventory View" (void) CLIENTSIDE {
 
 Script "DnD Elixir Use Message" (int eid) CLIENTSIDE {
 	LocalAmbientSound("Items/ElixirPick", 127);
-	Log(s:"\c[Y5]", s:ElixirList[eid][ELIXIR_TAG], s:": ", s:ElixirList[eid][ELIXIR_DESC]);
+	Log(s:InventoryInfo[eid + ELIXIR_BEGIN][SITEM_DESC]);
 }
 
 Script "DnD Elixir Use" (int eid) {
