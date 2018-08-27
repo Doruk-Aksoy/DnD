@@ -7,8 +7,8 @@ echo This batch file will create .pk7 in non-solid mode for testing (bad on
 echo compression, but good in update speed). Also doesn't use versioning.
 echo.
 echo If this bat file doesn't create the pk7, or acs are missing, make sure:
-echo - bcc environment variable set to the full path of bcc executable.
-echo - 7zip installed in its default path (change bat if not).
+echo - Just-install is installed (see https://just-install.it/).
+echo - you ran "just-install exeproxy 7zip git bcc" from command promt as admin.
 echo.
 
 cd acs
