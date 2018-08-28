@@ -660,8 +660,6 @@ Script "DND On Kill" KILL {
 			}
 		}
 		
-		SpawnElixir(0);
-		
 		HandleCharmLootDrop(pnum);
 	}
 	
