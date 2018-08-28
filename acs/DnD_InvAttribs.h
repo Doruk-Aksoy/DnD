@@ -51,6 +51,8 @@ enum {
 };
 
 #define LAST_INV_ATTRIBUTE INV_ACCURACY_INCREASE
+#define UNIQUE_ATTRIB_BEGIN 
+#define LAST_UNIQUE_ATTRIBUTE 
 #define MAX_INV_ATTRIBUTE_TYPES LAST_INV_ATTRIBUTE + 1
 
 typedef struct {
@@ -110,11 +112,11 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 3, 1 },
 	{ 2, 4, 2 },
 
-	{ 1, 4, 2 },
-	{ 1, 4, 2 },
-	{ 1, 4, 2 },
-	{ 1, 4, 2 },
-	{ 1, 4, 2 },
+	{ 1, 3, 2 },
+	{ 1, 3, 2 },
+	{ 1, 3, 2 },
+	{ 1, 3, 2 },
+	{ 1, 3, 2 },
 	
 	{ 1, 8, 2 },
 	{ 1, 8, 2 },

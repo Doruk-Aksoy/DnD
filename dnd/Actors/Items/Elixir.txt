@@ -51,7 +51,7 @@ Actor ElixirSoundPlayer : CustomInventory {
 	}
 }
 
-Actor ElixirOfHealth_Drop : ElixirBase {
+Actor ElixirOfHealth : ElixirBase {
 	States {
 		Spawn:
 			ELIX A 0
@@ -59,7 +59,7 @@ Actor ElixirOfHealth_Drop : ElixirBase {
 	}
 }
 
-Actor ElixirOfArmor_Drop : ElixirBase {
+Actor ElixirOfArmor : ElixirBase {
 	Translation "168:191=%[0.00,0.00,0.00]:[0.69,1.73,0.54]"
 	States {
 		Spawn:
@@ -68,8 +68,8 @@ Actor ElixirOfArmor_Drop : ElixirBase {
 	}
 }
 
-Actor ElixirOfProsperity_Drop : ElixirBase {
-	Translation "168:191=%[0.00,0.00,0.00]:[1.01,0.61,0.61]"
+Actor ElixirOfProsperity : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[1.84,1.84,0.4]"
 	States {
 		Spawn:
 			ELIX A 0
@@ -77,7 +77,7 @@ Actor ElixirOfProsperity_Drop : ElixirBase {
 	}
 }
 
-Actor ElixirOfLife_Drop : ElixirBase {
+Actor ElixirOfLife : ElixirBase {
 	Translation "168:191=%[0.00,0.00,0.00]:[1.41,0.27,0.27]"
 	States {
 		Spawn:
@@ -86,7 +86,7 @@ Actor ElixirOfLife_Drop : ElixirBase {
 	}
 }
 
-Actor ElixirOfStrongness_Drop : ElixirBase {
+Actor ElixirOfStrongness : ElixirBase {
 	Translation "168:191=%[0.00,0.00,0.00]:[0.20,0.87,0.30]"
 	States {
 		Spawn:
@@ -95,7 +95,7 @@ Actor ElixirOfStrongness_Drop : ElixirBase {
 	}
 }
 
-Actor EElixirOfFortitude_Drop : ElixirBase {
+Actor ElixirOfFortitude : ElixirBase {
 	Translation "168:191=%[0.00,0.00,0.00]:[0.55,0.34,0.34]"
 	States {
 		Spawn:
@@ -104,16 +104,7 @@ Actor EElixirOfFortitude_Drop : ElixirBase {
 	}
 }
 
-Actor ElixirOfSpeed_Drop : ElixirBase {
-	Translation "168:191=%[0.00,0.00,0.00]:[1.93,1.87,0.56]"
-	States {
-		Spawn:
-			ELIX A 0
-		Goto Super::SpawnInit
-	}
-}
-
-Actor ElixirOfDamage_Drop : ElixirBase {
+Actor ElixirOfSpeed : ElixirBase {
 	Translation "168:191=%[0.00,0.00,0.00]:[1.84,0.94,0.12]"
 	States {
 		Spawn:
@@ -122,8 +113,17 @@ Actor ElixirOfDamage_Drop : ElixirBase {
 	}
 }
 
-Actor ElixirOfLuck_Drop : ElixirBase {
-	Translation "168:191=%[0.00,0.00,0.00]:[0.86,1.05,0.84]"
+Actor ElixirOfDamage : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[2.5,2.5,2.5]"
+	States {
+		Spawn:
+			ELIX A 0
+		Goto Super::SpawnInit
+	}
+}
+
+Actor ElixirOfLuck : ElixirBase {
+	Translation "168:191=%[0.00,0.00,0.00]:[0.5,0.5,0.5]"
 	States {
 		Spawn:
 			ELIX A 0

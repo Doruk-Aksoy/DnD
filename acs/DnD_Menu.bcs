@@ -1282,7 +1282,7 @@ Script "DND Menu Input Handle" (void) {
 					// i is the accessory to toggle
 					temp = boxid + ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE) - 1;
 					// I don't have this
-					if(!CheckInventory(AccessoryList[temp])) {
+					if(!CheckInventory(AccessoryInfo[temp][ACCESSORY_NAME])) {
 						LocalAmbientSound("RPG/MenuError", 127);
 						GiveInventory("DnD_ShowPopup", 1);
 						GiveInventory("DnD_PopupError", 1);
