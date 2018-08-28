@@ -619,10 +619,10 @@ Script "DND On Kill" KILL {
 		HandleChestKeyDrop(pnum);
 		
 		// if elite, roll orb and equipment drops
-		//if(pnum) {
+		if(pnum) {
 			// handle orb drops
 			HandleOrbDrop();
-		//}
+		}
 		
 		// accessory drops (accept only from cyber and spider masterminds)
 		if(IsBoss()) {
