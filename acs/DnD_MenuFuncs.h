@@ -3366,28 +3366,31 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 				EnableBoxWithPoints(p, i + MATERIALBOX_OFFSET_BOXID, tx, ty, bx, by);
 			}
 		}
+		i = 0;
 		for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
-			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i) {
+			for(; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i) {
 				tx = GetNextUniqueCraftingMaterial(CraftItemTypes[ty], i + MAX_CRAFTING_MATERIALBOXES * page);
-				bx = GetTotalStackOfMaterial(tx);
-				if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
-					DrawCraftingInventoryInfo(CraftItemTypes[ty], tx, bx);
-					SetInventory("DnD_PlayerItemIndex", tx);
-					SetFont("CRFBX_H2");
-				}
-				else if(prevclick == MATERIALBOX_OFFSET_BOXID + i) {
-					SetInventory("DnD_PlayerPrevItemIndex", tx);
-					SetFont("CRFBX_H2");
-				}
-				else
-					SetFont("CRFBX_N2");
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
 				if(tx != -1) {
-					SetFont(Item_Images[PlayerInventoryList[PlayerNumber()][tx].item_image]);
-					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
-					if(bx > 0) {
-						SetFont("SMALLFONT");
-						HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0, 0.0);
+					bx = GetTotalStackOfMaterial(tx);
+					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
+						DrawCraftingInventoryInfo(CraftItemTypes[ty], tx, bx);
+						SetInventory("DnD_PlayerItemIndex", tx);
+						SetFont("CRFBX_H2");
+					}
+					else if(prevclick == MATERIALBOX_OFFSET_BOXID + i) {
+						SetInventory("DnD_PlayerPrevItemIndex", tx);
+						SetFont("CRFBX_H2");
+					}
+					else
+						SetFont("CRFBX_N2");
+					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
+					if(tx != -1) {
+						SetFont(Item_Images[PlayerInventoryList[PlayerNumber()][tx].item_image]);
+						HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
+						if(bx > 0) {
+							SetFont("SMALLFONT");
+							HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0, 0.0);
+						}
 					}
 				}
 			}
@@ -3556,7 +3559,6 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	// show item details
 	if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR)
 		offset = 16.0;
-	printbold(d:pn, s: " ", d:extra1);
 	if(itype != DND_ITEM_WEAPON)
 		SetFont(Item_Images[PlayerInventoryList[pn][extra1].item_image]);
 	else
@@ -3602,24 +3604,24 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		HudMessage(s:"\c[R5]", s:Weapons[extra1][WEAPON_TAG], s:":\c- \c[Y5]Slot - ", s:Weapons[extra1][WEAPON_SLOT]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 		temp = GetWeaponEnchantDisplay(j, extra1);
 		if(temp) {
-			HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 40.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
 		temp = GetCritChanceDisplay(j, extra1);
 		if(temp) {
-			HudMessage(s:"\c[Y5]* Crit Chance: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 56.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]* Crit Chance: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
 		if(HasCritDamageBonus(j, extra1)) {
-			HudMessage(s:"\c[Y5]* Crit Damage: \c[Q9]", f:GetCritDamageDisplay(j, extra1), s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 6, CR_WHITE, mx + 56.0, my + 72.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]* Crit Damage: \c[Q9]", f:GetCritDamageDisplay(j, extra1), s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 6, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
 		temp = GetBonusDamageDisplay(j, extra1);
 		if(temp) {
 			if(temp > 0)
-				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 7, CR_WHITE, mx + 56.0, my + 88.0 + 16.0 * i, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 7, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			else
-				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q2]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 8, CR_WHITE, mx + 56.0, my + 88.0 + 16.0 * i, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q2]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 8, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
 	}
