@@ -9,7 +9,7 @@
 
 #### Preparing
 1. Go to https://just-install.it/ and go to cmd promt with admin priviledges.
-2. Type `just-install 7zip git bcc` (or just install the components you don't have installed).
+2. Type `just-install exeproxy 7zip git bcc` (or just install the components you don't have installed - exeproxy has to come first!).
 
 #### To continue, there are 2 useable git tools:
 #### Either Git-for-windows (default)
