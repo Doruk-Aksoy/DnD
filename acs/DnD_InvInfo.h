@@ -7,6 +7,8 @@
 // only orbs
 #define MAX_CRAFTITEMTYPES 2
 
+#define AIF_ONLYEXOTIC 1
+
 int CraftItemTypes[MAX_CRAFTITEMTYPES] = {
 	DND_ITEM_ORB,
 	DND_ITEM_ELIXIR

@@ -3297,9 +3297,8 @@ void HandleStashViewClicks(int boxid, int choice) {
 					}
 					// epos holds the empty position now
 					// make sure we aren't both empty slots
-					if((boxidon || prevselecton) && IsFreeSpot_Trade(ipos - ioffset, epos - soffset, isource, ssource)) {
+					if((boxidon || prevselecton) && IsFreeSpot_Trade(ipos - ioffset, epos - soffset, isource, ssource))
 						MoveItemTrade(ipos - ioffset, epos - soffset, isource, ssource);
-					}
 				}
 				SetInventory("DnD_SelectedInventoryBox", 0);
 				LocalAmbientSound("RPG/MenuChoose", 127);

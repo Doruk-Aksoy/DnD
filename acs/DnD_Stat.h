@@ -559,47 +559,6 @@ bool HasNoSigilPower() {
 	return !CheckInventory("ElementPower_Fire") && !CheckInventory("ElementPower_Ice") && !CheckInventory("ElementPower_Lightning") && !CheckInventory("ElementPower_Earth");
 }
 
-void ResetPlayerBonuses(int pnum) {	
-	int i;
-	Player_Bonuses[pnum].hp_flat_bonus = 0;
-	Player_Bonuses[pnum].armor_flat_bonus = 0;
-	
-	Player_Bonuses[pnum].hp_percent_bonus = 0;
-	Player_Bonuses[pnum].armor_percent_bonus = 0;
-	
-	Player_Bonuses[pnum].greed_percent_bonus = 0;
-	Player_Bonuses[pnum].wisdom_percent_bonus = 0;
-	
-	Player_Bonuses[pnum].speed_bonus = 0;
-	Player_Bonuses[pnum].drop_chance = 0;
-	Player_Bonuses[pnum].holding = 0;
-	Player_Bonuses[pnum].luck = 0;
-	
-	for(i = 0; i < MAX_TALENTS; ++i)
-		Player_Bonuses[pnum].damage_type_bonus[i] = 0;
-		
-	for(i = 0; i < MAX_TALENTS; ++i)
-		Player_Bonuses[pnum].flat_damage_bonus[i] = 0;
-		
-	for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
-		Player_Bonuses[pnum].slot_damage_bonus[i] = 0;
-	
-	Player_Bonuses[pnum].magazine_increase = 0;
-	Player_Bonuses[pnum].pellet_increase = 0;
-	Player_Bonuses[pnum].explosion_radius = 0;
-	Player_Bonuses[pnum].explosion_resist = 0;
-	Player_Bonuses[pnum].ammo_chance = 0;
-	Player_Bonuses[pnum].ammo_gain = 0;
-	Player_Bonuses[pnum].regen_cap = 0;
-	Player_Bonuses[pnum].crit_chance = 0;
-	Player_Bonuses[pnum].crit_percent = 0;
-	Player_Bonuses[pnum].crit_damage = 0;
-	
-	Player_Bonuses[pnum].knockback_resist = 0;
-	Player_Bonuses[pnum].damage_percent = 0;
-	Player_Bonuses[pnum].accuracy = 0;
-}
-
 // Takes a stat from the player, also removing effects of it
 void TakeStat(int stat_id, int amt) {
 	TakeInventory(StatNames[stat_id], amt);
@@ -729,6 +688,77 @@ int GetCritModifier() {
 		}
 	}
 	return base;
+}
+
+void RecalculateTotalLevel() {
+	total_level = 0;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
+			total_level += CheckActorInventory(i + P_TIDSTART, "Level");
+	}
+}
+
+void ResetPlayerBonuses(int pnum) {	
+	int i;
+	Player_Bonuses[pnum].hp_flat_bonus = 0;
+	Player_Bonuses[pnum].armor_flat_bonus = 0;
+	
+	Player_Bonuses[pnum].hp_percent_bonus = 0;
+	Player_Bonuses[pnum].armor_percent_bonus = 0;
+	
+	Player_Bonuses[pnum].greed_percent_bonus = 0;
+	Player_Bonuses[pnum].wisdom_percent_bonus = 0;
+	
+	Player_Bonuses[pnum].speed_bonus = 0;
+	Player_Bonuses[pnum].drop_chance = 0;
+	Player_Bonuses[pnum].holding = 0;
+	Player_Bonuses[pnum].luck = 0;
+	
+	for(i = 0; i < MAX_TALENTS; ++i)
+		Player_Bonuses[pnum].damage_type_bonus[i] = 0;
+		
+	for(i = 0; i < MAX_TALENTS; ++i)
+		Player_Bonuses[pnum].flat_damage_bonus[i] = 0;
+		
+	for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
+		Player_Bonuses[pnum].slot_damage_bonus[i] = 0;
+	
+	Player_Bonuses[pnum].magazine_increase = 0;
+	Player_Bonuses[pnum].pellet_increase = 0;
+	Player_Bonuses[pnum].explosion_radius = 0;
+	Player_Bonuses[pnum].explosion_resist = 0;
+	Player_Bonuses[pnum].ammo_chance = 0;
+	Player_Bonuses[pnum].ammo_gain = 0;
+	Player_Bonuses[pnum].regen_cap = 0;
+	Player_Bonuses[pnum].crit_chance = 0;
+	Player_Bonuses[pnum].crit_percent = 0;
+	Player_Bonuses[pnum].crit_damage = 0;
+	
+	Player_Bonuses[pnum].knockback_resist = 0;
+	Player_Bonuses[pnum].damage_percent = 0;
+	Player_Bonuses[pnum].accuracy = 0;
+}
+
+void ResetHardcoreStuff(int pnum) {
+	// reset player items
+	ResetPlayerInventory(pnum);
+	ResetPlayerCharmsUsed(pnum);
+	ResetTradeViewList(pnum);
+	ResetPlayerStash(pnum);
+	// reset weapon mod variable
+	ResetWeaponMods(pnum);
+	ResetPlayerBonuses(pnum);
+	ResetMostRecentOrb(pnum);
+	ResetOrbData(pnum);
+	RecalculateTotalLevel();
+	BreakTradesBetween(pnum);
+	// may join later, sync everything
+	if(PlayerIsSpectator(pnum)) {
+		SyncAllClientsideVariables();
+		SyncAllItemData(DND_SYNC_ITEMSOURCE_CHARMUSED);
+		SyncAllItemData(DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
+	}
 }
 
 #endif

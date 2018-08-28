@@ -127,7 +127,6 @@ void SpawnCharm(int pnum) {
 int HandleCharmPickup(int item_index) {
 	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
 	CopyItem(true, item_index, PlayerNumber(), pcharm_index);
-	ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	return pcharm_index;
 }
 
@@ -143,7 +142,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 		if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
 			RemoveItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, 0);
 		}
 		else {
 			// just zero the stuff in inventory, and copy them into charms used
@@ -167,7 +166,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
-			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, 0);
 		}
 		// save to database on use
 		ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);

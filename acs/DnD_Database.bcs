@@ -158,7 +158,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, int tid, str pacc, int flag
 	}
 	if(flags & DND_PINVFLAGS_STASH) {
 		// save state of player's stash (this is shared between all accounts so no charfield)
-		SetDBEntry(GetCharField(DND_DB_STASH_PAGES, char_id), pacc, CheckActorInventory(tid, "DnD_PlayerInventoryPages"));
+		SetDBEntry(DND_DB_STASH_PAGES, pacc, CheckActorInventory(tid, "DnD_PlayerInventoryPages"));
 		for(i = 0; i < CheckActorInventory(tid, "DnD_PlayerInventoryPages"); ++i) {
 			for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
 				if(PlayerStashList[pnum][i][j].topleftboxid - 1 == j) {
@@ -671,6 +671,45 @@ void SavePlayerOrbData(int pnum, int char_id) {
 	SavePlayerInventoryStuff(pnum, char_id, tid, pacc, DND_PINVFLAGS_ALL);
 }
 
+void LoadPlayerStash(int pnum, str pacc) {
+	int temp, w, h, i, j;
+	ResetPlayerStash(pnum);
+	// load stash
+	SetInventory("DnD_PlayerInventoryPages", GetDBEntry(DND_DB_STASH_PAGES, pacc));
+	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
+		for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
+			temp = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), pacc);
+			if(temp != DND_ITEM_NULL) {
+				PlayerStashList[pnum][i][j].width = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_WIDTH), pacc);
+				PlayerStashList[pnum][i][j].height = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_HEIGHT), pacc);
+				PlayerStashList[pnum][i][j].item_image = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMAGE), pacc);
+				PlayerStashList[pnum][i][j].item_type = temp;
+				PlayerStashList[pnum][i][j].item_subtype = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_SUBTYPE), pacc);
+				PlayerStashList[pnum][i][j].item_level = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc);
+				PlayerStashList[pnum][i][j].item_stack = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc);
+				PlayerStashList[pnum][i][j].attrib_count = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc);
+				for(temp = 0; temp < PlayerStashList[pnum][i][j].attrib_count; ++temp) {
+					PlayerStashList[pnum][i][j].attributes[temp].attrib_val = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc);
+					PlayerStashList[pnum][i][j].attributes[temp].attrib_id = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc);
+				}
+				
+				// init pointers
+				for(w = 0; w < PlayerStashList[pnum][i][j].width; ++w)
+					for(h = 0; h < PlayerStashList[pnum][i][j].height; ++h) {
+						temp = j + w + h * MAXINVENTORYBLOCKS_VERT;
+						PlayerStashList[pnum][i][temp].item_type = PlayerStashList[pnum][i][j].item_type;
+						PlayerStashList[pnum][i][temp].topleftboxid = j + 1;
+					}
+			}
+		}
+	}
+	// sync all of stash
+	SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
+	
+	// we must do this here after loading
+	SyncAllClientsideVariables();
+}
+
 // Loads from database and gives necessary items
 void LoadPlayerData(int pnum, int char_id) {
 	// assumes all checks have been performed before reaching this function
@@ -938,15 +977,15 @@ void LoadPlayerData(int pnum, int char_id) {
 	}
 
 	// load bonuses from orbs
-	SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, GetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, GetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, GetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, GetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, GetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, GetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_SPEED, -1, GetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, GetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc));
-	SetDataToOrbBonus(pnum, OBI_HOLDING, -1, GetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, GetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, GetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_SPEED, -1, GetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, GetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc));
+	SetDataToOrbBonus(pnum, OBI_HOLDING, -1, GetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc));
 	
 	// Restoration steps
 	RestoreRPGStat(RES_PLAYERSPEED);
@@ -1013,46 +1052,12 @@ void LoadPlayerData(int pnum, int char_id) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
 		}
 		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-			ApplyItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			ApplyItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED, AIF_ONLYEXOTIC);
 	}
 	// sync all of charms used
 	SyncAllItemData(DND_SYNC_ITEMSOURCE_CHARMUSED);
 	
-	ResetPlayerStash(pnum);
-	// load stash
-	SetInventory("DnD_PlayerInventoryPages", GetDBEntry(GetCharField(DND_DB_STASH_PAGES, char_id), pacc));
-	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
-		for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
-			temp = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), pacc);
-			if(temp != DND_ITEM_NULL) {
-				PlayerStashList[pnum][i][j].width = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_WIDTH), pacc);
-				PlayerStashList[pnum][i][j].height = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_HEIGHT), pacc);
-				PlayerStashList[pnum][i][j].item_image = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMAGE), pacc);
-				PlayerStashList[pnum][i][j].item_type = temp;
-				PlayerStashList[pnum][i][j].item_subtype = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_SUBTYPE), pacc);
-				PlayerStashList[pnum][i][j].item_level = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc);
-				PlayerStashList[pnum][i][j].item_stack = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc);
-				PlayerStashList[pnum][i][j].attrib_count = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc);
-				for(temp = 0; temp < PlayerStashList[pnum][i][j].attrib_count; ++temp) {
-					PlayerStashList[pnum][i][j].attributes[temp].attrib_val = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc);
-					PlayerStashList[pnum][i][j].attributes[temp].attrib_id = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc);
-				}
-				
-				// init pointers
-				for(w = 0; w < PlayerStashList[pnum][i][j].width; ++w)
-					for(h = 0; h < PlayerStashList[pnum][i][j].height; ++h) {
-						temp = j + w + h * MAXINVENTORYBLOCKS_VERT;
-						PlayerStashList[pnum][i][temp].item_type = PlayerStashList[pnum][i][j].item_type;
-						PlayerStashList[pnum][i][temp].topleftboxid = j + 1;
-					}
-			}
-		}
-	}
-	// sync all of stash
-	SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
-	
-	// we must do this here after loading
-	SyncAllClientsideVariables();
+	LoadPlayerStash(pnum, pacc);
 }
 
 // on Hardcore death, wipeout all data related to this player
@@ -1111,6 +1116,20 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_LUCKBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_MAGAZINEBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_PELLETBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_EXPLOSIONRADIUSBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_EXPLOSIONRESISTBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_AMMOGAINBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_AMMOCHANCEBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_REGENCAPBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_CRITCHANCEBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_CRITPERCENTBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_CRITDAMAGEBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_KNOCKBACKBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_DAMAGEBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ACCURACYBONUS, char_id), pacc, 0);
 	
 	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, 0);
@@ -1266,6 +1285,8 @@ Script 1003 (int char_id) NET {
 	int pnum = PlayerNumber();
 	int result = check_create_char(pnum, char_id);
 	if (result == DND_LOGIN_CREATECHAROK) create_char(pnum, char_id);
+	// load player stash
+	LoadPlayerStash(pnum, GetPlayerAccountName(pnum));
 	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
 }
 
@@ -1302,8 +1323,10 @@ Script "DND Database Reset On Death" DEATH {
 	int pnum = PlayerNumber(), cid = CheckInventory("DnD_CharacterID");
 	if(HardcoreSet && PlayerIsLoggedIn(pnum) && PlayerLoaded[pnum]) {
 		if(GetCVar("dnd_hardcore")) {
+			// reset variables here
+			ResetHardcoreStuff(pnum);
 			BeginDBTransaction();
-			WipeoutPlayerData(pnum, cid); //it can't get any more wiped than this (also comes here if char is created and not saved).
+			WipeoutPlayerData(pnum, cid); // it can't get any more wiped than this (also comes here if char is created and not saved).
 			EndDBTransaction();
 		}
 		PlayerLoaded[pnum] = 0;
@@ -1369,4 +1392,21 @@ Script "DnD Save Player Orb and Stat Data" (int pnum) {
 
 Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {
 	SavePlayerItem(pnum_char & 0xFFFF, pnum_char >> 16, itemid, source);
+}
+
+Script "DnD Save Player Inventory" (int pnc1, int pnc2) {
+	int pn1 = pnc1 & 0xFFFF;
+	int pn2 = pnc2 & 0xFFFF;
+	if(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore"))) {
+		BeginDBTransaction();
+		if(PlayerIsLoggedIn(pn1)) {
+			pnc1 >>= 16;
+			SavePlayerInventoryStuff(pn1, pnc1, pn1 + P_TIDSTART, GetPlayerAccountName(pn1), DND_PINVFLAGS_INVENTORY);
+		}
+		if(PlayerIsLoggedIn(pn2)) {
+			pnc2 >>= 16;
+			SavePlayerInventoryStuff(pn2, pnc1, pn2 + P_TIDSTART, GetPlayerAccountName(pn2), DND_PINVFLAGS_INVENTORY);
+		}
+		EndDBTransaction();
+	}
 }

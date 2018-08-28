@@ -28,6 +28,7 @@
 
 #define MAXSTACKS_ORB 128
 #define MAXSTACKS_CKEY 32
+#define MAXSTACKS_ELIXIR 25
 
 #define HUD_DII_FIELD_MULT 10
 
@@ -370,6 +371,8 @@ int GetStackValue(int type) {
 		return MAXSTACKS_ORB;
 		case DND_ITEM_CHESTKEY:
 		return MAXSTACKS_CKEY;
+		case DND_ITEM_ELIXIR:
+		return MAXSTACKS_ELIXIR;
 	}
 	return 0;
 }
@@ -1508,8 +1511,12 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return true;
 }
 
-void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int method) {
+void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int method, bool onlyExotic) {
 	int atype = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
+	// no double save of attributes on database
+	if(atype <= LAST_INV_ATTRIBUTE && onlyExotic)
+		return;
+	
 	int aval = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int i;
 	switch(atype) {
@@ -1716,11 +1723,11 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 }
 
 // Applies item stats to player
-void ApplyItemFeatures(int item_index, int source) {
+void ApplyItemFeatures(int item_index, int source, bool onlyExotic) {
 	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	int pnum = PlayerNumber();
 	for(int i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_ADD);
+		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_ADD, onlyExotic);
 }
 
 // Removes an applied list of item stats from player
@@ -1728,7 +1735,7 @@ void RemoveItemFeatures(int item_index, int source) {
 	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	int pnum = PlayerNumber();
 	for(int i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_REMOVE);
+		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_REMOVE, 0);
 }
 
 int GetCraftableItemCount() {

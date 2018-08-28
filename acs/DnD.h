@@ -1008,7 +1008,7 @@ void HandleCharmLootDrop(bool isElite) {
 		addchance = DND_ELITE_BASEDROP / 2;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance))
+		if(PlayerInGame(i) /*&& IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance)*/)
 			SpawnCharm(i);
 	}
 }
@@ -1039,14 +1039,6 @@ void HandleOtherDrops(int target) {
 	
 	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(target - P_TIDSTART, CheckInventory("MonsterIsElite"), CHANCE_HEART))
 		SpawnDrop("DemonHeartPickup", 24.0, 16, 0, 0);
-}
-
-void RecalculateTotalLevel() {
-	total_level = 0;
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
-			total_level += GetStat(STAT_LVL);
-	}
 }
 
 int GetPVelocity(void) {
