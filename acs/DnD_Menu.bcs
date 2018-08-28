@@ -659,8 +659,6 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				
 				for(i  = 0; i < MAXACCOUNTITEMS; ++i)
 					DrawToggledImage(SHOP_ACCOUNT_BEGIN + i, i, OBJ_RESEARCH | OBJ_HASCHOICE | OBJ_ACCOUNT, CR_WHITE, CR_GREEN, ShopItemNames[SHOP_ACCOUNT_BEGIN + i][SHOPNAME_ITEM], ShopInfo[SHOP_ACCOUNT_BEGIN + i][SHOPINFO_MAX], CR_RED);
-			
-				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_RESEARCH) {
 				HudMessage(s:"--- RESEARCH MENU ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);

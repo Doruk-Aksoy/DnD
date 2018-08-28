@@ -32,9 +32,6 @@
 
 #define HUD_DII_FIELD_MULT 10
 
-#define ORB_NAME 0
-#define ORB_TAG 1
-
 #define MAX_EXPRESIST_VAL 100
 
 enum {

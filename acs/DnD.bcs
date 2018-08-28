@@ -313,7 +313,7 @@ Script 819 (int type) {
 Script 825 ENTER {
     while(PlayerInGame(PlayerNumber())) {
         // additional hack for the slayer/hells maw weapon's dynamic fire modes
-		if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive")) {
+		if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive") && !CheckInventory("ShowingMenu")) {
 			if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK) 
 				GiveInventory("HellsMawSynthFireLeft", 1);
 			else 
@@ -619,10 +619,10 @@ Script "DND On Kill" KILL {
 		HandleChestKeyDrop(pnum);
 		
 		// if elite, roll orb and equipment drops
-		if(pnum) {
+		//if(pnum) {
 			// handle orb drops
 			HandleOrbDrop();
-		}
+		//}
 		
 		// accessory drops (accept only from cyber and spider masterminds)
 		if(IsBoss()) {

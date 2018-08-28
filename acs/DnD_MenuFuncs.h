@@ -3556,6 +3556,7 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	// show item details
 	if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR)
 		offset = 16.0;
+	printbold(d:pn, s: " ", d:extra1);
 	if(itype != DND_ITEM_WEAPON)
 		SetFont(Item_Images[PlayerInventoryList[pn][extra1].item_image]);
 	else
