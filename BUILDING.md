@@ -8,8 +8,14 @@
 * To switch to another drive in the prompt: type the driver letter then `:`.
 
 #### Preparing
-1. Go to https://just-install.it/ and go to cmd promt with admin priviledges.
-2. Type `just-install exeproxy 7zip git bcc` (or just install the components you don't have installed - exeproxy has to come first!).
+*Before starting:* If you have corrupted installs of 7zip or git: download an app like (this)[ https://www.majorgeeks.com/files/details/windows_installer_cleanup_utility.html], and remove the corrupted installs first, then try this section.
+*If already having DnD installed and just updating dependencies*: Run `prepare.bat` as *admin*.
+
+1. Run the command prompt as *admin* - failure to do so will prevent apps from being installed/detected.
+2. Type `msiexec.exe /i https://unstable.just-install.it`
+3. Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
+4. Type `set PATH="%SYSTEMDRIVE%\Shims;%CD%"` (which adds the Shims path to PATH env variable).
+5. Type `set PATH="%PROGRAMFILES%\7-Zip;%CD%"` (which adds 7-Zip path to PATH env variable).
 
 #### To continue, there are 2 useable git tools:
 #### Either Git-for-windows (default)
