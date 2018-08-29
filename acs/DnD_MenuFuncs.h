@@ -530,11 +530,12 @@ void DrawHelpCorner (int opt, int boxid) {
 		if(opt >= SHOP_FIRSTAMMO_PAGE && opt <= SHOP_LASTAMMO_PAGE) {
 			int shopindex = 0;
 			if(opt != MENU_SHOP_AMMO_SPECIAL1) {
-				shopindex = MenuAmmoIndexMap[opt - SHOP_FIRSTAMMO_PAGE][boxid];
+				shopindex = MenuAmmoIndexMap[opt - SHOP_FIRSTAMMO_PAGE][boxid] - SHOP_FIRSTAMMO_INDEX;
 				toshow = GetTextWithResearch(AmmoInfo_Str[opt - SHOP_FIRSTAMMO_PAGE][boxid + beginindex][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
 			}
 			else {
-				shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + boxid;
+				// skip ahead previous ammos
+				shopindex = MAXSHOPNORMALAMMOS + boxid;
 				toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
 			}
 		}
@@ -1120,8 +1121,13 @@ void ListenScroll(int condx_min, int condx_max) {
 	}
 }
 
-void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull) {
-	int itemid = index_beg + boxid - 1;
+void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull, bool isSpecialAmmo) {
+	int itemid;
+	// special ammo order is normal
+	if(!isSpecialAmmo)
+		itemid = MenuAmmoIndexMap[slot][boxid - 1];
+	else
+		itemid = index_beg + boxid - 1;
 	
 	if(!CheckItemRequirements(itemid, RES_DONE, GetItemFlags(itemid))) {
 		// not done, so we can't give this
@@ -2257,10 +2263,10 @@ void HandleWeaponPageInput(int boxid, int wbegin, int wend, int pageprev, int pa
 		UpdateMenuPosition(pagenext);
 }
 
-void HandleAmmoPageInput(int slot, int boxid, int pageprev, int pagenext, bool specialammo) {
+void HandleAmmoPageInput(int slot, int boxid, int pageprev, int pagenext, bool IsSpecialAmmo) {
 	int beginindex = MenuAmmoIndexMap[slot][boxid - 1];
 	
-	if(specialammo) {
+	if(IsSpecialAmmo) {
 		beginindex = SHOP_FIRSTAMMOSPECIAL_INDEX;
 		slot = -1;
 	}
@@ -2268,11 +2274,11 @@ void HandleAmmoPageInput(int slot, int boxid, int pageprev, int pagenext, bool s
 	ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 	if(CheckInventory("MadeChoice") == 1) {
 		if(boxid != MAINBOX_NONE)
-			HandleAmmoPurchase(slot, boxid, beginindex, false);
+			HandleAmmoPurchase(slot, boxid, beginindex, false, IsSpecialAmmo);
 		SetInventory("MadeChoice", 0);
 	} // ammos have alternate functionality for sell
 	else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
-		HandleAmmoPurchase(slot, boxid, beginindex, true);
+		HandleAmmoPurchase(slot, boxid, beginindex, true, IsSpecialAmmo);
 		SetInventory("MadeChoice", 0);
 	}
 	
@@ -3368,8 +3374,9 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 		}
 		i = 0;
 		for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
-			for(; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i) {
-				tx = GetNextUniqueCraftingMaterial(CraftItemTypes[ty], i + MAX_CRAFTING_MATERIALBOXES * page);
+			// by holds currently visited unique item's order, it's unique to each item type so we reset it, we don't reset i
+			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
+				tx = GetNextUniqueCraftingMaterial(CraftItemTypes[ty], by + MAX_CRAFTING_MATERIALBOXES * page);
 				if(tx != -1) {
 					bx = GetTotalStackOfMaterial(tx);
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
@@ -3393,6 +3400,8 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 						}
 					}
 				}
+				else
+					break;
 			}
 		}
 		SetFont("SMALLFONT");

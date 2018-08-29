@@ -566,7 +566,6 @@ int ShopInfo[MAXSHOPITEMS][2] =
 #define MAX_RESEARCH_REQUIREMENTS 3
 // Basis for multi-research requiring stuff is here
 int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
-	
 	// wep slot 1
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
@@ -650,6 +649,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT7UPG2, -1, -1 },
 		{ RES_SLOT7LUXURY, -1, -1 },
 		{ RES_SLOT7LUXURY, -1, -1 },
+		{ RES_SLOT7LUXURY, -1, -1 },
 		
 	// wep slot 8
 		{ RES_SLOT8REVEAL, -1, -1 },
@@ -662,7 +662,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
-		{ RES_SLOT3LUXURY, -1, -1 },
+		{ RES_SLOT3LUXURY, RES_SLOT4UPG2, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
@@ -859,7 +859,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResBFG2",							"Thunder Staff",					WEPCHECK_SLOT7,			"0"			},
 	{ "Gauss Rifle",						"Gauss Rifle",						WEPCHECK_SLOT7L,		"1"     	},
 	{ "Rail Gun",							"Railgun",							WEPCHECK_SLOT7L,		"1"     	},
-	{ "Death Ray",							"Death Ray",						WEPCHECK_SLOT7L			"1"			},
+	{ "Death Ray",							"Death Ray",						WEPCHECK_SLOT7L,		"1"			},
 	
 	{ "Death Staff",						"Death Staff",						WEPCHECK_SLOT8L,		"1"		    },
 	{ "RazorFang",							"Razorfang",						WEPCHECK_SLOT8L,		"1"    	    },
@@ -898,6 +898,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "FlakShell",							"Flak Shell",						"",						"0"			},
 	{ "DesolatorAmmo",						"Desolator Rounds",					"",						"0"			},
 	{ "HadesAmmo",							"Hades Shells",						"",						"0"			},
+	
 	{ "DemonBlood",							"Vial of Demon Blood",				"",						"0"			},
 	{ "EmeraldMana",						"Emerald Mana",						"",						"0"			},
 	{ "HellsMawAmmo",						"Hell Fire",						"",						"0"			},
@@ -1492,7 +1493,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_SHELL				},
 	{ OBJ_AMMO,													SHOP_AMMO_ROCKET			},
 	{ OBJ_AMMO,													SHOP_AMMO_CELL				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EXPSHELL			},
+	{ OBJ_AMMO | OBJ_RESEARCH | OBJ_RESEARCH_ATLEASTONE,		SHOP_AMMO_EXPSHELL			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONY				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONYX			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_MIS				},

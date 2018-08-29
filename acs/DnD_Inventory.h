@@ -1330,6 +1330,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 			droptype = InventoryInfo[stype + ORBS_BEGIN][SITEM_NAME];
 		else if(itype == DND_ITEM_CHESTKEY)
 			droptype = InventoryInfo[stype + CHESTKEY_BEGIN][SITEM_NAME];
+		else if(itype == DND_ITEM_ELIXIR)
+			droptype = InventoryInfo[stype + ELIXIR_BEGIN][SITEM_NAME];
 		forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 	}
 }

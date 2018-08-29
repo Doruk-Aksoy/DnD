@@ -997,7 +997,12 @@ void HandleOrbDrop() {
 	int addchance = (Clamp_Between(GetCVar("dnd_orb_dropchanceadd"), 0, 100) << 16) / 100;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))
+		#ifndef ISDEBUGBUILD
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))
+		#endif
+		#ifdef ISDEBUGBUILD
+			if(PlayerInGame(i))
+		#endif
 			SpawnOrb(i);
 	}
 }
@@ -1008,7 +1013,12 @@ void HandleCharmLootDrop(bool isElite) {
 		addchance = DND_ELITE_BASEDROP / 2;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance))
+		#ifndef ISDEBUGBUILD
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance))
+		#endif
+		#ifdef ISDEBUGBUILD
+			if(PlayerInGame(i))
+		#endif
 			SpawnCharm(i);
 	}
 }

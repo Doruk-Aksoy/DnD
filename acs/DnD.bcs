@@ -619,7 +619,13 @@ Script "DND On Kill" KILL {
 		HandleChestKeyDrop(pnum);
 		
 		// if elite, roll orb and equipment drops
-		if(pnum) {
+		#ifdef ISDEBUGBUILD
+			if(1)
+		#endif
+		#ifndef ISDEBUGBUILD
+			if(pnum)
+		#endif
+		{
 			// handle orb drops
 			HandleOrbDrop();
 		}
@@ -660,6 +666,9 @@ Script "DND On Kill" KILL {
 			}
 		}
 		
+		#ifdef ISDEBUGBUILD
+			SpawnElixir(0);
+		#endif
 		HandleCharmLootDrop(pnum);
 	}
 	
