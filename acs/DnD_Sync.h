@@ -667,6 +667,7 @@ void SetSyncValue(int pos, int val, int extra, bool isOrb) {
 			break;
 			case DND_SYNC_DAMAGEPERCENT:
 				Player_Bonuses[pnum].damage_percent = val;
+			break;
 			case DND_SYNC_ACCURACY:
 				Player_Bonuses[pnum].accuracy = val;
 			break;

@@ -17,10 +17,16 @@ enum {
 	UITEM_SHELLSHOCK,
 	// M - Your health cap is doubled, Can't use armor, Gain 1% damage increase every 50 health
 	UITEM_OAKHEART,
-	// M - 
+	// M - 50% more pellets on shotguns, 200% slot 3 damage, Pellets fire in a circle around you regardless of accuracy
+	UITEM_PELLETSTORM,
+	// G - 15-25 Intellect, Slain enemies have 10-15% chance to raise a zombie (Max 5, Lasts 15 seconds), Damage taken is shared between all summoned creatures, Take 20-10% more damage
+	UITEM_GRAVECALLER,
+	// M - 6-10% speed, 2-5 flat damage to all attacks, Killing enemies heals for 1-5% missing health 
+	UITEM_LIFELEECH,
+	// S - 
 };
 
-#define LAST_UNIQUE_ITEM UITEM_SHELLSHOCK
+#define LAST_UNIQUE_ITEM UITEM_LIFELEECH
 #define MAX_UNIQUE_ITEMS LAST_UNIQUE_ITEM + 1
 
 str UniqueItemNames[MAX_UNIQUE_ITEMS] = {
@@ -29,7 +35,11 @@ str UniqueItemNames[MAX_UNIQUE_ITEMS] = {
 	"Well of Power",
 	"Ancient Gemstone",
 	"Deathspark",
-	"Shellshock"
+	"Shellshock",
+	"Oakheart",
+	"Pellet Storm",
+	"Grave Caller",
+	"Life Leech",
 };
 
 int UniqueItemDropWeight[MAX_UNIQUE_ITEMS] = {

@@ -1469,7 +1469,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_REPENT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Repentance reverts the effects of \cv", s:InventoryInfo[val + ORBS_BEGIN][ORB_TAG], s:"\cj!");
+				Log(s:"\cjOrb of Repentance reverts the effects of \cv", s:InventoryInfo[val + ORBS_BEGIN][SITEM_TAG], s:"\cj!");
 			else
 				Log(s:"\cgNo orb used or tried to revert effects of Orb of Repentance!");
 		break;
@@ -1481,7 +1481,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_CALAMITY:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Calamity turns your \ck", s:InventoryInfo[(val % 100) + ORBS_BEGIN][ORB_TAG], s:"\cv to an \cd", s:InventoryInfo[(val / 100) + ORBS_BEGIN][ORB_TAG], s:"\cv!");
+				Log(s:"\cjOrb of Calamity turns your \ck", s:InventoryInfo[(val % 100) + ORBS_BEGIN][SITEM_TAG], s:"\cv to an \cd", s:InventoryInfo[(val / 100) + ORBS_BEGIN][SITEM_TAG], s:"\cv!");
 			else
 				Log(s:"\cgNo other orb found to convert!");
 		break;
@@ -1611,12 +1611,12 @@ void SpawnOrb(int pnum) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int w = random(1, ORB_MAXWEIGHT), i = 0;
-		for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
-		//i = random(DND_ORB_ENHANCE, DND_ORB_ELEVATION);
+		//for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+		i = random(0, MAX_ORBS - 1);
 		// c is the index on the field now
 		RollOrbInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(InventoryInfo[i + SITEM_NAME][ORB_NAME], 24.0, 16, pnum + 1, c);
+		SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
 	}
 }
 
@@ -1629,7 +1629,7 @@ void SpawnOrbForAll(int repeats) {
 				for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
 				RollOrbInfo(c, i, true);
 				SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-				SpawnDrop(InventoryInfo[i + SITEM_NAME][ORB_NAME], 24.0, 16, j + 1, c);
+				SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, j + 1, c);
 			}
 		}
 	}

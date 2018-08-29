@@ -313,7 +313,7 @@ Script 819 (int type) {
 Script 825 ENTER {
     while(PlayerInGame(PlayerNumber())) {
         // additional hack for the slayer/hells maw weapon's dynamic fire modes
-		if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive")) {
+		if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive") && !CheckInventory("ShowingMenu")) {
 			if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK) 
 				GiveInventory("HellsMawSynthFireLeft", 1);
 			else 
@@ -1838,18 +1838,7 @@ Script 989 (int pnum) DISCONNECT {
 	PlayerDied[pnum] = 0;
 	PlayerWillBeSaved[pnum] = false;
 	PlayerTransferred[pnum] = false;
-	// reset player items
-	ResetPlayerInventory(pnum);
-	ResetPlayerCharmsUsed(pnum);
-	ResetTradeViewList(pnum);
-	ResetPlayerStash(pnum);
-	// reset weapon mod variable
-	ResetWeaponMods(pnum);
-	ResetPlayerBonuses(pnum);
-	ResetMostRecentOrb(pnum);
-	ResetOrbData(pnum);
-	RecalculateTotalLevel();
-	BreakTradesBetween(pnum);
+	ResetHardcoreStuff(pnum);
 }
 
 // End of level checks
@@ -1978,8 +1967,11 @@ Script 991 ENTER {
 			GiveAndDoAllResearch();
 		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 	}
-	else
+	else {
+		// we still need to sync all clientside variables here
 		GiveInventory("DnD_SyncMe", 1);
+		ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
+	}
 	
 	// if map changed, reset accessory stuff
 	if(MapChanged) {
@@ -3279,13 +3271,6 @@ Script "DnD Orb Message" (int id) CLIENTSIDE {
 	Log(s:StrParam(s:"\ccOrb pickup:     \c[Y5]", s:InventoryInfo[id + ORBS_BEGIN][SITEM_TAG], s:"!\c-"));
 }
 
-Script "DnD Give Orb" (int sp) {
-	SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	GiveInventory("OrbSoundPlayer", 1);
-	ACS_NamedExecuteAlways("DnD Orb Message", 0, sp >> 16);
-	GiveInventory(InventoryInfo[(sp >> 16) + ORBS_BEGIN][SITEM_NAME], 1);
-}
-
 Script "DnD Elixir Message" (int id) CLIENTSIDE {
 	ActivatorSound("Items/ElixirPick", 127);
 	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:InventoryInfo[id + ELIXIR_BEGIN][SITEM_TAG], s:"!\c-"));
@@ -3633,4 +3618,10 @@ Script "DnD Deathray Laser Trail" (int density, int target) CLIENTSIDE {
             Spawn("DeathRayLaserTrail", bX, bY, bZ);
         }
     }
+}
+
+Script "DnD Force Sync Player Bonuses" (void) {
+	Delay(70);
+	if(CheckInventory("DnD_SyncMe"))
+		SyncAllClientsideVariables();
 }

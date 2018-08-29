@@ -50,6 +50,7 @@ enum {
 	INV_ACCURACY_INCREASE
 };
 
+// attributes below last_inv (normal rollables) are exotic
 #define LAST_INV_ATTRIBUTE INV_ACCURACY_INCREASE
 #define UNIQUE_ATTRIB_BEGIN 
 #define LAST_UNIQUE_ATTRIBUTE 
