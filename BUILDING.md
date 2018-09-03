@@ -3,19 +3,37 @@
 ### Windows
 #### Command Prompt Notes
 * How to run it:
-  * Windows 10: 1. Click the search button and type: `Command Prompt` and click on the desktop app.
-  * Windows 7 and below: Click **Start**, then click **Run...**, type `cmd`).
+  * Windows 10: Click the search button and type: `Command Prompt` and click on the desktop app. Run as admin if requested.
+  * Any Windows: Click **Start**, **Programs**, **Windows System**, **Command Prompt**. Run as admin if requested.
 * To switch to another drive in the prompt: type the driver letter then `:`.
 
 #### Preparing
-*Before starting:* If you have corrupted installs of 7zip or git: download an app like (this)[ https://www.majorgeeks.com/files/details/windows_installer_cleanup_utility.html], and remove the corrupted installs first, then try this section.
-*If already having DnD installed and just updating dependencies*: Run `prepare.bat` as *admin*.
+##### Using Just-install (please try this first - if it fails, follow other section)
 
-1. Run the command prompt as *admin* - failure to do so will prevent apps from being installed/detected.
+- **Before starting:** If you have corrupted installs of 7zip or git: download an app like [this](https://www.majorgeeks.com/files/details/windows_installer_cleanup_utility.html), and remove the corrupted installs first, then try this section.
+- **If already manually installed bcc first in a different folder and now trying to use Just-install**: Delete the bcc folder and remove bcc from system PATH environment variable by running command line as **admin** and typing this:
+`setx /M PATH "%PATH:MYPATH\TO\BCC;=%`.
+- **If installed bcc and used bcc environment variable (for those who used old instructions):** Delete the bcc folder and remove bcc environment variable by running command line as **admin** and typing this:
+`setx bcc ""`
+- **If already having DnD installed with Just-install and just updating dependencies**: Just run `prepare.bat` as **admin**. If it fails (by anti-virus not trusting it): follow the instructions below.
+
+1. Run the command prompt as **admin** - failure to do so will prevent apps from being installed/detected.
 2. Type `msiexec.exe /i https://unstable.just-install.it`
 3. Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
 4. Type `set PATH="%SYSTEMDRIVE%\Shims;%CD%"` (which adds the Shims path to PATH env variable).
 5. Type `set PATH="%PROGRAMFILES%\7-Zip;%CD%"` (which adds 7-Zip path to PATH env variable).
+
+##### Manually installing and adding programs to PATH (for those having problems with Just-install)
+
+- **If installed bcc and used bcc environment variable (for those who used old instructions):** Delete the bcc folder and remove bcc environment variable by running command line as **admin** and typing this:
+`setx bcc ""`
+
+1. Download and install [7zip](https://www.7-zip.org/download.html) to its default folder (select to download the x64 on x64 systems and x86 on x86 systems).
+2. Download and extract [bcc](https://github.com/wormt/bcc/releases) to %PROGRAMFILES%/bcc (for compatibility with Just-install, once it's properly fixed).
+3. Download and install Git for Windows in default folder, making sure it uses Windows command prompt with just git. Download [git-for-windows](https://git-scm.com/download/win). Just do the default options, but you may select your favorite text editor.
+4. Add 7zip and bcc to the system PATH environment variable by running command line as **admin**:
+   4.1. Type `set PATH="%PROGRAMFILES%\bcc;%CD%"` (which adds bcc path to PATH env variable).
+   4.2. Type `set PATH="%PROGRAMFILES%\7-Zip;%CD%"` (which adds 7-Zip path to PATH env variable).
 
 #### To continue, there are 2 useable git tools:
 #### Either Git-for-windows (default)
@@ -42,7 +60,9 @@ git pull
 Provides very nice context menus.
 
 ##### Preparing
-1. Go to cmd prompt with admin priviledges, type `just-install tortoisegit` (if you don't have it installed already).
+
+- **If you used Just-install:** Go to cmd prompt with admin priviledges, type `just-install tortoisegit` (if you don't have it installed already).
+- **Otherwise:** Download and install [Tortoise Git](https://tortoisegit.org/download/) to its default folder (select to download the x64 on x64 systems and x86 on x86 systems).
 
 ##### Installing DnD
 1. Open Windows Explorer.
@@ -61,13 +81,17 @@ Provides very nice context menus.
 7. Right click again on folder background. Click Tortoise Git. Click Show Log.
 8. Select commit with (Master) tag, then right click it, and click "reset to this commit". Then select **Hard** reset type. Then click OK. Then click close.
 9. Right click again on folder background. Click Tortoise Git. Click Pull. Click OK. Click close.
-10. Rebuild - follow **How to Build** instructions again.
+10. Rebuild - follow **Building the DnD pk7** instructions again.
 
 #### Building the DnD pk7s
 1. Run the command prompt.
 2. CD to the DnD folder: `cd path/to/DnD`
-4. Type either `test.bat` (if updating files often) or `build.bat` (if releasing).
-5. Make sure when creating server/playing offline that you're using these files.
+3. Type either `test.bat` (if updating files often) or `build.bat` (if releasing).
+4. Make sure when creating server/playing offline that you're using these files.
+
+If the test.bat created files that are different to the ones being hosted online (as in, the versionless dnd*.pk7 files) when you know those being hosted are the newest:
+- Follow **Updating DnD** section again.
+- If it still doesn't work, follow **Preparing** section again (reinstalling the dependencies), but skipping any PATH related instructions.
 
 ### Linux
 #### Preparing
