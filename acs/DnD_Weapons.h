@@ -108,7 +108,8 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "DarkServantGloves",                 "Dark Servant Gloves",      "9",        "DarkServantEnergy"," ",                            "GotGloves",                "DSGNTICO",     "WEPICO84"	},
 	 { "Nailgun2",                          "Heavy Nailgun",            "9",        "BigNail",          " ",                            "GotNailgun2",              "NLCGF0",       "WEPICO85"	},
 	 { "Berettas",                          "Akimbo Berettas",          "9",        "BerettaAmmo",      " ",                            "GotBerettas",              "PAKMX0",       "WEPICO86"	},
-	 { "Plasma Bolter",						"Plasma Bolter",			"9",		"PlasmaBolterAmmo",	" ",							"GotPlasmaBolter",			"PBL9X0",		"WEPICO87"	}
+	 { "Plasma Bolter",						"Plasma Bolter",			"9",		"PlasmaBolterAmmo",	" ",							"GotPlasmaBolter",			"PBL9X0",		"WEPICO87"	},
+	 { "Ripper Cannon",						"Ripper Cannon",			"9",		"RipperCannonAmmo",	" ",							"GotRipperCannon",			"TWP0X0",		"WEPICO89"	},
 };
 
 #define WEPCHECK_SLOT1 "P_Slot1Replaced"

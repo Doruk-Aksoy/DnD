@@ -1703,6 +1703,20 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int me
 			SetActorProperty(0, APROP_ACCURACY, Clamp_Between(Player_Bonuses[pnum].accuracy, 0, DND_ACCURACY_CAP));
 			SyncClientsideVariable(DND_SYNC_ACCURACY, 0, DND_SYNC_NONORB);
 		break;
+		
+		case INV_STAT_STRENGTH:
+		case INV_STAT_DEXTERITY:
+		case INV_STAT_BULKINESS:
+		case INV_STAT_CHARISMA:
+		case INV_STAT_VITALITY:
+		case INV_STAT_INTELLECT:
+			// these aren't capped yet, add a cap in the future
+			if(method == IPROCESS_ADD)
+				Player_Bonuses[pnum].stat_bonus[atype - INV_STAT_STRENGTH] += aval;
+			else
+				Player_Bonuses[pnum].stat_bonus[atype - INV_STAT_STRENGTH] -= aval;
+			SyncClientsideVariable(DND_SYNC_STATBONUS_STR + atype - INV_STAT_STRENGTH, 0, DND_SYNC_NONORB);
+		break;
 	}
 }
 
@@ -1728,6 +1742,33 @@ int GetCraftableItemCount() {
 		if(IsCraftableItem(PlayerInventoryList[pnum][i].item_type) && PlayerInventoryList[pnum][i].height)
 			++res;
 	return res;
+}
+
+// this doesn't consider the item_type yet!
+void MakeUnique(int item_pos, int item_type) {
+	int i;
+	int roll = random(1, MAX_UNIQUE_WEIGHT);
+	for(i = 0; i < MAX_UNIQUE_ITEMS && roll <= UniqueItemDropWeight[i]; ++i);
+	// i is the unique id
+	ConstructUniqueOnField(item_pos, i, item_type);
+}
+
+// this too
+void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type) {
+	Inventories_On_Field[fieldpos].width = UniqueItemList[unique_id].width;
+	Inventories_On_Field[fieldpos].height = UniqueItemList[unique_id].height;
+	Inventories_On_Field[fieldpos].item_type = UniqueItemList[unique_id].item_type;
+	Inventories_On_Field[fieldpos].item_subtype = UniqueItemList[unique_id].item_subtype;
+	Inventories_On_Field[fieldpos].item_image = UniqueItemList[unique_id].item_image;
+	Inventories_On_Field[fieldpos].item_level = UniqueItemList[unique_id].item_level;
+	Inventories_On_Field[fieldpos].item_stack = UniqueItemList[unique_id].item_stack;
+	Inventories_On_Field[fieldpos].attrib_count = UniqueItemList[unique_id].attrib_count;
+	Inventories_On_Field[fieldpos].topleftboxid = 0;
+	for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
+		Inventories_On_Field[fieldpos].attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
+		// we must roll the value once dropped
+		Inventories_On_Field[fieldpos].attributes[i].attrib_val = random(UniqueItemList[id].rolls[i].attrib_low, UniqueItemList[id].rolls[i].attrib_high);
+	}
 }
 
 void ResetPlayerInventory(int pnum) {

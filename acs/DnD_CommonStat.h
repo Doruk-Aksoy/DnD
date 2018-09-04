@@ -36,13 +36,13 @@
 #define DND_STR_KNOCKBACK_GAIN 50
 #define DND_BASE_PLAYER_MASS 100
 
-#define DND_STAT_FULLMAX 200
 #define DND_BASE_ARMOR_SHOW 100
 #define DND_BASE_ARMOR 200
 #define DND_BASE_ARMORCAP 300
 
 #define STAT_BASE 0
-#define DND_STAT_MAX 100 // for menu only, in game stats can go up to 200
+#define DND_STAT_MAX 100 // for menu only, in game stats can go up to 1024
+#define DND_STAT_FULLMAX 200
 #define DND_PERK_MAX 10
 
 #define MAX_WEAPON_SLOTS 9
@@ -68,6 +68,7 @@ enum {
 #define DND_TALENT_END TALENT_ELEMENTAL + 1
 
 enum {
+	// dont change order of these, add below the last!
 	STAT_STR,
 	STAT_DEX,
 	STAT_BUL,
@@ -75,6 +76,7 @@ enum {
 	STAT_VIT,
 	STAT_INT,
 	
+	// same for these
 	STAT_SHRP,
 	STAT_END,
 	STAT_WIS,
@@ -94,6 +96,8 @@ enum {
 
 #define DND_ATTRIB_BEGIN STAT_STR
 #define DND_ATTRIB_END STAT_INT
+#define MAXATTRIBUTES DND_ATTRIB_END - DND_ATTRIB_BEGIN + 1
+
 #define DND_PERK_BEGIN STAT_SHRP
 #define DND_PERK_END STAT_LUCK
 
@@ -145,6 +149,8 @@ typedef struct {
 	int knockback_resist;
 	int damage_percent;
 	int accuracy;
+	
+	int stat_bonus[MAXATTRIBUTES];
 } pstat_T;
 
 global pstat_T 16: Player_Bonuses[MAXPLAYERS];
@@ -177,6 +183,36 @@ void SlowPlayer(int amt, int mode, int pnum) {
 	}
 	else
 		SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, GetPlayerSpeed(pnum) - amt);
+}
+
+int GetDexterity() {
+	int res = CheckInventory("PSTAT_Dexterity") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_DEX];
+	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
+		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
+	return res;
+}
+
+int GetIntellect() {
+	int res = CheckInventory("PSTAT_Intellect") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_INT];
+	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
+		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
+	return res;
+}
+
+int GetStrength() {
+	return CheckInventory("PSTAT_Strength") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_STR];
+}
+
+int GetBulkiness() {
+	return CheckInventory("PSTAT_Bulkiness") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_BUL];
+}
+
+int GetVitality() {
+	return CheckInventory("PSTAT_Vitality") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_VIT];
+}
+
+int GetCharisma() {
+	return CheckInventory("PSTAT_Charisma") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_CHR];
 }
 
 int GetHealingBonuses() {
@@ -214,10 +250,10 @@ int CalculateHealthCapBonuses() {
 }
 
 int GetSpawnHealth() {
-	int res = CalculateHealthCapBonuses() + DND_BASE_HEALTH + DND_VIT_INCREASE * CheckInventory("PSTAT_Vitality");
+	int res = CalculateHealthCapBonuses() + DND_BASE_HEALTH + DND_VIT_INCREASE * GetVitality();
 	// consider percent bonuses from here on
 	res += (res * (Player_Orb_Data[PlayerNumber()].orb_stat_bonuses.hp_percent_bonus + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus"))) / 100;
-	res += (res * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
+	res += (res * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	// research bonuses
 	res += (res * GetResearchHealthBonuses()) / 100;

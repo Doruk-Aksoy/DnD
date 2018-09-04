@@ -663,7 +663,7 @@ Actor ExcalibatBall {
 			ECAL A 3 Bright A_CountDown
 		Loop
 		Death:
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1), 128 * (1.0 + user_exprad * exprad_factor), 0, 0, 128 * (1.0 + user_exprad * exprad_factor))
 			TNT1 A 0 A_SetScale(0.625, 0.625)
@@ -1328,7 +1328,7 @@ Actor KatanaShockWave {
 	+MTHRUSPECIES
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			DAET A 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_MELEE, DND_USETARGET | DND_ISSLOT1), 72 * (1.0 + user_exprad * exprad_factor), 0)
 			DAET A 1 Bright A_SpawnItemEx("KatanaShockWaveTrail")
@@ -1584,7 +1584,7 @@ Actor DuskExplosion : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1), 64 * (1.0 + user_exprad * exprad_factor), 0, 0, 64 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}

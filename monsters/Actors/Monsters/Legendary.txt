@@ -191,7 +191,7 @@ actor TchernobogMissile {
 	+DONTSPLASH
 	+DONTBLAST
 	+DONTREFLECT
-	DamageType "Explosives"
+	DamageType "CyberExp"
 	deathsound "Cerberus/Explode"
     alpha 0.75
 	states {
@@ -265,7 +265,7 @@ Actor TFlyFX {
 }
 
 Actor TchernobogExplosion : BaseExplosionDamage {
-	DamageType "Explosives"
+	DamageType "CyberExp"
 	States {
 		Spawn:
 			TNT1 A 8 NoDelay A_Explode(192 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0)
@@ -506,7 +506,7 @@ actor SplitParticleAfterLight
 }
 
 Actor SplitParticleExplosion : BaseExplosionDamage {
-	DamageType "Magic"
+	DamageType "CyberMagic"
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(36 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
@@ -566,7 +566,7 @@ Actor SplitParticle1
 	Speed 40
 	seesound "Dreamer/Blast"
 	deathsound "Dreamer/BlastExp"
-	DamageType "Magic"
+	DamageType "CyberMagic"
 	Obituary "%o couldn't stand against the power of The Dreaming God."
 	RenderStyle Add
 	Alpha 0.8
@@ -841,7 +841,7 @@ Actor TchernoSoul {
 	Alpha 0.1
 	Speed 5
 	Damage (5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET))) 
-	DamageType "Magic"
+	DamageType "CyberMagic"
 	BounceType Hexen
 	BounceCount 6
 	BounceFactor 0.9
@@ -884,7 +884,7 @@ Actor TchernoPortalCooldown : PowerDamage {
 }
 
 Actor TchernoLightningExplosion : BaseExplosionDamage {
-	DamageType "Magic"
+	DamageType "CyberLightning"
 	+FORCERADIUSDMG
 	States {
 		Spawn:
@@ -1344,7 +1344,7 @@ Actor TorrasqueGrabberTrail {
 	+NOINTERACTION
 	States {
 		Spawn:
-			TNT1 A 2
+			TNT1 A 1
 			TEND A 20
 		Stop
 	}
@@ -1362,9 +1362,7 @@ Actor TorrasqueGrabber {
 	States {
 		Spawn:
 			OCLW A 1 
-			TNT1 A 0 A_SpawnItem("TorrasqueGrabberTrail", -8, 2)
 			TNT1 A 0 A_SpawnItem("TorrasqueGrabberTrail", 0, 2)
-			TNT1 A 0 A_SpawnItem("TorrasqueGrabberTrail", -16, 2)
 		Loop
 		XDeath:
 			TNT1 A 0 A_PlaySound("Torrasque/HookHit")
@@ -1597,7 +1595,7 @@ Actor MordecqaiStomp {
 }
 
 Actor MordecqaiFlameExplosion : BaseExplosionDamage {
-	DamageType "Fire"
+	DamageType "CyberFire"
 	+NODAMAGETHRUST
 	States {
 		Spawn:
@@ -1619,7 +1617,7 @@ Actor MordecqaiFlame {
 	radius 4
 	height 6
 	speed 38
-	damagetype "Fire"
+	damagetype "CyberFire"
 	decal "FlameScorch"
 	states {
 		Spawn:
@@ -1640,6 +1638,7 @@ Actor MordecqaiFlame {
 Actor MordecqaiSeeker {
 	PROJECTILE
 	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberMagic"
 	Speed 20
 	Height 12
 	Radius 6
@@ -1688,7 +1687,7 @@ Actor MordecqaiSeekerTrail {
 }
 
 Actor MordecqaiLightningExp : BaseExplosionDamage {
-	DamageType "Lightning"
+	DamageType "CyberLightning"
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0, 0, 64)
@@ -1699,7 +1698,7 @@ Actor MordecqaiLightningExp : BaseExplosionDamage {
 Actor MordecqaiLightning {
 	Projectile
 	Damage (0)
-	DamageType "Lightning"
+	DamageType "CyberLightning"
 	Speed 32
 	Height 16
 	Radius 8
@@ -1776,6 +1775,7 @@ Actor MordecqaiSmallBall {
 	Height 8
 	Speed 12
 	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberLightning"
 	PROJECTILE
 	-NOGRAVITY
 	+DONTBLAST
@@ -2158,7 +2158,7 @@ Actor GodSlayerLandStomper : DnD_Activator {
 }
 
 Actor InquisitorExplosion : BaseExplosionDamage {
-	DamageType "Physical"
+	DamageType "CyberExp"
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
@@ -2196,7 +2196,7 @@ Actor GodSlayerBulletExp : BaseExplosionDamage {
 
 Actor GodSlayerBullet : ZombieBullet {
 	Damage (random(3, 4) * 5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "Cyber"
+	DamageType "CyberBullet"
 	States {
 		Death:
 		XDeath:
@@ -2514,4 +2514,499 @@ Actor InquisitorSoundPlayer : DnD_Activator {
 
 Actor InquisitorCounter : Inventory {
 	inventory.maxamount 45 // max flight is x4 tics
+}
+
+Actor Golgoth : DnD_BaseEnemy {
+	tag "Golgoth"
+	obituary "%o was removed from existence by Golgoth."
+	health 17500
+	radius 40
+	height 110
+	ProjectilePassHeight 160
+	mass 16384
+	speed 4
+	painchance 6
+	seesound "Golgoth/See"
+	painsound "Golgoth/Pain"
+	deathsound "Golgoth/Die"
+	activesound "Golgoth/Act"
+	DropItem "SoulAmmoSpawner", 128
+	Species "Cyber"
+	DamageFactor "Cyber", 0.0
+	DamageFactor "CyberEnergy", 0.0
+	DamageFactor "CyberExp", 0.0
+	DamageFactor "CyberBullet", 0.0
+	DamageFactor "CyberFire", 0.0
+	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberIce", 0.0
+	DamageFactor "CyberSlow", 0.0
+	DamageFactor "CyberGreen", 0.0
+	DamageFactor "CyberGreenExp", 0.0
+	Scale 1.15
+	MONSTER
+	var int user_count;
+	const int trace_count = 60;
+	const int dash_speedmin = 12;
+	const int dash_speedmax = 16;
+	const int arc_count = 20;
+	const int arc_inc = 8;
+	+BOSS
+	+QUICKTORETALIATE
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	+NOINFIGHTING
+	+USEKILLSCRIPTS
+	+NORADIUSDMG
+	+NOTARGET
+	+DONTBLAST
+	+LOOKALLAROUND
+	+PIERCEARMOR
+	RadiusDamageFactor 0
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, DND_GOLGOTH_TID)
+			TNT1 A 0 A_GiveInventory("MakeExplosiveFullImmune", 1)
+			TNT1 A 0 A_GiveInventory("MakeHardenedSkin", 1)
+			TNT1 A 0 A_GiveInventory("MakeMagicResist", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_GOLGOTH, 0, DND_LEGENDARY)
+			MOMD A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Golgoth Health Check")
+		Idle:
+			MOMD A 10 A_Look
+		loop
+		See:
+			MOMD AAAAAA 1 A_Chase("", "", CHF_NOPLAYACTIVE)
+			MOMD AAAAAA 1 A_Chase
+		loop
+		Melee:
+		Goto Missile
+		FromMelee:
+			TNT1 A 0 A_Jump(96, "Forget")
+		Goto Missile
+		Forget:
+			MOMD A 3
+		Goto See
+		Missile:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Less50Decide")
+		MissileDecide:
+			TNT1 A 0 A_Jump(144, "DarkLance", "MeteorDash")
+		Meteor:
+			MOMD E 6 A_FaceTarget
+			MOMD F 5 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("GolgothMeteor", 82.8, 27.6, 0, CMF_AIMOFFSET)
+			MOMD G 6 A_CustomMissile("GolgothMeteor", 82.8, -27.6, 0, CMF_AIMOFFSET)
+			TNT1 A 0 A_FaceTarget
+			MOMD G 6 ACS_NamedExecuteAlways("DND Monster Shoot", 0, DND_GOLGOTH, 1)
+			MOMD FE 2 A_FaceTarget
+		Goto See
+		DarkLance:
+			TNT1 A 0 A_JumpIfCloser(4096, "ContinueLance")
+		Goto Meteor
+		ContinueLance:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			MOMD E 6 A_FaceTarget
+			TNT1 A 0 A_PlaySound("Golgoth/RailLoop", 7)
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "FastLance")
+			MOMD F 5 A_FaceTarget
+		LanceLoop:
+			TNT1 A 0 A_JumpIf(user_count == trace_count, "LanceShoot")
+			TNT1 A 0 A_FaceTarget
+			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 1 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "GolgothPuff", 4096)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		FastLance:
+			MOMD F 5 A_FaceTarget
+		FastLanceLoop:
+			TNT1 A 0 A_JumpIf(user_count == trace_count / 2, "LanceShoot")
+			TNT1 A 0 A_FaceTarget
+			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 1 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "GolgothPuff", 4096)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		LanceShoot:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 A_PlaySound("Golgoth/Rail", 5)
+			TNT1 A 0 A_FaceTarget
+			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "GolgothPuff2", 4096)
+			MOMD G 8
+		Goto See
+		MeteorDash:
+			TNT1 A 0 A_PlaySound("monster/blur")
+			TNT1 A 0 A_Jump(128, "DashLeft")
+		Goto DashRight
+		MeteorDashCont:
+			MOMD E 5 A_FaceTarget
+			MOMD F 4 A_FaceTarget
+			MOMD G 5 ACS_NamedExecuteAlways("DND Monster Shoot", 0, DND_GOLGOTH, 2)
+			TNT1 A 0 A_Jump(96, "MeteorDash")
+		Goto See
+		DashLeft:
+			TNT1 A 0 A_SetUserVar("user_count", random(dash_speedmin, dash_speedmax))
+			MOMD D 1 A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(user_count * cos(angle - 45), user_count * sin(angle - 45), velz, CVF_REPLACE)
+			MOMD DDDDDDDDDDDDD 1 A_SpawnItemEx("GolgothDashTrail_Left")
+		Goto MeteorDashCont
+		DashRight:
+			TNT1 A 0 A_SetUserVar("user_count", random(dash_speedmin, dash_speedmax))
+			MOMD B 1 A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(user_count * cos(angle + 45), user_count * sin(angle + 45), velz, CVF_REPLACE)
+			MOMD BBBBBBBBBBBBB 1 A_SpawnItemEx("GolgothDashTrail_Right")
+		Goto MeteorDashCont
+		Less50Decide:
+			TNT1 A 0 A_Jump(160, "FireArc", "OrangeSoul")
+		Goto MissileDecide
+		OrangeSoul:
+			MOMD H 5 A_FaceTarget
+			MOMD I 4 A_FaceTarget
+			TNT1 A 0 A_SetAngle(angle + frandom(-10.0, 10.0))
+			MOMD J 8 A_CustomMissile("GolgothOrangeSoul", 55.2)
+			MOMD IH 2
+		Goto See
+		FireArc:
+			TNT1 A 0 A_JumpIfCloser(640, "FireArcGo")
+		Goto MissileDecide
+		FireArcGo:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			MOMD H 5 A_FaceTarget
+			TNT1 A 0 A_PlaySound("Golgoth/FireCircle", 5)
+			MOMD I 4 A_FaceTarget
+			TNT1 A 0 A_PlaySound("Golgoth/FireCircleGo")
+		FireArcLoop1:
+			MOMD J 0 A_JumpIf(user_count == arc_count, "FireArc1Finish")
+			MOMD J 0 A_CustomMissile("GolgothFlames", 96, 0, user_count * arc_inc, CMF_ABSOLUTEANGLE)
+			MOMD J 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		FireArc1Finish:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			MOMD J 24
+			TNT1 A 0 A_PlaySound("Golgoth/FireCircleGo")
+		FireArcLoop2:
+			MOMD J 0 A_JumpIf(user_count == arc_count, "FireArc2Finish")
+			MOMD J 0 A_CustomMissile("GolgothFlames", 32, 0, 120 + user_count * arc_inc, CMF_ABSOLUTEANGLE)
+			MOMD J 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		FireArc2Finish:
+			MOMD J 0 A_SetUserVar("user_count", 0)
+			MOMD J 24
+			MOMD J 0 A_PlaySound("Golgoth/FireCircleGo")
+		FireArcLoop3:
+			MOMD J 0 A_JumpIf(user_count == arc_count, "FireArc3Finish")
+			MOMD J 0 A_CustomMissile("GolgothFlames", 64, 0, 240 + user_count * arc_inc, CMF_ABSOLUTEANGLE)
+			MOMD J 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		FireArc3Finish:
+			MOMD JIH 5
+		Goto See
+		Pain:
+			TNT1 A 0 A_StopSound(7)
+			MOMD K 4 A_Pain
+			MOMD K 4
+		Goto See
+		Death:
+			TNT1 A 0 A_StopSound(7)
+			MOMD L 16 A_Scream
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			MOMD M 6
+			TNT1 A 0 A_PlaySound("Golgoth/Explode", CHAN_BODY)
+			MOMD MMMMMNNNNN 1 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_NoBlocking
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			MOMD OOOOPPPPQQQQRRRR 1 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 AAAA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			MOMD T -1 A_KillMaster
+		Stop
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+	}
+}
+
+Actor GolgothMeleeCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 60
+}
+
+Actor GolgothRailFX {
+	XScale 0.8
+	Renderstyle Add
+	Alpha 1.0
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			MOMP I 1 Bright A_FadeOut(0.075)
+		Loop
+	}
+}
+
+Actor GolgothRailFX_Tracer : GolgothRailFX {
+	XScale 0.6
+	YScale 0.8
+	States {
+		Spawn:
+			MOMP I 1 Bright A_FadeOut(0.33)
+		Loop
+	}
+}
+
+Actor GolgothPuff {
+	+PUFFGETSOWNER
+	+ALWAYSPUFF
+	+BLOODLESSIMPACT
+	-ALLOWPARTICLES
+	+PUFFONACTORS
+	+NOGRAVITY
+	+NOBLOCKMAP
+	DamageType "LegendarySlow50"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail Fake", 0, DND_GOLGOTH_TID)
+			TNT1 A 3
+		Stop
+	}
+}
+
+Actor GolgothPuff2 : GolgothPuff {
+	DamageType "LegendaryWeaken75"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail", 0, DND_GOLGOTH_TID)
+			TNT1 A 3
+		Stop
+	}
+}
+
+Actor GolgothDashTrail_Left {
+	Renderstyle Translucent
+	Alpha 1.0
+	Scale 1.15
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			MOMD D 1 A_FadeOut(0.075)
+		Loop
+	}
+}
+
+Actor GolgothDashTrail_Right : GolgothDashTrail_Left {
+	States {
+		Spawn:
+			MOMD B 1 A_FadeOut(0.075)
+		Loop
+	}
+}
+
+Actor GolgothMeteorExp : BaseExplosionDamage {
+	DamageType "CyberExp"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 144)
+		Stop
+	}
+}
+
+Actor GolgothPuffy : PuffyC {
+	Scale 1.15
+}
+
+Actor GolgothMeteor {
+	Projectile
+	Speed 28
+	Height 16
+	Radius 8
+	Damage(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberExp"
+	seesound "lavdatk"
+	DeathSound "Golgoth/MeteorExplode"
+	+DONTBLAST
+	States {
+		Spawn:
+			MOMP AAABBBCCC 1 Bright A_SpawnItemEx("GolgothPuffy", random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1),0,SXF_ABSOLUTEPOSITION, 64)
+		Loop
+		Death:
+			MOMP DEFGH 3 Bright
+		Stop
+	}
+}
+
+Actor GolgothOrangeSoul {
+	Projectile
+	Speed 10
+	Height 20
+	Radius 10
+	Renderstyle Add
+	Alpha 1.0
+	Damage(100 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberOrangeMagic"
+	SeeSound "H2SkullWizard/Fire"
+    DeathSound "H2SkullWizard/Hit"
+	const int fspeed = 20;
+	const int sprd = 3;
+	const int circle1_count = 5;
+	const int circle2_count = 8;
+	const int circle3_count = 12;
+	var int user_count;
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+			MOMP JJJJJJJJJJJJJJJ 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
+		Circle1:
+			TNT1 A 0 A_JumpIf(user_count == circle1_count, "C1Finish")
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 2 * sprd * sin(360 * user_count / circle1_count), sprd * cos(360 * user_count / circle1_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		C1Finish:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			MOMP JJJJJJJJJJJJJJJ 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
+		Circle2:
+			TNT1 A 0 A_JumpIf(user_count == circle2_count, "C2Finish")
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * user_count / circle2_count), 1.5 * sprd * cos(360 * user_count / circle2_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		C2Finish:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			MOMP JJJJJJJJJJJJJJJ 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
+		Circle3:
+			TNT1 A 0 A_JumpIf(user_count == circle3_count, "C3Finish")
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * user_count / circle3_count), 3 * sprd * cos(360 * user_count / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		C3Finish:
+			MOMP J 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
+		Loop
+		Death:
+			MOMP KL 3 Bright
+			MOMP M 5 Bright A_ChangeVelocity(0, 0, 2, CVF_REPLACE)
+			MOMP N 6 Bright
+			MOMP O 7 Bright
+		Stop
+	}
+}
+
+Actor GolgothOrangeSoulTrail {
+	Renderstyle Add
+	Alpha 1.0
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1
+		SpawnLoop:
+			MOMP J 1 Bright A_FadeOut(0.075)
+			TNT1 A 0 A_SetScale(scalex - 0.075, scaley - 0.075)
+		Loop
+	}
+}
+
+Actor GolgothFireExp1 : BaseExplosionDamage {
+	Damagetype "CyberFire"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 16)
+		Stop
+	}
+}
+
+Actor GolgothFireExp2 : BaseExplosionDamage {
+	Damagetype "CyberFire"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 28)
+		Stop
+	}
+}
+
+Actor GolgothFireExp3 : BaseExplosionDamage {
+	Damagetype "CyberFire"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(12 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 40)
+		Stop
+	}
+}
+
+Actor GolgothFireExp4 : BaseExplosionDamage {
+	Damagetype "CyberFire"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 52)
+		Stop
+	}
+}
+
+Actor GolgothFlames {
+	PROJECTILE
+	Speed 30
+	Height 12
+	Radius 6
+	Renderstyle Add
+	Alpha 1.0
+	Damage(4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberFire"
+	SeeSound "Flamethrower/Fire"
+	DeathSound "Flamethrower/Hit"
+	+RIPPER
+	+BLOODLESSIMPACT
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 2
+			FRFX ABCD 2 bright A_SpawnItem("GolgothFireExp1")
+			FRFX EFG 2 bright A_SpawnItem("GolgothFireExp2")
+			FRFX HIJ 2 bright A_SpawnItem("GolgothFireExp3")
+			FRFX KLM 2 bright A_SpawnItem("GolgothFireExp4")
+			FRFX NO 2 bright
+		Stop
+		Death:
+			FRFX HIJ 2 bright A_SpawnItem("GolgothFireExp3")
+			FRFX KLM 2 bright A_SpawnItem("GolgothFireExp4")
+			FRFX NO 2 bright
+		Stop
+	}
+}
+
+ACTOR GolgothFireBall {
+	Speed 20
+	Alpha 1
+	Radius 8
+	Height 16
+	Damage (16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CyberFire"
+	SeeSound "weapons/basiliskfire2"
+	DeathSound "weapons/basiliskexpl2"
+	Species "Player"
+	PROJECTILE
+	const int fspeed = 20;
+	+DONTBLAST
+	+FORCERADIUSDMG
+	States {
+		Spawn:
+			HIB1 AB 3 Bright
+			TNT1 A 0 A_ChangeVelocity(fspeed * cos(angle), fspeed * sin(angle), velz, CVF_REPLACE)
+		SpawnLoop:
+			HIB1 AB 3 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SetTranslucent(0.75, 1)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			HIB1 C 3 Bright
+			HIB1 DEFG 3 Bright
+		stop
+	}
 }

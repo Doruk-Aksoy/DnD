@@ -7,34 +7,22 @@
 #define MAXTEMPWEPS MAXWEPS - TEMPBEGIN + 1
 #define UNUSEDWEPS 0 // this is remaining slots out of 2^(nearest power of 2 to maxweps) - maxweps
 
-str TemporaryWeapons[MAXTEMPWEPS] = { 
-	"Sawedoff", 
-	"Soul Render", 
-	"SMG", 
-	"Hellforge Cannon", 
-	"Bloodfiend Spine", 
-	"Enforcer Rifle", 
-	"Venom", 
-	"Demon Heart", 
-	"DarkServantGloves", 
-	"Nailgun2",
-	"Berettas",
-	"Plasma Bolter"
-};
-
-str TemporaryWeaponDrops[MAXTEMPWEPS] = { 
-	"SawedoffPickup_D", 
-	"SoulRenderPickup_D", 
-	"SMGPickup_D", 
-	"HellforgePickup_D", 
-	"SpinePickup_D", 
-	"LaserPickup_D", 
-	"VenomPickup_D", 
-	"DemonHeartPickup_D", 
-	"DarkServantGlovesPickup_D", 
-	"Nailgun2Pickup_D",
-	"BerettasPickup_D",
-	"PlasmaBolterPickup_D"
+#define TEMPWEP_NAME 0
+#define TEMPWEP_DROP 1
+str TemporaryWeapons[MAXTEMPWEPS][2] = { 
+	{ "Sawedoff", "SawedoffPickup_D" },
+	{ "Soul Render", "SoulRenderPickup_D" },
+	{ "SMG", "SMGPickup_D" },
+	{ "Hellforge Cannon", "HellforgePickup_D" },
+	{ "Bloodfiend Spine", "SpinePickup_D" },
+	{ "Enforcer Rifle", "LaserPickup_D" },
+	{ "Venom", "VenomPickup_D" },
+	{ "Demon Heart", "DemonHeartPickup_D" },
+	{ "DarkServantGloves", "DarkServantGlovesPickup_D" },
+	{ "Nailgun2", "Nailgun2Pickup_D" },
+	{ "Berettas", "BerettasPickup_D" },
+	{ "Plasma Bolter", "PlasmaBolterPickup_D" },
+	{ "Ripper Cannon", "RipperCannonPickup_D" }
 };
 
 enum {
@@ -50,10 +38,11 @@ enum {
 	DND_TEMPAMMO_DARKSERVANTENERGY, 
 	DND_TEMPAMMO_BIGNAIL,
 	DND_TEMPAMMO_BERETTAAMMO,
-	DND_TEMPAMMO_PLASMABOLTERAMMO
+	DND_TEMPAMMO_PLASMABOLTERAMMO,
+	DND_TEMPAMMO_RIPPERCANNONAMMO
 };
 
-#define MAXTEMPAMMO DND_TEMPAMMO_PLASMABOLTERAMMO + 1
+#define MAXTEMPAMMO DND_TEMPAMMO_RIPPERCANNONAMMO + 1
 str TemporaryAmmos[MAXTEMPAMMO] = { 
 	"SawedoffShell",
 	"BladeHits", 
@@ -67,7 +56,8 @@ str TemporaryAmmos[MAXTEMPAMMO] = {
 	"DarkServantEnergy", 
 	"BigNail",
 	"BerettaAmmo",
-	"PlasmaBolterAmmo"
+	"PlasmaBolterAmmo",
+	"RipperCannonAmmo"
 };
 
 str TemporaryWeaponMsg[MAXTEMPWEPS] = { 
@@ -82,12 +72,13 @@ str TemporaryWeaponMsg[MAXTEMPWEPS] = {
 	"\ccWeapon Pickup : \c[Y5]Dark Servant Gloves - 9\c-",
 	"\ccWeapon Pickup : \c[Y5]Heavy Nailgun - 9\c-",
 	"\ccWeapon Pickup : \c[Y5]Akimbo Berettas - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Plasma Bolter - 9\c-"
+	"\ccWeapon Pickup : \c[Y5]Plasma Bolter - 9\c-",
+	"\ccWeapon Pickup : \c[Y5]Ripper Cannon - 9\c-"
 };
 
 bool HasNoTempWeapon() {
 	for(int i = 0; i < MAXTEMPWEPS; ++i)
-		if(!CheckInventory(TemporaryWeapons[i]))
+		if(!CheckInventory(TemporaryWeapons[i][TEMPWEP_NAME]))
 			return 1;
 	return 0;
 }

@@ -1059,6 +1059,13 @@ Actor PlasmaBolterAmmo : Ammo {
 	+IGNORESKILL
 }
 
+Actor RipperCannonAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 200
+	inventory.icon "TWP0Z0"
+	+IGNORESKILL
+}
+
 /*
 ==========================
 === SPECIAL AMMO TYPES ===

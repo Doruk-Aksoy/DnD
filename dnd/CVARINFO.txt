@@ -65,6 +65,8 @@ server int dnd_accessorylevel = 8;
 server int dnd_accessorymonsterlevel = 10;
 server int dnd_monster_hpscalepercent = 5;
 server int dnd_monster_rewardscalepercent = 5;
+
+server float dnd_monster_variation_factor = 1.5;
 server float dnd_researchdroprate = 0.01;
 server float dnd_monster_dmgscalepercent = 0.04;
 

@@ -6,6 +6,7 @@
 // applied as follows: X = spread of weapon, X * (1.0 - accuracy * factor_per_point), capped at 80 000 accuracy (80%)
 
 #define DND_ACCURACY_CAP 80000
+#define DND_ATTRIBUTEBONUS_CAP 1024
 
 enum {
 	INV_HP_INCREASE,
@@ -47,13 +48,46 @@ enum {
 	
 	INV_KNOCKBACK_RESIST,
 	INV_DAMAGEPERCENT_INCREASE,
-	INV_ACCURACY_INCREASE
+	INV_ACCURACY_INCREASE,
+	
+	INV_STAT_STRENGTH,
+	INV_STAT_DEXTERITY,
+	INV_STAT_BULKINESS,
+	INV_STAT_CHARISMA,
+	INV_STAT_VITALITY,
+	INV_STAT_INTELLECT,
+	
+	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
+	
+	INV_EX_DMGREDUCE_ELEM,
+	INV_EX_DMGREDUCE_PHYS,
+	INV_EX_CHANCE_CASTELEMSPELL,
+	INV_EX_KNOCKBACK_IMMUNITY,
+	INV_EX_DOUBLE_SMALLCHARM,
+	INV_EX_ALLSTATS,
+	INV_EX_CHANCE_HEALONPAIN,
+	INV_EX_DMGINCREASE_LIGHTNING,
+	INV_EX_ALWAYSCRIT_LIGHTNING,
+	INV_EX_DMGINCREASE_SHOTGUNS,
+	INV_EX_DOUBLE_HEALTHCAP,
+	INV_EX_DAMAGEPER_FLATHEALTH, // only 1%
+	INV_EX_FORBID_ARMOR,
+	INV_EX_BEHAVIOR_PELLETSFIRECIRCLE,
+	INV_EX_CHANCE_ONDEATH_RAISEZOMBIE,
+	INV_EX_DMGREDUCE_SHAREWITHPETS,
+	INV_EX_DMGINCREASE_TAKEN,
+	INV_EX_FLATDMG_ALL,
+	INV_EX_ONKILL_HEALPERCENT,
+	INV_EX_SOULWEPS_FULLDAMAGE,
+	INV_EX_PICKUPS_MORESOUL,
+	INV_EX_ABILITY_RALLY,
+	INV_EX_ABILITY_MONSTERSRIP
 };
 
 // attributes below last_inv (normal rollables) are exotic
-#define LAST_INV_ATTRIBUTE INV_ACCURACY_INCREASE
-#define UNIQUE_ATTRIB_BEGIN 
-#define LAST_UNIQUE_ATTRIBUTE 
+#define LAST_INV_ATTRIBUTE INV_STAT_INTELLECT
+#define UNIQUE_ATTRIB_BEGIN INV_EX_DMGREDUCE_ELEM
+#define UNIQUE_ATTRIB_END INV_EX_ABILITY_MONSTERSRIP
 #define MAX_INV_ATTRIBUTE_TYPES LAST_INV_ATTRIBUTE + 1
 
 typedef struct {
@@ -102,7 +136,15 @@ str Inv_Attribute_Names[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	" to knockback resist",
 	"% increased damage",
-	" to accuracy rating"
+	" to accuracy rating",
+	
+	
+	" to strength",
+	" to dexterity",
+	" to bulkiness",
+	" to charisma",
+	" to vitality",
+	" to intellect"
 };
 
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
@@ -145,9 +187,17 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 25, 100, 10 },
 	{ 1, 5, 2 },
-	{ 4, 125, 20 }
+	{ 4, 125, 20 },
+	
+	{ 1, 5, 2 },
+	{ 1, 5, 2 },
+	{ 1, 5, 2 },
+	{ 1, 5, 2 },
+	{ 1, 5, 2 },
+	{ 1, 5, 2 }
 };
 
+// keep here for now for ammo save chance
 #define MAX_MAGAZINES 24
 str WeaponMagazineList[MAX_MAGAZINES] = {
 	"SawedoffCounter",

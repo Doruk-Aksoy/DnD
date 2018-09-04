@@ -1,6 +1,11 @@
 #ifndef DND_INTERCEPT_IN
 #define DND_INTERCEPT_IN
 
+enum {
+	INTF_RANDOM = 1,
+	INTF_SETANGLE = 2
+};
+
 // old attempt of mine with intercept, not precise enough (1st iteration)
 /*
 	int target = GetActorProperty(0, APROP_TARGETTID);
@@ -47,7 +52,7 @@ int FixedAngMod(int fAngle) {
 	return fAngle;
 }
 
-int ProjInt_Brute(int spd, int ptid, int xoff, int yoff, int zoff, str ptype, int axoff, int ayoff, int azoff, int angoff, bool rand, int input_t) {
+int ProjInt_Brute(int spd, int ptid, int xoff, int yoff, int zoff, str ptype, int axoff, int ayoff, int azoff, int angoff, int flags, int input_t) {
 	int sX, sY, sZ, s_ang, p_ang;
 	int tX, tY, tZ, tVelX, tVelY, tVelZ;
 	int X_spd, Y_spd, Z_spd;
@@ -151,7 +156,7 @@ int ProjInt_Brute(int spd, int ptid, int xoff, int yoff, int zoff, str ptype, in
 	if(input_t) 
 		xoff = input_t; 
 	else {
-		if(rand) 
+		if(flags & INTF_RANDOM) 
 			random(1, zoff);
 		else 
 			xoff = zoff;
@@ -159,7 +164,7 @@ int ProjInt_Brute(int spd, int ptid, int xoff, int yoff, int zoff, str ptype, in
 	
 	temp = tX + FixedMul(xoff, tVelX);
 	yoff = tY + FixedMul(xoff, tVelY);
-	if(rand || input_t) {
+	if((flags & INTF_RANDOM) || input_t) {
 		Z_spd = FixedDiv(tZ + FixedMul(xoff, tVelZ) - sZ, zoff);
 		p_ang = VectorAngle(temp - sX, yoff - sY);
 		temp2 = FixedSqrt(sq(spd) - sq(Z_spd));
@@ -172,8 +177,9 @@ int ProjInt_Brute(int spd, int ptid, int xoff, int yoff, int zoff, str ptype, in
 		Y_spd = FixedDiv(yoff - sY, xoff);
 		p_ang = VectorAngle(temp - sX, yoff - sY); 
 	}
-
-	SetActorAngle(0, p_ang);
+	
+	if(flags & INTF_SETANGLE)
+		SetActorAngle(0, p_ang);
 
 	sZ += azoff;
 

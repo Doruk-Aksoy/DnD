@@ -26,6 +26,7 @@ ACTOR Cardinal : HalfMechanicalEnemy {
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	Tag "Dark Cardinal"
 	+QUICKTORETALIATE
 	+DONTHURTSPECIES   
@@ -250,7 +251,7 @@ ACTOR Cardinal_Rocket
 //====================
 Actor CardinalExp2 : BaseExplosionDamage
 {
-	DamageType "Cyber"
+	DamageType "CyberExp"
 	Obituary "%o was blessed by the dark cardinal."
 	States
 	{
@@ -458,6 +459,7 @@ ACTOR TerminatorX : HalfMechanicalEnemy {
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	DamageFactor "Lightning", 0.5
 	Tag "Terminator"
 	States { 
@@ -838,6 +840,7 @@ Actor Thamuz : Cyberdemon2 {
 	DamageFactor "CyberIce", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	Translation "1:2=247:247", "16:47=120:127", "48:72=90:111", "73:79=5:8", "128:140=101:111", "141:143=5:7", "144:151=5:7", "160:167=112:127", "169:191=119:127", "208:223=114:123", "224:231=112:113", "232:235=124:127", "236:239=247:247"
 	Tag "Thamuz"
 	States {
@@ -1214,7 +1217,7 @@ Actor DCBMiss3
 
 Actor ThamuzExp2 : BaseExplosionDamage
 {
-	DamageType "CyberGreen"
+	DamageType "CyberGreenExp"
 	Obituary "%o fell before Thamuz."
 	States
 	{
@@ -1314,6 +1317,7 @@ actor Azazel : DnD_BaseEnemy {
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	Tag "Azazel"
     MeleeDamage 8
     States {
@@ -1464,7 +1468,7 @@ Actor AzazelBoom : msxBarrelboom1
 //*************************************************
 Actor AzazelExp1 : BaseExplosionDamage
 {
-	DamageType "Cyber"
+	DamageType "CyberExp"
 	Obituary "%o was slaughtered by Azazel"
 	States
 	{
@@ -1925,6 +1929,7 @@ ACTOR HellsmithX : DnD_BaseEnemy {
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	DamageFactor "Fire", 0.0
 	DamageFactor "P_Ice", 1.5
 	DamageFactor "P_IceFull", 1.5
@@ -2634,6 +2639,7 @@ ACTOR AvatarOfChaos : MagicalEnemy {
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	DropItem "SoulAmmoSpawner", 128
 	Speed 15 
 	Scale 1.15
@@ -3208,6 +3214,7 @@ Actor SorcBallProjectileBase {
 	BounceCount 5
 	BounceSound "SorcererBallBounce"
     DeathSound "SorcererBigBallExplode"
+	DamageType "CyberMagic"
 }
 
 Actor SorcBall1Projectile : SorcBallProjectileBase {
@@ -3377,7 +3384,7 @@ ACTOR HolyMissile2 {
    Height 4
    Speed 22
    Damage (5 * random(8, 12) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-   DamageType "Cyber"
+   DamageType "CyberMagic"
    PROJECTILE
    Species "ThruDecor"
    +SEEKERMISSILE
@@ -3511,6 +3518,7 @@ Actor Thanatos : HalfMechanicalEnemy {
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	DamageFactor "Lightning", 1.5
 	+NOTARGET 
 	+FLOORCLIP 
@@ -3891,6 +3899,7 @@ actor Cerberus : DnD_BaseEnemy {
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
+	DamageFactor "CyberOrangeMagic", 0.0
 	DropItem "SoulAmmoSpawner", 128
 	MinMissileChance 32
 	Tag "Cerberus"

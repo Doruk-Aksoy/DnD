@@ -142,7 +142,7 @@ Actor RocketX : Rocket {
 	var int user_exprad;
 	States {
 		Death:
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
@@ -184,7 +184,7 @@ Actor NewRocket : RocketX
 			MICM A -1 Bright
 		Stop
 		Death:
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
@@ -304,7 +304,7 @@ Actor MercuryRocket : RocketX {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			HMMS C 12
 			TNT1 A 0 A_ChangeVelocity(velx * 2.75, vely * 2.75, velz * 2.75, CVF_REPLACE)
 		SpawnLoop:
@@ -928,7 +928,7 @@ Actor NormalGrenade
 			NGLP B 5 A_SpawnItem("GrenadeSmoke")
 		Loop
 		Death:
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
@@ -968,7 +968,7 @@ Actor NewGrenade : NormalGrenade
 			NGLP C 5 A_SpawnItem("GrenadeSmoke")
 		Loop
 		Death:
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
@@ -1093,7 +1093,7 @@ ACTOR HomRocket1
       HMIS A 2 Bright
       goto Spawn+2
    Death:
-	  TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+	  TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
       TNT1 A 0 A_SetTranslucent (0.75,1)
 	  TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 	  TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))

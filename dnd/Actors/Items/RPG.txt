@@ -233,9 +233,8 @@ Actor MenuMainPosY : Inventory {
 	inventory.maxamount 255
 }
 
-Actor ShowingMenu : Inventory { 
-	inventory.maxamount 255
-}
+Actor ShowingMenu : DnD_Boolean { }
+Actor ShowingMenu_CS : DnD_Boolean { }
 
 Actor DnD_SelectedCharmBox : Inventory {
 	inventory.maxamount 255
@@ -378,26 +377,6 @@ Actor DnD_ShowPopup : PowerDamage {
 
 Actor DnD_ShowSellPopup : PowerDamage {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.0
-}
-
-Actor DnD_ShowKillBonus : PowerDamage {
-	powerup.duration -6
-	damagefactor "normal", 1.0
-}
-
-Actor DnD_ShowItemBonus : PowerDamage {
-	powerup.duration -6
-	damagefactor "normal", 1.0
-}
-
-Actor DnD_ShowSecretBonus : PowerDamage {
-	powerup.duration -6
-	damagefactor "normal", 1.0
-}
-
-Actor DnD_ShowBonusBonus : PowerDamage {
-	powerup.duration -6
 	damagefactor "normal", 1.0
 }
 

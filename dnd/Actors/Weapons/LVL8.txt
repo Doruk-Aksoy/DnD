@@ -133,7 +133,7 @@ Actor VolcanoFireBall5Exp2 : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_Explode (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 128 * (1.0 + user_exprad * exprad_factor))
 			TNT1 A 1 A_Explode (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 128 * (1.0 + user_exprad * exprad_factor), 0)
 		Stop
@@ -417,7 +417,7 @@ Actor HellFireLinkFExp2 : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, 96 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, 96 * (1.0 + user_exprad * exprad_factor))
 		Stop
@@ -707,7 +707,7 @@ Actor HellFireTrailFExp : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 4 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 72 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 AAAA 5 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 72 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 AAA 4 A_Explode(random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 72 * (1.0 + user_exprad * exprad_factor), 0)
@@ -1795,7 +1795,7 @@ Actor SoulReaverExp1 : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 48 * (1.0 + user_exprad * exprad_factor), 0, 0, 48 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
@@ -1809,7 +1809,7 @@ Actor SoulReaverExp2 : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), 160 * (1.0 + user_exprad * exprad_factor), 0, 0, 160 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}

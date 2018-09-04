@@ -930,7 +930,7 @@ Actor Berserkerguy : UndeadEnemy {
 	PainSound "FancyZombie/pain"
 	DeathSound "FancyZombie/death"
 	ActiveSound "FancyZombie/Idle"
-	DropItem "MachinegunPickup_Drop"
+	DropItem "RipperCannonPickup"
 	Tag "Berserk Chaingunner"
 	Monster
 	+FloorClip

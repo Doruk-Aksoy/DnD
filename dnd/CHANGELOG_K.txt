@@ -11,6 +11,7 @@ LEGEND:
 
 ! Added charms and revamped inventory system! More on that below.
 ! Added new weapons: "Fusion Blaster", "Rebounder", "Rhino Assault Rifle", "Vindicator", "Desolator", "Hades Auto Shotgun", "Wheel of Torment", "Emerald Wand", "Death Ray".
+! Added a new temporary weapon: "Ripper Cannon".
 ! Added a new special ammo type: "Slug Shell".
 ! Added new researches: "Fusion Blaster", "Rebounder", "Hades Auto Shotgun", "Bio-Enhancement - I, II and III", "Exoskeleton I, II and III", "Impact Protection I, II and III", "Slug Shells", "Wheel of Torment".
 ! Added 3 new orbs: "Orb of Refinement", "Orb of Sculpting", "Orb of Elevation".
@@ -18,6 +19,7 @@ LEGEND:
 	- Every other item's chest drop rate is now 10%.
 ! Added a new player character: "Cyborg".
 ! Added a new CVar: "dnd_maxmonsterlevel" to help server hosts declare the max monster level. This CVar is unaffected by softcore or hardcore.
+! Added a new CVar: "dnd_monster_variation_factor" to help customize at what point in the game the harder variants of the monsters should show up. Default value is 1.5. (Can't be below 1.0 or higher than 5.0)
 ! "Heavy Missile Launcher" can now shoot non-homing missiles using the altfire.
 ! "Bulkiness" now increases armor cap by 4.
 ! "Strength" increases armor and health cap by 0.5% per point.
@@ -43,6 +45,7 @@ LEGEND:
 ! Chests now have a chance to drop "Elixirs"! These are pickups that permanently increase your stats.
 ! "Hardcore" mode now has 15% increased drop rates for any kind of drop.
 ! When you sell a weapon, all bonuses on it are lost.
+* "Explosive Shells" now requires either "Riot Gun" research or "Slot 3 Luxury" research to be made to be bought.
 * "Luck" stat now affects coin drops.
 * Coin messages won't display if their worth is below 25 credits anymore.
 * "Super Armor" research now requires "Rare Armors" research to be completed. 
@@ -51,6 +54,7 @@ LEGEND:
 * "Soul Render" blade charge is also saved to database now in hardcore/softcore modes.
 * Player pain sounds for "Marine", "Hobo" and "Punisher" now respect health ratios properly.
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
+* Hopefully fixed hud messages overlapping when you get map bonuses done.
 * Changed how footstep sounds are generated. They get faster and louder the faster you move.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
 * A small delay of 7 tics has been added to consecutive orb uses.
@@ -109,6 +113,7 @@ LEGEND:
 * Fixed a bug that caused "Lich Arm" to actually reduce damage of all weapons... oops.
 * Fixed a bug where "Occult Armor" wasn't increasing the damage of some weapons with "Nether Mask" equipped.
 * Added a few things to hopefully ensure "Demon Sealer" to properly seal monsters.
+* "Thunderstaff" now works properly against "Torrasque".
 * Changed grenade bouncing a bit.
 * "Nuclear Plasma Rifle" now properly overheats with "Hand of Artemis" equipped.
 * The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", "Shocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
@@ -154,6 +159,7 @@ LEGEND:
 + "Devastator 5000" fires 5 projectiles up from 4 and uses 5 ammo instead of 8.
 * "Devastator 5000" now uses its own ammo type. The ammo capacity is now 270 down from 300 of the old "Cell".
 - "Devastator 5000" rockets no longer clump together when aiming at an enemy.
+- "Devastator 5000" spread increased to 4.8x2.8 from 3.2x1.8.
 - "Railgun" price increased to 10000 from 7500.
 - "Gauss Rifle" price increased to 9500 from 7500.
 
@@ -252,18 +258,20 @@ The above includes moving it around in inventory, putting it to stash or putting
 
 ! Added new variants to "Imp", "Demon", "Chaingunner", "Arachnotron", "Hell Knight" and "Baron of Hell" categories.
 ! "RIPPER" type attacks now have 50% less damage scaling.
-+ All "Legendary" monsters have been buffed in terms of health, and some in terms of rate of fire.
+! New legendary monster: "Golgoth".
 * Hopefully fixed "Azazel" death sound not being global.
 * "Sludge Giant" splits now scale properly with level.
+* Fixed damage types on monsters that were either incorrect or were missing. (Armors that protect against such are more valuable now)
 * "Abomination" small shots no longer go through other Mancubus type monsters.
 * Added "MOVEWITHSECTOR" to "Hellsmith" hammer and "Terminator" debris.
-* Added missing comma at the end of "Hell's Fury" obituary.
-* Added missing commas to some monsters in "Arachnotron" tier.
+* Added missing dot at the end of "Hell's Fury" obituary.
+* Added missing dots to some monsters in "Arachnotron" tier.
 * "Warlord of Hell" now mentions the "Rage" property when monster scan is available.
-+ Increased hitbox of "Bloodseeker" fireballs to 16x16 from 12x8.
 * Reworked all minion summon methods to properly set master-child relations. (They properly use the summoner's level now)
 * "Blood Lich" minions spawned on death now give exp and credit.
 * "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.
++ All "Legendary" monsters have been buffed in terms of health, and some in terms of rate of fire.
++ Increased hitbox of "Bloodseeker" fireballs to 16x16 from 12x8.
 - "Bloodfiend" blood shot damage reduced to 2 - 12 from 2 - 16.
 - "Avatar of Chaos" no longer becomes ghostly during his soul attack.
 * "Bruiser Demon" now bleeds fire. (Only VFX)

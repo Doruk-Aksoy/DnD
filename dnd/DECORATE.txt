@@ -1,7 +1,6 @@
 const int SPECIAL_FX_TID = 32768;
 
 #include "Actors/Items/Base.txt"
-#include "Actors/Items/Aspect.txt"
 #include "Actors/Items/Keys.txt"
 #include "Actors/Items/Ammo.txt"
 #include "Actors/Items/Weapons.txt"

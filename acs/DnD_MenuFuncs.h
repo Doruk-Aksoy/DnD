@@ -464,7 +464,7 @@ void ShowOrbIcon(int id) {
 
 void ShowLegendaryMonsterIcon(int id, int j) {
 	SetFont(LegendaryMonsterIcons[id]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * id - 1, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
@@ -623,7 +623,7 @@ int GetShopPrice (int id, int priceflag) {
 			res *= 2 * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN]) / TALENT_SCALE_DOUBLER_MARK;
 	}
 	if(priceflag & PRICE_CHARISMAREDUCE) {
-		chr = CheckInventory("PSTAT_Charisma");
+		chr = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
 		if(chr > 100)
 			res -= res / 2 + (res * (chr - 100)) / (100 * CHARISMA_REDUCE_AFTER100);
 		else
@@ -1367,8 +1367,8 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 214.0, 174.0 }, // loadout 4
 			{ 289.0, 165.0, 245.0, 158.0 }, // loadout 5
 			{ 289.0, 149.0, 234.0, 142.0 }, // loadout 6
-			{ 289.0, 133.0, 195.0, 126.0 }, // loadout 7
-			{ 289.0, 117.0, 229.0, 110.0 }, // loadout 8
+			{ 289.0, 133.0, 222.0, 126.0 }, // loadout 7
+			{ 289.0, 117.0, 197.0, 110.0 }, // loadout 8
 			{ 289.0, 101.0, 229.0, 94.0 }, // loadout 9
 			{ -1, -1, -1, -1 }
 		},

@@ -408,6 +408,11 @@ Actor OccultArmor : BasicArmorPickup {
 	DamageFactor "BigSpiderVoid", 0.25
     DamageFactor "BigSpiderTornado", 0.25
     DamageFactor "BigSpiderPercent", 0.25
+	DamageFactor "CyberMagic", 0.25
+	DamageFactor "CyberOrangeMagic", 0.25
+	DamageFactor "DreamerBurner", 0.25
+	DamageFactor "LegendarySlow50", 0.25
+	DamageFactor "LegendaryWeaken75", 0.25
 	
 	inventory.icon "AR10A0"
 }
@@ -428,6 +433,7 @@ Actor DemoArmor : BasicArmorPickup {
 	DamageFactor "ArachnoExp", 0.25
 	DamageFactor "BigSpiderExp", 0.25
 	DamageFactor "CyberExp", 0.25
+	DamageFactor "CyberGreenExp", 0.25
 	
 	inventory.icon "AR11A0"
 }

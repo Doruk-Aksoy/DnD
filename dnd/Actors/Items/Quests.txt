@@ -20,7 +20,8 @@ enum {
 	QUEST_KILLDREAMINGGOD,
 	QUEST_KILLTORRASQUE,
 	QUEST_KILLMORDECQAI,
-	QUEST_KILLGODSLAYER
+	QUEST_KILLGODSLAYER,
+	QUEST_KILLGOLGOTH
 };
 
 Actor QuestCompletionToken : Inventory {
@@ -188,3 +189,25 @@ Actor DnD_QuestReward_MordecqaiBonus : PowerDamage {
 	powerup.duration 0x7FFFFFFF
 }
 Actor DnD_QuestReward_GodSlayerBonus : DnD_Boolean { }
+
+Actor DnD_QuestReward_GolgothBonus : PowerProtection { 
+	powerup.duration 0x7FFFFFFF
+	
+	// player sourced
+	damagefactor "Explosives", 0.85
+	damagefactor "ExplosivesFull", 0.85
+	damagefactor "Explosives_Magic", 0.85
+	damagefactor "Explosives_MagicFull", 0.85
+	
+	// monster sourced
+	damagefactor "Explosive", 0.85
+	DamageFactor "CacoExp", 0.85
+	DamageFactor "PaineExp", 0.85
+	DamageFactor "RevExp", 0.85
+	DamageFactor "BaronsExp", 0.85
+	DamageFactor "FattyExp", 0.85
+	DamageFactor "ArachnoExp", 0.85
+	DamageFactor "BigSpiderExp", 0.85
+	DamageFactor "CyberExp", 0.85
+	DamageFactor "CyberGreenExp", 0.85
+}

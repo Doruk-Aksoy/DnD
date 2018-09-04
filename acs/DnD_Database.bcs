@@ -518,6 +518,8 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_KNOCKBACKBONUS, char_id), pacc, Player_Bonuses[pnum].knockback_resist);
 	SetDBEntry(GetCharField(DND_DB_DAMAGEBONUS, char_id), pacc, Player_Bonuses[pnum].damage_percent);
 	SetDBEntry(GetCharField(DND_DB_ACCURACYBONUS, char_id), pacc, Player_Bonuses[pnum].accuracy);
+	for(i = 0; i < MAXATTRIBUTES; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_STATBONUS, char_id), d:i + 1), pacc, Player_Bonuses[pnum].stat_bonus[i]);
 	
 	// damage type bonuses
 	for(i = 0; i < MAX_TALENTS; ++i) {
@@ -965,6 +967,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	Player_Bonuses[pnum].knockback_resist = GetDBEntry(GetCharField(DND_DB_KNOCKBACKBONUS, char_id), pacc);
 	Player_Bonuses[pnum].damage_percent = GetDBEntry(GetCharField(DND_DB_DAMAGEBONUS, char_id), pacc);
 	Player_Bonuses[pnum].accuracy = GetDBEntry(GetCharField(DND_DB_ACCURACYBONUS, char_id), pacc);
+	for(i = 0; i < MAXATTRIBUTES; ++i)
+		Player_Bonuses[pnum].stat_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_STATBONUS, char_id), d:i + 1), pacc);
 	
 	for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
 		Player_Bonuses[pnum].slot_damage_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_SLOTDAMAGEBONUS, char_id), d:i), pacc);
@@ -1130,6 +1134,8 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_KNOCKBACKBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_DAMAGEBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCURACYBONUS, char_id), pacc, 0);
+	for(i = 0; i < MAXATTRIBUTES; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_STATBONUS, char_id), d:i + 1), pacc, 0);
 	
 	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, 0);

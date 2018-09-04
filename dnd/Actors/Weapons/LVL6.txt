@@ -446,7 +446,7 @@ Actor NewPlasmaExp1 : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6), 48 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6), 48 * (1.0 + user_exprad * exprad_factor))
 		Stop
@@ -458,7 +458,7 @@ Actor NewPlasmaExp2 : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_Explode(3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6) / 2, 48 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6) / 2, 48 * (1.0 + user_exprad * exprad_factor))
 		Stop
@@ -1207,7 +1207,7 @@ ACTOR BasiliskBall2 : Cacodemonball {
       BASF AB 3 Bright A_SpawnItemEx("BasiliskPuff",0,0,0,0,0,0,0,8)
       loop
    Death:
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET)
+	  TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
       TNT1 A 0 A_SetTranslucent(0.85, 1)
 	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -1240,7 +1240,7 @@ Actor BasiliskBall2_FullDMG : BasiliskBall2 {
 	DamageType "MagicFireFull"
     States {
     Death:
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET)
+	  TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
       TNT1 A 0 A_SetTranslucent(0.85, 1)
 	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -1288,7 +1288,7 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 	  HIB1 AB 3 Bright
       goto Spawn+3
    Death:
-      TNT1 A 0 ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET)
+      TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
       TNT1 A 0 A_SetTranslucent(0.75,1)
 	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 	  TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)

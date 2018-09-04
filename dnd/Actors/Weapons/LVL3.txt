@@ -914,7 +914,7 @@ Actor EmeraldDeathActor {
 	+THRUACTORS
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_PlaySound("EmeraldWand/Explode")
 			TNT1 AAAAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, frandom(-5, 5), frandom(-5, 5), frandom(-5, 5))
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3), 96 * (1.0 + user_exprad * exprad_factor), 0, 0, 64 * (1.0 + user_exprad * exprad_factor))
@@ -1623,7 +1623,7 @@ Actor HellsMawRocket {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 		SpawnLoop:
 			HLML A 1 Bright A_SpawnItemEx("HellsMawRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)
 			TNT1 A 0 A_CountDown
@@ -1697,7 +1697,7 @@ Actor HellsMawMiniRocket : HellsMawRocket {
 	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 		SpawnLoop:
 			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
 			TNT1 A 0 A_CountDown
@@ -1898,7 +1898,7 @@ Actor ExplodingPuff : BulletPuff
 	States
 	{
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 0 A_SpawnItem("ExpShellSoundEmitter")
 			TNT1 AA 0 A_SpawnDebris("ExplosiveSpark", 1)
 			DKSX M 2
@@ -1926,7 +1926,7 @@ Actor ExplodingPuffNoSelfDmg : ExplodingPuff
 	States
 	{
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 0 A_SpawnItem("ExpShellSoundEmitter")
 			TNT1 AA 0 A_SpawnDebris("ExplosiveSpark", 1)
 			DKSX A 2
@@ -2055,7 +2055,7 @@ Actor SlayerExp : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AA 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 108 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}
@@ -2071,7 +2071,7 @@ Actor SlayerExp2 : SlayerExp {
 	DamageType "Explosives_Magic"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 108 * (1.0 + user_exprad * exprad_factor), 0)
 			TNT1 A 7 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), 108 * (1.0 + user_exprad * exprad_factor))
 		Stop

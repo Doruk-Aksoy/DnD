@@ -559,7 +559,7 @@ ACTOR BladeSlash
    States
    {
    Spawn:
-	  TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+	  TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
       VFX4 A 1 Bright A_SpawnItem("SlashTrail",0,0)
       VFX4 A 0 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_MELEE, DND_ISOCCULT | DND_USETARGET | DND_ISSLOT9), 128 * (1.0 + user_exprad * exprad_factor), 0)
       VFX4 A 1 Bright A_SpawnItem("SlashTrail",0,0)
@@ -601,7 +601,7 @@ Actor BladeSlash_FullDMG : BladeSlash {
    States
    {
    Spawn:
-       TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+       TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
       VFX4 A 1 Bright A_SpawnItem("SlashTrail",0,0)
       VFX4 A 0 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3, TALENT_MELEE, DND_ISOCCULT | DND_USETARGET | DND_ISSLOT9), 128 * (1.0 + user_exprad * exprad_factor), 0)
       VFX4 A 1 Bright A_SpawnItem("SlashTrail",0,0)
@@ -2626,7 +2626,7 @@ Actor HeartAttackPuff : BulletPuff {
 		Stop
 		Spawn:
 		Melee:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AAAAA 0 A_SpawnDebris("ExplosiveSpark")
 			TNT1 A 0 A_PlaySound("Weapons/HeartBurn")
 			TNT1 A 0 A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT9))
@@ -2645,11 +2645,6 @@ Actor HeartAttackPuff_FullDMG : BulletPuff {
 }
 
 Actor HeartAttack : AkimboShooter_L {
-	+INVENTORY.ALWAYSPICKUP
-	+INVENTORY.AUTOACTIVATE
-	+INVENTORY.IGNORESKILL
-	+INVENTORY.UNDROPPABLE
-	-INVENTORY.INVBAR
 	states {
 	Use:
 		TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_HEARTAMMO, 1)
@@ -3083,7 +3078,7 @@ Actor DarkServantMissileBig {
 			FX18 BB 2 Bright A_SpawnItem("DarkServantMissile2Trail")
 		Loop
 		Death:
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner")
 			FX18 CDE 3 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT9), 128 * (1.0 + user_exprad * exprad_factor), 0)
@@ -4027,6 +4022,207 @@ Actor PlasmaBolterPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Plasma Bolter", 1)
 			TNT1 A 0 A_GiveToTarget("PlasmaBolterAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("PlasmaBolterMsg", 1)
+		stop
+	}
+}
+
+actor "Ripper Cannon" : Weapon {
+	Weapon.SelectionOrder 6666
+	Weapon.Slotnumber 9
+	Weapon.AmmoUse 0
+	Weapon.AmmoGive 0
+	Scale 0.8
+	Weapon.AmmoType "RipperCannonAmmo"
+	Obituary  "%o was ripped by %k's ripper."
+	Inventory.PickupMessage "Picked up a ripper."
+	+AMMO_OPTIONAL
+	Scale 0.65
+	+INVENTORY.UNDROPPABLE
+	Decal "BulletChip"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.3
+	Weapon.BobRangeX 0.65
+	States {
+		Remove:
+			TWP0 A 1 Offset(0, 40)
+			TWP0 A 1 Offset(0, 48)
+			TWP0 A 1 Offset(0, 56)
+			TWP0 A 1 Offset(0, 64)
+			TWP0 A 1 Offset(0, 72)
+			TWP0 A 1 Offset(0, 80)
+			TWP0 A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("RipperCannonAmmo", 1, "RiseBack")
+			TWP0 A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("RipperCannonAmmo", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("Ripper Cannon", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			TWP0 A 1 Offset(0, 88)
+			TWP0 A 1 Offset(0, 80)
+			TWP0 A 1 Offset(0, 72)
+			TWP0 A 1 Offset(0, 64)
+			TWP0 A 1 Offset(0, 56)
+			TWP0 A 1 Offset(0, 48)
+			TWP0 A 1 Offset(0, 40)
+		Goto Ready
+		Ready:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			TNT1 A 0 A_JumpIfInventory("RipperCannonAmmo", 1, "NoRemove")
+		Goto Remove
+		NoRemove:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			TWP0 A 1 A_WeaponReady
+		Goto Ready
+		Deselect:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TWP0 A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_RIPPERCANNON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 25)
+		SelectLoop:
+			TWP0 A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("RipperCannonAmmo", 1, "FireContinue")
+			TWP0 A 1
+		Goto Ready
+		FireContinue:
+			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*20,10,32+(sin(pitch)*20),0,8,random(4,8),0,0,0)
+			TNT1 A 0 A_PlaySound("Weapons/RipperFire")
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,5,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+		    TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-14.25, 14.25), 0, 0, frandom(-7.6, 7.6))
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_FireBullets(14.25, 7.6, -1, 0, "NewBulletPUff", 0, 4096)
+			TWP0 B 2 Bright A_GiveInventory("RipperCannonShooter", 1)
+		    TNT1 A 0 A_JumpIfInventory("RipperCannonAmmo", 1, "Cont2")
+		Goto FireEnd
+		Cont2:
+		    TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*20,10,32+(sin(pitch)*20),0,8,random(4,8),0,0,0)
+		    TNT1 A 0 A_PlaySound("Weapons/RipperFire")
+		    TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,5,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+		    TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-14.25, 14.25), 0, 0, frandom(-7.6, 7.6))
+		    TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_FireBullets(14.25, 7.6, -1, 0, "NewBulletPUff", 0, 4096)
+			TWP0 C 2 Bright A_GiveInventory("RipperCannonShooter", 1)
+		    TNT1 A 0 A_JumpIfInventory("RipperCannonAmmo", 1, "Cont3")
+		Goto FireEnd
+		Cont3:
+			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*20,10,32+(sin(pitch)*20),0,8,random(4,8),0,0,0)
+		    TNT1 A 0 A_PlaySound("Weapons/RipperFire")
+		    TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,5,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+		    TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-14.25, 14.25), 0, 0, frandom(-7.6, 7.6))
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_FireBullets(14.25, 7.6, -1, 0, "NewBulletPUff", 0, 4096)
+			TWP0 D 2 Bright A_GiveInventory("RipperCannonShooter", 1)
+			TWP0 E 2
+			TNT1 A 0 A_JumpIfInventory("RipperCannonAmmo", 1, "CheckRefire")
+		FireEnd:
+		    TWP0 F 3
+			TWP0 G 2
+		Goto Ready
+		CheckRefire:
+			TNT1 A 0
+			TNT1 A 0 A_Refire
+		Goto Ready
+		Flash:
+			TNT1 A 3 Bright A_Light1
+			TNT1 A 3 Bright A_Light0
+		Stop  
+		Spawn:
+			TWP0 X -1
+		Stop
+	}
+}
+
+Actor RipperCannonShooter : DnD_Activator {
+	states {
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_SMGAMMO, 1)
+			TNT1 A 0 A_TakeInventory("RipperCannonAmmo", 1)
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISSLOT9),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_Rail", 14.25 * (1.0 - accuracy * accuracy_factor), 7.6 * (1.0 - accuracy * accuracy_factor), 4096)
+		Stop
+		Full:
+			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0, TALENT_BALLISTIC, DND_ISSLOT9),0,0,"None","None",RGF_SILENT,0,"NewBulletPuff_RailFull", 14.25 * (1.0 - accuracy * accuracy_factor), 7.6 * (1.0 - accuracy * accuracy_factor), 4096)
+		Stop
+	}
+}
+
+Actor RipperCannonPickup : CustomInventory {
+	Radius 16
+	Height 24
+	Scale 0.8
+    Inventory.PickupSound "weapons/pickup"
+    Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Ripper Cannon - 9"	
+	States {
+		Spawn:
+			TWP0 X -1
+		Stop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_RIPPERCANNON), "Success")
+		Fail
+		Success:
+			TNT1 A 0 A_GiveInventory("Ripper Cannon", 1)
+			TNT1 A 0 A_GiveInventory("RipperCannonAmmo", random(15, 36) + ACS_ExecuteWithResult(918, 0, 1, random(15, 36)))
+			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
+		Stop
+		GiveMore:
+			TNT1 A 0 A_GiveInventory("RipperCannonAmmo", random(7, 18))
+		Stop
+	}
+}
+
+Actor RipperCannonMsg : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_RIPPERCANNON)
+			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
+Actor RipperCannonPickup_D : DND_DroppedItem {
+	Radius 16
+	Height 24
+	Scale 0.65
+	States {
+		Spawn:
+			TWP0 X 8
+		SpawnLoop:
+			TWP0 X 1 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 0, "CheckPickup")
+		Loop
+		
+		See:
+		CheckPickup:
+			TWP0 X 1 A_JumpIfCloser(32, "Pickup")
+		goto SpawnLoop
+
+		Pickup:
+			TWP0 X 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_RIPPERCANNON, 1), "PickupSuccess")
+		goto PickupFail
+
+		PickupFail:
+			TWP0 X 1
+		goto SpawnLoop
+
+		PickupSuccess:
+			TNT1 A 0 A_GiveToTarget("Ripper Cannon", 1)
+			TNT1 A 0 A_GiveToTarget("RipperCannonAmmo", mass)
+			TNT1 A 0 A_GiveToTarget("RipperCannonMsg", 1)
 		stop
 	}
 }

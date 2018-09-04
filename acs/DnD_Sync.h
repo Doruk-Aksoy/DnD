@@ -51,6 +51,13 @@ enum {
 	DND_SYNC_DAMAGEPERCENT,
 	DND_SYNC_ACCURACY,
 	
+	DND_SYNC_STATBONUS_STR,
+	DND_SYNC_STATBONUS_DEX,
+	DND_SYNC_STATBONUS_BUL,
+	DND_SYNC_STATBONUS_CHR,
+	DND_SYNC_STATBONUS_VIT,
+	DND_SYNC_STATBONUS_INT,
+	
 	DND_SYNC_WEPBONUS_CRIT,
 	DND_SYNC_WEPBONUS_CRITDMG,
 	DND_SYNC_WEPBONUS_CRITPERCENT,
@@ -306,6 +313,13 @@ int GetPlayerSyncValue(int pos, int extra, bool isOrb) {
 			return Player_Bonuses[pnum].damage_percent;
 			case DND_SYNC_ACCURACY:
 			return Player_Bonuses[pnum].accuracy;
+			case DND_SYNC_STATBONUS_STR:
+			case DND_SYNC_STATBONUS_DEX:
+			case DND_SYNC_STATBONUS_BUL:
+			case DND_SYNC_STATBONUS_CHR:
+			case DND_SYNC_STATBONUS_VIT:
+			case DND_SYNC_STATBONUS_INT:
+			return Player_Bonuses[pnum].stat_bonus[pos - DND_SYNC_STATBONUS_STR];
 		}
 	}
 	else {
@@ -670,6 +684,14 @@ void SetSyncValue(int pos, int val, int extra, bool isOrb) {
 			break;
 			case DND_SYNC_ACCURACY:
 				Player_Bonuses[pnum].accuracy = val;
+			break;
+			case DND_SYNC_STATBONUS_STR:
+			case DND_SYNC_STATBONUS_DEX:
+			case DND_SYNC_STATBONUS_BUL:
+			case DND_SYNC_STATBONUS_CHR:
+			case DND_SYNC_STATBONUS_VIT:
+			case DND_SYNC_STATBONUS_INT:
+				Player_Bonuses[pnum].stat_bonus[pos - DND_SYNC_STATBONUS_STR] = val;
 			break;
 		}
 	}

@@ -934,7 +934,7 @@ Actor BloodFX2A : WoTHitFX {
 			BLBA E 2 NoDelay A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon"), "SuperDamage")
 		Goto SkipDamage
 		SuperDamage:
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("BloodFXB", 0, 0, 0, frandom(-5, 5), 0, frandom(-5, 5), Frandom(0,360), SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_OCCULT, DND_USETARGET | DND_ISSLOT3), 160 * (1.0 + user_exprad * exprad_factor), 0, 0, 96 * (1.0 + user_exprad * exprad_factor))
 		SkipDamage:
@@ -1504,7 +1504,7 @@ Actor ShockerExplosion : BaseExplosionDamage {
 	var int user_exprad;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3), 96 * (1.0 + user_exprad * exprad_factor), 0, 0, 48 * (1.0 + user_exprad * exprad_factor))
 		Stop
 	}

@@ -6,8 +6,6 @@
 #include "DnD_Orbs.h"
 #include "DnD_ElitePow.h"
 
-#define MAXATTRIBUTES 6
-
 #define PRICE_CHARISMAREDUCE 2
 #define SHOP_SCALE_MAX 10
 
@@ -2325,19 +2323,21 @@ str HelpText_Main[MAX_HELPTEXT_MAIN] = {
 };
 
 // LegendaryKills
-#define MAX_LEGMONS_TEXT 4
+#define MAX_LEGMONS_TEXT 5
 str LegendaryMonsterText[MAX_LEGMONS_TEXT] = {
 	"\c[Y5]The Dreaming God\nThe evil entity known only as the \"Dreaming God\" wanders realms unknown to many for as long as the universe, or at least that's what we think. Research shows this creature is immune to any magical or elemental attack.",
 	"\c[Y5]Torrasque\nThis unwavering creature appears to be magically created by an immensely powerful wizard, long ago. Now it chose this realm to feast upon. We found that the creature is highly resistant to physical, energy and explosive attacks.",
 	"\c[Y5]Mordecqai\nOnce the great ruler of the \"Realm of Suffering\", now a wanderer to consume and gain powers of whatever creature comes its way. It seems to be completely immune to fire and explosive attacks.",
-	"\c[Y5]God Slayer\nA fearsome mech built by UAC to destroy the demonic menace, gone rogue by the evil powers of Hell. The robot will target only humans and has some interesting AI... Seems to be impervious to bullets. Explosives seem to do little, too."
+	"\c[Y5]God Slayer\nA fearsome mech built by UAC to destroy the demonic menace, gone rogue by the evil powers of Hell. The robot will target only humans and has some interesting AI... Seems to be impervious to bullets. Explosives seem to do little, too.",
+	"\c[Y5]Golgoth\nAncient as time, this malignant being seeks only to torture living beings to empower it's domain. Seems to have manifested itself on Earth this time... Research shows it's explosive immune and magic resistant."
 };
 
 str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 	"LEG_DRMR",
 	"LEG_TORR",
 	"LEG_MORD",
-	"LEG_GODS"
+	"LEG_GODS",
+	"LEG_GOLG"
 };
 
 #define DND_TRAIT1_STARTSHOW DND_EXPLOSIVE_RESIST_POW // first trait to show

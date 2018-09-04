@@ -99,9 +99,6 @@
 
 #define DND_BOSS_SOULGIVE 4
 
-bool Quest_Pick_Done = 0;
-bool PlayerCanLoad[MAXPLAYERS] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"
@@ -156,12 +153,16 @@ enum {
 	DND_STACKEDITEM_ELIXIR
 };
 
-int setplayer = 0;
-// see if map changed or not
-
-bool SomeoneDied = 0;
-
-int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
+#define DND_BONUS_SCREENTIME 6
+enum {
+	BONUS_KILL,
+	BONUS_ITEM,
+	BONUS_SECRET,
+	BONUS_BONUS,
+	BONUS_EXP_RATE = 5,
+	BONUS_CREDIT_RATE = 250,
+	BONUS_SECRET_RATE = 3,
+};
 									  
 str WeaponMsg[7] = 	{
 	"\ccWeapon Pickup : \c[Y5]Chainsaw - 1\c-",
@@ -273,7 +274,8 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Gloves of a dark servant. Can shoot pain enforcing lightning bolts doing 60-90 damage. Alt fire shoots a homing explosive lightning ball doing 120-180 damage on hit and 96 area damage over 9 tics. \ceTemporary Weapon.",
 	 "A nail-chaingun, quite useful for mass murder of demons. Shoots nails ripping for 16-32 damage. \ceTemporary Weapon.",
 	 "True classic, in akimbo fashion too! Shoots bullets doing 10-30 damage each. \ceTemporary Weapon.",
-	 "Can blast foes with plasma doing 24-40 damage with 35 explosion damage. Alt fire can shoot a ripping version of this same plasma. \ceTemporary Weapon."
+	 "Can blast foes with plasma doing 24-40 damage with 35 explosion damage. Alt fire can shoot a ripping version of this same plasma. \ceTemporary Weapon.",
+	 "Ripper fires penetrating rounds in a 14.2 and 7.6 spread each doing 25 damage. \ceTemporary Weapon."
 };					
 	
 #define MAX_SPREE_TEXT 20
@@ -308,6 +310,27 @@ str SpreeText[MAX_SPREE_TEXT] = {
 #define GOLDCHEST_DROPWEIGHT 50
 
 #define AMMODISPLAY_ID 1000
+
+bool Quest_Pick_Done = 0;
+bool PlayerCanLoad[MAXPLAYERS] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+
+// various states are checked using this, such as bonus states or player joins
+// don't add in between, add below!
+enum {
+	DND_STATECHECK_PLAYERJOIN,
+	DND_STATECHECK_KILLBONUS,
+	DND_STATECHECK_ITEMBONUS,
+	DND_STATECHECK_SECRETBONUS,
+	DND_STATECHECK_BONUSBONUS
+};
+
+#define MAX_STATES DND_STATECHECK_BONUSBONUS + 1
+int DnD_StateChecker[MAX_STATES];
+// see if map changed or not
+
+bool SomeoneDied = 0;
+
+int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 int CurrentLevelReward[MAXPLAYERS];
 int CurrentStatReward[MAXPLAYERS];
@@ -403,13 +426,10 @@ int CheckLevelUp (void) {
 }
 
 int DnD_BonusMessageY(int bonustype) {
-	int res = 50.1;
-	if(CheckInventory("DnD_ShowKillBonus") && bonustype > BONUS_KILL)
-		res += 16.0;
-	if(CheckInventory("DnD_ShowItemBonus") && bonustype > BONUS_ITEM)
-		res += 16.0;
-	if(CheckInventory("DnD_ShowSecretBonus") && bonustype > BONUS_SECRET)
-		res += 16.0;
+	int res = 34.1;
+	for(int i = DND_STATECHECK_KILLBONUS; i <= DND_STATECHECK_BONUSBONUS; ++i)
+		if(DnD_StateChecker[i])
+			res += 16.0;
 	return res;
 }
 
@@ -518,16 +538,6 @@ void CalculateMapDifficulty() {
 	SetInventory("MapDifficultyClientside", MapDifficulty);
 }
 
-enum {
-	BONUS_KILL,
-	BONUS_ITEM,
-	BONUS_SECRET,
-	BONUS_BONUS,
-	BONUS_EXP_RATE = 5,
-	BONUS_CREDIT_RATE = 250,
-	BONUS_SECRET_RATE = 3,
-};
-
 int CalculateBonus(int bonustype, int mdifficulty) {
 	if(bonustype == BONUS_KILL) {
 		// add 5% for each difficulty level
@@ -547,26 +557,26 @@ int CalculateBonus(int bonustype, int mdifficulty) {
 	return 1;
 }
 
-void ShowBonusMessage(int bonustype) {
+void ShowBonusMessage(int bonustype, int y) {
 	int bval = CalculateBonus(bonustype,CheckInventory("MapDifficultyClientside"));
 	SetHudSize(800, 600, 1);
 	SetFont("BIGFONT");
 	switch(bonustype) {
 		case BONUS_KILL:
 			LocalAmbientSound("RPG/KillBonus", 127);
-			HudMessage(s:"All monsters have been killed! ", d:bval, s:"% Exp bonus!"; HUDMSG_FADEINOUT, KILLBONUSID, CR_RED, 400.4, DnD_BonusMessageY(bonustype), 4.0, 1.0, 1.0);
+			HudMessage(s:"All monsters have been killed! ", d:bval, s:"% Exp bonus!"; HUDMSG_FADEINOUT, KILLBONUSID, CR_RED, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 		case BONUS_ITEM:
 			LocalAmbientSound("RPG/ItemBonus", 127);
-			HudMessage(s:"All items have been taken! ", d:bval, s:" Credits!"; HUDMSG_FADEINOUT, ITEMBONUSID, CR_GOLD, 400.4, DnD_BonusMessageY(bonustype), 4.0, 1.0, 1.0);
+			HudMessage(s:"All items have been taken! ", d:bval, s:" Credits!"; HUDMSG_FADEINOUT, ITEMBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 		case BONUS_SECRET:
 			LocalAmbientSound("RPG/SecretBonus", 127);
-			HudMessage(s:"All secrets have been found! ", d:bval, s:"k Budget!"; HUDMSG_FADEINOUT, SECRETBONUSID, CR_GOLD, 400.4, DnD_BonusMessageY(bonustype), 4.0, 1.0, 1.0);
+			HudMessage(s:"All secrets have been found! ", d:bval, s:"k Budget!"; HUDMSG_FADEINOUT, SECRETBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 		case BONUS_BONUS:
 			LocalAmbientSound("RPG/BonusBonus", 127);
-			HudMessage(s:"The entire map is toast! You're fully healed!"; HUDMSG_FADEINOUT, BONUSBONUSID, CR_GOLD, 400.4, DnD_BonusMessageY(bonustype), 4.0, 1.0, 1.0);
+			HudMessage(s:"The entire map is toast! You're fully healed!"; HUDMSG_FADEINOUT, BONUSBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 	}
 }
@@ -1014,12 +1024,12 @@ void HandleCharmLootDrop(bool isElite) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		#ifndef ISDEBUGBUILD
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_BASE_CHARMRATE + addchance))
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance))
 		#endif
 		#ifdef ISDEBUGBUILD
 			if(PlayerInGame(i))
 		#endif
-			SpawnCharm(i);
+			SpawnCharm(i, isElite);
 	}
 }
 
@@ -1085,4 +1095,16 @@ int GetWeaponSlotFromFlag(int flags) {
 		if(IsSet(flags, i))
 			return i;
 	return 0;
+}
+
+void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str toSpawn) {
+	ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, target);
+	GiveActorInventory(target, "ThunderStaffLightningFX_Spawner", 1);
+	SpawnForced(toSpawn, GetActorX(target), GetActorY(target), GetActorFloorZ(target) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
+	Thing_Damage2(target, dmg, dmgtype);
+	SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
+	SetPointer(AAPTR_TARGET, this);
+	SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
+	Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
+	SetActivator(this);
 }

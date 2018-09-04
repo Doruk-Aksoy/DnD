@@ -1,5 +1,6 @@
 // DnD Exclusive IDs
 
+const int DND_GOLGOTH_TID = 998;
 const int DND_TORRASQUE_TID = 999;
 
 enum {
@@ -58,7 +59,6 @@ enum {
     DND_GRAVEDIGGER,
     DND_DEVOURER,
     DND_NIGHTMAREDEMON,
-	DND_PHANTOM,
 
 	// Imp
     DND_DARKIMP1,
@@ -208,7 +208,8 @@ enum {
 	DND_DREAMER,
 	DND_TORRASQUE,
 	DND_MORDECQAI,
-	DND_GODSLAYER
+	DND_GODSLAYER,
+	DND_GOLGOTH
 };
 
 enum {

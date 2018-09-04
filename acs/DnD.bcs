@@ -511,7 +511,7 @@ Script "DND On Kill" KILL {
 		credtemp += credtemp * CheckInventory("MonsterLevel") * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
 	}
 	
-	ACS_NamedExecuteAlways("DND Show Kill Digits", 0, exptemp * expscale, credtemp * creditscale, haswisdom + 10 * hasgreed); // show the numbers
+	ACS_NamedExecuteAlways("DND Show Kill Digits", 0, exptemp * expscale, credtemp * creditscale); // show the numbers
 	
 	if(haswisdom) { // wisdom
 		exptemp *= 3;
@@ -600,12 +600,12 @@ Script "DND On Kill" KILL {
 		// drop coins if there should be
 		if(GetCVar("dnd_credit_drops")) {
 			// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
-			// addone is the chance here (reusing old variables)
 			HandleCashDrops(target - P_TIDSTART, pnum);
 		}
 
 		if(!GetCVar("dnd_allresearchesfound")) {
 			// make it less likely to drop
+			// addone is the chance here (reusing old variables)
 			addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
 			if(RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
 				SpawnResearch();
@@ -711,7 +711,7 @@ Script "DND On Kill" KILL {
 	}
 }
 
-Script "DND Show Kill Digits" (int exp, int credit, int hasstuff) CLIENTSIDE {
+Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	// spectators shouldn't see this
 	if(!PlayerInGame(ConsolePlayerNumber()))
 		Terminate;
@@ -762,8 +762,10 @@ Script 891 ENTER {
 		
 		// Bulkiness
 		if(CheckInventory("Armor")) {
-			if(CheckInventory("PSTAT_Bulkiness")) {
-				temp = CheckInventory("PSTAT_Bulkiness");
+			temp = GetBulkiness();
+			if(temp) {
+				// allow max of 200 bulkiness to work in here
+				temp = Clamp_Between(temp, 1, DND_STAT_FULLMAX);
 				if(temp > 100) {
 					temp -= 100;
 					SetActorProperty(0, APROP_DAMAGEFACTOR, 1.0 - DND_BULKINESS_GAIN * 100 - DND_BULKINESS_GAIN_AFTER100 * temp);
@@ -907,7 +909,7 @@ Script 895 ENTER CLIENTSIDE {
 Script 896 (void) {
 	int check = 0;
 	for(int i = 0; i < MAXTEMPWEPS; ++i)
-		if(CheckInventory(TemporaryWeapons[i])) {
+		if(CheckInventory(TemporaryWeapons[i][TEMPWEP_NAME])) {
 			check = 1;
 			break;
 		}
@@ -917,7 +919,7 @@ Script 896 (void) {
 Script 897 (void) {
 	int i = random(0, MAXTEMPWEPS - 1);
 	GiveInventory(TemporaryAmmos[i], 999);
-	SetWeapon(TemporaryWeapons[i]);
+	SetWeapon(TemporaryWeapons[i][TEMPWEP_NAME]);
 	LocalAmbientSound("weapons/pickup", 127);
 }
 
@@ -986,7 +988,7 @@ Script 905 (int mode) NET {
 			if(amt) {
 				int temptid = ActivatorTID() + P_TEMPTID;
 				GiveInventory("DropItemCooldown", 1);
-				SpawnForced(TemporaryWeaponDrops[curweap], GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
+				SpawnForced(TemporaryWeapons[curweap][TEMPWEP_DROP], GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
 				SetActorProperty(temptid, APROP_MASS, amt);
 				ThrustThing(GetActorAngle(0) >> 8, 16, 0, temptid);
 				ThrustThingZ(temptid, 8, 0, 0);
@@ -1206,7 +1208,7 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 		if(GetCVar("dnd_monsterscale")) {
 			GiveInventory("DontRun", 1);
 			// scaling code -- delay is because monsters are initialized before enter scripts are executed
-			while(setplayer < PlayerCount())
+			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
 				Delay(3);
 			base = GetActorProperty(0, APROP_HEALTH);
 			add = 0, level = 1, pcount;
@@ -1290,8 +1292,8 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
 			SetInventory("MonsterLevel", 1);
 		}
-		
-		if(GetCVar("dnd_enable_elites") && RollEliteChance() && total_level / pcount > GetCVar("dnd_elite_spawnlevel") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY)) {
+
+		if(GetCVar("dnd_enable_elites") && RollEliteChance() && total_level / pcount >= GetCVar("dnd_elite_spawnlevel") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY)) {
 			// hopefully people won't turn to elites?
 			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
 				Terminate;
@@ -1347,6 +1349,7 @@ Script 957 (int category) {
 		ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_LEGENDARYMONSTER);
 	}
 	else {
+		int factor = Clamp_Between(GetCVar("dnd_monster_variation_factor"), 1.0, 5.0);
 		while(!picked) {
 			roll = random(0, sum);
 			bin = 0;
@@ -1366,7 +1369,7 @@ Script 957 (int category) {
 				else {
 					// investigate later if the bias is proper
 					int m_level = Monster_Weights[category][bin] << 16;
-					int ratio = FixedDiv(Monster_Weights[category][0] << 16, m_level);
+					int ratio = FixedMul(factor, FixedDiv(Monster_Weights[category][0] << 16, m_level));
 					int bias = random(0, 1.5);
 					if(ratio <= bias + FixedDiv(GetGameLevelInfo(LEVEL_MAX) << 16, m_level)) {
 						SetActorState(0, StrParam(s:"Var", d:bin), true);
@@ -1561,6 +1564,7 @@ Script "DnD Bonus Detect" (void) {
 			
 			// if there was at least some bonus involved!
 			if(KillBonus && ItemBonus && SecretBonus && !BonusBonus && (KillBonus + ItemBonus + SecretBonus != 6)) {
+				Delay(4);
 				DistributeBonus(BONUS_BONUS);
 				BonusBonus = 1;
 			}
@@ -1569,9 +1573,19 @@ Script "DnD Bonus Detect" (void) {
 	}
 }
 
+Script "DnD Bonus Message State" (int bonustype) CLIENTSIDE {
+	for(int i = 0; i < DND_BONUS_SCREENTIME; ++i)
+		Delay(35);
+	DnD_StateChecker[bonustype + 1] = 0;
+};
+
 Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
-	Delay(5);
-	ShowBonusMessage(bonustype);
+	// add 1 to skip playerjoin state
+	DnD_StateChecker[bonustype + 1] = 1;
+	ACS_NamedExecuteAlways("DnD Bonus Message State", 0, bonustype);
+	Delay(3);
+	int y = DnD_BonusMessageY(bonustype);
+	ShowBonusMessage(bonustype, y);
 }
 
 Script 980 ENTER {
@@ -1786,9 +1800,9 @@ Script 986 (int wepnum, int type) {
 			if(CheckActorInventory(who, TemporaryAmmos[j]) == GetAmmoCapacity(TemporaryAmmos[j]))
 			  ++t;
 		}
-		else if(CheckActorInventory(who, TemporaryWeapons[i])) { // do I have any temp weapon
+		else if(CheckActorInventory(who, TemporaryWeapons[i][TEMPWEP_NAME])) { // do I have any temp weapon
 			if(!CheckActorInventory(who, TemporaryAmmos[j])) // hack to prevent a desync problem
-				TakeActorInventory(who, TemporaryWeapons[i], 1);
+				TakeActorInventory(who, TemporaryWeapons[i][TEMPWEP_NAME], 1);
 			else
 				++t;
 		}
@@ -2006,8 +2020,8 @@ Script 991 ENTER {
 	if(CheckInventory("Ability_Temporal") && !CheckInventory("TemporalSphere"))
         GiveInventory("TemporalSphere", 1);
 	
-	setplayer++;
-	if(setplayer == PlayerCount())
+	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
+	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] == PlayerCount())
 		MapChanged = 0;
 	if(PlayerInGame(pnum)) {
 		curlvl = GetStat(STAT_LVL);
@@ -2984,6 +2998,57 @@ Script "DND Thunderstaff Bolts" (int isfulldmg) {
 			}
 		}
 	}
+	// check golgoth and torrasque
+	if(CheckActorInventory(GOLGOTH_TID, "ThunderTarget") && IsActorAlive(GOLGOTH_TID)) {
+		dist = fdistance(0, GOLGOTH_TID);
+		// insert sorted
+		if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
+			temp = tcount;
+		else
+			temp = DND_THUNDERSTAFF_MAXTARGETS;
+		for(j = 0; j < temp; ++j) {
+			if(dist < tlist[j].dist) {
+				// push everything for insertion
+				for(k = temp - 1; k > j; --k) {
+					// slide data
+					tlist[k].dist = tlist[k - 1].dist;
+					tlist[k].tid = tlist[k - 1].tid;
+				}
+				break;				
+			}
+		}
+		if(!tcount || j < temp) {
+			// pos found, now add
+			tlist[j].dist = dist;
+			tlist[j].tid = GOLGOTH_TID;
+			++tcount;
+		}
+	}
+	else if(CheckActorInventory(TORRASQUE_TID, "ThunderTarget") && IsActorAlive(TORRASQUE_TID)) {
+		dist = fdistance(0, TORRASQUE_TID);
+		// insert sorted
+		if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
+			temp = tcount;
+		else
+			temp = DND_THUNDERSTAFF_MAXTARGETS;
+		for(j = 0; j < temp; ++j) {
+			if(dist < tlist[j].dist) {
+				// push everything for insertion
+				for(k = temp - 1; k > j; --k) {
+					// slide data
+					tlist[k].dist = tlist[k - 1].dist;
+					tlist[k].tid = tlist[k - 1].tid;
+				}
+				break;				
+			}
+		}
+		if(!tcount || j < temp) {
+			// pos found, now add
+			tlist[j].dist = dist;
+			tlist[j].tid = TORRASQUE_TID;
+			++tcount;
+		}
+	}
 	if(tcount) {
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[i].tid)
@@ -3055,57 +3120,30 @@ Script "DND Thunderstaff Lightning" (int isfulldmg) {
 	int tidlim = 0;
 	
 	for(i = DND_MONSTERTID_BEGIN; i < dnd_monster_tid; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i)) {
-			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
-			SpawnForced(toSpawn, GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
-			Thing_Damage2(i, dmg, dmgtype);
-			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
-			SetPointer(AAPTR_TARGET, this);
-			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
-			Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
-			SetActivator(this);
-		}
+		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
+			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
 	}
 	// clean this part later
 	tidlim = AVATAR_BASE_TID + AvatarTID;
 	for(i = AVATAR_BASE_TID; i < tidlim; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i)) {
-			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
-			SpawnForced(toSpawn, GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
-			Thing_Damage2(i, dmg, dmgtype);
-			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
-			SetPointer(AAPTR_TARGET, this);
-			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
-			Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
-			SetActivator(this);
-		}
+		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
+			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
 	}
 	tidlim = ZEALOT_BASE_TID + ZealotTID;
 	for(i = ZEALOT_BASE_TID; i < tidlim; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i)) {
-			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
-			SpawnForced(toSpawn, GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
-			Thing_Damage2(i, dmg, dmgtype);
-			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
-			SetPointer(AAPTR_TARGET, this);
-			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
-			Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
-			SetActivator(this);
-		}
+		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
+			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
 	}
 	tidlim = PURP_DEM_TID + PurpDemTID;
 	for(i = PURP_DEM_TID; i < tidlim; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i)) {
-			GiveActorInventory(i, "ThunderStaffLightningFX_Spawner", 1);
-			SpawnForced(toSpawn, GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
-			Thing_Damage2(i, dmg, dmgtype);
-			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
-			SetPointer(AAPTR_TARGET, this);
-			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
-			Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
-			SetActivator(this);
-		}
+		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
+			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
 	}
+	// Golgoth and Torrasque are special tid monsters
+	if(CheckActorInventory(GOLGOTH_TID, "ThunderStrike") && IsActorAlive(GOLGOTH_TID))
+		ThunderstaffLightningWork(GOLGOTH_TID, this, dmg, dmgtype, toSpawn);
+	else if(CheckActorInventory(TORRASQUE_TID, "ThunderStrike") && IsActorAlive(TORRASQUE_TID))
+		ThunderstaffLightningWork(TORRASQUE_TID, this, dmg, dmgtype, toSpawn);
 }
 
 Script "DND Thunder Range" (void) {

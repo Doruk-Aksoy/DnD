@@ -113,11 +113,17 @@ void AddAttributeToItem(int item_pos, int attrib) {
 }
 
 // monsters dropping charms
-void SpawnCharm(int pnum) {
+void SpawnCharm(int pnum, bool isElite) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
-		RollCharmInfo(c, RollItemLevel(), 1);
+		int addchance = 0;
+		if(isElite)
+			addchance = DND_ELITE_BASEDROP / 2;
+		if(RunDefaultDropChance(i, isElite, UNIQUE_DROPCHANCE + addchance))
+			MakeUnique(c, DND_ITEM_CHARM);
+		else
+			RollCharmInfo(c, RollItemLevel(), 1);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 	}

@@ -175,6 +175,7 @@ Actor GotGloves : DnD_Boolean { }
 Actor GotNailgun2 : DnD_Boolean { }
 Actor GotBerettas : DnD_Boolean { }
 Actor GotPlasmaBolter : DnD_Boolean { }
+Actor GotRipperCannon : DnD_Boolean { }
 
 Actor P_Slot1Replaced : DnD_Boolean { }
 Actor P_Slot2Replaced : DnD_Boolean { }
@@ -381,7 +382,7 @@ enum {
 Actor DnD_KillBonusShower : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_GiveInventory("DnD_ShowKillBonus", 1)
+			//TNT1 A 0 A_GiveInventory("DnD_ShowKillBonus", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Bonus Message Show", 0, BONUS_KILL)
 		Stop
 	}
@@ -390,7 +391,7 @@ Actor DnD_KillBonusShower : DnD_Activator {
 Actor DnD_ItemBonusShower : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_GiveInventory("DnD_ShowItemBonus", 1)
+			//TNT1 A 0 A_GiveInventory("DnD_ShowItemBonus", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Bonus Message Show", 0, BONUS_ITEM)
 		Stop
 	}
@@ -399,7 +400,7 @@ Actor DnD_ItemBonusShower : DnD_Activator {
 Actor DnD_SecretBonusShower : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_GiveInventory("DnD_ShowSecretBonus", 1)
+			//TNT1 A 0 A_GiveInventory("DnD_ShowSecretBonus", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Bonus Message Show", 0, BONUS_SECRET)
 		Stop
 	}
@@ -408,7 +409,7 @@ Actor DnD_SecretBonusShower : DnD_Activator {
 Actor DnD_BonusBonusShower : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_GiveInventory("DnD_ShowBonusBonus", 1)
+			//TNT1 A 0 A_GiveInventory("DnD_ShowBonusBonus", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Bonus Message Show", 0, BONUS_BONUS)
 		Stop
 	}

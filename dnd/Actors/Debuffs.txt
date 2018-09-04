@@ -26,3 +26,83 @@ Actor TorrasqueSnare : PowerSpeed {
 	powerup.duration 45
 	powerup.color "Gray" 0.15
 }
+
+ACTOR PowerHalfProtection : PowerProtection {
+    DamageFactor "Normal", 1.5
+}
+
+ACTOR PowerHalfSpeed : PowerSpeed {
+    Speed 0.5
+}
+
+Actor PowerLessDamage : PowerDamage {
+	DamageFactor "Normal", 0.3
+}
+
+Actor Stomp_Slower : PowerSpeed {
+	Speed 0.66
+	powerup.duration -4
+	powerup.color "44 44 44"
+}
+
+ACTOR PowerWeaken75 : PowerProtection {
+    DamageFactor "Normal", 1.75
+	powerup.color "60 15 45"
+}
+
+ACTOR PowerGolgothSlow : PowerHalfSpeed {
+	powerup.color "60 15 45"
+}
+
+ACTOR Cursed : PowerupGiver
+{
+    -INVENTORY.INVBAR
+    +INVENTORY.AUTOACTIVATE
+    Inventory.MaxAmount 0
+    Powerup.Color "Red2" 0.3
+    Powerup.Type "PowerHalfProtection"
+    Powerup.Duration 1050
+}
+
+ACTOR Cursed_Vile1 : PowerupGiver
+{
+    -INVENTORY.INVBAR
+    +INVENTORY.AUTOACTIVATE
+    Inventory.MaxAmount 0
+    Powerup.Color "88 16 88" 0.75
+    Powerup.Type "PowerHalfSpeed"
+    Powerup.Duration -5
+}
+
+ACTOR Cursed_Vile2 : PowerupGiver
+{
+    -INVENTORY.INVBAR
+    +INVENTORY.AUTOACTIVATE
+    Inventory.MaxAmount 0
+    Powerup.Type "PowerHalfProtection"
+    Powerup.Duration -5
+}
+
+Actor Cursed_Vile3 : PowerupGiver {
+    -INVENTORY.INVBAR
+    +INVENTORY.AUTOACTIVATE
+    Inventory.MaxAmount 0
+    Powerup.Type "PowerLessDamage"
+    Powerup.Duration 70
+}
+
+Actor LegendaryWeaken : PowerupGiver {
+    -INVENTORY.INVBAR
+    +INVENTORY.AUTOACTIVATE
+    Inventory.MaxAmount 0
+    Powerup.Type "PowerWeaken75"
+    Powerup.Duration -6
+}
+
+Actor LegendarySlow : PowerupGiver {
+    -INVENTORY.INVBAR
+    +INVENTORY.AUTOACTIVATE
+    Inventory.MaxAmount 0
+    Powerup.Type "PowerGolgothSlow"
+    Powerup.Duration 8
+}

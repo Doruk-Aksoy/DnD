@@ -5,6 +5,9 @@
 #include "DnD_CommonStat.h"
 #include "DnD_MonsterData.h"
 
+#define GOLGOTH_TID 998
+#define TORRASQUE_TID 999
+
 #define AVATAR_SOUL_TID 2000
 #define AVATAR_CUBE_TID 6000
 #define AVATAR_SOUL_COUNT 10
@@ -26,6 +29,17 @@
 #define DND_TORRASQUE_MACEID 800
 
 #define WARMASTER_DIST 288.0
+
+#define DND_GOLGOTH_YOFF1 43.7
+#define DND_GOLGOTH_YOFF2 39.1
+#define DND_GOLGOTH_ZOFF1 94.3
+#define DND_GOLGOTH_ZOFF2 69.0
+#define GOLGOTH_LASER_DENSITY 6
+#define GOLGOTH_ORANGESOUL_SPEED 18.0
+#define GOLGOTH_METEOR_SPEED 28.0
+#define GOLGOTH_METEOR_Z1 82.8
+#define GOLGOTH_METEOR_Z2 55.2
+#define GOLGOTH_METEOR_OFFSET 27.6
 
 typedef struct {
 	int time;
@@ -163,6 +177,54 @@ void DrawPentagram(int fx, int fy, int fz, int size, int alpha, int angle, int f
     DrawPentagramPart(fx, fy, fz, size, alpha, DP_AnglesGeneric[4] + angle, DP_AnglesGeneric[1] + angle, fxID);
     DrawPentagramPart(fx, fy, fz, size, alpha, DP_AnglesGeneric[1] + angle, DP_AnglesGeneric[3] + angle, fxID);
     DrawPentagramPart(fx, fy, fz, size, alpha, DP_AnglesGeneric[3] + angle, DP_AnglesGeneric[0] + angle, fxID);
+}
+
+void GolgothLaserTrail(int yoff, int zoff, int target, bool isFake) {
+	int oX = GetActorX(0);
+	int oY = GetActorY(0);
+	int oZ = GetActorZ(0) + 16.0;
+
+    int grX; int grY;  int grZ;
+    int vX;  int vY;   int vZ;
+    int nX;  int nY;   int nZ;
+    int bX;  int bY;   int bZ;
+    int magnitude;
+    int pointCount;
+    int pointOffset;
+    grX = GetActorX(target);
+    grY = GetActorY(target);
+    grZ = GetActorZ(target) + zoff;
+	
+    vX   = grX - oX;
+	vY   = grY - oY;
+	vZ   = grZ - oZ;
+	
+	// get vectorangle for the facing, we need this for relative
+	grX = GetActorAngle(target);
+	//vX += FixedMul(yoff, cos(grX));
+	vX += FixedMul(yoff, sin(grX));
+	vY -= FixedMul(yoff, cos(grX));
+	
+    magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
+    pointCount  = magnitude / GOLGOTH_LASER_DENSITY;
+    pointOffset = magnitude - (pointCount * GOLGOTH_LASER_DENSITY);
+
+    if (magnitude != 0) {
+        nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
+
+        int i; int j;
+        for (i = 1; i < pointCount; i++) {
+            j = (i * GOLGOTH_LASER_DENSITY) + pointOffset;
+            bX = (nX * j) + oX + FixedMul(random(-6.0, 6.0), sin(grX));
+            bY = (nY * j) + oY + FixedMul(random(-6.0, 6.0), cos(grX));
+            bZ = (nZ * j) + oZ + random(-6.0, 6.0);
+
+			if(isFake)
+				Spawn("GolgothRailFX_Tracer", bX, bY, bZ);
+			else
+				Spawn("GolgothRailFX", bX, bY, bZ);
+        }
+    }
 }
 
 #endif

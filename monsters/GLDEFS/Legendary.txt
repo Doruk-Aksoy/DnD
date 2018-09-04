@@ -253,3 +253,124 @@ object InquisitorShot2 {
     frame BNG2H { light INQSHOT_X8 }
     frame BNG2I { light INQSHOT_X9 }
 }
+
+pointlight GOLGOTHPINKLIGHT {
+	color 1.0 0.653 0.696
+	size 20
+}
+
+flickerlight GOLGOTHPINKLIGHT2 {
+	color 1.0 0.653 0.696
+	size 64
+	secondarysize 84
+	offset 0 48 0
+	chance 0.5
+}
+
+object GolgothPuff {
+	frame TNT1 { light GOLGOTHPINKLIGHT }
+}
+
+object GolgothPuff2 {
+	frame TNT1 { light GOLGOTHPINKLIGHT }
+}
+
+object GolgothFireBall {
+    frame HIB1AB { light BasiliskLight1 }
+	
+	frame HIB1C { light BasiliskLight2 }
+	frame HIB1D { light BasiliskLight3 }
+	frame HIB1E { light BasiliskLight4 }
+	frame HIB1F { light BasiliskLight5 }
+	frame HIB1G { light BasiliskLight5 }
+}
+
+Object GolgothFlames {	
+	Frame FRFX { Light FlameThrowerFire }
+}
+
+pulselight GolgothOrangeSoulLight {
+	color 0.875 0.725 0.0
+	size 18
+	secondarysize 40
+	interval 1.5
+}
+
+pointlight GolgothOrangeSoulLight1 {
+	color 0.875 0.725 0.0
+	size 52
+}
+
+pointlight GolgothOrangeSoulLight2 {
+	color 0.875 0.725 0.0
+	size 64
+}
+
+pointlight GolgothOrangeSoulLight3 {
+	color 0.875 0.725 0.0
+	size 40
+}
+
+pointlight GolgothOrangeSoulLight4 {
+	color 0.875 0.725 0.0
+	size 24
+}
+
+pointlight GolgothOrangeSoulLight5 {
+	color 0.875 0.725 0.0
+	size 12
+}
+
+object GolgothOrangeSoul {
+	frame MOMPJ { light GolgothOrangeSoulLight }
+	
+	frame MOMPK { light GolgothOrangeSoulLight1 }
+	frame MOMPL { light GolgothOrangeSoulLight2 }
+	frame MOMPM { light GolgothOrangeSoulLight3 }
+	frame MOMPN { light GolgothOrangeSoulLight4 }
+	frame MOMPO { light GolgothOrangeSoulLight5 }
+}
+
+flickerlight GolgothMeteorLight1 {
+	color 1.0 0.775 0.125
+	size 20
+	secondarysize 36
+	chance 0.5
+}
+
+pointlight GolgothMeteorLight2 {
+	color 1.0 0.775 0.125
+	size 40
+}
+
+pointlight GolgothMeteorLight3 {
+	color 1.0 0.775 0.125
+	size 34
+}
+
+pointlight GolgothMeteorLight4 {
+	color 1.0 0.775 0.125
+	size 28
+}
+
+pointlight GolgothMeteorLight5 {
+	color 1.0 0.775 0.125
+	size 22
+}
+
+pointlight GolgothMeteorLight6 {
+	color 1.0 0.775 0.125
+	size 16
+}
+
+object GolgothMeteor {
+	frame MOMPA { light GolgothMeteorLight1 }
+	frame MOMPB { light GolgothMeteorLight1 }
+	frame MOMPC { light GolgothMeteorLight1 }
+	
+	frame MOMPD { light GolgothMeteorLight2 }
+	frame MOMPE { light GolgothMeteorLight3 }
+	frame MOMPF { light GolgothMeteorLight4 }
+	frame MOMPG { light GolgothMeteorLight5 }
+	frame MOMPH { light GolgothMeteorLight6 }
+}

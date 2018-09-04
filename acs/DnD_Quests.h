@@ -27,7 +27,8 @@ quest_T Quest_List[MAX_QUESTS] = {
 		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_DreamingGodBonus"		},
 		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_TorrasqueBonus"		},
 		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_MordecqaiBonus"		},
-		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_GodSlayerBonus"		}
+		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_GodSlayerBonus"		},
+		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_GolgothBonus"			}
 };
 
 #define QUEST_NAME 0
@@ -143,6 +144,11 @@ str Quest_Description[MAX_QUESTS][3] = {
 			"GodSlayer",
 			"Find and kill GodSlayer.",
 			"Seal of GodSlayer. (Weapons never overheat)"
+		},
+		{
+			"Golgoth",
+			"Find and kill Golgoth.",
+			"Seal of Golgoth. (15% reduced damage from all explosives)"
 		}
 };
 
@@ -165,6 +171,7 @@ str Quest_Checkers[MAX_QUESTS] = {
 	"DnD_UsedNonTalent",
 	"DnD_UsedNonSpecial",
 	"DnD_MoneySpentQuest",
+	"DnD_Boolean",
 	"DnD_Boolean",
 	"DnD_Boolean",
 	"DnD_Boolean",

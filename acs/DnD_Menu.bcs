@@ -779,7 +779,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			k = 0;
 			for(i = 0; i < MAX_LEGMONS_TEXT; ++i) {
 				if(HasKilledLegendary(i)) {
-					HudMessage(s:LegendaryMonsterText[i]; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 112.1 + 144.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+					HudMessage(s:LegendaryMonsterText[i]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * i, CR_WHITE, 192.1, 112.1 + 144.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
 					ShowLegendaryMonsterIcon(i, k);
 					++k;
 				}

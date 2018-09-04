@@ -105,11 +105,6 @@ Actor ZombieBullet : ProjBullet {
 	}
 }
 
-Actor ZombieBullet_Pierce : ZombieBullet {
-	DamageType "BulletFull"
-	+PIERCEARMOR
-}
-
 Actor ZombieMan3 : Zombieman2 replaces Zombieman { }
 
 Actor Shotgunguy2 : DnD_Shotgunner { 

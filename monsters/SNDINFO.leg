@@ -64,4 +64,20 @@ GodSlayer/Land				GSLANDH
 GodSlayer/shrapnel1 		shrapnl1
 GodSlayer/shrapnel2 		shrapnl2
 GodSlayer/shrapnel3 		shrapnl3
-$RANDOM shrapnel { GodSlayer/shrapnel1 GodSlayer/shrapnel2 GodSlayer/shrapnel3 }
+$random shrapnel { GodSlayer/shrapnel1 GodSlayer/shrapnel2 GodSlayer/shrapnel3 }
+
+Golgoth/See					GOLGSEE
+Golgoth/Act1				GOLGACT1
+Golgoth/Act2				GOLGACT2
+$random Golgoth/Act { Golgoth/Act1 Golgoth/Act2 }
+Golgoth/Die					GOLGDIE
+Golgoth/Pain1				GOLGPN1	
+Golgoth/Pain2				GOLGPN2
+$random Golgoth/Pain { Golgoth/Pain1 Golgoth/Pain2 }
+Golgoth/FireCircle			GOLGFIRC
+Golgoth/Rail				GOLGRAIL
+Golgoth/RailLoop			GOLGRALL
+Golgoth/MeteorExplode		GOLGMETX
+Golgoth/FireCircleGo		GOLGFIRE
+$limit Golgoth/FireCircleGo 0
+Golgoth/Explode				GOLGEXP

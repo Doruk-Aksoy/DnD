@@ -1397,7 +1397,7 @@ void UndoCorruptOrbEffect() {
 			// try to give this temp weapon if only player doesn't have a temp wep
 			if(HasNoTempWeapon()) {
 				GiveInventory(TemporaryAmmos[Player_MostRecent_Orb[pnum].p_tempwep], Player_MostRecent_Orb[pnum].p_tempammo);
-				GiveInventory(TemporaryWeapons[Player_MostRecent_Orb[pnum].p_tempwep], 1);
+				GiveInventory(TemporaryWeapons[Player_MostRecent_Orb[pnum].p_tempwep][TEMPWEP_NAME], 1);
 			}
 		break;
 		case CORRUPTORB_TAKEHP:

@@ -219,24 +219,6 @@ void GiveActorCredit(int tid, int amt) {
 	GiveActorInventory(tid, "LevelCredit", amt);
 }
 
-int GetDexterity() {
-	int res = CheckInventory("PSTAT_Dexterity");
-	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
-		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
-	return res;
-}
-
-int GetIntellect() {
-	int res = CheckInventory("PSTAT_Intellect");
-	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
-		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
-	return res;
-}
-
-int GetStrength() {
-	return CheckInventory("PSTAT_Strength");
-}
-
 void CleanSharpEndPerks(int flags) {
 	int i;
 	// Take previous perk stuff
@@ -293,13 +275,13 @@ int CalculateArmorCapBonuses() {
 // used for displaying to hud
 int GetArmorCap(bool useMenuShow) {
 	// see if this DND_BASE_ARMOR_SHOW breaks anything -- breaks armor shards
-	int res = CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * CheckInventory("PSTAT_Bulkiness");
+	int res = CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * GetBulkiness();
 	if(useMenuShow)
 		res += DND_BASE_ARMOR_SHOW;
 	else
 		res += DND_BASE_ARMOR;
 	res += res * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
-	res += (res * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
+	res += (res * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	res += (res * GetResearchArmorBonuses()) / 100;
 	res += (res * Player_Bonuses[PlayerNumber()].armor_percent_bonus) / 100;
@@ -310,9 +292,9 @@ int GetArmorCap(bool useMenuShow) {
 int GetArmorSpecificCap(int amt) {
 	if(amt != 1) { 
 		// any other armor besides the armor bonuses
-		amt += CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * CheckInventory("PSTAT_Bulkiness");
+		amt += CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * GetBulkiness();
 		amt += amt * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
-		amt += (amt * CheckInventory("PSTAT_Strength") * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
+		amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 		amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 		amt += (amt * GetResearchArmorBonuses()) / 100;
 		amt += (amt * Player_Bonuses[PlayerNumber()].armor_percent_bonus) / 100;
@@ -571,8 +553,8 @@ void UpdatePerkStuff() {
 }
 
 void UpdatePlayerKnockbackResist() {
-	int bul = CheckInventory("PSTAT_Bulkiness");
-	int strgth = CheckInventory("PSTAT_Strength");
+	int bul = GetBulkiness();
+	int strgth = GetStrength();
 	
 	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS))
 		SetActorProperty(0, APROP_MASS, INT_MAX);
@@ -585,7 +567,7 @@ bool HasKilledLegendary(int id) {
 }
 
 void UpdateLegendaryKill(int pnum, int mon_id) {
-	SetActorInventory(pnum + P_TIDSTART, "LegendaryKills", CheckActorInventory(pnum + P_TIDSTART, "LegendaryKills") | (1 << mon_id));
+	SetActorInventory(pnum + P_TIDSTART, "LegendaryKills", SetBit(CheckActorInventory(pnum + P_TIDSTART, "LegendaryKills"), mon_id));
 }
 
 int GetPlayerWeaponEnchant(int pnum, int wepid) {

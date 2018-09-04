@@ -65,6 +65,7 @@
 #define DND_DB_KNOCKBACKBONUS "DnD_KnockbackBonus"
 #define DND_DB_DAMAGEBONUS "DnD_DamageBonus"
 #define DND_DB_ACCURACYBONUS "DnD_AccuracyBonus"
+#define DND_DB_STATBONUS "DnD_StatBonus_"
 
 #define DND_DB_ORBFLATHPBONUS "DnD_Orb_FlatHPBonus"
 #define DND_DB_ORBFLATARMBONUS "DnD_Orb_FlatARMBonus"

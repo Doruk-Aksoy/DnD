@@ -405,7 +405,7 @@ Actor ViperCrawler {
 	States {
 		Spawn:
 			C_H2 A 1 NoDelay A_SetUserVar("user_count", 0)
-			TNT1 A 0 A_SetUserVar(user_exprad, ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USEMASTER | DND_SETMASTER))
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USEMASTER | DND_SETMASTER))
 			TNT1 A 0 A_PlaySound("ViperStaff/Viper")
 			TNT1 A 0 ThrustThing(angle * 256 / 360, 18, 0, 0)
 			TNT1 A 0 ThrustThingZ(0, 30, 0, 0)
