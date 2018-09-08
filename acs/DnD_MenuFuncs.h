@@ -38,11 +38,11 @@ void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
 }
 
 int CalculateWisdomBonus(int pnum) {
-	return Player_Bonuses[PlayerNumber()].wisdom_percent_bonus + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1) + CheckInventory("Perk_Wisdom") * BASE_WISDOM_GAIN;
+	return GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1) + CheckInventory("Perk_Wisdom") * BASE_WISDOM_GAIN;
 }
 
 int CalculateGreedBonus(int pnum) {
-	return Player_Bonuses[PlayerNumber()].greed_percent_bonus + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1) + CheckInventory("Perk_Greed") * BASE_WISDOM_GAIN;
+	return GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1) + CheckInventory("Perk_Greed") * BASE_WISDOM_GAIN;
 }
 
 str CurrentWeapon() {
@@ -259,7 +259,7 @@ int GetBonusDamageDisplay(int pnum, int wep) {
 }
 
 int GetDamageTypeBonus(int pnum, int dtype) {
-	return Player_Bonuses[pnum].damage_type_bonus[dtype] + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
+	return MapTalentToPercentBonus(pnum, dtype) + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
 }
 
 int GetWeaponPage(int boxid) {
@@ -618,9 +618,9 @@ int GetShopPrice (int id, int priceflag) {
 		res = ShopInfo[id][SHOPINFO_PRICE] * shop_scale;
 	res = ShopScale(res, id);
 	if(GetItemType(id) == TYPE_TALENT) {
-		res += TALENT_COST_INCREASE * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN]) * shop_scale;
-		if(CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN]) >= TALENT_SCALE_DOUBLER_MARK)
-			res *= 2 * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN]) / TALENT_SCALE_DOUBLER_MARK;
+		res += TALENT_COST_INCREASE * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_NAME]) * shop_scale;
+		if(CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_NAME]) >= TALENT_SCALE_DOUBLER_MARK)
+			res *= 2 * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_NAME]) / TALENT_SCALE_DOUBLER_MARK;
 	}
 	if(priceflag & PRICE_CHARISMAREDUCE) {
 		chr = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
@@ -845,7 +845,7 @@ void DrawToggledImage(int itemid, int onposy, int objectflag, int offcolor, int 
 			}
 			else if(objectflag & OBJ_TALENT) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"* ", s:"Increases damage of ", s:TalentTypeNames[onposy], s:" weapons by \cf", f:GetMenuTalentBonus(onposy), s:"%\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"* ", s:"Increases damage of ", s:TalentNames[onposy][TALENT_TAG], s:" weapons by \cf", f:GetMenuTalentBonus(onposy), s:"%\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(objectflag & OBJ_ARMOR) {
@@ -910,11 +910,11 @@ void ResetWeaponStats(int wepid) {
 	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt = 0;
 	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt = 0;
 	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_DMG].amt = 0;
-	SyncClientsideVariable(DND_SYNC_WEAPONENHANCE, wepid, DND_SYNC_NONORB);
-	SyncClientsideVariable(DND_SYNC_WEPBONUS_CRIT, wepid, DND_SYNC_NONORB);
-	SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITDMG, wepid, DND_SYNC_NONORB);
-	SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITPERCENT, wepid, DND_SYNC_NONORB);
-	SyncClientsideVariable(DND_SYNC_WEPBONUS_DMG, wepid, DND_SYNC_NONORB);
+	SyncClientsideVariable_Orb(DND_SYNC_WEAPONENHANCE, wepid);
+	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRIT, wepid);
+	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, wepid);
+	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, wepid);
+	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, wepid);
 }
 
 // will process item selections depending on given valid range
@@ -2526,15 +2526,43 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source);
-			if(val > 0)
-				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
-			else
-				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
+			HudMessage(s:ItemAttributeString(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
 		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	else if(itype > UNIQUE_BEGIN) {
+		temp = itype & 0xFFFF;
+		itype >>= UNIQUE_BITS;
+		--itype;
+		// itype holds unique position, temp is the actual item type
+		HudMessage(s:"\c[A1]", s:UniqueItemNames[itype]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
+		// itype will count the skipped properties (the helper attributes)
+		itype = 0;
+		for(j = 0; j < i; ++j) {
+			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
+			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
+			if(val > 0) {
+				// dont show this, skip to next attribute's detail
+				if(temp == INV_EX_CHANCE) {
+					++j;
+					++itype;
+					HudMessage(s:ExoticAttributeString(temp, val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+				}
+				else
+					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+			}
+			else if(!val) {
+				// unique item doesn't have numeric attribute to show
+				HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+			}
+			else
+				HudMessage(s:"- ", s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+		}
 	}
 }
 
@@ -2752,7 +2780,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 					else // grand charm replacement
 						charm_type = DND_CHARM_LARGE;
 					--charm_sel;
-					if(topboxid != -1 && PlayerInventoryList[pnum][topboxid].item_type == DND_ITEM_CHARM) {
+					if(topboxid != -1 && (PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) == DND_ITEM_CHARM) {
 						if(MakeCharmUsed(charm_sel, topboxid, charm_type)) {
 							LocalAmbientSound("Items/CharmDrop", 127);
 							TakeInventory("DnD_InventoryView", 1);
@@ -2792,8 +2820,17 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			charm_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			if(charm_sel != -1) {
 				LocalAmbientSound("Items/CharmDrop", 127);
+				// if this item was wellofpower, we must take item features from all small charms (they keep their normal values)
+				if(Charms_Used[pnum][boxid - 1].item_subtype == DND_CHARM_LARGE && (Charms_Used[pnum][boxid - 1].item_type >> 16) - 1 == UITEM_WELLOFPOWER) {
+					// repeat this step early so we don't take double the amount by accident (we need to take double amounts when well of power is equipped and we take off a small charm so)
+					TakeInventory("StatbuffCounter_DoubleSmallCharm", 1);
+					if(!CheckInventory("StatbuffCounter_DoubleSmallCharm"))
+						SetInventory("IATTR_StatusBuffs_1", ClearBit(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM));
+				}
 				RemoveItemFeatures(boxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED);
 				MoveItemTrade(boxid - 1, charm_sel, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				// force a damage cache recalc
+				ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 			}
 			else
 				ShowPopup(POPUP_NOSPOTFORITEM, false, 0);
@@ -3597,11 +3634,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
-			if(val > 0)
-				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
-			else
-				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
-		}
+			HudMessage(s:ItemAttributeString(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) + GetInventoryInfoOffset(itype);
@@ -3632,6 +3665,37 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 			else
 				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q2]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 8, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
+		}
+	}
+	else if(itype > UNIQUE_BEGIN) {
+		temp = itype & 0xFFFF;
+		itype >>= UNIQUE_BITS;
+		--itype;
+		// itype holds unique position, temp is the actual item type
+		HudMessage(s:"\c[A1]", s:UniqueItemNames[itype]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
+		// itype will count the skipped properties (the helper attributes)
+		itype = 0;
+		for(j = 0; j < i; ++j) {
+			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
+			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
+			if(val > 0) {
+				// dont show this, skip to next attribute's detail
+				if(temp == INV_EX_CHANCE) {
+					++j;
+					++itype;
+					HudMessage(s:ExoticAttributeString(temp, val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+				}
+				else
+					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+			}
+			else if(!val) {
+				// unique item doesn't have numeric attribute to show
+				HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+			}
+			else
+				HudMessage(s:"- ", s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
 }

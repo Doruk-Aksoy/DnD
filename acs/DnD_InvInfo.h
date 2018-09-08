@@ -7,7 +7,11 @@
 // only orbs
 #define MAX_CRAFTITEMTYPES 2
 
-#define AIF_ONLYEXOTIC 1
+enum {
+	DND_INVCATEGORY_WORN,
+	DND_INVCATEGORY_CHARM
+};
+#define MAX_INVENTORY_CATEGORIES DND_INVCATEGORY_CHARM + 1
 
 enum {
 	DND_ITEM_NULL,
@@ -54,9 +58,6 @@ typedef struct it {
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
 } inventory_T;
-
-#define DND_SYNC_NONORB 0
-#define DND_SYNC_ORB 1
 
 // The following are seperated to fitting categories, they are used this way in many places
 enum {

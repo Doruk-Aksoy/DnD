@@ -1,0 +1,47 @@
+Actor StatbuffCounter_KnockbackImmunity : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_DoubleSmallCharm : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_AlwaysCritLightning : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_PelletsInCircle : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_ForbidArmor : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_PainSharedWithPets : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_SoulWepsDoFullDamage : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_SlainMonstersRIP : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}

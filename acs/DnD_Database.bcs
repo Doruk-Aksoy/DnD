@@ -371,13 +371,13 @@ void SavePlayerData(int pnum, int char_id) {
 	// save talents (8 bits per talent, can save 4 talents in one int)
 	temp = 0;
 	for(i = 0; i < 4; ++i)
-		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i])) << (8 * i);
+		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i][TALENT_NAME])) << (8 * i);
 	// send temp over
 	SetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc, temp);
 	
 	temp = 0;
 	for(i = 4; i < MAX_TALENTS; ++i)
-		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i])) << (8 * (i - 4));
+		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i][TALENT_NAME])) << (8 * (i - 4));
 	SetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc, temp);
 	
 	// save exp, credit and level (when loading give expvisual, amt = exp % levelcurve[level])
@@ -494,43 +494,6 @@ void SavePlayerData(int pnum, int char_id) {
 	// save stored medkit
 	SetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc, CheckActorInventory(tid, "StoredMedkit"));
 	
-	// save player stat bonuses from sources besides orbs
-	SetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc, Player_Bonuses[pnum].hp_flat_bonus);
-	SetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc, Player_Bonuses[pnum].armor_flat_bonus);
-	SetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc, Player_Bonuses[pnum].hp_percent_bonus);
-	SetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc, Player_Bonuses[pnum].armor_percent_bonus);
-	SetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc, Player_Bonuses[pnum].greed_percent_bonus);
-	SetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc, Player_Bonuses[pnum].wisdom_percent_bonus);
-	SetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc, Player_Bonuses[pnum].speed_bonus);
-	SetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc, Player_Bonuses[pnum].drop_chance);
-	SetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc, Player_Bonuses[pnum].holding);
-	SetDBEntry(GetCharField(DND_DB_LUCKBONUS, char_id), pacc, Player_Bonuses[pnum].luck);
-	SetDBEntry(GetCharField(DND_DB_MAGAZINEBONUS, char_id), pacc, Player_Bonuses[pnum].magazine_increase);
-	SetDBEntry(GetCharField(DND_DB_PELLETBONUS, char_id), pacc, Player_Bonuses[pnum].pellet_increase);
-	SetDBEntry(GetCharField(DND_DB_EXPLOSIONRADIUSBONUS, char_id), pacc, Player_Bonuses[pnum].explosion_radius);
-	SetDBEntry(GetCharField(DND_DB_EXPLOSIONRESISTBONUS, char_id), pacc, Player_Bonuses[pnum].explosion_resist);
-	SetDBEntry(GetCharField(DND_DB_AMMOGAINBONUS, char_id), pacc, Player_Bonuses[pnum].ammo_gain);
-	SetDBEntry(GetCharField(DND_DB_AMMOCHANCEBONUS, char_id), pacc, Player_Bonuses[pnum].ammo_chance);
-	SetDBEntry(GetCharField(DND_DB_REGENCAPBONUS, char_id), pacc, Player_Bonuses[pnum].regen_cap);
-	SetDBEntry(GetCharField(DND_DB_CRITCHANCEBONUS, char_id), pacc, Player_Bonuses[pnum].crit_chance);
-	SetDBEntry(GetCharField(DND_DB_CRITPERCENTBONUS, char_id), pacc, Player_Bonuses[pnum].crit_percent);
-	SetDBEntry(GetCharField(DND_DB_CRITDAMAGEBONUS, char_id), pacc, Player_Bonuses[pnum].crit_damage);
-	SetDBEntry(GetCharField(DND_DB_KNOCKBACKBONUS, char_id), pacc, Player_Bonuses[pnum].knockback_resist);
-	SetDBEntry(GetCharField(DND_DB_DAMAGEBONUS, char_id), pacc, Player_Bonuses[pnum].damage_percent);
-	SetDBEntry(GetCharField(DND_DB_ACCURACYBONUS, char_id), pacc, Player_Bonuses[pnum].accuracy);
-	for(i = 0; i < MAXATTRIBUTES; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_STATBONUS, char_id), d:i + 1), pacc, Player_Bonuses[pnum].stat_bonus[i]);
-	
-	// damage type bonuses
-	for(i = 0; i < MAX_TALENTS; ++i) {
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_DAMAGETYPEBONUS, char_id), d:i), pacc, Player_Bonuses[pnum].damage_type_bonus[i]);
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_FLATDAMAGEBONUS, char_id), d:i), pacc, Player_Bonuses[pnum].flat_damage_bonus[i]);
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i));
-	}
-	
-	for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_SLOTDAMAGEBONUS, char_id), d:i), pacc, Player_Bonuses[pnum].slot_damage_bonus[i]);
-	
 	// bonuses from orbs
 	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1));
 	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1));
@@ -541,6 +504,20 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_SPEED, -1));
 	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1));
 	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HOLDING, -1));
+	
+	// bonuses from elixirs
+	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATHPBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].hp_flat_bonus);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATARMORBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].armor_flat_bonus);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTHPBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].hp_percent_bonus);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTARMORBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].armor_percent_bonus);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].speed_bonus);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].luck);
+	
+	// damage type bonuses
+	for(i = 0; i < MAX_TALENTS; ++i) {
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i));
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, Player_Elixir_Bonuses[pnum].damage_type_bonus[i]);
+	}
 	
 	SavePlayerInventoryStuff(pnum, char_id, tid, pacc, DND_PINVFLAGS_ALL);
 }
@@ -826,13 +803,13 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read talents
 	temp = GetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc);
 	for(i = 0; i < 4; ++i) {
-		SetInventory(TalentNames[i], temp & 0xFF);
+		SetInventory(TalentNames[i][TALENT_NAME], temp & 0xFF);
 		temp >>= 8;
 	}
 	
 	temp = GetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc);
 	for(i = 4; i < MAX_TALENTS; ++i) {
-		SetInventory(TalentNames[i], temp & 0xFF);
+		SetInventory(TalentNames[i][TALENT_NAME], temp & 0xFF);
 		temp >>= 8;
 	}
 	
@@ -943,40 +920,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
 	SetInventory("StoredMedkit", temp);
 	
-	// read player stat bonuses from orbs and other sources
-	Player_Bonuses[pnum].hp_flat_bonus = GetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc);
-	Player_Bonuses[pnum].armor_flat_bonus = GetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc);
-	Player_Bonuses[pnum].hp_percent_bonus = GetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc);
-	Player_Bonuses[pnum].armor_percent_bonus = GetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc);
-	Player_Bonuses[pnum].greed_percent_bonus = GetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc);
-	Player_Bonuses[pnum].wisdom_percent_bonus = GetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc);
-	Player_Bonuses[pnum].speed_bonus = GetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc);
-	Player_Bonuses[pnum].drop_chance = GetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc);
-	Player_Bonuses[pnum].holding = GetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc);
-	Player_Bonuses[pnum].luck = GetDBEntry(GetCharField(DND_DB_LUCKBONUS, char_id), pacc);
-	Player_Bonuses[pnum].magazine_increase = GetDBEntry(GetCharField(DND_DB_MAGAZINEBONUS, char_id), pacc);
-	Player_Bonuses[pnum].pellet_increase = GetDBEntry(GetCharField(DND_DB_PELLETBONUS, char_id), pacc);
-	Player_Bonuses[pnum].explosion_radius = GetDBEntry(GetCharField(DND_DB_EXPLOSIONRADIUSBONUS, char_id), pacc);
-	Player_Bonuses[pnum].explosion_resist = GetDBEntry(GetCharField(DND_DB_EXPLOSIONRESISTBONUS, char_id), pacc);
-	Player_Bonuses[pnum].ammo_gain = GetDBEntry(GetCharField(DND_DB_AMMOGAINBONUS, char_id), pacc);
-	Player_Bonuses[pnum].ammo_chance = GetDBEntry(GetCharField(DND_DB_AMMOCHANCEBONUS, char_id), pacc);
-	Player_Bonuses[pnum].regen_cap = GetDBEntry(GetCharField(DND_DB_REGENCAPBONUS, char_id), pacc);
-	Player_Bonuses[pnum].crit_chance = GetDBEntry(GetCharField(DND_DB_CRITCHANCEBONUS, char_id), pacc);
-	Player_Bonuses[pnum].crit_percent = GetDBEntry(GetCharField(DND_DB_CRITPERCENTBONUS, char_id), pacc);
-	Player_Bonuses[pnum].crit_damage = GetDBEntry(GetCharField(DND_DB_CRITDAMAGEBONUS, char_id), pacc);
-	Player_Bonuses[pnum].knockback_resist = GetDBEntry(GetCharField(DND_DB_KNOCKBACKBONUS, char_id), pacc);
-	Player_Bonuses[pnum].damage_percent = GetDBEntry(GetCharField(DND_DB_DAMAGEBONUS, char_id), pacc);
-	Player_Bonuses[pnum].accuracy = GetDBEntry(GetCharField(DND_DB_ACCURACYBONUS, char_id), pacc);
-	for(i = 0; i < MAXATTRIBUTES; ++i)
-		Player_Bonuses[pnum].stat_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_STATBONUS, char_id), d:i + 1), pacc);
-	
-	for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
-		Player_Bonuses[pnum].slot_damage_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_SLOTDAMAGEBONUS, char_id), d:i), pacc);
-	
 	// damage type bonuses
 	for(i = 0; i < MAX_TALENTS; ++i) {
-		Player_Bonuses[pnum].damage_type_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_DAMAGETYPEBONUS, char_id), d:i), pacc);
-		Player_Bonuses[pnum].flat_damage_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_FLATDAMAGEBONUS, char_id), d:i), pacc);
+		Player_Elixir_Bonuses[pnum].damage_type_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc);
 		SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc));
 	}
 
@@ -990,6 +936,14 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetDataToOrbBonus(pnum, OBI_SPEED, -1, GetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc));
 	SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, GetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc));
 	SetDataToOrbBonus(pnum, OBI_HOLDING, -1, GetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc));
+	
+	// load bonuses from elixirs
+	Player_Elixir_Bonuses[pnum].hp_flat_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRFLATHPBONUS, char_id), pacc);
+	Player_Elixir_Bonuses[pnum].armor_flat_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRFLATARMORBONUS, char_id), pacc);
+	Player_Elixir_Bonuses[pnum].hp_percent_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTHPBONUS, char_id), pacc);
+	Player_Elixir_Bonuses[pnum].armor_percent_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTARMORBONUS, char_id), pacc);
+	Player_Elixir_Bonuses[pnum].speed_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc);
+	Player_Elixir_Bonuses[pnum].luck = GetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc);
 	
 	// Restoration steps
 	RestoreRPGStat(RES_PLAYERSPEED);
@@ -1056,7 +1010,7 @@ void LoadPlayerData(int pnum, int char_id) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
 		}
 		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-			ApplyItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED, AIF_ONLYEXOTIC);
+			ApplyItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	}
 	// sync all of charms used
 	SyncAllItemData(DND_SYNC_ITEMSOURCE_CHARMUSED);
@@ -1111,32 +1065,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);
 	
-	SetDBEntry(GetCharField(DND_DB_FLATHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_FLATARMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_PERCENTHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_PERCENTARMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_GREEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_WISDOMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_SPEEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_DROPCHANCEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_HOLDINGBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_LUCKBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_MAGAZINEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_PELLETBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_EXPLOSIONRADIUSBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_EXPLOSIONRESISTBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_AMMOGAINBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_AMMOCHANCEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_REGENCAPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_CRITCHANCEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_CRITPERCENTBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_CRITDAMAGEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_KNOCKBACKBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_DAMAGEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ACCURACYBONUS, char_id), pacc, 0);
-	for(i = 0; i < MAXATTRIBUTES; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_STATBONUS, char_id), d:i + 1), pacc, 0);
-	
+	// orbs
 	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, 0);
@@ -1146,6 +1075,14 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, 0);
+	
+	// elixirs
+	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATHPBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATARMORBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTHPBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTARMORBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc, 0);
 	
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, 0);
@@ -1163,7 +1100,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	
 	// damage type bonuses
 	for(i = 0; i < MAX_TALENTS; ++i) {
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_DAMAGETYPEBONUS, char_id), d:i), pacc, 0);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
 	}
 	

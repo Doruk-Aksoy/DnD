@@ -299,24 +299,24 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * (GetDropChance(pnum, 0) - 1.0)), s:"%\c- drop chance"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, temp + 128.0, 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:CalculateWisdomBonus(pnum), s:"%\c- exp bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, temp + 144.0, 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:CalculateGreedBonus(pnum), s:"%\c- credit bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 192.1, temp + 160.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].magazine_increase, s:"%\c- magazine cap"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 192.1, temp + 176.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].pellet_increase, s:"%\c- more pellets"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 192.1, temp + 192.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].explosion_radius, s:"%\c- explosion radius"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 192.1, temp + 208.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].explosion_resist, s:"%\c- self explosive resist"; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, temp + 224.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].ammo_chance, s:"%\c- chance to gain ammo back on firing"; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 192.1, temp + 240.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].ammo_gain, s:"%\c- more ammo from pickups"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 192.1, temp + 256.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].regen_cap, s:"\c- to your regen cap"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 192.1, temp + 272.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].knockback_resist, s:"\c- knockback resist"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 192.1, temp + 288.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].damage_percent, s:"%\c- increased damage"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 192.1, temp + 304.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].accuracy, s:"\c- accuracy rating"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 192.1, temp + 320.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_MAGAZINE_INCREASE), s:"%\c- magazine cap"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 192.1, temp + 176.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE), s:"%\c- more pellets"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 192.1, temp + 192.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS), s:"%\c- explosion radius"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 192.1, temp + 208.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), s:"%\c- self explosive resist"; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, temp + 224.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE), s:"%\c- chance to gain ammo back on firing"; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 192.1, temp + 240.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE), s:"%\c- more ammo from pickups"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 192.1, temp + 256.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE), s:"\c- to your regen cap"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 192.1, temp + 272.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST), s:"\c- knockback resist"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 192.1, temp + 288.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE), s:"%\c- increased damage"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 192.1, temp + 304.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE), s:"\c- accuracy rating"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 192.1, temp + 320.0, 0.0, 0.0);
 		
 			for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i) {
-				HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentTypeNames[i], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 22 - 2 * i, CR_WHITE, 192.1, temp + 336.0 + 32.0 * i, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].flat_damage_bonus[i], s:"\c- to ", s:TalentTypeNames[i], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - 23 - 2 * i, CR_WHITE, 192.1, temp + 352.0 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentNames[i][TALENT_TAG], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 22 - 2 * i, CR_WHITE, 192.1, temp + 336.0 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:MapTalentToFlatBonus(pnum, i), s:"\c- to ", s:TalentNames[i][TALENT_TAG], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - 23 - 2 * i, CR_WHITE, 192.1, temp + 352.0 + 32.0 * i, 0.0, 0.0);
 			}
 			j = 2 * (DND_TALENT_END - 1);
 			for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
-				HudMessage(s:"+ \c[Q9]", d:Player_Bonuses[pnum].slot_damage_bonus[i], s:"%\c- damage bonus to slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 25 - j - i, CR_WHITE, 192.1, temp + 368.0 + 16.0 * (j + i), 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + i), s:"%\c- damage bonus to slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 25 - j - i, CR_WHITE, 192.1, temp + 368.0 + 16.0 * (j + i), 0.0, 0.0);
 			
 			j += MAX_WEAPON_SLOTS;
 			if(GetCVar("survival")) {
@@ -418,13 +418,13 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		else if(curopt == MENU_LOAD3) {
 			HudMessage(s:"--- Talents Acquired ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			for(i = 0; i < MAX_TALENTS; ++i) {
-				toshow = TalentTypeNames[i];
+				toshow = TalentNames[i][TALENT_TAG];
 				HudMessage(s:"\c[Y5]", s:toshow, s:" Talent:"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 184.1, 64.0 + 16.0 * i, 0.0, 0.0);
 				if(i != TALENT_OCCULT)
 					j = DND_DEX_GAIN * GetDexterity();
 				else
 					j = DND_INT_GAIN * GetIntellect();
-				HudMessage(f:ftrunc((DND_TALENT_INCREASE + j) * CheckInventory(TalentNames[i])), s:"% (\cd", d:CheckInventory(TalentNames[i]), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - i - MAX_TALENTS - 2, CR_WHITE, 448.2, 64.0 + 16.0 * i, 0.0, 0.0);
+				HudMessage(f:ftrunc((DND_TALENT_INCREASE + j) * CheckInventory(TalentNames[i][TALENT_NAME])), s:"% (\cd", d:CheckInventory(TalentNames[i][TALENT_NAME]), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - i - MAX_TALENTS - 2, CR_WHITE, 448.2, 64.0 + 16.0 * i, 0.0, 0.0);
 			}
 		}
 		else if(curopt == MENU_LOAD_INVENTORY) {
@@ -624,7 +624,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 			
 			for(i = 0; i < MAX_TALENTS; ++i)
-				DrawToggledImage(SHOP_TALENT_BEGIN + i, i, OBJ_TALENT, CR_WHITE, CR_GREEN, TalentNames[i], TALENT_CAP, CR_RED);
+				DrawToggledImage(SHOP_TALENT_BEGIN + i, i, OBJ_TALENT, CR_WHITE, CR_GREEN, TalentNames[i][TALENT_NAME], TALENT_CAP, CR_RED);
 		}
 		else if(curopt == MENU_SHOP_ARMOR1) {
 			HudMessage(s:"--- ARMORS (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -971,22 +971,26 @@ Script "DND Menu Input Handle" (void) {
 						TakeInventory("AttributePoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						UpdatePlayerKnockbackResist();
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_2 && CheckInventory("PSTAT_Dexterity") < cur_stat_max) { // dex
 						GiveInventory("PSTAT_Dexterity", temp);
 						TakeInventory("AttributePoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_3 && CheckInventory("PSTAT_Bulkiness") < cur_stat_max) { // bul
 						GiveInventory("PSTAT_Bulkiness", temp);
 //						GiveInventory("MaxArmorBonusNew", 2);
 						TakeInventory("AttributePoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_4 && CheckInventory("PSTAT_Charisma") < cur_stat_max) { // chr
 						GiveInventory("PSTAT_Charisma", temp);
 						TakeInventory("AttributePoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_5 && CheckInventory("PSTAT_Vitality") < cur_stat_max) { // vit
 						GiveInventory("PSTAT_Vitality", temp);
@@ -994,11 +998,13 @@ Script "DND Menu Input Handle" (void) {
 						SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 						TakeInventory("AttributePoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_6 && CheckInventory("PSTAT_Intellect") < cur_stat_max) { // int
 						GiveInventory("PSTAT_Intellect", temp);
 						TakeInventory("AttributePoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 				}
 				SetInventory("MadeChoice", 0);
@@ -1039,6 +1045,7 @@ Script "DND Menu Input Handle" (void) {
 						CleanSharpEndPerks(RES_PERK_SHARP);
 						UpdateSharpEndPerks(RES_PERK_SHARP);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_2 && CheckInventory("Perk_Endurance") < DND_PERK_MAX) { // end
 						GiveInventory("Perk_Endurance", temp);
@@ -1046,42 +1053,50 @@ Script "DND Menu Input Handle" (void) {
 						CleanSharpEndPerks(RES_PERK_ENDURANCE);
 						UpdateSharpEndPerks(RES_PERK_ENDURANCE);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_3 && CheckInventory("Perk_Wisdom") < DND_PERK_MAX) { // wisdom
 						GiveInventory("Perk_Wisdom", temp);
 						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_4 && CheckInventory("Perk_Greed") < DND_PERK_MAX) { // greed
 						GiveInventory("Perk_Greed", temp);
 						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_5 && CheckInventory("Perk_Medic") < DND_PERK_MAX) { // medic
 						GiveInventory("Perk_Medic", temp);
 						SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
 						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_6 && CheckInventory("Perk_Munitionist") < DND_PERK_MAX) { // munitionist
 						GiveInventory("Perk_Munitionist", temp);
 						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
                     else if(boxid == MBOX_7 && CheckInventory("Perk_Deadliness") < DND_PERK_MAX) { // deadliness
                         GiveInventory("Perk_Deadliness", temp);
 						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_8 && CheckInventory("Perk_Savagery") < DND_PERK_MAX) { // savagery
                         GiveInventory("Perk_Savagery", temp);
 						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_9 && CheckInventory("Perk_Luck") < DND_PERK_MAX) { // luck
 						GiveInventory("Perk_Luck", temp);
 						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 				}
 				SetInventory("MadeChoice", 0);

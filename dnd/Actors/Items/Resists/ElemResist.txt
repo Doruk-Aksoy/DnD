@@ -1,0 +1,3199 @@
+Actor ElementalResist_1 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.99
+	damagefactor "ImpFire", 0.99
+	damagefactor "CacoFire", 0.99
+	damagefactor "CacoPoison", 0.99
+	damagefactor "ImpPoison_Vulgar", 0.99
+	damagefactor "ImpPoison_Roach", 0.99
+	damagefactor "PaineFire", 0.99
+	damagefactor "PainePoison", 0.99
+	damagefactor "RevIce", 0.99
+	damagefactor "RevSludge", 0.99
+	damagefactor "RevPoison_Crawler", 0.99
+	damagefactor "BaronsPoison", 0.99
+	damagefactor "BaronsFire", 0.99
+	damagefactor "BaronGreen", 0.99
+	damagefactor "BaronGreenFire", 0.99
+	damagefactor "FattyFire", 0.99
+	damagefactor "FattyIce", 0.99
+	damagefactor "ArachnoFire", 0.99
+	damagefactor "VileFire", 0.99
+	damagefactor "VileBlue", 0.99
+	damagefactor "VileBlueFire", 0.99
+	damagefactor "BigSpiderFire", 0.99
+	damagefactor "BigSpiderIce", 0.99
+	damagefactor "CyberFire", 0.99
+	damagefactor "CyberLightning", 0.99
+	damagefactor "CyberIce", 0.99
+}
+
+Actor ElementalResist_2 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.98
+	damagefactor "ImpFire", 0.98
+	damagefactor "CacoFire", 0.98
+	damagefactor "CacoPoison", 0.98
+	damagefactor "ImpPoison_Vulgar", 0.98
+	damagefactor "ImpPoison_Roach", 0.98
+	damagefactor "PaineFire", 0.98
+	damagefactor "PainePoison", 0.98
+	damagefactor "RevIce", 0.98
+	damagefactor "RevSludge", 0.98
+	damagefactor "RevPoison_Crawler", 0.98
+	damagefactor "BaronsPoison", 0.98
+	damagefactor "BaronsFire", 0.98
+	damagefactor "BaronGreen", 0.98
+	damagefactor "BaronGreenFire", 0.98
+	damagefactor "FattyFire", 0.98
+	damagefactor "FattyIce", 0.98
+	damagefactor "ArachnoFire", 0.98
+	damagefactor "VileFire", 0.98
+	damagefactor "VileBlue", 0.98
+	damagefactor "VileBlueFire", 0.98
+	damagefactor "BigSpiderFire", 0.98
+	damagefactor "BigSpiderIce", 0.98
+	damagefactor "CyberFire", 0.98
+	damagefactor "CyberLightning", 0.98
+	damagefactor "CyberIce", 0.98
+}
+
+Actor ElementalResist_3 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.97
+	damagefactor "ImpFire", 0.97
+	damagefactor "CacoFire", 0.97
+	damagefactor "CacoPoison", 0.97
+	damagefactor "ImpPoison_Vulgar", 0.97
+	damagefactor "ImpPoison_Roach", 0.97
+	damagefactor "PaineFire", 0.97
+	damagefactor "PainePoison", 0.97
+	damagefactor "RevIce", 0.97
+	damagefactor "RevSludge", 0.97
+	damagefactor "RevPoison_Crawler", 0.97
+	damagefactor "BaronsPoison", 0.97
+	damagefactor "BaronsFire", 0.97
+	damagefactor "BaronGreen", 0.97
+	damagefactor "BaronGreenFire", 0.97
+	damagefactor "FattyFire", 0.97
+	damagefactor "FattyIce", 0.97
+	damagefactor "ArachnoFire", 0.97
+	damagefactor "VileFire", 0.97
+	damagefactor "VileBlue", 0.97
+	damagefactor "VileBlueFire", 0.97
+	damagefactor "BigSpiderFire", 0.97
+	damagefactor "BigSpiderIce", 0.97
+	damagefactor "CyberFire", 0.97
+	damagefactor "CyberLightning", 0.97
+	damagefactor "CyberIce", 0.97
+}
+
+Actor ElementalResist_4 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.96
+	damagefactor "ImpFire", 0.96
+	damagefactor "CacoFire", 0.96
+	damagefactor "CacoPoison", 0.96
+	damagefactor "ImpPoison_Vulgar", 0.96
+	damagefactor "ImpPoison_Roach", 0.96
+	damagefactor "PaineFire", 0.96
+	damagefactor "PainePoison", 0.96
+	damagefactor "RevIce", 0.96
+	damagefactor "RevSludge", 0.96
+	damagefactor "RevPoison_Crawler", 0.96
+	damagefactor "BaronsPoison", 0.96
+	damagefactor "BaronsFire", 0.96
+	damagefactor "BaronGreen", 0.96
+	damagefactor "BaronGreenFire", 0.96
+	damagefactor "FattyFire", 0.96
+	damagefactor "FattyIce", 0.96
+	damagefactor "ArachnoFire", 0.96
+	damagefactor "VileFire", 0.96
+	damagefactor "VileBlue", 0.96
+	damagefactor "VileBlueFire", 0.96
+	damagefactor "BigSpiderFire", 0.96
+	damagefactor "BigSpiderIce", 0.96
+	damagefactor "CyberFire", 0.96
+	damagefactor "CyberLightning", 0.96
+	damagefactor "CyberIce", 0.96
+}
+
+Actor ElementalResist_5 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.95
+	damagefactor "ImpFire", 0.95
+	damagefactor "CacoFire", 0.95
+	damagefactor "CacoPoison", 0.95
+	damagefactor "ImpPoison_Vulgar", 0.95
+	damagefactor "ImpPoison_Roach", 0.95
+	damagefactor "PaineFire", 0.95
+	damagefactor "PainePoison", 0.95
+	damagefactor "RevIce", 0.95
+	damagefactor "RevSludge", 0.95
+	damagefactor "RevPoison_Crawler", 0.95
+	damagefactor "BaronsPoison", 0.95
+	damagefactor "BaronsFire", 0.95
+	damagefactor "BaronGreen", 0.95
+	damagefactor "BaronGreenFire", 0.95
+	damagefactor "FattyFire", 0.95
+	damagefactor "FattyIce", 0.95
+	damagefactor "ArachnoFire", 0.95
+	damagefactor "VileFire", 0.95
+	damagefactor "VileBlue", 0.95
+	damagefactor "VileBlueFire", 0.95
+	damagefactor "BigSpiderFire", 0.95
+	damagefactor "BigSpiderIce", 0.95
+	damagefactor "CyberFire", 0.95
+	damagefactor "CyberLightning", 0.95
+	damagefactor "CyberIce", 0.95
+}
+
+Actor ElementalResist_6 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.94
+	damagefactor "ImpFire", 0.94
+	damagefactor "CacoFire", 0.94
+	damagefactor "CacoPoison", 0.94
+	damagefactor "ImpPoison_Vulgar", 0.94
+	damagefactor "ImpPoison_Roach", 0.94
+	damagefactor "PaineFire", 0.94
+	damagefactor "PainePoison", 0.94
+	damagefactor "RevIce", 0.94
+	damagefactor "RevSludge", 0.94
+	damagefactor "RevPoison_Crawler", 0.94
+	damagefactor "BaronsPoison", 0.94
+	damagefactor "BaronsFire", 0.94
+	damagefactor "BaronGreen", 0.94
+	damagefactor "BaronGreenFire", 0.94
+	damagefactor "FattyFire", 0.94
+	damagefactor "FattyIce", 0.94
+	damagefactor "ArachnoFire", 0.94
+	damagefactor "VileFire", 0.94
+	damagefactor "VileBlue", 0.94
+	damagefactor "VileBlueFire", 0.94
+	damagefactor "BigSpiderFire", 0.94
+	damagefactor "BigSpiderIce", 0.94
+	damagefactor "CyberFire", 0.94
+	damagefactor "CyberLightning", 0.94
+	damagefactor "CyberIce", 0.94
+}
+
+Actor ElementalResist_7 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.93
+	damagefactor "ImpFire", 0.93
+	damagefactor "CacoFire", 0.93
+	damagefactor "CacoPoison", 0.93
+	damagefactor "ImpPoison_Vulgar", 0.93
+	damagefactor "ImpPoison_Roach", 0.93
+	damagefactor "PaineFire", 0.93
+	damagefactor "PainePoison", 0.93
+	damagefactor "RevIce", 0.93
+	damagefactor "RevSludge", 0.93
+	damagefactor "RevPoison_Crawler", 0.93
+	damagefactor "BaronsPoison", 0.93
+	damagefactor "BaronsFire", 0.93
+	damagefactor "BaronGreen", 0.93
+	damagefactor "BaronGreenFire", 0.93
+	damagefactor "FattyFire", 0.93
+	damagefactor "FattyIce", 0.93
+	damagefactor "ArachnoFire", 0.93
+	damagefactor "VileFire", 0.93
+	damagefactor "VileBlue", 0.93
+	damagefactor "VileBlueFire", 0.93
+	damagefactor "BigSpiderFire", 0.93
+	damagefactor "BigSpiderIce", 0.93
+	damagefactor "CyberFire", 0.93
+	damagefactor "CyberLightning", 0.93
+	damagefactor "CyberIce", 0.93
+}
+
+Actor ElementalResist_8 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.92
+	damagefactor "ImpFire", 0.92
+	damagefactor "CacoFire", 0.92
+	damagefactor "CacoPoison", 0.92
+	damagefactor "ImpPoison_Vulgar", 0.92
+	damagefactor "ImpPoison_Roach", 0.92
+	damagefactor "PaineFire", 0.92
+	damagefactor "PainePoison", 0.92
+	damagefactor "RevIce", 0.92
+	damagefactor "RevSludge", 0.92
+	damagefactor "RevPoison_Crawler", 0.92
+	damagefactor "BaronsPoison", 0.92
+	damagefactor "BaronsFire", 0.92
+	damagefactor "BaronGreen", 0.92
+	damagefactor "BaronGreenFire", 0.92
+	damagefactor "FattyFire", 0.92
+	damagefactor "FattyIce", 0.92
+	damagefactor "ArachnoFire", 0.92
+	damagefactor "VileFire", 0.92
+	damagefactor "VileBlue", 0.92
+	damagefactor "VileBlueFire", 0.92
+	damagefactor "BigSpiderFire", 0.92
+	damagefactor "BigSpiderIce", 0.92
+	damagefactor "CyberFire", 0.92
+	damagefactor "CyberLightning", 0.92
+	damagefactor "CyberIce", 0.92
+}
+
+Actor ElementalResist_9 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.91
+	damagefactor "ImpFire", 0.91
+	damagefactor "CacoFire", 0.91
+	damagefactor "CacoPoison", 0.91
+	damagefactor "ImpPoison_Vulgar", 0.91
+	damagefactor "ImpPoison_Roach", 0.91
+	damagefactor "PaineFire", 0.91
+	damagefactor "PainePoison", 0.91
+	damagefactor "RevIce", 0.91
+	damagefactor "RevSludge", 0.91
+	damagefactor "RevPoison_Crawler", 0.91
+	damagefactor "BaronsPoison", 0.91
+	damagefactor "BaronsFire", 0.91
+	damagefactor "BaronGreen", 0.91
+	damagefactor "BaronGreenFire", 0.91
+	damagefactor "FattyFire", 0.91
+	damagefactor "FattyIce", 0.91
+	damagefactor "ArachnoFire", 0.91
+	damagefactor "VileFire", 0.91
+	damagefactor "VileBlue", 0.91
+	damagefactor "VileBlueFire", 0.91
+	damagefactor "BigSpiderFire", 0.91
+	damagefactor "BigSpiderIce", 0.91
+	damagefactor "CyberFire", 0.91
+	damagefactor "CyberLightning", 0.91
+	damagefactor "CyberIce", 0.91
+}
+
+Actor ElementalResist_10 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.9
+	damagefactor "ImpFire", 0.9
+	damagefactor "CacoFire", 0.9
+	damagefactor "CacoPoison", 0.9
+	damagefactor "ImpPoison_Vulgar", 0.9
+	damagefactor "ImpPoison_Roach", 0.9
+	damagefactor "PaineFire", 0.9
+	damagefactor "PainePoison", 0.9
+	damagefactor "RevIce", 0.9
+	damagefactor "RevSludge", 0.9
+	damagefactor "RevPoison_Crawler", 0.9
+	damagefactor "BaronsPoison", 0.9
+	damagefactor "BaronsFire", 0.9
+	damagefactor "BaronGreen", 0.9
+	damagefactor "BaronGreenFire", 0.9
+	damagefactor "FattyFire", 0.9
+	damagefactor "FattyIce", 0.9
+	damagefactor "ArachnoFire", 0.9
+	damagefactor "VileFire", 0.9
+	damagefactor "VileBlue", 0.9
+	damagefactor "VileBlueFire", 0.9
+	damagefactor "BigSpiderFire", 0.9
+	damagefactor "BigSpiderIce", 0.9
+	damagefactor "CyberFire", 0.9
+	damagefactor "CyberLightning", 0.9
+	damagefactor "CyberIce", 0.9
+}
+
+Actor ElementalResist_11 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.89
+	damagefactor "ImpFire", 0.89
+	damagefactor "CacoFire", 0.89
+	damagefactor "CacoPoison", 0.89
+	damagefactor "ImpPoison_Vulgar", 0.89
+	damagefactor "ImpPoison_Roach", 0.89
+	damagefactor "PaineFire", 0.89
+	damagefactor "PainePoison", 0.89
+	damagefactor "RevIce", 0.89
+	damagefactor "RevSludge", 0.89
+	damagefactor "RevPoison_Crawler", 0.89
+	damagefactor "BaronsPoison", 0.89
+	damagefactor "BaronsFire", 0.89
+	damagefactor "BaronGreen", 0.89
+	damagefactor "BaronGreenFire", 0.89
+	damagefactor "FattyFire", 0.89
+	damagefactor "FattyIce", 0.89
+	damagefactor "ArachnoFire", 0.89
+	damagefactor "VileFire", 0.89
+	damagefactor "VileBlue", 0.89
+	damagefactor "VileBlueFire", 0.89
+	damagefactor "BigSpiderFire", 0.89
+	damagefactor "BigSpiderIce", 0.89
+	damagefactor "CyberFire", 0.89
+	damagefactor "CyberLightning", 0.89
+	damagefactor "CyberIce", 0.89
+}
+
+Actor ElementalResist_12 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.88
+	damagefactor "ImpFire", 0.88
+	damagefactor "CacoFire", 0.88
+	damagefactor "CacoPoison", 0.88
+	damagefactor "ImpPoison_Vulgar", 0.88
+	damagefactor "ImpPoison_Roach", 0.88
+	damagefactor "PaineFire", 0.88
+	damagefactor "PainePoison", 0.88
+	damagefactor "RevIce", 0.88
+	damagefactor "RevSludge", 0.88
+	damagefactor "RevPoison_Crawler", 0.88
+	damagefactor "BaronsPoison", 0.88
+	damagefactor "BaronsFire", 0.88
+	damagefactor "BaronGreen", 0.88
+	damagefactor "BaronGreenFire", 0.88
+	damagefactor "FattyFire", 0.88
+	damagefactor "FattyIce", 0.88
+	damagefactor "ArachnoFire", 0.88
+	damagefactor "VileFire", 0.88
+	damagefactor "VileBlue", 0.88
+	damagefactor "VileBlueFire", 0.88
+	damagefactor "BigSpiderFire", 0.88
+	damagefactor "BigSpiderIce", 0.88
+	damagefactor "CyberFire", 0.88
+	damagefactor "CyberLightning", 0.88
+	damagefactor "CyberIce", 0.88
+}
+
+Actor ElementalResist_13 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.87
+	damagefactor "ImpFire", 0.87
+	damagefactor "CacoFire", 0.87
+	damagefactor "CacoPoison", 0.87
+	damagefactor "ImpPoison_Vulgar", 0.87
+	damagefactor "ImpPoison_Roach", 0.87
+	damagefactor "PaineFire", 0.87
+	damagefactor "PainePoison", 0.87
+	damagefactor "RevIce", 0.87
+	damagefactor "RevSludge", 0.87
+	damagefactor "RevPoison_Crawler", 0.87
+	damagefactor "BaronsPoison", 0.87
+	damagefactor "BaronsFire", 0.87
+	damagefactor "BaronGreen", 0.87
+	damagefactor "BaronGreenFire", 0.87
+	damagefactor "FattyFire", 0.87
+	damagefactor "FattyIce", 0.87
+	damagefactor "ArachnoFire", 0.87
+	damagefactor "VileFire", 0.87
+	damagefactor "VileBlue", 0.87
+	damagefactor "VileBlueFire", 0.87
+	damagefactor "BigSpiderFire", 0.87
+	damagefactor "BigSpiderIce", 0.87
+	damagefactor "CyberFire", 0.87
+	damagefactor "CyberLightning", 0.87
+	damagefactor "CyberIce", 0.87
+}
+
+Actor ElementalResist_14 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.86
+	damagefactor "ImpFire", 0.86
+	damagefactor "CacoFire", 0.86
+	damagefactor "CacoPoison", 0.86
+	damagefactor "ImpPoison_Vulgar", 0.86
+	damagefactor "ImpPoison_Roach", 0.86
+	damagefactor "PaineFire", 0.86
+	damagefactor "PainePoison", 0.86
+	damagefactor "RevIce", 0.86
+	damagefactor "RevSludge", 0.86
+	damagefactor "RevPoison_Crawler", 0.86
+	damagefactor "BaronsPoison", 0.86
+	damagefactor "BaronsFire", 0.86
+	damagefactor "BaronGreen", 0.86
+	damagefactor "BaronGreenFire", 0.86
+	damagefactor "FattyFire", 0.86
+	damagefactor "FattyIce", 0.86
+	damagefactor "ArachnoFire", 0.86
+	damagefactor "VileFire", 0.86
+	damagefactor "VileBlue", 0.86
+	damagefactor "VileBlueFire", 0.86
+	damagefactor "BigSpiderFire", 0.86
+	damagefactor "BigSpiderIce", 0.86
+	damagefactor "CyberFire", 0.86
+	damagefactor "CyberLightning", 0.86
+	damagefactor "CyberIce", 0.86
+}
+
+Actor ElementalResist_15 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.85
+	damagefactor "ImpFire", 0.85
+	damagefactor "CacoFire", 0.85
+	damagefactor "CacoPoison", 0.85
+	damagefactor "ImpPoison_Vulgar", 0.85
+	damagefactor "ImpPoison_Roach", 0.85
+	damagefactor "PaineFire", 0.85
+	damagefactor "PainePoison", 0.85
+	damagefactor "RevIce", 0.85
+	damagefactor "RevSludge", 0.85
+	damagefactor "RevPoison_Crawler", 0.85
+	damagefactor "BaronsPoison", 0.85
+	damagefactor "BaronsFire", 0.85
+	damagefactor "BaronGreen", 0.85
+	damagefactor "BaronGreenFire", 0.85
+	damagefactor "FattyFire", 0.85
+	damagefactor "FattyIce", 0.85
+	damagefactor "ArachnoFire", 0.85
+	damagefactor "VileFire", 0.85
+	damagefactor "VileBlue", 0.85
+	damagefactor "VileBlueFire", 0.85
+	damagefactor "BigSpiderFire", 0.85
+	damagefactor "BigSpiderIce", 0.85
+	damagefactor "CyberFire", 0.85
+	damagefactor "CyberLightning", 0.85
+	damagefactor "CyberIce", 0.85
+}
+
+Actor ElementalResist_16 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.84
+	damagefactor "ImpFire", 0.84
+	damagefactor "CacoFire", 0.84
+	damagefactor "CacoPoison", 0.84
+	damagefactor "ImpPoison_Vulgar", 0.84
+	damagefactor "ImpPoison_Roach", 0.84
+	damagefactor "PaineFire", 0.84
+	damagefactor "PainePoison", 0.84
+	damagefactor "RevIce", 0.84
+	damagefactor "RevSludge", 0.84
+	damagefactor "RevPoison_Crawler", 0.84
+	damagefactor "BaronsPoison", 0.84
+	damagefactor "BaronsFire", 0.84
+	damagefactor "BaronGreen", 0.84
+	damagefactor "BaronGreenFire", 0.84
+	damagefactor "FattyFire", 0.84
+	damagefactor "FattyIce", 0.84
+	damagefactor "ArachnoFire", 0.84
+	damagefactor "VileFire", 0.84
+	damagefactor "VileBlue", 0.84
+	damagefactor "VileBlueFire", 0.84
+	damagefactor "BigSpiderFire", 0.84
+	damagefactor "BigSpiderIce", 0.84
+	damagefactor "CyberFire", 0.84
+	damagefactor "CyberLightning", 0.84
+	damagefactor "CyberIce", 0.84
+}
+
+Actor ElementalResist_17 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.83
+	damagefactor "ImpFire", 0.83
+	damagefactor "CacoFire", 0.83
+	damagefactor "CacoPoison", 0.83
+	damagefactor "ImpPoison_Vulgar", 0.83
+	damagefactor "ImpPoison_Roach", 0.83
+	damagefactor "PaineFire", 0.83
+	damagefactor "PainePoison", 0.83
+	damagefactor "RevIce", 0.83
+	damagefactor "RevSludge", 0.83
+	damagefactor "RevPoison_Crawler", 0.83
+	damagefactor "BaronsPoison", 0.83
+	damagefactor "BaronsFire", 0.83
+	damagefactor "BaronGreen", 0.83
+	damagefactor "BaronGreenFire", 0.83
+	damagefactor "FattyFire", 0.83
+	damagefactor "FattyIce", 0.83
+	damagefactor "ArachnoFire", 0.83
+	damagefactor "VileFire", 0.83
+	damagefactor "VileBlue", 0.83
+	damagefactor "VileBlueFire", 0.83
+	damagefactor "BigSpiderFire", 0.83
+	damagefactor "BigSpiderIce", 0.83
+	damagefactor "CyberFire", 0.83
+	damagefactor "CyberLightning", 0.83
+	damagefactor "CyberIce", 0.83
+}
+
+Actor ElementalResist_18 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.82
+	damagefactor "ImpFire", 0.82
+	damagefactor "CacoFire", 0.82
+	damagefactor "CacoPoison", 0.82
+	damagefactor "ImpPoison_Vulgar", 0.82
+	damagefactor "ImpPoison_Roach", 0.82
+	damagefactor "PaineFire", 0.82
+	damagefactor "PainePoison", 0.82
+	damagefactor "RevIce", 0.82
+	damagefactor "RevSludge", 0.82
+	damagefactor "RevPoison_Crawler", 0.82
+	damagefactor "BaronsPoison", 0.82
+	damagefactor "BaronsFire", 0.82
+	damagefactor "BaronGreen", 0.82
+	damagefactor "BaronGreenFire", 0.82
+	damagefactor "FattyFire", 0.82
+	damagefactor "FattyIce", 0.82
+	damagefactor "ArachnoFire", 0.82
+	damagefactor "VileFire", 0.82
+	damagefactor "VileBlue", 0.82
+	damagefactor "VileBlueFire", 0.82
+	damagefactor "BigSpiderFire", 0.82
+	damagefactor "BigSpiderIce", 0.82
+	damagefactor "CyberFire", 0.82
+	damagefactor "CyberLightning", 0.82
+	damagefactor "CyberIce", 0.82
+}
+
+Actor ElementalResist_19 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.81
+	damagefactor "ImpFire", 0.81
+	damagefactor "CacoFire", 0.81
+	damagefactor "CacoPoison", 0.81
+	damagefactor "ImpPoison_Vulgar", 0.81
+	damagefactor "ImpPoison_Roach", 0.81
+	damagefactor "PaineFire", 0.81
+	damagefactor "PainePoison", 0.81
+	damagefactor "RevIce", 0.81
+	damagefactor "RevSludge", 0.81
+	damagefactor "RevPoison_Crawler", 0.81
+	damagefactor "BaronsPoison", 0.81
+	damagefactor "BaronsFire", 0.81
+	damagefactor "BaronGreen", 0.81
+	damagefactor "BaronGreenFire", 0.81
+	damagefactor "FattyFire", 0.81
+	damagefactor "FattyIce", 0.81
+	damagefactor "ArachnoFire", 0.81
+	damagefactor "VileFire", 0.81
+	damagefactor "VileBlue", 0.81
+	damagefactor "VileBlueFire", 0.81
+	damagefactor "BigSpiderFire", 0.81
+	damagefactor "BigSpiderIce", 0.81
+	damagefactor "CyberFire", 0.81
+	damagefactor "CyberLightning", 0.81
+	damagefactor "CyberIce", 0.81
+}
+
+Actor ElementalResist_20 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.8
+	damagefactor "ImpFire", 0.8
+	damagefactor "CacoFire", 0.8
+	damagefactor "CacoPoison", 0.8
+	damagefactor "ImpPoison_Vulgar", 0.8
+	damagefactor "ImpPoison_Roach", 0.8
+	damagefactor "PaineFire", 0.8
+	damagefactor "PainePoison", 0.8
+	damagefactor "RevIce", 0.8
+	damagefactor "RevSludge", 0.8
+	damagefactor "RevPoison_Crawler", 0.8
+	damagefactor "BaronsPoison", 0.8
+	damagefactor "BaronsFire", 0.8
+	damagefactor "BaronGreen", 0.8
+	damagefactor "BaronGreenFire", 0.8
+	damagefactor "FattyFire", 0.8
+	damagefactor "FattyIce", 0.8
+	damagefactor "ArachnoFire", 0.8
+	damagefactor "VileFire", 0.8
+	damagefactor "VileBlue", 0.8
+	damagefactor "VileBlueFire", 0.8
+	damagefactor "BigSpiderFire", 0.8
+	damagefactor "BigSpiderIce", 0.8
+	damagefactor "CyberFire", 0.8
+	damagefactor "CyberLightning", 0.8
+	damagefactor "CyberIce", 0.8
+}
+
+Actor ElementalResist_21 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.79
+	damagefactor "ImpFire", 0.79
+	damagefactor "CacoFire", 0.79
+	damagefactor "CacoPoison", 0.79
+	damagefactor "ImpPoison_Vulgar", 0.79
+	damagefactor "ImpPoison_Roach", 0.79
+	damagefactor "PaineFire", 0.79
+	damagefactor "PainePoison", 0.79
+	damagefactor "RevIce", 0.79
+	damagefactor "RevSludge", 0.79
+	damagefactor "RevPoison_Crawler", 0.79
+	damagefactor "BaronsPoison", 0.79
+	damagefactor "BaronsFire", 0.79
+	damagefactor "BaronGreen", 0.79
+	damagefactor "BaronGreenFire", 0.79
+	damagefactor "FattyFire", 0.79
+	damagefactor "FattyIce", 0.79
+	damagefactor "ArachnoFire", 0.79
+	damagefactor "VileFire", 0.79
+	damagefactor "VileBlue", 0.79
+	damagefactor "VileBlueFire", 0.79
+	damagefactor "BigSpiderFire", 0.79
+	damagefactor "BigSpiderIce", 0.79
+	damagefactor "CyberFire", 0.79
+	damagefactor "CyberLightning", 0.79
+	damagefactor "CyberIce", 0.79
+}
+
+Actor ElementalResist_22 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.78
+	damagefactor "ImpFire", 0.78
+	damagefactor "CacoFire", 0.78
+	damagefactor "CacoPoison", 0.78
+	damagefactor "ImpPoison_Vulgar", 0.78
+	damagefactor "ImpPoison_Roach", 0.78
+	damagefactor "PaineFire", 0.78
+	damagefactor "PainePoison", 0.78
+	damagefactor "RevIce", 0.78
+	damagefactor "RevSludge", 0.78
+	damagefactor "RevPoison_Crawler", 0.78
+	damagefactor "BaronsPoison", 0.78
+	damagefactor "BaronsFire", 0.78
+	damagefactor "BaronGreen", 0.78
+	damagefactor "BaronGreenFire", 0.78
+	damagefactor "FattyFire", 0.78
+	damagefactor "FattyIce", 0.78
+	damagefactor "ArachnoFire", 0.78
+	damagefactor "VileFire", 0.78
+	damagefactor "VileBlue", 0.78
+	damagefactor "VileBlueFire", 0.78
+	damagefactor "BigSpiderFire", 0.78
+	damagefactor "BigSpiderIce", 0.78
+	damagefactor "CyberFire", 0.78
+	damagefactor "CyberLightning", 0.78
+	damagefactor "CyberIce", 0.78
+}
+
+Actor ElementalResist_23 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.77
+	damagefactor "ImpFire", 0.77
+	damagefactor "CacoFire", 0.77
+	damagefactor "CacoPoison", 0.77
+	damagefactor "ImpPoison_Vulgar", 0.77
+	damagefactor "ImpPoison_Roach", 0.77
+	damagefactor "PaineFire", 0.77
+	damagefactor "PainePoison", 0.77
+	damagefactor "RevIce", 0.77
+	damagefactor "RevSludge", 0.77
+	damagefactor "RevPoison_Crawler", 0.77
+	damagefactor "BaronsPoison", 0.77
+	damagefactor "BaronsFire", 0.77
+	damagefactor "BaronGreen", 0.77
+	damagefactor "BaronGreenFire", 0.77
+	damagefactor "FattyFire", 0.77
+	damagefactor "FattyIce", 0.77
+	damagefactor "ArachnoFire", 0.77
+	damagefactor "VileFire", 0.77
+	damagefactor "VileBlue", 0.77
+	damagefactor "VileBlueFire", 0.77
+	damagefactor "BigSpiderFire", 0.77
+	damagefactor "BigSpiderIce", 0.77
+	damagefactor "CyberFire", 0.77
+	damagefactor "CyberLightning", 0.77
+	damagefactor "CyberIce", 0.77
+}
+
+Actor ElementalResist_24 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.76
+	damagefactor "ImpFire", 0.76
+	damagefactor "CacoFire", 0.76
+	damagefactor "CacoPoison", 0.76
+	damagefactor "ImpPoison_Vulgar", 0.76
+	damagefactor "ImpPoison_Roach", 0.76
+	damagefactor "PaineFire", 0.76
+	damagefactor "PainePoison", 0.76
+	damagefactor "RevIce", 0.76
+	damagefactor "RevSludge", 0.76
+	damagefactor "RevPoison_Crawler", 0.76
+	damagefactor "BaronsPoison", 0.76
+	damagefactor "BaronsFire", 0.76
+	damagefactor "BaronGreen", 0.76
+	damagefactor "BaronGreenFire", 0.76
+	damagefactor "FattyFire", 0.76
+	damagefactor "FattyIce", 0.76
+	damagefactor "ArachnoFire", 0.76
+	damagefactor "VileFire", 0.76
+	damagefactor "VileBlue", 0.76
+	damagefactor "VileBlueFire", 0.76
+	damagefactor "BigSpiderFire", 0.76
+	damagefactor "BigSpiderIce", 0.76
+	damagefactor "CyberFire", 0.76
+	damagefactor "CyberLightning", 0.76
+	damagefactor "CyberIce", 0.76
+}
+
+Actor ElementalResist_25 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.75
+	damagefactor "ImpFire", 0.75
+	damagefactor "CacoFire", 0.75
+	damagefactor "CacoPoison", 0.75
+	damagefactor "ImpPoison_Vulgar", 0.75
+	damagefactor "ImpPoison_Roach", 0.75
+	damagefactor "PaineFire", 0.75
+	damagefactor "PainePoison", 0.75
+	damagefactor "RevIce", 0.75
+	damagefactor "RevSludge", 0.75
+	damagefactor "RevPoison_Crawler", 0.75
+	damagefactor "BaronsPoison", 0.75
+	damagefactor "BaronsFire", 0.75
+	damagefactor "BaronGreen", 0.75
+	damagefactor "BaronGreenFire", 0.75
+	damagefactor "FattyFire", 0.75
+	damagefactor "FattyIce", 0.75
+	damagefactor "ArachnoFire", 0.75
+	damagefactor "VileFire", 0.75
+	damagefactor "VileBlue", 0.75
+	damagefactor "VileBlueFire", 0.75
+	damagefactor "BigSpiderFire", 0.75
+	damagefactor "BigSpiderIce", 0.75
+	damagefactor "CyberFire", 0.75
+	damagefactor "CyberLightning", 0.75
+	damagefactor "CyberIce", 0.75
+}
+
+Actor ElementalResist_26 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.74
+	damagefactor "ImpFire", 0.74
+	damagefactor "CacoFire", 0.74
+	damagefactor "CacoPoison", 0.74
+	damagefactor "ImpPoison_Vulgar", 0.74
+	damagefactor "ImpPoison_Roach", 0.74
+	damagefactor "PaineFire", 0.74
+	damagefactor "PainePoison", 0.74
+	damagefactor "RevIce", 0.74
+	damagefactor "RevSludge", 0.74
+	damagefactor "RevPoison_Crawler", 0.74
+	damagefactor "BaronsPoison", 0.74
+	damagefactor "BaronsFire", 0.74
+	damagefactor "BaronGreen", 0.74
+	damagefactor "BaronGreenFire", 0.74
+	damagefactor "FattyFire", 0.74
+	damagefactor "FattyIce", 0.74
+	damagefactor "ArachnoFire", 0.74
+	damagefactor "VileFire", 0.74
+	damagefactor "VileBlue", 0.74
+	damagefactor "VileBlueFire", 0.74
+	damagefactor "BigSpiderFire", 0.74
+	damagefactor "BigSpiderIce", 0.74
+	damagefactor "CyberFire", 0.74
+	damagefactor "CyberLightning", 0.74
+	damagefactor "CyberIce", 0.74
+}
+
+Actor ElementalResist_27 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.73
+	damagefactor "ImpFire", 0.73
+	damagefactor "CacoFire", 0.73
+	damagefactor "CacoPoison", 0.73
+	damagefactor "ImpPoison_Vulgar", 0.73
+	damagefactor "ImpPoison_Roach", 0.73
+	damagefactor "PaineFire", 0.73
+	damagefactor "PainePoison", 0.73
+	damagefactor "RevIce", 0.73
+	damagefactor "RevSludge", 0.73
+	damagefactor "RevPoison_Crawler", 0.73
+	damagefactor "BaronsPoison", 0.73
+	damagefactor "BaronsFire", 0.73
+	damagefactor "BaronGreen", 0.73
+	damagefactor "BaronGreenFire", 0.73
+	damagefactor "FattyFire", 0.73
+	damagefactor "FattyIce", 0.73
+	damagefactor "ArachnoFire", 0.73
+	damagefactor "VileFire", 0.73
+	damagefactor "VileBlue", 0.73
+	damagefactor "VileBlueFire", 0.73
+	damagefactor "BigSpiderFire", 0.73
+	damagefactor "BigSpiderIce", 0.73
+	damagefactor "CyberFire", 0.73
+	damagefactor "CyberLightning", 0.73
+	damagefactor "CyberIce", 0.73
+}
+
+Actor ElementalResist_28 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.72
+	damagefactor "ImpFire", 0.72
+	damagefactor "CacoFire", 0.72
+	damagefactor "CacoPoison", 0.72
+	damagefactor "ImpPoison_Vulgar", 0.72
+	damagefactor "ImpPoison_Roach", 0.72
+	damagefactor "PaineFire", 0.72
+	damagefactor "PainePoison", 0.72
+	damagefactor "RevIce", 0.72
+	damagefactor "RevSludge", 0.72
+	damagefactor "RevPoison_Crawler", 0.72
+	damagefactor "BaronsPoison", 0.72
+	damagefactor "BaronsFire", 0.72
+	damagefactor "BaronGreen", 0.72
+	damagefactor "BaronGreenFire", 0.72
+	damagefactor "FattyFire", 0.72
+	damagefactor "FattyIce", 0.72
+	damagefactor "ArachnoFire", 0.72
+	damagefactor "VileFire", 0.72
+	damagefactor "VileBlue", 0.72
+	damagefactor "VileBlueFire", 0.72
+	damagefactor "BigSpiderFire", 0.72
+	damagefactor "BigSpiderIce", 0.72
+	damagefactor "CyberFire", 0.72
+	damagefactor "CyberLightning", 0.72
+	damagefactor "CyberIce", 0.72
+}
+
+Actor ElementalResist_29 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.71
+	damagefactor "ImpFire", 0.71
+	damagefactor "CacoFire", 0.71
+	damagefactor "CacoPoison", 0.71
+	damagefactor "ImpPoison_Vulgar", 0.71
+	damagefactor "ImpPoison_Roach", 0.71
+	damagefactor "PaineFire", 0.71
+	damagefactor "PainePoison", 0.71
+	damagefactor "RevIce", 0.71
+	damagefactor "RevSludge", 0.71
+	damagefactor "RevPoison_Crawler", 0.71
+	damagefactor "BaronsPoison", 0.71
+	damagefactor "BaronsFire", 0.71
+	damagefactor "BaronGreen", 0.71
+	damagefactor "BaronGreenFire", 0.71
+	damagefactor "FattyFire", 0.71
+	damagefactor "FattyIce", 0.71
+	damagefactor "ArachnoFire", 0.71
+	damagefactor "VileFire", 0.71
+	damagefactor "VileBlue", 0.71
+	damagefactor "VileBlueFire", 0.71
+	damagefactor "BigSpiderFire", 0.71
+	damagefactor "BigSpiderIce", 0.71
+	damagefactor "CyberFire", 0.71
+	damagefactor "CyberLightning", 0.71
+	damagefactor "CyberIce", 0.71
+}
+
+Actor ElementalResist_30 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.7
+	damagefactor "ImpFire", 0.7
+	damagefactor "CacoFire", 0.7
+	damagefactor "CacoPoison", 0.7
+	damagefactor "ImpPoison_Vulgar", 0.7
+	damagefactor "ImpPoison_Roach", 0.7
+	damagefactor "PaineFire", 0.7
+	damagefactor "PainePoison", 0.7
+	damagefactor "RevIce", 0.7
+	damagefactor "RevSludge", 0.7
+	damagefactor "RevPoison_Crawler", 0.7
+	damagefactor "BaronsPoison", 0.7
+	damagefactor "BaronsFire", 0.7
+	damagefactor "BaronGreen", 0.7
+	damagefactor "BaronGreenFire", 0.7
+	damagefactor "FattyFire", 0.7
+	damagefactor "FattyIce", 0.7
+	damagefactor "ArachnoFire", 0.7
+	damagefactor "VileFire", 0.7
+	damagefactor "VileBlue", 0.7
+	damagefactor "VileBlueFire", 0.7
+	damagefactor "BigSpiderFire", 0.7
+	damagefactor "BigSpiderIce", 0.7
+	damagefactor "CyberFire", 0.7
+	damagefactor "CyberLightning", 0.7
+	damagefactor "CyberIce", 0.7
+}
+
+Actor ElementalResist_31 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.69
+	damagefactor "ImpFire", 0.69
+	damagefactor "CacoFire", 0.69
+	damagefactor "CacoPoison", 0.69
+	damagefactor "ImpPoison_Vulgar", 0.69
+	damagefactor "ImpPoison_Roach", 0.69
+	damagefactor "PaineFire", 0.69
+	damagefactor "PainePoison", 0.69
+	damagefactor "RevIce", 0.69
+	damagefactor "RevSludge", 0.69
+	damagefactor "RevPoison_Crawler", 0.69
+	damagefactor "BaronsPoison", 0.69
+	damagefactor "BaronsFire", 0.69
+	damagefactor "BaronGreen", 0.69
+	damagefactor "BaronGreenFire", 0.69
+	damagefactor "FattyFire", 0.69
+	damagefactor "FattyIce", 0.69
+	damagefactor "ArachnoFire", 0.69
+	damagefactor "VileFire", 0.69
+	damagefactor "VileBlue", 0.69
+	damagefactor "VileBlueFire", 0.69
+	damagefactor "BigSpiderFire", 0.69
+	damagefactor "BigSpiderIce", 0.69
+	damagefactor "CyberFire", 0.69
+	damagefactor "CyberLightning", 0.69
+	damagefactor "CyberIce", 0.69
+}
+
+Actor ElementalResist_32 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.68
+	damagefactor "ImpFire", 0.68
+	damagefactor "CacoFire", 0.68
+	damagefactor "CacoPoison", 0.68
+	damagefactor "ImpPoison_Vulgar", 0.68
+	damagefactor "ImpPoison_Roach", 0.68
+	damagefactor "PaineFire", 0.68
+	damagefactor "PainePoison", 0.68
+	damagefactor "RevIce", 0.68
+	damagefactor "RevSludge", 0.68
+	damagefactor "RevPoison_Crawler", 0.68
+	damagefactor "BaronsPoison", 0.68
+	damagefactor "BaronsFire", 0.68
+	damagefactor "BaronGreen", 0.68
+	damagefactor "BaronGreenFire", 0.68
+	damagefactor "FattyFire", 0.68
+	damagefactor "FattyIce", 0.68
+	damagefactor "ArachnoFire", 0.68
+	damagefactor "VileFire", 0.68
+	damagefactor "VileBlue", 0.68
+	damagefactor "VileBlueFire", 0.68
+	damagefactor "BigSpiderFire", 0.68
+	damagefactor "BigSpiderIce", 0.68
+	damagefactor "CyberFire", 0.68
+	damagefactor "CyberLightning", 0.68
+	damagefactor "CyberIce", 0.68
+}
+
+Actor ElementalResist_33 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.67
+	damagefactor "ImpFire", 0.67
+	damagefactor "CacoFire", 0.67
+	damagefactor "CacoPoison", 0.67
+	damagefactor "ImpPoison_Vulgar", 0.67
+	damagefactor "ImpPoison_Roach", 0.67
+	damagefactor "PaineFire", 0.67
+	damagefactor "PainePoison", 0.67
+	damagefactor "RevIce", 0.67
+	damagefactor "RevSludge", 0.67
+	damagefactor "RevPoison_Crawler", 0.67
+	damagefactor "BaronsPoison", 0.67
+	damagefactor "BaronsFire", 0.67
+	damagefactor "BaronGreen", 0.67
+	damagefactor "BaronGreenFire", 0.67
+	damagefactor "FattyFire", 0.67
+	damagefactor "FattyIce", 0.67
+	damagefactor "ArachnoFire", 0.67
+	damagefactor "VileFire", 0.67
+	damagefactor "VileBlue", 0.67
+	damagefactor "VileBlueFire", 0.67
+	damagefactor "BigSpiderFire", 0.67
+	damagefactor "BigSpiderIce", 0.67
+	damagefactor "CyberFire", 0.67
+	damagefactor "CyberLightning", 0.67
+	damagefactor "CyberIce", 0.67
+}
+
+Actor ElementalResist_34 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.66
+	damagefactor "ImpFire", 0.66
+	damagefactor "CacoFire", 0.66
+	damagefactor "CacoPoison", 0.66
+	damagefactor "ImpPoison_Vulgar", 0.66
+	damagefactor "ImpPoison_Roach", 0.66
+	damagefactor "PaineFire", 0.66
+	damagefactor "PainePoison", 0.66
+	damagefactor "RevIce", 0.66
+	damagefactor "RevSludge", 0.66
+	damagefactor "RevPoison_Crawler", 0.66
+	damagefactor "BaronsPoison", 0.66
+	damagefactor "BaronsFire", 0.66
+	damagefactor "BaronGreen", 0.66
+	damagefactor "BaronGreenFire", 0.66
+	damagefactor "FattyFire", 0.66
+	damagefactor "FattyIce", 0.66
+	damagefactor "ArachnoFire", 0.66
+	damagefactor "VileFire", 0.66
+	damagefactor "VileBlue", 0.66
+	damagefactor "VileBlueFire", 0.66
+	damagefactor "BigSpiderFire", 0.66
+	damagefactor "BigSpiderIce", 0.66
+	damagefactor "CyberFire", 0.66
+	damagefactor "CyberLightning", 0.66
+	damagefactor "CyberIce", 0.66
+}
+
+Actor ElementalResist_35 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.65
+	damagefactor "ImpFire", 0.65
+	damagefactor "CacoFire", 0.65
+	damagefactor "CacoPoison", 0.65
+	damagefactor "ImpPoison_Vulgar", 0.65
+	damagefactor "ImpPoison_Roach", 0.65
+	damagefactor "PaineFire", 0.65
+	damagefactor "PainePoison", 0.65
+	damagefactor "RevIce", 0.65
+	damagefactor "RevSludge", 0.65
+	damagefactor "RevPoison_Crawler", 0.65
+	damagefactor "BaronsPoison", 0.65
+	damagefactor "BaronsFire", 0.65
+	damagefactor "BaronGreen", 0.65
+	damagefactor "BaronGreenFire", 0.65
+	damagefactor "FattyFire", 0.65
+	damagefactor "FattyIce", 0.65
+	damagefactor "ArachnoFire", 0.65
+	damagefactor "VileFire", 0.65
+	damagefactor "VileBlue", 0.65
+	damagefactor "VileBlueFire", 0.65
+	damagefactor "BigSpiderFire", 0.65
+	damagefactor "BigSpiderIce", 0.65
+	damagefactor "CyberFire", 0.65
+	damagefactor "CyberLightning", 0.65
+	damagefactor "CyberIce", 0.65
+}
+
+Actor ElementalResist_36 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.64
+	damagefactor "ImpFire", 0.64
+	damagefactor "CacoFire", 0.64
+	damagefactor "CacoPoison", 0.64
+	damagefactor "ImpPoison_Vulgar", 0.64
+	damagefactor "ImpPoison_Roach", 0.64
+	damagefactor "PaineFire", 0.64
+	damagefactor "PainePoison", 0.64
+	damagefactor "RevIce", 0.64
+	damagefactor "RevSludge", 0.64
+	damagefactor "RevPoison_Crawler", 0.64
+	damagefactor "BaronsPoison", 0.64
+	damagefactor "BaronsFire", 0.64
+	damagefactor "BaronGreen", 0.64
+	damagefactor "BaronGreenFire", 0.64
+	damagefactor "FattyFire", 0.64
+	damagefactor "FattyIce", 0.64
+	damagefactor "ArachnoFire", 0.64
+	damagefactor "VileFire", 0.64
+	damagefactor "VileBlue", 0.64
+	damagefactor "VileBlueFire", 0.64
+	damagefactor "BigSpiderFire", 0.64
+	damagefactor "BigSpiderIce", 0.64
+	damagefactor "CyberFire", 0.64
+	damagefactor "CyberLightning", 0.64
+	damagefactor "CyberIce", 0.64
+}
+
+Actor ElementalResist_37 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.63
+	damagefactor "ImpFire", 0.63
+	damagefactor "CacoFire", 0.63
+	damagefactor "CacoPoison", 0.63
+	damagefactor "ImpPoison_Vulgar", 0.63
+	damagefactor "ImpPoison_Roach", 0.63
+	damagefactor "PaineFire", 0.63
+	damagefactor "PainePoison", 0.63
+	damagefactor "RevIce", 0.63
+	damagefactor "RevSludge", 0.63
+	damagefactor "RevPoison_Crawler", 0.63
+	damagefactor "BaronsPoison", 0.63
+	damagefactor "BaronsFire", 0.63
+	damagefactor "BaronGreen", 0.63
+	damagefactor "BaronGreenFire", 0.63
+	damagefactor "FattyFire", 0.63
+	damagefactor "FattyIce", 0.63
+	damagefactor "ArachnoFire", 0.63
+	damagefactor "VileFire", 0.63
+	damagefactor "VileBlue", 0.63
+	damagefactor "VileBlueFire", 0.63
+	damagefactor "BigSpiderFire", 0.63
+	damagefactor "BigSpiderIce", 0.63
+	damagefactor "CyberFire", 0.63
+	damagefactor "CyberLightning", 0.63
+	damagefactor "CyberIce", 0.63
+}
+
+Actor ElementalResist_38 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.62
+	damagefactor "ImpFire", 0.62
+	damagefactor "CacoFire", 0.62
+	damagefactor "CacoPoison", 0.62
+	damagefactor "ImpPoison_Vulgar", 0.62
+	damagefactor "ImpPoison_Roach", 0.62
+	damagefactor "PaineFire", 0.62
+	damagefactor "PainePoison", 0.62
+	damagefactor "RevIce", 0.62
+	damagefactor "RevSludge", 0.62
+	damagefactor "RevPoison_Crawler", 0.62
+	damagefactor "BaronsPoison", 0.62
+	damagefactor "BaronsFire", 0.62
+	damagefactor "BaronGreen", 0.62
+	damagefactor "BaronGreenFire", 0.62
+	damagefactor "FattyFire", 0.62
+	damagefactor "FattyIce", 0.62
+	damagefactor "ArachnoFire", 0.62
+	damagefactor "VileFire", 0.62
+	damagefactor "VileBlue", 0.62
+	damagefactor "VileBlueFire", 0.62
+	damagefactor "BigSpiderFire", 0.62
+	damagefactor "BigSpiderIce", 0.62
+	damagefactor "CyberFire", 0.62
+	damagefactor "CyberLightning", 0.62
+	damagefactor "CyberIce", 0.62
+}
+
+Actor ElementalResist_39 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.61
+	damagefactor "ImpFire", 0.61
+	damagefactor "CacoFire", 0.61
+	damagefactor "CacoPoison", 0.61
+	damagefactor "ImpPoison_Vulgar", 0.61
+	damagefactor "ImpPoison_Roach", 0.61
+	damagefactor "PaineFire", 0.61
+	damagefactor "PainePoison", 0.61
+	damagefactor "RevIce", 0.61
+	damagefactor "RevSludge", 0.61
+	damagefactor "RevPoison_Crawler", 0.61
+	damagefactor "BaronsPoison", 0.61
+	damagefactor "BaronsFire", 0.61
+	damagefactor "BaronGreen", 0.61
+	damagefactor "BaronGreenFire", 0.61
+	damagefactor "FattyFire", 0.61
+	damagefactor "FattyIce", 0.61
+	damagefactor "ArachnoFire", 0.61
+	damagefactor "VileFire", 0.61
+	damagefactor "VileBlue", 0.61
+	damagefactor "VileBlueFire", 0.61
+	damagefactor "BigSpiderFire", 0.61
+	damagefactor "BigSpiderIce", 0.61
+	damagefactor "CyberFire", 0.61
+	damagefactor "CyberLightning", 0.61
+	damagefactor "CyberIce", 0.61
+}
+
+Actor ElementalResist_40 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.6
+	damagefactor "ImpFire", 0.6
+	damagefactor "CacoFire", 0.6
+	damagefactor "CacoPoison", 0.6
+	damagefactor "ImpPoison_Vulgar", 0.6
+	damagefactor "ImpPoison_Roach", 0.6
+	damagefactor "PaineFire", 0.6
+	damagefactor "PainePoison", 0.6
+	damagefactor "RevIce", 0.6
+	damagefactor "RevSludge", 0.6
+	damagefactor "RevPoison_Crawler", 0.6
+	damagefactor "BaronsPoison", 0.6
+	damagefactor "BaronsFire", 0.6
+	damagefactor "BaronGreen", 0.6
+	damagefactor "BaronGreenFire", 0.6
+	damagefactor "FattyFire", 0.6
+	damagefactor "FattyIce", 0.6
+	damagefactor "ArachnoFire", 0.6
+	damagefactor "VileFire", 0.6
+	damagefactor "VileBlue", 0.6
+	damagefactor "VileBlueFire", 0.6
+	damagefactor "BigSpiderFire", 0.6
+	damagefactor "BigSpiderIce", 0.6
+	damagefactor "CyberFire", 0.6
+	damagefactor "CyberLightning", 0.6
+	damagefactor "CyberIce", 0.6
+}
+
+Actor ElementalResist_41 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.59
+	damagefactor "ImpFire", 0.59
+	damagefactor "CacoFire", 0.59
+	damagefactor "CacoPoison", 0.59
+	damagefactor "ImpPoison_Vulgar", 0.59
+	damagefactor "ImpPoison_Roach", 0.59
+	damagefactor "PaineFire", 0.59
+	damagefactor "PainePoison", 0.59
+	damagefactor "RevIce", 0.59
+	damagefactor "RevSludge", 0.59
+	damagefactor "RevPoison_Crawler", 0.59
+	damagefactor "BaronsPoison", 0.59
+	damagefactor "BaronsFire", 0.59
+	damagefactor "BaronGreen", 0.59
+	damagefactor "BaronGreenFire", 0.59
+	damagefactor "FattyFire", 0.59
+	damagefactor "FattyIce", 0.59
+	damagefactor "ArachnoFire", 0.59
+	damagefactor "VileFire", 0.59
+	damagefactor "VileBlue", 0.59
+	damagefactor "VileBlueFire", 0.59
+	damagefactor "BigSpiderFire", 0.59
+	damagefactor "BigSpiderIce", 0.59
+	damagefactor "CyberFire", 0.59
+	damagefactor "CyberLightning", 0.59
+	damagefactor "CyberIce", 0.59
+}
+
+Actor ElementalResist_42 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.58
+	damagefactor "ImpFire", 0.58
+	damagefactor "CacoFire", 0.58
+	damagefactor "CacoPoison", 0.58
+	damagefactor "ImpPoison_Vulgar", 0.58
+	damagefactor "ImpPoison_Roach", 0.58
+	damagefactor "PaineFire", 0.58
+	damagefactor "PainePoison", 0.58
+	damagefactor "RevIce", 0.58
+	damagefactor "RevSludge", 0.58
+	damagefactor "RevPoison_Crawler", 0.58
+	damagefactor "BaronsPoison", 0.58
+	damagefactor "BaronsFire", 0.58
+	damagefactor "BaronGreen", 0.58
+	damagefactor "BaronGreenFire", 0.58
+	damagefactor "FattyFire", 0.58
+	damagefactor "FattyIce", 0.58
+	damagefactor "ArachnoFire", 0.58
+	damagefactor "VileFire", 0.58
+	damagefactor "VileBlue", 0.58
+	damagefactor "VileBlueFire", 0.58
+	damagefactor "BigSpiderFire", 0.58
+	damagefactor "BigSpiderIce", 0.58
+	damagefactor "CyberFire", 0.58
+	damagefactor "CyberLightning", 0.58
+	damagefactor "CyberIce", 0.58
+}
+
+Actor ElementalResist_43 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.57
+	damagefactor "ImpFire", 0.57
+	damagefactor "CacoFire", 0.57
+	damagefactor "CacoPoison", 0.57
+	damagefactor "ImpPoison_Vulgar", 0.57
+	damagefactor "ImpPoison_Roach", 0.57
+	damagefactor "PaineFire", 0.57
+	damagefactor "PainePoison", 0.57
+	damagefactor "RevIce", 0.57
+	damagefactor "RevSludge", 0.57
+	damagefactor "RevPoison_Crawler", 0.57
+	damagefactor "BaronsPoison", 0.57
+	damagefactor "BaronsFire", 0.57
+	damagefactor "BaronGreen", 0.57
+	damagefactor "BaronGreenFire", 0.57
+	damagefactor "FattyFire", 0.57
+	damagefactor "FattyIce", 0.57
+	damagefactor "ArachnoFire", 0.57
+	damagefactor "VileFire", 0.57
+	damagefactor "VileBlue", 0.57
+	damagefactor "VileBlueFire", 0.57
+	damagefactor "BigSpiderFire", 0.57
+	damagefactor "BigSpiderIce", 0.57
+	damagefactor "CyberFire", 0.57
+	damagefactor "CyberLightning", 0.57
+	damagefactor "CyberIce", 0.57
+}
+
+Actor ElementalResist_44 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.56
+	damagefactor "ImpFire", 0.56
+	damagefactor "CacoFire", 0.56
+	damagefactor "CacoPoison", 0.56
+	damagefactor "ImpPoison_Vulgar", 0.56
+	damagefactor "ImpPoison_Roach", 0.56
+	damagefactor "PaineFire", 0.56
+	damagefactor "PainePoison", 0.56
+	damagefactor "RevIce", 0.56
+	damagefactor "RevSludge", 0.56
+	damagefactor "RevPoison_Crawler", 0.56
+	damagefactor "BaronsPoison", 0.56
+	damagefactor "BaronsFire", 0.56
+	damagefactor "BaronGreen", 0.56
+	damagefactor "BaronGreenFire", 0.56
+	damagefactor "FattyFire", 0.56
+	damagefactor "FattyIce", 0.56
+	damagefactor "ArachnoFire", 0.56
+	damagefactor "VileFire", 0.56
+	damagefactor "VileBlue", 0.56
+	damagefactor "VileBlueFire", 0.56
+	damagefactor "BigSpiderFire", 0.56
+	damagefactor "BigSpiderIce", 0.56
+	damagefactor "CyberFire", 0.56
+	damagefactor "CyberLightning", 0.56
+	damagefactor "CyberIce", 0.56
+}
+
+Actor ElementalResist_45 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.55
+	damagefactor "ImpFire", 0.55
+	damagefactor "CacoFire", 0.55
+	damagefactor "CacoPoison", 0.55
+	damagefactor "ImpPoison_Vulgar", 0.55
+	damagefactor "ImpPoison_Roach", 0.55
+	damagefactor "PaineFire", 0.55
+	damagefactor "PainePoison", 0.55
+	damagefactor "RevIce", 0.55
+	damagefactor "RevSludge", 0.55
+	damagefactor "RevPoison_Crawler", 0.55
+	damagefactor "BaronsPoison", 0.55
+	damagefactor "BaronsFire", 0.55
+	damagefactor "BaronGreen", 0.55
+	damagefactor "BaronGreenFire", 0.55
+	damagefactor "FattyFire", 0.55
+	damagefactor "FattyIce", 0.55
+	damagefactor "ArachnoFire", 0.55
+	damagefactor "VileFire", 0.55
+	damagefactor "VileBlue", 0.55
+	damagefactor "VileBlueFire", 0.55
+	damagefactor "BigSpiderFire", 0.55
+	damagefactor "BigSpiderIce", 0.55
+	damagefactor "CyberFire", 0.55
+	damagefactor "CyberLightning", 0.55
+	damagefactor "CyberIce", 0.55
+}
+
+Actor ElementalResist_46 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.54
+	damagefactor "ImpFire", 0.54
+	damagefactor "CacoFire", 0.54
+	damagefactor "CacoPoison", 0.54
+	damagefactor "ImpPoison_Vulgar", 0.54
+	damagefactor "ImpPoison_Roach", 0.54
+	damagefactor "PaineFire", 0.54
+	damagefactor "PainePoison", 0.54
+	damagefactor "RevIce", 0.54
+	damagefactor "RevSludge", 0.54
+	damagefactor "RevPoison_Crawler", 0.54
+	damagefactor "BaronsPoison", 0.54
+	damagefactor "BaronsFire", 0.54
+	damagefactor "BaronGreen", 0.54
+	damagefactor "BaronGreenFire", 0.54
+	damagefactor "FattyFire", 0.54
+	damagefactor "FattyIce", 0.54
+	damagefactor "ArachnoFire", 0.54
+	damagefactor "VileFire", 0.54
+	damagefactor "VileBlue", 0.54
+	damagefactor "VileBlueFire", 0.54
+	damagefactor "BigSpiderFire", 0.54
+	damagefactor "BigSpiderIce", 0.54
+	damagefactor "CyberFire", 0.54
+	damagefactor "CyberLightning", 0.54
+	damagefactor "CyberIce", 0.54
+}
+
+Actor ElementalResist_47 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.53
+	damagefactor "ImpFire", 0.53
+	damagefactor "CacoFire", 0.53
+	damagefactor "CacoPoison", 0.53
+	damagefactor "ImpPoison_Vulgar", 0.53
+	damagefactor "ImpPoison_Roach", 0.53
+	damagefactor "PaineFire", 0.53
+	damagefactor "PainePoison", 0.53
+	damagefactor "RevIce", 0.53
+	damagefactor "RevSludge", 0.53
+	damagefactor "RevPoison_Crawler", 0.53
+	damagefactor "BaronsPoison", 0.53
+	damagefactor "BaronsFire", 0.53
+	damagefactor "BaronGreen", 0.53
+	damagefactor "BaronGreenFire", 0.53
+	damagefactor "FattyFire", 0.53
+	damagefactor "FattyIce", 0.53
+	damagefactor "ArachnoFire", 0.53
+	damagefactor "VileFire", 0.53
+	damagefactor "VileBlue", 0.53
+	damagefactor "VileBlueFire", 0.53
+	damagefactor "BigSpiderFire", 0.53
+	damagefactor "BigSpiderIce", 0.53
+	damagefactor "CyberFire", 0.53
+	damagefactor "CyberLightning", 0.53
+	damagefactor "CyberIce", 0.53
+}
+
+Actor ElementalResist_48 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.52
+	damagefactor "ImpFire", 0.52
+	damagefactor "CacoFire", 0.52
+	damagefactor "CacoPoison", 0.52
+	damagefactor "ImpPoison_Vulgar", 0.52
+	damagefactor "ImpPoison_Roach", 0.52
+	damagefactor "PaineFire", 0.52
+	damagefactor "PainePoison", 0.52
+	damagefactor "RevIce", 0.52
+	damagefactor "RevSludge", 0.52
+	damagefactor "RevPoison_Crawler", 0.52
+	damagefactor "BaronsPoison", 0.52
+	damagefactor "BaronsFire", 0.52
+	damagefactor "BaronGreen", 0.52
+	damagefactor "BaronGreenFire", 0.52
+	damagefactor "FattyFire", 0.52
+	damagefactor "FattyIce", 0.52
+	damagefactor "ArachnoFire", 0.52
+	damagefactor "VileFire", 0.52
+	damagefactor "VileBlue", 0.52
+	damagefactor "VileBlueFire", 0.52
+	damagefactor "BigSpiderFire", 0.52
+	damagefactor "BigSpiderIce", 0.52
+	damagefactor "CyberFire", 0.52
+	damagefactor "CyberLightning", 0.52
+	damagefactor "CyberIce", 0.52
+}
+
+Actor ElementalResist_49 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.51
+	damagefactor "ImpFire", 0.51
+	damagefactor "CacoFire", 0.51
+	damagefactor "CacoPoison", 0.51
+	damagefactor "ImpPoison_Vulgar", 0.51
+	damagefactor "ImpPoison_Roach", 0.51
+	damagefactor "PaineFire", 0.51
+	damagefactor "PainePoison", 0.51
+	damagefactor "RevIce", 0.51
+	damagefactor "RevSludge", 0.51
+	damagefactor "RevPoison_Crawler", 0.51
+	damagefactor "BaronsPoison", 0.51
+	damagefactor "BaronsFire", 0.51
+	damagefactor "BaronGreen", 0.51
+	damagefactor "BaronGreenFire", 0.51
+	damagefactor "FattyFire", 0.51
+	damagefactor "FattyIce", 0.51
+	damagefactor "ArachnoFire", 0.51
+	damagefactor "VileFire", 0.51
+	damagefactor "VileBlue", 0.51
+	damagefactor "VileBlueFire", 0.51
+	damagefactor "BigSpiderFire", 0.51
+	damagefactor "BigSpiderIce", 0.51
+	damagefactor "CyberFire", 0.51
+	damagefactor "CyberLightning", 0.51
+	damagefactor "CyberIce", 0.51
+}
+
+Actor ElementalResist_50 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.5
+	damagefactor "ImpFire", 0.5
+	damagefactor "CacoFire", 0.5
+	damagefactor "CacoPoison", 0.5
+	damagefactor "ImpPoison_Vulgar", 0.5
+	damagefactor "ImpPoison_Roach", 0.5
+	damagefactor "PaineFire", 0.5
+	damagefactor "PainePoison", 0.5
+	damagefactor "RevIce", 0.5
+	damagefactor "RevSludge", 0.5
+	damagefactor "RevPoison_Crawler", 0.5
+	damagefactor "BaronsPoison", 0.5
+	damagefactor "BaronsFire", 0.5
+	damagefactor "BaronGreen", 0.5
+	damagefactor "BaronGreenFire", 0.5
+	damagefactor "FattyFire", 0.5
+	damagefactor "FattyIce", 0.5
+	damagefactor "ArachnoFire", 0.5
+	damagefactor "VileFire", 0.5
+	damagefactor "VileBlue", 0.5
+	damagefactor "VileBlueFire", 0.5
+	damagefactor "BigSpiderFire", 0.5
+	damagefactor "BigSpiderIce", 0.5
+	damagefactor "CyberFire", 0.5
+	damagefactor "CyberLightning", 0.5
+	damagefactor "CyberIce", 0.5
+}
+
+Actor ElementalResist_51 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.49
+	damagefactor "ImpFire", 0.49
+	damagefactor "CacoFire", 0.49
+	damagefactor "CacoPoison", 0.49
+	damagefactor "ImpPoison_Vulgar", 0.49
+	damagefactor "ImpPoison_Roach", 0.49
+	damagefactor "PaineFire", 0.49
+	damagefactor "PainePoison", 0.49
+	damagefactor "RevIce", 0.49
+	damagefactor "RevSludge", 0.49
+	damagefactor "RevPoison_Crawler", 0.49
+	damagefactor "BaronsPoison", 0.49
+	damagefactor "BaronsFire", 0.49
+	damagefactor "BaronGreen", 0.49
+	damagefactor "BaronGreenFire", 0.49
+	damagefactor "FattyFire", 0.49
+	damagefactor "FattyIce", 0.49
+	damagefactor "ArachnoFire", 0.49
+	damagefactor "VileFire", 0.49
+	damagefactor "VileBlue", 0.49
+	damagefactor "VileBlueFire", 0.49
+	damagefactor "BigSpiderFire", 0.49
+	damagefactor "BigSpiderIce", 0.49
+	damagefactor "CyberFire", 0.49
+	damagefactor "CyberLightning", 0.49
+	damagefactor "CyberIce", 0.49
+}
+
+Actor ElementalResist_52 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.48
+	damagefactor "ImpFire", 0.48
+	damagefactor "CacoFire", 0.48
+	damagefactor "CacoPoison", 0.48
+	damagefactor "ImpPoison_Vulgar", 0.48
+	damagefactor "ImpPoison_Roach", 0.48
+	damagefactor "PaineFire", 0.48
+	damagefactor "PainePoison", 0.48
+	damagefactor "RevIce", 0.48
+	damagefactor "RevSludge", 0.48
+	damagefactor "RevPoison_Crawler", 0.48
+	damagefactor "BaronsPoison", 0.48
+	damagefactor "BaronsFire", 0.48
+	damagefactor "BaronGreen", 0.48
+	damagefactor "BaronGreenFire", 0.48
+	damagefactor "FattyFire", 0.48
+	damagefactor "FattyIce", 0.48
+	damagefactor "ArachnoFire", 0.48
+	damagefactor "VileFire", 0.48
+	damagefactor "VileBlue", 0.48
+	damagefactor "VileBlueFire", 0.48
+	damagefactor "BigSpiderFire", 0.48
+	damagefactor "BigSpiderIce", 0.48
+	damagefactor "CyberFire", 0.48
+	damagefactor "CyberLightning", 0.48
+	damagefactor "CyberIce", 0.48
+}
+
+Actor ElementalResist_53 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.47
+	damagefactor "ImpFire", 0.47
+	damagefactor "CacoFire", 0.47
+	damagefactor "CacoPoison", 0.47
+	damagefactor "ImpPoison_Vulgar", 0.47
+	damagefactor "ImpPoison_Roach", 0.47
+	damagefactor "PaineFire", 0.47
+	damagefactor "PainePoison", 0.47
+	damagefactor "RevIce", 0.47
+	damagefactor "RevSludge", 0.47
+	damagefactor "RevPoison_Crawler", 0.47
+	damagefactor "BaronsPoison", 0.47
+	damagefactor "BaronsFire", 0.47
+	damagefactor "BaronGreen", 0.47
+	damagefactor "BaronGreenFire", 0.47
+	damagefactor "FattyFire", 0.47
+	damagefactor "FattyIce", 0.47
+	damagefactor "ArachnoFire", 0.47
+	damagefactor "VileFire", 0.47
+	damagefactor "VileBlue", 0.47
+	damagefactor "VileBlueFire", 0.47
+	damagefactor "BigSpiderFire", 0.47
+	damagefactor "BigSpiderIce", 0.47
+	damagefactor "CyberFire", 0.47
+	damagefactor "CyberLightning", 0.47
+	damagefactor "CyberIce", 0.47
+}
+
+Actor ElementalResist_54 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.46
+	damagefactor "ImpFire", 0.46
+	damagefactor "CacoFire", 0.46
+	damagefactor "CacoPoison", 0.46
+	damagefactor "ImpPoison_Vulgar", 0.46
+	damagefactor "ImpPoison_Roach", 0.46
+	damagefactor "PaineFire", 0.46
+	damagefactor "PainePoison", 0.46
+	damagefactor "RevIce", 0.46
+	damagefactor "RevSludge", 0.46
+	damagefactor "RevPoison_Crawler", 0.46
+	damagefactor "BaronsPoison", 0.46
+	damagefactor "BaronsFire", 0.46
+	damagefactor "BaronGreen", 0.46
+	damagefactor "BaronGreenFire", 0.46
+	damagefactor "FattyFire", 0.46
+	damagefactor "FattyIce", 0.46
+	damagefactor "ArachnoFire", 0.46
+	damagefactor "VileFire", 0.46
+	damagefactor "VileBlue", 0.46
+	damagefactor "VileBlueFire", 0.46
+	damagefactor "BigSpiderFire", 0.46
+	damagefactor "BigSpiderIce", 0.46
+	damagefactor "CyberFire", 0.46
+	damagefactor "CyberLightning", 0.46
+	damagefactor "CyberIce", 0.46
+}
+
+Actor ElementalResist_55 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.45
+	damagefactor "ImpFire", 0.45
+	damagefactor "CacoFire", 0.45
+	damagefactor "CacoPoison", 0.45
+	damagefactor "ImpPoison_Vulgar", 0.45
+	damagefactor "ImpPoison_Roach", 0.45
+	damagefactor "PaineFire", 0.45
+	damagefactor "PainePoison", 0.45
+	damagefactor "RevIce", 0.45
+	damagefactor "RevSludge", 0.45
+	damagefactor "RevPoison_Crawler", 0.45
+	damagefactor "BaronsPoison", 0.45
+	damagefactor "BaronsFire", 0.45
+	damagefactor "BaronGreen", 0.45
+	damagefactor "BaronGreenFire", 0.45
+	damagefactor "FattyFire", 0.45
+	damagefactor "FattyIce", 0.45
+	damagefactor "ArachnoFire", 0.45
+	damagefactor "VileFire", 0.45
+	damagefactor "VileBlue", 0.45
+	damagefactor "VileBlueFire", 0.45
+	damagefactor "BigSpiderFire", 0.45
+	damagefactor "BigSpiderIce", 0.45
+	damagefactor "CyberFire", 0.45
+	damagefactor "CyberLightning", 0.45
+	damagefactor "CyberIce", 0.45
+}
+
+Actor ElementalResist_56 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.44
+	damagefactor "ImpFire", 0.44
+	damagefactor "CacoFire", 0.44
+	damagefactor "CacoPoison", 0.44
+	damagefactor "ImpPoison_Vulgar", 0.44
+	damagefactor "ImpPoison_Roach", 0.44
+	damagefactor "PaineFire", 0.44
+	damagefactor "PainePoison", 0.44
+	damagefactor "RevIce", 0.44
+	damagefactor "RevSludge", 0.44
+	damagefactor "RevPoison_Crawler", 0.44
+	damagefactor "BaronsPoison", 0.44
+	damagefactor "BaronsFire", 0.44
+	damagefactor "BaronGreen", 0.44
+	damagefactor "BaronGreenFire", 0.44
+	damagefactor "FattyFire", 0.44
+	damagefactor "FattyIce", 0.44
+	damagefactor "ArachnoFire", 0.44
+	damagefactor "VileFire", 0.44
+	damagefactor "VileBlue", 0.44
+	damagefactor "VileBlueFire", 0.44
+	damagefactor "BigSpiderFire", 0.44
+	damagefactor "BigSpiderIce", 0.44
+	damagefactor "CyberFire", 0.44
+	damagefactor "CyberLightning", 0.44
+	damagefactor "CyberIce", 0.44
+}
+
+Actor ElementalResist_57 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.43
+	damagefactor "ImpFire", 0.43
+	damagefactor "CacoFire", 0.43
+	damagefactor "CacoPoison", 0.43
+	damagefactor "ImpPoison_Vulgar", 0.43
+	damagefactor "ImpPoison_Roach", 0.43
+	damagefactor "PaineFire", 0.43
+	damagefactor "PainePoison", 0.43
+	damagefactor "RevIce", 0.43
+	damagefactor "RevSludge", 0.43
+	damagefactor "RevPoison_Crawler", 0.43
+	damagefactor "BaronsPoison", 0.43
+	damagefactor "BaronsFire", 0.43
+	damagefactor "BaronGreen", 0.43
+	damagefactor "BaronGreenFire", 0.43
+	damagefactor "FattyFire", 0.43
+	damagefactor "FattyIce", 0.43
+	damagefactor "ArachnoFire", 0.43
+	damagefactor "VileFire", 0.43
+	damagefactor "VileBlue", 0.43
+	damagefactor "VileBlueFire", 0.43
+	damagefactor "BigSpiderFire", 0.43
+	damagefactor "BigSpiderIce", 0.43
+	damagefactor "CyberFire", 0.43
+	damagefactor "CyberLightning", 0.43
+	damagefactor "CyberIce", 0.43
+}
+
+Actor ElementalResist_58 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.42
+	damagefactor "ImpFire", 0.42
+	damagefactor "CacoFire", 0.42
+	damagefactor "CacoPoison", 0.42
+	damagefactor "ImpPoison_Vulgar", 0.42
+	damagefactor "ImpPoison_Roach", 0.42
+	damagefactor "PaineFire", 0.42
+	damagefactor "PainePoison", 0.42
+	damagefactor "RevIce", 0.42
+	damagefactor "RevSludge", 0.42
+	damagefactor "RevPoison_Crawler", 0.42
+	damagefactor "BaronsPoison", 0.42
+	damagefactor "BaronsFire", 0.42
+	damagefactor "BaronGreen", 0.42
+	damagefactor "BaronGreenFire", 0.42
+	damagefactor "FattyFire", 0.42
+	damagefactor "FattyIce", 0.42
+	damagefactor "ArachnoFire", 0.42
+	damagefactor "VileFire", 0.42
+	damagefactor "VileBlue", 0.42
+	damagefactor "VileBlueFire", 0.42
+	damagefactor "BigSpiderFire", 0.42
+	damagefactor "BigSpiderIce", 0.42
+	damagefactor "CyberFire", 0.42
+	damagefactor "CyberLightning", 0.42
+	damagefactor "CyberIce", 0.42
+}
+
+Actor ElementalResist_59 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.41
+	damagefactor "ImpFire", 0.41
+	damagefactor "CacoFire", 0.41
+	damagefactor "CacoPoison", 0.41
+	damagefactor "ImpPoison_Vulgar", 0.41
+	damagefactor "ImpPoison_Roach", 0.41
+	damagefactor "PaineFire", 0.41
+	damagefactor "PainePoison", 0.41
+	damagefactor "RevIce", 0.41
+	damagefactor "RevSludge", 0.41
+	damagefactor "RevPoison_Crawler", 0.41
+	damagefactor "BaronsPoison", 0.41
+	damagefactor "BaronsFire", 0.41
+	damagefactor "BaronGreen", 0.41
+	damagefactor "BaronGreenFire", 0.41
+	damagefactor "FattyFire", 0.41
+	damagefactor "FattyIce", 0.41
+	damagefactor "ArachnoFire", 0.41
+	damagefactor "VileFire", 0.41
+	damagefactor "VileBlue", 0.41
+	damagefactor "VileBlueFire", 0.41
+	damagefactor "BigSpiderFire", 0.41
+	damagefactor "BigSpiderIce", 0.41
+	damagefactor "CyberFire", 0.41
+	damagefactor "CyberLightning", 0.41
+	damagefactor "CyberIce", 0.41
+}
+
+Actor ElementalResist_60 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.4
+	damagefactor "ImpFire", 0.4
+	damagefactor "CacoFire", 0.4
+	damagefactor "CacoPoison", 0.4
+	damagefactor "ImpPoison_Vulgar", 0.4
+	damagefactor "ImpPoison_Roach", 0.4
+	damagefactor "PaineFire", 0.4
+	damagefactor "PainePoison", 0.4
+	damagefactor "RevIce", 0.4
+	damagefactor "RevSludge", 0.4
+	damagefactor "RevPoison_Crawler", 0.4
+	damagefactor "BaronsPoison", 0.4
+	damagefactor "BaronsFire", 0.4
+	damagefactor "BaronGreen", 0.4
+	damagefactor "BaronGreenFire", 0.4
+	damagefactor "FattyFire", 0.4
+	damagefactor "FattyIce", 0.4
+	damagefactor "ArachnoFire", 0.4
+	damagefactor "VileFire", 0.4
+	damagefactor "VileBlue", 0.4
+	damagefactor "VileBlueFire", 0.4
+	damagefactor "BigSpiderFire", 0.4
+	damagefactor "BigSpiderIce", 0.4
+	damagefactor "CyberFire", 0.4
+	damagefactor "CyberLightning", 0.4
+	damagefactor "CyberIce", 0.4
+}
+
+Actor ElementalResist_61 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.39
+	damagefactor "ImpFire", 0.39
+	damagefactor "CacoFire", 0.39
+	damagefactor "CacoPoison", 0.39
+	damagefactor "ImpPoison_Vulgar", 0.39
+	damagefactor "ImpPoison_Roach", 0.39
+	damagefactor "PaineFire", 0.39
+	damagefactor "PainePoison", 0.39
+	damagefactor "RevIce", 0.39
+	damagefactor "RevSludge", 0.39
+	damagefactor "RevPoison_Crawler", 0.39
+	damagefactor "BaronsPoison", 0.39
+	damagefactor "BaronsFire", 0.39
+	damagefactor "BaronGreen", 0.39
+	damagefactor "BaronGreenFire", 0.39
+	damagefactor "FattyFire", 0.39
+	damagefactor "FattyIce", 0.39
+	damagefactor "ArachnoFire", 0.39
+	damagefactor "VileFire", 0.39
+	damagefactor "VileBlue", 0.39
+	damagefactor "VileBlueFire", 0.39
+	damagefactor "BigSpiderFire", 0.39
+	damagefactor "BigSpiderIce", 0.39
+	damagefactor "CyberFire", 0.39
+	damagefactor "CyberLightning", 0.39
+	damagefactor "CyberIce", 0.39
+}
+
+Actor ElementalResist_62 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.38
+	damagefactor "ImpFire", 0.38
+	damagefactor "CacoFire", 0.38
+	damagefactor "CacoPoison", 0.38
+	damagefactor "ImpPoison_Vulgar", 0.38
+	damagefactor "ImpPoison_Roach", 0.38
+	damagefactor "PaineFire", 0.38
+	damagefactor "PainePoison", 0.38
+	damagefactor "RevIce", 0.38
+	damagefactor "RevSludge", 0.38
+	damagefactor "RevPoison_Crawler", 0.38
+	damagefactor "BaronsPoison", 0.38
+	damagefactor "BaronsFire", 0.38
+	damagefactor "BaronGreen", 0.38
+	damagefactor "BaronGreenFire", 0.38
+	damagefactor "FattyFire", 0.38
+	damagefactor "FattyIce", 0.38
+	damagefactor "ArachnoFire", 0.38
+	damagefactor "VileFire", 0.38
+	damagefactor "VileBlue", 0.38
+	damagefactor "VileBlueFire", 0.38
+	damagefactor "BigSpiderFire", 0.38
+	damagefactor "BigSpiderIce", 0.38
+	damagefactor "CyberFire", 0.38
+	damagefactor "CyberLightning", 0.38
+	damagefactor "CyberIce", 0.38
+}
+
+Actor ElementalResist_63 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.37
+	damagefactor "ImpFire", 0.37
+	damagefactor "CacoFire", 0.37
+	damagefactor "CacoPoison", 0.37
+	damagefactor "ImpPoison_Vulgar", 0.37
+	damagefactor "ImpPoison_Roach", 0.37
+	damagefactor "PaineFire", 0.37
+	damagefactor "PainePoison", 0.37
+	damagefactor "RevIce", 0.37
+	damagefactor "RevSludge", 0.37
+	damagefactor "RevPoison_Crawler", 0.37
+	damagefactor "BaronsPoison", 0.37
+	damagefactor "BaronsFire", 0.37
+	damagefactor "BaronGreen", 0.37
+	damagefactor "BaronGreenFire", 0.37
+	damagefactor "FattyFire", 0.37
+	damagefactor "FattyIce", 0.37
+	damagefactor "ArachnoFire", 0.37
+	damagefactor "VileFire", 0.37
+	damagefactor "VileBlue", 0.37
+	damagefactor "VileBlueFire", 0.37
+	damagefactor "BigSpiderFire", 0.37
+	damagefactor "BigSpiderIce", 0.37
+	damagefactor "CyberFire", 0.37
+	damagefactor "CyberLightning", 0.37
+	damagefactor "CyberIce", 0.37
+}
+
+Actor ElementalResist_64 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.36
+	damagefactor "ImpFire", 0.36
+	damagefactor "CacoFire", 0.36
+	damagefactor "CacoPoison", 0.36
+	damagefactor "ImpPoison_Vulgar", 0.36
+	damagefactor "ImpPoison_Roach", 0.36
+	damagefactor "PaineFire", 0.36
+	damagefactor "PainePoison", 0.36
+	damagefactor "RevIce", 0.36
+	damagefactor "RevSludge", 0.36
+	damagefactor "RevPoison_Crawler", 0.36
+	damagefactor "BaronsPoison", 0.36
+	damagefactor "BaronsFire", 0.36
+	damagefactor "BaronGreen", 0.36
+	damagefactor "BaronGreenFire", 0.36
+	damagefactor "FattyFire", 0.36
+	damagefactor "FattyIce", 0.36
+	damagefactor "ArachnoFire", 0.36
+	damagefactor "VileFire", 0.36
+	damagefactor "VileBlue", 0.36
+	damagefactor "VileBlueFire", 0.36
+	damagefactor "BigSpiderFire", 0.36
+	damagefactor "BigSpiderIce", 0.36
+	damagefactor "CyberFire", 0.36
+	damagefactor "CyberLightning", 0.36
+	damagefactor "CyberIce", 0.36
+}
+
+Actor ElementalResist_65 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.35
+	damagefactor "ImpFire", 0.35
+	damagefactor "CacoFire", 0.35
+	damagefactor "CacoPoison", 0.35
+	damagefactor "ImpPoison_Vulgar", 0.35
+	damagefactor "ImpPoison_Roach", 0.35
+	damagefactor "PaineFire", 0.35
+	damagefactor "PainePoison", 0.35
+	damagefactor "RevIce", 0.35
+	damagefactor "RevSludge", 0.35
+	damagefactor "RevPoison_Crawler", 0.35
+	damagefactor "BaronsPoison", 0.35
+	damagefactor "BaronsFire", 0.35
+	damagefactor "BaronGreen", 0.35
+	damagefactor "BaronGreenFire", 0.35
+	damagefactor "FattyFire", 0.35
+	damagefactor "FattyIce", 0.35
+	damagefactor "ArachnoFire", 0.35
+	damagefactor "VileFire", 0.35
+	damagefactor "VileBlue", 0.35
+	damagefactor "VileBlueFire", 0.35
+	damagefactor "BigSpiderFire", 0.35
+	damagefactor "BigSpiderIce", 0.35
+	damagefactor "CyberFire", 0.35
+	damagefactor "CyberLightning", 0.35
+	damagefactor "CyberIce", 0.35
+}
+
+Actor ElementalResist_66 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.34
+	damagefactor "ImpFire", 0.34
+	damagefactor "CacoFire", 0.34
+	damagefactor "CacoPoison", 0.34
+	damagefactor "ImpPoison_Vulgar", 0.34
+	damagefactor "ImpPoison_Roach", 0.34
+	damagefactor "PaineFire", 0.34
+	damagefactor "PainePoison", 0.34
+	damagefactor "RevIce", 0.34
+	damagefactor "RevSludge", 0.34
+	damagefactor "RevPoison_Crawler", 0.34
+	damagefactor "BaronsPoison", 0.34
+	damagefactor "BaronsFire", 0.34
+	damagefactor "BaronGreen", 0.34
+	damagefactor "BaronGreenFire", 0.34
+	damagefactor "FattyFire", 0.34
+	damagefactor "FattyIce", 0.34
+	damagefactor "ArachnoFire", 0.34
+	damagefactor "VileFire", 0.34
+	damagefactor "VileBlue", 0.34
+	damagefactor "VileBlueFire", 0.34
+	damagefactor "BigSpiderFire", 0.34
+	damagefactor "BigSpiderIce", 0.34
+	damagefactor "CyberFire", 0.34
+	damagefactor "CyberLightning", 0.34
+	damagefactor "CyberIce", 0.34
+}
+
+Actor ElementalResist_67 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.33
+	damagefactor "ImpFire", 0.33
+	damagefactor "CacoFire", 0.33
+	damagefactor "CacoPoison", 0.33
+	damagefactor "ImpPoison_Vulgar", 0.33
+	damagefactor "ImpPoison_Roach", 0.33
+	damagefactor "PaineFire", 0.33
+	damagefactor "PainePoison", 0.33
+	damagefactor "RevIce", 0.33
+	damagefactor "RevSludge", 0.33
+	damagefactor "RevPoison_Crawler", 0.33
+	damagefactor "BaronsPoison", 0.33
+	damagefactor "BaronsFire", 0.33
+	damagefactor "BaronGreen", 0.33
+	damagefactor "BaronGreenFire", 0.33
+	damagefactor "FattyFire", 0.33
+	damagefactor "FattyIce", 0.33
+	damagefactor "ArachnoFire", 0.33
+	damagefactor "VileFire", 0.33
+	damagefactor "VileBlue", 0.33
+	damagefactor "VileBlueFire", 0.33
+	damagefactor "BigSpiderFire", 0.33
+	damagefactor "BigSpiderIce", 0.33
+	damagefactor "CyberFire", 0.33
+	damagefactor "CyberLightning", 0.33
+	damagefactor "CyberIce", 0.33
+}
+
+Actor ElementalResist_68 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.32
+	damagefactor "ImpFire", 0.32
+	damagefactor "CacoFire", 0.32
+	damagefactor "CacoPoison", 0.32
+	damagefactor "ImpPoison_Vulgar", 0.32
+	damagefactor "ImpPoison_Roach", 0.32
+	damagefactor "PaineFire", 0.32
+	damagefactor "PainePoison", 0.32
+	damagefactor "RevIce", 0.32
+	damagefactor "RevSludge", 0.32
+	damagefactor "RevPoison_Crawler", 0.32
+	damagefactor "BaronsPoison", 0.32
+	damagefactor "BaronsFire", 0.32
+	damagefactor "BaronGreen", 0.32
+	damagefactor "BaronGreenFire", 0.32
+	damagefactor "FattyFire", 0.32
+	damagefactor "FattyIce", 0.32
+	damagefactor "ArachnoFire", 0.32
+	damagefactor "VileFire", 0.32
+	damagefactor "VileBlue", 0.32
+	damagefactor "VileBlueFire", 0.32
+	damagefactor "BigSpiderFire", 0.32
+	damagefactor "BigSpiderIce", 0.32
+	damagefactor "CyberFire", 0.32
+	damagefactor "CyberLightning", 0.32
+	damagefactor "CyberIce", 0.32
+}
+
+Actor ElementalResist_69 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.31
+	damagefactor "ImpFire", 0.31
+	damagefactor "CacoFire", 0.31
+	damagefactor "CacoPoison", 0.31
+	damagefactor "ImpPoison_Vulgar", 0.31
+	damagefactor "ImpPoison_Roach", 0.31
+	damagefactor "PaineFire", 0.31
+	damagefactor "PainePoison", 0.31
+	damagefactor "RevIce", 0.31
+	damagefactor "RevSludge", 0.31
+	damagefactor "RevPoison_Crawler", 0.31
+	damagefactor "BaronsPoison", 0.31
+	damagefactor "BaronsFire", 0.31
+	damagefactor "BaronGreen", 0.31
+	damagefactor "BaronGreenFire", 0.31
+	damagefactor "FattyFire", 0.31
+	damagefactor "FattyIce", 0.31
+	damagefactor "ArachnoFire", 0.31
+	damagefactor "VileFire", 0.31
+	damagefactor "VileBlue", 0.31
+	damagefactor "VileBlueFire", 0.31
+	damagefactor "BigSpiderFire", 0.31
+	damagefactor "BigSpiderIce", 0.31
+	damagefactor "CyberFire", 0.31
+	damagefactor "CyberLightning", 0.31
+	damagefactor "CyberIce", 0.31
+}
+
+Actor ElementalResist_70 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.3
+	damagefactor "ImpFire", 0.3
+	damagefactor "CacoFire", 0.3
+	damagefactor "CacoPoison", 0.3
+	damagefactor "ImpPoison_Vulgar", 0.3
+	damagefactor "ImpPoison_Roach", 0.3
+	damagefactor "PaineFire", 0.3
+	damagefactor "PainePoison", 0.3
+	damagefactor "RevIce", 0.3
+	damagefactor "RevSludge", 0.3
+	damagefactor "RevPoison_Crawler", 0.3
+	damagefactor "BaronsPoison", 0.3
+	damagefactor "BaronsFire", 0.3
+	damagefactor "BaronGreen", 0.3
+	damagefactor "BaronGreenFire", 0.3
+	damagefactor "FattyFire", 0.3
+	damagefactor "FattyIce", 0.3
+	damagefactor "ArachnoFire", 0.3
+	damagefactor "VileFire", 0.3
+	damagefactor "VileBlue", 0.3
+	damagefactor "VileBlueFire", 0.3
+	damagefactor "BigSpiderFire", 0.3
+	damagefactor "BigSpiderIce", 0.3
+	damagefactor "CyberFire", 0.3
+	damagefactor "CyberLightning", 0.3
+	damagefactor "CyberIce", 0.3
+}
+
+Actor ElementalResist_71 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.29
+	damagefactor "ImpFire", 0.29
+	damagefactor "CacoFire", 0.29
+	damagefactor "CacoPoison", 0.29
+	damagefactor "ImpPoison_Vulgar", 0.29
+	damagefactor "ImpPoison_Roach", 0.29
+	damagefactor "PaineFire", 0.29
+	damagefactor "PainePoison", 0.29
+	damagefactor "RevIce", 0.29
+	damagefactor "RevSludge", 0.29
+	damagefactor "RevPoison_Crawler", 0.29
+	damagefactor "BaronsPoison", 0.29
+	damagefactor "BaronsFire", 0.29
+	damagefactor "BaronGreen", 0.29
+	damagefactor "BaronGreenFire", 0.29
+	damagefactor "FattyFire", 0.29
+	damagefactor "FattyIce", 0.29
+	damagefactor "ArachnoFire", 0.29
+	damagefactor "VileFire", 0.29
+	damagefactor "VileBlue", 0.29
+	damagefactor "VileBlueFire", 0.29
+	damagefactor "BigSpiderFire", 0.29
+	damagefactor "BigSpiderIce", 0.29
+	damagefactor "CyberFire", 0.29
+	damagefactor "CyberLightning", 0.29
+	damagefactor "CyberIce", 0.29
+}
+
+Actor ElementalResist_72 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.28
+	damagefactor "ImpFire", 0.28
+	damagefactor "CacoFire", 0.28
+	damagefactor "CacoPoison", 0.28
+	damagefactor "ImpPoison_Vulgar", 0.28
+	damagefactor "ImpPoison_Roach", 0.28
+	damagefactor "PaineFire", 0.28
+	damagefactor "PainePoison", 0.28
+	damagefactor "RevIce", 0.28
+	damagefactor "RevSludge", 0.28
+	damagefactor "RevPoison_Crawler", 0.28
+	damagefactor "BaronsPoison", 0.28
+	damagefactor "BaronsFire", 0.28
+	damagefactor "BaronGreen", 0.28
+	damagefactor "BaronGreenFire", 0.28
+	damagefactor "FattyFire", 0.28
+	damagefactor "FattyIce", 0.28
+	damagefactor "ArachnoFire", 0.28
+	damagefactor "VileFire", 0.28
+	damagefactor "VileBlue", 0.28
+	damagefactor "VileBlueFire", 0.28
+	damagefactor "BigSpiderFire", 0.28
+	damagefactor "BigSpiderIce", 0.28
+	damagefactor "CyberFire", 0.28
+	damagefactor "CyberLightning", 0.28
+	damagefactor "CyberIce", 0.28
+}
+
+Actor ElementalResist_73 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.27
+	damagefactor "ImpFire", 0.27
+	damagefactor "CacoFire", 0.27
+	damagefactor "CacoPoison", 0.27
+	damagefactor "ImpPoison_Vulgar", 0.27
+	damagefactor "ImpPoison_Roach", 0.27
+	damagefactor "PaineFire", 0.27
+	damagefactor "PainePoison", 0.27
+	damagefactor "RevIce", 0.27
+	damagefactor "RevSludge", 0.27
+	damagefactor "RevPoison_Crawler", 0.27
+	damagefactor "BaronsPoison", 0.27
+	damagefactor "BaronsFire", 0.27
+	damagefactor "BaronGreen", 0.27
+	damagefactor "BaronGreenFire", 0.27
+	damagefactor "FattyFire", 0.27
+	damagefactor "FattyIce", 0.27
+	damagefactor "ArachnoFire", 0.27
+	damagefactor "VileFire", 0.27
+	damagefactor "VileBlue", 0.27
+	damagefactor "VileBlueFire", 0.27
+	damagefactor "BigSpiderFire", 0.27
+	damagefactor "BigSpiderIce", 0.27
+	damagefactor "CyberFire", 0.27
+	damagefactor "CyberLightning", 0.27
+	damagefactor "CyberIce", 0.27
+}
+
+Actor ElementalResist_74 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.26
+	damagefactor "ImpFire", 0.26
+	damagefactor "CacoFire", 0.26
+	damagefactor "CacoPoison", 0.26
+	damagefactor "ImpPoison_Vulgar", 0.26
+	damagefactor "ImpPoison_Roach", 0.26
+	damagefactor "PaineFire", 0.26
+	damagefactor "PainePoison", 0.26
+	damagefactor "RevIce", 0.26
+	damagefactor "RevSludge", 0.26
+	damagefactor "RevPoison_Crawler", 0.26
+	damagefactor "BaronsPoison", 0.26
+	damagefactor "BaronsFire", 0.26
+	damagefactor "BaronGreen", 0.26
+	damagefactor "BaronGreenFire", 0.26
+	damagefactor "FattyFire", 0.26
+	damagefactor "FattyIce", 0.26
+	damagefactor "ArachnoFire", 0.26
+	damagefactor "VileFire", 0.26
+	damagefactor "VileBlue", 0.26
+	damagefactor "VileBlueFire", 0.26
+	damagefactor "BigSpiderFire", 0.26
+	damagefactor "BigSpiderIce", 0.26
+	damagefactor "CyberFire", 0.26
+	damagefactor "CyberLightning", 0.26
+	damagefactor "CyberIce", 0.26
+}
+
+Actor ElementalResist_75 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.25
+	damagefactor "ImpFire", 0.25
+	damagefactor "CacoFire", 0.25
+	damagefactor "CacoPoison", 0.25
+	damagefactor "ImpPoison_Vulgar", 0.25
+	damagefactor "ImpPoison_Roach", 0.25
+	damagefactor "PaineFire", 0.25
+	damagefactor "PainePoison", 0.25
+	damagefactor "RevIce", 0.25
+	damagefactor "RevSludge", 0.25
+	damagefactor "RevPoison_Crawler", 0.25
+	damagefactor "BaronsPoison", 0.25
+	damagefactor "BaronsFire", 0.25
+	damagefactor "BaronGreen", 0.25
+	damagefactor "BaronGreenFire", 0.25
+	damagefactor "FattyFire", 0.25
+	damagefactor "FattyIce", 0.25
+	damagefactor "ArachnoFire", 0.25
+	damagefactor "VileFire", 0.25
+	damagefactor "VileBlue", 0.25
+	damagefactor "VileBlueFire", 0.25
+	damagefactor "BigSpiderFire", 0.25
+	damagefactor "BigSpiderIce", 0.25
+	damagefactor "CyberFire", 0.25
+	damagefactor "CyberLightning", 0.25
+	damagefactor "CyberIce", 0.25
+}
+
+Actor ElementalResist_76 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.24
+	damagefactor "ImpFire", 0.24
+	damagefactor "CacoFire", 0.24
+	damagefactor "CacoPoison", 0.24
+	damagefactor "ImpPoison_Vulgar", 0.24
+	damagefactor "ImpPoison_Roach", 0.24
+	damagefactor "PaineFire", 0.24
+	damagefactor "PainePoison", 0.24
+	damagefactor "RevIce", 0.24
+	damagefactor "RevSludge", 0.24
+	damagefactor "RevPoison_Crawler", 0.24
+	damagefactor "BaronsPoison", 0.24
+	damagefactor "BaronsFire", 0.24
+	damagefactor "BaronGreen", 0.24
+	damagefactor "BaronGreenFire", 0.24
+	damagefactor "FattyFire", 0.24
+	damagefactor "FattyIce", 0.24
+	damagefactor "ArachnoFire", 0.24
+	damagefactor "VileFire", 0.24
+	damagefactor "VileBlue", 0.24
+	damagefactor "VileBlueFire", 0.24
+	damagefactor "BigSpiderFire", 0.24
+	damagefactor "BigSpiderIce", 0.24
+	damagefactor "CyberFire", 0.24
+	damagefactor "CyberLightning", 0.24
+	damagefactor "CyberIce", 0.24
+}
+
+Actor ElementalResist_77 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.23
+	damagefactor "ImpFire", 0.23
+	damagefactor "CacoFire", 0.23
+	damagefactor "CacoPoison", 0.23
+	damagefactor "ImpPoison_Vulgar", 0.23
+	damagefactor "ImpPoison_Roach", 0.23
+	damagefactor "PaineFire", 0.23
+	damagefactor "PainePoison", 0.23
+	damagefactor "RevIce", 0.23
+	damagefactor "RevSludge", 0.23
+	damagefactor "RevPoison_Crawler", 0.23
+	damagefactor "BaronsPoison", 0.23
+	damagefactor "BaronsFire", 0.23
+	damagefactor "BaronGreen", 0.23
+	damagefactor "BaronGreenFire", 0.23
+	damagefactor "FattyFire", 0.23
+	damagefactor "FattyIce", 0.23
+	damagefactor "ArachnoFire", 0.23
+	damagefactor "VileFire", 0.23
+	damagefactor "VileBlue", 0.23
+	damagefactor "VileBlueFire", 0.23
+	damagefactor "BigSpiderFire", 0.23
+	damagefactor "BigSpiderIce", 0.23
+	damagefactor "CyberFire", 0.23
+	damagefactor "CyberLightning", 0.23
+	damagefactor "CyberIce", 0.23
+}
+
+Actor ElementalResist_78 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.22
+	damagefactor "ImpFire", 0.22
+	damagefactor "CacoFire", 0.22
+	damagefactor "CacoPoison", 0.22
+	damagefactor "ImpPoison_Vulgar", 0.22
+	damagefactor "ImpPoison_Roach", 0.22
+	damagefactor "PaineFire", 0.22
+	damagefactor "PainePoison", 0.22
+	damagefactor "RevIce", 0.22
+	damagefactor "RevSludge", 0.22
+	damagefactor "RevPoison_Crawler", 0.22
+	damagefactor "BaronsPoison", 0.22
+	damagefactor "BaronsFire", 0.22
+	damagefactor "BaronGreen", 0.22
+	damagefactor "BaronGreenFire", 0.22
+	damagefactor "FattyFire", 0.22
+	damagefactor "FattyIce", 0.22
+	damagefactor "ArachnoFire", 0.22
+	damagefactor "VileFire", 0.22
+	damagefactor "VileBlue", 0.22
+	damagefactor "VileBlueFire", 0.22
+	damagefactor "BigSpiderFire", 0.22
+	damagefactor "BigSpiderIce", 0.22
+	damagefactor "CyberFire", 0.22
+	damagefactor "CyberLightning", 0.22
+	damagefactor "CyberIce", 0.22
+}
+
+Actor ElementalResist_79 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.21
+	damagefactor "ImpFire", 0.21
+	damagefactor "CacoFire", 0.21
+	damagefactor "CacoPoison", 0.21
+	damagefactor "ImpPoison_Vulgar", 0.21
+	damagefactor "ImpPoison_Roach", 0.21
+	damagefactor "PaineFire", 0.21
+	damagefactor "PainePoison", 0.21
+	damagefactor "RevIce", 0.21
+	damagefactor "RevSludge", 0.21
+	damagefactor "RevPoison_Crawler", 0.21
+	damagefactor "BaronsPoison", 0.21
+	damagefactor "BaronsFire", 0.21
+	damagefactor "BaronGreen", 0.21
+	damagefactor "BaronGreenFire", 0.21
+	damagefactor "FattyFire", 0.21
+	damagefactor "FattyIce", 0.21
+	damagefactor "ArachnoFire", 0.21
+	damagefactor "VileFire", 0.21
+	damagefactor "VileBlue", 0.21
+	damagefactor "VileBlueFire", 0.21
+	damagefactor "BigSpiderFire", 0.21
+	damagefactor "BigSpiderIce", 0.21
+	damagefactor "CyberFire", 0.21
+	damagefactor "CyberLightning", 0.21
+	damagefactor "CyberIce", 0.21
+}
+
+Actor ElementalResist_80 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.2
+	damagefactor "ImpFire", 0.2
+	damagefactor "CacoFire", 0.2
+	damagefactor "CacoPoison", 0.2
+	damagefactor "ImpPoison_Vulgar", 0.2
+	damagefactor "ImpPoison_Roach", 0.2
+	damagefactor "PaineFire", 0.2
+	damagefactor "PainePoison", 0.2
+	damagefactor "RevIce", 0.2
+	damagefactor "RevSludge", 0.2
+	damagefactor "RevPoison_Crawler", 0.2
+	damagefactor "BaronsPoison", 0.2
+	damagefactor "BaronsFire", 0.2
+	damagefactor "BaronGreen", 0.2
+	damagefactor "BaronGreenFire", 0.2
+	damagefactor "FattyFire", 0.2
+	damagefactor "FattyIce", 0.2
+	damagefactor "ArachnoFire", 0.2
+	damagefactor "VileFire", 0.2
+	damagefactor "VileBlue", 0.2
+	damagefactor "VileBlueFire", 0.2
+	damagefactor "BigSpiderFire", 0.2
+	damagefactor "BigSpiderIce", 0.2
+	damagefactor "CyberFire", 0.2
+	damagefactor "CyberLightning", 0.2
+	damagefactor "CyberIce", 0.2
+}
+
+Actor ElementalResist_81 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.19
+	damagefactor "ImpFire", 0.19
+	damagefactor "CacoFire", 0.19
+	damagefactor "CacoPoison", 0.19
+	damagefactor "ImpPoison_Vulgar", 0.19
+	damagefactor "ImpPoison_Roach", 0.19
+	damagefactor "PaineFire", 0.19
+	damagefactor "PainePoison", 0.19
+	damagefactor "RevIce", 0.19
+	damagefactor "RevSludge", 0.19
+	damagefactor "RevPoison_Crawler", 0.19
+	damagefactor "BaronsPoison", 0.19
+	damagefactor "BaronsFire", 0.19
+	damagefactor "BaronGreen", 0.19
+	damagefactor "BaronGreenFire", 0.19
+	damagefactor "FattyFire", 0.19
+	damagefactor "FattyIce", 0.19
+	damagefactor "ArachnoFire", 0.19
+	damagefactor "VileFire", 0.19
+	damagefactor "VileBlue", 0.19
+	damagefactor "VileBlueFire", 0.19
+	damagefactor "BigSpiderFire", 0.19
+	damagefactor "BigSpiderIce", 0.19
+	damagefactor "CyberFire", 0.19
+	damagefactor "CyberLightning", 0.19
+	damagefactor "CyberIce", 0.19
+}
+
+Actor ElementalResist_82 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.18
+	damagefactor "ImpFire", 0.18
+	damagefactor "CacoFire", 0.18
+	damagefactor "CacoPoison", 0.18
+	damagefactor "ImpPoison_Vulgar", 0.18
+	damagefactor "ImpPoison_Roach", 0.18
+	damagefactor "PaineFire", 0.18
+	damagefactor "PainePoison", 0.18
+	damagefactor "RevIce", 0.18
+	damagefactor "RevSludge", 0.18
+	damagefactor "RevPoison_Crawler", 0.18
+	damagefactor "BaronsPoison", 0.18
+	damagefactor "BaronsFire", 0.18
+	damagefactor "BaronGreen", 0.18
+	damagefactor "BaronGreenFire", 0.18
+	damagefactor "FattyFire", 0.18
+	damagefactor "FattyIce", 0.18
+	damagefactor "ArachnoFire", 0.18
+	damagefactor "VileFire", 0.18
+	damagefactor "VileBlue", 0.18
+	damagefactor "VileBlueFire", 0.18
+	damagefactor "BigSpiderFire", 0.18
+	damagefactor "BigSpiderIce", 0.18
+	damagefactor "CyberFire", 0.18
+	damagefactor "CyberLightning", 0.18
+	damagefactor "CyberIce", 0.18
+}
+
+Actor ElementalResist_83 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.17
+	damagefactor "ImpFire", 0.17
+	damagefactor "CacoFire", 0.17
+	damagefactor "CacoPoison", 0.17
+	damagefactor "ImpPoison_Vulgar", 0.17
+	damagefactor "ImpPoison_Roach", 0.17
+	damagefactor "PaineFire", 0.17
+	damagefactor "PainePoison", 0.17
+	damagefactor "RevIce", 0.17
+	damagefactor "RevSludge", 0.17
+	damagefactor "RevPoison_Crawler", 0.17
+	damagefactor "BaronsPoison", 0.17
+	damagefactor "BaronsFire", 0.17
+	damagefactor "BaronGreen", 0.17
+	damagefactor "BaronGreenFire", 0.17
+	damagefactor "FattyFire", 0.17
+	damagefactor "FattyIce", 0.17
+	damagefactor "ArachnoFire", 0.17
+	damagefactor "VileFire", 0.17
+	damagefactor "VileBlue", 0.17
+	damagefactor "VileBlueFire", 0.17
+	damagefactor "BigSpiderFire", 0.17
+	damagefactor "BigSpiderIce", 0.17
+	damagefactor "CyberFire", 0.17
+	damagefactor "CyberLightning", 0.17
+	damagefactor "CyberIce", 0.17
+}
+
+Actor ElementalResist_84 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.16
+	damagefactor "ImpFire", 0.16
+	damagefactor "CacoFire", 0.16
+	damagefactor "CacoPoison", 0.16
+	damagefactor "ImpPoison_Vulgar", 0.16
+	damagefactor "ImpPoison_Roach", 0.16
+	damagefactor "PaineFire", 0.16
+	damagefactor "PainePoison", 0.16
+	damagefactor "RevIce", 0.16
+	damagefactor "RevSludge", 0.16
+	damagefactor "RevPoison_Crawler", 0.16
+	damagefactor "BaronsPoison", 0.16
+	damagefactor "BaronsFire", 0.16
+	damagefactor "BaronGreen", 0.16
+	damagefactor "BaronGreenFire", 0.16
+	damagefactor "FattyFire", 0.16
+	damagefactor "FattyIce", 0.16
+	damagefactor "ArachnoFire", 0.16
+	damagefactor "VileFire", 0.16
+	damagefactor "VileBlue", 0.16
+	damagefactor "VileBlueFire", 0.16
+	damagefactor "BigSpiderFire", 0.16
+	damagefactor "BigSpiderIce", 0.16
+	damagefactor "CyberFire", 0.16
+	damagefactor "CyberLightning", 0.16
+	damagefactor "CyberIce", 0.16
+}
+
+Actor ElementalResist_85 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.15
+	damagefactor "ImpFire", 0.15
+	damagefactor "CacoFire", 0.15
+	damagefactor "CacoPoison", 0.15
+	damagefactor "ImpPoison_Vulgar", 0.15
+	damagefactor "ImpPoison_Roach", 0.15
+	damagefactor "PaineFire", 0.15
+	damagefactor "PainePoison", 0.15
+	damagefactor "RevIce", 0.15
+	damagefactor "RevSludge", 0.15
+	damagefactor "RevPoison_Crawler", 0.15
+	damagefactor "BaronsPoison", 0.15
+	damagefactor "BaronsFire", 0.15
+	damagefactor "BaronGreen", 0.15
+	damagefactor "BaronGreenFire", 0.15
+	damagefactor "FattyFire", 0.15
+	damagefactor "FattyIce", 0.15
+	damagefactor "ArachnoFire", 0.15
+	damagefactor "VileFire", 0.15
+	damagefactor "VileBlue", 0.15
+	damagefactor "VileBlueFire", 0.15
+	damagefactor "BigSpiderFire", 0.15
+	damagefactor "BigSpiderIce", 0.15
+	damagefactor "CyberFire", 0.15
+	damagefactor "CyberLightning", 0.15
+	damagefactor "CyberIce", 0.15
+}
+
+Actor ElementalResist_86 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.14
+	damagefactor "ImpFire", 0.14
+	damagefactor "CacoFire", 0.14
+	damagefactor "CacoPoison", 0.14
+	damagefactor "ImpPoison_Vulgar", 0.14
+	damagefactor "ImpPoison_Roach", 0.14
+	damagefactor "PaineFire", 0.14
+	damagefactor "PainePoison", 0.14
+	damagefactor "RevIce", 0.14
+	damagefactor "RevSludge", 0.14
+	damagefactor "RevPoison_Crawler", 0.14
+	damagefactor "BaronsPoison", 0.14
+	damagefactor "BaronsFire", 0.14
+	damagefactor "BaronGreen", 0.14
+	damagefactor "BaronGreenFire", 0.14
+	damagefactor "FattyFire", 0.14
+	damagefactor "FattyIce", 0.14
+	damagefactor "ArachnoFire", 0.14
+	damagefactor "VileFire", 0.14
+	damagefactor "VileBlue", 0.14
+	damagefactor "VileBlueFire", 0.14
+	damagefactor "BigSpiderFire", 0.14
+	damagefactor "BigSpiderIce", 0.14
+	damagefactor "CyberFire", 0.14
+	damagefactor "CyberLightning", 0.14
+	damagefactor "CyberIce", 0.14
+}
+
+Actor ElementalResist_87 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.13
+	damagefactor "ImpFire", 0.13
+	damagefactor "CacoFire", 0.13
+	damagefactor "CacoPoison", 0.13
+	damagefactor "ImpPoison_Vulgar", 0.13
+	damagefactor "ImpPoison_Roach", 0.13
+	damagefactor "PaineFire", 0.13
+	damagefactor "PainePoison", 0.13
+	damagefactor "RevIce", 0.13
+	damagefactor "RevSludge", 0.13
+	damagefactor "RevPoison_Crawler", 0.13
+	damagefactor "BaronsPoison", 0.13
+	damagefactor "BaronsFire", 0.13
+	damagefactor "BaronGreen", 0.13
+	damagefactor "BaronGreenFire", 0.13
+	damagefactor "FattyFire", 0.13
+	damagefactor "FattyIce", 0.13
+	damagefactor "ArachnoFire", 0.13
+	damagefactor "VileFire", 0.13
+	damagefactor "VileBlue", 0.13
+	damagefactor "VileBlueFire", 0.13
+	damagefactor "BigSpiderFire", 0.13
+	damagefactor "BigSpiderIce", 0.13
+	damagefactor "CyberFire", 0.13
+	damagefactor "CyberLightning", 0.13
+	damagefactor "CyberIce", 0.13
+}
+
+Actor ElementalResist_88 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.12
+	damagefactor "ImpFire", 0.12
+	damagefactor "CacoFire", 0.12
+	damagefactor "CacoPoison", 0.12
+	damagefactor "ImpPoison_Vulgar", 0.12
+	damagefactor "ImpPoison_Roach", 0.12
+	damagefactor "PaineFire", 0.12
+	damagefactor "PainePoison", 0.12
+	damagefactor "RevIce", 0.12
+	damagefactor "RevSludge", 0.12
+	damagefactor "RevPoison_Crawler", 0.12
+	damagefactor "BaronsPoison", 0.12
+	damagefactor "BaronsFire", 0.12
+	damagefactor "BaronGreen", 0.12
+	damagefactor "BaronGreenFire", 0.12
+	damagefactor "FattyFire", 0.12
+	damagefactor "FattyIce", 0.12
+	damagefactor "ArachnoFire", 0.12
+	damagefactor "VileFire", 0.12
+	damagefactor "VileBlue", 0.12
+	damagefactor "VileBlueFire", 0.12
+	damagefactor "BigSpiderFire", 0.12
+	damagefactor "BigSpiderIce", 0.12
+	damagefactor "CyberFire", 0.12
+	damagefactor "CyberLightning", 0.12
+	damagefactor "CyberIce", 0.12
+}
+
+Actor ElementalResist_89 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.11
+	damagefactor "ImpFire", 0.11
+	damagefactor "CacoFire", 0.11
+	damagefactor "CacoPoison", 0.11
+	damagefactor "ImpPoison_Vulgar", 0.11
+	damagefactor "ImpPoison_Roach", 0.11
+	damagefactor "PaineFire", 0.11
+	damagefactor "PainePoison", 0.11
+	damagefactor "RevIce", 0.11
+	damagefactor "RevSludge", 0.11
+	damagefactor "RevPoison_Crawler", 0.11
+	damagefactor "BaronsPoison", 0.11
+	damagefactor "BaronsFire", 0.11
+	damagefactor "BaronGreen", 0.11
+	damagefactor "BaronGreenFire", 0.11
+	damagefactor "FattyFire", 0.11
+	damagefactor "FattyIce", 0.11
+	damagefactor "ArachnoFire", 0.11
+	damagefactor "VileFire", 0.11
+	damagefactor "VileBlue", 0.11
+	damagefactor "VileBlueFire", 0.11
+	damagefactor "BigSpiderFire", 0.11
+	damagefactor "BigSpiderIce", 0.11
+	damagefactor "CyberFire", 0.11
+	damagefactor "CyberLightning", 0.11
+	damagefactor "CyberIce", 0.11
+}
+
+Actor ElementalResist_90 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.1
+	damagefactor "ImpFire", 0.1
+	damagefactor "CacoFire", 0.1
+	damagefactor "CacoPoison", 0.1
+	damagefactor "ImpPoison_Vulgar", 0.1
+	damagefactor "ImpPoison_Roach", 0.1
+	damagefactor "PaineFire", 0.1
+	damagefactor "PainePoison", 0.1
+	damagefactor "RevIce", 0.1
+	damagefactor "RevSludge", 0.1
+	damagefactor "RevPoison_Crawler", 0.1
+	damagefactor "BaronsPoison", 0.1
+	damagefactor "BaronsFire", 0.1
+	damagefactor "BaronGreen", 0.1
+	damagefactor "BaronGreenFire", 0.1
+	damagefactor "FattyFire", 0.1
+	damagefactor "FattyIce", 0.1
+	damagefactor "ArachnoFire", 0.1
+	damagefactor "VileFire", 0.1
+	damagefactor "VileBlue", 0.1
+	damagefactor "VileBlueFire", 0.1
+	damagefactor "BigSpiderFire", 0.1
+	damagefactor "BigSpiderIce", 0.1
+	damagefactor "CyberFire", 0.1
+	damagefactor "CyberLightning", 0.1
+	damagefactor "CyberIce", 0.1
+}
+
+Actor ElementalResist_91 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.09
+	damagefactor "ImpFire", 0.09
+	damagefactor "CacoFire", 0.09
+	damagefactor "CacoPoison", 0.09
+	damagefactor "ImpPoison_Vulgar", 0.09
+	damagefactor "ImpPoison_Roach", 0.09
+	damagefactor "PaineFire", 0.09
+	damagefactor "PainePoison", 0.09
+	damagefactor "RevIce", 0.09
+	damagefactor "RevSludge", 0.09
+	damagefactor "RevPoison_Crawler", 0.09
+	damagefactor "BaronsPoison", 0.09
+	damagefactor "BaronsFire", 0.09
+	damagefactor "BaronGreen", 0.09
+	damagefactor "BaronGreenFire", 0.09
+	damagefactor "FattyFire", 0.09
+	damagefactor "FattyIce", 0.09
+	damagefactor "ArachnoFire", 0.09
+	damagefactor "VileFire", 0.09
+	damagefactor "VileBlue", 0.09
+	damagefactor "VileBlueFire", 0.09
+	damagefactor "BigSpiderFire", 0.09
+	damagefactor "BigSpiderIce", 0.09
+	damagefactor "CyberFire", 0.09
+	damagefactor "CyberLightning", 0.09
+	damagefactor "CyberIce", 0.09
+}
+
+Actor ElementalResist_92 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.08
+	damagefactor "ImpFire", 0.08
+	damagefactor "CacoFire", 0.08
+	damagefactor "CacoPoison", 0.08
+	damagefactor "ImpPoison_Vulgar", 0.08
+	damagefactor "ImpPoison_Roach", 0.08
+	damagefactor "PaineFire", 0.08
+	damagefactor "PainePoison", 0.08
+	damagefactor "RevIce", 0.08
+	damagefactor "RevSludge", 0.08
+	damagefactor "RevPoison_Crawler", 0.08
+	damagefactor "BaronsPoison", 0.08
+	damagefactor "BaronsFire", 0.08
+	damagefactor "BaronGreen", 0.08
+	damagefactor "BaronGreenFire", 0.08
+	damagefactor "FattyFire", 0.08
+	damagefactor "FattyIce", 0.08
+	damagefactor "ArachnoFire", 0.08
+	damagefactor "VileFire", 0.08
+	damagefactor "VileBlue", 0.08
+	damagefactor "VileBlueFire", 0.08
+	damagefactor "BigSpiderFire", 0.08
+	damagefactor "BigSpiderIce", 0.08
+	damagefactor "CyberFire", 0.08
+	damagefactor "CyberLightning", 0.08
+	damagefactor "CyberIce", 0.08
+}
+
+Actor ElementalResist_93 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.07
+	damagefactor "ImpFire", 0.07
+	damagefactor "CacoFire", 0.07
+	damagefactor "CacoPoison", 0.07
+	damagefactor "ImpPoison_Vulgar", 0.07
+	damagefactor "ImpPoison_Roach", 0.07
+	damagefactor "PaineFire", 0.07
+	damagefactor "PainePoison", 0.07
+	damagefactor "RevIce", 0.07
+	damagefactor "RevSludge", 0.07
+	damagefactor "RevPoison_Crawler", 0.07
+	damagefactor "BaronsPoison", 0.07
+	damagefactor "BaronsFire", 0.07
+	damagefactor "BaronGreen", 0.07
+	damagefactor "BaronGreenFire", 0.07
+	damagefactor "FattyFire", 0.07
+	damagefactor "FattyIce", 0.07
+	damagefactor "ArachnoFire", 0.07
+	damagefactor "VileFire", 0.07
+	damagefactor "VileBlue", 0.07
+	damagefactor "VileBlueFire", 0.07
+	damagefactor "BigSpiderFire", 0.07
+	damagefactor "BigSpiderIce", 0.07
+	damagefactor "CyberFire", 0.07
+	damagefactor "CyberLightning", 0.07
+	damagefactor "CyberIce", 0.07
+}
+
+Actor ElementalResist_94 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.06
+	damagefactor "ImpFire", 0.06
+	damagefactor "CacoFire", 0.06
+	damagefactor "CacoPoison", 0.06
+	damagefactor "ImpPoison_Vulgar", 0.06
+	damagefactor "ImpPoison_Roach", 0.06
+	damagefactor "PaineFire", 0.06
+	damagefactor "PainePoison", 0.06
+	damagefactor "RevIce", 0.06
+	damagefactor "RevSludge", 0.06
+	damagefactor "RevPoison_Crawler", 0.06
+	damagefactor "BaronsPoison", 0.06
+	damagefactor "BaronsFire", 0.06
+	damagefactor "BaronGreen", 0.06
+	damagefactor "BaronGreenFire", 0.06
+	damagefactor "FattyFire", 0.06
+	damagefactor "FattyIce", 0.06
+	damagefactor "ArachnoFire", 0.06
+	damagefactor "VileFire", 0.06
+	damagefactor "VileBlue", 0.06
+	damagefactor "VileBlueFire", 0.06
+	damagefactor "BigSpiderFire", 0.06
+	damagefactor "BigSpiderIce", 0.06
+	damagefactor "CyberFire", 0.06
+	damagefactor "CyberLightning", 0.06
+	damagefactor "CyberIce", 0.06
+}
+
+Actor ElementalResist_95 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.05
+	damagefactor "ImpFire", 0.05
+	damagefactor "CacoFire", 0.05
+	damagefactor "CacoPoison", 0.05
+	damagefactor "ImpPoison_Vulgar", 0.05
+	damagefactor "ImpPoison_Roach", 0.05
+	damagefactor "PaineFire", 0.05
+	damagefactor "PainePoison", 0.05
+	damagefactor "RevIce", 0.05
+	damagefactor "RevSludge", 0.05
+	damagefactor "RevPoison_Crawler", 0.05
+	damagefactor "BaronsPoison", 0.05
+	damagefactor "BaronsFire", 0.05
+	damagefactor "BaronGreen", 0.05
+	damagefactor "BaronGreenFire", 0.05
+	damagefactor "FattyFire", 0.05
+	damagefactor "FattyIce", 0.05
+	damagefactor "ArachnoFire", 0.05
+	damagefactor "VileFire", 0.05
+	damagefactor "VileBlue", 0.05
+	damagefactor "VileBlueFire", 0.05
+	damagefactor "BigSpiderFire", 0.05
+	damagefactor "BigSpiderIce", 0.05
+	damagefactor "CyberFire", 0.05
+	damagefactor "CyberLightning", 0.05
+	damagefactor "CyberIce", 0.05
+}
+
+Actor ElementalResist_96 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.04
+	damagefactor "ImpFire", 0.04
+	damagefactor "CacoFire", 0.04
+	damagefactor "CacoPoison", 0.04
+	damagefactor "ImpPoison_Vulgar", 0.04
+	damagefactor "ImpPoison_Roach", 0.04
+	damagefactor "PaineFire", 0.04
+	damagefactor "PainePoison", 0.04
+	damagefactor "RevIce", 0.04
+	damagefactor "RevSludge", 0.04
+	damagefactor "RevPoison_Crawler", 0.04
+	damagefactor "BaronsPoison", 0.04
+	damagefactor "BaronsFire", 0.04
+	damagefactor "BaronGreen", 0.04
+	damagefactor "BaronGreenFire", 0.04
+	damagefactor "FattyFire", 0.04
+	damagefactor "FattyIce", 0.04
+	damagefactor "ArachnoFire", 0.04
+	damagefactor "VileFire", 0.04
+	damagefactor "VileBlue", 0.04
+	damagefactor "VileBlueFire", 0.04
+	damagefactor "BigSpiderFire", 0.04
+	damagefactor "BigSpiderIce", 0.04
+	damagefactor "CyberFire", 0.04
+	damagefactor "CyberLightning", 0.04
+	damagefactor "CyberIce", 0.04
+}
+
+Actor ElementalResist_97 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.03
+	damagefactor "ImpFire", 0.03
+	damagefactor "CacoFire", 0.03
+	damagefactor "CacoPoison", 0.03
+	damagefactor "ImpPoison_Vulgar", 0.03
+	damagefactor "ImpPoison_Roach", 0.03
+	damagefactor "PaineFire", 0.03
+	damagefactor "PainePoison", 0.03
+	damagefactor "RevIce", 0.03
+	damagefactor "RevSludge", 0.03
+	damagefactor "RevPoison_Crawler", 0.03
+	damagefactor "BaronsPoison", 0.03
+	damagefactor "BaronsFire", 0.03
+	damagefactor "BaronGreen", 0.03
+	damagefactor "BaronGreenFire", 0.03
+	damagefactor "FattyFire", 0.03
+	damagefactor "FattyIce", 0.03
+	damagefactor "ArachnoFire", 0.03
+	damagefactor "VileFire", 0.03
+	damagefactor "VileBlue", 0.03
+	damagefactor "VileBlueFire", 0.03
+	damagefactor "BigSpiderFire", 0.03
+	damagefactor "BigSpiderIce", 0.03
+	damagefactor "CyberFire", 0.03
+	damagefactor "CyberLightning", 0.03
+	damagefactor "CyberIce", 0.03
+}
+
+Actor ElementalResist_98 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.02
+	damagefactor "ImpFire", 0.02
+	damagefactor "CacoFire", 0.02
+	damagefactor "CacoPoison", 0.02
+	damagefactor "ImpPoison_Vulgar", 0.02
+	damagefactor "ImpPoison_Roach", 0.02
+	damagefactor "PaineFire", 0.02
+	damagefactor "PainePoison", 0.02
+	damagefactor "RevIce", 0.02
+	damagefactor "RevSludge", 0.02
+	damagefactor "RevPoison_Crawler", 0.02
+	damagefactor "BaronsPoison", 0.02
+	damagefactor "BaronsFire", 0.02
+	damagefactor "BaronGreen", 0.02
+	damagefactor "BaronGreenFire", 0.02
+	damagefactor "FattyFire", 0.02
+	damagefactor "FattyIce", 0.02
+	damagefactor "ArachnoFire", 0.02
+	damagefactor "VileFire", 0.02
+	damagefactor "VileBlue", 0.02
+	damagefactor "VileBlueFire", 0.02
+	damagefactor "BigSpiderFire", 0.02
+	damagefactor "BigSpiderIce", 0.02
+	damagefactor "CyberFire", 0.02
+	damagefactor "CyberLightning", 0.02
+	damagefactor "CyberIce", 0.02
+}
+
+Actor ElementalResist_99 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0.01
+	damagefactor "ImpFire", 0.01
+	damagefactor "CacoFire", 0.01
+	damagefactor "CacoPoison", 0.01
+	damagefactor "ImpPoison_Vulgar", 0.01
+	damagefactor "ImpPoison_Roach", 0.01
+	damagefactor "PaineFire", 0.01
+	damagefactor "PainePoison", 0.01
+	damagefactor "RevIce", 0.01
+	damagefactor "RevSludge", 0.01
+	damagefactor "RevPoison_Crawler", 0.01
+	damagefactor "BaronsPoison", 0.01
+	damagefactor "BaronsFire", 0.01
+	damagefactor "BaronGreen", 0.01
+	damagefactor "BaronGreenFire", 0.01
+	damagefactor "FattyFire", 0.01
+	damagefactor "FattyIce", 0.01
+	damagefactor "ArachnoFire", 0.01
+	damagefactor "VileFire", 0.01
+	damagefactor "VileBlue", 0.01
+	damagefactor "VileBlueFire", 0.01
+	damagefactor "BigSpiderFire", 0.01
+	damagefactor "BigSpiderIce", 0.01
+	damagefactor "CyberFire", 0.01
+	damagefactor "CyberLightning", 0.01
+	damagefactor "CyberIce", 0.01
+}
+
+Actor ElementalResist_100 : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+
+	damagefactor "DemonFire", 0
+	damagefactor "ImpFire", 0
+	damagefactor "CacoFire", 0
+	damagefactor "CacoPoison", 0
+	damagefactor "ImpPoison_Vulgar", 0
+	damagefactor "ImpPoison_Roach", 0
+	damagefactor "PaineFire", 0
+	damagefactor "PainePoison", 0
+	damagefactor "RevIce", 0
+	damagefactor "RevSludge", 0
+	damagefactor "RevPoison_Crawler", 0
+	damagefactor "BaronsPoison", 0
+	damagefactor "BaronsFire", 0
+	damagefactor "BaronGreen", 0
+	damagefactor "BaronGreenFire", 0
+	damagefactor "FattyFire", 0
+	damagefactor "FattyIce", 0
+	damagefactor "ArachnoFire", 0
+	damagefactor "VileFire", 0
+	damagefactor "VileBlue", 0
+	damagefactor "VileBlueFire", 0
+	damagefactor "BigSpiderFire", 0
+	damagefactor "BigSpiderIce", 0
+	damagefactor "CyberFire", 0
+	damagefactor "CyberLightning", 0
+	damagefactor "CyberIce", 0
+}

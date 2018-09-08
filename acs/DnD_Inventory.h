@@ -33,6 +33,8 @@
 #define HUD_DII_FIELD_MULT 10
 
 #define MAX_EXPRESIST_VAL 100
+#define MAX_ELEMRESIST_VAL 100
+#define MAX_PHYSRESIST_VAL 100
 
 enum {
 	IPROCESS_ADD,
@@ -88,6 +90,20 @@ enum {
 	IIMG_LC_2,
 	IIMG_LC_3,
 	
+	// unique charm images
+	IIMG_UCHRM_1,
+	IIMG_UCHRM_2,
+	IIMG_UCHRM_3,
+	IIMG_UCHRM_4,
+	IIMG_UCHRM_5,
+	IIMG_UCHRM_6,
+	IIMG_UCHRM_7,
+	IIMG_UCHRM_8,
+	IIMG_UCHRM_9,
+	IIMG_UCHRM_10,
+	IIMG_UCHRM_11,
+	IIMG_UCHRM_12,
+	
 	IIMG_ORB_1,
 	IIMG_ORB_2,
 	IIMG_ORB_3,
@@ -140,6 +156,20 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	"LCHRM2",
 	"LCHRM3",
 	
+	// unique charms
+	"UCHRM1",
+	"UCHRM2",
+	"UCHRM3",
+	"UCHRM4",
+	"UCHRM5",
+	"UCHRM6",
+	"UCHRM7",
+	"UCHRM8",
+	"UCHRM9",
+	"UCHRM10",
+	"UCHRM11",
+	"UCHRM12",
+	
 	// orbs
 	"ORB1D0",
 	"ORB1B0",
@@ -186,6 +216,20 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 0.0, 0.0 },
 	{ 0.0, 0.0 },
 	
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	
+	// unique charms
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
 	{ 0.0, 0.0 },
 	{ 0.0, 0.0 },
 	{ 0.0, 0.0 },
@@ -1284,15 +1328,43 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
-			if(val > 0)
-				HudMessage(s:"+ ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-			else
-				HudMessage(s:"- ", d:val, s:Inv_Attribute_Names[temp]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 -  j, CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:ItemAttributeString(temp, val); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
 		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	}
+	else if(itype > UNIQUE_BEGIN) {
+		temp = itype & 0xFFFF;
+		itype >>= UNIQUE_BITS;
+		--itype;
+		// itype holds unique position, temp is the actual item type
+		HudMessage(s:"\c[A1]", s:UniqueItemNames[itype]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx + ScreenResOffsets[3], by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
+		// itype will count the skipped properties (the helper attributes)
+		itype = 0;
+		for(j = 0; j < i; ++j) {
+			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
+			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
+			if(val > 0) {
+				// dont show this, skip to next attribute's detail
+				if(temp == INV_EX_CHANCE) {
+					++j;
+					++itype;
+					HudMessage(s:ExoticAttributeString(temp, val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				}
+				else
+					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			}
+			else if(!val) {
+				// unique item doesn't have numeric attribute to show
+				HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			}
+			else
+				HudMessage(s:"- ", s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		}
 	}
 }
 
@@ -1405,6 +1477,9 @@ bool IsCraftingItem(int itype) {
 }
 
 bool IsCraftableItem(int itype) {
+	// just so that this is recognized
+	if(itype > UNIQUE_BEGIN)
+		itype >>= UNIQUE_BITS;
 	switch(itype) {
 		case DND_ITEM_CHARM:
 		case DND_ITEM_BOOT:
@@ -1495,237 +1570,224 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return true;
 }
 
-void ProcessItemFeature(int pnum, int item_index, int source, int aindex, int method, bool onlyExotic) {
+void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove) {
 	int atype = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
-	// no double save of attributes on database
-	if(atype <= LAST_INV_ATTRIBUTE && onlyExotic)
-		return;
-	
 	int aval = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
-	int i;
+	int asubtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
+	int i, temp;
+	if(IsSet(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM) && asubtype == DND_CHARM_SMALL)
+		aval <<= 1;
 	switch(atype) {
-		case INV_HP_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].hp_flat_bonus += aval;
-			else
-				Player_Bonuses[pnum].hp_flat_bonus -= aval;
-			SyncClientsideVariable(DND_SYNC_HPFLAT_BONUS, 0, DND_SYNC_NONORB);
-		break;
-		case INV_ARMOR_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].armor_flat_bonus += aval;
-			else
-				Player_Bonuses[pnum].armor_flat_bonus -= aval;
-			SyncClientsideVariable(DND_SYNC_ARMORFLAT_BONUS, 0, DND_SYNC_NONORB);
-		break;
-		case INV_HPPERCENT_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].hp_percent_bonus += aval;
-			else
-				Player_Bonuses[pnum].hp_percent_bonus -= aval;
-			SyncClientsideVariable(DND_SYNC_HPPERCENT_BONUS, 0, DND_SYNC_NONORB);
-		break;
-		case INV_ARMORPERCENT_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].armor_percent_bonus += aval;
-			else
-				Player_Bonuses[pnum].armor_percent_bonus -= aval;
-			SyncClientsideVariable(DND_SYNC_ARMORPERCENT_BONUS, 0, DND_SYNC_NONORB);
-		break;
-		case INV_SPEED_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].speed_bonus += aval;
-			else
-				Player_Bonuses[pnum].speed_bonus -= aval;
-			SyncClientsideVariable(DND_SYNC_SPEED, 0, DND_SYNC_NONORB);
-		break;
+		// first cases with exceptions to our generic formula
 		case INV_MAGAZINE_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].magazine_increase += aval;
-			else
-				Player_Bonuses[pnum].magazine_increase -= aval;
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 			// add onto the base capacities, not current capacities
 			for(i = 0; i < MAX_MAGAZINES; ++i)
-				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + Player_Bonuses[pnum].magazine_increase)) / 100);
-			SyncClientsideVariable(DND_SYNC_MAGAZINEINCREASE, 0, DND_SYNC_NONORB);
+				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + GetPlayerAttributeValue(pnum, atype))) / 100);
 		break;
-    
-		case INV_FLATPHYS_DAMAGE:
-			if(method == IPROCESS_ADD) {
-				// includes melee
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_BULLET] += aval;
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_MELEE] += aval;
-			}
-			else {
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_BULLET] -= aval;
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_MELEE] -= aval;
-			}
-			SyncClientsideVariable(DND_SYNC_DAMAGEBULLET, 0, DND_SYNC_NONORB);
-			SyncClientsideVariable(DND_SYNC_DAMAGEMELEE, 0, DND_SYNC_NONORB);
-		break;
-		case INV_FLATENERGY_DAMAGE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ENERGY] += aval;
-			else
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ENERGY] -= aval;
-			SyncClientsideVariable(DND_SYNC_DAMAGEENERGY, 0, DND_SYNC_NONORB);
-		break;
-		case INV_FLATEXP_DAMAGE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_EXPLOSIVE] += aval;
-			else
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_EXPLOSIVE] -= aval;
-			SyncClientsideVariable(DND_SYNC_DAMAGEEXPLOSIVE, 0, DND_SYNC_NONORB);
-		break;
-		case INV_FLATMAGIC_DAMAGE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_OCCULT] += aval;
-			else
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_OCCULT] -= aval;
-			SyncClientsideVariable(DND_SYNC_DAMAGEOCCULT, 0, DND_SYNC_NONORB);
-		break;
-		case INV_FLATELEM_DAMAGE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ELEMENTAL] += aval;
-			else
-				Player_Bonuses[pnum].flat_damage_bonus[TALENT_ELEMENTAL] -= aval;
-			SyncClientsideVariable(DND_SYNC_DAMAGEELEMENTAL, 0, DND_SYNC_NONORB);
-		break;
-		
-		case INV_SLOT1_DAMAGE:
-		case INV_SLOT2_DAMAGE:
-		case INV_SLOT3_DAMAGE:
-		case INV_SLOT4_DAMAGE:
-		case INV_SLOT5_DAMAGE:
-		case INV_SLOT6_DAMAGE:
-		case INV_SLOT7_DAMAGE:
-		case INV_SLOT8_DAMAGE:
-		case INV_TEMPWEP_DAMAGE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].slot_damage_bonus[atype - INV_SLOT1_DAMAGE] += aval;
-			else
-				Player_Bonuses[pnum].slot_damage_bonus[atype - INV_SLOT1_DAMAGE] -= aval;
-			SyncClientsideVariable(DND_SYNC_SLOT1DAMAGE + atype - INV_SLOT1_DAMAGE, 0, DND_SYNC_NONORB);
-		break;
-		
-		case INV_PELLET_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].pellet_increase += aval;
-			else
-				Player_Bonuses[pnum].pellet_increase -= aval;
-			SyncClientsideVariable(DND_SYNC_PELLETINCREASE, 0, DND_SYNC_NONORB);
-		break;
-	
 		case INV_EXPLOSION_RADIUS:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].explosion_radius += aval;
-			else
-				Player_Bonuses[pnum].explosion_radius -= aval;
-			SyncClientsideVariable(DND_SYNC_EXPLOSIONRADIUS, 0, DND_SYNC_NONORB);
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
+			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
 		case INV_EXPLOSIVE_RESIST:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].explosion_resist += aval;
-			else
-				Player_Bonuses[pnum].explosion_resist -= aval;
-			for(i = 0; i < MAX_EXPRESIST_VAL; ++i)
-				TakeInventory(StrParam(s:"ExplosionResist_", d:i + 1), 1);
-			GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(Player_Bonuses[pnum].explosion_resist, 1, MAX_EXPRESIST_VAL)), 1);
-			SyncClientsideVariable(DND_SYNC_EXPLOSIVERESIST, 0, DND_SYNC_NONORB);
+			TakeInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			if(GetPlayerAttributeValue(pnum, atype))
+				GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
 		break;
-		
-		case INV_AMMOGAIN_CHANCE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].ammo_chance += aval;
-			else
-				Player_Bonuses[pnum].ammo_chance -= aval;
-			SyncClientsideVariable(DND_SYNC_AMMOGAINCHANCE, 0, DND_SYNC_NONORB);
+		case INV_DMGREDUCE_ELEM:
+			TakeInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_ELEMRESIST_VAL)), 1);
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			if(GetPlayerAttributeValue(pnum, atype))
+				GiveInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_ELEMRESIST_VAL)), 1);
 		break;
-		case INV_AMMOGAIN_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].ammo_gain += aval;
-			else
-				Player_Bonuses[pnum].ammo_gain -= aval;
-			SyncClientsideVariable(DND_SYNC_AMMOGAININCREASE, 0, DND_SYNC_NONORB);
-		break;
-		
-		case INV_REGENCAP_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].regen_cap += aval;
-			else
-				Player_Bonuses[pnum].regen_cap -= aval;
-			SyncClientsideVariable(DND_SYNC_REGENCAP, 0, DND_SYNC_NONORB);
-		break;
-		
-		case INV_CRITCHANCE_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].crit_chance += aval;
-			else
-				Player_Bonuses[pnum].crit_chance -= aval;
-			SyncClientsideVariable(DND_SYNC_CRITCHANCE, 0, DND_SYNC_NONORB);
-		break;
-		case INV_CRITPERCENT_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].crit_percent += aval;
-			else
-				Player_Bonuses[pnum].crit_percent -= aval;
-			SyncClientsideVariable(DND_SYNC_CRITCHANCEPERCENT, 0, DND_SYNC_NONORB);
-		break;
-		case INV_CRITDAMAGE_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].crit_damage += aval;
-			else
-				Player_Bonuses[pnum].crit_damage -= aval;
-			SyncClientsideVariable(DND_SYNC_CRITDAMAGE, 0, DND_SYNC_NONORB);
-		break;
-		
-		case INV_KNOCKBACK_RESIST:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].knockback_resist += aval;
-			else
-				Player_Bonuses[pnum].knockback_resist -= aval;
-			UpdatePlayerKnockbackResist();
-			SyncClientsideVariable(DND_SYNC_KNOCKBACKRESIST, 0, DND_SYNC_NONORB);
-		break;
-		case INV_DAMAGEPERCENT_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].damage_percent += aval;
-			else
-				Player_Bonuses[pnum].damage_percent -= aval;
-			SyncClientsideVariable(DND_SYNC_DAMAGEPERCENT, 0, DND_SYNC_NONORB);
+		case INV_DMGREDUCE_PHYS:
+			TakeInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			if(GetPlayerAttributeValue(pnum, atype))
+				GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
 		break;
 		case INV_ACCURACY_INCREASE:
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].accuracy += aval;
-			else
-				Player_Bonuses[pnum].accuracy -= aval;
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
-			SetActorProperty(0, APROP_ACCURACY, Clamp_Between(Player_Bonuses[pnum].accuracy, 0, DND_ACCURACY_CAP));
-			SyncClientsideVariable(DND_SYNC_ACCURACY, 0, DND_SYNC_NONORB);
+			SetActorProperty(0, APROP_ACCURACY, Clamp_Between(GetPlayerAttributeValue(pnum, atype), 0, DND_ACCURACY_CAP));
 		break;
 		
-		case INV_STAT_STRENGTH:
-		case INV_STAT_DEXTERITY:
-		case INV_STAT_BULKINESS:
-		case INV_STAT_CHARISMA:
-		case INV_STAT_VITALITY:
-		case INV_STAT_INTELLECT:
-			// these aren't capped yet, add a cap in the future
-			if(method == IPROCESS_ADD)
-				Player_Bonuses[pnum].stat_bonus[atype - INV_STAT_STRENGTH] += aval;
+		// exotic stuff -- reason most of these dont have syncs is that they arent meant to be shown in stat menu page, so no need for client to be aware
+		case INV_EX_CHANCE:
+			// by itself this does nothing
+		break;
+		case INV_EX_KNOCKBACK_IMMUNITY:
+			GiveOrTake("KnockbackImmunityCheck", 1, remove);
+			GiveOrTake("StatbuffCounter_KnockbackImmunity", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_KnockbackImmunity"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
 			else
-				Player_Bonuses[pnum].stat_bonus[atype - INV_STAT_STRENGTH] -= aval;
-			SyncClientsideVariable(DND_SYNC_STATBONUS_STR + atype - INV_STAT_STRENGTH, 0, DND_SYNC_NONORB);
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
+		break;
+		case INV_EX_DOUBLE_SMALLCHARM:
+			GiveOrTake("StatbuffCounter_DoubleSmallCharm", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_DoubleSmallCharm"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
+		break;
+		case INV_EX_ALLSTATS:
+			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
+				GiveOrTake(GetPlayerAttributeString(pnum, i), aval, remove);
+		break;
+		case INV_EX_CHANCE_HEALMISSINGONPAIN:
+			// -1 of aindex is used to retrieve chance
+			// i will hold the chance of this to happen
+			i = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex - 1, source);
+			if(IsSet(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM) && asubtype == DND_CHARM_SMALL)
+				i <<= 1;
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(!remove)
+				temp = ((temp & 0xFFFF) + aval) | (((temp >> 16) + i) << 16);
+			else
+				temp = ((temp & 0xFFFF) - aval) | (((temp >> 16) - i) << 16);
+			SetInventory(GetPlayerAttributeValue(pnum, atype), aval);
+		break;
+		case INV_EX_ALWAYSCRIT_LIGHTNING:
+			GiveOrTake("StatbuffCounter_AlwaysCritLightning", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_AlwaysCritLightning"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_ALWAYSCRITLIGHTNING));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_ALWAYSCRITLIGHTNING));
+		break;
+		case INV_EX_DOUBLE_HEALTHCAP:
+			GiveOrTake(GetPlayerAttributeString(pnum, INV_HPPERCENT_INCREASE), aval, remove);
+		break;
+		case INV_EX_FORBID_ARMOR:
+			GiveOrTake("StatbuffCounter_ForbidArmor", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_ForbidArmor"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_FORBIDARMOR));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_FORBIDARMOR));
+		break;
+		case INV_EX_BEHAVIOR_PELLETSFIRECIRCLE:
+			GiveOrTake("StatbuffCounter_PelletsInCircle", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_PelletsInCircle"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_PELLETSINCIRCLE));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_PELLETSINCIRCLE));
+		break;
+		case INV_EX_DMGREDUCE_SHAREWITHPETS:
+			GiveOrTake("StatbuffCounter_PainSharedWithPets", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_PainSharedWithPets"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_PAINSHAREDWITHPETS));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_PAINSHAREDWITHPETS));
+		break;
+		case INV_EX_FLATDMG_ALL:
+			for(i = INV_FLATPHYS_DAMAGE; i <= INV_FLATELEM_DAMAGE; ++i)
+				GiveOrTake(GetPlayerAttributeString(pnum, i), aval, remove);
+		break;
+		case INV_EX_SOULWEPS_FULLDAMAGE:
+			GiveOrTake("StatbuffCounter_SoulWepsDoFullDamage", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_SoulWepsDoFullDamage"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_SOULWEPSFULLDAMAGE));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_SOULWEPSFULLDAMAGE));
+		break;
+		case INV_EX_ABILITY_RALLY:
+			TakeInventory(StrParam(s:"DnD_Skill_Rally_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_SKILL_LEVELS)), 1);
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			if(GetPlayerAttributeValue(pnum, atype))
+				GiveInventory(StrParam(s:"DnD_Skill_Rally_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_SKILL_LEVELS)), 1);
+		break;
+		case INV_EX_ABILITY_MONSTERSRIP:
+			GiveOrTake("StatbuffCounter_SlainMonstersRIP", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_SlainMonstersRIP"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
+		break;
+		case INV_HP_INCREASE:
+		case INV_HPPERCENT_INCREASE:
+		case INV_STAT_VITALITY:
+			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			if(remove) {
+				temp = GetSpawnHealth();
+				if(GetActorProperty(0, APROP_HEALTH) > temp) {
+					// set health to new cap, add the extra to player
+					if(i > 0)
+						SetActorProperty(0, APROP_HEALTH, temp + i);
+					else
+						SetActorProperty(0, APROP_HEALTH, temp);
+				}
+			}
+		break;
+		case INV_ARMOR_INCREASE:
+		case INV_ARMORPERCENT_INCREASE:
+		case INV_STAT_BULKINESS:
+			if(CheckInventory("Armor")) {
+				i = CheckInventory("Armor") - GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+				GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+				if(remove) {
+					temp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+					if(CheckInventory("Armor") > temp) {
+						// set health to new cap, add the extra to player
+						if(i > 0)
+							SetInventory("Armor", temp + i);
+						else
+							SetInventory("Armor", temp);
+					}
+				}
+			}
+		break;
+		case INV_STAT_STRENGTH:
+			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			if(remove) {
+				temp = GetSpawnHealth();
+				if(GetActorProperty(0, APROP_HEALTH) > temp) {
+					// set health to new cap, add the extra to player
+					if(i > 0)
+						SetActorProperty(0, APROP_HEALTH, temp + i);
+					else
+						SetActorProperty(0, APROP_HEALTH, temp);
+				}
+			}
+			if(CheckInventory("Armor")) {
+				i = CheckInventory("Armor") - GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+				GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+				if(remove) {
+					temp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+					if(CheckInventory("Armor") > temp) {
+						// set health to new cap, add the extra to player
+						if(i > 0)
+							SetInventory("Armor", temp + i);
+						else
+							SetInventory("Armor", temp);
+					}
+				}
+			}
+		break;
+		default:
+			// anything that fits our generic formula
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 		break;
 	}
 }
 
 // Applies item stats to player
-void ApplyItemFeatures(int item_index, int source, bool onlyExotic) {
+void ApplyItemFeatures(int item_index, int source) {
 	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	int pnum = PlayerNumber();
 	for(int i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_ADD, onlyExotic);
+		ProcessItemFeature(pnum, item_index, source, i, false);
 }
 
 // Removes an applied list of item stats from player
@@ -1733,7 +1795,7 @@ void RemoveItemFeatures(int item_index, int source) {
 	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	int pnum = PlayerNumber();
 	for(int i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, IPROCESS_REMOVE, 0);
+		ProcessItemFeature(pnum, item_index, source, i, true);
 }
 
 int GetCraftableItemCount() {
@@ -1748,7 +1810,7 @@ int GetCraftableItemCount() {
 void MakeUnique(int item_pos, int item_type) {
 	int i;
 	int roll = random(1, MAX_UNIQUE_WEIGHT);
-	for(i = 0; i < MAX_UNIQUE_ITEMS && roll <= UniqueItemDropWeight[i]; ++i);
+	for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);
 }
@@ -1764,10 +1826,10 @@ void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type) {
 	Inventories_On_Field[fieldpos].item_stack = UniqueItemList[unique_id].item_stack;
 	Inventories_On_Field[fieldpos].attrib_count = UniqueItemList[unique_id].attrib_count;
 	Inventories_On_Field[fieldpos].topleftboxid = 0;
-	for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
+	for(int i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
 		Inventories_On_Field[fieldpos].attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
 		// we must roll the value once dropped
-		Inventories_On_Field[fieldpos].attributes[i].attrib_val = random(UniqueItemList[id].rolls[i].attrib_low, UniqueItemList[id].rolls[i].attrib_high);
+		Inventories_On_Field[fieldpos].attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
 	}
 }
 

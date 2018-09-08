@@ -2,6 +2,7 @@ const int SPECIAL_FX_TID = 32768;
 
 #include "Actors/Items/Base.txt"
 #include "Actors/Items/Keys.txt"
+#include "Actors/Items/UniqueStatBuffs.txt"
 #include "Actors/Items/Ammo.txt"
 #include "Actors/Items/Weapons.txt"
 #include "Actors/Items/Credits.txt"
@@ -24,7 +25,15 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Orbs.txt"
 #include "Actors/Items/Chest.txt"
 #include "Actors/Items/Elixir.txt"
-#include "Actors/Items/ExpResist.txt"
+#include "Actors/Items/ItemAttributes.txt"
+
+// Resists
+#include "Actors/Items/Resists/ExpResist.txt"
+#include "Actors/Items/Resists/ElemResist.txt"
+#include "Actors/Items/Resists/PhysResist.txt"
+
+// Spells
+#include "Actors/Items/Spells/Rally.txt"
 
 #include "Actors/Hud.txt"
 #include "Actors/Effects.txt"

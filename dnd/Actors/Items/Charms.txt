@@ -59,3 +59,12 @@ Actor CharmDrop : InventoryBase {
 		Goto Super::SpawnInit
 	}
 }
+
+Actor UniqueCharmDrop : InventoryBase {
+	Scale 1.15
+	States {
+		Spawn:
+			UBAG A 0 NoDelay A_PlaySound("Items/CharmDrop")
+		Goto Super::SpawnInit
+	}
+}

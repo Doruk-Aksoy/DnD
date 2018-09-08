@@ -275,7 +275,7 @@ void SetAllAmmoCapacities() {
 // when setting ammo capacity, this must be called at all costs!
 int AmmoCapWithBonuses(int base) {
 	// include any and all bonuses here
-	base *= 1.0 + Player_Bonuses[PlayerNumber()].holding + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1);
+	base *= 1.0 + GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1);
 	base >>= 16;
 	return base;
 }
@@ -284,7 +284,7 @@ int GetMaximumAmmoCapacity(int slot, int t) {
 	int cap = AmmoInfo[slot][t].initial_capacity;
 	int res = cap + cap * DND_MAX_BACKPACK / DND_BACKPACK_RATIO;
 	// include holding bonuses
-	res *= 1.0 + Player_Bonuses[PlayerNumber()].holding + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1);
+	res *= 1.0 + GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1);
 	res >>= 16;
 	return res;
 }
@@ -302,7 +302,7 @@ void HandleAmmoContainerPickup(int slot) {
 	int amt = 0, index = 0;
 	for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
 		amt = AmmoInfo[slot][i].container_value;
-		amt += (amt * (Player_Bonuses[PlayerNumber()].ammo_gain + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
+		amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
 		if(!amt)
 			amt = 1;
 		
@@ -311,7 +311,7 @@ void HandleAmmoContainerPickup(int slot) {
 }
 
 void GiveAmmo(int amt, int slot, int t) {
-	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt + (amt * CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN) / 100);
+	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
 }
 
 #endif

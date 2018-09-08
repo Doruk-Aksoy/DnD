@@ -383,6 +383,13 @@ Actor OccultArmor : BasicArmorPickup {
 	Armor.SavePercent 33.0
 	Armor.SaveAmount 1
 	
+	DamageFactor "MagicExp", 0.25
+	DamageFactor "MagicExpFull", 0.25
+	DamageFactor "MagicFireExp", 0.25
+	DamageFactor "MagicFireExpFull", 0.25
+	DamageFactor "SoulTypeExp", 0.25
+	DamageFactor "SoulTypeExpFull", 0.25
+	
 	DamageFactor "DemonMagic", 0.25
 	DamageFactor "ImpMagic", 0.25
 	DamageFactor "ImpVoid", 0.25
@@ -423,6 +430,20 @@ Actor DemoArmor : BasicArmorPickup {
 	
 	DamageFactor "Explosives", 0.25
 	DamageFactor "ExplosivesFull", 0.25
+	DamageFactor "Explosives_Magic", 0.25
+	DamageFactor "Explosives_MagicFull", 0.25
+	DamageFactor "EnergyExp", 0.25
+	DamageFactor "EnergyExpFull", 0.25
+	DamageFactor "MagicFireExp", 0.25
+	DamageFactor "MagicFireExpFull", 0.25
+	DamageFactor "SoulTypeExp", 0.25
+	DamageFactor "SoulTypeExpFull", 0.25
+	DamageFactor "FireExp", 0.25
+	DamageFactor "FireExpFull", 0.25
+	DamageFactor "MagicExp", 0.25
+	DamageFactor "MagicExpFull", 0.25
+	DamageFactor "LightningExp", 0.25
+	DamageFactor "LightningExpFull", 0.25
 	
 	DamageFactor "Explosive", 0.25
 	DamageFactor "CacoExp", 0.25
@@ -443,6 +464,8 @@ Actor EnergyArmor : BasicArmorPickup {
 	Armor.SaveAmount 1
 	
 	DamageFactor "Energy", 0.25
+	DamageFactor "EnergyExp", 0.25
+	DamageFactor "EnergyExpFull", 0.25
 	DamageFactor "Caco", 0.25
 	DamageFactor "BaronPlasma", 0.25
 	DamageFactor "FattyPlasma", 0.25
@@ -461,6 +484,10 @@ Actor ElementalArmor : BasicArmorPickup {
 	Armor.SavePercent 33.0
 	Armor.SaveAmount 1
 	
+	DamageFactor "LightningExp", 0.25
+	DamageFactor "LightningExpFull", 0.25
+	DamageFactor "MagicFireExp", 0.25
+	DamageFactor "MagicFireExpFull", 0.25
 	DamageFactor "DemonFire", 0.25
 	DamageFactor "ImpFire", 0.25
 	DamageFactor "CacoFire", 0.25

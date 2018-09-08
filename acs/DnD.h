@@ -5,7 +5,6 @@
 #include "DnD_TempWeps.h"
 #include "DnD_DamageCache.h"
 #include "DnD_Ammo.h"
-#include "DnD_Elixirs.h"
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
 #include "DnD_ChestKey.h"
@@ -874,7 +873,7 @@ void ClearQuestCheckers() {
 }
 
 int GetTalent(int talent_type) {
-	return CheckInventory(TalentNames[talent_type]);
+	return CheckInventory(TalentNames[talent_type][TALENT_NAME]);
 }
 
 void CheckMapExitQuest(int pnum, int qid) {

@@ -246,25 +246,6 @@ Actor DnD_SelectedInventoryBox : Inventory {
 
 Actor MadeChoice : DnD_Boolean { }
 
-Actor StatBoostGiver : DND_Activator
-{
-	radius 20
-	height 16
-	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Attribute Point!\c-"
-	inventory.pickupsound "items/pickup"
-    +COUNTITEM
-    +INVENTORY.ALWAYSPICKUP	
-	states
-	{
-		Spawn:
-			BASC ABCD 3 Bright
-		Loop
-		Pickup:
-			TNT1 A 0 A_GiveInventory("AttributePoint", 1)
-		Stop
-	}
-}
-
 Actor Ability_Kick : DnD_Boolean { }
 Actor Ability_Reloader : DnD_Boolean { }
 Actor Ability_Dash : DnD_Boolean { }
@@ -296,8 +277,30 @@ Actor TemporalSphere : CustomInventory
 
 Actor DashDisabled : DnD_Boolean { }
 
+Actor ExplosionResistAbility : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	
+	DamageFactor "Explosives", 0.5
+	DamageFactor "ExplosivesFull", 0.5
+	DamageFactor "Explosives_Magic", 0.5
+	DamageFactor "EnergyExp", 0.5
+	DamageFactor "EnergyExpFull", 0.5
+	DamageFactor "MagicFireExp", 0.5
+	DamageFactor "MagicFireExpFull", 0.5
+	DamageFactor "SoulTypeExp", 0.5
+	DamageFactor "SoulTypeExpFull", 0.5
+	DamageFactor "FireExp", 0.5
+	DamageFactor "FireExpFull", 0.5
+	DamageFactor "MagicExp", 0.5
+	DamageFactor "MagicExpFull", 0.5
+	DamageFactor "LightningExp", 0.5
+	DamageFactor "LightningExpFull", 0.5
+}
+
 Actor PoisonImmunity : PowerProtection { 
 	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
 	damagefactor "Poison", 0.25
 	damagefactor "ImpPoison_Roach", 0.25
 	damagefactor "ImpPoison_Vulgar", 0.25

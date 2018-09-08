@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 
 #define DND_AFTER50_INCREMENT_DAMAGE 0.33
 
@@ -165,6 +165,13 @@ int SetActorInventory (int tid, str item, int count) {
 	else if (n < 0)
 		TakeActorInventory (tid, item, -1 * n);
 	return n;
+}
+
+void GiveOrTake(str item, int count, bool mode) {
+	if(!mode)
+		GiveInventory(item, count);
+	else
+		TakeInventory(item, count);
 }
 
 int Clamp_Between(int x, int low, int high) {

@@ -45,6 +45,9 @@ LEGEND:
 ! Chests now have a chance to drop "Elixirs"! These are pickups that permanently increase your stats.
 ! "Hardcore" mode now has 15% increased drop rates for any kind of drop.
 ! When you sell a weapon, all bonuses on it are lost.
+* Major improvements to how damage is calculated on player weapons. Most of the calculation results are saved properly now and only recalculated if needed.
+	- Weapon damage random ranges are applied last to a weapon's damage calculation now. So if a weapon did 5-10-15 damage, the base is assumed 5 and random range is 1 to 3.
+		* The multiplier, 1 to 3 is chosen at random AFTER all damage calculations EXCEPT critical hits.
 * "Explosive Shells" now requires either "Riot Gun" research or "Slot 3 Luxury" research to be made to be bought.
 * "Luck" stat now affects coin drops.
 * Coin messages won't display if their worth is below 25 credits anymore.
@@ -53,7 +56,10 @@ LEGEND:
 * All weapons that can use alternate ammo now have a mode switching animation.
 * "Soul Render" blade charge is also saved to database now in hardcore/softcore modes.
 * Player pain sounds for "Marine", "Hobo" and "Punisher" now respect health ratios properly.
+* Fixed a bug with weapon damage calculations where sometimes it wouldn't use the weapon the attack was fired from properly.
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
+* Fixed a cause for potential crash regarding picking up armors.
+* Damage type specific armors now protect you against your own explosion damage types.
 * Hopefully fixed hud messages overlapping when you get map bonuses done.
 * Changed how footstep sounds are generated. They get faster and louder the faster you move.
 * Stat descriptions on "DnD Menu" is now written below them instead of the corner.
@@ -108,6 +114,7 @@ LEGEND:
 * Fixed a bug where "Heavy Grenade Launcher" let you shoot 2 grenades without loading if you had "Nether Mask" equipped.
 * Elite default spawn level is now 20 in both "Hardcore" and "Softcore" modes.
 * Fixed a bug where armor bonuses did not increase your armor after reaching that armor's capacity.
+* Armor pickups now scale with your armor cap.
 * Fixed a small problem regarding chest drop rates.
 * Fixed old damage method for "Soul Reaver" when "Nether Mask" was equipped. This results in equal damage when it's equipped instead of a bit less.
 * Fixed a bug that caused "Lich Arm" to actually reduce damage of all weapons... oops.
@@ -143,6 +150,7 @@ LEGEND:
 - "Erasus" altfire spread increased to 14.8 by 10.2 from 12.8 by 8.2.
 + "Plasma Cannon" now ignores shields.
 * "Plasma Cannon" readjusted to shoot 12 projectiles instead of 24. Damage unchanged.
++ "Nuclear Plasma Rifle" now correctly deals full damage on its explosion portion when "Nether Mask" is equipped.
 + "Acid Rifle" bullet damage increased to 18 from 15.
 + "Acid Rifle" after impact and poison cloud damage increased to 10-15 from 5-15.
 + "Acid Rifle" after impact damage radius increased to 48 from 40.
@@ -157,6 +165,7 @@ LEGEND:
 + "Devastator 5000" does 64-80 explosion damage up from 32-80.
 + "Devastator 5000" explosion radius increased to 96 from 72.
 + "Devastator 5000" fires 5 projectiles up from 4 and uses 5 ammo instead of 8.
++ "White Death" damage is now properly tagged as ballistic on pellet impact and explosion on the explosive portion.
 * "Devastator 5000" now uses its own ammo type. The ammo capacity is now 270 down from 300 of the old "Cell".
 - "Devastator 5000" rockets no longer clump together when aiming at an enemy.
 - "Devastator 5000" spread increased to 4.8x2.8 from 3.2x1.8.
@@ -272,6 +281,7 @@ The above includes moving it around in inventory, putting it to stash or putting
 * "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.
 + All "Legendary" monsters have been buffed in terms of health, and some in terms of rate of fire.
 + Increased hitbox of "Bloodseeker" fireballs to 16x16 from 12x8.
+- Monster Immunities have been changed to instead be 95% damage resistance instead of complete negation.
 - "Bloodfiend" blood shot damage reduced to 2 - 12 from 2 - 16.
 - "Avatar of Chaos" no longer becomes ghostly during his soul attack.
 * "Bruiser Demon" now bleeds fire. (Only VFX)

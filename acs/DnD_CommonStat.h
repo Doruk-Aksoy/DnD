@@ -1,9 +1,25 @@
 #ifndef DND_COMMONSTAT_IN
 #define DND_COMMONSTAT_IN
 
-#include "DnD_OrbsDef.h"
 #include "DnD_Accessories.h"
 #include "DnD_QuestDefs.h"
+#include "DnD_Skills.h"
+#include "DnD_InvAttribs.h"
+
+enum {
+	TALENT_BULLET = 0,
+	TALENT_MELEE,
+	TALENT_ENERGY,
+	TALENT_EXPLOSIVE,
+	TALENT_OCCULT,
+    TALENT_ELEMENTAL
+};
+#define MAX_TALENTS TALENT_ELEMENTAL + 1
+
+#include "DnD_OrbsDef.h"
+#include "DnD_ElixirDef.h"
+
+#define DND_ELITE_BASEDROP 0.035
 
 #define DND_BASE_PLAYERSPEED 1.0
 #define SHARPSHOOTING_DAMAGE 5
@@ -51,19 +67,6 @@
 #define BIO_HP_ADD_2 6
 #define BIO_HP_ADD_3 9
 
-#define EXO_AR_ADD_1 5
-#define EXO_AR_ADD_2 6
-#define EXO_AR_ADD_3 9
-
-enum {
-	TALENT_BULLET = 0,
-	TALENT_MELEE,
-	TALENT_OCCULT,
-	TALENT_EXPLOSIVE,
-	TALENT_ENERGY,
-    TALENT_ELEMENTAL
-};
-#define MAX_TALENTS TALENT_ELEMENTAL + 1
 #define DND_TALENT_BEGIN TALENT_BULLET
 #define DND_TALENT_END TALENT_ELEMENTAL + 1
 
@@ -114,55 +117,27 @@ enum {
 	RES_PLAYERSPEED = 512
 };
 
-typedef struct {	
-	int hp_flat_bonus;
-	int armor_flat_bonus;
-	
-	int hp_percent_bonus;
-	int armor_percent_bonus;
-	
-	int greed_percent_bonus;
-	int wisdom_percent_bonus;
-	
-	int speed_bonus;
-	int drop_chance;
-	int holding;
-	
-	int luck; // this is in fixed!
-	
-	int damage_type_bonus[MAX_TALENTS];
-	
-	int flat_damage_bonus[MAX_TALENTS];
-	int slot_damage_bonus[MAX_WEAPON_SLOTS];
-
-	int magazine_increase;
-	int pellet_increase;
-	int explosion_radius;
-	int explosion_resist;
-	int ammo_chance;
-	int ammo_gain;
-	int regen_cap;
-	int crit_chance;
-	int crit_percent;
-	int crit_damage;
-	
-	int knockback_resist;
-	int damage_percent;
-	int accuracy;
-	
-	int stat_bonus[MAXATTRIBUTES];
-} pstat_T;
-
-global pstat_T 16: Player_Bonuses[MAXPLAYERS];
+enum {
+	// reset to 0 every 31 elements
+	DND_STATBUFF_KNOCKBACKIMMUNE,
+	DND_STATBUFF_DOUBLESMALLCHARM,
+	DND_STATBUFF_ALWAYSCRITLIGHTNING,
+	DND_STATBUFF_PELLETSINCIRCLE,
+	DND_STATBUFF_FORBIDARMOR,
+	DND_STATBUFF_PAINSHAREDWITHPETS,
+	DND_STATBUFF_SOULWEPSFULLDAMAGE,
+	DND_STATBUFF_SLAINMONSTERSRIP
+};
 
 enum {
 	SF_FREEZE = 1
 };
 
 int GetBonusPlayerSpeed(int pnum) {
-	int res = Player_Bonuses[pnum].speed_bonus;
+	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE);
 	// add other stuff here
 	res += Player_Orb_Data[pnum].orb_stat_bonuses.speed_bonus;
+	res += Player_Elixir_Bonuses[pnum].speed_bonus;
 	return res;
 }
 
@@ -186,33 +161,33 @@ void SlowPlayer(int amt, int mode, int pnum) {
 }
 
 int GetDexterity() {
-	int res = CheckInventory("PSTAT_Dexterity") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_DEX];
+	int res = CheckInventory("PSTAT_Dexterity") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_DEXTERITY);
 	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
 		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
 	return res;
 }
 
 int GetIntellect() {
-	int res = CheckInventory("PSTAT_Intellect") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_INT];
+	int res = CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_INTELLECT);
 	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
 		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
 	return res;
 }
 
 int GetStrength() {
-	return CheckInventory("PSTAT_Strength") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_STR];
+	return CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_STRENGTH);
 }
 
 int GetBulkiness() {
-	return CheckInventory("PSTAT_Bulkiness") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_BUL];
+	return CheckInventory("PSTAT_Bulkiness") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_BULKINESS);
 }
 
 int GetVitality() {
-	return CheckInventory("PSTAT_Vitality") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_VIT];
+	return CheckInventory("PSTAT_Vitality") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_VITALITY);
 }
 
 int GetCharisma() {
-	return CheckInventory("PSTAT_Charisma") + Player_Bonuses[PlayerNumber()].stat_bonus[STAT_CHR];
+	return CheckInventory("PSTAT_Charisma") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_CHARISMA);
 }
 
 int GetHealingBonuses() {
@@ -228,10 +203,6 @@ int GetResearchHealthBonuses() {
 	return BIO_HP_ADD_1 * CheckInventory("Done_Body_Hp_1") + BIO_HP_ADD_2 * CheckInventory("Done_Body_Hp_2") + BIO_HP_ADD_3 * CheckInventory("Done_Body_Hp_3");
 }
 
-int GetResearchArmorBonuses() {
-	return EXO_AR_ADD_1 * CheckInventory("Done_Body_Ar_1") + EXO_AR_ADD_2 * CheckInventory("Done_Body_Ar_2") + EXO_AR_ADD_3 * CheckInventory("Done_Body_Ar_3");
-}
-
 int GetMissingHealth() {
 	return GetSpawnHealth() - GetActorProperty(0, APROP_HEALTH);
 }
@@ -242,10 +213,10 @@ int CalculateHealthCapBonuses() {
 	res += CheckInventory("DnD_QuestReward_100BonusCap") * DND_QUEST_PRECIOUSLIFE_BONUS;
 	res += CheckInventory("DnD_QuestReward_HealingAndCapIncrease") * DND_QUEST_SKINOTEETH_BONUS;
 	// consider charms
-	res += Player_Bonuses[PlayerNumber()].hp_flat_bonus;
+	res += GetPlayerAttributeValue(PlayerNumber(), INV_HP_INCREASE);
 	// consider orb effects
 	res += Player_Orb_Data[PlayerNumber()].orb_stat_bonuses.hp_flat_bonus;
-	
+	res += Player_Elixir_Bonuses[PlayerNumber()].hp_flat_bonus;
 	return res;
 }
 
@@ -257,9 +228,8 @@ int GetSpawnHealth() {
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	// research bonuses
 	res += (res * GetResearchHealthBonuses()) / 100;
-	// player bonus
-	res += (res * Player_Bonuses[PlayerNumber()].hp_percent_bonus) / 100;
-	
+	// player bonus + elixir
+	res += (res * (Player_Elixir_Bonuses[PlayerNumber()].hp_percent_bonus + GetPlayerAttributeValue(PlayerNumber(), INV_HPPERCENT_INCREASE))) / 100;
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH))
 		res >>= 1;
 	if(res < DND_BASE_HEALTH)
@@ -305,6 +275,15 @@ void RestoreRPGStat (int statflag) {
 	
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+}
+
+// Retrieves attributes from items that the player has on them
+str GetPlayerAttributeString(int pnum, int attrib) {
+	return Inv_Attribute_Names[attrib][INVATTR_CHECKER];
+}
+
+int GetPlayerAttributeValue(int pnum, int attrib) {
+	return CheckActorInventory(pnum + P_TIDSTART, GetPlayerAttributeString(pnum, attrib));
 }
 
 #endif

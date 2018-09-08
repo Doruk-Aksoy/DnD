@@ -421,7 +421,7 @@ void HandleOrbUse (int orbtype, int extra) {
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
 			Player_MostRecent_Orb[pnum].values[1] = GetAffluenceBonus() * ENHANCEORB_BONUS;
-			SyncClientsideVariable(DND_SYNC_WEAPONENHANCE, res, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEAPONENHANCE, res);
 		break;
 		case DND_ORB_CORRUPT:
 			// roll what to do
@@ -481,8 +481,8 @@ void HandleOrbUse (int orbtype, int extra) {
 			SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, PROSPERITY_MAX));
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
-			SyncClientsideVariable(DND_SYNC_HPFLAT_BONUS, 0, DND_SYNC_ORB);
-			SyncClientsideVariable(DND_SYNC_ARMORFLAT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HPFLAT_BONUS, 0);
+			SyncClientsideVariable_Orb(DND_SYNC_ARMORFLAT_BONUS, 0);
 		break;
 		case DND_ORB_FORTITUDE:
 			res = GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1);
@@ -491,22 +491,22 @@ void HandleOrbUse (int orbtype, int extra) {
 			SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, FORTITUDE_MAX));
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
-			SyncClientsideVariable(DND_SYNC_HPPERCENT_BONUS, 0, DND_SYNC_ORB);
-			SyncClientsideVariable(DND_SYNC_ARMORPERCENT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HPPERCENT_BONUS, 0);
+			SyncClientsideVariable_Orb(DND_SYNC_ARMORPERCENT_BONUS, 0);
 		break;
 		case DND_ORB_WISDOM:
 			res = GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
 			SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, WISDOMORB_MAX));
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
-			SyncClientsideVariable(DND_SYNC_WISDOMPERCENT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WISDOMPERCENT_BONUS, 0);
 		break;
 		case DND_ORB_GREED:
 			res = GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
 			SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, GREEDORB_MAX));
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
-			SyncClientsideVariable(DND_SYNC_GREEDPERCENT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_GREEDPERCENT_BONUS, 0);
 		break;
 		case DND_ORB_VIOLENCE:
 			do {
@@ -518,7 +518,7 @@ void HandleOrbUse (int orbtype, int extra) {
 			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, temp, Clamp_Between(res + GetAffluenceBonus(), 0, VIOLENCEORB_MAX));
 			SetInventory("OrbResult", temp);
 			// start from ballistic talent end with occult
-			SyncClientsideVariable(DND_SYNC_DAMAGEBULLET + temp, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_DAMAGEBULLET + temp, 0);
 		break;
 		case DND_ORB_SIN:
 			// take away random stats
@@ -564,7 +564,7 @@ void HandleOrbUse (int orbtype, int extra) {
 			Player_MostRecent_Orb[pnum].values[0] = GetDataFromOrbBonus(pnum, OBI_HOLDING, -1) - temp;
 			SetAllAmmoCapacities();
 			SetInventory("OrbResult", res);
-			SyncClientsideVariable(DND_SYNC_HOLDING, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HOLDING, 0);
 		break;
 		case DND_ORB_REFINEMENT:
 			// save
@@ -874,7 +874,7 @@ int HandleSinOrbBonus(int type) {
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, temp, Clamp_Between(i + SINORB_CRITGIVE * pow(2, CheckInventory("AffluenceCounter")), 0, SINORB_CRITMAX));
 			// get the difference, should be negative
 			Player_MostRecent_Orb[pnum].values[3] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, temp);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRIT, temp, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRIT, temp);
 		return temp;
 		case SINORB_CRITDMG:
 			do {
@@ -885,7 +885,7 @@ int HandleSinOrbBonus(int type) {
 			Player_MostRecent_Orb[pnum].values[3] = i;
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp, Clamp_Between(i + SINORB_CRITDMGGIVE * pow(2, CheckInventory("AffluenceCounter")), 0, SINORB_CRITDMGMAX));
 			Player_MostRecent_Orb[pnum].values[3] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITDMG, temp, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, temp);
 		return temp;
 		/*case SINORB_CREDIT:
 			temp = 10 * random(SINORB_CRED_MIN, SINORB_CRED_MAX) * GetAffluenceBonus();
@@ -901,7 +901,7 @@ void RevertLastOrbEffect() {
 		case DND_ORB_ENHANCE:
 			// val 1 is wepid, val2 is overall gain
 			AddOrbBonusData(pnum, OBI_WEAPON_ENCHANT, Player_MostRecent_Orb[pnum].values[0], -Player_MostRecent_Orb[pnum].values[1]);
-			SyncClientsideVariable(DND_SYNC_WEAPONENHANCE, Player_MostRecent_Orb[pnum].values[0], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEAPONENHANCE, Player_MostRecent_Orb[pnum].values[0]);
 		break;
 		case DND_ORB_SPIRIT:
 			TakeStat(Player_MostRecent_Orb[pnum].values[0], Player_MostRecent_Orb[pnum].values[1]);
@@ -920,26 +920,26 @@ void RevertLastOrbEffect() {
 		case DND_ORB_PROSPERITY:
 			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, Player_MostRecent_Orb[pnum].values[0]);
 			SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, Player_MostRecent_Orb[pnum].values[0]);
-			SyncClientsideVariable(DND_SYNC_HPFLAT_BONUS, 0, DND_SYNC_ORB);
-			SyncClientsideVariable(DND_SYNC_ARMORFLAT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HPFLAT_BONUS, 0);
+			SyncClientsideVariable_Orb(DND_SYNC_ARMORFLAT_BONUS, 0);
 		break;
 		case DND_ORB_FORTITUDE:
 			SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, Player_MostRecent_Orb[pnum].values[0]);
 			SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, Player_MostRecent_Orb[pnum].values[0]);
-			SyncClientsideVariable(DND_SYNC_HPPERCENT_BONUS, 0, DND_SYNC_ORB);
-			SyncClientsideVariable(DND_SYNC_ARMORPERCENT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HPPERCENT_BONUS, 0);
+			SyncClientsideVariable_Orb(DND_SYNC_ARMORPERCENT_BONUS, 0);
 		break;
 		case DND_ORB_WISDOM:
 			SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, Player_MostRecent_Orb[pnum].values[0]);
-			SyncClientsideVariable(DND_SYNC_WISDOMPERCENT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WISDOMPERCENT_BONUS, 0);
 		break;
 		case DND_ORB_GREED:
 			SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, Player_MostRecent_Orb[pnum].values[0]);
-			SyncClientsideVariable(DND_SYNC_GREEDPERCENT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_GREEDPERCENT_BONUS, 0);
 		break;
 		case DND_ORB_VIOLENCE:
 			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, Player_MostRecent_Orb[pnum].values[0] % 100, Player_MostRecent_Orb[pnum].values[0] / 100);
-			SyncClientsideVariable(DND_SYNC_DAMAGEBULLET + (Player_MostRecent_Orb[pnum].values[0] % 100), 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_DAMAGEBULLET + (Player_MostRecent_Orb[pnum].values[0] % 100), 0);
 		break;
 		case DND_ORB_SIN:
 			// give back stats
@@ -959,7 +959,7 @@ void RevertLastOrbEffect() {
 		case DND_ORB_HOLDING:
 			AddOrbBonusData(pnum, OBI_HOLDING, -1, -Player_MostRecent_Orb[pnum].values[0]);
 			SetAllAmmoCapacities();
-			SyncClientsideVariable(DND_SYNC_HOLDING, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HOLDING, 0);
 		break;
 		case DND_ORB_REFINEMENT:
 			// item index
@@ -1036,11 +1036,11 @@ void UndoSinOrbEffect() {
 		case SINORB_CRIT:
 			//printbold(d: Player_MostRecent_Orb[pnum].val5, s: " ", f:Player_Weapon_Infos[pnum][Player_MostRecent_Orb[pnum].val5].wep_bonuses[WEP_BONUS_CRIT].amt, s: " ", f:Player_MostRecent_Orb[pnum].val4);
 			AddOrbBonusData(pnum, OBI_WEAPON_CRIT, Player_MostRecent_Orb[pnum].values[4], Player_MostRecent_Orb[pnum].values[3]);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRIT, Player_MostRecent_Orb[pnum].values[4], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRIT, Player_MostRecent_Orb[pnum].values[4]);
 		break;
 		case SINORB_CRITDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_CRITDMG, Player_MostRecent_Orb[pnum].values[4], Player_MostRecent_Orb[pnum].values[3]);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[4], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[4]);
 		break;
 	}
 }
@@ -1252,7 +1252,7 @@ void HandleCorruptOrbUse(int type) {
 				Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
 				SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, CORRUPTORB_MINDMG);
 			}
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_TAKEHP:
 			temp = CORRUPTORB_HPTAKE * GetAffluenceBonus();
@@ -1264,7 +1264,7 @@ void HandleCorruptOrbUse(int type) {
 				Player_MostRecent_Orb[pnum].values[2] = GetSpawnHealth() - CORRUPTORB_MINHEALTH;
 				SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, CORRUPTORB_MINHEALTH);
 			}
-			SyncClientsideVariable(DND_SYNC_HPFLAT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HPFLAT_BONUS, 0);
 		break;
 		case CORRUPTORB_TAKESPEED:
 			temp = CORRUPTORB_SPEEDTAKE * GetAffluenceBonus();
@@ -1277,7 +1277,7 @@ void HandleCorruptOrbUse(int type) {
 				SetDataToOrbBonus(pnum, OBI_SPEED, -1, CORRUPTORB_MINSPEED);
 			}
 			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable(DND_SYNC_SPEED, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_SPEED, 0);
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
 			GiveInventory("CorruptOrb_DamageReduction", 1);
@@ -1290,7 +1290,7 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i) + temp, 0, CORRUPTORB_MAXDMG));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDCRIT:
 			temp = CORRUPTORB_DMGGIVE * GetAffluenceBonus();
@@ -1299,7 +1299,7 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i) + temp, 0, CORRUPTORB_MAXCRITPERCENT));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDCRITDMG:
 			temp = CORRUPTORB_CRITDMGGIVE * GetAffluenceBonus();
@@ -1308,7 +1308,7 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i) + temp, 0, CORRUPTORB_MAXCRITDMG));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDSPEED:
 			temp = CORRUPTORB_SPEEDGIVE * GetAffluenceBonus();
@@ -1316,14 +1316,14 @@ void HandleCorruptOrbUse(int type) {
 			SetDataToOrbBonus(pnum, OBI_SPEED, -1, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_SPEED, -1) + temp, 0, CORRUPTORB_MAXSPEED));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_SPEED, -1);
 			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable(DND_SYNC_SPEED, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_SPEED, 0);
 		break;
 		case CORRUPTORB_DROPCHANCE:
 			temp = CORRUPTORB_DROPCHANCEGIVE * GetAffluenceBonus();
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1);
 			SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1) + temp, 0, CORRUPTORB_MAXDROPCHANCE));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1);
-			SyncClientsideVariable(DND_SYNC_DROPCHANCE, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_DROPCHANCE, 0);
 		break;
 		case CORRUPTORB_GIVESTAT:
 			do {
@@ -1402,19 +1402,19 @@ void UndoCorruptOrbEffect() {
 		break;
 		case CORRUPTORB_TAKEHP:
 			AddOrbBonusData(pnum, OBI_HPFLAT, -1, Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable(DND_SYNC_HPFLAT_BONUS, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_HPFLAT_BONUS, 0);
 		break;
 		case CORRUPTORB_TAKEBACKPACK:
 			GiveInventory("BackpackCounter", Player_MostRecent_Orb[pnum].values[2]);
 		break;
 		case CORRUPTORB_TAKEDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_DMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_TAKESPEED:
 			AddOrbBonusData(pnum, OBI_SPEED, -1, Player_MostRecent_Orb[pnum].values[2]);
 			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable(DND_SYNC_SPEED, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_SPEED, 0);
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
 			TakeInventory("CorruptOrb_DamageReduction", 1);
@@ -1423,27 +1423,27 @@ void UndoCorruptOrbEffect() {
 		case CORRUPTORB_ADDCRIT:
 			// since diff is meant to be negative, we now add it, not subtract it
 			AddOrbBonusData(pnum, OBI_WEAPON_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDCRITDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_CRITDMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_DMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3], DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDSPEED:
 			AddOrbBonusData(pnum, OBI_SPEED, -1, Player_MostRecent_Orb[pnum].values[2]);
 			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable(DND_SYNC_SPEED, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_SPEED, 0);
 		break;
 		case CORRUPTORB_GIVESTAT:
 			TakeStat(Player_MostRecent_Orb[pnum].values[2], CORRUPTORB_STATGIVE * (Player_MostRecent_Orb[pnum].values[0] >> 8));
 		break;
 		case CORRUPTORB_DROPCHANCE:
 			AddOrbBonusData(pnum, OBI_DROPCHANCE, -1, Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable(DND_SYNC_DROPCHANCE, 0, DND_SYNC_ORB);
+			SyncClientsideVariable_Orb(DND_SYNC_DROPCHANCE, 0);
 		break;
 	}
 }
@@ -1511,7 +1511,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_VIOLENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentTypeNames[val], s:" Damage\cv increase!");
+				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentNames[val][TALENT_TAG], s:" Damage\cv increase!");
 			else
 				Log(s:"\cgMax violence bonus reached! (\ck", d:VIOLENCEORB_MAX, s:"%\c-)");
 		break;

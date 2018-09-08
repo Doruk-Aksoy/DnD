@@ -210,8 +210,7 @@ Script 703 DEATH {
 			StatListOpened[PlayerNumber()] = 0;
 			if(!GetCVar("dnd_softcore")) {
 				Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
-				ResetWeaponMods(PlayerNumber());
-				ResetPlayerBonuses(PlayerNumber());
+				ResetHardcoreStuff(PlayerNumber());
 			}
 		}
 	}
@@ -1043,7 +1042,7 @@ Script 918 (int type, int acc, int notarget) {
 		if(!acc) // get strength
 			res = CheckInventory("PSTAT_Strength");
 		else // get munitionist stuff
-			res = (res * (Player_Bonuses[PlayerNumber()].ammo_gain + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
+			res = (res * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
 	}
 	else if(type == 1) { // check for accessory
 		int tid = ActivatorTID();
@@ -1070,7 +1069,7 @@ Script 918 (int type, int acc, int notarget) {
 	else if(type == 3) { // talents
 		if(notarget)
 			SetActivator(0, AAPTR_TARGET);
-		res = CheckInventory(TalentNames[acc]);
+		res = CheckInventory(TalentNames[acc][TALENT_NAME]);
 	}
 	else if(type == 4) { // dexterity
 		if(notarget)
@@ -1816,9 +1815,9 @@ Script 987 RESPAWN {
 	TakeInventory("DnD_PDead", 1);
 	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE);
 	ACS_ExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
-	SetActorProperty(0, APROP_ACCURACY, Player_Bonuses[PlayerNumber()].accuracy);
-	SetActorProperty(0, APROP_SCORE, Player_Bonuses[PlayerNumber()].explosion_radius);
-	GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(Player_Bonuses[PlayerNumber()].explosion_resist, 1, MAX_EXPRESIST_VAL)), 1);
+	SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(PlayerNumber(), INV_ACCURACY_INCREASE));
+	SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
+	GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
 	// if game mode is coop, we don't want any sort of reset on death here! make sure it's not coop
 	/*if(GetCVar("Survival")) {
 		if(CheckInventory("CurrentLives"))
@@ -2225,28 +2224,40 @@ Script "DnD Check Special Match" (int multispecial) {
 	SetResultValue(res);
 }
 
+Script "DnD Blood Rune" (void) {
+	str togive = "FakeBloodPower";
+	if(CheckInventory("Ability_Arcanery"))
+		togive = "FakeBloodPowerBetter";
+	ActivatorSound("items/bloodrun", 127);
+	GiveInventory(togive, 1);
+}
+
 // Custom Powerup script
 Script "DnD Player On Hit" (int power) {
-	if(!power) {
-		str togive = "FakeBloodPower";
-		if(CheckInventory("Ability_Arcanery"))
-			togive = "FakeBloodPowerBetter";
-		ActivatorSound("items/bloodrun", 127);
-		GiveInventory(togive, 1);
+	int this, temp, roll;
+	if(CheckInventory("HateCheck")) {
+		this = ActivatorTID();
+		SetActivator(0, AAPTR_TARGET);
+		if(ActivatorTID() != this)
+			GiveInventory("HateWeakness", 1);
 	}
-	else if(power == 1) {
-		if(CheckInventory("HateCheck")) {
-			int this = ActivatorTID();
-			SetActivator(0, AAPTR_TARGET);
-			if(ActivatorTID() != this)
-				GiveInventory("HateWeakness", 1);
-		}
-		// necro chance
-		if(GetArmorType("NecroArmor", PlayerNumber()) && !random(0, 2))
-			GiveInventory("NecroSpikeShooter", 1);
-	}
+	// necro chance
+	if(GetArmorType("NecroArmor", PlayerNumber()) && !random(0, 2))
+		GiveInventory("NecroSpikeShooter", 1);
 	if(!CheckInventory("Armor"))
 		SetInventory("DnD_ArmorType", 0);
+	// player heal on hit check
+	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_CHANCE_HEALMISSINGONPAIN);
+	if(temp) {
+		// roll chance
+		// upper 16 bits hold the chance
+		roll = random(1, 100);
+		if(roll <= (temp >> 16)) {
+			// heal for missing health
+			GiveInventory("VeilHealFXSpawner", 1); // use same fx as veil for now
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, ((temp & 0xFFFF) * GetMissingHealth()) / 100);
+		}
+	}
 }
 
 // Backpack / Research script
@@ -2402,7 +2413,7 @@ Script 999 ENTER {
 					lim /= 2;
 				else
 					lim /= 3;
-				lim += Player_Bonuses[pnum].regen_cap;
+				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 				amt = lim * DND_REGEN_PERCENT / 100;
 				if(!CheckInventory("RegenStopper") && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS) && cur < lim) {
 					if(cur > lim - amt)
@@ -2417,7 +2428,7 @@ Script 999 ENTER {
 			cur = GetArmorType("CyberneticArmor", pnum);
 			if(cur) {
 				lim = GetArmorSpecificCap(DND_CYBERNETICARMOR_AMOUNT);
-				lim += Player_Bonuses[pnum].regen_cap;
+				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 				amt = lim * DND_REGEN_PERCENT / 100;
 				lim >>= 1; // half limit for this armor
 				if(cur && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS) && cur < lim && !CheckInventory("P_Damaged")) {
@@ -2624,10 +2635,13 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 
 // Used in Select statement of weapons, caches the weapon damage numbers this weapon can cause
 Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand) {
-	CachePlayerDamage(dmg, dmg_id, dmg_rand);
+	CachePlayerDamage(dmg, dmg_id & 0xFFFF, dmg_rand);
 }
 
-Script "DND Weapon Damage Retrieve" (int dmg_id, int talent_type, int flags) {
+Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
+	bool isSpecial = flags & DND_WDMG_ISSPECIALAMMO;
+	int wepid = dmgid >> 16;
+	dmgid &= 0xFFFF;
 	if(flags & DND_WDMG_USETARGET) // use target
 		SetActivator(0, AAPTR_TARGET);
 	else if(flags & DND_WDMG_USEMASTER) {
@@ -2637,57 +2651,73 @@ Script "DND Weapon Damage Retrieve" (int dmg_id, int talent_type, int flags) {
 	}
 	else if(flags & DND_WDMG_USETRACER)
 		SetActivator(0, AAPTR_TRACER);
-	int res = 0, pnum = PlayerNumber(), wepid = GetWeaponPosFromTable(), temp;
+	int res = 0, pnum = PlayerNumber(), temp;
 	// get the damage
-	if(!(flags & DND_WDMG_ISSPECIALAMMO))
-		res = GetCachedPlayerDamage(dmg_id);
+	if(!isSpecial)
+		res = GetCachedPlayerDamage(wepid, dmgid);
 	else // special ammo damage
-		res = GetSpecialAmmoDamage(dmg_id & 0xFFFF, dmg_id & 0xFFFF0000);
-
-	res += Player_Bonuses[pnum].flat_damage_bonus[talent_type];
+		res = GetSpecialAmmoDamage(dmgid, wepid);
 	
-	if(talent_type == TALENT_MELEE)
-		res = res * (100 + DND_STR_GAIN_INT * GetStrength()) / 100;
+	// we don't cache special ammo damage
+	if(PlayerDamageNeedsCaching(wepid, dmgid) || isSpecial) {
+		res += MapTalentToFlatBonus(pnum, talent_type);
+		
+		if(talent_type == TALENT_MELEE)
+			res = res * (100 + DND_STR_GAIN_INT * GetStrength()) / 100;
+		
+		// quest or accessory bonuses
+		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
+			res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+		if(flags & DND_WDMG_ISPISTOL) // gunslinger affected
+			res = res * (100 + DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward)) / 100;
+		if(flags & DND_WDMG_ISBOOMSTICK)
+			res = res * (100 + DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward)) / 100;
+		if(flags & DND_WDMG_ISSUPER)
+			res = res * (100 + DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward)) / 100;
+		
+		// include the talent bonus now
+		// occult uses intellect
+		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
+			res = res * (1000 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type][TALENT_NAME])) / 1000;
+		else
+			res = res * (1000 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type][TALENT_NAME])) / 1000;
+		if(active_quest_id == QUEST_ONLYNOTALENTWEAPONS && CheckInventory(TalentNames[talent_type][TALENT_NAME]))
+			GiveInventory(Quest_Checkers[QUEST_ONLYNOTALENTWEAPONS], 1);
+		
+		// include enhancement orb bonuses
+		temp = GetPlayerWeaponEnchant(pnum, wepid);
+		if(temp)
+			res = res * (100 + ENHANCEORB_BONUS * temp) / 100;
+			
+		// finally apply damage type bonuses
+		temp = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
+				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) + 
+				MapTalentToPercentBonus(pnum, talent_type) +
+				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
+		if(temp)
+			res = res * (100 + temp) / 100;
+		
+		res = res * (100 + GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + GetWeaponSlotFromFlag(flags))) / 100;
+		
+		CachePlayerDamageWithID(wepid, res, dmgid);
+	}
 	
-	// special weapons checks
+	// special weapons checks -- these are added on top of everything else as the last thing, before crits
 	if(CheckInventory("DnD_WeaponID") == DND_WEAPON_LIGHTNINGGUN)
 		res = res * (100 + DND_LIGHTNINGGUN_DMGPERSTACK * CheckInventory("LightningStacks")) / 100;
 	else if(CheckInventory("DnD_WeaponID") == DND_WEAPON_DUSKBLADE)
 		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
 	
-	// quest or accessory bonuses
-	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
-		res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
-	if(flags & DND_WDMG_ISPISTOL) // gunslinger affected
-		res = res * (100 + DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward)) / 100;
-	if(flags & DND_WDMG_ISBOOMSTICK)
-		res = res * (100 + DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward)) / 100;
-	if(flags & DND_WDMG_ISSUPER)
-		res = res * (100 + DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward)) / 100;
-	
-	// include the talent bonus now
-	// occult uses intellect
-	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
-		res = res * (1000 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type])) / 1000;
-	else
-		res = res * (1000 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type])) / 1000;
-	if(active_quest_id == QUEST_ONLYNOTALENTWEAPONS && CheckInventory(TalentNames[talent_type]))
-		GiveInventory(Quest_Checkers[QUEST_ONLYNOTALENTWEAPONS], 1);
+	// the randomized damage multiplier of the weapon
+	temp = GetCachedPlayerRandomRange(wepid, dmgid);
+	if(temp > 1)
+		res *= random(temp & 0xFFFF, temp >> 16);
+		
 	// crit chance
 	if(CheckCritChance()) {
 		res = res * GetCritModifier() / 100;
 		HandleHunterTalisman();
 	}
-	// include enhancement orb bonuses
-	temp = GetPlayerWeaponEnchant(pnum, wepid);
-	if(temp)
-		res = res * (100 + ENHANCEORB_BONUS * temp) / 100;
-	// finally apply damage type bonuses
-	temp = GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + Player_Bonuses[pnum].damage_percent;
-	if(temp)
-		res = res * (100 + temp + Player_Bonuses[pnum].damage_type_bonus[talent_type]) / 100;
-	
-	res = res * (100 + Player_Bonuses[pnum].slot_damage_bonus[GetWeaponSlotFromFlag(flags)]) / 100;
 	
 	SetResultValue(res);
 }
@@ -2699,7 +2729,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	
 	int pnum = PlayerNumber();
 	
-	dmg += Player_Bonuses[pnum].flat_damage_bonus[talent_type];
+	dmg += MapTalentToFlatBonus(pnum, talent_type);
 		
 	if(talent_type == TALENT_MELEE || flags & DND_WDMG_HASSTRSCALING)
 		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
@@ -2711,17 +2741,20 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetStat(STAT_BUL)) / 100;
 	// talent bonus
 	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type])) / 100;
+		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type][TALENT_NAME])) / 100;
 	else
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type])) / 100;
+		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type][TALENT_NAME])) / 100;
 	// finally crit chance
 	if(CheckCritChance()) {
 		dmg = dmg * GetCritModifier() / 100;
 		HandleHunterTalisman();
 	}
-	int temp = GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + Player_Bonuses[pnum].damage_percent;
+	int temp = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
+				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
+				MapTalentToPercentBonus(pnum, talent_type) +
+				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
 	if(temp)
-		dmg = dmg * (100 + temp + Player_Bonuses[pnum].damage_type_bonus[talent_type]) / 100;
+		dmg = dmg * (100 + temp) / 100;
 	SetResultValue(dmg);
 }
 
@@ -3056,7 +3089,7 @@ Script "DND Thunderstaff Bolts" (int isfulldmg) {
 		}
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1, TALENT_ELEMENTAL);
+		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL);
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[i].tid) {
 				if(!isfulldmg)
@@ -3116,7 +3149,7 @@ Script "DND Thunderstaff Lightning" (int isfulldmg) {
 	int i, this = ActivatorTID();
 	str toSpawn = isfulldmg ? "ThunderstaffExp3_FullDMG" : "ThunderstaffExp3";
 	str dmgtype = isfulldmg ? "LightningFull" : "Lightning";
-	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2, TALENT_ELEMENTAL) << 1;
+	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL) << 1;
 	int tidlim = 0;
 	
 	for(i = DND_MONSTERTID_BEGIN; i < dnd_monster_tid; ++i) {
@@ -3171,6 +3204,7 @@ Script "DND Orb Use" (int orbtype, int extra) {
 	LocalAmbientSound("Items/OrbUse", 127);
 	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
 	ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, PlayerNumber());
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	Delay(2);
 	if(orbtype != DND_ORB_AFFLUENCE)
 		SetInventory("AffluenceCounter", 0);
@@ -3198,12 +3232,12 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 	}
 }
 
-Script "DND Clientside Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetSyncValue(var, to, extra, DND_SYNC_NONORB);
+Script "DND Clientside Orb Syncer" (int var, int to, int extra) CLIENTSIDE {
+	SetSyncValue_Orb(var, to, extra);
 }
 
-Script "DND Clientside Orb Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetSyncValue(var, to, extra, DND_SYNC_ORB);
+Script "DND Clientside Elixir Syncer" (int var, int to, int extra) CLIENTSIDE {
+	SetSyncValue_Elixir(var, to, extra);
 }
 
 Script "DND Clientside Item Syncer" (int var, int to, int extra) CLIENTSIDE {
@@ -3511,7 +3545,7 @@ Script "DnD Pellet Count" (int base, int flags) {
 		SetactivatorToTarget(0);
 	int pnum = PlayerNumber();
 	
-	SetResultValue((base * (100 + Player_Bonuses[pnum].pellet_increase) / 100)); 
+	SetResultValue((base * (100 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE)) / 100)); 
 }
 
 Script "DnD Pellet Shooter" (int base, int id, int fulldmg) {
@@ -3519,7 +3553,7 @@ Script "DnD Pellet Shooter" (int base, int id, int fulldmg) {
 	int pnum = PlayerNumber();
 	if(fulldmg)
 		actor = StrParam(s:actor, s: "_FullDMG");
-	GiveInventory(actor, (base * (100 + Player_Bonuses[pnum].pellet_increase) / 100));
+	GiveInventory(actor, (base * (100 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE)) / 100));
 }
 
 Script "DnD Explosion Radius Retrieve" (int flags) {
@@ -3530,13 +3564,13 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 			SetPointer(AAPTR_TARGET, GetActorProperty(0, APROP_MASTERTID));
 		SetActivator(GetActorProperty(0, APROP_MASTERTID));
 	}
-	SetResultValue(Player_Bonuses[PlayerNumber()].explosion_radius);
+	SetResultValue(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
 }
 
 // after 16th bit there can be extra info
 // never put AMMO_CLIP as 16 bit onwards
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
-	if(random(1, 100) <= Player_Bonuses[PlayerNumber()].ammo_chance) {
+	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
 		if(slot != DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
 		else if(slot != DND_AMMOSLOT_SPECIAL)
@@ -3609,6 +3643,7 @@ Script "DnD Elixir Use Message" (int eid) CLIENTSIDE {
 
 Script "DnD Elixir Use" (int eid) {
 	ACS_NamedExecuteAlways("DnD Elixir Use Message", 0, eid);
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	HandleElixirUse(eid);
 }
 
@@ -3671,4 +3706,8 @@ Script "DnD Force Sync Player Bonuses" (void) {
 	Delay(70);
 	if(CheckInventory("DnD_SyncMe"))
 		SyncAllClientsideVariables();
+}
+
+Script "DnD Force Damage Cache Recalculation" (int pnum) {
+	ForcePlayerDamageCaching(pnum);
 }

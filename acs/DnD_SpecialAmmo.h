@@ -1,7 +1,7 @@
 #ifndef DND_SPECIALAMMO_IN
 #define DND_SPECIALAMMO_IN
 
-#include "DnD_DamageCache.h"
+#include "DnD_DamageCacheDefs.h"
 #include "DnD_Weapons.h"
 #include "DnD_Ammo.h"
 
@@ -53,7 +53,6 @@ pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {
 };
 
 int GetSpecialAmmoDamage(int id1, int id2) {
-	id2 >>= 16;
 	int dmg = DamageValues[id1][id2].dmg;
 	if(DamageValues[id1][id2].dmg_low && DamageValues[id1][id2].dmg_high)
 		return dmg * random(DamageValues[id1][id2].dmg_low, DamageValues[id1][id2].dmg_high);

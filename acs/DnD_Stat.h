@@ -5,11 +5,16 @@
 #include "DnD_CommonStat.h"
 #include "DnD_Common.h"
 #include "DnD_Charms.h"
+#include "DnD_Elixirs.h"
 
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
 #define BASE_WISDOM_GAIN 10
 #define BASE_GREED_GAIN 10
+
+#define EXO_AR_ADD_1 5
+#define EXO_AR_ADD_2 6
+#define EXO_AR_ADD_3 9
 
 enum {
 	DND_ANNOUNCER_QUEST,
@@ -29,22 +34,16 @@ int GetExpLimit() {
 	return LevelCurve[GetStat(STAT_LVL) - 1];
 }
 
-str TalentNames[MAX_TALENTS] = {
-	"Talent_Ballistic",
-	"Talent_Melee",
-	"Talent_Occult",
-	"Talent_Explosive",
-	"Talent_Energy",
-    "Talent_Elemental"
-};
-
-str TalentTypeNames[MAX_TALENTS] = {
-	"Ballistic",
-	"Melee",
-	"Occult",
-	"Explosive",
-	"Energy",
-    "Elemental"
+#define TALENT_NAME 0
+#define TALENT_TAG 1
+str TalentNames[MAX_TALENTS][2] = {
+	{ "Ballistic", 			"Talent_Ballistic" },
+	{ "Melee", 				"Talent_Melee" },
+	
+	{ "Energy", 			"Talent_Energy" },
+	{ "Explosive", 			"Talent_Explosive" },
+	{ "Occult", 			"Talent_Occult" },
+    { "Elemental", 			"Talent_Elemental" }
 };
 
 #define DND_PERKS DND_PERK_END - DND_PERK_BEGIN + 1
@@ -263,12 +262,17 @@ void UnequipAccessory(int acc) {
 	DecideAccessories();
 }
 
+int GetResearchArmorBonuses() {
+	return EXO_AR_ADD_1 * CheckInventory("Done_Body_Ar_1") + EXO_AR_ADD_2 * CheckInventory("Done_Body_Ar_2") + EXO_AR_ADD_3 * CheckInventory("Done_Body_Ar_3");
+}
+
 int CalculateArmorCapBonuses() {
 	int res = CheckInventory("DnD_QuestReward_ArmorCapIncrease") * DND_QUEST_ARMORBONUS;
 	
 	// consider orb effects
 	res += GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORFLAT, -1);
-	
+	// elixir
+	res += Player_Elixir_Bonuses[PlayerNumber()].armor_flat_bonus;
 	return res;
 }
 
@@ -284,20 +288,20 @@ int GetArmorCap(bool useMenuShow) {
 	res += (res * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	res += (res * GetResearchArmorBonuses()) / 100;
-	res += (res * Player_Bonuses[PlayerNumber()].armor_percent_bonus) / 100;
+	res += (res * (Player_Elixir_Bonuses[PlayerNumber()].armor_percent_bonus + GetPlayerAttributeValue(PlayerNumber(), INV_ARMORPERCENT_INCREASE))) / 100;
 	return res;
 }
 
 // used for deciding armor pickup values
 int GetArmorSpecificCap(int amt) {
-	if(amt != 1) { 
+	if(amt != 1) {
 		// any other armor besides the armor bonuses
 		amt += CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * GetBulkiness();
 		amt += amt * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
 		amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 		amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 		amt += (amt * GetResearchArmorBonuses()) / 100;
-		amt += (amt * Player_Bonuses[PlayerNumber()].armor_percent_bonus) / 100;
+		amt += (amt * (Player_Elixir_Bonuses[PlayerNumber()].armor_percent_bonus + GetPlayerAttributeValue(PlayerNumber(), INV_ARMORPERCENT_INCREASE))) / 100;
 	}
 	else // exception for armor bonus
 		amt = GetArmorCap(false) >> 1;
@@ -306,7 +310,9 @@ int GetArmorSpecificCap(int amt) {
 
 // compare armor types t1 and t2, check if t1 is of higher tier than t2
 // if base armor of item greater and it is listed greater
-int IsArmorTierHigher(int t1, int t2) {
+bool IsArmorTierHigher(int t1, int t2) {
+	if(t1 < 0 || t2 < 0)
+		return true;
 	return ArmorBaseAmounts[t1] > ArmorBaseAmounts[t2] && t1 > t2;
 }
 
@@ -358,8 +364,9 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 			GiveInventory("Research_Body_Ar_1_Tracker", cap - armor);
 		}
 		else {
-			GiveInventory("DnD_ArmorBonus", amount);
-			GiveInventory("Research_Body_Ar_1_Tracker", amount);
+			amount = (amount * cap) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1];
+			GiveInventory("DnD_ArmorBonus", amount - 1);
+			GiveInventory("Research_Body_Ar_1_Tracker", amount - 1);
 		}
 	}
 	
@@ -382,22 +389,24 @@ int Calculate_Perks() {
 
 int GetDropChance(int pnum, bool isElite) {
 	int base = 1.0; // base val
-	base += Player_Bonuses[pnum].drop_chance + GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1); // additive bonuses first
+	int temp = 0;
+	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1); // additive bonuses first
 	if(isElite && CheckActorInventory(pnum + P_TIDSTART, "DnD_QuestReward_EliteDropBonus"))
 		base += DND_ELITEDROP_GAIN;
 	// luck benefits are multiplicative
-	base = FixedMul(base, 1.0 + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck") + Player_Bonuses[pnum].luck);
+	temp = GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE) + Player_Elixir_Bonuses[pnum].luck;
+	base = FixedMul(base, 1.0 + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck") + temp);
 	if(GetCVar("dnd_hardcore"))
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 	return base;
 }
 
 int GetPlayerWisdomBonus(int pnum) {
-	return Player_Bonuses[pnum].wisdom_percent_bonus + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
+	return GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
 }
 
 int GetPlayerGreedBonus(int pnum) {
-	return Player_Bonuses[pnum].greed_percent_bonus + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
+	return GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
 }
 
 bool RunDefaultDropChance(int pnum, bool isElite, int basechance) {
@@ -556,10 +565,10 @@ void UpdatePlayerKnockbackResist() {
 	int bul = GetBulkiness();
 	int strgth = GetStrength();
 	
-	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS))
+	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS) || CheckInventory("KnockbackImmunityCheck"))
 		SetActorProperty(0, APROP_MASS, INT_MAX);
 	else
-		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + bul * DND_BUL_KNOCKBACK_GAIN + strgth * DND_STR_KNOCKBACK_GAIN + Player_Bonuses[PlayerNumber()].knockback_resist);
+		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + bul * DND_BUL_KNOCKBACK_GAIN + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
 }
 
 bool HasKilledLegendary(int id) {
@@ -629,12 +638,12 @@ bool CheckCritChance() {
 	// add current weapon crit bonuses
 	chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
 	chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
-	chance += (Player_Bonuses[pnum].crit_chance << 16) / 100;
+	chance += (GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE) << 16) / 100;
 	// add percent bonus
 	if(chance) {
 		chance = FixedMul(chance, 1.0 + Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt 
 									  + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT 
-									  + (Player_Bonuses[pnum].crit_percent << 16) / 100, wepid));
+									  + (GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) << 16) / 100, wepid));
 	}
 	
 	res = chance >= random(0, 1.0);
@@ -653,7 +662,7 @@ int GetCritModifier() {
 	// weapon bonus
 	bonus += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt >> 16;
 	bonus += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
-	bonus += Player_Bonuses[pnum].crit_damage;
+	bonus += GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
 	base += bonus;
 	if(CheckInventory("HunterTalismanCheck"))
 		base >>= 1;
@@ -680,56 +689,15 @@ void RecalculateTotalLevel() {
 	}
 }
 
-void ResetPlayerBonuses(int pnum) {	
-	int i;
-	Player_Bonuses[pnum].hp_flat_bonus = 0;
-	Player_Bonuses[pnum].armor_flat_bonus = 0;
-	
-	Player_Bonuses[pnum].hp_percent_bonus = 0;
-	Player_Bonuses[pnum].armor_percent_bonus = 0;
-	
-	Player_Bonuses[pnum].greed_percent_bonus = 0;
-	Player_Bonuses[pnum].wisdom_percent_bonus = 0;
-	
-	Player_Bonuses[pnum].speed_bonus = 0;
-	Player_Bonuses[pnum].drop_chance = 0;
-	Player_Bonuses[pnum].holding = 0;
-	Player_Bonuses[pnum].luck = 0;
-	
-	for(i = 0; i < MAX_TALENTS; ++i)
-		Player_Bonuses[pnum].damage_type_bonus[i] = 0;
-		
-	for(i = 0; i < MAX_TALENTS; ++i)
-		Player_Bonuses[pnum].flat_damage_bonus[i] = 0;
-		
-	for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
-		Player_Bonuses[pnum].slot_damage_bonus[i] = 0;
-	
-	Player_Bonuses[pnum].magazine_increase = 0;
-	Player_Bonuses[pnum].pellet_increase = 0;
-	Player_Bonuses[pnum].explosion_radius = 0;
-	Player_Bonuses[pnum].explosion_resist = 0;
-	Player_Bonuses[pnum].ammo_chance = 0;
-	Player_Bonuses[pnum].ammo_gain = 0;
-	Player_Bonuses[pnum].regen_cap = 0;
-	Player_Bonuses[pnum].crit_chance = 0;
-	Player_Bonuses[pnum].crit_percent = 0;
-	Player_Bonuses[pnum].crit_damage = 0;
-	
-	Player_Bonuses[pnum].knockback_resist = 0;
-	Player_Bonuses[pnum].damage_percent = 0;
-	Player_Bonuses[pnum].accuracy = 0;
-}
-
 void ResetHardcoreStuff(int pnum) {
 	// reset player items
 	ResetPlayerInventory(pnum);
 	ResetPlayerCharmsUsed(pnum);
 	ResetTradeViewList(pnum);
 	ResetPlayerStash(pnum);
+	ResetPlayerElixirBonuses(pnum);
 	// reset weapon mod variable
 	ResetWeaponMods(pnum);
-	ResetPlayerBonuses(pnum);
 	ResetMostRecentOrb(pnum);
 	ResetOrbData(pnum);
 	RecalculateTotalLevel();
@@ -741,6 +709,40 @@ void ResetHardcoreStuff(int pnum) {
 		SyncAllItemData(DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
 	}
+}
+
+int MapTalentToFlatBonus(int pnum, int talent) {
+	switch(talent) {
+		case TALENT_BULLET:
+		case TALENT_MELEE:
+		return GetPlayerAttributeValue(pnum, INV_FLATPHYS_DAMAGE);
+		case TALENT_OCCULT:
+		return GetPlayerAttributeValue(pnum, INV_FLATMAGIC_DAMAGE);
+		case TALENT_EXPLOSIVE:
+		return GetPlayerAttributeValue(pnum, INV_FLATEXP_DAMAGE);
+		case TALENT_ENERGY:
+		return GetPlayerAttributeValue(pnum, INV_FLATENERGY_DAMAGE);
+		case TALENT_ELEMENTAL:
+		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE);
+	}
+	return 0;
+}
+
+int MapTalentToPercentBonus(int pnum, int talent) {
+	switch(talent) {
+		case TALENT_BULLET:
+		case TALENT_MELEE:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE);
+		case TALENT_OCCULT:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTMAGIC_DAMAGE);
+		case TALENT_EXPLOSIVE:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTEXP_DAMAGE);
+		case TALENT_ENERGY:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTENERGY_DAMAGE);
+		case TALENT_ELEMENTAL:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE);
+	}
+	return 0;
 }
 
 #endif

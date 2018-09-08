@@ -1,0 +1,373 @@
+Actor IATTR_FlatHP : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_FlatArmor : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_HPPercent : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ArmorPercent : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ExpBonus : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_CreditBonus : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_DropChanceBonus : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_LuckBonus : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_AmmoCapBonus : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SpeedBonus : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_MagazineIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_FlatDamageBonus_Physical : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_FlatDamageBonus_Energy : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_FlatDamageBonus_Explosive : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_FlatDamageBonus_Magic : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_FlatDamageBonus_Elemental : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PercentDamageBonus_Physical : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PercentDamageBonus_Energy : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PercentDamageBonus_Explosive : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PercentDamageBonus_Magic : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PercentDamageBonus_Elemental : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_1 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_2 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_3 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_4 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_5 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_6 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_7 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_8 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SlotDamageBonus_9 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PelletIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ExplosionRadiusIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ExplosionResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_AmmoGainChance : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_AmmoPickupIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_RegenCap : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_CritChance : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_CritChancePercent : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_CritDamage : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_KnockbackResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_DamagePercent : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_Accuracy : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_StatBonus_STR : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_StatBonus_DEX : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_StatBonus_BUL : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_StatBonus_CHR : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_StatBonus_VIT : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_StatBonus_INT : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ElementalResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PhysicalResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_StatusBuffs_1 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ChanceToCastElementalSpell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_HealMissingHealthOnPain : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_DamageIncrease_Lightning : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_DamageIncrease_Shotguns : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_DamagePerFlatHP : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ChanceToRaiseZombieFromKills : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_IncreasedDamageTaken : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_HealOnKill : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_SoulAmmoIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_CastRally : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+// Items to speed up checking for status buffs
+
+Actor KnockbackImmunityCheck : Ammo {
+	inventory.amount 1
+	inventory.maxamount 1
+	+IGNORESKILL
+}

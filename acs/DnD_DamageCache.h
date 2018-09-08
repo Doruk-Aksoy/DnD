@@ -2,29 +2,12 @@
 #define DND_DAMAGECACHE_IN
 
 #include "DnD_Common.h"
+#include "DnD_WeaponDefs.h"
 
-enum {
-	DND_DMGID_0 = 0,
-	DND_DMGID_1,
-	DND_DMGID_2,
-	DND_DMGID_3,
-	DND_DMGID_4,
-	DND_DMGID_5,
-	DND_DMGID_6,
-	DND_DMGID_7,
-	DND_DMGID_8
-};
-
-typedef struct pdmg {
-	int dmg;
-	int dmg_low;
-	int dmg_high;
-} pdmg_T;
-
-#define MAX_CACHE_ELEMENTS 8
 typedef struct pdmg_cache {
-	int curwep;
-	pdmg_T damage_cache[MAX_CACHE_ELEMENTS];
+	bool massRecalculationRequested;
+	bool norecalculate[MAXWEPS][MAX_CACHE_ELEMENTS]; // false => needs recalculation otherwise no
+	pdmg_T damage_cache[MAXWEPS][MAX_CACHE_ELEMENTS];
 } pdmg_cache_T;
 
 pdmg_cache_T& GetPlayerDamageCache(int pnum) {
@@ -32,32 +15,54 @@ pdmg_cache_T& GetPlayerDamageCache(int pnum) {
 	return cache[pnum];
 }
 
-void CachePlayerDamage(int dmg, int id, int dmg_rand) {
+void CachePlayerDamage(int dmg, int dmgid, int dmg_rand) {
 	int wepid = CheckInventory("DnD_WeaponID");
-	int pnum = PlayerNumber();
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
-	// if different weapon, clear all
-	if(wepid != cache.curwep) {
-		for(int i = 0; i < MAX_CACHE_ELEMENTS; ++i) {
-			cache.damage_cache[i].dmg = 0;
-			cache.damage_cache[i].dmg_low = 0;
-			cache.damage_cache[i].dmg_high = 0;
-		}
-		cache.curwep = wepid;
-	}
+	pdmg_cache_T& cache = GetPlayerDamageCache(PlayerNumber());
 	// not cached
-	if(!cache.damage_cache[id].dmg) {
-		cache.damage_cache[id].dmg = dmg;
-		cache.damage_cache[id].dmg_low = dmg_rand & 0xFFFF;
-		cache.damage_cache[id].dmg_high = dmg_rand >> 16;
+	if(!cache.damage_cache[wepid][dmgid].dmg && !cache.norecalculate[wepid][dmgid]) {
+		cache.damage_cache[wepid][dmgid].dmg = dmg;
+		cache.damage_cache[wepid][dmgid].dmg_low = dmg_rand & 0xFFFF;
+		cache.damage_cache[wepid][dmgid].dmg_high = dmg_rand >> 16;
 	}
 }
 
-int GetCachedPlayerDamage(int id) {
+void CachePlayerDamageWithID(int wepid, int dmg, int dmgid) {
 	pdmg_cache_T& cache = GetPlayerDamageCache(PlayerNumber());
-	if(cache.damage_cache[id].dmg_low && cache.damage_cache[id].dmg_high)
-		return cache.damage_cache[id].dmg * random(cache.damage_cache[id].dmg_low, cache.damage_cache[id].dmg_high);
-	return cache.damage_cache[id].dmg;
+	// not cached
+	if(!cache.norecalculate[wepid][dmgid]) {
+		cache.damage_cache[wepid][dmgid].dmg = dmg;
+		cache.norecalculate[wepid][dmgid] = true;
+		// clean the previously issued mass recalc request, since player fired now they might want to craft afterwards
+		cache.massRecalculationRequested = false;
+	}
+}
+
+bool PlayerDamageNeedsCaching(int wepid, int dmgid) {
+	return !GetPlayerDamageCache(PlayerNumber()).norecalculate[wepid][dmgid];
+}
+
+int GetCachedPlayerDamage(int wepid, int dmgid) {
+	pdmg_cache_T& cache = GetPlayerDamageCache(PlayerNumber());
+	return cache.damage_cache[wepid][dmgid].dmg;
+}
+
+int GetCachedPlayerRandomRange(int wepid, int dmgid) {
+	pdmg_cache_T& cache = GetPlayerDamageCache(PlayerNumber());
+	if(cache.damage_cache[wepid][dmgid].dmg_low && cache.damage_cache[wepid][dmgid].dmg_high)
+		return cache.damage_cache[wepid][dmgid].dmg_low | (cache.damage_cache[wepid][dmgid].dmg_high << 16);
+	return 1;
+}
+
+// forces player to recalculate the damage values
+void ForcePlayerDamageCaching(int pnum) {
+	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	// if a mass recalculation was issued, so we don't keep repeating this over and over if player is simply crafting
+	if(!cache.massRecalculationRequested) {
+		cache.massRecalculationRequested = true;
+		for(int i = 0; i < MAXWEPS; ++i)
+			for(int j = 0; j < MAX_CACHE_ELEMENTS; ++j)
+				cache.norecalculate[i][j] = 0;
+	}
 }
 
 #endif

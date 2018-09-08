@@ -100,16 +100,18 @@ void RollCharmInfo(int charm_pos, int charm_tier, bool onField) {
 void AddAttributeToCharm(int charm_pos, int attrib) {
 	if(Inventories_On_Field[charm_pos].attrib_count < Charm_MaxAffixes[Inventories_On_Field[charm_pos].item_subtype]) {
 		int temp = Inventories_On_Field[charm_pos].attrib_count++;
+		int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * Inventories_On_Field[charm_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, 65536);
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low, Inv_Attribute_Info[attrib].attrib_high) * (1 + (Inv_Attribute_Info[attrib].attrib_level_modifier * Inventories_On_Field[charm_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low * mod, Inv_Attribute_Info[attrib].attrib_high * mod);
 	}
 }
 
 void AddAttributeToItem(int item_pos, int attrib) {
 	int pnum = PlayerNumber();
 	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
+	int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, 65536);
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
-	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low, Inv_Attribute_Info[attrib].attrib_high) * (1 + (Inv_Attribute_Info[attrib].attrib_level_modifier * PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low * mod, Inv_Attribute_Info[attrib].attrib_high * mod);
 }
 
 // monsters dropping charms
@@ -120,12 +122,15 @@ void SpawnCharm(int pnum, bool isElite) {
 		int addchance = 0;
 		if(isElite)
 			addchance = DND_ELITE_BASEDROP / 2;
-		if(RunDefaultDropChance(i, isElite, UNIQUE_DROPCHANCE + addchance))
+		if(random(0, 1)) {//if(RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance)) {
 			MakeUnique(c, DND_ITEM_CHARM);
-		else
+			SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c);
+		}
+		else {
 			RollCharmInfo(c, RollItemLevel(), 1);
+			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
+		}
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 	}
 }
 
@@ -144,11 +149,13 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 		return false;
 	}
 	else {
+		// request damage cache recalculation
+		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 		// this means we must swap charms
 		if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
 			RemoveItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, 0);
+			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 		}
 		else {
 			// just zero the stuff in inventory, and copy them into charms used
@@ -172,7 +179,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
-			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, 0);
+			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 		}
 		return true;
 	}

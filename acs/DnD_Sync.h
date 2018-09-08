@@ -28,36 +28,6 @@ enum {
 	DND_SYNC_DAMAGEENERGY,
 	DND_SYNC_DAMAGEELEMENTAL,
 	
-	DND_SYNC_MAGAZINEINCREASE,
-	DND_SYNC_SLOT1DAMAGE,
-	DND_SYNC_SLOT2DAMAGE,
-	DND_SYNC_SLOT3DAMAGE,
-	DND_SYNC_SLOT4DAMAGE,
-	DND_SYNC_SLOT5DAMAGE,
-	DND_SYNC_SLOT6DAMAGE,
-	DND_SYNC_SLOT7DAMAGE,
-	DND_SYNC_SLOT8DAMAGE,
-	DND_SYNC_SLOT9DAMAGE,
-	DND_SYNC_PELLETINCREASE,
-	DND_SYNC_EXPLOSIONRADIUS,
-	DND_SYNC_EXPLOSIVERESIST,
-	DND_SYNC_AMMOGAINCHANCE,
-	DND_SYNC_AMMOGAININCREASE,
-	DND_SYNC_REGENCAP,
-	DND_SYNC_CRITCHANCE,
-	DND_SYNC_CRITCHANCEPERCENT,
-	DND_SYNC_CRITDAMAGE,
-	DND_SYNC_KNOCKBACKRESIST,
-	DND_SYNC_DAMAGEPERCENT,
-	DND_SYNC_ACCURACY,
-	
-	DND_SYNC_STATBONUS_STR,
-	DND_SYNC_STATBONUS_DEX,
-	DND_SYNC_STATBONUS_BUL,
-	DND_SYNC_STATBONUS_CHR,
-	DND_SYNC_STATBONUS_VIT,
-	DND_SYNC_STATBONUS_INT,
-	
 	DND_SYNC_WEPBONUS_CRIT,
 	DND_SYNC_WEPBONUS_CRITDMG,
 	DND_SYNC_WEPBONUS_CRITPERCENT,
@@ -230,141 +200,80 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 	return 0;
 }
 
-int GetPlayerSyncValue(int pos, int extra, bool isOrb) {
+int GetPlayerSyncValue_Orb(int pos, int extra) {
 	int pnum = PlayerNumber();
-	if(!isOrb) {
-		switch(pos) {
-			case DND_SYNC_WEAPONENHANCE:
-			return Player_Weapon_Infos[pnum][extra].enchants;
-			case DND_SYNC_SPEED:
-			return Player_Bonuses[pnum].speed_bonus;
-			case DND_SYNC_DROPCHANCE:
-			return Player_Bonuses[pnum].drop_chance;
-			case DND_SYNC_HPFLAT_BONUS:
-			return Player_Bonuses[pnum].hp_flat_bonus;
-			case DND_SYNC_ARMORFLAT_BONUS:
-			return Player_Bonuses[pnum].armor_flat_bonus;
-			case DND_SYNC_HPPERCENT_BONUS:
-			return Player_Bonuses[pnum].hp_percent_bonus;
-			case DND_SYNC_ARMORPERCENT_BONUS:
-			return Player_Bonuses[pnum].armor_percent_bonus;
-			case DND_SYNC_GREEDPERCENT_BONUS:
-			return Player_Bonuses[pnum].greed_percent_bonus;
-			case DND_SYNC_WISDOMPERCENT_BONUS:
-			return Player_Bonuses[pnum].wisdom_percent_bonus;
-			case DND_SYNC_HOLDING:
-			return Player_Bonuses[pnum].holding;
-			case DND_SYNC_LUCK:
-			return Player_Bonuses[pnum].luck;
-			case DND_SYNC_DAMAGEBULLET:
-			return Player_Bonuses[pnum].damage_type_bonus[TALENT_BULLET];
-			case DND_SYNC_DAMAGEENERGY:
-			return Player_Bonuses[pnum].damage_type_bonus[TALENT_ENERGY];
-			case DND_SYNC_DAMAGEEXPLOSIVE:
-			return Player_Bonuses[pnum].damage_type_bonus[TALENT_EXPLOSIVE];
-			case DND_SYNC_DAMAGEMELEE:
-			return Player_Bonuses[pnum].damage_type_bonus[TALENT_MELEE];
-			case DND_SYNC_DAMAGEELEMENTAL:
-			return Player_Bonuses[pnum].damage_type_bonus[TALENT_ELEMENTAL];
-			case DND_SYNC_DAMAGEOCCULT:
-			return Player_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT];
-			case DND_SYNC_WEPBONUS_CRIT:
-			return Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_CRIT].amt;
-			case DND_SYNC_WEPBONUS_CRITDMG:
-			return Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_CRITDMG].amt;
-			case DND_SYNC_WEPBONUS_CRITPERCENT:
-			return Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt;
-			case DND_SYNC_WEPBONUS_DMG:
-			return Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_DMG].amt;
-			// new item attributes
-			case DND_SYNC_MAGAZINEINCREASE:
-			return Player_Bonuses[pnum].magazine_increase;
-			case DND_SYNC_SLOT1DAMAGE:
-			case DND_SYNC_SLOT2DAMAGE:
-			case DND_SYNC_SLOT3DAMAGE:
-			case DND_SYNC_SLOT4DAMAGE:
-			case DND_SYNC_SLOT5DAMAGE:
-			case DND_SYNC_SLOT6DAMAGE:
-			case DND_SYNC_SLOT7DAMAGE:
-			case DND_SYNC_SLOT8DAMAGE:
-			case DND_SYNC_SLOT9DAMAGE:
-			return Player_Bonuses[pnum].slot_damage_bonus[pos - DND_SYNC_SLOT1DAMAGE];
-			case DND_SYNC_PELLETINCREASE:
-			return Player_Bonuses[pnum].pellet_increase;
-			case DND_SYNC_EXPLOSIONRADIUS:
-			return Player_Bonuses[pnum].explosion_radius;
-			case DND_SYNC_EXPLOSIVERESIST:
-			return Player_Bonuses[pnum].explosion_resist;
-			case DND_SYNC_AMMOGAINCHANCE:
-			return Player_Bonuses[pnum].ammo_chance;
-			case DND_SYNC_AMMOGAININCREASE:
-			return Player_Bonuses[pnum].ammo_gain;
-			case DND_SYNC_REGENCAP:
-			return Player_Bonuses[pnum].regen_cap;
-			case DND_SYNC_CRITCHANCE:
-			return Player_Bonuses[pnum].crit_chance;
-			case DND_SYNC_CRITCHANCEPERCENT:
-			return Player_Bonuses[pnum].crit_percent;
-			case DND_SYNC_CRITDAMAGE:
-			return Player_Bonuses[pnum].crit_damage;
-			case DND_SYNC_KNOCKBACKRESIST:
-			return Player_Bonuses[pnum].knockback_resist;
-			case DND_SYNC_DAMAGEPERCENT:
-			return Player_Bonuses[pnum].damage_percent;
-			case DND_SYNC_ACCURACY:
-			return Player_Bonuses[pnum].accuracy;
-			case DND_SYNC_STATBONUS_STR:
-			case DND_SYNC_STATBONUS_DEX:
-			case DND_SYNC_STATBONUS_BUL:
-			case DND_SYNC_STATBONUS_CHR:
-			case DND_SYNC_STATBONUS_VIT:
-			case DND_SYNC_STATBONUS_INT:
-			return Player_Bonuses[pnum].stat_bonus[pos - DND_SYNC_STATBONUS_STR];
-		}
+	switch(pos) {
+		case DND_SYNC_WEAPONENHANCE:
+		return GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra);
+		case DND_SYNC_SPEED:
+		return GetDataFromOrbBonus(pnum, OBI_SPEED, -1);
+		case DND_SYNC_DROPCHANCE:
+		return GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1);
+		case DND_SYNC_HPFLAT_BONUS:
+		return GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1);
+		case DND_SYNC_ARMORFLAT_BONUS:
+		return GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1);
+		case DND_SYNC_HPPERCENT_BONUS:
+		return GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1);
+		case DND_SYNC_ARMORPERCENT_BONUS:
+		return GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1);
+		case DND_SYNC_GREEDPERCENT_BONUS:
+		return GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
+		case DND_SYNC_WISDOMPERCENT_BONUS:
+		return GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
+		case DND_SYNC_HOLDING:
+		return GetDataFromOrbBonus(pnum, OBI_HOLDING, -1);
+		case DND_SYNC_DAMAGEBULLET:
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_BULLET);
+		case DND_SYNC_DAMAGEENERGY:
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ENERGY);
+		case DND_SYNC_DAMAGEEXPLOSIVE:
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_EXPLOSIVE);
+		case DND_SYNC_DAMAGEMELEE:
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_MELEE);
+		case DND_SYNC_DAMAGEELEMENTAL:
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ELEMENTAL);
+		case DND_SYNC_DAMAGEOCCULT:
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT);
+		case DND_SYNC_WEPBONUS_CRIT:
+		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, extra);
+		case DND_SYNC_WEPBONUS_CRITDMG:
+		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra);
+		case DND_SYNC_WEPBONUS_CRITPERCENT:
+		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra);
+		case DND_SYNC_WEPBONUS_DMG:
+		return GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, extra);
 	}
-	else {
-		switch(pos) {
-			case DND_SYNC_WEAPONENHANCE:
-			return GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra);
-			case DND_SYNC_SPEED:
-			return GetDataFromOrbBonus(pnum, OBI_SPEED, -1);
-			case DND_SYNC_DROPCHANCE:
-			return GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1);
-			case DND_SYNC_HPFLAT_BONUS:
-			return GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1);
-			case DND_SYNC_ARMORFLAT_BONUS:
-			return GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1);
-			case DND_SYNC_HPPERCENT_BONUS:
-			return GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1);
-			case DND_SYNC_ARMORPERCENT_BONUS:
-			return GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1);
-			case DND_SYNC_GREEDPERCENT_BONUS:
-			return GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
-			case DND_SYNC_WISDOMPERCENT_BONUS:
-			return GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
-			case DND_SYNC_HOLDING:
-			return GetDataFromOrbBonus(pnum, OBI_HOLDING, -1);
-			case DND_SYNC_DAMAGEBULLET:
-			return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_BULLET);
-			case DND_SYNC_DAMAGEENERGY:
-			return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ENERGY);
-			case DND_SYNC_DAMAGEEXPLOSIVE:
-			return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_EXPLOSIVE);
-			case DND_SYNC_DAMAGEMELEE:
-			return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_MELEE);
-			case DND_SYNC_DAMAGEELEMENTAL:
-			return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ELEMENTAL);
-			case DND_SYNC_DAMAGEOCCULT:
-			return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT);
-			case DND_SYNC_WEPBONUS_CRIT:
-			return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, extra);
-			case DND_SYNC_WEPBONUS_CRITDMG:
-			return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra);
-			case DND_SYNC_WEPBONUS_CRITPERCENT:
-			return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra);
-			case DND_SYNC_WEPBONUS_DMG:
-			return GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, extra);
-		}
+	return 0;
+}
+
+int GetPlayerSyncValue_Elixir(int pos, int extra) {
+	int pnum = PlayerNumber();
+	switch(pos) {
+		case DND_SYNC_SPEED:
+		return Player_Elixir_Bonuses[pnum].speed_bonus;
+		case DND_SYNC_HPFLAT_BONUS:
+		return Player_Elixir_Bonuses[pnum].hp_flat_bonus;
+		case DND_SYNC_ARMORFLAT_BONUS:
+		return Player_Elixir_Bonuses[pnum].armor_flat_bonus;
+		case DND_SYNC_HPPERCENT_BONUS:
+		return Player_Elixir_Bonuses[pnum].hp_percent_bonus;
+		case DND_SYNC_ARMORPERCENT_BONUS:
+		return Player_Elixir_Bonuses[pnum].armor_percent_bonus;
+		case DND_SYNC_DAMAGEBULLET:
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_BULLET];
+		case DND_SYNC_DAMAGEENERGY:
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ENERGY];
+		case DND_SYNC_DAMAGEEXPLOSIVE:
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_EXPLOSIVE];
+		case DND_SYNC_DAMAGEMELEE:
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_MELEE];
+		case DND_SYNC_DAMAGEELEMENTAL:
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ELEMENTAL];
+		case DND_SYNC_DAMAGEOCCULT:
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT];
+		case DND_SYNC_LUCK:
+		return Player_Elixir_Bonuses[pnum].luck = 0;
 	}
 	return 0;
 }
@@ -566,215 +475,126 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 	}
 }
 
-void SetSyncValue(int pos, int val, int extra, bool isOrb) {
+void SetSyncValue_Orb(int pos, int val, int extra) {
 	int pnum = PlayerNumber();
-	if(!isOrb) {
-		switch(pos) {
-			case DND_SYNC_WEAPONENHANCE:
-				Player_Weapon_Infos[pnum][extra].enchants = val;
-			break;
-			case DND_SYNC_SPEED:
-				Player_Bonuses[pnum].speed_bonus = val;
-			break;
-			case DND_SYNC_DROPCHANCE:
-				Player_Bonuses[pnum].drop_chance = val;
-			break;
-			case DND_SYNC_HPFLAT_BONUS:
-				Player_Bonuses[pnum].hp_flat_bonus = val;
-			break;
-			case DND_SYNC_ARMORFLAT_BONUS:
-				Player_Bonuses[pnum].armor_flat_bonus = val;
-			break;
-			case DND_SYNC_HPPERCENT_BONUS:
-				Player_Bonuses[pnum].hp_percent_bonus = val;
-			break;
-			case DND_SYNC_ARMORPERCENT_BONUS:
-				Player_Bonuses[pnum].armor_percent_bonus = val;
-			break;
-			case DND_SYNC_GREEDPERCENT_BONUS:
-				Player_Bonuses[pnum].greed_percent_bonus = val;
-			break;
-			case DND_SYNC_WISDOMPERCENT_BONUS:
-				Player_Bonuses[pnum].wisdom_percent_bonus = val;
-			break;
-			case DND_SYNC_HOLDING:
-				Player_Bonuses[pnum].holding = val;
-			break;
-			case DND_SYNC_LUCK:
-				Player_Bonuses[pnum].luck = val;
-			break;
-			case DND_SYNC_DAMAGEBULLET:
-				Player_Bonuses[pnum].damage_type_bonus[TALENT_BULLET] = val;
-			break;
-			case DND_SYNC_DAMAGEENERGY:
-				Player_Bonuses[pnum].damage_type_bonus[TALENT_ENERGY] = val;
-			break;
-			case DND_SYNC_DAMAGEEXPLOSIVE:
-				Player_Bonuses[pnum].damage_type_bonus[TALENT_EXPLOSIVE] = val;
-			break;
-			case DND_SYNC_DAMAGEMELEE:
-				Player_Bonuses[pnum].damage_type_bonus[TALENT_MELEE] = val;
-			break;
-			case DND_SYNC_DAMAGEELEMENTAL:
-				Player_Bonuses[pnum].damage_type_bonus[TALENT_ELEMENTAL] = val;
-			break;
-			case DND_SYNC_DAMAGEOCCULT:
-				Player_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT] = val;
-			break;
-			case DND_SYNC_WEPBONUS_CRIT:
-				Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_CRIT].amt = val;
-			break;
-			case DND_SYNC_WEPBONUS_CRITDMG:
-				Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_CRITDMG].amt = val;
-			break;
-			case DND_SYNC_WEPBONUS_CRITPERCENT:
-				Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt = val;
-			break;
-			case DND_SYNC_WEPBONUS_DMG:
-				Player_Weapon_Infos[pnum][extra].wep_bonuses[WEP_BONUS_DMG].amt = val;
-			break;
-			
-			// new item attributes
-			case DND_SYNC_MAGAZINEINCREASE:
-				Player_Bonuses[pnum].magazine_increase = val;
-			break;
-			case DND_SYNC_SLOT1DAMAGE:
-			case DND_SYNC_SLOT2DAMAGE:
-			case DND_SYNC_SLOT3DAMAGE:
-			case DND_SYNC_SLOT4DAMAGE:
-			case DND_SYNC_SLOT5DAMAGE:
-			case DND_SYNC_SLOT6DAMAGE:
-			case DND_SYNC_SLOT7DAMAGE:
-			case DND_SYNC_SLOT8DAMAGE:
-			case DND_SYNC_SLOT9DAMAGE:
-				Player_Bonuses[pnum].slot_damage_bonus[pos - DND_SYNC_SLOT1DAMAGE] = val;
-			break;
-			case DND_SYNC_PELLETINCREASE:
-				Player_Bonuses[pnum].pellet_increase = val;
-			break;
-			case DND_SYNC_EXPLOSIONRADIUS:
-				Player_Bonuses[pnum].explosion_radius = val;
-			break;
-			case DND_SYNC_EXPLOSIVERESIST:
-				Player_Bonuses[pnum].explosion_resist = val;
-			break;
-			case DND_SYNC_AMMOGAINCHANCE:
-				Player_Bonuses[pnum].ammo_chance = val;
-			break;
-			case DND_SYNC_AMMOGAININCREASE:
-				Player_Bonuses[pnum].ammo_gain = val;
-			break;
-			case DND_SYNC_REGENCAP:
-				Player_Bonuses[pnum].regen_cap = val;
-			break;
-			case DND_SYNC_CRITCHANCE:
-				Player_Bonuses[pnum].crit_chance = val;
-			break;
-			case DND_SYNC_CRITCHANCEPERCENT:
-				Player_Bonuses[pnum].crit_percent = val;
-			break;
-			case DND_SYNC_CRITDAMAGE:
-				Player_Bonuses[pnum].crit_damage = val;
-			break;
-			case DND_SYNC_KNOCKBACKRESIST:
-				Player_Bonuses[pnum].knockback_resist = val;
-			break;
-			case DND_SYNC_DAMAGEPERCENT:
-				Player_Bonuses[pnum].damage_percent = val;
-			break;
-			case DND_SYNC_ACCURACY:
-				Player_Bonuses[pnum].accuracy = val;
-			break;
-			case DND_SYNC_STATBONUS_STR:
-			case DND_SYNC_STATBONUS_DEX:
-			case DND_SYNC_STATBONUS_BUL:
-			case DND_SYNC_STATBONUS_CHR:
-			case DND_SYNC_STATBONUS_VIT:
-			case DND_SYNC_STATBONUS_INT:
-				Player_Bonuses[pnum].stat_bonus[pos - DND_SYNC_STATBONUS_STR] = val;
-			break;
-		}
-	}
-	else {
-		switch(pos) {
-			case DND_SYNC_WEAPONENHANCE:
-				SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
-			break;
-			case DND_SYNC_SPEED:
-				SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
-			break;
-			case DND_SYNC_DROPCHANCE:
-				SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
-			break;
-			case DND_SYNC_HPFLAT_BONUS:
-				SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, val);
-			break;
-			case DND_SYNC_ARMORFLAT_BONUS:
-				SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, val);
-			break;
-			case DND_SYNC_HPPERCENT_BONUS:
-				SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, val);
-			break;
-			case DND_SYNC_ARMORPERCENT_BONUS:
-				SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, val);
-			break;
-			case DND_SYNC_GREEDPERCENT_BONUS:
-				SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, val);
-			break;
-			case DND_SYNC_WISDOMPERCENT_BONUS:
-				SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, val);
-			break;
-			case DND_SYNC_HOLDING:
-				SetDataToOrbBonus(pnum, OBI_HOLDING, -1, val);
-			break;
-			case DND_SYNC_DAMAGEBULLET:
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_BULLET, val);
-			break;
-			case DND_SYNC_DAMAGEENERGY:
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ENERGY, val);
-			break;
-			case DND_SYNC_DAMAGEEXPLOSIVE:
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_EXPLOSIVE, val);
-			break;
-			case DND_SYNC_DAMAGEMELEE:
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_MELEE, val);
-			break;
-			case DND_SYNC_DAMAGEELEMENTAL:
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ELEMENTAL, val);
-			break;
-			case DND_SYNC_DAMAGEOCCULT:
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT, val);
-			break;
-			case DND_SYNC_WEPBONUS_CRIT:
-				SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
-			break;
-			case DND_SYNC_WEPBONUS_CRITDMG:
-				SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
-			break;
-			case DND_SYNC_WEPBONUS_CRITPERCENT:
-				SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
-			break;
-			case DND_SYNC_WEPBONUS_DMG:
-				SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
-			break;
-		}
-
+	switch(pos) {
+		case DND_SYNC_WEAPONENHANCE:
+			SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
+		break;
+		case DND_SYNC_SPEED:
+			SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
+		break;
+		case DND_SYNC_DROPCHANCE:
+			SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
+		break;
+		case DND_SYNC_HPFLAT_BONUS:
+			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, val);
+		break;
+		case DND_SYNC_ARMORFLAT_BONUS:
+			SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, val);
+		break;
+		case DND_SYNC_HPPERCENT_BONUS:
+			SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, val);
+		break;
+		case DND_SYNC_ARMORPERCENT_BONUS:
+			SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, val);
+		break;
+		case DND_SYNC_GREEDPERCENT_BONUS:
+			SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, val);
+		break;
+		case DND_SYNC_WISDOMPERCENT_BONUS:
+			SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, val);
+		break;
+		case DND_SYNC_HOLDING:
+			SetDataToOrbBonus(pnum, OBI_HOLDING, -1, val);
+		break;
+		case DND_SYNC_DAMAGEBULLET:
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_BULLET, val);
+		break;
+		case DND_SYNC_DAMAGEENERGY:
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ENERGY, val);
+		break;
+		case DND_SYNC_DAMAGEEXPLOSIVE:
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_EXPLOSIVE, val);
+		break;
+		case DND_SYNC_DAMAGEMELEE:
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_MELEE, val);
+		break;
+		case DND_SYNC_DAMAGEELEMENTAL:
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ELEMENTAL, val);
+		break;
+		case DND_SYNC_DAMAGEOCCULT:
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT, val);
+		break;
+		case DND_SYNC_WEPBONUS_CRIT:
+			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
+		break;
+		case DND_SYNC_WEPBONUS_CRITDMG:
+			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
+		break;
+		case DND_SYNC_WEPBONUS_CRITPERCENT:
+			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
+		break;
+		case DND_SYNC_WEPBONUS_DMG:
+			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
+		break;
 	}
 }
 
-void SyncClientsideVariable(int var, int extra, bool isOrb) {
-	if(!isOrb) {
-		if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
-			ACS_NamedExecuteAlways("DND Clientside Syncer", 0, var, GetPlayerSyncValue(var, extra, DND_SYNC_NONORB), extra);
-		else
-			ACS_NamedExecuteAlways("DND Clientside Syncer", 0, var, GetPlayerSyncValue(var, 0, DND_SYNC_NONORB), 0);
+void SetSyncValue_Elixir(int pos, int val, int extra) {
+	int pnum = PlayerNumber();
+	switch(pos) {
+		case DND_SYNC_SPEED:
+			Player_Elixir_Bonuses[pnum].speed_bonus = val;
+		break;
+		case DND_SYNC_HPFLAT_BONUS:
+			Player_Elixir_Bonuses[pnum].hp_flat_bonus = val;
+		break;
+		case DND_SYNC_ARMORFLAT_BONUS:
+			Player_Elixir_Bonuses[pnum].armor_flat_bonus = val;
+		break;
+		case DND_SYNC_HPPERCENT_BONUS:
+			Player_Elixir_Bonuses[pnum].hp_percent_bonus = val;
+		break;
+		case DND_SYNC_ARMORPERCENT_BONUS:
+			Player_Elixir_Bonuses[pnum].armor_percent_bonus = val;
+		break;
+		case DND_SYNC_DAMAGEBULLET:
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_BULLET] = val;
+		break;
+		case DND_SYNC_DAMAGEENERGY:
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ENERGY] = val;
+		break;
+		case DND_SYNC_DAMAGEEXPLOSIVE:
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_EXPLOSIVE] = val;
+		break;
+		case DND_SYNC_DAMAGEMELEE:
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_MELEE] = val;
+		break;
+		case DND_SYNC_DAMAGEELEMENTAL:
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ELEMENTAL] = val;
+		break;
+		case DND_SYNC_DAMAGEOCCULT:
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT] = val;
+		break;
+		case DND_SYNC_LUCK:
+			Player_Elixir_Bonuses[pnum].luck = val;
+		break;
 	}
-	else {
-		if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
-			ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue(var, extra, DND_SYNC_ORB), extra);
-		else
-			ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue(var, 0, DND_SYNC_ORB), 0);
-	}
+}
+
+void SyncClientsideVariable_Orb(int var, int extra) {
+	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
+		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, extra), extra);
+	else
+		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, 0), 0);
+}
+
+void SyncClientsideVariable_Elixir(int var, int extra) {
+	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
+		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, extra), extra);
+	else
+		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, 0), 0);
 }
 
 void SyncItemData(int itemid, int source, int wprev, int hprev) {
@@ -1024,23 +844,23 @@ void SyncAllItemData(int source) {
 
 void SyncAllClientsideVariables() {
 	int i, j;
-	// sync others
-	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPBONUS_CRIT && i <= DND_SYNC_WEPBONUS_DMG)) {
-			for(j = 0; j < MAXWEPS; ++j)
-				ACS_NamedExecuteAlways("DND Clientside Syncer", 0, i, GetPlayerSyncValue(i, j, DND_SYNC_NONORB), j);
-		}
-		else
-			ACS_NamedExecuteAlways("DND Clientside Syncer", 0, i, GetPlayerSyncValue(i, 0, DND_SYNC_NONORB), 0);
-	}
 	// sync orbs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
 		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPBONUS_CRIT && i <= DND_SYNC_WEPBONUS_DMG)) {
 			for(j = 0; j < MAXWEPS; ++j)
-				ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue(i, j, DND_SYNC_ORB), j);
+				ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue_Orb(i, j), j);
 		}
 		else
-			ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue(i, 0, DND_SYNC_ORB), 0);
+			ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue_Orb(i, 0), 0);
+	}
+	// sync elixirs
+	for(i = 0; i < MAX_SYNC_VARS; ++i) {
+		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPBONUS_CRIT && i <= DND_SYNC_WEPBONUS_DMG)) {
+			for(j = 0; j < MAXWEPS; ++j)
+				ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, i, GetPlayerSyncValue_Elixir(i, j), j);
+		}
+		else
+			ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, i, GetPlayerSyncValue_Elixir(i, 0), 0);
 	}
 }
 

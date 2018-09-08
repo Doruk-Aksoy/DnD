@@ -1,6 +1,8 @@
 #ifndef DND_WEAPONDEFS_IN
 #define DND_WEAPONDEFS_IN
 
+#include "DnD_Common.h"
+
 #define DND_BASE_CRITMODIFIER 200
 
 enum {

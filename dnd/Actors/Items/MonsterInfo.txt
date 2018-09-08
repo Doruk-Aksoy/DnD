@@ -113,15 +113,29 @@ const int DND_PASSLEVEL = 8;
 Actor ExplosiveResist : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	damagefactor "normal", 1.0
-	DamageFactor "Explosives", 0.5
-	DamageFactor "Explosives_Magic", 0.5
+
+	damagefactor "Explosives", 0.5
+	damagefactor "Explosives_Magic", 0.5
+	damagefactor "EnergyExp", 0.5
+	damagefactor "MagicFireExp", 0.5
+	damagefactor "SoulTypeExp", 0.5
+	damagefactor "FireExp", 0.5
+	damagefactor "MagicExp", 0.5
+	damagefactor "LightningExp", 0.5
 }
 
 Actor ExplosiveImmunity : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	damagefactor "normal", 1.0
-	DamageFactor "Explosives", 0
-	DamageFactor "Explosives_Magic", 0
+	
+	DamageFactor "Explosives", 0.05
+	DamageFactor "Explosives_Magic", 0.05
+	damagefactor "EnergyExp", 0.05
+	damagefactor "MagicFireExp", 0.05
+	damagefactor "SoulTypeExp", 0.05
+	damagefactor "FireExp", 0.05
+	damagefactor "MagicExp", 0.05
+	damagefactor "LightningExp", 0.05
 }
 
 Actor PhysicalResist : PowerProtection {
@@ -137,11 +151,11 @@ Actor PhysicalResist : PowerProtection {
 Actor PhysicalImmunity : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	damagefactor "normal", 1.0
-	DamageFactor "Bullet", 0.0
-	DamageFactor "BulletMagicX", 0.0
-	DamageFactor "Melee", 0.0
-	DamageFactor "Melee_Magic", 0.0
-	DamageFactor "Melee_UndeadXtra", 0.0
+	DamageFactor "Bullet", 0.05
+	DamageFactor "BulletMagicX", 0.05
+	DamageFactor "Melee", 0.05
+	DamageFactor "Melee_Magic", 0.05
+	DamageFactor "Melee_UndeadXtra", 0.05
 }
 
 Actor MagicResist : PowerProtection {
@@ -153,17 +167,23 @@ Actor MagicResist : PowerProtection {
 	DamageFactor "Explosives_Magic", 0.5
 	DamageFactor "SoulType", 0.5
 	DamageFactor "Painless_Sun", 0.5
+	damagefactor "MagicFireExp", 0.5
+	damagefactor "SoulTypeExp", 0.5
+	damagefactor "MagicExp", 0.5
 }
 
 Actor MagicImmunity : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	DamageFactor "normal", 1.0
-	DamageFactor "BulletMagicX", 0.0
-	DamageFactor "Magic", 0.0
-	DamageFactor "MagicFire", 0.0
-	DamageFactor "Explosives_Magic", 0.0
-	DamageFactor "SoulType", 0.0
-	DamageFactor "Painless_Sun", 0.0
+	DamageFactor "BulletMagicX", 0.05
+	DamageFactor "Magic", 0.05
+	DamageFactor "MagicFire", 0.05
+	DamageFactor "Explosives_Magic", 0.05
+	DamageFactor "SoulType", 0.05
+	DamageFactor "Painless_Sun", 0.05
+	damagefactor "MagicFireExp", 0.05
+	damagefactor "SoulTypeExp", 0.05
+	damagefactor "MagicExp", 0.05
 }
 
 Actor ElementalResist : PowerProtection {
@@ -177,26 +197,35 @@ Actor ElementalResist : PowerProtection {
 	DamageFactor "Fire", 0.5
 	DamageFactor "ExplosivesFire", 0.5
 	DamageFactor "Lightning", 0.5
+	damagefactor "MagicFireExp", 0.5
+	damagefactor "FireExp", 0.5
+	damagefactor "LightningExp", 0.5
 }
 
 Actor ElementalImmunity : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	DamageFactor "normal", 1.0
-	DamageFactor "P_Ice", 0.0
-	DamageFactor "Ice", 0.0
-	DamageFactor "AcidRifle", 0.0
-	damagefactor "Desolator", 0.0
-	DamageFactor "Emerald", 0.0
-	DamageFactor "Fire", 0.0
-	DamageFactor "ExplosivesFire", 0.0
-	DamageFactor "Lightning", 0.0
+	DamageFactor "P_Ice", 0.05
+	DamageFactor "Ice", 0.05
+	DamageFactor "AcidRifle", 0.05
+	damagefactor "Desolator", 0.05
+	DamageFactor "Emerald", 0.05
+	DamageFactor "Fire", 0.05
+	DamageFactor "ExplosivesFire", 0.05
+	DamageFactor "Lightning", 0.05
+	damagefactor "MagicFireExp", 0.05
+	damagefactor "FireExp", 0.05
+	damagefactor "LightningExp", 0.05
 }
 
 Actor FireImmunity : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	DamageFactor "normal", 1.0
-	DamageFactor "Fire", 0.0
-	DamageFactor "ExplosivesFire", 0.0
+	DamageFactor "Fire", 0.05
+	damagefactor "FireExp", 0.05
+	DamageFactor "MagicFire", 0.05
+	damagefactor "MagicFireExp", 0.05
+	DamageFactor "ExplosivesFire", 0.05
 }
 
 Actor EnergyResist : PowerProtection {
@@ -206,17 +235,19 @@ Actor EnergyResist : PowerProtection {
 	damagefactor "LeadSpitterBullet", 0.5
 	damagefactor "P_Rail", 0.5
 	damagefactor "Energy", 0.5
+	damagefactor "EnergyExp", 0.5
 	damagefactor "Gauss", 0.5
 }
 
 Actor EnergyImmunity : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	damagefactor "normal", 1.0
-	damagefactor "LaserPistolBullet", 0.0
-	damagefactor "LeadSpitterBullet", 0.0
-	damagefactor "P_Rail", 0.0
-	damagefactor "Energy", 0.0
-	damagefactor "Gauss", 0.0
+	damagefactor "LaserPistolBullet", 0.05
+	damagefactor "LeadSpitterBullet", 0.05
+	damagefactor "P_Rail", 0.05
+	damagefactor "Energy", 0.05
+	damagefactor "EnergyExp", 0.05
+	damagefactor "Gauss", 0.05
 }
 
 Actor MakeExplosiveResist : DnD_Activator {
