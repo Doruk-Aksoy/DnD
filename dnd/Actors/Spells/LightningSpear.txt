@@ -1,0 +1,196 @@
+Actor LightningSpearCooldown : DnD_Boolean { }
+Actor LightningSpearCooldownCounter : CooldownCounter { }
+
+Actor LightningSpearCaster : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Cast Spell", 0, DND_SPELL_LIGHTNINGSPEAR, 0)
+		Stop
+	}
+}
+
+Actor LightningSpearSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_FireCustomMissile("LightningSpearProjectile", 0, 0, 0, 0, 0)
+		Stop
+	}
+}
+
+Actor LightningSpearTrailFrame : Inventory {
+	inventory.maxamount 10
+}
+
+Actor LightningSpearFrameSetter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("LightningSpearTrailFrame", 1)
+			TNT1 A 0 A_JumpIfInventory("LightningSpearTrailFrame", 0, "Reset")
+		Stop
+		Reset:
+			TNT1 A 0 A_TakeInventory("LightningSpearTrailFrame", 0)
+		Stop
+	}
+}
+
+Actor LightningSpearProjectile {
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_LIGHTNINGSPEAR, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
+	DamageType "Lightning"
+	Scale 0.65
+	Speed 56
+	Height 16
+	Radius 8
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
+	BounceType Hexen
+	BounceCount 8
+	BounceFactor 1.0
+	WallBounceFactor 1.0
+	+FORCEXYBILLBOARD
+	+USEBOUNCESTATE
+	+FORCEPAIN
+	+HITTRACER
+	+CANBOUNCEWATER
+	+SKYEXPLODE
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetArg(0, ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_LIGHTNINGSPEARBOUNCE, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
+			TNT1 A 0 A_SetArg(1, 72 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD LightningSpear Rip Retrieve"))
+			TNT1 A 0 A_JumpIfInTargetInventory("StatbuffCounter_SpellsFullDamage", 1, "MakeFull")
+		SpawnCont:
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+		1:
+			HSPL A 0
+		Goto Move
+		2:
+			HSPL B 0 A_GiveInventory("LightningSpearTrailFrame", 1)
+		Goto Move
+		3:
+			HSPL C 0 A_GiveInventory("LightningSpearTrailFrame", 2)
+		Goto Move
+		4:
+			HSPL D 0 A_GiveInventory("LightningSpearTrailFrame", 3)
+		Goto Move
+		5:
+			HSPL E 0 A_GiveInventory("LightningSpearTrailFrame", 4)
+		Goto Move
+		6:
+			HSPL F 0 A_GiveInventory("LightningSpearTrailFrame", 5)
+		Goto Move
+		7:
+			HSPL G 0 A_GiveInventory("LightningSpearTrailFrame", 6)
+		Goto Move
+		8:
+			HSPL H 0 A_GiveInventory("LightningSpearTrailFrame", 7)
+		Goto Move
+		9:
+			HSPL I 0 A_GiveInventory("LightningSpearTrailFrame", 8)
+		Goto Move
+		10:
+			HSPL J 0 A_GiveInventory("LightningSpearTrailFrame", 9)
+		Goto Move
+		Move:
+			"####" "#" 0 A_SpawnItem("LightningSpearTrail")
+			"####" "#" 0 A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(-2.0, 2.0),frandom(-2.0, 2.0),frandom(-2.0, 2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION)
+			"####" "#" 1 Light("LightningSpearLight") Bright A_GiveInventory("LightningSpearFrameSetter", 1)
+			
+			// frame update
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 9, "10")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 8, "9")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 7, "8")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 6, "7")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 5, "6")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 4, "5")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 3, "4")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 2, "3")
+			"####" "#" 0 A_JumpIfInventory("LightningSpearTrailFrame", 1, "2")
+		Goto 1
+		Bounce.Floor:
+		Bounce.Ceiling:
+		Bounce.Wall:
+			"####" "#" 0 A_PlaySound("Spell/LightningSpearBounce")
+			"####" "#" 0 A_Explode(Args[0], Args[1], 0)
+			"####" "############" 0 A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(-2.0, 2.0),frandom(-2.0, 2.0),frandom(-2.0, 2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION)
+			"####" "#" 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+		Goto Move
+		Death:
+			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 0, 0, 160) 
+			S003 ABCDEF 2 Light("LightningSpearLight") Bright
+		Stop
+		Xdeath:
+		Crash:
+			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 0, 0, 160)
+			S003 ABCDEF 2 Light("LightningSpearLight") Bright
+		Goto RepeatLightning
+		RepeatLightning:
+			TNT1 A 0 A_JumpIf(Args[2], "ContinueRepeat")
+		Goto End
+		ContinueRepeat:
+			TNT1 A 0 A_SetArg(2, Args[2] - 1)
+			TNT1 A 0 A_PlaySound("Spell/LightningSpearBounce")
+			TNT1 A 1 Light("LightningSpearLight") ACS_NamedExecuteAlways("DnD Face Tracer")
+			TNT1 A 8 Light("LightningSpearLight") A_CustomMissile("LightningSpearProjectile_NoRepeat", 8, 0, score, CMF_TRACKOWNER | CMF_AIMDIRECTION, -pitch)
+		Goto RepeatLightning
+		End:
+			TNT1 A 0
+		Stop
+		
+		MakeFull:
+			TNT1 A 0 A_SetDamageType("LightningFull")
+			TNT1 A 0 A_ChangeFlag("FORCERADIUSDMG", 1)
+		Goto SpawnCont
+	}
+}
+
+Actor LightningSpearProjectile_NoRepeat : LightningSpearProjectile {
+	States {
+		Xdeath:
+		Crash:
+		Goto Death
+	}
+}
+
+Actor LightningSpearTrail {
+	Scale 0.65
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+		1:
+			HSPL A 1 A_FadeOut(0.0375)
+		Loop
+		2:
+			HSPL B 1 A_FadeOut(0.0375)
+		Loop
+		3:
+			HSPL C 1 A_FadeOut(0.0375)
+		Loop
+		4:
+			HSPL D 1 A_FadeOut(0.0375)
+		Loop
+		5:
+			HSPL E 1 A_FadeOut(0.0375)
+		Loop
+		6:
+			HSPL F 1 A_FadeOut(0.0375)
+		Loop
+		7:
+			HSPL G 1 A_FadeOut(0.0375)
+		Loop
+		8:
+			HSPL H 1 A_FadeOut(0.0375)
+		Loop
+		9:
+			HSPL I 1 A_FadeOut(0.0375)
+		Loop
+		10:
+			HSPL J 1 A_FadeOut(0.0375)
+		Loop
+	}
+}

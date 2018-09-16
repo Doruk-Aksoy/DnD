@@ -48,3 +48,29 @@ Chest/Open			CHSTOPEN
 Chest/Locked		CHSTLOCK
 
 TradeRequest		TRADEREQ
+
+/*
+********************
+****** SPELLS ******
+********************
+*/
+
+Spell/RallyCast				CST_RLLY
+
+Spell/IceShieldCast			ISHLCAST
+Spell/IceShieldBreak		ISHLBRK
+
+Spell/PoisonNovaCast		PSNNOVA
+
+Spell/MoltenBoulderRoll   	MLTNROLL
+Spell/MoltenBoulderFall		MLTNFALL
+Spell/MoltenBoulderCast		MLTNCAST
+Spell/MoltenBoulderBump		MLTNBUMP
+Spell/MoltenBoulderShatter	MLTNSHTR
+
+Spell/LightningSpearBounce	LGSPBNCE
+$limit Spell/LightningSpearBounce 0
+Spell/LightningSpearCast1	LGSPCST1
+Spell/LightningSpearCast2	LGSPCST2
+Spell/LightningSpearCast3	LGSPCST3
+$random Spell/LightningSpearCast { Spell/LightningSpearCast1 Spell/LightningSpearCast2 Spell/LightningSpearCast3 }

@@ -42,7 +42,11 @@ Actor NewArmorBonus : CustomInventory replaces ArmorBonus {
 			BON2 ABCDCB 4
 		Loop
 		Pickup:
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_ForbidArmor", 1, "Failed")
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BONUS, 1)
+		Stop
+		Failed:
+			TNT1 A 0
 		Stop
 	}
 }
@@ -642,6 +646,12 @@ Actor OccultPower : PowerDamage {
 	damagefactor "MagicFireFull", 1.5
 	damagefactor "SoulType", 1.5
 	damagefactor "SoulTypeFull", 1.5
+	damagefactor "SoulTypeExp", 1.5
+	damagefactor "SoulTypeExpFull", 1.5
+	damagefactor "MagicExp", 1.5
+	damagefactor "MagicFireExp", 1.5
+	damagefactor "MagicExpFull", 1.5
+	damagefactor "MagicFireExpFull", 1.5
 	powerup.duration 0x7FFFFFFF
 }
 
@@ -658,6 +668,8 @@ Actor EnergyPower : PowerDamage {
 	damagefactor "P_RailFull", 1.5
 	damagefactor "Energy", 1.5
 	damagefactor "EnergyFull", 1.5
+	damagefactor "EnergyExp", 1.5
+	damagefactor "EnergyExpFull", 1.5
 	powerup.duration 0x7FFFFFFF
 }
 
@@ -670,6 +682,8 @@ Actor ElementalPower : PowerDamage {
 	
 	damagefactor "Lightning", 1.5
 	damagefactor "LightningFull", 1.5
+	damagefactor "FireExpFull", 1.5
+	damagefactor "LightningExpFull", 1.5
 	
 	damagefactor "P_Ice", 1.5
 	damagefactor "P_IceFull", 1.5

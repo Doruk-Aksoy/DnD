@@ -81,6 +81,7 @@ Actor DeathStaffShooter1 : DnD_Activator {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile ("VolcanoFireball5", 0, 1, 0, 0)
 		Stop
 		Full:
@@ -93,8 +94,10 @@ Actor DeathStaffShooter1 : DnD_Activator {
 Actor DeathStaffShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile ("HellfireLinkFL", -18, 0, 0, 0)
 			TNT1 A 0 A_FireCustomMissile ("HellfireLinkFR", 18, 0, 0, 0)
 			TNT1 A 0 A_FireCustomMissile ("HellfireLinkCL", -18, 0, 0, 0)
@@ -110,6 +113,33 @@ Actor DeathStaffShooter2 : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile ("HellfireLinkC_FullDMG", 0, 0, 0, 0)
 			TNT1 A 0 A_FireCustomMissile ("HellfireLinkF_FullDMG", 0, 0, 0, 0)
 		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 3))
+			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "FullStart")
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("HellfireLinkC", (180.0 / Args[2]) * 2 * Args[4], 0)
+			TNT1 A 0 A_FireCustomMissile("HellfireLinkF", (180.0 / Args[2]) * (2 * Args[4] - 1), 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+		
+		FullStart:
+			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
+		Goto Finish
+		FullLoopContinue:
+			TNT1 A 0 A_FireCustomMissile("HellfireLinkC_FullDMG", (180.0 / Args[2]) * 2 * Args[4])
+			TNT1 A 0 A_FireCustomMissile("HellfireLinkF_FullDMG", (180.0 / Args[2]) * (2 * Args[4] - 1))
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto FullStart
 	}
 }
 
@@ -1128,8 +1158,10 @@ Actor RazorShooter1 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 2)
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("RazorShot1",0,0,0,0,0)
 			TNT1 A 0 A_FireCustomMissile("RazorShot1",-3 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
 			TNT1 A 0 A_FireCustomMissile("RazorShot1",3 * (1.0 - accuracy * accuracy_factor),0,0,0,0)
@@ -1151,14 +1183,44 @@ Actor RazorShooter1 : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("RazorShot1_FullDMG",-12,0,0,0,0)
 			TNT1 A 0 A_FireCustomMissile("RazorShot1_FullDMG",12,1,0,0,0)
 		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("Souls", 1)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 9))
+			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "FullStart")
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("RazorShot1", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+		
+		FullStart:
+			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
+		Goto Finish
+		FullLoopContinue:
+			TNT1 A 0 A_FireCustomMissile("RazorShot1_FullDMG", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto FullStart
 	}
 }
 
 Actor RazorShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("RazorSkull",0,0,0,0)
 			TNT1 A 0 A_FireCustomMissile("RazorSkull",-7,0,0,0)
 			TNT1 A 0 A_FireCustomMissile("RazorSkull",7,0,0,0)
@@ -1168,6 +1230,34 @@ Actor RazorShooter2 : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("RazorSkull_FullDMG",-7,0,0,0)
 			TNT1 A 0 A_FireCustomMissile("RazorSkull_FullDMG",7,0,0,0)
 		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("Souls", 1)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 3))
+			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "FullStart")
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("RazorSkull", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+		
+		FullStart:
+			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
+		Goto Finish
+		FullLoopContinue:
+			TNT1 A 0 A_FireCustomMissile("RazorSkull_FullDMG", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto FullStart
 	}
 }
 
@@ -1360,6 +1450,7 @@ Actor SunShooter : DnD_Activator {
 		Use:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile ("LightBeam", 0, 0, 0, 8)
 		Stop
 		Full:
@@ -1596,8 +1687,10 @@ Actor SunBeamDamager_FullDMG : SunBeamDamager {
 Actor SunShooter_Alt : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("SunBeamSpawner", 9, 1, 0, -3)
 			TNT1 A 0 A_FireCustomMissile("SunBeamSpawner", -9, 1, 0, -3)
 			TNT1 A 0 A_FireCustomMissile("SunBeamSpawner", 0, 1, 0, -3)
@@ -1607,6 +1700,31 @@ Actor SunShooter_Alt : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("SunBeamSpawner_FullDMG", -12.5, 1, 0, -3)
 			TNT1 A 0 A_FireCustomMissile("SunBeamSpawner_FullDMG", 0, 1, 0, -3)
 		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 3))
+			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("SunBeamSpawner", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+		
+		FullStart:
+			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
+		Goto Finish
+		FullLoopContinue:
+			TNT1 A 0 A_FireCustomMissile("SunBeamSpawner_FullDMG", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto FullStart
 	}
 }
 
@@ -1717,6 +1835,7 @@ Actor SoulReaverShooter : DnD_Activator {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 15)
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_DreamingGodBonus", 1, "Full")
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "Full")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SoulWepsDoFullDamage", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("SoulReaverSphere", 0, 1)
 		Stop
 		Full:

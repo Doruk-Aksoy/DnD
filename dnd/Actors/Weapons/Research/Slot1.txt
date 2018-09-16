@@ -47,6 +47,7 @@ Actor ResMelee1 : Weapon {
 			FBM1 D 2 Bright Offset(0, 32)
 			FBM1 E 2 Bright Offset(0, 32) A_AlertMonsters
 			TNT1 A 0 A_PlaySound("Vorpal/Swing")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Attack", 0)
 			FBM1 F 1 Bright Offset(0, 32) A_GiveInventory("InfernoSwordShooter1", 1)
 			FBM1 G 1 Bright Offset(0, 32) A_GiveInventory("InfernoSwordShooter2", 1)
 			FBM1 H 1 Bright Offset(0, 32) A_GiveInventory("InfernoSwordShooter3", 1)
@@ -144,6 +145,7 @@ Actor InfernoSwordShooter5 : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoAmmo")
 			TNT1 A 0 A_TakeInventory("Souls", 5)
 		NoAmmo:
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_1", -11.5, 0, -10, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_2", -5.625, 0, -5, 0, 1)
@@ -158,6 +160,29 @@ Actor InfernoSwordShooter5 : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_4_FullDMG", 5.625, 0, 5, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_5_FullDMG", 11.5, 0, 10, 0, 1)
 		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 5))
+			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_1", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+		
+		FullStart:
+			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
+		Goto Finish
+		FullLoopContinue:
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_1_FullDMG", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto FullStart
 	}
 }
 

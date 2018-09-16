@@ -207,8 +207,7 @@ Abomination/Pain				ABOMPAIN
 Abomination/Act					ABOMACT
 Abomination/Attack1				ABOMAT1
 Abomination/Attack2				ABOMAT2
-Abomination/Attack3				ABOMAT3
-$random Abomination/Attack { Abomination/Attack1 Abomination/Attack2 Abomination/Attack3 }
+$random Abomination/Attack { Abomination/Attack1 Abomination/Attack2 }
 
 monster/annhoof 				ANNHOOF
 monster/annpain					ANNPAIN

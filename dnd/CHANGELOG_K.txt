@@ -45,6 +45,8 @@ LEGEND:
 ! Chests now have a chance to drop "Elixirs"! These are pickups that permanently increase your stats.
 ! "Hardcore" mode now has 15% increased drop rates for any kind of drop.
 ! When you sell a weapon, all bonuses on it are lost.
+! "Charisma" now also increases your base pet cap per 20 points. Base pet cap is 3.
+! Changed the way stats are displayed in stat menu to acommodate newer ways to obtain stat bonuses.
 * Major improvements to how damage is calculated on player weapons. Most of the calculation results are saved properly now and only recalculated if needed.
 	- Weapon damage random ranges are applied last to a weapon's damage calculation now. So if a weapon did 5-10-15 damage, the base is assumed 5 and random range is 1 to 3.
 		* The multiplier, 1 to 3 is chosen at random AFTER all damage calculations EXCEPT critical hits.
@@ -169,6 +171,7 @@ LEGEND:
 * "Devastator 5000" now uses its own ammo type. The ammo capacity is now 270 down from 300 of the old "Cell".
 - "Devastator 5000" rockets no longer clump together when aiming at an enemy.
 - "Devastator 5000" spread increased to 4.8x2.8 from 3.2x1.8.
+* "Heavy Grenade Launcher" now uses its own ammo type.
 - "Railgun" price increased to 10000 from 7500.
 - "Gauss Rifle" price increased to 9500 from 7500.
 
@@ -268,6 +271,7 @@ The above includes moving it around in inventory, putting it to stash or putting
 ! Added new variants to "Imp", "Demon", "Chaingunner", "Arachnotron", "Hell Knight" and "Baron of Hell" categories.
 ! "RIPPER" type attacks now have 50% less damage scaling.
 ! New legendary monster: "Golgoth".
+* Fixed missing GL lights to "Guardian Cube" and the summoned variant from the "Sentinel".
 * Hopefully fixed "Azazel" death sound not being global.
 * "Sludge Giant" splits now scale properly with level.
 * Fixed damage types on monsters that were either incorrect or were missing. (Armors that protect against such are more valuable now)
@@ -277,10 +281,15 @@ The above includes moving it around in inventory, putting it to stash or putting
 * Added missing dots to some monsters in "Arachnotron" tier.
 * "Warlord of Hell" now mentions the "Rage" property when monster scan is available.
 * Reworked all minion summon methods to properly set master-child relations. (They properly use the summoner's level now)
+* "Sentinel" sprites improved.
+* "Angle of Death" sprites improved.
+* "Enforcer" zombie now properly looks at its target while firing.
+* Fixed an animation bug with "Angel of Death"'s death.
 * "Blood Lich" minions spawned on death now give exp and credit.
 * "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.
 + All "Legendary" monsters have been buffed in terms of health, and some in terms of rate of fire.
 + Increased hitbox of "Bloodseeker" fireballs to 16x16 from 12x8.
++ Fixed a bug where "Sentinel" fire projectiles wouldn't scale.
 - Monster Immunities have been changed to instead be 95% damage resistance instead of complete negation.
 - "Bloodfiend" blood shot damage reduced to 2 - 12 from 2 - 16.
 - "Avatar of Chaos" no longer becomes ghostly during his soul attack.

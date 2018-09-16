@@ -106,12 +106,12 @@ pulselight SoulLight2
     interval 2.0
 }
 
-object Souls
+object SoulsDrop
 {
 	frame AMM3 { light SoulLight1 }
 }
 
-object LargeSouls
+object LargeSoulsDrop
 {
 	frame AMM3 { light SoulLight2 }
 }

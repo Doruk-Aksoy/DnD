@@ -2561,6 +2561,7 @@ Actor Golgoth : DnD_BaseEnemy {
 	+DONTBLAST
 	+LOOKALLAROUND
 	+PIERCEARMOR
+	+NODROPOFF
 	RadiusDamageFactor 0
 	states {
 		Spawn:
@@ -2733,11 +2734,6 @@ Actor Golgoth : DnD_BaseEnemy {
 	}
 }
 
-Actor GolgothMeleeCooldown : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration 60
-}
-
 Actor GolgothRailFX {
 	XScale 0.8
 	Renderstyle Add
@@ -2837,6 +2833,7 @@ Actor GolgothMeteor {
 			MOMP AAABBBCCC 1 Bright A_SpawnItemEx("GolgothPuffy", random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1),0,SXF_ABSOLUTEPOSITION, 64)
 		Loop
 		Death:
+			TNT1 A 0 A_SpawnItem("GolgothMeteorExp")
 			MOMP DEFGH 3 Bright
 		Stop
 	}

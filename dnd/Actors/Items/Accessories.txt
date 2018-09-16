@@ -393,6 +393,11 @@ Actor HateReduction : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 0x7FFFFFFF
 	
+	damagefactor "SoulType", 0.5
+	damagefactor "SoulTypeFull", 0.5
+	damagefactor "SoulTypeExp", 0.5
+	damagefactor "SoulTypeExpFull", 0.5
+	
 	damagefactor "Bullet", 0.5
 	damagefactor "BulletFull", 0.5
 	
@@ -403,23 +408,41 @@ Actor HateReduction : PowerDamage {
 	damagefactor "P_RailFull", 0.5
 	damagefactor "Energy", 0.5
 	damagefactor "EnergyFull", 0.5
+	damagefactor "EnergyExp", 0.5
+	damagefactor "EnergyExpFull", 0.5
 	
 	damagefactor "Fire", 0.5
 	damagefactor "FireFull", 0.5
+	DamageFactor "ExplosivesFire", 0.5
+	damagefactor "MagicFireExp", 0.5
+	damagefactor "FireExp", 0.5
+	DamageFactor "ExplosivesFireFull", 0.5
+	damagefactor "MagicFireExpFull", 0.5
+	damagefactor "FireExpFull", 0.5
+	
 	damagefactor "Lightning", 0.5
 	damagefactor "LightningFull", 0.5
+	damagefactor "LightningExp", 0.5
+	damagefactor "LightningExpFull", 0.5
+	
 	damagefactor "P_Ice", 0.5
 	damagefactor "P_IceFull", 0.5
+	
 	damagefactor "AcidRifle", 0.5
 	damagefactor "AcidRifleFull", 0.5
+	damagefactor "Desolator", 0.5
+	damagefactor "DesolatorFull", 0.5
+	damagefactor "Emerald", 0.5
+	damagefactor "EmeraldFull", 0.5
 	
 	damagefactor "Magic", 0.5
+	damagefactor "MagicFull", 0.5
+	damagefactor "MagicExp", 0.5
+	damagefactor "MagicExpFull", 0.5
 	damagefactor "Explosives_Magic", 0.5
 	damagefactor "Explosives_MagicFull", 0.5
 	damagefactor "MagicFire", 0.5
 	damagefactor "MagicFireFull", 0.5
-	damagefactor "SoulType", 0.5
-	damagefactor "SoulTypeFull", 0.5
 }
 
 Actor HellfireCheck : DnD_Boolean { }
@@ -704,6 +727,8 @@ Actor LichPower : PowerDamage {
 
 	damagefactor "SoulType", 2.5
 	damagefactor "SoulTypeFull", 2.5
+	damagefactor "SoulTypeExp", 2.5
+	damagefactor "SoulTypeExpFull", 2.5
 	
 	DamageFactor "Melee", 0.1
 	DamageFactor "MeleeFull", 0.1
@@ -720,14 +745,24 @@ Actor LichPower : PowerDamage {
 	damagefactor "P_RailFull", 0.1
 	damagefactor "Energy", 0.1
 	damagefactor "EnergyFull", 0.1
+	damagefactor "EnergyExp", 0.1
+	damagefactor "EnergyExpFull", 0.1
 	
 	damagefactor "Fire", 0.1
 	damagefactor "FireFull", 0.1
 	DamageFactor "Melee_Fire", 0.1
 	DamageFactor "Melee_FireFull", 0.1
+	DamageFactor "ExplosivesFire", 0.1
+	damagefactor "MagicFireExp", 0.1
+	damagefactor "FireExp", 0.1
+	DamageFactor "ExplosivesFireFull", 0.1
+	damagefactor "MagicFireExpFull", 0.1
+	damagefactor "FireExpFull", 0.1
 	
 	damagefactor "Lightning", 0.1
 	damagefactor "LightningFull", 0.1
+	damagefactor "LightningExp", 0.1
+	damagefactor "LightningExpFull", 0.1
 	
 	damagefactor "P_Ice", 0.1
 	damagefactor "P_IceFull", 0.1
@@ -740,6 +775,9 @@ Actor LichPower : PowerDamage {
 	damagefactor "EmeraldFull", 0.1
 	
 	damagefactor "Magic", 0.1
+	damagefactor "MagicFull", 0.1
+	damagefactor "MagicExp", 0.1
+	damagefactor "MagicExpFull", 0.1
 	damagefactor "Explosives_Magic", 0.1
 	damagefactor "Explosives_MagicFull", 0.1
 	damagefactor "MagicFire", 0.1
@@ -760,9 +798,17 @@ Actor ElementPower_Fire : PowerDamage {
 	DamageFactor "Melee_FireFull", 2.0
 	damagefactor "MagicFire", 2.0
 	damagefactor "MagicFireFull", 2.0
+	DamageFactor "ExplosivesFire", 2.0
+	damagefactor "MagicFireExp", 2.0
+	damagefactor "FireExp", 2.0
+	DamageFactor "ExplosivesFireFull", 2.0
+	damagefactor "MagicFireExpFull", 2.0
+	damagefactor "FireExpFull", 2.0
 	
 	damagefactor "Lightning", 0.5
 	damagefactor "LightningFull", 0.5
+	damagefactor "LightningExp", 0.5
+	damagefactor "LightningExpFull", 0.5
 	
 	damagefactor "P_Ice", 0.5
 	damagefactor "P_IceFull", 0.5
@@ -784,6 +830,8 @@ Actor ElementPower_Ice : PowerDamage {
 	
 	damagefactor "Lightning", 0.5
 	damagefactor "LightningFull", 0.5
+	damagefactor "LightningExp", 0.5
+	damagefactor "LightningExpFull", 0.5
 	
 	damagefactor "Fire", 0.5
 	damagefactor "FireFull", 0.5
@@ -791,6 +839,12 @@ Actor ElementPower_Ice : PowerDamage {
 	DamageFactor "Melee_FireFull", 0.5
 	damagefactor "MagicFire", 0.5
 	damagefactor "MagicFireFull", 0.5
+	DamageFactor "ExplosivesFire", 0.5
+	damagefactor "MagicFireExp", 0.5
+	damagefactor "FireExp", 0.5
+	DamageFactor "ExplosivesFireFull", 0.5
+	damagefactor "MagicFireExpFull", 0.5
+	damagefactor "FireExpFull", 0.5
 	
 	damagefactor "AcidRifle", 0.5
 	damagefactor "AcidRifleFull", 0.5
@@ -806,6 +860,8 @@ Actor ElementPower_Lightning : PowerDamage {
 	
 	damagefactor "Lightning", 2.0
 	damagefactor "LightningFull", 2.0
+	damagefactor "LightningExp", 2.0
+	damagefactor "LightningExpFull", 2.0
 	
 	damagefactor "P_Ice", 0.5
 	damagefactor "P_IceFull", 0.5
@@ -816,6 +872,12 @@ Actor ElementPower_Lightning : PowerDamage {
 	DamageFactor "Melee_FireFull", 0.5
 	damagefactor "MagicFire", 0.5
 	damagefactor "MagicFireFull", 0.5
+	DamageFactor "ExplosivesFire", 0.5
+	damagefactor "MagicFireExp", 0.5
+	damagefactor "FireExp", 0.5
+	DamageFactor "ExplosivesFireFull", 0.5
+	damagefactor "MagicFireExpFull", 0.5
+	damagefactor "FireExpFull", 0.5
 	
 	damagefactor "AcidRifle", 0.5
 	damagefactor "AcidRifleFull", 0.5
@@ -838,6 +900,8 @@ Actor ElementPower_Earth : PowerDamage {
 	
 	damagefactor "Lightning", 0.5
 	damagefactor "LightningFull", 0.5
+	damagefactor "LightningExp", 0.5
+	damagefactor "LightningExpFull", 0.5
 	
 	damagefactor "P_Ice", 0.5
 	damagefactor "P_IceFull", 0.5
@@ -848,6 +912,12 @@ Actor ElementPower_Earth : PowerDamage {
 	DamageFactor "Melee_FireFull", 0.5
 	damagefactor "MagicFire", 0.5
 	damagefactor "MagicFireFull", 0.5
+	DamageFactor "ExplosivesFire", 0.5
+	damagefactor "MagicFireExp", 0.5
+	damagefactor "FireExp", 0.5
+	DamageFactor "ExplosivesFireFull", 0.5
+	damagefactor "MagicFireExpFull", 0.5
+	damagefactor "FireExpFull", 0.5
 }
 
 Actor CelestialCheck : DnD_Boolean { }

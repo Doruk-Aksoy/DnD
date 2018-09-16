@@ -37,6 +37,7 @@ enum {
 	AMMO_ROCKET = 0,
 	AMMO_FLAKSHELL,
 	AMMO_METEOR,
+	AMMO_HEAVYGRENADE,
 	AMMO_NGRENADE,
 	AMMO_HMISSILE,
 	
@@ -407,15 +408,37 @@ Actor Souls : Ammo
 	}
 }
 
-Actor LargeSouls : Souls
-{
-	inventory.amount 3
+Actor SoulsDrop : CustomInventory {
+	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 1\c-"
+	Radius 20
+	Height 16
+	States {
+		Spawn:
+			AMM3 ABCD 4 Bright
+		Loop
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("Souls", 0, "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Soul Ammo", 0, 1)
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
+	}
+}
+
+Actor LargeSoulsDrop : SoulsDrop {
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 3\c-"
-	States
-	{
+	States {
 		Spawn:
 			AMM3 EFGH 4 Bright
 		Loop
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("Souls", 0, "Failed")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Soul Ammo", 0, 3)
+		Stop
+		Failed:
+			TNT1 A 0
+		Fail
 	}
 }
 
@@ -914,6 +937,16 @@ Actor DevastatorAmmo : Ammo {
 	Ammo.BackpackAmount 0
 	Ammo.BackpackMaxAmount 270
 	inventory.icon "DEVIAM0"
+	+IGNORESKILL
+}
+
+Actor HeavyGrenades : Ammo
+{
+	inventory.amount 3
+	inventory.maxamount 50
+	inventory.icon "HEGRA0"
+	ammo.backpackamount 3
+	ammo.backpackmaxamount 100
 	+IGNORESKILL
 }
 

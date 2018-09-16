@@ -13,6 +13,7 @@
 #include "GLDefs/Research.txt"
 #include "GLDefs/Replacements.txt"
 #include "GLDefs/Brightmaps.txt"
+#include "GLDefs/Spells.txt"
 
 flickerlight2 PLASMAATK {
     color 0.5 0.5 1.0

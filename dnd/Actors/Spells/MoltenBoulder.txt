@@ -1,0 +1,306 @@
+Actor MoltenBoulderCooldown : DnD_Boolean { }
+Actor MoltenBoulderCooldownCounter : CooldownCounter { }
+
+Actor MoltenBoulderCaster : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Cast Spell", 0, DND_SPELL_MOLTENBOULDER, 0)
+		Stop
+	}
+}
+
+Actor MoltenBoulderProjectile {
+	Height 64
+	Radius 32
+	Mass 2048
+	Species "Player"
+	DamageType "FireExp"
+	+THRUSPECIES
+	+NOCLIP
+	+INVULNERABLE
+	+SOLID
+	-SHOOTABLE
+	+DONTBLAST
+	+NOTELESTOMP
+	+NOBLOCKMONST
+	+DONTSPLASH
+	+FORCERADIUSDMG
+	+PAINLESS
+	ReactionTime 210
+	const int r = 36;
+	const int spd = 12;
+	const int spd2 = 16;
+	const float mprj_vel1 = 13.5;
+	const float mprj_vel2 = 18.0;
+	Scale 0.8
+	MaxStepHeight 40
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_JumpIfInventory("StatbuffCounter_SpellsFullDamage", 1, "MakeFull", AAPTR_MASTER)
+		SpawnCont:
+			TNT1 A 0 A_SetArg(0, ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_MOLTENBOULDER, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
+			TNT1 A 0 A_SetArg(1, ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_MOLTENBOULDERBUMP, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
+			TNT1 A 0 A_SetArg(2, 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			S002 A 4 Light("MoltenBoulderLight")
+			"####" "#" 0 A_PlaySound("Spell/MoltenBoulderFall", 5, 1.0, 1)
+			"####" "#" 0 A_ChangeFlag("NOCLIP", 0)
+		SpawnLoop:
+			"####" "#" 0 A_JumpIf(z - floorz <= 6, "FloorBump")
+			"####" "####" 0 A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(0, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_Explode(Args[0], Args[2], 0)
+			"####" "#" 0 A_ChangeVelocity(spd * cos(angle), spd * sin(angle), velz, CVF_REPLACE)
+			"####" "#" 1 Light("MoltenBoulderLight") A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(0, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_GiveInventory("BoulderPusher", 1)
+			"####" "#" 0 A_JumpIfInventory("MoltenBoulderStop", 1, "Shatter")
+			"####" "#" 0 A_GiveInventory("BoulderFrameSetter", 1)
+			"####" "#" 0 A_CountDown
+			// frame setting
+			"####" "#" 0 A_JumpIfInventory("BoulderFrame", 3, "FrameD")
+			"####" "#" 0 A_JumpIfInventory("BoulderFrame", 2, "FrameC")
+			"####" "#" 0 A_JumpIfInventory("BoulderFrame", 1, "FrameB")
+		Goto FrameA
+		FloorBump:
+			"####" "#" 0 A_playSound("Spell/MoltenBoulderBump")
+			"####" "######" 0 A_SpawnItemEx("ExplosionFX2", frandom(-20, 20), frandom(-20, 20), 0, frandom(-4, 4), frandom(-4, 4), frandom(0, 2))
+			"####" "#######" 0 A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(0, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_Explode(Args[1], 2 * Args[2], 0)
+			"####" "#" 0 A_ChangeVelocity(spd2 * cos(angle), spd2 * sin(angle), velz, CVF_REPLACE)
+			"####" "#" 0 ThrustThingZ(0, 32, 0, 0)
+			"####" "#" 0 A_playSound("Spell/MoltenBoulderRoll", 5, 1.0, 1)
+			"####" "#" 0 A_Quake(4, 12, 0, 384)
+		Goto SpawnLoopNoBump
+		SpawnLoopNoBump:
+		Idle:
+			"####" "#" 0 A_GiveInventory("BoulderFrameSetter2", 1)
+			"####" "#" 0 A_TakeInventory("MoltenBoulderStopActor", 1)
+			"####" "#" 0 A_TakeInventory("MoltenBoulderStop", 1)
+			"####" "####" 0 A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(r / 2, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_Explode(Args[0], Args[2], 0)
+			"####" "#" 0 A_ChangeVelocity(spd2 * cos(angle), spd2 * sin(angle), velz, CVF_REPLACE)
+			"####" "#" 0 A_CountDown
+			"####" "#" 1 Light("MoltenBoulderLight") A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(r / 2, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_GiveInventory("BoulderPusher", 1)
+			"####" "#" 0 A_CustomMissile("MoltenBoulderActorCheck", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Boulder Hit Check")
+			"####" "####" 0 A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(r / 2, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_Explode(Args[0], Args[2], 0)
+			"####" "#" 0 A_ChangeVelocity(spd2 * cos(angle), spd2 * sin(angle), velz, CVF_REPLACE)
+			"####" "#" 0 A_CountDown
+			"####" "#" 1 Light("MoltenBoulderLight") A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(r / 2, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_GiveInventory("BoulderPusher", 1)
+			"####" "####" 0 A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(r / 2, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_Explode(Args[0], Args[2], 0)
+			"####" "#" 0 A_ChangeVelocity(spd2 * cos(angle), spd2 * sin(angle), velz, CVF_REPLACE)
+			"####" "#" 0 A_CountDown
+			"####" "#" 1 Light("MoltenBoulderLight") A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(r / 2, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			"####" "#" 0 A_GiveInventory("BoulderPusher", 1)
+			"####" "#" 0 A_JumpIfInventory("MoltenBoulderStop", 1, "ShatterCheck")
+			"####" "#" 0 A_JumpIf(z - floorz > 64, "SpawnLoop")
+			// frame setting
+			"####" "#" 0 A_JumpIfInventory("BoulderFrame", 3, "FrameD2")
+			"####" "#" 0 A_JumpIfInventory("BoulderFrame", 2, "FrameC2")
+			"####" "#" 0 A_JumpIfInventory("BoulderFrame", 1, "FrameB2")
+		Goto FrameA2
+		ShatterCheck:
+			"####" "#" 0 A_JumpIfInventory("MoltenBoulderStopActor", 1, "Shatter")
+		goto SpawnLoopNoBump
+		Shatter:
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_Explode(Args[1], 2 * Args[2])
+			TNT1 A 0 A_StopSound(5)
+			TNT1 A 0 A_PlaySound("Spell/MoltenBoulderShatter", 7)
+			TNT1 A 0 A_PlaySound("MeteorLauncher/HitSmall", 6)
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("BoulderFireFX", frandom(-r, r), frandom(-r ,r), frandom(0, 2 * r), frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("MoltenBoulderParts_1", frandom(-16.0, 16.0), frandom(-16.0, 16.0), frandom(0, 56), frandom(-mprj_vel1, mprj_vel1), frandom(-mprj_vel1, mprj_vel1), frandom(0, mprj_vel1))
+			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("MoltenBoulderParts_2", frandom(-16.0, 16.0), frandom(-16.0, 16.0), frandom(0, 56), frandom(-mprj_vel2, mprj_vel2), frandom(-mprj_vel2, mprj_vel2), frandom(0, mprj_vel2))
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 A 1 A_Quake(6, 17, 0, 384)
+		Stop
+		
+		// frame management
+		FrameA:
+			S002 A 0
+		Goto SpawnLoop
+		FrameB:
+			S002 B 0
+		Goto SpawnLoop
+		FrameC:
+			S002 C 0
+		Goto SpawnLoop
+		FrameD:
+			S002 D 0
+		Goto SpawnLoop
+		
+		FrameA2:
+			S002 A 0
+		Goto SpawnLoopNoBump
+		FrameB2:
+			S002 B 0
+		Goto SpawnLoopNoBump
+		FrameC2:
+			S002 C 0
+		Goto SpawnLoopNoBump
+		FrameD2:
+			S002 D 0
+		Goto SpawnLoopNoBump
+		
+		MakeFull:
+			TNT1 A 0 A_SetDamageType("FireExpFull")
+		Goto SpawnCont
+	}
+}
+
+Actor BoulderFrame : Inventory {
+	inventory.maxamount 4
+}
+
+Actor BoulderFrameTimer : Inventory {
+	inventory.maxamount 3
+}
+
+Actor BoulderFrameSetter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("BoulderFrameTimer", 1)
+			TNT1 A 0 A_JumpIfInventory("BoulderFrameTimer", 0, "FrameUp")
+		Stop
+		FrameUp:
+			TNT1 A 0 A_TakeInventory("BoulderFrameTimer", 0)
+			TNT1 A 0 A_GiveInventory("BoulderFrame", 1)
+			TNT1 A 0 A_JumpIfInventory("BoulderFrame", 0, "FrameReset")
+		Stop
+		FrameReset:
+			TNT1 A 0 A_TakeInventory("BoulderFrame", 0)
+		Stop
+	}
+}
+
+Actor BoulderFrameSetter2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_TakeInventory("BoulderFrameTimer", 0)
+			TNT1 A 0 A_GiveInventory("BoulderFrame", 1)
+			TNT1 A 0 A_JumpIfInventory("BoulderFrame", 0, "FrameReset")
+		Stop
+		FrameReset:
+			TNT1 A 0 A_TakeInventory("BoulderFrame", 0)
+		Stop
+	}
+}
+
+Actor BoulderPushCounter : Inventory {
+	inventory.maxamount 5
+}
+
+Actor BoulderPusher : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("BoulderPushCounter", 1)
+			TNT1 A 0 A_JumpIfInventory("BoulderPushCounter", 0, "Push")
+		Stop
+		Push:
+			TNT1 A 0 A_TakeInventory("BoulderPushCounter", 0)
+			TNT1 A 0 A_RadiusThrust(256, 128, RTF_NOIMPACTDAMAGE)
+		Stop
+	}
+}
+
+Actor BoulderFireFX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION 
+	+NOTONAUTOMAP
+	+FORCEXYBILLBOARD
+	RenderStyle Add
+	Alpha 0.625
+	Scale 0.275
+	States {
+		Spawn:
+			TNT1 A 2 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(256, "One", "Two")
+		One:
+			X007 CDE 1 Bright 
+			X007 FGHIJ 1 Bright 
+		Stop
+		Two:
+			X007 MNO 1 Bright 
+			X007 PQRST 1 Bright 
+		Stop		
+	}
+}
+
+Actor MoltenBoulderStop : DnD_Boolean { }
+Actor MoltenBoulderStopActor : DnD_Boolean { }
+
+Actor MoltenBoulderActorCheck {
+	PROJECTILE
+	Speed 32
+	Radius 36
+	Height 64
+	Damage 0
+	+DONTBLAST
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 2
+		Stop
+		Death:
+			TNT1 A 1 A_GiveToTarget("MoltenBoulderStopActor", 1)
+		Stop
+	}
+}
+
+Actor MoltenBoulderParts_1 {
+	PROJECTILE
+	Height 14
+	Radius 7
+	Speed 25
+	Damage (0)
+	BounceSound "MeteorLauncher/Bounce"
+	BounceType Doom
+	BounceCount 4
+	Gravity 0.66
+	-NOGRAVITY
+	+THRUACTORS
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "1", "2", "3")
+		1:
+			S002 E 1
+		Loop
+		2:
+			S002 F 1
+		Loop
+		3:
+			S002 G 1
+		Loop
+		Death:
+			"####" "#" 0 A_ChangeVelocity(0, 0, 0)
+			"####" "#" 0 A_ChangeFlag("NOGRAVITY", 1)
+			"####" "###################" 1 A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor MoltenBoulderParts_2 : MoltenBoulderParts_1 {
+	Height 8
+	Radius 4
+	Speed 18
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "1", "2")
+		1:
+			S002 H 1
+		Loop
+		2:
+			S002 I 1
+		Loop
+		Death:
+			"####" "#" 0 A_ChangeVelocity(0, 0, 0)
+			"####" "#" 0 A_ChangeFlag("NOGRAVITY", 1)
+			"####" "###################" 1 A_FadeOut(0.05)
+		Stop
+	}
+}

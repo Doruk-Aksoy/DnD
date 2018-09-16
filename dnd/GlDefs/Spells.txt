@@ -1,0 +1,28 @@
+flickerlight PoisonNovaLight {
+	color 0.0 0.825 0.0
+    size 36
+    secondarysize 48
+    chance 0.4
+}
+
+object PoisonNovaProjectile {
+	frame S001 { light PoisonNovaLight }
+}
+
+object PoisonNovaProjectile_FullDMG {
+	frame S001 { light PoisonNovaLight }
+}
+
+flickerlight MoltenBoulderLight {
+	color 0.825 0.275 0.0
+    size 48
+    secondarysize 84
+    chance 0.5
+}
+
+flickerlight LightningSpearLight {
+	color 0.35 0.35 1.0
+	size 20
+	secondarysize 36
+	chance 0.5
+}

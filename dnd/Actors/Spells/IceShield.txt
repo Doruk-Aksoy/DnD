@@ -1,0 +1,104 @@
+Actor IceShieldCooldown : DnD_Boolean { }
+Actor IceShieldCooldownCounter : CooldownCounter { }
+
+Actor IceShieldFadeSignal : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 4
+}
+
+Actor IceShieldCaster : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Cast Spell", 0, DND_SPELL_ICESHIELD, 0)
+		Stop
+	}
+}
+
+Actor IceShield_Barrier {
+	Health 100
+	Height 64
+	Radius 12
+	Species "Player"
+	Renderstyle Add
+	Alpha 0.01
+	+NOGRAVITY
+	+SHOOTABLE
+	+THRUSPECIES
+	+NOBLOOD
+	Scale 0.475
+	var int user_angle;
+	const int tspeed = 9;
+	const int r = 40;
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_angle", angle)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_FadeIn(0.1)
+		SpawnLoop:
+			S000 A 1 A_Warp(AAPTR_TRACER, r, 0, 8, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_SetUserVar("user_angle", user_angle + tspeed)
+			TNT1 A 0 A_JumpIfInventory("IceShieldFadeSignal", 1, "Fade", AAPTR_TRACER)
+		Loop
+		Death:
+			TNT1 A 0 A_PlaySound("Spell/IceShieldBreak")
+			TNT1 AAAAAAAAAAAAA 0 A_SpawnItemEx("IceShield_ShatterFX", frandom(-4, 4), frandom(-8, 8), frandom(8, 64), 0, 0, frandom(-4, 10), frandom(0, 360))
+			TNT1 A 1
+		Stop
+		Fade:
+			TNT1 A 0 A_Stop
+			S000 AAAAAAAAAAAAAAA 1 A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor IceShield_ShatterFX {
+	PROJECTILE
+	Height 6
+	Radius 3
+	Renderstyle Add
+	Alpha 0.85
+	BounceType Doom
+	BounceCount 4
+	const float spd = 16.0;
+	Scale 0.825
+	+ALLOWBOUNCEONACTORS
+	+CLIENTSIDEONLY
+	-NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(spd * cos(angle), spd * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_Jump(128, "V1", "V2")
+			S000 B 1
+		Goto SpawnLoop
+		V1:
+			S000 C 1
+		Goto SpawnLoop
+		V2:
+			S000 D 1
+		Goto SpawnLoop
+		SpawnLoop:
+			"####" "#" 1
+		Loop
+		Death:
+			"####" "#" 1
+		Stop
+	}
+}

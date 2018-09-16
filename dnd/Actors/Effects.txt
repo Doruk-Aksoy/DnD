@@ -686,6 +686,33 @@ Actor BlueMagicSpark : WhiteMagicSpark {
 	}
 }
 
+Actor OrangeMagicSpark : WhiteMagicSpark {
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+		SpawnLoop:
+			OGLP O 2 Bright A_FadeOut(0.08)
+		Loop
+	}
+}
+
+Actor OrangeMagicSparkFX : WhiteMagicSpark {
+	+NOGRAVITY
+    Scale 0.25
+	Alpha 0.8
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+		SpawnLoop:
+			OGLP O 2 Bright A_FadeOut(0.08)
+		Loop
+	}
+}
+
 Actor GreenParticle : FireBallParticle {
 	States {
 		Spawn:

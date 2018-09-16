@@ -305,7 +305,7 @@ ACTOR ResRL2 : Weapon {
 	Weapon.AmmoUse2 0
 	Weapon.AmmoGive 0
 	Weapon.SlotNumber 5
-	Weapon.AmmoType1 "Grenades"
+	Weapon.AmmoType1 "HeavyGrenades"
 	Weapon.AmmoType2 "HeavyGLCounter"
 	+WEAPON.NOAUTOAIM
 	Scale 0.75
@@ -336,7 +336,7 @@ ACTOR ResRL2 : Weapon {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireContinue")
-			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "FireContinue")
+			TNT1 A 0 A_JumpIfInventory("HeavyGrenades", 1, "FireContinue")
 		Goto DoNothing
 		FireContinue:
 			GLAU B 3
@@ -364,7 +364,7 @@ ACTOR ResRL2 : Weapon {
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 3, "DoNothing")
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "AltFireContinue")
-			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "AltFireContinue")
+			TNT1 A 0 A_JumpIfInventory("HeavyGrenades", 1, "AltFireContinue")
 		Goto DoNothing
 		AltFireContinue:
 			GLAU B 6
@@ -390,9 +390,9 @@ ACTOR ResRL2 : Weapon {
 Actor HeavyGrenadeShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_GRENADE, 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_HEAVYGRENADE, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("Grenades", 1)
+			TNT1 A 0 A_TakeInventory("HeavyGrenades", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("HeavyGrenade")
@@ -420,9 +420,9 @@ Actor HeavyGrenadeShooter : DnD_Activator {
 Actor HeavyGrenadeShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_GRENADE, 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_HEAVYGRENADE, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("Grenades", 1)
+			TNT1 A 0 A_TakeInventory("HeavyGrenades", 1)
 		NoTake:
 			TNT1 A 0 A_GiveInventory("HeavyGLCounter", 1)
 		Stop
@@ -648,7 +648,7 @@ Actor ResRL3 : Weapon {
 			TNT1 A 0 A_GunFlash
 			FRZC ABCD 2 A_SetPitch (pitch - 0.5)
 			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
-			TNT1 A 0 A_JumpIfInventory("KnockbackImmunityCheck", 1, "NoRecoil")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_KnockbackImmunity", 1, "NoRecoil")
 			TNT1 A 0 A_Recoil(3)
 		NoRecoil:
 			TNT1 A 0 A_GiveInventory("FreezerCooldownGiver", 1)
@@ -672,7 +672,7 @@ Actor ResRL3 : Weapon {
 			TNT1 A 0 A_GunFlash
 			FRZC ABCD 2 A_SetPitch (pitch-0.50)
 			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoilHold")
-			TNT1 A 0 A_JumpIfInventory("KnockbackImmunityCheck", 1, "NoRecoil")
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_KnockbackImmunity", 1, "NoRecoil")
 			FRZC D 0 A_Recoil(3)
 		NoRecoilHold:
 			TNT1 A 0 A_GiveInventory("FreezerCooldownGiver", 1)

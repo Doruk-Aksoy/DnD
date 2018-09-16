@@ -31,9 +31,16 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Resists/ExpResist.txt"
 #include "Actors/Items/Resists/ElemResist.txt"
 #include "Actors/Items/Resists/PhysResist.txt"
+#include "Actors/Items/Resists/Weaken.txt"
 
 // Spells
-#include "Actors/Items/Spells/Rally.txt"
+#include "Actors/Spells/Common.txt"
+#include "Actors/Spells/Rally.txt"
+#include "Actors/Spells/LightningSpear.txt"
+#include "Actors/Spells/MoltenBoulder.txt"
+#include "Actors/Spells/PoisonNova.txt"
+#include "Actors/Spells/IceShield.txt"
+#include "Actors/Spells/RaiseZombie.txt"
 
 #include "Actors/Hud.txt"
 #include "Actors/Effects.txt"
@@ -68,3 +75,4 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/MonsterBase.txt"
 #include "Actors/MonsterClass.txt"
 #include "Actors/Monsters.txt"
+#include "Actors/Pets.txt"

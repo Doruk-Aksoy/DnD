@@ -279,7 +279,15 @@ Size 64
 Offset 0 16 0
 }
 
-Object Guardian
+Object GuardianCube
+{
+Frame CUBEF { Light GuardianExplode1 }
+Frame CUBEG { Light GuardianExplode2 }
+Frame CUBEH { Light GuardianExplode3 }
+Frame CUBEI { Light GuardianExplode4 }
+}
+
+Object GuardianCube_NoCount
 {
 Frame CUBEF { Light GuardianExplode1 }
 Frame CUBEG { Light GuardianExplode2 }

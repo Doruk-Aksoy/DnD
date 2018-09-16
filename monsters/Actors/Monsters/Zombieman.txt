@@ -661,15 +661,15 @@ ACTOR QuakeZombie : UndeadEnemy {
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("grunt/attack", CHAN_WEAPON)
 			QZOM F 8 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-12.8, 12.8), 0, 0)
-			QZOM E 8 Fast
+			QZOM E 8 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("grunt/attack", CHAN_WEAPON)
 			QZOM F 8 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-12.8, 12.8), 0, 0)
-			QZOM E 8 Fast
+			QZOM E 8 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("grunt/attack", CHAN_WEAPON)
 			QZOM F 8 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-12.8, 12.8), 0, 0)
-			QZOM E 8 Fast
+			QZOM E 8 Fast A_FaceTarget
 		Goto See
 		Pain:
 			QZOM G 3 Fast

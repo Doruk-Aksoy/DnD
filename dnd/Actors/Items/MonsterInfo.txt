@@ -8,6 +8,7 @@ Actor TargetTraits2 : DnD_Info {}
 Actor TargetNameSkip : DnD_Info {}
 Actor TargetTag : DnD_Info {}
 Actor TargetIsElite : DnD_Boolean {}
+Actor TargetProperties : DnD_Info {}
 Actor DontRun : DnD_Boolean {}
 
 // Identification of the monster
@@ -22,6 +23,7 @@ Actor EnemyInDisguise : DnD_Boolean {}
 Actor ForcedMonsterLevel : DnD_Info {}
 Actor FriendlyInDisguise : DnD_Boolean {} 
 Actor MonsterIsElite : DnD_Boolean {}
+Actor MonsterProperties : DnD_Info {} // used by custom monsters
 
 Actor LegendaryKills : DnD_Info { }
 Actor LegendaryDamageDealt : DnD_Info { }
@@ -50,6 +52,15 @@ enum {
 	DND_SPIDERMASTERMINDID,
 	DND_CYBERDEMONID,
 	DND_NAZIID
+};
+
+// Monster info for custom monsters
+enum {
+	DND_MTYPE_DEMON_POW = 1,
+	DND_MTYPE_UNDEAD_POW = 2,
+	DND_MTYPE_MAGICAL_POW = 4,
+	DND_MTYPE_ROBOTIC_POW = 8,
+	DND_MTYPE_ZOMBIE_POW = 16
 };
 
 // Monster Traits
@@ -103,6 +114,7 @@ enum {
 	DND_EXTRASTRONG = DND_ELEMENTAL_IMMUNE << 1,
 	DND_VITAL = DND_EXTRASTRONG << 1,
 	DND_ARMORPEN = DND_VITAL << 1,
+	DND_PET = DND_ARMORPEN << 1,
 	
 	DND_LEGENDARY = 1073741824
 };

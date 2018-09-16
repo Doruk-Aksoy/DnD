@@ -42,7 +42,7 @@ Actor NewBulletPuff_Rail : NewBulletPuff {
 	+NODAMAGETHRUST
 }
 
-Actor NewBulletPuff_RailFull : NewBulletPuff_Rail {
+Actor NewBulletPuff_RailFullDMG : NewBulletPuff_Rail {
 	DamageType "BulletFull"
 }
 

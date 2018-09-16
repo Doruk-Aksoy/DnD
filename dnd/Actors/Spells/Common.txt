@@ -1,0 +1,35 @@
+enum {
+	SKILLINFO_ZOMBIEPETTIMER
+};
+
+enum {
+	DND_SPELL_RALLY,
+	DND_SPELL_POISONNOVA,
+	DND_SPELL_ICESHIELD,
+	DND_SPELL_MOLTENBOULDER,
+	DND_SPELL_LIGHTNINGSPEAR,
+};
+
+enum {
+	DND_SPELLDAMAGE_POISONNOVA,
+	DND_SPELLDAMAGE_POISONNOVADOT,
+	
+	DND_SPELLDAMAGE_MOLTENBOULDER,
+	DND_SPELLDAMAGE_MOLTENBOULDERBUMP,
+	
+	DND_SPELLDAMAGE_LIGHTNINGSPEAR,
+	DND_SPELLDAMAGE_LIGHTNINGSPEARBOUNCE,
+};
+
+Actor PetCounter : Inventory {
+	inventory.maxamount 32
+}
+
+Actor CooldownCounter : Inventory {
+	inventory.maxamount 300
+}
+
+Actor RandomElementalSpellCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 52
+}
