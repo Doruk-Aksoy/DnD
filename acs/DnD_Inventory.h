@@ -1901,13 +1901,13 @@ int GetCraftableItemCount() {
 // this doesn't consider the item_type yet!
 void MakeUnique(int item_pos, int item_type) {
 	int i;
-	/*#ifdef ISDEBUGBUILD
+	#ifdef ISDEBUGBUILD
 		i = random(0, MAX_UNIQUE_ITEMS - 1);
 	#else
 		int roll = random(1, MAX_UNIQUE_WEIGHT);
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
-	#endif*/
-	i = UITEM_OAKHEART;
+	#endif
+	//i = UITEM_OAKHEART;
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);
 }
