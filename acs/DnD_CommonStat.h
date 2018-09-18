@@ -3,7 +3,6 @@
 
 #include "DnD_Accessories.h"
 #include "DnD_QuestDefs.h"
-#include "DnD_Skills.h"
 #include "DnD_InvAttribs.h"
 
 enum {
@@ -36,6 +35,7 @@ enum {
 #define DND_STR_CAPFACTOR 200
 #define DND_ARMOR_PER_BUL 4
 #define DND_CHR_GAIN 0.5
+#define DND_PET_CHARISMA_FACTOR 20
 #define DND_LUCK_GAIN 0.15 // 15% multiplicative luck
 #define DND_TALENTCAPSULE_DROPRATE 0.01
 #define DND_CHESTKEY_DROPRATE 0.015
@@ -43,6 +43,8 @@ enum {
 #define DND_MUNITION_GAIN 10
 
 #define DND_SAVAGERY_BONUS 10
+
+#define BASE_PET_CAP 3
 
 #define PERK_MEDICBONUS 10 // percent
 #define PERK_MEDICSTOREBONUS 15
@@ -126,6 +128,7 @@ enum {
 	DND_STATBUFF_FORBIDARMOR,
 	DND_STATBUFF_PAINSHAREDWITHPETS,
 	DND_STATBUFF_SOULWEPSFULLDAMAGE,
+	DND_STATBUFF_SPELLSDOFULLDAMAGE,
 	DND_STATBUFF_SLAINMONSTERSRIP
 };
 
@@ -174,6 +177,21 @@ int GetIntellect() {
 	return res;
 }
 
+int GetActorIntellect(int tid) {
+	int res = CheckActorInventory(tid, "PSTAT_Intellect") + GetPlayerAttributeValue(tid - P_TIDSTART, INV_STAT_INTELLECT);
+	if(CheckActorInventory(tid, "DnD_QuestReward_TalentIncrease"))
+		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
+	return res;
+}
+
+int GetMasterIntellect() {
+	SetActivator(0, AAPTR_MASTER);
+	int res = CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_INTELLECT);
+	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
+		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
+	return res;
+}
+
 int GetStrength() {
 	return CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_STRENGTH);
 }
@@ -188,6 +206,14 @@ int GetVitality() {
 
 int GetCharisma() {
 	return CheckInventory("PSTAT_Charisma") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_CHARISMA);
+}
+
+int GetActorCharisma(int tid) {
+	return CheckActorInventory(tid, "PSTAT_Charisma") + GetPlayerAttributeValue(tid - P_TIDSTART, INV_STAT_CHARISMA);
+}
+
+int GetPetCap(int tid) {
+	return BASE_PET_CAP + GetActorCharisma(tid) / DND_PET_CHARISMA_FACTOR;
 }
 
 int GetHealingBonuses() {

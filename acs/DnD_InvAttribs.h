@@ -86,6 +86,7 @@ enum {
 	INV_EX_DAMAGEPER_FLATHEALTH, // only 1%
 	INV_EX_FORBID_ARMOR,
 	INV_EX_BEHAVIOR_PELLETSFIRECIRCLE,
+	INV_EX_FORSHOW_BURSTGETSPELLETBONUS,
 	INV_EX_CHANCE_ONDEATH_RAISEZOMBIE,
 	INV_EX_DMGREDUCE_SHAREWITHPETS,
 	INV_EX_DMGINCREASE_TAKEN,
@@ -94,12 +95,13 @@ enum {
 	INV_EX_SOULWEPS_FULLDAMAGE,
 	INV_EX_PICKUPS_MORESOUL,
 	INV_EX_ABILITY_RALLY,
+	INV_EX_BEHAVIOR_SPELLSFULLDAMAGE,
 	INV_EX_ABILITY_MONSTERSRIP
 };
 
 // attributes below last_inv (normal rollables) are exotic
 #define LAST_INV_ATTRIBUTE INV_DMGREDUCE_PHYS
-#define UNIQUE_ATTRIB_BEGIN INV_EX_DMGREDUCE_ELEM
+#define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
 #define UNIQUE_ATTRIB_END INV_EX_ABILITY_MONSTERSRIP
 #define MAX_INV_ATTRIBUTE_TYPES LAST_INV_ATTRIBUTE + 1
 #define MAX_TOTAL_ATTRIBUTES UNIQUE_ATTRIB_END + 1
@@ -147,7 +149,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_SlotDamageBonus_8", "% slot 8 weapon damage" },
 	{ "IATTR_SlotDamageBonus_9", "% temporary weapon damage" },
 	
-	{ "IATTR_PelletIncrease", "% more pellets on shells" },
+	{ "IATTR_PelletIncrease", "% more pellets" },
 	
 	{ "IATTR_ExplosionRadiusIncrease", "% increased explosion radius" },
 	{ "IATTR_ExplosionResist", "% reduced self explosion damage" },
@@ -189,15 +191,17 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_HPPercent", "Double Health Cap" },
 	{ "IATTR_DamagePerFlatHP", "Gain 1% damage increase every " },
 	{ "IATTR_StatusBuffs_1", "Can't use armor" },
-	{ "IATTR_StatusBuffs_1", "Pellets from shotguns fire in a circle around you" },
+	{ "IATTR_StatusBuffs_1", "Burst type attacks fire in a circle around you" },
+	{ "", "Burst type attacks also benefit from pellet bonuses" },
 	{ "IATTR_ChanceToRaiseZombieFromKills", "% chance to raise a zombie from slain enemies" },
-	{ "IATTR_StatusBuffs_1", "Damage taken is shared between your pets" },
+	{ "IATTR_StatusBuffs_1", "Damage taken is divided per each pet (Max 90% reduction)" },
 	{ "IATTR_IncreasedDamageTaken", "% increased damage taken" },
 	{ "", " flat damage to all attacks" },
 	{ "IATTR_HealOnKill", "Killing enemies heal for " },
 	{ "IATTR_StatusBuffs_1", "Soul type weapons do full damage" },
 	{ "IATTR_SoulAmmoIncrease", "% more ammo from soul pickups" },
 	{ "IATTR_CastRally", "Gain ability to cast level " },
+	{ "IATTR_StatusBuffs_1", "Spell damage is irreducible" },
 	{ "IATTR_StatusBuffs_1", "Slain enemies rest in peace" }
 };
 
@@ -208,10 +212,10 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 2, 6, 2 },
 	{ 1, 10, 5 },
 	{ 1, 10, 5 },
-	{ 0.5, 1.5, 1 },
-	{ 2.5, 5.0, 2 },
+	{ 0.005, 0.015, 1 },
+	{ 0.025, 0.05, 2 },
 	{ 5, 15, 3 },
-	{ 1, 3, 1 },
+	{ 0.01, 0.03, 1 },
 	{ 2, 4, 2 },
 
 	{ 1, 3, 2 },
@@ -326,7 +330,8 @@ str ItemAttributeString(int attr, int val) {
 	switch(attr) {
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
-		return StrParam(s:"+ ", f:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+		case INV_SPEED_INCREASE:
+		return StrParam(s:"+ ", f:ftrunc(val * 100), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
 		default:
 			if(val > 0)
 				return StrParam(s:"+ ", d:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
@@ -337,6 +342,8 @@ str ItemAttributeString(int attr, int val) {
 }
 
 str ExoticAttributeString(int attr, int val1, int val2) {
+	if(attr <= LAST_INV_ATTRIBUTE)
+		return ItemAttributeString(attr, val1);
 	switch(attr) {
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 		return StrParam(d:val1, s:Inv_Attribute_Names[INV_EX_CHANCE][INVATTR_TEXT], s:Inv_Attribute_Names[INV_EX_CHANCE_HEALMISSINGONPAIN][INVATTR_TEXT], d:val2, s:"% missing health");

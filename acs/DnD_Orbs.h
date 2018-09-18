@@ -391,13 +391,18 @@ bool CanUseOrb(int orbtype, int extra) {
 			res = 1;
 		break;
 		case DND_ORB_SCULPTING:
-			res = PlayerInventoryList[PlayerNumber()][extra].attrib_count;
+			// don't let this be used on a unique
+			if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
+				res = 0;
+			else
+				res = PlayerInventoryList[PlayerNumber()][extra].attrib_count;
 		break;
 		case DND_ORB_ELEVATION:
 			// this one depends on attribute counts of items it is used on
-			if(PlayerInventoryList[PlayerNumber()][extra].item_type == DND_ITEM_CHARM) {
+			if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
+				res = 0;
+			else if(PlayerInventoryList[PlayerNumber()][extra].item_type == DND_ITEM_CHARM)
 				res = PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype];
-			}
 		break;
 	}
 	if(!res)
@@ -571,10 +576,20 @@ void HandleOrbUse (int orbtype, int extra) {
 			Player_MostRecent_Orb[pnum].p_tempwep = extra + 1;
 			for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i)
 				Player_MostRecent_Orb[pnum].values[i] = PlayerInventoryList[pnum][extra].attributes[i].attrib_val;
-			for(res = 0; res < GetAffluenceBonus(); ++res) {
-				for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
-					temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
-					PlayerInventoryList[pnum][extra].attributes[i].attrib_val = random(Inv_Attribute_Info[temp].attrib_low, Inv_Attribute_Info[temp].attrib_high) * (1 + (Inv_Attribute_Info[temp].attrib_level_modifier * PlayerInventoryList[pnum][extra].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+			if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN) {
+				// handle unique random roll case
+				temp = (PlayerInventoryList[pnum][extra].item_type >> UNIQUE_BITS) - 1;
+				for(res = 0; res < GetAffluenceBonus(); ++res) {
+					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i)
+						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = random(UniqueItemList[temp].rolls[i].attrib_low, UniqueItemList[temp].rolls[i].attrib_high);
+				}
+			}
+			else {
+				for(res = 0; res < GetAffluenceBonus(); ++res) {
+					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
+						temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = random(Inv_Attribute_Info[temp].attrib_low, Inv_Attribute_Info[temp].attrib_high) * (1 + (Inv_Attribute_Info[temp].attrib_level_modifier * PlayerInventoryList[pnum][extra].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+					}
 				}
 			}
 			SyncItemAttributes(extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -613,7 +628,7 @@ void HandleOrbUse (int orbtype, int extra) {
 				// find an attribute that this item doesn't have
 				do {
 					temp = random(0, LAST_INV_ATTRIBUTE);
-				} while(CheckItemAttribute(extra, temp, false, PlayerNumber(), temp));
+				} while(CheckItemAttribute(extra, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY,i) != -1);
 				AddAttributeToItem(extra, temp);
 				
 				if(PlayerInventoryList[pnum][extra].item_type == DND_ITEM_CHARM)

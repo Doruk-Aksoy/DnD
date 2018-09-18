@@ -5,16 +5,11 @@
 #include "DnD_Common.h"
 #include "DnD_Inventory.h"
 
-#define MAX_SMALL_CHARMS_USED 4
-#define MAX_MEDIUM_CHARMS_USED 2
-#define MAX_LARGE_CHARMS_USED 1
-#define MAX_CHARMS_EQUIPPABLE MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED
-
 #define SMALL_CHARM_ATTRIB_MAX 2
 
 #define NULL_CHARM -1
 
-#define DND_BASE_CHARMRATE 0.00925
+#define DND_BASE_CHARMRATE 0.015
 
 #define DND_CHARM_BASEHEIGHT 1
 #define DND_CHARM_BASEWIDTH 1
@@ -64,7 +59,7 @@ void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
 	CopyItem(true, field_index, player_index, pos);
 }
 
-void RollCharmInfo(int charm_pos, int charm_tier, bool onField) {
+void RollCharmInfo(int charm_pos, int charm_tier) {
 	// roll random attributes for the charm
 	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 	int count = random(2, 2 * (charm_type + 1)), i, roll;
@@ -90,7 +85,7 @@ void RollCharmInfo(int charm_pos, int charm_tier, bool onField) {
 	while(i < count) {
 		do {
 			roll = random(0, LAST_INV_ATTRIBUTE);
-		} while(CheckItemAttribute(charm_pos, roll, onField, -1, count));
+		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToCharm(charm_pos, roll);
 		++i;
 	}
@@ -122,12 +117,17 @@ void SpawnCharm(int pnum, bool isElite) {
 		int addchance = 0;
 		if(isElite)
 			addchance = DND_ELITE_BASEDROP / 2;
-		if(random(0, 1)) {//if(RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance)) {
+		#ifdef ISDEBUGBUILD
+		if(random(0, 1))
+		#else
+		if(RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance)) 
+		#endif
+		{
 			MakeUnique(c, DND_ITEM_CHARM);
 			SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c);
 		}
 		else {
-			RollCharmInfo(c, RollItemLevel(), 1);
+			RollCharmInfo(c, RollItemLevel());
 			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		}
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);

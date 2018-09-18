@@ -52,6 +52,7 @@ enum {
 	AMMO_ROCKET = 0,
 	AMMO_FLAKSHELL,
 	AMMO_METEOR,
+	AMMO_HEAVYGRENADE,
 	AMMO_GRENADE,
 	AMMO_HMISSILE,
 	
@@ -113,6 +114,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"ROCKA0",			"RocketAmmo"			},
 		{		"FSHLA0",			"FlakShell"				},
 		{		"LAAM1",			"MeteorAmmo"			},
+		{		"HEGRA0",			"HeavyGrenades"			},
 		{		"GBUNA0",			"Grenades"				},
 		{		"AHRLA0",			"MISAmmo"				},
 		{		"",					"",						}
@@ -169,6 +171,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		50,			5		},
 		{ 		40,			10		},
 		{ 		40,			4		},
+		{  		50,			5		},
 		{  		50,			5		},
 		{ 		80,			6		},
 		{ 		-1,			0		}
@@ -311,7 +314,11 @@ void HandleAmmoContainerPickup(int slot) {
 }
 
 void GiveAmmo(int amt, int slot, int t) {
-	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
+	if(slot != DND_AMMOSLOT_SOULS)
+		amt = amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
+	else
+		amt = amt + (amt * CheckInventory("IATTR_SoulAmmoIncrease")) / 100;
+	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt);
 }
 
 #endif

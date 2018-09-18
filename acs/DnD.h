@@ -8,6 +8,7 @@
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
 #include "DnD_ChestKey.h"
+#include "DnD_Skills.h"
 
 #define DEATHRAY_MARKER_TID_ADD 1000
 
@@ -98,6 +99,9 @@
 
 #define DND_BOSS_SOULGIVE 4
 
+#define RIP_FADE_TIMER 20
+#define RIP_MONSTER_FADE_DELAY 3 * TICRATE
+
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"
@@ -135,7 +139,8 @@ enum {
 	DND_WDMG_ISSLOT6 = 262144,
 	DND_WDMG_ISSLOT7 = 524288,
 	DND_WDMG_ISSLOT8 = 1048576,
-	DND_WDMG_ISSLOT9 = 2097152
+	DND_WDMG_ISSLOT9 = 2097152,
+	DND_WDMG_ISSPELL = 4194304
 };
 
 enum {
@@ -1106,4 +1111,75 @@ void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str t
 	SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
 	Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
 	SetActivator(this);
+}
+
+void ScaleMonster() {
+	int base = GetActorProperty(0, APROP_HEALTH);
+	int add = 0, level = 1, pcount = PlayerCount(), low, high, temp;
+	if(!pcount)
+		pcount = 1;
+	level = total_level / pcount;
+	// ensure minions use master's level
+	if(GetActorProperty(0, APROP_MASTERTID)) {
+		//printbold(d:GetActorProperty(0, APROP_MASTERTID));
+		level = CheckActorInventory(GetActorProperty(0, APROP_MASTERTID), "MonsterLevel");
+	}
+	if(GetCVar("dnd_randomize_levels")) {
+		low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
+		high = Clamp_Between(GetCVar("dnd_monsterlevel_high"), 0, 50);
+		// give some sort of variety in the levels
+		// subtract level from avg half the time
+		if(random(0, 1)) {
+			temp = low;
+			low = -high;
+			high = -temp;
+		}
+		level += random(low, high);
+	}
+	if(GetCVar("dnd_monsterlevel_behind"))
+		level = Clamp_Between(level, 1, total_level / pcount);
+	else
+		level = Clamp_Between(level, 1, DND_MAX_MONSTERLVL);
+	level = Clamp_Between(level, 1, GetCVar("dnd_maxmonsterlevel"));
+	if(level > 1) {
+		add = (base * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
+		if(level > 75)
+			temp = DND_AFTER75_INCREMENT;
+		else if(level > 50)
+			temp = DND_AFTER50_INCREMENT;
+		else
+			temp = 1;
+		// we are in boost range for hp
+		if(temp != 1) {
+			if(add > 100) {
+				add /= 100;
+				add *= 100 + temp;
+			}
+			else {
+				add *= 100 + temp;
+				add /= 100;
+			}
+		}
+		// add level factor to it
+		// first overflow check
+		if(add < (INT_MAX - base) / (level - 1)) {
+			add *= level - 1;
+			if(GetCVar("dnd_playercount_scales_monsters")) {
+				if(add > 100) {
+					add /= 100;
+					add *= 100 + DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
+				}
+				else {
+					add *= 100 + DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
+					add /= 100;
+				}
+			}
+		}
+		else
+			add = INT_MAX - base;
+	}
+	SetActorProperty(0, APROP_HEALTH, base + add);
+	SetInventory("MonsterBaseHealth", base);
+	SetInventory("MonsterMaxHealth", base + add);
+	SetInventory("MonsterLevel", level);
 }

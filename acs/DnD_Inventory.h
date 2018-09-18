@@ -35,6 +35,12 @@
 #define MAX_EXPRESIST_VAL 100
 #define MAX_ELEMRESIST_VAL 100
 #define MAX_PHYSRESIST_VAL 100
+#define MAX_WEAKEN_VAL 200
+
+#define MAX_SMALL_CHARMS_USED 4
+#define MAX_MEDIUM_CHARMS_USED 2
+#define MAX_LARGE_CHARMS_USED 1
+#define MAX_CHARMS_EQUIPPABLE MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED
 
 enum {
 	IPROCESS_ADD,
@@ -221,17 +227,17 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 0.0, 0.0 },
 	
 	// unique charms
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
+	{ 0.0, 8.0 },
+	{ 0.0, 3.0 },
+	{ 0.0, 5.0 },
+	{ 0.0, 5.0 },
+	{ 0.0, 3.0 },
+	{ 0.0, 3.0 },
+	{ 0.0, 8.0 },
+	{ 0.0, 5.0 },
+	{ 0.0, 6.0 },
+	{ 0.0, 8.0 },
+	{ 0.0, 4.0 },
 	{ 0.0, 0.0 },
 	
 	{ 7.0, 7.0 },
@@ -626,21 +632,33 @@ int RollItemLevel() {
 	return pavg + random((-pavg + 1) / 2, ITEMLEVEL_VARIANCE_HIGHER);
 }
 
-bool CheckItemAttribute(int item_pos, int attrib_index, bool onField, int pnum, int count) {
+int CheckItemAttribute(int item_pos, int attrib_index, int source, int count) {
 	int i;
-	if(onField) {
-		for(i = 0; i < count; ++i)
-			if(Inventories_On_Field[item_pos].attributes[i].attrib_id == attrib_index)
-				return true;
-		return false;
+	for(i = 0; i < count; ++i)
+		if(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_pos, i, source) == attrib_index)
+			return i;
+	return -1;
+}
+
+// find the item that has a min, if basis isn't -1 then we must exclude this from inclusion to min
+int FindMinOnUsedCharmsForAttribute(int pnum, int attrib_index, int basis) {
+	int res = -1, temp, compare = INT_MAX;
+	for(int i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
+		if(i == basis)
+			continue;
+		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL) {
+			temp = CheckItemAttribute(i, attrib_index, DND_SYNC_ITEMSOURCE_CHARMUSED, Charms_Used[pnum][i].attrib_count);
+			// means this exists
+			if(temp != -1) {
+				if(Charms_Used[pnum][i].attributes[temp].attrib_val < compare) {
+					compare = Charms_Used[pnum][i].attributes[temp].attrib_val;
+					SetInventory("DamagePerFlatHPBuffer", compare);
+					res = i;
+				}
+			}
+		}
 	}
-	else {
-		for(i = 0; i < count; ++i)
-			if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id == attrib_index)
-				return true;
-		return false;
-	}
-	return false;
+	return res;
 }
 
 void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index) {
@@ -1353,7 +1371,7 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:ExoticAttributeString(temp, val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+					HudMessage(s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 				}
 				else
 					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
@@ -1479,7 +1497,7 @@ bool IsCraftingItem(int itype) {
 bool IsCraftableItem(int itype) {
 	// just so that this is recognized
 	if(itype > UNIQUE_BEGIN)
-		itype >>= UNIQUE_BITS;
+		itype &= 0xFFFF; // lower 16 bits contain item type
 	switch(itype) {
 		case DND_ITEM_CHARM:
 		case DND_ITEM_BOOT:
@@ -1575,7 +1593,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	int aval = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int asubtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
 	int i, temp;
-	if(IsSet(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM) && asubtype == DND_CHARM_SMALL)
+	if(CheckInventory("StatbuffCounter_DoubleSmallCharm") && asubtype == DND_CHARM_SMALL)
 		aval <<= 1;
 	switch(atype) {
 		// first cases with exceptions to our generic formula
@@ -1608,6 +1626,12 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
 		break;
+		case INV_EX_DMGINCREASE_TAKEN:
+			TakeInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			if(GetPlayerAttributeValue(pnum, atype))
+				GiveInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
+		break;
 		case INV_ACCURACY_INCREASE:
 			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
@@ -1616,10 +1640,10 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		
 		// exotic stuff -- reason most of these dont have syncs is that they arent meant to be shown in stat menu page, so no need for client to be aware
 		case INV_EX_CHANCE:
-			// by itself this does nothing
+		case INV_EX_FORSHOW_BURSTGETSPELLETBONUS:
+			// by itself these do nothing
 		break;
 		case INV_EX_KNOCKBACK_IMMUNITY:
-			GiveOrTake("KnockbackImmunityCheck", 1, remove);
 			GiveOrTake("StatbuffCounter_KnockbackImmunity", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, atype);
 			if(CheckInventory("StatbuffCounter_KnockbackImmunity"))
@@ -1628,12 +1652,28 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
 		break;
 		case INV_EX_DOUBLE_SMALLCHARM:
-			GiveOrTake("StatbuffCounter_DoubleSmallCharm", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, atype);
-			if(CheckInventory("StatbuffCounter_DoubleSmallCharm"))
+			if(!remove) {
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
-			else
+				// we now need to re-apply all other features of small charms we have equipped
+				// first 4 are small charms
+				for(i = 0; i < 4; ++i)
+					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+						RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+				// now give the item and re-apply
+				GiveInventory("StatbuffCounter_DoubleSmallCharm", 1);
+				for(i = 0; i < 4; ++i)
+					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+						ApplyItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			}
+			else if(CheckInventory("StatbuffCounter_DoubleSmallCharm") == 1) {
+				// just take the attribute off and remove features, this will effectively halve the features
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
+				TakeInventory("StatbuffCounter_DoubleSmallCharm", 1);
+				for(i = 0; i < 4; ++i)
+					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+						RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			}
 		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
@@ -1661,15 +1701,48 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_ALWAYSCRITLIGHTNING));
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
+			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
 			GiveOrTake(GetPlayerAttributeString(pnum, INV_HPPERCENT_INCREASE), aval, remove);
+			if(remove) {
+				temp = GetSpawnHealth();
+				if(GetActorProperty(0, APROP_HEALTH) > temp) {
+					// set health to new cap, add the extra to player
+					if(i > 0)
+						SetActorProperty(0, APROP_HEALTH, temp + i);
+					else
+						SetActorProperty(0, APROP_HEALTH, temp);
+				}
+			}
 		break;
 		case INV_EX_FORBID_ARMOR:
 			GiveOrTake("StatbuffCounter_ForbidArmor", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, atype);
-			if(CheckInventory("StatbuffCounter_ForbidArmor"))
+			if(CheckInventory("StatbuffCounter_ForbidArmor")) {
+				SetInventory("DnD_ArmorType", 0);
+				SetInventory("Armor", 0);
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_FORBIDARMOR));
+			}
 			else
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_FORBIDARMOR));
+		break;
+		case INV_EX_DAMAGEPER_FLATHEALTH:
+			// first check all sources, see if they contain this and are lower than this source
+			temp = FindMinOnUsedCharmsForAttribute(pnum, INV_EX_DAMAGEPER_FLATHEALTH, item_index);
+			// we got a new min
+			if(temp != -1) {
+				// update to use the new min if our comparison is better
+				if(!remove)
+					SetInventory("IATTR_DamagePerFlatHP", Min(aval, CheckInventory("DamagePerFlatHPBuffer")));
+				else
+					SetInventory("IATTR_DamagePerFlatHP", CheckInventory("DamagePerFlatHPBuffer"));
+			}
+			else {
+				// no new min was found
+				if(remove)
+					SetInventory("IATTR_DamagePerFlatHP", 0);
+				else
+					SetInventory("IATTR_DamagePerFlatHP", aval);
+			}
 		break;
 		case INV_EX_BEHAVIOR_PELLETSFIRECIRCLE:
 			GiveOrTake("StatbuffCounter_PelletsInCircle", 1, remove);
@@ -1700,10 +1773,19 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_SOULWEPSFULLDAMAGE));
 		break;
 		case INV_EX_ABILITY_RALLY:
-			TakeInventory(StrParam(s:"DnD_Skill_Rally_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_SKILL_LEVELS)), 1);
 			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
-				GiveInventory(StrParam(s:"DnD_Skill_Rally_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_SKILL_LEVELS)), 1);
+				GiveInventory("CastRally", 1);
+			else
+				TakeInventory("CastRally", 1);
+		break;
+		case INV_EX_BEHAVIOR_SPELLSFULLDAMAGE:
+			GiveOrTake("StatbuffCounter_SpellsFullDamage", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, atype);
+			if(CheckInventory("StatbuffCounter_SpellsFullDamage"))
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_SPELLSDOFULLDAMAGE));
+			else
+				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_SPELLSDOFULLDAMAGE));
 		break;
 		case INV_EX_ABILITY_MONSTERSRIP:
 			GiveOrTake("StatbuffCounter_SlainMonstersRIP", 1, remove);
@@ -1732,9 +1814,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_ARMOR_INCREASE:
 		case INV_ARMORPERCENT_INCREASE:
 		case INV_STAT_BULKINESS:
+				GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 			if(CheckInventory("Armor")) {
 				i = CheckInventory("Armor") - GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-				GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 				if(remove) {
 					temp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
 					if(CheckInventory("Armor") > temp) {
@@ -1775,8 +1857,18 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				}
 			}
 		break;
+		case INV_SPEED_INCREASE:
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
+		break;
+		case INV_AMMOCAP_INCREASE:
+			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			// make sure to update ammo caps
+			SetAllAmmoCapacities();
+		break;
+		
+		// anything that fits our generic formula
 		default:
-			// anything that fits our generic formula
 			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
 		break;
 	}
@@ -1809,8 +1901,13 @@ int GetCraftableItemCount() {
 // this doesn't consider the item_type yet!
 void MakeUnique(int item_pos, int item_type) {
 	int i;
-	int roll = random(1, MAX_UNIQUE_WEIGHT);
-	for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
+	/*#ifdef ISDEBUGBUILD
+		i = random(0, MAX_UNIQUE_ITEMS - 1);
+	#else
+		int roll = random(1, MAX_UNIQUE_WEIGHT);
+		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
+	#endif*/
+	i = UITEM_OAKHEART;
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);
 }

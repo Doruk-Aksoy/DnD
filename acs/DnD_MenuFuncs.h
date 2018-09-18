@@ -733,7 +733,10 @@ int CanTrade (int id, int tradeflag, int price) {
 void DrawToggledLabel(str label, int afterlabel, int boxid, int boxcheck, int drawid, str color, str activecolor, int hudx, int hudy) {
 	if(boxid == boxcheck)
 		color = activecolor;
-	HudMessage(s:color, s:label, s:": \c-", d:afterlabel; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	if(afterlabel != -1)
+		HudMessage(s:color, s:label, s:": \c-", d:afterlabel; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	else
+		HudMessage(s:color, s:label, s:": "; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
 }
 
 // Draws a toggled image that changes color depending on given scenarios
@@ -931,6 +934,10 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 				ShowNeedResearchPopup();
 			}
 			else {
+				if(CheckInventory("StatbuffCounter_ForbidArmor") && (tradeflag & TRADE_ARMOR)) {
+					ShowPopup(POPUP_CANTBUY, false, 0);
+					return;
+				}
 				// loop 
 				do {
 					loopnumber++;
@@ -1330,12 +1337,12 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// stat 1
 		{
-			{ 288.0, 164.0, 216.0, 157.0 }, // str
-			{ 149.0, 164.0, 72.0, 157.0 }, // dex
-			{ 288.0, 148.0, 213.0, 141.0 }, // bul
-			{ 149.0, 148.0, 78.0, 141.0 }, // chr
-			{ 288.0, 132.0, 216.0, 125.0 }, // vit
-			{ 149.0, 132.0, 78.0, 125.0 }, // int
+			{ 288.0, 196.0, 108.0, 188.0 }, // str
+			{ 288.0, 180.0, 108.0, 172.0 }, // dex
+			{ 288.0, 164.0, 108.0, 156.0 }, // bul
+			{ 288.0, 148.0, 108.0, 140.0 }, // chr
+			{ 288.0, 132.0, 108.0, 124.0 }, // vit
+			{ 288.0, 116.0, 108.0, 108.0 }, // int
 			{ -1, -1, -1, -1 }
 		},
 		// stat 2
@@ -1648,6 +1655,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
+			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 4
@@ -2371,6 +2379,28 @@ void CleanInventoryInfo() {
 	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 
+int GetUniqueCharmXOffsetForDisplay(int charm_id) {
+	switch(charm_id) {
+		case UITEM_ELEMENTALBULWARK:
+		return 4.0;
+		case UITEM_GRAVECALLER:
+		return 6.0;
+		case UITEM_WELLOFPOWER:
+		return 5.0;
+		case UITEM_PELLETSTORM:
+		return 2.0;
+		case UITEM_ANCIENTGEMSTONE:
+		return 10.0;
+		case UITEM_OAKHEART:
+		return 4.0;
+		case UITEM_SHELLSHOCK:
+		return 6.0;
+		case UITEM_DEATHSPARK:
+		return 4.0;
+	}
+	return 0;
+}
+
 void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) {
 	str charmborderpic = CharmBoxLabels[charm_type][boxid == thisboxid];
 	str charmpic = "";
@@ -2384,7 +2414,7 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	if(Charms_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
 		charmpic = Charms_Used[pnum][thisboxid - 1].item_image;
 		SetFont(Item_Images[charmpic]);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx + GetUniqueCharmXOffsetForDisplay((Charms_Used[pnum][thisboxid - 1].item_type >> 16) - 1), hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView")) {
 			CleanInventoryInfo();
@@ -2551,7 +2581,7 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:ExoticAttributeString(temp, val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+					HudMessage(s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
 				}
 				else
 					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
@@ -2638,6 +2668,7 @@ void HandleInventoryView(int boxid) {
 	SetFont("SMALLFONT");
 }
 
+// This is mainly used for stack editing
 void HandleM2Inputs(int boxid, int source, int seloffset, int prevsource) {
 	int ipos, epos, bid;
 	if(CheckInventory("DnD_SelectedInventoryBox")) {
@@ -2820,13 +2851,6 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			charm_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			if(charm_sel != -1) {
 				LocalAmbientSound("Items/CharmDrop", 127);
-				// if this item was wellofpower, we must take item features from all small charms (they keep their normal values)
-				if(Charms_Used[pnum][boxid - 1].item_subtype == DND_CHARM_LARGE && (Charms_Used[pnum][boxid - 1].item_type >> 16) - 1 == UITEM_WELLOFPOWER) {
-					// repeat this step early so we don't take double the amount by accident (we need to take double amounts when well of power is equipped and we take off a small charm so)
-					TakeInventory("StatbuffCounter_DoubleSmallCharm", 1);
-					if(!CheckInventory("StatbuffCounter_DoubleSmallCharm"))
-						SetInventory("IATTR_StatusBuffs_1", ClearBit(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM));
-				}
 				RemoveItemFeatures(boxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED);
 				MoveItemTrade(boxid - 1, charm_sel, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
@@ -3685,7 +3709,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:ExoticAttributeString(temp, val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+					HudMessage(s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
 				}
 				else
 					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);

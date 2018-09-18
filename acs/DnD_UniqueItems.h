@@ -15,7 +15,7 @@ enum {
 	UITEM_WELLOFPOWER,
 	// S - 5-10 to all stats, 3-5% chance to be healed for 6-10% of your missing health on being hit
 	UITEM_ANCIENTGEMSTONE,
-	// S - 5-25% increased lightning damage, Lightning type attacks always crit
+	// S - 5-45% increased lightning damage, Lightning type attacks always crit
 	UITEM_DEATHSPARK,
 	// S - 15-35% increased pellets, Shotgun type weapons deal 40-75% more damage
 	UITEM_SHELLSHOCK,
@@ -23,13 +23,13 @@ enum {
 	UITEM_OAKHEART,
 	// M - 40-50% more pellets, 100-200% slot 3 damage, Pellets fire in a circle around you regardless of accuracy
 	UITEM_PELLETSTORM,
-	// G - 15-25 Intellect, Slain enemies have 5-10% chance to raise a zombie (Max 5, Lasts 15 seconds), Damage taken is shared between all summoned creatures, Take 25-10% more damage
+	// G - 15-25 Intellect, Slain enemies have 5-15% chance to raise a zombie (Max 5, Lasts 8 + INT / 10 seconds), Damage taken is shared between all summoned creatures, Take 50-25% more damage
 	UITEM_GRAVECALLER,
 	// M - 6-12% speed, 3-10 flat damage to all attacks, Killing enemies heals for 1-5% missing health 
 	UITEM_LIFELEECH,
-	// S - Soul type weapons do full damage and can hit ghosts, Soul pickups give 25-50% more ammo
+	// S - Soul type weapons do full damage and can hit ghosts, Soul pickups give 50-100% more ammo, Spells do irreducible damage
 	UITEM_EYEBEHOLDER,
-	// G - 250-400 health cap, 250-400 armor cap, Gives item that grants 25-45% damage and 8-18% speed for 8 seconds (30 sec cd, stats depend on level), Slain enemies rest in peace
+	// G - 250-425 health cap, 250-425 armor cap, 4 - 15 to all stats, Gives item that grants 35-75% damage and 8-18% speed for 8 seconds (20 sec cd, stats depend on level), Slain enemies rest in peace
 	UITEM_DEADKINGBANNER
 };
 
@@ -47,17 +47,17 @@ str UniqueItemNames[MAX_UNIQUE_ITEMS] = {
 	"Pellet Storm",
 	"Grave Caller",
 	"Life Leech",
-	"Eye of Beholder",
+	"Eye of the Beholder",
 	"Dead King's Banner"
 };
 
 #define MAX_UNIQUE_WEIGHT 1000
 // chances
 /*
-18
 15
-3
-5
+15
+4
+6
 6
 13
 9
@@ -65,20 +65,20 @@ str UniqueItemNames[MAX_UNIQUE_ITEMS] = {
 6
 6
 8
-3
+4
 */
 int UniqueItemDropWeight[MAX_UNIQUE_ITEMS] = {
-	180,
-	330,
-	360,
-	410,
-	470,
-	600,
-	690,
-	770,
-	830,
-	890,
-	970,
+	150,
+	300,
+	340,
+	400,
+	460,
+	590,
+	680,
+	760,
+	820,
+	880,
+	960,
 	1000
 };
 
@@ -185,7 +185,7 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_DMGINCREASE_LIGHTNING;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_ALWAYSCRIT_LIGHTNING;
 	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 25;
+	UniqueItemList[id].rolls[0].attrib_high = 45;
 	UniqueItemList[id].rolls[1].attrib_low = 0;
 	UniqueItemList[id].rolls[1].attrib_high = 0;
 	id = UITEM_SHELLSHOCK;
@@ -229,16 +229,19 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
 	UniqueItemList[id].item_level = 100;
 	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 3;
+	UniqueItemList[id].attrib_count = 4;
 	UniqueItemList[id].attrib_id_list[0] = INV_PELLET_INCREASE;
 	UniqueItemList[id].attrib_id_list[1] = INV_SLOT3_DAMAGE;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_PELLETSFIRECIRCLE;
+	UniqueItemList[id].attrib_id_list[3] = INV_EX_FORSHOW_BURSTGETSPELLETBONUS;
 	UniqueItemList[id].rolls[0].attrib_low = 40;
 	UniqueItemList[id].rolls[0].attrib_high = 50;
 	UniqueItemList[id].rolls[1].attrib_low = 100;
 	UniqueItemList[id].rolls[1].attrib_high = 200;
 	UniqueItemList[id].rolls[2].attrib_low = 0;
 	UniqueItemList[id].rolls[2].attrib_high = 0;
+	UniqueItemList[id].rolls[3].attrib_low = 0;
+	UniqueItemList[id].rolls[3].attrib_high = 0;
 	id = UITEM_GRAVECALLER;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
@@ -255,11 +258,11 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].rolls[0].attrib_low = 15;
 	UniqueItemList[id].rolls[0].attrib_high = 25;
 	UniqueItemList[id].rolls[1].attrib_low = 5;
-	UniqueItemList[id].rolls[1].attrib_high = 10;
+	UniqueItemList[id].rolls[1].attrib_high = 15;
 	UniqueItemList[id].rolls[2].attrib_low = 0;
 	UniqueItemList[id].rolls[2].attrib_high = 0;
-	UniqueItemList[id].rolls[3].attrib_low = 10;
-	UniqueItemList[id].rolls[3].attrib_high = 25;
+	UniqueItemList[id].rolls[3].attrib_low = 25;
+	UniqueItemList[id].rolls[3].attrib_high = 50;
 	id = UITEM_LIFELEECH;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
@@ -272,8 +275,8 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].attrib_id_list[0] = INV_SPEED_INCREASE;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_FLATDMG_ALL;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_ONKILL_HEALMISSING;
-	UniqueItemList[id].rolls[0].attrib_low = 6;
-	UniqueItemList[id].rolls[0].attrib_high = 12;
+	UniqueItemList[id].rolls[0].attrib_low = 0.06;
+	UniqueItemList[id].rolls[0].attrib_high = 0.12;
 	UniqueItemList[id].rolls[1].attrib_low = 3;
 	UniqueItemList[id].rolls[1].attrib_high = 10;
 	UniqueItemList[id].rolls[2].attrib_low = 1;
@@ -286,13 +289,16 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
 	UniqueItemList[id].item_level = 100;
 	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_count = 3;
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_SOULWEPS_FULLDAMAGE;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_PICKUPS_MORESOUL;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_SPELLSFULLDAMAGE;
 	UniqueItemList[id].rolls[0].attrib_low = 0;
 	UniqueItemList[id].rolls[0].attrib_high = 0;
-	UniqueItemList[id].rolls[1].attrib_low = 25;
-	UniqueItemList[id].rolls[1].attrib_high = 50;
+	UniqueItemList[id].rolls[1].attrib_low = 50;
+	UniqueItemList[id].rolls[1].attrib_high = 100;
+	UniqueItemList[id].rolls[2].attrib_low = 0;
+	UniqueItemList[id].rolls[2].attrib_high = 0;
 	id = UITEM_DEADKINGBANNER;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
@@ -301,19 +307,22 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
 	UniqueItemList[id].item_level = 100;
 	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 4;
+	UniqueItemList[id].attrib_count = 5;
 	UniqueItemList[id].attrib_id_list[0] = INV_HP_INCREASE;
 	UniqueItemList[id].attrib_id_list[1] = INV_ARMOR_INCREASE;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_ABILITY_RALLY;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_ABILITY_MONSTERSRIP;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_ALLSTATS;
+	UniqueItemList[id].attrib_id_list[3] = INV_EX_ABILITY_RALLY;
+	UniqueItemList[id].attrib_id_list[4] = INV_EX_ABILITY_MONSTERSRIP;
 	UniqueItemList[id].rolls[0].attrib_low = 250;
-	UniqueItemList[id].rolls[0].attrib_high = 400;
+	UniqueItemList[id].rolls[0].attrib_high = 425;
 	UniqueItemList[id].rolls[1].attrib_low = 250;
-	UniqueItemList[id].rolls[1].attrib_high = 400;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 10;
-	UniqueItemList[id].rolls[3].attrib_low = 0;
-	UniqueItemList[id].rolls[3].attrib_high = 0;
+	UniqueItemList[id].rolls[1].attrib_high = 425;
+	UniqueItemList[id].rolls[2].attrib_low = 4;
+	UniqueItemList[id].rolls[2].attrib_high = 15;
+	UniqueItemList[id].rolls[3].attrib_low = 1;
+	UniqueItemList[id].rolls[3].attrib_high = 10;
+	UniqueItemList[id].rolls[4].attrib_low = 0;
+	UniqueItemList[id].rolls[4].attrib_high = 0;
 }
 
 #endif

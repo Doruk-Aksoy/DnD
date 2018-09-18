@@ -62,7 +62,7 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "Upgraded Rocket Launcher2",		    "Merc. Launcher",			"5",		"RocketAmmo",		" ",							"GotRL",					"MERCICO",		"WEPICO46"	},
 	 { "Upgraded Rocket Launcher3",			"Vindicator",				"5",		"FlakShell",		"ShellSize_18",					"GotRL",					"VS9PA0",		"WEPICO47"	},
 	 { "ResRL1",							"Meteor Launcher",			"5",		"MeteorAmmo",		" ",							"GotRL",					"RW06X0",		"WEPICO48"	},
-	 { "ResRL2",							"Heavy Grenade Launcher",	"5",		"Grenades",			"HeavyGLCounter",				"GotRL",					"GLAUX0",		"WEPICO49"	},
+	 { "ResRL2",							"Heavy Grenade Launcher",	"5",		"HeavyGrenades",	"HeavyGLCounter",				"GotRL",					"GLAUX0",		"WEPICO49"	},
 	 { "ResRL3",							"Freezer Cannon",			"5",		"EverIce",			"FreezerOverheat",				"GotRL",					"FRZCZ0",		"WEPICO50"	},
 	 
 	 { "Grenade Launcher",					"G. Launcher",				"5",		"Grenades",			" ",							"GotGL",					"NGLPA0",		"WEPICO51"	},
@@ -261,6 +261,16 @@ int GetWeaponCount() {
 		if(CheckInventory(Weapons[i][WEAPON_NAME]))
 			++res;
 	return res;
+}
+
+bool IsWeaponLightningType(int wepid, int extra, bool isSpecial) {
+	switch(wepid) {
+		case DND_WEAPON_SHOCKER:
+		case DND_WEAPON_LIGHTNINGGUN:
+		case DND_WEAPON_THUNDERSTAFF:
+		return true;
+	}
+	return isSpecial && extra == SSAM_SHOCK;
 }
 
 #endif

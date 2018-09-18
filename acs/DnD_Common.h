@@ -37,6 +37,8 @@
 * 1000 - 1063 = Players
 * 1100 - 1163 = Emerald Death Actors
 * 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
+* 1500 - 1563 = Temporary tid assignment of pets
+* 1600 - 1663 = Temporary tid assignment for spells
 * 2000 - 2063 = Deathray marker TID for players
 * 3000 - 3063 = Initial railgun trail ID
 * 3500 - 3563 = In-between trails ID for railgun
@@ -133,6 +135,19 @@ int fdistance (int tid1, int tid2) {
 
 	ang = vectorangle(len, z);
 	if(((ang+0.125)%0.5) > 0.25) len = fixeddiv(z, sin(ang));
+	else len = fixeddiv(len, cos(ang));
+
+	return len;
+}
+
+int fdistance_delta(int dx, int dy, int dz) {
+	int len;
+	int ang = vectorangle(dx, dy);
+	if(((ang+0.125)%0.5) > 0.25) len = fixeddiv(dy, sin(ang));
+	else len = fixeddiv(dx, cos(ang));
+
+	ang = vectorangle(len, dz);
+	if(((ang+0.125)%0.5) > 0.25) len = fixeddiv(dz, sin(ang));
 	else len = fixeddiv(len, cos(ang));
 
 	return len;

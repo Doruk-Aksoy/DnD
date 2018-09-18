@@ -497,7 +497,6 @@ Script "DND On Kill" KILL {
 		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
 	}
 	
-	
 	int pcount = Clamp_Between(PlayerCount(), 1, DND_MAX_SHARE);
 	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
 	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
@@ -685,6 +684,18 @@ Script "DND On Kill" KILL {
 	
 	HandleOtherDrops(target);
 	
+	// check zombie summon
+	if(!IsLostSoul() && !IsRobotic()) {
+		addone = CheckActorInventory(target, "IATTR_ChanceToRaiseZombieFromKills");
+		if(HasRoomForPets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && addone >= random(1, 100)) {
+			// raise zombie
+			HandleZombieRaiseOnDeath(target);
+		}
+	}
+	
+	if(CheckActorInventory(target, "StatbuffCounter_SlainMonstersRIP"))
+		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
+	
 	SetActivator(target);
 	
 	// research track
@@ -708,6 +719,26 @@ Script "DND On Kill" KILL {
 		GiveInventory("HunterTalismanHealFXSpawner", 1);
 		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_HUNTERTALISMAN_HEALFACTOR);
 	}
+	
+	addone = CheckInventory("IATTR_HealOnKill");
+	if(addone) {
+		haswisdom = (GetMissingHealth() * addone) / 100;
+		if(haswisdom) {
+			Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, haswisdom);
+		}
+	}
+}
+
+Script "DnD Monster RIP" (void) {
+	Delay(RIP_MONSTER_FADE_DELAY);
+	SetActorProperty(0, APROP_RENDERSTYLE, STYLE_Translucent);
+	int a = GetActorProperty(0, APROP_ALPHA);
+	for(int i = 1; i < RIP_FADE_TIMER; ++i) {
+		SetActorProperty(0, APROP_ALPHA, a - (i * 1.0) / RIP_FADE_TIMER);
+		Delay(1);
+	}
+	Thing_Remove(0);
 }
 
 Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
@@ -1201,98 +1232,78 @@ script 922 (int actor_num, int radius, int totalactors) {
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 	if(!CheckInventory("DontRun")) {
+		GiveInventory("DontRun", 1);
 		if(!ActivatorTID())
 			GiveMonsterTID();
-		int base, add, level, pcount, low, high, temp;
+		int base, add, pcount;
 		if(GetCVar("dnd_monsterscale")) {
-			GiveInventory("DontRun", 1);
 			// scaling code -- delay is because monsters are initialized before enter scripts are executed
 			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
 				Delay(3);
-			base = GetActorProperty(0, APROP_HEALTH);
-			add = 0, level = 1, pcount;
-			pcount = PlayerCount();
-			if(!pcount)
-				pcount = 1;
-			level = total_level / pcount;
-			// ensure minions use master's level
-			if(GetActorProperty(0, APROP_MASTERTID)) {
-				//printbold(d:GetActorProperty(0, APROP_MASTERTID));
-				level = CheckActorInventory(GetActorProperty(0, APROP_MASTERTID), "MonsterLevel");
-			}
-			if(GetCVar("dnd_randomize_levels")) {
-				low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
-				high = Clamp_Between(GetCVar("dnd_monsterlevel_high"), 0, 50);
-				// give some sort of variety in the levels
-				// subtract level from avg half the time
-				if(random(0, 1)) {
-					temp = low;
-					low = -high;
-					high = -temp;
-				}
-				level += random(low, high);
-			}
-			if(GetCVar("dnd_monsterlevel_behind"))
-				level = Clamp_Between(level, 1, total_level / pcount);
-			else
-				level = Clamp_Between(level, 1, DND_MAX_MONSTERLVL);
-			level = Clamp_Between(level, 1, GetCVar("dnd_maxmonsterlevel"));
-			if(level > 1) {
-				add = (base * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
-				if(level > 75)
-					temp = DND_AFTER75_INCREMENT;
-				else if(level > 50)
-					temp = DND_AFTER50_INCREMENT;
-				else
-					temp = 1;
-				// we are in boost range for hp
-				if(temp != 1) {
-					if(add > 100) {
-						add /= 100;
-						add *= 100 + temp;
-					}
-					else {
-						add *= 100 + temp;
-						add /= 100;
-					}
-				}
-				// add level factor to it
-				// first overflow check
-				if(add < (INT_MAX - base) / (level - 1)) {
-					add *= level - 1;
-					if(GetCVar("dnd_playercount_scales_monsters")) {
-						if(add > 100) {
-							add /= 100;
-							add *= 100 + DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
-						}
-						else {
-							add *= 100 + DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
-							add /= 100;
-						}
-					}
-				}
-				else
-					add = INT_MAX - base;
-			}
-			SetActorProperty(0, APROP_HEALTH, base + add);
-			SetInventory("MonsterID", monsterid);
-			SetInventory("MonsterTraits", traits);
-			SetInventory("MonsterTraits2", traits2);
-			SetInventory("MonsterBaseHealth", base);
-			SetInventory("MonsterMaxHealth", base + add);
-			SetInventory("MonsterLevel", level);
+			ScaleMonster();
 		}
 		else {
-			GiveInventory("DontRun", 1);
-			SetInventory("MonsterID", monsterid);
-			SetInventory("MonsterTraits", traits);
-			SetInventory("MonsterTraits2", traits2);
 			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
 			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
 			SetInventory("MonsterLevel", 1);
 		}
+		
+		SetInventory("MonsterID", monsterid);
+		SetInventory("MonsterTraits", traits);
+		SetInventory("MonsterTraits2", traits2);
 
-		if(GetCVar("dnd_enable_elites") && RollEliteChance() && total_level / pcount >= GetCVar("dnd_elite_spawnlevel") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY)) {
+		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && total_level / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+			// hopefully people won't turn to elites?
+			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
+				Terminate;
+			GiveInventory("MonsterIsElite", 1);
+			
+			// Elite bonuses
+			base = GetActorProperty(0, APROP_HEALTH);
+			add = base * DND_ELITE_HPSCALE / 100;
+			SetActorProperty(0, APROP_HEALTH, base + add);
+			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
+			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
+			// roll more traits randomly
+			int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
+			DecideEliteTraits(traitcount);
+			// Double Health
+			if(CheckInventory("MonsterTraits2") & DND_VITAL) {
+				base = GetActorProperty(0, APROP_HEALTH);
+				add = base * DND_ELITE_VITAL_SCALE / 100;
+				SetActorProperty(0, APROP_HEALTH, Clamp_Between(base + add, 1, INT_MAX));
+				SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
+				SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
+			}
+		}
+	}
+}
+
+// properties holds stuff like the monster's type, demon, robotic etc.
+Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
+	if(!CheckInventory("DontRun")) {
+		GiveInventory("DontRun", 1);
+		if(!ActivatorTID())
+			GiveMonsterTID();
+		int base, add, pcount;
+		if(GetCVar("dnd_monsterscale")) {
+			// scaling code -- delay is because monsters are initialized before enter scripts are executed
+			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
+				Delay(3);
+			ScaleMonster();
+		}
+		else {
+			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
+			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
+			SetInventory("MonsterLevel", 1);
+		}
+		
+		SetInventory("MonsterID", DND_CUSTOMMONSTER_ID);
+		SetInventory("MonsterTraits", traits);
+		SetInventory("MonsterTraits2", traits2);
+		SetInventory("MonsterProperties", properties);
+		
+		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && total_level / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			// hopefully people won't turn to elites?
 			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
 				Terminate;
@@ -1589,10 +1600,11 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 
 Script 980 ENTER {
 	int thisactor = ActivatorTID();
-	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, traits, traits2, nameskip, monelite;
+	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, traits, traits2, nameskip, monprop;
+	bool monelite = false;
 	while(1) {
 		SetActivatorToTarget(thisactor);
-		if(!CheckInventory("EnemyInDisguise") && CheckActorProperty(0, APROP_Friendly, 0) || CheckInventory("FriendlyInDisguise"))
+		if(!CheckInventory("EnemyInDisguise") && (CheckActorProperty(0, APROP_Friendly, 0) || CheckInventory("FriendlyInDisguise")))
 			healthbarcolor = 1;
 		else if(CheckActorProperty(0, APROP_Friendly, 1) || CheckInventory("EnemyInDisguise"))
 			healthbarcolor = 0;
@@ -1606,6 +1618,7 @@ Script 980 ENTER {
 			SetInventory("TargetTraits2", 0);
 			SetInventory("TargetIsWhat", 0);
 			SetInventory("TargetIsElite", 0);
+			SetInventory("TargetProperties", 0);
 		}
 		else {
 			mmaxhp = CheckInventory("MonsterMaxHealth");
@@ -1616,6 +1629,7 @@ Script 980 ENTER {
 			traits2 = CheckInventory("MonsterTraits2");
 			nameskip = CheckInventory("MonsterNameSkip");
 			monelite = CheckInventory("MonsterIsElite");
+			monprop = CheckInventory("MonsterProperties");
 			str temp = GetActorProperty(0, APROP_NAMETAG);
 			SetActivator(thisactor);
 			SetInventory("TargetMaximumHealth", mmaxhp);
@@ -1626,6 +1640,7 @@ Script 980 ENTER {
 			SetInventory("TargetTraits2", traits2);
 			SetInventory("TargetIsWhat", monsterid);
 			SetInventory("TargetIsElite", monelite);
+			SetInventory("TargetProperties", monprop);
 			SetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber()), temp);
 		}
 		Delay (1);
@@ -1634,17 +1649,18 @@ Script 980 ENTER {
 
 Script 981 ENTER CLIENTSIDE {
 	int mmaxhp, hdisp, monhp, monlevel, monid, traits, traits2;
+	bool isPet = false;
 	while(1) {	
 		// if we have any shared items in our player queue to turn, do turn them
 		if(CheckInventory("Ability_MonsterInfo")) {
 			mmaxhp = CheckInventory("TargetMaximumHealth");
-			hdisp;
 			if(mmaxhp && GetCVar("dnd_monsterbars")) {
 				monhp = CheckInventory("TargetCurrentHealth");
 				monlevel = CheckInventory("TargetLevel");
 				monid = CheckInventory("TargetIsWhat");
 				traits = CheckInventory("TargetTraits");
 				traits2 = CheckInventory("TargetTraits2");
+				isPet = traits2 & DND_PET_POW;
 				hdisp = (monhp * 100 / mmaxhp);
 				int i, j = 0.0;
 				if(CheckInventory("TargetHealthBarColor"))
@@ -1654,7 +1670,15 @@ Script 981 ENTER CLIENTSIDE {
 				
 				SetHudSize(800, 600, 0);
 				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
-				SetFont(MonsterTypeIcons[GetMonsterType(monid)]);
+				if(!isPet) {
+					if(!CheckInventory("TargetProperties"))
+						SetFont(MonsterTypeIcons[GetMonsterType(monid)]);
+					else {
+						SetFont(MonsterTypeIcons[InferMonsterPower(CheckInventory("TargetProperties"))]);
+					}
+				}
+				else
+					SetFont(MonsterTypeIcons[GetPetMonsterType(monid)]);
 				HudMessage(s:"a"; 1, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, 1);
 				HudMessage(s:"a"; 1, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, 1);
 				// inner text
@@ -1898,6 +1922,7 @@ Script 991 ENTER {
 	SetInventory("LevelExp", 0);
 	SetInventory("LevelCredit", 0);
 	setInventory("AllMapOnlyOnce", 0);
+	CleanPetStuff();
 	//SetInventory("MapDifficultyClientside", MapDifficulty); //Already to be set somewhere else.
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
 	SetInventory("DnD_BoughtArmor", 0);
@@ -2699,6 +2724,17 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 		
 		res = res * (100 + GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + GetWeaponSlotFromFlag(flags))) / 100;
 		
+		// special damage increase attributes
+		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
+		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial))
+			res = res * (100 + temp) / 100;
+		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
+		if((flags & DND_WDMG_ISBOOMSTICK) && temp)
+			res = res * (100 + temp) / 100;
+		// apply flat health to damage conversion if player has any
+		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
+		if(temp)
+			res += ApplyFlatHealthDamageFactor(res, temp);
 		CachePlayerDamageWithID(wepid, res, dmgid);
 	}
 	
@@ -2714,7 +2750,8 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 		res *= random(temp & 0xFFFF, temp >> 16);
 		
 	// crit chance
-	if(CheckCritChance()) {
+	// if weapon id is a lightning type, it will always crit
+	if(IsWeaponLightningType(wepid, dmgid, isSpecial) && IsSet(GetPlayerAttributeValue(pnum, INV_EX_ALWAYSCRIT_LIGHTNING), DND_STATBUFF_ALWAYSCRITLIGHTNING) || CheckCritChance(wepid)) {
 		res = res * GetCritModifier() / 100;
 		HandleHunterTalisman();
 	}
@@ -2724,10 +2761,17 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 
 // Used mainly for non-weapons (like artifacts and so on)
 Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
+	int temp, temp2;
 	if(flags & DND_WDMG_USETARGET) // use target
 		SetActivator(0, AAPTR_TARGET);
-	
+	else if(flags & DND_WDMG_USEMASTER)
+		SetActivator(0, AAPTR_MASTER);
 	int pnum = PlayerNumber();
+	bool isSpell = flags & DND_WDMG_ISSPELL;
+	if(isSpell) {
+		temp2 = dmg;
+		dmg = SpellDamageTable[dmg].dmg;
+	}
 	
 	dmg += MapTalentToFlatBonus(pnum, talent_type);
 		
@@ -2740,21 +2784,32 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	if(flags & DMG_WDMG_NECROBULK)
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetStat(STAT_BUL)) / 100;
 	// talent bonus
-	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
+	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT || isSpell)
 		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type][TALENT_NAME])) / 100;
 	else
 		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type][TALENT_NAME])) / 100;
+	
+	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
+	if(temp)
+		dmg += ApplyFlatHealthDamageFactor(dmg, temp);
+		
+	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
+			GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
+			MapTalentToPercentBonus(pnum, talent_type) +
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
+	if(temp)
+		dmg = dmg * (100 + temp) / 100;
+		
 	// finally crit chance
-	if(CheckCritChance()) {
+	if(CheckCritChance(-1)) {
 		dmg = dmg * GetCritModifier() / 100;
 		HandleHunterTalisman();
 	}
-	int temp = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
-				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
-				MapTalentToPercentBonus(pnum, talent_type) +
-				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
-	if(temp)
-		dmg = dmg * (100 + temp) / 100;
+	
+	if(isSpell && SpellDamageTable[temp2].dmg_low) {
+		dmg *= random(SpellDamageTable[temp2].dmg_low, SpellDamageTable[temp2].dmg_high);
+	}
+	
 	SetResultValue(dmg);
 }
 
@@ -2762,13 +2817,17 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 Script "DND Armor Pickup Check" (int amount, int armor_type) {
 	// decide if armor is higher tier if amount doesn't satisfy
 	SetResultValue(
-		(CheckInventory("DnD_ArmorType") && CheckInventory("Armor") < GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1])) || 
-		IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1)
+		!CheckInventory("StatbuffCounter_ForbidArmor") && 
+			(
+				(CheckInventory("DnD_ArmorType") && CheckInventory("Armor") < GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1])) || 
+				IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1)
+			)
 	);
 }
 
 Script "DND Armor Give" (int armor_type, int amount) {
-	HandleArmorPickup(armor_type, amount, 0);
+	if(!CheckInventory("StatbuffCounter_ForbidArmor"))
+		HandleArmorPickup(armor_type, amount, 0);
 }
 
 Script "DND Get Talent" (int talent_type) {
@@ -3210,11 +3269,14 @@ Script "DND Orb Use" (int orbtype, int extra) {
 		SetInventory("AffluenceCounter", 0);
 }
 
-Script "DnD Timed Monster" (int time) {
+Script "DnD Timed Monster" (int time, int isPet) {
 	int cnt = 0;
 	while(cnt++ != time)
 		Delay(35);
-	SetActorState(0, "Remove");
+	if(!isPet)
+		SetActorState(0, "Remove");
+	else
+		Thing_Damage(0, 0x7FFFFFFF);
 }
 
 Script "DnD Overheat Reduction" (int index, int rate) {
@@ -3570,6 +3632,8 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 // after 16th bit there can be extra info
 // never put AMMO_CLIP as 16 bit onwards
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
+	// ammo gain triggering means we made an attack
+	ACS_NamedExecuteAlways("DnD On Attack", 0);
 	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
 		if(slot != DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
@@ -3710,4 +3774,153 @@ Script "DnD Force Sync Player Bonuses" (void) {
 
 Script "DnD Force Damage Cache Recalculation" (int pnum) {
 	ForcePlayerDamageCaching(pnum);
+}
+
+Script "DnD Pet Monster Scale" (int petid, int traits, int traits2) {
+	int base, add, level, temp, master = GetActorProperty(0, APROP_MASTERTID);
+	base = GetActorProperty(0, APROP_HEALTH);
+	add = 0, level = CheckActorInventory(master, "Level");
+	if(level > 1) {
+		add = (base * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
+		if(level > 75)
+			temp = DND_AFTER75_INCREMENT;
+		else if(level > 50)
+			temp = DND_AFTER50_INCREMENT;
+		else
+			temp = 1;
+		// we are in boost range for hp
+		if(temp != 1) {
+			if(add > 100) {
+				add /= 100;
+				add *= 100 + temp;
+			}
+			else {
+				add *= 100 + temp;
+				add /= 100;
+			}
+		}
+		add += SKILL_ZOMBIE_HP_PER_INT * GetMasterIntellect();
+		// add level factor to it
+		// first overflow check
+		if(add < (INT_MAX - base) / (level - 1))
+			add *= level - 1;
+		else
+			add = INT_MAX - base;
+	}
+	SetActorProperty(0, APROP_HEALTH, base + add);
+	SetInventory("MonsterID", petid);
+	SetInventory("MonsterTraits", traits);
+	SetInventory("MonsterTraits2", traits2);
+	SetInventory("MonsterBaseHealth", base);
+	SetInventory("MonsterMaxHealth", base + add);
+	SetInventory("MonsterLevel", level);
+}
+
+Script "DnD Master Skill Info" (int skill_id) {
+	SetActivator(0, AAPTR_MASTER);
+	int res = 0;
+	switch(skill_id) {
+		case SKILLINFO_ZOMBIEPETTIMER:
+			res = SKILL_ZOMBIE_DURATION + GetIntellect() / ZOMBIE_INT_TIMER_FACTOR;
+		break;
+	}
+	SetResultValue(res);
+}
+
+Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
+	if(flags & 1) // target
+		SetactivatorToTarget(0);
+	int master = GetActorProperty(0, APROP_MASTERTID);
+	int res = Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	if(CheckInventory("MonsterLevel") > 50)
+		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
+	if(flags & DND_WDMG_ISRIPPER)
+		res >>= 1;
+	res += ZOMBIE_INT_DAMAGE_FACTOR * GetMasterIntellect();
+	// apply the monster's factors first
+	res *= base;
+	res >>= 16;
+	// now get player damage bonus stuff included
+	SetActivator(master);
+	int pnum = PlayerNumber();
+	res += MapTalentToFlatBonus(pnum, TALENT_OCCULT);
+	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+	// talent bonus
+	res = res * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[TALENT_OCCULT][TALENT_NAME])) / 100;
+	int temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
+	if(temp)
+		res += ApplyFlatHealthDamageFactor(res, temp);
+		
+	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT) + 
+			GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
+			MapTalentToPercentBonus(pnum, TALENT_OCCULT) +
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT];
+	if(temp)
+		res = res * (100 + temp) / 100;
+		
+	// finally crit chance
+	if(CheckCritChance(-1)) {
+		res = res * GetCritModifier() / 100;
+		HandleHunterTalisman();
+	}
+	res *= random(rnd & 0xFFFF, rnd >> 16);
+	SetResultValue(res);
+}
+
+Script "DnD Take Summon Check" (int monsterID) {
+	switch(monsterID) {
+		case MONSTER_PET_ZOMBIE:
+			SetActivator(0, AAPTR_MASTER);
+			TakeInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
+			TakeInventory("SummonedZombiePets", 1);
+			TakeInventory("PetCounter", 1);
+			if(CheckInventory("PetCounter"))
+				GiveInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
+		break;
+	}
+}
+
+Script "DnD On Pet Summon" (void) {
+	// check for damage shared buff
+	if(CheckInventory("StatbuffCounter_PainSharedWithPets"))
+		GiveInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
+}
+
+Script "DnD Pet Distance Move" (void) {
+	int master = GetActorProperty(0, APROP_MASTERTID), dx, dy, dz;
+	while(IsAlive()) {
+		if(!CheckInventory("MovePetCooldown")) {
+			dx = GetActorX(0) - GetActorX(master);
+			dy = GetActorY(0) - GetActorY(master);
+			dz = GetActorZ(0) - GetActorZ(master);
+			if(fdistance_delta(dx, dy, dz) > DND_PET_MOVEDIST) {
+				GiveInventory("MovePetCooldown", 1);
+				Thing_Move(0, master, 1);
+				SetActorAngle(0, GetActorAngle(master));
+				GiveInventory("PetTargetClear", 1);
+			}
+		}
+		Delay(35);
+	}
+}
+
+Script "DnD Give Soul Ammo" (int amt) {
+	GiveAmmo(amt, DND_AMMOSLOT_SOULS, 0);
+}
+
+// called whenever player makes an attack
+Script "DnD On Attack" (void) {
+	// elemental bulwark check
+	if(CheckInventory("IATTR_ChanceToCastElementalSpell") >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
+		GiveInventory("RandomElementalSpellCooldown", 1);
+		CastRandomElementalSpell();
+	}
+}
+
+Script "DnD Face Tracer" (void) {
+	int target = GetActorProperty(0, APROP_TRACERTID);
+	int xdiff = GetActorX(target) - GetActorX(0);
+	int ydiff = GetActorY(target) - GetActorY(0);
+	SetActorProperty(0, APROP_SCORE, (360 * VectorAngle(xdiff, ydiff)) >> 16);
+	SetActorPitch(0, VectorPitch(0, target, xdiff, ydiff, 8.0));
 }

@@ -565,7 +565,7 @@ void UpdatePlayerKnockbackResist() {
 	int bul = GetBulkiness();
 	int strgth = GetStrength();
 	
-	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS) || CheckInventory("KnockbackImmunityCheck"))
+	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS) || CheckInventory("StatbuffCounter_KnockbackImmunity"))
 		SetActorProperty(0, APROP_MASS, INT_MAX);
 	else
 		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + bul * DND_BUL_KNOCKBACK_GAIN + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
@@ -629,22 +629,24 @@ int CheckDeadlinessCrit() {
 	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS;
 }
 
-bool CheckCritChance() {
+bool CheckCritChance(int wepid) {
+	int pnum = PlayerNumber();
 	// veil disables crits for the cooldown period
 	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
-		return 0;
-	bool res = 0;
-	int chance = CheckDeadlinessCrit(), pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
+		return false;
+	bool res = false;
+	int chance = CheckDeadlinessCrit();
+	int temp = 0;
 	// add current weapon crit bonuses
-	chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
-	chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
+	if(wepid != -1) {
+		chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
+		chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
+		temp = Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
+	}
 	chance += (GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE) << 16) / 100;
 	// add percent bonus
-	if(chance) {
-		chance = FixedMul(chance, 1.0 + Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt 
-									  + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT 
-									  + (GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) << 16) / 100, wepid));
-	}
+	if(chance)
+		chance = FixedMul(chance, 1.0 + temp + (GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) << 16) / 100);
 	
 	res = chance >= random(0, 1.0);
 	
@@ -743,6 +745,10 @@ int MapTalentToPercentBonus(int pnum, int talent) {
 		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE);
 	}
 	return 0;
+}
+
+int ApplyFlatHealthDamageFactor(int dmg, int factor) {
+	return (dmg * GetSpawnHealth()) / (100 * factor);
 }
 
 #endif

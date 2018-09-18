@@ -1,6 +1,8 @@
 #ifndef DND_MONSTERDATA_IN
 #define DND_MONSTERDATA_IN
 
+#define DND_CUSTOMMONSTER_ID 65536
+
 enum {
 	// Classics
 	MONSTER_ZOMBIEMAN,
@@ -232,6 +234,11 @@ enum {
 };
 
 enum {
+	MONSTER_PET_ZOMBIE
+};
+#define MAX_PET_TYPES MONSTER_PET_ZOMBIE + 1
+
+enum {
 	DND_ZOMBIEMANID,
 	DND_SHOTGUNNERID,
 	DND_CHAINGUNGUYID,
@@ -283,8 +290,32 @@ str MonsterTypeIcons[MAX_MONSTER_TYPES] = {
 	"DNDEROB"
 };
 
+int InferMonsterPower(int mid) {
+	if(mid & DND_MTYPE_ROBOTIC_POW) {
+		// give priority to demon on half demon half robots
+		if(mid & DND_MTYPE_DEMON_POW)
+			return DND_MTYPE_DEMON;
+		return DND_MTYPE_ROBOTIC;
+	}
+	if(mid & DND_MTYPE_MAGICAL_POW)
+		return DND_MTYPE_MAGICAL;
+	if(mid & DND_MTYPE_UNDEAD_POW)
+		return DND_MTYPE_UNDEAD;
+	return DND_MTYPE_DEMON;
+}
+
 int GetMonsterType(int monsterID) {
 	int mid = MonsterTypeList[monsterID];
+	return InferMonsterPower(mid);
+}
+
+int GetCustomMonsterType(int properties) {
+	// get the first 5 bits only
+	return InferMonsterPower(properties & 0x1F);
+}
+
+int GetPetMonsterType(int monsterID) {
+	int mid = MonsterPetTypeList[monsterID];
 	if(mid & DND_MTYPE_ROBOTIC_POW) {
 		// give priority to demon on half demon half robots
 		if(mid & DND_MTYPE_DEMON_POW)
@@ -534,6 +565,10 @@ int MonsterTypeList[DND_LASTMONSTER_INDEX + 1] = {
 	DND_MTYPE_DEMON_POW
 };
 
+int MonsterPetTypeList[MAX_PET_TYPES] = {
+	DND_MTYPE_UNDEAD_POW
+};
+
 bool IsBoss() {
 	int id = CheckInventory("MonsterID");
 	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id >= DND_BOSS_BEGIN;
@@ -549,6 +584,15 @@ bool IsZombie() {
 
 bool IsUndead() {
 	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_UNDEAD_POW;
+}
+
+bool IsRobotic() {
+	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_ROBOTIC_POW;
+}
+
+bool IsLostSoul() {
+	int id = CheckInventory("MonsterID");
+	return (id >= MONSTER_BABYCACO && id <= MONSTER_DARKLICH_SPIRIT) || id == MONSTER_LOSTSOUL;
 }
 
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX

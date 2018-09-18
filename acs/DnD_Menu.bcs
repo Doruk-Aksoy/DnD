@@ -260,13 +260,28 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"\c[Y5]Attribute Points: \c-", d:CheckInventory("AttributePoint"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
 			
-			DrawToggledLabel("Strength", STAT_BASE + CheckInventory("PSTAT_Strength"), boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 160.0);
-			DrawToggledLabel("Dexterity", STAT_BASE + CheckInventory("PSTAT_Dexterity"), boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 332.1, 160.0);
-			DrawToggledLabel("Bulkiness", STAT_BASE + CheckInventory("PSTAT_Bulkiness"), boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 176.0);
-			DrawToggledLabel("Charisma", STAT_BASE + CheckInventory("PSTAT_Charisma"), boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 332.1, 176.0);
-			DrawToggledLabel("Vitality", STAT_BASE + CheckInventory("PSTAT_Vitality"), boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 192.0);
-			DrawToggledLabel("Intellect", STAT_BASE + CheckInventory("PSTAT_Intellect"), boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 332.1, 192.0);
-		
+			DrawToggledLabel("STR", -1, boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 128.0);
+			DrawToggledLabel("DEX", -1, boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 192.1, 144.0);
+			DrawToggledLabel("BUL", -1, boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 160.0);
+			DrawToggledLabel("CHR", -1, boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 176.0);
+			DrawToggledLabel("VIT", -1, boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 192.0);
+			DrawToggledLabel("INT", -1, boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 192.1, 208.0);
+			// draw values seperately so they align
+			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Strength"); HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 256.1, 128.0, 0.0);
+			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 256.1, 144.0, 0.0);
+			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Bulkiness"); HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 256.1, 160.0, 0.0);
+			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Charisma"); HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 256.1, 176.0, 0.0);
+			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Vitality"); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 256.1, 192.0, 0.0);
+			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 256.1, 208.0, 0.0);
+			// draw bonus stat acquired
+			HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_STR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 320.1, 128.0, 0.0);
+			HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_DEX"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 320.1, 144.0, 0.0);
+			HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_BUL"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 320.1, 160.0, 0.0);
+			HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_CHR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 320.1, 176.0, 0.0);
+			HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_VIT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 320.1, 192.0, 0.0);
+			HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_INT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 22, CR_WHITE, 320.1, 208.0, 0.0);
+			
+			
 			SetHudClipRect(184, 208, 256, 64, 256, 1);
 			if(boxid != MAINBOX_NONE)
 				HudMessage(s:"* ", s:AttributeExplanation[boxid - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
@@ -282,9 +297,10 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			temp = 64.0 + 6.0 * ScrollPos;
 			
 			HudMessage(s:"--- Current Gains ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:((DND_STR_GAIN * CheckInventory("PSTAT_Strength")) >> 16) * 100, s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, temp, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:GetSpawnHealth() - DND_BASE_HEALTH, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, temp + 16.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:GetArmorCap(true) - DND_BASE_ARMOR_SHOW, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, temp + 32.0, 0.0, 0.0);
+			
+			HudMessage(s:"+ \c[Q9]", d:GetSpawnHealth() - DND_BASE_HEALTH, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, temp, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetArmorCap(true) - DND_BASE_ARMOR_SHOW, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, temp + 16.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:((DND_STR_GAIN * CheckInventory("PSTAT_Strength")) >> 16) * 100, s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, temp + 32.0, 0.0, 0.0);
 			if(i > 100)
 				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * 100 + (i - 100) * DND_BULKINESS_GAIN_AFTER100), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, temp + 48.0, 0.0, 0.0);
 			else
@@ -311,8 +327,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE), s:"\c- accuracy rating"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 192.1, temp + 320.0, 0.0, 0.0);
 		
 			for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i) {
-				HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentNames[i][TALENT_TAG], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 22 - 2 * i, CR_WHITE, 192.1, temp + 336.0 + 32.0 * i, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:MapTalentToFlatBonus(pnum, i), s:"\c- to ", s:TalentNames[i][TALENT_TAG], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - 23 - 2 * i, CR_WHITE, 192.1, temp + 352.0 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentNames[i][TALENT_NAME], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 22 - 2 * i, CR_WHITE, 192.1, temp + 336.0 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:MapTalentToFlatBonus(pnum, i), s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - 23 - 2 * i, CR_WHITE, 192.1, temp + 352.0 + 32.0 * i, 0.0, 0.0);
 			}
 			j = 2 * (DND_TALENT_END - 1);
 			for(i = 0; i < MAX_WEAPON_SLOTS; ++i)

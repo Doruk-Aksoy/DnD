@@ -491,6 +491,7 @@ int ShopInfo[MAXSHOPITEMS][2] =
 		{ 85,		1 },
 		{ 90,		1 },
 		{ 125,		1 },
+		{ 95,		1 },
 		
 		// Special Ammunition
 		{ 475,	    1 },
@@ -696,6 +697,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ RES_SLOT5LUXURY, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -901,6 +903,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "EmeraldMana",						"Emerald Mana",						"",						"0"			},
 	{ "HellsMawAmmo",						"Hell Fire",						"",						"0"			},
 	{ "DevastatorAmmo",						"Devastator Ammo",					"",						"0"			},
+	{ "HeavyGrenades",						"Heavy Grenades",					"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -1367,12 +1370,12 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 };
 
 str AttributeExplanation[MAXATTRIBUTES] = {
-	"Increases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.",
-	"Increases \cfNon-Magical Talent Bonuses\c- by 0.1%.",
-	"Increases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.",
-	"Reduces \cishop prices\c- by 0.5%.",
-	"Increases \cgHealth\c- Cap by 4.",
-	"Increases \cmOccult Talent Bonus\c- by 0.1%."
+	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.",
+	"\c[INT]Dexterity\c-\nIncreases \cfNon-Magical Talent Bonuses\c- by 0.1%.",
+	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.",
+	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5% and increases \ckpet\c- cap by 1 for every 20 points.",
+	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.",
+	"\c[INT]Intellect\c-\nIncreases \cmOccult Talent Bonus\c- by 0.1% and improves spells."
 };
 							
 str ArtifactExplanation[MAXARTIFACTS] = {
@@ -1463,6 +1466,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_ROCKET,
 		SHOP_AMMO_FLAK,
 		SHOP_AMMO_METEOR,
+		SHOP_AMMO_HEAVYGRENADE,
 		SHOP_AMMO_GL,
 		SHOP_AMMO_MIS,
 		-1
@@ -1524,6 +1528,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
 	{ OBJ_AMMO,													SHOP_AMMO_HELLSMAW			},
 	{ OBJ_AMMO,													SHOP_AMMO_DEVASTATOR		},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEAVYGRENADE		},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1574,6 +1579,7 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	18,
 	10,
 	33,
+	5,
 	
 	8,
 	8,
@@ -1623,6 +1629,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"emerald mana for the Emerald Wand.",
 	"hell fire canisters for the Hell's Maw.",
 	"rockets for the Devastator.",
+	"heavy grenades for Heavy Grenade Launcher.",
 	
 	"flechette shells.",
 	"magnum shells.",
