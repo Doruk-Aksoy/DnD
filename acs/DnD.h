@@ -1113,11 +1113,9 @@ void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str t
 	SetActivator(this);
 }
 
-void ScaleMonster() {
+void ScaleMonster(int pcount) {
 	int base = GetActorProperty(0, APROP_HEALTH);
-	int add = 0, level = 1, pcount = PlayerCount(), low, high, temp;
-	if(!pcount)
-		pcount = 1;
+	int add = 0, level = 1, low, high, temp;
 	level = total_level / pcount;
 	// ensure minions use master's level
 	if(GetActorProperty(0, APROP_MASTERTID)) {

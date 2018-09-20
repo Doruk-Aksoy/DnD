@@ -296,7 +296,7 @@ Actor Demon2x : DnD_Demon
 		Goto Super::Raise
 		Melee:
 			SARG EF 8 Fast A_FaceTarget
-			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "", "Physical")
+			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
 		goto See
 		Death.P_Ice:
 			"----" "#" 4 A_GenericFreezeDeath
@@ -356,7 +356,7 @@ Actor Spectre2 : DnD_Spectre
 		Goto Super::Raise
 		Melee:
 			SARG EF 8 Fast A_FaceTarget
-			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "", "Physical")
+			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
 		goto See
 		Death.P_Ice:
 			"----" "#" 4 A_GenericFreezeDeath

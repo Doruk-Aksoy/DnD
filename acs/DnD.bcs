@@ -1235,12 +1235,14 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 		GiveInventory("DontRun", 1);
 		if(!ActivatorTID())
 			GiveMonsterTID();
-		int base, add, pcount;
+		int base, add, pcount = PlayerCount();
+		if(!pcount)
+			pcount = 1;
 		if(GetCVar("dnd_monsterscale")) {
 			// scaling code -- delay is because monsters are initialized before enter scripts are executed
 			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
 				Delay(3);
-			ScaleMonster();
+			ScaleMonster(pcount);
 		}
 		else {
 			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
@@ -1285,12 +1287,14 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 		GiveInventory("DontRun", 1);
 		if(!ActivatorTID())
 			GiveMonsterTID();
-		int base, add, pcount;
+		int base, add, pcount = PlayerCount();
+		if(!pcount)
+			pcount = 1;
 		if(GetCVar("dnd_monsterscale")) {
 			// scaling code -- delay is because monsters are initialized before enter scripts are executed
 			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
 				Delay(3);
-			ScaleMonster();
+			ScaleMonster(pcount);
 		}
 		else {
 			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));

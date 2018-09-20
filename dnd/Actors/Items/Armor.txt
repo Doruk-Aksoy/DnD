@@ -357,6 +357,7 @@ Actor KnightArmor : BasicArmorPickup {
 	Armor.SavePercent 35.0
 	Armor.SaveAmount 1
 	
+	DamageFactor "Physical", 0.5
 	DamageFactor "Melee", 0.5
 	
 	inventory.icon "ARM7A0"
