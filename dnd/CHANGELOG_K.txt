@@ -282,8 +282,11 @@ The above includes moving it around in inventory, putting it to stash or putting
 * "Warlord of Hell" now mentions the "Rage" property when monster scan is available.
 * Reworked all minion summon methods to properly set master-child relations. (They properly use the summoner's level now)
 * "Sentinel" sprites improved.
++ "Sentinel" green projectile speed increased to 24 from 16.
++ "Sentinel" eye fire projectile speed increased to 24 from 15.
 * "Angle of Death" sprites improved.
 * "Enforcer" zombie now properly looks at its target while firing.
+* Fixed "Dark Zealot" becoming permanently invisible if a player died during its teleport move.
 * Fixed an animation bug with "Angel of Death"'s death.
 * "Blood Lich" minions spawned on death now give exp and credit.
 * "Avatar of Chaos" summons and cubes get destroyed properly on ice and demon seal deaths.

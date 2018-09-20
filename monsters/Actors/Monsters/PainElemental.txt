@@ -845,13 +845,14 @@ Actor CubeShotSentinel : CubeShot
 	Damage (random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "PaineFire"
 	Obituary "%o got fried by a Sentinel."
+	Speed 24
 }
 
 ACTOR SentGmissile
 {
    Radius 5
    Height 5
-   Speed 16
+   Speed 24
    Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
    DamageType "PainePoison"
    RenderStyle ADD
