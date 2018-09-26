@@ -618,9 +618,9 @@ int GetShopPrice (int id, int priceflag) {
 		res = ShopInfo[id][SHOPINFO_PRICE] * shop_scale;
 	res = ShopScale(res, id);
 	if(GetItemType(id) == TYPE_TALENT) {
-		res += TALENT_COST_INCREASE * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_NAME]) * shop_scale;
-		if(CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_NAME]) >= TALENT_SCALE_DOUBLER_MARK)
-			res *= 2 * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_NAME]) / TALENT_SCALE_DOUBLER_MARK;
+		res += TALENT_COST_INCREASE * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_TAG]) * shop_scale;
+		if(CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_TAG]) >= TALENT_SCALE_DOUBLER_MARK)
+			res *= 2 * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_TAG]) / TALENT_SCALE_DOUBLER_MARK;
 	}
 	if(priceflag & PRICE_CHARISMAREDUCE) {
 		chr = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
@@ -848,7 +848,7 @@ void DrawToggledImage(int itemid, int onposy, int objectflag, int offcolor, int 
 			}
 			else if(objectflag & OBJ_TALENT) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"* ", s:"Increases damage of ", s:TalentNames[onposy][TALENT_TAG], s:" weapons by \cf", f:GetMenuTalentBonus(onposy), s:"%\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"* ", s:"Increases damage of ", s:TalentNames[onposy][TALENT_NAME], s:" damage weapons by \cf", f:GetMenuTalentBonus(onposy), s:"%\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(objectflag & OBJ_ARMOR) {

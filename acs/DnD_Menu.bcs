@@ -640,7 +640,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 			
 			for(i = 0; i < MAX_TALENTS; ++i)
-				DrawToggledImage(SHOP_TALENT_BEGIN + i, i, OBJ_TALENT, CR_WHITE, CR_GREEN, TalentNames[i][TALENT_NAME], TALENT_CAP, CR_RED);
+				DrawToggledImage(SHOP_TALENT_BEGIN + i, i, OBJ_TALENT, CR_WHITE, CR_GREEN, TalentNames[i][TALENT_TAG], TALENT_CAP, CR_RED);
 		}
 		else if(curopt == MENU_SHOP_ARMOR1) {
 			HudMessage(s:"--- ARMORS (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
