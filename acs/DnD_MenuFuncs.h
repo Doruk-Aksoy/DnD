@@ -1,8 +1,7 @@
 #include "DnD_MenuTables.h"
 
 void SetPage(int option, bool useSound) {
-	SetInventory("MenuPosX", 0);
-	SetInventory("MenuLR", 0);
+	SetInventory("MenuServerPosX", 0);
 	SetInventory("MenuUD", 0);
 	SetInventory("MenuOption", option);
 	if(useSound)
@@ -922,7 +921,7 @@ void ResetWeaponStats(int wepid) {
 
 // will process item selections depending on given valid range
 // support for selling other stuff is here, it's just a few extra lines in the serverside script to handle the process
-void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
+void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool givefull) {
 	int itemid, price, buystatus;
 	int loopnumber = 0;
 	str totake;
@@ -988,11 +987,11 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 				}
 			}
 		}
-		SetInventory("MadeChoice", 0);
+		ClearPlayerInput(pnum);
 	}
 	else if(tradeflag & TRADE_SELL) {
 		itemid = low + posy;
-		if(itemid <= high && CheckInventory("MadeChoice") == 2) {
+		if(itemid <= high && HasRightClicked(pnum)) {
 			if(!CheckInventory("DnD_SellConfirm")) { // confirmation screen did not pop
 				buystatus = CanTrade(itemid, TRADE_SELL, 0);
 				if(buystatus) {
@@ -1021,7 +1020,7 @@ void ProcessTrade (int posy, int low, int high, int tradeflag, bool givefull) {
 				GiveInventory("Credit", price);
 			}
 		}
-		SetInventory("MadeChoice", 0);
+		ClearPlayerInput(pnum);
 	}
 }
 
@@ -1051,9 +1050,11 @@ void ReturnToMain() {
 }
 
 // includes left right shortcuts
-void ListenInput(int listenflag, int curposx, int condx_min, int condx_max) {
+// works clientside
+void ListenInput(int listenflag, int condx_min, int condx_max) {
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	int obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
+	int curposx = CheckInventory("MenuPosX");
 	bool p = 0;
 	// if waiting for sell confirmation do not let movement in menu
 	if(!CheckInventory("DnD_SellConfirm")) {
@@ -1068,7 +1069,7 @@ void ListenInput(int listenflag, int curposx, int condx_min, int condx_max) {
 					LocalAmbientSound("RPG/MenuMove", 127);
 					GiveInventory("Menu_LRCooldown", 1);
 				}
-				SetInventory("MenuLR", 1);
+				SetInventory("MenuInput", DND_MENUINPUT_PREVBUTTON);
 			}
 		}
 		if(listenflag & LISTEN_RIGHT) {
@@ -1082,7 +1083,7 @@ void ListenInput(int listenflag, int curposx, int condx_min, int condx_max) {
 					LocalAmbientSound("RPG/MenuMove", 127);
 					GiveInventory("Menu_LRCooldown", 1);
 				}
-				SetInventory("MenuLR", 2);
+				SetInventory("MenuInput", DND_MENUINPUT_NEXTBUTTON);
 			}
 		}
 		// implement server - client synced scroll here using inventory sometime
@@ -1097,17 +1098,14 @@ void ListenInput(int listenflag, int curposx, int condx_min, int condx_max) {
 				SetInventory("DnD_PopupSell", 0);
 				SetInventory("DnD_ShowPopup", 0);
 				SetInventory("DnD_ShowSellPopup", 0);
-				SetInventory("MadeChoice", 0);
 			}
 			else
-				SetInventory("MadeChoice", 1);
+				SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
 		}
 		else if(IsButtonPressed(bpress, obpress, BT_ALTATTACK)) {
 			GiveInventory("DnD_ClickTicker", 1);
-			SetInventory("MadeChoice", 2);
+			SetInventory("MenuInput", DND_MENUINPUT_RCLICK);
 		}
-		else
-			SetInventory("MadeChoice", 0);
 	}
 }
 
@@ -2252,26 +2250,30 @@ void HandleAmmoPageDraw(int opt, int boxid, int slot, int multipage, bool specia
 	}
 }
 
-void HandleWeaponPageInput(int boxid, int wbegin, int wend, int pageprev, int pagenext) {
-	ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
-	if(CheckInventory("MadeChoice") == 1) {
+void HandleWeaponPageInput(int pnum, int boxid, int wbegin, int wend, int pageprev, int pagenext) {
+	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE)
-			ProcessTrade(boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
-		SetInventory("MadeChoice", 0);
+			ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
+		ClearPlayerInput(pnum);
 	}
-	else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE)
-		ProcessTrade(boxid - 1, wbegin, wend, TRADE_SELL, false);
-	if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
+	else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
+		ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_SELL, false);
+		ClearPlayerInput(pnum);
+	}
+	if(HasPressedLeft(pnum)) {
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_WEAPON);
 		else
 			UpdateMenuPosition(pageprev);
+		ClearPlayerInput(pnum);
 	}
-	else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT && pagenext != -1)
+	else if(HasPressedRight(pnum) && pagenext != -1) {
 		UpdateMenuPosition(pagenext);
+		ClearPlayerInput(pnum);
+	}
 }
 
-void HandleAmmoPageInput(int slot, int boxid, int pageprev, int pagenext, bool IsSpecialAmmo) {
+void HandleAmmoPageInput(int pnum, int slot, int boxid, int pageprev, int pagenext, bool IsSpecialAmmo) {
 	int beginindex = MenuAmmoIndexMap[slot][boxid - 1];
 	
 	if(IsSpecialAmmo) {
@@ -2279,25 +2281,27 @@ void HandleAmmoPageInput(int slot, int boxid, int pageprev, int pagenext, bool I
 		slot = -1;
 	}
 	
-	ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
-	if(CheckInventory("MadeChoice") == 1) {
+	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE)
 			HandleAmmoPurchase(slot, boxid, beginindex, false, IsSpecialAmmo);
-		SetInventory("MadeChoice", 0);
+		ClearPlayerInput(pnum);
 	} // ammos have alternate functionality for sell
-	else if(CheckInventory("MadeChoice") == 2 && boxid != MAINBOX_NONE) {
+	else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
 		HandleAmmoPurchase(slot, boxid, beginindex, true, IsSpecialAmmo);
-		SetInventory("MadeChoice", 0);
+		ClearPlayerInput(pnum);
 	}
 	
-	if(CheckInventory("MenuLR") == MENU_MOVE_LEFT) {
+	if(HasPressedLeft(pnum)) {
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_AMMOSELECT);
 		else
 			UpdateMenuPosition(pageprev);
+		ClearPlayerInput(pnum);
 	}
-	else if(CheckInventory("MenuLR") == MENU_MOVE_RIGHT && pagenext != -1)
+	else if(HasPressedRight(pnum) && pagenext != -1) {
 		UpdateMenuPosition(pagenext);
+		ClearPlayerInput(pnum);
+	}
 }
 
 void HandleResearchPageDraw(int page, int boxid) {
@@ -2349,13 +2353,10 @@ void HandleResearchPageDraw(int page, int boxid) {
 	DrawBoxText("Research!", boxid, MBOX_1, RPGMENUITEMIDEND + 2, 316.0, 240.0, "\c[B1]", "\c[Y5]");
 }
 
-void HandleResearchPageInput(int page, int boxid, int curposx) {
+void HandleResearchPageInput(int pnum, int page, int boxid) {
 	bool buystatus = 0;
-	if(ResearchInfo[page][curposx + 1].res_id != -1)
-		ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR, curposx, 0, MAX_RESEARCHES - 1);
-	else
-		ListenInput(LISTEN_LEFT | LISTEN_FASTLR, curposx, 0, MAX_RESEARCHES - 1);
-	if(CheckInventory("MadeChoice") == 1) {
+	int curposx = CheckInventory("MenuPosServerX");
+	if(HasLeftClicked(pnum)) {
 		if(boxid == MBOX_1) {
 			buystatus = CanResearch(page, curposx);
 			if(!buystatus) {
@@ -2366,7 +2367,7 @@ void HandleResearchPageInput(int page, int boxid, int curposx) {
 			else
 				ShowPopup(buystatus, false, 0);
 		}
-		SetInventory("MadeChoice", 0);
+		ClearPlayerInput(pnum);
 	}
 }
 
@@ -2773,7 +2774,7 @@ void HandleInventoryViewClicks(int boxid, int choice) {
 
 void HandleItemPageInputs(int pnum, int boxid) {
 	int charm_sel, charm_type, topboxid;
-	if(CheckInventory("MadeChoice") == 1) {
+	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE) {
 			// we pressed a charm box or view inventory box
 			if(!CheckInventory("DnD_InventoryView")) {
@@ -2827,8 +2828,9 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				ActivatorSound("Items/Drop", 127);
 			}
 		}
+		ClearPlayerInput(pnum);
 	}
-	else if(CheckInventory("MadeChoice") == 2) {
+	else if(HasRightClicked(pnum)) {
 		// mbox 8 is the view inventory button
 		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && boxid != MBOX_8 && Charms_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
 			// try to drop item
@@ -2843,6 +2845,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			else
 				ShowPopup(POPUP_NOSPOTFORITEM, false, 0);
 		}
+		ClearPlayerInput(pnum);
 	}
 }
 
@@ -3032,14 +3035,14 @@ void HandleTradeCountdown(int p1, int p2) {
 	ACS_NamedExecuteAlways("DnD Trade Counter", 0, p1, p2);
 }
 
-void HandleTradeViewButtonClicks(int boxid) {
+void HandleTradeViewButtonClicks(int pnum, int boxid) {
 	int bid = GetTradee();
 	int ioffset = 0, isource, soffset = 0, ssource;
 	
 	if(!PlayerInGame(bid))
 		CancelTrade(PlayerNumber());
 	
-	if(CheckInventory("MadeChoice") == 1) {
+	if(HasLeftClicked(pnum)) {
 		// we aren't allowed the click the top side (other player's view)
 		if(boxid > MAX_INVENTORY_BOXES) {
 			if(boxid == 3 * MAX_INVENTORY_BOXES + 1) {
@@ -3103,7 +3106,6 @@ void HandleTradeViewButtonClicks(int boxid) {
 					if(!CheckInventory("DnD_SelectedInventoryBox"))
 						SetInventory("DnD_SelectedInventoryBox", boxid);
 					else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
-						int pnum = PlayerNumber();
 						int epos, ipos;
 						// i is for current click, s for previous selection
 						isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
@@ -3194,7 +3196,7 @@ void HandleTradeViewButtonClicks(int boxid) {
 			}
 		}
 	}
-	else if(CheckInventory("MadeChoice") == 2 && boxid <= 3 * MAX_INVENTORY_BOXES && boxid != MAINBOX_NONE) {
+	else if(HasRightClicked(pnum) && boxid <= 3 * MAX_INVENTORY_BOXES && boxid != MAINBOX_NONE) {
 		isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
 		ioffset = MAX_INVENTORY_BOXES;
 		ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
@@ -3740,14 +3742,14 @@ void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
 }
 
 void HandleCraftingInputs(int boxid, int curopt) {
-	int choice = CheckInventory("MadeChoice"), pnum = PlayerNumber();
+	int pnum = PlayerNumber();
 	int prevselect;
-	if(choice) {
+	if(HasPlayerClicked(pnum)) {
 		int itemindex = ((boxid >> DND_MENU_ITEMSAVEBITS1) & DND_MENU_ITEMSAVEBITS1_MASK);
 		int previtemindex = (boxid >> DND_MENU_ITEMSAVEBITS2);
 		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
 		if(boxid != MAINBOX_NONE && boxid != CheckInventory("DnD_SelectedInventoryBox")) {
-			if(choice == 1) {
+			if(HasLeftClicked(pnum)) {
 				// arrows in material part, left and right respectively
 				if(boxid == MATERIALARROW_ID) {
 					TakeInventory("DnD_Crafting_MaterialPage", 1);
@@ -3806,7 +3808,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 					}
 				}
 			}
-			else if(choice == 2) {
+			else if(HasRightClicked(pnum)) {
 				// using an orb in material part
 				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
 					if(IsSelfUsableItem(PlayerInventoryList[pnum][itemindex].item_type, PlayerInventoryList[pnum][itemindex].item_subtype)) {
@@ -3847,6 +3849,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 		}
 		else
 			SetInventory("DnD_SelectedInventoryBox", 0);
+		ClearPlayerInput(pnum);
 	}
 }
 
@@ -3875,4 +3878,43 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 	}
 	
 	return res;
+}
+
+bool HasPlayerClicked(int pnum) {
+	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK || MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
+}
+
+bool HasLeftClicked(int pnum) {
+	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK;
+}
+
+bool HasRightClicked(int pnum) {
+	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
+}
+
+bool HasPressedLeft(int pnum) {
+	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_PREVBUTTON;
+}
+
+bool HasPressedRight(int pnum) {
+	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_NEXTBUTTON;
+}
+
+void ClearPlayerInput(int pnum) {
+	MenuBoxes[pnum][DND_MENUINPUT] = 0;
+}
+
+void GetInputOnMenuPage(int opt) {
+	if(opt == MENU_MAIN)
+		ListenInput(0, 0, 0);
+	else if(opt == MENU_RESEARCH || opt == MENU_RESEARCH_GUNS)
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 1);
+	else if(opt >= SHOP_RESPAGE_BEGIN && opt <= SHOP_RESPAGE_END) {
+		if(ResearchInfo[opt - SHOP_RESPAGE_BEGIN][CheckInventory("MenuPosX") + 1].res_id != -1)
+			ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR, 0, MAX_RESEARCHES - 1);
+		else
+			ListenInput(LISTEN_LEFT | LISTEN_FASTLR, 0, MAX_RESEARCHES - 1);
+	}
+	else
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
 }

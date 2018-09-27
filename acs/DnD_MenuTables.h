@@ -183,7 +183,15 @@ enum {
 
 #define DND_ACTIVEBOX 0
 #define DND_ACTIVEMAINBOX 1
-int MenuBoxes[MAXPLAYERS][2];
+#define DND_MENUINPUT 2
+int MenuBoxes[MAXPLAYERS][3];
+
+enum {
+	DND_MENUINPUT_LCLICK = 1,
+	DND_MENUINPUT_RCLICK,
+	DND_MENUINPUT_PREVBUTTON,
+	DND_MENUINPUT_NEXTBUTTON
+};
 
 enum {
 	BOXLIT_STATE_OFF,
@@ -259,11 +267,6 @@ str MainBoxTexts[LAST_CLICKABLE_BOXID + 1] = {
 	"Previous\nPage",
 	"Main\nMenu",
 	"Next\nPage"
-};
-
-enum {
-	MENU_MOVE_LEFT = 1,
-	MENU_MOVE_RIGHT = 2
 };
 
 // Box enums end
