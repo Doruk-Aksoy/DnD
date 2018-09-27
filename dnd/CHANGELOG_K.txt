@@ -47,6 +47,7 @@ LEGEND:
 ! When you sell a weapon, all bonuses on it are lost.
 ! "Charisma" now also increases your base pet cap per 20 points. Base pet cap is 3.
 ! Changed the way stats are displayed in stat menu to acommodate newer ways to obtain stat bonuses.
+* Major improvements to the menu code and how it's handled. Servers should have even less burden now regarding that.
 * Major improvements to how damage is calculated on player weapons. Most of the calculation results are saved properly now and only recalculated if needed.
 	- Weapon damage random ranges are applied last to a weapon's damage calculation now. So if a weapon did 5-10-15 damage, the base is assumed 5 and random range is 1 to 3.
 		* The multiplier, 1 to 3 is chosen at random AFTER all damage calculations EXCEPT critical hits.
@@ -275,6 +276,11 @@ The above includes moving it around in inventory, putting it to stash or putting
 * Hopefully fixed "Azazel" death sound not being global.
 * "Sludge Giant" splits now scale properly with level.
 * Fixed damage types on monsters that were either incorrect or were missing. (Armors that protect against such are more valuable now)
+* Fixed a small inconsistency with "Dreaming God" missile.
+* Improved "Dreaming God" missile trails.
++ "Dreaming God" lightning counter-attack starts at around 60% health instead of 33%.
++ Increased the frequency at which "Dreaming God" lightning counter-attacks will strike.
++ Increased speed of explosive missiles of "Dreaming God" to 24 from 20.
 * "Abomination" small shots no longer go through other Mancubus type monsters.
 * Added "MOVEWITHSECTOR" to "Hellsmith" hammer and "Terminator" debris.
 * Added missing dot at the end of "Hell's Fury" obituary.

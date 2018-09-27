@@ -191,13 +191,12 @@ Actor TalentedUp : PowerDamage {
 	powerup.duration 5
 }
 
-Actor MenuOption : Inventory {
+Actor MenuInput : Inventory {
 	inventory.maxamount 255
 }
 
-// Used for left/right move, 1 = L, 2 = R
-Actor MenuLR : Inventory {
-	inventory.maxamount 2
+Actor MenuOption : Inventory {
+	inventory.maxamount 255
 }
 
 // Used for left/right move, 1 = U, 2 = D
@@ -206,6 +205,10 @@ Actor MenuUD : Inventory {
 }
 
 Actor MenuPosX : Inventory {
+	inventory.maxamount 255
+}
+
+Actor MenuPosServerX : Inventory {
 	inventory.maxamount 255
 }
 
@@ -235,8 +238,6 @@ Actor DnD_SelectedCharmBox : Inventory {
 Actor DnD_SelectedInventoryBox : Inventory {
 	inventory.maxamount 255
 }
-
-Actor MadeChoice : DnD_Boolean { }
 
 Actor Ability_Kick : DnD_Boolean { }
 Actor Ability_Reloader : DnD_Boolean { }
