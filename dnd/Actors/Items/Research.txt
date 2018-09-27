@@ -398,6 +398,7 @@ Actor ResearchModule : CustomInventory {
 		Goto SpawnNormal
 		SpawnNormal:
 			TNT1 A 0 A_Jump(128, "Variant1", "Variant2")
+		NormalLoop:
 			RC01 B 1 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		Variant1:

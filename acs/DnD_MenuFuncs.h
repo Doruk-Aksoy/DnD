@@ -2771,22 +2771,6 @@ void HandleInventoryViewClicks(int boxid, int choice) {
 	LocalAmbientSound("RPG/MenuChoose", 127);
 }
 
-void HandleGenericInventoryViewInputs(int boxid) {
-	ListenInput(0, 0, 0, 0);
-	if(CheckInventory("MadeChoice") == 1) {
-		if(boxid == MAINBOX_NONE && !CheckInventory("DnD_SelectedInventoryBox")) {
-			TakeInventory("DnD_InventoryView", 1);
-			TakeInventory("DnD_StashView", 1);
-			SetInventory("DnD_SelectedInventoryBox", 0);
-			SetInventory("DnD_SelectedCharmBox", 0);
-			if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
-				UpdateMenuPosition_NoSound(MENU_LOAD);
-			else
-				LocalAmbientSound("RPG/MenuClose", 127);
-		}
-	}
-}
-
 void HandleItemPageInputs(int pnum, int boxid) {
 	int charm_sel, charm_type, topboxid;
 	if(CheckInventory("MadeChoice") == 1) {
@@ -3759,9 +3743,9 @@ void HandleCraftingInputs(int boxid, int curopt) {
 	int choice = CheckInventory("MadeChoice"), pnum = PlayerNumber();
 	int prevselect;
 	if(choice) {
-		int itemindex = ((boxid >> 8) & 0xFF);
-		int previtemindex = (boxid >> 16);
-		boxid = (boxid & 0xFF);
+		int itemindex = ((boxid >> DND_MENU_ITEMSAVEBITS1) & DND_MENU_ITEMSAVEBITS1_MASK);
+		int previtemindex = (boxid >> DND_MENU_ITEMSAVEBITS2);
+		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
 		if(boxid != MAINBOX_NONE && boxid != CheckInventory("DnD_SelectedInventoryBox")) {
 			if(choice == 1) {
 				// arrows in material part, left and right respectively

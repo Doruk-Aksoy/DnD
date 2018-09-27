@@ -178,7 +178,7 @@ int SetActorInventory (int tid, str item, int count) {
 	if (n > 0)
 		GiveActorInventory (tid, item, n);
 	else if (n < 0)
-		TakeActorInventory (tid, item, -1 * n);
+		TakeActorInventory (tid, item, -n);
 	return n;
 }
 

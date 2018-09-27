@@ -331,7 +331,7 @@ ACTOR ProjBullet : FastProjectile {
 Actor DnD_Intermission : DnD_Boolean { }
 
 Actor DND_ACK : PowerDamage {
-	powerup.duration 2
+	powerup.duration 4
 	damagefactor "normal", 1.0
 }
 

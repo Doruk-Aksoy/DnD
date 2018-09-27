@@ -209,15 +209,7 @@ Actor MenuPosX : Inventory {
 	inventory.maxamount 255
 }
 
-Actor ActiveBox : Inventory {
-	inventory.maxamount 0xFFFFFFFF
-}
-
 Actor ActivePopupBox : Inventory {
-	inventory.maxamount 255
-}
-
-Actor ActiveMainBox : Inventory {
 	inventory.maxamount 255
 }
 

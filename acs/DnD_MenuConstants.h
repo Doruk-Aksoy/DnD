@@ -10,6 +10,10 @@
 // 7 images on menu leftmost bar
 #define MAX_MAIN_BOXES 10
 
+#define DND_MENU_ITEMSAVEBITS1 8
+#define DND_MENU_ITEMSAVEBITS1_MASK 0xFF
+#define DND_MENU_ITEMSAVEBITS2 DND_MENU_ITEMSAVEBITS1 * 2
+
 // Mainbox Labels
 enum {
 	MAINBOX_NONE = 0,

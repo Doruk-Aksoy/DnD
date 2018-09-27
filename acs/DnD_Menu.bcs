@@ -99,10 +99,11 @@ Script "DND Menu Popup Handle" (void) {
 	TakeInventory("DnD_PopupFullAmmo", 1);
 }
 
-Script "DND Server Box Receive" (int boxid, int mainboxid) NET {
-	GiveActorInventory(ActivatorTID(), "DND_ACK", 1);
-	SetActorInventory(ActivatorTID(), "ActiveBox", boxid);
-	SetActorInventory(ActivatorTID(), "ActiveMainBox", mainboxid);
+Script "DND Server Box Receive" (int ptid, int boxid, int mainboxid) NET {
+	GiveActorInventory(ptid, "DND_ACK", 1);
+	// THIS part here is the reason menu didn't work on TSPG. Using inventories here is just... why...
+	MenuBoxes[ptid - P_TIDSTART][DND_ACTIVEBOX] = boxid;
+	MenuBoxes[ptid - P_TIDSTART][DND_ACTIVEMAINBOX] = mainboxid;
 }
 
 Script "DND Menu Cleanup" (void) CLIENTSIDE {
@@ -138,9 +139,9 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 	int animcounter = 0, framecounter = 0, pnum = PlayerNumber(), temp;
 	int popupid, i = 0, j = 0, k = 0, mousex, mousey;
 	str toshow;
-	bool drawlit = 0;
+	bool drawlit = false, sendBox = false;
 	int curopt, curopt_prev = MENU_NULL;
-	int boxid, boxid_prev = MAINBOX_NONE, mainboxid, mainboxid_prev = MAINBOX_NONE;
+	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE + 1, mainboxid_prev = MAINBOX_NONE;
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
@@ -194,24 +195,32 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				mainboxid = MAINBOX_NONE;
 			else
 				mainboxid = GetTriggeredBoxOnMainPane(mousex, mousey);
-			SetInventory("ActiveBox", boxid);
-			SetInventory("ActiveMainBox", mainboxid);
+			/*SetInventory("ActiveBox", boxid);
+			SetInventory("ActiveMainBox", mainboxid);*/
 		}
-		// server gets a few extra info in boxid
-		temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << 8) | (CheckInventory("DnD_PlayerPrevItemIndex") << 16);
-		NamedRequestScriptPuke("DND Server Box Receive", temp, mainboxid);
 		drawlit = 0;
-		
 		// play sound if box changed
 		// ifs are seperate because scroll pos should only change if current in-pane box is changed
-		if(boxid != boxid_prev && boxid != MAINBOX_NONE) {
-			ScrollPos = 0;
-			if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
-				LocalAmbientSound("RPG/MenuMove", 127);
+		if(boxid != boxid_prev) {
+			if(boxid != MAINBOX_NONE) {
+				ScrollPos = 0;
+				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
+					LocalAmbientSound("RPG/MenuMove", 127);
+			}
+			sendBox = true;
 		}
-		if(mainboxid_prev != mainboxid && mainboxid != MAINBOX_NONE)
-			LocalAmbientSound("RPG/MenuMove", 127);
-			
+		
+		if(mainboxid != mainboxid_prev) {
+			if(mainboxid != MAINBOX_NONE)
+				LocalAmbientSound("RPG/MenuMove", 127);
+			sendBox = true;
+		}
+		
+		if(sendBox) {
+			// server gets a few extra info in boxid
+			temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
+			NamedRequestScriptPuke("DND Server Box Receive", PlayerNumber() + P_TIDSTART, temp, mainboxid);
+		}
 		boxid_prev = boxid;
 		mainboxid_prev = mainboxid;
 
@@ -910,33 +919,31 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 		// retry ack
 		if(!CheckInventory("DND_ACK")) {
-			temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << 8) | (CheckInventory("DnD_PlayerPrevItemIndex") << 16);
-			NamedRequestScriptPuke("DND Server Box Receive", temp, mainboxid);
+			if(sendBox) {
+				temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
+				NamedRequestScriptPuke("DND Server Box Receive", PlayerNumber() + P_TIDSTART, temp, mainboxid);
+			}
 		}
+		else
+			sendBox = false;
 	}
 }
 
 Script "DND Menu Input Handle" (void) {
-	int curposx, curopt, buystatus = 0, temp, page = -1, i, j;
+	int curposx, curopt, temp, i, j;
 	int pnum = PlayerNumber();
 	int boxid, mainboxid;
 	FlushStack(pnum);
 	while(CheckInventory("ShowingMenu")) { // first screen
 		curposx = CheckInventory("MenuPosX");
-		boxid = CheckInventory("ActiveBox");
-		mainboxid = CheckInventory("ActiveMainBox");
+		boxid = MenuBoxes[pnum][DND_ACTIVEBOX];
+		mainboxid = MenuBoxes[pnum][DND_ACTIVEMAINBOX];
 		curopt = CheckInventory("MenuOption");
-		
 		// This handles the popup messages in the shop
 		if(!CheckInventory("DnD_PopupHack") && CheckInventory("DnD_ShowPopup")) {
 			GiveInventory("DnD_PopupHack", 1); // make this only execute one script
 			ACS_NamedExecuteAlways("DND Menu Popup Handle", 0);
 		}
-		
-		// Easy change to main menu sub parts
-		
-		if(CheckInventory("DnD_InventoryView") || CheckInventory("DnD_StashView"))
-			HandleGenericInventoryViewInputs(boxid);
 		
 		if(mainboxid != MAINBOX_NONE) {
 			ListenInput(0, 0, 0, 0);
@@ -1162,6 +1169,20 @@ Script "DND Menu Input Handle" (void) {
 		else if(curopt == MENU_LOAD_INVENTORY) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice")) {
+				// handles clicking outside
+				// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
+				if(CheckInventory("MadeChoice") == 1 && boxid == MAINBOX_NONE) {
+					if(!CheckInventory("DnD_SelectedInventoryBox")) {
+						TakeInventory("DnD_InventoryView", 1);
+						SetInventory("DnD_SelectedCharmBox", 0);
+						if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
+							UpdateMenuPosition_NoSound(MENU_LOAD);
+						else
+							LocalAmbientSound("RPG/MenuClose", 127);
+					}
+					else if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)
+						SetInventory("DnD_SelectedInventoryBox", 0);
+				}
 				HandleInventoryViewClicks(boxid, CheckInventory("MadeChoice"));
 				SetInventory("MadeChoice", 0);
 			}
@@ -1173,6 +1194,20 @@ Script "DND Menu Input Handle" (void) {
 		else if(curopt == MENU_LOAD_STASH) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice")) {
+				// handles clicking outside
+				// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
+				if(CheckInventory("MadeChoice") == 1 && boxid == MAINBOX_NONE) {
+					if(!CheckInventory("DnD_SelectedInventoryBox")) {
+						TakeInventory("DnD_StashView", 1);
+						SetInventory("DnD_SelectedCharmBox", 0);
+						if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
+							UpdateMenuPosition_NoSound(MENU_LOAD);
+						else
+							LocalAmbientSound("RPG/MenuClose", 127);
+					}
+					else if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH) == DND_ITEM_NULL)
+						SetInventory("DnD_SelectedInventoryBox", 0);
+				}
 				HandleStashViewClicks(boxid, CheckInventory("MadeChoice"));
 				SetInventory("MadeChoice", 0);
 			}
@@ -1341,21 +1376,23 @@ Script "DND Menu Input Handle" (void) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice") == 1) {
 				if(boxid == MBOX_1)
-					page = MENU_SHOP_WEAPON;
+					temp = MENU_SHOP_WEAPON;
 				else if(boxid == MBOX_2)
-					page = MENU_SHOP_AMMOSELECT;
+					temp = MENU_SHOP_AMMOSELECT;
 				else if(boxid == MBOX_3)
-					page = MENU_SHOP_ABILITY_1;
+					temp = MENU_SHOP_ABILITY_1;
 				else if(boxid == MBOX_4)
-					page = MENU_SHOP_ARTIFACT;
+					temp = MENU_SHOP_ARTIFACT;
 				else if(boxid == MBOX_5)
-					page = MENU_SHOP_TALENT;
+					temp = MENU_SHOP_TALENT;
 				else if(boxid == MBOX_6)
-					page = MENU_SHOP_ARMOR1;
+					temp = MENU_SHOP_ARMOR1;
 				else if(boxid == MBOX_7)
-					page = MENU_SHOP_ACCOUNT;
-				if(boxid != MAINBOX_NONE && page != -1)
-					UpdateMenuPosition(page);
+					temp = MENU_SHOP_ACCOUNT;
+				else
+					temp = -1;
+				if(boxid != MAINBOX_NONE && temp != -1)
+					UpdateMenuPosition(temp);
 				SetInventory("MadeChoice", 0);
 			}
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)
@@ -1550,13 +1587,14 @@ Script "DND Menu Input Handle" (void) {
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, 0);
 			if(CheckInventory("MadeChoice") == 1) {
 				if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
-					page = MENU_HELP_BEGIN + boxid - 1;
+					temp = MENU_HELP_BEGIN + boxid - 1;
 				else if(boxid > MENU_HELP_END - MENU_HELP_BEGIN + 1) {
 					GiveInventory("SetMapInfo", 1);
 					LocalAmbientSound("RPG/MenuChoose", 127);
+					temp = -1;
 				}
-				if(boxid != MAINBOX_NONE && page != -1)
-					UpdateMenuPosition(page);
+				if(boxid != MAINBOX_NONE && temp != -1)
+					UpdateMenuPosition(temp);
 				SetInventory("MadeChoice", 0);
 			}
 			if(CheckInventory("MenuLR") == MENU_MOVE_LEFT)

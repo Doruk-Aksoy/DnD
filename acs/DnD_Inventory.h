@@ -275,10 +275,12 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 
 enum {
 	DND_INVDROP_CHARM,
+	DND_INVDROP_UNIQUECHARM,
 };
-#define MAX_DND_INVDROPACTORS DND_INVDROP_CHARM + 1
+#define MAX_DND_INVDROPACTORS DND_INVDROP_UNIQUECHARM + 1
 str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
-	"CharmDrop"
+	"CharmDrop",
+	"UniqueCharmDrop"
 };
 
 #define ITEMLEVEL_VARIANCE_LOWER 15
@@ -1416,7 +1418,9 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		CopyItemSource(c, player_index, pitem_index, source);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		str droptype = InventoryDropActors[DND_INVDROP_CHARM];
-		if(itype == DND_ITEM_ORB)
+		if(itype > UNIQUE_BEGIN)
+			droptype = InventoryDropActors[DND_INVDROP_UNIQUECHARM];
+		else if(itype == DND_ITEM_ORB)
 			droptype = InventoryInfo[stype + ORBS_BEGIN][SITEM_NAME];
 		else if(itype == DND_ITEM_CHESTKEY)
 			droptype = InventoryInfo[stype + CHESTKEY_BEGIN][SITEM_NAME];
