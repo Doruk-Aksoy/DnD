@@ -743,13 +743,13 @@ void DrawToggledLabel(str label, int afterlabel, int boxid, int boxcheck, int dr
 // By default, if insufficient credits occur, it will be gray. If credits are sufficient but objectflag has OBJ_HASCHOICE, that means you have to choose between one of the options
 // of it's kind. For example, there are 2 weapons that replace the shotgun. You can have only one, so you set this flag, and set choicename to P_Slot3Replaced. One of the two will be
 // red if the other is bought. The item that is bought will be green.
-void DrawToggledImage(int itemid, int onposy, int objectflag, int offcolor, int oncolor, str choicename, int choicecount, int choicecolor) {
+void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int offcolor, int oncolor, str choicename, int choicecount, int choicecolor) {
 	// first of all check research (assuming the player can't own this item without having it researched)
 	int res_state = 1;
 	if(objectflag & OBJ_RESEARCH) {
 		res_state = CheckItemRequirements(itemid, RES_KNOWN, objectflag); // if not known, draw nothing
 	}
-	int curposy = CheckInventory("ActiveBox") - 1;
+	int curposy = boxid - 1;
 	if(!res_state) {
 		if(curposy == onposy) {
 			HudMessage(s:"\c[B1]---- N/A ----"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
@@ -2215,10 +2215,10 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 	HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 	
 	for(int i = begin; i <= end; ++i)
-		DrawToggledImage(i, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
 }
 
-void HandleAmmoPageDraw(int opt, int slot, int multipage, bool specialammo) {
+void HandleAmmoPageDraw(int opt, int boxid, int slot, int multipage, bool specialammo) {
 	int shopindex = 0;
 	int i;
 	
@@ -2241,13 +2241,13 @@ void HandleAmmoPageDraw(int opt, int slot, int multipage, bool specialammo) {
 	if(!specialammo) {
 		for(i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
 			shopindex = MenuAmmoIndexMap[slot][i];
-			DrawToggledImage(shopindex, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[shopindex][SHOPNAME_CONDITION], 1, CR_RED);
+			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[shopindex][SHOPNAME_CONDITION], 1, CR_RED);
 		}
 	}
 	else {
 		for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
 			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
-			DrawToggledImage(shopindex, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
 		}
 	}
 }
