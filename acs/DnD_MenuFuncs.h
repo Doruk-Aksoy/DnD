@@ -828,7 +828,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			if(objectflag & OBJ_WEP) {
 				if(sellstate)
 					HudMessage(s:"\c[M1]--> Sells for:\c- $", d:GetShopPrice(itemid, 0) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
-				SetHudClipRect(184, 208, 256, 64, 256, 1);
+				SetHudClipRect(184, 216, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
 					HudMessage(s:"* ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
 				else

@@ -957,7 +957,6 @@ void SpawnResearch() {
 	do {
 		temp = random(0, MAX_RESEARCHES - 1);
 	} while(ResearchFlags[temp].res_flags & RESF_NODROP);
-	temp = RES_STASHTAB;
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// spawn this only if this isn't already found by the player

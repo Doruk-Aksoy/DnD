@@ -31,8 +31,6 @@ Script 900 (void) NET {
 		SetInventory("ShowingMenu", 0);
 		SetInventory("MenuOption", 5);
 		SetInventory("MenuPosX", 0);
-		SetInventory("ActiveBox", 0);
-		SetInventory("ActiveMainBox", 0);
 		SetInventory("DnD_PlayerItemIndex", 0);
 		SetInventory("DnD_PlayerPrevItemIndex", 0);
 		SetInventory("MadeChoice", 0);
@@ -72,8 +70,6 @@ Script 900 (void) NET {
 			StatListOpened[PlayerNumber()] = 1;
 			SetInventory("MenuOption", MENU_MAIN);
 			SetInventory("MenuPosX", 0);
-			SetInventory("ActiveBox", 0);
-			SetInventory("ActiveMainBox", 0);
 			SetInventory("ShowingMenu", 1);
 			SetInventory("Mouse_X", HUDMAX_XF / 2);
 			SetInventory("Mouse_Y", HUDMAX_YF / 2);
@@ -175,8 +171,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 		// set to none or sth if this is up
 		if(CheckInventory("DnD_SellConfirm")) {
-			boxid = CheckInventory("ActiveBox");
-			mainboxid = CheckInventory("ActiveMainBox");
+			boxid = MenuBoxes[pnum][DND_ACTIVEBOX];
+			mainboxid = MenuBoxes[pnum][DND_ACTIVEMAINBOX];
 		}
 		else {
 			if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
