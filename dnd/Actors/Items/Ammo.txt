@@ -540,6 +540,7 @@ Actor FlakShell : Ammo {
 	inventory.icon "FSHLA0"
 	ammo.backpackamount 4
 	ammo.backpackmaxamount 80
+	+IGNORESKILL
 }
 
 Actor ExplodingShell : Ammo
