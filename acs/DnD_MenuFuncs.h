@@ -1026,7 +1026,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 
 void DrawHighLightBar (int posy, bool drawlit) {
 	if(posy == MAINBOX_NONE)
-		HudMessage(s:""; HUDMSG_PLAIN, RPGMENULISTID - 7, -1, 47.1, 99.1, 0.0, 0.0);
+		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0, 0.0);
 	else {
 		--posy;
 		int yadd = 0;
@@ -1039,7 +1039,7 @@ void DrawHighLightBar (int posy, bool drawlit) {
 			SetFont("BARHIGHL");
 		else
 			SetFont("BARHIGH");
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENULISTID - 7, -1, 47.1, 99.1 + 1.0 * yadd, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1 + 1.0 * yadd, 0.0, 0.0);
 	}
 }
 
