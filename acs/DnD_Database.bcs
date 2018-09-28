@@ -347,8 +347,8 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, temp);
 	
 	// save ammo counts
-	for(i = 0; i < MAX_SLOTS - 1; ++i)
-		for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+	for(i = 0; i < MAX_SLOTS; ++i)
+		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			temp = CheckActorInventory(tid, AmmoInfo_Str[i][j][AMMOINFO_NAME]);
 			// send temp over
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc, temp);
@@ -358,7 +358,6 @@ void SavePlayerData(int pnum, int char_id) {
 		temp = CheckActorInventory(tid, SpecialAmmoInfo_Str[i][AMMOINFO_NAME]);
 		// send temp over
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SpecialAmmoInfo_Str[i][AMMOINFO_NAME]), pacc, temp);
-		
 	}
 	
 	// save weapon clips/magazines that use them
@@ -591,8 +590,8 @@ void SavePlayerOrbData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, temp);
 	
 	// save ammo counts
-	for(i = 0; i < MAX_SLOTS - 1; ++i)
-		for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+	for(i = 0; i < MAX_SLOTS; ++i)
+		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			temp = CheckActorInventory(tid, AmmoInfo_Str[i][j][AMMOINFO_NAME]);
 			// send temp over
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc, temp);
@@ -782,8 +781,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	}
 	
 	// read each ammo count
-	for(i = 0; i < MAX_SLOTS - 1; ++i)
-		for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+	for(i = 0; i < MAX_SLOTS; ++i)
+		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc);
 			SetInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], temp);
 		}
@@ -1033,8 +1032,8 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, 0);
 	
 	// reset ammo counts
-	for(i = 0; i < MAX_SLOTS - 1; ++i)
-		for(j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+	for(i = 0; i < MAX_SLOTS; ++i)
+		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc, 0);
 		}
 	

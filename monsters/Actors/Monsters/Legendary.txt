@@ -120,7 +120,7 @@ Actor DreamingGod : DnD_BaseEnemy {
 			TCHR G 8
 		Goto See
 		Pain:
-			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 3, "PainX")
+			TNT1 A 0 A_JumpIfHealthLower(2 * ACS_ExecuteWithResult(961, 7) / 3, "PainX")
 			TCHR L 11 A_Pain
 		Goto See
 		PainX:
@@ -163,7 +163,7 @@ Actor DreamingGod : DnD_BaseEnemy {
 Actor TchernoLightningShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 3, "Go")
+			TNT1 A 0 A_JumpIfHealthLower(2 * ACS_ExecuteWithResult(961, 7) / 3, "Go")
 		Stop
 		Go:
 			TNT1 A 0 A_CustomMissile("TchernoLightning", 0, 0, 0, CMF_AIMDIRECTION)
@@ -184,7 +184,7 @@ actor TchernobogMissile {
 	height 9
 	XScale 0.95
 	YScale 0.675
-	speed 20
+	speed 24
 	RENDERSTYLE ADD
 	damage (32 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	PROJECTILE
@@ -196,15 +196,35 @@ actor TchernobogMissile {
     alpha 0.75
 	states {
 		Spawn:
-			TROK AAAA 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TROK A 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK BBBB 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TROK A 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK CCCC 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TROK A 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK DDDD 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TROK B 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK EEEE 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TROK B 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK B 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK C 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK C 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK C 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK D 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK D 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK D 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK E 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK E 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK E 1 bright A_SpawnItem ("TfireTrail",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
 		loop
 		Death:
@@ -222,25 +242,35 @@ actor TchernobogMissile {
 Actor TchernobogMissile2 : TchernobogMissile {
 	States {
 		Spawn:
-			TROK AA 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK A 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK AA 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK A 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK BB 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK A 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK BB 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK B 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK CC 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK B 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK CC 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK B 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK DD 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK C 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK DD 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK C 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK EE 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK C 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
-			TROK EE 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TROK D 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK D 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK D 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK E 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK E 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
+			TNT1 A 0 A_SpawnItem("TFlyFX")
+			TROK E 1 bright A_SpawnItem ("TfireTrail2",random(-2,-1),0+random(-1,1),0,0)
 			TNT1 A 0 A_SpawnItem("TFlyFX")
 		Loop
 	}
@@ -256,10 +286,10 @@ Actor TFlyFX {
 		Spawn:
 			TNT1 A 2 NoDelay A_jump(128, "Other")
 		SpawnLoop:
-			TMIS A 1 A_FadeOut(0.075)
+			TMIS A 1 A_FadeOut(0.0625)
 		Loop
 		Other:
-			TMIS B 1 A_FadeOut(0.075)
+			TMIS B 1 A_FadeOut(0.0625)
 		Loop
 	}
 }
@@ -576,18 +606,22 @@ Actor SplitParticle1
 	States
 	{
 		Spawn:
-			EYEB A 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB B 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB C 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave			
-			EYEB D 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItem("SplitParticleExplosion")
@@ -605,18 +639,22 @@ Actor SplitParticle2 : SplitParticle1
 		Spawn:
 			TNT1 AAAAAAAA 0 A_BishopMissileWeave
 		SpawnLoop:
-			EYEB A 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB B 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB C 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave			
-			EYEB D 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
 		Loop
 	}
 }
@@ -628,18 +666,22 @@ Actor SplitParticle3 : SplitParticle1
 		Spawn:
 			TNT1 AAAAAAAAAAAA 0 A_BishopMissileWeave
 		SpawnLoop:
-			EYEB A 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB B 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB C 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave			
-			EYEB D 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
 		Loop
 	}
 }
@@ -651,18 +693,22 @@ Actor SplitParticle4 : SplitParticle1
 		Spawn:
 			TNT1 AAAAAAAAAAAAAAAA 0 A_BishopMissileWeave
 		SpawnLoop:
-			EYEB A 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB B 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB C 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave			
-			EYEB D 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
 		Loop
 	}
 }
@@ -674,18 +720,22 @@ Actor SplitParticle5 : SplitParticle1
 		Spawn:
 			TNT1 AAAAAAAAAAAAAAAAAAAA 0 A_BishopMissileWeave
 		SpawnLoop:
-			EYEB A 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB B 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
-			EYEB C 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave			
-			EYEB D 2 Bright A_BishopMissileWeave
-			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 16)
-			TNT1 AA 0 A_BishopMissileWeave
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB A 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_A", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB B 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_B", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB C 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_C", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
+			EYEB D 1 Bright A_Weave(1, 1, 2, 2)
+			TNT1 A 0 A_SpawnItem("SplitTrail_D", 0, 0)
 		Loop
 	}
 }
@@ -929,32 +979,19 @@ Actor TchernoLightning {
 		Spawn:
 			TNT1 A 0 NoDelay A_SetUserVar("user_phase", 1)
 		SpawnLoop:
-			LLSS A 5 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
+			LLSS A 3 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetTranslucent(alpha + 0.125 * user_phase)
 			TNT1 A 0 A_SetAngle(angle + 7.5)
-			LLSS A 5 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetTranslucent(alpha + 0.125 * user_phase)
-			TNT1 A 0 A_SetAngle(angle + 7.5)
-			LLSS A 5 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetTranslucent(alpha + 0.125 * user_phase)
-			TNT1 A 0 A_SetAngle(angle + 7.5)
-			LLSS A 5 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetTranslucent(alpha + 0.125 * user_phase)
-			TNT1 A 0 A_SetAngle(angle + 7.5)
-			LLSS A 5 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetTranslucent(alpha + 0.125 * user_phase)
-			TNT1 A 0 A_SetAngle(angle + 7.5)
-			LLSS A 5 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetTranslucent(alpha + 0.125 * user_phase)
-			TNT1 A 0 A_SetAngle(angle + 7.5)
-			LLSS A 5 Bright A_ChangeVelocity(vel * cos(angle), vel * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetTranslucent(alpha + 0.125 * user_phase)
-			TNT1 A 0 A_SetAngle(angle + 7.5)
+			TNT1 A 0 A_JumpIf(alpha == 1.0, "DoDamage")
+			TNT1 A 0 A_JumpIf(alpha == 0.0, "ShiftPhase")
+		Goto SpawnLoop
+		DoDamage:
 			TNT1 A 0 A_SpawnItem("TchernoLightningExplosion")
 			TNT1 A 0 A_SpawnItem("TchernoLightningFX")
 			TNT1 A 0 A_CountDown
-			TNT1 A 0 A_SetUserVar("user_phase", -user_phase)
-		Loop
+		ShiftPhase:
+			TNT1 A 0 A_SetUserVar("user_phase", -user_phase - 2)
+		Goto SpawnLoop
 	}
 }
 

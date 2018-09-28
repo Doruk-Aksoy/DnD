@@ -69,7 +69,7 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 	Inventories_On_Field[charm_pos].item_subtype = charm_type;
 	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
 	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + charm_type;
-	
+	printbold(s:"item level ", d:Inventories_On_Field[charm_pos].item_level);
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
 			Inventories_On_Field[charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
@@ -95,7 +95,7 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 void AddAttributeToCharm(int charm_pos, int attrib) {
 	if(Inventories_On_Field[charm_pos].attrib_count < Charm_MaxAffixes[Inventories_On_Field[charm_pos].item_subtype]) {
 		int temp = Inventories_On_Field[charm_pos].attrib_count++;
-		int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * Inventories_On_Field[charm_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, 65536);
+		int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * Inventories_On_Field[charm_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, MAX_ATTRIB_MODIFIER);
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low * mod, Inv_Attribute_Info[attrib].attrib_high * mod);
 	}
@@ -104,7 +104,7 @@ void AddAttributeToCharm(int charm_pos, int attrib) {
 void AddAttributeToItem(int item_pos, int attrib) {
 	int pnum = PlayerNumber();
 	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
-	int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, 65536);
+	int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, MAX_ATTRIB_MODIFIER);
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low * mod, Inv_Attribute_Info[attrib].attrib_high * mod);
 }

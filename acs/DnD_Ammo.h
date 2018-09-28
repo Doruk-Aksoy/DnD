@@ -72,8 +72,6 @@ enum {
 	AMMO_SOUL = 0
 };
 
-#define MAXAMMOTYPES AMMO_SOUL + 1
-
 // don't make tables with strings and ints... weird fuckups happen
 typedef struct {
 	int initial_capacity;

@@ -8,6 +8,8 @@
 #define DND_ACCURACY_CAP 80000
 #define DND_ATTRIBUTEBONUS_CAP 1024
 
+#define MAX_ATTRIB_MODIFIER 0xFF
+
 // self note: all status_buffs_X modifiers are handled as exceptions
 enum {
 	INV_HP_INCREASE,

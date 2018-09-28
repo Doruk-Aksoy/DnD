@@ -1235,7 +1235,7 @@ void HandleCorruptOrbUse(int type) {
 	switch(type) {
 		case CORRUPTORB_TAKEAMMO:
 			for(i = 0; i < MAX_SLOTS; ++i)
-				for(int j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+				for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 					Player_MostRecent_Orb[pnum].p_ammos[i][j] = CheckInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME]);
 					SetInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], 0);
 				}
@@ -1407,7 +1407,7 @@ void UndoCorruptOrbEffect() {
 	switch(Player_MostRecent_Orb[pnum].values[0] & 0xF) {
 		case CORRUPTORB_TAKEAMMO:
 			for(i = 0; i < MAX_SLOTS; ++i)
-				for(int j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j)
+				for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
 					GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], Player_MostRecent_Orb[pnum].p_ammos[i][j]);
 			// try to give this temp weapon if only player doesn't have a temp wep
 			if(HasNoTempWeapon()) {
@@ -1585,7 +1585,7 @@ void ResetMostRecentOrb(int pnum) {
 	for(i = 0; i < MAX_STORED_ORB_DATA; ++i)
 		Player_MostRecent_Orb[pnum].values[i] = 0;
 	for(i = 0; i < MAX_SLOTS; ++i)
-		for(int j = 0; j < MAXAMMOTYPES && AmmoInfo[i][j].initial_capacity != -1; ++j)
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
 			Player_MostRecent_Orb[pnum].p_ammos[i][j] = 0;
 	Player_MostRecent_Orb[pnum].p_tempammo = 0;
 	Player_MostRecent_Orb[pnum].p_tempwep = 0;
