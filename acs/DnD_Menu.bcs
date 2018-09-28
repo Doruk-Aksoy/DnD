@@ -87,15 +87,6 @@ Script 900 (void) NET {
 	}
 }
 
-Script "DND Menu Popup Handle" (void) {
-	while(CheckInventory("DnD_ShowPopup") || CheckInventory("DnD_ShowSellPopup"))
-		Delay(1);
-	TakeInventory("DnD_PopupHack", 1);
-	TakeInventory("DnD_PopupError", 1);
-	TakeInventory("DnD_PopupSell", 1);
-	TakeInventory("DnD_PopupFullAmmo", 1);
-}
-
 Script "DND Server Box Receive" (int ptid, int boxid, int mainboxid) NET {
 	int input = ptid >> 16;
 	ptid &= 0xFFFF;
@@ -175,7 +166,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 		// boxes won't be updated until you finish your sell
 		if(CheckInventory("DnD_SellConfirm")) {
-			boxid = MAINBOX_NONE;
+			if(CheckInventory("ActivePopupBox"))
+				boxid = CheckInventory("ActivePopupBox");
 			mainboxid = MAINBOX_NONE;
 		}
 		else {
@@ -212,6 +204,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				LocalAmbientSound("RPG/MenuMove", 127);
 		}
 		
+		// clean input buffer
+		SetInventory("MenuInput", 0);
 		GetInputOnMenuPage(curopt);
 		temp = CheckInventory("MenuInput");
 		if(temp) {
@@ -943,16 +937,12 @@ Script "DND Menu Input Handle" (void) {
 		boxid = MenuBoxes[pnum][DND_ACTIVEBOX];
 		mainboxid = MenuBoxes[pnum][DND_ACTIVEMAINBOX];
 		curopt = CheckInventory("MenuOption");
-		// This handles the popup messages in the shop
-		if(!CheckInventory("DnD_PopupHack") && CheckInventory("DnD_ShowPopup")) {
-			GiveInventory("DnD_PopupHack", 1); // make this only execute one script
-			ACS_NamedExecuteAlways("DND Menu Popup Handle", 0);
-		}
 		if(mainboxid != MAINBOX_NONE) {
 			if(HasLeftClicked(pnum)) {
 				TakeInventory("DnD_InventoryView", 1);
 				TakeInventory("DnD_StashView", 1);
 				HandleButtonClick(mainboxid);
+				ClearPlayerInput(pnum);
 				if(mainboxid == MAINBOX_STATS)
 					UpdateMenuPosition(MENU_STAT1);
 				else if(mainboxid == MAINBOX_PERK)
@@ -967,8 +957,19 @@ Script "DND Menu Input Handle" (void) {
 					UpdateMenuPosition(MENU_ABILITY);
 				else if(mainboxid == MAINBOX_HELP)
 					UpdateMenuPosition(MENU_HELP);
-				ClearPlayerInput(pnum);
 			}
+		}
+		
+		if(CheckInventory("DnD_SellConfirm") && HasLeftClicked(pnum)) {
+			TakeInventory("DnD_SellConfirm", 1);
+			// clean the sell popup
+			SetInventory("DnD_PopupID", 0);
+			SetInventory("DnD_PopupSell", 0);
+			SetInventory("DnD_ShowPopup", 0);
+			SetInventory("DnD_ShowSellPopup", 0);
+			SetInventory("DnD_PopupID", 0);
+			SetInventory("ActivePopupBox", 0);
+			ClearPlayerInput(pnum);
 		}
 		
 		if(curopt == MENU_STAT1) { // stat screen
@@ -1137,6 +1138,7 @@ Script "DND Menu Input Handle" (void) {
 		}
 		else if(curopt == MENU_LOAD) {
 			if(HasLeftClicked(pnum)) {
+				ClearPlayerInput(pnum);
 				if(boxid > 0) {
 					if(boxid == MBOX_9)
 						UpdateMenuPosition(MENU_LOAD_TRADE1);
@@ -1150,7 +1152,6 @@ Script "DND Menu Input Handle" (void) {
 						UpdateMenuPosition(MENU_LOAD + boxid);
 					}
 				}
-				ClearPlayerInput(pnum);
 			}
 			if(HasPressedLeft(pnum)) {
 				ClearPlayerInput(pnum);
@@ -1195,9 +1196,9 @@ Script "DND Menu Input Handle" (void) {
 				ClearPlayerInput(pnum);
 			}
 			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				TakeInventory("DnD_InventoryView", 1);
 				UpdateMenuPosition(MENU_LOAD);
-				ClearPlayerInput(pnum);
 			}
 		}
 		else if(curopt == MENU_LOAD_STASH) {
@@ -1220,17 +1221,17 @@ Script "DND Menu Input Handle" (void) {
 				ClearPlayerInput(pnum);
 			}
 			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				TakeInventory("DnD_StashView", 1);
 				UpdateMenuPosition(MENU_LOAD);
-				ClearPlayerInput(pnum);
 			}
 		}
 		else if(curopt == MENU_LOAD_CHARM) {
 			HandleItemPageInputs(pnum, boxid);
 			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				TakeInventory("DnD_InventoryView", 1);
 				UpdateMenuPosition(MENU_LOAD);
-				ClearPlayerInput(pnum);
 			}
 		}
 		else if(curopt == MENU_LOAD_CRAFTING) {
@@ -1326,16 +1327,16 @@ Script "DND Menu Input Handle" (void) {
 			}
 			
 			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				if(curopt == MENU_FIRST_TRADE)
 					UpdateMenuPosition(MENU_LOAD);
 				else
 					UpdateMenuPosition(curopt - 1);
-				ClearPlayerInput(pnum);
 			}
 			else if(HasPressedRight(pnum)) {
+				ClearPlayerInput(pnum);
 				if(curopt != MENU_LAST_TRADE && PlayerCount() > MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1))
 					UpdateMenuPosition(curopt + 1);
-				ClearPlayerInput(pnum);
 			}
 		}
 		else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
@@ -1344,12 +1345,8 @@ Script "DND Menu Input Handle" (void) {
 					// i is the accessory to toggle
 					temp = boxid + ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE) - 1;
 					// I don't have this
-					if(!CheckInventory(AccessoryInfo[temp][ACCESSORY_NAME])) {
-						LocalAmbientSound("RPG/MenuError", 127);
-						GiveInventory("DnD_ShowPopup", 1);
-						GiveInventory("DnD_PopupError", 1);
-						SetInventory("DnD_PopupId", POPUP_ACCESSORYNOTFOUND);
-					}
+					if(!CheckInventory(AccessoryInfo[temp][ACCESSORY_NAME]))
+						ShowPopup(POPUP_ACCESSORYNOTFOUND, false, 0);
 					else if(IsAccessoryEquipped(0, 1 << temp)) { // I have and already equipped it
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						UnequipAccessory(1 << temp);
@@ -1358,31 +1355,27 @@ Script "DND Menu Input Handle" (void) {
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						EquipAccessory(1 << temp);
 					}
-					else {
-						// make into some popup function later
-						LocalAmbientSound("RPG/MenuError", 127);
-						GiveInventory("DnD_ShowPopup", 1);
-						GiveInventory("DnD_PopupError", 1);
-						SetInventory("DnD_PopupId", POPUP_MAXACCESSORYEQUIPPED);
-					}
+					else
+						ShowPopup(POPUP_MAXACCESSORYEQUIPPED, false, 0);
 				}
 				ClearPlayerInput(pnum);
 			}
 			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				if(curopt != MENU_FIRST_ACCESSORY_PAGE)
 					UpdateMenuPosition(curopt - 1);
 				else
 					UpdateMenuPosition(MENU_LOAD);
-				ClearPlayerInput(pnum);
 			}
 			else if(HasPressedRight(pnum)) {
+				ClearPlayerInput(pnum);
 				if(curopt != MENU_LAST_ACCESSORY_PAGE)
 					UpdateMenuPosition(curopt + 1);
-				ClearPlayerInput(pnum);
 			}
 		}
 		else if(curopt == MENU_SHOP) {
 			if(HasLeftClicked(pnum)) {
+				ClearPlayerInput(pnum);
 				if(boxid == MBOX_1)
 					temp = MENU_SHOP_WEAPON;
 				else if(boxid == MBOX_2)
@@ -1401,7 +1394,7 @@ Script "DND Menu Input Handle" (void) {
 					temp = -1;
 				if(boxid != MAINBOX_NONE && temp != -1)
 					UpdateMenuPosition(temp);
-				ClearPlayerInput(pnum);
+				
 			}
 			if(HasPressedLeft(pnum)) {
 				ClearPlayerInput(pnum);
@@ -1410,10 +1403,9 @@ Script "DND Menu Input Handle" (void) {
 		}
 		else if(curopt == MENU_SHOP_WEAPON) {
 			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE && boxid < MBOX_9) {
-					UpdateMenuPosition(GetWeaponPage(boxid));
-				}
 				ClearPlayerInput(pnum);
+				if(boxid != MAINBOX_NONE && boxid < MBOX_9)
+					UpdateMenuPosition(GetWeaponPage(boxid));
 			}
 			if(HasPressedLeft(pnum)) {
 				ClearPlayerInput(pnum);
@@ -1446,9 +1438,9 @@ Script "DND Menu Input Handle" (void) {
 			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON8_BEGIN, SHOP_WEAPON_SLOT8END, -1, -1);
 		else if(curopt == MENU_SHOP_AMMOSELECT) {
 			if(HasLeftClicked(pnum)) {
+				ClearPlayerInput(pnum);
 				if(boxid != MAINBOX_NONE)
 					UpdateMenuPosition(SHOP_FIRSTAMMO_PAGE + boxid - 1);
-				ClearPlayerInput(pnum);
 			}
 			if(HasPressedLeft(pnum)) {
 				ClearPlayerInput(pnum);
@@ -1497,8 +1489,10 @@ Script "DND Menu Input Handle" (void) {
 					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI_INDEX, SHOP_LASTARTI_INDEX, TRADE_BUY | TRADE_ARTIFACT, false);
 				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				UpdateMenuPosition(MENU_SHOP);
+			}
 		}
 		else if(curopt == MENU_SHOP_TALENT) {
 			if(HasLeftClicked(pnum)) {
@@ -1510,8 +1504,10 @@ Script "DND Menu Input Handle" (void) {
 					ProcessTrade(pnum, boxid - 1, SHOP_TALENT_BEGIN, SHOP_LASTTALENT_INDEX, TRADE_BUY | TRADE_TALENT, true);
 				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				UpdateMenuPosition(MENU_SHOP);
+			}
 		}
 		else if(curopt == MENU_SHOP_ARMOR1) {
 			if(HasLeftClicked(pnum)) {
@@ -1523,10 +1519,14 @@ Script "DND Menu Input Handle" (void) {
 				ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE1_BEGIN, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
 				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				UpdateMenuPosition(MENU_SHOP);
-			else if(HasPressedRight(pnum))
+			}
+			else if(HasPressedRight(pnum)) {
+				ClearPlayerInput(pnum);
 				UpdateMenuPosition(MENU_SHOP_ARMOR2);
+			}
 		}
 		else if(curopt == MENU_SHOP_ARMOR2) {
 			if(HasLeftClicked(pnum)) {
@@ -1538,8 +1538,10 @@ Script "DND Menu Input Handle" (void) {
 				ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE2_BEGIN, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
 				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				UpdateMenuPosition(MENU_SHOP_ARMOR1);
+			}
 		}
 		else if(curopt == MENU_SHOP_ACCOUNT) {
 			if(HasLeftClicked(pnum)) {
@@ -1547,11 +1549,14 @@ Script "DND Menu Input Handle" (void) {
 					ProcessTrade(pnum, boxid - 1, SHOP_ACCOUNT_BEGIN, SHOP_ACCOUNT_END, TRADE_BUY | TRADE_ACCOUNT, false);
 				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				UpdateMenuPosition(MENU_SHOP);
+			}
 		}
 		else if(curopt == MENU_RESEARCH) {
 			if(HasLeftClicked(pnum)) {
+				ClearPlayerInput(pnum);
 				if(boxid == MBOX_1)
 					UpdateMenuPosition(MENU_RESEARCH_BODY);
 				if(boxid == MBOX_2)
@@ -1560,21 +1565,24 @@ Script "DND Menu Input Handle" (void) {
 					UpdateMenuPosition(MENU_RESEARCH_GUNS);
 				if(boxid == MBOX_4)
 					UpdateMenuPosition(MENU_RESEARCH_UTILITY);
-				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				ReturnToMain();
+			}
 		}
 		else if(curopt == MENU_RESEARCH_GUNS) {
 			if(HasLeftClicked(pnum)) {
+				ClearPlayerInput(pnum);
 				if(boxid == MBOX_1)
 					UpdateMenuPosition(MENU_RESEARCH_SLOTGUNS);
 				if(boxid == MBOX_2)
 					UpdateMenuPosition(MENU_RESEARCH_LUXURYGUNS);
-				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				UpdateMenuPosition(MENU_RESEARCH);
+			}
 		}
 		else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END) {
 			if(MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_NEXTBUTTON)
@@ -1592,11 +1600,14 @@ Script "DND Menu Input Handle" (void) {
 				}
 				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				ReturnToMain();
+			}
 		}
 		else if(curopt == MENU_HELP) {
 			if(HasLeftClicked(pnum)) {
+				ClearPlayerInput(pnum);
 				if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
 					temp = MENU_HELP_BEGIN + boxid - 1;
 				else if(boxid > MENU_HELP_END - MENU_HELP_BEGIN + 1) {
@@ -1606,10 +1617,11 @@ Script "DND Menu Input Handle" (void) {
 				}
 				if(boxid != MAINBOX_NONE && temp != -1)
 					UpdateMenuPosition(temp);
-				ClearPlayerInput(pnum);
 			}
-			if(HasPressedLeft(pnum))
+			if(HasPressedLeft(pnum)) {
+				ClearPlayerInput(pnum);
 				ReturnToMain();
+			}
 		}
 		else if(curopt >= MENU_HELP_BEGIN && curopt <= MENU_HELP_END) {
 			ClearPlayerInput(pnum);
@@ -1697,7 +1709,7 @@ Script "DnD Menu Popup" (int pnum, int isSell, int activebox) {
 		GiveInventory("DnD_PopupSell", 1);
 		GiveInventory("DnD_ShowSellPopup", 1);
 		SetInventory("DnD_PopupID", activebox);
-		SetInventory("ActivePopupBox", activebox);
+		SetInventory("ActivePopupBox", pnum >> 16);
 	}
 	else {
 		GiveInventory("DnD_ShowPopup", 1);
@@ -1738,7 +1750,7 @@ Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
 	}
 	else if(popuptype == POPUP_SELL) {
 		title = "\c[Q2]CONFIRM";
-		toshow = StrParam(s:"Are you sure you\nwant to sell your\n\cd", s:ShopItemNames[CheckInventory("ActivePopupBox")][SHOPNAME_TAG], s:"\c- ?");
+		toshow = StrParam(s:"Are you sure you\nwant to sell your\n\cd", s:ShopItemNames[CheckInventory("DnD_PopupID")][SHOPNAME_TAG], s:"\c- ?");
 	}
 
 	if(!isSell) {
@@ -1749,4 +1761,12 @@ Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
 		HudMessage(s:title; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 0.0);
 		HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 0.0);
 	}
+}
+
+Script "DnD Menu Sell Popup Clear" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID, -1, 316.4, 136.1, 1.0);
+	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0);
+	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0);
 }

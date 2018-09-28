@@ -761,10 +761,10 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 	}
 	else {
 		res_state = CheckItemRequirements(itemid, RES_DONE, objectflag); // check if it is actually done
+		bool sellstate = false;
 		int color = offcolor;
 		str toshow = "\c[Y5]", colorprefix = "\cj", weptype = ""; // textcolor colors don't work for some reason
 		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
-		int sellstate = 0;
 		int curcredit = CheckInventory("Credit");
 		str itemtag = ShopItemNames[itemid][SHOPNAME_TAG];
 		str itemname = ShopItemNames[itemid][SHOPNAME_ITEM];
@@ -781,7 +781,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					color = oncolor;
 					colorprefix = "\c[M3]";
 					toshow = "\c[M3]";
-					sellstate = 1;
+					sellstate = true;
 				}
 				else { // no?
 					if(price > curcredit) {
@@ -987,23 +987,23 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				}
 			}
 		}
-		ClearPlayerInput(pnum);
 	}
 	else if(tradeflag & TRADE_SELL) {
 		itemid = low + posy;
-		if(itemid <= high && HasRightClicked(pnum)) {
+		if(itemid <= high) {
 			if(!CheckInventory("DnD_SellConfirm")) { // confirmation screen did not pop
 				buystatus = CanTrade(itemid, TRADE_SELL, 0);
 				if(buystatus) {
 					LocalAmbientSound("RPG/MenuSellConfirm", 127);
-					ShowPopup(0, true, itemid);
+					ShowPopup(posy + 1, true, itemid);
 					GiveInventory("DnD_SellConfirm", 1);
 				}
 				else
 					ShowPopup(POPUP_DONTOWN, false, 0);
 			}
 			else {
-				itemid = CheckInventory("ActivePopupBox");
+				// activepopupbox holds the boxid
+				itemid = low + CheckInventory("ActivePopupBox") - 1;
 				price = GetShopPrice(itemid, 0) / 2;
 				TakeInventory("DnD_SellConfirm", 1);
 				TakeInventory("DnD_PopupSell", 1);
@@ -1018,9 +1018,9 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				// reset buffs of weapon
 				ResetWeaponStats(itemid);
 				GiveInventory("Credit", price);
+				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
 			}
 		}
-		ClearPlayerInput(pnum);
 	}
 }
 
@@ -1092,15 +1092,9 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 	if(!CheckInventory("DnD_ClickTicker")) {
 		if(IsButtonPressed(bpress, obpress, BT_USE) || IsButtonPressed(bpress, obpress, BT_ATTACK)) {
 			GiveInventory("DnD_ClickTicker", 1);
-			if(CheckInventory("DnD_SellConfirm")) {
-				SetInventory("DnD_SellConfirm", 0);
-				SetInventory("DnD_PopupID", 0);
-				SetInventory("DnD_PopupSell", 0);
-				SetInventory("DnD_ShowPopup", 0);
-				SetInventory("DnD_ShowSellPopup", 0);
-			}
-			else
-				SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
+			if(CheckInventory("DnD_SellConfirm"))
+				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+			SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
 		}
 		else if(IsButtonPressed(bpress, obpress, BT_ALTATTACK)) {
 			GiveInventory("DnD_ClickTicker", 1);
@@ -2261,15 +2255,15 @@ void HandleWeaponPageInput(int pnum, int boxid, int wbegin, int wend, int pagepr
 		ClearPlayerInput(pnum);
 	}
 	if(HasPressedLeft(pnum)) {
+		ClearPlayerInput(pnum);
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_WEAPON);
 		else
 			UpdateMenuPosition(pageprev);
-		ClearPlayerInput(pnum);
 	}
 	else if(HasPressedRight(pnum) && pagenext != -1) {
-		UpdateMenuPosition(pagenext);
 		ClearPlayerInput(pnum);
+		UpdateMenuPosition(pagenext);
 	}
 }
 
@@ -2292,15 +2286,15 @@ void HandleAmmoPageInput(int pnum, int slot, int boxid, int pageprev, int pagene
 	}
 	
 	if(HasPressedLeft(pnum)) {
+		ClearPlayerInput(pnum);
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_AMMOSELECT);
 		else
 			UpdateMenuPosition(pageprev);
-		ClearPlayerInput(pnum);
 	}
 	else if(HasPressedRight(pnum) && pagenext != -1) {
-		UpdateMenuPosition(pagenext);
 		ClearPlayerInput(pnum);
+		UpdateMenuPosition(pagenext);
 	}
 }
 
