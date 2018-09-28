@@ -654,6 +654,9 @@ void LoadPlayerStash(int pnum, str pacc) {
 	ResetPlayerStash(pnum);
 	// load stash
 	SetInventory("DnD_PlayerInventoryPages", GetDBEntry(DND_DB_STASH_PAGES, pacc));
+	// keep base amount at 1
+	if(!CheckInventory("DnD_PlayerInventoryPages"))
+		GiveInventory("DnD_PlayerInventoryPages", 1);
 	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
 		for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
 			temp = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), pacc);

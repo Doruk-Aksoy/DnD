@@ -1024,7 +1024,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 	}
 }
 
-void DrawHighLightBar (int posy, int drawlit) {
+void DrawHighLightBar (int posy, bool drawlit) {
 	if(posy == MAINBOX_NONE)
 		HudMessage(s:""; HUDMSG_PLAIN, RPGMENULISTID - 7, -1, 47.1, 99.1, 0.0, 0.0);
 	else {
@@ -1086,7 +1086,6 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 				SetInventory("MenuInput", DND_MENUINPUT_NEXTBUTTON);
 			}
 		}
-		// implement server - client synced scroll here using inventory sometime
 	}
 	
 	if(!CheckInventory("DnD_ClickTicker")) {
@@ -2709,7 +2708,7 @@ void HandleM2Inputs(int boxid, int source, int seloffset, int prevsource) {
 void HandleInventoryViewClicks(int boxid, int choice) {
 	int bid;
 	int epos, ipos;
-	if(choice == 1) {
+	if(choice == DND_MENUINPUT_LCLICK) {
 		if(boxid != MAINBOX_NONE) {
 			// m1
 			if(!CheckInventory("DnD_SelectedInventoryBox")) {
@@ -2760,7 +2759,7 @@ void HandleInventoryViewClicks(int boxid, int choice) {
 			ActivatorSound("Items/Drop", 127);
 		}
 	}
-	else {
+	else if(choice == DND_MENUINPUT_RCLICK) {
 		HandleM2Inputs(boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	}
 	LocalAmbientSound("RPG/MenuChoose", 127);
@@ -3875,27 +3874,27 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 }
 
 bool HasPlayerClicked(int pnum) {
-	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK || MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
+	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK || MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
 }
 
 bool HasLeftClicked(int pnum) {
-	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK;
+	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK;
 }
 
 bool HasRightClicked(int pnum) {
-	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
+	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
 }
 
 bool HasPressedLeft(int pnum) {
-	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_PREVBUTTON;
+	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_PREVBUTTON;
 }
 
 bool HasPressedRight(int pnum) {
-	return MenuBoxes[pnum][DND_MENUINPUT] == DND_MENUINPUT_NEXTBUTTON;
+	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_NEXTBUTTON;
 }
 
 void ClearPlayerInput(int pnum) {
-	MenuBoxes[pnum][DND_MENUINPUT] = 0;
+	MenuInputData[pnum][DND_MENUINPUT] = 0;
 }
 
 void GetInputOnMenuPage(int opt) {

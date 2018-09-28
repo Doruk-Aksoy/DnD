@@ -1496,7 +1496,7 @@ Script 975 (int tid, int pang, int radius) {
 }
 
 // Level up / Bonus detecting
-Script 976 ENTER {
+Script "DnD Player Levelup Checker" (void) {
 	while(1) {
 		if(PlayerInGame(PlayerNumber()) && !CheckInventory("ParsingData")) {
 			if(CheckLevelUp()) {
@@ -1848,7 +1848,7 @@ Script 986 (int wepnum, int type) {
 	SetResultValue(!t);
 }
 
-Script 987 RESPAWN {
+Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
@@ -1924,7 +1924,7 @@ Script 990 UNLOADING {
 }
 
 // Enter level checks
-Script 991 ENTER {
+Script "DnD Player Setup" ENTER {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	SetInventory("SphereMade", 0);
 	SetInventory("OrbUseType", 0);
@@ -2032,6 +2032,7 @@ Script 991 ENTER {
 	else {
 		// we still need to sync all clientside variables here
 		GiveInventory("DnD_SyncMe", 1);
+		printbold(s:"sync order given");
 		ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
 	}
 	
@@ -2102,6 +2103,7 @@ Script 991 ENTER {
 	// for zombie quest to work
 	TakeInventory("DnD_ShotUndead", 1);
 	TakeInventory("ParsingData", 1);
+	ACS_NamedExecuteAlways("DnD Player Levelup Checker", 0);
 }
 
 Script "Force Sync Player Global Data" (void) {
@@ -3789,7 +3791,7 @@ Script "DnD Deathray Laser Trail" (int density, int target) CLIENTSIDE {
 }
 
 Script "DnD Force Sync Player Bonuses" (void) {
-	Delay(70);
+	Delay(TICRATE * 5);
 	if(CheckInventory("DnD_SyncMe"))
 		SyncAllClientsideVariables();
 }
