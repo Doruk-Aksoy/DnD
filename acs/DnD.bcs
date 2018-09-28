@@ -747,7 +747,8 @@ Script "DnD Monster RIP" (void) {
 
 Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	// spectators shouldn't see this
-	if(!PlayerInGame(ConsolePlayerNumber()))
+	// for some reason exp and credit can be 0, no idea how, but this fixes it
+	if(!PlayerInGame(ConsolePlayerNumber()) || (!exp && !credit))
 		Terminate;
 	int tid = ConsolePlayerNumber() + P_TIDSTART;
 	exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
@@ -765,7 +766,8 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
 	while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
 		Delay(2);
-	Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
+	if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
+		Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
 	SetActorInventory(tid, "DnD_Exp_Counter", 0);
 	SetActorInventory(tid, "DnD_Credit_Counter", 0);
 }
