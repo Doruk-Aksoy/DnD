@@ -370,13 +370,13 @@ void SavePlayerData(int pnum, int char_id) {
 	// save talents (8 bits per talent, can save 4 talents in one int)
 	temp = 0;
 	for(i = 0; i < 4; ++i)
-		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i][TALENT_NAME])) << (8 * i);
+		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i][TALENT_TAG])) << (8 * i);
 	// send temp over
 	SetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc, temp);
 	
 	temp = 0;
 	for(i = 4; i < MAX_TALENTS; ++i)
-		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i][TALENT_NAME])) << (8 * (i - 4));
+		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i][TALENT_TAG])) << (8 * (i - 4));
 	SetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc, temp);
 	
 	// save exp, credit and level (when loading give expvisual, amt = exp % levelcurve[level])
@@ -805,13 +805,13 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read talents
 	temp = GetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc);
 	for(i = 0; i < 4; ++i) {
-		SetInventory(TalentNames[i][TALENT_NAME], temp & 0xFF);
+		SetInventory(TalentNames[i][TALENT_TAG], temp & 0xFF);
 		temp >>= 8;
 	}
 	
 	temp = GetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc);
 	for(i = 4; i < MAX_TALENTS; ++i) {
-		SetInventory(TalentNames[i][TALENT_NAME], temp & 0xFF);
+		SetInventory(TalentNames[i][TALENT_TAG], temp & 0xFF);
 		temp >>= 8;
 	}
 	

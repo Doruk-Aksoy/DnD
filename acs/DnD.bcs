@@ -2032,7 +2032,6 @@ Script "DnD Player Setup" ENTER {
 	else {
 		// we still need to sync all clientside variables here
 		GiveInventory("DnD_SyncMe", 1);
-		printbold(s:"sync order given");
 		ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
 	}
 	

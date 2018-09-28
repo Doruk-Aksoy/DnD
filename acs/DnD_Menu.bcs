@@ -898,7 +898,7 @@ Script "DnD Retry Sending UntiL ACK" (int payload1, int payload2, int mainboxid)
 	if(!payload1 || CheckInventory("DND_ACKLoop"))
 		Terminate;
 	while(!CheckInventory("DnD_ACK")) {
-		Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
+		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
 		NamedRequestScriptPuke("DND Server Box Receive", payload1, payload2, mainboxid);
 		Delay(1);
 	}
@@ -910,10 +910,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 	if(!pnum)
 		Terminate;
 	int temp = pnum >> 16;
-	int dummy = pnum;
+	//int dummy = pnum;
 	pnum &= 0xFFFF;
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
-		printbold(s:"received ", d:dummy, s: " ", d:boxid, s: " ", d:mainboxid);
+		//printbold(s:"received ", d:dummy, s: " ", d:boxid, s: " ", d:mainboxid);
 		int curopt, i, j;
 
 		SetActivator(pnum + P_TIDSTART);
