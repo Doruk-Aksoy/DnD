@@ -102,7 +102,7 @@ Actor BackpackPickMSG : CustomInventory {
 }
 
 
-Actor NewAllMap : Allmap replaces Allmap {
+Actor NewAllMap : CustomInventory replaces Allmap {
     inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Area Map!\c-"
 	inventory.pickupsound "items/allmap"
 	States {
@@ -111,7 +111,18 @@ Actor NewAllMap : Allmap replaces Allmap {
 		SpawnIdle:
 			PMAP AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("AllMapFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
+		Pickup:
+			TNT1 A 0 A_GiveInventory("Allmap")
+			TNT1 A 0 A_GiveInventory("ExtendedScanner")
+		Stop
 	}
+}
+
+// ty qcde
+Actor ExtendedScanner : Scanner {
+	Inventory.MaxAmount 0
+	Powerup.Duration 0x7FFFFFFA
+	+Inventory.AUTOACTIVATE
 }
 
 Actor EvilSphere : Powerupgiver

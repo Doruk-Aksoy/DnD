@@ -326,7 +326,6 @@ Actor RegenStopper : PowerDamage {
 	powerup.duration -1
 }
 
-Actor DnD_PopupHack : DnD_Boolean { }
 Actor DnD_SellConfirm : DnD_Boolean { }
 Actor DnD_PopupError : DnD_Boolean { }
 Actor DnD_PopupSell : DnD_Boolean { }
@@ -474,4 +473,14 @@ Actor DnD_TradeMute_1 : Inventory {
 
 Actor DnD_TradeMute_2 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor DnD_MenuPlayerIcon {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			DICO Z 2
+		Stop
+	}
 }

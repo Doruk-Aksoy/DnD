@@ -78,6 +78,7 @@ Script 900 (void) NET {
 			DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 			
 			ACS_NamedExecuteAlways("DND Menu Draw", 0);
+			ACS_NamedExecuteAlways("DND Menu Icon Spawner", 0);
 			//ACS_NamedExecuteAlways("DND Menu Input Handle", 0);
 		}
 		else {
@@ -91,8 +92,15 @@ Script "DND On Disconnect Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 }
 
+Script "DND Menu Icon Spawner" (void) CLIENTSIDE {
+	while(CheckInventory("ShowingMenu")) {
+		SpawnForced("DnD_MenuPlayerIcon", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+		Delay(1);
+	}
+}
+
 Script "DND Menu Draw" (void) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber()) 
+	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	
 	bool sendBox = false;

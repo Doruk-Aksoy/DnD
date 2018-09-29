@@ -330,10 +330,12 @@ ACTOR ProjBullet : FastProjectile {
 
 Actor DnD_Intermission : DnD_Boolean { }
 
-Actor DND_ACK : PowerDamage {
-	powerup.duration 4
+Actor DND_ACK : PowerDamage { 
 	damagefactor "normal", 1.0
+	powerup.duration 4
 }
+
+Actor DND_ACKLoop : DnD_Boolean { }
 
 enum {
 	DND_SELF = 0,

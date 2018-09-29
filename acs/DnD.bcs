@@ -1060,7 +1060,7 @@ Script 917 (int ammo_category, int weptype) {
     // if a change did occur
 	if(HasSpecialAmmoForWeapon(ammo_category) != SpecialAmmoRanges[ammo_category][0]) {
 		SetSpecialAmmoMode(ammo_category, weptype);
-		if(ammo_category == AMMO_TYPE_SHELL)
+		if(ammo_category == AMMO_TYPE_SHELL || ammo_category == AMMO_TYPE_HEAVYSHELLS)
 			SetInventory(Weapons[GetCurrentWeaponID()][WEAPON_AMMO2], 0);
 		ActivatorSound("AmmoType/Switch", 127);
 		Delay(4);
