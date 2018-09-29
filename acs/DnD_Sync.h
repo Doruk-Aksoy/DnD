@@ -69,7 +69,10 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 		source &= 0xFFFF;
 	}
 	
-	if(source == DND_SYNC_ITEMSOURCE_CHARMUSED){
+	if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
+		// safety
+		if(extra >= MAX_CHARMS_EQUIPPABLE || extra < 0)
+			return 0;
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
 			return Charms_Used[pnum][extra].width;
@@ -94,6 +97,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_FIELD){
+		if(extra >= MAX_INVENTORIES_ON_FIELD || extra < 0)
+			return 0;
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
 			return Inventories_On_Field[extra].width;
@@ -120,6 +125,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
+		if(extra >= MAX_INVENTORY_BOXES || extra < 0)
+			return 0;
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
 			return PlayerInventoryList[pnum][extra].width;
@@ -146,6 +153,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW){
+		if(extra >= MAX_INVENTORY_BOXES || extra < 0)
+			return 0;
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
 			return TradeViewList[pnum][extra].width;
@@ -172,6 +181,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_STASH){
+		if(extra >= MAX_INVENTORY_BOXES || extra < 0)
+			return 0;
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
 			return PlayerStashList[pnum][page][extra].width;

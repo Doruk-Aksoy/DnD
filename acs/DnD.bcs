@@ -1900,6 +1900,7 @@ Script 989 (int pnum) DISCONNECT {
 	PlayerWillBeSaved[pnum] = false;
 	PlayerTransferred[pnum] = false;
 	ResetHardcoreStuff(pnum);
+	BreakTradesBetween(pnum);
 }
 
 // End of level checks
@@ -1997,7 +1998,7 @@ Script "DnD Player Setup" ENTER {
 	if(HardcoreSet) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
-		//Delay(17 * DND_MAX_MONSTERDELAY); //Unecessary delay here (monsters already wait for maxlvl to be set).
+		Delay(17 * DND_MAX_MONSTERDELAY);
 	}
 	
 	// Load period is finished, now check for level stats
@@ -2029,11 +2030,10 @@ Script "DnD Player Setup" ENTER {
 			GiveAndDoAllResearch();
 		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 	}
-	else {
-		// we still need to sync all clientside variables here
-		GiveInventory("DnD_SyncMe", 1);
-		ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
-	}
+
+	// force sync client stuff
+	GiveInventory("DnD_SyncMe", 1);
+	ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
 	
 	// if map changed, reset accessory stuff
 	if(MapChanged) {
@@ -3363,7 +3363,7 @@ Script "DND Hardcore Monster Message" (void) CLIENTSIDE {
 	SetFont("BIGFONT");
 	SetHudSize(640, 480, 0);
 	HudMessage(s:"Loading monsters..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
-	Delay(17 * (DND_MAX_MONSTERDELAY+2)); //Add 2 seconds to it to allow player script to finish first.
+	Delay(17 * (DND_MAX_MONSTERDELAY + 2)); //Add 2 seconds to it to allow player script to finish first.
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 }
 

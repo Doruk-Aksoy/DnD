@@ -67,7 +67,7 @@ server int dnd_monster_hpscalepercent = 5;
 server int dnd_monster_rewardscalepercent = 5;
 
 server float dnd_monster_variation_factor = 1.5;
-server float dnd_researchdroprate = 0.01;
+server float dnd_researchdroprate = 0.0025;
 server float dnd_monster_dmgscalepercent = 0.04;
 
 // Used for monster names

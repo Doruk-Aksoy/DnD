@@ -239,6 +239,7 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 0.0, 4.0 },
 	{ 0.0, 0.0 },
 	
+	// orbs
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
@@ -257,10 +258,12 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
 	
+	// chest keys
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
 	
+	// elixirs
 	{ 0.0, 10.0 },
 	{ 0.0, 10.0 },
 	{ 0.0, 10.0 },
@@ -1910,7 +1913,7 @@ void MakeUnique(int item_pos, int item_type) {
 		int roll = random(1, MAX_UNIQUE_WEIGHT);
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	#endif
-	//i = UITEM_OAKHEART;
+	//i = UITEM_LIFELEECH;
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);
 }

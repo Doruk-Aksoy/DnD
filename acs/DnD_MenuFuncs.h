@@ -2420,22 +2420,62 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	SetFont("SMALLFONT");
 }
 
+int GetTradeViewItemOffset(int itype, int bid, int curoffset) {
+	// side bar has 2 * MAX_INVENTORY_BOXES start anything else is less
+	if(itype > UNIQUE_BEGIN) {
+		if(bid == TRADE_BOXOFFSET)
+			return curoffset + 4.0;
+		if((itype >> 16) - 1 == UITEM_LIFELEECH)
+			return curoffset;
+		else if((itype >> 16) - 1 == UITEM_IRONBARK)
+			return curoffset + 1.0;
+		else if((itype >> 16) - 1 == UITEM_ANCIENTGEMSTONE)
+			return curoffset - 4.0;
+		return curoffset - 4.0;
+	}
+	else if(bid == TRADE_BOXOFFSET) {
+		if(itype == DND_ITEM_CHARM)
+			return curoffset + 4.0;
+		else if(itype == DND_ITEM_ELIXIR)
+			return curoffset + 4.0;
+		else if(itype == DND_ITEM_ORB)
+			return curoffset + 10.0;
+		else if(itype == DND_ITEM_CHESTKEY)
+			return curoffset + 10.0;
+	}
+	else if(itype == DND_ITEM_ELIXIR)
+		return curoffset - 10.0;
+	else if(itype == DND_ITEM_CHESTKEY)
+		return curoffset - 6.0;
+	return curoffset;
+}
+
 void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int basey, int skip, int idbase, int source, int pnum, int boff, int itemskipx, int itemskipy, int scale) {
 	int offset = 0;
+	int temp;
 	int img = GetItemSyncValue(DND_SYNC_ITEMIMAGE, bid, (pnum + 1) << 16, source);
 	// inventory icon
 	if(hasItem) {
 		offset = (GetItemSyncValue(DND_SYNC_ITEMHEIGHT, bid, (pnum + 1) << 16, source) - 1) * scale;
 		SetFont(Item_Images[img]);
 		if(scale == TRADEITEMOFFSETSCALE) {
+			// stash view
 			if(basex == STASHBOX_BASEX_UP) {
-				HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0 +  + Item_ImageOffsets[img][IOFFSET_Y], 0.0, 0.0);
+				HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0 + Item_ImageOffsets[img][IOFFSET_Y], 0.0, 0.0);
 			}
 			else {
-				if((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_TRADEVIEW)
-					HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 3.0 - Item_ImageOffsets[img][IOFFSET_X], basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0 + Item_ImageOffsets[img][IOFFSET_Y], 0.0, 0.0);
-				else
-					HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx - 4.0 + Item_ImageOffsets[img][IOFFSET_X], basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0 + Item_ImageOffsets[img][IOFFSET_Y], 0.0, 0.0);
+				if((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_TRADEVIEW) {
+					temp = GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, (pnum + 1) << 16, source);
+					HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, GetTradeViewItemOffset(temp, boff, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 3.0 - Item_ImageOffsets[img][IOFFSET_X]), basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0 + Item_ImageOffsets[img][IOFFSET_Y], 0.0, 0.0);
+				}
+				else {
+					if(boff == TRADE_BOXOFFSET) {
+						temp = GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, (pnum + 1) << 16, source);
+						HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, GetTradeViewItemOffset(temp, boff, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx - 4.0 - Item_ImageOffsets[img][IOFFSET_X]), basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0 + Item_ImageOffsets[img][IOFFSET_Y], 0.0, 0.0);
+					}
+					else
+						HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx - 4.0 + Item_ImageOffsets[img][IOFFSET_X], basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + offset - 4.0 + Item_ImageOffsets[img][IOFFSET_Y], 0.0, 0.0);
+				}
 			}
 		}
 		else
@@ -2449,10 +2489,16 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 					HudMessage(d:offset; HUDMSG_PLAIN, idbase - bid - boff - 2 * MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 14.2, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + 20.0, 0.0, 0.0);
 				}
 				else {
+					// trade but offerings side
 					if((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_TRADEVIEW)
 						HudMessage(d:offset; HUDMSG_PLAIN, idbase - bid - boff - 2 * MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx - 8.2, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + 20.0, 0.0, 0.0);
-					else
-						HudMessage(d:offset; HUDMSG_PLAIN, idbase - bid - boff - 2 * MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 22.2, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + 20.0, 0.0, 0.0);
+					else {
+						// inventory side in trade
+						if(boff == TRADE_BOXOFFSET)
+							HudMessage(d:offset; HUDMSG_PLAIN, idbase - bid - boff - 2 * MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 14.2, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + 20.0, 0.0, 0.0);
+						else // just inventory
+							HudMessage(d:offset; HUDMSG_PLAIN, idbase - bid - boff - 2 * MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 22.2, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + 20.0, 0.0, 0.0);
+					}
 				}
 			}
 			else
@@ -2563,19 +2609,19 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 		--itype;
 		// itype holds unique position, temp is the actual item type
 		HudMessage(s:"\c[A1]", s:UniqueItemNames[itype]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
-		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
+		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, pn, source)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
 		for(j = 0; j < i; ++j) {
-			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
-			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
+			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source);
+			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source);
 			if(val > 0) {
 				// dont show this, skip to next attribute's detail
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+					HudMessage(s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
 				}
 				else
 					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
@@ -2623,22 +2669,20 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 	}
 	
 	// highlight checking
-	if(boxid - 1 == bid + offset || topboxid != -1) {
+	if(boxid - 1 == bid + offset) {
 		InventoryBoxLit[boxid - 1] = BOXLIT_STATE_CURSORON;
 		if(topboxid != -1) {
-			// this if statement makes sure that other boxes who aren't implicated don't force a redraw
-			if(bid + offset == boxid - 1) {
-				CleanInventoryInfo();
-				DrawInventoryInfo(topboxid, source, pnum, dimx, dimy);
-			}
-		
-			ht = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, topboxid, (pnum + 1) << 16, source);
-			wt = GetItemSyncValue(DND_SYNC_ITEMWIDTH, topboxid, (pnum + 1) << 16, source);
-			// all boxes in range of this should be highlighted
-			for(p = 0; p < ht; ++p) {
-				for(s = 0; s < wt; ++s)
-					InventoryBoxLit[topboxid + s + p * MAXINVENTORYBLOCKS_VERT + offset] = BOXLIT_STATE_CURSORON;
-			}
+			CleanInventoryInfo();
+			DrawInventoryInfo(topboxid, source, pnum, dimx, dimy);
+		}
+	}
+	if(topboxid != -1) {
+		ht = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, topboxid, (pnum + 1) << 16, source);
+		wt = GetItemSyncValue(DND_SYNC_ITEMWIDTH, topboxid, (pnum + 1) << 16, source);
+		// all boxes in range of this should be highlighted
+		for(p = 0; p < ht; ++p) {
+			for(s = 0; s < wt; ++s)
+				InventoryBoxLit[topboxid + s + p * MAXINVENTORYBLOCKS_VERT + offset] = BOXLIT_STATE_CURSORON;
 		}
 	}
 	
@@ -2907,18 +2951,21 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	int i, j;
 	
 	CleanInventoryInfo();
+	ResetInventoryLitState();
 	// draw other player offering up top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEUP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_TRADEVIEW, GetTradee(), dimx, dimy);
 		}
 	}
+	ResetInventoryLitState();
 	// draw our offering below
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEDOWN, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_TRADEVIEW, pnum, dimx, dimy);
 		}
 	}
+	ResetInventoryLitState();
 	// draw our inventory to the side
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -2975,7 +3022,6 @@ void HandleInventoryViewTrade(int boxid) {
 	HudMessage(s:"\c[W3]Your Offering"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 160.4, 270.0, 0.0, 0.0);
 	HudMessage(s:"\c[W3]Your Inventory"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 6, CR_WHITE, 528.4, 170.0, 0.0, 0.0);
 	
-	ResetInventoryLitState();
 	HandleTradeBoxDraw(boxid, HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2);
 	
 	SetFont("SMALLFONT");
@@ -2988,6 +3034,8 @@ void CancelTrade(int pnum) {
 	TakeActorInventory(tid, "InTradeView", 1);
 	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
 	TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
+	TakeActorInventory(tid, "DnD_Trade_Confirmed", 1);
+	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
 	SetActorInventory(tid, "DnD_TradeEngaged_1", 0);
 	SetActorInventory(tid, "DnD_TradeEngaged_2", 0);
 	SetActorInventory(tid, "DnD_SelectedInventoryBox", 0);
@@ -3082,6 +3130,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					// cancel confirmation
 					TakeInventory("DnD_Trade_Confirmed", 1);
 					TakeInventory("DnD_TradeSpaceFit", 1);
+					TakeActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 1);
+					TakeActorInventory(bid + P_TIDSTART, "DnD_TradeSpaceFit", 1);
 				}
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
@@ -3089,7 +3139,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 				// cancel button
 				GiveInventory("DnD_Trade_CancelButtonPress", 1);
 				GiveInventory("DnD_Trade_Cooldown", 1);
-				ACS_NamedExecuteAlways("DnD Trade Cancel Button", 0);
+				ACS_NamedExecuteAlways("DnD Trade Cancel Button", 0, bid);
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
 			else if(boxid != MAINBOX_NONE) {
@@ -3266,7 +3316,7 @@ void HandleStashViewClicks(int boxid, int choice) {
 	int cpage, ppage, ssource, isource;
 	int ioffset = 0;
 	int soffset = 0;
-	if(choice == 1) {
+	if(choice == DND_MENUINPUT_LCLICK) {
 		if(!CheckInventory("DnD_SelectedInventoryBox") && boxid < STASHBUTTON_BOXID_START) {
 			SetInventory("DnD_SelectedInventoryBox", boxid);
 			LocalAmbientSound("RPG/MenuChoose", 127);

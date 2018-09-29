@@ -145,6 +145,31 @@ Actor OrbofCorruption : OrbDrop {
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		// states are copied to fix an animation problem... don't remove
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
+		PickupFail:
+			"####" "#" 1 Bright
+		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -169,6 +194,26 @@ Actor OrbofSpirit : OrbDrop {
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -190,9 +235,29 @@ Actor OrbofRepentance : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -214,9 +279,29 @@ Actor OrbofAffluence : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -238,9 +323,29 @@ Actor OrbofCalamity : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -262,9 +367,29 @@ Actor OrbofProsperity : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -286,9 +411,29 @@ Actor OrbofWisdom : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -310,9 +455,29 @@ Actor OrbofGreed : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -334,9 +499,29 @@ Actor OrbofViolence : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -358,9 +543,29 @@ Actor OrbofFortitude : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 
@@ -382,9 +587,29 @@ Actor OrbofSin : OrbDrop {
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 		
+		Pickup:
+			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
+		goto PickupFail
+
 		PickupFail:
 			"####" "#" 1 Bright
 		goto SpawnLoop
+		
+		PickupCheck2:
+			// Check if player has remaining inventory space
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
+		Goto PickupShowItem
+		
+		PickupShowItem:
+			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
+			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
+			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Goto PickupFail
+		
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+		stop
 	}
 }
 

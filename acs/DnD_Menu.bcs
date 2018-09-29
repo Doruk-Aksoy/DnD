@@ -93,10 +93,13 @@ Script "DND On Disconnect Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 }
 
 Script "DND Menu Icon Spawner" (void) CLIENTSIDE {
+	int tid = DND_MENUFLOATYICON_TID + PlayerNumber();
+	SpawnForced("DnD_MenuPlayerIcon", GetActorX(0), GetActorY(0), GetActorZ(0) + 64.0, tid);
 	while(CheckInventory("ShowingMenu")) {
-		SpawnForced("DnD_MenuPlayerIcon", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+		SetActorPosition(tid, GetActorX(0), GetActorY(0), GetActorZ(0) + 64.0, 0);
 		Delay(1);
 	}
+	Thing_Remove(tid);
 }
 
 Script "DND Menu Draw" (void) CLIENTSIDE {
@@ -453,7 +456,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES, RPGMENUID - 1);
 			SetHudSize(384, 200, 1);
 			SetFont("CRFTVW");
-			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 1, CR_CYAN, 164.0, 100.0, 0.0, 0.0);
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 164.0, 100.0, 0.0, 0.0);
 			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 			SetFont("SMALLFONT");
 			HandleCraftingView(InventoryPane, boxid, curopt, k);
@@ -1552,6 +1555,7 @@ Script "DND Menu Cleanup" (void) CLIENTSIDE {
 	DeleteText(RPGMENUHELPCORNERIDMAIN);
 	DeleteText(RPGMENUPAGEID);
 	DeleteText(RPGMENUPAGEID - 1);
+	DeleteText(RPGMENUHIGHLIGHTID);
 	
 	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
@@ -1566,9 +1570,9 @@ Script "DnD Toggle User Dash" (void) CLIENTSIDE {
 	SetCVar("dnd_dashstatus", !GetCVar("dnd_dashstatus"));
 }
 
-Script "DnD Trade Cancel Button" (void) {
+Script "DnD Trade Cancel Button" (int tradee) {
 	Delay(4);
-	CancelTradeRoutine(GetTradee());
+	CancelTradeRoutine(tradee);
 }
 
 Script "DnD Trade Countdown" (int p1, int p2) CLIENTSIDE {

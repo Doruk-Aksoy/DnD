@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 
 #define DND_AFTER50_INCREMENT_DAMAGE 0.33
 
@@ -39,6 +39,7 @@
 * 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
 * 1500 - 1563 = Temporary tid assignment of pets
 * 1600 - 1663 = Temporary tid assignment for spells
+* 1664 - 1727 = Menu icon above people
 * 2000 - 2063 = Deathray marker TID for players
 * 3000 - 3063 = Initial railgun trail ID
 * 3500 - 3563 = In-between trails ID for railgun

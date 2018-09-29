@@ -69,7 +69,6 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 	Inventories_On_Field[charm_pos].item_subtype = charm_type;
 	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
 	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + charm_type;
-	printbold(s:"item level ", d:Inventories_On_Field[charm_pos].item_level);
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
 			Inventories_On_Field[charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);

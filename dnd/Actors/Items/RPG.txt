@@ -478,9 +478,10 @@ Actor DnD_TradeMute_2 : Inventory {
 Actor DnD_MenuPlayerIcon {
 	+NOINTERACTION
 	+CLIENTSIDEONLY
+	Scale 0.825
 	States {
 		Spawn:
-			DICO Z 2
+			DICO Z -1
 		Stop
 	}
 }

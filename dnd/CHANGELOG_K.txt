@@ -48,10 +48,12 @@ LEGEND:
 ! "Charisma" now also increases your base pet cap per 20 points. Base pet cap is 3.
 ! Changed the way stats are displayed in stat menu to acommodate newer ways to obtain stat bonuses.
 ! "Area Scanner" item now gives more info about objects on the map.
+! 
 * Major improvements to the menu code and how it's handled. Servers should have even less burden now regarding that.
 * Major improvements to how damage is calculated on player weapons. Most of the calculation results are saved properly now and only recalculated if needed.
 	- Weapon damage random ranges are applied last to a weapon's damage calculation now. So if a weapon did 5-10-15 damage, the base is assumed 5 and random range is 1 to 3.
 		* The multiplier, 1 to 3 is chosen at random AFTER all damage calculations EXCEPT critical hits.
+* Increased monster spawn intervals to 4.5 seconds max from 2.5 seconds.
 * "Explosive Shells" now requires either "Riot Gun" research or "Slot 3 Luxury" research to be made to be bought.
 * "Luck" stat now affects coin drops.
 * Coin messages won't display if their worth is below 25 credits anymore.
@@ -129,6 +131,7 @@ LEGEND:
 * Changed grenade bouncing a bit.
 * "Nuclear Plasma Rifle" now properly overheats with "Hand of Artemis" equipped.
 * The following weapons no longer knock you back with "Gryphon Boots" equipped: "Viper Staff", "Nitrogen Crossbow", "Shocker", "Minigun", "Lead Spitter", "Freezer Cannon", "Thunder Staff", "Heavy Nailgun".
+- Default research drop rate lowered to 0.0025 from 0.01. (Down to 0.25% from 1%)
 + "Orb of Prosperity" max limit increased to +1000 from +500.
 + "Hardcore" and "Softcore" damage amp reduced to 15% from 25%.
 + Monster damage values in "Hardcore" and "Softcore" now scale by 4% instead of 5%.
