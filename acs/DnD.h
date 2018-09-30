@@ -430,6 +430,21 @@ int CheckLevelUp (void) {
 	return GetStat(STAT_LVL) - curlevel;
 }
 
+void HandleLevelup() {
+	if(CheckLevelUp()) {
+		LocalAmbientSound("RPG/LevelUp", 127);
+		GiveInventory("LevelUpEffectSpawner", 1);
+		GiveInventory("LeveledUp", 1);
+		++total_level;
+		if(GetStat(STAT_LVL) - 1 == max_level)
+			max_level = GetStat(STAT_LVL);
+		// heal on level up flag is on
+		if(GetCVar("dnd_healonlevelup"))
+			ACS_ExecuteAlways("DnD Health Pickup", 0, 100, 0);
+		ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
+	}
+}
+
 int DnD_BonusMessageY(int bonustype) {
 	int res = 34.1;
 	for(int i = DND_STATECHECK_KILLBONUS; i <= DND_STATECHECK_BONUSBONUS; ++i)
@@ -594,8 +609,7 @@ void DistributeBonus(int bonustype) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				temp = GetActorStat(i + P_TIDSTART, STAT_LVLEXP) * bval / 100;
 				GiveActorInventory(i + P_TIDSTART, "DnD_KillBonusShower", 1);
-				GiveActorInventory(i + P_TIDSTART, "Exp", temp);
-				GiveActorInventory(i + P_TIDSTART, "ExpVisual", temp);
+				GiveActorExp(i + P_TIDSTART, temp);
 			}
 		}
 	}
@@ -604,7 +618,7 @@ void DistributeBonus(int bonustype) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				GiveActorInventory(i + P_TIDSTART, "DnD_ItemBonusShower", 1);
-				GiveActorInventory(i + P_TIDSTART, "Credit", bval);
+				GiveActorCredit(i + P_TIDSTART, bval);
 			}
 		}
 	}

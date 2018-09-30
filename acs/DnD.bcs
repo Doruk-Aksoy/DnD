@@ -1495,23 +1495,10 @@ Script 975 (int tid, int pang, int radius) {
 	}
 }
 
-// Level up / Bonus detecting
-Script "DnD Player Levelup Checker" (void) {
+// Checks Ankh
+Script "DnD Ankh Checker" (void) {
 	while(1) {
 		if(PlayerInGame(PlayerNumber()) && !CheckInventory("ParsingData")) {
-			if(CheckLevelUp()) {
-				LocalAmbientSound("RPG/LevelUp", 127);
-				GiveInventory("LevelUpEffectSpawner", 1);
-				GiveInventory("LeveledUp", 1);
-				++total_level;
-				if(GetStat(STAT_LVL) - 1 == max_level)
-					max_level = GetStat(STAT_LVL);
-				// heal on level up flag is on
-				if(GetCVar("dnd_healonlevelup"))
-					ACS_ExecuteAlways("DnD Health Pickup", 0, 100, 0);
-				ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
-			}
-			
 			// ankh check
 			if(!CheckInventory("P_Invulnerable") && GetActorProperty(0, APROP_HEALTH) == 1 && !CheckInventory("Intervened") && IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH) && CheckInventory("CanIntervene")) {
 				GiveInventory("Intervention", 1);
@@ -1524,6 +1511,10 @@ Script "DnD Player Levelup Checker" (void) {
 		}
 		Delay(5);
 	}
+}
+
+Script "DnD Player Levelup Check" (void) {
+	HandleLevelup();
 }
 
 // Weapon tip display
@@ -1853,7 +1844,7 @@ Script "DnD On Respawn" RESPAWN {
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
 	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE);
-	ACS_ExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
+	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(PlayerNumber(), INV_ACCURACY_INCREASE));
 	SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
 	GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
@@ -2102,7 +2093,8 @@ Script "DnD Player Setup" ENTER {
 	// for zombie quest to work
 	TakeInventory("DnD_ShotUndead", 1);
 	TakeInventory("ParsingData", 1);
-	ACS_NamedExecuteAlways("DnD Player Levelup Checker", 0);
+	if(!(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore"))))
+		ACS_NamedExecuteAlways("DnD Ankh Checker", 0);
 }
 
 Script "Force Sync Player Global Data" (void) {

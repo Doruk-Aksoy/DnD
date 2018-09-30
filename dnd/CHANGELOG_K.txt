@@ -63,6 +63,7 @@ LEGEND:
 * "Soul Render" blade charge is also saved to database now in hardcore/softcore modes.
 * Player pain sounds for "Marine", "Hobo" and "Punisher" now respect health ratios properly.
 * Fixed a bug with weapon damage calculations where sometimes it wouldn't use the weapon the attack was fired from properly.
+* Fixed an unknown script error when dying and respawning.
 * Fixed the highlight bar on the main side bar of DnD Menu.
 * Redone how "Soul Stealer" ability works. It now drops souls on the floor instead of directly giving souls to you. Big monster souls also give 3 instead of 5 now.
 * Fixed a cause for potential crash regarding picking up armors.

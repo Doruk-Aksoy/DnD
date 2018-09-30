@@ -167,6 +167,14 @@ Actor Perk_Luck : Ammo {
 	+IGNORESKILL
 }
 
+Actor LevelUpChecker : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player Levelup Check")
+		Stop
+	}
+}
+
 Actor CriticalHit : PowerDamage {
 	Damagefactor "normal", 2.0
 	powerup.duration 10 // adjust this to the delay in the loop it is given

@@ -195,6 +195,7 @@ void GiveExp(int amt) {
 	GiveInventory("ExpVisual", amt);
 	GiveInventory("SpreeXP", amt);
 	GiveInventory("LevelExp", amt);
+	GiveInventory("LevelUpChecker", 1);
 }
 
 void GiveActorExp(int tid, int amt) {
@@ -202,6 +203,7 @@ void GiveActorExp(int tid, int amt) {
 	GiveActorInventory(tid, "ExpVisual", amt);
 	GiveActorInventory(tid, "SpreeXP", amt);
 	GiveActorInventory(tid, "LevelExp", amt);
+	GiveActorInventory(tid, "LevelUpChecker", 1);
 }
 
 void GiveCredit(int amt) {
