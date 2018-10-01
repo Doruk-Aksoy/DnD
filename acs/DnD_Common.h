@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 
 #define DND_AFTER50_INCREMENT_DAMAGE 0.33
 

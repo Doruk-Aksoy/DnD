@@ -736,8 +736,7 @@ void HandleCashDrops(int pnum, bool isElite) {
 bool PlayersReadyForHardcore() {
 	bool res = 0;
 	int players_notready = 0;
-	for(int i = 0; i < MAXPLAYERS; ++i)
-	{
+	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if (PlayerInGame(i)) {
 			res |= PlayerCanLoad[i];
 			if (PlayerCanLoad[i]) players_notready++;

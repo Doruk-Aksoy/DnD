@@ -1361,6 +1361,7 @@ Script 957 (int category) {
     // wait for the players to enter (returns 0 to imply everyone ready)
     while(max_level <= 0 || PlayersReadyForHardcore())
         Delay(10);
+	picked = 0;
 	// throttle the spawns
 	if(GameType() != GAME_SINGLE_PLAYER)
 		Delay(17 * random(0, DND_MAX_MONSTERDELAY));
@@ -1991,6 +1992,25 @@ Script "DnD Player Setup" ENTER {
 	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
 	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] == PlayerCount())
 		MapChanged = 0;
+	
+	// Checks if we should set the lives to the inventory or not (also includes one time execute things)
+	// when player joins for the first time
+	if(CheckInventory("SetMyLives")) {
+		// can only reflect once per map
+		SetInventory("ReflectCount", 0);
+		SetInventory("Intervened", 0);
+		SetInventory("CanIntervene", 1);
+		TakeInventory("SetMyLives", 1);
+		SetInventory("ShowingMenu", 0);
+		Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
+		StatListOpened[pnum] = 0;
+		GiveInventory(" Fists ", 1);
+		GiveInventory(" Pistol ", 1);
+		if(GetCVar("dnd_allresearchesfound"))
+			GiveAndDoAllResearch();
+		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
+	}
+	
 	if(PlayerInGame(pnum)) {
 		curlvl = GetStat(STAT_LVL);
 		total_level += curlvl;
@@ -2017,24 +2037,6 @@ Script "DnD Player Setup" ENTER {
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
 	TakeInventory("P_Frozen", 1);
-
-	// Checks if we should set the lives to the inventory or not (also includes one time execute things)
-	// when player joins for the first time
-	if(CheckInventory("SetMyLives")) {
-		// can only reflect once per map
-		SetInventory("ReflectCount", 0);
-		SetInventory("Intervened", 0);
-		SetInventory("CanIntervene", 1);
-		TakeInventory("SetMyLives", 1);
-		SetInventory("ShowingMenu", 0);
-		Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
-		StatListOpened[pnum] = 0;
-		GiveInventory(" Fists ", 1);
-		GiveInventory(" Pistol ", 1);
-		if(GetCVar("dnd_allresearchesfound"))
-			GiveAndDoAllResearch();
-		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
-	}
 
 	// force sync client stuff
 	GiveInventory("DnD_SyncMe", 1);
