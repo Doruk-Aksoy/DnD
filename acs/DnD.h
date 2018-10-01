@@ -212,7 +212,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
 	 "Fires 24 plasma balls in a circular fashion each doing 20 damage. Has a clip size of 5.",
 	 "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 108-180 damage in 96 unit radius. \cfIgnores shields.",
-	 "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 3 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.",
+	 "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.",
 	 
 	 "The explosive shotgun, the best there is. Fires 10 pellets, each doing 15 on hit. Each pellet does 32-48 damage in a small area. Does self damage. \cfIgnores shields.",
 	 "Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius, \cfignoring \cfshields\c-. Blades return to you after travelling a bit. Can't hit \cughosts.",
@@ -233,7 +233,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "A true classic. Just don't blow yourself up. Can be \cdreplaced. Can't hit \cughosts.",
 	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 144 unit radius. Can't hit \cughosts.",
 	 "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.",
-	 "Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 30 explosion damage in 96 unit radius. The shells explode 320 units to scatter 3 explosive particles each doing 20 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
+	 "Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to scatter into 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
 	 "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well. Main meteor \cfignores shields\c-.",
 	 "Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Alt fire loads more grenades in the chamber. At most 3 additional grenades. Can't hit \cughosts.",
 	 "Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius. Can \cgoverheat\c-.",

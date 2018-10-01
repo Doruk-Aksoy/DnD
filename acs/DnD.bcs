@@ -1604,7 +1604,7 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 	ShowBonusMessage(bonustype, y);
 }
 
-Script 980 ENTER {
+Script "DnD Monster Scanner Picker" ENTER {
 	int thisactor = ActivatorTID();
 	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, traits, traits2, nameskip, monprop;
 	bool monelite = false;
@@ -1649,14 +1649,16 @@ Script 980 ENTER {
 			SetInventory("TargetProperties", monprop);
 			SetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber()), temp);
 		}
+		// fixes initialization bug
+		SetActivator(thisactor);
 		Delay (1);
 	}
 }
 
-Script 981 ENTER CLIENTSIDE {
+Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 	int mmaxhp, hdisp, monhp, monlevel, monid, traits, traits2;
 	bool isPet = false;
-	while(1) {	
+	while(1) {
 		// if we have any shared items in our player queue to turn, do turn them
 		if(CheckInventory("Ability_MonsterInfo")) {
 			mmaxhp = CheckInventory("TargetMaximumHealth");
@@ -1986,6 +1988,18 @@ Script "DnD Player Setup" ENTER {
 	}
 	SetInventory("PlayersNotReady", 0);
 	
+	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
+	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] == PlayerCount())
+		MapChanged = 0;
+	if(PlayerInGame(pnum)) {
+		curlvl = GetStat(STAT_LVL);
+		total_level += curlvl;
+		if(max_level < curlvl)
+			max_level = curlvl;
+		if(min_level > curlvl)
+			min_level = curlvl;
+	}
+	
 	if(HardcoreSet) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
@@ -2049,18 +2063,6 @@ Script "DnD Player Setup" ENTER {
 	// Give Temporal Sphere
 	if(CheckInventory("Ability_Temporal") && !CheckInventory("TemporalSphere"))
         GiveInventory("TemporalSphere", 1);
-	
-	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
-	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] == PlayerCount())
-		MapChanged = 0;
-	if(PlayerInGame(pnum)) {
-		curlvl = GetStat(STAT_LVL);
-		total_level += curlvl;
-		if(max_level < curlvl)
-			max_level = curlvl;
-		if(min_level > curlvl)
-			min_level = curlvl;
-	}
 	
 	if(CheckInventory("QuestCompletionToken"))
 		ACS_NamedExecuteAlways("DND Quest Complete", 0);
