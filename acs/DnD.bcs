@@ -2529,7 +2529,7 @@ Script 1000 (int isSoftcore) {
 	// handle fixed point shit here because getcvar is stupid with them
 	ConsoleCommand("sv_coop_damagefactor 1.0");
 	ConsoleCommand("dnd_monster_dmgscalepercent 0.04");
-	ConsoleCommand("dnd_researchdroprate 0.01");
+	ConsoleCommand("dnd_researchdroprate 0.00249");
 	if(isSoftcore) {
 		ConsoleCommand("dnd_softcore true");
 		ConsoleCommand("dnd_hardcore false");

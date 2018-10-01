@@ -41,7 +41,7 @@ str FlagCheckList[MAXFLAGS] = {
 int FlagAcceptedValues[MAXFLAGS] = {
 	DND_HARDCORE_MAXLIVES,
 	1.0,
-	1,
+	0,
 	0,
 	1,
 	1,
@@ -184,7 +184,7 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	5,
 	5,
 	0.04,
-    0.0025
+    0.00249
 };
 
 // Checks pre-defined settings for hardcore mode that has character saving
