@@ -939,9 +939,9 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	
 	{ "Talent_Ballistic",					"Ballistic Talent",					"",						"0"		    },
 	{ "Talent_Melee",						"Melee Talent",						"",						"0"		    },
-	{ "Talent_Occult",						"Occult Talent",					"",						"0"		    },
-	{ "Talent_Explosive",					"Explosive Talent",					"",						"0"		    },
 	{ "Talent_Energy",						"Energy Talent",					"",						"0"		    },
+	{ "Talent_Explosive",					"Explosive Talent",					"",						"0"		    },
+	{ "Talent_Occult",						"Occult Talent",					"",						"0"		    },
 	{ "Talent_Elemental",                   "Elemental Talent",                 "",                     "0"         },
 	
 	{ "NewGreenArmor",						"Green Armor",						"",						"0"		    },

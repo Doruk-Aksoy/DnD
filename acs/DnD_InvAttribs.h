@@ -169,7 +169,6 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_DamagePercent", "% increased damage" },
 	{ "IATTR_Accuracy", " to accuracy rating" },
 	
-	
 	{ "IATTR_StatBonus_STR", " to strength" },
 	{ "IATTR_StatBonus_DEX", " to dexterity" },
 	{ "IATTR_StatBonus_BUL", " to bulkiness" },
