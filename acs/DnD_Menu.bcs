@@ -831,6 +831,9 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]Stats\c-"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
 		}
 		
+		// the above is 0 or 1, this one is 2 or 4
+		// trick to make this light up when both stats and perks are up
+		i |= 2;
 		if(CheckInventory("PerkPoint") && 
 		   !((CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
 			(CheckInventory("Perk_Endurance") == DND_PERK_MAX) &&
@@ -842,7 +845,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			(CheckInventory("Perk_Savagery") == DND_PERK_MAX) &&
 			(CheckInventory("Perk_Luck") == DND_PERK_MAX))
 		   && !(framecounter % 2)) {
-			i = mainboxid == MAINBOX_PERK;
+			i |= (mainboxid == MAINBOX_PERK) * 4;
 			HudMessage(s:"\c[B3]Perks\c-"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
 		}
 		else {
@@ -851,6 +854,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			else
 				HudMessage(s:"\c[Y5]Perks\c-"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
 		}
+		DrawHighLightBar(mainboxid, i);
 		
 		// Rest of the side bar options
 		if(mainboxid == MAINBOX_LOAD)
@@ -880,7 +884,6 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 		HudMessage(s:"\c[Y5]Lasted: \cj", d:CheckInventory("RoundsSurvived"); HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
 		
-		DrawHighLightBar(mainboxid, i);
 		// Main Menu Side Bar Ends
 		
 		// Handle all types of popups
@@ -931,9 +934,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 	int temp = pnum >> 16;
 	//int dummy = pnum;
 	pnum &= 0xFFFF;
-	printbold(s:"received prev item ", d:boxid >> 16);
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
-		printbold(s:"not in delay");
 		//printbold(s:"received ", d:dummy, s: " ", d:boxid, s: " ", d:mainboxid);
 		int curopt, i, j;
 

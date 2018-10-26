@@ -1024,7 +1024,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 	}
 }
 
-void DrawHighLightBar (int posy, bool drawlit) {
+void DrawHighLightBar (int posy, int drawstate) {
 	if(posy == MAINBOX_NONE)
 		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0, 0.0);
 	else if(posy < FIRST_CLICKABLE_BOXID) {
@@ -1035,12 +1035,18 @@ void DrawHighLightBar (int posy, bool drawlit) {
 		if(posy > 3)
 			yadd += 8;
 		SetHudSize(384, 200, 1);
-		if(drawlit)
+		// trick to make this light up when both stats and perks are up
+		if(drawstate & 1 || drawstate & 4)
 			SetFont("BARHIGHL");
 		else
 			SetFont("BARHIGH");
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1 + 1.0 * yadd, 0.0, 0.0);
 	}
+	else
+		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0, 0.0);
+	// restore default
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	SetFont("SMALLFONT");
 }
 
 void ReturnToMain() {
@@ -2857,12 +2863,25 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			}
 		}
 		else {
-			if(CheckInventory("DnD_InventoryView") && CheckInventory("DnD_SelectedInventoryBox") && GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
-				// drop selected item
-				DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-				ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-				SetInventory("DnD_SelectedInventoryBox", 0);
-				ActivatorSound("Items/Drop", 127);
+			// we clicked outside bounds
+			if(CheckInventory("DnD_InventoryView")) {
+				// ok we are in inventory view
+				if(CheckInventory("DnD_SelectedInventoryBox")) {
+					// we have selected a box previously, if this has an item drop it otherwise clear it
+					if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
+						// drop selected item
+						DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+						ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+						ActivatorSound("Items/Drop", 127);
+					}
+					// clear selection
+					SetInventory("DnD_SelectedInventoryBox", 0);
+				}
+				else { 
+					// just exit if nothing was selected
+					TakeInventory("DnD_InventoryView", 1);
+					LocalAmbientSound("RPG/MenuClose", 127);
+				}
 			}
 		}
 		ClearPlayerInput(pnum);
@@ -3890,7 +3909,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
 								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON)) {
-									Log(d:DND_WEAPON_MFG, s: " vs ", d:previtemindex);
+									//Log(d:DND_WEAPON_MFG, s: " vs ", d:previtemindex);
 									GiveInventory("DnD_RefreshPane", 1);
 									UsePlayerItem(pnum, itemindex);
 								}
