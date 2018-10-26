@@ -626,7 +626,7 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 int RollItemLevel() {
 	int res = 0;
 	// return average player level, +- some value
-	int pavg = total_level / PlayerCount();
+	int pavg = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 	if(pavg > 2 * ITEMLEVEL_VARIANCE_LOWER) {
 		res = pavg + random(-ITEMLEVEL_VARIANCE_LOWER, ITEMLEVEL_VARIANCE_HIGHER);
 		if(res > MAX_ITEM_LEVEL)

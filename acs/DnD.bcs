@@ -163,12 +163,12 @@ Script 701 OPEN CLIENTSIDE {
 	}
 }
 
-Script 702 OPEN {
+Script "DnD On Map Load" OPEN {
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(17);
 	CalculateMapDifficulty();
 	// wait while total level is not initialized
-	while(!total_level)
+	while(!PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL])
 		Delay(35);
 	Delay(17);
 	PickQuest();
@@ -635,7 +635,7 @@ Script "DND On Kill" KILL {
 		// accessory drops (accept only from cyber and spider masterminds)
 		if(IsBoss()) {
 			if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
-				if((total_level / PlayerCount()) >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
+				if((PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART]) >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
 					// we can drop the spawner
 					SpawnAccessory();
 				}
@@ -1265,7 +1265,7 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 		SetInventory("MonsterTraits", traits);
 		SetInventory("MonsterTraits2", traits2);
 
-		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && total_level / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			// hopefully people won't turn to elites?
 			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
 				Terminate;
@@ -1318,7 +1318,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 		SetInventory("MonsterTraits2", traits2);
 		SetInventory("MonsterProperties", properties);
 		
-		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && total_level / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			// hopefully people won't turn to elites?
 			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
 				Terminate;
@@ -1359,7 +1359,7 @@ Script 957 (int category) {
     int picked = 0;
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
-    while(max_level <= 0 || PlayersReadyForHardcore())
+    while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersReadyForHardcore())
         Delay(10);
 	picked = 0;
 	// throttle the spawns
@@ -1367,7 +1367,7 @@ Script 957 (int category) {
 		Delay(17 * random(0, DND_MAX_MONSTERDELAY));
 	int roll, bin;
 	// roll legendary monster chance and do checks of it
-	if(!MadeLegendary && category == DND_CYBERDEMONID && random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && max_level >= 25) {
+	if(!MadeLegendary && category == DND_CYBERDEMONID && random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] >= 25) {
 		MadeLegendary = 1;
 		// decide which legendary
 		roll = random(1, DND_MAX_LEGENDARY);
@@ -1397,7 +1397,7 @@ Script 957 (int category) {
 					int m_level = Monster_Weights[category][bin] << 16;
 					int ratio = FixedMul(factor, FixedDiv(Monster_Weights[category][0] << 16, m_level));
 					int bias = random(0, 1.5);
-					if(ratio <= bias + FixedDiv(GetGameLevelInfo(LEVEL_MAX) << 16, m_level)) {
+					if(ratio <= bias + FixedDiv(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] << 16, m_level)) {
 						SetActorState(0, StrParam(s:"Var", d:bin), true);
 						picked = 1;
 					}
@@ -2013,11 +2013,12 @@ Script "DnD Player Setup" ENTER {
 	
 	if(PlayerInGame(pnum)) {
 		curlvl = GetStat(STAT_LVL);
-		total_level += curlvl;
-		if(max_level < curlvl)
-			max_level = curlvl;
-		if(min_level > curlvl)
-			min_level = curlvl;
+		PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] += curlvl;
+		++PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+		if(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] < curlvl)
+			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = curlvl;
+		if(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] > curlvl)
+			PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = curlvl;
 	}
 	
 	if(HardcoreSet) {
@@ -2093,7 +2094,7 @@ Script "DnD Player Setup" ENTER {
 	if(HardcoreSet && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 	
-	SetInventory("DnD_PTotalLevel", total_level);
+	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
 	// for zombie quest to work
 	TakeInventory("DnD_ShotUndead", 1);
 	TakeInventory("ParsingData", 1);

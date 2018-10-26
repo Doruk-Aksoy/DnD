@@ -68,9 +68,16 @@ global bool 7: PlayerDied[MAXPLAYERS];
 
 #define MAX_SCREENRES_OFFSETS 4
 int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1 };
-int total_level = 0, min_level = INT_MAX, max_level = INT_MIN;
 int active_quest_id = -1;
 int dnd_monster_tid = DND_MONSTERTID_BEGIN;
+
+#define PLAYERLEVELINFO_LEVEL 0
+#define PLAYERLEVELINFO_MINLEVEL 1
+#define PLAYERLEVELINFO_MAXLEVEL 2
+#define PLAYERLEVELINFO_COUNTATSTART 3
+int PlayerInformationInLevel[4] = {
+	0, INT_MAX, INT_MIN, 0
+};
 
 void GiveMonsterTID (void) {
 	Thing_ChangeTID(0, dnd_monster_tid++);
@@ -204,18 +211,6 @@ int IsAlive() {
 
 int IsActorAlive(int tid) {
 	return GetActorProperty(tid, APROP_HEALTH) > 0;
-}
-
-int GetGameLevelInfo(int type) {
-    switch(type) {
-        case LEVEL_TOTAL:
-            return total_level;
-        case LEVEL_MIN:
-            return min_level;
-        case LEVEL_MAX:
-            return max_level;
-    }
-	return total_level;
 }
 
 // Copied from ZDWiki.

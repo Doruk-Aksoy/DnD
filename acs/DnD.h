@@ -435,9 +435,9 @@ void HandleLevelup() {
 		LocalAmbientSound("RPG/LevelUp", 127);
 		GiveInventory("LevelUpEffectSpawner", 1);
 		GiveInventory("LeveledUp", 1);
-		++total_level;
-		if(GetStat(STAT_LVL) - 1 == max_level)
-			max_level = GetStat(STAT_LVL);
+		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
+		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
+			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
 		// heal on level up flag is on
 		if(GetCVar("dnd_healonlevelup"))
 			ACS_ExecuteAlways("DnD Health Pickup", 0, 100, 0);
@@ -669,7 +669,7 @@ void HandleHunterTalisman() {
 
 void PickQuest() {
 	if(GetCVar("dnd_enable_quests")) {
-		if(GetCVar("dnd_quest_avglevel") <= (total_level / PlayerCount()) && random(1, 100) <= Clamp_Between(GetCVar("dnd_quest_chance"), 1, 100)) {
+		if(GetCVar("dnd_quest_avglevel") <= (PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerCount()) && random(1, 100) <= Clamp_Between(GetCVar("dnd_quest_chance"), 1, 100)) {
 			do {
 				active_quest_id = random(0, MAX_QUESTS - 1);
 			} while(!IsValidQuest(active_quest_id));
@@ -923,7 +923,7 @@ void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str t
 void ScaleMonster(int pcount) {
 	int base = GetActorProperty(0, APROP_HEALTH);
 	int add = 0, level = 1, low, high, temp;
-	level = total_level / pcount;
+	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount;
 	// ensure minions use master's level
 	if(GetActorProperty(0, APROP_MASTERTID)) {
 		//printbold(d:GetActorProperty(0, APROP_MASTERTID));
@@ -942,7 +942,7 @@ void ScaleMonster(int pcount) {
 		level += random(low, high);
 	}
 	if(GetCVar("dnd_monsterlevel_behind"))
-		level = Clamp_Between(level, 1, total_level / pcount);
+		level = Clamp_Between(level, 1, PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount);
 	else
 		level = Clamp_Between(level, 1, DND_MAX_MONSTERLVL);
 	level = Clamp_Between(level, 1, GetCVar("dnd_maxmonsterlevel"));

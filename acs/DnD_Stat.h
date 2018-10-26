@@ -685,11 +685,22 @@ int GetCritModifier() {
 	return base;
 }
 
-void RecalculateTotalLevel() {
-	total_level = 0;
+void RecalculatePlayerLevelInfo() {
+	PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] = 0;
+	PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = INT_MAX;
+	PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = INT_MIN;
+	PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] = 0;
+	int temp = 0;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
-			total_level += CheckActorInventory(i + P_TIDSTART, "Level");
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+			temp = CheckActorInventory(i + P_TIDSTART, "Level");
+			PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] += temp;
+			if(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] > temp)
+				PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = temp;
+			if(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] < temp)
+				PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = temp;
+			++PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+		}
 	}
 }
 
@@ -704,7 +715,7 @@ void ResetHardcoreStuff(int pnum) {
 	ResetWeaponMods(pnum);
 	ResetMostRecentOrb(pnum);
 	ResetOrbData(pnum);
-	RecalculateTotalLevel();
+	RecalculatePlayerLevelInfo();
 	BreakTradesBetween(pnum);
 	// may join later, sync everything
 	if(PlayerIsSpectator(pnum)) {

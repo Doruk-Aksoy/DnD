@@ -66,7 +66,7 @@ int GetRandomEliteTrait() {
 }
 
 bool RollEliteChance() {
-	return random(1, DND_ELITE_RESOLUTION) <= Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + max_level * DND_ELITE_MIN_INCREMENT;
+	return random(1, DND_ELITE_RESOLUTION) <= Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * DND_ELITE_MIN_INCREMENT;
 }
 
 void SetEliteFlag(int f, int flagside) {
