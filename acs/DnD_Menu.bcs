@@ -184,17 +184,20 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 		// clean input buffer
 		SetInventory("MenuInput", 0);
+		// receives MenuInput
 		GetInputOnMenuPage(curopt);
-		temp = CheckInventory("MenuInput");
-		sendBox = temp != 0;
+		sendBox = CheckInventory("MenuInput") != 0;
 		
 		if(sendBox) {
 			// server gets a few extra info in boxid
-			temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
+			if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
+				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
 			i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
 			// guarantee nonzero input
-			if(i)
-				NamedRequestScriptPuke("DND Server Box Receive", i, temp, mainboxid);
+			if(i) {
+				Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+				NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid);
+			}
 		}
 		boxid_prev = boxid;
 		mainboxid_prev = mainboxid;
@@ -894,13 +897,17 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		if(!CheckInventory("DND_ACK")) {
 			if(sendBox) {
 				GiveInventory("DND_ACKLoop", 1);
-				temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
-				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), temp, mainboxid);
+				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
+				Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid);
 			}
 		}
 		else {
 			sendBox = false;
 			SetInventory("MenuInput", 0);
+			Log(s:"reset input data");
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
 		}
 	}
 }
@@ -910,6 +917,7 @@ Script "DnD Retry Sending UntiL ACK" (int payload1, int payload2, int mainboxid)
 		Terminate;
 	while(!CheckInventory("DnD_ACK")) {
 		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
+		Log(s:"trying to send prev item ", d:payload2 >> 16);
 		NamedRequestScriptPuke("DND Server Box Receive", payload1, payload2, mainboxid);
 		Delay(1);
 	}
@@ -923,7 +931,9 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 	int temp = pnum >> 16;
 	//int dummy = pnum;
 	pnum &= 0xFFFF;
+	printbold(s:"received prev item ", d:boxid >> 16);
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
+		printbold(s:"not in delay");
 		//printbold(s:"received ", d:dummy, s: " ", d:boxid, s: " ", d:mainboxid);
 		int curopt, i, j;
 

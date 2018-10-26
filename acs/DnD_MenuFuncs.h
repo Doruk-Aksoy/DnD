@@ -3470,12 +3470,18 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 				if(tx != -1) {
 					bx = GetTotalStackOfMaterial(tx);
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
+						//Log(s:"update item boxlit material ", d:tx);
 						DrawCraftingInventoryInfo(CraftItemTypes[ty], tx, bx);
-						SetInventory("DnD_PlayerItemIndex", tx);
+						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
+						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
+						//SetInventory("DnD_PlayerItemIndex", tx);
 						SetFont("CRFBX_H2");
 					}
 					else if(prevclick == MATERIALBOX_OFFSET_BOXID + i) {
-						SetInventory("DnD_PlayerPrevItemIndex", tx);
+						//Log(s:"update prev item in material ", d:tx);
+						//SetInventory("DnD_PlayerPrevItemIndex", tx);
+						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
+						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
 						SetFont("CRFBX_H2");
 					}
 					else
@@ -3542,12 +3548,19 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 		for(; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES && j < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
 			if(CheckInventory(Weapons[i][WEAPON_NAME])) {
 				if(boxid - 1 == j) {
-					SetInventory("DnD_PlayerItemIndex", i);
+					//Log(s:"update item boxlit ", d:i);
+					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
+					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS1;
+					// self note: don't use the piece of shit inventories in clientside...
+					//SetInventory("DnD_PlayerItemIndex", i);
 					DrawCraftingInventoryInfo(DND_ITEM_WEAPON, i, 0);
 					SetFont("CRFBX_H");
 				}
 				else if(prevclick == j) {
-					SetInventory("DnD_PlayerPrevItemIndex", i);
+					//Log(s:"update prev item ", d:i);
+					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
+					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS2;
+					//SetInventory("DnD_PlayerPrevItemIndex", i);
 					SetFont("CRFBX_H");
 				}
 				else
@@ -3601,11 +3614,17 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 			if(tx != -1) {
 				if(boxid - 1 == j) {
 					DrawCraftingInventoryInfo(PlayerInventoryList[bx][tx].item_type, tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-					SetInventory("DnD_PlayerItemIndex", tx);
+					//Log(s:"update cur item inv ", d:tx);
+					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
+					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS1;
+					//SetInventory("DnD_PlayerItemIndex", tx);
 					SetFont("CRFBX_H");
 				}
 				else if(prevclick == j) {
-					SetInventory("DnD_PlayerPrevItemIndex", tx);
+					//Log(s:"update prev item inv ", d:tx);
+					//SetInventory("DnD_PlayerPrevItemIndex", tx);
+					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
+					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS2;
 					SetFont("CRFBX_H");
 				}
 				else
@@ -3871,6 +3890,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
 								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON)) {
+									Log(d:DND_WEAPON_MFG, s: " vs ", d:previtemindex);
 									GiveInventory("DnD_RefreshPane", 1);
 									UsePlayerItem(pnum, itemindex);
 								}

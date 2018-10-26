@@ -1630,7 +1630,7 @@ void SpawnOrb(int pnum) {
 			for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
 		#endif
 		#ifdef ISDEBUGBUILD
-			i = random(0, MAX_ORBS - 1);
+			i = 0;//i = random(0, MAX_ORBS - 1);
 		#endif
 		// c is the index on the field now
 		RollOrbInfo(c, i, true);
