@@ -215,7 +215,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 10, 5 },
 	{ 0.005, 0.015, 1 },
 	{ 0.025, 0.05, 2 },
-	{ 5, 15, 3 },
+	{ 0.05, 0.15, 3 },
 	{ 0.01, 0.03, 1 },
 	{ 2, 4, 2 },
 
@@ -332,6 +332,7 @@ str ItemAttributeString(int attr, int val) {
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
+		case INV_AMMOCAP_INCREASE:
 		return StrParam(s:"+ ", f:ftrunc(val * 100), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
 		default:
 			if(val > 0)

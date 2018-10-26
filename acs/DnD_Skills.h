@@ -105,7 +105,7 @@ str SpellInfo[MAX_SPELLS][3] = {
 void HandleZombieRaiseOnDeath(int target) {
 	int pet_tid = target - P_TIDSTART + TEMPORARY_PET_TID;
 	int this = ActivatorTID();
-	SpawnForced("ZombiePet", GetActorX(0), GetActorY(0), GetActorFloorZ(0), pet_tid);
+	SpawnForced("ZombiePet", GetActorX(this), GetActorY(this), GetActorFloorZ(this), pet_tid);
 	GiveActorInventory(target, "SummonedZombiePets", 1);
 	GiveActorInventory(target, "PetCounter", 1);
 	// assignments of properties

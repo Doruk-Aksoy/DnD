@@ -28,6 +28,8 @@ void HandleChestKeyDrop(bool isElite) {
 		// run each player's chance, drop for corresponding player only
 		#ifndef ISDEBUGBUILD
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_CHESTKEY_DROPRATE))
+		#else
+		if(PlayerInGame(i))
 		#endif
 			SpawnChestKey(i, isElite);
 	}
