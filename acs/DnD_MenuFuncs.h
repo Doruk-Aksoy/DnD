@@ -640,16 +640,16 @@ int GetMenuTalentBonus(int posy) {
 // returns 0 for buy being possible
 bool CanResearch(int respage, int posx) {
 	int status = CheckResearchStatus(ResearchInfo[respage][posx].res_id);
-	int finish_check = status != RES_DONE;
-	int found_check = status == RES_KNOWN;
-	int budget_check = CheckInventory("Budget") >= ResearchInfo[respage][posx].res_cost;
+	bool finish_check = status != RES_DONE;
+	bool found_check = status == RES_KNOWN;
+	bool budget_check = CheckInventory("Budget") >= ResearchInfo[respage][posx].res_cost;
 	if(finish_check && found_check && budget_check)
 		return false;
 	GiveInventory("DnD_PopupError", 1);
-	if(!found_check)
-		SetInventory("DnD_PopupId", POPUP_NEEDDISCOVER);
-	else if(!finish_check)
+	if(!finish_check)
 		SetInventory("DnD_PopupId", POPUP_ALREADYRESEARCHED);
+	else if(!found_check)
+		SetInventory("DnD_PopupId", POPUP_NEEDDISCOVER);
 	else
 		SetInventory("DnD_PopupId", POPUP_NOBUDGET);
 	return true;
@@ -2364,7 +2364,7 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 				CompleteResearch(ResearchInfo[page][curposx].res_id);
 			}
 			else
-				ShowPopup(buystatus, false, 0);
+				ShowPopup(CheckInventory("DnD_PopupId"), false, 0);
 		}
 		ClearPlayerInput(pnum);
 	}
