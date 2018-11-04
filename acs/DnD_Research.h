@@ -392,7 +392,7 @@ enum {
 
 #define MAX_RESEARCH_TRACKERS RES_TRACKER_IMP1 + 1
 str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
-	"Research_Slot3Upgrade3",
+	"Research_Slot3Upgrade3_Tracker",
 	"Research_Body_Hp_1_Tracker",
 	"Research_Body_Ar_1_Tracker",
 	"Research_Body_Im_1_Tracker"
