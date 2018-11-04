@@ -1516,6 +1516,21 @@ bool IsCraftableItem(int itype) {
 	return false;
 }
 
+bool IsUsableOnInventory(int itype) {
+	// just so that this is recognized
+	if(itype > UNIQUE_BEGIN)
+		itype &= 0xFFFF; // lower 16 bits contain item type
+	switch(itype) {
+		case DND_ITEM_CHARM:
+		case DND_ITEM_BOOT:
+		case DND_ITEM_HELM:
+		case DND_ITEM_NECKLACE:
+		case DND_ITEM_GLOVE:
+		return true;
+	}
+	return false;
+}
+
 // will count crafting materials the player has currently in their inventory
 int CountCraftingMaterials() {
 	int pnum = PlayerNumber();

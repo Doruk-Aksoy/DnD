@@ -3940,9 +3940,10 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 	bool res = false;
 	int itype = PlayerInventoryList[pnum][itemindex].item_type;
 	int isubtype = PlayerInventoryList[pnum][itemindex].item_subtype;
+	// self usable materials usually go here as they have targettype NULL
 	if(!IsCraftableItem(targettype)) {
 		if(itype == DND_ITEM_ORB) {
-			res = CanUseOrb(isubtype, 0);
+			res = CanUseOrb(isubtype, 0, 0);
 			if(res) {
 				ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, 0);
 			}
@@ -3953,7 +3954,8 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 		}
 	}
 	else if(itype == DND_ITEM_ORB) {
-		res = CanUseOrb(isubtype, target);
+		// targettype is a craftable item
+		res = CanUseOrb(isubtype, target, targettype);
 		if(res) {
 			ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, target);
 		}

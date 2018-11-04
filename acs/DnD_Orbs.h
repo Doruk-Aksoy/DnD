@@ -327,13 +327,13 @@ int RichesWeights[MAX_RICHES] = {
 	10
 };
 
-bool CanUseOrb(int orbtype, int extra) {
+bool CanUseOrb(int orbtype, int extra, int extratype) {
 	bool res = 0;
 	int temp = -1, i;
 	SetInventory("OrbUseType", orbtype + 1);
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
-			if(GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_ENCHANT, extra) != ENHANCEORB_MAX)
+			if(extratype == DND_ITEM_WEAPON && GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_ENCHANT, extra) != ENHANCEORB_MAX)
 				res = 1;
 		break;
 		case DND_ORB_CORRUPT:
@@ -387,22 +387,26 @@ bool CanUseOrb(int orbtype, int extra) {
 			res = GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1) != HOLDING_MAX;
 		break;
 		case DND_ORB_REFINEMENT:
-			// base checks for this orb were made before this function is called
-			res = 1;
+			if(IsUsableOnInventory(extratype))
+				res = 1;
 		break;
 		case DND_ORB_SCULPTING:
-			// don't let this be used on a unique
-			if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
-				res = 0;
-			else
-				res = PlayerInventoryList[PlayerNumber()][extra].attrib_count;
+			if(IsUsableOnInventory(extratype)) {
+				// don't let this be used on a unique
+				if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
+					res = 0;
+				else
+					res = PlayerInventoryList[PlayerNumber()][extra].attrib_count;
+			}
 		break;
 		case DND_ORB_ELEVATION:
-			// this one depends on attribute counts of items it is used on
-			if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
-				res = 0;
-			else if(PlayerInventoryList[PlayerNumber()][extra].item_type == DND_ITEM_CHARM)
-				res = PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype];
+			if(IsUsableOnInventory(extratype)) {
+				// this one depends on attribute counts of items it is used on
+				if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
+					res = 0;
+				else if(PlayerInventoryList[PlayerNumber()][extra].item_type == DND_ITEM_CHARM)
+					res = PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype];
+			}
 		break;
 	}
 	if(!res)
@@ -1630,7 +1634,7 @@ void SpawnOrb(int pnum) {
 			for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
 		#endif
 		#ifdef ISDEBUGBUILD
-			i = 0;//i = random(0, MAX_ORBS - 1);
+			i = random(0, MAX_ORBS - 1);
 		#endif
 		// c is the index on the field now
 		RollOrbInfo(c, i, true);
