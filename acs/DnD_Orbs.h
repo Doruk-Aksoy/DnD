@@ -327,6 +327,7 @@ int RichesWeights[MAX_RICHES] = {
 	10
 };
 
+// extra type holds the base item type, no extra information - this comes from the function that calls this
 bool CanUseOrb(int orbtype, int extra, int extratype) {
 	bool res = 0;
 	int temp = -1, i;
@@ -404,7 +405,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 				// this one depends on attribute counts of items it is used on
 				if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
 					res = 0;
-				else if(PlayerInventoryList[PlayerNumber()][extra].item_type == DND_ITEM_CHARM)
+				else if(extratype == DND_ITEM_CHARM)
 					res = PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype];
 			}
 		break;
