@@ -3433,6 +3433,8 @@ Script "DnD Orb Message" (int id) CLIENTSIDE {
 }
 
 Script "DnD Elixir Message" (int id) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
 	ActivatorSound("Items/ElixirPick", 127);
 	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:InventoryInfo[id + ELIXIR_BEGIN][SITEM_TAG], s:"!\c-"));
 }
