@@ -118,6 +118,7 @@ typedef struct dist_tid_pair {
 	int tid;
 } dist_tid_pair_T;
 
+#define DND_SHIFTBITS_FOR_SLOTFROMFLAG 13 // 8192 must return 0 to us
 enum {
 	DND_WDMG_USETARGET = 1,
 	DND_WDMG_ISOCCULT = 2,
@@ -901,7 +902,7 @@ void HandleHealDependencyCheck() {
 
 int GetWeaponSlotFromFlag(int flags) {
 	// the first 14 bits are unnecessary
-	flags >>= 14;
+	flags >>= DND_SHIFTBITS_FOR_SLOTFROMFLAG;
 	for(int i = 0; i < 32; ++i)
 		if(IsSet(flags, i))
 			return i;
