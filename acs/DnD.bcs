@@ -462,6 +462,12 @@ Script "DND Mugshot Grin" (void) CLIENTSIDE {
 Script "DND On Revive" (void) {
 	TakeInventory("Mo_Died", 1);
 	GiveInventory("Mo_Revived", 1);
+	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
+}
+
+Script "DnD On Revive CS" (void) CLIENTSIDE {
+	TakeInventory("Mo_Died", 1);
+	GiveInventory("Mo_Revived", 1);
 }
 
 // Make sure clients are aware too
@@ -2509,7 +2515,8 @@ Script "DND Riotgun Decide" (void) {
 
 Script "DND Elite Special FX" (void) CLIENTSIDE {
 	int i, waitcounter = 0;
-	while(isAlive()) {
+	// to ensure things are synced properly between clients
+	while(!CheckInventory("Mo_Died")) {
 		for(i = 0; i < DND_ELITE_FX_DENSITY; ++i) {
 			GiveInventory("EliteFXSpawner", 1);
 			Delay(1);
@@ -2517,7 +2524,7 @@ Script "DND Elite Special FX" (void) CLIENTSIDE {
 		Delay(8);
 	}
 	// wait while we are dead, something might resurrect
-	while(!isAlive()) {
+	while(!CheckInventory("Mo_Died")) {
 		Delay(70);
 		if(waitcounter++ == MAX_ELITE_FX_WAIT)
 			Terminate;
