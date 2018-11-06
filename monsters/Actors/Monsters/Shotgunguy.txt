@@ -70,7 +70,7 @@ ACTOR SSGZombie : UndeadEnemy {
 			GPOS T -1
 			Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			GPOS NMLKJIH 5
 		Goto See
 		
@@ -159,7 +159,7 @@ Actor ZSpecOpsShotgun : UndeadEnemy {
 			TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZSP1 LKJIH 5
 		Goto See
 		
@@ -255,7 +255,7 @@ ACTOR LOSShotgunGuy : ShotgunGuy2 {
 			TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZSSG KJIH 5
 		Goto See
 		
@@ -360,7 +360,7 @@ ACTOR LOSSuperShotgunGuy : UndeadEnemy {
 			TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		Stop 
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZSS2 LKJIH 5
 		Goto See
 		
@@ -445,7 +445,7 @@ actor SawedOffShotgunGuy : UndeadEnemy {
 			ZSDO RSTUV 5
 			ZSDO W -1
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZSDO KJIH 5
 		goto See
 		
@@ -514,7 +514,7 @@ actor SawedOffShotgunGuy2 : SawedOffShotgunGuy {
 			AZSG PQRST 5
 			AZSG U -1
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			AZSG KJIH 5
 		goto See
 		
@@ -654,7 +654,7 @@ actor UndeadRogue : UndeadHunter {
 			1083 X -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			1083 NMLKJIH 6
 		goto See
 		

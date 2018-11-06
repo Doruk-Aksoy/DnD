@@ -36,7 +36,7 @@ Actor ZombieManGray : Zombieman2
 			ZHR2 L -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Raise2")
 			ZHR2 K 5
 			ZHR2 JIH 5
@@ -178,7 +178,7 @@ actor FormerRanger : UndeadEnemy {
 			BPOS U -1
 		stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			BPOS LKJIH 5
 		goto See
 		
@@ -261,7 +261,7 @@ ACTOR SMGGuy : ZombieMan2 {
 			PDWP W -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			PDWP NMLKJIH 5
 		goto See
 		
@@ -355,7 +355,7 @@ ACTOR RapidFireTrooper : UndeadEnemy {
 			RFTR U -1
 		Stop
 		Raise: 
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			RFTR KJ 5 
 			RFTR IH 5 
 		Goto See
@@ -448,7 +448,7 @@ ACTOR ZombieMarine : UndeadEnemy {
 			UDM2 V -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			UDM2 NMLKJIH 5
 		Goto See
 		
@@ -517,7 +517,7 @@ ACTOR LOSZombieMan : ZombieMan2 {
 			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZSEX KJIH 5
 		Goto See
 		
@@ -605,7 +605,7 @@ ACTOR PistolZombie : UndeadEnemy {
 			ZHRF U -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZHRF KJIH 5
 		Goto See
 		
@@ -702,7 +702,7 @@ ACTOR QuakeZombie : UndeadEnemy {
 			QZOM S -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			QZOM KJIH 5
 		Goto See
 		
@@ -807,7 +807,7 @@ actor UndeadHunter : UndeadEnemy {
 			1175 X -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			1175 NMLKJIH 6
 		goto See
 		
@@ -883,7 +883,7 @@ actor Prophet : UndeadEnemy {
 			PRPH L -1
 		stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			PRPH LKJIH 5
 		goto See
 		

@@ -92,7 +92,7 @@ ACTOR NightmareSpectre : DnD_BaseEnemy {
 		Stop
 		GiveSoul:  
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			SARG NMLKJI 4
 		Goto See
 		

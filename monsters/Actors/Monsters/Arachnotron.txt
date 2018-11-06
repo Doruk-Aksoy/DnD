@@ -66,7 +66,7 @@ ACTOR FusionSpider : Arachno2 {
 			FSPI P -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			FSPI PONMLKJ 5
 		Goto See+1
 		
@@ -228,7 +228,7 @@ ACTOR HellforgeSpider : DnD_BaseEnemy {
 			ESPD P -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
 			ESPD PONMLKJ 5
 		Goto See+2
@@ -360,7 +360,7 @@ ACTOR RailArachnotron : Arachno2 {
 			RSPI P -1 A_KillMaster
 		Stop	
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			RSPI P 5
 			RSPI ONMLKJ 5
 		Goto See+1
@@ -514,7 +514,7 @@ ACTOR BabyDemolisher : Arachno2 {
 			MSPI P -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
 			MSPI PONMLKJ 5
 		Goto See+1
@@ -732,7 +732,7 @@ Actor Vore : DnD_BaseEnemy {
 			VORE Q -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
 			VORE QPONML 6
 		Goto See
@@ -975,7 +975,7 @@ Actor ChaingunCommando : ChaingunMajor {
 			TNT1 A -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			CPSX P 5
 			CPSX ONMLKJIH 5
 		Goto See
@@ -1066,7 +1066,7 @@ Actor ChaingunGeneral : ChaingunMajor {
 			ECMI S -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ECMI LKJIH 5
 		Goto See
 		
@@ -1184,7 +1184,7 @@ Actor Legionnaire : UndeadEnemy {
 			LEGN R -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			LEGN QPONM 4
 		Goto See
 		
@@ -1376,7 +1376,7 @@ ACTOR Manticore : Arachno2 {
 			DNET R -1 A_KillMaster
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			DNET QPONMLKJI 5
 		Goto See+1
 		

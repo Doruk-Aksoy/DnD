@@ -73,7 +73,7 @@ actor STDarkImp : DnD_BaseEnemy
 			DRKI U -1
 			Stop		
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			DRKS ML 8
 			DRKS KJI 6
 		Goto See
@@ -216,7 +216,7 @@ actor NamiDarkImp : DnD_BaseEnemy
 			DRKI U -1
 		Stop	
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			DRKI ML 8
 			DRKI KJI 6
 		Goto See
@@ -363,7 +363,7 @@ actor VoidDarkImp : DnD_BaseEnemy {
 			DRKI U -1
 		Stop	
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			DRKV PO 8
 			DRKV NML 6
 		Goto See
@@ -544,7 +544,7 @@ actor NetherDarkImp : DnD_BaseEnemy {
 			DRKV X -1
 		Stop	
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			DRKV PO 8
 			DRKV NML 6
 		Goto See
@@ -734,7 +734,7 @@ Actor ImpAbomination : DoomImp2 {
 			IMP0 U -1
 		Stop	  
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			IMP0 M 8
 			TRO5 L 8
 			TRO5 KJI 6
@@ -819,7 +819,7 @@ Actor STImp : DoomImp2 {
 			IMP0 U -1
 		Stop  
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TRO3 ML 8
 			TRO3 KJI 6
 		Goto See
@@ -940,7 +940,7 @@ Actor VoidImp : DoomImp2 {
 			IMP0 U -1
 		Stop 
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TRO4 ML 8
 			TRO4 KJI 6
 		Goto See
@@ -1073,7 +1073,7 @@ actor SoulHarvester : DnD_BaseEnemy {
 			SLHW A -1
 		Stop	
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			SLHV WVUTSRQPO 5
 		Goto See
 		
@@ -1226,7 +1226,7 @@ actor PyroImp : DnD_BaseEnemy {
 			PRIM U -1
 			Stop	
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			PRIM UTSRQPON 4
 		Goto See
 		
@@ -1499,7 +1499,7 @@ actor Devil : DoomImp2 {
 			TRO2 U -1
 		stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TRO2 ML 8
 			TRO2 KJI 6
 		goto See
@@ -1572,7 +1572,7 @@ actor Devil2 : Devil {
 			TRO6 P -1
 		stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TRO6 ON 5
 			TRO6 ML 3
 		goto See
@@ -1773,7 +1773,7 @@ actor Vulgar : DnD_BaseEnemy {
 			TNT1 A 0 A_SpawnItemEx("VenomPickup", 0, 0, 8, 0, 0, 4)
 		Goto Skip2
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
 			VULG ML 8
 			VULG KJI 6
@@ -1909,7 +1909,7 @@ Actor UndeadMage : UndeadEnemy
 			CMYS X -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			CMYS M 0 A_ChangeFlag("NoPain",0)
 			CMYS MLKJIH 5
 		Goto See
@@ -2048,7 +2048,7 @@ ACTOR Shadow : DnD_BaseEnemy {
 			TROX "\" -1
 			Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TROX M 8
 			TROX KLJI 8
 		Goto See

@@ -71,7 +71,7 @@ Actor ChaingunGuy2 : UndeadEnemy {
 			DPOS T -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			DPOS NMLKJIH 5
 		Goto See
 		
@@ -160,7 +160,7 @@ Actor ChaingunMajor : ChaingunGuy2 {
 			CPS2 X -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			CPS2 ONMLKJIH 5
 		Goto See
 		
@@ -299,7 +299,7 @@ actor ZSec : UndeadEnemy {
 			SPOS U -1
 		stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZSDI DCBA 5
 		goto See
 		
@@ -436,7 +436,7 @@ Actor ZSpecOpsMachinegun : UndeadEnemy {
 			TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZSP2 KJIH 5
 		Goto See
 		
@@ -566,7 +566,7 @@ actor UndeadInitiate : UndeadRogue {
 			1102 X -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			1102 MLKJIH 6
 		goto See
 		
@@ -670,7 +670,7 @@ Actor MrRobot : MechanicalEnemy {
 			MROB X -1
 		Stop
 		Raise:
-		    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		    TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_ChangeFlag("GHOST", 0)
 			MROB ONMLKJI 3
 		Goto see
@@ -776,7 +776,7 @@ Actor MachinegunGuy : Cgguy2 {
 			EASS L -1
 		Stop
 		Raise:
-		TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 		EASS KJIH 5
 		Goto See
 		Xdeath:
@@ -884,7 +884,7 @@ ACTOR PlasmaZombie : UndeadEnemy {
 			ZMAY V -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ZMAY KJIH 5
 		Goto See
 		
@@ -1017,7 +1017,7 @@ Actor Berserkerguy : UndeadEnemy {
 			CGOS T -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			CGOS NMLKJIH 5
 		Goto See
 		

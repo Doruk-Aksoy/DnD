@@ -108,7 +108,7 @@ ACTOR Incarnate : UndeadEnemy {
 			INCX EFGHIJ 5 Bright
 			INCX K -1
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			INCA Q 0 A_KillChildren
 			INCA QPONML 5
 		Goto See
@@ -180,7 +180,7 @@ ACTOR BeamRevenant : Revenant2 {
 			RASK Q -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			RASK Q 5
 			RASK PONML 5
 		Goto See
@@ -336,7 +336,7 @@ ACTOR Cadaver : Revenant2 {
 			RASK Q -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			RASK PONML 5
 		Goto See
 		
@@ -585,7 +585,7 @@ actor Widowmaker : Revenant2  {
 			WDMK N -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			WDMK NMLKJI 5
 		Goto See
 		
@@ -1359,7 +1359,7 @@ Actor Yeti : IceElementalEnemy {
 			TNT1 A -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			YETI H 1 A_SetScale(0.05, 0.05)
 			YETI H 1 A_SetScale(0.1, 0.1)
@@ -1614,7 +1614,7 @@ Actor SludgeGiant : DnD_BaseEnemy {
 		Stop
 		
 		Raise:
-		    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		    TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			SLDM H 1 A_SetScale(0.05, 0.05)
 			SLDM H 1 A_SetScale(0.1, 0.1)
@@ -1811,7 +1811,7 @@ Actor SludgeGiantSplitFinal : SludgeGiant {
 			SLDM H 1
 		Stop
 		Raise:
-		    TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+		    TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			SLDM H 1 A_SetScale(0.05, 0.05)
 			SLDM H 1 A_SetScale(0.1, 0.1)
@@ -1970,7 +1970,7 @@ Actor DarkServant : MagicalEnemy {
 			DSON N -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_SetTranslucent(1.0, 1)
 			TNT1 A 0 A_GiveInventory("DarkServantUnSetGhost", 1)
 			DSON NLMKJIH 4
@@ -2403,7 +2403,7 @@ ACTOR Draugr : UndeadEnemy {
 			SKE2 S -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			SKE2 R 5
 			SKE2 QPON 5
 		Goto See

@@ -404,14 +404,6 @@ Actor DnD_Crafting_ItemPage : Inventory {
 	inventory.maxamount 10
 }
 
-Actor DnD_PlayerItemIndex : Inventory {
-	inventory.maxamount 45
-}
-
-Actor DnD_PlayerPrevItemIndex : Inventory {
-	inventory.maxamount 45
-}
-
 Actor DnD_PlayerInventoryPages : Inventory {
 	inventory.maxamount 10
 }

@@ -391,7 +391,7 @@ ACTOR EarthLich : MechanicalEnemy {
 			ELIC I -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ELIC IHGFEDC 6
 		Goto See
 		
@@ -568,7 +568,7 @@ ACTOR EnhancedCacodemon : DnD_BaseEnemy {
 			HEAD L -1 A_SetFloorClip
 		Stop 
 		Raise: 
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			HEAD K 8 A_UnsetFloorClip
 			HEAD JIHGFE 8 
 		Goto See 
@@ -793,7 +793,7 @@ ACTOR Weakener : DnD_BaseEnemy {
 			CCMN L -1 A_SetFloorClip
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			CCMN L 8 A_UnSetFloorClip
 			CCMN KJIHG 8
 		Goto See
@@ -920,7 +920,7 @@ actor Grell : DnD_BaseEnemy {
 			GREL N -1 
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			GREL M 5 A_UnSetFloorClip
 			GREL LKJIH 5
 		Goto See
@@ -1104,7 +1104,7 @@ ACTOR ShadowPriest : MagicalBulletResistantEnemy {
 			ACOL P -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ACOL PONMLKJIHG 3
 		Goto See
 	}
@@ -1425,7 +1425,7 @@ Actor Wicked : DnD_BaseEnemy {
 			WICT G -1 A_SetFloorClip 
 		Stop 
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			WICT G 0 A_RemoveChildren(TRUE)
 			WICK G 0 A_SpawnItemEx("WickedTorsoRes",0,0,0,0,0,1,0,0)
 			WICT G 5 A_UnSetFloorClip

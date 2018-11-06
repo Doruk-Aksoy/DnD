@@ -289,7 +289,7 @@ Actor HellWarrior : DnD_BaseEnemy {
 			HWAR T -1 
 		Stop
 		Raise: 
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			HWAR QPONMLK 5 
 		Goto See 
 		
@@ -491,7 +491,7 @@ Actor HellsFury : DnD_BaseEnemy {
 			HFRY O -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			HFRY NMLKJI 8
 		Goto See
 		
@@ -865,7 +865,7 @@ Actor WarlordOfHell : DnD_BaseEnemy {
 			BOS2 O -1 
 		Stop 	
 		Raise: 
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
 			BOS2 ONMLKJI 5 
 		Goto See
@@ -1068,7 +1068,7 @@ ACTOR ShadowBeast : DnD_BaseEnemy {
 			BDEM LMNOPQ 6
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			BDEM YXWVUT 6
 			BDEM SR 8
 		Goto See
@@ -1302,7 +1302,7 @@ actor BlackKnight : UndeadBulletResistantEnemy {
 			KNGT E 3 Fast
 		Goto See
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			KNGT QPONLMK 3
 		Goto See
 		Death:
@@ -1480,7 +1480,7 @@ Actor SkullWizard : MagicalEnemy {
 			SKWZ P -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			SKWZ ON 5
 			SKWZ MLKJIH 5 Bright
 			SKWZ G 5
@@ -1676,7 +1676,7 @@ Actor CyborgWarrior : MechanicalExplosiveResistEnemy {
 			QQMN N -1 A_BossDeath
 		Stop 
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			QQMN MLKJ 6
 		Goto See
 		
@@ -2264,7 +2264,7 @@ Actor IceGolem : MagicalEnemy {
 			TNT1 A -1
 		   Stop
 		Raise: 
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			GOL3 L 1 A_SetScale(0.05, 0.05)
 			GOL3 L 1 A_SetScale(0.1, 0.1)
@@ -2448,7 +2448,7 @@ Actor Gladiator : FireElementalEnemy {
 			GLAD O -1
 		Stop
 		Raise:
-			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			GLAD NMLKJI 4
 		Goto See
 		
