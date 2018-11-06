@@ -99,7 +99,7 @@ str SpellInfo[MAX_SPELLS][3] = {
 #define SKILL_ZOMBIE_DURATION 8
 #define SKILL_ZOMBIE_HP_PER_INT 2
 #define ZOMBIE_INT_TIMER_FACTOR 10
-#define ZOMBIE_INT_DAMAGE_FACTOR 0.75
+#define ZOMBIE_INT_DAMAGE_FACTOR 0.125
 #define DND_MAX_PETPAINSHARE 9
 
 void HandleZombieRaiseOnDeath(int target) {
@@ -113,7 +113,7 @@ void HandleZombieRaiseOnDeath(int target) {
 	SetActivator(pet_tid);
 	SetPointer(AAPTR_MASTER, target);
 	SetActorProperty(0, APROP_FRIENDLY, true);
-	Thing_ChangeTID(0, 0);
+	Thing_ChangeTID(pet_tid, 0);
 	SetActivator(target);
 	// do the trigger
 	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
@@ -141,6 +141,15 @@ void CastRandomElementalSpell() {
 		pick = random(0, MAX_SPELLS - 1);
 	} while(!(SpellData[pick][SPELL_FLAGS] & DND_SPELLFLAG_ELEMENTAL));
 	ACS_NamedExecuteAlways("DnD Cast Spell", 0, pick, 0);
+}
+
+int GetPetDamageFactor(int base, int master) {
+	base >>= 16;
+	switch(base) {
+		case MONSTER_PET_ZOMBIE:
+		return ZOMBIE_INT_DAMAGE_FACTOR * GetActorIntellect(master);
+	}
+	return 0;
 }
 
 Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
@@ -198,6 +207,7 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 			GiveInventory("LightningSpearSpawner", 1);
 		break;
 	}
+	// modify to let more spells here to use cooldown, not just rally
 	if(usesCooldown)
 		ACS_NamedExecuteAlways("DnD Spell Cooldown", 0, spell_id, RALLY_COOLDOWN);
 }

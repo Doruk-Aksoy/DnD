@@ -3830,7 +3830,7 @@ Script "DnD Pet Monster Scale" (int petid, int traits, int traits2) {
 				add /= 100;
 			}
 		}
-		add += SKILL_ZOMBIE_HP_PER_INT * GetMasterIntellect();
+		add += SKILL_ZOMBIE_HP_PER_INT * GetActorIntellect(master);
 		// add level factor to it
 		// first overflow check
 		if(add < (INT_MAX - base) / (level - 1))
@@ -3848,11 +3848,11 @@ Script "DnD Pet Monster Scale" (int petid, int traits, int traits2) {
 }
 
 Script "DnD Master Skill Info" (int skill_id) {
-	SetActivator(0, AAPTR_MASTER);
 	int res = 0;
+	int master = GetActorProperty(0, APROP_MASTERTID);
 	switch(skill_id) {
 		case SKILLINFO_ZOMBIEPETTIMER:
-			res = SKILL_ZOMBIE_DURATION + GetIntellect() / ZOMBIE_INT_TIMER_FACTOR;
+			res = SKILL_ZOMBIE_DURATION + GetActorIntellect(master) / ZOMBIE_INT_TIMER_FACTOR;
 		break;
 	}
 	SetResultValue(res);
@@ -3862,13 +3862,15 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	if(flags & 1) // target
 		SetactivatorToTarget(0);
 	int master = GetActorProperty(0, APROP_MASTERTID);
-	int res = Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	int res = 1.0 + Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
 	if(CheckInventory("MonsterLevel") > 50)
 		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
 	if(flags & DND_WDMG_ISRIPPER)
 		res >>= 1;
-	res += ZOMBIE_INT_DAMAGE_FACTOR * GetMasterIntellect();
-	// apply the monster's factors first
+	res += GetPetDamageFactor(base, master);
+	// we don't need monster id from here onwards
+	base &= 0xFFFF;
+	// apply the monster's base damage first
 	res *= base;
 	res >>= 16;
 	// now get player damage bonus stuff included
@@ -3895,6 +3897,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		HandleHunterTalisman();
 	}
 	res *= random(rnd & 0xFFFF, rnd >> 16);
+	//printbold(d:res);
 	SetResultValue(res);
 }
 

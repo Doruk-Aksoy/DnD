@@ -184,14 +184,6 @@ int GetActorIntellect(int tid) {
 	return res;
 }
 
-int GetMasterIntellect() {
-	SetActivator(0, AAPTR_MASTER);
-	int res = CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_INTELLECT);
-	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
-		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
-	return res;
-}
-
 int GetStrength() {
 	return CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_STRENGTH);
 }

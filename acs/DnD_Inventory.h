@@ -1928,7 +1928,7 @@ void MakeUnique(int item_pos, int item_type) {
 		int roll = random(1, MAX_UNIQUE_WEIGHT);
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	#endif
-	//i = UITEM_LIFELEECH;
+	i = UITEM_GRAVECALLER;
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);
 }
