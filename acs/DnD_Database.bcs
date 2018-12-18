@@ -85,8 +85,8 @@ void ResetPlayer() {
 	
 	// take all research stuff
 	for(i = 0; i < MAX_RESEARCHES; ++i) {
-		SetInventory(StrParam(s:"Done_", s:Research_List[i]), 0);
-		SetInventory(StrParam(s:"Research_", s:Research_List[i]), 0);
+		SetInventory("Research_Done", 0);
+		SetInventory("Research_Discovered", 0);
 	}
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 }
@@ -437,13 +437,9 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	temp = 0;
 	// save researches
-	for(i = 0; i < MAX_RESEARCHES; ++i) {
-		j = i / 16;
-		temp |= CheckActorResearchStatus(tid, i) << (2 * (i - 16 * j));
-		if(j != (i + 1) / 16 || i == MAX_RESEARCHES - 1) {
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH, char_id), d:j + 1), pacc, temp);
-			temp = 0;
-		}
+	for(i = 0; i < RESEARCH_BITSETS; ++i) {
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d:i + 1), pacc, CheckActorInventory(tid, StrParam(s:"Research_Discovered_", d:i + 1)));
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DONE, char_id), d:i + 1), pacc, CheckActorInventory(tid, StrParam(s:"Research_Done_", d:i + 1)));
 	}
 	
 	// save research trackers
@@ -863,15 +859,18 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("StatReset", temp & 1);
 
 	// read researches
-	for(i = 0; i < MAX_RESEARCHES / 16; ++i) {
-		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH, char_id), d: i + 1), pacc);
-		for(j = 0; j < 16; ++j) {
-			if(temp & 0x2) // researched
-				GiveInventory(StrParam(s:"Done_", s:Research_List[j + 16 * i]), 1);
-			if(temp & 0x1) // discovered
-				GiveInventory(StrParam(s:"Research_", s:Research_List[j + 16 * i]), 1);
-			temp >>= 2; // skip two bits per research
-		}
+	for(i = 0; i < RESEARCH_BITSETS; ++i) {
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DONE, char_id), d: i + 1), pacc);
+		j = 0;
+		for(i = 0; i < MAX_RESEARCHES; ++i)
+			j = SetBit(j, i);
+		SetInventory("Research_Done", j);
+		
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d: i + 1), pacc);
+		j = 0;
+		for(i = 0; i < MAX_RESEARCHES; ++i)
+			j = SetBit(j, i);
+		SetInventory("Research_Discovered", j);
 	}
 	
 	HandleResearchBonuses();
@@ -1058,14 +1057,16 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_RESEARCH_1, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_RESEARCH_2, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_RESEARCH_3, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);
+	
+	for(i = 0; i < RESEARCH_BITSETS; ++i) {
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DONE, char_id), d:i + 1), pacc, 0);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d:i + 1), pacc, 0);
+	}
 	
 	// orbs
 	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);

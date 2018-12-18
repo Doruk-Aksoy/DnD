@@ -774,8 +774,16 @@ void SpawnResearch() {
 	}
 	else {
 		if(!CheckResearchStatus(temp))
-			SpawnDrop(StrParam(s:"ResearchModule_", s:Research_List[temp]), 24.0, 16, 1, 1);
+			SpawnSPResearchDrop(temp);
 	}
+}
+
+void SpawnSPResearchDrop(int res_id) {
+	SpawnForced("ResearchModule", GetActorX(0), GetActorY(0), GetActorZ(0) + 24.0, DND_DROP_TID);
+	ThrustThing(random(0, 255), random(2, 5), 0, DND_DROP_TID);
+	ThrustThingZ(DND_DROP_TID, 16, 0, 1);
+	SetActorAngle(DND_DROP_TID, res_id);
+	Thing_ChangeTID(DND_DROP_TID, 0);
 }
 
 void SpawnAccessory() {
@@ -985,7 +993,7 @@ void ScaleMonster(int pcount) {
 			add = INT_MAX - base;
 	}
 	SetActorProperty(0, APROP_HEALTH, base + add);
-	SetInventory("MonsterBaseHealth", base);
-	SetInventory("MonsterMaxHealth", base + add);
-	SetInventory("MonsterLevel", level);
+	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].basehp = base;
+	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp = base + add;
+	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level = level;
 }

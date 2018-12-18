@@ -79,81 +79,9 @@ enum {
 
 #define DND_RESEARCH_BEGIN RES_RAREARMOR
 #define DND_RESEARCH_END RES_STASHTAB
-#define MAX_RESEARCHES DND_RESEARCH_END + 1
+#define MAX_RESEARCHES (DND_RESEARCH_END + 1)
+#define RESEARCH_BITSETS ((MAX_RESEARCHES / 32) + 1)
 str ResearchPrefix = "\ccResearch Item : \c[Y5]Discovered ";
-str Research_List[MAX_RESEARCHES] = {
-	"RareArmors",
-	"SuperArmor",
-	"MedkitStore",
-	"AccessoryTap",
-
-	"FlechetteShell",
-	"PiercingShell",
-	"ElectricShell",
-    "NitroShell",
-	"SlugShell",
-
-	"SonicGrenade",
-	"HEGrenade",
-	
-	"DoubleSpecialCap",
-
-	"Slot1Occult",
-	"Slot2Luxury",
-	"Slot3Luxury",
-	"Slot4Luxury",
-	"Slot5Luxury",
-	"Slot6Luxury",
-	"Slot7Luxury",
-
-	"Slot1Upgrade1",
-	"Slot1Upgrade2",
-	
-	"Slot2Upgrade1",
-	"Slot2Upgrade2",
-	
-	"Slot3Upgrade1",
-    "Slot3Upgrade2",
-	"Slot3Upgrade3",
-	
-	"Slot3SSGUpgrade1",
-	"Slot3SSGUpgrade2",
-	"Slot3SSGUpgrade3",
-	
-	"Slot4Upgrade1",
-    "Slot4Upgrade2",
-	"Slot4Upgrade3",
-	"Slot4Upgrade4",
-	
-	"Slot5Upgrade1",
-	"Slot5GL",
-	"Slot5Upgrade2",
-	"Slot5Upgrade3",
-	
-	"Slot6Upgrade1",
-    "Slot6Upgrade2",
-	"Slot6Upgrade3",
-	
-	"Slot7Upgrade1",
-	"Slot7Upgrade2",
-
-	"OccultAbility",
-	"Slot8Reveal",
-	"NanoTech",
-	"OccultArtifact",
-	
-	"Body_Hp_1",
-	"Body_Hp_2",
-	"Body_Hp_3",
-	"Body_Ar_1",
-	"Body_Ar_2",
-	"Body_Ar_3",
-	"Body_Im_1",
-	"Body_Im_2",
-	"Body_Im_3",
-	
-	"StashTab"
-};
 
 str Research_Label[MAX_RESEARCHES] = {
     "Rare Armors",
@@ -406,25 +334,49 @@ enum {
 
 // 0 for NA, 1 for found, 2 for researched
 int CheckResearchStatus(int res_id) {
-	if(CheckInventory(StrParam(s:"Done_", s:Research_List[res_id])))
-		return RES_DONE;
-	if(CheckInventory(StrParam(s:"Research_", s:Research_List[res_id])))
-		return RES_KNOWN;
+	if(res_id > 31) {
+		res_id %= 32;
+		if(IsSet(CheckInventory("Research_Done_2"), res_id))
+			return RES_DONE;
+		if(IsSet(CheckInventory("Research_Discovered_2"), res_id))
+			return RES_KNOWN;
+	}
+	else {
+		if(IsSet(CheckInventory("Research_Done_1"), res_id))
+			return RES_DONE;
+		if(IsSet(CheckInventory("Research_Discovered_1"), res_id))
+			return RES_KNOWN;
+	}
 	return RES_NA;
 }
 
 int CheckActorResearchStatus(int tid, int res_id) {
-	if(CheckActorInventory(tid, StrParam(s:"Done_", s:Research_List[res_id])))
-		return RES_DONE;
-	if(CheckActorInventory(tid, StrParam(s:"Research_", s:Research_List[res_id])))
-		return RES_KNOWN;
+	// if we go over 64, we need another check, refrain from using Strparam here as these are potentially called often
+	if(res_id > 31) {
+		res_id %= 32;
+		if(IsSet(CheckActorInventory(tid, "Research_Done_2"), res_id))
+			return RES_DONE;
+		if(IsSet(CheckActorInventory(tid, "Research_Discovered_2"), res_id))
+			return RES_KNOWN;
+	}
+	else {
+		if(IsSet(CheckActorInventory(tid, "Research_Done_1"), res_id))
+			return RES_DONE;
+		if(IsSet(CheckActorInventory(tid, "Research_Discovered_1"), res_id))
+			return RES_KNOWN;
+	}
 	return RES_NA;
 }
 
 void GiveResearch(int res_id, bool fancy) {
 	if(fancy)
 		ACS_NamedExecuteAlways("DnD Research Fancy Message", 0, res_id);
-	GiveInventory(StrParam(s:"Research_", s:Research_List[res_id]), 1);
+	if(res_id > 31) {
+		res_id %= 32;
+		SetInventory("Research_Discovered_2", SetBit(CheckInventory("Research_Discovered_2"), res_id));
+	}
+	else
+		SetInventory("Research_Discovered_1", SetBit(CheckInventory("Research_Discovered_1"), res_id));
 }
 
 // This place handles researches that depend on others being researched
@@ -444,7 +396,12 @@ void HandleDependentResearch(int res_id) {
 
 void CompleteResearch(int res_id) {
 	HandleDependentResearch(res_id);
-	GiveInventory(StrParam(s:"Done_", s:Research_List[res_id]), 1);
+	
+	if(res_id > 31)
+		SetInventory("Research_Done_2", SetBit(CheckInventory("Research_Done_2"), res_id % 32));
+	else
+		SetInventory("Research_Done_1", SetBit(CheckInventory("Research_Done_1"), res_id));
+	
 	if(res_id == RES_DOUBLESPECIALCAP)
 		DoubleSpecialAmmoCapacity();
 	if(res_id == RES_MEDKITSTORE)

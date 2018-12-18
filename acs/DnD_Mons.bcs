@@ -10,21 +10,13 @@
 // Monster Healer
 Script 958 (int amount) {
 	int hp = GetActorProperty(0, APROP_HEALTH);
-	amount = Clamp_Between(amount, 0, CheckInventory("MonsterMaxHealth") - hp);
+	amount = Clamp_Between(amount, 0, MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp - hp);
 	SetActorProperty(0, APROP_HEALTH, hp + amount);
 }
 
 Script 959 (int type) CLIENTSIDE {
 	if(!type) {
-		int count = 0, tid = ActivatorTID();
-		int newtid = tid + ZEALOT_SHIELD_TIDADD;
-		Spawn("ZealotShield", GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, newtid);
-		while (count < ZEALOT_SHIELD_TIME) {
-			SetActorPosition(newtid, GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, 0);
-			Delay(1);
-			++count;
-		}
-		SetActorState(newtid, "Death");
+		ACS_NamedExecuteAlways("DnD Zealot Shield", 0, ActivatorTID());
 	}
 	else if(type == 1)
 		GiveInventory("ArbiterFade", 1);
@@ -44,6 +36,20 @@ Script 959 (int type) CLIENTSIDE {
 		SetActivatorToTarget(0);
 		SetResultValue(CheckInventory("ArbiterDead"));
 	}
+}
+
+Script "DnD Zealot Shield" (int tid) CLIENTSIDE {
+	Spawn("ZealotShield", GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, ZEALOT_SHIELD_TID);
+	SetActivator(ZEALOT_SHIELD_TID);
+	Thing_ChangeTID(0, 0);
+	
+	int count = 0;
+	while (count < ZEALOT_SHIELD_TIME && isActorAlive(tid)) {
+		SetActorPosition(0, GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, 0);
+		Delay(1);
+		++count;
+	}
+	SetActorState(0, "Death");
 }
 
 Script 960 (int type) {
@@ -76,26 +82,18 @@ Script 961 (int type, int amt, int item) {
 	else if(type == 3)
 		SetActorProperty(0, APROP_ALPHA, 1.0);
 	else if(type == 4) {
-		str itemname;
-		switch(item) {
-			case 0:
-				itemname = "MonsterTraits";
-			break;
-			default:
-				itemname = "";
-			break;
-		}
-		SetInventory(itemname, amt);
+		if(!item)
+			MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = amt;
 	}
 	else if(type == 5) {
-		SetResultValue(GetActorProperty(0, APROP_HEALTH) < CheckInventory("MonsterMaxHealth") >> 1);
+		SetResultValue(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp >> 1);
 	}
 	else if(type == 6) {
 		// don't judge me, this shit just doesn't work in decorate of zan 3.0...
 		Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
 	}
 	else if(type == 7) {
-		amt = CheckInventory("MonsterMaxHealth");
+		amt = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp;
 		if(!amt)
 			amt = GetActorProperty(0, APROP_SpawnHealth);
 		SetResultValue(amt);
@@ -110,7 +108,7 @@ Script "DND Special Player Hurt" (int type, int percent) {
 		SetActivator(0, AAPTR_TARGET);
 		Thing_Damage2(thisactor, vit / 4, "VileGhostDrain");
 		vit = Clamp_Between(vit / 4, 1, vit);
-		hp = Clamp_Between(GetActorProperty(0, APROP_HEALTH) + vit, 1, CheckInventory("MonsterMaxHealth"));
+		hp = Clamp_Between(GetActorProperty(0, APROP_HEALTH) + vit, 1, MonsterProperties[thisactor - DND_MONSTERTID_BEGIN].maxhp);
 		SetActorProperty(0, APROP_HEALTH, hp);
 		Spawn("RegenEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 	}
@@ -209,7 +207,6 @@ Script 968 (void) CLIENTSIDE {
     y = GetActorY(0);
     z = GetActorZ(0) + 16.0;
     
-    
 	tid = ActivatorTID();
 	newtid = AVATAR_CUBE_TID + (tid % 2000) * 3;
     while(!SpawnForced("SorcBall1New", x, y, z, newtid));
@@ -307,7 +304,6 @@ Script "DND Poison Damage Checker" ENTER {
 Script 973 (int mode) { // Avatar tid / targeter
 	if (mode == 1) {
 		int owner = ActivatorTID(), curdist;
-		int missiletid = ActivatorTID() + AVATAR_SOUL_TID;
 		
 		SetActivator(owner, AAPTR_TARGET);
 		int target = ActivatorTID();
@@ -325,21 +321,22 @@ Script 973 (int mode) { // Avatar tid / targeter
 			}
 			
 			SetActorPosition(owner, GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 56.0, 0);
-			SpawnProjectile(owner, "HolyMissile2", GetActorAngle(owner), 128, 0, 0, missiletid + i);
+			SpawnProjectile(owner, "HolyMissile2", GetActorAngle(owner), 128, 0, 0, AVATAR_SOUL_TID);
 			SetActorPosition(owner, GetActorX(owner), GetActorY(owner), GetActorZ(owner) - 56.0, 0);
-			SetActorPosition(missiletid + i, GetActorX(missiletid + i), GetActorY(missiletid + i), GetActorZ(missiletid + i) + 54.0, 0);
-			SetActivator(missiletid + i);
+			SetActorPosition(AVATAR_SOUL_TID, GetActorX(AVATAR_SOUL_TID), GetActorY(AVATAR_SOUL_TID), GetActorZ(AVATAR_SOUL_TID) + 54.0, 0);
+			SetActivator(AVATAR_SOUL_TID);
 			SetPointer(AAPTR_TARGET, owner);
 			SetPointer(AAPTR_TRACER, target);
-			int dx = GetActorX(target) - GetActorX(missiletid + i);
-			int dy = GetActorY(target) - GetActorY(missiletid + i);
-			SetActorAngle(missiletid + i, VectorAngle(dx, dy));
+			int dx = GetActorX(target) - GetActorX(AVATAR_SOUL_TID);
+			int dy = GetActorY(target) - GetActorY(AVATAR_SOUL_TID);
+			SetActorAngle(AVATAR_SOUL_TID, VectorAngle(dx, dy));
+			Thing_ChangeTID(AVATAR_SOUL_TID, 0);
 			SetActivator(owner);
 			Delay(12);
 		}
 	}
 	else {
-		if(GetActorProperty(0, APROP_HEALTH) < CheckInventory("MonsterMaxHealth") / 3)
+		if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 3)
 			GiveInventory("AcolyteSummoner", 1);
 	}
 }
@@ -676,7 +673,7 @@ Script "DnD Warmaster Protect FX Trigger" (void) {
 
 Script "DnD Golgoth Health Check" (void) {
 	Delay(35);
-	int comp = CheckInventory("MonsterMaxHealth") / 2;
+	int comp = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 2;
 	while(GetActorProperty(0, APROP_HEALTH) > comp)
 		Delay(10);
 	GiveInventory("DnD_Boolean", 1);
@@ -695,4 +692,18 @@ Script "DnD Golgoth Laser Trail Fake" (int target) CLIENTSIDE {
 	GolgothLaserTrail(DND_GOLGOTH_YOFF2, DND_GOLGOTH_ZOFF2, target, true);
 	GolgothLaserTrail(-DND_GOLGOTH_YOFF1, DND_GOLGOTH_ZOFF1 - 5.0, target, true);
 	GolgothLaserTrail(-DND_GOLGOTH_YOFF2, DND_GOLGOTH_ZOFF2, target, true);
+}
+
+Script "DnD Monster Trait Take" (int traitside, int flag) {
+	if(!traitside)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, flag);
+	else
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2 = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2, flag);
+}
+
+Script "DnD Monster Trait Give" (int traitside, int flag) {
+	if(!traitside)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = SetBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, flag);
+	else
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2 = SetBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2, flag);
 }

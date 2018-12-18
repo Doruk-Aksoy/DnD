@@ -33,7 +33,6 @@ Script 900 (void) NET {
 		SetInventory("DnD_PlayerItemIndex", 0);
 		SetInventory("DnD_PlayerPrevItemIndex", 0);
 		SetInventory("DnD_PopupId", 0);
-		SetInventory("MenuPosServerX", 0);
 		SetInventory("DnD_SelectedCharmBox", 0);
 		SetInventory("DnD_SelectedInventoryBox", 0);
 		SetInventory("DnD_Crafting_MaterialPage", 0);
@@ -46,7 +45,7 @@ Script 900 (void) NET {
 		TakeInventory("DnD_ShowPopup", 1);
 		TakeInventory("DnD_ShowSellPopup", 1);
 		TakeInventory("DnD_SellConfirm", 1);
-		ClearPlayerInput(PlayerNumber());
+		ClearPlayerInput(PlayerNumber(), true);
 		DecideAccessories();
 		//SetInventory("MenuPosY", 5);
 		LocalAmbientSound("RPG/MenuClose", 127);
@@ -70,11 +69,10 @@ Script 900 (void) NET {
 			StatListOpened[PlayerNumber()] = 1;
 			SetInventory("MenuOption", MENU_MAIN);
 			SetInventory("ShowingMenu", 1);
-			SetInventory("MenuPosServerX", 0);
 			SetInventory("Mouse_X", HUDMAX_XF / 2);
 			SetInventory("Mouse_Y", HUDMAX_YF / 2);
 			LocalAmbientSound("RPG/MenuOpen", 127);
-			ClearPlayerInput(PlayerNumber());
+			ClearPlayerInput(PlayerNumber(), true);
 			DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 			
 			ACS_NamedExecuteAlways("DND Menu Draw", 0);
@@ -126,11 +124,13 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		curopt = CheckInventory("MenuOption");
 		popupid = CheckInventory("DnD_PopupId");
 		
+		// page changed
 		if(curopt != curopt_prev) {
 			ResetPane(CurrentPane);
 			LoadPane(CurrentPane, curopt);
 			ScrollPos = 0;
 			k = 0;
+			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
 		}
@@ -196,7 +196,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			// guarantee nonzero input
 			if(i) {
 				//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-				NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid);
+				NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
 			}
 		}
 		boxid_prev = boxid;
@@ -902,7 +902,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				GiveInventory("DND_ACKLoop", 1);
 				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
 				//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid);
+				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
 			}
 		}
 		else {
@@ -938,6 +938,12 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		//printbold(s:"received ", d:dummy, s: " ", d:boxid, s: " ", d:mainboxid);
 		int curopt, i, j;
 
+		// extra Left - Right pos is kept in mainboxid
+		if(mainboxid > 0xFFFF) {
+			MenuInputData[pnum][DND_MENUINPUT_LRPOS] = mainboxid >> 16;
+			mainboxid &= 0xFFFF;
+		}
+		
 		SetActivator(pnum + P_TIDSTART);
 		MenuInputData[pnum][DND_MENUINPUT_DELAY] = DND_MENU_INPUTDELAYTICS;
 		MenuInputData[pnum][DND_MENUINPUT] = temp;
@@ -1510,10 +1516,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				UpdateMenuPosition(MENU_RESEARCH);
 		}
 		else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END) {
-			if(MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_NEXTBUTTON)
-				GiveInventory("MenuPosServerX", 1);
-			else if(MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_PREVBUTTON)
-				TakeInventory("MenuPosServerX", 1);
 			HandleResearchPageInput(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
 		}
 		else if(curopt == MENU_ABILITY) {
@@ -1547,7 +1549,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				UpdateMenuPosition(MENU_HELP);
 		}
 		HandleClickableButtonFrames();
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 		
 		Delay(DND_MENU_INPUTDELAYTICS);
 		MenuInputData[pnum][DND_MENUINPUT_DELAY] = 0;

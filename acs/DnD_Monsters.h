@@ -8,14 +8,14 @@
 #define GOLGOTH_TID 998
 #define TORRASQUE_TID 999
 
-#define AVATAR_SOUL_TID 2000
+#define AVATAR_SOUL_TID 3565
 #define AVATAR_CUBE_TID 6000
 #define AVATAR_SOUL_COUNT 10
 
 #define WAIT_MAX 18 // approx 2.5 seconds of flight max for jumping monsters (or lands on object and gets stuck, this is to unstuck it)
 
 #define ZEALOT_SHIELD_TIME 4 * 35
-#define ZEALOT_SHIELD_TIDADD 1000 
+#define ZEALOT_SHIELD_TID 3564 
 
 #define DARKLICH_WARP_RANDMAX 160
 #define DARKLICH_WARP_VELZMAX 12.0

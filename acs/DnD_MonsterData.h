@@ -570,29 +570,33 @@ int MonsterPetTypeList[MAX_PET_TYPES] = {
 };
 
 bool IsBoss() {
-	int id = CheckInventory("MonsterID");
+	int id = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
 	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id >= DND_BOSS_BEGIN;
 }
 
 bool IsDemon() {
-	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_DEMON_POW;
+	return MonsterTypeList[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id] & DND_MTYPE_DEMON_POW;
 }
 
 bool IsZombie() {
-	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_ZOMBIE_POW;
+	return MonsterTypeList[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id] & DND_MTYPE_ZOMBIE_POW;
 }
 
 bool IsUndead() {
-	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_UNDEAD_POW;
+	return MonsterTypeList[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id] & DND_MTYPE_UNDEAD_POW;
 }
 
 bool IsRobotic() {
-	return MonsterTypeList[CheckInventory("MonsterID")] & DND_MTYPE_ROBOTIC_POW;
+	return MonsterTypeList[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id] & DND_MTYPE_ROBOTIC_POW;
 }
 
 bool IsLostSoul() {
-	int id = CheckInventory("MonsterID");
+	int id = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
 	return (id >= MONSTER_BABYCACO && id <= MONSTER_DARKLICH_SPIRIT) || id == MONSTER_LOSTSOUL;
+}
+
+bool isPet(int tid) {
+	return tid >= DND_PETTID_BEGIN && tid < DND_MONSTERTID_BEGIN;
 }
 
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX

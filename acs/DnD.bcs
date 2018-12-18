@@ -487,18 +487,19 @@ Script "DND On Kill" KILL {
 	int creditshare = GetCVar("dnd_sharecredit");
 	int haswisdom = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANWISDOM);
 	int hasgreed = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANGREED);
-    
+    int this = ActivatorTID();
+	
     // decide how exp/credit base is calculated
-	int exptemp = CheckInventory("MonsterMaxHealth") / DND_HEALTHEXPSCALE;
-	int credtemp = (DND_HEALTHCREDITUPSCALE * CheckInventory("MonsterMaxHealth")) / DND_HEALTHCREDITSCALE;
-    int pnum = 0, i = CheckInventory("MonsterLevel");
+	int exptemp = MonsterProperties[this - DND_MONSTERTID_BEGIN].level / DND_HEALTHEXPSCALE;
+	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp) / DND_HEALTHCREDITSCALE;
+    int pnum = 0, i = MonsterProperties[this - DND_MONSTERTID_BEGIN].level;
 	
 	if(i > 75)
 		credtemp /= DND_HEALTHCREDITAFTER75SCALE;
 	else if(i > 50)
 		credtemp /= DND_HEALTHCREDITAFTER50SCALE;
 	
-	if(CheckInventory("MonsterIsElite")) {
+	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite) {
 		exptemp += exptemp * DND_ELITE_EXP_BONUS / 100;
 		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
 	}
@@ -510,9 +511,9 @@ Script "DND On Kill" KILL {
 	int expprev, credprev;
 		
 	// add monster scale stuff
-	if(CheckInventory("MonsterLevel") > 1) {
-		exptemp += exptemp * CheckInventory("MonsterLevel") * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
-		credtemp += credtemp * CheckInventory("MonsterLevel") * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
+	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].level > 1) {
+		exptemp += exptemp * MonsterProperties[this - DND_MONSTERTID_BEGIN].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
+		credtemp += credtemp * MonsterProperties[this - DND_MONSTERTID_BEGIN].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
 	}
 	
 	ACS_NamedExecuteAlways("DND Show Kill Digits", 0, exptemp * expscale, credtemp * creditscale); // show the numbers
@@ -600,7 +601,7 @@ Script "DND On Kill" KILL {
 	// Handle Drops
 	if(!CheckInventory("Mo_Revived")) {
 		// reuse old variable
-		pnum = CheckInventory("MonsterIsElite");
+		pnum = MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite;
 		// drop coins if there should be
 		if(GetCVar("dnd_credit_drops")) {
 			// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
@@ -663,12 +664,12 @@ Script "DND On Kill" KILL {
 		}
 		
 		// Legendary Kill Item
-		if(CheckInventory("MonsterID") >= LEGENDARY_START) {
+		if(MonsterProperties[this - DND_MONSTERTID_BEGIN].id >= LEGENDARY_START) {
 			for(i = 0; i < MAXPLAYERS; ++i) {
 				if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
-					UpdateLegendaryKill(i, CheckInventory("MonsterID") - LEGENDARY_START);
+					UpdateLegendaryKill(i, MonsterProperties[this - DND_MONSTERTID_BEGIN].id - LEGENDARY_START);
 					
-					if(active_quest_id - DND_LEGQUEST_START == CheckInventory("MonsterID") - LEGENDARY_START)
+					if(active_quest_id - DND_LEGQUEST_START == MonsterProperties[this - DND_MONSTERTID_BEGIN].id - LEGENDARY_START)
 						CompleteQuest(i + P_TIDSTART, active_quest_id);
 				}
 			}
@@ -1252,47 +1253,49 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 		GiveInventory("DontRun", 1);
 		if(!ActivatorTID())
 			GiveMonsterTID();
-		int base, add, pcount = PlayerCount();
+		int base, add, pcount = PlayerCount(), this = ActivatorTID();
 		if(!pcount)
 			pcount = 1;
 		if(GetCVar("dnd_monsterscale")) {
 			// scaling code -- delay is because monsters are initialized before enter scripts are executed
 			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
 				Delay(3);
+			Delay(35); // wait just in case someone leaves, disconnect script will correct the level
+			pcount = PlayerCount();
 			ScaleMonster(pcount);
 		}
 		else {
-			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
-			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
-			SetInventory("MonsterLevel", 1);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].level = 1;
 		}
 		
-		SetInventory("MonsterID", monsterid);
-		SetInventory("MonsterTraits", traits);
-		SetInventory("MonsterTraits2", traits2);
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].id = monsterid;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
 
-		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			// hopefully people won't turn to elites?
 			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
 				Terminate;
-			GiveInventory("MonsterIsElite", 1);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
 			
 			// Elite bonuses
 			base = GetActorProperty(0, APROP_HEALTH);
 			add = base * DND_ELITE_HPSCALE / 100;
 			SetActorProperty(0, APROP_HEALTH, base + add);
-			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
-			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
 			// roll more traits randomly
 			int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
 			DecideEliteTraits(traitcount);
 			// Double Health
-			if(CheckInventory("MonsterTraits2") & DND_VITAL) {
+			if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & DND_VITAL) {
 				base = GetActorProperty(0, APROP_HEALTH);
 				add = base * DND_ELITE_VITAL_SCALE / 100;
 				SetActorProperty(0, APROP_HEALTH, Clamp_Between(base + add, 1, INT_MAX));
-				SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
-				SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
+				MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
+				MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
 			}
 		}
 	}
@@ -1304,7 +1307,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 		GiveInventory("DontRun", 1);
 		if(!ActivatorTID())
 			GiveMonsterTID();
-		int base, add, pcount = PlayerCount();
+		int base, add, pcount = PlayerCount(), this = ActivatorTID();
 		if(!pcount)
 			pcount = 1;
 		if(GetCVar("dnd_monsterscale")) {
@@ -1314,38 +1317,38 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 			ScaleMonster(pcount);
 		}
 		else {
-			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
-			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
-			SetInventory("MonsterLevel", 1);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].level = 1;
 		}
 		
-		SetInventory("MonsterID", DND_CUSTOMMONSTER_ID);
-		SetInventory("MonsterTraits", traits);
-		SetInventory("MonsterTraits2", traits2);
-		SetInventory("MonsterProperties", properties);
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].id = DND_CUSTOMMONSTER_ID;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].properties = properties;
 		
-		if(GetCVar("dnd_enable_elites") && !(CheckInventory("MonsterTraits2") & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			// hopefully people won't turn to elites?
-			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
+			if(this >= P_TIDSTART && this <= P_TIDSTART + MAXPLAYERS - 1)
 				Terminate;
-			GiveInventory("MonsterIsElite", 1);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
 			
 			// Elite bonuses
 			base = GetActorProperty(0, APROP_HEALTH);
 			add = base * DND_ELITE_HPSCALE / 100;
 			SetActorProperty(0, APROP_HEALTH, base + add);
-			SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
-			SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
 			// roll more traits randomly
 			int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
 			DecideEliteTraits(traitcount);
 			// Double Health
-			if(CheckInventory("MonsterTraits2") & DND_VITAL) {
+			if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & DND_VITAL) {
 				base = GetActorProperty(0, APROP_HEALTH);
 				add = base * DND_ELITE_VITAL_SCALE / 100;
 				SetActorProperty(0, APROP_HEALTH, Clamp_Between(base + add, 1, INT_MAX));
-				SetInventory("MonsterBaseHealth", GetActorProperty(0, APROP_HEALTH));
-				SetInventory("MonsterMaxHealth", GetActorProperty(0, APROP_HEALTH));
+				MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
+				MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
 			}
 		}
 	}
@@ -1612,18 +1615,20 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 }
 
 Script "DnD Monster Scanner Picker" ENTER {
-	int thisactor = ActivatorTID();
+	int this = ActivatorTID();
 	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, traits, traits2, nameskip, monprop;
 	bool monelite = false;
 	while(1) {
-		SetActivatorToTarget(thisactor);
+		SetActivatorToTarget(this);
+		int montid = ActivatorTID();
+		// clean-up later
 		if(!CheckInventory("EnemyInDisguise") && (CheckActorProperty(0, APROP_Friendly, 0) || CheckInventory("FriendlyInDisguise")))
 			healthbarcolor = 1;
 		else if(CheckActorProperty(0, APROP_Friendly, 1) || CheckInventory("EnemyInDisguise"))
 			healthbarcolor = 0;
-		if(ActivatorTID() == thisactor || CheckInventory("EnemyInDisguise")) {
+		if(ActivatorTID() == this || CheckInventory("EnemyInDisguise")) {
 			// player has no targets
-			SetActivator(thisactor);
+			SetActivator(this);
 			SetInventory("TargetMaximumHealth", 0);
 			SetInventory("TargetCurrentHealth", 0);
 			SetInventory("TargetLevel", 0);
@@ -1634,17 +1639,32 @@ Script "DnD Monster Scanner Picker" ENTER {
 			SetInventory("TargetProperties", 0);
 		}
 		else {
-			mmaxhp = CheckInventory("MonsterMaxHealth");
+			// this is known to us anyway
 			monhp = GetActorProperty (0, APROP_Health);
-			monlvl = CheckInventory("MonsterLevel");
-			monsterid = CheckInventory("MonsterID");
-			traits = CheckInventory("MonsterTraits");
-			traits2 = CheckInventory("MonsterTraits2");
-			nameskip = CheckInventory("MonsterNameSkip");
-			monelite = CheckInventory("MonsterIsElite");
-			monprop = CheckInventory("MonsterProperties");
-			str temp = GetActorProperty(0, APROP_NAMETAG);
-			SetActivator(thisactor);
+			// this part retrieves data from server
+			// if not a pet
+			if(!IsPet(montid)) {
+				mmaxhp = MonsterProperties[montid - DND_MONSTERTID_BEGIN].maxhp;
+				monlvl = MonsterProperties[montid - DND_MONSTERTID_BEGIN].level;
+				monsterid = MonsterProperties[montid - DND_MONSTERTID_BEGIN].id;
+				traits = MonsterProperties[montid - DND_MONSTERTID_BEGIN].traits;
+				traits2 = MonsterProperties[montid - DND_MONSTERTID_BEGIN].traits2;
+				nameskip = MonsterProperties[montid - DND_MONSTERTID_BEGIN].nameskip;
+				monelite = MonsterProperties[montid - DND_MONSTERTID_BEGIN].isElite;
+				monprop = MonsterProperties[montid - DND_MONSTERTID_BEGIN].properties;
+			}
+			else {
+				mmaxhp = PetMonsterProperties[montid - DND_PETTID_BEGIN].maxhp;
+				monlvl = PetMonsterProperties[montid - DND_PETTID_BEGIN].level;
+				monsterid = PetMonsterProperties[montid - DND_PETTID_BEGIN].id;
+				traits = PetMonsterProperties[montid - DND_PETTID_BEGIN].traits;
+				traits2 = PetMonsterProperties[montid - DND_PETTID_BEGIN].traits2;
+				nameskip = PetMonsterProperties[montid - DND_PETTID_BEGIN].nameskip;
+				monelite = PetMonsterProperties[montid - DND_PETTID_BEGIN].isElite;
+				monprop = PetMonsterProperties[montid - DND_PETTID_BEGIN].properties;
+			}
+			SetActivator(this);
+			// this part uses the inventory method to avoid having to constantly sync variables between clients
 			SetInventory("TargetMaximumHealth", mmaxhp);
 			SetInventory("TargetCurrentHealth", monhp);
 			SetInventory("TargetHealthBarColor", healthbarcolor);
@@ -1654,10 +1674,10 @@ Script "DnD Monster Scanner Picker" ENTER {
 			SetInventory("TargetIsWhat", monsterid);
 			SetInventory("TargetIsElite", monelite);
 			SetInventory("TargetProperties", monprop);
-			SetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber()), temp);
+			SetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber()), GetActorProperty(montid, APROP_NAMETAG));
 		}
 		// fixes initialization bug
-		SetActivator(thisactor);
+		SetActivator(this);
 		Delay (1);
 	}
 }
@@ -2132,12 +2152,12 @@ Script 993 ENTER CLIENTSIDE {
 Script "DND Monster Damage Scale" (int flags) {
 	if(flags & 1) // target
 		SetactivatorToTarget(0);
-	int res = Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
-	if(CheckInventory("MonsterIsElite"))
+	int res = Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
 	if(IsExtraStrong())
 		res = FixedMul(res, 1.0 + DND_ELITE_EXTRASTRONG_BONUS);
-	if(CheckInventory("MonsterLevel") > 50)
+	if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level > 50)
 		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
 	if(flags & DND_WDMG_ISRIPPER)
 		res >>= 1;
@@ -2148,12 +2168,12 @@ Script "DND Monster Damage Scale" (int flags) {
 Script "DND Monster Damage Scale2" (int dmg, int flags) {
 	if(flags & 1) // target
 		SetactivatorToTarget(0);
-	int res = Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
-	if(CheckInventory("MonsterIsElite"))
+	int res = Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
 	if(IsExtraStrong())
 		res = FixedMul(res, 1.0 + DND_ELITE_EXTRASTRONG_BONUS);
-	if(CheckInventory("MonsterLevel") > 50)
+	if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level > 50)
 		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
 	SetResultValue((dmg * res) >> 16);
 }
@@ -2191,29 +2211,29 @@ Script 994 (int type, int extra) {
 		if(GetCVar("dnd_monsterscale")) {
 			int bonus = 0;
 			if(type == 5) {
-				bonus = (CheckInventory("MonsterTraits") & DND_EXTRASTRONG) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
-				if(CheckInventory("MonsterIsElite"))
+				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits & DND_EXTRASTRONG) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
+				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
+				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
 			}
 			else if(type == 6) {
 				SetActivatorToTarget(0);
-				bonus = (CheckInventory("MonsterTraits") & DND_EXTRASTRONG) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
-				if(CheckInventory("MonsterIsElite"))
+				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits & DND_EXTRASTRONG) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
+				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
+				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
 			}
 			else if(type == 7) {
-				bonus = (CheckInventory("MonsterTraits") & DND_EXTRASTRONG) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
+				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits & DND_EXTRASTRONG) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
 				res = (Clamp_Between(extra, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
-				if(CheckInventory("MonsterIsElite"))
+				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
 			}
 			else if(type == 8)
-				res = CheckInventory("MonsterLevel");
+				res = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level;
 		}
 	}
 	else if(type == 9)
@@ -3001,36 +3021,7 @@ Script "DND Thunderstaff Bolts" (int isfulldmg) {
 	int tcount = 0;
 	int tidlim = 0;
 	// pick N closest targets as a list of targets to hit
-	for(i = DND_MONSTERTID_BEGIN; i < dnd_monster_tid; ++i) {
-		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i)) {
-			dist = fdistance(0, i);
-			// insert sorted
-			if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
-				temp = tcount;
-			else
-				temp = DND_THUNDERSTAFF_MAXTARGETS;
-			for(j = 0; j < temp; ++j) {
-				if(dist < tlist[j].dist) {
-					// push everything for insertion
-					for(k = temp - 1; k > j; --k) {
-						// slide data
-						tlist[k].dist = tlist[k - 1].dist;
-						tlist[k].tid = tlist[k - 1].tid;
-					}
-					break;				
-				}
-			}
-			if(!tcount || j < temp) {
-				// pos found, now add
-				tlist[j].dist = dist;
-				tlist[j].tid = i;
-				++tcount;
-			}
-		}
-	}
-	// clean this part later
-	tidlim = AVATAR_BASE_TID + AvatarTID;
-	for(i = AVATAR_BASE_TID; i < tidlim; ++i) {
+	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i)) {
 			dist = fdistance(0, i);
 			// insert sorted
@@ -3058,63 +3049,6 @@ Script "DND Thunderstaff Bolts" (int isfulldmg) {
 		}
 	}
 	
-	tidlim = ZEALOT_BASE_TID + ZealotTID;
-	for(i = ZEALOT_BASE_TID; i < tidlim; ++i) {
-		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i)) {
-			dist = fdistance(0, i);
-			// insert sorted
-			if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
-				temp = tcount;
-			else
-				temp = DND_THUNDERSTAFF_MAXTARGETS;
-			for(j = 0; j < temp; ++j) {
-				if(dist < tlist[j].dist) {
-					// push everything for insertion
-					for(k = temp - 1; k > j; --k) {
-						// slide data
-						tlist[k].dist = tlist[k - 1].dist;
-						tlist[k].tid = tlist[k - 1].tid;
-					}
-					break;				
-				}
-			}
-			if(!tcount || j < temp) {
-				// pos found, now add
-				tlist[j].dist = dist;
-				tlist[j].tid = i;
-				++tcount;
-			}
-		}
-	}
-	
-	tidlim = PURP_DEM_TID + PurpDemTID;
-	for(i = PURP_DEM_TID; i < tidlim; ++i) {
-		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i)) {
-			dist = fdistance(0, i);
-			// insert sorted
-			if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
-				temp = tcount;
-			else
-				temp = DND_THUNDERSTAFF_MAXTARGETS;
-			for(j = 0; j < temp; ++j) {
-				if(dist < tlist[j].dist) {
-					// push everything for insertion
-					for(k = temp - 1; k > j; --k) {
-						// slide data
-						tlist[k].dist = tlist[k - 1].dist;
-						tlist[k].tid = tlist[k - 1].tid;
-					}
-					break;				
-				}
-			}
-			if(!tcount || j < temp) {
-				// pos found, now add
-				tlist[j].dist = dist;
-				tlist[j].tid = i;
-				++tcount;
-			}
-		}
-	}
 	// check golgoth and torrasque
 	if(CheckActorInventory(GOLGOTH_TID, "ThunderTarget") && IsActorAlive(GOLGOTH_TID)) {
 		dist = fdistance(0, GOLGOTH_TID);
@@ -3236,23 +3170,7 @@ Script "DND Thunderstaff Lightning" (int isfulldmg) {
 	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL) << 1;
 	int tidlim = 0;
 	
-	for(i = DND_MONSTERTID_BEGIN; i < dnd_monster_tid; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
-			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
-	}
-	// clean this part later
-	tidlim = AVATAR_BASE_TID + AvatarTID;
-	for(i = AVATAR_BASE_TID; i < tidlim; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
-			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
-	}
-	tidlim = ZEALOT_BASE_TID + ZealotTID;
-	for(i = ZEALOT_BASE_TID; i < tidlim; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
-			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
-	}
-	tidlim = PURP_DEM_TID + PurpDemTID;
-	for(i = PURP_DEM_TID; i < tidlim; ++i) {
+	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
 			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
 	}
@@ -3683,36 +3601,11 @@ Script "DnD Warmaster Rage" (void) {
 	while(CheckInventory("WarmasterActive")) {
 		bool found = false;
 		// try to see if there's at least one monster that is closest to this
-		for(i = DND_MONSTERTID_BEGIN; i < dnd_monster_tid && !found; ++i) {
+		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER] && !found; ++i) {
 			if(IsActorAlive(i)) {
 				dist = fdistance(0, i);
 				// no self find
 				if(dist >= 2.0 && dist <= WARMASTER_DIST)
-					found = true;
-			}
-		}
-		tidlim = AVATAR_BASE_TID + AvatarTID;
-		// clean this part later
-		for(i = AVATAR_BASE_TID; i < tidlim && !found; ++i) {
-			if(IsActorAlive(i)) {
-				dist = fdistance(0, i);
-				if(dist <= WARMASTER_DIST)
-					found = true;
-			}
-		}
-		tidlim = ZEALOT_BASE_TID + ZealotTID;
-		for(i = ZEALOT_BASE_TID; i < tidlim && !found; ++i) {
-			if(IsActorAlive(i)) {
-				dist = fdistance(0, i);
-				if(dist <= WARMASTER_DIST)
-					found = true;
-			}
-		}
-		tidlim = PURP_DEM_TID + PurpDemTID;
-		for(i = PURP_DEM_TID; i < tidlim && !found; ++i) {
-			if(IsActorAlive(i)) {
-				dist = fdistance(0, i);
-				if(dist <= WARMASTER_DIST)
 					found = true;
 			}
 		}
@@ -3808,8 +3701,11 @@ Script "DnD Force Damage Cache Recalculation" (int pnum) {
 }
 
 Script "DnD Pet Monster Scale" (int petid, int traits, int traits2) {
-	int base, add, level, temp, master = GetActorProperty(0, APROP_MASTERTID);
+	GivePetTID();
+	
+	int base, add, level, temp, master = GetActorProperty(0, APROP_MASTERTID), this = ActivatorTID();
 	base = GetActorProperty(0, APROP_HEALTH);
+	
 	add = 0, level = CheckActorInventory(master, "Level");
 	if(level > 1) {
 		add = (base * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
@@ -3839,12 +3735,12 @@ Script "DnD Pet Monster Scale" (int petid, int traits, int traits2) {
 			add = INT_MAX - base;
 	}
 	SetActorProperty(0, APROP_HEALTH, base + add);
-	SetInventory("MonsterID", petid);
-	SetInventory("MonsterTraits", traits);
-	SetInventory("MonsterTraits2", traits2);
-	SetInventory("MonsterBaseHealth", base);
-	SetInventory("MonsterMaxHealth", base + add);
-	SetInventory("MonsterLevel", level);
+	PetMonsterProperties[this - DND_PETTID_BEGIN].id = petid;
+	PetMonsterProperties[this - DND_PETTID_BEGIN].traits = traits;
+	PetMonsterProperties[this - DND_PETTID_BEGIN].traits2 = traits2;
+	PetMonsterProperties[this - DND_PETTID_BEGIN].basehp = base;
+	PetMonsterProperties[this - DND_PETTID_BEGIN].maxhp = base + add;
+	PetMonsterProperties[this - DND_PETTID_BEGIN].level = level;
 }
 
 Script "DnD Master Skill Info" (int skill_id) {
@@ -3861,9 +3757,10 @@ Script "DnD Master Skill Info" (int skill_id) {
 Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	if(flags & 1) // target
 		SetactivatorToTarget(0);
+	int this = ActivatorTID();
 	int master = GetActorProperty(0, APROP_MASTERTID);
-	int res = 1.0 + Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
-	if(CheckInventory("MonsterLevel") > 50)
+	int res = 1.0 + Clamp_Between(PetMonsterProperties[this - DND_PETTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	if(PetMonsterProperties[this - DND_PETTID_BEGIN].level > 50)
 		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
 	if(flags & DND_WDMG_ISRIPPER)
 		res >>= 1;

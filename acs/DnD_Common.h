@@ -12,6 +12,7 @@
 #define P_TIDSTART 1000
 #define TICRATE 35
 
+#define DND_PETTID_BEGIN 55000
 #define DND_MONSTERTID_BEGIN 66000
 
 #define DND_BASE_HEALTH 100
@@ -43,11 +44,9 @@
 * 2000 - 2063 = Deathray marker TID for players
 * 3000 - 3063 = Initial railgun trail ID
 * 3500 - 3563 = In-between trails ID for railgun
-* 5000+ = Avatar TID
-* 7000+ = Avatar soul projectiles TID
-* 11000+ = Avatar Cubes TID
-* 13000+ = Nhumcign TID
-* 14000+ = Zealot TID
+* 3564 = Dark Zealot Shield TID
+* 3565 = Avatar soul projectiles TID
+* 6000 - 12000 = Avatar Cubes TID
 * 15000+ = Zealot Shield TID
 * 17000 - 19048 = Shared item IDs
 * 19049 - 29049 = Limited Respawn Ammos
@@ -55,12 +54,9 @@
 * 32769 = Thunder Staff temporary damager tid
 * 40000 - 42048 = Thunder Staff Ring tid
 * 42049 - Talisman Mark tid
+* 55000 - 65999 = pet tids
 * Anything above 66000 => any monster tid
 */
-
-int AvatarTID = 0;
-int PurpDemTID = 0;
-int ZealotTID = 0;
 
 global int 0: MapChanged;
 global int 5: HardcoreSet;
@@ -69,7 +65,11 @@ global bool 7: PlayerDied[MAXPLAYERS];
 #define MAX_SCREENRES_OFFSETS 4
 int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1 };
 int active_quest_id = -1;
-int dnd_monster_tid = DND_MONSTERTID_BEGIN;
+
+#define DND_TID_MONSTER 0
+#define DND_TID_PET 1
+// keeps at what tid we are left off
+int DnD_TID_List[2] = { DND_MONSTERTID_BEGIN, DND_PETTID_BEGIN };
 
 #define PLAYERLEVELINFO_LEVEL 0
 #define PLAYERLEVELINFO_MINLEVEL 1
@@ -79,8 +79,12 @@ int PlayerInformationInLevel[4] = {
 	0, INT_MAX, INT_MIN, 0
 };
 
-void GiveMonsterTID (void) {
-	Thing_ChangeTID(0, dnd_monster_tid++);
+void GiveMonsterTID () {
+	Thing_ChangeTID(0, DnD_TID_List[DND_TID_MONSTER]++);
+}
+
+void GivePetTID() {
+	Thing_ChangeTID(0, DnD_TID_List[DND_TID_PET]++);
 }
 
 enum {
@@ -292,22 +296,6 @@ void SpawnDropFacing(str actor, int zoffset, int thrust, int setspecial, int set
 	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
 	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
 	Thing_ChangeTID(DND_DROP_TID, 0);
-}
-
-// put here because acs doesnt recognize the below 3 variables have changed
-// general TID assigner
-Script 964 (int which) {
-	switch (which) {
-		case 0:
-			Thing_ChangeTID(0, AVATAR_BASE_TID + (AvatarTID++));
-		break;
-		case 1:
-			Thing_ChangeTID(0, PURP_DEM_TID + (PurpDemTID++));
-		break;
-		case 2:
-			Thing_ChangeTID(0, ZEALOT_BASE_TID + (ZealotTID++));
-		break;
-	}
 }
 
 void DeleteText(int textid) {

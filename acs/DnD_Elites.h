@@ -54,11 +54,11 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 };
 
 int GetEliteBonusDamage() {
-	return DND_ELITE_DMGSCALE * CheckInventory("MonsterLevel");
+	return DND_ELITE_DMGSCALE * MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level;
 }
 
 bool IsExtraStrong() {
-	return IsSet(CheckInventory("MonsterTraits2"), DND_EXTRASTRONG_POW);
+	return IsSet(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2, DND_EXTRASTRONG_POW);
 }
 
 int GetRandomEliteTrait() {
@@ -108,49 +108,49 @@ void SetEliteFlag(int f, int flagside) {
 				GiveInventory("MakeNoPain", 1);
 			break;
 		}
-		SetInventory("MonsterTraits", CheckInventory("MonsterTraits") | (1 << f));
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits |= (1 << f);
 	}
 	else {
 		switch (f) {
 			case DND_BULLET_IMMUNE_POW:
-				if(IsSet(CheckInventory("MonsterTraits"), DND_SILVER_WEAKNESS_POW))
-					SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_SILVER_WEAKNESS_POW));
+				if(IsSet(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_SILVER_WEAKNESS_POW))
+					MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_SILVER_WEAKNESS_POW);
 				GiveInventory("MakePhysicalImmune", 1);
 			break;
 			case DND_ENERGY_RESIST_POW:
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_ENERGY_WEAKNESS_POW));
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_ENERGY_WEAKNESS_POW);
 				GiveInventory("MakeEnergyResist", 1);
 			break;
 			case DND_ENERGY_IMMUNE_POW:
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_ENERGY_WEAKNESS_POW));
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_ENERGY_WEAKNESS_POW);
 				GiveInventory("MakeEnergyImmune", 1);
 			break;
 			case DND_MAGIC_RESIST_POW:
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_MAGIC_WEAKNESS_POW));
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_MAGIC_WEAKNESS_POW);
 				GiveInventory("MakeMagicResist", 1);
 			break;
 			case DND_MAGIC_IMMUNE_POW:
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_MAGIC_WEAKNESS_POW));
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_MAGIC_WEAKNESS_POW);
 				GiveInventory("MakeMagicImmune", 1);
 			break;
 			case DND_ELEMENTAL_RESIST_POW:
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_FIRE_WEAKNESS_POW));
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_ICE_WEAKNESS_POW));
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_FIRE_WEAKNESS_POW);
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_ICE_WEAKNESS_POW);
 				GiveInventory("MakeElementalResist", 1);
 			break;
 			case DND_ELEMENTAL_IMMUNE_POW:
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_FIRE_WEAKNESS_POW));
-				SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_ICE_WEAKNESS_POW));
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_FIRE_WEAKNESS_POW);
+				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_ICE_WEAKNESS_POW);
 				GiveInventory("MakeElementalImmune", 1);
 			break;
 			case DND_ARMORPEN:
 				// if monster has pierce, remove it
-				if(IsSet(CheckInventory("MonsterTraits"), DND_PIERCE_POW))
-					SetInventory("MonsterTraits", ClearBit(CheckInventory("MonsterTraits"), DND_PIERCE_POW));
+				if(IsSet(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_PIERCE_POW))
+					MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_PIERCE_POW);
 				GiveInventory("MakePierce", 1);
 			break;
 		}
-		SetInventory("MonsterTraits2", CheckInventory("MonsterTraits2") | (1 << f));
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2 |= (1 << f);
 	}
 }
 
@@ -166,24 +166,26 @@ bool CheckEliteCvar(int t, int flagtype) {
 }
 
 bool HasTraitExceptions(int t, int flagtype) {
+	int traits = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, traits2 = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2;
 	if(!flagtype)
-		return ((t == DND_EXPLOSIVE_RESIST_POW && IsSet(CheckInventory("MonsterTraits"), DND_EXPLOSIVE_IMMUNE_POW)) || (t == DND_EXPLOSIVE_IMMUNE_POW && IsSet(CheckInventory("MonsterTraits"), DND_EXPLOSIVE_RESIST_POW))) ||
-			   ((t == DND_EXPLOSIVE_IMMUNE_POW && IsSet(CheckInventory("MonsterTraits"), DND_EXPLOSIVE_NONE_POW)) || (t == DND_EXPLOSIVE_NONE_POW && IsSet(CheckInventory("MonsterTraits"), DND_EXPLOSIVE_IMMUNE_POW))) ||
-			   ((t == DND_EXPLOSIVE_RESIST_POW && IsSet(CheckInventory("MonsterTraits"), DND_EXPLOSIVE_NONE_POW)) || (t == DND_EXPLOSIVE_NONE_POW && IsSet(CheckInventory("MonsterTraits"), DND_EXPLOSIVE_RESIST_POW))) ||
-			   ((t == DND_BULLET_RESIST_POW && IsSet(CheckInventory("MonsterTraits2"), DND_BULLET_IMMUNE_POW))) || CheckEliteCvar(t, flagtype);
+		return ((t == DND_EXPLOSIVE_RESIST_POW && IsSet(traits, DND_EXPLOSIVE_IMMUNE_POW)) || (t == DND_EXPLOSIVE_IMMUNE_POW && IsSet(traits, DND_EXPLOSIVE_RESIST_POW))) ||
+			   ((t == DND_EXPLOSIVE_IMMUNE_POW && IsSet(traits, DND_EXPLOSIVE_NONE_POW)) || (t == DND_EXPLOSIVE_NONE_POW && IsSet(traits, DND_EXPLOSIVE_IMMUNE_POW))) ||
+			   ((t == DND_EXPLOSIVE_RESIST_POW && IsSet(traits, DND_EXPLOSIVE_NONE_POW)) || (t == DND_EXPLOSIVE_NONE_POW && IsSet(traits, DND_EXPLOSIVE_RESIST_POW))) ||
+			   ((t == DND_BULLET_RESIST_POW && IsSet(traits2, DND_BULLET_IMMUNE_POW))) || CheckEliteCvar(t, flagtype);
 	else
-		return ((t == DND_ENERGY_RESIST_POW && IsSet(CheckInventory("MonsterTraits2"), DND_ENERGY_IMMUNE_POW)) || (t == DND_ENERGY_IMMUNE_POW && IsSet(CheckInventory("MonsterTraits2"), DND_ENERGY_RESIST_POW))) ||
-			   ((t == DND_MAGIC_RESIST_POW && IsSet(CheckInventory("MonsterTraits2"), DND_MAGIC_IMMUNE_POW)) || (t == DND_MAGIC_IMMUNE_POW && IsSet(CheckInventory("MonsterTraits2"), DND_MAGIC_RESIST_POW))) ||
-			   ((t == DND_ELEMENTAL_RESIST_POW && IsSet(CheckInventory("MonsterTraits2"), DND_ELEMENTAL_IMMUNE_POW))) || ((t == DND_ELEMENTAL_IMMUNE_POW && IsSet(CheckInventory("MonsterTraits2"), DND_ELEMENTAL_RESIST_POW))) ||
-			   ((t == DND_BULLET_IMMUNE_POW && IsSet(CheckInventory("MonsterTraits"), DND_BULLET_RESIST_POW))) || CheckEliteCvar(t, flagtype);
+		return ((t == DND_ENERGY_RESIST_POW && IsSet(traits2, DND_ENERGY_IMMUNE_POW)) || (t == DND_ENERGY_IMMUNE_POW && IsSet(traits2, DND_ENERGY_RESIST_POW))) ||
+			   ((t == DND_MAGIC_RESIST_POW && IsSet(traits2, DND_MAGIC_IMMUNE_POW)) || (t == DND_MAGIC_IMMUNE_POW && IsSet(traits2, DND_MAGIC_RESIST_POW))) ||
+			   ((t == DND_ELEMENTAL_RESIST_POW && IsSet(traits2, DND_ELEMENTAL_IMMUNE_POW))) || ((t == DND_ELEMENTAL_IMMUNE_POW && IsSet(traits2, DND_ELEMENTAL_RESIST_POW))) ||
+			   ((t == DND_BULLET_IMMUNE_POW && IsSet(traits, DND_BULLET_RESIST_POW))) || CheckEliteCvar(t, flagtype);
 }
 
 bool HasMaxImmunes() {
-	return !!IsSet("MonsterTraits", DND_EXPLOSIVE_NONE_POW) + 
-		   !!IsSet("MonsterTraits2", DND_BULLET_IMMUNE_POW) + 
-		   !!IsSet("MonsterTraits2", DND_ENERGY_IMMUNE_POW) +
-		   !!IsSet("MonsterTraits2", DND_MAGIC_IMMUNE_POW) +
-		   !!IsSet("MonsterTraits2", DND_ELEMENTAL_IMMUNE_POW) >= DND_MAX_ELITEIMMUNITIES;
+	int traits2 = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2;
+	return !!IsSet(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_EXPLOSIVE_NONE_POW) + 
+		   !!IsSet(traits2, DND_BULLET_IMMUNE_POW) + 
+		   !!IsSet(traits2, DND_ENERGY_IMMUNE_POW) +
+		   !!IsSet(traits2, DND_MAGIC_IMMUNE_POW) +
+		   !!IsSet(traits2, DND_ELEMENTAL_IMMUNE_POW) >= DND_MAX_ELITEIMMUNITIES;
 }
 
 bool IsImmunityFlag(int flag, int flagside) {
@@ -199,16 +201,16 @@ void DecideEliteTraits(int count) {
 	// Run the elite special fx script on this monster
 	GiveInventory("RunEliteFXScript", 1);
 	while(tries < MAX_ELITE_TRIES && count) {
-		str tocheck = "MonsterTraits";
+		int tocheck = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits;
 		int flagside = 0;
 		int try_trait = GetRandomEliteTrait();
 		
 		if(try_trait >= ELITE_FLAG2_BEGIN) {
-			tocheck = "MonsterTraits2";
+			tocheck = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2;
 			flagside = 1;
 		}
 
-		if(!IsSet(CheckInventory(tocheck), EliteTraitNumbers[try_trait])) {
+		if(!IsSet(tocheck, EliteTraitNumbers[try_trait])) {
 			// dont give explosive immunity with resist etc
 			if(!HasTraitExceptions(EliteTraitNumbers[try_trait], flagside) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait], flagside)) {
 				SetEliteFlag(EliteTraitNumbers[try_trait], flagside);

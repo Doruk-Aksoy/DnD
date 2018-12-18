@@ -1,7 +1,6 @@
 #include "DnD_MenuTables.h"
 
 void SetPage(int option, bool useSound) {
-	SetInventory("MenuServerPosX", 0);
 	SetInventory("MenuUD", 0);
 	SetInventory("MenuOption", option);
 	if(useSound)
@@ -26,6 +25,82 @@ void UpdateMenuPosition_NoSound(int option) {
 
 void UpdateMenuFromStack(int option) {
 	SetPage(option, true);
+}
+
+void ReturnToMain() {
+	SetInventory("MenuOption", MENU_MAIN);
+	SetInventory("MenuPosX", 0);
+	LocalAmbientSound("RPG/MenuChoose", 127);
+}
+
+// includes left right shortcuts
+// works clientside
+void ListenInput(int listenflag, int condx_min, int condx_max) {
+	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
+	int obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
+	int curposx = CheckInventory("MenuPosX");
+	bool p = 0;
+	// if waiting for sell confirmation do not let movement in menu
+	if(!CheckInventory("DnD_SellConfirm")) {
+		if(listenflag & LISTEN_LEFT) {
+			if(!(listenflag & LISTEN_FASTLR))
+				p = IsButtonPressed(bpress, obpress, settings[1][0]);
+			else
+				p = IsButtonHeld(bpress, settings[1][0]) && !CheckInventory("Menu_LRCooldown");
+			if(p) {
+				if(curposx > condx_min) {
+					TakeInventory("MenuPosX", 1);
+					LocalAmbientSound("RPG/MenuMove", 127);
+					GiveInventory("Menu_LRCooldown", 1);
+				}
+				SetInventory("MenuInput", DND_MENUINPUT_PREVBUTTON);
+			}
+		}
+		if(listenflag & LISTEN_RIGHT) {
+			if(!(listenflag & LISTEN_FASTLR))
+				p = IsButtonPressed(bpress, obpress, settings[3][0]);
+			else
+				p = IsButtonHeld(bpress, settings[3][0]) && !CheckInventory("Menu_LRCooldown");
+			if(p) {
+				if(curposx < condx_max) {
+					GiveInventory("MenuPosX", 1);
+					LocalAmbientSound("RPG/MenuMove", 127);
+					GiveInventory("Menu_LRCooldown", 1);
+				}
+				SetInventory("MenuInput", DND_MENUINPUT_NEXTBUTTON);
+			}
+		}
+	}
+	
+	if(!CheckInventory("DnD_ClickTicker")) {
+		if(IsButtonPressed(bpress, obpress, BT_USE) || IsButtonPressed(bpress, obpress, BT_ATTACK)) {
+			GiveInventory("DnD_ClickTicker", 1);
+			if(CheckInventory("DnD_SellConfirm"))
+				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+			SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
+		}
+		else if(IsButtonPressed(bpress, obpress, BT_ALTATTACK)) {
+			GiveInventory("DnD_ClickTicker", 1);
+			SetInventory("MenuInput", DND_MENUINPUT_RCLICK);
+		}
+	}
+}
+
+// Meant to be used entirely clientside only, for scrolling up and down (used when server doesnt need to know about this)
+void ListenScroll(int condx_min, int condx_max) {
+	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
+	// up is 1, down is 2
+	// opposite buttons because view should go up
+	if(IsButtonHeld(bpress, settings[0][0])) {
+		if(ScrollPos < condx_max)
+			++ScrollPos;
+		SetInventory("MenuUD", 1);
+	}
+	if(IsButtonHeld(bpress, settings[2][0])) {
+		if(ScrollPos > condx_min)
+			--ScrollPos;
+		SetInventory("MenuUD", 2);
+	}
 }
 
 void ShowPopup(int popupid, bool isSell, int activebox) {
@@ -1047,82 +1122,6 @@ void DrawHighLightBar (int posy, int drawstate) {
 	// restore default
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	SetFont("SMALLFONT");
-}
-
-void ReturnToMain() {
-	SetInventory("MenuOption", MENU_MAIN);
-	SetInventory("MenuPosX", 0);
-	LocalAmbientSound("RPG/MenuChoose", 127);
-}
-
-// includes left right shortcuts
-// works clientside
-void ListenInput(int listenflag, int condx_min, int condx_max) {
-	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
-	int obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
-	int curposx = CheckInventory("MenuPosX");
-	bool p = 0;
-	// if waiting for sell confirmation do not let movement in menu
-	if(!CheckInventory("DnD_SellConfirm")) {
-		if(listenflag & LISTEN_LEFT) {
-			if(!(listenflag & LISTEN_FASTLR))
-				p = IsButtonPressed(bpress, obpress, settings[1][0]);
-			else
-				p = IsButtonHeld(bpress, settings[1][0]) && !CheckInventory("Menu_LRCooldown");
-			if(p) {
-				if(curposx > condx_min) {
-					TakeInventory("MenuPosX", 1);
-					LocalAmbientSound("RPG/MenuMove", 127);
-					GiveInventory("Menu_LRCooldown", 1);
-				}
-				SetInventory("MenuInput", DND_MENUINPUT_PREVBUTTON);
-			}
-		}
-		if(listenflag & LISTEN_RIGHT) {
-			if(!(listenflag & LISTEN_FASTLR))
-				p = IsButtonPressed(bpress, obpress, settings[3][0]);
-			else
-				p = IsButtonHeld(bpress, settings[3][0]) && !CheckInventory("Menu_LRCooldown");
-			if(p) {
-				if(curposx < condx_max) {
-					GiveInventory("MenuPosX", 1);
-					LocalAmbientSound("RPG/MenuMove", 127);
-					GiveInventory("Menu_LRCooldown", 1);
-				}
-				SetInventory("MenuInput", DND_MENUINPUT_NEXTBUTTON);
-			}
-		}
-	}
-	
-	if(!CheckInventory("DnD_ClickTicker")) {
-		if(IsButtonPressed(bpress, obpress, BT_USE) || IsButtonPressed(bpress, obpress, BT_ATTACK)) {
-			GiveInventory("DnD_ClickTicker", 1);
-			if(CheckInventory("DnD_SellConfirm"))
-				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
-			SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
-		}
-		else if(IsButtonPressed(bpress, obpress, BT_ALTATTACK)) {
-			GiveInventory("DnD_ClickTicker", 1);
-			SetInventory("MenuInput", DND_MENUINPUT_RCLICK);
-		}
-	}
-}
-
-// Meant to be used entirely clientside only, for scrolling up and down (used when server doesnt need to know about this)
-void ListenScroll(int condx_min, int condx_max) {
-	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
-	// up is 1, down is 2
-	// opposite buttons because view should go up
-	if(IsButtonHeld(bpress, settings[0][0])) {
-		if(ScrollPos < condx_max)
-			++ScrollPos;
-		SetInventory("MenuUD", 1);
-	}
-	if(IsButtonHeld(bpress, settings[2][0])) {
-		if(ScrollPos > condx_min)
-			--ScrollPos;
-		SetInventory("MenuUD", 2);
-	}
 }
 
 void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull, bool isSpecialAmmo) {
@@ -2253,21 +2252,21 @@ void HandleWeaponPageInput(int pnum, int boxid, int wbegin, int wend, int pagepr
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE)
 			ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 	}
 	else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
 		ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_SELL, false);
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 	}
 	if(HasPressedLeft(pnum)) {
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_WEAPON);
 		else
 			UpdateMenuPosition(pageprev);
 	}
 	else if(HasPressedRight(pnum) && pagenext != -1) {
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 		UpdateMenuPosition(pagenext);
 	}
 }
@@ -2283,22 +2282,22 @@ void HandleAmmoPageInput(int pnum, int slot, int boxid, int pageprev, int pagene
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE)
 			HandleAmmoPurchase(slot, boxid, beginindex, false, IsSpecialAmmo);
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 	} // ammos have alternate functionality for sell
 	else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
 		HandleAmmoPurchase(slot, boxid, beginindex, true, IsSpecialAmmo);
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 	}
 	
 	if(HasPressedLeft(pnum)) {
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 		if(pageprev == -1) // no page for left, use default
 			UpdateMenuPosition(MENU_SHOP_AMMOSELECT);
 		else
 			UpdateMenuPosition(pageprev);
 	}
 	else if(HasPressedRight(pnum) && pagenext != -1) {
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 		UpdateMenuPosition(pagenext);
 	}
 }
@@ -2354,7 +2353,7 @@ void HandleResearchPageDraw(int page, int boxid) {
 
 void HandleResearchPageInput(int pnum, int page, int boxid) {
 	bool buystatus = 0;
-	int curposx = CheckInventory("MenuPosServerX");
+	int curposx = MenuInputData[pnum][DND_MENUINPUT_LRPOS];
 	if(HasLeftClicked(pnum)) {
 		if(boxid == MBOX_1) {
 			buystatus = CanResearch(page, curposx);
@@ -2366,7 +2365,7 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 			else
 				ShowPopup(CheckInventory("DnD_PopupId"), false, 0);
 		}
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, false);
 	}
 }
 
@@ -2884,7 +2883,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				}
 			}
 		}
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 	}
 	else if(HasRightClicked(pnum)) {
 		// mbox 8 is the view inventory button
@@ -2901,7 +2900,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			else
 				ShowPopup(POPUP_NOSPOTFORITEM, false, 0);
 		}
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 	}
 }
 
@@ -3933,7 +3932,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 		}
 		else
 			SetInventory("DnD_SelectedInventoryBox", 0);
-		ClearPlayerInput(pnum);
+		ClearPlayerInput(pnum, true);
 	}
 }
 
@@ -3986,15 +3985,17 @@ bool HasPressedRight(int pnum) {
 	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_NEXTBUTTON;
 }
 
-void ClearPlayerInput(int pnum) {
+void ClearPlayerInput(int pnum, bool cleanLR) {
 	MenuInputData[pnum][DND_MENUINPUT] = 0;
+	if(cleanLR)
+		MenuInputData[pnum][DND_MENUINPUT_LRPOS] = 0;
 }
 
 void GetInputOnMenuPage(int opt) {
 	if(opt == MENU_MAIN)
 		ListenInput(0, 0, 0);
 	else if(opt == MENU_RESEARCH || opt == MENU_RESEARCH_GUNS)
-		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 1);
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
 	else if(opt >= SHOP_RESPAGE_BEGIN && opt <= SHOP_RESPAGE_END) {
 		if(ResearchInfo[opt - SHOP_RESPAGE_BEGIN][CheckInventory("MenuPosX") + 1].res_id != -1)
 			ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR, 0, MAX_RESEARCHES - 1);
