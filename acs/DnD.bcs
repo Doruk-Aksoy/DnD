@@ -612,11 +612,7 @@ Script "DND On Kill" KILL {
 			// make it less likely to drop
 			// addone is the chance here (reusing old variables)
 			addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-			#ifdef ISDEBUGBUILD
-			if(1)
-			#else
-			if(RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
-			#endif
+			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
 				SpawnResearch();
 		}
 		
@@ -627,13 +623,9 @@ Script "DND On Kill" KILL {
 		// Chest Key
 		HandleChestKeyDrop(pnum);
 		
+		
 		// if elite, roll orb and equipment drops
-		#ifdef ISDEBUGBUILD
-			if(1)
-		#endif
-		#ifndef ISDEBUGBUILD
-			if(pnum)
-		#endif
+		if(GetCVar("dnd_ignore_dropweights") || pnum)
 		{
 			// handle orb drops
 			HandleOrbDrop();

@@ -116,11 +116,8 @@ void SpawnCharm(int pnum, bool isElite) {
 		int addchance = 0;
 		if(isElite)
 			addchance = DND_ELITE_BASEDROP / 2;
-		#ifdef ISDEBUGBUILD
-		if(random(0, 1))
-		#else
-		if(RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance)) 
-		#endif
+
+		if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || (!GetCVar("dnd_ignore_dropweights") && RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance)))
 		{
 			MakeUnique(c, DND_ITEM_CHARM);
 			SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c);

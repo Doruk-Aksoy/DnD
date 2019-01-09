@@ -29,6 +29,7 @@ server bool dnd_enable_elites = true;
 server bool dnd_enable_limiteditems = true;
 server bool dnd_no_immunity = false;
 server bool dnd_no_reflect = false;
+server bool dnd_ignore_dropweights = false;
 
 server int dnd_shop_scale = 1;
 server int dnd_shop_wep_scale = 1;
