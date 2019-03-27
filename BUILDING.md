@@ -10,25 +10,25 @@
 #### Preparing
 
 1. There are 2 ways to download and install the dependencies:
-   1.1. Using just-install - if you get any message that an installer is corrupted, follow the manual section:
-        1.1.1 Run the command prompt as **admin** - it's easier to see if an installation failed this way.
-        1.1.2 Type `msiexec.exe /i https://stable.just-install.it`
-        1.1.3 Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
-   1.2. Manually:
-        1.2.1. Download and install [7zip](https://www.7-zip.org/download.html) to its default folder (select to download the x64 on x64 systems and x86 on x86 systems).
-        1.2.2. Download and extract [bcc](https://github.com/wormt/bcc/releases) to %PROGRAMFILES%/bcc (for compatibility with Just-install).
-        1.2.3. Download and install Git for Windows in default folder, making sure it uses Windows command prompt with just git. Download [git-for-windows](https://git-scm.com/download/win). Just do the default options, but you may select your favorite text editor.
+   1. Using just-install:
+      1. Run the command prompt as **admin** - it's easier to see if an installation failed this way.
+      2. Type `msiexec.exe /i https://just-install.github.io/stable/just-install.msi`
+      3. Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
+   2. Manually:
+      1. Download and install [7zip](https://www.7-zip.org/download.html) to its default folder (select to download the x64 on x64 systems and x86 on x86 systems).
+      2. Download and extract [bcc](https://github.com/wormt/bcc/releases) to %PROGRAMFILES%/bcc (for compatibility with Just-install).
+      3. Download and install Git for Windows in default folder, making sure it uses Windows command prompt with just git. Download [git-for-windows](https://git-scm.com/download/win). Just do the default options, but you may select your favorite text editor.
 2. Add the paths to the PATH environment variable:
-   2.1. Open the Advanced System Settings dialog:
-        2.1.1. Either go to `Control Panel/System` then `Advanced System Settings` OR
-        2.1.2. If you have search enabled, you can type: `View Advanced System Settings` (both ways go directly to dialog).
-   2.2. Go `Advanced` tab.
-   2.3. Click `Environment Variables...`.
-   2.4. On the `System variables` section, select the `Path` environment variable, then click `Edit...`
-   2.5. Add the paths:
-        2.5.1. On Windows 10 OCT/18 build and newer: Press `New`, then type: %PROGRAMFILES%\7-Zip`. Press `New` again, and type `%SYSTEMDRIVE%\Shims`. Now press `OK`.
-        2.5.2. On any other Windows: On the edit field, add: `;%PROGRAMFILES%\7-Zip;%SYSTEMDRIVE%\Shims`, then click `OK`.
-   2.6. Then click `OK`, and click `OK` again.
+   1. Open the Advanced System Settings dialog:
+      1. Either go to `Control Panel/System` then `Advanced System Settings` OR
+      2. If you have search enabled, you can type: `View Advanced System Settings` (both ways go directly to dialog).
+   2. Go `Advanced` tab.
+   3. Click `Environment Variables...`.
+   4. On the `System variables` section, select the `Path` environment variable, then click `Edit...`
+   5. Add the paths:
+      1. On Windows 10 OCT/18 build and newer: Press `New`, then type: %PROGRAMFILES%\7-Zip`. Press `New` again, and type `%SYSTEMDRIVE%\Shims`. Now press `OK`.
+      2. On any other Windows: On the edit field, add: `;%PROGRAMFILES%\7-Zip;%SYSTEMDRIVE%\Shims`, then click `OK`.
+   6. Then click `OK`, and click `OK` again.
 
 #### To continue, there are 2 useable git tools:
 #### Either Git-for-windows (default)
@@ -116,7 +116,6 @@ git pull
 3. Set the bcc environment variable (just needed once in a terminal for any amount of builds). Type - where fullpathtobccexecutable is the full path to executable: `export bcc=fullpathtobccexecutable`
 4. Type `./test.sh` (if updating files often) or `./build.sh` (if releasing).
 5. Make sure when creating server/playing offline that you're using these files.
-
 
 ## Recommendations
 - Add the main DnD folder to the wad paths. This prevents having to move the wad whenever adjusting the source code or new versions.
