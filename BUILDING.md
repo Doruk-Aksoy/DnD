@@ -10,7 +10,7 @@
 #### Preparing
 
 1. There are 2 ways to download and install the dependencies:
-   1. Using just-install:
+   1. Using just-install (***ATM it's broken!*** - go to "Manually" section):
       1. Run the command prompt as **admin** - it's easier to see if an installation failed this way.
       2. Type `msiexec.exe /i https://just-install.github.io/stable/just-install.msi`
       3. Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
