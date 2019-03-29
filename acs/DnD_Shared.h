@@ -46,7 +46,6 @@ str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 
 int shared_item_counter = 0;
 int shared_type_items_counter[MAX_SHARED_ITEM_TYPES] = {0,0,0,0,0,0,0,0};
-int shared_type_items_mindist[MAX_SHARED_ITEM_TYPES] = {34.0,48.0,36.0,36.0,36.0,36.0,26.0,22.0};
 bool Shared_Item_pickup_state[MAX_SHARED_ITEM_TYPES][SHARED_ITEM_TYPE_TIDS_MAX][MAXPLAYERS];
 
 int limitedrespawn_item_counter = 0;
@@ -55,21 +54,5 @@ int LimitedItem_Respawns[LIMITED_RESPAWN_MAX];
 // allow max 16 items
 int shared_item_queue_count = 0;
 int shared_item_clientside_queue[16];
-
-// expects player tid for now
-int GetClosestSharedItem(int tid, int type) {
-	int closest = -1;
-	int mindist = shared_type_items_mindist[type], curdist = 0, i = 0;
-	for(i = 0; i < shared_type_items_counter[type]; ++i) {
-		if(Shared_Item_pickup_state[type][i][tid - P_TIDSTART])
-			continue;
-		curdist = fdistance(tid, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + i);
-		if(curdist <= mindist) {
-			mindist = curdist;
-			closest = i;
-		}
-	}
-	return closest;
-}
 
 #endif

@@ -165,6 +165,18 @@ int fdistance_delta(int dx, int dy, int dz) {
 	return len;
 }
 
+bool player_pickup_cubes_intersect(int player_tid, int object_tid) {
+	//tid1 = doom player: height: 56, radius: 16.
+	//tid2 = pickups: height: 16, radius: 20.
+
+	//printbold(s:"actor_cubes_intersect: player tid: ", d:player_tid, s:", item tid: ", d:object_tid, s:", radius: ", f:radius, s:", check states: ", d:check_state_1, s:", ", d:check_state_2, s:", ", d:check_state_3_1, s:"; ", d:check_state_3_2, s:", player z:", f:getactorz(player_tid), s:", object z: ", f:getactorz(object_tid));
+	
+	return	((getactorx(player_tid)-16.0 <= getactorx(object_tid)+20) && (getactorx(player_tid)+16.0 >= getactorx(object_tid)-20)) &&
+			((getactory(player_tid)-16.0 <= getactory(object_tid)+20) && (getactory(player_tid)+16.0 >= getactory(object_tid)-20)) &&
+			((getactorz(player_tid) <= getactorz(object_tid)+16.0) && (getactorz(player_tid)+56.0 >= getactorz(object_tid)));
+}
+
+
 // takes deltax and deltay as parameter for actor comparisons
 int AproxDistance (int dx, int dy) {
 	dx = abs(dx);
