@@ -20,6 +20,7 @@ Script "DND Shared Item Check" (int type) {
 				//printbold(s:"Can pick ", d:closest);
 				SetInventory("DnD_SharedItemTID", closest + 1);
 				res = Shared_Item_pickup_state[type][closest][pid - P_TIDSTART];
+				break;
 			}
 		}
 	}
