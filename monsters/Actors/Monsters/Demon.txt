@@ -1523,7 +1523,6 @@ Actor Nhumcign : Demon2x {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_ExecuteAlways(964, 0, 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_NHUMCIGN, DND_MOBILITY | DND_RAGE)
 		Idle:
 			SOEA AB 10 A_Look

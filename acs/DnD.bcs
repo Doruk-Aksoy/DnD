@@ -2536,7 +2536,7 @@ Script "DND Elite Special FX" (void) CLIENTSIDE {
 		Delay(8);
 	}
 	// wait while we are dead, something might resurrect
-	while(!CheckInventory("Mo_Died")) {
+	while(CheckInventory("Mo_Died")) {
 		Delay(70);
 		if(waitcounter++ == MAX_ELITE_FX_WAIT)
 			Terminate;

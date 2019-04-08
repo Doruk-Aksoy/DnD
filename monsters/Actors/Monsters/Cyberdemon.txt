@@ -2667,7 +2667,6 @@ ACTOR AvatarOfChaos : MagicalEnemy {
 			TNT1 A 0
 			TNT1 A 0 A_GiveInventory("MakeElementalImmune", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_AVATAR, DND_MAGIC_WEAKNESS | DND_HOMING | DND_MINIONS | DND_EXPLOSIVE_IMMUNE, DND_ELEMENTAL_IMMUNE)
-			TNT1 A 0 ACS_ExecuteAlways(964, 0, 0)
 		Idle:
 			TNT1 A 0 ACS_ExecuteAlways(968, 0)
 			AVAT AB 10 A_Look 
