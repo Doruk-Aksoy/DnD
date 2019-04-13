@@ -64,13 +64,7 @@ Script 960 (int type) {
 }
 
 Script 961 (int type, int amt, int item) {
-	if(!type) {
-		SetActivator(0, AAPTR_TARGET);
-		int targtid = ActivatorTID();
-		SetActivator(0);
-		SetResultValue(GetActorProperty(targtid, APROP_HEALTH) <= 50 + CheckInventory("MaxHealthBonusCounter") / 2 && CheckSight(targtid, 0, CSF_NOBLOCKALL));
-	}
-	else if(type == 1) {
+	if(type == 1) {
 		while(!CheckInventory("GamonShift") && isAlive())
 			Delay(5);
 		SetActorProperty(0, APROP_ALPHA, 0.5);
@@ -670,6 +664,79 @@ Script "DnD Warmaster Protect FX Trigger" (void) {
 		Delay(2);
 	}
 }
+
+Script "DnD Yeti Wisp Spawn" (int mode, int chance) CLIENTSIDE {
+	if(random(1, 100) <= chance) {
+		if(mode)
+			GiveInventory("YetiWispSpawner2", 1);
+		else
+			GiveInventory("YetiWispSpawner1", 1);
+	}
+}
+
+// Gets Nastier if theres anyone less than 50% hp nearby
+Script "DnD Bloodseeker Transform" (void) {
+	int this = ActivatorTID(), targtid = 0;
+	bool res = false;
+	for(int i = 0; !res && i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i)) {
+			targtid = i + P_TIDSTART;
+			res = 	GetActorProperty(targtid, APROP_HEALTH) <= GetActorProperty(targtid, APROP_SPAWNHEALTH) / 2 						&& 
+					AproxDistance(GetActorX(this) - GetActorX(targtid), GetActorY(this) - GetActorY(targtid)) <= BLOODSEEKER_DISTANCE 	&&
+					CheckSight(targtid, this, CSF_NOBLOCKALL);
+		}
+	}
+	SetResultValue(res);
+}
+
+Script "DnD Bloodseeker Size Change" (void) CLIENTSIDE {
+	int mode = -1, prevmode = -1;
+	int i = 0;
+	while(isAlive()) {
+		if(CheckInventory("BloodseekerTransform"))
+			mode = 1;
+		else
+			mode = -1;
+		if(mode == 1) {
+			for(i = 0; prevmode != mode && i < BLOODSEEKERSIZE_TIME; ++i) {
+				SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				Delay(1);
+			}
+		}
+		else {
+			for(i = 0; prevmode != mode && i < BLOODSEEKERSIZE_TIME; ++i) {
+				SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				Delay(1);
+			}
+		}
+		prevmode = mode;
+		Delay(5);
+	}
+	
+	if(CheckInventory("BloodseekerTransform")) {
+		for(i = 0; i < BLOODSEEKERSIZE_TIME; ++i) {
+			SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+			SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+			Delay(1);
+		}
+	}
+}
+
+// items on monsters aren't synced
+Script "DnD Bloodseeker Transform Sync" (int mode) CLIENTSIDE {
+	if(!mode)
+		GiveInventory("BloodseekerTransform", 1);
+	else
+		TakeInventory("BloodseekerTransform", 1);
+}
+
+// syncs desynced projectiles or anything really
+Script "DnD Sync Hack" (int x, int y, int z) CLIENTSIDE {
+	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
+}
+
 
 Script "DnD Golgoth Health Check" (void) {
 	Delay(35);

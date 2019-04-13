@@ -1543,7 +1543,7 @@ int CountCraftingMaterials() {
 				++res;
 				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
 			}
-			else if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ELIXIR&& !IsSet(unique_elixirs, PlayerInventoryList[pnum][i].item_subtype)) {
+			else if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ELIXIR && !IsSet(unique_elixirs, PlayerInventoryList[pnum][i].item_subtype)) {
 				++res;
 				unique_elixirs = SetBit(unique_elixirs, PlayerInventoryList[pnum][i].item_subtype);
 			}
@@ -1555,6 +1555,7 @@ int CountCraftingMaterials() {
 int GetNextUniqueCraftingMaterial(int itemtype, int current) {
 	int pnum = PlayerNumber();
 	int res = 0, i;
+	// rewrite this later to allow for more than 32 item types
 	bool unique_items = 0;
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {

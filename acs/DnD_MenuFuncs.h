@@ -3472,7 +3472,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 	if(mcount) {
 		if(!k || CheckInventory("DnD_RefreshPane")) {
 			// add predefined size boxes for use
-			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES * (page + 1) && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i) {
+			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i) {
 				tx = CRAFTING_MATERIALBOX_X - (32.0 + CRAFTING_MATERIALBOX_SKIPX) * (i % 2);
 				ty = CRAFTING_MATERIALBOX_Y - (32.0 + CRAFTING_MATERIALBOX_SKIPY) * (i / 2);
 				bx = tx - 32.0;
@@ -3823,6 +3823,7 @@ void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
 	SetFont("SMALLFONT");
 }
 
+// serverside -- input function
 void HandleCraftingInputs(int boxid, int curopt) {
 	int pnum = PlayerNumber();
 	int prevselect;
