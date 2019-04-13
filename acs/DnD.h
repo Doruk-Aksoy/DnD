@@ -919,14 +919,13 @@ void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str t
 	SetActivator(this);
 }
 
-void ScaleMonster(int pcount) {
-	int base = GetActorProperty(0, APROP_HEALTH);
+int ScaleMonster(int pcount, int realhp) {
+	int base = realhp;
 	int add = 0, level = 1, low, high, temp;
 	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount;
 	// ensure minions use master's level
 	if(GetActorProperty(0, APROP_MASTERTID)) {
-		//printbold(d:GetActorProperty(0, APROP_MASTERTID));
-		level = CheckActorInventory(GetActorProperty(0, APROP_MASTERTID), "MonsterLevel");
+		level = MonsterProperties[GetActorProperty(0, APROP_MASTERTID) - DND_MONSTERTID_BEGIN].level;
 	}
 	if(GetCVar("dnd_randomize_levels")) {
 		low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
@@ -966,7 +965,7 @@ void ScaleMonster(int pcount) {
 		}
 		// add level factor to it
 		// first overflow check
-		if(add < (INT_MAX - base) / (level - 1)) {
+		if(add < (INT_MAX - base) / Max((level - 1),1)) {
 			add *= level - 1;
 			if(GetCVar("dnd_playercount_scales_monsters")) {
 				if(add > 100) {
@@ -982,8 +981,8 @@ void ScaleMonster(int pcount) {
 		else
 			add = INT_MAX - base;
 	}
-	SetActorProperty(0, APROP_HEALTH, base + add);
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].basehp = base;
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp = base + add;
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level = level;
+	return base + add;
 }

@@ -1,5 +1,5 @@
 ACTOR BloodDemonClone : HalfMechanicalEnemy { 
-    Health 250 
+    Health 0x7FFFFFFF
     Speed 12 
     Height 56
     Radius 30
@@ -99,7 +99,7 @@ ACTOR BloodDemonArm
 }
 
 Actor Bloodfiend : Demon2x {
-	Health 160
+	Health 0x7FFFFFFF
 	PainChance 140
 	Speed 12
 	Radius 30
@@ -234,7 +234,7 @@ Actor Bloodtrail
 }
 
 Actor Ravager : Demon2x {
-	Health 250
+	Health 0x7FFFFFFF
 	PainChance 96
 	Speed 16
 	Mass 1024
@@ -340,7 +340,7 @@ Actor Bloodshot_Grav : Bloodshot {
 }
 
 ACTOR CyberFiend : HalfMechanicalEnemy { 
-    Health 300
+    Health 0x7FFFFFFF
     Speed 10 
     Height 56
     Radius 30
@@ -612,7 +612,7 @@ Actor IGIB2
 }
 
 ACTOR FlameDemon : DnD_BaseEnemy {
-	Health 200
+	Health 0x7FFFFFFF
 	Speed 16
 	Height 56
 	Radius 30
@@ -689,7 +689,7 @@ ACTOR FlameDemon : DnD_BaseEnemy {
 }
 
 ACTOR StoneImp : MechanicalExplosiveResistEnemy {
-	Health 180
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Speed 6
@@ -919,7 +919,7 @@ ACTOR StoneBitsLarge
 ACTOR Morphed : Inventory {}
 ACTOR StoneImpHidden1 : MechanicalExplosiveResistEnemy {
 	//$Category Monsters
-	Health 180
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Speed 8
@@ -1053,7 +1053,7 @@ actor StoneDemon : MechanicalExplosiveResistEnemy {
 	+NORADIUSDMG
 	Scale 1.1
 	HitObituary "%o was smashed by a stone demon."
-	Health 250
+	Health 0x7FFFFFFF
 	PainChance 100
 	Speed 8
 	Radius 30
@@ -1171,7 +1171,7 @@ actor StoneDemonMiniBoulder : StoneDemonBoulder
 }
 
 Actor SoulEater : Demon2x {
-	Health 200
+	Health 0x7FFFFFFF
 	PainChance 128
 	Speed 12
 	Radius 30
@@ -1267,7 +1267,7 @@ Actor SoulEaterProj : MummyFX1
 }
 
 ACTOR BigBruty : DnD_BaseEnemy {
-	Health 240
+	Health 0x7FFFFFFF
 	Radius 30
 	Height 56
 	mass 999999
@@ -1380,7 +1380,7 @@ Actor BruteExplosion2 : BaseExplosionDamage
 actor Scavenger : DnD_BaseEnemy {
 	obituary "%o was wrecked by a Scavenger."
 	hitobituary "A Scavenger had %o for lunch."
-	health 195
+	health 0x7FFFFFFF
 	Gibhealth -10
 	radius 20
 	height 56
@@ -1503,7 +1503,7 @@ Actor ScavengerCounter : Inventory {
 
 Actor Nhumcign : Demon2x {
 	Translation "0:255=%[0.00,0.00,0.00]:[1.17,0.10,1.29]", "0:47=0:47", "80:127=80:127", "152:235=152:235", "240:255=240:255"
-	Health 275
+	Health 0x7FFFFFFF
 	PainChance 96
 	Speed 8
 	Obituary "%o had %p ass bitten by a Nhumcign."
@@ -1757,7 +1757,7 @@ Actor DemonFlightAtk {
 }
 
 actor Satyr : DnD_BaseEnemy {
-    Health 150
+    Health 0x7FFFFFFF
     Radius 24
     Height 56
     Scale 0.9
@@ -1849,7 +1849,7 @@ actor Satyr : DnD_BaseEnemy {
 }
 
 Actor EarthGolem : MagicalEnemy { 
-    Health 325 
+    Health 0x7FFFFFFF
     Speed 6
     Height 56
     Radius 22
@@ -1985,7 +1985,7 @@ Actor EarthGolemPieces {
 }
 
 ACTOR PurebredDemon : Demon2x { 
-    Health 275
+    Health 0x7FFFFFFF
     Speed 14
     Mass 2048
     PainChance 128

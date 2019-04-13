@@ -1,6 +1,6 @@
 Actor ZombieManGray : Zombieman2
 { 
-	Health 40
+	Health 0x7FFFFFFF
 	+DONTBLAST
 	+USEKILLSCRIPTS
     GibHealth -10
@@ -85,7 +85,7 @@ Actor RangerBullet : ZombieBullet {
 actor FormerRanger : UndeadEnemy {
 	obituary "%o was hunted down by a Ranger."
 	GibHealth -10
-	health 45
+	health 0x7FFFFFFF
 	radius 20
 	height 56
 	mass 100
@@ -206,7 +206,7 @@ Actor SMGZombieBullet : ZombieBullet {
 
 ACTOR SMGGuy : ZombieMan2 {
 	obituary "%o was shredded by SMG zombie."
-	health 35
+	health 0x7FFFFFFF
 	GibHealth -15
 	DropItem "Clip", 0
 	dropitem "SMGPickup"
@@ -288,7 +288,7 @@ Actor RapidFireBullet : ZombieBullet {
 }
 
 ACTOR RapidFireTrooper : UndeadEnemy {
-	Health 30
+	Health 0x7FFFFFFF
 	GibHealth -10
 	Radius 20
 	Height 56
@@ -379,7 +379,7 @@ ACTOR RapidFireTrooper : UndeadEnemy {
 }
 
 ACTOR ZombieMarine : UndeadEnemy { 
-    Health 45
+    Health 0x7FFFFFFF
 	GibHealth -15
     Radius 20
     Height 56
@@ -471,7 +471,7 @@ ACTOR ZombieMarine : UndeadEnemy {
 }
 
 ACTOR LOSZombieMan : ZombieMan2 {
-	Health 45
+	Health 0x7FFFFFFF
 	GibHealth -10
 	Tag "Armored Zombieman"
 	States {
@@ -540,7 +540,7 @@ ACTOR LOSZombieMan : ZombieMan2 {
 }
 
 ACTOR PistolZombie : UndeadEnemy {
-    Health 25
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 8
@@ -628,7 +628,7 @@ ACTOR PistolZombie : UndeadEnemy {
 }
 
 ACTOR QuakeZombie : UndeadEnemy {
-    Health 55
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 8
@@ -730,7 +730,7 @@ Actor UndeadInitiateBullet : ZombieBullet {
 
 actor UndeadHunter : UndeadEnemy {
 	obituary "%o was bagged by an undead hunter."
-	health 65
+	health 0x7FFFFFFF
 	gibhealth 10
 	radius 20
 	height 56
@@ -831,7 +831,7 @@ actor UndeadHunter : UndeadEnemy {
 
 actor Prophet : UndeadEnemy {
 	obituary "%o couldn't stand against the prophecy."
-	health 50
+	health 0x7FFFFFFF
 	radius 20
 	height 56
 	mass 100

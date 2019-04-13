@@ -143,11 +143,15 @@ void SetEliteFlag(int f, int flagside) {
 				MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_ICE_WEAKNESS_POW);
 				GiveInventory("MakeElementalImmune", 1);
 			break;
-			case DND_ARMORPEN:
+			case DND_ARMORPEN_POW:
 				// if monster has pierce, remove it
 				if(IsSet(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_PIERCE_POW))
 					MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, DND_PIERCE_POW);
 				GiveInventory("MakePierce", 1);
+			break;
+			case DND_REVIVED_POW:
+				printbold(s:"Mob got revived!");
+				GiveInventory("Mo_Revived", 1);
 			break;
 		}
 		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2 |= (1 << f);

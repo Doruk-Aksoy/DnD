@@ -1,5 +1,5 @@
 ACTOR CacoLich : UndeadEnemy {
-	Health 500
+	Health 0x7FFFFFFF
 	Speed 12
 	Radius 31
 	Height 56
@@ -249,7 +249,7 @@ ACTOR CacoLichFlame
 }
 
 ACTOR DeathWhisperer : UndeadEnemy { 
-    Health 500
+    Health 0x7FFFFFFF
 	Mass 500
     Radius 31
     Height 56
@@ -330,7 +330,7 @@ ACTOR DeathWhisperer : UndeadEnemy {
 }
 
 ACTOR EarthLich : MechanicalEnemy { 
-    Health 425
+    Health 0x7FFFFFFF
 	Mass 2000
     Radius 31
     Height 56
@@ -508,7 +508,7 @@ Actor EarthLichRockPiece
 }
 
 ACTOR EnhancedCacodemon : DnD_BaseEnemy { 
-	Health 300
+	Health 0x7FFFFFFF
 	Speed 8 
 	Radius 31
 	Height 56
@@ -604,7 +604,7 @@ Actor EnhancedCacoBall_2 : EnhancedCacoBall_1 {
 }
 
 ACTOR Inferno : DnD_BaseEnemy { 
-	Health 400 
+	Health 0x7FFFFFFF
 	Radius 31 
 	Height 56 
 	Mass 400 
@@ -734,7 +734,7 @@ ACTOR Lavaball
 }
 
 ACTOR Weakener : DnD_BaseEnemy {
-	Health 300
+	Health 0x7FFFFFFF
 	Radius 24
 	Height 44
 	Mass 400
@@ -861,7 +861,7 @@ Actor WeakenerBallHoming : WeakenerBall
 actor Grell : DnD_BaseEnemy {
 	//$Category Monsters
 	Tag "Grell"
-	health 325
+	health 0x7FFFFFFF
 	radius 24
 	height 56
 	mass 400
@@ -971,7 +971,7 @@ ACTOR GrellBall
 }
 
 ACTOR ShadowPriest : MagicalBulletResistantEnemy {
-	Health 250
+	Health 0x7FFFFFFF
 	PainChance 170
 	Speed 8
 	Scale 0.90
@@ -1233,7 +1233,7 @@ Actor AcolyteShot2 : AcolyteShot {
 }
 
 ACTOR Guardian : MagicalBulletResistantEnemy { 
-	Health 275
+	Health 0x7FFFFFFF
 	Radius 24 
 	Height 56
 	Mass 640
@@ -1364,7 +1364,7 @@ Actor GuardianShotTrail {
 }
 
 Actor Wicked : DnD_BaseEnemy { 
-	Health 300
+	Health 0x7FFFFFFF
 	Radius 28
 	Height 56
 	Mass 200 

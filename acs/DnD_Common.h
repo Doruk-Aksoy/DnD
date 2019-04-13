@@ -273,6 +273,13 @@ int Min(int x, int y) {
 	return y;
 }
 
+
+int Max(int x, int y) {
+	if(x > y)
+		return x;
+	return y;
+}
+
 int magnitudeThree(int x, int y, int z)
 {
     return sqrt_z(x*x + y*y + z*z);

@@ -1,6 +1,6 @@
 Actor Diabloist : DnD_BaseEnemy {
 	Obituary "%o was set ablaze by a Diabloist."
-	Health 850
+	Health 0x7FFFFFFF
 	Radius 20 
 	Height 56 
 	Mass 500 
@@ -440,7 +440,7 @@ Actor DMissileCircle : CircleFlame
 }
 
 ACTOR DeathVile : ArchVile2 {
-	Health 800
+	Health 0x7FFFFFFF
 	Speed 16
 	PainChance 8
 	MaxTargetRange 1280
@@ -536,7 +536,7 @@ Actor DarkFlame : ArchVileFire
 
 //Hierophant
 Actor Hierophant : DnD_BaseEnemy {
-	Health 1250
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 1000
@@ -883,7 +883,7 @@ Actor HieroFX : AcolFX2
 }
 
 ACTOR Deathknight : UndeadBulletResistantEnemy { 
-	Health 900
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 700 
@@ -1713,7 +1713,7 @@ Actor UndeadPriestBullet : RapidFireBullet {
 
 actor UndeadPriest : UndeadEnemy {
 	obituary "%o was bagged by an undead priest."
-	health 800
+	health 0x7FFFFFFF
 	gibhealth 20
 	radius 20
 	height 56
@@ -1836,7 +1836,7 @@ actor UndeadPriest : UndeadEnemy {
 }
 
 Actor UndeadSpirit {
-	Health 50
+	Health 0x7FFFFFFF
 	Radius 16 
 	Height 32 
 	Mass 50 
@@ -1937,7 +1937,7 @@ Actor UndeadSpiritAttack {
 }
 
 Actor Guru : DnD_BaseEnemy {
-	Health 800
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 1000
@@ -2253,7 +2253,7 @@ Actor FireVileDamage : DnD_FakeDamager {
 }
 
 Actor DarkZealot : MagicalEnemy {
-	Health 750
+	Health 0x7FFFFFFF
 	MONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -2598,7 +2598,7 @@ Actor DarkZealotPierce {
 
 actor FleshWizard : DnD_BaseEnemy {
 	obituary "%o was tormented by a Flesh Wizard."
-	health 625
+	health 0x7FFFFFFF
 	radius 20
 	height 56
 	mass 256

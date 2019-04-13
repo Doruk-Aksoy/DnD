@@ -1,6 +1,6 @@
 ACTOR FusionSpider : Arachno2 {
 	OBITUARY "%o was vaporized by a fusion cannon Arachnotron."
-	Health 500
+	Health 0x7FFFFFFF
 	Radius 64
 	Height 64
 	Mass 600
@@ -143,7 +143,7 @@ ACTOR FusionTrail
 
 ACTOR HellforgeSpider : DnD_BaseEnemy {
 	OBITUARY "%o was charred to smithereens by a Hellforge Spider."
-	Health 700
+	Health 0x7FFFFFFF
 	Radius 64
 	Height 64
 	Mass 600
@@ -300,7 +300,7 @@ ACTOR HFSpiderShot
 
 ACTOR RailArachnotron : Arachno2 {
 	//$Category "ZDoom Monster pack"
-	Health 450
+	Health 0x7FFFFFFF
 	Radius 64
 	Height 64
 	Mass 600
@@ -404,7 +404,7 @@ Actor ArachnoBullet : ZombieBullet {
 }
 
 ACTOR BabyDemolisher : Arachno2 {
-	Health 700
+	Health 0x7FFFFFFF
 	PainChance 64
 	Scale 1.2
 	Height 64
@@ -663,7 +663,7 @@ actor GreenSparkFX : ExplosiveSpark
 
 Actor Vore : DnD_BaseEnemy {
 	//$Category Monsters
-	Health 700
+	Health 0x7FFFFFFF
 	Speed 6
 	Radius 48
 	Height 64
@@ -883,7 +883,7 @@ Actor CommandoBullet2 : ZombieBullet {
 }
 
 Actor ChaingunCommando : ChaingunMajor {
-	Health 550
+	Health 0x7FFFFFFF
 	PainChance 64
 	Speed 10
 	Scale 1.1
@@ -999,7 +999,7 @@ Actor ChaingunCommando : ChaingunMajor {
 }
 
 Actor ChaingunGeneral : ChaingunMajor {
-	Health 550
+	Health 0x7FFFFFFF
 	PainChance 64
 	Speed 10
 	Scale 1.1
@@ -1104,7 +1104,7 @@ Actor NailProjectileWeak : NailProjectile {
 }
 
 Actor Legionnaire : UndeadEnemy {
-	Health 600
+	Health 0x7FFFFFFF
 	PainChance 48
 	Speed 14
 	Height 64
@@ -1300,7 +1300,7 @@ Actor LegionnaireMissile2 : LegionnaireMissile {
 
 ACTOR Manticore : Arachno2 {
 	OBITUARY "%o was blown away by a Manticore."
-	Health 650
+	Health 0x7FFFFFFF
 	Radius 64
 	Height 64
 	Mass 2048

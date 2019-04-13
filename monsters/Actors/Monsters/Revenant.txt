@@ -1,5 +1,5 @@
 ACTOR Incarnate : UndeadEnemy {
-	Health 250
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 500
@@ -271,7 +271,7 @@ ACTOR Railpow
 
 ACTOR Cadaver : Revenant2 {
 	Painchance 70
-	Health 350
+	Health 0x7FFFFFFF
 	+DONTHURTSPECIES
 	+MISSILEMORE
 	+MISSILEEVENMORE
@@ -467,7 +467,7 @@ Stop
 }
 
 actor Widowmaker : Revenant2  {
-	health 300
+	health 0x7FFFFFFF
 	GibHealth -25
 	speed 16
 	painchance 60
@@ -1097,7 +1097,7 @@ actor widowmaker_seekMissile
 }
 
 ACTOR AxeKnight : MagicalBulletResistantEnemy {
-	Health 250
+	Health 0x7FFFFFFF
 	Monster
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -1277,7 +1277,7 @@ Actor RedAxe2 : RedAxe
 }
 
 Actor Yeti : IceElementalEnemy {
-	Health 350
+	Health 0x7FFFFFFF
 	Mass 1024
 	Height 56
 	Radius 20
@@ -1545,7 +1545,7 @@ ACTOR YetiIceShard {
 
 Actor SludgeGiant : DnD_BaseEnemy {
 	obituary "%o was beaten down by a Sludge Giant."
-	health 280
+	health 0x7FFFFFFF
 	radius 20
 	height 56
 	mass 1000
@@ -1661,14 +1661,15 @@ Actor SludgeGiantSplit : SludgeGiant {
 	Height 38
 	Radius 15
 	Scale 0.75
-	Health 140
+	Health 0x7FFFFFFF
 	MeleeRange 40
 	MaxStepHeight 16
-	Obituary "%o couldn't see the tiny sludge creatures beneath %h."
+	Tag "Sludge Creature"
+	Obituary "%o couldn't see the sludge creatures beneath %h."
 	+THRUSPECIES
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SLUDGEGIANT, DND_POISON | DND_SPLIT)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SLUDGEGIANT2, DND_POISON | DND_SPLIT)
 		Idle:
 			SLDM H 5 A_Look
 		Loop
@@ -1768,15 +1769,16 @@ Actor SludgeGiantSplitFinal : SludgeGiant {
 	Height 24
 	Radius 12
 	Scale 0.5
-	Health 70
+	Health 0x7FFFFFFF
 	MeleeRange 40
 	MaxStepHeight 16
+	Tag "Tiny Sludge Creature"
 	Obituary "%o couldn't see the tiny sludge creatures beneath %h."
 	+THRUSPECIES
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SLUDGEGIANT, DND_POISON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_SLUDGEGIANT3, DND_POISON)
 		Idle:
 			SLDM H 5 A_Look
 		Loop
@@ -1852,7 +1854,7 @@ Actor SludgeMissileWeakFinal : SludgeMissile {
 }
 
 Actor DarkServant : MagicalEnemy {
-	Health 275
+	Health 0x7FFFFFFF
 	MONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -2066,7 +2068,7 @@ Actor DarkServantMissile2 : DarkServantMissileBig {
 }
 
 Actor Crawler : DnD_BaseEnemy {
-	Health 325
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Speed 13
@@ -2302,7 +2304,7 @@ ACTOR CrawlerChunk5 : DemonChunk
 }
 
 ACTOR Draugr : UndeadEnemy {
-	Health 350
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 500
