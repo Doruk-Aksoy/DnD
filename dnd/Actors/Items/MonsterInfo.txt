@@ -9,7 +9,6 @@ Actor TargetNameSkip : DnD_Info {}
 Actor TargetTag : DnD_Info {}
 Actor TargetIsElite : DnD_Boolean {}
 Actor TargetProperties : DnD_Info {}
-Actor DontRun : DnD_Boolean {}
 
 // Identification of the monster
 Actor MonsterID : DnD_Info {}
@@ -116,7 +115,8 @@ enum {
 	DND_ARMORPEN = DND_VITAL << 1,
 	DND_PET = DND_ARMORPEN << 1,
 	
-	DND_LEGENDARY = DND_PET << 1
+	DND_LEGENDARY = DND_PET << 1,
+	DND_REVIVED = DND_LEGENDARY << 1
 };
 
 const int DND_FORCEDLEVEL = 7;

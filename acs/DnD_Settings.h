@@ -41,12 +41,7 @@ str FlagCheckList[MAXFLAGS] = {
 int FlagAcceptedValues[MAXFLAGS] = {
 	DND_HARDCORE_MAXLIVES,
 	1.0,
-	// cheats
-	#ifdef ISDEBUGBUILD
-		1,
-	#else
-		0,
-	#endif
+	0,
 	0,
 	1,
 	1,
@@ -75,7 +70,7 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	1
 };
 
-#define MAXDNDFLAGS 50
+#define MAXDNDFLAGS 51
 str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monsterbars",
 	"dnd_monsterscale",
@@ -131,7 +126,9 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monster_hpscalepercent",
 	"dnd_monster_rewardscalepercent",
 	"dnd_monster_dmgscalepercent",
-    "dnd_researchdroprate"
+    "dnd_researchdroprate",
+	
+	"dnd_ignore_dropweights"
 };
 
 int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
@@ -189,7 +186,9 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	5,
 	5,
 	0.04,
-    0.00249
+    0.00249,
+	
+	0
 };
 
 // Checks pre-defined settings for hardcore mode that has character saving
@@ -198,16 +197,18 @@ int CheckHardcoreSettings() {
 	// check all flags compare with default values
 	int i;
 	int errno = DND_HARDCORE_VALID;
-	for(i = 0; i < MAXFLAGS; ++i) {
-		if(GetCVar(FlagCheckList[i]) != FlagAcceptedValues[i]) {
-			Log(s:"\"", s:FlagCheckList[i], s:"\" should be set to ", d:FlagAcceptedValues[i], s:" for \cghardcore\c- or \cdsoftcore\c- modes to work! It is set to: ", d:GetCVar(FlagCheckList[i]));
-			errno = DND_HARDCORE_INVALID;
+	if (!GetCVar("dnd_test")) {
+		for(i = 0; i < MAXFLAGS; ++i) {
+			if(GetCVar(FlagCheckList[i]) != FlagAcceptedValues[i]) {
+				Log(s:"\"", s:FlagCheckList[i], s:"\" should be set to ", d:FlagAcceptedValues[i], s:" for \cghardcore\c- or \cdsoftcore\c- modes to work! It is set to: ", d:GetCVar(FlagCheckList[i]));
+				errno = DND_HARDCORE_INVALID;
+			}
 		}
-	}
-	for(i = 0; i < MAXDNDFLAGS; ++i) {
-		if(GetCVar(DNDFlagCheckList[i]) != DNDFlagAcceptedValues[i]) {
-			Log(s:"\"", s:DNDFlagCheckList[i], s:"\" should be set to ", d:DNDFlagAcceptedValues[i], s:" for \cghardcore\c- or \cdsoftcore\c- modes to work! It is set to: ", d:GetCVar(DNDFlagCheckList[i]));
-			errno = DND_HARDCORE_INVALID;
+		for(i = 0; i < MAXDNDFLAGS; ++i) {
+			if(GetCVar(DNDFlagCheckList[i]) != DNDFlagAcceptedValues[i]) {
+				Log(s:"\"", s:DNDFlagCheckList[i], s:"\" should be set to ", d:DNDFlagAcceptedValues[i], s:" for \cghardcore\c- or \cdsoftcore\c- modes to work! It is set to: ", d:GetCVar(DNDFlagCheckList[i]));
+				errno = DND_HARDCORE_INVALID;
+			}
 		}
 	}
 	return errno;

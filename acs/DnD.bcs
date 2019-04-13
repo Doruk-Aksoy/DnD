@@ -462,6 +462,18 @@ Script "DND Mugshot Grin" (void) CLIENTSIDE {
 Script "DND On Revive" (void) {
 	TakeInventory("Mo_Died", 1);
 	GiveInventory("Mo_Revived", 1);
+	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
+	if (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp) { //This if could be skipped if all mobs have their Monster Scaling.
+		//Reapply the elite FX.
+		if (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite && !CheckInventory("RunEliteFXScript"))
+			GiveInventory("RunEliteFXScript", 1);
+		//printbold(s:"Monster id: ",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
+		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
+		SetActorProperty(0, APROP_HEALTH, MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
+		if (GetActorProperty(0, APROP_HEALTH != MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp))
+		   SetActorProperty(0, APROP_HEALTH, MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp); //Try to set it again if it fails the first time.
+	}
+	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
 }
 
@@ -612,11 +624,7 @@ Script "DND On Kill" KILL {
 			// make it less likely to drop
 			// addone is the chance here (reusing old variables)
 			addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-			#ifdef ISDEBUGBUILD
-			if(1)
-			#else
-			if(RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
-			#endif
+			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
 				SpawnResearch();
 		}
 		
@@ -627,13 +635,9 @@ Script "DND On Kill" KILL {
 		// Chest Key
 		HandleChestKeyDrop(pnum);
 		
+		
 		// if elite, roll orb and equipment drops
-		#ifdef ISDEBUGBUILD
-			if(1)
-		#endif
-		#ifndef ISDEBUGBUILD
-			if(pnum)
-		#endif
+		if(GetCVar("dnd_ignore_dropweights") || pnum)
 		{
 			// handle orb drops
 			HandleOrbDrop();
@@ -762,21 +766,8 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
 	credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
 	credit += (credit * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
-	GiveActorInventory(tid, "DnD_Exp_Counter", exp);
-	GiveActorInventory(tid, "DnD_Credit_Counter", credit);
-	
-	if(CheckActorInventory(tid, "DnD_ExpCredit_Timer")) {
-		// refresh duration
-		GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
-		Terminate;
-	}
-	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
-	while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
-		Delay(2);
-	if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
-		Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
-	SetActorInventory(tid, "DnD_Exp_Counter", 0);
-	SetActorInventory(tid, "DnD_Credit_Counter", 0);
+
+	Log(s:"\ccGains pickup  : \c[Y5]", d:credit, s:" exp and ", d:exp, s:" credits.");
 }
 
 // Stat Reset
@@ -1249,11 +1240,11 @@ script 922 (int actor_num, int radius, int totalactors) {
 
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
-	if(!CheckInventory("DontRun")) {
-		GiveInventory("DontRun", 1);
 		if(!ActivatorTID())
 			GiveMonsterTID();
-		int base, add, pcount = PlayerCount(), this = ActivatorTID();
+		//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
+		//Make sure mob gets to right amount of hp at this point
+		int maxhp, base, add, pcount = PlayerCount(), this = ActivatorTID(), realhp = MonsterHPList[monsterid];
 		if(!pcount)
 			pcount = 1;
 		if(GetCVar("dnd_monsterscale")) {
@@ -1262,96 +1253,110 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 				Delay(3);
 			Delay(35); // wait just in case someone leaves, disconnect script will correct the level
 			pcount = PlayerCount();
-			ScaleMonster(pcount);
+			if(!pcount)
+				pcount = 1;
+			maxhp = ScaleMonster(pcount, realhp);
 		}
 		else {
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
+			maxhp = realhp;
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
 			MonsterProperties[this - DND_MONSTERTID_BEGIN].level = 1;
-		}
-		
+		}		
 		MonsterProperties[this - DND_MONSTERTID_BEGIN].id = monsterid;
 		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
 		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
 
 		if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
-			// hopefully people won't turn to elites?
-			if(ActivatorTID() >= P_TIDSTART && ActivatorTID() <= P_TIDSTART + MAXPLAYERS - 1)
-				Terminate;
 			MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
 			
+			//printbold(s:"(Before Elite bonuses) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
+			
 			// Elite bonuses
-			base = GetActorProperty(0, APROP_HEALTH);
+			base = maxhp;
 			add = base * DND_ELITE_HPSCALE / 100;
-			SetActorProperty(0, APROP_HEALTH, base + add);
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
+			maxhp = base + add;
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
 			// roll more traits randomly
 			int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
+			//printbold(s:"DecideEliteTraits: TID: ", d: ActivatorTID());
 			DecideEliteTraits(traitcount);
 			// Double Health
 			if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & DND_VITAL) {
-				base = GetActorProperty(0, APROP_HEALTH);
+				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
-				SetActorProperty(0, APROP_HEALTH, Clamp_Between(base + add, 1, INT_MAX));
-				MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
-				MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
+				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+				MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
 			}
 		}
-	}
+		
+		//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
+		int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
+		
+		SetActorProperty(0, APROP_HEALTH, maxhp);
+		Clamp_Between(dmg, -maxhp-1, 0);
+		Thing_Damage2(ActivatorTID(), dmg, "None");
+		//Mob might actually be dead by this point.
+		if (GetActorProperty(0, APROP_Health) > GetActorProperty(0, APROP_SpawnHealth)) //In the rare case the mob keeps the very high hp
+			Thing_Damage2(GetActorProperty(0, APROP_Health), dmg, "None"); //Just kill it
 }
 
 // properties holds stuff like the monster's type, demon, robotic etc.
 Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
-	if(!CheckInventory("DontRun")) {
-		GiveInventory("DontRun", 1);
-		if(!ActivatorTID())
-			GiveMonsterTID();
-		int base, add, pcount = PlayerCount(), this = ActivatorTID();
+	if(!ActivatorTID())
+		GiveMonsterTID();
+	int maxhp, base, add, pcount = PlayerCount(), this = ActivatorTID(), realhp = MonsterHPList[properties];
+	if(!pcount)
+		pcount = 1;
+	if(GetCVar("dnd_monsterscale")) {
+		// scaling code -- delay is because monsters are initialized before enter scripts are executed
+		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
+			Delay(3);
 		if(!pcount)
 			pcount = 1;
-		if(GetCVar("dnd_monsterscale")) {
-			// scaling code -- delay is because monsters are initialized before enter scripts are executed
-			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
-				Delay(3);
-			ScaleMonster(pcount);
-		}
-		else {
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].level = 1;
-		}
-		
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].id = DND_CUSTOMMONSTER_ID;
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].properties = properties;
-		
-		if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
-			// hopefully people won't turn to elites?
-			if(this >= P_TIDSTART && this <= P_TIDSTART + MAXPLAYERS - 1)
-				Terminate;
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
-			
-			// Elite bonuses
-			base = GetActorProperty(0, APROP_HEALTH);
-			add = base * DND_ELITE_HPSCALE / 100;
-			SetActorProperty(0, APROP_HEALTH, base + add);
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
-			// roll more traits randomly
-			int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
-			DecideEliteTraits(traitcount);
-			// Double Health
-			if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & DND_VITAL) {
-				base = GetActorProperty(0, APROP_HEALTH);
-				add = base * DND_ELITE_VITAL_SCALE / 100;
-				SetActorProperty(0, APROP_HEALTH, Clamp_Between(base + add, 1, INT_MAX));
-				MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = GetActorProperty(0, APROP_HEALTH);
-				MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = GetActorProperty(0, APROP_HEALTH);
-			}
+		maxhp = ScaleMonster(pcount, realhp);
+	}
+	else {
+		maxhp = realhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].level = 1;
+	}
+
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].id = DND_CUSTOMMONSTER_ID;
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].properties = properties;
+
+	if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
+
+		// Elite bonuses
+		base = maxhp;
+		add = base * DND_ELITE_HPSCALE / 100;
+		maxhp = base + add;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
+		// roll more traits randomly
+		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
+		DecideEliteTraits(traitcount);
+		// Double Health
+		if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & DND_VITAL) {
+			base = maxhp;
+			add = base * DND_ELITE_VITAL_SCALE / 100;
+			maxhp = Clamp_Between(base + add, 1, INT_MAX);
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
 		}
 	}
+
+	int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
+	SetActorProperty(0, APROP_HEALTH, maxhp);
+	Clamp_Between(dmg, -maxhp-1, 0);
+	Thing_Damage2(ActivatorTID(), dmg, "None");
+	//Mob might actually be dead by this point.
 }
 
 // Decide monster to spawn on a certain monster category given weight list
@@ -2536,20 +2541,17 @@ Script "DND Riotgun Decide" (void) {
 Script "DND Elite Special FX" (void) CLIENTSIDE {
 	int i, waitcounter = 0;
 	// to ensure things are synced properly between clients
-	while(!CheckInventory("Mo_Died")) {
+	while(IsAlive()) {
 		for(i = 0; i < DND_ELITE_FX_DENSITY; ++i) {
+			//printbold(s:"DND Elite Special FX - Density Effect: TID: ", d:ActivatorTID(), s:", i: ", d: i);
+			if (!IsAlive()) //Mob might actually die while this is running.
+				Terminate; //Could have used break but it's faster to just Terminate.
 			GiveInventory("EliteFXSpawner", 1);
 			Delay(1);
 		}
 		Delay(8);
 	}
-	// wait while we are dead, something might resurrect
-	while(!CheckInventory("Mo_Died")) {
-		Delay(70);
-		if(waitcounter++ == MAX_ELITE_FX_WAIT)
-			Terminate;
-	}
-	Restart;
+	Terminate;
 }
 
 Script 1000 (int isSoftcore) {

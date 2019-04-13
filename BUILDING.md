@@ -4,36 +4,31 @@
 #### Command Prompt Notes
 * How to run it:
   * Windows 10: Click the search button and type: `Command Prompt` and click on the desktop app. Run as admin if requested.
-  * Any Windows: Click **Start**, **Programs**, **Windows System**, **Command Prompt**. Run as admin if requested.
+  * Any other Windows: Click **Start**, **Programs**, **Windows System**, **Command Prompt**. Run as admin if requested.
 * To switch to another drive in the prompt: type the driver letter then `:`.
 
 #### Preparing
-##### Using Just-install (please try this first - if it fails, follow other section)
 
-- **Before starting:** If you have corrupted installs of 7zip or git: download an app like [this](https://www.majorgeeks.com/files/details/windows_installer_cleanup_utility.html), and remove the corrupted installs first, then try this section.
-- **If already manually installed bcc first in a different folder and now trying to use Just-install**: Delete the bcc folder and remove bcc from system PATH environment variable by running command line as **admin** and typing this:
-`setx /M PATH "%PATH:MYPATH\TO\BCC;=%`.
-- **If installed bcc and used bcc environment variable (for those who used old instructions):** Delete the bcc folder and remove bcc environment variable by running command line as **admin** and typing this:
-`setx bcc ""`
-- **If already having DnD installed with Just-install and just updating dependencies**: Just run `prepare.bat` as **admin**. If it fails (by anti-virus not trusting it): follow the instructions below.
-
-1. Run the command prompt as **admin** - failure to do so will prevent apps from being installed/detected.
-2. Type `msiexec.exe /i https://unstable.just-install.it`
-3. Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
-4. Type `set PATH="%SYSTEMDRIVE%\Shims;%CD%"` (which adds the Shims path to PATH env variable).
-5. Type `set PATH="%PROGRAMFILES%\7-Zip;%CD%"` (which adds 7-Zip path to PATH env variable).
-
-##### Manually installing and adding programs to PATH (for those having problems with Just-install)
-
-- **If installed bcc and used bcc environment variable (for those who used old instructions):** Delete the bcc folder and remove bcc environment variable by running command line as **admin** and typing this:
-`setx bcc ""`
-
-1. Download and install [7zip](https://www.7-zip.org/download.html) to its default folder (select to download the x64 on x64 systems and x86 on x86 systems).
-2. Download and extract [bcc](https://github.com/wormt/bcc/releases) to %PROGRAMFILES%/bcc (for compatibility with Just-install, once it's properly fixed).
-3. Download and install Git for Windows in default folder, making sure it uses Windows command prompt with just git. Download [git-for-windows](https://git-scm.com/download/win). Just do the default options, but you may select your favorite text editor.
-4. Add 7zip and bcc to the system PATH environment variable by running command line as **admin**:
-   4.1. Type `set PATH="%PROGRAMFILES%\bcc;%CD%"` (which adds bcc path to PATH env variable).
-   4.2. Type `set PATH="%PROGRAMFILES%\7-Zip;%CD%"` (which adds 7-Zip path to PATH env variable).
+1. There are 2 ways to download and install the dependencies:
+   1. Using just-install (***ATM it's broken!*** - go to "Manually" section):
+      1. Run the command prompt as **admin** - it's easier to see if an installation failed this way.
+      2. Type `msiexec.exe /i https://just-install.github.io/stable/just-install.msi`
+      3. Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
+   2. Manually:
+      1. Download and install [7zip](https://www.7-zip.org/download.html) to its default folder (select to download the x64 on x64 systems and x86 on x86 systems).
+      2. Download and extract [bcc](https://github.com/wormt/bcc/releases) to %PROGRAMFILES%/bcc (for compatibility with Just-install).
+      3. Download and install Git for Windows in default folder, making sure it uses Windows command prompt with just git. Download [git-for-windows](https://git-scm.com/download/win). Just do the default options, but you may select your favorite text editor.
+2. Add the paths to the PATH environment variable:
+   1. Open the Advanced System Settings dialog:
+      1. Either go to `Control Panel/System` then `Advanced System Settings` OR
+      2. If you have search enabled, you can type: `View Advanced System Settings` (both ways go directly to dialog).
+   2. Go `Advanced` tab.
+   3. Click `Environment Variables...`.
+   4. On the `System variables` section, select the `Path` environment variable, then click `Edit...`
+   5. Add the paths:
+      1. On Windows 10 OCT/18 build and newer: Press `New`, then type: %PROGRAMFILES%\7-Zip`. Press `New` again, and type `%SYSTEMDRIVE%\Shims`. Now press `OK`.
+      2. On any other Windows: On the edit field, add: `;%PROGRAMFILES%\7-Zip;%SYSTEMDRIVE%\Shims`, then click `OK`.
+   6. Then click `OK`, and click `OK` again.
 
 #### To continue, there are 2 useable git tools:
 #### Either Git-for-windows (default)
@@ -84,10 +79,11 @@ Provides very nice context menus.
 10. Rebuild - follow **Building the DnD pk7** instructions again.
 
 #### Building the DnD pk7s
-1. Run the command prompt.
-2. CD to the DnD folder: `cd path/to/DnD`
-3. Type either `test.bat` (if updating files often) or `build.bat` (if releasing).
-4. Make sure when creating server/playing offline that you're using these files.
+1. First make sure nothing is using the DnD PK7 (like a server or the game client).
+2. Run the command prompt.
+3. CD to the DnD folder: `cd path/to/DnD`.
+4. Type either `test.bat` (if updating files often) or `build.bat` (if releasing).
+5. Make sure when creating server/playing offline that you're using these files.
 
 If the test.bat created files that are different to the ones being hosted online (as in, the versionless dnd*.pk7 files) when you know those being hosted are the newest:
 - Follow **Updating DnD** section again.
@@ -120,7 +116,6 @@ git pull
 3. Set the bcc environment variable (just needed once in a terminal for any amount of builds). Type - where fullpathtobccexecutable is the full path to executable: `export bcc=fullpathtobccexecutable`
 4. Type `./test.sh` (if updating files often) or `./build.sh` (if releasing).
 5. Make sure when creating server/playing offline that you're using these files.
-
 
 ## Recommendations
 - Add the main DnD folder to the wad paths. This prevents having to move the wad whenever adjusting the source code or new versions.

@@ -5,6 +5,7 @@ user bool dnd_nofx = false;
 user bool dnd_dashstatus = false;
 user bool dnd_expcreditnumbers = true;
 
+server bool dnd_test = false;
 server bool dnd_hardcore = false;
 server bool dnd_softcore = false;
 server bool dnd_monsterbars = true;
@@ -28,6 +29,7 @@ server bool dnd_enable_elites = true;
 server bool dnd_enable_limiteditems = true;
 server bool dnd_no_immunity = false;
 server bool dnd_no_reflect = false;
+server bool dnd_ignore_dropweights = false;
 
 server int dnd_shop_scale = 1;
 server int dnd_shop_wep_scale = 1;

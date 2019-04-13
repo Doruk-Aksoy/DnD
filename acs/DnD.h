@@ -827,12 +827,7 @@ void HandleOrbDrop() {
 	int addchance = (Clamp_Between(GetCVar("dnd_orb_dropchanceadd"), 0, 100) << 16) / 100;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		#ifndef ISDEBUGBUILD
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))
-		#endif
-		#ifdef ISDEBUGBUILD
-			if(PlayerInGame(i))
-		#endif
+		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))))
 			SpawnOrb(i);
 	}
 }
@@ -843,12 +838,7 @@ void HandleCharmLootDrop(bool isElite) {
 		addchance = DND_ELITE_BASEDROP / 2;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		#ifndef ISDEBUGBUILD
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance))
-		#endif
-		#ifdef ISDEBUGBUILD
-			if(PlayerInGame(i))
-		#endif
+		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance))))
 			SpawnCharm(i, isElite);
 	}
 }
@@ -929,14 +919,13 @@ void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str t
 	SetActivator(this);
 }
 
-void ScaleMonster(int pcount) {
-	int base = GetActorProperty(0, APROP_HEALTH);
+int ScaleMonster(int pcount, int realhp) {
+	int base = realhp;
 	int add = 0, level = 1, low, high, temp;
 	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount;
 	// ensure minions use master's level
 	if(GetActorProperty(0, APROP_MASTERTID)) {
-		//printbold(d:GetActorProperty(0, APROP_MASTERTID));
-		level = CheckActorInventory(GetActorProperty(0, APROP_MASTERTID), "MonsterLevel");
+		level = MonsterProperties[GetActorProperty(0, APROP_MASTERTID) - DND_MONSTERTID_BEGIN].level;
 	}
 	if(GetCVar("dnd_randomize_levels")) {
 		low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
@@ -976,7 +965,7 @@ void ScaleMonster(int pcount) {
 		}
 		// add level factor to it
 		// first overflow check
-		if(add < (INT_MAX - base) / (level - 1)) {
+		if(add < (INT_MAX - base) / Max((level - 1),1)) {
 			add *= level - 1;
 			if(GetCVar("dnd_playercount_scales_monsters")) {
 				if(add > 100) {
@@ -992,8 +981,8 @@ void ScaleMonster(int pcount) {
 		else
 			add = INT_MAX - base;
 	}
-	SetActorProperty(0, APROP_HEALTH, base + add);
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].basehp = base;
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp = base + add;
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level = level;
+	return base + add;
 }

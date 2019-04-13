@@ -1923,12 +1923,12 @@ int GetCraftableItemCount() {
 // this doesn't consider the item_type yet!
 void MakeUnique(int item_pos, int item_type) {
 	int i;
-	#ifdef ISDEBUGBUILD
+	if(GetCVar("dnd_ignore_dropweights"))
 		i = random(0, MAX_UNIQUE_ITEMS - 1);
-	#else
+	else {
 		int roll = random(1, MAX_UNIQUE_WEIGHT);
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
-	#endif
+	}
 	i = UITEM_GRAVECALLER;
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);

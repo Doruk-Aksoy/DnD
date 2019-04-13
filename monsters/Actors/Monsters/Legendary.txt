@@ -1,7 +1,7 @@
 Actor DreamingGod : DnD_BaseEnemy {
 	tag "The Dreaming God"
 	obituary "%o was disintegrated for gazing upon The Dreaming God."
-	health 20000
+	health 0x7FFFFFFF
 	radius 40
 	height 110
 	ProjectilePassHeight 160
@@ -997,7 +997,7 @@ Actor TchernoLightning {
 
 Actor Torrasque : DnD_BaseEnemy {
 	obituary "%o got smashed by the Torrasque."
-	health 16500
+	health 0x7FFFFFFF
 	radius 32
 	height 96
 	mass 1000
@@ -1419,7 +1419,7 @@ Actor TorrasqueGrabber {
 Actor Mordecqai : DnD_BaseEnemy {
 	tag "Mordecqai"
 	obituary "%o couldn't stand against the might of Mordecqai."
-	health 18500
+	health 0x7FFFFFFF
 	radius 40
 	height 110
 	ProjectilePassHeight 160
@@ -1836,7 +1836,7 @@ Actor MordecqaiLightningFX : MordecqaiSmallBall {
 Actor GodSlayer : MechanicalEnemy {
 	tag "God Slayer"
 	obituary "%o saw UAC's biggest invention gone rogue and that was it."
-	health 13500
+	health 0x7FFFFFFF
 	radius 40
 	height 110
 	ProjectilePassHeight 160
@@ -2556,7 +2556,7 @@ Actor InquisitorCounter : Inventory {
 Actor Golgoth : DnD_BaseEnemy {
 	tag "Golgoth"
 	obituary "%o was removed from existence by Golgoth."
-	health 17500
+	health 0x7FFFFFFF
 	radius 40
 	height 110
 	ProjectilePassHeight 160

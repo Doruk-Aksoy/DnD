@@ -485,3 +485,19 @@ Actor DnD_MenuPlayerIcon {
 		Stop
 	}
 }
+
+Actor Research_Discovered_1 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Research_Discovered_2 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Research_Done_1 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Research_Done_2 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}

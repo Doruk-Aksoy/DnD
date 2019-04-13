@@ -1,6 +1,6 @@
 ACTOR TorturedSoul : DnD_BaseEnemy { 
 	//$Category "ZDoom Monster pack"
-	Health 550 
+	Health 0x7FFFFFFF
 	Speed 8 
 	Radius 31 
 	Height 56 
@@ -155,7 +155,7 @@ Actor TorturedSoulPoison_Weak : TorturedSoulPoison {
 
 ACTOR Defiler : DnD_BaseEnemy {
 	//$Category monsters
-	Health 600
+	Health 0x7FFFFFFF
 	Radius 31
 	Height 56
 	Mass 500
@@ -336,7 +336,7 @@ Actor HadesLightningCD : PowerDamage {
 Actor Helemental : DnD_BaseEnemy {
 	Obituary "%o was electrocuted by a Hades-Elemental."
 	HitObituary "%o got chomped by a Hades-Elemental."
-	Health 800
+	Health 0x7FFFFFFF
 	Radius 31
 	Height 56
 	Mass 800
@@ -592,7 +592,7 @@ Actor HadesBolt2 : CacodemonBall
 }
 
 ACTOR HS : MagicalEnemy { 
-	Health 35
+	Health 0x7FFFFFFF
 	Radius 16 
 	Height 32 
 	Mass 3000 
@@ -689,9 +689,9 @@ Actor HS_NoExp : HS {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HADESSPHERE, DND_MAGIC_WEAKNESS | DND_DEATH)
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HADESSPHERE, DND_MAGIC_WEAKNESS | DND_DEATH, DND_REVIVED)
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 		Idle:
 			TNT1 AA 1 Bright A_LookEx(0, 0, 0, 0, 0, "Atack")
 		Goto Super::Idle
@@ -734,7 +734,7 @@ ACTOR HSBoom
 
 actor DESentinel : Guardian {
 	obituary "%o was blasted away by a sentinel."
-	health 750
+	health 0x7FFFFFFF
 	radius 31
 	height 56
 	Scale 1.0
@@ -953,7 +953,7 @@ ACTOR GCSpawner
 
 ACTOR BloodLich : MagicalEnemy {
     Obituary "%o was reduced to a pile of ash by a Blood Lich."
-    Health 675
+    Health 0x7FFFFFFF
     Radius 31
     Height 56
     Mass 2000
@@ -1165,7 +1165,7 @@ ACTOR CurseSpell
 }
 
 Actor ReiverGhost : Wraith {
-	Health 75
+	Health 0x7FFFFFFF
     Speed 6
     Alpha 0.75
     RenderStyle Add
@@ -1241,9 +1241,9 @@ Actor ReiverGhost_NoExp : ReiverGhost {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WRAITH, DND_RESURRECT | DND_GHOST)
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WRAITH, DND_RESURRECT | DND_GHOST, DND_REVIVED)
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 		Idle:
 			WRTH AA 1 Bright A_LookEx(0, 0, 0, 0, 0, "Atack")
 		Goto Super::Idle
@@ -1308,7 +1308,7 @@ ACTOR ResurrectionFlame
 }
 
 ACTOR ShadowDisciple : MagicalBulletResistantEnemy { 
-	Health 500 
+	Health 0x7FFFFFFF
 	PainChance 140
 	Speed 8
 	Scale 0.90
@@ -1590,7 +1590,7 @@ ACTOR DSFX2
 }
 
 Actor HellArbiter : DnD_BaseEnemy {
-	Health 450
+	Health 0x7FFFFFFF
 	Radius 31
 	Height 56
 	Speed 7

@@ -2370,7 +2370,7 @@ str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 #define DND_TRAIT1_STARTSHOW DND_EXPLOSIVE_RESIST_POW // first trait to show
 #define DND_TRAIT1_LASTSHOW DND_NOPAIN_POW
 #define DND_TRAIT2_STARTSHOW DND_BULLET_IMMUNE_POW
-#define DND_TRAIT2_LASTSHOW DND_ARMORPEN_POW
+#define DND_TRAIT2_LASTSHOW DND_REVIVED_POW
 #define DND_TRAIT_SKIP DND_EXPLOSIVE_RESIST_POW // amount of traits to skip
 
 #define MAX_MONSTER_MODS DND_TRAIT2_LASTSHOW - DND_TRAIT2_STARTSHOW + DND_TRAIT1_LASTSHOW - DND_TRAIT1_STARTSHOW + 2
@@ -2409,7 +2409,10 @@ str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster is immune to elemental attacks.",
 	"Monster deals twice as much damage.",
 	"Monster has 75% more health.",
-	"Monster ignores armor of player with every attack."
+	"Monster ignores armor of player with every attack.",
+	"Monster belongs to a player and is friendly.",
+	"Monster is unique.",
+	"Monster doesn't give anything on kill."
 };
 
 str CharmBoxLabels[MAX_CHARM_TYPES][2] = {
