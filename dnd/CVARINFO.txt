@@ -6,8 +6,6 @@ user bool dnd_dashstatus = false;
 user bool dnd_expcreditnumbers = true;
 
 server bool dnd_test = false;
-server bool dnd_hardcore = false;
-server bool dnd_softcore = false;
 server bool dnd_monsterbars = true;
 server bool dnd_monsterscale = true;
 server bool dnd_randomize_levels = true;
@@ -30,6 +28,8 @@ server bool dnd_enable_limiteditems = true;
 server bool dnd_no_immunity = false;
 server bool dnd_no_reflect = false;
 server bool dnd_ignore_dropweights = false;
+
+server int dnd_mode = 0;
 
 server int dnd_shop_scale = 1;
 server int dnd_shop_wep_scale = 1;
@@ -69,7 +69,7 @@ server int dnd_monster_hpscalepercent = 5;
 server int dnd_monster_rewardscalepercent = 5;
 
 server float dnd_monster_variation_factor = 1.5;
-server float dnd_researchdroprate = 0.0025;
+server float dnd_researchdroprate = 0.01;
 server float dnd_monster_dmgscalepercent = 0.04;
 
 // Used for monster names

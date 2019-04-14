@@ -18,9 +18,6 @@
       1. Run the command prompt as **admin** - it's easier to see if an installation failed this way.
       2. Type `msiexec.exe /i https://just-install.github.io/stable/just-install.msi`
       3. Type `just-install exeproxy 7zip git bcc` (exeproxy has to come first! Do this even if you have those programs installed already).
-
-
-
 2. Add the paths to the PATH environment variable:
    1. Open the Advanced System Settings dialog:
       1. Either go to `Control Panel/System` then `Advanced System Settings` OR

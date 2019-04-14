@@ -62,6 +62,12 @@ global int 0: MapChanged;
 global int 5: HardcoreSet;
 global bool 7: PlayerDied[MAXPLAYERS];
 
+enum {
+	DND_MODE_NORMAL,
+	DND_MODE_SOFTCORE,
+	DND_MODE_HARDCORE
+};
+
 #define MAX_SCREENRES_OFFSETS 4
 int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1 };
 int active_quest_id = -1;

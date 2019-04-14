@@ -195,7 +195,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, int tid, str pacc, int flag
 }
 
 void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
-	if(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) && PlayerIsLoggedIn(pnum)) {
+	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerIsLoggedIn(pnum)) {
 		BeginDBTransaction();
 		int tid = pnum + P_TIDSTART, i, j, k, temp;
 		char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
@@ -1152,7 +1152,7 @@ Script "DND Player Save" OPEN {
 				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
 					if (PlayerIsLoggedIn(i)) {
 						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
-						if((GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) && PlayerDied[i])
+						if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerDied[i])
 							continue; // don't save this player as they died
 						if(PlayerTransferred[i]) {
 							WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
@@ -1181,7 +1181,7 @@ void load_char(int pnum, int char_id) {
 
 int check_load_char(int pnum, int char_id) {
 	// if not hardcore don't bother trying to load
-	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
 	if(!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	// if gamestate is countdown don't let them because it'll be reset anyways
@@ -1213,7 +1213,7 @@ void create_char(int pnum, int char_id) {
 }
 
 int check_create_char(int pnum, int char_id) {
-	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
@@ -1246,7 +1246,7 @@ void transfer_char(int pnum, int char_id) {
 }
 
 int check_transfer_char(int pnum, int char_id) {
-	if(!(GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
@@ -1268,7 +1268,7 @@ Script "DND Database Reset On Death" DEATH {
 	// remove player saved data if they die once in hardcore, if they are loaded
 	int pnum = PlayerNumber(), cid = CheckInventory("DnD_CharacterID");
 	if(HardcoreSet && PlayerIsLoggedIn(pnum) && PlayerLoaded[pnum]) {
-		if(GetCVar("dnd_hardcore")) {
+		if(GetCVar("dnd_mode") == DND_MODE_HARDCORE) {
 			// reset variables here
 			ResetHardcoreStuff(pnum);
 			BeginDBTransaction();
@@ -1328,7 +1328,7 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 Script "DnD Save Player Orb and Stat Data" (int pnum) {
 	if(HardcoreSet && PlayerInGame(pnum) && PlayerIsLoggedIn(pnum) && !CheckActorInventory(pnum + P_TIDSTART, "CanLoad")) {
 		// if somehow you died...
-		if(GetCVar("dnd_hardcore") && PlayerDied[pnum])
+		if((GetCVar("dnd_mode") == DND_MODE_HARDCORE) && PlayerDied[pnum])
 			Terminate;
 		BeginDBTransaction();
 			SavePlayerOrbData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
@@ -1343,7 +1343,7 @@ Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {
 Script "DnD Save Player Inventory" (int pnc1, int pnc2) {
 	int pn1 = pnc1 & 0xFFFF;
 	int pn2 = pnc2 & 0xFFFF;
-	if(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore"))) {
+	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		BeginDBTransaction();
 		if(PlayerIsLoggedIn(pn1)) {
 			pnc1 >>= 16;
