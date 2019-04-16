@@ -164,6 +164,10 @@ Script 701 OPEN CLIENTSIDE {
 }
 
 Script "DnD On Map Load" OPEN {
+	LastMapIndex = CurrentMapIndex;
+	CurrentMapIndex = GetLevelInfo(LEVELINFO_LEVELNUM);
+	if (CurrentMapIndex == 99) //Do not continue if it's a hub map
+		Terminate;
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(17);
 	CalculateMapDifficulty();
