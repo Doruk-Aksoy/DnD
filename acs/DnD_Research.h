@@ -95,8 +95,8 @@ str Research_Label[MAX_RESEARCHES] = {
     "Nitrogen Shells",
 	"Slug Shells",
     
-    "High Explosive Grenades",
     "Sonic Grenades",
+    "High Explosive Grenades",
     
     "Special Ammo Holding",
     

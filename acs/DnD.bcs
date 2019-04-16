@@ -164,6 +164,10 @@ Script 701 OPEN CLIENTSIDE {
 }
 
 Script "DnD On Map Load" OPEN {
+	LastMapIndex = CurrentMapIndex;
+	CurrentMapIndex = GetLevelInfo(LEVELINFO_LEVELNUM);
+	if (CurrentMapIndex == 99) //Do not continue if it's a hub map
+		Terminate;
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(17);
 	CalculateMapDifficulty();
@@ -176,8 +180,7 @@ Script "DnD On Map Load" OPEN {
 
 Script "DND Check Hardcore Softcore" OPEN {
 	while(1) {
-		// check only if one is on, not both
-		if((GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore")) && GameType() != GAME_SINGLE_PLAYER)
+		if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER))
 			HardcoreSet = CheckHardcoreSettings();
 		Delay(105);
 	}
@@ -208,7 +211,7 @@ Script 703 DEATH {
 			TakeInventory("CurrentLives", 1);
 		else {
 			StatListOpened[PlayerNumber()] = 0;
-			if(!GetCVar("dnd_softcore")) {
+			if(GetCVar("dnd_mode") == DND_MODE_HARDCORE) {
 				Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
 				ResetHardcoreStuff(PlayerNumber());
 			}
@@ -1974,7 +1977,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	GiveInventory("ParsingData", 1);
 	// begin hardcore countdown
-	if(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore"))) {
+	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		GiveInventory("P_Frozen", 1);
 		while(GetGameModeState() == GAMESTATE_COUNTDOWN)
 			Delay(17);
@@ -2129,7 +2132,7 @@ Script "DnD Player Setup" ENTER {
 	// for zombie quest to work
 	TakeInventory("DnD_ShotUndead", 1);
 	TakeInventory("ParsingData", 1);
-	if(!(HardcoreSet && (GetCVar("dnd_hardcore") ^ GetCVar("dnd_softcore"))))
+	if(!(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)))
 		ACS_NamedExecuteAlways("DnD Ankh Checker", 0);
 }
 
@@ -2565,12 +2568,10 @@ Script 1000 (int isSoftcore) {
 	ConsoleCommand("dnd_monster_dmgscalepercent 0.04");
 	ConsoleCommand("dnd_researchdroprate 0.00249");
 	if(isSoftcore) {
-		ConsoleCommand("dnd_softcore true");
-		ConsoleCommand("dnd_hardcore false");
+		ConsoleCommand("dnd_mode 1"); //Softcore
 	}
 	else {
-		ConsoleCommand("dnd_hardcore true");
-		ConsoleCommand("dnd_softcore false");
+		ConsoleCommand("dnd_mode 2"); //Hardcore
 	}
 	ConsoleCommand("authhostname auth.zandronum.com:16666");
 	ConsoleCommand("map map01");
