@@ -166,7 +166,7 @@ Script 701 OPEN CLIENTSIDE {
 Script "DnD On Map Load" OPEN {
 	LastMapIndex = CurrentMapIndex;
 	CurrentMapIndex = GetLevelInfo(LEVELINFO_LEVELNUM);
-	Log(d:LastMapIndex,s:", ",d:CurrentMapIndex);
+	//Log(d:LastMapIndex,s:", ",d:CurrentMapIndex);
 	ACS_NamedExecuteAlways("DND Player Save",0);
 	if (CurrentMapIndex == 99) //Do not continue if it's a hub map
 		Terminate;

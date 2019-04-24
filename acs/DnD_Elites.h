@@ -150,7 +150,7 @@ void SetEliteFlag(int f, int flagside) {
 				GiveInventory("MakePierce", 1);
 			break;
 			case DND_REVIVED_POW:
-				printbold(s:"Mob got revived!");
+				//printbold(s:"Mob got revived!");
 				GiveInventory("Mo_Revived", 1);
 			break;
 		}
