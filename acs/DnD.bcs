@@ -468,15 +468,22 @@ Script "DND On Revive" (void) {
 	TakeInventory("Mo_Died", 1);
 	GiveInventory("Mo_Revived", 1);
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
-	if (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp) { //This if could be skipped if all mobs have their Monster Scaling.
+	if (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp) { //This could be skipped if all mobs have their Monster Scaling.
+		SetEliteFlag(DND_REVIVED_POW, 1); //Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		//Reapply the elite FX.
 		if (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite && !CheckInventory("RunEliteFXScript"))
 			GiveInventory("RunEliteFXScript", 1);
 		//printbold(s:"Monster id: ",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
-		SetActorProperty(0, APROP_HEALTH, MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
-		if (GetActorProperty(0, APROP_HEALTH != MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp))
-		   SetActorProperty(0, APROP_HEALTH, MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp); //Try to set it again if it fails the first time.
+		int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
+		int maxhp = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp;
+		
+		SetActorProperty(0, APROP_HEALTH, maxhp);
+		Clamp_Between(dmg, -maxhp-1, 0);
+		Thing_Damage2(ActivatorTID(), dmg, "None");
+		//Mob might actually be dead by this point.
+		if (GetActorProperty(0, APROP_Health) > GetActorProperty(0, APROP_SpawnHealth)) //In the rare case the mob keeps the very high hp (could happen from overflow - which implies that it should be dead)
+			Thing_Damage2(GetActorProperty(0, APROP_Health), dmg, "None"); //Just kill it
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
@@ -1304,7 +1311,7 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 		Clamp_Between(dmg, -maxhp-1, 0);
 		Thing_Damage2(ActivatorTID(), dmg, "None");
 		//Mob might actually be dead by this point.
-		if (GetActorProperty(0, APROP_Health) > GetActorProperty(0, APROP_SpawnHealth)) //In the rare case the mob keeps the very high hp
+		if (GetActorProperty(0, APROP_Health) > GetActorProperty(0, APROP_SpawnHealth)) //In the rare case the mob keeps the very high hp (could happen from overflow - which implies that it should be dead)
 			Thing_Damage2(GetActorProperty(0, APROP_Health), dmg, "None"); //Just kill it
 }
 
