@@ -80,7 +80,7 @@ enum {
 #define DND_RESEARCH_BEGIN RES_RAREARMOR
 #define DND_RESEARCH_END RES_STASHTAB
 #define MAX_RESEARCHES (DND_RESEARCH_END + 1)
-#define RESEARCH_BITSETS ((MAX_RESEARCHES / 32) + 1)
+#define RESEARCH_BITSETS ((MAX_RESEARCHES / 31) + 1) //Remember: use 31 bits (zand uses signed numbers only, and min inv amount min is 0)
 str ResearchPrefix = "\ccResearch Item : \c[Y5]Discovered ";
 
 str Research_Label[MAX_RESEARCHES] = {
@@ -334,8 +334,8 @@ enum {
 
 // 0 for NA, 1 for found, 2 for researched
 int CheckResearchStatus(int res_id) {
-	if(res_id > 31) {
-		res_id %= 32;
+	if(res_id > 30) {
+		res_id %= 31;
 		if(IsSet(CheckInventory("Research_Done_2"), res_id))
 			return RES_DONE;
 		if(IsSet(CheckInventory("Research_Discovered_2"), res_id))
@@ -351,9 +351,10 @@ int CheckResearchStatus(int res_id) {
 }
 
 int CheckActorResearchStatus(int tid, int res_id) {
-	// if we go over 64, we need another check, refrain from using Strparam here as these are potentially called often
-	if(res_id > 31) {
-		res_id %= 32;
+	// if we go over 62, we need another check, refrain from using Strparam here as these are potentially called often
+	// Remember: Actor inventory max value is 31 bits (signed, and min is 0).
+	if(res_id > 30) {
+		res_id %= 31;
 		if(IsSet(CheckActorInventory(tid, "Research_Done_2"), res_id))
 			return RES_DONE;
 		if(IsSet(CheckActorInventory(tid, "Research_Discovered_2"), res_id))
@@ -371,8 +372,8 @@ int CheckActorResearchStatus(int tid, int res_id) {
 void GiveResearch(int res_id, bool fancy) {
 	if(fancy)
 		ACS_NamedExecuteAlways("DnD Research Fancy Message", 0, res_id);
-	if(res_id > 31) {
-		res_id %= 32;
+	if(res_id > 30) {
+		res_id %= 31;
 		SetInventory("Research_Discovered_2", SetBit(CheckInventory("Research_Discovered_2"), res_id));
 	}
 	else
@@ -397,8 +398,9 @@ void HandleDependentResearch(int res_id) {
 void CompleteResearch(int res_id) {
 	HandleDependentResearch(res_id);
 	
-	if(res_id > 31)
-		SetInventory("Research_Done_2", SetBit(CheckInventory("Research_Done_2"), res_id % 32));
+	// Remember: Actor inventory max value is 31 bits (signed, and min is 0).
+	if(res_id > 30)
+		SetInventory("Research_Done_2", SetBit(CheckInventory("Research_Done_2"), res_id % 31));
 	else
 		SetInventory("Research_Done_1", SetBit(CheckInventory("Research_Done_1"), res_id));
 	
