@@ -864,16 +864,20 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read researches
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {
 		int k;
+		int max_researches_on_cur_bitset = 31; //Each bitset fits 31-bits (Actor inventory can only use 31-bits).
+		if (i == RESEARCH_BITSETS-1)
+			max_researches_on_cur_bitset = MAX_RESEARCHES%31;
+		
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DONE, char_id), d: i + 1), pacc);
 		k = 0;
-		for(j = 0; j < MAX_RESEARCHES; ++j)
+		for(j = 0; j < max_researches_on_cur_bitset; ++j)
 			if(IsSet(temp, j))
 				k = SetBit(k, j);
 		SetInventory(StrParam(s:"Research_Done_", d:i + 1), k);
 		
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d: i + 1), pacc);
 		k = 0;
-		for(j = 0; j < MAX_RESEARCHES; ++j)
+		for(j = 0; j < max_researches_on_cur_bitset; ++j)
 			if(IsSet(temp, j))
 				k = SetBit(k, j);
 		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), j);
@@ -1151,10 +1155,13 @@ void WipeoutPlayerData(int pnum, int cid) {
 // Handle all database stuff now
 Script "DND Player Save" {
 	while(1) {
+		//Log(d:HardcoreSet, d:MapChanged);
 		if(HardcoreSet && MapChanged) {
+			Log(s:"map changed and hardcore is set");
 			BeginDBTransaction();
 			for(int i = 0; i < MAXPLAYERS; ++i) {
 				// don't save peoples stuff while they are in load period
+				//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i], d:(LastMapIndex != 99));
 				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i] && (LastMapIndex != 99)) {
 					if (PlayerIsLoggedIn(i)) {
 						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause

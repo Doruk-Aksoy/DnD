@@ -945,7 +945,7 @@ ACTOR GCSpawner
       loop
    Death:
       NFAB A 3 Bright
-      NFAB B 3 Bright A_SpawnItem("GuardianCube_NoCount",0,0)
+      NFAB B 3 Bright A_SpawnItemEx("GuardianCube_NoCount", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER)
       NFAB CDEFGH 3 Bright
       Stop
    }

@@ -180,9 +180,9 @@ str Quest_Checkers[MAX_QUESTS] = {
 
 void CompleteQuest(int tid, int qid) {
 	str tocheck = "DnD_QuestState1";
-	if(qid > 31)
+	if(qid > 30)
 		tocheck = "DnD_QuestState2";
-	qid %= 32; // for 2nd part
+	qid %= 31; // for 2nd part
 	SetActorInventory(tid, tocheck, CheckActorInventory(tid, tocheck) | (1 << qid));
 	GiveActorInventory(tid, Quest_List[qid].qreward, 1);
 	SetActorInventory(tid, "QuestCompletionToken", active_quest_id + 1);
@@ -193,9 +193,9 @@ void CompleteQuest(int tid, int qid) {
 
 bool IsQuestComplete(int tid, int qid) {
 	str tocheck = "DnD_QuestState1";
-	if(qid > 31)
+	if(qid > 30)
 		tocheck = "DnD_QuestState2";
-	qid %= 32; // for 2nd part
+	qid %= 31; // for 2nd part
 	if(!tid)
 		return IsSet(CheckInventory(tocheck), qid);
 	return IsSet(CheckActorInventory(tid, tocheck), qid);
