@@ -441,7 +441,7 @@ void HandleLevelup() {
 			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
 		// heal on level up flag is on
 		if(GetCVar("dnd_healonlevelup"))
-			ACS_ExecuteAlways("DnD Health Pickup", 0, 100, 0);
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
 		ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
 	}
 }
