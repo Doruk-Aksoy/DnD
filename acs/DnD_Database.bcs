@@ -873,14 +873,14 @@ void LoadPlayerData(int pnum, int char_id) {
 		for(j = 0; j < res_on_cur_bitset; ++j)
 			if(IsSet(temp, j))
 				k = SetBit(k, j);
-		SetInventory(StrParam(s:"Research_Done_", d:i + 1), j);
+		SetInventory(StrParam(s:"Research_Done_", d:i + 1), k);
 		
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d: i + 1), pacc);
 		k = 0;
 		for(j = 0; j < res_on_cur_bitset; ++j)
 			if(IsSet(temp, j))
 				k = SetBit(k, j);
-		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), j);
+		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), k);
 	}
 	
 	HandleResearchBonuses();
