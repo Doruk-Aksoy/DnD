@@ -441,7 +441,7 @@ void HandleLevelup() {
 			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
 		// heal on level up flag is on
 		if(GetCVar("dnd_healonlevelup"))
-			ACS_ExecuteAlways("DnD Health Pickup", 0, 100, 0);
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
 		ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
 	}
 }
@@ -734,18 +734,12 @@ void HandleCashDrops(int pnum, bool isElite) {
 }
 
 // 0 means they are ready
-bool PlayersReadyForHardcore() {
-	bool res = 0;
+bool PlayersNotReadyForHardcore() {
 	int players_notready = 0;
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if (PlayerInGame(i)) {
-			res |= PlayerCanLoad[i];
-			if (PlayerCanLoad[i]) players_notready++;
-		}
-	}
-	if (players_notready != CheckInventory("PlayersNotReady"))
-		SetInventory("PlayersNotReady", players_notready);
-	return res;
+	for(int i = 0; i < MAXPLAYERS; ++i)
+		if (PlayerInGame(i) && PlayerCanLoad[i])
+			players_notready++;
+	return players_notready;
 }
 
 void SpawnTalentCapsule() {

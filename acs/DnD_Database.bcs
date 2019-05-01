@@ -85,11 +85,8 @@ void ResetPlayer() {
 	
 	// take all research stuff
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {
-		int j;
-		for(j = 0; j < MAX_RESEARCHES; ++j) {
-			SetInventory(StrParam(s:"Research_Done_", d:i + 1), 0);
-			SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), 0);
-		}
+		SetInventory(StrParam(s:"Research_Done_", d:i + 1), 0);
+		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), 0);
 	}
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 }
@@ -864,23 +861,26 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read researches
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {
 		int k;
-		int max_researches_on_cur_bitset = 31; //Each bitset fits 31-bits (Actor inventory can only use 31-bits).
-		if (i == RESEARCH_BITSETS-1)
-			max_researches_on_cur_bitset = MAX_RESEARCHES%31;
+		int res_on_cur_bitset = 31; //Each bitset fits 31-bits (Actor inventory can only use 31-bits).
+		if (i == RESEARCH_BITSETS-1) {
+			res_on_cur_bitset = MAX_RESEARCHES%31;
+			if (res_on_cur_bitset == 0)
+				res_on_cur_bitset = 31; //Make sure having exactly 31/62/93... researches don't break this.
+		}
 		
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DONE, char_id), d: i + 1), pacc);
 		k = 0;
-		for(j = 0; j < max_researches_on_cur_bitset; ++j)
+		for(j = 0; j < res_on_cur_bitset; ++j)
 			if(IsSet(temp, j))
 				k = SetBit(k, j);
 		SetInventory(StrParam(s:"Research_Done_", d:i + 1), k);
 		
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d: i + 1), pacc);
 		k = 0;
-		for(j = 0; j < max_researches_on_cur_bitset; ++j)
+		for(j = 0; j < res_on_cur_bitset; ++j)
 			if(IsSet(temp, j))
 				k = SetBit(k, j);
-		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), j);
+		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), k);
 	}
 	
 	HandleResearchBonuses();
