@@ -1386,12 +1386,12 @@ Script 957 (int category) {
     int picked = 0;
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
-    while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersReadyForHardcore())
+    while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersNotReadyForHardcore())
         Delay(10);
 	picked = 0;
 	// throttle the spawns
 	if(GameType() != GAME_SINGLE_PLAYER)
-		Delay(17 * random(0, DND_MAX_MONSTERDELAY));
+		Delay(17 * (random(0, DND_MAX_MONSTERDELAY) + 1)); //Added 1 second for player level to be accurate first (people might load at last second).
 	int roll, bin;
 	// roll legendary monster chance and do checks of it
 	if(!MadeLegendary && category == DND_CYBERDEMONID && random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] >= 25) {
@@ -2005,17 +2005,17 @@ Script "DnD Player Setup" ENTER {
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
 		
 		// 0 means they are ready
-		while(PlayersReadyForHardcore() && i < (DND_HARDCORE_LOADTIME << 1) && PlayerInGame(pnum)) {
+		int players_not_ready = PlayersNotReadyForHardcore();
+		while(players_not_ready && i < (DND_HARDCORE_LOADTIME << 1) && PlayerInGame(pnum)) {
 			//Update logged in status to client as needed by hardcode timer.
 			if (CheckInventory("PlayerIsLoggedIn") != PlayerIsLoggedIn(pnum))
 				SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum));
 			// we loaded, reduce on wait time
-			if((!CheckInventory("CanLoad")) && (!wait_other_players)) {
+			if(!CheckInventory("CanLoad")) {
 				PlayerCanLoad[pnum] = 0;
-				if (PlayersReadyForHardcore()) {
-					wait_other_players = true;
-					ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0);
-				}
+				// message the players to wait for an amount of players to ready up (also update not ready count)
+				players_not_ready = PlayersNotReadyForHardcore();
+				ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0, players_not_ready);
 			}
 			++i;
 			if ((i == (DND_HARDCORE_LOADTIME << 1)) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad"))
@@ -2068,7 +2068,7 @@ Script "DnD Player Setup" ENTER {
 	if(HardcoreSet) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
-		Delay(17 * DND_MAX_MONSTERDELAY);
+		Delay(17 * (DND_MAX_MONSTERDELAY + 1));
 	}
 	
 	// Load period is finished, now check for level stats
@@ -3283,15 +3283,15 @@ Script "DND Hardcore Timer" (void) CLIENTSIDE {
 	}
 }
 
-Script "DND Wait For Other Players Message" (void) CLIENTSIDE {
+Script "DND Wait For Other Players Message" (int players_not_ready) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	SetFont("BIGFONT");
 	SetHudSize(640, 480, 0);
-	if (CheckInventory("PlayersNotReady") == 1)
-		HudMessage(s:"Waiting for \cd", d:CheckInventory("PlayersNotReady"), s:"\c- player to load character..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+	if (players_not_ready == 1)
+		HudMessage(s:"Waiting for \cd", d:players_not_ready, s:"\c- player to load character..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
 	else
-		HudMessage(s:"Waiting for \cd", d:CheckInventory("PlayersNotReady"), s:"\c- players to load character..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+		HudMessage(s:"Waiting for \cd", d:players_not_ready, s:"\c- players to load character..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
 }
 
 Script "DND Hardcore Monster Message" (void) CLIENTSIDE {
@@ -3300,7 +3300,7 @@ Script "DND Hardcore Monster Message" (void) CLIENTSIDE {
 	SetFont("BIGFONT");
 	SetHudSize(640, 480, 0);
 	HudMessage(s:"Loading monsters..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
-	Delay(17 * (DND_MAX_MONSTERDELAY + 2)); //Add 2 seconds to it to allow player script to finish first.
+	Delay(17 * (DND_MAX_MONSTERDELAY + 3)); //Add 3 seconds to it to allow player script to finish first.
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 }
 
