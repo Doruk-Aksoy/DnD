@@ -513,7 +513,7 @@ Script "DND On Kill" KILL {
     int this = ActivatorTID();
 	
     // decide how exp/credit base is calculated
-	int exptemp = MonsterProperties[this - DND_MONSTERTID_BEGIN].level / DND_HEALTHEXPSCALE;
+	int exptemp = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_HEALTHEXPSCALE;
 	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp) / DND_HEALTHCREDITSCALE;
     int pnum = 0, i = MonsterProperties[this - DND_MONSTERTID_BEGIN].level;
 	
