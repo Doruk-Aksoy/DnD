@@ -513,7 +513,7 @@ Script "DND On Kill" KILL {
     int this = ActivatorTID();
 	
     // decide how exp/credit base is calculated
-	int exptemp = MonsterProperties[this - DND_MONSTERTID_BEGIN].level / DND_HEALTHEXPSCALE;
+	int exptemp = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_HEALTHEXPSCALE;
 	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp) / DND_HEALTHCREDITSCALE;
     int pnum = 0, i = MonsterProperties[this - DND_MONSTERTID_BEGIN].level;
 	
@@ -3518,17 +3518,21 @@ Script "DnD Charm Pickup" (int sp) {
 
 // if we have enough space and we pressed use
 Script "DnD Player Has Spot For Item" (int sp) {
-	if((sp & 0xFFFF) == 255)
-		SetActivatorToTarget(0);
+	if (GetGameModeState() == GAMESTATE_INPROGRESS) {
+		if((sp & 0xFFFF) == 255)
+			SetActivatorToTarget(0);
+		else
+			SetActivator((sp & 0xFFFF) + P_TIDSTART);
+		int pnum = PlayerNumber();
+		bool spot = 0;
+		if(Inventories_On_Field[sp >> 16].item_stack)
+			spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
+		else
+			spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
+		SetResultValue(CheckInventory("DnD_PressedUse") && spot);
+	}
 	else
-		SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	int pnum = PlayerNumber();
-	bool spot = 0;
-	if(Inventories_On_Field[sp >> 16].item_stack)
-		spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
-	else
-		spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
-	SetResultValue(CheckInventory("DnD_PressedUse") && spot);
+		SetResultValue(false);
 }
 
 // Player picks up item
