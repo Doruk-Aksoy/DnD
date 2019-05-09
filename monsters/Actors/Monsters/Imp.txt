@@ -2272,6 +2272,7 @@ Actor Roach : DnD_BaseEnemy {
 			ROAC T -1
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			ROAC MLKJI 5
 		Goto See
 		
