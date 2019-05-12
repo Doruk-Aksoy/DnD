@@ -396,6 +396,8 @@ actor bulletcasing
     States
     {
     Spawn:
+		TNT1 A 0
+		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
         MCAS A 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
         MCAS A 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
         MCAS B 1 A_SpawnItemEx ("bulletCASINGSMOKE", 0, 0, 0, 0, 0, 1, 0,0, 0) 
