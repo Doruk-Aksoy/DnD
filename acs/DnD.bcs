@@ -2015,7 +2015,8 @@ Script "DnD Player Setup" ENTER {
 				PlayerCanLoad[pnum] = 0;
 				// message the players to wait for an amount of players to ready up (also update not ready count)
 				players_not_ready = PlayersNotReadyForHardcore();
-				ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0, players_not_ready);
+				if (players_not_ready > 0) //This is actually possible, even here!
+					ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0, players_not_ready);
 			}
 			++i;
 			if ((i == (DND_HARDCORE_LOADTIME << 1)) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad"))

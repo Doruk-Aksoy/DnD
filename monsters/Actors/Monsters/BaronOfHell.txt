@@ -1640,6 +1640,7 @@ Actor Barbatos : BaronofHell2 {
 		TNT1 A 0 A_GiveToTarget("Souls", 1)  
 	  Goto GaveSoul
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			CYBR ONMLKJIH 4
 		Goto See
 	}
@@ -2191,6 +2192,7 @@ Actor MagmaSerpent : DnD_BaseEnemy {
 			RDMN P -1 A_KillMaster
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			RDMN PONMLKJIH 5
 		Goto See
 		

@@ -2160,6 +2160,7 @@ Actor Crawler : DnD_BaseEnemy {
 			GDMN P -1
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			GDMN PONMLKJIH 5
 		Goto See
 		

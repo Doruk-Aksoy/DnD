@@ -74,6 +74,7 @@ actor BloodSatyr : Satyr {
 			STYR O -1
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			STYR ONMLKJI 8
 		Goto See
 		
@@ -1865,6 +1866,7 @@ ACTOR ChaosSerpent : DnD_BaseEnemy {
 			DEMN P -1
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			DEMN PONMLKJIH 5
 		Goto See
 		
@@ -2023,6 +2025,7 @@ Actor MoonSatyr : Satyr {
 			STYR O -1 A_BossDeath
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			STYR ONMLKJI 8
 		Goto See
 	  GiveSoul:

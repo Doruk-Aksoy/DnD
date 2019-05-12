@@ -55,6 +55,7 @@ ACTOR BabyCaco : DnD_BaseEnemy
 			CACB L -1 A_SetFloorClip
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			CACB L 8 A_UnSetFloorClip
 			CACB KJIHGF 8
 		Goto See
@@ -197,6 +198,7 @@ Actor Fleshspawn : DnD_BaseEnemy {
 			FLSP STU 3
 		Stop
 		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			FLSP O 5 A_UnSetFloorClip
 			FLSP NMLKJI 5
 		Goto See
