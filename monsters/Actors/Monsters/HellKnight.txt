@@ -1,5 +1,5 @@
 actor BloodSatyr : Satyr {
-    Health 0x7FFFFFFF
+    Health 100000
     Radius 24
     Height 64
     Scale 1.1
@@ -202,7 +202,7 @@ Actor SatyrMissile : BaronBall
 }
 
 Actor HellWarrior : DnD_BaseEnemy {
-	Health 0x7FFFFFFF
+	Health 100000
 	Speed 8
 	Radius 24
 	Height 64
@@ -422,7 +422,7 @@ Actor HellWarriorShield
 
 Actor HellsFury : DnD_BaseEnemy {
 	//$Category Monsters
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 24
 	Height 64
 	Speed 8
@@ -576,7 +576,7 @@ Actor HellsFurySkull
 }
 
 Actor ArchonOfHell : HellKnight2 { 
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 24 
 	Height 64 
 	Mass 1000 
@@ -780,7 +780,7 @@ Actor ArchonCometTrail
 }
 
 Actor WarlordOfHell : DnD_BaseEnemy { 
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 24
 	Height 64 
 	Speed 10 
@@ -945,7 +945,7 @@ Actor WarlordBallTrail
 ACTOR ShadowBeast : DnD_BaseEnemy {
 	OBITUARY "%o was killed by a shadow beast."
 	Bloodcolor "70 AC 00"
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 24
 	Height 64
 	Mass 500
@@ -1214,7 +1214,7 @@ ACTOR ShadowBeast_Ball3
 }
 
 actor BlackKnight : UndeadBulletResistantEnemy {
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 24
 	Height 64
 	PainChance 100
@@ -1376,7 +1376,7 @@ ACTOR KBallTrail
 
 Actor SkullWizard : MagicalEnemy {
 	Obituary "%o succumbed to a Skull Wizard's magic."
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 21
 	Height 64
 	Mass 120
@@ -1598,7 +1598,7 @@ Actor SkullWizardTeleport {
 }
 
 Actor CyborgWarrior : MechanicalExplosiveResistEnemy { 
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 24 
 	Height 64 
 	Mass 1000 
@@ -1782,7 +1782,7 @@ Actor CyborgPlasma2Trail {
 }
 
 ACTOR ChaosSerpent : DnD_BaseEnemy {
-	Health 0x7FFFFFFF
+	Health 100000
 	PainChance 64
 	Speed 12
 	Radius 24
@@ -1939,7 +1939,7 @@ Actor Demon1Chunk5C : Demon1Chunk5 {
 }
 
 Actor MoonSatyr : Satyr {
-    Health 0x7FFFFFFF
+    Health 100000
     Radius 24
     Height 64
     Scale 1.1
@@ -2125,7 +2125,7 @@ Actor MoonSatyrMeteor {
 }
 
 Actor IceGolem : MagicalEnemy { 
-    Health 0x7FFFFFFF
+    Health 100000
     Speed 6
 	Scale 1.2
     Height 64
@@ -2369,7 +2369,7 @@ Actor CrystalGolemBash {
 }
 
 Actor Gladiator : FireElementalEnemy {
-	Health 0x7FFFFFFF
+	Health 100000
 	Radius 24
 	Height 64
 	Speed 11

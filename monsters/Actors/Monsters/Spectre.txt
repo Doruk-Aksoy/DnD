@@ -19,7 +19,7 @@ Idle:
 
 Actor FlameDemonGhost : FlameDemon
 {
-	Health 0x7FFFFFFF
+	Health 100000
 	Renderstyle Add
 	Alpha 0.35
 	Obituary "%o was charred by the ghostly flame demon."
@@ -36,7 +36,7 @@ Idle:
 }
 
 ACTOR NightmareSpectre : DnD_BaseEnemy {
-	Health 0x7FFFFFFF
+	Health 100000
 	Speed 16
 	Height 56
 	Radius 30
@@ -149,7 +149,7 @@ Actor Devourer : Demon2x {
     AttackSound "demon/melee"
 	Alpha 0.95
 	Renderstyle Add
-	Health 0x7FFFFFFF
+	Health 100000
 	Painchance 96
 	Obituary "%o was devoured by a hungry Devourer."
 	Tag "Devourer"
