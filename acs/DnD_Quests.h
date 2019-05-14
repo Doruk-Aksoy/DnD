@@ -239,6 +239,9 @@ int GetQuestProgressRequirement(int qid) {
 		case QUEST_SPEND25K:
 			res = DND_QUEST_MONEYMAKERREQ;
 		break;
+		case QUEST_HEALFOR500:
+			res = DND_QUEST_MASTERHEALER_REQ;
+		break;
 	}
 	return res;
 }
