@@ -778,7 +778,6 @@ int GetNonLowestTalents() {
 		} else if(talent_amount == lowest_talent_amount) { //There can be more than 1 lowest talent (specially if char is new or OP).
 			lowest_talents |= (1 << i);
 		}
-		printbold(i:lowest_talents);
 	}
 	return 0xFF ^ lowest_talents; //To get non-lowest talents, do a ~ (for some reason ~ bugs here, so I just used 0xFF ^ and it works).
 }
