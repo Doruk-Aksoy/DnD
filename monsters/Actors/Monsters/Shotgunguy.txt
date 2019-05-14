@@ -1,5 +1,5 @@
 ACTOR SSGZombie : UndeadEnemy {
-	Health 0x7FFFFFFF
+	Health 100000
 	GibHealth -10
 	Radius 20
 	Height 56
@@ -93,7 +93,7 @@ ACTOR SSGZombie : UndeadEnemy {
 }
 
 Actor ZSpecOpsShotgun : UndeadEnemy {
-	Health 0x7FFFFFFF
+	Health 100000
 	GibHealth -10
 	Height 56
 	Radius 20
@@ -182,7 +182,7 @@ Actor ZSpecOpsShotgun : UndeadEnemy {
 }
 
 ACTOR LOSShotgunGuy : ShotgunGuy2 {
-	Health 0x7FFFFFFF
+	Health 100000
 	GibHealth -10
 	AttackSound "shotguy/attack"
 	Tag "Armored Shotgunner"
@@ -279,7 +279,7 @@ ACTOR LOSShotgunGuy : ShotgunGuy2 {
 
 ACTOR LOSSuperShotgunGuy : UndeadEnemy {
 	Spawnid 253
-	Health 0x7FFFFFFF
+	Health 100000
 	GibHealth -10
 	Radius 20
 	Height 56
@@ -384,7 +384,7 @@ ACTOR LOSSuperShotgunGuy : UndeadEnemy {
 
 actor SawedOffShotgunGuy : UndeadEnemy {
 	obituary "%o was bucked by a zombie."
-	health 0x7FFFFFFF
+	Health 100000
 	radius 20
 	height 56
 	mass 100
@@ -468,7 +468,7 @@ actor SawedOffShotgunGuy : UndeadEnemy {
 }
 
 actor SawedOffShotgunGuy2 : SawedOffShotgunGuy {
-	health 0x7FFFFFFF
+	Health 100000
 	painchance 224
 	decal "bulletchip"
 	DropItem "SawedoffPickup"
@@ -539,7 +539,7 @@ actor SawedOffShotgunGuy2 : SawedOffShotgunGuy {
 Actor QuakeZombieShotgun : QuakeZombie {
 	Translation "128:143=25:40", "236:239=41:47"
 	Obituary "%o was killed by an enforcer captain."
-	Health 0x7FFFFFFF
+	Health 100000
 	AttackSound "QuakeZombie/Attack"
 	DropItem "ShotgunPickup_Drop"
 	Tag "Enforcer Captain"

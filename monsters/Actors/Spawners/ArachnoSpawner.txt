@@ -1,5 +1,5 @@
 Actor ArachnoSpawner : DnD_MonsterSpawner replaces Arachnotron {
-	Health 0x7fffffff
+	Health 100000
 	Height 0
 	Radius 0
 	-COUNTKILL

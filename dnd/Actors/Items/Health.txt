@@ -18,6 +18,7 @@ Actor Stimpack2 : CustomInventory replaces Stimpack {
 		ActualPickup:
 			TNT1 A 0 A_JumpIfInventory("TaltosUp", 1, "Failed")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(819, 0), "Success")
+			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Failed:
 			TNT1 A 0
@@ -80,6 +81,7 @@ Actor Medikit2 : CustomInventory replaces Medikit {
 		ActualPickup:
 			TNT1 A 0 A_JumpIfInventory("TaltosUp", 1, "Failed")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(819, 0), "Success")
+			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Failed:
 			TNT1 A 0
