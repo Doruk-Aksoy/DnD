@@ -112,7 +112,7 @@ str Quest_Description[MAX_QUESTS][3] = {
 		},
 		{
 			"Natural Talent",
-			"Only shoot weapons that have lowest talent amounts applied.",
+			"Only shoot weapons that have lowest or no talent amounts applied.",
 			"Talents get 25% dexterity or intellect bonus applied."
 		},
 		{
