@@ -42,7 +42,7 @@ str Quest_Description[MAX_QUESTS][3] = {
 		},
 		{ 
 			"Simple Minded",
-			"Only use (fire) one weapon for the entirety of the map.",
+			"Only fire one weapon for the entirety of the map.",
 			"15% extra damage on all weapons."
 		},
 		{ 
@@ -82,7 +82,7 @@ str Quest_Description[MAX_QUESTS][3] = {
 		},
 		{
 			"Skin O' My Teeth",
-			"Use/Pick no healing items.",
+			"Use or pick no healing items.",
 			"Health capacity increases by +100, healing received increases by 25%."
 		},
 		{
@@ -112,7 +112,7 @@ str Quest_Description[MAX_QUESTS][3] = {
 		},
 		{
 			"Natural Talent",
-			"Only use weapon types that have no talents applied.",
+			"Only shoot weapons that have lowest talent amounts applied.",
 			"Talents get 25% dexterity or intellect bonus applied."
 		},
 		{
@@ -123,7 +123,7 @@ str Quest_Description[MAX_QUESTS][3] = {
 		{
 			"Money Maker",
 			"Spend 25k credits.",
-			"Credit amount from monsters increase by 15%."
+			"Credit amount from monsters increases by 15%."
 		},
 		{
 			"The Dreaming God",

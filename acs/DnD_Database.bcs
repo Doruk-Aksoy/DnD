@@ -811,6 +811,9 @@ void LoadPlayerData(int pnum, int char_id) {
 		temp >>= 8;
 	}
 	
+	// set here the lowest possible talents (for quest)
+	SetInventory("DnD_NonLowestTalents", GetNonLowestTalents()); //All higher talents should have bit set here.
+	
 	// read level
 	SetInventory("Level", GetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc));
 	

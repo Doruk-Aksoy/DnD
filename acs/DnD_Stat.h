@@ -16,6 +16,8 @@
 #define EXO_AR_ADD_2 6
 #define EXO_AR_ADD_3 9
 
+#define TALENT_CAP 100
+
 enum {
 	DND_ANNOUNCER_QUEST,
 	DND_ANNOUNCER_ATTRIBPOINT,
@@ -762,6 +764,23 @@ int MapTalentToPercentBonus(int pnum, int talent) {
 
 int ApplyFlatHealthDamageFactor(int dmg, int factor) {
 	return (dmg * GetSpawnHealth()) / (100 * factor);
+}
+
+int GetNonLowestTalents() {
+	// set here the lowest possible talents (for quest)
+	int lowest_talent_amount = TALENT_CAP;
+	int lowest_talents = 0;
+	for(int i = 0; i < MAX_TALENTS; ++i) {
+		int talent_amount = CheckInventory(TalentNames[i][TALENT_TAG]);
+		if(talent_amount < lowest_talent_amount) {
+			lowest_talent_amount = talent_amount;
+			lowest_talents = (1 << i);
+		} else if(talent_amount == lowest_talent_amount) { //There can be more than 1 lowest talent (specially if char is new or OP).
+			lowest_talents |= (1 << i);
+		}
+		printbold(i:lowest_talents);
+	}
+	return 0xFF ^ lowest_talents; //To get non-lowest talents, do a ~ (for some reason ~ bugs here, so I just used 0xFF ^ and it works).
 }
 
 #endif

@@ -1043,8 +1043,11 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						}
 						if(tradeflag & TRADE_ARTIFACT)
 							SetInventory("DnD_Artifact_MapBits", SetBit(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX));
-						if(tradeflag & TRADE_TALENT)
+						if(tradeflag & TRADE_TALENT) {
+							// set here the non-lowest possible talents (for quest)
+							SetInventory("DnD_NonLowestTalents", GetNonLowestTalents());
 							TakeInventory("TalentPoint", 1);
+						}
 					}
 				} while (givefull && !buystatus);
 				//sound (mostly)

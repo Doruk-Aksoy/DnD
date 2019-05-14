@@ -2765,7 +2765,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 			res = res * (1000 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type][TALENT_TAG])) / 1000;
 		else
 			res = res * (1000 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type][TALENT_TAG])) / 1000;
-		if(active_quest_id == QUEST_ONLYNOTALENTWEAPONS && CheckInventory(TalentNames[talent_type][TALENT_TAG]))
+		if(active_quest_id == QUEST_ONLYNOTALENTWEAPONS && (CheckInventory("DnD_NonLowestTalents") & (1 << talent_type)))
 			GiveInventory(Quest_Checkers[QUEST_ONLYNOTALENTWEAPONS], 1);
 		
 		// include enhancement orb bonuses
