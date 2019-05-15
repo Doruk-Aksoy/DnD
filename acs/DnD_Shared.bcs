@@ -5,7 +5,7 @@
 
 Script "DND Shared Item Check" (int type) {
 	int res = 1;
-	if (!CheckInventory("DnD_SharedItemTID")) { //Prevent overwhelming code
+	if (!CheckInventory("P_BusyPicking")) { //Prevent overwhelming code (2 tick cooldown).
 		int pid = ActivatorTID();
 		// find which item is in bounds
 		for(int closest = 0; closest < shared_type_items_counter[type]; ++closest) {
@@ -16,6 +16,7 @@ Script "DND Shared Item Check" (int type) {
 				(player_pickup_cubes_intersect(pid, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest)))
 			{
 				//printbold(s:"Can pick ", d:closest);
+				GiveInventory("P_BusyPicking", 1);
 				SetInventory("DnD_SharedItemTID", closest + 1);
 				res = Shared_Item_pickup_state[type][closest][pid - P_TIDSTART];
 				break;
@@ -35,6 +36,7 @@ Script "DND Shared Item Pickup" (int type) {
 		Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 1;
 		//printbold(s:"Picked ", d:closest, s: " ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
 		SetInventory("DnD_SharedItemTID", 0);
+		TakeInventory("P_BusyPicking", 1);
 	}
 }
 
