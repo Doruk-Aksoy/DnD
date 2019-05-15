@@ -59,6 +59,7 @@ Actor NewBackPackPickup : CustomInventory replaces Backpack {
 		Goto Failed
 		ActualPickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(994, 0), "Success")
+		Failed:
 			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Success:

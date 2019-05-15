@@ -64,6 +64,11 @@ Actor DnD_Boolean : Inventory {
 	inventory.maxamount 1
 }
 
+Actor P_BusyPicking : PowerDamage { 
+	damagefactor "normal", 1.0
+	powerup.duration 1
+}
+
 Actor DnD_ErrorNumber : Inventory {
 	inventory.maxamount 3
 }
