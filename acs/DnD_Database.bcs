@@ -1156,16 +1156,15 @@ void WipeoutPlayerData(int pnum, int cid) {
 }
 
 // Handle all database stuff now
-Script "DND Player Save" {
+Script "DND Player Save" OPEN {
 	while(1) {
 		//Log(d:HardcoreSet, d:MapChanged);
 		if(HardcoreSet && MapChanged) {
-			Log(s:"map changed and hardcore is set");
 			BeginDBTransaction();
 			for(int i = 0; i < MAXPLAYERS; ++i) {
 				// don't save peoples stuff while they are in load period
-				//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i], d:(LastMapIndex != 99));
-				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i] && (LastMapIndex != 99)) {
+				//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i]);
+				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
 					if (PlayerIsLoggedIn(i)) {
 						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
 						if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerDied[i])
