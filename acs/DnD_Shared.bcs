@@ -11,7 +11,7 @@ Script "DND Shared Item Check" (int type) {
 		for(int closest = 0; closest < shared_type_items_counter[type]; ++closest) {
 			// check if this item was picked up
 			// prevent multiple pickup calls from being handled for the same player while this is being processed
-			//printbold(s:"Pickup state before ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
+			//printbold(s:"closest ID: ", d:closest, s:", Pickup state before ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
 			if (!(Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]) &&
 				(player_pickup_cubes_intersect(pid, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest)))
 			{

@@ -97,8 +97,6 @@ Actor GreenArmor_SP : GreenArmorPickup {
 		Loop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN), "Success")
-		Failed:
-			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Success:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_GREEN, 100)
@@ -162,8 +160,6 @@ Actor BlueArmor_SP : GreenArmorPickup {
 		Loop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE), "Success")
-		Failed:
-			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Success:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200)
@@ -227,8 +223,6 @@ Actor YellowArmor_SP : GreenArmorPickup {
 		Loop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW), "Success")
-		Failed:
-			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Success:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_YELLOW, 150)
@@ -272,8 +266,6 @@ Actor RedArmorPickup : CustomInventory {
 		Goto Failed
 		ActualPickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED), "Success")
-		Failed:
-			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Success:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_REDARMOR)
@@ -294,8 +286,6 @@ Actor RedArmor_SP : GreenArmorPickup {
 		Loop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED), "Success")
-		Failed:
-			TNT1 A 0 A_TakeInventory("DnD_SharedItemTID", 0)
 		Fail
 		Success:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300)
