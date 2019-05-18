@@ -264,30 +264,15 @@ str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 };
 
 void SetAllAmmoCapacities() {
-	int cap;
 	// last slot is for souls, we don't increase it here
 	for(int i = 0; i < MAX_SLOTS - 1; ++i)
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-			cap = AmmoInfo[i][j].initial_capacity;
-			SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoCapWithBonuses(cap + CheckInventory("BackpackCounter") * cap / DND_BACKPACK_RATIO));
-		}
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+			SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], Min(GetHandledAmmoCapacity(i, j, CheckInventory("BackpackCounter")), GetHandledAmmoCapacity(i, j, DND_MAX_BACKPACK))); //Check backpack orbs.
 }
 
-// when setting ammo capacity, this must be called at all costs!
-int AmmoCapWithBonuses(int base) {
-	// include any and all bonuses here
-	base *= 1.0 + GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1);
-	base >>= 16;
-	return base;
-}
-
-int GetMaximumAmmoCapacity(int slot, int t) {
-	int cap = AmmoInfo[slot][t].initial_capacity;
-	int res = cap + cap * DND_MAX_BACKPACK / DND_BACKPACK_RATIO;
-	// include holding bonuses
-	res *= 1.0 + GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1);
-	res >>= 16;
-	return res;
+int GetHandledAmmoCapacity(int slot, int t, int backpacks_amount) {
+	//printBold(s:"HandledAmmoCapacity: Slot:",d:slot,s:", t:",d:t,s:", initial_capacity:",d:AmmoInfo[slot][t].initial_capacity,s:", backpacks_amount:",d:backpacks_amount,s:", INV_AMMOCAP_INCREASE:",d:GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE),s:", OBI_HOLDING:",d:GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1),s:", result:",d:AmmoInfo[slot][t].initial_capacity + (((AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO) * (1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) >> 16));
+	return AmmoInfo[slot][t].initial_capacity + (((AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO) * (1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) >> 16);
 }
 
 bool CheckAmmoPickup(int slot, bool simple) {

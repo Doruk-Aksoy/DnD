@@ -2196,9 +2196,20 @@ Script "DND Monster Damage Scale2" (int dmg, int flags) {
 Script 994 (int type, int extra) {
 	int res = 0;
 	if(!type) {
-		// check less because theres orb of holding now
-		if(GetAmmoCapacity("Shell") < GetMaximumAmmoCapacity(DND_AMMOSLOT_SHELL, AMMO_SHELL))
-		  res = 1;
+		// last slot is for souls, we don't check it here
+		if(CheckInventory("BackpackCounter") < DND_MAX_BACKPACK) //Grab backpack anyways
+			res = 1;
+		else
+			for(int i = 0; i < MAX_SLOTS - 1; ++i) //Check if there's missing ammo anywhere
+				for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+				{
+					//printBold(s:"994 type 0: Slot:",d:i,s:", t:",d:j,s:", initial_capacity:",d:AmmoInfo[i][j].initial_capacity, s:"CheckInventory:",d:CheckInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME]),s:", GetHandledAmmoCapacity:",d:GetHandledAmmoCapacity(i,j, DND_MAX_BACKPACK));
+					if (CheckInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME]) < GetHandledAmmoCapacity(i, j, DND_MAX_BACKPACK)) {
+						res = 1;
+						goto TypeZeroExit;
+					}
+				}
+		TypeZeroExit:
 	}
 	if(type == 1) {
 		if(!extra) { // attack check
@@ -2345,25 +2356,21 @@ Script "DnD Player On Hit" (int power) {
 Script 996 (int type, int id) {
 	int i, j, temp;
     if(!type) {
-		for(i = 0; i < MAX_SLOTS - 1; ++i)
-			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-				if(GetCVar("dnd_firstbackpackold") && !CheckInventory("BackpackCounter"))
-					SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoCapWithBonuses(AmmoInfo[i][j].initial_capacity << 1));
-				else
-				   SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoCapWithBonuses(GetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME]) + AmmoInfo[i][j].initial_capacity / DND_BACKPACK_RATIO)); 
-				GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoInfo[i][j].initial_capacity / 20);
-			}
-		// give additional ones for db save
-		if(GetCVar("dnd_firstbackpackold"))
-			GiveInventory("BackpackCounter", 4);
-        GiveInventory("BackpackCounter", 1);
-        // Reduce if over the limits
-		for(i = 0; i < MAX_SLOTS - 1; ++i)
-			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-				if(GetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME]) > GetMaximumAmmoCapacity(i, j))
-					SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], GetMaximumAmmoCapacity(i, j));
-			}
-		ACS_ExecuteAlways(993, 0, 1);
+		if (CheckInventory("BackpackCounter") < DND_MAX_BACKPACK) {
+			// give additional ones for db save
+			int add_backpack_amount = 1;
+			if(GetCVar("dnd_firstbackpackold"))
+				add_backpack_amount += 4;
+			//Respect the max backpack amount
+			SetInventory("BackpackCounter", Min(CheckInventory("BackpackCounter")+add_backpack_amount,DND_MAX_BACKPACK));
+
+			SetAllAmmoCapacities();
+			//ACS_ExecuteAlways(993, 0, 1); //Why did this call script 993?
+		}
+		//Give base 1/20 of initial ammo on backpack pickup.
+		for(i = 0; i < MAX_SLOTS - 1; ++i) //Except souls
+			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+				GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], ((AmmoInfo[i][j].initial_capacity / 20) * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
     }
     else if(type == 1) {
         // give research
