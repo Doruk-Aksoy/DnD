@@ -2673,8 +2673,8 @@ Script 1002 (void) NET CLIENTSIDE {
 }
 
 // a fancy ammo pickup script to make it easier to add new ammo types to slots
-Script "DND Ammo Container Pickup" (int ctype) {
-	HandleAmmoContainerPickup(ctype);
+Script "DND Ammo Container Pickup" (int ctype, int basic_kind) {
+	HandleAmmoContainerPickup(ctype, basic_kind);
 }
 
 Script "DND Quest Complete" (int isFail) CLIENTSIDE {
