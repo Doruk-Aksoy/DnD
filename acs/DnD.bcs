@@ -2354,7 +2354,6 @@ Script "DnD Player On Hit" (int power) {
 
 // Backpack / Research script
 Script 996 (int type, int id) {
-	int i, j, temp;
     if(!type) {
 		if (CheckInventory("BackpackCounter") < DND_MAX_BACKPACK) {
 			// give additional ones for db save
@@ -2367,10 +2366,11 @@ Script 996 (int type, int id) {
 			SetAllAmmoCapacities();
 			//ACS_ExecuteAlways(993, 0, 1); //Why did this call script 993?
 		}
+		int i,j;
 		//Give base 1/20 of initial ammo on backpack pickup.
 		for(i = 0; i < MAX_SLOTS - 1; ++i) //Except souls
 			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
-				GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], ((AmmoInfo[i][j].initial_capacity / 20) * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
+				GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], ((AmmoInfo[i][j].container_value / 5) + (AmmoInfo[i][j].container_value / 5) * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN))/100));
     }
     else if(type == 1) {
         // give research
