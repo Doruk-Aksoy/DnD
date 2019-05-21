@@ -314,12 +314,12 @@ void RestoreRPGStat (int statflag) {
 }
 
 // Retrieves attributes from items that the player has on them
-str GetPlayerAttributeString(int pnum, int attrib) {
+str GetPlayerAttributeString(int attrib) {
 	return Inv_Attribute_Names[attrib][INVATTR_CHECKER];
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
-	return CheckActorInventory(pnum + P_TIDSTART, GetPlayerAttributeString(pnum, attrib));
+	return CheckActorInventory(pnum + P_TIDSTART, GetPlayerAttributeString(attrib));
 }
 
 #endif
