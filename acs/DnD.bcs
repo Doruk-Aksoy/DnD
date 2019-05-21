@@ -772,8 +772,21 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
 	credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
 	credit += (credit * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
+	GiveActorInventory(tid, "DnD_Exp_Counter", exp);
+	GiveActorInventory(tid, "DnD_Credit_Counter", credit);
 
-	Log(s:"\ccGains pickup  : \c[Y5]", d:credit, s:" exp and ", d:exp, s:" credits.");
+	if(CheckActorInventory(tid, "DnD_ExpCredit_Timer")) {
+		// refresh duration
+		GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
+		Terminate;
+	}
+	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
+	while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
+		Delay(2);
+	if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
+		Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
+	SetActorInventory(tid, "DnD_Exp_Counter", 0);
+	SetActorInventory(tid, "DnD_Credit_Counter", 0);
 }
 
 // Stat Reset
@@ -1082,8 +1095,8 @@ Script 918 (int type, int acc, int notarget) {
 	if(!type) { 
 		if(!acc) // get strength
 			res = CheckInventory("PSTAT_Strength");
-		else // get munitionist stuff
-			res = (res * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
+		else // get munitionist stuff (notarget is the amount of ammo)
+			res = (notarget * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN))/100);
 	}
 	else if(type == 1) { // check for accessory
 		int tid = ActivatorTID();

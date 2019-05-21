@@ -418,6 +418,19 @@ Actor DnD_BonusBonusShower : DnD_Activator {
 	}
 }
 
+Actor DnD_ExpCredit_Timer : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 55
+}
+
+Actor DnD_Exp_Counter : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor DnD_Credit_Counter : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
 enum {
 	DND_SPECIAL_RESEARCH = 1,
 	DND_SPECIAL_ORB = 2,

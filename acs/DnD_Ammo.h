@@ -288,7 +288,7 @@ void HandleAmmoContainerPickup(int slot) {
 	int amt = 0, index = 0;
 	for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
 		amt = AmmoInfo[slot][i].container_value;
-		amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
+		amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
 		if(!amt)
 			amt = 1;
 		
@@ -298,9 +298,9 @@ void HandleAmmoContainerPickup(int slot) {
 
 void GiveAmmo(int amt, int slot, int t) {
 	if(slot != DND_AMMOSLOT_SOULS)
-		amt = amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
+		amt = amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
 	else
-		amt = amt + (amt * CheckInventory("IATTR_SoulAmmoIncrease")) / 100;
+		amt = amt + (amt * CheckInventory("IATTR_SoulAmmoIncrease") / 100);
 	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt);
 }
 
