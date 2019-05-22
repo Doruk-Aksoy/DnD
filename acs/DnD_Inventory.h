@@ -1620,42 +1620,42 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	switch(atype) {
 		// first cases with exceptions to our generic formula
 		case INV_MAGAZINE_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			// add onto the base capacities, not current capacities
 			for(i = 0; i < MAX_MAGAZINES; ++i)
 				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + GetPlayerAttributeValue(pnum, atype))) / 100);
 		break;
 		case INV_EXPLOSION_RADIUS:
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
 		case INV_EXPLOSIVE_RESIST:
 			TakeInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
 		break;
 		case INV_DMGREDUCE_ELEM:
 			TakeInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_ELEMRESIST_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_ELEMRESIST_VAL)), 1);
 		break;
 		case INV_DMGREDUCE_PHYS:
 			TakeInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
 		break;
 		case INV_EX_DMGINCREASE_TAKEN:
 			TakeInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
 		break;
 		case INV_ACCURACY_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_ACCURACY, Clamp_Between(GetPlayerAttributeValue(pnum, atype), 0, DND_ACCURACY_CAP));
 		break;
@@ -1699,7 +1699,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
-				GiveOrTake(GetPlayerAttributeString(pnum, i), aval, remove);
+				GiveOrTake(GetPlayerAttributeString(i), aval, remove);
 		break;
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			// -1 of aindex is used to retrieve chance
@@ -1724,7 +1724,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			GiveOrTake(GetPlayerAttributeString(pnum, INV_HPPERCENT_INCREASE), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(INV_HPPERCENT_INCREASE), aval, remove);
 			if(remove) {
 				temp = GetSpawnHealth();
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
@@ -1784,7 +1784,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		case INV_EX_FLATDMG_ALL:
 			for(i = INV_FLATPHYS_DAMAGE; i <= INV_FLATELEM_DAMAGE; ++i)
-				GiveOrTake(GetPlayerAttributeString(pnum, i), aval, remove);
+				GiveOrTake(GetPlayerAttributeString(i), aval, remove);
 		break;
 		case INV_EX_SOULWEPS_FULLDAMAGE:
 			GiveOrTake("StatbuffCounter_SoulWepsDoFullDamage", 1, remove);
@@ -1795,7 +1795,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_SOULWEPSFULLDAMAGE));
 		break;
 		case INV_EX_ABILITY_RALLY:
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory("CastRally", 1);
 			else
@@ -1821,7 +1821,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_HPPERCENT_INCREASE:
 		case INV_STAT_VITALITY:
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(remove) {
 				temp = GetSpawnHealth();
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
@@ -1836,7 +1836,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_ARMOR_INCREASE:
 		case INV_ARMORPERCENT_INCREASE:
 		case INV_STAT_BULKINESS:
-				GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+				GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(CheckInventory("Armor")) {
 				i = CheckInventory("Armor") - GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
 				if(remove) {
@@ -1853,7 +1853,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		case INV_STAT_STRENGTH:
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(remove) {
 				temp = GetSpawnHealth();
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
@@ -1866,7 +1866,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			}
 			if(CheckInventory("Armor")) {
 				i = CheckInventory("Armor") - GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-				GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+				GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 				if(remove) {
 					temp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
 					if(CheckInventory("Armor") > temp) {
@@ -1880,18 +1880,18 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			}
 		break;
 		case INV_SPEED_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
 		break;
 		case INV_AMMOCAP_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			// make sure to update ammo caps
 			SetAllAmmoCapacities();
 		break;
 		
 		// anything that fits our generic formula
 		default:
-			GiveOrTake(GetPlayerAttributeString(pnum, atype), aval, remove);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 		break;
 	}
 }

@@ -119,7 +119,7 @@ Actor NewClip : CustomInventory replaces Clip {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Clip", 10 + ACS_ExecuteWithResult(918, 0, 1, 10))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_CLIP, 2)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -135,7 +135,7 @@ Actor DroppedClip : NewClip {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Clip", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_CLIP, 1)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -155,7 +155,7 @@ Actor NewClipbox : CustomInventory {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 0, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Clip", 50 + ACS_ExecuteWithResult(918, 0, 1, 50))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_CLIP, 3)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -175,7 +175,7 @@ Actor NewShell : CustomInventory replaces Shell {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 1, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Shell", 4 + ACS_ExecuteWithResult(918, 0, 1, 4))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_SHELL, 2)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -195,7 +195,7 @@ Actor NewShellBox : CustomInventory {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 1, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Shell", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_SHELL, 3)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -269,7 +269,7 @@ Actor RocketAmmo2 : CustomInventory replaces RocketAmmo
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 2, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("RocketAmmo", 1 + ACS_ExecuteWithResult(918, 0, 1, 1))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_ROCKET, 2)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -289,7 +289,7 @@ Actor RocketBox2 : CustomInventory {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 2, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("RocketAmmo", 5 + ACS_ExecuteWithResult(918, 0, 1, 5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_ROCKET, 3)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -337,7 +337,7 @@ Actor Cell2 : CustomInventory replaces Cell
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 3, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Cell", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_CELL, 2)
 		Stop
 		Failed:
 			TNT1 A 0
@@ -357,7 +357,7 @@ Actor Cellpack2 : CustomInventory {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(992, 3, 1), "Failed")
-			TNT1 A 0 A_GiveInventory("Cell", 100 + ACS_ExecuteWithResult(918, 0, 1, 100))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Ammo Container Pickup", 0, DND_AMMOSLOT_CELL, 3)
 		Stop
 		Failed:
 			TNT1 A 0

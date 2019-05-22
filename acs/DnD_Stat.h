@@ -323,56 +323,34 @@ bool IsArmorTierHigher(int t1, int t2) {
 void HandleArmorPickup(int armor_type, int amount, bool replace) {
 	int armor = CheckInventory("Armor"), cap = 0;
 	GiveInventory("DnD_BoughtArmor", 1);
-	if(armor_type == DND_ARMOR_BONUS) {
-		// if we had no armor
-		if(!armor) {
-			SetInventory("DnD_ArmorType", armor_type + 1);
-			cap = GetArmorCap(false) >> 1;
-		}
-		else {
-			cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-		}
-		// just add 1 to current armor if meets requirements
-		amount = (amount * cap) / 100;
-		// allow it to fill up to x3 of the armor cap
-		cap *= 3;
-		if(armor + amount < cap) {
-			GiveInventory("DnD_ArmorBonus", amount);
-			GiveInventory("Research_Body_Ar_1_Tracker", amount);
-		}
-		else {
-			GiveInventory("DnD_ArmorBonus", cap - armor);
-			GiveInventory("Research_Body_Ar_1_Tracker", cap - armor);
-		}
-	}
-	else {
-		// only give the actual armor if my tier is higher!
-		if(IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1) || replace) {
-			// gross hacks
-			SetInventory("Armor", 0);
-			GiveInventory(ArmorTypes[armor_type], 1);
-			// prevent armor downgrades
-			GiveInventory("DnD_ArmorBonus", armor - 1);
-			SetInventory("DnD_ArmorType", armor_type + 1);
-		}
+
+	cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+	
+	//Give new armor type only if it's a higher tier, or is a replacement
+	if(IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1) || replace) {
+		//Completely reset armor
+		SetInventory("Armor", 0);
+		GiveInventory(ArmorTypes[armor_type], 1);
 		
-		/*if(armor) // if we had armor, retain it
-			GiveInventory("DnD_ArmorBonus", armor - 1);*/
-			
-		armor = CheckInventory("Armor");
-		// respect the cap of the currently equipped armor
+		//Set new type
+		SetInventory("DnD_ArmorType", armor_type + 1);
+		//Respect the cap of new armor
 		cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-		// set armor count
-		if(armor + amount > cap) {
-			GiveInventory("DnD_ArmorBonus", cap - armor);
-			GiveInventory("Research_Body_Ar_1_Tracker", cap - armor);
-		}
-		else {
-			amount = (amount * cap) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1];
-			GiveInventory("DnD_ArmorBonus", amount - 1);
-			GiveInventory("Research_Body_Ar_1_Tracker", amount - 1);
-		}
+		if(armor_type == DND_ARMOR_BONUS) //Well, I know it's normally impossible - but if scripts break for some reason, at least let player keep some armor.
+			cap *= 3; //Shards can make armor go up to 3x of regular armor cap.
+
+		//Make sure player loses any armor above new cap, to prevent player from buying high tier armor and replacing with lower just to get extra armor.
+		SetInventory("DnD_ArmorBonus", Min(armor, cap));
+		armor = CheckInventory("Armor");
 	}
+	
+	// adapt armor count to whatever stats makes it be
+	//print(s:"cur armor: ",d:armor, s:", amount: ",d:amount, s:", cap: ",d:cap, s:", armor base amount: ",d:ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1], s:", new armor amount: ",d:((cap * amount) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]));
+	amount = (amount * cap) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1];
+	if(armor_type == DND_ARMOR_BONUS)
+		cap *= 3; //Shards can make armor go up to 3x of regular armor cap.
+	SetInventory("DnD_ArmorBonus", Min(armor + amount, cap) - armor);
+	GiveInventory("Research_Body_Ar_1_Tracker", Min(armor + amount, cap) - armor); //Trackers should only be additive, so this is more complicated.
 	
 	HandleArmorDependencyCheck();
 }

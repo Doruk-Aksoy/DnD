@@ -284,23 +284,37 @@ bool CheckAmmoPickup(int slot, bool simple) {
 	return res;
 }
 
-void HandleAmmoContainerPickup(int slot) {
+void HandleAmmoContainerPickup(int slot, int basic_kind) {
 	int amt = 0, index = 0;
-	for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
-		amt = AmmoInfo[slot][i].container_value;
-		amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
-		if(!amt)
-			amt = 1;
+	if (basic_kind > 0) {
+			amt = AmmoInfo[slot][0].container_value; //large pack
+			if (basic_kind <= 2)
+				amt /= 5; //small pack
+			if (basic_kind == 1)
+				amt /= 2; //dropped pack (clip only)
 		
-		GiveInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME], amt);
+			amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
+			if(!amt)
+				amt = 1;
+
+			GiveInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME], amt);
+	} else {
+		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
+			amt = AmmoInfo[slot][i].container_value;
+			amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
+			if(!amt)
+				amt = 1;
+
+			GiveInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME], amt);
+		}
 	}
 }
 
 void GiveAmmo(int amt, int slot, int t) {
 	if(slot != DND_AMMOSLOT_SOULS)
-		amt = amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100;
+		amt = amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
 	else
-		amt = amt + (amt * CheckInventory("IATTR_SoulAmmoIncrease")) / 100;
+		amt = amt + (amt * CheckInventory("IATTR_SoulAmmoIncrease") / 100);
 	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt);
 }
 
