@@ -1042,8 +1042,7 @@ Actor Torrasque : DnD_BaseEnemy {
 	+LOOKALLAROUND
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay Thing_ChangeTID(0, DND_TORRASQUE_TID)
-			TNT1 A 0 A_GiveInventory("MakePhysicalResist", 1)
+			TNT1 A 0 NoDelay A_GiveInventory("MakePhysicalResist", 1)
 			TNT1 A 0 A_GiveInventory("ExplosiveResist", 1)
 			TNT1 A 0 A_GiveInventory("MakeEnergyResist", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_TORRASQUE, 0, DND_LEGENDARY)
@@ -2602,7 +2601,6 @@ Actor Golgoth : DnD_BaseEnemy {
 	RadiusDamageFactor 0
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay Thing_ChangeTID(0, DND_GOLGOTH_TID)
 			TNT1 A 0 A_GiveInventory("MakeExplosiveFullImmune", 1)
 			TNT1 A 0 A_GiveInventory("MakeHardenedSkin", 1)
 			TNT1 A 0 A_GiveInventory("MakeMagicResist", 1)
@@ -2805,7 +2803,7 @@ Actor GolgothPuff {
 	DamageType "LegendarySlow50"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail Fake", 0, DND_GOLGOTH_TID)
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail Fake", 0) //TODO: Add TID of mob
 			TNT1 A 3
 		Stop
 	}
@@ -2815,7 +2813,7 @@ Actor GolgothPuff2 : GolgothPuff {
 	DamageType "LegendaryWeaken75"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail", 0, DND_GOLGOTH_TID)
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail", 0) //TODO: Add TID of mob
 			TNT1 A 3
 		Stop
 	}

@@ -1,8 +1,5 @@
 // DnD Exclusive IDs
 
-const int DND_GOLGOTH_TID = 998;
-const int DND_TORRASQUE_TID = 999;
-
 enum {
 	// Zombieman (Don't change that 18)
 	DND_ZOMBIEGRAY = 18,
