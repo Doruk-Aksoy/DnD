@@ -1,5 +1,5 @@
 Actor BaronSpawner : DnD_MonsterSpawner replaces BaronOfHell {
-	Health 100000
+	Health 0x7FFFFFFF
 	Height 0
 	Radius 0
 	-COUNTKILL

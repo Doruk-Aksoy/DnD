@@ -1,5 +1,5 @@
 Actor FatsoSpawner : DnD_MonsterSpawner replaces Fatso {
-	Health 100000
+	Health 0x7FFFFFFF
 	Height 0
 	Radius 0
 	-COUNTKILL

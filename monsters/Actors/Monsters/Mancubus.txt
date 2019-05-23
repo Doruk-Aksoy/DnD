@@ -1,5 +1,5 @@
 Actor Corpulent : Mancubus2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
 	Speed 12
@@ -173,7 +173,7 @@ ACTOR Ripper2Corpulent : Ripper2
 }
 
 Actor Daedabus : Mancubus2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
 	Mass 1000
@@ -332,7 +332,7 @@ Actor DaedTrail
 
 actor IceFatso : Mancubus2 {
 	obituary "%o was shatterred by an Ice Mancubus."
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 48
 	height 64
 	mass 1000
@@ -442,7 +442,7 @@ actor IceFatBallTrail
 }
 
 Actor Mafibus : Mancubus2 {
-   Health 100000
+   Health 0x7FFFFFFF
    Radius 48
    Height 64
    Mass 1000
@@ -622,7 +622,7 @@ Actor MafibusBallTrail
 }
 
 ACTOR Paladin : MechanicalExplosiveResistEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Scale 1.15
 	Radius 32
 	Height 64
@@ -961,7 +961,7 @@ Actor PaladinShieldFade {
 
 actor Gamon : MagicalBulletResistantEnemy {
 	obituary "%o was shocked by a Gamon."
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 28
 	height 64
 	mass 2048
@@ -1167,7 +1167,7 @@ Actor MephistoBullet : ZombieBullet {
 }
 
 Actor Mephisto : BasicMechanicalEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
 	Speed 10
@@ -1344,7 +1344,7 @@ actor MephistoPlasmaTrail {
 }
 
 Actor Abomination : Mancubus2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
 	Mass 1536
@@ -1546,7 +1546,7 @@ ACTOR AbominationShot2 {
 Actor GoldGolem : MagicalEnemy {
 	Obituary "%o's head was taken as a trophy for a Gold Golem."
 	HitObituary "%o was smashed like an insect by a Gold Golem."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 36
 	Height 64
 	ProjectilePassHeight 80

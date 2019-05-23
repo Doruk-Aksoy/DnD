@@ -1,6 +1,6 @@
 ACTOR TorturedSoul : DnD_BaseEnemy { 
 	//$Category "ZDoom Monster pack"
-	Health 100000
+	Health 0x7FFFFFFF
 	Speed 8 
 	Radius 31 
 	Height 56 
@@ -155,7 +155,7 @@ Actor TorturedSoulPoison_Weak : TorturedSoulPoison {
 
 ACTOR Defiler : DnD_BaseEnemy {
 	//$Category monsters
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 31
 	Height 56
 	Mass 500
@@ -336,7 +336,7 @@ Actor HadesLightningCD : PowerDamage {
 Actor Helemental : DnD_BaseEnemy {
 	Obituary "%o was electrocuted by a Hades-Elemental."
 	HitObituary "%o got chomped by a Hades-Elemental."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 31
 	Height 56
 	Mass 800
@@ -592,7 +592,7 @@ Actor HadesBolt2 : CacodemonBall
 }
 
 ACTOR HS : MagicalEnemy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 16 
 	Height 32 
 	Mass 3000 
@@ -734,7 +734,7 @@ ACTOR HSBoom
 
 actor DESentinel : Guardian {
 	obituary "%o was blasted away by a sentinel."
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 31
 	height 56
 	Scale 1.0
@@ -953,7 +953,7 @@ ACTOR GCSpawner
 
 ACTOR BloodLich : MagicalEnemy {
     Obituary "%o was reduced to a pile of ash by a Blood Lich."
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 31
     Height 56
     Mass 2000
@@ -1165,7 +1165,7 @@ ACTOR CurseSpell
 }
 
 Actor ReiverGhost : Wraith {
-	Health 100000
+	Health 0x7FFFFFFF
     Speed 6
     Alpha 0.75
     RenderStyle Add
@@ -1308,7 +1308,7 @@ ACTOR ResurrectionFlame
 }
 
 ACTOR ShadowDisciple : MagicalBulletResistantEnemy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	PainChance 140
 	Speed 8
 	Scale 0.90
@@ -1590,7 +1590,7 @@ ACTOR DSFX2
 }
 
 Actor HellArbiter : DnD_BaseEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 31
 	Height 56
 	Speed 7

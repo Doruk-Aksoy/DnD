@@ -1,5 +1,5 @@
 ACTOR Incarnate : UndeadEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 500
@@ -271,7 +271,7 @@ ACTOR Railpow
 
 ACTOR Cadaver : Revenant2 {
 	Painchance 70
-	Health 100000
+	Health 0x7FFFFFFF
 	+DONTHURTSPECIES
 	+MISSILEMORE
 	+MISSILEEVENMORE
@@ -467,7 +467,7 @@ Stop
 }
 
 actor Widowmaker : Revenant2  {
-	Health 100000
+	Health 0x7FFFFFFF
 	GibHealth -25
 	speed 16
 	painchance 60
@@ -1097,7 +1097,7 @@ actor widowmaker_seekMissile
 }
 
 ACTOR AxeKnight : MagicalBulletResistantEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Monster
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -1277,7 +1277,7 @@ Actor RedAxe2 : RedAxe
 }
 
 Actor Yeti : IceElementalEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Mass 1024
 	Height 56
 	Radius 20
@@ -1545,7 +1545,7 @@ ACTOR YetiIceShard {
 
 Actor SludgeGiant : DnD_BaseEnemy {
 	obituary "%o was beaten down by a Sludge Giant."
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 20
 	height 56
 	mass 1000
@@ -1661,7 +1661,7 @@ Actor SludgeGiantSplit : SludgeGiant {
 	Height 38
 	Radius 15
 	Scale 0.75
-	Health 100000
+	Health 0x7FFFFFFF
 	MeleeRange 40
 	MaxStepHeight 16
 	Tag "Sludge Creature"
@@ -1769,7 +1769,7 @@ Actor SludgeGiantSplitFinal : SludgeGiant {
 	Height 24
 	Radius 12
 	Scale 0.5
-	Health 100000
+	Health 0x7FFFFFFF
 	MeleeRange 40
 	MaxStepHeight 16
 	Tag "Tiny Sludge Creature"
@@ -1854,7 +1854,7 @@ Actor SludgeMissileWeakFinal : SludgeMissile {
 }
 
 Actor DarkServant : MagicalEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	MONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -2068,7 +2068,7 @@ Actor DarkServantMissile2 : DarkServantMissileBig {
 }
 
 Actor Crawler : DnD_BaseEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Speed 13
@@ -2305,7 +2305,7 @@ ACTOR CrawlerChunk5 : DemonChunk
 }
 
 ACTOR Draugr : UndeadEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 500

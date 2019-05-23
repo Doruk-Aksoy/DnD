@@ -1,5 +1,5 @@
 ACTOR Cardinal : HalfMechanicalEnemy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Speed 7
 	Radius 40
 	Height 110
@@ -423,7 +423,7 @@ ACTOR plasmaTail
 }
 
 ACTOR TerminatorX : HalfMechanicalEnemy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 40
 	Height 110
 	Mass 1500 
@@ -811,7 +811,7 @@ actor TerminatorShoulder
 }
 
 Actor Thamuz : Cyberdemon2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Speed 16
 	PainChance 35
 	Mass 2000
@@ -1281,7 +1281,7 @@ Actor DCBMiss3MG
 }
 
 actor Azazel : DnD_BaseEnemy {
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 40
     Height 96
 	Scale 1.3
@@ -1895,7 +1895,7 @@ Actor SLMD2RTrail
 }
 
 ACTOR HellsmithX : DnD_BaseEnemy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 40
 	Height 110
 	Mass 5000 
@@ -2626,7 +2626,7 @@ ACTOR HellFX
 }
 
 ACTOR AvatarOfChaos : MagicalEnemy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	PainChance 4
 	PainChance "Explosives", 0
 	DamageFactor "Cyber", 0.0
@@ -3498,7 +3498,7 @@ Actor AvatarEvilSmile {
 Actor Thanatos : HalfMechanicalEnemy {
 	Translation "0:255=%[0.00,0.00,0.00]:[0.81,0.53,0.53]", "16:47=16:47", "168:255=168:255", "80:111=80:111"
 	Obituary "%o was wiped off the face of Earth by a Thanatos."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 40
 	Height 110 
 	Mass 16384
@@ -3868,7 +3868,7 @@ Actor LowerThanHP : DnD_Boolean { }
 
 actor Cerberus : DnD_BaseEnemy {
 	obituary "%o didn't approach Cerberus the right way."
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 40
 	height 110
 	mass 1576

@@ -1,6 +1,6 @@
 Actor Demolisher : HalfMechanicalEnemy {
 	Obituary "%o felt the power of the Spider-Demolisher."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 96 
 	Height 100 
 	Mass 1000 
@@ -157,7 +157,7 @@ Actor BFGExtraDemolisher : BFGExtra {
 
 ACTOR Arachnophyte : HalfMechanicalEnemy {
     //$Category monsters
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 96
     Height 100
     Speed 6
@@ -289,7 +289,7 @@ Actor ArachnophyteExp1 : BaseExplosionDamage {
 actor PsionicQueen : DnD_BaseEnemy {
 	MONSTER
 	+BOSS
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 96
 	Height 100
 	Mass 2000
@@ -604,7 +604,7 @@ ACTOR ZWAVE
 
 ACTOR AngelOfDeath : UndeadEnemy {
 	Obituary "%o was raptured by an Angel of Death."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 56
 	Height 96 
 	Mass 1000
@@ -801,7 +801,7 @@ ACTOR Goldlich : MagicalBulletResistantEnemy {
 	Scale 1.35
 	Mass 2000
 	Painchance 8
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 56
 	Height 96   
 	SeeSound "goldlich/sight"
@@ -1165,7 +1165,7 @@ ACTOR FakeGoldlich : Goldlich
   Mass 2000
   Speed 8
   Painchance 8
-  Health 100000
+  Health 0x7FFFFFFF
   Species "GoldLich"
   Tag "Fake Gold Lich"
   DropItem "SoulAmmoSpawner", 0
@@ -1216,7 +1216,7 @@ ACTOR IronlichBoss : MagicalBulletResistantEnemy {
 	Scale 1.35
 	Mass 2000
 	Painchance 8
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 56
 	Height 96   
 	SeeSound "monster/cubsit"
@@ -1817,7 +1817,7 @@ Actor SpiderOverlord : SpiderMastermind2
 	DropItem "SoulAmmoSpawner", 128
 	PainSound "SpiderMastermind/Pain"
 	AttackSound ""
-	Health 100000
+	Health 0x7FFFFFFF
 	PainChance 8
 	Scale 1.15
 	DamageFactor "BigSpider", 0
@@ -1957,7 +1957,7 @@ ACTOR SpiderOverlordMissile : SentGmissile {
 
 actor DarkLich : MagicalBulletResistantEnemy {
 	obituary "%o couldn't withstand the magic of a dark lich."
-	Health 100000
+	Health 0x7FFFFFFF
 	painchance 0
 	speed 7
 	radius 52
@@ -2145,7 +2145,7 @@ Actor DarkSpiritAttack {
 	RENDERSTYLE ADD
 	ALPHA 0.66
 	ReactionTime 7
-	Health 100000
+	Health 0x7FFFFFFF
 	DamageFactor "DarkLichWarp", 0
 	DamageFactor "DarkLichGhost", 0
 	DamageFactor "DarkLichVortex", 0

@@ -1,6 +1,6 @@
 Actor ChaingunGuy2 : UndeadEnemy {
 	Obituary "%o was ripped to bloody ribbons by a double-chaingunner."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 100
@@ -98,7 +98,7 @@ Actor MajorBullet : ZombieBullet {
 }
 
 Actor ChaingunMajor : ChaingunGuy2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Painchance 96
 	Mass 5000
 	Obituary "%o was perforated by the chaingun major."
@@ -184,7 +184,7 @@ Actor ChaingunMajor : ChaingunGuy2 {
 
 actor ZSec : UndeadEnemy {
 	obituary "%o was gunned down by a possessed zsec guard!"
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 20
 	height 56
 	mass 100
@@ -364,7 +364,7 @@ Actor ZSecGrenade
 }
 
 Actor ZSpecOpsMachinegun : UndeadEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Height 56
 	Radius 20
 	Speed 8
@@ -460,7 +460,7 @@ Actor ZSpecOpsMachinegun : UndeadEnemy {
 
 Actor QuakeZombieChaingun : QuakeZombie {
 	Translation "236:239=108:111", "128:143=92:107"
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 8
@@ -590,7 +590,7 @@ actor UndeadInitiate : UndeadRogue {
 
 Actor MrRobot : MechanicalEnemy {
 	Obituary "%o wasn't welcome to the territory of a Robot Guard."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 256
@@ -741,7 +741,7 @@ Actor MrRobot_FrameD : MrRobot_FrameA {
 }
 
 Actor MachinegunGuy : Cgguy2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	AttackSound "Weapons/MGFireSoft"
 	Tag "MG Zombie"
 	States {
@@ -817,7 +817,7 @@ Actor MachinegunGuy : Cgguy2 {
 }
 
 ACTOR PlasmaZombie : UndeadEnemy {
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 6
@@ -919,7 +919,7 @@ Actor ZombiePlasma : PlasmaBallX {
 
 Actor Berserkerguy : UndeadEnemy {
 	Obituary "%o was surprised by the tenacity of a Berserk Chaingunner."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 256
