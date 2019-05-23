@@ -1237,7 +1237,7 @@ Actor Mephisto : BasicMechanicalEnemy {
 			MMDR E 7 Fast A_FaceTarget
 		ChaingunLoop:
 			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 A_PlaySound("Mephisto/Chaingun", 7)
+			TNT1 A 0 A_PlaySound("Mephisto/Chaingun", CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 80, -4, 0, frandom(3.0, 5.0), random(-80, -90))
 			MMDR H 4 Fast Bright A_CustomMissile("MephistoBullet", 84, -8, frandom(-8.4, 8.4), 0, frandom(-4.8, 4.8))
 			TNT1 A 0 A_FaceTarget
