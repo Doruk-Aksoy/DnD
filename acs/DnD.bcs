@@ -2733,14 +2733,14 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	else if(flags & DND_WDMG_USETRACER)
 		SetActivator(0, AAPTR_TRACER);
 	int res = 0, pnum = PlayerNumber(), temp;
-	// get the damage
-	if(!isSpecial)
-		res = GetCachedPlayerDamage(wepid, dmgid);
-	else // special ammo damage
-		res = GetSpecialAmmoDamage(dmgid, wepid);
-	
 	// we don't cache special ammo damage
 	if(PlayerDamageNeedsCaching(wepid, dmgid) || isSpecial) {
+		// get the damage
+		if(!isSpecial)
+			res = GetCachedPlayerDamage(wepid, dmgid);
+		else // special ammo damage
+			res = GetSpecialAmmoDamage(dmgid, wepid);
+		
 		// add flat damage bonus mapping talent name to flat bonus type
 		res += MapTalentToFlatBonus(pnum, talent_type);
 		
@@ -2793,7 +2793,11 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 		if(temp)
 			res += ApplyFlatHealthDamageFactor(res, temp);
-		CachePlayerDamageWithID(wepid, res, dmgid);
+		CachePlayerEndDamageWithID(wepid, res, dmgid);
+	}
+	else {
+		//Get the cached end dmg to simplify further calculation
+		res = GetCachedPlayerEndDamage(wepid, dmgid);
 	}
 	
 	// special weapons checks -- these are added on top of everything else as the last thing, before crits

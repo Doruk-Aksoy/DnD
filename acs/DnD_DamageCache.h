@@ -8,6 +8,7 @@ typedef struct pdmg_cache {
 	bool massRecalculationRequested;
 	bool norecalculate[MAXWEPS][MAX_CACHE_ELEMENTS]; // false => needs recalculation otherwise no
 	pdmg_T damage_cache[MAXWEPS][MAX_CACHE_ELEMENTS];
+	int end_damage_cache[MAXWEPS][MAX_CACHE_ELEMENTS];
 } pdmg_cache_T;
 
 pdmg_cache_T& GetPlayerDamageCache(int pnum) {
@@ -21,16 +22,17 @@ void CachePlayerDamage(int dmg, int dmgid, int dmg_rand) {
 	// not cached
 	if(!cache.damage_cache[wepid][dmgid].dmg && !cache.norecalculate[wepid][dmgid]) {
 		cache.damage_cache[wepid][dmgid].dmg = dmg;
+		cache.end_damage_cache[wepid][dmgid] = dmg; //end_damage_cache refers to dmg after all dmg calculation
 		cache.damage_cache[wepid][dmgid].dmg_low = dmg_rand & 0xFFFF;
 		cache.damage_cache[wepid][dmgid].dmg_high = dmg_rand >> 16;
 	}
 }
 
-void CachePlayerDamageWithID(int wepid, int dmg, int dmgid) {
+void CachePlayerEndDamageWithID(int wepid, int dmg, int dmgid) {
 	pdmg_cache_T& cache = GetPlayerDamageCache(PlayerNumber());
 	// not cached
 	if(!cache.norecalculate[wepid][dmgid]) {
-		cache.damage_cache[wepid][dmgid].dmg = dmg;
+		cache.end_damage_cache[wepid][dmgid] = dmg;
 		cache.norecalculate[wepid][dmgid] = true;
 		// clean the previously issued mass recalc request, since player fired now they might want to craft afterwards
 		cache.massRecalculationRequested = false;
@@ -44,6 +46,11 @@ bool PlayerDamageNeedsCaching(int wepid, int dmgid) {
 int GetCachedPlayerDamage(int wepid, int dmgid) {
 	pdmg_cache_T& cache = GetPlayerDamageCache(PlayerNumber());
 	return cache.damage_cache[wepid][dmgid].dmg;
+}
+
+int GetCachedPlayerEndDamage(int wepid, int dmgid) {
+	pdmg_cache_T& cache = GetPlayerDamageCache(PlayerNumber());
+	return cache.end_damage_cache[wepid][dmgid];
 }
 
 int GetCachedPlayerRandomRange(int wepid, int dmgid) {

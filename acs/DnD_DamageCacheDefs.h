@@ -12,6 +12,7 @@ enum {
 
 typedef struct pdmg {
 	int dmg;
+	int end_dmg;
 	int dmg_low;
 	int dmg_high;
 } pdmg_T;
