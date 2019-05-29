@@ -1343,7 +1343,7 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 Script "DnD Save Player Orb and Stat Data" (int pnum) {
 	if(HardcoreSet && PlayerInGame(pnum) && PlayerIsLoggedIn(pnum) && !CheckActorInventory(pnum + P_TIDSTART, "CanLoad")) {
 		// if somehow you died...
-		if((GetCVar("dnd_mode") == DND_MODE_HARDCORE) && PlayerDied[pnum])
+		if((GetCVar("dnd_mode") == DND_MODE_HARDCORE) && PlayerDied[pnum] && !PlayerLoaded[pnum]) //make sure char is loaded first as well before saving.
 			Terminate;
 		BeginDBTransaction();
 			SavePlayerOrbData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
