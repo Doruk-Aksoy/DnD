@@ -1,6 +1,6 @@
 Actor ZombieMan2 : DnD_Zombieman
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	+DONTBLAST
 	+USEKILLSCRIPTS
     GibHealth -10
@@ -109,7 +109,7 @@ Actor ZombieBullet : ProjBullet {
 Actor ZombieMan3 : Zombieman2 replaces Zombieman { }
 
 Actor Shotgunguy2 : DnD_Shotgunner { 
-	Health 100000
+	Health 0x7FFFFFFF
     GibHealth -10
 	DropItem "Shotgun", 0
 	DropItem "ShotgunPickup_Drop"
@@ -194,7 +194,7 @@ Actor Shotgunguy2 : DnD_Shotgunner {
 Actor Shotgunguy3 : Shotgunguy2 replaces Shotgunguy { }
 
 Actor Cgguy2 : DnD_Chaingunguy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	DropItem Chaingun, 0
 	DropItem "MachinegunPickup_Drop"
 	DamageFactor "BulletMagicX", 3.0
@@ -279,7 +279,7 @@ Actor Cgguy3 : Cgguy2 replaces Chaingunguy { }
 
 Actor Demon2x : DnD_Demon 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Demon"
 	+DONTHURTSPECIES
 	+USEKILLSCRIPTS
@@ -329,7 +329,7 @@ Actor Demon3x : Demon2x replaces Demon { }
 
 Actor Spectre2 : DnD_Spectre 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Demon"
 	+DONTHURTSPECIES
 	DamageFactor "Demon", 0.0
@@ -389,7 +389,7 @@ Actor Spectre2 : DnD_Spectre
 Actor Spectre3 : Spectre2 replaces Spectre { }
 
 Actor DoomImp2 : DnD_DoomImp  { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Imp"
 	+DONTHURTSPECIES
 	+DONTBLAST
@@ -529,7 +529,7 @@ Actor DoomImpBall2 : DoomImpBall replaces DoomImpBall
 
 Actor LostSoul2 : DnD_LostSoul 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Damage (3 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 	DamageType "Melee"
 	DamageFactor "BulletMagicX", 3.0
@@ -575,7 +575,7 @@ Actor LostSoul2 : DnD_LostSoul
 Actor LostSoul3 : LostSoul2 replaces LostSoul { }
 
 Actor LostSoulNoExp : DnD_LostSoul {
-	Health 100000
+	Health 0x7FFFFFFF
 	Damage (3 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 	DamageType "Melee"
 	DamageFactor "BulletMagicX", 3.0
@@ -625,7 +625,7 @@ Actor LostSoulNoExp : DnD_LostSoul {
 
 Actor CacoDemon2 : DnD_Cacodemon 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
     BloodColor "Blue"
 	Species "Cacodemon"
 	DamageFactor "Caco", 0.0
@@ -712,7 +712,7 @@ Actor Cacodemon3 : Cacodemon2 replaces CacoDemon { }
 
 Actor PainElemental2 : DnD_PainElemental 
 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "PainElemental"
 	DamageFactor "Paine", 0.0
 	DamageFactor "PaineExp", 0.0
@@ -782,7 +782,7 @@ Actor PainElemental3 : PainElemental2 replaces PainElemental { }
 
 Actor Revenant2 : DnD_Revenant
 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Skeleton"
 	DamageFactor "Rev", 0.0
 	DamageFactor "RevEnergy", 0.0
@@ -882,7 +882,7 @@ Actor Revenant3 : Revenant2 replaces Revenant { }
 
 Actor HellKnight2 : DnD_HellKnight 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	BloodColor "7D 9D 59"
 	Species "HK"
 	DamageFactor "Barons", 0.0
@@ -969,7 +969,7 @@ Actor HellKnight3 : HellKnight2 replaces HellKnight { }
 
 Actor BaronOfHell2 : DnD_BaronOfHell 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	BloodColor "7D 9D 59"
 	Species "HK"
 	DamageFactor "Barons", 0.0
@@ -1040,7 +1040,7 @@ Actor BaronOfHell3 : BaronOfHell2 replaces BaronOfHell { }
 
 Actor Mancubus2 : DnD_Fatso 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Fatso"
 	DamageFactor "Fatty", 0.0
 	DamageFactor "FattyPlasma", 0.0
@@ -1128,7 +1128,7 @@ Actor FatShot2 : Fatshot replaces Fatshot
 
 Actor Arachno2 : DnD_Arachnotron 
 { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Spider"
 	+DONTHURTSPECIES
 	+DONTBLAST
@@ -1225,7 +1225,7 @@ Actor Arachno3 : Arachno2 replaces Arachnotron { }
 
 Actor ArchVile2 : DnD_ArchVile
 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "AV"
 	DamageFactor "Vile", 0.0
 	DamageFactor "VileBullet", 0.0
@@ -1297,7 +1297,7 @@ Actor ArchVile3 : ArchVile2 replaces ArchVile {
 
 Actor SpiderMastermind2 : DnD_SpiderMasterMind
 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Spider2"
 	DropItem "SoulAmmoSpawner", 128
 	PainSound "SpiderMastermind/Pain"
@@ -1460,7 +1460,7 @@ Actor SpiderFireChecker : DnD_Activator {
 
 Actor Cyberdemon2 : DnD_Cyberdemon
 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Cyber"
 	DamageFactor "Cyber", 0.0
 	DamageFactor "CyberEnergy", 0.0
@@ -1587,7 +1587,7 @@ Actor CyberdemonRocket : Rocket {
 Actor Cyberdemon3 : Cyberdemon2 replaces Cyberdemon { }
 
 Actor WolfensteinSS2 : DnD_WolfensteinSS { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Tag "SS Nazi"
 	+USEKILLSCRIPTS
 	States {

@@ -761,7 +761,10 @@ int CanTrade (int id, int tradeflag, int price) {
 		else if(type == TYPE_TALENT) // talent
 			cond2 = CheckInventory(item) < TALENT_CAP && CheckInventory("TalentPoint");
 		else if(type == TYPE_ARMOR) // armor
-			cond2 = CheckInventory(item) < GetArmorSpecificCap(ArmorBaseAmounts[id - SHOP_FIRSTARMOR_INDEX + 1]);
+			if (!(tradeflag & TRADE_ARMOR_REPLACE))
+				cond2 = CheckInventory(item) < GetArmorSpecificCap(ArmorBaseAmounts[id - SHOP_FIRSTARMOR_INDEX + 1]);
+			else
+				cond2 = true; //replacement should always be possible.
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
 			if(id != SHOP_ARTI_BACKPACK)
 				cond2 = (CheckInventory(item) < ShopInfo[id][SHOPINFO_MAX]) && !IsSet(CheckInventory("DnD_Artifact_MapBits"), id - SHOP_FIRSTARTI_INDEX);
@@ -1745,6 +1748,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
+			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ -1, -1, -1, -1 }
 		},
 		// account

@@ -1,7 +1,7 @@
 actor STDarkImp : DnD_BaseEnemy
 {
 	//$Category Monsters
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 9
@@ -145,7 +145,7 @@ Actor DarkImpBallTrail {
 actor NamiDarkImp : DnD_BaseEnemy
 {
 	//$Category Monsters
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 8
@@ -279,7 +279,7 @@ actor DarkSeeker
 
 actor VoidDarkImp : DnD_BaseEnemy {
 	//$Category Monsters
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 7
@@ -463,7 +463,7 @@ actor DarkTail
 }
 
 actor NetherDarkImp : DnD_BaseEnemy {
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 9
@@ -686,7 +686,7 @@ actor NetherLightningSpark
 }
 
 Actor ImpAbomination : DoomImp2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	Tag "Imp Abomination"
 	States {
 		Spawn:
@@ -759,7 +759,7 @@ Actor ImpAbomination : DoomImp2 {
 }
 
 Actor STImp : DoomImp2 {
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 11
@@ -877,7 +877,7 @@ Actor SmallImpBall
 }
 
 Actor VoidImp : DoomImp2 {
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 7
@@ -998,7 +998,7 @@ Actor LargeImpBall
 }
 
 actor SoulHarvester : DnD_BaseEnemy {
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 8
@@ -1161,7 +1161,7 @@ actor SoulBallTrail
 
 actor PyroImp : DnD_BaseEnemy {
 	//$Category monsters
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20
     Height 56
     Speed 9
@@ -1418,7 +1418,7 @@ actor PyroImpExplosion
 actor Devil : DoomImp2 {
 	obituary "%o was fried by a Devil."
 	hitobituary "%o was flayed by a Devil."
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 20
 	height 56
 	mass 120
@@ -1523,7 +1523,7 @@ actor Devil : DoomImp2 {
 }
 
 actor Devil2 : Devil {
-	Health 100000
+	Health 0x7FFFFFFF
 	Painchance 128
 	states {
 		Spawn:
@@ -1684,7 +1684,7 @@ Actor Devil2BallTrail {
 actor Vulgar : DnD_BaseEnemy {
 	obituary "%o was poisoned by a vulgar."
 	hitobituary "A Vulgar had %o for lunch."
-	Health 100000
+	Health 0x7FFFFFFF
 	Gibhealth -10
 	radius 20
 	height 56
@@ -1840,7 +1840,7 @@ Actor UndeadMage : UndeadEnemy
     painsound "UndeadInitiate/Pain"
     deathsound "UndeadInitiate/Death"
 	Obituary "%o succumbed to an Undead Mage's magic."
-	Health 100000
+	Health 0x7FFFFFFF
 	Species "Imp"
 	+DONTHURTSPECIES
 	DamageFactor "Imp", 0.0
@@ -1961,7 +1961,7 @@ ACTOR CultMysticShot {
 
 ACTOR Shadow : DnD_BaseEnemy {
 	//$Category Monsters
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 100
@@ -2203,7 +2203,7 @@ ACTOR ShadowGhostD : ShadowGhostA
 }
 
 Actor Roach : DnD_BaseEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Speed 12

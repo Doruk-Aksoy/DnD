@@ -405,8 +405,10 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 				// this one depends on attribute counts of items it is used on
 				if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
 					res = 0;
-				else if(extratype == DND_ITEM_CHARM)
+				else if(extratype == DND_ITEM_CHARM) {
+					printbold(s:"image:",d:PlayerInventoryList[PlayerNumber()][extra].item_image,s:"attr_count:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count,s:", max_affixes:",d:Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype],s:", 1 < 2:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype]);
 					res = PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype];
+				}
 			}
 		break;
 	}

@@ -1,6 +1,6 @@
 actor Lavademon : FireElementalEnemy {
 	obituary "%o was charred by a Lava Giant."
-	Health 100000
+	Health 0x7FFFFFFF
 	radius 24
 	height 64
 	mass 1000
@@ -253,7 +253,7 @@ actor lavasmoke1
 }      
 
 ACTOR LordofHeresy : DnD_BaseEnemy { 
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20 
     Height 56 
     Speed 9 
@@ -357,7 +357,7 @@ ACTOR LordofHeresy : DnD_BaseEnemy {
 }
 
 Actor Cybruiser : MechanicalEnemy { 
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 24 
 	Height 64 
 	Mass 1000 
@@ -533,7 +533,7 @@ Actor BruiserTrail
 }
 
 Actor BruiserDemon : DnD_BaseEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
 	Mass 1500
@@ -833,7 +833,7 @@ Actor BruiserBloodEmber {
 }
 
 ACTOR Bormereth : FireElementalEnemy {
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 24
     Height 64
     Speed 10
@@ -1327,7 +1327,7 @@ Actor FirePillarShot
 ACTOR BloodSeeker : DnD_BaseEnemy {
 	OBITUARY "%o was killed by a blood seeker."
 	Bloodcolor "ff 0f 83"
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
 	Mass 750
@@ -1682,7 +1682,7 @@ Actor CyberdemonRocketWeak : CyberdemonRocket {
 
 Actor ShadowWizard : SkullWizard {
 	Obituary "%o was lobotomized by a Shadow Wizard."
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 21
 	Height 64
 	PainChance 32
@@ -1797,7 +1797,7 @@ Actor ShadowWizardProjectile : SkullWizardProjectile
 }
 
 ACTOR Kjaroch : HellKnight2 {
-	Health 100000
+	Health 0x7FFFFFFF
 	PainChance 32
 	SeeSound "Kjaroch/See"
 	PainSound "Kjaroch/pain"
@@ -2066,7 +2066,7 @@ Actor KjarochGroundFlamesTrail
 }
 
 Actor MagmaSerpent : DnD_BaseEnemy {
-	Health 100000
+	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
 	Speed 13
@@ -2303,7 +2303,7 @@ ACTOR MagmaChunk5 : DemonChunk
 
 Actor DreadKnight : BlackKnight {
 	Translation "3:3=40:40", "80:111=%[0.00,0.00,0.00]:[1.43,0.31,0.31]"
-	Health 100000
+	Health 0x7FFFFFFF
 	Scale 1.1
 	RadiusDamageFactor 1.0
 	HitObituary "%o was dismembered by a dread knight."
@@ -2472,7 +2472,7 @@ Actor DreadSkull {
 }
 
 Actor MagmaGolem : MagicalEnemy { 
-    Health 100000
+    Health 0x7FFFFFFF
     Speed 6
 	Scale 1.35
     Height 64
@@ -2713,7 +2713,7 @@ Actor MagmaGolemNade_3 : MagmaGolemNade {
 const float warmaster_ratio = 0.25;
 
 ACTOR Warmaster : DnD_BaseEnemy { 
-    Health 100000
+    Health 0x7FFFFFFF
     Radius 20 
     Height 56 
     Speed 12
