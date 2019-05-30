@@ -271,8 +271,8 @@ void SetAllAmmoCapacities() {
 }
 
 int GetHandledAmmoCapacity(int slot, int t, int backpacks_amount) {
-	//printBold(s:"HandledAmmoCapacity: Slot:",d:slot,s:", t:",d:t,s:", initial_capacity:",d:AmmoInfo[slot][t].initial_capacity,s:", backpacks_amount:",d:backpacks_amount,s:", INV_AMMOCAP_INCREASE:",d:GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE),s:", OBI_HOLDING:",d:GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1),s:", result:",d:AmmoInfo[slot][t].initial_capacity + (((AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO) * (1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) >> 16));
-	return AmmoInfo[slot][t].initial_capacity + (((AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO) * (1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) >> 16);
+	//printBold(s:"HandledAmmoCapacity: Slot:",d:slot,s:", t:",d:t,s:", initial_capacity:",d:AmmoInfo[slot][t].initial_capacity,s:", backpacks_amount:",d:backpacks_amount,s:", INV_AMMOCAP_INCREASE:",d:GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE),s:", OBI_HOLDING:",d:GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1));
+	return ((AmmoInfo[slot][t].initial_capacity + (AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO)) * ((1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1))))) >> 16;
 }
 
 bool CheckAmmoPickup(int slot, bool simple) {
