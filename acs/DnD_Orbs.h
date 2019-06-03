@@ -1545,7 +1545,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_RICHES:
 			if(!(val >> 16)) // exp
-				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \ckexperience\c- points!");
+				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \ck% experience\c- points!");
 			else if((val >> 16) == 1)
 				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \cfcredits\c-!");
 			else
