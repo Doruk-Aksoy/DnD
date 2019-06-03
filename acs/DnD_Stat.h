@@ -343,12 +343,13 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 	
 	// adapt armor count to whatever stats makes it be
 	//print(s:"cur armor: ",d:armor, s:", amount: ",d:amount, s:", cap: ",d:cap, s:", armor base amount: ",d:ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1], s:", new armor amount: ",d:((cap * amount) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]));
+
 	if((CheckInventory("DnD_ArmorType") - 1) == DND_ARMOR_BONUS)
 		amount = (amount * cap) / ArmorBaseAmounts[1]; //Current armor shard amount will be based off green armor = 100 atm.
-	if(armor_type == DND_ARMOR_BONUS) {
-		cap *= 3; //Shards can make armor go up to 3x of whatever current armor cap is (with just armor shard, can go up to 300).
-	} else
+	else
 		amount = (amount * cap) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1];
+	if(armor_type == DND_ARMOR_BONUS)
+		cap *= 3; //Shards can make armor go up to 3x of whatever current armor cap is (with just armor shard, can go up to 300).
 	
 	SetInventory("DnD_ArmorBonus", Min(armor + amount, cap) - armor);
 	GiveInventory("Research_Body_Ar_1_Tracker", Min(armor + amount, cap) - armor); //Trackers should only be additive, so this is more complicated.
