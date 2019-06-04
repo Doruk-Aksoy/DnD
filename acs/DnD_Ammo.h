@@ -276,10 +276,10 @@ int GetHandledAmmoCapacity(int slot, int t, int backpacks_amount) {
 }
 
 bool CheckAmmoPickup(int slot, bool simple) {
-	bool res = CheckInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME]) == GetAmmoCapacity(AmmoInfo_Str[slot][0][AMMOINFO_NAME]);
+	bool res = CheckInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[slot][0][AMMOINFO_NAME]);
 	if(!simple) {
 		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
-			res = res && CheckInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME]) == GetAmmoCapacity(AmmoInfo_Str[slot][i][AMMOINFO_NAME]);
+			res = res && CheckInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[slot][i][AMMOINFO_NAME]);
 	}
 	return res;
 }
