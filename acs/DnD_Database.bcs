@@ -1182,6 +1182,8 @@ Script "DND Player Save" OPEN {
 				}
 			}
 			EndDBTransaction();
+			
+			Terminate; //No need to repeat this script for whole map if players have been saved already - even more with db transactions
 		}
 		Delay(70);
 	}

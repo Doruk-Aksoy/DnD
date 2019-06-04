@@ -1058,7 +1058,7 @@ script 915 enter CLIENTSIDE {
 	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
 	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
 	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 64.0; ScreenResOffsets[1] = 76.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 54.0; ScreenResOffsets[1] = 66.0; ScreenResOffsets[2] = 30.0; ScreenResOffsets[3] = 45.0; }
 	delay(70);
 	restart;
 }
@@ -1067,7 +1067,7 @@ script 916 RESPAWN CLIENTSIDE {
 	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
 	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
 	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 64.0; ScreenResOffsets[1] = 76.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 54.0; ScreenResOffsets[1] = 66.0; ScreenResOffsets[2] = 30.0; ScreenResOffsets[3] = 45.0; }
 	delay(70);
 	restart;
 }
