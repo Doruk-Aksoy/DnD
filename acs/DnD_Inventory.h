@@ -1329,8 +1329,10 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 			offset = -64;
 			by -= 8.0;
 		}
-		if(ScreenResOffsets[2] > 0)
+		if (GetAspectRatio() == ASPECT_16_9)
 			SetHudClipRect(-96 + 72, 80 + offset, 264 + 72, 224, 264 + 72, 1);
+		else if (GetAspectRatio() == ASPECT_16_10)
+			SetHudClipRect(-96, 80 + offset, 264 + 72, 224, 264, 1);
 		else
 			SetHudClipRect(-96, 80 + offset, 264, 224, 264, 1);
 		DrawInventoryText_Field(topboxid, source, bx, by, itype);
