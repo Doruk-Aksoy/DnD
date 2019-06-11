@@ -1644,7 +1644,7 @@ Script 975 (int tid, int pang, int radius) {
 Script "DnD Golgoth Health Check" (void) {
 	Delay(35);
 	int comp = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 2;
-	while(GetActorProperty(0, APROP_HEALTH) > comp)
+	while(GetActorProperty(0, APROP_HEALTH) < comp)
 		Delay(10);
 	GiveInventory("DnD_Boolean", 1);
 	GiveInventory("MakeNoPain", 1);
