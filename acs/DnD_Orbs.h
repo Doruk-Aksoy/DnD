@@ -316,7 +316,7 @@ enum {
 
 int RichesAmount[MAX_RICHES] = {
 	5,
-	2000,
+	5,
 	5
 };
 
@@ -382,7 +382,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = Calculate_Stats() >= SINORB_MAX_TAKE * GetAffluenceBonus();
 		break;
 		case DND_ORB_RICHES:
-			res = 1; // always give resource
+			res = !((CheckInventory("Level") == 100) && (CheckInventory("Credit") == 0x7fffffff) && (CheckInventory("Budget") == 1000));
 		break;
 		case DND_ORB_HOLDING:
 			res = GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1) != HOLDING_MAX;
@@ -406,7 +406,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 				if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
 					res = 0;
 				else if(extratype == DND_ITEM_CHARM) {
-					printbold(s:"image:",d:PlayerInventoryList[PlayerNumber()][extra].item_image,s:"attr_count:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count,s:", max_affixes:",d:Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype],s:", 1 < 2:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype]);
+					//printbold(s:"image:",d:PlayerInventoryList[PlayerNumber()][extra].item_image,s:"attr_count:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count,s:", max_affixes:",d:Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype],s:", 1 < 2:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype]);
 					res = PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype];
 				}
 			}
@@ -555,15 +555,23 @@ void HandleOrbUse (int orbtype, int extra) {
 			SetInventory("OrbResult", res);
 		break;
 		case DND_ORB_RICHES:
-			temp = random(1, MAX_RICHES_WEIGHT);
-			for(i = 0; i < MAX_RICHES && temp > RichesWeights[i]; ++i);
+			do {
+				temp = random(1, MAX_RICHES_WEIGHT);
+				for(i = 0; i < MAX_RICHES && temp > RichesWeights[i]; ++i);
+			} while(
+				(i == 0 && CheckInventory("Level") == 100) ||
+				(i == 1 && CheckInventory("Credit") == 0x7fffffff) ||
+				(i == 2 && CheckInventory("Budget") == 1000));
+
 			res = GetAffluenceBonus() * RichesAmount[i];
 			Player_MostRecent_Orb[pnum].values[0] = i;
 			Player_MostRecent_Orb[pnum].values[1] = res;
 			if(!i)
 				GiveExp((LevelCurve[CheckInventory("Level") - 1] / 100) * res); // don't want overflows! -- technically it still can, but hopefully wont
-			else if(i == 1)
+			else if(i == 1) {
+				res = Max(2000, (CheckInventory("Credit") / 100) * res);
 				GiveCredit(res);
+			}
 			else if(i == 2)
 				GiveBudget(res);
 			res |= i << 16;
@@ -1545,7 +1553,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_RICHES:
 			if(!(val >> 16)) // exp
-				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \ckexperience\c- points!");
+				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \ck% experience\c- points!");
 			else if((val >> 16) == 1)
 				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \cfcredits\c-!");
 			else

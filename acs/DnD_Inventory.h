@@ -290,7 +290,7 @@ str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
 
 // holds inventories of all players
 global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
-#define MAX_INVENTORIES_ON_FIELD 1024
+#define MAX_INVENTORIES_ON_FIELD 8192
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
 global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
@@ -1329,8 +1329,10 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 			offset = -64;
 			by -= 8.0;
 		}
-		if(ScreenResOffsets[2] > 0)
+		if (GetAspectRatio() == ASPECT_4_3)
 			SetHudClipRect(-96 + 72, 80 + offset, 264 + 72, 224, 264 + 72, 1);
+		else if (GetAspectRatio() == ASPECT_16_10)
+			SetHudClipRect(-96 + 45, 80 + offset, 264, 224, 264, 1);
 		else
 			SetHudClipRect(-96, 80 + offset, 264, 224, 264, 1);
 		DrawInventoryText_Field(topboxid, source, bx, by, itype);
@@ -1929,7 +1931,6 @@ void MakeUnique(int item_pos, int item_type) {
 		int roll = random(1, MAX_UNIQUE_WEIGHT);
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	}
-	i = UITEM_GRAVECALLER;
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);
 }

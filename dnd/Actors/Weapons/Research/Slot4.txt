@@ -1759,6 +1759,7 @@ Actor ResMG4 : Weapon {
 		Goto Ready
 		ContinueAlt:
 			FUSG B 3
+			FUSG B 0 A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/Alt")
 			TNT1 A 0 A_GiveInventory("FusionBlasterShooter2", 1)
 			FUSF E 1 Bright

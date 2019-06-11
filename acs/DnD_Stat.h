@@ -298,17 +298,15 @@ int GetArmorCap(bool useMenuShow) {
 
 // used for deciding armor pickup values
 int GetArmorSpecificCap(int amt) {
-	if(amt != 1) {
-		// any other armor besides the armor bonuses
-		amt += CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * GetBulkiness();
-		amt += amt * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
-		amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
-		amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
-		amt += (amt * GetResearchArmorBonuses()) / 100;
-		amt += (amt * (Player_Elixir_Bonuses[PlayerNumber()].armor_percent_bonus + GetPlayerAttributeValue(PlayerNumber(), INV_ARMORPERCENT_INCREASE))) / 100;
-	}
-	else // exception for armor bonus
-		amt = GetArmorCap(false) >> 1;
+	if(amt == 1)
+		amt = ArmorBaseAmounts[1]; //Current armor shard amount will be based off green armor = 100 atm.
+	// any other armor besides the armor bonuses
+	amt += CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * GetBulkiness();
+	amt += amt * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
+	amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
+	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
+	amt += (amt * GetResearchArmorBonuses()) / 100;
+	amt += (amt * (Player_Elixir_Bonuses[PlayerNumber()].armor_percent_bonus + GetPlayerAttributeValue(PlayerNumber(), INV_ARMORPERCENT_INCREASE))) / 100;
 	return amt;
 }
 
@@ -330,25 +328,29 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 	if(IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1) || replace) {
 		//Completely reset armor
 		SetInventory("Armor", 0);
-		GiveInventory(ArmorTypes[armor_type], 1);
+		if(armor_type != DND_ARMOR_BONUS) //Armor shard will be given later
+			GiveInventory(ArmorTypes[armor_type], 1);
 		
 		//Set new type
 		SetInventory("DnD_ArmorType", armor_type + 1);
 		//Respect the cap of new armor
 		cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-		if(armor_type == DND_ARMOR_BONUS) //Well, I know it's normally impossible - but if scripts break for some reason, at least let player keep some armor.
-			cap *= 3; //Shards can make armor go up to 3x of regular armor cap.
-
-		//Make sure player loses any armor above new cap, to prevent player from buying high tier armor and replacing with lower just to get extra armor.
-		SetInventory("DnD_ArmorBonus", Min(armor, cap));
+		if(armor_type != DND_ARMOR_BONUS) //Prevents shards from adding up to cap at once.
+			SetInventory("DnD_ArmorBonus", Min(armor, cap)); //Make sure player loses any armor above new cap, to prevent player from buying high tier armor and replacing with lower just to get extra armor.
+		
 		armor = CheckInventory("Armor");
 	}
 	
 	// adapt armor count to whatever stats makes it be
 	//print(s:"cur armor: ",d:armor, s:", amount: ",d:amount, s:", cap: ",d:cap, s:", armor base amount: ",d:ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1], s:", new armor amount: ",d:((cap * amount) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]));
-	amount = (amount * cap) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1];
+
+	if((CheckInventory("DnD_ArmorType") - 1) == DND_ARMOR_BONUS)
+		amount = (amount * cap) / ArmorBaseAmounts[1]; //Current armor shard amount will be based off green armor = 100 atm.
+	else
+		amount = (amount * cap) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1];
 	if(armor_type == DND_ARMOR_BONUS)
-		cap *= 3; //Shards can make armor go up to 3x of regular armor cap.
+		cap *= 3; //Shards can make armor go up to 3x of whatever current armor cap is (with just armor shard, can go up to 300).
+	
 	SetInventory("DnD_ArmorBonus", Min(armor + amount, cap) - armor);
 	GiveInventory("Research_Body_Ar_1_Tracker", Min(armor + amount, cap) - armor); //Trackers should only be additive, so this is more complicated.
 	

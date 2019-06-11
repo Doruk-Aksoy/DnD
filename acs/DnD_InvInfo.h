@@ -177,7 +177,7 @@ str InventoryInfo[MAX_COMMON_INVENTORY][3] = {
 	{ "OrbofViolence", "Orb of Violence", "\c[Y5]Orb of Violence\nIncreases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category." },
 	{ "OrbofFortitude", "Orb of Fortitude", "\c[Y5]Orb of Fortitude\nIncreases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-." },
 	{ "OrbofSin", "Orb of Sin", "\c[Y5]Orb of Sin\nA pact with the devil itself, trading anywhere from \cg1\c- to \cg8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!" },
-	{ "OrbofRiches", "Orb of Riches", "\c[Y5]Orb of Riches\nGrants a random resource on use. Can grant experience, credit or budget. Base values are \cd5%\c- of your current level's experience, \cd2000\c- and \cd5k\c- respectively." },
+	{ "OrbofRiches", "Orb of Riches", "\c[Y5]Orb of Riches\nGrants a random resource on use if it's not maxed. Can grant experience, credit or budget. Base values are \cd5%\c- of your current level's experience, \cd2000\c- or \cdaround 5%\c- of current credits (whichever is greater) and \cd5k\c- respectively." },
 	{ "OrbofHolding", "Orb of Holding", "\c[Y5]Orb of Holding\nIncreases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons." },
 	{ "OrbofRefinement", "Orb of Refinement", "\c[Y5]Orb of Refinement\nRerolls the attribute values of the selected item." },
 	{ "OrbofSculpting", "Orb of Sculpting", "\c[Y5]Orb of Sculpting\nRemoves a random attribute entirely from the selected item." },

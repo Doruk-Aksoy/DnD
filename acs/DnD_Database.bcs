@@ -869,6 +869,14 @@ void LoadPlayerData(int pnum, int char_id) {
 		}
 	}
 	
+	// read accessories
+	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);
+	for(i = 0; i < MAX_ACCESSORY; ++i)
+		SetInventory(StrParam(s:"Accessory_", d:i + 1), !!(temp & (1 << i)));
+	// save active accessories
+	SetInventory("Accessory_Index", GetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc));
+	DecideAccessories();
+	
 	// read each ammo count
 	for(i = 0; i < MAX_SLOTS; ++i)
 		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
@@ -928,14 +936,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("AttributePoint", temp & 0x7FF);
 	temp >>= 11;
 	SetInventory("PerkPoint", temp & 0x7FF);
-	
-	// read accessories
-	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);
-	for(i = 0; i < MAX_ACCESSORY; ++i)
-		SetInventory(StrParam(s:"Accessory_", d:i + 1), !!(temp & (1 << i)));
-	// save active accessories
-	SetInventory("Accessory_Index", GetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc));
-	DecideAccessories();
 	
 	temp = GetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc);
 	// read artifacts
@@ -1182,6 +1182,8 @@ Script "DND Player Save" OPEN {
 				}
 			}
 			EndDBTransaction();
+			
+			Terminate; //No need to repeat this script for whole map if players have been saved already - even more with db transactions
 		}
 		Delay(70);
 	}

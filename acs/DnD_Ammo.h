@@ -271,15 +271,15 @@ void SetAllAmmoCapacities() {
 }
 
 int GetHandledAmmoCapacity(int slot, int t, int backpacks_amount) {
-	//printBold(s:"HandledAmmoCapacity: Slot:",d:slot,s:", t:",d:t,s:", initial_capacity:",d:AmmoInfo[slot][t].initial_capacity,s:", backpacks_amount:",d:backpacks_amount,s:", INV_AMMOCAP_INCREASE:",d:GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE),s:", OBI_HOLDING:",d:GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1),s:", result:",d:AmmoInfo[slot][t].initial_capacity + (((AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO) * (1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) >> 16));
-	return AmmoInfo[slot][t].initial_capacity + (((AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO) * (1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) >> 16);
+	//printBold(s:"HandledAmmoCapacity: Slot:",d:slot,s:", t:",d:t,s:", initial_capacity:",d:AmmoInfo[slot][t].initial_capacity,s:", backpacks_amount:",d:backpacks_amount,s:", INV_AMMOCAP_INCREASE:",d:GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE),s:", OBI_HOLDING:",d:GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1));
+	return ((AmmoInfo[slot][t].initial_capacity + (AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO)) * ((1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1))))) >> 16;
 }
 
 bool CheckAmmoPickup(int slot, bool simple) {
-	bool res = CheckInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME]) == GetAmmoCapacity(AmmoInfo_Str[slot][0][AMMOINFO_NAME]);
+	bool res = CheckInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[slot][0][AMMOINFO_NAME]);
 	if(!simple) {
 		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
-			res = res && CheckInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME]) == GetAmmoCapacity(AmmoInfo_Str[slot][i][AMMOINFO_NAME]);
+			res = res && CheckInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[slot][i][AMMOINFO_NAME]);
 	}
 	return res;
 }

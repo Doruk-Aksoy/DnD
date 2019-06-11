@@ -767,26 +767,26 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	// for some reason exp and credit can be 0, no idea how, but this fixes it
 	if(!PlayerInGame(ConsolePlayerNumber()) || (!exp && !credit))
 		Terminate;
-	int tid = ConsolePlayerNumber() + P_TIDSTART;
-	exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
-	exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
-	credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
-	credit += (credit * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
-	GiveActorInventory(tid, "DnD_Exp_Counter", exp);
-	GiveActorInventory(tid, "DnD_Credit_Counter", credit);
+	//int tid = ConsolePlayerNumber() + P_TIDSTART;
+	//exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
+	//exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
+	//credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
+	//credit += (credit * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
+	//GiveActorInventory(tid, "DnD_Exp_Counter", exp);
+	//GiveActorInventory(tid, "DnD_Credit_Counter", credit);
 
-	if(CheckActorInventory(tid, "DnD_ExpCredit_Timer")) {
-		// refresh duration
-		GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
-		Terminate;
-	}
-	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
-	while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
-		Delay(2);
-	if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
-		Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
-	SetActorInventory(tid, "DnD_Exp_Counter", 0);
-	SetActorInventory(tid, "DnD_Credit_Counter", 0);
+	//if(CheckActorInventory(tid, "DnD_ExpCredit_Timer")) {
+	//	// refresh duration
+	//	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
+	//	Terminate;
+	//}
+	//GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
+	//while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
+	//	Delay(2);
+	//if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
+	//	Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
+	//SetActorInventory(tid, "DnD_Exp_Counter", 0);
+	//SetActorInventory(tid, "DnD_Credit_Counter", 0);
 }
 
 // Stat Reset
@@ -1058,7 +1058,7 @@ script 915 enter CLIENTSIDE {
 	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
 	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
 	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 64.0; ScreenResOffsets[1] = 76.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 54.0; ScreenResOffsets[1] = 66.0; ScreenResOffsets[2] = 30.0; ScreenResOffsets[3] = 45.0; }
 	delay(70);
 	restart;
 }
@@ -1067,7 +1067,7 @@ script 916 RESPAWN CLIENTSIDE {
 	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
 	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
 	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 64.0; ScreenResOffsets[1] = 76.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
+	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 54.0; ScreenResOffsets[1] = 66.0; ScreenResOffsets[2] = 30.0; ScreenResOffsets[3] = 45.0; }
 	delay(70);
 	restart;
 }
@@ -1257,6 +1257,44 @@ script 922 (int actor_num, int radius, int totalactors) {
 
 // Till 922 are reserved for mons.c
 
+// Monster Healer
+Script 958 (int amount) {
+	int hp = GetActorProperty(0, APROP_HEALTH);
+	amount = Clamp_Between(amount, 0, MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp - hp);
+	SetActorProperty(0, APROP_HEALTH, hp + amount);
+}
+
+Script "DND Special Player Hurt" (int type, int percent) {
+	int vit, thisactor, hp;
+	if(!type) {
+		vit = CheckInventory("PSTAT_Vitality");
+		thisactor = ActivatorTID();
+		SetActivator(0, AAPTR_TARGET);
+		Thing_Damage2(thisactor, vit / 4, "VileGhostDrain");
+		vit = Clamp_Between(vit / 4, 1, vit);
+		hp = Clamp_Between(GetActorProperty(0, APROP_HEALTH) + vit, 1, MonsterProperties[thisactor - DND_MONSTERTID_BEGIN].maxhp);
+		SetActorProperty(0, APROP_HEALTH, hp);
+		Spawn("RegenEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+	}
+	else if(type == 1) {
+		if(CheckInventory("DarkLichGhostDamageCooldown"))
+			Terminate;
+		GiveInventory("DarkLichGhostDamageCooldown", 1);
+		vit = GetActorProperty(0, APROP_HEALTH) / 10;
+		thisactor = ActivatorTID();
+		SetActivator(0, AAPTR_TARGET);
+		Thing_Damage2(thisactor, vit, "BigSpiderVoid");
+	}
+	else if(type == 2) {
+		thisactor = ActivatorTID();
+		vit = GetActorProperty(0, APROP_HEALTH);
+		vit *= percent;
+		vit /= 100;
+		SetActivator(0, AAPTR_TARGET);
+		Thing_Damage2(thisactor, vit / 2, "Magical");
+	}
+}
+
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 		if(!ActivatorTID())
@@ -1442,7 +1480,39 @@ Script 957 (int category) {
 	}
 }
 
-// 969 - 961 are in mons.c
+Script 961 (int type, int amt, int item) {
+	if(type == 1) {
+		while(!CheckInventory("GamonShift") && isAlive())
+			Delay(5);
+		SetActorProperty(0, APROP_ALPHA, 0.5);
+		ActivatorSound("Veste/Cast", 127.0);
+		SpawnForced("SalvationEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+	}
+	else if(type == 2)
+		SetActorProperty(0, APROP_ALPHA, 0.5);
+	else if(type == 3)
+		SetActorProperty(0, APROP_ALPHA, 1.0);
+	else if(type == 4) {
+		if(!item)
+			MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = amt;
+	}
+	else if(type == 5) {
+		SetResultValue(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp >> 1);
+	}
+	else if(type == 6) {
+		// don't judge me, this shit just doesn't work in decorate of zan 3.0...
+		Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+	}
+	else if(type == 7) {
+		//printbold(s:"ActivatorTID",d:ActivatorTID(),s:" basehp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].basehp,s:" maxhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp,s:" level",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level,s:" id",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id,s:" traits",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits,s:" traits2",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2,s:" nameskip",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].nameskip,s:" properties",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].properties);
+		amt = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp;
+		if(!amt)
+			amt = GetActorProperty(0, APROP_SpawnHealth);
+		SetResultValue(amt);
+	}
+}
+
+// 962 - 969 are in mons.c
 
 script 970 (int type, int actor_num, int radius) CLIENTSIDE {
 	int angle, this, owner, cx, cy, cz;
@@ -1473,7 +1543,47 @@ script 970 (int type, int actor_num, int radius) CLIENTSIDE {
 	}
 }
 
-// 971 - 973 are in mons.c
+// 971 - 972 are in mons.c
+
+Script 973 (int mode) { // Avatar tid / targeter
+	if (mode == 1) {
+		int owner = ActivatorTID(), curdist;
+		
+		SetActivator(owner, AAPTR_TARGET);
+		int target = ActivatorTID();
+		SetActivator(owner);
+		
+		for(int i = 0; i < AVATAR_SOUL_COUNT; i++) {
+			// choose closest target
+			curdist = INT_MAX;
+			for(int j = 0; j < MAXPLAYERS; j++) {
+				int dist = fdistance(owner, P_TIDSTART + j);
+				if(GetActorProperty(P_TIDSTART + j, APROP_HEALTH) > 0 && dist < curdist) {
+					target = P_TIDSTART + j;
+					curdist = dist;
+				}
+			}
+			
+			SetActorPosition(owner, GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 56.0, 0);
+			SpawnProjectile(owner, "HolyMissile2", GetActorAngle(owner), 128, 0, 0, AVATAR_SOUL_TID);
+			SetActorPosition(owner, GetActorX(owner), GetActorY(owner), GetActorZ(owner) - 56.0, 0);
+			SetActorPosition(AVATAR_SOUL_TID, GetActorX(AVATAR_SOUL_TID), GetActorY(AVATAR_SOUL_TID), GetActorZ(AVATAR_SOUL_TID) + 54.0, 0);
+			SetActivator(AVATAR_SOUL_TID);
+			SetPointer(AAPTR_TARGET, owner);
+			SetPointer(AAPTR_TRACER, target);
+			int dx = GetActorX(target) - GetActorX(AVATAR_SOUL_TID);
+			int dy = GetActorY(target) - GetActorY(AVATAR_SOUL_TID);
+			SetActorAngle(AVATAR_SOUL_TID, VectorAngle(dx, dy));
+			Thing_ChangeTID(AVATAR_SOUL_TID, 0);
+			SetActivator(owner);
+			Delay(12);
+		}
+	}
+	else {
+		if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 3)
+			GiveInventory("AcolyteSummoner", 1);
+	}
+}
 
 // Form the blade vortex
 Script 974 (int radius) {
@@ -1529,6 +1639,29 @@ Script 975 (int tid, int pang, int radius) {
 		angadd += 2;
 		Delay(1);
 	}
+}
+
+Script "DnD Golgoth Health Check" (void) {
+	Delay(35);
+	int comp = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 2;
+	while(GetActorProperty(0, APROP_HEALTH) < comp)
+		Delay(10);
+	GiveInventory("DnD_Boolean", 1);
+	GiveInventory("MakeNoPain", 1);
+}
+
+Script "DnD Monster Trait Take" (int traitside, int flag) {
+	if(!traitside)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, flag);
+	else
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2 = ClearBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2, flag);
+}
+
+Script "DnD Monster Trait Give" (int traitside, int flag) {
+	if(!traitside)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits = SetBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits, flag);
+	else
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2 = SetBit(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2, flag);
 }
 
 // Checks Ankh
