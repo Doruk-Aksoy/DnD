@@ -87,6 +87,7 @@ Script 961 (int type, int amt, int item) {
 		Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
 	}
 	else if(type == 7) {
+		//printbold(s:"ActivatorTID",d:ActivatorTID(),s:" basehp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].basehp,s:" maxhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp,s:" level",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level,s:" id",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id,s:" traits",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits,s:" traits2",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2,s:" nameskip",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].nameskip,s:" properties",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].properties);
 		amt = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp;
 		if(!amt)
 			amt = GetActorProperty(0, APROP_SpawnHealth);
