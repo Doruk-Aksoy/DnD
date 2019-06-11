@@ -159,24 +159,20 @@ str Research_Label[MAX_RESEARCHES] = {
 
 enum {
 	RESF_NODROP = 1,
-	RESF_HASREQUIREMENT = 2,
+	RESF_HASREQUIREMENT = 2, //This is only here as a visual guide atm
 	RESF_UNLOCKSOTHER = 4
 };
 
 enum {
 	RES_REQID_SUPERARMOR,
-	RES_REQID_WHEEL,
 	RES_REQID_BIO1,
 	RES_REQID_BIO2,
-	RES_REQID_BIO3,
 	RES_REQID_EXO1,
 	RES_REQID_EXO2,
-	RES_REQID_EXO3,
 	RES_REQID_IMP1,
-	RES_REQID_IMP2,
-	RES_REQID_IMP3,
+	RES_REQID_IMP2
 };
-#define LAST_RES_REQID RES_REQID_IMP3
+#define LAST_RES_REQID RES_REQID_IMP2
 
 typedef struct {
 	int res_flags;
@@ -185,7 +181,7 @@ typedef struct {
 
 res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ RESF_UNLOCKSOTHER, RES_REQID_SUPERARMOR },
-	{ RESF_NODROP, RES_REQID_SUPERARMOR },
+	{ RESF_NODROP, -1 },
 	{ 0, -1 },
     { 0, -1 },
    
@@ -216,7 +212,7 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	
     { 0, -1 },
     { 0, -1 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_WHEEL },
+	{ RESF_NODROP | RESF_HASREQUIREMENT, -1},
 	
     { 0, -1 },
 	{ 0, -1 },
@@ -244,71 +240,34 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
     { 0, -1 },
     { 0, -1 },
 	
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_BIO1 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_BIO2 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_BIO3 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_EXO1 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_EXO2 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_EXO3 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP1 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP2 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT, RES_REQID_IMP3 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_BIO1 },
+	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_BIO2 },
+	{ RESF_NODROP, -1 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_EXO1 },
+	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_EXO2 },
+	{ RESF_NODROP, -1 },
+	{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_IMP1 },
+	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_IMP2 },
+	{ RESF_NODROP, -1},
 	
 	{ 0, -1 },
 };
 
 #define MAX_RES_REQID LAST_RES_REQID + 1
-#define MAX_RES_DEPENDENCIES 2
+#define MAX_RES_DEPENDENCIES 1 //all researches have at most 1 depencency.
 typedef struct {
 	int unlocks;
 	int dependencies[MAX_RES_DEPENDENCIES];
 } res_dependency_T;
 
 res_dependency_T ResearchDependencies[MAX_RES_REQID] = {
-	{
-			RES_SUPERARMOR,
-		{ 	RES_RAREARMOR, 			-1 	}
-	},
-	{
-			-1,
-		{ 	-1, 					-1 	}
-	},
-	{
-			-1,
-		{ 	-1 							},
-	},
-	{
-			RES_BIO2,
-		{ 	RES_REQID_BIO1, 		-1 	},
-	},
-	{	
-			RES_BIO3,
-		{	RES_REQID_BIO2, 		-1 	},
-	},
-	{
-			-1,
-		{	-1							},
-	},
-	{
-			RES_EXO2,
-		{	RES_REQID_EXO1,			-1	},
-	},
-	{
-			RES_EXO3,
-		{	RES_REQID_EXO2,			-1	}
-	},
-	{
-			-1,
-		{	-1,						-1	}
-	},
-	{
-			RES_IMP2,
-		{	RES_REQID_IMP1,			-1	}
-	},
-	{
-			RES_IMP3,
-		{	RES_REQID_IMP2,			-1	}
-	}
+	{RES_SUPERARMOR, 	{RES_RAREARMOR}},
+	{RES_BIO2,			{RES_BIO1}},
+	{RES_BIO3,			{RES_BIO2}},
+	{RES_EXO2,			{RES_EXO1}},
+	{RES_EXO3,			{RES_EXO2}},
+	{RES_IMP2,			{RES_IMP1}},
+	{RES_IMP3,			{RES_IMP2}},
 };
 
 enum {
@@ -385,24 +344,20 @@ void HandleDependentResearch(int res_id) {
 	// bio research 2-3 needs previous ones
 	if(ResearchFlags[res_id].res_flags & RESF_UNLOCKSOTHER) {
 		int reqid = ResearchFlags[res_id].res_req_id;
-		bool canDo = true;
 		for(int i = 0; i < MAX_RES_DEPENDENCIES && ResearchDependencies[reqid].unlocks != -1; ++i)
-			if(!CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]))
-				canDo = false;
-		// check if all requirements are met
-		if(canDo)
-			GiveResearch(ResearchDependencies[reqid].unlocks, true);
+			if(CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]) == RES_DONE) //Check if all the dependencies are done
+				GiveResearch(ResearchDependencies[reqid].unlocks, true);
 	}
 }
 
 void CompleteResearch(int res_id) {
-	HandleDependentResearch(res_id);
-	
 	// Remember: Actor inventory max value is 31 bits (signed, and min is 0).
 	if(res_id > 30)
 		SetInventory("Research_Done_2", SetBit(CheckInventory("Research_Done_2"), res_id % 31));
 	else
 		SetInventory("Research_Done_1", SetBit(CheckInventory("Research_Done_1"), res_id));
+	
+	HandleDependentResearch(res_id);
 	
 	if(res_id == RES_DOUBLESPECIALCAP)
 		DoubleSpecialAmmoCapacity();
