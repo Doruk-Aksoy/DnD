@@ -3745,7 +3745,10 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		// make sure quality text isn't on the weapon name
 		++i;
 		if(temp) {
-			HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			if (temp == 25) //Add the "MAX" indicator.
+				HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"% (MAX)"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			else
+				HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
 		temp = GetCritChanceDisplay(j, extra1);
