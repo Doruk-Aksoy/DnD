@@ -1201,8 +1201,9 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						else
 							LocalAmbientSound("RPG/MenuClose", 127);
 					}
-					else if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH) == DND_ITEM_NULL)
-						SetInventory("DnD_SelectedInventoryBox", 0);
+					else if (((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
+							 ((CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && (GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH) == DND_ITEM_NULL)))
+							SetInventory("DnD_SelectedInventoryBox", 0);
 				}
 				HandleStashViewClicks(boxid, temp);
 			}
