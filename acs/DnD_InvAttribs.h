@@ -73,6 +73,7 @@ enum {
 	
 	INV_DMGREDUCE_ELEM,
 	INV_DMGREDUCE_PHYS,
+	INV_DMGREDUCE_REFL,
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
 	INV_EX_CHANCE, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
@@ -102,7 +103,7 @@ enum {
 };
 
 // attributes below last_inv (normal rollables) are exotic
-#define LAST_INV_ATTRIBUTE INV_DMGREDUCE_PHYS
+#define LAST_INV_ATTRIBUTE INV_DMGREDUCE_REFL
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
 #define UNIQUE_ATTRIB_END INV_EX_ABILITY_MONSTERSRIP
 #define MAX_INV_ATTRIBUTE_TYPES LAST_INV_ATTRIBUTE + 1
@@ -178,6 +179,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	
 	{ "IATTR_ElementalResist", "% reduced elemental damage taken" },
 	{ "IATTR_PhysicalResist", "% reduced physical damage taken" },
+	{ "IATTR_ReflectResist", "% reduced reflected damage taken" },
 	
 	// exotic ones
 	{ "", "% chance to " },
@@ -267,7 +269,8 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 5, 2 },
 	
 	{ 1, 2, 1 },
-	{ 1, 2, 1 }
+	{ 1, 2, 1 },
+	{ 1, 10, 2 }
 };
 
 // keep here for now for ammo save chance
@@ -333,7 +336,11 @@ str ItemAttributeString(int attr, int val) {
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
 		case INV_AMMOCAP_INCREASE:
-		return StrParam(s:"+ ", f:ftrunc(val * 100), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+			return StrParam(s:"+ ", f:ftrunc(val * 100), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+		
+		case INV_DMGREDUCE_REFL:
+			return StrParam(s:"+ ", f:ftrunc(val * 0.1), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+		
 		default:
 			if(val > 0)
 				return StrParam(s:"+ ", d:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);

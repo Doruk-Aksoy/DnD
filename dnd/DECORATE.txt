@@ -32,6 +32,7 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Resists/ElemResist.txt"
 #include "Actors/Items/Resists/PhysResist.txt"
 #include "Actors/Items/Resists/Weaken.txt"
+#include "Actors/Items/Resists/ReflectResist.txt"
 
 // Spells
 #include "Actors/Spells/Common.txt"

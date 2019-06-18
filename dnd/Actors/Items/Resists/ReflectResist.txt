@@ -1,0 +1,5999 @@
+Actor Reflect_Resist_1 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.999
+}
+
+Actor Reflect_Resist_2 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.998
+}
+
+Actor Reflect_Resist_3 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.997
+}
+
+Actor Reflect_Resist_4 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.996
+}
+
+Actor Reflect_Resist_5 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.995
+}
+
+Actor Reflect_Resist_6 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.994
+}
+
+Actor Reflect_Resist_7 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.993
+}
+
+Actor Reflect_Resist_8 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.992
+}
+
+Actor Reflect_Resist_9 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.991
+}
+
+Actor Reflect_Resist_10 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.99
+}
+
+Actor Reflect_Resist_11 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.989
+}
+
+Actor Reflect_Resist_12 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.988
+}
+
+Actor Reflect_Resist_13 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.987
+}
+
+Actor Reflect_Resist_14 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.986
+}
+
+Actor Reflect_Resist_15 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.985
+}
+
+Actor Reflect_Resist_16 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.984
+}
+
+Actor Reflect_Resist_17 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.983
+}
+
+Actor Reflect_Resist_18 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.982
+}
+
+Actor Reflect_Resist_19 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.981
+}
+
+Actor Reflect_Resist_20 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.98
+}
+
+Actor Reflect_Resist_21 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.979
+}
+
+Actor Reflect_Resist_22 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.978
+}
+
+Actor Reflect_Resist_23 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.977
+}
+
+Actor Reflect_Resist_24 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.976
+}
+
+Actor Reflect_Resist_25 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.975
+}
+
+Actor Reflect_Resist_26 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.974
+}
+
+Actor Reflect_Resist_27 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.973
+}
+
+Actor Reflect_Resist_28 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.972
+}
+
+Actor Reflect_Resist_29 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.971
+}
+
+Actor Reflect_Resist_30 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.97
+}
+
+Actor Reflect_Resist_31 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.969
+}
+
+Actor Reflect_Resist_32 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.968
+}
+
+Actor Reflect_Resist_33 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.967
+}
+
+Actor Reflect_Resist_34 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.966
+}
+
+Actor Reflect_Resist_35 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.965
+}
+
+Actor Reflect_Resist_36 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.964
+}
+
+Actor Reflect_Resist_37 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.963
+}
+
+Actor Reflect_Resist_38 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.962
+}
+
+Actor Reflect_Resist_39 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.961
+}
+
+Actor Reflect_Resist_40 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.96
+}
+
+Actor Reflect_Resist_41 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.959
+}
+
+Actor Reflect_Resist_42 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.958
+}
+
+Actor Reflect_Resist_43 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.957
+}
+
+Actor Reflect_Resist_44 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.956
+}
+
+Actor Reflect_Resist_45 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.955
+}
+
+Actor Reflect_Resist_46 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.954
+}
+
+Actor Reflect_Resist_47 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.953
+}
+
+Actor Reflect_Resist_48 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.952
+}
+
+Actor Reflect_Resist_49 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.951
+}
+
+Actor Reflect_Resist_50 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.95
+}
+
+Actor Reflect_Resist_51 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.949
+}
+
+Actor Reflect_Resist_52 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.948
+}
+
+Actor Reflect_Resist_53 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.947
+}
+
+Actor Reflect_Resist_54 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.946
+}
+
+Actor Reflect_Resist_55 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.945
+}
+
+Actor Reflect_Resist_56 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.944
+}
+
+Actor Reflect_Resist_57 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.943
+}
+
+Actor Reflect_Resist_58 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.942
+}
+
+Actor Reflect_Resist_59 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.941
+}
+
+Actor Reflect_Resist_60 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.94
+}
+
+Actor Reflect_Resist_61 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.939
+}
+
+Actor Reflect_Resist_62 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.938
+}
+
+Actor Reflect_Resist_63 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.937
+}
+
+Actor Reflect_Resist_64 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.936
+}
+
+Actor Reflect_Resist_65 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.935
+}
+
+Actor Reflect_Resist_66 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.934
+}
+
+Actor Reflect_Resist_67 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.933
+}
+
+Actor Reflect_Resist_68 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.932
+}
+
+Actor Reflect_Resist_69 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.931
+}
+
+Actor Reflect_Resist_70 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.93
+}
+
+Actor Reflect_Resist_71 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.929
+}
+
+Actor Reflect_Resist_72 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.928
+}
+
+Actor Reflect_Resist_73 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.927
+}
+
+Actor Reflect_Resist_74 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.926
+}
+
+Actor Reflect_Resist_75 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.925
+}
+
+Actor Reflect_Resist_76 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.924
+}
+
+Actor Reflect_Resist_77 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.923
+}
+
+Actor Reflect_Resist_78 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.922
+}
+
+Actor Reflect_Resist_79 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.921
+}
+
+Actor Reflect_Resist_80 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.92
+}
+
+Actor Reflect_Resist_81 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.919
+}
+
+Actor Reflect_Resist_82 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.918
+}
+
+Actor Reflect_Resist_83 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.917
+}
+
+Actor Reflect_Resist_84 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.916
+}
+
+Actor Reflect_Resist_85 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.915
+}
+
+Actor Reflect_Resist_86 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.914
+}
+
+Actor Reflect_Resist_87 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.913
+}
+
+Actor Reflect_Resist_88 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.912
+}
+
+Actor Reflect_Resist_89 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.911
+}
+
+Actor Reflect_Resist_90 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.91
+}
+
+Actor Reflect_Resist_91 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.909
+}
+
+Actor Reflect_Resist_92 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.908
+}
+
+Actor Reflect_Resist_93 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.907
+}
+
+Actor Reflect_Resist_94 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.906
+}
+
+Actor Reflect_Resist_95 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.905
+}
+
+Actor Reflect_Resist_96 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.904
+}
+
+Actor Reflect_Resist_97 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.903
+}
+
+Actor Reflect_Resist_98 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.902
+}
+
+Actor Reflect_Resist_99 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.901
+}
+
+Actor Reflect_Resist_100 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.9
+}
+
+Actor Reflect_Resist_101 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.899
+}
+
+Actor Reflect_Resist_102 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.898
+}
+
+Actor Reflect_Resist_103 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.897
+}
+
+Actor Reflect_Resist_104 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.896
+}
+
+Actor Reflect_Resist_105 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.895
+}
+
+Actor Reflect_Resist_106 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.894
+}
+
+Actor Reflect_Resist_107 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.893
+}
+
+Actor Reflect_Resist_108 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.892
+}
+
+Actor Reflect_Resist_109 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.891
+}
+
+Actor Reflect_Resist_110 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.89
+}
+
+Actor Reflect_Resist_111 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.889
+}
+
+Actor Reflect_Resist_112 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.888
+}
+
+Actor Reflect_Resist_113 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.887
+}
+
+Actor Reflect_Resist_114 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.886
+}
+
+Actor Reflect_Resist_115 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.885
+}
+
+Actor Reflect_Resist_116 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.884
+}
+
+Actor Reflect_Resist_117 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.883
+}
+
+Actor Reflect_Resist_118 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.882
+}
+
+Actor Reflect_Resist_119 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.881
+}
+
+Actor Reflect_Resist_120 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.88
+}
+
+Actor Reflect_Resist_121 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.879
+}
+
+Actor Reflect_Resist_122 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.878
+}
+
+Actor Reflect_Resist_123 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.877
+}
+
+Actor Reflect_Resist_124 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.876
+}
+
+Actor Reflect_Resist_125 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.875
+}
+
+Actor Reflect_Resist_126 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.874
+}
+
+Actor Reflect_Resist_127 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.873
+}
+
+Actor Reflect_Resist_128 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.872
+}
+
+Actor Reflect_Resist_129 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.871
+}
+
+Actor Reflect_Resist_130 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.87
+}
+
+Actor Reflect_Resist_131 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.869
+}
+
+Actor Reflect_Resist_132 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.868
+}
+
+Actor Reflect_Resist_133 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.867
+}
+
+Actor Reflect_Resist_134 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.866
+}
+
+Actor Reflect_Resist_135 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.865
+}
+
+Actor Reflect_Resist_136 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.864
+}
+
+Actor Reflect_Resist_137 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.863
+}
+
+Actor Reflect_Resist_138 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.862
+}
+
+Actor Reflect_Resist_139 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.861
+}
+
+Actor Reflect_Resist_140 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.86
+}
+
+Actor Reflect_Resist_141 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.859
+}
+
+Actor Reflect_Resist_142 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.858
+}
+
+Actor Reflect_Resist_143 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.857
+}
+
+Actor Reflect_Resist_144 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.856
+}
+
+Actor Reflect_Resist_145 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.855
+}
+
+Actor Reflect_Resist_146 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.854
+}
+
+Actor Reflect_Resist_147 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.853
+}
+
+Actor Reflect_Resist_148 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.852
+}
+
+Actor Reflect_Resist_149 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.851
+}
+
+Actor Reflect_Resist_150 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.85
+}
+
+Actor Reflect_Resist_151 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.849
+}
+
+Actor Reflect_Resist_152 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.848
+}
+
+Actor Reflect_Resist_153 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.847
+}
+
+Actor Reflect_Resist_154 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.846
+}
+
+Actor Reflect_Resist_155 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.845
+}
+
+Actor Reflect_Resist_156 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.844
+}
+
+Actor Reflect_Resist_157 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.843
+}
+
+Actor Reflect_Resist_158 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.842
+}
+
+Actor Reflect_Resist_159 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.841
+}
+
+Actor Reflect_Resist_160 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.84
+}
+
+Actor Reflect_Resist_161 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.839
+}
+
+Actor Reflect_Resist_162 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.838
+}
+
+Actor Reflect_Resist_163 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.837
+}
+
+Actor Reflect_Resist_164 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.836
+}
+
+Actor Reflect_Resist_165 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.835
+}
+
+Actor Reflect_Resist_166 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.834
+}
+
+Actor Reflect_Resist_167 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.833
+}
+
+Actor Reflect_Resist_168 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.832
+}
+
+Actor Reflect_Resist_169 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.831
+}
+
+Actor Reflect_Resist_170 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.83
+}
+
+Actor Reflect_Resist_171 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.829
+}
+
+Actor Reflect_Resist_172 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.828
+}
+
+Actor Reflect_Resist_173 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.827
+}
+
+Actor Reflect_Resist_174 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.826
+}
+
+Actor Reflect_Resist_175 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.825
+}
+
+Actor Reflect_Resist_176 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.824
+}
+
+Actor Reflect_Resist_177 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.823
+}
+
+Actor Reflect_Resist_178 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.822
+}
+
+Actor Reflect_Resist_179 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.821
+}
+
+Actor Reflect_Resist_180 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.82
+}
+
+Actor Reflect_Resist_181 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.819
+}
+
+Actor Reflect_Resist_182 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.818
+}
+
+Actor Reflect_Resist_183 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.817
+}
+
+Actor Reflect_Resist_184 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.816
+}
+
+Actor Reflect_Resist_185 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.815
+}
+
+Actor Reflect_Resist_186 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.814
+}
+
+Actor Reflect_Resist_187 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.813
+}
+
+Actor Reflect_Resist_188 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.812
+}
+
+Actor Reflect_Resist_189 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.811
+}
+
+Actor Reflect_Resist_190 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.81
+}
+
+Actor Reflect_Resist_191 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.809
+}
+
+Actor Reflect_Resist_192 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.808
+}
+
+Actor Reflect_Resist_193 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.807
+}
+
+Actor Reflect_Resist_194 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.806
+}
+
+Actor Reflect_Resist_195 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.805
+}
+
+Actor Reflect_Resist_196 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.804
+}
+
+Actor Reflect_Resist_197 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.803
+}
+
+Actor Reflect_Resist_198 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.802
+}
+
+Actor Reflect_Resist_199 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.801
+}
+
+Actor Reflect_Resist_200 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.8
+}
+
+Actor Reflect_Resist_201 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.799
+}
+
+Actor Reflect_Resist_202 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.798
+}
+
+Actor Reflect_Resist_203 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.797
+}
+
+Actor Reflect_Resist_204 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.796
+}
+
+Actor Reflect_Resist_205 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.795
+}
+
+Actor Reflect_Resist_206 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.794
+}
+
+Actor Reflect_Resist_207 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.793
+}
+
+Actor Reflect_Resist_208 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.792
+}
+
+Actor Reflect_Resist_209 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.791
+}
+
+Actor Reflect_Resist_210 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.79
+}
+
+Actor Reflect_Resist_211 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.789
+}
+
+Actor Reflect_Resist_212 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.788
+}
+
+Actor Reflect_Resist_213 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.787
+}
+
+Actor Reflect_Resist_214 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.786
+}
+
+Actor Reflect_Resist_215 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.785
+}
+
+Actor Reflect_Resist_216 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.784
+}
+
+Actor Reflect_Resist_217 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.783
+}
+
+Actor Reflect_Resist_218 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.782
+}
+
+Actor Reflect_Resist_219 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.781
+}
+
+Actor Reflect_Resist_220 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.78
+}
+
+Actor Reflect_Resist_221 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.779
+}
+
+Actor Reflect_Resist_222 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.778
+}
+
+Actor Reflect_Resist_223 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.777
+}
+
+Actor Reflect_Resist_224 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.776
+}
+
+Actor Reflect_Resist_225 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.775
+}
+
+Actor Reflect_Resist_226 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.774
+}
+
+Actor Reflect_Resist_227 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.773
+}
+
+Actor Reflect_Resist_228 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.772
+}
+
+Actor Reflect_Resist_229 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.771
+}
+
+Actor Reflect_Resist_230 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.77
+}
+
+Actor Reflect_Resist_231 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.769
+}
+
+Actor Reflect_Resist_232 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.768
+}
+
+Actor Reflect_Resist_233 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.767
+}
+
+Actor Reflect_Resist_234 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.766
+}
+
+Actor Reflect_Resist_235 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.765
+}
+
+Actor Reflect_Resist_236 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.764
+}
+
+Actor Reflect_Resist_237 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.763
+}
+
+Actor Reflect_Resist_238 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.762
+}
+
+Actor Reflect_Resist_239 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.761
+}
+
+Actor Reflect_Resist_240 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.76
+}
+
+Actor Reflect_Resist_241 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.759
+}
+
+Actor Reflect_Resist_242 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.758
+}
+
+Actor Reflect_Resist_243 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.757
+}
+
+Actor Reflect_Resist_244 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.756
+}
+
+Actor Reflect_Resist_245 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.755
+}
+
+Actor Reflect_Resist_246 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.754
+}
+
+Actor Reflect_Resist_247 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.753
+}
+
+Actor Reflect_Resist_248 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.752
+}
+
+Actor Reflect_Resist_249 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.751
+}
+
+Actor Reflect_Resist_250 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.75
+}
+
+Actor Reflect_Resist_251 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.749
+}
+
+Actor Reflect_Resist_252 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.748
+}
+
+Actor Reflect_Resist_253 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.747
+}
+
+Actor Reflect_Resist_254 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.746
+}
+
+Actor Reflect_Resist_255 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.745
+}
+
+Actor Reflect_Resist_256 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.744
+}
+
+Actor Reflect_Resist_257 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.743
+}
+
+Actor Reflect_Resist_258 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.742
+}
+
+Actor Reflect_Resist_259 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.741
+}
+
+Actor Reflect_Resist_260 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.74
+}
+
+Actor Reflect_Resist_261 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.739
+}
+
+Actor Reflect_Resist_262 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.738
+}
+
+Actor Reflect_Resist_263 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.737
+}
+
+Actor Reflect_Resist_264 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.736
+}
+
+Actor Reflect_Resist_265 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.735
+}
+
+Actor Reflect_Resist_266 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.734
+}
+
+Actor Reflect_Resist_267 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.733
+}
+
+Actor Reflect_Resist_268 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.732
+}
+
+Actor Reflect_Resist_269 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.731
+}
+
+Actor Reflect_Resist_270 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.73
+}
+
+Actor Reflect_Resist_271 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.729
+}
+
+Actor Reflect_Resist_272 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.728
+}
+
+Actor Reflect_Resist_273 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.727
+}
+
+Actor Reflect_Resist_274 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.726
+}
+
+Actor Reflect_Resist_275 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.725
+}
+
+Actor Reflect_Resist_276 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.724
+}
+
+Actor Reflect_Resist_277 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.723
+}
+
+Actor Reflect_Resist_278 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.722
+}
+
+Actor Reflect_Resist_279 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.721
+}
+
+Actor Reflect_Resist_280 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.72
+}
+
+Actor Reflect_Resist_281 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.719
+}
+
+Actor Reflect_Resist_282 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.718
+}
+
+Actor Reflect_Resist_283 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.717
+}
+
+Actor Reflect_Resist_284 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.716
+}
+
+Actor Reflect_Resist_285 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.715
+}
+
+Actor Reflect_Resist_286 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.714
+}
+
+Actor Reflect_Resist_287 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.713
+}
+
+Actor Reflect_Resist_288 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.712
+}
+
+Actor Reflect_Resist_289 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.711
+}
+
+Actor Reflect_Resist_290 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.71
+}
+
+Actor Reflect_Resist_291 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.709
+}
+
+Actor Reflect_Resist_292 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.708
+}
+
+Actor Reflect_Resist_293 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.707
+}
+
+Actor Reflect_Resist_294 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.706
+}
+
+Actor Reflect_Resist_295 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.705
+}
+
+Actor Reflect_Resist_296 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.704
+}
+
+Actor Reflect_Resist_297 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.703
+}
+
+Actor Reflect_Resist_298 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.702
+}
+
+Actor Reflect_Resist_299 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.701
+}
+
+Actor Reflect_Resist_300 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.7
+}
+
+Actor Reflect_Resist_301 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.699
+}
+
+Actor Reflect_Resist_302 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.698
+}
+
+Actor Reflect_Resist_303 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.697
+}
+
+Actor Reflect_Resist_304 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.696
+}
+
+Actor Reflect_Resist_305 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.695
+}
+
+Actor Reflect_Resist_306 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.694
+}
+
+Actor Reflect_Resist_307 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.693
+}
+
+Actor Reflect_Resist_308 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.692
+}
+
+Actor Reflect_Resist_309 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.691
+}
+
+Actor Reflect_Resist_310 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.69
+}
+
+Actor Reflect_Resist_311 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.689
+}
+
+Actor Reflect_Resist_312 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.688
+}
+
+Actor Reflect_Resist_313 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.687
+}
+
+Actor Reflect_Resist_314 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.686
+}
+
+Actor Reflect_Resist_315 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.685
+}
+
+Actor Reflect_Resist_316 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.684
+}
+
+Actor Reflect_Resist_317 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.683
+}
+
+Actor Reflect_Resist_318 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.682
+}
+
+Actor Reflect_Resist_319 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.681
+}
+
+Actor Reflect_Resist_320 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.68
+}
+
+Actor Reflect_Resist_321 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.679
+}
+
+Actor Reflect_Resist_322 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.678
+}
+
+Actor Reflect_Resist_323 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.677
+}
+
+Actor Reflect_Resist_324 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.676
+}
+
+Actor Reflect_Resist_325 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.675
+}
+
+Actor Reflect_Resist_326 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.674
+}
+
+Actor Reflect_Resist_327 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.673
+}
+
+Actor Reflect_Resist_328 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.672
+}
+
+Actor Reflect_Resist_329 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.671
+}
+
+Actor Reflect_Resist_330 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.67
+}
+
+Actor Reflect_Resist_331 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.669
+}
+
+Actor Reflect_Resist_332 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.668
+}
+
+Actor Reflect_Resist_333 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.667
+}
+
+Actor Reflect_Resist_334 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.666
+}
+
+Actor Reflect_Resist_335 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.665
+}
+
+Actor Reflect_Resist_336 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.664
+}
+
+Actor Reflect_Resist_337 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.663
+}
+
+Actor Reflect_Resist_338 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.662
+}
+
+Actor Reflect_Resist_339 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.661
+}
+
+Actor Reflect_Resist_340 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.66
+}
+
+Actor Reflect_Resist_341 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.659
+}
+
+Actor Reflect_Resist_342 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.658
+}
+
+Actor Reflect_Resist_343 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.657
+}
+
+Actor Reflect_Resist_344 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.656
+}
+
+Actor Reflect_Resist_345 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.655
+}
+
+Actor Reflect_Resist_346 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.654
+}
+
+Actor Reflect_Resist_347 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.653
+}
+
+Actor Reflect_Resist_348 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.652
+}
+
+Actor Reflect_Resist_349 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.651
+}
+
+Actor Reflect_Resist_350 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.65
+}
+
+Actor Reflect_Resist_351 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.649
+}
+
+Actor Reflect_Resist_352 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.648
+}
+
+Actor Reflect_Resist_353 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.647
+}
+
+Actor Reflect_Resist_354 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.646
+}
+
+Actor Reflect_Resist_355 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.645
+}
+
+Actor Reflect_Resist_356 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.644
+}
+
+Actor Reflect_Resist_357 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.643
+}
+
+Actor Reflect_Resist_358 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.642
+}
+
+Actor Reflect_Resist_359 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.641
+}
+
+Actor Reflect_Resist_360 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.64
+}
+
+Actor Reflect_Resist_361 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.639
+}
+
+Actor Reflect_Resist_362 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.638
+}
+
+Actor Reflect_Resist_363 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.637
+}
+
+Actor Reflect_Resist_364 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.636
+}
+
+Actor Reflect_Resist_365 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.635
+}
+
+Actor Reflect_Resist_366 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.634
+}
+
+Actor Reflect_Resist_367 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.633
+}
+
+Actor Reflect_Resist_368 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.632
+}
+
+Actor Reflect_Resist_369 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.631
+}
+
+Actor Reflect_Resist_370 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.63
+}
+
+Actor Reflect_Resist_371 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.629
+}
+
+Actor Reflect_Resist_372 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.628
+}
+
+Actor Reflect_Resist_373 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.627
+}
+
+Actor Reflect_Resist_374 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.626
+}
+
+Actor Reflect_Resist_375 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.625
+}
+
+Actor Reflect_Resist_376 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.624
+}
+
+Actor Reflect_Resist_377 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.623
+}
+
+Actor Reflect_Resist_378 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.622
+}
+
+Actor Reflect_Resist_379 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.621
+}
+
+Actor Reflect_Resist_380 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.62
+}
+
+Actor Reflect_Resist_381 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.619
+}
+
+Actor Reflect_Resist_382 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.618
+}
+
+Actor Reflect_Resist_383 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.617
+}
+
+Actor Reflect_Resist_384 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.616
+}
+
+Actor Reflect_Resist_385 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.615
+}
+
+Actor Reflect_Resist_386 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.614
+}
+
+Actor Reflect_Resist_387 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.613
+}
+
+Actor Reflect_Resist_388 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.612
+}
+
+Actor Reflect_Resist_389 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.611
+}
+
+Actor Reflect_Resist_390 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.61
+}
+
+Actor Reflect_Resist_391 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.609
+}
+
+Actor Reflect_Resist_392 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.608
+}
+
+Actor Reflect_Resist_393 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.607
+}
+
+Actor Reflect_Resist_394 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.606
+}
+
+Actor Reflect_Resist_395 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.605
+}
+
+Actor Reflect_Resist_396 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.604
+}
+
+Actor Reflect_Resist_397 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.603
+}
+
+Actor Reflect_Resist_398 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.602
+}
+
+Actor Reflect_Resist_399 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.601
+}
+
+Actor Reflect_Resist_400 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.6
+}
+
+Actor Reflect_Resist_401 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.599
+}
+
+Actor Reflect_Resist_402 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.598
+}
+
+Actor Reflect_Resist_403 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.597
+}
+
+Actor Reflect_Resist_404 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.596
+}
+
+Actor Reflect_Resist_405 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.595
+}
+
+Actor Reflect_Resist_406 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.594
+}
+
+Actor Reflect_Resist_407 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.593
+}
+
+Actor Reflect_Resist_408 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.592
+}
+
+Actor Reflect_Resist_409 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.591
+}
+
+Actor Reflect_Resist_410 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.59
+}
+
+Actor Reflect_Resist_411 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.589
+}
+
+Actor Reflect_Resist_412 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.588
+}
+
+Actor Reflect_Resist_413 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.587
+}
+
+Actor Reflect_Resist_414 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.586
+}
+
+Actor Reflect_Resist_415 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.585
+}
+
+Actor Reflect_Resist_416 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.584
+}
+
+Actor Reflect_Resist_417 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.583
+}
+
+Actor Reflect_Resist_418 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.582
+}
+
+Actor Reflect_Resist_419 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.581
+}
+
+Actor Reflect_Resist_420 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.58
+}
+
+Actor Reflect_Resist_421 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.579
+}
+
+Actor Reflect_Resist_422 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.578
+}
+
+Actor Reflect_Resist_423 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.577
+}
+
+Actor Reflect_Resist_424 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.576
+}
+
+Actor Reflect_Resist_425 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.575
+}
+
+Actor Reflect_Resist_426 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.574
+}
+
+Actor Reflect_Resist_427 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.573
+}
+
+Actor Reflect_Resist_428 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.572
+}
+
+Actor Reflect_Resist_429 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.571
+}
+
+Actor Reflect_Resist_430 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.57
+}
+
+Actor Reflect_Resist_431 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.569
+}
+
+Actor Reflect_Resist_432 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.568
+}
+
+Actor Reflect_Resist_433 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.567
+}
+
+Actor Reflect_Resist_434 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.566
+}
+
+Actor Reflect_Resist_435 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.565
+}
+
+Actor Reflect_Resist_436 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.564
+}
+
+Actor Reflect_Resist_437 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.563
+}
+
+Actor Reflect_Resist_438 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.562
+}
+
+Actor Reflect_Resist_439 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.561
+}
+
+Actor Reflect_Resist_440 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.56
+}
+
+Actor Reflect_Resist_441 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.559
+}
+
+Actor Reflect_Resist_442 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.558
+}
+
+Actor Reflect_Resist_443 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.557
+}
+
+Actor Reflect_Resist_444 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.556
+}
+
+Actor Reflect_Resist_445 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.555
+}
+
+Actor Reflect_Resist_446 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.554
+}
+
+Actor Reflect_Resist_447 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.553
+}
+
+Actor Reflect_Resist_448 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.552
+}
+
+Actor Reflect_Resist_449 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.551
+}
+
+Actor Reflect_Resist_450 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.55
+}
+
+Actor Reflect_Resist_451 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.549
+}
+
+Actor Reflect_Resist_452 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.548
+}
+
+Actor Reflect_Resist_453 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.547
+}
+
+Actor Reflect_Resist_454 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.546
+}
+
+Actor Reflect_Resist_455 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.545
+}
+
+Actor Reflect_Resist_456 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.544
+}
+
+Actor Reflect_Resist_457 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.543
+}
+
+Actor Reflect_Resist_458 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.542
+}
+
+Actor Reflect_Resist_459 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.541
+}
+
+Actor Reflect_Resist_460 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.54
+}
+
+Actor Reflect_Resist_461 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.539
+}
+
+Actor Reflect_Resist_462 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.538
+}
+
+Actor Reflect_Resist_463 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.537
+}
+
+Actor Reflect_Resist_464 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.536
+}
+
+Actor Reflect_Resist_465 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.535
+}
+
+Actor Reflect_Resist_466 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.534
+}
+
+Actor Reflect_Resist_467 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.533
+}
+
+Actor Reflect_Resist_468 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.532
+}
+
+Actor Reflect_Resist_469 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.531
+}
+
+Actor Reflect_Resist_470 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.53
+}
+
+Actor Reflect_Resist_471 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.529
+}
+
+Actor Reflect_Resist_472 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.528
+}
+
+Actor Reflect_Resist_473 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.527
+}
+
+Actor Reflect_Resist_474 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.526
+}
+
+Actor Reflect_Resist_475 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.525
+}
+
+Actor Reflect_Resist_476 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.524
+}
+
+Actor Reflect_Resist_477 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.523
+}
+
+Actor Reflect_Resist_478 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.522
+}
+
+Actor Reflect_Resist_479 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.521
+}
+
+Actor Reflect_Resist_480 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.52
+}
+
+Actor Reflect_Resist_481 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.519
+}
+
+Actor Reflect_Resist_482 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.518
+}
+
+Actor Reflect_Resist_483 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.517
+}
+
+Actor Reflect_Resist_484 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.516
+}
+
+Actor Reflect_Resist_485 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.515
+}
+
+Actor Reflect_Resist_486 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.514
+}
+
+Actor Reflect_Resist_487 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.513
+}
+
+Actor Reflect_Resist_488 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.512
+}
+
+Actor Reflect_Resist_489 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.511
+}
+
+Actor Reflect_Resist_490 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.51
+}
+
+Actor Reflect_Resist_491 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.509
+}
+
+Actor Reflect_Resist_492 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.508
+}
+
+Actor Reflect_Resist_493 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.507
+}
+
+Actor Reflect_Resist_494 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.506
+}
+
+Actor Reflect_Resist_495 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.505
+}
+
+Actor Reflect_Resist_496 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.504
+}
+
+Actor Reflect_Resist_497 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.503
+}
+
+Actor Reflect_Resist_498 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.502
+}
+
+Actor Reflect_Resist_499 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.501
+}
+
+Actor Reflect_Resist_500 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.5
+}
+
+Actor Reflect_Resist_501 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.499
+}
+
+Actor Reflect_Resist_502 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.498
+}
+
+Actor Reflect_Resist_503 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.497
+}
+
+Actor Reflect_Resist_504 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.496
+}
+
+Actor Reflect_Resist_505 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.495
+}
+
+Actor Reflect_Resist_506 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.494
+}
+
+Actor Reflect_Resist_507 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.493
+}
+
+Actor Reflect_Resist_508 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.492
+}
+
+Actor Reflect_Resist_509 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.491
+}
+
+Actor Reflect_Resist_510 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.49
+}
+
+Actor Reflect_Resist_511 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.489
+}
+
+Actor Reflect_Resist_512 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.488
+}
+
+Actor Reflect_Resist_513 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.487
+}
+
+Actor Reflect_Resist_514 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.486
+}
+
+Actor Reflect_Resist_515 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.485
+}
+
+Actor Reflect_Resist_516 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.484
+}
+
+Actor Reflect_Resist_517 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.483
+}
+
+Actor Reflect_Resist_518 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.482
+}
+
+Actor Reflect_Resist_519 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.481
+}
+
+Actor Reflect_Resist_520 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.48
+}
+
+Actor Reflect_Resist_521 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.479
+}
+
+Actor Reflect_Resist_522 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.478
+}
+
+Actor Reflect_Resist_523 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.477
+}
+
+Actor Reflect_Resist_524 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.476
+}
+
+Actor Reflect_Resist_525 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.475
+}
+
+Actor Reflect_Resist_526 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.474
+}
+
+Actor Reflect_Resist_527 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.473
+}
+
+Actor Reflect_Resist_528 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.472
+}
+
+Actor Reflect_Resist_529 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.471
+}
+
+Actor Reflect_Resist_530 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.47
+}
+
+Actor Reflect_Resist_531 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.469
+}
+
+Actor Reflect_Resist_532 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.468
+}
+
+Actor Reflect_Resist_533 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.467
+}
+
+Actor Reflect_Resist_534 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.466
+}
+
+Actor Reflect_Resist_535 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.465
+}
+
+Actor Reflect_Resist_536 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.464
+}
+
+Actor Reflect_Resist_537 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.463
+}
+
+Actor Reflect_Resist_538 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.462
+}
+
+Actor Reflect_Resist_539 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.461
+}
+
+Actor Reflect_Resist_540 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.46
+}
+
+Actor Reflect_Resist_541 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.459
+}
+
+Actor Reflect_Resist_542 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.458
+}
+
+Actor Reflect_Resist_543 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.457
+}
+
+Actor Reflect_Resist_544 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.456
+}
+
+Actor Reflect_Resist_545 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.455
+}
+
+Actor Reflect_Resist_546 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.454
+}
+
+Actor Reflect_Resist_547 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.453
+}
+
+Actor Reflect_Resist_548 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.452
+}
+
+Actor Reflect_Resist_549 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.451
+}
+
+Actor Reflect_Resist_550 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.45
+}
+
+Actor Reflect_Resist_551 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.449
+}
+
+Actor Reflect_Resist_552 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.448
+}
+
+Actor Reflect_Resist_553 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.447
+}
+
+Actor Reflect_Resist_554 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.446
+}
+
+Actor Reflect_Resist_555 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.445
+}
+
+Actor Reflect_Resist_556 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.444
+}
+
+Actor Reflect_Resist_557 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.443
+}
+
+Actor Reflect_Resist_558 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.442
+}
+
+Actor Reflect_Resist_559 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.441
+}
+
+Actor Reflect_Resist_560 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.44
+}
+
+Actor Reflect_Resist_561 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.439
+}
+
+Actor Reflect_Resist_562 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.438
+}
+
+Actor Reflect_Resist_563 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.437
+}
+
+Actor Reflect_Resist_564 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.436
+}
+
+Actor Reflect_Resist_565 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.435
+}
+
+Actor Reflect_Resist_566 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.434
+}
+
+Actor Reflect_Resist_567 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.433
+}
+
+Actor Reflect_Resist_568 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.432
+}
+
+Actor Reflect_Resist_569 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.431
+}
+
+Actor Reflect_Resist_570 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.43
+}
+
+Actor Reflect_Resist_571 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.429
+}
+
+Actor Reflect_Resist_572 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.428
+}
+
+Actor Reflect_Resist_573 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.427
+}
+
+Actor Reflect_Resist_574 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.426
+}
+
+Actor Reflect_Resist_575 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.425
+}
+
+Actor Reflect_Resist_576 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.424
+}
+
+Actor Reflect_Resist_577 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.423
+}
+
+Actor Reflect_Resist_578 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.422
+}
+
+Actor Reflect_Resist_579 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.421
+}
+
+Actor Reflect_Resist_580 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.42
+}
+
+Actor Reflect_Resist_581 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.419
+}
+
+Actor Reflect_Resist_582 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.418
+}
+
+Actor Reflect_Resist_583 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.417
+}
+
+Actor Reflect_Resist_584 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.416
+}
+
+Actor Reflect_Resist_585 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.415
+}
+
+Actor Reflect_Resist_586 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.414
+}
+
+Actor Reflect_Resist_587 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.413
+}
+
+Actor Reflect_Resist_588 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.412
+}
+
+Actor Reflect_Resist_589 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.411
+}
+
+Actor Reflect_Resist_590 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.41
+}
+
+Actor Reflect_Resist_591 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.409
+}
+
+Actor Reflect_Resist_592 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.408
+}
+
+Actor Reflect_Resist_593 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.407
+}
+
+Actor Reflect_Resist_594 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.406
+}
+
+Actor Reflect_Resist_595 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.405
+}
+
+Actor Reflect_Resist_596 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.404
+}
+
+Actor Reflect_Resist_597 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.403
+}
+
+Actor Reflect_Resist_598 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.402
+}
+
+Actor Reflect_Resist_599 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.401
+}
+
+Actor Reflect_Resist_600 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.4
+}
+
+Actor Reflect_Resist_601 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.399
+}
+
+Actor Reflect_Resist_602 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.398
+}
+
+Actor Reflect_Resist_603 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.397
+}
+
+Actor Reflect_Resist_604 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.396
+}
+
+Actor Reflect_Resist_605 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.395
+}
+
+Actor Reflect_Resist_606 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.394
+}
+
+Actor Reflect_Resist_607 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.393
+}
+
+Actor Reflect_Resist_608 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.392
+}
+
+Actor Reflect_Resist_609 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.391
+}
+
+Actor Reflect_Resist_610 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.39
+}
+
+Actor Reflect_Resist_611 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.389
+}
+
+Actor Reflect_Resist_612 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.388
+}
+
+Actor Reflect_Resist_613 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.387
+}
+
+Actor Reflect_Resist_614 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.386
+}
+
+Actor Reflect_Resist_615 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.385
+}
+
+Actor Reflect_Resist_616 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.384
+}
+
+Actor Reflect_Resist_617 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.383
+}
+
+Actor Reflect_Resist_618 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.382
+}
+
+Actor Reflect_Resist_619 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.381
+}
+
+Actor Reflect_Resist_620 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.38
+}
+
+Actor Reflect_Resist_621 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.379
+}
+
+Actor Reflect_Resist_622 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.378
+}
+
+Actor Reflect_Resist_623 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.377
+}
+
+Actor Reflect_Resist_624 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.376
+}
+
+Actor Reflect_Resist_625 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.375
+}
+
+Actor Reflect_Resist_626 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.374
+}
+
+Actor Reflect_Resist_627 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.373
+}
+
+Actor Reflect_Resist_628 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.372
+}
+
+Actor Reflect_Resist_629 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.371
+}
+
+Actor Reflect_Resist_630 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.37
+}
+
+Actor Reflect_Resist_631 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.369
+}
+
+Actor Reflect_Resist_632 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.368
+}
+
+Actor Reflect_Resist_633 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.367
+}
+
+Actor Reflect_Resist_634 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.366
+}
+
+Actor Reflect_Resist_635 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.365
+}
+
+Actor Reflect_Resist_636 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.364
+}
+
+Actor Reflect_Resist_637 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.363
+}
+
+Actor Reflect_Resist_638 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.362
+}
+
+Actor Reflect_Resist_639 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.361
+}
+
+Actor Reflect_Resist_640 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.36
+}
+
+Actor Reflect_Resist_641 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.359
+}
+
+Actor Reflect_Resist_642 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.358
+}
+
+Actor Reflect_Resist_643 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.357
+}
+
+Actor Reflect_Resist_644 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.356
+}
+
+Actor Reflect_Resist_645 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.355
+}
+
+Actor Reflect_Resist_646 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.354
+}
+
+Actor Reflect_Resist_647 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.353
+}
+
+Actor Reflect_Resist_648 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.352
+}
+
+Actor Reflect_Resist_649 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.351
+}
+
+Actor Reflect_Resist_650 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.35
+}
+
+Actor Reflect_Resist_651 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.349
+}
+
+Actor Reflect_Resist_652 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.348
+}
+
+Actor Reflect_Resist_653 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.347
+}
+
+Actor Reflect_Resist_654 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.346
+}
+
+Actor Reflect_Resist_655 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.345
+}
+
+Actor Reflect_Resist_656 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.344
+}
+
+Actor Reflect_Resist_657 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.343
+}
+
+Actor Reflect_Resist_658 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.342
+}
+
+Actor Reflect_Resist_659 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.341
+}
+
+Actor Reflect_Resist_660 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.34
+}
+
+Actor Reflect_Resist_661 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.339
+}
+
+Actor Reflect_Resist_662 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.338
+}
+
+Actor Reflect_Resist_663 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.337
+}
+
+Actor Reflect_Resist_664 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.336
+}
+
+Actor Reflect_Resist_665 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.335
+}
+
+Actor Reflect_Resist_666 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.334
+}
+
+Actor Reflect_Resist_667 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.333
+}
+
+Actor Reflect_Resist_668 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.332
+}
+
+Actor Reflect_Resist_669 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.331
+}
+
+Actor Reflect_Resist_670 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.33
+}
+
+Actor Reflect_Resist_671 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.329
+}
+
+Actor Reflect_Resist_672 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.328
+}
+
+Actor Reflect_Resist_673 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.327
+}
+
+Actor Reflect_Resist_674 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.326
+}
+
+Actor Reflect_Resist_675 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.325
+}
+
+Actor Reflect_Resist_676 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.324
+}
+
+Actor Reflect_Resist_677 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.323
+}
+
+Actor Reflect_Resist_678 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.322
+}
+
+Actor Reflect_Resist_679 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.321
+}
+
+Actor Reflect_Resist_680 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.32
+}
+
+Actor Reflect_Resist_681 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.319
+}
+
+Actor Reflect_Resist_682 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.318
+}
+
+Actor Reflect_Resist_683 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.317
+}
+
+Actor Reflect_Resist_684 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.316
+}
+
+Actor Reflect_Resist_685 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.315
+}
+
+Actor Reflect_Resist_686 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.314
+}
+
+Actor Reflect_Resist_687 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.313
+}
+
+Actor Reflect_Resist_688 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.312
+}
+
+Actor Reflect_Resist_689 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.311
+}
+
+Actor Reflect_Resist_690 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.31
+}
+
+Actor Reflect_Resist_691 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.309
+}
+
+Actor Reflect_Resist_692 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.308
+}
+
+Actor Reflect_Resist_693 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.307
+}
+
+Actor Reflect_Resist_694 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.306
+}
+
+Actor Reflect_Resist_695 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.305
+}
+
+Actor Reflect_Resist_696 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.304
+}
+
+Actor Reflect_Resist_697 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.303
+}
+
+Actor Reflect_Resist_698 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.302
+}
+
+Actor Reflect_Resist_699 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.301
+}
+
+Actor Reflect_Resist_700 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.3
+}
+
+Actor Reflect_Resist_701 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.299
+}
+
+Actor Reflect_Resist_702 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.298
+}
+
+Actor Reflect_Resist_703 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.297
+}
+
+Actor Reflect_Resist_704 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.296
+}
+
+Actor Reflect_Resist_705 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.295
+}
+
+Actor Reflect_Resist_706 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.294
+}
+
+Actor Reflect_Resist_707 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.293
+}
+
+Actor Reflect_Resist_708 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.292
+}
+
+Actor Reflect_Resist_709 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.291
+}
+
+Actor Reflect_Resist_710 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.29
+}
+
+Actor Reflect_Resist_711 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.289
+}
+
+Actor Reflect_Resist_712 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.288
+}
+
+Actor Reflect_Resist_713 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.287
+}
+
+Actor Reflect_Resist_714 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.286
+}
+
+Actor Reflect_Resist_715 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.285
+}
+
+Actor Reflect_Resist_716 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.284
+}
+
+Actor Reflect_Resist_717 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.283
+}
+
+Actor Reflect_Resist_718 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.282
+}
+
+Actor Reflect_Resist_719 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.281
+}
+
+Actor Reflect_Resist_720 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.28
+}
+
+Actor Reflect_Resist_721 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.279
+}
+
+Actor Reflect_Resist_722 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.278
+}
+
+Actor Reflect_Resist_723 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.277
+}
+
+Actor Reflect_Resist_724 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.276
+}
+
+Actor Reflect_Resist_725 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.275
+}
+
+Actor Reflect_Resist_726 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.274
+}
+
+Actor Reflect_Resist_727 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.273
+}
+
+Actor Reflect_Resist_728 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.272
+}
+
+Actor Reflect_Resist_729 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.271
+}
+
+Actor Reflect_Resist_730 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.27
+}
+
+Actor Reflect_Resist_731 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.269
+}
+
+Actor Reflect_Resist_732 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.268
+}
+
+Actor Reflect_Resist_733 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.267
+}
+
+Actor Reflect_Resist_734 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.266
+}
+
+Actor Reflect_Resist_735 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.265
+}
+
+Actor Reflect_Resist_736 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.264
+}
+
+Actor Reflect_Resist_737 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.263
+}
+
+Actor Reflect_Resist_738 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.262
+}
+
+Actor Reflect_Resist_739 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.261
+}
+
+Actor Reflect_Resist_740 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.26
+}
+
+Actor Reflect_Resist_741 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.259
+}
+
+Actor Reflect_Resist_742 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.258
+}
+
+Actor Reflect_Resist_743 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.257
+}
+
+Actor Reflect_Resist_744 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.256
+}
+
+Actor Reflect_Resist_745 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.255
+}
+
+Actor Reflect_Resist_746 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.254
+}
+
+Actor Reflect_Resist_747 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.253
+}
+
+Actor Reflect_Resist_748 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.252
+}
+
+Actor Reflect_Resist_749 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.251
+}
+
+Actor Reflect_Resist_750 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.25
+}
+
+Actor Reflect_Resist_751 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.249
+}
+
+Actor Reflect_Resist_752 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.248
+}
+
+Actor Reflect_Resist_753 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.247
+}
+
+Actor Reflect_Resist_754 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.246
+}
+
+Actor Reflect_Resist_755 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.245
+}
+
+Actor Reflect_Resist_756 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.244
+}
+
+Actor Reflect_Resist_757 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.243
+}
+
+Actor Reflect_Resist_758 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.242
+}
+
+Actor Reflect_Resist_759 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.241
+}
+
+Actor Reflect_Resist_760 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.24
+}
+
+Actor Reflect_Resist_761 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.239
+}
+
+Actor Reflect_Resist_762 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.238
+}
+
+Actor Reflect_Resist_763 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.237
+}
+
+Actor Reflect_Resist_764 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.236
+}
+
+Actor Reflect_Resist_765 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.235
+}
+
+Actor Reflect_Resist_766 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.234
+}
+
+Actor Reflect_Resist_767 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.233
+}
+
+Actor Reflect_Resist_768 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.232
+}
+
+Actor Reflect_Resist_769 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.231
+}
+
+Actor Reflect_Resist_770 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.23
+}
+
+Actor Reflect_Resist_771 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.229
+}
+
+Actor Reflect_Resist_772 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.228
+}
+
+Actor Reflect_Resist_773 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.227
+}
+
+Actor Reflect_Resist_774 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.226
+}
+
+Actor Reflect_Resist_775 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.225
+}
+
+Actor Reflect_Resist_776 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.224
+}
+
+Actor Reflect_Resist_777 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.223
+}
+
+Actor Reflect_Resist_778 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.222
+}
+
+Actor Reflect_Resist_779 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.221
+}
+
+Actor Reflect_Resist_780 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.22
+}
+
+Actor Reflect_Resist_781 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.219
+}
+
+Actor Reflect_Resist_782 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.218
+}
+
+Actor Reflect_Resist_783 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.217
+}
+
+Actor Reflect_Resist_784 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.216
+}
+
+Actor Reflect_Resist_785 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.215
+}
+
+Actor Reflect_Resist_786 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.214
+}
+
+Actor Reflect_Resist_787 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.213
+}
+
+Actor Reflect_Resist_788 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.212
+}
+
+Actor Reflect_Resist_789 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.211
+}
+
+Actor Reflect_Resist_790 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.21
+}
+
+Actor Reflect_Resist_791 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.209
+}
+
+Actor Reflect_Resist_792 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.208
+}
+
+Actor Reflect_Resist_793 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.207
+}
+
+Actor Reflect_Resist_794 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.206
+}
+
+Actor Reflect_Resist_795 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.205
+}
+
+Actor Reflect_Resist_796 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.204
+}
+
+Actor Reflect_Resist_797 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.203
+}
+
+Actor Reflect_Resist_798 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.202
+}
+
+Actor Reflect_Resist_799 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.201
+}
+
+Actor Reflect_Resist_800 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.2
+}
+
+Actor Reflect_Resist_801 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.199
+}
+
+Actor Reflect_Resist_802 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.198
+}
+
+Actor Reflect_Resist_803 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.197
+}
+
+Actor Reflect_Resist_804 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.196
+}
+
+Actor Reflect_Resist_805 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.195
+}
+
+Actor Reflect_Resist_806 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.194
+}
+
+Actor Reflect_Resist_807 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.193
+}
+
+Actor Reflect_Resist_808 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.192
+}
+
+Actor Reflect_Resist_809 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.191
+}
+
+Actor Reflect_Resist_810 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.19
+}
+
+Actor Reflect_Resist_811 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.189
+}
+
+Actor Reflect_Resist_812 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.188
+}
+
+Actor Reflect_Resist_813 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.187
+}
+
+Actor Reflect_Resist_814 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.186
+}
+
+Actor Reflect_Resist_815 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.185
+}
+
+Actor Reflect_Resist_816 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.184
+}
+
+Actor Reflect_Resist_817 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.183
+}
+
+Actor Reflect_Resist_818 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.182
+}
+
+Actor Reflect_Resist_819 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.181
+}
+
+Actor Reflect_Resist_820 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.18
+}
+
+Actor Reflect_Resist_821 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.179
+}
+
+Actor Reflect_Resist_822 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.178
+}
+
+Actor Reflect_Resist_823 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.177
+}
+
+Actor Reflect_Resist_824 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.176
+}
+
+Actor Reflect_Resist_825 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.175
+}
+
+Actor Reflect_Resist_826 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.174
+}
+
+Actor Reflect_Resist_827 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.173
+}
+
+Actor Reflect_Resist_828 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.172
+}
+
+Actor Reflect_Resist_829 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.171
+}
+
+Actor Reflect_Resist_830 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.17
+}
+
+Actor Reflect_Resist_831 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.169
+}
+
+Actor Reflect_Resist_832 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.168
+}
+
+Actor Reflect_Resist_833 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.167
+}
+
+Actor Reflect_Resist_834 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.166
+}
+
+Actor Reflect_Resist_835 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.165
+}
+
+Actor Reflect_Resist_836 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.164
+}
+
+Actor Reflect_Resist_837 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.163
+}
+
+Actor Reflect_Resist_838 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.162
+}
+
+Actor Reflect_Resist_839 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.161
+}
+
+Actor Reflect_Resist_840 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.16
+}
+
+Actor Reflect_Resist_841 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.159
+}
+
+Actor Reflect_Resist_842 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.158
+}
+
+Actor Reflect_Resist_843 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.157
+}
+
+Actor Reflect_Resist_844 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.156
+}
+
+Actor Reflect_Resist_845 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.155
+}
+
+Actor Reflect_Resist_846 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.154
+}
+
+Actor Reflect_Resist_847 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.153
+}
+
+Actor Reflect_Resist_848 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.152
+}
+
+Actor Reflect_Resist_849 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.151
+}
+
+Actor Reflect_Resist_850 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.15
+}
+
+Actor Reflect_Resist_851 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.149
+}
+
+Actor Reflect_Resist_852 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.148
+}
+
+Actor Reflect_Resist_853 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.147
+}
+
+Actor Reflect_Resist_854 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.146
+}
+
+Actor Reflect_Resist_855 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.145
+}
+
+Actor Reflect_Resist_856 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.144
+}
+
+Actor Reflect_Resist_857 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.143
+}
+
+Actor Reflect_Resist_858 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.142
+}
+
+Actor Reflect_Resist_859 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.141
+}
+
+Actor Reflect_Resist_860 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.14
+}
+
+Actor Reflect_Resist_861 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.139
+}
+
+Actor Reflect_Resist_862 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.138
+}
+
+Actor Reflect_Resist_863 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.137
+}
+
+Actor Reflect_Resist_864 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.136
+}
+
+Actor Reflect_Resist_865 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.135
+}
+
+Actor Reflect_Resist_866 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.134
+}
+
+Actor Reflect_Resist_867 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.133
+}
+
+Actor Reflect_Resist_868 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.132
+}
+
+Actor Reflect_Resist_869 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.131
+}
+
+Actor Reflect_Resist_870 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.13
+}
+
+Actor Reflect_Resist_871 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.129
+}
+
+Actor Reflect_Resist_872 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.128
+}
+
+Actor Reflect_Resist_873 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.127
+}
+
+Actor Reflect_Resist_874 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.126
+}
+
+Actor Reflect_Resist_875 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.125
+}
+
+Actor Reflect_Resist_876 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.124
+}
+
+Actor Reflect_Resist_877 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.123
+}
+
+Actor Reflect_Resist_878 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.122
+}
+
+Actor Reflect_Resist_879 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.121
+}
+
+Actor Reflect_Resist_880 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.12
+}
+
+Actor Reflect_Resist_881 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.119
+}
+
+Actor Reflect_Resist_882 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.118
+}
+
+Actor Reflect_Resist_883 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.117
+}
+
+Actor Reflect_Resist_884 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.116
+}
+
+Actor Reflect_Resist_885 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.115
+}
+
+Actor Reflect_Resist_886 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.114
+}
+
+Actor Reflect_Resist_887 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.113
+}
+
+Actor Reflect_Resist_888 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.112
+}
+
+Actor Reflect_Resist_889 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.111
+}
+
+Actor Reflect_Resist_890 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.11
+}
+
+Actor Reflect_Resist_891 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.109
+}
+
+Actor Reflect_Resist_892 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.108
+}
+
+Actor Reflect_Resist_893 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.107
+}
+
+Actor Reflect_Resist_894 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.106
+}
+
+Actor Reflect_Resist_895 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.105
+}
+
+Actor Reflect_Resist_896 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.104
+}
+
+Actor Reflect_Resist_897 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.103
+}
+
+Actor Reflect_Resist_898 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.102
+}
+
+Actor Reflect_Resist_899 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.101
+}
+
+Actor Reflect_Resist_900 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.1
+}
+
+Actor Reflect_Resist_901 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.099
+}
+
+Actor Reflect_Resist_902 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.098
+}
+
+Actor Reflect_Resist_903 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.097
+}
+
+Actor Reflect_Resist_904 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.096
+}
+
+Actor Reflect_Resist_905 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.095
+}
+
+Actor Reflect_Resist_906 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.094
+}
+
+Actor Reflect_Resist_907 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.093
+}
+
+Actor Reflect_Resist_908 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.092
+}
+
+Actor Reflect_Resist_909 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.091
+}
+
+Actor Reflect_Resist_910 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.09
+}
+
+Actor Reflect_Resist_911 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.089
+}
+
+Actor Reflect_Resist_912 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.088
+}
+
+Actor Reflect_Resist_913 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.087
+}
+
+Actor Reflect_Resist_914 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.086
+}
+
+Actor Reflect_Resist_915 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.085
+}
+
+Actor Reflect_Resist_916 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.084
+}
+
+Actor Reflect_Resist_917 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.083
+}
+
+Actor Reflect_Resist_918 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.082
+}
+
+Actor Reflect_Resist_919 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.081
+}
+
+Actor Reflect_Resist_920 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.08
+}
+
+Actor Reflect_Resist_921 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.079
+}
+
+Actor Reflect_Resist_922 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.078
+}
+
+Actor Reflect_Resist_923 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.077
+}
+
+Actor Reflect_Resist_924 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.076
+}
+
+Actor Reflect_Resist_925 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.075
+}
+
+Actor Reflect_Resist_926 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.074
+}
+
+Actor Reflect_Resist_927 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.073
+}
+
+Actor Reflect_Resist_928 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.072
+}
+
+Actor Reflect_Resist_929 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.071
+}
+
+Actor Reflect_Resist_930 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.07
+}
+
+Actor Reflect_Resist_931 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.069
+}
+
+Actor Reflect_Resist_932 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.068
+}
+
+Actor Reflect_Resist_933 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.067
+}
+
+Actor Reflect_Resist_934 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.066
+}
+
+Actor Reflect_Resist_935 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.065
+}
+
+Actor Reflect_Resist_936 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.064
+}
+
+Actor Reflect_Resist_937 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.063
+}
+
+Actor Reflect_Resist_938 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.062
+}
+
+Actor Reflect_Resist_939 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.061
+}
+
+Actor Reflect_Resist_940 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.06
+}
+
+Actor Reflect_Resist_941 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.059
+}
+
+Actor Reflect_Resist_942 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.058
+}
+
+Actor Reflect_Resist_943 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.057
+}
+
+Actor Reflect_Resist_944 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.056
+}
+
+Actor Reflect_Resist_945 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.055
+}
+
+Actor Reflect_Resist_946 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.054
+}
+
+Actor Reflect_Resist_947 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.053
+}
+
+Actor Reflect_Resist_948 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.052
+}
+
+Actor Reflect_Resist_949 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.051
+}
+
+Actor Reflect_Resist_950 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.05
+}
+
+Actor Reflect_Resist_951 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.049
+}
+
+Actor Reflect_Resist_952 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.048
+}
+
+Actor Reflect_Resist_953 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.047
+}
+
+Actor Reflect_Resist_954 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.046
+}
+
+Actor Reflect_Resist_955 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.045
+}
+
+Actor Reflect_Resist_956 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.044
+}
+
+Actor Reflect_Resist_957 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.043
+}
+
+Actor Reflect_Resist_958 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.042
+}
+
+Actor Reflect_Resist_959 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.041
+}
+
+Actor Reflect_Resist_960 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.04
+}
+
+Actor Reflect_Resist_961 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.039
+}
+
+Actor Reflect_Resist_962 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.038
+}
+
+Actor Reflect_Resist_963 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.037
+}
+
+Actor Reflect_Resist_964 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.036
+}
+
+Actor Reflect_Resist_965 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.035
+}
+
+Actor Reflect_Resist_966 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.034
+}
+
+Actor Reflect_Resist_967 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.033
+}
+
+Actor Reflect_Resist_968 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.032
+}
+
+Actor Reflect_Resist_969 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.031
+}
+
+Actor Reflect_Resist_970 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.03
+}
+
+Actor Reflect_Resist_971 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.029
+}
+
+Actor Reflect_Resist_972 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.028
+}
+
+Actor Reflect_Resist_973 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.027
+}
+
+Actor Reflect_Resist_974 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.026
+}
+
+Actor Reflect_Resist_975 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.025
+}
+
+Actor Reflect_Resist_976 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.024
+}
+
+Actor Reflect_Resist_977 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.023
+}
+
+Actor Reflect_Resist_978 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.022
+}
+
+Actor Reflect_Resist_979 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.021
+}
+
+Actor Reflect_Resist_980 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.02
+}
+
+Actor Reflect_Resist_981 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.019
+}
+
+Actor Reflect_Resist_982 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.018
+}
+
+Actor Reflect_Resist_983 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.017
+}
+
+Actor Reflect_Resist_984 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.016
+}
+
+Actor Reflect_Resist_985 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.015
+}
+
+Actor Reflect_Resist_986 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.014
+}
+
+Actor Reflect_Resist_987 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.013
+}
+
+Actor Reflect_Resist_988 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.012
+}
+
+Actor Reflect_Resist_989 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.011
+}
+
+Actor Reflect_Resist_990 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.01
+}
+
+Actor Reflect_Resist_991 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.009
+}
+
+Actor Reflect_Resist_992 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.008
+}
+
+Actor Reflect_Resist_993 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.007
+}
+
+Actor Reflect_Resist_994 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.006
+}
+
+Actor Reflect_Resist_995 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.005
+}
+
+Actor Reflect_Resist_996 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.004
+}
+
+Actor Reflect_Resist_997 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.003
+}
+
+Actor Reflect_Resist_998 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.002
+}
+
+Actor Reflect_Resist_999 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0.001
+}
+
+Actor Reflect_Resist_1000 : PowerDamage {
+	powerup.duration 0x7FFFFFFF
+	damagefactor "normal", 1.0
+	damagefactor "Reflection", 0
+}
