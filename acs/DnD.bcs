@@ -643,8 +643,7 @@ Script "DND On Kill" KILL {
 		
 		
 		// if elite, roll orb and equipment drops
-		if(GetCVar("dnd_ignore_dropweights") || pnum)
-		{
+		if(GetCVar("dnd_ignore_dropweights") || pnum) {
 			// handle orb drops
 			HandleOrbDrop();
 		}
@@ -687,6 +686,7 @@ Script "DND On Kill" KILL {
 		
 		#ifdef ISDEBUGBUILD
 			SpawnElixir(0);
+			SpawnCharm(0, true);
 		#endif
 		HandleCharmLootDrop(pnum);
 	}
@@ -767,26 +767,33 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	// for some reason exp and credit can be 0, no idea how, but this fixes it
 	if(!PlayerInGame(ConsolePlayerNumber()) || (!exp && !credit))
 		Terminate;
-	//int tid = ConsolePlayerNumber() + P_TIDSTART;
-	//exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
-	//exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
-	//credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
-	//credit += (credit * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
-	//GiveActorInventory(tid, "DnD_Exp_Counter", exp);
-	//GiveActorInventory(tid, "DnD_Credit_Counter", credit);
-
-	//if(CheckActorInventory(tid, "DnD_ExpCredit_Timer")) {
-	//	// refresh duration
-	//	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
-	//	Terminate;
-	//}
-	//GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
-	//while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
-	//	Delay(2);
-	//if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
-	//	Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
-	//SetActorInventory(tid, "DnD_Exp_Counter", 0);
-	//SetActorInventory(tid, "DnD_Credit_Counter", 0);
+	
+	// calculate the exp and credit to be added for each monster killed
+	int tid = ConsolePlayerNumber() + P_TIDSTART;
+	exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
+	exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
+	credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
+	credit += (credit * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
+	GiveActorInventory(tid, "DnD_Exp_Counter", exp);
+	GiveActorInventory(tid, "DnD_Credit_Counter", credit);
+	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
+	
+	// check if we can truly terminate early, if we can, extend timer
+	if(PlayerScriptsCheck[DND_SCRIPT_EXPTRACKER][ConsolePlayerNumber()]) {
+		// refresh duration if we're already running one
+		if(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
+			GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
+		Terminate;
+	}
+	
+	PlayerScriptsCheck[DND_SCRIPT_EXPTRACKER][ConsolePlayerNumber()] = true;
+	while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
+		Delay(2);
+	if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
+		Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
+	SetActorInventory(tid, "DnD_Exp_Counter", 0);
+	SetActorInventory(tid, "DnD_Credit_Counter", 0);
+	PlayerScriptsCheck[DND_SCRIPT_EXPTRACKER][ConsolePlayerNumber()] = false;
 }
 
 // Stat Reset
@@ -2301,6 +2308,7 @@ Script 992 (int t, int simple) {
 }
 
 Script 993 ENTER CLIENTSIDE {
+	ResetPlayerScriptChecks();
 	if(ConsolePlayerNumber() != PlayerNumber()) 
 		Terminate;
 	if(GetCVar("dnd_showmapinfo"))
