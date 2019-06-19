@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 
 #define DND_AFTER50_INCREMENT_DAMAGE 0.33
 
@@ -156,6 +156,10 @@ int fdistance (int tid1, int tid2) {
 	else len = fixeddiv(len, cos(ang));
 
 	return len;
+}
+
+bool isPlayer(int tid) {
+	return tid >= P_TIDSTART && tid < P_TIDSTART + MAXPLAYERS;
 }
 
 int fdistance_delta(int dx, int dy, int dz) {

@@ -2864,15 +2864,28 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	bool isSpecial = flags & DND_WDMG_ISSPECIALAMMO;
 	int wepid = dmgid >> 16;
 	dmgid &= 0xFFFF;
-	if(flags & DND_WDMG_USETARGET) // use target
-		SetActivator(0, AAPTR_TARGET);
+	if(flags & DND_WDMG_USETARGET) { // use target
+		// hopefully no projectile uses score
+		if(!GetActorProperty(0, APROP_SCORE)) {
+			SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
+			SetActivator(0, AAPTR_TARGET);
+		}
+	}
 	else if(flags & DND_WDMG_USEMASTER) {
 		if(flags & DND_WDMG_SETMASTER) // this is a hack
 			SetPointer(AAPTR_TARGET, GetActorProperty(0, APROP_MASTERTID));
-		SetActivator(GetActorProperty(0, APROP_MASTERTID));
+		if(!GetActorProperty(0, APROP_SCORE)) {
+			SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
+			SetActivator(GetActorProperty(0, APROP_MASTERTID));
+		}
 	}
 	else if(flags & DND_WDMG_USETRACER)
 		SetActivator(0, AAPTR_TRACER);
+	// no owner can potentially mean this was a reflected projectile, we can manipulate this a bit
+	if(!ActivatorTID()) {
+		GiveInventory("MarkAsReflected", 1);
+		SetActivator(GetActorProperty(0, APROP_SCORE));
+	}
 	int res = 0, pnum = PlayerNumber(), temp;
 	// we don't cache special ammo damage
 	if(PlayerDamageNeedsCaching(wepid, dmgid) || isSpecial) {

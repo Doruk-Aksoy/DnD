@@ -1632,3 +1632,13 @@ Actor WolfensteinSS2 : DnD_WolfensteinSS {
 }
 
 Actor WolfensteinSS3 : WolfensteinSS2 replaces WolfensteinSS { }
+
+// Reflect testing
+Actor BaseReflectorMan : Zombieman2 {
+	Health 99999
+	+REFLECTIVE
+	States {
+		Spawn:
+		Goto Idle
+	}
+}
