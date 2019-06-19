@@ -389,6 +389,8 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, temp);
 	
 	temp = CheckActorInventory(tid, "Level");
+	if(!temp)
+		temp = 1; // fix level 0 saves
 	// send temp over
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, temp);
 	
@@ -913,7 +915,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("DnD_NonLowestTalents", GetNonLowestTalents()); //All higher talents should have bit set here.
 	
 	// read level
-	SetInventory("Level", GetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc));
+	temp = GetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc);
+	if(!temp)
+		temp = 1;
+	SetInventory("Level", temp);
 	
 	// read exp
 	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);

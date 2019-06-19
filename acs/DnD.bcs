@@ -687,6 +687,7 @@ Script "DND On Kill" KILL {
 		#ifdef ISDEBUGBUILD
 			SpawnElixir(0);
 			SpawnCharm(0, true);
+			SpawnOrb(0);
 		#endif
 		HandleCharmLootDrop(pnum);
 	}
