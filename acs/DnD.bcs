@@ -3492,6 +3492,22 @@ Script "DnD Drop Orb" (void) {
 	SpawnOrbForAll(1);
 }
 
+Script "DnD Play Local Item Drop Sound" (int who, int droptype) CLIENTSIDE {
+	if(ConsolePlayerNumber() != who)
+		Terminate;
+	switch(droptype) {
+		case DND_ITEM_CHARM:
+			Log(s:"charm sound");
+			PlaySound(0, "Items/CharmDrop", 4);
+		break;
+		case DND_ITEM_ORB:
+			Log(s:"orb sound");
+			PlaySound(0, "Items/OrbDrop", 5);
+		break;
+		
+	}
+}
+
 Script "DnD Chest Opened" (int ctype) {
 	HandleChestDrops(ctype);
 }

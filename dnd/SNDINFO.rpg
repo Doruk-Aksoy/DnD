@@ -32,7 +32,6 @@ Quest/Fail			QSTFAIL
 
 Items/OrbUse		ORBUSE
 Items/OrbDrop		ORBDROP
-$limit Items/OrbDrop 0
 Items/OrbPick		ORBPICK
 Items/ChestKey		CHESTKEY
 

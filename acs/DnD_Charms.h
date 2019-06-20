@@ -127,6 +127,7 @@ void SpawnCharm(int pnum, bool isElite) {
 			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		}
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
 	}
 }
 

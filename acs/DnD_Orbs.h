@@ -1649,6 +1649,7 @@ void SpawnOrb(int pnum) {
 		RollOrbInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
 	}
 }
 
@@ -1662,6 +1663,7 @@ void SpawnOrbForAll(int repeats) {
 				RollOrbInfo(c, i, true);
 				SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 				SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, j + 1, c);
+				ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, j, DND_ITEM_ORB);
 			}
 		}
 	}
