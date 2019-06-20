@@ -1137,6 +1137,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				ReturnToMain();
 		}
 		else if(curopt == MENU_LOAD) {
+			// prevents having something clicked previously in crafting altering something else
+			SetInventory("DnD_SelectedInventoryBox", 0);
 			if(HasLeftClicked(pnum)) {
 				if(boxid > 0) {
 					if(boxid == MBOX_9)
