@@ -431,6 +431,11 @@ Actor DnD_Credit_Counter : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
+Actor DnD_Hit_Cooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 9
+}
+
 Actor MarkAsReflected : DnD_Activator {
 	States {
 		Pickup:

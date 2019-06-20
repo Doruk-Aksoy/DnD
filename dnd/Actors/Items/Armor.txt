@@ -525,6 +525,11 @@ Actor NecroSpikeShooter : DnD_Activator {
 	}
 }
 
+Actor NecroSpikeCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 17
+}
+
 Actor NecroSpikeSpawner {
 	Height 1
 	Radius 1

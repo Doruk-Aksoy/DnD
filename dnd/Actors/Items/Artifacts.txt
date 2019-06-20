@@ -408,6 +408,8 @@ Actor VortexBlade
 	+NOCLIP
 	+NODAMAGETHRUST
 	+FORCERADIUSDMG
+	+DONTBLAST
+	+DONTREFLECT
 	Radius 5
 	Height 8
 	Speed 8
