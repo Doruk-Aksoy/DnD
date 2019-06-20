@@ -3,40 +3,89 @@
 
 #include "DnD_Shared.h"
 
-Script "DND Shared Item Check" (int type) {
-	int res = 1;
-	if (!CheckInventory("P_BusyPicking")) { //Prevent overwhelming code (2 tick cooldown).
-		int pid = ActivatorTID();
-		// find which item is in bounds
-		for(int closest = 0; closest < shared_type_items_counter[type]; ++closest) {
-			// check if this item was picked up
-			// prevent multiple pickup calls from being handled for the same player while this is being processed
-			//printbold(s:"closest ID: ", d:closest, s:", Pickup state before ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
-			if (!(Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]) &&
-				(player_pickup_cubes_intersect(pid, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest)))
-			{
-				//printbold(s:"Can pick ", d:closest);
-				GiveInventory("P_BusyPicking", 1);
-				SetInventory("DnD_SharedItemTID", closest + 1);
-				res = Shared_Item_pickup_state[type][closest][pid - P_TIDSTART];
-				break;
-			}
-		}
-	}
-	SetResultValue(res);
-}
+enum { //Shortened version of enum found at DnD_Stat.h
+	DND_ARMOR_BONUS,
+	DND_ARMOR_GREEN,
+	DND_ARMOR_YELLOW,
+	DND_ARMOR_BLUE,
+	DND_ARMOR_RED
+};
 
-Script "DND Shared Item Pickup" (int type) {
+Script "DND Shared Item Check" (int type) {
 	int pid = ActivatorTID();
-	// find which item this guy is really closest to
-	int closest = CheckInventory("DnD_SharedItemTID") - 1;
-	//printbold(s:"Attempt ", d:closest, s: " ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
-	if(closest != -1 && !Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]) {
-		ACS_ExecuteAlways(801, 0, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest);
-		Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 1;
-		//printbold(s:"Picked ", d:closest, s: " ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
-		SetInventory("DnD_SharedItemTID", 0);
-		TakeInventory("P_BusyPicking", 1);
+	// find which item is in bounds
+	//printbold(s:"DND Shared Item Check, type:", d:type);
+	for(int closest = 0; closest < shared_type_items_counter[type]; ++closest) {
+		// check if this item was picked up
+		// prevent multiple pickup calls from being handled for the same player while this is being processed
+		//printbold(s:"closest ID: ", d:closest, s:", Pickup state before ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
+		if (!(Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]) &&
+			(player_pickup_cubes_intersect(pid, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest)))
+		{
+			Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 1; //Make sure multiples running here will skip to others more reliably
+			//printbold(s:"Can pick ", d:closest);
+			bool pickedup = false;
+			//Now run the scripts based on item type picked
+			switch(type) {
+				case SHI_REDARMOR:
+					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
+						pickedup = true;
+						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_REDARMOR);
+						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300);
+						GiveInventory("RedArmorMsg", 1);
+					}
+					break;
+				case SHI_BLUEARMOR:
+					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
+						pickedup = true;
+						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_BLUEARMOR);
+						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200);
+						GiveInventory("BlueArmorMsg", 1);
+					}
+					break;
+				case SHI_YELLOWARMOR:
+					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
+						pickedup = true;
+						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_YELLOWARMOR);
+						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_YELLOW, 150);
+						GiveInventory("YellowArmorMsg", 1);
+					}
+					break;
+				case SHI_GREENARMOR:
+					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
+						pickedup = true;
+						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_GREENARMOR);
+						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_GREEN, 100);
+						GiveInventory("GreenArmorMsg", 1);
+					}
+					break;
+				case SHI_BACKPACK:
+					pickedup = true;
+					GiveInventory("BackpackPickMSG", 1);
+					GiveInventory("NewBackpack", 1);
+					break;
+				case SHI_STIMPACK:
+					if(!CheckInventory("TaltosUp") && ACS_ExecuteWithResult(819, 0)) {
+						pickedup = true;
+						GiveInventory("StimpackMsg", 1);
+						ACS_NamedExecuteAlways("DnD Health Pickup", 0, 10);
+					}
+					break;
+				case SHI_MEDKIT:
+					if(!CheckInventory("TaltosUp") && ACS_ExecuteWithResult(819, 0)) {
+						pickedup = true;
+						GiveInventory("MedikitMsg", 1);
+						ACS_NamedExecuteAlways("DnD Health Pickup", 0, 25);
+					}
+					break;
+			}
+			if(pickedup) {
+				ACS_ExecuteAlways(801, 0, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest);
+				//printbold(s:"Picked ", d:closest, s: " ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
+			} else
+				Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 0; //Make sure the item is available for pickup again.
+			break;
+		}
 	}
 }
 
