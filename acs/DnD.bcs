@@ -1309,16 +1309,16 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 			GiveMonsterTID();
 		//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 		//Make sure mob gets to right amount of hp at this point
-		int maxhp, base, add, pcount = PlayerCount(), this = ActivatorTID(), realhp = MonsterHPList[monsterid];
+		int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterHPList[monsterid];
 		if(!pcount)
 			pcount = 1;
 		if(GetCVar("dnd_monsterscale")) {
 			// scaling code -- delay is because monsters are initialized before enter scripts are executed
-			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
+			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
 				Delay(3);
 			//This delay needs a check
 			//Delay(35); // wait just in case someone leaves, disconnect script will correct the level
-			pcount = PlayerCount();
+			pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 			if(!pcount)
 				pcount = 1;
 			maxhp = ScaleMonster(pcount, realhp);
