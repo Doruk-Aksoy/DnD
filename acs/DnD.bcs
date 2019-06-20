@@ -2473,8 +2473,10 @@ Script "DnD Player On Hit" (int power) {
 			GiveInventory("HateWeakness", 1);
 	}
 	// necro chance
-	if(GetArmorType("NecroArmor", PlayerNumber()) && !random(0, 2))
+	if(GetArmorType("NecroArmor", PlayerNumber()) && !CheckInventory("NecroSpikeCooldown") && !random(0, 2)) {
 		GiveInventory("NecroSpikeShooter", 1);
+		GiveInventory("NecroSpikeCooldown", 1);
+	}
 	if(!CheckInventory("Armor"))
 		SetInventory("DnD_ArmorType", 0);
 	// player heal on hit check
