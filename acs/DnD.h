@@ -11,6 +11,15 @@
 #include "DnD_Skills.h"
 #include "DnD_Settings.h"
 
+// for now allocate slots for 10
+#define MAX_SCRIPT_TRACK 10
+
+enum {
+	DND_SCRIPT_EXPTRACKER
+};
+
+global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
+
 #define DEATHRAY_MARKER_TID_ADD 1000
 
 #define PERK_GAIN_RATE 5
@@ -945,4 +954,10 @@ int ScaleMonster(int pcount, int realhp) {
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp = base + add;
 	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level = level;
 	return base + add;
+}
+
+void ResetPlayerScriptChecks() {
+	for(int i = 0; i < MAX_SCRIPT_TRACK; ++i)
+		for(int j = 0; j < MAXPLAYERS; ++j)
+			PlayerScriptsCheck[i][j] = false;
 }

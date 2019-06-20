@@ -424,6 +424,14 @@ Actor DnD_Credit_Counter : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
+Actor MarkAsReflected : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetDamageType("Reflection")
+		Stop
+	}
+}
+
 enum {
 	DND_SPECIAL_RESEARCH = 1,
 	DND_SPECIAL_ORB = 2,

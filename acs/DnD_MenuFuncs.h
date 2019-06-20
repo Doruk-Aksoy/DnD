@@ -3649,7 +3649,7 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 					//Log(s:"update prev item inv ", d:tx);
 					//SetInventory("DnD_PlayerPrevItemIndex", tx);
 					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
-					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS2;
+					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
 					SetFont("CRFBX_H");
 				}
 				else
@@ -3840,6 +3840,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 	if(HasPlayerClicked(pnum)) {
 		int itemindex = ((boxid >> DND_MENU_ITEMSAVEBITS1) & DND_MENU_ITEMSAVEBITS1_MASK);
 		int previtemindex = (boxid >> DND_MENU_ITEMSAVEBITS2);
+		//printbold(d:previtemindex, s: " ", d:boxid);
 		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
 		if(boxid != MAINBOX_NONE && boxid != CheckInventory("DnD_SelectedInventoryBox")) {
 			if(HasLeftClicked(pnum)) {
@@ -3929,11 +3930,13 @@ void HandleCraftingInputs(int boxid, int curopt) {
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
 							else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+								//printbold(d:previtemindex, s: " ", d:PlayerInventoryList[pnum][itemindex].item_type, s: " vs ", d:DND_ITEM_CHARM);
+								// is the index shown here not being the same as the one on inventory list causing the problem here?
 								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_CHARM)) {
 									GiveInventory("DnD_RefreshPane", 1);
 									UsePlayerItem(pnum, itemindex);
 								}
-								else
+								else // this part can handle rest of the item types to come later on
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
 						}

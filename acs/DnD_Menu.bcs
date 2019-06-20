@@ -277,13 +277,13 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 		}
 		else if(curopt == MENU_STAT2) {
+			// put before hud clip rect in the future, wasn't showing before!
+			HudMessage(s:"--- Current Gains ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			ListenScroll(-96, 0);
 			SetHudClipRect(192, 56, 256, 224, 256, 1);
 			
 			i = CheckInventory("PSTAT_Bulkiness");
 			temp = 64.0 + 6.0 * ScrollPos;
-			
-			HudMessage(s:"--- Current Gains ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			
 			HudMessage(s:"+ \c[Q9]", d:GetSpawnHealth() - DND_BASE_HEALTH, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, temp, 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetArmorCap(true) - DND_BASE_ARMOR_SHOW, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, temp + 16.0, 0.0, 0.0);
@@ -312,19 +312,22 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST), s:"\c- knockback resist"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 192.1, temp + 288.0, 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE), s:"%\c- increased damage"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 192.1, temp + 304.0, 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE), s:"\c- accuracy rating"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 192.1, temp + 320.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM), s:"\c-% elemental resist"; HUDMSG_PLAIN, RPGMENUITEMID - 22, CR_WHITE, 192.1, temp + 336.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS), s:"\c-% physical resist"; HUDMSG_PLAIN, RPGMENUITEMID - 23, CR_WHITE, 192.1, temp + 352.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", f:ftrunc(GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL) * 0.1), s:"\c-% reflection resist"; HUDMSG_PLAIN, RPGMENUITEMID - 24, CR_WHITE, 192.1, temp + 368.0, 0.0, 0.0);
 		
 			for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i) {
-				HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentNames[i][TALENT_NAME], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 22 - 2 * i, CR_WHITE, 192.1, temp + 336.0 + 32.0 * i, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:MapTalentToFlatBonus(pnum, i), s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - 23 - 2 * i, CR_WHITE, 192.1, temp + 352.0 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentNames[i][TALENT_NAME], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - 25 - 2 * i, CR_WHITE, 192.1, temp + 384.0 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:MapTalentToFlatBonus(pnum, i), s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - 26 - 2 * i, CR_WHITE, 192.1, temp + 400.0 + 32.0 * i, 0.0, 0.0);
 			}
 			j = 2 * (DND_TALENT_END - 1);
 			for(i = 0; i < MAX_WEAPON_SLOTS; ++i)
-				HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + i), s:"%\c- damage bonus to slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 25 - j - i, CR_WHITE, 192.1, temp + 368.0 + 16.0 * (j + i), 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + i), s:"%\c- damage bonus to slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 28 - j - i, CR_WHITE, 192.1, temp + 416.0 + 16.0 * (j + i), 0.0, 0.0);
 			
 			j += MAX_WEAPON_SLOTS;
 			if(GetCVar("survival")) {
-				HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 45, CR_WHITE, 190.1, temp + 400.0 + 16.0 * j, 0.0, 0.0);
-				HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 46, CR_WHITE, 190.1, temp + 416.0 + 16.0 * j, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 58, CR_WHITE, 190.1, temp + 448.0 + 16.0 * j, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 59, CR_WHITE, 190.1, temp + 464.0 + 16.0 * j, 0.0, 0.0);
 			}
 			SetHudClipRect(0, 0, 0, 0, 0, 0);
 			HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);

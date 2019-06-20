@@ -2803,7 +2803,7 @@ Actor GolgothPuff {
 	DamageType "LegendarySlow50"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail Fake", 0) //TODO: Add TID of mob
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail Fake", 0, ACS_NamedExecuteWithResult("DnD Get Target"))
 			TNT1 A 3
 		Stop
 	}
@@ -2813,7 +2813,7 @@ Actor GolgothPuff2 : GolgothPuff {
 	DamageType "LegendaryWeaken75"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail", 0) //TODO: Add TID of mob
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Golgoth Laser Trail", 0, ACS_NamedExecuteWithResult("DnD Get Target"))
 			TNT1 A 3
 		Stop
 	}

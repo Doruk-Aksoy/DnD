@@ -34,6 +34,7 @@
 #define MAX_EXPRESIST_VAL 100
 #define MAX_ELEMRESIST_VAL 100
 #define MAX_PHYSRESIST_VAL 100
+#define MAX_REFLRESIST_VAL 1000 // 1000 because we use 1 as 0.1% so 1000 is 100%
 #define MAX_WEAKEN_VAL 200
 
 #define MAX_SMALL_CHARMS_USED 4
@@ -1649,6 +1650,12 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
+		break;
+		case INV_DMGREDUCE_REFL:
+			TakeInventory(StrParam(s:"Reflect_Resist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_REFLRESIST_VAL)), 1);
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			if(GetPlayerAttributeValue(pnum, atype))
+				GiveInventory(StrParam(s:"Reflect_Resist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_REFLRESIST_VAL)), 1);
 		break;
 		case INV_EX_DMGINCREASE_TAKEN:
 			TakeInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
