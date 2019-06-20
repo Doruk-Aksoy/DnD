@@ -3497,11 +3497,9 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype) CLIENTSIDE {
 		Terminate;
 	switch(droptype) {
 		case DND_ITEM_CHARM:
-			Log(s:"charm sound");
 			PlaySound(0, "Items/CharmDrop", 4);
 		break;
 		case DND_ITEM_ORB:
-			Log(s:"orb sound");
 			PlaySound(0, "Items/OrbDrop", 5);
 		break;
 		

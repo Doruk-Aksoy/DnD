@@ -1551,7 +1551,9 @@ Actor SwordPuff {
 		Spawn:
 			VFX2 A 0
 			TNT1 A 0 A_GiveToTarget("DuskHealFX", 1)
+			TNT1 A 0 A_JumpIfInTargetInventory("StatbuffCounter_ForbidArmor", 1, "SkipArmor")
 			TNT1 A 0 A_GiveToTarget("DuskArmorBonus", 1)
+		SkipArmor:
 			TNT1 A 0 A_SpawnItem("SwordDuskPuff")
 			TNT1 A 1 A_PlaySound("Sword/Hit")
 		Stop
