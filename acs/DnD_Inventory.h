@@ -405,7 +405,7 @@ void FreeSpot_Player(int item_index, int source, int pnum) {
 int GetStackValue(int type) {
 	switch (type) {
 		case DND_ITEM_ORB:
-		return MAXSTACKS_ORB;
+		return 8;
 		case DND_ITEM_CHESTKEY:
 		return MAXSTACKS_CKEY;
 		case DND_ITEM_ELIXIR:
@@ -1022,7 +1022,7 @@ void SwapItems(int ipos1, int ipos2, int source1, int source2, bool dontSync) {
 	{
 		w2p = GetStackValue(w1p);
 		// add stack of ipos2 to ipos1
-		if(h1p + h2p < w2p) {
+		if(h1p + h2p <= w2p) {
 			SetItemSyncValue(DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, h1p + h2p, source1);
 			SyncItemStack(ipos1 + offset1, source1);
 			// dispose of 2nd item
