@@ -2017,15 +2017,15 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			"RESBAK51",
-			"After studying the hide of several Cyberdemons you have sent, we can improve your body to make you take 10% less damage from your explosives."
+			"After studying the hide of several Cyberdemons you have sent, we can improve your body to make you take 10% less damage from your explosive attacks."
 		},
 		{
 			"RESBAK52",
-			"Studying further, we can now improve the previous enhancement to make you take 25% less damage instead."
+			"Studying further, we can now improve the previous enhancement to make you take 25% less damage from explosive attacks instead."
 		},
 		{
 			"RESBAK53",
-			"Superior impact protection. You take 40% less damage from your explosive attacks."
+			"Superior impact protection. Improves previous enhancement to make you take 40% less damage from your explosive attacks instead."
 		},
 		{
 			"", ""

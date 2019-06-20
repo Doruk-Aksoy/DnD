@@ -55,12 +55,7 @@ Actor NewBackPackPickup : CustomInventory replaces Backpack {
 			BPAK A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_BACKPACK), "Success")
-		Fail
-		Success:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_BACKPACK)
-			TNT1 A 0 A_GiveInventory("BackpackPickMSG", 1)
-			TNT1 A 0 A_GiveInventory("NewBackpack", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_BACKPACK) //Everything gets implemented there now
 		Fail
 	}
 }
