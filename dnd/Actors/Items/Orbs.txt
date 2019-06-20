@@ -92,7 +92,7 @@ Actor OrbDrop : InventoryBase {
 Actor OrbOfEnhancement : OrbDrop {
 	States {
 		Spawn:
-			ORB1 C 0 Bright NoDelay A_PlaySound("Items/OrbDrop")
+			ORB1 C 0 Bright
 		Goto Super::SpawnInit
 	}
 }
@@ -105,7 +105,7 @@ Actor CorruptOrb_DamageReduction : PowerDamage {
 Actor OrbofCorruption : OrbDrop {
 	states {
 		Spawn:
-			ORB1 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB1 A 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -176,7 +176,7 @@ Actor OrbofCorruption : OrbDrop {
 Actor OrbofSpirit : OrbDrop {
 	states {
 		Spawn:
-			ORB1 E 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB1 E 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -220,7 +220,7 @@ Actor OrbofSpirit : OrbDrop {
 Actor OrbofRepentance : OrbDrop {
 	states {
 		Spawn:
-			ORB1 T 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB1 T 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -264,7 +264,7 @@ Actor OrbofRepentance : OrbDrop {
 Actor OrbofAffluence : OrbDrop {
 	states {
 		Spawn:
-			ORB2 W 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB2 W 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -308,7 +308,7 @@ Actor OrbofAffluence : OrbDrop {
 Actor OrbofCalamity : OrbDrop {
 	states {
 		Spawn:
-			ORB1 J 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB1 J 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -352,7 +352,7 @@ Actor OrbofCalamity : OrbDrop {
 Actor OrbofProsperity : OrbDrop {
 	states {
 		Spawn:
-			ORB1 O 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB1 O 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -396,7 +396,7 @@ Actor OrbofProsperity : OrbDrop {
 Actor OrbofWisdom : OrbDrop {
 	states {
 		Spawn:
-			ORB2 F 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB2 F 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -440,7 +440,7 @@ Actor OrbofWisdom : OrbDrop {
 Actor OrbofGreed : OrbDrop {
 	states {
 		Spawn:
-			ORB3 B 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB3 B 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -484,7 +484,7 @@ Actor OrbofGreed : OrbDrop {
 Actor OrbofViolence : OrbDrop {
 	states {
 		Spawn:
-			ORB2 K 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB2 K 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -528,7 +528,7 @@ Actor OrbofViolence : OrbDrop {
 Actor OrbofFortitude : OrbDrop {
 	states {
 		Spawn:
-			ORB2 P 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB2 P 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -572,7 +572,7 @@ Actor OrbofFortitude : OrbDrop {
 Actor OrbofSin : OrbDrop {
 	states {
 		Spawn:
-			ORB2 A 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB2 A 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
@@ -616,7 +616,7 @@ Actor OrbofSin : OrbDrop {
 Actor OrbofRiches : OrbDrop {
 	states {
 		Spawn:
-			ORB3 F 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB3 F 0
 		Goto Super::SpawnInit
 	}
 }
@@ -624,7 +624,7 @@ Actor OrbofRiches : OrbDrop {
 Actor OrbofHolding : OrbDrop {
 	states {
 		Spawn:
-			ORB3 H 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB3 H 0
 		Goto Super::SpawnInit
 	}
 }
@@ -632,7 +632,7 @@ Actor OrbofHolding : OrbDrop {
 Actor OrbofRefinement : OrbDrop {
 	states {
 		Spawn:
-			ORB3 J 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB3 J 0
 		Goto Super::SpawnInit
 	}
 }
@@ -640,7 +640,7 @@ Actor OrbofRefinement : OrbDrop {
 Actor OrbofSculpting : OrbDrop {
 	states {
 		Spawn:
-			ORB3 L 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB3 L 0
 		Goto Super::SpawnInit
 	}
 }
@@ -648,7 +648,7 @@ Actor OrbofSculpting : OrbDrop {
 Actor OrbofElevation : OrbDrop {
 	states {
 		Spawn:
-			ORB3 N 0 NoDelay A_PlaySound("Items/OrbDrop")
+			ORB3 N 0
 		Goto Super::SpawnInit
 	}
 }

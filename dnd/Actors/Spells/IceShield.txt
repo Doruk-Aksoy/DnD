@@ -14,16 +14,13 @@ Actor IceShieldCaster : DnD_Activator {
 	}
 }
 
-Actor IceShield_Barrier {
+Actor IceShield_Barrier : Hittable_Spell_Object {
 	Health 100
 	Height 64
 	Radius 12
-	Species "Player"
 	Renderstyle Add
 	Alpha 0.01
 	+NOGRAVITY
-	+SHOOTABLE
-	+THRUSPECIES
 	+NOBLOOD
 	Scale 0.475
 	var int user_angle;

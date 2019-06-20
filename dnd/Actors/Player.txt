@@ -9,6 +9,9 @@ Actor DnD_PlayerBase : PlayerPawn {
 	DamageFactor "P_Rail", 0.0
 	DamageFactor "P_RailFull", 0.0
 	DamageFactor "SoulType", 0.0
+	damagefactor "SoulTypeFull", 0.0
+	damagefactor "SoulTypeExp", 0.0
+	damagefactor "SoulTypeExpFull", 0.0
 	Player.DamageScreenColor "Black", 0
 	+QUICKTORETALIATE
 	+NODAMAGETHRUST

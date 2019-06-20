@@ -33,3 +33,67 @@ Actor RandomElementalSpellCooldown : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 52
 }
+
+Actor Hittable_Spell_Object {
+	Species "Player"
+	+THRUSPECIES
+	+SHOOTABLE
+	
+	damagefactor "SoulType", 0.0
+	damagefactor "SoulTypeFull", 0.0
+	damagefactor "SoulTypeExp", 0.0
+	damagefactor "SoulTypeExpFull", 0.0
+	
+	DamageFactor "Melee", 0.0
+	DamageFactor "MeleeFull", 0.0
+	DamageFactor "Melee_Magic", 0.0
+	DamageFactor "Melee_MagicFull", 0.0
+	
+	damagefactor "Bullet", 0.0
+	damagefactor "BulletFull", 0.0
+	
+	damagefactor "Explosives", 0.0
+	damagefactor "ExplosivesFull", 0.0
+	
+	damagefactor "P_Rail", 0.0
+	damagefactor "P_RailFull", 0.0
+	damagefactor "Energy", 0.0
+	damagefactor "EnergyFull", 0.0
+	damagefactor "EnergyExp", 0.0
+	damagefactor "EnergyExpFull", 0.0
+	
+	damagefactor "Fire", 0.0
+	damagefactor "FireFull", 0.0
+	DamageFactor "Melee_Fire", 0.0
+	DamageFactor "Melee_FireFull", 0.0
+	DamageFactor "ExplosivesFire", 0.0
+	damagefactor "MagicFireExp", 0.0
+	damagefactor "FireExp", 0.0
+	DamageFactor "ExplosivesFireFull", 0.0
+	damagefactor "MagicFireExpFull", 0.0
+	damagefactor "FireExpFull", 0.0
+	
+	damagefactor "Lightning", 0.0
+	damagefactor "LightningFull", 0.0
+	damagefactor "LightningExp", 0.0
+	damagefactor "LightningExpFull", 0.0
+	
+	damagefactor "P_Ice", 0.0
+	damagefactor "P_IceFull", 0.0
+	
+	damagefactor "AcidRifle", 0.0
+	damagefactor "AcidRifleFull", 0.0
+	damagefactor "Desolator", 0.0
+	damagefactor "DesolatorFull", 0.0
+	damagefactor "Emerald", 0.0
+	damagefactor "EmeraldFull", 0.0
+	
+	damagefactor "Magic", 0.0
+	damagefactor "MagicFull", 0.0
+	damagefactor "MagicExp", 0.0
+	damagefactor "MagicExpFull", 0.0
+	damagefactor "Explosives_Magic", 0.0
+	damagefactor "Explosives_MagicFull", 0.0
+	damagefactor "MagicFire", 0.0
+	damagefactor "MagicFireFull", 0.0
+}
