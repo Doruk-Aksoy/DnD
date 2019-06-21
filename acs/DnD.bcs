@@ -2086,8 +2086,12 @@ Script 989 (int pnum) DISCONNECT {
 	PlayerDied[pnum] = 0;
 	PlayerWillBeSaved[pnum] = false;
 	PlayerTransferred[pnum] = false;
-	ResetHardcoreStuff(pnum);
 	BreakTradesBetween(pnum);
+	
+	// if player was in middle of saving, don't accidently interfere if player leaves early
+	while(MapChanged)
+		Delay(17);
+	ResetHardcoreStuff(pnum);
 }
 
 // End of level checks
@@ -2184,7 +2188,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayersNotReady", 0);
 	
 	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
-	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] == PlayerCount())
+	// just in case
+	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
 		MapChanged = 0;
 	
 	// Checks if we should set the lives to the inventory or not (also includes one time execute things)

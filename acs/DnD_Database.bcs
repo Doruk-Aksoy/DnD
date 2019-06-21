@@ -1208,7 +1208,7 @@ int check_load_char(int pnum, int char_id) {
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	// if gamestate is countdown don't let them because it'll be reset anyways
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
-	if(char_id < 0 || char_id > DND_MAX_CHARS-1) return DND_LOGIN_CHARNOTINRANGE;
+	if(char_id < 0 || char_id > DND_MAX_CHARS - 1) return DND_LOGIN_CHARNOTINRANGE;
 	// handle no data case -- only let people to load their stuff if there really is some data
 	if(!GetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), GetPlayerAccountName(pnum))) return DND_LOGIN_NOCHAR;
 	// prevent people from loading their stuff to escape death, prevent loading if a save on this player happened already!
@@ -1241,7 +1241,7 @@ int check_create_char(int pnum, int char_id) {
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
 	if(char_id < 0 || char_id > DND_MAX_CHARS-1) return DND_LOGIN_CHARNOTINRANGE;
 	if(PlayerLoaded[pnum]) return DND_LOGIN_CHARINUSE;
-	//if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME; //For now, allow player to setchar until end of map manually.
+	if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME; //For now, allow player to setchar until end of map manually. -- Uncommented to see if it prevents stashes being destroyed.
 	return DND_LOGIN_CREATECHAROK;
 }
 

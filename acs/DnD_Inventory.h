@@ -405,7 +405,7 @@ void FreeSpot_Player(int item_index, int source, int pnum) {
 int GetStackValue(int type) {
 	switch (type) {
 		case DND_ITEM_ORB:
-		return 8;
+		return MAXSTACKS_ORB;
 		case DND_ITEM_CHESTKEY:
 		return MAXSTACKS_CKEY;
 		case DND_ITEM_ELIXIR:
