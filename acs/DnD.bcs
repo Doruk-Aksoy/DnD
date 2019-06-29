@@ -2269,6 +2269,9 @@ Script "DnD Player Setup" ENTER {
 	if(CheckInventory("QuestCompletionToken"))
 		ACS_NamedExecuteAlways("DND Quest Complete", 0);
 	
+	//Give proper self explosion resist effect - it resets on map change.
+	GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
+	
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
 		Delay(7);
