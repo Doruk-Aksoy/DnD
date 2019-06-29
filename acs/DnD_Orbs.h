@@ -569,14 +569,11 @@ void HandleOrbUse (int orbtype, int extra) {
 			if(!i)
 				GiveExp((LevelCurve[CheckInventory("Level") - 1] / 100) * res); // don't want overflows! -- technically it still can, but hopefully wont
 			else if(i == 1) {
-				printBold(s:"testing - credit: ",i:res);
 				res = Max(2000, (CheckInventory("Credit") / 100) * res);
 				GiveCredit(res);
 			}
-			else if(i == 2) {
+			else if(i == 2)
 				GiveBudget(res);
-				printBold(s:"testing - budget: ",i:res);
-			}
 			res |= i << 30;
 			SetInventory("OrbResult", res);
 		break;
