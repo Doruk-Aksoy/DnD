@@ -4052,3 +4052,77 @@ Script "DnD Face Tracer" (void) {
 	SetActorProperty(0, APROP_SCORE, (360 * VectorAngle(xdiff, ydiff)) >> 16);
 	SetActorPitch(0, VectorPitch(0, target, xdiff, ydiff, 8.0));
 }
+
+Script "DnD Class Select" (void) NET CLIENTSIDE {
+	// close the previous menu
+	ConsoleCommand("closemenu");
+	
+	int cpnum = ConsolePlayerNumber();
+	int ctype = GetUserCVar(cpnum, "dnd_playerclass");
+	
+	ACS_NamedExecuteAlways("DnD Class Select Screen", 0);
+	ACS_NamedExecuteAlways("DnD Class Select Info", 0, ctype);
+	
+	int bpress, obpress, dir = 0;
+	while(PlayerIsSpectator(cpnum)) {
+		bpress = GetPlayerInput(-1, INPUT_BUTTONS);
+		obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
+
+		// left move
+		if(isButtonPressed(bpress, obpress, settings[1][0]))
+			dir = -1;
+		else if(isButtonPressed(bpress, obpress, settings[3][0]))
+			dir = 1;
+		else if(isButtonPressed(bpress, obpress, BT_USE | BT_ATTACK)) {
+			// terminate this, we made our choice
+			LocalAmbientSound("RPG/MenuChoose", 127);
+			break;
+		}
+		else if(isButtonPressed(bpress, obpress, BT_ALTATTACK)) {
+			// clean this, we can exit
+			LocalAmbientSound("RPG/MenuClose", 127);
+			break;
+		}
+		
+		if(dir != 0) {
+			LocalAmbientSound("RPG/MenuMove", 127);
+			ctype += dir;
+			
+			if(ctype < 0)
+				ctype = MAXPLAYERCLASSES - 1;
+			else if(ctype > MAXPLAYERCLASSES - 1)
+				ctype = 0;
+			
+			// update
+			ACS_NamedExecuteAlways("DnD Class Select Info", 0, ctype);
+		}
+		
+		// reset
+		dir = 0;
+		Delay(1);
+	}
+	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
+}
+
+Script "DnD Class Select Screen" (void) CLIENTSIDE {
+	SetHUDSize(600, 450, 1);
+	SetFont("BIGFONT");
+	HudMessage(s:"\cjSELECT YOUR CHARACTER"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 225.0, 0.0);
+}
+
+Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
+	SetHUDSize(600, 450, 1);
+	SetFont("SMALLFONT");
+	SetHudClipRect(100, 200, 200, 256, 100, 1);
+	
+	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + 1, -1, 300.0, 250.0, 0.0);
+	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + 1, -1, 300.0, 250.0, 0.0);
+	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + 1, -1, 300.0, 250.0, 0.0);
+	
+	SetHudClipRect(0, 0, 0, 0, 0, 0);
+}
+
+Script "DnD Class Select Cleanup" (void) CLIENTSIDE {
+	for(int i = 0; i < DND_CLASSMENU_IDCOUNT; ++i)
+		HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + i, -1, 0, 0, 1.0);
+}

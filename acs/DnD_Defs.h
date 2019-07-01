@@ -40,13 +40,6 @@ str MapDifficultyLabel[MAX_MAP_DIFFICULTIES] = {
 	"\ckHard\c-", 
 	"\cgVery Hard\c-" 
 };
-
-int settings[4][2] = {
-	{ BT_FORWARD,					0.00 	},
-	{ BT_MOVELEFT | BT_LEFT,		0.25	},
-	{ BT_BACK,						0.50	},
-	{ BT_MOVERIGHT | BT_RIGHT,	    0.75	}
-};
 	 
 enum {
 	RESET_LEVEL = 1,
@@ -54,14 +47,6 @@ enum {
 	RESET_STATS = 4,
 	RESET_PERKS = 8
 };
-											
-int IsButtonPressed (int input, int oldInput, int mask) {
-	return (input & ~oldInput) & mask;
-}
-
-int IsButtonHeld (int input, int mask) {
-	return input & mask;
-}
 
 int IsHardcore() {
 	return HardcoreSet;

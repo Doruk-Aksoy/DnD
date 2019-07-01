@@ -10,6 +10,7 @@
 #include "DnD_ChestKey.h"
 #include "DnD_Skills.h"
 #include "DnD_Settings.h"
+#include "DnD_ClassMenu.h"
 
 // for now allocate slots for 10
 #define MAX_SCRIPT_TRACK 10
