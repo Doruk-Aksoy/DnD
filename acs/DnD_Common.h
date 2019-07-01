@@ -30,6 +30,17 @@
 #define ASPECT_16_9 (16.0 / 9)
 #define ASPECT_16_10 1.6
 
+enum {
+	DND_PLAYER_DOOMGUY,
+	DND_PLAYER_MARINE,
+	DND_PLAYER_HOBO,
+	DND_PLAYER_PUNISHER,
+	DND_PLAYER_WANDERER,
+	DND_PLAYER_CYBORG
+};
+
+#define MAXPLAYERCLASSES (DND_PLAYER_CYBORG + 1)
+
 /*
 ////////////////
 // TID RANGES //
@@ -67,6 +78,21 @@ enum {
 	DND_MODE_SOFTCORE,
 	DND_MODE_HARDCORE
 };
+
+int settings[4][2] = {
+	{ BT_FORWARD,					0.00 	},
+	{ BT_MOVELEFT | BT_LEFT,		0.25	},
+	{ BT_BACK,						0.50	},
+	{ BT_MOVERIGHT | BT_RIGHT,	    0.75	}
+};
+
+int IsButtonPressed (int input, int oldInput, int mask) {
+	return (input & ~oldInput) & mask;
+}
+
+int IsButtonHeld (int input, int mask) {
+	return input & mask;
+}
 
 #define MAX_SCREENRES_OFFSETS 4
 int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1 };
@@ -181,8 +207,8 @@ bool player_pickup_cubes_intersect(int player_tid, int object_tid) {
 
 	//printbold(s:"actor_cubes_intersect: player tid: ", d:player_tid, s:", item tid: ", d:object_tid, s:", radius: ", f:radius, s:", check states: ", d:check_state_1, s:", ", d:check_state_2, s:", ", d:check_state_3_1, s:"; ", d:check_state_3_2, s:", player z:", f:getactorz(player_tid), s:", object z: ", f:getactorz(object_tid));
 	
-	return	((getactorx(player_tid)-16.0 <= getactorx(object_tid)+24) && (getactorx(player_tid)+16.0 >= getactorx(object_tid)-24)) &&
-			((getactory(player_tid)-16.0 <= getactory(object_tid)+24) && (getactory(player_tid)+16.0 >= getactory(object_tid)-24)) &&
+	return	((getactorx(player_tid)-16.0 <= getactorx(object_tid)+24.0) && (getactorx(player_tid)+16.0 >= getactorx(object_tid)-24.0)) &&
+			((getactory(player_tid)-16.0 <= getactory(object_tid)+24.0) && (getactory(player_tid)+16.0 >= getactory(object_tid)-24.0)) &&
 			((getactorz(player_tid) <= getactorz(object_tid)+16.0) && (getactorz(player_tid)+56.0 >= getactorz(object_tid)));
 }
 
