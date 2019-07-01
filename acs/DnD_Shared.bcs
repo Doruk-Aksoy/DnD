@@ -30,7 +30,6 @@ Script "DND Shared Item Check" (int type) {
 				case SHI_REDARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
 						pickedup = true;
-						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_REDARMOR);
 						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300);
 						GiveInventory("RedArmorMsg", 1);
 					}
@@ -38,7 +37,6 @@ Script "DND Shared Item Check" (int type) {
 				case SHI_BLUEARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
 						pickedup = true;
-						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_BLUEARMOR);
 						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200);
 						GiveInventory("BlueArmorMsg", 1);
 					}
@@ -46,7 +44,6 @@ Script "DND Shared Item Check" (int type) {
 				case SHI_YELLOWARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
 						pickedup = true;
-						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_YELLOWARMOR);
 						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_YELLOW, 150);
 						GiveInventory("YellowArmorMsg", 1);
 					}
@@ -54,7 +51,6 @@ Script "DND Shared Item Check" (int type) {
 				case SHI_GREENARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
 						pickedup = true;
-						ACS_NamedExecuteAlways("DND Shared Item Pickup", 0, SHI_GREENARMOR);
 						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_GREEN, 100);
 						GiveInventory("GreenArmorMsg", 1);
 					}
