@@ -72,6 +72,8 @@ enum {
 #define DND_TALENT_BEGIN TALENT_BULLET
 #define DND_TALENT_END TALENT_ELEMENTAL + 1
 
+#define MAX_EXPRESIST_VAL 100 //Also in DnD_Inventory.h
+
 enum {
 	// dont change order of these, add below the last!
 	STAT_STR,
