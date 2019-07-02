@@ -280,6 +280,20 @@ int CalculateArmorCapBonuses() {
 	return res;
 }
 
+int CanPickHealthItem(int type) {
+	int res = 0;
+    int research_cond = CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && CheckInventory("StoredMedkit") < GetAmmoCapacity("StoredMedkit");
+	if(type == 2) // portable medikit
+        res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth() && CheckInventory("StoredMedkit");
+    else
+    if(type == 1) // the artifact kit
+		res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth();
+	else // normal health pickup
+		res = (GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth()) || research_cond;
+		
+	return res;
+}
+
 // used for displaying to hud
 int GetArmorCap(bool useMenuShow) {
 	// see if this DND_BASE_ARMOR_SHOW breaks anything -- breaks armor shards

@@ -27,7 +27,7 @@ Actor Stimpack_SP : Stimpack2 {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("TaltosUp", 1, "Failed")
-			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(819, 0), "Success")
+			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0), "Success")
 		Failed:
 			TNT1 A 0
 		Fail
@@ -76,7 +76,7 @@ Actor Medikit_SP : Medikit2 {
 		Stop
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("TaltosUp", 1, "Failed")
-			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(819, 0), "Success")
+			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0), "Success")
 		Goto Failed
 		Failed:
 			TNT1 A 0

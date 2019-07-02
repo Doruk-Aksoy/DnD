@@ -296,17 +296,8 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 	HandleHealDependencyCheck();
 }
 
-Script 819 (int type) {
-	int res = 0;
-    int research_cond = CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && CheckInventory("StoredMedkit") < GetAmmoCapacity("StoredMedkit");
-	if(type == 2) // portable medikit
-        res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth() && CheckInventory("StoredMedkit");
-    else
-    if(type == 1) // the artifact kit
-		res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth();
-	else // normal health pickup
-		res = (GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth()) || research_cond;
-	SetResultValue(res);
+Script "DnD Can Pick Health Item" (int type) {
+	SetResultValue(CanPickHealthItem(type));
 }
 // Health kits end here
 Script 825 ENTER {

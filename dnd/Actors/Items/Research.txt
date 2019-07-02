@@ -99,7 +99,7 @@ Actor MedkitItem : CustomInventory {
 			TNT1 A 0
 			Fail
 		TryHeal:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(819, 2), "DoHeal")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 2), "DoHeal")
 			Goto End
 		DoHeal:
 			TNT1 A 0 A_PlaySound("Items/fieldkit")
