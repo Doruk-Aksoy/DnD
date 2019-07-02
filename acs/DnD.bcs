@@ -2030,11 +2030,8 @@ Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
-	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE);
+	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_SELFEXPLOSIONRESIST);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
-	SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(PlayerNumber(), INV_ACCURACY_INCREASE));
-	SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
-	GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
 	// if game mode is coop, we don't want any sort of reset on death here! make sure it's not coop
 	/*if(GetCVar("Survival")) {
 		if(CheckInventory("CurrentLives"))
@@ -2247,7 +2244,7 @@ Script "DnD Player Setup" ENTER {
 	else
 		SetInventory("CurrentLives", GetCvar("sv_maxlives") - 1);
 	
-	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE);
+	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_SELFEXPLOSIONRESIST);
 	
 	// a little hack to prevent ankh going off when finishing maps with 1 hp
 	if(GetActorProperty(0, APROP_HEALTH) == 1 && CheckInventory("CanIntervene"))
@@ -2259,7 +2256,7 @@ Script "DnD Player Setup" ENTER {
 	
 	if(CheckInventory("QuestCompletionToken"))
 		ACS_NamedExecuteAlways("DND Quest Complete", 0);
-	
+
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
 		Delay(7);

@@ -72,6 +72,8 @@ enum {
 #define DND_TALENT_BEGIN TALENT_BULLET
 #define DND_TALENT_END TALENT_ELEMENTAL + 1
 
+#define MAX_EXPRESIST_VAL 100 //Also in DnD_Inventory.h
+
 enum {
 	// dont change order of these, add below the last!
 	STAT_STR,
@@ -134,7 +136,10 @@ enum {
 	RES_PERK_DEADLINESS = 64,
 	RES_PERK_SAVAGERY = 128,
 	RES_PERK_LUCK = 256,
-	RES_PLAYERSPEED = 512
+	RES_PLAYERSPEED = 512,
+	RES_ACCURACY = 1024,
+	RES_EXPLOSIONRADIUS = 2048,
+	RES_SELFEXPLOSIONRESIST = 4096
 };
 
 enum {
@@ -279,6 +284,12 @@ void RestoreRPGStat (int statflag) {
 		GiveInventory(StrParam(s:"Damage_Perk_", d:CheckInventory("Perk_Sharpshooting") * SHARPSHOOTING_DAMAGE), 1);
 	if((statflag & RES_PERK_ENDURANCE) && CheckInventory("Perk_Endurance"))
 		GiveInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * ENDURANCE_RESIST), 1);
+	if((statflag & RES_ACCURACY) && GetPlayerAttributeValue(PlayerNumber(), INV_ACCURACY_INCREASE))
+		SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(PlayerNumber(), INV_ACCURACY_INCREASE));
+	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS))
+		SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
+	if((statflag & RES_SELFEXPLOSIONRESIST) && GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST))
+		GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
 	// can only intervene once per map
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH) && !CheckInventory("Intervened")) {
 		GiveInventory("CanIntervene", 1);

@@ -574,7 +574,7 @@ void HandleOrbUse (int orbtype, int extra) {
 			}
 			else if(i == 2)
 				GiveBudget(res);
-			res |= i << 16;
+			res |= i << 30;
 			SetInventory("OrbResult", res);
 		break;
 		case DND_ORB_HOLDING:
@@ -1552,9 +1552,9 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 				Log(s:"\cgYou don't have enough allocated stat points! Need at least \ck", d:SINORB_MAX_TAKE * affluence, s:"\c-!");
 		break;
 		case DND_ORB_RICHES:
-			if(!(val >> 16)) // exp
+			if(!(val >> 30)) // exp
 				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \ck% experience\c- points!");
-			else if((val >> 16) == 1)
+			else if((val >> 30) == 1)
 				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \cfcredits\c-!");
 			else
 				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"k\c- \cubudget\c-!");
