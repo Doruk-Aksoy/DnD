@@ -207,8 +207,8 @@ bool player_pickup_cubes_intersect(int player_tid, int object_tid) {
 
 	//printbold(s:"actor_cubes_intersect: player tid: ", d:player_tid, s:", item tid: ", d:object_tid, s:", radius: ", f:radius, s:", check states: ", d:check_state_1, s:", ", d:check_state_2, s:", ", d:check_state_3_1, s:"; ", d:check_state_3_2, s:", player z:", f:getactorz(player_tid), s:", object z: ", f:getactorz(object_tid));
 	
-	return	((getactorx(player_tid)-16.0 <= getactorx(object_tid)+24.0) && (getactorx(player_tid)+16.0 >= getactorx(object_tid)-24.0)) &&
-			((getactory(player_tid)-16.0 <= getactory(object_tid)+24.0) && (getactory(player_tid)+16.0 >= getactory(object_tid)-24.0)) &&
+	return	((getactorx(player_tid)-16.0 <= getactorx(object_tid)+20.0) && (getactorx(player_tid)+16.0 >= getactorx(object_tid)-20.0)) &&
+			((getactory(player_tid)-16.0 <= getactory(object_tid)+20.0) && (getactory(player_tid)+16.0 >= getactory(object_tid)-20.0)) &&
 			((getactorz(player_tid) <= getactorz(object_tid)+16.0) && (getactorz(player_tid)+56.0 >= getactorz(object_tid)));
 }
 
