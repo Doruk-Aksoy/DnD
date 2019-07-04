@@ -5,6 +5,10 @@ user bool dnd_nofx = false;
 user bool dnd_dashstatus = false;
 user bool dnd_expcreditnumbers = true;
 
+user noarchive int dnd_playerclass = 0;
+user noarchive int dnd_classmenu_button = 0;
+user noarchive bool dnd_onclassmenu = false;
+
 server noarchive bool dnd_test = false;
 server noarchive bool dnd_monsterbars = true;
 server noarchive bool dnd_monsterscale = true;

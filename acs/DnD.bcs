@@ -300,7 +300,7 @@ Script "DnD Can Pick Health Item" (int type) {
 	SetResultValue(CanPickHealthItem(type));
 }
 // Health kits end here
-Script 825 ENTER {
+Script "DnD Critical Input Handler" ENTER {
     while(PlayerInGame(PlayerNumber())) {
         // additional hack for the slayer/hells maw weapon's dynamic fire modes
 		if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive") && !CheckInventory("ShowingMenu")) {
@@ -2065,7 +2065,8 @@ Script 988 (int wepslot, int type) {
 }
 
 // Clear upon leaving
-Script 989 (int pnum) DISCONNECT {
+Script "DnD On Disconnect" (int pnum) DISCONNECT {
+	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
 	// if someone quit during countdown just remove this
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 	StatListOpened[pnum] = 0;
@@ -2105,6 +2106,8 @@ Script 990 UNLOADING {
 
 // Enter level checks
 Script "DnD Player Setup" ENTER {
+	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
+	
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	SetInventory("SphereMade", 0);
 	SetInventory("OrbUseType", 0);
@@ -4024,7 +4027,7 @@ Script "DnD Give Soul Ammo" (int amt) {
 	GiveAmmo(amt, DND_AMMOSLOT_SOULS, 0);
 }
 
-// called whenever player makes an attack
+// called whenever player makes an attack, melee weapons need to call this explicitly
 Script "DnD On Attack" (void) {
 	// elemental bulwark check
 	if(CheckInventory("IATTR_ChanceToCastElementalSpell") >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
@@ -4046,10 +4049,19 @@ Script "DnD Class Select" (void) NET CLIENTSIDE {
 	ConsoleCommand("closemenu");
 	
 	int cpnum = ConsolePlayerNumber();
+	
+	// don't allow duplicates to be ran
+	if(GetUserCVar(cpnum, "dnd_onclassmenu"))
+		Terminate;
+	
 	int ctype = GetUserCVar(cpnum, "dnd_playerclass");
+	
+	SetUserCVar(cpnum, "dnd_classmenu_button", 0);
+	SetUserCVar(cpnum, "dnd_onclassmenu", true);
 	
 	ACS_NamedExecuteAlways("DnD Class Select Screen", 0);
 	ACS_NamedExecuteAlways("DnD Class Select Info", 0, ctype);
+	ACS_NamedExecuteAlways("DnD Class Select Animated", 0);
 	
 	int bpress, obpress, dir = 0;
 	while(PlayerIsSpectator(cpnum)) {
@@ -4057,16 +4069,23 @@ Script "DnD Class Select" (void) NET CLIENTSIDE {
 		obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
 
 		// left move
-		if(isButtonPressed(bpress, obpress, settings[1][0]))
+		if(isButtonPressed(bpress, obpress, settings[1][0])) {
 			dir = -1;
-		else if(isButtonPressed(bpress, obpress, settings[3][0]))
+			ACS_NamedExecuteAlways("DnD Class Select Arrow Press", 0, DND_CLASSMENU_LEFTBUTTON_BIT);
+		}
+		if(isButtonPressed(bpress, obpress, settings[3][0])) {
 			dir = 1;
-		else if(isButtonPressed(bpress, obpress, BT_USE | BT_ATTACK)) {
+			ACS_NamedExecuteAlways("DnD Class Select Arrow Press", 0, DND_CLASSMENU_RIGHTBUTTON_BIT);
+		}
+		if(isButtonPressed(bpress, obpress, BT_USE | BT_ATTACK)) {
 			// terminate this, we made our choice
 			LocalAmbientSound("RPG/MenuChoose", 127);
+			SetUserCVar(cpnum, "dnd_playerclass", ctype);
+			ConsoleCommand(StrParam(s:"menu_joinclassidx ", d:ctype));
+			ConsoleCommand("menu_joingamewithclass");
 			break;
 		}
-		else if(isButtonPressed(bpress, obpress, BT_ALTATTACK)) {
+		if(isButtonPressed(bpress, obpress, BT_ALTATTACK)) {
 			// clean this, we can exit
 			LocalAmbientSound("RPG/MenuClose", 127);
 			break;
@@ -4087,30 +4106,132 @@ Script "DnD Class Select" (void) NET CLIENTSIDE {
 		
 		// reset
 		dir = 0;
-		Delay(1);
+		Delay(const:1);
 	}
+	SetUserCVar(cpnum, "dnd_onclassmenu", false);
 	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
 }
 
+Script "DnD Class Select Arrow Press" (int mode) CLIENTSIDE {
+	int cpnum = ConsolePlayerNumber();
+	int bn = GetUserCVar(cpnum, "dnd_classmenu_button");
+	if(bn & mode)
+		Terminate;
+	bn |= mode;
+	SetUserCVar(cpnum, "dnd_classmenu_button", bn);
+}
+
 Script "DnD Class Select Screen" (void) CLIENTSIDE {
+	int cpnum = ConsolePlayerNumber();
+	
 	SetHUDSize(600, 450, 1);
 	SetFont("BIGFONT");
-	HudMessage(s:"\cjSELECT YOUR CHARACTER"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 225.0, 0.0);
+	HudMessage(s:"\cjSELECT YOUR CHARACTER"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 80.0, 0.0);
+	
+	SetHUDSize(320, 240, 1);
+	setFont("DNDCHRSL");
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 160.0, 120.0, 0.0);
+}
+
+Script "DnD Class Select Animated" (int doDelay) CLIENTSIDE {
+	int cpnum = ConsolePlayerNumber();
+	bool larr_inc = false, rarr_inc = false;
+	int larr_timer = 0, rarr_timer = 0;
+	int select_alpha = 0, select_alpha_val = 0;
+	
+	while(GetUserCVar(cpnum, "dnd_onclassmenu")) {
+		// handle button press detection
+		if(GetUserCVar(cpnum, "dnd_classmenu_button") & DND_CLASSMENU_LEFTBUTTON_BIT) {
+			larr_timer = 0;
+			larr_inc = true;
+			SetUserCVar(cpnum, "dnd_classmenu_button", GetUserCVar(cpnum, "dnd_classmenu_button") ^ DND_CLASSMENU_LEFTBUTTON_BIT);
+		}
+		if(GetUserCVar(cpnum, "dnd_classmenu_button") & DND_CLASSMENU_RIGHTBUTTON_BIT) {
+			rarr_timer = 0;
+			rarr_inc = true;
+			SetUserCVar(cpnum, "dnd_classmenu_button", GetUserCVar(cpnum, "dnd_classmenu_button") ^ DND_CLASSMENU_RIGHTBUTTON_BIT);
+		}
+	
+		SetHudSize(320, 240, 1);
+		
+		// display arrows
+		if(larr_inc)
+			SetFont("CHSLARR2");
+		else
+			SetFont("CHSLARR1");
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_LEFTID, -1, 34.0, 66.0, 0.0);
+		
+		if(rarr_inc)
+			SetFont("CHSRARR2");
+		else
+			SetFont("CHSRARR1");
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_RIGHTID, -1, 284.0, 66.0, 0.0);
+		
+		SetHudSize(600, 450, 1);
+		SetFont("SMALLFONT");
+		
+		// display press w.e keys text
+		select_alpha_val = cos((select_alpha > 70 && select_alpha < 110 ? 70 : select_alpha) * 1.0 / 180);
+		if(select_alpha_val < 0)
+			select_alpha_val *= -1;
+		HudMessage(s:"\c[L7]Press \ci", k:"+use", s:" \c[L7]or \ci", k:"+altattack", s: " \c[L7]to select!"; HUDMSG_PLAIN | HUDMSG_ALPHA, DND_CLASSMENU_BOTTOMTEXTID, -1, 300.4, 360.1, 0.0, select_alpha_val);
+		
+		Delay(1);
+		
+		// alpha increment
+		select_alpha = (select_alpha + 2) % 180;
+
+		// button timers
+		if(larr_inc) {
+			larr_timer++;
+			if(larr_timer >= DND_CLASSMENU_BUTTON_DELAY) {
+				larr_timer = 0;
+				larr_inc = false;
+			}
+		}
+		
+		if(rarr_inc) {
+			rarr_timer++;
+			if(rarr_timer >= DND_CLASSMENU_BUTTON_DELAY) {
+				rarr_timer = 0;
+				rarr_inc = false;
+			}
+		}
+	}
 }
 
 Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	SetHUDSize(600, 450, 1);
 	SetFont("SMALLFONT");
-	SetHudClipRect(100, 200, 200, 256, 100, 1);
+	SetHudClipRect(100, 84, 384, 384, 336, 1);
 	
-	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + 1, -1, 300.0, 250.0, 0.0);
-	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + 1, -1, 300.0, 250.0, 0.0);
-	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + 1, -1, 300.0, 250.0, 0.0);
+	HudMessage(s:"\c[J7]", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
+	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_EXP]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 192.1, 0.0);
+	
+	// perks
+	HudMessage(s:"\cd", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK5ID, -1, 128.1, 256.1, 0.0);
+	HudMessage(s:"\ci", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, -1, 128.1, 280.1, 0.0);
+	HudMessage(s:"\cg", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, -1, 128.1, 304.1, 0.0);
 	
 	SetHudClipRect(0, 0, 0, 0, 0, 0);
+	
+	// show the class images
+	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_MUG]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 288.4, 112.1, 0.0);
+	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_FRAMELEFT]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_LEFTIMG, -1, 80.4, 208.1, 0.0);
+	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_FRAMERIGHT]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_RIGHTIMG, -1, 512.4, 208.1, 0.0);
+	
+	// prev and next class images
+	SetFont(DnD_ClassInfo[(ctype - 1 < 0) ? MAXPLAYERCLASSES - 1 : ctype - 1][DND_CLASSTEXT_FRAMELEFT]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_PREVCLASS_IMGID, -1, 112.4, 96.1, 0.0);
+	SetFont(DnD_ClassInfo[(ctype + 1 > MAXPLAYERCLASSES - 1) ? 0 : ctype + 1][DND_CLASSTEXT_FRAMERIGHT]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_NEXTCLASS_IMGID, -1, 480.4, 96.1, 0.0);
 }
 
 Script "DnD Class Select Cleanup" (void) CLIENTSIDE {
+	HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 0, 0, 1.0);
 	for(int i = 0; i < DND_CLASSMENU_IDCOUNT; ++i)
 		HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + i, -1, 0, 0, 1.0);
 }

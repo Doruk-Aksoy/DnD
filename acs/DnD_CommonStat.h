@@ -322,6 +322,8 @@ void RestoreRPGStat (int statflag) {
 	
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+	
+	HandleClassPerks();
 }
 
 // Retrieves attributes from items that the player has on them
@@ -331,6 +333,65 @@ str GetPlayerAttributeString(int attrib) {
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
 	return CheckActorInventory(pnum + P_TIDSTART, GetPlayerAttributeString(attrib));
+}
+
+// Give powerups and stuff of the classes if they satisfy their perk things
+void HandleClassPerks() {
+	int lvl = CheckInventory("Level");
+	int class = CheckInventory("DnD_Character") - 1; // we use 0 based
+	if(lvl >= 5) {
+		// 1st perk
+		switch(class) {
+			case DND_PLAYER_DOOMGUY:
+			break;
+			case DND_PLAYER_MARINE:
+			break;			
+			case DND_PLAYER_HOBO:
+			break;
+			case DND_PLAYER_PUNISHER:
+			break;
+			case DND_PLAYER_WANDERER:
+			break;
+			case DND_PLAYER_CYBORG:
+			break;
+		}
+	}
+	
+	if(lvl >= 25) {
+		// 2nd perk
+		switch(class) {
+			case DND_PLAYER_DOOMGUY:
+			break;
+			case DND_PLAYER_MARINE:
+			break;			
+			case DND_PLAYER_HOBO:
+			break;
+			case DND_PLAYER_PUNISHER:
+			break;
+			case DND_PLAYER_WANDERER:
+			break;
+			case DND_PLAYER_CYBORG:
+			break;
+		}
+	}
+	
+	if(lvl >= 50) {
+		// 3rd perk
+		switch(class) {
+			case DND_PLAYER_DOOMGUY:
+			break;
+			case DND_PLAYER_MARINE:
+			break;			
+			case DND_PLAYER_HOBO:
+			break;
+			case DND_PLAYER_PUNISHER:
+			break;
+			case DND_PLAYER_WANDERER:
+			break;
+			case DND_PLAYER_CYBORG:
+			break;
+		}
+	}
 }
 
 #endif
