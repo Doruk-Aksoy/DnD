@@ -1,0 +1,14 @@
+OptionMenu ZA_JoinMenu
+{
+	Title		"JOIN GAME"
+
+	StaticText	"You are spectating."
+	StaticText	" "
+	StaticText	" "
+	StaticText	" "
+	StaticText	" "
+	StaticText	" "
+	StaticText	" "
+	Command		"Join game",			"pukename \"DnD Class Select\" always"
+	Command		"How to play",			"menu_help"
+}

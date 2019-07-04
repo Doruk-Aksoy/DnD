@@ -86,7 +86,7 @@ Script 900 (void) NET {
 	}
 }
 
-Script "DND On Disconnect Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
+Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 }
 

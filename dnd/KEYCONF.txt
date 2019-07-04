@@ -1,11 +1,3 @@
-clearplayerclasses
-    addplayerclass TheDoomGuy
-	addplayerclass TheMarine
-	addplayerclass TheHobo
-	addplayerclass ThePunisher
-	addplayerclass TheWanderer
-	addplayerclass TheCyborg
-	
 alias sethardcore "puke 1000 0"
 alias setsoftcore "puke 1000 1"
 
