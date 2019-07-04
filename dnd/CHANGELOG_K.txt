@@ -82,6 +82,7 @@ LEGEND:
 * Fixed a bug that prevented you from switching special ammo mode despite having ammo in the magazine.
 * "Necro Armor" spikes go through players now.
 * "Necro Armor" spikes now deal full damage if "Nether Mask" is equipped.
+- "Necro Armor" spikes have a cooldown of 0.5 seconds.
 * "Strength" and "Bulkiness" stats now correctly mention they increase your knockback resist.
 * Your "Wisdom" and "Greed" bonuses from sources besides perks will also show correctly on a monster kill as bonuses.
 * Changed placement of some slot 1 weapons.
