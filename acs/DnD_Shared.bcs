@@ -29,49 +29,51 @@ Script "DND Shared Item Check" (int type) {
 			switch(type) {
 				case SHI_REDARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
-						pickedup = true;
-						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300);
+						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_RED, 300);
 						GiveInventory("RedArmorMsg", 1);
+						pickedup = true;
 					}
 					break;
 				case SHI_BLUEARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
-						pickedup = true;
-						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200);
+						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_BLUE, 200);
 						GiveInventory("BlueArmorMsg", 1);
+						pickedup = true;
 					}
 					break;
 				case SHI_YELLOWARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
-						pickedup = true;
-						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_YELLOW, 150);
+						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_YELLOW, 150);
 						GiveInventory("YellowArmorMsg", 1);
+						pickedup = true;
 					}
 					break;
 				case SHI_GREENARMOR:
 					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
-						pickedup = true;
-						ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_GREEN, 100);
+						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_GREEN, 100);
 						GiveInventory("GreenArmorMsg", 1);
+						pickedup = true;
 					}
 					break;
 				case SHI_BACKPACK:
-					pickedup = true;
-					GiveInventory("BackpackPickMSG", 1);
 					GiveInventory("NewBackpack", 1);
+					GiveInventory("BackpackPickMSG", 1);
+					pickedup = true;
 					break;
 				case SHI_STIMPACK:
-					if(!CheckInventory("TaltosUp") && ACS_ExecuteWithResult(819, 0)) {
-						pickedup = true;
+					//printBold(s:"before stimpack", d:closest);
+					if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
+						//printBold(s:"after stimpack", d:closest);
+						ACS_NamedExecuteWithResult("DnD Health Pickup", 10);
 						GiveInventory("StimpackMsg", 1);
-						ACS_NamedExecuteAlways("DnD Health Pickup", 0, 10);
+						pickedup = true;
 					}
 					break;
 				case SHI_MEDKIT:
-					if(!CheckInventory("TaltosUp") && ACS_ExecuteWithResult(819, 0)) {
-						pickedup = true;
+					if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
+						ACS_NamedExecuteWithResult("DnD Health Pickup", 25);
 						GiveInventory("MedikitMsg", 1);
-						ACS_NamedExecuteAlways("DnD Health Pickup", 0, 25);
+						pickedup = true;
 					}
 					break;
 			}
