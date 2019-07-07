@@ -238,3 +238,14 @@ object BlueSkullS2 {
 object YellowSkullS2 {
 	frame SK12 { light YellowKeyLight }
 }
+
+pulselight Doomguy_SoulLight {
+    color 0.6 0.2 0.2
+    size 10
+	secondarysize 24
+	interval 1
+}
+
+object Doomguy_DemonSoul {
+    frame DG50 { light Doomguy_SoulLight }
+}

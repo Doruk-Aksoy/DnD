@@ -4,5 +4,4 @@ Actor DnD_MonsterSpawner {
 	Height 1
 	-COUNTKILL
 	+NOGRAVITY
-	+NONETID
 }

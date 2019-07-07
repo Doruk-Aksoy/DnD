@@ -201,7 +201,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_IncreasedDamageTaken", "% increased damage taken" },
 	{ "", " flat damage to all attacks" },
 	{ "IATTR_HealOnKill", "Killing enemies heal for " },
-	{ "IATTR_StatusBuffs_1", "Soul type weapons do full damage" },
+	{ "IATTR_StatusBuffs_1", "Soul type weapons do irreducible damage" },
 	{ "IATTR_SoulAmmoIncrease", "% more ammo from soul pickups" },
 	{ "IATTR_CastRally", "Gain ability to cast level " },
 	{ "IATTR_StatusBuffs_1", "Spell damage is irreducible" },

@@ -641,6 +641,8 @@ Actor ElementalPower : PowerDamage {
 	damagefactor "FireFull", 1.5
 	DamageFactor "Melee_Fire", 1.5
 	DamageFactor "Melee_FireFull", 1.5
+	damagefactor "FireExp", 1.5
+	damagefactor "FireExpFull", 1.5
 	
 	damagefactor "Lightning", 1.5
 	damagefactor "LightningFull", 1.5

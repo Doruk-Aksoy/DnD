@@ -177,7 +177,7 @@ Actor BronzeChestMsg : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 A_PlaySound("Chest/Locked")
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 4, CKEY_BRONZE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 5, CKEY_BRONZE)
 		Stop
 	}
 }
@@ -186,7 +186,7 @@ Actor SilverChestMsg : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 A_PlaySound("Chest/Locked")
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 4, CKEY_SILVER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 5, CKEY_SILVER)
 		Stop
 	}
 }
@@ -195,7 +195,7 @@ Actor GoldChestMsg : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 A_PlaySound("Chest/Locked")
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 4, CKEY_GOLD)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 5, CKEY_GOLD)
 		Stop
 	}
 }

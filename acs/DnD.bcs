@@ -673,8 +673,10 @@ Script "DND On Kill" KILL {
 	}
 	
 	// doomguy drop
-	if(CheckActorInventory(target, "Doomguy_Perk50") && RunDefaultDropChance(i, pnum, DND_DOOMGUY_DROPCHANCE))
-		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, 1, 1);
+	if(CheckActorInventory(target, "Doomguy_Perk50") && RunDefaultDropChance(i, pnum, DND_DOOMGUY_DROPCHANCE)) {
+		pnum = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp;
+		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pnum & 0xFFFF, pnum >> 16);
+	}
 	
 	// if marked by talisman
 	pnum = CheckInventory("HunterTalismanMarkBool");
@@ -1995,7 +1997,7 @@ Script 984 (int actortype, int density) {
 }
 
 // Some Generic Chat Log Script
-Script 985 (int type, int id, int id_is_special) CLIENTSIDE {
+Script "DnD Message Logger" (int type, int id, int id_is_special) CLIENTSIDE {
 	if(PlayerNumber() != ConsolePlayerNumber()) Terminate;
 	if(!type)
 		Log(s:TemporaryWeaponMsg[id - TEMPBEGIN]);
@@ -2009,6 +2011,8 @@ Script 985 (int type, int id, int id_is_special) CLIENTSIDE {
 	}
 	else if(type == 3)
 		Log(s:SharedItemMessage[id]);
+	else if(type == 4)
+		Log(s:"\ccHealth pickup : \c[Y5]Demon Essence\c-");
 	else
 		Log(s:ChestKeyText[id]);
 }
@@ -4262,4 +4266,10 @@ Script "DnD Class Select Cleanup" (void) CLIENTSIDE {
 	HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 0, 0, 1.0);
 	for(int i = 0; i < DND_CLASSMENU_IDCOUNT; ++i)
 		HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + i, -1, 0, 0, 1.0);
+}
+
+Script "DnD Doomguy Soul Pickup" (int val) {
+	val = Clamp_Between(val / DND_DOOMGUY_HEALDIV, 1, DND_DOOMGUY_MAXHEAL);
+	SetActivatorToTarget(0);
+	ACS_NamedExecuteAlways("DnD Health Pickup", 0, val);
 }

@@ -268,7 +268,7 @@ Actor SawedoffPickup : CustomInventory
 Actor SawedOffMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_SAWEDOFF)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_SAWEDOFF)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -892,7 +892,7 @@ Actor SoulRenderPickup : CustomInventory
 Actor SoulRenderMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_SOULRENDER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_SOULRENDER)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -1073,7 +1073,7 @@ Actor SMGPickup : CustomInventory
 Actor SMGMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_SMG)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_SMG)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -1432,7 +1432,7 @@ Actor HellforgeCannonPickup : CustomInventory
 Actor HellForgeMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_HELLFORGECANNON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_HELLFORGECANNON)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -1799,7 +1799,7 @@ Actor SpinePickup : CustomInventory
 Actor SpineMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_BLOODFIENDSPINE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_BLOODFIENDSPINE)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -2064,7 +2064,7 @@ Actor LaserPickup : CustomInventory
 Actor LaserMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_ENFORCERRIFLE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_ENFORCERRIFLE)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -2522,7 +2522,7 @@ Actor VenomPickup : CustomInventory
 Actor VenomMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_VENOM)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_VENOM)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -3007,7 +3007,7 @@ Actor DemonHeartPickup : CustomInventory
 Actor HeartMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_DEMONHEART)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_DEMONHEART)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -3321,7 +3321,7 @@ Actor DarkServantGlovesPickup : CustomInventory
 Actor DarkServantGlovesMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_DARKGLOVES)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_DARKGLOVES)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -3606,7 +3606,7 @@ Actor Nailgun2Pickup : CustomInventory
 Actor Nailgun2Msg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_HEAVYNAILGUN)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_HEAVYNAILGUN)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -3804,7 +3804,7 @@ Actor BerettasPickup : CustomInventory
 Actor BerettasMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_BERETTAS)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_BERETTAS)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -4157,7 +4157,7 @@ Actor PlasmaBolterPickup : CustomInventory
 Actor PlasmaBolterMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_PLASMABOLTER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_PLASMABOLTER)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -4357,7 +4357,7 @@ Actor RipperCannonPickup : CustomInventory {
 Actor RipperCannonMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 0, DND_WEAPON_RIPPERCANNON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 0, DND_WEAPON_RIPPERCANNON)
 			TNT1 A 0 A_PlaySound("weapons/pickup", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop

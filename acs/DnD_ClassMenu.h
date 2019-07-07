@@ -53,7 +53,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		
 		"+ L5: Enemy fire attacks deal 10% less damage.",
 		"+ L25: Demons take 15% more damage if Doomguy is present in the map.",
-		"+ L50: Demons have 15% chance to drop healing orbs. Heal for 5% of enemy max health."
+		"+ L50: Demons have 10% chance to drop healing orbs. Heal for 2% of enemy max health."
 	},
 	
 	// Marine
@@ -107,9 +107,9 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"P5_RIMG",
 		"CRVEVL0",
 		
-		"+ L5: When no other player is around you, move 7.5% faster.",
-		"+ L25: When no other player is around you, deal 12.5% more damage.",
-		"+ L50: When no other player is around you, take 17.5% less damage."
+		"+ L5: 50% increased mana regeneration.",
+		"+ L25: Elemental and Occult attacks and spells do 25% more damage.",
+		"+ L50: Spells cast have additional 25% reduced cooldown and have 25% increased effects."
 	},
 	
 	// Cyborg

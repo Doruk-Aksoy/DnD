@@ -419,10 +419,12 @@ void DecideAccessories() {
 	int this = ActivatorTID();
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_AMULETHELLFIRE)) {
 		GiveInventory("Accessory_FireProtection", 1);
+		GiveInventory("Accessory_FireBuff", 1);
 		GiveInventory("HellfireCheck", 1);
 	}
 	else {
 		TakeInventory("Accessory_FireProtection", 1);
+		TakeInventory("Accessory_FireBuff", 1);
 		TakeInventory("HellfireCheck", 1);
 	}
 		

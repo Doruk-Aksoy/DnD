@@ -493,6 +493,14 @@ items/armorbonus		ARBONPIK
 items/infraredpick		INFRPICK
 items/statreset			STATRES
 
+DoomguySoul1			DGUYSOU1
+DoomguySoul2			DGUYSOU2
+DoomguySoul3			DGUYSOU3
+DoomguySoul4			DGUYSOU4
+DoomguySoul5			DGUYSOU5
+
+$random Items/DoomguySoulPick { DoomguySoul1 DoomguySoul2 DoomguySoul3 DoomguySoul4 DoomguySoul5 }
+
 items/credit			CREDPICK
 items/research			RESRPICK
 

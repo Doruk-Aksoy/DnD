@@ -297,8 +297,10 @@ void RestoreRPGStat (int statflag) {
 	}
 	if(statflag & RES_PLAYERSPEED)
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
-	if(CheckInventory("HellfireCheck"))
+	if(CheckInventory("HellfireCheck")) {
 		GiveInventory("Accessory_FireProtection", 1);
+		GiveInventory("Accessory_FireBuff", 1);
+	}
 	if(CheckInventory("ArtemisCheck"))
 		GiveInventory("ArtemisPower", 1);
 	if(CheckInventory("DemonBaneCheck"))

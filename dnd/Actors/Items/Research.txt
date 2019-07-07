@@ -370,7 +370,7 @@ Actor ResearchModule_MP : DnD_DroppedItem {
 		goto SpawnLoop
 
 		PickupSuccess:
-//			"####" "#" 0 ACS_ExecuteAlways(985, 0, 2, mass - 1, 1)
+//			"####" "#" 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, mass - 1, 1)
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Give Research", 0, mass - 1)
 		stop
 	}
@@ -422,7 +422,7 @@ Actor ResearchModule_RareArmors : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_RAREARMOR), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_RAREARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_RAREARMOR)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_RAREARMOR)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -439,7 +439,7 @@ Actor ResearchModule_SuperArmor : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SUPERARMOR), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SUPERARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SUPERARMOR)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SUPERARMOR)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -456,7 +456,7 @@ Actor ResearchModule_MedkitStore : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_MEDKITSTORE), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_MEDKITSTORE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_MEDKITSTORE)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_MEDKITSTORE)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -473,7 +473,7 @@ Actor ResearchModule_AccessoryTap : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_ACCESSORY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_ACCESSORY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_ACCESSORY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_ACCESSORY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -490,7 +490,7 @@ Actor ResearchModule_FlechetteShell : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_FLECHETTE), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_FLECHETTE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_FLECHETTE)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_FLECHETTE)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -507,7 +507,7 @@ Actor ResearchModule_PiercingShell : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_PIERCING), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_PIERCING)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_PIERCING)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_PIERCING)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -524,7 +524,7 @@ Actor ResearchModule_ElectricShell : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_ELECTRIC), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_ELECTRIC)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_ELECTRIC)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_ELECTRIC)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -541,7 +541,7 @@ Actor ResearchModule_NitroShell : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_NITRO), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_NITRO)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_NITRO)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_NITRO)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -558,7 +558,7 @@ Actor ResearchModule_SlugShell : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLUGSHELL), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLUGSHELL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLUGSHELL)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLUGSHELL)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -575,7 +575,7 @@ Actor ResearchModule_HEGrenade : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_HEGRENADE), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_HEGRENADE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_HEGRENADE)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_HEGRENADE)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -592,7 +592,7 @@ Actor ResearchModule_SonicGrenade : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SONICGRENADE), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SONICGRENADE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SONICGRENADE)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SONICGRENADE)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -609,7 +609,7 @@ Actor ResearchModule_DoubleSpecialCap : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_DOUBLESPECIALCAP), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_DOUBLESPECIALCAP)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_DOUBLESPECIALCAP)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_DOUBLESPECIALCAP)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -626,7 +626,7 @@ Actor ResearchModule_Slot1Occult : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT1OCCULT), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT1OCCULT)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT1OCCULT)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT1OCCULT)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -643,7 +643,7 @@ Actor ResearchModule_Slot2Luxury : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT2LUXURY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT2LUXURY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT2LUXURY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT2LUXURY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -660,7 +660,7 @@ Actor ResearchModule_Slot3Luxury : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3LUXURY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3LUXURY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT3LUXURY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3LUXURY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -677,7 +677,7 @@ Actor ResearchModule_Slot4Luxury : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4LUXURY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4LUXURY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT4LUXURY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4LUXURY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -694,7 +694,7 @@ Actor ResearchModule_Slot5Luxury : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5LUXURY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5LUXURY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT5LUXURY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5LUXURY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -711,7 +711,7 @@ Actor ResearchModule_Slot6Luxury : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT6LUXURY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT6LUXURY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT6LUXURY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT6LUXURY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -728,7 +728,7 @@ Actor ResearchModule_Slot7Luxury : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT7LUXURY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT7LUXURY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT7LUXURY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT7LUXURY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -745,7 +745,7 @@ Actor ResearchModule_Slot1Upgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT1UPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT1UPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT1UPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT1UPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -762,7 +762,7 @@ Actor ResearchModule_Slot1Upgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT1UPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT1UPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT1UPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT1UPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -779,7 +779,7 @@ Actor ResearchModule_Slot2Upgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT2UPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT2UPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT2UPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT2UPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -796,7 +796,7 @@ Actor ResearchModule_Slot2Upgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT2UPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT2UPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT2UPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT2UPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -813,7 +813,7 @@ Actor ResearchModule_Slot3Upgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3UPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3UPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT3UPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3UPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -830,7 +830,7 @@ Actor ResearchModule_Slot3Upgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3UPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3UPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT3UPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3UPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -847,7 +847,7 @@ Actor ResearchModule_Slot3SSGUpgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3SSGUPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3SSGUPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT3SSGUPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3SSGUPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -864,7 +864,7 @@ Actor ResearchModule_Slot3SSGUpgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3SSGUPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3SSGUPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT3SSGUPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3SSGUPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -881,7 +881,7 @@ Actor ResearchModule_Slot3SSGUpgrade3 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT3SSGUPG3), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT3SSGUPG3)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT3SSGUPG3)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT3SSGUPG3)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -898,7 +898,7 @@ Actor ResearchModule_Slot4Upgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4UPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4UPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT4UPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4UPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -915,7 +915,7 @@ Actor ResearchModule_Slot4Upgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4UPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4UPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT4UPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4UPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -932,7 +932,7 @@ Actor ResearchModule_Slot4Upgrade3 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4UPG3), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4UPG3)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT4UPG3)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4UPG3)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -949,7 +949,7 @@ Actor ResearchModule_Slot4Upgrade4 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT4UPG4), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT4UPG4)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT4UPG4)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT4UPG4)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -966,7 +966,7 @@ Actor ResearchModule_Slot5Upgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5UPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5UPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT5UPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5UPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -983,7 +983,7 @@ Actor ResearchModule_Slot5Upgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5UPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5UPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT5UPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5UPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1000,7 +1000,7 @@ Actor ResearchModule_Slot5Upgrade3 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5UPG3), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5UPG3)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT5UPG3)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5UPG3)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1017,7 +1017,7 @@ Actor ResearchModule_Slot5GL : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT5GL), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT5GL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT5GL)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT5GL)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1034,7 +1034,7 @@ Actor ResearchModule_Slot6Upgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT6UPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT6UPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT6UPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT6UPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1051,7 +1051,7 @@ Actor ResearchModule_Slot6Upgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT6UPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT6UPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT6UPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT6UPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1068,7 +1068,7 @@ Actor ResearchModule_Slot6Upgrade3 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT6UPG3), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT6UPG3)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT6UPG3)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT6UPG3)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1085,7 +1085,7 @@ Actor ResearchModule_Slot7Upgrade1 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT7UPG1), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT7UPG1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT7UPG1)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT7UPG1)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1102,7 +1102,7 @@ Actor ResearchModule_Slot7Upgrade2 : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT7UPG2), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT7UPG2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT7UPG2)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT7UPG2)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1119,7 +1119,7 @@ Actor ResearchModule_OccultAbility : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_OCCULTABILITY), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_OCCULTABILITY)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_OCCULTABILITY)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_OCCULTABILITY)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1136,7 +1136,7 @@ Actor ResearchModule_Slot8Reveal : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_SLOT8REVEAL), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_SLOT8REVEAL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_SLOT8REVEAL)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_SLOT8REVEAL)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1153,7 +1153,7 @@ Actor ResearchModule_NanoTech : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_NANOTECH), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_NANOTECH)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_NANOTECH)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_NANOTECH)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1170,7 +1170,7 @@ Actor ResearchModule_OccultArtifact : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_OCCULTARTIFACT), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_OCCULTARTIFACT)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_OCCULTARTIFACT)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_OCCULTARTIFACT)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
@@ -1187,7 +1187,7 @@ Actor ResearchModule_StashTab : ResearchModule {
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 11, RES_STASHTAB), "Success")
 		Fail
 		Success:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 2, RES_STASHTAB)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, RES_STASHTAB)
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 1, RES_STASHTAB)
 			TNT1 A 0 A_SetBlend("80 80 80", 0.75, 10)
 		Stop
