@@ -2153,6 +2153,7 @@ Script "DnD Player Setup" ENTER {
 	// begin hardcore countdown
 	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		GiveInventory("P_Frozen", 1);
+		GiveInventory("DontAttack", 1);
 		while(GetGameModeState() == GAMESTATE_COUNTDOWN)
 			Delay(17);
 		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
@@ -2248,6 +2249,7 @@ Script "DnD Player Setup" ENTER {
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
 	TakeInventory("P_Frozen", 1);
+	GiveInventory("DontAttackRemove", 1);
 
 	// force sync client stuff
 	GiveInventory("DnD_SyncMe", 1);
