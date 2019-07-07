@@ -703,6 +703,13 @@ int GetShopPrice (int id, int priceflag) {
 		else
 			res -= (res * chr) / (100 * CHARISMA_REDUCE);
 	}
+	
+	if(GetItemFlags(id) & OBJ_SHOTGUN && CheckInventory("Hobo_Perk5")) {
+		res -= res / 5;
+		if(res < 0)
+			res = 0;
+	}
+	
 	return res;
 }
 

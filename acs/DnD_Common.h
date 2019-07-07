@@ -41,6 +41,16 @@ enum {
 
 #define MAXPLAYERCLASSES (DND_PLAYER_CYBORG + 1)
 
+#define DND_DOOMGUY_DROPCHANCE 0.15
+
+#define DND_HOBO_SHOTGUNBONUS 30
+#define DND_HOBO_SHOTGUNPELLETBONUS 50
+
+#define DND_PUNISHER_PERK2_MULT 3
+#define DND_PUNISHER_PERK2_DIV 20
+#define DND_PUNISHER_PERK3_KILLCOUNT 50
+#define DND_PUNISHER_PERK3_MAX 100
+
 /*
 ////////////////
 // TID RANGES //
@@ -69,7 +79,13 @@ enum {
 * Anything above 66000 => any monster tid
 */
 
-global int 0: MapChanged;
+enum {
+	DND_MAPINFO_MAPCHANGED,
+	DND_MAPINFO_HASDOOMGUY
+};
+
+// save for later
+global bool 0: MapInfo[32];
 global int 5: HardcoreSet;
 global bool 7: PlayerDied[MAXPLAYERS];
 
@@ -400,6 +416,10 @@ int GetAspectRatio(void) {
 		return ASPECT_5_4;
 	}
 	return ASPECT_4_3;
+}
+
+bool isPlayerClass(int ctype) {
+	return CheckInventory("DnD_Character") - 1 == ctype;
 }
 
 #endif

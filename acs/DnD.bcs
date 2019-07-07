@@ -184,7 +184,7 @@ Script "DND Check Hardcore Softcore" OPEN {
 }
 
 // Basically shut the menu down
-Script 703 DEATH {
+Script "DnD On Death" DEATH {
 	PlayerDied[PlayerNumber()] = 1;
 	GiveInventory("DnD_PDead", 1);
 	Thing_ChangeTID(0, 0);
@@ -196,6 +196,7 @@ Script 703 DEATH {
 	SetInventory("MenuPosX", 0);
 	SetInventory("MadeChoice", 0);
 	SetInventory("DnD_PopupId", 0);
+	SetInventory("Punisher_Perk50_Counter", 0); // reset earned bonuses on map
 	TakeInventory("DnD_ShowPopup", 1);
 	TakeInventory("DnD_ShowSellPopup", 1);
 	TakeInventory("DnD_SellConfirm", 1);
@@ -374,73 +375,62 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 	HudMessage(s:"Gained extra \cf", d:reward, s: "\c- exp!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT2ID, CR_WHITE, 240.4, 328.0, 2.0, 1.0, 1.0);
 }
 
-Script 828 (void) {
+Script "DnD Killing Spree Timer" (void) {
 	while(CheckInventory("DnD_SpreeTimer")) {
 		TakeInventory("DnD_SpreeTimer", 1);
 		Delay(1);
 	}
-	// countdown over, reset spree xp
+	// countdown over, reset spree xp and handle spree stuff
 	TakeInventory("DnD_SpreeCountdownRunning", 1);
-}
-
-Script "DND Killing Spree" (int mode) {
-	if(mode) { // kill streaks
-		// if a kill streak wasn't running, run it now
-		if(!CheckInventory("DnD_SpreeCountdownRunning")) {
-			GiveInventory("DnD_SpreeCountdownRunning", 1);
-			ACS_ExecuteAlways(828, 0);
-		}
-		// spree count was given, so a possible spree may be in reach
-		if(CheckInventory("DnD_SpreeTimer")) {
-			GiveInventory("DnD_MultikillCounter", 1);
-			if(GetArmorType("RavagerArmor", PlayerNumber())) {
-				GiveInventory("RavagerPower", 1);
-				GiveInventory("RavagerPowerDefense", 1);
+	
+	if(CheckInventory("DnD_MultikillCounter")) {
+		while(CheckInventory("DnD_SpreeTimer"))
+			Delay(1);
+		if(CheckInventory("DnD_MultikillCounter") >= DND_SPREE_TRIGGER && isAlive()) {
+			int spree = CheckInventory("DnD_MultiKillCounter") + 1, mult = 0, reward = 0, temp;
+			SetInventory("DnD_MultiKillCounter", 0);
+			// shows kill spree result on hud
+			// for every 10 enemy killed in spree, add a 0.25 multiplier
+			// base multiplication factor is 0.25
+			mult = Clamp_Between(spree / DND_SPREE_PER, 1, MAX_SPREE_TEXT); // how many .25 to add
+			temp = CheckInventory("SpreeXP") / DND_SPREE_BASE;
+			while(mult) {
+				// no overflow
+				if(reward < INT_MAX - temp)
+					reward += temp;
+				--mult;
+			}
+			if(CheckInventory("DnD_QuestReward_KillingSpree15"))
+				reward += reward * DND_QUEST_BERSERK_SPREEBONUS / 100;
+			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, spree / DND_SPREE_PER, reward);
+			GiveInventory("Exp", reward);
+			GiveInventory("ExpVisual", reward);
+			GiveInventory("LevelExp", reward);
+			SetInventory("SpreeXP", 0);
+			GiveInventory("DnD_BerserkQuest_SpreeCounter", 1);
+			// ravager armor add
+			int armor = GetArmorType("RavagerArmor", PlayerNumber());
+			if(armor) {
+				if(armor < GetArmorSpecificCap(DND_RAVAGERARMOR_AMOUNT)) {
+					GiveInventory("NewArmorBonus", GetArmorSpecificCap(DND_RAVAGERARMOR_AMOUNT) - armor);
+					GiveInventory("RavagerEffect", 1);
+					LocalAmbientSound("items/armorbonus", 127);
+				}
+			}
+			
+			// punisher perk 2 -- was at least merciless
+			if(CheckInventory("Punisher_Perk25") && spree >= 2) {
+				ACS_NamedExecuteAlways("DnD Health Pickup", 0, (GetSpawnHealth() * DND_PUNISHER_PERK2_MULT) / DND_PUNISHER_PERK2_DIV);
+				ACS_NamedExecuteAlways("DND Armor Give", 0, CheckInventory("DnD_ArmorType") - 1, GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]) * DND_PUNISHER_PERK2_MULT / DND_PUNISHER_PERK2_DIV);
 			}
 		}
-		// give spree counter
-		GiveInventory("DnD_SpreeTimer", DND_SPREE_AMOUNT);
+		else {
+			SetInventory("DnD_MultikillCounter", 0);
+			SetInventory("SpreeXP", 0);
+		}
 		
-		if(CheckInventory("DnD_MultikillCounter")) {
-			while(CheckInventory("DnD_SpreeTimer"))
-				Delay(1);
-			if(CheckInventory("DnD_MultikillCounter") >= DND_SPREE_TRIGGER && isAlive()) {
-				int spree = CheckInventory("DnD_MultiKillCounter") + 1, mult = 0, reward = 0, temp;
-				SetInventory("DnD_MultiKillCounter", 0);
-				// shows kill spree result on hud
-				// for every 10 enemy killed in spree, add a 0.25 multiplier
-				// base multiplication factor is 0.25
-				mult = Clamp_Between(spree / DND_SPREE_PER, 1, MAX_SPREE_TEXT); // how many .25 to add
-				temp = CheckInventory("SpreeXP") / DND_SPREE_BASE;
-				while(mult) {
-					// no overflow
-					if(reward < INT_MAX - temp)
-						reward += temp;
-					--mult;
-				}
-				if(CheckInventory("DnD_QuestReward_KillingSpree15"))
-					reward += reward * DND_QUEST_BERSERK_SPREEBONUS / 100;
-				ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, spree / DND_SPREE_PER, reward);
-				GiveInventory("Exp", reward);
-				GiveInventory("ExpVisual", reward);
-				GiveInventory("LevelExp", reward);
-				SetInventory("SpreeXP", 0);
-				GiveInventory("DnD_BerserkQuest_SpreeCounter", 1);
-				// ravager armor add
-				int armor = GetArmorType("RavagerArmor", PlayerNumber());
-				if(armor) {
-					if(armor < GetArmorSpecificCap(DND_RAVAGERARMOR_AMOUNT)) {
-						GiveInventory("NewArmorBonus", GetArmorSpecificCap(DND_RAVAGERARMOR_AMOUNT) - armor);
-						GiveInventory("RavagerEffect", 1);
-						LocalAmbientSound("items/armorbonus", 127);
-					}
-				}
-			}
-			else {
-				SetInventory("DnD_MultikillCounter", 0);
-				SetInventory("SpreeXP", 0);
-			}
-		}
+		// spree ended
+		TakeInventory("Punisher_Perk5_MoveSpeed", 1);
 	}
 }
 
@@ -632,7 +622,6 @@ Script "DND On Kill" KILL {
 		// Chest Key
 		HandleChestKeyDrop(pnum);
 		
-		
 		// if elite, roll orb and equipment drops
 		if(GetCVar("dnd_ignore_dropweights") || pnum) {
 			// handle orb drops
@@ -683,6 +672,10 @@ Script "DND On Kill" KILL {
 		HandleCharmLootDrop(pnum);
 	}
 	
+	// doomguy drop
+	if(CheckActorInventory(target, "Doomguy_Perk50") && RunDefaultDropChance(i, pnum, DND_DOOMGUY_DROPCHANCE))
+		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, 1, 1);
+	
 	// if marked by talisman
 	pnum = CheckInventory("HunterTalismanMarkBool");
 	haswisdom = isBoss();
@@ -708,25 +701,40 @@ Script "DND On Kill" KILL {
 	
 	if(CheckActorInventory(target, "StatbuffCounter_SlainMonstersRIP"))
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
+		
 	
 	SetActivator(target);
 	
-	// research track
-	if(haswisdom) {
-		GiveInventory("Research_Body_Im_1_Tracker", 1);
-		if(CheckInventory("Research_Body_Im_1_Tracker") == GetAmmoCapacity("Research_Body_Im_1_Tracker") && CheckResearchStatus(RES_IMP1) == RES_NA)
-			GiveResearch(RES_IMP1, true);
+	// keep the kill tally
+	GiveInventory("DnD_Kill", 1);
+	
+	if(CheckInventory("Punisher_Perk50")) {
+		GiveInventory("Punisher_Perk50_Counter", 1);
+		CheckPunisherKillTally();
 	}
 	
-	if(hasgreed) {
+	// research track
+	if(haswisdom && CheckResearchStatus(RES_IMP1) == RES_NA) {
+		GiveInventory("Research_Body_Im_1_Tracker", 1);
+		if(CheckInventory("Research_Body_Im_1_Tracker") == GetAmmoCapacity("Research_Body_Im_1_Tracker")) {
+			GiveResearch(RES_IMP1, true);
+			// take these off so they don't take netid
+			TakeInventory("Research_Body_Im_1_Tracker", 65535);
+		}
+	}
+	
+	if(hasgreed && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
-		if(CheckInventory("Research_Slot3Upgrade3_Tracker") == GetAmmoCapacity("Research_Slot3Upgrade3_Tracker") && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA)
+		if(CheckInventory("Research_Slot3Upgrade3_Tracker") == GetAmmoCapacity("Research_Slot3Upgrade3_Tracker")) {
 			GiveResearch(RES_SLOT3UPG3, true);
+			// take these off so they don't take netid
+			TakeInventory("Research_Slot3Upgrade3_Tracker", 65535);
+		}
 	}
 	
 	// Kill spree
 	if(GetCVar("dnd_killspree"))
-		ACS_NamedExecuteAlways("DND Killing Spree", 0, 1);
+		ActivateKillingSpree();
 	// Hunter Talisman Heal
 	if(pnum) {
 		GiveInventory("HunterTalismanHealFXSpawner", 1);
@@ -1296,74 +1304,78 @@ Script "DND Special Player Hurt" (int type, int percent) {
 
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
-		if(!ActivatorTID())
-			GiveMonsterTID();
-		//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
-		//Make sure mob gets to right amount of hp at this point
-		int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterHPList[monsterid];
+	if(!ActivatorTID())
+		GiveMonsterTID();
+	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
+	//Make sure mob gets to right amount of hp at this point
+	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterHPList[monsterid];
+	if(!pcount)
+		pcount = 1;
+	if(GetCVar("dnd_monsterscale")) {
+		// scaling code -- delay is because monsters are initialized before enter scripts are executed
+		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
+			Delay(3);
+		//This delay needs a check
+		//Delay(35); // wait just in case someone leaves, disconnect script will correct the level
+		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 		if(!pcount)
 			pcount = 1;
-		if(GetCVar("dnd_monsterscale")) {
-			// scaling code -- delay is because monsters are initialized before enter scripts are executed
-			while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
-				Delay(3);
-			//This delay needs a check
-			//Delay(35); // wait just in case someone leaves, disconnect script will correct the level
-			pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
-			if(!pcount)
-				pcount = 1;
-			maxhp = ScaleMonster(pcount, realhp);
-		}
-		else {
-			maxhp = realhp;
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].level = 1;
-		}		
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].id = monsterid;
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
+		maxhp = ScaleMonster(pcount, realhp);
+	}
+	else {
+		maxhp = realhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].level = 1;
+	}		
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].id = monsterid;
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
 
-		if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
-			MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
-			
-			//printbold(s:"(Before Elite bonuses) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
-			
-			// Elite bonuses
+	if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
+		
+		//printbold(s:"(Before Elite bonuses) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
+		
+		// Elite bonuses
+		base = maxhp;
+		add = base * DND_ELITE_HPSCALE / 100;
+		maxhp = base + add;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
+		// roll more traits randomly
+		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
+		//printbold(s:"DecideEliteTraits: TID: ", d: ActivatorTID());
+		DecideEliteTraits(traitcount);
+		// Double Health
+		if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & DND_VITAL) {
 			base = maxhp;
-			add = base * DND_ELITE_HPSCALE / 100;
-			maxhp = base + add;
+			add = base * DND_ELITE_VITAL_SCALE / 100;
+			maxhp = Clamp_Between(base + add, 1, INT_MAX);
 			MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
 			MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
-			// roll more traits randomly
-			int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
-			//printbold(s:"DecideEliteTraits: TID: ", d: ActivatorTID());
-			DecideEliteTraits(traitcount);
-			// Double Health
-			if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & DND_VITAL) {
-				base = maxhp;
-				add = base * DND_ELITE_VITAL_SCALE / 100;
-				maxhp = Clamp_Between(base + add, 1, INT_MAX);
-				MonsterProperties[this - DND_MONSTERTID_BEGIN].basehp = maxhp;
-				MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp = maxhp;
-			}
 		}
+	}
+	
+	//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
+	int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
+	SetActorProperty(0, APROP_HEALTH, maxhp);
+	Clamp_Between(dmg, 0, maxhp + 1);
+	Thing_Damage2(ActivatorTID(), dmg, "None");
+	//Mob might actually be dead by this point.
+	if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
+		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
 		
-		//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
-		int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
-		SetActorProperty(0, APROP_HEALTH, maxhp);
-		Clamp_Between(dmg, 0, maxhp+1);
-		Thing_Damage2(ActivatorTID(), dmg, "None");
-		//Mob might actually be dead by this point.
-		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
-			Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health)+1, "None"); //Just kill it
+	// doomguy thing
+	if(MapInfo[DND_MAPINFO_HASDOOMGUY] && isDemon())
+		GiveInventory("Doomguy_Perk25_Weakness", 1);
 }
 
 // properties holds stuff like the monster's type, demon, robotic etc.
 Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 	if(!ActivatorTID())
 		GiveMonsterTID();
-	int maxhp, base, add, pcount = PlayerCount(), this = ActivatorTID(), realhp = MonsterHPList[properties];
+	int maxhp, base, add, pcount = PlayerCount(), this = ActivatorTID(), realhp = GetActorProperty(0, APROP_SPAWNHEALTH);
 	if(!pcount)
 		pcount = 1;
 	if(GetCVar("dnd_monsterscale")) {
@@ -1410,11 +1422,15 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 
 	int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 	SetActorProperty(0, APROP_HEALTH, maxhp);
-	Clamp_Between(dmg, 0, maxhp+1);
+	Clamp_Between(dmg, 0, maxhp + 1);
 	Thing_Damage2(ActivatorTID(), dmg, "None");
 	//Mob might actually be dead by this point.
 	if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
-		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health)+1, "None"); //Just kill it
+		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
+		
+	// doomguy thing
+	if(MapInfo[DND_MAPINFO_HASDOOMGUY] && properties & DND_MTYPE_DEMON_POW)
+		GiveInventory("Doomguy_Perk25_Weakness", 1);
 }
 
 // Decide monster to spawn on a certain monster category given weight list
@@ -2078,7 +2094,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	BreakTradesBetween(pnum);
 	
 	// if player was in middle of saving, don't accidently interfere if player leaves early
-	while(MapChanged)
+	while(MapInfo[DND_MAPINFO_MAPCHANGED])
 		Delay(17);
 	ResetHardcoreStuff(pnum);
 }
@@ -2086,7 +2102,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 // End of level checks
 Script 990 UNLOADING {
 	int tid;
-	MapChanged = 1;
+	MapInfo[DND_MAPINFO_MAPCHANGED] = true;
 	ResetFieldInventory();
 	BreakAllTrades();
 	for(int i = 0; i < MAXPLAYERS; ++i) {
@@ -2181,7 +2197,7 @@ Script "DnD Player Setup" ENTER {
 	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
 	// just in case
 	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
-		MapChanged = 0;
+		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
 	
 	// Checks if we should set the lives to the inventory or not (also includes one time execute things)
 	// when player joins for the first time
@@ -2234,7 +2250,7 @@ Script "DnD Player Setup" ENTER {
 	ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
 	
 	// if map changed, reset accessory stuff
-	if(MapChanged) {
+	if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
 		SetInventory("ReflectCount", 0);
 		SetInventory("Intervened", 0);
 		SetInventory("P_Invulnerable", 0);
@@ -2283,6 +2299,9 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("QuestCompletionToken", 0);
 	if(HardcoreSet && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
+		
+	if(isPlayerClass(DND_PLAYER_DOOMGUY) && CheckInventory("Doomguy_Perk25"))
+		MapInfo[DND_MAPINFO_HASDOOMGUY] = true;
 	
 	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
 	// for zombie quest to work
@@ -2939,7 +2958,12 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
 		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial))
 			res = res * (100 + temp) / 100;
+		
+		// saotgun damage bonus -- add hobos perk here too
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
+		if(CheckInventory("Hobo_Perk25"))
+			temp += DND_HOBO_SHOTGUNBONUS;
+			
 		if((flags & DND_WDMG_ISBOOMSTICK) && temp)
 			res = res * (100 + temp) / 100;
 		// apply flat health to damage conversion if player has any
@@ -3741,8 +3765,12 @@ Script "DnD Pellet Count" (int base, int flags) {
 	if(flags & DND_WDMG_USETARGET)
 		SetactivatorToTarget(0);
 	int pnum = PlayerNumber();
+	int res = 100 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
 	
-	SetResultValue((base * (100 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE)) / 100)); 
+	if(CheckInventory("Hobo_Perk50"))
+		res += DND_HOBO_SHOTGUNPELLETBONUS;
+	
+	SetResultValue(res * base / 100); 
 }
 
 Script "DnD Pellet Shooter" (int base, int id, int fulldmg) {

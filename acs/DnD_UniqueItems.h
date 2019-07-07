@@ -235,7 +235,7 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_PELLETSFIRECIRCLE;
 	UniqueItemList[id].attrib_id_list[3] = INV_EX_FORSHOW_BURSTGETSPELLETBONUS;
 	UniqueItemList[id].rolls[0].attrib_low = 40;
-	UniqueItemList[id].rolls[0].attrib_high = 50;
+	UniqueItemList[id].rolls[0].attrib_high = 75;
 	UniqueItemList[id].rolls[1].attrib_low = 100;
 	UniqueItemList[id].rolls[1].attrib_high = 200;
 	UniqueItemList[id].rolls[2].attrib_low = 0;

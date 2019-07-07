@@ -957,8 +957,44 @@ int ScaleMonster(int pcount, int realhp) {
 	return base + add;
 }
 
+void ActivateKillingSpree() {
+	// if a kill streak wasn't running, run it now
+	if(!CheckInventory("DnD_SpreeCountdownRunning")) {
+		GiveInventory("DnD_SpreeCountdownRunning", 1);
+		ACS_NamedExecuteAlways("DnD Killing Spree Timer", 0);
+	}
+	// spree count was given, so a possible spree may be in reach
+	if(CheckInventory("DnD_SpreeTimer")) {
+		GiveInventory("DnD_MultikillCounter", 1);
+		if(GetArmorType("RavagerArmor", PlayerNumber())) {
+			GiveInventory("RavagerPower", 1);
+			GiveInventory("RavagerPowerDefense", 1);
+		}
+		
+		// punisher perk -- be on cruel or more
+		if(CheckInventory("Punisher_Perk5") && (CheckInventory("DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1)
+			GiveInventory("Punisher_Perk5_MoveSpeed", 1);
+	}
+	// give spree counter
+	GiveInventory("DnD_SpreeTimer", DND_SPREE_AMOUNT);
+}
+
 void ResetPlayerScriptChecks() {
 	for(int i = 0; i < MAX_SCRIPT_TRACK; ++i)
 		for(int j = 0; j < MAXPLAYERS; ++j)
 			PlayerScriptsCheck[i][j] = false;
+}
+
+// check if we reached a multiple of 50 yet
+void CheckPunisherKillTally() {
+	int count = CheckInventory("Punisher_Perk50_Counter");
+	if(count > DND_PUNISHER_PERK3_KILLCOUNT) {
+		// take all previous
+		for(int i = 0; i < DND_PUNISHER_PERK3_MAX; ++i)
+			TakeInventory(StrParam(s:"Punisher_Perk50_Damage_", d:(i + 1)), 1);
+		// give new based on total kill
+		GiveInventory(StrParam(s:"Punisher_Perk50_Damage_", d:CheckInventory("DnD_Kill") / 50), 1);
+		// clean current count
+		SetInventory("Punisher_Perk50_Counter", count % DND_PUNISHER_PERK3_KILLCOUNT);
+	}
 }

@@ -750,6 +750,7 @@ Actor DnD_ArchVile : ArchVile {
 		Death.EmeraldFull:
 			"####" "#" 0 A_Stop
 			"####" "#" 0 A_Scream
+			"####" "#" 0 A_GiveInventory("NoDrop", 1) // to fix undead priest
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
 			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
 			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)

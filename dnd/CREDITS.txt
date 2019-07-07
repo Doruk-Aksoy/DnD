@@ -1,3 +1,13 @@
+Detailed Credits:
+
+Renegade's sprites - SoloSpaghetti
+Former Overwatch's sprites (AVSG) from DRLA - Marty Kirra 
+jawless shotgunner sprite. - yholl
+Elite Former Sergeant [Assault Shotgun] (EASS) - SoloSpaghetti.
+Nightmare Mastermind (NMAS) sprites from DRLA -Seryder, Yuraofthehairfan
+
+The above is incomplete and will be updated.
+
 - Weapon sprite credits are (mostly) in the decorate files.
 
 Thanks to:

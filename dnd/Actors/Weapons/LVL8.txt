@@ -1734,7 +1734,7 @@ Actor "Soul Reaver" : Weapon {
 	Obituary "%o's soul was twisted by %k."
 	Weapon.AmmoType "Souls"
 	Weapon.AmmoGive 15
-	Weapon.AmmoUse 15
+	Weapon.AmmoUse 25
 	Weapon.SlotNumber 8
 	+INVENTORY.UNDROPPABLE
 	Weapon.BobStyle InverseSmooth
@@ -1949,7 +1949,7 @@ Actor SoulReaverGhost {
 	Renderstyle Add
 	Alpha 0.75
 	Scale 0.85
-	Speed 24
+	Speed 22
 	+THRUACTORS
 	+FORCERADIUSDMG
 	+SEEKERMISSILE

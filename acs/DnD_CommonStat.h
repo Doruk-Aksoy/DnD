@@ -343,16 +343,21 @@ void HandleClassPerks() {
 		// 1st perk
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
+				GiveInventory("Doomguy_Perk5", 1);
 			break;
 			case DND_PLAYER_MARINE:
+				GiveInventory("Marine_Perk5", 1);
 			break;			
 			case DND_PLAYER_HOBO:
+				GiveInventory("Hobo_Perk5", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
+				GiveInventory("Punisher_Perk5", 1);
 			break;
 			case DND_PLAYER_WANDERER:
 			break;
 			case DND_PLAYER_CYBORG:
+				GiveInventory("Cyborg_Perk5", 1);
 			break;
 		}
 	}
@@ -361,16 +366,21 @@ void HandleClassPerks() {
 		// 2nd perk
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
+				GiveInventory("Doomguy_Perk25", 1);
 			break;
 			case DND_PLAYER_MARINE:
+				GiveInventory("Marine_Perk25", 1);
 			break;			
 			case DND_PLAYER_HOBO:
+				GiveInventory("Hobo_Perk25", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
+				GiveInventory("Punisher_Perk25", 1);
 			break;
 			case DND_PLAYER_WANDERER:
 			break;
 			case DND_PLAYER_CYBORG:
+				GiveInventory("Cyborg_Perk25", 1);
 			break;
 		}
 	}
@@ -379,16 +389,21 @@ void HandleClassPerks() {
 		// 3rd perk
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
+				GiveInventory("Doomguy_Perk50", 1);
 			break;
 			case DND_PLAYER_MARINE:
+				GiveInventory("CurseImmunity", 1);
 			break;			
 			case DND_PLAYER_HOBO:
+				GiveInventory("Hobo_Perk50", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
+				GiveInventory("Punisher_Perk50", 1);
 			break;
 			case DND_PLAYER_WANDERER:
 			break;
 			case DND_PLAYER_CYBORG:
+				GiveInventory("Cyborg_Perk50", 1);
 			break;
 		}
 	}

@@ -50,6 +50,7 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Gore.txt"
 #include "Actors/Debuffs.txt"
 #include "Actors/Player.txt"
+#include "Actors/ClassPerks.txt"
 #include "Actors/Decorations.txt"
 #include "Actors/WeaponIDs.txt"
 

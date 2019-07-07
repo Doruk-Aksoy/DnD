@@ -49,6 +49,10 @@ Actor DnD_Info : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
+Actor DnD_Kills : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
 Actor DnD_ScrollState : Inventory {
 	inventory.maxamount 1000
 }

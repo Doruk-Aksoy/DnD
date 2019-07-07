@@ -51,8 +51,8 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"STFEVL0",
 		
 		
-		"+ L5: Fire attacks deal 10% less damage.",
-		"+ L25: Demons take 15% more damage.",
+		"+ L5: Enemy fire attacks deal 10% less damage.",
+		"+ L25: Demons take 15% more damage if Doomguy is present in the map.",
 		"+ L50: Demons have 15% chance to drop healing orbs. Heal for 5% of enemy max health."
 	},
 	
@@ -93,9 +93,9 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"P4_RIMG",
 		"BADEVL0",
 		
-		"+ L5: Being on a killing spree gives 10% movement speed.",
-		"+ L25: At the end of a killing spree, heal and gain armor for 15% of your max caps.",
-		"+ L50: Every 50 kills you get boosts your damage and resistances by 2.5% for that map. Resist caps at 75%."
+		"+ L5: Being on at least the \ckCruel\cd killing spree gives 10% movement speed.",
+		"+ L25: At the end of at least the \ckMerciless\ci killing spree, heal and gain armor for 15% of your max caps.",
+		"+ L50: Every 50 kills you get increases your damage by 2.5% for that map. Caps at 250%."
 	},
 
 	// Wanderer
@@ -124,7 +124,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"+ L5: Energy attacks deal 15% less damage to you.",
 		"+ L25: Cybernetic enhancements are 30% more effective.",
 		"+ L50: Energy weapons do full damage."
-	},
+	}
 };
 
 #endif

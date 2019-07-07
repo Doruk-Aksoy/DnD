@@ -503,7 +503,9 @@ void DecideAccessories() {
 		UpdatePlayerKnockbackResist();
 	}
 	else {
-		TakeInventory("CurseImmunity", 1);
+		// if not marine and level less than 50, take it
+		if(CheckInventory("DnD_Character") - 1 != DND_PLAYER_MARINE || CheckInventory("Level") < 50)
+			TakeInventory("CurseImmunity", 1);
 		TakeInventory("GryphonCheck", 1);
 		TakeInventory("GryphonSpeed", 1);
 	}

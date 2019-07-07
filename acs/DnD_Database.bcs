@@ -1164,7 +1164,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 Script "DND Player Save" OPEN {
 	while(1) {
 		//Log(d:HardcoreSet, d:MapChanged);
-		if(HardcoreSet && MapChanged) {
+		if(HardcoreSet && MapInfo[DND_MAPINFO_MAPCHANGED]) {
 			BeginDBTransaction();
 			for(int i = 0; i < MAXPLAYERS; ++i) {
 				// don't save peoples stuff while they are in load period
