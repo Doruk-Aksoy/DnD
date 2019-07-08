@@ -708,7 +708,7 @@ Script "DND On Kill" KILL {
 	SetActivator(target);
 	
 	// keep the kill tally
-	GiveInventory("DnD_Kill", 1);
+	GiveInventory("DnD_Kills", 1);
 	
 	if(CheckInventory("Punisher_Perk50")) {
 		GiveInventory("Punisher_Perk50_Counter", 1);

@@ -386,13 +386,4 @@ void DoubleSpecialAmmoCapacity() {
 		SetAmmoCapacity(SpecialAmmoInfo_Str[i][AMMOINFO_NAME], SpecialAmmoInfo[i].initial_capacity * 2);
 }
 
-void HandleResearchBonuses() {
-	if(CheckResearchStatus(RES_IMP3))
-		GiveInventory("ImpactProtection_3", 1);
-	else if(CheckResearchStatus(RES_IMP2))
-		GiveInventory("ImpactProtection_2", 1);
-	else if(CheckResearchStatus(RES_IMP1))
-		GiveInventory("ImpactProtection_1", 1);
-}
-
 #endif

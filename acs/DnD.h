@@ -993,7 +993,7 @@ void CheckPunisherKillTally() {
 		for(int i = 0; i < DND_PUNISHER_PERK3_MAX; ++i)
 			TakeInventory(StrParam(s:"Punisher_Perk50_Damage_", d:(i + 1)), 1);
 		// give new based on total kill
-		GiveInventory(StrParam(s:"Punisher_Perk50_Damage_", d:CheckInventory("DnD_Kill") / 50), 1);
+		GiveInventory(StrParam(s:"Punisher_Perk50_Damage_", d:CheckInventory("DnD_Kills") / 50), 1);
 		// clean current count
 		SetInventory("Punisher_Perk50_Counter", count % DND_PUNISHER_PERK3_KILLCOUNT);
 	}
