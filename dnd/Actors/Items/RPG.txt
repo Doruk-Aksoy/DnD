@@ -299,20 +299,20 @@ Actor ExplosionResistAbility : PowerProtection {
 	DamageFactor "LightningExpFull", 0.5
 }
 
-Actor PoisonImmunity : PowerProtection { 
+Actor PoisonResist : PowerProtection { 
 	powerup.duration 0x7FFFFFFF
 	damagefactor "normal", 1.0
-	damagefactor "Poison", 0.25
-	damagefactor "ImpPoison_Roach", 0.25
-	damagefactor "ImpPoison_Vulgar", 0.25
-	damagefactor "DemonPoison_EarthGolem", 0.25
-	damagefactor "RevSludge", 0.25
-	damagefactor "RevPoison_Crawler", 0.25
-	damagefactor "CacoPoison", 0.25
-	damagefactor "PainePoison", 0.25
-	damagefactor "BaronsPoison", 0.25
-	damagefactor "Slime", 0.25
-	damagefactor "ArachnoGreen", 0.25
+	damagefactor "Poison", 0.5
+	damagefactor "ImpPoison_Roach", 0.5
+	damagefactor "ImpPoison_Vulgar", 0.5
+	damagefactor "DemonPoison_EarthGolem", 0.5
+	damagefactor "RevSludge", 0.5
+	damagefactor "RevPoison_Crawler", 0.5
+	damagefactor "CacoPoison", 0.5
+	damagefactor "PainePoison", 0.5
+	damagefactor "BaronsPoison", 0.5
+	damagefactor "Slime", 0.5
+	damagefactor "ArachnoGreen", 0.5
 }
 
 Actor DashEffect : PowerSpeed {

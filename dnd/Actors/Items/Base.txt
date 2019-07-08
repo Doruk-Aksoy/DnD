@@ -458,3 +458,19 @@ enum {
 	DND_STACKEDITEM_CHESTKEY,
 	DND_STACKEDITEM_ELIXIR
 };
+
+Actor DontAttack : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOTARGET", 1)
+		Stop
+	}
+}
+
+Actor DontAttackRemove : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOTARGET", 0)
+		Stop
+	}
+}
