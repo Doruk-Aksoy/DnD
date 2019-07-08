@@ -17,6 +17,7 @@ enum {
 
 #include "DnD_OrbsDef.h"
 #include "DnD_ElixirDef.h"
+#include "DnD_CommonResearch.h"
 
 #define DND_ELITE_BASEDROP 0.035
 
@@ -241,7 +242,15 @@ int GetHealingBonuses() {
 }
 
 int GetResearchHealthBonuses() {
-	return BIO_HP_ADD_1 * CheckInventory("Done_Body_Hp_1") + BIO_HP_ADD_2 * CheckInventory("Done_Body_Hp_2") + BIO_HP_ADD_3 * CheckInventory("Done_Body_Hp_3");
+	int res = BIO_HP_ADD_1 * CheckInventory("Done_Body_Hp_1") + BIO_HP_ADD_2 * CheckInventory("Done_Body_Hp_2") + BIO_HP_ADD_3 * CheckInventory("Done_Body_Hp_3");
+	
+	// cyborg's bonus
+	if(CheckInventory("Cyborg_Perk50")) {
+		res *= DND_CYBORG_CYBER_MULT;
+		res /= DND_CYBORG_CYBER_DIV;
+	}
+	
+	return res;
 }
 
 int GetMissingHealth() {

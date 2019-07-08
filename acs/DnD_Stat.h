@@ -267,7 +267,14 @@ void UnequipAccessory(int acc) {
 }
 
 int GetResearchArmorBonuses() {
-	return EXO_AR_ADD_1 * CheckInventory("Done_Body_Ar_1") + EXO_AR_ADD_2 * CheckInventory("Done_Body_Ar_2") + EXO_AR_ADD_3 * CheckInventory("Done_Body_Ar_3");
+	int res = EXO_AR_ADD_1 * CheckInventory("Done_Body_Ar_1") + EXO_AR_ADD_2 * CheckInventory("Done_Body_Ar_2") + EXO_AR_ADD_3 * CheckInventory("Done_Body_Ar_3");
+	
+	if(CheckInventory("Cyborg_Perk50")) {
+		res *= DND_CYBORG_CYBER_MULT;
+		res /= DND_CYBORG_CYBER_DIV;
+	}
+	
+	return res;
 }
 
 int CalculateArmorCapBonuses() {
