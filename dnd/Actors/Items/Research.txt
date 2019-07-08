@@ -320,6 +320,33 @@ Actor ImpactProtection_3 : PowerProtection {
 	damagefactor "Explosives_MagicFull", 0.6
 }
 
+Actor ImpactProtection_1_Cyborg : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	
+	damagefactor "Explosives", 0.87
+	damagefactor "ExplosivesFull", 0.87
+	damagefactor "Explosives_Magic", 0.87
+	damagefactor "Explosives_MagicFull", 0.87
+}
+
+Actor ImpactProtection_2_Cyborg : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	
+	damagefactor "Explosives", 0.675
+	damagefactor "ExplosivesFull", 0.675
+	damagefactor "Explosives_Magic", 0.675
+	damagefactor "Explosives_MagicFull", 0.675
+}
+
+Actor ImpactProtection_3_Cyborg : PowerProtection {
+	powerup.duration 0x7FFFFFFF
+	
+	damagefactor "Explosives", 0.48
+	damagefactor "ExplosivesFull", 0.48
+	damagefactor "Explosives_Magic", 0.48
+	damagefactor "Explosives_MagicFull", 0.48
+}
+
 // *******************
 //		MODULES
 // *******************

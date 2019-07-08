@@ -99,7 +99,7 @@ Actor GreenArmor_SP : GreenArmorPickup {
 Actor GreenArmorMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 3, SHI_GREENARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 3, SHI_GREENARMOR)
 			TNT1 A 0 A_PlaySound("Items/armor", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -154,7 +154,7 @@ Actor BlueArmor_SP : GreenArmorPickup {
 Actor BlueArmorMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 3, SHI_BLUEARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 3, SHI_BLUEARMOR)
 			TNT1 A 0 A_PlaySound("Items/armor", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -209,7 +209,7 @@ Actor YellowArmor_SP : GreenArmorPickup {
 Actor YellowArmorMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 3, SHI_YELLOWARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 3, SHI_YELLOWARMOR)
 			TNT1 A 0 A_PlaySound("Items/armor", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
@@ -264,7 +264,7 @@ Actor RedArmor_SP : GreenArmorPickup {
 Actor RedArmorMsg : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_ExecuteAlways(985, 0, 3, SHI_REDARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 3, SHI_REDARMOR)
 			TNT1 A 0 A_PlaySound("Items/armor", 6)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
