@@ -342,41 +342,6 @@ object AcidShot_FullDMG
 	frame BNADJ { light VenomLight8 }
 }
 
-pulselight DNBFGFLASH
-{
-    color 0.2 1.0 0.2
-    size 256
-    secondarySize 0
-    interval 1.25
-}
-
-Object DNBFGGLDEFThingy
-{
-    frame TNT1A { light DNBFGFLASH }
-}
-
-pointlight DNBFGFLIGHT
-{
-    color 0.1 1.0 0.1
-    size 128
-}
-
-Object DNBFGBall
-{
-    frame NBFP { light DNBFGFLIGHT }
-}
-
-pointlight DNBFGFLIGHT2
-{
-    color 0.1 1.0 0.1
-    size 72
-}
-
-Object DNBFGBallSmall
-{
-    frame NBFP { light DNBFGFLIGHT2 }
-}
-
 flickerlight DSPARILBALL
 {
     color 0.3 0.3 1.0

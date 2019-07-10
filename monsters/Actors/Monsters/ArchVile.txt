@@ -2355,6 +2355,9 @@ Actor DarkZealot : MagicalEnemy {
 			TNT1 A 0 A_Jump(96, "Attack1")
 			TNT1 A 0 A_Jump(192, "Attack2", "Teleport")
 		Goto Attack1
+		Redecide2:
+			TNT1 A 0 A_Jump(96, "Attack2")
+		Goto Attack1
 		Shield:
 			TNT1 A 0 A_JumpIfInventory("ZealotShielded", 1, "Redecide")
 			RSON F 1 Bright
@@ -2369,11 +2372,14 @@ Actor DarkZealot : MagicalEnemy {
 			RSON G 8 Fast Bright A_SetReflectiveInvulnerable
 		Goto See
 		Pain:
+			TNT1 A 0 A_JumpIfInventory("DarkZealotCooldown", 1, "Paincont")
 			TNT1 A 0 A_Jump(96, "Teleport")
+		PainCont:
 			RSON E 3 Fast
 			RSON E 3 Fast A_Pain
 		Goto See
 		Teleport:
+			TNT1 A 0 A_JumpIfInventory("DarkZealotCooldown", 1, "Redecide2")
 			TNT1 A 0 A_PlaySound("DarkServant/Laugh")
 			TNT1 A 0 A_UnsetShootable
 			RSON OPQRS 3 Fast Bright
@@ -2386,6 +2392,7 @@ Actor DarkZealot : MagicalEnemy {
 			TNT1 A 0 A_SetUserVar("user_teleport", user_teleport + 1)
 		Loop
 		TeleportFinish:
+			TNT1 A 0 A_GiveInventory("DarkZealotCooldown", 1)
 			TNT1 A 0 A_ScaleVelocity(0.5)
 			TNT1 A 0 A_SetUserVar("user_teleport", 0)
 			RSON SRQPO 3 Fast Bright
@@ -2418,6 +2425,11 @@ Actor DarkZealot : MagicalEnemy {
 			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
 		Goto Death
 	}
+}
+
+Actor DarkZealotCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 120 // 15 + 105 (35 x 3)
 }
 
 Actor ZealotShielded : DnD_Boolean { }

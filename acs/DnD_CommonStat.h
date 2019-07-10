@@ -75,6 +75,10 @@ enum {
 
 #define MAX_EXPRESIST_VAL 100 //Also in DnD_Inventory.h
 
+#define DND_CLASSPERK1_LEVEL 5
+#define DND_CLASSPERK2_LEVEL 25
+#define DND_CLASSPERK3_LEVEL 50
+
 enum {
 	// dont change order of these, add below the last!
 	STAT_STR,
@@ -349,12 +353,34 @@ int GetPlayerAttributeValue(int pnum, int attrib) {
 }
 
 void HandleResearchBonuses() {
-	if(CheckResearchStatus(RES_IMP3))
-		GiveInventory("ImpactProtection_3", 1);
-	else if(CheckResearchStatus(RES_IMP2))
-		GiveInventory("ImpactProtection_2", 1);
-	else if(CheckResearchStatus(RES_IMP1))
-		GiveInventory("ImpactProtection_1", 1);
+	if(CheckResearchStatus(RES_IMP3)) {
+		if(CheckInventory("Cyborg_Perk25")) {
+			GiveInventory("ImpactProtection_3_Cyborg", 1);
+			TakeInventory("ImpactProtection_2_Cyborg", 1);
+			TakeInventory("ImpactProtection_1_Cyborg", 1);
+		}
+		else {
+			GiveInventory("ImpactProtection_3", 1);
+			TakeInventory("ImpactProtection_2", 1);
+			TakeInventory("ImpactProtection_1", 1);
+		}
+	}
+	else if(CheckResearchStatus(RES_IMP2)) {
+		if(CheckInventory("Cyborg_Perk25")) {
+			GiveInventory("ImpactProtection_2_Cyborg", 1);
+			TakeInventory("ImpactProtection_2_Cyborg", 1);
+		}
+		else {
+			GiveInventory("ImpactProtection_2", 1);
+			TakeInventory("ImpactProtection_1", 1);
+		}
+	}
+	else if(CheckResearchStatus(RES_IMP1)) {
+		if(CheckInventory("Cyborg_Perk25"))
+			GiveInventory("ImpactProtection_1_Cyborg", 1);
+		else
+			GiveInventory("ImpactProtection_1", 1);
+	}
 }
 
 // Give powerups and stuff of the classes if they satisfy their perk things

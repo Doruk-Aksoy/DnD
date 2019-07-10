@@ -110,6 +110,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 	str toshow;
 	int curopt, curopt_prev = MENU_NULL;
 	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE + 1, mainboxid_prev = MAINBOX_NONE;
+	str dashstatus;
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
@@ -685,7 +686,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]", s:ShopItemNames[SHOP_ABILITY1_BEGIN + i][SHOPNAME_TAG], s:": \c-", s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
 			}
 				
-			str dashstatus = "\cgDisabled";
+			dashstatus = "\cgDisabled";
 			if(!CheckInventory("DashDisabled"))
 				dashstatus = "\cdEnabled";
 			if(boxid == MBOX_1)
@@ -707,18 +708,19 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"--- DnD Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 			
 			DrawBoxText("Character Loading Help", boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-			DrawBoxText("Weapon Property Help", boxid, MBOX_2, RPGMENUITEMID - 1, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-			DrawBoxText("Research Help", boxid, MBOX_3, RPGMENUITEMID - 2, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-			DrawBoxText("Damage Types Help", boxid, MBOX_4, RPGMENUITEMID - 3, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-			DrawBoxText("Orbs Help", boxid, MBOX_5, RPGMENUITEMID - 4, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-			DrawBoxText("Legendary Monster Codex", boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-			DrawBoxText("Monster Modifiers", boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("Class Perk Help", boxid, MBOX_2, RPGMENUITEMID - 1, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("Weapon Property Help", boxid, MBOX_3, RPGMENUITEMID - 2, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("Research Help", boxid, MBOX_4, RPGMENUITEMID - 3, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("Damage Types Help", boxid, MBOX_5, RPGMENUITEMID - 4, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("Orbs Help", boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("Monster Modifiers Help", boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("Legendary Monster Codex", boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 208.0, "\c[B1]", "\c[Y5]");
 			
-			HudMessage(s:"\c[Y5]Average Monster Level: \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]Average Monster Level: \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
 			str mapinfo = "\cgDisabled";
 			if(CheckInventory("ShowMapInfo"))
 				mapinfo = "\cdEnabled";
-			DrawBoxText(StrParam(s:"Show Map Info: ", s:mapinfo), boxid, MBOX_8, RPGMENUITEMID - 8, 192.1, 244.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText(StrParam(s:"Show Map Info: ", s:mapinfo), boxid, MBOX_9, RPGMENUITEMID - 9, 192.1, 244.0, "\c[B1]", "\c[Y5]");
 			if(CheckInventory("SetMapInfo")) {
 				SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
 				SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
@@ -731,6 +733,30 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			
 			for(i = 0; i < MAX_HELPTEXT_CHARACTER; ++i)
 				HudMessage(s:"\c[Y5]* \c-", s:HelpText_Character[i]; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 64.1 + 72.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+			
+			SetHudClipRect(0, 0, 0, 0);
+		}
+		else if(curopt == MENU_HELP_CLASSPERKS) {
+			temp = CheckInventory("DnD_Character") - 1;
+			HudMessage(s:"--- DnD Class Perks Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			HudMessage(s:"Class: \cj", s:DnD_ClassInfo[temp][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 80.0, 0.0, 0.0);
+			SetHudClipRect(192, 64, 256, 192, 256, 1);
+			
+			i = 0;
+			if(CheckInventory("Level") < 5)
+				HudMessage(s:"\cu", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+			else
+				HudMessage(s:"\cd", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+			
+			if(CheckInventory("Level") < 25)
+				HudMessage(s:"\cu", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+			else
+				HudMessage(s:"\ci", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+
+			if(CheckInventory("Level") < 50)
+				HudMessage(s:"\cu", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * i, 0.0, 0.0);
+			else
+				HudMessage(s:"\cg", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * i, 0.0, 0.0);
 			
 			SetHudClipRect(0, 0, 0, 0);
 		}

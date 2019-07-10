@@ -211,7 +211,7 @@ void GolgothLaserTrail(int yoff, int zoff, int target, bool isFake) {
     magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
     pointCount  = magnitude / GOLGOTH_LASER_DENSITY;
     pointOffset = magnitude - (pointCount * GOLGOTH_LASER_DENSITY);
-
+	
     if (magnitude != 0) {
         nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
 

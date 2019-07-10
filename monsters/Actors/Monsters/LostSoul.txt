@@ -794,9 +794,27 @@ ACTOR Watcher : DnD_BaseEnemy {
 			WATC N 0 A_SetFloorClip
 			WATC O -1 
 		stop
-		Raise: 
-			WATC ONMLKJI 8 
-		Goto See 
+		Raise:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+			CACB O 8 A_UnSetFloorClip
+			WATC NMLKJI 8 
+		Goto See
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
 	} 
 }
 

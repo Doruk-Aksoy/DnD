@@ -21,6 +21,7 @@
 enum {
 	DND_ANNOUNCER_QUEST,
 	DND_ANNOUNCER_ATTRIBPOINT,
+	DND_ANNOUNCER_NEWCLASSPERK,
 	DND_ANNOUNCER_LEGENDARYMONSTER,
 	DND_ANNOUNCER_RESEARCHDISCOVER,
 	DND_ANNOUNCER_TRADEREQUEST
@@ -292,11 +293,10 @@ int CanPickHealthItem(int type) {
     int research_cond = CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && CheckInventory("StoredMedkit") < GetAmmoCapacity("StoredMedkit");
 	if(type == 2) // portable medikit
         res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth() && CheckInventory("StoredMedkit");
-    else
-    if(type == 1) // the artifact kit
+    else if(type == 1) // the artifact kit
 		res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth();
 	else // normal health pickup
-		res = (GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth()) || research_cond;
+		res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth() || research_cond;
 		
 	return res;
 }

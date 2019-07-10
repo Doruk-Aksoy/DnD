@@ -2636,7 +2636,7 @@ Actor Golgoth : DnD_BaseEnemy {
 			MOMD FE 2 A_FaceTarget
 		Goto See
 		DarkLance:
-			TNT1 A 0 A_JumpIfCloser(4096, "ContinueLance")
+			TNT1 A 0 A_JumpIfCloser(3200, "ContinueLance")
 		Goto Meteor
 		ContinueLance:
 			TNT1 A 0 A_SetUserVar("user_count", 0)

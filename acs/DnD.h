@@ -267,7 +267,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "BFG 6000, an older model but still capable. Can be \cdreplaced.\cf Ignores shields.",
 	 "The newest BFG model 32768, devastates with 600 - 900 damage on impact and 384 damage in a 160 unit radius. Also shoots 64 tracers instead of 40.",
 	 "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units. Can't hit \cughosts. \c-\cfIgnores shields.",
-	 "Fires a destructive orb doing 425 damage on impact and 384 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. \cfIgnores shields.",
+	 "Fires a destructive orb doing 425 damage on impact and 384 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields.",
 	 "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60. Can \cgoverheat\c-. \cfIngores shields\c-. Can't hit \cughosts\c-.",
 	 "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.\c- Does full damage regardless.",
 	 "Gauss Rifle fires a magnetic pulse dealing 100 direct hit damage and 192 radius damage in a 96 unit radius. Alt fire zooms and amplifies the damage for each zoom. Can't hit \cughosts.\c- \cfIgnores shields.",
@@ -408,6 +408,7 @@ int CheckLevelUp (void) {
 }
 
 void HandleLevelup() {
+	int prevlvl = CheckInventory("Level");
 	if(CheckLevelUp()) {
 		LocalAmbientSound("RPG/LevelUp", 127);
 		GiveInventory("LevelUpEffectSpawner", 1);
@@ -418,7 +419,21 @@ void HandleLevelup() {
 		// heal on level up flag is on
 		if(GetCVar("dnd_healonlevelup"))
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
-		ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
+		
+		int curlvl = CheckInventory("Level");
+		// player just leveled and got their perks? check if so
+		if
+		(
+			(prevlvl < DND_CLASSPERK1_LEVEL && curlvl >= DND_CLASSPERK1_LEVEL) ||
+			(prevlvl < DND_CLASSPERK2_LEVEL && curlvl >= DND_CLASSPERK2_LEVEL) ||
+			(prevlvl < DND_CLASSPERK3_LEVEL && curlvl >= DND_CLASSPERK3_LEVEL)
+		) {
+			HandleClassPerks();
+			// make some announcement the player has a new perk
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
+		}
+		else
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
 	}
 }
 
