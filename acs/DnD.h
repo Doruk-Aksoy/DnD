@@ -269,7 +269,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units. Can't hit \cughosts. \c-\cfIgnores shields.",
 	 "Fires a destructive orb doing 425 damage on impact and 384 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields.",
 	 "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60. Can \cgoverheat\c-. \cfIngores shields\c-. Can't hit \cughosts\c-.",
-	 "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.\c- Does full damage regardless.",
+	 "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.",
 	 "Gauss Rifle fires a magnetic pulse dealing 100 direct hit damage and 192 radius damage in a 96 unit radius. Alt fire zooms and amplifies the damage for each zoom. Can't hit \cughosts.\c- \cfIgnores shields.",
 	 "This baby can rip through concrete with ease. Each shot does multiples of 92. Alt fire charges up the next shot up to 2 times. \cfIgnores shields.",
 	 "Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 200 damage on both impact and in a 160 unit radius, \cfignoring shields.\c-",
