@@ -17,6 +17,7 @@ enum {
 
 #include "DnD_OrbsDef.h"
 #include "DnD_ElixirDef.h"
+#include "DnD_CommonResearch.h"
 
 #define DND_ELITE_BASEDROP 0.035
 
@@ -241,7 +242,15 @@ int GetHealingBonuses() {
 }
 
 int GetResearchHealthBonuses() {
-	return BIO_HP_ADD_1 * CheckInventory("Done_Body_Hp_1") + BIO_HP_ADD_2 * CheckInventory("Done_Body_Hp_2") + BIO_HP_ADD_3 * CheckInventory("Done_Body_Hp_3");
+	int res = BIO_HP_ADD_1 * CheckInventory("Done_Body_Hp_1") + BIO_HP_ADD_2 * CheckInventory("Done_Body_Hp_2") + BIO_HP_ADD_3 * CheckInventory("Done_Body_Hp_3");
+	
+	// cyborg's bonus
+	if(CheckInventory("Cyborg_Perk50")) {
+		res *= DND_CYBORG_CYBER_MULT;
+		res /= DND_CYBORG_CYBER_DIV;
+	}
+	
+	return res;
 }
 
 int GetMissingHealth() {
@@ -310,7 +319,9 @@ void RestoreRPGStat (int statflag) {
 	if(CheckInventory("HateCheck"))
 		GiveInventory("PowerReflection", 1);
 	if(CheckInventory("Ability_AntiPoison"))
-		GiveInventory("PoisonImmunity", 1);
+		GiveInventory("PoisonResist", 1);
+	if(CheckInventory("Ability_ExplosionMastery"))
+		GiveInventory("ExplosionResistAbility", 1);
 	if(CheckInventory("NetherCheck"))
 		GiveInventory("NetherWeaken", 1);
 	if(CheckInventory("GryphonCheck")) {
@@ -324,7 +335,7 @@ void RestoreRPGStat (int statflag) {
 	
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
-	
+	HandleResearchBonuses();
 	HandleClassPerks();
 }
 
@@ -337,6 +348,15 @@ int GetPlayerAttributeValue(int pnum, int attrib) {
 	return CheckActorInventory(pnum + P_TIDSTART, GetPlayerAttributeString(attrib));
 }
 
+void HandleResearchBonuses() {
+	if(CheckResearchStatus(RES_IMP3))
+		GiveInventory("ImpactProtection_3", 1);
+	else if(CheckResearchStatus(RES_IMP2))
+		GiveInventory("ImpactProtection_2", 1);
+	else if(CheckResearchStatus(RES_IMP1))
+		GiveInventory("ImpactProtection_1", 1);
+}
+
 // Give powerups and stuff of the classes if they satisfy their perk things
 void HandleClassPerks() {
 	int lvl = CheckInventory("Level");
@@ -346,20 +366,51 @@ void HandleClassPerks() {
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
 				GiveInventory("Doomguy_Perk5", 1);
+				TakeInventory("Marine_Perk5", 1);
+				TakeInventory("Hobo_Perk5", 1);
+				TakeInventory("Punisher_Perk5", 1);
+				TakeInventory("Wanderer_Perk5", 1);
+				TakeInventory("Cyborg_Perk5", 1);
 			break;
 			case DND_PLAYER_MARINE:
 				GiveInventory("Marine_Perk5", 1);
+				TakeInventory("Doomguy_Perk5", 1);
+				TakeInventory("Hobo_Perk5", 1);
+				TakeInventory("Punisher_Perk5", 1);
+				TakeInventory("Wanderer_Perk5", 1);
+				TakeInventory("Cyborg_Perk5", 1);
 			break;			
 			case DND_PLAYER_HOBO:
 				GiveInventory("Hobo_Perk5", 1);
+				TakeInventory("Doomguy_Perk5", 1);
+				TakeInventory("Marine_Perk5", 1);
+				TakeInventory("Punisher_Perk5", 1);
+				TakeInventory("Wanderer_Perk5", 1);
+				TakeInventory("Cyborg_Perk5", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
 				GiveInventory("Punisher_Perk5", 1);
+				TakeInventory("Doomguy_Perk5", 1);
+				TakeInventory("Marine_Perk5", 1);
+				TakeInventory("Hobo_Perk5", 1);
+				TakeInventory("Wanderer_Perk5", 1);
+				TakeInventory("Cyborg_Perk5", 1);
 			break;
 			case DND_PLAYER_WANDERER:
+				GiveInventory("Wanderer_Perk5", 1);
+				TakeInventory("Doomguy_Perk5", 1);
+				TakeInventory("Marine_Perk5", 1);
+				TakeInventory("Hobo_Perk5", 1);
+				TakeInventory("Punisher_Perk5", 1);
+				TakeInventory("Cyborg_Perk5", 1);
 			break;
 			case DND_PLAYER_CYBORG:
 				GiveInventory("Cyborg_Perk5", 1);
+				TakeInventory("Doomguy_Perk5", 1);
+				TakeInventory("Marine_Perk5", 1);
+				TakeInventory("Hobo_Perk5", 1);
+				TakeInventory("Punisher_Perk5", 1);
+				TakeInventory("Wanderer_Perk5", 1);
 			break;
 		}
 	}
@@ -369,20 +420,51 @@ void HandleClassPerks() {
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
 				GiveInventory("Doomguy_Perk25", 1);
+				TakeInventory("Marine_Perk25", 1);
+				TakeInventory("Hobo_Perk25", 1);
+				TakeInventory("Punisher_Perk25", 1);
+				TakeInventory("Wanderer_Perk25", 1);
+				TakeInventory("Cyborg_Perk25", 1);
 			break;
 			case DND_PLAYER_MARINE:
 				GiveInventory("Marine_Perk25", 1);
+				TakeInventory("Doomguy_Perk25", 1);
+				TakeInventory("Hobo_Perk25", 1);
+				TakeInventory("Punisher_Perk25", 1);
+				TakeInventory("Wanderer_Perk25", 1);
+				TakeInventory("Cyborg_Perk25", 1);
 			break;			
 			case DND_PLAYER_HOBO:
 				GiveInventory("Hobo_Perk25", 1);
+				TakeInventory("Doomguy_Perk25", 1);
+				TakeInventory("Marine_Perk25", 1);
+				TakeInventory("Punisher_Perk25", 1);
+				TakeInventory("Wanderer_Perk25", 1);
+				TakeInventory("Cyborg_Perk25", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
 				GiveInventory("Punisher_Perk25", 1);
+				TakeInventory("Doomguy_Perk25", 1);
+				TakeInventory("Marine_Perk25", 1);
+				TakeInventory("Hobo_Perk25", 1);
+				TakeInventory("Wanderer_Perk25", 1);
+				TakeInventory("Cyborg_Perk25", 1);
 			break;
 			case DND_PLAYER_WANDERER:
+				GiveInventory("Wanderer_Perk25", 1);
+				TakeInventory("Doomguy_Perk25", 1);
+				TakeInventory("Marine_Perk25", 1);
+				TakeInventory("Hobo_Perk25", 1);
+				TakeInventory("Punisher_Perk25", 1);
+				TakeInventory("Cyborg_Perk25", 1);
 			break;
 			case DND_PLAYER_CYBORG:
 				GiveInventory("Cyborg_Perk25", 1);
+				TakeInventory("Doomguy_Perk25", 1);
+				TakeInventory("Marine_Perk25", 1);
+				TakeInventory("Hobo_Perk25", 1);
+				TakeInventory("Punisher_Perk25", 1);
+				TakeInventory("Wanderer_Perk25", 1);
 			break;
 		}
 	}
@@ -392,20 +474,51 @@ void HandleClassPerks() {
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
 				GiveInventory("Doomguy_Perk50", 1);
+				TakeInventory("Marine_Perk50", 1);
+				TakeInventory("Hobo_Perk50", 1);
+				TakeInventory("Punisher_Perk50", 1);
+				TakeInventory("Wanderer_Perk50", 1);
+				TakeInventory("Cyborg_Perk50", 1);
 			break;
 			case DND_PLAYER_MARINE:
 				GiveInventory("CurseImmunity", 1);
+				TakeInventory("Doomguy_Perk50", 1);
+				TakeInventory("Hobo_Perk50", 1);
+				TakeInventory("Punisher_Perk50", 1);
+				TakeInventory("Wanderer_Perk50", 1);
+				TakeInventory("Cyborg_Perk50", 1);
 			break;			
 			case DND_PLAYER_HOBO:
 				GiveInventory("Hobo_Perk50", 1);
+				TakeInventory("Doomguy_Perk50", 1);
+				TakeInventory("Marine_Perk50", 1);
+				TakeInventory("Punisher_Perk50", 1);
+				TakeInventory("Wanderer_Perk50", 1);
+				TakeInventory("Cyborg_Perk50", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
 				GiveInventory("Punisher_Perk50", 1);
+				TakeInventory("Doomguy_Perk50", 1);
+				TakeInventory("Marine_Perk50", 1);
+				TakeInventory("Hobo_Perk50", 1);
+				TakeInventory("Wanderer_Perk50", 1);
+				TakeInventory("Cyborg_Perk50", 1);
 			break;
 			case DND_PLAYER_WANDERER:
+				GiveInventory("Wanderer_Perk50", 1);
+				TakeInventory("Doomguy_Perk50", 1);
+				TakeInventory("Marine_Perk50", 1);
+				TakeInventory("Hobo_Perk50", 1);
+				TakeInventory("Punisher_Perk50", 1);
+				TakeInventory("Cyborg_Perk50", 1);
 			break;
 			case DND_PLAYER_CYBORG:
 				GiveInventory("Cyborg_Perk50", 1);
+				TakeInventory("Doomguy_Perk50", 1);
+				TakeInventory("Marine_Perk50", 1);
+				TakeInventory("Hobo_Perk50", 1);
+				TakeInventory("Punisher_Perk50", 1);
+				TakeInventory("Wanderer_Perk50", 1);
 			break;
 		}
 	}

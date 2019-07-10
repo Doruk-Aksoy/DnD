@@ -1072,6 +1072,14 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						LocalAmbientSound("Bonus/Received", 127);
 					else if(tradeflag & TRADE_ARMOR)
 						LocalAmbientSound("items/armor", 127);
+						
+					if(tradeflag & TRADE_ABILITY) {
+						// make sure the appropriate stuff is given
+						if(itemid == SHOP_ABILITY_POISON)
+							GiveInventory("PoisonResist", 1);
+						else if(itemid == SHOP_ABILITY_EXPLOSION)
+							GiveInventory("ExplosionResistAbility", 1);
+					}
 				}
 			}
 		}

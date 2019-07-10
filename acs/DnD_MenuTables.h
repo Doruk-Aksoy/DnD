@@ -1724,10 +1724,10 @@ str AbilityHelpText[MAXABILITIES + 1] = {
 	"You reload twice as fast.",
 	"Gain dodge moves (tap the move keys to dash).",
 	"Artifact power increases by 50%.",
-	"Gain 75% poison resistance.",
-	"Your explosives hurt you 50% less.",
+	"\c[R5]CYBERNETIC \cj- Gain 50% poison resistance.",
+	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.",
 	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.",
-	"Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.",
+	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.",
 	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.",
 	"Demons drop souls when killed with an occult weapon.",
 	"Can see monster health, mods and level.",
@@ -1994,39 +1994,39 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			"RESBAK45",
-			"UAC has new bionic enhancements to allow you to withstand more punishment. Increases health capacity by 5%."
+			"\c[R5]CYBERNETIC \cj- UAC has new bionic enhancements to allow you to withstand more punishment. Increases health capacity by 5%."
 		},		
 		{
 			"RESBAK46",
-			"Second enhancement to your body, with improved bionic elements. Increases health capacity by a further 6%."
+			"\c[R5]CYBERNETIC \cj- Second enhancement to your body, with improved bionic elements. Increases health capacity by a further 6%."
 		},
 		{
 			"RESBAK47",
-			"Top notch bionic material with super-soldier injections to make you even stronger. Increases health capacity by a further 9%."
+			"\c[R5]CYBERNETIC \cj- Top notch bionic material with super-soldier injections to make you even stronger. Increases health capacity by a further 9%."
 		},
 		{
 			"RESBAK48",
-			"UAC can now field their soldiers with exoskeletons, making your armors better. Increases armor capacity by 5%."
+			"\c[R5]CYBERNETIC \cj- UAC can now field their soldiers with exoskeletons, making your armors better. Increases armor capacity by 5%."
 		},
 		{
 			"RESBAK49",
-			"Exoskeleton material is improved to be made even more durable. Increases armor capacity by a further 6%."
+			"\c[R5]CYBERNETIC \cj- Exoskeleton material is improved to be made even more durable. Increases armor capacity by a further 6%."
 		},
 		{
 			"RESBAK50",
-			"UAC found the ultimate material to create exoskeletons with. Increases armor capacity by a further 9%."
+			"\c[R5]CYBERNETIC \cj- UAC found the ultimate material to create exoskeletons with. Increases armor capacity by a further 9%."
 		},
 		{
 			"RESBAK51",
-			"After studying the hide of several Cyberdemons you have sent, we can improve your body to make you take 10% less damage from your explosive attacks."
+			"\c[R5]CYBERNETIC \cj- After studying the hide of several Cyberdemons you have sent, we can improve your body to make you take 10% less damage from your explosive attacks."
 		},
 		{
 			"RESBAK52",
-			"Studying further, we can now improve the previous enhancement to make you take 25% less damage from explosive attacks instead."
+			"\c[R5]CYBERNETIC \cj- Studying further, we can now improve the previous enhancement to make you take 25% less damage from explosive attacks instead."
 		},
 		{
 			"RESBAK53",
-			"Superior impact protection. Improves previous enhancement to make you take 40% less damage from your explosive attacks instead."
+			"\c[R5]CYBERNETIC \cj- Superior impact protection. Improves previous enhancement to make you take 40% less damage from your explosive attacks instead."
 		},
 		{
 			"", ""
