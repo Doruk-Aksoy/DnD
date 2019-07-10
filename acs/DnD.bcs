@@ -3563,7 +3563,7 @@ Script "DnD Chest Dropping Item" (void) {
 Script "DnD Give Research" (int sp) {
 	SetActivator((sp & 0xFFFF) + P_TIDSTART);
 	GiveInventory("ResearchSoundPlayer", 1);
-	ACS_ExecuteAlways(985, 0, 2, sp, 1);
+	ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, sp, 1);
 	GiveResearch(sp >> 16, false);
 }
 
