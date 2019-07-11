@@ -298,6 +298,12 @@ Actor IATTR_PhysicalResist : Ammo {
 	+IGNORESKILL
 }
 
+Actor IATTR_ReflectResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 Actor IATTR_StatusBuffs_1 : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF

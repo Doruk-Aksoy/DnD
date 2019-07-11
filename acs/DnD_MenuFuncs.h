@@ -2237,7 +2237,7 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
 }
 
-void HandleAmmoPageDraw(int opt, int boxid, int slot, int multipage, bool specialammo) {
+void HandleAmmoPageDraw(int boxid, int slot, int multipage, bool specialammo) {
 	int shopindex = 0;
 	int i;
 	
@@ -2264,7 +2264,7 @@ void HandleAmmoPageDraw(int opt, int boxid, int slot, int multipage, bool specia
 		}
 	}
 	else {
-		for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
+		for(i = 0; i < MAX_SPECIAL_AMMOS_FOR_SHOP; ++i) {
 			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
 			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
 		}

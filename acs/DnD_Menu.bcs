@@ -592,15 +592,15 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			DrawBoxText("Special Ammo", boxid, MBOX_1 + i, RPGMENUITEMID - i - 1, 192.1, 96.0 + 16.0 * i, "\c[B1]", "\c[Y5]");
 		}
 		else if(curopt == MENU_SHOP_AMMO_1)
-			HandleAmmoPageDraw(curopt, boxid, DND_AMMOSLOT_CLIP, 0, false);
+			HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CLIP, 0, false);
 		else if(curopt == MENU_SHOP_AMMO_2)
-			HandleAmmoPageDraw(curopt, boxid, DND_AMMOSLOT_SHELL, 0, false);
+			HandleAmmoPageDraw(boxid, DND_AMMOSLOT_SHELL, 0, false);
 		else if(curopt == MENU_SHOP_AMMO_3)
-			HandleAmmoPageDraw(curopt, boxid, DND_AMMOSLOT_ROCKET, 0, false);
+			HandleAmmoPageDraw(boxid, DND_AMMOSLOT_ROCKET, 0, false);
 		else if(curopt == MENU_SHOP_AMMO_4)
-			HandleAmmoPageDraw(curopt, boxid, DND_AMMOSLOT_CELL, 0, false);
+			HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CELL, 0, false);
 		else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
-			HandleAmmoPageDraw(curopt, boxid, -1, 0, true);
+			HandleAmmoPageDraw(boxid, -1, 0, true);
 		else if(curopt == MENU_SHOP_ABILITY_1) {
 			HudMessage(s:"--- ABILITIES (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);

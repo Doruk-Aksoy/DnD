@@ -12,25 +12,27 @@ enum {
 	SSAM_NITROSHELL,
 	SSAM_SLUG,
 	
+	SSAM_40MM, // this is ignored for shop
 	SSAM_40MMSONIC,
 	SSAM_40MMHE
 };
 
-#define MAX_SPECIAL_AMMOS SSAM_40MMHE + 1
+#define MAX_SPECIAL_AMMOS (SSAM_40MMHE + 1)
+#define MAX_SPECIAL_AMMOS_FOR_SHOP (MAX_SPECIAL_AMMOS - 1) // we need to ignore the regular grenade here
 #define MAX_SPECIALAMMO_DAMAGEINDEX 3
 
-str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS][2] = {
+str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS_FOR_SHOP][2] = {
 	{	"SAM1A0",			"FlechetteShell"		},
 	{	"SAM3A0",			"PiercingShell"			},
 	{	"SAM2A0",			"ElectricShell"			},
 	{	"SAM4A0",         	"NitroShell"			},
 	{	"SAM5A0",			"SlugShell"				},
-		
+	
 	{	"GAM1A0",			"A40MMSonicGrenade"		},
 	{	"GAM2A0",			"A40MMHEGrenade"		}
 };
 
-ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS] = {
+ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS_FOR_SHOP] = {
 	{ 	40,			8		},
 	{ 	40,			8		},
 	{ 	40,			8		},
@@ -48,8 +50,9 @@ pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {
 	{ { 2, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	{ { 300, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	
-	{ { 288, 0, 0 }, { 1, 8, 16 }, { 10, 0, 0 } },
-	{ { 144, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } }
+	{ { 128, 0, 0 }, { 80, 0, 0 }, { -1, -1, -1 } }, // we don't ignore grenade here
+	{ { 144, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
+	{ { 288, 0, 0 }, { 1, 8, 16 }, { 10, 0, 0 } }
 };
 
 int GetSpecialAmmoDamage(int id1, int id2) {
@@ -108,7 +111,7 @@ int SpecialAmmoRanges[SPECIALAMMO_TYPE_MAX][SPECIALAMMO_PERWEAPON_MAX] = {
 };
 
 #define MAXSPECIALAMMOCATEGORY 2
-#define MAXSPECIALAMMOTYPES AMMO_SLUGSHELL + 1
+#define MAXSPECIALAMMOTYPES (AMMO_SLUGSHELL + 1)
 #define SPECIALAMMO_NAME 0
 #define SPECIALAMMO_TAG 1
 str SpecialAmmoNames[MAXSPECIALAMMOTYPES][2] = {

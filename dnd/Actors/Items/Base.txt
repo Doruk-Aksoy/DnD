@@ -459,10 +459,16 @@ enum {
 	DND_STACKEDITEM_ELIXIR
 };
 
+Actor IMGONE : PowerInvisibility {
+	Powerup.Duration -60
+	Powerup.Strength 80
+	Powerup.Mode "Opaque"
+}
+
 Actor DontAttack : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_ChangeFlag("NOTARGET", 1)
+			TNT1 A 0 A_GiveInventory("IMGONE", 1)
 		Stop
 	}
 }
@@ -470,7 +476,7 @@ Actor DontAttack : DnD_Activator {
 Actor DontAttackRemove : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_ChangeFlag("NOTARGET", 0)
+			TNT1 A 0 A_TakeInventory("IMGONE", 1)
 		Stop
 	}
 }

@@ -34,6 +34,7 @@ enum {
 	SSAM_NITROSHELL,
 	SSAM_SLUG,
 	
+	SSAM_40MM,
 	SSAM_40MMSONIC,
 	SSAM_40MMHE
 };
@@ -265,10 +266,10 @@ Actor GrenadeShooterGeneric : DnD_Activator {
 		NoTake:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireCustomMissile("NormalGrenade", 0, 0, 0, 4)
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special", 0, 0, 0, 4)
 		Goto CheckMode
 		Full:
-			TNT1 A 0 A_FireCustomMissile("NormalGrenade_FullDMG", 0, 0, 0, 4)
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special_Full", 0, 0, 0, 4)
 		Goto CheckMode
 		CheckMode:
 			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "Nothing")
@@ -299,10 +300,10 @@ Actor GrenadeShooterGeneric_6 : DnD_Activator {
 		NoTake:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireCustomMissile("NormalGrenade", 0, 0, 0, 4)
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special", 0, 0, 0, 4)
 		Goto CheckMode
 		Full:
-			TNT1 A 0 A_FireCustomMissile("NormalGrenade_FullDMG", 0, 0, 0, 4)
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special_Full", 0, 0, 0, 4)
 		Goto CheckMode
 		CheckMode:
 			TNT1 A 0 A_JumpIfInventory("Grenades", 1, "Nothing")
@@ -421,6 +422,52 @@ Actor SonicGrenadeShooter : DnD_Activator {
 			TNT1 A 0
 		Stop
 	}
+}
+
+Actor NormalGrenade_Special {
+	speed 28
+	PROJECTILE
+	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MM, TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSPECIALAMMO))
+	DamageType "Explosives"
+	BounceSound "weapons/grenadebounce"
+	Scale 1.0
+	Radius 8
+	Height 16
+	+DONTBLAST
+	+MTHRUSPECIES
+	+EXPLODEONWATER
+	+THRUGHOST
+	-NOGRAVITY
+	BounceType Grenade
+	Bouncecount 4
+	BounceFactor 0.345
+	Gravity 0.84
+	DeathSound "Weapons/grenadexpl"
+	var int user_exprad;
+	States {
+		Spawn:
+			NGLP B 5 A_SpawnItem("GrenadeSmoke")
+		Loop
+		Death:
+			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			MISL B 8 Bright A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MM | (1 << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSPECIALAMMO), 144 * (1.0 + user_exprad * exprad_factor))
+			MISL C 6 Bright
+			MISL D 4 Bright	
+		Stop
+	}
+}
+
+Actor NormalGrenade_Special_Full : NormalGrenade_Special {
+	DamageType "ExplosivesFull"
+	+FORCERADIUSDMG
+	-THRUGHOST
 }
 
 Actor HEGrenadeX {

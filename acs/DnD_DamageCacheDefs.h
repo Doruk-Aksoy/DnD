@@ -12,11 +12,10 @@ enum {
 
 typedef struct pdmg {
 	int dmg;
-	int end_dmg;
 	int dmg_low;
 	int dmg_high;
 } pdmg_T;
 
-#define MAX_CACHE_ELEMENTS DND_DMGID_5 + 1
+#define MAX_CACHE_ELEMENTS (DND_DMGID_5 + 1)
 
 #endif
