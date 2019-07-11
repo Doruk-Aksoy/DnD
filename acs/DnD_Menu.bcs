@@ -744,19 +744,19 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			
 			i = 0;
 			if(CheckInventory("Level") < 5)
-				HudMessage(s:"\cu", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+				HudMessage(s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + 48.0 * (i++), 0.0, 0.0);
 			else
-				HudMessage(s:"\cd", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+				HudMessage(s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_GREEN, 192.1, 112.1 + 48.0 * (i++), 0.0, 0.0);
 			
 			if(CheckInventory("Level") < 25)
-				HudMessage(s:"\cu", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+				HudMessage(s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + 48.0 * (i++), 0.0, 0.0);
 			else
-				HudMessage(s:"\ci", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * (i++), 0.0, 0.0);
+				HudMessage(s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_ORANGE, 192.1, 112.1 + 48.0 * (i++), 0.0, 0.0);
 
 			if(CheckInventory("Level") < 50)
-				HudMessage(s:"\cu", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + 48.0 * i, 0.0, 0.0);
 			else
-				HudMessage(s:"\cg", s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_WHITE, 192.1, 128.1 + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:DnD_ClassInfo[temp][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_RED, 192.1, 112.1 + 48.0 * i, 0.0, 0.0);
 			
 			SetHudClipRect(0, 0, 0, 0);
 		}

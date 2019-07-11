@@ -78,6 +78,66 @@ Actor Rally_Damage_Lvl10 : PowerDamage {
 	powerup.duration -8
 }
 
+Actor Rally_Damage_Wanderer_Lvl1 : PowerDamage {
+	damagefactor "normal", 1.35
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl2 : PowerDamage {
+	damagefactor "normal", 1.3944
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl3 : PowerDamage {
+	damagefactor "normal", 1.4388
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl4 : PowerDamage {
+	damagefactor "normal", 1.4832
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl5 : PowerDamage {
+	damagefactor "normal", 1.5276
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl6 : PowerDamage {
+	damagefactor "normal", 1.572
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl7 : PowerDamage {
+	damagefactor "normal", 1.6164
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl8 : PowerDamage {
+	damagefactor "normal", 1.6608
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl9 : PowerDamage {
+	damagefactor "normal", 1.7052
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
+Actor Rally_Damage_Wanderer_Lvl10 : PowerDamage {
+	damagefactor "normal", 1.75
+	powerup.color "60 40 15"
+	powerup.duration -10
+}
+
 Actor Rally_Speed_Lvl1 : PowerSpeed {
 	Speed 1.08
 	powerup.duration -8
@@ -126,4 +186,54 @@ Actor Rally_Speed_Lvl9 : PowerSpeed {
 Actor Rally_Speed_Lvl10 : PowerSpeed {
 	Speed 1.18
 	powerup.duration -8
+}
+
+Actor Rally_Speed_Wanderer_Lvl1 : PowerSpeed {
+	Speed 1.08
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl2 : PowerSpeed {
+	Speed 1.09
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl3 : PowerSpeed {
+	Speed 1.1
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl4 : PowerSpeed {
+	Speed 1.11
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl5 : PowerSpeed {
+	Speed 1.12
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl6 : PowerSpeed {
+	Speed 1.13
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl7 : PowerSpeed {
+	Speed 1.14
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl8 : PowerSpeed {
+	Speed 1.15
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl9 : PowerSpeed {
+	Speed 1.16
+	powerup.duration -10
+}
+
+Actor Rally_Speed_Wanderer_Lvl10 : PowerSpeed {
+	Speed 1.18
+	powerup.duration -10
 }

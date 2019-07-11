@@ -82,7 +82,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		
 		"+ L5: Shotgun weapons have 20% discount.",
 		"+ L25: Shotguns do 30% more damage.",
-		"+ L50: Shotguns do full damage, and have 50% more pellets."
+		"+ L50: Shotguns do irreducible damage, and have 50% more pellets."
 	},
 	
 	// Punisher
@@ -94,8 +94,8 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"P4_RIMG",
 		"BADEVL0",
 		
-		"+ L5: Being on at least the \ckCruel\cd killing spree gives 10% movement speed.",
-		"+ L25: At the end of at least the \ckMerciless\ci killing spree, heal and gain armor for 15% of your max caps.",
+		"+ L5: Being on at least the \ckCruel\c- killing spree gives 10% movement speed.",
+		"+ L25: At the end of at least the \ckMerciless\c- killing spree, heal and gain armor for 15% of your max caps.",
 		"+ L50: Every 50 kills you get increases your damage by 2.5% for that map. Caps at 250%."
 	},
 
@@ -110,7 +110,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		
 		"+ L5: 50% increased mana regeneration.",
 		"+ L25: Elemental and Occult attacks and spells do 25% more damage.",
-		"+ L50: Spells cast have additional 25% reduced cooldown and have 25% increased effects."
+		"+ L50: Spells cast have additional 25% reduced cooldown and 25% increased effects."
 	},
 	
 	// Cyborg
@@ -124,7 +124,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		
 		"+ L5: Energy attacks deal 15% less damage to you.",
 		"+ L25: Cybernetic enhancements are 30% more effective.",
-		"+ L50: Energy weapons do full damage."
+		"+ L50: Energy weapons do irreducible damage."
 	}
 };
 

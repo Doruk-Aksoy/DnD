@@ -152,6 +152,10 @@ Actor MoltenBoulderProjectile {
 	}
 }
 
+Actor MoltenBoulderProjectile_Longer : MoltenBoulderProjectile {
+	ReactionTime 252
+}
+
 Actor BoulderFrame : Inventory {
 	inventory.maxamount 4
 }
