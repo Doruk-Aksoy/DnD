@@ -5,9 +5,6 @@
 #include "DnD_CommonStat.h"
 #include "DnD_MonsterData.h"
 
-#define GOLGOTH_TID 998
-#define TORRASQUE_TID 999
-
 #define AVATAR_SOUL_TID 3565
 #define AVATAR_CUBE_TID 6000
 #define AVATAR_SOUL_COUNT 10

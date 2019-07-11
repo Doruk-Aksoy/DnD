@@ -3270,57 +3270,6 @@ Script "DND Thunderstaff Bolts" (int isfulldmg) {
 		}
 	}
 	
-	// check golgoth and torrasque
-	if(CheckActorInventory(GOLGOTH_TID, "ThunderTarget") && IsActorAlive(GOLGOTH_TID)) {
-		dist = fdistance(0, GOLGOTH_TID);
-		// insert sorted
-		if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
-			temp = tcount;
-		else
-			temp = DND_THUNDERSTAFF_MAXTARGETS;
-		for(j = 0; j < temp; ++j) {
-			if(dist < tlist[j].dist) {
-				// push everything for insertion
-				for(k = temp - 1; k > j; --k) {
-					// slide data
-					tlist[k].dist = tlist[k - 1].dist;
-					tlist[k].tid = tlist[k - 1].tid;
-				}
-				break;				
-			}
-		}
-		if(!tcount || j < temp) {
-			// pos found, now add
-			tlist[j].dist = dist;
-			tlist[j].tid = GOLGOTH_TID;
-			++tcount;
-		}
-	}
-	else if(CheckActorInventory(TORRASQUE_TID, "ThunderTarget") && IsActorAlive(TORRASQUE_TID)) {
-		dist = fdistance(0, TORRASQUE_TID);
-		// insert sorted
-		if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
-			temp = tcount;
-		else
-			temp = DND_THUNDERSTAFF_MAXTARGETS;
-		for(j = 0; j < temp; ++j) {
-			if(dist < tlist[j].dist) {
-				// push everything for insertion
-				for(k = temp - 1; k > j; --k) {
-					// slide data
-					tlist[k].dist = tlist[k - 1].dist;
-					tlist[k].tid = tlist[k - 1].tid;
-				}
-				break;				
-			}
-		}
-		if(!tcount || j < temp) {
-			// pos found, now add
-			tlist[j].dist = dist;
-			tlist[j].tid = TORRASQUE_TID;
-			++tcount;
-		}
-	}
 	if(tcount) {
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[i].tid)
@@ -3395,11 +3344,6 @@ Script "DND Thunderstaff Lightning" (int isfulldmg) {
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
 			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
 	}
-	// Golgoth and Torrasque are special tid monsters
-	if(CheckActorInventory(GOLGOTH_TID, "ThunderStrike") && IsActorAlive(GOLGOTH_TID))
-		ThunderstaffLightningWork(GOLGOTH_TID, this, dmg, dmgtype, toSpawn);
-	else if(CheckActorInventory(TORRASQUE_TID, "ThunderStrike") && IsActorAlive(TORRASQUE_TID))
-		ThunderstaffLightningWork(TORRASQUE_TID, this, dmg, dmgtype, toSpawn);
 }
 
 Script "DND Thunder Range" (void) {

@@ -894,7 +894,6 @@ int GetWeaponSlotFromFlag(int flags) {
 
 void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str toSpawn) {
 	ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, target);
-	GiveActorInventory(target, "ThunderStaffLightningFX_Spawner", 1);
 	SpawnForced(toSpawn, GetActorX(target), GetActorY(target), GetActorFloorZ(target) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
 	Thing_Damage2(target, dmg, dmgtype);
 	SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
