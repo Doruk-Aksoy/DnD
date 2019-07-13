@@ -1732,8 +1732,11 @@ Script "DnD Bonus Detect" (void) {
 	int KillBonus, ItemBonus, SecretBonus, BonusBonus;
 	int curkills, curitems, cursecrets, bonusval;
 	SetActivator(-1);
-	Delay(35);
 	
+	ResetSharedVariables();
+	
+	Delay(const:35);
+
 	while(1) {
 		if(!GetCVar("dnd_disablelevelbonus")) {
 			curkills = GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
@@ -1774,13 +1777,13 @@ Script "DnD Bonus Detect" (void) {
 				BonusBonus = 1;
 			}
 		}
-		Delay(17);
+		Delay(const:17);
 	}
 }
 
 Script "DnD Bonus Message State" (int bonustype) CLIENTSIDE {
 	for(int i = 0; i < DND_BONUS_SCREENTIME; ++i)
-		Delay(35);
+		Delay(const:35);
 	DnD_StateChecker[bonustype + 1] = 0;
 };
 
@@ -1788,7 +1791,7 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 	// add 1 to skip playerjoin state
 	DnD_StateChecker[bonustype + 1] = 1;
 	ACS_NamedExecuteAlways("DnD Bonus Message State", 0, bonustype);
-	Delay(3);
+	Delay(const:3);
 	int y = DnD_BonusMessageY(bonustype);
 	ShowBonusMessage(bonustype, y);
 }

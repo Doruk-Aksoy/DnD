@@ -256,14 +256,14 @@ Actor RedArmorMsg : CustomInventory {
 }
 
 Actor GreenArmorSpawner : Randomspawner replaces GreenArmor {
-	DropItem "GreenArmorPickup", 255, 16
-	DropItem "YellowArmorPickup", 255, 8
+	DropItem "GreenArmorPickup_MP", 255, 16
+	DropItem "YellowArmorPickup_MP", 255, 8
 }
 
 Actor BlueArmorSpawner : Randomspawner replaces BlueArmor
 {
-	DropItem "BlueArmorPickup", 255, 16
-	DropItem "RedArmorPickup", 255, 4
+	DropItem "BlueArmorPickup_MP", 255, 16
+	DropItem "RedArmorPickup_MP", 255, 4
 }
 
 Actor CyberneticArmor : BasicArmorPickup {
