@@ -21,6 +21,7 @@
 const float accuracy_factor = 0.00001;
 // variable "score" is representing explosion radius
 const float exprad_factor = 0.01;
+const int DND_SHARED_ITEM_SCRIPT = 999;
 
 actor DND_DroppedItem {
 	+LOOKALLAROUND
@@ -35,6 +36,16 @@ actor DND_DroppedItem {
 	Health 0
 	Radius 1
 	Height 1
+}
+
+Actor DnD_SharedItem {
+	Height 48
+	Radius 20
+	Translation Ice
+	Renderstyle Translucent
+	+USESPECIAL
+	+DONTBLAST
+	+DONTSPLASH
 }
 
 Actor DND_Activator : CustomInventory {

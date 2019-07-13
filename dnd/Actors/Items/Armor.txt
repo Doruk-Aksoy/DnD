@@ -57,30 +57,27 @@ Actor NewGreenArmor : BasicArmorPickup {
 	Armor.SaveAmount 1
 }
 
-Actor GreenArmorPickup : CustomInventory {
-	Radius 20
-	Height 16
-	Renderstyle Translucent
-	States
-	{
+Actor GreenArmorPickup_MP : DnD_SharedItem {
+	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_GREENARMOR)
+			ARM1 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_GREENARMOR)
+			ARM1 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
 			ARM1 AAAAAA 1 Light("GREENARMOR1") A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			ARM1 BBBBBBB 1 Light("GREENARMOR2") Bright A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		IdlePicked:
-			ARM1 B -1
+			ARM1 C -1
 		Stop
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_GREENARMOR) //Everything gets implemented there now
-		Fail
 	}
 }
 
-Actor GreenArmor_SP : GreenArmorPickup {
+Actor GreenArmor_SP : CustomInventory {
 	inventory.pickupsound "Items/armor"
 	inventory.pickupmessage "\ccArmor pickup  : \c[Y5]Green Armor 33%\c-"
+	Height 16
+	Radius 20
 	States
 	{
 		Spawn:
@@ -112,28 +109,24 @@ Actor NewBlueArmor : BasicArmorPickup {
 	Armor.SaveAmount 1
 }
 
-Actor BlueArmorPickup : CustomInventory {
-	Radius 20
-	Height 16
-	Renderstyle Translucent
-	States
-	{
+Actor BlueArmorPickup_MP : DnD_SharedItem {
+	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BLUEARMOR)
+			// the delay is needed for the tid to initialize
+			ARM2 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BLUEARMOR)
+			ARM2 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
 			ARM2 AAAAAA 1 Light("BLUEARMOR1") A_SpawnItemEx("SoulSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			ARM2 BBBBBBB 1 Light("BLUEARMOR2") Bright A_SpawnItemEx("SoulSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		IdlePicked:
-			ARM2 B -1
+			ARM2 C -1
 		Stop
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_BLUEARMOR) //Everything gets implemented there now
-		Fail
 	}
 }
 
-Actor BlueArmor_SP : GreenArmorPickup {
+Actor BlueArmor_SP : GreenArmor_SP {
 	inventory.pickupsound "Items/armor"
 	inventory.pickupmessage "\ccArmor pickup  : \c[Y5]Blue Armor 50%\c-"
 	States
@@ -167,28 +160,24 @@ Actor YellowArmor : BasicArmorPickup {
 	Armor.SaveAmount 1
 }
 
-Actor YellowArmorPickup : CustomInventory {
-	Radius 20
-	Height 16
-	Renderstyle Translucent
-	States
-	{
+Actor YellowArmorPickup_MP : DnD_SharedItem {
+	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_YELLOWARMOR)
+			// the delay is needed for the tid to initialize
+			ARM3 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_YELLOWARMOR)
+			ARM3 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
 			ARM3 AAAAAA 1 Light("YELLOWARMOR1")  A_SpawnItemEx("EvilSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			ARM3 BBBBBBB 1 Light("YELLOWARMOR2") Bright A_SpawnItemEx("EvilSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		IdlePicked:
-			ARM3 B -1
+			ARM3 C -1
 		Stop
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_YELLOWARMOR) //Everything gets implemented there now
-		Fail
 	}
 }
 
-Actor YellowArmor_SP : GreenArmorPickup {
+Actor YellowArmor_SP : GreenArmor_SP {
 	inventory.pickupsound "Items/armor"
 	inventory.pickupmessage "\ccArmor pickup  : \c[Y5]Yellow Armor 42%\c-"
 	States
@@ -222,28 +211,23 @@ Actor TheRedArmor : BasicArmorPickup {
 	Armor.SaveAmount 1
 }
 
-Actor RedArmorPickup : CustomInventory {
-	Radius 20
-	Height 16
-	Renderstyle Translucent
-	States
-	{
+Actor RedArmorPickup_MP : DnD_SharedItem {
+	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_REDARMOR)
+			QRAR A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_REDARMOR)
+			QRAR A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
 			QRAR AAAAAAA 1 Light("THEREDARMOR1") Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			QRAR BBBBBB 1 Light("THEREDARMOR2") A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		IdlePicked:
-			QRAR B -1
+			QRAR C -1
 		Stop
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_REDARMOR) //Everything gets implemented there now
-		Fail
 	}
 }
 
-Actor RedArmor_SP : GreenArmorPickup {
+Actor RedArmor_SP : GreenArmor_SP {
 	inventory.pickupsound "Items/armor"
 	inventory.pickupmessage "\ccArmor pickup  : \c[Y5]Red Armor 75%\c-"
 	States

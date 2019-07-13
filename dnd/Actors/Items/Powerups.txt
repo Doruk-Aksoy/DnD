@@ -39,28 +39,20 @@ Actor NewBackPack : CustomInventory {
 	}
 }
 
-Actor NewBackPackPickup : CustomInventory replaces Backpack {
-	Height 16
-	Radius 12
-	Renderstyle Translucent
+Actor Backpack_MP : DnD_SharedItem replaces Backpack {
 	States
 	{
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BACKPACK)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
 		Idle:
-			BPAK A -1
-		Stop
 		IdlePicked:
 			BPAK A -1
 		Stop
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_BACKPACK) //Everything gets implemented there now
-		Fail
 	}
 }
 
-Actor Backpack_SP : NewBackPackPickup {
+Actor Backpack_SP : CustomInventory {
 	inventory.pickupmessage "\ccItem Pickup   : \c[Y5]Backpack\c-"
 	inventory.pickupsound "Items/backpack"
 	States {

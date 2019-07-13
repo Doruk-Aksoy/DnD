@@ -1,26 +1,23 @@
-Actor Stimpack2 : CustomInventory replaces Stimpack { 
-	inventory.pickupsound "Items/Stimpack"
-	inventory.pickupmessage "\ccHealth pickup : \c[Y5]Stimpack x 10\c-"
-	Radius 20
-	Height 16
-	Renderstyle Translucent
-	States
-	{
+Actor Stimpack_MP : DnD_SharedItem replaces Stimpack { 
+	States {
+		// acs_Executealways is 226
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_STIMPACK)
+			// the delay is needed for the tid to initialize
+			STIM A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_STIMPACK)
+			STIM A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
 		IdlePicked:
 			STIM A -1
 		Stop
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_STIMPACK) //Everything gets implemented there now
-		Fail
 	}
 }
 
-Actor Stimpack_SP : Stimpack2 {
+Actor Stimpack_SP : CustomInventory {
 	inventory.pickupmessage "\ccHealth pickup : \c[Y5]Stimpack x 10\c-"
 	inventory.pickupsound "Items/Stimpack"
+	Height 16
+	Radius 20
 	States {
 		Spawn:
 			STIM A -1
@@ -47,29 +44,26 @@ Actor StimpackMsg : CustomInventory {
 	}
 }
 
-Actor Medikit2 : CustomInventory replaces Medikit { 
-	inventory.pickupsound "Items/medikit"
-	inventory.pickupmessage "\ccHealth pickup : \c[Y5]Medikit x 25\c-"
-	Radius 20
-	Height 16
-	Renderstyle Translucent
-	States
-	{
+Actor Medikit_MP : DnD_SharedItem replaces Medikit { 
+	States {
+		// acs_Executealways is 226
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_MEDKIT)
+			// the delay is needed for the tid to initialize
+			MEDI A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_MEDKIT)
+			MEDI A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
 		IdlePicked:
 			MEDI A -1
 		Stop
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Shared Item Check", SHI_MEDKIT) //Everything gets implemented there now
-		Fail
 	}
 }
 
-Actor Medikit_SP : Medikit2 {
+Actor Medikit_SP : CustomInventory {
 	inventory.pickupmessage "\ccHealth pickup : \c[Y5]Medikit x 25\c-"
 	inventory.pickupsound "Items/medikit"
+	Height 16
+	Radius 20
 	States {
 		Spawn:
 			MEDI A -1

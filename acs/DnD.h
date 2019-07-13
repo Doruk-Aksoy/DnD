@@ -113,6 +113,8 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define RIP_FADE_TIMER 20
 #define RIP_MONSTER_FADE_DELAY 3 * TICRATE
 
+#define DND_NO_TRANSLATION 70
+
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"

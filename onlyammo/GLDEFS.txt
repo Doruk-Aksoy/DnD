@@ -1,27 +1,3 @@
-object NewGreenArmor2
-{
-    frame ARM1A { light GREENARMOR1 }
-    frame ARM1B { light GREENARMOR2 }
-}
-
-object NewBlueArmor2
-{
-    frame ARM2A { light BLUEARMOR1 }
-    frame ARM2B { light BLUEARMOR2 }
-}
-
-object TheRedArmor2
-{
-	frame QRARA { light THEREDARMOR1 }
-	frame QRARB { light THEREDARMOR2 }
-}
-
-object YellowArmor2
-{
-	frame ARM3A { light YELLOWARMOR1 }
-	frame ARM3B { light YELLOWARMOR2 }
-}
-
 object NewHealthBonus2
 {
     frame BON1 { light HEALTHPOTION }
@@ -30,11 +6,6 @@ object NewHealthBonus2
 object NewArmorBonus2
 {
     frame BON2 { light ARMORBONUS }
-}
-
-object MaxHealthBonusPickup2
-{
-	frame BON1 { light MAXHEALTHPOTION }
 }
 
 object SoulSphere3

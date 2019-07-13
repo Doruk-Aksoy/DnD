@@ -8,30 +8,6 @@ Actor NewArmorBonus2 : NewArmorBonus replaces NewArmorBonus
 	+INVENTORY.BIGPOWERUP
 }
 
-Actor MaxHealthBonusPickup2 : MaxHealthBonusPickup replaces MaxHealthBonusPickup
-{
-	+INVENTORY.BIGPOWERUP
-}
-
-Actor NewGreenArmor2 : NewGreenArmor replaces NewGreenArmor
-{
-	+INVENTORY.BIGPOWERUP
-}
-
-Actor NewBlueArmor2 : NewBlueArmor replaces NewBlueArmor
-{
-	+INVENTORY.BIGPOWERUP
-}
-
-Actor YellowArmor2 : YellowArmor replaces YellowArmor {
-	+INVENTORY.BIGPOWERUP
-}
-
-Actor TheRedArmor2 : TheRedArmor replaces TheRedArmor
-{
-	+INVENTORY.BIGPOWERUP
-}
-
 Actor MegaSphere3 : MegaSphere2 replaces Megasphere2
 {
 	+INVENTORY.BIGPOWERUP
@@ -62,11 +38,6 @@ Actor NewInfrared2 : NewInfrared replaces Infrared {
 }
 
 Actor NewAllmap2 : NewAllmap replaces Allmap
-{
-	+INVENTORY.BIGPOWERUP
-}
-
-Actor NewBackpack2 : NewBackPackPickup replaces Backpack
 {
 	+INVENTORY.BIGPOWERUP
 }

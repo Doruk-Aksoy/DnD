@@ -78,7 +78,7 @@ Script "DND Shared Item Check" (int type) {
 					break;
 			}
 			if(pickedup) {
-				ACS_ExecuteAlways(801, 0, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest);
+				ACS_NamedExecuteAlways("DnD Shared Item Queue", 0, SHARED_ITEM_TID_BEGIN + type * SHARED_ITEM_TYPE_TIDS_MAX + closest);
 				//printbold(s:"Picked ", d:closest, s: " ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
 			} else
 				Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 0; //Make sure the item is available for pickup again.
@@ -89,9 +89,11 @@ Script "DND Shared Item Check" (int type) {
 
 Script "DND Shared Item Init" (int type) {
 	if(GameType() != GAME_SINGLE_PLAYER) {
-		//printbold(s:"I am ", d:SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + shared_type_items_counter[type]);
-		if (shared_type_items_counter[type] < SHARED_ITEM_TYPE_TIDS_MAX) //If it goes over limits, just ignore its existance.
-			Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + shared_type_items_counter[type]++);
+		// If it goes over limits, just ignore its existance.
+		if (shared_type_items_counter[type] < SHARED_ITEM_TYPE_TIDS_MAX) {
+			Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + type * SHARED_ITEM_TYPE_TIDS_MAX + shared_type_items_counter[type]++);
+			SetActorProperty(0, APROP_MASS, type);
+		}
 	}
 	else {
 		Spawn(SP_SharedItems[type], GetActorX(0), GetActorY(0), GetActorZ(0), 0);
@@ -99,7 +101,7 @@ Script "DND Shared Item Init" (int type) {
 	}
 }
 
-Script 800 ENTER CLIENTSIDE {
+Script "DnD Shared Item Toggle" ENTER CLIENTSIDE {
 	while(1) {
 		if(PlayerNumber() == ConsolePlayerNumber()) {
 			for(int i = 0; i < shared_item_queue_count; ++i) {
@@ -112,7 +114,7 @@ Script 800 ENTER CLIENTSIDE {
 	}
 }
 
-Script 801(int tid) CLIENTSIDE {
+Script "DnD Shared Item Queue" (int tid) CLIENTSIDE {
 	if(PlayerNumber() == ConsolePlayerNumber())
 		shared_item_clientside_queue[shared_item_queue_count++] = tid;
 }

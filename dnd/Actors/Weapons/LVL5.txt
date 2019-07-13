@@ -669,6 +669,7 @@ ACTOR FlakProjectile : FastProjectile {
 	ReactionTime 8
 	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5))
 	DamageType "Explosives"
+	+MTHRUSPECIES
 	+THRUACTORS
 	+THRUGHOST
 	States {
