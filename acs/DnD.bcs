@@ -166,7 +166,9 @@ Script 701 OPEN CLIENTSIDE {
 Script "DnD On Map Load" OPEN {
 	// empty translation
 	CreateTranslation(DND_NO_TRANSLATION);
-
+	// init vars
+	ResetSharedVariables();
+	
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(17);
 	CalculateMapDifficulty();
@@ -1732,9 +1734,6 @@ Script "DnD Bonus Detect" (void) {
 	int KillBonus, ItemBonus, SecretBonus, BonusBonus;
 	int curkills, curitems, cursecrets, bonusval;
 	SetActivator(-1);
-	
-	ResetSharedVariables();
-	
 	Delay(const:35);
 
 	while(1) {
@@ -4268,7 +4267,7 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 	// put here so it's done ASAP
 	ACS_NamedExecuteAlways("DnD Disable Pickup", 0, tid);
 	
-	if(!Shared_Item_pickup_state[type][tid - SHARED_ITEM_TID_BEGIN][pnum]) {
+	if(!Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum]) {
 		switch(type) {
 			case SHI_REDARMOR:
 				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
@@ -4321,7 +4320,7 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 				break;
 		}
 		if(pickedup) {
-			Shared_Item_pickup_state[type][tid - SHARED_ITEM_TID_BEGIN][pnum] = 1;
+			Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum] = 1;
 			ACS_NamedExecuteAlways("DnD Shared Item Queue", 0, tid);
 		}
 	}

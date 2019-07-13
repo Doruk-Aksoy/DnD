@@ -12,7 +12,7 @@ enum { //Shortened version of enum found at DnD_Stat.h
 };
 
 Script "DND Shared Item Check" (int type) {
-	int pid = ActivatorTID();
+	/*int pid = ActivatorTID();
 	// find which item is in bounds
 	//printbold(s:"DND Shared Item Check, type:", d:type);
 	for(int closest = 0; closest < shared_type_items_counter[type]; ++closest) {
@@ -84,7 +84,7 @@ Script "DND Shared Item Check" (int type) {
 				Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 0; //Make sure the item is available for pickup again.
 			break;
 		}
-	}
+	}*/
 }
 
 Script "DND Shared Item Init" (int type) {

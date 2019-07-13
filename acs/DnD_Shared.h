@@ -48,7 +48,7 @@ str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 
 int shared_item_counter = 0;
 int shared_type_items_counter[MAX_SHARED_ITEM_TYPES] = {0,0,0,0,0,0,0,0};
-bool Shared_Item_pickup_state[MAX_SHARED_ITEM_TYPES][SHARED_ITEM_TYPE_TIDS_MAX][MAXPLAYERS];
+bool Shared_Item_pickup_state[SHARED_ITEM_TYPE_TIDS_MAX][MAXPLAYERS];
 
 int limitedrespawn_item_counter = 0;
 int LimitedItem_Respawns[LIMITED_RESPAWN_MAX];
@@ -58,11 +58,10 @@ int shared_item_queue_count = 0;
 int shared_item_clientside_queue[16];
 
 void ResetSharedVariables() {
-	int i = 0, j = 0, k = 0;
-	for(i = 0; i < MAX_SHARED_ITEM_TYPES; ++i)
-		for(j = 0; j < SHARED_ITEM_TYPE_TIDS_MAX; ++j)
-			for(k = 0; k < MAXPLAYERS; ++k)
-				Shared_Item_pickup_state[i][j][k] = 0;
+	int i, j;
+	for(i = 0; i < SHARED_ITEM_TYPE_TIDS_MAX; ++i)
+		for(j = 0; j < MAXPLAYERS; ++j)
+			Shared_Item_pickup_state[i][j] = 0;
 				
 	for(i = 0; i < LIMITED_RESPAWN_MAX; ++i)
 		LimitedItem_Respawns[i] = 0;
