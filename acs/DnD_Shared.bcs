@@ -11,80 +11,72 @@ enum { //Shortened version of enum found at DnD_Stat.h
 	DND_ARMOR_RED
 };
 
-Script "DND Shared Item Check" (int type) {
-	/*int pid = ActivatorTID();
-	// find which item is in bounds
-	//printbold(s:"DND Shared Item Check, type:", d:type);
-	for(int closest = 0; closest < shared_type_items_counter[type]; ++closest) {
-		// check if this item was picked up
-		// prevent multiple pickup calls from being handled for the same player while this is being processed
-		//printbold(s:"closest ID: ", d:closest, s:", Pickup state before ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
-		if (!(Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]) &&
-			(player_pickup_cubes_intersect(pid, SHARED_ITEM_TID_BEGIN + type*SHARED_ITEM_TYPE_TIDS_MAX + closest)))
-		{
-			Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 1; //Make sure multiples running here will skip to others more reliably
-			//printbold(s:"Can pick ", d:closest);
-			bool pickedup = false;
-			//Now run the scripts based on item type picked
-			switch(type) {
-				case SHI_REDARMOR:
-					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
-						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_RED, 300);
-						GiveInventory("RedArmorMsg", 1);
-						pickedup = true;
-					}
-					break;
-				case SHI_BLUEARMOR:
-					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
-						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_BLUE, 200);
-						GiveInventory("BlueArmorMsg", 1);
-						pickedup = true;
-					}
-					break;
-				case SHI_YELLOWARMOR:
-					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
-						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_YELLOW, 150);
-						GiveInventory("YellowArmorMsg", 1);
-						pickedup = true;
-					}
-					break;
-				case SHI_GREENARMOR:
-					if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
-						ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_GREEN, 100);
-						GiveInventory("GreenArmorMsg", 1);
-						pickedup = true;
-					}
-					break;
-				case SHI_BACKPACK:
-					GiveInventory("NewBackpack", 1);
-					GiveInventory("BackpackPickMSG", 1);
+Script DND_SHARED_ITEM_SCRIPT (int tid) {
+	int type = GetActorProperty(tid, APROP_MASS);
+	int pnum = PlayerNumber();
+	bool pickedup = false;
+	
+	// temporarily disable this so others can be attempted
+	// put here so it's done ASAP
+	ACS_NamedExecuteAlways("DnD Disable Pickup", 0, tid);
+	
+	if(!Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum]) {
+		switch(type) {
+			case SHI_REDARMOR:
+				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
+					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_RED, 300);
+					GiveInventory("RedArmorMsg", 1);
 					pickedup = true;
-					break;
-				case SHI_STIMPACK:
-					//printBold(s:"before stimpack", d:closest);
-					if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
-						//printBold(s:"after stimpack", d:closest);
-						ACS_NamedExecuteWithResult("DnD Health Pickup", 10);
-						GiveInventory("StimpackMsg", 1);
-						pickedup = true;
-					}
-					break;
-				case SHI_MEDKIT:
-					if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
-						ACS_NamedExecuteWithResult("DnD Health Pickup", 25);
-						GiveInventory("MedikitMsg", 1);
-						pickedup = true;
-					}
-					break;
-			}
-			if(pickedup) {
-				ACS_NamedExecuteAlways("DnD Shared Item Queue", 0, SHARED_ITEM_TID_BEGIN + type * SHARED_ITEM_TYPE_TIDS_MAX + closest);
-				//printbold(s:"Picked ", d:closest, s: " ", d:Shared_Item_pickup_state[type][closest][pid - P_TIDSTART]);
-			} else
-				Shared_Item_pickup_state[type][closest][pid - P_TIDSTART] = 0; //Make sure the item is available for pickup again.
-			break;
+				}
+				break;
+			case SHI_BLUEARMOR:
+				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
+					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_BLUE, 200);
+					GiveInventory("BlueArmorMsg", 1);
+					pickedup = true;
+				}
+				break;
+			case SHI_YELLOWARMOR:
+				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
+					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_YELLOW, 150);
+					GiveInventory("YellowArmorMsg", 1);
+					pickedup = true;
+				}
+				break;
+			case SHI_GREENARMOR:
+				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
+					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_GREEN, 100);
+					GiveInventory("GreenArmorMsg", 1);
+					pickedup = true;
+				}
+				break;
+			case SHI_BACKPACK:
+				GiveInventory("NewBackpack", 1);
+				GiveInventory("BackpackPickMSG", 1);
+				pickedup = true;
+				break;
+			case SHI_STIMPACK:
+				//printBold(s:"before stimpack", d:closest);
+				if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
+					//printBold(s:"after stimpack", d:closest);
+					ACS_NamedExecuteWithResult("DnD Health Pickup", 10);
+					GiveInventory("StimpackMsg", 1);
+					pickedup = true;
+				}
+				break;
+			case SHI_MEDKIT:
+				if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
+					ACS_NamedExecuteWithResult("DnD Health Pickup", 25);
+					GiveInventory("MedikitMsg", 1);
+					pickedup = true;
+				}
+				break;
 		}
-	}*/
+		if(pickedup) {
+			Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum] = 1;
+			ACS_NamedExecuteAlways("DnD Shared Item Queue", 0, tid);
+		}
+	}
 }
 
 Script "DND Shared Item Init" (int type) {

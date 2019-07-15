@@ -417,7 +417,7 @@ Script "DnD Killing Spree Timer" (void) {
 			int armor = GetArmorType("RavagerArmor", PlayerNumber());
 			if(armor) {
 				if(armor < GetArmorSpecificCap(DND_RAVAGERARMOR_AMOUNT)) {
-					GiveInventory("NewArmorBonus", GetArmorSpecificCap(DND_RAVAGERARMOR_AMOUNT) - armor);
+					ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RAVAGER, GetArmorSpecificCap(DND_RAVAGERARMOR_AMOUNT) - armor);
 					GiveInventory("RavagerEffect", 1);
 					LocalAmbientSound("items/armorbonus", 127);
 				}
@@ -4252,78 +4252,6 @@ Script "DnD Doomguy Soul Pickup" (int val) {
 	val = Clamp_Between(val / DND_DOOMGUY_HEALDIV, 1, DND_DOOMGUY_MAXHEAL);
 	SetActivatorToTarget(0);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, val);
-}
-
-Script "Test Shit" (void) {
-	SetActorProperty(0, APROP_HEALTH, 666);
-}
-
-Script DND_SHARED_ITEM_SCRIPT (int tid) {
-	int type = GetActorProperty(tid, APROP_MASS);
-	int pnum = PlayerNumber();
-	bool pickedup = false;
-	
-	// temporarily disable this so others can be attempted
-	// put here so it's done ASAP
-	ACS_NamedExecuteAlways("DnD Disable Pickup", 0, tid);
-	
-	if(!Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum]) {
-		switch(type) {
-			case SHI_REDARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_RED, 300);
-					GiveInventory("RedArmorMsg", 1);
-					pickedup = true;
-				}
-				break;
-			case SHI_BLUEARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_BLUE, 200);
-					GiveInventory("BlueArmorMsg", 1);
-					pickedup = true;
-				}
-				break;
-			case SHI_YELLOWARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_YELLOW, 150);
-					GiveInventory("YellowArmorMsg", 1);
-					pickedup = true;
-				}
-				break;
-			case SHI_GREENARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_GREEN, 100);
-					GiveInventory("GreenArmorMsg", 1);
-					pickedup = true;
-				}
-				break;
-			case SHI_BACKPACK:
-				GiveInventory("NewBackpack", 1);
-				GiveInventory("BackpackPickMSG", 1);
-				pickedup = true;
-				break;
-			case SHI_STIMPACK:
-				//printBold(s:"before stimpack", d:closest);
-				if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
-					//printBold(s:"after stimpack", d:closest);
-					ACS_NamedExecuteWithResult("DnD Health Pickup", 10);
-					GiveInventory("StimpackMsg", 1);
-					pickedup = true;
-				}
-				break;
-			case SHI_MEDKIT:
-				if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
-					ACS_NamedExecuteWithResult("DnD Health Pickup", 25);
-					GiveInventory("MedikitMsg", 1);
-					pickedup = true;
-				}
-				break;
-		}
-		if(pickedup) {
-			Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum] = 1;
-			ACS_NamedExecuteAlways("DnD Shared Item Queue", 0, tid);
-		}
-	}
 }
 
 Script "DnD Init Shared Translation" (void) {

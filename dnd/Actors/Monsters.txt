@@ -545,7 +545,7 @@ Actor LostSoul2 : DnD_LostSoul
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LOSTSOULID, DND_MOBILITY)
-		Goto Super::Spawn
+		Goto Super::Idle
 		Death:
 			TNT1 AAAAAA 0 A_CustomMissile("LostSoulSmoke", 32, 0, random(0,360), 2, random(0,360))
 		Goto Super::Death
@@ -589,12 +589,13 @@ Actor LostSoulNoExp : DnD_LostSoul {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LOSTSOULID, DND_MOBILITY)
+			TNT1 A 0 A_GiveInventory("Mo_Revived", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LOSTSOULID, DND_MOBILITY, DND_REVIVED)
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Idle:
-			SKUL AA 1 Bright A_LookEx(0, 0, 0, 0, 0, "Atack")
+			SKUL AA 1 Bright A_LookEx(0, 0, 0, 0, 0, "Attack")
 		Goto Super::Idle
-		Atack:
+		Attack:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
 			SKUL A 1 Bright
 		Goto Super::See
