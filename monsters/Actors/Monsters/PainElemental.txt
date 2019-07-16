@@ -16,7 +16,7 @@ ACTOR TorturedSoul : DnD_BaseEnemy {
 	Explosionradius 80
 	SeeSound "torturedsoul/sight" 
 	PainSound "torturedsoul/pain" 
-	DeathSound "toFRrturedsoul/death" 
+	DeathSound "torrturedsoul/death" 
 	ActiveSound "torturedsoul/active" 
 	Missiletype "TorturedSoulBall"
 	Obituary "%o was tormented by the Tortured Soul." 
