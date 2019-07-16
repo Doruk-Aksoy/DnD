@@ -16,7 +16,7 @@ ACTOR TorturedSoul : DnD_BaseEnemy {
 	Explosionradius 80
 	SeeSound "torturedsoul/sight" 
 	PainSound "torturedsoul/pain" 
-	DeathSound "torturedsoul/death" 
+	DeathSound "toFRrturedsoul/death" 
 	ActiveSound "torturedsoul/active" 
 	Missiletype "TorturedSoulBall"
 	Obituary "%o was tormented by the Tortured Soul." 
@@ -626,7 +626,7 @@ ACTOR HS : MagicalEnemy {
 	States { 
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HADESSPHERE, DND_MAGIC_WEAKNESS | DND_DEATH)
+			TNT1 A 1 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HADESSPHERE, DND_MAGIC_WEAKNESS | DND_DEATH)
 		Idle:
 			TNT1 A 8 Bright A_Look      
 		Loop
@@ -693,9 +693,9 @@ Actor HS_NoExp : HS {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HADESSPHERE, DND_MAGIC_WEAKNESS | DND_DEATH, DND_REVIVED)
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Idle:
-			TNT1 AA 1 Bright A_LookEx(0, 0, 0, 0, 0, "Atack")
+			TNT1 AA 1 Bright A_LookEx(0, 0, 0, 0, 0, "Attack")
 		Goto Super::Idle
-		Atack:
+		Attack:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
 			SKUL A 1 Bright
 		Goto Super::See
