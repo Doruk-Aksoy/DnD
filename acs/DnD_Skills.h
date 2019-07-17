@@ -152,6 +152,12 @@ int GetPetDamageFactor(int base, int master) {
 	return 0;
 }
 
+// this is mainly used to reset all cooldowns of spells when map ends, to prevent bugs
+void ResetAllSpellCooldowns() {
+	for(int i = 0; i < MAX_SPELLS; ++i)
+		TakeInventory(SpellInfo[i][SPELL_COOLDOWNITEM], 1);
+}
+
 Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 	int spell_level, i, temp, temp2, this = ActivatorTID();
 	//int spell = GetPlayerAllocatedSpell(spell_id);
@@ -243,7 +249,7 @@ Script "DnD Spell Cooldown" (int spell_id, int cooldown) {
 	
 	SetInventory(SpellInfo[spell_id][SPELL_COOLDOWNCOUNTER], cooldown);
 	for(i = 0; i < cooldown; ++i) {
-		Delay(TICRATE);
+		Delay(const:TICRATE);
 		TakeInventory(SpellInfo[spell_id][SPELL_COOLDOWNCOUNTER], 1);
 	}
 	TakeInventory(SpellInfo[spell_id][SPELL_COOLDOWNITEM], 1);

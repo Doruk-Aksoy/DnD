@@ -2160,6 +2160,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayersNotReady", PlayerCount());
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	GiveInventory("ParsingData", 1);
+	ResetAllSpellCooldowns(); // reset all leftover cooldowns
+	
 	// begin hardcore countdown
 	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		GiveInventory("P_Frozen", 1);
