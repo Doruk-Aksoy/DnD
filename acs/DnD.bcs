@@ -202,6 +202,7 @@ Script "DnD On Death" DEATH {
 	SetInventory("MadeChoice", 0);
 	SetInventory("DnD_PopupId", 0);
 	SetInventory("Punisher_Perk50_Counter", 0); // reset earned bonuses on map
+	
 	TakeInventory("DnD_ShowPopup", 1);
 	TakeInventory("DnD_ShowSellPopup", 1);
 	TakeInventory("DnD_SellConfirm", 1);
@@ -223,6 +224,7 @@ Script "DnD On Death" DEATH {
 	
 	// Precious Life check
 	SomeoneDied = 1;
+	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 }
 
 Script "DnD Portable Kit Script" (void) {
@@ -718,6 +720,7 @@ Script "DND On Kill" KILL {
 	if(CheckInventory("Punisher_Perk50")) {
 		GiveInventory("Punisher_Perk50_Counter", 1);
 		CheckPunisherKillTally();
+		ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
 	}
 	
 	// research track
@@ -2074,6 +2077,8 @@ Script "DnD On Respawn" RESPAWN {
 		Delay(5);
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
+		
+	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 }
 
 Script 988 (int wepslot, int type) {
@@ -2334,12 +2339,14 @@ Script 992 (int t, int simple) {
 	SetResultValue(CheckAmmoPickup(t, simple));
 }
 
-Script 993 ENTER CLIENTSIDE {
+Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 	ResetPlayerScriptChecks();
 	if(ConsolePlayerNumber() != PlayerNumber()) 
 		Terminate;
 	if(GetCVar("dnd_showmapinfo"))
 		SetInventory("ShowMapInfo", 1);
+		
+	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	// Set the ammo capacity
 	// SetAmmoCapacity("ExpVisual", LevelCurve[CheckInventory("Level") - 1]);
 }
@@ -4267,4 +4274,23 @@ Script "DnD Disable Pickup" (int tid) {
 	// these are hardcoded into the engine, won't ever change prob.
 	Thing_SetSpecial(tid, 226, DND_SHARED_ITEM_SCRIPT, 0, tid);
 	Thing_SetTranslation(tid, DND_NO_TRANSLATION);
+}
+
+Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
+	if(PlayerNumber() != ConsolePlayerNumber() || !isPlayerClass(DND_PLAYER_PUNISHER))
+		Terminate;
+	Delay(const:5);
+	int tmp = 0;
+	if(CheckInventory("Punisher_Perk50")) {
+		SetFont("OBJFONT");
+		SetHudSize(900, 600, 1);
+		if(CheckInventory("DnD_Kills") >= DND_PUNISHER_KILLSPER) {
+			if(!reset)
+				HudMessage(s:"\c[I7]", f:ftrunc(100 * (DND_PUNISHER_DMGINC * (CheckInventory("DnD_Kills") / DND_PUNISHER_KILLSPER))), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, 900.0, 450.0, 0.0);
+			else // clear because we died
+				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, 900.0, 450.0, 0.0);
+		}
+		tmp = Clamp_Between(DND_PUNISHER_KILLSPER - CheckInventory("Punisher_Perk50_Counter"), 0, DND_PUNISHER_KILLSPER);
+		HudMessage(s:"Kill \c[I7]", d:tmp, s:"\c- for buff"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, 900.0, 480.0, 0.0);
+	}
 }

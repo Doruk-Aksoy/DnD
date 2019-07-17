@@ -41,6 +41,10 @@ enum {
 	DND_CLASSTEXT_PERK_L50
 };
 #define DND_MAXPLAYERCLASS_INFO (DND_CLASSTEXT_PERK_L50 + 1)
+
+#define DND_PUNISHER_DMGINC 0.04
+#define DND_PUNISHER_KILLSPER 50
+
 str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 	// Doomguy
 	{
@@ -96,7 +100,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		
 		"+ L5: Being on at least the \ckCruel\c- killing spree gives 10% movement speed.",
 		"+ L25: At the end of at least the \ckMerciless\c- killing spree, heal and gain armor for 15% of your max caps.",
-		"+ L50: Every 50 kills you get increases your damage by 2.5% for that map. Caps at 250%."
+		"+ L50: Every 50 kills you get increases your damage by 4% for that map. Caps at 400%."
 	},
 
 	// Wanderer

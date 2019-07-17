@@ -127,502 +127,502 @@ Actor Punisher_Perk50_DamageBase : PowerDamage {
 
 Actor Punisher_Perk50_Damage_1 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.025
+	damagefactor "normal", 1.04
 }
 
 Actor Punisher_Perk50_Damage_2 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.05
+	damagefactor "normal", 1.08
 }
 
 Actor Punisher_Perk50_Damage_3 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.075
+	damagefactor "normal", 1.12
 }
 
 Actor Punisher_Perk50_Damage_4 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.1
+	damagefactor "normal", 1.16
 }
 
 Actor Punisher_Perk50_Damage_5 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.125
+	damagefactor "normal", 1.2
 }
 
 Actor Punisher_Perk50_Damage_6 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.15
+	damagefactor "normal", 1.24
 }
 
 Actor Punisher_Perk50_Damage_7 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.175
+	damagefactor "normal", 1.28
 }
 
 Actor Punisher_Perk50_Damage_8 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.2
+	damagefactor "normal", 1.32
 }
 
 Actor Punisher_Perk50_Damage_9 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.225
+	damagefactor "normal", 1.36
 }
 
 Actor Punisher_Perk50_Damage_10 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.25
+	damagefactor "normal", 1.4
 }
 
 Actor Punisher_Perk50_Damage_11 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.275
+	damagefactor "normal", 1.44
 }
 
 Actor Punisher_Perk50_Damage_12 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.3
+	damagefactor "normal", 1.48
 }
 
 Actor Punisher_Perk50_Damage_13 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.325
+	damagefactor "normal", 1.52
 }
 
 Actor Punisher_Perk50_Damage_14 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.35
+	damagefactor "normal", 1.56
 }
 
 Actor Punisher_Perk50_Damage_15 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.375
+	damagefactor "normal", 1.6
 }
 
 Actor Punisher_Perk50_Damage_16 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.4
+	damagefactor "normal", 1.64
 }
 
 Actor Punisher_Perk50_Damage_17 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.425
+	damagefactor "normal", 1.68
 }
 
 Actor Punisher_Perk50_Damage_18 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.45
+	damagefactor "normal", 1.72
 }
 
 Actor Punisher_Perk50_Damage_19 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.475
+	damagefactor "normal", 1.76
 }
 
 Actor Punisher_Perk50_Damage_20 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.5
+	damagefactor "normal", 1.8
 }
 
 Actor Punisher_Perk50_Damage_21 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.525
+	damagefactor "normal", 1.84
 }
 
 Actor Punisher_Perk50_Damage_22 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.55
+	damagefactor "normal", 1.88
 }
 
 Actor Punisher_Perk50_Damage_23 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.575
+	damagefactor "normal", 1.92
 }
 
 Actor Punisher_Perk50_Damage_24 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.6
+	damagefactor "normal", 1.96
 }
 
 Actor Punisher_Perk50_Damage_25 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.625
+	damagefactor "normal", 2
 }
 
 Actor Punisher_Perk50_Damage_26 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.65
+	damagefactor "normal", 2.04
 }
 
 Actor Punisher_Perk50_Damage_27 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.675
+	damagefactor "normal", 2.08
 }
 
 Actor Punisher_Perk50_Damage_28 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.7
+	damagefactor "normal", 2.12
 }
 
 Actor Punisher_Perk50_Damage_29 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.725
+	damagefactor "normal", 2.16
 }
 
 Actor Punisher_Perk50_Damage_30 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.75
+	damagefactor "normal", 2.2
 }
 
 Actor Punisher_Perk50_Damage_31 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.775
+	damagefactor "normal", 2.24
 }
 
 Actor Punisher_Perk50_Damage_32 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.8
+	damagefactor "normal", 2.28
 }
 
 Actor Punisher_Perk50_Damage_33 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.825
+	damagefactor "normal", 2.32
 }
 
 Actor Punisher_Perk50_Damage_34 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.85
+	damagefactor "normal", 2.36
 }
 
 Actor Punisher_Perk50_Damage_35 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.875
+	damagefactor "normal", 2.4
 }
 
 Actor Punisher_Perk50_Damage_36 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.9
+	damagefactor "normal", 2.44
 }
 
 Actor Punisher_Perk50_Damage_37 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.925
+	damagefactor "normal", 2.48
 }
 
 Actor Punisher_Perk50_Damage_38 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.95
+	damagefactor "normal", 2.52
 }
 
 Actor Punisher_Perk50_Damage_39 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.975
+	damagefactor "normal", 2.56
 }
 
 Actor Punisher_Perk50_Damage_40 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2
+	damagefactor "normal", 2.6
 }
 
 Actor Punisher_Perk50_Damage_41 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.025
+	damagefactor "normal", 2.64
 }
 
 Actor Punisher_Perk50_Damage_42 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.05
+	damagefactor "normal", 2.68
 }
 
 Actor Punisher_Perk50_Damage_43 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.075
+	damagefactor "normal", 2.72
 }
 
 Actor Punisher_Perk50_Damage_44 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.1
+	damagefactor "normal", 2.76
 }
 
 Actor Punisher_Perk50_Damage_45 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.125
+	damagefactor "normal", 2.8
 }
 
 Actor Punisher_Perk50_Damage_46 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.15
+	damagefactor "normal", 2.84
 }
 
 Actor Punisher_Perk50_Damage_47 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.175
+	damagefactor "normal", 2.88
 }
 
 Actor Punisher_Perk50_Damage_48 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.2
+	damagefactor "normal", 2.92
 }
 
 Actor Punisher_Perk50_Damage_49 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.225
+	damagefactor "normal", 2.96
 }
 
 Actor Punisher_Perk50_Damage_50 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.25
+	damagefactor "normal", 3
 }
 
 Actor Punisher_Perk50_Damage_51 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.275
+	damagefactor "normal", 3.04
 }
 
 Actor Punisher_Perk50_Damage_52 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.3
+	damagefactor "normal", 3.08
 }
 
 Actor Punisher_Perk50_Damage_53 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.325
+	damagefactor "normal", 3.12
 }
 
 Actor Punisher_Perk50_Damage_54 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.35
+	damagefactor "normal", 3.16
 }
 
 Actor Punisher_Perk50_Damage_55 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.375
+	damagefactor "normal", 3.2
 }
 
 Actor Punisher_Perk50_Damage_56 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.4
+	damagefactor "normal", 3.24
 }
 
 Actor Punisher_Perk50_Damage_57 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.425
+	damagefactor "normal", 3.28
 }
 
 Actor Punisher_Perk50_Damage_58 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.45
+	damagefactor "normal", 3.32
 }
 
 Actor Punisher_Perk50_Damage_59 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.475
+	damagefactor "normal", 3.36
 }
 
 Actor Punisher_Perk50_Damage_60 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.5
+	damagefactor "normal", 3.4
 }
 
 Actor Punisher_Perk50_Damage_61 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.525
+	damagefactor "normal", 3.44
 }
 
 Actor Punisher_Perk50_Damage_62 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.55
+	damagefactor "normal", 3.48
 }
 
 Actor Punisher_Perk50_Damage_63 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.575
+	damagefactor "normal", 3.52
 }
 
 Actor Punisher_Perk50_Damage_64 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.6
+	damagefactor "normal", 3.56
 }
 
 Actor Punisher_Perk50_Damage_65 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.625
+	damagefactor "normal", 3.6
 }
 
 Actor Punisher_Perk50_Damage_66 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.65
+	damagefactor "normal", 3.64
 }
 
 Actor Punisher_Perk50_Damage_67 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.675
+	damagefactor "normal", 3.68
 }
 
 Actor Punisher_Perk50_Damage_68 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.7
+	damagefactor "normal", 3.72
 }
 
 Actor Punisher_Perk50_Damage_69 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.725
+	damagefactor "normal", 3.76
 }
 
 Actor Punisher_Perk50_Damage_70 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.75
+	damagefactor "normal", 3.8
 }
 
 Actor Punisher_Perk50_Damage_71 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.775
+	damagefactor "normal", 3.84
 }
 
 Actor Punisher_Perk50_Damage_72 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.8
+	damagefactor "normal", 3.88
 }
 
 Actor Punisher_Perk50_Damage_73 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.825
+	damagefactor "normal", 3.92
 }
 
 Actor Punisher_Perk50_Damage_74 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.85
+	damagefactor "normal", 3.96
 }
 
 Actor Punisher_Perk50_Damage_75 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.875
+	damagefactor "normal", 4
 }
 
 Actor Punisher_Perk50_Damage_76 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.9
+	damagefactor "normal", 4.04
 }
 
 Actor Punisher_Perk50_Damage_77 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.925
+	damagefactor "normal", 4.08
 }
 
 Actor Punisher_Perk50_Damage_78 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.95
+	damagefactor "normal", 4.12
 }
 
 Actor Punisher_Perk50_Damage_79 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 2.975
+	damagefactor "normal", 4.16
 }
 
 Actor Punisher_Perk50_Damage_80 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3
+	damagefactor "normal", 4.2
 }
 
 Actor Punisher_Perk50_Damage_81 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.025
+	damagefactor "normal", 4.24
 }
 
 Actor Punisher_Perk50_Damage_82 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.05
+	damagefactor "normal", 4.28
 }
 
 Actor Punisher_Perk50_Damage_83 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.075
+	damagefactor "normal", 4.32
 }
 
 Actor Punisher_Perk50_Damage_84 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.1
+	damagefactor "normal", 4.36
 }
 
 Actor Punisher_Perk50_Damage_85 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.125
+	damagefactor "normal", 4.4
 }
 
 Actor Punisher_Perk50_Damage_86 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.15
+	damagefactor "normal", 4.44
 }
 
 Actor Punisher_Perk50_Damage_87 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.175
+	damagefactor "normal", 4.48
 }
 
 Actor Punisher_Perk50_Damage_88 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.2
+	damagefactor "normal", 4.52
 }
 
 Actor Punisher_Perk50_Damage_89 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.225
+	damagefactor "normal", 4.56
 }
 
 Actor Punisher_Perk50_Damage_90 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.25
+	damagefactor "normal", 4.6
 }
 
 Actor Punisher_Perk50_Damage_91 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.275
+	damagefactor "normal", 4.64
 }
 
 Actor Punisher_Perk50_Damage_92 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.3
+	damagefactor "normal", 4.68
 }
 
 Actor Punisher_Perk50_Damage_93 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.325
+	damagefactor "normal", 4.72
 }
 
 Actor Punisher_Perk50_Damage_94 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.35
+	damagefactor "normal", 4.76
 }
 
 Actor Punisher_Perk50_Damage_95 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.375
+	damagefactor "normal", 4.8
 }
 
 Actor Punisher_Perk50_Damage_96 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.4
+	damagefactor "normal", 4.84
 }
 
 Actor Punisher_Perk50_Damage_97 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.425
+	damagefactor "normal", 4.88
 }
 
 Actor Punisher_Perk50_Damage_98 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.45
+	damagefactor "normal", 4.92
 }
 
 Actor Punisher_Perk50_Damage_99 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.475
+	damagefactor "normal", 4.96
 }
 
 Actor Punisher_Perk50_Damage_100 : Punisher_Perk50_DamageBase {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 3.5
+	damagefactor "normal", 5
 }
 
 Actor Wanderer_Perk5 : DnD_Boolean { }
