@@ -171,7 +171,7 @@ Actor VolcanoFireBall5Exp2 : BaseExplosionDamage {
 }
 
 Actor VolcanoFireBall5Exp2_FullDMG : VolcanoFireBall5Exp2 {
-	DamageType "SoulTypeFull"
+	DamageType "SoulTypeExpFull"
 	+FORCERADIUSDMG
 }
 
@@ -300,7 +300,7 @@ Actor VolcanoFireball6_FullDMG : VolcanoFireball6 {
 }
 
 Actor VolcanoFireball6Exp : BaseExplosionDamage {
-	DamageType "SoulType"
+	DamageType "SoulTypeExp"
 	States {
 		Spawn:
 			TNT1 A 0
@@ -310,7 +310,7 @@ Actor VolcanoFireball6Exp : BaseExplosionDamage {
 }
 
 Actor VolcanoFireball6Exp_FullDMG : VolcanoFireball6Exp {
-	DamageType "SoulTypeFull"
+	DamageType "SoulTypeExpFull"
 	+FORCERADIUSDMG
 }
 
@@ -733,7 +733,7 @@ Actor HellFireLinkCR_FullDMG : HellFireLinkCL_FullDMG
 }
 
 Actor HellFireTrailFExp : BaseExplosionDamage {
-	DamageType "SoulType"
+	DamageType "SoulTypeExp"
 	var int user_exprad;
 	States {
 		Spawn:
@@ -746,7 +746,7 @@ Actor HellFireTrailFExp : BaseExplosionDamage {
 }
 
 Actor HellFireTrailFExp_FullDMG : HellFireTrailFExp {
-	DamageType "SoulTypeFull"
+	DamageType "SoulTypeExpFull"
 	+FORCERADIUSDMG
 }
 
