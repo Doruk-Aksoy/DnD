@@ -108,147 +108,21 @@ Actor MedkitItem : CustomInventory {
 	}
 }
 
-/*
-=============================
-=== DISCOVERED RESEARCHES ===
-=============================
-*/
+Actor Research_Discovered_1 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
 
-Actor Research_SuperArmor : DnD_Boolean { }
-Actor Research_RareArmors : DnD_Boolean { }
-Actor Research_MedkitStore : DnD_Boolean { }
-Actor Research_AccessoryTap : DnD_Boolean { }
+Actor Research_Discovered_2 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
 
-Actor Research_FlechetteShell : DnD_Boolean { }
-Actor Research_PiercingShell : DnD_Boolean { }
-Actor Research_ElectricShell : DnD_Boolean { }
-Actor Research_NitroShell : DnD_Boolean { }
-Actor Research_SlugShell : DnD_Boolean { }
+Actor Research_Done_1 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
 
-Actor Research_HEGrenade : DnD_Boolean { }
-Actor Research_SonicGrenade : DnD_Boolean { }
-
-Actor Research_DoubleSpecialCap : DnD_Boolean { }
-
-Actor Research_Slot1Occult : DnD_Boolean { }
-Actor Research_Slot2Luxury : DnD_Boolean { }
-Actor Research_Slot3Luxury : DnD_Boolean { }
-Actor Research_Slot4Luxury : DnD_Boolean { }
-Actor Research_Slot5Luxury : DnD_Boolean { }
-Actor Research_Slot6Luxury : DnD_Boolean { }
-Actor Research_Slot7Luxury : DnD_Boolean { }
-
-Actor Research_Slot1Upgrade1 : DnD_Boolean { }
-Actor Research_Slot1Upgrade2 : DnD_Boolean { }
-Actor Research_Slot2Upgrade1 : DnD_Boolean { }
-Actor Research_Slot2Upgrade2 : DnD_Boolean { }
-Actor Research_Slot3Upgrade1 : DnD_Boolean { }
-Actor Research_Slot3Upgrade2 : DnD_Boolean { }
-Actor Research_Slot3Upgrade3 : DnD_Boolean { }
-Actor Research_Slot3SSGUpgrade1 : DnD_Boolean { }
-Actor Research_Slot3SSGUpgrade2 : DnD_Boolean { }
-Actor Research_Slot3SSGUpgrade3 : DnD_Boolean { }
-Actor Research_Slot4Upgrade1 : DnD_Boolean { }
-Actor Research_Slot4Upgrade2 : DnD_Boolean { }
-Actor Research_Slot4Upgrade3 : DnD_Boolean { }
-Actor Research_Slot4Upgrade4 : DnD_Boolean { }
-Actor Research_Slot5Upgrade1 : DnD_Boolean { }
-Actor Research_Slot5Upgrade2 : DnD_Boolean { }
-Actor Research_Slot5Upgrade3 : DnD_Boolean { }
-Actor Research_Slot5GL : DnD_Boolean { }
-Actor Research_Slot6Upgrade1 : DnD_Boolean { }
-Actor Research_Slot6Upgrade2 : DnD_Boolean { }
-Actor Research_Slot6Upgrade3 : DnD_Boolean { }
-Actor Research_Slot7Upgrade1 : DnD_Boolean { }
-Actor Research_Slot7Upgrade2 : DnD_Boolean { }
-
-Actor Research_OccultAbility : DnD_Boolean { }
-Actor Research_Slot8Reveal : DnD_Boolean { }
-Actor Research_NanoTech : DnD_Boolean { } // for abilities that give resist or regen
-Actor Research_OccultArtifact : DnD_Boolean { }
-
-Actor Research_Body_Hp_1 : DnD_Boolean { }
-Actor Research_Body_Hp_2 : DnD_Boolean { }
-Actor Research_Body_Hp_3 : DnD_Boolean { }
-Actor Research_Body_Ar_1 : DnD_Boolean { }
-Actor Research_Body_Ar_2 : DnD_Boolean { }
-Actor Research_Body_Ar_3 : DnD_Boolean { }
-Actor Research_Body_Im_1 : DnD_Boolean { }
-Actor Research_Body_Im_2 : DnD_Boolean { }
-Actor Research_Body_Im_3 : DnD_Boolean { }
-
-Actor Research_StashTab : DnD_Boolean { }
-
-/*
-=============================
-== ACCOMPLISHED RESEARCHES ==
-=============================
-*/
-
-Actor Done_SuperArmor : DnD_Boolean { }
-Actor Done_RareArmors : DnD_Boolean { }
-Actor Done_MedkitStore : DnD_Boolean { }
-Actor Done_AccessoryTap : DnD_Boolean { }
-
-Actor Done_FlechetteShell : DnD_Boolean { }
-Actor Done_PiercingShell : DnD_Boolean { }
-Actor Done_ElectricShell : DnD_Boolean { }
-Actor Done_NitroShell : DnD_Boolean { }
-Actor Done_SlugShell : DnD_Boolean { }
-
-Actor Done_HEGrenade : DnD_Boolean { }
-Actor Done_SonicGrenade : DnD_Boolean { }
-
-Actor Done_DoubleSpecialCap : DnD_Boolean { }
-
-Actor Done_Slot1Occult : DnD_Boolean { }
-Actor Done_Slot2Luxury : DnD_Boolean { }
-Actor Done_Slot3Luxury : DnD_Boolean { }
-Actor Done_Slot4Luxury : DnD_Boolean { }
-Actor Done_Slot5Luxury : DnD_Boolean { }
-Actor Done_Slot6Luxury : DnD_Boolean { }
-Actor Done_Slot7Luxury : DnD_Boolean { }
-
-Actor Done_Slot1Upgrade1 : DnD_Boolean { }
-Actor Done_Slot1Upgrade2 : DnD_Boolean { }
-Actor Done_Slot2Upgrade1 : DnD_Boolean { }
-Actor Done_Slot2Upgrade2 : DnD_Boolean { }
-Actor Done_Slot3Upgrade1 : DnD_Boolean { }
-Actor Done_Slot3Upgrade2 : DnD_Boolean { }
-Actor Done_Slot3Upgrade3 : DnD_Boolean { }
-Actor Done_Slot3SSGUpgrade1 : DnD_Boolean { }
-Actor Done_Slot3SSGUpgrade2 : DnD_Boolean { }
-Actor Done_Slot3SSGUpgrade3 : DnD_Boolean { }
-Actor Done_Slot4Upgrade1 : DnD_Boolean { }
-Actor Done_Slot4Upgrade2 : DnD_Boolean { }
-Actor Done_Slot4Upgrade3 : DnD_Boolean { }
-Actor Done_Slot4Upgrade4 : DnD_Boolean { }
-Actor Done_Slot5Upgrade1 : DnD_Boolean { }
-Actor Done_Slot5Upgrade2 : DnD_Boolean { }
-Actor Done_Slot5Upgrade3 : DnD_Boolean { }
-Actor Done_Slot5GL : DnD_Boolean { }
-Actor Done_Slot6Upgrade1 : DnD_Boolean { }
-Actor Done_Slot6Upgrade2 : DnD_Boolean { }
-Actor Done_Slot6Upgrade3 : DnD_Boolean { }
-Actor Done_Slot7Upgrade1 : DnD_Boolean { }
-Actor Done_Slot7Upgrade2 : DnD_Boolean { }
-
-Actor Done_OccultAbility : DnD_Boolean { }
-Actor Done_Slot8Reveal : DnD_Boolean { }
-Actor Done_NanoTech : DnD_Boolean { }
-Actor Done_OccultArtifact : DnD_Boolean { }
-
-Actor Done_Body_Hp_1 : DnD_Boolean { }
-Actor Done_Body_Hp_2 : DnD_Boolean { }
-Actor Done_Body_Hp_3 : DnD_Boolean { }
-Actor Done_Body_Ar_1 : DnD_Boolean { }
-Actor Done_Body_Ar_2 : DnD_Boolean { }
-Actor Done_Body_Ar_3 : DnD_Boolean { }
-Actor Done_Body_Im_1 : DnD_Boolean { }
-Actor Done_Body_Im_2 : DnD_Boolean { }
-Actor Done_Body_Im_3 : DnD_Boolean { }
-
-Actor Done_StashTab : DnD_Boolean { }
+Actor Research_Done_2 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
 
 // ****************************
 //		DEPENDENCY TRACKERS

@@ -246,14 +246,16 @@ int GetHealingBonuses() {
 }
 
 int GetResearchHealthBonuses() {
-	int res = BIO_HP_ADD_1 * CheckInventory("Done_Body_Hp_1") + BIO_HP_ADD_2 * CheckInventory("Done_Body_Hp_2") + BIO_HP_ADD_3 * CheckInventory("Done_Body_Hp_3");
+	int res = BIO_HP_ADD_1 * (CheckResearchStatus(RES_BIO1) == RES_DONE);
+	res += BIO_HP_ADD_2 * (CheckResearchStatus(RES_BIO2) == RES_DONE);
+	res += BIO_HP_ADD_3 * (CheckResearchStatus(RES_BIO3) == RES_DONE);
 	
 	// cyborg's bonus
 	if(CheckInventory("Cyborg_Perk50")) {
 		res *= DND_CYBORG_CYBER_MULT;
 		res /= DND_CYBORG_CYBER_DIV;
 	}
-	
+
 	return res;
 }
 
