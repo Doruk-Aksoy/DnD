@@ -293,23 +293,25 @@ int GetSpawnHealth() {
 
 // Generic Player RPG Stat restore function
 void RestoreRPGStat (int statflag) {
+	int pnum = PlayerNumber();
+
 	if((statflag & RES_PERK_SHARP) && CheckInventory("Perk_Sharpshooting"))
 		GiveInventory(StrParam(s:"Damage_Perk_", d:CheckInventory("Perk_Sharpshooting") * SHARPSHOOTING_DAMAGE), 1);
 	if((statflag & RES_PERK_ENDURANCE) && CheckInventory("Perk_Endurance"))
 		GiveInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * ENDURANCE_RESIST), 1);
-	if((statflag & RES_ACCURACY) && GetPlayerAttributeValue(PlayerNumber(), INV_ACCURACY_INCREASE))
-		SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(PlayerNumber(), INV_ACCURACY_INCREASE));
-	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS))
-		SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
-	if((statflag & RES_SELFEXPLOSIONRESIST) && GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST))
-		GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
+	if((statflag & RES_ACCURACY) && GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE))
+		SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE));
+	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS))
+		SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS));
+	if((statflag & RES_SELFEXPLOSIONRESIST) && GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST))
+		GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
 	// can only intervene once per map
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH) && !CheckInventory("Intervened")) {
 		GiveInventory("CanIntervene", 1);
 		SetPlayerProperty(0, 1, PROP_BUDDHA);
 	}
 	if(statflag & RES_PLAYERSPEED)
-		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
+		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 	if(CheckInventory("HellfireCheck")) {
 		GiveInventory("Accessory_FireProtection", 1);
 		GiveInventory("Accessory_FireBuff", 1);
@@ -353,7 +355,7 @@ int GetPlayerAttributeValue(int pnum, int attrib) {
 }
 
 void HandleResearchBonuses() {
-	if(CheckResearchStatus(RES_IMP3)) {
+	if(CheckResearchStatus(RES_IMP3) == RES_DONE) {
 		if(CheckInventory("Cyborg_Perk25")) {
 			GiveInventory("ImpactProtection_3_Cyborg", 1);
 			TakeInventory("ImpactProtection_2_Cyborg", 1);
@@ -365,7 +367,7 @@ void HandleResearchBonuses() {
 			TakeInventory("ImpactProtection_1", 1);
 		}
 	}
-	else if(CheckResearchStatus(RES_IMP2)) {
+	else if(CheckResearchStatus(RES_IMP2) == RES_DONE) {
 		if(CheckInventory("Cyborg_Perk25")) {
 			GiveInventory("ImpactProtection_2_Cyborg", 1);
 			TakeInventory("ImpactProtection_2_Cyborg", 1);
@@ -375,7 +377,7 @@ void HandleResearchBonuses() {
 			TakeInventory("ImpactProtection_1", 1);
 		}
 	}
-	else if(CheckResearchStatus(RES_IMP1)) {
+	else if(CheckResearchStatus(RES_IMP1) == RES_DONE) {
 		if(CheckInventory("Cyborg_Perk25"))
 			GiveInventory("ImpactProtection_1_Cyborg", 1);
 		else
