@@ -550,8 +550,8 @@ void ShowBobby() {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
-str GetWeaponShopIcon(int id) {
-	// skip classic weapon icons
+int ShopTableIdToWeaponTableId(int id) {
+	// skip classic weapons
 	int skip = 0;
 	if(id >= SHOP_WEAPON1_BEGIN)
 		skip += 2; // fist & chainsaw
@@ -569,7 +569,12 @@ str GetWeaponShopIcon(int id) {
 		skip += 1;
 	if(id >= SHOP_WEAPON7_BEGIN)
 		skip += 1;
-	return Weapons[id + skip][WEAPON_ICON];
+	return id + skip;
+}
+
+str GetWeaponShopIcon(int id) {
+	id = ShopTableIdToWeaponTableId(id);
+	return Weapons[id][WEAPON_ICON];
 }
 
 int GetItemBeginIndex(int opt) {
@@ -1109,10 +1114,11 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				totake = GetWeaponToTake(itemid);
 				if(StrCmp(totake, ""))
 					GiveInventory(totake, 1);
+				// this works on weapon table ids, so map it there to use
+				ResetWeaponStats(ShopTableIdToWeaponTableId(itemid));
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
 				// reset buffs of weapon
-				ResetWeaponStats(itemid);
 				GiveInventory("Credit", price);
 				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
 			}

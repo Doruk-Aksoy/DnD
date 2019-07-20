@@ -308,38 +308,54 @@ Script "DnD Can Pick Health Item" (int type) {
 	SetResultValue(CanPickHealthItem(type));
 }
 // Health kits end here
+
 Script "DnD Critical Input Handler" ENTER {
+	bool temp = false;
     while(PlayerInGame(PlayerNumber())) {
-        // additional hack for the slayer/hells maw weapon's dynamic fire modes
-		if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive") && !CheckInventory("ShowingMenu")) {
-			if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK) 
-				GiveInventory("HellsMawSynthFireLeft", 1);
-			else 
-				TakeInventory("HellsMawSynthFireLeft", 1);
-			
-			if (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) 
-				GiveInventory("HellsMawSynthFireRight", 1);
-			else 
-				TakeInventory("HellsMawSynthFireRight", 1);
-				
-			if(isAlive() && (CheckInventory("HellsMawFiringRight") || CheckInventory("HellsMawFiringLeft")))
-				SetActorState(0, "Melee");
-		}
-		
 		if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_USE)
 			GiveInventory("DnD_PressedUse", 1);
-
-		TakeInventory("SynthFireLeft", 0x7FFFFFFF);
-		TakeInventory("SynthFireRight", 0x7FFFFFFF);
-		if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) {
-			if(CheckWeapon("Slayer") && !CheckInventory("SlayerTimer"))
-				GiveInventory("SlayerBack", 1);
-			if(CheckWeapon("ResSSG3") && CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstTimer")) {
-				GiveInventory("MakeHadesBurst", 1);
-				GiveInventory("HadesBurstCooldown", 1);
-				TakeInventory("HadesBurstFired", 1);
+			
+		// additional hack for the slayer/hells maw weapon's dynamic fire modes	
+		if(!CheckInventory("ShowingMenu")) {
+			// shit hacks to prevent some bug...
+			if(temp) {
+				GiveInventory("HellsMawSynthActive", 1);
+				GiveInventory("SynthFireFix", 1);
+				temp = false;
+			}
+			
+			if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive")) {
+				if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK) 
+					GiveInventory("HellsMawSynthFireLeft", 1);
+				else 
+					TakeInventory("HellsMawSynthFireLeft", 1);
+				
+				if (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) 
+					GiveInventory("HellsMawSynthFireRight", 1);
+				else 
+					TakeInventory("HellsMawSynthFireRight", 1);
+					
+				if(isAlive() && (CheckInventory("HellsMawFiringRight") || CheckInventory("HellsMawFiringLeft")))
+					SetActorState(0, "Melee");
+			}
+			
+			if((GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK)) {
+				if(CheckWeapon("Slayer") && !CheckInventory("SlayerTimer"))
+					GiveInventory("SlayerBack", 1);
+				if(CheckWeapon("ResSSG3") && CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstTimer")) {
+					GiveInventory("MakeHadesBurst", 1);
+					GiveInventory("HadesBurstCooldown", 1);
+					TakeInventory("HadesBurstFired", 1);
+				}
 			}
 		}
+		else {
+			if(!temp && CheckWeapon("Upgraded Super Shotgun3")) {
+				temp = true;
+				TakeInventory("HellsMawSynthActive", 1);
+			}
+		}
+		
         SetInventory("MedkitItem", CheckInventory("StoredMedKit"));
         SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_HEALTH));
         TakeInventory("FadeIntensity", 1);
