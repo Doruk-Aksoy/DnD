@@ -51,8 +51,9 @@ enum {
 	DND_VITAL = DND_EXTRASTRONG << 1,
 	DND_ARMORPEN = DND_VITAL << 1,
 	DND_PET = DND_ARMORPEN << 1,
+	DND_SUMMONED = DND_PET << 1,
 	
-	DND_LEGENDARY = DND_PET << 1,
+	DND_LEGENDARY = DND_SUMMONED << 1,
 	DND_REVIVED = DND_LEGENDARY << 1
 };
 
@@ -102,6 +103,7 @@ enum {
 	DND_VITAL_POW,
 	DND_ARMORPEN_POW,
 	DND_PET_POW,
+	DND_SUMMONED_POW,
 	
 	DND_LEGENDARY_POW,
 	DND_REVIVED_POW
@@ -151,7 +153,7 @@ str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Magic Resist"
 };
 
-#define MAX_MONSTER_TRAITS2 13
+#define MAX_MONSTER_TRAITS2 14
 str MonsterTraits2[MAX_MONSTER_TRAITS2] = {
 	"Physical Immune",
 	"Energy Resist",
@@ -164,6 +166,7 @@ str MonsterTraits2[MAX_MONSTER_TRAITS2] = {
 	"Vital",
 	"Armor Penetration",
 	"Pet Creature",
+	"Summoned Creature",
 	"Legendary",
 	"Revived"
 };
@@ -262,6 +265,7 @@ str GetTraitColorCode(int trait, int side) {
 			
 			case DND_PET_POW:
 			case DND_REVIVED_POW:
+			case DND_SUMMONED_POW:
 			return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
 		}
 	}

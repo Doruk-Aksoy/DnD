@@ -86,6 +86,8 @@ Actor Mo_Died : PowerDamage {
 	powerup.duration 9
 }
 
+Actor Mo_Scaled : DnD_Boolean { }
+
 Actor DnD_FakeDamager {
 	PROJECTILE
 	+DONTBLAST

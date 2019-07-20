@@ -1330,6 +1330,9 @@ Script "DND Special Player Hurt" (int type, int percent) {
 
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
+	if(CheckInventory("Mo_Scaled"))
+		Terminate;
+	
 	if(!ActivatorTID())
 		GiveMonsterTID();
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
@@ -1357,6 +1360,9 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 	MonsterProperties[this - DND_MONSTERTID_BEGIN].id = monsterid;
 	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
 	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
+	
+	if(traits2 & DND_SUMMONED)
+		GiveInventory("Mo_Scaled", 1);
 
 	if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 		MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;

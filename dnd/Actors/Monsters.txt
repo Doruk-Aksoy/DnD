@@ -544,8 +544,25 @@ Actor LostSoul2 : DnD_LostSoul
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LOSTSOULID, DND_MOBILITY)
+			TNT1 A 1 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LOSTSOULID, DND_MOBILITY, DND_SUMMONED)
 		Goto Super::Idle
+		See:
+			TNT1 A 0 A_JumpIfInventory("Mo_Scaled", 1, "SeeLoop")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LOSTSOULID, DND_MOBILITY, DND_SUMMONED)
+		SeeLoop:
+			SKUL AB 6 Bright A_Chase
+		Goto See
+		
+		Missile:
+			TNT1 A 0 A_JumpIfInventory("Mo_Scaled", 1, "MissileSkip")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_LOSTSOULID, DND_MOBILITY, DND_SUMMONED)
+		MissileSkip:
+			SKUL C 10 Bright A_FaceTarget
+			SKUL D 4 Bright A_SkullAttack
+		MissileLoop:
+			SKUL CD 4 Bright
+		Loop
+		
 		Death:
 			TNT1 AAAAAA 0 A_CustomMissile("LostSoulSmoke", 32, 0, random(0,360), 2, random(0,360))
 		Goto Super::Death
