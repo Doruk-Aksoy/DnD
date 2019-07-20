@@ -8,6 +8,7 @@ Actor DnD_Zombieman : Zombieman {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -59,6 +60,7 @@ Actor DnD_Shotgunner : Shotgunguy {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -110,6 +112,7 @@ Actor DnD_Chaingunguy : Chaingunguy {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -161,6 +164,7 @@ Actor DnD_Demon : Demon {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -212,6 +216,7 @@ Actor DnD_Spectre : Spectre {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -263,6 +268,7 @@ Actor DnD_DoomImp : DoomImp {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -317,6 +323,7 @@ Actor DnD_LostSoul : LostSoul {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -368,6 +375,7 @@ Actor DnD_Cacodemon : CacoDemon {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -419,6 +427,7 @@ Actor DnD_PainElemental : PainElemental {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -470,6 +479,7 @@ Actor DnD_Revenant : Revenant {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -521,6 +531,7 @@ Actor DnD_Hellknight : Hellknight {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -573,6 +584,7 @@ Actor DnD_BaronOfHell : BaronOfHell {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -625,6 +637,7 @@ Actor DnD_Fatso : Fatso {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -677,6 +690,7 @@ Actor DnD_Arachnotron : Arachnotron {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -729,6 +743,7 @@ Actor DnD_ArchVile : ArchVile {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -781,6 +796,7 @@ Actor DnD_SpiderMasterMind : SpiderMasterMind {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -833,6 +849,7 @@ Actor DnD_Cyberdemon : Cyberdemon {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
@@ -885,6 +902,7 @@ Actor DnD_WolfensteinSS : WolfensteinSS {
 			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
 			"####" "#" 0 A_SetTranslucent (0.85, 0)
+			"####" "#" 0 A_Fall
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
 			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
 			"####" "#" 0 A_FadeTo (0, 0.1, 0)
