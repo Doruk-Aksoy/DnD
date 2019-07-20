@@ -639,9 +639,21 @@ void SavePlayerOrbData(int pnum, int char_id) {
 	//send temp over
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, temp);
 	
+	temp = CheckActorInventory(tid, "Level");
+	if(!temp)
+		temp = 1; // fix level 0 saves
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, temp);
+	
 	// save budget
 	temp = CheckActorInventory(tid, "Budget");
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, temp);
+	
+	// save unspent attribute/perk points
+	temp = CheckActorInventory(tid, "AttributePoint");
+	temp |= (0x7FF & CheckActorInventory(tid, "PerkPoint")) << 11;
+	// send temp over
+	SetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, temp);
 	
 	// save player inventory state (might have been affected by an orb)
 	SavePlayerInventoryStuff(pnum, char_id, tid, pacc, DND_PINVFLAGS_ALL);

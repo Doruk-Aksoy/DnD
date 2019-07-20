@@ -170,12 +170,12 @@ Script "DnD On Map Load" OPEN {
 	ResetSharedVariables();
 	
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
-		Delay(17);
+		Delay(const:TICRATE);
 	CalculateMapDifficulty();
 	// wait while total level is not initialized
 	while(!PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL])
-		Delay(35);
-	Delay(17);
+		Delay(const:TICRATE);
+	Delay(const:TICRATE);
 	if (GetLevelInfo(LEVELINFO_LEVELNUM) != 99) //Prevents quests from firing on VR map (Lexicon) - compendium hubmap can't be detected this way unfortunately.
 		PickQuest();
 }
@@ -2266,6 +2266,8 @@ Script "DnD Player Setup" ENTER {
 			PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = curlvl;
 	}
 	
+	ClearQuestCheckers();
+	
 	if(HardcoreSet) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
@@ -2294,7 +2296,6 @@ Script "DnD Player Setup" ENTER {
 		SetInventory("ReflectCount", 0);
 		SetInventory("Intervened", 0);
 		SetInventory("P_Invulnerable", 0);
-		ClearQuestCheckers();
 	}
 	TakeInventory("PowerReflection", 1);
 	// order of the above reset is important

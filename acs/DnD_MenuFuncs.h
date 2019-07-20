@@ -1109,6 +1109,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				TakeInventory("DnD_SellConfirm", 1);
 				TakeInventory("DnD_PopupSell", 1);
 				TakeInventory("DnD_ShowSellPopup", 1);
+				TakeInventory("DnD_MoneySpentQuest", price);
 				SetInventory("DnD_PopupID", 0);
 				SetInventory("ActivePopupBox", 0);
 				totake = GetWeaponToTake(itemid);
