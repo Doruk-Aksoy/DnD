@@ -178,7 +178,7 @@ enum {
 	BONUS_SECRET,
 	BONUS_BONUS,
 	BONUS_EXP_RATE = 5,
-	BONUS_CREDIT_RATE = 250,
+	BONUS_CREDIT_RATE = 5,
 	BONUS_SECRET_RATE = 3,
 };
 									  
@@ -582,7 +582,7 @@ void ShowBonusMessage(int bonustype, int y) {
 		break;
 		case BONUS_ITEM:
 			LocalAmbientSound("RPG/ItemBonus", 127);
-			HudMessage(s:"All items have been taken! ", d:bval, s:" Credits!"; HUDMSG_FADEINOUT, ITEMBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
+			HudMessage(s:"All items have been taken! ", d:bval, s:"% Credit Bonus!"; HUDMSG_FADEINOUT, ITEMBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 		case BONUS_SECRET:
 			LocalAmbientSound("RPG/SecretBonus", 127);
@@ -598,7 +598,7 @@ void ShowBonusMessage(int bonustype, int y) {
 void DistributeBonus(int bonustype) {
 	int bval = 0, temp = 0, i = 0;
 	if(bonustype == BONUS_KILL) {
-		bval = CalculateBonus(BONUS_KILL,MapDifficulty);
+		bval = CalculateBonus(BONUS_KILL, MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				temp = GetActorStat(i + P_TIDSTART, STAT_LVLEXP) * bval / 100;
@@ -608,16 +608,17 @@ void DistributeBonus(int bonustype) {
 		}
 	}
 	else if(bonustype == BONUS_ITEM) {
-		bval = CalculateBonus(BONUS_ITEM,MapDifficulty);
+		bval = CalculateBonus(BONUS_ITEM, MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
+				temp = GetActorStat(i + P_TIDSTART, STAT_LVLCRED) * bval / 100;
 				GiveActorInventory(i + P_TIDSTART, "DnD_ItemBonusShower", 1);
 				GiveActorCredit(i + P_TIDSTART, bval);
 			}
 		}
 	}
 	else if(bonustype == BONUS_SECRET) {
-		bval = CalculateBonus(BONUS_SECRET,MapDifficulty);
+		bval = CalculateBonus(BONUS_SECRET, MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				GiveActorInventory(i + P_TIDSTART, "DnD_SecretBonusShower", 1);
