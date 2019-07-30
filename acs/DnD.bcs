@@ -4045,8 +4045,12 @@ Script "DnD Take Summon Check" (int monsterID) {
 
 Script "DnD On Pet Summon" (void) {
 	// check for damage shared buff
-	if(CheckInventory("StatbuffCounter_PainSharedWithPets"))
-		GiveInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
+	if(CheckInventory("StatbuffCounter_PainSharedWithPets")) {
+		// a bit of delay to register the pet summoning
+		Delay(const:10);
+		if(CheckInventory("PetCounter"))
+			GiveInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
+	}
 }
 
 Script "DnD Pet Distance Move" (void) {

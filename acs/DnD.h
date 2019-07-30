@@ -663,7 +663,7 @@ void HandleHunterTalisman() {
 }
 
 void PickQuest() {
-	if(GetCVar("dnd_enable_quests")) {
+	if(GetCVar("dnd_enable_quests") && PlayerCount()) {
 		if(GetCVar("dnd_quest_avglevel") <= (PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerCount()) && random(1, 100) <= Clamp_Between(GetCVar("dnd_quest_chance"), 1, 100)) {
 			do {
 				active_quest_id = random(0, MAX_QUESTS - 1);
