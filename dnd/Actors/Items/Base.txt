@@ -33,6 +33,7 @@ actor DND_DroppedItem {
 	-TELESTOMP
 	+NOTELEPORT
 	+DONTBLAST
+	+SEEINVISIBLE
 	Health 0
 	Radius 1
 	Height 1
