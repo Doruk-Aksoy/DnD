@@ -87,8 +87,8 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_gainonlyinrange",
 	"dnd_allresearchesfound",
 	"dnd_disablelevelbonus",
-    "dnd_usesmartmonsterspawner",
-    "dnd_enable_quests",
+	"dnd_usesmartmonsterspawner",
+	"dnd_enable_quests",
 	"dnd_enable_elites",
 	"dnd_enable_limiteditems",
 	"dnd_no_immunity",
@@ -126,7 +126,7 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monster_hpscalepercent",
 	"dnd_monster_rewardscalepercent",
 	"dnd_monster_dmgscalepercent",
-    "dnd_researchdroprate",
+	"dnd_researchdroprate",
 	
 	"dnd_ignore_dropweights"
 };
@@ -147,8 +147,8 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	1,
 	0,
 	0,
-    1,
-    1,
+	1,
+	1,
 	1,
 	1,
 	0,
@@ -186,7 +186,7 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	5,
 	5,
 	0.04,
-    0.00249,
+	0.00249,
 	
 	0
 };
