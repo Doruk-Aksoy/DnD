@@ -288,7 +288,7 @@ Actor DuelistArmor : BasicArmorPickup {
 }
 
 Actor NecroArmor : BasicArmorPickup {
-	Armor.SavePercent 60.0
+	Armor.SavePercent 55.0
 	Armor.SaveAmount 1
 	inventory.icon "ARM6A0"
 }
@@ -516,7 +516,7 @@ Actor NecroSpike {
 	Speed 32
 	Radius 6
 	Height 12
-	Damage (ACS_NamedExecuteWithResult("DND Player Damage Scale", 10 * random(6, 10), TALENT_OCCULT, DND_USETARGET | DND_NECROBULK | DND_HASSTRSCALING))
+	Damage (ACS_NamedExecuteWithResult("DND Player Damage Scale", 8 * random(6, 8), TALENT_OCCULT, DND_USETARGET | DND_NECROBULK | DND_HASSTRSCALING))
 	DamageType "Magic"
 	SeeSound "Armors/NecroShard"
 	DeathSound "Armors/NecroShardHit"

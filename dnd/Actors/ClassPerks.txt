@@ -35,17 +35,20 @@ Actor Doomguy_DemonSoul : DnD_DroppedItem {
 	
 	States {
 		Spawn:
+		SpawnLoop:
 			DG50 AAAABBBBCCCCDDDDCCCCBBBB 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
 		
 		See:
 		CheckPickup:
+			"####" "#" 0 A_JumpIfInventory("TaltosUp", 1, "SpawnLoop")
 			"####" "#" 1 A_JumpIfCloser(32, "Pickup")
 		goto SpawnLoop
 
 		Pickup:
 			TNT1 A 0 A_GiveToTarget("Doomguy_DemonSoul_PickMsg", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Doomguy Soul Pickup", 0, mass)
+			TNT1 A 3
 		stop
 	}
 }

@@ -1684,15 +1684,15 @@ Script 975 (int tid, int pang, int radius) {
 			SetActorPosition(bladetid + i, cx, cy, cz, 0);
 		}
 		angadd += 2;
-		Delay(1);
+		Delay(const:1);
 	}
 }
 
 Script "DnD Golgoth Health Check" (void) {
-	Delay(35);
+	Delay(const:35);
 	int comp = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 2;
 	while(GetActorProperty(0, APROP_HEALTH) < comp)
-		Delay(10);
+		Delay(const:10);
 	GiveInventory("DnD_Boolean", 1);
 	GiveInventory("MakeNoPain", 1);
 }
@@ -1725,7 +1725,7 @@ Script "DnD Ankh Checker" (void) {
 				ACS_ExecuteAlways(921, 0, 1, INTERVENTION_DURATION);
 			}
 		}
-		Delay(5);
+		Delay(const:5);
 	}
 }
 
@@ -1884,7 +1884,7 @@ Script "DnD Monster Scanner Picker" ENTER {
 		}
 		// fixes initialization bug
 		SetActivator(this);
-		Delay (1);
+		Delay(const:1);
 	}
 }
 
@@ -1968,7 +1968,7 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 					HudMessage(s:"Legendary Monster"; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
 			}
 		}
-		Delay (1);
+		Delay(const:1);
 	}
 }
 
@@ -2096,7 +2096,7 @@ Script "DnD On Respawn" RESPAWN {
 	
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
-		Delay(5);
+		Delay(const:5);
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
 		
@@ -2131,7 +2131,8 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	
 	// if player was in middle of saving, don't accidently interfere if player leaves early
 	while(MapInfo[DND_MAPINFO_MAPCHANGED])
-		Delay(17);
+		Delay(const:35);
+	Delay(const:35);
 	ResetHardcoreStuff(pnum);
 }
 
@@ -2234,9 +2235,6 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayersNotReady", 0);
 	
 	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
-	// just in case
-	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
-		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
 	
 	// Checks if we should set the lives to the inventory or not (also includes one time execute things)
 	// when player joins for the first time
@@ -2333,6 +2331,11 @@ Script "DnD Player Setup" ENTER {
 	}
 	else
 		SetInventory("ActiveQuestID", 0);
+		
+	// moved here to attempt to fix the reflect pendant issue
+	// just in case
+	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
+		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
 	
 	while(CheckInventory("TipBoxOpen"))
 		Delay(17);
@@ -3080,7 +3083,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	if(flags & DMG_WDMG_ISARTIFACT)
 		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckInventory("Ability_Arcanery")) / 100;
 	if(flags & DMG_WDMG_NECROBULK)
-		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetStat(STAT_BUL)) / 100;
+		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetBulkiness()) / 100;
 	// talent bonus
 	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT || isSpell)
 		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type][TALENT_TAG])) / 100;
@@ -4286,8 +4289,9 @@ Script "DnD Class Select Cleanup" (void) CLIENTSIDE {
 
 Script "DnD Doomguy Soul Pickup" (int val) {
 	val = Clamp_Between(val / DND_DOOMGUY_HEALDIV, 1, DND_DOOMGUY_MAXHEAL);
-	SetActivatorToTarget(0);
-	ACS_NamedExecuteAlways("DnD Health Pickup", 0, val);
+	// setactivatortotarget is SHIT
+	SetActivator(0, AAPTR_TARGET);
+	ACS_NamedExecuteAlways("DnD Health Pickup", 0, val, 0, 0);
 }
 
 Script "DnD Init Shared Translation" (void) {

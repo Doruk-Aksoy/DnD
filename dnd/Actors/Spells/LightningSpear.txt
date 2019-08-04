@@ -44,7 +44,7 @@ Actor LightningSpearProjectile {
 	RenderStyle Add
 	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
 	BounceType Hexen
-	BounceCount 8
+	BounceCount 6
 	BounceFactor 1.0
 	WallBounceFactor 1.0
 	+FORCEXYBILLBOARD

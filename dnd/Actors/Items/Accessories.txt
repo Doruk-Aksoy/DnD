@@ -699,7 +699,8 @@ Actor ArtemisPower : PowerInfiniteAmmo {
 }
 
 Actor ArtemisReduction : PowerDamage {
-	damagefactor "normal", 0.5
+	-INVENTORY.INTERHUBSTRIP
+	damagefactor "normal", 0.333
 	powerup.duration 0x7FFFFFFF
 }
 
