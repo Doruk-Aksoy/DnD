@@ -3570,7 +3570,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 		for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
 			// by holds currently visited unique item's order, it's unique to each item type so we reset it, we don't reset i
 			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
-				tx = GetNextUniqueCraftingMaterial(CraftItemTypes[ty], by + MAX_CRAFTING_MATERIALBOXES * page);
+				tx = GetNextUniqueCraftingMaterial(by + MAX_CRAFTING_MATERIALBOXES * page);
 				if(tx != -1) {
 					bx = GetTotalStackOfMaterial(tx);
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
@@ -3985,10 +3985,8 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				// using an orb in material part
 				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
 					if(IsSelfUsableItem(PlayerInventoryList[pnum][itemindex].item_type, PlayerInventoryList[pnum][itemindex].item_subtype)) {
-						if(HandleMaterialUse(pnum, itemindex, 0, DND_ITEM_NULL)) {
-							GiveInventory("DnD_RefreshPane", 1);
+						if(HandleMaterialUse(pnum, itemindex, 0, DND_ITEM_NULL))
 							UsePlayerItem(pnum, itemindex);
-						}
 						else
 							ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 					}
@@ -4000,21 +3998,16 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						prevselect = CheckInventory("DnD_SelectedInventoryBox") - 1;
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
-								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON)) {
-									//Log(d:DND_WEAPON_MFG, s: " vs ", d:previtemindex);
-									GiveInventory("DnD_RefreshPane", 1);
+								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON))
 									UsePlayerItem(pnum, itemindex);
-								}
 								else
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
 							else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
 								//printbold(d:previtemindex, s: " ", d:PlayerInventoryList[pnum][itemindex].item_type, s: " vs ", d:DND_ITEM_CHARM);
 								// is the index shown here not being the same as the one on inventory list causing the problem here?
-								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_CHARM)) {
-									GiveInventory("DnD_RefreshPane", 1);
+								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_CHARM))
 									UsePlayerItem(pnum, itemindex);
-								}
 								else // this part can handle rest of the item types to come later on
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}

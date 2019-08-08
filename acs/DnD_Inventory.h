@@ -1454,11 +1454,16 @@ int CheckPlayerInventoryList(int pnum, int itemtype, int subtype) {
 // can only use items in inventory
 void UsePlayerItem(int pnum, int item_index) {
 	if(IsUsableItem(PlayerInventoryList[pnum][item_index].item_type)) {
+		GiveInventory("DnD_RefreshPane", 1);
 		--PlayerInventoryList[pnum][item_index].item_stack;
 		if(PlayerInventoryList[pnum][item_index].item_stack)
 			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		else {
 			FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
+			// if this is freed, we might have to auto-adjust the player's page
+			int mcount = CountCraftingMaterials();
+			if(mcount / MAX_CRAFTING_MATERIALBOXES == CheckInventory("DnD_Crafting_MaterialPage"))
+				TakeInventory("DnD_Crafting_MaterialPage", 1);
 		}
 	}
 }
@@ -1555,20 +1560,27 @@ int CountCraftingMaterials() {
 	return res;
 }
 
-int GetNextUniqueCraftingMaterial(int itemtype, int current) {
+// problem is this: say 8 orbs 5 elixirs, first page draws 12, next page requires next current is 12
+// but this counts per item type, and per item type count will never make it to 12...
+// soln: just count everything regardless, level order in inventory
+int GetNextUniqueCraftingMaterial(int current) {
 	int pnum = PlayerNumber();
 	int res = 0, i;
-	// rewrite this later to allow for more than 32 item types
-	bool unique_items = 0;
+	bool unique_orbs = 0;
+	bool unique_elixirs = 0;
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
-			if(PlayerInventoryList[pnum][i].item_type == itemtype && !IsSet(unique_items, PlayerInventoryList[pnum][i].item_subtype)) {
+			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
 				++res;
-				unique_items = SetBit(unique_items, PlayerInventoryList[pnum][i].item_subtype);
-				// return the item's index
-				if(res > current)
-					return i;
+				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
 			}
+			else if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ELIXIR && !IsSet(unique_elixirs, PlayerInventoryList[pnum][i].item_subtype)) {
+				++res;
+				unique_elixirs = SetBit(unique_elixirs, PlayerInventoryList[pnum][i].item_subtype);
+			}
+			// return the item's index
+			if(res > current)
+				return i;
 		}
 	}
 	return -1;

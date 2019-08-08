@@ -3,8 +3,9 @@
 
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
+#define MAX_CRAFTING_MATERIALBOXES 12
 
-// only orbs
+// only orbs and elixirs
 #define MAX_CRAFTITEMTYPES 2
 
 enum {
