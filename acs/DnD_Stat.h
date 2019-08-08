@@ -6,6 +6,7 @@
 #include "DnD_Common.h"
 #include "DnD_Charms.h"
 #include "DnD_Elixirs.h"
+#include "DnD_Activity.h"
 
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
@@ -186,11 +187,27 @@ int GetActorStat(int tid, int stat_id) {
 }
 
 void GiveStat(int stat_id, int amt) {
-	SetInventory(StatNames[stat_id], Clamp_Between(CheckInventory(StatNames[stat_id]) + amt, 0, DND_STAT_FULLMAX));
+	// get cap
+	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
+	amt = Clamp_Between(CheckInventory(StatNames[stat_id]) + amt, 0, lim) - CheckInventory(StatNames[stat_id]);
+	GiveInventory(StatNames[stat_id], amt);
+	
+	if(lim == DND_STAT_FULLMAX)
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
+	else if(lim == DND_PERK_MAX)
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id);
 }
 
 void GiveActorStat(int tid, int stat_id, int amt) {
-	SetActorInventory(tid, StatNames[stat_id], Clamp_Between(CheckActorInventory(tid, StatNames[stat_id]) + amt, 0, DND_STAT_FULLMAX));
+	// get cap
+	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
+	amt = Clamp_Between(CheckActorInventory(tid, StatNames[stat_id]) + amt, 0, lim) - CheckActorInventory(tid, StatNames[stat_id]);
+	GiveActorInventory(tid, StatNames[stat_id], amt);
+	
+	if(lim == DND_STAT_FULLMAX)
+		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
+	else if(lim == DND_PERK_MAX)
+		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_PERK, amt, stat_id);
 }
 
 void GiveExp(int amt) {
@@ -221,6 +238,17 @@ void GiveBudget(int amt) {
 void GiveActorCredit(int tid, int amt) {
 	GiveActorInventory(tid, "Credit", amt);
 	GiveActorInventory(tid, "LevelCredit", amt);
+}
+
+void ConsumeAttributePointOn(int stat, int amt) {
+	GiveInventory(StatNames[stat], amt);
+	TakeInventory("AttributePoint", amt);
+}
+
+void ConsumePerkPointOn(int perk, int amt) {
+	// map it into 0 range
+	GiveInventory(StatNames[perk - DND_PERK_BEGIN], amt);
+	TakeInventory("PerkPoint", amt);
 }
 
 void CleanSharpEndPerks(int flags) {
@@ -345,15 +373,20 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 	int armor = CheckInventory("Armor"), cap = 0;
 	GiveInventory("DnD_BoughtArmor", 1);
 
-	cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-	
+	// this will prevent -1 array index operations
+	if(!CheckInventory("DnD_ArmorType"))
+		replace = true;
+	else
+		cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+
+	bool highertier = IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1);
+	bool samearmor = armor_type == CheckInventory("DnD_ArmorType") - 1;
 	//Give new armor type only if it's a higher tier, or is a replacement
-	if(IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1) || replace) {
+	if(replace || highertier) {
 		//Completely reset armor
 		SetInventory("Armor", 0);
 		if(armor_type != DND_ARMOR_BONUS) //Armor shard will be given later
 			GiveInventory(ArmorTypes[armor_type], 1);
-		
 		//Set new type
 		SetInventory("DnD_ArmorType", armor_type + 1);
 		//Respect the cap of new armor
@@ -362,6 +395,10 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 			SetInventory("DnD_ArmorBonus", Min(armor, cap)); //Make sure player loses any armor above new cap, to prevent player from buying high tier armor and replacing with lower just to get extra armor.
 		
 		armor = CheckInventory("Armor");
+		
+		// fix downgrade replace giving +1 armor over your cap
+		if(!highertier && !samearmor && replace)
+			TakeInventory("Armor", 1);
 	}
 	
 	// adapt armor count to whatever stats makes it be
@@ -524,14 +561,15 @@ void DecideAccessories() {
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_LICHARM)) {
 		GiveInventory("LichCheck", 1);
 		GiveInventory("LichPower", 1);
-		SetAmmoCapacity("Souls", 150);
+		SetAmmoCapacity("Souls", GetAmmoCapacity("Souls") * DND_LICH_SOULFACTOR);
 	}
 	else {
 		TakeInventory("LichCheck", 1);
 		TakeInventory("LichPower", 1);
-		if(CheckInventory("Souls") > 75) // yea this is bad but o well
-			SetInventory("Souls", 75);
-		SetAmmoCapacity("Souls", 75);
+		int tmp = GetAmmoCapacity("Souls");
+		if(CheckInventory("Souls") > tmp / 2)
+			SetInventory("Souls", tmp / 2);
+		SetAmmoCapacity("Souls", tmp / 2);
 	}
 	
 	// sigil order: 1 = fire, 2 = ice, 3 = lightning, 4 = poison
@@ -564,6 +602,10 @@ bool HasNoSigilPower() {
 // Takes a stat from the player, also removing effects of it
 void TakeStat(int stat_id, int amt) {
 	TakeInventory(StatNames[stat_id], amt);
+	if(stat_id <= DND_ATTRIB_END)
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
+	else if(stat_id <= DND_PERK_END)
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id);
 }
 
 void UpdatePerkStuff() {

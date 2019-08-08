@@ -615,6 +615,24 @@ Script "DnD Bloodseeker Size Change" (void) CLIENTSIDE {
 	}
 }
 
+Script "DnD Draugr Appear FX" (void) CLIENTSIDE {
+	int cx = GetActorX(0);
+	int cy = GetActorY(0);
+	int cz = GetActorZ(0);
+	for(int i = 0; i < DRAUGR_FX_COUNT; ++i) {
+		int t_ang = i * 1.0 / DRAUGR_FX_COUNT;
+		int nx = cx + DRAUGR_R * cos(t_ang);
+		int ny = cy + DRAUGR_R * sin(t_ang);
+		Spawn("DraugrFader2", nx, ny, cz, DRAUGR_TEMP_FX);
+		nx = cx - nx;
+		ny = cy - ny;
+		t_ang = VectorAngle(nx, ny);
+		SetActorAngle(DRAUGR_TEMP_FX, t_ang);
+		SetActorVelocity(DRAUGR_TEMP_FX, -DRAUGR_VEL_BASE * cos(t_ang), -DRAUGR_VEL_BASE * sin(t_ang), 0, 0, 0);
+		Thing_ChangeTID(DRAUGR_TEMP_FX, 0);
+	}
+}
+
 // items on monsters aren't synced
 Script "DnD Bloodseeker Transform Sync" (int mode) CLIENTSIDE {
 	if(!mode)

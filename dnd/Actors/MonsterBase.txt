@@ -1,3 +1,10 @@
+Actor DnD_BaseMonster {
+	MONSTER
+	States {
+		
+	}
+}
+
 Actor DnD_Zombieman : Zombieman { 
 	States {
 		Death.MagicSealing:

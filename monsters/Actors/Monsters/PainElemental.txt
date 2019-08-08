@@ -528,12 +528,13 @@ Actor HadesBoltExp2 : BaseExplosionDamage
 	}
 }
 
-Actor HadesBolt : CacodemonBall
+Actor HadesBolt
 {
   Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
   Speed 5
   Radius 8
   Height 24
+  PROJECTILE
   Damagetype "Paine"
   SeeSound "weapons/none"
   DeathSound "weapons/gntidl"
@@ -594,7 +595,7 @@ Actor HadesBolt2 : CacodemonBall
 ACTOR HS : MagicalEnemy { 
 	Health 0x7FFFFFFF
 	Radius 16 
-	Height 32 
+	Height 40
 	Mass 3000 
 	Speed 10
 	ExplosionDamage 72
@@ -737,6 +738,7 @@ actor DESentinel : Guardian {
 	Health 0x7FFFFFFF
 	radius 31
 	height 56
+	ProjectilePassHeight 72
 	Scale 1.0
 	mass 1000
 	speed 8
@@ -1670,7 +1672,7 @@ Actor HellArbiter : DnD_BaseEnemy {
 			TNT1 A 0 A_SetInvulnerable
 			TNT1 A 0 A_UnsetShootable
 			TNT1 A 0 ACS_ExecuteAlways(959, 0, 1)
-			ARBT AAAAABBBBBAAAAABBBBB 1 A_FadeOut(0.05)
+			ARBT AAAAABBBBBAAAAABBBBB 1 A_FadeOut(0.05, 0)
 			TNT1 AAAAAAAAAAAAAAAAAAA 2 Fast A_Wander
 			TNT1 AAAAAA 0 A_Wander
 			TNT1 AAAAAAAAAAA 1 A_Chase("", "", CHF_NOPLAYACTIVE)

@@ -79,10 +79,11 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define DND_RAVAGERARMOR_AMOUNT 250
 
 #define DND_HEALTHEXPSCALE 5
-#define DND_HEALTHCREDITSCALE 15
-#define DND_HEALTHCREDITAFTER50SCALE 2
-#define DND_HEALTHCREDITAFTER75SCALE 8
-#define DND_HEALTHCREDITUPSCALE 2
+#define DND_HEALTHCREDITSCALE 10
+#define DND_HEALTHCREDITAFTER50SCALE 5
+#define DND_HEALTHCREDITAFTER75SCALE 10
+#define DND_HEALTHCREDITUPSCALE 1
+#define DND_MIN_CREDIT 3
 #define DND_REGEN_PERCENT 2
 
 #define TALENT_INCREASE 50
@@ -90,7 +91,7 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define TALENT_PER_INT 1
 #define DND_ARTIFACT_GAIN 50
 
-#define DND_NECRO_BULKSCALE 10
+#define DND_NECRO_BULKSCALE 8
 
 #define DND_EXP_BASEFACTOR 4
 #define DND_CREDIT_BASEFACTOR 5
@@ -406,7 +407,9 @@ int CheckLevelUp (void) {
 		SetInventory("ExpVisual", exptemp);
 		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
 	}
-	return GetStat(STAT_LVL) - curlevel;
+	curlevel = GetStat(STAT_LVL) - curlevel;
+	
+	return curlevel;
 }
 
 void HandleLevelup() {

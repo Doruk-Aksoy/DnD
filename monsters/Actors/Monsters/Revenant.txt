@@ -2358,27 +2358,39 @@ ACTOR Draugr : UndeadEnemy {
 			SKE2 L 6 Fast A_CustomMeleeAttack(random(26, 46) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
 		Goto See
 		FadeAway:
+			TNT1 A 0 A_JumpIfInventory("DraugrFadeCooldown", 1, "MissileNoFade")
 			SKE2 J 6 Fast A_FaceTarget
 			TNT1 A 0 A_UnsetShootable
 			TNT1 A 0 A_PlaySound("Draugr/Fade")
-			SKE2 JJJJJJJJJJ 2 Fast A_FadeOut(0.1)
+			SKE2 JJJJJJJJJJ 2 Fast A_FadeOut(0.1, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
 			TNT1 AAAAAA 0 A_SpawnItemEx("DraugrFader", frandom(-24.0, 24.0), frandom(-24.0, 24.0), 0)
 			TNT1 A 0 A_ChangeFlag("AVOIDMELEE", 1)
 			TNT1 AAAAAAAA 0 A_Wander
-			TNT1 AAAAAA 3 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
+			TNT1 AAAAAAAA 3 A_Chase("", "", CHF_NOPLAYACTIVE)
 			TNT1 AAAAAAAA 0 A_Wander
+			TNT1 A 3
+			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ChangeFlag("AVOIDMELEE", 0)
-			SKE2 JJJJJJJJJJ 1 Fast A_FadeIn(0.1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Draugr Appear FX")
+			TNT1 A 8 A_FaceTarget
+			SKE2 JJJJJJJJJJJJJJJJJJJJ 1 A_FadeIn(0.05)
+			TNT1 A 0 A_GiveInventory("DraugrFadeCooldown", 1)
+			SKE2 J 1
 			TNT1 A 0 A_SetShootable
-			SKE2 J 2 Fast A_FaceTarget
+			SKE2 J 1 A_FaceTarget
 			TNT1 A 0 A_JumpIfTargetInLOS("MissileRoll")
+			SKE2 J 2
 		Goto See
 		MissileRoll:
-			TNT1 A 0 A_Jump(192, "AngryMissile")
+			SKE2 J 1
+			TNT1 A 0 A_Jump(96, "AngryMissile")
+			SKE2 J 1
 		Goto See
 		Missile:
+			TNT1 A 0 A_JumpIfCloser(224, "FadeAway")
+		MissileNoFade:
 			SKE2 G 8 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("weapons/tp_fire")
 			SKE2 H 7 Fast Bright A_CustomMissile("DraugrSeeker", 60, -16)
@@ -2429,14 +2441,19 @@ ACTOR Draugr : UndeadEnemy {
 	}
 }
 
+Actor DraugrFadeCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}
+
 Actor DraugrFader {
 	Radius 20
 	Height 56
 	Renderstyle Translucent
-	+NOGRAVITY
 	+CLIENTSIDEONLY
 	var int user_angle;
 	var int user_speed;
+	MaxStepHeight 24
 	Alpha 0.8
 	States {
 		Spawn:
@@ -2470,10 +2487,49 @@ Actor DraugrFader {
 		Goto Animate
 		Animate:
 			"####" "#" 0 A_setUserVar("user_angle", random(0, 255))
-			"####" "#" 0 A_setUserVar("user_speed", random(2, 8))
+			"####" "#" 0 A_setUserVar("user_speed", random(2, 3))
 		AnimLoop:
-			"####" "#" 0 A_FadeOut(0.066)
-			"####" "#" 3 ThrustThing(user_angle, user_speed, 0, 0)
+			"####" "#" 0 A_FadeOut(0.06)
+			"####" "#" 4 ThrustThing(user_angle, user_speed, 0, 0)
+		Loop
+	}
+}
+
+Actor DraugrFader2 : DraugrFader {
+	States {
+			Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "1", "2", "3", "4", "5", "6", "7", "8", "9")
+		1:
+			SKE2 A 0
+		Goto Animate
+		2:
+			SKE2 B 0
+		Goto Animate
+		3:
+			SKE2 C 0
+		Goto Animate
+		4:
+			SKE2 D 0
+		Goto Animate
+		5:
+			SKE2 E 0
+		Goto Animate
+		6:
+			SKE2 F 0
+		Goto Animate
+		7:
+			SKE2 J 0
+		Goto Animate
+		8:
+			SKE2 K 0
+		Goto Animate
+		9:
+			SKE2 L 0
+		Goto Animate
+		Animate:
+			"####" "#" 0 A_ScaleVelocity(-1)
+		AnimateLoop:
+			"####" "#" 4 A_FadeOut(0.06)
 		Loop
 	}
 }

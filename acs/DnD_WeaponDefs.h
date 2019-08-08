@@ -145,7 +145,7 @@ typedef struct {
 } wep_bonus_T;
 
 #define MAX_WEP_MODS 4 // max allowed mods
-#define MAX_WEP_BONUSES WEP_BONUS_DMG + 1
+#define MAX_WEP_BONUSES (WEP_BONUS_DMG + 1)
 // store players mods etc.
 typedef struct {
 	int enchants;

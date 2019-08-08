@@ -6,7 +6,7 @@ Actor StatbuffCounter_KnockbackImmunity : Ammo {
 
 Actor StatbuffCounter_DoubleSmallCharm : Ammo {
 	inventory.amount 1
-	inventory.maxamount 31
+	inventory.maxamount 0xFFFF
 	+IGNORESKILL
 }
 

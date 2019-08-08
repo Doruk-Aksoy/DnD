@@ -1389,7 +1389,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Creates portals that lead to hungry ghosts to devour your enemies. Hold to gain a deflective shield."
 };
 
-str AttributeExplanation[MAXATTRIBUTES] = {
+str AttributeExplanation[DND_MAX_ATTRIBUTES] = {
 	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.",
 	"\c[INT]Dexterity\c-\nIncreases \cfNon-Magical Talent Bonuses\c- by 0.1%.",
 	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.",
@@ -1426,31 +1426,6 @@ struct draw_info ArtifactDrawInfo[MAXARTIFACTS] = {
 	{ OBJ_ARTI | OBJ_HASCHOICE,								-1											},
 	{ OBJ_ARTI | OBJ_HASCHOICE,								-1											},
 	{ OBJ_ARTI | OBJ_HASCHOICE,								-1											}
-};
-
-#define ACCESSORY_TAG 0
-#define ACCESSORY_NAME 1
-#define ACCESSORY_ICON 2
-#define ACCESSORY_PRO 3
-#define ACCESSORY_CON 4
-str AccessoryInfo[MAX_ACCESSORY][5] = { 
-	{ "Wisdom Talisman", 		"Accessory_1", 		"ACC1B0", "Increases exp gain by 50%.", "Reduces credit gain by 50%." },
-	{ "Greed Talisman", 		"Accessory_2", 		"ACC2B0", "Increases credit gain by 50%.", "Reduces experience gain by 50%." },
-	{ "Demon Bane", 			"Accessory_3", 		"ACC3B0", "Increases damage of occult weapons by 100%.", "Reduces other damages by 75%." },
-	{ "Amulet of Hellfire", 	"Accessory_4", 		"ACC4B0", "Protects from all fire damage and hazards by 75%. Increases your fire damage by 50%.", "Increases ice damage taken by 75% and reduces your ice damage by 50%." },
-	{ "Angelic Ankh", 			"Accessory_5", 		"ACC5B0", "When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once very map.", "Your health cap is halved. (Never below 100)" },
-	{ "Reflection Pendant", 	"Accessory_6", 		"ACC6B0", "When hit, 20% chance to go invulnerable and reflective for 5 seconds. Can happen only 5 times every map.", "While active, move 25% slower." },
-	{ "Nether Mask", 			"Accessory_7", 		"ACC7B0", "All your weapons can hit ghosts and do irreducable damage.", "Take 50% more damage." },
-	{ "Taltos Ring", 			"Accessory_8", 		"ACC8B0", "Recover health from melee attacks and become a ghost.", "Health items are unpickable. Only Megasphere or Berserk can be picked that give health." },
-	{ "Hate Shard", 			"Accessory_9", 		"ACC9B0", "Reflect damage back to enemies. Attackers take x2 more damage for 5 seconds.", "Non-melee damage reduced by 50%." },
-	{ "Hand of Artemis", 		"Accessory_10", 	"AC10B0", "Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.", "Do 50% less damage." },
-	{ "Scroll of Agamotto", 	"Accessory_11", 	"AC11B0", "Do 150% more damage while standing.", "Take 30% more damage while moving." },
-	{ "Gryphon Boots", 			"Accessory_12", 	"AC12B0", "Gives 25% movement speed, immunity to curses and fall damage, and knockback immunity.", "Can't regenerate." },
-	{ "Lich Arm", 				"Accessory_13", 	"AC13B0", "Soul capacity becomes 150 and ultimate weapons do x2.5 damage.", "Any other weapon does 90% reduced damage." },
-	{ "Sigil of Elements", 		"Accessory_14", 	"AC14B0", "Gives x3 elemental damage to a single element for 20 seconds. This works in a rotation.", "Other elements do 50% less damage." },
-	{ "Celestial Relic", 		"Accessory_15", 	"AC15B0", "Gives 25% increased health and armor capacity.", "Slows you down by 20%." },
-	{ "Veil of the Assassin", 	"Accessory_16", 	"AC16B0", "After a crit, your next crit's damage is doubled. Expend this crit to heal for 15% of missing health. Lasts for 5 seconds or until you expend the crit.", "On expending your doubled crit, never crit for 10 seconds." },
-	{ "Hunter's Talisman", 		"Accessory_17", 	"AC17B0", "Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill.", "Your overall crit damage is halved." }
 };
 
 // This mapper is used when transitioning from ammo tables to menu tables
@@ -1694,8 +1669,8 @@ str ArmorExplanation[MAXARMORS] = {
     
     "100% protection, 400 armor.",
 	"45% protection, 300 armor. If not damaged for 3 seconds, restores armor slowly.",
-	"33% protection, 150 armor. Extra 100% hitscan resist.",
-	"60% protection, 400 armor. 33% chance on hit to release spikes. Melee talent and bulkiness increase the damage.",
+	"33% protection, 250 armor. Extra 100% hitscan resist.",
+	"55% protection, 400 armor. 33% chance on hit to release spikes. Melee talent and bulkiness increase the damage.",
 	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed.",
 	"33% protection, 250 armor. On a kill spree, gain x2 extra damage and 25% damage reduction. If a killing spree is met restore armor completely.",
 };
@@ -2271,10 +2246,11 @@ enum {
 	POPUP_ITEMNEEDSTARGET,
 	POPUP_MATERIALCANTUSE,
 	POPUP_ITEMTYPEMISMATCH,
-	POPUP_NOSPOTFORITEM
+	POPUP_NOSPOTFORITEM,
+	POPUP_POINTLESSARMOR
 };
 
-#define MAX_POPUPS POPUP_NOSPOTFORITEM + 1
+#define MAX_POPUPS (POPUP_POINTLESSARMOR + 1)
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2297,7 +2273,8 @@ str PopupText[MAX_POPUPS] = {
 	"Material requires\nanother item to\nbe used on!",
 	"Conditions for the\nmaterial not met!",
 	"Mismatching item\ntype!",
-	"No free spot to\nplace the item!"
+	"No free spot to\nplace the item!",
+	"Can't replace armor\nwith same type! Try\nfill instead."
 };
 
 #define MAX_HELPTEXT_RESEARCH 5

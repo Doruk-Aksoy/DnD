@@ -9,7 +9,7 @@ Actor CyberdemonSpawner : DnD_MonsterSpawner replaces Cyberdemon {
 	+BOSSDEATH
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_CYBERDEMONID)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_CYBERDEMONID)
 		SpawnLoop:
 			TNT1 A 1
 		Loop

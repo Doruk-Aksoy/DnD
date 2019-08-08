@@ -1038,6 +1038,10 @@ Actor RubyWand : Weapon {
 	Weapon.AmmoUse 1
 	Weapon.SlotNumber 2
 	+WEAPON.AMMO_OPTIONAL
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.8
 	States {
 		Spawn:
 			WAND F -1 Bright

@@ -9,7 +9,7 @@ Actor FatsoSpawner : DnD_MonsterSpawner replaces Fatso {
 	+BOSSDEATH
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_FATSOID)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_FATSOID)
 		SpawnLoop:
 			TNT1 A 1
 		Loop

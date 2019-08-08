@@ -3,7 +3,7 @@
 
 #include "DnD_WeaponDefs.h"
 
-#define MAX_WEAPON_STRINGS WEAPON_ICON64 + 1
+#define MAX_WEAPON_STRINGS (WEAPON_ICON64 + 1)
 str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = { 		     
 	 { " Fists ",							"Fist",						"1",		" ",				" ",							"StartOnly",				"FISTICO",		"WEPICO1"	},
 	 { " Chainsaw ",						"Chainsaw",					"1",		" ",				" ",							"GotChainsaw",				"CSAWA0",		"WEPICO2"	},

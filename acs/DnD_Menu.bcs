@@ -641,6 +641,14 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				DrawToggledImage(SHOP_ARMOR_GREEN + i, boxid, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "Armor", ArmorBaseAmounts[i + 1], CR_RED);
 		
 			HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+		
+			temp = GetArmorFillPrice();
+			if(temp) {
+				if(CheckInventory("Credit") >= temp)
+					HudMessage(s:"\c[Y5]Fill Price: \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]Fill Price: \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+			}
 		}
 		else if(curopt == MENU_SHOP_ARMOR2) {
 			HudMessage(s:"--- ARMORS (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1032,42 +1040,34 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						temp = Min(CheckInventory("AttributePoint"), cur_stat_max - CheckInventory(StatNames[boxid - 1 + DND_ATTRIB_BEGIN]));
 				
 					if(boxid == MBOX_1 && CheckInventory("PSTAT_Strength") < cur_stat_max) { // str
-						GiveInventory("PSTAT_Strength", temp);
-						TakeInventory("AttributePoint", temp);
+						ConsumeAttributePointOn(STAT_STR, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						UpdatePlayerKnockbackResist();
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_2 && CheckInventory("PSTAT_Dexterity") < cur_stat_max) { // dex
-						GiveInventory("PSTAT_Dexterity", temp);
-						TakeInventory("AttributePoint", temp);
+						ConsumeAttributePointOn(STAT_DEX, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_3 && CheckInventory("PSTAT_Bulkiness") < cur_stat_max) { // bul
-						GiveInventory("PSTAT_Bulkiness", temp);
-	//						GiveInventory("MaxArmorBonusNew", 2);
-						TakeInventory("AttributePoint", temp);
+						ConsumeAttributePointOn(STAT_BUL, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_4 && CheckInventory("PSTAT_Charisma") < cur_stat_max) { // chr
-						GiveInventory("PSTAT_Charisma", temp);
-						TakeInventory("AttributePoint", temp);
+						ConsumeAttributePointOn(STAT_CHR, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_5 && CheckInventory("PSTAT_Vitality") < cur_stat_max) { // vit
-						GiveInventory("PSTAT_Vitality", temp);
-	//						GiveInventory("MaxHealthBonusNew", DND_VIT_INCREASE);
+						ConsumeAttributePointOn(STAT_VIT, temp);
 						SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
-						TakeInventory("AttributePoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_6 && CheckInventory("PSTAT_Intellect") < cur_stat_max) { // int
-						GiveInventory("PSTAT_Intellect", temp);
-						TakeInventory("AttributePoint", temp);
+						ConsumeAttributePointOn(STAT_INT, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
@@ -1099,61 +1099,52 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - CheckInventory(StatNames[boxid - 1 + DND_PERK_BEGIN]));
 				
 					if(boxid == MBOX_1 && CheckInventory("Perk_Sharpshooting") < DND_PERK_MAX) { // sharp
-						GiveInventory("Perk_Sharpshooting", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_SHRP, temp);
 						CleanSharpEndPerks(RES_PERK_SHARP);
 						UpdateSharpEndPerks(RES_PERK_SHARP);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_2 && CheckInventory("Perk_Endurance") < DND_PERK_MAX) { // end
-						GiveInventory("Perk_Endurance", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_END, temp);
 						CleanSharpEndPerks(RES_PERK_ENDURANCE);
 						UpdateSharpEndPerks(RES_PERK_ENDURANCE);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_3 && CheckInventory("Perk_Wisdom") < DND_PERK_MAX) { // wisdom
-						GiveInventory("Perk_Wisdom", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_WIS, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_4 && CheckInventory("Perk_Greed") < DND_PERK_MAX) { // greed
-						GiveInventory("Perk_Greed", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_GRE, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_5 && CheckInventory("Perk_Medic") < DND_PERK_MAX) { // medic
-						GiveInventory("Perk_Medic", temp);
+						ConsumePerkPointOn(STAT_MED, temp);
 						SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
-						TakeInventory("PerkPoint", temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_6 && CheckInventory("Perk_Munitionist") < DND_PERK_MAX) { // munitionist
-						GiveInventory("Perk_Munitionist", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_MUN, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_7 && CheckInventory("Perk_Deadliness") < DND_PERK_MAX) { // deadliness
-						GiveInventory("Perk_Deadliness", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_DED, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_8 && CheckInventory("Perk_Savagery") < DND_PERK_MAX) { // savagery
-						GiveInventory("Perk_Savagery", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_SAV, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 					else if(boxid == MBOX_9 && CheckInventory("Perk_Luck") < DND_PERK_MAX) { // luck
-						GiveInventory("Perk_Luck", temp);
-						TakeInventory("PerkPoint", temp);
+						ConsumePerkPointOn(STAT_LUCK, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
@@ -1494,11 +1485,12 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		}
 		else if(curopt == MENU_SHOP_ARMOR1) {
 			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE1_BEGIN, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR, false);
+				if(boxid != MAINBOX_NONE && CanReplaceArmor(SHOP_ARMORPAGE1_BEGIN + boxid))
+					ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE1_BEGIN, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
 			}
-			else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
-				ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE1_BEGIN, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
+			else if(HasRightClicked(pnum)) {
+				if(boxid != MAINBOX_NONE && CanFillArmor())
+					FillCurrentArmor();
 			}
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_SHOP);
@@ -1507,11 +1499,13 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		}
 		else if(curopt == MENU_SHOP_ARMOR2) {
 			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE2_BEGIN, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR, false);
+				if(boxid != MAINBOX_NONE && CanReplaceArmor(SHOP_ARMORPAGE2_BEGIN + boxid))
+					ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE2_BEGIN, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
 			}
-			else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE)
-				ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE2_BEGIN, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
+			else if(HasRightClicked(pnum)) {
+				if(boxid != MAINBOX_NONE && CanFillArmor())
+					FillCurrentArmor();
+			}
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_SHOP_ARMOR1);
 		}

@@ -521,6 +521,9 @@ Script "DND On Kill" KILL {
 	else if(i > 50)
 		credtemp /= DND_HEALTHCREDITAFTER50SCALE;
 	
+	if(credtemp < DND_MIN_CREDIT)
+		credtemp = DND_MIN_CREDIT;
+	
 	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite) {
 		exptemp += exptemp * DND_ELITE_EXP_BONUS / 100;
 		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
@@ -1466,22 +1469,22 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 }
 
 // Decide monster to spawn on a certain monster category given weight list
-Script 957 (int category) {
+Script "DnD Monster Spawner" (int category) {
     // count and initialization
 	int i = 0;
     // add up total count and weight sum of category
     if(!Monster_VariationCounts[category]) {
-        for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != -1; Monster_CategoryWeightSum[category] += Monster_Weights[category][i], ++i);
+        for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != DND_MWEIGHT_ENDMARKER; Monster_CategoryWeightSum[category] += Monster_Weights[category][i], ++i);
 		Monster_VariationCounts[category] = i;
 	}
 		
     int sum = Monster_CategoryWeightSum[category];
-    int picked = 0;
+    bool picked = false;
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
     while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersNotReadyForHardcore())
         Delay(10);
-	picked = 0;
+	picked = false;
 	// throttle the spawns
 	if(GameType() != GAME_SINGLE_PLAYER)
 		Delay(17 * (random(0, DND_MAX_MONSTERDELAY) + 1)); //Added 1 second for player level to be accurate first (people might load at last second).
@@ -1499,27 +1502,30 @@ Script 957 (int category) {
 		while(!picked) {
 			roll = random(0, sum);
 			bin = 0;
-			for(i = Monster_Weights[category][bin]; bin <= Monster_VariationCounts[category] && i < roll; ++bin)
+			// start i from 0 here, because bin starts from 0 the added weight should be consistent with where we started
+			// count is 1 more than the index allowed as is expected, so if it picked the next we must subtract 1 from bin
+			for(i = 0; bin < Monster_VariationCounts[category] && i < roll; ++bin)
 				i += Monster_Weights[category][bin];
+			--bin;
 			// go to vanilla if bin is 0
 			if(!bin) {
 				SetActorState(0, "Vanilla", true);
-				picked = 1;
+				picked = true;
 			}
 			else {
 				// dumb spawner, just check weight
 				if(!GetCVar("dnd_usesmartmonsterspawner")) {
 					SetActorState(0, StrParam(s:"Var", d:bin), true);
-					picked = 1;
+					picked = true;
 				}
 				else {
 					// investigate later if the bias is proper
 					int m_level = Monster_Weights[category][bin] << 16;
-					int ratio = FixedMul(factor, FixedDiv(Monster_Weights[category][0] << 16, m_level));
-					int bias = random(0, 1.5);
-					if(ratio <= bias + FixedDiv(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] << 16, m_level)) {
+					int ratio = FixedDiv(Monster_Weights[category][0] << 16, m_level);
+					int bias = random(factor / 5, factor);
+					if(ratio <= bias + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * FixedDiv(1.0, ratio) / 5) {
 						SetActorState(0, StrParam(s:"Var", d:bin), true);
-						picked = 1;
+						picked = true;
 					}
 				}
 			}
@@ -2122,16 +2128,17 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// if someone quit during countdown just remove this
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 	StatListOpened[pnum] = 0;
-	PlayerLoaded[pnum] = 0;
 	PlayerCanLoad[pnum] = 0;
-	PlayerDied[pnum] = 0;
-	PlayerWillBeSaved[pnum] = false;
-	PlayerTransferred[pnum] = false;
 	BreakTradesBetween(pnum);
 	
 	// if player was in middle of saving, don't accidently interfere if player leaves early
+	// save accumulated stats when player leaves
+	// things saved are in DnD_Activity.h
+	ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, pnum);
+	
 	while(MapInfo[DND_MAPINFO_MAPCHANGED])
 		Delay(const:35);
+	// 3 seconds should be enough here
 	Delay(const:35);
 	ResetHardcoreStuff(pnum);
 }
@@ -3412,7 +3419,6 @@ Script "DND Orb Use" (int orbtype, int extra) {
 	HandleOrbUse(orbtype, extra);
 	LocalAmbientSound("Items/OrbUse", 127);
 	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
-	ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, PlayerNumber());
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	Delay(2);
 	if(orbtype != DND_ORB_AFFLUENCE)
@@ -3575,14 +3581,14 @@ Script "DnD Give Research" (int sp) {
 Script "DnD Orb Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:StrParam(s:"\ccOrb pickup:     \c[Y5]", s:InventoryInfo[id + ORBS_BEGIN][SITEM_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccOrb pickup    : \c[Y5]", s:InventoryInfo[id + ORBS_BEGIN][SITEM_TAG], s:"!\c-"));
 }
 
 Script "DnD Elixir Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	ActivatorSound("Items/ElixirPick", 127);
-	Log(s:StrParam(s:"\ccElixir pickup:  \c[Y5]", s:InventoryInfo[id + ELIXIR_BEGIN][SITEM_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccElixir pickup : \c[Y5]", s:InventoryInfo[id + ELIXIR_BEGIN][SITEM_TAG], s:"!\c-"));
 }
 
 Script "DnD Stacked Item Pickup" (int sp, int type) {
@@ -4326,4 +4332,93 @@ Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
 		tmp = Clamp_Between(DND_PUNISHER_KILLSPER - CheckInventory("Punisher_Perk50_Counter"), 0, DND_PUNISHER_KILLSPER);
 		HudMessage(s:"Kill \c[I7]", d:tmp, s:"\c- for buff"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, 900.0, 480.0, 0.0);
 	}
+}
+
+Script 1006 (int pnum) NET CLIENTSIDE {
+	if(PlayerInGame(pnum)) {
+		int tid = pnum + P_TIDSTART;
+		int this = ActivatorTID();
+		int i, j, temp, itype, cnt, val;
+		
+		Log(s:"\n================================\n====== DnD Player Lookup ======\n================================\n");
+		SetActivator(tid);
+		Log(s:"\cdPlayer: \c-", n:pnum + 1, s:"\n\cdLevel: \c-", d:CheckInventory("Level"));
+		Log(s:"\cdClass: \c-", s:"\c[J7]", s:DnD_ClassInfo[CheckInventory("DnD_Character") - 1][DND_CLASSTEXT_TITLE]);
+		Log(s:"\cdHealth: \c-", d:GetActorProperty(0, APROP_HEALTH), s: " / ", d:GetSpawnHealth());
+		Log(s:"\cdArmor: \c-", d:CheckInventory("Armor"), s: " / ", d:GetArmorCap(true));
+		
+		Log(s:"\n--------------------------------\n------- Stat Allocation -------\n--------------------------------\n");
+		Log(s:"\c[Y5]Strength: \c-", d:GetStrength(), s:"\n\c[Y5]Dexterity: \c-", d:GetDexterity(), s:"\n\c[Y5]Bulkiness: \c-", d:GetBulkiness());
+		Log(s:"\c[Y5]Charisma: \c-", d:GetCharisma(), s:"\n\c[Y5]Vitality: \c-", d:GetVitality(), s:"\n\c[Y5]Intellect: \c-", d:GetIntellect());
+		
+		Log(s:"\n--------------------------------\n------- Perk Allocation -------\n--------------------------------\n");
+		for(i = 0; i < DND_MAX_PERKS; ++i)
+			Log(s:"\c[Y5]", s:StatLabels[DND_PERK_BEGIN + i], s:": \c-", d:CheckInventory(StatNames[DND_PERK_BEGIN + i]));
+		
+		Log(s:"\n--------------------------------\n------- Accessories -------\n--------------------------------\n");
+		for(j = 0, i = 0; i < MAX_ACCESSORY && j < 2; ++i) {
+			if(IsAccessoryEquipped(0, 1 << i)) {
+				Log(s:"\c[Y5]Accessory ", d:(j + 1), s:": \c[C5]", s:AccessoryInfo[i][ACCESSORY_TAG]);
+				++j;
+			}
+		}
+		if(!j)
+			Log(s:"\c[Y5]Accessory 1: \cuN/A\n\c[Y5]Accessory 2: \cuN/A");
+		else if(j == 1)
+			Log(s:"\c[Y5]Accessory 2: \cuN/A");
+			
+		Log(s:"\n--------------------------------\n------- Weapons Owned -------\n--------------------------------\n");
+		for(i = 0; i < MAXWEPS; ++i)
+			if(CheckInventory(Weapons[i][WEAPON_NAME]))
+				Log(s:"\cd* \c[Y5]", s:Weapons[i][WEAPON_TAG], s:" - \cjSlot ", s:Weapons[i][WEAPON_SLOT]);
+				
+		Log(s:"\n--------------------------------\n------- Charms Used -------\n--------------------------------\n");
+		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
+			itype = Charms_Used[pnum][i].item_type;
+			if(itype != DND_ITEM_NULL) {
+				if(itype == DND_ITEM_CHARM) {
+					Log(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)], s:" Charm");
+					temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+					for(j = 0; j < temp; ++j)
+						Log(s:"    ", s:ItemAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+				}
+				else if(itype > UNIQUE_BEGIN) {
+					temp = itype & 0xFFFF;
+					itype >>= UNIQUE_BITS;
+					--itype;
+					// itype holds unique position, temp is the actual item type
+					Log(s:"\c[A1]", s:UniqueItemNames[itype], s:"\c- - \c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)], s:" Charm");
+					cnt = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+					// itype will count the skipped properties (the helper attributes)
+					itype = 0;
+					for(j = 0; j < cnt; ++j) {
+						temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						if(val > 0) {
+							// dont show this, skip to next attribute's detail
+							if(temp == INV_EX_CHANCE) {
+								++j;
+								++itype;
+								Log(s:"    ", s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+							}
+							else
+								Log(s:"    ", s:ExoticAttributeString(temp, val, 0));
+						}
+						else if(!val) {
+							// unique item doesn't have numeric attribute to show
+							Log(s:"    ", s:ExoticAttributeString(temp, val, 0));
+						}
+						else
+							Log(s:"    - ", s:ExoticAttributeString(temp, val, 0));
+					}
+				}
+			}
+			else
+				Log(s:"\cuN/A");
+		}
+		
+		SetActivator(this);
+	}
+	else
+		Log(s:"\cgERROR: \cjPlayer isn't currently playing!");
 }

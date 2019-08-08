@@ -117,6 +117,79 @@ int GetDataFromOrbBonus(int pnum, int bonus, int extra) {
 }
 
 void SetDataToOrbBonus(int pnum, int bonus, int extra, int val) {
+	int base = 0;
+	switch(bonus) {
+		case OBI_HPFLAT:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.hp_flat_bonus;
+			Player_Orb_Data[pnum].orb_stat_bonuses.hp_flat_bonus = val;
+		break;
+		case OBI_ARMORFLAT:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.armor_flat_bonus;
+			Player_Orb_Data[pnum].orb_stat_bonuses.armor_flat_bonus = val;
+		break;
+		case OBI_HPPERCENT:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.hp_percent_bonus;
+			Player_Orb_Data[pnum].orb_stat_bonuses.hp_percent_bonus = val;
+		break;
+		case OBI_ARMORPERCENT:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.armor_percent_bonus;
+			Player_Orb_Data[pnum].orb_stat_bonuses.armor_percent_bonus = val;
+		break;
+		case OBI_WISDOMPERCENT:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.wisdom_percent_bonus;
+			Player_Orb_Data[pnum].orb_stat_bonuses.wisdom_percent_bonus = val;
+		break;
+		case OBI_GREEDPERCENT:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.greed_percent_bonus;
+			Player_Orb_Data[pnum].orb_stat_bonuses.greed_percent_bonus = val;
+		break;
+		case OBI_SPEED:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.speed_bonus;
+			Player_Orb_Data[pnum].orb_stat_bonuses.speed_bonus = val;
+		break;
+		case OBI_DROPCHANCE:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.drop_chance;
+			Player_Orb_Data[pnum].orb_stat_bonuses.drop_chance = val;
+		break;
+		case OBI_HOLDING:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.holding;
+			Player_Orb_Data[pnum].orb_stat_bonuses.holding = val;
+		break;
+		case OBI_DAMAGETYPE:
+			base = Player_Orb_Data[pnum].orb_stat_bonuses.damage_type_bonus[extra];
+			Player_Orb_Data[pnum].orb_stat_bonuses.damage_type_bonus[extra] = val;
+		break;
+		
+		case OBI_WEAPON_ENCHANT:
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants = val;
+		break;
+		case OBI_WEAPON_CRIT:
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRIT].amt;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRIT].amt = val;
+		break;
+		case OBI_WEAPON_CRITDMG:
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITDMG].amt;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITDMG].amt = val;
+		break;
+		case OBI_WEAPON_CRITPERCENT:
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt = val;
+		break;
+		case OBI_WEAPON_DMG:
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_DMG].amt;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_DMG].amt = val;
+		break;
+		// weapon mods can come in the future for orbs that give those
+	}
+	
+	// get difference to add
+	val -= base;
+	UpdateActivity(pnum, bonus + MAP_ORB_TO_ACTIVITY, val, extra);
+}
+
+// it's too cumbersome to edit all other function calls to exclude the activity update, plus the added if statements...
+void SetDataToOrbBonus_NoActivity(int pnum, int bonus, int extra, int val) {
 	switch(bonus) {
 		case OBI_HPFLAT:
 			Player_Orb_Data[pnum].orb_stat_bonuses.hp_flat_bonus = val;
@@ -571,9 +644,12 @@ void HandleOrbUse (int orbtype, int extra) {
 			else if(i == 1) {
 				res = Max(2000, (CheckInventory("Credit") / 100) * res);
 				GiveCredit(res);
+				UpdateActivity(PlayerNumber(), DND_ACTIVITY_CREDIT, res, -1);
 			}
-			else if(i == 2)
+			else if(i == 2) {
 				GiveBudget(res);
+				UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, res, -1);
+			}
 			res |= i << 30;
 			SetInventory("OrbResult", res);
 		break;
@@ -874,6 +950,7 @@ int HandleSinOrbBonus(int type) {
 						Player_MostRecent_Orb[pnum].values[4] += 1;
 				} else {
 					GiveInventory("PerkPoint", 1);
+					UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, -1);
 					Player_MostRecent_Orb[pnum].values[4] += 11;
 				}
 			}
@@ -1057,9 +1134,12 @@ void UndoSinOrbEffect() {
 				temp = random(STAT_SHRP, STAT_LUCK);
 				if (GetStat(temp) > 0) {
 					TakeStat(temp, 1);
-					GiveInventory("PerkPoint", 1); }}
+					GiveInventory("PerkPoint", 1);
+					UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, -1);
+				}
+			}
 			TakeInventory("PerkPoint", Player_MostRecent_Orb[pnum].values[4]);
-			
+			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, -Player_MostRecent_Orb[pnum].values[4], -1);
 			// after operation perk checks
 			UpdatePerkStuff();
 		break;

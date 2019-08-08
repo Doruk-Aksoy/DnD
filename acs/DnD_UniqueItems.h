@@ -151,10 +151,13 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
 	UniqueItemList[id].item_level = 100;
 	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 1;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_DOUBLE_SMALLCHARM;
-	UniqueItemList[id].rolls[0].attrib_low = 0;
-	UniqueItemList[id].rolls[0].attrib_high = 0;
+	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_id_list[0] = INV_EX_FACTOR_SMALLCHARM;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_DMGINCREASE_TAKEN;
+	UniqueItemList[id].rolls[0].attrib_low = 1100; // will be divided by 100 after mult (1.1 to 2)
+	UniqueItemList[id].rolls[0].attrib_high = 2000;
+	UniqueItemList[id].rolls[1].attrib_low = 15;
+	UniqueItemList[id].rolls[1].attrib_high = 75;
 	id = UITEM_ANCIENTGEMSTONE;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;

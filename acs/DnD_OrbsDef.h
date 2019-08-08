@@ -19,8 +19,6 @@ typedef struct {
 	int drop_chance;
 	int holding;
 	
-	int luck; // this is in fixed!
-	
 	int damage_type_bonus[MAX_TALENTS];
 } orb_stat_T;
 

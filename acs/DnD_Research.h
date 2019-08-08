@@ -176,8 +176,8 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ 0, -1 },
 };
 
-#define MAX_RES_REQID LAST_RES_REQID + 1
-#define MAX_RES_DEPENDENCIES 1 //all researches have at most 1 depencency.
+#define MAX_RES_REQID (LAST_RES_REQID + 1)
+#define MAX_RES_DEPENDENCIES 1 //all researches have at most 1 depencency. -- can have more in the future
 typedef struct {
 	int unlocks;
 	int dependencies[MAX_RES_DEPENDENCIES];
@@ -223,10 +223,17 @@ void GiveResearch(int res_id, bool fancy) {
 void HandleDependentResearch(int res_id) {
 	// bio research 2-3 needs previous ones
 	if(ResearchFlags[res_id].res_flags & RESF_UNLOCKSOTHER) {
+		bool req = true;
 		int reqid = ResearchFlags[res_id].res_req_id;
 		for(int i = 0; i < MAX_RES_DEPENDENCIES && ResearchDependencies[reqid].unlocks != -1; ++i)
-			if(CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]) == RES_DONE) //Check if all the dependencies are done
-				GiveResearch(ResearchDependencies[reqid].unlocks, true);
+			// Check if all the dependencies are done
+			if(CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]) != RES_DONE) {
+				req = false;
+				break;
+			}
+		// if all conditions are satisfied
+		if(req)
+			GiveResearch(ResearchDependencies[reqid].unlocks, true);
 	}
 }
 

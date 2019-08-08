@@ -18,11 +18,6 @@
 #define DND_BASE_HEALTH 100
 
 #define DND_DROP_TID 343 // some dumb number
-
-#define ZEALOT_BASE_TID 14000
-#define AVATAR_BASE_TID 5000
-#define PURP_DEM_TID 13000
-
 #define DND_EMERALD_TIDADD 100
 
 #define ASPECT_4_3 (4.0 / 3)
@@ -66,6 +61,7 @@ enum {
 // TID RANGES //
 ////////////////
 
+* 700 = Draugr Temporary FX
 * 1000 - 1063 = Players
 * 1100 - 1163 = Emerald Death Actors
 * 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
@@ -360,6 +356,10 @@ int IsDigit(int c) {
 // improve sens as parameter later?
 int ftrunc(int x) {
 	return (x + 0.05) & 0xFFFFF000;
+}
+
+int ftrunc2(int x) {
+	return (x + 0.005) & 0xFFFFFC00;
 }
 
 // user must guarantee setspecial and setspecial2 are less than 65536

@@ -897,7 +897,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					colorprefix = "\c[G8]";
 					toshow = "\c[G8]";
 				}
-				else if(!(objectflag & OBJ_AMMO) && CheckInventory(choicename) >= choicecount) {
+				else if(!(objectflag & (OBJ_AMMO | OBJ_ARMOR)) && CheckInventory(choicename) >= choicecount) {
+					// we only wish armor price to be fit, otherwise we don't care -- replacing is default behavior on shop
 					color = choicecolor;
 					colorprefix = "\c[Q2]";
 					toshow = "\c[Q2]";
@@ -1009,6 +1010,58 @@ void ResetWeaponStats(int wepid) {
 	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, wepid);
 }
 
+bool CanReplaceArmor(int armor_type) {
+	// put that to familiar armor range
+	armor_type = armor_type - SHOP_FIRSTARMOR_INDEX;
+	int myarmor = CheckInventory("DnD_ArmorType") - 1;
+	if(myarmor < 0)
+		myarmor = 0;
+	
+	if(armor_type == myarmor) {
+		ShowPopup(POPUP_POINTLESSARMOR, false, 0);
+		return false;
+	}
+	return true;
+}
+
+int GetArmorFillPrice() {
+	int res = 0;
+	int armor_type = CheckInventory("DnD_ArmorType") - 1;
+	// not shards
+	if(armor_type > 1) {
+		res = ShopInfo[SHOP_FIRSTARMOR_INDEX + armor_type][SHOPINFO_PRICE] / DND_ARMORFILL_FACTOR;
+		res *= Clamp_Between(GetCVar("dnd_shop_scale"), 1, SHOP_SCALE_MAX);
+		armor_type = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
+		if(armor_type > 100)
+			res -= res / 2 + (res * (armor_type - 100)) / (100 * CHARISMA_REDUCE_AFTER100);
+		else
+			res -= (res * armor_type) / (100 * CHARISMA_REDUCE);
+		// just in case, a minimum price is there
+		if(!res)
+			res = 1;
+		// get missing armor
+		res = res * (GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]) - CheckInventory("Armor"));
+	}
+	return res;
+}
+
+bool CanFillArmor() {
+	return  CheckInventory("Credit") >= GetArmorFillPrice() && 
+			CheckInventory("DnD_ArmorType") > 1 && 
+			CheckInventory("Armor") < GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+}
+
+void FillCurrentArmor() {
+	int armor_type = CheckInventory("DnD_ArmorType") - 1;
+	int price = GetArmorFillPrice();
+	// fill armor
+	LocalAmbientSound("items/armorbonus", 127);
+	GiveInventory("DnD_ArmorBonus", GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]) - CheckInventory("Armor"));
+	// take money
+	TakeInventory("Credit", price);
+	GiveInventory("DnD_MoneySpentQuest", price);
+}
+
 // will process item selections depending on given valid range
 // support for selling other stuff is here, it's just a few extra lines in the serverside script to handle the process
 void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool givefull) {
@@ -1073,8 +1126,11 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						LocalAmbientSound("weapons/pickup", 127);
 					else if(tradeflag & TRADE_AMMO)
 						LocalAmbientSound("items/ammo", 127);
-					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_TALENT | TRADE_ACCOUNT))
+					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_TALENT | TRADE_ACCOUNT)) {
 						LocalAmbientSound("Bonus/Received", 127);
+						if(itemid == SHOP_ACCOUNT_STASHTAB)
+							++PlayerActivities[pnum].stash_pages;
+					}
 					else if(tradeflag & TRADE_ARMOR)
 						LocalAmbientSound("items/armor", 127);
 						

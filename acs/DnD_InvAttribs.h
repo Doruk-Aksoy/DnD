@@ -10,6 +10,8 @@
 
 #define MAX_ATTRIB_MODIFIER 0xFF
 
+#define FACTOR_SMALLCHARM_RESOLUTION 1000
+
 // self note: all status_buffs_X modifiers are handled as exceptions
 enum {
 	INV_HP_INCREASE,
@@ -79,7 +81,7 @@ enum {
 	INV_EX_CHANCE, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
 	INV_EX_CHANCE_CASTELEMSPELLONATK,
 	INV_EX_KNOCKBACK_IMMUNITY,
-	INV_EX_DOUBLE_SMALLCHARM,
+	INV_EX_FACTOR_SMALLCHARM,
 	INV_EX_ALLSTATS,
 	INV_EX_CHANCE_HEALMISSINGONPAIN,
 	INV_EX_DMGINCREASE_LIGHTNING,
@@ -185,7 +187,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "", "% chance to " },
 	{ "IATTR_ChanceToCastElementalSpell", "% chance to cast random elemental spell on attack" },
 	{ "IATTR_StatusBuffs_1", "Knockback Immunity" },
-	{ "IATTR_StatusBuffs_1", "Doubles effects of small charms" },
+	{ "IATTR_StatusBuffs_1", "Effects of small charms multiplied by " },
 	{ "", " to all attributes" },
 	{ "IATTR_HealMissingHealthOnPain", "be healed for " },
 	{ "IATTR_DamageIncrease_Lightning", "% increased lightning damage" },
@@ -354,6 +356,8 @@ str ExoticAttributeString(int attr, int val1, int val2) {
 	if(attr <= LAST_INV_ATTRIBUTE)
 		return ItemAttributeString(attr, val1);
 	switch(attr) {
+		case INV_EX_FACTOR_SMALLCHARM:
+		return StrParam(s:Inv_Attribute_Names[INV_EX_FACTOR_SMALLCHARM][INVATTR_TEXT], f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 		return StrParam(d:val1, s:Inv_Attribute_Names[INV_EX_CHANCE][INVATTR_TEXT], s:Inv_Attribute_Names[INV_EX_CHANCE_HEALMISSINGONPAIN][INVATTR_TEXT], d:val2, s:"% missing health");
 		case INV_EX_DAMAGEPER_FLATHEALTH:

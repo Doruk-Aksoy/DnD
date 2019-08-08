@@ -1,7 +1,7 @@
 Actor ArchVileSpawner : DnD_MonsterSpawner replaces ArchVile {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_ARCHVILEID)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_ARCHVILEID)
 		SpawnLoop:
 			TNT1 A 1
 		Loop

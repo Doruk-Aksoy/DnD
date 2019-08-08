@@ -2286,6 +2286,7 @@ Actor DarkZealot : MagicalEnemy {
 	PainChance 48
 	Radius 20
 	Height 56
+	ProjectilePassHeight 64
 	Speed 10
 	XScale 1.1
 	YScale 1.25

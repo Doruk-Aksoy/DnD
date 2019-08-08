@@ -1,7 +1,7 @@
 Actor HellKnightSpawner : DnD_MonsterSpawner replaces HellKnight {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_ExecuteAlways(957, 0, DND_HELLKNIGHTID)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_HELLKNIGHTID)
 		SpawnLoop:
 			TNT1 A 1
 		Loop

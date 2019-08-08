@@ -108,10 +108,11 @@ enum {
 
 #define DND_ATTRIB_BEGIN STAT_STR
 #define DND_ATTRIB_END STAT_INT
-#define MAXATTRIBUTES DND_ATTRIB_END - DND_ATTRIB_BEGIN + 1
+#define DND_MAX_ATTRIBUTES (DND_ATTRIB_END - DND_ATTRIB_BEGIN + 1)
 
 #define DND_PERK_BEGIN STAT_SHRP
 #define DND_PERK_END STAT_LUCK
+#define DND_MAX_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
 
 typedef struct {
 	int basehp;
@@ -297,6 +298,7 @@ int GetSpawnHealth() {
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
 
+	// perks
 	if((statflag & RES_PERK_SHARP) && CheckInventory("Perk_Sharpshooting"))
 		GiveInventory(StrParam(s:"Damage_Perk_", d:CheckInventory("Perk_Sharpshooting") * SHARPSHOOTING_DAMAGE), 1);
 	if((statflag & RES_PERK_ENDURANCE) && CheckInventory("Perk_Endurance"))
@@ -307,39 +309,51 @@ void RestoreRPGStat (int statflag) {
 		SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS));
 	if((statflag & RES_SELFEXPLOSIONRESIST) && GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST))
 		GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
+	if(statflag & RES_PLAYERSPEED)
+		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
+	
+	// accessories
 	// can only intervene once per map
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH) && !CheckInventory("Intervened")) {
 		GiveInventory("CanIntervene", 1);
 		SetPlayerProperty(0, 1, PROP_BUDDHA);
 	}
-	if(statflag & RES_PLAYERSPEED)
-		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 	if(CheckInventory("HellfireCheck")) {
 		GiveInventory("Accessory_FireProtection", 1);
 		GiveInventory("Accessory_FireBuff", 1);
 	}
-	if(CheckInventory("ArtemisCheck"))
+	if(CheckInventory("ArtemisCheck")) {
 		GiveInventory("ArtemisPower", 1);
-	if(CheckInventory("DemonBaneCheck"))
+		GiveInventory("ArtemisReduction", 1);
+	}
+	if(CheckInventory("DemonBaneCheck")) {
 		GiveInventory("DemonBaneReduction", 1);
-	if(CheckInventory("TaltosCheck"))
+		GiveInventory("DemonBaneReduction", 1);
+	}
+	if(CheckInventory("TaltosCheck")) {
 		GiveInventory("TaltosPower", 1);
-	if(CheckInventory("HateCheck"))
+		GiveInventory("TaltosUp", 1);
+	}
+	if(CheckInventory("HateCheck")) {
 		GiveInventory("PowerReflection", 1);
-	if(CheckInventory("Ability_AntiPoison"))
-		GiveInventory("PoisonResist", 1);
-	if(CheckInventory("Ability_ExplosionMastery"))
-		GiveInventory("ExplosionResistAbility", 1);
+		GiveInventory("HateReduction", 1);
+	}
 	if(CheckInventory("NetherCheck"))
 		GiveInventory("NetherWeaken", 1);
 	if(CheckInventory("GryphonCheck")) {
 		GiveInventory("GryphonSpeed", 1);
 		GiveInventory("CurseImmunity", 1);
-	}
 	if(CheckInventory("LichCheck"))
 		GiveInventory("LichPower", 1);
 	if(CheckInventory("CelestialCheck"))
 		GiveInventory("CelestialSlow", 1);
+	
+	// abilities
+	if(CheckInventory("Ability_AntiPoison"))
+		GiveInventory("PoisonResist", 1);
+	if(CheckInventory("Ability_ExplosionMastery"))
+		GiveInventory("ExplosionResistAbility", 1);
+	}
 	
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());

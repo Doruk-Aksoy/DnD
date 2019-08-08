@@ -942,9 +942,9 @@ Actor NormalGrenade
 	+EXPLODEONWATER
 	+THRUGHOST
 	-NOGRAVITY
-	BounceType Grenade
-	Bouncecount 4
-	BounceFactor 0.345
+	BounceType Doom
+	Bouncecount 3
+	BounceFactor 0.625
 	Gravity 0.84
 	DeathSound "Weapons/grenadexpl"
 	var int user_exprad;

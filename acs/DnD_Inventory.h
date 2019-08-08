@@ -1618,8 +1618,10 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	int aval = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int asubtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
 	int i, temp;
-	if(CheckInventory("StatbuffCounter_DoubleSmallCharm") && asubtype == DND_CHARM_SMALL)
-		aval <<= 1;
+	if(CheckInventory("StatbuffCounter_DoubleSmallCharm") && asubtype == DND_CHARM_SMALL) {
+		aval *= CheckInventory("StatbuffCounter_DoubleSmallCharm");
+		aval /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
+	}
 	switch(atype) {
 		// first cases with exceptions to our generic formula
 		case INV_MAGAZINE_INCREASE:
@@ -1682,7 +1684,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			else
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
 		break;
-		case INV_EX_DOUBLE_SMALLCHARM:
+		case INV_EX_FACTOR_SMALLCHARM:
 			temp = GetPlayerAttributeValue(pnum, atype);
 			if(!remove) {
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
@@ -1692,18 +1694,22 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 						RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 				// now give the item and re-apply
-				GiveInventory("StatbuffCounter_DoubleSmallCharm", 1);
+				GiveInventory("StatbuffCounter_DoubleSmallCharm", aval);
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 						ApplyItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			}
-			else if(CheckInventory("StatbuffCounter_DoubleSmallCharm") == 1) {
-				// just take the attribute off and remove features, this will effectively halve the features
+			else if(CheckInventory("StatbuffCounter_DoubleSmallCharm")) {
+				// just take the attribute off and remove features and reapply
 				SetInventory(Inv_Attribute_Names[atype][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
-				TakeInventory("StatbuffCounter_DoubleSmallCharm", 1);
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 						RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+				SetInventory("StatbuffCounter_DoubleSmallCharm", 0);
+				// reapply with this gone
+				for(i = 0; i < 4; ++i)
+					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+						ApplyItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			}
 		break;
 		case INV_EX_ALLSTATS:
@@ -1714,8 +1720,10 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// -1 of aindex is used to retrieve chance
 			// i will hold the chance of this to happen
 			i = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex - 1, source);
-			if(IsSet(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM) && asubtype == DND_CHARM_SMALL)
-				i <<= 1;
+			if(IsSet(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM) && asubtype == DND_CHARM_SMALL) {
+				i *= CheckInventory("StatbuffCounter_DoubleSmallCharm");
+				i /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
+			}
 			temp = GetPlayerAttributeValue(pnum, atype);
 			if(!remove)
 				temp = ((temp & 0xFFFF) + aval) | (((temp >> 16) + i) << 16);

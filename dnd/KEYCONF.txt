@@ -15,6 +15,8 @@ alias sl "puke 1004"
 alias transferchar "puke 1005 %1"
 alias tc "puke 1005 %1"
 
+alias viewplayer "puke -1006 %1"
+
 AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Menu" upgs
 	Alias upgs "Puke 900"
