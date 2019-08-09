@@ -407,9 +407,7 @@ int CheckLevelUp (void) {
 		SetInventory("ExpVisual", exptemp);
 		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
 	}
-	curlevel = GetStat(STAT_LVL) - curlevel;
-	
-	return curlevel;
+	return GetStat(STAT_LVL) - curlevel;
 }
 
 void HandleLevelup() {

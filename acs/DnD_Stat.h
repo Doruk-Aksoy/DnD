@@ -247,7 +247,7 @@ void ConsumeAttributePointOn(int stat, int amt) {
 
 void ConsumePerkPointOn(int perk, int amt) {
 	// map it into 0 range
-	GiveInventory(StatNames[perk - DND_PERK_BEGIN], amt);
+	GiveInventory(StatNames[perk], amt);
 	TakeInventory("PerkPoint", amt);
 }
 
@@ -569,7 +569,10 @@ void DecideAccessories() {
 		int tmp = GetAmmoCapacity("Souls");
 		if(CheckInventory("Souls") > tmp / 2)
 			SetInventory("Souls", tmp / 2);
-		SetAmmoCapacity("Souls", tmp / 2);
+		if(tmp > AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity)
+			SetAmmoCapacity("Souls", tmp / 2);
+		else
+			SetAmmoCapacity("Souls", AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity);
 	}
 	
 	// sigil order: 1 = fire, 2 = ice, 3 = lightning, 4 = poison

@@ -1483,7 +1483,7 @@ Script "DnD Monster Spawner" (int category) {
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
     while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersNotReadyForHardcore())
-        Delay(10);
+        Delay(const:10);
 	picked = false;
 	// throttle the spawns
 	if(GameType() != GAME_SINGLE_PLAYER)
