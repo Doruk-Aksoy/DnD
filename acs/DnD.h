@@ -763,18 +763,8 @@ void SpawnResearch() {
 				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp);
 		}
 	}
-	else {
-		if(!CheckResearchStatus(temp))
-			SpawnSPResearchDrop(temp);
-	}
-}
-
-void SpawnSPResearchDrop(int res_id) {
-	SpawnForced("ResearchModule", GetActorX(0), GetActorY(0), GetActorZ(0) + 24.0, DND_DROP_TID);
-	ThrustThing(random(0, 255), random(2, 5), 0, DND_DROP_TID);
-	ThrustThingZ(DND_DROP_TID, 16, 0, 1);
-	SetActorAngle(DND_DROP_TID, res_id);
-	Thing_ChangeTID(DND_DROP_TID, 0);
+	else if(!CheckResearchStatus(temp)) // 1 before temp is player (0 + 1)
+		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp);
 }
 
 void SpawnAccessory() {
