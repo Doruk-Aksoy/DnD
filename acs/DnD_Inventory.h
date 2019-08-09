@@ -1460,9 +1460,9 @@ void UsePlayerItem(int pnum, int item_index) {
 			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		else {
 			FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
-			// if this is freed, we might have to auto-adjust the player's page
+			// if this is freed, we might have to auto-adjust the player's page -- need exact equality here
 			int mcount = CountCraftingMaterials();
-			if(mcount / MAX_CRAFTING_MATERIALBOXES == CheckInventory("DnD_Crafting_MaterialPage"))
+			if(mcount == MAX_CRAFTING_MATERIALBOXES * CheckInventory("DnD_Crafting_MaterialPage"))
 				TakeInventory("DnD_Crafting_MaterialPage", 1);
 		}
 	}

@@ -1095,7 +1095,7 @@ void RevertLastOrbEffect() {
 		break;
 	}
 	SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
-	ResetOrbData(pnum);
+	ResetMostRecentOrb(pnum);
 }
 
 void UndoSinOrbEffect() {
