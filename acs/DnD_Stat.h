@@ -374,7 +374,8 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 	GiveInventory("DnD_BoughtArmor", 1);
 
 	// this will prevent -1 array index operations
-	if(!CheckInventory("DnD_ArmorType"))
+	// make sure if there's no armor, despite lingering DnD_ArmorType, force replace
+	if(!CheckInventory("DnD_ArmorType") || !armor)
 		replace = true;
 	else
 		cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);

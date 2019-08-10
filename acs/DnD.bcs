@@ -2540,6 +2540,10 @@ Script "DnD Blood Rune" (void) {
 // Custom Powerup script
 Script "DnD Player On Hit" (int power) {
 	int this, temp, roll;
+	
+	if(!CheckInventory("Armor"))
+		SetInventory("DnD_ArmorType", 0);
+		
 	if(CheckInventory("HateCheck")) {
 		this = ActivatorTID();
 		SetActivator(0, AAPTR_TARGET);
@@ -2551,8 +2555,6 @@ Script "DnD Player On Hit" (int power) {
 		GiveInventory("NecroSpikeShooter", 1);
 		GiveInventory("NecroSpikeCooldown", 1);
 	}
-	if(!CheckInventory("Armor"))
-		SetInventory("DnD_ArmorType", 0);
 	// player heal on hit check
 	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_CHANCE_HEALMISSINGONPAIN);
 	if(temp) {
