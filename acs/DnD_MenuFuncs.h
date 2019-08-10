@@ -3575,7 +3575,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 					bx = GetTotalStackOfMaterial(tx);
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
-						DrawCraftingInventoryInfo(CraftItemTypes[ty], tx, bx);
+						DrawCraftingInventoryInfo(PlayerInventoryList[PlayerNumber()][tx].item_type, tx, bx);
 						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
 						//SetInventory("DnD_PlayerItemIndex", tx);

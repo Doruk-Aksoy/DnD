@@ -14,7 +14,7 @@
 		Goto Death
 		Death.BookOfTheDead:
 			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		Goto DeathDnD_PressedUse
 */
 
 // every 10 points contribute 0.01%
@@ -298,6 +298,11 @@ Actor WeaponZoomCooldown : PowerDamage {
 Actor DnD_PressedUse : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 5
+}
+
+Actor DnD_WaitNextItemPick : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 15
 }
 
 Actor DnD_PlayerViewsItem : PowerDamage {

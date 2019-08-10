@@ -201,7 +201,7 @@ Script "DnD On Death" DEATH {
 	SetInventory("MenuPosX", 0);
 	SetInventory("MadeChoice", 0);
 	SetInventory("DnD_PopupId", 0);
-	SetInventory("Punisher_Perk50_Counter", 0); // reset earned bonuses on map
+	SetInventory("Punisher_Perk50_Counter", 0); // reset earned bonuses on death
 	
 	TakeInventory("DnD_ShowPopup", 1);
 	TakeInventory("DnD_ShowSellPopup", 1);
@@ -2184,7 +2184,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_MultikillCounter", 0);
 	SetInventory("LevelExp", 0);
 	SetInventory("LevelCredit", 0);
-	setInventory("AllMapOnlyOnce", 0);
+	SetInventory("AllMapOnlyOnce", 0);
+	SetInventory("Punisher_Perk50_Counter", 0);
 	CleanPetStuff();
 	//SetInventory("MapDifficultyClientside", MapDifficulty); //Already to be set somewhere else.
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
@@ -3746,7 +3747,10 @@ Script "DnD Player Has Spot For Item" (int sp) {
 			spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
 		else
 			spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
-		SetResultValue(CheckInventory("DnD_PressedUse") && spot);
+		bool res = CheckInventory("DnD_PressedUse") && !CheckInventory("DnD_WaitNextItemPick") && spot;
+		if(res)
+			GiveInventory("DnD_WaitNextItemPick", 1);
+		SetResultValue(res);
 	}
 	else
 		SetResultValue(false);
