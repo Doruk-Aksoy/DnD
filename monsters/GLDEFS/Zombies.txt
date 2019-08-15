@@ -295,7 +295,7 @@ BrightMap Sprite AZSGF5
 	DisableFullBright
 }
 
-Object Cgguy2
+Object DoubleChaingunner
 {
 	Frame ZCCHE { Light RANGERATK }
 	Frame ZCCHF { Light RANGERATK }

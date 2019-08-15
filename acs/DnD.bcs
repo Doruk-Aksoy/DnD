@@ -311,7 +311,8 @@ Script "DnD Can Pick Health Item" (int type) {
 
 Script "DnD Critical Input Handler" ENTER {
 	bool temp = false;
-    while(PlayerInGame(PlayerNumber())) {
+	int pnum = PlayerNumber();
+    while(PlayerInGame(pnum)) {
 		if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_USE)
 			GiveInventory("DnD_PressedUse", 1);
 			
@@ -359,7 +360,7 @@ Script "DnD Critical Input Handler" ENTER {
         SetInventory("MedkitItem", CheckInventory("StoredMedKit"));
         SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_HEALTH));
         TakeInventory("FadeIntensity", 1);
-        Delay(const:1);
+        Delay(1);
     }
 	TakeInventory("HellsMawSynthFireLeft", 1);
 	TakeInventory("HellsMawSynthFireRight", 1);
@@ -465,16 +466,16 @@ Script "DND Mugshot Grin" (void) CLIENTSIDE {
 
 Script "DND On Revive" (void) {
 	TakeInventory("Mo_Died", 1);
-	GiveInventory("Mo_Revived", 1);
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
-	if (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp) { //This could be skipped if all mobs have their Monster Scaling.
+	int id = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	if (MonsterProperties[id].maxhp) { //This could be skipped if all mobs have their Monster Scaling.
 		SetEliteFlag(DND_REVIVED_POW, 1); //Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		//Reapply the elite FX.
-		if (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite && !CheckInventory("RunEliteFXScript"))
+		if (MonsterProperties[id].isElite && !CheckInventory("RunEliteFXScript"))
 			GiveInventory("RunEliteFXScript", 1);
 		//printbold(s:"Monster id: ",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
-		int maxhp = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp;
+		int maxhp = MonsterProperties[id].maxhp;
 		int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 		SetActorProperty(0, APROP_HEALTH, maxhp);
 		Clamp_Between(dmg, 0, maxhp+1);
@@ -482,14 +483,16 @@ Script "DND On Revive" (void) {
 		//Mob might actually be dead by this point.
 		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
 			Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health)+1, "None"); //Just kill it
+
+		HandleMonsterClassInnates(id, MonsterProperties[id].traits, MonsterProperties[id].traits2);
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
+	GiveInventory("DnD_MonsterSetupDone", 1);
 }
 
 Script "DnD On Revive CS" (void) CLIENTSIDE {
 	TakeInventory("Mo_Died", 1);
-	GiveInventory("Mo_Revived", 1);
 }
 
 // Make sure clients are aware too
@@ -499,8 +502,10 @@ Script "DND On Kill CS" KILL CLIENTSIDE {
 
 // Used for exp and credit calculations
 Script "DND On Kill" KILL {
+	int this = ActivatorTID();
 	GiveInventory("Mo_Died", 1);
-	if(CheckInventory("Mo_Revived")) // don't continue if monster is a revived one
+	// don't continue if monster is revived or summoned
+	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 & (DND_SUMMONED | DND_REVIVED))
 		Terminate;
 	int target = GetActorProperty(0, APROP_TARGETTID);
 	if(target < P_TIDSTART || target > P_TIDSTART + MAXPLAYERS - 1) // only work if you can determine target as a player
@@ -509,7 +514,6 @@ Script "DND On Kill" KILL {
 	int creditshare = GetCVar("dnd_sharecredit");
 	int haswisdom = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANWISDOM);
 	int hasgreed = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANGREED);
-    int this = ActivatorTID();
 	
     // decide how exp/credit base is calculated
 	int exptemp = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_HEALTHEXPSCALE;
@@ -624,84 +628,98 @@ Script "DND On Kill" KILL {
 	}
 	
 	// Handle Drops
-	if(!CheckInventory("Mo_Revived")) {
-		// reuse old variable
-		pnum = MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite;
-		// drop coins if there should be
-		if(GetCVar("dnd_credit_drops")) {
-			// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
-			HandleCashDrops(target - P_TIDSTART, pnum);
-		}
-
-		if(!GetCVar("dnd_allresearchesfound")) {
-			// make it less likely to drop
-			// addone is the chance here (reusing old variables)
-			addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-			#ifdef ISDEBUGBUILD
-				SpawnResearch();
-			#endif
-			#ifndef ISDEBUGBUILD
-				if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
-					SpawnResearch();
-			#endif
-		}
-		
-		// Talent Capsule
-		if(RunDefaultDropChance(target - P_TIDSTART, pnum, DND_TALENTCAPSULE_DROPRATE))
-			SpawnTalentCapsule();
-		
-		// Chest Key
-		HandleChestKeyDrop(pnum);
-		
-		// if elite, roll orb and equipment drops
-		if(GetCVar("dnd_ignore_dropweights") || pnum) {
-			// handle orb drops
-			HandleOrbDrop();
-		}
-		
-		// accessory drops (accept only from cyber and spider masterminds)
-		if(IsBoss()) {
-			if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
-				if((PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART]) >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
-					// we can drop the spawner
-					SpawnAccessory();
-				}
-			}
-		}
-		
-		// Demon Bane check
-		if(active_quest_id == QUEST_KILL10BOSSES && IsBoss()) {
-			GiveActorInventory(target, "DnD_BossKillQuest_Counter", 1);
-			if(!IsQuestComplete(target, QUEST_KILL10BOSSES) && CheckActorInventory(target, "DnD_BossKillQuest_Counter") == DND_QUEST_BOSSKILLER_REQ)
-				CompleteQuest(target, QUEST_KILL10BOSSES);
-		}
-		
-		// Elite Slayer check
-		if(active_quest_id == QUEST_KILL20ELITES && pnum) {
-			GiveActorInventory(target, "DnD_EliteKillQuest_Counter", 1);
-			if(!IsQuestComplete(target, QUEST_KILL20ELITES) && CheckActorInventory(target, "DnD_EliteKillQuest_Counter") == DND_QUEST_ELITEKILLER_REQ)
-				CompleteQuest(target, QUEST_KILL20ELITES);
-		}
-		
-		// Legendary Kill Item
-		if(MonsterProperties[this - DND_MONSTERTID_BEGIN].id >= LEGENDARY_START) {
-			for(i = 0; i < MAXPLAYERS; ++i) {
-				if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
-					UpdateLegendaryKill(i, MonsterProperties[this - DND_MONSTERTID_BEGIN].id - LEGENDARY_START);
-					
-					if(active_quest_id - DND_LEGQUEST_START == MonsterProperties[this - DND_MONSTERTID_BEGIN].id - LEGENDARY_START)
-						CompleteQuest(i + P_TIDSTART, active_quest_id);
-				}
-			}
-		}
-		
-		#ifdef ISDEBUGBUILD
-			SpawnElixir(0);
-			SpawnCharm(0, true);
-			SpawnOrb(0);
-		#endif
-		HandleCharmLootDrop(pnum);
+	// reuse old variable
+	pnum = MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite;
+	// drop coins if there should be
+	if(GetCVar("dnd_credit_drops")) {
+		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
+		HandleCashDrops(target - P_TIDSTART, pnum);
 	}
+	
+	HandleMonsterTemporaryWeaponDrop(this - DND_MONSTERTID_BEGIN, target - P_TIDSTART, pnum);
+
+	// soul ammo drop -- considers ability - soulstealer as well
+	if(
+		(CanDropSoulAmmo() && RunDefaultDropChance(target - P_TIDSTART, pnum, DND_SOULAMMO_DROPRATE)) ||
+		(IsDemon() && ((CheckInventory("BookCausedDeath") || (CheckActorInventory(target, "Ability_SoulStealer") && CheckInventory("MagicCausedDeath")))))
+	  )
+	{
+		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE || CheckInventory("BookCausedDeath"))
+			SpawnDrop("Souls", 24.0, 16, 0, 0);
+		else
+			SpawnDrop("LargeSouls", 24.0, 16, 0, 0);
+		TakeInventory("BookCausedDeath", 1);
+		TakeInventory("MagicCausedDeath", 1);
+	}
+
+	if(!GetCVar("dnd_allresearchesfound")) {
+		// make it less likely to drop
+		// addone is the chance here (reusing old variables)
+		addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
+		#ifdef ISDEBUGBUILD
+			SpawnResearch();
+		#endif
+		#ifndef ISDEBUGBUILD
+			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
+				SpawnResearch();
+		#endif
+	}
+	
+	// Talent Capsule
+	if(RunDefaultDropChance(target - P_TIDSTART, pnum, DND_TALENTCAPSULE_DROPRATE))
+		SpawnTalentCapsule();
+	
+	// Chest Key
+	HandleChestKeyDrop(pnum);
+	
+	// if elite, roll orb and equipment drops
+	if(GetCVar("dnd_ignore_dropweights") || pnum) {
+		// handle orb drops
+		HandleOrbDrop();
+	}
+	
+	// accessory drops (accept only from cyber and spider masterminds)
+	if(IsBoss()) {
+		if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
+			if((PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART]) >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
+				// we can drop the spawner
+				SpawnAccessory();
+			}
+		}
+	}
+	
+	// Demon Bane check
+	if(active_quest_id == QUEST_KILL10BOSSES && IsBoss()) {
+		GiveActorInventory(target, "DnD_BossKillQuest_Counter", 1);
+		if(!IsQuestComplete(target, QUEST_KILL10BOSSES) && CheckActorInventory(target, "DnD_BossKillQuest_Counter") == DND_QUEST_BOSSKILLER_REQ)
+			CompleteQuest(target, QUEST_KILL10BOSSES);
+	}
+	
+	// Elite Slayer check
+	if(active_quest_id == QUEST_KILL20ELITES && pnum) {
+		GiveActorInventory(target, "DnD_EliteKillQuest_Counter", 1);
+		if(!IsQuestComplete(target, QUEST_KILL20ELITES) && CheckActorInventory(target, "DnD_EliteKillQuest_Counter") == DND_QUEST_ELITEKILLER_REQ)
+			CompleteQuest(target, QUEST_KILL20ELITES);
+	}
+	
+	// Legendary Kill Item
+	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].id >= LEGENDARY_START) {
+		for(i = 0; i < MAXPLAYERS; ++i) {
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+				UpdateLegendaryKill(i, MonsterProperties[this - DND_MONSTERTID_BEGIN].id - LEGENDARY_START);
+				
+				if(active_quest_id - DND_LEGQUEST_START == MonsterProperties[this - DND_MONSTERTID_BEGIN].id - LEGENDARY_START)
+					CompleteQuest(i + P_TIDSTART, active_quest_id);
+			}
+		}
+	}
+	
+	#ifdef ISDEBUGBUILD
+		SpawnElixir(0);
+		SpawnCharm(0, true);
+		SpawnOrb(0);
+	#endif
+	HandleCharmLootDrop(pnum);
 	
 	// doomguy drop
 	if(CheckActorInventory(target, "Doomguy_Perk50") && RunDefaultDropChance(i, pnum, DND_DOOMGUY_DROPCHANCE)) {
@@ -1082,7 +1100,8 @@ Script 905 (int mode) NET {
 			if(amt) {
 				int temptid = ActivatorTID() + P_TEMPTID;
 				GiveInventory("DropItemCooldown", 1);
-				SpawnForced(TemporaryWeapons[curweap][TEMPWEP_DROP], GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
+				// the dropped versions have _D suffix
+				SpawnForced(StrParam(s:TemporaryWeapons[curweap][TEMPWEP_DROP], s:"_D"), GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
 				SetActorProperty(temptid, APROP_MASS, amt);
 				ThrustThing(GetActorAngle(0) >> 8, 16, 0, temptid);
 				ThrustThingZ(temptid, 8, 0, 0);
@@ -1298,13 +1317,6 @@ script 922 (int actor_num, int radius, int totalactors) {
 
 // Till 922 are reserved for mons.c
 
-// Monster Healer
-Script 958 (int amount) {
-	int hp = GetActorProperty(0, APROP_HEALTH);
-	amount = Clamp_Between(amount, 0, MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp - hp);
-	SetActorProperty(0, APROP_HEALTH, hp + amount);
-}
-
 Script "DND Special Player Hurt" (int type, int percent) {
 	int vit, thisactor, hp;
 	if(!type) {
@@ -1338,14 +1350,11 @@ Script "DND Special Player Hurt" (int type, int percent) {
 
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
-	if(CheckInventory("Mo_Scaled"))
-		Terminate;
-	
 	if(!ActivatorTID())
 		GiveMonsterTID();
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 	//Make sure mob gets to right amount of hp at this point
-	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterHPList[monsterid];
+	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
 	if(!pcount)
 		pcount = 1;
 	if(GetCVar("dnd_monsterscale")) {
@@ -1368,9 +1377,6 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 	MonsterProperties[this - DND_MONSTERTID_BEGIN].id = monsterid;
 	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits = traits;
 	MonsterProperties[this - DND_MONSTERTID_BEGIN].traits2 = traits2;
-	
-	if(traits2 & DND_SUMMONED)
-		GiveInventory("Mo_Scaled", 1);
 
 	if(GetCVar("dnd_enable_elites") && !(traits2 & DND_LEGENDARY) && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 		MonsterProperties[this - DND_MONSTERTID_BEGIN].isElite = true;
@@ -1409,6 +1415,11 @@ Script "DnD Monster Scale" (int monsterid, int traits, int traits2) {
 	// doomguy thing
 	if(MapInfo[DND_MAPINFO_HASDOOMGUY] && isDemon())
 		GiveInventory("Doomguy_Perk25_Weakness", 1);
+	
+	// handle all innate resists, weaknesses etc.
+	HandleMonsterClassInnates(monsterid, traits, traits2);
+	
+	GiveInventory("DnD_MonsterSetupDone", 1);
 }
 
 // properties holds stuff like the monster's type, demon, robotic etc.
@@ -1539,14 +1550,7 @@ Script "DnD Monster Spawner" (int category) {
 }
 
 Script 961 (int type, int amt, int item) {
-	if(type == 1) {
-		while(!CheckInventory("GamonShift") && isAlive())
-			Delay(5);
-		SetActorProperty(0, APROP_ALPHA, 0.5);
-		ActivatorSound("Veste/Cast", 127.0);
-		SpawnForced("SalvationEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
-	}
-	else if(type == 2)
+	if(type == 2)
 		SetActorProperty(0, APROP_ALPHA, 0.5);
 	else if(type == 3)
 		SetActorProperty(0, APROP_ALPHA, 1.0);
@@ -1924,13 +1928,13 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
 				if(!isPet) {
 					if(!CheckInventory("TargetProperties"))
-						SetFont(MonsterTypeIcons[GetMonsterType(monid)]);
+						SetFont(MonsterTypeInfo[GetMonsterType(monid)][MOSNTER_TYPE_INFO_ICON]);
 					else {
-						SetFont(MonsterTypeIcons[InferMonsterPower(CheckInventory("TargetProperties"))]);
+						SetFont(MonsterTypeInfo[InferMonsterPower(CheckInventory("TargetProperties"))][MOSNTER_TYPE_INFO_ICON]);
 					}
 				}
 				else
-					SetFont(MonsterTypeIcons[GetPetMonsterType(monid)]);
+					SetFont(MonsterTypeInfo[GetPetMonsterType(monid)][MOSNTER_TYPE_INFO_ICON]);
 				HudMessage(s:"a"; 1, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, 1);
 				HudMessage(s:"a"; 1, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, 1);
 				// inner text
@@ -1941,7 +1945,7 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 					prefix = "\cfElite ";
 				if(traits2 & DND_LEGENDARY)
 					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_RED, 404.4, 10.0, 1);
-				else if(isBoss())
+				else if(IsMonsterIdBoss(monid))
 					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, 1);
 				else
 					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, 1);
@@ -1957,26 +1961,31 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 				}
 				i = j = 0;
 				// show monster traits
-				if(traits) {
+				// legendary monsters show no traits at all
+				if(traits2 & DND_LEGENDARY) {
 					SetFont ("MONFONT");
-					for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
-						if(IsSet(traits, i)) {
-							HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_1), s:MonsterTraits[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
-							++j;
+					HudMessage(s:"\c[D1]Legendary Monster"; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+				}
+				else {
+					if(traits) {
+						SetFont ("MONFONT");
+						for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
+							if(IsSet(traits, i)) {
+								HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_1), s:MonsterTraits[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+								++j;
+							}
+						}
+					}
+					if(traits2) {
+						SetFont ("MONFONT");
+						for(i = 0; i < MAX_MONSTER_TRAITS2; ++i) {
+							if(IsSet(traits2, i)) {
+								HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_2), s:MonsterTraits2[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+								++j;
+							}
 						}
 					}
 				}
-				if(traits2) {
-					SetFont ("MONFONT");
-					for(i = 0; i < MAX_MONSTER_TRAITS2; ++i) {
-						if(IsSet(traits2, i)) {
-							HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_2), s:MonsterTraits2[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
-							++j;
-						}
-					}
-				}
-				if(traits2 & DND_LEGENDARY)
-					HudMessage(s:"Legendary Monster"; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
 			}
 		}
 		Delay(const:1);
@@ -4432,4 +4441,42 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 	}
 	else
 		Log(s:"\cgERROR: \cjPlayer isn't currently playing!");
+}
+
+Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
+	// how many periods will be waited for this to end?
+	int duration = style >> 16;
+	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	style &= 0xFFFF;
+	if(style == DND_MHR_DURATION) {
+		while(duration) {
+			if(!CheckInventory("MonsterRegenPause")) {
+				HealMonster(mid, amount);
+				--duration;
+			}
+			Delay(period);
+		}
+	}
+	else if(style == DND_MHR_PERIODIC) {
+		while(isAlive()) {
+			if(!CheckInventory("MonsterRegenPause"))
+				HealMonster(mid, amount);
+			Delay(period);
+		}
+	}
+}
+
+// Needs to be here as it loops through monster tid variable which is changed through this part
+Script "DnD Tcherno Corpse Explode" (void) {
+	for(int i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+		if(!isActorAlive(i) && fdistance(0, i) <= DREAMER_CORPSEEXPLOSION_DIST) {
+			GiveActorInventory(i, "TchernoCorpseExploder", 1);
+			ACS_NamedExecuteAlways("DnD Tcherno Corpse Explode Gib Giver", 0, i);
+		}
+	}
+}
+
+Script "DnD Tcherno Corpse Explode Gib Giver" (int i) CLIENTSIDE {
+	Delay(const:TICRATE);
+	GiveActorInventory(i, "TchernoCorpseExploder_Gibber", 1);
 }

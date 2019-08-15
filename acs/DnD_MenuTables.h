@@ -4,7 +4,7 @@
 #include "DnD_MenuConstants.h"
 #include "DnD_Defs.h"
 #include "DnD_Orbs.h"
-#include "DnD_ElitePow.h"
+#include "DnD_EliteInfo.h"
 #include "DnD_ClassMenu.h"
 
 #define PRICE_CHARISMAREDUCE 2
@@ -1640,6 +1640,7 @@ str ArmorImages[MAXARMORS] = {
 	"ARM3A0", 
 	"ARM2A0", 
 	"QRARA0",
+	
 	"ARM9A0",
 	"AR10A0",
 	"AR11A0",
@@ -2343,14 +2344,19 @@ str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 	"LEG_GOLG"
 };
 
-#define DND_TRAIT1_STARTSHOW DND_EXPLOSIVE_RESIST_POW // first trait to show
+#define DND_TRAIT1_STARTSHOW DND_ENERGY_WEAKNESS_POW // first trait to show
 #define DND_TRAIT1_LASTSHOW DND_NOPAIN_POW
 #define DND_TRAIT2_STARTSHOW DND_BULLET_IMMUNE_POW
-#define DND_TRAIT2_LASTSHOW DND_REVIVED_POW
+#define DND_TRAIT2_LASTSHOW DND_EARTHCREATURE_POW
 #define DND_TRAIT_SKIP DND_EXPLOSIVE_RESIST_POW // amount of traits to skip
 
-#define MAX_MONSTER_MODS DND_TRAIT2_LASTSHOW - DND_TRAIT2_STARTSHOW + DND_TRAIT1_LASTSHOW - DND_TRAIT1_STARTSHOW + 2
+#define MAX_MONSTER_MODS (DND_TRAIT2_LASTSHOW - DND_TRAIT2_STARTSHOW + DND_TRAIT1_LASTSHOW - DND_TRAIT1_STARTSHOW + 3)
 str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
+	"Monster takes 25% more damage from energy attacks.",
+	"Monster takes x3 more damage from silver bullets.",
+	"Monster takes 50% more damage from fire attacks.",
+	"Monster takes 50% more damage from ice attacks.",
+	"Monster takes 25% more damage from occult attacks.",
 	"Monster takes 50% reduced damage from explosives.",
 	"Monster is immune to area damage.",
 	"Monster is immune to explosives.",
@@ -2379,16 +2385,22 @@ str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster is immune to any kind of ballistic attack.",
 	"Monster takes 50% reduced damage from energy attacks.",
 	"Monster is immune to energy attacks.",
-	"Monster takes 50% reduced damage from magical attacks.",
-	"Monster is immune to magical attacks.",
+	"Monster takes 50% reduced damage from occult attacks.",
+	"Monster is immune to occult attacks.",
 	"Monster takes 50% reduced damage from elemental attacks.",
 	"Monster is immune to elemental attacks.",
 	"Monster deals twice as much damage.",
 	"Monster has 75% more health.",
 	"Monster ignores armor of player with every attack.",
 	"Monster belongs to a player and is friendly.",
-	"Monster is unique.",
-	"Monster doesn't give anything on kill."
+	"Monster is summoned by another and gives nothing on kill.",
+	"Monster is resurrected and doesn't give anything on kill.",
+	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.",
+	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.",
+	"Monster is a being of stone, has ice weakness, fire resist, immunity to earth and lightning, and Hardened Skin.",
+	"Monster is a being of earth, takes 50% more damage from lightning, but immune to earth attacks.",
+	"Monster takes 50% more damage from elemental attacks.",
+	"Monster is unique."
 };
 
 str CharmBoxLabels[MAX_CHARM_TYPES][2] = {

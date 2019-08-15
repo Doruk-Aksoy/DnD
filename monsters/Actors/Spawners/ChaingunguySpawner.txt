@@ -6,7 +6,7 @@ Actor ChaingunguySpawner : DnD_MonsterSpawner replaces Chaingunguy {
 			TNT1 A 1
 		Loop
 		Vanilla:
-			TNT1 A 1 A_SpawnItemEx("Cgguy2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+			TNT1 A 1 A_SpawnItemEx("DoubleChaingunner", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
 		Var1:
 			TNT1 A 1 A_SpawnItemEx("QuakeZombieChaingun", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)

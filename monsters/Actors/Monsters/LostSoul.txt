@@ -1,5 +1,4 @@
-ACTOR BabyCaco : DnD_BaseEnemy
-{
+ACTOR BabyCaco : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Radius 16
 	Height 56
@@ -13,39 +12,35 @@ ACTOR BabyCaco : DnD_BaseEnemy
 	BloodColor "Blue"
 	Obituary "%o underestimated a Baby Cacodemon."
 	HitObituary "%o was nibbled to death by a Baby Cacodemon."
-	MONSTER
-	DamageFactor "Caco", 0.0
-	DamageFactor "CacoMagic", 0.0
-	DamageFactor "CacoMagicOrange", 0.0
-	DamageFactor "CacoExp", 0.0
-	DamageFactor "CacoFire", 0.0
-	DamageFactor "CacoPoison", 0.0
 	Tag "Baby Cacodemon"
+	Monster
 	+NOGRAVITY
-	+DONTBLAST
 	+FLOAT 
-	+USEKILLSCRIPTS
+	-FLOORCLIP
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_BABYCACO)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_BABYCACO)
+		Goto SpawnSetup
+
 		Idle:
 			CACB A 10 A_Look
 		Loop
-		See:
+		SeeState:
 			CACB A 3 Fast A_Chase
-		Loop
-		Melee:
-		Missile:
+		Goto See
+		MeleeState:
+		MissileState:
 			CACB AB 5 Fast A_FaceTarget
 			CACB C 5 Fast Bright A_CustomComboAttack("BabyCacoBall", 17, random(1,8) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "BabyCaco/Melee")
 		Goto See
-		Pain:
+		PainState:
 			CACB D 3 Fast
 			CACB D 3 Fast A_Pain
 			CACB E 6 Fast
 		Goto See
-		Death:
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
 			CACB F 8
 			CACB G 8 A_Scream
 			CACB H 8
@@ -54,32 +49,14 @@ ACTOR BabyCaco : DnD_BaseEnemy
 			CACB K 8
 			CACB L -1 A_SetFloorClip
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			CACB L 8 A_UnSetFloorClip
 			CACB KJIHGF 8
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
-ACTOR BabyCacoBall
-{
+ACTOR BabyCacoBall {
 	Radius 3
 	Height 4
 	Speed 11
@@ -94,20 +71,19 @@ ACTOR BabyCacoBall
 	SeeSound "caco/attack"
 	DeathSound "caco/shotx"
 	Decal "HImpScorch"
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-	SpawnLoop:
-		BCAB AB 4 BRIGHT
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BCAB AB 4 BRIGHT
 		Loop
-	Death:
-		BCAB CDE 6 BRIGHT
+		Death:
+			BCAB CDE 6 BRIGHT
 		Stop
 	}
 }
 
-Actor Fleshspawn : DnD_BaseEnemy {
+Actor Fleshspawn : DnD_BaseRangedMonster {
 	Obituary "%o was burned by a FleshSpawn." 
 	HitObituary "%o was devoured by a FleshSpawn."
 	Health 0x7FFFFFFF
@@ -127,25 +103,26 @@ Actor Fleshspawn : DnD_BaseEnemy {
 	deathsound "flesh/death"
 	activesound "flesh/active"
 	Tag "Fleshspawn"
-	MONSTER
+	Monster
 	+FLOAT
 	+NOGRAVITY
-	+DONTBLAST
 	+DONTHURTSPECIES
 	+NOINFIGHTING
 	+NOTARGET
-	+USEKILLSCRIPTS
+	-FLOORCLIP
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_FLESHSPAWN, DND_MOBILITY)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_FLESHSPAWN)
+			TNT1 A 0 A_SetArg(1, DND_MOBILITY)
+		Goto SpawnSetup
+
 		Idle:
 			FLSP AB 8 A_Look
 		loop
-		See:
+		SeeState:
 			FLSP AABB 2 Fast A_Chase
-		loop
-		Missile:
+		Goto See
+		MissileState:
 			FLSP C 0 A_Jump(128,"Charge")
 			FLSP C 8 Fast A_FaceTarget
 			FLSP G 4 Fast A_FaceTarget
@@ -167,11 +144,11 @@ Actor Fleshspawn : DnD_BaseEnemy {
 			FLSP E 4 Fast A_SkullAttack
 			FLSP FE 4 Fast
 		Goto Charge+4
-		Pain:
+		PainState:
 			FLSP I 3 Fast 
 			FLSP I 3 Fast A_Pain
 		Goto See
-		Death:
+		DeathState:
 			FLSP I 5
 			FLSP J 5 A_Scream
 			FLSP K 5
@@ -179,11 +156,11 @@ Actor Fleshspawn : DnD_BaseEnemy {
 			FLSP MN 5 A_SetFloorClip
 			FLSP O -1 
 		Stop
-		XDeath: 
+		XDeathState: 
 			FLSP P 3 
 			FLSP Q 0 A_FaceTarget
 			FLSP Q 0 A_SpawnItemEx("FleshSpawnGibs", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			FLSP Q 0 A_CustomMissile("Fleshspawngib1", 14, 0, random(-180,180), 2, random(10,40))
 			FLSP Q 0 A_CustomMissile("Fleshspawngib2", 6, 2, random(-180,180), 2, random(0,25))
 			FLSP Q 0 A_CustomMissile("Fleshspawngib2B", 10, -2, random(-180,180), 2, random(0,25))
@@ -197,203 +174,160 @@ Actor Fleshspawn : DnD_BaseEnemy {
 			FLSP R 3 A_NoBlocking  
 			FLSP STU 3
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			FLSP O 5 A_UnSetFloorClip
 			FLSP NMLKJI 5
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
-Actor FleshSpawnGibs
-{
-  +NoClip
-  States
-  {
-  Spawn:
-    TNT1 A 0
-    TNT1 A 0 A_CustomMissile("Fleshspawngib1", 14, 0, random(-180,180), 2, random(10,40))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib2", 6, 2, random(-180,180), 2, random(0,25))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib2B", 10, -2, random(-180,180), 2, random(0,25))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib3", 8, 0, random(-180,180), 2, random(0,35))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib4", 12, 5, random(-180,180), 2, random(-5,40))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib4B", 5, -5, random(-180,180), 2, random(0,30))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib5", 6, 3, random(-180,180), 2, random(10,60))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib5", 8, 0, random(-180,180), 2, random(-10,55))
-    TNT1 A 0 A_CustomMissile("Fleshspawngib6", 12, 0, 0, 2, 0)
-    Stop
-  }
+Actor FleshSpawnGibs {
+	+NoClip
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_CustomMissile("Fleshspawngib1", 14, 0, random(-180,180), 2, random(10,40))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib2", 6, 2, random(-180,180), 2, random(0,25))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib2B", 10, -2, random(-180,180), 2, random(0,25))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib3", 8, 0, random(-180,180), 2, random(0,35))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib4", 12, 5, random(-180,180), 2, random(-5,40))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib4B", 5, -5, random(-180,180), 2, random(0,30))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib5", 6, 3, random(-180,180), 2, random(10,60))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib5", 8, 0, random(-180,180), 2, random(-10,55))
+			TNT1 A 0 A_CustomMissile("Fleshspawngib6", 12, 0, 0, 2, 0)
+		Stop
+	}
 }
 
-Actor Fleshspawnball
-{
-  Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-  Damagetype "Caco"
-  Speed 10
-  Radius 3
-  Height 5
-  SeeSound "caco/attack"
-  DeathSound "caco/shotx"
-  RenderStyle Add
-  Alpha 0.9
-  Projectile
-  states
-  {
-  Spawn:
-    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-    FLBL ABCBABCBABCBABCBIJKLM 4 Bright
-    Stop
-  Death:
-    FLBL DEFGH 4 Bright
-    Stop
-  }
+Actor Fleshspawnball {
+	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damagetype "Caco"
+	Speed 10
+	Radius 3
+	Height 5
+	SeeSound "caco/attack"
+	DeathSound "caco/shotx"
+	RenderStyle Add
+	Alpha 0.9
+	Projectile
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			FLBL ABCBABCBABCBABCBIJKLM 4 Bright
+		Stop
+		Death:
+			FLBL DEFGH 4 Bright
+		Stop
+	}
 }
 
-Actor Fleshspawngib1
-{
-   Speed 8
-   Mass 100
-   Radius 1
-   Height 1
-   Projectile
-   +CLIENTSIDEONLY
-   -NOGRAVITY
-   +DROPOFF
-   States
-   {
-   Spawn:
-      FGB1 ABCD 4 
-      loop
-   Death:
-      FGB1 E -1
-      stop      
-   }
+Actor Fleshspawngib1 {
+	Speed 8
+	Mass 100
+	Radius 1
+	Height 1
+	Projectile
+	+CLIENTSIDEONLY
+	-NOGRAVITY
+	+DROPOFF
+	States {
+		Spawn:
+			FGB1 ABCD 4 
+		loop
+		Death:
+			FGB1 E -1
+		stop
+	}
 }
 
-Actor Fleshspawngib2 : Fleshspawngib1
-{
-   Speed 8
-   Mass 100
-   Radius 1
-   Height 1
-   Projectile
-   -NoGravity
-   +DropOff
-   +ClientSideOnly
-   States
-   {
-   Spawn:
-      FGB2 ABCD 4 
-      loop
-   Death:
-      FGB2 I -1
-      stop      
-   }
+Actor Fleshspawngib2 : Fleshspawngib1 {
+	Speed 8
+	Mass 100
+	Radius 1
+	Height 1
+	Projectile
+	-NoGravity
+	+DropOff
+	+ClientSideOnly
+	States {
+		Spawn:
+			FGB2 ABCD 4 
+		loop
+		Death:
+			FGB2 I -1
+		stop
+	}
 }
 
-Actor Fleshspawngib2B : Fleshspawngib1
-{
-   +ClientSideOnly
-   States
-   {
-   Spawn:
-      FGB2 EFGH 4 
-      loop
-   Death:
-      FGB2 J -1
-      stop      
-   }
+Actor Fleshspawngib2B : Fleshspawngib1 {
+	States {
+		Spawn:
+			FGB2 EFGH 4 
+		loop
+		Death:
+			FGB2 J -1
+		stop      
+	}
 }
 
-Actor Fleshspawngib3 : Fleshspawngib1
-{
-   +ClientSideOnly
-   States
-   {
-   Spawn:
-      FGB3 ABCD 4 
-      loop
-   Death:
-      FGB3 E -1
-      stop      
-   }
+Actor Fleshspawngib3 : Fleshspawngib1 {
+	States {
+		Spawn:
+			FGB3 ABCD 4 
+		loop
+		Death:
+			FGB3 E -1
+		stop      
+	}
 }
 
-Actor Fleshspawngib4 : Fleshspawngib1
-{
-   +ClientSideOnly
-   States
-   {
-   Spawn:
-      FGB4 ABCD 4 
-      loop
-   Death:
-      FGB4 I -1
-      stop      
-   }
+Actor Fleshspawngib4 : Fleshspawngib1 {
+	States {
+		Spawn:
+			FGB4 ABCD 4 
+		loop
+		Death:
+			FGB4 I -1
+		stop      
+	}
 }
 
-Actor Fleshspawngib4B : Fleshspawngib1
-{
-   +ClientSideOnly
-   States
-   {
-   Spawn:
-      FGB4 EFGH 4 
-      loop
-   Death:
-      FGB4 J -1
-      stop      
-   }
+Actor Fleshspawngib4B : Fleshspawngib1 {
+	States {
+		Spawn:
+			FGB4 EFGH 4 
+		loop
+		Death:
+			FGB4 J -1
+		stop      
+	}
 }
 
-Actor Fleshspawngib5 : Fleshspawngib1
-{
-   +ClientSideOnly
-   States
-   {
-   Spawn:
-      FGB5 ABCD 4 
-      loop
-   Death:
-      FGB5 E -1
-      stop      
-   }
+Actor Fleshspawngib5 : Fleshspawngib1 {
+	States {
+		Spawn:
+			FGB5 ABCD 4 
+		loop
+		Death:
+			FGB5 E -1
+		stop      
+	}
 }
 
-Actor Fleshspawngib6 : Fleshspawngib1
-{
-   +ClientSideOnly
-   Speed 0
-   States
-   {
-   Spawn:
-      FGB6 A 4 
-      loop
-   Death:
-      FGB6 BC 4
-      FGB6 D -1
-      stop      
-   }
+Actor Fleshspawngib6 : Fleshspawngib1 {
+	Speed 0
+	States {
+		Spawn:
+			FGB6 A 4 
+		loop
+		Death:
+			FGB6 BC 4
+			FGB6 D -1
+		stop      
+	}
 }
 
-ACTOR ESoul : UndeadEnemy { 
+ACTOR ESoul : DnD_BaseRangedMonster { 
 	obituary "%o was raped by a black soul."
 	Health 0x7FFFFFFF
 	Radius 16
@@ -409,11 +343,8 @@ ACTOR ESoul : UndeadEnemy {
 	PainSound "nightmare/pain"
 	DeathSound "nightmare/death"
 	ActiveSound "nightmare/active"
-	MONSTER
-	DamageFactor "Bullet", 0.75
-	DamageFactor "Melee", 0.5
-	DamageFactor "Melee_Magic", 0.5
 	Tag "Black Soul"
+	Monster
 	+FLOAT
 	+NOGRAVITY
 	+NOICEDEATH
@@ -421,19 +352,20 @@ ACTOR ESoul : UndeadEnemy {
 	+DONTFALL
 	+STEALTH
 	+NOBLOOD
-	+DONTBLAST
-	+USEKILLSCRIPTS
+	-FLOORCLIP
 	states {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ETHEREALSOUL, DND_SILVER_WEAKNESS | DND_TELEPORT | DND_BULLET_RESIST | DND_MELEE_RESIST)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ETHEREALSOUL)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_TELEPORT | DND_BULLET_RESIST | DND_MELEE_RESIST)
+		Goto SpawnSetup
+
 		Idle:
 			ETHS ABCD 10 bright A_Look
 		loop
-		See:
+		SeeState:
 			ETHS AABBCCDD 3 Fast bright A_Chase 
-		loop
-		Missile:
+		Goto See
+		MissileState:
 			ETHS C 0 bright A_Jump(128,9)
 			ETHS C 6 Fast bright A_FaceTarget
 			ETHS E 4 Fast bright A_SkullAttack
@@ -449,37 +381,21 @@ ACTOR ESoul : UndeadEnemy {
 			ETHS R 5 Fast bright A_CustomMissile("ShadowBall", 0, 0, 0)
 			ETHS E 4 Fast bright
 		goto See
-		Pain:
+		PainState:
 			ETHS G 3 Fast bright
 			ETHS G 3 Fast bright A_Pain
 		goto See
-		Death:
+		XDeathState:
+		DeathState:
 			ETHS F 3 bright
 			TNT1 AAAAA 0 A_CustomMissile("LostSoulSmoke", 0, 0, random(0,360), 2, random(0,360))
 			ETHS H 3 bright A_ScreamAndUnblock
 			ETHS IJKLMNO 3 bright
 		stop
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
-ACTOR ShadowBall
-{
+ACTOR ShadowBall {
 	Radius 6
 	Height 8
 	Speed 12
@@ -493,71 +409,65 @@ ACTOR ShadowBall
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	Decal DoomImpScorch
-	States
-	{
-	Spawn: 
-		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-	SpawnLoop:
-		SBAL ABC 4 BRIGHT A_SpawnItemEx("ShadowTrail", 0, 0, 0, 0, 0, 0, 0, 128)
-		Loop
-	Death:
-		SBAL C 5 Bright
-		SBAL DEFGH 4 BRIGHT
+	States {
+		Spawn: 
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			SBAL ABC 4 BRIGHT A_SpawnItemEx("ShadowTrail", 0, 0, 0, 0, 0, 0, 0, 128)
+			Loop
+		Death:
+			SBAL C 5 Bright
+			SBAL DEFGH 4 BRIGHT
 		Stop
 	}
 }
 
-actor ShadowTrail
-{
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
+actor ShadowTrail {
     RENDERSTYLE ADD
     ALPHA 0.6
-    +NOCLIP
+    +NOINTERACTION
 	+CLIENTSIDEONLY
-    States
-    {
-    Spawn:
-     SHTR ABCDEF 4 Bright
-        Stop       
+    States {
+		Spawn:
+			SHTR ABCDEF 4 Bright
+		Stop
     }
 }
 
-Actor GuardianCube : MagicalBulletResistantEnemy {
+Actor GuardianCube : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	Radius 16
 	Height 56
 	Mass 150
 	Speed 8
 	PainChance 128
-	Monster
 	Obituary "%o got fried by a Guardian Cube."
+	Monster
 	+NoGravity
 	+Float
 	+DontFall
 	-DONTRIP
 	+DontHurtSpecies
-	+DONTBLAST
 	+NOBLOOD
-	+USEKILLSCRIPTS
+	-FLOORCLIP
 	SeeSound "monster/sensit"
 	PainSound "monster/senpai"
 	ActiveSound "monster/cubfly"
 	deathsound "monster/sendth"
 	Tag "Guardian Cube"
 	States  { 
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_GUARDIANCUBE, DND_MAGIC_WEAKNESS | DND_BULLET_RESIST, DND_MELEE_RESIST)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_GUARDIANCUBE)
+			TNT1 A 0 A_SetArg(1, DND_MAGIC_WEAKNESS | DND_BULLET_RESIST)
+		Goto SpawnSetup
+
 		Idle:
 			CUBE A 10 A_Look 
 		Loop 
-		See: 
+		SeeState: 
 			CUBE ABC 5 Fast A_Chase
-		Loop 
-		Missile: 
+		Goto See 
+		MissileState: 
 			CUBE D 5 Fast Bright A_FaceTarget 
 			CUBE E 0 Bright A_CustomMissile("CubeShot",10,4,0,1)
 			CUBE E 4 Fast Bright A_CustomMissile("CubeShot",10,-4,0,1)
@@ -569,87 +479,71 @@ Actor GuardianCube : MagicalBulletResistantEnemy {
 			CUBE E 4 Fast Bright A_CustomMissile("CubeShot",10,-4,0,1)
 			CUBE D 4 Fast Bright A_FaceTarget
 		Goto See 
-		Pain: 
+		PainState: 
 			CUBE D 3 Fast 
 			CUBE D 3 Fast A_Pain 
 		Goto See 
-		Death:
+		XDeathState:
+		DeathState:
 			CUBE E 0 Bright A_NoBlocking
 			TNT1 AAAAA 0 A_CustomMissile("LostSoulSmoke", 0, 0, random(0,360), 2, random(0,360))
 			CUBE E 0 Bright A_SetFloorClip
 			CUBE E 6 Bright A_Scream 
 			CUBE FGH 6 Bright
-		Stop 
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
-	} 
+		Stop
+	}
 }
 
 Actor GuardianCube_NoCount : GuardianCube {
 	-COUNTKILL
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_GUARDIANCUBE)
+			TNT1 A 0 A_SetArg(1, DND_MAGIC_WEAKNESS | DND_BULLET_RESIST)
+			TNT1 A 0 A_SetArg(2, DND_SUMMONED)
+		Goto SpawnSetup
+	}
 }
 
-Actor CubeShot
-{
-  Radius 5
-  Height 5
-  Speed 15
-  Damage (1 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-  DamageType "CacoFire"
-  DamageType Fire
-  RenderStyle Add
-  Alpha 0.85
-  Projectile
-  +ThruGhost
-  Seesound "weapons/firsfi"
-  DeathSound "weapons/maceex"
-  Obituary "%o got fried by a Guardian Cube."
-  States
-  {
-  Spawn:
-	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    CBAL AB 3 Bright A_SpawnItemEx("CubePuff",0,0,0,0,0,0,0,128)
-    Loop
-  Death:
-    CBAL CDEFG 3 Bright
-    Stop
-  }
+Actor CubeShot {
+	Radius 5
+	Height 5
+	Speed 15
+	Damage (1 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CacoFire"
+	DamageType Fire
+	RenderStyle Add
+	Alpha 0.85
+	Projectile
+	+ThruGhost
+	Seesound "weapons/firsfi"
+	DeathSound "weapons/maceex"
+	Obituary "%o got fried by a Guardian Cube."
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CBAL AB 3 Bright A_SpawnItemEx("CubePuff",0,0,0,0,0,0,0,128)
+		Loop
+		Death:
+			CBAL CDEFG 3 Bright
+		Stop
+	}
 }
 
-Actor CubePuff
-{   
-  Radius 2
-  Height 2
-  Speed 0
-  Scale 1.0
-  Projectile
-  RenderStyle Add
-  Alpha 0.67
-  +CLIENTSIDEONLY
-  States
-  {
-  Spawn:
-    CBAL HIJ 3 Bright
-    Stop 
-  }
+Actor CubePuff {   
+	RenderStyle Add
+	Alpha 0.67
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			CBAL HIJ 3 Bright
+		Stop 
+	}
 }
 
-Actor ForgottenOne : DnD_BaseEnemy {
+Actor ForgottenOne : DnD_BaseRangedMonster {
 	Obituary "A Forgotten One rammed %o."
 	Health 0x7FFFFFFF
 	Radius 16
@@ -661,36 +555,32 @@ Actor ForgottenOne : DnD_BaseEnemy {
 	PainSound "Forgotten/Pain"
 	DeathSound "Forgotten/Death"
 	ActiveSound "Forgotten/Active"
-	DamageFactor "Bullet", 0.75
-	DamageFactor "Melee", 0.5
-	DamageFactor "Melee_Magic", 0.5
 	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 	DamageType "Melee"
-	Monster
 	Tag "Forgotten One"
-	+FloorClip
-	+DONTBLAST
+	Monster
 	+Float
 	+NoGravity
 	+NoIceDeath
 	+DontFall
 	+FloatBob
 	+NoBlood
-	+USEKILLSCRIPTS
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_FORGOTTENONE, DND_MOBILITY)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_FORGOTTENONE)
+			TNT1 A 0 A_SetArg(1, DND_MOBILITY | DND_BULLET_RESIST)
+		Goto SpawnSetup
+
 		Idle:
 			FRGO A 0 Bright
 			FRGO A 0 Bright A_ChangeFlag("FloatBob", 1)
 			FRGO AAAAAABBBBBB 1 Bright A_Look
 		Loop
-		See:
+		SeeState:
 			FRGO A 0 A_ChangeFlag("FloatBob", 1)
 			FRGO AABB 3 Fast Bright A_Chase
-		Loop
-		Missile:
+		Goto See
+		MissileState:
 			FRGO C 0 A_ChangeFlag("FloatBob", 0)
 			FRGO CCDDC 2 Fast Bright A_FaceTarget
 			FRGO D 0 Bright A_PlaySound("Forgotten/Attack")
@@ -699,18 +589,19 @@ Actor ForgottenOne : DnD_BaseEnemy {
 			FRGO C 0 Bright A_JumpIfTargetInLOS(4, 75)
 			FRGO C 0 A_Jump(24, "StopCharge")
 			FRGO DC 2 Fast Bright
-		Goto Missile+10
+		Goto MissileState + 10
 			FRGO C 0 Bright
-		Goto Missile+7
+		Goto MissileState + 7
 		StopCharge:
 			FRGO C 0 A_Stop
 		Goto See
-		Pain:
+		PainState:
 			FRGO E 0 A_ChangeFlag("FloatBob", 1)
 			FRGO E 3 Fast Bright
 			FRGO E 3 Fast Bright A_Pain
 		Goto See
-		Death:
+		XDeathState:
+		DeathState:
 			FRGO E 0 A_ChangeFlag("FloatBob", 0)
 			FRGO E 0 A_Stop
 			TNT1 AAAAA 0 A_CustomMissile("LostSoulSmoke", 0, 0, random(0,360), 2, random(0,360))
@@ -719,28 +610,12 @@ Actor ForgottenOne : DnD_BaseEnemy {
 			FRGO H 6 Bright
 			FRGO I 6 Bright A_NoBlocking
 			FRGO J 6 Bright
-		Stop	
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		Stop
 	}
 }
 
 //Watcher
-ACTOR Watcher : DnD_BaseEnemy { 
+ACTOR Watcher : DnD_BaseHybridMonster { 
 	Health 0x7FFFFFFF
 	Radius 16
 	Height 40 
@@ -748,103 +623,79 @@ ACTOR Watcher : DnD_BaseEnemy {
 	Speed 10 
 	PainChance 160
 	MeleeRange 40
-	MONSTER 
 	SeeSound "monster/watsit" 
 	PainSound "monster/watpai" 
 	DeathSound "monster/watdth" 
 	ActiveSound "monster/watact" 
 	AttackSound "ChaosSerpent/melee"
-	DamageFactor "Caco", 0.0
-	DamageFactor "CacoMagic", 0.0
-	DamageFactor "CacoMagicOrange", 0.0
-	DamageFactor "CacoExp", 0.0
-	DamageFactor "CacoFire", 0.0
-	DamageFactor "CacoPoison", 0.0
 	Tag "Watcher"
+	Monster
 	+NOGRAVITY 
 	+FLOAT
-	+USEKILLSCRIPTS
+	-FLOORCLIP
 	States  { 
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_WATCHER, DND_PIERCE)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_WATCHER)
+			TNT1 A 0 A_SetArg(1, DND_PIERCE)
+		Goto SpawnSetup
+	
 		Idle:
 			WATC A 10 A_Look 
 		Loop 
-		See: 
+		SeeState: 
 			WATC A 3 Fast A_Chase
-		Loop 
-		Missile: 
+		Goto See 
+		MissileState: 
 			WATC E 5 Fast A_FaceTarget 
 			WATC F 5 Fast A_FaceTarget 
 			WATC G 5 Fast BRIGHT A_CustomMissile("WatcherShot",12,0,0) 
 		Goto See
-		Melee:
+		MeleeState:
 			WATC BCD 5 Fast A_FaceTarget 
 			WATC A 5 Fast A_CustomMeleeAttack(4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 		Goto See
-		Pain: 
+		PainState: 
 			WATC H 3 Fast 
 			WATC H 3 Fast A_Pain 
 		Goto See 
-		Death: 
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState: 
 			WATC I 8 A_scream
 			WATC JKLM 6 
 			WATC N 6 A_noblocking
 			WATC N 0 A_SetFloorClip
 			WATC O -1 
 		stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			CACB O 8 A_UnSetFloorClip
 			WATC NMLKJI 8 
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	} 
 }
 
-ACTOR WatcherShot
-{
-   Radius 4
-   Height 8
-   Speed 20
-   Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-   DamageType "CacoMagic"
-   RENDERSTYLE ADD
-   DamageType lightning
-   ALPHA 0.67
-   PROJECTILE
-   +THRUGHOST
-   +FORCEXYBILLBOARD
-   +PIERCEARMOR
-   SeeSound "monster/watatk"
-   DeathSound "monster/wathit"
-   States
-   {
-   Spawn:
-	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-   SpawnLoop:
-      FWAT AB 4 Bright
-      loop
-   Death:
-	  TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-      FWAT CDE 4 Bright
-      stop
-   }
+ACTOR WatcherShot {
+	Radius 4
+	Height 8
+	Speed 20
+	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "CacoMagic"
+	RENDERSTYLE ADD
+	ALPHA 0.67
+	PROJECTILE
+	+THRUGHOST
+	+FORCEXYBILLBOARD
+	+PIERCEARMOR
+	SeeSound "monster/watatk"
+	DeathSound "monster/wathit"
+	States {
+		Spawn:
+			FWAT AB 4 Bright
+		loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			FWAT CDE 4 Bright
+		stop
+	}
 }

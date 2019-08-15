@@ -446,6 +446,7 @@ weapons/gauntletsactivate gntact
 Weapons/NG2Fire			NG2FIRE
 Weapons/NG2HitWall		NG2HW
 Weapons/NG2HitTarget	NG2HT
+$limit Weapons/NG2Fire 0
 
 Weapons/BerettaFire		BERTFIRE
 $limit Weapons/BerettaFire 0
@@ -674,3 +675,19 @@ $limit bloodsplat 1
 $volume misc/xdeath 0.5
 $volume misc/xdeath1 0.5
 $volume misc/xdeath4 0.5
+
+Imp/Pain								DSIMPPAN
+LostSoul/Pain							DSSOULPN
+Cacodemon/Pain							DSCACOPN
+HellKnight/Pain							DSHKPAIN
+Arachnotron/Pain						DSARAPAN
+Revenant/Pain							DSSKPAIN
+Cyberdemon/Pain							DSCYBERP
+
+SpiderMasterMind/MiniGunFire			DSSPIMIN
+SpiderMasterMind/MiniGunEnd				DSSPIMI2
+SpiderMasterMind/MiniGunSpin			DSSPISPN
+SpiderMasterMind/MiniGunSpinEnd			DSSPIFST
+SpiderMasterMind/Pain1					DSSPIPN1
+SpiderMasterMind/Pain2					DSSPIPN2
+$random SpiderMasterMind/Pain { SpiderMasterMind/Pain1 SpiderMasterMind/Pain2 }

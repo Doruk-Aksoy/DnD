@@ -14,7 +14,7 @@
 		Goto Death
 		Death.BookOfTheDead:
 			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto DeathDnD_PressedUse
+		Goto Death
 */
 
 // every 10 points contribute 0.01%
@@ -87,7 +87,10 @@ Actor Mo_Died : PowerDamage {
 	powerup.duration 9
 }
 
-Actor Mo_Scaled : DnD_Boolean { }
+Actor InfiniteProtectionBase : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
+}
 
 Actor DnD_FakeDamager {
 	PROJECTILE
@@ -207,7 +210,6 @@ Actor P_Slot7Luxury : DnD_Boolean { }
 Actor P_Slot8Luxury : DnD_Boolean { }
 
 Actor Reloading : DnD_Boolean { }
-Actor Mo_Revived : DnD_Boolean { }
 
 Actor P_PlasmaFire : DnD_Boolean { }
 Actor P_GreenFire : DnD_Boolean { }
@@ -329,7 +331,6 @@ ACTOR ProjBullet : FastProjectile {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
 			TNT1 A 0 A_ChangeVelocity(velx / 50.0, vely / 50.0, velz / 50.0, CVF_REPLACE)
 			TNT1 A 1
 			TNT1 A 0 A_ChangeVelocity(velx * 50.0, vely * 50.0, velz * 50.0, CVF_REPLACE)

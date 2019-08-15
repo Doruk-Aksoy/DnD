@@ -1,5 +1,3 @@
-const int DND_MONSTERHEALSCRIPT = 958;
-
 #include "Actors/MonsterIDs.txt"
 
 #include "Actors/Monsters/Zombieman.txt"

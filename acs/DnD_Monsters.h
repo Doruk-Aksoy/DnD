@@ -46,6 +46,8 @@
 #define GOLGOTH_METEOR_Z2 55.2
 #define GOLGOTH_METEOR_OFFSET 27.6
 
+#define DREAMER_CORPSEEXPLOSION_DIST 512.0
+
 typedef struct {
 	int time;
 	int growtime;

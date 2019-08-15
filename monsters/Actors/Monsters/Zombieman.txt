@@ -1,80 +1,66 @@
-Actor ZombieManGray : Zombieman2
-{ 
+Actor ZombieManGray : DnD_BaseRangedMonster { 
 	Health 0x7FFFFFFF
-	+DONTBLAST
-	+USEKILLSCRIPTS
     GibHealth -10
-	DropItem "Clip", 0
 	DropItem "DroppedClip"
-	States
-	{
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEGRAY, DND_SILVER_WEAKNESS)
+	Radius 20
+	Height 56
+	Speed 8
+	PainChance 200
+	SeeSound "grunt/sight"
+	AttackSound "grunt/attack"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"
+	ActiveSound "grunt/active"
+	Obituary "$OB_ZOMBIE" // "%o was killed by a zombieman."
+	Mass 100
+	Tag "Zombieman"
+	Monster
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIEGRAY)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+	
 		Idle:
 			ZHR2 V 10 A_Look
 		Loop
-		See:
+		SeeState:
 			ZHR2 AABBCCDD 4 Fast A_Chase
-		Loop
-		Missile:
+		Goto See
+		MissileState:
 			ZHR2 E 10 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound ("grunt/attack", CHAN_WEAPON)
 			ZHR2 F 8 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
 			ZHR2 E 8 Fast
 		Goto See
-		Pain:
+		PainState:
 			ZHR2 G 3 Fast
 			ZHR2 G 3 Fast A_Pain
 		Goto See
-		Death:
+		DeathState:
 			ZHR2 H 5
 			ZHR2 I 5 A_Scream
 			ZHR2 J 5 A_NoBlocking
 			ZHR2 K 5
 			ZHR2 L -1
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
-			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Raise2")
+		RaiseState:
 			ZHR2 K 5
 			ZHR2 JIH 5
 		Goto See
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZHR2 M 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			ZHRF N 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			ZHR2 O 5 A_NoBlocking
 			ZHR2 PQRST 5
 			ZHR2 U -1
 		Stop
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
@@ -82,7 +68,7 @@ Actor RangerBullet : ZombieBullet {
 	Damage (random(1,5) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 }
 
-actor FormerRanger : UndeadEnemy {
+actor FormerRanger : DnD_BaseRangedMonster {
 	obituary "%o was hunted down by a Ranger."
 	GibHealth -10
 	Health 0x7FFFFFFF
@@ -100,21 +86,20 @@ actor FormerRanger : UndeadEnemy {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip", 128
 	Tag "Zombie Ranger"
-	MONSTER
-	+FLOORCLIP
-	+USEKILLSCRIPTS
-	+DONTBLAST
+	Monster
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIERANGER, DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIERANGER)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+		
 		Idle:
 			BPOS AB 10 A_Look
 		loop
-		See:
+		SeeState:
 			BPOS AABBCCDD 3 Fast A_Chase
-		loop
-		Missile:
+		Goto See
+		MissileState:
 			BPOS E 10 Fast A_FaceTarget
 		goto WhichMissileType
 		WhichMissileType:
@@ -148,55 +133,32 @@ actor FormerRanger : UndeadEnemy {
 			BPOS F 4 Fast bright A_CustomMissile("RangerBullet", 32, 0, frandom(-13.0, 13.0), 0, frandom(-2.0, 2.0))
 			BPOS E 10 Fast A_CPosRefire
 		goto WhichMissileType
-		Pain:
+		PainState:
 			BPOS G 3 Fast
 			BPOS G 3 Fast A_Pain
 		goto See
-		Death:
+		DeathState:
 			BPOS H 5
 			BPOS I 5 A_Scream
 			BPOS J 5 A_NoBlocking
 			BPOS K 5
 			BPOS L -1
 		stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)  
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			BPOS M 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)  
 			BPOS N 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)  
 			BPOS O 5 A_NoBlocking
 			BPOS PQRST 5
 			BPOS U -1
 		stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			BPOS LKJIH 5
 		goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
   }
 }
 
@@ -204,82 +166,69 @@ Actor SMGZombieBullet : ZombieBullet {
 	Damage (random(1,3) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 }
 
-ACTOR SMGGuy : ZombieMan2 {
+ACTOR SMGGuy : DnD_BaseRangedMonster {
 	obituary "%o was shredded by SMG zombie."
 	Health 0x7FFFFFFF
 	GibHealth -15
-	DropItem "Clip", 0
 	dropitem "SMGPickup"
 	Translation "112:127=[146,67,51]:[7,0,0]"
-	AttackSound "weapons/smg"
 	Tag "SMG Zombie"
-	+DONTBLAST
+	Radius 20
+	Height 56
+	Speed 8
+	PainChance 200
+	SeeSound "grunt/sight"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"
+	ActiveSound "grunt/active"
+	AttackSound "weapons/smg"
+	Monster
+	Mass 100
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIESMG, DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIESMG)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+	
 		Idle:
 			PDWP AB 10 Fast A_Look
 		loop
-		See:
+		SeeState:
 			PDWP AABBCCDD 4 Fast A_Chase
-		Loop
-		Missile:
+		Goto See
+		MissileState:
 			PDWP E 10 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("weapons/smg", CHAN_WEAPON)
 			PDWP F 3 Fast  bright A_CustomMissile("SMGZombieBullet", 32, 0, frandom(-10.0, 10.0), 0, frandom(-10.0, 10.0))
 			PDWP E 2 Fast A_CPosRefire
-		goto Missile+1
-		Pain:
+		goto MissileState + 1
+		PainState:
 			PDWP G 3 Fast
 			PDWP G 3 Fast A_Pain
 		goto See
-		Death:
+		DeathState:
 			PDWP H 5
 			PDWP I 5 A_Scream
 			PDWP J 5 A_NoBlocking
 			PDWP KLM 5
 			PDWP N -1
 		Stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			PDWP O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			PDWP P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			PDWP Q 5 A_NoBlocking
 			PDWP RSTUV 5
 			PDWP W -1
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			PDWP NMLKJIH 5
 		goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
@@ -287,17 +236,13 @@ Actor RapidFireBullet : ZombieBullet {
 	Damage (random(1,3) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 }
 
-ACTOR RapidFireTrooper : UndeadEnemy {
+ACTOR RapidFireTrooper : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	GibHealth -10
 	Radius 20
 	Height 56
 	Speed 8
 	PainChance 200
-	MONSTER 
-	+FLOORCLIP
-	+DONTBLAST
-	+USEKILLSCRIPTS
 	DropItem "DroppedClip"
 	SeeSound "grunt/sight"
 	AttackSound "grunt/attack"
@@ -306,90 +251,65 @@ ACTOR RapidFireTrooper : UndeadEnemy {
 	ActiveSound "grunt/active"
 	Obituary "%o was surprised by the zombie's weaponry." 
 	Tag "Rapid Fire Zombie"
+	Monster
 	Decal BulletChip
 	States { 
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIERAPID, DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIERAPID)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+
 		Idle:
 			RFTR AB 10 A_Look 
 		Loop 
-		See: 
+		SeeState: 
 			RFTR AABBCCDD 4 Fast A_Chase 
-		Loop 
-		Missile: 
+		Goto See 
+		MissileState: 
 			RFTR E 10 Fast A_FaceTarget 
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("grunt/attack", CHAN_WEAPON)
 			RFTR F 5 Fast Bright A_CustomMissile("RapidFireBullet", 32, 0, frandom(-3.6, 3.6), 0, frandom(-3.6, 3.6))
 			RFTR E 5 Fast A_CPosRefire 
-		Goto Missile+1 
-		Pain: 
+		Goto MissileState + 1 
+		PainState: 
 			RFTR G 3 Fast 
 			RFTR G 3 Fast A_Pain 
 		Goto See 
-		Death: 
+		DeathState: 
 			RFTR H 5
 			RFTR I 5 A_Scream 
 			RFTR J 5 A_Fall 
 			RFTR K 5 
 			RFTR L -1 
 		Stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			RFTR M 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
 			RFTR N 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
 			RFTR N 5
 			RFTR P 5 A_Fall
 			RFTR QRST 5
 			RFTR U -1
 		Stop
-		Raise: 
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState: 
 			RFTR KJ 5 
 			RFTR IH 5 
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	} 
 }
 
-ACTOR ZombieMarine : UndeadEnemy { 
+ACTOR ZombieMarine : DnD_BaseRangedMonster { 
     Health 0x7FFFFFFF
 	GibHealth -15
     Radius 20
     Height 56
     Speed 9
     PainChance 200
-    Damage 1
-    MONSTER 
-    +FloorClip
-	+DONTBLAST
-	+USEKILLSCRIPTS
     OBITUARY "%o was killed by A Zombie Marine!"
     SEESOUND "grunt/sight"
     ATTACKSOUND "grunt/attack"
@@ -400,155 +320,125 @@ ACTOR ZombieMarine : UndeadEnemy {
 	DropItem "DroppedClip"
     Decal Bulletchip
 	Tag "Zombie Marine"
-    states
-    {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEMARINE, DND_SILVER_WEAKNESS)
+	Monster
+    states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIEMARINE)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+	
 		Idle:
 			UDM2 AB 10 A_Look
 		Loop
-		See:
+		SeeState:
 			UDM2 AABBCCDD 4 Fast A_Chase
-		Loop
-		Missile:
+		Goto see
+		MissileState:
 			UDM2 E 3 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("grunt/attack", CHAN_WEAPON)
 			UDM2 F 3 Fast BRIGHT A_CustomMissile("SMGZombieBullet", 32, 0, frandom(-3.6, 3.6), 0, frandom(-3.6, 3.6))
 			UDM2 E 3 Fast A_CPosRefire
 		Loop
-		Pain:
+		PainState:
 			UDM2 G 5
 			UDM2 G 3 A_Pain
 		Goto See
-		Death:
+		DeathState:
 			UDM2 H 5
 			UDM2 I 5 A_Scream
 			UDM2 J 5 A_Fall
 			UDM2 KLM 5
 			UDM2 N -1
 		Stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			UDM2 O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			UDM2 P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			UDM2 Q 5 A_Fall
 			UDM2 RSTU 5
 			UDM2 V -1
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			UDM2 NMLKJIH 5
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
     }
 }
 
-ACTOR LOSZombieMan : ZombieMan2 {
+ACTOR LOSZombieMan : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	GibHealth -10
 	Tag "Armored Zombieman"
+	Radius 20
+	Height 56
+	DropItem "DroppedClip"
+	Speed 8
+	PainChance 200
+	SeeSound "grunt/sight"
+	AttackSound "grunt/attack"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"
+	ActiveSound "grunt/active"
+	Obituary "$OB_ZOMBIE" // "%o was killed by a zombieman."
+	Mass 100
+	Monster
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIELOS, DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIELOS)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+
 		Idle:
 			ZSEX AB 10 A_Look
 		Loop
-		See:
+		SeeState:
 			ZSEX AABBCCDD 4 Fast A_Chase
-		Loop
-		Missile:
+		Goto See
+		MissileState:
 			ZSEX E 10 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_Playsound("grunt/attack", CHAN_WEAPON)
 			ZSEX F 8 Fast BRIGHT A_CustomMissile("ZombieBullet", 32, 0, frandom(-10.0, 10.0), 0, frandom(-1.0, 1.0))
 			ZSEX E 8 Fast
 		Goto See
-		Pain:
+		PainState:
 			ZSEX G 3
 			ZSEX G 3 A_Pain
 		Goto See
-		Death:
+		DeathState:
 			ZSEX H 5
 			ZSEX I 5 A_Scream
 			ZSEX J 5 A_NoBlocking
 			ZSEX J 5
 			ZSEX L -1
 		Stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 AA 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZSEX G 3 A_XScream
 			ZSEX G 1 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			ZSEX KJIH 5
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
-ACTOR PistolZombie : UndeadEnemy {
+ACTOR PistolZombie : DnD_BaseRangedMonster {
     Health 0x7FFFFFFF
+	GibHealth -15
     Radius 20
     Height 56
     Speed 8
     PainChance 200
-    MONSTER 
-    +FLOORCLIP
-	+DONTBLAST
-	+USEKILLSCRIPTS
     SeeSound "grunt/sight"
     AttackSound "Weapons/NewPist"
     PainSound "grunt/pain"
@@ -557,86 +447,63 @@ ACTOR PistolZombie : UndeadEnemy {
     Obituary "%o was killed by a zombieman."
 	DropItem "DroppedClip"
 	Tag "Pistol Zombie"
+	Monster
     States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEPISTOL, DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIEPISTOL)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+
 		Idle:
 			POSP AB 10 A_Look
 		Loop
-		See:
+		SeeState:
 			POSP AABBCCDD 4 Fast A_Chase
-		Loop
-		Missile:
+		Goto See
+		MissileState:
 			POSP E 10 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("Weapons/NewPist", CHAN_WEAPON)
 			POSP F 8 Fast A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5), 0, 0)
 			POSP E 8 Fast
 		Goto See
-		Pain:
+		PainState:
 			POSP G 3
 			POSP G 3 A_Pain
 		Goto See
-		Death:
+		DeathState:
 			POSP H 5
 			ZHRF I 5 A_Scream
 			ZHRF J 5 A_Fall
 			ZHRF K 5
 			ZHRF L -1
 		Stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			POSP M 5 
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			ZHRF N 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			ZHRF O 5 A_Fall
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZHRF PQRST 5
 			ZHRF U -1
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			ZHRF KJIH 5
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
     }
 }
 
-ACTOR QuakeZombie : UndeadEnemy {
+ACTOR QuakeZombie : DnD_BaseRangedMonster {
     Health 0x7FFFFFFF
+	GibHealth -15
     Radius 20
     Height 56
     Speed 8
     PainChance 200
-    MONSTER 
-    +FLOORCLIP
-	+DONTBLAST
-	+USEKILLSCRIPTS
     SeeSound "SSGUNER/sight"
     AttackSound "grunt/attack"
     PainSound "QuakeZombie/pain"
@@ -646,17 +513,20 @@ ACTOR QuakeZombie : UndeadEnemy {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip"
 	Tag "Enforcer"
+	Monster
     States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEQUAKE1, DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIEQUAKE1)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+
 		Idle:
 			QZOM AB 10 A_Look
 		Loop
-		See:
+		SeeState:
 			QZOM AABBCCDD 4 A_Chase
-		Loop
-		Missile:
+		Goto See
+		MissileState:
 			QZOM E 10 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("grunt/attack", CHAN_WEAPON)
@@ -671,56 +541,33 @@ ACTOR QuakeZombie : UndeadEnemy {
 			QZOM F 8 Fast Bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-12.8, 12.8), 0, 0)
 			QZOM E 8 Fast A_FaceTarget
 		Goto See
-		Pain:
+		PainState:
 			QZOM G 3 Fast
 			QZOM G 3 Fast A_Pain
 		Goto See
-		Death:
+		DeathState:
 			QZOM H 5
 			QZOM I 5 A_Scream
 			QZOM J 5 A_Fall
 			QZOM K 5
 			QZOM L -1
 		Stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			QZOM M 5 
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			QZOM N 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 			QZOM O 5 A_Fall
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			QZOM PQR 5
 			QZOM S -1
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			QZOM KJIH 5
 		Goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
     }
 }
 
@@ -728,9 +575,10 @@ Actor UndeadInitiateBullet : ZombieBullet {
 	Damage (random(1,3) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 }
 
-actor UndeadHunter : UndeadEnemy {
+actor UndeadHunter : DnD_BaseHybridMonster {
 	obituary "%o was bagged by an undead hunter."
 	Health 0x7FFFFFFF
+	GibHealth -15
 	gibhealth 10
 	radius 20
 	height 56
@@ -744,45 +592,44 @@ actor UndeadHunter : UndeadEnemy {
 	painsound "UndeadInitiate/Pain"
 	deathsound "UndeadInitiate/Death"
 	Tag "Undead Hunter"
-	MONSTER
-	+FLOORCLIP
+	Monster
 	+NODROPOFF
-	+DONTBLAST
-	+USEKILLSCRIPTS
 	states {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_ZOMBIEHUNTER, DND_MOBILITY, DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_ZOMBIEHUNTER)
+			TNT1 A 0 A_SetArg(1, DND_MOBILITY | DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+	
 		Idle:
 			1175 A 10 A_Look
 		loop
-		See:
+		SeeState:
 			1175 A 0 A_Jump (32, "Run")
 			1175 AA 3 Fast A_Chase
 			1175 BB 3 Fast A_FastChase
 			1175 CC 3 Fast A_FastChase
 			1175 DD 3 Fast A_Chase
-		loop
+		Goto See
 		Run:
 			1175 A 0 A_Jump (24, "See")
 			1175 AA 2 A_Chase
-			1175 BB 2 A_FastChase
-			1175 CC 2 A_FastChase
+			1175 BB 2 A_Chase
+			1175 CC 2 A_Chase
 			1175 DD 2 A_Chase
-		loop 
-		Melee:
-		Missile:
+		Loop
+		MeleeState:
+		MissileState:
 			1175 E 8 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("UndeadInitiate/Shoot", CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			1175 F 5 Fast bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-6.0, 6.0), 0, frandom(-3.0, 3.0))
 			1175 E 6 Fast A_FaceTarget
 		Goto See
-		Pain:
+		PainState:
 			1175 G 3 Fast
 			1175 G 3 Fast A_Pain
 		goto See
-		Death:
+		DeathState:
 			1175 H 7
 			1175 I 7 A_Scream
 			1175 JK 7
@@ -790,48 +637,28 @@ actor UndeadHunter : UndeadEnemy {
 			1175 M 7
 			1175 N -1
 		Stop
-		XDeath:
-		Death.Explosives:
-		Death.ExplosivesFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
+		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			1175 O 5 A_Scream
 			1175 P 5
 			1175 R 5 A_NoBlocking
 			1175 STUVW 5
 			1175 X -1
 		Stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			1175 NMLKJIH 6
 		goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
-actor Prophet : UndeadEnemy {
+actor Prophet : DnD_BaseRangedMonster {
 	obituary "%o couldn't stand against the prophecy."
 	Health 0x7FFFFFFF
+	GibHealth -15
 	radius 20
 	height 56
 	mass 100
@@ -848,33 +675,34 @@ actor Prophet : UndeadEnemy {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip", 128
 	Tag "Prophet"
-	MONSTER
-	+FLOORCLIP
-	+DONTBLAST
-	+USEKILLSCRIPTS
+	Monster
 	+GHOST
 	states {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_PROPHET, DND_GHOST | DND_SILVER_WEAKNESS)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_PROPHET)
+			TNT1 A 0 A_SetArg(1, DND_GHOST | DND_SILVER_WEAKNESS)
+		Goto SpawnSetup
+
 		Idle:
 			PRPH AB 10 A_Look
 		loop
-		See:
+		SeeState:
 			PRPH AABBCCDD 2 Fast A_Chase
-		loop
-		Missile:
+		Goto See
+		MissileState:
 			PRPH E 4 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("Weapons/NewPist", CHAN_WEAPON)
 			PRPH F 4 Fast bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-10.0, 10.0), 0, frandom(-1.0, 1.0))
 			PRPH E 3 Fast
 		goto See
-		Pain:
+		PainState:
 			PRPH G 3 Fast
 			PRPH G 3 Fast A_Pain
 		goto See
-		Death:
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
 			TNT1 A 0 A_SetTranslucent(1.0)
 			PRPH H 5
 			PRPH I 5 A_Scream
@@ -882,25 +710,8 @@ actor Prophet : UndeadEnemy {
 			PRPH K 5
 			PRPH L -1
 		stop
-		Raise:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
+		RaiseState:
 			PRPH LKJIH 5
 		goto See
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }

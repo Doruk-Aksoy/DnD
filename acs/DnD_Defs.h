@@ -48,8 +48,19 @@ enum {
 	RESET_PERKS = 8
 };
 
+enum {
+	DND_MHR_PERIODIC,
+	DND_MHR_DURATION
+};
+
 int IsHardcore() {
 	return HardcoreSet;
+}
+
+void HealMonster(int mid, int amount) {
+	int hp = GetActorProperty(0, APROP_HEALTH);
+	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
+	SetActorProperty(0, APROP_HEALTH, hp + amount);
 }
 
 void HandlePlayerPainSound(int pclass) {

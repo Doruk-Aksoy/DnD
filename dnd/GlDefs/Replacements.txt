@@ -1,3 +1,74 @@
+pointlight BARONBALL
+{
+    color 0.0 1.0 0.0
+    size 64
+}
+
+flickerlight BARONBALL_X1
+{
+    color 0.0 0.7 0.0
+    size 80
+    secondarySize 88
+    chance 0.25
+}
+
+flickerlight BARONBALL_X2
+{
+    color 0.0 0.4 0.0
+    size 96
+    secondarySize 104
+    chance 0.25
+}
+
+flickerlight BARONBALL_X3
+{
+    color 0.0 0.2 0.0
+    size 112
+    secondarySize 120
+    chance 0.25
+}
+
+object Zombieman2 {
+	frame ZHRFF { light ZOMBIEATK }
+}
+
+object Shotgunguy2 {
+	frame ZSSHF { light ZOMBIEATK }
+}
+
+object Chaingunguy2 {
+    frame ZCCHE { light ZOMBIEATK }
+    frame ZCCHF { light ZOMBIEATK }
+}
+
+object Zombieman3 {
+	frame ZHRFF { light ZOMBIEATK }
+}
+
+object Shotgunguy3 {
+	frame ZSSHF { light ZOMBIEATK }
+}
+
+object Chaingunguy3 {
+    frame ZCCHE { light ZOMBIEATK }
+    frame ZCCHF { light ZOMBIEATK }
+}
+
+object LostSoulNoExp {
+    frame SKULA { light LOSTSOUL    }
+    frame SKULB { light LOSTSOUL    }
+    frame SKULC { light LOSTSOUL    }
+    frame SKULD { light LOSTSOUL    }
+    frame SKULE { light LOSTSOUL    }
+    frame SKULF { light LOSTSOUL    }
+    frame SKULG { light LOSTSOUL    }
+
+    frame SKULH { light LOSTSOUL_X1 }
+    frame SKULI { light LOSTSOUL_X2 }
+    frame SKULJ { light LOSTSOUL_X3 }
+    frame SKULK { light LOSTSOUL_X4 }
+}
+
 object DoomImpBall2
 {
     frame BAL1A { light IMPBALL    }
@@ -92,6 +163,23 @@ object Archvile2
     frame VILE] { light ARCHRES }
 }
 
+object Archvile3
+{
+    frame VILEH { light ARCHATK1 }
+    frame VILEI { light ARCHATK2 }
+    frame VILEJ { light ARCHATK3 }
+    frame VILEK { light ARCHATK4 }
+    frame VILEL { light ARCHATK4 }
+    frame VILEM { light ARCHATK4 }
+    frame VILEN { light ARCHATK5 }
+    frame VILEO { light ARCHATK6 }
+    frame VILEP { light ARCHATK7 }
+
+    frame VILE[ { light ARCHRES }
+    frame VILE\ { light ARCHRES }
+    frame VILE] { light ARCHRES }
+}
+
 flickerlight2 SPIDMATK
 {
     color 1.0 0.8 0.2
@@ -102,6 +190,12 @@ flickerlight2 SPIDMATK
 }
 
 object SpiderMastermind2
+{
+	frame SPIDG { light SPIDMATK }
+	frame SPIDH { light SPIDMATK }
+}
+
+object SpiderMastermind3
 {
 	frame SPIDG { light SPIDMATK }
 	frame SPIDH { light SPIDMATK }

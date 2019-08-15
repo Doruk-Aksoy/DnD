@@ -24,7 +24,7 @@
 #define MAX_ROLLABLE_TRAITS 21
 #define ELITE_FLAG2_BEGIN 11
 
-#include "DnD_ElitePow.h"
+#include "DnD_EliteInfo.h"
 
 // these are powers, not actual values
 int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
@@ -40,7 +40,7 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 	DND_FASTREACTION_POW,
 	DND_NOPAIN_POW,
 	
-	// from here and onwards consider traits flag2
+	// from here and onwards consider traits flag2 -- controlled by ELITE_FLAG2_BEGIN
 	DND_BULLET_IMMUNE_POW,
 	DND_ENERGY_RESIST_POW,
 	DND_ENERGY_IMMUNE_POW,
@@ -150,8 +150,7 @@ void SetEliteFlag(int f, int flagside) {
 				GiveInventory("MakePierce", 1);
 			break;
 			case DND_REVIVED_POW:
-				//printbold(s:"Mob got revived!");
-				GiveInventory("Mo_Revived", 1);
+			case DND_SUMMONED_POW:
 			break;
 		}
 		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].traits2 |= (1 << f);

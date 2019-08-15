@@ -1,24 +1,65 @@
 Actor DnD_BaseMonster {
-	MONSTER
+	GibHealth -150
 	+USEKILLSCRIPTS
+	+FLOORCLIP
+	+DONTBLAST
+	-SHOOTABLE
+	-SOLID
 	States {
+		Spawn:
+			// this tnt1 is needed, otherwise the game will complain it has no frames
+			TNT1 A 0 NoDelay A_Jump(256, "SetInfo")
+			"####" "#" 35
+		Wait
+		
+		SpawnSetup:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, args[0], args[1], args[2])
+			"####" "#" 0 A_Jump(256, "Idle")
+			"####" "#" 35
+		Wait
+		
+		See:
+			"####" "#" 0 A_Jump(256, "SeeState")
+			"####" "#" 35
+		Wait
+		Pain:
+			"####" "#" 0 A_Jump(256, "PainState")
+			"####" "#" 35
+		Wait
+	
 		Death:
 			"####" "#" 0 A_Jump(256, "DeathState")
 			"####" "#" 35
 		Wait
 		XDeath:
-			"####" "#" 0 A_Jump(256,"XDeathState")
-			"####" "#" 35
-		Wait
-		
-		See:
-			"####" "#" 0 A_Jump(256,"SeeState")
+		Death.Explosives:
+		Death.ExplosivesFull:
+			"####" "#" 0 A_Jump(256, "XDeathState")
 			"####" "#" 35
 		Wait
 		
 		/*
 		Damage types from spells and stuff affecting monsters go here
 		*/
+		Death.Explosives_Magic:
+		Death.Explosives_MagicFull:
+			"####" "#" 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto XDeath
+		
+		Death.Melee_Magic:
+		Death.Melee_MagicFull:
+		Death.Magic:
+		Death.MagicFull:
+		Death.MagicFire:
+		Death.MagicFireFull:
+		Death.SoulType:
+		Death.SoulTypeFull:
+			"####" "#" 0 A_GiveInventory("MagicCausedDeath", 1)
+		Goto Death
+		Death.BookOfTheDead:
+			"####" "#" 0 A_GiveInventory("BookofDeadCausedDeath", 1)
+		Goto Death
+		
 		Death.MagicSealing:
 			"####" "#" 0 A_Stop
 			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
@@ -62,6 +103,7 @@ Actor DnD_BaseMonster {
 		Stop
 		Death.Ice:
 		Death.P_Ice:
+		Death.P_IceFull:
 			"----" "#" 4 A_GenericFreezeDeath
 			"----" "#" 0 A_KillMaster
 			"----" "#" 1 A_FreezeDeathChunks
@@ -69,948 +111,144 @@ Actor DnD_BaseMonster {
 	}
 }
 
-Actor DnD_Zombieman : Zombieman { 
+// inherit melee if monster can ONLY do melee
+Actor DnD_BaseMeleeMonster : DnD_BaseMonster {
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Melee:
+			"####" "#" 0 A_Jump(256, "MeleeState")
+			"####" "#" 35
+		Wait
+		
+		Raise:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
+			"####" "#" 0 A_Jump(256, "RaiseState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_Shotgunner : Shotgunguy { 
+// inherit ranged if monster can ONLY do ranged
+Actor DnD_BaseRangedMonster : DnD_BaseMonster {
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Missile:
+			"####" "#" 0 A_Jump(256, "MissileState")
+			"####" "#" 35
+		Wait
+		
+		Raise:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
+			"####" "#" 0 A_Jump(256, "RaiseState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_Chaingunguy : Chaingunguy { 
+// inherit this if the monster is supposed to have both attack types, melee and ranged!
+Actor DnD_BaseHybridMonster : DnD_BaseMonster {
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Melee:
+			"####" "#" 0 A_Jump(256, "MeleeState")
+			"####" "#" 35
+		Wait
+		Missile:
+			"####" "#" 0 A_Jump(256, "MissileState")
+			"####" "#" 35
+		Wait
+		
+		Raise:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
+			"####" "#" 0 A_Jump(256, "RaiseState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_Demon : Demon {
+Actor DnD_ArchVileBase : DnD_BaseMonster {
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Missile:
+			"####" "#" 0 A_Jump(256, "MissileState")
+			"####" "#" 35
+		Wait
+		Heal:
+			"####" "#" 0 A_Jump(256, "HealState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_Spectre : Spectre { 
+Actor DnD_ArchVilePassiveBase : DnD_BaseMonster {
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Heal:
+			"####" "#" 0 A_Jump(256, "HealState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_DoomImp : DoomImp { 
+Actor DnD_ArchVileHybridBase : DnD_BaseMonster {
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Melee:
+			"####" "#" 0 A_Jump(256, "MeleeState")
+			"####" "#" 35
+		Wait
+		Missile:
+			"####" "#" 0 A_Jump(256, "MissileState")
+			"####" "#" 35
+		Wait
+		Heal:
+			"####" "#" 0 A_Jump(256, "HealState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_LostSoul : LostSoul { 
+// inherit melee if monster can ONLY do melee and is a boss creature -- SM or Cyber (not ressurectable)
+Actor DnD_BaseMeleeBoss : DnD_BaseMonster {
+	GibHealth -500
 	States {
-		Idle:
-			SKUL AB 10 Bright A_Look
-		Loop
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Melee:
+			"####" "#" 0 A_Jump(256, "MeleeState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_Cacodemon : CacoDemon { 
+// inherit ranged if monster can ONLY do ranged
+Actor DnD_BaseRangedBoss : DnD_BaseMonster {
+	GibHealth -200
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Missile:
+			"####" "#" 0 A_Jump(256, "MissileState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_PainElemental : PainElemental { 
+// inherit this if the monster is supposed to have both attack types, melee and ranged!
+Actor DnD_BaseHybridBoss : DnD_BaseMonster {
+	GibHealth -200
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+		Melee:
+			"####" "#" 0 A_Jump(256, "MeleeState")
+			"####" "#" 35
+		Wait
+		Missile:
+			"####" "#" 0 A_Jump(256, "MissileState")
+			"####" "#" 35
 		Wait
 	}
 }
 
-Actor DnD_Revenant : Revenant { 
+Actor DnD_MonsterSetupDone : DnD_Activator {
 	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
+			TNT1 A 0 A_ChangeFlag("SOLID", 1)
 		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
 	}
 }
 
-Actor DnD_Hellknight : Hellknight { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
-
-Actor DnD_BaronOfHell : BaronOfHell { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
-
-Actor DnD_Fatso : Fatso { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
-
-Actor DnD_Arachnotron : Arachnotron { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
-
-Actor DnD_ArchVile : ArchVile { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 A_GiveInventory("NoDrop", 1) // to fix undead priest
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
-
-Actor DnD_SpiderMasterMind : SpiderMasterMind { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
-
-Actor DnD_Cyberdemon : Cyberdemon { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
-
-Actor DnD_WolfensteinSS : WolfensteinSS { 
-	States {
-		Death.MagicSealing:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_SpawnItemEx("SealedDemonFX", 0, 0, 6, 0, 0, 2, 0, SXF_NOCHECKPOSITION)
-			"####" "#" 0 A_PlaySound ("jpcpplasmarifle/seal", CHAN_AUTO, 1, 0, 0.8)
-			"####" "#" 0 A_SetTranslucent (0.85, 0)
-			"####" "#" 0 A_Fall
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow1") A_SetScale (scalex * 0.92, scaley * 0.97)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow2") A_SetScale (scalex * 0.80, scaley * 0.95)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "######" 1 Light("FDOfudaSealingGlow3") A_SetScale (scalex * 0.88, scaley * 0.93)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#######" 1 Light("FDOfudaSealingGlow4") A_SetScale (scalex * 0.84, scaley * 0.85)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow5") A_SetScale (scalex * 0.80, scaley * 0.74)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "#####" 1 Light("FDOfudaSealingGlow6") A_SetScale (scalex * 0.78, scaley * 0.62)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow7") A_SetScale (scalex * 0.72, scaley * 0.55)
-			"####" "#" 0 A_FadeTo (0, 0.1, 0)
-			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
-		Stop
-		Death.Emerald:
-		Death.EmeraldFull:
-			"####" "#" 0 A_Stop
-			"####" "#" 0 A_Scream
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
-			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
-			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
-			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
-			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
-			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
-			TNT1 A 1 A_KillMaster
-		Stop
-		Death.Ice:
-		Death.P_Ice:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
-		Wait
-	}
-}
+enum {
+	DND_MHR_PERIODIC,
+	DND_MHR_DURATION
+};

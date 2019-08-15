@@ -1,37 +1,109 @@
 // Gib generator fixed by LilWhiteMouse - thanks LWM!
-actor NashGore_GibGenerator 
-{ 
-+CLIENTSIDEONLY
-states 
-	{ 
-	Spawn: 
-     TNT1 A 0 
-	 TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
-     TNT1 A 0 A_Jump(128, 8) 
-     TNT1 A 0 A_Jump(128, 4) 
-     TNT1 A 0 A_Jump(128, 2) 
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib1", 1) 
-     stop 
-	 TNT1 A 1 A_SpawnDebris("NashGore_Gib2", 1) 
-     stop 
-     TNT1 A 0 A_Jump(128, 2) 
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib3", 1) 
-     stop 
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib4", 1) 
-     stop 
-     TNT1 A 0 A_Jump(128, 4) 
-     TNT1 A 0 A_Jump(128, 2) 
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib5", 1) 
-     stop 
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib6", 1) 
-     stop 
-     TNT1 A 0 A_Jump(128, 2) 
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib7", 1) 
-     stop 
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib8", 1) 
-     stop 
-   } 
-} 
+actor NashGore_GibGenerator { 
+	+CLIENTSIDEONLY
+	states  { 
+		Spawn: 
+			TNT1 A 0 
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(128, 8) 
+			TNT1 A 0 A_Jump(128, 4)
+			TNT1 A 0 A_Jump(128, 2) 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib1", 1) 
+		stop 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib2", 1) 
+		stop 
+			TNT1 A 0 A_Jump(128, 2) 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib3", 1) 
+		stop 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib4", 1) 
+		stop 
+			TNT1 A 0 A_Jump(128, 4) 
+			TNT1 A 0 A_Jump(128, 2) 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib5", 1) 
+		stop 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib6", 1) 
+		stop 
+			TNT1 A 0 A_Jump(128, 2) 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib7", 1) 
+		stop 
+			TNT1 A 1 A_SpawnDebris("NashGore_Gib8", 1) 
+		stop 
+	} 
+}
+
+Actor BloodSmoke {
+	Scale 0.4
+	Renderstyle Translucent
+	Alpha 0.3
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0 
+			TNT1 A 1 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnWork:
+			SMK4 B 5
+			SMK4 CDEFGHIJKLM 3
+		Stop
+	}
+}
+
+Actor BloodSmoke_Medium : BloodSmoke {
+	Scale 0.666
+}
+
+Actor BloodSmoke_Large : BloodSmoke {
+	Scale 0.875
+}
+
+Actor GenericGibber_Low {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0 
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnWork:
+			TNT1 AAAA 0 A_SpawnItemEx("BloodSmoke", frandom(-16.0, 16.0), frandom(-16.0, 16.0), frandom(18.0, 40.0), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), 0, SXF_TRANSFERTRANSLATION)
+			TNT1 AAA 0 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
+
+Actor GenericGibber_Low_Delayed : GenericGibber_Low {
+	States {
+		SpawnWork:
+			TNT1 AAA 6 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
+
+Actor GenericGibber_Medium : GenericGibber_Low {
+	States {
+		SpawnWork:
+			TNT1 AAAA 0 A_SpawnItemEx("BloodSmoke_Medium", frandom(-28.0, 28.0), frandom(-28.0, 28.0), frandom(22.0, 48.0), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), 0, SXF_TRANSFERTRANSLATION)
+			TNT1 AAAAAA 0 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
+
+
+Actor GenericGibber_Medium_Delayed : GenericGibber_Low {
+	States {
+		SpawnWork:
+			TNT1 AAAAAA 6 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
+
+Actor GenericGibber_High : GenericGibber_Low {
+	States {
+		SpawnWork:
+			TNT1 AAAA 0 A_SpawnItemEx("BloodSmoke_Large", frandom(-36.0, 36.0), frandom(-36.0, 36.0), frandom(28.0, 72.0), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), 0, SXF_TRANSFERTRANSLATION)
+			TNT1 AAAAAAAAA 0 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
 
 Actor NashGore_GibGenerator_G : NashGore_GibGenerator
 {
@@ -54,29 +126,27 @@ Actor NashGore_GibGenerator_Purple : NashGore_GibGenerator
 }
 
 // Gib 1
-actor NashGore_Gib1
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
-states
-	{
-	Spawn:
-		TNT1 A 0
-		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
-	SpawnLoop:
-	 GIB1 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB1 A 3500
-	 GIB1 AAAAAAAAAA 7 A_FadeOut(0.1)
-	 stop
+actor NashGore_Gib1 {
+	health 1
+	radius 8
+	height 8
+	mass 1
+	scale 0.75
+	+CORPSE
+	+NOTELEPORT
+	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
+	states {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			GIB1 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		loop
+		Crash:
+			GIB1 A 3500
+			GIB1 AAAAAAAAAA 7 A_FadeOut(0.1)
+		stop
 	}
 }
 
@@ -766,44 +836,61 @@ actor NashGore_FlyingBloodTrail2 : NashGore_FlyingBloodTrail
  }
 }
 
-Actor MetalScrap
-{
- game Doom
- scale 0.6
- radius 8
- height 1
- health 1
- mass 1
- +CORPSE
- +NOTELEPORT
- +NOBLOCKMAP
- +CLIENTSIDEONLY
- +MOVEWITHSECTOR
- -NOGRAVITY
- States
- {
-	Spawn:
-		TNT1 A 0
-		TNT1 A 0
-		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
-	SpawnLoop:
-		TNT1 A 0 A_Jump(256, "Var1", "Var2", "Var3", "Var4", "Var5")
-	Var1:
-		TNT1 A 1 A_SpawnDebris("MetalPiece1") 
-	Stop
-	Var2:
-		TNT1 A 1 A_SpawnDebris("MetalPiece2") 
-	Stop
-	Var3:
-		TNT1 A 1 A_CustomMissile("XJunk1", 0, 0, random(0, 360), 2, random(0, 360))
-	Stop
-	Var4:
-		TNT1 A 1 A_CustomMissile("XJunk2", 0, 0, random(0, 360), 2, random(0, 360))
-	Stop
-	Var5:
-		TNT1 A 1 A_CustomMissile("XJunk3", 0, 0, random(0, 360), 2, random(0, 360))
-	Stop
- }
+Actor MetalScrap {
+	game Doom
+	scale 0.6
+	radius 8
+	height 1
+	health 1
+	mass 1
+	+CORPSE
+	+NOTELEPORT
+	+NOBLOCKMAP
+	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
+	-NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			TNT1 A 0 A_Jump(256, "Var1", "Var2", "Var3", "Var4", "Var5")
+		Var1:
+			TNT1 A 1 A_SpawnDebris("MetalPiece1") 
+		Stop
+		Var2:
+			TNT1 A 1 A_SpawnDebris("MetalPiece2") 
+		Stop
+		Var3:
+			TNT1 A 1 A_CustomMissile("XJunk1", 0, 0, random(0, 360), 2, random(0, 360))
+		Stop
+		Var4:
+			TNT1 A 1 A_CustomMissile("XJunk2", 0, 0, random(0, 360), 2, random(0, 360))
+		Stop
+		Var5:
+			TNT1 A 1 A_CustomMissile("XJunk3", 0, 0, random(0, 360), 2, random(0, 360))
+		Stop
+	}
+}
+
+Actor MetalScrap_More : MetalScrap {
+	States {
+		Var1:
+			TNT1 AAAA 1 A_SpawnDebris("MetalPiece1") 
+		Stop
+		Var2:
+			TNT1 AAAA 1 A_SpawnDebris("MetalPiece2") 
+		Stop
+		Var3:
+			TNT1 AAAA 1 A_CustomMissile("XJunk1", 0, 0, random(0, 360), 2, random(0, 360))
+		Stop
+		Var4:
+			TNT1 AAAA 1 A_CustomMissile("XJunk2", 0, 0, random(0, 360), 2, random(0, 360))
+		Stop
+		Var5:
+			TNT1 AAAA 1 A_CustomMissile("XJunk3", 0, 0, random(0, 360), 2, random(0, 360))
+		Stop
+	}
 }
 
 Actor MetalPiece1 : MetalScrap

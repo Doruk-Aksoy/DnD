@@ -1,28 +1,51 @@
 #ifndef DND_TEMPWEAPONS_IN
 #define DND_TEMPWEAPONS_IN
 
-#include "DnD_Weapons.h"
+#include "DnD_WeaponDefs.h"
 
 #define TEMPBEGIN DND_WEAPON_SAWEDOFF
-#define MAXTEMPWEPS MAXWEPS - TEMPBEGIN + 1
+#define MAXTEMPWEPS (MAXWEPS - TEMPBEGIN + 1)
 #define UNUSEDWEPS 0 // this is remaining slots out of 2^(nearest power of 2 to maxweps) - maxweps
+
+#define TEMPWEP_BLOODFIENDSPINE_DROPCHANCE 0.6
+#define TEMPWEP_VENOM_DROPCHANCE 0.5
+#define TEMPWEP_NAILGUN_DROPCHANCE 0.33
+#define TEMPWEP_SOULRENDER_DROPCHANCE 0.25
+#define TEMPWEP_HFCANNON_DROPCHANCE 0.3
+#define TEMPWEP_DARKGLOVES_DROPCHANCE 0.375
+
+enum {
+	DND_TEMPWEP_SAWEDOFF,
+	DND_TEMPWEP_SOULRENDER,
+	DND_TEMPWEP_SMG,
+	DND_TEMPWEP_HELLFORGECANNON,
+	DND_TEMPWEP_BLOODFIENDSPINE,
+	DND_TEMPWEP_ENFORCERRIFLE,
+	DND_TEMPWEP_VENOM,
+	DND_TEMPWEP_DEMONHEART,
+	DND_TEMPWEP_DARKGLOVES,
+	DND_TEMPWEP_HEAVYNAILGUN,
+	DND_TEMPWEP_BERETTAS,
+	DND_TEMPWEP_PLASMABOLTER,
+	DND_TEMPWEP_RIPPERCANNON
+};
 
 #define TEMPWEP_NAME 0
 #define TEMPWEP_DROP 1
 str TemporaryWeapons[MAXTEMPWEPS][2] = { 
-	{ "Sawedoff", "SawedoffPickup_D" },
-	{ "Soul Render", "SoulRenderPickup_D" },
-	{ "SMG", "SMGPickup_D" },
-	{ "Hellforge Cannon", "HellforgePickup_D" },
-	{ "Bloodfiend Spine", "SpinePickup_D" },
-	{ "Enforcer Rifle", "LaserPickup_D" },
-	{ "Venom", "VenomPickup_D" },
-	{ "Demon Heart", "DemonHeartPickup_D" },
-	{ "DarkServantGloves", "DarkServantGlovesPickup_D" },
-	{ "Nailgun2", "Nailgun2Pickup_D" },
-	{ "Berettas", "BerettasPickup_D" },
-	{ "Plasma Bolter", "PlasmaBolterPickup_D" },
-	{ "Ripper Cannon", "RipperCannonPickup_D" }
+	{ "Sawedoff", "SawedoffPickup" },
+	{ "Soul Render", "SoulRenderPickup" },
+	{ "SMG", "SMGPickup" },
+	{ "Hellforge Cannon", "HellforgePickup" },
+	{ "Bloodfiend Spine", "SpinePickup" },
+	{ "Enforcer Rifle", "LaserPickup" },
+	{ "Venom", "VenomPickup" },
+	{ "Demon Heart", "DemonHeartPickup" },
+	{ "DarkServantGloves", "DarkServantGlovesPickup" },
+	{ "Nailgun2", "Nailgun2Pickup" },
+	{ "Berettas", "BerettasPickup" },
+	{ "Plasma Bolter", "PlasmaBolterPickup" },
+	{ "Ripper Cannon", "RipperCannonPickup" }
 };
 
 enum {

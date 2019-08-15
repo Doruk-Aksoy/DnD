@@ -256,14 +256,6 @@ shdwpain2			SHDPAIN2
 Shadow/attack		SHDATTAK
 Shadow/death		SHDDEATH
 
-Imp/Pain								DSIMPPAN
-LostSoul/Pain							DSSOULPN
-Cacodemon/Pain							DSCACOPN
-HellKnight/Pain							DSHKPAIN
-Arachnotron/Pain						DSARAPAN
-Revenant/Pain							DSSKPAIN
-Cyberdemon/Pain							DSCYBERP
-
 monster/dogsit HOUNDSEE
 monster/dogatk HOUNDSEE
 monster/dogbit HOUNDATK
@@ -301,14 +293,6 @@ Guru/Wall2								GURWAL2
 Guru/Wall3								GURWAL3
 Guru/Fire								GURFIRE
 $random Guru/FireWall { Guru/Wall1 Guru/Wall2 Guru/Wall3 }
-
-SpiderMasterMind/MiniGunFire			DSSPIMIN
-SpiderMasterMind/MiniGunEnd				DSSPIMI2
-SpiderMasterMind/MinigGunSpin			DSSPISPN
-SpiderMasterMind/MiniGunSpinEnd			DSSPIFST
-SpiderMasterMind/Pain1					DSSPIPN1
-SpiderMasterMind/Pain2					DSSPIPN2
-$random SpiderMasterMind/Pain { SpiderMasterMind/Pain1 SpiderMasterMind/Pain2 }
 
 CyborgWarrior/Plasma1 CYBGPLS1
 CyborgWarrior/Attack1 CYBGATK1

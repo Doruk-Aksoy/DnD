@@ -116,6 +116,9 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 
 #define DND_NO_TRANSLATION 70
 
+#define DND_SOULAMMO_DROPRATE 0.1
+#define DND_SOULAMMO_SMALLCHANCE 75
+
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"
@@ -355,10 +358,21 @@ int CurrentLevelReward[MAXPLAYERS];
 int CurrentStatReward[MAXPLAYERS];
 
 #define MAXCREDITDROPS 3
-int CreditDroppers[MAXCREDITDROPS] = { "LargeCreditDropper", "MediumCreditDropper", "SmallCreditDropper" };
-int CreditEliteDroppers[MAXCREDITDROPS] = { "LargeCreditDropper_Elite", "MediumCreditDropper_Elite", "SmallCreditDropper_Elite" };
-int CreditDropThresholds[MAXCREDITDROPS] = { 10000, 5000, 750 };
-int CreditDropChances[MAXCREDITDROPS] = { 0.05, 0.15, 0.3 };
+#define CREDITDROP_NORMAL 0
+#define CREDITDROP_ELITE 1
+str CreditLabels[MAXCREDITDROPS][2] = {
+	{ "LargeCreditDropper", "LargeCreditDropper_Elite" },
+	{ "MediumCreditDropper", "MediumCreditDropper_Elite" },
+	{ "SmallCreditDropper", "SmallCreditDropper_Elite" }
+};
+
+#define CREDITDROP_THRESHOLD 0
+#define CREDITDROP_CHANCE 1
+int CreditDropValues[MAXCREDITDROPS][2] = {
+	{ 10000, 0.05 },
+	{ 5000, 0.15 },
+	{ 750, 0.3 }
+};
 
 void Reset_RPGInfo (int resetflags) {
 	int i;
@@ -716,13 +730,13 @@ void HandleCashDrops(int pnum, bool isElite) {
 	
 	basechance = random(0, basechance); // reduced max number implies increased chances of getting
 	for(int i = 0; i < MAXCREDITDROPS; ++i) {
-		if(CheckInventory("MonsterBaseHealth") >= CreditDropThresholds[i]) {
-			if(basechance - addedchance - luck > CreditDropChances[i])
+		if(CheckInventory("MonsterBaseHealth") >= CreditDropValues[i][CREDITDROP_THRESHOLD]) {
+			if(basechance - addedchance - luck > CreditDropValues[i][CREDITDROP_CHANCE])
 				continue;
 			if(isElite)
-				GiveInventory(CreditEliteDroppers[i], 1);
+				GiveInventory(CreditLabels[i][CREDITDROP_ELITE], 1);
 			else
-				GiveInventory(CreditDroppers[i], 1);
+				GiveInventory(CreditLabels[i][CREDITDROP_NORMAL], 1);
 			break;
 		}
 	}
@@ -1004,5 +1018,39 @@ void CheckPunisherKillTally() {
 		GiveInventory(StrParam(s:"Punisher_Perk50_Damage_", d:CheckInventory("DnD_Kills") / 50), 1);
 		// clean current count
 		SetInventory("Punisher_Perk50_Counter", count % DND_PUNISHER_PERK3_KILLCOUNT);
+	}
+}
+
+void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
+	switch(id) {
+		case MONSTER_BLOODFIEND:
+		case MONSTER_RAVAGER:
+		case MONSTER_LURKER:
+			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
+				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
+		break;
+		case MONSTER_VULGAR:
+			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_VENOM_DROPCHANCE))
+				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
+		break;
+		case MONSTER_CHAINGUNGENERAL:
+			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_NAILGUN_DROPCHANCE))
+				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
+		break;
+		case MONSTER_DEATHKNIGHT:
+		case MONSTER_HORSHACKER:
+			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_SOULRENDER_DROPCHANCE))
+				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
+		break;
+		case MONSTER_CORPULENT:
+			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_HFCANNON_DROPCHANCE))
+				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
+		break;
+		case MONSTER_DARKSERVANT:
+			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_DARKGLOVES_DROPCHANCE))
+				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
+		break;
+		default:
+		break;
 	}
 }

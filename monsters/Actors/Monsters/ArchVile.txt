@@ -1,4 +1,4 @@
-Actor Diabloist : DnD_BaseEnemy {
+Actor Diabloist : DnD_BaseRangedMonster {
 	Obituary "%o was set ablaze by a Diabloist."
 	Health 0x7FFFFFFF
 	Radius 20 
@@ -7,47 +7,31 @@ Actor Diabloist : DnD_BaseEnemy {
 	Speed 15 
 	PainChance 10
 	BloodColor "08 08 08"
-	Monster
-	+FloorClip
 	+NoTarget
 	+MissileMore
 	Species "AV"
+	Monster
 	+DONTHURTSPECIES
-	+DONTBLAST
 	+QUICKTORETALIATE
 	+NOFEAR
-	+USEKILLSCRIPTS
 	SeeSound "Monster/diasit" 
 	PainSound "Monster/diapai" 
 	DeathSound "Monster/diadth" 
 	ActiveSound "Monster/diaact" 
-	DropItem "SoulAmmoSpawner", 128
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
-	DamageFactor "Fire", 0.5
-	DamageFactor "P_Ice", 1.5
 	Tag "Diabloist"
 	States { 
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DIABLOIST)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_DIABLOIST)
+			TNT1 A 0 A_SetArg(2, DND_FIRECREATURE)
+		Goto SpawnSetup
+	
 		Idle:
 			DIAB AB 10 A_Look 
 		Loop 
-		See: 
+		SeeState: 
 			DIAB AABBCCDDEEFF 2 Fast A_Chase 
-		Loop 
-		Missile:
+		Goto See
+		MissileState:
 			DIAB G 0 Bright A_Jump(128, "Missile2")
 			DIAB G 0 Bright A_FaceTarget
 			DIAB G 3 Bright A_FaceTarget
@@ -114,11 +98,13 @@ Actor Diabloist : DnD_BaseEnemy {
 			DIA2 C 0 Bright A_CustomMissile ("DTracer",0,-40,0)
 			DIA2 C 8 Fast Bright A_CustomMissile ("DTracer",0,40,0)
 		Goto See 
-		Pain: 
+		PainState: 
 			DIAB Q 5 Fast 
 			DIAB Q 5 Fast A_Pain 
 		Goto See 
-		Death: 
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState: 
 			DIAB Q 7 
 			DIAB R 7 A_Scream 
 			TNT1 A 0 A_NoBlocking
@@ -128,31 +114,17 @@ Actor Diabloist : DnD_BaseEnemy {
 			DIAB Z -1 
 		Stop
 		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		RaiseState:
+			DIAB YXWVUTSRQ 4
+		Goto See
 	} 
 }
 
-Actor DiabloExp1 : BaseExplosionDamage
-{
+Actor DiabloExp1 : BaseExplosionDamage {
 	DamageType "VileFire"
 	Obituary "%o was set ablaze by a Diabloist."
 	+NODAMAGETHRUST
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -161,10 +133,8 @@ Actor DiabloExp1 : BaseExplosionDamage
 	}
 }
 
-Actor DiabloExp2 : DiabloExp1
-{
-	States
-	{
+Actor DiabloExp2 : DiabloExp1 {
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -173,10 +143,8 @@ Actor DiabloExp2 : DiabloExp1
 	}
 }
 
-Actor DiabloExp3 : DiabloExp1
-{
-	States
-	{
+Actor DiabloExp3 : DiabloExp1 {
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -185,10 +153,8 @@ Actor DiabloExp3 : DiabloExp1
 	}
 }
 
-Actor DiabloExp4 : DiabloExp1
-{
-	States
-	{
+Actor DiabloExp4 : DiabloExp1 {
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -197,119 +163,114 @@ Actor DiabloExp4 : DiabloExp1
 	}
 }
 
-Actor DFire
-{
-  Obituary "%o got was set ablaze by a Diabloist."
-  Radius 0
-  Height 1
-  Speed 0
-  RenderStyle Add
-  DamageType "VileFire"
-  Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
-  ALPHA 1.00
-  +NoGravity
-  +SeekerMissile
-  +NoTarget
-  +DONTBLAST
-  +NoDamageThrust
-  States
-  {
-  Spawn:
-    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-    FIRE A 2 Bright A_StartFire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
-    FIRE B 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
-    FIRE A 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
-    FIRE B 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
-    FIRE C 2 Bright A_FireCrackle
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
-    FIRE B 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE C 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE B 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE C 2 Bright A_Fire 
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE D 2 Bright A_Fire 
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE C 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE D 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE C 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE D 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE E 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE D 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE E 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
-    FIRE D 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
-    FIRE E 2 Bright A_FireCrackle
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
-    FIRE F 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
-    FIRE E 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
-    FIRE F 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
-    FIRE E 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
-    FIRE F 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
-    FIRE G 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
-    FIRE H 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
-    FIRE G 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
-    FIRE H 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
-    FIRE G 2 Bright A_Fire
-    TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
-    FIRE H 2 Bright A_Fire
-    Stop
-  }
+Actor DFire {
+	Obituary "%o got was set ablaze by a Diabloist."
+	Radius 0
+	Height 1
+	Speed 0
+	RenderStyle Add
+	DamageType "VileFire"
+	Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
+	ALPHA 1.00
+	+NoGravity
+	+SeekerMissile
+	+NoTarget
+	+DONTBLAST
+	+NoDamageThrust
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			FIRE A 2 Bright A_StartFire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			FIRE B 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			FIRE A 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			FIRE B 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			FIRE C 2 Bright A_FireCrackle
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			FIRE B 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE C 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE B 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE C 2 Bright A_Fire 
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE D 2 Bright A_Fire 
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE C 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE D 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE C 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE D 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE E 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE D 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE E 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			FIRE D 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			FIRE E 2 Bright A_FireCrackle
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			FIRE F 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
+			FIRE E 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
+			FIRE F 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
+			FIRE E 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			FIRE F 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			FIRE G 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			FIRE H 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			FIRE G 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			FIRE H 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			FIRE G 2 Bright A_Fire
+			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			FIRE H 2 Bright A_Fire
+		Stop
+	}
 }
 
-ACTOR DFlare
-{
-  Radius 5
-  Height 5
-  Speed 25
-  Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-  RenderStyle Add
-  DamageType "VileFire"
-  Alpha 0.85
-  Projectile
-  +ThruGhost
-  +DONTBLAST
-  Obituary "%o was set ablaze by a Diabloist."
-  Seesound "weapons/firmfi"
-  DeathSound "weapons/firex4"
-  States
-  {
-  Spawn:
-	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    VBAL AB 3 Bright A_SpawnItemEx("MFlareFX", 0, 0, 0, 0, 0, 0, 0, 128)
-    Loop
-  Death:
-    TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-    CBAL CDEFG 3 Bright
-    Stop
-  }
+ACTOR DFlare {
+	Radius 5
+	Height 5
+	Speed 25
+	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	RenderStyle Add
+	DamageType "VileFire"
+	Alpha 0.85
+	Projectile
+	+ThruGhost
+	+DONTBLAST
+	Obituary "%o was set ablaze by a Diabloist."
+	Seesound "weapons/firmfi"
+	DeathSound "weapons/firex4"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			VBAL AB 3 Bright A_SpawnItemEx("MFlareFX", 0, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			CBAL CDEFG 3 Bright
+		Stop
+	}
 }
 
-Actor DMissile : CFlameMissile
-{
+Actor DMissile : CFlameMissile {
 	DamageType "VileFire"
 	+ThruGhost
 	+DONTBLAST
@@ -323,12 +284,10 @@ Actor DMissile : CFlameMissile
 	}
 }
 
-Actor DiabloExp6 : BaseExplosionDamage
-{
+Actor DiabloExp6 : BaseExplosionDamage {
 	DamageType "VileFire"
 	Obituary "%o was set ablaze by a Diabloist."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
@@ -336,68 +295,59 @@ Actor DiabloExp6 : BaseExplosionDamage
 	}
 }
 
-Actor DTracer
-{
-  Radius 5
-  Height 5
-  Speed 15
-  ReactionTime 96
-  Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-  DamageType "VileFire"
-  RenderStyle Add
-  Alpha 0.67
-  Projectile
-  +SeekerMissile
-  +FloorHugger
-  +ThruGhost
-  +DONTBLAST
-  -NoGravity
-  Obituary "%o got was set ablaze by a Diabloist."
-  Seesound "weapons/diasht"
-  DeathSound "weapons/firex3"   
-  States
-  {
-  Spawn:
-	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    TNT1 A 1 Bright A_SeekerMissile(10, 15)
-    TNT1 A 0 Bright A_Countdown
-    TNT1 A 0 Bright A_SpawnItemEx("DTracerPuff", 0, 0, 0, 0, 0, 0, 0, 128)
-    Loop
-  Death:
-	TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
-	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-    FTRA K 4 Bright
-    FTRA L 4 Bright A_SpawnItem("DiabloExp6")
-    FTRA MNO 3 Bright
-    Stop
-  }
+Actor DTracer {
+	Radius 5
+	Height 5
+	Speed 15
+	ReactionTime 96
+	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "VileFire"
+	RenderStyle Add
+	Alpha 0.67
+	Projectile
+	+SeekerMissile
+	+FloorHugger
+	+ThruGhost
+	+DONTBLAST
+	-NoGravity
+	Obituary "%o got was set ablaze by a Diabloist."
+	Seesound "weapons/diasht"
+	DeathSound "weapons/firex3"   
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 A 1 Bright A_SeekerMissile(10, 15)
+			TNT1 A 0 Bright A_Countdown
+			TNT1 A 0 Bright A_SpawnItemEx("DTracerPuff", 0, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			FTRA K 4 Bright
+			FTRA L 4 Bright A_SpawnItem("DiabloExp6")
+			FTRA MNO 3 Bright
+		Stop
+	}
 }
 
-Actor MFlareFX
-{   
-  Radius 0
-  Height 1
-  Speed 0
-  Projectile
-  RenderStyle Add
-  +CLIENTSIDEONLY
-  Alpha 0.67
-  States
-  {
-  Spawn:
-    FDFX ABCDEF 4 Bright
-    Stop 
-  }
+Actor MFlareFX { 
+	RenderStyle Add
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Alpha 0.67
+	States {
+		Spawn:
+			FDFX ABCDEF 4 Bright
+		Stop 
+	}
 }
 
-Actor DiabloExp7 : BaseExplosionDamage
-{
+Actor DiabloExp7 : BaseExplosionDamage {
 	DamageType "VileFire"
 	Obituary "%o was set ablaze by a Diabloist."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 8, 0)
@@ -405,41 +355,37 @@ Actor DiabloExp7 : BaseExplosionDamage
 	}
 }
 
-Actor DTracerPuff
-{
-  Radius 1
-  Height 1
-  Speed 0
-  RenderStyle Add
-  DamageType "VileFire"
-  Alpha 0.67
-  Projectile
-  +FloorHugger
-  -NoGravity
-  +DONTBLAST
-  States
-  {
-  Spawn:
-    FTRA ABCDEFGHIJ 3 Bright A_SpawnItem("DiabloExp7")
-    stop
-  }
+Actor DTracerPuff {
+	Radius 1
+	Height 1
+	Speed 0
+	RenderStyle Add
+	DamageType "VileFire"
+	Alpha 0.67
+	Projectile
+	+FloorHugger
+	-NoGravity
+	+DONTBLAST
+	States {
+		Spawn:
+			FTRA ABCDEFGHIJ 3 Bright A_SpawnItem("DiabloExp7")
+		stop
+	}
 }
 
-Actor DMissileTrail : CFlameFloor
-{
-  DamageType "Vile"
-  +ThruGhost
-  +DONTBLAST
+Actor DMissileTrail : CFlameFloor {
+	DamageType "Vile"
+	+ThruGhost
+	+DONTBLAST
 }
 
-Actor DMissileCircle : CircleFlame
-{
- DamageType "VileFire"
- +ThruGhost
- +DONTBLAST
+Actor DMissileCircle : CircleFlame {
+	DamageType "VileFire"
+	+ThruGhost
+	+DONTBLAST
 }
 
-ACTOR DeathVile : ArchVile2 {
+ACTOR DeathVile : DnD_ArchVileBase {
 	Health 0x7FFFFFFF
 	Speed 16
 	PainChance 8
@@ -448,35 +394,31 @@ ACTOR DeathVile : ArchVile2 {
 	PainSound "wile/pain"
 	DeathSound "wile/death"
 	ActiveSound "wile/active"
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "Fire", 0.5
-	DamageFactor "P_Ice", 0.5
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
-	DamageFactor "Lightning", 0.5
-	DropItem "SoulAmmoSpawner", 128
 	Tag "Death Vile"
-	+DONTBLAST
+	Species "AV"
+	Radius 20
+	Height 56
+	Mass 500
+	Monster
+	+QUICKTORETALIATE
+	+NOTARGET
+	+DONTHURTSPECIES
+	MeleeSound "vile/stop"
+	Obituary "%o met a terrible fate at the hands of a Death Vile."
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DEATHVILE, DND_RESURRECT)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_DEATHVILE)
+			TNT1 A 0 A_SetArg(1, DND_RESURRECT)
+			TNT1 A 0 A_SetArg(2, DND_ELEMENTAL_RESIST)
+		Goto SpawnSetup
+		
 		Idle:
 			WILE AB 10 A_Look
 		Loop
-		See:
+		SeeState:
 			WILE AABBCCDDEEFF 2 Fast A_VileChase
-		Loop
-		Missile:
+		Goto See
+		MissileState:
 			WILE G 0 Bright A_PlaySound("wile/start")
 			WILE G 8 Fast Bright A_FaceTarget
 			WILE H 6 Fast Bright A_VileTarget("DarkFlame")
@@ -484,108 +426,78 @@ ACTOR DeathVile : ArchVile2 {
 			WILE O 6 Fast Bright A_VileAttack("vile/stop", 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 70 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 70, 1.0, "VileBlueFire")
 			WILE P 14 Fast Bright
 		Goto See
-		Heal:
+		HealState:
 			WILE "[\]" 8 Fast Bright
 		Goto See
-		Pain:
+		PainState:
 			WILE Q 5 Fast   
 			WILE Q 5 Fast A_Pain
 		Goto See
-		Death:
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
 			WILE Q 7
 			WILE R 7 A_Scream
 			WILE S 7 A_NoBlocking
 			WILE TUVWXY 7
 			WILE Z -1
 		Stop
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
 	}
 }
 
-Actor DarkFlame : ArchVileFire
-{
-  States
-  {
-  Spawn:
-    WFRE A 2 Bright A_StartFire
-    WFRE BAB 2 Bright A_Fire
-	TNT1 A 0 A_PlaySound("wile/flame")
-    WFRE C 2 Bright A_Fire
-    WFRE BCBCDCDCDEDED 2 Bright A_Fire
-	TNT1 A 0 A_PlaySound("wile/flame")
-    WFRE E 2 Bright A_Fire
-    WFRE FEFEFGHGHGH 2 Bright A_Fire
-    Stop	
+Actor DarkFlame : ArchVileFire {
+	States {
+		Spawn:
+			WFRE A 2 Bright A_StartFire
+			WFRE BAB 2 Bright A_Fire
+			TNT1 A 0 A_PlaySound("wile/flame")
+			WFRE C 2 Bright A_Fire
+			WFRE BCBCDCDCDEDED 2 Bright A_Fire
+			TNT1 A 0 A_PlaySound("wile/flame")
+			WFRE E 2 Bright A_Fire
+			WFRE FEFEFGHGHGH 2 Bright A_Fire
+		Stop	
 	}
 }
 
 //Hierophant
-Actor Hierophant : DnD_BaseEnemy {
+Actor Hierophant : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 1000
 	Speed 10
 	PainChance 16
-	Monster
 	Scale 1.15
 	DamageType Normal
 	Obituary "%o was hexed by a Hierophant."
 	HitObituary "%o got shredded by a Hierophant."
+	Monster
 	+NoTarget
-	+FloorClip
 	+MissileMore
 	Species "AV"
 	+DontHurtSpecies
-	+DONTBLAST
 	+QUICKTORETALIATE
-	+USEKILLSCRIPTS
 	SeeSound "monster/Hiesit"
 	PainSound "monster/Hiepai"
 	DeathSound "monster/Hiedth"
 	MeleeSound "baron/melee"
 	ActiveSound "monster/Hieact"
-	DropItem "SoulAmmoSpawner", 128
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
-	DamageFactor "Fire", 0.5
 	Tag "Hierophant"
 	States {
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HIEROPHANT, DND_CURSE | DND_HOMING | DND_MOBILITY)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_HIEROPHANT)
+			TNT1 A 0 A_SetArg(1, DND_CURSE | DND_HOMING | DND_MOBILITY)
+			TNT1 A 0 A_SetArg(2, DND_FIRECREATURE)
+		Goto SpawnSetup
+
 		Idle:
 			HIER AC 10 A_Look 
 		Loop 
-		See:
+		SeeState:
 			HIER AABBAACCDDCC 4 Fast A_Chase
 			HIER A 0 A_Jump(64, "Blur") 
-		Loop
+		Goto See
 		Blur:
 			HIER A 1 A_Playsound("monster/blur")
 			HIER A 0 A_SpawnItemEx("HieroFX",0,0,0,0,0,0,0,128,0)
@@ -637,7 +549,7 @@ Actor Hierophant : DnD_BaseEnemy {
 			HIER A 0 A_SpawnItemEx("HieroFX",0,0,0,0,0,0,0,128,0)
 			HIER A 1 A_Chase
 		Goto See 
-		Missile:
+		MissileState:
 			HIER A 0 A_FaceTarget
 			HIER A 0 A_Jump(256, "Missile1", "Missile2", "Missile3")
 		Missile1:
@@ -691,7 +603,7 @@ Actor Hierophant : DnD_BaseEnemy {
 			HIER O 1 Bright A_FaceTarget
 			HIER L 5 
 		Goto See
-		Melee:
+		MeleeState:
 			HIER EF 8 Fast A_FaceTarget 
 			HIER G 3 Fast A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
 			HIER A 3 Fast 
@@ -701,11 +613,13 @@ Actor Hierophant : DnD_BaseEnemy {
 			HIER J 3 Fast A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
 			HIER A 3 Fast 
 		Goto See
-		Pain: 
+		PainState: 
 			HIER P 2 Fast 
 			HIER P 2 Fast A_Pain 
 		Goto See 
-		Death: 
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState: 
 			HIER Q 6  
 			HIER R 6 A_Scream 
 			TNT1 A 0 A_NoBlocking
@@ -713,31 +627,16 @@ Actor Hierophant : DnD_BaseEnemy {
 			HIER TUVW 6
 			HIER X -1 A_SetFloorClip 
 		Stop
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		RaiseState:
+			HIER WVUTSRQ 4
+		Goto See
 	} 
 }
 
-Actor HieroExp : BaseExplosionDamage
-{
+Actor HieroExp : BaseExplosionDamage {
 	DamageType "VileFire"
 	Obituary "%o was hexed by a Hierophant."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 32, 0)
@@ -745,67 +644,61 @@ Actor HieroExp : BaseExplosionDamage
 	}
 }
 
-Actor HieroBall1 : BaronBall
-{
-  Speed 20
-  Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-  DamageType "VileFire"
-  +ThruGhost
-  +ForceXYBillBoard
-  Decal RevenantScorch
-  States
-  {
-  Spawn: 
-	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    HIB1 AB 4 Bright
-    Loop
-  Death:
-    TNT1 A 0 A_SetTranslucent(0.75, 1)
-	TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	TNT1 AAA 0 A_CustomMissile("ExplosionFX9", 0, 0, random(0,360), 2, random(0,360))
-	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-    HIB1 C 3 Bright
-    HIB1 D 3 Bright A_SpawnItem("HieroExp")
-    HIB1 EFG 3 Bright
-    Stop
-  }
+Actor HieroBall1 : BaronBall {
+	Speed 20
+	Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "VileFire"
+	+ThruGhost
+	+ForceXYBillBoard
+	Decal RevenantScorch
+	States {
+		Spawn: 
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			HIB1 AB 4 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SetTranslucent(0.75, 1)
+			TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX9", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			HIB1 C 3 Bright
+			HIB1 D 3 Bright A_SpawnItem("HieroExp")
+			HIB1 EFG 3 Bright
+		Stop
+	}
 }
 
-Actor HieroBall2 : BishopFX
-{
-  Speed 16
-  Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-  DamageType "VileFire"
-  +ThruGhost
-  +ForceXYBillBoard
-  +DONTBLAST
-  Seesound "weapons/firmfi"
-  DeathSound "weapons/firex5"
-  Decal PlasmaScorchLower
-  States
-  {
-  Spawn: 
-    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    HIB2 ABCD 1 Bright A_BishopMissileWeave
-    HIB2 A 0 Bright A_SeekerMissile(5, 6)
-    Loop
-  Death:
-    TNT1 A 0 A_SetTranslucent(0.75, 1)
-	TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-    HIB2 EFGHIJ 3 Bright
-    Stop
-  }
+Actor HieroBall2 : BishopFX {
+	Speed 16
+	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "VileFire"
+	+ThruGhost
+	+ForceXYBillBoard
+	+DONTBLAST
+	Seesound "weapons/firmfi"
+	DeathSound "weapons/firex5"
+	Decal PlasmaScorchLower
+	States {
+		Spawn: 
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			HIB2 ABCD 1 Bright A_BishopMissileWeave
+			HIB2 A 0 Bright A_SeekerMissile(5, 6)
+		Loop
+		Death:
+			TNT1 A 0 A_SetTranslucent(0.75, 1)
+			TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			HIB2 EFGHIJ 3 Bright
+		Stop
+	}
 }
 
-Actor HieroExp2 : BaseExplosionDamage
-{
+Actor HieroExp2 : BaseExplosionDamage {
 	DamageType "VileCurse"
 	Obituary "%o was hexed by a Hierophant."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
@@ -813,76 +706,70 @@ Actor HieroExp2 : BaseExplosionDamage
 	}
 }
 
-Actor CurseBall : BaronBall
-{
-  Speed 24
-  Damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-  Height 16
-  Radius 10
-  DamageType "VileCurse"
-  +ThruGhost
-  +ForceXYBillBoard
-  +ForceRadiusDmg
-  +NoDamageThrust
-  +SeekerMissile
-  +DONTBLAST
-  Alpha 0.90
-  SeeSound "monster/curse1"
-  DeathSound "monster/curse2"
-  Decal MummyScorch
-  States
-  {
-  Spawn: 
-	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    HCRS A 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
-    TNT1 A 0 A_SeekerMissile(6, 7)
-    HCRS B 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
-    TNT1 A 0 A_SeekerMissile(6, 7)
-    HCRS C 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
-    TNT1 A 0 A_SeekerMissile(6, 7)
-    HCRS D 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
-    TNT1 A 0 A_SeekerMissile(6, 7)        
-    Loop
-  Death:
-    TNT1 A 0 A_SetTranslucent(0.80, 1)
-	TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
-	TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-    HCRS E 3 Bright A_SpawnItem("HieroExp2")
-    HCRS FGHI 3 Bright
-    Stop
-  }
+Actor CurseBall : BaronBall {
+	Speed 24
+	Damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Height 16
+	Radius 10
+	DamageType "VileCurse"
+	+ThruGhost
+	+ForceXYBillBoard
+	+ForceRadiusDmg
+	+NoDamageThrust
+	+SeekerMissile
+	+DONTBLAST
+	Alpha 0.90
+	SeeSound "monster/curse1"
+	DeathSound "monster/curse2"
+	Decal MummyScorch
+	States {
+		Spawn: 
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			HCRS A 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
+			TNT1 A 0 A_SeekerMissile(6, 7)
+			HCRS B 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
+			TNT1 A 0 A_SeekerMissile(6, 7)
+			HCRS C 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
+			TNT1 A 0 A_SeekerMissile(6, 7)
+			HCRS D 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
+			TNT1 A 0 A_SeekerMissile(6, 7)        
+		Loop
+		Death:
+			TNT1 A 0 A_SetTranslucent(0.80, 1)
+			TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			HCRS E 3 Bright A_SpawnItem("HieroExp2")
+			HCRS FGHI 3 Bright
+		Stop
+	}
 }
 
-Actor CurseTrail : Bloodtrail
-{   
-  RenderStyle Add
-  Alpha 0.80
-  +CLIENTSIDEONLY
-  States
-  {
-  Spawn:
-    TNT1 A 3
-    HCRS JLMNOPR 3 Bright
-    Stop 
-  }
+Actor CurseTrail : Bloodtrail {  
+	RenderStyle Add
+	Alpha 0.80
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 3
+			HCRS JLMNOPR 3 Bright
+		Stop 
+	}
 }
 
-Actor HieroFX : AcolFX2
-{   
-  Scale 1.0
-  Alpha 0.80
-  States
-  {
-  Spawn:
-    TNT1 A 3
-    HIER A 5 A_FadeOut(0.10)
-    Goto Spawn+1
-  }
+Actor HieroFX : AcolFX2 {  
+	Scale 1.0
+	Alpha 0.80
+	States {
+		Spawn:
+			TNT1 A 3
+			HIER A 5 A_FadeOut(0.10)
+		Goto Spawn+1
+	}
 }
 
-ACTOR Deathknight : UndeadBulletResistantEnemy { 
+ACTOR Deathknight : DnD_BaseHybridMonster { 
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -890,32 +777,13 @@ ACTOR Deathknight : UndeadBulletResistantEnemy {
 	Speed 10
 	PainChance 20 
 	Species "AV"
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "Fire", 0.5
-	DamageFactor "P_Ice", 0.5
-	DamageFactor "Lightning", 0.5
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
-	DamageFactor "Painless_Sun", 1.3
-	MONSTER
-	+FLOORCLIP 
+	Monster
 	+NOTARGET 
 	+MISSILEMORE
 	+NOBLOOD
 	+DONTRIP
 	+QUICKTORETALIATE
-	+DONTBLAST
 	+NOFEAR
-	+USEKILLSCRIPTS
 	Obituary "%o thought he could kill a deathknight."
 	HitObituary "A Deathknight hacked %o into pieces." 
 	MeleeSound "monster/dknhit" 
@@ -923,31 +791,37 @@ ACTOR Deathknight : UndeadBulletResistantEnemy {
 	PainSound "monster/dknpai" 
 	DeathSound "monster/dkndth" 
 	ActiveSound "monster/dknact" 
-	DropItem "SoulAmmoSpawner", 128
 	Tag "Deathknight"
 	States { 
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DEATHKNIGHT, DND_SILVER_WEAKNESS | DND_BLOCK | DND_BULLET_RESIST | DND_HARDENED_SKIN)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_DEATHKNIGHT)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_BLOCK | DND_BULLET_RESIST | DND_HARDENED_SKIN)
+		Goto SpawnSetup
+
 		Idle:
 			DKNT AB 10 A_Look 
 		Loop 
-		See:
-			DKNT A 0 A_Jump(32,10)
+		SeeState:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeState2")
+			DKNT A 0 A_Jump(32, "SeeState2")
 			DKNT A 0 A_UnSetInvulnerable
 			DKNT AABBCCDD 3 Fast A_Chase
 		Goto See
+		SeeState2:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 			DKNT P 0 A_SetInvulnerable
 			DKNT PPQQRRSS 3 Fast A_Chase
-		goto see+12
-		Melee:
+		goto see
+		MeleeState:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
 			DKNT E 0 A_UnSetInvulnerable
 			DKNT E 6 Fast A_FaceTarget
 			DKNT F 1 A_Playsound ("monster/dknswg")
 			DKNT F 6 Fast A_FaceTarget
 			DKNT G 6 Fast A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/dknhit") 
 		Goto See
-		Missile:
+		MissileState:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
 			DKNT A 0 A_Jump(88, "Balls")
 			DKNT A 0 A_Jump(88, "Bolts")
 			DKNT E 0 Bright A_UnSetInvulnerable
@@ -1007,7 +881,7 @@ ACTOR Deathknight : UndeadBulletResistantEnemy {
 			DKNT U 3 Fast A_CustomMissile ("DKBall", 44, -4, -24)
 			TNT1 A 0 A_UnSetInvulnerable
 		Goto See
-		Pain:
+		PainState:
 			DKNT H 2 Fast 
 			DKNT H 2 Fast A_Pain
 			TNT1 A 0 A_SetInvulnerable
@@ -1023,54 +897,36 @@ ACTOR Deathknight : UndeadBulletResistantEnemy {
 			DKNT TTTTTTT 5 Fast A_JumpIfCloser(48, "Decide")  
 			Unset:
 			DKNT T 0 A_UnSetInvulnerable
-			DKNT P 0 A_Jump (24,1)
-		Goto See+12
-			DKNT H 1
+			DKNT P 0 A_Jump (24, "ShieldWalk")
+		Goto See
+		ShieldWalk:
+			DKNT H 1 A_GiveInventory("DnD_Boolean", 1)
 		Goto See
 		Decide:
-			TNT1 A 0 A_Jump(128, "Missile")
+			DKNT T 0 A_Jump(128, "Missile")
 		Goto Melee
-		Death:
+		XDeathState:
+		DeathState:
 			DKNT I 0 Bright A_CustomMissile("DKSword",44,32,-90,0)
 			DKNT I 8 Bright A_CustomMissile("DKShield",44,-32,90,0)
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			TNT1 A 0 A_Scream
 			TNT1 A 0 A_NoBlocking
 			DKNT JJJJKKKK 2 Bright A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
-			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DnD Item Dropchance", 50), "Drop2")
-			Skip2:
 			DKNT LLLL 2 Bright A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
 			DKNT MN 8 Bright 
 			DKNT O -1 
-		Stop 
-		Drop2:
-			TNT1 A 0  A_SpawnItemEx("SoulRenderPickup", 0, 0, 8, 0, 0, 4)
-		Goto Skip2
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		Stop
+		RaiseState:
+			DKNT NMLKJI 4
+		Goto See
 	} 
 }
 
-Actor DKExp1 : BaseExplosionDamage
-{
+Actor DKExp1 : BaseExplosionDamage {
 	DamageType "VileFire"
 	Obituary "%o thought he could kill a deathknight."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
@@ -1078,83 +934,78 @@ Actor DKExp1 : BaseExplosionDamage
 	}
 }
 
-ACTOR DKDart
-{
-   Radius 3
-   Height 12
-   Speed 24
-   Damage (random(15,25) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-   DamageType "VileFire"
-   ExplosionDamage 32
-   ExplosionRadius 64
-   RENDERSTYLE ADD
-   ALPHA 0.85
-   PROJECTILE
-   +DONTBLAST
-   +THRUGHOST
-   Seesound "monster/dkndrt"
-   DeathSound "weapons/firex2"
-   States
-   {
-   Spawn:
-	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-   SpawnLoop:
-      DKAT ABC 3 Bright
-      loop
-   Death:
-      TNT1 A 0 A_SetTranslucent (0.85,1)
-	  TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	  TNT1 AAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
-	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-      DKAT D 3 Bright
-      DKAT E 3 Bright A_SpawnItem("DKExp1")
-      DKAT FG 3 Bright
-      TNT1 A 0 A_CustomMissile("DKFire",0,0,45,2)
-      TNT1 A 0 A_CustomMissile("DKFire",0,0,90,2)
-      TNT1 A 0 A_CustomMissile("DKFire",0,0,135,2)
-      TNT1 A 0 A_CustomMissile("DKFire",0,0,180,2)
-      TNT1 A 0 A_CustomMissile("DKFire",0,0,225,2)
-      TNT1 A 0 A_CustomMissile("DKFire",0,0,270,2)
-      TNT1 A 0 A_CustomMissile("DKFire",0,0,315,2)
-      DKAT H 3 Bright A_CustomMissile("DKFire",0,0,0,2)
-      DKAT IJKLM 3 Bright
-      stop
-   }
+ACTOR DKDart {
+	Radius 3
+	Height 12
+	Speed 24
+	Damage (random(15,25) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "VileFire"
+	ExplosionDamage 32
+	ExplosionRadius 64
+	RENDERSTYLE ADD
+	ALPHA 0.85
+	PROJECTILE
+	+DONTBLAST
+	+THRUGHOST
+	Seesound "monster/dkndrt"
+	DeathSound "weapons/firex2"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			DKAT ABC 3 Bright
+		loop
+		Death:
+			TNT1 A 0 A_SetTranslucent (0.85,1)
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			DKAT D 3 Bright
+			DKAT E 3 Bright A_SpawnItem("DKExp1")
+			DKAT FG 3 Bright
+			TNT1 A 0 A_CustomMissile("DKFire",0,0,45,2)
+			TNT1 A 0 A_CustomMissile("DKFire",0,0,90,2)
+			TNT1 A 0 A_CustomMissile("DKFire",0,0,135,2)
+			TNT1 A 0 A_CustomMissile("DKFire",0,0,180,2)
+			TNT1 A 0 A_CustomMissile("DKFire",0,0,225,2)
+			TNT1 A 0 A_CustomMissile("DKFire",0,0,270,2)
+			TNT1 A 0 A_CustomMissile("DKFire",0,0,315,2)
+			DKAT H 3 Bright A_CustomMissile("DKFire",0,0,0,2)
+			DKAT IJKLM 3 Bright
+		stop
+	}
 }
 
-ACTOR DKbolt
-{
-   Radius 8
-   Height 8
-   Speed 15
-   Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-   PROJECTILE
-   RENDERSTYLE ADD
-   ALPHA 0.80
-   DamageType "VileMagic"
-   +THRUGHOST
-   +DONTBLAST
-   SeeSound "Weapons/boltfi"
-   DeathSound "weapons/firex4"
-   States
-   {
-   Spawn:
-	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-   SpawnLoop:
-      BOLT A 1 Bright A_BishopMissileWeave
-      BOLT A 0 A_SpawnItem("RedPuff",0,0)
-      loop
-   Death:
-	  TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	  TNT1 AAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
-	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-      HBAL EFHI 2 Bright
-      stop
-   }
+ACTOR DKbolt {
+	Radius 8
+	Height 8
+	Speed 15
+	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.80
+	DamageType "VileMagic"
+	+THRUGHOST
+	+DONTBLAST
+	SeeSound "Weapons/boltfi"
+	DeathSound "weapons/firex4"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BOLT A 1 Bright A_BishopMissileWeave
+			BOLT A 0 A_SpawnItem("RedPuff",0,0)
+		loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			HBAL EFHI 2 Bright
+		stop
+	}
 }
 
-ACTOR DKBall
-{
+ACTOR DKBall {
 	Radius 8
 	Height 8
 	Speed 15
@@ -1163,22 +1014,20 @@ ACTOR DKBall
 	PROJECTILE
 	SeeSound "monster/dkball"
 	+DONTBLAST
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-	SpawnLoop:
-		KN2M E 0 Bright A_CustomMissile("SwordFXRed",0,0,-90,0)
-		KN2M E 2 Bright A_CustomMissile("SwordFXRed",0,0,90,0)
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			KN2M E 0 Bright A_CustomMissile("SwordFXRed",0,0,-90,0)
+			KN2M E 2 Bright A_CustomMissile("SwordFXRed",0,0,90,0)
 		Loop
-	Death:
-		KN2M HIJ 5 Bright
+		Death:
+			KN2M HIJ 5 Bright
 		Stop
 	}
 }
 
-ACTOR DKBallTrail
-{
+ACTOR DKBallTrail {
 	Radius 1
 	Height 1
 	Speed 1
@@ -1187,71 +1036,64 @@ ACTOR DKBallTrail
 	PROJECTILE
 	+CLIENTSIDEONLY
 	+NOGRAVITY
-	States
-	{
-	Spawn:
-		KN2M F 14 BRIGHT
-		KN2M G 14 BRIGHT
+	States {
+		Spawn:
+			KN2M F 14 BRIGHT
+			KN2M G 14 BRIGHT
 		Stop
 	}
 }
 
-ACTOR DKSword
-{   
-   Radius 8
-   Height 8
-   Speed 1
-   PROJECTILE
-   +CLIENTSIDEONLY
-   -NOGRAVITY
-   +LOWGRAVITY
-   +MOVEWITHSECTOR
-   States
-   {
-   Spawn:
-      SWRD KLMNOPQ 3 BRIGHT
-      goto Death 
-   Death:
-      SWRD RS 4 BRIGHT
-      SWRD T 4 BRIGHT
-      SWRD U 4
-      SWRD T 4 BRIGHT
-      SWRD U 8
-      SWRD T 4 BRIGHT
-      SWRD U 16
-      SWRD T 4 BRIGHT
-      SWRD U -1
-	  Stop
-   }
+ACTOR DKSword {
+	Radius 8
+	Height 8
+	Speed 1
+	PROJECTILE
+	+CLIENTSIDEONLY
+	-NOGRAVITY
+	+LOWGRAVITY
+	+MOVEWITHSECTOR
+	States {
+		Spawn:
+			SWRD KLMNOPQ 3 BRIGHT
+		goto Death 
+		Death:
+			SWRD RS 4 BRIGHT
+			SWRD T 4 BRIGHT
+			SWRD U 4
+			SWRD T 4 BRIGHT
+			SWRD U 8
+			SWRD T 4 BRIGHT
+			SWRD U 16
+			SWRD T 4 BRIGHT
+			SWRD U -1
+		Stop
+	}
 }
 
-ACTOR DKShield
-{   
-   Radius 8
-   Height 8
-   Speed 1
-   PROJECTILE
-   -NOGRAVITY
-   +LOWGRAVITY
-   +CLIENTSIDEONLY
-   +MOVEWITHSECTOR
-   States
-   {
-   Spawn:
-      SHLD ABCDEFGHI 3
-      goto death 
-   Death:
-      SHLD H -1
-	  Stop
-   }
+	ACTOR DKShield { 
+	Radius 8
+	Height 8
+	Speed 1
+	PROJECTILE
+	-NOGRAVITY
+	+LOWGRAVITY
+	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
+	States {
+		Spawn:
+			SHLD ABCDEFGHI 3
+		goto death 
+		Death:
+			SHLD H -1
+		Stop
+	}
 }
 
-Actor DKExp2 : BaseExplosionDamage
-{
+Actor DKExp2 : BaseExplosionDamage {
 	DamageType "Vile"
 	Obituary "%o thought he could kill a deathknight."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 8, 0)
@@ -1259,34 +1101,32 @@ Actor DKExp2 : BaseExplosionDamage
 	}
 }
 
-ACTOR DKFire
-{
-   Radius 2
-   Height 6
-   Speed 3
-   Damage 0
-   DamageType "Vile"
-   ExplosionDamage 4
-   ExplosionRadius 8
-   RENDERSTYLE ADD
-   ALPHA 0.95
-   PROJECTILE
-   +THRUGHOST
-   +DONTBLAST
-   DeathSound "weapons/scorch"
-   States
-   {
-   Spawn:
-	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-      DKAT NOPQRSTNOPQRSTNOPQRST 2 Bright A_SpawnItem("DKExp2")
-      goto death
-   Death:
-      DKAT UVW 3 Bright A_SpawnItem("DKExp2")
-      stop
-   }
+ACTOR DKFire {
+	Radius 2
+	Height 6
+	Speed 3
+	Damage 0
+	DamageType "Vile"
+	ExplosionDamage 4
+	ExplosionRadius 8
+	RENDERSTYLE ADD
+	ALPHA 0.95
+	PROJECTILE
+	+THRUGHOST
+	+DONTBLAST
+	DeathSound "weapons/scorch"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			DKAT NOPQRSTNOPQRSTNOPQRST 2 Bright A_SpawnItem("DKExp2")
+		goto death
+		Death:
+			DKAT UVW 3 Bright A_SpawnItem("DKExp2")
+		stop
+	}
 }
 
-Actor Horshacker : Deathknight {
+Actor Horshacker : DnD_BaseHybridMonster {
 	Translation "0:255=%[0.00,0.00,0.00]:[0.28,0.88,1.98]", "80:111=80:111", "0:15=0:15", "128:159=128:159", "48:79=48:79", "160:167=160:167", "208:239=208:239", "249:249=249:249"
 	Seesound "monster/horshacksee"
 	ActiveSound "monster/horshackact"
@@ -1294,16 +1134,44 @@ Actor Horshacker : Deathknight {
 	DeathSound "monster/horshackdie"
 	Obituary "%o was horshacked by the Horshacker."
 	HitObituary "%o was gutted by a Horshacker." 
+	Monster
 	MeleeRange 128
 	Tag "Horshacker"
+	Health 0x7FFFFFFF
+	Radius 20
+	Height 56
+	Mass 700 
+	Speed 10
+	PainChance 20 
+	Species "AV"
+	+NOTARGET 
+	+MISSILEMORE
+	+NOBLOOD
+	+DONTRIP
+	+QUICKTORETALIATE
+	+NOFEAR
+	MeleeSound "monster/dknhit" 
 	States {
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_HORSHACKER, DND_SILVER_WEAKNESS | DND_BLOCK | DND_BULLET_RESIST | DND_HARDENED_SKIN)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_HORSHACKER)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_BLOCK | DND_BULLET_RESIST | DND_HARDENED_SKIN)
+		Goto SpawnSetup
+
 		Idle:
 			DKNT AB 10 A_Look 
 		Loop 
-		Melee:
+		SeeState:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeState2")
+			DKNT A 0 A_Jump(32, "SeeState2")
+			DKNT A 0 A_UnSetInvulnerable
+			DKNT AABBCCDD 3 Fast A_Chase
+		Goto See
+		SeeState2:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+			DKNT P 0 A_SetInvulnerable
+			DKNT PPQQRRSS 3 Fast A_Chase
+		goto see
+		MeleeState:
 			DKNT E 0 A_UnSetInvulnerable
 			DKNT E 6 Fast A_FaceTarget
 			TNT1 A 0 A_Playsound ("monster/dknswg")
@@ -1311,7 +1179,7 @@ Actor Horshacker : Deathknight {
 			TNT1 A 0 A_CustomMissile ("SwordSlash", 32, 0, 0, 0, 0)
 			DKNT G 6 Fast A_CustomMissile("HorshackerMelee", 32)
 		Goto See
-		Missile:
+		MissileState:
 			DKNT A 0 A_Jump(96, "Balls")
 			DKNT A 0 A_Jump(96, "Bolts")
 			DKNT E 0 Bright A_UnSetInvulnerable
@@ -1359,7 +1227,7 @@ Actor Horshacker : Deathknight {
 			DKNT U 6 Fast A_CustomMissile ("DKBall2", 44, -4, -8)		
 			TNT1 A 0 A_UnSetInvulnerable
 		Goto See	   
-		Pain:
+		PainState:
 			DKNT H 2  Fast
 			DKNT H 2 Fast A_Pain
 			TNT1 A 0 A_SetInvulnerable
@@ -1372,52 +1240,34 @@ Actor Horshacker : Deathknight {
 			DKNT TT 5 Fast
 		Unset:
 			DKNT T 0 A_UnSetInvulnerable
-			DKNT P 0 A_Jump (24,1)
-		Goto See+12
-			DKNT H 1
+			DKNT P 0 A_Jump (24, "ShieldWalk")
 		Goto See
-		Death:  
+		ShieldWalk:
+			DKNT H 1 A_GiveInventory("DnD_Boolean", 1)
+		Goto See
+		XDeathState:
+		DeathState:  
 			DKNT I 0 Bright A_CustomMissile("DKSword2",44,32,-90,0)
 			DKNT I 8 Bright A_CustomMissile("DKShield",44,-32,90,0)
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicBlue", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			TNT1 A 0 A_Scream
 			TNT1 A 0 A_NoBlocking
 			DKNT JJJJKKKK 2 Bright A_SpawnItemEx("ExplosionFXMagicBlue", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
-			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DnD Item Dropchance", 50), "Drop2")
-		Skip2:
 			DKNT LLLL 2 Bright A_SpawnItemEx("ExplosionFXMagicBlue", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
 			DKNT MN 8 Bright 
 			DKNT O -1 
 		Stop 
-		Drop2:
-			TNT1 A 0 A_SpawnItemEx("SoulRenderPickup", 0, 0, 8, 0, 0, 4)
-		Goto Skip2
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		RaiseState:
+			DKNT NMLKJI 4
+		Goto See
 	}
 }
 
-Actor DKSword2 : DKSword
-{
+Actor DKSword2 : DKSword {
 	Translation "32:47=192:207", "168:191=192:207"
 }
 
-Actor HorshackerMelee
-{
+Actor HorshackerMelee {
 	PROJECTILE
 	Radius 4
 	Height 8
@@ -1428,8 +1278,7 @@ Actor HorshackerMelee
 	Species "AV"
 	DeathSound "monster/dknhit"
 	Speed 48
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 2
@@ -1440,12 +1289,10 @@ Actor HorshackerMelee
 	}
 }
 
-Actor HorshackerExp1 : BaseExplosionDamage
-{
+Actor HorshackerExp1 : BaseExplosionDamage {
 	DamageType "VileBlue"
 	Obituary "%o was horshacked by the Horshacker."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 32, 0)
@@ -1453,8 +1300,7 @@ Actor HorshackerExp1 : BaseExplosionDamage
 	}
 }
 
-ACTOR SwordSlash
-{
+ACTOR SwordSlash {
 	Radius 8
 	Height 16
 	Speed 16
@@ -1469,47 +1315,44 @@ ACTOR SwordSlash
 	+NODAMAGETHRUST
 	+DONTBLAST
 	SeeSound "monster/horshackrip"
-	
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
-		TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
-		TRIS A 0 A_SpawnItem("HorshackerExp1")
+	States{
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
+			TRIS A 1 Bright A_SpawnItem("SwordSlashTrail",0,0)
+			TRIS A 0 A_SpawnItem("HorshackerExp1")
 		Stop
    }
 }
 
-ACTOR SwordSlashTrail
-{
+ACTOR SwordSlashTrail {
 	Radius 6
 	Height 12
 	+NOCLIP
@@ -1517,21 +1360,18 @@ ACTOR SwordSlashTrail
 	RenderStyle Add
 	+CLIENTSIDEONLY
 	Alpha 0.8
-	States
-	{
-	Spawn:
-		TNT1 A 0
-		TRIS A 2 BRIGHT A_FadeOut(0.10)
-		Goto Spawn+1
+	States {
+		Spawn:
+			TNT1 A 0
+			TRIS A 2 BRIGHT A_FadeOut(0.10)
+		Goto Spawn + 1
 	}
 }
 
-Actor HorshackerExp2 : BaseExplosionDamage
-{
+Actor HorshackerExp2 : BaseExplosionDamage {
 	DamageType "VileBlue"
 	Obituary "%o was horshacked by the Horshacker."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
@@ -1539,43 +1379,39 @@ Actor HorshackerExp2 : BaseExplosionDamage
 	}
 }
 
-ACTOR DKDart2 : DKDart
-{
-   Radius 6
-   Height 12
-   Speed 20
-   Damage (16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-   DamageType "VileBlue"
-   RENDERSTYLE ADD
-   ALPHA 0.85
-   Scale 0.8
-   PROJECTILE
-   +THRUGHOST
-   Seesound "monster/dkndrt"
-   DeathSound "weapons/firex2"
-   States
-   {
-   Spawn:
-	  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-   SpawnLoop:
-      FX00 CDEF 3 Bright
-      loop
-   Death:
-      TNT1 A 0 A_SetTranslucent (0.85,1)
-	  TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-	  TNT1 AAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
-	  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-      FX00 H 3 Bright
-	  TNT1 A 0 A_SpawnItem("HorshackerExp2")
-	  FX00 IJKLM 3 Bright
-      stop
+ACTOR DKDart2 : DKDart {
+	Radius 6
+	Height 12
+	Speed 20
+	Damage (16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "VileBlue"
+	RENDERSTYLE ADD
+	ALPHA 0.85
+	Scale 0.8
+	PROJECTILE
+	+THRUGHOST
+	Seesound "monster/dkndrt"
+	DeathSound "weapons/firex2"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			FX00 CDEF 3 Bright
+		loop
+		Death:
+			TNT1 A 0 A_SetTranslucent (0.85,1)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			FX00 H 3 Bright
+			TNT1 A 0 A_SpawnItem("HorshackerExp2")
+			FX00 IJKLM 3 Bright
+		stop
    }
 }
 
-Actor DKDart2Left : DKDart2
-{
-	States
-	{
+Actor DKDart2Left : DKDart2 {
+	States {
 		Spawn:
 			FX00 CD 3 Bright
 			TNT1 A 0 ThrustThing(angle*256/360+64, 6, 0, 0)
@@ -1585,10 +1421,8 @@ Actor DKDart2Left : DKDart2
 	}
 }
 
-Actor DKDart2Right : DKDart2
-{
-	States
-	{
+Actor DKDart2Right : DKDart2 {
+	States {
 		Spawn:
 			FX00 CD 3 Bright
 			TNT1 A 0 ThrustThing(angle*256/360-64, 6, 0, 0)
@@ -1599,65 +1433,57 @@ Actor DKDart2Right : DKDart2
 }
 
 
-ACTOR DKBall2 : DKBall
-{
+ACTOR DKBall2 : DKBall {
 	Speed 28
 	Damage (2 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "VileBlue"
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-	SpawnLoop:
-		KN3M E 0 Bright A_CustomMissile("DKBallTrail2",0,8,-90,0)
-		KN3M E 1 Bright A_CustomMissile("DKBallTrail2",0,8,90,0)
-	Loop
-	Death:
-		KN3M HIJ 5 Bright
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			KN3M E 0 Bright A_CustomMissile("DKBallTrail2",0,8,-90,0)
+			KN3M E 1 Bright A_CustomMissile("DKBallTrail2",0,8,90,0)
+		Loop
+		Death:
+			KN3M HIJ 5 Bright
 		Stop
 	}
 }
 
-ACTOR DKBallTrail2 : SwordFXRed
-{
-	States
-	{
-	Spawn:
-		KN3M F 14 BRIGHT
-		KN3M G 14 BRIGHT
+ACTOR DKBallTrail2 : SwordFXRed {
+	States {
+		Spawn:
+			KN3M F 14 BRIGHT
+			KN3M G 14 BRIGHT
 		Stop
 	}
 }
 
-ACTOR DKbolt2 : DKBolt
-{
-   Damage (5 * random(2, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-   DamageType "VileBlue"
-   SeeSound "HFSpid/See"
-   DeathSound "HFSpid/Die"
-   Scale 0.8
-   States
-   {
-	   Spawn:
-		  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-	   SpawnLoop:
-		  CTFX A 1 Bright A_BishopMissileWeave
-		  TNT1 AA 0 A_BishopMissileWeave
-		  TNT1 A 0 A_SpawnItem("DKBolt2Effect",0,0)
-		  loop
-	   Death:
-		  TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-		  TNT1 AAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
-		  TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-		  CTFX BCDEF 2 Bright
-		  stop
-   }
+ACTOR DKbolt2 : DKBolt {
+	Damage (5 * random(2, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "VileBlue"
+	SeeSound "HFSpid/See"
+	DeathSound "HFSpid/Die"
+	Scale 0.8
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CTFX A 1 Bright A_BishopMissileWeave
+			TNT1 AA 0 A_BishopMissileWeave
+			TNT1 A 0 A_SpawnItem("DKBolt2Effect",0,0)
+		loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			CTFX BCDEF 2 Bright
+		stop
+	}
 }
 
-Actor DKBolt2Lower : DKBolt2
-{
-	States
-	{
+Actor DKBolt2Lower : DKBolt2 {
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 AAAAAAAAAAAAAAA 0 A_BishopMissileWeave
@@ -1669,34 +1495,28 @@ Actor DKBolt2Lower : DKBolt2
 	}
 }
 
-actor DKBolt2Effect
-{
+actor DKBolt2Effect {
 	scale 1.0
 	renderstyle add
 	alpha 0.8
-	radius 1
-	height 1
-	+NOGRAVITY
 	+CLIENTSIDEONLY
-	States
-	{
-	Spawn:
-		CTFX A 1 A_FadeOut(0.1)
+	+NOINTERACTION
+	States {
+		Spawn:
+			CTFX A 1 A_FadeOut(0.1)
 		Loop
 		Death:
-		TNT1 A 1
+			TNT1 A 1
 		Stop
 	}
 }
 
-Actor DKBolt2Homing : DKBolt2
-{
+Actor DKBolt2Homing : DKBolt2 {
 	Damage (5*random(2,3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "VileBlue"
 	+SEEKERMISSILE
 	ReactionTime 105
-	States
-	{
+	States {
 	   Spawn:
 		  TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 	   SpawnLoop:
@@ -1711,7 +1531,7 @@ Actor UndeadPriestBullet : RapidFireBullet {
 	DamageType "VileBullet"
 }
 
-actor UndeadPriest : UndeadEnemy {
+actor UndeadPriest : Dnd_BaseHybridMonster {
 	obituary "%o was bagged by an undead priest."
 	Health 0x7FFFFFFF
 	gibhealth 20
@@ -1729,42 +1549,28 @@ actor UndeadPriest : UndeadEnemy {
 	ActiveSound "UndeadPriest/Act"
 	painsound "UndeadPriest/Pain"
 	deathsound "UndeadPriest/Die"
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "Fire", 1.5
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
-	DamageFactor "Painless_Sun", 1.3
 	Species "AV"
+	Monster
 	Tag "Undead Priest"
-	MONSTER
 	+QUICKTORETALIATE
 	+NODROPOFF
-	+DONTBLAST
-	+USEKILLSCRIPTS
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_UNDEADPRIEST, DND_SILVER_WEAKNESS | DND_MOBILITY | DND_HOMING | DND_HEAL)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_UNDEADPRIEST)
+			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_MOBILITY | DND_HOMING | DND_HEAL)
+		Goto SpawnSetup
+
 		Idle:
 			TNT1 A 0 A_TakeInventory("NoDrop", 1)
 			UNDP A 10 A_Look
 		loop
-		See:
+		SeeState:
 			TNT1 A 0 A_TakeInventory("NoDrop", 1)
 			TNT1 A 0 A_Jump (64, "Run")
 			UNDP AABB 3 Fast A_Chase
 			TNT1 A 0 A_Jump (64, "Run2")
 			UNDP CCDD 3 Fast A_Chase
-		Loop
+		Goto See
 		Run:
 			UNDP AA 2 Fast A_Chase("Missile", "Ghosts", CHF_FASTCHASE)
 			UNDP BB 2 Fast A_Chase
@@ -1772,8 +1578,8 @@ actor UndeadPriest : UndeadEnemy {
 			UNDP CC 2 Fast A_Chase("Missile", "Ghosts", CHF_FASTCHASE)
 			UNDP DD 2 Fast A_Chase
 		Goto Run
-		Melee:
-		Missile:
+		MeleeState:
+		MissileState:
 			UNDP E 10 Fast A_FaceTarget
 			TNT1 AAAA 0 A_CustomMissile("UndeadPriestBullet", 42, -9, frandom(-6.4, 6.4), 0, frandom(-5.2, 5.2))
 			UNDP F 5 Fast bright A_CustomMissile("UndeadPriestBullet", 42, -9, frandom(-6.4, 6.4), 0, frandom(-5.2, 5.2))
@@ -1789,16 +1595,16 @@ actor UndeadPriest : UndeadEnemy {
 			TNT1 A 0 A_PlaySound("UndeadPriest/SoulRelease")
 			UNDP EEEEE 10 Fast A_CustomMissile("UndeadSpiritAttack", 40, random(-1, 1) * 4 * random(1, 8), random(-8, 8))
 		Goto See
-		Pain:
+		PainState:
 			UNDP G 5 Fast A_GiveInventory("NoDrop", 1)
 			UNDP G 5 Fast A_Pain
-			TNT1 A 0 A_Jump(96, "ReleaseSouls")
+			UNDP G 0 A_Jump(96, "ReleaseSouls")
 		goto See
 		ReleaseSouls:
-			TNT1 A 0 A_PlaySound("UndeadPriest/SoulRelease")
-			TNT1 AA 0 A_SpawnItemEx("UndeadSpirit", 0, 0, 40, 0, 0, 0, 0, SXF_SETMASTER)
-			Goto See
-		Death:
+			UNDP G 0 A_PlaySound("UndeadPriest/SoulRelease")
+			UNDP GG 0 A_SpawnItemEx("UndeadSpirit", 0, 0, 40, 0, 0, 0, 0, SXF_SETMASTER)
+		Goto See
+		DeathState:
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
 			UNDP H 6 A_KillChildren
 			UNDP I 6 A_Scream
@@ -1807,7 +1613,8 @@ actor UndeadPriest : UndeadEnemy {
 			UNDP M 6
 			UNDP N -1
 		Stop
-		XDeath:
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
 			TNT1 A 0 A_KillChildren
 			UNDP O 5 A_Scream
@@ -1816,26 +1623,13 @@ actor UndeadPriest : UndeadEnemy {
 			UNDP STUVW 5
 			UNDP X -1
 		Stop
-	  
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		RaiseState:
+			UNDP WVUTSRPO 5
+		Goto See
 	}
 }
 
-Actor UndeadSpirit {
+Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 	Health 0x7FFFFFFF
 	Radius 16 
 	Height 32 
@@ -1844,7 +1638,6 @@ Actor UndeadSpirit {
 	RENDERSTYLE ADD
 	ALPHA 0.67 
 	PAINCHANCE 0
-	MONSTER
 	Species "AV"
 	+THRUSPECIES
 	+DONTGIB
@@ -1856,26 +1649,30 @@ Actor UndeadSpirit {
 	+THRUGHOST
 	+NOBLOOD
 	+GHOST
-	+DONTBLAST
 	-SOLID
+	-FLOORCLIP
+	-USEKILLSCRIPTS
 	SeeSound "UndeadSoul/See"
 	DeathSound "UndeadSoul/Die"
 	States { 
-		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_UNDEADPRIESTGHOST, DND_GHOST)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_UNDEADPRIESTGHOST)
+			TNT1 A 0 A_SetArg(1, DND_GHOST)
+		Goto SpawnSetup
+
 		Idle:
 			BDSP AB 10 A_Look 
 		Loop 
-		See: 
+		SeeState: 
 			BDSP A 3 A_Wander
 			BDSP A 3 A_VileChase 
 			BDSP B 3 A_Wander
 			BDSP B 3 A_VileChase 
 		Loop 
-		Heal:
+		HealState:
 			BDSP A 3
-		Goto Death 
-		Death: 
+		Goto Death
+		DeathState: 
 			BDSP E 4
 			BDSP F 5 A_Scream 
 			BDSP GHIJ 4  
@@ -1886,8 +1683,7 @@ Actor UndeadSpirit {
 Actor UndeadSpiritDamager : BaseExplosionDamage {
 	DamageType "VileGhost"
 	Obituary "%o was spooked by an undead ghost."
-	States
-	{
+	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(random(2, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 40, 0)
@@ -1938,64 +1734,49 @@ Actor UndeadSpiritAttack {
 	}
 }
 
-Actor Guru : DnD_BaseEnemy {
+Actor Guru : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
 	Mass 1000
 	Speed 12
 	PainChance 56
-	Monster
 	Scale 1.15
 	Obituary "%o was incinerated by a Guru."
-	HitObituary "%o got shredded by a Guru"
+	HitObituary "%o got shredded by a Guru."
+	Monster
 	+NoTarget
-	+FloorClip
 	+MissileMore
 	+MISSILEEVENMORE
 	Species "AV"
 	+DontHurtSpecies
 	+QUICKTORETALIATE
-	+DONTBLAST
-	+USEKILLSCRIPTS
 	SeeSound "Guru/See"
 	PainSound "Guru/Pain"
 	DeathSound "Guru/Die"
 	MeleeSound "baron/melee"
 	ActiveSound "Guru/Act"
-	DropItem "SoulAmmoSpawner", 128
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "Fire", 0.5
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
-	DamageFactor "Lightning", 1.5
 	Tag "Guru"
 	var int user_count;
 	States {
-		Spawn: 
-			TNT1 A 0
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_GURU, DND_CURSE)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_GURU)
+			TNT1 A 0 A_SetArg(1, DND_CURSE)
+			TNT1 A 0 A_SetArg(2, DND_ELEMENTAL_RESIST)
+		Goto SpawnSetup
+
 		Idle:
 			GURU AB 10 A_Look 
 		Loop 
-		See:
+		SeeState:
 			GURU AABBCCDD 3 Fast A_Chase
-		Loop
+		Goto See
 		Rush:
 			GURU ABCD 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
 			TNT1 A 0 A_Jump(192, "FlameWall")
 			GURU ABCD 2 Fast A_Chase
 		Goto See 
-		Missile:
+		MissileState:
 			TNT1 A 0 A_Jump(256, "Wide", "SingleBurst", "Rush")
 		Wide:
 			GURU E 5 Fast A_FaceTarget
@@ -2020,7 +1801,7 @@ Actor Guru : DnD_BaseEnemy {
 			GURU G 5 Fast
 		Goto See
 		FlameWall:
-			TNT1 A 0 A_JumpIfTargetINLOS("ContinueWall", 0)
+			GURU A 0 A_JumpIfTargetINLOS("ContinueWall", 0)
 		Goto See
 		ContinueWall:
 			GURU E 8 Fast A_FaceTarget
@@ -2029,41 +1810,31 @@ Actor Guru : DnD_BaseEnemy {
 			GURU F 5 Fast Bright A_CustomMissile("FireWallAttack", 0)
 			GURU G 5 Fast
 		Goto See
-		Melee:
+		MeleeState:
 			GURU E 4 Fast A_FaceTarget 
 			GURU F 3 Fast Bright A_CustomMeleeAttack(5 * random(1, 8), "baron/melee")
 			GURU G 4 Fast
 		Goto See
-		Pain: 
+		PainState: 
 			GURU D 2 Fast 
 			GURU D 2 Fast A_Pain 
 		Goto See 
-		Death: 
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState: 
 			GURU H 6  
 			GURU I 6 A_Scream 
 			TNT1 A 0 A_NoBlocking
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			TNT1 A 0 A_CustomMissile("GuruHand_Fly", 34, -6, frandom(90.0, 270.0), CMF_AIMDIRECTION, frandom(0.25, 2.5))
 			TNT1 A 0 A_CustomMissile("GuruLeg_Fly", 18, -6, frandom(90.0, 270.0), CMF_AIMDIRECTION, frandom(0.25, 2.5))
 			GURU J 6
 			GURU KL 6
 			GURU M -1 A_SetFloorClip 
 		Stop
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		RaiseState:
+			GURU LKJIH 5
+		Goto See
 	} 
 }
 
@@ -2254,35 +2025,19 @@ Actor FireVileDamage : DnD_FakeDamager {
 	+FLOORHUGGER
 }
 
-Actor DarkZealot : MagicalEnemy {
+Actor DarkZealot : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
-	MONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
 	+QUICKTORETALIATE
 	+NOBLOOD
-	+DONTBLAST
-	+USEKILLSCRIPTS
 	Species "AV"
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "Lightning", 0.5
-	DamageFactor "P_Ice", 1.5
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
 	SeeSound "DarkServant/See"
 	PainSound "DarkServant/Pain"
 	ActiveSound "DarkServant/Act"
 	DeathSound "Weapons/SReaverLoop"
 	Obituary "%o was tormented to death by a Dark Zealot."
+	Monster
 	PainChance 48
 	Radius 20
 	Height 56
@@ -2294,17 +2049,18 @@ Actor DarkZealot : MagicalEnemy {
 	var int user_teleport;
 	Tag "Dark Zealot"
 	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_SetUserVar("user_teleport", 0)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_DARKZEALOT, DND_MAGIC_WEAKNESS | DND_PIERCE | DND_HEAL | DND_TELEPORT)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_DARKZEALOT)
+			TNT1 A 0 A_SetArg(1, DND_MAGIC_WEAKNESS | DND_PIERCE | DND_HEAL | DND_TELEPORT)
+		Goto SpawnSetup
+
 		Idle:
 			TNT1 A 0 A_SetShootable
 			TNT1 A 0 A_SetTranslucent(1.0, 0)
 		IdleLoop:
 			RSON AB 10 A_Look
 		Loop
-		See:
+		SeeState:
 			RSON A 3 Fast A_Chase
 			RSON A 3 Fast A_Chase("")
 			RSON B 3 Fast A_Chase
@@ -2313,15 +2069,15 @@ Actor DarkZealot : MagicalEnemy {
 			RSON C 3 Fast A_Chase("")
 			RSON D 3 Fast A_Chase
 			RSON D 3 Fast A_Chase("")
-		Loop
-		Melee:
-		Missile:
+		Goto See
+		MeleeState:
+		MissileState:
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(961, 5), "Decide")
-			TNT1 A 0 A_Jump(64, "Heal", "Shield")
+			TNT1 A 0 A_Jump(64, "HealAround", "Shield")
 			TNT1 A 0 A_Jump(192, "Attack1", "Attack2", "Teleport")
 		Goto Attack1
 		Decide:
-			TNT1 A 0 A_Jump(192, "Heal", "Shield")
+			TNT1 A 0 A_Jump(192, "HealAround", "Shield")
 			TNT1 A 0 A_Jump(64, "Attack1")
 			TNT1 A 0 A_Jump(224, "Attack2", "Teleport")
 		Goto Attack1
@@ -2346,13 +2102,13 @@ Actor DarkZealot : MagicalEnemy {
 			TNT1 A 0 A_FaceTarget
 			RSON G 9 Fast Bright A_CustomMissile("HadesBoltZealot", 0, 0)
 		Goto See
-		Heal:
+		HealAround:
 			RSON TT 6 Fast Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("DarkServant/Heal", CHAN_WEAPON)
 			RSON U 8 Fast Bright A_RadiusGive("ZealotHealer", 384, RGF_MONSTERS | RGF_GIVESELF, 1)
 		Goto See
 		Redecide:
-			TNT1 A 0 A_Jump(52, "Heal")
+			TNT1 A 0 A_Jump(52, "HealAround")
 			TNT1 A 0 A_Jump(96, "Attack1")
 			TNT1 A 0 A_Jump(192, "Attack2", "Teleport")
 		Goto Attack1
@@ -2368,11 +2124,11 @@ Actor DarkZealot : MagicalEnemy {
 			TNT1 A 0 A_PlaySound("DarkServant/Magic", CHAN_WEAPON)
 			TNT1 A 0 A_GiveInventory("MonsterTraits", DND_REFLECTIVE)
 			TNT1 A 0 ACS_ExecuteAlways(960, 0, 0)
-			TNT1 A 0 ACS_ExecuteAlways(959, 0, 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 0)
 			TNT1 A 0 A_Blast(0, 3, 84, 24)
 			RSON G 8 Fast Bright A_SetReflectiveInvulnerable
 		Goto See
-		Pain:
+		PainState:
 			TNT1 A 0 A_JumpIfInventory("DarkZealotCooldown", 1, "Paincont")
 			TNT1 A 0 A_Jump(96, "Teleport")
 		PainCont:
@@ -2399,7 +2155,8 @@ Actor DarkZealot : MagicalEnemy {
 			RSON SRQPO 3 Fast Bright
 			TNT1 A 0 A_SetShootable
 		Goto See
-		Death:
+		XDeathState:
+		DeathState:
 			RSON H 6
 			TNT1 A 0 A_SetTranslucent(1.0, 0)
 			RSON I 6 A_Scream
@@ -2409,22 +2166,9 @@ Actor DarkZealot : MagicalEnemy {
 			RSON LM 6
 			RSON N -1
 		Stop
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		RaiseState:
+			RSON MLKJIH 5
+		Goto See
 	}
 }
 
@@ -2449,67 +2193,61 @@ Actor DarkServantTrail2 {
 	}
 }
 
-Actor HadesBoltExpZealot : BaseExplosionDamage
-{
+Actor HadesBoltExpZealot : BaseExplosionDamage {
 	DamageType "VileMagic"
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
-Actor HadesBoltExp2Zealot : BaseExplosionDamage
-{
+Actor HadesBoltExp2Zealot : BaseExplosionDamage {
 	DamageType "VileMagic"
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
-Actor HadesBoltZealot : HadesBolt
-{
-  Speed 15
-  Damagetype "VileMagic"
-  States
-  {
-  Spawn:
-    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    LFX2 F 1 Bright A_SpawnItem("HadesBoltExpZealot")
-    LFX2 F 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
-    LFX2 F 0 ThrustThing(random(0,255),1,0,0)
-    LFX2 G 1 Bright A_SpawnItem("HadesBoltExpZealot")
-    LFX2 G 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
-    LFX2 H 1 Bright A_SpawnItem("HadesBoltExpZealot")
-    LFX2 H 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
-    LFX2 I 1 Bright A_SpawnItem("HadesBoltExpZealot")
-    LFX2 I 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
-    LFX2 J 1 Bright A_SpawnItem("HadesBoltExpZealot")
-    LFX2 J 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
-    LFX2 J 0 Bright A_CountDown
-    Loop
-  Death:
-    LFX2 FGHIJ 2 Bright A_SpawnItem("HadesBoltExp2Zealot")
-    Stop
-  }
+Actor HadesBoltZealot : HadesBolt {
+	Speed 15
+	Damagetype "VileMagic"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			LFX2 F 1 Bright A_SpawnItem("HadesBoltExpZealot")
+			LFX2 F 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
+			LFX2 F 0 ThrustThing(random(0,255),1,0,0)
+			LFX2 G 1 Bright A_SpawnItem("HadesBoltExpZealot")
+			LFX2 G 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
+			LFX2 H 1 Bright A_SpawnItem("HadesBoltExpZealot")
+			LFX2 H 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
+			LFX2 I 1 Bright A_SpawnItem("HadesBoltExpZealot")
+			LFX2 I 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
+			LFX2 J 1 Bright A_SpawnItem("HadesBoltExpZealot")
+			LFX2 J 0 Bright A_CustomMissile("HadesBolt2Zealot",0,0,0,6,90)
+			LFX2 J 0 Bright A_CountDown
+		Loop
+		Death:
+			LFX2 FGHIJ 2 Bright A_SpawnItem("HadesBoltExp2Zealot")
+		Stop
+	}
 }
 
-Actor HadesBolt2Zealot : HadesBolt2
-{
-  DamageType "VileMagic"
-  States
-  {
-  Spawn:
-	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-  SpawnLoop:
-    TNT1 A 1 Bright A_SpawnItem("HadesBoltExpZealot")
-    Loop
-  Death:
-    TNT1 A 1 Bright
-    Stop
-  }
+Actor HadesBolt2Zealot : HadesBolt2 {
+	DamageType "VileMagic"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 A 1 Bright A_SpawnItem("HadesBoltExpZealot")
+		Loop
+		Death:
+			TNT1 A 1 Bright
+		Stop
+	}
 }
 
 Actor ZealotHealer : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_ExecuteAlways(961, 0, 6)
-			TNT1 A 0 ACS_ExecuteAlways(DND_MONSTERHEALSCRIPT, 0, 150 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (1 << 16), 150 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 5)
 		Stop
 	}
 }
@@ -2611,7 +2349,7 @@ Actor DarkZealotPierce {
 	}
 }
 
-actor FleshWizard : DnD_BaseEnemy {
+actor FleshWizard : DnD_BaseRangedMonster {
 	obituary "%o was tormented by a Flesh Wizard."
 	Health 0x7FFFFFFF
 	radius 20
@@ -2624,42 +2362,25 @@ actor FleshWizard : DnD_BaseEnemy {
 	deathsound "FleshWizard/die"
 	Tag "Flesh Wizard"
 	Species "AV"
-	DropItem "SoulAmmoSpawner", 128
-	MONSTER
-	DamageFactor "Vile", 0.0
-	DamageFactor "VileBullet", 0.0
-	DamageFactor "VilePacify", 0.0
-	DamageFactor "VileStun", 0.0
-	DamageFactor "VileGhost", 0.0
-	DamageFactor "VileFire", 0.0
-	DamageFactor "VileCurse", 0.0
-	DamageFactor "VileBlue", 0.0
-	DamageFactor "VileBlueFire", 0.0
-	DamageFactor "VileSlow", 0.0
-	DamageFactor "VileSnare", 0.0
-	DamageFactor "VileMagic", 0.0
-	DamageFactor "Fire", 1.5
-	DamageFactor "P_Ice", 1.5
-	+FLOORCLIP
+	Monster
 	+QUICKTORETALIATE
 	+NOINFIGHTING
 	+NODAMAGETHRUST
 	+DONTHARMSPECIES
 	+DONTMORPH
-	+DONTBLAST
-	+USEKILLSCRIPTS
 	states {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_GiveInventory("MakeMagicImmune", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, DND_FLESHWIZARD, DND_MAGIC_IMMUNE | DND_TELEPORT | DND_HOMING | DND_DEATH)
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_FLESHWIZARD)
+			TNT1 A 0 A_SetArg(1, DND_MAGIC_IMMUNE | DND_TELEPORT | DND_HOMING | DND_DEATH)
+		Goto SpawnSetup
+
 		Idle:
 			LMWZ E 10 A_Look
 		loop
-		See:
+		SeeState:
 			LMWZ EEE 4 Fast A_Chase
-			TNT1 A 0 A_Jump(12, "Teleport")
-		Loop
+			LMWZ E 0 A_Jump(12, "Teleport")
+		Goto See
 		Teleport:
 			TNT1 A 0 A_PlaySound("H2SkullWizard/Teleport")
 			TNT1 A 0 A_UnsetShootable
@@ -2675,7 +2396,7 @@ actor FleshWizard : DnD_BaseEnemy {
 			TNT1 A 0 A_SetShootable
 			LMWZ E 4 Fast A_JumpIfTargetInLOS("Missile")
 		Loop
-		Missile:
+		MissileState:
 			TNT1 A 0 A_JumpIfCloser(256, "Leash")
 		MissileNormal:
 			LMWZ FFF 5 Fast A_FaceTarget
@@ -2714,39 +2435,28 @@ actor FleshWizard : DnD_BaseEnemy {
 			LMWZ G 4 Fast A_FaceTarget
 			LMWZ F 5 Fast
 		Goto See
-		Pain:
+		PainState:
 			TNT1 A 0 A_GiveInventory("StopLeash", 1)
 			LMWZ I 3 Fast A_ChangeFlag("QUICKTORETALIATE", 1)
 			LMWZ I 5 Fast A_Pain
-			TNT1 A 0 A_Jump(128, "Teleport")
+			LMWZ I 0 A_Jump(128, "Teleport")
 		Goto See
-		Death:
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
 			LMWZ J 6 A_Scream
-			TNT1 A 0 Thing_ChangeTID(0, 0)
+			//TNT1 A 0 Thing_ChangeTID(0, 0)
 			TNT1 A 0 A_SpawnItemEx("FleshWizardDeathFX", 0, 0, 48, 0, 0, 2)
-			TNT1 AAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood", random(-16, 16), random(-16, 16), random(32, 60), random(-4, 4), random(-4, 4), random(0, 6), 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			TNT1 A 0 A_SpawnItem("FleshWizardCorpseDamage")
 			LMWZ K 6 A_NoBlocking
 			TNT1 A 0 A_PlaySound("FleshWizard/SnareBegin", 6)
 			LMWZ LMNO 6
 			LMWZ P -1
 		Stop
-		
-		Death.Melee_Magic:
-		Death.Melee_MagicFull:
-		Death.Magic:
-		Death.MagicFull:
-		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
-		Death.MagicFire:
-		Death.MagicFireFull:
-		Death.SoulType:
-		Death.SoulTypeFull:
-			TNT1 A 0 A_GiveInventory("MagicCausedDeath", 1)
-		Goto Death
-		Death.BookOfTheDead:
-			TNT1 A 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
+		RaiseState:
+			LMWZ ONMLKJ 5
+		Goto See
 	}
 }
 
