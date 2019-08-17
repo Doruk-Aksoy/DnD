@@ -19,6 +19,10 @@
 
 #define TALENT_CAP 100
 
+#define EXP_SCALE_MAX 10
+#define CREDIT_SCALE_MAX 10
+#define BUDGET_SCALE_MAX 10
+
 enum {
 	DND_ANNOUNCER_QUEST,
 	DND_ANNOUNCER_ATTRIBPOINT,
@@ -232,7 +236,11 @@ void GiveCredit(int amt) {
 }
 
 void GiveBudget(int amt) {
-	GiveInventory("Budget", amt);
+	GiveInventory("Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
+}
+
+void GiveActorBudget(int tid, int amt) {
+	GiveActorInventory(tid, "Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
 }
 
 void GiveActorCredit(int tid, int amt) {

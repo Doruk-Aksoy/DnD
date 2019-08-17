@@ -15,7 +15,7 @@ ACTOR BloodDemonClone : DnD_BaseMeleeMonster {
     HitObituary "%o Was chewed up and spat out by a Mech-demon." 
 	Species "Demon"
 	Tag "Blood Demon"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
     States { 
 		SetInfo:
@@ -96,7 +96,7 @@ Actor Bloodfiend : DnD_BaseHybridMonster {
 	DeathSound "demon/Death"
 	ActiveSound "demon/sg2act"
 	Tag "Blood Fiend"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_BLOODFIEND)
@@ -203,7 +203,7 @@ Actor Ravager : DnD_BaseHybridMonster {
 	Scale 1.15
 	Radius 30
 	Height 56
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_RAVAGER)
@@ -295,7 +295,7 @@ ACTOR CyberFiend : DnD_BaseHybridMonster {
 	Species "Demon"
 	+DONTHURTSPECIES
 	Tag "Cyber Fiend"
-	Monster
+	+ISMONSTER
     States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CYBERFIEND)
@@ -512,7 +512,7 @@ ACTOR FlameDemon : DnD_BaseMeleeMonster {
 	Species "Demon"
 	+DONTHURTSPECIES   
 	Tag "Flame Demon"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_FLAMEDEMON)
@@ -533,6 +533,8 @@ ACTOR FlameDemon : DnD_BaseMeleeMonster {
 			SARG H 2 Fast
 			SARG H 2 Fast A_Pain
 		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		DeathState:
 			SARG I 6
 			SARG J 6 A_Scream
@@ -561,7 +563,7 @@ ACTOR StoneImp : DnD_BaseMeleeMonster {
 	ActiveSound "imp/active"
 	Obituary "%o was smashed by a stone imp."
 	Species "Demon"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES  
 	+NOBLOODDECALS
 	+NOPAIN
@@ -758,7 +760,7 @@ ACTOR StoneImpHidden1 : DnD_BaseMeleeMonster {
 	Obituary "%o didn't see that stone imp coming."
 	Species "Demon"
 	Tag "Stone Imp"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+NOBLOODDECALS
 	+NOPAIN
@@ -827,7 +829,7 @@ ACTOR StoneImpHidden2 : DnD_BaseMeleeMonster {
 	Obituary "%o didn't see that stone imp coming."
 	Species "Demon"
 	Tag "Stone Imp"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+NOBLOODDECALS
 	+NOPAIN
@@ -912,7 +914,7 @@ actor StoneDemon : DnD_BaseHybridMonster {
 	DeathSound "stone/death"
 	ActiveSound "demon/active"
 	Species "Demon"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	Tag "Stone Demon"
 	States {
@@ -1015,7 +1017,7 @@ Actor SoulEater : DnD_BaseHybridMonster {
 	ActiveSound "SoulEater/Act"
 	Tag "Soul Eater"
 	MaxTargetRange 512
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SOULEATER)
@@ -1071,7 +1073,8 @@ Actor SoulEaterProj : MummyFX1 {
 	}
 }
 
-ACTOR BigBruty : DnD_BaseMeleeMonster {
+// no resurrect
+ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 	Health 0x7FFFFFFF
 	GibHealth -50
 	Radius 30
@@ -1082,7 +1085,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster {
 	YScale 1.1
 	PainChance 48
 	MeleeRange 96
-	Monster
+	+ISMONSTER
 	+NOFEAR
 	PainSound "Bruty/Pain"
 	DeathSound "Bruty/Die"
@@ -1279,7 +1282,7 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 	Radius 30
 	Height 56
 	Mass 400
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	States {
 		SetInfo:
@@ -1517,7 +1520,7 @@ actor Satyr : DnD_BaseMeleeMonster {
     HitObituary "%o was mauled by a satyr."
 	Tag "Satyr"
 	Species "Demon"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES	
     States {
 		SetInfo:
@@ -1591,7 +1594,7 @@ Actor EarthGolem : DnD_BaseHybridMonster {
 	BloodColor "10 A5 10"
 	MeleeRange 72
 	MaxTargetRange 384
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
     States {
 		SetInfo:

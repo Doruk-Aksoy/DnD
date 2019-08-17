@@ -13,7 +13,7 @@ ACTOR BabyCaco : DnD_BaseHybridMonster {
 	Obituary "%o underestimated a Baby Cacodemon."
 	HitObituary "%o was nibbled to death by a Baby Cacodemon."
 	Tag "Baby Cacodemon"
-	Monster
+	+ISMONSTER
 	+NOGRAVITY
 	+FLOAT 
 	-FLOORCLIP
@@ -103,7 +103,7 @@ Actor Fleshspawn : DnD_BaseRangedMonster {
 	deathsound "flesh/death"
 	activesound "flesh/active"
 	Tag "Fleshspawn"
-	Monster
+	+ISMONSTER
 	+FLOAT
 	+NOGRAVITY
 	+DONTHURTSPECIES
@@ -344,7 +344,7 @@ ACTOR ESoul : DnD_BaseRangedMonster {
 	DeathSound "nightmare/death"
 	ActiveSound "nightmare/active"
 	Tag "Black Soul"
-	Monster
+	+ISMONSTER
 	+FLOAT
 	+NOGRAVITY
 	+NOICEDEATH
@@ -442,7 +442,7 @@ Actor GuardianCube : DnD_BaseRangedMonster {
 	Speed 8
 	PainChance 128
 	Obituary "%o got fried by a Guardian Cube."
-	Monster
+	+ISMONSTER
 	+NoGravity
 	+Float
 	+DontFall
@@ -558,7 +558,7 @@ Actor ForgottenOne : DnD_BaseRangedMonster {
 	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 	DamageType "Melee"
 	Tag "Forgotten One"
-	Monster
+	+ISMONSTER
 	+Float
 	+NoGravity
 	+NoIceDeath
@@ -629,7 +629,7 @@ ACTOR Watcher : DnD_BaseHybridMonster {
 	ActiveSound "monster/watact" 
 	AttackSound "ChaosSerpent/melee"
 	Tag "Watcher"
-	Monster
+	+ISMONSTER
 	+NOGRAVITY 
 	+FLOAT
 	-FLOORCLIP

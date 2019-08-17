@@ -53,9 +53,6 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 
 #define REFLECTFXTID 9000
 
-#define EXP_SCALE_MAX 10
-#define CREDIT_SCALE_MAX 10
-
 #define INTERVENTION_DURATION TICRATE * 8
 
 #define DND_EMERALD_TRANSLATIONID 7000
@@ -412,8 +409,9 @@ int CheckLevelUp (void) {
 			GiveInventory("PerkedUp", 1);
 		}
 		if(!((GetStat(STAT_LVL) + 1) % DND_TALENTPOINT_MARK)) {
-			GiveInventory("TalentPoint", 1);
-			GiveInventory("TalentedUp", 1);
+			// disabled for now
+			//GiveInventory("TalentPoint", 1);
+			//GiveInventory("TalentedUp", 1);
 		}
 		GiveInventory("Level", 1);
 		SetAmmoCapacity("ExpVisual", LevelCurve[GetStat(STAT_LVL) - 1]);
@@ -577,8 +575,8 @@ int CalculateBonus(int bonustype, int mdifficulty) {
 		return BONUS_CREDIT_RATE * (mdifficulty + 1);
 	}
 	else if(bonustype == BONUS_SECRET) {
-		// add 2 budget for each difficulty level
-		return BONUS_SECRET_RATE * (mdifficulty + 1);
+		// add budget for each difficulty level + 1
+		return BONUS_SECRET_RATE * (mdifficulty + 2);
 	}
 	else if(bonustype == BONUS_BONUS) {
 		return BONUS_SECRET_RATE * 2 * (mdifficulty + 1);
@@ -637,7 +635,7 @@ void DistributeBonus(int bonustype) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				GiveActorInventory(i + P_TIDSTART, "DnD_SecretBonusShower", 1);
-				GiveActorInventory(i + P_TIDSTART, "Budget", bval);
+				GiveActorBudget(i + P_TIDSTART, bval);
 			}
 		}
 	}
@@ -1022,6 +1020,7 @@ void CheckPunisherKillTally() {
 }
 
 void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
+	id = MonsterProperties[id].id;
 	switch(id) {
 		case MONSTER_BLOODFIEND:
 		case MONSTER_RAVAGER:

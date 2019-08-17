@@ -15,7 +15,7 @@ ACTOR CacoLich : DnD_BaseHybridMonster {
 	Species "Cacodemon"
 	MeleeRange 160
 	Tag "Cacolich"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES	
     +NOGRAVITY
 	+FLOAT
@@ -235,7 +235,7 @@ ACTOR DeathWhisperer : DnD_BaseRangedMonster {
     Height 56
     Speed 13
     PainChance 145
-	Monster
+	+ISMONSTER
     +NOGRAVITY
     +FLOAT
 	-FLOORCLIP
@@ -296,7 +296,7 @@ ACTOR EarthLich : DnD_BaseRangedMonster {
     Radius 31
     Height 56
     Speed 8
-	Monster
+	+ISMONSTER
     +NOGRAVITY
     +FLOAT
 	-FLOORCLIP
@@ -450,7 +450,7 @@ ACTOR EnhancedCacodemon : DnD_BaseHybridMonster {
 	Mass 400
 	Meleedamage 6 
 	REACTIONTIME 8 
-	Monster
+	+ISMONSTER
 	+NOGRAVITY
 	+FLOAT
 	-FLOORCLIP
@@ -526,7 +526,7 @@ ACTOR Inferno : DnD_BaseHybridMonster {
 	PainChance 128 
 	HITOBITUARY "%o got eaten by an inferno."
 	OBITUARY "%o got incinerated by an inferno."
-	Monster
+	+ISMONSTER
 	+NoGravity 
 	+Float
 	+DontFall
@@ -632,7 +632,7 @@ ACTOR Weakener : DnD_BaseRangedMonster {
 	Mass 400
 	Speed 10
 	PainChance 160
-	Monster
+	+ISMONSTER
 	+FLOAT
 	+NOGRAVITY
 	+MISSILEEVENMORE
@@ -742,7 +742,7 @@ actor Grell : DnD_BaseRangedMonster {
 	activesound "grell/active"
 	Species "CacoDemon"
 	Tag "Grell"
-	Monster
+	+ISMONSTER
 	+NOGRAVITY
 	+FLOAT
 	+DONTHURTSPECIES
@@ -823,7 +823,7 @@ ACTOR ShadowPriest : DnD_BaseRangedMonster {
 	Radius 20
 	Height 56
 	Mass 150
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+NOGRAVITY
 	+FLOAT
@@ -1055,7 +1055,7 @@ ACTOR Guardian : DnD_BaseRangedMonster {
 	HitObituary "%o got fried by a Guardian."
 	Obituary "%o got fried by a Guardian."
 	Species "CacoDemon"
-	Monster
+	+ISMONSTER
 	+NOGRAVITY 
 	+FLOAT
 	+DONTFALL
@@ -1163,7 +1163,7 @@ Actor Wicked : DnD_BaseRangedMonster {
 	Mass 200 
 	Speed 10 
 	PainChance 112 
-	Monster
+	+ISMONSTER
 	+NoGravity
 	+Float
 	-FLOORCLIP

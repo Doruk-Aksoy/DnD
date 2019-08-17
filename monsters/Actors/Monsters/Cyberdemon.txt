@@ -15,7 +15,7 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 	bloodcolor green
 	Species "Cyber"
 	Tag "Dark Cardinal"
-	Monster
+	+ISMONSTER
 	+QUICKTORETALIATE
 	+DONTHURTSPECIES   
 	+NORADIUSDMG
@@ -334,7 +334,7 @@ ACTOR TerminatorX : DnD_BaseRangedBoss {
 	PainChance 8
 	scale 1.4
 	Obituary "%o was liquidated by a Terminator."
-	Monster
+	+ISMONSTER
 	+MISSILEMORE
 	+BOSS
 	Species "Cyber"
@@ -671,9 +671,11 @@ Actor Thamuz : DnD_BaseRangedBoss {
 	Speed 16
 	PainChance 35
 	Mass 2000
+	Height 110
+	Radius 40
 	Scale 1.1
 	Bloodcolor "00 AA 00"
-	Monster
+	+ISMONSTER
 	+Boss
 	+NoRadiusDMG
 	Species "Cyber"
@@ -1084,12 +1086,12 @@ Actor DCBMiss3MG {
 actor Azazel : DnD_BaseHybridBoss {
     Health 0x7FFFFFFF
     Radius 40
-    Height 96
+    Height 100
 	Scale 1.3
     Speed 12
     PainChance 20
     Mass 1500
-	Monster
+	+ISMONSTER
     +MISSILEEVENMORE
 	+DONTHURTSPECIES
     +MISSILEMORE
@@ -1636,7 +1638,7 @@ ACTOR HellsmithX : DnD_BaseHybridBoss {
 	PainChance 16
 	Obituary "%o was no match for the might of the Hellsmith."
 	HitObituary "%o was crushed under the Hellsmith's hoof." 
-	Monster
+	+ISMONSTER
 	+NORADIUSDMG 
 	+BOSS
 	+NOTARGET
@@ -2274,9 +2276,9 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 	Speed 15 
 	Scale 1.15
 	Radius 40 
-	Height 96 
+	Height 100
 	Mass 0x7FFFFFFF
-	Monster
+	+ISMONSTER
 	+NORADIUSDMG 
 	+BOSS 
 	+NOTARGET
@@ -3072,7 +3074,7 @@ Actor Thanatos : DnD_BaseRangedBoss {
 	PainChance 8
 	Scale 1.15
 	Species "Cyber"
-	Monster
+	+ISMONSTER
 	+NOTARGET 
 	+NORADIUSDMG 
 	+BOSS 
@@ -3414,7 +3416,7 @@ actor Cerberus : DnD_BaseRangedBoss {
 	painsound "Cerberus/Pain"
 	deathsound "Cerberus/Die"
 	activesound "Cerberus/See"
-	Monster
+	+ISMONSTER
 	Scale 1.15
 	+BOSS
 	+DONTHURTSPECIES

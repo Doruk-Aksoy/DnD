@@ -15,7 +15,7 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster {
 	DropItem "MachinegunPickup_Drop"
 	DropItem "MachinegunPickup_Drop"
 	Tag "Double Chaingunner"
-	MONSTER
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DOUBLEGUNNER)
@@ -92,7 +92,7 @@ Actor ChaingunMajor : DnD_BaseRangedMonster {
 	Height 56
 	Speed 8
 	ActiveSound "chainguy/active"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CGMAJOR)
@@ -124,7 +124,7 @@ Actor ChaingunMajor : DnD_BaseRangedMonster {
 			CPS2 I 5 A_Scream
 			CPS2 J 5 A_Fall
 			CPS2 KLMNO 5
-			CPS2 P -1 A_BossDeath
+			CPS2 P -1
 		Stop
 		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -161,7 +161,7 @@ actor ZSec : DnD_BaseRangedMonster {
 	activesound "zsec/active"
 	DropItem "MachinegunPickup_Drop"
 	Tag "ZSec"
-	Monster
+	+ISMONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
 	states {
@@ -317,7 +317,7 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 	Decal BulletChip
 	DropItem "MachinegunPickup_Drop"
 	Tag "ZSpec MG"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZSPECMG)
@@ -389,7 +389,7 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster {
     PainSound "QuakeZombie/pain"
     DeathSound "QuakeZombie/die"
     ActiveSound "SSGUNER/idle"
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEQUAKE3)
@@ -473,7 +473,7 @@ actor UndeadInitiate : DnD_BaseHybridMonster {
 	ActiveSound "UndeadInitiate/Act"
 	painsound "UndeadInitiate/Pain"
 	deathsound "UndeadInitiate/Death"
-	Monster
+	+ISMONSTER
 	+NODROPOFF
 	states {
 		SetInfo:
@@ -554,7 +554,8 @@ Actor MrRobot : DnD_BaseRangedMonster {
 	ActiveSound "Robodude/act"
 	DropItem "LaserPickup"
 	Tag "Robot Guard"
-	Monster
+	+ISMONSTER
+	+NOBLOOD
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_MRROBOT)
@@ -682,7 +683,7 @@ Actor MachinegunGuy : DnD_BaseRangedMonster {
 	AttackSound "Weapons/MGFireSoft"
 	Obituary "$OB_CHAINGUY"
 	DropItem "MachinegunPickup_Drop"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEMG)
@@ -748,7 +749,7 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster {
     ActiveSound "grunt/active"
     Obituary "%o got burned by a plasma zombie."
     DropItem "PlasmaBolterPickup"
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_PLASMAZOMBIE)
@@ -830,7 +831,7 @@ Actor Berserkerguy : DnD_BaseRangedMonster {
 	ActiveSound "FancyZombie/Idle"
 	DropItem "RipperCannonPickup"
 	Tag "Berserk Chaingunner"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_BERSERKERGUY)

@@ -851,13 +851,11 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 	}
 	else {
 		res_state = CheckItemRequirements(itemid, RES_DONE, objectflag); // check if it is actually done
-		bool sellstate = false;
 		int color = offcolor;
 		str toshow = "\c[Y5]", colorprefix = "\cj", weptype = ""; // textcolor colors don't work for some reason
 		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
-		int curcredit = CheckInventory("Credit");
-		str itemtag = ShopItemNames[itemid][SHOPNAME_TAG];
-		str itemname = ShopItemNames[itemid][SHOPNAME_ITEM];
+		bool sellstate = false;
+		bool price_vs_credit = price > CheckInventory("Credit");
 		
 		if(objectflag & OBJ_RESEARCH && !res_state) {
 			toshow = "\c[W3]";
@@ -867,14 +865,14 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			// if not ammo, talent or armor
 			if(!(objectflag & (OBJ_AMMO | OBJ_TALENT | OBJ_ARMOR))) {
 				// if not artifact and owning it (basically has weapon)
-				if(!(objectflag & (OBJ_ARTI | OBJ_ACCOUNT)) && CheckInventory(itemname)) {
+				if(!(objectflag & (OBJ_ARTI | OBJ_ACCOUNT)) && CheckInventory(ShopItemNames[itemid][SHOPNAME_ITEM])) {
 					color = oncolor;
 					colorprefix = "\c[M3]";
 					toshow = "\c[M3]";
 					sellstate = true;
 				}
 				else { // no?
-					if(price > curcredit) {
+					if(price_vs_credit) {
 						color = CR_BLACK;
 						colorprefix = "\c[G8]";
 						toshow = "\c[G8]";
@@ -892,7 +890,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				}
 			}
 			else { // ammo, talent or armor
-				if(price > curcredit || (objectflag & OBJ_TALENT && !CheckInventory("TalentPoint"))) {
+				if(price_vs_credit || (objectflag & OBJ_TALENT && !CheckInventory("TalentPoint"))) {
 					color = CR_BLACK;
 					colorprefix = "\c[G8]";
 					toshow = "\c[G8]";
@@ -927,8 +925,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			}
 			else if(objectflag & OBJ_AMMO) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				int amt = AmmoCounts[itemid - SHOP_FIRSTAMMO_INDEX];
-				HudMessage(s:"* ", s:"Gives \cf", d:amt + ACS_ExecuteWithResult(918, 0, 1, amt), s:"\c- ", s:AmmoExplanation[itemid - SHOP_FIRSTAMMO_INDEX]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"* ", s:"Gives \cf", d:AmmoCounts[itemid - SHOP_FIRSTAMMO_INDEX] + ACS_ExecuteWithResult(918, 0, 1, AmmoCounts[itemid - SHOP_FIRSTAMMO_INDEX]), s:"\c- ", s:AmmoExplanation[itemid - SHOP_FIRSTAMMO_INDEX]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(objectflag & OBJ_ARTI) {
@@ -962,11 +959,11 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					HudMessage(s:"* ", s:AccountPurchaseExplanation[itemid - SHOP_ACCOUNT_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
-			HudMessage(s:weptype, s:"\c[B1]", s:itemtag; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
+			HudMessage(s:weptype, s:"\c[B1]", s:ShopItemNames[itemid][SHOPNAME_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
 			HudMessage(s:colorprefix, s:"--> $", d:price; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 2, color, 440.2, 80.0 + 16.0 * onposy, 0.0, 0.0);
 		}
 		else {
-			HudMessage(s:weptype, s:toshow, s:itemtag; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
+			HudMessage(s:weptype, s:toshow, s:ShopItemNames[itemid][SHOPNAME_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
 			HudMessage(s:colorprefix, s:"$", d:price; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 2, color, 440.2, 80.0 + 16.0 * onposy, 0.0, 0.0);
 		}
 	}
@@ -4090,4 +4087,9 @@ void GetInputOnMenuPage(int opt) {
 	}
 	else
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
+}
+
+void ResetShopStock(int pnum) {
+	for(int j = 0; j < MAXSHOPITEMS; ++j)
+		ShopStockRemaining[pnum][j] = ShopInfo[j][SHOPINFO_STOCK];
 }

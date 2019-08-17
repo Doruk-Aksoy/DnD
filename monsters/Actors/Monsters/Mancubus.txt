@@ -10,7 +10,7 @@ Actor Corpulent : DnD_BaseRangedMonster {
 	PainSound "Hectebus/Pain"
 	DeathSound "Hectebus/Death"
 	ActiveSound "Hectebus/Active"
-	Monster
+	+ISMONSTER
 	+MissileMore
 	Species "Fatso"
 	+DONTHURTSPECIES
@@ -150,7 +150,7 @@ Actor Daedabus : DnD_BaseRangedMonster {
 	DeathSound "Daedabus/Death"
 	ActiveSound "Daedabus/Active"
 	Species "Fatso"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	Obituary "%o was torched by a Daedabus."
 	Tag "Daedabus"
@@ -276,7 +276,7 @@ actor IceFatso : DnD_BaseRangedMonster {
 	activesound "fatso/active"
 	Tag "Ice Mancubus"
 	Species "Fatso"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	Translation "1:2=109:110", "13:15=107:109", "17:18=87:88", "48:53=4:4", "53:79=80:106", "112:125=192:202", "128:143=90:111", "144:151=100:107", "209:213=81:89", "236:239=107:109"
 	states {
@@ -389,7 +389,7 @@ Actor Mafibus : DnD_BaseRangedMonster {
 	PainSound "Mafibus/Pain"
 	DeathSound "Mafibus/Death"
 	ActiveSound "Mafibus/Act"
-	Monster
+	+ISMONSTER
 	+DontHurtSpecies
 	Species "Fatso"
 	+MissileMore
@@ -533,11 +533,10 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 	Speed 8
 	PainChance 80
 	Species "Fatso"
-	Monster
+	+ISMONSTER
 	+DontHarmClass
 	+DontHarmSpecies
 	+DontHurtSpecies
-	+BOSSDEATH
 	+NOBLOOD
 	Obituary "%o played dodgeball with a paladin and lost."
 	HitObituary "A Paladin blew %o away."
@@ -855,7 +854,7 @@ actor Gamon : DnD_BaseHybridMonster {
 	Species "Fatso"
 	var int user_count;
 	Tag "Gamon"
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+DONTHURTSPECIES
 	+DONTRIP
@@ -1028,7 +1027,7 @@ Actor Mephisto : DnD_BaseRangedMonster {
 	PainSound "Mephisto/pain"
 	DeathSound "Mephisto/Die"
 	ActiveSound "Mephisto/See"
-	Monster
+	+ISMONSTER
 	+MissileMore
 	Species "Fatso"
 	+DONTHURTSPECIES
@@ -1178,7 +1177,7 @@ Actor Abomination : DnD_BaseRangedMonster {
 	DeathSound "Abomination/Die"
 	ActiveSound "Abomination/Act"
 	Species "Fatso"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+DONTRIP
 	Obituary "%o was corrupted by an Abomination."
@@ -1357,7 +1356,7 @@ Actor GoldGolem : DnD_BaseHybridMonster {
 	PainSound "GoldGolem/Pain"
 	SeeSound "GoldGolem/See"
 	ActiveSound "EarthGolem/Act"
-	Monster
+	+ISMONSTER
 	+MISSILEMORE
 	+MISSILEEVENMORE
 	+DONTHARMSPECIES

@@ -17,7 +17,7 @@ actor STDarkImp : DnD_BaseHybridMonster {
 	+DONTHURTSPECIES
 	PainSound "Imp/Pain"
 	Tag "Dark Imp"
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DARKIMP1)
@@ -126,7 +126,7 @@ actor NamiDarkImp : DnD_BaseHybridMonster {
     HitObituary "%o was touched by a dark imp."
 	Species "Imp"
 	Tag "Dark Imp"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
     States {
 		SetInfo:
@@ -229,7 +229,7 @@ actor VoidDarkImp : DnD_BaseHybridMonster {
     HitObituary "%o was touched by a dark imp."
 	Species "Imp"
 	Tag "Void Dark Imp"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
     States {
 		SetInfo:
@@ -382,7 +382,7 @@ actor NetherDarkImp : DnD_BaseHybridMonster {
 	Species "Imp"
 	BloodColor "Green"
 	Tag "Nether Dark Imp"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
     States {
 		SetInfo:
@@ -549,7 +549,7 @@ Actor ImpAbomination : DnD_BaseHybridMonster {
 	HitObituary "$OB_IMPHIT"
 	Obituary "$OB_IMP"
 	PainSound "Imp/Pain"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_IMPABOM)
@@ -614,7 +614,7 @@ Actor STImp : DnD_BaseHybridMonster {
 	Tag "Imp"
 	Species "Imp"
 	Mass 100
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_STIMP)
@@ -710,7 +710,7 @@ Actor VoidImp : DnD_BaseHybridMonster {
 	Tag "Imp"
 	Species "Imp"
 	Mass 100
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_VOIDIMP)
@@ -811,7 +811,7 @@ actor SoulHarvester : DnD_BaseHybridMonster {
 	BloodColor "66 66 66"
 	Species "Imp"
 	Tag "Soul Harvester"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
     States {
 		SetInfo:
@@ -937,7 +937,7 @@ actor PyroImp : DnD_BaseHybridMonster {
     HitObituary "%o was cut open by a pyro imp."
 	Species "Imp"
 	Tag "Pyro Imp"
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_PYROIMP)
@@ -1154,7 +1154,7 @@ actor Devil : DnD_BaseHybridMonster {
 	activesound "monster/dvlact"
 	Tag "Devil"
 	Species "Imp"
-	Monster
+	+ISMONSTER
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DEVIL)
@@ -1233,7 +1233,7 @@ actor Devil2 : DnD_BaseHybridMonster {
 	activesound "monster/dvlact"
 	Tag "Devil"
 	Species "Imp"
-	Monster
+	+ISMONSTER
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DEVIL2)
@@ -1385,7 +1385,7 @@ actor Vulgar : DnD_BaseHybridMonster {
 	activesound "monster/vulact"
 	Tag "Vulgar"
 	Species "Imp"
-	Monster
+	+ISMONSTER
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_VULGAR)
@@ -1604,7 +1604,7 @@ ACTOR Shadow : DnD_BaseRangedMonster {
 	MissileType ShadowBallX
 	Species "Imp"
 	Tag "Shadow"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+GHOST
 	States {
@@ -1807,7 +1807,7 @@ Actor Roach : DnD_BaseHybridMonster {
 	Scale 1.1
 	Tag "Roach"
 	Species "Imp"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 8)

@@ -18,7 +18,7 @@ actor BloodSatyr : DnD_BaseHybridMonster {
     DeathSound "Satyr/Die"
     ActiveSound "Satyr/Act"
     MeleeSound "baron/melee"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES	
 	States {
 		SetInfo:
@@ -199,7 +199,7 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 	MeleeSound "baron/melee"
 	ReactionTime 8
 	Species "HK"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	Obituary "%o was tagged by the hell warrior's fireball."
 	HitObituary "%o was torn apart by a hell warrior."
@@ -388,7 +388,7 @@ Actor HellsFury : DnD_BaseHybridMonster {
 	HitObituary "%o got ripped apart by Hell's Fury."
 	Tag "Hell's Fury"
 	Species "HK"
-	Monster
+	+ISMONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
 	States {
@@ -521,7 +521,7 @@ Actor ArchonOfHell : DnD_BaseHybridMonster {
 	Obituary "%o was no match for an archon of hell."
 	HitObituary "%o was ripped apart by an archon of hell."
 	BloodColor "20 60 20"
-	Monster
+	+ISMONSTER
 	+NoTarget
 	+MissileMore
 	Species "HK"
@@ -690,7 +690,7 @@ Actor WarlordOfHell : DnD_BaseHybridMonster {
 	Mass 1000
 	BloodColor "39 59 9F"
 	Species "Barons"
-	Monster
+	+ISMONSTER
 	+NoRadiusDmg
 	Obituary "%o was extingished by the warlord of hell." 
 	SeeSound "warlord/sight" 
@@ -710,7 +710,12 @@ Actor WarlordOfHell : DnD_BaseHybridMonster {
 		Loop 
 		SeeState: 
 			BOS2 AABBCCDD 4 Fast A_Chase 
-		Goto See 
+		Goto See
+		MeleeState:
+			BOS2 E 6 Fast A_FaceTarget 
+			BOS2 F 6 Fast A_FaceTarget 
+			BOS2 G 6 Fast A_CustomComboAttack("WarlordOfHellBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+		Goto See
 		MissileState: 
 			BOS2 E 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 3, "Missile3") 
 			BOS2 E 0 A_JumpIfHealthLower(2 * ACS_ExecuteWithResult(961, 7) / 3, "Missile2")
@@ -829,7 +834,7 @@ ACTOR ShadowBeast : DnD_BaseRangedMonster {
 	ACTIVESOUND "shadowbeast/active"
 	Species "HK"
 	Tag "Shadow Beast"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	states {
 		SetInfo:
@@ -1057,7 +1062,7 @@ actor BlackKnight : DnD_BaseHybridMonster {
 	Species "HK"
 	RadiusDamageFactor 0.5
 	Tag "Black Knight"
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+DONTRIP
 	+DONTHURTSPECIES
@@ -1192,7 +1197,7 @@ Actor SkullWizard : DnD_BaseHybridMonster {
 	MeleeSound "H2SkullWizard/Melee"
 	Species "HK"
 	Tag "Skull Wizard"
-	Monster
+	+ISMONSTER
 	+DontHurtSpecies
 	+MissileMore
 	States {
@@ -1376,7 +1381,7 @@ Actor CyborgWarrior : DnD_BaseHybridMonster {
 	Speed 9
 	Obituary "%o was blown to bits by a Cyborg Warrior."
 	HitObituary "%o was smashed by a Cyborg Warrior."
-	Monster
+	+ISMONSTER
 	+MissileMore
 	+NOBLOOD
 	+NOPAIN
@@ -1433,7 +1438,7 @@ Actor CyborgWarrior : DnD_BaseHybridMonster {
 			TNT1 A 0 A_NoBlocking
 			QQMN KL 5
 			QQMN M 4
-			QQMN N -1 A_BossDeath
+			QQMN N -1
 		Stop 
 		RaiseState:
 			QQMN MLKJ 6
@@ -1541,7 +1546,7 @@ ACTOR ChaosSerpent : DnD_BaseHybridMonster {
 	Obituary "%o was destroyed by a Chaos Serpent."
 	const int ChunkFlags = SXF_TRANSFERTRANSLATION|SXF_ABSOLUTEVELOCITY;
 	Tag "Chaos Serpent"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CHAOSSERPENT)
@@ -1664,7 +1669,7 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
     HitObituary "%o was mauled by a moon satyr."
 	Obituary "%o didn't notice the sky crashing on him, thanks to a moon satyr."
 	Translation "0:255=%[0.00,0.00,0.00]:[1.12,1.20,1.57]", "3:8=3:8", "16:47=16:47", "80:111=80:111", "168:191=168:191"
-	Monster
+	+ISMONSTER
 	+NODAMAGETHRUST
 	Species "HK"
 	+DONTHARMSPECIES
@@ -1724,6 +1729,8 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
 			STYR H 3 Fast
 			STYR H 3 Fast A_Pain
 		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		DeathState:
 			STYR I 5
 			STYR J 5 A_Scream
@@ -1731,7 +1738,7 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
 			STYR L 7 A_Fall
 			STYR M 4
 			STYR N 4
-			STYR O -1 A_BossDeath
+			STYR O -1
 		Stop
 		RaiseState:
 			STYR ONMLKJI 8
@@ -1835,7 +1842,7 @@ Actor IceGolem : DnD_BaseHybridMonster {
     DeathSound "EarthGolem/Death"
     ActiveSound "EarthGolem/Act"
     Obituary "%o wass destroyed by a Crystal Golem." 
-	Monster
+	+ISMONSTER
 	Species "HK"
 	Tag "Crystal Golem"
 	MeleeRange 76
@@ -2039,7 +2046,7 @@ Actor Gladiator : DnD_BaseHybridMonster {
 	DeathSound "Gladiator/Die"
 	Obituary "%o didn't expect trickery from a Gladiator."
 	HitObituary "%o lost the fight against a Gladiator."
-	Monster
+	+ISMONSTER
 	Tag "Gladiator"
 	Species "HK"
 	+DONTHURTSPECIES  

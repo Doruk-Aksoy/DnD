@@ -86,6 +86,18 @@ Script 900 (void) NET {
 	}
 }
 
+Script "DnD Menu Reset on Enter" ENTER {
+	ResetShopStock(PlayerNumber());
+	ACS_NamedExecuteAlways("DnD Menu Reset on Enter CS", 0);
+}
+
+Script "DnD Menu Reset on Enter CS" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	// this is needed to sync them between the client & server
+	ResetShopStock(PlayerNumber());
+}
+
 Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
 }
@@ -283,18 +295,18 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			ListenScroll(-96, 0);
 			SetHudClipRect(192, 56, 256, 224, 256, 1);
 			
-			i = CheckInventory("PSTAT_Bulkiness");
+			i = GetBulkiness();
 			temp = 64.0 + 6.0 * ScrollPos;
 			
 			HudMessage(s:"+ \c[Q9]", d:GetSpawnHealth() - DND_BASE_HEALTH, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, temp, 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetArmorCap(true) - DND_BASE_ARMOR_SHOW, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, temp + 16.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:((DND_STR_GAIN * CheckInventory("PSTAT_Strength")) >> 16) * 100, s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, temp + 32.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:DND_STR_GAIN * GetStrength(), s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, temp + 32.0, 0.0, 0.0);
 			if(i > 100)
 				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * 100 + (i - 100) * DND_BULKINESS_GAIN_AFTER100), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, temp + 48.0, 0.0, 0.0);
 			else
-				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * CheckInventory("PSTAT_Bulkiness")), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, temp + 48.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_DEX_GAIN * CheckInventory("PSTAT_Dexterity")), s:"%\c- physical damage"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, temp + 64.0, 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_INT_GAIN * CheckInventory("PSTAT_Intellect")), s:"%\c- magic damage"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, temp + 80.0, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * i), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, temp + 48.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:DND_DEX_GAIN * GetDexterity(), s:"%\c- physical damage"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, temp + 64.0, 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:DND_INT_GAIN * GetIntellect(), s:"%\c- magic damage"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, temp + 80.0, 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * CheckInventory("PSTAT_Charisma")), s:"%\c- discount"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, temp + 96.0, 0.0, 0.0);
 			if(GetBonusPlayerSpeed(pnum) >= 0)
 				HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * GetBonusPlayerSpeed(pnum)), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, temp + 112.0, 0.0, 0.0);

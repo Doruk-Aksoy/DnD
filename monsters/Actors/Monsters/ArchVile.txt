@@ -10,7 +10,7 @@ Actor Diabloist : DnD_BaseRangedMonster {
 	+NoTarget
 	+MissileMore
 	Species "AV"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+QUICKTORETALIATE
 	+NOFEAR
@@ -399,7 +399,7 @@ ACTOR DeathVile : DnD_ArchVileBase {
 	Radius 20
 	Height 56
 	Mass 500
-	Monster
+	+ISMONSTER
 	+QUICKTORETALIATE
 	+NOTARGET
 	+DONTHURTSPECIES
@@ -472,7 +472,7 @@ Actor Hierophant : DnD_BaseHybridMonster {
 	DamageType Normal
 	Obituary "%o was hexed by a Hierophant."
 	HitObituary "%o got shredded by a Hierophant."
-	Monster
+	+ISMONSTER
 	+NoTarget
 	+MissileMore
 	Species "AV"
@@ -777,7 +777,7 @@ ACTOR Deathknight : DnD_BaseHybridMonster {
 	Speed 10
 	PainChance 20 
 	Species "AV"
-	Monster
+	+ISMONSTER
 	+NOTARGET 
 	+MISSILEMORE
 	+NOBLOOD
@@ -1134,7 +1134,7 @@ Actor Horshacker : DnD_BaseHybridMonster {
 	DeathSound "monster/horshackdie"
 	Obituary "%o was horshacked by the Horshacker."
 	HitObituary "%o was gutted by a Horshacker." 
-	Monster
+	+ISMONSTER
 	MeleeRange 128
 	Tag "Horshacker"
 	Health 0x7FFFFFFF
@@ -1550,7 +1550,7 @@ actor UndeadPriest : Dnd_BaseHybridMonster {
 	painsound "UndeadPriest/Pain"
 	deathsound "UndeadPriest/Die"
 	Species "AV"
-	Monster
+	+ISMONSTER
 	Tag "Undead Priest"
 	+QUICKTORETALIATE
 	+NODROPOFF
@@ -1648,6 +1648,7 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 	+DONTHURTSPECIES
 	+THRUGHOST
 	+NOBLOOD
+	+NOPAIN
 	+GHOST
 	-SOLID
 	-FLOORCLIP
@@ -1672,6 +1673,7 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 		HealState:
 			BDSP A 3
 		Goto Death
+		XDeathState:
 		DeathState: 
 			BDSP E 4
 			BDSP F 5 A_Scream 
@@ -1744,7 +1746,7 @@ Actor Guru : DnD_BaseHybridMonster {
 	Scale 1.15
 	Obituary "%o was incinerated by a Guru."
 	HitObituary "%o got shredded by a Guru."
-	Monster
+	+ISMONSTER
 	+NoTarget
 	+MissileMore
 	+MISSILEEVENMORE
@@ -2037,7 +2039,7 @@ Actor DarkZealot : DnD_BaseHybridMonster {
 	ActiveSound "DarkServant/Act"
 	DeathSound "Weapons/SReaverLoop"
 	Obituary "%o was tormented to death by a Dark Zealot."
-	Monster
+	+ISMONSTER
 	PainChance 48
 	Radius 20
 	Height 56
@@ -2362,7 +2364,7 @@ actor FleshWizard : DnD_BaseRangedMonster {
 	deathsound "FleshWizard/die"
 	Tag "Flesh Wizard"
 	Species "AV"
-	Monster
+	+ISMONSTER
 	+QUICKTORETALIATE
 	+NOINFIGHTING
 	+NODAMAGETHRUST

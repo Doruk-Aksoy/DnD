@@ -14,7 +14,7 @@ Actor ZombieManGray : DnD_BaseRangedMonster {
 	Obituary "$OB_ZOMBIE" // "%o was killed by a zombieman."
 	Mass 100
 	Tag "Zombieman"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEGRAY)
@@ -86,7 +86,7 @@ actor FormerRanger : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip", 128
 	Tag "Zombie Ranger"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIERANGER)
@@ -182,7 +182,7 @@ ACTOR SMGGuy : DnD_BaseRangedMonster {
 	DeathSound "grunt/death"
 	ActiveSound "grunt/active"
 	AttackSound "weapons/smg"
-	Monster
+	+ISMONSTER
 	Mass 100
 	States {
 		SetInfo:
@@ -251,7 +251,7 @@ ACTOR RapidFireTrooper : DnD_BaseRangedMonster {
 	ActiveSound "grunt/active"
 	Obituary "%o was surprised by the zombie's weaponry." 
 	Tag "Rapid Fire Zombie"
-	Monster
+	+ISMONSTER
 	Decal BulletChip
 	States { 
 		SetInfo:
@@ -320,7 +320,7 @@ ACTOR ZombieMarine : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
     Decal Bulletchip
 	Tag "Zombie Marine"
-	Monster
+	+ISMONSTER
     states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEMARINE)
@@ -385,7 +385,7 @@ ACTOR LOSZombieMan : DnD_BaseRangedMonster {
 	ActiveSound "grunt/active"
 	Obituary "$OB_ZOMBIE" // "%o was killed by a zombieman."
 	Mass 100
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIELOS)
@@ -447,7 +447,7 @@ ACTOR PistolZombie : DnD_BaseRangedMonster {
     Obituary "%o was killed by a zombieman."
 	DropItem "DroppedClip"
 	Tag "Pistol Zombie"
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEPISTOL)
@@ -513,7 +513,7 @@ ACTOR QuakeZombie : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip"
 	Tag "Enforcer"
-	Monster
+	+ISMONSTER
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEQUAKE1)
@@ -592,7 +592,7 @@ actor UndeadHunter : DnD_BaseHybridMonster {
 	painsound "UndeadInitiate/Pain"
 	deathsound "UndeadInitiate/Death"
 	Tag "Undead Hunter"
-	Monster
+	+ISMONSTER
 	+NODROPOFF
 	states {
 		SetInfo:
@@ -675,7 +675,7 @@ actor Prophet : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip", 128
 	Tag "Prophet"
-	Monster
+	+ISMONSTER
 	+GHOST
 	states {
 		SetInfo:

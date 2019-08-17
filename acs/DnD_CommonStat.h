@@ -27,11 +27,10 @@ enum {
 #define DND_BULKINESS_GAIN 0.006
 #define DND_BULKINESS_GAIN_AFTER100 0.0025
 #define DND_TALENT_INCREASE 5.0
-#define DND_DEX_GAIN 0.1
-#define DND_INT_GAIN 0.1
+#define DND_DEX_GAIN 3
+#define DND_INT_GAIN 3
 #define DND_VIT_INCREASE 4
-#define DND_STR_GAIN 0.09
-#define DND_STR_GAIN_INT 9
+#define DND_STR_GAIN 9
 #define DND_STR_CAPINCREASE 1 // 1 out of 200 => 0.5 out of 100
 #define DND_STR_CAPFACTOR 200
 #define DND_ARMOR_PER_BUL 4

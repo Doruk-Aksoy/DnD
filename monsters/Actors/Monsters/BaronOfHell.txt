@@ -13,7 +13,7 @@ actor Lavademon : DnD_BaseHybridMonster {
 	meleerange 108
 	Tag "Lava Demon"
 	Species "HK"
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+DONTRIP
 	+DONTHURTSPECIES
@@ -277,13 +277,13 @@ Actor DnD_IceGuyWisp2 : DnD_IceGuyWisp1 {
 
 ACTOR LordofHeresy : DnD_BaseHybridMonster { 
     Health 0x7FFFFFFF
-    Radius 20 
-    Height 56 
+    Radius 24
+    Height 64
     Speed 9 
     PainChance 50
     BloodColor "7D 9D 59"
     Mass 1000
-	Monster
+	+ISMONSTER
     Species "HK"
     +DONTHURTSPECIES
     Obituary "%o was annihilated by the heresy lord." 
@@ -303,20 +303,23 @@ ACTOR LordofHeresy : DnD_BaseHybridMonster {
 		Loop 
 		SeeState: 
 			LOHS AABBCCDD 4 Fast A_Chase 
-		Goto See 
+		Goto See
 		MissileState: 
-			LOHS E 0 A_Jump(85,5) 
-			LOHS E 0 A_Jump(128,9)
+			LOHS E 0 A_Jump(85, "Combo1") 
+			LOHS E 0 A_Jump(128, "Combo2")
+		MeleeState:
 			LOHS E 8 Fast A_FaceTarget 
 			LOHS F 8 Fast A_FaceTarget 
 			LOHS G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee") 
-		Goto See 
+		Goto See
+		Combo1:
 			LOHS E 8 Fast A_FaceTarget 
 			LOHS F 8 Fast A_FaceTarget 
 			LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 8) 
 			LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 0) 
 			LOHS G 8 Fast A_Custommissile ("BaronBall", 32, 0, -8) 
 		Goto See 
+		Combo2:
 			LOHS E 8 Fast A_FaceTarget 
 			LOHS F 8 Fast A_FaceTarget 
 			LOHS G 0 A_Custommissile ("BaronBall", 32, 0, -20) 
@@ -359,7 +362,7 @@ Actor Cybruiser : DnD_BaseHybridMonster {
 	PainChance 20
 	Obituary "%o was blown away by a Cybruiser."
 	HitObituary "%o was smashed by a Cybruiser."
-	Monster
+	+ISMONSTER
 	+MissileMore
 	+NOBLOOD
 	+DONTRIP
@@ -495,7 +498,7 @@ Actor BruiserDemon : DnD_BaseHybridMonster {
 	Mass 1500
 	Speed 8
 	PainChance 15
-	Monster
+	+ISMONSTER
 	+LookAllAround
 	+MISSILEMORE
 	+MissileEvenMore
@@ -748,7 +751,7 @@ ACTOR Bormereth : DnD_BaseHybridMonster {
     Speed 10
     PainChance 75
     Mass 2500
-	Monster
+	+ISMONSTER
     +MISSILEEVENMORE
 	+DONTHURTSPECIES
 	Species "Barons"
@@ -1195,7 +1198,7 @@ ACTOR BloodSeeker : DnD_BaseHybridMonster {
 	DEATHSOUND "Beast/die"
 	ACTIVESOUND "Beast/Act"
 	Tag "Blood Seeker"
-	Monster
+	+ISMONSTER
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_BLOODSEEKER)
@@ -1209,7 +1212,7 @@ ACTOR BloodSeeker : DnD_BaseHybridMonster {
 		SeeState:
 			TNT1 A 0 A_JumpIf(!ACS_ExecuteWithResult(961, 0), "NormalSee")
 		Goto Transform
-		NormalSeeState:
+		NormalSee:
 			TNT1 A 0 A_TakeInventory("BeastTransform", 1)
 			BDE2 ABCDEF 6 Fast A_Chase
 		Goto See
@@ -1400,7 +1403,7 @@ Actor Barbatos : DnD_BaseHybridMonster {
 	Height 64
 	Radius 24
 	PainChance 32
-	Monster
+	+ISMONSTER
 	Scale 0.75
 	Translation "0:255=%[0.00,0.00,0.00]:[0.76,0.67,0.50]", "0:47=0:47", "80:111=80:111", "160:191=160:191", "208:235=208:235"
 	SeeSound "cyber/sight"
@@ -1504,7 +1507,7 @@ Actor ShadowWizard : DnD_BaseHybridMonster {
 	Mass 120
 	Speed 6
 	MeleeRange 96
-	Monster
+	+ISMONSTER
 	+DontHurtSpecies
 	+MissileMore
 	States {
@@ -1611,7 +1614,7 @@ ACTOR Kjaroch : DnD_BaseHybridMonster {
 	Radius 24
 	Height 64
 	Mass 1000
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+MISSILEMORE
 	BloodColor "7D 9D 59"
@@ -1856,7 +1859,7 @@ Actor MagmaSerpent : DnD_BaseHybridMonster {
 	Mass 640
 	BloodColor "Orange"
 	Species "HK"
-	Monster
+	+ISMONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
 	+NORADIUSDMG
@@ -2055,7 +2058,7 @@ Actor DreadKnight : DnD_BaseHybridMonster {
 	MeleeSound "dknight/melee"
 	DamageType "Barons"
 	Renderstyle Translucent
-	Monster
+	+ISMONSTER
 	+NOFEAR
 	+NODAMAGETHRUST
 	+PIERCEARMOR
@@ -2225,7 +2228,7 @@ Actor MagmaGolem : DnD_BaseHybridMonster {
 	BloodColor "D7 15 15"
 	MeleeRange 76
 	MaxTargetRange 428
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+DONTRIP
     States { 
@@ -2249,7 +2252,7 @@ Actor MagmaGolem : DnD_BaseHybridMonster {
 			TNT1 A 0 A_CustomMeleeAttack(8 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
 			GOL2 FG 4 Fast 
 		Goto See
-		OtherMeleeState:
+		OtherMelee:
 			GOL2 R 6 Fast A_FaceTarget
 			GOL2 S 2 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMeleeAttack(8 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
@@ -2429,7 +2432,7 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
     DeathSound "Warmaster/Die" 
     ActiveSound "Warmaster/act"  
 	Tag "Warmaster"
-	Monster
+	+ISMONSTER
 	Scale 1.1
 	+NOINFIGHTING
 	+NOTARGET

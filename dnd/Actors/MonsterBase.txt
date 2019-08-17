@@ -3,6 +3,11 @@ Actor DnD_BaseMonster {
 	+USEKILLSCRIPTS
 	+FLOORCLIP
 	+DONTBLAST
+	+COUNTKILL
+	+CANPUSHWALLS
+	+CANUSEWALLS
+	+ACTIVATEMCROSS
+	+CANPASS
 	-SHOOTABLE
 	-SOLID
 	States {
@@ -112,13 +117,17 @@ Actor DnD_BaseMonster {
 }
 
 // inherit melee if monster can ONLY do melee
-Actor DnD_BaseMeleeMonster : DnD_BaseMonster {
+Actor DnD_BaseMeleeMonster_NoRes : DnD_BaseMonster {
 	States {
 		Melee:
 			"####" "#" 0 A_Jump(256, "MeleeState")
 			"####" "#" 35
 		Wait
-		
+	}
+}
+
+Actor DnD_BaseMeleeMonster : DnD_BaseMeleeMonster_NoRes {
+	States {
 		Raise:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
 			"####" "#" 0 A_Jump(256, "RaiseState")
@@ -128,13 +137,17 @@ Actor DnD_BaseMeleeMonster : DnD_BaseMonster {
 }
 
 // inherit ranged if monster can ONLY do ranged
-Actor DnD_BaseRangedMonster : DnD_BaseMonster {
+Actor DnD_BaseRangedMonster_NoRes : DnD_BaseMonster {
 	States {
 		Missile:
 			"####" "#" 0 A_Jump(256, "MissileState")
 			"####" "#" 35
 		Wait
-		
+	}
+}
+
+Actor DnD_BaseRangedMonster : DnD_BaseRangedMonster_NoRes {
+	States {
 		Raise:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
 			"####" "#" 0 A_Jump(256, "RaiseState")
@@ -144,7 +157,7 @@ Actor DnD_BaseRangedMonster : DnD_BaseMonster {
 }
 
 // inherit this if the monster is supposed to have both attack types, melee and ranged!
-Actor DnD_BaseHybridMonster : DnD_BaseMonster {
+Actor DnD_BaseHybridMonster_NoRes : DnD_BaseMonster {
 	States {
 		Melee:
 			"####" "#" 0 A_Jump(256, "MeleeState")
@@ -154,7 +167,11 @@ Actor DnD_BaseHybridMonster : DnD_BaseMonster {
 			"####" "#" 0 A_Jump(256, "MissileState")
 			"####" "#" 35
 		Wait
-		
+	}
+}
+
+Actor DnD_BaseHybridMonster : DnD_BaseHybridMonster_NoRes {
+	States {
 		Raise:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
 			"####" "#" 0 A_Jump(256, "RaiseState")
@@ -163,12 +180,8 @@ Actor DnD_BaseHybridMonster : DnD_BaseMonster {
 	}
 }
 
-Actor DnD_ArchVileBase : DnD_BaseMonster {
+Actor DnD_ArchVileBase : DnD_BaseRangedMonster_NoRes {
 	States {
-		Missile:
-			"####" "#" 0 A_Jump(256, "MissileState")
-			"####" "#" 35
-		Wait
 		Heal:
 			"####" "#" 0 A_Jump(256, "HealState")
 			"####" "#" 35
@@ -185,16 +198,8 @@ Actor DnD_ArchVilePassiveBase : DnD_BaseMonster {
 	}
 }
 
-Actor DnD_ArchVileHybridBase : DnD_BaseMonster {
+Actor DnD_ArchVileHybridBase : DnD_BaseHybridMonster_NoRes {
 	States {
-		Melee:
-			"####" "#" 0 A_Jump(256, "MeleeState")
-			"####" "#" 35
-		Wait
-		Missile:
-			"####" "#" 0 A_Jump(256, "MissileState")
-			"####" "#" 35
-		Wait
 		Heal:
 			"####" "#" 0 A_Jump(256, "HealState")
 			"####" "#" 35
@@ -203,40 +208,18 @@ Actor DnD_ArchVileHybridBase : DnD_BaseMonster {
 }
 
 // inherit melee if monster can ONLY do melee and is a boss creature -- SM or Cyber (not ressurectable)
-Actor DnD_BaseMeleeBoss : DnD_BaseMonster {
+Actor DnD_BaseMeleeBoss : DnD_BaseMeleeMonster_NoRes {
 	GibHealth -500
-	States {
-		Melee:
-			"####" "#" 0 A_Jump(256, "MeleeState")
-			"####" "#" 35
-		Wait
-	}
 }
 
-// inherit ranged if monster can ONLY do ranged
-Actor DnD_BaseRangedBoss : DnD_BaseMonster {
+// inherit ranged if monster can ONLY do ranged and is a boss
+Actor DnD_BaseRangedBoss : DnD_BaseRangedMonster_NoRes {
 	GibHealth -200
-	States {
-		Missile:
-			"####" "#" 0 A_Jump(256, "MissileState")
-			"####" "#" 35
-		Wait
-	}
 }
 
 // inherit this if the monster is supposed to have both attack types, melee and ranged!
-Actor DnD_BaseHybridBoss : DnD_BaseMonster {
+Actor DnD_BaseHybridBoss : DnD_BaseHybridMonster_NoRes {
 	GibHealth -200
-	States {
-		Melee:
-			"####" "#" 0 A_Jump(256, "MeleeState")
-			"####" "#" 35
-		Wait
-		Missile:
-			"####" "#" 0 A_Jump(256, "MissileState")
-			"####" "#" 35
-		Wait
-	}
 }
 
 Actor DnD_MonsterSetupDone : DnD_Activator {

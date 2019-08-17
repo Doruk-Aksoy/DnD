@@ -7,7 +7,7 @@ Actor Demolisher : DnD_BaseRangedBoss {
 	Speed 16 
 	PainChance 20 
 	Species "Spider2"
-	Monster
+	+ISMONSTER
 	+NoTarget
 	+FloorClip
 	+Boss
@@ -139,7 +139,7 @@ ACTOR Arachnophyte : DnD_BaseRangedBoss {
     PainChance 8
     Mass 5000
 	MinMissileChance 8
-	Monster
+	+ISMONSTER
 	+MISSILEMORE
 	+MISSILEEVENMORE
 	+QUICKTORETALIATE
@@ -246,7 +246,7 @@ actor PsionicQueen : DnD_BaseHybridBoss {
 	MeleeSound "queen/melee"
 	MeleeDamage 8
 	MissileHeight 36
-	Monster
+	+ISMONSTER
 	+MISSILEMORE
 	+MISSILEEVENMORE
 	+QUICKTORETALIATE
@@ -524,7 +524,7 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 	Activesound "angel/active"
 	Tag "Angel of Death"
 	BloodColor "80 16 80"
-	Monster
+	+ISMONSTER
 	+BOSS
 	+DONTRIP
 	+MISSILEMORE
@@ -686,7 +686,7 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 	Species "GoldLich"
 	MinMissileChance 32
 	Tag "Gold Lich"
-	Monster
+	+ISMONSTER
 	+BOSS
 	+DONTRIP
 	+NOBLOOD
@@ -1047,7 +1047,7 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 	Speed 8
 	Species "IronLich"
 	Tag "Iron Lich"
-	Monster
+	+ISMONSTER
 	+BOSS
 	+DONTRIP
 	+NOBLOOD
@@ -1568,7 +1568,7 @@ Actor IronLichSmallEnergy2 {
 }
 
 Actor LichTurret {
-	MONSTER
+	+ISMONSTER
 	-COUNTKILL
 	+NOCLIP
 	+NOGRAVITY
@@ -1605,7 +1605,7 @@ Actor SpiderOverlord : DnD_BaseRangedBoss {
 	Scale 1.15
 	Tag "Spider Overlord"
 	Obituary "%o couldn't see a Spider Overlord coming."
-	Monster
+	+ISMONSTER
 	+DONTRIP
 	+DONTHURTSPECIES
 	+MISSILEMORE
@@ -1748,7 +1748,7 @@ actor DarkLich : DnD_BaseRangedBoss {
 	DeathSound "monster/cubdth"
 	ActiveSound "Lich/act"
 	Species "DarkLich"
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+DONTRIP
 	+MISSILEMORE

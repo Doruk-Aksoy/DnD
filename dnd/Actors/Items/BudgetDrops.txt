@@ -7,7 +7,7 @@ Actor BudgetDrop_1 : CustomInventory {
 			GEMS A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_GiveInventory("Budget", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Budget Giver", 0, 1)
 		Stop
 	}
 }
@@ -19,7 +19,7 @@ Actor BudgetDrop_2 : BudgetDrop_1 {
 			GEMS B -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_GiveInventory("Budget", 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Budget Giver", 0, 2)
 		Stop
 	}
 }
@@ -31,7 +31,7 @@ Actor BudgetDrop_3 : BudgetDrop_1 {
 			GEMS C -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_GiveInventory("Budget", 5)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Budget Giver", 0, 5)
 		Stop
 	}
 }
@@ -43,7 +43,7 @@ Actor BudgetDrop_4 : BudgetDrop_1 {
 			GEMS D -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_GiveInventory("Budget", 10)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Budget Giver", 0, 10)
 		Stop
 	}
 }
@@ -55,7 +55,7 @@ Actor BudgetDrop_5 : BudgetDrop_1 {
 			GEMS E -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_GiveInventory("Budget", 25)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Budget Giver", 0, 25)
 		Stop
 	}
 }

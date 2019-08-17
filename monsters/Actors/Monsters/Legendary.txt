@@ -14,7 +14,7 @@ Actor DreamingGod : DnD_BaseRangedBoss {
 	activesound "Dreamer/Act"
 	Species "Cyber"
 	Scale 1.0
-	Monster
+	+ISMONSTER
 	+BOSS
 	+QUICKTORETALIATE
 	+MISSILEMORE
@@ -1009,7 +1009,7 @@ Actor Torrasque : DnD_BaseHybridBoss {
 	const int wait_count = 8;
 	Damage (16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")))
 	RadiusDamageFactor 0.5
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+DONTRIP
 	+BOSS
@@ -1405,7 +1405,7 @@ Actor Mordecqai : DnD_BaseRangedBoss {
 	var int user_count;
 	BloodColor "FF A5 00"
 	RadiusDamageFactor 0.5
-	Monster
+	+ISMONSTER
 	+BOSS
 	+QUICKTORETALIATE
 	+MISSILEMORE
@@ -1794,7 +1794,7 @@ Actor GodSlayer : DnD_BaseRangedBoss {
 	var int user_chargerpt;
 	const int attack_on_flight_dist = 224;
 	RadiusDamageFactor 0.5
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+BOSS
 	+QUICKTORETALIATE
@@ -2489,7 +2489,7 @@ Actor Golgoth : DnD_BaseHybridBoss {
 	const int dash_speedmax = 16;
 	const int arc_count = 20;
 	const int arc_inc = 8;
-	Monster
+	+ISMONSTER
 	+BOSS
 	+QUICKTORETALIATE
 	+MISSILEMORE

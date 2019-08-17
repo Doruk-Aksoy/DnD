@@ -19,7 +19,7 @@ ACTOR TorturedSoul : DnD_BaseRangedMonster {
 	Obituary "%o was tormented by the Tortured Soul." 
 	Species "PainElemental"
 	Tag "Tortured Soul"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	States  {
 		SetInfo:
@@ -152,7 +152,7 @@ ACTOR Defiler : DnD_BaseRangedMonster {
 	Species "PainElemental"
 	Translation "1:2=7:8", "9:12=7:7", "13:14=2:2", "15:15=7:7", "63:77=0:3", "48:63=72:79", "64:67=238:239", "77:79=7:8", "128:134=110:112", "134:136=5:5", "137:140=1:1", "141:142=6:2", "143:143=2:2", "144:151=79:79", "149:151=1:2", "152:159=7:8", "236:237=1:2", "238:239=7:8"
 	Tag "Defiler"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES	
 	States {
 		SetInfo:
@@ -304,7 +304,7 @@ Actor Helemental : DnD_BaseHybridMonster {
 	MeleeSound "caco/melee"
 	Species "Cacodemon"
 	Tag "Hades Elemental"
-	Monster
+	+ISMONSTER
 	var int user_count;
 	const int inc = 36; // 360 / 10
 	+DONTHURTSPECIES  
@@ -344,7 +344,7 @@ Actor Helemental : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Jump(128, "Skip1", "Skip2")
 			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_Wander
 		Skip1:
-			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_ExtChase(0,0,1,1)
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_Chase("", "", CHF_NOPLAYACTIVE)
 		Skip2:
 			HELE A 1 A_PlaySound("monster/heltel")
 			HELE A 1 A_SetTranslucent(0.10)
@@ -549,7 +549,7 @@ ACTOR HS : DnD_BaseMeleeMonster {
 	RENDERSTYLE Normal
 	Obituary "%o was blown away by a Hades Sphere."
 	PAINCHANCE 0 
-	Monster
+	+ISMONSTER
 	+LOOKALLAROUND
 	+DONTGIB
 	+NOTARGET
@@ -681,7 +681,7 @@ actor DESentinel : DnD_BaseRangedMonster {
 	DeathSound "monster/cubdth"  
 	Species "PainElemental"
 	Tag "Sentinel"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+FLOAT
 	+NOGRAVITY
@@ -855,7 +855,7 @@ ACTOR GCSpawner {
 }
 
 // so the ghosts it summons doesnt resurrect itself again
-ACTOR BloodLich : DnD_BaseRangedBoss {
+ACTOR BloodLich : DnD_BaseRangedMonster_NoRes {
     Obituary "%o was reduced to a pile of ash by a Blood Lich."
     Health 0x7FFFFFFF
 	GibHealth -75
@@ -870,7 +870,7 @@ ACTOR BloodLich : DnD_BaseRangedBoss {
     DeathSound "monster/cubdth"
     ActiveSound "Lich/act"
 	Tag "Blood Lich"
-	Monster
+	+ISMONSTER
     +NOGRAVITY
     +NOTARGET
     +FLOAT
@@ -942,7 +942,7 @@ ACTOR BloodLich : DnD_BaseRangedBoss {
 			BLCH EF 7
 			BLCH G 7 A_NoBlocking
 			BLCH H 7
-			BLCH I -1 A_BossDeath
+			BLCH I -1
 		Stop
 		RaiseState:
 			BLCH HGFEDC 5
@@ -1058,9 +1058,11 @@ Actor ReiverGhost : DnD_ArchVileBase {
 	PainSound "WraithPain"
 	DeathSound "WraithDeath"
 	ActiveSound "WraithActive"
-	Monster
+	PainChance 0
+	+ISMONSTER
     +GHOST
 	+FLOAT
+	+NOPAIN
 	+NOGRAVITY
     +DONTFALL
     +NOBLOOD
@@ -1217,7 +1219,7 @@ ACTOR ShadowDisciple : DnD_BaseRangedMonster {
 	Radius 20 
 	Height 56 
 	Mass 320 
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+FLOAT
 	+NOGRAVITY
@@ -1468,7 +1470,7 @@ Actor HellArbiter : DnD_BaseRangedMonster {
 	Obituary "%o met %p awful demise at the hands of a Hell Arbiter."
 	Tag "Hell Arbiter"
 	BloodColor "FF A5 00"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
 	+FLOAT
 	+DONTBLAST
@@ -1707,16 +1709,16 @@ Actor ArbiterOrbit {
 			TNT1 A 0
 			TNT1 A 0 A_SetUserVar("user_angle", 0)
 		SpawnLoop:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1724,8 +1726,8 @@ Actor ArbiterOrbit {
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1733,8 +1735,8 @@ Actor ArbiterOrbit {
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL D 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1766,16 +1768,16 @@ Actor ArbiterOrbit2 : ArbiterOrbit {
 			TNT1 A 0
 			TNT1 A 0 A_SetUserVar("user_angle", 120)
 		SpawnLoop:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1783,8 +1785,8 @@ Actor ArbiterOrbit2 : ArbiterOrbit {
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1792,8 +1794,8 @@ Actor ArbiterOrbit2 : ArbiterOrbit {
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL D 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1812,16 +1814,16 @@ Actor ArbiterOrbit3 : ArbiterOrbit {
 			TNT1 A 0
 			TNT1 A 0 A_SetUserVar("user_angle", 240)
 		SpawnLoop:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL A 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1829,8 +1831,8 @@ Actor ArbiterOrbit3 : ArbiterOrbit {
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL B 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -1838,8 +1840,8 @@ Actor ArbiterOrbit3 : ArbiterOrbit {
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL C 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 6), "Death")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(959, 5), "FadeOut")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 6), "Death")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Monster State Syncer", 5), "FadeOut")
 			TNT1 A 0 A_SpawnItem("ArbiterOrbitTrail")
 			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 8)
 			WIBL D 1 A_Warp(AAPTR_TARGET, 32, 0, 32, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)

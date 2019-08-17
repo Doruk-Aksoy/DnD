@@ -19,7 +19,7 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 	AttackSound "monster/incatk"
 	MeleeSound "monster/inchit"
 	Tag "Death Incarnate"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_INCARNATE)
@@ -39,7 +39,7 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 			INCA H 6 Fast A_FaceTarget
 			INCA I 6 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
 		Goto See
-		DoubleMeleeState:
+		DoubleMelee:
 			INCA R 0 A_FaceTarget
 			INCA R 5 Fast A_SkelWhoosh
 			INCA S 5 Fast A_FaceTarget
@@ -132,7 +132,7 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster {
 	Mass 500
 	Speed 10
 	PainChance 100
-	Monster
+	+ISMONSTER
 	MeleeThreshold 196
 	+MISSILEMORE 
 	+FLOORCLIP
@@ -144,7 +144,6 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster {
 	MeleeSound "skeleton/melee"
 	Species "Skeleton"
 	Tag "Revenant"
-	Monster
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_BEAMREVENANT)
@@ -184,7 +183,6 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster {
 			RASK Q -1
 		Stop
 		RaiseState:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			RASK Q 5
 			RASK PONML 5
 		Goto See
@@ -266,7 +264,7 @@ ACTOR Cadaver : DnD_BaseHybridMonster {
 	Speed 10
 	MeleeThreshold 196
 	Species "Skeleton"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CADAVER)
@@ -440,7 +438,7 @@ actor Widowmaker : DnD_BaseHybridMonster  {
 	PainSound "widowmaker/pain"
 	DeathSound "widowmaker/death"
 	Obituary "%o was sought out by a Widowmaker."
-	Monster
+	+ISMONSTER
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_WIDOWMAKER)
@@ -1032,7 +1030,7 @@ ACTOR AxeKnight : DnD_BaseHybridMonster {
 	Obituary "%o was axed by an Undead Knight."
 	HitObituary "%o witnessed that Undead Knight axes are effective up close."
 	Tag "Undead Knight"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_AXEKNIGHT)
@@ -1077,6 +1075,9 @@ ACTOR AxeKnight : DnD_BaseHybridMonster {
 			XNIG PQ 6
 			XNIG R -1
 		Stop
+		RaiseState:
+			XNIG QPONML 4
+		Goto See
   }
 }
 
@@ -1173,7 +1174,7 @@ Actor Yeti : DnD_BaseHybridMonster {
 	MeleeRange 144
 	Obituary "%o was frozen solid by a Yeti."
 	Tag "Yeti"
-	Monster
+	+ISMONSTER
 	+NOBLOOD
 	+DONTRIP
 	+REFLECTIVE
@@ -1416,8 +1417,9 @@ Actor SludgeGiant : DnD_BaseHybridMonster {
 	BloodType "SludgeBlood"
 	BloodColor "79 75 49"
 	Tag "Sludge Giant"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
+	-FLOORCLIP
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT)
@@ -1510,8 +1512,9 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster {
 	Species "Skeleton"
 	BloodType "SludgeBlood"
 	BloodColor "79 75 49"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
+	-FLOORCLIP
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT2)
@@ -1618,8 +1621,9 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 	Species "Skeleton"
 	BloodType "SludgeBlood"
 	BloodColor "79 75 49"
-	Monster
+	+ISMONSTER
 	+DONTHURTSPECIES
+	-FLOORCLIP
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT3)
@@ -1691,7 +1695,7 @@ Actor DarkServant : DnD_BaseHybridMonster {
 	YScale 1.25
 	Mass 750
 	var int user_teleport;
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DARKSERVANT)
@@ -1881,7 +1885,7 @@ Actor Crawler : DnD_BaseHybridMonster {
 	const int ChunkFlags = SXF_TRANSFERTRANSLATION|SXF_ABSOLUTEVELOCITY;
 	const int spread = 24;
 	Tag "Crawler"
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CRAWLER)
@@ -2086,7 +2090,7 @@ ACTOR Draugr : DnD_BaseHybridMonster {
 	Tag "Draugr"
 	Species "Skeleton"
 	Renderstyle Translucent
-	Monster
+	+ISMONSTER
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DRAUGR)
@@ -2150,7 +2154,7 @@ ACTOR Draugr : DnD_BaseHybridMonster {
 			SKE2 H 7 Fast Bright A_CustomMissile("DraugrSeeker", 60, -16)
 			SKE2 I 8 Fast A_FaceTarget
 		Goto See
-		AngryMissileState:
+		AngryMissile:
 			SKE2 G 6 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("weapons/tp_fire")
 			SKE2 H 5 Fast Bright A_CustomMissile("DraugrSeeker", 60, -16)

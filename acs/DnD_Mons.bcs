@@ -8,6 +8,7 @@
 // Monster stuff
 
 Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
+	int res = 0;
 	switch(type) {
 		case 0:
 			ACS_NamedExecuteAlways("DnD Zealot Shield", 0, ActivatorTID());
@@ -27,11 +28,11 @@ Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 		break;
 		case 5:
 			SetActivatorToTarget(0);
-			SetResultValue(CheckInventory("ArbiterFade"));
+			res = CheckInventory("ArbiterFade");
 		break;
 		case 6:
 			SetActivatorToTarget(0);
-			SetResultValue(CheckInventory("ArbiterDead"));
+			res = CheckInventory("ArbiterDead");
 		break;
 		case 7:
 			GiveInventory("AvatarAttack", 1);
@@ -49,6 +50,7 @@ Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 			GiveInventory("AvatarDead", 1);
 		break;
 	}
+	SetResultValue(res);
 }
 
 Script "DnD Zealot Shield" (int tid) CLIENTSIDE {
