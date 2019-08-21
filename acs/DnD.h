@@ -347,8 +347,6 @@ enum {
 int DnD_StateChecker[MAX_STATES];
 // see if map changed or not
 
-bool SomeoneDied = 0;
-
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 int CurrentLevelReward[MAXPLAYERS];
@@ -705,7 +703,7 @@ void CheckMapExitQuest(int pnum, int qid) {
 	if(Quest_List[qid].qflag & QTYPE_IMMEDIATE)
 		return;
 	if(qid == QUEST_NODYING)
-		cond = !SomeoneDied;
+		cond = true; // it would fail if people died, if not it succeeded
 	else if(!QuestExitCheckException(qid)) // typical map exit quests
 		cond = !CheckActorInventory(tid, Quest_Checkers[qid]);
 		
@@ -713,7 +711,7 @@ void CheckMapExitQuest(int pnum, int qid) {
 		if(cond)
 			CompleteQuest(tid, qid);
 		else
-			FailQuest(tid, qid);
+			FailQuest(tid);
 	}
 }
 
@@ -886,7 +884,7 @@ void HandleHealDependencyCheck() {
 	
 	// Skin O' My Teeth check
 	if(active_quest_id == QUEST_NOHEALINGPICKUP)
-		FailQuest(ActivatorTID(), active_quest_id);
+		FailQuest(ActivatorTID());
 }
 
 int GetWeaponSlotFromFlag(int flags) {

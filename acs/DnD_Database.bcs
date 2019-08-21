@@ -805,7 +805,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("PSTAT_Vitality", temp & 0xFF);
 	temp >>= 8;
 	SetInventory("BackpackCounter", temp & 0xFF);
-	SetAllAmmoCapacities();
 	
 	// intellect + talent point
 	temp = GetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc);
@@ -1018,6 +1017,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	// Restoration steps
 	RestoreRPGStat(RES_PLAYERSPEED);
 	UpdatePlayerKnockbackResist();
+	SetAllAmmoCapacities();
 	
 	// Research stuff
 	RestoreResearchItems();

@@ -446,5 +446,3 @@ Actor StatReset : CustomInventory {
 	Stop
   }
 }
-
-Actor DnD_Artifact_MapBits : DnD_Info { }

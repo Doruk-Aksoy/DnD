@@ -171,7 +171,7 @@ str InventoryInfo[MAX_COMMON_INVENTORY][3] = {
 	{ "OrbOfSpirit", "Orb of Spirit", "\c[Y5]Orb of Spirit\nGrants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight." },
 	{ "OrbofRepentance", "Orb of Repentance", "\c[Y5]Orb of Repentance\nAllows you to undo the effects of the most recently used orb. You can't undo the effects undone by this orb or the \c[Y5]Orb of Riches\c-." },
 	{ "OrbofAffluence", "Orb of Affluence", "\c[Y5]Orb of Affluence\nDoubles the effect of the next orb. This effect can stack with itself up to a multiplier of \cg16\c-." },
-	{ "OrbofCalamity", "Orb of Calamity", "\c[Y5]Orb of Calamity\nTurns a random orb into another. It won't work if you have no other orbs or if you only have these orbs." },
+	{ "OrbofCalamity", "Orb of Calamity", "\c[Y5]Orb of Calamity\nTurns a random orb into a random orb. It won't work if you have no other orbs or if you only have these orbs." },
 	{ "OrbofProsperity", "Orb of Prosperity", "\c[Y5]Orb of Prosperity\nIncreases health and armor caps by \cd1\c- up to a maximum of \cg500\c-." },
 	{ "OrbofWisdom", "Orb of Wisdom", "\c[Y5]Orb of Wisdom\nIncreases experience gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-." },
 	{ "OrbofGreed", "Orb of Greed", "\c[Y5]Orb of Greed\nIncreases credit gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-." },

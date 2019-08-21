@@ -656,7 +656,7 @@ void HandleArmorDependencyCheck() {
 	// check for thick skin quest
 	if(active_quest_id == QUEST_NOARMORS && !CheckInventory(Quest_Checkers[active_quest_id])) {
 		GiveInventory(Quest_Checkers[active_quest_id], 1);
-		FailQuest(ActivatorTID(), active_quest_id);
+		FailQuest(ActivatorTID());
 	}
 }
 

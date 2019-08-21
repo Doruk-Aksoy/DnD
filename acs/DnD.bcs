@@ -184,7 +184,7 @@ Script "DND Check Hardcore Softcore" OPEN {
 	while(1) {
 		if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER))
 			HardcoreSet = CheckHardcoreSettings();
-		Delay(105);
+		Delay(const:105);
 	}
 }
 
@@ -223,7 +223,14 @@ Script "DnD On Death" DEATH {
 	}
 	
 	// Precious Life check
-	SomeoneDied = 1;
+	if(active_quest_id == QUEST_NODYING) {
+		// fail for all players in the game
+		for(int i = 0; i < MAXPLAYERS; ++i)
+			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART))
+				FailQuest(i + P_TIDSTART);
+		active_quest_id = -1; // completely remove this quest from everyone now
+	}
+	
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 }
 
@@ -1155,8 +1162,6 @@ Script 918 (int type, int acc, int notarget) {
 	if(!type) { 
 		if(!acc) // get strength
 			res = CheckInventory("PSTAT_Strength");
-		else // get munitionist stuff (notarget is the amount of ammo)
-			res = (notarget * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN))/100);
 	}
 	else if(type == 1) { // check for accessory
 		int tid = ActivatorTID();
@@ -2158,7 +2163,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 }
 
 // End of level checks
-Script 990 UNLOADING {
+Script "DnD On Unloading" UNLOADING {
 	int tid;
 	MapInfo[DND_MAPINFO_MAPCHANGED] = true;
 	ResetFieldInventory();
@@ -2170,7 +2175,6 @@ Script 990 UNLOADING {
 			StatListOpened[i] = 0;
             GiveActorInventory(tid, "Budget", (1 + HardcoreSet) * ((MapDifficulty + 1) + DND_BUDGET_BASE));
 			GiveActorInventory(tid, "RoundsSurvived", 1);
-			SetActorInventory(tid, "DnD_Artifact_MapBits", 0);
 		}
 		// Check quests
 		if(active_quest_id != -1)
@@ -2587,7 +2591,7 @@ Script 996 (int type, int id) {
 			if(GetCVar("dnd_firstbackpackold"))
 				add_backpack_amount += 4;
 			//Respect the max backpack amount
-			SetInventory("BackpackCounter", Min(CheckInventory("BackpackCounter")+add_backpack_amount,DND_MAX_BACKPACK));
+			SetInventory("BackpackCounter", Min(CheckInventory("BackpackCounter") + add_backpack_amount, DND_MAX_BACKPACK));
 
 			SetAllAmmoCapacities();
 			//ACS_ExecuteAlways(993, 0, 1); //Why did this call script 993?
@@ -2836,6 +2840,7 @@ Script 1000 (int isSoftcore) {
 		// softcore == 2 => casual mode, default settings
 		// beginner mode, force smart monster spawner
 		if(isSoftcore == 3) {
+			ConsoleCommand("dnd_allresearchesfound 0");
 			ConsoleCommand("dnd_usesmartmonsterspawner 1");
 		}
 	}
@@ -2936,7 +2941,7 @@ Script "DND Ammo Container Pickup" (int ctype, int basic_kind) {
 
 Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 	while(CheckInventory("ShowingMenu"))
-		Delay(35);
+		Delay(const:35);
 	int qid = CheckInventory("QuestCompletionToken") - 1;
 	if(qid < 0)
 		Terminate;
@@ -2944,7 +2949,7 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 	if(qid == QUEST_SPEND25K) // fixes a weird display bug
 		addx = -40.0;
 	while(ScreenResOffsets[0] == -1)
-		Delay(17);
+		Delay(const:17);
 	GiveInventory("TipBoxOpen", 1);
 	SetHudSize(640, 480, 1);
 	SetFont("QUESTBOX");
@@ -3455,7 +3460,7 @@ Script "DND Orb Use" (int orbtype, int extra) {
 Script "DnD Timed Monster" (int time, int isPet) {
 	int cnt = 0;
 	while(cnt++ != time)
-		Delay(35);
+		Delay(const:35);
 	if(!isPet)
 		SetActorState(0, "Remove");
 	else

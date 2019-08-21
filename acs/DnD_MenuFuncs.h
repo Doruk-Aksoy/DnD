@@ -744,7 +744,9 @@ bool CanResearch(int respage, int posx) {
 
 // returns 0 for buy being possible, read end of function for other details
 int CanTrade (int id, int tradeflag, int price) {
-	int credit = CheckInventory("Credit"), cond1, cond2, cond3 = 1, isammo = 0, res = 0, type = 0;
+	int credit = CheckInventory("Credit"), res = 0, type = 0;
+	// enough credits - maxed on the item - I own this thing already - out of stock
+	bool cond1 = 0, cond2 = 0, cond3 = 1, cond4 = 1;
 	
 	if(!price)
 		price = GetShopPrice(id, PRICE_CHARISMAREDUCE);
@@ -768,27 +770,36 @@ int CanTrade (int id, int tradeflag, int price) {
 	}
 	
 	if(tradeflag & TRADE_BUY) {
-		if(type == TYPE_AMMO) // ammo
+		if(type == TYPE_AMMO) { // ammo
 			cond2 = (CheckInventory(item) < GetAmmoCapacity(item));
+			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
+		}
 		else if(type == TYPE_TALENT) // talent
 			cond2 = CheckInventory(item) < TALENT_CAP && CheckInventory("TalentPoint");
-		else if(type == TYPE_ARMOR) // armor
+		else if(type == TYPE_ARMOR) { // armor
 			if (!(tradeflag & TRADE_ARMOR_REPLACE))
 				cond2 = CheckInventory(item) < GetArmorSpecificCap(ArmorBaseAmounts[id - SHOP_FIRSTARMOR_INDEX + 1]);
 			else
 				cond2 = true; //replacement should always be possible.
+			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
+		}
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
-			if(id != SHOP_ARTI_BACKPACK)
-				cond2 = (CheckInventory(item) < ShopInfo[id][SHOPINFO_MAX]) && !IsSet(CheckInventory("DnD_Artifact_MapBits"), id - SHOP_FIRSTARTI_INDEX);
+			if(id != SHOP_ARTI_BACKPACK) {
+				cond2 = (CheckInventory(item) < ShopInfo[id][SHOPINFO_MAX]);
+				cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
+			}
 			else
-				cond2 = ACS_ExecuteWithResult(994, 0) && !IsSet(CheckInventory("DnD_Artifact_MapBits"), id - SHOP_FIRSTARTI_INDEX);
+				cond2 = !IsBackpackLimitReached();
 		}
 		else { // weapon
 			cond3 = !CheckInventory(item);
 			cond2 = cond3 && !CheckInventory(wepcheck);
+			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
 		
-		if(cond1) { // I have credits
+		if(!cond4)
+			res = POPUP_OUTOFSTOCK;
+		else if(cond1) { // I have credits
 			if(!cond3)
 				res = POPUP_ALREADYOWN;
 			else if(!cond2) { // got credit but maxed
@@ -828,6 +839,10 @@ void DrawToggledLabel(str label, int afterlabel, int boxid, int boxcheck, int dr
 		HudMessage(s:color, s:label, s:": "; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
 }
 
+int GetAmmoToGive(int index) {
+	return AmmoCounts[index - SHOP_FIRSTAMMO_INDEX] * GetAmmoGainFactor() / 100;
+}
+
 // Draws a toggled image that changes color depending on given scenarios
 // By default, if insufficient credits occur, it will be gray. If credits are sufficient but objectflag has OBJ_HASCHOICE, that means you have to choose between one of the options
 // of it's kind. For example, there are 2 weapons that replace the shotgun. You can have only one, so you set this flag, and set choicename to P_Slot3Replaced. One of the two will be
@@ -856,6 +871,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
 		bool sellstate = false;
 		bool price_vs_credit = price > CheckInventory("Credit");
+		bool nostock = ShopStockRemaining[PlayerNumber()][itemid] > 0;
 		
 		if(objectflag & OBJ_RESEARCH && !res_state) {
 			toshow = "\c[W3]";
@@ -872,13 +888,13 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					sellstate = true;
 				}
 				else { // no?
-					if(price_vs_credit) {
+					if(price_vs_credit || nostock) {
 						color = CR_BLACK;
 						colorprefix = "\c[G8]";
 						toshow = "\c[G8]";
 					} // if I have options color others
 					else if( (objectflag & OBJ_HASCHOICE && CheckInventory(choicename) == choicecount) || 
-							 (itemid == SHOP_ARTI_BACKPACK && !ACS_ExecuteWithResult(994, 0)) ||
+							 (itemid == SHOP_ARTI_BACKPACK && IsBackpackLimitReached()) ||
 							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX))
 						   ) 
 					{
@@ -890,13 +906,15 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				}
 			}
 			else { // ammo, talent or armor
-				if(price_vs_credit || (objectflag & OBJ_TALENT && !CheckInventory("TalentPoint"))) {
+				if(price_vs_credit || nostock || (objectflag & OBJ_TALENT && !CheckInventory("TalentPoint"))) {
 					color = CR_BLACK;
 					colorprefix = "\c[G8]";
 					toshow = "\c[G8]";
 				}
 				else if(!(objectflag & (OBJ_AMMO | OBJ_ARMOR)) && CheckInventory(choicename) >= choicecount) {
 					// we only wish armor price to be fit, otherwise we don't care -- replacing is default behavior on shop
+					// this part only affects talents really and should be removed!
+					// REMOVE IN THE FUTURE
 					color = choicecolor;
 					colorprefix = "\c[Q2]";
 					toshow = "\c[Q2]";
@@ -916,6 +934,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			if(objectflag & OBJ_WEP) {
 				if(sellstate)
 					HudMessage(s:"\c[M1]--> Sells for:\c- $", d:GetShopPrice(itemid, 0) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
+				// stock
+				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
 					HudMessage(s:"* ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
@@ -925,8 +945,14 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			}
 			else if(objectflag & OBJ_AMMO) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"* ", s:"Gives \cf", d:AmmoCounts[itemid - SHOP_FIRSTAMMO_INDEX] + ACS_ExecuteWithResult(918, 0, 1, AmmoCounts[itemid - SHOP_FIRSTAMMO_INDEX]), s:"\c- ", s:AmmoExplanation[itemid - SHOP_FIRSTAMMO_INDEX]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"* ", s:"Gives \cf", d:GetAmmoToGive(itemid), s:"\c- ", s:AmmoExplanation[itemid - SHOP_FIRSTAMMO_INDEX]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
+				// stock
+				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 232.1, 0.0, 0.0);
+				// bulk price -- res_state isn't used from below here
+				res_state = GetBulkPriceForAmmo(itemid);
+				if(res_state)
+					HudMessage(s:toshow, s:"In Bulk:\c- ", s:colorprefix, d:res_state; HUDMSG_PLAIN, RPGMENUITEMID - 43, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 			}
 			else if(objectflag & OBJ_ARTI) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
@@ -942,6 +968,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
 				HudMessage(s:"* ", s:ArmorExplanation[itemid - SHOP_FIRSTARMOR_INDEX]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
+				// stock
+				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 48, CR_WHITE, 440.2, 216.1, 0.0, 0.0);
 			}
 			else if(objectflag & OBJ_ABILITY) {
 				SetHudClipRect(192, 208, 256, 64, 256, 1);
@@ -1021,11 +1049,29 @@ bool CanReplaceArmor(int armor_type) {
 	return true;
 }
 
+int GetBulkPriceForAmmo(int itemid) {
+	int id = GetAmmoSlotAndIndexFromShop(itemid);
+	int temp = 0, count = 0;
+	str ammo = AmmoInfo_Str[id & 0xFFFF][id >> 16][AMMOINFO_NAME];
+	if(CheckInventory(ammo) < GetAmmoCapacity(ammo)) {
+		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+		temp = GetAmmoToGive(itemid);
+		count = (GetAmmoCapacity(ammo) - CheckInventory(ammo)) / temp;
+		id = price * count;
+		// if there is remainder ammo
+		count = GetAmmoCapacity(ammo) - (CheckInventory(ammo) + temp * count);
+		if(count)
+			id += Max(price * count / temp, 1);
+		return id;
+	}
+	return 0;
+}
+
 int GetArmorFillPrice() {
 	int res = 0;
 	int armor_type = CheckInventory("DnD_ArmorType") - 1;
 	// not shards
-	if(armor_type > 1) {
+	if(armor_type > 0) {
 		res = ShopInfo[SHOP_FIRSTARMOR_INDEX + armor_type][SHOPINFO_PRICE] / DND_ARMORFILL_FACTOR;
 		res *= Clamp_Between(GetCVar("dnd_shop_scale"), 1, SHOP_SCALE_MAX);
 		armor_type = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
@@ -1089,7 +1135,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						// for money quest
 						GiveInventory("DnD_MoneySpentQuest", price);
 						if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
-							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorBaseAmounts[itemid - SHOP_FIRSTARMOR_INDEX + 1], tradeflag & TRADE_ARMOR_REPLACE);
+							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorBaseAmounts[itemid - SHOP_FIRSTARMOR_INDEX + 1], !!(tradeflag & TRADE_ARMOR_REPLACE));
 						}
 						else
 							GiveInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
@@ -1102,8 +1148,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 							// fix special ammo cursor
 							int fix = IsSpecialFixWeapon(itemid);
 							if(fix != -1) {
-								int weptype = SpecialAmmoFixWeapons[fix][1];
-								SetInventory(StrParam(s:"SpecialAmmoMode", s:GetSpecialAmmoSuffix(weptype)), SpecialAmmoRanges[SpecialAmmoFixWeapons[fix][2]][0]);
+								SetInventory(StrParam(s:"SpecialAmmoMode", s:GetSpecialAmmoSuffix(SpecialAmmoFixWeapons[fix][1])), SpecialAmmoRanges[SpecialAmmoFixWeapons[fix][2]][0]);
 							}
 						}
 						if(tradeflag & TRADE_ARTIFACT)
@@ -1113,8 +1158,10 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 							SetInventory("DnD_NonLowestTalents", GetNonLowestTalents());
 							TakeInventory("TalentPoint", 1);
 						}
+						--ShopStockRemaining[pnum][itemid];
 					}
 				} while (givefull && !buystatus);
+				ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, itemid, ShopStockRemaining[pnum][itemid]);
 				//sound (mostly)
 				if (buystatus && loopnumber == 1)
 					ShowPopup(buystatus, false, 0);
@@ -1222,11 +1269,12 @@ void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull, bool 
 		int buystatus = CanTrade(itemid, TRADE_BUY, price);
 		
 		if(!buystatus) {
-			int amt = AmmoCounts[index_beg - SHOP_FIRSTAMMO_INDEX], count = 1;
-			amt += ACS_ExecuteWithResult(918, 0, 1, amt);
+			int amt = GetAmmoToGive(index_beg), count = 1;
 			
 			// if we are maxing the ammo
 			if(givefull) {
+				// count was overcounting before
+				--count;
 				if(slot != -1)
 					count += (GetAmmoCapacity(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME]) - CheckInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME])) / amt;
 				else
@@ -1235,17 +1283,31 @@ void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull, bool 
 				if(price > CheckInventory("Credit")) {
 					count = CheckInventory("Credit") / GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
 					price = count * GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+					amt *= count;
+				}
+				else {
+					amt *= count;
+					// we can indeed afford to buy a complete fill, check for remainder ammo from bulk purchase -- like 28 shells, need 32 but each buy gives 10 so 2 remains
+					if(slot != -1)
+						buystatus = GetAmmoCapacity(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME]) - (CheckInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME]) + amt);
+					else
+						buystatus = GetAmmoCapacity(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME]) - (CheckInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME]) + amt);
+					if(buystatus) {
+						amt += buystatus;
+						price += Max(buystatus * GetShopPrice(itemid, PRICE_CHARISMAREDUCE) / GetAmmoToGive(index_beg), 1);
+					}
 				}
 			}
-			// check how much of this we can really afford
+			// we're OK now
 			TakeInventory("Credit", price);
-			LocalAmbientSound("items/ammo", 127);
 			if(slot != -1)
-				GiveInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME], amt * count);
+				GiveInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME], amt);
 			else
-				GiveInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME], amt * count);
-			
+				GiveInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME], amt);
+			ShopStockRemaining[PlayerNumber()][itemid] -= amt;
+			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, PlayerNumber(), itemid, ShopStockRemaining[PlayerNumber()][itemid]);
 			GiveInventory("DnD_MoneySpentQuest", price);
+			LocalAmbientSound("items/ammo", 127);
 		}
 		else
 			ShowPopup(buystatus, false, 0);
@@ -4089,7 +4151,32 @@ void GetInputOnMenuPage(int opt) {
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
 }
 
+int GetAmmoSlotAndIndexFromShop(int index) {
+	if(index < SHOP_FIRSTAMMOSPECIAL_INDEX) {
+		for(int i = 0; i < MAX_SLOTS; ++i)
+			for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT; ++j) {
+				if(MenuAmmoIndexMap[i][j] == index)
+					return i | (j << 16);
+			}
+	}
+	else
+		return index - SHOP_FIRSTAMMOSPECIAL_INDEX;
+	// keep this return structure as is, if the top loop finds nothing silently return 0
+	return 0;
+}
+
 void ResetShopStock(int pnum) {
-	for(int j = 0; j < MAXSHOPITEMS; ++j)
-		ShopStockRemaining[pnum][j] = ShopInfo[j][SHOPINFO_STOCK];
+	int ch_factor = (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = 100 + GetAmmoCapIncrease();
+	for(int j = 0; j < MAXSHOPITEMS; ++j) {
+		// ammo has different stock method -- half of initial capacity
+		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
+			temp = GetAmmoSlotAndIndexFromShop(j);
+			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX)
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 20000;
+			else
+				ShopStockRemaining[pnum][j] = (SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 20000;
+		}
+		else
+			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
+	}
 }

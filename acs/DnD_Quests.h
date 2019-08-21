@@ -201,7 +201,7 @@ bool IsQuestComplete(int tid, int qid) {
 	return IsSet(CheckActorInventory(tid, tocheck), qid);
 }
 
-void FailQuest(int tid, int qid) {
+void FailQuest(int tid) {
 	// fail marker
 	if(CheckActorInventory(tid, "ActiveQuestID")) {
 		ACS_NamedExecuteAlways("DND Quest Complete", 0, 1);

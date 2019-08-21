@@ -12,7 +12,7 @@
 
 #define CHARISMA_PERCENT 5 // percentage
 #define CHARISMA_DIV 10 // for fractional
-#define CHARISMA_REDUCE CHARISMA_DIV / CHARISMA_PERCENT
+#define CHARISMA_REDUCE (CHARISMA_DIV / CHARISMA_PERCENT)
 #define CHARISMA_REDUCE_AFTER100 CHARISMA_REDUCE * 2
 
 #define X_MULTIPLIER (4800.0)
@@ -567,10 +567,10 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 12000, 1,			1 },
 		
 		// Account
-		{ 1500000, MAX_EXTRA_INVENTORY_PAGES,		1 },
+		{ 1500000, MAX_EXTRA_INVENTORY_PAGES,		5 },
 
 		// Artifacts, here for convenience. Index = MAXSHOPITEMS - MAXARTIFACTS
-		{ 1250,          FIELDKITMAX,				1  	},
+		{ 1250,          FIELDKITMAX,				3   },
 		{ 18000,         SOLVEMAX,					1   },
 		{ 12000,         STASISMAX,					1   },
 		{ 20000,         BLOODRUNEMAX,				1 	},
@@ -1396,7 +1396,7 @@ str AttributeExplanation[DND_MAX_ATTRIBUTES] = {
 	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.",
 	"\c[INT]Dexterity\c-\nIncreases \cfNon-Magical Ranged Damage\c- by 3%.",
 	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.",
-	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5% and increases \ckpet\c- cap by 1 for every 20 points.",
+	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, increases \cishop stock\c- by 1% and \ckpet\c- cap by 1 for every 20 points.",
 	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.",
 	"\c[INT]Intellect\c-\nIncreases \cmOccult Ranged Damage\c- by 3% and improves spells."
 };
@@ -2251,10 +2251,11 @@ enum {
 	POPUP_MATERIALCANTUSE,
 	POPUP_ITEMTYPEMISMATCH,
 	POPUP_NOSPOTFORITEM,
-	POPUP_POINTLESSARMOR
+	POPUP_POINTLESSARMOR,
+	POPUP_OUTOFSTOCK
 };
 
-#define MAX_POPUPS (POPUP_POINTLESSARMOR + 1)
+#define MAX_POPUPS (POPUP_OUTOFSTOCK + 1)
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2278,7 +2279,8 @@ str PopupText[MAX_POPUPS] = {
 	"Conditions for the\nmaterial not met!",
 	"Mismatching item\ntype!",
 	"No free spot to\nplace the item!",
-	"Can't replace armor\nwith same type! Try\nfill instead."
+	"Can't replace armor\nwith same type! Try\nfill instead.",
+	"Out of stock! Wait\nnext map for a resupply."
 };
 
 #define MAX_HELPTEXT_RESEARCH 5

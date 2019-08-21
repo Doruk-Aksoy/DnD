@@ -55,6 +55,7 @@ enum {
 	
 	INV_AMMOGAIN_CHANCE,
 	INV_AMMOGAIN_INCREASE,
+	INV_SHOPSTOCK_INCREASE,
 	
 	INV_REGENCAP_INCREASE,
 	
@@ -161,6 +162,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	
 	{ "IATTR_AmmoGainChance", "% chance to gain ammo back on firing" },
 	{ "IATTR_AmmoPickupIncrease", "% ammo gain from pickups" },
+	{ "IATTR_ShopStockIncrease", "% increased shop stock" },
 	
 	{ "IATTR_RegenCap", " regeneration cap" },
 	
@@ -219,15 +221,15 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 10, 5 },
 	{ 0.005, 0.015, 1 },
 	{ 0.025, 0.05, 2 },
-	{ 0.05, 0.15, 3 },
+	{ 5, 15, 3 },
 	{ 0.01, 0.03, 1 },
 	{ 2, 4, 2 },
 
-	{ 1, 3, 2 },
-	{ 1, 3, 2 },
-	{ 1, 3, 2 },
-	{ 1, 3, 2 },
-	{ 1, 3, 2 },
+	{ 1, 4, 1 },
+	{ 1, 4, 1 },
+	{ 1, 4, 1 },
+	{ 1, 4, 1 },
+	{ 1, 4, 1 },
 	
 	{ 2, 5, 8 },
 	{ 2, 5, 8 },
@@ -252,6 +254,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 1, 5, 2 },
 	{ 1, 3, 2 },
+	{ 1, 10, 4 },
 	
 	{ 1, 25, 5 },
 	
@@ -337,7 +340,6 @@ str ItemAttributeString(int attr, int val) {
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
-		case INV_AMMOCAP_INCREASE:
 			return StrParam(s:"+ ", f:ftrunc(val * 100), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
 		
 		case INV_DMGREDUCE_REFL:

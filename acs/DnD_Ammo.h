@@ -4,7 +4,7 @@
 #include "DnD_Stat.h"
 
 #define DND_MAX_BACKPACK 55
-#define DND_BACKPACK_RATIO 5
+#define DND_BACKPACK_RATIO 20
 
 enum {
 	DND_AMMOSLOT_CLIP,
@@ -263,16 +263,22 @@ str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"HeavyGLCounter"
 };
 
-void SetAllAmmoCapacities() {
-	// last slot is for souls, we don't increase it here
-	for(int i = 0; i < MAX_SLOTS - 1; ++i)
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
-			SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], Min(GetHandledAmmoCapacity(i, j, CheckInventory("BackpackCounter")), GetHandledAmmoCapacity(i, j, DND_MAX_BACKPACK))); //Check backpack orbs.
+// gets you the percentage to increase by
+int GetAmmoCapIncrease() {
+	int bpcount = CheckInventory("BackpackCounter");
+	return (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) / 100;
 }
 
-int GetHandledAmmoCapacity(int slot, int t, int backpacks_amount) {
-	//printBold(s:"HandledAmmoCapacity: Slot:",d:slot,s:", t:",d:t,s:", initial_capacity:",d:AmmoInfo[slot][t].initial_capacity,s:", backpacks_amount:",d:backpacks_amount,s:", INV_AMMOCAP_INCREASE:",d:GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE),s:", OBI_HOLDING:",d:GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1));
-	return ((AmmoInfo[slot][t].initial_capacity + (AmmoInfo[slot][t].initial_capacity * backpacks_amount / DND_BACKPACK_RATIO)) * ((1.0 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1))))) >> 16;
+bool IsBackpackLimitReached() {
+	return CheckInventory("DND_MAX_BACKPACK") >= DND_MAX_BACKPACK;
+}
+
+void SetAllAmmoCapacities() {
+	// last slot is for souls, we don't increase it here
+	int factor = GetAmmoCapIncrease();
+	for(int i = 0; i < MAX_SLOTS - 1; ++i)
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+			SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], (AmmoInfo[i][j].initial_capacity * factor) / 100); //Check backpack orbs.
 }
 
 bool CheckAmmoPickup(int slot, bool simple) {
@@ -284,8 +290,12 @@ bool CheckAmmoPickup(int slot, bool simple) {
 	return res;
 }
 
+int GetAmmoGainFactor() {
+	return (100 + GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN));
+}
+
 void HandleAmmoContainerPickup(int slot, int basic_kind) {
-	int amt = 0, index = 0;
+	int amt = 0, factor = GetAmmoGainFactor();
 	if (basic_kind > 0) {
 			amt = AmmoInfo[slot][0].container_value; //large pack
 			if (basic_kind <= 2)
@@ -293,7 +303,7 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 			if (basic_kind == 1)
 				amt /= 2; //dropped pack (clip only)
 		
-			amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
+			amt = amt * factor / 100;
 			if(!amt)
 				amt = 1;
 
@@ -301,7 +311,7 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 	} else {
 		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
 			amt = AmmoInfo[slot][i].container_value;
-			amt += (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
+			amt = amt * factor / 100;
 			if(!amt)
 				amt = 1;
 
@@ -312,7 +322,7 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 
 void GiveAmmo(int amt, int slot, int t) {
 	if(slot != DND_AMMOSLOT_SOULS)
-		amt = amt + (amt * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100);
+		amt = amt * GetAmmoGainFactor() / 100;
 	else
 		amt = amt + (amt * CheckInventory("IATTR_SoulAmmoIncrease") / 100);
 	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt);

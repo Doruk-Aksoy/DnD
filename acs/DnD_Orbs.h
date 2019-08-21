@@ -377,8 +377,8 @@ enum {
 #define SINORB_STATGIVE 4
 #define SINORB_PERKGIVE 1
 
-#define HOLDING_MAX 1.0
-#define HOLDINGORB_BONUS 0.01
+#define HOLDING_MAX 100
+#define HOLDINGORB_BONUS 1
 
 enum {
 	RICHES_EXP,

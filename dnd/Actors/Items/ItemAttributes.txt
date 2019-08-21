@@ -369,3 +369,9 @@ Actor IATTR_CastRally : Ammo {
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
+
+Actor IATTR_ShopStockIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
