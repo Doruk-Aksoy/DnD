@@ -871,7 +871,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
 		bool sellstate = false;
 		bool price_vs_credit = price > CheckInventory("Credit");
-		bool nostock = ShopStockRemaining[PlayerNumber()][itemid] > 0;
+		bool nostock = ShopStockRemaining[PlayerNumber()][itemid] <= 0;
 		
 		if(objectflag & OBJ_RESEARCH && !res_state) {
 			toshow = "\c[W3]";
@@ -1298,6 +1298,12 @@ void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull, bool 
 					}
 				}
 			}
+			if(amt > ShopStockRemaining[PlayerNumber()][itemid]) {
+				// rebalance the amount so we don't go in debt...
+				amt = ShopStockRemaining[PlayerNumber()][itemid];
+				price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE) * amt / GetAmmoToGive(index_beg);
+			}
+			
 			// we're OK now
 			TakeInventory("Credit", price);
 			if(slot != -1)
@@ -4166,15 +4172,15 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 }
 
 void ResetShopStock(int pnum) {
-	int ch_factor = (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = 100 + GetAmmoCapIncrease();
+	int ch_factor = (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
 		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX)
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 20000;
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 50000;
 			else
-				ShopStockRemaining[pnum][j] = (SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 20000;
+				ShopStockRemaining[pnum][j] = (SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 50000;
 		}
 		else
 			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;

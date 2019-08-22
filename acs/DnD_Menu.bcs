@@ -1435,7 +1435,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(GetWeaponPage(boxid));
 			}
 			if(HasPressedLeft(pnum))
-				ReturnToMain();
+				UpdateMenuPosition(MENU_SHOP);
 		}
 		else if(curopt == MENU_SHOP_WEAPON1)
 			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON1_BEGIN, SHOP_WEAPON_SLOT1END, -1, -1);
