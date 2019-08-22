@@ -12,6 +12,7 @@
 
 #define FACTOR_SMALLCHARM_RESOLUTION 1000
 
+#define UNIQUE_ATTRIB_ID_BEGIN 2000
 // self note: all status_buffs_X modifiers are handled as exceptions
 enum {
 	INV_HP_INCREASE,
@@ -77,9 +78,10 @@ enum {
 	INV_DMGREDUCE_ELEM,
 	INV_DMGREDUCE_PHYS,
 	INV_DMGREDUCE_REFL,
+	// add new attributes here, below the last normal item attributes to avoid weird problems regarding database saves
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
-	INV_EX_CHANCE, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
+	INV_EX_CHANCE = UNIQUE_ATTRIB_ID_BEGIN, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
 	INV_EX_CHANCE_CASTELEMSPELLONATK,
 	INV_EX_KNOCKBACK_IMMUNITY,
 	INV_EX_FACTOR_SMALLCHARM,
@@ -103,14 +105,21 @@ enum {
 	INV_EX_ABILITY_RALLY,
 	INV_EX_BEHAVIOR_SPELLSFULLDAMAGE,
 	INV_EX_ABILITY_MONSTERSRIP
+	// add new unique attributes here
 };
 
 // attributes below last_inv (normal rollables) are exotic
+#define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
 #define LAST_INV_ATTRIBUTE INV_DMGREDUCE_REFL
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
 #define UNIQUE_ATTRIB_END INV_EX_ABILITY_MONSTERSRIP
+#define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
+#define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 #define MAX_INV_ATTRIBUTE_TYPES (LAST_INV_ATTRIBUTE + 1)
-#define MAX_TOTAL_ATTRIBUTES (UNIQUE_ATTRIB_END + 1)
+#define MAX_TOTAL_ATTRIBUTES (UNIQUE_ATTRIB_COUNT + NORMAL_ATTRIBUTE_COUNT)
+#define UNIQUE_ATTRIB_MAPPER (LAST_INV_ATTRIBUTE - UNIQUE_ATTRIB_ID_BEGIN + 1) // maps the array indices proper
+
+#define UNIQUE_MAP_MACRO(X) ((X) +  UNIQUE_ATTRIB_MAPPER)
 
 typedef struct {
 	int attrib_low;
@@ -355,25 +364,27 @@ str ItemAttributeString(int attr, int val) {
 }
 
 str ExoticAttributeString(int attr, int val1, int val2) {
+	// treat it as normal inv attribute range
 	if(attr <= LAST_INV_ATTRIBUTE)
 		return ItemAttributeString(attr, val1);
+	// we must map all exotic ones with the proper macro
 	switch(attr) {
 		case INV_EX_FACTOR_SMALLCHARM:
-		return StrParam(s:Inv_Attribute_Names[INV_EX_FACTOR_SMALLCHARM][INVATTR_TEXT], f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
+		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_FACTOR_SMALLCHARM)][INVATTR_TEXT], f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
-		return StrParam(d:val1, s:Inv_Attribute_Names[INV_EX_CHANCE][INVATTR_TEXT], s:Inv_Attribute_Names[INV_EX_CHANCE_HEALMISSINGONPAIN][INVATTR_TEXT], d:val2, s:"% missing health");
+		return StrParam(d:val1, s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CHANCE)][INVATTR_TEXT], s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CHANCE_HEALMISSINGONPAIN)][INVATTR_TEXT], d:val2, s:"% missing health");
 		case INV_EX_DAMAGEPER_FLATHEALTH:
-		return StrParam(s:Inv_Attribute_Names[INV_EX_DAMAGEPER_FLATHEALTH][INVATTR_TEXT], d:val1, s:" maximum health");
+		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_DAMAGEPER_FLATHEALTH)][INVATTR_TEXT], d:val1, s:" maximum health");
 		case INV_EX_ONKILL_HEALMISSING:
-		return StrParam(s:Inv_Attribute_Names[INV_EX_ONKILL_HEALMISSING][INVATTR_TEXT], d:val1, s:"% missing health");
+		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_ONKILL_HEALMISSING)][INVATTR_TEXT], d:val1, s:"% missing health");
 		case INV_EX_ABILITY_RALLY:
-		return StrParam(s:Inv_Attribute_Names[INV_EX_ABILITY_RALLY][INVATTR_TEXT], d:val1, s:" Rally");
+		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_ABILITY_RALLY)][INVATTR_TEXT], d:val1, s:" Rally");
 		case INV_EX_DOUBLE_HEALTHCAP:
-		return Inv_Attribute_Names[attr][INVATTR_TEXT];
+		return Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT];
 		default:
 			if(val1)
-				return StrParam(s:"+ ", d:val1, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
-			return Inv_Attribute_Names[attr][INVATTR_TEXT];
+				return StrParam(s:"+ ", d:val1, s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT]);
+			return Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT];
 	}
 	return "";
 }

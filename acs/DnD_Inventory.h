@@ -291,7 +291,7 @@ str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
 
 // holds inventories of all players
 global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
-#define MAX_INVENTORIES_ON_FIELD 8192
+#define MAX_INVENTORIES_ON_FIELD 16384
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
 global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
@@ -308,6 +308,21 @@ int CreateItemSpot() {
 			break;
 		}
 	return pos;
+}
+
+void RemoveItemFromWorld(int fieldpos) {
+	Inventories_On_Field[fieldpos].width = 1;
+	Inventories_On_Field[fieldpos].height = 1;
+	Inventories_On_Field[fieldpos].item_type = DND_ITEM_NULL;
+	Inventories_On_Field[fieldpos].item_subtype = 0;
+	Inventories_On_Field[fieldpos].item_image = 0;
+	Inventories_On_Field[fieldpos].item_level = 0;
+	Inventories_On_Field[fieldpos].item_stack = 0;
+	for(int k = 0; k < Inventories_On_Field[fieldpos].attrib_count; ++k) {
+		Inventories_On_Field[fieldpos].attributes[k].attrib_id = 0;
+		Inventories_On_Field[fieldpos].attributes[k].attrib_val = 0;
+	}
+	Inventories_On_Field[fieldpos].attrib_count = 0;
 }
 
 void FreeItem(int item_index, int source, bool dontSync) {
@@ -722,18 +737,7 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 				}
 		}
 		// the leftover spot is a null item
-		Inventories_On_Field[fieldpos].width = 1;
-		Inventories_On_Field[fieldpos].height = 1;
-		Inventories_On_Field[fieldpos].item_type = DND_ITEM_NULL;
-		Inventories_On_Field[fieldpos].item_subtype = 0;
-		Inventories_On_Field[fieldpos].item_image = 0;
-		Inventories_On_Field[fieldpos].item_level = 0;
-		Inventories_On_Field[fieldpos].item_stack = 0;
-		for(k = 0; k < Inventories_On_Field[fieldpos].attrib_count; ++k) {
-			Inventories_On_Field[fieldpos].attributes[k].attrib_id = 0;
-			Inventories_On_Field[fieldpos].attributes[k].attrib_val = 0;
-		}
-		Inventories_On_Field[fieldpos].attrib_count = 0;
+		RemoveItemFromWorld(fieldpos);
 		SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 	}
 }

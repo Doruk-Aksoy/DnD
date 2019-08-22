@@ -14,40 +14,11 @@ enum {
 
 Actor ChestKeyDrop : InventoryBase {
 	States {
-		SpawnInit:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
-			"####" "#" 1 Bright
-			"####" "#" 24 Bright
 		SpawnLoop:
 		Idle:
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
-		
-		See:
-		CheckPickup:
-			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
-		goto SpawnLoop
-		
-		Pickup:
-			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
-		goto PickupFail
-
-		PickupFail:
-			"####" "#" 1 Bright
-		goto SpawnLoop
-		
-		PickupCheck2:
-			// Check if player has remaining inventory space
-			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player Has Spot For Item", mass - 1), "PickupSuccess")
-		Goto PickupShowItem
-		
-		PickupShowItem:
-			"####" "#" 0 A_JumpIfInTargetInventory("DnD_PlayerViewsItem", 1, "PickupFail")
-			"####" "#" 0 A_JumpIfInTargetInventory("ShowingMenu", 1, "PickupFail")
-			"####" "#" 0 A_GiveToTarget("DnD_PlayerViewsItem", 1)
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Preview Item", 0, mass - 1, ACS_NamedExecuteWithResult("DnD Get Target"))
-		Goto PickupFail
-		
+	
 		PickupSuccess:
 			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_CHESTKEY)
 		stop
@@ -67,7 +38,7 @@ Actor BronzeChestKey : ChestKeyDrop {
 	States {
 		Spawn:
 			SBKY A 0
-		Goto Super::SpawnInit
+		Goto SpawnInit
 	}
 }
 
@@ -75,7 +46,7 @@ Actor SilverChestKey : ChestKeyDrop {
 	States {
 		Spawn:
 			SBKY B 0
-		Goto Super::SpawnInit
+		Goto SpawnInit
 	}
 }
 
@@ -83,7 +54,7 @@ Actor GoldChestKey : ChestKeyDrop {
 	States {
 		Spawn:
 			SBKY C 0
-		Goto Super::SpawnInit
+		Goto SpawnInit
 	}
 }
 

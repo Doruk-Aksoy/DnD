@@ -326,7 +326,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE), s:"%\c- more pellets"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS), s:"%\c- explosion radius"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), s:"%\c- self explosive resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:100 - GetAmmoCapIncrease(), s:"%\c- increased ammo caps"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetAmmoCapIncrease(), s:"%\c- increased ammo caps"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE), s:"%\c- chance to gain ammo on firing"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE), s:"%\c- more ammo from pickups"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetAmmoCapIncrease() * (GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100, s:"%\c- increased shop stock"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);

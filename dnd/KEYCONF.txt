@@ -1,5 +1,7 @@
 alias sethardcore "puke 1000 0"
 alias setsoftcore "puke 1000 1"
+alias setcasual "puke 1000 2"
+alias setbeginner "puke 1000 3"
 
 alias loadme "puke 1001 %1"
 alias setchar "puke 1003 %1"
@@ -29,7 +31,7 @@ AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "Drop Temporary Weapon" droptemp
 	Alias droptemp "Puke 905 0"
 	AddMenuKey "Toggle Special Effects" fx
-	Alias fx "Puke 919"
+	Alias fx "Puke -919"
 	AddMenuKey "View Current Quest" quest
 	Alias quest "Puke -1002"
 	

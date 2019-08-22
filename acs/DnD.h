@@ -116,6 +116,8 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define DND_SOULAMMO_DROPRATE 0.1
 #define DND_SOULAMMO_SMALLCHANCE 75
 
+#define DND_ITEM_LINGER_TIME 120
+
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"

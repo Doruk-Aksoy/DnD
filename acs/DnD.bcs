@@ -4515,3 +4515,18 @@ Script "DnD Tcherno Corpse Explode Gib Giver" (int i) CLIENTSIDE {
 	Delay(const:TICRATE);
 	GiveActorInventory(i, "TchernoCorpseExploder_Gibber", 1);
 }
+
+Script "DnD Item Linger Check" (int sp) {
+	int counter = 0;
+	sp >>= 16;
+	while(counter < DND_ITEM_LINGER_TIME) {
+		++counter;
+		Delay(const:TICRATE);
+		// if this is picked up, terminate early
+		if(Inventories_On_Field[sp].item_type == DND_ITEM_NULL)
+			Terminate;
+	}
+	// not picked until now, remove it
+	RemoveItemFromWorld(sp);
+	Thing_Remove(0);
+}

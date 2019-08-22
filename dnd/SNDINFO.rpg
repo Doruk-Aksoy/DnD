@@ -30,6 +30,8 @@ Quest/Announce		QSTANNCE
 Quest/Done			QSTDONE
 Quest/Fail			QSTFAIL
 
+LegendaryHere		LEGNHERE
+
 Items/OrbUse		ORBUSE
 Items/OrbDrop		ORBDROP
 Items/OrbPick		ORBPICK

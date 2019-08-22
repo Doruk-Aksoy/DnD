@@ -2280,7 +2280,7 @@ str PopupText[MAX_POPUPS] = {
 	"Mismatching item\ntype!",
 	"No free spot to\nplace the item!",
 	"Can't replace armor\nwith same type! Try\nfill instead.",
-	"Out of stock! Wait\nnext map for a resupply."
+	"Out of stock! Wait\nnext map to restock."
 };
 
 #define MAX_HELPTEXT_RESEARCH 5
