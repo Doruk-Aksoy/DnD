@@ -91,6 +91,12 @@ Script "DnD Menu Reset on Enter" ENTER {
 	ACS_NamedExecuteAlways("DnD Menu Reset on Enter CS", 0);
 }
 
+// So database can run this
+Script "DnD Menu Reset Forced" (void) {
+	ResetShopStock(PlayerNumber());
+	ACS_NamedExecuteAlways("DnD Menu Reset on Enter CS", 0);
+}
+
 Script "DnD Menu Reset on Enter CS" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
@@ -326,10 +332,10 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE), s:"%\c- more pellets"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS), s:"%\c- explosion radius"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), s:"%\c- self explosive resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:GetAmmoCapIncrease(), s:"%\c- increased ammo caps"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:GetAmmoCapIncrease() - 100, s:"%\c- increased ammo caps"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE), s:"%\c- chance to gain ammo on firing"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE), s:"%\c- more ammo from pickups"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
-			HudMessage(s:"+ \c[Q9]", d:GetAmmoCapIncrease() * (GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100, s:"%\c- increased shop stock"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+			HudMessage(s:"+ \c[Q9]", d:(GetAmmoCapIncrease() - 100) * (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100, s:"%\c- increased shop stock"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE), s:"\c- to your regen cap"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST), s:"\c- knockback resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 			HudMessage(s:"+ \c[Q9]", d:GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE), s:"%\c- increased damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);

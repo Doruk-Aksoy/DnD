@@ -3170,30 +3170,30 @@ Actor ElementalResist_100 : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	damagefactor "normal", 1.0
 
-	damagefactor "DemonFire", 0
-	damagefactor "ImpFire", 0
-	damagefactor "CacoFire", 0
-	damagefactor "CacoPoison", 0
-	damagefactor "ImpPoison_Vulgar", 0
-	damagefactor "ImpPoison_Roach", 0
-	damagefactor "PaineFire", 0
-	damagefactor "PainePoison", 0
-	damagefactor "RevIce", 0
-	damagefactor "RevSludge", 0
-	damagefactor "RevPoison_Crawler", 0
-	damagefactor "BaronsPoison", 0
-	damagefactor "BaronsFire", 0
-	damagefactor "BaronGreen", 0
-	damagefactor "BaronGreenFire", 0
-	damagefactor "FattyFire", 0
-	damagefactor "FattyIce", 0
-	damagefactor "ArachnoFire", 0
-	damagefactor "VileFire", 0
-	damagefactor "VileBlue", 0
-	damagefactor "VileBlueFire", 0
-	damagefactor "BigSpiderFire", 0
-	damagefactor "BigSpiderIce", 0
-	damagefactor "CyberFire", 0
-	damagefactor "CyberLightning", 0
-	damagefactor "CyberIce", 0
+	damagefactor "DemonFire", 0.001
+	damagefactor "ImpFire", 0.001
+	damagefactor "CacoFire", 0.001
+	damagefactor "CacoPoison", 0.001
+	damagefactor "ImpPoison_Vulgar", 0.001
+	damagefactor "ImpPoison_Roach", 0.001
+	damagefactor "PaineFire", 0.001
+	damagefactor "PainePoison", 0.001
+	damagefactor "RevIce", 0.001
+	damagefactor "RevSludge", 0.001
+	damagefactor "RevPoison_Crawler", 0.001
+	damagefactor "BaronsPoison", 0.001
+	damagefactor "BaronsFire", 0.001
+	damagefactor "BaronGreen", 0.001
+	damagefactor "BaronGreenFire", 0.001
+	damagefactor "FattyFire", 0.001
+	damagefactor "FattyIce", 0.001
+	damagefactor "ArachnoFire", 0.001
+	damagefactor "VileFire", 0.001
+	damagefactor "VileBlue", 0.001
+	damagefactor "VileBlueFire", 0.001
+	damagefactor "BigSpiderFire", 0.001
+	damagefactor "BigSpiderIce", 0.001
+	damagefactor "CyberFire", 0.001
+	damagefactor "CyberLightning", 0.001
+	damagefactor "CyberIce", 0.001
 }

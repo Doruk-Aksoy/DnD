@@ -1487,13 +1487,13 @@ Actor PhysicalResist_100 : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 	damagefactor "normal", 1.0
 
-	damagefactor "Melee", 0
-	damagefactor "Physical", 0
-	damagefactor "Bullet", 0
-	damagefactor "FattyBullet", 0
-	damagefactor "ArachnoBullet", 0
-	damagefactor "FattyBullet", 0
-	damagefactor "VileBullet", 0
-	damagefactor "BigSpiderBullet", 0
-	damagefactor "CyberBullet", 0
+	damagefactor "Melee", 0.001
+	damagefactor "Physical", 0.001
+	damagefactor "Bullet", 0.001
+	damagefactor "FattyBullet", 0.001
+	damagefactor "ArachnoBullet", 0.001
+	damagefactor "FattyBullet", 0.001
+	damagefactor "VileBullet", 0.001
+	damagefactor "BigSpiderBullet", 0.001
+	damagefactor "CyberBullet", 0.001
 }

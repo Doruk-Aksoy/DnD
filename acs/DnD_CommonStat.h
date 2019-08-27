@@ -72,7 +72,11 @@ enum {
 #define DND_TALENT_BEGIN TALENT_BULLET
 #define DND_TALENT_END TALENT_ELEMENTAL + 1
 
-#define MAX_EXPRESIST_VAL 100 //Also in DnD_Inventory.h
+// The following are also in DnD_Inventory.h, but used here as well because compiling...
+#define MAX_EXPRESIST_VAL 100
+#define MAX_ELEMRESIST_VAL 100
+#define MAX_PHYSRESIST_VAL 100
+#define MAX_REFLRESIST_VAL 1000
 
 #define DND_CLASSPERK1_LEVEL 5
 #define DND_CLASSPERK2_LEVEL 25
@@ -144,8 +148,12 @@ enum {
 	RES_PLAYERSPEED = 512,
 	RES_ACCURACY = 1024,
 	RES_EXPLOSIONRADIUS = 2048,
-	RES_SELFEXPLOSIONRESIST = 4096
+	RES_SELFEXPLOSIONRESIST = 4096,
+	RES_PHYSRESIST = 8192,
+	RES_ELEMRESIST = 16384,
+	RES_REFLRESIST = 32768,
 };
+#define RES_ALLRESISTS (RES_SELFEXPLOSIONRESIST | RES_PHYSRESIST | RES_ELEMRESIST | RES_REFLRESIST)
 
 enum {
 	// reset to 0 every 31 elements
@@ -304,10 +312,18 @@ void RestoreRPGStat (int statflag) {
 		SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE));
 	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS))
 		SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS));
-	if((statflag & RES_SELFEXPLOSIONRESIST) && GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST))
-		GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
 	if(statflag & RES_PLAYERSPEED)
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
+		
+	// resists from items
+	if((statflag & RES_SELFEXPLOSIONRESIST) && GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST))
+		GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
+	if((statflag & RES_ELEMRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM))
+		GiveInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM), 1, MAX_ELEMRESIST_VAL)), 1);
+	if((statflag & RES_PHYSRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS))
+		GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_PHYSRESIST_VAL)), 1);
+	if((statflag & RES_REFLRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL))
+		GiveInventory(StrParam(s:"Reflect_Resist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_REFLRESIST_VAL)), 1);
 	
 	// accessories
 	// can only intervene once per map
@@ -360,6 +376,9 @@ void RestoreRPGStat (int statflag) {
 
 // Retrieves attributes from items that the player has on them
 str GetPlayerAttributeString(int attrib) {
+	// there are sometimes those that directly invoke this, so we must add a failsafe for them too
+	if(attrib >= UNIQUE_ATTRIB_BEGIN)
+		attrib = UNIQUE_MAP_MACRO(attrib);
 	return Inv_Attribute_Names[attrib][INVATTR_CHECKER];
 }
 

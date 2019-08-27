@@ -259,7 +259,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 3, 8, 2 },
 	
 	{ 1, 4, 4 },
-	{ 1, 5, 2 },
+	{ 1, 5, 1 },
 	
 	{ 1, 5, 2 },
 	{ 1, 3, 2 },

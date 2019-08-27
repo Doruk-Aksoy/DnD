@@ -2116,7 +2116,7 @@ Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
-	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_SELFEXPLOSIONRESIST);
+	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	// if game mode is coop, we don't want any sort of reset on death here! make sure it's not coop
 	/*if(GetCVar("Survival")) {
@@ -2227,7 +2227,7 @@ Script "DnD Player Setup" ENTER {
 		GiveInventory("P_Frozen", 1);
 		GiveInventory("DontAttack", 1);
 		while(GetGameModeState() == GAMESTATE_COUNTDOWN)
-			Delay(17);
+			Delay(const:17);
 		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 		SetPlayerProperty(0, 2, PROP_INVULNERABILITY);
 
@@ -2261,7 +2261,7 @@ Script "DnD Player Setup" ENTER {
 					ACS_ExecuteAlways(1001,0,0);
 				else if (ACS_NamedExecuteWithResult("DnD Create Character Check", pnum, 0) == 1) //DND_LOGIN_CREATECHAROK
 					ACS_ExecuteAlways(1003,0,0);
-			Delay(18);
+			Delay(const:18);
 		}
 	}
 	
@@ -2339,7 +2339,7 @@ Script "DnD Player Setup" ENTER {
 	else
 		SetInventory("CurrentLives", GetCvar("sv_maxlives") - 1);
 	
-	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_SELFEXPLOSIONRESIST);
+	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	
 	// a little hack to prevent ankh going off when finishing maps with 1 hp
 	if(GetActorProperty(0, APROP_HEALTH) == 1 && CheckInventory("CanIntervene"))
@@ -2354,12 +2354,12 @@ Script "DnD Player Setup" ENTER {
 
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
-		Delay(7);
+		Delay(const:7);
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
 	TakeInventory("QuestWasPicked", 1); // helps sync clientside variable Quest_Pick_Done
 	while(!Quest_Pick_Done)
-		Delay(10);
+		Delay(const:10);
 	
 	GiveInventory("QuestWasPicked", 1);
 	if(active_quest_id != -1) {
@@ -2375,7 +2375,7 @@ Script "DnD Player Setup" ENTER {
 		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
 	
 	while(CheckInventory("TipBoxOpen"))
-		Delay(17);
+		Delay(const:17);
 	// give some time for completion thing to get through
 	SetInventory("QuestCompletionToken", 0);
 	if(HardcoreSet && !CheckInventory("HardcoreDebuff"))
@@ -2563,7 +2563,7 @@ Script "DnD Blood Rune" (void) {
 
 // Custom Powerup script
 Script "DnD Player On Hit" (int power) {
-	int this, temp, roll;
+	int this, temp;
 	
 	if(!CheckInventory("Armor"))
 		SetInventory("DnD_ArmorType", 0);
@@ -2584,8 +2584,7 @@ Script "DnD Player On Hit" (int power) {
 	if(temp) {
 		// roll chance
 		// upper 16 bits hold the chance
-		roll = random(1, 100);
-		if(roll <= (temp >> 16)) {
+		if(random(1, 100) <= (temp >> 16)) {
 			// heal for missing health
 			GiveInventory("VeilHealFXSpawner", 1); // use same fx as veil for now
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, ((temp & 0xFFFF) * GetMissingHealth()) / 100);
