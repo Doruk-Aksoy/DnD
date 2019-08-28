@@ -66,7 +66,7 @@ actor Lavademon : DnD_BaseHybridMonster {
 		goto See
 		PainState:
 			LAVD E 3 Fast bright
-			TNT1 A 0 A_PlaySound("lavdpain")
+			LAVD E 0 Bright A_PlaySound("lavdpain")
 			LAVD E 3 Fast bright A_Pain
 		goto See
 		XDeathState:

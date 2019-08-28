@@ -655,7 +655,7 @@ ACTOR BulletPierce {
 	+DONTBLAST
 	Decal "BulletChip"
 	BounceType "Hexen"
-	BounceCount 2
+	BounceCount 3
 	BounceFactor 1.0
 	states {
 		Spawn:

@@ -5,6 +5,8 @@
 // every 10 points contribute 0.01%
 // applied as follows: X = spread of weapon, X * (1.0 - accuracy * factor_per_point), capped at 80 000 accuracy (80%)
 
+// chance to roll negative attribute: 40% - 10% * tier, perfect charms never roll negative attributes -- 0 based tier
+
 #define DND_ACCURACY_CAP 80000
 #define DND_ATTRIBUTEBONUS_CAP 1024
 
@@ -79,6 +81,53 @@ enum {
 	INV_DMGREDUCE_PHYS,
 	INV_DMGREDUCE_REFL,
 	// add new attributes here, below the last normal item attributes to avoid weird problems regarding database saves
+	/*
+	INV_NEG_DAMAGE_DEALT,
+	INV_NEG_DAMAGE_TAKEN, // remove the inv_ex_damage taken and replace it with this
+	INV_NEG_HEALTHCAP,
+	INV_NEG_ARMORCAP,
+	INV_NEG_HEALTHCAP_PERCENT,
+	INV_NEG_ARMORCAP_PERCENT,
+	INV_NEG_SPEED,
+	INV_NEG_CRIT_DAMAGE,
+	INV_NEG_CRIT_PERCENT,
+	INV_NEG_KNOCKBACK_RESIST,
+	INV_NEG_REGEN_CAP,
+	
+	INV_NEG_FLATPHYS_DAMAGE,
+	INV_NEG_FLATENERGY_DAMAGE,
+	INV_NEG_FLATEXP_DAMAGE,
+	INV_NEG_FLATMAGIC_DAMAGE,
+	INV_NEG_FLATELEM_DAMAGE,
+	
+	INV_NEG_PERCENTPHYS_DAMAGE,
+	INV_NEG_PERCENTENERGY_DAMAGE,
+	INV_NEG_PERCENTEXP_DAMAGE,
+	INV_NEG_PERCENTMAGIC_DAMAGE,
+	INV_NEG_PERCENTELEM_DAMAGE,
+	
+	INV_NEG_SLOT1_DAMAGE,
+	INV_NEG_SLOT2_DAMAGE,
+	INV_NEG_SLOT3_DAMAGE,
+	INV_NEG_SLOT4_DAMAGE,
+	INV_NEG_SLOT5_DAMAGE,
+	INV_NEG_SLOT6_DAMAGE,
+	INV_NEG_SLOT7_DAMAGE,
+	INV_NEG_SLOT8_DAMAGE,
+	INV_NEG_TEMPWEP_DAMAGE,
+	
+	INV_NEG_DMGTAKEN_ELEM,
+	INV_NEG_DMGTAKEN_PHYS,
+	INV_NEG_DMGTAKEN_REFL,
+	
+	INV_NEG_ACCURACY,
+	
+	INV_NEG_EXPGAIN,
+	INV_NEG_CREDITGAIN,
+	
+	INV_NEG_AMMOGAIN,
+	INV_NEG_AMMOCAP,
+	*/
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
 	INV_EX_CHANCE = UNIQUE_ATTRIB_ID_BEGIN, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
@@ -110,7 +159,9 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_DMGREDUCE_REFL
+#define LAST_INV_ATTRIBUTE INV_DMGREDUCE_REFL 
+// modify the above to make it use the negative last
+//#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
 #define UNIQUE_ATTRIB_END INV_EX_ABILITY_MONSTERSRIP
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)

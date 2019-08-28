@@ -1878,7 +1878,7 @@ Actor IceGolem : DnD_BaseHybridMonster {
 			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
 			GOL3 FG 5 Fast 
 		Goto See
-		OtherMeleeState:
+		OtherMelee:
 			GOL3 H 6 Fast A_FaceTarget
 			GOL3 I 3 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")

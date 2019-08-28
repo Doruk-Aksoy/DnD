@@ -12,6 +12,7 @@ Actor DnD_PlayerBase : PlayerPawn {
 	damagefactor "SoulTypeFull", 0.0
 	damagefactor "SoulTypeExp", 0.0
 	damagefactor "SoulTypeExpFull", 0.0
+	DamageFactor "Magic", 0.0
 	Player.DamageScreenColor "Black", 0
 	+QUICKTORETALIATE
 	+NODAMAGETHRUST

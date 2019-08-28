@@ -367,7 +367,12 @@ Script "DnD Critical Input Handler" ENTER {
         SetInventory("MedkitItem", CheckInventory("StoredMedKit"));
         SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_HEALTH));
         TakeInventory("FadeIntensity", 1);
-        Delay(1);
+		
+		// had enough of armor fucking up
+		if(!CheckInventory("Armor"))
+			SetInventory("DnD_ArmorType", 0);
+		
+        Delay(const:1);
     }
 	TakeInventory("HellsMawSynthFireLeft", 1);
 	TakeInventory("HellsMawSynthFireRight", 1);
@@ -744,7 +749,7 @@ Script "DND On Kill" KILL {
 		GiveActorInventory(target, "DnD_ShotUndead", 1);
 	
 	// required delay for transition from specific death state labels
-	Delay(1);
+	Delay(const:1);
 	
 	HandleOtherDrops(target);
 	
@@ -3407,7 +3412,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 		SetPointer(AAPTR_TARGET, tid);
 		SetActivator(tid);
 	}
-	Delay(1);
+	Delay(const:1);
 	while(CheckInventory("ThunderRangeCounter") && IsAlive() && !CheckInventory("ThunderStopRing")) {
 		r_add = DND_THUNDER_RADIUSPERCOUNT * CheckInventory("ThunderRangeCounter");
 		pang = 0;
@@ -3421,7 +3426,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 		}
 		angadd += 0.025;
 		angadd %= 1.0;
-		Delay(1);
+		Delay(const:1);
 	}
 	for(i = 0; i < 32; ++i)
 		SetActorState(newtid + i, "Fade");
@@ -3667,7 +3672,7 @@ Script "DnD Footstep Sound" ENTER CLIENTSIDE {
 	int DelayTime, StepVolume, x;
 	bool SoundPlayed = 0;
 	while(1) {
-		Delay(1);
+		Delay(const:1);
 		x = min(GetPVelocity(), 9);
 		DelayTime = 16 - GetPVelocity() / 2;
 		StepVolume = 7 * x;
@@ -3879,7 +3884,7 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 // in here because dnd_mons.bcs can't access values of the variables used below
 Script "DnD Warmaster Rage" (void) {
 	while(!CheckInventory("WarmasterActive"))
-		Delay(17);
+		Delay(const:17);
 	int i, tidlim, dist;
 	while(CheckInventory("WarmasterActive")) {
 		bool found = false;

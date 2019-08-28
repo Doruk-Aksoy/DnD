@@ -634,8 +634,8 @@ Actor FlakShellPuff : BulletPuff {
 			TNT1 AAA 0 A_CustomMissile("FlakProjectile", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
 		Spawn:
 			TNT1 A 0 A_SetDamageType("Explosives")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			FP97 A 2 Bright A_PlaySound("Vindicator/PuffExp")
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			FP97 BCDEFGHI 2 Bright
 		stop
 	}
@@ -649,8 +649,8 @@ Actor FlakShellPuff_FullDMG : FlakShellPuff {
 			TNT1 AAA 0 A_CustomMissile("FlakProjectile_FullDMG", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
 		Spawn:
 			TNT1 A 0 A_SetDamageType("ExplosivesFull")
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			FP97 A 2 Bright A_PlaySound("Vindicator/PuffExp")
+			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			FP97 BCDEFGHI 2 Bright
 		stop
 	}
