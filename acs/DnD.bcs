@@ -3708,9 +3708,12 @@ Script "DnD Get Target of Target" (void) {
 }
 
 Script "DnD Target Fix" (void) {
-	int tid = ACS_NamedExecuteWithResult("DnD Get Target of Target");
-	SetActorProperty(0, APROP_TARGETTID, tid);
-	SetPointer(AAPTR_TARGET, tid);
+	// if none assigned
+	if(!GetActorProperty(0, APROP_TARGETTID)) {
+		int tid = ACS_NamedExecuteWithResult("DnD Get Target of Target");
+		SetActorProperty(0, APROP_TARGETTID, tid);
+		SetPointer(AAPTR_TARGET, tid);	
+	}
 }
 
 Script "test" (void) {
