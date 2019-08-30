@@ -700,7 +700,7 @@ ACTOR FlakProjectile : FastProjectile {
 		Goto Finish
 		Finish:
 			TNT1 A 1
-			TNT1 A 1 ACS_NamedExecuteAlways("DnD Target Fix") // can happen
+			TNT1 A 2 ACS_NamedExecuteAlways("DnD Target Fix") // can happen
 			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 1)
 			TNT1 A 5
 		Stop
