@@ -1641,9 +1641,9 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_HOLDING:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Holding grants \cd", f:ftrunc(val * affluence * 100), s:"% increased ammo capacity!");
+				Log(s:"\cjOrb of Holding grants \cd", d:val, s:"% increased ammo capacity!");
 			else
-				Log(s:"\cgYou're maxed out on holding bonuses! (\ck", f:ftrunc(HOLDING_MAX * 100), s:"\c-)!");
+				Log(s:"\cgYou're maxed out on holding bonuses! (\ck", d:HOLDING_MAX, s:"\c-)!");
 		break;
 		case DND_ORB_REFINEMENT:
 			if(val != 0x7FFFFFFF)
