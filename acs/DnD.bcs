@@ -4165,7 +4165,7 @@ Script "DnD Class Select" (void) NET CLIENTSIDE {
 	
 	int cpnum = ConsolePlayerNumber();
 	
-	// don't allow duplicates to be ran
+	// don't allow duplicates to be run
 	if(GetUserCVar(cpnum, "dnd_onclassmenu"))
 		Terminate;
 	
