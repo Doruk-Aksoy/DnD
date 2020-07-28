@@ -1621,7 +1621,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_VIOLENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentNames[val][TALENT_TAG], s:" Damage\cv increase!");
+				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentNames[val][TALENT_NAME], s:" Damage\cv increase!");
 			else
 				Log(s:"\cgMax violence bonus reached! (\ck", d:VIOLENCEORB_MAX, s:"%\c-)");
 		break;
