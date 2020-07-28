@@ -1136,9 +1136,9 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			SetInventory("DnD_SelectedInventoryBox", 0);
 			if(HasLeftClicked(pnum)) {
 				if(boxid > 0) {
-					if(boxid == MBOX_9)
+					if(boxid == MBOX_7)
 						UpdateMenuPosition(MENU_LOAD_TRADE1);
-					else if(boxid == MBOX_8)
+					else if(boxid == MBOX_6)
 						UpdateMenuPosition(MENU_LOAD_ACC1);
 					else {
 						if(MENU_LOAD + boxid == MENU_LOAD_INVENTORY)
