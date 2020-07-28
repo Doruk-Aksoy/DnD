@@ -292,22 +292,23 @@ str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
 // holds inventories of all players
 global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 #define MAX_INVENTORIES_ON_FIELD 16384
-global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
-global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+inventory_T Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
+inventory_T TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
 
 #define INVSOURCE_PLAYER PlayerInventoryList
 #define INVSOURCE_CHARMUSED Charms_Used
 
+int last_created_inventory;
+
 // Creates an item on the game field
 int CreateItemSpot() {
-	int pos = -1, i;
-	for(i = 0; i < MAX_INVENTORIES_ON_FIELD; ++i)
-		if(Inventories_On_Field[i].item_type == DND_ITEM_NULL) {
-			pos = i;
-			break;
-		}
-	return pos;
+	//Naive but very fast: Will just replace old item if index goes back to it - have a bigger array to prevent the negative effect.
+	//Just having a loop here creates an error so avoid looping at all costs.
+	//Remember, the floor gets cleared on a new map, so most likely the older items are useless for the players anyways, except on 4k mob slaugher maps.
+	if ((++last_created_inventory)>=MAX_INVENTORIES_ON_FIELD)
+		last_created_inventory = 0;
+	return last_created_inventory;
 }
 
 void RemoveItemFromWorld(int fieldpos) {

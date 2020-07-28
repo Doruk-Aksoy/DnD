@@ -190,6 +190,7 @@ Script "DND Check Hardcore Softcore" OPEN {
 
 // Basically shut the menu down
 Script "DnD On Death" DEATH {
+	int i;
 	PlayerDied[PlayerNumber()] = 1;
 	GiveInventory("DnD_PDead", 1);
 	Thing_ChangeTID(0, 0);
@@ -219,13 +220,26 @@ Script "DnD On Death" DEATH {
 				Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
 				ResetHardcoreStuff(PlayerNumber());
 			}
+			
+			//Some actions are possible before char loading, so have these reset codes here too (also found at char loading), just in case.
+			
+			// reset currently acquired inventory
+			for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+				PlayerInventoryList[PlayerNumber()][i].topleftboxid = 0;
+				PlayerInventoryList[PlayerNumber()][i].item_type = DND_ITEM_NULL;
+			}
+			// remove whatever feature this player had on them
+			for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
+				if(Charms_Used[PlayerNumber()][i].item_type != DND_ITEM_NULL)
+					RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			ResetPlayerCharmsUsed(PlayerNumber());
 		}
 	}
 	
 	// Precious Life check
 	if(active_quest_id == QUEST_NODYING) {
 		// fail for all players in the game
-		for(int i = 0; i < MAXPLAYERS; ++i)
+		for(i = 0; i < MAXPLAYERS; ++i)
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART))
 				FailQuest(i + P_TIDSTART);
 		active_quest_id = -1; // completely remove this quest from everyone now
@@ -312,7 +326,10 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 }
 
 Script "DnD Can Pick Health Item" (int type) {
-	SetResultValue(CanPickHealthItem(type));
+	if (CheckInventory("CanLoad"))
+		SetResultValue(-1);
+	else
+		SetResultValue(CanPickHealthItem(type));
 }
 // Health kits end here
 
@@ -729,7 +746,7 @@ Script "DND On Kill" KILL {
 	#ifdef ISDEBUGBUILD
 		SpawnElixir(0);
 		SpawnCharm(0, true);
-		SpawnOrb(0);
+		SpawnOrb(0, true);
 	#endif
 	HandleCharmLootDrop(pnum);
 	
@@ -3180,14 +3197,17 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 
 // idk why parameters are reversed here compared to below... ugh
 Script "DND Armor Pickup Check" (int amount, int armor_type) {
-	// decide if armor is higher tier if amount doesn't satisfy
-	SetResultValue(
-		!CheckInventory("StatbuffCounter_ForbidArmor") && 
-			(
-				(CheckInventory("DnD_ArmorType") && CheckInventory("Armor") < GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1])) || 
-				IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1)
-			)
-	);
+	if (CheckInventory("CanLoad"))
+		SetResultValue(-1);
+	else
+		// decide if armor is higher tier if amount doesn't satisfy
+		SetResultValue(
+			!CheckInventory("StatbuffCounter_ForbidArmor") && 
+				(
+					(CheckInventory("DnD_ArmorType") && CheckInventory("Armor") < GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1])) || 
+					IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1)
+				)
+		);
 }
 
 Script "DND Armor Give" (int armor_type, int amount) {
@@ -3790,16 +3810,18 @@ Script "DnD Player Has Spot For Item" (int sp) {
 			SetActivatorToTarget(0);
 		else
 			SetActivator((sp & 0xFFFF) + P_TIDSTART);
-		int pnum = PlayerNumber();
-		bool spot = 0;
-		if(Inventories_On_Field[sp >> 16].item_stack)
-			spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
-		else
-			spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
-		bool res = CheckInventory("DnD_PressedUse") && !CheckInventory("DnD_WaitNextItemPick") && spot;
-		if(res)
-			GiveInventory("DnD_WaitNextItemPick", 1);
-		SetResultValue(res);
+		if (!CheckInventory("CanLoad")) {
+			int pnum = PlayerNumber();
+			bool spot = 0;
+			if(Inventories_On_Field[sp >> 16].item_stack)
+				spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
+			else
+				spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
+			bool res = CheckInventory("DnD_PressedUse") && !CheckInventory("DnD_WaitNextItemPick") && spot;
+			if(res)
+				GiveInventory("DnD_WaitNextItemPick", 1);
+			SetResultValue(res);
+		}
 	}
 	else
 		SetResultValue(false);
@@ -3828,10 +3850,13 @@ Script "DnD Chestkey Message" (int id) CLIENTSIDE {
 }
 
 Script "DnD Try Open Chestkey" (int keytype) {
-	int res = CheckPlayerInventoryList(GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
-	if(res != -1) {
-		SetActivatorToTarget(0);
-		UsePlayerItem(PlayerNumber(), res);
+	int res = -1;
+	if ((GetGameModeState() == GAMESTATE_INPROGRESS) && (!CheckActorInventory(GetActorProperty(0, APROP_TARGETTID), "CanLoad"))) {
+		res = CheckPlayerInventoryList(GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
+		if(res != -1) {
+			SetActivatorToTarget(0);
+			UsePlayerItem(PlayerNumber(), res);
+		}
 	}
 	SetResultValue(res != -1);
 }
