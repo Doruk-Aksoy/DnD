@@ -1286,11 +1286,7 @@ Script "DND Database Reset On Death" (int pnum) { //now gets pre-checked at DnD.
 	BeginDBTransaction();
 	WipeoutPlayerData(pnum, cid); // it can't get any more wiped than this (also comes here if char is created and not saved).
 	EndDBTransaction();
-	PlayerLoaded[PlayerNumber()] = 0;
-	PlayerDied[PlayerNumber()] = 0;
-	PlayerWillBeSaved[PlayerNumber()] = false;
-	PlayerTransferred[PlayerNumber()] = false;
-	ResetPlayerActivities(PlayerNumber(), true);
+	ACS_NamedExecuteAlways("DnD Reset RPG Info", 0, pnum);
 }
 
 Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
@@ -1343,11 +1339,7 @@ Script "DnD Save Player Orb and Stat Data" (int pnum) {
 	BeginDBTransaction();
 	SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
 	EndDBTransaction();
-	PlayerLoaded[PlayerNumber()] = 0;
-	PlayerDied[PlayerNumber()] = 0;
-	PlayerWillBeSaved[PlayerNumber()] = false;
-	PlayerTransferred[PlayerNumber()] = false;
-	ResetPlayerActivities(PlayerNumber(), true);
+	ACS_NamedExecuteAlways("DnD Reset RPG Info", 0, pnum);
 }
 
 Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {
