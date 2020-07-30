@@ -59,7 +59,7 @@ Script 900 (void) NET {
 	}
 	else {
 		// a little extra check for singleplayer case
-		if((GameType() == GAME_SINGLE_PLAYER || !PlayerIsSpectator(PlayerNumber())) && !CheckInventory("ParsingData")) {
+		if((GameType() == GAME_SINGLE_PLAYER || (!PlayerIsSpectator(PlayerNumber()) && (GetGameModeState() == GAMESTATE_INPROGRESS) && (!CheckInventory("CanLoad")))) && !CheckInventory("ParsingData")) {
 			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
 				TakeInventory("DnD_SyncMe", 1);
 				ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
