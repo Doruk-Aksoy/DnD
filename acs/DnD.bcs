@@ -215,24 +215,22 @@ Script "DnD On Death" DEATH {
 		if(CheckInventory("CurrentLives"))
 			TakeInventory("CurrentLives", 1);
 		else {
-			StatListOpened[PlayerNumber()] = 0;
-			if(GetCVar("dnd_mode") == DND_MODE_HARDCORE) {
-				Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
-				ResetHardcoreStuff(PlayerNumber());
-			}
+			PlayerCanLoad[PlayerNumber()] = 0;
+			// if player was in middle of saving, don't accidently interfere if player leaves early
+			// save accumulated stats when player leaves
+			// things saved are in DnD_Activity.h
+
+			if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
+				ACS_NamedExecuteAlways("DND Database Reset On Death", 0, PlayerNumber());
+			else
+				ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, PlayerNumber());
 			
-			//Some actions are possible before char loading, so have these reset codes here too (also found at char loading), just in case.
-			
-			// reset currently acquired inventory
-			for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-				PlayerInventoryList[PlayerNumber()][i].topleftboxid = 0;
-				PlayerInventoryList[PlayerNumber()][i].item_type = DND_ITEM_NULL;
-			}
-			// remove whatever feature this player had on them
-			for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
-				if(Charms_Used[PlayerNumber()][i].item_type != DND_ITEM_NULL)
-					RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-			ResetPlayerCharmsUsed(PlayerNumber());
+			while(MapInfo[DND_MAPINFO_MAPCHANGED])
+				Delay(const:35);
+			// 3 seconds should be enough here
+			Delay(const:35);
+			Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
+			ResetHardcoreStuff(PlayerNumber());
 		}
 	}
 	
@@ -2187,7 +2185,11 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// save accumulated stats when player leaves
 	// things saved are in DnD_Activity.h
 	ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, pnum);
-	
+	PlayerLoaded[pnum] = 0;
+	PlayerDied[pnum] = 0;
+	PlayerWillBeSaved[pnum] = false;
+	PlayerTransferred[pnum] = false;
+	ResetPlayerActivities(pnum, true);
 	while(MapInfo[DND_MAPINFO_MAPCHANGED])
 		Delay(const:35);
 	// 3 seconds should be enough here
@@ -2199,7 +2201,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 Script "DnD On Unloading" UNLOADING {
 	int tid;
 	MapInfo[DND_MAPINFO_MAPCHANGED] = true;
-	ResetFieldInventory();
+	//ResetFieldInventory(); //Because field items are non-global, they don't get saved anyways and are always reset on map change - this is not needed.
 	BreakAllTrades();
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		tid = P_TIDSTART + i;
