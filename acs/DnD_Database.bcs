@@ -1160,9 +1160,6 @@ Script "DND Player Save" OPEN {
 				//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i]);
 				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
 					if (PlayerIsLoggedIn(i)) {
-						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
-						if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerDied[i])
-							continue; // don't save this player as they died
 						if(PlayerTransferred[i]) {
 							WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
 							SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
@@ -1286,7 +1283,6 @@ Script "DND Database Reset On Death" (int pnum) { //now gets pre-checked at DnD.
 	BeginDBTransaction();
 	WipeoutPlayerData(pnum, cid); // it can't get any more wiped than this (also comes here if char is created and not saved).
 	EndDBTransaction();
-	ACS_NamedExecuteAlways("DnD Reset RPG Info", 0, pnum);
 }
 
 Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
@@ -1339,7 +1335,6 @@ Script "DnD Save Player Orb and Stat Data" (int pnum) {
 	BeginDBTransaction();
 	SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
 	EndDBTransaction();
-	ACS_NamedExecuteAlways("DnD Reset RPG Info", 0, pnum);
 }
 
 Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {

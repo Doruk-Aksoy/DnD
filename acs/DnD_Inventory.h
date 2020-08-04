@@ -292,8 +292,8 @@ str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
 // holds inventories of all players
 global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 #define MAX_INVENTORIES_ON_FIELD 16384
-inventory_T Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
-inventory_T TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
+global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
 
 #define INVSOURCE_PLAYER PlayerInventoryList
