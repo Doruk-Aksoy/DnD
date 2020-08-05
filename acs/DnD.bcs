@@ -192,13 +192,13 @@ Script "DND Check Hardcore Softcore" OPEN {
 Script "DnD On Death" DEATH {
 	int i, pnum = PlayerNumber();
 	PlayerDied[pnum] += 1;
-//	if(GetCVar("Survival")) //put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
-//		if(!CheckInventory("CurrentLives")) {
-//			PlayerLoaded[pnum] = 0;
-//			PlayerWillBeSaved[pnum] = false;
-//			PlayerTransferred[pnum] = false;
-//			PlayerCanLoad[pnum] = 0;
-//	}
+	if(GetCVar("Survival")) //put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
+		if(!CheckInventory("CurrentLives")) {
+			PlayerLoaded[pnum] = 0;
+			PlayerWillBeSaved[pnum] = false;
+			PlayerTransferred[pnum] = false;
+			PlayerCanLoad[pnum] = 0;
+	}
 			
 	GiveInventory("DnD_PDead", 1);
 	Thing_ChangeTID(0, 0);
