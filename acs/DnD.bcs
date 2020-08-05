@@ -3827,7 +3827,7 @@ Script "DnD Player Has Spot For Item" (int sp) {
 			SetActivatorToTarget(0);
 		else
 			SetActivator((sp & 0xFFFF) + P_TIDSTART);
-		if (!CheckInventory("CanLoad")) {
+		//if (!CheckInventory("CanLoad")) { //BUG: This check is needed to prevent grabbing items before loading char, but had to comment because of extreme lag.
 			int pnum = PlayerNumber();
 			bool spot = 0;
 			if(Inventories_On_Field[sp >> 16].item_stack)
@@ -3838,7 +3838,7 @@ Script "DnD Player Has Spot For Item" (int sp) {
 			if(res)
 				GiveInventory("DnD_WaitNextItemPick", 1);
 			SetResultValue(res);
-		}
+		//}
 	}
 	else
 		SetResultValue(false);
