@@ -192,13 +192,13 @@ Script "DND Check Hardcore Softcore" OPEN {
 Script "DnD On Death" DEATH {
 	int i, pnum = PlayerNumber();
 	PlayerDied[pnum] += 1;
-	if(GetCVar("Survival")) //put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
-		if(!CheckInventory("CurrentLives")) {
-			PlayerLoaded[pnum] = 0;
-			PlayerWillBeSaved[pnum] = false;
-			PlayerTransferred[pnum] = false;
-			PlayerCanLoad[pnum] = 0;
-	}
+//	if(GetCVar("Survival")) //put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
+//		if(!CheckInventory("CurrentLives")) {
+//			PlayerLoaded[pnum] = 0;
+//			PlayerWillBeSaved[pnum] = false;
+//			PlayerTransferred[pnum] = false;
+//			PlayerCanLoad[pnum] = 0;
+//	}
 			
 	GiveInventory("DnD_PDead", 1);
 	Thing_ChangeTID(0, 0);
@@ -2257,6 +2257,24 @@ Script "DnD Player Setup" ENTER {
 		if (!PlayerLoaded[pnum]) {
 			PlayerCanLoad[pnum] = 1;
 			SetInventory("CanLoad", 1);
+			
+			// Place resetting things from loading here, because char creation also needs them (otherwise new player gets stuff from loaded player that left game).
+			// reset weapons
+			ResetPlayer();
+
+			// reset currently acquired inventory
+			for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+				PlayerInventoryList[pnum][i].topleftboxid = 0;
+				PlayerInventoryList[pnum][i].item_type = DND_ITEM_NULL;
+			}
+
+			ResetPlayerInventory(pnum);
+			
+			// remove whatever feature this player had on them prior to loading (just in case)
+			for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
+				if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+					RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			ResetPlayerCharmsUsed(pnum);
 			
 			ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
 		} else
