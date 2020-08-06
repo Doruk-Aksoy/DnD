@@ -471,30 +471,4 @@ str ArtifactInfo[MAXARTIFACTS][2] = {
 
 #define MAX_ACCESSORIES (DND_ACCESSORY_LICHARM + 1)
 
-void ResetPlayer() {
-	int i;
-	SetInventory("ReflectCount", 0);
-	SetInventory("Intervened", 0);
-	SetInventory("CanIntervene", 1);
-	TakeInventory("SetMyLives", 1);
-	SetInventory("ShowingMenu", 0);
-	
-	// take all weapons
-	for(i = 0; i < MAXWEPS; ++i)
-		TakeInventory(Weapons[i][WEAPON_NAME], 1);
-	for(i = 1; i <= 9; ++i)
-		TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
-	
-	// take all abilities
-	for(i = 0; i < MAXABILITIES; ++i)
-		SetInventory(AbilityInfo[i], 0);
-	
-	// take all research stuff
-	for(i = 0; i < RESEARCH_BITSETS; ++i) {
-		SetInventory(StrParam(s:"Research_Done_", d:i + 1), 0);
-		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), 0);
-	}
-	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
-}
-
 #endif

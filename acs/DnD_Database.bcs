@@ -655,6 +655,13 @@ void LoadPlayerData(int pnum, int char_id) {
 	int i = 0, j = 0, h, w, temp;
 	str pacc = GetPlayerAccountName(pnum);
 	
+	// make sure starting char code doesn't run
+	SetInventory("ReflectCount", 0);
+	SetInventory("Intervened", 0);
+	SetInventory("CanIntervene", 1);
+	TakeInventory("SetMyLives", 1);
+	SetInventory("ShowingMenu", 0);
+	
 	// load player inventory
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		temp = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), char_id), pacc);

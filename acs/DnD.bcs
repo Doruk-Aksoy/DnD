@@ -2260,8 +2260,16 @@ Script "DnD Player Setup" ENTER {
 			
 			// Place resetting things from loading here, because char creation also needs them (otherwise new player gets stuff from loaded player that left game).
 			// reset weapons
-			ResetPlayer();
+			// take all weapons
+			for(i = 0; i < MAXWEPS; ++i)
+				TakeInventory(Weapons[i][WEAPON_NAME], 1);
+			for(i = 1; i <= 9; ++i)
+				TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
 
+			// take all abilities
+			for(i = 0; i < MAXABILITIES; ++i)
+				SetInventory(AbilityInfo[i], 0);
+			
 			// reset currently acquired inventory
 			for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 				PlayerInventoryList[pnum][i].topleftboxid = 0;
@@ -2313,7 +2321,7 @@ Script "DnD Player Setup" ENTER {
 	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
 	
 	// Checks if we should set the lives to the inventory or not (also includes one time execute things)
-	// when player joins for the first time
+	// when player joins for the first time - when loading char, this section gets skipped
 	if(CheckInventory("SetMyLives")) {
 		// can only reflect once per map
 		SetInventory("ReflectCount", 0);
