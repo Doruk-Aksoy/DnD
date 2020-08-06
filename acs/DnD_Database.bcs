@@ -823,6 +823,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("Accessory_Index", GetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc));
 	DecideAccessories();
 	
+	// set all ammo capacities first
+	SetAllAmmoCapacities();
+	
 	// read each ammo count
 	for(i = 0; i < MAX_SLOTS; ++i)
 		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
@@ -976,7 +979,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	// Restoration steps
 	RestoreRPGStat(RES_PLAYERSPEED);
 	UpdatePlayerKnockbackResist();
-	SetAllAmmoCapacities();
 	
 	// Research stuff
 	RestoreResearchItems();
