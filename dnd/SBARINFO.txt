@@ -610,24 +610,27 @@ statusbar normal, fullscreenoffsets {
 			}
 			
 			IsSelected " Machine Gun ", "ResMG1" {
-				drawimage "H_BRFRMX", -185, -48;
 				InInventory SpecialAmmoMode_4, 5 {
 					InInventory SpecialAmmoMode_4, 6 {
 						InInventory SpecialAmmoMode_4, 7 {
-							drawbar "H_BRFILG", "H_BRFBGG", ammo A40mmHEGrenade, horizontal, reverse, -182, -45;
-							drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo A40mmHEGrenade, -189, -47;
+							drawimage "H_BRFRMX", -185, -61;
+							drawbar "H_BRFILG", "H_BRFBGG", ammo A40mmHEGrenade, horizontal, reverse, -182, -58;
+							drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo A40mmHEGrenade, -189, -60;
 						}
 						else {
-							drawbar "H_BRFILG", "H_BRFBGG", ammo A40mmSonicGrenade, horizontal, reverse, -182, -45;
-							drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo A40mmSonicGrenade, -189, -47;
+							drawimage "H_BRFRMX", -185, -61;
+							drawbar "H_BRFILG", "H_BRFBGG", ammo A40mmSonicGrenade, horizontal, reverse, -182, -58;
+							drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo A40mmSonicGrenade, -189, -60;
 						}
 					}
 					else {
-						drawbar "H_BRFILG", "H_BRFBGG", ammo Grenades, horizontal, reverse, -182, -45;
-						drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo Grenades, -189, -47;
+						drawimage "H_BRFRMX", -185, -61;
+						drawbar "H_BRFILG", "H_BRFBGG", ammo Grenades, horizontal, reverse, -182, -58;
+						drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo Grenades, -189, -60;
 					}
 				}
 				else {
+					drawimage "H_BRFRMX", -185, -48;
 					drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -45;
 					drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -47;
 				}
@@ -735,24 +738,27 @@ statusbar normal, fullscreenoffsets {
 			}
 			
 			IsSelected " Machine Gun ", "ResMG1" {
-				drawimage "H_BRFRMX", -185, -48;
 				InInventory SpecialAmmoMode_4, 5 {
 					InInventory SpecialAmmoMode_4, 6 {
 						InInventory SpecialAmmoMode_4, 7 {
-							drawbar "H_BRFILY", "H_BRFBGY", ammo A40mmHEGrenade, horizontal, reverse, -182, -45;
-							drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo A40mmHEGrenade, -189, -47;
+							drawimage "H_BRFRMX", -185, -61;
+							drawbar "H_BRFILY", "H_BRFBGY", ammo A40mmHEGrenade, horizontal, reverse, -182, -58;
+							drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo A40mmHEGrenade, -189, -60;
 						}
 						else {
-							drawbar "H_BRFILY", "H_BRFBGY", ammo A40mmSonicGrenade, horizontal, reverse, -182, -45;
-							drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo A40mmSonicGrenade, -189, -47;
+							drawimage "H_BRFRMX", -185, -61;
+							drawbar "H_BRFILY", "H_BRFBGY", ammo A40mmSonicGrenade, horizontal, reverse, -182, -58;
+							drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo A40mmSonicGrenade, -189, -60;
 						}
 					}
 					else {
-						drawbar "H_BRFILY", "H_BRFBGY", ammo Grenades, horizontal, reverse, -182, -45;
-						drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo Grenades, -189, -47;
+						drawimage "H_BRFRMX", -185, -61;
+						drawbar "H_BRFILY", "H_BRFBGY", ammo Grenades, horizontal, reverse, -182, -58;
+						drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo Grenades, -189, -60;
 					}
 				}
 				else {
+					drawimage "H_BRFRMX", -185, -48;
 					drawbar "H_BRFILY", "H_BRFBGY", ammo1, horizontal, reverse, -182, -45;
 					drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo1, -189, -47;
 				}
@@ -866,24 +872,27 @@ statusbar normal, fullscreenoffsets {
 			}
 			
 			IsSelected " Machine Gun ", "ResMG1" {
-				drawimage "H_BRFRMX", -185, -48;
 				InInventory SpecialAmmoMode_4, 5 {
 					InInventory SpecialAmmoMode_4, 6 {
 						InInventory SpecialAmmoMode_4, 7 {
-							drawbar "H_BRFILR", "H_BRFBGR", ammo A40mmHEGrenade, horizontal, reverse, -182, -45;
-							drawnumber 5, HUDFONT2_DOOM, NCRed, ammo A40mmHEGrenade, -189, -47;
+							drawimage "H_BRFRMX", -185, -61;
+							drawbar "H_BRFILR", "H_BRFBGR", ammo A40mmHEGrenade, horizontal, reverse, -182, -58;
+							drawnumber 5, HUDFONT2_DOOM, NCRed, ammo A40mmHEGrenade, -189, -60;
 						}
 						else {
-							drawbar "H_BRFILR", "H_BRFBGR", ammo A40mmSonicGrenade, horizontal, reverse, -182, -45;
-							drawnumber 5, HUDFONT2_DOOM, NCRed, ammo A40mmSonicGrenade, -189, -47;
+							drawimage "H_BRFRMX", -185, -61;
+							drawbar "H_BRFILR", "H_BRFBGR", ammo A40mmSonicGrenade, horizontal, reverse, -182, -58;
+							drawnumber 5, HUDFONT2_DOOM, NCRed, ammo A40mmSonicGrenade, -189, -60;
 						}
 					}
 					else {
-						drawbar "H_BRFILR", "H_BRFBGR", ammo Grenades, horizontal, reverse, -182, -45;
-						drawnumber 5, HUDFONT2_DOOM, NCRed, ammo Grenades, -189, -47;
+						drawimage "H_BRFRMX", -185, -61;
+						drawbar "H_BRFILR", "H_BRFBGR", ammo Grenades, horizontal, reverse, -182, -58;
+						drawnumber 5, HUDFONT2_DOOM, NCRed, ammo Grenades, -189, -60;
 					}
 				}
 				else {
+					drawimage "H_BRFRMX", -185, -48;
 					drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -45;
 					drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -47;
 				}
@@ -941,14 +950,28 @@ statusbar normal, fullscreenoffsets {
 				drawbar "H_BRFILR", "H_BRFBGR", ammo2, horizontal, reverse, -182, -71;
 				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
 			}
-			
+
+			IsSelected " Machine Gun ", "ResMG1" {
+				InInventory not SpecialAmmoMode_4, 5 {
+					InInventory not SpecialAmmoMode_4, 6 {
+						InInventory not SpecialAmmoMode_4, 7 {
+							drawimage "H_BRFRMX", -185, -74;
+							drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
+							drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
+						}
+					}
+				}
+			}
+
 			IsSelected not "Upgraded Plasma Rifle" {
 				IsSelected not "SawedOff", "ResBfg1" {
 					IsSelected not "ResRL3", "ResPlasma3" {
 						IsSelected not "Desolator" {
-							drawimage "H_BRFRMX", -185, -74;
-							drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
-							drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
+							IsSelected not " Machine Gun ", "ResMG1" {
+								drawimage "H_BRFRMX", -185, -74;
+								drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
+								drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
+							}
 						}
 					}
 				}
