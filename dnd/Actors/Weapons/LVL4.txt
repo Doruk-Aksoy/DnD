@@ -151,6 +151,7 @@ Actor " Machine gun " : Weapon
 		FlashNorm:
 			TNT1 A 0
 		FlashNormLightless:
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_GRENADE, "FlashFinish")
 			TNT1 A 0 A_JumpIfInventory("MGClip", 1, 2)
 			MGNM A 2 Bright
 			Goto FlashFinish
@@ -309,6 +310,7 @@ Actor " Machine gun " : Weapon
 			
 		FlashLower:
 			TNT1 A 0 A_Light1
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_GRENADE, "FlashFinish")
 			TNT1 A 0 A_JumpIfInventory("MGClip", 1, 2)
 			MGN3 A 2 Bright
 			Goto FlashFinish
