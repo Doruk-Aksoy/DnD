@@ -70,9 +70,9 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"P2_RIMG",
 		"MAREVL0",
 		
-		"+ L5: Your explosives do 20% less self damage.",
-		"+ L25: Enemy explosives deal 20% less damage.",
-		"+ L50: Curse immunity."
+		"+ L5: Your explosives do 25% less self damage.",
+		"+ L25: Enemy explosives deal 33% less damage.",
+		"+ L50: Poison and Curse immunity."
 	},
 	
 	// Hobo
@@ -112,9 +112,9 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"P5_RIMG",
 		"CRVEVL0",
 		
-		"+ L5: 50% increased mana regeneration.",
+		"+ L5: Poison damage taken reduced by 75%.",
 		"+ L25: Elemental and Occult attacks and spells do 25% more damage.",
-		"+ L50: Spells cast have additional 25% reduced cooldown and 25% increased effects."
+		"+ L50: Enemies killed by you explode for 5% of their maximum health in a 100 unit radius with a random elemental damage. You can't be hurt by this damage."
 	},
 	
 	// Cyborg

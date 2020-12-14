@@ -543,7 +543,7 @@ void HandleClassPerks() {
 				TakeInventory("Cyborg_Perk50", 1);
 			break;
 			case DND_PLAYER_MARINE:
-				GiveInventory("CurseImmunity", 1);
+				GiveInventory("Marine_Perk50", 1);
 				TakeInventory("Doomguy_Perk50", 1);
 				TakeInventory("Hobo_Perk50", 1);
 				TakeInventory("Punisher_Perk50", 1);

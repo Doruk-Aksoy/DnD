@@ -1,7 +1,7 @@
 #ifndef DND_UNIQUE_IN
 #define DND_UNIQUE_IN
 
-#define UNIQUE_DROPCHANCE 0.005
+#define UNIQUE_DROPCHANCE 0.0875
 #define UNIQUE_BITS 16
 #define UNIQUE_BEGIN 65535
 
@@ -17,11 +17,11 @@ enum {
 	UITEM_ANCIENTGEMSTONE,
 	// S - 5-45% increased lightning damage, Lightning type attacks always crit
 	UITEM_DEATHSPARK,
-	// S - 15-35% increased pellets, Shotgun type weapons deal 40-75% more damage
+	// S - 25-50% increased pellets, Shotgun type weapons deal 40-75% more damage
 	UITEM_SHELLSHOCK,
 	// M - Your health cap is doubled, Can't use armor, Gain 1% damage increase every 75 - 50 max health
 	UITEM_OAKHEART,
-	// M - 40-50% more pellets, 100-200% slot 3 damage, Pellets fire in a circle around you regardless of accuracy
+	// M - 50-100% more pellets, 150-250% slot 3 damage, Pellets fire in a circle around you regardless of accuracy
 	UITEM_PELLETSTORM,
 	// G - 15-25 Intellect, Slain enemies have 5-15% chance to raise a zombie (Max 5, Lasts 8 + INT / 10 seconds), Damage taken is shared between all summoned creatures, Take 50-25% more damage
 	UITEM_GRAVECALLER,
@@ -202,8 +202,8 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].attrib_count = 2;
 	UniqueItemList[id].attrib_id_list[0] = INV_PELLET_INCREASE;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_DMGINCREASE_SHOTGUNS;
-	UniqueItemList[id].rolls[0].attrib_low = 15;
-	UniqueItemList[id].rolls[0].attrib_high = 35;
+	UniqueItemList[id].rolls[0].attrib_low = 25;
+	UniqueItemList[id].rolls[0].attrib_high = 50;
 	UniqueItemList[id].rolls[1].attrib_low = 40;
 	UniqueItemList[id].rolls[1].attrib_high = 75;
 	id = UITEM_OAKHEART;
@@ -237,10 +237,10 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].attrib_id_list[1] = INV_SLOT3_DAMAGE;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_PELLETSFIRECIRCLE;
 	UniqueItemList[id].attrib_id_list[3] = INV_EX_FORSHOW_BURSTGETSPELLETBONUS;
-	UniqueItemList[id].rolls[0].attrib_low = 40;
-	UniqueItemList[id].rolls[0].attrib_high = 75;
-	UniqueItemList[id].rolls[1].attrib_low = 100;
-	UniqueItemList[id].rolls[1].attrib_high = 200;
+	UniqueItemList[id].rolls[0].attrib_low = 50;
+	UniqueItemList[id].rolls[0].attrib_high = 100;
+	UniqueItemList[id].rolls[1].attrib_low = 150;
+	UniqueItemList[id].rolls[1].attrib_high = 250;
 	UniqueItemList[id].rolls[2].attrib_low = 0;
 	UniqueItemList[id].rolls[2].attrib_high = 0;
 	UniqueItemList[id].rolls[3].attrib_low = 0;

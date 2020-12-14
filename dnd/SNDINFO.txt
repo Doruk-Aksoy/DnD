@@ -502,6 +502,16 @@ DoomguySoul5			DGUYSOU5
 
 $random Items/DoomguySoulPick { DoomguySoul1 DoomguySoul2 DoomguySoul3 DoomguySoul4 DoomguySoul5 }
 
+WandererExplosion1		WANDEX1
+WandererExplosion2		WANDEX2
+WandererExplosion3		WANDEX3
+WandererExplosion4		WANDEX4
+WandererExplosion5		WANDEX5
+WandererExplosion6		WANDEX6
+WandererExplosion7		WANDEX7
+WandererExplosion8		WANDEX8
+$random WandererExplosion { WandererExplosion1 WandererExplosion2 WandererExplosion3 WandererExplosion4 WandererExplosion5 WandererExplosion6 WandererExplosion7 WandererExplosion8 }
+
 items/credit			CREDPICK
 items/research			RESRPICK
 

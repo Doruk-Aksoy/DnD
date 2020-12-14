@@ -7,9 +7,9 @@ if not exist "..\monsters\acs" mkdir "..\monsters\acs"
 echo Compiling acs code... If errors pop up, they will show up below:
 echo ----------------------------------------------------------------
 echo.
-bcc "dnd.bcs" "..\dnd\acs\dnd.lmp"
-bcc "dnd_database.bcs" "..\dnd\acs\dnd_db.lmp"
-bcc "dnd_menu.bcs" "..\dnd\acs\dnd_menu.lmp"
-bcc "dnd_shared.bcs" "..\dnd\acs\dnd_shrd.lmp"
-bcc "dnd_mons.bcs" "..\monsters\acs\dnd_mons.lmp"
+%bcs% "dnd.bcs" "..\dnd\acs\dnd.lmp"
+%bcs% "dnd_database.bcs" "..\dnd\acs\dnd_db.lmp"
+%bcs% "dnd_menu.bcs" "..\dnd\acs\dnd_menu.lmp"
+%bcs% "dnd_shared.bcs" "..\dnd\acs\dnd_shrd.lmp"
+%bcs% "dnd_mons.bcs" "..\monsters\acs\dnd_mons.lmp"
 echo ----------------------------------------------------------------

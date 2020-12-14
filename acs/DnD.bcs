@@ -512,6 +512,19 @@ Script "DND On Kill CS" KILL CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
 }
 
+Script "DnD Wanderer Explosions" (int this, int target) {
+	int hpdamage = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_WANDERER_EXP_DAMAGE;
+	if(hpdamage < 0)
+		hpdamage = 1;
+	
+	int exptid = DND_WANDERER_EXP_TID + target - P_TIDSTART;
+	SpawnForced("Wanderer_Explosion", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2 + 8.0, exptid);
+	SetUserVariable(exptid, "user_dmg", hpdamage);
+	SetActivator(exptid);
+	SetPointer(AAPTR_TARGET, target);
+	Thing_ChangeTID(exptid, 0);
+}
+
 // Used for exp and credit calculations
 Script "DND On Kill" KILL {
 	int this = ActivatorTID();
@@ -522,6 +535,10 @@ Script "DND On Kill" KILL {
 	int target = GetActorProperty(0, APROP_TARGETTID);
 	if(target < P_TIDSTART || target > P_TIDSTART + MAXPLAYERS - 1) // only work if you can determine target as a player
 		Terminate;
+		
+	if(CheckActorInventory(target, "Wanderer_Perk50"))
+		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
+		
 	int expshare = GetCVar("dnd_sharexp");
 	int creditshare = GetCVar("dnd_sharecredit");
 	int haswisdom = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANWISDOM);
@@ -3170,9 +3187,6 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	if(isSpell) {
 		if(SpellDamageTable[temp2].dmg_low)
 			dmg *= random(SpellDamageTable[temp2].dmg_low, SpellDamageTable[temp2].dmg_high);
-			
-		if(CheckInventory("Wanderer_Perk50"))
-			dmg += dmg / DND_WANDERER_SPELLEFFICIENCY;
 	}
 	
 	SetResultValue(dmg);
@@ -4018,9 +4032,6 @@ Script "DnD Pet Monster Scale" (int petid, int traits, int traits2) {
 			}
 		}
 		add += SKILL_ZOMBIE_HP_PER_INT * GetActorIntellect(master);
-		// wanderer check
-		if(CheckActorInventory(master, "Wanderer_Perk50"))
-			add += add / DND_WANDERER_SPELLEFFICIENCY;
 			
 		// first overflow check
 		if(add < (INT_MAX - base) / (level - 1))
@@ -4088,10 +4099,6 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		HandleHunterTalisman();
 	}
 	res *= random(rnd & 0xFFFF, rnd >> 16);
-	
-	// wanderer bonus
-	if(CheckInventory("Wanderer_Perk50"))
-		res += res / DND_WANDERER_SPELLEFFICIENCY;
 		
 	//printbold(d:res);
 	SetResultValue(res);

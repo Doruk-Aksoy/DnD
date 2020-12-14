@@ -335,7 +335,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 1, 2, 1 },
 	{ 1, 2, 1 },
-	{ 1, 10, 2 }
+	{ 3, 10, 2 }
 };
 
 // keep here for now for ammo save chance

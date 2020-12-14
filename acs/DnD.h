@@ -118,6 +118,9 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 
 #define DND_ITEM_LINGER_TIME 120
 
+#define DND_WANDERER_EXP_DAMAGE 20 // 1 / 20 = 5%
+#define DND_WANDERER_EXP_TID 54000
+
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"
