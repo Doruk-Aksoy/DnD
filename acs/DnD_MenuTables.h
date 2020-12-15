@@ -537,7 +537,6 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		// Abilities - 2
 		{ 14000,  1,		1 },
 		{ 19500,  1,		1 },
-		{ 2000,   1,		1 },
 		
 		// Talent costs
 		{ 1500,	 1,			1 },
@@ -742,7 +741,6 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_NANOTECH, -1, -1 },
 		{ RES_OCCULTABILITY, -1, -1 },
 		{ RES_OCCULTABILITY, -1, -1 },
-		{ -1, -1, -1 },
 		
 	// talents
 		{ -1, -1, -1 },
@@ -947,7 +945,6 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "Ability_Regeneration",				"Regeneration",			    		"",						"0"	        },
 	{ "Ability_Temporal",					"Temporal Mastery",				    "",						"0"	        },
 	{ "Ability_SoulStealer",				"Soul Stealing",				    "",						"0"	        },
-	{ "Ability_MonsterInfo",				"Monster Scan",						"",						"0"		    },
 	
 	{ "Talent_Ballistic",					"Ballistic Talent",					"",						"0"		    },
 	{ "Talent_Melee",						"Melee Talent",						"",						"0"		    },
@@ -1710,7 +1707,6 @@ str AbilityHelpText[MAXABILITIES + 1] = {
 	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.",
 	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.",
 	"Demons drop souls when killed with an occult weapon.",
-	"Can see monster health, mods and level.",
 	"Toggles dashing."
 };
 
@@ -1724,8 +1720,7 @@ struct draw_info AbilityDrawInfo[MAXABILITIES] = {
 	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_HEART	 							},
     { OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_REGEN                           	},
     { OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_TEMPORAL                           },
-	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_SOUL		 						},
-	{ OBJ_ABILITY, 								SHOP_ABILITY_MONSTERINFO	 					}
+	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_SOUL		 						}
 };
 						
 // max 8 slots						

@@ -518,7 +518,7 @@ Script "DnD Wanderer Explosions" (int this, int target) {
 		hpdamage = 1;
 	
 	int exptid = DND_WANDERER_EXP_TID + target - P_TIDSTART;
-	SpawnForced("Wanderer_Explosion", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2 + 8.0, exptid);
+	SpawnForced("Wanderer_Explosion", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2 + 24.0, exptid);
 	SetUserVariable(exptid, "user_dmg", hpdamage);
 	SetActivator(exptid);
 	SetPointer(AAPTR_TARGET, target);
@@ -2232,6 +2232,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("LevelCredit", 0);
 	SetInventory("AllMapOnlyOnce", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
+	// now everyone has this, no need to buy
+	GiveInventory("Ability_MonsterInfo", 1);
 	CleanPetStuff();
 	//SetInventory("MapDifficultyClientside", MapDifficulty); //Already to be set somewhere else.
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart

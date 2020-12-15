@@ -787,7 +787,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			temp = CheckInventory("DnD_Character") - 1;
 			HudMessage(s:"--- DnD Class Perks Help ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			HudMessage(s:"Class: \cj", s:DnD_ClassInfo[temp][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 80.0, 0.0, 0.0);
-			SetHudClipRect(192, 64, 256, 192, 256, 1);
+			SetHudClipRect(192, 64, 256, 256, 256, 1);
 			
 			i = 0;
 			if(CheckInventory("Level") < 5)

@@ -114,7 +114,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		
 		"+ L5: Poison damage taken reduced by 75%.",
 		"+ L25: Elemental and Occult attacks and spells do 25% more damage.",
-		"+ L50: Enemies killed by you explode for 5% of their maximum health in a 100 unit radius with a random elemental damage. You can't be hurt by this damage."
+		"+ L50: Enemies killed by you explode for 10% of their maximum health in a 100 unit radius with a random elemental damage. You can't be hurt by this damage."
 	},
 	
 	// Cyborg

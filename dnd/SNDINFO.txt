@@ -511,6 +511,7 @@ WandererExplosion6		WANDEX6
 WandererExplosion7		WANDEX7
 WandererExplosion8		WANDEX8
 $random WandererExplosion { WandererExplosion1 WandererExplosion2 WandererExplosion3 WandererExplosion4 WandererExplosion5 WandererExplosion6 WandererExplosion7 WandererExplosion8 }
+$limit WandererExplosion 0
 
 items/credit			CREDPICK
 items/research			RESRPICK

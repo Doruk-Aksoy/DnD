@@ -1844,7 +1844,6 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ -1, -1, -1, -1 }
 		},
 		// artifact shop
@@ -1959,6 +1958,10 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
+		// help class perks
+		{
+			{ -1, -1, -1, -1 }
+		},
 		// help weapon properties
 		{
 			{ -1, -1, -1, -1 }
@@ -1975,11 +1978,11 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// help leg
+		// help monster mods
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// help monster mods
+		// help leg
 		{
 			{ -1, -1, -1, -1 }
 		},
