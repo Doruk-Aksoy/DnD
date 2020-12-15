@@ -283,8 +283,6 @@ void DrawCornerText(int opt, int boxid) {
 			break;
 		}
 	}
-	else if(opt == MENU_SHOP_TALENT)
-		toshow = StrParam(s:"Talent Points: \cd", d:CheckInventory("TalentPoint"));
 	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + 3);
 	SetHudClipRect(62, 24, 72, 96, 72, 1);
 	HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 62.1, 32.1, 0.0, 0.0);
@@ -591,7 +589,7 @@ void DrawHelpCorner (int opt, int boxid) {
 	str toshow = "";
 	int beginindex = 0;
 	
-	if(CheckInventory("ActiveMainBox") != MAINBOX_NONE || (opt == MENU_PERK) || (opt == MENU_SHOP_TALENT)) {
+	if(CheckInventory("ActiveMainBox") != MAINBOX_NONE || (opt == MENU_PERK)) {
 		DrawCornerText(opt, boxid);
 		return;
 	}
@@ -1528,14 +1526,6 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// loadout 2
-		{
-			{ -1, -1, -1, -1 }
-		},
-		// loadout 3
-		{
-			{ -1, -1, -1, -1 }
-		},
 		// loadout inventory
 		{
 			{ -1, -1, -1, -1 }
@@ -1624,9 +1614,8 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 162.0, 205.0 }, // ammo
 			{ 289.0, 197.0, 178.0, 189.0 }, // ability
 			{ 289.0, 181.0, 169.0, 173.0 }, // arti
-			{ 289.0, 165.0, 183.0, 157.0 }, // talent
-			{ 289.0, 149.0, 188.0, 141.0 }, // armor
-			{ 289.0, 133.0, 183.0, 125.0 }, // account
+			{ 289.0, 165.0, 183.0, 157.0 }, // armor
+			{ 289.0, 149.0, 188.0, 141.0 }, // account
 			{ -1, -1, -1, -1 }
 		},
 		// wep
@@ -1858,16 +1847,6 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ 289.0, 117.0, 120.0, 111.0 }, // w9
 			{ 289.0, 101.0, 104.0, 95.0 }, // w10
-			{ -1, -1, -1, -1 }
-		},
-		// talent
-		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ -1, -1, -1, -1 }
 		},
 		// armor 1
@@ -2957,7 +2936,7 @@ void HandleInventoryViewClicks(int boxid, int choice) {
 		else if(CheckInventory("DnD_SelectedInventoryBox") && GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
 			// drop selected item
 			DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("DnD_SelectedInventoryBox", 0);
 			ActivatorSound("Items/Drop", 127);
 		}
@@ -3024,7 +3003,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 					if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
 						// drop selected item
 						DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-						ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 						ActivatorSound("Items/Drop", 127);
 					}
 					// clear selection
@@ -3403,7 +3382,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
 						// drop selected item
 						DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
-						ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, ssource);
+						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, ssource);
 						SetInventory("DnD_SelectedInventoryBox", 0);
 						ActivatorSound("Items/Drop", 127);
 					}
@@ -3584,7 +3563,7 @@ void HandleStashViewClicks(int boxid, int choice) {
 				if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
 					// drop selected item
 					DropItemToField(PlayerNumber(), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
-					ACS_NamedExecuteAlways("DnD Save Player Item Data", PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, ssource);
+					ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, PlayerNumber() | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, ssource);
 					SetInventory("DnD_SelectedInventoryBox", 0);
 					ActivatorSound("Items/Drop", 127);
 				}

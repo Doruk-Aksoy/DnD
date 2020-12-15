@@ -227,7 +227,8 @@ void HandleDependentResearch(int res_id) {
 		int reqid = ResearchFlags[res_id].res_req_id;
 		for(int i = 0; i < MAX_RES_DEPENDENCIES && ResearchDependencies[reqid].unlocks != -1; ++i)
 			// Check if all the dependencies are done
-			if(CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]) != RES_DONE) {
+			if(CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]) != -1 && //-1 = no dependency - will be needed if max deps is > 1 and 1 research doesn't need that many deps
+			   CheckResearchStatus(ResearchDependencies[reqid].dependencies[i]) != RES_DONE) {
 				req = false;
 				break;
 			}

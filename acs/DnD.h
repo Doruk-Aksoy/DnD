@@ -822,7 +822,7 @@ void HandleOrbDrop() {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))))
-			SpawnOrb(i);
+			SpawnOrb(i,true);
 	}
 }
 

@@ -299,15 +299,16 @@ global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MA
 #define INVSOURCE_PLAYER PlayerInventoryList
 #define INVSOURCE_CHARMUSED Charms_Used
 
+int last_created_inventory;
+
 // Creates an item on the game field
 int CreateItemSpot() {
-	int pos = -1, i;
-	for(i = 0; i < MAX_INVENTORIES_ON_FIELD; ++i)
-		if(Inventories_On_Field[i].item_type == DND_ITEM_NULL) {
-			pos = i;
-			break;
-		}
-	return pos;
+	//Naive but very fast: Will just replace old item if index goes back to it - have a bigger array to prevent the negative effect.
+	//Just having a loop here creates an error so avoid looping at all costs.
+	//Remember, the floor gets cleared on a new map, so most likely the older items are useless for the players anyways, except on 4k mob slaugher maps.
+	if ((++last_created_inventory)>=MAX_INVENTORIES_ON_FIELD)
+		last_created_inventory = 0;
+	return last_created_inventory;
 }
 
 void RemoveItemFromWorld(int fieldpos) {

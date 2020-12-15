@@ -65,32 +65,6 @@ enum {
 	- We are also not saving topleftboxid field, as it corresponds to the inventory index we're loading.
 */
 
-void ResetPlayer() {
-	int i;
-	SetInventory("ReflectCount", 0);
-	SetInventory("Intervened", 0);
-	SetInventory("CanIntervene", 1);
-	TakeInventory("SetMyLives", 1);
-	SetInventory("ShowingMenu", 0);
-	
-	// take all weapons
-	for(i = 0; i < MAXWEPS; ++i)
-		TakeInventory(Weapons[i][WEAPON_NAME], 1);
-	for(i = 1; i <= 9; ++i)
-		TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
-	
-	// take all abilities
-	for(i = 0; i < MAXABILITIES; ++i)
-		SetInventory(AbilityInfo[i], 0);
-	
-	// take all research stuff
-	for(i = 0; i < RESEARCH_BITSETS; ++i) {
-		SetInventory(StrParam(s:"Research_Done_", d:i + 1), 0);
-		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), 0);
-	}
-	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
-}
-
 void RestoreResearchItems() {
 	if(CheckResearchStatus(RES_DOUBLESPECIALCAP) == RES_DONE)
 		DoubleSpecialAmmoCapacity();
@@ -681,16 +655,13 @@ void LoadPlayerData(int pnum, int char_id) {
 	int i = 0, j = 0, h, w, temp;
 	str pacc = GetPlayerAccountName(pnum);
 	
-	// reset weapons
-	ResetPlayer();
+	// make sure starting char code doesn't run
+	SetInventory("ReflectCount", 0);
+	SetInventory("Intervened", 0);
+	SetInventory("CanIntervene", 1);
+	TakeInventory("SetMyLives", 1);
+	SetInventory("ShowingMenu", 0);
 	
-	// reset currently acquired inventory
-	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		PlayerInventoryList[pnum][i].topleftboxid = 0;
-		PlayerInventoryList[pnum][i].item_type = DND_ITEM_NULL;
-	}
-	
-	ResetPlayerInventory(pnum);
 	// load player inventory
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		temp = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_TYPE), char_id), pacc);
@@ -721,11 +692,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	// sync all of inventory
 	SyncAllItemData(DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	
-	// remove whatever feature this player had on them prior to loading (just in case)
-	for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
-		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-			RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-	ResetPlayerCharmsUsed(pnum);
 	// load charms used
 	for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
 		Charms_Used[pnum][i].topleftboxid = i + 1;
@@ -863,6 +829,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	// save active accessories
 	SetInventory("Accessory_Index", GetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc));
 	DecideAccessories();
+	
+	// set all ammo capacities first
+	SetAllAmmoCapacities();
 	
 	// read each ammo count
 	for(i = 0; i < MAX_SLOTS; ++i)
@@ -1017,7 +986,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	// Restoration steps
 	RestoreRPGStat(RES_PLAYERSPEED);
 	UpdatePlayerKnockbackResist();
-	SetAllAmmoCapacities();
 	
 	// Research stuff
 	RestoreResearchItems();
@@ -1160,9 +1128,6 @@ Script "DND Player Save" OPEN {
 				//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i]);
 				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
 					if (PlayerIsLoggedIn(i)) {
-						// self note: if people still lose chars in softcore in any slot when they die and map ends, this wasn't the cause
-						if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerDied[i])
-							continue; // don't save this player as they died
 						if(PlayerTransferred[i]) {
 							WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
 							SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
@@ -1278,19 +1243,14 @@ Script 1005 (int char_id) NET {
 	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
 }
 
-Script "DND Database Reset On Death" DEATH {
+Script "DND Database Reset On Death" (int pnum) { //now gets pre-checked at DnD.bcs's "DnD On Death"
 	// remove player saved data if they die once in hardcore, if they are loaded
-	int pnum = PlayerNumber(), cid = CheckInventory("DnD_CharacterID");
-	if(HardcoreSet && PlayerIsLoggedIn(pnum) && PlayerLoaded[pnum]) {
-		if(GetCVar("dnd_mode") == DND_MODE_HARDCORE) {
-			// reset variables here
-			ResetHardcoreStuff(pnum);
-			BeginDBTransaction();
-			WipeoutPlayerData(pnum, cid); // it can't get any more wiped than this (also comes here if char is created and not saved).
-			EndDBTransaction();
-		}
-		PlayerLoaded[pnum] = 0;
-	}
+	int cid = CheckInventory("DnD_CharacterID");
+	// reset variables here
+	ResetHardcoreStuff(pnum);
+	BeginDBTransaction();
+	WipeoutPlayerData(pnum, cid); // it can't get any more wiped than this (also comes here if char is created and not saved).
+	EndDBTransaction();
 }
 
 Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
@@ -1340,19 +1300,9 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 }
 
 Script "DnD Save Player Orb and Stat Data" (int pnum) {
-	if(HardcoreSet && PlayerIsLoggedIn(pnum)) {
-		// if somehow you died...
-		if((GetCVar("dnd_mode") == DND_MODE_HARDCORE) && PlayerDied[pnum])
-			Terminate;
-		BeginDBTransaction();
-			SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
-		EndDBTransaction();
-	}
-	PlayerLoaded[pnum] = 0;
-	PlayerDied[pnum] = 0;
-	PlayerWillBeSaved[pnum] = false;
-	PlayerTransferred[pnum] = false;
-	ResetPlayerActivities(pnum, true);
+	BeginDBTransaction();
+	SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
+	EndDBTransaction();
 }
 
 Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {

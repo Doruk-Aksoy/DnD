@@ -1621,7 +1621,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_VIOLENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentNames[val][TALENT_TAG], s:" Damage\cv increase!");
+				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentNames[val][TALENT_NAME], s:" Damage\cv increase!");
 			else
 				Log(s:"\cgMax violence bonus reached! (\ck", d:VIOLENCEORB_MAX, s:"%\c-)");
 		break;
@@ -1641,9 +1641,9 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_HOLDING:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Holding grants \cd", f:ftrunc(val * affluence * 100), s:"% increased ammo capacity!");
+				Log(s:"\cjOrb of Holding grants \cd", d:val, s:"% increased ammo capacity!");
 			else
-				Log(s:"\cgYou're maxed out on holding bonuses! (\ck", f:ftrunc(HOLDING_MAX * 100), s:"\c-)!");
+				Log(s:"\cgYou're maxed out on holding bonuses! (\ck", d:HOLDING_MAX, s:"\c-)!");
 		break;
 		case DND_ORB_REFINEMENT:
 			if(val != 0x7FFFFFFF)
@@ -1717,7 +1717,7 @@ void ResetOrbData(int pnum) {
 	}
 }
 
-void SpawnOrb(int pnum) {
+void SpawnOrb(int pnum, bool sound) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int w = random(1, ORB_MAXWEIGHT), i = 0;
@@ -1729,22 +1729,15 @@ void SpawnOrb(int pnum) {
 		RollOrbInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
+		if (sound)
+			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
 	}
 }
 
 void SpawnOrbForAll(int repeats) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
-			int c = CreateItemSpot();
-			if(c != -1) {
-				int w = random(1, ORB_MAXWEIGHT), i = 0;
-				for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
-				RollOrbInfo(c, i, true);
-				SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-				SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, j + 1, c);
-				ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, j, DND_ITEM_ORB);
-			}
+			SpaWnOrb(j, false);
 		}
 	}
 }
