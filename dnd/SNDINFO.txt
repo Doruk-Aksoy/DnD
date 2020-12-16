@@ -1,6 +1,9 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+HitBeep/Resist			HITBPRES
+HitBeep/Immune			HITBPIMM
+
 Weapons/RipperFire		RIPPRFIR
 $limit Weapons/RipperFire 0
 

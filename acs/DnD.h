@@ -11,6 +11,7 @@
 #include "DnD_Skills.h"
 #include "DnD_Settings.h"
 #include "DnD_ClassMenu.h"
+#include "DnD_Explosion.h"
 
 // for now allocate slots for 10
 #define MAX_SCRIPT_TRACK 10
@@ -923,6 +924,9 @@ int ScaleMonster(int pcount, int realhp) {
 	if(GetCVar("dnd_randomize_levels")) {
 		low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
 		high = Clamp_Between(GetCVar("dnd_monsterlevel_high"), 0, 50);
+		// first 10 levels the monsters shouldn't really get super high levels
+		if(level < 10)
+			high = Clamp_Between(high, 0, high / 2);
 		// give some sort of variety in the levels
 		// subtract level from avg half the time
 		if(random(0, 1)) {
@@ -1056,3 +1060,5 @@ void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
 		break;
 	}
 }
+
+#include "DnD_Damage.h"

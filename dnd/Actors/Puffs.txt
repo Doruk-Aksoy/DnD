@@ -1,16 +1,20 @@
-Actor NewBulletPuff : BulletPuff {
-	DamageType "Bullet"
-	+MTHRUSPECIES
+// this contains the base puffstate that is common to most of the puffs when they hit a wall
+Actor NewBulletPuff : DnD_BasePuff {
 	States {
-		Spawn:
+		PuffState:
 			PUFF A 0
 			TNT1 A 0 A_SpawnDebris("SparkPuff", 1)
 			TNT1 A 0 A_SpawnItemEx("WallHitSpark", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 			PUFF A 4 bright A_PlaySound("puff/ric")
 			PUFF B 4
-		Melee:
 			PUFF CD 4
 		stop
+		Init:
+			TNT1 A 1
+		Goto DoDamage
+		Animate:
+			TNT1 A 1
+		Stop
 	}
 }
 

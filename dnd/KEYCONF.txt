@@ -2,6 +2,8 @@ alias sethardcore "puke 1000 0"
 alias setsoftcore "puke 1000 1"
 alias setcasual "puke 1000 2"
 alias setbeginner "puke 1000 3"
+alias sp_softcore "puke 1000 4"
+alias sp_hardcore "puke 1000 5"
 
 alias loadme "puke 1001 %1"
 alias setchar "puke 1003 %1"

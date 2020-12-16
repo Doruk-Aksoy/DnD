@@ -2304,7 +2304,8 @@ Script "DnD Player Setup" ENTER {
 			ResetPlayerCharmsUsed(pnum);
 			
 			ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
-		} else
+		}
+		else
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
 		
 		// 0 means they are ready
@@ -2912,9 +2913,10 @@ Script 1000 (int isSoftcore) {
 		}
 		ConsoleCommand("authhostname auth.zandronum.com:16666");
 	}
-	else {
+	else if(isSoftcore < 4) {
 		// softcore == 2 => casual mode, default settings
 		// beginner mode, force smart monster spawner
+		// 4 or 5 are simulated softcore / hardcore for singleplayer or local servers -- no database but ruleset is the same
 		if(isSoftcore == 3) {
 			ConsoleCommand("dnd_allresearchesfound 0");
 			ConsoleCommand("dnd_usesmartmonsterspawner 1");

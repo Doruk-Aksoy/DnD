@@ -27,6 +27,9 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Elixir.txt"
 #include "Actors/Items/ItemAttributes.txt"
 
+#include "Actors/DamageTypes.txt"
+#include "Actors/ProjectileBase.txt"
+
 // Resists
 #include "Actors/Items/Resists/ExpResist.txt"
 #include "Actors/Items/Resists/ElemResist.txt"
@@ -75,7 +78,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Weapons/Research/Slot7.txt"
 
 #include "Actors/MonsterBase.txt"
-#include "Actors/ProjectileBase.txt"
 #include "Actors/MonsterClass.txt"
 #include "Actors/Monsters.txt"
 #include "Actors/Pets.txt"
