@@ -181,55 +181,6 @@ Actor DChainsawPuff_FullDMG : ChainsawPuff_FullDMG {
 	+FORCEPAIN
 }
 
-Actor LeadBulletPuff : BulletPuff {
-	DamageType "Energy"
-	Decal "LeadBulletDecal"
-	Renderstyle Add
-	Alpha 0.6
-	Scale 0.1
-	Vspeed 0
-	+FOILINVUL
-	+ALWAYSPUFF
-	+PUFFONACTORS
-	+MTHRUSPECIES
-	+CLIENTSIDEONLY
-	var int user_scaler;
-	States {
-	  Spawn:
-	  Melee:
-		TNT1 A 0 NoDelay A_SetUserVar("user_scaler", 1) 
-		TNT1 a 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
-	Type1:
-		DB21 ABCDEFGHI 1 Bright A_SetScale(scaleX + user_scaler * 0.01)
-		Stop
-	Type2:
-		DB21 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type3:
-		DB22 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type4:
-		DB22 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type5:
-		DB23 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type6:
-		DB23 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type7:
-		DB24 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type8:
-		DB24 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	}
-}
-
-Actor LeadBulletPuff_FullDMG : LeadBulletPuff {
-	DamageType "EnergyFull"
-}
-
 Actor NewBulletPuffMag : NewBulletPuff {
 	+FOILINVUL
 }

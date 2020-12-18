@@ -171,12 +171,7 @@ pointlight EmeraldLight {
     size 12
 }
 
-object EmeraldPuff
-{
-	frame IDSE { light EmeraldLight }
-}
-
-object EmeraldPuff_FullDMG
+object EmeraldPuff_FX
 {
 	frame IDSE { light EmeraldLight }
 }

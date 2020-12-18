@@ -823,8 +823,8 @@ int MapTalentToPercentBonus(int pnum, int talent) {
 	return 0;
 }
 
-int ApplyFlatHealthDamageFactor(int dmg, int factor) {
-	return (dmg * GetSpawnHealth()) / (100 * factor);
+int GetFlatHealthDamageFactor(int factor) {
+	return GetSpawnHealth() / (100 * factor);
 }
 
 int GetNonLowestTalents() {
@@ -836,11 +836,11 @@ int GetNonLowestTalents() {
 		if(talent_amount < lowest_talent_amount) {
 			lowest_talent_amount = talent_amount;
 			lowest_talents = (1 << i);
-		} else if(talent_amount == lowest_talent_amount) { //There can be more than 1 lowest talent (specially if char is new or OP).
+		} else if(talent_amount == lowest_talent_amount) { // There can be more than 1 lowest talent (specially if char is new or OP).
 			lowest_talents |= (1 << i);
 		}
 	}
-	return 0xFF ^ lowest_talents; //To get non-lowest talents, do a ~ (for some reason ~ bugs here, so I just used 0xFF ^ and it works).
+	return 0xFF ^ lowest_talents; // To get non-lowest talents, do a ~ (for some reason ~ bugs here, so I just used 0xFF ^ and it works).
 }
 
 #endif

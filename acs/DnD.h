@@ -161,7 +161,8 @@ enum {
 	DND_WDMG_ISSLOT7 = 524288,
 	DND_WDMG_ISSLOT8 = 1048576,
 	DND_WDMG_ISSLOT9 = 2097152,
-	DND_WDMG_ISSPELL = 4194304
+	DND_WDMG_ISSPELL = 4194304,
+	DND_WDMG_USETARGETSMASTER = 8388608
 };
 
 enum {
@@ -222,7 +223,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "The purifier shotgun, spread's with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads. Can use \cialternate\c- ammo.",
 	 "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Alt fire reloads.",
 	 "Fires 5 blasts doing 20 damage in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, releasing an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.",
-	 "Deadlocks fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12. Can use \cialternate\c- ammo.",
+	 "Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12. Can use \cialternate\c- ammo.",
 	 "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.",
 	 "An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
 	 
@@ -231,7 +232,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	 "Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
 	 "Fires 24 plasma balls in a circular fashion each doing 20 damage. Has a clip size of 5.",
-	 "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 108-180 damage in 96 unit radius. \cfIgnores shields.",
+	 "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 192-240 damage in 108 unit radius. \cfIgnores shields.",
 	 "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.",
 	 
 	 "The explosive shotgun, the best there is. Fires 10 pellets, each doing 15 on hit. Each pellet does 32-48 damage in a small area. Does self damage. \cfIgnores shields.",
@@ -448,6 +449,10 @@ void HandleLevelup() {
 			(prevlvl < DND_CLASSPERK3_LEVEL && curlvl >= DND_CLASSPERK3_LEVEL)
 		) {
 			HandleClassPerks();
+			
+			// this is done as new perks might increase some damage factors
+			ForcePlayerDamageCaching(PlayerNumber());
+			
 			// make some announcement the player has a new perk
 			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
 		}

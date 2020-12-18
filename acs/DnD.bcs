@@ -3060,126 +3060,47 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 }
 
 // Used in Select statement of weapons, caches the weapon damage numbers this weapon can cause
-Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand) {
-	CachePlayerDamage(dmg, dmg_id & 0xFFFF, dmg_rand);
+Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) {
+	CachePlayerDamage(PlayerNumber(), dmg, dmg_id & 0xFFFF, dmg_rand, wepid);
+	SetResultValue(0);
 }
 
-Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
+Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags, int pellets) {
 	bool isSpecial = flags & DND_WDMG_ISSPECIALAMMO;
 	int wepid = dmgid >> 16;
 	dmgid &= 0xFFFF;
-	if(flags & DND_WDMG_USETARGET) { // use target
-		// hopefully no projectile uses score
-		if(!GetActorProperty(0, APROP_SCORE)) {
-			SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
-			SetActivator(0, AAPTR_TARGET);
-		}
-	}
-	else if(flags & DND_WDMG_USEMASTER) {
-		if(flags & DND_WDMG_SETMASTER) // this is a hack
-			SetPointer(AAPTR_TARGET, GetActorProperty(0, APROP_MASTERTID));
-		if(!GetActorProperty(0, APROP_SCORE)) {
-			SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
-			SetActivator(GetActorProperty(0, APROP_MASTERTID));
-		}
-	}
-	else if(flags & DND_WDMG_USETRACER)
-		SetActivator(0, AAPTR_TRACER);
-	// no owner can potentially mean this was a reflected projectile, we can manipulate this a bit
-	if(!ActivatorTID()) {
-		GiveInventory("MarkAsReflected", 1);
-		SetActivator(GetActorProperty(0, APROP_SCORE));
-	}
-	int res = 0, pnum = PlayerNumber(), temp;
-	// we don't cache special ammo damage
-	if(PlayerDamageNeedsCaching(wepid, dmgid) || isSpecial) {
-		// get the damage
-		if(!isSpecial)
-			res = GetCachedPlayerDamage(wepid, dmgid);
-		else // special ammo damage
-			res = GetSpecialAmmoDamage(dmgid, wepid);
-		
-		// add flat damage bonus mapping talent name to flat bonus type
-		res += MapTalentToFlatBonus(pnum, talent_type);
-		
-		// quest or accessory bonuses
-		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
-			res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
-		if(flags & DND_WDMG_ISPISTOL) // gunslinger affected
-			res = res * (100 + DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward)) / 100;
-		if(flags & DND_WDMG_ISBOOMSTICK)
-			res = res * (100 + DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward)) / 100;
-		if(flags & DND_WDMG_ISSUPER)
-			res = res * (100 + DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward)) / 100;
-		
-		// include the stat bonus
-		if(talent_type == TALENT_MELEE)
-			res = res * (100 + DND_STR_GAIN * GetStrength()) / 100;
-		// occult uses intellect
-		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
-			res = res * (100 + DND_INT_GAIN * GetIntellect()) / 100;
-		else
-			res = res * (100 + DND_DEX_GAIN * GetDexterity()) / 100;
-		if(active_quest_id == QUEST_ONLYNOTALENTWEAPONS && (CheckInventory("DnD_NonLowestTalents") & (1 << talent_type)))
-			GiveInventory(Quest_Checkers[QUEST_ONLYNOTALENTWEAPONS], 1);
-		
-		// include enhancement orb bonuses
-		temp = GetPlayerWeaponEnchant(pnum, wepid);
-		if(temp)
-			res = res * (100 + ENHANCEORB_BONUS * temp) / 100;
-			
-		// finally apply damage type bonuses
-		temp = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
-				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) + 
-				MapTalentToPercentBonus(pnum, talent_type) +
-				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
-		if(temp)
-			res = res * (100 + temp) / 100;
-		
-		res = res * (100 + GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + GetWeaponSlotFromFlag(flags))) / 100;
-		
-		// special damage increase attributes -- usually obtained by means of charms
-		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
-		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial))
-			res = res * (100 + temp) / 100;
-		
-		// saotgun damage bonus -- add hobos perk here too
-		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
-		if(CheckInventory("Hobo_Perk25"))
-			temp += DND_HOBO_SHOTGUNBONUS;
-			
-		if((flags & DND_WDMG_ISBOOMSTICK) && temp)
-			res = res * (100 + temp) / 100;
-		// apply flat health to damage conversion if player has any
-		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
-		if(temp)
-			res += ApplyFlatHealthDamageFactor(res, temp);
-		CachePlayerEndDamageWithID(wepid, res, dmgid);
-	}
-	else {
-		//Get the cached end dmg to simplify further calculation
-		res = GetCachedPlayerEndDamage(wepid, dmgid);
-	}
+	
+	AdjustDamageRetrievePointers(flags);
+
+	int pnum = PlayerNumber();
+	
+	if(!pellets)
+		pellets = 1;
+	int res = ScaleCachedDamage(wepid, pnum, dmgid, talent_type, flags, isSpecial, pellets);
 	
 	// special weapons checks -- these are added on top of everything else as the last thing, before crits
-	if(CheckInventory("DnD_WeaponID") == DND_WEAPON_LIGHTNINGGUN)
+	// they are also dynamic and cant be cached...
+	if(wepid == DND_WEAPON_LIGHTNINGGUN)
 		res = res * (100 + DND_LIGHTNINGGUN_DMGPERSTACK * CheckInventory("LightningStacks")) / 100;
-	else if(CheckInventory("DnD_WeaponID") == DND_WEAPON_DUSKBLADE)
+	else if(wepid == DND_WEAPON_DUSKBLADE)
 		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
-	
-	// the randomized damage multiplier of the weapon
-	temp = GetCachedPlayerRandomRange(wepid, dmgid);
-	if(temp > 1)
-		res *= random(temp & 0xFFFF, temp >> 16);
 		
-	// crit chance
-	// if weapon id is a lightning type, it will always crit with the necessary charm attribute on
-	if((IsWeaponLightningType(wepid, dmgid, isSpecial) && IsSet(GetPlayerAttributeValue(pnum, INV_EX_ALWAYSCRIT_LIGHTNING), DND_STATBUFF_ALWAYSCRITLIGHTNING)) || CheckCritChance(wepid)) {
-		res = res * GetCritModifier() / 100;
-		HandleHunterTalisman();
-	}
+	res = HandleWeaponCrit(res, wepid, pnum, dmgid, isSpecial);
+	if(pellets > 1)
+		SetInventory("DnD_ShotgunDamageHolder", res / pellets);
 	
 	SetResultValue(res);
+}
+
+Script "tester shit" (void) {
+	printbold(s:"haha yes");
+	SetResultValue(0);
+}
+
+// accessed by puffs so target is the player -- we need this construct because we cant use Args of player in here
+Script "DnD Get Shotgun Damage" (void) {
+	SetActivatorToTarget(0);
+	SetResultValue(CheckInventory("DnD_ShotgunDamageHolder"));
 }
 
 // Used mainly for non-weapons (like artifacts and so on)
@@ -3213,8 +3134,11 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type][TALENT_TAG])) / 100;
 	
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
-	if(temp)
-		dmg += ApplyFlatHealthDamageFactor(dmg, temp);
+	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
+	if(temp) {
+		temp = GetFlatHealthDamageFactor(temp);
+		dmg = dmg * (100 + temp) / 100;
+	}
 		
 	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
 			GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
@@ -3770,6 +3694,19 @@ Script "DnD Get Target of Target" (void) {
 	SetResultValue(ActivatorTID());
 }
 
+Script "DnD Get Master of Target" (void) {
+	SetActivatorToTarget(0);
+	SetResultValue(GetActorProperty(0, APROP_MASTERTID));
+}
+
+Script "target test" (void) {
+	printbold(s:"target test before: ", s:GetActorClass(GetActorProperty(0, APROP_TARGETTID)), s:" ", d:GetActorProperty(0, APROP_TARGETTID));
+	SetActivator(0, AAPTR_TARGET);
+	printbold(s:"target test mid: ", s:GetActorClass(GetActorProperty(0, APROP_TARGETTID)), s:" ", d:GetActorProperty(0, APROP_TARGETTID));
+	SetActivator(0, AAPTR_TARGET);
+	printbold(s:"target test after: ", s:GetActorClass(0), s:" ", d:ActivatorTID());
+}
+
 Script "DnD Target Fix" (void) {
 	// if none assigned
 	if(!GetActorProperty(0, APROP_TARGETTID)) {
@@ -3777,11 +3714,6 @@ Script "DnD Target Fix" (void) {
 		SetActorProperty(0, APROP_TARGETTID, tid);
 		SetPointer(AAPTR_TARGET, tid);	
 	}
-}
-
-Script "test" (void) {
-	SetActivatorToTarget(0);
-	printbold(d:ActivatorTID());
 }
 
 Script "DnD Player Pain Sound" (void) CLIENTSIDE {
@@ -3916,12 +3848,9 @@ Script "DnD Pellet Count" (int base, int flags) {
 	SetResultValue(res * base / 100); 
 }
 
-Script "DnD Pellet Shooter" (int base, int id, int fulldmg) {
+Script "DnD Pellet Shooter" (int amt, int id) {
 	str actor = WeaponPelletActors[id];
-	int pnum = PlayerNumber();
-	if(fulldmg)
-		actor = StrParam(s:actor, s: "_FullDMG");
-	GiveInventory(actor, (base * (100 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE)) / 100));
+	GiveInventory(actor, amt);
 }
 
 Script "DnD Explosion Radius Retrieve" (int flags) {
@@ -3931,6 +3860,9 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 		if(flags & DND_WDMG_SETMASTER) // this is a hack
 			SetPointer(AAPTR_TARGET, GetActorProperty(0, APROP_MASTERTID));
 		SetActivator(GetActorProperty(0, APROP_MASTERTID));
+	}
+	else if(flags & DND_WDMG_USETARGETSMASTER) {
+		SetActivator(ACS_NamedExecuteWithResult("DnD Get Master of Target"));
 	}
 	SetResultValue(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
 }
@@ -4137,8 +4069,10 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	// talent bonus
 	res = res * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[TALENT_OCCULT][TALENT_TAG])) / 100;
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
-	if(temp)
-		res += ApplyFlatHealthDamageFactor(res, temp);
+	if(temp) {
+		temp = GetFlatHealthDamageFactor(temp);
+		res = res * (100 + temp) / 100;
+	}
 		
 	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT) + 
 			GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
@@ -4203,7 +4137,8 @@ Script "DnD Give Soul Ammo" (int amt) {
 	GiveAmmo(amt, DND_AMMOSLOT_SOULS, 0);
 }
 
-// called whenever player makes an attack, melee weapons need to call this explicitly
+// called whenever player makes an attack, melee weapons or weapon attacks that use no ammo need to call this explicitly
+// reason is this is embedded in ammo gain chance script for ease
 Script "DnD On Attack" (void) {
 	// elemental bulwark check
 	if(CheckInventory("IATTR_ChanceToCastElementalSpell") >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {

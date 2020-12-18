@@ -1321,7 +1321,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo.",
 	"Assault Rifle does 25 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.",
 	"Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage.",
-	"Casts 3 flames doing 10-40 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 24 units.",
+	"Casts 3 flames doing 15-30 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 32 units.",
 	"Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pellets scatter to 6 tiny pellets doing 6 - 12 damage. Alt fire shoots one pellet.",
 	
 	"Purifier shoots 15 pellets each doing 15 damage in a 3.6 by 3.6 and a shell capacity of 8.",
@@ -1335,7 +1335,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	
 	"Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
-	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 108-180 damage in 96 unit radius.",
+	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 192-240 damage in 108 unit radius.",
 	"Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",

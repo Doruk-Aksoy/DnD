@@ -105,7 +105,7 @@ Actor DnD_SharedItem {
 }
 
 Actor DND_Activator : CustomInventory {
-	inventory.maxamount 1
+	inventory.maxamount 999
 	+INVENTORY.ALWAYSPICKUP
 	+INVENTORY.AUTOACTIVATE
 	+INVENTORY.IGNORESKILL
@@ -433,7 +433,8 @@ enum {
 	DND_ISSLOT7 = 524288,
 	DND_ISSLOT8 = 1048576,
 	DND_ISSLOT9 = 2097152,
-	DND_ISSPELL = 4194304
+	DND_ISSPELL = 4194304,
+	DND_USETARGETSMASTER = 8388608
 };
 
 enum {

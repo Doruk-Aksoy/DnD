@@ -2,7 +2,7 @@
 #define DND_EXPLOSION_IN
 
 #define MAX_MONSTERS_PER_EXPLOSION 1024
-#define MAX_EXPLOSION_INSTANCES 32
+#define MAX_EXPLOSION_INSTANCES 16
 
 typedef struct dnd_exp_monster {
 	int amt;
@@ -56,21 +56,38 @@ Script "DnD Register Explosion Instance" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int pnum = owner - P_TIDSTART;
 	
+	printbold(s:"Register Explosion to ptid ", d:owner);
+	
 	PlayerExplosionList[pnum].curr_instance = Create_ExplosionInstance(pnum);
+	SetInventory("DnD_ProjPnum", pnum);
+	
+	SetResultValue(0);
+}
+
+// target => pet, master => summoner
+Script "DnD Register Explosion Instance (Pets)" (void) {
+	int owner = ACS_NamedExecuteWithResult("DnD Get Master of Target");
+	
+	int pnum = owner - P_TIDSTART;
+	
+	printbold(s:"Register Explosion to ptid ", d:owner);
+	
+	PlayerExplosionList[pnum].curr_instance = Create_ExplosionInstance(pnum);
+	SetInventory("DnD_ProjPnum", pnum);
 	
 	SetResultValue(0);
 }
 
 Script "DnD Register Monster to Instance" (int pnum) {
 	int list_id = PlayerExplosionList[pnum].curr_instance;
-	int mon_index = Add_Monster_To_Explosion(pnum, list_id);
-	
-	printbold(s:"Add monster ", d:ActivatorTID(), s: " to player ", d:pnum, s: " of instance ", d:list_id);
-	
-	if(mon_index != -1) {
+	int mon_index;
+	// check the tid of recipient first
+	if(ActivatorTID() && (mon_index = Add_Monster_To_Explosion(pnum, list_id)) != -1) {
+		printbold(s:"Add monster ", d:ActivatorTID(), s: " to player ", d:pnum, s: " of instance ", d:list_id);
 		// we register this monster to list_id instance of player pnum for processing
 		PlayerExplosionList[pnum].list[list_id].monsters[mon_index] = ActivatorTID();
 	}
+	printbold(s:"Monster insertion checked on ", d:ActivatorTID(), s: " ", d: mon_index);
 	SetResultValue(0);
 }
 

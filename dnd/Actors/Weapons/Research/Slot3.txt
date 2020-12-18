@@ -39,7 +39,7 @@ Actor ResShotgun1 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_DEADLOCK)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 15)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_DEADLOCK)
 	    SelectLoop:
 			RW01 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -250,13 +250,11 @@ Actor DeadlockShooter : DnD_Activator {
 		NoTake2:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_PlayWeaponSound("Deadlock/Fire")
+			
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 16))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEADLOCK << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "Full")
-			TNT1 A 0 A_FireBullets (7.0 * (1.0 - accuracy * accuracy_factor), 5.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 16), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEADLOCK << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff", FBF_NORANDOM | FBF_USEAMMO)  
-		Stop
-		Full:
-			TNT1 A 0 A_FireBullets (7.0 * (1.0 - accuracy * accuracy_factor), 5.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 16), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEADLOCK << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)  
+			TNT1 A 0 A_FireBullets (7.0 * (1.0 - accuracy * accuracy_factor), 5.2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "ShotgunPuff", FBF_NORANDOM | FBF_USEAMMO)  
 		Stop
 		Flechette:
 			TNT1 A 0 A_GiveInventory("FlechetteShellShooter", 1)
@@ -269,8 +267,7 @@ Actor DeadlockShooter : DnD_Activator {
 		Stop
 		
 		FireCircle:
-			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 16))
-			TNT1 A 0 A_SetArg(3, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEADLOCK << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_SetArg(4, Args[2])
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
 			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "FullStart")
@@ -278,20 +275,12 @@ Actor DeadlockShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
 		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "NewBulletPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "ShotgunPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
 			TNT1 A 0 A_SetArg(4, Args[4] - 1)
 		Goto LoopStart
 		Finish:
 			TNT1 A 0
 		Stop
-		
-		FullStart:
-			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto FullStart
 	}
 }
 
@@ -350,9 +339,9 @@ Actor ResShotgun2 : Weapon {
 			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_NITROGENCROSSBOW)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, cyro_dmg)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, cryo_altdmg)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 5)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, cyro_dmg, 0, DND_WEAPON_NITROGENCROSSBOW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, cryo_altdmg, 0, DND_WEAPON_NITROGENCROSSBOW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 5, 0, DND_WEAPON_NITROGENCROSSBOW)
 	    SelectLoop:
 			BOWG A 1 Bright A_Raise
 			TNT1 A 0 A_Raise
@@ -402,8 +391,7 @@ Actor ResShotgun2 : Weapon {
 		NoRecoilAlt:
 			BOWG A 0 A_PlaySound("weapons/cryobowshot")
 			BOWG A 0 A_PlaySound("weapons/cryobowfire", CHAN_WEAPON)
-			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuffAlt", FBF_NORANDOM, 384)
-			BOWF A 2 Bright A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
+			BOWF A 2 Bright A_GiveInventory("CryoShooter_2", 1)
 			BOWF BCD 2 Bright
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadAltFaster")
 			BOWF E 8
@@ -445,21 +433,12 @@ Actor CryoShooter_1 : DnD_Activator {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_NITROGENCANISTER, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuff", FBF_NORANDOM)
+			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuff_FX", FBF_NORANDOM)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
+			TNT1 A 0 A_RailAttack(0, 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoBowPuff", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
 		Stop
 		NoTake:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 0, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
-		Stop
-		Full:			
-			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuff_FullDMG", FBF_NORANDOM)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeFull")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg_Full", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
-		Stop
-		NoTakeFull:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 0, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg_Full", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
+			TNT1 A 0 A_RailAttack(0, 0, 0, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoBowPuff", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
 		Stop
 	}
 }
@@ -469,22 +448,37 @@ Actor CryoShooter_2 : DnD_Activator {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_NITROGENCANISTER, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuffAlt", FBF_NORANDOM, 384)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
+			TNT1 A 0 A_RailAttack(0, 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoRailPuffAlt", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
 		Stop
 		NoTake:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 0, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
+			TNT1 A 0 A_RailAttack(0, 0, 0, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoRailPuffAlt", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
 		Stop
-		Full:			
-			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuffAlt_FullDMG", FBF_NORANDOM, 384)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeFull")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg_Full", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
+	}
+}
+
+Actor CryoBowPuff : DnD_BaseRailPuff {
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ICE)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
+		Goto DoDamage
+		Crash:
+		Melee:
+			TNT1 A 1
 		Stop
-		NoTakeFull:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ISSLOT3), 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoPuffDmg_Full", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
-		Stop
+	}
+}
+
+Actor CryoRailPuffAlt : DnD_BaseRailPuff {
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ICE)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
+		Goto DoDamage
 	}
 }
 
@@ -522,31 +516,20 @@ Actor CryoPrimarySmoke2 : CryoPrimarySmoke {
 	}
 }
 
-Actor CryoPuff {
-	DamageType "P_Ice"
-	Species "Player"
-	+NODAMAGETHRUST
-	+ALWAYSPUFF
+Actor CryoPuff_FX {
+	+PUFFGETSOWNER
 	+PUFFONACTORS
-	+FORCERADIUSDMG
-	+NOGRAVITY
-	+MTHRUSPECIES
-	+THRUSPECIES
+	+ALWAYSPUFF
 	States {
 		Spawn:
-		Death:		
 			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 1
-			TNT1 A 0 A_Explode(1, 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
+			TNT1 A 0 A_Explode(1, 128, 0, 0)
 			BXPL AAAAAAAA 0 A_SpawnItemEx("CryoPrimarySmoke", 0, 0, 0, random(10, 30)*0.1, 0, random(0, 10)*0.1, random(1,360), SXF_CLIENTSIDE|SXF_NOCHECKPOSITION)
 			BXPL AAAA 0 A_SpawnItemEx("CryoPrimarySmoke2", 0, 0, 0, random(10, 30)*0.04, 0, random(0, 10)*0.04, random(1,360), SXF_CLIENTSIDE|SXF_NOCHECKPOSITION,64)
 			TNT1 A 1
 		Stop
 	}
-}
-
-Actor CryoPuff_FullDMG : CryoPuff {
-	DamageType "P_IceFull"
 }
 
 Actor CryoPuffAlt {
@@ -555,7 +538,6 @@ Actor CryoPuffAlt {
 	+NODAMAGETHRUST
 	+ALWAYSPUFF
 	+PUFFONACTORS
-	+FORCERADIUSDMG
 	+PUFFGETSOWNER
 	+NOGRAVITY
 	+MTHRUSPECIES
@@ -564,6 +546,7 @@ Actor CryoPuffAlt {
 	const int iter = 4;
 	States {
 		Spawn:
+			TNT1 AAAA 0
 		Death:		
 			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 1 A_Explode(1, 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
@@ -572,14 +555,14 @@ Actor CryoPuffAlt {
 			TNT1 A 0 A_PlaySound("weapons/cryobowalt", 5)
 		DeathLoop:
 			TNT1 A 0 A_JumpIf(user_count == iter, "Finish")
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 90, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 180, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 270, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 45, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 135, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 225, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWind", 0, 0, 10, 0, 0, 0, 315, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 135, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 315, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 AAAAAAAAAAAAA 0 A_CustomMissile ("IceSmoke", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_PlaySound("weapons/cryobowloop", 6)
 			TNT1 A 25 A_SetUserVar("user_count", user_count + 1)
@@ -588,42 +571,6 @@ Actor CryoPuffAlt {
 			TNT1 A 1
 		Stop
 	}
-}
-
-Actor CryoPuffAlt_FullDMG : CryoPuffAlt {
-	States {
-		Spawn:
-		Death:		
-			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
-			TNT1 A 1 A_Explode(1, 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
-			TNT1 A 0 A_ChangeFlag("ICEDAMAGE", 1)
-			TNT1 A 1 A_SetUserVar("user_count", 0)
-			TNT1 A 0 A_PlaySound("weapons/cryobowalt", 5)
-		DeathLoop:
-			TNT1 A 0 A_JumpIf(user_count == iter, "Finish")
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 90, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 180, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 270, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 45, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 135, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 225, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SpawnItemEx("CryoWindFull", 0, 0, 10, 0, 0, 0, 315, SXF_TRANSFERPOINTERS)
-			TNT1 AAAAAAAAAAAAA 0 A_CustomMissile ("IceSmoke", 0, 0, random (0, 360), 2, random (0, 360))
-			TNT1 A 0 A_PlaySound("weapons/cryobowloop", 6)
-			TNT1 A 25 A_SetUserVar("user_count", user_count + 1)
-		Loop
-	}
-}
-
-Actor CryoPuffDMG {
-	DamageType "P_Ice"
-	+NODAMAGETHRUST
-}
-
-Actor CryoPuffDMG_Full {
-	DamageType "P_IceFull"
-	+NODAMAGETHRUST
 }
 
 ACTOR CryoTrail {
@@ -640,20 +587,17 @@ ACTOR CryoTrail {
 	}
 }
 
-Actor CryoWind {
-	PROJECTILE
+Actor CryoWind : DnD_BaseProjectile {
 	Speed 16
 	Radius 10
 	Height 20
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3))
-	DamageType "P_Ice"
 	Scale 1.75
 	Alpha 0.9
 	Renderstyle Add
 	BounceType "Hexen"
 	var int user_count;
 	const int spd = 16;
-	+RIPPER
+	+THRUACTORS
 	+BLOODLESSIMPACT
 	+CANBOUNCEWATER
 	+NODAMAGETHRUST
@@ -661,54 +605,70 @@ Actor CryoWind {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Target Fix")
 			TNT1 A 0 ThrustThing(angle * 256 / 360, 20, 0, 0)
 			TNT1 A 2
 		SpawnLoop:
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 J 5 A_FadeOut(0.05)
+			RF34 JJJJJ 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 K 5 A_FadeOut(0.05)
+			RF34 KKKKK 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 L 5 A_FadeOut(0.05)
+			RF34 LLLLL 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 M 5 A_FadeOut(0.05)
+			RF34 MMMMM 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 N 5 A_FadeOut(0.05)
+			RF34 NNNNN 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 O 5 A_FadeOut(0.05)
+			RF34 OOOOO 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 P 5 A_FadeOut(0.05)
+			RF34 PPPPP 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 Q 5 A_FadeOut(0.05)
+			RF34 QQQQQ 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 R 5 A_FadeOut(0.05)
+			RF34 RRRRR 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 S 5 A_FadeOut(0.05)
+			RF34 SSSSS 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 T 5 A_FadeOut(0.05)
+			RF34 TTTTT 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 U 5 A_FadeOut(0.05)
+			RF34 UUUUU 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 V 5 A_FadeOut(0.05)
+			RF34 VVVVV 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 W 5 A_FadeOut(0.05)
+			RF34 WWWWW 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 X 5 A_FadeOut(0.05)
+			RF34 XXXXX 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
 		Loop
 		Death:
 			TNT1 A 1
@@ -716,83 +676,21 @@ Actor CryoWind {
 	}
 }
 
-Actor CryoWind_Damager : DnD_FakeDamager {
-	Radius 3
-	Height 4
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3))
-	DamageType "P_IceFull"
+Actor CryoWind_Damager : DnD_BaseProjectile {
+	Radius 10
+	Height 20
+	Speed 1
 	+PAINLESS
-}
-
-Actor CryoWindFull : CryoWind {
-	+THRUACTORS
+	+BLOODLESSIMPACT
 	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
-			TNT1 A 0 ThrustThing(angle * 256 / 360, 20, 0, 0)
-			TNT1 A 2
-		SpawnLoop:
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 JJJJJ 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 KKKKK 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 LLLLL 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 MMMMM 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 NNNNN 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 OOOOO 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 PPPPP 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 QQQQQ 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 RRRRR 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 SSSSS 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 TTTTT 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 UUUUU 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 VVVVV 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 WWWWW 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-			TNT1 A 0 A_ChangeVelocity(spd * cos(angle + 45 * user_count), spd * sin(angle + 45 * user_count), velz, CVF_REPLACE)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			RF34 XXXXX 1 A_CustomMissile("CryoWind_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_FadeOut(0.05)
-		Loop
+		SpawnState:
+			TNT1 A 1
+		Stop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_ICE)
+		Death:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -830,9 +728,9 @@ Actor ResShotgun3 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_WHEELOFTORMENT)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 160)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 192)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 10, 1 | (2 << 16))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 160, 0, DND_WEAPON_WHEELOFTORMENT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 192, 0, DND_WEAPON_WHEELOFTORMENT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 10, 1 | (2 << 16), DND_WEAPON_WHEELOFTORMENT)
 		SelectLoop:
 			WOPG A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -862,11 +760,7 @@ Actor WoTShooter : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_ISSLOT3), "BloodFX2A", 1, 1024)
-		Stop
-		Full:
-			TNT1 A 0 A_FireBullets(0, 0, 1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_ISSLOT3), "BloodFX2A_FullDMG", 1, 1024)
+			TNT1 A 0 A_FireBullets(0, 0, 1, 0, "BloodFX2A", FBF_USEAMMO, 1024)
 		Stop
 	}
 }
@@ -874,11 +768,7 @@ Actor WoTShooter : DnD_Activator {
 Actor WoTShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_HASSTRSCALING | DND_ISSLOT3), "BloodFX3", FBF_NORANDOM, 84)
-		Stop
-		Full:
-			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_HASSTRSCALING | DND_ISSLOT3), "BloodFX3_FullDMG", FBF_NORANDOM, 84)
+			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "BloodFX3", 0, 84)
 		Stop
 	}
 }
@@ -886,36 +776,16 @@ Actor WoTShooter2 : DnD_Activator {
 Actor WoTShooter3 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_HASSTRSCALING | DND_ISSLOT3), "BloodDrainFX", FBF_NORANDOM, 84)
-		Stop
-		Full:
-			TNT1 A 0 A_FireBullets(0, 0, -1, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_HASSTRSCALING | DND_ISSLOT3), "BloodDrainFX_FullDMG", FBF_NORANDOM, 84)
+			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "BloodDrainFX", 0, 84)
 		Stop
 	}
 }
 
-Actor WoTHitFX {
-   Radius 3
-   Height 3
-   RENDERSTYLE ADD
-   Alpha 0.75
-   Damagetype "Magic"
-   +PUFFONACTORS
-   +NOGRAVITY
-   +FORCEXYBILLBOARD
-   +MTHRUSPECIES
-   States {
-		Crash:
-			TNT1 A 1
-		stop
-		Spawn:
-			BLFX ABCDEF 3 BRIGHT
-		stop	
-   }
-}
-
-Actor BloodFXB : WoTHitFX {
+Actor BloodDrainHitFX {
+	RENDERSTYLE "ADD"
+	Alpha 0.75
+	+FORCEXYBILLBOARD
+	+NOINTERACTION
 	+CLIENTSIDEONLY
 	States {
 		Spawn:
@@ -924,80 +794,107 @@ Actor BloodFXB : WoTHitFX {
 	}
 }
 
-Actor BloodDrainFX : WoTHitFX {
-   +PUFFGETSOWNER
-   +HITTRACER
-   States {
-		Crash:
-			TNT1 A 2 BRIGHT
-		stop
-		Spawn:
-			BLFX A 2 NoDelay A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon"), "GiveAmmo")
-		Goto Super::Spawn
-		GiveAmmo:
-			BLF2 A 3 BRIGHT ACS_NamedExecuteAlways("DnD Give Ammo To Target", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			BLF2 BCDEF 3 BRIGHT
-		stop	
-   }
-}
-
-Actor BloodDrainFX_FullDMG : BloodDrainFX {
-	DamageType "MagicFull"
-}
-
-Actor BloodFX2A : WoTHitFX {
+Actor BloodFX2A : DnD_BasePuff {
+	Renderstyle "Add"
 	Alpha 1.0
-	+ALWAYSPUFF
 	+EXTREMEDEATH
-	+PUFFGETSOWNER
 	+NODAMAGETHRUST
-	+HITTRACER
-	+LOOKALLAROUND 
-	var int user_exprad;
+	+LOOKALLAROUND
 	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_OCCULT)
+		Goto DoDamage
+		DoDamage:
+			// takes dmg and damage type as args 0 and 1 respectively
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
+			BLBA E 4 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon"), "SuperDamage")
+		Stop
+		SuperDamage:
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("BloodFXB", 0, 0, 0, frandom(-5, 5), 0, frandom(-5, 5), Frandom(0,360), SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_CustomMissile("WoTExploder", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		SkipDamage:
+			BLBA E 3 Bright
+			TNT1 A 0 A_RearrangePointers(AAPTR_DEFAULT, AAPTR_DEFAULT, AAPTR_TARGET)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("WoTHealer", 0, 0, 0, CMF_TRACKOWNER)
+			BLBA FGH 3 Bright
+		stop
 		Crash:
 			BLBA ABCD 3 Bright A_FadeOut(0.1)
 			BLF2 ABCDEF 3 A_FadeOut(0.1)
 		stop
-		Spawn:
-			BLBA E 2 NoDelay A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon"), "SuperDamage")
-		Goto SkipDamage
-		SuperDamage:
-			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
-			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("BloodFXB", 0, 0, 0, frandom(-5, 5), 0, frandom(-5, 5), Frandom(0,360), SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT3), 160 * (1.0 + user_exprad * exprad_factor), 0, 0, 96 * (1.0 + user_exprad * exprad_factor))
-		SkipDamage:
-			BLBA E 3 Bright
-			TNT1 A 0 A_RearrangePointers(AAPTR_DEFAULT,AAPTR_DEFAULT,AAPTR_TARGET)
-			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 A_CustomMissile("WoTHealer", 0, 0, 0, CMF_TRACKOWNER)
-			BLBA FGH 3 Bright	  
-		stop
 	}
 }
 
-Actor BloodFX2A_FullDMG : BloodFX2A {
-	DamageType "MagicFull"
-	+FORCERADIUSDMG
+Actor WoTExploder : DnD_ExplosiveBase {
+	Speed 0
+	+THRUACTORS
+	States {
+		SpawnState:
+			TNT1 A 0
+		Death:
+			TNT1 A 1
+			TNT1 A 2 ACS_NamedExecuteAlways("DnD Target Fix")
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius * 0.6)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 5
+		Stop
+	}
 }
 
-Actor BloodFX3 : WoTHitFX {
-	Scale 0.75
+Actor BloodFXB : BloodDrainHitFX {
+	+CLIENTSIDEONLY
 	States {
+		Spawn:
+			BLFX ABCDEF 3 BRIGHT
+		stop	
+	}
+}
+
+Actor BloodDrainFX : DnD_BasePuff {
+	RENDERSTYLE "ADD"
+	Alpha 0.75
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_HASSTRSCALING | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_OCCULT)
+			TNT1 A 0 A_SpawnItemEx("BloodDrainHitFX")
+		Goto DoDamage
+		DoDamage:
+			// takes dmg and damage type as args 0 and 1 respectively
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
+			BLFX A 2 A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon"), "GiveAmmo")
+		Stop
+		GiveAmmo:
+			BLF2 A 3 BRIGHT ACS_NamedExecuteAlways("DnD Give Ammo To Target", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
+			BLF2 BCDEF 3 BRIGHT
+		stop
 		Crash:
 			TNT1 A 2 BRIGHT
 		stop
-		Spawn:
-			BLFX ABCDEF 3 BRIGHT
-		stop
 	}
 }
 
-Actor BloodFX3_FullDMG : BloodFX3 {
-	DamageType "MagicFull"
+Actor BloodFX3 : DnD_BasePuff {
+	Scale 0.75
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_HASSTRSCALING | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_OCCULT)
+			TNT1 A 0 A_SpawnItemEx("BloodDrainHitFX")
+		Goto DoDamage
+		Crash:
+			TNT1 A 1
+		Stop
+	}
 }
 
-ACTOR BaneCount: DnD_Boolean { }
+ACTOR BaneCount : DnD_Boolean { }
 
 actor WoTHealer {
 	Height 6
@@ -1100,7 +997,7 @@ Actor ResSSG1 : Weapon {
 	Tag "Plasma Cannon"
 	states {
 		Spawn:
-			RW02 "\" -1
+			//RW02 "\" -1
 		stop
 		Ready:
 			RW02 X 1 A_WeaponReady(WRF_ALLOWRELOAD)
@@ -1118,7 +1015,7 @@ Actor ResSSG1 : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_PLASMACANNON)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 40)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 40, 0, DND_WEAPON_PLASMACANNON)
 	    SelectLoop:
 			RW02 X 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -1234,8 +1131,6 @@ Actor PlasmaCannonShooter : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("PCanClip", 1)
 		NoTake:
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_JumpIfInventory("Cyborg_Perk50", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(0), 0, 0, 0, 1, 4 * sin(0))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(30), 0, 0, 0, 1, 4 * sin(30))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(60), 0, 0, 0, 1, 4 * sin(60))
@@ -1248,20 +1143,6 @@ Actor PlasmaCannonShooter : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(270), 0, 0, 0, 1, 4 * sin(270))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(300), 0, 0, 0, 1, 4 * sin(300))
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * cos(330), 0, 0, 0, 1, 4 * sin(330))
-		Stop
-		Full:
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(0), 0, 0, 0, 1, 4 * sin(0))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(30), 0, 0, 0, 1, 4 * sin(30))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(60), 0, 0, 0, 1, 4 * sin(60))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(90), 0, 0, 0, 1, 4 * sin(90))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(120), 0, 0, 0, 1, 4 * sin(120))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(150), 0, 0, 0, 1, 4 * sin(150))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(180), 0, 0, 0, 1, 4 * sin(180))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(210), 0, 0, 0, 1, 4 * sin(210))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(240), 0, 0, 0, 1, 4 * sin(240))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(270), 0, 0, 0, 1, 4 * sin(270))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(300), 0, 0, 0, 1, 4 * sin(300))
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", 4 * cos(330), 0, 0, 0, 1, 4 * sin(330))
 		Stop
 		
 		FireCircle:
@@ -1279,30 +1160,12 @@ Actor PlasmaCannonShooter : DnD_Activator {
 		Finish:
 			TNT1 A 0
 		Stop
-		
-		FullStart:
-			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", (360.0 / Args[2]) * Args[4], 0)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto FullStart
 	}
 }
 
 Actor PlasmaCannonShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_JumpIfInventory("Cyborg_Perk50", 1, "Full")
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 1 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 6 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -1 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -4 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", -6 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
-		Stop
-		Full:
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 1 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 4 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall", 6 * (1.0 - accuracy * accuracy_factor), 0, 0, 0, 1)
@@ -1326,44 +1189,30 @@ Actor PlasmaCannonShooter2 : DnD_Activator {
 		Finish:
 			TNT1 A 0
 		Stop
-		
-		FullStart:
-			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireCustomMissile("PlasmaCannonBall_FullDMG", (360.0 / Args[2]) * Args[4], 0)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto FullStart
 	}
 }
 
-Actor PlasmaCannonBall {
-	PROJECTILE
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMACANNON << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT3))
-	DamageType "Energy"
+Actor PlasmaCannonBall : DnD_BaseProjectile {
 	Speed 30
 	Radius 5
 	Height 10
-	Renderstyle Add
+	Renderstyle "Add"
 	Alpha 0.75
 	Scale 0.85
 	DeathSound "PlasmaCannon/Hit"
 	Decal "Scorch"
-	+MTHRUSPECIES
 	+DONTREFLECT
 	+FOILINVUL
 	States {
-		Spawn:
+		SpawnState:
 			NPSB ABCDEFGHIJKL 1 Bright
 		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMACANNON << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_ENERGY)
 		Death:
 			PLNS ABCDEFGHIJKLMNOP 1 Bright A_FadeOut(0.025)
 		Stop
 	}
-}
-
-Actor PlasmaCannonBall_FullDMG : PlasmaCannonBall {
-	DamageType "EnergyFull"
 }
 
 Actor ResSSG2 : Weapon {
@@ -1413,8 +1262,8 @@ Actor ResSSG2 : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SHOCKER)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 15)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 6, 3 | (5 << 16))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SHOCKER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 8, 4 | (5 << 16), DND_WEAPON_SHOCKER)
 	    SelectLoop:
 			WSON A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -1524,21 +1373,15 @@ Actor ShockerShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("Cell", 5)
 		NoTake:
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 18))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "Full")
-			TNT1 A 0 A_FireBullets(8.4 * (1.0 - accuracy * accuracy_factor), 6.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 18), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3), "ShockerPuff", FBF_NORANDOM)
-		Stop
-		Full:
-			TNT1 A 0 A_FireBullets(8.4 * (1.0 - accuracy * accuracy_factor), 6.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 18), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3), "ShockerPuff_FullDMG", FBF_NORANDOM)
+			TNT1 A 0 A_FireBullets(8.4 * (1.0 - accuracy * accuracy_factor), 6.2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "ShockerPuff", FBF_NORANDOM)
 		Stop
 		
 		FireCircle:
-			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 18))
-			TNT1 A 0 A_SetArg(3, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "FullStart")
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
@@ -1549,14 +1392,6 @@ Actor ShockerShooter : DnD_Activator {
 		Finish:
 			TNT1 A 0
 		Stop
-		
-		FullStart:
-			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "ShockerPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto FullStart
 	}
 }
 
@@ -1569,126 +1404,76 @@ Actor ShockerShooter2 : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("ShockerOverheat", 10)
 		NoTake:
 			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("ShockerSmokes", 16 * cos(-pitch), frandom(-3.6, 3.6), (24 + frandom(-1.8, 1.8)) * (1 + sin(-pitch)), frandom(2.4, 4.8), frandom(-2.4, 2.4), frandom(2, 3), 0)
+			
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 18))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "Full")
-			TNT1 A 0 A_FireBullets(8.4 * (1.0 - accuracy * accuracy_factor), 6.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 18), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3), "ShockerPuff", FBF_NORANDOM)
+			TNT1 A 0 A_FireBullets(8.4 * (1.0 - accuracy * accuracy_factor), 6.2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "ShockerPuff", FBF_NORANDOM)
 			TNT1 A 0 A_FireCustomMissile("ShockerAreaDamager", 0, 0)
-		Stop
-		Full:
-			TNT1 A 0 A_FireBullets(8.4 * (1.0 - accuracy * accuracy_factor), 6.2 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 18), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3), "ShockerPuff_FullDMG", FBF_NORANDOM)
-			TNT1 A 0 A_FireCustomMissile("ShockerAreaDamager_FullDMG", 0, 0)
 		Stop
 		
 		FireCircle:
-			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 18))
-			TNT1 A 0 A_SetArg(3, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "FullStart")
 			TNT1 A 0 A_FireCustomMissile("ShockerAreaDamager", 0, 0)
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
 		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "ShockerPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "ShockerPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
 			TNT1 A 0 A_SetArg(4, Args[4] - 1)
 		Goto LoopStart
 		Finish:
 			TNT1 A 0
 		Stop
-		
-		FullStart:
-			TNT1 A 0 A_FireCustomMissile("ShockerAreaDamager_FullDMG", 0, 0)
-		FullStart2:
-			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "ShockerPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto FullStart2
 	}
 }
 
-Actor ShockerPuff : BulletPuff {
-	DamageType "Lightning"
-	+RANDOMIZE
-	+NOTIMEFREEZE
-	+NOEXTREMEDEATH
-	+CLIENTSIDEONLY
-	+FORCEPAIN
-	+PUFFONACTORS
-	+FOILINVUL
-	+MTHRUSPECIES
+Actor ShockerPuff : DnD_BasePuff {
 	Scale 0.68
-	RenderStyle Add
+	RenderStyle "Add"
+	+FORCEPAIN
+	+FOILINVUL
+	+NOEXTREMEDEATH
 	States {
-		Spawn:
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Get Shotgun Damage"))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
+		Goto DoDamage
+		DoDamage:
+			// takes dmg and damage type as args 0 and 1 respectively
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
+			EVA6 ABCDEFGH 2 Bright A_FadeOut(0.075)
+		Stop
 		Crash:
 			EVA6 ABCDEFGH 2 Bright A_FadeOut(0.075)
 		Stop
-		Melee:
-			TNT1 A 1
-		Stop
 	}
 }
 
-Actor ShockerPuff_FullDMG : ShockerPuff {
-	DamageType "LightningFull"
-}
-
-Actor ShockerExplosion : BaseExplosionDamage {
-	DamageType "Fire"
-	+FOILINVUL
-	var int user_exprad;
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3), 96 * (1.0 + user_exprad * exprad_factor), 0, 0, 48 * (1.0 + user_exprad * exprad_factor))
-		Stop
-	}
-}
-
-Actor ShockerExplosion_FullDMG : ShockerExplosion {
-	DamageType "FireFull"
-	+FORCERADIUSDMG
-}
-
-Actor ShockerAreaDamager {
-	PROJECTILE
-	Height 2
-	Radius 1
-	Damage (0)
-	DamageType "Fire"
+Actor ShockerAreaDamager : DnD_ExplosiveBase {
 	Speed 16
 	+THRUACTORS
 	+FOILINVUL
 	States {
-		Spawn:
-			TNT1 AAAAAA 1 NoDelay A_SpawnItem("ShockerExplosion")
-		Death:
-			TNT1 A 0 A_Stop
-			TNT1 A 1 
-		Stop
-	}
-}
-
-Actor ShockerAreaDamager_FullDMG : ShockerAreaDamager {
-	DamageType "FireFull"
-	+FORCERADIUSDMG
-	States {
-		Spawn:
-			TNT1 AAAAAA 1 A_SpawnItem("ShockerExplosion_FullDMG")
-		Death:
-			TNT1 A 0 A_Stop
-			TNT1 A 1 
+		SpawnState:
+			TNT1 A 1 A_SetArg(0, 6)
+		Again:
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expradius", 108 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE)
+			TNT1 A 1
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 1 A_SetArg(0, Args[0] - 1)
+			TNT1 A 1 A_JumpIf(Args[0] > 0, "Again")
 		Stop
 	}
 }
 
 Actor ShockerSmokes {
-	Damage (0)
-	DamageType "Fire"
 	Height 4
 	Radius 2
 	Scale 0.1
@@ -1772,10 +1557,10 @@ Actor ResSSG3 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_HADES)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 13)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 2)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_2, 30)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_3, 18)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 13, 0, DND_WEAPON_HADES)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 2, 0, DND_WEAPON_HADES)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 30, 0, DND_WEAPON_HADES)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 18, 0, DND_WEAPON_HADES)
 	    SelectLoop:
 			STRG A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -1918,39 +1703,26 @@ Actor HadesShooter : DnD_Activator {
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_PlaySound("Hades/Fire",1,0.6)
 			TNT1 A 0 A_PlaySound("Hades/Add",5,0.4)
+			
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 15))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HADES << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "Full")
-			TNT1 A 0 A_FireBullets (11.6 * (1.0 - accuracy * accuracy_factor), 9.0 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 15), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HADES << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "HadesPuff", FBF_NORANDOM | FBF_USEAMMO)  
-		Stop
-		Full:
-			TNT1 A 0 A_FireBullets (11.6 * (1.0 - accuracy * accuracy_factor), 9.0 * (1.0 - accuracy * accuracy_factor), ACS_NamedExecuteWithResult("DnD Pellet Count", 15), ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HADES << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3), "HadesPuff_FullDMG", FBF_NORANDOM | FBF_USEAMMO)  
+			TNT1 A 0 A_FireBullets (11.6 * (1.0 - accuracy * accuracy_factor), 9.0 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "HadesPuff", FBF_NORANDOM | FBF_USEAMMO)  
 		Stop
 		
 		FireCircle:
-			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 15))
-			TNT1 A 0 A_SetArg(3, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HADES << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "FullStart")
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
 		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "HadesPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "HadesPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
 			TNT1 A 0 A_SetArg(4, Args[4] - 1)
 		Goto LoopStart
 		Finish:
 			TNT1 A 0
 		Stop
-		
-		FullStart:
-			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "HadesPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto FullStart
 	}
 }
 
@@ -1964,48 +1736,35 @@ Actor HadesShooter2 : DnD_Activator {
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_PlaySound("Hades/Fire",1,0.6)
 			TNT1 A 0 A_PlaySound("Hades/Add",5,0.4)
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "Full")
 			TNT1 A 0 A_SpawnItemEx ("HadesShot",0,0,32,cos(-pitch)*40,0,sin(-pitch)*40,frandom(-1.2, 1.2),SXF_TRANSFERPITCH | SXF_NOCHECKPOSITION | SXF_SETMASTER)
-		Stop
-		Full:
-			TNT1 A 0 A_SpawnItemEx ("HadesShot_FullDMG",0,0,32,cos(-pitch)*40,0,sin(-pitch)*40,frandom(-1.2, 1.2),SXF_TRANSFERPITCH | SXF_NOCHECKPOSITION | SXF_SETMASTER)
 		Stop
 	}
 }
 
-Actor HadesPuff : NewBulletPuff {
-	+PUFFONACTORS
-	+ALWAYSPUFF
-	+PUFFGETSOWNER
+Actor HadesPuff : DnD_BasePuff {
 	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Get Shotgun Damage"))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
+		Goto DoDamage
+		DoDamage:
+			// takes dmg and damage type as args 0 and 1 respectively
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
+			TNT1 AAA 0 A_SpawnItemEx("BigPuffFX_Main", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
+			TNT1 AA 0 A_SpawnItemEx("BigPuffFX_Flash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
+			TNT1 A 1
+			TNT1 A 0 A_CustomMissile("HadesPellet_TargetFix", 0, 0, random(0, 360), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-45, 45))
+			TNT1 AAA 1 A_SpawnItemEx("BigPuffFX_Smoke", 0, 0, 0, frandom(0.15,0.25), 0, frandom(-0.1,0.45), 0, SXF_CLIENTSIDE, 0)
+		Stop
 		Crash:
+		Melee:
 			TNT1 AAA 0 A_SpawnItemEx("BigPuffFX_Main", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
 			TNT1 A 0 A_PlaySound("puff/ric")
 			TNT1 AA 0 A_SpawnItemEx("BigPuffFX_Flash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
 			TNT1 A 0 A_SpawnItemEx("BigPuffFX_Spark1", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
 			TNT1 A 0 A_SpawnItemEx("BigPuffFX_Spark2", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
 			TNT1 A 1
-			TNT1 AAA 1 A_SpawnItemEx("BigPuffFX_Smoke", 0, 0, 0, frandom(0.15,0.25), 0, frandom(-0.1,0.45), 0, SXF_CLIENTSIDE, 0)
-		stop
-		Spawn:
-			TNT1 AAA 0 A_SpawnItemEx("BigPuffFX_Main", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
-			TNT1 AA 0 A_SpawnItemEx("BigPuffFX_Flash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
-			TNT1 A 1
-			TNT1 A 0 A_CustomMissile("HadesPellet_TargetFix", 0, 0, random(0, 360), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-45, 45))
-			TNT1 AAA 1 A_SpawnItemEx("BigPuffFX_Smoke", 0, 0, 0, frandom(0.15,0.25), 0, frandom(-0.1,0.45), 0, SXF_CLIENTSIDE, 0)
-		stop
-	}
-}
-
-Actor HadesPuff_FullDMG : HadesPuff {
-	DamageType "BulletFull"
-	States {
-		Spawn:
-			TNT1 AAA 0 A_SpawnItemEx("BigPuffFX_Main", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
-			TNT1 AA 0 A_SpawnItemEx("BigPuffFX_Flash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
-			TNT1 A 1
-			TNT1 A 0 A_CustomMissile("HadesPellet_TargetFix_FullDMG", 0, 0, random(0, 360), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-45, 45))
 			TNT1 AAA 1 A_SpawnItemEx("BigPuffFX_Smoke", 0, 0, 0, frandom(0.15,0.25), 0, frandom(-0.1,0.45), 0, SXF_CLIENTSIDE, 0)
 		stop
 	}
@@ -2025,7 +1784,7 @@ Actor HadesBurstCooldown : PowerDamage {
 	powerup.duration 7
 }
 
-actor HadesShot : FastProjectile {
+actor HadesShot : DnD_BaseFastProjectile {
 	-NOGRAVITY
 	+NODAMAGETHRUST
 	+THRUGHOST
@@ -2034,10 +1793,7 @@ actor HadesShot : FastProjectile {
 	Radius 4
 	Height 4
 	Speed 40
-	Projectile
 	Scale 1.0
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3))
-	DamageType "Fire"
 	Renderstyle "Normal"
 	Mass 150
 	Gravity 0.3
@@ -2069,7 +1825,8 @@ actor HadesShot : FastProjectile {
 			FX12 BBBBBBB 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
 			FX12 A 0 A_SpawnItemEx("SmokeTrail",random(-6,6),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			FX12 B 1 Light("HadesShellLight") A_JumpIfInTargetInventory("MakeHadesBurst",1,"RainingMen")
-
+			TNT1 A 0 A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
+			
 			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-33,-39),random(-4,4),random(-4,4),0,0,0,0,SXF_NOCHECKPOSITION)
 			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-27,-33),random(-4,4),random(-4,4),0,0,0,0,SXF_NOCHECKPOSITION)
 			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-21,-27),random(-3,3),random(-3,3),0,0,0,0,SXF_NOCHECKPOSITION)
@@ -2285,6 +2042,8 @@ actor HadesShot : FastProjectile {
 			TNT1 A 0 A_TakeFromTarget("HadesBurstFired", 1)
 			TNT1 A 0 A_JumpIfInventory("HadesOnlyDieOnce",1,"Death2")
 			TNT1 A 0 A_PlaySound("imp/shotx",0)
+			
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
 			TNT1 A 1 A_NoBlocking
 		stop
 		Death2:
@@ -2319,62 +2078,40 @@ actor HadesShot : FastProjectile {
 	}
 }
 
-Actor HadesShot_FullDMG : HadesShot {
-	DamageType "FireFull"
-	+THRUGHOST
+Actor HadesPellet_Damager : DnD_BaseProjectile {
+	Radius 8
+	Height 16
+	Speed 12
+	+PAINLESS
 	States {
-		RainingMen:
-			FX12 A 0
-			FX12 A 0 A_TakeFromTarget("MakeHadesBurst",1)
-			TNT1 A 0 A_TakeFromTarget("HadesBurstFired", 1)
-			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-33,-39),random(-4,4),random(-4,4),0,0,0,0,SXF_NOCHECKPOSITION)
-			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-27,-33),random(-4,4),random(-4,4),0,0,0,0,SXF_NOCHECKPOSITION)
-			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-21,-27),random(-3,3),random(-3,3),0,0,0,0,SXF_NOCHECKPOSITION)
-			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-15,-21),random(-3,3),random(-3,3),0,0,0,0,SXF_NOCHECKPOSITION)
-			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-			FX12 AAAAAAA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
-
-			FX12 A 0 A_SpawnItemEx("SmokeTrail",random(-6,6),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-
-			TNT1 A 0 A_PlaySound("Hades/FireImpact",0)
-			FX12 AAAAAAA 0 A_SpawnItemEx("HadesPellet_Split_FullDMG",0,0,0,cos(-pitch)*15,0,sin(-pitch-Random(0,-6))*15,Random(-30,30), SXF_TRANSFERPITCH | SXF_TRANSFERPOINTERS)
-			FX12 AAAAAAA 0 A_SpawnItemEx("HadesPellet_Split_FullDMG",0,0,0,cos(-pitch)*15,0,sin(-pitch-Random(0,8))*15,Random(-30,30), SXF_TRANSFERPITCH | SXF_TRANSFERPOINTERS)
-			FX12 A 0 A_GiveInventory("HadesOnlyDieOnce",1)
-			FX12 A 0 A_TakeFromTarget("MakeHadesBurst",9)
-			FX12 A 1 Light("HadesShellLight") A_SpawnItemEx("HadesPellet_Split_FullDMG",0,0,0,cos(-pitch)*15,0,sin(-pitch-Random(8,-4))*15,Random(-30,30),SXF_TRANSFERPITCH | SXF_TRANSFERPOINTERS)
-			FX12 A 0 A_TakeInventory("HadesOnlyDieOnce",9)
-			TNT1 A 5 A_Stop
+		SpawnState:
+			TNT1 A 1
+		Stop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+		Death:
+			TNT1 A 3
 		Stop
 	}
 }
 
-Actor HadesPellet_Damager : DnD_FakeDamager {
-	Radius 8
-	Height 16
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3))
-	DamageType "FireFull"
-	Speed 24
-	+PAINLESS
+Actor HadesPellet_Split_Damager : HadesPellet_Damager {
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+		Death:
+			TNT1 A 3
+		Stop
+	}
 }
 
-Actor HadesPellet_Split_Damager : DnD_FakeDamager {
-	Radius 8
-	Height 16
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3))
-	DamageType "FireFull"
-	Speed 24
-}
 
-actor HadesPellet {
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3))
-	DamageType "Fire"
+actor HadesPellet : DnD_BaseProjectile {
 	Radius 8
 	Height 16
 	Speed 24
-	Projectile
 	Scale 0.2
+	Damage (1) // oddly enough this must be here, zandronum thinks this is not a valid projectile so bouncing + ripping fails
 	Renderstyle "Normal"
 	Mass 150
 	Gravity 0.3
@@ -2393,27 +2130,30 @@ actor HadesPellet {
 	Alpha 1.0
 	Decal "DoomImpScorch"
 	States {
-		Spawn:
+		SpawnState:
 			TNT1 A 0
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_CustomMissile("HadesPellet_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			SMK2 A 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_CustomMissile("HadesPellet_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			SMK2 B 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 		Loop
 		Bounce:
 			TNT1 A 0 A_ChangeFlag("CORPSE", 1)
 			TNT1 A 0 A_ChangeFlag("RIPPER", 0)
-		Goto Spawn
-		Crash:
+		Goto SpawnState
 		Xdeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+		Crash:
 			TNT1 A 0 A_PlaySound("Hades/FireFX",0)
-			TNT1 A 1 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-2,2),0,0,0,1,Random(-180,180),SXF_NOCHECKPOSITION)
+			TNT1 A 8 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-2,2),0,0,0,1,Random(-180,180),SXF_NOCHECKPOSITION)
 		Stop
 		Death:
 			TNT1 A 0
@@ -2503,91 +2243,40 @@ actor HadesPellet {
 	}
 }
 
-Actor HadesPellet_FullDMG : HadesPellet {
-	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_CustomMissile("HadesPellet_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			SMK2 A 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_CustomMissile("HadesPellet_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			SMK2 B 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-		Loop
-	}
-}
-
 Actor HadesPellet_TargetFix : HadesPellet {
+	Speed 12
 	States {
-		Spawn:
-			TNT1 A 1 NoDelay A_ScaleVelocity(0.1)
+		SpawnState:
+			TNT1 A 1 A_ScaleVelocity(0.1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Target Fix")
-			TNT1 A 1
-			TNT1 A 0 A_ScaleVelocity(1.0)
-		Goto Super::Spawn
-	}
-}
-
-Actor HadesPellet_TargetFix_FullDMG : HadesPellet {
-	Damage (0)
-	+THRUACTORS
-	-RIPPER
-	States {
-		Spawn:
-			TNT1 A 1 NoDelay A_ScaleVelocity(0.1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Target Fix")
-			TNT1 A 1
-			TNT1 A 0 A_ScaleVelocity(1.0)
-		SpawnLoop:
-			TNT1 A 0
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_CustomMissile("HadesPellet_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			SMK2 A 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_CustomMissile("HadesPellet_Damager", 0, 0, 0, CMF_TRACKOWNER)
-			SMK2 B 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
-		Loop
+			TNT1 A 1 A_ScaleVelocity(10.0)
+		Goto Super::SpawnState
 	}
 }
 
 Actor HadesPellet_Split : HadesPellet {
-	Damage(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3))
-	BounceType Doom
-}
-
-Actor HadesPellet_Split_FullDMG : HadesPellet {
-	Damage (0)
-	BounceType Doom
-	+THRUACTORS
-	-RIPPER
 	States {
-		Spawn:
+		SpawnState:
 			TNT1 A 0
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_CustomMissile("HadesPellet_Split_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("HadesPellet_Split_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			SMK2 A 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-9,-15),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-3,-9),random(-2,2),random(-2,2),0,0,0,0,SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-3,3),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			TNT1 AA 0 A_SpawnItemEx("SmokeTrail2",random(-2,-11),random(-3,3),random(-3,3),random(-1,1),random(-1,1),random(-1,1),Random(-180,180),SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_CustomMissile("HadesPellet_Split_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("HadesPellet_Split_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			SMK2 B 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 		Loop
+		Xdeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+		Crash:
+			TNT1 A 0 A_PlaySound("Hades/FireFX",0)
+			TNT1 A 8 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-2,2),0,0,0,1,Random(-180,180),SXF_NOCHECKPOSITION)
+		Stop
 	}
 }
 
@@ -2598,7 +2287,7 @@ actor WussyHadesPellet : HadesPellet {
 	Gravity 0.6
 	Decal None
 	States {
-		Spawn:
+		SpawnState:
 			TNT1 A 0
 			TNT1 AAA 0 A_SpawnItemEx("WussySmokeTrail",random(-2,2),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 			PUFF A 1 Light("TinyHadesShellLight") A_SpawnItemEx("WussySmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
@@ -2614,7 +2303,7 @@ actor WussyHadesPellet : HadesPellet {
 			TNT1 A 0 A_ChangeVelocity(random(-2,5),random(-4,4),0,CVF_RELATIVE)
 			SPSN B 0 A_ChangeFlag("CORPSE",1)
 			SPSN B 0 A_ChangeFlag("RIPPER",0)
-		Goto Spawn
+		Goto SpawnState
 		Crash:
 			TNT1 A 0 A_PlaySound("Hades/FireFX5",0)
 			TNT1 A 1
