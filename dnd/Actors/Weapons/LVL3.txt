@@ -1960,7 +1960,7 @@ Actor SilverShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
 		LoopContinue:
-			TNT1 A 0 A_FireBullets((180.0 / Args[2]) * 2 * Args[4], 0, -1, 0, "WhiteDeathPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "WhiteDeathPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
 			TNT1 A 0 A_SetArg(4, Args[4] - 1)
 		Goto LoopStart
 		Finish:

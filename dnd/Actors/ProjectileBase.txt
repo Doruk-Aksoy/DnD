@@ -338,6 +338,11 @@ Actor DnD_BaseProjectile {
 	}
 }
 
+Actor DnD_CullSuccess : PowerProtection {
+	damagefactor "normal", 1.0
+	Powerup.Duration 18
+}
+
 // Fast projectiles dont run inventory items in time on spawn, so a manual pre-emptive approach is required through custom inventory checks in wep
 Actor DnD_BaseFastProjectile : FastProjectile {
 	PROJECTILE

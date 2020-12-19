@@ -42,6 +42,7 @@
 *.idb
 *.pdb
 
+*.pk3
 *.pk7
 *.lmp
 
