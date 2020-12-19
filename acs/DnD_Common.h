@@ -189,6 +189,27 @@ int abs (int x) {
 	return x;
 }
 
+// INT_MAX has 10 digits
+int PowersOf10[10] = {
+	1,
+	10,
+	100,
+	1000,
+	10000,
+	100000,
+	1000000,
+	10000000,
+	100000000,
+	1000000000
+};
+
+int digitcount(int x) {
+	int res = 1;
+	while((x /= 10))
+		++res;
+	return res;
+}
+
 int fdistance (int tid1, int tid2) {
 	int len;
 	int y = getactory(tid1) - getactory(tid2);

@@ -3,6 +3,7 @@
 
 enum {
 	DND_DAMAGETYPE_PHYSICAL,
+	DND_DAMAGETYPE_SILVERBULLET,
 	DND_DAMAGETYPE_ENERGY,
 	DND_DAMAGETYPE_EXPLOSIVES,
 	DND_DAMAGETYPE_OCCULT,
@@ -12,6 +13,7 @@ enum {
 	DND_DAMAGETYPE_FIRE,
 	DND_DAMAGETYPE_ICE,
 	DND_DAMAGETYPE_POISON,
+	DND_DAMAGETYPE_DESOLATOR,
 	DND_DAMAGETYPE_EMERALD,
 	DND_DAMAGETYPE_LIGHTNING
 };
@@ -19,6 +21,7 @@ enum {
 
 str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Bullet",
+	"BulletMagicX",
 	"Energy",
 	"Explosives",
 	"Magic",
@@ -28,6 +31,7 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Fire",
 	"Ice",
 	"Poison",
+	"Desolator",
 	"Emerald",
 	"Lightning"
 };
@@ -37,8 +41,14 @@ enum {
 	DND_DAMAGEFLAG_FORCERADIUSDMG 		= 			0b10,
 	DND_DAMAGEFLAG_USEMASTER 			= 			0b100,
 	DND_DAMAGEFLAG_ISSHOTGUN 			= 			0b1000,
-	//DND_DAMAGEFLAG_EXTRATODEMON 		= 			0b10000,
+	DND_DAMAGEFLAG_CULL 				= 			0b10000,
+	DND_DAMAGEFLAG_SELFCULL				=			0b100000,
+	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE	=			0b1000000,
 };
+
+#define DND_CULL_BASEPERCENT 10 // 1 / 10
+#define DND_DESOLATOR_DMG_GAIN 10 // 10%
+#define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
 
 void AdjustDamageRetrievePointers(int flags) {
 	int temp;
@@ -73,6 +83,29 @@ void AdjustDamageRetrievePointers(int flags) {
 		GiveInventory("MarkAsReflected", 1);
 		SetActivator(GetActorProperty(0, APROP_SCORE));
 	}
+}
+
+int BigNumberFormula(int dmg, int f) {
+	int p = PowersOf10[(digitcount(dmg) + 1) / 2];
+	int wepid = dmg % p;
+	int temp = 0;
+	dmg /= p;
+	
+	// get rid of 0.9999 crap
+	f = f * 100 + 0.001;
+	f >>= 16;
+	
+	dmg *= f;
+	temp = (dmg % 100) * p / 100;
+	dmg /= 100;
+	dmg *= p;
+	
+	wepid *= f;
+	wepid /= 100;
+	
+	dmg += wepid + temp;
+
+	return dmg;
 }
 
 // pellets is used for shotgun / burst type attacks which share the same damage uniformly to avoid recalculation of multiple of these
@@ -220,10 +253,21 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	else {
 		// Get the cached flat dmg and factor and apply them both
 		dmg += GetCachedPlayerFlatDamage(pnum, dmgid);
-		dmg *= GetCachedPlayerFactor(pnum, dmgid);
+		
+		// if there would be an overflow with dmg x temp (temp in [1.0, 65536.0], fixed)
+		// scale each part individually then add it up to form the new number -- 1000 seems to be a nice value for doom ranges
+		// but in general, the best result comes from an evenly split value
+		temp = GetCachedPlayerFactor(pnum, dmgid);
+		if(dmg < INT_MAX / temp) {
+			dmg *= temp;
+			dmg >>= 16;
+		}
+		else {
+			// beyond this point wepid doesnt matter so use that instead
+			dmg = BigNumberFormula(dmg, temp);
+		}
 		
 		// factor was stored as fixed, convert to int
-		dmg >>= 16;
 		printbold(s:"from cache ", d:GetCachedPlayerFlatDamage(pnum, dmgid), s: " ", f:GetCachedPlayerFactor(pnum, dmgid));
 	}
 	
@@ -242,11 +286,21 @@ int HandleWeaponCrit(int dmg, int wepid, int pnum, int dmgid, bool isSpecial) {
 	return dmg;
 }
 
+// there may be things that add + to cull % later
+bool CheckCullRange(int source, int victim, int dmg) {
+	return GetActorProperty(victim, APROP_HEALTH) - dmg <= MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / DND_CULL_BASEPERCENT;
+}
+
+bool IsElementalDamage(int damage_type) {
+	return damage_type >= DND_DAMAGETYPE_FIRE && damage_type <= DND_DAMAGETYPE_LIGHTNING;
+}
+
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // dmg value is FIXED POINT NOT INT!
 // This is strictly for player doing damage to other monsters!
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags) {
 	str s_damagetype = DamageTypeList[damage_type];
+	int temp;
 	// for now, just add full suffix at the end, later we'll instead make them bypass resists properly with numbers
 	if(
 		CheckActorInventory(source, "NetherCheck") 																				|| 
@@ -256,7 +310,36 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	)
 		s_damagetype = StrParam(s:s_damagetype, s:"Full");
 	
-	dmg >>= 16;
+	// desolator damage increase
+	if(damage_type == DND_DAMAGETYPE_DESOLATOR) {
+		if(!CheckActorInventory(victim, "DesolatorStackCounter")) {
+			GiveActorInventory(victim, "DesolatorStackTimer", 52);
+			ACS_NamedExecuteAlways("DND Desolator Debuff FX", 0, victim);
+		}
+		else
+			GiveActorInventory(victim, "DesolatorStackTimer", 17);
+		GiveActorInventory(victim, "DesolatorStackCounter", 1);
+	}
+	
+	// increase damage they take from elemental attacks for each stack
+	if(IsElementalDamage(damage_type)) {
+		temp = CheckActorInventory(victim, "DesolatorStackCounter");
+		// 10% increase from desolator
+		if(temp)
+			dmg = dmg * (100 + temp * DND_DESOLATOR_DMG_GAIN) / 100;
+	}
+	
+	// handle resists and all that here
+	
+	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
+		GiveActorInventory(victim, "DnD_CullSuccess", 1);
+		
+		if(flags & DND_DAMAGEFLAG_SELFCULL)
+			Thing_Destroy(victim, false, 0);
+	}
+	
+	printbold(s:"apply ", d:dmg);
+	
 	Thing_Damage2(victim, dmg, DamageTypeList[damage_type]);
 }
 
@@ -278,7 +361,6 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	// turn them to fixed
 	radius <<= 16;
 	fullradius <<= 16;
-	dmg <<= 16;
 	for(int i = 0; i < lim; ++i) {
 		int mon_id = PlayerExplosionList[pnum].list[instance].monsters[i];
 
@@ -306,13 +388,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 			// we will reduce damage if we are past fullradius and within radius
 			if(dist > fullradius && dist <= radius) {
 				// printbold(s:"dist ", f:dist, s:" factor ", f:FixedDiv(radius - dist, radius - fullradius));
-				final_dmg = FixedMul(final_dmg, FixedDiv(radius - dist, radius - fullradius));
+				final_dmg = (final_dmg * FixedDiv(radius - dist, radius - fullradius)) >> 16;
 			}
 		}
 		
 		// dont deal 0 dmg
 		if(!final_dmg)
-			final_dmg = 1.0;
+			final_dmg = 1;
 		
 		HandleDamageDeal(owner, mon_id, final_dmg, damage_type, flags);
 		
@@ -343,11 +425,14 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int victim = GetActorProperty(0, APROP_TRACERTID);
 	
+	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
+		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
+	
 	// printbold(d:owner, s: " ", d:victim);
 	SetActivator(owner);
 	
 	if(owner && victim)
-		HandleDamageDeal(owner, victim, dmg << 16, damage_type, flags);
+		HandleDamageDeal(owner, victim, dmg, damage_type, flags);
 	
 	SetResultValue(0);
 }

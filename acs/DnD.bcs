@@ -3222,45 +3222,13 @@ Script "DND Desolator FX Spawn" (int tracer) CLIENTSIDE {
 	Spawn("DesolatorDebuffFXSpawner", GetActorX(tracer), GetActorY(tracer), GetActorZ(tracer), 0);
 }
 
-Script "DND Desolator Debuff FX" (void) {
-	int tracer = ActivatorTID();
-	if(CheckActorInventory(tracer, "DesolatorStack1")) {
-		TakeActorInventory(tracer, "DesolatorStack1", 1);
-		GiveActorInventory(tracer, "DesolatorStack2", 1);
-	}
-	else if(CheckActorInventory(tracer, "DesolatorStack2")) {
-		TakeActorInventory(tracer, "DesolatorStack2", 1);
-		GiveActorInventory(tracer, "DesolatorStack3", 1);
-	}
-	else if(CheckActorInventory(tracer, "DesolatorStack3")) {
-		TakeActorInventory(tracer, "DesolatorStack3", 1);
-		GiveActorInventory(tracer, "DesolatorStack4", 1);
-	}
-	else if(CheckActorInventory(tracer, "DesolatorStack4")) {
-		TakeActorInventory(tracer, "DesolatorStack4", 1);
-		GiveActorInventory(tracer, "DesolatorStack5", 1);
-	}
-	else if(!CheckActorInventory(tracer, "DesolatorStack5"))
-		GiveActorInventory(tracer, "DesolatorStack1", 1);
-	
-	GiveActorInventory(tracer, "DesolatorScriptRunning", 1);
-	if(CheckActorInventory(tracer, "DesolatorScriptRunning") == 2)
-		Terminate;
-	while(
-			isActorAlive(tracer) &&
-			(
-				CheckActorInventory(tracer, "DesolatorStack1") || 
-				CheckActorInventory(tracer, "DesolatorStack2") ||
-				CheckActorInventory(tracer, "DesolatorStack3") ||
-				CheckActorInventory(tracer, "DesolatorStack4") ||
-				CheckActorInventory(tracer, "DesolatorStack5")
-			)
-		)
-	{
+Script "DND Desolator Debuff FX" (int tracer) {
+	while(isActorAlive(tracer) && CheckActorInventory(tracer, "DesolatorStackTimer")) {
 		ACS_NamedExecuteAlways("DND Desolator FX Spawn", 0, tracer);
-		Delay(1);
+		TakeActorInventory(tracer, "DesolatorStackTimer", 1);
+		Delay(const:1);
 	}
-	TakeActorInventory(tracer, "DesolatorScriptRunning", 2);
+	TakeActorInventory(tracer, "DesolatorStackCounter", 99);
 }
 
 Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
