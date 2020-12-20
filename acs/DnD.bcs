@@ -3100,6 +3100,7 @@ Script "tester shit" (void) {
 // accessed by puffs so target is the player -- we need this construct because we cant use Args of player in here
 Script "DnD Get Shotgun Damage" (void) {
 	SetActivatorToTarget(0);
+	//printbold(s:"shotgun damage returrn: ", d:CheckInventory("DnD_ShotgunDamageHolder"));
 	SetResultValue(CheckInventory("DnD_ShotgunDamageHolder"));
 }
 

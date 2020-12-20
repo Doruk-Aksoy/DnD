@@ -264,6 +264,9 @@ Actor ShotgunPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -274,6 +277,9 @@ Actor ShotgunPuff_Rail : DnD_BaseRailPuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 		Crash:
 			TNT1 A 0 A_SpawnDebris("SparkPuff", 1)
 			TNT1 A 0 A_SpawnItemEx("WallHitSpark", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
@@ -837,7 +843,7 @@ Actor EmeraldShooter : DnD_Activator {
 			TNT1 AAAAA 0 A_FireCustomMissile("GreenTracer", frandom(-6, 6),0,0,0,0, frandom(-4.25, 4.25))
 			
 			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 5))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_EMERALDWAND << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT3, Args[DND_ARG_SHOTGUNPELLETS])
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_EMERALDWAND << 16), TALENT_ELEMENTAL, DND_ISSLOT3, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_FireBullets(6.0 * (1.0 - accuracy * accuracy_factor), 4.25 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "EmeraldPuff", FBF_USEAMMO | FBF_NORANDOM)
 		Stop
@@ -873,30 +879,21 @@ Actor EmeraldShooter2 : DnD_Activator {
 	}
 }
 
-actor EmeraldPuff_FX {
-	renderstyle "Add"
-	+NOINTERACTION
-	+CLIENTSIDEONLY
-	Scale 0.5
-	states {
-		Spawn:
-			IDSE AABBCCDD 1 bright A_FadeOut(0.05)
-		Stop
-	}
-}
-
 Actor EmeraldPuff : DnD_BasePuff {
+	renderstyle "Add"
+	Scale 0.5
 	+BLOODLESSIMPACT
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Get Shotgun Damage"))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_EMERALD)
-			TNT1 A 0 A_SpawnItemEx("EmeraldPuff_FX")
 		Goto DoDamage
+		AfterDamage:
+			IDSE AABBCCDD 1 bright A_FadeOut(0.05)
+		Stop
 		Crash:
 		Melee:
-			TNT1 A 1 A_SpawnItemEx("EmeraldPuff_FX")
-		Stop
+		Goto AfterDamage
 	}
 }
 
@@ -2010,16 +2007,13 @@ Actor WhiteDeathPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Get Shotgun Damage"))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
-			TNT1 A 0 A_CustomMissile("ExplodingPuff", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 
 		Goto DoDamage
-		DoDamage:
-			// takes dmg and damage type as args 0 and 1 respectively
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
-			TNT1 A 15
-		Stop
-		Crash:
+		AfterDamage:
 			TNT1 A 15 A_CustomMissile("ExplodingPuff", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 		Stop
+		Crash:
+		Goto AfterDamage
 	}
 }
 

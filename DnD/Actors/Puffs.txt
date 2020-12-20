@@ -1,5 +1,5 @@
 // this contains the base puffstate that is common to most of the puffs when they hit a wall
-Actor NewBulletPuff : DnD_BasePuff {
+Actor NewBulletPuff : BulletPuff {
 	States {
 		PuffState:
 			PUFF A 0

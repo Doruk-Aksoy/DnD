@@ -554,6 +554,9 @@ Actor MGPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MACHINEGUN << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -728,6 +731,9 @@ Actor HMGPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYMACHINEGUN << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -908,58 +914,48 @@ Actor LeadShooter : DND_Activator {
 	}
 }
 
-Actor LeadBulletPuff_FX {
+Actor LeadBulletPuff : DnD_BasePuff {
 	Renderstyle "Add"
 	Alpha 0.6
 	Scale 0.1
-	+CLIENTSIDEONLY
-	+NOINTERACTION
-	var int user_scaler;
-	States {
-	  Spawn:
-	  Melee:
-		TNT1 A 0 NoDelay A_SetUserVar("user_scaler", 1) 
-		TNT1 a 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
-	Type1:
-		DB21 ABCDEFGHI 1 Bright A_SetScale(scaleX + user_scaler * 0.01)
-		Stop
-	Type2:
-		DB21 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type3:
-		DB22 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type4:
-		DB22 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type5:
-		DB23 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type6:
-		DB23 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type7:
-		DB24 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	Type8:
-		DB24 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
-		Stop
-	}
-}
-
-Actor LeadBulletPuff : DnD_BasePuff {
 	Decal "LeadBulletDecal"
+	var int user_scaler;
 	+FOILINVUL
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LEADSPITTER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SpawnItemEx("LeadBulletPuff_FX")
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 0 A_SetUserVar("user_scaler", 1) 
+			TNT1 a 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
+		Type1:
+			DB21 ABCDEFGHI 1 Bright A_SetScale(scaleX + user_scaler * 0.01)
+		Stop
+		Type2:
+			DB21 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type3:
+			DB22 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type4:
+			DB22 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type5:
+			DB23 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type6:
+			DB23 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type7:
+			DB24 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type8:
+			DB24 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
 		Crash:
 		Melee:
-			TNT1 A 1 A_SpawnItemEx("LeadBulletPuff_FX")
-		Stop
+		Goto AfterDamage
 	}
 }
 
@@ -1489,9 +1485,7 @@ Actor DesolatorPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_DESOLATOR)
 			TNT1 A 0 A_SpawnItemEx("DesolatorPuff_FX")
 		Goto DoDamage
-		DoDamage:
-			// takes dmg and damage type as args 0 and 1 respectively
-			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
+		AfterDamage:
 			TNT1 A 1 A_JumpIfInventory("DesolatorStackCounter", 0, "Stack5", AAPTR_TRACER)
 		Stop
 		Stack5:
@@ -2008,6 +2002,9 @@ Actor ThrottlePuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MINIGUN << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 

@@ -79,6 +79,9 @@ Actor PistolPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -360,6 +363,9 @@ Actor AkimboPistolPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_AKIMBOPISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -516,6 +522,9 @@ Actor MagnumPistolPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MAGNUM << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -525,6 +534,9 @@ Actor MagnumPistolPuff_Rail : DnD_BaseRailPuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MAGNUM << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -734,18 +746,24 @@ Actor LPistolCharge : Ammo {
 	+IGNORESKILL
 }
 
-Actor LaserPistolPuff_FX {
-	+CLIENTSIDEONLY
-	+NOINTERACTION
-	+FORCEXYBILLBOARD
+Actor LaserPistolPuff_0 : DnD_BasePuff {
 	Scale 0.1
 	RenderStyle "Add"
 	Alpha 0.99
 	Translation "0:255=%[0,0,0]:[0.6,1.0,1.8]"
 	var int user_scaler;	// this one is to easily tweak the inherited versions
+	+FOILINVUL
+	+FORCEXYBILLBOARD
 	States {
-		Spawn:
-			TNT1 A 0
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LASERPISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
+		Goto DoDamage
+		Crash:
+		Melee:
+		Goto AfterDamage
+		
+		AfterDamage:
 			TNT1 A 0 A_SetUserVar("user_scaler", 1) 
 			TNT1 a 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
 		Type1:
@@ -775,89 +793,77 @@ Actor LaserPistolPuff_FX {
 	}
 }
 
-Actor LaserPistolPuff_FX2 : LaserPistolPuff_FX {
-	Scale 0.1
-	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_SetUserVar("user_scaler", 3)
-			TNT1 A 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
-		Goto Type1
-	}
-}
-
-Actor LaserPistolPuff_0 : DnD_BasePuff {
-	+FOILINVUL
-	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LASERPISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SpawnItemEx("LaserPistolPuff_FX")
-		Goto DoDamage
-		Crash:
-		Melee:
-			TNT1 A 1 A_SpawnItemEx("LaserPistolPuff_FX")
-		Stop
-	}
-}
-
 Actor LaserPistolPuff_1 : DnD_BaseRailPuff {
+	Scale 0.1
+	RenderStyle "Add"
+	Alpha 0.99
+	Translation "0:255=%[0,0,0]:[0.6,1.0,1.8]"
+	var int user_scaler;	// this one is to easily tweak the inherited versions
+	+FORCEXYBILLBOARD
 	+FOILINVUL
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_LASERPISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SpawnItemEx("LaserPistolPuff_FX2")
 		Goto DoDamage
 		Crash:
 		Melee:
-			TNT1 A 1 A_SpawnItemEx("LaserPistolPuff_FX2")
+		Goto AfterDamage
+		
+		AfterDamage:
+			TNT1 A 0 A_SetUserVar("user_scaler", 3) 
+			TNT1 a 0 A_Jump(255,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8")
+		Type1:
+			DB21 ABCDEFGHI 1 Bright A_SetScale(scaleX + user_scaler * 0.01)
+		Stop
+		Type2:
+			DB21 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type3:
+			DB22 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type4:
+			DB22 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type5:
+			DB23 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type6:
+			DB23 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type7:
+			DB24 ABCDEFGHI 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
+		Stop
+		Type8:
+			DB24 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
 		Stop
 	}
 }
 
-Actor LaserPistolPuff_2 : DnD_BaseRailPuff {
-	+FOILINVUL
+Actor LaserPistolPuff_2 : LaserPistolPuff_1 {
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_LASERPISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SpawnItemEx("LaserPistolPuff_FX2")
 		Goto DoDamage
-		Crash:
-		Melee:
-			TNT1 A 1 A_SpawnItemEx("LaserPistolPuff_FX2")
-		Stop
 	}
 }
 
-Actor LaserPistolPuff_3 : DnD_BaseRailPuff {
-	+FOILINVUL
+Actor LaserPistolPuff_3 : LaserPistolPuff_1 {
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_LASERPISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SpawnItemEx("LaserPistolPuff_FX2")
 		Goto DoDamage
-		Crash:
-		Melee:
-			TNT1 A 1 A_SpawnItemEx("LaserPistolPuff_FX2")
-		Stop
 	}
 }
 
-Actor LaserPistolPuff_4 : DnD_BaseRailPuff {
-	+FOILINVUL
+Actor LaserPistolPuff_4 : LaserPistolPuff_1 {
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_LASERPISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SpawnItemEx("LaserPistolPuff_FX2")
 		Goto DoDamage
-		Crash:
-		Melee:
-			TNT1 A 1 A_SpawnItemEx("LaserPistolPuff_FX2")
-		Stop
 	}
 }
 

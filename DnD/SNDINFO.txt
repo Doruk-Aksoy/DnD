@@ -59,6 +59,7 @@ RhinoRifle/Fire2		RHINFIR2
 RhinoRifle/Fire3		RHINFIR3
 RhinoRifle/Fire4		RHINFIR4
 $random RhinoRifle/Fire { RhinoRifle/Fire1 RhinoRifle/Fire2 RhinoRifle/Fire3 RhinoRifle/Fire4 }
+$limit RhinoRifle/Fire 0
 $limit RhinoRifle/Fire1 0
 $limit RhinoRifle/Fire2 0
 $limit RhinoRifle/Fire3 0

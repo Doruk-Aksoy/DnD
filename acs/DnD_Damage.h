@@ -5,8 +5,10 @@ enum {
 	DND_DAMAGETYPE_PHYSICAL,
 	DND_DAMAGETYPE_SILVERBULLET,
 	DND_DAMAGETYPE_ENERGY,
+	DND_DAMAGETYPE_ENERGYEXPLOSION,
 	DND_DAMAGETYPE_EXPLOSIVES,
 	DND_DAMAGETYPE_OCCULT,
+	DND_DAMAGETYPE_OCCULTFIRE,
 	DND_DAMAGETYPE_OCCULTEXPLOSION,
 
 	// elemental types
@@ -23,13 +25,15 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Bullet",
 	"BulletMagicX",
 	"Energy",
+	"EnergyExp",
 	"Explosives",
 	"Magic",
+	"MagicFire",
 	"Explosives_Magic",
 	
 	// elemental
 	"Fire",
-	"Ice",
+	"P_Ice",
 	"Poison",
 	"Desolator",
 	"Emerald",
@@ -44,11 +48,17 @@ enum {
 	DND_DAMAGEFLAG_CULL 				= 			0b10000,
 	DND_DAMAGEFLAG_SELFCULL				=			0b100000,
 	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE	=			0b1000000,
+	DND_DAMAGEFLAG_NOPOISONSTACK		=			0b10000000,
+	DND_DAMAGEFLAG_HALFDMGSELF			=			0b100000000,
+	DND_DAMAGEFLAG_INFLICTPOISON		=			0b1000000000,	
 };
 
 #define DND_CULL_BASEPERCENT 10 // 1 / 10
 #define DND_DESOLATOR_DMG_GAIN 10 // 10%
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
+#define DND_BASE_POISON_STACKS 5
+#define DND_BASE_POISON_TIMER 3.0
+#define DND_BASE_POISON_TIC 0.5
 
 void AdjustDamageRetrievePointers(int flags) {
 	int temp;
@@ -291,8 +301,20 @@ bool CheckCullRange(int source, int victim, int dmg) {
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / DND_CULL_BASEPERCENT;
 }
 
+bool IsEnergyDamage(int damage_type) {
+	return damage_type >= DND_DAMAGETYPE_ENERGY && damage_type <= DND_DAMAGETYPE_ENERGYEXPLOSION;
+}
+
+bool IsOccultDamage(int damage_type) {
+	return damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_OCCULTEXPLOSION;
+}
+
 bool IsElementalDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_FIRE && damage_type <= DND_DAMAGETYPE_LIGHTNING;
+}
+
+bool IsPoisonDamage(int damage_type) {
+	return damage_type >= DND_DAMAGETYPE_POISON && damage_type <= DND_DAMAGETYPE_EMERALD;
 }
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
@@ -304,8 +326,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	// for now, just add full suffix at the end, later we'll instead make them bypass resists properly with numbers
 	if(
 		CheckActorInventory(source, "NetherCheck") 																				|| 
-		(damage_type == DND_DAMAGETYPE_OCCULT) && CheckActorInventory(source, "DnD_QuestReward_DreamingGodBonus")				||
-		(damage_type == DND_DAMAGETYPE_ENERGY && CheckActorInventory(source, "Cyborg_Perk50")) 									||
+		(IsOccultDamage(damage_type) && CheckActorInventory(source, "DnD_QuestReward_DreamingGodBonus"))						||
+		(IsEnergyDamage(damage_type) && CheckActorInventory(source, "Cyborg_Perk50")) 											||
 		((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckActorInventory(source, "Hobo_Perk50"))
 	)
 		s_damagetype = StrParam(s:s_damagetype, s:"Full");
@@ -322,7 +344,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	}
 	
 	// increase damage they take from elemental attacks for each stack
-	if(IsElementalDamage(damage_type)) {
+	// poison damage gets sent already scaled, dont scale twice
+	if(IsElementalDamage(damage_type) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
 		temp = CheckActorInventory(victim, "DesolatorStackCounter");
 		// 10% increase from desolator
 		if(temp)
@@ -337,8 +360,17 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		if(flags & DND_DAMAGEFLAG_SELFCULL)
 			Thing_Destroy(victim, false, 0);
 	}
+	printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
+	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
+		// poison damage deals 10% of its damage per stack over 3 seconds
+		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS) {
+			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, dmg / 10);
+			printbold(s:"poison received by ", d:victim);
+		}
+	}
 	
-	printbold(s:"apply ", d:dmg);
+	printbold(s:"apply ", d:dmg, s: " of type ", s:DamageTypeList[damage_type]);
 	
 	Thing_Damage2(victim, dmg, DamageTypeList[damage_type]);
 }
@@ -347,7 +379,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	int pnum = owner - P_TIDSTART;
 	// extract flags off damage type
 	int flags = damage_type >> 16;
-	damage_type = 0xFFFF;
+	damage_type &= 0xFFFF;
 	
 	int instance = PlayerExplosionList[pnum].curr_instance;
 	int lim = PlayerExplosionList[pnum].list[instance].amt;
@@ -435,6 +467,37 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 		HandleDamageDeal(owner, victim, dmg, damage_type, flags);
 	
 	SetResultValue(0);
+}
+
+Script "DnD Do Poison Damage" (int victim, int dmg) {
+	int time_limit = DND_BASE_POISON_TIMER;
+	int counter = 0, tics = DND_BASE_POISON_TIC, base_tics = tics;
+	int freq = FixedDiv(time_limit, tics) >> 16;
+
+	dmg /= freq;
+	if(!dmg)
+		dmg = 1;
+		
+	while(counter < time_limit && GetActorProperty(victim, APROP_HEALTH) > 0) {
+		if(counter >= tics) {
+			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK);
+			tics += base_tics;
+			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
+		}
+		counter += 0.1;
+		Delay(const:2);
+	}
+	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
+	SetResultValue(0);
+}
+
+Script "DnD Spawn Poison FX" (int orig, int amt) CLIENTSIDE {
+	int r = GetActorProperty(orig, APROP_RADIUS);
+	int h = GetActorProperty(orig, APROP_HEIGHT);
+	for(int i = 0; i <= amt; ++i) {
+		SpawnForced("DnD_PoisonFX", GetActorX(orig) + random(-r, r), GetActorY(orig) + random(-r, r), GetActorZ(orig) + random(-h, h), 0);
+		Delay(random(1, 3));
+	}
 }
 
 #endif
