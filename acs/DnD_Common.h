@@ -25,6 +25,8 @@
 #define ASPECT_16_9 (16.0 / 9)
 #define ASPECT_16_10 1.6
 
+#define DND_VIEWCHECK_DENSITY 8
+
 enum {
 	DND_PLAYER_DOOMGUY,
 	DND_PLAYER_MARINE,
@@ -242,6 +244,20 @@ int fdistance_delta(int dx, int dy, int dz) {
 	else len = fixeddiv(len, cos(ang));
 
 	return len;
+}
+
+bool MaxAngleDiff (int m1, int m2, int maxdiff) {
+	int x = GetActorX(m2) - GetActorX(m1);
+	int y = GetActorY(m2) - GetActorY(m1);
+	int pang = GetActorAngle(m1);
+	int angdiff = VectorAngle(x, y);
+	return angdiff <= pang + maxdiff && angdiff >= pang - maxdiff;
+}
+
+void FaceActor(int this, int to) {
+	int x = GetActorX(to) - GetActorX(this);
+	int y = GetActorY(to) - GetActorY(this);
+	SetActorAngle(this, VectorAngle(x, y));
 }
 
 bool player_pickup_cubes_intersect(int player_tid, int object_tid) {

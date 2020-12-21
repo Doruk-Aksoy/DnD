@@ -3285,6 +3285,105 @@ Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
     }
 }
 
+// currently does 90 degree scan from players fov
+Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int flags) {
+	// scan field of view
+	// check all monsters
+	static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAXSCANTRACER];
+	
+	int scan_id = tracer_count >> 16;
+	tracer_count &= 0xFFFF;
+	
+	int scan_dist = ScanAttackData[scan_id].max_dist;
+	int scan_fov = ScanAttackData[scan_id].fov;
+	
+	int dist = scan_dist, i, j, k, temp;
+	
+	int tcount = 0;
+	int tidlim = 0;
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int pnum = owner - P_TIDSTART;
+	
+	// init list
+	for(i = 0; i < DND_MAXSCANTRACER; ++i) {
+		tlist[pnum][i].tid = 0;
+		tlist[pnum][i].dist = scan_dist;
+	}
+	
+	// face player to the originator temporarily to get projection to there
+	/*int prev_ang = GetActorAngle(owner);
+	FaceActor(owner, 0);*/
+	
+	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg);
+	// pick tracer_count closest enemies
+	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+		if(IsActorAlive(i)) {
+			dist = fdistance(owner, i);
+			//printbold(s:"Checking ", s:GetActorClass(i));
+			if(dist < scan_dist && MaxAngleDiff(owner, i, scan_fov) && CheckSight(owner, i, 0)) {
+				//printbold(s:"approved ", s:GetActorClass(i), s: " ", d:i);
+				// insert sorted
+				temp = tcount;
+				// while our calc dist > alloc dist, keep going -- we add things to the end
+				// if we come by a point where we are smaller, shift things
+				for(j = 0; j < temp && dist > tlist[pnum][j].dist; ++j);
+
+				// we know where to add, check if we must shift (if we should)
+				if(j < temp) {
+					// less, so that means we are in-between things
+					// push everything for insertion
+					// this is needed to move in 0 index shifts
+					if(temp == DND_MAXSCANTRACER)
+						--temp;
+					
+					for(k = temp; k > j; --k) {
+						// slide data
+						tlist[pnum][k].dist = tlist[pnum][k - 1].dist;
+						tlist[pnum][k].tid = tlist[pnum][k - 1].tid;
+					}
+				}
+				
+				tlist[pnum][j].dist = dist;
+				tlist[pnum][j].tid = i;
+				
+				if(tcount < tracer_count)
+					++tcount;
+			}
+		}
+	}
+	
+	// fix angle
+	//SetActorAngle(owner, prev_ang);
+	
+	if(tcount) {
+		// damage credit
+		SetActivator(owner);
+		for(i = 0, j = 0; i < DND_MAXSCANTRACER; ++i) {
+			if(tlist[pnum][i].tid) {
+				// distance reduces damage for scans, closer = better -- gives percentage
+				if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE) {
+					tlist[pnum][i].dist = (100 * FixedDiv((scan_dist - tlist[pnum][i].dist), scan_dist)) >> 16;
+					if(!tlist[pnum][i].dist)
+						tlist[pnum][i].dist = 1;
+					temp = (dmg * tlist[pnum][i].dist) / 100;
+				}
+				else
+					temp = dmg;
+					
+				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, flags);
+				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
+				
+				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
+				// abort if we reached our tracer cap
+				++j;
+				if(j == tcount)
+					break;
+			}
+		}
+		//printbold(s:"complete? ", d:j, s: " vs ", d:tcount);
+	}
+}
+
 Script "DND Thunderstaff Bolts" (int isfulldmg) {
 	int dist = INT_MAX, i, j, k, temp;
 	// scan all monsters for the item ThunderTarget -- that implies they are candidates having passed range check

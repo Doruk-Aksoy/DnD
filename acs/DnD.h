@@ -136,6 +136,7 @@ typedef struct dist_tid_pair {
 	int dist;
 	int tid;
 } dist_tid_pair_T;
+#define DND_MAXSCANTRACER 256
 
 #define DND_SHIFTBITS_FOR_SLOTFROMFLAG 13 // 8192 must return 0 to us
 enum {

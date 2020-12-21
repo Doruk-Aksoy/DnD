@@ -50,7 +50,30 @@ enum {
 	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE	=			0b1000000,
 	DND_DAMAGEFLAG_NOPOISONSTACK		=			0b10000000,
 	DND_DAMAGEFLAG_HALFDMGSELF			=			0b100000000,
-	DND_DAMAGEFLAG_INFLICTPOISON		=			0b1000000000,	
+	DND_DAMAGEFLAG_INFLICTPOISON		=			0b1000000000,
+	DND_DAMAGEFLAG_BLASTSELF			=			0b10000000000,
+};
+
+enum {
+	DND_SCANNER_BFG,
+	DND_SCANNER_BFGUPGRADED,
+};
+
+#define MAX_SCANNER_PARTICLES (DND_SCANNER_BFGUPGRADED + 1)
+str ScannerAttackParticles[MAX_SCANNER_PARTICLES] = {
+	"BFGExtra2",
+	"BFGExtraUpgraded"
+};
+
+typedef struct scan_data {
+	int max_dist;
+	int fov;
+	int spawn_offZ;
+} scan_data_T;
+
+scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
+	{ 1024.0, 0.278, 24.0 },
+	{ 1024.0, 0.278, 24.0 }
 };
 
 #define DND_CULL_BASEPERCENT 10 // 1 / 10
@@ -360,7 +383,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		if(flags & DND_DAMAGEFLAG_SELFCULL)
 			Thing_Destroy(victim, false, 0);
 	}
-	printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
+	// handle poison checks
+	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
 	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
 		// poison damage deals 10% of its damage per stack over 3 seconds
 		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS) {

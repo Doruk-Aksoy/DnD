@@ -33,8 +33,8 @@ Actor ResPlasma1 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_FLAMETHROWER)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 1, 1 | (8 << 16))
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 5)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, 1 | (8 << 16), DND_WEAPON_FLAMETHROWER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 5, 0, DND_WEAPON_FLAMETHROWER)
 	    SelectLoop:
 			RW05 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -117,254 +117,165 @@ Actor ResPlasma1 : Weapon {
 	}
 }
 
-Actor FTExplosion1 : BaseExplosionDamage {
-	DamageType "ExplosivesFire"
+// damage every 2 tics
+// radius: 8 -> 16 -> 32 -> 64
+// first 30 tics dont hurt player
+// then 16 tics player hurting dmg
+// damage is the same
+Actor FTExplosion1 : DnD_ExplosiveBase {
+	Speed 0
+	+THRUACTORS
 	+NODAMAGETHRUST
+	var int user_count;
 	States {
-		Spawn:
+		SpawnState:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+		Death:
+			TNT1 A 1 A_SetUserVar("user_count", 23)
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE)
+		ExplosionLoop:
+			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 2 A_SetUserVar("user_count", user_count - 1)
+			TNT1 A 1 A_JumpIf(user_count == 0, "Finish")
+			TNT1 A 0 A_JumpIf(user_count == 11 || user_count == 14 || user_count == 17 || user_count == 20, "Update")
+			TNT1 A 0 A_JumpIf(user_count == 14, "Update")
+			TNT1 A 0 A_JumpIf(user_count == 17, "Update")
+			TNT1 A 0 A_JumpIf(user_count == 20, "Update")
+		Goto ExplosionLoop
+		Update:
+			TNT1 A 0 A_SetUserVar("user_expradius", user_expradius * 2)
+		Goto ExplosionLoop
+		Finish:
+			TNT1 A 1
 		Stop
 	}
 }
 
-Actor FTExplosion2 : FTExplosion1 {
+// this just always hurts player and has same radius all around
+// lasts 5 x 14 = 70 damages, deals damage every 2 tics
+// uses radius 32, same damage
+Actor FTExplosion2 : DnD_ExplosiveBase {
+	Speed 0
+	+THRUACTORS
+	+NODAMAGETHRUST
+	var int user_count;
 	States {
-		Spawn:
+		SpawnState:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 16 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+		Death:
+			TNT1 A 1 A_SetUserVar("user_count", 70)
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE)
+			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+		ExplosionLoop:
+			TNT1 A 1
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 1 A_SetUserVar("user_count", user_count - 1)
+			TNT1 A 1 A_JumpIf(user_count > 0, "ExplosionLoop")
 		Stop
 	}
 }
 
-Actor FTExplosion3 : FTExplosion1 {
-	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
-		Stop
-	}
-}
-
-Actor FTExplosion4 : FTExplosion1 {
-	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 1 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
-		Stop
-	}
-}
-
-Actor FTExplosion1_NoSelf : FTExplosion1 {
-	States {
-		Spawn:
-			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
-		Stop
-	}
-}
-
-Actor FTExplosion2_NoSelf : FTExplosion1 {
-	States {
-		Spawn:
-			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 16 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
-		Stop
-	}
-}
-
-Actor FTExplosion3_NoSelf : FTExplosion1 {
-	States {
-		Spawn:
-			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
-		Stop
-	}
-}
-
-Actor FTExplosion4_NoSelf : FTExplosion1 {
-	States {
-		Spawn:
-			TNT1 A 1 NoDelay A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
-		Stop
-	}
-}
-
-Actor FTExplosion1_Full : FTExplosion1 {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTExplosion2_Full : FTExplosion2 {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTExplosion3_Full : FTExplosion3 {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTExplosion4_Full : FTExplosion4 {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTExplosion1_Full_NoSelf : FTExplosion1_NoSelf {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTExplosion2_Full_NoSelf : FTExplosion2_NoSelf {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTExplosion3_Full_NoSelf : FTExplosion3_NoSelf {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTExplosion4_Full_NoSelf : FTExplosion4_NoSelf {
-	DamageType "ExplosivesFireFull"
-	+FORCERADIUSDMG
-}
-
-Actor FTFire {
+// spawn state explosions dont hurt player
+Actor FTFire : DnD_BaseProjectile {
 	Radius 2
 	Height 4
 	Speed 16
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6))
-	Projectile
 	RenderStyle Add
-	DamageType Fire
 	Alpha 0.67
 	Scale 0.67
 	SeeSound "Flamethrower/Fire"
 	DeathSound "Flamethrower/Hit"
 	+MTHRUSPECIES
 	States {
-		Spawn:
+		SpawnState:
 			TNT1 A 2
-			FRFX ABCD 2 bright A_SpawnItem("FTExplosion1_NoSelf")
+			TNT1 A 0 A_CustomMissile("FTExplosion1_NoSelf", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FRFX ABCD 2 bright
 			TNT1 A 0 A_LowGravity
-			FRFX EFG 2 bright A_SpawnItem("FTExplosion2_NoSelf")
-			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3_NoSelf")
-			FRFX KLM 2 bright A_SpawnItem("FTExplosion4_NoSelf")
-			FRFX NO 2 bright
+			FRFX EFGHIJKLMNO 2 bright
 		Stop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_FIRE)
 		Death:
-			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3")
-			TNT1 A 0 A_CustomMissile("DropFire", 0, 0, 0, 4)
-			FRFX KLM 2 bright A_SpawnItem("FTExplosion4")
-			FRFX NO 2 bright
+			FRFX HIJ 2 bright
+			TNT1 A 0 A_CustomMissile("DropFire", 0, 0, 0, CMF_TRACKOWNER)
+			FRFX KLMNO 2 bright
 		Stop
 	}
 }
 
-Actor FTFire_Full : FTFire {
-	DamageType "FireFull"
-	States {
-		Spawn:
-			TNT1 A 2
-			FRFX ABCD 2 bright A_SpawnItem("FTExplosion1_Full_NoSelf")
-			TNT1 A 0 A_LowGravity
-			FRFX EFG 2 bright A_SpawnItem("FTExplosion2_Full_NoSelf")
-			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3_Full_NoSelf")
-			FRFX KLM 2 bright A_SpawnItem("FTExplosion4_Full_NoSelf")
-			FRFX NO 2 bright
-		Stop
-		Death:
-			FRFX HIJ 2 bright A_SpawnItem("FTExplosion3_Full")
-			TNT1 A 0 A_CustomMissile("DropFire_Full", 0, 0, 0, 4)
-			FRFX KLM 2 bright A_SpawnItem("FTExplosion4_Full")
-			FRFX NO 2 bright
-		Stop
-	}
-}
-
-Actor DropFire {
+Actor DropFire : DnD_BaseProjectile {
 	Radius 2
 	Height 32
-	Projectile
 	RenderStyle Add
-	DamageType Fire
 	Alpha 0.90
 	+THRUSPECIES
+	+THRUACTORS
 	-NoGravity
 	+LowGravity
 	+NoExplodeFloor
 	+NoDamageThrust
 	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetScale(frandom(0.925, 1.0), frandom(0.925, 1.0))
+		SpawnState:
+			TNT1 A 0 A_SetScale(frandom(0.925, 1.0), frandom(0.925, 1.0))
+			TNT1 A 0 A_CustomMissile("FTExplosion2", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_Jump(128, "Var2", "Var3", "Var4")
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			FLME ABCDEFGHIJKLMN 2 bright 
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			FLME ABCDEFGHIJKLMN 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			FLME ABCDEFGHIJKLMN 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			FLME ABCDEFGHIJKLMN 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2")
+			FLME ABCDEFGHIJKLMN 2 bright
 			TNT1 A 0 A_Jump(192, "Death")
 		Loop
 		Var2:
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			FLME EFGHIJKLMNABCD 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			FLME EFGHIJKLMNABCD 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			FLME EFGHIJKLMNABCD 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			FLME EFGHIJKLMNABCD 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2")
+			FLME EFGHIJKLMNABCD 2 bright
 			TNT1 A 0 A_Jump(192, "Death")
 		Loop
 		Var3:
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			FLME HIJKLMNABCDEFG 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			FLME HIJKLMNABCDEFG 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			FLME HIJKLMNABCDEFG 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			FLME HIJKLMNABCDEFG 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2")
+			FLME HIJKLMNABCDEFG 2 bright
 			TNT1 A 0 A_Jump(192, "Death")
 		Loop
 		Var4:
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			FLME LMNABCDEFGHIJK 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			FLME LMNABCDEFGHIJK 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			FLME LMNABCDEFGHIJK 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			FLME LMNABCDEFGHIJK 2 bright
 			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2")
+			FLME LMNABCDEFGHIJK 2 bright
 			TNT1 A 0 A_Jump(192, "Death")
 		Loop
 		Death:
@@ -385,87 +296,6 @@ Actor DropFire {
 	}
 }
 
-Actor DropFire_Full : DropFire {
-	DamageType "FireFull"
-	+FORCERADIUSDMG
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetScale(frandom(0.925, 1.0), frandom(0.925, 1.0))
-			TNT1 A 0 A_Jump(128, "Var2", "Var3", "Var4")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME A 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME BCDEFGHIJKLMN 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_Jump(192, "Death")
-		Loop
-		Var2:
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME E 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME FGHIJKLMNABCD 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_Jump(192, "Death")
-		Loop
-		Var3:
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME H 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME IJKLMNABCDEFG 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_Jump(192, "Death")
-		Loop
-		Var4:
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_PlaySound("Flamethrower/Flame")
-			FLME L 2 bright A_SpawnItem("FTExplosion3_Full")
-			FLME MNABCDEFGHIJK 2 bright A_SpawnItem("FTExplosion2_Full")
-			TNT1 A 0 A_Jump(192, "Death")
-		Loop
-	}
-}
-
 Actor FlameThrowerShooter : DnD_Activator {
 	States {
 		Pickup:
@@ -473,11 +303,7 @@ Actor FlameThrowerShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("FuelClip", 1)
 		NoTake:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("FTFire", 0, 1, Random(-4, 4) * (1.0 - accuracy * accuracy_factor), 0)
-		Stop
-		Full:
-			TNT1 A 0 A_FireCustomMissile("FTFire_Full", 0, 1, Random(-4, 4) * (1.0 - accuracy * accuracy_factor), 0)
 		Stop
 	}
 }
@@ -485,11 +311,7 @@ Actor FlameThrowerShooter : DnD_Activator {
 Actor FlameThrowerShooter_NoAmmo : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("FTFire", 0, 1, Random(-4, 4) * (1.0 - accuracy * accuracy_factor), 0)
-		Stop
-		Full:
-			TNT1 A 0 A_FireCustomMissile("FTFire_Full", 0, 1, Random(-4, 4) * (1.0 - accuracy * accuracy_factor), 0)
 		Stop
 	}
 }
@@ -549,7 +371,7 @@ Actor ResPlasma2 : Weapon {
 			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_LIGHTNINGGUN)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 1, lg_dmg_min | (lg_dmg_max << 16))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, lg_dmg_min | (lg_dmg_max << 16), DND_WEAPON_LIGHTNINGGUN)
 	    SelectLoop:
 			LGNI A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -628,18 +450,10 @@ Actor LGShooter_Ammo : DnD_Activator {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LIGHTNING, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6), 4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffSEX",0,0,512,0,18,0,"D4LGTrail")
-		Stop
-		Full:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6), 4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "LGPuff_Full",0,0,512,0,18,0,"D4LGTrail")
+			TNT1 A 0 A_RailAttack(0, 4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffSEX",0,0,512,0,18,0,"D4LGTrail")
 		Stop
 		NoTake:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full2")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffSEX",0,0,512,0,18,0,"D4LGTrail")
-		Stop
-		Full2:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuff_Full",0,0,512,0,18,0,"D4LGTrail")
+			TNT1 A 0 A_RailAttack(0, 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffSEX",0,0,512,0,18,0,"D4LGTrail")
 		Stop
 	}
 }
@@ -647,11 +461,7 @@ Actor LGShooter_Ammo : DnD_Activator {
 Actor LGShooter_NoAmmo : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffNoPain",0,0,512,0,18,0,"D4LGTrail")
-		Stop
-		Full:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6), 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffNoPain_Full",0,0,512,0,18,0,"D4LGTrail")
+			TNT1 A 0 A_RailAttack(0, 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffNoPain",0,0,512,0,18,0,"D4LGTrail")
 		Stop
 	}
 }
@@ -659,13 +469,8 @@ Actor LGShooter_NoAmmo : DnD_Activator {
 Actor LGAltShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_NoPain",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
-		Stop
-		Full:
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_Full",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
-			TNT1 A 0 A_RailAttack(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_ISSLOT6),4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_NoPain_Full",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
+			TNT1 A 0 A_RailAttack(0,4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
+			TNT1 A 0 A_RailAttack(0,4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_NoPain",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
 		Stop
 	}
 }
@@ -682,39 +487,31 @@ Actor LGAmmoTaker : DnD_Activator {
 	}
 }
 
-Actor LGPuffSEX {
-	+CLIENTSIDEONLY
-	+NOINTERACTION
-	+PUFFONACTORS
-	+ALWAYSPUFF
-	+PUFFGETSOWNER
-	+MTHRUSPECIES
+Actor LGPuffSEX : DnD_BaseRailPuff {
 	Scale 0.35
 	Renderstyle Add
 	Height 4
 	Radius 2
-	DamageType "Lightning"
 	States {
-		Spawn:
-			TNT1 A 0 NODELAY A_Jump(256, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
+		Goto DoDamage
+		AfterDamage:
+			TNT1 A 0 A_Jump(256, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)
 			DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 1 BRIGHT A_Jump(256, "Play")
 		Play:
 			"----" "##" 2 Bright
 		Stop
+		Crash:
+			TNT1 A 0
+		Goto AfterDamage
 	}
-}
-
-Actor LGPuff_Full : LGPuffSEX {
-	DamageType "LightningFull"
 }
 
 Actor LGPuffNoPain : LGPuffSEX {
 	+PAINLESS
 	+BLOODLESSIMPACT
-}
-
-Actor LGPuffNoPain_Full : LGPuffNoPain {
-	DamageType "LightningFull"
 }
 
 Actor D4LGTrail {
@@ -780,16 +577,8 @@ Actor LGAltPuff : LGPuffSEX {
 	Translation "0:255=%[0,0,0]:[0.7,0.4,1.5]"
 }
 
-Actor LGAltPuff_Full : LGAltPuff {
-	DamageType "LightningFull"
-}
-
 Actor LGAltPuff_NoPain : LGAltPuff {
 	+PAINLESS
-}
-
-Actor LGAltPuff_NoPain_Full : LGAltPuff_NoPain {
-	DamageType "LightningFull"
 }
 
 Actor ResPlasma3 : Weapon {	
@@ -830,8 +619,8 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_REBOUNDER)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 25)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 150)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 25, 0, DND_WEAPON_REBOUNDER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 150, 0, DND_WEAPON_REBOUNDER)
 		SelectLoop:
 			DGAG A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -917,25 +706,6 @@ Actor RebounderShooter : DnD_Activator {
 		OneBounce:
 			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB1", 1, 1, 9)
 		Stop
-		Full:
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 96, "SuperBounce_FullDMG")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 72, "ThreeBounce_FullDMG")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 48, "TwoBounce_FullDMG")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 24, "OneBounce_FullDMG")
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectile_FullDMG", 1, 1, 9)
-		Stop
-		SuperBounce_FullDMG:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB4_FullDMG", 1, 1, 9)
-		Stop
-		ThreeBounce_FullDMG:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB3_FullDMG", 1, 1, 9)
-		Stop
-		TwoBounce_FullDMG:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB2_FullDMG", 1, 1, 9)
-		Stop
-		OneBounce_FullDMG:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB1_FullDMG", 1, 1, 9)
-		Stop
 	}
 }
 
@@ -950,16 +720,10 @@ Actor RebounderShooter2 : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "Full")
 			TNT1 A 0 A_FireCustomMissile("RebounderProjectileAlt", 1, 1, 9)
 		Stop
-		Full:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileAlt_FullDMG", 1, 1, 9)
-		Stop
 	}
 }
 
-Actor RebounderProjectile {
-	PROJECTILE
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6))
-	DamageType "Energy"
+Actor RebounderProjectile : DnD_BaseProjectile {
 	Height 16
 	Radius 8
 	Speed 32
@@ -969,9 +733,11 @@ Actor RebounderProjectile {
 	Deathsound "Rebounder/Hit"
 	+DONTREFLECT
 	States {
-		Spawn:
+		SpawnState:
 			REBP A 1 Bright A_SpawnItemEx("RebounderTrail")
 		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY)
 		Death:
 			TNT1 A 0 A_SpawnItem("RebounderHitFX")
 		Stop
@@ -980,37 +746,49 @@ Actor RebounderProjectile {
 
 Actor RebounderProjectileB1 : RebounderProjectile {
 	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY)
 		Death:
 			TNT1 A 0 A_CustomMissile("RebounderProjectile", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectile", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
 	}
 }
 
 Actor RebounderProjectileB2 : RebounderProjectile {
 	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY)
 		Death:
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB1", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB1", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
 	}
 }
 
 Actor RebounderProjectileB3 : RebounderProjectile {
 	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY)
 		Death:
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB2", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB2", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
 	}
 }
 
 Actor RebounderProjectileB4 : RebounderProjectile {
 	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY)
 		Death:
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB3", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB3", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
 	}
 }
 
@@ -1043,46 +821,6 @@ Actor RebounderHitFX {
 	}
 }
 
-Actor RebounderProjectile_FullDMG : RebounderProjectile {
-	DamageType "EnergyFull"
-}
-
-Actor RebounderProjectileB1_FullDMG : RebounderProjectile_FullDMG {
-	States {
-		Death:
-			TNT1 A 0 A_CustomMissile("RebounderProjectile_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_CustomMissile("RebounderProjectile_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
-	}
-}
-
-Actor RebounderProjectileB2_FullDMG : RebounderProjectile_FullDMG {
-	States {
-		Death:
-			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
-	}
-}
-
-Actor RebounderProjectileB3_FullDMG : RebounderProjectile_FullDMG {
-	States {
-		Death:
-			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
-	}
-}
-
-Actor RebounderProjectileB4_FullDMG : RebounderProjectile_FullDMG {
-	States {
-		Death:
-			TNT1 A 0 A_CustomMissile("RebounderProjectileB3_FullDMG", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_CustomMissile("RebounderProjectileB3_FullDMG", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Goto Super::Death
-	}
-}
-
 Actor RebounderCooldownGiver : DnD_Activator {
 	States {
 		Pickup:
@@ -1099,10 +837,8 @@ Actor RebounderCooldown : PowerDamage {
 	damagefactor "normal", 1.0
 }
 
-Actor RebounderProjectileAlt {
-	PROJECTILE
-	Damage (ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6))
-	DamageType "Energy"
+// dont hurt player
+Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 	Height 24
 	Radius 12
 	Speed 48
@@ -1111,12 +847,14 @@ Actor RebounderProjectileAlt {
 	Alpha 0.85
 	Deathsound "Rebounder/Hit"
 	+DONTREFLECT
-	+HITTRACER
 	+FOILINVUL
+	var int user_count;
 	States {
-		Spawn:
+		SpawnState:
 			REBP A 1 Bright A_SpawnItemEx("RebounderTrail2")
 		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_REBOUNDER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY)
 		Death:
 			TNT1 A 0 A_SpawnItem("RebounderHitFX2")
 			TNT1 A 0 A_CheckFlag("DONTRIP", "BigExplosion", AAPTR_TRACER)
@@ -1129,50 +867,22 @@ Actor RebounderProjectileAlt {
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Goto Cont
 		RealExplosion:
+			TNT1 A 0 A_SetUserVar("user_count", 4)
 			TNT1 A 0 Radius_Quake(5, 10, 0, 4, 0)
 			TNT1 A 0 A_SpawnItem("RebounderExplosion")
 			TNT1 A 0 A_PlaySound("Rebounder/AltHit", 7)
-			TNT1 A 1 A_SpawnItemEx("RebounderHitFX3")
-		Stop
-	}
-}
-
-Actor RebounderExplosion : BaseExplosionDamage {
-	DamageType "EnergyExp"
-	+FOILINVUL
-	var int user_exprad;
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
-			TNT1 AAAA 6 A_Explode(ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_REBOUNDER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6), 256 * (1.0 + user_exprad * exprad_factor), 0)
-		Stop
-	}
-}
-
-Actor RebounderExplosion_FullDMG : RebounderExplosion {
-	DamageType "EnergyExpFull"
-	+FORCERADIUSDMG
-}
-
-Actor RebounderProjectileAlt_FullDMG : RebounderProjectileAlt {
-	DamageType "EnergyFull"
-	States {
-		Death:
-			TNT1 A 0 A_SpawnItem("RebounderHitFX2")
-			TNT1 A 0 A_CheckFlag("DONTRIP", "BigExplosion", AAPTR_TRACER)
-			TNT1 A 0 A_CheckFlag("INVULNERABLE", "BigExplosion", AAPTR_TRACER)
-			TNT1 A 1 A_CheckFlag("REFLECTIVE", "BigExplosion", AAPTR_TRACER)
-		Cont:
-			TNT1 AAAAAA 1 A_JumpIfInventory("DnD_Boolean", 1, "RealExplosion")
-		Stop
-		BigExplosion:
-			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
-		Goto Cont
-		RealExplosion:
-			TNT1 A 0 Radius_Quake(5, 10, 0, 4, 0)
-			TNT1 A 0 A_SpawnItem("RebounderExplosion_FullDMG")
-			TNT1 A 0 A_PlaySound("Rebounder/AltHit", 7)
-			TNT1 A 1 A_SpawnItemEx("RebounderHitFX3")
+			TNT1 A 0 A_SpawnItemEx("RebounderHitFX3")
+			
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_REBOUNDER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGY)
+			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+		ExplosionLoop:
+			TNT1 A 1
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 5 A_SetUserVar("user_count", user_count - 1)
+			TNT1 A 1 A_JumpIf(user_count > 0, "ExplosionLoop")
 		Stop
 	}
 }
