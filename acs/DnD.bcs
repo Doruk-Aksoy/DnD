@@ -3384,14 +3384,18 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	}
 }
 
-Script "DND Thunderstaff Bolts" (int isfulldmg) {
+Script "DND Thunderstaff Bolts" (void) {
 	int dist = INT_MAX, i, j, k, temp;
 	// scan all monsters for the item ThunderTarget -- that implies they are candidates having passed range check
-	static dist_tid_pair_T tlist[DND_THUNDERSTAFF_MAXTARGETS];
+	static dist_tid_pair_T tlist[MAXPLAYERS][DND_THUNDERSTAFF_MAXTARGETS];
+	
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int pnum = owner - P_TIDSTART;
+	
 	// init list
 	for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
-		tlist[i].tid = 0;
-		tlist[i].dist = INT_MAX;
+		tlist[pnum][i].tid = 0;
+		tlist[pnum][i].dist = INT_MAX;
 	}
 	int tcount = 0;
 	int tidlim = 0;
@@ -3404,41 +3408,44 @@ Script "DND Thunderstaff Bolts" (int isfulldmg) {
 				temp = tcount;
 			else
 				temp = DND_THUNDERSTAFF_MAXTARGETS;
-			for(j = 0; j < temp; ++j) {
-				if(dist < tlist[j].dist) {
-					// push everything for insertion
-					for(k = temp - 1; k > j; --k) {
-						// slide data
-						tlist[k].dist = tlist[k - 1].dist;
-						tlist[k].tid = tlist[k - 1].tid;
-					}
-					break;				
+			// while our calc dist > alloc dist, keep going -- we add things to the end
+			// if we come by a point where we are smaller, shift things
+			for(j = 0; j < temp && dist > tlist[pnum][j].dist; ++j);
+
+			// we know where to add, check if we must shift (if we should)
+			if(j < temp) {
+				// less, so that means we are in-between things
+				// push everything for insertion
+				// this is needed to move in 0 index shifts
+				if(temp == DND_THUNDERSTAFF_MAXTARGETS)
+					--temp;
+				
+				for(k = temp; k > j; --k) {
+					// slide data
+					tlist[pnum][k].dist = tlist[pnum][k - 1].dist;
+					tlist[pnum][k].tid = tlist[pnum][k - 1].tid;
 				}
 			}
-			if(!tcount || j < temp) {
-				// pos found, now add
-				tlist[j].dist = dist;
-				tlist[j].tid = i;
+			
+			tlist[pnum][j].dist = dist;
+			tlist[pnum][j].tid = i;
+			
+			if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
 				++tcount;
-			}
 		}
 	}
 	
 	if(tcount) {
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
-			if(tlist[i].tid)
-				ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_THUNDERZAP, 16, tlist[i].tid);
+			if(tlist[pnum][i].tid)
+				ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_THUNDERZAP, 16, tlist[pnum][i].tid);
 		}
 		// damage credit
 		SetActivatorToTarget(0);
 		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL);
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
-			if(tlist[i].tid) {
-				if(!isfulldmg)
-					Thing_Damage2(tlist[i].tid, dist, "Lightning");
-				else
-					Thing_Damage2(tlist[i].tid, dist, "LightningFull");
-			}
+			if(tlist[pnum][i].tid)
+				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, 0);
 		}
 	}
 }
@@ -3487,16 +3494,22 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 		SetActorState(newtid + i, "Fade");
 }
 
-Script "DND Thunderstaff Lightning" (int isfulldmg) {
+Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
-	str toSpawn = isfulldmg ? "ThunderstaffExp3_FullDMG" : "ThunderstaffExp3";
-	str dmgtype = isfulldmg ? "LightningFull" : "Lightning";
 	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL) << 1;
 	int tidlim = 0;
 	
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i))
-			ThunderstaffLightningWork(i, this, dmg, dmgtype, toSpawn);
+		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i)) {
+			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
+			SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
+			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, 0);
+			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
+			SetPointer(AAPTR_TARGET, this);
+			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
+			Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
+			SetActivator(this);
+		}
 	}
 }
 
@@ -3782,6 +3795,7 @@ Script "DnD Target Fix" (void) {
 		SetActorProperty(0, APROP_TARGETTID, tid);
 		SetPointer(AAPTR_TARGET, tid);	
 	}
+	SetResultValue(0);
 }
 
 Script "DnD Player Pain Sound" (void) CLIENTSIDE {

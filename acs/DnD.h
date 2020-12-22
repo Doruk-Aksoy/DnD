@@ -281,9 +281,9 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields.",
 	 "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60. Can \cgoverheat\c-. \cfIngores shields\c-. Can't hit \cughosts\c-.",
 	 "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.",
-	 "Gauss Rifle fires a magnetic pulse dealing 100 direct hit damage and 192 radius damage in a 96 unit radius. Alt fire zooms and amplifies the damage for each zoom. Can't hit \cughosts.\c- \cfIgnores shields.",
-	 "This baby can rip through concrete with ease. Each shot does multiples of 92. Alt fire charges up the next shot up to 2 times. \cfIgnores shields.",
-	 "Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 200 damage on both impact and in a 160 unit radius, \cfignoring shields.\c-",
+	 "Gauss Rifle fires a magnetic pulse dealing 200 direct hit damage and 96 radius damage in a 128 unit radius. Alt fire zooms and amplifies the damage for each zoom. Can't hit \cughosts.\c- \cfIgnores shields.",
+	 "This baby can rip through concrete with ease. Each shot does multiples of 400. Alt fire charges up the next shot up to 2 times. \cfIgnores shields.",
+	 "Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are flying causes a laser to be fired, doing 250 damage on impact and in a 160 unit radius, \cfignoring shields.\c-",
 	 
 	 "A magical staff, using demon souls as energy. Fires meteors of magic, bursting on impact. Alt fire fires 3 columns of fire both on floor and ceiling that travel and explode in flames. \cfIgnores shields.",
 	 "This once was the ribcage of a powerful demon. Fires magical bone shards that rip through. Alt fire switches the mode to shoot three demon shredders that seek demons.",
@@ -906,17 +906,6 @@ int GetWeaponSlotFromFlag(int flags) {
 		if(IsSet(flags, i))
 			return i;
 	return 0;
-}
-
-void ThunderstaffLightningWork(int target, int this, int dmg, str dmgtype, str toSpawn) {
-	ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, target);
-	SpawnForced(toSpawn, GetActorX(target), GetActorY(target), GetActorFloorZ(target) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
-	Thing_Damage2(target, dmg, dmgtype);
-	SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
-	SetPointer(AAPTR_TARGET, this);
-	SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
-	Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
-	SetActivator(this);
 }
 
 int ScaleMonster(int pcount, int realhp) {

@@ -1379,9 +1379,9 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage in a 256 unit radius.",
 	"Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60.",
 	"Launches a ball of lightning that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in a large radius.",
-	"Gauss Rifle fires a magnetic pulse dealing 100 on hit and 192 radius damage in a 96 unit radius. Alt fire zooms, amplifying the damage for each zoom.",
-	"This baby can rip through concrete with ease. Each shot does multiples of 92 damage. Alt fire charges up the next shot, up to 2 times.",
-	"Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 200 damage both on impact and in a 160 unit radius.",
+	"Gauss Rifle fires a magnetic pulse dealing 200 on hit and 96 radius damage in a 128 unit radius. Alt fire zooms, amplifying the damage for each zoom.",
+	"This baby can rip through concrete with ease. Each shot does multiples of 400 damage. Alt fire charges up the next shot, up to 2 times.",
+	"Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 250 damage both on impact and in a 160 unit radius.",
 	
 	"Fires meteors of magic bursting on impact. Alt fire fires three columns of fire on the floor and ceiling that travel and explode in flames.",
 	"Fires magical bone shards that rip through. Alt fire switches the mode to shoot three demon shredders that seek demons.",

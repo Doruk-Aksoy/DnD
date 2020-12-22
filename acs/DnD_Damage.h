@@ -17,9 +17,11 @@ enum {
 	DND_DAMAGETYPE_POISON,
 	DND_DAMAGETYPE_DESOLATOR,
 	DND_DAMAGETYPE_EMERALD,
-	DND_DAMAGETYPE_LIGHTNING
+	DND_DAMAGETYPE_LIGHTNING,
+	
+	DND_DAMAGETYPE_SOUL
 };
-#define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_LIGHTNING + 1)
+#define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
 
 str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Bullet",
@@ -37,7 +39,9 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Poison",
 	"Desolator",
 	"Emerald",
-	"Lightning"
+	"Lightning",
+	
+	"SoulType"
 };
 
 enum {
@@ -351,6 +355,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		CheckActorInventory(source, "NetherCheck") 																				|| 
 		(IsOccultDamage(damage_type) && CheckActorInventory(source, "DnD_QuestReward_DreamingGodBonus"))						||
 		(IsEnergyDamage(damage_type) && CheckActorInventory(source, "Cyborg_Perk50")) 											||
+		(damage_type == DND_DAMAGETYPE_SOUL && CheckActorInventory(source, "StatbuffCounter_SoulWepsDoFullDamage"))				||
 		((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckActorInventory(source, "Hobo_Perk50"))
 	)
 		s_damagetype = StrParam(s:s_damagetype, s:"Full");

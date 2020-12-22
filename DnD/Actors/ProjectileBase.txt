@@ -360,11 +360,18 @@ Actor DnD_Projectile_SpawnChecks : DnD_Activator {
 	States {
 		Pickup:
 			//TNT1 A 0 ACS_NamedExecuteAlways("target test")
-			TNT1 A 0 A_JumpIfInTargetInventory("NetherCheck", 1, "ChangeGhost")
+			TNT1 A 0 A_JumpIfInTargetInventory("NetherCheck", 1, "ChangeFlags")
 		Stop
-		ChangeGhost:
+		ChangeFlags:
 			TNT1 A 0 A_ChangeFlag("THRUGHOST", 0)
+			TNT1 A 0 A_CheckFlag("RIPPER", "FlipRipper")
+		Cont_Ripper:
+			TNT1 A 0
 		Stop
+		FlipRipper:
+			TNT1 A 0 A_ChangeFlag("RIPPER", 0)
+			TNT1 A 0 A_ChangeFlag("THRUACTORS", 1)
+		Goto Cont_Ripper
 	}
 }
 
