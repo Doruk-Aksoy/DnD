@@ -316,8 +316,6 @@ void RestoreRPGStat (int statflag) {
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		
 	// resists from items
-	if((statflag & RES_SELFEXPLOSIONRESIST) && GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST))
-		GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_EXPRESIST_VAL)), 1);
 	if((statflag & RES_ELEMRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM))
 		GiveInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM), 1, MAX_ELEMRESIST_VAL)), 1);
 	if((statflag & RES_PHYSRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS))

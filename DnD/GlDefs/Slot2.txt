@@ -1,35 +1,3 @@
-object NewBulletPuff
-{
-    frame PUFFA { light BPUFF1 }
-    frame PUFFB { light BPUFF2 }
-}
-
-object SpiderMBulletPuff {
-    frame PUFFA { light BPUFF1 }
-    frame PUFFB { light BPUFF2 }
-}
-
-object NewBulletPuffMag {
-    frame PUFFA { light BPUFF1 }
-    frame PUFFB { light BPUFF2 }
-}
-
-object MagnumPuff {
-    frame MPUFA { light BPUFF1 }
-    frame MPUFB { light BPUFF2 }
-}
-
-object NewBulletPuff_FullDMG
-{
-    frame PUFFA { light BPUFF1 }
-    frame PUFFB { light BPUFF2 }
-}
-
-object NewBulletPuffMag_FullDMG {
-    frame PUFFA { light BPUFF1 }
-    frame PUFFB { light BPUFF2 }
-}
-
 PointLight DiabloistFlare1
 {
 Color 1.0 0.2 0.0
@@ -67,17 +35,6 @@ Size 16
 }
 
 Object RubyShot
-{
-	Frame VBALA { Light DiabloistFlare1 }
-	Frame VBALB { Light DiabloistFlare1 }
-	Frame WBALC { Light DiabloistFlare2 }
-	Frame WBALD { Light DiabloistFlare3 }
-	Frame WBALE { Light DiabloistFlare4 }
-	Frame WBALF { Light DiabloistFlare5 }
-	Frame WBALG { Light DiabloistFlare6 }
-}
-
-Object RubyShot_FullDMG
 {
 	Frame VBALA { Light DiabloistFlare1 }
 	Frame VBALB { Light DiabloistFlare1 }
@@ -151,27 +108,7 @@ Frame CFFXK { Light DMissileTrail5 }
 Frame CFFXL { Light DMissileTrail6 }
 }
 
-Object RubyFlameMissile_FullDMG
-{
-Frame CFFXB { Light DMissileTrail2 }
-Frame CFFXC { Light DMissileTrail3 }
-Frame CFFXD { Light DMissileTrail3 }
-Frame CFFXE { Light DMissileTrail3 }
-Frame CFFXF { Light DMissileTrail3 }
-Frame CFFXG { Light DMissileTrail3 }
-Frame CFFXH { Light DMissileTrail3 }
-Frame CFFXI { Light DMissileTrail3 }
-Frame CFFXJ { Light DMissileTrail4 }
-Frame CFFXK { Light DMissileTrail5 }
-Frame CFFXL { Light DMissileTrail6 }
-}
-
 Object RubyCircleFlame
-{
-Frame CFFX { Light DMissileTrail1 }
-}
-
-Object RubyCircleFlame_FullDMG
 {
 Frame CFFX { Light DMissileTrail1 }
 }

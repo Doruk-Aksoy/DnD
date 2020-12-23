@@ -186,15 +186,6 @@ str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
 	{ "BFG 9000", "Upgraded BFG 9000", "Devastator", "MFG", "ResBFG1", "ResBFG2", "", "", "" },
 };
 
-enum {
-	DND_PELLETACTOR_HSSG
-};
-
-#define MAX_PELLET_ACTORS DND_PELLETACTOR_HSSG + 1
-str WeaponPelletActors[MAX_PELLET_ACTORS] = {
-	"HeavySSGRailPellet"
-};
-
 void ResetWeaponMods(int pnum) {
 	int i, j;
 	for(j = 0; j < MAXWEPS; ++j) {

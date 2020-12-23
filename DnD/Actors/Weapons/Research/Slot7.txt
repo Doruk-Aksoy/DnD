@@ -268,8 +268,6 @@ Actor IonExplosion : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Target Fix")
-
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_IONCANNON << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)

@@ -2,6 +2,8 @@
 #define DND_DAMAGE_IN
 
 enum {
+	DND_DAMAGETYPE_MELEE,
+	DND_DAMAGETYPE_MELEEOCCULT,
 	DND_DAMAGETYPE_PHYSICAL,
 	DND_DAMAGETYPE_SILVERBULLET,
 	DND_DAMAGETYPE_ENERGY,
@@ -24,6 +26,8 @@ enum {
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
 
 str DamageTypeList[MAX_DAMAGE_TYPES] = {
+	"Melee",
+	"Melee_Magic",
 	"Bullet",
 	"BulletMagicX",
 	"Energy",
@@ -56,17 +60,22 @@ enum {
 	DND_DAMAGEFLAG_HALFDMGSELF			=			0b100000000,
 	DND_DAMAGEFLAG_INFLICTPOISON		=			0b1000000000,
 	DND_DAMAGEFLAG_BLASTSELF			=			0b10000000000,
+	DND_DAMAGEFLAG_SELFORIGIN			=			0b100000000000,
+	DND_DAMAGEFLAG_DOFULLDAMAGE			=			0b1000000000000,
+	DND_DAMAGEFLAG_EXTRATOUNDEAD		=			0b10000000000000,
 };
 
 enum {
 	DND_SCANNER_BFG,
 	DND_SCANNER_BFGUPGRADED,
+	DND_SCANNER_HEART
 };
 
-#define MAX_SCANNER_PARTICLES (DND_SCANNER_BFGUPGRADED + 1)
+#define MAX_SCANNER_PARTICLES (DND_SCANNER_HEART + 1)
 str ScannerAttackParticles[MAX_SCANNER_PARTICLES] = {
 	"BFGExtra2",
-	"BFGExtraUpgraded"
+	"BFGExtraUpgraded",
+	"HeartAttackPuff"
 };
 
 typedef struct scan_data {
@@ -76,8 +85,9 @@ typedef struct scan_data {
 } scan_data_T;
 
 scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
-	{ 1024.0, 0.278, 24.0 },
-	{ 1024.0, 0.278, 24.0 }
+	{ 1024.0, 			0.278, 				24.0 },
+	{ 1024.0,		 	0.278, 				24.0 },
+	{ 4096.0,		 	0.25, 				32.0 }
 };
 
 #define DND_CULL_BASEPERCENT 10 // 1 / 10
@@ -86,6 +96,8 @@ scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
 #define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
 #define DND_BASE_POISON_TIC 0.5
+
+#define DND_EXTRAUNDEADDMG_MULTIPLIER 3
 
 void AdjustDamageRetrievePointers(int flags) {
 	int temp;
@@ -145,33 +157,30 @@ int BigNumberFormula(int dmg, int f) {
 	return dmg;
 }
 
-// pellets is used for shotgun / burst type attacks which share the same damage uniformly to avoid recalculation of multiple of these
-int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags, bool isSpecial, int pellets) {
+int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags, bool isSpecial) {
 	// we don't cache special ammo damage
 	int dmg = 0;
 	int temp;
 	// get the damage
 	if(!isSpecial)
-		temp = GetCachedPlayerDamage(pnum, dmgid);
+		temp = GetCachedPlayerDamage(pnum, wepid, dmgid);
 	else // special ammo damage
 		temp = GetSpecialAmmoDamage(dmgid, wepid);
 		
 	// if there are shotgun things that have random values in them, we will include them as such into overall damage
-	int range = GetCachedPlayerRandomRange(pnum, dmgid);
-	if(range > 1) {
-		for(int i = 0; i < pellets; ++i)
-			dmg += temp * random(range & 0xFFFF, range >> 16);
-	}
-	else // no rng, so just set it to pellets * temp
-		dmg = temp * pellets;
+	int range = GetCachedPlayerRandomRange(pnum, wepid, dmgid);
+	if(range > 1)
+		dmg += temp * random(range & 0xFFFF, range >> 16);
+	else // no rng, so just set it to temp
+		dmg = temp;
 
 	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid) || isSpecial) {
 		// add flat damage bonus mapping talent name to flat bonus type
 		temp = MapTalentToFlatBonus(pnum, talent_type);
 		dmg += temp;
 		
-		ClearCache(pnum, dmgid, wepid);
-		CachePlayerFlatDamage(pnum, temp, dmgid); 
+		ClearCache(pnum, wepid, dmgid);
+		CachePlayerFlatDamage(pnum, temp, wepid, dmgid); 
 		
 		// quest or accessory bonuses
 		// is occult (add demon bane bonus)
@@ -179,7 +188,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE);
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		// gunslinger affected
@@ -187,7 +196,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward);
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		// shotgun affected
@@ -195,7 +204,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward);
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 			
 		// super weapon affected
@@ -203,7 +212,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward);
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		// include the stat bonus
@@ -211,7 +220,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = DND_STR_GAIN * GetStrength();
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		// occult uses intellect
@@ -219,13 +228,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = DND_INT_GAIN * GetIntellect();
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		else if(talent_type != TALENT_MELEE) {
 			temp = DND_DEX_GAIN * GetDexterity();
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		
@@ -238,7 +247,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp *= ENHANCEORB_BONUS;
 			dmg = dmg * (100 + temp) / 100;
 		
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 			
 		// finally apply damage type bonuses
@@ -249,21 +258,21 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		if(temp) {
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		// slot damage bonuses
 		temp = GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + GetWeaponSlotFromFlag(flags));
 		if(temp) {
 			dmg = dmg * (100 + temp) / 100;
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		// special damage increase attributes -- usually obtained by means of charms
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
 		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial)) {
 			dmg = dmg * (100 + temp) / 100;
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		
 		// shotgun damage bonus -- add hobos perk here too
@@ -273,7 +282,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			
 		if((flags & DND_WDMG_ISBOOMSTICK) && temp) {
 			dmg = dmg * (100 + temp) / 100;
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 		// apply flat health to damage conversion if player has any
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
@@ -281,20 +290,20 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = GetFlatHealthDamageFactor(temp);
 			dmg = dmg * (100 + temp) / 100;
 		
-			InsertCacheFactor(pnum, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 
-		MarkCachingComplete(pnum, dmgid);
+		MarkCachingComplete(pnum, wepid, dmgid);
 		printbold(s:"from regular");
 	}
 	else {
 		// Get the cached flat dmg and factor and apply them both
-		dmg += GetCachedPlayerFlatDamage(pnum, dmgid);
+		dmg += GetCachedPlayerFlatDamage(pnum, wepid, dmgid);
 		
 		// if there would be an overflow with dmg x temp (temp in [1.0, 65536.0], fixed)
 		// scale each part individually then add it up to form the new number -- 1000 seems to be a nice value for doom ranges
 		// but in general, the best result comes from an evenly split value
-		temp = GetCachedPlayerFactor(pnum, dmgid);
+		temp = GetCachedPlayerFactor(pnum, wepid, dmgid);
 		if(dmg < INT_MAX / temp) {
 			dmg *= temp;
 			dmg >>= 16;
@@ -305,7 +314,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		}
 		
 		// factor was stored as fixed, convert to int
-		printbold(s:"from cache ", d:GetCachedPlayerFlatDamage(pnum, dmgid), s: " ", f:GetCachedPlayerFactor(pnum, dmgid));
+		printbold(s:"from cache ", d:GetCachedPlayerFlatDamage(pnum, wepid, dmgid), s: " ", f:GetCachedPlayerFactor(pnum, wepid, dmgid));
 	}
 	
 	printbold(d:dmg);
@@ -350,9 +359,15 @@ bool IsPoisonDamage(int damage_type) {
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags) {
 	str s_damagetype = DamageTypeList[damage_type];
 	int temp;
+	
+	int pnum = -1;
+	if(isPlayer(source))
+		pnum = source - P_TIDSTART;
+	
 	// for now, just add full suffix at the end, later we'll instead make them bypass resists properly with numbers
 	if(
 		CheckActorInventory(source, "NetherCheck") 																				|| 
+		(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																					||
 		(IsOccultDamage(damage_type) && CheckActorInventory(source, "DnD_QuestReward_DreamingGodBonus"))						||
 		(IsEnergyDamage(damage_type) && CheckActorInventory(source, "Cyborg_Perk50")) 											||
 		(damage_type == DND_DAMAGETYPE_SOUL && CheckActorInventory(source, "StatbuffCounter_SoulWepsDoFullDamage"))				||
@@ -381,7 +396,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	}
 	
 	// handle resists and all that here
-	
 	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
 		GiveActorInventory(victim, "DnD_CullSuccess", 1);
 		
@@ -399,10 +413,50 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		}
 	}
 	
+	if(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD)
+		dmg *= DND_EXTRAUNDEADDMG_MULTIPLIER;
+	
+	// final check on explosions if we are hurting ourselves, factor in our resists and stuff like that
+	if(source == victim && pnum != -1) {
+		if(CheckActorInventory(source, "Ability_ExplosionMastery"))
+			dmg /= 2;
+		// check our self damage reductions
+		temp = Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 0, MAX_EXPRESIST_VAL) + CheckActorInventory(source, "Marine_Perk5") * DND_MARINE_SELFRESIST;
+		if(temp)
+			dmg = dmg * (MAX_EXPRESIST_VAL - temp) / MAX_EXPRESIST_VAL;
+	}
+	
 	printbold(s:"apply ", d:dmg, s: " of type ", s:DamageTypeList[damage_type]);
 	
 	Thing_Damage2(victim, dmg, DamageTypeList[damage_type]);
 }
+
+int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, int px, int py, int pz, int proj_r) {
+	// calculate damage falloff based on distance -- subtract projectile's radius from distance to get a better estimate
+	// idea here: monster hitboxes are actual rectangles and not circles, so unless hit occured perpendicular to the hitbox, you won't deal max damage
+	// to fix that, subtract (r + r * sqrt2) / 2, which is 1.207. Reason: radius scales from r to r * sqrt2 over the square's center to diagonal.
+	int res = dmg;
+	int dist = fdistance_delta(px - GetActorX(mon_id), py - GetActorY(mon_id), pz - GetActorZ(mon_id));
+	dist -= FixedMul(GetActorProperty(mon_id, APROP_RADIUS) + proj_r, 1.207);
+	
+	// printbold(s:"check dist: ", f:dist, s: " ", f:radius, s: " ", f:fullradius);
+	
+	// not within range, skip
+	if(dist >= radius)
+		return -1;
+		
+	// if full radius is more or equal, then we dont need to consider distance as a factor for scaling damage further
+	if(fullradius < radius) {
+		if(dist < 0)
+			dist = 0;
+		// we will reduce damage if we are past fullradius and within radius
+		if(dist > fullradius && dist <= radius) {
+			// printbold(s:"dist ", f:dist, s:" factor ", f:FixedDiv(radius - dist, radius - fullradius));
+			res = (res * FixedDiv(radius - dist, radius - fullradius)) >> 16;
+		}
+	}
+	return res;
+} 
 
 void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damage_type) {
 	int pnum = owner - P_TIDSTART;
@@ -415,6 +469,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	
 	int px = GetActorX(0), py = GetActorY(0), pz = GetActorZ(0);
 	int proj_r = GetActorProperty(0, APROP_RADIUS);
+	int final_dmg;
 
 	// set activator to player for dmg registry
 	SetActivator(P_TIDSTART + pnum);
@@ -429,29 +484,10 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		if(CheckFlag(mon_id, "NORADIUSDMG") && !CheckActorInventory(owner, "NetherCheck") && !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG))
 			continue;
 		
-		// calculate damage falloff based on distance -- subtract projectile's radius from distance to get a better estimate
-		// idea here: monster hitboxes are actual rectangles and not circles, so unless hit occured perpendicular to the hitbox, you won't deal max damage
-		// to fix that, subtract (r + r * sqrt2) / 2, which is 1.207. Reason: radius scales from r to r * sqrt2 over the square's center to diagonal.
-		int final_dmg = dmg;
-		int dist = fdistance_delta(px - GetActorX(mon_id), py - GetActorY(mon_id), pz - GetActorZ(mon_id));
-		dist -= FixedMul(GetActorProperty(mon_id, APROP_RADIUS) + proj_r, 1.207);
+		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, px, py, pz, proj_r);
 		
-		// printbold(s:"check dist: ", f:dist, s: " ", f:radius, s: " ", f:fullradius);
-		
-		// not within range, skip
-		if(dist >= radius)
+		if(final_dmg == -1)
 			continue;
-			
-		// if full radius is more or equal, then we dont need to consider distance as a factor for scaling damage further
-		if(fullradius < radius) {
-			if(dist < 0)
-				dist = 0;
-			// we will reduce damage if we are past fullradius and within radius
-			if(dist > fullradius && dist <= radius) {
-				// printbold(s:"dist ", f:dist, s:" factor ", f:FixedDiv(radius - dist, radius - fullradius));
-				final_dmg = (final_dmg * FixedDiv(radius - dist, radius - fullradius)) >> 16;
-			}
-		}
 		
 		// dont deal 0 dmg
 		if(!final_dmg)
@@ -460,6 +496,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		HandleDamageDeal(owner, mon_id, final_dmg, damage_type, flags);
 		
 		//printbold(s:"Dealing ", d: final_dmg, s: " damage to ", d:mon_id, s: " of type ", s:DamageTypeList[damage_type]);
+	}
+	
+	// finally check player, if we are close to our own explosion with self dmg flag, hurt us too
+	if(flags & DND_DAMAGEFLAG_BLASTSELF) {
+		// we are the owner here at this point, we can use 0 for ourselves
+		final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
+		HandleDamageDeal(owner, owner, final_dmg, damage_type, flags);
 	}
 	
 	// damage is dealt we are done with this instance, free it up

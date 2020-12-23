@@ -154,7 +154,7 @@ Actor RocketX : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_ROCKETLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 144 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			MISL B 8 Bright
@@ -188,7 +188,7 @@ Actor NewRocket : RocketX {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_TORPEDOLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			MISL B 8 Bright
@@ -280,12 +280,11 @@ Actor MercuryExplosion : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 2 ACS_NamedExecuteAlways("DnD Target Fix")
-			TNT1 A 0 A_SetArg(0, 3)
+			TNT1 A 0 A_SetArg(0, 8)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MERCURYLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Again:
 			TNT1 A 1 
 		Goto DoExplosionDamage
@@ -434,8 +433,13 @@ ACTOR "Upgraded Rocket Launcher3" : Weapon {
 		
 		Reload:
 			TNT1 A 0 A_JumpIfInventory("FlakShell", 1, "ContinueCheck")
+			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "ZoomFailReload")
 			VS9G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
+		ZoomFailReload:
+			V9ZG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		
 		ContinueCheck:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_18", 0, "NoReload")
 			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "UnzoomReload")
@@ -576,7 +580,6 @@ Actor VindicatorShooter2 : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
 		NoTake:
 			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 10))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_VINDICATOR << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT5, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_FireBullets (5.2 * (1.0 - accuracy * accuracy_factor), 3.9 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
 		Stop
@@ -607,7 +610,7 @@ Actor FlakShellPuff : DnD_BasePuff {
 	+ALWAYSPUFF
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Get Shotgun Damage"))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_VINDICATOR << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT5))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
 		Goto DoDamage
@@ -630,12 +633,10 @@ Actor FlakShellExplosion : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 1
-			TNT1 A 2 ACS_NamedExecuteAlways("DnD Target Fix")
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 			TNT1 A 1 
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
@@ -660,7 +661,6 @@ ACTOR FlakProjectile : DnD_BaseFastProjectile {
 		Spawn:
 			TNT1 A 1 NoDelay A_ScaleVelocity(0.1)
 			TNT1 A 0 A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
-			TNT1 A 2 ACS_NamedExecuteAlways("DnD Target Fix")
 			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
 			TNT1 A 0 A_ScaleVelocity(1.0)
 		SpawnLoop:
@@ -698,7 +698,7 @@ Actor FlakProjectileExplosion1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_VINDICATOR << 16), TALENT_EXPLOSIVE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DEXP ABCDEFGHIJK 2 Bright
@@ -937,7 +937,7 @@ Actor NormalGrenade : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GRENADELAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 144 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			MISL B 8 Bright
@@ -968,7 +968,7 @@ Actor NewGrenade : NormalGrenade {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_ROTARYGRENADELAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 192 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1 A_SpawnItem("NewGrenadeExplosion")
@@ -1081,7 +1081,7 @@ ACTOR HomRocket1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYMISSILELAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			MACX A 2 Bright

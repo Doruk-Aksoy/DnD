@@ -80,19 +80,6 @@ object InfernoSwordPuff {
 	frame DKATM { light InfernoPuffLight5 }
 }
 
-object InfernoSwordPuff_FullDMG {
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
 object InfernoSwordMissile_1 {
 	frame DKATA { light InfernoProjLight }
 	frame DKATB { light InfernoProjLight }
@@ -162,91 +149,6 @@ object InfernoSwordMissile_4 {
 }
 
 object InfernoSwordMissile_5 {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_1_FullDMG {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_2_FullDMG {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_3_FullDMG {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_4_FullDMG {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_5_FullDMG {
 	frame DKATA { light InfernoProjLight }
 	frame DKATB { light InfernoProjLight }
 	frame DKATC { light InfernoProjLight }
@@ -333,10 +235,6 @@ Object FTFire {
 	Frame FRFX { Light FlameThrowerFire }
 }
 
-Object FTFire_Full {	
-	Frame FRFX { Light FlameThrowerFire }
-}
-
 FlickerLight2 DropFlame {
 	Offset 0 0 0
 	Color 0.15 0.04 0.0
@@ -346,10 +244,6 @@ FlickerLight2 DropFlame {
 }
 
 Object DropFire {
-	Frame FLME { Light DropFlame }
-}
-
-object DropFire_Full {
 	Frame FLME { Light DropFlame }
 }
 
@@ -370,15 +264,6 @@ flickerlight MeteorLauncherLight3 {
 }
 
 object MeteorMissile {
-	frame RW6AE { light MeteorLauncherLight1 }
-	frame RW6AF { light MeteorLauncherLight2 }
-	frame RW6AG { light MeteorLauncherLight3 }
-	frame RW6AH { light MeteorLauncherLight3 }
-	frame RW6AI { light MeteorLauncherLight3 }
-	frame RW6AJ { light MeteorLauncherLight3 }
-}
-
-object MeteorMissile_Full {
 	frame RW6AE { light MeteorLauncherLight1 }
 	frame RW6AF { light MeteorLauncherLight2 }
 	frame RW6AG { light MeteorLauncherLight3 }
@@ -414,21 +299,7 @@ object MeteorMissileSplit_1 {
 	frame RW6FL { light MeteorLauncherLight7 }
 }
 
-object MeteorMissileSplit_1Full {
-	frame RW6FI { light MeteorLauncherLight4 }
-	frame RW6FJ { light MeteorLauncherLight5 }
-	frame RW6FK { light MeteorLauncherLight6 }
-	frame RW6FL { light MeteorLauncherLight7 }
-}
-
 object MeteorMissileSplit_2 {
-	frame RW6FI { light MeteorLauncherLight4 }
-	frame RW6FJ { light MeteorLauncherLight5 }
-	frame RW6FK { light MeteorLauncherLight6 }
-	frame RW6FL { light MeteorLauncherLight7 }
-}
-
-object MeteorMissileSplit_2Full {
 	frame RW6FI { light MeteorLauncherLight4 }
 	frame RW6FJ { light MeteorLauncherLight5 }
 	frame RW6FK { light MeteorLauncherLight6 }
@@ -443,10 +314,6 @@ flickerlight AcidLight {
 }
 
 object AcidPuff {
-	frame RIF2 { light AcidLight }
-}
-
-object AcidPuff_FullDMG {
 	frame RIF2 { light AcidLight }
 }
 
@@ -500,17 +367,6 @@ object BloodFX2A {
 	frame BLF2F { light WheelOfTormentLight7 }
 }
 
-object BloodFX2A_FullDMG {
-	frame BLBA { light WheelOfTormentLight1 }
-	
-	frame BLF2A { light WheelOfTormentLight2 }
-	frame BLF2B { light WheelOfTormentLight3 }
-	frame BLF2C { light WheelOfTormentLight4 }
-	frame BLF2D { light WheelOfTormentLight5 }
-	frame BLF2E { light WheelOfTormentLight6 }
-	frame BLF2F { light WheelOfTormentLight7 }
-}
-
 object BloodDrainFX {
 	frame BLF2A { light WheelOfTormentLight2 }
 	frame BLF2B { light WheelOfTormentLight3 }
@@ -520,25 +376,7 @@ object BloodDrainFX {
 	frame BLF2F { light WheelOfTormentLight7 }
 }
 
-object BloodDrainFX_FullDMG {
-	frame BLF2A { light WheelOfTormentLight2 }
-	frame BLF2B { light WheelOfTormentLight3 }
-	frame BLF2C { light WheelOfTormentLight4 }
-	frame BLF2D { light WheelOfTormentLight5 }
-	frame BLF2E { light WheelOfTormentLight6 }
-	frame BLF2F { light WheelOfTormentLight7 }
-}
-
 object BloodFX3 {
-	frame BLFXA { light WheelOfTormentLight4 }
-	frame BLFXB { light WheelOfTormentLight5 }
-	frame BLFXC { light WheelOfTormentLight5 }
-	frame BLFXD { light WheelOfTormentLight6 }
-	frame BLFXE { light WheelOfTormentLight6 }
-	frame BLFXF { light WheelOfTormentLight7 }
-}
-
-object BloodFX3_FullDMG {
 	frame BLFXA { light WheelOfTormentLight4 }
 	frame BLFXB { light WheelOfTormentLight5 }
 	frame BLFXC { light WheelOfTormentLight5 }

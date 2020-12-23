@@ -275,6 +275,7 @@ Actor DnD_TestShitter : DnD_Activator {
 }
 
 Actor DnD_BasePuff {
+	+MISSILE // fast owner transfer, puffs require a delayed script for this, this way they dont
 	+PUFFGETSOWNER
 	+PUFFONACTORS
 	+HITTRACER
@@ -295,7 +296,6 @@ Actor DnD_BasePuff {
 			TNT1 A 0 A_SpawnItemEx("WallHitSpark", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 			PUFF A 4 bright A_PlaySound("puff/ric")
 			PUFF B 4
-		Melee:
 			PUFF CD 4
 		stop
 		DontSpawnPuff:
@@ -405,4 +405,24 @@ Actor TestShitterPuff : BulletPuff {
 			SARG A 1
 		Stop
 	}
+}
+
+Actor DnD_TestRipper : DnD_BaseProjectile {
+	Height 8
+	Radius 4
+	Damage (2)
+	Scale 0.25
+	Speed 40
+	+RIPPER
+	States {
+		SpawnState:
+			SARG A 1
+		Loop
+		XDeath:
+			TNT1 A 0 A_SpawnItemEx("HealthBonus")
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}
 }*/

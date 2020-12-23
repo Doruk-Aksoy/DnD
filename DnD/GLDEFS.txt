@@ -1,6 +1,7 @@
 #include "GLDefs/Items.txt"
 #include "GLDefs/Orbs.txt"
 #include "GLDefs/Special.txt"
+#include "GLDefs/Puffs.txt"
 #include "GLDefs/Slot1.txt"
 #include "GLDefs/Slot2.txt"
 #include "GLDefs/Slot3.txt"

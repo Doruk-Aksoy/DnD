@@ -57,93 +57,6 @@ object ExplodingPuff
 	frame DKSXX { light EXPSHELL4 }
 }
 
-object ExplodingPuff_FullDMG
-{
-	frame DKSXA { light EXPSHELL1 }
-	frame DKSXB { light EXPSHELL1 }
-	frame DKSXC { light EXPSHELL1 }
-	frame DKSXD { light EXPSHELL2 }
-	frame DKSXE { light EXPSHELL2 }
-	frame DKSXF { light EXPSHELL2 }
-	frame DKSXG { light EXPSHELL2 }
-	frame DKSXH { light EXPSHELL3 }
-	frame DKSXI { light EXPSHELL3 }
-	frame DKSXJ { light EXPSHELL3 }
-	frame DKSXK { light EXPSHELL4 }
-	frame DKSXL { light EXPSHELL4 }
-	
-	frame DKSXM { light EXPSHELL1 }
-	frame DKSXN { light EXPSHELL1 }
-	frame DKSXO { light EXPSHELL1 }
-	frame DKSXP { light EXPSHELL2 }
-	frame DKSXQ { light EXPSHELL2 }
-	frame DKSXR { light EXPSHELL2 }
-	frame DKSXS { light EXPSHELL2 }
-	frame DKSXT { light EXPSHELL3 }
-	frame DKSXU { light EXPSHELL3 }
-	frame DKSXV { light EXPSHELL3 }
-	frame DKSXW { light EXPSHELL4 }
-	frame DKSXX { light EXPSHELL4 }
-}
-
-object ExplodingPuffNoSelfDmg
-{
-	frame DKSXA { light EXPSHELL1 }
-	frame DKSXB { light EXPSHELL1 }
-	frame DKSXC { light EXPSHELL1 }
-	frame DKSXD { light EXPSHELL2 }
-	frame DKSXE { light EXPSHELL2 }
-	frame DKSXF { light EXPSHELL2 }
-	frame DKSXG { light EXPSHELL2 }
-	frame DKSXH { light EXPSHELL3 }
-	frame DKSXI { light EXPSHELL3 }
-	frame DKSXJ { light EXPSHELL3 }
-	frame DKSXK { light EXPSHELL4 }
-	frame DKSXL { light EXPSHELL4 }
-	
-	frame DKSXM { light EXPSHELL1 }
-	frame DKSXN { light EXPSHELL1 }
-	frame DKSXO { light EXPSHELL1 }
-	frame DKSXP { light EXPSHELL2 }
-	frame DKSXQ { light EXPSHELL2 }
-	frame DKSXR { light EXPSHELL2 }
-	frame DKSXS { light EXPSHELL2 }
-	frame DKSXT { light EXPSHELL3 }
-	frame DKSXU { light EXPSHELL3 }
-	frame DKSXV { light EXPSHELL3 }
-	frame DKSXW { light EXPSHELL4 }
-	frame DKSXX { light EXPSHELL4 }
-}
-
-object ExplodingPuffNoSelfDmg_FullDMG
-{
-	frame DKSXA { light EXPSHELL1 }
-	frame DKSXB { light EXPSHELL1 }
-	frame DKSXC { light EXPSHELL1 }
-	frame DKSXD { light EXPSHELL2 }
-	frame DKSXE { light EXPSHELL2 }
-	frame DKSXF { light EXPSHELL2 }
-	frame DKSXG { light EXPSHELL2 }
-	frame DKSXH { light EXPSHELL3 }
-	frame DKSXI { light EXPSHELL3 }
-	frame DKSXJ { light EXPSHELL3 }
-	frame DKSXK { light EXPSHELL4 }
-	frame DKSXL { light EXPSHELL4 }
-	
-	frame DKSXM { light EXPSHELL1 }
-	frame DKSXN { light EXPSHELL1 }
-	frame DKSXO { light EXPSHELL1 }
-	frame DKSXP { light EXPSHELL2 }
-	frame DKSXQ { light EXPSHELL2 }
-	frame DKSXR { light EXPSHELL2 }
-	frame DKSXS { light EXPSHELL2 }
-	frame DKSXT { light EXPSHELL3 }
-	frame DKSXU { light EXPSHELL3 }
-	frame DKSXV { light EXPSHELL3 }
-	frame DKSXW { light EXPSHELL4 }
-	frame DKSXX { light EXPSHELL4 }
-}
-
 object SlayerExplosionFX {
 	frame IREPE { light ROCKET_X1 }
 	frame IREPF { light ROCKET_X1 }
@@ -171,7 +84,7 @@ pointlight EmeraldLight {
     size 12
 }
 
-object EmeraldPuff_FX
+object EmeraldPuff
 {
 	frame IDSE { light EmeraldLight }
 }
@@ -207,17 +120,6 @@ pointlight EmeraldRainerLight5
 }
 
 object EmeraldRainer {
-    frame JWPRA { light EmeraldRainerLight1 }
-    frame JWPRB { light EmeraldRainerLight1 }
-    frame JWPRC { light EmeraldRainerLight1 }
-
-    frame JWPRD { light EmeraldRainerLight2 }
-    frame JWPRE { light EmeraldRainerLight3 }
-    frame JWPRF { light EmeraldRainerLight4 }
-    frame JWPRG { light EmeraldRainerLight5 }
-}
-
-object EmeraldRainer_FullDMG {
     frame JWPRA { light EmeraldRainerLight1 }
     frame JWPRB { light EmeraldRainerLight1 }
     frame JWPRC { light EmeraldRainerLight1 }
@@ -267,14 +169,3 @@ object EmeraldRain {
     frame JADEH { light EmeraldRainLight4 }
     frame JADEI { light EmeraldRainLight5 }
 }
-
-object EmeraldRain_FullDMG {
-    frame JADED { light EmeraldRainLight1 }
-    frame JADEE { light EmeraldRainLight1 }
-
-    frame JADEF { light EmeraldRainLight2 }
-    frame JADEG { light EmeraldRainLight3 }
-    frame JADEH { light EmeraldRainLight4 }
-    frame JADEI { light EmeraldRainLight5 }
-}
-

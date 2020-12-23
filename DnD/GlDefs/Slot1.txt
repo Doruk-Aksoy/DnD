@@ -18,12 +18,6 @@ object ExcalibatBall
     frame D3BX { light EXCALIBOOM }
 }
 
-object ExcalibatBall_FullDMG
-{
-	frame ECAL { light EXCALIBOLT }
-    frame D3BX { light EXCALIBOOM }
-}
-
 flickerlight FDKatanaNormalSlashLight1
 {
     color 0.1 0.1 0.1

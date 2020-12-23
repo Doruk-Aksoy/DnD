@@ -7,25 +7,7 @@ object RocketX
     frame MISLD { light ROCKET_X3 }
 }
 
-object RocketX_FullDMG
-{
-    frame MISLA { light ROCKET }
-
-    frame MISLB { light ROCKET_X1 }
-    frame MISLC { light ROCKET_X2 }
-    frame MISLD { light ROCKET_X3 }
-}
-
 object NewRocket
-{
-    frame MICM { light ROCKET }
-
-    frame MISLB { light ROCKET_X1 }
-    frame MISLC { light ROCKET_X2 }
-    frame MISLD { light ROCKET_X3 }
-}
-
-object NewRocket_FullDMG
 {
     frame MICM { light ROCKET }
 
@@ -44,13 +26,6 @@ object CyberdemonRocket
 }
 
 object NormalGrenade
-{
-    frame MISLB { light ROCKET_X1 }
-    frame MISLC { light ROCKET_X2 }
-    frame MISLD { light ROCKET_X3 }
-}
-
-object NormalGrenade_FullDMG
 {
     frame MISLB { light ROCKET_X1 }
     frame MISLC { light ROCKET_X2 }
@@ -109,37 +84,7 @@ Object HomRocket1
 	frame MACXJ { light ROCKET_X3 }
 }
 
-Object HomRocket1_FullDMG
-{
-	frame HMISA { light ROCKET }
-	frame MACXA { light ROCKET_X1 }
-	frame MACXB { light ROCKET_X1 }
-	frame MACXC { light ROCKET_X1 }
-	frame MACXD { light ROCKET_X2 }
-	frame MACXE { light ROCKET_X2 }
-	frame MACXF { light ROCKET_X2 }
-	frame MACXG { light ROCKET_X2 }
-	frame MACXH { light ROCKET_X3 }
-	frame MACXI { light ROCKET_X3 }
-	frame MACXJ { light ROCKET_X3 }
-}
-
 object HomRocket1NH
-{
-	frame HMISA { light ROCKET }
-	frame MACXA { light ROCKET_X1 }
-	frame MACXB { light ROCKET_X1 }
-	frame MACXC { light ROCKET_X1 }
-	frame MACXD { light ROCKET_X2 }
-	frame MACXE { light ROCKET_X2 }
-	frame MACXF { light ROCKET_X2 }
-	frame MACXG { light ROCKET_X2 }
-	frame MACXH { light ROCKET_X3 }
-	frame MACXI { light ROCKET_X3 }
-	frame MACXJ { light ROCKET_X3 }
-}
-
-object HomRocket1NH_FullDMG
 {
 	frame HMISA { light ROCKET }
 	frame MACXA { light ROCKET_X1 }
@@ -239,18 +184,18 @@ object InquisitorShot
     frame FP97I { light INQSHOT_X9 }
 }
 
-object FlakProjectileExplosionFX1 {
+object FlakProjectileExplosion1 {
 	frame DEXP { light INQSHOT_X8 }
 }
 
-object FlakProjectileExplosionFX2 {
+object FlakProjectileExplosion2 {
 	frame DXP2 { light INQSHOT_X8 }
 }
 
-object FlakProjectileExplosionFX3 {
+object FlakProjectileExplosion3 {
 	frame DXP3 { light INQSHOT_X8 }
 }
 
-object FlakProjectileExplosionFX4 {
+object FlakProjectileExplosion4 {
 	frame DXP4 { light INQSHOT_X8 }
 }

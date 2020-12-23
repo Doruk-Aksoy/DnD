@@ -1,4 +1,6 @@
 enum {
+	DND_DAMAGETYPE_MELEE,
+	DND_DAMAGETYPE_MELEEOCCULT,
 	DND_DAMAGETYPE_PHYSICAL,
 	DND_DAMAGETYPE_SILVERBULLET,
 	DND_DAMAGETYPE_ENERGY,
@@ -31,9 +33,13 @@ enum {
 	DND_DAMAGEFLAG_HALFDMGSELF = 256,						// explosion only deals half damage to user
 	DND_DAMAGEFLAG_INFLICTPOISON = 512,						// even if it doesnt have damage type of poison, it can inflict one
 	DND_DAMAGEFLAG_BLASTSELF = 1024,						// explosion hurts self
+	DND_DAMAGEFLAG_SELFORIGIN = 2048,						// uses self as origin of scan attack
+	DND_DAMAGEFLAG_DOFULLDAMAGE = 4096,						// does forced full damage
+	DND_DAMAGEFLAG_EXTRATOUNDEAD = 8192,					// do additional x3 more damage to undead
 };
 
 enum {
 	DND_SCANNER_BFG,
 	DND_SCANNER_BFGUPGRADED,
+	DND_SCANNER_HEART
 };

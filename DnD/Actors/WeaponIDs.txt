@@ -130,34 +130,3 @@ enum {
 	DND_OVERHEAT_DESOLATOR,
 	DND_OVERHEAT_DEATHRAY
 };
-
-Actor PelletCounter : DnD_Info { }
-
-// args4 for pellet count, args3 for damage, arg2 for starting pellet count
-Actor Pellets : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_SetArg(2, 20)
-			TNT1 A 0 A_SetArg(3, damage)
-			TNT1 A 0 A_SetArg(4, 20)
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "NewBulletPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
-		Stop
-		
-		FullStart:
-			TNT1 A 0 A_JumpIf(Args[4], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "NewBulletPuff_FullDMG", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto FullStart
-	}
-}

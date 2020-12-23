@@ -23,7 +23,8 @@ Actor DnD_PoisonFX {
 	const float v = 1.5;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_ChangeVelocity(frandom(-v, v), frandom(-v, v), frandom(-v / 2, v / 2), CVF_REPLACE)
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_ChangeVelocity(frandom(-v, v), frandom(-v, v), frandom(-v / 2, v / 2), CVF_REPLACE)
 			DB58 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 A_FadeOut(frandom(0.035, 0.075))
 		Stop
 	}

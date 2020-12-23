@@ -9,10 +9,6 @@ object PoisonNovaProjectile {
 	frame S001 { light PoisonNovaLight }
 }
 
-object PoisonNovaProjectile_FullDMG {
-	frame S001 { light PoisonNovaLight }
-}
-
 flickerlight MoltenBoulderLight {
 	color 0.825 0.275 0.0
     size 48

@@ -392,7 +392,7 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEVASTATOR << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1 A_SpawnItem("DevastatorExplosion")
@@ -1563,8 +1563,6 @@ Actor GaussExplosion1 : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Target Fix")
-
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
@@ -1581,8 +1579,6 @@ Actor GaussExplosion2 : GaussExplosion1 {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Target Fix")
-
 			TNT1 A 0 A_SetUserVar("user_expdmg", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
@@ -1596,8 +1592,6 @@ Actor GaussExplosion3 : GaussExplosion1 {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Target Fix")
-
 			TNT1 A 0 A_SetUserVar("user_expdmg", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
@@ -1611,8 +1605,6 @@ Actor GaussExplosion4 : GaussExplosion1 {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Target Fix")
-
 			TNT1 A 0 A_SetUserVar("user_expdmg", 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)

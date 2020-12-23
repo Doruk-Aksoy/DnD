@@ -63,27 +63,7 @@ Actor Doomguy_DemonSoul_PickMsg : CustomInventory {
 	}
 }
 
-Actor Marine_Perk5 : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-	
-	damagefactor "Explosives", 0.75
-	damagefactor "ExplosivesFull", 0.75
-	damagefactor "Explosives_Magic", 0.75
-	damagefactor "Explosives_MagicFull", 0.75
-	damagefactor "EnergyExp", 0.75
-	damagefactor "EnergyExpFull", 0.75
-	damagefactor "MagicFireExp", 0.75
-	damagefactor "MagicFireExpFull", 0.75
-	damagefactor "SoulTypeExp", 0.75
-	damagefactor "SoulTypeExpFull", 0.75
-	damagefactor "FireExp", 0.75
-	damagefactor "FireExpFull", 0.75
-	damagefactor "MagicExp", 0.75
-	damagefactor "MagicExpFull", 0.75
-	damagefactor "LightningExp", 0.75
-	damagefactor "LightningExpFull", 0.75
-}
+Actor Marine_Perk5 : DnD_Boolean { }
 
 Actor Marine_Perk25 : PowerProtection {
 	damagefactor "normal", 1.0

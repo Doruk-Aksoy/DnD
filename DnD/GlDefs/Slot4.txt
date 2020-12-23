@@ -32,25 +32,7 @@ Object EbonyBalls {
 	frame BAXPF { light EBONBALL5 }
 }
 
-Object EbonyBalls_FullDMG {
-	frame BAXPA { light EBONBALL1 }
-	frame BAXPB { light EBONBALL2 }
-	frame BAXPC { light EBONBALL3 }
-	frame BAXPD { light EBONBALL4 }
-	frame BAXPE { light EBONBALL5 }
-	frame BAXPF { light EBONBALL5 }
-}
-
 Object EbonyBalls2 {
-	frame BAXPA { light EBONBALL1 }
-	frame BAXPB { light EBONBALL2 }
-	frame BAXPC { light EBONBALL3 }
-	frame BAXPD { light EBONBALL4 }
-	frame BAXPE { light EBONBALL5 }
-	frame BAXPF { light EBONBALL5 }
-}
-
-Object EbonyBalls2_FullDMG {
 	frame BAXPA { light EBONBALL1 }
 	frame BAXPB { light EBONBALL2 }
 	frame BAXPC { light EBONBALL3 }
@@ -252,15 +234,6 @@ object FusionBlasterProjectile {
 	frame FUS9F { light FusionBlasterLight4 }
 }
 
-object FusionBlasterProjectile_FullDMG {
-	frame FUS9A { light FusionBlasterLight1 }
-	frame FUS9B { light FusionBlasterLight1 }
-	frame FUS9C { light FusionBlasterLight1 }
-	frame FUS9D { light FusionBlasterLight2 }
-	frame FUS9E { light FusionBlasterLight3 }
-	frame FUS9F { light FusionBlasterLight4 }
-}
-
 flickerlight FusionBlasterLight5
 {
     color 0.5 0.5 1.0
@@ -305,22 +278,6 @@ object FusionBlasterGrenade {
 	frame FUG9L { light FusionBlasterLight9 }
 }
 
-object FusionBlasterGrenade_FullDMG {
-	frame FUG9A { light FusionBlasterLight5 }
-	frame FUG9B { light FusionBlasterLight5 }
-	frame FUG9C { light FusionBlasterLight5 }
-	frame FUG9D { light FusionBlasterLight5 }
-	
-	frame FUG9E { light FusionBlasterLight6 }
-	frame FUG9F { light FusionBlasterLight6 }
-	frame FUG9G { light FusionBlasterLight7 }
-	frame FUG9H { light FusionBlasterLight7 }
-	frame FUG9I { light FusionBlasterLight8 }
-	frame FUG9J { light FusionBlasterLight8 }
-	frame FUG9K { light FusionBlasterLight9 }
-	frame FUG9L { light FusionBlasterLight9 }
-}
-
 flickerlight DesolatorLight {
 	color 0.15 1.0 0.15
 	size 16
@@ -329,15 +286,6 @@ flickerlight DesolatorLight {
 }
 
 object DesolatorPuff {
-	frame DES5A { light DesolatorLight }
-	frame DES5B { light DesolatorLight }
-	frame DES5C { light DesolatorLight }
-	frame DES5D { light DesolatorLight }
-	frame DES5E { light DesolatorLight }
-	frame DES5F { light DesolatorLight }
-}
-
-object DesolatorPuff_FullDMG {
 	frame DES5A { light DesolatorLight }
 	frame DES5B { light DesolatorLight }
 	frame DES5C { light DesolatorLight }

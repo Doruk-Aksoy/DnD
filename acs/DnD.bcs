@@ -3061,11 +3061,11 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 
 // Used in Select statement of weapons, caches the weapon damage numbers this weapon can cause
 Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) {
-	CachePlayerDamage(PlayerNumber(), dmg, dmg_id & 0xFFFF, dmg_rand, wepid);
+	CachePlayerDamage(PlayerNumber(), dmg, wepid, dmg_id, dmg_rand);
 	SetResultValue(0);
 }
 
-Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags, int pellets) {
+Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	bool isSpecial = flags & DND_WDMG_ISSPECIALAMMO;
 	int wepid = dmgid >> 16;
 	dmgid &= 0xFFFF;
@@ -3074,9 +3074,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags, int 
 
 	int pnum = PlayerNumber();
 	
-	if(!pellets)
-		pellets = 1;
-	int res = ScaleCachedDamage(wepid, pnum, dmgid, talent_type, flags, isSpecial, pellets);
+	int res = ScaleCachedDamage(wepid, pnum, dmgid, talent_type, flags, isSpecial);
 	
 	// special weapons checks -- these are added on top of everything else as the last thing, before crits
 	// they are also dynamic and cant be cached...
@@ -3086,8 +3084,6 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags, int 
 		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
 		
 	res = HandleWeaponCrit(res, wepid, pnum, dmgid, isSpecial);
-	if(pellets > 1)
-		SetInventory("DnD_ShotgunDamageHolder", res / pellets);
 	
 	SetResultValue(res);
 }
@@ -3095,13 +3091,6 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags, int 
 Script "tester shit" (void) {
 	printbold(s:"haha yes");
 	SetResultValue(0);
-}
-
-// accessed by puffs so target is the player -- we need this construct because we cant use Args of player in here
-Script "DnD Get Shotgun Damage" (void) {
-	SetActivatorToTarget(0);
-	//printbold(s:"shotgun damage returrn: ", d:CheckInventory("DnD_ShotgunDamageHolder"));
-	SetResultValue(CheckInventory("DnD_ShotgunDamageHolder"));
 }
 
 // Used mainly for non-weapons (like artifacts and so on)
@@ -3301,7 +3290,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	
 	int tcount = 0;
 	int tidlim = 0;
-	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int owner = (flags & DND_DAMAGEFLAG_SELFORIGIN) ? ActivatorTID() : GetActorProperty(0, APROP_TARGETTID);
 	int pnum = owner - P_TIDSTART;
 	
 	// init list
@@ -3311,10 +3300,11 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	}
 	
 	// face player to the originator temporarily to get projection to there
-	/*int prev_ang = GetActorAngle(owner);
-	FaceActor(owner, 0);*/
+	int prev_ang = GetActorAngle(owner);
+	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
+		FaceActor(owner, 0);
 	
-	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg);
+	printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg);
 	// pick tracer_count closest enemies
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(IsActorAlive(i)) {
@@ -3353,7 +3343,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	}
 	
 	// fix angle
-	//SetActorAngle(owner, prev_ang);
+	SetActorAngle(owner, prev_ang);
 	
 	if(tcount) {
 		// damage credit
@@ -3928,11 +3918,6 @@ Script "DnD Pellet Count" (int base, int flags) {
 		res += DND_HOBO_SHOTGUNPELLETBONUS;
 	
 	SetResultValue(res * base / 100); 
-}
-
-Script "DnD Pellet Shooter" (int amt, int id) {
-	str actor = WeaponPelletActors[id];
-	GiveInventory(actor, amt);
 }
 
 Script "DnD Explosion Radius Retrieve" (int flags) {

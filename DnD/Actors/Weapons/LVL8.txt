@@ -534,7 +534,7 @@ Actor HellFireTrailFExp : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 9)
 			TNT1 A 0 A_SetUserVar("user_expradius", 72 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_SOUL | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		
 		ExplosionLoop:		
 			TNT1 A 0 A_SetUserVar("user_expdmg", random(6, 8) * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
@@ -1100,6 +1100,18 @@ Actor SunShooter : DnD_Activator {
 	}
 }
 
+Actor SunPuff_HitFX {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Alpha 0.85
+	RenderStyle Translucent
+	States {
+		Spawn:
+			SUNP BCDEFGH 2 Bright
+		Stop
+	}
+}
+
 Actor SunPuff : DnD_BaseRailPuff {
 	Height 8
 	Radius 4
@@ -1114,6 +1126,7 @@ Actor SunPuff : DnD_BaseRailPuff {
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 0 A_PlaySound("weapons/SunStaffHit")
+			TNT1 A 0 A_SpawnItemEx("SunPuff_HitFX")
 			BEAM BCDEF 2
 		Stop
 		Crash:

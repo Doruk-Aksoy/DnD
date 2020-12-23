@@ -31,7 +31,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/ProjectileBase.txt"
 
 // Resists
-#include "Actors/Items/Resists/ExpResist.txt"
 #include "Actors/Items/Resists/ElemResist.txt"
 #include "Actors/Items/Resists/PhysResist.txt"
 #include "Actors/Items/Resists/Weaken.txt"

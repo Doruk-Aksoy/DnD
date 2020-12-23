@@ -172,109 +172,6 @@ object HellFireTrailC
     frame FX1UM { light VOLBOMB_X5 }	
 }
 
-object VolcanoFireball6Fire_FullDMG
-{
-    frame FFLG { light PURPLEFIRE }
-}
-
-object VolcanoFireball5_FullDMG
-{
-    frame VOL3A { light VOLCANOSHOT3 }
-    frame VOL3B { light VOLCANOSHOT3 }
-    frame VOL3C { light VOLBOMB_X1 }
-    frame VOL3D { light VOLBOMB_X2 }
-    frame VOL3E { light VOLBOMB_X3 }
-    frame VOL3F { light VOLBOMB_X4 }
-    frame VOL3G { light VOLBOMB_X5 }
-    frame VOL3H { light VOLBOMB_X5 }
-}
-
-object HellFireLinkF_FullDMG
-{
-    frame FX13I { light VOLBOMB_X1 }
-    frame FX13J { light VOLBOMB_X2 }
-    frame FX13K { light VOLBOMB_X3 }
-    frame FX13L { light VOLBOMB_X4 }
-    frame FX13M { light VOLBOMB_X5 }
-}
-
-object HellFireLinkC_FullDMG
-{
-    frame FX1UI { light VOLBOMB_X1 }
-    frame FX1UJ { light VOLBOMB_X2 }
-    frame FX1UK { light VOLBOMB_X3 }
-    frame FX1UL { light VOLBOMB_X4 }
-    frame FX1UM { light VOLBOMB_X5 }
-}
-
-object HellFireLinkFL_FullDMG
-{
-    frame FX13I { light VOLBOMB_X1 }
-    frame FX13J { light VOLBOMB_X2 }
-    frame FX13K { light VOLBOMB_X3 }
-    frame FX13L { light VOLBOMB_X4 }
-    frame FX13M { light VOLBOMB_X5 }
-}
-
-object HellFireLinkCL_FullDMG
-{
-    frame FX1UI { light VOLBOMB_X1 }
-    frame FX1UJ { light VOLBOMB_X2 }
-    frame FX1UK { light VOLBOMB_X3 }
-    frame FX1UL { light VOLBOMB_X4 }
-    frame FX1UM { light VOLBOMB_X5 }
-}
-
-object HellFireLinkFR_FullDMG
-{
-    frame FX13I { light VOLBOMB_X1 }
-    frame FX13J { light VOLBOMB_X2 }
-    frame FX13K { light VOLBOMB_X3 }
-    frame FX13L { light VOLBOMB_X4 }
-    frame FX13M { light VOLBOMB_X5 }
-}
-
-object HellFireLinkCR_FullDMG
-{
-    frame FX1UI { light VOLBOMB_X1 }
-    frame FX1UJ { light VOLBOMB_X2 }
-    frame FX1UK { light VOLBOMB_X3 }
-    frame FX1UL { light VOLBOMB_X4 }
-    frame FX1UM { light VOLBOMB_X5 }
-}
-
-object HellFireTrailF_FullDMG
-{
-    frame FX13B { light VOLCANOTRAIL }
-    frame FX13C { light VOLCANOTRAIL }
-    frame FX13D { light VOLCANOTRAIL }
-    frame FX13E { light VOLCANOTRAIL }
-    frame FX13F { light VOLCANOTRAIL }
-	frame FX13G { light VOLCANOTRAIL }
-	
-    frame FX13I { light VOLBOMB_X1 }
-    frame FX13J { light VOLBOMB_X2 }
-    frame FX13K { light VOLBOMB_X3 }
-    frame FX13L { light VOLBOMB_X4 }
-    frame FX13M { light VOLBOMB_X5 }
-}
-
-object HellFireTrailC_FullDMG
-{
-    frame FX1UB { light VOLCANOTRAIL }
-    frame FX1UC { light VOLCANOTRAIL }
-    frame FX1UD { light VOLCANOTRAIL }
-    frame FX1UE { light VOLCANOTRAIL }
-    frame FX1UF { light VOLCANOTRAIL }
-	frame FX1UG { light VOLCANOTRAIL }
-	
-    frame FX1UI { light VOLBOMB_X1 }
-    frame FX1UJ { light VOLBOMB_X2 }
-    frame FX1UK { light VOLBOMB_X3 }
-    frame FX1UL { light VOLBOMB_X4 }
-    frame FX1UM { light VOLBOMB_X5 }	
-}
-
 flickerlight2 RazorLight1
 {
 	color 0.2 0.2 1.0
@@ -317,16 +214,6 @@ object RazorSkull
 	frame RFX1O { light RazorLight5 }
 }
 
-object RazorSkull_FullDMG
-{
-	frame RFX1K { light RazorLight1 }
-	
-	frame RFX1L { light RazorLight2 }
-	frame RFX1M { light RazorLight3 }
-	frame RFX1N { light RazorLight4 }
-	frame RFX1O { light RazorLight5 }
-}
-
 flickerlight2 SunLightX
 {
 	color 0.9 0.8 0.4
@@ -354,9 +241,8 @@ flickerlight2 SunLight2
 	interval 1
 }
 
-Object LightBeam
+Object SunPuff_HitFX
 {
-	Frame TNT1A { Light SunLight }
 	Frame SUNP { light SunLight2 }
 }
 
@@ -430,10 +316,6 @@ pulselight SoulReaverOrbLight {
 }
 
 object SoulReaverGhost {
-	frame SRV2 { light SoulReaverGhostLight }
-}
-
-object SoulReaverGhost_FullDMG {
 	frame SRV2 { light SoulReaverGhostLight }
 }
 
