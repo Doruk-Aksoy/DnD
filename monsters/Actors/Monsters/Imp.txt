@@ -131,7 +131,6 @@ actor NamiDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DARKIMP2)
-			TNT1 A 0 A_SetArg(1, DND_HOMING)
 		Goto SpawnSetup
 
 		Idle:
@@ -816,7 +815,6 @@ actor SoulHarvester : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SOULHARVESTER)
-			TNT1 A 0 A_SetArg(1, DND_HOMING)
 		Goto SpawnSetup
 	
 		Idle:
@@ -941,7 +939,6 @@ actor PyroImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_PYROIMP)
-			TNT1 A 0 A_SetArg(1, DND_DEATH)
 		Goto SpawnSetup
 
 		Idle:
@@ -1389,7 +1386,6 @@ actor Vulgar : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_VULGAR)
-			TNT1 A 0 A_SetArg(1, DND_POISON)
 		Goto SpawnSetup
 
 		Idle:
@@ -1486,7 +1482,6 @@ Actor UndeadMage : DnD_ArchVileBase {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_UNDEADMAGE)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_RESURRECT)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1610,7 +1605,6 @@ ACTOR Shadow : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SHADOW)
-			TNT1 A 0 A_SetArg(1, DND_GHOST)
 		Goto SpawnSetup
 
 		Idle:
@@ -1812,7 +1806,6 @@ Actor Roach : DnD_BaseHybridMonster {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 8)
 			TNT1 A 0 A_SetArg(0, DND_ROACH)
-			TNT1 A 0 A_SetArg(1, DND_POISON | DND_HEAL)
 		Goto SpawnSetup
 
 		Idle:

@@ -1,9 +1,34 @@
 #ifndef DND_MONSTERDATA_IN
 #define DND_MONSTERDATA_IN
 
-#include "DnD_ElitePow.h"
+#include "DnD_EliteInfo.h"
 
 #define DND_CUSTOMMONSTER_ID 65536
+
+typedef struct {
+	int basehp;
+	int maxhp;
+	int level;
+	int id;
+	int nameskip;
+	int properties;
+	bool isElite;
+	bool trait_list[MAX_MONSTER_TRAITS]; // 1 if that trait is on, 0 if not
+} mo_prop_T;
+
+// used for hp bar data
+typedef struct {
+	int count;
+	int tid;
+	bool list[MAX_MONSTER_TRAITS];
+} cs_trait_list_T;
+cs_trait_list_T client_trait_list;
+
+// allow a max of 8192 monsters' data to be held
+#define DND_MAX_MONSTERS 8192
+#define DND_MAX_PETS 1600 // 25 pets per player x 64 players
+mo_prop_T MonsterProperties[DND_MAX_MONSTERS];
+mo_prop_T PetMonsterProperties[DND_MAX_PETS];
 
 enum {
 	// Classics
@@ -287,7 +312,7 @@ enum {
 
 // this is the single source that gives the monsters their proper class protections
 // or their weaknesses
-void HandleMonsterClassInnates(int id, int traits, int traits2) {
+void HandleMonsterClassInnates(int id) {
 	int innate = MonsterData[id].flags;
 	if(id == MONSTER_IMP || (id >= DND_CUSTOM_IMP_BEGIN && id <= DND_CUSTOM_IMP_END))
 		GiveInventory("ImpClassProtection", 1);
@@ -320,48 +345,42 @@ void HandleMonsterClassInnates(int id, int traits, int traits2) {
 		GiveInventory("MagicalCreature", 1);
 	if(innate & DND_MTYPE_ROBOTIC_POW)
 		GiveInventory("LowEnergyWeakness", 1);
+}
+
+void LoadMonsterTraits(int m_id) {
+	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
+		
+	// some of the flags are inherent in actor info, so do make use of that
+	if(CheckFlag(0, "GHOST"))
+		MonsterProperties[i].trait_list[DND_GHOST] = true;
+	if(CheckFlag(0, "NORADIUSDMG"))
+		MonsterProperties[i].trait_list[DND_EXPLOSIVE_IMMUNE] = true;
+	if(CheckFlag(0, "PIERCEARMOR"))
+		MonsterProperties[i].trait_list[DND_ARMORPEN] = true;
+	if(CheckFlag(0, "DONTRIP"))
+		MonsterProperties[i].trait_list[DND_HARDENED_SKIN] = true;
+	if(CheckFlag(0, "NOPAIN"))
+		MonsterProperties[i].trait_list[DND_NOPAIN] = true;
+	if(CheckFlag(0, "REFLECTIVE"))
+		MonsterProperties[i].trait_list[DND_REFLECTIVE] = true;
+		
+	if(MonsterProperties[i].id >= LEGENDARY_START)
+		MonsterProperties[i].trait_list[DND_LEGENDARY] = true;
+		
+	// copy preset data to here now
+	memcpy(MonsterProperties[i].trait_list, MonsterData[m_id].trait_list);
 	
-	// monster's resist or immunity flags
-	if(traits & DND_EXPLOSIVE_RESIST)
-		GiveInventory("ExplosiveResist", 1);
-	if(traits & DND_BULLET_RESIST)
-		GiveInventory("PhysicalResist", 1);
-	if(traits2 & DND_ENERGY_RESIST)
-		GiveInventory("EnergyResist", 1);
-	if(traits2 & DND_MAGIC_RESIST)
-		GiveInventory("MagicResist", 1);
-	if(traits2 & DND_ELEMENTAL_RESIST)
-		GiveInventory("ElementalResist", 1);
+	// check for weaknesses and monster not having any kind of resist to this type
+	// if magical or undead, give it silver weakness (this is common no exceptions)
+	if(MonsterData[m_id].flags & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW))
+		MonsterProperties[i].trait_list[DND_SILVER_WEAKNESS] = true;
 		
-	if(traits & DND_EXPLOSIVE_NONE)
-		GiveInventory("ExplosiveImmunity", 1);
-	if(traits2 & DND_BULLET_IMMUNE)
-		GiveInventory("PhysicalImmunity", 1);
-	if(traits2 & DND_ENERGY_IMMUNE)
-		GiveInventory("EnergyImmunity", 1);
-	if(traits2 & DND_MAGIC_IMMUNE)
-		GiveInventory("MagicImmunity", 1);
-	if(traits2 & DND_ELEMENTAL_IMMUNE)
-		GiveInventory("ElementalImmunity", 1);
-	if(traits2 & DND_ELEMENTAL_WEAKNESS)
-		GiveInventory("ElementalWeakness", 1);
-		
-	if(traits2 & DND_FIRECREATURE) {
-		GiveInventory("FireImmunity", 1);
-		GiveInventory("IceWeakness", 1);
-	}
-	if(traits2 & DND_ICECREATURE) {
-		GiveInventory("FireWeakness", 1);
-		GiveInventory("IceImmunity", 1);
-	}
-	if(traits2 & DND_STONECREATURE) {
-		GiveInventory("StoneCreature", 1);
-		GiveInventory("ExplosiveResist", 1);
-		GiveInventory("PhysicalResist", 1);
-	}
-	if(traits2 & DND_EARTHCREATURE) {
-		GiveInventory("EarthCreature", 1);
-	}
+	// if robotic, give energy weakness
+	if((MonsterData[MonsterProperties[i].id].flags & DND_MTYPE_ROBOTIC_POW) && !MonsterProperties[i].trait_list[DND_ENERGY_RESIST] && !MonsterProperties[i].trait_list[DND_ENERGY_IMMUNE])
+		MonsterProperties[i].trait_list[DND_ENERGY_WEAKNESS] = true;
+	// if magical, give magic weakness
+	if((MonsterData[MonsterProperties[i].id].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[i].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[i].trait_list[DND_MAGIC_IMMUNE])
+		MonsterProperties[i].trait_list[DND_MAGIC_WEAKNESS] = true;
 }
 
 enum {
@@ -391,11 +410,11 @@ enum {
 };
 
 enum {
-	DND_MTYPE_DEMON_POW = 1,
-	DND_MTYPE_UNDEAD_POW = 2,
-	DND_MTYPE_MAGICAL_POW = 4,
-	DND_MTYPE_ROBOTIC_POW = 8,
-	DND_MTYPE_ZOMBIE_POW = 16
+	DND_MTYPE_DEMON_POW 				= 			0b1,
+	DND_MTYPE_UNDEAD_POW 				= 			0b10,
+	DND_MTYPE_MAGICAL_POW 				= 			0b100,
+	DND_MTYPE_ROBOTIC_POW 				= 			0b1000,
+	DND_MTYPE_ZOMBIE_POW 				= 			0b10000
 };
 
 enum {
@@ -458,6 +477,7 @@ int GetPetMonsterType(int monsterID) {
 typedef struct {
 	int health;
 	int flags;
+	bool trait_list[MAX_MONSTER_TRAITS];
 } monster_data_T;
 
 monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
@@ -715,6 +735,10 @@ bool IsZombie() {
 
 bool IsUndead() {
 	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_UNDEAD_POW;
+}
+
+bool IsMagic() {
+	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_MAGICAL_POW;
 }
 
 bool IsRobotic() {
@@ -1024,5 +1048,280 @@ str LegendaryMonsters[DND_MAX_LEGENDARY] = {
 	"GodSlayer",
 	"Golgoth"
 };
+
+void SetupMonsterData() {
+	// classics
+	MonsterData[MONSTER_LOSTSOUL].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_PAINELEMENTAL].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_PAINELEMENTAL].trait_list[DND_SPLIT] = true;
+	MonsterData[MONSTER_VILE].trait_list[DND_RESURRECT] = true;
+	
+	// zombieman
+	MonsterData[MONSTER_ZOMBIEHUNTER].trait_list[DND_MOBILITY] = true;
+	
+	// shotgunner
+	MonsterData[MONSTER_SGLOS].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_SSGLOS].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_ROGUE].trait_list[DND_MOBILITY] = true;
+	
+	// chaingunner
+	MonsterData[MONSTER_INITIATE].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_MRROBOT].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_MRROBOT].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_BERSERKERGUY].trait_list[DND_RAGE] = true;
+	
+	// demon
+	MonsterData[MONSTER_STONEIMP].trait_list[DND_STONECREATURE] = true;
+	MonsterData[MONSTER_STONEDEMON].trait_list[DND_STONECREATURE] = true;
+	MonsterData[MONSTER_STONEDEMON].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_BRUTY].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_SCAVENGER].trait_list[DND_RESURRECT] = true;
+	MonsterData[MONSTER_NHUMCIGN].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_NHUMCIGN].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_EARTHGOLEM].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_EARTHGOLEM].trait_list[DND_EARTHCREATURE] = true;
+	MonsterData[MONSTER_PUREBREDDEMON].trait_list[DND_MOBILITY] = true;
+	
+	// spectre
+	MonsterData[MONSTER_NIGHTMAREDEMON].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_GRAVEDIGGER].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_DEVOURER].trait_list[DND_MOBILITY] = true;
+	
+	// imp
+	MonsterData[MONSTER_DARKIMP2].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_SOULHARVESTER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_PYROIMP].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_VULGAR].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_UNDEADMAGE].trait_list[DND_RESURRECT] = true;
+	MonsterData[MONSTER_ROACH].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_ROACH].trait_list[DND_HEAL] = true;
+	
+	// lost soul
+	MonsterData[MONSTER_FLESHSPAWN].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_ETHEREALSOUL].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_ETHEREALSOUL].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_GUARDIANCUBE].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_FORGOTTENONE].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_FORGOTTENONE].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_WATCHER].trait_list[DND_PIERCE] = true;
+	
+	// caco
+	MonsterData[MONSTER_CACOLICH].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_DEATHWHISPERER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_DEATHWHISPERER].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_EARTHLICH].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_EARTHLICH].trait_list[DND_EARTHCREATURE] = true;
+	MonsterData[MONSTER_INFERNO].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_INFERNO].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_GRELL].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_SHADOWPRIEST].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_SHADOWPRIEST].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_GUARDIAN].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_WICKED].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_WICKED].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_WICKED].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_WICKED].trait_list[DND_HOMING] = true;
+	
+	// pain
+	MonsterData[MONSTER_TORTUREDSOUL].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_TORTUREDSOUL].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_DEFILER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_DEFILER].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_HADESELEMENTAL].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_HADESELEMENTAL].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_HADESELEMENTAL].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_HADESSPHERE].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_SENTINEL].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_SENTINEL].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_BLOODLICH].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_BLOODLICH].trait_list[DND_CURSE] = true;
+	MonsterData[MONSTER_BLOODLICH].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_WRAITH].trait_list[DND_RESURRECT] = true;
+	MonsterData[MONSTER_SHADOWDISCIPLE].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_SHADOWDISCIPLE].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_SHADOWDISCIPLE].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_HELLARBITER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_HELLARBITER].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_HELLARBITER].trait_list[DND_FIRECREATURE] = true;
+	
+	// rev
+	MonsterData[MONSTER_INCARNATE].trait_list[DND_RAISE] = true;
+	MonsterData[MONSTER_CADAVER].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_CADAVER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_WIDOWMAKER].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_WIDOWMAKER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_AXEKNIGHT].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_YETI].trait_list[DND_ICECREATURE] = true;
+	MonsterData[MONSTER_YETI].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_SLUDGEGIANT].trait_list[DND_SPLIT] = true;
+	MonsterData[MONSTER_SLUDGEGIANT].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_SLUDGEGIANT2].trait_list[DND_SPLIT] = true;
+	MonsterData[MONSTER_SLUDGEGIANT2].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_SLUDGEGIANT3].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_DARKSERVANT].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_DARKSERVANT].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_DARKSERVANT].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_CRAWLER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_CRAWLER].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_DRAUGR].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_DRAUGR].trait_list[DND_MOBILITY] = true;
+	
+	// hk
+	MonsterData[MONSTER_BLOODSATYR].trait_list[DND_HEAL] = true;
+	MonsterData[MONSTER_HELLWARRIOR].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_HELLSFURY].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_WARLORD].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_SHADOWBEAST].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_BLACKKNIGHT].trait_list[DND_ICE_WEAKNESS] = true;
+	MonsterData[MONSTER_BLACKKNIGHT].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_BLACKKNIGHT].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_BLACKKNIGHT].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_SKULLWIZARD].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_SKULLWIZARD].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_CYBORGWARRIOR].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_CYBORGWARRIOR].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_CYBORGWARRIOR].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_MOONSATYR].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_MOONSATYR].trait_list[DND_ENERGY_RESIST] = true;
+	MonsterData[MONSTER_ICEGOLEM].trait_list[DND_HEAL] = true;
+	MonsterData[MONSTER_ICEGOLEM].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_ICEGOLEM].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_GLADIATOR].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_GLADIATOR].trait_list[DND_ICE_WEAKNESS] = true;
+	
+	// baron
+	MonsterData[MONSTER_LAVADEMON].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_LAVADEMON].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_CYBRUISER].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_BRUISERDEMON].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_BORMERETH].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_BORMERETH].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_BORMERETH].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_BLOODSEEKER].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_BARBATOS].trait_list[DND_ELEMENTAL_WEAKNESS] = true;
+	MonsterData[MONSTER_BARBATOS].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_SHADOWWIZARD].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_SHADOWWIZARD].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_KJAROCH].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_KJAROCH].trait_list[DND_EARTHCREATURE] = true;
+	MonsterData[MONSTER_MAGMASERPENT].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_DREADKNIGHT].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_DREADKNIGHT].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_DREADKNIGHT].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_DREADKNIGHT].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_MAGMAGOLEM].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_MAGMAGOLEM].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_MAGMAGOLEM].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_WARMASTER].trait_list[DND_HEAL] = true;
+	MonsterData[MONSTER_WARMASTER].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_WARMASTER].trait_list[DND_REFLECTIVE] = true;
+	
+	// fatty
+	MonsterData[MONSTER_CORPULENT].trait_list[DND_ELEMENTAL_WEAKNESS] = true;
+	MonsterData[MONSTER_DAEDABUS].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_ICEFATSO].trait_list[DND_ICECREATURE] = true;
+	MonsterData[MONSTER_MAFIBUS].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_PALADIN].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_PALADIN].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_PALADIN].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_PALADIN].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_GAMON].trait_list[DND_ENERGY_RESIST] = true;
+	MonsterData[MONSTER_GAMON].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_GAMON].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_MEPHISTO].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_ABOMINATION].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_MAGIC_RESIST] = true;
+	
+	// arachno
+	MonsterData[MONSTER_BABYDEMOLISHER].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_VORE].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_VORE].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_CHAINGUNCOMMANDO].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_LEGIONNAIRE].trait_list[DND_MOBILITY] = true;
+	
+	// vile
+	MonsterData[MONSTER_DIABLOIST].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_DEATHVILE].trait_list[DND_RESURRECT] = true;
+	MonsterData[MONSTER_DEATHVILE].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_HIEROPHANT].trait_list[DND_CURSE] = true;
+	MonsterData[MONSTER_HIEROPHANT].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_HIEROPHANT].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_HIEROPHANT].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_DEATHKNIGHT].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_DEATHKNIGHT].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_HORSHACKER].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_HORSHACKER].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_UNDEADPRIEST].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_UNDEADPRIEST].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_UNDEADPRIEST].trait_list[DND_HEAL] = true;
+	MonsterData[MONSTER_GURU].trait_list[DND_CURSE] = true;
+	MonsterData[MONSTER_GURU].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_DARKZEALOT].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_DARKZEALOT].trait_list[DND_HEAL] = true;
+	MonsterData[MONSTER_DARKZEALOT].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_FLESHWIZARD].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_FLESHWIZARD].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_FLESHWIZARD].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_FLESHWIZARD].trait_list[DND_DEATH] = true;
+	
+	// sm
+	MonsterData[MONSTER_ARACHNOPHYTE].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_PSIONICQUEEN].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_PSIONICQUEEN].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_PSIONICQUEEN].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_PSIONICQUEEN].trait_list[DND_ENERGY_IMMUNE] = true;
+	MonsterData[MONSTER_ANGELOFDEATH].trait_list[DND_EXPLOSIVE_NONE] = true;
+	MonsterData[MONSTER_ANGELOFDEATH].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_ANGELOFDEATH].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_GOLDLICH].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_GOLDLICH].trait_list[DND_EXPLOSIVE_NONE] = true;
+	MonsterData[MONSTER_GOLDLICH].trait_list[DND_SPLIT] = true;
+	MonsterData[MONSTER_GOLDLICH].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_IRONLICH].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_IRONLICH].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_IRONLICH].trait_list[DND_CURSE] = true;
+	MonsterData[MONSTER_IRONLICH].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_IRONLICH].trait_list[DND_EXPLOSIVE_NONE] = true;
+	MonsterData[MONSTER_IRONLICH].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_SPIDEROVERLORD].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_SPIDEROVERLORD].trait_list[DND_ENERGY_IMMUNE] = true;
+	MonsterData[MONSTER_SPIDEROVERLORD].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_SPIDEROVERLORD].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_DARKLICH].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_DARKLICH].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_DARKLICH].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_DARKLICH].trait_list[DND_EXPLOSIVE_NONE] = true;
+	
+	// cyber
+	MonsterData[MONSTER_CARDINAL].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_TERMINATOR].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_TERMINATOR].trait_list[DND_ENERGY_RESIST] = true;
+	MonsterData[MONSTER_THAMUZ].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_THAMUZ].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_AZAZEL].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_AZAZEL].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_AZAZEL].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_AZAZEL].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_HELLSMITH].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_HELLSMITH].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_AVATAR].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_AVATAR].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_AVATAR].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_AVATAR].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_THANATOS].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_THANATOS].trait_list[DND_EXPLOSIVE_NONE] = true;
+	MonsterData[MONSTER_CERBERUS].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_CERBERUS].trait_list[DND_RAGE] = true;
+}
+
+Script "DnD Setup Monster Data" OPEN {
+	SetupMonsterData();
+}
+
+Script "DnD Setup Monster Data CS" OPEN {
+	SetupMonsterData();
+}
 
 #endif

@@ -19,7 +19,6 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DOUBLEGUNNER)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 	
 		Idle:
@@ -96,7 +95,6 @@ Actor ChaingunMajor : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CGMAJOR)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 
 		Idle:
@@ -167,7 +165,6 @@ actor ZSec : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZSEC)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 
 		Idle:
@@ -321,7 +318,6 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZSPECMG)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 	
 		Idle:
@@ -393,7 +389,6 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEQUAKE3)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 
 		Idle:
@@ -478,7 +473,6 @@ actor UndeadInitiate : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_INITIATE)
-			TNT1 A 0 A_SetArg(1, DND_MOBILITY | DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 
 		Idle:
@@ -559,7 +553,6 @@ Actor MrRobot : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_MRROBOT)
-			TNT1 A 0 A_SetArg(1, DND_ENERGY_WEAKNESS | DND_BULLET_RESIST | DND_MOBILITY)
 		Goto SpawnSetup
 	
 		Idle:
@@ -687,7 +680,6 @@ Actor MachinegunGuy : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ZOMBIEMG)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 	
 		Idle:
@@ -753,7 +745,6 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_PLASMAZOMBIE)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 
 		Idle:
@@ -835,7 +826,6 @@ Actor Berserkerguy : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_BERSERKERGUY)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_RAGE)
 		Goto SpawnSetup
 	
 		Idle:

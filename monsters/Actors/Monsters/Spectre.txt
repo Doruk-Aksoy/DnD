@@ -23,7 +23,6 @@ Actor Lurker : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_LURKER)
-			TNT1 A 0 A_SetArg(1, DND_GHOST)
 		Goto SpawnSetup
 		
 		Idle:
@@ -94,7 +93,6 @@ Actor FlameDemonGhost : FlameDemon {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_FLAMEDEMON)
-			TNT1 A 0 A_SetArg(1, DND_GHOST | DND_EXPLOSIVE_IMMUNE)
 		Goto SpawnSetup
 
 		Idle:
@@ -153,7 +151,6 @@ ACTOR NightmareSpectre : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_NIGHTMAREDEMON)
-			TNT1 A 0 A_SetArg(1, DND_GHOST | DND_MOBILITY)
 		Goto SpawnSetup
 
 		Idle:
@@ -212,7 +209,6 @@ Actor Gravedigger : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_GRAVEDIGGER)
-			TNT1 A 0 A_SetArg(1, DND_MOBILITY | DND_GHOST)
 		Goto SpawnSetup
 	
 		Idle:
@@ -273,7 +269,6 @@ Actor Devourer : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DEVOURER)
-			TNT1 A 0 A_SetArg(1, DND_MOBILITY | DND_GHOST)
 		Goto SpawnSetup
 		
 		Idle:
@@ -333,7 +328,6 @@ Actor SoulEaterGhost : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SOULEATER)
-			TNT1 A 0 A_SetArg(1, DND_GHOST)
 		Goto SpawnSetup
 		
 		Idle:
@@ -397,7 +391,6 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_NHUMCIGN)
-			TNT1 A 0 A_SetArg(1, DND_MOBILITY | DND_RAGE | DND_GHOST)
 		Goto SpawnSetup
 	
 		Idle:
@@ -508,8 +501,6 @@ Actor RavagerGhost : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_RAVAGER)
-			TNT1 A 0 A_SetArg(1, DND_GHOST)
-			TNT1 A 0 A_SetArg(2, DND_ARMORPEN)
 		Goto SpawnSetup
 
 		Idle:

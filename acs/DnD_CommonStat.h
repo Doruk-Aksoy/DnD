@@ -117,24 +117,6 @@ enum {
 #define DND_PERK_END STAT_LUCK
 #define DND_MAX_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
 
-typedef struct {
-	int basehp;
-	int maxhp;
-	int level;
-	int id;
-	int traits;
-	int traits2;
-	int nameskip;
-	int properties;
-	bool isElite;
-} mo_prop_T;
-
-// allow a max of 8k monsters' data to be held
-#define DND_MAX_MONSTERS 8000
-#define DND_MAX_PETS 1600 // 25 pets per player x 64 players
-mo_prop_T MonsterProperties[DND_MAX_MONSTERS];
-mo_prop_T PetMonsterProperties[DND_MAX_PETS];
-
 enum {	
 	RES_STAT_DEX = 1,
 	RES_PERK_SHARP = 2,

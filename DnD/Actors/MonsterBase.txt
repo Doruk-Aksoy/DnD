@@ -10,6 +10,51 @@ Actor DnD_BaseMonster {
 	+CANPASS
 	-SHOOTABLE
 	-SOLID
+	
+	// NoPain versions
+	Painchance "Melee_NoPain", 0
+	Painchance "Melee_Magic_NoPain", 0
+	Painchance "Bullet_NoPain", 0
+	Painchance "BulletMagicX_NoPain", 0
+	Painchance "Energy_NoPain", 0
+	Painchance "EnergyExp_NoPain", 0
+	Painchance "Explosives_NoPain", 0
+	Painchance "Magic_NoPain", 0
+	Painchance "MagicFire_NoPain", 0
+	Painchance "Explosives_Magic_NoPain", 0
+	
+	// elemental
+	Painchance "Fire_NoPain", 0
+	Painchance "P_Ice_NoPain", 0
+	Painchance "Poison_NoPain", 0
+	Painchance "Desolator_NoPain", 0
+	Painchance "Emerald_NoPain", 0
+	Painchance "Lightning_NoPain", 0
+	
+	Painchance "SoulType_NoPain", 0
+	
+	// Pain Forced versions
+	Painchance "Melee_ForcePain", 256
+	Painchance "Melee_Magic_ForcePain", 256
+	Painchance "Bullet_ForcePain", 256
+	Painchance "BulletMagicX_ForcePain", 256
+	Painchance "Energy_ForcePain", 256
+	Painchance "EnergyExp_ForcePain", 256
+	Painchance "Explosives_ForcePain", 256
+	Painchance "Magic_ForcePain", 256
+	Painchance "MagicFire_ForcePain", 256
+	Painchance "Explosives_Magic_ForcePain", 256
+	
+	// elemental
+	Painchance "Fire_ForcePain", 256
+	Painchance "P_Ice_ForcePain", 256
+	Painchance "Poison_ForcePain", 256
+	Painchance "Desolator_ForcePain", 256
+	Painchance "Emerald_ForcePain", 256
+	Painchance "Lightning_ForcePain", 256
+	
+	Painchance "SoulType_ForcePain", 256
+	
 	States {
 		Spawn:
 			// this tnt1 is needed, otherwise the game will complain it has no frames
@@ -18,7 +63,7 @@ Actor DnD_BaseMonster {
 		Wait
 		
 		SpawnSetup:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster Scale", 0, args[0], args[1], args[2])
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[0], args[1], args[2])
 			"####" "#" 0 A_Jump(256, "Idle")
 			"####" "#" 35
 		Wait
@@ -109,9 +154,8 @@ Actor DnD_BaseMonster {
 		Death.Ice:
 		Death.P_Ice:
 		Death.P_IceFull:
-			"----" "#" 4 A_GenericFreezeDeath
-			"----" "#" 0 A_KillMaster
-			"----" "#" 1 A_FreezeDeathChunks
+			"----" "#" 1 A_KillMaster
+			"----" "#" 1 A_IceGuyDie
 		Wait
 	}
 }

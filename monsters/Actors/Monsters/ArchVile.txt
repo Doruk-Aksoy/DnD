@@ -22,7 +22,6 @@ Actor Diabloist : DnD_BaseRangedMonster {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DIABLOIST)
-			TNT1 A 0 A_SetArg(2, DND_FIRECREATURE)
 		Goto SpawnSetup
 	
 		Idle:
@@ -408,8 +407,6 @@ ACTOR DeathVile : DnD_ArchVileBase {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DEATHVILE)
-			TNT1 A 0 A_SetArg(1, DND_RESURRECT)
-			TNT1 A 0 A_SetArg(2, DND_ELEMENTAL_RESIST)
 		Goto SpawnSetup
 		
 		Idle:
@@ -487,8 +484,6 @@ Actor Hierophant : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_HIEROPHANT)
-			TNT1 A 0 A_SetArg(1, DND_CURSE | DND_HOMING | DND_MOBILITY)
-			TNT1 A 0 A_SetArg(2, DND_FIRECREATURE)
 		Goto SpawnSetup
 
 		Idle:
@@ -795,7 +790,6 @@ ACTOR Deathknight : DnD_BaseHybridMonster {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DEATHKNIGHT)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_BLOCK | DND_BULLET_RESIST | DND_HARDENED_SKIN)
 		Goto SpawnSetup
 
 		Idle:
@@ -1154,7 +1148,6 @@ Actor Horshacker : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_HORSHACKER)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_BLOCK | DND_BULLET_RESIST | DND_HARDENED_SKIN)
 		Goto SpawnSetup
 
 		Idle:
@@ -1557,7 +1550,6 @@ actor UndeadPriest : Dnd_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_UNDEADPRIEST)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_MOBILITY | DND_HOMING | DND_HEAL)
 		Goto SpawnSetup
 
 		Idle:
@@ -1658,7 +1650,6 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_UNDEADPRIESTGHOST)
-			TNT1 A 0 A_SetArg(1, DND_GHOST)
 		Goto SpawnSetup
 
 		Idle:
@@ -1763,8 +1754,6 @@ Actor Guru : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_GURU)
-			TNT1 A 0 A_SetArg(1, DND_CURSE)
-			TNT1 A 0 A_SetArg(2, DND_ELEMENTAL_RESIST)
 		Goto SpawnSetup
 
 		Idle:
@@ -2053,7 +2042,6 @@ Actor DarkZealot : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DARKZEALOT)
-			TNT1 A 0 A_SetArg(1, DND_MAGIC_WEAKNESS | DND_PIERCE | DND_HEAL | DND_TELEPORT)
 		Goto SpawnSetup
 
 		Idle:
@@ -2373,7 +2361,6 @@ actor FleshWizard : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_FLESHWIZARD)
-			TNT1 A 0 A_SetArg(1, DND_MAGIC_IMMUNE | DND_TELEPORT | DND_HOMING | DND_DEATH)
 		Goto SpawnSetup
 
 		Idle:

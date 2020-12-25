@@ -25,7 +25,6 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CARDINAL)
-			TNT1 A 0 A_SetArg(1, DND_ENERGY_WEAKNESS | DND_RAGE | DND_EXPLOSIVE_IMMUNE)
 		Goto SpawnSetup
 
 		Idle:
@@ -351,8 +350,6 @@ ACTOR TerminatorX : DnD_BaseRangedBoss {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_TERMINATOR)
-			TNT1 A 0 A_SetArg(1, DND_HARDENED_SKIN | DND_HOMING | DND_EXPLOSIVE_IMMUNE)
-			TNT1 A 0 A_SetArg(2, DND_ENERGY_RESIST)
 		Goto SpawnSetup
 
 		Idle:
@@ -690,7 +687,6 @@ Actor Thamuz : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_THAMUZ)
-			TNT1 A 0 A_SetArg(1, DND_ENERGY_WEAKNESS | DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1111,8 +1107,6 @@ actor Azazel : DnD_BaseHybridBoss {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_AZAZEL)
-			TNT1 A 0 A_SetArg(1, DND_HOMING | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
-			TNT1 A 0 A_SetArg(2, DND_ELEMENTAL_RESIST | DND_MAGIC_IMMUNE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1657,8 +1651,6 @@ ACTOR HellsmithX : DnD_BaseHybridBoss {
 	States  {  
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_HELLSMITH)
-			TNT1 A 0 A_SetArg(1, DND_HARDENED_SKIN | DND_BLOCK | DND_EXPLOSIVE_IMMUNE)
-			TNT1 A 0 A_SetArg(2, DND_FIRECREATURE)
 		Goto SpawnSetup
 	
 		Idle:
@@ -2294,8 +2286,6 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_AVATAR)
-			TNT1 A 0 A_SetArg(1, DND_MAGIC_WEAKNESS | DND_HOMING | DND_MINIONS | DND_EXPLOSIVE_IMMUNE)
-			TNT1 A 0 A_SetArg(2, DND_ELEMENTAL_IMMUNE | DND_MAGIC_RESIST)
 		Goto SpawnSetup
 
 		Idle:
@@ -3090,7 +3080,6 @@ Actor Thanatos : DnD_BaseRangedBoss {
 	States {  
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_THANATOS)
-			TNT1 A 0 A_SetArg(1, DND_ENERGY_WEAKNESS | DND_EXPLOSIVE_NONE | DND_HOMING)
 		Goto SpawnSetup
 	
 		Idle:
@@ -3429,8 +3418,6 @@ actor Cerberus : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CERBERUS)
-			TNT1 A 0 A_SetArg(1, DND_RAGE | DND_EXPLOSIVE_IMMUNE | DND_HARDENED_SKIN)
-			TNT1 A 0 A_SetArg(2, DND_MAGIC_IMMUNE)
 		Goto SpawnSetup
 	
 		Idle:

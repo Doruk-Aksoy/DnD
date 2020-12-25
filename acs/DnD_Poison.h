@@ -24,11 +24,10 @@ void DealPoisonDamage(int target, int dmg) {
 	SetActivator(target);
 	if(dmg > (1 << 16)) // random component
 		dmg *= random((dmg >> 8) & 0xFF, (dmg >> 16) & 0xFF);
-	int bonus = (CheckInventory("MonsterTraits2") & DND_EXTRASTRONG) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
 	int res = (Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
 	if(CheckInventory("MonsterIsElite"))
 		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
-	if(IsExtraStrong())
+	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG])
 		res = FixedMul(res, 1.0 + DND_ELITE_EXTRASTRONG_BONUS);
 	if(CheckInventory("MonsterLevel") > 50)
 		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);

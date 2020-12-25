@@ -23,7 +23,6 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_INCARNATE)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_RAISE)
 		Goto SpawnSetup
 
 		Idle:
@@ -147,7 +146,6 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_BEAMREVENANT)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS)
 		Goto SpawnSetup
 	
 		Idle:
@@ -268,7 +266,6 @@ ACTOR Cadaver : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CADAVER)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_HOMING | DND_DEATH)
 		Goto SpawnSetup
 
 		Idle:
@@ -442,7 +439,6 @@ actor Widowmaker : DnD_BaseHybridMonster  {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_WIDOWMAKER)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_HOMING | DND_DEATH)
 		Goto SpawnSetup
 
 		Idle:
@@ -1034,7 +1030,6 @@ ACTOR AxeKnight : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_AXEKNIGHT)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_BULLET_RESIST)
 		Goto SpawnSetup
 
 		Idle:
@@ -1184,8 +1179,6 @@ Actor Yeti : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_YETI)
-			TNT1 A 0 A_SetArg(1, DND_MAGIC_WEAKNESS | DND_REFLECTIVE | DND_GHOST | DND_HARDENED_SKIN | DND_BULLET_RESIST)
-			TNT1 A 0 A_SetArg(2, DND_ICECREATURE)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1423,7 +1416,6 @@ Actor SludgeGiant : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT)
-			TNT1 A 0 A_SetArg(1, DND_SPLIT | DND_POISON)
 		Goto SpawnSetup
 
 		Idle:
@@ -1518,7 +1510,6 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT2)
-			TNT1 A 0 A_SetArg(1, DND_SPLIT | DND_POISON)
 		Goto SpawnSetup
 
 		Idle:
@@ -1627,7 +1618,6 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT3)
-			TNT1 A 0 A_SetArg(1, DND_POISON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1699,7 +1689,6 @@ Actor DarkServant : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DARKSERVANT)
-			TNT1 A 0 A_SetArg(1, DND_MAGIC_WEAKNESS | DND_SILVER_WEAKNESS | DND_PIERCE | DND_HOMING | DND_TELEPORT)
 		Goto SpawnSetup
 
 		Idle:
@@ -1889,7 +1878,6 @@ Actor Crawler : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CRAWLER)
-			TNT1 A 0 A_SetArg(1, DND_HOMING | DND_POISON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -2094,7 +2082,6 @@ ACTOR Draugr : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_DRAUGR)
-			TNT1 A 0 A_SetArg(1, DND_SILVER_WEAKNESS | DND_MOBILITY | DND_HOMING)
 		Goto SpawnSetup
 	
 		Idle:

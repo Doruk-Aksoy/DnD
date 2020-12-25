@@ -1,11 +1,76 @@
 #ifndef DND_ELITEINFO_IN
 #define DND_ELITEINFO_IN
 
-#include "DnD_ElitePow.h"
+enum {
+	// weaknesses
+	DND_ENERGY_WEAKNESS,
+	DND_SILVER_WEAKNESS,
+	DND_FIRE_WEAKNESS,
+	DND_ICE_WEAKNESS,
+	DND_MAGIC_WEAKNESS,
+	DND_ELEMENTAL_WEAKNESS,
+	
+	// resists
+	DND_EXPLOSIVE_RESIST,
+	DND_BULLET_RESIST,
+	DND_ENERGY_RESIST,
+	DND_MAGIC_RESIST,
+	DND_ELEMENTAL_RESIST,
+	
+	// immune
+	DND_EXPLOSIVE_IMMUNE,
+	DND_EXPLOSIVE_NONE,
+	DND_BULLET_IMMUNE,
+	DND_ENERGY_IMMUNE,
+	DND_MAGIC_IMMUNE,
+	DND_ELEMENTAL_IMMUNE,
+	
+	// other
+	DND_GHOST,
+	DND_HARDENED_SKIN,
+	DND_REFLECTIVE,
+	DND_MINIONS,
+	DND_CURSE,
+	
+	DND_HEAL,
+	DND_BLOCK,
+	DND_SPLIT,
+	DND_RAISE,
+	DND_TELEPORT,
+	
+	DND_RESURRECT,
+	DND_MOBILITY,
+	DND_HOMING,
+	DND_POISON,
+	DND_DEATH,
 
-#define MAX_MONSTER_TRAITS 31
+	DND_RAGE,
+	DND_PIERCE,
+	DND_AGGRESSIVE,
+	DND_EXTRAFAST,
+	DND_FASTREACTION,
+	
+	DND_NOPAIN,
+	DND_EXTRASTRONG,
+	DND_VITAL,
+	DND_ARMORPEN,
+	DND_PET,
+	
+	DND_SUMMONED,
+	DND_REVIVED,
+	DND_ICECREATURE,
+	DND_FIRECREATURE,
+	DND_STONECREATURE,
+	DND_EARTHCREATURE,
+	
+	DND_LEGENDARY
+};
+#define MAX_MONSTER_TRAITS (DND_LEGENDARY + 1)
+
 #define MONSTER_TRAITID 1403
 #define MONSTER_BARID (MONSTER_TRAITID + MAX_MONSTER_TRAITS + 1)
+#define FIRST_MONSTER_TRAIT DND_ENERGY_WEAKNESS
+#define LAST_MONSTER_TRAIT DND_LEGENDARY
 // up to 1102 is occupied by barfillid, 1102 included
 #define MONSTER_BARFILLID 1301
 #define MONSTER_TEXTID 1300
@@ -18,54 +83,56 @@ str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Fire Weakness",
 	"Ice Weakness",
 	"Magic Weakness",
+	"Elemental Weakness",
 	
 	"Explosive Resist",
+	"Physical Resist",
+	"Energy Resist",
+	"Magic Resist",
+	"Elemental Resist",
+	
 	"High Explosive Resist",
 	"Explosive Immune",
-	"Physical Resist",
+	"Physical Immune",
+	"Energy Immune",
+	"Magic Immune",
+	"Elemental Immune",
+	
 	"Ghost",
-	"Hardened Skin",	// ripper immune
+	"Hardened Skin",					// ripper immune
 	"Reflective",
 	"Summon Minion",
-	"Can Curse",		// monsters with curses
-	"Can Heal",		// monsters with healing
-	"Can Block",		// shielded monster
+	"Can Curse",						// monsters with curses
+	
+	"Can Heal",							// monsters with healing
+	"Can Block",						// shielded monster
 	"Can Split",
 	"Can Raise",
 	"Can Teleport",
-	"Resurrect Fallen",	// arch vile
-	"Mobility",	// dashes, fast speed etc
+	
+	"Resurrect Fallen",					// arch vile style resurrection
+	"Mobility",							// dashes, fast speed etc
 	"Homing",
 	"Poisonous",
-	"Death Surprise",	// monsters with dangerous deaths
-	"Rage", // monsters that get angry after a certain condition
-	"Pierces Armor", // monsters that ignore player armor
-	"Aggressive", // more aggression
-	"Extra Fast", // nightmare fast
-	"Fast Reaction", // quicktoretaliate
-	"No Pain",
-	"Magic Resist"
-};
+	"Death Surprise",					// monsters with dangerous deaths
+	
+	"Rage", 							// monsters that get angry after a certain condition
+	"Pierces Armor", 					// monsters that ignore player armor
+	"Aggressive", 						// more aggression
+	"Extra Fast", 						// nightmare fast
+	"Fast Reaction", 					// quicktoretaliate
 
-#define MAX_MONSTER_TRAITS2 19
-str MonsterTraits2[MAX_MONSTER_TRAITS2] = {
-	"Physical Immune",
-	"Energy Resist",
-	"Energy Immune",
-	"Magic Resist",
-	"Magic Immune",
-	"Elemental Resist",
-	"Elemental Immune",
+	"No Pain",
 	"Extra Strong",
 	"Vital",
 	"Armor Penetration",
 	"Pet Creature",
+	
 	"Summoned Creature",
 	"Revived",
 	"Ice Creature",
 	"Fire Creature",
 	"Stone Creature",
-	"Elemental Weakness",
 	"Earth Creature",
 	
 	"Legendary"
@@ -81,11 +148,6 @@ enum {
 	DND_TRAITCODE_UTILITY
 };
 
-enum {
-	DND_TRAITSIDE_1,
-	DND_TRAITSIDE_2
-};
-
 #define MAX_ELITE_TRAIT_COLORCODES DND_TRAITCODE_UTILITY + 1
 str EliteTraitColorCode[MAX_ELITE_TRAIT_COLORCODES] = {
 	"\cj",
@@ -97,86 +159,84 @@ str EliteTraitColorCode[MAX_ELITE_TRAIT_COLORCODES] = {
 	"\cv"
 };
 
-str GetTraitColorCode(int trait, int side) {
-	if(!side) {
-		switch(trait) {
-			case DND_ENERGY_WEAKNESS_POW:
-			case DND_SILVER_WEAKNESS_POW:
-			case DND_FIRE_WEAKNESS_POW:
-			case DND_ICE_WEAKNESS_POW:
-			case DND_MAGIC_WEAKNESS_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_WEAKNESS];
-			
-			case DND_EXPLOSIVE_RESIST_POW:
-			case DND_EXPLOSIVE_IMMUNE_POW:
-			case DND_BULLET_RESIST_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_RESIST];
-			
-			case DND_EXPLOSIVE_NONE_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_IMMUNITY];
-			
-			case DND_NOPAIN_POW:
-			case DND_POISON_POW:
-			case DND_MOBILITY_POW:
-			case DND_RESURRECT_POW:
-			case DND_TELEPORT_POW:
-			case DND_RAISE_POW:
-			case DND_CURSE_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
-			
-			case DND_HEAL_POW:
-			case DND_BLOCK_POW:
-			case DND_DEATH_POW:
-			case DND_SPLIT_POW:
-			case DND_MINIONS_POW:
-			case DND_REFLECTIVE_POW:
-			case DND_HARDENED_SKIN_POW:
-			case DND_GHOST_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
-			
-			case DND_HOMING_POW:
-			case DND_RAGE_POW:
-			case DND_PIERCE_POW:
-			case DND_AGGRESSIVE_POW:
-			case DND_EXTRAFAST_POW:
-			case DND_FASTREACTION_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_AGGRESSIVE];
-		}
-	}
-	else {
-		switch(trait) {
-			case DND_ENERGY_RESIST_POW:
-			case DND_MAGIC_RESIST_POW:
-			case DND_ELEMENTAL_RESIST_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_RESIST];
-			
-			case DND_BULLET_IMMUNE_POW:
-			case DND_ENERGY_IMMUNE_POW:
-			case DND_MAGIC_IMMUNE_POW:
-			case DND_ELEMENTAL_IMMUNE_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_IMMUNITY];
-			
-			case DND_EXTRASTRONG_POW:
-			case DND_ARMORPEN_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_AGGRESSIVE];
-			
-			case DND_VITAL_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
-			
-			case DND_PET_POW:
-			case DND_REVIVED_POW:
-			case DND_SUMMONED_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
-			
-			case DND_FIRECREATURE_POW:
-			case DND_ICECREATURE_POW:
-			case DND_STONECREATURE_POW:
-			case DND_EARTHCREATURE_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_RESIST];
-			
-			case DND_ELEMENTAL_WEAKNESS_POW:
-			return EliteTraitColorCode[DND_TRAITCODE_WEAKNESS];
-		}
+// traits #1 or #2
+str GetTraitColorCode(int trait) {
+	switch(trait) {
+		case DND_ENERGY_WEAKNESS:
+		case DND_SILVER_WEAKNESS:
+		case DND_FIRE_WEAKNESS:
+		case DND_ICE_WEAKNESS:
+		case DND_MAGIC_WEAKNESS:
+		case DND_ELEMENTAL_WEAKNESS:
+		return EliteTraitColorCode[DND_TRAITCODE_WEAKNESS];
+		
+		case DND_EXPLOSIVE_RESIST:
+		case DND_ENERGY_RESIST:
+		case DND_MAGIC_RESIST:
+		case DND_ELEMENTAL_RESIST:
+		
+		case DND_EXPLOSIVE_IMMUNE:
+		case DND_BULLET_RESIST:
+		return EliteTraitColorCode[DND_TRAITCODE_RESIST];
+		
+		case DND_EXPLOSIVE_NONE:
+		return EliteTraitColorCode[DND_TRAITCODE_IMMUNITY];
+		
+		case DND_NOPAIN:
+		case DND_POISON:
+		case DND_MOBILITY:
+		case DND_RESURRECT:
+		case DND_TELEPORT:
+		case DND_RAISE:
+		case DND_CURSE:
+		return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
+		
+		case DND_HEAL:
+		case DND_BLOCK:
+		case DND_DEATH:
+		case DND_SPLIT:
+		case DND_MINIONS:
+		case DND_REFLECTIVE:
+		case DND_HARDENED_SKIN:
+		case DND_GHOST:
+		return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
+		
+		case DND_HOMING:
+		case DND_RAGE:
+		case DND_PIERCE:
+		case DND_AGGRESSIVE:
+		case DND_EXTRAFAST:
+		case DND_FASTREACTION:
+		return EliteTraitColorCode[DND_TRAITCODE_AGGRESSIVE];
+
+		return EliteTraitColorCode[DND_TRAITCODE_RESIST];
+		
+		case DND_BULLET_IMMUNE:
+		case DND_ENERGY_IMMUNE:
+		case DND_MAGIC_IMMUNE:
+		case DND_ELEMENTAL_IMMUNE:
+		return EliteTraitColorCode[DND_TRAITCODE_IMMUNITY];
+		
+		case DND_EXTRASTRONG:
+		case DND_ARMORPEN:
+		return EliteTraitColorCode[DND_TRAITCODE_AGGRESSIVE];
+		
+		case DND_VITAL:
+		return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
+		
+		case DND_PET:
+		case DND_REVIVED:
+		case DND_SUMMONED:
+		return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
+		
+		case DND_FIRECREATURE:
+		case DND_ICECREATURE:
+		case DND_STONECREATURE:
+		case DND_EARTHCREATURE:
+		return EliteTraitColorCode[DND_TRAITCODE_RESIST];
+		
+		case DND_LEGENDARY:
+		return "\ci";
 	}
 	return EliteTraitColorCode[DND_TRAITCODE_NULL];
 }

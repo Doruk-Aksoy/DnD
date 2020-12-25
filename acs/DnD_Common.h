@@ -92,6 +92,12 @@ enum {
 	DND_MAPINFO_HASDOOMGUY
 };
 
+typedef struct vec3 {
+	int x;
+	int y;
+	int z;
+} vec3_T;
+
 // save for later
 global bool 0: MapInfo[32];
 global int 5: HardcoreSet;

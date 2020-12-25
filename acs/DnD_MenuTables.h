@@ -1320,7 +1320,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Magnum is a true classic. Each bullet does 150 - 225 damage. Has a capacity of 6. Alt fire reloads.",
 	"Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo.",
 	"Assault Rifle does 25 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.",
-	"Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage.",
+	"Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage. Inflicts \cqpoison.",
 	"Casts 3 flames doing 15-30 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 32 units.",
 	"Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pellets scatter to 6 tiny pellets doing 6 - 12 damage. Alt fire shoots one pellet.",
 	
@@ -2345,62 +2345,69 @@ str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 	"LEG_GOLG"
 };
 
-#define DND_TRAIT1_STARTSHOW DND_ENERGY_WEAKNESS_POW // first trait to show
-#define DND_TRAIT1_LASTSHOW DND_NOPAIN_POW
-#define DND_TRAIT2_STARTSHOW DND_BULLET_IMMUNE_POW
-#define DND_TRAIT2_LASTSHOW DND_EARTHCREATURE_POW
-#define DND_TRAIT_SKIP DND_EXPLOSIVE_RESIST_POW // amount of traits to skip
+#define DND_TRAIT_STARTSHOW FIRST_MONSTER_TRAIT // first trait to show
+#define DND_TRAIT_LASTSHOW LAST_MONSTER_TRAIT
 
-#define MAX_MONSTER_MODS (DND_TRAIT2_LASTSHOW - DND_TRAIT2_STARTSHOW + DND_TRAIT1_LASTSHOW - DND_TRAIT1_STARTSHOW + 3)
+#define MAX_MONSTER_MODS (DND_TRAIT_LASTSHOW - DND_TRAIT_STARTSHOW + 1)
 str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster takes 25% more damage from energy attacks.",
-	"Monster takes x3 more damage from silver bullets.",
+	"Monster takes 300% more damage from silver bullets.",
 	"Monster takes 50% more damage from fire attacks.",
 	"Monster takes 50% more damage from ice attacks.",
 	"Monster takes 25% more damage from occult attacks.",
+	"Monster takes 50% more damage from elemental attacks.",
+	
+	
 	"Monster takes 50% reduced damage from explosives.",
+	"Monster takes 50% reduced damage from melee and ballistic attacks.",
+	"Monster takes 50% reduced damage from energy attacks.",
+	"Monster takes 50% reduced damage from occult attacks.",
+	"Monster takes 50% reduced damage from elemental attacks.",
+	
 	"Monster is immune to area damage.",
 	"Monster is immune to explosives.",
-	"Monster takes 50% reduced damage from physical melee attacks and 25% reduced damage from ballistic attacks.",
+	"Monster is immune to any kind of melee or ballistic attack.",
+	"Monster is immune to energy attacks.",
+	"Monster is immune to occult attacks.",
+	"Monster is immune to elemental attacks.",
+	
 	"Monster is ghostly, most of the non-magical projectiles will go through the monster.",
 	"Monster is impervious to ripping attacks.",
 	"Monster reflects certain projectiles on hit.",
 	"Monster can summon minions.",
 	"Monster can curse the player.",
+	
 	"Monster can heal nearby monsters.",
 	"Monster has means to block attacks from players. Weapons that \cfignore shields\c- are effective.",
 	"Monster can split into other monsters.",
 	"Monster has a chance to raise from the dead.",
 	"Monster has means to teleport around.",
+	
 	"Monster can resurrect other dead monsters.",
 	"Monster is capable of covering distances fast.",
 	"Monster has homing attacks.",
 	"Monster poisons player with certain attacks.",
 	"Monster has a death activated ability.",
+	
 	"Monster can enter rage mode under certain conditions.",
 	"Monster has attacks that ignores armor.",
 	"Monster is extra aggressive.",
 	"Monster is twice as fast.",
 	"Monster reacts to whoever hits it immediately.",
+	
 	"Monster feels no pain.",
-	"Monster is immune to any kind of ballistic attack.",
-	"Monster takes 50% reduced damage from energy attacks.",
-	"Monster is immune to energy attacks.",
-	"Monster takes 50% reduced damage from occult attacks.",
-	"Monster is immune to occult attacks.",
-	"Monster takes 50% reduced damage from elemental attacks.",
-	"Monster is immune to elemental attacks.",
 	"Monster deals twice as much damage.",
 	"Monster has 75% more health.",
 	"Monster ignores armor of player with every attack.",
 	"Monster belongs to a player and is friendly.",
+	
 	"Monster is summoned by another and gives nothing on kill.",
 	"Monster is resurrected and doesn't give anything on kill.",
 	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.",
 	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.",
 	"Monster is a being of stone, has ice weakness, fire resist, immunity to earth and lightning, and Hardened Skin.",
 	"Monster is a being of earth, takes 50% more damage from lightning, but immune to earth attacks.",
-	"Monster takes 50% more damage from elemental attacks.",
+	
 	"Monster is unique."
 };
 

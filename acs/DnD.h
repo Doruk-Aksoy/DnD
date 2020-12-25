@@ -218,7 +218,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Magnum is a true classic, shooting bullets each doing 150 - 225 damage. Has a capacity of 6. 50 damage from bullet rip through enemies. Alt fire reloads. \cfIgnores shields.",
 	 "Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo. \cfIgnores shields.",
 	 "Assault Rifle does 30 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.",
-	 "Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage, \cfignoring shields\c-.",
+	 "Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage, \cfignoring shields\c-. Inflicts \cqpoison.",
 	 "Casts 3 flames doing 10-40 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 24 units. Can't hit \cughosts.",
 	 "Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pellets scatter to 6 tiny pellets doing 6 - 12 damage. Alt fire shoots one pellet. \cfIgnores shields.\c-",
 	 

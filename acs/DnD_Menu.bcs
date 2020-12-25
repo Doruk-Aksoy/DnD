@@ -810,16 +810,11 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"--- Elite Monster Modifiers ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			
 			SetHudClipRect(192, 52, 256, 384, 256, 1);
-			for(i = DND_TRAIT1_STARTSHOW; i <= DND_TRAIT1_LASTSHOW; ++i, ++k) {
-				HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_1), s:MonsterTraits[i]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * k, CR_WHITE, 192.1, 80.1 + 64.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
+			for(i = DND_TRAIT_STARTSHOW; i <= DND_TRAIT_LASTSHOW; ++i, ++k) {
+				HudMessage(s:GetTraitColorCode(i), s:MonsterTraits[i]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * k, CR_WHITE, 192.1, 80.1 + 64.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
 				HudMessage(s:Help_EliteModExplanation[k]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * k - 1, CR_WHITE, 192.1, 96.1 + 64.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
 			}
-			
-			for(i = DND_TRAIT2_STARTSHOW; i <= DND_TRAIT2_LASTSHOW; ++i, ++k) {
-				HudMessage(s:GetTraitColorCode(i, DND_TRAITSIDE_2), s:MonsterTraits2[i - DND_TRAIT2_STARTSHOW]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * k, CR_WHITE, 192.1, 80.1 + 64.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
-				HudMessage(s:Help_EliteModExplanation[k]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * k - 1, CR_WHITE, 192.1, 96.1 + 64.0 * k + 4.0 * ScrollPos, 0.0, 0.0);
-			}
-			
+
 			SetHudClipRect(0, 0, 0, 0);
 		}
 		
