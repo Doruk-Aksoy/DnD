@@ -106,6 +106,7 @@ Actor FlechettePuff : DnD_BasePuff {
 			MPU9 CDE 4
 		stop
 		Crash:
+		HitNoBlood:
 		Goto AfterDamage
 	}
 }
@@ -279,6 +280,8 @@ Actor MagnumPuff_Rail : DnD_BaseRailPuff {
 		AfterDamage:
 			TNT1 A 1
 		stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -342,6 +345,7 @@ Actor ShockShellPuff : DnD_BasePuff {
 			MPU9 CDE 4
 		stop
 		Crash:
+		HitNoBlood:
 		Goto AfterDamage
 	}
 }
@@ -442,6 +446,9 @@ Actor SlugShellPuff : DnD_BasePuff {
 			PUFF B 4
 			PUFF CD 4
 		Stop
+		Crash:
+		HitNoBlood:
+		Goto AfterDamage
 	}
 }
 

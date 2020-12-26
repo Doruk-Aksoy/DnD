@@ -1326,7 +1326,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	
 	"Purifier shoots 15 pellets each doing 15 damage in a 3.6 by 3.6 and a shell capacity of 8.",
 	"Killstorm is an automatic shotgun, shooting 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Has a shell capacity of 10.",
-	"Creates 5 blasts doing 20 damage each in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, and releases an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.",
+	"Creates 5 blasts doing 20 damage each in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, and releases an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius. Inflicts \cqpoison.",
 	"Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.",
 	"Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of gas streams doing 5 damage.",
 	"An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
@@ -1345,10 +1345,10 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 15 damage, reduce monster damage and resistance by 50%. If the monster is below 10% health, culls the monster.",
 	"Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40.",
 	"Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Reload when full to use other ammo.",
-	"Fires acid rounds doing 18 damage on hit and 5-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius.",
+	"Fires acid rounds doing 18 damage on hit and 5-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius. Inflicts \cqpoison.",
 	"Fires in bursts of 5 each doing 28 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 150 damage and releasing rippers doing 5 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-",
 	
-	"Desolator fires highly toxic rounds doing 30 damage. Every subsequent hit to a target makes them take 10% more damage from elemental attacks, stacks maximum 5 times. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius.",
+	"Desolator fires highly toxic rounds doing 30 damage. Every subsequent hit to a target makes them take 10% more damage from elemental attacks, stacks maximum 5 times. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius. Inflicts \cqpoison.",
 	"Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin.",
 	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
 	
@@ -2400,6 +2400,8 @@ str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster has 75% more health.",
 	"Monster ignores armor of player with every attack.",
 	"Monster belongs to a player and is friendly.",
+	
+	"Monster is currently blocking attacks. Receives no damage unless attacks \cfignore shields\c-.",
 	
 	"Monster is summoned by another and gives nothing on kill.",
 	"Monster is resurrected and doesn't give anything on kill.",

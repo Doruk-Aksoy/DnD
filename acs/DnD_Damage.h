@@ -25,6 +25,16 @@ enum {
 };
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
 
+enum {
+	DND_DAMAGECATEGORY_MELEE,
+	DND_DAMAGECATEGORY_BULLET,
+	DND_DAMAGECATEGORY_ENERGY,
+	DND_DAMAGECATEGORY_EXPLOSIVES,
+	DND_DAMAGECATEGORY_OCCULT,
+	DND_DAMAGECATEGORY_ELEMENTAL,
+	DND_DAMAGECATEGORY_SOUL
+};
+
 str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Melee",
 	"Melee_Magic",
@@ -76,14 +86,16 @@ enum {
 enum {
 	DND_SCANNER_BFG,
 	DND_SCANNER_BFGUPGRADED,
-	DND_SCANNER_HEART
+	DND_SCANNER_HEART,
+	DND_SCANNER_BOOK
 };
 
-#define MAX_SCANNER_PARTICLES (DND_SCANNER_HEART + 1)
+#define MAX_SCANNER_PARTICLES (DND_SCANNER_BOOK + 1)
 str ScannerAttackParticles[MAX_SCANNER_PARTICLES] = {
 	"BFGExtra2",
 	"BFGExtraUpgraded",
-	"HeartAttackPuff"
+	"HeartAttackPuff",
+	"BookPuff"
 };
 
 typedef struct scan_data {
@@ -95,7 +107,24 @@ typedef struct scan_data {
 scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
 	{ 1024.0, 			0.278, 				24.0 },
 	{ 1024.0,		 	0.278, 				24.0 },
-	{ 4096.0,		 	0.25, 				32.0 }
+	{ 4096.0,		 	0.25, 				32.0 },
+	{ 2048.0,			0.25,				32.0 }
+};
+
+enum {
+	DND_HITBEEP_WEAKNESS,
+	DND_HITBEEP_RESIST,
+	DND_HITBEEP_IMMUNITY,
+	DND_HITBEEP_INVULNERABLE
+};
+#define DND_MAX_HITBEEPS (DND_HITBEEP_INVULNERABLE + 1)
+#define HITBEEP_SOUND 0
+#define HITBEEP_TIMER 1
+str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
+	{ "HitBeep/Weakness", 		"WeaknessBeepTimer"		},
+	{ "HitBeep/Resist", 		"BeepTimer"				},
+	{ "HitBeep/Immune", 		"HardBeepTimer"			},
+	{ "HitBeep/Invulnerable",  	"InvulBeepTimer"		}
 };
 
 #define DND_CULL_BASEPERCENT 10 // 1 / 10
@@ -107,6 +136,8 @@ scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
 
 #define DND_EXTRAUNDEADDMG_MULTIPLIER 3
 
+#define DND_WEAKNESS_FACTOR 25 // 25% extra dmg
+#define DND_SPECIFICELEWEAKNESS_FACTOR 50 // 50% extra dmg taken from specific elemental dmg
 #define DND_RESIST_FACTOR 50 // 50% dmg taken
 #define DND_IMMUNITY_FACTOR 95 // 5% dmg taken
 
@@ -324,7 +355,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		}
 
 		MarkCachingComplete(pnum, wepid, dmgid);
-		printbold(s:"from regular");
+		//printbold(s:"from regular");
 	}
 	else {
 		// Get the cached flat dmg and factor and apply them both
@@ -344,7 +375,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		}
 		
 		// factor was stored as fixed, convert to int
-		printbold(s:"from cache ", d:GetCachedPlayerFlatDamage(pnum, wepid, dmgid), s: " ", f:GetCachedPlayerFactor(pnum, wepid, dmgid));
+		//printbold(s:"from cache ", d:GetCachedPlayerFlatDamage(pnum, wepid, dmgid), s: " ", f:GetCachedPlayerFactor(pnum, wepid, dmgid));
 	}
 	
 	//printbold(d:dmg);
@@ -374,7 +405,7 @@ void HandleDamagePush(int victim, int dmg, dmg_data_T& dmg_data, int flags) {
 	int dist = AproxDistance(dx, dy);
 	int zdiff = (GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0) - dmg_data.origin.z;
 	int tpitch = -VectorAngle(dist, zdiff);
-	printbold(s:"pitch: " , f:tpitch);
+	//printbold(s:"pitch: " , f:tpitch);
 	dz = -sin(tpitch);
 	
 	int len = magnitudeThree(dx >> 16, dy >> 16, dz >> 16);
@@ -390,12 +421,12 @@ void HandleDamagePush(int victim, int dmg, dmg_data_T& dmg_data, int flags) {
 	
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
 		// a little bump
-		dx *= 5;
-		dy *= 5;
-		dz *= 5;
+		dx *= 2;
+		dy *= 2;
+		dz *= 2;
 	}
 	
-	printbold(s:"force ", f:dx, s:" ", f:dy, s: " ", f:dz);
+	//printbold(s:"force ", f:dx, s:" ", f:dy, s: " ", f:dz);
 	
 	SetActorVelocity(victim, dx, dy, dz, true, false);
 }
@@ -403,6 +434,14 @@ void HandleDamagePush(int victim, int dmg, dmg_data_T& dmg_data, int flags) {
 // there may be things that add + to cull % later
 bool CheckCullRange(int source, int victim, int dmg) {
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / DND_CULL_BASEPERCENT;
+}
+
+bool IsMeleeDamage(int damage_type) {
+	return damage_type >= DND_DAMAGETYPE_MELEE && damage_type <= DND_DAMAGETYPE_MELEEOCCULT;
+}
+
+bool IsBulletDamage(int damage_type) {
+	return damage_type >= DND_DAMAGETYPE_PHYSICAL && damage_type <= DND_DAMAGETYPE_SILVERBULLET;
 }
 
 bool IsEnergyDamage(int damage_type) {
@@ -421,10 +460,104 @@ bool IsPoisonDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_POISON && damage_type <= DND_DAMAGETYPE_EMERALD;
 }
 
+int GetDamageCategory(int damage_type) {
+	if(IsBulletDamage(damage_type))
+		return DND_DAMAGECATEGORY_BULLET;
+	else if(IsMeleeDamage(damage_type))
+		return DND_DAMAGECATEGORY_MELEE;
+	else if(damage_type == DND_DAMAGETYPE_EXPLOSIVES)
+		return DND_DAMAGECATEGORY_EXPLOSIVES;
+	else if(IsEnergyDamage(damage_type))
+		return DND_DAMAGECATEGORY_ENERGY;
+	else if(IsOccultDamage(damage_type))
+		return DND_DAMAGECATEGORY_OCCULT;
+	else if(IsElementalDamage(damage_type))
+		return DND_DAMAGECATEGORY_ELEMENTAL;
+	return DND_DAMAGECATEGORY_SOUL;
+}
+
+int FactorResists(int source, int victim, int dmg, int damage_type) {
+	// check penetration stuff on source -- set it accordingly to damage type being checked down below
+	int pen = 0;
+	int mon_id = victim - DND_MONSTERTID_BEGIN;
+	int temp = GetDamageCategory(damage_type);
+	
+	// weaknesses
+	if(MonsterProperties[mon_id].trait_list[DND_ENERGY_WEAKNESS] && temp == DND_DAMAGECATEGORY_ENERGY)
+		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_FIRE_WEAKNESS] && damage_type == DND_DAMAGETYPE_FIRE)
+		dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ICE_WEAKNESS] && damage_type == DND_DAMAGETYPE_ICE)
+		dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_WEAKNESS] && (temp == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_MELEEOCCULT))
+		// if melee's sub type is occult then let it benefit from the pen
+		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_WEAKNESS] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
+		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
+	
+	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
+	if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_RESIST] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && temp == DND_DAMAGECATEGORY_ENERGY)
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	// immunities
+	else if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_NONE] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_IMMUNE] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && temp == DND_DAMAGECATEGORY_ENERGY)
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
+			dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	
+	// special bonuses for certain creature types
+	if(MonsterProperties[mon_id].trait_list[DND_ICECREATURE]) {
+		// make sure to check ice and fire pen seperate
+		if(damage_type == DND_DAMAGETYPE_ICE)
+			dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+		else if(damage_type == DND_DAMAGETYPE_FIRE)
+			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+	}
+	else if(MonsterProperties[mon_id].trait_list[DND_FIRECREATURE]) {
+		// make sure to check ice and fire pen seperate
+		if(damage_type == DND_DAMAGETYPE_FIRE)
+			dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+		else if(damage_type == DND_DAMAGETYPE_ICE)
+			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+	}
+	else if(MonsterProperties[mon_id].trait_list[DND_STONECREATURE]) {
+		// make sure to check these seperate
+		if(damage_type == DND_DAMAGETYPE_FIRE)
+			dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+		else if(damage_type == DND_DAMAGETYPE_ICE)
+			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+		else if(damage_type == DND_DAMAGETYPE_LIGHTNING || damage_type == DND_DAMAGETYPE_POISON)
+			dmg = (dmg * pen) / 100;
+	}
+	else if(MonsterProperties[mon_id].trait_list[DND_EARTHCREATURE]) {
+		// make sure to check these seperate
+		if(damage_type == DND_DAMAGETYPE_LIGHTNING)
+			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+		else if(damage_type == DND_DAMAGETYPE_POISON)
+			dmg = (dmg * pen) / 100;
+	}
+	
+	return dmg;
+}
+
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters!
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, dmg_data_T& dmg_data, int actor_flags) {
 	str s_damagetype = DamageTypeList[damage_type];
+	bool factor_resist = true;
 	int temp;
 	
 	int pnum = -1;
@@ -439,8 +572,18 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		(IsEnergyDamage(damage_type) && CheckActorInventory(source, "Cyborg_Perk50")) 											||
 		(damage_type == DND_DAMAGETYPE_SOUL && CheckActorInventory(source, "StatbuffCounter_SoulWepsDoFullDamage"))				||
 		((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckActorInventory(source, "Hobo_Perk50"))
-	)
+	) 
+	{
 		s_damagetype = StrParam(s:s_damagetype, s:"Full");
+		factor_resist = false;
+	}
+
+	// check blocking status of monster -- if they are and we dont have foilinvul on this, no penetration
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING] && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
+		if(pnum != -1)
+			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
+		return;
+	}
 	
 	// pain checks
 	if(actor_flags & DND_ACTORFLAG_PAINLESS)
@@ -469,6 +612,21 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	}
 	
 	// handle resists and all that here
+	if(factor_resist) {
+		//printbold(s:"res calc");
+		temp = dmg;
+		dmg = FactorResists(source, victim, dmg, damage_type);
+		// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
+		if(pnum != -1) {
+			if(dmg > temp)
+				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
+			else if(dmg < temp / 4)
+				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+			else if(dmg < temp)
+				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
+		}
+	}
+	
 	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
 		GiveActorInventory(victim, "DnD_CullSuccess", 1);
 		
@@ -479,14 +637,14 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
 	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
 		// poison damage deals 10% of its damage per stack over 3 seconds
-		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS) {
+		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
 			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
 			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, dmg / 10);
-			printbold(s:"poison received by ", d:victim);
+			//printbold(s:"poison received by ", d:victim);
 		}
 	}
 	
-	if(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD)
+	if((flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) && (MonsterData[MonsterProperties[victim - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW)))
 		dmg *= DND_EXTRAUNDEADDMG_MULTIPLIER;
 	
 	// final check on explosions if we are hurting ourselves, factor in our resists and stuff like that
@@ -504,7 +662,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		HandleDamagePush(victim, dmg, dmg_data, flags);
 	}
 	
-	printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype);
+	//printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype);
 	
 	Thing_Damage2(victim, dmg, s_damagetype);
 }
@@ -655,7 +813,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 		
 	while(counter < time_limit && GetActorProperty(victim, APROP_HEALTH) > 0) {
 		if(counter >= tics) {
-			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, p_dmg_data, DND_ACTORFLAG_NOPUSH);
+			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, p_dmg_data, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
 			tics += base_tics;
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
 		}
@@ -672,6 +830,16 @@ Script "DnD Spawn Poison FX" (int orig, int amt) CLIENTSIDE {
 	for(int i = 0; i <= amt; ++i) {
 		SpawnForced("DnD_PoisonFX", GetActorX(orig) + random(-r, r), GetActorY(orig) + random(-r, r), GetActorZ(orig) + random(-h, h), 0);
 		Delay(random(1, 3));
+	}
+}
+
+Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+	if(GetCVar("dnd_hitbeeps") && !CheckInventory(HitBeepSounds[beep_type][HITBEEP_TIMER])) {
+		LocalAmbientSound(HitBeepSounds[beep_type][HITBEEP_SOUND], 127);
+		GiveInventory(HitBeepSounds[beep_type][HITBEEP_TIMER], 1);
 	}
 }
 

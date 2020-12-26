@@ -266,6 +266,8 @@ Actor ShotgunPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -548,6 +550,8 @@ Actor PurifierPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -742,6 +746,8 @@ Actor KillstormPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -896,6 +902,7 @@ Actor EmeraldPuff : DnD_BasePuff {
 		Stop
 		Crash:
 		Melee:
+		HitNoBlood:
 		Goto AfterDamage
 	}
 }
@@ -1151,6 +1158,8 @@ Actor SSGPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1349,6 +1358,7 @@ Actor HSSGPuff_Rail : DnD_BaseRailPuff {
 			TNT1 A 1
 		Stop
 		Crash:
+		HitNoBlood:
 			TNT1 A 0 A_SpawnDebris("SparkPuff", 1)
 			TNT1 A 0 A_SpawnItemEx("WallHitSpark", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 			PUFF A 4 bright A_PlaySound("puff/ric")
@@ -1368,6 +1378,8 @@ Actor HSSGPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1613,6 +1625,8 @@ Actor ErasusPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -2068,6 +2082,7 @@ Actor WhiteDeathPuff : DnD_BasePuff {
 			TNT1 A 15 A_CustomMissile("ExplodingPuff", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 		Stop
 		Crash:
+		HitNoBlood:
 		Goto AfterDamage
 	}
 }

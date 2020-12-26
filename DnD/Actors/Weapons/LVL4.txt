@@ -558,6 +558,8 @@ Actor MGPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -736,6 +738,8 @@ Actor HMGPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -958,6 +962,7 @@ Actor LeadBulletPuff : DnD_BasePuff {
 		Stop
 		Crash:
 		Melee:
+		HitNoBlood:
 		Goto AfterDamage
 	}
 }
@@ -1498,6 +1503,7 @@ Actor DesolatorPuff : DnD_BasePuff {
 		Stop
 		Crash:
 		Melee:
+		HitNoBlood:
 			TNT1 A 1 A_SpawnItemEx("DesolatorPuff_FX")
 		Stop
 	}
@@ -2009,6 +2015,8 @@ Actor ThrottlePuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 

@@ -178,6 +178,8 @@ Actor AssaultRiflePuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 

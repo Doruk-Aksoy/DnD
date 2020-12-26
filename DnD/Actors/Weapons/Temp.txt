@@ -167,6 +167,8 @@ Actor SawedoffPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -737,6 +739,7 @@ Actor BladePuff1 : DnD_BasePuff {
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 0 A_SpawnItemEx("BladeHitFX")
+		AfterDamage_NoBlood:
 			TNT1 A 2 A_GiveToTarget("BladeCharge", 5)
 			TNT1 A 2 A_TakeFromTarget("BladeHits", 1)
 		Stop
@@ -745,6 +748,8 @@ Actor BladePuff1 : DnD_BasePuff {
 			VFX2 A 3 A_PlaySound("weapons/vblwal")
 			VFX2 BCDE 3
 		Stop
+		HitNoBlood:
+		Goto AfterDamage_NoBlood
 	}
 }
 
@@ -763,6 +768,7 @@ Actor BladePuff2 : DnD_BasePuff {
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 0 A_SpawnItemEx("BladeHitFX")
+		AfterDamage_NoBlood:
 			VFX3 A 1 Bright A_PlaySound("weapons/vblhi2")
 			TNT1 A 0 A_GivetoTarget("SoulRenderHealerWeak", 1)
 			VFX3 A 2 Bright A_GiveToTarget("BladeCharge", 15)
@@ -775,6 +781,8 @@ Actor BladePuff2 : DnD_BasePuff {
 			VFX1 A 3 Bright A_PlaySound("weapons/vblwa2")
 			VFX1 BCDEFG 3 Bright
 		Stop
+		HitNoBlood:
+		Goto AfterDamage_NoBlood
 	}
 }
 
@@ -792,6 +800,7 @@ Actor BladePuff3 : BladePuff2 {
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 0 A_SpawnItemEx("BladeHitFX")
+		AfterDamage_NoBlood:
 			VFX6 A 1 Bright A_PlaySound("weapons/vblhi3")
 			TNT1 A 0 A_GivetoTarget("SoulRenderHealer", 1)
 			VFX6 A 2 Bright A_GiveToTarget("BladeCharge", 15)
@@ -804,6 +813,8 @@ Actor BladePuff3 : BladePuff2 {
 			HADE R 3 Bright A_PlaySound("weapons/vblwa2")
 			HADE STUVWX 3 Bright
 		Stop
+		HitNoBlood:
+		Goto AfterDamage_NoBlood
 	}
 }
 
@@ -1015,6 +1026,8 @@ Actor SMGPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1617,6 +1630,9 @@ Actor BloodFX : DnD_BasePuff {
 		stop
 		Crash:
 		Goto AfterDamage
+		
+		HitNoBlood:
+		Goto Crash
    }
 }
 
@@ -3427,6 +3443,8 @@ Actor BerettaPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -3972,6 +3990,8 @@ Actor RipperPuff : DnD_BaseRailPuff {
 		Stop
 		Crash:
 		Goto AfterDamage
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -3982,6 +4002,8 @@ Actor RipperPuff_Regular : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 

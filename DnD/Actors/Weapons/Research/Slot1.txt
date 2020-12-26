@@ -191,6 +191,7 @@ Actor InfernoSwordPuff : DnD_BasePuff {
 			TNT1 A 1 A_PlaySound("Sword/Hit")
 		Goto Anim
 		Crash:
+		HitNoBlood:
 			TNT1 A 0
 			TNT1 A 0 A_PlaySound("Sword/HitWall")
 			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))

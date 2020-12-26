@@ -56,7 +56,7 @@ Script "DnD Register Explosion Instance" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int pnum = owner - P_TIDSTART;
 	
-	printbold(s:"Register Explosion to ptid ", d:owner);
+	//printbold(s:"Register Explosion to ptid ", d:owner);
 	
 	PlayerExplosionList[pnum].curr_instance = Create_ExplosionInstance(pnum);
 	SetInventory("DnD_ProjPnum", pnum);
@@ -70,7 +70,7 @@ Script "DnD Register Explosion Instance (Pets)" (void) {
 	
 	int pnum = owner - P_TIDSTART;
 	
-	printbold(s:"Register Explosion to ptid ", d:owner);
+	//printbold(s:"Register Explosion to ptid ", d:owner);
 	
 	PlayerExplosionList[pnum].curr_instance = Create_ExplosionInstance(pnum);
 	SetInventory("DnD_ProjPnum", pnum);
@@ -83,11 +83,11 @@ Script "DnD Register Monster to Instance" (int pnum) {
 	int mon_index;
 	// check the tid of recipient first
 	if(ActivatorTID() && (mon_index = Add_Monster_To_Explosion(pnum, list_id)) != -1) {
-		printbold(s:"Add monster ", d:ActivatorTID(), s: " to player ", d:pnum, s: " of instance ", d:list_id);
+		//printbold(s:"Add monster ", d:ActivatorTID(), s: " to player ", d:pnum, s: " of instance ", d:list_id);
 		// we register this monster to list_id instance of player pnum for processing
 		PlayerExplosionList[pnum].list[list_id].monsters[mon_index] = ActivatorTID();
 	}
-	printbold(s:"Monster insertion checked on ", d:ActivatorTID(), s: " ", d: mon_index);
+	//printbold(s:"Monster insertion checked on ", d:ActivatorTID(), s: " ", d: mon_index);
 	SetResultValue(0);
 }
 

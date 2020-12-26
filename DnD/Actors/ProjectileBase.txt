@@ -289,6 +289,7 @@ Actor DnD_BasePuff {
 		DoDamage:
 			// takes dmg and damage type as args 0 and 1 respectively
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
+			TNT1 A 0 A_CheckFlag("NOBLOOD", "SpawnPuff", AAPTR_TRACER)
 			TNT1 A 35 A_Jump(256, "AfterDamage")
 		Wait
 		Crash:
@@ -298,6 +299,9 @@ Actor DnD_BasePuff {
 			PUFF B 4
 			PUFF CD 4
 		stop
+		SpawnPuff:
+			TNT1 A 35 A_Jump(256, "HitNoBlood")
+		Wait
 		DontSpawnPuff:
 			TNT1 A 1
 		Stop
@@ -319,11 +323,15 @@ Actor DnD_BaseRailPuff {
 		DoDamage:
 			// takes dmg and damage type as args 0 and 1 respectively
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE], Args[DND_ARG_DAMAGEFLAGS])
+			TNT1 A 0 A_CheckFlag("NOBLOOD", "SpawnPuff", AAPTR_TRACER)
 			TNT1 A 35 A_Jump(256, "AfterDamage")
 		Wait
 		Crash:
 			TNT1 A 1
 		stop
+		SpawnPuff:
+			TNT1 A 35 A_Jump(256, "HitNoBlood")
+		Wait
 	}
 }
 

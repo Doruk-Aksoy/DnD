@@ -5,6 +5,8 @@
 #include "DnD_QuestDefs.h"
 #include "DnD_MonsterData.h"
 
+#define DND_QUEST_ARTIBONUS 25 // 25%
+
 quest_T Quest_List[MAX_QUESTS] = {
 		{ QTYPE_ATLEASTONE, 											"DnD_QuestReward_RegenCap" 				},
 		{ QTYPE_ATLEASTONE, 											"DnD_QuestReward_15PercentDamage"		},

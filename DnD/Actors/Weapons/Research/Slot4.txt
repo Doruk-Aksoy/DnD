@@ -184,6 +184,8 @@ Actor TemplarMGPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -927,6 +929,8 @@ Actor RiotgunPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1084,6 +1088,7 @@ Actor NitroShellPuff : DnD_BasePuff {
 			D3FX L 2
 		stop
 		Crash:
+		HitNoBlood:
 		Goto AfterDamage
 	}
 }
@@ -1145,7 +1150,9 @@ Actor ExplodingShellPuff : DnD_BasePuff {
 			TNT1 A 15
 		Stop
 		Crash:
-			TNT1 A 15 A_CustomMissile("ExplodingPuff_Riotgun", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 3 A_CustomMissile("ExplodingPuff_Riotgun", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+		HitNoBlood:
+			TNT1 A 3
 		Stop
 	}
 }
@@ -1379,6 +1386,7 @@ Actor AcidPuff : DnD_BasePuff {
 		AfterDamage:
 		Crash:
 		Melee:
+		HitNoBlood:
 			TNT1 A 0 A_CustomMissile("AcidPuffExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			RIF2 J 3 A_PlaySound("AcidRifle/Hit")
 			RIF2 KL 3

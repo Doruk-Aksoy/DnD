@@ -336,15 +336,6 @@ void HandleMonsterClassInnates(int id) {
 		GiveInventory("SMClassProtection", 1);
 	else if(id == MONSTER_CYBERDEMON || (id >= DND_CUSTOM_CYBER_BEGIN && id <= LEGENDARY_END))
 		GiveInventory("CyberClassProtection", 1);
-		
-	if(innate & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW))
-		GiveInventory("SilverWeaknesses", 1);
-	if(innate & DND_MTYPE_UNDEAD_POW)
-		GiveInventory("FireWeakness", 1);
-	if(innate & DND_MTYPE_MAGICAL_POW)
-		GiveInventory("MagicalCreature", 1);
-	if(innate & DND_MTYPE_ROBOTIC_POW)
-		GiveInventory("LowEnergyWeakness", 1);
 }
 
 void LoadMonsterTraits(int m_id) {
@@ -376,10 +367,10 @@ void LoadMonsterTraits(int m_id) {
 		MonsterProperties[i].trait_list[DND_SILVER_WEAKNESS] = true;
 		
 	// if robotic, give energy weakness
-	if((MonsterData[MonsterProperties[i].id].flags & DND_MTYPE_ROBOTIC_POW) && !MonsterProperties[i].trait_list[DND_ENERGY_RESIST] && !MonsterProperties[i].trait_list[DND_ENERGY_IMMUNE])
+	if((MonsterData[m_id].flags & DND_MTYPE_ROBOTIC_POW) && !MonsterProperties[i].trait_list[DND_ENERGY_RESIST] && !MonsterProperties[i].trait_list[DND_ENERGY_IMMUNE])
 		MonsterProperties[i].trait_list[DND_ENERGY_WEAKNESS] = true;
 	// if magical, give magic weakness
-	if((MonsterData[MonsterProperties[i].id].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[i].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[i].trait_list[DND_MAGIC_IMMUNE])
+	if((MonsterData[m_id].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[i].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[i].trait_list[DND_MAGIC_IMMUNE])
 		MonsterProperties[i].trait_list[DND_MAGIC_WEAKNESS] = true;
 }
 

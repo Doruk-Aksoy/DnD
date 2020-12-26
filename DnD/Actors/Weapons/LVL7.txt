@@ -1436,6 +1436,8 @@ Actor GaussPuff1 : DnD_BaseRailPuff {
 		Stop
 		Crash:
 		Goto AfterDamage
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1451,6 +1453,8 @@ Actor GaussPuff2 : DnD_BaseRailPuff {
 		Stop
 		Crash:
 		Goto AfterDamage
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1466,6 +1470,8 @@ Actor GaussPuff3 : DnD_BaseRailPuff {
 		Stop
 		Crash:
 		Goto AfterDamage
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1481,6 +1487,8 @@ Actor GaussPuff4 : DnD_BaseRailPuff {
 		Stop
 		Crash:
 		Goto AfterDamage
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1507,6 +1515,8 @@ Actor GaussBullet1 : DnD_BasePuff {
 		Stop
 		Crash:
 		Goto AfterDamage
+		HitNoBlood:
+		Goto Crash
 	}
 }
 

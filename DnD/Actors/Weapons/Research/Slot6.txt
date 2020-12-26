@@ -533,6 +533,7 @@ Actor LGPuffSEX : DnD_BaseRailPuff {
 			"----" "##" 2 Bright
 		Stop
 		Crash:
+		HitNoBlood:
 			TNT1 A 0
 		Goto AfterDamage
 	}

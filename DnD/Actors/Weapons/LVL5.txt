@@ -621,6 +621,7 @@ Actor FlakShellPuff : DnD_BasePuff {
 		Stop
 		Crash:
 		Melee:
+		HitNoBlood:
 			TNT1 AAA 0 A_CustomMissile("FlakProjectile", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
 		Goto AfterDamage
 	}

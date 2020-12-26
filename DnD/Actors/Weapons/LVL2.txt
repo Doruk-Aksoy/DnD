@@ -83,6 +83,8 @@ Actor PistolPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -368,6 +370,8 @@ Actor AkimboPistolPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -528,6 +532,8 @@ Actor MagnumPistolPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -540,6 +546,8 @@ Actor MagnumPistolPuff_Rail : DnD_BaseRailPuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -794,6 +802,9 @@ Actor LaserPistolPuff_0 : DnD_BasePuff {
 		Type8:
 			DB24 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
 		Stop
+		
+		HitNoBlood:
+		Goto AfterDamage
 	}
 }
 
@@ -842,6 +853,9 @@ Actor LaserPistolPuff_1 : DnD_BaseRailPuff {
 		Type8:
 			DB24 JKLMNOPQR 1 Bright A_SetScale(scaleX+user_scaler * 0.01)
 		Stop
+		
+		HitNoBlood:
+		Goto AfterDamage
 	}
 }
 

@@ -56,6 +56,8 @@ enum {
 	DND_ARMORPEN,
 	DND_PET,
 	
+	DND_ISBLOCKING,
+	
 	DND_SUMMONED,
 	DND_REVIVED,
 	DND_ICECREATURE,
@@ -128,6 +130,8 @@ str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Armor Penetration",
 	"Pet Creature",
 	
+	"Blocking Attacks",
+	
 	"Summoned Creature",
 	"Revived",
 	"Ice Creature",
@@ -199,6 +203,7 @@ str GetTraitColorCode(int trait) {
 		case DND_REFLECTIVE:
 		case DND_HARDENED_SKIN:
 		case DND_GHOST:
+		case DND_ISBLOCKING:
 		return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
 		
 		case DND_HOMING:

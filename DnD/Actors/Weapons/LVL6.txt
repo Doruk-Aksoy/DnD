@@ -640,6 +640,8 @@ Actor TurelPuff1 : DnD_BaseRailPuff {
 		Crash:
 			LTNG AABBCCDDEEFFGG 1 Bright A_FadeOut(0.05)
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }
 
@@ -1792,5 +1794,7 @@ Actor RhinoPuff : DnD_BasePuff {
 		AfterDamage:
 			TNT1 A 1
 		Stop
+		HitNoBlood:
+		Goto Crash
 	}
 }

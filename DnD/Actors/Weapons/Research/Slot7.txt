@@ -255,6 +255,7 @@ Actor IonPuff : DnD_BasePuff {
 			IOPF EF 2 Bright
 		Stop
 		Crash:
+		HitNoBlood:
 		Goto AfterDamage
 	}
 }

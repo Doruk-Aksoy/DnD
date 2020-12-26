@@ -41,5 +41,26 @@ enum {
 enum {
 	DND_SCANNER_BFG,
 	DND_SCANNER_BFGUPGRADED,
-	DND_SCANNER_HEART
+	DND_SCANNER_HEART,
+	DND_SCANNER_BOOK
 };
+
+Actor InvulBeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor HardBeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor BeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor WeaknessBeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}

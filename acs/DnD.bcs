@@ -1775,11 +1775,13 @@ Script "DnD Golgoth Health Check" (void) {
 }
 
 Script "DnD Monster Trait Take" (int traitside, int flag) {
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag] = true;
+	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag] = false;
+	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Give" (int traitside, int flag) {
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag] = false;
+	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag] = true;
+	SetResultValue(0);
 }
 
 // Checks Ankh
@@ -1959,19 +1961,35 @@ Script "DnD Monster Scanner Picker" ENTER {
 }
 
 Script "DnD Reset Monster Trait CS" (int id) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
 	if(client_trait_list.tid != id) {
 		client_trait_list.count = 0;
-		for(int i = 0; i < MAX_MONSTER_TRAITS; ++i)
-			client_trait_list.list[i] = false;
 		client_trait_list.tid = id;
 	}
 	SetResultValue(0);
 }
 
-Script "DnD Sync Monster Trait CS" (int index) CLIENTSIDE {
-	client_trait_list.list[index] = true;
+Script "DnD Sync Monster Trait CS" (int index, int v1, int v2, int v3) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+	client_trait_list.list[index] 		= 	v1;
+	client_trait_list.list[index + 1] 	= 	v2;
+	client_trait_list.list[index + 2] 	= 	v3;
 	// not important as long as it can be 0 and something more than 1
-	client_trait_list.count += client_trait_list.count < 10;
+	client_trait_list.count += (v1 + v2 + v3) * (client_trait_list.count < 15);
+	SetResultValue(0);
+}
+
+Script "DnD Sync Monster Trait CS Single" (int index, int v) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+	client_trait_list.list[index] = v;
+	// not important as long as it can be 0 and something more than 1
+	client_trait_list.count += v;
 	SetResultValue(0);
 }
 
@@ -1980,15 +1998,23 @@ Script "DnD Sync Monster Traits To Client" (int id, int isPet) {
 	int i;
 	if(!isPet) {
 		id -= DND_MONSTERTID_BEGIN;
-		for(i = 0; i < MAX_MONSTER_TRAITS; ++i)
-			if(MonsterProperties[id].trait_list[i])
-				ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS", i);
+		for(i = 0; i < MAX_MONSTER_TRAITS - 3; i += 3)
+			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS", i, MonsterProperties[id].trait_list[i], MonsterProperties[id].trait_list[i + 1], MonsterProperties[id].trait_list[i + 2]);
+		// get remaining
+		while(i < MAX_MONSTER_TRAITS) {
+			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS Single", i, MonsterProperties[id].trait_list[i]);
+			++i;
+		}
 	}
 	else {
 		id -= DND_PETTID_BEGIN;
 		for(i = 0; i < MAX_MONSTER_TRAITS; ++i)
 			if(PetMonsterProperties[id].trait_list[i])
-				ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS", i);
+				ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS", i, PetMonsterProperties[id].trait_list[i], PetMonsterProperties[id].trait_list[i + 1], PetMonsterProperties[id].trait_list[i + 2]);
+		while(i < MAX_MONSTER_TRAITS) {
+			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS Single", i, PetMonsterProperties[id].trait_list[i]);
+			++i;
+		}
 	}
 	SetResultValue(0);
 }
@@ -3121,13 +3147,13 @@ Script "tester shit" (void) {
 // Used mainly for non-weapons (like artifacts and so on)
 Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	int temp, temp2;
-	if(flags & DND_WDMG_USETARGET) // use target
-		SetActivator(0, AAPTR_TARGET);
-	else if(flags & DND_WDMG_USEMASTER)
-		SetActivator(0, AAPTR_MASTER);
+	
+	AdjustDamageRetrievePointers(flags);
+	
 	int pnum = PlayerNumber();
 	bool isSpell = flags & DND_WDMG_ISSPELL;
 	if(isSpell) {
+		// we take id of spell from the table as input, then read its damage
 		temp2 = dmg;
 		dmg = SpellDamageTable[dmg].dmg;
 	}
@@ -3169,10 +3195,15 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	}
 	
 	// final additions
+	if(flags & DMG_WDMG_ISARTIFACT && CheckInventory("DnD_QuestReward_ExtraArtiDmg"))
+		dmg = dmg * (100 + DND_QUEST_ARTIBONUS) / 100;
+	
 	if(isSpell) {
 		if(SpellDamageTable[temp2].dmg_low)
 			dmg *= random(SpellDamageTable[temp2].dmg_low, SpellDamageTable[temp2].dmg_high);
 	}
+	
+	//printbold(s:"scaled player damage ", d:dmg);
 	
 	SetResultValue(dmg);
 }
@@ -3326,10 +3357,11 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	
 	// face player to the originator temporarily to get projection to there
 	int prev_ang = GetActorAngle(owner);
+	// use angle of the ball
 	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
-		FaceActor(owner, 0);
+		SetActorAngle(owner, GetActorAngle(0));
 	
-	printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg);
+	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
 	// pick tracer_count closest enemies
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(IsActorAlive(i)) {

@@ -1707,7 +1707,7 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
 			BBRQ AB 10 A_Look
 		Loop 
 		SeeState:
-			TNT1 A 0 A_UnsetInvulnerable
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
 		SeeLoop:
 			BBRQ A 3 Fast A_Chase
@@ -1736,7 +1736,7 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
 			BBRQ B 4 Fast A_FaceTarget
 			BBRQ C 3 Fast A_FaceTarget
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
-			BBRQ D 2 Fast A_SetInvulnerable
+			BBRQ D 2 Fast ACS_NamedExecuteWithResult("DnD Monster Trait Give", 0, DND_ISBLOCKING)
 			TNT1 A 0 A_SpawnItem("PurebredChargeExp", 0, 16)
 			TNT1 A 0 A_SkullAttack
 			BBRQ A 4 Fast A_ChangeVelocity(velx, vely, 0, CVF_REPLACE)
@@ -1766,12 +1766,12 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
 			BBRQ D 4 Fast
 			TNT1 A 0 A_SpawnItemEx("PurebredGhost_D",0,0,0,0,0,0,0,128,0)
 			TNT1 A 0 A_Stop
-			TNT1 A 0 A_UnsetInvulnerable
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
 			BBRQ A 8 Fast
 		Goto See
 		PainState:
-			TNT1 A 0 A_UnsetInvulnerable
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
 			BBRQ H 2 Fast
 			BBRQ H 3 Fast A_Pain
