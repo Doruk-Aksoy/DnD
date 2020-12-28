@@ -368,6 +368,7 @@ Actor DnD_Projectile_SpawnChecks : DnD_Activator {
 	States {
 		Pickup:
 			//TNT1 A 0 ACS_NamedExecuteAlways("target test")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Store Projectile Owner")
 			TNT1 A 0 A_JumpIfInTargetInventory("NetherCheck", 1, "ChangeFlags")
 		Stop
 		ChangeFlags:

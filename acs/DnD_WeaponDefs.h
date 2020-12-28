@@ -3,8 +3,6 @@
 
 #include "DnD_Common.h"
 
-#define DND_BASE_CRITMODIFIER 200
-
 enum {
 	DND_WEAPON_FIST,
 	DND_WEAPON_CHAINSAW,

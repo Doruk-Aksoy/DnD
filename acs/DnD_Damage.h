@@ -75,6 +75,11 @@ enum {
 	DND_DAMAGEFLAG_ISHITSCAN			=			0b10000000000000,
 };
 
+enum {
+	DND_DAMAGETICFLAG_PUSH			=			0b1,
+	DND_DAMAGETICFLAG_CRIT			=			0b10,
+};
+
 // These are actor inherited flags, like forcepain, foilinvul, painless etc.
 enum {
 	DND_ACTORFLAG_FOILINVUL				=			0b1,
@@ -141,11 +146,18 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_RESIST_FACTOR 50 // 50% dmg taken
 #define DND_IMMUNITY_FACTOR 95 // 5% dmg taken
 
-typedef struct damage_data {
-	vec3_T origin;
-} dmg_data_T;
+#define DND_MAX_MONSTER_TICDATA 16383 // even this is a bit much but w.e
+#define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
+#define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
+int PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
 
-private dmg_data_T PlayerDamageTicData[MAXPLAYERS];
+#define DND_CRITSTATE_NOCALC 0
+#define DND_CRITSTATE_CONFIRMED 1
+bool PlayerCritState[MAXPLAYERS][2];
+
+void Reset_DamageTicData(int pnum, int mon_id) {
+	PlayerDamageTicData[pnum][mon_id] = 0;
+}
 
 int ScanActorFlags() {
 	int res = 0;
@@ -162,6 +174,7 @@ int ScanActorFlags() {
 
 void AdjustDamageRetrievePointers(int flags) {
 	int temp;
+	//printbold(s:"prev score? ", d:GetActorProperty(0, APROP_SCORE));
 	if(flags & DND_WDMG_USETARGET) { // use target
 		// hopefully no projectile uses score
 		if(!GetActorProperty(0, APROP_SCORE)) {
@@ -188,10 +201,12 @@ void AdjustDamageRetrievePointers(int flags) {
 		SetActivator(temp);
 	}
 
+	// printbold(s:"owner ", d:ActivatorTID(), s: " ", d:GetActorProperty(0, APROP_SCORE));
 	// no owner can potentially mean this was a reflected projectile, we can manipulate this a bit
 	if(!ActivatorTID()) {
 		GiveInventory("MarkAsReflected", 1);
 		SetActivator(GetActorProperty(0, APROP_SCORE));
+		
 	}
 }
 
@@ -383,34 +398,41 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	return dmg;
 }
 
+int ConfirmedCritFactor(int dmg) {
+	dmg = dmg * GetCritModifier() / 100;
+	HandleHunterTalisman();
+	return dmg;
+}
+
 int HandleWeaponCrit(int dmg, int wepid, int pnum, int dmgid, bool isSpecial) {
+	// skip crit calc
+	if(PlayerCritState[pnum][DND_CRITSTATE_NOCALC])
+		return dmg;
 	// crit chance
 	// if weapon id is a lightning type, it will always crit with the necessary charm attribute on
 	if((IsWeaponLightningType(wepid, dmgid, isSpecial) && IsSet(GetPlayerAttributeValue(pnum, INV_EX_ALWAYSCRIT_LIGHTNING), DND_STATBUFF_ALWAYSCRITLIGHTNING)) || CheckCritChance(wepid)) {
 		dmg = dmg * GetCritModifier() / 100;
 		HandleHunterTalisman();
+		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED] = true;
 	}
 	return dmg;
 }
 
-void HandleDamagePush(int victim, int dmg, dmg_data_T& dmg_data, int flags) {
-	// get facing direction to victim
+void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim) {
+	// get push vector
 	int dx, dy, dz;
-	int m = GetActorProperty(victim, APROP_MASS) / 2;
+	int m = GetActorProperty(victim, APROP_MASS) / 4;
 	if(!m)
 		m = 1;
 	
-	dx =  GetActorX(victim) - dmg_data.origin.x;
-	dy =  GetActorY(victim) - dmg_data.origin.y;
-	int dist = AproxDistance(dx, dy);
-	int zdiff = (GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0) - dmg_data.origin.z;
-	int tpitch = -VectorAngle(dist, zdiff);
-	//printbold(s:"pitch: " , f:tpitch);
-	dz = -sin(tpitch);
+	dx =  GetActorX(victim) - ox;
+	dy =  GetActorY(victim) - oy;
+	dz =  GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0 - oz;
 	
 	int len = magnitudeThree(dx >> 16, dy >> 16, dz >> 16);
 	if(!len)
 		len = 1;
+		
 	dx /= len;
 	dy /= len;
 	dz /= len;
@@ -419,14 +441,7 @@ void HandleDamagePush(int victim, int dmg, dmg_data_T& dmg_data, int flags) {
 	dy *= dmg;		dy /= m;
 	dz *= dmg;		dz /= m;
 	
-	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
-		// a little bump
-		dx *= 2;
-		dy *= 2;
-		dz *= 2;
-	}
-	
-	//printbold(s:"force ", f:dx, s:" ", f:dy, s: " ", f:dz);
+	//printbold(s:"impulse: ", d:dmg, s:", force vector: ", f:dx, s:" ", f:dy, s: " ", f:dz);
 	
 	SetActorVelocity(victim, dx, dy, dz, true, false);
 }
@@ -555,7 +570,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type) {
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters!
-void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, dmg_data_T& dmg_data, int actor_flags) {
+void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags) {
 	str s_damagetype = DamageTypeList[damage_type];
 	bool factor_resist = true;
 	int temp;
@@ -657,22 +672,27 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			dmg = dmg * (MAX_EXPRESIST_VAL - temp) / MAX_EXPRESIST_VAL;
 	}
 	
-	// apply push on hit if applicable
-	if(!(actor_flags & DND_ACTORFLAG_NOPUSH)) {
-		HandleDamagePush(victim, dmg, dmg_data, flags);
-	}
-	
 	//printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype);
+	if(pnum != -1) {
+		// this part handles damage pushing
+		temp = victim - DND_MONSTERTID_BEGIN;
+		
+		// notify flags of a crit as well
+		actor_flags = !(actor_flags & DND_ACTORFLAG_NOPUSH);
+		if(!PlayerDamageTicData[pnum][temp])
+			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (actor_flags << DND_DAMAGE_ACCUM_SHIFT), ox, oy, oz);
+		PlayerDamageTicData[pnum][temp] += dmg;
+	}
 	
 	Thing_Damage2(victim, dmg, s_damagetype);
 }
 
-int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, vec3_T& origin, int proj_r) {
+int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, int ox, int oy, int oz, int proj_r) {
 	// calculate damage falloff based on distance -- subtract projectile's radius from distance to get a better estimate
 	// idea here: monster hitboxes are actual rectangles and not circles, so unless hit occured perpendicular to the hitbox, you won't deal max damage
 	// to fix that, subtract (r + r * sqrt2) / 2, which is 1.207. Reason: radius scales from r to r * sqrt2 over the square's center to diagonal.
 	int res = dmg;
-	int dist = fdistance_delta(origin.x - GetActorX(mon_id), origin.y - GetActorY(mon_id), origin.z - GetActorZ(mon_id));
+	int dist = fdistance_delta(ox - GetActorX(mon_id), oy - GetActorY(mon_id), oz - GetActorZ(mon_id));
 	dist -= FixedMul(GetActorProperty(mon_id, APROP_RADIUS) + proj_r, 1.207);
 	
 	// printbold(s:"check dist: ", f:dist, s: " ", f:radius, s: " ", f:fullradius);
@@ -706,10 +726,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	int actor_flags = ScanActorFlags();
 	
 	int px = GetActorX(0), py = GetActorY(0), pz = GetActorZ(0);
-	dmg_data_T& p_dmg_data = PlayerDamageTicData[pnum];
-	p_dmg_data.origin.x = px;
-	p_dmg_data.origin.y = py;
-	p_dmg_data.origin.z = pz;
+	// printbold(s:"Explosion owner: ", d:owner);
 	
 	int proj_r = GetActorProperty(0, APROP_RADIUS);
 	int final_dmg;
@@ -727,7 +744,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		if(CheckFlag(mon_id, "NORADIUSDMG") && !CheckActorInventory(owner, "NetherCheck") && !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG))
 			continue;
 		
-		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, p_dmg_data.origin, proj_r);
+		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, px, py, pz, proj_r);
 		
 		if(final_dmg == -1)
 			continue;
@@ -736,7 +753,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		if(!final_dmg)
 			final_dmg = 1;
 		
-		HandleDamageDeal(owner, mon_id, final_dmg, damage_type, flags, p_dmg_data, actor_flags);
+		HandleDamageDeal(owner, mon_id, final_dmg, damage_type, flags, px, py, pz, actor_flags);
 		
 		//printbold(s:"Dealing ", d: final_dmg, s: " damage to ", d:mon_id, s: " of type ", s:DamageTypeList[damage_type]);
 	}
@@ -744,9 +761,9 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	// finally check player, if we are close to our own explosion with self dmg flag, hurt us too
 	if(flags & DND_DAMAGEFLAG_BLASTSELF) {
 		// we are the owner here at this point, we can use 0 for ourselves
-		final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, p_dmg_data.origin, proj_r);
+		final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
 		if(final_dmg != -1)
-			HandleDamageDeal(owner, owner, final_dmg, damage_type, flags, p_dmg_data, actor_flags);
+			HandleDamageDeal(owner, owner, final_dmg, damage_type, flags, px, py, pz, actor_flags);
 	}
 	
 	// damage is dealt we are done with this instance, free it up
@@ -756,6 +773,8 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 Script "DnD Do Explosion Damage" (int dmg, int radius, int fullradius, int damage_type) {
 	// player information
 	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(!isPlayer(owner))
+		owner = GetActorProperty(0, APROP_SCORE);
 	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type);
 	
 	SetResultValue(0);
@@ -776,16 +795,16 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
 	
-	dmg_data_T& p_dmg_data = PlayerDamageTicData[owner - P_TIDSTART];
+	int px, py, pz;
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
-		p_dmg_data.origin.x = GetActorX(owner);
-		p_dmg_data.origin.y = GetActorY(owner);
-		p_dmg_data.origin.z = GetActorZ(owner);
+		px = GetActorX(owner);
+		py = GetActorY(owner);
+		pz = GetActorZ(owner) + GetActorProperty(owner, APROP_HEIGHT) / 2 + 8.0;
 	}
 	else {
-		p_dmg_data.origin.x = GetActorX(0);
-		p_dmg_data.origin.y = GetActorY(0);
-		p_dmg_data.origin.z = GetActorZ(0);
+		px = GetActorX(0);
+		py = GetActorY(0);
+		pz = GetActorZ(0);
 	}
 	
 	// finally do some flag checking here
@@ -795,7 +814,7 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 	SetActivator(owner);
 	
 	if(owner && victim)
-		HandleDamageDeal(owner, victim, dmg, damage_type, flags, p_dmg_data, actor_flags);
+		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags);
 	
 	SetResultValue(0);
 }
@@ -809,11 +828,9 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 	if(!dmg)
 		dmg = 1;
 		
-	dmg_data_T& p_dmg_data = PlayerDamageTicData[ActivatorTID() - P_TIDSTART];
-		
 	while(counter < time_limit && GetActorProperty(victim, APROP_HEALTH) > 0) {
 		if(counter >= tics) {
-			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, p_dmg_data, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
 			tics += base_tics;
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
 		}
@@ -841,6 +858,68 @@ Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
 		LocalAmbientSound(HitBeepSounds[beep_type][HITBEEP_SOUND], 127);
 		GiveInventory(HitBeepSounds[beep_type][HITBEEP_TIMER], 1);
 	}
+}
+
+// ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
+Script "DnD Damage Accumulate" (int victim_data, int ox, int oy, int oz) {
+	int pnum = PlayerNumber();
+	int flags = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
+	victim_data &= DND_MONSTER_TICDATA_BITMASK;
+	
+	Delay(const:1);
+
+	// do the real pushing after 1 tic of dmg data has been accumulated and we have non-zero damage in effect
+	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
+		HandleDamagePush(PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN);
+		
+	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED]) {
+		flags |= DND_DAMAGETICFLAG_CRIT;
+		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED] = false;
+	}
+	
+	PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = false;
+		
+	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_data + DND_MONSTERTID_BEGIN, PlayerDamageTicData[pnum][victim_data], flags);
+	
+	Reset_DamageTicData(pnum, victim_data);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber() || !GetCVar("dnd_dmgnum"))
+		Terminate;
+	
+	// if dmg is more than 999999 show using K instead
+	int digit_pos = 1;
+	int r = GetActorProperty(tid, APROP_RADIUS) / 2;
+	int x = GetActorX(tid) + random(-r, r) / 2;
+	int y = GetActorY(tid) + random(-r, r) / 2;
+	int z = GetActorZ(tid) + random(0.0, 16.0);
+	
+	// dead monsters have their height divided by 4
+	if(IsActorAlive(tid))
+		z += GetActorProperty(tid, APROP_HEIGHT);
+	else
+		z += GetActorProperty(tid, APROP_HEIGHT) * 4;
+	
+	while(dmg > 0) {
+		SpawnForced(StrParam(s:"Digit", d:digit_pos, s:"Num", d:dmg % 10), x, y, z, DND_DAMAGENUMBER_TID);
+		dmg /= 10;
+		++digit_pos;
+	}
+	
+	SetActorVelocity(DND_DAMAGENUMBER_TID, random(-0.5, 0.5), random(-0.5, 0.5), random(0.0, 0.5), false, false);
+	
+	// set translation depending on crit dealt
+	if(flags & DND_DAMAGETICFLAG_CRIT) {
+		SetActorProperty(DND_DAMAGENUMBER_TID, APROP_SCALEX, 1.25);
+		SetActorProperty(DND_DAMAGENUMBER_TID, APROP_SCALEY, 1.25);
+	}
+	
+	Thing_ChangeTID(DND_DAMAGENUMBER_TID, 0);
+	
+	SetResultValue(0);
 }
 
 #endif

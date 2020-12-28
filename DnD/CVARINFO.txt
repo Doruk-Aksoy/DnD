@@ -5,6 +5,7 @@ user bool dnd_nofx = false;
 user bool dnd_dashstatus = false;
 user bool dnd_expcreditnumbers = true;
 user bool dnd_hitbeeps = true;
+user bool dnd_dmgnum = true;
 
 user noarchive int dnd_playerclass = 0;
 user noarchive int dnd_classmenu_button = 0;

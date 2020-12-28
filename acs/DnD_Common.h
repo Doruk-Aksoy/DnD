@@ -12,6 +12,8 @@
 #define P_TIDSTART 1000
 #define TICRATE 35
 
+#define DND_DAMAGENUMBER_TID 30000
+#define DND_SHOOTABLETID_BEGIN 50000
 #define DND_PETTID_BEGIN 55000
 #define DND_MONSTERTID_BEGIN 66000
 
@@ -79,10 +81,12 @@ enum {
 * 15000+ = Zealot Shield TID
 * 17000 - 19048 = Shared item IDs
 * 19049 - 29049 = Limited Respawn Ammos
+* 30000 = Temporary tid for damage numbers
 * 32768 = Special FX TID
 * 32769 = Thunder Staff temporary damager tid
 * 40000 - 42048 = Thunder Staff Ring tid
 * 42049 - Talisman Mark tid
+* 50000 = Destructible object tid start
 * 55000 - 65999 = pet tids
 * Anything above 66000 => any monster tid
 */
@@ -130,8 +134,9 @@ int active_quest_id = -1;
 
 #define DND_TID_MONSTER 0
 #define DND_TID_PET 1
+#define DND_TID_SHOOTABLE 2
 // keeps at what tid we are left off
-int DnD_TID_List[2] = { DND_MONSTERTID_BEGIN, DND_PETTID_BEGIN };
+int DnD_TID_List[3] = { DND_MONSTERTID_BEGIN, DND_PETTID_BEGIN, DND_SHOOTABLETID_BEGIN };
 
 #define PLAYERLEVELINFO_LEVEL 0
 #define PLAYERLEVELINFO_MINLEVEL 1
@@ -147,6 +152,10 @@ void GiveMonsterTID () {
 
 void GivePetTID() {
 	Thing_ChangeTID(0, DnD_TID_List[DND_TID_PET]++);
+}
+
+void GiveShootableTID() {
+	Thing_ChangeTID(0, DnD_TID_List[DND_TID_SHOOTABLE]++);
 }
 
 enum {

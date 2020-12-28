@@ -8,6 +8,7 @@
 #include "DnD_Elixirs.h"
 #include "DnD_Activity.h"
 
+#define DND_BASE_CRITMODIFIER 200
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
 #define BASE_WISDOM_GAIN 10

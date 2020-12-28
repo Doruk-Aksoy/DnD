@@ -557,8 +557,8 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_TURELCANNON)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_0, 125)
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Weapon Damage Cache", 0, DND_DMGID_1, 80)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 125, 0, DND_WEAPON_TURELCANNON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 80, 0, DND_WEAPON_TURELCANNON)
 	    SelectLoop:
 			TURL A 1 A_Raise
 			TNT1 A 0 A_Raise

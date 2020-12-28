@@ -10,7 +10,7 @@ actor Lavademon : DnD_BaseHybridMonster {
 	painsound "lavdpain"
 	deathsound "lavddie"
 	activesound "lavdsit"
-	meleerange 108
+	meleerange 144
 	Tag "Lava Demon"
 	Species "HK"
 	+ISMONSTER
@@ -88,10 +88,10 @@ Actor LavaGolemLooper : DnD_Boolean { }
 Actor LavaGolemCheck : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfTargetInLOS("Check", 90, JLOSF_DEADNOJUMP, 124)
+			TNT1 A 0 A_JumpIfTargetInLOS("Check", 90, JLOSF_DEADNOJUMP, 160)
 		Stop
 		Check:
-			TNT1 A 0 A_JumpIfCloser(124, "Confirm")
+			TNT1 A 0 A_JumpIfCloser(160, "Confirm")
 		Stop
 		Confirm:
 			TNT1 A 0 A_GiveInventory("LavaGolemLooper", 1)
@@ -113,16 +113,29 @@ Actor LavaDemonSmoke : msxgen_smoke {
 	Scale 0.55
 }
 
-actor phoenixFX3 : PhoenixFX2 {
+actor phoenixFX3 {
 	seesound "weapons/phoenixpowshoot"
 	damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "BaronsFire"
 	Speed 20
+	Projectile
+	Radius 6
+	Height 8
+	Speed 10
 	+DONTBLAST
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-		Goto Super::Spawn
+			FX09 ABABA 2 Bright
+			FX09 B 2 Bright A_ChangeVelocity(0, 0, 1.5)
+			FX09 CDEF 2 Bright
+		Stop
+		Death:
+			FX09 G 3 Bright
+			FX09 H 3 Bright A_ChangeVelocity(0, 0, 1.8)
+			FX09 I 4 Bright
+			FX09 JK 5 Bright
+		Stop
 	}
 }
 

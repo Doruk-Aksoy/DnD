@@ -54,6 +54,8 @@ int Add_Monster_To_Explosion(int pnum, int instance) {
 
 Script "DnD Register Explosion Instance" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(!isPlayer(owner))
+		owner = GetActorProperty(0, APROP_SCORE);
 	int pnum = owner - P_TIDSTART;
 	
 	//printbold(s:"Register Explosion to ptid ", d:owner);

@@ -4,6 +4,7 @@
 #include "DnD_EliteInfo.h"
 
 #define DND_CUSTOMMONSTER_ID 65536
+#define DND_MONSTERMASS_SCALE 5 // 5% per level
 
 typedef struct {
 	int basehp;
@@ -309,6 +310,14 @@ enum {
 #define DND_LASTMONSTER_INDEX MONSTER_GOLGOTH
 #define DND_MAX_LEGENDARY (DND_LASTMONSTER_INDEX - LEGENDARY_START + 1)
 #define MONSTER_COUNT (DND_LASTMONSTER_INDEX + 50) // possible compatibility for other wads' monsters
+
+void ScaleMonsterMass(int level) {
+	int m = GetActorProperty(0, APROP_MASS);
+	int new_m = m * level * (100 + DND_MONSTERMASS_SCALE) / 100;
+	// overflow check
+	if(m < new_m)
+		SetActorProperty(0, APROP_MASS, m);
+}
 
 // this is the single source that gives the monsters their proper class protections
 // or their weaknesses

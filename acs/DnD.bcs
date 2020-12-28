@@ -1403,6 +1403,11 @@ Script "DND Special Player Hurt" (int type, int percent) {
 	}
 }
 
+Script "DnD Setup Shootable" (void) {
+	if(!ActivatorTID())
+		GiveShootableTID();
+}
+
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(!ActivatorTID())
@@ -1465,6 +1470,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
 	int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 	SetActorProperty(0, APROP_HEALTH, maxhp);
+	
+	ScaleMonsterMass(MonsterProperties[m_id].level);
 	Clamp_Between(dmg, 0, maxhp + 1);
 	Thing_Damage2(ActivatorTID(), dmg, "None");
 	//Mob might actually be dead by this point.
@@ -1533,6 +1540,8 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 
 	int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 	SetActorProperty(0, APROP_HEALTH, maxhp);
+	
+	ScaleMonsterMass(MonsterProperties[m_id].level);
 	Clamp_Between(dmg, 0, maxhp + 1);
 	Thing_Damage2(ActivatorTID(), dmg, "None");
 	//Mob might actually be dead by this point.
@@ -2101,52 +2110,6 @@ Script "DnD Item Dropchance" (int basechance) {
 	basechance <<= 16;
 	basechance /= 100;
 	SetResultValue(RunDefaultDropChance(ActivatorTID() - P_TIDSTART, CheckInventory("MonsterIsElite"), basechance));
-}
-
-// Railgun trails
-Script 984 (int actortype, int density) {
-	Thing_ChangeTID(0, RAILINITTID);
-	SetactivatorToTarget(RAILINITTID);
-	int ptid = ActivatorTID();
-	int newtid = ActivatorTID() + RAILTIDADD;
-	Thing_ChangeTID(RAILINITTID, newtid);
-	
-    int plX; int plY;  int plZ;
-    int grX; int grY;  int grZ;
-    int vX;  int vY;   int vZ;
-    int nX;  int nY;   int nZ;
-    int bX;  int bY;   int bZ;
-    int magnitude;
-    int pointCount;
-    int pointOffset;
-	str toSpawn = (CheckActorInventory(ptid, "NetherCheck")) ? RailGunDamagers_Full[actortype] : RailGunDamagers[actortype];
-    plX = GetActorX(ptid); grX = GetActorX(newtid);
-    plY = GetActorY(ptid); grY  = GetActorY(newtid);
-    plZ = GetActorZ(ptid)+32.0; grZ  = GetActorZ(newtid);
-    vX   = grX - plX;       vY   = grY - plY;       vZ   = grZ - plZ;
-
-    magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
-
-    pointCount  = magnitude / density;
-    pointOffset = magnitude - (pointCount * density);
-
-    if (magnitude != 0) {
-        nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
-
-        int i; int j;
-        for (i = 1; i < pointCount; i++) {
-            j = (i * density) + pointOffset;
-
-            bX = (nX * j) + plX;
-            bY = (nY * j) + plY;
-            bZ = (nZ * j) + plZ;
-
-            Spawn(RailGunTrails[actortype], bX, bY, bZ);
-			Spawn(toSpawn, bX, bY, bZ, newtid + RAILTIDADD);
-			SetActivator(newtid + RAILTIDADD); // fixes ownership problems
-			SetPointer(AAPTR_TARGET, ptid);			
-        }
-    }
 }
 
 // Some Generic Chat Log Script
@@ -3124,7 +3087,6 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	AdjustDamageRetrievePointers(flags);
 
 	int pnum = PlayerNumber();
-	
 	int res = ScaleCachedDamage(wepid, pnum, dmgid, talent_type, flags, isSpecial);
 	
 	// special weapons checks -- these are added on top of everything else as the last thing, before crits
@@ -3133,8 +3095,11 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 		res = res * (100 + DND_LIGHTNINGGUN_DMGPERSTACK * CheckInventory("LightningStacks")) / 100;
 	else if(wepid == DND_WEAPON_DUSKBLADE)
 		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
-		
-	res = HandleWeaponCrit(res, wepid, pnum, dmgid, isSpecial);
+	
+	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED])
+		res = ConfirmedCritFactor(res);
+	else
+		res = HandleWeaponCrit(res, wepid, pnum, dmgid, isSpecial);
 	
 	SetResultValue(res);
 }
@@ -3408,11 +3373,6 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 		// damage credit
 		SetActivator(owner);
 		
-		dmg_data_T& p_dmg_data = PlayerDamageTicData[pnum];
-		p_dmg_data.origin.x = GetActorX(owner);
-		p_dmg_data.origin.y = GetActorY(owner);
-		p_dmg_data.origin.z = GetActorZ(owner);
-		
 		for(i = 0, j = 0; i < DND_MAXSCANTRACER; ++i) {
 			if(tlist[pnum][i].tid) {
 				// distance reduces damage for scans, closer = better -- gives percentage
@@ -3425,7 +3385,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 				else
 					temp = dmg;
 				
-				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, flags, p_dmg_data, actor_flags);
+				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
 				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
 				
 				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
@@ -3493,11 +3453,6 @@ Script "DND Thunderstaff Bolts" (void) {
 	if(tcount) {
 		int actor_flags = ScanActorFlags();
 	
-		dmg_data_T& p_dmg_data = PlayerDamageTicData[pnum];
-		p_dmg_data.origin.x = GetActorX(owner);
-		p_dmg_data.origin.y = GetActorY(owner);
-		p_dmg_data.origin.z = GetActorZ(owner);
-	
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
 				ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_THUNDERZAP, 16, tlist[pnum][i].tid);
@@ -3507,7 +3462,7 @@ Script "DND Thunderstaff Bolts" (void) {
 		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL);
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
-				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, 0, p_dmg_data, actor_flags);
+				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, 0, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
 		}
 	}
 }
@@ -3560,13 +3515,12 @@ Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL) << 1;
 	int tidlim = 0;
-	dmg_data_T& p_dmg_data = PlayerDamageTicData[ActivatorTID() - P_TIDSTART];
 	
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i)) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
 			SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
-			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, 0, p_dmg_data, DND_ACTORFLAG_NOPUSH);
+			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, 0, 0, 0, 0, DND_ACTORFLAG_NOPUSH);
 			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
 			SetPointer(AAPTR_TARGET, this);
 			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
@@ -3989,6 +3943,10 @@ Script "DnD Pellet Count" (int base, int flags) {
 	
 	if(CheckInventory("Hobo_Perk50"))
 		res += DND_HOBO_SHOTGUNPELLETBONUS;
+		
+	// dummy crit call here to obtain crit status item
+	HandleWeaponCrit(0, CheckInventory("DnD_WeaponID"), pnum, 0, false);
+	PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = true;
 	
 	SetResultValue(res * base / 100); 
 }
@@ -4166,6 +4124,7 @@ Script "DnD Pet Monster Scale" (int petid) {
 			add = INT_MAX - base;
 	}
 	SetActorProperty(0, APROP_HEALTH, base + add);
+	ScaleMonsterMass(level);
 	PetMonsterProperties[this - DND_PETTID_BEGIN].id = petid;
 	PetMonsterProperties[this - DND_PETTID_BEGIN].basehp = base;
 	PetMonsterProperties[this - DND_PETTID_BEGIN].maxhp = base + add;
@@ -4670,4 +4629,10 @@ Script "DnD Item Linger Check" (int sp) {
 	// not picked until now, remove it
 	RemoveItemFromWorld(sp);
 	Thing_Remove(0);
+}
+
+Script "DnD Store Projectile Owner" (void) {
+	SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
+	//printbold(s:"storing owner ", d:GetActorProperty(0, APROP_SCORE));
+	SetResultValue(0);
 }
