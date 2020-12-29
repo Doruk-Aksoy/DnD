@@ -135,6 +135,13 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_CULL_BASEPERCENT 10 // 1 / 10
 #define DND_DESOLATOR_DMG_GAIN 10 // 10%
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
+
+#define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
+#define DND_BASE_CHILL_CAP 5 // 50% health dealt in ice = maximum slow
+#define DND_BASE_CHILL_DAMAGETHRESHOLD 10 // 10% of the monster's health
+#define DND_BASE_CHILL_DURATION 3 // 3 seconds
+#define DND_BASE_CHILL_SLOW 10 // 10% per stack
+
 #define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
 #define DND_BASE_POISON_TIC 0.5
@@ -154,10 +161,6 @@ int PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
 #define DND_CRITSTATE_NOCALC 0
 #define DND_CRITSTATE_CONFIRMED 1
 bool PlayerCritState[MAXPLAYERS][2];
-
-void Reset_DamageTicData(int pnum, int mon_id) {
-	PlayerDamageTicData[pnum][mon_id] = 0;
-}
 
 int ScanActorFlags() {
 	int res = 0;
@@ -491,11 +494,28 @@ int GetDamageCategory(int damage_type) {
 	return DND_DAMAGECATEGORY_SOUL;
 }
 
+int GetResistPenetration(int category) {
+	switch(category) {
+		case DND_DAMAGECATEGORY_BULLET:
+		case DND_DAMAGECATEGORY_MELEE:
+		return CheckInventory("IATTR_PhysPen");
+		case DND_DAMAGECATEGORY_ENERGY:
+		return CheckInventory("IATTR_EnergyPen");
+		case DND_DAMAGECATEGORY_EXPLOSIVES:
+		return CheckInventory("IATTR_ExplosivePen");
+		case DND_DAMAGECATEGORY_OCCULT:
+		return CheckInventory("IATTR_OccultPen");
+		case DND_DAMAGECATEGORY_ELEMENTAL:
+		return CheckInventory("IATTR_ElementalPen");
+	}
+	return 0;
+}
+
 int FactorResists(int source, int victim, int dmg, int damage_type) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
-	int pen = 0;
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int temp = GetDamageCategory(damage_type);
+	int pen = GetResistPenetration(temp);
 	
 	// weaknesses
 	if(MonsterProperties[mon_id].trait_list[DND_ENERGY_WEAKNESS] && temp == DND_DAMAGECATEGORY_ENERGY)
@@ -672,6 +692,13 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			dmg = dmg * (MAX_EXPRESIST_VAL - temp) / MAX_EXPRESIST_VAL;
 	}
 	
+	// check blockers take more dmg modifier
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING]) {
+		temp = CheckInventory("IATTR_BlockDmg");
+		if(temp)
+			dmg = dmg * (100 + temp) / 100;
+	}
+	
 	//printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype);
 	if(pnum != -1) {
 		// this part handles damage pushing
@@ -685,6 +712,21 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	}
 	
 	Thing_Damage2(victim, dmg, s_damagetype);
+	
+	// if ice damage, add stacks of slow and check for potential freeze chance
+	if(damage_type == DND_DAMAGETYPE_ICE) {
+		// check health thresholds --- get missing health
+		temp = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
+		pnum = CheckActorInventory(victim, "DnD_ChillStacks");
+		if(temp >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / DND_BASE_CHILL_DAMAGETHRESHOLD) * (pnum + 1)) {
+			if(!pnum)
+				ACS_NamedExecuteWithResult("DnD Monster Chill", victim);
+				
+			// add a new stack of chill and check for freeze
+			GiveActorInventory(victim, "DnD_ChillStacks", 1);
+			
+		}
+	}
 }
 
 int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, int ox, int oy, int oz, int proj_r) {
@@ -820,10 +862,11 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 }
 
 Script "DnD Do Poison Damage" (int victim, int dmg) {
-	int time_limit = DND_BASE_POISON_TIMER;
-	int counter = 0, tics = DND_BASE_POISON_TIC, base_tics = tics;
+	int time_limit = DND_BASE_POISON_TIMER * (100 + CheckInventory("IATTR_PoisonDuration")) / 100;
+	int counter = 0, tics = DND_BASE_POISON_TIC;
 	int freq = FixedDiv(time_limit, tics) >> 16;
 
+	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
 	dmg /= freq;
 	if(!dmg)
 		dmg = 1;
@@ -831,10 +874,10 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 	while(counter < time_limit && GetActorProperty(victim, APROP_HEALTH) > 0) {
 		if(counter >= tics) {
 			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
-			tics += base_tics;
+			tics += DND_BASE_POISON_TIC;
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
 		}
-		counter += 0.1;
+		counter += 0.1 * (100 + CheckInventory("IATTR_PoisonTicrate")) / 100;
 		Delay(const:2);
 	}
 	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
@@ -878,10 +921,19 @@ Script "DnD Damage Accumulate" (int victim_data, int ox, int oy, int oz) {
 	}
 	
 	PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = false;
+	
+	// check if player has lifesteal, if they do reward some hp back
+	if(CheckInventory("IATTR_Lifesteal")) {
+		// divide by 100 as its a percentage
+		int temp = ((PlayerDamageTicData[pnum][victim_data] * CheckInventory("IATTR_Lifesteal")) / 100) >> 16;
+		if(temp)
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
+	}
 		
 	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_data + DND_MONSTERTID_BEGIN, PlayerDamageTicData[pnum][victim_data], flags);
 	
-	Reset_DamageTicData(pnum, victim_data);
+	// reset dmg counter on this mob
+	PlayerDamageTicData[pnum][victim_data] = 0;
 	
 	SetResultValue(0);
 }
@@ -890,7 +942,11 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber() || !GetCVar("dnd_dmgnum"))
 		Terminate;
 	
-	// if dmg is more than 999999 show using K instead
+	// if dmg is more than 9999 show using K instead
+	bool show_k = dmg > 9999;
+	if(show_k)
+		dmg /= 1000;
+	
 	int digit_pos = 1;
 	int r = GetActorProperty(tid, APROP_RADIUS) / 2;
 	int x = GetActorX(tid) + random(-r, r) / 2;
@@ -909,17 +965,42 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 		++digit_pos;
 	}
 	
+	if(show_k)
+		SpawnForced("ThousandSymbol", x, y, z, DND_DAMAGENUMBER_TID);
+	
 	SetActorVelocity(DND_DAMAGENUMBER_TID, random(-0.5, 0.5), random(-0.5, 0.5), random(0.0, 0.5), false, false);
 	
 	// set translation depending on crit dealt
 	if(flags & DND_DAMAGETICFLAG_CRIT) {
 		SetActorProperty(DND_DAMAGENUMBER_TID, APROP_SCALEX, 1.25);
 		SetActorProperty(DND_DAMAGENUMBER_TID, APROP_SCALEY, 1.25);
+		Thing_SetTranslation(DND_DAMAGENUMBER_TID, DND_CRIT_TRANSLATION);
 	}
 	
 	Thing_ChangeTID(DND_DAMAGENUMBER_TID, 0);
 	
 	SetResultValue(0);
+}
+
+Script "DnD Monster Chill" (int victim) {
+	int cur_stacks;
+	int base_speed = GetActorProperty(victim, APROP_SPEED);
+	
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+		SetActorFlag(victim, "ALWAYSFAST", 0);
+	
+	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
+		// slow down
+		SetActorProperty(victim, APROP_SPEED, base_speed * (100 - cur_stacks) / 100);
+		Delay(const:TICRATE);
+		TakeActorInventory(victim, "DnD_ChillStacks");
+	}
+	
+	// remove freeze if was there
+	
+	// retain super fast property after chill ends
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+		SetActorFlag(victim, "ALWAYSFAST", 1);
 }
 
 #endif

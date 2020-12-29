@@ -80,6 +80,36 @@ enum {
 	INV_DMGREDUCE_ELEM,
 	INV_DMGREDUCE_PHYS,
 	INV_DMGREDUCE_REFL,
+	
+	INV_PEN_PHYSICAL,
+	INV_PEN_ENERGY,
+	INV_PEN_EXPLOSIVE,
+	INV_PEN_OCCULT,
+	INV_PEN_ELEMENTAL,
+	
+	INV_FLAT_FIREDMG,
+	INV_FLAT_ICEDMG,
+	INV_FLAT_LIGHTNINGDMG,
+	INV_FLAT_POISONDMG,
+	
+	INV_LIFESTEAL,
+	
+	INV_POISON_TICRATE,
+	INV_POISON_DURATION,
+	INV_POISON_TICDMG,
+	
+	INV_BLOCKERS_MOREDMG,
+	
+	INV_FREEZECHANCE,
+	INV_SLOWEFFECT,
+	
+	INV_IGNITECHANCE,
+	INV_IGNITEDMG,
+	
+	INV_OVERLOADCHANCE,
+	INV_OVERLOAD_ZAPCOUNT,
+	INV_OVERLOAD_DMGINCREASE,
+	
 	// add new attributes here, below the last normal item attributes to avoid weird problems regarding database saves
 	/*
 	INV_NEG_DAMAGE_DEALT,
@@ -159,7 +189,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_DMGREDUCE_REFL 
+#define LAST_INV_ATTRIBUTE INV_OVERLOAD_DMGINCREASE 
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
@@ -244,6 +274,35 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_ElementalResist", "% reduced elemental damage taken" },
 	{ "IATTR_PhysicalResist", "% reduced physical damage taken" },
 	{ "IATTR_ReflectResist", "% reduced reflected damage taken" },
+	
+	{ "IATTR_PhysPen", "% physical resist penetration" },
+	{ "IATTR_EnergyPen", "% energy resist penetration" },
+	{ "IATTR_ExplosivePen", "% explosive resist penetration" },
+	{ "IATTR_OccultPen", "% occult resist penetration" },
+	{ "IATTR_ElementalPen", "% elemental resist penetration" },
+	
+	{ "IATTR_FlatFireDmg", " to fire damage" },
+	{ "IATTR_FlatIceDmg", " to ice damage" },
+	{ "IATTR_FlatLightningDmg", " to lightning damage" },
+	{ "IATTR_FlatPoisonDmg", " to poison damage" },
+	
+	{ "IATTR_Lifesteal", "% lifesteal" },
+	
+	{ "IATTR_PoisonTicrate", "% increased ticrate for poison" },
+	{ "IATTR_PoisonDuration", "% increased poison stack duration" },
+	{ "IATTR_PoisonTicDmg", "% increased damage per tic for poison" },
+	
+	{ "IATTR_BlockDmg", "% more damage against blocking enemies" },
+	
+	{ "IATTR_FreezeChance", "% increased chance to freeze for ice attacks" },
+	{ "IATTR_SlowEffect", "% increased chill effectiveness for ice attacks" },
+	
+	{ "IATTR_IgniteChance", "% increased chance to ignite for fire atttacks" },
+	{ "IATTR_IgniteDmg", "% increased ignite damage" },
+	
+	{ "IATTR_OverloadChance", "% chance to overload for lightning attacks", },
+	{ "IATTR_OverloadZapCount", " additional zapped targets for overload", },
+	{ "IATTR_OverloadZapDmg", "% increased overload zap damage", },
 	
 	// exotic ones
 	{ "", "% chance to " },
@@ -335,64 +394,37 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 1, 2, 1 },
 	{ 1, 2, 1 },
-	{ 3, 10, 2 }
-};
+	{ 3, 10, 2 },
+	
+	{ 1, 5, 1 },
+	{ 1, 5, 1 },
+	{ 1, 5, 1 },
+	{ 1, 5, 1 },
+	{ 1, 5, 1 },
+	
+	{ 1, 5, 2 },
+	{ 1, 5, 2 },
+	{ 1, 5, 2 },
+	{ 1, 5, 2 },
+	
+	// lifesteal
+	{ 0.05, 0.1, 2 },
+	
+	{ 5, 10, 1 },
+	{ 5, 10, 1 },
+	{ 5, 10, 1 },
+	
+	{ 1, 15, 1 },
 
-// keep here for now for ammo save chance
-#define MAX_MAGAZINES 24
-str WeaponMagazineList[MAX_MAGAZINES] = {
-	"SawedoffCounter",
-	"AkimboClipLeft",
-	"AkimboClipRight",
-	"BulletSize_6",
-	"ShellSize_2",
-	"ShellSize_8",
-	"ShellSize_8N",
-	"ShellSize_10",
-	"ShellSize_12",
-	"ShellSize_16",
-	"ShellSize_18",
-	"MGClip",
-	"MGClip2",
-	"MGClip3",
-	"MGClip4",
-	"MGClip5",
-	"MGClip6",
-	"MGClip7",
-	"LoadedBasilisk",
-	"PCanClip",
-	"RiotgunClip",
-	"AcidClip",
-	"HeavyGLCounter",
-	"FuelClip"
-};
-
-// Used for base when increasing these using magazine cap increase
-int WeaponMagazineCaps[MAX_MAGAZINES] = {
-	2,
-	12,
-	12,
-	6,
-	2,
-	8,
-	8,
-	10,
-	12,
-	16,
-	18,
-	50,
-	60,
-	75,
-	40,
-	31,
-	40,
-	75,
-	10,
-	5,
-	8,
-	28,
-	3,
-	75
+	{ 1, 5, 1 },
+	{ 2, 5, 1 },
+	
+	{ 1, 5, 1 },
+	{ 1, 10, 1 },
+	
+	{ 2, 5, 1 },
+	{ 1, 2, 1 },
+	{ 5, 10, 1 }
 };
 
 str ItemAttributeString(int attr, int val) {
@@ -404,6 +436,9 @@ str ItemAttributeString(int attr, int val) {
 		
 		case INV_DMGREDUCE_REFL:
 			return StrParam(s:"+ ", f:ftrunc(val * 0.1), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+			
+		case INV_LIFESTEAL:
+			return StrParam(s:"+ ", f:ftrunc(val), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
 		
 		default:
 			if(val > 0)

@@ -62,7 +62,8 @@ void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
 void RollCharmInfo(int charm_pos, int charm_tier) {
 	// roll random attributes for the charm
 	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
-	int count = random(2, 2 * (charm_type + 1)), i, roll;
+	int count = random(2, 2 * (charm_type + 1));
+	int i, roll;
 	Inventories_On_Field[charm_pos].item_level = charm_tier;
 	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack
 	Inventories_On_Field[charm_pos].item_type = DND_ITEM_CHARM;
@@ -83,7 +84,11 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 	
 	while(i < count) {
 		do {
-			roll = random(0, LAST_INV_ATTRIBUTE);
+			#ifdef ISDEBUGBUILD
+				roll = random(INV_POISON_TICRATE, LAST_INV_ATTRIBUTE);
+			#else
+				roll = random(0, LAST_INV_ATTRIBUTE);
+			#endif
 		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToCharm(charm_pos, roll);
 		++i;

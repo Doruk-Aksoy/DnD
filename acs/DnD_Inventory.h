@@ -306,7 +306,7 @@ int CreateItemSpot() {
 	//Naive but very fast: Will just replace old item if index goes back to it - have a bigger array to prevent the negative effect.
 	//Just having a loop here creates an error so avoid looping at all costs.
 	//Remember, the floor gets cleared on a new map, so most likely the older items are useless for the players anyways, except on 4k mob slaugher maps.
-	if ((++last_created_inventory)>=MAX_INVENTORIES_ON_FIELD)
+	if ((++last_created_inventory) >= MAX_INVENTORIES_ON_FIELD)
 		last_created_inventory = 0;
 	return last_created_inventory;
 }

@@ -153,4 +153,61 @@ typedef struct {
 
 global wep_info_T 2: Player_Weapon_Infos[MAXPLAYERS][MAXWEPS];
 
+// keep here for now for ammo save chance
+#define MAX_MAGAZINES 24
+str WeaponMagazineList[MAX_MAGAZINES] = {
+	"SawedoffCounter",
+	"AkimboClipLeft",
+	"AkimboClipRight",
+	"BulletSize_6",
+	"ShellSize_2",
+	"ShellSize_8",
+	"ShellSize_8N",
+	"ShellSize_10",
+	"ShellSize_12",
+	"ShellSize_16",
+	"ShellSize_18",
+	"MGClip",
+	"MGClip2",
+	"MGClip3",
+	"MGClip4",
+	"MGClip5",
+	"MGClip6",
+	"MGClip7",
+	"LoadedBasilisk",
+	"PCanClip",
+	"RiotgunClip",
+	"AcidClip",
+	"HeavyGLCounter",
+	"FuelClip"
+};
+
+// Used for base when increasing these using magazine cap increase
+int WeaponMagazineCaps[MAX_MAGAZINES] = {
+	2,
+	12,
+	12,
+	6,
+	2,
+	8,
+	8,
+	10,
+	12,
+	16,
+	18,
+	50,
+	60,
+	75,
+	40,
+	31,
+	40,
+	75,
+	10,
+	5,
+	8,
+	28,
+	3,
+	75
+};
+
 #endif

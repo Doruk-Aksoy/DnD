@@ -166,6 +166,8 @@ Script 701 OPEN CLIENTSIDE {
 Script "DnD On Map Load" OPEN {
 	// empty translation
 	CreateTranslation(DND_NO_TRANSLATION);
+	CreateTranslation(DND_CRIT_TRANSLATION, 160:160=175:175);
+	
 	// init vars
 	ResetSharedVariables();
 	
