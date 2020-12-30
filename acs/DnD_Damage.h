@@ -73,11 +73,15 @@ enum {
 	DND_DAMAGEFLAG_DOFULLDAMAGE			=			0b100000000000,
 	DND_DAMAGEFLAG_EXTRATOUNDEAD		=			0b1000000000000,
 	DND_DAMAGEFLAG_ISHITSCAN			=			0b10000000000000,
+	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b100000000000000,
 };
 
 enum {
-	DND_DAMAGETICFLAG_PUSH			=			0b1,
-	DND_DAMAGETICFLAG_CRIT			=			0b10,
+	DND_DAMAGETICFLAG_PUSH				=			0b1,
+	DND_DAMAGETICFLAG_CRIT				=			0b10,
+	DND_DAMAGETICFLAG_ICE				=			0b100,
+	DND_DAMAGETICFLAG_FIRE				=			0b1000,
+	DND_DAMAGETICFLAG_LIGHTNING			=			0b10000,
 };
 
 // These are actor inherited flags, like forcepain, foilinvul, painless etc.
@@ -137,10 +141,14 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
 
 #define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
+#define DND_BASE_FREEZETIMER 21 // 3 seconds base time (21 x 5 = 105)
 #define DND_BASE_CHILL_CAP 5 // 50% health dealt in ice = maximum slow
 #define DND_BASE_CHILL_DAMAGETHRESHOLD 10 // 10% of the monster's health
-#define DND_BASE_CHILL_DURATION 3 // 3 seconds
 #define DND_BASE_CHILL_SLOW 10 // 10% per stack
+
+#define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
+#define DND_BASE_IGNITEDMG 10
+#define DND_BASE_IGNITECHANCE 15
 
 #define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
@@ -255,7 +263,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 
 	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid) || isSpecial) {
 		// add flat damage bonus mapping talent name to flat bonus type
-		temp = MapTalentToFlatBonus(pnum, talent_type);
+		temp = MapTalentToFlatBonus(pnum, talent_type, flags);
 		dmg += temp;
 		
 		ClearCache(pnum, wepid, dmgid);
@@ -452,6 +460,57 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim) {
 // there may be things that add + to cull % later
 bool CheckCullRange(int source, int victim, int dmg) {
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / DND_CULL_BASEPERCENT;
+}
+
+void HandleChillEffects(int victim) {
+	// check health thresholds --- get missing health
+	int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
+	int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
+	if(hpdiff >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + CheckInventory("IATTR_ChillThreshold")) / 100)) * (stacks + 1)) {
+		// add a new stack of chill and check for freeze
+		if(!stacks) {
+			GiveActorInventory(victim, "DnD_ChillStacks", 1);
+			ACS_NamedExecuteWithResult("DnD Monster Chill", victim);
+		}
+		else if(stacks < DND_BASE_CHILL_CAP)
+			GiveActorInventory(victim, "DnD_ChillStacks", 1);
+		
+		// freeze checks --- added freeze chance % increase
+		hpdiff = DND_BASE_FREEZECHANCE_PERSTACK * CheckActorInventory(victim, "DnD_ChillStacks") * (100 + CheckInventory("IATTR_FreezeChance")) / 100;
+		if(random(1, 100) <= hpdiff) {
+			if(GetActorProperty(victim, APROP_HEALTH) > 0) {
+				// is boss? half duration
+				if(CheckFlag(victim, "BOSS"))
+					stacks = DND_BASE_FREEZETIMER / 3;
+				else
+					stacks = DND_BASE_FREEZETIMER;
+				
+				// set freeze timer and run script
+				if(!CheckActorInventory(victim, "DnD_FreezeTimer")) {
+					GiveActorInventory(victim, "DnD_FreezeTimer", stacks);
+					ACS_NamedExecuteWithResult("DnD Monster Freeze", victim);
+				}
+				else
+					SetActorInventory(victim, "DnD_FreezeTimer", stacks);
+			}
+		}
+	}
+}
+
+void HandleIgniteEffects(int victim) {
+	if(random(1, 100) <= DND_BASE_IGNITECHANCE * (100 + CheckInventory("IATTR_IgniteChance")) / 100) {
+		int amt = DND_BASE_IGNITETIMER * (100 + CheckInventory("IATTR_IgniteDuration")) / 100;
+		if(!CheckActorInventory(victim, "DnD_IgniteTimer")) {
+			SetActorInventory(victim, "DnD_IgniteTimer", amt);
+			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim);
+		}
+		else
+			SetActorInventory(victim, "DnD_IgniteTimer", amt);
+	}
+}
+
+void HandleOverloadEffects(int victim) {
+	
 }
 
 bool IsMeleeDamage(int damage_type) {
@@ -706,27 +765,21 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		
 		// notify flags of a crit as well
 		actor_flags = !(actor_flags & DND_ACTORFLAG_NOPUSH);
+		
+		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
+		if(damage_type == DND_DAMAGETYPE_ICE)
+			actor_flags |= DND_DAMAGETICFLAG_ICE;
+		else if(damage_type == DND_DAMAGETYPE_FIRE && !(flags & DND_DAMAGEFLAG_NOIGNITESTACK))
+			actor_flags |= DND_DAMAGETICFLAG_FIRE;
+		else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
+			actor_flags |= DND_DAMAGETICFLAG_LIGHTNING;
+
 		if(!PlayerDamageTicData[pnum][temp])
 			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (actor_flags << DND_DAMAGE_ACCUM_SHIFT), ox, oy, oz);
 		PlayerDamageTicData[pnum][temp] += dmg;
 	}
 	
 	Thing_Damage2(victim, dmg, s_damagetype);
-	
-	// if ice damage, add stacks of slow and check for potential freeze chance
-	if(damage_type == DND_DAMAGETYPE_ICE) {
-		// check health thresholds --- get missing health
-		temp = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
-		pnum = CheckActorInventory(victim, "DnD_ChillStacks");
-		if(temp >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / DND_BASE_CHILL_DAMAGETHRESHOLD) * (pnum + 1)) {
-			if(!pnum)
-				ACS_NamedExecuteWithResult("DnD Monster Chill", victim);
-				
-			// add a new stack of chill and check for freeze
-			GiveActorInventory(victim, "DnD_ChillStacks", 1);
-			
-		}
-	}
 }
 
 int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, int ox, int oy, int oz, int proj_r) {
@@ -866,6 +919,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 	int counter = 0, tics = DND_BASE_POISON_TIC;
 	int freq = FixedDiv(time_limit, tics) >> 16;
 
+	dmg += CheckInventory("IATTR_FlatPoisonDmg");
 	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
 	dmg /= freq;
 	if(!dmg)
@@ -929,6 +983,14 @@ Script "DnD Damage Accumulate" (int victim_data, int ox, int oy, int oz) {
 		if(temp)
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
 	}
+	
+	// if ice damage, add stacks of slow and check for potential freeze chance
+	if(flags & DND_DAMAGETICFLAG_ICE)
+		HandleChillEffects(victim_data + DND_MONSTERTID_BEGIN);
+	else if(flags & DND_DAMAGETICFLAG_FIRE)
+		HandleIgniteEffects(victim_data + DND_MONSTERTID_BEGIN);
+	else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
+		HandleOverloadEffects(victim_data + DND_MONSTERTID_BEGIN);
 		
 	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_data + DND_MONSTERTID_BEGIN, PlayerDamageTicData[pnum][victim_data], flags);
 	
@@ -991,16 +1053,100 @@ Script "DnD Monster Chill" (int victim) {
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
-		SetActorProperty(victim, APROP_SPEED, base_speed * (100 - cur_stacks) / 100);
+		SetActorProperty(victim, APROP_SPEED, (base_speed * (100 - cur_stacks * DND_BASE_CHILL_SLOW) / 100) * (100 + CheckInventory("IATTR_SlowEffect")) / 100);
+		ACS_NamedExecuteAlways("DnD Monster Chill FX", 0, victim);
 		Delay(const:TICRATE);
-		TakeActorInventory(victim, "DnD_ChillStacks");
+		TakeActorInventory(victim, "DnD_ChillStacks", 1);
 	}
 	
-	// remove freeze if was there
+	SetActorProperty(victim, APROP_SPEED, base_speed);
 	
 	// retain super fast property after chill ends
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
 		SetActorFlag(victim, "ALWAYSFAST", 1);
+}
+
+Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {
+	SetActivator(tid);
+	for(int i = 0; i < 5; ++i) {
+		Delay(const:7);
+		if(random(0, 1))
+			GiveInventory("DnD_ChillWindSpawner", 1);
+	}
+}
+
+Script "DnD Monster Freeze" (int victim) {
+	SetActorState(victim, "Frozen", 0);
+	GiveActorInventory(victim, "MakeNoPain", 1);
+	
+	// actor flags dont get changed properly this way for some reason
+	//printbold(s:"actor flag: ", d:CheckFlag(victim, "NOPAIN"));
+	int tics = 0;
+	while(CheckActorInventory(victim, "DnD_FreezeTimer")) {
+		// create freeze fx and adjust it every 5 tics
+		ACS_NamedExecuteWithResult("DnD Monster Freeze Adjust", victim, tics, tics >= 2, CheckActorInventory(victim, "DnD_FreezeTimer") == 1);
+		Delay(const:5);
+		TakeActorInventory(victim, "DnD_FreezeTimer", 1);
+		tics = (tics + 1) % 4;
+	}
+	
+	// remove frozen nopain thing if monster didnt have it before
+	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_NOPAIN])
+		GiveActorInventory(victim, "TakeNoPain", 1);
+	SetResultValue(0);
+}
+
+Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_last) CLIENTSIDE {
+	SpawnForced("FrozenFX", GetActorX(victim), GetActorY(victim), GetActorZ(victim) + 16.0, DND_FROZENFX_TID);
+	SetActorProperty(DND_FROZENFX_TID, APROP_MASTERTID, victim);
+	// 127 and 121 are sprite dimensions
+	SetActorProperty(DND_FROZENFX_TID, APROP_SCALEX, (GetActorProperty(victim, APROP_RADIUS) + 16.0) / 127);
+	SetActorProperty(DND_FROZENFX_TID, APROP_SCALEY, (GetActorProperty(victim, APROP_HEIGHT) + 16.0) / 121);
+	
+	SetActivator(DND_FROZENFX_TID);
+	Thing_ChangeTID(0, 0);
+	
+	// always face viewer
+	for(int i = 0; i < 6; ++i) {
+		int ang = AngleToFace(victim, ConsolePlayerNumber() + P_TIDSTART);
+		SetActorPosition(0, GetActorX(victim) + 8 * cos(ang), GetActorY(victim) + 8 * sin(ang), GetActorZ(victim) + 16.0, 0);
+		if(!reverse)
+			SetActorProperty(0, APROP_ALPHA, 1.0 - (i + 5 * tics) * 0.025);
+		else
+			SetActorProperty(0, APROP_ALPHA, 0.75 + (i + 5 * (tics - 2)) * 0.025);
+		Delay(const:1);
+		
+		// thawing
+		if(is_last) {
+			SetActorProperty(0, APROP_SCALEX, 8 * GetActorProperty(0, APROP_SCALEX) / 10);
+			SetActorProperty(0, APROP_SCALEY, 8 * GetActorProperty(0, APROP_SCALEY) / 10);
+		}
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Monster Ignite" (int victim) {
+	int dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", (DND_BASE_IGNITEDMG + CheckInventory("IATTR_FlatFireDmg")) * (100 + CheckInventory("IATTR_IgniteDmg")) / 100, TALENT_ELEMENTAL);
+	while(CheckActorInventory(victim, "DnD_IgniteTimer")) {
+		// x 5
+		Delay(const:7);
+		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
+		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
+		HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH);
+		if(random(0, 1))
+			GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Monster Ignite FX" (int tid) CLIENTSIDE {
+	SetActivator(tid);
+	for(int i = 0; i < 2; ++i) {
+		Delay(const:7);
+		if(random(0, 1))
+			GiveInventory("DnD_IgniteFXSpawner", 1);
+	}
 }
 
 #endif

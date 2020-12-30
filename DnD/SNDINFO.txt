@@ -1,6 +1,15 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+FreezingEffect1			FROSTIN1
+FreezingEffect2			FROSTIN2
+FreezingEffect3			FROSTIN3
+FreezingEffect4			FROSTIN4
+FreezingEffect5			FROSTIN5
+FreezingEffect6			FROSTIN6
+
+$random FreezingEffect { FreezingEffect1 FreezingEffect2 FreezingEffect3 FreezingEffect4 FreezingEffect5 FreezingEffect6 }
+
 HitBeep/Resist			HITBRES
 HitBeep/Immune			HITBIMM
 HitBeep/Invulnerable	HITBINVL

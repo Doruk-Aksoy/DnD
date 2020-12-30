@@ -197,6 +197,14 @@ Actor MakeNoPain : DnD_Activator {
 	}
 }
 
+Actor TakeNoPain : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+		Stop
+	}
+}
+
 Actor MakePhysicalResist : DnD_Activator {
 	States {
 		Pickup:

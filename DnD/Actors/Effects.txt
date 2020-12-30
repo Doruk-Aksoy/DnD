@@ -2365,3 +2365,98 @@ ACTOR SmokeTrail3 {
 		Loop
 	}
 }
+
+Actor IceChunkCS : IceChunk replaces IceChunk {
+	+CLIENTSIDEONLY
+}
+
+Actor ColdSmoke {
+	Renderstyle Add
+	Alpha 1.0
+	+CLIENTSIDEONLY
+	+NoInteraction
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_SetScale(frandom(0.5, 1.0), frandom(0.5, 1.0))
+		SpawnLoop:
+			CLSM ABCDEFGHIJKLMNOPQRSTUVWX 2 A_FadeOut(0.025)
+		Stop
+	}
+}
+
+Actor DnD_ChillWindSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("ColdSmoke", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(24, height + 16) / 2, frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.75, 0.75))
+		Stop
+	}
+}
+
+Actor FreezeGlitter {
+	Renderstyle Add
+	Alpha 1.0
+	+CLIENTSIDEONLY
+	+NoInteraction
+	Scale 1.25
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(128, "SpawnLoop")
+			TNT1 A 0 A_PlaySound("FreezingEffect")
+		SpawnLoop:
+			GLIT ABCDE 2 Bright
+		Stop
+	}
+}
+
+Actor FrozenFX {
+	Renderstyle Add
+	Alpha 0.9
+	+CLIENTSIDEONLY
+	+NoInteraction
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			FRZN A 6 Bright
+		Stop
+	}
+}
+
+Actor IgniteFX {
+	RenderStyle Add
+	Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
+	ALPHA 1.00
+	+CLIENTSIDEONLY
+	+NoInteraction
+	Scale 0.5
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(256, "Anim1", "Anim2", "Anim3", "Anim4", "Anim5")
+		Anim1:
+			FIRE ABABABCDEFGH 2 Bright
+		Stop
+		Anim2:
+			FIRE ABCDEFGH 2 Bright
+		Stop
+		Anim3:
+			FIRE ABCDEDEFGH 2 Bright
+		Stop
+		Anim4:
+			FIRE ABCDEDEFGHGHGH 2 Bright
+		Stop
+		Anim5:
+			FIRE ABABCDEDEDEDFGH 2 Bright
+		Stop
+	}
+}
+
+Actor DnD_IgniteFXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 AA 0 A_SpawnItemEx("IgniteFX", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(8, height + 8) / 2, frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(0.5, 2.5))
+		Stop
+	}
+}

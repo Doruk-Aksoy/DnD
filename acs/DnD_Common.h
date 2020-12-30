@@ -12,6 +12,8 @@
 #define P_TIDSTART 1000
 #define TICRATE 35
 
+#define DND_FROZENFX_TID 3000
+
 #define DND_DAMAGENUMBER_TID 30000
 #define DND_SHOOTABLETID_BEGIN 50000
 #define DND_PETTID_BEGIN 55000
@@ -73,8 +75,7 @@ enum {
 * 1600 - 1663 = Temporary tid assignment for spells
 * 1664 - 1727 = Menu icon above people
 * 2000 - 2063 = Deathray marker TID for players
-* 3000 - 3063 = Initial railgun trail ID
-* 3500 - 3563 = In-between trails ID for railgun
+* 3000 = Frozen FX Temporary TID
 * 3564 = Dark Zealot Shield TID
 * 3565 = Avatar soul projectiles TID
 * 6000 - 12000 = Avatar Cubes TID
@@ -267,6 +268,12 @@ bool MaxAngleDiff (int m1, int m2, int maxdiff) {
 	int pang = GetActorAngle(m1);
 	int angdiff = VectorAngle(x, y);
 	return angdiff <= pang + maxdiff && angdiff >= pang - maxdiff;
+}
+
+int AngleToFace(int this, int to) {
+	int x = GetActorX(to) - GetActorX(this);
+	int y = GetActorY(to) - GetActorY(this);
+	return VectorAngle(x, y);
 }
 
 void FaceActor(int this, int to) {

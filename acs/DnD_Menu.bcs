@@ -346,7 +346,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 			for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i) {
 				HudMessage(s:"+ \c[Q9]", d:GetDamageTypeBonus(pnum, i), s:"%\c- ", s:TalentNames[i][TALENT_NAME], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * k + 32.0 * i, 0.0, 0.0);
-				HudMessage(s:"+ \c[Q9]", d:MapTalentToFlatBonus(pnum, i), s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 2 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * (k + 1) + 32.0 * i, 0.0, 0.0);
+				HudMessage(s:"+ \c[Q9]", d:MapTalentToFlatBonus(pnum, i, 0), s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 2 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * (k + 1) + 32.0 * i, 0.0, 0.0);
 			}
 			k += 2;
 			j = 2 * (DND_TALENT_END - 1);

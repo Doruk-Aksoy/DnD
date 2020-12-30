@@ -72,10 +72,49 @@ Actor DnD_BaseMonster {
 			"####" "#" 0 A_Jump(256, "SeeState")
 			"####" "#" 35
 		Wait
+		
 		Pain:
 			"####" "#" 0 A_Jump(256, "PainState")
 			"####" "#" 35
 		Wait
+		
+		Frozen:
+			"####" "###" 4 A_SpawnItemEx("FreezeGlitter", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(10, height / 2))
+			"####" "###" 0 A_SpawnItemEx("ColdSmoke", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(24, height + 16) / 2, frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.75, 0.75))
+			"####" "#" 1 A_JumpIfInventory("DnD_FreezeTimer", 1, "Frozen")
+		Goto See
+		
+		Overloaded:
+			"####" "#" 0 A_CheckFlag("BOSS", "HalfOverload")
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+		HalfOverload:
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+			"####" "#" 0 A_ChangeVelocity(frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.5, 0.5), CVF_REPLACE)
+			"####" "#" 5 A_Pain
+		Goto See
 	
 		Death:
 			"####" "#" 0 A_Jump(256, "DeathState")

@@ -558,6 +558,10 @@ Script "DND On Kill" KILL {
 	if(CheckActorInventory(target, "Wanderer_Perk50"))
 		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
+	// remove freeze and chill timers
+	SetInventory("DnD_ChillStacks", 0);
+	SetInventory("DnD_FreezeTimer", 0);
+		
 	int expshare = GetCVar("dnd_sharexp");
 	int creditshare = GetCVar("dnd_sharecredit");
 	int haswisdom = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANWISDOM);
@@ -3125,7 +3129,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = SpellDamageTable[dmg].dmg;
 	}
 	
-	dmg += MapTalentToFlatBonus(pnum, talent_type);
+	dmg += MapTalentToFlatBonus(pnum, talent_type, flags);
 		
 	if(talent_type == TALENT_MELEE || flags & DND_WDMG_HASSTRSCALING)
 		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
@@ -3461,7 +3465,7 @@ Script "DND Thunderstaff Bolts" (void) {
 		}
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL);
+		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
 				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, 0, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
@@ -3515,7 +3519,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
-	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL) << 1;
+	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE) << 1;
 	int tidlim = 0;
 	
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
@@ -4163,7 +4167,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	// now get player damage bonus stuff included
 	SetActivator(master);
 	int pnum = PlayerNumber();
-	res += MapTalentToFlatBonus(pnum, TALENT_OCCULT);
+	res += MapTalentToFlatBonus(pnum, TALENT_OCCULT, flags);
 	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	// talent bonus
 	res = res * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[TALENT_OCCULT][TALENT_TAG])) / 100;

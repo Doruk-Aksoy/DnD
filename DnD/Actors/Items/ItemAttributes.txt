@@ -472,6 +472,12 @@ Actor IATTR_SlowEffect : Ammo {
 	+IGNORESKILL
 }
 
+Actor IATTR_ChillThreshold : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 Actor IATTR_IgniteChance : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -479,6 +485,12 @@ Actor IATTR_IgniteChance : Ammo {
 }
 
 Actor IATTR_IgniteDmg : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_IgniteDuration : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL

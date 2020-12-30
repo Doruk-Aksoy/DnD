@@ -790,7 +790,7 @@ void ResetHardcoreStuff(int pnum) {
 	}
 }
 
-int MapTalentToFlatBonus(int pnum, int talent) {
+int MapTalentToFlatBonus(int pnum, int talent, int flags) {
 	switch(talent) {
 		case TALENT_BULLET:
 		case TALENT_MELEE:
@@ -802,7 +802,16 @@ int MapTalentToFlatBonus(int pnum, int talent) {
 		case TALENT_ENERGY:
 		return GetPlayerAttributeValue(pnum, INV_FLATENERGY_DAMAGE);
 		case TALENT_ELEMENTAL:
-		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE);
+			int bonus = 0;
+			if(flags & DND_WDMG_FIREDAMAGE)
+				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatFireDmg");
+			else if(flags & DND_WDMG_ICEDAMAGE)
+				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatIceDmg");
+			else if(flags & DND_WDMG_POISONDAMAGE)
+				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatPoisonDmg");
+			else if(flags & DND_WDMG_LIGHTNINGDAMAGE)
+				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatLightningDmg");
+		return bonus + GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE);
 	}
 	return 0;
 }

@@ -36,6 +36,7 @@ enum {
 	DND_DAMAGEFLAG_DOFULLDAMAGE = 2048,						// does forced full damage
 	DND_DAMAGEFLAG_EXTRATOUNDEAD = 4096,					// do additional x3 more damage to undead
 	DND_DAMAGEFLAG_ISHITSCAN = 8192,						// hitscan type attack
+	DND_DAMAGEFLAG_NOIGNITESTACK = 16384,					// ignites dont further ignite
 };
 
 enum {

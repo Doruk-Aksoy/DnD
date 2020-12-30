@@ -13,6 +13,8 @@ enum {
 Actor DnD_ShotgunDamageHolder : DnD_Info { }
 Actor DnD_PoisonStacks : DnD_Info { }
 Actor DnD_ChillStacks: DnD_Info { }
+Actor DnD_FreezeTimer : DnD_Info { }
+Actor DnD_IgniteTimer : DnD_Info { }
 
 Actor DnD_ExplosiveBase {
 	PROJECTILE

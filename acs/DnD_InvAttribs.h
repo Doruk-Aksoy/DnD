@@ -102,9 +102,11 @@ enum {
 	
 	INV_FREEZECHANCE,
 	INV_SLOWEFFECT,
+	INV_CHILLTHRESHOLD,
 	
 	INV_IGNITECHANCE,
 	INV_IGNITEDMG,
+	INV_IGNITEDURATION,
 	
 	INV_OVERLOADCHANCE,
 	INV_OVERLOAD_ZAPCOUNT,
@@ -296,13 +298,15 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	
 	{ "IATTR_FreezeChance", "% increased chance to freeze for ice attacks" },
 	{ "IATTR_SlowEffect", "% increased chill effectiveness for ice attacks" },
+	{ "IATTR_ChillThreshold", "% reduced enemy chill threshold" },
 	
 	{ "IATTR_IgniteChance", "% increased chance to ignite for fire atttacks" },
 	{ "IATTR_IgniteDmg", "% increased ignite damage" },
+	{ "IATTR_IgniteDuration", "% increased ignite duration" },
 	
-	{ "IATTR_OverloadChance", "% chance to overload for lightning attacks", },
-	{ "IATTR_OverloadZapCount", " additional zapped targets for overload", },
-	{ "IATTR_OverloadZapDmg", "% increased overload zap damage", },
+	{ "IATTR_OverloadChance", "% increased to overload for lightning attacks", },
+	{ "IATTR_OverloadZapCount", " additional overload reflections on overload kills", },
+	{ "IATTR_OverloadZapDmg", "% increased overload reflection damage", },
 	
 	// exotic ones
 	{ "", "% chance to " },
@@ -402,10 +406,10 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 5, 1 },
 	{ 1, 5, 1 },
 	
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
+	{ 1, 3, 2 },
+	{ 1, 3, 2 },
+	{ 1, 3, 2 },
+	{ 1, 3, 2 },
 	
 	// lifesteal
 	{ 0.05, 0.1, 2 },
@@ -418,9 +422,11 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 
 	{ 1, 5, 1 },
 	{ 2, 5, 1 },
+	{ 1, 5, 1 },
 	
 	{ 1, 5, 1 },
-	{ 1, 10, 1 },
+	{ 5, 15, 1 },
+	{ 2, 5, 2 },
 	
 	{ 2, 5, 1 },
 	{ 1, 2, 1 },
