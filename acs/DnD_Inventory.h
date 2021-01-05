@@ -109,6 +109,8 @@ enum {
 	IIMG_UCHRM_10,
 	IIMG_UCHRM_11,
 	IIMG_UCHRM_12,
+	IIMG_UCHRM_13,
+	IIMG_UCHRM_14,
 	
 	IIMG_ORB_1,
 	IIMG_ORB_2,
@@ -175,6 +177,8 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	"UCHRM10",
 	"UCHRM11",
 	"UCHRM12",
+	"UCHRM13",
+	"UCHRM14",
 	
 	// orbs
 	"ORB1D0",
@@ -239,6 +243,8 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 0.0, 8.0 },
 	{ 0.0, 4.0 },
 	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
+	{ 0.0, 0.0 },
 	
 	// orbs
 	{ 7.0, 7.0 },
@@ -291,6 +297,7 @@ str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
 
 // holds inventories of all players
 global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+
 #define MAX_INVENTORIES_ON_FIELD 16384
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
 global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
@@ -299,7 +306,7 @@ global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MA
 #define INVSOURCE_PLAYER PlayerInventoryList
 #define INVSOURCE_CHARMUSED Charms_Used
 
-int last_created_inventory;
+int last_created_inventory = 0;
 
 // Creates an item on the game field
 int CreateItemSpot() {
@@ -1652,12 +1659,12 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
-		case INV_EXPLOSIVE_RESIST:
+		/*case INV_EXPLOSIVE_RESIST:
 			TakeInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
-		break;
+		break;*/
 		case INV_DMGREDUCE_ELEM:
 			TakeInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_ELEMRESIST_VAL)), 1);
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
@@ -1931,6 +1938,15 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// make sure to update ammo caps
 			SetAllAmmoCapacities();
 		break;
+		case INV_EX_ABILITY_LUCKYCRIT:
+			i = UNIQUE_MAP_MACRO(atype);
+			GiveOrTake("StatbuffCounter_LuckyCrit", 1, remove);
+			temp = GetPlayerAttributeValue(pnum, i);
+			if(CheckInventory("StatbuffCounter_LuckyCrit"))
+				SetInventory(Inv_Attribute_Names[i][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
+			else
+				SetInventory(Inv_Attribute_Names[i][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
+		break;
 		
 		// anything that fits our generic formula
 		default:
@@ -1972,6 +1988,9 @@ void MakeUnique(int item_pos, int item_type) {
 		int roll = random(1, MAX_UNIQUE_WEIGHT);
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	}
+	#ifdef ISDEBUGBUILD
+	i = random(UITEM_PAINMASTER, UITEM_VOIDEMBLEM);
+	#endif
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type);
 }

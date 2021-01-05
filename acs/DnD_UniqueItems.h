@@ -30,10 +30,14 @@ enum {
 	// S - Soul type weapons do full damage and can hit ghosts, Soul pickups give 50-100% more ammo, Spells do irreducible damage
 	UITEM_EYEBEHOLDER,
 	// G - 250-425 health cap, 250-425 armor cap, 4 - 15 to all stats, Gives item that grants 35-75% damage and 8-18% speed for 8 seconds (20 sec cd, stats depend on level), Slain enemies rest in peace
-	UITEM_DEADKINGBANNER
+	UITEM_DEADKINGBANNER,
+	// S - + 5 - 10 flat damage to damage over time effects, 50 - 100% increased damage over time duration
+	UITEM_PAINMASTER,
+	// M - Crit chance is lucky, Critical hits have 20 - 35% chancce to ignore all resists
+	UITEM_VOIDEMBLEM
 };
 
-#define LAST_UNIQUE_ITEM UITEM_DEADKINGBANNER
+#define LAST_UNIQUE_ITEM UITEM_VOIDEMBLEM
 #define MAX_UNIQUE_ITEMS LAST_UNIQUE_ITEM + 1
 
 str UniqueItemNames[MAX_UNIQUE_ITEMS] = {
@@ -48,11 +52,13 @@ str UniqueItemNames[MAX_UNIQUE_ITEMS] = {
 	"Grave Caller",
 	"Life Leech",
 	"Eye of the Beholder",
-	"Dead King's Banner"
+	"Dead King's Banner",
+	"Pain Master",
+	"Void Emblem"
 };
 
 #define MAX_UNIQUE_WEIGHT 1000
-// chances
+// chances -- no longer valid -- need to come up with some weighted formula later
 /*
 15
 15
@@ -76,7 +82,9 @@ int UniqueItemDropWeight[MAX_UNIQUE_ITEMS] = {
 	590,
 	680,
 	760,
-	820,
+	800,
+	825,
+	850,
 	880,
 	960,
 	1000
@@ -326,6 +334,36 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].rolls[3].attrib_high = 10;
 	UniqueItemList[id].rolls[4].attrib_low = 0;
 	UniqueItemList[id].rolls[4].attrib_high = 0;
+	id = UITEM_PAINMASTER;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 1;
+	UniqueItemList[id].item_image = IIMG_UCHRM_13;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
+	UniqueItemList[id].item_level = 100;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_id_list[0] = INV_EX_FLATDOT;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_DOTDURATION;
+	UniqueItemList[id].rolls[0].attrib_low = 5;
+	UniqueItemList[id].rolls[0].attrib_high = 10;
+	UniqueItemList[id].rolls[1].attrib_low = 50;
+	UniqueItemList[id].rolls[1].attrib_high = 100;
+	id = UITEM_VOIDEMBLEM;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UCHRM_14;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
+	UniqueItemList[id].item_level = 100;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_id_list[0] = INV_EX_ABILITY_LUCKYCRIT;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_CRITIGNORERESCHANCE;
+	UniqueItemList[id].rolls[0].attrib_low = 0;
+	UniqueItemList[id].rolls[0].attrib_high = 0;
+	UniqueItemList[id].rolls[1].attrib_low = 20;
+	UniqueItemList[id].rolls[1].attrib_high = 35;
 }
 
 #endif

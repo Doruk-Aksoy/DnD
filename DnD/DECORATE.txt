@@ -56,6 +56,7 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/ClassPerks.txt"
 #include "Actors/Decorations.txt"
 #include "Actors/WeaponIDs.txt"
+#include "Actors/Curses.txt"
 
 #include "Actors/Weapons/SpecialAmmo.txt"
 
@@ -77,6 +78,7 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Weapons/Research/Slot6.txt"
 #include "Actors/Weapons/Research/Slot7.txt"
 
+#include "Actors/MonsterIDs.txt"
 #include "Actors/MonsterBase.txt"
 #include "Actors/MonsterClass.txt"
 #include "Actors/Monsters.txt"

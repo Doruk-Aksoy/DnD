@@ -696,4 +696,5 @@ Script "DnD Gamon Shifter" (void) {
 	SetActorProperty(0, APROP_ALPHA, 0.5);
 	ActivatorSound("Veste/Cast", 127.0);
 	SpawnForced("SalvationEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+	ACS_ExecuteWithResult("DnD Monster Trait Give", DND_GHOST, -1, -1, -1);
 }

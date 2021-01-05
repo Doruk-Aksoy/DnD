@@ -1,6 +1,34 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Overload/Loop1			OLODLOO1
+Overload/Loop2			OLODLOO2
+Overload/Loop3			OLODLOO3
+Overload/Loop4			OLODLOO4
+Overload/Loop5			OLODLOO5
+Overload/Loop6			OLODLOO6
+Overload/Loop7			OLODLOO7
+Overload/Loop8			OLODLOO8
+$random Overload/Loop { Overload/Loop1 Overload/Loop2 Overload/Loop3 Overload/Loop4 Overload/Loop5 Overload/Loop6 Overload/Loop7 Overload/Loop8 }
+
+Overload/ZapBegin1		OLODZAB1
+Overload/ZapBegin2		OLODZAB2
+Overload/ZapBegin3		OLODZAB3
+Overload/ZapBegin4		OLODZAB4
+Overload/ZapBegin5		OLODZAB5
+Overload/ZapBegin6		OLODZAB6
+$random Overload/ZapBegin { Overload/ZapBegin1 Overload/ZapBegin2 Overload/ZapBegin3 Overload/ZapBegin4 Overload/ZapBegin5 Overload/ZapBegin6 }
+
+Overload/Zap1			OLODZAP1
+Overload/Zap2			OLODZAP2
+Overload/Zap3			OLODZAP3
+Overload/Zap4			OLODZAP4
+Overload/Zap5			OLODZAP5
+Overload/Zap6			OLODZAP6
+Overload/Zap7			OLODZAP7
+Overload/Zap8			OLODZAP8
+$random Overload/Zap { Overload/Zap1 Overload/Zap2 Overload/Zap3 Overload/Zap4 Overload/Zap5 Overload/Zap6 Overload/Zap7 Overload/Zap8 }
+
 FreezingEffect1			FROSTIN1
 FreezingEffect2			FROSTIN2
 FreezingEffect3			FROSTIN3

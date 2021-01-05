@@ -121,6 +121,15 @@ scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
 };
 
 enum {
+	DND_SPECIALBLOOD_STONE
+};
+
+#define MAX_BLOOD_TYPES (DND_SPECIALBLOOD_STONE + 1)
+str SpecialBloodFX[MAX_BLOOD_TYPES] = {
+	"StoneBitsSpawner"
+};
+
+enum {
 	DND_HITBEEP_WEAKNESS,
 	DND_HITBEEP_RESIST,
 	DND_HITBEEP_IMMUNITY,
@@ -149,6 +158,13 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
 #define DND_BASE_IGNITEDMG 10
 #define DND_BASE_IGNITECHANCE 15
+
+#define DND_BASE_OVERLOADCHANCE 5
+#define DND_BASE_OVERLOADBUFF 30 // 30%
+#define DND_BASE_OVERLOADTICK 5
+#define DND_BASE_OVERLOADTIME (87 / DND_BASE_OVERLOADTICK) // 2.5 seconds -- 87 / 5
+#define DND_MAX_OVERLOADTARGETS 128 // up to 128 allowed
+#define DND_BASE_OVERLOADZAPDELAY 3 // 3 tics
 
 #define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
@@ -463,43 +479,45 @@ bool CheckCullRange(int source, int victim, int dmg) {
 }
 
 void HandleChillEffects(int victim) {
-	// check health thresholds --- get missing health
-	int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
-	int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
-	if(hpdiff >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + CheckInventory("IATTR_ChillThreshold")) / 100)) * (stacks + 1)) {
-		// add a new stack of chill and check for freeze
-		if(!stacks) {
-			GiveActorInventory(victim, "DnD_ChillStacks", 1);
-			ACS_NamedExecuteWithResult("DnD Monster Chill", victim);
-		}
-		else if(stacks < DND_BASE_CHILL_CAP)
-			GiveActorInventory(victim, "DnD_ChillStacks", 1);
-		
-		// freeze checks --- added freeze chance % increase
-		hpdiff = DND_BASE_FREEZECHANCE_PERSTACK * CheckActorInventory(victim, "DnD_ChillStacks") * (100 + CheckInventory("IATTR_FreezeChance")) / 100;
-		if(random(1, 100) <= hpdiff) {
-			if(GetActorProperty(victim, APROP_HEALTH) > 0) {
-				// is boss? half duration
-				if(CheckFlag(victim, "BOSS"))
-					stacks = DND_BASE_FREEZETIMER / 3;
-				else
-					stacks = DND_BASE_FREEZETIMER;
-				
-				// set freeze timer and run script
-				if(!CheckActorInventory(victim, "DnD_FreezeTimer")) {
-					GiveActorInventory(victim, "DnD_FreezeTimer", stacks);
-					ACS_NamedExecuteWithResult("DnD Monster Freeze", victim);
+	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_FRIGID]) {
+		// check health thresholds --- get missing health
+		int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
+		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
+		if(hpdiff >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + CheckInventory("IATTR_ChillThreshold")) / 100)) * (stacks + 1)) {
+			// add a new stack of chill and check for freeze
+			if(!stacks) {
+				GiveActorInventory(victim, "DnD_ChillStacks", 1);
+				ACS_NamedExecuteWithResult("DnD Monster Chill", victim);
+			}
+			else if(stacks < DND_BASE_CHILL_CAP)
+				GiveActorInventory(victim, "DnD_ChillStacks", 1);
+			
+			// freeze checks --- added freeze chance % increase
+			hpdiff = DND_BASE_FREEZECHANCE_PERSTACK * CheckActorInventory(victim, "DnD_ChillStacks") * (100 + CheckInventory("IATTR_FreezeChance")) / 100;
+			if(random(1, 100) <= hpdiff) {
+				if(GetActorProperty(victim, APROP_HEALTH) > 0) {
+					// is boss? half duration
+					if(CheckFlag(victim, "BOSS"))
+						stacks = DND_BASE_FREEZETIMER / 3;
+					else
+						stacks = DND_BASE_FREEZETIMER;
+					
+					// set freeze timer and run script
+					if(!CheckActorInventory(victim, "DnD_FreezeTimer")) {
+						GiveActorInventory(victim, "DnD_FreezeTimer", stacks);
+						ACS_NamedExecuteWithResult("DnD Monster Freeze", victim);
+					}
+					else
+						SetActorInventory(victim, "DnD_FreezeTimer", stacks);
 				}
-				else
-					SetActorInventory(victim, "DnD_FreezeTimer", stacks);
 			}
 		}
 	}
 }
 
 void HandleIgniteEffects(int victim) {
-	if(random(1, 100) <= DND_BASE_IGNITECHANCE * (100 + CheckInventory("IATTR_IgniteChance")) / 100) {
-		int amt = DND_BASE_IGNITETIMER * (100 + CheckInventory("IATTR_IgniteDuration")) / 100;
+	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_SCORCHED] && random(1, 100) <= DND_BASE_IGNITECHANCE * (100 + CheckInventory("IATTR_IgniteChance")) / 100) {
+		int amt = DND_BASE_IGNITETIMER * (100 + CheckInventory("IATTR_IgniteDuration") + CheckInventory("IATTR_DotDuration")) / 100;
 		if(!CheckActorInventory(victim, "DnD_IgniteTimer")) {
 			SetActorInventory(victim, "DnD_IgniteTimer", amt);
 			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim);
@@ -510,7 +528,14 @@ void HandleIgniteEffects(int victim) {
 }
 
 void HandleOverloadEffects(int victim) {
-	
+	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_INSULATED] && random(1, 100) <= DND_BASE_OVERLOADCHANCE * (100 + CheckInventory("IATTR_OverloadChance")) / 100 && IsActorAlive(victim)) {
+		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
+			SetActorInventory(victim, "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+			ACS_NamedExecuteWithResult("DnD Monster Overload", victim);
+		}
+		else
+			SetActorInventory(victim, "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+	}
 }
 
 bool IsMeleeDamage(int damage_type) {
@@ -589,29 +614,6 @@ int FactorResists(int source, int victim, int dmg, int damage_type) {
 	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_WEAKNESS] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
 		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
 	
-	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
-	if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_RESIST] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && temp == DND_DAMAGECATEGORY_ENERGY)
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	// immunities
-	else if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_NONE] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_IMMUNE] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && temp == DND_DAMAGECATEGORY_ENERGY)
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
-			dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	
 	// special bonuses for certain creature types
 	if(MonsterProperties[mon_id].trait_list[DND_ICECREATURE]) {
 		// make sure to check ice and fire pen seperate
@@ -643,6 +645,33 @@ int FactorResists(int source, int victim, int dmg, int damage_type) {
 		else if(damage_type == DND_DAMAGETYPE_POISON)
 			dmg = (dmg * pen) / 100;
 	}
+	
+	// return early as we ignored resists and immunities
+	if(PlayerCritState[PlayerNumber()][DND_CRITSTATE_CONFIRMED] && CheckInventory("IATTR_CritIgnoreRes") >= random(1, 100))
+		return dmg;
+		
+	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
+	if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_RESIST] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && temp == DND_DAMAGECATEGORY_ENERGY)
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
+		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	// immunities
+	else if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_NONE] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_IMMUNE] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && temp == DND_DAMAGECATEGORY_ENERGY)
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
+		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
+			dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	
 	return dmg;
 }
@@ -729,7 +758,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	}
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
-	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
+	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && !MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_VENOMANCER]) {
 		// poison damage deals 10% of its damage per stack over 3 seconds
 		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
 			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
@@ -758,7 +787,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			dmg = dmg * (100 + temp) / 100;
 	}
 	
-	//printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype);
+	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
 	if(pnum != -1) {
 		// this part handles damage pushing
 		temp = victim - DND_MONSTERTID_BEGIN;
@@ -777,6 +806,12 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		if(!PlayerDamageTicData[pnum][temp])
 			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (actor_flags << DND_DAMAGE_ACCUM_SHIFT), ox, oy, oz);
 		PlayerDamageTicData[pnum][temp] += dmg;
+	}
+	
+	if(CheckActorInventory(victim, "DnD_OverloadTimer")) {
+		if(damage_type != DND_DAMAGETYPE_LIGHTNING)
+			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF) / 100;
+		GiveActorInventory(victim, "DnD_OverloadDamage", dmg);
 	}
 	
 	Thing_Damage2(victim, dmg, s_damagetype);
@@ -836,7 +871,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		int mon_id = PlayerExplosionList[pnum].list[instance].monsters[i];
 
 		// first check if this monster is immune to splash damage (its an easy flag check and eases calculation later)
-		if(CheckFlag(mon_id, "NORADIUSDMG") && !CheckActorInventory(owner, "NetherCheck") && !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG))
+		if(CheckFlag(mon_id, "NORADIUSDMG") && CheckFlag(mon_id, "SHOOTABLE") && !CheckActorInventory(owner, "NetherCheck") && !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG))
 			continue;
 		
 		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, px, py, pz, proj_r);
@@ -857,8 +892,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	if(flags & DND_DAMAGEFLAG_BLASTSELF) {
 		// we are the owner here at this point, we can use 0 for ourselves
 		final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-		if(final_dmg != -1)
+		if(final_dmg != -1) {
+			// final dmg cant be negative -- apply penetration and self explosion resist here
+			final_dmg = final_dmg * (100 - CheckInventory("IATTR_ExplosionResist") + CheckInventory("IATTR_ExplosivePen")) / 100;
+			if(final_dmg < 0)
+				final_dmg = 0;
 			HandleDamageDeal(owner, owner, final_dmg, damage_type, flags, px, py, pz, actor_flags);
+		}
 	}
 	
 	// damage is dealt we are done with this instance, free it up
@@ -889,6 +929,12 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 	
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
+		
+	// spawn special blood particles attached to monsters
+	if((flags & DND_DAMAGEFLAG_ISHITSCAN) && CheckFlag(victim, "NOBLOOD")) {
+		if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_STONECREATURE])
+			ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
+	}
 	
 	int px, py, pz;
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
@@ -912,39 +958,6 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags);
 	
 	SetResultValue(0);
-}
-
-Script "DnD Do Poison Damage" (int victim, int dmg) {
-	int time_limit = DND_BASE_POISON_TIMER * (100 + CheckInventory("IATTR_PoisonDuration")) / 100;
-	int counter = 0, tics = DND_BASE_POISON_TIC;
-	int freq = FixedDiv(time_limit, tics) >> 16;
-
-	dmg += CheckInventory("IATTR_FlatPoisonDmg");
-	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
-	dmg /= freq;
-	if(!dmg)
-		dmg = 1;
-		
-	while(counter < time_limit && GetActorProperty(victim, APROP_HEALTH) > 0) {
-		if(counter >= tics) {
-			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
-			tics += DND_BASE_POISON_TIC;
-			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
-		}
-		counter += 0.1 * (100 + CheckInventory("IATTR_PoisonTicrate")) / 100;
-		Delay(const:2);
-	}
-	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
-	SetResultValue(0);
-}
-
-Script "DnD Spawn Poison FX" (int orig, int amt) CLIENTSIDE {
-	int r = GetActorProperty(orig, APROP_RADIUS);
-	int h = GetActorProperty(orig, APROP_HEIGHT);
-	for(int i = 0; i <= amt; ++i) {
-		SpawnForced("DnD_PoisonFX", GetActorX(orig) + random(-r, r), GetActorY(orig) + random(-r, r), GetActorZ(orig) + random(-h, h), 0);
-		Delay(random(1, 3));
-	}
 }
 
 Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
@@ -977,7 +990,7 @@ Script "DnD Damage Accumulate" (int victim_data, int ox, int oy, int oz) {
 	PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = false;
 	
 	// check if player has lifesteal, if they do reward some hp back
-	if(CheckInventory("IATTR_Lifesteal")) {
+	if(CheckInventory("IATTR_Lifesteal") && !MonsterProperties[victim_data].trait_list[DND_BLOODLESS]) {
 		// divide by 100 as its a percentage
 		int temp = ((PlayerDamageTicData[pnum][victim_data] * CheckInventory("IATTR_Lifesteal")) / 100) >> 16;
 		if(temp)
@@ -985,13 +998,21 @@ Script "DnD Damage Accumulate" (int victim_data, int ox, int oy, int oz) {
 	}
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance
-	if(flags & DND_DAMAGETICFLAG_ICE)
-		HandleChillEffects(victim_data + DND_MONSTERTID_BEGIN);
-	else if(flags & DND_DAMAGETICFLAG_FIRE)
-		HandleIgniteEffects(victim_data + DND_MONSTERTID_BEGIN);
-	else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
-		HandleOverloadEffects(victim_data + DND_MONSTERTID_BEGIN);
+	// do these if only the actor was alive after the tic they received dmg
+	if(IsActorAlive(victim_data + DND_MONSTERTID_BEGIN)) {
+		if(flags & DND_DAMAGETICFLAG_ICE)
+			HandleChillEffects(victim_data + DND_MONSTERTID_BEGIN);
+		else if(flags & DND_DAMAGETICFLAG_FIRE)
+			HandleIgniteEffects(victim_data + DND_MONSTERTID_BEGIN);
+		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
+			HandleOverloadEffects(victim_data + DND_MONSTERTID_BEGIN);
 		
+		// frozen monsters cant retaliate		
+		if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_FreezeTimer"))
+			GiveActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_ViolentRetaliationItem", 1);
+	}
+	
+	// printbold(s:"do dmg numbers: ", d:pnum);
 	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_data + DND_MONSTERTID_BEGIN, PlayerDamageTicData[pnum][victim_data], flags);
 	
 	// reset dmg counter on this mob
@@ -1020,6 +1041,8 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 		z += GetActorProperty(tid, APROP_HEIGHT);
 	else
 		z += GetActorProperty(tid, APROP_HEIGHT) * 4;
+		
+	// Log(f:x, s: " ", f:y, s: " ", f:z);
 	
 	while(dmg > 0) {
 		SpawnForced(StrParam(s:"Digit", d:digit_pos, s:"Num", d:dmg % 10), x, y, z, DND_DAMAGENUMBER_TID);
@@ -1042,6 +1065,40 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 	Thing_ChangeTID(DND_DAMAGENUMBER_TID, 0);
 	
 	SetResultValue(0);
+}
+
+Script "DnD Do Poison Damage" (int victim, int dmg) {
+	int time_limit = DND_BASE_POISON_TIMER * (100 + CheckInventory("IATTR_PoisonDuration") + CheckInventory("IATTR_DotDuration")) / 100;
+	int counter = 0, tics = DND_BASE_POISON_TIC;
+	int freq = FixedDiv(time_limit, tics) >> 16;
+
+	// scale received percentage of damage with flat bonuses
+	dmg += CheckInventory("IATTR_FlatPoisonDmg") + CheckInventory("IATTR_FlatDotDamage");
+	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
+	dmg /= freq;
+	if(!dmg)
+		dmg = 1;
+		
+	while(counter < time_limit && IsActorAlive(victim)) {
+		if(counter >= tics) {
+			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+			tics += DND_BASE_POISON_TIC;
+			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
+		}
+		counter += 0.1 * (100 + CheckInventory("IATTR_PoisonTicrate")) / 100;
+		Delay(const:2);
+	}
+	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
+	SetResultValue(0);
+}
+
+Script "DnD Spawn Poison FX" (int orig, int amt) CLIENTSIDE {
+	int r = GetActorProperty(orig, APROP_RADIUS);
+	int h = GetActorProperty(orig, APROP_HEIGHT);
+	for(int i = 0; i <= amt; ++i) {
+		SpawnForced("DnD_PoisonFX", GetActorX(orig) + random(-r, r), GetActorY(orig) + random(-r, r), GetActorZ(orig) + random(-h, h), 0);
+		Delay(random(1, 3));
+	}
 }
 
 Script "DnD Monster Chill" (int victim) {
@@ -1126,8 +1183,10 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 }
 
 Script "DnD Monster Ignite" (int victim) {
-	int dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", (DND_BASE_IGNITEDMG + CheckInventory("IATTR_FlatFireDmg")) * (100 + CheckInventory("IATTR_IgniteDmg")) / 100, TALENT_ELEMENTAL);
-	while(CheckActorInventory(victim, "DnD_IgniteTimer")) {
+	int dmg = (DND_BASE_IGNITEDMG + CheckInventory("IATTR_FlatFireDmg") + CheckInventory("IATTR_FlatDotDamage")) * (100 + CheckInventory("IATTR_IgniteDmg")) / 100;
+	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, TALENT_ELEMENTAL);
+	
+	while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim)) {
 		// x 5
 		Delay(const:7);
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
@@ -1136,6 +1195,8 @@ Script "DnD Monster Ignite" (int victim) {
 		if(random(0, 1))
 			GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
 	}
+	
+	SetActorInventory(victim, "DnD_IgniteTimer", 0);
 
 	SetResultValue(0);
 }
@@ -1147,6 +1208,88 @@ Script "DnD Monster Ignite FX" (int tid) CLIENTSIDE {
 		if(random(0, 1))
 			GiveInventory("DnD_IgniteFXSpawner", 1);
 	}
+}
+
+Script "DnD Monster Overload" (int victim) {
+	// we dont have any player involvement here so
+	SetActivator(victim);
+	PlaySound(0, "Overload/Loop", CHAN_ITEM, 1.0, true);
+	
+	while(CheckInventory("DnD_OverloadTimer")) {
+		ACS_NamedExecuteWithResult("DnD Monster Overload Particles");
+		TakeInventory("DnD_OverloadTimer", 1);
+		Delay(const:DND_BASE_OVERLOADTICK);
+		GiveInventory("Overload_SoundStopper", 1);
+	}
+
+	// remove accumulated damage
+	SetInventory("DnD_OverloadDamage", 0);
+	StopSound(0, CHAN_ITEM);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Monster Overload Particles" (void) CLIENTSIDE {
+	int r = GetActorProperty(0, APROP_RADIUS);
+	int h = GetActorProperty(0, APROP_HEIGHT);
+	for(int i = 0; i < 3; ++i) {
+		SpawnForced("OverloadZap_Particles", GetActorX(0) + random(-r, r) / 2, GetActorY(0) + random(-r, r) / 2, GetActorZ(0) + (random(16.0, h + 32.0)) / 2, 0);
+		Delay(random(1, 3));
+	}
+
+}
+
+Script "DnD Monster Overload Zap" (int this, int killer) {
+	if(!isPlayer(killer))
+		Terminate;
+	
+	ActivatorSound("Overload/ZapBegin", 127);
+	SpawnForced("OverloadZap_Source", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) + 16.0, 0);
+	
+	// first look up potential targets and then store them, we'll zap later with some delay
+	int pnum = killer - P_TIDSTART;
+	
+	int i;
+	int zap_count = CheckActorInventory(killer, "IATTR_OverloadZapCount") + 1;
+	int cur_count = 0;
+	static int zap_tids[MAXPLAYERS][DND_MAX_OVERLOADTARGETS];
+	for(i = 0; i < zap_count; ++i)
+		zap_tids[pnum][i] = 0;
+	
+	int dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", CheckInventory("DnD_OverloadDamage") * (100 + CheckActorInventory(killer, "IATTR_OverloadZapDmg")) / 100, TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
+	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER] && zap_count; ++i) {
+		// if currently alive and received the checker item
+		if(CheckActorInventory(i, "DnD_OverloadZapCandidate") && isActorAlive(i) && i != this)
+			zap_tids[pnum][cur_count++] = i;
+	}
+	
+	for(i = 0; i < cur_count; ++i) {
+		ACS_NamedExecuteAlways("DnD Overload Zap FX", 0, this, zap_tids[pnum][i]);
+		
+		// do damage, give credit to killer
+		SetActivator(killer);
+		
+		HandleDamageDeal(killer, zap_tids[pnum][i], dmg, DND_DAMAGETYPE_LIGHTNING, 0, GetActorX(this), GetActorY(this), GetActorZ(this), DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_FORCEPAIN);
+		ActivatorSound("Overload/Zap", 127);
+		
+		// overload this monster if its still alive
+		if(isActorAlive(zap_tids[pnum][i])) {
+			if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
+				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+				ACS_NamedExecuteWithResult("DnD Monster Overload", zap_tids[pnum][i]);
+			}
+			else
+				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+		}
+		SetActivator(this);
+		
+		Delay(const:DND_BASE_OVERLOADZAPDELAY);
+	}
+}
+
+Script "DnD Spawn Bloodtype" (int type) CLIENTSIDE {
+	SpawnForced(SpecialBloodFX[type], GetActorX(0), GetActorY(0), GetActorZ(0), SPECIAL_FX_TID);
+	SetResultValue(0);
 }
 
 #endif

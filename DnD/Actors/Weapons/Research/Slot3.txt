@@ -553,23 +553,19 @@ Actor CryoPuff_FX {
 
 Actor CryoPuffAlt : DnD_BasePuff {
 	Species "Player"
+	DamageType "P_Ice"
 	// no ice damage because it should shatter things
 	+NODAMAGETHRUST
 	+ALWAYSPUFF
-	var int user_count;
-	const int iter = 4;
 	States {
 		Init:
 		HitNoBlood:
-			TNT1 A 0
-		Death:		
+		Crash:
+		Death:
+			TNT1 A 0	
 			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 1 A_Explode(1, 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor), 0)
-			TNT1 A 0 A_ChangeFlag("ICEDAMAGE", 1)
-			TNT1 A 1 A_SetUserVar("user_count", 0)
 			TNT1 A 0 A_PlaySound("weapons/cryobowalt", 5)
-		DeathLoop:
-			TNT1 A 0 A_JumpIf(user_count == iter, "Finish")
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -579,10 +575,37 @@ Actor CryoPuffAlt : DnD_BasePuff {
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 315, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 AAAAAAAAAAAAA 0 A_CustomMissile ("IceSmoke", 0, 0, random (0, 360), 2, random (0, 360))
-			TNT1 A 0 A_PlaySound("weapons/cryobowloop", 6)
-			TNT1 A 25 A_SetUserVar("user_count", user_count + 1)
-		Loop
-		Finish:
+			TNT1 A 25 A_PlaySound("weapons/cryobowloop", 6)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 135, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 315, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 AAAAAAAAAAAAA 0 A_CustomMissile ("IceSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 A 25 A_PlaySound("weapons/cryobowloop", 6)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 135, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 315, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 AAAAAAAAAAAAA 0 A_CustomMissile ("IceSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 A 25 A_PlaySound("weapons/cryobowloop", 6)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 135, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 315, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 AAAAAAAAAAAAA 0 A_CustomMissile ("IceSmoke", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 A 25 A_PlaySound("weapons/cryobowloop", 6)
 			TNT1 A 1
 		Stop
 	}
@@ -604,8 +627,8 @@ ACTOR CryoTrail {
 
 Actor CryoWind : DnD_BaseProjectile {
 	Speed 16
-	Radius 10
-	Height 20
+	Radius 4
+	Height 8
 	Scale 1.75
 	Alpha 0.9
 	Renderstyle Add

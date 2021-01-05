@@ -1,5 +1,3 @@
-#include "Actors/MonsterIDs.txt"
-
 #include "Actors/Monsters/Zombieman.txt"
 #include "Actors/Monsters/Shotgunguy.txt"
 #include "Actors/Monsters/Chaingunguy.txt"

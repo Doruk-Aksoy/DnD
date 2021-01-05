@@ -5,8 +5,6 @@
 #include "DnD_Common.h"
 #include "DnD_Inventory.h"
 
-#define SMALL_CHARM_ATTRIB_MAX 2
-
 #define NULL_CHARM -1
 
 #define DND_BASE_CHARMRATE 0.015
@@ -29,8 +27,8 @@ str Charm_TypeName[MAX_CHARM_TYPES] = {
 
 int Charm_MaxAffixes[MAX_CHARM_TYPES] = {
 	2,
-	3,
-	5
+	4,
+	6
 };
 
 int Charm_MaxUsable[MAX_CHARM_TYPES] = {
@@ -63,7 +61,7 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 	// roll random attributes for the charm
 	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 	int count = random(2, 2 * (charm_type + 1));
-	int i, roll;
+	int i = 0, roll;
 	Inventories_On_Field[charm_pos].item_level = charm_tier;
 	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack
 	Inventories_On_Field[charm_pos].item_type = DND_ITEM_CHARM;
@@ -87,7 +85,7 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 			#ifdef ISDEBUGBUILD
 				roll = random(INV_POISON_TICRATE, LAST_INV_ATTRIBUTE);
 			#else
-				roll = random(0, LAST_INV_ATTRIBUTE);
+				roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
 			#endif
 		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToCharm(charm_pos, roll);
@@ -124,8 +122,7 @@ void SpawnCharm(int pnum, bool isElite) {
 
 		#ifndef ISDEBUGBUILD
 			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || (!GetCVar("dnd_ignore_dropweights") && RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance)))
-		#endif
-		#ifdef ISDEBUGBUILD
+		#else
 			if(random(0,1))
 		#endif
 		{

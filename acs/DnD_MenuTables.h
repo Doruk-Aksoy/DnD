@@ -1253,7 +1253,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	
 	// 4 - 1
 	WPROP_NONE,
-	WPROP_IGNORESHIELD,
+	WPROP_NONE,
 	WPROP_NONE,
 	WPROP_ALTAMMO,
 	WPROP_ALTAMMO,
@@ -2409,6 +2409,16 @@ str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.",
 	"Monster is a being of stone, has ice weakness, fire resist, immunity to earth and lightning, and Hardened Skin.",
 	"Monster is a being of earth, takes 50% more damage from lightning, but immune to earth attacks.",
+	
+	"You can't leech life from this the monster.",
+	"Monster has 50% chance to throw explosive projectiles when hurt.",
+	"Monster has 33% chance to steal 15% of current weapon's ammo from you with attacks.",
+	"Monster attacks have 33% chance to inflict a random curse.",
+	"Monster spawns 5 wraiths on death.",
+	"Monster is immune to poison effects.",
+	"Monster is immune to chill and freeze.",
+	"Monster is immune to ignite.",
+	"Monster is immune to overloading.",
 	
 	"Monster is unique."
 };

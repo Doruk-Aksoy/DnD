@@ -15,264 +15,18 @@ Actor DnD_PoisonStacks : DnD_Info { }
 Actor DnD_ChillStacks: DnD_Info { }
 Actor DnD_FreezeTimer : DnD_Info { }
 Actor DnD_IgniteTimer : DnD_Info { }
+Actor DnD_OverloadTimer : DnD_Info { }
+Actor DnD_OverloadDamage : DnD_Info { }
 
-Actor DnD_ExplosiveBase {
-	PROJECTILE
-	Damage 0
-	+HITTRACER
-	+MTHRUSPECIES
-	+DONTBLAST
-	
-	var int user_expdmg;
-	var int user_expradius;
-	var int user_fullexpradius;
-	var int user_damagetype;
-	
-	const int r_f = 8;
-	
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
-			TNT1 A 35 A_Jump(256, "SpawnState")
-		Wait
-		DoExplosionDamage:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Register Explosion Instance")
-		Goto HandoutItem
-		HandoutItem:
-			/*"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 63, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 62, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 61, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 60, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 59, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 58, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 57, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 56, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 55, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 54, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 53, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 52, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 51, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 50, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 49, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 48, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 47, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")*/
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 1, "Exp1")
-		Goto Exp0
-		Exp1:
-			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_1", user_expradius * r_f, RGF_MONSTERS, 1)
-		Goto DealExplosionDamage
-		Exp0:
-			//"####" "#" 0 ACS_NamedExecuteWithResult("tester shit")
-			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_0", user_expradius * r_f, RGF_MONSTERS, 1)
-		Goto DealExplosionDamage
-		DealExplosionDamage:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Do Explosion Damage", user_expdmg, user_expradius, user_fullexpradius, user_damagetype)
-			"####" "#" 35 A_Jump(256, "ContinueFromExplosion")
-		Wait
-	}
+Actor DnD_OverloadZapCandidate : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
 }
 
-Actor DnD_ExplosiveBase_ForPets {
-	PROJECTILE
-	+HITTRACER
-	+MTHRUSPECIES
-	+DONTBLAST
-	
-	var int user_expdmg;
-	var int user_expradius;
-	var int user_fullexpradius;
-	var int user_damagetype;
-	
-	States {
-		// for pets check master's inventory
-		DoExplosionDamage:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Register Explosion Instance (Pets)")
-		Goto HandoutItem
-		HandoutItem:
-			/*"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 63, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 62, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 61, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 60, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 59, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 58, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 57, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 56, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 55, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 54, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 53, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 52, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 51, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 50, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 49, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 48, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 47, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 64, "Exp64")*/
-			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 1, "Exp1")
-		Goto Exp0
-		Exp1:
-			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_1", user_expradius * 2, RGF_MONSTERS, 1)
-		Goto DealExplosionDamage
-		Exp0:
-			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_0", user_expradius * 2, RGF_MONSTERS, 1)
-		Goto DealExplosionDamage
-		DealExplosionDamage:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Do Explosion Damage (Pets)", user_expdmg, user_expradius, user_fullexpradius, user_damagetype)
-			"####" "#" 35 A_Jump(256, "ContinueFromExplosion")
-		Wait
-	}
-}
-
-Actor DnD_ProjPnum : DnD_Info { }
-
-Actor DnD_ExplosionRegisterItem_0 : DnD_Activator {
+Actor DnD_OverloadZapGiver : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 0)
-		Stop
-	}
-}
-
-Actor DnD_ExplosionRegisterItem_1 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 1)
-		Stop
-	}
-}
-
-Actor DnD_TestExploder : DnD_ExplosiveBase {
-	Height 6
-	Radius 3
-	Speed 40
-	Damage 0
-	States {
-		Spawn:
-			SARG A 1
-		Loop
-		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", 50)
-			TNT1 A 0 A_SetUserVar("user_expradius", 192)
-			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			SARG H 4
-		Goto DoExplosionDamage
-		ContinueFromExplosion:
-			SARG IJK 4
-		Stop
-	}
-}
-
-Actor DnD_TestShitter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_FireCustomMissile("DnD_TestExploder", -2, 0)
-			TNT1 A 0 A_FireCustomMissile("DnD_TestExploder", 2, 0)
+			TNT1 A 0 A_RadiusGive("DnD_OverloadZapCandidate", 512 + radius, RGF_MONSTERS, 1)
 		Stop
 	}
 }
@@ -438,3 +192,1117 @@ Actor DnD_TestRipper : DnD_BaseProjectile {
 	}
 }
 }*/
+
+
+Actor DnD_ExplosiveBase {
+	PROJECTILE
+	Damage 0
+	+HITTRACER
+	+MTHRUSPECIES
+	+DONTBLAST
+	
+	var int user_expdmg;
+	var int user_expradius;
+	var int user_fullexpradius;
+	var int user_damagetype;
+	
+	const int r_f = 8;
+	
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
+			TNT1 A 35 A_Jump(256, "SpawnState")
+		Wait
+		DoExplosionDamage:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Register Explosion Instance")
+		Goto HandoutItem
+		HandoutItem:
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 63, "Exp63")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 62, "Exp62")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 61, "Exp61")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 60, "Exp60")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 59, "Exp59")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 58, "Exp58")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 57, "Exp57")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 56, "Exp56")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 55, "Exp55")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 54, "Exp54")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 53, "Exp53")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 52, "Exp52")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 51, "Exp51")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 50, "Exp50")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 49, "Exp49")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 48, "Exp48")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 47, "Exp47")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 46, "Exp46")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 45, "Exp45")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 44, "Exp44")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 43, "Exp43")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 42, "Exp42")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 41, "Exp41")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 40, "Exp40")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 39, "Exp39")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 38, "Exp38")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 37, "Exp37")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 36, "Exp36")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 35, "Exp35")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 34, "Exp34")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 33, "Exp33")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 32, "Exp32")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 31, "Exp31")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 30, "Exp30")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 29, "Exp29")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 28, "Exp28")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 27, "Exp27")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 26, "Exp26")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 25, "Exp25")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 24, "Exp24")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 23, "Exp23")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 22, "Exp22")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 21, "Exp21")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 20, "Exp20")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 19, "Exp19")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 18, "Exp18")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 17, "Exp17")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 16, "Exp16")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 15, "Exp15")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 14, "Exp14")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 13, "Exp13")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 12, "Exp12")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 11, "Exp11")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 10, "Exp10")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 9, "Exp9")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 8, "Exp8")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 7, "Exp7")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 6, "Exp6")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 5, "Exp5")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 4, "Exp4")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 3, "Exp3")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 2, "Exp2")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 1, "Exp1")
+		Goto Exp0
+		Exp63:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_63", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp62:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_62", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp61:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_61", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp60:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_60", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp59:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_59", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp58:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_58", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp57:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_57", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp56:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_56", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp55:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_55", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp54:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_54", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp53:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_53", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp52:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_52", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp51:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_51", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp50:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_50", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp49:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_49", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp48:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_48", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp47:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_47", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp46:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_46", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp45:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_45", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp44:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_44", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp43:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_43", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp42:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_42", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp41:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_41", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp40:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_40", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp39:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_39", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp38:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_38", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp37:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_37", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp36:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_36", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp35:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_35", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp34:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_34", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp33:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_33", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp32:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_32", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp31:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_31", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp30:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_30", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp29:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_29", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp28:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_28", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp27:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_27", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp26:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_26", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp25:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_25", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp24:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_24", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp23:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_23", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp22:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_22", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp21:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_21", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp20:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_20", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp19:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_19", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp18:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_18", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp17:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_17", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp16:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_16", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp15:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_15", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp14:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_14", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp13:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_13", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp12:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_12", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp11:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_11", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp10:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_10", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp9:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_9", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp8:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_8", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp7:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_7", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp6:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_6", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp5:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_5", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp4:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_4", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp3:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_3", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp2:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_2", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp1:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_1", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp0:
+			//"####" "#" 0 ACS_NamedExecuteWithResult("tester shit")
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_0", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		DealExplosionDamage:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Do Explosion Damage", user_expdmg, user_expradius, user_fullexpradius, user_damagetype)
+			"####" "#" 35 A_Jump(256, "ContinueFromExplosion")
+		Wait
+	}
+}
+
+Actor DnD_ExplosiveBase_ForPets {
+	PROJECTILE
+	+HITTRACER
+	+MTHRUSPECIES
+	+DONTBLAST
+	
+	var int user_expdmg;
+	var int user_expradius;
+	var int user_fullexpradius;
+	var int user_damagetype;
+	
+	const int r_f = 8;
+	
+	States {
+		// for pets check master's inventory
+		DoExplosionDamage:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Register Explosion Instance (Pets)")
+		Goto HandoutItem
+		HandoutItem:
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 63, "Exp63")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 62, "Exp62")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 61, "Exp61")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 60, "Exp60")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 59, "Exp59")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 58, "Exp58")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 57, "Exp57")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 56, "Exp56")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 55, "Exp55")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 54, "Exp54")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 53, "Exp53")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 52, "Exp52")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 51, "Exp51")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 50, "Exp50")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 49, "Exp49")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 48, "Exp48")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 47, "Exp47")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 46, "Exp46")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 45, "Exp45")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 44, "Exp44")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 43, "Exp43")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 42, "Exp42")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 41, "Exp41")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 40, "Exp40")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 39, "Exp39")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 38, "Exp38")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 37, "Exp37")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 36, "Exp36")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 35, "Exp35")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 34, "Exp34")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 33, "Exp33")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 32, "Exp32")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 31, "Exp31")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 30, "Exp30")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 29, "Exp29")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 28, "Exp28")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 27, "Exp27")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 26, "Exp26")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 25, "Exp25")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 24, "Exp24")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 23, "Exp23")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 22, "Exp22")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 21, "Exp21")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 20, "Exp20")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 19, "Exp19")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 18, "Exp18")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 17, "Exp17")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 16, "Exp16")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 15, "Exp15")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 14, "Exp14")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 13, "Exp13")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 12, "Exp12")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 11, "Exp11")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 10, "Exp10")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 9, "Exp9")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 8, "Exp8")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 7, "Exp7")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 6, "Exp6")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 5, "Exp5")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 4, "Exp4")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 3, "Exp3")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 2, "Exp2")
+			"####" "#" 0 A_JumpIfInventory("DnD_ProjPnum", 1, "Exp1")
+		Goto Exp0
+		Exp63:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_63", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp62:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_62", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp61:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_61", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp60:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_60", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp59:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_59", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp58:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_58", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp57:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_57", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp56:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_56", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp55:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_55", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp54:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_54", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp53:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_53", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp52:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_52", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp51:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_51", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp50:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_50", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp49:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_49", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp48:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_48", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp47:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_47", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp46:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_46", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp45:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_45", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp44:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_44", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp43:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_43", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp42:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_42", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp41:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_41", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp40:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_40", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp39:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_39", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp38:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_38", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp37:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_37", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp36:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_36", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp35:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_35", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp34:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_34", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp33:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_33", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp32:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_32", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp31:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_31", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp30:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_30", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp29:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_29", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp28:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_28", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp27:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_27", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp26:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_26", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp25:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_25", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp24:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_24", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp23:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_23", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp22:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_22", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp21:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_21", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp20:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_20", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp19:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_19", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp18:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_18", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp17:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_17", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp16:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_16", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp15:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_15", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp14:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_14", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp13:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_13", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp12:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_12", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp11:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_11", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp10:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_10", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp9:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_9", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp8:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_8", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp7:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_7", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp6:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_6", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp5:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_5", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp4:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_4", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp3:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_3", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp2:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_2", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp1:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_1", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		Exp0:
+			"####" "#" 0 A_RadiusGive("DnD_ExplosionRegisterItem_0", user_expradius * r_f, RGF_MONSTERS, 1)
+		Goto DealExplosionDamage
+		DealExplosionDamage:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Do Explosion Damage (Pets)", user_expdmg, user_expradius, user_fullexpradius, user_damagetype)
+			"####" "#" 35 A_Jump(256, "ContinueFromExplosion")
+		Wait
+	}
+}
+
+Actor DnD_ProjPnum : DnD_Info { }
+
+Actor DnD_ExplosionRegisterItem_0 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 0)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_1 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 1)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 2)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_3 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 3)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_4 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 4)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_5 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 5)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_6 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 6)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_7 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 7)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_8 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 8)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_9 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 9)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_10 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 10)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_11 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 11)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_12 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 12)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_13 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 13)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_14 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 14)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_15 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 15)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_16 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 16)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_17 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 17)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_18 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 18)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_19 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 19)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_20 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 20)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_21 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 21)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_22 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 22)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_23 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 23)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_24 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 24)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_25 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 25)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_26 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 26)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_27 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 27)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_28 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 28)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_29 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 29)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_30 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 30)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_31 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 31)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_32 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 32)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_33 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 33)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_34 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 34)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_35 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 35)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_36 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 36)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_37 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 37)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_38 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 38)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_39 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 39)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_40 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 40)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_41 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 41)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_42 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 42)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_43 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 43)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_44 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 44)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_45 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 45)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_46 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 46)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_47 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 47)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_48 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 48)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_49 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 49)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_50 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 50)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_51 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 51)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_52 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 52)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_53 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 53)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_54 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 54)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_55 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 55)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_56 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 56)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_57 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 57)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_58 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 58)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_59 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 59)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_60 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 60)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_61 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 61)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_62 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 62)
+		Stop
+	}
+}
+
+Actor DnD_ExplosionRegisterItem_63 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Register Monster to Instance", 63)
+		Stop
+	}
+}
+
+Actor DnD_TestExploder : DnD_ExplosiveBase {
+	Height 6
+	Radius 3
+	Speed 40
+	Damage 0
+	States {
+		Spawn:
+			SARG A 1
+		Loop
+		Death:
+			TNT1 A 0 A_SetUserVar("user_expdmg", 50)
+			TNT1 A 0 A_SetUserVar("user_expradius", 192)
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			SARG H 4
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			SARG IJK 4
+		Stop
+	}
+}
+
+Actor DnD_TestShitter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_FireCustomMissile("DnD_TestExploder", -2, 0)
+			TNT1 A 0 A_FireCustomMissile("DnD_TestExploder", 2, 0)
+		Stop
+	}
+}

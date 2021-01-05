@@ -1192,7 +1192,7 @@ Actor Yeti : DnD_BaseHybridMonster {
 			YETI C 0 A_CustomMissile("DnD_IceGuyWisp2",70,0)
 			YETI C 4 Fast A_Chase
 			YETI D 3 Fast A_Chase
-		Goto SeeState
+		Loop
 		PainState:
 			YETI H 5 Fast A_Pain
 		Goto SeeState
@@ -1786,7 +1786,7 @@ Actor DarkServantSetGhost : DnD_Activator {
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			TNT1 A 0 A_ChangeFlag("GHOST", 1)
 			TNT1 A 0 ACS_ExecuteAlways(961, 0, 2)
-			TNT1 A 0 ACS_ExecuteAlways(961, 0, 4, DND_PIERCE | DND_GHOST | DND_HOMING | DND_TELEPORT, 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_GHOST, DND_NOPAIN, -1, -1)
 		Stop
 	}
 }
@@ -1794,11 +1794,10 @@ Actor DarkServantSetGhost : DnD_Activator {
 Actor DarkServantUnSetGhost : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_TakeInventory("MonsterTraits", DND_GHOST)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
 			TNT1 A 0 A_ChangeFlag("GHOST", 0)
 			TNT1 A 0 ACS_ExecuteAlways(961, 0, 3)
-			TNT1 A 0 ACS_ExecuteAlways(961, 0, 4, DND_PIERCE | DND_HOMING | DND_TELEPORT, 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_GHOST, DND_NOPAIN, -1, -1)
 		Stop
 	}
 }

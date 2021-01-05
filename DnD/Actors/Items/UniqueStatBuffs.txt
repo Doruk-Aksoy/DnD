@@ -52,6 +52,12 @@ Actor StatbuffCounter_SpellsFullDamage : Ammo {
 	+IGNORESKILL
 }
 
+Actor StatbuffCounter_LuckyCrit : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
 /********************
  EXTRA NEEDED STUFF 
 ********************/

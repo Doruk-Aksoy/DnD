@@ -721,7 +721,17 @@ bool CheckCritChance(int wepid) {
 		ActivatorSound("VeilOfAssassin/Active", 97);
 	}
 	
-	return chance >= random(0, 1.0);
+	// reroll if bad luck and lucky crit is on
+	if(!res && CheckInventory("StatbuffCounter_LuckyCrit")) {
+		res = chance >= random(0, 1.0);
+		
+		// recheck here
+		if(res && CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
+			GiveInventory("VeilMarkTimer", 1);
+			ActivatorSound("VeilOfAssassin/Active", 97);
+		}
+	}
+	return res;
 }
 
 int GetCritModifier() {

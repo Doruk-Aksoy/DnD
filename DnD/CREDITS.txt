@@ -80,3 +80,4 @@ Thanks to:
 - Mark Knight (some sound effects)
 - James Stanfield (Duke4.net, AMC TC) for various sprites.
 - 3D Realms, Bethesda Software, Blizzard, Monolith, ID Software, Relic, THQ, Raven Software for various graphics and sounds.
+- Grinding Gear Games for Path of Exile. (Sounds, Graphics)

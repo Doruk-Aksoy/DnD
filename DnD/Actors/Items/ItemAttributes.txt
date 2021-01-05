@@ -513,3 +513,23 @@ Actor IATTR_OverloadZapDmg : Ammo {
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
+
+Actor IATTR_FlatDotDamage : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_DotDuration : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+// DND_STATBUFF_LUCKYCRITS is a statbuff
+
+Actor IATTR_CritIgnoreRes : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}

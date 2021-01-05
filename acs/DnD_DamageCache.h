@@ -52,7 +52,7 @@ void CachePlayerFlatDamage(int pnum, int dmg, int wepid, int dmgid) {
 	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
 	// not cached
 	if(!cache.norecalculate[wepid][dmgid])
-		cache.final_factor[wepid][dmgid] = dmg;
+		cache.flat_values[wepid][dmgid] = dmg;
 }
 
 void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor) {

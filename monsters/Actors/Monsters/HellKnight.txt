@@ -212,7 +212,7 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 			HWAR AB 10 A_Look
 		Loop
 		SeeState: 
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			HWAR AABBCCDD 3 Fast A_Chase
 		Goto See
 		MissileState:
@@ -221,13 +221,13 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 			HWAR G 8 Fast A_CustomComboAttack("HellWarriorBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
 		Goto See
 			HWAR H 0 A_Jump(128, 6)
-			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", 0, DND_ISBLOCKING)
+			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			HWAR H 6 Fast A_FaceTarget
 			HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
 			HWAR H 6 Fast A_FaceTarget
-			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
+			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 		Goto See
-			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", 0, DND_ISBLOCKING)
+			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			HWAR H 6 Fast A_FaceTarget
 			HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
@@ -235,7 +235,7 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 			HWAR I 4 Fast Bright A_Custommissile("HellWarriorBall2", 25, 0, 0)
 			HWAR H 6 Fast A_FaceTarget
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
-			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
+			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 		Goto See  
 		MeleeState: 
 			HWAR EF 8 Fast A_FaceTarget 
@@ -244,10 +244,10 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 		PainState:
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
 			HWAR J 6 Fast A_Pain 
-			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", 0, DND_ISBLOCKING)
+			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			HWAR HHHHHHH 6 Fast A_FaceTarget 
-			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
+			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			HWAR H 0 A_ChangeFlag("NOBLOOD", 0)
 		Goto See 
 		XDeathState:
@@ -1107,13 +1107,13 @@ actor BlackKnight : DnD_BaseHybridMonster {
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14) // script sets velocity, ensures no dropoff
 			TNT1 A 0 A_ChangeFlag("SKULLFLY", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", 0, DND_ISBLOCKING)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 		ChargeLoop:
 			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14)
 			KNGT ABCD 2 A_FaceTarget
 		Loop
 		PainState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			KNGT E 3 Fast A_Pain
 			KNGT E 3 Fast
 		Goto See

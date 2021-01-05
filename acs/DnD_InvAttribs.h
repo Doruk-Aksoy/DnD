@@ -185,7 +185,11 @@ enum {
 	INV_EX_PICKUPS_MORESOUL,
 	INV_EX_ABILITY_RALLY,
 	INV_EX_BEHAVIOR_SPELLSFULLDAMAGE,
-	INV_EX_ABILITY_MONSTERSRIP
+	INV_EX_ABILITY_MONSTERSRIP,
+	INV_EX_FLATDOT,
+	INV_EX_DOTDURATION,
+	INV_EX_ABILITY_LUCKYCRIT,
+	INV_EX_CRITIGNORERESCHANCE
 	// add new unique attributes here
 };
 
@@ -195,7 +199,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
-#define UNIQUE_ATTRIB_END INV_EX_ABILITY_MONSTERSRIP
+#define UNIQUE_ATTRIB_END INV_EX_CRITIGNORERESCHANCE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 #define MAX_INV_ATTRIBUTE_TYPES (LAST_INV_ATTRIBUTE + 1)
@@ -304,7 +308,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_IgniteDmg", "% increased ignite damage" },
 	{ "IATTR_IgniteDuration", "% increased ignite duration" },
 	
-	{ "IATTR_OverloadChance", "% increased to overload for lightning attacks", },
+	{ "IATTR_OverloadChance", "% increased chance to overload for lightning attacks", },
 	{ "IATTR_OverloadZapCount", " additional overload reflections on overload kills", },
 	{ "IATTR_OverloadZapDmg", "% increased overload reflection damage", },
 	
@@ -332,7 +336,11 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_SoulAmmoIncrease", "% more ammo from soul pickups" },
 	{ "IATTR_CastRally", "Gain ability to cast level " },
 	{ "IATTR_StatusBuffs_1", "Spell damage is irreducible" },
-	{ "IATTR_StatusBuffs_1", "Slain enemies rest in peace" }
+	{ "IATTR_StatusBuffs_1", "Slain enemies rest in peace" },
+	{ "IATTR_FlatDotDamage", " to damage over time" },
+	{ "IATTR_DotDuration", "% increased damage over time duration" },
+	{ "IATTR_StatusBuffs_1", "Critical strike chance is lucky" },
+	{ "IATTR_CritIgnoreRes", "Critical strikes have " }
 };
 
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
@@ -412,7 +420,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 3, 2 },
 	
 	// lifesteal
-	{ 0.05, 0.1, 2 },
+	{ 0.05, 0.125, 1 },
 	
 	{ 5, 10, 1 },
 	{ 5, 10, 1 },
@@ -450,7 +458,7 @@ str ItemAttributeString(int attr, int val) {
 			if(val > 0)
 				return StrParam(s:"+ ", d:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
 			else if(val < 0)
-				StrParam(s:"- ", d:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+				return StrParam(s:"- ", d:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
 	}
 	return "";
 }
@@ -463,16 +471,25 @@ str ExoticAttributeString(int attr, int val1, int val2) {
 	switch(attr) {
 		case INV_EX_FACTOR_SMALLCHARM:
 		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_FACTOR_SMALLCHARM)][INVATTR_TEXT], f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
+		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 		return StrParam(d:val1, s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CHANCE)][INVATTR_TEXT], s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CHANCE_HEALMISSINGONPAIN)][INVATTR_TEXT], d:val2, s:"% missing health");
+		
 		case INV_EX_DAMAGEPER_FLATHEALTH:
 		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_DAMAGEPER_FLATHEALTH)][INVATTR_TEXT], d:val1, s:" maximum health");
+		
 		case INV_EX_ONKILL_HEALMISSING:
 		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_ONKILL_HEALMISSING)][INVATTR_TEXT], d:val1, s:"% missing health");
+		
 		case INV_EX_ABILITY_RALLY:
 		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_ABILITY_RALLY)][INVATTR_TEXT], d:val1, s:" Rally");
+		
 		case INV_EX_DOUBLE_HEALTHCAP:
 		return Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT];
+		
+		case INV_EX_CRITIGNORERESCHANCE:
+		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CRITIGNORERESCHANCE)][INVATTR_TEXT], d:val1, s:"% chance to ignore enemy resistances");
+		
 		default:
 			if(val1)
 				return StrParam(s:"+ ", d:val1, s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT]);

@@ -155,6 +155,18 @@ object BurnDeath1
     frame FGUYS { light BURNRUN3 }
 }
 
+object ViolentRetaliation_Proj {
+	Frame MFBLA { Light MafibusBall1 }
+	Frame MFBLB { Light MafibusBall1 }
+	Frame MFBLC { Light MafibusBall1 }
+	Frame MFBLD { Light MafibusBall2 }
+	Frame MFBLE { Light MafibusBall3 }
+	Frame MFBLF { Light MafibusBall3 }
+	Frame MFBLG { Light MafibusBall4 }
+	Frame MFBLH { Light MafibusBall5 }
+	Frame MFBLI { Light MafibusBall6 }
+}
+
 // Taken from complexdoom
 
 Glow

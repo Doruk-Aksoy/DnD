@@ -216,7 +216,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 
 	 "An accurate and a very reliable weapon. Each bullet does 15-20 damage. Alt fire reloads. Clip size is 50. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.", 
 	 "Finest machine guns UAC has to offer. Bullets do 25 damage in a 1.6 by 0.8 spread. Clip size is 60. Can zoom.",
-	 "Lead Spitter is a super sonic bullet shooter shooting 2 bullets doing 18 damage in a 6.4 by 4.8 spread. Clip size is 75. \cfIgnores shields.",
+	 "Lead Spitter is a super sonic bullet shooter shooting 2 bullets doing 18 damage in a 6.4 by 4.8 spread. Clip size is 75.",
 	 "Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 15 damage, reduce monster damage and resistance by 50%. If the monster is below 10% health, culls the monster.",
 	 "Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40. Can use \cigrenades\c-.",
 	 "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
@@ -1027,6 +1027,31 @@ void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
 				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		default:
+		break;
+	}
+}
+
+void ApplyRandomCurse() {
+	// nasty rushed code here, clean up later with improved curse system
+	int curse_id = random(0, 5);
+	switch(curse_id) {
+		case 0:
+			GiveInventory("DnD_Curse_RedLich", 1);
+		break;
+		case 1:
+			GiveInventory("DnD_Curse_Hierophant", 1);
+		break;
+		case 2:
+			GiveInventory("DnD_Curse_Guru", 1);
+		break;
+		case 3:
+			GiveInventory("LichVisionDim", 1);
+		break;
+		case 4:
+			GiveInventory("LichSlow", 1);
+		break;
+		case 5:
+			GiveInventory("LichPoison", 1);
 		break;
 	}
 }

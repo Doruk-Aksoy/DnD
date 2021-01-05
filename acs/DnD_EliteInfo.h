@@ -65,6 +65,16 @@ enum {
 	DND_STONECREATURE,
 	DND_EARTHCREATURE,
 	
+	DND_BLOODLESS,
+	DND_VIOLENTRETALIATION,
+	DND_THIEF,
+	DND_HEXFUSION,
+	DND_REBIRTH,
+	DND_VENOMANCER,
+	DND_FRIGID,
+	DND_SCORCHED,
+	DND_INSULATED,
+	
 	DND_LEGENDARY
 };
 #define MAX_MONSTER_TRAITS (DND_LEGENDARY + 1)
@@ -139,6 +149,16 @@ str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Stone Creature",
 	"Earth Creature",
 	
+	"Bloodless",
+	"Violent Retaliation",
+	"Thief",
+	"Hexfusion",
+	"Rebirth",
+	"Venomancer",
+	"Frigid",
+	"Scorched",
+	"Insulated",
+	
 	"Legendary"
 };
 
@@ -193,6 +213,8 @@ str GetTraitColorCode(int trait) {
 		case DND_TELEPORT:
 		case DND_RAISE:
 		case DND_CURSE:
+		case DND_HEXFUSION:
+		case DND_THIEF:
 		return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
 		
 		case DND_HEAL:
@@ -204,6 +226,7 @@ str GetTraitColorCode(int trait) {
 		case DND_HARDENED_SKIN:
 		case DND_GHOST:
 		case DND_ISBLOCKING:
+		case DND_BLOODLESS:
 		return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
 		
 		case DND_HOMING:
@@ -212,6 +235,7 @@ str GetTraitColorCode(int trait) {
 		case DND_AGGRESSIVE:
 		case DND_EXTRAFAST:
 		case DND_FASTREACTION:
+		case DND_VIOLENTRETALIATION:
 		return EliteTraitColorCode[DND_TRAITCODE_AGGRESSIVE];
 
 		return EliteTraitColorCode[DND_TRAITCODE_RESIST];
@@ -220,6 +244,10 @@ str GetTraitColorCode(int trait) {
 		case DND_ENERGY_IMMUNE:
 		case DND_MAGIC_IMMUNE:
 		case DND_ELEMENTAL_IMMUNE:
+		case DND_SCORCHED:
+		case DND_VENOMANCER:
+		case DND_FRIGID:
+		case DND_INSULATED:
 		return EliteTraitColorCode[DND_TRAITCODE_IMMUNITY];
 		
 		case DND_EXTRASTRONG:

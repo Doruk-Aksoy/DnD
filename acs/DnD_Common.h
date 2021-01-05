@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 
 #define DND_AFTER50_INCREMENT_DAMAGE 0.33
 
@@ -85,12 +85,15 @@ enum {
 * 30000 = Temporary tid for damage numbers
 * 32768 = Special FX TID
 * 32769 = Thunder Staff temporary damager tid
+* 32770 = Ice chunk TID
 * 40000 - 42048 = Thunder Staff Ring tid
 * 42049 - Talisman Mark tid
 * 50000 = Destructible object tid start
 * 55000 - 65999 = pet tids
 * Anything above 66000 => any monster tid
 */
+
+#define DND_ICECHUNK_TID 32770
 
 enum {
 	DND_MAPINFO_MAPCHANGED,

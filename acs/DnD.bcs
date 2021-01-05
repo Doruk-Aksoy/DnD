@@ -561,6 +561,18 @@ Script "DND On Kill" KILL {
 	// remove freeze and chill timers
 	SetInventory("DnD_ChillStacks", 0);
 	SetInventory("DnD_FreezeTimer", 0);
+	
+	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].trait_list[DND_REBIRTH]) {
+		GiveInventory("DnD_RebirthItem", 1);
+		MonsterProperties[this - DND_MONSTERTID_BEGIN].trait_list[DND_REBIRTH] = false;
+	}
+	
+	if(CheckInventory("DnD_OverloadTimer")) {
+		GiveInventory("DnD_OverloadZapGiver", 1);
+		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
+	}
+	
+	SetInventory("DnD_OverloadTimer", 0);
 		
 	int expshare = GetCVar("dnd_sharexp");
 	int creditshare = GetCVar("dnd_sharecredit");
@@ -1789,13 +1801,25 @@ Script "DnD Golgoth Health Check" (void) {
 	GiveInventory("MakeNoPain", 1);
 }
 
-Script "DnD Monster Trait Take" (int traitside, int flag) {
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag] = false;
+Script "DnD Monster Trait Take" (int flag1, int flag2, int flag3, int flag4) {
+	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag1] = false;
+	if(flag2 != -1)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag2] = false;
+	if(flag3 != -1)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag3] = false;
+	if(flag4 != -1)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag4] = false;
 	SetResultValue(0);
 }
 
-Script "DnD Monster Trait Give" (int traitside, int flag) {
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag] = true;
+Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
+	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag1] = true;
+	if(flag2 != -1)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag2] = true;
+	if(flag3 != -1)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag3] = true;
+	if(flag4 != -1)
+		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag4] = true;
 	SetResultValue(0);
 }
 
@@ -1973,6 +1997,21 @@ Script "DnD Monster Scanner Picker" ENTER {
 		Delay(const:1);
 		
 	}
+}
+
+Script "DnD Monster Kill Ice Chunks" (int r, int h) CLIENTSIDE {
+	int numChunks = Max(5, (r * h) / 32);
+	for(int i = Max(24, numChunks + Random(0, numChunks / 4 - 1)); i >= 0; --i) {
+		int xo = GetActorX(0) + r * random(-1.0, 1.0);
+		int yo = GetActorY(0) + r * random(-1.0, 1.0);
+		int zo = GetActorZ(0) + h * random(0, 1.0);
+
+		SpawnForced("IceChunkCS", xo, yo, zo, DND_ICECHUNK_TID);
+		SetActorVelocity(DND_ICECHUNK_TID, random(-1.0, 1.0), random(-1.0, 1.0), ((zo - GetActorZ(0)) / h) * 4, 0, 0);
+		Thing_ChangeTID(DND_ICECHUNK_TID, 0);
+	}
+
+	SetResultValue(0);
 }
 
 Script "DnD Reset Monster Trait CS" (int id) CLIENTSIDE {
@@ -2388,7 +2427,7 @@ Script "DnD Player Setup" ENTER {
 	
 	ClearQuestCheckers();
 	
-	if(HardcoreSet) {
+	if(HardcoreSet && GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
 		Delay(17 * (DND_MAX_MONSTERDELAY + 1));
@@ -2677,6 +2716,21 @@ Script "DnD Player On Hit" (int power) {
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, ((temp & 0xFFFF) * GetMissingHealth()) / 100);
 		}
 	}
+	
+	// monster might be thief, check it
+	temp = GetActorProperty(0, APROP_TARGETTID);
+	if(MonsterProperties[temp - DND_MONSTERTID_BEGIN].trait_list[DND_THIEF]) {
+		// get current weapon's ammo and steal it
+		str cur_ammo = "";
+		do {
+			cur_ammo = GetWeaponAmmoType(GetCurrentWeaponID(), random(0, 1));
+		} while(cur_ammo == " ");
+		TakeInventory(cur_ammo, CheckInventory(cur_ammo) * DND_ELITE_THIEFRATE / 100);
+	}
+
+	// marine is unaffected by curses at lvl 50
+	if(MonsterProperties[temp - DND_MONSTERTID_BEGIN].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE && !CheckInventory("Marine_Perk50"))
+		ApplyRandomCurse();
 }
 
 // Backpack / Research script
@@ -3268,7 +3322,7 @@ Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
     plY = GetActorY(0);
 	grY  = GetActorY(ptid);
     
-	plZ = GetActorZ(0) + (GetActorProperty(0, APROP_HEIGHT) >> 1); 
+	plZ = GetActorZ(0) + (GetActorProperty(0, APROP_HEIGHT) >> 1) + DnD_TrailDef[actortype].offset_z; 
 	grZ  = GetActorZ(ptid) + (GetActorProperty(ptid, APROP_HEIGHT) >> 1);
 	
     vX   = grX - plX;       vY   = grY - plY;       vZ   = grZ - plZ;
@@ -3335,7 +3389,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
 	// pick tracer_count closest enemies
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
-		if(IsActorAlive(i)) {
+		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(owner, i);
 			//printbold(s:"Checking ", s:GetActorClass(i));
 			if(dist < scan_dist && MaxAngleDiff(owner, i, scan_fov) && CheckSight(owner, i, 0)) {
@@ -3382,8 +3436,12 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 		for(i = 0, j = 0; i < DND_MAXSCANTRACER; ++i) {
 			if(tlist[pnum][i].tid) {
 				// distance reduces damage for scans, closer = better -- gives percentage
+				// curr formula: factor = 100 * ((max_scan_dist - curr_dist) / max_scan_dist)^2 -- returns a percentage
 				if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE) {
-					tlist[pnum][i].dist = (100 * FixedDiv((scan_dist - tlist[pnum][i].dist), scan_dist)) >> 16;
+					tlist[pnum][i].dist = FixedDiv((scan_dist - tlist[pnum][i].dist), scan_dist);
+					tlist[pnum][i].dist = FixedMul(tlist[pnum][i].dist, tlist[pnum][i].dist);
+					tlist[pnum][i].dist *= 100;
+					tlist[pnum][i].dist >>= 16;
 					if(!tlist[pnum][i].dist)
 						tlist[pnum][i].dist = 1;
 					temp = (dmg * tlist[pnum][i].dist) / 100;
@@ -3422,7 +3480,7 @@ Script "DND Thunderstaff Bolts" (void) {
 	int tidlim = 0;
 	// pick N closest targets as a list of targets to hit
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
-		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i)) {
+		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(0, i);
 			// insert sorted
 			if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
@@ -3523,7 +3581,7 @@ Script "DND Thunderstaff Lightning" (void) {
 	int tidlim = 0;
 	
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i)) {
+		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
 			SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
 			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, 0, 0, 0, 0, DND_ACTORFLAG_NOPUSH);

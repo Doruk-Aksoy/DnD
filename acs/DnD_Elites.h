@@ -18,10 +18,14 @@
 #define DND_ELITE_MIN_INCREMENT 25 // per level add 0.25
 #define DND_ELITE_RESOLUTION_SCALE 100
 
+#define DND_ELITE_THIEFRATE 15
+#define DND_VIOLENTRETALIATION_CHANCE 50
+#define DND_HEXFUSION_CHANCE 33
+
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 21
+#define MAX_ROLLABLE_TRAITS 30
 
 #include "DnD_EliteInfo.h"
 
@@ -50,15 +54,25 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 	DND_NOPAIN,
 	DND_EXTRASTRONG,
 	DND_VITAL,
-	DND_ARMORPEN
+	DND_ARMORPEN,
+	
+	DND_BLOODLESS,
+	DND_VIOLENTRETALIATION,
+	DND_THIEF,
+	DND_HEXFUSION,
+	DND_REBIRTH,
+	DND_VENOMANCER,
+	DND_FRIGID,
+	DND_SCORCHED,
+	DND_INSULATED
 };
 
 int GetEliteBonusDamage() {
 	return DND_ELITE_DMGSCALE * MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level;
 }
 
-bool HasTrait(int tid, int trait_index) {
-	return MonsterProperties[tid].trait_list[trait_index];
+bool HasTrait(int id, int trait_index) {
+	return MonsterProperties[id].trait_list[trait_index];
 }
 
 int GetRandomEliteTrait() {
@@ -141,9 +155,6 @@ void SetEliteFlag(int f) {
 			MonsterProperties[this].trait_list[DND_PIERCE] = false;
 			GiveInventory("MakePierce", 1);
 		break;
-		case DND_REVIVED:
-			GiveInventory("Mo_Revived", 1);
-		break;
 	}
 	MonsterProperties[this].trait_list[f] = true;
 }
@@ -174,7 +185,7 @@ bool HasTraitExceptions(int t) {
 bool HasMaxImmunes() {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	return 	HasTrait(i, DND_EXPLOSIVE_NONE) + HasTrait(i, DND_BULLET_IMMUNE) + HasTrait(i, DND_ENERGY_IMMUNE) + 
-			HasTrait(i, DND_MAGIC_IMMUNE) 	+ HasTrait(i, DND_MAGIC_IMMUNE) >= DND_MAX_ELITEIMMUNITIES;
+			HasTrait(i, DND_MAGIC_IMMUNE) 	+ HasTrait(i, DND_ELEMENTAL_IMMUNE) >= DND_MAX_ELITEIMMUNITIES;
 }
 
 bool IsImmunityFlag(int flag) {
