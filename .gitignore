@@ -46,6 +46,7 @@
 *.pk7
 *.lmp
 *.zip
+*.rar
 
 # Kernel Module Compile Results
 *.mod*
