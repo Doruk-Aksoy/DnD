@@ -567,7 +567,7 @@ Script "DND On Kill" KILL {
 		MonsterProperties[this - DND_MONSTERTID_BEGIN].trait_list[DND_REBIRTH] = false;
 	}
 	
-	if(CheckInventory("DnD_OverloadTimer")) {
+	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime")) {
 		GiveInventory("DnD_OverloadZapGiver", 1);
 		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
 	}
@@ -3521,12 +3521,17 @@ Script "DND Thunderstaff Bolts" (void) {
 			if(tlist[pnum][i].tid)
 				ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_THUNDERZAP, 16, tlist[pnum][i].tid);
 		}
+		
+		int px = GetActorX(0);
+		int py = GetActorY(0);
+		int pz = GetActorZ(0);
+		
 		// damage credit
 		SetActivatorToTarget(0);
 		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
-				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, 0, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
+				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, 0, px, py, pz, actor_flags);
 		}
 	}
 }

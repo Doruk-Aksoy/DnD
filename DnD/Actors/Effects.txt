@@ -2491,9 +2491,9 @@ Actor OverloadZap {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
 			TNT1 A 1
-			FLAR GGGG 1 Bright A_FadeIn(0.25)
+			FLAR GG 1 Bright A_FadeIn(0.5)
 			FLAR G 1 Bright
-			FLAR GGGGG 1 Bright A_FadeOut(0.2)
+			FLAR GGG 1 Bright A_FadeOut(0.33)
 		Stop
 	}
 }

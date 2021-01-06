@@ -517,20 +517,16 @@ Actor LGAmmoTaker : DnD_Activator {
 }
 
 Actor LGPuffSEX : DnD_BaseRailPuff {
-	Scale 0.35
-	Renderstyle Add
 	Height 4
 	Radius 2
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), TALENT_ELEMENTAL, DND_LIGHTNINGDAMAGE | DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 		Goto DoDamage
 		AfterDamage:
-			TNT1 A 0 A_Jump(256, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)
-			DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 1 BRIGHT A_Jump(256, "Play")
-		Play:
-			"----" "##" 2 Bright
+			TNT1 A 1 A_SpawnItemEx("LGPuffEffect", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 		Crash:
 		HitNoBlood:
@@ -609,6 +605,21 @@ Actor LGAltPuff : LGPuffSEX {
 
 Actor LGAltPuff_NoPain : LGAltPuff {
 	+PAINLESS
+}
+
+Actor LGPuffEffect {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Scale 0.35
+	Renderstyle Add
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)
+			DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 1 BRIGHT A_Jump(256, "Play")
+		Play:
+			"----" "##" 2 Bright
+		Stop
+	}
 }
 
 Actor ResPlasma3 : Weapon {	

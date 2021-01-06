@@ -4,7 +4,7 @@
 #include "DnD_EliteInfo.h"
 
 #define DND_CUSTOMMONSTER_ID 65536
-#define DND_MONSTERMASS_SCALE 5 // 5% per level
+#define DND_MONSTERMASS_SCALE 10 // 10% per level
 
 typedef struct {
 	int basehp;

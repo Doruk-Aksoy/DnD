@@ -315,6 +315,10 @@ int CreateItemSpot() {
 	//Remember, the floor gets cleared on a new map, so most likely the older items are useless for the players anyways, except on 4k mob slaugher maps.
 	if ((++last_created_inventory) >= MAX_INVENTORIES_ON_FIELD)
 		last_created_inventory = 0;
+		
+	// clear properties of this item before creating it -- fixes garbage data leftovers
+	RemoveItemFromWorld(last_created_inventory);
+		
 	return last_created_inventory;
 }
 

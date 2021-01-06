@@ -1657,6 +1657,7 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
     Scale 1.1
     PainChance 64
 	Speed 8
+	Mass 640
     HitObituary "%o was mauled by a moon satyr."
 	Obituary "%o didn't notice the sky crashing on him, thanks to a moon satyr."
 	Translation "0:255=%[0.00,0.00,0.00]:[1.12,1.20,1.57]", "3:8=3:8", "16:47=16:47", "80:111=80:111", "168:191=168:191"

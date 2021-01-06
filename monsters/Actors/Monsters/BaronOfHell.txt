@@ -1409,6 +1409,7 @@ Actor Barbatos : DnD_BaseHybridMonster {
 	Height 64
 	Radius 24
 	PainChance 32
+	Mass 1024
 	+ISMONSTER
 	Scale 0.75
 	Translation "0:255=%[0.00,0.00,0.00]:[0.76,0.67,0.50]", "0:47=0:47", "80:111=80:111", "160:191=160:191", "208:235=208:235"
@@ -1509,7 +1510,7 @@ Actor ShadowWizard : DnD_BaseHybridMonster {
 	ActiveSound "H2ShadowWizard/Sight"
 	MeleeSound "H2ShadowWizard/Melee"
 	Tag "Shadow Wizard"
-	Mass 120
+	Mass 256
 	Speed 6
 	MeleeRange 96
 	+ISMONSTER

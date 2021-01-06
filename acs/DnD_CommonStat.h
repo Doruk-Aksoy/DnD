@@ -398,7 +398,7 @@ str GetPlayerAttributeString(int attrib) {
 int GetPlayerAttributeValue(int pnum, int attrib) {
 	if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return CheckActorInventory(pnum + P_TIDSTART, GetPlayerAttributeString(attrib));
+	return CheckActorInventory(pnum + P_TIDSTART, Inv_Attribute_Names[attrib][INVATTR_CHECKER]);
 }
 
 void HandleResearchBonuses() {

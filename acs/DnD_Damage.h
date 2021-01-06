@@ -1,6 +1,8 @@
 #ifndef DND_DAMAGE_IN
 #define DND_DAMAGE_IN
 
+#define DND_DMGPUSH_CAP 96.0
+
 enum {
 	DND_DAMAGETYPE_MELEE,
 	DND_DAMAGETYPE_MELEEOCCULT,
@@ -162,7 +164,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_OVERLOADCHANCE 5
 #define DND_BASE_OVERLOADBUFF 30 // 30%
 #define DND_BASE_OVERLOADTICK 5
-#define DND_BASE_OVERLOADTIME (87 / DND_BASE_OVERLOADTICK) // 2.5 seconds -- 87 / 5
+#define DND_BASE_OVERLOADTIME (105 / DND_BASE_OVERLOADTICK) // 3 seconds -- 105 / 5
 #define DND_MAX_OVERLOADTARGETS 128 // up to 128 allowed
 #define DND_BASE_OVERLOADZAPDELAY 3 // 3 tics
 
@@ -448,7 +450,7 @@ int HandleWeaponCrit(int dmg, int wepid, int pnum, int dmgid, bool isSpecial) {
 void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim) {
 	// get push vector
 	int dx, dy, dz;
-	int m = GetActorProperty(victim, APROP_MASS) / 4;
+	int m = GetActorProperty(victim, APROP_MASS) / 2;
 	if(!m)
 		m = 1;
 	
@@ -469,6 +471,9 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim) {
 	dz *= dmg;		dz /= m;
 	
 	//printbold(s:"impulse: ", d:dmg, s:", force vector: ", f:dx, s:" ", f:dy, s: " ", f:dz);
+	dx = Clamp_Between(dx, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
+	dy = Clamp_Between(dy, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
+	dz = Clamp_Between(dz, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
 	
 	SetActorVelocity(victim, dx, dy, dz, true, false);
 }
@@ -1280,6 +1285,7 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 			}
 			else
 				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+			GiveActorInventory(zap_tids[pnum][i], "DnD_OverloadLockTime", 1);
 		}
 		SetActivator(this);
 		

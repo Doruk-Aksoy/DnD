@@ -4168,3 +4168,260 @@ void ResetShopStock(int pnum) {
 			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
 	}
 }
+
+void DrawPlayerStats(int pnum) {
+	int temp;
+	int val;
+	
+	SetHudClipRect(192, 56, 256, 224, 256, 1);
+	
+	int k = 0;
+	temp = 64.0 + 6.0 * ScrollPos;
+	
+	// yea this is some terrible piece of code but idc, should be cleaned up with an array to lookup attribs and a switch-case for exceptions
+	val = GetSpawnHealth() - DND_BASE_HEALTH;
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- health capacity"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetArmorCap(true) - DND_BASE_ARMOR_SHOW;
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- armor capacity"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = DND_STR_GAIN * GetStrength();
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- bonus melee damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetBulkiness();
+	if(val > 100)
+		HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * DND_BULKINESS_GAIN * 100 + (val - 100) * DND_BULKINESS_GAIN_AFTER100), s:"%\c- armor efficiency"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	val = DND_DEX_GAIN * GetDexterity();
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- physical damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = DND_INT_GAIN * GetIntellect();
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- magic damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = CheckInventory("PSTAT_Charisma");
+	if(val)
+		HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * val), s:"%\c- discount"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	// crit things
+	
+	val = GetBonusPlayerSpeed(pnum);
+	if(val > 0)
+		HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * val), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	else if(val < 0)
+		HudMessage(s:"- \c[Q2]", f:ftrunc(100 * val), s:"%\c- movement speed"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetDropChance(pnum, 0);
+	if(val > 1.0)
+		HudMessage(s:"+ \c[Q9]", f:ftrunc(100 * (val - 1.0)), s:"%\c- drop chance"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = CalculateWisdomBonus(pnum);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- exp bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = CalculateGreedBonus(pnum);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- credit bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_MAGAZINE_INCREASE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- magazine cap"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- more pellets"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- explosion radius"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- self explosive resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetAmmoCapIncrease() - 100;
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased ammo caps"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- chance to gain ammo on firing"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- more ammo from pickups"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = (GetAmmoCapIncrease() - 100) * (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE));
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val / 100, s:"%\c- increased shop stock"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- to your regen cap"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- knockback resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- accuracy rating"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", f:ftrunc(val), s:"%\c- lifesteal"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% elemental resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% physical resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", f:ftrunc(val * 0.1), s:"\c-% reflection resist"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	val = GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% physical penetration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	val = GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% energy penetration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% explosive penetration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% occult penetration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% elemental penetration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	int i, j;
+	bool k_1 = false, k_2 = false;
+	for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i) {
+		val = GetDamageTypeBonus(pnum, i);
+		if(val) {
+			k_1 = true;
+			HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", s:TalentNames[i][TALENT_NAME], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * k + 32.0 * i, 0.0, 0.0);
+		}
+		val = MapTalentToFlatBonus(pnum, i, 0);
+		if(val) {
+			k_2 = true;
+			HudMessage(s:"+ \c[Q9]", d:val, s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 2 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * (k + 1) + 32.0 * i, 0.0, 0.0);
+		}
+	}
+	
+	// fire things
+	val = GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- fire damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	val = GetPlayerAttributeValue(pnum, INV_IGNITECHANCE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased chance to ignite enemies"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	val = GetPlayerAttributeValue(pnum, INV_IGNITEDMG);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- to ignite damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	val = GetPlayerAttributeValue(pnum, INV_IGNITEDURATION);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased ignite duration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	// ice things
+	val = GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- ice damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_FREEZECHANCE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased chance to freeze"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_SLOWEFFECT);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased chill effect"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- reduced chill threshold on enemies"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	// lightning things
+	val = GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- lightning damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_OVERLOADCHANCE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased overload chance on enemies"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_ZAPCOUNT);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- to overload reflections"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased overload reflection damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	// poison things
+	val = GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"\c- poison damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+
+	val = GetPlayerAttributeValue(pnum, INV_POISON_TICRATE);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased poison ticrate"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+		
+	val = GetPlayerAttributeValue(pnum, INV_POISON_DURATION);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased poison duration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+		
+	val = GetPlayerAttributeValue(pnum, INV_POISON_TICDMG);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased poison damage per tic"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased damage to blocking enemies"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	// new line checks
+	k += k_1 + k_2;
+	j = 2 * (DND_TALENT_END - 1);
+	k_1 = false;
+	
+	for(i = 0; i < MAX_WEAPON_SLOTS; ++i) {
+		val = GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + i);
+		if(val) {
+			k_1 = true;
+			HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- damage bonus to slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - k - 1 - j - i, CR_WHITE, 192.1, temp + 16.0 * k + 16.0 * (j + i), 0.0, 0.0);
+		}
+	}
+	
+	k += k_1;
+	j += MAX_WEAPON_SLOTS;
+	
+	if(GetCVar("survival")) {
+		HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 60, CR_WHITE, 190.1, temp + 16.0 * (k++) + 16.0 * j, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++) + 16.0 * j, 0.0, 0.0);
+	}
+	else
+		HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++) + 16.0 * j, 0.0, 0.0);
+	SetHudClipRect(0, 0, 0, 0, 0, 0);
+	
+	if(k > 12)
+		ListenScroll(-k * 4, 0);
+}

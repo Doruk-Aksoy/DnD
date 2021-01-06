@@ -831,6 +831,7 @@ Actor ChaingunGeneral : DnD_BaseRangedMonster {
 	Scale 1.1
 	Radius 24
 	Height 64
+	Mass 512
 	Obituary "%o was pinned to the wall by the chaingun general."
     SeeSound "BChaingunner/See"
     PainSound "BChaingunner/Pain"
@@ -910,6 +911,7 @@ Actor Legionnaire : DnD_BaseHybridMonster {
 	Speed 14
 	Height 64
 	Radius 32
+	Mass 512
 	Obituary "%o didn't expect to fight against well trained Legionnaires."
     SeeSound "Legionnaire/See"
     PainSound "Legionnaire/Pain"

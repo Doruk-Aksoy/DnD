@@ -4,7 +4,7 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 	Radius 40
 	Height 110
 	PainChance 50
-	Mass 700
+	Mass 1024
 	Meleedamage 10 
 	SeeSound "cardinal/see"
 	PainSound "cardinal/pain"
@@ -328,7 +328,7 @@ ACTOR TerminatorX : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
 	Radius 40
 	Height 110
-	Mass 1500 
+	Mass 2048 
 	Speed 12 
 	PainChance 8
 	scale 1.4
@@ -1086,7 +1086,7 @@ actor Azazel : DnD_BaseHybridBoss {
 	Scale 1.3
     Speed 12
     PainChance 20
-    Mass 1500
+    Mass 2048
 	+ISMONSTER
     +MISSILEEVENMORE
 	+DONTHURTSPECIES
