@@ -1547,6 +1547,8 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
     Mass 2048
     PainChance 128
     REACTIONTIME 8 
+	Radius 30
+	Height 56
     SeeSound "demon/sight"
     PainSound "demon/pain2"
     DeathSound "demon/death"

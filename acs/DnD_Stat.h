@@ -691,8 +691,23 @@ void BreakAllTrades() {
 	}
 }
 
-int CheckDeadlinessCrit() {
-	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS;
+int GetBaseCritChance(int pnum) {
+	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + (GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE) << 16) / 100;
+}
+
+int GetCritChance(int pnum, int wepid) {
+	int chance = GetBaseCritChance(pnum);
+	int temp = 0;
+	// add current weapon crit bonuses
+	if(wepid != -1) {
+		chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
+		chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
+		temp = Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
+	}
+	// add percent bonus
+	if(chance)
+		chance = FixedMul(chance, 1.0 + temp + (GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) << 16) / 100);
+	return chance;
 }
 
 bool CheckCritChance(int wepid) {
@@ -701,18 +716,7 @@ bool CheckCritChance(int wepid) {
 	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
 		return false;
 	bool res = false;
-	int chance = CheckDeadlinessCrit();
-	int temp = 0;
-	// add current weapon crit bonuses
-	if(wepid != -1) {
-		chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
-		chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
-		temp = Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
-	}
-	chance += (GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE) << 16) / 100;
-	// add percent bonus
-	if(chance)
-		chance = FixedMul(chance, 1.0 + temp + (GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) << 16) / 100);
+	int chance = GetCritChance(pnum, wepid);
 	
 	res = chance >= random(0, 1.0);
 	
@@ -734,14 +738,16 @@ bool CheckCritChance(int wepid) {
 	return res;
 }
 
+int GetBaseCritModifier(int pnum) {
+	return DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
+}
+
 int GetCritModifier() {
-	int base = DND_BASE_CRITMODIFIER; // 200, which is x2 more damage
-	int bonus = DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery"), pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
+	int pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
+	int base = GetBaseCritModifier(pnum); // 200, which is x2 more damage
 	// weapon bonus
-	bonus += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt >> 16;
-	bonus += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
-	bonus += GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
-	base += bonus;
+	base += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt >> 16;
+	base += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
 	if(CheckInventory("HunterTalismanCheck"))
 		base >>= 1;
 	if(CheckInventory("VeilMarkTimer")) {

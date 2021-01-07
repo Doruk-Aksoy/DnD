@@ -147,6 +147,7 @@ Script 700 ENTER CLIENTSIDE {
 				GiveInventory("H_SecondaryRed", 1);		
 			}
 		}
+		DrawExpBar();
 		Delay(const:1);
 	}
 }

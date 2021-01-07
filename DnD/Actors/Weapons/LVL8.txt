@@ -768,12 +768,13 @@ ACTOR Razortrail
 Actor RazorSkullExp : BaseExplosionDamage {
 	Speed 0
 	+THRUACTORS
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 			TNT1 A 0 A_SetUserVar("user_expradius", 40 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_SOUL | (DND_DAMAGEFLAG_FORCERADIUSDMG << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1
@@ -793,7 +794,6 @@ ACTOR RazorSkull : DnD_BaseProjectile {
 	+RIPPER
 	+DOOMBOUNCE
 	+FORCEXYBILLBOARD
-	+FORCERADIUSDMG
 	DeathSound "monster/dishht1"
 	States {
 		SpawnState:

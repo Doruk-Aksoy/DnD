@@ -767,7 +767,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		// poison damage deals 10% of its damage per stack over 3 seconds
 		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
 			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
-			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, dmg / 10);
+			// 2% of damage
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, dmg / 50);
 			//printbold(s:"poison received by ", d:victim);
 		}
 	}
@@ -1075,14 +1076,12 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 Script "DnD Do Poison Damage" (int victim, int dmg) {
 	int time_limit = DND_BASE_POISON_TIMER * (100 + CheckInventory("IATTR_PoisonDuration") + CheckInventory("IATTR_DotDuration")) / 100;
 	int counter = 0, tics = DND_BASE_POISON_TIC;
-	int freq = FixedDiv(time_limit, tics) >> 16;
 
 	// scale received percentage of damage with flat bonuses
-	dmg += CheckInventory("IATTR_FlatPoisonDmg") + CheckInventory("IATTR_FlatDotDamage");
-	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
-	dmg /= freq;
 	if(!dmg)
 		dmg = 1;
+	dmg += CheckInventory("IATTR_FlatPoisonDmg") + CheckInventory("IATTR_FlatDotDamage");
+	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= tics) {

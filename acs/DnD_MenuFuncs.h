@@ -4160,9 +4160,9 @@ void ResetShopStock(int pnum) {
 		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX)
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 50000;
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] / 100) * ammo_bonus / 500;
 			else
-				ShopStockRemaining[pnum][j] = (SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] * ammo_bonus) / 50000;
+				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX]) / 100) * ammo_bonus / 500;
 		}
 		else
 			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
@@ -4208,6 +4208,13 @@ void DrawPlayerStats(int pnum) {
 		HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * val), s:"%\c- discount"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
 	// crit things
+	val = GetBaseCritChance(pnum);
+	if(val)
+		HudMessage(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- global critical strike chance"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+	
+	val = GetBaseCritModifier(pnum);
+	if(val != DND_BASE_CRITMODIFIER)
+		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- global critical strike multiplier"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
 	val = GetBonusPlayerSpeed(pnum);
 	if(val > 0)

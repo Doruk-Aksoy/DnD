@@ -1314,6 +1314,28 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_THANATOS].trait_list[DND_EXPLOSIVE_NONE] = true;
 	MonsterData[MONSTER_CERBERUS].trait_list[DND_MAGIC_IMMUNE] = true;
 	MonsterData[MONSTER_CERBERUS].trait_list[DND_RAGE] = true;
+	
+	// legendary monsters
+	MonsterData[MONSTER_DREAMINGGOD].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_DREAMINGGOD].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_DREAMINGGOD].trait_list[DND_LEGENDARY] = true;
+	
+	MonsterData[MONSTER_TORRASQUE].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_TORRASQUE].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_TORRASQUE].trait_list[DND_ENERGY_RESIST] = true;
+	MonsterData[MONSTER_TORRASQUE].trait_list[DND_LEGENDARY] = true;
+	
+	MonsterData[MONSTER_MORDECQAI].trait_list[DND_EXPLOSIVE_NONE] = true;
+	MonsterData[MONSTER_MORDECQAI].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_MORDECQAI].trait_list[DND_LEGENDARY] = true;
+	
+	MonsterData[MONSTER_GODSLAYER].trait_list[DND_BULLET_IMMUNE] = true;
+	MonsterData[MONSTER_GODSLAYER].trait_list[DND_ENERGY_RESIST] = true;
+	MonsterData[MONSTER_GODSLAYER].trait_list[DND_LEGENDARY] = true;
+	
+	MonsterData[MONSTER_GOLGOTH].trait_list[DND_EXPLOSIVE_NONE] = true;
+	MonsterData[MONSTER_GOLGOTH].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_GOLGOTH].trait_list[DND_LEGENDARY] = true;
 }
 
 Script "DnD Setup Monster Data" OPEN {

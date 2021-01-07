@@ -389,11 +389,12 @@ int CheckLevelUp (void) {
 			GiveInventory("PerkPoint", 1);
 			GiveInventory("PerkedUp", 1);
 		}
-		if(!((GetStat(STAT_LVL) + 1) % DND_TALENTPOINT_MARK)) {
+		// talents are removed from game
+		/*if(!((GetStat(STAT_LVL) + 1) % DND_TALENTPOINT_MARK)) {
 			// disabled for now
 			//GiveInventory("TalentPoint", 1);
 			//GiveInventory("TalentedUp", 1);
-		}
+		}*/
 		GiveInventory("Level", 1);
 		SetAmmoCapacity("ExpVisual", LevelCurve[GetStat(STAT_LVL) - 1]);
 		SetInventory("Exp", exptemp);
@@ -1054,6 +1055,10 @@ void ApplyRandomCurse() {
 			GiveInventory("LichPoison", 1);
 		break;
 	}
+}
+
+void DrawExpBar() {
+	
 }
 
 #include "DnD_Damage.h"
