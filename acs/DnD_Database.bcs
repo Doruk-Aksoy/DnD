@@ -873,6 +873,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	if(!temp)
 		temp = 1;
 	SetInventory("Level", temp);
+	SetInventory("LevelExpCap", GetExpLimit_Level(temp));
 	
 	// read exp
 	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);

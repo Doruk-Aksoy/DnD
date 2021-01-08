@@ -215,24 +215,15 @@ void SlowPlayer(int amt, int mode, int pnum) {
 }
 
 int GetDexterity() {
-	int res = CheckInventory("PSTAT_Dexterity") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_DEXTERITY);
-	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
-		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
-	return res;
+	return CheckInventory("PSTAT_Dexterity") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_DEXTERITY);
 }
 
 int GetIntellect() {
-	int res = CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_INTELLECT);
-	if(CheckInventory("DnD_QuestReward_TalentIncrease"))
-		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
-	return res;
+	return CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_INTELLECT);
 }
 
 int GetActorIntellect(int tid) {
-	int res = CheckActorInventory(tid, "PSTAT_Intellect") + GetPlayerAttributeValue(tid - P_TIDSTART, INV_STAT_INTELLECT);
-	if(CheckActorInventory(tid, "DnD_QuestReward_TalentIncrease"))
-		res = res * (100 + DND_QUEST_TALENTBONUS) / 100;
-	return res;
+	return CheckActorInventory(tid, "PSTAT_Intellect") + GetPlayerAttributeValue(tid - P_TIDSTART, INV_STAT_INTELLECT);
 }
 
 int GetStrength() {

@@ -24,11 +24,6 @@
 #define DND_DROP_TID 343 // some dumb number
 #define DND_EMERALD_TIDADD 100
 
-#define ASPECT_4_3 (4.0 / 3)
-#define ASPECT_5_4 1.25
-#define ASPECT_16_9 (16.0 / 9)
-#define ASPECT_16_10 1.6
-
 #define DND_VIEWCHECK_DENSITY 8
 
 enum {
@@ -61,6 +56,9 @@ enum {
 
 #define DND_CYBORG_CYBER_MULT 3
 #define DND_CYBORG_CYBER_DIV 10
+
+#define DND_EXP_HUDID_FILL 266
+#define DND_EXP_HUDID_BACK 267
 
 /*
 ////////////////
@@ -132,8 +130,6 @@ int IsButtonHeld (int input, int mask) {
 	return input & mask;
 }
 
-#define MAX_SCREENRES_OFFSETS 4
-int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1 };
 int active_quest_id = -1;
 
 #define DND_TID_MONSTER 0
@@ -454,40 +450,6 @@ int VectorPitch (Int t1, Int t2, int dx, int dy, int adj) {
 	If(adj != 0)
 		adj = adj << 16;
 	Return(VectorAngle(AproxDistance(dx, dy), GetActorZ(t1) - (GetActorZ(t2) - adj)));
-}
-
-int GetAspectRatio(void) {
-	int width = getcvar("vid_defwidth");
-	int height = getcvar("vid_defheight");
-	int nowidescreen = getcvar("vid_nowidescreen");
-	int tft = getcvar("vid_tft");
-	int aspect = getcvar("vid_aspect");
-	switch(aspect) {
-		case 1:	return ASPECT_16_9;
-		case 2:	return ASPECT_16_10;
-		case 3:	return ASPECT_4_3;
-		case 4:	return ASPECT_5_4;
-	}
-	if(nowidescreen) {
-		if(!tft)
-			return ASPECT_4_3;
-		if(fixedmul(height<<16, fixeddiv(5.0, 4.0)) == width<<16)
-			return ASPECT_5_4;
-		else
-			return ASPECT_4_3;
-	}
-	if(abs((abs(fixedmul(height<<16, fixeddiv(16.0, 9.0)))>>16) - width) < 10) {
-		return ASPECT_16_9;
-	}
-	if(abs((abs(fixedmul(height<<16, fixeddiv(16.0, 10.0)))>>16) - width) < 60) {
-		if((width == 320 && height == 200) || (width == 640 && height == 400))
-			return ASPECT_4_3;
-		return ASPECT_16_10;
-	}
-	if(fixedmul(height<<16, fixeddiv(5.0, 4.0))>>16 == width && tft) {
-		return ASPECT_5_4;
-	}
-	return ASPECT_4_3;
 }
 
 bool isPlayerClass(int ctype) {

@@ -23,7 +23,6 @@ quest_T Quest_List[MAX_QUESTS] = {
 		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_ArmorCapIncrease"		},
 		{ QTYPE_EVERYONE,												"DnD_QuestReward_UndeadDamageIncrease"  },
 		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_SuperWeaponDamage"		},
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_TalentIncrease"		},
 		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_SpecialAmmoDamage"		},
 		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_QuestReward_MoreCredit"			},
 		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_DreamingGodBonus"		},
@@ -113,11 +112,6 @@ str Quest_Description[MAX_QUESTS][3] = {
 			"Super Weapons do 25% more damage."
 		},
 		{
-			"Natural Talent",
-			"Only shoot weapons that have lowest or no talent amounts applied.",
-			"Talents get 25% dexterity or intellect bonus applied."
-		},
-		{
 			"Specialist",
 			"Use only special ammo types.",
 			"Special ammo damage increases by 50%."
@@ -170,7 +164,6 @@ str Quest_Checkers[MAX_QUESTS] = {
 	"DnD_BoughtArmor",
 	"DnD_ShotUndead",
 	"DnD_UsedSuperWeapon",
-	"DnD_UsedNonTalent",
 	"DnD_UsedNonSpecial",
 	"DnD_MoneySpentQuest",
 	"DnD_Boolean",

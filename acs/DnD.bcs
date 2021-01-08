@@ -14,7 +14,7 @@ bool MadeLegendary = 0;
 Script 700 ENTER CLIENTSIDE {
 	int hp, hpcomp, armor, armcomp, acomp, curammo;
 	str ammo, ammoalt;
-	while(1) {
+	while(IsAlive()) {
 		if(GetCVar("dnd_killspree"))
 			GiveInventory("KillSpreeOn", 1);
 		hpcomp = GetSpawnHealth();
@@ -147,7 +147,6 @@ Script 700 ENTER CLIENTSIDE {
 				GiveInventory("H_SecondaryRed", 1);		
 			}
 		}
-		DrawExpBar();
 		Delay(const:1);
 	}
 }
@@ -459,8 +458,8 @@ Script "DnD Killing Spree Timer" (void) {
 				reward += reward * DND_QUEST_BERSERK_SPREEBONUS / 100;
 			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, spree / DND_SPREE_PER, reward);
 			GiveInventory("Exp", reward);
-			GiveInventory("ExpVisual", reward);
 			GiveInventory("LevelExp", reward);
+			CalculateExpRatio();
 			SetInventory("SpreeXP", 0);
 			GiveInventory("DnD_BerserkQuest_SpreeCounter", 1);
 			// ravager armor add
@@ -1179,21 +1178,63 @@ Script 905 (int mode) NET {
 }
 
 // 906 to 914 reserved
-script 915 enter CLIENTSIDE {
-	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
-	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 54.0; ScreenResOffsets[1] = 66.0; ScreenResOffsets[2] = 30.0; ScreenResOffsets[3] = 45.0; }
-	delay(70);
+script "DnD Aspect Ratio Check ENTER" ENTER CLIENTSIDE {
+	aspect_ratio = GetAspectRatio();
+	if (aspect_ratio == ASPECT_5_4) {
+		ScreenResOffsets[0] = 0.0;
+		ScreenResOffsets[1] = 0.0;
+		ScreenResOffsets[2] = 0.0;
+		ScreenResOffsets[3] = 0.0;
+	}
+	else if (aspect_ratio == ASPECT_4_3) {
+		ScreenResOffsets[0] = 0.0;
+		ScreenResOffsets[1] = 0.0;
+		ScreenResOffsets[2] = 80.0;
+		ScreenResOffsets[3] = 120.0;
+	}
+	else if (aspect_ratio == ASPECT_16_9) {
+		ScreenResOffsets[0] = 108.0;
+		ScreenResOffsets[1] = 110.0;
+		ScreenResOffsets[2] = 0.0;
+		ScreenResOffsets[3] = 0.0;
+	}
+	else if (GetAspectRatio() == ASPECT_16_10) {
+		ScreenResOffsets[0] = 54.0;
+		ScreenResOffsets[1] = 66.0;
+		ScreenResOffsets[2] = 30.0;
+		ScreenResOffsets[3] = 45.0;
+	}
+	delay(const:70);
 	restart;
 }
 
-script 916 RESPAWN CLIENTSIDE {
-	if (GetAspectRatio() == ASPECT_5_4) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_4_3) { ScreenResOffsets[0] = 0.0; ScreenResOffsets[1] = 0.0; ScreenResOffsets[2] = 80.0; ScreenResOffsets[3] = 120.0; }
-	if (GetAspectRatio() == ASPECT_16_9) { ScreenResOffsets[0] = 108.0; ScreenResOffsets[1] = 110.0; ScreenResOffsets[2] = 0.0; ScreenResOffsets[3] = 0.0; }
-	if (GetAspectRatio() == ASPECT_16_10) { ScreenResOffsets[0] = 54.0; ScreenResOffsets[1] = 66.0; ScreenResOffsets[2] = 30.0; ScreenResOffsets[3] = 45.0; }
-	delay(70);
+script "DnD Aspect Ratio Check RESPAWN" RESPAWN CLIENTSIDE {
+	aspect_ratio = GetAspectRatio();
+	if (aspect_ratio == ASPECT_5_4) {
+		ScreenResOffsets[0] = 0.0;
+		ScreenResOffsets[1] = 0.0;
+		ScreenResOffsets[2] = 0.0;
+		ScreenResOffsets[3] = 0.0;
+	}
+	else if (aspect_ratio == ASPECT_4_3) {
+		ScreenResOffsets[0] = 0.0;
+		ScreenResOffsets[1] = 0.0;
+		ScreenResOffsets[2] = 80.0;
+		ScreenResOffsets[3] = 120.0;
+	}
+	else if (aspect_ratio == ASPECT_16_9) {
+		ScreenResOffsets[0] = 108.0;
+		ScreenResOffsets[1] = 110.0;
+		ScreenResOffsets[2] = 0.0;
+		ScreenResOffsets[3] = 0.0;
+	}
+	else if (GetAspectRatio() == ASPECT_16_10) {
+		ScreenResOffsets[0] = 54.0;
+		ScreenResOffsets[1] = 66.0;
+		ScreenResOffsets[2] = 30.0;
+		ScreenResOffsets[3] = 45.0;
+	}
+	delay(const:70);
 	restart;
 }
 
@@ -4706,3 +4747,16 @@ Script "DnD Store Projectile Owner" (void) {
 	//printbold(s:"storing owner ", d:GetActorProperty(0, APROP_SCORE));
 	SetResultValue(0);
 }
+
+/*Script 69 (void) NET {
+	SetInventory("Level", 98);
+	SetInventory("Exp", GetExpLimit() / 2);
+	SetInventory("LevelExpCap", GetExpLimit());
+	CalculateExpRatio();
+}
+
+Script 70 (void) NET {
+	GiveInventory("Exp", 63107200);
+	GiveInventory("LevelUpChecker", 1);
+	CalculateExpRatio();
+}*/

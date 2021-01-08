@@ -12,6 +12,7 @@
 #include "DnD_Settings.h"
 #include "DnD_ClassMenu.h"
 #include "DnD_Explosion.h"
+#include "DnD_Hud.h"
 
 // for now allocate slots for 10
 #define MAX_SCRIPT_TRACK 10
@@ -29,6 +30,8 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define BASEPISTCLIP 12
 #define BASEMGCLIP 50
 #define BASEHMGCLIP 60
+
+#define DND_EXPBAR_SIZEX 132
 
 // dash script defs, by KeksDose
 #define SD_TIMEFRAME		7			// Tics during which you must double press
@@ -396,9 +399,7 @@ int CheckLevelUp (void) {
 			//GiveInventory("TalentedUp", 1);
 		}*/
 		GiveInventory("Level", 1);
-		SetAmmoCapacity("ExpVisual", LevelCurve[GetStat(STAT_LVL) - 1]);
 		SetInventory("Exp", exptemp);
-		SetInventory("ExpVisual", exptemp);
 		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
 	}
 	return GetStat(STAT_LVL) - curlevel;
@@ -413,6 +414,9 @@ void HandleLevelup() {
 		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
 		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
 			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
+			
+		// sync level cap exp
+		CalculateExpRatio();
 		// heal on level up flag is on
 		if(GetCVar("dnd_healonlevelup"))
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
@@ -1055,10 +1059,6 @@ void ApplyRandomCurse() {
 			GiveInventory("LichPoison", 1);
 		break;
 	}
-}
-
-void DrawExpBar() {
-	
 }
 
 #include "DnD_Damage.h"

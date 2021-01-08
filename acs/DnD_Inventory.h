@@ -3,6 +3,7 @@
 
 #include "DnD_InvInfo.h"
 #include "DnD_UniqueItems.h"
+#include "DnD_Hud.h"
 
 #define MAXINVENTORYBLOCKS_HORIZ 5
 #define MAXINVENTORYBLOCKS_VERT 9

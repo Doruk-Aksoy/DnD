@@ -341,10 +341,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			
 			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
-		
-		
-		if(active_quest_id == QUEST_ONLYNOTALENTWEAPONS && (CheckInventory("DnD_NonLowestTalents") & (1 << talent_type)))
-			GiveInventory(Quest_Checkers[QUEST_ONLYNOTALENTWEAPONS], 1);
 
 		// include enhancement orb bonuses
 		temp = GetPlayerWeaponEnchant(pnum, wepid);

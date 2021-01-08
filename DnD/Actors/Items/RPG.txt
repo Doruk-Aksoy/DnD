@@ -13,7 +13,7 @@ Actor Exp : Ammo {
 
 Actor ExpVisual : Ammo {
 	inventory.amount 1
-	inventory.maxamount 100
+	inventory.maxamount 1000
 	+IGNORESKILL
 }
 
@@ -24,6 +24,13 @@ Actor SpreeXP : Inventory {
 Actor Level : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
+	+IGNORESKILL
+}
+
+// used to sync client with variables
+Actor LevelExpCap : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
 

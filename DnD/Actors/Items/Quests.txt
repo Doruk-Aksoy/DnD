@@ -14,7 +14,6 @@ enum {
 	QUEST_NOARMORS,
 	QUEST_SPAREZOMBIES,
 	QUEST_NOSUPERWEAPONS,
-	QUEST_ONLYNOTALENTWEAPONS,
 	QUEST_ONLYSPECIALAMMO,
 	QUEST_SPEND25K,
 	QUEST_KILLDREAMINGGOD,
@@ -163,8 +162,6 @@ Actor DnD_ShotUndead : DnD_Boolean { }
 
 Actor DnD_UsedSuperWeapon : DnD_Boolean { }
 
-Actor DnD_UsedNonTalent : DnD_Boolean { }
-Actor DnD_NonLowestTalents : DnD_Info { }
 Actor DnD_UsedNonSpecial : DnD_Boolean { }
 Actor DnD_MoneySpentQuest : DnD_Info { }
 

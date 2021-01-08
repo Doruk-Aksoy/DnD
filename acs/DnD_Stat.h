@@ -43,6 +43,10 @@ int GetExpLimit() {
 	return LevelCurve[GetStat(STAT_LVL) - 1];
 }
 
+int GetExpLimit_Level(int lvl) {
+	return LevelCurve[lvl - 1];
+}
+
 #define TALENT_NAME 0
 #define TALENT_TAG 1
 str TalentNames[MAX_TALENTS][2] = {
@@ -215,20 +219,38 @@ void GiveActorStat(int tid, int stat_id, int amt) {
 		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_PERK, amt, stat_id);
 }
 
+void CalculateExpRatio() {
+	int lvl = CheckInventory("Level");
+	int cap = GetExpLimit_Level(lvl);
+	if(lvl > 50)
+		SetInventory("ExpVisual", (1000 * FixedDiv(CheckInventory("Exp"), cap)) >> 16);
+	else
+		SetInventory("ExpVisual", 1000 * CheckInventory("Exp") / cap);
+}
+
+void CalculatePlayerExpRatio(int tid) {
+	int lvl = CheckActorInventory(tid, "Level");
+	int cap = GetExpLimit_Level(lvl);
+	if(lvl > 50)
+		SetActorInventory(tid, "ExpVisual", (1000 * FixedDiv(CheckActorInventory(tid, "Exp"), cap)) >> 16);
+	else
+		SetActorInventory(tid, "ExpVisual", 1000 * CheckActorInventory(tid, "Exp") / cap);
+}
+
 void GiveExp(int amt) {
 	GiveInventory("Exp", amt);
-	GiveInventory("ExpVisual", amt);
 	GiveInventory("SpreeXP", amt);
 	GiveInventory("LevelExp", amt);
 	GiveInventory("LevelUpChecker", 1);
+	CalculateExpRatio();
 }
 
 void GiveActorExp(int tid, int amt) {
 	GiveActorInventory(tid, "Exp", amt);
-	GiveActorInventory(tid, "ExpVisual", amt);
 	GiveActorInventory(tid, "SpreeXP", amt);
 	GiveActorInventory(tid, "LevelExp", amt);
 	GiveActorInventory(tid, "LevelUpChecker", 1);
+	CalculatePlayerExpRatio(tid);
 }
 
 void GiveCredit(int amt) {
