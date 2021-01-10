@@ -100,16 +100,16 @@ int GetDataFromOrbBonus(int pnum, int bonus, int extra) {
 			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants;
 		break;
 		case OBI_WEAPON_CRIT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRIT].amt;
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT];
 		break;
 		case OBI_WEAPON_CRITDMG:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITDMG].amt;
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG];
 		break;
 		case OBI_WEAPON_CRITPERCENT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt;
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT];
 		break;
 		case OBI_WEAPON_DMG:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_DMG].amt;
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG];
 		break;
 		// weapon mods can come in the future for orbs that give those
 	}
@@ -165,20 +165,20 @@ void SetDataToOrbBonus(int pnum, int bonus, int extra, int val) {
 			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants = val;
 		break;
 		case OBI_WEAPON_CRIT:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRIT].amt;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRIT].amt = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT];
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT] = val;
 		break;
 		case OBI_WEAPON_CRITDMG:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITDMG].amt;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITDMG].amt = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG];
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG] = val;
 		break;
 		case OBI_WEAPON_CRITPERCENT:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT];
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT] = val;
 		break;
 		case OBI_WEAPON_DMG:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_DMG].amt;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_DMG].amt = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG];
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG] = val;
 		break;
 		// weapon mods can come in the future for orbs that give those
 	}
@@ -226,16 +226,16 @@ void SetDataToOrbBonus_NoActivity(int pnum, int bonus, int extra, int val) {
 			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants = val;
 		break;
 		case OBI_WEAPON_CRIT:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRIT].amt = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT] = val;
 		break;
 		case OBI_WEAPON_CRITDMG:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITDMG].amt = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG] = val;
 		break;
 		case OBI_WEAPON_CRITPERCENT:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT] = val;
 		break;
 		case OBI_WEAPON_DMG:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_DMG].amt = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG] = val;
 		break;
 		// weapon mods can come in the future for orbs that give those
 	}
@@ -312,10 +312,15 @@ enum {
 	CORRUPTORB_ADDCRITDMG,
 	CORRUPTORB_ADDSPEED,
 	CORRUPTORB_DROPCHANCE,
-	CORRUPTORB_GIVESTAT
+	CORRUPTORB_GIVESTAT,
+	
+	CORRUPTORB_MOD_PERCENTDAMAGE,
+	CORRUPTORB_MOD_POISONFORPERCENTDAMAGE,
+	CORRUPTORB_MOD_FORCEPAINCHANCE
 };
 
-#define CORRUPTORB_MAXEFFECTS CORRUPTORB_GIVESTAT + 1
+#define CORRUPTORB_WEAPONMOD_BEGIN CORRUPTORB_MOD_PERCENTDAMAGE
+#define CORRUPTORB_MAXEFFECTS (CORRUPTORB_MOD_FORCEPAINCHANCE + 1)
 #define CORRUPTORB_MAXWEIGHT 300
 int CorruptOrb_Weights[CORRUPTORB_MAXEFFECTS] = {
 	150,
@@ -327,11 +332,15 @@ int CorruptOrb_Weights[CORRUPTORB_MAXEFFECTS] = {
 	225,
 	240,
 	
-	250,
-	260,
-	270,
-	280,
+	254,
+	258,
+	266,
+	274,
+	282,
 	290,
+	
+	293,
+	296,
 	300
 };
 
@@ -1320,6 +1329,11 @@ bool CorruptionMaxChecks(int effect) {
 		
 		case CORRUPTORB_GIVESTAT:
 		return HasUnmaxedStats();
+		
+		case CORRUPTORB_MOD_PERCENTDAMAGE:
+		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
+		case CORRUPTORB_MOD_FORCEPAINCHANCE:
+		return 1;
 	}
 	return 1;
 }
@@ -1395,7 +1409,7 @@ void HandleCorruptOrbUse(int type) {
 		
 		case CORRUPTORB_ADDDMG:
 			temp = CORRUPTORB_DMGGIVE * GetAffluenceBonus();
-			i = GetWeaponPosFromTable();
+			i = PickRandomOwnedWeaponID();
 			Player_MostRecent_Orb[pnum].values[3] = i;
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i) + temp, 0, CORRUPTORB_MAXDMG));
@@ -1404,7 +1418,7 @@ void HandleCorruptOrbUse(int type) {
 		break;
 		case CORRUPTORB_ADDCRIT:
 			temp = CORRUPTORB_DMGGIVE * GetAffluenceBonus();
-			i = GetWeaponPosFromTable();
+			i = PickRandomOwnedWeaponID();
 			Player_MostRecent_Orb[pnum].values[3] = i;
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i) + temp, 0, CORRUPTORB_MAXCRITPERCENT));
@@ -1413,7 +1427,7 @@ void HandleCorruptOrbUse(int type) {
 		break;
 		case CORRUPTORB_ADDCRITDMG:
 			temp = CORRUPTORB_CRITDMGGIVE * GetAffluenceBonus();
-			i = GetWeaponPosFromTable();
+			i = PickRandomOwnedWeaponID();
 			Player_MostRecent_Orb[pnum].values[3] = i;
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i) + temp, 0, CORRUPTORB_MAXCRITDMG));
@@ -1445,6 +1459,22 @@ void HandleCorruptOrbUse(int type) {
 			GiveStat(i, CORRUPTORB_STATGIVE * GetAffluenceBonus());
 			Player_MostRecent_Orb[pnum].values[2] = i;
 			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
+		break;
+		case CORRUPTORB_MOD_PERCENTDAMAGE:
+		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
+		case CORRUPTORB_MOD_FORCEPAINCHANCE:
+			int tier = CheckInventory("AffluenceCounter");
+			if(tier > MAX_WEP_MODTIER)
+				tier = MAX_WEP_MODTIER;
+			
+			// mod order is the same as defined in dnd_weaponmods.h
+			// this is the value, we know the tier now roll a weapon to apply this to
+			i = PickRandomOwnedWeaponID();
+			temp = RollWeaponMod(type - CORRUPTORB_WEAPONMOD_BEGIN, tier);
+			Player_MostRecent_Orb[pnum].values[2] = i;
+			Player_MostRecent_Orb[pnum].values[3] = temp;
+			Player_MostRecent_Orb[pnum].values[4] = tier;
+			
 		break;
 	}
 }
@@ -1707,13 +1737,7 @@ void ResetOrbData(int pnum) {
 		Player_Orb_Data[pnum].weapon_stat_bonuses[i].enchants = 0;
 		// horrible naming convention here, clean up later?
 		for(j = 0; j < MAX_WEP_BONUSES; ++j)
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_bonuses[j].amt = 0;
-		for(j = 0; j < MAX_WEP_MODS; j++) {
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].mod_id = 0;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier = 0;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].low = 0;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].high = 0;
-		}
+			Player_Orb_Data[pnum].weapon_stat_bonuses[i].bonus_list[j] = 0;
 	}
 }
 

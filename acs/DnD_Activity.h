@@ -141,16 +141,16 @@ void UpdateActivity(int pnum, int activity, int val, int extra) {
 			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].enchants += val;
 		break;
 		case DND_ACTIVITY_ORB_WEAPONBONUS_DAMAGE:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_DMG].amt += val;
+			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG] += val;
 		break;
 		case DND_ACTIVITY_ORB_WEAPONBONUS_CRIT:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRIT].amt += val;
+			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT] += val;
 		break;
 		case DND_ACTIVITY_ORB_WEAPONBONUS_CRITDAMAGE:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITDMG].amt += val;
+			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG] += val;
 		break;
 		case DND_ACTIVITY_ORB_WEAPONBONUS_CRITPERCENT:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_bonuses[WEP_BONUS_CRITPERCENT].amt += val;
+			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT] += val;
 		break;
 	}
 }
@@ -192,7 +192,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 	for(i = 0; i < MAXWEPS; ++i) {
 		PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].enchants = 0;
 		for(j = 0; j < MAX_WEP_BONUSES; ++j)
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].wep_bonuses[j].amt = 0;
+			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].bonus_list[j] = 0;
 	}
 }
 

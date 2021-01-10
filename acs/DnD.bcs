@@ -1976,7 +1976,7 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 
 Script "DnD Monster Scanner Picker" ENTER {
 	int this = ActivatorTID();
-	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, traits, traits2, nameskip, monprop;
+	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, nameskip, monprop;
 	bool monelite = false;
 	int tic = 0;
 	while(true) {
@@ -2469,7 +2469,7 @@ Script "DnD Player Setup" ENTER {
 	
 	ClearQuestCheckers();
 	
-	if(HardcoreSet && GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) {
+	if(HardcoreSet) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
 		Delay(17 * (DND_MAX_MONSTERDELAY + 1));
@@ -3698,22 +3698,6 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 	}
 }
 
-Script "DND Clientside Orb Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetSyncValue_Orb(var, to, extra);
-}
-
-Script "DND Clientside Elixir Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetSyncValue_Elixir(var, to, extra);
-}
-
-Script "DND Clientside Item Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
-}
-
-Script "DND Clientside Item Syncer Player" (int var, int to, int extra) CLIENTSIDE {
-	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, (extra >> 16) | ((var & 0xFF00) << 8), to, var >> 16);
-}
-
 Script "DND Hardcore Timer" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
@@ -3743,10 +3727,11 @@ Script "DND Wait For Other Players Message" (int players_not_ready) CLIENTSIDE {
 Script "DND Hardcore Monster Message" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
+	Delay(const:1);
 	SetFont("BIGFONT");
 	SetHudSize(640, 480, 0);
 	HudMessage(s:"Loading monsters..."; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
-	Delay(17 * (DND_MAX_MONSTERDELAY + 3)); //Add 3 seconds to it to allow player script to finish first.
+	Delay(const:17 * (DND_MAX_MONSTERDELAY + 2)); // Add 3 seconds to it to allow player script to finish first.
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 }
 
@@ -4589,14 +4574,15 @@ Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
 	if(CheckInventory("Punisher_Perk50")) {
 		SetFont("OBJFONT");
 		SetHudSize(900, 600, 1);
+		int x = (GetHudRight(900) << 16) - 5.8;
 		if(CheckInventory("DnD_Kills") >= DND_PUNISHER_KILLSPER) {
 			if(!reset)
-				HudMessage(s:"\c[I7]", f:ftrunc(100 * (DND_PUNISHER_DMGINC * (CheckInventory("DnD_Kills") / DND_PUNISHER_KILLSPER))), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, 900.0, 450.0, 0.0);
+				HudMessage(s:"\c[I7]", f:ftrunc(100 * (DND_PUNISHER_DMGINC * (CheckInventory("DnD_Kills") / DND_PUNISHER_KILLSPER))), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 			else // clear because we died
-				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, 900.0, 450.0, 0.0);
+				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 		}
 		tmp = Clamp_Between(DND_PUNISHER_KILLSPER - CheckInventory("Punisher_Perk50_Counter"), 0, DND_PUNISHER_KILLSPER);
-		HudMessage(s:"Kill \c[I7]", d:tmp, s:"\c- for buff"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, 900.0, 480.0, 0.0);
+		HudMessage(s:"Kill \c[I7]", d:tmp, s:"\c- for buff"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
 	}
 }
 

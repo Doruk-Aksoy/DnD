@@ -493,9 +493,9 @@ void SetSyncValue_Orb(int pos, int val, int extra) {
 			SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
 		break;
 		case DND_SYNC_SPEED:
-			SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
 		break;
 		case DND_SYNC_DROPCHANCE:
+			SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
 			SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
 		break;
 		case DND_SYNC_HPFLAT_BONUS:
@@ -594,6 +594,29 @@ void SetSyncValue_Elixir(int pos, int val, int extra) {
 	}
 }
 
+Script "DND Clientside Orb Syncer" (int var, int to, int extra) CLIENTSIDE {
+	SetSyncValue_Orb(var, to, extra);
+}
+
+Script "DND Clientside Elixir Syncer" (int var, int to, int extra) CLIENTSIDE {
+	SetSyncValue_Elixir(var, to, extra);
+}
+
+Script "DND Clientside Item Syncer" (int var, int to, int extra) CLIENTSIDE {
+	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
+}
+
+Script "DND Clientside Item Syncer Player" (int var, int to, int extra) CLIENTSIDE {
+	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, (extra >> 16) | ((var & 0xFF00) << 8), to, var >> 16);
+}
+
+Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) CLIENTSIDE {
+	int pnum = PlayerNumber();
+	Player_Weapon_Infos[pnum][wepid].wep_mods[mod].val = val;
+	Player_Weapon_Infos[pnum][wepid].wep_mods[mod].tier = tier;
+	SetResultValue(0);
+}
+
 void SyncClientsideVariable_Orb(int var, int extra) {
 	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
 		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, extra), extra);
@@ -606,6 +629,11 @@ void SyncClientsideVariable_Elixir(int var, int extra) {
 		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, extra), extra);
 	else
 		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, 0), 0);
+}
+
+void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
+	for(int i = 0; i < MAX_WEP_MODS; ++i)
+		ACS_NamedExecuteWithResult("DND Clientside Weapon Mod Sync", wepid, i, Player_Weapon_Infos[pnum][wepid].wep_mods[i].val, Player_Weapon_Infos[pnum][wepid].wep_mods[i].tier);
 }
 
 void SyncItemData(int itemid, int source, int wprev, int hprev) {
@@ -873,6 +901,11 @@ void SyncAllClientsideVariables() {
 		else
 			ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, i, GetPlayerSyncValue_Elixir(i, 0), 0);
 	}
+	
+	// sync weapon mods
+	int pnum = PlayerNumber();
+	for(i = 0; i < MAXWEPS; ++i)
+		SyncClientsideVariable_WeaponMods(pnum, i);
 }
 
 #endif

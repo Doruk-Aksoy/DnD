@@ -10,9 +10,11 @@ statusbar normal, fullscreenoffsets {
 	// KillSpree Meter
 	InInventory KillSpreeOn {
 		InInventory not ShowMapInfo {
-			drawimage "SPREEBAK", 11, -205;
-			drawimage "SPREEBAR", 5, -209;
-			drawbar "SPREEREF", "sPREERED", DnD_SpreeTimer, vertical, 14, -202;
+			InInventory DnD_SpreeTimer {
+				drawimage "SPREEBAK", 11, -205;
+				drawimage "SPREEBAR", 5, -209;
+				drawbar "SPREEREF", "sPREERED", DnD_SpreeTimer, vertical, 14, -202;
+			}
 			
 			InInventory AgamottoOffense {
 				DrawImage "AGAOFF", 28, -144;
@@ -51,10 +53,11 @@ statusbar normal, fullscreenoffsets {
 			}
 		}
 		InInventory ShowMapInfo {
-			drawimage "SPREEBAK", 131, -181;
-			drawimage "SPREEBAR", 125, -185;
-			drawbar "SPREEREF", "sPREERED", DnD_SpreeTimer, vertical, 134, -178;
-			
+			InInventory DnD_SpreeTimer {
+				drawimage "SPREEBAK", 131, -181;
+				drawimage "SPREEBAR", 125, -185;
+				drawbar "SPREEREF", "sPREERED", DnD_SpreeTimer, vertical, 134, -178;
+			}
 			InInventory AgamottoOffense {
 				DrawImage "AGAOFF", 148, -118;
 			}

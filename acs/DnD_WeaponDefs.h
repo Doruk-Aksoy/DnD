@@ -2,6 +2,7 @@
 #define DND_WEAPONDEFS_IN
 
 #include "DnD_Common.h"
+#include "DnD_WeaponMods.h"
 
 enum {
 	DND_WEAPON_FIST,
@@ -110,7 +111,7 @@ enum {
 
 #define DND_LIGHTNINGGUN_DMGPERSTACK 4
 #define DND_DUSKBLADE_DMGPERSTACK 3
-#define MAXWEPS DND_WEAPON_RIPPERCANNON + 1
+#define MAXWEPS (DND_WEAPON_RIPPERCANNON + 1)
 
 enum {  
 	WEAPON_NAME,
@@ -123,31 +124,22 @@ enum {
 	WEAPON_ICON64
 };
 
-// weapon mod data, mod_id contains the modifier, low and high are the rolled values
-typedef struct {
-	int mod_id;
-	int tier;
-	int low;
-	int high;
-} wep_mod_T;
-
 enum {
 	WEP_BONUS_CRIT,
 	WEP_BONUS_CRITDMG,
 	WEP_BONUS_CRITPERCENT,
 	WEP_BONUS_DMG
 };
-
-typedef struct {
-	int amt;
-} wep_bonus_T;
-
-#define MAX_WEP_MODS 4 // max allowed mods
 #define MAX_WEP_BONUSES (WEP_BONUS_DMG + 1)
-// store players mods etc.
+
 typedef struct {
 	int enchants;
-	wep_bonus_T wep_bonuses[MAX_WEP_BONUSES];
+	int bonus_list[MAX_WEP_BONUSES];
+} wep_bonus_T;
+
+// store players mods etc.
+typedef struct {
+	wep_bonus_T wep_bonus;
 	wep_mod_T wep_mods[MAX_WEP_MODS];
 } wep_info_T;
 

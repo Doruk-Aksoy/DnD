@@ -189,17 +189,13 @@ str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
 void ResetWeaponMods(int pnum) {
 	int i, j;
 	for(j = 0; j < MAXWEPS; ++j) {
-		Player_Weapon_Infos[pnum][j].enchants = 0;
-		// not saved right now as they aren't added yet
+		Player_Weapon_Infos[pnum][j].wep_bonus.enchants = 0;
 		for(i = 0; i < MAX_WEP_MODS; ++i) {
-			Player_Weapon_Infos[pnum][j].wep_mods[i].mod_id = 0;
 			Player_Weapon_Infos[pnum][j].wep_mods[i].tier = 0;
-			Player_Weapon_Infos[pnum][j].wep_mods[i].low = 0;
-			Player_Weapon_Infos[pnum][j].wep_mods[i].high = 0;
+			Player_Weapon_Infos[pnum][j].wep_mods[i].val = 0;
 		}
-		for(i = 0; i < MAX_WEP_BONUSES; ++i) {
-			Player_Weapon_Infos[pnum][j].wep_bonuses[i].amt = 0;
-		}
+		for(i = 0; i < MAX_WEP_BONUSES; ++i)
+			Player_Weapon_Infos[pnum][j].wep_bonus.bonus_list[i] = 0;
 	}
 }
 
@@ -217,14 +213,14 @@ int GetWeaponPosFromTable() {
 	return CheckInventory("DnD_WeaponID");
 }
 
-int CheckSuperWeaponPickup (void) {
+int CheckSuperWeaponPickup(void) {
 	if(CheckInventory("Death Staff") || CheckInventory("Razorfang") || 
 	   CheckInventory("Sun Staff")  || CheckInventory("Soul Reaver"))
 		  return 1;
 	return 0;
 }
 
-int GetCurrentWeaponID (void) {
+int GetCurrentWeaponID(void) {
 	int res = 0;
 	for(int i = 0; i < MAXWEPS; ++i) {
 		if(CheckWeapon(Weapons[i][WEAPON_NAME])) {
@@ -235,7 +231,22 @@ int GetCurrentWeaponID (void) {
 	return res;
 }
 
-str GetWeaponAmmoType (int wepid, int which) {
+int PickRandomOwnedWeaponID(void) {
+	int count = 0, i, pnum = PlayerNumber();
+	static int owned_weapons[MAXPLAYERS][MAXWEPS];
+	// setup the list
+	for(i = 0; i < MAXWEPS; ++i) {
+		if(CheckInventory(Weapons[i][WEAPON_NAME])) {
+			owned_weapons[pnum][count] = i;
+			++count;
+		}
+	}
+	
+	// pick from random weapons owned
+	return owned_weapons[pnum][random(0, count - 1)];
+}
+
+str GetWeaponAmmoType(int wepid, int which) {
 	if(!which)
 		return Weapons[wepid][WEAPON_AMMO1];
 	else

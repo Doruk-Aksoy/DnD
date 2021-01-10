@@ -3550,9 +3550,8 @@ actor Cerberus : DnD_BaseRangedBoss {
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			TNT1 A 0 A_ChangeFlag("MISSILEMORE", 1)
 			TNT1 A 0 A_ChangeFlag("MISSILEEVENMORE", 1)
-			TNT1 A 0 A_GiveInventory("MonsterTraits", DND_AGGRESSIVE)
-			TNT1 A 0 A_GiveInventory("MonsterTraits", DND_NOPAIN)
-			TNT1 A 0 A_TakeInventory("MonsterTraits", DND_RAGE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_AGGRESSIVE, DND_NOPAIN, -1, -1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_RAGE, -1, -1, -1)
 			CERB K 7 Fast A_Pain
 			CERB LM 7 Fast
 		goto Missile

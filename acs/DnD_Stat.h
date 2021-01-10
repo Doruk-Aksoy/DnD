@@ -668,7 +668,7 @@ void UpdateLegendaryKill(int pnum, int mon_id) {
 }
 
 int GetPlayerWeaponEnchant(int pnum, int wepid) {
-	return GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wepid) + Player_Weapon_Infos[pnum][wepid].enchants;
+	return GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wepid) + Player_Weapon_Infos[pnum][wepid].wep_bonus.enchants;
 }
 
 void HandleArmorDependencyCheck() {
@@ -722,9 +722,9 @@ int GetCritChance(int pnum, int wepid) {
 	int temp = 0;
 	// add current weapon crit bonuses
 	if(wepid != -1) {
-		chance += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt;
+		chance += Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRIT];
 		chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
-		temp = Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
+		temp = Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRITPERCENT] + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
 	}
 	// add percent bonus
 	if(chance)
@@ -768,7 +768,7 @@ int GetCritModifier() {
 	int pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
 	int base = GetBaseCritModifier(pnum); // 200, which is x2 more damage
 	// weapon bonus
-	base += Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt >> 16;
+	base += Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] >> 16;
 	base += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
 	if(CheckInventory("HunterTalismanCheck"))
 		base >>= 1;

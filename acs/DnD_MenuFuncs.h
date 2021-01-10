@@ -304,28 +304,28 @@ void DrawDamageTypes(int opt, int posy, int req_id, int constraint, int flags) {
 }
 
 int GetWeaponEnchantDisplay(int pnum, int wep) {
-	return Player_Weapon_Infos[pnum][wep].enchants + GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wep);
+	return Player_Weapon_Infos[pnum][wep].wep_bonus.enchants + GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wep);
 }
 
 int GetCritChanceDisplay(int pnum, int wep) {
-	int base = (100 * Player_Weapon_Infos[pnum][wep].wep_bonuses[WEP_BONUS_CRIT].amt);
+	int base = (100 * Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRIT]);
 	base += (100 * GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wep));
-	base += FixedMul(base, Player_Weapon_Infos[pnum][wep].wep_bonuses[WEP_BONUS_CRITPERCENT].amt);
+	base += FixedMul(base, Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRITPERCENT]);
 	// truncate
 	return ftrunc(base);
 }
 
 bool HasCritDamageBonus(int pnum, int wep) {
-	return Player_Weapon_Infos[pnum][wep].wep_bonuses[WEP_BONUS_CRITDMG].amt + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep);
+	return Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep);
 }
 
 int GetCritDamageDisplay(int pnum, int wep) {
-	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_bonuses[WEP_BONUS_CRITDMG].amt + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep));
+	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep));
 	return ftrunc(base);
 }
 
 int GetBonusDamageDisplay(int pnum, int wep) {
-	int base = 100 * Player_Weapon_Infos[PlayerNumber()][wep].wep_bonuses[WEP_BONUS_DMG].amt;
+	int base = 100 * Player_Weapon_Infos[PlayerNumber()][wep].wep_bonus.bonus_list[WEP_BONUS_DMG];
 	base += 100 * GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_DMG, wep);
 	return ftrunc(base);
 }
@@ -1021,16 +1021,17 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 
 void ResetWeaponStats(int wepid) {
 	int pnum = PlayerNumber();
-	Player_Weapon_Infos[pnum][wepid].enchants = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRIT].amt = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITDMG].amt = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_CRITPERCENT].amt = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonuses[WEP_BONUS_DMG].amt = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonus.enchants = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRIT] = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRITPERCENT] = 0;
+	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_DMG] = 0;
 	SyncClientsideVariable_Orb(DND_SYNC_WEAPONENHANCE, wepid);
 	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRIT, wepid);
 	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, wepid);
 	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, wepid);
 	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, wepid);
+	SyncClientsideVariable_WeaponMods(pnum, wepid);
 }
 
 bool CanReplaceArmor(int armor_type) {

@@ -74,6 +74,8 @@ enum {
 * 1664 - 1727 = Menu icon above people
 * 2000 - 2063 = Deathray marker TID for players
 * 3000 = Frozen FX Temporary TID
+* 3099 = Player shotgun puff removal tid
+* 3100 - 3163 = Player Shotgun Puff Temporary TID
 * 3564 = Dark Zealot Shield TID
 * 3565 = Avatar soul projectiles TID
 * 6000 - 12000 = Avatar Cubes TID
@@ -91,6 +93,8 @@ enum {
 * Anything above 66000 => any monster tid
 */
 
+#define DND_SHOTGUNPUFF_REMOVETID 3099
+#define DND_SHOTGUNPUFF_TID 3100
 #define DND_ICECHUNK_TID 32770
 
 enum {
@@ -273,6 +277,34 @@ int AngleToFace(int this, int to) {
 	int x = GetActorX(to) - GetActorX(this);
 	int y = GetActorY(to) - GetActorY(this);
 	return VectorAngle(x, y);
+}
+
+int LinearMap(int val, int o_min, int o_max, int n_min, int n_max) {
+	return (val - o_min) * (n_max - n_min) / (o_max - o_min) + n_min;
+}
+
+int LinearMap_Fixed(int val, int o_min, int o_max, int n_min, int n_max) {
+	return FixedDiv(FixedMul(val - o_min, n_max - n_min), o_max - o_min) + n_min;
+}
+
+int PitchToFace(int m1, int m2) {
+	int xdiff = GetActorX(m2) - GetActorX(m1);
+	int ydiff = GetActorY(m2) - GetActorY(m1);
+	int dist = AproxDistance(xdiff, ydiff);
+	//dist >>= 8;
+	int zdiff = GetActorZ(m2) - GetActorZ(m1);
+	//zdiff >>= 8;
+	return -VectorAngle(dist, zdiff);
+}
+
+int PitchToFace_Height(int m1, int m2) {
+	int xdiff = GetActorX(m2) - GetActorX(m1);
+	int ydiff = GetActorY(m2) - GetActorY(m1);
+	int dist = AproxDistance(xdiff, ydiff);
+	//dist >>= 8;
+	int zdiff = (GetActorZ(m2) + GetActorProperty(m2, APROP_HEIGHT) / 2) - (GetActorZ(m1) + GetActorProperty(m1, APROP_HEIGHT) / 2);
+	//zdiff >>= 8;
+	return -VectorAngle(dist, zdiff);
 }
 
 void FaceActor(int this, int to) {

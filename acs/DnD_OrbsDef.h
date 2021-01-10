@@ -24,7 +24,7 @@ typedef struct {
 
 typedef struct {
 	orb_stat_T orb_stat_bonuses;
-	wep_info_T weapon_stat_bonuses[MAXWEPS];
+	wep_bonus_T weapon_stat_bonuses[MAXWEPS];
 } orb_max_info_T;
 
 global orb_max_info_T 8: Player_Orb_Data[MAXPLAYERS];

@@ -2112,7 +2112,7 @@ Actor DarkZealot : DnD_BaseHybridMonster {
 			TNT1 A 0 A_GiveInventory("ZealotShielded", 1)
 			RSON FF 6 Fast Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("DarkServant/Magic", CHAN_WEAPON)
-			TNT1 A 0 A_GiveInventory("MonsterTraits", DND_REFLECTIVE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_REFLECTIVE, -1, -1, -1)
 			TNT1 A 0 ACS_ExecuteAlways(960, 0, 0)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 0)
 			TNT1 A 0 A_Blast(0, 3, 84, 24)
@@ -2265,7 +2265,7 @@ Actor ZealotUnsetReflection : DnD_Activator {
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
 			TNT1 A 0 A_TakeInventory("ZealotShielded", 1)
 			TNT1 A 0 A_UnsetReflectiveInvulnerable
-			TNT1 A 0 A_TakeInventory("MonsterTraits", DND_REFLECTIVE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_REFLECTIVE, -1, -1, -1)
 		Stop
 	}
 }

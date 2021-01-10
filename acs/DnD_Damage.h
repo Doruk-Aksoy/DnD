@@ -925,6 +925,8 @@ Script "DnD Do Explosion Damage (Pets)" (int dmg, int radius, int fullradius, in
 	SetResultValue(0);
 }
 
+#define DND_PLAYER_HITSCAN_Z 38.0
+
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int victim = GetActorProperty(0, APROP_TRACERTID);
@@ -940,9 +942,47 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 	
 	int px, py, pz;
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
-		px = GetActorX(owner);
-		py = GetActorY(owner);
-		pz = GetActorZ(owner) + GetActorProperty(owner, APROP_HEIGHT) / 2 + 8.0;
+		if(!isActorAlive(victim)) {
+			// if actor died before the rest of the pellets can take effect, fire corresponding bullet attacks from behind this monster
+			// calculate a pitch and angle to fire it from this guy
+			// get vector from player to puff
+			int ang, pitch;
+			
+			px = GetActorX(0) - GetActorX(owner);
+			py = GetActorY(0) - GetActorY(owner);
+			pz = GetActorZ(0) - GetActorZ(owner) - DND_PLAYER_HITSCAN_Z;
+			ang = VectorAngle(px, py);
+			flags = AproxDistance(px, py);
+			pitch = -VectorAngle(flags >> 8, pz >> 8);
+			flags = DND_SHOTGUNPUFF_REMOVETID + owner - P_TIDSTART; // tid of shell puffs to remove
+
+			// by now we have ang and pitch ready, store player's previous positions, angle and pitch and move player there to fire
+			str puff = GetActorClass(0);
+			Thing_ChangeTID(0, flags);
+			
+			// player is now in charge of firing the puff
+			SetActivator(owner);
+			
+			px = GetActorX(0);
+			py = GetActorY(0);
+			pz = GetActorZ(0);
+			
+			// move past this monster along this angle
+			SetActorPosition(0, px + cos(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), py + sin(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), pz + pitch * (GetActorProperty(victim, APROP_RADIUS) >> 16), 0);
+			LineAttack(0, ang, pitch, 0, puff, DamageTypeList[damage_type], 2048.0, FHF_NORANDOMPUFFZ, 0);
+			SetActorPosition(0, px, py, pz, 0);
+			
+			// return to puff to early cancel, no need to do damage calculation for this particular pellet anymore
+			SetActivator(flags);
+			Thing_Remove(flags);
+			SetResultValue(0);
+			Terminate;
+		}
+		else {
+			px = GetActorX(owner);
+			py = GetActorY(owner);
+			pz = GetActorZ(owner) + GetActorProperty(owner, APROP_HEIGHT) / 2 + 8.0;
+		}
 	}
 	else {
 		px = GetActorX(0);

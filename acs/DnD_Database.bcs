@@ -448,18 +448,23 @@ void SavePlayerData(int pnum, int char_id) {
 	for(i = 0; i < MAXWEPS; ++i) {
 		// check mods
 		// enhancement orbs used
-		temp = Player_Weapon_Infos[pnum][i].enchants;
+		temp = Player_Weapon_Infos[pnum][i].wep_bonus.enchants;
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
 		// orb bonus
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, i));
 		for(j = 0; j < MAX_WEP_BONUSES; ++j) {
-			temp = Player_Weapon_Infos[pnum][i].wep_bonuses[j].amt;
+			temp = Player_Weapon_Infos[pnum][i].wep_bonus.bonus_list[j];
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 			// orb bonus
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT + j, i));
 		}
-		// rest of the mods
-		
+		// rest of the mods for the weapon
+		for(j = 0; j < MAX_WEP_MODS; ++j) {
+			temp = Player_Weapon_Infos[pnum][i].wep_mods[j].tier;
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
+			temp = Player_Weapon_Infos[pnum][i].wep_mods[j].val;
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
+		}
 	}
 	
 	// save stored medkit
@@ -571,9 +576,8 @@ void SavePlayerActivities(int pnum, int char_id) {
 		// orb bonus
 		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].enchants);
 		for(j = 0; j < MAX_WEP_BONUSES; ++j)
-			IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].wep_bonuses[DND_ACTIVITY_ORB_WEAPONBONUS_CRIT + j].amt);
-		// rest of the mods
-		
+			IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].bonus_list[DND_ACTIVITY_ORB_WEAPONBONUS_CRIT + j]);
+		// no mods here as they arent recorded by the orbs
 	}
 	
 	temp = PlayerActivities[pnum].credit;
@@ -877,9 +881,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	
 	// read exp
 	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);
-	SetAmmoCapacity("ExpVisual", GetExpLimit());
-	SetInventory("ExpVisual", temp);
 	SetInventory("Exp", temp);
+	CalculateExpRatio();
 	
 	// read credits
 	SetInventory("Credit", GetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc));
@@ -969,14 +972,17 @@ void LoadPlayerData(int pnum, int char_id) {
 		// check mods
 		// enhancement orbs used
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc);
-		Player_Weapon_Infos[pnum][i].enchants = temp & 0xFF;
+		Player_Weapon_Infos[pnum][i].wep_bonus.enchants = temp & 0xFF;
 		SetDataToOrbBonus_NoActivity(pnum, OBI_WEAPON_ENCHANT, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc));
 		for(j = 0; j < MAX_WEP_BONUSES; ++j) {
-			Player_Weapon_Infos[pnum][i].wep_bonuses[j].amt = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc);
+			Player_Weapon_Infos[pnum][i].wep_bonus.bonus_list[j] = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc);
 			SetDataToOrbBonus_NoActivity(pnum, OBI_WEAPON_CRIT + j, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONBONUS, char_id), d:j, s:"_Weapon", d:i), pacc));
 		}
-		// rest of the mods
-		// to do: figure out loading these efficiently later
+		// rest of the mods for the weapon
+		for(j = 0; j < MAX_WEP_MODS; ++j) {
+			Player_Weapon_Infos[pnum][i].wep_mods[j].tier = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc);
+			Player_Weapon_Infos[pnum][i].wep_mods[j].val = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc);
+		}
 	}
 	
 	// load stored medkit

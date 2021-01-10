@@ -3,8 +3,6 @@ Actor TargetCurrentHealth : DnD_Info {}
 Actor TargetLevel : DnD_Info {}
 Actor TargetIsWhat : DnD_Info {}
 Actor TargetHealthBarColor : DnD_Info {}
-Actor TargetTraits : DnD_Info {}
-Actor TargetTraits2 : DnD_Info {}
 Actor TargetNameSkip : DnD_Info {}
 Actor TargetTag : DnD_Info {}
 Actor TargetIsElite : DnD_Boolean {}
@@ -12,8 +10,6 @@ Actor TargetProperties : DnD_Info {}
 
 // Identification of the monster
 Actor MonsterID : DnD_Info {}
-Actor MonsterTraits : DnD_Info {}
-Actor MonsterTraits2 : DnD_Info {}
 Actor MonsterLevel : DnD_Info {}
 Actor MonsterBaseHealth : DnD_Info {}
 Actor MonsterMaxHealth : DnD_Info {}
