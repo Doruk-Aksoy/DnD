@@ -126,7 +126,7 @@ ACTOR VolcanoFireball5 : DnD_ExplosiveBase {
 			VOL3 AB 4 BRIGHT A_SpawnItemEx("LichPuff",0,0,0,0,0,0,0,0,0)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
@@ -176,7 +176,7 @@ ACTOR VolcanoFireball6 : DnD_BaseProjectile {
 			VOL4 AAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBBAAAABBBB 1 BRIGHT A_CustomMissile("VolcanoFireBall6_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_Die
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			TNT1 A 0 A_CustomMissile("VolcanoFireball6Fire", 0, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION, 0)
 			VOL4 EDCDEFG 2 BRIGHT
@@ -193,7 +193,7 @@ Actor VolcanoFireBall6_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			TNT1 A 1
 		Stop
@@ -206,7 +206,7 @@ Actor VolcanoFireBall6_Damager2 : VolcanoFireBall6_Damager {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			TNT1 A 1
 		Stop
@@ -249,7 +249,7 @@ Actor VolcanoFireball6NOFIRE_Fall : VolcanoFireball6 {
 			VOL4 B 1 BRIGHT A_CustomMissile("VolcanoFireBall6_Damager2", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			TNT1 A 0 A_CustomMissile("VolcanoFireball6Exp", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			VOL4 EDCDEFG 2 BRIGHT
@@ -289,7 +289,7 @@ Actor VolcanoFireball6Fire_Damager : VolcanoFireBall6_Damager {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			TNT1 A 1
 		Stop
@@ -386,7 +386,7 @@ ACTOR VolcanoFireball6Fire : DnD_BaseProjectile {
 			TNT1 A 0 A_JumpIf(user_count > 0, "FireLoop")
 		Goto Death
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8) / 2, DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			FFLG EDCBA 4 BRIGHT
 		Stop
@@ -417,7 +417,7 @@ Actor HellFireLinkF : DnD_ExplosiveBase {
 			TNT1 A 0 A_CountDown
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_DEATHSTAFF)
 		Death:
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_PlaySound("weapons/deathstexp2")
@@ -702,7 +702,7 @@ ACTOR RazorShot1 : DnD_BaseProjectile {
 			TNT1 AAAAAAAAA 0 A_SpawnItemEx("RazorShot2",0,0,0,25,random(-6,6),(momz*0.5)+random(-3,3),0,0,0)
 		stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_RAZORFANG)
 		Death:
 			RFX1 L 0 Bright A_SetTranslucent(0.67,1)
 			RFX1 LMNO 4 Bright
@@ -720,7 +720,7 @@ Actor RazorShot1_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_RAZORFANG)
 		Death:
 			TNT1 A 1
 		Stop
@@ -740,7 +740,7 @@ ACTOR RazorShot2 : DnD_BaseProjectile {
 			RFX1 A 1 Bright A_SpawnItemEx("RazorTrail",0,0,0,0,0,0,0,128,0)
 		loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_RAZORFANG)
 		Death:
 			RFX1 G 0 Bright A_SetTranslucent(0.67,1)
 			RFX1 GHIJCDEF 3 Bright
@@ -823,7 +823,7 @@ ACTOR RazorSkull : DnD_BaseProjectile {
 			RFX1 K 0 A_Countdown
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_RAZORFANG)
 		Death:
 			TNT1 A 0 A_SetTranslucent(0.67,1)
 			RFX1 LMNO 4 Bright
@@ -851,7 +851,7 @@ Actor RazorShot3_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_RAZORFANG << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_RAZORFANG)
 		Death:
 			TNT1 A 1
 		Stop
@@ -1123,6 +1123,7 @@ Actor SunPuff : DnD_BaseRailPuff {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SUNSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SUNSTAFF)
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 0 A_PlaySound("weapons/SunStaffHit")
@@ -1283,7 +1284,7 @@ Actor SunBeamDamager : DnD_BaseProjectile {
 			FX01 A 1 Bright A_SpawnItemEx("SunBeamDamagerTrailSpawner", 0, 0, 8)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_SUNSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_SUNSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8), DND_DAMAGETYPE_SOUL, 0, DND_WEAPON_SUNSTAFF)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AA 0 A_SpawnItemEx("SunRay", 0, 0, 15, 8, 0, Random(4, 16), Random(0, 360), 160, 0)

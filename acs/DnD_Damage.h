@@ -2,6 +2,7 @@
 #define DND_DAMAGE_IN
 
 #define DND_DMGPUSH_CAP 96.0
+#define DND_PLAYER_HITSCAN_Z 38.0
 
 enum {
 	DND_DAMAGETYPE_MELEE,
@@ -76,6 +77,7 @@ enum {
 	DND_DAMAGEFLAG_EXTRATOUNDEAD		=			0b1000000000000,
 	DND_DAMAGEFLAG_ISHITSCAN			=			0b10000000000000,
 	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b100000000000000,
+	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b1000000000000000,
 };
 
 enum {
@@ -121,6 +123,22 @@ scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
 	{ 4096.0,		 	0.25, 				32.0 },
 	{ 2048.0,			0.25,				32.0 }
 };
+
+int Scan_to_WeaponID(int scan_id) {
+	int ret = DND_WEAPON_BFG6000;
+	switch(scan_id) {
+		case DND_SCANNER_BFGUPGRADED:
+			ret = DND_WEAPON_BFG32768;
+		break;
+		case DND_SCANNER_HEART:
+			ret = DND_WEAPON_DEMONHEART;
+		break;
+		case DND_SCANNER_BOOK:
+			ret = -1;
+		break;
+	}
+	return ret;
+}
 
 enum {
 	DND_SPECIALBLOOD_STONE
@@ -235,7 +253,6 @@ void AdjustDamageRetrievePointers(int flags) {
 	if(!ActivatorTID()) {
 		GiveInventory("MarkAsReflected", 1);
 		SetActivator(GetActorProperty(0, APROP_SCORE));
-		
 	}
 }
 
@@ -272,9 +289,9 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	else // special ammo damage
 		temp = GetSpecialAmmoDamage(dmgid, wepid);
 		
-	// if there are shotgun things that have random values in them, we will include them as such into overall damage
+	// check if we have a random range cached -- special ammo types dont use this
 	int range = GetCachedPlayerRandomRange(pnum, wepid, dmgid);
-	if(range > 1)
+	if(range > 1 && !isSpecial)
 		dmg += temp * random(range & 0xFFFF, range >> 16);
 	else // no rng, so just set it to temp
 		dmg = temp;
@@ -395,7 +412,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		}
 
 		MarkCachingComplete(pnum, wepid, dmgid);
-		//printbold(s:"from regular");
+		
+		//printbold(s:"pre-scale: ", d:temp);
 	}
 	else {
 		// Get the cached flat dmg and factor and apply them both
@@ -679,7 +697,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type) {
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters!
-void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags) {
+void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0) {
 	str s_damagetype = DamageTypeList[damage_type];
 	bool factor_resist = true;
 	int temp;
@@ -764,7 +782,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
 			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
 			// 2% of damage
-			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, dmg / 50);
+			if(poison_factor)
+				ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, (dmg * poison_factor) / 100);
+			else
+				ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, dmg / 50);
 			//printbold(s:"poison received by ", d:victim);
 		}
 	}
@@ -789,6 +810,18 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			dmg = dmg * (100 + temp) / 100;
 	}
 	
+	if(CheckActorInventory(victim, "DnD_OverloadTimer")) {
+		if(damage_type != DND_DAMAGETYPE_LIGHTNING)
+			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF) / 100;
+		GiveActorInventory(victim, "DnD_OverloadDamage", dmg);
+	}
+	
+	if(flags & DND_DAMAGEFLAG_PERCENTHEALTH) {
+		dmg += (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * extra) / 100;
+		// printbold(s:"% bonus: ", d:extra, s:" ", d:(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * extra) / 100);
+	}
+	
+	// damage number handling
 	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
 	if(pnum != -1) {
 		// this part handles damage pushing
@@ -808,12 +841,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		if(!PlayerDamageTicData[pnum][temp])
 			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (actor_flags << DND_DAMAGE_ACCUM_SHIFT), ox, oy, oz);
 		PlayerDamageTicData[pnum][temp] += dmg;
-	}
-	
-	if(CheckActorInventory(victim, "DnD_OverloadTimer")) {
-		if(damage_type != DND_DAMAGETYPE_LIGHTNING)
-			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF) / 100;
-		GiveActorInventory(victim, "DnD_OverloadDamage", dmg);
 	}
 	
 	Thing_Damage2(victim, dmg, s_damagetype);
@@ -925,9 +952,7 @@ Script "DnD Do Explosion Damage (Pets)" (int dmg, int radius, int fullradius, in
 	SetResultValue(0);
 }
 
-#define DND_PLAYER_HITSCAN_Z 38.0
-
-Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
+Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int victim = GetActorProperty(0, APROP_TRACERTID);
 	
@@ -939,6 +964,9 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 		if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_STONECREATURE])
 			ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
 	}
+	
+	if(wepid == -1)
+		wepid = CheckActorInventory(owner, "DnD_WeaponID");
 	
 	int px, py, pz;
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
@@ -990,14 +1018,26 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags) {
 		pz = GetActorZ(0);
 	}
 	
-	// finally do some flag checking here
-	int actor_flags = ScanActorFlags();
-	
 	// printbold(d:owner, s: " ", d:victim);
 	SetActivator(owner);
+	int pnum = PlayerNumber();
+	int extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+	int actor_flags = ScanActorFlags();
+	// percent damage of monster if it exists
+	if(extra)
+		flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
+		
+	// chance to force pain
+	if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100)) {
+		actor_flags |= DND_ACTORFLAG_FORCEPAIN;
+	}
 	
+	if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val)
+		flags |= DND_DAMAGEFLAG_INFLICTPOISON;
+	
+	// printbold(d:dmg);
 	if(owner && victim)
-		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags);
+		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags, extra, Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val);
 	
 	SetResultValue(0);
 }

@@ -523,6 +523,7 @@ void HandleOrbUse (int orbtype, int extra) {
 				temp = random(0, CORRUPTORB_MAXWEIGHT);
 				for(i = 0; i < CORRUPTORB_MAXEFFECTS && temp > CorruptOrb_Weights[i]; ++i);
 			} while(!CorruptionMaxChecks(i) && res++ < MAX_ITER);
+			// i = CORRUPTORB_MOD_POISONFORPERCENTDAMAGE;
 			// i has the effect to do now
 			SetInventory("OrbResult", i);
 			Player_MostRecent_Orb[pnum].values[0] = i;
@@ -1349,10 +1350,10 @@ void HandleCorruptOrbUse(int type) {
 					SetInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], 0);
 				}
 			for(i = 0; i < MAXTEMPWEPS; ++i) {
-				if(CheckInventory(TemporaryAmmos[i])) {
-					Player_MostRecent_Orb[pnum].p_tempammo = CheckInventory(TemporaryAmmos[i]);
+				if(CheckInventory(TemporaryWeaponData[i][TEMPWEP_AMMO])) {
+					Player_MostRecent_Orb[pnum].p_tempammo = CheckInventory(TemporaryWeaponData[i][TEMPWEP_AMMO]);
 					Player_MostRecent_Orb[pnum].p_tempwep = i;
-					SetInventory(TemporaryAmmos[i], 0);
+					SetInventory(TemporaryWeaponData[i][TEMPWEP_AMMO], 0);
 					break;
 				}
 			}
@@ -1365,7 +1366,7 @@ void HandleCorruptOrbUse(int type) {
 		case CORRUPTORB_TAKEDMG:
 			// we hold the difference while we can
 			temp = CORRUPTORB_DMGTAKE * GetAffluenceBonus();
-			i = GetWeaponPosFromTable();
+			i = PickRandomOwnedWeaponID();
 			Player_MostRecent_Orb[pnum].values[3] = i;
 			if(GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i) - temp > CORRUPTORB_MINDMG) {
 				Player_MostRecent_Orb[pnum].values[2] = temp;
@@ -1376,6 +1377,7 @@ void HandleCorruptOrbUse(int type) {
 				Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
 				SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, CORRUPTORB_MINDMG);
 			}
+			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_TAKEHP:
@@ -1415,6 +1417,7 @@ void HandleCorruptOrbUse(int type) {
 			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i) + temp, 0, CORRUPTORB_MAXDMG));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
 			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
+			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 		case CORRUPTORB_ADDCRIT:
 			temp = CORRUPTORB_DMGGIVE * GetAffluenceBonus();
@@ -1424,6 +1427,7 @@ void HandleCorruptOrbUse(int type) {
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i) + temp, 0, CORRUPTORB_MAXCRITPERCENT));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
 			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
+			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 		case CORRUPTORB_ADDCRITDMG:
 			temp = CORRUPTORB_CRITDMGGIVE * GetAffluenceBonus();
@@ -1433,6 +1437,7 @@ void HandleCorruptOrbUse(int type) {
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i) + temp, 0, CORRUPTORB_MAXCRITDMG));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
 			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
+			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 		case CORRUPTORB_ADDSPEED:
 			temp = CORRUPTORB_SPEEDGIVE * GetAffluenceBonus();
@@ -1475,6 +1480,13 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[3] = temp;
 			Player_MostRecent_Orb[pnum].values[4] = tier;
 			
+			// give the mod -- index to 0 base
+			type -= CORRUPTORB_MOD_PERCENTDAMAGE;
+			Player_Weapon_Infos[pnum][i].wep_mods[type].tier = tier;
+			Player_Weapon_Infos[pnum][i].wep_mods[type].val = temp;
+			
+			SyncClientsideVariable_WeaponMods(pnum, i);
+			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 	}
 }
@@ -1492,7 +1504,7 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cjOrb of Corruption \cgtakes away ", d:affluence, s:" of your backpacks!");
 		break;
 		case CORRUPTORB_TAKEDMG:
-			Log(s:"\cjOrb of Corruption takes \cg", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% damage\cj from \cv", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption takes \cg", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% damage\cj from \cv", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
 			Log(s:"\cjOrb of Corruption \cgreduces your damage by 75%\cj for this map!");
@@ -1505,13 +1517,13 @@ void DoCorruptOrbMessage(int val, int affluence) {
 		break;
 		
 		case CORRUPTORB_ADDCRIT:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj increased crit chance to \cv", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj increased crit chance to \cv", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_ADDCRITDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj crit damage to ", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj crit damage to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_ADDDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj increased damage to ", s:Weapons[CheckInventory("DnD_WeaponID")][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj increased damage to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
 		break;
 		case CORRUPTORB_ADDSPEED:
 			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * affluence * 100), s:"%\cj increased movement speed!");
@@ -1520,7 +1532,16 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cjOrb of Corruption increases your drop chance by \cv", f:ftrunc(CORRUPTORB_DROPCHANCEGIVE * affluence * 100), s:"%\cj!");
 		break;
 		case CORRUPTORB_GIVESTAT:
-			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", s:StatLabels[val >> 8], s:"\cj points!");
+			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", s:StatData[val >> 8][STAT_LABEL], s:"\cj points!");
+		break;
+		case CORRUPTORB_MOD_PERCENTDAMAGE:
+			Log(s:"\cjOrb of Corruption gives \cvpercent health damage on impact\cj to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+		break;
+		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
+			Log(s:"\cjOrb of Corruption gives \cvpoison on hit\cj to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+		break;
+		case CORRUPTORB_MOD_FORCEPAINCHANCE:
+			Log(s:"\cjOrb of Corruption gives \cvchance to force pain\cj to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
 		break;
 	}
 }
@@ -1529,15 +1550,16 @@ void UndoCorruptOrbEffect() {
 	// if type is take, we give, if type is give, we take!
 	int i;
 	int pnum = PlayerNumber();
-	switch(Player_MostRecent_Orb[pnum].values[0] & 0xF) {
+	int type = Player_MostRecent_Orb[pnum].values[0] & 0xF;
+	switch(type) {
 		case CORRUPTORB_TAKEAMMO:
 			for(i = 0; i < MAX_SLOTS; ++i)
 				for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
 					GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], Player_MostRecent_Orb[pnum].p_ammos[i][j]);
 			// try to give this temp weapon if only player doesn't have a temp wep
 			if(HasNoTempWeapon()) {
-				GiveInventory(TemporaryAmmos[Player_MostRecent_Orb[pnum].p_tempwep], Player_MostRecent_Orb[pnum].p_tempammo);
-				GiveInventory(TemporaryWeapons[Player_MostRecent_Orb[pnum].p_tempwep][TEMPWEP_NAME], 1);
+				GiveInventory(TemporaryWeaponData[Player_MostRecent_Orb[pnum].p_tempwep][TEMPWEP_AMMO], Player_MostRecent_Orb[pnum].p_tempammo);
+				GiveInventory(TemporaryWeaponData[Player_MostRecent_Orb[pnum].p_tempwep][TEMPWEP_NAME], 1);
 			}
 		break;
 		case CORRUPTORB_TAKEHP:
@@ -1585,6 +1607,16 @@ void UndoCorruptOrbEffect() {
 			AddOrbBonusData(pnum, OBI_DROPCHANCE, -1, Player_MostRecent_Orb[pnum].values[2]);
 			SyncClientsideVariable_Orb(DND_SYNC_DROPCHANCE, 0);
 		break;
+		case CORRUPTORB_MOD_PERCENTDAMAGE:
+		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
+		case CORRUPTORB_MOD_FORCEPAINCHANCE:
+			type -= CORRUPTORB_MOD_PERCENTDAMAGE;
+			i = Player_MostRecent_Orb[pnum].values[2];
+			// 2 is wep id, 3 is mod's value, 4 is tier
+			Player_Weapon_Infos[pnum][i].wep_mods[type].tier -= Player_MostRecent_Orb[pnum].values[4];
+			Player_Weapon_Infos[pnum][i].wep_mods[type].val -= Player_MostRecent_Orb[pnum].values[3];
+			SyncClientsideVariable_WeaponMods(pnum, i);
+		break;
 	}
 }
 
@@ -1603,7 +1635,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_SPIRIT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Spirit grants you with \cv", d:affluence, s:" \cd", s:StatLabels[val], s:"\cv!");
+				Log(s:"\cjOrb of Spirit grants you with \cv", d:affluence, s:" \cd", s:StatData[val][STAT_LABEL], s:"\cv!");
 			else
 				Log(s:"\cgYou're maxed out on stats, Orb of Spirit failed!");
 		break;
@@ -1750,6 +1782,7 @@ void SpawnOrb(int pnum, bool sound) {
 		else
 			for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
 		// c is the index on the field now
+		// i = DND_ORB_CORRUPT;
 		RollOrbInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);

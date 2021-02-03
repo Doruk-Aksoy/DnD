@@ -3872,7 +3872,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		// make sure quality text isn't on the weapon name
 		++i;
 		if(temp) {
-			if (temp == 25) //Add the "MAX" indicator.
+			if (temp == ENHANCEORB_MAX) //Add the "MAX" indicator.
 				HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"% (MAX)"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			else
 				HudMessage(s:"\c[Y5]* Quality: \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
@@ -3893,6 +3893,28 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 7, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			else
 				HudMessage(s:"\c[Y5]* Damage Bonus: \c[Q2]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 8, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+		
+		str WeaponModTexts[MAX_WEP_MODS] = {
+			"monster health on hits",
+			"of damage dealt as additional poison on hits",
+			"chance to force pain on hits"
+		};
+		// print weapon mods -- generalize later idc at this time about how neat it is
+		temp = Player_Weapon_Infos[j][extra1].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+		if(temp) {
+			HudMessage(s:"\c[Y5]* \c[Q9]", d:temp, s:"% \c[Y5]", s:WeaponModTexts[WEP_MOD_PERCENTDAMAGE]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 9, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+		temp = Player_Weapon_Infos[j][extra1].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
+		if(temp) {
+			HudMessage(s:"\c[Y5]* \c[Q9]", d:temp, s:"% \c[Y5]", s:WeaponModTexts[WEP_MOD_POISONFORPERCENTDAMAGE]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 10, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+		temp = Player_Weapon_Infos[j][extra1].wep_mods[WEP_MOD_FORCEPAINCHANCE].val;
+		if(temp) {
+			HudMessage(s:"\c[Y5]* \c[Q9]", d:temp, s:"% \c[Y5]", s:WeaponModTexts[WEP_MOD_FORCEPAINCHANCE]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 11, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
 	}

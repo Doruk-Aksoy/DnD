@@ -2419,6 +2419,7 @@ str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster is immune to chill and freeze.",
 	"Monster is immune to ignite.",
 	"Monster is immune to overloading.",
+	"Monster recovers 5% of it's health every second.",
 	
 	"Monster is unique."
 };

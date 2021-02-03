@@ -12,6 +12,7 @@
 #define DND_DB_AMMO "DND_PlayerAmmo_"
 #define DND_DB_SPECIALAMMO "DND_PlayerSpecialAmmo_"
 #define DND_DB_TEMPAMMO "DND_PlayerTemporaryAmmo"
+#define DND_DB_TEMPAMMO_BLADECHARGE "DND_PlayerTemporaryAmmo_BladeCharge"
 #define DND_DB_TALENT_1 "DND_PlayerTalent_1"
 #define DND_DB_TALENT_2 "DND_PlayerTalent_2"
 #define DND_DB_EXP "DND_PlayerEXP"

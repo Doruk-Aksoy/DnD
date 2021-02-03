@@ -41,7 +41,7 @@ str FlagCheckList[MAXFLAGS] = {
 int FlagAcceptedValues[MAXFLAGS] = {
 	DND_HARDCORE_MAXLIVES,
 	1.0,
-	1,
+	0,
 	0,
 	1,
 	1,

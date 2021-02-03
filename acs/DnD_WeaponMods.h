@@ -21,6 +21,12 @@ enum {
 };
 #define MAX_WEP_MODS (WEP_MOD_FORCEPAINCHANCE + 1) // max allowed mods
 
+str WeaponModTexts[MAX_WEP_MODS] = {
+	"% monster health on hits",
+	"% of damage dealt as additional poison on hits",
+	"% chance to force pain on hits"
+};
+
 typedef struct {
 	int low;
 	int high;
@@ -28,8 +34,8 @@ typedef struct {
 } wep_mod_vals_T;
 
 wep_mod_vals_T WeaponModValues[MAX_WEP_MODS] = {
-	{ 1, 5, 5 },
-	{ 1, 5, 5 },
+	{ 1, 2, 1 },
+	{ 4, 10, 5 },
 	{ 5, 10, 10 },
 };
 

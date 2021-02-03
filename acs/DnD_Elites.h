@@ -25,7 +25,7 @@
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 30
+#define MAX_ROLLABLE_TRAITS 31
 
 #include "DnD_EliteInfo.h"
 
@@ -64,7 +64,8 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 	DND_VENOMANCER,
 	DND_FRIGID,
 	DND_SCORCHED,
-	DND_INSULATED
+	DND_INSULATED,
+	DND_REJUVENATING
 };
 
 int GetEliteBonusDamage() {
@@ -154,6 +155,9 @@ void SetEliteFlag(int f) {
 			// if monster has pierce, remove it
 			MonsterProperties[this].trait_list[DND_PIERCE] = false;
 			GiveInventory("MakePierce", 1);
+		break;
+		case DND_REJUVENATING:
+			GiveInventory("Rejuvenate_Script_Run", 1);
 		break;
 	}
 	MonsterProperties[this].trait_list[f] = true;

@@ -32,83 +32,102 @@ enum {
 
 #define TEMPWEP_NAME 0
 #define TEMPWEP_DROP 1
-str TemporaryWeapons[MAXTEMPWEPS][2] = { 
-	{ "Sawedoff", "SawedoffPickup" },
-	{ "Soul Render", "SoulRenderPickup" },
-	{ "SMG", "SMGPickup" },
-	{ "Hellforge Cannon", "HellforgePickup" },
-	{ "Bloodfiend Spine", "SpinePickup" },
-	{ "Enforcer Rifle", "LaserPickup" },
-	{ "Venom", "VenomPickup" },
-	{ "Demon Heart", "DemonHeartPickup" },
-	{ "DarkServantGloves", "DarkServantGlovesPickup" },
-	{ "Nailgun2", "Nailgun2Pickup" },
-	{ "Berettas", "BerettasPickup" },
-	{ "Plasma Bolter", "PlasmaBolterPickup" },
-	{ "Ripper Cannon", "RipperCannonPickup" }
-};
-
-enum {
-	DND_TEMPAMMO_SAWEDOFFSHELL,
-	DND_TEMPAMMO_BLADEHITS, 
-	DND_TEMPAMMO_BLADECHARGE,
-	DND_TEMPAMMO_SMGAMMO, 
-	DND_TEMPAMMO_IRONBALLS, 
-	DND_TEMPAMMO_BLOODAMMO, 
-	DND_TEMPAMMO_LASERAMMO, 
-	DND_TEMPAMMO_VENOMAMMO, 
-	DND_TEMPAMMO_HEARTAMMO, 
-	DND_TEMPAMMO_DARKSERVANTENERGY, 
-	DND_TEMPAMMO_BIGNAIL,
-	DND_TEMPAMMO_BERETTAAMMO,
-	DND_TEMPAMMO_PLASMABOLTERAMMO,
-	DND_TEMPAMMO_RIPPERCANNONAMMO
-};
-
-#define MAXTEMPAMMO DND_TEMPAMMO_RIPPERCANNONAMMO + 1
-str TemporaryAmmos[MAXTEMPAMMO] = { 
-	"SawedoffShell",
-	"BladeHits", 
-	"BladeCharge",
-	"SMGAmmo", 
-	"IronBalls", 
-	"BloodAmmo", 
-	"LaserAmmo", 
-	"VenomAmmo", 
-	"HeartAmmo", 
-	"DarkServantEnergy", 
-	"BigNail",
-	"BerettaAmmo",
-	"PlasmaBolterAmmo",
-	"RipperCannonAmmo"
-};
-
-str TemporaryWeaponMsg[MAXTEMPWEPS] = { 
-	"\ccWeapon Pickup : \c[Y5]Sawedoff - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Soul Render - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Submachine Gun - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Hellforge Cannon - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Bloodfiend Spine - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Enforcer Laser Rifle - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Venom - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Demon Heart - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Dark Servant Gloves - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Heavy Nailgun - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Akimbo Berettas - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Plasma Bolter - 9\c-",
-	"\ccWeapon Pickup : \c[Y5]Ripper Cannon - 9\c-"
+#define TEMPWEP_AMMO 2
+#define TEMPWEP_TAG 3
+str TemporaryWeaponData[MAXTEMPWEPS][4] = { 
+	{ 
+		"Sawedoff", 
+		"SawedoffPickup", 
+		"SawedoffShell", 
+		"Sawedoff" 
+	},
+	{ 
+		"Soul Render", 
+		"SoulRenderPickup", 
+		"BladeHits", 
+		"Soul Render" 
+	},
+	{ 
+		"SMG", 
+		"SMGPickup", 
+		"SMGAmmo", 
+		"Submachine Gun" 
+	},
+	{ 
+		"Hellforge Cannon", 
+		"HellforgePickup", 
+		"IronBalls", 
+		"Hellforge Cannon" 
+	},
+	{ 
+		"Bloodfiend Spine", 
+		"SpinePickup", 
+		"BloodAmmo", 
+		"Bloodfiend Spine" 
+	},
+	{ 
+		"Enforcer Rifle", 
+		"LaserPickup", 
+		"LaserAmmo", 
+		"Enforcer Laser Rifle" 
+	},
+	{ 
+		"Venom", 
+		"VenomPickup", 
+		"VenomAmmo", 
+		"Venom" 
+	},
+	{ 
+		"Demon Heart", 
+		"DemonHeartPickup", 
+		"HeartAmmo", 
+		"Demon Heart" 
+	},
+	{ 
+		"DarkServantGloves", 
+		"DarkServantGlovesPickup", 
+		"DarkServantEnergy", 
+		"Dark Servant Gloves" 
+	},
+	{ 
+		"Nailgun2", 
+		"Nailgun2Pickup", 
+		"BigNail", 
+		"Heavy Nailgun" 
+	},
+	{ 
+		"Berettas", 
+		"BerettasPickup", 
+		"BerettaAmmo", 
+		"Akimbo Berettas"
+	},
+	{ 
+		"Plasma Bolter", 
+		"PlasmaBolterPickup", 
+		"PlasmaBolterAmmo", 
+		"Plasma Bolter" 
+	},
+	{ 
+		"Ripper Cannon", 
+		"RipperCannonPickup", 
+		"RipperCannonAmmo", 
+		"Ripper Cannon" 
+	}
 };
 
 bool HasNoTempWeapon() {
 	for(int i = 0; i < MAXTEMPWEPS; ++i)
-		if(!CheckInventory(TemporaryWeapons[i][TEMPWEP_NAME]))
+		if(!CheckInventory(TemporaryWeaponData[i][TEMPWEP_NAME]))
 			return 1;
 	return 0;
 }
 
 void CleanTempAmmo() {
 	for(int i = 0; i < MAXTEMPWEPS; ++i) {
-			SetInventory(TemporaryAmmos[i], 0);
+		SetInventory(TemporaryWeaponData[i][TEMPWEP_AMMO], 0);
+		
+		// exception for soul render
+		SetInventory("BladeCharge", 0);
 	}
 }
 

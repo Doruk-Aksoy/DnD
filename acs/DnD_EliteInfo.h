@@ -74,6 +74,7 @@ enum {
 	DND_FRIGID,
 	DND_SCORCHED,
 	DND_INSULATED,
+	DND_REJUVENATING,
 	
 	DND_LEGENDARY
 };
@@ -158,6 +159,7 @@ str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Frigid",
 	"Scorched",
 	"Insulated",
+	"Rejuvenating",
 	
 	"Legendary"
 };
@@ -227,6 +229,7 @@ str GetTraitColorCode(int trait) {
 		case DND_GHOST:
 		case DND_ISBLOCKING:
 		case DND_BLOODLESS:
+		case DND_REJUVENATING:
 		return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
 		
 		case DND_HOMING:

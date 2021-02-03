@@ -255,8 +255,9 @@ void SavePlayerData(int pnum, int char_id) {
 		}
 	}
 	
-	for(i = 0; i < MAXTEMPAMMO; ++i)
-		SetDBEntry(GetCharField(StrParam(s:DND_DB_TEMPAMMO, d:i), char_id), pacc, CheckActorInventory(tid, TemporaryAmmos[i]));
+	for(i = 0; i < MAXTEMPWEPS; ++i)
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_TEMPAMMO, d:i), char_id), pacc, CheckActorInventory(tid, TemporaryWeaponData[i][TEMPWEP_AMMO]));
+	SetDBEntry(GetCharField(DND_DB_TEMPAMMO_BLADECHARGE, char_id), pacc, CheckActorInventory(tid, "BladeCharge"));
 	
 	// save stats of player (can fit 4 stats in one int, using 7 bits)
 	temp = CheckActorInventory(tid, "PSTAT_Strength");
@@ -745,8 +746,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	Player_Elixir_Bonuses[pnum].luck = GetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc);
 	
 	// read temp ammo -- first so weapon doesnt get removed
-	for(i = 0; i < MAXTEMPAMMO; ++i)
-		SetInventory(TemporaryAmmos[i], GetDBEntry(GetCharField(StrParam(s:DND_DB_TEMPAMMO, d:i), char_id), pacc));
+	for(i = 0; i < MAXTEMPWEPS; ++i)
+		SetInventory(TemporaryWeaponData[i][TEMPWEP_AMMO], GetDBEntry(GetCharField(StrParam(s:DND_DB_TEMPAMMO, d:i), char_id), pacc));
 		
 	// read weapons
 	temp = GetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:1), char_id), pacc);

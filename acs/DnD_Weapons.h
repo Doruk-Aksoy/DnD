@@ -29,7 +29,7 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "Upgraded Shotgun",					"Purifier",					"3",		"Shell",			"ShellSize_8",			    	"GotShotgun",				"SGP2Z0",		"WEPICO18"	},
 	 { "Upgraded Shotgun2",					"KillStorm",				"3",		"Shell",			"ShellSize_10",			        "GotShotgun",				"UASGICO",		"WEPICO19"	},
 	 { "Upgraded Shotgun3",					"Emerald Wand",				"3",		"EmeraldMana",		" ",							"GotShotgun",				"JADEC0",		"WEPICO20"	},
-	 { "ResShotgun1",						"Deadlock",					"3",		"Shell",			"ShellSize_12",			        "GotShotgun",				"RW01X0",		"WEPICO21"	},
+	 { "ResShotgun1",						"Deadlock",					"3",		"Shell",			"ShellSize_12",			        "GotShotgun",				"RW01Z0",		"WEPICO21"	},
 	 { "ResShotgun2",                       "Nitrogen Crossbow",        "3",        "NitrogenCanister", " ",                            "GotShotgun",               "WBOWA0",       "WEPICO22"	},
 	 { "ResShotgun3",						"Wheel of Torment",			"3",		"DemonBlood",		" ",							"GotShotgun",				"WWOPA0",		"WEPICO23"	},
 	 
@@ -263,6 +263,34 @@ int GetWeaponCount() {
 		if(CheckInventory(Weapons[i][WEAPON_NAME]))
 			++res;
 	return res;
+}
+
+int MapClassicWeaponToTableID(int id) {
+	int ret = DND_WEAPON_FIST;
+	switch (id) {
+		case 0:
+			ret = DND_WEAPON_CHAINSAW;
+		break;
+		case 1:
+			ret = DND_WEAPON_SHOTGUN;
+		break;
+		case 2:
+			ret = DND_WEAPON_SUPERSHOTGUN;
+		break;
+		case 3:
+			ret = DND_WEAPON_MACHINEGUN;
+		break;
+		case 4:
+			ret = DND_WEAPON_ROCKETLAUNCHER;
+		break;
+		case 5:
+			ret = DND_WEAPON_PLASMARIFLE;
+		break;
+		case 6:
+			ret = DND_WEAPON_BFG6000;
+		break;
+	}
+	return ret;
 }
 
 bool IsWeaponLightningType(int wepid, int extra, bool isSpecial) {

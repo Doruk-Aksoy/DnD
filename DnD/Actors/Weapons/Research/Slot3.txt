@@ -25,7 +25,7 @@ Actor ResShotgun1 : Weapon {
 	Tag "Deadlock"
 	states {
 		Spawn:
-			RW01 X -1
+			RW01 Z -1
 		stop
 		Ready:
 			RW01 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
@@ -50,28 +50,43 @@ Actor ResShotgun1 : Weapon {
 			RW01 A 1 A_WeaponReady(WRF_NOSWITCH)
 		Goto Reload
 		ContinueFire:
-			RW01 BC 1 Bright
+			RW01 B 1 Bright Offset(2, 33)
+			RW01 B 1 Bright Offset(6, 35)
 			TNT1 A 0 A_TakeInventory("DoPump", 1)
 			TNT1 A 0 A_GunFlash
 			TNT1 A 0 A_SpawnItemEx("GunSmoke", 20 * cos(-pitch), 14, 32 * (1 + sin(-pitch)), 2, 0, 1)
 			TNT1 A 0 A_GiveInventory("DeadLockShooter", 1)
-			RW01 D 1 Bright A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 15, 34 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 15, 34 * (1 + sin(-pitch)), 2, 0, 1)
+			RW01 C 1 Bright Offset(11, 39)
 			TNT1 A 0 A_SetPitch(pitch - 6.5)
-			RW01 E 1 Bright A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 15, 34 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 A 0  A_SetPitch(pitch + 0.5)
-			RW01 F 1 A_SpawnItemEx("GunSmoke", 20 * cos(-pitch), 16, 36 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 15, 34 * (1 + sin(-pitch)), 2, 0, 1)
+			RW01 C 1 Bright Offset(14, 41)
 			TNT1 A 0 A_SetPitch(pitch + 0.5)
-			RW01 G 1 A_SpawnItemEx("GunSmoke", 20 * cos(-pitch), 16, 36 * (1 + sin(-pitch)), 2, 0, 1)
-			RW01 HIH 1 A_SetPitch(pitch + 0.5)
-			RW01 JJKLL 1 A_SetPitch(pitch + 0.5)
-			RW01 MN 1
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 20 * cos(-pitch), 16, 36 * (1 + sin(-pitch)), 2, 0, 1)
+			RW01 P 1 Offset(17, 33)
+			TNT1 A 0 A_SetPitch(pitch + 0.5)
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 20 * cos(-pitch), 16, 36 * (1 + sin(-pitch)), 2, 0, 1)
+			RW01 P 1 Offset(21, 31) A_SetPitch(pitch + 0.5)
+			RW01 P 1 Offset(26, 28) A_SetPitch(pitch + 0.5)
+			RW01 Q 1 Offset(22, 29) A_SetPitch(pitch + 0.5)
+			RW01 Q 1 Offset(17, 31) A_SetPitch(pitch + 0.5)
+			RW01 Q 1 Offset(12, 36) A_SetPitch(pitch + 0.5)
+			RW01 R 1 Offset(9, 37) A_SetPitch(pitch + 0.5)
+			RW01 R 1 Offset(7, 39) A_SetPitch(pitch + 0.5)
+			RW01 R 1 Offset(4, 40) A_SetPitch(pitch + 0.5)
+			RW01 R 1 Offset(1, 41) A_SetPitch(pitch + 0.5)
+			RW01 A 2 Offset(0, 32)
 		Pump:
 			TNT1 A 0 A_PlaySound("Deadlock/Pump", 7)
 			TNT1 A 0 A_TakeInventory("DoPump", 1)
-			RW01 OPQ 1
+			RW01 D 1 Offset(0, 32)
+			RW01 D 1 Offset(1, 33)
+			RW01 D 1 Offset(2, 34)
 			TNT1 A 0 A_GiveInventory("DeadlockCasingSpawner", 1)
-			RW01 R 2
-			RW01 QPO 1
+			RW01 E 2 Offset(4, 36)
+			RW01 D 1 Offset(2, 34)
+			RW01 D 1 Offset(1, 33)
+			RW01 D 1 Offset(0, 32)
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 1, "Skip")
 			TNT1 A 0 A_GiveInventory("DoPump", 1)
 		Skip:
@@ -91,60 +106,46 @@ Actor ResShotgun1 : Weapon {
 			RW01 A 1 A_WeaponReady(WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
-			RW01 A 1 Offset(0, 34)
-			RW01 A 1 Offset(0, 36)
-			RW01 A 1 Offset(0, 38)
-			RW01 A 1 Offset(0, 40)
-			RW01 A 1 Offset(0, 42)
-		ContinueReloadChecks:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUp")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 3), "ContinueReloadAgain")
-			RW01 A 2 Offset(0, 42)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 3), "ReloadBegin")
+			RW01 A 2
 		Goto RiseUp
-		ContinueReloadAgain:
-			RW01 A 1 Offset(0, 44)
-			RW01 A 1 Offset(0, 45)
-			RW01 A 1 Offset(0, 46)
-			RW01 A 1 Offset(0, 47)
-			RW01 A 1 Offset(1, 48)
-			RW01 A 1 Offset(2, 49)
-			RW01 A 1 Offset(3, 50)
-			RW01 A 1 Offset(3, 49)
+		
+		ReloadChecks:
+			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUp")
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 3), "ReloadInsert")
+		Goto RiseUp
+		
+		ReloadBegin:
+			RW01 FGHI 2
+			RW01 J 4
+		ReloadInsert:
 			TNT1 A 0 A_PlayWeaponSound("Deadlock/Insert")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-		NoTake:
 			TNT1 A 0 A_GiveInventory("Shellsize_12", 1)
-			RW01 A 1 Offset(3, 50)
-			RW01 A 1 Offset(2, 49)
-			RW01 A 1 Offset(1, 48)
-			RW01 A 1 Offset(0, 47)
-			RW01 A 1 Offset(0, 46)
-			RW01 A 1 Offset(0, 45)
-			RW01 A 1 Offset(0, 44)
+			RW01 KL 2
+			RW01 M 2 Offset(0, 30)
+			RW01 N 2 Offset(0, 31)
+			RW01 O 2 Offset(0, 32)
+			RW01 J 4
 			TNT1 A 0 A_JumpIfInventory("DoPump", 1, "RisePump")
-			RW01 A 1 A_JumpIf(ACS_ExecuteWithResult(994, 9), "ContinueReloadChecks")
+			RW01 J 1 A_JumpIf(ACS_ExecuteWithResult(994, 9), "ReloadChecks")
 		Goto RiseUp
 		RiseUp:
-			RW01 A 1 Offset(0, 42)
-			RW01 A 1 Offset(0, 40)
-			RW01 A 1 Offset(0, 38)
-			RW01 A 1 Offset(0, 36)
-			RW01 A 1 Offset(0, 34)
+			RW01 IHGF 2
 		Goto Ready
 		RisePump:
-			RW01 A 1 Offset(0, 42)
-			RW01 A 1 Offset(0, 40)
-			RW01 A 1 Offset(0, 38)
-			RW01 A 1 Offset(0, 36)
-			RW01 A 1 Offset(0, 34)
-			RW01 A 1 Offset(0, 32)
+			RW01 IHGF 2
 		Goto PumpAllowRefire
 		PumpAllowRefire:
 			TNT1 A 0 A_PlaySound("Deadlock/Pump", 7)
 			TNT1 A 0 A_TakeInventory("DoPump", 1)
-			RW01 OPQ 1
-			RW01 R 2
-			RW01 QPO 1
+			RW01 D 1 Offset(0, 32)
+			RW01 D 1 Offset(1, 33)
+			RW01 D 1 Offset(2, 34)
+			RW01 E 2 Offset(4, 36)
+			RW01 D 1 Offset(2, 34)
+			RW01 D 1 Offset(1, 33)
+			RW01 D 1 Offset(0, 32)
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 1, "SkipRefire")
 			TNT1 A 0 A_GiveInventory("DoPump", 1)
 		SkipRefire:
@@ -155,53 +156,41 @@ Actor ResShotgun1 : Weapon {
 		ReloadFast:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "NoAction")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 3), "ContinueReloadFast")
-			RW01 A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto NoAction
+			RW01 A 2 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+		NoAction:
+			RW01 A 1 A_WeaponReady(WRF_NOSWITCH)
+		Goto Ready
 		ContinueReloadFast:
-			RW01 A 1 Offset(0, 34)
-			RW01 A 1 Offset(0, 38)
-			RW01 A 1 Offset(0, 42)
-		ContinueReloadChecksFast:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUpFast")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 3), "ContinueReloadAgainFast")
-			RW01 A 2 Offset(0, 42)
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 3), "ReloadBeginFast")
+			RW01 A 2
 		Goto RiseUpFast
-		ContinueReloadAgainFast:
-			RW01 A 1 Offset(0, 44)
-			RW01 A 1 Offset(0, 46)
-			RW01 A 1 Offset(3, 50)
+		
+		ReloadChecksFast:
+			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUpFast")
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 3), "ReloadInsertFast")
+		Goto RiseUp
+		
+		ReloadBeginFast:
+			RW01 FGHI 1
+			RW01 J 2
+		ReloadInsertFast:
 			TNT1 A 0 A_PlayWeaponSound("Deadlock/Insert")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeFast")
-		NoTakeFast:
 			TNT1 A 0 A_GiveInventory("Shellsize_12", 1)
-			RW01 A 1 Offset(2, 49)
-			RW01 A 1 Offset(0, 46)
-			RW01 A 1 Offset(0, 44)
+			RW01 KL 1
+			RW01 M 1 Offset(0, 30)
+			RW01 N 1 Offset(0, 31)
+			RW01 O 1 Offset(0, 32)
+			RW01 J 2
 			TNT1 A 0 A_JumpIfInventory("DoPump", 1, "RisePumpFast")
-			RW01 A 1 A_JumpIf(ACS_ExecuteWithResult(994, 9), "ContinueReloadChecksFast")
+			RW01 J 1 A_JumpIf(ACS_ExecuteWithResult(994, 9), "ReloadChecksFast")
 		Goto RiseUpFast
 		RiseUpFast:
-			RW01 A 1 Offset(0, 42)
-			RW01 A 1 Offset(0, 38)
-			RW01 A 1 Offset(0, 34)
+			RW01 IHGF 2
 		Goto Ready
 		RisePumpFast:
-			RW01 A 1 Offset(0, 42)
-			RW01 A 1 Offset(0, 38)
-			RW01 A 1 Offset(0, 34)
-		Goto PumpAllowRefireFast
-		PumpAllowRefireFast:
-			TNT1 A 0 A_PlaySound("Deadlock/Pump", 7)
-			TNT1 A 0 A_TakeInventory("DoPump", 1)
-			RW01 OQ 1
-			RW01 R 1
-			RW01 QO 1
-			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 1, "SkipRefireFast")
-			TNT1 A 0 A_GiveInventory("DoPump", 1)
-		SkipRefireFast:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 9), "ContinueReloadFast")
-			RW01 AAA 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOBOB)
-		Goto Ready
+			RW01 IHGF 2
+		Goto PumpAllowRefire
 		
 		Altfire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Weapon Can Switch Mode", AMMO_TYPE_HEAVYSHELLS, SPWEP_SG), "ModeSwitch")
@@ -289,6 +278,7 @@ Actor DeadlockPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEADLOCK << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_DEADLOCK)
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 1
@@ -478,6 +468,7 @@ Actor CryoBowPuff : DnD_BaseRailPuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ICE)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_NITROGENCROSSBOW)
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 1
@@ -494,6 +485,7 @@ Actor CryoRailPuffAlt : DnD_BaseRailPuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ICE)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_NITROGENCROSSBOW)
 		Goto DoDamage
 		AfterDamage:
 			TNT1 A 1
@@ -724,7 +716,7 @@ Actor CryoWind_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_ICE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_NITROGENCROSSBOW << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_NITROGENCROSSBOW)
 		Death:
 			TNT1 A 1
 		Stop
@@ -842,6 +834,7 @@ Actor BloodFX2A : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_OCCULT)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_WHEELOFTORMENT)
 		Goto DoDamage
 		AfterDamage:
 		HitNoBlood:
@@ -900,6 +893,7 @@ Actor BloodDrainFX : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_HASSTRSCALING | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_OCCULT)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_WHEELOFTORMENT)
 			TNT1 A 0 A_SpawnItemEx("BloodDrainHitFX")
 		Goto DoDamage
 		AfterDamage:
@@ -923,6 +917,7 @@ Actor BloodFX3 : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_HASSTRSCALING | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_OCCULT)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_WHEELOFTORMENT)
 		Goto DoDamage
 		AfterDamage:
 		HitNoBlood:
@@ -1243,7 +1238,7 @@ Actor PlasmaCannonBall : DnD_BaseProjectile {
 			NPSB ABCDEFGHIJKL 1 Bright
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMACANNON << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_ENERGY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMACANNON << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_PLASMACANNON)
 		Death:
 			PLNS ABCDEFGHIJKLMNOP 1 Bright A_FadeOut(0.025)
 		Stop
@@ -1473,6 +1468,7 @@ Actor ShockerPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_LIGHTNINGDAMAGE | DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SHOCKER)
 		Goto DoDamage
 		AfterDamage:
 			EVA6 ABCDEFGH 2 Bright A_FadeOut(0.075)
@@ -1777,6 +1773,7 @@ Actor HadesPuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HADES << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_HADES)
 		Goto DoDamage
 		AfterDamage:
 		HitNoBlood:
@@ -2072,7 +2069,7 @@ actor HadesShot : DnD_BaseFastProjectile {
 			TNT1 A 0 A_JumpIfInventory("HadesOnlyDieOnce",1,"Death2")
 			TNT1 A 0 A_PlaySound("imp/shotx",0)
 			
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_HADES)
 			TNT1 A 1 A_NoBlocking
 		stop
 		Death2:
@@ -2117,7 +2114,7 @@ Actor HadesPellet_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_HADES)
 		Death:
 			TNT1 A 3
 		Stop
@@ -2127,7 +2124,7 @@ Actor HadesPellet_Damager : DnD_BaseProjectile {
 Actor HadesPellet_Split_Damager : HadesPellet_Damager {
 	States {
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_HADES)
 		Death:
 			TNT1 A 3
 		Stop
@@ -2179,7 +2176,7 @@ actor HadesPellet : DnD_BaseProjectile {
 			TNT1 A 0 A_ChangeFlag("RIPPER", 0)
 		Goto SpawnState
 		Xdeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_HADES)
 		Crash:
 			TNT1 A 0 A_PlaySound("Hades/FireFX",0)
 			TNT1 A 8 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-2,2),0,0,0,1,Random(-180,180),SXF_NOCHECKPOSITION)
@@ -2294,7 +2291,7 @@ Actor HadesPellet_Split : HadesPellet {
 			SMK2 B 1 Light("SmallHadesShellLight") A_SpawnItemEx("SmokeTrail",random(-6,0),random(-2,2),random(-2,2),0,0,0,Random(-180,180),SXF_NOCHECKPOSITION)
 		Loop
 		Xdeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_HADES)
 		Crash:
 			TNT1 A 0 A_PlaySound("Hades/FireFX",0)
 			TNT1 A 8 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-2,2),0,0,0,1,Random(-180,180),SXF_NOCHECKPOSITION)

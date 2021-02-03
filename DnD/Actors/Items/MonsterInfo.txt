@@ -141,3 +141,11 @@ Actor RunEliteFXScript : DnD_Activator {
 		Stop
 	}
 }
+
+Actor Rejuvenate_Script_Run : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Rejuvenation")
+		Stop
+	}
+}

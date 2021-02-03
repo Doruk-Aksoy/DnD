@@ -334,7 +334,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"\c[Y5]Perks Available: \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
 			
 			for(i = 0; i < DND_PERKS; ++i)
-				DrawToggledLabel(StatLabels[DND_PERK_BEGIN + i], CheckInventory(StatNames[DND_PERK_BEGIN + i]), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
+				DrawToggledLabel(StatData[DND_PERK_BEGIN + i][STAT_LABEL], CheckInventory(StatData[DND_PERK_BEGIN + i][STAT_NAME]), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
 		}
 		else if(curopt == MENU_LOAD) {
 			HudMessage(s:"--- Loadout Selection ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -955,7 +955,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					if(HasLeftClicked(pnum))
 						temp = 1;
 					else
-						temp = Min(CheckInventory("AttributePoint"), cur_stat_max - CheckInventory(StatNames[boxid - 1 + DND_ATTRIB_BEGIN]));
+						temp = Min(CheckInventory("AttributePoint"), cur_stat_max - CheckInventory(StatData[boxid - 1 + DND_ATTRIB_BEGIN][STAT_NAME]));
 				
 					if(boxid == MBOX_1 && CheckInventory("PSTAT_Strength") < cur_stat_max) { // str
 						ConsumeAttributePointOn(STAT_STR, temp);
@@ -1014,7 +1014,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					if(HasLeftClicked(pnum))
 						temp = 1;
 					else
-						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - CheckInventory(StatNames[boxid - 1 + DND_PERK_BEGIN]));
+						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - CheckInventory(StatData[boxid - 1 + DND_PERK_BEGIN][STAT_NAME]));
 				
 					if(boxid == MBOX_1 && CheckInventory("Perk_Sharpshooting") < DND_PERK_MAX) { // sharp
 						ConsumePerkPointOn(STAT_SHRP, temp);

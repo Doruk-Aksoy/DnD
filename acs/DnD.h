@@ -168,16 +168,6 @@ enum {
 	BONUS_CREDIT_RATE = 5,
 	BONUS_SECRET_RATE = 3,
 };
-									  
-str WeaponMsg[7] = 	{
-	"\ccWeapon Pickup : \c[Y5]Chainsaw - 1\c-",
-	"\ccWeapon Pickup : \c[Y5]Shotgun - 3\c-",
-	"\ccWeapon Pickup : \c[Y5]Super Shotgun - 3\c-",
-	"\ccWeapon Pickup : \c[Y5]Machine Gun - 4\c-",
-	"\ccWeapon Pickup : \c[Y5]Rocket Launcher - 5\c-",
-	"\ccWeapon Pickup : \c[Y5]Plasma Rifle - 6\c-",
-	"\ccWeapon Pickup : \c[Y5]BFG 9000 - 7\c-"
-};
 							
 str WeaponPickupText[MAXWEPS] = {
 	 "Time to get your hands dirty. Does 10 - 30 damage normally or 180 - 240 with berserk per hit.",
@@ -368,7 +358,7 @@ void Reset_RPGInfo (int resetflags) {
 		
 	if(resetflags & RESET_STATS) {
 		for(i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
-			SetInventory(StatNames[i], 0);
+			SetInventory(StatData[i][STAT_NAME], 0);
 		SetActorProperty(0, APROP_HEALTH, DND_BASE_HEALTH);
 	}
 	
@@ -378,7 +368,7 @@ void Reset_RPGInfo (int resetflags) {
 		if(CheckInventory("Perk_Endurance"))
 			TakeInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * 5), 1);
 		for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-			SetInventory(StatNames[i], 0);
+			SetInventory(StatData[i][STAT_NAME], 0);
 		SetAmmoCapacity("StoredMedkit", DND_BASE_HEALTH);
 	}
 }
@@ -809,7 +799,7 @@ void HandleOrbDrop() {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))))
-			SpawnOrb(i,true);
+			SpawnOrb(i, true);
 	}
 }
 
@@ -1008,28 +998,28 @@ void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
 		case MONSTER_RAVAGER:
 		case MONSTER_LURKER:
 			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
-				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_VULGAR:
 			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_VENOM_DROPCHANCE))
-				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CHAINGUNGENERAL:
 			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_NAILGUN_DROPCHANCE))
-				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DEATHKNIGHT:
 		case MONSTER_HORSHACKER:
 			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_SOULRENDER_DROPCHANCE))
-				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CORPULENT:
 			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_HFCANNON_DROPCHANCE))
-				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DARKSERVANT:
 			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_DARKGLOVES_DROPCHANCE))
-				SpawnDrop(TemporaryWeapons[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		default:
 		break;

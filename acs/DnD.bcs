@@ -513,6 +513,9 @@ Script "DND On Revive" (void) {
 		//Mob might actually be dead by this point.
 		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
 			Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
+			
+		if(MonsterProperties[id].trait_list[DND_REJUVENATING])
+			GiveInventory("Rejuvenate_Script_Run", 1);
 
 		HandleMonsterClassInnates(id);
 	}
@@ -1085,7 +1088,7 @@ Script 895 ENTER CLIENTSIDE {
 Script 896 (void) {
 	int check = 0;
 	for(int i = 0; i < MAXTEMPWEPS; ++i)
-		if(CheckInventory(TemporaryWeapons[i][TEMPWEP_NAME])) {
+		if(CheckInventory(TemporaryWeaponData[i][TEMPWEP_NAME])) {
 			check = 1;
 			break;
 		}
@@ -1094,8 +1097,8 @@ Script 896 (void) {
 
 Script 897 (void) {
 	int i = random(0, MAXTEMPWEPS - 1);
-	GiveInventory(TemporaryAmmos[i], 999);
-	SetWeapon(TemporaryWeapons[i][TEMPWEP_NAME]);
+	GiveInventory(TemporaryWeaponData[i][TEMPWEP_AMMO], 999);
+	SetWeapon(TemporaryWeaponData[i][TEMPWEP_NAME]);
 	LocalAmbientSound("weapons/pickup", 127);
 }
 
@@ -1156,16 +1159,13 @@ Script 905 (int mode) NET {
 		// valid range, no drop spam and not able to while firing and has ammo to spare
 		// gross hax, fix later
 		if(curweap >= 0 && curweap < MAXTEMPWEPS && !CheckInventory("DropItemCooldown") && CheckInventory("TempWeaponReady")) {
-			if(curweap > DND_TEMPAMMO_BLADEHITS)
-				amt = CheckInventory(TemporaryAmmos[curweap + 1]);
-			else
-				amt = CheckInventory(TemporaryAmmos[curweap]);
+			amt = CheckInventory(TemporaryWeaponData[curweap][TEMPWEP_AMMO]);
 			
 			if(amt) {
 				int temptid = ActivatorTID() + P_TEMPTID;
 				GiveInventory("DropItemCooldown", 1);
 				// the dropped versions have _D suffix
-				SpawnForced(StrParam(s:TemporaryWeapons[curweap][TEMPWEP_DROP], s:"_D"), GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
+				SpawnForced(StrParam(s:TemporaryWeaponData[curweap][TEMPWEP_DROP], s:"_D"), GetActorX(0) + cos(GetActorAngle(0)), GetActorY(0) + sin(GetActorAngle(0)), GetActorZ(0) + 32, temptid);
 				SetActorProperty(temptid, APROP_MASS, amt);
 				ThrustThing(GetActorAngle(0) >> 8, 16, 0, temptid);
 				ThrustThingZ(temptid, 8, 0, 0);
@@ -2203,9 +2203,11 @@ Script "DnD Item Dropchance" (int basechance) {
 Script "DnD Message Logger" (int type, int id, int id_is_special) CLIENTSIDE {
 	if(PlayerNumber() != ConsolePlayerNumber()) Terminate;
 	if(!type)
-		Log(s:TemporaryWeaponMsg[id - TEMPBEGIN]);
-	else if(type == 1)
-		Log(s:WeaponMsg[id]);
+		Log(s:"\ccWeapon Pickup : \c[Y5]", s:TemporaryWeaponData[id - TEMPBEGIN][TEMPWEP_TAG], s:" - 9\c-");
+	else if(type == 1) {
+		id = MapClassicWeaponToTableID(id);
+		Log(s:"\ccWeapon Pickup : \c[Y5]", s:Weapons[id][WEAPON_TAG], s:" - ", s:Weapons[id][WEAPON_SLOT], s:"\c-");
+	}
     else if(type == 2) {
 		if(id_is_special)
 			Log(s:ResearchPrefix, s:Research_Label[id >> 16], s:"!");
@@ -2228,20 +2230,16 @@ Script 986 (int wepnum, int type) {
 		who = ActivatorTID();
 	}
 	wepnum -= TEMPBEGIN;
-	int t = 0, j = 0;
+	int t = 0;
 	for(int i = 0; i < MAXTEMPWEPS; ++i) {
-		// gross hack, fix later
-		j = i;
-		if(i > DND_TEMPAMMO_BLADEHITS)
-			++j;
 		if(i == wepnum) {   
 			// do we have max ammo on this weapon
-			if(CheckActorInventory(who, TemporaryAmmos[j]) == GetAmmoCapacity(TemporaryAmmos[j]))
+			if(CheckActorInventory(who, TemporaryWeaponData[i][TEMPWEP_AMMO]) == GetAmmoCapacity(TemporaryWeaponData[i][TEMPWEP_AMMO]))
 			  ++t;
 		}
-		else if(CheckActorInventory(who, TemporaryWeapons[i][TEMPWEP_NAME])) { // do I have any temp weapon
-			if(!CheckActorInventory(who, TemporaryAmmos[j])) // hack to prevent a desync problem
-				TakeActorInventory(who, TemporaryWeapons[i][TEMPWEP_NAME], 1);
+		else if(CheckActorInventory(who, TemporaryWeaponData[i][TEMPWEP_NAME])) { // do I have any temp weapon
+			if(!CheckActorInventory(who, TemporaryWeaponData[i][TEMPWEP_AMMO])) // hack to prevent a desync problem
+				TakeActorInventory(who, TemporaryWeaponData[i][TEMPWEP_NAME], 1);
 			else
 				++t;
 		}
@@ -3412,7 +3410,6 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	int dist = scan_dist, i, j, k, temp;
 	
 	int tcount = 0;
-	int tidlim = 0;
 	int owner = (flags & DND_DAMAGEFLAG_SELFORIGIN) ? ActivatorTID() : GetActorProperty(0, APROP_TARGETTID);
 	int pnum = owner - P_TIDSTART;
 	
@@ -3475,6 +3472,19 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 		// damage credit
 		SetActivator(owner);
 		
+		// re-use this as poison damage mod value if any
+		scan_fov = 0;
+		int extra = 0;
+		int wepid = Scan_to_WeaponID(scan_id);
+		if(wepid != -1) {
+			scan_fov = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
+			extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+			if(scan_fov)
+				flags |= DND_DAMAGEFLAG_INFLICTPOISON;
+			if(extra)
+				flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
+		}
+		
 		for(i = 0, j = 0; i < DND_MAXSCANTRACER; ++i) {
 			if(tlist[pnum][i].tid) {
 				// distance reduces damage for scans, closer = better -- gives percentage
@@ -3491,7 +3501,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 				else
 					temp = dmg;
 				
-				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
+				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags, extra, scan_fov);
 				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
 				
 				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
@@ -3571,9 +3581,27 @@ Script "DND Thunderstaff Bolts" (void) {
 		// damage credit
 		SetActivatorToTarget(0);
 		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
+		
+		// weapon mod checks
+		temp = Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+		j = 0;
+		if(temp)
+			j |= DND_DAMAGEFLAG_PERCENTHEALTH;
+		
+		// force pain mod
+		if(
+			Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && 
+			Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100)
+		) {
+			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
+		}
+
+		if(Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val)
+			j |= DND_DAMAGEFLAG_INFLICTPOISON;
+		
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
-				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, 0, px, py, pz, actor_flags);
+				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, j, px, py, pz, actor_flags, temp, Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val);
 		}
 	}
 }
@@ -3625,13 +3653,32 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE) << 1;
-	int tidlim = 0;
+	int actor_flags = DND_ACTORFLAG_NOPUSH;
+	int pnum = PlayerNumber();
+	
+	// force pain mod
+	if(
+		Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && 
+		Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100)
+	) {
+		actor_flags |= DND_ACTORFLAG_FORCEPAIN;
+	}
+	
+	int temp = Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
+	int extra = Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+	int flags = 0;
+	if(temp)
+		flags |= DND_DAMAGEFLAG_INFLICTPOISON;
+	if(extra)
+		flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
 	
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
 			SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
-			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, 0, 0, 0, 0, DND_ACTORFLAG_NOPUSH);
+			
+			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, flags, 0, 0, 0, actor_flags, extra, temp);
+			
 			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
 			SetPointer(AAPTR_TARGET, this);
 			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
@@ -4073,8 +4120,11 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 			GiveInventory(ClipAmmoTypes[ammo], amount);
 		else if(slot != DND_AMMOSLOT_TEMPORARY)
 			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
-		else
-			GiveInventory(TemporaryAmmos[ammo], amount);
+		else {
+			GiveInventory(TemporaryWeaponData[ammo][TEMPWEP_AMMO], amount);
+			if(ammo == DND_TEMPWEP_SOULRENDER)
+				GiveInventory("BladeCharge", 100);
+		}
 	}
 }
 
@@ -4605,7 +4655,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		
 		Log(s:"\n--------------------------------\n------- Perk Allocation -------\n--------------------------------\n");
 		for(i = 0; i < DND_MAX_PERKS; ++i)
-			Log(s:"\c[Y5]", s:StatLabels[DND_PERK_BEGIN + i], s:": \c-", d:CheckInventory(StatNames[DND_PERK_BEGIN + i]));
+			Log(s:"\c[Y5]", s:StatData[DND_PERK_BEGIN + i][STAT_LABEL], s:": \c-", d:CheckInventory(StatData[DND_PERK_BEGIN + i][STAT_NAME]));
 		
 		Log(s:"\n--------------------------------\n------- Accessories -------\n--------------------------------\n");
 		for(j = 0, i = 0; i < MAX_ACCESSORY && j < 2; ++i) {
@@ -4732,6 +4782,27 @@ Script "DnD Store Projectile Owner" (void) {
 	SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
 	//printbold(s:"storing owner ", d:GetActorProperty(0, APROP_SCORE));
 	SetResultValue(0);
+}
+
+Script "DnD Rejuvenation" (void) {
+	int id = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	
+	// 5% every second
+	int hp_per = MonsterProperties[id].maxhp / 20;
+	if(!hp_per)
+		hp_per = 1;
+	
+	while(isAlive()) {
+		Delay(const:TICRATE);
+		
+		// ignite effects prevent rejuvenation
+		if(!CheckInventory("DnD_IgniteTimer")) {
+			if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[id].maxhp - hp_per)
+				SetActorProperty(0, APROP_HEALTH, GetActorProperty(0, APROP_HEALTH) + hp_per);
+			else
+				SetActorProperty(0, APROP_HEALTH, MonsterProperties[id].maxhp);
+		}
+	}
 }
 
 /*Script 69 (void) NET {
