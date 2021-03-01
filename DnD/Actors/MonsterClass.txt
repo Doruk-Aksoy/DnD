@@ -279,3 +279,20 @@ Actor DnD_ViolentRetaliationItem : DnD_Activator {
 		Stop
 	}
 }
+
+// Colliders
+
+enum {
+	DND_REVENANT_COLLIDER
+};
+
+Actor RevenantCollider {
+	Height 56
+	Radius 20
+	+SOLID
+	States {
+		Spawn:
+			TNT1 A 1
+		Stop
+	}
+}

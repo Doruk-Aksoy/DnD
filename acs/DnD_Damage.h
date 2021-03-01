@@ -900,7 +900,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		int mon_id = PlayerExplosionList[pnum].list[instance].monsters[i];
 
 		// first check if this monster is immune to splash damage (its an easy flag check and eases calculation later)
-		if(CheckFlag(mon_id, "NORADIUSDMG") && CheckFlag(mon_id, "SHOOTABLE") && !CheckActorInventory(owner, "NetherCheck") && !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG))
+		if(CheckFlag(mon_id, "NORADIUSDMG") && (!CheckActorInventory(owner, "NetherCheck") || !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG)) || !CheckFlag(mon_id, "SHOOTABLE"))
 			continue;
 		
 		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, px, py, pz, proj_r);

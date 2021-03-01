@@ -458,7 +458,7 @@ Actor DarkFlame : ArchVileFire {
 }
 
 //Hierophant
-Actor Hierophant : DnD_BaseHybridMonster {
+Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -764,7 +764,7 @@ Actor HieroFX : AcolFX2 {
 	}
 }
 
-ACTOR Deathknight : DnD_BaseHybridMonster { 
+ACTOR Deathknight : DnD_BaseHybridMonster_NoRes { 
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -1120,7 +1120,7 @@ ACTOR DKFire {
 	}
 }
 
-Actor Horshacker : DnD_BaseHybridMonster {
+Actor Horshacker : DnD_BaseHybridMonster_NoRes {
 	Translation "0:255=%[0.00,0.00,0.00]:[0.28,0.88,1.98]", "80:111=80:111", "0:15=0:15", "128:159=128:159", "48:79=48:79", "160:167=160:167", "208:239=208:239", "249:249=249:249"
 	Seesound "monster/horshacksee"
 	ActiveSound "monster/horshackact"
@@ -1524,7 +1524,7 @@ Actor UndeadPriestBullet : RapidFireBullet {
 	DamageType "VileBullet"
 }
 
-actor UndeadPriest : Dnd_BaseHybridMonster {
+actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 	obituary "%o was bagged by an undead priest."
 	Health 0x7FFFFFFF
 	gibhealth 20
@@ -1727,7 +1727,7 @@ Actor UndeadSpiritAttack {
 	}
 }
 
-Actor Guru : DnD_BaseHybridMonster {
+Actor Guru : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -2016,7 +2016,7 @@ Actor FireVileDamage : DnD_FakeDamager {
 	+FLOORHUGGER
 }
 
-Actor DarkZealot : DnD_BaseHybridMonster {
+Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -2339,7 +2339,7 @@ Actor DarkZealotPierce {
 	}
 }
 
-actor FleshWizard : DnD_BaseRangedMonster {
+actor FleshWizard : DnD_BaseRangedMonster_NoRes {
 	obituary "%o was tormented by a Flesh Wizard."
 	Health 0x7FFFFFFF
 	radius 20

@@ -232,8 +232,19 @@ Script "DnD On Death" DEATH {
 			if(GetCVar("dnd_mode") == DND_MODE_HARDCORE) {
 				ACS_NamedExecuteAlways("DND Database Reset On Death", 0, pnum);
 				ResetPlayerActivities(pnum, false);
-			} else if(GetCVar("dnd_mode") == DND_MODE_SOFTCORE)
+			}
+			else if(GetCVar("dnd_mode") == DND_MODE_SOFTCORE)
 				ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, pnum);
+			else {
+				// get rid of these in local server or w.e situations if not hardcore or softcore
+				ResetPlayerInventory(pnum);
+				
+				// remove whatever feature this player had on them prior to loading (just in case)
+				for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
+					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+						RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+				ResetPlayerCharmsUsed(pnum);
+			}
 		}
 	}
 	
@@ -286,10 +297,10 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 	// map toast heal
 	if(isspecial == 4) {
 		if(GetActorProperty(0, APROP_HEALTH) < healthcap)
-			SetActorProperty(0, APROP_HEALTH, healthcap);
+			GiveInventory("HealthBonusX", healthcap - GetActorProperty(0, APROP_HEALTH));
 		Terminate;
 	}
-	if(isspecial == 3) {
+	else if(isspecial == 3) {
 		amt = healthcap - curhp;
 	    GiveInventory("HealthBonusX", amt);
 		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
@@ -1486,7 +1497,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
 		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
-			Delay(3);
+			Delay(const:3);
 		//This delay needs a check
 		//Delay(35); // wait just in case someone leaves, disconnect script will correct the level
 		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
@@ -1844,24 +1855,26 @@ Script "DnD Golgoth Health Check" (void) {
 }
 
 Script "DnD Monster Trait Take" (int flag1, int flag2, int flag3, int flag4) {
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag1] = false;
+	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	MonsterProperties[m_tid].trait_list[flag1] = false;
 	if(flag2 != -1)
-		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag2] = false;
+		MonsterProperties[m_tid].trait_list[flag2] = false;
 	if(flag3 != -1)
-		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag3] = false;
+		MonsterProperties[m_tid].trait_list[flag3] = false;
 	if(flag4 != -1)
-		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag4] = false;
+		MonsterProperties[m_tid].trait_list[flag4] = false;
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag1] = true;
+	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	MonsterProperties[m_tid].trait_list[flag1] = true;
 	if(flag2 != -1)
-		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag2] = true;
+		MonsterProperties[m_tid].trait_list[flag2] = true;
 	if(flag3 != -1)
-		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag3] = true;
+		MonsterProperties[m_tid].trait_list[flag3] = true;
 	if(flag4 != -1)
-		MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[flag4] = true;
+		MonsterProperties[m_tid].trait_list[flag4] = true;
 	SetResultValue(0);
 }
 
@@ -1979,7 +1992,7 @@ Script "DnD Monster Scanner Picker" ENTER {
 	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, nameskip, monprop;
 	bool monelite = false;
 	int tic = 0;
-	while(true) {
+	while(isActorAlive(this)) {
 		SetActivatorToTarget(this);
 		int montid = ActivatorTID();
 		// clean-up later
@@ -2029,15 +2042,34 @@ Script "DnD Monster Scanner Picker" ENTER {
 			SetInventory("TargetIsWhat", monsterid);
 			SetInventory("TargetIsElite", monelite);
 			SetInventory("TargetProperties", monprop);
-			if(!(tic % 2))
-				ACS_NamedExecuteWithResult("DnD Sync Monster Traits To Client", montid, pet_state);
+			if(!(tic % 2)) {
+				// retrieve entire flaglist and sync it
+				// segment #2 is not needed right now, MAX_MONSTER_TRAITS is 60
+				if(!pet_state) {
+					ACS_NamedExecuteWithResult(
+						"DnD Sync Monster Trait CS", 
+						montid, 
+						GetMonsterTraits(montid - DND_MONSTERTID_BEGIN, 0),
+						GetMonsterTraits(montid - DND_MONSTERTID_BEGIN, 1),
+						0//GetMonsterTraits(montid - DND_MONSTERTID_BEGIN, 2)
+					);
+				}
+				else {
+					ACS_NamedExecuteWithResult(
+						"DnD Sync Monster Trait CS", 
+						montid, 
+						GetPetMonsterTraits(montid - DND_PETTID_BEGIN, 0),
+						GetPetMonsterTraits(montid - DND_PETTID_BEGIN, 1),
+						0//GetPetMonsterTraits(montid - DND_PETTID_BEGIN, 2)
+					);
+				}
+			}
 			SetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber()), GetActorProperty(montid, APROP_NAMETAG));
 			tic = (tic + 1) % 2;
 		}
 		// fixes initialization bug
 		SetActivator(this);
 		Delay(const:1);
-		
 	}
 }
 
@@ -2056,69 +2088,46 @@ Script "DnD Monster Kill Ice Chunks" (int r, int h) CLIENTSIDE {
 	SetResultValue(0);
 }
 
-Script "DnD Reset Monster Trait CS" (int id) CLIENTSIDE {
+// takes flag segments
+Script "DnD Sync Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-
-	if(client_trait_list.tid != id) {
-		client_trait_list.count = 0;
+	
+	// reset if this is not the same
+	client_trait_list.count = 0;
+	if(client_trait_list.tid != id)
 		client_trait_list.tid = id;
-	}
-	SetResultValue(0);
-}
 
-Script "DnD Sync Monster Trait CS" (int index, int v1, int v2, int v3) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-
-	client_trait_list.list[index] 		= 	v1;
-	client_trait_list.list[index + 1] 	= 	v2;
-	client_trait_list.list[index + 2] 	= 	v3;
-	// not important as long as it can be 0 and something more than 1
-	client_trait_list.count += (v1 + v2 + v3) * (client_trait_list.count < 15);
-	SetResultValue(0);
-}
-
-Script "DnD Sync Monster Trait CS Single" (int index, int v) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-
-	client_trait_list.list[index] = v;
-	// not important as long as it can be 0 and something more than 1
-	client_trait_list.count += v;
-	SetResultValue(0);
-}
-
-Script "DnD Sync Monster Traits To Client" (int id, int isPet) {
-	ACS_NamedExecuteWithResult("DnD Reset Monster Trait CS", id);
+	// set all of the flagsets now -- if non-zero
 	int i;
-	if(!isPet) {
-		id -= DND_MONSTERTID_BEGIN;
-		for(i = 0; i < MAX_MONSTER_TRAITS - 3; i += 3)
-			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS", i, MonsterProperties[id].trait_list[i], MonsterProperties[id].trait_list[i + 1], MonsterProperties[id].trait_list[i + 2]);
-		// get remaining
-		while(i < MAX_MONSTER_TRAITS) {
-			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS Single", i, MonsterProperties[id].trait_list[i]);
-			++i;
+	if(v1) {
+		for(i = 0; i < 32; ++i) {
+			client_trait_list.list[i] = IsSet(v1, i);
+			client_trait_list.count += client_trait_list.list[i];
 		}
 	}
-	else {
-		id -= DND_PETTID_BEGIN;
-		for(i = 0; i < MAX_MONSTER_TRAITS; ++i)
-			if(PetMonsterProperties[id].trait_list[i])
-				ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS", i, PetMonsterProperties[id].trait_list[i], PetMonsterProperties[id].trait_list[i + 1], PetMonsterProperties[id].trait_list[i + 2]);
-		while(i < MAX_MONSTER_TRAITS) {
-			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS Single", i, PetMonsterProperties[id].trait_list[i]);
-			++i;
+	
+	if(v2) {
+		for(i = 32; i < 63; ++i) {
+			client_trait_list.list[i] = IsSet(v2, i - 32);
+			client_trait_list.count += client_trait_list.list[i];
 		}
 	}
+	
+	if(v3) {
+		for(i = 64; i < 96; ++i) {
+			client_trait_list.list[i] = IsSet(v3, i - 64);
+			client_trait_list.count += client_trait_list.list[i];
+		}
+	}
+	
 	SetResultValue(0);
 }
 
 Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 	int mmaxhp, hdisp, monhp, monlevel, monid;
 	bool isPet = false;
-	while(true) {
+	while(isAlive()) {
 		// if we have any shared items in our player queue to turn, do turn them
 		mmaxhp = CheckInventory("TargetMaximumHealth");
 		if(mmaxhp && GetCVar("dnd_monsterbars")) {
@@ -2138,9 +2147,8 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 			if(!isPet) {
 				if(!CheckInventory("TargetProperties"))
 					SetFont(MonsterTypeInfo[GetMonsterType(monid)][MOSNTER_TYPE_INFO_ICON]);
-				else {
+				else
 					SetFont(MonsterTypeInfo[InferMonsterPower(CheckInventory("TargetProperties"))][MOSNTER_TYPE_INFO_ICON]);
-				}
 			}
 			else
 				SetFont(MonsterTypeInfo[GetPetMonsterType(monid)][MOSNTER_TYPE_INFO_ICON]);

@@ -180,7 +180,7 @@ int ClearBit(int x, int n) {
 	return x & ~(1 << n);
 }
 
-int IsSet(int x, int n) {
+bool IsSet(int x, int n) {
 	return x & (1 << n);
 }
 

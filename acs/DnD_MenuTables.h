@@ -1333,7 +1333,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
 	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	
-	"Shoots a missile and 3 mini missiles. Missile does 45, mini missiles do 15 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 30 in 64 unit radius. Altfire fires the other side.",
+	"Shoots a missile and 3 mini missiles. Missile does 60, mini missiles do 25 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 25 in 64 unit radius. Altfire fires the other side.",
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 192-240 damage in 108 unit radius.",
 	"Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",

@@ -102,6 +102,10 @@ int GetPentagramFXData(int mID, int what) {
 	return 0;
 }
 
+enum {
+	DND_REVENANT_COLLIDER
+};
+
 int DP_AnglesGeneric[5] = { 
 	0.00, 
 	0.18, 

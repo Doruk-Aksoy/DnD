@@ -698,3 +698,13 @@ Script "DnD Gamon Shifter" (void) {
 	SpawnForced("SalvationEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
 	ACS_ExecuteWithResult("DnD Monster Trait Give", DND_GHOST, -1, -1, -1);
 }
+
+Script "DnD Collision Checker" (int collision_id) {
+	int res = 0;
+	switch(collision_id) {
+		case DND_REVENANT_COLLIDER:
+			res = Spawn("RevenantCollider", GetActorX(0), GetActorY(0), GetActorZ(0));
+		break;
+	}
+	SetResultValue(res);
+}

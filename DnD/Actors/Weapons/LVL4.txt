@@ -796,7 +796,7 @@ Actor "Upgraded Machine Gun2" : Weapon {
 		QUAG A 0 A_JumpIfInventory("MGClip3", 1, "ContinueFire")
 	Goto Reload
 	ContinueFire:
-		QUAG A 0 A_PlaySoundEx("Leadspitter/fireloop","Weapon",1)
+		QUAG A 0 A_PlaySound("Leadspitter/fireloop", CHAN_WEAPON, 1.0, 1)
 		TNT1 A 0 A_GiveInventory("LeadTimer", 1)
 		TNT1 A 0 A_SpawnItemEx ("leadspittercasing",cos(pitch)*20,11,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
 		TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*20, 4,37+(sin(-pitch)*20),frandom(-0.5, 0.5), frandom(-0.75, 0.75), 2,0,0,0)
@@ -816,8 +816,8 @@ Actor "Upgraded Machine Gun2" : Weapon {
 		TNT1 A 0 A_SetPitch(pitch - 0.8)
 		QUAG B 2
 		QUAG A 0 A_Refire
-		QUAG A 0 A_PlaySoundEx("Leadspitter/firetail","Weapon",0)
-		Goto Ready
+		QUAG A 0 A_PlaySound("Leadspitter/firetail", CHAN_WEAPON, 1.0, 0)
+	Goto Ready
 	OtherAnim:
 		QUAF C 1 BRIGHT A_GiveInventory("LeadShooter", 1)
 		TNT1 A 0 A_SpawnItemEx ("leadspittercasing",cos(pitch)*20,11,32+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
@@ -889,7 +889,7 @@ Actor LeadSoundChecker : DND_Activator {
 			TNT1 A 0 A_JumpIFInventory("LeadTimer", 1, "StopSound")
 		Stop
 		StopSound:
-			TNT1 A 0 A_PlaySoundEx("Leadspitter/firetail","Weapon",0)
+			TNT1 A 0 A_PlaySound("Leadspitter/firetail", CHAN_WEAPON, 1.0, 0)
 		Stop
 	}
 }
