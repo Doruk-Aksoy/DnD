@@ -4341,20 +4341,20 @@ void DrawPlayerStats(int pnum) {
 	if(val)
 		HudMessage(s:"+ \c[Q9]", d:val, s:"\c-% elemental penetration"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
+	// split apart new line
+	++k;
+	
 	int i, j;
-	bool k_1 = false, k_2 = false;
 	for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i) {
 		val = GetDamageTypeBonus(pnum, i);
-		if(val) {
-			k_1 = true;
-			HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", s:TalentNames[i][TALENT_NAME], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * k + 32.0 * i, 0.0, 0.0);
-		}
+		if(val)
+			HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", s:TalentNames[i][TALENT_NAME], s:" Damage bonus"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 		val = MapTalentToFlatBonus(pnum, i, 0);
-		if(val) {
-			k_2 = true;
-			HudMessage(s:"+ \c[Q9]", d:val, s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 2 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * (k + 1) + 32.0 * i, 0.0, 0.0);
-		}
+		if(val)
+			HudMessage(s:"+ \c[Q9]", d:val, s:"\c- to ", s:TalentNames[i][TALENT_NAME], s:" damage"; HUDMSG_PLAIN, RPGMENUITEMID - k - 2 - 2 * i, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	}
+	
+	++k;
 	
 	// fire things
 	val = GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
@@ -4427,29 +4427,23 @@ void DrawPlayerStats(int pnum) {
 	val = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
 	if(val)
 		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- increased damage to blocking enemies"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
-	
-	// new line checks
-	k += k_1 + k_2;
-	j = 2 * (DND_TALENT_END - 1);
-	k_1 = false;
+
+	++k;
 	
 	for(i = 0; i < MAX_WEAPON_SLOTS; ++i) {
 		val = GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + i);
-		if(val) {
-			k_1 = true;
-			HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- damage bonus to slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - k - 1 - j - i, CR_WHITE, 192.1, temp + 16.0 * k + 16.0 * (j + i), 0.0, 0.0);
-		}
+		if(val)
+			HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- damage bonus to slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - k - 1 - j - i, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	}
 	
-	k += k_1;
-	j += MAX_WEAPON_SLOTS;
+	++k;
 	
 	if(GetCVar("survival")) {
-		HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 60, CR_WHITE, 190.1, temp + 16.0 * (k++) + 16.0 * j, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++) + 16.0 * j, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]Lives left: \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 60, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
+		HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
 	}
 	else
-		HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++) + 16.0 * j, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]Map Difficulty: \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
 	SetHudClipRect(0, 0, 0, 0, 0, 0);
 	
 	if(k > 12)

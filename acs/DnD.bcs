@@ -1982,7 +1982,7 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 	// add 1 to skip playerjoin state
 	DnD_StateChecker[bonustype + 1] = 1;
 	ACS_NamedExecuteAlways("DnD Bonus Message State", 0, bonustype);
-	Delay(const:3);
+	Delay(bonustype + 1);
 	int y = DnD_BonusMessageY(bonustype);
 	ShowBonusMessage(bonustype, y);
 }
@@ -2620,8 +2620,9 @@ Script "DND Monster Damage Scale2" (int dmg, int flags) {
 }
 
 // A generic checker function
-Script 994 (int type, int extra) {
+Script 994 (int type, int extra, int wantNoAmmo) {
 	int res = 0;
+	int temp;
 	if(type == 1) {
 		if(!extra) { // attack check
 			if(CheckInventory("FireLeft") && CheckInventory("AkimboClipLeft"))
@@ -2686,10 +2687,15 @@ Script 994 (int type, int extra) {
 			tocheck = "ShellSize_12";
 		else if(extra == 4) {
 			tocheck = "ShellSize_2";
-				weptype = "SpecialAmmoMode_3X";
+			weptype = "SpecialAmmoMode_3X";
 		}
 		ammotype = SpecialAmmoNames[CheckInventory(weptype)][SPECIALAMMO_NAME];
 		res = CheckInventory(ammotype) > CheckInventory(tocheck);
+		if(wantNoAmmo) {
+			// we are either holding fire when we have no ammo for early reload cancel, or we are holding reload when we have ammo, for early reload cancel
+			temp = GetPlayerInput(-1, INPUT_BUTTONS);
+			res &= (!CheckInventory(tocheck) && (temp & BT_ATTACK)) || (temp & BT_RELOAD);
+		}
 	}
     else if(type == 11) // has research?
         res = CheckResearchStatus(extra) == RES_NA;

@@ -807,11 +807,12 @@ void HandleCharmLootDrop(bool isElite) {
 	int addchance = 0;
 	if(isElite)
 		addchance = DND_ELITE_BASEDROP / 2;
-	for(int i = 0; i < MAXPLAYERS; ++i) {
+	/*for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance))))
 			SpawnCharm(i, isElite);
-	}
+	}*/
+	SpawnCharm(0, isElite);
 }
 
 void HandleSoulDrop() {
