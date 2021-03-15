@@ -1019,10 +1019,12 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	}
 	
 	// printbold(d:owner, s: " ", d:victim);
+	int actor_flags = ScanActorFlags();
+	
 	SetActivator(owner);
 	int pnum = PlayerNumber();
 	int extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
-	int actor_flags = ScanActorFlags();
+
 	// percent damage of monster if it exists
 	if(extra)
 		flags |= DND_DAMAGEFLAG_PERCENTHEALTH;

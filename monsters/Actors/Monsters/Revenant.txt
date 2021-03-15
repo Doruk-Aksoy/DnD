@@ -79,7 +79,7 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 			INCX A 10 Bright A_Playsound("monster/incexp")
 			INCX BC 5 Bright
 			INCX D 5 Bright A_NoBlocking
-			INCX D 0 Bright A_SpawnItemEx("HS",0,32, 0, 0, 0, 0, 0, SXF_SETMASTER)
+			INCX D 0 Bright A_SpawnItemEx("HS", 0, 0, 32, 0, 0, 0, 0, SXF_SETMASTER)
 			INCX EFGHIJ 5 Bright
 			INCX K -1
 		Stop
@@ -182,7 +182,7 @@ Actor Incarnate_Pretender : DnD_BaseHybridMonster_NoRes {
 			INCX A 10 Bright A_Playsound("monster/incexp")
 			INCX BC 5 Bright
 			INCX D 5 Bright A_NoBlocking
-			TNT1 A 0 A_SpawnItemEx("HS",0,32, 0, 0, 0, 0, 0, SXF_SETMASTER)
+			TNT1 A 0 A_SpawnItemEx("HS",0, 0, 32, 0, 0, 0, 0, SXF_SETMASTER)
 			INCX EFGHIJ 5 Bright
 			INCX K -1
 		Stop
@@ -208,7 +208,7 @@ ACTOR DIPuff {
 
 ACTOR BeamRevenant : DnD_BaseHybridMonster {
 	HitObituary "%o was punched by a Beam Revenant."
-	Obituary "%o couldn't was caught in a Beam Revenant's crosshair."
+	Obituary "%o was caught in a Beam Revenant's crosshair."
 	Health 0x7FFFFFFF
 	GibHealth -75
 	Radius 20

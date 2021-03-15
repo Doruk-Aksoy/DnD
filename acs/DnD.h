@@ -251,7 +251,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.",
 	 "Gauss Rifle fires a magnetic pulse dealing 200 direct hit damage and 96 radius damage in a 128 unit radius. Alt fire zooms and amplifies the damage for each zoom. Can't hit \cughosts.\c- \cfIgnores shields.",
 	 "This baby can rip through concrete with ease. Each shot does multiples of 400. Alt fire charges up the next shot up to 2 times. \cfIgnores shields.",
-	 "Fires energy particles doing 300 damage on impact and 75 area damage in 96 unit radius. Using altfire while particles are flying causes a laser to be fired, doing 250 damage on impact and in a 160 unit radius, \cfignoring shields.\c-",
+	 "Fires energy particles doing 450 damage on impact and 150 area damage in 96 unit radius. Using altfire while particles are flying causes a laser to be fired, doing 400 damage on impact and in a 160 unit radius, \cfignoring shields.\c-",
 	 
 	 "A magical staff, using demon souls as energy. Fires meteors of magic, bursting on impact. Alt fire fires 3 columns of fire both on floor and ceiling that travel and explode in flames. \cfIgnores shields.",
 	 "This once was the ribcage of a powerful demon. Fires magical bone shards that rip through. Alt fire switches the mode to shoot three demon shredders that seek demons.",
@@ -807,12 +807,12 @@ void HandleCharmLootDrop(bool isElite) {
 	int addchance = 0;
 	if(isElite)
 		addchance = DND_ELITE_BASEDROP / 2;
-	/*for(int i = 0; i < MAXPLAYERS; ++i) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance))))
 			SpawnCharm(i, isElite);
-	}*/
-	SpawnCharm(0, isElite);
+	}
+	//SpawnCharm(0, isElite);
 }
 
 void HandleSoulDrop() {

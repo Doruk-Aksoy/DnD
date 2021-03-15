@@ -528,7 +528,7 @@ Script "DND On Revive" (void) {
 		if(MonsterProperties[id].trait_list[DND_REJUVENATING])
 			GiveInventory("Rejuvenate_Script_Run", 1);
 
-		HandleMonsterClassInnates(id);
+		HandleMonsterClassInnates(MonsterProperties[id].id);
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
@@ -1980,9 +1980,9 @@ Script "DnD Bonus Message State" (int bonustype) CLIENTSIDE {
 
 Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 	// add 1 to skip playerjoin state
-	DnD_StateChecker[bonustype + 1] = 1;
 	ACS_NamedExecuteAlways("DnD Bonus Message State", 0, bonustype);
 	Delay(bonustype + 1);
+	DnD_StateChecker[bonustype + 1] = 1;
 	int y = DnD_BonusMessageY(bonustype);
 	ShowBonusMessage(bonustype, y);
 }
@@ -4043,19 +4043,31 @@ Script "DnD Player Has Spot For Item" (int sp) {
 			SetActivator((sp & 0xFFFF) + P_TIDSTART);
 		//if (!CheckInventory("CanLoad")) { //BUG: This check is needed to prevent grabbing items before loading char, but had to comment because of extreme lag.
 			int pnum = PlayerNumber();
-			bool spot = 0;
+			bool spot = false;
 			if(Inventories_On_Field[sp >> 16].item_stack)
 				spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
 			else
 				spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
-			bool res = CheckInventory("DnD_PressedUse") && !CheckInventory("DnD_WaitNextItemPick") && spot;
+			bool res = CheckInventory("DnD_PressedUse") && !CheckInventory("DnD_WaitNextItemPick");
 			if(res)
 				GiveInventory("DnD_WaitNextItemPick", 1);
-			SetResultValue(res);
+			
+			if(!spot && res) {
+				// clientside warning sound and text
+				ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, pnum);
+			}
+			SetResultValue(res && spot);
 		//}
 	}
 	else
 		SetResultValue(false);
+}
+
+Script "DnD Inventory Full CS" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	LocalAmbientSound("RPG/MenuError", 127);
+	Log(s:"\cgNOTIFICATION  : \c[Y5]INVENTORY IS FULL!");
 }
 
 // Player picks up item
@@ -4819,7 +4831,7 @@ Script "DnD Rejuvenation" (void) {
 	}
 }
 
-/*Script 69 (void) NET {
+Script 69 (void) NET {
 	SetInventory("Level", 98);
 	SetInventory("Exp", GetExpLimit() / 2);
 	SetInventory("LevelExpCap", GetExpLimit());
@@ -4827,7 +4839,7 @@ Script "DnD Rejuvenation" (void) {
 }
 
 Script 70 (void) NET {
-	GiveInventory("Exp", 63107200);
+	GiveInventory("Exp", 10000);
 	GiveInventory("LevelUpChecker", 1);
 	CalculateExpRatio();
-}*/
+}

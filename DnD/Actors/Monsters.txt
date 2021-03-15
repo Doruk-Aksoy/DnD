@@ -421,7 +421,7 @@ Actor LostSoul2 : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_LOSTSOULID)
+			SKUL A 0 A_SetArg(0, DND_LOSTSOULID)
 		Goto SpawnSetup
 		
 		Idle:

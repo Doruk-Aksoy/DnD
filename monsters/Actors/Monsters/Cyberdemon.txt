@@ -2830,6 +2830,8 @@ Actor SorcBall3Projectile : SorcBallProjectileBase {
 
 ACTOR RedLiteTop : LightningCeiling {
 	DamageType "CyberLightning"
+	Species "Cyber"
+	+THRUSPECIES
 	+DONTBLAST
 	States {
 		Spawn:
@@ -2850,6 +2852,8 @@ ACTOR RedLiteTop : LightningCeiling {
 Actor LightningZap2 : LightningZap replaces LightningZap {
 	Damage (random(6, 18) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "CyberLightning"
+	Species "Cyber"
+	+THRUSPECIES
 	+THRUGHOST
 	States {
 		Spawn:
@@ -2860,6 +2864,8 @@ Actor LightningZap2 : LightningZap replaces LightningZap {
 
 ACTOR RedLiteBot : LightningFloor {
 	DamageType "CyberLightning"
+	Species "Cyber"
+	+THRUSPECIES
 	+DONTBLAST
 	States {
 		Spawn:

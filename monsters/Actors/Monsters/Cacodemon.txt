@@ -537,7 +537,7 @@ ACTOR Inferno : DnD_BaseHybridMonster {
 	Tag "Inferno"
 	states { 
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_INFERNO)
+			INFR A 0 A_SetArg(0, DND_INFERNO)
 		Goto SpawnSetup
 
 		Idle:

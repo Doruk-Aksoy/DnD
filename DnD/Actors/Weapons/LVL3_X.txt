@@ -1,0 +1,1395 @@
+// Sprites by Eriance
+ACTOR " Super Shotgun " : Weapon
+{
+  Weapon.SelectionOrder 650
+  Weapon.AmmoUse 2
+  Weapon.AmmoGive 0
+  Weapon.AmmoType "Shell"
+  Weapon.SlotNumber 3
+  Inventory.PickupMessage "$GOTSHOTGUN2"
+  Inventory.PickupSound "weapons/pickup"
+  Obituary "$OB_MPSSHOTGUN"
+  Tag "Super Shotgun"
+  Decal "BulletChip"
+  Weapon.BobStyle InverseSmooth
+  Weapon.BobSpeed 1.8
+  Weapon.BobRangeY 0.4
+  Weapon.BobRangeX 0.8
+  +INVENTORY.UNDROPPABLE
+  States
+  {
+  Ready:
+    SHT1 A 1 A_WeaponReady
+    Loop
+  Deselect:
+    TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
+    SHT1 A 1 A_Lower
+	TNT1 A 0 A_Lower
+    Loop
+  Select:
+    TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
+	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SUPERSHOTGUN)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 5, 2 | (3 << 16), DND_WEAPON_SUPERSHOTGUN)
+  SelectLoop:
+    SHT1 A 1 A_Raise
+	TNT1 A 0 A_Raise
+    Loop
+  Fire:
+	SHT1 BC 1 Bright
+	SHT2 M 0 A_PlayWeaponSound("weapons/ssgfire")
+	TNT1 A 0 A_GunFlash
+	TNT1 AAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
+	TNT1 A 0 A_GiveInventory("SSGShooter", 1)
+	SHT1 D 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch - 10.0)
+	SHT1 E 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	SHT1 G 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	SHT1 H 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	SHT1 I 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+	SHT1 JJ 1 A_SetPitch(pitch + 2.0)
+	TNT1 A 0 A_CheckReload
+	TNT1 A 0 A_JumpIFInventory("Ability_Reloader", 1, "ReloadFaster")
+	SHT1 KLM 2
+	SHT1 N 2
+	SHT1 ML 2
+	SHT1 KP 2 
+	SHT1 Q 1 A_PlaySound("weapons/ssgopen")
+	SHT1 RST 2
+	TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*24,-8,31+(sin(-pitch)*36),0,-1*random(5, 8), random(0, 1),0,0,0)		
+    SHT1 UV 2
+	SHT1 WX 1
+	SHT1 YZ 2
+	SHX1 A 1 A_PlaySound("weapons/ssgload")
+	SHX1 BCD 2
+	SHX1 E 1 A_PlaySound("weapons/ssgclose")
+	SHX1 FG 1
+	SHX1 HI 2
+	SHT1 A 3 A_Refire
+    Goto Ready
+  ReloadFaster:
+	SHT1 JKLM 1
+	SHT1 NMLKP 1
+	SHT1 Q 1 A_PlaySound("weapons/ssgopen")
+	SHT1 RST 1
+	TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*24,-8,31+(sin(-pitch)*36),0,-1*random(5, 8), random(0, 1),0,0,0)		
+    SHT1 UV 1
+	SHT1 X 1
+	SHT1 YZ 1
+	SHX1 A 1 A_PlaySound("weapons/ssgload")
+	SHX1 BCD 1
+	SHX1 E 1 A_PlaySound("weapons/ssgclose")
+	SHX1 G 1
+	SHX1 HI 1
+	SHT1 A 3 A_Refire
+	Goto Ready
+  Flash:
+    TNT1 A 4 Bright A_Light1
+    TNT1 A 3 Bright A_Light2
+    Goto LightDone
+  Spawn:
+    SHS1 Z -1
+    Stop
+  }
+}
+
+Actor SSGShooter : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SHELL, 2)
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 20))
+			TNT1 A 0 
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_FireBullets (11.2 * (1.0 - accuracy * accuracy_factor), 7.1 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "SSGPuff", FBF_NORANDOM | FBF_USEAMMO)
+		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("Shell", 2)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
+			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "FullStart")
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "SSGPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor SSGPuff : DnD_BasePuff {
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SUPERSHOTGUN << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SUPERSHOTGUN)
+		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
+		HitNoBlood:
+		Goto Crash
+	}
+}
+
+ACTOR "Upgraded Super Shotgun" : Weapon
+{
+  Weapon.SelectionOrder 650
+  Weapon.AmmoUse 2
+  Weapon.AmmoGive 0
+  Weapon.AmmoType "Shell"
+  Weapon.SlotNumber 3
+  Inventory.PickupMessage "$GOTSHOTGUN2"
+  Inventory.PickupSound "weapons/pickup"
+  Obituary "$OB_MPSSHOTGUN"
+  Tag "Heavy Super Shotgun"
+  Decal "BulletChip"
+  +INVENTORY.UNDROPPABLE
+  Weapon.BobStyle InverseSmooth
+  Weapon.BobSpeed 1.8
+  Weapon.BobRangeY 0.4
+  Weapon.BobRangeX 0.8
+  States
+  {
+  Ready:
+    SSGG A 1 A_WeaponReady
+    Loop
+  Deselect:
+    TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
+    SSGG A 1 A_Lower
+	TNT1 A 0 A_Lower
+    Loop
+  Select:
+    TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
+	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_HEAVYSUPERSHOTGUN)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_HEAVYSUPERSHOTGUN)
+  SelectLoop:
+    SSGG A 1 A_Raise
+	TNT1 A 0 A_Raise
+    Loop
+	Fire:
+		SSGG A 1
+		TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "FireFaster")
+		SSGF A 1 Bright
+		TNT1 A 0 A_PlayWeaponSound("weapons/hunssgfire")
+		TNT1 A 0 A_GiveInventory("HeavySSGShooter1", 1)
+		TNT1 A 0 A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 AAAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch - 4.0, SPF_INTERPOLATE)
+		TNT1 A 0 A_ZoomFactor(0.985,ZOOM_NOSCALETURNING)
+		SSGF A 1 Bright A_GunFlash
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		SSGX B 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		TNT1 A 0 A_ZoomFactor(1,ZOOM_NOSCALETURNING)
+		SSGX C 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		SSGX D 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		SSGF C 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF D 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 34 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF E 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF F 1
+		TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueReload")
+		TNT1 A 0 A_JumpIfInventory("Shell", 2, "ContinueReload")
+	Goto NoLoad
+	ContinueReload:
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 11, 36 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF F 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 11, 36 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF E 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF GH 1
+		SSGF IJKLMNOP 1
+		TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*24,-6,32+(sin(-pitch)*36),0,-1*random(5, 8), random(0, 1),0,0,0)
+		SSGF QRRSSTTUUVXYZ 1
+		SSGG BCDEFFGHIJKLMNOPQRSTU 1
+		SSGG A 3 A_ReFire
+	Goto Ready
+  FireFaster:
+		SSGF A 1 Bright
+		TNT1 A 0 A_PlayWeaponSound("weapons/hunssgfirefast")
+		TNT1 A 0 A_GiveInventory("HeavySSGShooter1", 1)
+		TNT1 A 0 A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 AAAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch - 4.0, SPF_INTERPOLATE)
+		TNT1 A 0 A_ZoomFactor(0.985,ZOOM_NOSCALETURNING)
+		SSGF A 1 Bright A_GunFlash
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		SSGX B 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		TNT1 A 0 A_ZoomFactor(1,ZOOM_NOSCALETURNING)
+		SSGX C 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		SSGX D 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		SSGF C 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF D 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 34 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF E 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueReloadFast")
+		TNT1 A 0 A_JumpIfInventory("Shell", 2, "ContinueReloadFast")
+	Goto NoLoad
+	ContinueReloadFast:
+		SSGF F 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 11, 36 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF F 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 11, 36 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF E 1
+		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+		SSGF GH 1
+		SSGF IKLNOP 1
+		TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*24,-6,32+(sin(-pitch)*36),0,-1*random(5, 8), random(0, 1),0,0,0)
+		SSGF QRSTUVXYZ 1
+		SSGG BCDEFGHIJKLMNOPQRT 1
+		SSGG A 3 A_ReFire
+    Goto Ready
+	NoLoad:
+		SSGF FE 2
+		SSGX DCB 2
+		SSGG A 2
+		TNT1 A 0 A_StopSound(CHAN_WEAPON)
+	Goto Ready
+  Flash:
+    TNT1 A 4 Bright A_Light1
+    TNT1 A 3 Bright A_Light2
+    Goto LightDone
+  Spawn:
+    SSGP A -1
+    Stop
+  }
+}
+
+Actor HeavySSGShooter1 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SHELL, 2)
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 28))
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_FireBullets(9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS] / 2 + Args[DND_ARG_SHOTGUNPELLETS] % 2, 0, "HSSGPuff", FBF_NORANDOM | FBF_USEAMMO)
+			TNT1 A 0 A_SetArg(4, Args[DND_ARG_SHOTGUNPELLETS] / 2)
+		RailFireLoop:
+			TNT1 A 0 A_RailAttack(0,0,0,"None","None",RGF_SILENT,0,"HSSGPuff_Rail", 9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), 384)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+			TNT1 A 0 A_JumpIf(Args[4] > 0, "RailFireLoop")
+			TNT1 A 0
+		Stop
+
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("Shell", 2)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS] / 2)
+			TNT1 A 0 A_SetArg(4, Args[2])
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_RailAttack(Args[3],0,0,"None","None",RGF_SILENT | RGF_EXPLICITANGLE,0,"HSSGPuff_Rail", (360.0 / Args[2]) * Args[4], 0, 384)
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "HSSGPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0 A_JumpIf(Args[2] % 2, "FireOneMore")
+		Stop
+		FireOneMore:
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "HSSGPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+		Stop
+	}
+}
+
+Actor HSSGPuff_Rail : DnD_BaseRailPuff {
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYSUPERSHOTGUN << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_HEAVYSUPERSHOTGUN)
+		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
+		Crash:
+		HitNoBlood:
+			TNT1 A 0 A_SpawnDebris("SparkPuff", 1)
+			TNT1 A 0 A_SpawnItemEx("WallHitSpark", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
+			PUFF A 4 bright A_PlaySound("puff/ric")
+			PUFF B 4
+			PUFF CD 4
+		stop
+	}
+}
+
+Actor HSSGPuff : DnD_BasePuff {
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYSUPERSHOTGUN << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_HEAVYSUPERSHOTGUN)
+		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
+		HitNoBlood:
+		Goto Crash
+	}
+}
+
+ACTOR "Upgraded Super Shotgun2" : Weapon
+{
+  Weapon.SelectionOrder 400
+  Weapon.AmmoUse1 0
+  Weapon.AmmoUse2 0
+  Weapon.AmmoGive 0
+  Weapon.AmmoType1 "Shell"
+  Weapon.AmmoType2 "ShellSize_2"
+  Weapon.SlotNumber 3
+  Inventory.PickupMessage "$GOTSHOTGUN2"
+  Inventory.PickupSound "weapons/pickup"
+  Obituary "$OB_MPSSHOTGUN"
+  Tag "Erasus"
+  Decal "BulletChip"
+  +INVENTORY.UNDROPPABLE
+  Weapon.BobStyle InverseSmooth
+  Weapon.BobSpeed 1.2
+  Weapon.BobRangeY 0.5
+  Weapon.BobRangeX 0.9
+  States
+  {
+  Ready:
+    ERAG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+    Loop
+  Deselect:
+    TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
+    ERAG A 1 A_Lower
+	TNT1 A 0 A_Lower
+    Loop
+  Select:
+    TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
+	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_ERASUS)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_ERASUS)
+  SelectLoop:
+    ERAG A 1 A_Raise
+	TNT1 A 0 A_Raise
+    Loop
+  Fire:
+	  TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueFire")
+	  TNT1 A 0 A_JumpIfInventory("ShellSize_2", 1, "ContinueFire")
+  Goto Reload
+  ContinueFire:
+	ERAF AAB 1 Bright
+	TNT1 A 0 A_PlayWeaponSound("weapons/erasfire")
+	TNT1 A 0 A_GunFlash
+	TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 7, 32 * (1 + sin(-pitch)), 2, 0, 1)
+	TNT1 A 0 A_GiveInventory("ErasusShooter1", 1)
+    TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	ERAF B 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch - 6.0)
+	ERAF C 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 1.0)
+	ERAF C 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 1.0)
+	ER2F C 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 1.0)
+	ER2F D 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 1.0)
+	ER2F E 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 1.0)
+	ER2F F 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 1.0)
+	ER2F F 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	ER2F DC 2 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	ER2F B 3
+	TNT1 A 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*28, 22,34+(sin(-pitch)*36),0,random(5, 8), random(0, 1),0,0,0)
+	ER2F A 4 A_JumpIfInventory("Shell", 1, "CheckNormalReload")
+	TNT1 A 0 A_Refire
+	ERAG A 6
+	Goto Ready
+	CheckNormalReload:
+	TNT1 A 0 A_JumpIfInventory("ShellSize_2", 1, "FinishFiring")
+	ERAG A 1
+	TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
+    Goto Reload
+  FinishFiring:
+	ERAG A 1
+	Goto Ready
+  FireEndBurst:
+	ERAF B 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12),36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch - 16.0)
+	ERAF C 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12),36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	ERAF C 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12),36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	ER2F C 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12),36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	ER2F G 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(10, 16), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	ER2F H 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(10, 16), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	ER2F I 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(10, 16), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	TNT1 A 0 A_SetPitch(pitch + 2.0)
+	ER2F J 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(10, 16), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	ER2F FDC 2 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(10, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+	ER2F B 3
+	TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*28, 22,34+(sin(-pitch)*36),0,random(5, 8), random(0, 1),0,0,0)
+	ER2F A 4 A_JumpIfInventory("Shell", 1, "CheckAltReload")
+	Goto Ready
+	CheckAltReload:
+	TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
+    Goto Reload
+  AltFire:
+    TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "BurstFire")
+	TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "BurstFire")
+	ERAG A 1
+  Reload:
+    TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "NoAction")
+	TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
+	ERAG C 3
+	ERAR AB 2
+	TNT1 A 0 A_PlaySound("weapons/erascock", 6)
+  ReloadLoop:
+	TNT1 A 0 A_JumpIfInventory("Shell", 1, "ContinueReload")
+  Goto FinishReload
+  ContinueReload:
+    TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "FinishReload")
+    TNT1 A 0 A_TakeInventory("Shell", 1)
+	TNT1 A 0 A_GiveInventory("ShellSize_2", 1)
+  Goto ReloadLoop
+  FinishReload:
+	ERAR CDEFEDCBA 2
+	ERAG C 3
+    Goto Ready
+  BurstFire:
+	ERAF AAB 1 Bright
+	TNT1 A 0 A_PlayWeaponSound("weapons/erasfire2")
+	TNT1 A 0 A_GunFlash
+	TNT1 AAAAAAAAAA 0 A_FireCustomMissile("SGTracer", Random(-12, 12), 0, 0, Random(-8, 8))
+	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 7, 32 * (1 + sin(-pitch)), 2, 0, 1)
+	TNT1 A 0 A_GiveInventory("ErasusShooter2", 1)
+    Goto FireEndBurst
+	
+	
+  DoReloadFaster:
+	ERAG C 2
+	ERAR AB 1
+	TNT1 A 0 A_PlaySound("weapons/erascock", 6)
+  ReloadLoopFast:
+	TNT1 A 0 A_JumpIfInventory("Shell", 1, "ContinueReloadFaster")
+  Goto FinishReloadFaster
+  ContinueReloadFaster:
+    TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "FinishReloadFaster")
+    TNT1 A 0 A_TakeInventory("Shell", 1)
+	TNT1 A 0 A_GiveInventory("ShellSize_2", 1)
+  Goto ReloadLoopFast
+  FinishReloadFaster:
+	ERAR CDEFEDCBA 1
+	ERAG C 2
+    Goto Ready
+  NoAction:
+	ERAG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+  Goto Ready
+  Flash:
+    TNT1 A 4 Bright A_Light1
+    TNT1 A 3 Bright A_Light2
+    Goto LightDone
+  Spawn:
+    ERAG X -1
+    Stop
+  }
+}
+
+Actor ErasusShooter1 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_2, 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("ShellSize_2", 1)
+		NoTake:		
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 18))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_ERASUS << 16), TALENT_BALLISTIC, DND_ISBOOMSTICK | DND_ISSLOT3, Args[DND_ARG_SHOTGUNPELLETS])
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_FireBullets (9.0 * (1.0 - accuracy * accuracy_factor), 6.4 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "ErasusPuff", FBF_NORANDOM | FBF_USEAMMO)
+		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("Shell", 1)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
+			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
+			TNT1 A 0 A_JumpIfInventory("Hobo_Perk50", 1, "FullStart")
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "ErasusPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor ErasusShooter2 : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_2, 2)
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("ShellSize_2", 2)
+		NoTake:
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 36))
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_FireBullets (14.8 * (1.0 - accuracy * accuracy_factor), 10.2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "ErasusPuff", FBF_NORANDOM | FBF_USEAMMO)
+		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("Shell", 1)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
+			TNT1 A 0 A_SetArg(4, Args[2])
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "ErasusPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor ErasusPuff : DnD_BasePuff {
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_ERASUS << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_ERASUS)
+		Goto DoDamage
+		AfterDamage:
+			TNT1 A 1
+		Stop
+		HitNoBlood:
+		Goto Crash
+	}
+}
+
+Actor "Upgraded Super Shotgun3" : Weapon {
+	Weapon.SlotNumber 3
+	weapon.selectionorder 1600
+	weapon.kickback 100
+	weapon.ammotype "HellsMawAmmo"
+	weapon.ammouse 0
+	weapon.ammogive 6
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.9
+	Tag "Hell's Maw"
+	+WEAPON.NOAUTOAIM
+	states {
+		Spawn:
+			HLMW X -1
+		stop
+		Ready:
+			TNT1 A 0 A_GiveInventory("HellsMawSynthActive", 1)
+			TNT1 A 0 A_TakeInventory("SynthFireFix", 1)
+			HLMW P 1 A_GunFlash("Flash", GFF_NOEXTCHANGE)
+		LIdle:
+			HLMW P 1 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			TNT1 A 0 A_JumpIfInventory("HellsMawFiringRight", 1, "LightLeft")
+			TNT1 A 0 A_JumpIfInventory("SynthFireFix", 1, "Ready")
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("HellsMawSynthActive", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawSynthFireLeft", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawSynthFireRight", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawFiringLeft", 1)
+			TNT1 A 0 A_TakeInventory("HellsMawFiringRight", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+		DeselectLoop:
+			HLMW A 1 A_Lower
+			TNT1 A 0 A_Lower
+		loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_HELLSMAW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 60, 0, DND_WEAPON_HELLSMAW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 30, 0, DND_WEAPON_HELLSMAW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 25, 0, DND_WEAPON_HELLSMAW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 20, 0, DND_WEAPON_HELLSMAW)
+		SelectLoop:
+			HLMW A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+		LFire:
+			HLMW P 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ContinueLeftFire")
+        Goto LIdle
+		ContinueLeftFire:
+			HLMW P 3 A_WeaponReady(WRF_NOFIRE)
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ReallyLeftFire")
+		Goto LIdle
+		ReallyLeftFire:
+			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 7)
+			TNT1 A 0 A_GiveInventory("HellsMawFiringLeft", 1)
+			TNT1 A 0 A_GiveInventory("HellsMawShooter_Left", 1)
+			HLMW HI 2 Bright A_WeaponReady(WRF_NOFIRE)
+			TNT1 A 0 A_TakeInventory("HellsMawFiringLeft", 1)
+			HLMW JK 2 Bright A_WeaponReady(WRF_NOFIRE)
+			HLMW R 2 A_WeaponReady(WRF_NOFIRE)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+        Goto LIdle
+		LightLeft:
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW E 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW E 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW E 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW F 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW F 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW F 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW G 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW G 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+			HLMW G 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
+		Goto LIdle
+		
+		Flash:
+			HLMW Q 4
+		RIdle:
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthActive", 1, "ContinueRIdle")
+		Goto StopFlash
+		ContinueRIdle:
+			HLMW Q 1
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			TNT1 A 0 A_JumpIfInventory("HellsMawFiringLeft", 1, "LightRight")
+		Goto RIdle
+		StopFlash:
+			TNT1 A 0
+		Stop
+
+		RFire:
+			HLMW Q 1
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ContinueRightFire")
+		Goto RIdle
+		ContinueRightFire:
+			HLMW Q 3
+			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ReallyRightFire")
+		Goto RIdle
+		ReallyRightFire:
+			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 6)
+			TNT1 A 0 A_GiveInventory("HellsMawFiringRight", 1)
+			TNT1 A 0 A_GiveInventory("HellsMawShooter_Right", 1)
+			HLMW LM 2 Bright
+			TNT1 A 0 A_TakeInventory("HellsMawFiringRight", 1)
+			HLMW NO 2 Bright
+			HLMW S 2
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+		Goto RIdle
+		LightRight:
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW B 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW C 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW C 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW C 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW D 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW D 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+			HLMW D 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireRight", 1, "RFire")
+		Goto RIdle
+    }
+}
+
+Actor HellsMawFiringLeft : DnD_Boolean {}
+Actor HellsMawFiringRight : DnD_Boolean {}
+Actor HellsMawSynthActive : DnD_Boolean {}
+Actor HellsMawSynthFireLeft : DnD_Boolean {}
+Actor HellsMawSynthFireRight : DnD_Boolean {}
+Actor SynthFireFix : DnD_Boolean {}
+
+Actor HellsMawShooter_Left : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_HELLSMAWAMMO, 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("HellsMawAmmo", 1)
+		NoTake:
+			TNT1 A 0 A_FireCustomMissile("HellsMawRocket", -1, 0, -12)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", -1, 0, 4, 0)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", -1, 0, -12, 16)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", -1, 0, -28, 0)
+		Stop
+	}
+}
+
+Actor HellsMawShooter_Right : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_HELLSMAWAMMO, 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("HellsMawAmmo", 1)
+		NoTake:
+			TNT1 A 0 A_FireCustomMissile("HellsMawRocket", 1, 0, 12)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", 1, 0, 28, 0)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", 1, 0, 12, 16)
+			TNT1 A 0 A_FireCustomMissile("HellsMawMiniRocket", 1, 0, -4, 0)
+		Stop
+	}
+}
+
+Actor HellsMawRocket : DnD_ExplosiveBase {
+	Speed 35
+	Radius 8
+	Height 16
+	Scale 1.15
+	ReactionTime 20
+	States {
+		SpawnState:
+			HLML A 1 Bright A_SpawnItemEx("HellsMawRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)
+			TNT1 A 0 A_CountDown
+		loop
+		Death:
+			TNT1 A 0 A_JumpIf(reactiontime == 0, "Split")
+			TNT1 A 0 A_PlaySound("weapons/heavyrlexp")
+		ContinueDying:
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetTranslucent(0.85, 1)
+			HLML B 3 Bright
+			HLML CDEF 3 Bright
+		stop
+		Split:
+			TNT1 A 0 A_PlaySound("weapons/grenadexpl")
+			TNT1 AAAAAAA 0 A_CustomMissile("HellsMawMiniRocket_Split", 0, 0, frandom(-12, 12) * (1.0 - accuracy * accuracy_factor), CMF_TRACKOWNER | CMF_AIMDIRECTION, frandom(-6, 6) * (1.0 - accuracy * accuracy_factor))
+		Goto ContinueDying
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HELLSMAW << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_HELLSMAW)
+		Crash:
+			TNT1 A 0 A_SetTranslucent(0.85, 1)
+			TNT1 A 0 A_PlaySound("Vindicator/FlakExp")
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlareSmall", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HELLSMAW << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			HLML B 3 Bright 
+			HLML CDEF 3 Bright
+		stop
+	}
+}
+
+Actor HellsMawRocketTrail {
+	Alpha 0.75
+	Scale 0.75
+	Renderstyle Add
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 2
+			OPUF ABCD 1 Bright
+		STop
+	}
+}
+
+Actor HellsMawMiniRocket : HellsMawRocket {
+	ReactionTime 20
+	DeathSound "weapons/maceex"
+	+THRUGHOST
+	States {
+		SpawnState:
+			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
+			TNT1 A 0 A_CountDown
+		loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HELLSMAW << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_HELLSMAW)
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetTranslucent(0.8,1)
+			TNT1 AAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HELLSMAW << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT | (DND_DAMAGEFLAG_BLASTSELF << 16))
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			HLML L 3 Bright
+			HLML MNOPQR 3 Bright 
+		stop
+	}
+}
+
+Actor HellsMawMiniRocket_Split : HellsMawMiniRocket {
+	States {
+		SpawnState:
+			TNT1 A 0 A_ChangeVelocity(35 * cos(angle), 35 * sin(angle), velz, CVF_REPLACE)
+		Goto Super::SpawnState
+	}
+}
+
+Actor HellsMawMiniRocketTrail : HellsMawRocketTrail {
+	Scale 1.0
+	States {
+		Spawn:
+			TNT1 A 2
+			HLML HIJK 1 Bright
+		Stop
+	}
+}
+
+// An exploding shotgun, idk where the graphics come from
+Actor "Silver Gun" : Weapon
+{
+  radius 20
+  height 16
+  Weapon.SlotNumber 3
+  weapon.selectionorder 1600
+  weapon.kickback 100
+  obituary "%o was devastated by %k's silver gun."
+  Inventory.PickupSound "weapons/pickup"
+  inventory.pickupmessage "You got the silver gun!"
+  weapon.ammotype "ExplodingShell"
+  weapon.ammouse 1
+  weapon.ammogive 4
+  DamageType "Explosives"
+  +INVENTORY.UNDROPPABLE
+  Weapon.BobStyle InverseSmooth
+  Weapon.BobSpeed 1.8
+  Weapon.BobRangeY 0.4
+  Weapon.BobRangeX 0.8
+  Tag "White Death"
+  states
+  {
+  Spawn:
+    EXSG X -1
+    stop
+  Ready:
+    EXSG A 1 A_WeaponReady
+    loop
+  Deselect: 
+    TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+    EXSG A 1 A_Lower
+	TNT1 A 0 A_Lower
+    loop
+  Select:
+    TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
+	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SILVERGUN)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SILVERGUN)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 8, 4 | (6 << 16), DND_WEAPON_SILVERGUN)
+  SelectLoop:
+    EXSG A 1 A_Raise
+	TNT1 A 0 A_Raise
+    Loop
+  Fire:
+	  EXSG B 1
+      EXSG E 0 A_GunFlash
+      EXSG CD 1 Bright
+	  TNT1 AAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+	  TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
+	  TNT1 A 0 A_GiveInventory("SilverShooter", 1)
+	  EXSG E 1 Bright A_PlayWeaponSound("weapons/expshotgunfire")
+	  TNT1 A 0 A_SetPitch(pitch - 6.0)
+	  EXSG F 1 bright
+	  TNT1 A 0 A_SetPitch(pitch + 1.5)
+	  EXSG G 1 bright
+	  TNT1 A 0 A_SetPitch(pitch + 1.5)
+	  EXSG H 1 bright
+	  TNT1 A 0 A_SetPitch(pitch + 1.5)
+	  EXSG I 1 bright
+	  TNT1 A 0 A_SetPitch(pitch + 1.5)
+	  SHTG G 0 A_SpawnItemEx ("SHOTGUNSMOKE",cos(-pitch)*20,-10,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+      EXSG JKLM 1
+	  SHTG G 0 A_SpawnItemEx ("SHOTGUNSMOKE",cos(-pitch)*20,-15,42+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  EXSG NOPQ 1
+	  TNT1 A 0 A_Playsound("weapons/expshotgunpump")
+	  SHTG G 0 A_SpawnItemEx ("SHOTGUNSMOKE",cos(-pitch)*20,-15,42+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  EXSG RSTU 1
+	  SHTG G 0 A_SpawnItemEx ("SHOTGUNSMOKE",cos(-pitch)*20,-15,42+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  EXSG V 2
+	  SHTG G 0 A_SpawnItemEx ("exshotguncasing",cos(-pitch)*36,-18,34+(sin(-pitch)*36),cos(-pitch)*0,random(5, 8), random(0, 1),0,0,0)
+	  EXSG V 2
+	  SHTG G 0 A_SpawnItemEx ("SHOTGUNSMOKE",cos(-pitch)*20,-15,42+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+	  EXSG UTSRQPONMLKJ 1
+      EXSG A 1 A_ReFire	
+	  Goto Ready
+	Flash:
+	  TNT1 A 4 bright A_Light1
+	  TNT1 A 3 bright A_Light2
+	  TNT1 A 0 bright A_Light0
+	  stop
+    }
+}
+
+Actor SilverShooter : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_EXSHELL, 1)
+			
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 10))
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_FireBullets (6.4 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "WhiteDeathPuff", FBF_NORANDOM | FBF_USEAMMO)
+		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("ExplodingShell", 1)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
+			TNT1 A 0 A_SetArg(4, Args[2])
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "WhiteDeathPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor ExpShellSoundEmitter {
+	+NOINTERACTION
+	+NOTELEPORT
+	
+	States {
+		Spawn:
+			TNT1 AA 0 A_PlaySound("weapons/expshotgunxpl")
+		Stop
+	}
+}
+
+// Taken from Samsara
+actor ExplosiveSpark {
+    health 5
+    radius 1
+    height 1
+    Speed 10
+    Scale 0.2
+    Gravity 0.7
+    PROJECTILE
+    +NOBLOCKMAP
+    +DONTSPLASH
+    +RANDOMIZE
+    -NOGRAVITY
+    -SOLID
+    +WINDTHRUST
+    +CLIENTSIDEONLY
+    States {
+		Spawn:
+			DXSK A 1 BRIGHT A_FadeOut(0.01)
+		loop
+    }
+}
+
+Actor WhiteDeathPuff : DnD_BasePuff {
+	Decal "Scorch"
+	States {
+		Init:
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Weapon Damage Retrieve",  DND_DMGID_0 | (DND_WEAPON_SILVERGUN << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
+			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SILVERGUN)
+			TNT1 A 0 
+		Goto DoDamage
+		AfterDamage:
+			TNT1 A 15 A_CustomMissile("ExplodingPuff", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+		Stop
+		Crash:
+		HitNoBlood:
+		Goto AfterDamage
+	}
+}
+
+Actor ExplodingPuff : DnD_ExplosiveBase {
+	Speed 0
+	Renderstyle "Add"
+	Alpha 0.85
+	Scale 0.55
+	+EXTREMEDEATH
+	+FOILINVUL
+	States {
+		SpawnState:
+			TNT1 A 0
+		Death:
+			TNT1 AA 0 A_SpawnItem("ExpShellSoundEmitter")
+			TNT1 AA 0 A_SpawnDebris("ExplosiveSpark", 1)
+			DKSX M 2
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SILVERGUN << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | ((DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF) << 16))
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			DKSX NOPQRS 2
+			DKSX TUVWX 1
+		Stop
+	}
+}
+
+ACTOR Slayer : Weapon {	
+	Inventory.PickupMessage "You got the Slayer!"
+	Obituary "%o was torn apart by %k's Slayer."
+	Weapon.AmmoType "SlayerAmmo"
+	Weapon.AmmoUse 1
+	Weapon.AmmoGive 4
+	Weapon.SlotNumber 3
+	Weapon.SelectionOrder 666
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.9
+	Weapon.BobRangeY 0.33
+	Weapon.BobRangeX 0.64
+	States {
+		Spawn:
+			SLYP A -1
+		Loop
+		Ready:
+			IREG BCDEFG 3 A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+			IREG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SLAYER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 10, 0, DND_WEAPON_SLAYER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 50, 0, DND_WEAPON_SLAYER)
+	  SelectLoop:
+			IREG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			IREG H 2 Bright Offset(0, 32)
+			TNT1 A 0 A_GunFlash
+			IREG H 2 Bright Offset(0, 35) A_PlayWeaponSound("weapons/slayerfire")
+			TNT1 A 0 A_TakeInventory("SlayerBack", 1)
+			TNT1 A 0 Radius_Quake(4,3,0,1,0)
+			IREG I 2 Bright Offset(0, 32) A_GiveInventory("SlayerShooter", 1)
+			IREG I 2 Bright Offset(0, 35)
+			IREG J 2 Bright Offset(0, 32)
+			IREG J 2 Bright Offset(0, 35)
+		Recoil:
+			IREG K 2 Bright Offset(0, 38)
+			IREG K 2 Bright Offset(0, 41)
+			IREG L 2 Bright Offset(0, 38)
+			IREG L 2 Bright Offset(0, 35)
+			IREG M 3 Bright Offset(0, 32)
+			IREG A 1 Offset(0, 42)
+			IREG A 1 Offset(0, 37)
+			IREG A 1 Offset(0, 32)
+			IREG A 3 A_ReFire
+		Goto Ready
+		Flash:
+			TNT1 A 3 bright A_Light1
+			TNT1 A 3 bright A_Light2
+			TNT1 A 3 bright A_Light0
+		stop
+	}
+}
+
+Actor SlayerShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SLAYER, 1)
+			TNT1 A 0 A_GiveInventory("SlayerTimer", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_FireCustomMissile("SlayerHook", -3, 0)
+			TNT1 A 0 A_FireCustomMissile("SlayerHook", 3, 0)
+			TNT1 A 0 A_FireCustomMissile("SlayerHook", -6, 0)
+			TNT1 A 0 A_FireCustomMissile("SlayerHook", 6, 0)
+			TNT1 A 0 A_FireCustomMissile("SlayerHook", 1, 0)
+			TNT1 A 0 A_FireCustomMissile("SlayerHook", -1)
+		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
+			TNT1 A 0 A_TakeInventory("SlayerAmmo", 1)
+		NoTakeCircle:
+			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 6))
+			TNT1 A 0 A_SetArg(4, Args[2])
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("SlayerHook", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor SlayerHookTrail {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 0.75
+	States {
+		Spawn:
+			TNT1 A 1
+			FX09 ABCDEF 2 Bright
+		Stop
+	}
+}
+
+Actor SlayerBack : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor SlayerExplosionFX {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Height 1
+	Radius 1
+	Renderstyle Add
+	Alpha 0.75
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			IREP EFGHI 2 Bright
+		Stop
+	}
+}
+
+Actor SlayerHook : DnD_ExplosiveBase {
+	Height 12
+	Radius 6
+	Speed 28
+	var int user_count;
+	SeeSound "weapons/slayergo"
+	Species "Player"
+	+THRUSPECIES
+	+RIPPER
+	+DONTBLAST
+	+DONTSPLASH
+	+THRUGHOST
+	+NOTARGETSWITCH
+	States {
+		SpawnState:
+			TNT1 A 0 A_JumpIf(user_count == 3, "ReturnSpin")
+			TNT1 A 0 A_PlaySound("weapons/slayerspin", CHAN_BODY)
+			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		ReturnSpin:
+			TNT1 A 0 A_CustomMissile("ReturnSlayerHook", 0, 0, 0, CMF_TRACKOWNER)
+		Stop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SLAYER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_SLAYER)
+		Death:
+		Explode:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+			TNT1 A 0 A_StopSound(CHAN_BODY)
+			IREP "#" 1 A_PlaySound("redballbdeth")
+			TNT1 A 0 A_SpawnItemEx("SlayerExplosionFX", 0, 0, 0, 0, 0, 1, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
+			TNT1 A 0 A_SetArg(0, 2)
+		Again:
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SLAYER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expradius", 108 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 1
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 7 A_SetArg(0, Args[0] - 1)
+			TNT1 A 1 A_JumpIf(Args[0] > 0, "Again")
+		Stop
+	}
+}
+
+Actor ReturnSlayerHook : SlayerHook {
+	ReactionTime 4
+	SeeSound ""
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_FaceTarget
+			TNT1 A 0 A_PlaySound("weapons/slayerspin", CHAN_BODY)
+			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
+			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
+			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
+			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
+			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
+			TNT1 A 0 A_CountDown
+		Loop
+		Death:
+		Vanish:
+			TNT1 A 0 A_StopSound(CHAN_BODY)
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor SlayerHook_Damager : DnD_BaseProjectile {
+	Radius 6
+	Height 12
+	Speed 20
+	Species "Player"
+	+THRUSPECIES
+	States {
+		SpawnState:
+			TNT1 A 1
+		Stop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SLAYER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_SLAYER)
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor SlayerTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}

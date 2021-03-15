@@ -116,6 +116,7 @@ Actor CyberClassProtection : InfiniteProtectionBase {
 	DamageFactor "CyberBullet", 0.0
 	DamageFactor "CyberFire", 0.0
 	DamageFactor "CyberLightning", 0.0
+	DamageFactor "CyberMagic", 0.0
 	DamageFactor "CyberIce", 0.0
 	DamageFactor "CyberSlow", 0.0
 	DamageFactor "CyberGreen", 0.0
