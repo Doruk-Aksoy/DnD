@@ -2171,7 +2171,7 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			"RESBAK17",
-			"If you think you need a bit of sniping, try these! Unlocks Railgun and Gauss Rifle (7)."
+			"If you think you need a bit of sniping, try these! Unlocks Railgun, Gauss Rifle and Death Ray (7)."
 		},
 		{
 			"RESBAK28",

@@ -385,19 +385,19 @@ ACTOR TerminatorX : DnD_BaseRangedBoss {
 		Bullets:
 			TERM G 2 Fast A_Facetarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 44, 58, -4, 0, frandom(3.0, 5.0), random(-80, -90))
-			TNT1 A 0 A_CustomMissile("TerminatorBullet", 60, -18, frandom(-8.0, 8.0), 0, frandom(-4.0, 4.0))
+			TNT1 AA 0 A_CustomMissile("TerminatorBullet", 60, -18, frandom(-8.0, 8.0), 0, frandom(-4.0, 4.0))
 			TERM H 1 Bright A_CustomMissile("TerminatorBullet", 60, -18, frandom(-15.0, 15.0), 0, frandom(-8.0, 8.0))
 			TERM H 1 Bright A_Playsound("Terminator/tershotB")
 			TERM G 2 Fast A_Facetarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 44, 58, -4, 0, frandom(3.0, 5.0), random(-80, -90))
-			TNT1 A 0 A_CustomMissile("TerminatorBullet", 60, -18, frandom(-8.0, 8.0), 0, frandom(-4.0, 4.0))
+			TNT1 AA 0 A_CustomMissile("TerminatorBullet", 60, -18, frandom(-8.0, 8.0), 0, frandom(-4.0, 4.0))
 			TERM I 1 Bright A_CustomMissile("TerminatorBullet", 60, -18, frandom(-15.0, 15.0), 0, frandom(-8.0, 8.0))
 			TERM I 1 Bright A_Playsound("Terminator/tershotB")
 			TERM G 0 A_jump(24, "RedStar")
 			TERM G 1 A_Spidrefire
 		Goto Bullets
 		RedStar:
-			TERM J 0 A_JumpIfCloser(224, "RedGrenade")
+			TERM J 0 A_JumpIfCloser(256, "RedGrenade")
 		RedStarGo:
 			TERM JJ 4 Fast A_Facetarget
 			TERM K 8 Bright A_CustomMissile("Redstar", 42, -15, 0, 0)
@@ -435,7 +435,7 @@ Actor TerminatorExp1 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(40 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 A 1 A_Explode(50 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
 		Stop
 	}
 }
@@ -444,7 +444,7 @@ ACTOR TerminatorBlaster {
 	Radius 8
 	Height 12
 	Speed 28
-	Damage (15 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (15 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "CyberFire"
 	PROJECTILE
 	RENDERSTYLE ADD
@@ -475,7 +475,7 @@ actor Redstar {
     Radius 10
     Height 20
     Speed 16
-    Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (10 * random(6, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "CyberEnergy"
     Scale 0.6
     +SEEKERMISSILE
@@ -583,6 +583,7 @@ actor Grenadeblast {
 
 Actor TerminatorBullet : UndeadInitiateBullet {
 	DamageType "CyberBullet"
+	Damage (15)
 	States {
 		Death:
 			TPUF A 2 Bright

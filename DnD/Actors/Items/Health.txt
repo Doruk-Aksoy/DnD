@@ -1,3 +1,7 @@
+Actor PlayerHealthCap : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
 Actor Stimpack_MP : DnD_SharedItem replaces Stimpack { 
 	States {
 		// acs_Executealways is 226

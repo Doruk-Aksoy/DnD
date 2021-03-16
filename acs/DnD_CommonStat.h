@@ -302,6 +302,7 @@ int GetSpawnHealth() {
 		res >>= 1;
 	if(res < DND_BASE_HEALTH)
 		res = DND_BASE_HEALTH;
+	SetInventory("PlayerHealthCap", res);
 	return res;
 }
 

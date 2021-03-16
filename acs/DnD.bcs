@@ -470,6 +470,7 @@ Script "DnD Killing Spree Timer" (void) {
 			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, spree / DND_SPREE_PER, reward);
 			GiveInventory("Exp", reward);
 			GiveInventory("LevelExp", reward);
+			GiveInventory("LevelUpChecker", 1);
 			CalculateExpRatio();
 			SetInventory("SpreeXP", 0);
 			GiveInventory("DnD_BerserkQuest_SpreeCounter", 1);

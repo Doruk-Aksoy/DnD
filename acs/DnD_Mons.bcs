@@ -578,19 +578,41 @@ Script "DnD Bloodseeker Transform" (void) {
 	for(int i = 0; !res && i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i)) {
 			targtid = i + P_TIDSTART;
-			res = 	GetActorProperty(targtid, APROP_HEALTH) <= GetActorProperty(targtid, APROP_SPAWNHEALTH) / 2 						&& 
+			// playerhealthcap is an inventory that represents a player's healthcap, to be used by sources outside of players
+			res = 	GetActorProperty(targtid, APROP_HEALTH) <= CheckActorInventory(targtid, "PlayerHealthCap") / 2 						&& 
 					AproxDistance(GetActorX(this) - GetActorX(targtid), GetActorY(this) - GetActorY(targtid)) <= BLOODSEEKER_DISTANCE 	&&
 					CheckSight(targtid, this, CSF_NOBLOCKALL);
 		}
 	}
+	if(res) {
+		// first moment of transform
+		if(!CheckInventory("BeastTransform")) {
+			ActivatorSound("Beast/Lust", 127);
+			GiveInventory("BeastTransform", 1);
+			ACS_NamedExecuteAlways("DnD Bloodseeker Transform CS", 0, 1);
+		}
+	}
+	else {
+		if(CheckInventory("BeastTransform")) {
+			TakeInventory("BeastTransform", 1);
+			ACS_NamedExecuteAlways("DnD Bloodseeker Transform CS", 0, 0);
+		}
+	}
 	SetResultValue(res);
+}
+
+Script "DnD Bloodseeker Transform CS" (int st) CLIENTSIDE {
+	if(st)
+		GiveInventory("BeastTransform", 1);
+	else
+		TakeInventory("BeastTransform", 1);
 }
 
 Script "DnD Bloodseeker Size Change" (void) CLIENTSIDE {
 	int mode = -1, prevmode = -1;
 	int i = 0;
 	while(isAlive()) {
-		if(CheckInventory("BloodseekerTransform"))
+		if(CheckInventory("BeastTransform"))
 			mode = 1;
 		else
 			mode = -1;
@@ -598,25 +620,25 @@ Script "DnD Bloodseeker Size Change" (void) CLIENTSIDE {
 			for(i = 0; prevmode != mode && i < BLOODSEEKERSIZE_TIME; ++i) {
 				SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
 				SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
-				Delay(1);
+				Delay(const:1);
 			}
 		}
 		else {
 			for(i = 0; prevmode != mode && i < BLOODSEEKERSIZE_TIME; ++i) {
 				SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
 				SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
-				Delay(1);
+				Delay(const:1);
 			}
 		}
 		prevmode = mode;
-		Delay(5);
+		Delay(const:5);
 	}
 	
-	if(CheckInventory("BloodseekerTransform")) {
+	if(CheckInventory("BeastTransform")) {
 		for(i = 0; i < BLOODSEEKERSIZE_TIME; ++i) {
 			SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
 			SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
-			Delay(1);
+			Delay(const:1);
 		}
 	}
 }

@@ -430,7 +430,7 @@ Actor LostSoul2 : DnD_BaseRangedMonster {
 		
 		SeeState:
 			SKUL AB 6 Fast Bright A_Chase
-		Goto See
+		Loop
 		MissileState:
 			SKUL C 10 Fast Bright A_FaceTarget
 			SKUL D 4 Fast Bright A_SkullAttack
@@ -1140,6 +1140,7 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss {
 		Goto See
 		PainState:
 			TNT1 A 0 A_GiveInventory("SpiderFireChecker", 1)
+			TNT1 A 0 A_StopSound(5)
 			SPID I 3 A_SpawnDebris("MetalScrap")
 			SPID I 3 A_Pain
 		Goto See

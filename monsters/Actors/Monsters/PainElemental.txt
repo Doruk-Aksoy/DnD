@@ -1316,7 +1316,7 @@ Actor HellArbiter : DnD_BaseRangedMonster {
 		Loop
 		SeeState:
 			ARBT AABB 4 Fast A_Chase
-		Goto See
+		Loop
 		MissileState:
 		MeleeState:
 			TNT1 A 0 A_JumpIfCloser(420, "CheckGround")
