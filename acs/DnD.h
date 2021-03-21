@@ -155,7 +155,8 @@ enum {
 enum {
 	DND_STACKEDITEM_ORB,
 	DND_STACKEDITEM_CHESTKEY,
-	DND_STACKEDITEM_ELIXIR
+	DND_STACKEDITEM_ELIXIR,
+	DND_STACKEDITEM_TOKEN
 };
 
 #define DND_BONUS_SCREENTIME 6
@@ -200,7 +201,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
 	 "Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	 "Shoots a missile and 3 mini missiles. Missile does 60, mini missiles do 25 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter. If it hits an object, explodes for 20 in 64 unit radius. Altfire fires the other side.",
-	 "Fires 24 plasma balls in a circular fashion each doing 20 damage. Has a clip size of 5.",
+	 "Fires 12 plasma balls in a circular fashion each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.",
 	 "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 192-240 damage in 108 unit radius. \cfIgnores shields.",
 	 "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.",
 	 
@@ -221,7 +222,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs. \cfIgnores shields.",
 	 
 	 "A true classic. Just don't blow yourself up. Can be \cdreplaced. Can't hit \cughosts.",
-	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 144 unit radius. Can't hit \cughosts.",
+	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 144 unit radius. Altfire detonates the rocket midflight, doing the same impact damage in an area instead. Can't hit \cughosts.",
 	 "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.",
 	 "Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to scatter into 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
 	 "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well. Main meteor \cfignores shields\c-.",
@@ -786,20 +787,34 @@ void HandleChestSpawn() {
 
 void HandleChestDrops(int ctype) {
 	HandleElixirDrop(true);
-	if(ctype == DND_CHESTTYPE_BRONZE)
+	if(ctype == DND_CHESTTYPE_BRONZE) {
 		SpawnOrbForAll(1);
-	else if(ctype == DND_CHESTTYPE_SILVER)
+		if(random(0, 1))
+			SpawnTokenForAll(1);
+	}
+	else if(ctype == DND_CHESTTYPE_SILVER) {
 		SpawnOrbForAll(2);
-	else if(ctype == DND_CHESTTYPE_GOLD)
+		if(random(0, 3))
+			SpawnTokenForAll(1);
+	}
+	else if(ctype == DND_CHESTTYPE_GOLD) {
 		SpawnOrbForAll(3);
+		SpawnTokenForAll(1);
+	}
 }
 
-void HandleOrbDrop() {
+void HandleEliteDrops() {
 	int addchance = (Clamp_Between(GetCVar("dnd_orb_dropchanceadd"), 0, 100) << 16) / 100;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, 1, DND_ELITE_BASEDROP + addchance))))
-			SpawnOrb(i, true);
+		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART)))) {
+			// for orbs
+			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP + addchance))
+				SpawnOrb(i, true);
+			// for tokens -- 3 times as likely to drop compared to orbs
+			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP * 3))
+				SpawnToken(i, true);
+		}
 	}
 }
 

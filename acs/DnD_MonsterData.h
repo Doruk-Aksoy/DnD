@@ -6,6 +6,8 @@
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 10 // 10% per level
 
+#define MAX_RIPPER_HITS_STORED 128
+
 typedef struct {
 	int basehp;
 	int maxhp;

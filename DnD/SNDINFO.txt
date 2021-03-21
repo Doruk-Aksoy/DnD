@@ -1,6 +1,8 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Torpedo/Beep			RLBEEPO
+
 Overload/Loop1			OLODLOO1
 Overload/Loop2			OLODLOO2
 Overload/Loop3			OLODLOO3

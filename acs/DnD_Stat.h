@@ -8,6 +8,10 @@
 #include "DnD_Elixirs.h"
 #include "DnD_Activity.h"
 
+#define DND_CRITSTATE_NOCALC 0
+#define DND_CRITSTATE_CONFIRMED 1
+bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
+
 #define DND_BASE_CRITMODIFIER 200
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
@@ -734,6 +738,12 @@ bool CheckCritChance(int wepid) {
 			ActivatorSound("VeilOfAssassin/Active", 97);
 		}
 	}
+	
+	if(res) {
+		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
+		GiveInventory("DnD_CritToken", 1);
+	}
+	
 	return res;
 }
 

@@ -14,6 +14,23 @@ Actor GrenadeSmoke
 	}
 }
 
+Actor DnD_RocketTrail {
+	Renderstyle "Add"
+	Alpha 0.8
+	Radius 1
+	Height 1
+	Scale 0.666
+	+NOBLOCKMAP
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TWT1 ABCDEFG 2 A_FadeOut(0.075)
+		Stop
+	}
+}
+
 Actor DnD_PoisonFX {
 	Renderstyle "Add"
 	Alpha 0.9

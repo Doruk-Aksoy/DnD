@@ -1087,13 +1087,24 @@ int GetArmorFillPrice() {
 	return res;
 }
 
-bool CanFillArmor() {
-	return  CheckInventory("Credit") >= GetArmorFillPrice() && 
-			CheckInventory("DnD_ArmorType") > 1 && 
-			CheckInventory("Armor") < GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+// check for $$, armor type, armor being less than max and having repair tokens
+int CanFillArmor(int pnum) {
+	int res = -1;
+	if(CheckInventory("Credit") < GetArmorFillPrice())
+		return -POPUP_NOFUNDS;
+	if(CheckInventory("DnD_ArmorType") < 1)
+		return -POPUP_NOARMORWORN;
+	if(CheckInventory("Armor") == GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]))
+		return -POPUP_ARMORISFULL;
+		
+	// discover where the player may have a repair token, and return that as position
+	if((res = FindInventoryOfType(pnum, DND_ITEM_TOKEN, DND_TOKEN_REPAIR)) == -1)
+		return -POPUP_NOREPAIRTOKENS;
+	
+	return res;
 }
 
-void FillCurrentArmor() {
+void FillCurrentArmor(int pnum, int take_pos) {
 	int armor_type = CheckInventory("DnD_ArmorType") - 1;
 	int price = GetArmorFillPrice();
 	// fill armor
@@ -1102,6 +1113,9 @@ void FillCurrentArmor() {
 	// take money
 	TakeInventory("Credit", price);
 	GiveInventory("DnD_MoneySpentQuest", price);
+	
+	// take a repair token away
+	ConsumePlayerItem(pnum, take_pos);
 }
 
 // will process item selections depending on given valid range
@@ -2736,7 +2750,7 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 			HudMessage(s:ItemAttributeString(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
-	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR) {
+	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR || itype == DND_ITEM_TOKEN) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
 		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}

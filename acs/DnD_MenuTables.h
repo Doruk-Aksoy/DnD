@@ -1334,7 +1334,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	
 	"Shoots a missile and 3 mini missiles. Missile does 60, mini missiles do 25 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 25 in 64 unit radius. Altfire fires the other side.",
-	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Has a clip size of 5.",
+	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 192-240 damage in 108 unit radius.",
 	"Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
@@ -1352,7 +1352,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin.",
 	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
 	
-	"The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 128 unit radius.",
+	"The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 128 unit radius. Altfire detonates the rocket midflight, dealing the impact damage in an area instead.",
 	"Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds.",
 	"Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to into scatter 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
 	"Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well.",
@@ -2247,10 +2247,13 @@ enum {
 	POPUP_ITEMTYPEMISMATCH,
 	POPUP_NOSPOTFORITEM,
 	POPUP_POINTLESSARMOR,
-	POPUP_OUTOFSTOCK
+	POPUP_OUTOFSTOCK,
+	POPUP_NOARMORWORN,
+	POPUP_ARMORISFULL,
+	POPUP_NOREPAIRTOKENS
 };
 
-#define MAX_POPUPS (POPUP_OUTOFSTOCK + 1)
+#define MAX_POPUPS (POPUP_NOREPAIRTOKENS + 1)
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2275,7 +2278,10 @@ str PopupText[MAX_POPUPS] = {
 	"Mismatching item\ntype!",
 	"No free spot to\nplace the item!",
 	"Can't replace armor\nwith same type! Try\nfill instead.",
-	"Out of stock! Wait\nnext map to restock."
+	"Out of stock! Wait\nnext map to restock.",
+	"You don't have an\narmor equipped!",
+	"Armor isn't damaged!",
+	"You don't have any\nrepair tokens!"
 };
 
 #define MAX_HELPTEXT_RESEARCH 5

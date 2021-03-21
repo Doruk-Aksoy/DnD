@@ -82,6 +82,8 @@ Actor ResSSG1 : Weapon {
 			RW02 A 1 Bright
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/Fire")
+			// fires 2 other shots that need this to be called on them
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
 			TNT1 A 0 A_GiveInventory("PlasmaCannonShooter2", 1)
 			RW02 BCD 1 Bright A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			RW02 EFGHI 2
@@ -89,6 +91,7 @@ Actor ResSSG1 : Weapon {
 			RW02 A 1 Bright
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/Fire")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
 			TNT1 A 0 A_GiveInventory("PlasmaCannonShooter2", 1)
 			RW02 BCD 1 Bright A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			RW02 EFGHI 2
@@ -1324,5 +1327,340 @@ actor WussyHadesPellet : HadesPellet {
 			TNT1 A 0 A_PlaySound("Hades/FireFX5",0)
 			TNT1 A 1
 		Stop
+	}
+}
+
+Actor ResSSG4 : Weapon {
+	radius 20
+	height 16
+	Weapon.AmmoGive 0
+	Weapon.SlotNumber 3
+	weapon.selectionorder 600
+	weapon.kickback 128
+	Inventory.PickupSound "weapons/pickup"
+	inventory.pickupmessage "You got the flayer crossbow!"
+	weapon.ammotype "FlayerAmmo"
+	weapon.ammouse 0
+	weapon.ammogive 8
+	XScale 0.8
+	YScale 0.9
+	+INVENTORY.UNDROPPABLE
+	+NOAUTOAIM
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.5
+	Weapon.BobRangeY 0.45
+	Weapon.BobRangeX 0.65
+	Tag "Flayer Crossbow"
+	states {
+		Spawn:
+			TNT1 A -1
+		stop
+		Ready:
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "Ready_4")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "Ready_3")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "Ready_2")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "Ready_1")
+			CBOW A 3 A_WeaponReady
+		loop
+		Ready_1:
+			CBOW G 3 A_WeaponReady
+		Goto Ready
+		Ready_2:
+			CBOW H 3 A_WeaponReady
+		Goto Ready
+		Ready_3:
+			CBOW I 3 A_WeaponReady
+		Goto Ready
+		Ready_4:
+			CBOW J 3 A_WeaponReady
+		Goto Ready
+		
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "DeSelectLoop_4")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "DeSelectLoop_3")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "DeSelectLoop_2")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "DeSelectLoop_1")
+		DeselectLoop:
+			CBOW A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		DeSelectLoop_1:
+			CBOW G 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		DeSelectLoop_2:
+			CBOW H 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		DeSelectLoop_3:
+			CBOW I 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		DeSelectLoop_4:
+			CBOW J 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_CROSSBOW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 250, 0, DND_WEAPON_CROSSBOW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 100, 0, DND_WEAPON_CROSSBOW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 150, 0, DND_WEAPON_CROSSBOW)
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "SelectLoop_4")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "SelectLoop_3")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "SelectLoop_2")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "SelectLoop_1")
+	    SelectLoop:
+			CBOW A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+	    SelectLoop_1:
+			CBOW G 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+	    SelectLoop_2:
+			CBOW H 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+	    SelectLoop_3:
+			CBOW I 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+	    SelectLoop_4:
+			CBOW J 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "Fire_4")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "Fire_3")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "Fire_2")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "Fire_1")
+			CBOW A 1
+		ContinueFromFire:
+			TNT1 A 0 A_GiveInventory("CrossbowShooter", 1)
+			CBOW B 1
+			CBOW B 1 Offset(0, 34)
+			CBOW B 1 Offset(0, 37)
+			CBOW B 1 Offset(0, 41)
+			CBOW C 1 Offset(0, 42)
+			CBOW C 2 Offset(0, 43)
+			CBOW C 1 Offset(0, 44)
+			CBOW C 1 Offset(0, 41)
+			CBOW C 1 Offset(0, 36)
+			CBOW D 1 Offset(0, 34) A_PlaySound("Crossbow/Reload", 5)
+			CBOW D 1 Offset(0, 33)
+			CBOW D 3 Offset(0, 32)
+			CBOW E 5 Offset(0, 32)
+			CBOW F 6 Offset(0, 32)
+			CBOW A 2 Offset(0, 32)
+		Goto Ready
+		Fire_1:
+			CBOW G 1
+		Goto ContinueFromFire
+		Fire_2:
+			CBOW H 1
+		Goto ContinueFromFire
+		Fire_3:
+			CBOW I 1
+		Goto ContinueFromFire
+		Fire_4:
+			CBOW J 1
+		Goto ContinueFromFire
+		
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "AltFail")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "Alt_3")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "Alt_2")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "Alt_1")
+			TNT1 A 0 A_GiveInventory("Crossbow_PullLevel", 1)
+			TNT1 A 0 A_PlayWeaponSound("Crossbow/String")
+			CBOW G 10
+		Goto Ready
+		Alt_1:
+			TNT1 A 0 A_GiveInventory("Crossbow_PullLevel", 1)
+			TNT1 A 0 A_PlayWeaponSound("Crossbow/String")
+			CBOW H 10
+		Goto Ready
+		Alt_2:
+			TNT1 A 0 A_GiveInventory("Crossbow_PullLevel", 1)
+			TNT1 A 0 A_PlayWeaponSound("Crossbow/String")
+			CBOW I 10
+		Goto Ready
+		Alt_3:
+			TNT1 A 0 A_GiveInventory("Crossbow_PullLevel", 1)
+			TNT1 A 0 A_PlayWeaponSound("Crossbow/String")
+			CBOW J 10
+		Goto Ready
+		AltFail:
+			CBOW J 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+    }
+}
+
+Actor Crossbow_PullLevel : Ammo {
+	inventory.amount 1
+	inventory.maxamount 4
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 4
+	+IGNORESKILL
+}
+
+Actor CrossbowShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_FLAYER, 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("FlayerAmmo", 1)
+		NoTake:
+			TNT1 A 0 A_PlayWeaponSound("Crossbow/Fire")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "Shoot_4")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "Shoot_3")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "Shoot_2")
+			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "Shoot_1")
+			TNT1 A 0 A_FireCustomMissile("CrossbowBolt_1", 0, 0, 0, 2)
+		Stop
+		Shoot_1:
+			TNT1 A 0 A_FireCustomMissile("CrossbowBolt_2", 0, 0, 0, 2)
+		Goto Finish
+		Shoot_2:
+			TNT1 A 0 A_FireCustomMissile("CrossbowBolt_3", 0, 0, 0, 2)
+		Goto Finish
+		Shoot_3:
+			TNT1 A 0 A_FireCustomMissile("CrossbowBolt_4", 0, 0, 0, 2)
+		Goto Finish
+		Shoot_4:
+			TNT1 A 0 A_FireCustomMissile("CrossbowBolt_5", 0, 0, 0, 2)
+		Goto Finish
+		Finish:
+			TNT1 A 0 A_TakeInventory("Crossbow_PullLevel", 0)
+		Stop
+	}
+}
+
+Actor CrossbowBolt_1 : DnD_BaseProjectile {
+	Speed 60
+	Damage (0)
+	Radius 5
+	Height 10
+	DeathSound "Crossbow/Hit"
+	+DONTREFLECT
+	States {
+		SpawnState:
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+		Death:
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			NLPJ BCDEFG 2
+		Stop
+	}
+}
+
+Actor CrossbowBolt_2 : DnD_BaseProjectile {
+	Speed 75
+	Damage (1)
+	Radius 4
+	Height 8
+	DeathSound "Crossbow/Hit"
+	var int user_hit;
+	+DONTREFLECT
+	+RIPPER
+	States {
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_hit", 0)
+			TNT1 A 0 A_ScaleVelocity(0.1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+			TNT1 A 0 A_ScaleVelocity(1.0)
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		SpawnStateLoop:
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+		Death:
+			TNT1 A 0 A_SetUserVar("user_hit", 1)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			NLPJ BCDEFG 2
+		Stop
+	}
+}
+
+Actor CrossbowBolt_3 : CrossbowBolt_2 {
+	Speed 100
+	States {
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_hit", 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		SpawnStateLoop:
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+		Death:
+			TNT1 A 0 A_SetUserVar("user_hit", 1)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			NLPJ BCDEFG 2
+		Stop
+	}
+}
+
+Actor CrossbowBolt_4 : CrossbowBolt_2 {
+	Speed 125
+	States {
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_hit", 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		SpawnStateLoop:
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+		Death:
+			TNT1 A 0 A_SetUserVar("user_hit", 1)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			NLPJ BCDEFG 2
+		Stop
+	}
+}
+
+Actor CrossbowBolt_5 : CrossbowBolt_2 {
+	Speed 150
+	States {
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_hit", 0)
+			TNT1 A 0 A_ScaleVelocity(0.1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", 5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+			TNT1 A 0 A_ScaleVelocity(10.0)
+		SpawnStateLoop:
+			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
+		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
+		Death:
+			TNT1 A 0 A_SetUserVar("user_hit", 1)
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			NLPJ BCDEFG 2
+		Stop
+	}
+}
+
+Actor CrossbowBolt_AfterImage {
+	Alpha 1.0
+	Renderstyle Translucent
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			ARRW A 1 A_FadeOut(0.175)
+		Loop
 	}
 }

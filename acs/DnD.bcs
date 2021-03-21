@@ -194,12 +194,14 @@ Script "DND Check Hardcore Softcore" OPEN {
 Script "DnD On Death" DEATH {
 	int i, pnum = PlayerNumber();
 	PlayerDied[pnum] += 1;
-	if(GetCVar("Survival")) //put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
+	// put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
+	if(GetCVar("Survival")) {
 		if(!CheckInventory("CurrentLives")) {
 			PlayerLoaded[pnum] = 0;
 			PlayerWillBeSaved[pnum] = false;
 			PlayerTransferred[pnum] = false;
 			PlayerCanLoad[pnum] = 0;
+		}
 	}
 			
 	GiveInventory("DnD_PDead", 1);
@@ -237,13 +239,12 @@ Script "DnD On Death" DEATH {
 				ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, pnum);
 			else {
 				// get rid of these in local server or w.e situations if not hardcore or softcore
-				ResetPlayerInventory(pnum);
-				
 				// remove whatever feature this player had on them prior to loading (just in case)
 				for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 						RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-				ResetPlayerCharmsUsed(pnum);
+						
+				ResetHardcoreStuff(pnum);
 			}
 		}
 	}
@@ -383,6 +384,11 @@ Script "DnD Critical Input Handler" ENTER {
 					GiveInventory("MakeHadesBurst", 1);
 					GiveInventory("HadesBurstCooldown", 1);
 					TakeInventory("HadesBurstFired", 1);
+				}
+				if(CheckWeapon("Upgraded Rocket Launcher") && !CheckInventory("TorpedoTimer")) {
+					GiveInventory("TorpedoBoomSignal", 1);
+					GiveInventory("TorpedoTimer", 1);
+					ActivatorSound("Torpedo/Beep", 108);
 				}
 			}
 		}
@@ -754,7 +760,7 @@ Script "DND On Kill" KILL {
 	// if elite, roll orb and equipment drops
 	if(GetCVar("dnd_ignore_dropweights") || pnum) {
 		// handle orb drops
-		HandleOrbDrop();
+		HandleEliteDrops();
 	}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
@@ -797,6 +803,7 @@ Script "DND On Kill" KILL {
 		SpawnElixir(0);
 		SpawnCharm(0, true);
 		SpawnOrb(0, true);
+		SpawnToken(0, true);
 	#endif
 	HandleCharmLootDrop(pnum);
 	
@@ -1062,7 +1069,7 @@ Script 891 ENTER {
 			if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
 				CompleteQuest(ActivatorTID(), QUEST_SPEND25K);
 		}
-		Delay(7);
+		Delay(const:7);
 	}
 }
 
@@ -2324,8 +2331,13 @@ Script "DnD On Unloading" UNLOADING {
 	//ResetFieldInventory(); //Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	BreakAllTrades();
 	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(!PlayerInGame(i))
+			continue;
+			
 		tid = P_TIDSTART + i;
-	    if(PlayerWillBeSaved[i] && GetActorProperty(tid, APROP_HEALTH) > 0) { //Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
+		// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
+		// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
+	    if(((PlayerWillBeSaved[i] && HardcoreSet) || !HardcoreSet) && GetActorProperty(tid, APROP_HEALTH) > 0) { 
 		    GiveActorInventory(tid, "LevelToken", 1);
 			StatListOpened[i] = 0;
             GiveActorInventory(tid, "Budget", (1 + HardcoreSet) * ((MapDifficulty + 1) + DND_BUDGET_BASE));
@@ -3199,6 +3211,9 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	int wepid = dmgid >> 16;
 	dmgid &= 0xFFFF;
 	
+	// hack for crit guarantee on multi-proj attacks
+	bool proj_crit = !ActivatorTID() && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
+	
 	AdjustDamageRetrievePointers(flags);
 
 	int pnum = PlayerNumber();
@@ -3211,7 +3226,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	else if(wepid == DND_WEAPON_DUSKBLADE)
 		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
 	
-	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED])
+	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || proj_crit)
 		res = ConfirmedCritFactor(res);
 	else
 		res = HandleWeaponCrit(res, wepid, pnum, dmgid, isSpecial);
@@ -3435,10 +3450,10 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	}
 	
 	// face player to the originator temporarily to get projection to there
-	int prev_ang = GetActorAngle(owner);
+	int projection_angle = GetActorAngle(owner);
 	// use angle of the ball
 	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
-		SetActorAngle(owner, GetActorAngle(0));
+		projection_angle = GetActorAngle(0);
 	
 	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
 	// pick tracer_count closest enemies
@@ -3446,7 +3461,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(owner, i);
 			//printbold(s:"Checking ", s:GetActorClass(i));
-			if(dist < scan_dist && MaxAngleDiff(owner, i, scan_fov) && CheckSight(owner, i, 0)) {
+			if(dist < scan_dist && MaxAngleDiff_Projection(owner, i, scan_fov, projection_angle) && CheckSight(owner, i, CSF_NOBLOCKALL)) {
 				//printbold(s:"approved ", s:GetActorClass(i), s: " ", d:i);
 				// insert sorted
 				temp = tcount;
@@ -3477,9 +3492,6 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 			}
 		}
 	}
-	
-	// fix angle
-	SetActorAngle(owner, prev_ang);
 	
 	if(tcount) {
 		int actor_flags = ScanActorFlags();
@@ -3834,7 +3846,9 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype) CLIENTSIDE {
 		case DND_ITEM_ORB:
 			PlaySound(0, "Items/OrbDrop", 5);
 		break;
-		
+		case DND_ITEM_TOKEN:
+			Playsound(0, "Items/TokenDrop", 6);
+		break;
 	}
 }
 
@@ -3886,6 +3900,13 @@ Script "DnD Elixir Message" (int id) CLIENTSIDE {
 	Log(s:StrParam(s:"\ccElixir pickup : \c[Y5]", s:InventoryInfo[id + ELIXIR_BEGIN][SITEM_TAG], s:"!\c-"));
 }
 
+Script "DnD Token Message" (int id) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	ActivatorSound("Items/TokenPick", 127);
+	Log(s:StrParam(s:"\ccToken pickup  : \c[Y5]", s:InventoryInfo[id + TOKEN_BEGIN][SITEM_TAG], s:"!\c-"));
+}
+
 Script "DnD Stacked Item Pickup" (int sp, int type) {
 	if((sp & 0xFFFF) == 255)
 		SetActivatorToTarget(0);
@@ -3902,6 +3923,10 @@ Script "DnD Stacked Item Pickup" (int sp, int type) {
 	else if(type == DND_STACKEDITEM_ELIXIR) {
 		ACS_NamedExecuteAlways("DnD Elixir Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
 		GiveInventory("ElixirSoundPlayer", 1);
+	}
+	else if(type == DND_STACKEDITEM_TOKEN) {
+		ACS_NamedExecuteAlways("DnD Token Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
+		GiveInventory("TokenSoundPlayer", 1);
 	}
 	HandleStackedPickup(sp >> 16);
 }
@@ -4115,8 +4140,8 @@ Script "DnD Pellet Count" (int base, int flags) {
 		res += DND_HOBO_SHOTGUNPELLETBONUS;
 		
 	// dummy crit call here to obtain crit status item
-	HandleWeaponCrit(0, CheckInventory("DnD_WeaponID"), pnum, 0, false);
-	PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = true;
+	//HandleWeaponCrit(0, CheckInventory("DnD_WeaponID"), pnum, 0, false);
+	//PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = true;
 	
 	SetResultValue(res * base / 100); 
 }
@@ -4139,7 +4164,7 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 // never put AMMO_CLIP as 16 bit onwards
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	// ammo gain triggering means we made an attack
-	ACS_NamedExecuteAlways("DnD On Attack", 0);
+	ACS_NamedExecuteWithResult("DnD On Attack", 0);
 	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
 		if(slot != DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
@@ -4415,6 +4440,11 @@ Script "DnD On Attack" (void) {
 		GiveInventory("RandomElementalSpellCooldown", 1);
 		CastRandomElementalSpell();
 	}
+	
+	// roll a crit for this attack, and every projectile etc. to come out of it will use this pre-calculated crit chance here
+	CheckCritChance(CheckInventory("DnD_WeaponID"));
+	
+	SetResultValue(0);
 }
 
 Script "DnD Face Tracer" (void) {
@@ -4806,8 +4836,13 @@ Script "DnD Item Linger Check" (int sp) {
 }
 
 Script "DnD Store Projectile Owner" (void) {
-	SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
-	//printbold(s:"storing owner ", d:GetActorProperty(0, APROP_SCORE));
+	int target = GetActorProperty(0, APROP_TARGETTID);
+	SetActorProperty(0, APROP_SCORE, target);
+	
+	// hack for crit store on burst fire projectiles
+	if(CheckActorInventory(target, "DnD_CritToken"))
+		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
+
 	SetResultValue(0);
 }
 
@@ -4843,4 +4878,9 @@ Script 70 (void) NET {
 	GiveInventory("Exp", 10000);
 	GiveInventory("LevelUpChecker", 1);
 	CalculateExpRatio();
+}
+
+Script "Print Loc" (void) {
+	printbold(f:GetActorX(0), s: " ", f:GetActorY(0), s: " ", f:GetActorZ(0));
+	SetResultValue(0);
 }

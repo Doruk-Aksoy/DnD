@@ -3,6 +3,9 @@
 
 #define DND_DMGPUSH_CAP 96.0
 #define DND_PLAYER_HITSCAN_Z 38.0
+#define MAX_RIPPERS_ACTIVE 256
+
+#define DND_CRIT_TOKEN 69
 
 enum {
 	DND_DAMAGETYPE_MELEE,
@@ -27,6 +30,8 @@ enum {
 	DND_DAMAGETYPE_SOUL
 };
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
+#define DAMAGE_TYPE_SHIFT 5
+#define DAMAGE_TYPE_MASK 0x1F
 
 enum {
 	DND_DAMAGECATEGORY_MELEE,
@@ -89,11 +94,13 @@ enum {
 };
 
 // These are actor inherited flags, like forcepain, foilinvul, painless etc.
+// can store at most 16 bits, the last 16 are for wepid reference
 enum {
 	DND_ACTORFLAG_FOILINVUL				=			0b1,
 	DND_ACTORFLAG_FORCEPAIN				=			0b10,
 	DND_ACTORFLAG_PAINLESS				=			0b100,
 	DND_ACTORFLAG_NOPUSH				=			0b1000,
+	DND_ACTORFLAG_CONFIRMEDCRIT			=			0b10000,
 };
 
 enum {
@@ -118,11 +125,13 @@ typedef struct scan_data {
 } scan_data_T;
 
 scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
-	{ 1024.0, 			0.278, 				24.0 },
-	{ 1024.0,		 	0.278, 				24.0 },
+	{ 1024.0, 			0.1875, 			24.0 },
+	{ 1024.0,		 	0.1875, 			24.0 },
 	{ 4096.0,		 	0.25, 				32.0 },
 	{ 2048.0,			0.25,				32.0 }
 };
+
+vec3_T PlayerDamageVector[MAXPLAYERS];
 
 int Scan_to_WeaponID(int scan_id) {
 	int ret = DND_WEAPON_BFG6000;
@@ -201,10 +210,6 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
 #define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
 int PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
-
-#define DND_CRITSTATE_NOCALC 0
-#define DND_CRITSTATE_CONFIRMED 1
-bool PlayerCritState[MAXPLAYERS][2];
 
 int ScanActorFlags() {
 	int res = 0;
@@ -447,16 +452,15 @@ int ConfirmedCritFactor(int dmg) {
 	return dmg;
 }
 
+// handles crit factor after a crit is confirmed
 int HandleWeaponCrit(int dmg, int wepid, int pnum, int dmgid, bool isSpecial) {
 	// skip crit calc
-	if(PlayerCritState[pnum][DND_CRITSTATE_NOCALC])
+	if(PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid])
 		return dmg;
-	// crit chance
 	// if weapon id is a lightning type, it will always crit with the necessary charm attribute on
-	if((IsWeaponLightningType(wepid, dmgid, isSpecial) && IsSet(GetPlayerAttributeValue(pnum, INV_EX_ALWAYSCRIT_LIGHTNING), DND_STATBUFF_ALWAYSCRITLIGHTNING)) || CheckCritChance(wepid)) {
+	if((IsWeaponLightningType(wepid, dmgid, isSpecial) && IsSet(GetPlayerAttributeValue(pnum, INV_EX_ALWAYSCRIT_LIGHTNING), DND_STATBUFF_ALWAYSCRITLIGHTNING))) {
 		dmg = dmg * GetCritModifier() / 100;
 		HandleHunterTalisman();
-		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED] = true;
 	}
 	return dmg;
 }
@@ -614,7 +618,7 @@ int GetResistPenetration(int category) {
 	return 0;
 }
 
-int FactorResists(int source, int victim, int dmg, int damage_type) {
+int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_full, int wepid) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int temp = GetDamageCategory(damage_type);
@@ -666,7 +670,11 @@ int FactorResists(int source, int victim, int dmg, int damage_type) {
 	}
 	
 	// return early as we ignored resists and immunities
-	if(PlayerCritState[PlayerNumber()][DND_CRITSTATE_CONFIRMED] && CheckInventory("IATTR_CritIgnoreRes") >= random(1, 100))
+	if(PlayerCritState[PlayerNumber()][DND_CRITSTATE_CONFIRMED][wepid] && CheckInventory("IATTR_CritIgnoreRes") >= random(1, 100))
+		return dmg;
+		
+	// if we do forced full damage skip resists and immunities
+	if(forced_full)
 		return dmg;
 		
 	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
@@ -700,9 +708,15 @@ int FactorResists(int source, int victim, int dmg, int damage_type) {
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0) {
 	str s_damagetype = DamageTypeList[damage_type];
 	bool factor_resist = true;
+	bool forced_full = false;
+	bool no_ignite_stack = flags & DND_DAMAGEFLAG_NOIGNITESTACK;
 	int temp;
-	
 	int pnum = -1;
+	
+	// extract imported wepid
+	int wepid = actor_flags >> 16;
+	actor_flags &= 0xFFFF;
+	
 	if(isPlayer(source))
 		pnum = source - P_TIDSTART;
 	
@@ -717,7 +731,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	) 
 	{
 		s_damagetype = StrParam(s:s_damagetype, s:"Full");
-		factor_resist = false;
+		forced_full = true;
 	}
 
 	// check blocking status of monster -- if they are and we dont have foilinvul on this, no penetration
@@ -757,7 +771,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	if(factor_resist) {
 		//printbold(s:"res calc");
 		temp = dmg;
-		dmg = FactorResists(source, victim, dmg, damage_type);
+		dmg = FactorResists(source, victim, dmg, damage_type, forced_full, wepid);
 		// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
 		if(pnum != -1) {
 			if(dmg > temp)
@@ -827,19 +841,29 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		// this part handles damage pushing
 		temp = victim - DND_MONSTERTID_BEGIN;
 		
-		// notify flags of a crit as well
-		actor_flags = !(actor_flags & DND_ACTORFLAG_NOPUSH);
+		// flags represent the flag list of damageticflag
+		flags = 0;
+		if(!(actor_flags & DND_ACTORFLAG_NOPUSH))
+			flags |= DND_DAMAGETICFLAG_PUSH;
+		
+		if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
+			flags |= DND_DAMAGETICFLAG_CRIT;
 		
 		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 		if(damage_type == DND_DAMAGETYPE_ICE)
-			actor_flags |= DND_DAMAGETICFLAG_ICE;
-		else if(damage_type == DND_DAMAGETYPE_FIRE && !(flags & DND_DAMAGEFLAG_NOIGNITESTACK))
-			actor_flags |= DND_DAMAGETICFLAG_FIRE;
+			flags |= DND_DAMAGETICFLAG_ICE;
+		else if(damage_type == DND_DAMAGETYPE_FIRE && !no_ignite_stack)
+			flags |= DND_DAMAGETICFLAG_FIRE;
 		else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
-			actor_flags |= DND_DAMAGETICFLAG_LIGHTNING;
+			flags |= DND_DAMAGETICFLAG_LIGHTNING;
 
-		if(!PlayerDamageTicData[pnum][temp])
-			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (actor_flags << DND_DAMAGE_ACCUM_SHIFT), ox, oy, oz);
+		if(!PlayerDamageTicData[pnum][temp]) {
+			PlayerDamageVector[pnum].x = ox;
+			PlayerDamageVector[pnum].y = oy;
+			PlayerDamageVector[pnum].z = oz;
+			
+			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (flags << DND_DAMAGE_ACCUM_SHIFT), wepid);
+		}
 		PlayerDamageTicData[pnum][temp] += dmg;
 	}
 	
@@ -952,10 +976,7 @@ Script "DnD Do Explosion Damage (Pets)" (int dmg, int radius, int fullradius, in
 	SetResultValue(0);
 }
 
-Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
-	int owner = GetActorProperty(0, APROP_TARGETTID);
-	int victim = GetActorProperty(0, APROP_TRACERTID);
-	
+void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid) {	
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
 		
@@ -1004,7 +1025,7 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 			SetActivator(flags);
 			Thing_Remove(flags);
 			SetResultValue(0);
-			Terminate;
+			return;
 		}
 		else {
 			px = GetActorX(owner);
@@ -1020,6 +1041,10 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	
 	// printbold(d:owner, s: " ", d:victim);
 	int actor_flags = ScanActorFlags();
+	if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
+		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+		actor_flags |= (wepid << 16);
+	}
 	
 	SetActivator(owner);
 	int pnum = PlayerNumber();
@@ -1036,10 +1061,120 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	
 	if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val)
 		flags |= DND_DAMAGEFLAG_INFLICTPOISON;
+		
+	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
+		// the wepid is stored as reference in the last 16 bits
+		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+		actor_flags |= (wepid << 16);
+	}
 	
 	// printbold(d:dmg);
 	if(owner && victim)
 		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags, extra, Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val);
+}
+
+Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
+	HandleImpactDamage(GetActorProperty(0, APROP_TARGETTID), GetActorProperty(0, APROP_TRACERTID), dmg, damage_type, flags, wepid);
+	
+	SetResultValue(0);
+}
+
+// has embedded data
+Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int wepid) {
+	printbold(s:"FUCKING HURT ", d:damage_type >> DAMAGE_TYPE_SHIFT);
+	HandleImpactDamage(GetActorProperty(0, APROP_TARGETTID), damage_type >> DAMAGE_TYPE_SHIFT, dmg, damage_type & DAMAGE_TYPE_MASK, flags, wepid);
+	
+	SetResultValue(0);
+}
+
+void HandleRipperHitSound(int tid, int wepid) {
+	switch(wepid) {
+		case DND_WEAPON_CROSSBOW:
+			PlaySound(tid, "Crossbow/Hit", 5, 1.0);
+		break;
+	}
+}
+
+// to be used sparingly, it scans all monsters at all times since we dont have linetraces
+Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int speed = GetActorProperty(0, APROP_SPEED);
+	int r = GetActorProperty(0, APROP_RADIUS) >> 16;
+	int h = GetActorProperty(0, APROP_HEIGHT);
+	int i = 0, m = 0;
+	int steps = (speed / r) >> 16;
+	
+	// increment id by 1 for each call, doesnt matter if it overflows
+	static int ripper_id = -1;
+	static int ripper_hits[MAX_RIPPERS_ACTIVE][MAX_RIPPER_HITS_STORED];
+	ripper_id = (ripper_id + 1) % MAX_RIPPERS_ACTIVE;
+	
+	// reset ripper hit array
+	for(i = 0; i < MAX_RIPPER_HITS_STORED; ++i)
+		ripper_hits[ripper_id][i] = -1;
+	
+	// top left, bot right -- no need to be precise with rotation of bounding box here, the engine itself uses AABB anyway
+	int top_x, top_y, bot_x, bot_y;
+	
+	// get projectile dir, and imagine as if the projectile is stepping forwards from its location
+	// this is so faster projectiles are predicted -- we get dir, calculate just how many steps it'd take by speed / radius, then iterate the box over
+	int dir_x = GetActorVelX(0);
+	int dir_y = GetActorVelY(0);
+	int dir_z = GetActorVelZ(0);
+	int len = VectorLength3d(dir_x, dir_y, dir_z) >> 16;
+	if(!len)
+		len = 1;
+	
+	dir_x /= len;
+	dir_y /= len;
+	dir_z /= len;
+	
+	// for lower speeds we dont need predictive methods
+	while(!GetUserVariable(0, "user_hit")) {
+		// find monsters in a rectangle from actor xyz, +-r * cos / sin and +-h on z
+		// simple rectanglular box check from rectangle sides
+		top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
+		
+		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+			int a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
+			bool found = false;
+			
+			// dead, skip
+			if(!isActorAlive(i))
+				continue;
+			
+			for(int s = 0; s < steps; ++s) {
+				// eliminate cases where it'd fail to touch
+				if(bot_x + s * dir_x * r < a_x - a_r || a_x + a_r < top_x + s * dir_x * r || bot_y + s * dir_y * r < a_y - a_r || a_y + a_r < top_y + s * dir_y * r)
+					continue;
+					
+				//printbold(s:"x-y valid on: ", f:a_x, s: " ", f:a_y, s:" ", f:top_x + s * dir_x * r, s: " ", f:top_y + s * dir_y * r, s: " ", f:bot_x + s * dir_x * r, s: " ", f:bot_y + s * dir_y * r);
+				//printbold(s:"try z: ", f:GetActorZ(0) - h, s: " ", f:GetActorZ(0) + h, s: " ", f:GetActorZ(i), s: " ", f:GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT));
+				if(GetActorZ(0) - h > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h < GetActorZ(i))
+					continue;
+				
+				//printbold(s:"IN BOX");
+				// insert into ripper hit list, and call impact damage script on this guy IF not in list
+				for(m = 0; m < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][m] != -1; ++m) {
+					if(ripper_hits[ripper_id][m] == i) {
+						found = true;
+						break;
+					}
+				}
+				
+				// not in this list yet, insert it and do damage deal routine
+				if(!found && m < MAX_RIPPER_HITS_STORED) {
+					//printbold(s:"deal damage to ", d:i, s: " by ripper id ", d:ripper_id);
+					ripper_hits[ripper_id][m] = i;
+					ACS_NamedExecuteWithResult("DnD Do Impact Damage Ripper", dmg, damage_type | (i << DAMAGE_TYPE_SHIFT), flags, wepid);
+					HandleRipperHitSound(i, wepid);
+				}
+				break;
+			}
+		}
+		//printbold(s:"running id ", d:ripper_id);
+		Delay(const:1);
+	}
 	
 	SetResultValue(0);
 }
@@ -1055,10 +1190,14 @@ Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
 }
 
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
-Script "DnD Damage Accumulate" (int victim_data, int ox, int oy, int oz) {
+Script "DnD Damage Accumulate" (int victim_data, int wepid) {
 	int pnum = PlayerNumber();
 	int flags = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
+	
+	int ox = PlayerDamageVector[pnum].x;
+	int oy = PlayerDamageVector[pnum].y;
+	int oz = PlayerDamageVector[pnum].z;
 	
 	Delay(const:1);
 
@@ -1066,12 +1205,10 @@ Script "DnD Damage Accumulate" (int victim_data, int ox, int oy, int oz) {
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
 		HandleDamagePush(PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN);
 		
-	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED]) {
-		flags |= DND_DAMAGETICFLAG_CRIT;
-		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED] = false;
-	}
+	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || flags & DND_DAMAGETICFLAG_CRIT)
+		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
 	
-	PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = false;
+	PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;
 	
 	// check if player has lifesteal, if they do reward some hp back
 	if(CheckInventory("IATTR_Lifesteal") && !MonsterProperties[victim_data].trait_list[DND_BLOODLESS]) {

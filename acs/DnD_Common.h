@@ -268,9 +268,33 @@ int fdistance_delta(int dx, int dy, int dz) {
 bool MaxAngleDiff (int m1, int m2, int maxdiff) {
 	int x = GetActorX(m2) - GetActorX(m1);
 	int y = GetActorY(m2) - GetActorY(m1);
-	int pang = GetActorAngle(m1);
-	int angdiff = VectorAngle(x, y);
-	return angdiff <= pang + maxdiff && angdiff >= pang - maxdiff;
+	int cone_len = VectorLength(x, y);
+	x = FixedDiv(x, cone_len);
+	y = FixedDiv(y, cone_len);
+
+	// comparison angle to our fov
+	int cone_x = cos(GetActorAngle(0));
+	int cone_y = sin(GetActorAngle(0));
+	cone_len = VectorLength(cone_x, cone_y);
+	
+	int dot = FixedMul(x, FixedDiv(cone_x, cone_len)) + FixedMul(y, FixedDiv(cone_y, cone_len));
+	return dot > cos(maxdiff);
+}
+
+bool MaxAngleDiff_Projection (int m1, int m2, int maxdiff, int projected_angle) {
+	int x = GetActorX(m2) - GetActorX(m1);
+	int y = GetActorY(m2) - GetActorY(m1);
+	int cone_len = VectorLength(x, y);
+	x = FixedDiv(x, cone_len);
+	y = FixedDiv(y, cone_len);
+
+	// comparison angle to our fov
+	int cone_x = cos(projected_angle);
+	int cone_y = sin(projected_angle);
+	cone_len = VectorLength(cone_x, cone_y);
+	
+	int dot = FixedMul(x, FixedDiv(cone_x, cone_len)) + FixedMul(y, FixedDiv(cone_y, cone_len));
+	return dot > cos(maxdiff);
 }
 
 int AngleToFace(int this, int to) {
@@ -482,6 +506,12 @@ int VectorPitch (Int t1, Int t2, int dx, int dy, int adj) {
 	If(adj != 0)
 		adj = adj << 16;
 	Return(VectorAngle(AproxDistance(dx, dy), GetActorZ(t1) - (GetActorZ(t2) - adj)));
+}
+
+int VectorLength3d(int x, int y, int z) {
+	int len = VectorLength(x, y);
+	len = VectorLength(z, len);
+	return len;
 }
 
 bool isPlayerClass(int ctype) {

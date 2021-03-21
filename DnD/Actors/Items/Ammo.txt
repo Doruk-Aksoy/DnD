@@ -30,6 +30,7 @@ enum {
 	AMMO_NITROGENCANISTER,
 	AMMO_DEMONBLOOD,
 	AMMO_HADES,
+	AMMO_FLAYER,
 	AMMO_EXSHELL,
 	AMMO_SLAYER,
 	
@@ -901,6 +902,15 @@ Actor HadesAmmo : Ammo {
 	Ammo.BackpackAmount 0
 	Ammo.BackpackMaxAmount 32
 	inventory.icon "STRGY0"
+	+IGNORESKILL
+}
+
+Actor FlayerAmmo : Ammo {
+	Inventory.Amount 1
+	inventory.maxamount 36
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 36
+	inventory.icon "CBWAA0"
 	+IGNORESKILL
 }
 

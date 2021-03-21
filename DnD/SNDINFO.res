@@ -1,3 +1,22 @@
+Crossbow/Explode1		CBOWEX1
+Crossbow/Explode2		CBOWEX2
+Crossbow/Explode3		CBOWEX3
+Crossbow/Explode4		CBOWEX4
+$random Crossbow/Explode { Crossbow/Explode1 Crossbow/Explode2 Crossbow/Explode3 Crossbow/Explode4 }
+Crossbow/Fire1			CBOWF1
+Crossbow/Fire2			CBOWF2
+Crossbow/Fire3			CBOWF3
+$random Crossbow/Fire { Crossbow/Fire1 Crossbow/Fire2 Crossbow/Fire3 }
+Crossbow/Hit1			CBOWHT1
+Crossbow/Hit2			CBOWHT2
+Crossbow/Hit3			CBOWHT3
+Crossbow/Hit4			CBOWHT4
+$random Crossbow/Hit { Crossbow/Hit1 Crossbow/Hit2 Crossbow/Hit3 Crossbow/Hit4 }
+Crossbow/String1		CBOWST1
+Crossbow/String2		CBOWST2
+$random Crossbow/String { Crossbow/String1 Crossbow/String2 }
+Crossbow/Reload			CBOWREL
+
 WoT/Idle		WOTIDLE
 WoT/Fire		WOTFIRE
 WoT/Alt			WOTALT

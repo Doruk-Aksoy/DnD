@@ -143,14 +143,17 @@ enum {
 	IIMG_ELIX_HPARMORPERCENT,
 	IIMG_ELIX_SPEED,
 	IIMG_ELIX_DAMAGE,
-	IIMG_ELIX_LUCK
+	IIMG_ELIX_LUCK,
+	
+	IIMG_TOKEN_REPAIR
 };
 
 #define ITEM_IMAGE_ORB_BEGIN IIMG_ORB_1
 #define ITEM_IMAGE_KEY_BEGIN IIMG_CKEY_1
 #define ITEM_IMAGE_ELIXIR_BEGIN IIMG_ELIX_HEALTH
+#define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_REPAIR
 
-#define MAX_ITEM_IMAGES IIMG_ELIX_LUCK + 1
+#define MAX_ITEM_IMAGES IIMG_TOKEN_REPAIR + 1
 str Item_Images[MAX_ITEM_IMAGES] = {
 	// charms
 	"SCHRM1",
@@ -212,7 +215,9 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	"ELIX06",
 	"ELIX07",
 	"ELIX08",
-	"ELIX09"
+	"ELIX09",
+	
+	"REPTOKN"
 };
 
 #define IOFFSET_X 0
@@ -280,7 +285,10 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 0.0, 10.0 },
 	{ 0.0, 10.0 },
 	{ 0.0, 10.0 },
-	{ 0.0, 10.0 }
+	{ 0.0, 10.0 },
+	
+	// tokens
+	{ 0.0, 0.0 }
 };
 
 enum {
@@ -437,9 +445,37 @@ int GetStackValue(int type) {
 		case DND_ITEM_CHESTKEY:
 		return MAXSTACKS_CKEY;
 		case DND_ITEM_ELIXIR:
+		case DND_ITEM_TOKEN:
 		return MAXSTACKS_ELIXIR;
 	}
 	return 0;
+}
+
+bool IsStackedItem(int type) {
+	switch (type) {
+		case DND_ITEM_ORB:
+		case DND_ITEM_CHESTKEY:
+		case DND_ITEM_ELIXIR:
+		case DND_ITEM_TOKEN:
+		return true;
+	}
+	return false;
+}
+
+int FindInventoryOfType(int player_index, int item_type, int item_subtype) {
+	int i = 0, j = 0, bid = 0;
+	
+	// try every line
+	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
+		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
+			bid = j * MAXINVENTORYBLOCKS_VERT + i;
+			// notice we can return bid here, we don't check like below
+			if(PlayerInventoryList[player_index][bid].item_type == item_type && PlayerInventoryList[player_index][bid].item_subtype == item_subtype)
+				return bid;
+		}
+	}
+	
+	return -1;
 }
 
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
@@ -1307,6 +1343,8 @@ int GetInventoryInfoOffset(int itype) {
 		return ELIXIR_BEGIN;
 		case DND_ITEM_ORB:
 		return ORBS_BEGIN;
+		case DND_ITEM_TOKEN:
+		return TOKEN_BEGIN;
 	}
 	return 0;
 }
@@ -1373,7 +1411,7 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 			HudMessage(s:ItemAttributeString(temp, val); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
-	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR) {
+	else if(IsStackedItem(itype)) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
 		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
@@ -1448,6 +1486,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 			droptype = InventoryInfo[stype + CHESTKEY_BEGIN][SITEM_NAME];
 		else if(itype == DND_ITEM_ELIXIR)
 			droptype = InventoryInfo[stype + ELIXIR_BEGIN][SITEM_NAME];
+		else if(itype == DND_ITEM_TOKEN)
+			droptype = InventoryInfo[stype + TOKEN_BEGIN][SITEM_NAME];
 		forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 	}
 }
@@ -1482,6 +1522,18 @@ void UsePlayerItem(int pnum, int item_index) {
 			if(mcount == MAX_CRAFTING_MATERIALBOXES * CheckInventory("DnD_Crafting_MaterialPage"))
 				TakeInventory("DnD_Crafting_MaterialPage", 1);
 		}
+	}
+}
+
+// Consumes a stack off a stackable item
+void ConsumePlayerItem(int pnum, int item_index) {
+	if(IsStackedItem(PlayerInventoryList[pnum][item_index].item_type)) {
+		GiveInventory("DnD_RefreshPane", 1);
+		--PlayerInventoryList[pnum][item_index].item_stack;
+		if(PlayerInventoryList[pnum][item_index].item_stack)
+			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		else
+			FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
 	}
 }
 
@@ -1642,16 +1694,29 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return true;
 }
 
-void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove) {
+void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic) {
 	int atype = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
 	int aval = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int asubtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
 	int i, temp;
+	
+	// Well of power factor
 	if(CheckInventory("StatbuffCounter_DoubleSmallCharm") && asubtype == DND_CHARM_SMALL) {
 		aval *= CheckInventory("StatbuffCounter_DoubleSmallCharm");
 		aval /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
 	}
+	
+	// cybernetic check
+	if(has_cybernetic && CheckInventory("Cyborg_Perk25")) {
+		aval *= DND_CYBERNETIC_FACTOR_MUL;
+		aval /= DND_CYBERNETIC_FACTOR_DIV;
+	}
+	
 	switch(atype) {
+		// this is handled differently
+		case INV_CYBERNETIC:
+		break;
+	
 		// first cases with exceptions to our generic formula
 		case INV_MAGAZINE_INCREASE:
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
@@ -1964,16 +2029,38 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 void ApplyItemFeatures(int item_index, int source) {
 	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	int pnum = PlayerNumber();
-	for(int i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, false);
+	
+	// check cybernetic and put it as bool
+	bool has_cybernetic = false;
+	int i = 0;
+	for(i = 0; i < ac; ++i) {
+		if(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, i, source) == INV_CYBERNETIC) {
+			has_cybernetic = true;
+			break;
+		}
+	}
+	
+	for(i = 0; i < ac; ++i)
+		ProcessItemFeature(pnum, item_index, source, i, false, has_cybernetic);
 }
 
 // Removes an applied list of item stats from player
 void RemoveItemFeatures(int item_index, int source) {
 	int ac = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	int pnum = PlayerNumber();
-	for(int i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, true);
+	
+	// check cybernetic and put it as bool
+	bool has_cybernetic = false;
+	int i = 0;
+	for(i = 0; i < ac; ++i) {
+		if(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, item_index, i, source) == INV_CYBERNETIC) {
+			has_cybernetic = true;
+			break;
+		}
+	}
+	
+	for(i = 0; i < ac; ++i)
+		ProcessItemFeature(pnum, item_index, source, i, true, has_cybernetic);
 }
 
 int GetCraftableItemCount() {
@@ -2098,6 +2185,40 @@ void ResetPlayerStash(int pnum) {
 				PlayerStashList[pnum][p][i].attributes[j].attrib_val = 0;
 			}
 			PlayerStashList[pnum][p][i].attrib_count = 0;
+		}
+	}
+}
+
+void RollTokenInfo(int item_pos, int token_type, bool onField) {
+	// roll random attributes for the charm
+	Inventories_On_Field[item_pos].item_level = 1;
+	Inventories_On_Field[item_pos].item_stack = 1; // stackables have default stack of 1
+	Inventories_On_Field[item_pos].item_type = DND_ITEM_TOKEN;
+	Inventories_On_Field[item_pos].item_subtype = token_type;
+	Inventories_On_Field[item_pos].width = 1;
+	Inventories_On_Field[item_pos].height = 1;
+	Inventories_On_Field[item_pos].attrib_count = 0;
+	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_TOKEN_BEGIN + token_type;
+}
+
+void SpawnToken(int pnum, bool sound) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		// c is the index on the field now
+		// only current token is repair token, so just assume that instead
+		int i = 0;
+		RollTokenInfo(c, i, true);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SpawnDrop(InventoryInfo[i + TOKEN_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
+		if(sound)
+			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
+	}
+}
+
+void SpawnTokenForAll(int repeats) {
+	for(int k = 0; k < repeats; ++k) {
+		for(int j = 0; j < MAXPLAYERS; ++j) {
+			SpawnToken(j, false);
 		}
 	}
 }

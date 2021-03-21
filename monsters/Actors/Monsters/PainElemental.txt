@@ -401,7 +401,7 @@ Actor Helemental : DnD_BaseHybridMonster {
 		Goto MissileFinish
 		Missile3:
 			HELE BC 5 Fast Bright A_Facetarget
-			HELE DD 5 Fast Bright A_SpawnItemEx("HS_NoExp", 54, 0, 15, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+			HELE DD 5 Fast Bright A_SpawnItemEx("HS_NoExp", 60, 0, 15, 0, 0, 0, 0, SXF_SETMASTER)
 		Goto See
 		MeleeState:
 			HELE ABD 5 Fast Bright A_Facetarget

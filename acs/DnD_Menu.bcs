@@ -887,6 +887,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 	if(!pnum)
 		Terminate;
 	int temp = pnum >> 16;
+	int tpos = 0;
+	
 	//int dummy = pnum;
 	pnum &= 0xFFFF;
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
@@ -1386,8 +1388,13 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE1_BEGIN, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
 			}
 			else if(HasRightClicked(pnum)) {
-				if(boxid != MAINBOX_NONE && CanFillArmor())
-					FillCurrentArmor();
+				if(boxid != MAINBOX_NONE) {
+					// returns the popup id as negative number if something is wrong so if we are 0 or up we are good
+					if((tpos = CanFillArmor(pnum)) >= 0)
+						FillCurrentArmor(pnum, tpos);
+					else
+						ShowPopup(-tpos, false, 0);
+				}
 			}
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_SHOP);
@@ -1400,8 +1407,13 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					ProcessTrade(pnum, boxid - 1, SHOP_ARMORPAGE2_BEGIN, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
 			}
 			else if(HasRightClicked(pnum)) {
-				if(boxid != MAINBOX_NONE && CanFillArmor())
-					FillCurrentArmor();
+				if(boxid != MAINBOX_NONE) {
+					// returns the popup id as negative number if something is wrong so if we are 0 or up we are good
+					if((tpos = CanFillArmor(pnum)) >= 0)
+						FillCurrentArmor(pnum, tpos);
+					else
+						ShowPopup(-tpos, false, 0);
+				}
 			}
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_SHOP_ARMOR1);

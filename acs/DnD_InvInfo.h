@@ -8,6 +8,9 @@
 // only orbs and elixirs
 #define MAX_CRAFTITEMTYPES 2
 
+#define DND_CYBERNETIC_FACTOR_MUL 13 // +30% = x1.3
+#define DND_CYBERNETIC_FACTOR_DIV 10
+
 enum {
 	DND_INVCATEGORY_WORN,
 	DND_INVCATEGORY_CHARM
@@ -26,7 +29,8 @@ enum {
 	DND_ITEM_ORB,
 	DND_ITEM_CHESTKEY,
 	DND_ITEM_ELIXIR,
-	DND_ITEM_WEAPON
+	DND_ITEM_WEAPON,
+	DND_ITEM_TOKEN
 };
 
 int CraftItemTypes[MAX_CRAFTITEMTYPES] = {
@@ -99,6 +103,10 @@ enum {
 	DND_ORB_ELEVATION
 };
 
+enum {
+	DND_TOKEN_REPAIR
+};
+
 // these are used for accessing common info table below
 enum {
 	DND_ISUBT_CHESTTYPE_BRONZE,
@@ -131,22 +139,27 @@ enum {
 	DND_ISUBT_ORB_HOLDING,
 	DND_ISUBT_ORB_REFINEMENT,
 	DND_ISUBT_ORB_SCULPTING,
-	DND_ISUBT_ORB_ELEVATION
+	DND_ISUBT_ORB_ELEVATION,
+	
+	DND_ISUBT_TOKEN_REPAIR
 };
 
 #define CHESTKEY_BEGIN DND_ISUBT_CHESTTYPE_BRONZE
 #define ELIXIR_BEGIN DND_ISUBT_ELIXIR_HEALTH
 #define ORBS_BEGIN DND_ISUBT_ORB_ENHANCE
+#define TOKEN_BEGIN DND_ISUBT_TOKEN_REPAIR
 
 #define CHESTKEY_END DND_ISUBT_CHESTTYPE_GOLD
 #define ELIXIR_END DND_ISUBT_ELIXIR_LUCK
 #define ORBS_END DND_ISUBT_ORB_ELEVATION
+#define TOKEN_END DND_ISUBT_TOKEN_REPAIR
 
-#define MAX_CHESTKEYS CHESTKEY_END - CHESTKEY_BEGIN + 1
-#define MAX_ELIXIRS ELIXIR_END - ELIXIR_BEGIN + 1
-#define MAX_ORBS ORBS_END - ORBS_BEGIN + 1
+#define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)
+#define MAX_ELIXIRS (ELIXIR_END - ELIXIR_BEGIN + 1)
+#define MAX_ORBS (ORBS_END - ORBS_BEGIN + 1)
+#define MAX_TOKENS (TOKEN_END - TOKEN_BEGIN + 1)
 
-#define MAX_COMMON_INVENTORY DND_ISUBT_ORB_ELEVATION + 1
+#define MAX_COMMON_INVENTORY (DND_ISUBT_TOKEN_REPAIR + 1)
 
 #define SITEM_NAME 0
 #define SITEM_TAG 1
@@ -182,7 +195,9 @@ str InventoryInfo[MAX_COMMON_INVENTORY][3] = {
 	{ "OrbofHolding", "Orb of Holding", "\c[Y5]Orb of Holding\nIncreases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons." },
 	{ "OrbofRefinement", "Orb of Refinement", "\c[Y5]Orb of Refinement\nRerolls the attribute values of the selected item." },
 	{ "OrbofSculpting", "Orb of Sculpting", "\c[Y5]Orb of Sculpting\nRemoves a random attribute entirely from the selected item." },
-	{ "OrbofElevation", "Orb of Elevation", "\c[Y5]Orb of Elevation\nAdds a random attribute that's not already present to the selected item, if it has capacity." }
+	{ "OrbofElevation", "Orb of Elevation", "\c[Y5]Orb of Elevation\nAdds a random attribute that's not already present to the selected item, if it has capacity." },
+
+	{ "RepairToken", "Repair Token", "\c[Y5]Repair Token\nAllows repair of currently equipped armor via the shop." }
 };
 
 #endif

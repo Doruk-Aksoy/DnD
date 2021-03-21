@@ -45,6 +45,7 @@ enum {
 	AMMO_NITROGENCANISTER,
 	AMMO_DEMONBLOOD,
 	AMMO_HADES,
+	AMMO_FLAYER,
 	AMMO_EXSHELL,
 	AMMO_SLAYER,
 	
@@ -103,9 +104,9 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"D97A1",			"NitrogenCanister"		},
 		{		"DBLUD1",			"DemonBlood"			},
 		{		"STRGY0",			"HadesAmmo"				},
+		{		"CBWAA0",			"FlayerAmmo"			},
 		{		"ESHAA0",			"ExplodingShell"		},
-		{		"SLAYAM01",			"SlayerAmmo"			},
-		{		"",					""						}
+		{		"SLAYAM01",			"SlayerAmmo"			}
 	},
 	// category 3 -- rocket box
 	{
@@ -160,9 +161,9 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		40,			15		},
 		{ 		60,			25		},
 		{ 		32,			8		},
+		{ 		36,			9		},
 		{ 		40,			15		},
-		{ 		40,			15		},
-		{ 		-1,			0		}
+		{ 		40,			15		}
 	},
 	// category 3 -- rocket box
 	{

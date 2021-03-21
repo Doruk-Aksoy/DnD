@@ -29,6 +29,7 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Orbs.txt"
 #include "Actors/Items/Chest.txt"
 #include "Actors/Items/Elixir.txt"
+#include "Actors/Items/Tokens.txt"
 #include "Actors/Items/ItemAttributes.txt"
 
 // Resists

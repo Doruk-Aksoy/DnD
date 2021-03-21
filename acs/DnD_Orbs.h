@@ -1777,10 +1777,17 @@ void SpawnOrb(int pnum, bool sound) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int w = random(1, ORB_MAXWEIGHT), i = 0;
+		
+#ifdef ISDEBUGBUILD
+		i = random(0, MAX_ORBS - 1);
+#else
+		
 		if(GetCVar("dnd_ignore_dropweights"))
 			i = random(0, MAX_ORBS - 1);
 		else
 			for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+			
+#endif
 		// c is the index on the field now
 		// i = DND_ORB_CORRUPT;
 		RollOrbInfo(c, i, true);
@@ -1814,6 +1821,7 @@ void RollOrbInfo(int item_pos, int orbtype, bool onField) {
 Script "DnD Give Orb Delayed" (int type, int amt) {
 	Delay(1);
 	GiveOrbToPlayer(type, amt);
+	GiveInventory("DnD_RefreshPane", 1);
 }
 
 #endif

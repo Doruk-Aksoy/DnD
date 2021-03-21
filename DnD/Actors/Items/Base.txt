@@ -280,7 +280,7 @@ Actor TempWeaponReady : DnD_Boolean { }
 Actor RoundsSurvived : Ammo
 {
 	inventory.amount 1
-	inventory.maxamount 0xFFFF
+	inventory.maxamount 0xFFFFFF
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 0
 	+IGNORESKILL
@@ -528,7 +528,8 @@ enum {
 enum {
 	DND_STACKEDITEM_ORB,
 	DND_STACKEDITEM_CHESTKEY,
-	DND_STACKEDITEM_ELIXIR
+	DND_STACKEDITEM_ELIXIR,
+	DND_STACKEDITEM_TOKEN
 };
 
 Actor IMGONE : PowerInvisibility {

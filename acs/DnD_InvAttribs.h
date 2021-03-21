@@ -112,54 +112,9 @@ enum {
 	INV_OVERLOAD_ZAPCOUNT,
 	INV_OVERLOAD_DMGINCREASE,
 	
-	// add new attributes here, below the last normal item attributes to avoid weird problems regarding database saves
-	/*
-	INV_NEG_DAMAGE_DEALT,
-	INV_NEG_DAMAGE_TAKEN, // remove the inv_ex_damage taken and replace it with this
-	INV_NEG_HEALTHCAP,
-	INV_NEG_ARMORCAP,
-	INV_NEG_HEALTHCAP_PERCENT,
-	INV_NEG_ARMORCAP_PERCENT,
-	INV_NEG_SPEED,
-	INV_NEG_CRIT_DAMAGE,
-	INV_NEG_CRIT_PERCENT,
-	INV_NEG_KNOCKBACK_RESIST,
-	INV_NEG_REGEN_CAP,
+	INV_CYBERNETIC,
 	
-	INV_NEG_FLATPHYS_DAMAGE,
-	INV_NEG_FLATENERGY_DAMAGE,
-	INV_NEG_FLATEXP_DAMAGE,
-	INV_NEG_FLATMAGIC_DAMAGE,
-	INV_NEG_FLATELEM_DAMAGE,
-	
-	INV_NEG_PERCENTPHYS_DAMAGE,
-	INV_NEG_PERCENTENERGY_DAMAGE,
-	INV_NEG_PERCENTEXP_DAMAGE,
-	INV_NEG_PERCENTMAGIC_DAMAGE,
-	INV_NEG_PERCENTELEM_DAMAGE,
-	
-	INV_NEG_SLOT1_DAMAGE,
-	INV_NEG_SLOT2_DAMAGE,
-	INV_NEG_SLOT3_DAMAGE,
-	INV_NEG_SLOT4_DAMAGE,
-	INV_NEG_SLOT5_DAMAGE,
-	INV_NEG_SLOT6_DAMAGE,
-	INV_NEG_SLOT7_DAMAGE,
-	INV_NEG_SLOT8_DAMAGE,
-	INV_NEG_TEMPWEP_DAMAGE,
-	
-	INV_NEG_DMGTAKEN_ELEM,
-	INV_NEG_DMGTAKEN_PHYS,
-	INV_NEG_DMGTAKEN_REFL,
-	
-	INV_NEG_ACCURACY,
-	
-	INV_NEG_EXPGAIN,
-	INV_NEG_CREDITGAIN,
-	
-	INV_NEG_AMMOGAIN,
-	INV_NEG_AMMOCAP,
-	*/
+	// add new attributes above here, below the last normal item attributes to avoid weird problems regarding database saves
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
 	INV_EX_CHANCE = UNIQUE_ATTRIB_ID_BEGIN, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
@@ -195,7 +150,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_OVERLOAD_DMGINCREASE 
+#define LAST_INV_ATTRIBUTE INV_CYBERNETIC 
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
@@ -311,6 +266,8 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_OverloadChance", 								"% increased chance to overload for lightning attacks" },
 	{ "IATTR_OverloadZapCount", 							" additional overload reflections on overload kills" },
 	{ "IATTR_OverloadZapDmg", 								"% increased overload reflection damage" },
+	
+	{ "",													"\c[R5]CYBERNETIC\c-" },
 	
 	// exotic ones
 	{ "", 													"% chance to " },
@@ -438,11 +395,16 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 2, 5, 1 },
 	{ 1, 1, 1 },
-	{ 5, 10, 1 }
+	{ 5, 10, 1 },
+	
+	{ 1, 1, 1 }
 };
 
 str ItemAttributeString(int attr, int val) {
 	switch(attr) {
+		case INV_CYBERNETIC:
+			return StrParam(s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+			
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:

@@ -39,6 +39,9 @@ Items/ChestKey		CHESTKEY
 
 Items/Drop			ITEMDROP
 
+Items/TokenDrop		TOKNDROP
+Items/TokenPick		TOKNPICK
+
 Items/ElixirDrop	ELXPICK
 Items/ElixirPick	ELXUSE
 

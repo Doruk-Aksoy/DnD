@@ -59,7 +59,6 @@ Actor RocketShooter : DnD_Activator {
 	}
 }
 
-// Sprites by Eriance
 Actor "Upgraded Rocket Launcher" : RocketLauncher {	
 	Weapon.Slotnumber 5
 	Inventory.PickupSound "weapons/pickup"
@@ -128,6 +127,16 @@ Actor "Upgraded Rocket Launcher" : RocketLauncher {
 	}
 }
 
+Actor TorpedoBoomSignal : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor TorpedoTimer : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 10
+}
+
 Actor RocketX : DnD_ExplosiveBase {
 	SeeSound "weapons/rocklf"
 	DeathSound "weapons/rocklx"
@@ -139,7 +148,7 @@ Actor RocketX : DnD_ExplosiveBase {
 	+THRUGHOST
 	States {
 		SpawnState:
-			MISL A 1 Bright
+			MISL A 2 Bright A_SpawnItemEx("DnD_RocketTrail", -12, 0, 5)
 		Loop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_ROCKETLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_ROCKETLAUNCHER)
@@ -173,8 +182,9 @@ Actor NewRocket : RocketX {
 	var int user_exprad;
 	States {
 		SpawnState:
-			MICM A -1 Bright
-		Stop
+			MICM AA 1 A_JumpIfInTargetInventory("TorpedoBoomSignal", 1, "Boom")
+			TNT1 A 0 A_SpawnItemEx("DnD_RocketTrail", -12, 0, 5)
+		Loop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_TORPEDOLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_TORPEDOLAUNCHER)
 		Death:
@@ -195,6 +205,23 @@ Actor NewRocket : RocketX {
 			MISL C 6 Bright
 			MISL D 4 Bright
 		Stop
+		
+		Boom:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+		
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_TORPEDOLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
+			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
+		Goto DoExplosionDamage
 	}
 }
 
@@ -1065,8 +1092,9 @@ ACTOR HomRocket1 : DnD_ExplosiveBase {
 		SpawnState:
 			HMIS AA 4 Bright
 		SpawnLoop:
+			TNT1 A 0 A_SpawnItemEx("DnD_RocketTrail", -12, 0, 10)
 			HMIS A 2 Bright A_SeekerMissile (10,25)
-			HMIS A 2 Bright
+			HMIS A 2 Bright A_SpawnItemEx("DnD_RocketTrail", -12, 0, 10)
 		Loop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYMISSILELAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_HEAVYMISSILELAUNCHER)
