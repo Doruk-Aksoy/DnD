@@ -4,6 +4,8 @@
 #define DND_DMGPUSH_CAP 96.0
 #define DND_PLAYER_HITSCAN_Z 38.0
 #define MAX_RIPPERS_ACTIVE 256
+#define MAX_RIPPER_HITS_STORED 128
+#define DND_CROSSBOW_EXPLOSIONTID 54100
 
 #define DND_CRIT_TOKEN 69
 
@@ -976,6 +978,16 @@ Script "DnD Do Explosion Damage (Pets)" (int dmg, int radius, int fullradius, in
 	SetResultValue(0);
 }
 
+Script "DnD Crossbow Explosion" (int this, int target) {
+	int exptid = DND_CROSSBOW_EXPLOSIONTID + target - P_TIDSTART;
+	SpawnForced("Crossbow_Explosion", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2 + 24.0, exptid);
+	SetActivator(exptid);
+	SetPointer(AAPTR_TARGET, target);
+	Thing_ChangeTID(exptid, 0);
+	
+	SetResultValue(0);
+}
+
 void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid) {	
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
@@ -1046,6 +1058,10 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		actor_flags |= (wepid << 16);
 	}
 	
+	// Flayer magic or undead check
+	if(wepid == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
+		ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, owner);
+	
 	SetActivator(owner);
 	int pnum = PlayerNumber();
 	int extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
@@ -1081,7 +1097,7 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 
 // has embedded data
 Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int wepid) {
-	printbold(s:"FUCKING HURT ", d:damage_type >> DAMAGE_TYPE_SHIFT);
+	//printbold(s:"FUCKING HURT ", d:damage_type >> DAMAGE_TYPE_SHIFT);
 	HandleImpactDamage(GetActorProperty(0, APROP_TARGETTID), damage_type >> DAMAGE_TYPE_SHIFT, dmg, damage_type & DAMAGE_TYPE_MASK, flags, wepid);
 	
 	SetResultValue(0);
@@ -1101,7 +1117,7 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	int speed = GetActorProperty(0, APROP_SPEED);
 	int r = GetActorProperty(0, APROP_RADIUS) >> 16;
 	int h = GetActorProperty(0, APROP_HEIGHT);
-	int i = 0, m = 0;
+	int i = 0, m = 0, s = 0;
 	int steps = (speed / r) >> 16;
 	
 	// increment id by 1 for each call, doesnt matter if it overflows
@@ -1129,28 +1145,47 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	dir_y /= len;
 	dir_z /= len;
 	
+	// projectiles spawn speed units ahead of player, this is especially noticable in faster projectiles
+	// we must check backwards initially for point blank case
+	// find monsters in a rectangle from actor xyz, +-r * cos / sin and +-h on z
+	// simple rectanglular box check from rectangle sides
+	bool found = false;
+	bool first_tic = true;
+	int a_x, a_y, a_r;
+	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
+
 	// for lower speeds we dont need predictive methods
 	while(!GetUserVariable(0, "user_hit")) {
-		// find monsters in a rectangle from actor xyz, +-r * cos / sin and +-h on z
-		// simple rectanglular box check from rectangle sides
-		top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
-		
 		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
-			int a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
-			bool found = false;
-			
 			// dead, skip
 			if(!isActorAlive(i))
 				continue;
+		
+			found = false;
+			a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
+		
+			if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > speed)
+				continue;
 			
-			for(int s = 0; s < steps; ++s) {
+			for(s = 0; s < steps; ++s) {
 				// eliminate cases where it'd fail to touch
-				if(bot_x + s * dir_x * r < a_x - a_r || a_x + a_r < top_x + s * dir_x * r || bot_y + s * dir_y * r < a_y - a_r || a_y + a_r < top_y + s * dir_y * r)
-					continue;
-					
+				if(!first_tic) {
+					if(bot_x + s * dir_x * r < a_x - a_r || a_x + a_r < top_x + s * dir_x * r || bot_y + s * dir_y * r < a_y - a_r || a_y + a_r < top_y + s * dir_y * r)
+						continue;
+				}
+				else {
+					// check front and back on tic 0, because projectile spawns speed units farther
+					if(bot_x - s * dir_x * r < a_x - a_r || a_x + a_r < top_x - s * dir_x * r || bot_y - s * dir_y * r < a_y - a_r || a_y + a_r < top_y - s * dir_y * r) {
+						// if s == 0, we dont need to check this so leave asap
+						if(!s || bot_x + s * dir_x * r < a_x - a_r || a_x + a_r < top_x + s * dir_x * r || bot_y + s * dir_y * r < a_y - a_r || a_y + a_r < top_y + s * dir_y * r) {
+							continue;
+						}
+					}
+				}
+				
 				//printbold(s:"x-y valid on: ", f:a_x, s: " ", f:a_y, s:" ", f:top_x + s * dir_x * r, s: " ", f:top_y + s * dir_y * r, s: " ", f:bot_x + s * dir_x * r, s: " ", f:bot_y + s * dir_y * r);
 				//printbold(s:"try z: ", f:GetActorZ(0) - h, s: " ", f:GetActorZ(0) + h, s: " ", f:GetActorZ(i), s: " ", f:GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT));
-				if(GetActorZ(0) - h > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h < GetActorZ(i))
+				if(GetActorZ(0) - h > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h < GetActorZ(i) || !CheckSight(0, i, 0))
 					continue;
 				
 				//printbold(s:"IN BOX");
@@ -1174,6 +1209,10 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		}
 		//printbold(s:"running id ", d:ripper_id);
 		Delay(const:1);
+		first_tic = false;
+		
+		// update now, we updated at 0 tic case
+		top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
 	}
 	
 	SetResultValue(0);

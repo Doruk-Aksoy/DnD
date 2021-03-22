@@ -89,6 +89,8 @@ enum {
 * 40000 - 42048 = Thunder Staff Ring tid
 * 42049 - Talisman Mark tid
 * 50000 = Destructible object tid start
+* 54000 - 54063 = Wanderer explosion tids
+* 54100 - 54163 = Crossbow explosion tids
 * 55000 - 65999 = pet tids
 * Anything above 66000 => any monster tid
 */

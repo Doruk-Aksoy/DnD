@@ -44,6 +44,7 @@ str Research_Label[MAX_RESEARCHES] = {
     "Plasma Cannon (3)",
 	"Shocker (3)",
 	"Hades Auto Shotgun (3)",
+	"Flayer Crossbow (3)",
 	
     "Templar Machine Gun (4)",
     "Riot Cannon (4)",
@@ -137,7 +138,9 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
     { 0, -1 },
 	{ RESF_NODROP | RESF_HASREQUIREMENT, -1},
 	
+	// slot 3 ssg
     { 0, -1 },
+	{ 0, -1 },
 	{ 0, -1 },
 	{ 0, -1 },
 	

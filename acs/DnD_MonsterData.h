@@ -6,8 +6,6 @@
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 10 // 10% per level
 
-#define MAX_RIPPER_HITS_STORED 128
-
 typedef struct {
 	int basehp;
 	int maxhp;
@@ -351,6 +349,9 @@ void HandleMonsterClassInnates(int id) {
 
 void LoadMonsterTraits(int m_id) {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	
+	// copy preset data to here now
+	memcpy(MonsterProperties[i].trait_list, MonsterData[m_id].trait_list);
 		
 	// some of the flags are inherent in actor info, so do make use of that
 	if(CheckFlag(0, "GHOST"))
@@ -368,9 +369,6 @@ void LoadMonsterTraits(int m_id) {
 		
 	if(MonsterProperties[i].id >= LEGENDARY_START)
 		MonsterProperties[i].trait_list[DND_LEGENDARY] = true;
-		
-	// copy preset data to here now
-	memcpy(MonsterProperties[i].trait_list, MonsterData[m_id].trait_list);
 	
 	// check for weaknesses and monster not having any kind of resist to this type
 	// if magical or undead, give it silver weakness (this is common no exceptions)
@@ -741,6 +739,14 @@ bool IsUndead() {
 
 bool IsMagic() {
 	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_MAGICAL_POW;
+}
+
+bool IsMagicOrUndead() {
+	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
+}
+
+bool IsActorMagicOrUndead(int i) {
+	return MonsterData[MonsterProperties[i - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
 }
 
 bool IsRobotic() {

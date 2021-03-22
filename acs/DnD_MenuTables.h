@@ -403,12 +403,13 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 5250,  1,		1 },
 		{ 5000,  1,		1 },
 		{ 5250,  1,		1 },
-		{ 5500,  1,		1 },
 		
 		// 3 - 2
+		{ 5500,  1,		1 },
 		{ 6000,	 1,		1 },
 		{ 5750,  1,		1 },
 		{ 6500,  1,		1 },
+		{ 6000,  1,     1 },
 		{ 5250,  1,		1 },
 		{ 5250,  1,		1 },
 		
@@ -512,6 +513,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 180,		1, 		-1 },
 		{ 250,		1, 		-1 },
 		{ 190,		1, 		-1 },
+		{ 175,		1,		-1 },
 		
 		// Special Ammunition
 		{ 500,	    1, 		-1 },
@@ -619,6 +621,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT3SSGUPG1, -1, -1 },
 		{ RES_SLOT3SSGUPG2, -1, -1 },
 		{ RES_SLOT3SSGUPG3, -1, -1 },
+		{ RES_SLOT3SSGUPG4, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
 		
@@ -836,6 +839,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
 	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
 	{ "ResSSG3",							"Hades Shotgun",					WEPCHECK_SLOT3X,		"0"			},
+	{ "ResSSG4",							"Flayer Crossbow",					WEPCHECK_SLOT3X,		"0"			},
 	{ "Silver Gun",						    "White Death",						WEPCHECK_SLOT3L,		"1"	        },
 	{ "Slayer",								"Slayer",							WEPCHECK_SLOT3L,		"1"		    },
 		
@@ -925,6 +929,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "HellsMawAmmo",						"Hell Fire",						"",						"0"			},
 	{ "DevastatorAmmo",						"Devastator Ammo",					"",						"0"			},
 	{ "HeavyGrenades",						"Heavy Grenades",					"",						"0"			},
+	{ "FlayerAmmo",							"Flayer Bolts",						"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -985,19 +990,17 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 };
 
 enum {
-	DTYPE_BULLET = 1,
-	DTYPE_SHELL = 2,
-	DTYPE_MELEE = 4,
-	DTYPE_OCCULT = 8,
-	DTYPE_EXPLOSIVE = 16,
-	DTYPE_ENERGY = 32,
-	DTYPE_ELEMENTAL = 64
+	DTYPE_PHYSICAL = 1,
+	DTYPE_MELEE = 2,
+	DTYPE_OCCULT = 4,
+	DTYPE_EXPLOSIVE = 8,
+	DTYPE_ENERGY = 16,
+	DTYPE_ELEMENTAL = 32
 };
 
 #define MAX_DAMAGE_TYPES 7 // 64
 str DamageTypeIcons[MAX_DAMAGE_TYPES] = { 
-	"DT_BULL",
-	"DT_SHEL",
+	"DT_PHYS",
 	"DT_MELE",
 	"DT_OCCU",
 	"DT_EXPL",
@@ -1015,52 +1018,53 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_MELEE | DTYPE_OCCULT,
 	
 	// 2
-	DTYPE_BULLET,
-	DTYPE_BULLET,
+	DTYPE_PHYSICAL,
+	DTYPE_PHYSICAL,
 	DTYPE_ENERGY,
-	DTYPE_BULLET,
+	DTYPE_PHYSICAL,
 	DTYPE_OCCULT,
 	DTYPE_ELEMENTAL,
-	DTYPE_BULLET,
+	DTYPE_PHYSICAL,
 	
 	// 3 - 1
-	DTYPE_SHELL,
-	DTYPE_SHELL,
+	DTYPE_PHYSICAL,
+	DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
-	DTYPE_SHELL,
+	DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_OCCULT | DTYPE_MELEE,
-	DTYPE_SHELL,
-	DTYPE_SHELL,
+	DTYPE_PHYSICAL,
+	DTYPE_PHYSICAL,
 	
 	// 3 - 2
 	DTYPE_EXPLOSIVE | DTYPE_OCCULT,
 	DTYPE_ENERGY,
 	DTYPE_ELEMENTAL,
-	DTYPE_SHELL | DTYPE_ELEMENTAL,
-	DTYPE_SHELL | DTYPE_EXPLOSIVE,
+	DTYPE_PHYSICAL | DTYPE_ELEMENTAL,
+	DTYPE_PHYSICAL | DTYPE_OCCULT,
+	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
 	DTYPE_OCCULT,
 	
 	// 4 - 1
-	DTYPE_BULLET,
+	DTYPE_PHYSICAL,
 	DTYPE_ENERGY,
 	DTYPE_OCCULT,
-	DTYPE_BULLET,
-	DTYPE_SHELL,
+	DTYPE_PHYSICAL,
+	DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_ENERGY,
 	
 	// 4 - 2
 	DTYPE_ELEMENTAL,
-	DTYPE_BULLET,
+	DTYPE_PHYSICAL,
 	DTYPE_OCCULT,
 	
 	// 5 - 1
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
-	DTYPE_SHELL | DTYPE_EXPLOSIVE,
+	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
 	DTYPE_OCCULT,
-	DTYPE_EXPLOSIVE | DTYPE_SHELL,
+	DTYPE_EXPLOSIVE | DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
 	
 	// 5 - 2
@@ -1077,7 +1081,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ENERGY,
 	
 	// 6 - 2
-	DTYPE_BULLET,
+	DTYPE_PHYSICAL,
 	DTYPE_OCCULT,
 	DTYPE_OCCULT,
 	
@@ -1131,6 +1135,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG1		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG2		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSSG3		},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSSG4		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_SILVER			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_SLAYER			},
 	
@@ -1200,9 +1205,10 @@ enum {
 	WPROP_IGNORESHIELD = 8,
 	WPROP_ALTAMMO = 16,
 	WPROP_RIPPER = 32,
-	WPROP_IRREDUCIBLE = 64
+	WPROP_IRREDUCIBLE = 64,
+	WPROP_NOREFLECT = 128
 };
-#define MAX_WEAPON_PROPERTIES 7
+#define MAX_WEAPON_PROPERTIES 8
 
 str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
 	"WNOGHST",
@@ -1211,7 +1217,8 @@ str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
 	"WOSHLD",
 	"WOALT",
 	"WORIP",
-	"WOFULL"
+	"WOFULL",
+	"WNOREFL"
 };
 
 // holds can hit ghost etc. kind of information
@@ -1245,9 +1252,10 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	
 	// 3 - 2
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
-	WPROP_IGNORESHIELD,
+	WPROP_IGNORESHIELD | WPROP_NOREFLECT,
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	WPROP_RIPPER | WPROP_CANTHITGHOST,
+	WPROP_RIPPER | WPROP_NOREFLECT,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_SELFDMG | WPROP_CANTHITGHOST | WPROP_RIPPER,
 	
@@ -1266,7 +1274,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_IGNORESHIELD,
 	
 	// 5 - 1
-	WPROP_CANTHITGHOST | WPROP_SELFDMG,
+	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_NOREFLECT,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
@@ -1284,17 +1292,17 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_RIPPER | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG,
 	WPROP_NONE,
-	WPROP_OVERHEAT,
+	WPROP_OVERHEAT | WPROP_NOREFLECT,
 	
 	// 6 - 2
 	WPROP_ALTAMMO,
-	WPROP_RIPPER | WPROP_CANTHITGHOST,
+	WPROP_RIPPER | WPROP_CANTHITGHOST | WPROP_NOREFLECT,
 	WPROP_IGNORESHIELD,
 	
 	// 7
-	WPROP_IGNORESHIELD,
+	WPROP_IGNORESHIELD | WPROP_NOREFLECT,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST,
-	WPROP_SELFDMG | WPROP_IGNORESHIELD,
+	WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_NOREFLECT,
 	WPROP_OVERHEAT | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_IGNORESHIELD,
@@ -1337,6 +1345,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 192-240 damage in 108 unit radius.",
 	"Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
+	"Equipped with silver bolts which deal 300 damage on hit. Altfire increases tension, allowing shots to rip and gain 50% more damage per increase, but instead start from base of 200 damage. Magical or undead enemies hit causes a 150 damage explosion in 128 unit radius.",
 	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
 	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",
 	
@@ -1452,9 +1461,9 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_NITROGEN,
 		SHOP_AMMO_DEMONBLOOD,
 		SHOP_AMMO_HADES,
+		SHOP_AMMO_FLAYER,
 		SHOP_AMMO_EXPSHELL,
 		SHOP_AMMO_SLAYER,
-		-1
 	},
 	// category 3
 	{
@@ -1524,6 +1533,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_HELLSMAW			},
 	{ OBJ_AMMO,													SHOP_AMMO_DEVASTATOR		},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEAVYGRENADE		},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLAYER			},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1575,6 +1585,7 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	10,
 	33,
 	5,
+	5,
 	
 	8,
 	8,
@@ -1625,6 +1636,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"hell fire canisters for the Hell's Maw.",
 	"rockets for the Devastator.",
 	"heavy grenades for Heavy Grenade Launcher.",
+	"silver bolts for Flayer Crossbow.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -1754,7 +1766,7 @@ enum {
 	RESPAGE_UTILITY,
 };
 
-#define MENU_MAXRES_PERPAGE 24
+#define MENU_MAXRES_PERPAGE 25
 res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	// body
 	{
@@ -1856,6 +1868,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			RES_SLOT3SSGUPG3, 8671, 65
+		},
+		{
+			RES_SLOT3SSGUPG4, 9603, 60
 		},
 		{
 			RES_SLOT4UPG1, 8010, 45
@@ -2086,6 +2101,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK44",
 			"Hades... the god of underworld. Or so they say. His powers are now yours to command! Unlocks Hades Auto Shotgun (3)."
+		},
+		{
+			"RESBAK57",
+			"Ever wanted to feel like Van Helsing? Now you can with this bad boy, equipped with silver bolts. Unlocks Flayer Crossbow (3)."
 		},
 		{
 			"RESBAK21",

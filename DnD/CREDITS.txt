@@ -18,6 +18,7 @@ Thanks to:
 - Blue Shadow (Sprites)
 - Popsoap (Code help)
 - TheUltimateDoomer (Sprites and GLDefs)
+- ETTINGRINDER (Sprites)
 - Eriance (Many sprites for monsters and weapons)
 - Kappes Buur (Sprites?)
 - Nash (Codebase for gore)
