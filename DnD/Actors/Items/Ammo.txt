@@ -39,6 +39,7 @@ enum {
 	AMMO_FLAKSHELL,
 	AMMO_METEOR,
 	AMMO_HEAVYGRENADE,
+	AMMO_GRAVDIS,
 	AMMO_NGRENADE,
 	AMMO_HMISSILE,
 	
@@ -1106,6 +1107,13 @@ Actor RipperCannonAmmo : Ammo {
 	inventory.amount 1
 	inventory.maxamount 200
 	inventory.icon "TWP0Z0"
+	+IGNORESKILL
+}
+
+Actor GravdisAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 25
+	inventory.icon "GRAVD0"
 	+IGNORESKILL
 }
 

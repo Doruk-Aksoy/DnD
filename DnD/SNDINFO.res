@@ -1,3 +1,31 @@
+Gravdis/Idle			GRAVIDLE
+Gravdis/Fire			GRAVFIRE
+Gravdis/FireAdd			GRAVADD
+Gravdis/TimeOut1		GRAVTO1
+Gravdis/TimeOut2		GRAVTO2
+$random Gravdis/TimeOut { Gravdis/TimeOut1 Gravdis/TimeOut2 }
+Gravdis/Fall1			GRAVFAL1
+Gravdis/Fall2			GRAVFAL2
+$random Gravdis/Fall { Gravdis/Fall1 Gravdis/Fall2 }
+Gravdis/Grab1			GRAVGR1
+Gravdis/Grab2			GRAVGR2
+Gravdis/Grab3			GRAVGR3
+Gravdis/Grab4			GRAVGR4
+Gravdis/Grab5			GRAVGR5
+$random Gravdis/Grab { Gravdis/Grab1 Gravdis/Grab2 Gravdis/Grab3 Gravdis/Grab4 Gravdis/Grab5 }
+Gravdis/Drop1			GRAVDR1
+Gravdis/Drop2			GRAVDR2
+Gravdis/Drop3			GRAVDR3
+Gravdis/Drop4			GRAVDR4
+Gravdis/Drop5			GRAVDR5
+Gravdis/Drop6			GRAVDR6
+Gravdis/Drop7			GRAVDR7
+Gravdis/Drop8			GRAVDR8
+Gravdis/Drop9			GRAVDR9
+$random Gravdis/Drop { Gravdis/Drop1 Gravdis/Drop2 Gravdis/Drop3 Gravdis/Drop4 Gravdis/Drop5 Gravdis/Drop6 Gravdis/Drop7 Gravdis/Drop8 Gravdis/Drop9 }
+Gravdis/Hit				GRAVHIT
+Gravdis/Charge			GRAVCHRG
+
 Crossbow/Explode1		CBOWEX1
 Crossbow/Explode2		CBOWEX2
 Crossbow/Explode3		CBOWEX3

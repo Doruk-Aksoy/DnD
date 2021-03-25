@@ -65,6 +65,7 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResRL1",							"Meteor Launcher",			"5",		"MeteorAmmo",		" ",							"GotRL",					"RW06X0",		"WEPICO48"	},
 	 { "ResRL2",							"Heavy Grenade Launcher",	"5",		"HeavyGrenades",	"HeavyGLCounter",				"GotRL",					"GLAUX0",		"WEPICO49"	},
 	 { "ResRL3",							"Freezer Cannon",			"5",		"EverIce",			"FreezerOverheat",				"GotRL",					"FRZCZ0",		"WEPICO50"	},
+	 { "ResRL4",							"Gravdis 5000",				"5",		"GravdisAmmo",		" ",							"GotRL",					"BRSGX0",		"WEPICO91"	},
 	 
 	 { "Grenade Launcher",					"Grenade Launcher",			"5",		"Grenades",			" ",							"GotGL",					"NGLPA0",		"WEPICO51"	},
 	 { "Upgraded Grenade Launcher",		    "Rotary Grenade Launcher",	"5",		"Grenades",			" ",							"GotGL",					"RTGLICO",		"WEPICO52"	},
@@ -182,7 +183,7 @@ str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
 	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "Upgraded Shotgun3", "ResShotgun1", "ResShotgun2", "ResShotgun3", "", "" },
 	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "Upgraded Super Shotgun3", "ResSSG1", "ResSSG2", "ResSSG3", "ResSSG4", "" },
 	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "" },
-	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher3", "ResRL1", "ResRL2", "ResRL3", "", "" },
+	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher3", "ResRL1", "ResRL2", "ResRL3", "ResRL4", "" },
 	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "ResPlasma3", "" },
 	{ "BFG 9000", "Upgraded BFG 9000", "Devastator", "MFG", "ResBFG1", "ResBFG2", "", "", "" },
 };

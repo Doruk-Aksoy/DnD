@@ -1106,7 +1106,7 @@ ACTOR AxeKnight : DnD_BaseHybridMonster {
 	ActiveSound "hknight/active"
 	Radius 20
 	Height 56
-	Mass 150
+	Mass 384
 	Speed 12
 	Obituary "%o was axed by an Undead Knight."
 	HitObituary "%o witnessed that Undead Knight axes are effective up close."

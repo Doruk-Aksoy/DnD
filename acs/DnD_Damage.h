@@ -85,6 +85,7 @@ enum {
 	DND_DAMAGEFLAG_ISHITSCAN			=			0b10000000000000,
 	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b100000000000000,
 	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b1000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b10000000000000000, // this particular one is not to be used with other flags, only when its sole -- or you get rid of it after passing it somewhere
 };
 
 enum {
@@ -1056,6 +1057,11 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
 		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
 		actor_flags |= (wepid << 16);
+	}
+	
+	if(flags & DND_DAMAGEFLAG_FOILINVUL) {
+		actor_flags |= DND_ACTORFLAG_FOILINVUL;
+		flags ^= DND_DAMAGEFLAG_FOILINVUL;
 	}
 	
 	// Flayer magic or undead check

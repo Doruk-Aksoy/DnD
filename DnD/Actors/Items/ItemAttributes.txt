@@ -1,3 +1,5 @@
+const float m_range_factor = 0.01;
+
 Actor IATTR_FlatHP : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -521,6 +523,12 @@ Actor IATTR_FlatDotDamage : Ammo {
 }
 
 Actor IATTR_DotDuration : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_MeleeRange : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL

@@ -384,3 +384,74 @@ object BloodFX3 {
 	frame BLFXE { light WheelOfTormentLight6 }
 	frame BLFXF { light WheelOfTormentLight7 }
 }
+
+pulselight GravdisLight {
+    color 0.7 0 0.7
+    size 48
+    secondarySize 72
+    interval 1.0
+}
+
+pointlight GravdisLightEx1 {
+    color 0.7 0 0.7
+    size 128
+}
+
+pointlight GravdisLightEx2 {
+    color 0.7 0 0.7
+    size 156
+}
+
+pointlight GravdisLightEx3 {
+    color 0.7 0 0.7
+    size 180
+}
+
+pointlight GravdisLightEx4 {
+    color 0.7 0 0.7
+    size 224
+}
+
+pointlight GravdisLightEx5 {
+    color 0.7 0 0.7
+    size 192
+}
+
+pointlight GravdisLightEx6 {
+    color 0.7 0 0.7
+    size 160
+}
+
+pointlight GravdisLightEx7 {
+    color 0.7 0 0.7
+    size 144
+}
+
+pointlight GravdisLightEx8 {
+    color 0.7 0 0.7
+    size 108
+}
+
+pointlight GravdisLightEx9 {
+    color 0.7 0 0.7
+    size 64
+}
+
+pointlight GravdisLightEx10 {
+    color 0.7 0 0.7
+    size 48
+}
+
+object GravdisProjectile {
+	frame VOIP { light GravdisLight }
+	frame VORXA { light GravdisLightEx1 }
+	frame VORXB { light GravdisLightEx2 }
+	frame VORXC { light GravdisLightEx3 }
+	frame VORXD { light GravdisLightEx4 }
+	frame VORXE { light GravdisLightEx5 }
+	frame VORXF { light GravdisLightEx6 }
+	frame VORXG { light GravdisLightEx7 }
+	frame VORXH { light GravdisLightEx8 }
+	frame VORXI { light GravdisLightEx9 }
+	frame VORXJ { light GravdisLightEx10 }
+}

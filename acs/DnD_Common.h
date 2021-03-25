@@ -11,6 +11,7 @@
 #define MAXPLAYERS 64
 #define P_TIDSTART 1000
 #define TICRATE 35
+#define HALF_TICRATE 17
 
 #define DND_FROZENFX_TID 3000
 

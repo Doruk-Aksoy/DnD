@@ -113,6 +113,7 @@ enum {
 	INV_OVERLOAD_DMGINCREASE,
 	
 	INV_CYBERNETIC,
+	INV_MELEERANGE,
 	
 	// add new attributes above here, below the last normal item attributes to avoid weird problems regarding database saves
 	
@@ -150,7 +151,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_CYBERNETIC 
+#define LAST_INV_ATTRIBUTE INV_MELEERANGE
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
@@ -268,6 +269,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_OverloadZapDmg", 								"% increased overload reflection damage" },
 	
 	{ "",													"\c[R5]CYBERNETIC\c-" },
+	{ "IATTR_MeleeRange",									"% increased melee range" },
 	
 	// exotic ones
 	{ "", 													"% chance to " },
@@ -397,7 +399,8 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 1, 1, 1 },
 	{ 5, 10, 1 },
 	
-	{ 1, 1, 1 }
+	{ 1, 1, 1 },
+	{ 1, 5, 2 }
 };
 
 str ItemAttributeString(int attr, int val) {

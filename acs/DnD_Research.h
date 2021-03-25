@@ -55,6 +55,7 @@ str Research_Label[MAX_RESEARCHES] = {
     "Grenade Launcher (5)",
 	"Heavy Grenade Launcher (5)",
 	"Freezer Cannon (5)",
+	"Gravdis 5000 (5)",
 	
     "Flamethrower (6)",
     "Lightning Gun (6)",
@@ -151,6 +152,7 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	
     { 0, -1 },
     { 0, -1 },
+	{ 0, -1 },
 	{ 0, -1 },
 	{ 0, -1 },
 	

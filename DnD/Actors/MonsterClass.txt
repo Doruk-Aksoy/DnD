@@ -206,6 +206,39 @@ Actor TakeNoPain : DnD_Activator {
 	}
 }
 
+Actor AllowFlight : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+		Stop
+	}
+}
+
+Actor TakeFlight : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 0)
+		Stop
+	}
+}
+
+Actor AllowFloat : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("FLOAT", 1)
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+		Stop
+	}
+}
+
+Actor TakeFloat : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("FLOAT", 0)
+		Stop
+	}
+}
+
 Actor MakePhysicalResist : DnD_Activator {
 	States {
 		Pickup:

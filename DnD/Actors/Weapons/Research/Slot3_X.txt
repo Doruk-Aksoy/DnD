@@ -1594,7 +1594,6 @@ Actor CrossbowBolt_2 : DnD_BaseProjectile {
 	var int user_hit;
 	+DONTREFLECT
 	+RIPPER
-	+BLOODLESSIMPACT
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_hit", 0)

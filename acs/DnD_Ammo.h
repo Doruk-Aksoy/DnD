@@ -54,6 +54,7 @@ enum {
 	AMMO_FLAKSHELL,
 	AMMO_METEOR,
 	AMMO_HEAVYGRENADE,
+	AMMO_GRAVDIS,
 	AMMO_GRENADE,
 	AMMO_HMISSILE,
 	
@@ -114,6 +115,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"FSHLA0",			"FlakShell"				},
 		{		"LAAM1",			"MeteorAmmo"			},
 		{		"HEGRA0",			"HeavyGrenades"			},
+		{		"GRAVD0",			"GravdisAmmo"			},
 		{		"GBUNA0",			"Grenades"				},
 		{		"AHRLA0",			"MISAmmo"				},
 		{		"",					"",						}
@@ -171,6 +173,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		40,			10		},
 		{ 		40,			4		},
 		{  		50,			5		},
+		{ 		25,			2		},
 		{  		50,			5		},
 		{ 		80,			6		},
 		{ 		-1,			0		}

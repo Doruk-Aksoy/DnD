@@ -144,6 +144,14 @@ typedef struct dist_tid_pair {
 } dist_tid_pair_T;
 #define DND_MAXSCANTRACER 256
 
+#define MAX_GRAVDIS_COUNT 512
+#define GRAVDIS_DELAY_TIME 20 // 4 seconds is total time, 4 x 35 / 7 = 20
+#define GRAVDIS_CHECK_PERIOD 7
+#define GRAVDIS_FLING_FACTOR 128
+#define GRAVDIS_HEIGHT_FACTOR 15
+#define GRAVDIS_HEIGHTADD_PER 64
+#define GRAVDIS_CIRCLE_PARTICLES 48
+
 enum {
 	DND_SPECIAL_RESEARCH = 1,
 	DND_SPECIAL_ORB = 2,
@@ -229,6 +237,8 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well. Main meteor \cfignores shields\c-.",
 	 "Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Alt fire loads more grenades in the chamber. At most 3 additional grenades. Can't hit \cughosts.",
 	 "Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius. Can \cgoverheat\c-.",
+	 "Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields.\c-",
+	 
 	 "Useful for when you can't reach around corners. Does 80 damage on impact and 128 damage in a 144 unit radius. Can be \cdreplaced\c-. Can't hit \cughosts\c-. Can use \cialternate\c- ammo.",
 	 "The UAC Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts",
 	 "Top of the food chain for rockets. Shoots two homing rockets each doing 192 damage both on impact and explosion. Can't hit \cughosts.",

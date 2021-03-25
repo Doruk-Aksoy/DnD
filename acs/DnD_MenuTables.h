@@ -434,6 +434,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 5500,  1,		1 },
 		{ 5750,  1,		1 },
 		{ 5500,  1,		1 },
+		{ 7000,  1,     1 },
 		
 		// 5 - 2
 		{ 1750,  1,		1 },
@@ -514,6 +515,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 250,		1, 		-1 },
 		{ 190,		1, 		-1 },
 		{ 175,		1,		-1 },
+		{ 250,		1,		-1 },
 		
 		// Special Ammunition
 		{ 500,	    1, 		-1 },
@@ -646,6 +648,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT5UPG1, -1, -1 },
 		{ RES_SLOT5UPG2, -1, -1 },
 		{ RES_SLOT5UPG3, -1, -1 },
+		{ RES_SLOT5UPG4, -1, -1 },
 		
 	// wep slot 5 - 2
 		{ RES_SLOT5GL, -1, -1 },
@@ -716,6 +719,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT3SSGUPG3, -1, -1 },
+		{ RES_SLOT5UPG4, -1, -1 },
 		
 	// ammo 4
 		{ RES_SLOT3UPG3, -1, -1 },
@@ -861,6 +865,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResRL1",								"Meteor Launcher",					WEPCHECK_SLOT5,			"0"		    },
 	{ "ResRL2",								"Heavy G. Launcher",				WEPCHECK_SLOT5,			"0"		    },
 	{ "ResRL3",								"Freezer Cannon",					WEPCHECK_SLOT5,			"0"		    },
+	{ "ResRL4",								"Gravdis 5000",						WEPCHECK_SLOT5,			"0"		    },
 	
 	{ "Grenade Launcher",					"Grenade Launcher",				    WEPCHECK_SLOT5L,    	"1"		    },
 	{ "Upgraded Grenade Launcher",		    "Rotary G. Launcher",				WEPCHECK_SLOT5L,  		"1"		    },
@@ -930,6 +935,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "DevastatorAmmo",						"Devastator Ammo",					"",						"0"			},
 	{ "HeavyGrenades",						"Heavy Grenades",					"",						"0"			},
 	{ "FlayerAmmo",							"Flayer Bolts",						"",						"0"			},
+	{ "GravdisAmmo",						"Gravity Modules",					"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -1066,6 +1072,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_OCCULT,
 	DTYPE_EXPLOSIVE | DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
+	DTYPE_PHYSICAL,
 	
 	// 5 - 2
 	DTYPE_EXPLOSIVE,
@@ -1160,6 +1167,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESRL1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL2			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL3			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL4			},
 	
 	// 5 - 2
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_GRENADE		},
@@ -1280,6 +1288,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER,
 	WPROP_RIPPER | WPROP_OVERHEAT,
+	WPROP_IGNORESHIELD,
 	
 	// 5 - 2
 	WPROP_CANTHITGHOST | WPROP_ALTAMMO | WPROP_SELFDMG,
@@ -1367,6 +1376,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well.",
 	"Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Altfire loads more grenades in the chamber.",
 	"Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius.",
+	"Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields.\c-",
 	
 	"Useful for when you can't reach around corners. Does 80 damage on impact and 128 damage in a 144 unit radius.",
 	"The Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts",
@@ -1471,6 +1481,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_FLAK,
 		SHOP_AMMO_METEOR,
 		SHOP_AMMO_HEAVYGRENADE,
+		SHOP_AMMO_GRAVDIS,
 		SHOP_AMMO_GL,
 		SHOP_AMMO_MIS,
 		-1
@@ -1534,6 +1545,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_DEVASTATOR		},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEAVYGRENADE		},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLAYER			},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_GRAVDIS			},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1584,6 +1596,7 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	18,
 	10,
 	33,
+	5,
 	5,
 	5,
 	
@@ -1637,6 +1650,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"rockets for the Devastator.",
 	"heavy grenades for Heavy Grenade Launcher.",
 	"silver bolts for Flayer Crossbow.",
+	"anti-gravity modules for Gravdis 5000.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -1766,7 +1780,7 @@ enum {
 	RESPAGE_UTILITY,
 };
 
-#define MENU_MAXRES_PERPAGE 25
+#define MENU_MAXRES_PERPAGE 32
 res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	// body
 	{
@@ -1892,6 +1906,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			RES_SLOT5UPG3, 7066, 50
+		},
+		{
+			RES_SLOT5UPG4, 8519, 65
 		},
 		{
 			RES_SLOT5GL, 8216, 10
@@ -2133,6 +2150,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK40",
 			"When you're desperate to get some ice for your drink, there's always a solution! Unlocks Freezer Cannon (5)."
+		},
+		{
+			"RESBAK58",
+			"Ultimate in gravity manipulation, we present you a behemoth of a weapon. Slam dunk! Unlocks Gravdis 5000 (5)."
 		},
 		{
 			"RESBAK23",

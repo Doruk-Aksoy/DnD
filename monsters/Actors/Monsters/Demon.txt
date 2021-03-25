@@ -54,7 +54,6 @@ ACTOR BloodDemonClone : DnD_BaseMeleeMonster {
 			SRG2 N -1
 		Stop
 		RaiseState: 
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			SRG2 NMLKJI 5 
 		Goto See
     } 
@@ -665,7 +664,6 @@ actor StoneDemon : DnD_BaseHybridMonster {
 			TNT1 AAAA 0 A_SpawnItemEx("StoneBitsSpawner", 0, 0, frandom(16.0, 32.0))
 		Goto DeathSkipExtra
 		RaiseState:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND On Revive")
 			STON NMLKJI 5
 		Goto See
 	}

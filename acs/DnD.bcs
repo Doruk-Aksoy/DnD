@@ -3234,6 +3234,12 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	SetResultValue(res);
 }
 
+Script "DnD Get Melee Range Increase" (int use_target) {
+	if(use_target)
+		SetActivatorToTarget(0);
+	SetResultValue(CheckInventory("IATTR_MeleeRange"));
+}
+
 Script "tester shit" (void) {
 	printbold(s:"haha yes");
 	SetResultValue(0);
@@ -3724,6 +3730,153 @@ Script "DND HeavyGL Check" (int x, int y, int z) {
 	if (!(GetActorZ(0) - GetActorFloorZ(0) > 4.0))
 		res = sqrt(x*x + y*y + z*z);
 	SetResultValue(res);
+}
+
+Script "DnD Gravdis Debuff" (int base_dmg) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int i;
+		
+	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GRAVDIS << 16), TALENT_BULLET, DND_WDMG_USETARGET | DND_WDMG_ISSLOT5);
+	bool got_one = false;
+	
+	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+		// to be affected by gravdis debuff
+		if(CheckActorInventory(i, "GravdisToken") && IsActorAlive(i)) {
+			// dont affect teleporting / unshootable things
+			if(!CheckFlag(i, "SHOOTABLE")) {
+				TakeActorInventory(i, "GravdisToken", 1);
+				continue;
+			}
+			TakeActorInventory(i, "GravdisToken", 1);
+			// this allows other people or even the same player to elevate monsters higher and keep stunning them for longer for more damage potential
+			if(!CheckActorInventory(i, "GravdisDebuff"))
+				ACS_NamedExecuteWithResult("DnD Gravdis Flinger", i, owner, dmg, base_dmg);
+			else
+				ACS_NamedExecuteWithResult("DnD Gravdis Elevate", i, dmg, base_dmg);
+			SetActorInventory(i, "GravdisDebuff", GRAVDIS_DELAY_TIME);
+			SetActorState(i, "GravdisFling", 0);
+			PlaySound(i, "Gravdis/Grab", 7, 1.0);
+			got_one = true;
+		}
+	}
+	
+	if(got_one)
+		GiveActorInventory(owner, "GravdisCanAlt", 1);
+
+	SetResultValue(0);
+}
+
+Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_dmg) {
+	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS) / (4 * damage / base_dmg), 16, 4096);
+	bool was_flying = CheckFlag(victim, "NOGRAVITY");
+	
+	GiveActorInventory(victim, "AllowFlight", 1);
+	if(was_flying)
+		GiveActorInventory(victim, "TakeFloat", 1);
+	
+	for(int i = 0; i < HALF_TICRATE; ++i) {
+		SetActorVelocity(victim, 0, 0, GRAVDIS_FLING_FACTOR * cos((0.25 / (HALF_TICRATE - 1)) * i) / m, true, false);
+		Delay(const:1);
+	}
+	
+	SetActorVelocity(victim, 0, 0, 0, false, false);
+	
+	// damage portion of gravdis
+	// wait for the effect
+	while(CheckActorInventory(victim, "GravdisDebuff")) {
+		TakeActorInventory(victim, "GravdisDebuff", 1);
+		
+		if(CheckActorInventory(dmg_source, "GravdisDunk")) {
+			PlaySound(victim, "Gravdis/TimeOut", 7, 1.0);
+			ACS_NamedExecuteWithResult("DnD Gravdis FX Spawner", victim, 0);
+			Delay(const:7);
+			SetActorInventory(victim, "GravdisDebuff", 0);
+			break;
+		}
+		
+		if(CheckActorInventory(victim, "GravdisDebuff") == 1) {
+			PlaySound(victim, "Gravdis/TimeOut", 7, 1.0);
+			ACS_NamedExecuteWithResult("DnD Gravdis FX Spawner", victim, 0);
+		}
+		Delay(const:7);
+	}
+	
+	// pull down
+	int height = GetActorZ(victim) - GetActorFloorZ(victim);
+	SetActorVelocity(victim, 0, 0, -height / 2, false, false);
+	
+	// while actor is above ground, wait
+	// no change for 2 tics can imply the unit landed somewhere and is no longer moving
+	int prev_z;
+	bool landed = false;
+	do {
+		prev_z = GetActorZ(victim);
+		Delay(const:2);
+		landed = prev_z == GetActorZ(victim) || prev_z - GetActorFloorZ(victim) <= 4.0;
+	} while(!landed);
+	
+	PlaySound(victim, "Gravdis/Drop", 6, 1.0);
+	
+	if(!was_flying)
+		GiveActorInventory(victim, "TakeFlight", 1);
+	else {
+		GiveActorInventory(victim, "AllowFloat", 1);
+		// flying monsters need the line below, they dont move up or down otherwise for some reason
+		SetActorVelocity(victim, 0, 0, 1, true, false);
+	}
+	
+	// apply the damage
+	int height_factor = (GRAVDIS_HEIGHT_FACTOR * height / GRAVDIS_HEIGHTADD_PER) >> 16;
+	SetActivator(dmg_source);
+	HandleImpactDamage(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_DAMAGEFLAG_FOILINVUL, DND_WEAPON_GRAVDIS);
+	ACS_NamedExecuteWithResult("DnD Gravdis FX Spawner", victim, 1);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Gravdis FX Spawner" (int id, int which) CLIENTSIDE {
+	switch(which) {
+		case 0:
+			GiveActorInventory(id, "GravdisPullFX_Spawner", 1);
+		break;
+		case 1:
+			GiveActorInventory(id, "GravdisLandFX_Spawner", 1);
+		break;
+	}
+}
+
+Script "DnD Gravdis Hit Fx" (int r) CLIENTSIDE {
+	int p = 0;
+	int x = GetActorX(0);
+	int y = GetActorY(0);
+	int z = GetActorZ(0);
+	
+	for(int i = 0; i < GRAVDIS_CIRCLE_PARTICLES; ++i) {
+		p = 1.0 / (GRAVDIS_CIRCLE_PARTICLES - 1) * i;
+		SpawnForced("GravdisBorderParticle", x + r * cos(p), y + r * sin(p), z, 0);
+	}
+}
+
+// This script is used just to stack the elevation portion from multiple sources, but whoever initially triggered the first one will get all credit
+Script "DnD Gravdis Elevate" (int victim, int damage, int base_dmg) {
+	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS) / (4 * damage / base_dmg), 16, 4096);
+	
+	GiveActorInventory(victim, "AllowFlight", 1);
+	
+	for(int i = 0; i < HALF_TICRATE; ++i) {
+		SetActorVelocity(victim, 0, 0, GRAVDIS_FLING_FACTOR * cos((0.25 / (HALF_TICRATE - 1)) * i) / m, true, false);
+		Delay(const:1);
+	}
+	
+	SetActorVelocity(victim, 0, 0, 0, false, false);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Toggle NoPain" (void) {
+	// only take away this if the monster initially did not have it, some monsters have this and we dont want to deprive it of that flag
+	if(!MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_NOPAIN])
+		GiveInventory("TakeNoPain", 1);
 }
 
 Script "DND Orb Use Message" (int affluence) CLIENTSIDE {

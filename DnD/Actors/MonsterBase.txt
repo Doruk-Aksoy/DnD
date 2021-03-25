@@ -83,6 +83,19 @@ Actor DnD_BaseMonster {
 			"####" "###" 0 A_SpawnItemEx("ColdSmoke", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(24, height + 16) / 2, frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.75, 0.75))
 			"####" "#" 1 A_JumpIfInventory("DnD_FreezeTimer", 1, "Frozen")
 		Goto See
+		
+		GravdisFling:
+			"####" "#" 0 A_Pain
+			"####" "#" 0 A_ChangeFlag("NOPAIN", 1)
+		GravdisLoopStart:
+			"####" "#" 1 A_JumpIfInventory("GravdisDebuff", 1, "GravdisLoop")
+		Goto GravdisEnd
+		GravdisLoop:
+			"####" "##" 3 A_SpawnItemEx("GravdisParticle", frandom(-radius, radius), frandom(-radius, radius), frandom(0, -8), 0, 0, frandom(-16, -2))
+		Goto GravdisLoopStart
+		GravdisEnd:
+			"####" "#" 1 ACS_NamedExecuteWithResult("DnD Toggle NoPain")
+		Goto See
 	
 		Death:
 			"####" "#" 0 A_StopSound(CHAN_ITEM)

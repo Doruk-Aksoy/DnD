@@ -41,3 +41,6 @@ texture DBLUD1
 	
 texture HMAWA1
 	range HMAWA3 tics 4.0 oscillate
+	
+texture GRAVD0
+	range GRAVD9 tics 3.0
