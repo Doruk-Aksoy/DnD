@@ -243,6 +243,8 @@ Actor SawedoffPickup : CustomInventory
 		Fail
 		Success:
 			TNT1 A 0 A_GiveInventory("Sawedoff", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SAWEDOFF)
 			TNT1 A 0 A_GiveInventory("SawedoffShell", random(6, 16) + ACS_ExecuteWithResult(918, 0, 1, random(6, 16)))
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
@@ -291,6 +293,7 @@ Actor SawedOffPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Sawedoff", 1)
 			TNT1 A 0 A_GiveToTarget("SawedoffShell", mass)
 			TNT1 A 0 A_GiveToTarget("SawedOffMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SAWEDOFF, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -861,6 +864,8 @@ Actor SoulRenderPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Soul Render", 1)
 			TNT1 A 0 A_GiveInventory("BladeHits", 15 * random(1, 3))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SOULRENDER)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -906,6 +911,7 @@ Actor SoulRenderPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Soul Render", 1)
 			TNT1 A 0 A_GiveToTarget("BladeHits", mass)
 			TNT1 A 0 A_GiveToTarget("SoulRenderMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SOULRENDER, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -1054,6 +1060,8 @@ Actor SMGPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("SMG", 1)
 			TNT1 A 0 A_GiveInventory("SMGAmmo", random(35, 80) + ACS_ExecuteWithResult(918, 0, 1, random(35, 80)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SMG)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -1100,6 +1108,7 @@ Actor SMGPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("SMG", 1)
 			TNT1 A 0 A_GiveToTarget("SMGAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("SMGMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SMG, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -1374,6 +1383,8 @@ Actor HellforgeCannonPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Hellforge Cannon", 1)
 			TNT1 A 0 A_GiveInventory("IronBalls", random(10, 16) + ACS_ExecuteWithResult(918, 0, 1, random(10, 16)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_HELLFORGECANNON)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -1419,6 +1430,7 @@ Actor HellForgePickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Hellforge Cannon", 1)
 			TNT1 A 0 A_GiveToTarget("IronBalls", mass)
 			TNT1 A 0 A_GiveToTarget("HellForgeMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_HELLFORGECANNON, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -1718,6 +1730,8 @@ Actor SpinePickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Bloodfiend Spine", 1)
 			TNT1 A 0 A_GiveInventory("BloodAmmo", random(4, 24) + ACS_ExecuteWithResult(918, 0, 1, random(4, 24)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_BLOODFIENDSPINE)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -1765,6 +1779,7 @@ Actor SpinePickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Bloodfiend Spine", 1)
 			TNT1 A 0 A_GiveToTarget("BloodAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("SpineMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_BLOODFIENDSPINE, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -1963,6 +1978,8 @@ Actor LaserPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Enforcer Rifle", 1)
 			TNT1 A 0 A_GiveInventory("LaserAmmo", random(15, 45) + ACS_ExecuteWithResult(918, 0, 1, random(15, 45)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_ENFORCERRIFLE)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -2010,6 +2027,7 @@ Actor LaserPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Enforcer Rifle", 1)
 			TNT1 A 0 A_GiveToTarget("LaserAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("LaserMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_ENFORCERRIFLE, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -2384,6 +2402,8 @@ Actor VenomPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Venom", 1)
 			TNT1 A 0 A_GiveInventory("VenomAmmo", random(15, 25) + ACS_ExecuteWithResult(918, 0, 1, random(15, 25)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_VENOM)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -2430,6 +2450,7 @@ Actor VenomPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Venom", 1)
 			TNT1 A 0 A_GiveToTarget("VenomAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("VenomMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_VENOM, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -2682,6 +2703,8 @@ Actor DemonHeartPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Demon Heart", 1)
 			TNT1 A 0 A_GiveInventory("HeartAmmo", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_DEMONHEART)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -2726,6 +2749,7 @@ Actor DemonHeartPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Demon Heart", 1)
 			TNT1 A 0 A_GiveToTarget("HeartAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("HeartMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_DEMONHEART, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -2989,6 +3013,8 @@ Actor DarkServantGlovesPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("DarkServantGloves", 1)
 			TNT1 A 0 A_GiveInventory("DarkServantEnergy", random(30, 45) + ACS_ExecuteWithResult(918, 0, 1, random(30, 45)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_DARKGLOVES)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -3034,6 +3060,7 @@ Actor DarkServantGlovesPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("DarkServantGloves", 1)
 			TNT1 A 0 A_GiveToTarget("DarkServantEnergy", mass)
 			TNT1 A 0 A_GiveToTarget("DarkServantGlovesMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_DARKGLOVES, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -3267,6 +3294,8 @@ Actor Nailgun2Pickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Nailgun2", 1)
 			TNT1 A 0 A_GiveInventory("BigNail", random(40, 56) + ACS_ExecuteWithResult(918, 0, 1, random(40, 56)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_HEAVYNAILGUN)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -3312,6 +3341,7 @@ Actor Nailgun2Pickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Nailgun2", 1)
 			TNT1 A 0 A_GiveToTarget("BigNail", mass)
 			TNT1 A 0 A_GiveToTarget("Nailgun2Msg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_HEAVYNAILGUN, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -3473,6 +3503,8 @@ Actor BerettasPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Berettas", 1)
 			TNT1 A 0 A_GiveInventory("BerettaAmmo", 2 * random(3, 8) + ACS_ExecuteWithResult(918, 0, 1, 2 * random(3, 8)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_BERETTAS)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -3519,6 +3551,7 @@ Actor BerettasPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Berettas", 1)
 			TNT1 A 0 A_GiveToTarget("BerettaAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("BerettasMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_BERETTAS, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -3806,6 +3839,8 @@ Actor PlasmaBolterPickup : CustomInventory
 		Success:
 			TNT1 A 0 A_GiveInventory("Plasma Bolter", 1)
 			TNT1 A 0 A_GiveInventory("PlasmaBolterAmmo", random(15, 30) + ACS_ExecuteWithResult(918, 0, 1, random(15, 30)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_PLASMABOLTER)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -3851,6 +3886,7 @@ Actor PlasmaBolterPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Plasma Bolter", 1)
 			TNT1 A 0 A_GiveToTarget("PlasmaBolterAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("PlasmaBolterMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_PLASMABOLTER, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }
@@ -4031,6 +4067,8 @@ Actor RipperCannonPickup : CustomInventory {
 		Success:
 			TNT1 A 0 A_GiveInventory("Ripper Cannon", 1)
 			TNT1 A 0 A_GiveInventory("RipperCannonAmmo", random(15, 36) + ACS_ExecuteWithResult(918, 0, 1, random(15, 36)))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_RIPPERCANNON)
 			TNT1 A 0 A_JumpIfInventory("Ability_Temporal", 1, "GiveMore")
 		Stop
 		GiveMore:
@@ -4077,6 +4115,7 @@ Actor RipperCannonPickup_D : DND_DroppedItem {
 			TNT1 A 0 A_GiveToTarget("Ripper Cannon", 1)
 			TNT1 A 0 A_GiveToTarget("RipperCannonAmmo", mass)
 			TNT1 A 0 A_GiveToTarget("RipperCannonMsg", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_RIPPERCANNON, ACS_NamedExecuteWithResult("DnD Get Target"))
 		stop
 	}
 }

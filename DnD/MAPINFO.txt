@@ -5,6 +5,7 @@ gameinfo {
 	AddPlayerClasses	= "ThePunisher"
 	AddPlayerClasses	= "TheWanderer"
 	AddPlayerClasses    = "TheCyborg"
+	AddPlayerClasses	= "TheBerserker"
 	norandomplayerclass = true
 	//translator = "XLAT.txt"
 	intermissionmusic = "INTER1"

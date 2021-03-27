@@ -21,6 +21,7 @@ Thanks to:
 - ETTINGRINDER (Sprites)
 - Eriance (Many sprites for monsters and weapons)
 - Kappes Buur (Sprites?)
+- TerminusEst13 (Mugshot for Berserker)
 - Nash (Codebase for gore)
 - Tiberium Soul / TheRailgunner (Heavy MG Sprites)
 - TheRailgunner (Sprites)

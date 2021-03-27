@@ -11,6 +11,7 @@ Actor ChainsawPickup : CustomInventory replaces Chainsaw {
 		Goto Success
 		Success:
 			TNT1 A 0 A_GiveInventory(" Chainsaw ", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_CHAINSAW)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
 		Stop
 		WeaponStay:
@@ -21,6 +22,7 @@ Actor ChainsawPickup : CustomInventory replaces Chainsaw {
 			TNT1 A 0 A_PlaySound("weapons/pickup", 5)
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 			TNT1 A 0 A_GiveInventory(" Chainsaw ", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_CHAINSAW)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
 		Fail
 	}
@@ -43,6 +45,7 @@ Actor ShotgunPickup : CustomInventory replaces Shotgun {
 		Success:
 			TNT1 A 0 A_GiveInventory(" Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SHOTGUN)
 			TNT1 A 0 A_GiveInventory("Shell", 8 + ACS_ExecuteWithResult(918, 0, 1, 8))
 		Stop
 		GiveAmmo:
@@ -61,6 +64,7 @@ Actor ShotgunPickup : CustomInventory replaces Shotgun {
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 			TNT1 A 0 A_GiveInventory(" Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SHOTGUN)
 			TNT1 A 0 A_GiveInventory("Shell", 8 + ACS_ExecuteWithResult(918, 0, 1, 8))
 		Fail
 	}
@@ -74,6 +78,7 @@ Actor ShotgunPickup_Drop : ShotgunPickup {
 		Success:
 			TNT1 A 0 A_GiveInventory(" Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SHOTGUN)
 			TNT1 A 0 A_GiveInventory("Shell", 4 + ACS_ExecuteWithResult(918, 0, 1, 4))
 		Stop
 		GiveAmmo:
@@ -101,6 +106,7 @@ Actor SuperShotgunPickup : CustomInventory replaces SuperShotgun {
 		Success:
 			TNT1 A 0 A_GiveInventory(" Super Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SUPERSHOTGUN)
 			TNT1 A 0 A_GiveInventory("Shell", 8 + ACS_ExecuteWithResult(918, 0, 1, 8))
 		Stop
 		GiveAmmo:
@@ -119,6 +125,7 @@ Actor SuperShotgunPickup : CustomInventory replaces SuperShotgun {
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 			TNT1 A 0 A_GiveInventory(" Super Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SUPERSHOTGUN)
 			TNT1 A 0 A_GiveInventory("Shell", 8 + ACS_ExecuteWithResult(918, 0, 1, 8))
 		Fail
 	}
@@ -132,6 +139,7 @@ Actor SuperShotgunPickup_Drop : SuperShotgunPickup {
 		Success:
 			TNT1 A 0 A_GiveInventory(" Super Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SUPERSHOTGUN)
 			TNT1 A 0 A_GiveInventory("Shell", 4 + ACS_ExecuteWithResult(918, 0, 1, 4))
 		Stop
 		GiveAmmo:
@@ -159,6 +167,7 @@ Actor MachinegunPickup : CustomInventory replaces Chaingun {
 		Success:
 			TNT1 A 0 A_GiveInventory(" Machine gun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_MACHINEGUN)
 			TNT1 A 0 A_GiveInventory("Clip", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
 		Stop
 		GiveAmmo:
@@ -177,6 +186,7 @@ Actor MachinegunPickup : CustomInventory replaces Chaingun {
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 			TNT1 A 0 A_GiveInventory(" Machine gun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_MACHINEGUN)
 			TNT1 A 0 A_GiveInventory("Clip", 20 + ACS_ExecuteWithResult(918, 0, 1, 20))
 		Fail
 	}
@@ -190,6 +200,7 @@ Actor MachinegunPickup_Drop : MachinegunPickup {
 		Success:
 			TNT1 A 0 A_GiveInventory(" Machine gun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_MACHINEGUN)
 			TNT1 A 0 A_GiveInventory("Clip", 10 + ACS_ExecuteWithResult(918, 0, 1, 10))
 		Stop
 		GiveAmmo:
@@ -217,6 +228,7 @@ Actor RocketLauncherPickup : CustomInventory replaces RocketLauncher {
 		Success:
 			TNT1 A 0 A_GiveInventory("Rocket Launcher", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_ROCKETLAUNCHER)
 			TNT1 A 0 A_GiveInventory("RocketAmmo", 2 + ACS_ExecuteWithResult(918, 0, 1, 2))
 		Stop
 		GiveAmmo:
@@ -235,6 +247,7 @@ Actor RocketLauncherPickup : CustomInventory replaces RocketLauncher {
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 			TNT1 A 0 A_GiveInventory("Rocket Launcher", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_ROCKETLAUNCHER)
 			TNT1 A 0 A_GiveInventory("RocketAmmo", 2 + ACS_ExecuteWithResult(918, 0, 1, 2))
 		Fail
 	}
@@ -255,6 +268,7 @@ Actor PlasmaRiflePickup : CustomInventory replaces PlasmaRifle {
 		Success:
 			TNT1 A 0 A_GiveInventory("Plasma Rifle", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_PLASMARIFLE)
 			TNT1 A 0 A_GiveInventory("Cell", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
 		Stop
 		GiveAmmo:
@@ -273,6 +287,7 @@ Actor PlasmaRiflePickup : CustomInventory replaces PlasmaRifle {
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 			TNT1 A 0 A_GiveInventory("Plasma Rifle", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_PLASMARIFLE)
 			TNT1 A 0 A_GiveInventory("Cell", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
 		Fail
 	}
@@ -293,6 +308,7 @@ Actor BFGPickup : CustomInventory replaces BFG9000 {
 		Success:
 			TNT1 A 0 A_GiveInventory("BFG 9000", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_BFG6000)
 			TNT1 A 0 A_GiveInventory("Cell", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
 		Stop
 		GiveAmmo:
@@ -311,6 +327,7 @@ Actor BFGPickup : CustomInventory replaces BFG9000 {
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 			TNT1 A 0 A_GiveInventory("BFG 9000", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_BFG6000)
 			TNT1 A 0 A_GiveInventory("Cell", 40 + ACS_ExecuteWithResult(918, 0, 1, 40))
 		Fail
 	}

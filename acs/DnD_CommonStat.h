@@ -438,6 +438,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk5", 1);
 				TakeInventory("Wanderer_Perk5", 1);
 				TakeInventory("Cyborg_Perk5", 1);
+				TakeInventory("Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_MARINE:
 				GiveInventory("Marine_Perk5", 1);
@@ -446,6 +447,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk5", 1);
 				TakeInventory("Wanderer_Perk5", 1);
 				TakeInventory("Cyborg_Perk5", 1);
+				TakeInventory("Berserker_Perk5", 1);
 			break;			
 			case DND_PLAYER_HOBO:
 				GiveInventory("Hobo_Perk5", 1);
@@ -454,6 +456,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk5", 1);
 				TakeInventory("Wanderer_Perk5", 1);
 				TakeInventory("Cyborg_Perk5", 1);
+				TakeInventory("Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
 				GiveInventory("Punisher_Perk5", 1);
@@ -462,6 +465,7 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk5", 1);
 				TakeInventory("Wanderer_Perk5", 1);
 				TakeInventory("Cyborg_Perk5", 1);
+				TakeInventory("Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_WANDERER:
 				GiveInventory("Wanderer_Perk5", 1);
@@ -470,6 +474,7 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk5", 1);
 				TakeInventory("Punisher_Perk5", 1);
 				TakeInventory("Cyborg_Perk5", 1);
+				TakeInventory("Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_CYBORG:
 				GiveInventory("Cyborg_Perk5", 1);
@@ -478,6 +483,17 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk5", 1);
 				TakeInventory("Punisher_Perk5", 1);
 				TakeInventory("Wanderer_Perk5", 1);
+				TakeInventory("Berserker_Perk5", 1);
+			break;
+			case DND_PLAYER_BERSERKER:
+				GiveInventory("Berserker_Perk5", 1);
+				TakeInventory("Doomguy_Perk5", 1);
+				TakeInventory("Marine_Perk5", 1);
+				TakeInventory("Hobo_Perk5", 1);
+				TakeInventory("Punisher_Perk5", 1);
+				TakeInventory("Wanderer_Perk5", 1);
+				TakeInventory("Cyborg_Perk5", 1);
+				TakeInventory("Berserker_Perk5", 1);
 			break;
 		}
 	}
@@ -492,6 +508,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk25", 1);
 				TakeInventory("Wanderer_Perk25", 1);
 				TakeInventory("Cyborg_Perk25", 1);
+				TakeInventory("Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_MARINE:
 				GiveInventory("Marine_Perk25", 1);
@@ -500,6 +517,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk25", 1);
 				TakeInventory("Wanderer_Perk25", 1);
 				TakeInventory("Cyborg_Perk25", 1);
+				TakeInventory("Berserker_Perk25", 1);
 			break;			
 			case DND_PLAYER_HOBO:
 				GiveInventory("Hobo_Perk25", 1);
@@ -508,6 +526,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk25", 1);
 				TakeInventory("Wanderer_Perk25", 1);
 				TakeInventory("Cyborg_Perk25", 1);
+				TakeInventory("Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
 				GiveInventory("Punisher_Perk25", 1);
@@ -516,6 +535,7 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk25", 1);
 				TakeInventory("Wanderer_Perk25", 1);
 				TakeInventory("Cyborg_Perk25", 1);
+				TakeInventory("Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_WANDERER:
 				GiveInventory("Wanderer_Perk25", 1);
@@ -524,6 +544,7 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk25", 1);
 				TakeInventory("Punisher_Perk25", 1);
 				TakeInventory("Cyborg_Perk25", 1);
+				TakeInventory("Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_CYBORG:
 				GiveInventory("Cyborg_Perk25", 1);
@@ -532,6 +553,17 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk25", 1);
 				TakeInventory("Punisher_Perk25", 1);
 				TakeInventory("Wanderer_Perk25", 1);
+				TakeInventory("Berserker_Perk25", 1);
+			break;
+			case DND_PLAYER_BERSERKER:
+				GiveInventory("Berserker_Perk25", 1);
+				TakeInventory("Doomguy_Perk25", 1);
+				TakeInventory("Marine_Perk25", 1);
+				TakeInventory("Hobo_Perk25", 1);
+				TakeInventory("Punisher_Perk25", 1);
+				TakeInventory("Wanderer_Perk25", 1);
+				TakeInventory("Cyborg_Perk25", 1);
+				TakeInventory("Berserker_Perk25", 1);
 			break;
 		}
 	}
@@ -546,6 +578,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk50", 1);
 				TakeInventory("Wanderer_Perk50", 1);
 				TakeInventory("Cyborg_Perk50", 1);
+				TakeInventory("Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_MARINE:
 				GiveInventory("Marine_Perk50", 1);
@@ -554,6 +587,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk50", 1);
 				TakeInventory("Wanderer_Perk50", 1);
 				TakeInventory("Cyborg_Perk50", 1);
+				TakeInventory("Berserker_Perk50", 1);
 			break;			
 			case DND_PLAYER_HOBO:
 				GiveInventory("Hobo_Perk50", 1);
@@ -562,6 +596,7 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk50", 1);
 				TakeInventory("Wanderer_Perk50", 1);
 				TakeInventory("Cyborg_Perk50", 1);
+				TakeInventory("Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
 				GiveInventory("Punisher_Perk50", 1);
@@ -570,6 +605,7 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk50", 1);
 				TakeInventory("Wanderer_Perk50", 1);
 				TakeInventory("Cyborg_Perk50", 1);
+				TakeInventory("Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_WANDERER:
 				GiveInventory("Wanderer_Perk50", 1);
@@ -578,6 +614,7 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk50", 1);
 				TakeInventory("Punisher_Perk50", 1);
 				TakeInventory("Cyborg_Perk50", 1);
+				TakeInventory("Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_CYBORG:
 				GiveInventory("Cyborg_Perk50", 1);
@@ -586,6 +623,16 @@ void HandleClassPerks() {
 				TakeInventory("Hobo_Perk50", 1);
 				TakeInventory("Punisher_Perk50", 1);
 				TakeInventory("Wanderer_Perk50", 1);
+				TakeInventory("Berserker_Perk50", 1);
+			break;
+			case DND_PLAYER_BERSERKER:
+				GiveInventory("Berserker_Perk50", 1);
+				TakeInventory("Doomguy_Perk50", 1);
+				TakeInventory("Marine_Perk50", 1);
+				TakeInventory("Hobo_Perk50", 1);
+				TakeInventory("Punisher_Perk50", 1);
+				TakeInventory("Wanderer_Perk50", 1);
+				TakeInventory("Cyborg_Perk50", 1);
 			break;
 		}
 	}

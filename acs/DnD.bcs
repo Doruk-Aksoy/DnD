@@ -947,17 +947,9 @@ Script 832 (void) {
 
 // Weapon pickup checks, bulkiness armor check and agamotto check
 Script 891 ENTER {
-	int i, temp;
-	while(1) {
-		i = 0;
-		while(i < MAXWEPS) {
-			if(CheckInventory(Weapons[i][WEAPON_NAME]) && !CheckInventory(Weapons[i][WEAPON_GOT])) {
-				Delay(5);
-				GiveInventory(Weapons[i][WEAPON_GOT], 1);
-			}
-			++i;
-		}
-		
+	int temp;
+	int pnum = PlayerNumber();
+	while(PlayerInGame(pnum)) {
 		// Bulkiness
 		if(CheckInventory("Armor")) {
 			temp = GetBulkiness();
@@ -1078,29 +1070,15 @@ Script 891 ENTER {
 Script 895 ENTER CLIENTSIDE {
 	int i;
 	NamedRequestScriptPuke("DnD User Dash Status Receive", GetCVar("dnd_dashstatus"));
-	while(1) {
+	while(isAlive()) {
 		i = 0;
 		if(CheckInventory("LeveledUp")) {
 			Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has leveled up to\c- \cv", d:CheckInventory("Level"), s:"\c-\c[Y5]!");
-			if(CheckInventory("TalentedUp"))
-				Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has gained a\c- \cjtalent point\c-!");
 			if(CheckInventory("PerkedUp"))
 				Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has gained a\c- \cjperk point\c-!");
 			TakeInventory("LeveledUp", 1);
 		}
-		if(GetCVar("dnd_weapontips") && !CheckInventory("ParsingData")) {
-			while(i < MAXWEPS) {
-				str check = Weapons[i][WEAPON_NAME];
-				if(StrLen(check) && CheckInventory(check) && !CheckInventory(Weapons[i][WEAPON_GOT])) {
-					ACS_ExecuteAlways(977, 0, 0, i);
-					GiveInventory(Weapons[i][WEAPON_GOT], 1);
-					GiveInventory("TipBoxOpen", 1);
-					Delay(5);
-				}
-				++i;
-			}
-		}
-		Delay(5);
+		Delay(const:5);
 	}
 }
 
@@ -1159,13 +1137,20 @@ Script 902 (int forceset, int id) CLIENTSIDE {
 }
 
 // Current weapon tip
-
 Script 903 (void) NET CLIENTSIDE {
-	if(!CheckInventory("TipBoxOpen")) {
-		int curweap = GetCurrentWeaponID();
-		ACS_ExecuteAlways(977, 0, 0, curweap);
-		GiveInventory("TipBoxOpen", 1);
-	}
+	DoWeaponTip(GetCurrentWeaponID());
+}
+
+Script "DnD Weapon Tip Trigger" (int wepid, int targetToUse) CLIENTSIDE {
+	if(targetToUse)
+		SetActivator(targetToUse);
+		
+	// just tucked here for convenience
+	ACS_NamedExecuteAlways("DND Mugshot Grin", 0);
+		
+	if(GetCVar("dnd_weapontips"))
+		Terminate;
+	DoWeaponTip(wepid);
 }
 
 // 904 is used by the menu
@@ -4781,7 +4766,14 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	
 	// show the class images
 	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_MUG]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 288.4, 112.1, 0.0);
+	if(ctype == DND_PLAYER_BERSERKER)
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 300.0, 112.1, 0.0);
+	else if(ctype == DND_PLAYER_MARINE)
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 296.0, 112.1, 0.0);
+	else if(ctype == DND_PLAYER_WANDERER)
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 292.0, 116.1, 0.0);
+	else
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 288.0, 112.1, 0.0);
 	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_FRAMELEFT]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_LEFTIMG, -1, 80.4, 208.1, 0.0);
 	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_FRAMERIGHT]);

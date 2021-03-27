@@ -1993,7 +1993,7 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	{
 		{
 			"RESBAK29",
-			"Nano-technology is finally here! Unlocks certain abilities."
+			"Nano-technology is finally here! Unlocks cybernetic abilities."
 		},
 		{
 			"RESBAK27",
@@ -2290,10 +2290,11 @@ enum {
 	POPUP_OUTOFSTOCK,
 	POPUP_NOARMORWORN,
 	POPUP_ARMORISFULL,
-	POPUP_NOREPAIRTOKENS
+	POPUP_NOREPAIRTOKENS,
+	POPUP_YOUARENTALLOWED
 };
 
-#define MAX_POPUPS (POPUP_NOREPAIRTOKENS + 1)
+#define MAX_POPUPS (POPUP_YOUARENTALLOWED + 1)
 str PopupText[MAX_POPUPS] = {
 	"",
 	"Insufficient funds.",
@@ -2321,7 +2322,8 @@ str PopupText[MAX_POPUPS] = {
 	"Out of stock! Wait\nnext map to restock.",
 	"You don't have an\narmor equipped!",
 	"Armor isn't damaged!",
-	"You don't have any\nrepair tokens!"
+	"You don't have any\nrepair tokens!",
+	"You aren't allowed\nto buy this item!"
 };
 
 #define MAX_HELPTEXT_RESEARCH 5

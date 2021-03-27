@@ -790,7 +790,16 @@ int CanTrade (int id, int tradeflag, int price) {
 				cond2 = !IsBackpackLimitReached();
 		}
 		else { // weapon
-			cond3 = !CheckInventory(item);
+			if(CheckInventory("Berserker_Perk5")) {
+				if(id <= SHOP_WEAPON_SLOT1END)
+					cond3 = true;
+				else if(id >= SHOP_WEP_BFG)
+					return POPUP_YOUARENTALLOWED;
+				else
+					cond3 = !CheckInventory(item);
+			}
+			else
+				cond3 = !CheckInventory(item);
 			cond2 = cond3 && !CheckInventory(wepcheck);
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
@@ -1232,6 +1241,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				ResetWeaponStats(ShopTableIdToWeaponTableId(itemid));
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
 				TakeInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
+				
 				// reset buffs of weapon
 				GiveInventory("Credit", price);
 				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);

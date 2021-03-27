@@ -4142,6 +4142,422 @@ Graphic "CYGXDTH4", 24, 31
 	Patch "CYGDEAD0", 0, 0
 }
 
+Graphic "BERDEAD0", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BEREVL0", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BEREVL0", 0, 0
+}
+
+Graphic "BEREVL1", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BEREVL1", 0, 0
+}
+
+Graphic "BEREVL2", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BEREVL2", 0, 0
+}
+
+Graphic "BEREVL3", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BEREVL3", 0, 0
+}
+
+Graphic "BEREVL4", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BEREVL4", 0, 0
+}
+
+Graphic "BERGOD0", 41, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERGOD0", 0, 0
+}
+
+Graphic "BERKILL0", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERKILL0", 0, 0
+}
+
+Graphic "BERKILL1", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERKILL1", 0, 0
+}
+
+Graphic "BERKILL2", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERKILL2", 0, 0
+}
+
+Graphic "BERKILL3", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERKILL3", 0, 0
+}
+
+Graphic "BERKILL4", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERKILL4", 0, 0
+}
+
+Graphic "BERST00", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST01", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST02", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST03", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST04", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST10", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST11", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST12", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST13", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST14", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST20", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST21", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST22", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST23", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST24", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST30", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST31", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST32", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST33", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST34", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST40", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERST41", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERST42", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERST43", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERST44", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERTL00", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERTL10", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERTL20", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERTL30", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERTL40", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERTR00", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERTR10", 40, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERTR20", 39, 39
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERTR30", 39, 37
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERTR40", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERXDTH0", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH1", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH2", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH3", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH4", 35, 34
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERDEAD0", 0, 0
+}
+
 Sprite "DB21J0", 128, 128
 {
 	Offset 64, 64

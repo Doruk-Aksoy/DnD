@@ -129,6 +129,18 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"+ L5: Energy attacks deal 15% less damage to you.",
 		"+ L25: Cybernetic enhancements are 30% more effective.",
 		"+ L50: Energy weapons do irreducible damage."
+	},
+	{
+		"TheBerserker",
+		"The Berserker",
+		"Hailing from the mountains, his courage, bravery... recklessness, all impeccable tools against destroying demons. After having lost his fellow townsfolk to a demon invasion, he volunteered to fight for UAC. It's time for demons to meet Ragnarok.",
+		"P7_LIMG",
+		"P7_RIMG",
+		"BEREVL0",
+		
+		"+ L5: Can carry unlimited melee weapons. Can't buy any super weapon.",
+		"+ L25: Melee hits release three shockwaves dealing 250 melee damage to all targets it passes through. This can occur once every 2 seconds.",
+		"+ L50: Melee hits give 0.5% movement speed and 5% damage. Max 50 stacks. At max stacks, you can't be cursed. Lose a stack every 2 seconds when not gaining any."
 	}
 };
 

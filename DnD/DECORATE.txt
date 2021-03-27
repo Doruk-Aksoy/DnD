@@ -8,7 +8,9 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/DamageTypes.txt"
 #include "Actors/ProjectileBase.txt"
 
+#include "Actors/WeaponIDs.txt"
 #include "Actors/Items/Weapons.txt"
+
 #include "Actors/Items/Credits.txt"
 #include "Actors/Items/Health.txt"
 #include "Actors/Items/Accessories.txt"
@@ -56,7 +58,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Player.txt"
 #include "Actors/ClassPerks.txt"
 #include "Actors/Decorations.txt"
-#include "Actors/WeaponIDs.txt"
 #include "Actors/Curses.txt"
 
 #include "Actors/Weapons/SpecialAmmo.txt"

@@ -1098,4 +1098,11 @@ int GetPetMonsterTraits(int monster_id, int segment) {
 	return ret;
 }
 
+void DoWeaponTip(int curweap) {
+	if(!CheckInventory("TipBoxOpen")) {
+		ACS_ExecuteAlways(977, 0, 0, curweap);
+		GiveInventory("TipBoxOpen", 1);
+	}
+}
+
 #include "DnD_Damage.h"

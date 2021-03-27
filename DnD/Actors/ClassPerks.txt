@@ -742,5 +742,8 @@ Actor Cyborg_Perk5 : PowerProtection {
 }
 
 Actor Cyborg_Perk25 : DnD_Boolean { }
-
 Actor Cyborg_Perk50 : DnD_Boolean { }
+
+Actor Berserker_Perk5 : DnD_Boolean { }
+Actor Berserker_Perk25 : DnD_Boolean { }
+Actor Berserker_Perk50 : DnD_Boolean { }
