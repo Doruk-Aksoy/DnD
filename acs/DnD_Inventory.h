@@ -1385,12 +1385,12 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 			offset = -64;
 			by -= 8.0;
 		}
-		if (GetAspectRatio() == ASPECT_4_3)
-			SetHudClipRect(-96 + 72, 80 + offset, 264 + 72, 224, 264 + 72, 1);
+		if (GetAspectRatio() == ASPECT_4_3) // +72
+			SetHudClipRect(-96 + 72, 80 + offset, 336, 288, 336, 1);
 		else if (GetAspectRatio() == ASPECT_16_10)
-			SetHudClipRect(-96 + 45, 80 + offset, 264, 224, 264, 1);
+			SetHudClipRect(-96 + 45, 80 + offset, 264, 288, 264, 1);
 		else
-			SetHudClipRect(-96, 80 + offset, 264, 224, 264, 1);
+			SetHudClipRect(-96, 80 + offset, 264, 288, 264, 1);
 		DrawInventoryText_Field(topboxid, source, bx, by, itype);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
@@ -1826,15 +1826,6 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			else
 				temp = ((temp & 0xFFFF) - aval) | (((temp >> 16) - i) << 16);
 			SetInventory(GetPlayerAttributeValue(pnum, atype), aval);
-		break;
-		case INV_EX_ALWAYSCRIT_LIGHTNING:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_AlwaysCritLightning", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			if(CheckInventory("StatbuffCounter_AlwaysCritLightning"))
-				SetInventory(Inv_Attribute_Names[i][INVATTR_CHECKER], SetBit(temp, DND_STATBUFF_ALWAYSCRITLIGHTNING));
-			else
-				SetInventory(Inv_Attribute_Names[i][INVATTR_CHECKER], ClearBit(temp, DND_STATBUFF_ALWAYSCRITLIGHTNING));
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();

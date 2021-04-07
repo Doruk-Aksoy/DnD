@@ -183,7 +183,8 @@ bool HasTraitExceptions(int t) {
 			(t == DND_BULLET_RESIST && HasTrait(i, DND_BULLET_IMMUNE)) 						||
 			(t == DND_ENERGY_RESIST && HasTrait(i, DND_ENERGY_IMMUNE)) 						|| 
 			(t == DND_MAGIC_RESIST && HasTrait(i, DND_MAGIC_IMMUNE)) 						|| 
-			(t == DND_ELEMENTAL_RESIST && HasTrait(i, DND_ELEMENTAL_IMMUNE));
+			(t == DND_ELEMENTAL_RESIST && HasTrait(i, DND_ELEMENTAL_IMMUNE))				||
+			(t == DND_REBIRTH && (HasTrait(i, DND_SUMMONED) || HasTrait(i, DND_REVIVED)));
 }
 
 bool HasMaxImmunes() {

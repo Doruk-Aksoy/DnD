@@ -57,7 +57,7 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		
 		
 		"+ L5: Enemy fire attacks deal 10% less damage.",
-		"+ L25: Demons take 15% more damage if Doomguy is present in the map.",
+		"+ L25: Demons take 20% more damage if Doomguy is present in the map.",
 		"+ L50: Demons have 10% chance to drop healing orbs. Heal for 2% of enemy max health."
 	},
 	
@@ -71,8 +71,8 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"MAREVL0",
 		
 		"+ L5: Your explosives do 25% less self damage.",
-		"+ L25: Enemy explosives deal 33% less damage.",
-		"+ L50: Poison and Curse immunity."
+		"+ L25: Enemy explosives deal 33% less damage. Explosives ignore radius damage immunity.",
+		"+ L50: Poison and Curse immunity. Projectiles can't be reflected."
 	},
 	
 	// Hobo
@@ -139,8 +139,8 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"BEREVL0",
 		
 		"+ L5: Can carry unlimited melee weapons. Can't buy any super weapon.",
-		"+ L25: Melee hits release three shockwaves dealing 250 melee damage to all targets it passes through. This can occur once every 2 seconds.",
-		"+ L50: Melee hits give 0.5% movement speed and 5% damage. Max 50 stacks. At max stacks, you can't be cursed. Lose a stack every 2 seconds when not gaining any."
+		"+ L25: Gain 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.5 seconds. Heal for 15% of max health at the end at max stacks.",
+		"+ L50: Melee hits or kills give 8% damage. Max 30 stacks. At max stacks, +30% movement speed and +50% crit damage. Lose a stack every 2 seconds off combat."
 	}
 };
 

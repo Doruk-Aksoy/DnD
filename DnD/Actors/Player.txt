@@ -2224,7 +2224,7 @@ Actor TheBerserker : DnD_PlayerBase {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
 		PainCont:
 			BERP G 4 
-			BERP G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+			BERP G 4 A_Pain
 		Goto SpawnGo
 		Pain.VileGhost:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)

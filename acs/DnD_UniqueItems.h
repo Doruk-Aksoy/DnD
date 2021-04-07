@@ -194,11 +194,11 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].item_stack = 0;
 	UniqueItemList[id].attrib_count = 2;
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_DMGINCREASE_LIGHTNING;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_ALWAYSCRIT_LIGHTNING;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_MORECRIT_LIGHTNING;
 	UniqueItemList[id].rolls[0].attrib_low = 5;
 	UniqueItemList[id].rolls[0].attrib_high = 45;
-	UniqueItemList[id].rolls[1].attrib_low = 0;
-	UniqueItemList[id].rolls[1].attrib_high = 0;
+	UniqueItemList[id].rolls[1].attrib_low = 0.5;
+	UniqueItemList[id].rolls[1].attrib_high = 1.25;
 	id = UITEM_SHELLSHOCK;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;

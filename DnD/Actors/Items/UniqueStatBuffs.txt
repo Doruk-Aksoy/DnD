@@ -10,12 +10,6 @@ Actor StatbuffCounter_DoubleSmallCharm : Ammo {
 	+IGNORESKILL
 }
 
-Actor StatbuffCounter_AlwaysCritLightning : Ammo {
-	inventory.amount 1
-	inventory.maxamount 31
-	+IGNORESKILL
-}
-
 Actor StatbuffCounter_PelletsInCircle : Ammo {
 	inventory.amount 1
 	inventory.maxamount 31

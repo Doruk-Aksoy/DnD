@@ -104,28 +104,23 @@ Actor DnD_BaseMonster {
 		Wait
 		XDeath:
 		Death.Explosives:
-		Death.ExplosivesFull:
 			"####" "#" 0 A_StopSound(CHAN_ITEM)
 			"####" "#" 0 A_Jump(256, "XDeathState")
 			"####" "#" 35
 		Wait
 		
+		
 		/*
 		Damage types from spells and stuff affecting monsters go here
 		*/
 		Death.Explosives_Magic:
-		Death.Explosives_MagicFull:
 			"####" "#" 0 A_GiveInventory("MagicCausedDeath", 1)
 		Goto XDeath
 		
 		Death.Melee_Magic:
-		Death.Melee_MagicFull:
 		Death.Magic:
-		Death.MagicFull:
 		Death.MagicFire:
-		Death.MagicFireFull:
 		Death.SoulType:
-		Death.SoulTypeFull:
 			"####" "#" 0 A_GiveInventory("MagicCausedDeath", 1)
 		Goto Death
 		Death.BookOfTheDead:
@@ -160,7 +155,6 @@ Actor DnD_BaseMonster {
 			"####" "####" 1 Light("FDOfudaSealingGlow8") A_SetScale (scalex * 0.50, scaley * 0.50) // 42 tics
 		Stop
 		Death.Emerald:
-		Death.EmeraldFull:
 			"####" "#" 0 A_StopSound(CHAN_ITEM)
 			"####" "#" 0 A_Stop
 			"####" "#" 0 A_Scream
@@ -177,7 +171,6 @@ Actor DnD_BaseMonster {
 		Stop
 		Death.Ice:
 		Death.P_Ice:
-		Death.P_IceFull:
 			"####" "#" 0 A_StopSound(CHAN_ITEM)
 			"----" "#" 1 A_KillMaster
 			"----" "#" 1 A_GiveInventory("DnD_IceDeathToken", 1)

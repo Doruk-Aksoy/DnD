@@ -134,3 +134,35 @@ $playeralias			TheCyborg		Male		*death			CyborgPlayer/Die
 $playersound			TheCyborg		Male		*usefail		PCYGUSE
 $playersound			TheCyborg		Male		*grunt			PCYGLAND
 $playeralias			TheCyborg		Male		*taunt			CyborgPlayer/Taunt
+
+
+Berserker/Heal			BERSRKHP
+Berserker/Berserk		BERSERKR
+
+Berserker/GoMad1		GOMAD1
+Berserker/GoMad2		GOMAD2
+Berserker/GoMad3		GOMAD3
+Berserker/GoMad4		GOMAD4
+$random Berserker/GoMad { Berserker/GoMad1 Berserker/GoMad2 Berserker/GoMad3 Berserker/GoMad4 }
+
+BerserkerPlayer/Pain1	BERSPN1
+BerserkerPlayer/Pain2	BERSPN2
+BerserkerPlayer/Pain3	BERSPN3
+$random BerserkerPlayer/Pain { BerserkerPlayer/Pain1 BerserkerPlayer/Pain2 BerserkerPlayer/Pain3 }
+
+BerserkerPlayer/Taunt1		BERSTN1
+BerserkerPlayer/Taunt2		BERSTN2
+$random BerserkerPlayer/Taunt { BerserkerPlayer/Taunt1 BerserkerPlayer/Taunt2 }
+
+Berserker/Thunder			THNDS01
+
+$playeralias			TheBerserker		Male		*pain100		BerserkerPlayer/Pain
+$playeralias			TheBerserker		Male		*pain75			BerserkerPlayer/Pain
+$playeralias			TheBerserker		Male		*pain50			BerserkerPlayer/Pain
+$playeralias			TheBerserker		Male		*pain25			BerserkerPlayer/Pain
+$playersound			TheBerserker		Male		*land			PLYLAND
+$playersound			TheBerserker		Male		*jump			PLYJUMP
+$playersound			TheBerserker		Male		*death			BERSDTH
+$playersound			TheBerserker		Male		*usefail		BERSUSE
+$playersound			TheBerserker		Male		*grunt			PLYLAND
+$playeralias			TheBerserker		Male		*taunt			BerserkerPlayer/Taunt

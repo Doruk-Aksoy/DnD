@@ -455,3 +455,105 @@ object GravdisProjectile {
 	frame VORXI { light GravdisLightEx9 }
 	frame VORXJ { light GravdisLightEx10 }
 }
+
+flickerlight CharonLight1
+{
+    color 1.0 0.2 1.0
+    size 25
+    secondarySize 35
+    chance 0.5
+}
+
+flickerlight CharonLight2
+{
+    color 1.0 0.5 0.7
+    size 25
+    secondarySize 35
+    chance 0.5
+}
+
+flickerlight CharonLightImpact1
+{
+    color 1.0 0.5 0.7
+    size 45
+    secondarySize 50
+    chance 0.5
+}
+
+flickerlight CharonLightImpact2
+{
+    color 1.0 0.2 0.9
+    size 50
+    secondarySize 55
+    chance 0.5
+}
+
+flickerlight CharonLightImpact3
+{
+    color 1.0 0.0 1.0
+    size 55
+    secondarySize 60
+    chance 0.5
+}
+
+flickerlight CharonLightImpact4
+{
+    color 0.6 0.0 0.6
+    size 60
+    secondarySize 65
+    chance 0.5
+}
+
+flickerlight CharonLightImpact5
+{
+    color 0.3 0.0 0.3
+    size 65
+    secondarySize 70
+    chance 0.5
+}
+
+pointlight IncineratorProjectile1_Light1 {
+	color 1.0 0.75 0.0
+	size 32
+}
+
+pointlight IncineratorProjectile1_Light2 {
+	color 1.0 0.75 0.0
+	size 28
+}
+
+pointlight IncineratorProjectile1_Light3 {
+	color 1.0 0.75 0.0
+	size 24
+}
+
+pointlight IncineratorProjectile1_Light4 {
+	color 1.0 0.75 0.0
+	size 20
+}
+
+object IncineratorProjectile1 {
+	frame DRGPA { light IncineratorProjectile1_Light1 }
+	frame DRGPB { light IncineratorProjectile1_Light2 }
+	frame DRGPC { light IncineratorProjectile1_Light3 }
+	frame DRGPD { light IncineratorProjectile1_Light4 }
+	frame DRGPE { light IncineratorProjectile1_Light4 }
+}
+
+flickerlight IncineratorProjectile2_Light
+{
+    color 1.0 0.7 0.5
+    size 88
+    secondarySize 96
+    chance 0.5
+}
+
+object IncineratorProjectile2
+{
+    frame VFBL { light IncineratorProjectile2_Light }
+	frame XPL1 { light IncineratorProjectile2_Light }
+}
+
+object IncineratorProjectile2 {
+	
+}

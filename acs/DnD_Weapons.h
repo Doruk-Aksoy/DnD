@@ -32,6 +32,7 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResShotgun1",						"Deadlock",					"3",		"Shell",			"ShellSize_12",			        "RW01Z0",		"WEPICO21"	},
 	 { "ResShotgun2",                       "Nitrogen Crossbow",        "3",        "NitrogenCanister", " ",                            "WBOWA0",       "WEPICO22"	},
 	 { "ResShotgun3",						"Wheel of Torment",			"3",		"DemonBlood",		" ",							"WWOPA0",		"WEPICO23"	},
+	 { "ResShotgun4",						"Charon Blaster",			"3",		"CharonAmmo",		"CharonStacks",					"RW08Z0",		"RW08Z0"	},
 	 
 	 { " Super Shotgun ",					"Super Shotgun",			"3",		"Shell",			" ",							"SHS1Z0",		"WEPICO24"	},
 	 { "Upgraded Super Shotgun",			"Heavy Super Shotgun",		"3",		"Shell",			" ",							"SSGPA0",		"WEPICO25"	},
@@ -53,10 +54,12 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResMG2",                            "Riot Cannon",              "4",        "RiotgunShell",     "RiotgunClip",                  "RIOTI0",       "WEPICO38"	},
      { "ResMG3",							"Acid Rifle",				"4", 		"AcidAmmo",			"AcidClip",						"RIF2Y0",		"WEPICO39"	},
      { "ResMG4",							"Fusion Blaster",			"4",		"FusionCell",		"MGClip6",						"FUSPA0",		"WEPICO40"	},
+	 { "ResMG5",							"Incinerator Shotgun",		"4",		"IncineratorAmmo",	"IncineratorStacks",			"RW09Z0",		"RW09Z0"	},
 	 
 	 { "Desolator",							"Desolator Cannon",			"4",		"DesolatorAmmo",	"DesolatorOverheat",			"DES4X0",		"WEPICO41"	},
 	 { " Minigun ",							"Minigun",					"4",		"Clip",				" ",							"CHNGX0",		"WEPICO42"	},
 	 { "Ebony Cannon",						"Ebony Cannon",				"4",		"EbonyAmmo",		"EbonyAmmoX",			        "EBONICO",		"WEPICO43"	},
+	 { "MPPB",								"MP. Photon Blaster",		"4",		"Cell",				" ",							"MPPBZ0",		"MPPBZ0"	},
 	 
 	 { "Rocket Launcher",					"Rocket Launcher",			"5",		"RocketAmmo",		" ",							"LAUNICO",		"WEPICO44"	},
 	 { "Upgraded Rocket Launcher",		    "Torpedo Launcher",			"5",		"RocketAmmo",		" ",							"WPPKG0",		"WEPICO45"	},
@@ -66,10 +69,12 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResRL2",							"Heavy Grenade Launcher",	"5",		"HeavyGrenades",	"HeavyGLCounter",				"GLAUX0",		"WEPICO49"	},
 	 { "ResRL3",							"Freezer Cannon",			"5",		"EverIce",			"FreezerOverheat",				"FRZCZ0",		"WEPICO50"	},
 	 { "ResRL4",							"Gravdis 5000",				"5",		"GravdisAmmo",		" ",							"BRSGX0",		"WEPICO91"	},
+	 { "ResRL5",							"Void Cannon",				"5",		"Cell",				" ",							"RW07X0",		"RW07X0"	},
 	 
 	 { "Grenade Launcher",					"Grenade Launcher",			"5",		"Grenades",			" ",							"NGLPA0",		"WEPICO51"	},
 	 { "Upgraded Grenade Launcher",		    "Rotary Grenade Launcher",	"5",		"Grenades",			" ",							"RTGLICO",		"WEPICO52"	},
 	 { "Heavy Missile Launcher",			"Heavy Missile Launcher",	"5",		"MISAmmo",			" ",							"WMLNA0",		"WEPICO53"	},
+	 { "Sedrin Staff",						"Sedrin Staff",				"5",		"SedrinAmmo",		" ",							"SEDRX0",		"WEPICO92"	},
 	 
 	 { "Plasma Rifle",						"Plasma Rifle",				"6",		"Cell",				" ",							"NRAIE0",		"WEPICO54"	},
 	 { "Upgraded Plasma Rifle",				"Nuclear Plasma Rifle",		"6",		"Cell",				"PlasmaOverheat",		        "QNPLX0",		"WEPICO55"	},
@@ -78,6 +83,7 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResPlasma1",						"Flamethrower",				"6",		"Fuel",				"FuelClip",					    "RW05X0",		"WEPICO58"	},
 	 { "ResPlasma2",                        "Lightning Gun",            "6",        "LightningCell",    "LightningStacks",              "LTGSA0",       "WEPICO59"	},
 	 { "ResPlasma3",						"Rebounder",				"6",		"Cell",				"RebounderOverheat",			"DGAPA0",		"WEPICO60"	},
+	 { "ResPlasma4",						"Dark Lance",				"6",		"DemonBlood",		"LanceStacks",					"RW10Z0",		"RW10Z0"	},
 	 
 	 { "RhinoRifle",						"Rhino Assault Rifle",		"6",		"Clip",				"MGClip7",						"MAXPA0",		"WEPICO61"	},
 	 { "Nailgun",							"Nail Gun",					"6",		"NailgunAmmo",		" ",							"NAIGA0",		"WEPICO62"	},
@@ -180,10 +186,10 @@ int PlayerRunsOverheat[MAXPLAYERS] = { 0 };
 str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
 	{ " Chainsaw ", "Upgraded Chainsaw", "Katana", "Excalibat", "ResMelee1", "", "", "", "" },
 	{ "Magnum", " Akimbo Pistols ", "Laser Pistol", "ResPistol1", "ResPistol2", "", "", "", "" },
-	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "Upgraded Shotgun3", "ResShotgun1", "ResShotgun2", "ResShotgun3", "", "" },
+	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "Upgraded Shotgun3", "ResShotgun1", "ResShotgun2", "ResShotgun3", "ResShotgun4", "" },
 	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "Upgraded Super Shotgun3", "ResSSG1", "ResSSG2", "ResSSG3", "ResSSG4", "" },
-	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "" },
-	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher3", "ResRL1", "ResRL2", "ResRL3", "ResRL4", "" },
+	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "ResMG5" },
+	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher3", "ResRL1", "ResRL2", "ResRL3", "ResRL4", "ResRL5" },
 	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "ResPlasma3", "" },
 	{ "BFG 9000", "Upgraded BFG 9000", "Devastator", "MFG", "ResBFG1", "ResBFG2", "", "", "" },
 };
@@ -303,6 +309,24 @@ bool IsWeaponLightningType(int wepid, int extra, bool isSpecial) {
 		return true;
 	}
 	return isSpecial && extra == SSAM_SHOCK;
+}
+
+bool IsMeleeWeapon(int wepid) {
+	switch(wepid) {
+		case DND_WEAPON_FIST:
+		case DND_WEAPON_CHAINSAW:
+		case DND_WEAPON_DOUBLECHAINSAW:
+		case DND_WEAPON_KATANA:
+		case DND_WEAPON_EXCALIBAT:
+		case DND_WEAPON_INFERNOSWORD:
+		case DND_WEAPON_DUSKBLADE:
+		case DND_WEAPON_SICKLE:
+		return true;
+		
+		default:
+		return false;
+	}
+	return false;
 }
 
 #endif

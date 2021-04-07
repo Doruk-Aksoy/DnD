@@ -4,7 +4,7 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 	Radius 40
 	Height 110
 	PainChance 50
-	Mass 1024
+	Mass 2048
 	Meleedamage 10 
 	SeeSound "cardinal/see"
 	PainSound "cardinal/pain"
@@ -668,7 +668,7 @@ Actor Thamuz : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
 	Speed 16
 	PainChance 35
-	Mass 2000
+	Mass 2048
 	Height 110
 	Radius 40
 	Scale 1.1
@@ -3405,7 +3405,7 @@ actor Cerberus : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
 	radius 40
 	height 110
-	mass 1576
+	mass 2048
 	speed 8
 	painchance 16
 	seesound "Cerberus/See"

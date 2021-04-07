@@ -1,6 +1,32 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+MPPhotonBlaster/fire1						MPPBFIR1
+MPPhotonBlaster/fire2						MPPBFIR2
+MPPhotonBlaster/fire3						MPPBFIR3
+$random MPPhotonBlaster/fire { MPPhotonBlaster/fire1 MPPhotonBlaster/fire2 MPPhotonBlaster/fire3 }
+$limit MPPhotonBlaster/fire					0
+MPPhotonBlaster/fireloop					MPPBFLOP
+$pitchshift MPPhotonBlaster/fireloop		0
+MPPhotonBlaster/fireend						MPPBFEND
+MPPhotonBlaster/spinup						MPPBSPI1
+MPPhotonBlaster/spindown					MPPBSPI2
+MPPhotonBlaster/Hit1						MPPBHIT1
+MPPhotonBlaster/Hit2						MPPBHIT2
+MPPhotonBlaster/Hit3						MPPBHIT3
+MPPhotonBlaster/Hit4						MPPBHIT4
+$random MPPhotonBlaster/Hit { MPPhotonBlaster/Hit1 MPPhotonBlaster/Hit2 MPPhotonBlaster/Hit3 MPPhotonBlaster/Hit4 }
+
+SedrinStaff/Fire1		AROKFIR1
+SedrinStaff/Fire2		AROKFIR2
+SedrinStaff/Fire3		AROKFIR3
+$random SedrinStaff/Fire { SedrinStaff/Fire1 SedrinStaff/Fire2 SedrinStaff/Fire3 }
+SedrinStaff/Idle		AROKIDLE
+SedrinStaff/Hit1		AROKHIT1
+SedrinStaff/Hit2		AROKHIT2
+SedrinStaff/Hit3		AROKHIT3
+$random SedrinStaff/Hit { SedrinStaff/Hit1 SedrinStaff/Hit2 SedrinStaff/Hit3 }
+
 Torpedo/Beep			RLBEEPO
 
 Overload/Loop1			OLODLOO1

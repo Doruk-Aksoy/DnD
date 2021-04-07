@@ -999,6 +999,10 @@ Actor GreenSmallFlash : BFGFlare {
 	Scale 0.375
 }
 
+Actor GreenSmallFlash_Smaller : BFGFlare {
+	Scale 0.2
+}
+
 Actor DeathStaffFlare : ExplosionFlare {
 	states {
 		Spawn:

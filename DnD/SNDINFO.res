@@ -1,3 +1,30 @@
+DarkLance/Charge		DLANCHR
+DarkLance/Fire1			DLANFIR1
+DarkLance/Fire2			DLANFIR2
+DarkLance/Fire3			DLANFIR3
+$random DarkLance/Fire { DarkLance/Fire1 DarkLance/Fire2 DarkLance/Fire3 }
+
+Incinerator/Fire		DRAGNFIR
+Incinerator/Spin		DRAGNSPN
+Incinerator/Charge		DRAGNCHR
+
+CharonBlaster/Idle		CHARIDLE
+CharonBlaster/Fire		CHARFIRE
+CharonBlaster/Rail		CHARLITE
+CharonBlaster/Hit1		CHARHIT1
+CharonBlaster/Hit2		CHARHIT2
+CharonBlaster/Hit3		CHARHIT3
+$random CharonBlaster/Hit { CharonBlaster/Hit1 CharonBlaster/Hit2 CharonBlaster/Hit3 }
+
+VoidWeapon/Fire			VOIWFIRE
+VoidWeapon/Idle			VOIWLOOP
+VoidWeapon/Zap			VOIWZAP
+VoidWeapon/Bzoop		VOIWBZOO
+VoidWeapon/Explode		VOIWEXP
+VoidWeapon/PreBoom		VOIWPREB
+VoidWeapon/BigBoom		VOIWBIGX
+VoidWeapon/Charge		VOIWCHR
+
 Gravdis/Idle			GRAVIDLE
 Gravdis/Fire			GRAVFIRE
 Gravdis/FireAdd			GRAVADD

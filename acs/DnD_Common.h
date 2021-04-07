@@ -75,6 +75,7 @@ enum {
 * 1600 - 1663 = Temporary tid assignment for spells
 * 1664 - 1727 = Menu icon above people
 * 2000 - 2063 = Deathray marker TID for players
+* 2100 - 2163 = Dark Lance tids
 * 3000 = Frozen FX Temporary TID
 * 3099 = Player shotgun puff removal tid
 * 3100 - 3163 = Player Shotgun Puff Temporary TID

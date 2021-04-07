@@ -1962,3 +1962,268 @@ Actor FusionBlasterGrenadeRipper_Damager : DnD_BaseProjectile {
 		Stop
 	}
 }
+
+ACTOR ResMG5 : Weapon {
+	Weapon.AmmoType1 "IncineratorAmmo"
+	Weapon.AmmoUse1 2
+	Weapon.AmmoGive1 16
+	Weapon.AmmoType2 "IncineratorStacks"
+	Weapon.AmmoUse2 0
+	Weapon.AmmoGive2 0
+	Weapon.SlotNumber 4
+	Obituary "%o was burned ablaze by %k's incinerator."
+	Tag "Incinerator Shotgun"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.8
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.8
+	+INVENTORY.UNDROPPABLE
+	States {
+		Ready:
+			RW09 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+
+		Select:
+		    TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_INCINERATOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 16, 0, DND_WEAPON_INCINERATOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 5, 16 | (18 << 16), DND_WEAPON_INCINERATOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 80, 0, DND_WEAPON_INCINERATOR)
+		SelectLoop:
+			RW09 A 1 A_Raise
+			"####" "#" 0 A_Raise
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
+		DeselectLoop:
+			RW09 A 1 A_Lower
+			"####" "#" 0 A_Lower
+		Loop
+
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 0, "Reload")
+			RW09 B 1 Bright A_SetPitch (pitch - 1.6)
+			RW09 B 1 Bright A_SetPitch (pitch - 1.1)
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_PlayWeaponSound("Incinerator/fire")
+			TNT1 AAA 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, frandom(-1, 1), 1)
+			TNT1 A 0 A_GiveInventory("IncineratorShooter", 1)
+			RW09 C 1 Bright A_SetPitch (pitch - 0.5)
+			RW09 C 1 Bright A_SetPitch (pitch - 0.2)
+			RW09 D 1 A_SetPitch (pitch - 0.1)
+			RW09 D 1 A_SetPitch (pitch + 0.05)
+			RW09 A 1 A_SetPitch (pitch + 0.75)
+			RW09 A 1 A_SetPitch (pitch + 1.5)
+			RW09 A 1 A_SetPitch (pitch + 1.0)
+			RW09 A 1 A_SetPitch (pitch + 0.2)
+			TNT1 A 0 A_PlaySound("Incinerator/spin", 5, 1, 0, 1.25)
+			RW09 A 1 A_SetPitch (pitch + 1.5)
+			TNT1 A 0 A_SpawnItemEx ("IncineratorCasing",cos(-pitch)*32,-13,24+(sin(-pitch)*24),0,random(-5, -8), random(0, 1),0,0,0)
+			TNT1 A 0 A_SpawnItemEx ("IncineratorCasing",cos(-pitch)*32,13,24+(sin(-pitch)*24),0,random(5, 8), random(0, 1),0,0,0)
+			RW09 E 1 A_SetPitch (pitch - 1.0)
+			RW09 E 1 A_SetPitch (pitch - 0.2)
+			RW09 F 2
+			RW09 G 2
+			RW09 A 2
+			RW09 A 4 A_Refire
+		Goto Ready
+		Reload:
+			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 1, "ContinueReload")
+			RW09 A 1 A_WeaponReady
+		Goto Ready
+		ContinueReload:
+			RW09 A 1
+			TNT1 A 0 A_PlaySound("Incinerator/charge", 6, 0.9, 0, 1.25)
+			TNT1 A 0 A_TakeInventory("IncineratorStacks", 0)
+			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFast")
+			RW09 HIJKLMNA 3 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)) + frandom(0, 4), 2, frandom(-1, 1), 1)
+			RW09 AAAAAAA 1 A_Refire("Fire")
+		Goto Ready
+		ReloadFast:
+			RW09 H 2
+			RW09 I 1
+			RW09 J 2
+			RW09 K 1
+			RW09 L 2
+			RW09 M 1
+			RW09 N 2
+			RW09 A 1
+			RW09 AAAA 1 A_Refire("Fire")
+		Goto Ready
+
+		Flash:
+			TNT1 A 2 A_Light1
+			TNT1 A 2 A_Light2
+			TNT1 A 0 A_Light0
+		Goto LightDone
+	}
+}
+
+Actor IncineratorShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CLIP, AMMO_INCINERATOR, 4)
+			TNT1 A 0 A_GiveInventory("IncineratorStacks", 1)
+			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile1", frandom(-9.0, 9.0), 1, frandom(-1.6, 1.6), frandom(-1.6, 1.6), 1, frandom(-4.8, 4.8))
+			TNT1 AAAAAAAAAAA 0 A_FireCustomMissile("IncineratorProjectile1", frandom(-9.0, 9.0), 0, frandom(-1.6, 1.6), frandom(-1.6, 1.6), 1, frandom(-4.8, 4.8))
+			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 0, "FullShot")
+		Stop
+		FullShot:
+			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile2", 0, 0, -18)
+			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile2", 0, 0, 18)
+		Stop
+		
+		FireCircle:
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 12))
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNPELLETS])
+		LoopStart:
+			TNT1 A 0 A_JumpIf(Args[DND_ARG_SHOTGUNTEMP], "LoopContinue")
+		Goto Finish
+		LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile1", (360.0 / Args[DND_ARG_SHOTGUNPELLETS]) * Args[DND_ARG_SHOTGUNTEMP], 0)
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNTEMP] - 1)
+		Goto LoopStart
+		Finish:
+			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 0, "FullShot_Circle")
+		Stop
+		
+		FullShot_Circle:
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 2))
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNPELLETS])
+		LoopStart_FullShot:
+			TNT1 A 0 A_JumpIf(Args[DND_ARG_SHOTGUNTEMP], "LoopContinue_FullShot")
+		Goto Finish_FullShot
+		LoopContinue_FullShot:
+			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile2", (360.0 / Args[DND_ARG_SHOTGUNPELLETS]) * Args[DND_ARG_SHOTGUNTEMP], 0)
+			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNTEMP] - 1)
+		Goto LoopStart_FullShot
+		Finish_FullShot:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor IncineratorProjectile1 : DnD_ExplosiveBase {
+	Renderstyle Add
+	Radius 6
+	Height 12
+	Speed 52
+	Scale 0.8
+	Deathsound "CharonBlaster/Hit"
+	Gravity 0.875
+	-NOGRAVITY
+	+RIPPER
+	+BLOODLESSIMPACT
+	+DONTREFLECT
+	
+	var int user_tmp;
+	
+	States {
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_tmp", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_INCINERATOR << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT4))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", user_tmp, DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_INCINERATOR)
+			DRGP AAAABBBBCCCC 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")
+		SpawnLoop:
+			DRGP DDDDDDDEEEEEEE 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")
+		Goto Expire
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_INCINERATOR << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT4), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_INCINERATOR)
+		Death:
+			TNT1 A 0 A_SetUserVar("user_expdmg", user_tmp)
+			TNT1 A 0 A_SetUserVar("user_expradius", 48 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			DRGP E 3 Bright
+		Stop
+		Expire:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+		Goto Death
+	}
+}
+
+Actor IncineratorProjectile1_Trail {
+	Renderstyle Add
+	Scale 0.8
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 1
+			DRGP AAAABBBBCCCCDDDDDDEEEEEE 1 Bright A_FadeOut(0.033)
+		Stop
+	}
+}
+
+Actor IncineratorProjectile2 : DnD_ExplosiveBase {
+	Speed 32
+	Radius 12
+	Height 24
+	SeeSound "MeteorLauncher/Fire"
+	DeathSound "weapons/phoenixhit"
+	Scale 1.125
+	+FOILINVUL
+	+DONTREFLECT
+	States {
+		SpawnState:
+			VFBL AAA 1 Bright A_SpawnItemEx("IncineratorProjectile2_Trail")
+			TNT1 A 0 A_SpawnItemEx("IncineratorProjectile2_Droplet", frandom(-3.6, 3.6), frandom(-3.6, 3.6), 0, frandom(-1, 1), frandom(-1, 1))
+			VFBL BBB 1 Bright A_SpawnItemEx("IncineratorProjectile2_Trail")
+			TNT1 A 0 A_SpawnItemEx("IncineratorProjectile2_Droplet", frandom(-3.6, 3.6), frandom(-3.6, 3.6), 0, frandom(-1, 1), frandom(-1, 1))
+		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_INCINERATOR << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT4), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_INCINERATOR)
+		Death:
+			TNT1 A 0 A_SpawnItemEx("ExplosionFlareSmall")
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+		
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_INCINERATOR << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT4))
+			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			XPL1 ABCD 4 Bright
+			XPL1 EF 3
+		Stop
+	}
+}
+
+Actor IncineratorProjectile2_Droplet {
+	Height 2
+	Radius 1
+	+CLIENTSIDEONLY
+	+DONTSPLASH
+	-TELESTOMP
+	States {
+		Spawn:
+			WRBL JKLMNOPQRS 1 Bright
+			WRBL TUVWXYZ 1
+		Stop
+	}
+}
+
+Actor IncineratorProjectile2_Trail {
+	Renderstyle Translucent
+	Alpha 0.875
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			WBAL FG 2 Bright
+			WBAL HIJ 2
+		Stop
+	}
+}
+
+Actor IncineratorStacks : Ammo {
+	inventory.amount 1
+	inventory.maxamount 4
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 4
+	+IGNORESKILL
+}

@@ -1070,7 +1070,7 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss {
 	Tag "Spider Mastermind"
 	Radius 128
 	Height 100
-	Mass 1000
+	Mass 2048
 	Speed 12
 	PainChance 40
 	+ISMONSTER
@@ -1204,7 +1204,7 @@ Actor Cyberdemon2 : DnD_BaseRangedBoss {
 	PainSound "CyberDemon/Pain"
 	Radius 40
 	Height 110
-	Mass 1000
+	Mass 2048
 	Speed 16
 	PainChance 20
 	+ISMONSTER
@@ -1456,7 +1456,7 @@ Actor ReiverGhost : DnD_ArchVileBase {
 			WRTH G 1 A_FadeOut(0.06)
 		Wait
 		XDeathState:
-		Death:
+		DeathState:
 			TNT1 A 0 A_SpawnItemEx("ReiverGhostExplode",0,0,32,0,0,0,0,32,0)
 		Stop
     }
@@ -1503,6 +1503,14 @@ Actor ReiverGhost_NoExp : ReiverGhost {
 
 Actor ReiverGhost_NoExp_NoSolid : ReiverGhost_NoExp {
 	-SOLID
+	
+	States {
+		Idle:
+			TNT1 A 0 A_ChangeFlag("SOLID", 0)
+		IdleLoop:
+			WRTH A 4 A_Look
+		Loop
+	}
 }
 
 Actor DnD_WraithFX4 : WraithFX4 {

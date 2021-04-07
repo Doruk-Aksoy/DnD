@@ -114,6 +114,9 @@ enum {
 #define DND_CLASSPERK2_LEVEL 25
 #define DND_CLASSPERK3_LEVEL 50
 
+#define DND_BERSERKER_PERK50_MAXSTACKS 30
+#define DND_BERSERKER_PERK50_CRITBONUS 50
+
 enum {
 	// dont change order of these, add below the last!
 	STAT_STR,
@@ -348,10 +351,8 @@ void RestoreRPGStat (int statflag) {
 		GiveInventory("DemonBaneReduction", 1);
 		GiveInventory("DemonBaneReduction", 1);
 	}
-	if(CheckInventory("TaltosCheck")) {
-		GiveInventory("TaltosPower", 1);
+	if(CheckInventory("TaltosCheck"))
 		GiveInventory("TaltosUp", 1);
-	}
 	if(CheckInventory("HateCheck")) {
 		GiveInventory("PowerReflection", 1);
 		GiveInventory("HateReduction", 1);
@@ -493,7 +494,6 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk5", 1);
 				TakeInventory("Wanderer_Perk5", 1);
 				TakeInventory("Cyborg_Perk5", 1);
-				TakeInventory("Berserker_Perk5", 1);
 			break;
 		}
 	}
@@ -563,7 +563,6 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk25", 1);
 				TakeInventory("Wanderer_Perk25", 1);
 				TakeInventory("Cyborg_Perk25", 1);
-				TakeInventory("Berserker_Perk25", 1);
 			break;
 		}
 	}
@@ -636,6 +635,12 @@ void HandleClassPerks() {
 			break;
 		}
 	}
+}
+
+void HandleBerserkerRoar(int tid) {
+	GiveActorInventory(tid, "Berserker_NoRoar", 1);
+	GiveActorInventory(tid, "Berserker_RoarCD", 1);
+	ACS_NamedExecuteAlways("DnD Berserker Roar", 0, tid);
 }
 
 #endif

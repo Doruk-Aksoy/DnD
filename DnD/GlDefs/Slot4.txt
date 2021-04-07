@@ -300,3 +300,27 @@ flickerlight DesolatorGreenGlow {
     secondarySize 15
     chance 0.5
 }
+
+pulselight MPPB_Light1
+{
+    color 0.3 0.5 1.0
+    size 25
+    secondarySize 30
+    interval 0.1
+}
+
+flickerlight MPPB_Light2
+{
+    color 0.3 0.5 1.0
+    size 64
+    secondarySize 72
+    chance 0.5
+}
+
+flickerlight MPPB_Light3
+{
+    color 0.1 0.3 0.6
+    size 76
+    secondarySize 86
+    chance 0.5
+}

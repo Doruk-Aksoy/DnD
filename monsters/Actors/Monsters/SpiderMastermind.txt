@@ -3,7 +3,7 @@ Actor Demolisher : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
 	Radius 96 
 	Height 100 
-	Mass 1000 
+	Mass 2048
 	Speed 16 
 	PainChance 20 
 	Species "Spider2"
@@ -234,7 +234,7 @@ actor PsionicQueen : DnD_BaseHybridBoss {
 	Health 0x7FFFFFFF
 	Radius 96
 	Height 100
-	Mass 2000
+	Mass 2048
 	Speed 10
 	PainChance 40
 	SeeSound "queen/sight"
@@ -509,7 +509,7 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
 	Radius 56
 	Height 96 
-	Mass 1000
+	Mass 2048
 	Speed 8
 	Painchance 48
 	DamageFactor "Painless_Sun", 1.3
@@ -665,7 +665,7 @@ ACTOR BulletPierce {
 
 ACTOR Goldlich : DnD_BaseRangedBoss {
 	Scale 1.35
-	Mass 2000
+	Mass 2048
 	Painchance 8
 	Health 0x7FFFFFFF
 	Radius 56
@@ -1026,7 +1026,7 @@ ACTOR ReiverGhostGoldLich : ReiverGhost_NoExp {
 
 ACTOR IronlichBoss : DnD_BaseRangedBoss {
 	Scale 1.35
-	Mass 2000
+	Mass 2048
 	Painchance 8
 	Health 0x7FFFFFFF
 	Radius 56
@@ -1605,7 +1605,7 @@ Actor SpiderOverlord : DnD_BaseRangedBoss {
 	+DONTMORPH
 	Radius 128
 	Height 100
-	Mass 1000
+	Mass 2048
 	Speed 12
 	MinMissileChance 160
 	SeeSound "spider/sight"

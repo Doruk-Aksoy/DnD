@@ -79,6 +79,8 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define DND_CYBERNETICARMOR_AMOUNT 300
 #define DND_RAVAGERARMOR_AMOUNT 250
 
+#define DND_MIN_DAMAGEREDUCTION 0.1
+
 #define DND_HEALTHEXPSCALE 5
 #define DND_HEALTHCREDITSCALE 10
 #define DND_HEALTHCREDITAFTER50SCALE 5
@@ -152,6 +154,8 @@ typedef struct dist_tid_pair {
 #define GRAVDIS_HEIGHTADD_PER 64
 #define GRAVDIS_CIRCLE_PARTICLES 48
 
+#define DARKLANCE_TID 2100
+
 enum {
 	DND_SPECIAL_RESEARCH = 1,
 	DND_SPECIAL_ORB = 2,
@@ -182,8 +186,8 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Time to get your hands dirty. Does 10 - 30 damage normally or 180 - 240 with berserk per hit.",
 	 "Open invitiation to the slaughterhouse! Can be \cdreplaced.",
 	 "Double the blade, double the fun! Twice as much damage, same firing rate. Forces pain.",
-	 "Does 80 - 120 damage per swing, x3 to undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability. \cfIgnores shields.\c- Can't hit \cughosts.",
 	 "Unsheathing does 140 damage, normal firing does 84. Altfire allows swinging combos to do massive damage. Normal swings block projectiles. Altfire requires Melee Expertise ability.",
+	 "Does 80 - 120 damage per swing, x3 to undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability. \cfIgnores shields.\c- Can't hit \cughosts.",
 	 "60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire shoots 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Alt fire requires Melee Expertise ability. Can't hit \cughosts.",
 	 "Does 100 - 400 damage per swing depending on how long you hold. Alt fire makes you shoot ripping slashes doing 24 damage in a 104 unit radius, run 15% faster but can't change weapons. Alt fire requires Melee Expertise ability.",
 	 "Sickle steals life from enemies on hit. Does 40 - 60 damage 3 times. Alt fire swings for irreducable 75 - 90 damage 3 times. Altfire requires Melee Expertise ability.",
@@ -204,6 +208,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12. Can use \cialternate\c- ammo.",
 	 "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.",
 	 "An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
+	 "Emits three fireballs each doing 60-72 damage on hit, burning enemies. They start homing after a bit. If they hit a target, they build charges for altfire. It fires a ray of 10-16 damage and applying ignite, poison or chill. The ray \cfignores shields\c-.",
 	 
 	 "Same old buckshot we all love! Can be \cdreplaced.",
 	 "Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
@@ -225,10 +230,12 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
 	 "Fires acid rounds doing 18 damage on hit and 10-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius. Inflicts \cqpoison.",
 	 "Fires in bursts of 5 each doing 30 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 200 damage and releasing rippers doing 6 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-",
+	 "Burns enemies with 12 projectiles each dealing 16 damage going through enemies and in a 48 unit radius on impact. Every four shots two lava balls are fired dealing 80-90 damage on impact and 80 damage in 96 unit radius. Lava balls \cfignore shields\c-.",
 	 
 	 "Desolator fires highly toxic rounds doing 30 damage. Subsequent hits make enemies take 10% more damage from elemental attacks, maximum 5 stacks. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius. Inflicts \cqpoison.",
 	 "Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin. Can't hit \cughosts.",
 	 "The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs. \cfIgnores shields.",
+	 "Launches photon blasts in multiple phases all dealing 42 - 56 damage. Some can hit ghosts and can't be reflected, some can rip but can't hit ghosts and some deal only area damage in 80 unit radius but can be reflected.",
 	 
 	 "A true classic. Just don't blow yourself up. Can be \cdreplaced. Can't hit \cughosts.",
 	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 144 unit radius. Altfire detonates the rocket midflight, doing the same impact damage in an area instead. Can't hit \cughosts.",
@@ -237,11 +244,13 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well. Main meteor \cfignores shields\c-.",
 	 "Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Alt fire loads more grenades in the chamber. At most 3 additional grenades. Can't hit \cughosts.",
 	 "Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius. Can \cgoverheat\c-.",
-	 "Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields.\c-",
+	 "Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields\c-.",
+	 "Creates a black hole doing 100 damage when it goes through enemies. On impact with a surface, hardened skin enemy or alt fire press, the projectile is detonated for 300 damage. Does 180 damage afterwards over time. Drags enemies towards it at all times. \cfIgnores shields\c-.",
 	 
 	 "Useful for when you can't reach around corners. Does 80 damage on impact and 128 damage in a 144 unit radius. Can be \cdreplaced\c-. Can't hit \cughosts\c-. Can use \cialternate\c- ammo.",
 	 "The UAC Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts",
 	 "Top of the food chain for rockets. Shoots two homing rockets each doing 192 damage both on impact and explosion. Can't hit \cughosts.",
+	 "This artifact fires irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls exploding for half damage in half the radius. Explosions inflict \cqpoison\c-.",
 	 
 	 "Best friend of the trigger happy. Can be \cdreplaced.",
 	 "Improved with a nuclear reactor, does 36 - 60 on hit and 10 - 30 explosion damage in a 48 unit radius. Can \cgoverheat\c-. Does self damage.",
@@ -822,8 +831,8 @@ void HandleEliteDrops() {
 			// for orbs
 			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP + addchance))
 				SpawnOrb(i, true);
-			// for tokens -- 3 times as likely to drop compared to orbs
-			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP * 3))
+			// for tokens -- same likelihood to drop as orbs
+			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP + addchance))
 				SpawnToken(i, true);
 		}
 	}
@@ -1103,6 +1112,30 @@ void DoWeaponTip(int curweap) {
 		ACS_ExecuteAlways(977, 0, 0, curweap);
 		GiveInventory("TipBoxOpen", 1);
 	}
+}
+
+void SpawnDarkLanceProjectile(int this, int a, int proj_tid, int x, int y, int z, int vx, int vy, int vz, int dist, int spd) {
+	SpawnProjectile(this, "DarkLanceProjectile", a, 0, 0, 0, proj_tid);
+	SetActivator(proj_tid);
+	SetActorVelocity(0, vx * spd, vy * spd, vz * spd, 0, 0);
+	SetActorPosition(0, x + vx * dist, y + vy * dist, z + 32.0 + vz * dist, 0);
+	SetPointer(AAPTR_TARGET, this);
+	SetActorProperty(0, APROP_TARGETTID, this);
+	SetActorProperty(0, APROP_SPEED, spd << 16);
+	Thing_ChangeTID(proj_tid, 0);
+	SetActivator(this);
+}
+
+void SpawnDarkLanceProjectile_Side(int this, int a, int proj_tid, int x, int y, int z, int vx, int vy, int vz, int xd, int yd, int zd, int spd) {
+	SpawnProjectile(this, "DarkLanceProjectile", a, 0, 0, 0, proj_tid);
+	SetActivator(proj_tid);
+	SetActorVelocity(0, vx * spd, vy * spd, vz * spd, 0, 0);
+	SetActorPosition(0, x + vx * xd + vy * yd, y + vy * xd - vx * yd, z + 32.0 + vz * zd, 0);
+	SetPointer(AAPTR_TARGET, this);
+	SetActorProperty(0, APROP_TARGETTID, this);
+	SetActorProperty(0, APROP_SPEED, spd << 16);
+	Thing_ChangeTID(proj_tid, 0);
+	SetActivator(this);
 }
 
 #include "DnD_Damage.h"

@@ -29,6 +29,7 @@ enum {
 #define DND_VEIL_FACTOR 20 // percent
 #define DND_VEIL_FACTORUP 3
 #define DND_HUNTERTALISMAN_HEALFACTOR 33
+#define DND_TALTOS_LIFESTEAL 25.0 // 25%
 
 #define ACCESSORY_TAG 0
 #define ACCESSORY_NAME 1
@@ -43,7 +44,7 @@ str AccessoryInfo[MAX_ACCESSORY][5] = {
 	{ "Angelic Ankh", 			"Accessory_5", 		"ACC5B0", "When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once very map.", "Your health cap is halved. (Never below 100)" },
 	{ "Reflection Pendant", 	"Accessory_6", 		"ACC6B0", "When hit, 20% chance to go invulnerable and reflective for 5 seconds. Can happen only 5 times every map.", "While active, move 25% slower." },
 	{ "Nether Mask", 			"Accessory_7", 		"ACC7B0", "All your weapons can hit ghosts and do irreducable damage.", "Take 50% more damage." },
-	{ "Taltos Ring", 			"Accessory_8", 		"ACC8B0", "Recover health from melee attacks and become a ghost.", "Health items are unpickable. Only Megasphere or Berserk can be picked that give health." },
+	{ "Taltos Ring", 			"Accessory_8", 		"ACC8B0", "+25% lifesteal for melee attacks and become a ghost.", "Health items are unpickable. Only Megasphere or Berserk can be picked that give health." },
 	{ "Hate Shard", 			"Accessory_9", 		"ACC9B0", "Reflect damage back to enemies. Attackers take x2 more damage for 5 seconds.", "Non-melee damage reduced by 50%." },
 	{ "Hand of Artemis", 		"Accessory_10", 	"AC10B0", "Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.", "Do 66% less damage." },
 	{ "Scroll of Agamotto", 	"Accessory_11", 	"AC11B0", "Do 150% more damage while standing.", "Take 30% more damage while moving." },

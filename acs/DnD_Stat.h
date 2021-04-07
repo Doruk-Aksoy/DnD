@@ -574,16 +574,17 @@ void DecideAccessories() {
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_LICHARM)) {
 		GiveInventory("LichCheck", 1);
 		GiveInventory("LichPower", 1);
-		SetAmmoCapacity("Souls", GetAmmoCapacity("Souls") * DND_LICH_SOULFACTOR);
+		SetAmmoCapacity("Souls", AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity * DND_LICH_SOULFACTOR);
 	}
 	else {
 		TakeInventory("LichCheck", 1);
 		TakeInventory("LichPower", 1);
 		int tmp = GetAmmoCapacity("Souls");
-		if(CheckInventory("Souls") > tmp / 2)
-			SetInventory("Souls", tmp / 2);
-		if(tmp > AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity)
+		if(tmp > AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity) {
 			SetAmmoCapacity("Souls", tmp / 2);
+			if(CheckInventory("Souls") > tmp / 2)
+				SetInventory("Souls", tmp / 2);
+		}
 		else
 			SetAmmoCapacity("Souls", AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity);
 	}
@@ -713,13 +714,18 @@ int GetCritChance(int pnum, int wepid) {
 	return chance;
 }
 
-bool CheckCritChance(int wepid) {
+bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	int pnum = PlayerNumber();
 	// veil disables crits for the cooldown period
 	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
 		return false;
 	bool res = false;
 	int chance = GetCritChance(pnum, wepid);
+	
+	if(IsWeaponLightningType(wepid, extra, isSpecial))
+		chance = FixedMul(chance, 1.0 + GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING));
+		
+	//printbold(s:"running crit chance: ", f:chance);
 	
 	res = chance >= random(0, 1.0);
 	
@@ -757,6 +763,10 @@ int GetCritModifier() {
 	// weapon bonus
 	base += Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] >> 16;
 	base += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
+	
+	// berserker perk50 check
+	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK50_MAXSTACKS) * DND_BERSERKER_PERK50_CRITBONUS;
+	
 	if(CheckInventory("HunterTalismanCheck"))
 		base >>= 1;
 	if(CheckInventory("VeilMarkTimer")) {

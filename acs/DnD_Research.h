@@ -40,6 +40,7 @@ str Research_Label[MAX_RESEARCHES] = {
     "Deadlock Shotgun (3)",
     "Nitrogen Crossbow (3)",
 	"Wheel of Torment (3)",
+	"Charon Blaster (3)",
 	
     "Plasma Cannon (3)",
 	"Shocker (3)",
@@ -50,12 +51,14 @@ str Research_Label[MAX_RESEARCHES] = {
     "Riot Cannon (4)",
 	"Acid Rifle (4)",
 	"Fusion Blaster (4)",
+	"Incinerator Shotgun (4)",
 	
     "Meteor Launcher (5)",
     "Grenade Launcher (5)",
 	"Heavy Grenade Launcher (5)",
 	"Freezer Cannon (5)",
 	"Gravdis 5000 (5)",
+	"Void Cannon (5)",
 	
     "Flamethrower (6)",
     "Lightning Gun (6)",
@@ -145,13 +148,16 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ 0, -1 },
 	{ 0, -1 },
 	
+	// slot 4
     { 0, -1 },
     { 0, -1 },
 	{ 0, -1 },
 	{ 0, -1 },
 	
+	// slot 5
     { 0, -1 },
     { 0, -1 },
+	{ 0, -1 },
 	{ 0, -1 },
 	{ 0, -1 },
 	{ 0, -1 },

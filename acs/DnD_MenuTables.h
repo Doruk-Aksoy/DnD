@@ -257,14 +257,14 @@ int PaneSetup = 0;
 
 #define FIRST_CLICKABLE_BOXID MAINBOX_LARR
 #define LAST_CLICKABLE_BOXID MAINBOX_RARR
-#define MAX_TIMED_BUTTONS LAST_CLICKABLE_BOXID - FIRST_CLICKABLE_BOXID + 1
+#define MAX_TIMED_BUTTONS (LAST_CLICKABLE_BOXID - FIRST_CLICKABLE_BOXID + 1)
 str ButtonTimers[MAX_TIMED_BUTTONS] = { 
 	"DnD_LeftArrowButton_Timer",
 	"DnD_ReturnArrowButton_Timer", 
 	"DnD_RightArrowButton_Timer" 
 };
 
-int ButtonFrameCounts[MAX_TIMED_BUTTONS] = { 6, 6, 6 };
+int ButtonFrameCounts[MAX_TIMED_BUTTONS] = { 3, 3, 3 };
 
 str MainBoxTexts[LAST_CLICKABLE_BOXID + 1] = {
 	"",
@@ -282,8 +282,8 @@ str MainBoxTexts[LAST_CLICKABLE_BOXID + 1] = {
 
 // Box enums end
 
-#define SHOP_MAXWEAPON_PAGES MENU_SHOP_WEAPON8 - MENU_SHOP_WEAPON1 + 1
-#define SHOP_MAXAMMO_PAGES SHOP_LASTAMMO_PAGE - SHOP_FIRSTAMMO_PAGE + 1
+#define SHOP_MAXWEAPON_PAGES (MENU_SHOP_WEAPON8 - MENU_SHOP_WEAPON1 + 1)
+#define SHOP_MAXAMMO_PAGES (SHOP_LASTAMMO_PAGE - SHOP_FIRSTAMMO_PAGE + 1)
 
 int WeaponBeginIndexes[SHOP_MAXWEAPON_PAGES] = {
 	SHOP_WEAPON1_BEGIN,
@@ -402,9 +402,10 @@ int ShopInfo[MAXSHOPITEMS][3] =
         { 4500,  1,		1 },
 		{ 5250,  1,		1 },
 		{ 5000,  1,		1 },
-		{ 5250,  1,		1 },
+		{ 6000,	 1,		1 },
 		
 		// 3 - 2
+		{ 5250,  1,		1 },
 		{ 5500,  1,		1 },
 		{ 6000,	 1,		1 },
 		{ 5750,  1,		1 },
@@ -421,11 +422,13 @@ int ShopInfo[MAXSHOPITEMS][3] =
         { 6500,  1,		1 },
 		{ 7000,  1,		1 },
 		{ 8250,  1,		1 },
+		{ 7250,  1,		1 },
 		
 		// 4 - 2
 		{ 6750,  1,		1 },
 		{ 5250,	 1,		1 },
 		{ 4800,  1,		1 },
+		{ 7000,  1,		1 },
 		
 		// 5 - 1
 		{ 3500,  1,		1 },
@@ -435,11 +438,13 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 5750,  1,		1 },
 		{ 5500,  1,		1 },
 		{ 7000,  1,     1 },
+		{ 6250,  1,		1 },
 		
 		// 5 - 2
 		{ 1750,  1,		1 },
 		{ 4000,  1,		1 },
 		{ 5000,  1,		1 },
+		{ 5500,	 1,		1 },
 		
 		// 6 - 1
 		{ 4000,  1,		1 },
@@ -516,6 +521,9 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 190,		1, 		-1 },
 		{ 175,		1,		-1 },
 		{ 250,		1,		-1 },
+		{ 125,		1,		-1 },
+		{ 115,		1,		-1 },
+		{ 100,		1,		-1 },
 		
 		// Special Ammunition
 		{ 500,	    1, 		-1 },
@@ -615,10 +623,11 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT3UPG1, -1, -1 },
 		{ RES_SLOT3UPG2, -1, -1 },
 		{ RES_SLOT3UPG3, -1, -1 },
-		{ -1, -1, -1 },
+		{ RES_SLOT3UPG4, -1, -1 },
 		{ -1, -1, -1 },
 		
 	// wep slot 3 - 2
+		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT3SSGUPG1, -1, -1 },
 		{ RES_SLOT3SSGUPG2, -1, -1 },
@@ -635,8 +644,10 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT4UPG2, -1, -1 },
 		{ RES_SLOT4UPG3, -1, -1 },
 		{ RES_SLOT4UPG4, -1, -1 },
+		{ RES_SLOT4UPG5, -1, -1 },
 		
 	// wep slot 4 - 2
+		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
@@ -649,9 +660,11 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT5UPG2, -1, -1 },
 		{ RES_SLOT5UPG3, -1, -1 },
 		{ RES_SLOT5UPG4, -1, -1 },
+		{ RES_SLOT5UPG5, -1, -1 },
 		
 	// wep slot 5 - 2
 		{ RES_SLOT5GL, -1, -1 },
+		{ RES_SLOT5LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
 		
@@ -719,7 +732,6 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT3SSGUPG3, -1, -1 },
-		{ RES_SLOT5UPG4, -1, -1 },
 		
 	// ammo 4
 		{ RES_SLOT3UPG3, -1, -1 },
@@ -727,6 +739,11 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
+		{ RES_SLOT3SSGUPG4, -1, -1 },
+		{ RES_SLOT5UPG4, -1, -1 },
+		{ RES_SLOT5LUXURY, -1, -1 },
+		{ RES_SLOT3UPG4, -1, -1 },
+		{ RES_SLOT4UPG5, -1, -1 },
 		
 	// ammo special
 		{ RES_FLECHETTE, -1, -1 },
@@ -836,9 +853,10 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResShotgun1",						"Deadlock",							WEPCHECK_SLOT3,			"0"		    },
 	{ "ResShotgun2",                        "Nitrogen Crossbow",                WEPCHECK_SLOT3,     	"0"         },
 	{ "ResShotgun3",                        "Wheel of Torment",                	WEPCHECK_SLOT3,     	"0"         },
+	{ "ResShotgun4",						"Charon Blaster",					WEPCHECK_SLOT3,			"0"			},
 	{ "Upgraded Super Shotgun",			    "Heavy SSG",						WEPCHECK_SLOT3X,		"0" 		},
-	{ "Upgraded Super Shotgun2",		    "Erasus",							WEPCHECK_SLOT3X,		"0" 		},
 	
+	{ "Upgraded Super Shotgun2",		    "Erasus",							WEPCHECK_SLOT3X,		"0" 		},
 	{ "Upgraded Super Shotgun3",		    "Hell's Maw",						WEPCHECK_SLOT3X,		"0" 		},
 	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
 	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
@@ -854,10 +872,12 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResMG2",                             "Riot Cannon",                      WEPCHECK_SLOT4,      	"0"         },
 	{ "ResMG3",								"Acid Rifle",						WEPCHECK_SLOT4,			"0"			},
 	{ "ResMG4",								"Fusion Blaster",					WEPCHECK_SLOT4,			"0"			},
+	{ "ResMG5",								"Incinerator SG.",					WEPCHECK_SLOT4,			"0"			},
 	
 	{ "Desolator",							"Desolator Cannon",					WEPCHECK_SLOT4L,		"1"			},
 	{ " Minigun ",							"Minigun",							WEPCHECK_SLOT4L,   		"1"		    },
 	{ "Ebony Cannon",						"Ebony Cannon",						WEPCHECK_SLOT4L,   		"1"		    },
+	{ "MPPB",								"MP. Photon Blaster",				WEPCHECK_SLOT4L,		"1"			},
 	
 	{ "Upgraded Rocket Launcher",		    "Torpedo Launcher",				    WEPCHECK_SLOT5,  		"0"		    },
 	{ "Upgraded Rocket Launcher2",		    "Mercury Launcher",				    WEPCHECK_SLOT5,  		"0"		    },
@@ -866,10 +886,12 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResRL2",								"Heavy G. Launcher",				WEPCHECK_SLOT5,			"0"		    },
 	{ "ResRL3",								"Freezer Cannon",					WEPCHECK_SLOT5,			"0"		    },
 	{ "ResRL4",								"Gravdis 5000",						WEPCHECK_SLOT5,			"0"		    },
+	{ "ResRL5",								"Void Cannon",						WEPCHECK_SLOT5,			"0"			},
 	
 	{ "Grenade Launcher",					"Grenade Launcher",				    WEPCHECK_SLOT5L,    	"1"		    },
 	{ "Upgraded Grenade Launcher",		    "Rotary G. Launcher",				WEPCHECK_SLOT5L,  		"1"		    },
 	{ "Heavy Missile Launcher",				"H. Missile Launcher",				WEPCHECK_SLOT5L,   		"1"		    },
+	{ "Sedrin Staff",						"Sedrin Staff",						WEPCHECK_SLOT5L,		"1"			},
 	
 	{ "Upgraded Plasma Rifle",				"Nuclear P. R.",					WEPCHECK_SLOT6, 		"0"		    },
 	{ "Upgraded Plasma Rifle2",				"Turel Cannon",						WEPCHECK_SLOT6,			"0"		    },
@@ -936,6 +958,9 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "HeavyGrenades",						"Heavy Grenades",					"",						"0"			},
 	{ "FlayerAmmo",							"Flayer Bolts",						"",						"0"			},
 	{ "GravdisAmmo",						"Gravity Modules",					"",						"0"			},
+	{ "SedrinAmmo",							"Sedrin Crystals",					"",						"0"			},
+	{ "CharonAmmo",							"Charon Batteries",					"",						"0"			},
+	{ "IncineratorAmmo",					"Incinerator Shells",				"",						"0"			},
 	
 	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
 	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
@@ -1039,10 +1064,12 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_OCCULT | DTYPE_MELEE,
-	DTYPE_PHYSICAL,
+	DTYPE_ELEMENTAL,
 	DTYPE_PHYSICAL,
 	
+	
 	// 3 - 2
+	DTYPE_PHYSICAL,
 	DTYPE_EXPLOSIVE | DTYPE_OCCULT,
 	DTYPE_ENERGY,
 	DTYPE_ELEMENTAL,
@@ -1059,11 +1086,13 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_ENERGY,
+	DTYPE_ELEMENTAL,
 	
 	// 4 - 2
 	DTYPE_ELEMENTAL,
 	DTYPE_PHYSICAL,
 	DTYPE_OCCULT,
+	DTYPE_ENERGY,
 	
 	// 5 - 1
 	DTYPE_EXPLOSIVE,
@@ -1073,11 +1102,13 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_EXPLOSIVE | DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_PHYSICAL,
+	DTYPE_ENERGY,
 	
 	// 5 - 2
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
+	DTYPE_ENERGY | DTYPE_ELEMENTAL,
 	
 	// 6 - 1
 	DTYPE_ENERGY,
@@ -1134,10 +1165,11 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSG1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSG2			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSG3			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESSG4			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_SHOTGUN,								SHOP_WEP_HSSG			},
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_ERASUS			},
 	
 	// 3 - 2
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_ERASUS			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_HELLSMAW		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG1		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG2		},
@@ -1154,11 +1186,13 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESMG2			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG3			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG4			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG5			},
 	
 	// 4 - 2
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DESOLATOR		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_MINIGUN		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_EBONY			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_MPPB			},
 	
 	// 5 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_TORPEDO		},
@@ -1168,11 +1202,13 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL2			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL3			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL4			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL5			},
 	
 	// 5 - 2
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_GRENADE		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_ROTARYGL		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_HEAVYML		},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SEDRIN			},
 	
 	// 6 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_NUCLEARPL		},
@@ -1255,10 +1291,11 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_ALTAMMO,
 	WPROP_NONE,
 	WPROP_NONE,
+	WPROP_IGNORESHIELD,
 	WPROP_RIPPER,
-	WPROP_NONE,
 	
 	// 3 - 2
+	WPROP_NONE,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_IGNORESHIELD | WPROP_NOREFLECT,
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
@@ -1275,11 +1312,13 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_ALTAMMO,
 	WPROP_NONE,
 	WPROP_IGNORESHIELD | WPROP_RIPPER,
+	WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_SELFDMG | WPROP_NOREFLECT,
 	
 	// 4 - 2
 	WPROP_OVERHEAT,
 	WPROP_CANTHITGHOST,
 	WPROP_IGNORESHIELD,
+	WPROP_RIPPER | WPROP_NOREFLECT | WPROP_CANTHITGHOST,
 	
 	// 5 - 1
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_NOREFLECT,
@@ -1288,12 +1327,14 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER,
 	WPROP_RIPPER | WPROP_OVERHEAT,
-	WPROP_IGNORESHIELD,
+	WPROP_IGNORESHIELD | WPROP_NOREFLECT,
+	WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_NOREFLECT,
 	
 	// 5 - 2
 	WPROP_CANTHITGHOST | WPROP_ALTAMMO | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
+	WPROP_SELFDMG,
 	
 	// 6 - 1
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_SELFDMG,
@@ -1347,9 +1388,10 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.",
 	"Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of gas streams doing 5 damage.",
 	"An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
+	"Emits three fireballs each doing 60-72 damage on hit, burning enemies. They start homing after travelling a bit. If they hit any target, they build charges for altfire, that fires a ray of 10-16 damage and applying ignite, poison or chill. The ray \cfignores shields\c-.",
 	"Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
-	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	
+	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
 	"Shoots a missile and 3 mini missiles. Missile does 60, mini missiles do 25 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 25 in 64 unit radius. Altfire fires the other side.",
 	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.",
 	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 192-240 damage in 108 unit radius.",
@@ -1364,11 +1406,13 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40.",
 	"Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Reload when full to use other ammo.",
 	"Fires acid rounds doing 18 damage on hit and 5-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius. Inflicts \cqpoison.",
-	"Fires in bursts of 5 each doing 28 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 150 damage and releasing rippers doing 5 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-",
-	
+	"Fires in bursts of 5 each doing 30 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 200 damage and releasing rippers doing 6 damage around. Attacks do more damage with more distance.",
+	"This shotgun burns enemies with 12 projectiles each dealing 16 damage going through enemies and in a 48 unit radius on impact. Every four shots two lava balls are fired dealing 80-90 damage on impact and 80 damage in 96 unit radius. Lava balls \cfignore shields\c-.",
+
 	"Desolator fires highly toxic rounds doing 30 damage. Every subsequent hit to a target makes them take 10% more damage from elemental attacks, stacks maximum 5 times. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius. Inflicts \cqpoison.",
 	"Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin.",
 	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
+	"Launches photon blasts in multiple phases all dealing 42 - 56 damage. Some can hit ghosts and can't be reflected, some can rip but can't hit ghosts and some deal only area damage in 80 unit radius but can be reflected.",
 	
 	"The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 128 unit radius. Altfire detonates the rocket midflight, dealing the impact damage in an area instead.",
 	"Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds.",
@@ -1376,11 +1420,13 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well.",
 	"Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Altfire loads more grenades in the chamber.",
 	"Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius.",
-	"Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields.\c-",
+	"Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground.",
+	"Creates a black hole doing 100 damage when it goes through enemies. On impact with a surface, hardened skin enemy or alt fire press, the projectile is detonated for 300 damage. Does 180 damage afterwards over time. Drags enemies towards it at all times.",
 	
 	"Useful for when you can't reach around corners. Does 80 damage on impact and 128 damage in a 144 unit radius.",
 	"The Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts",
 	"Top of the food chain for rockets. Shoots two homing rockets each doing 192 damage both on impact and explosion.",
+	"This artifact fires irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls of half effectiveness. Explosions inflict \cqpoison\c-. Deals no damage to fully cybernetic enemies. Doesn't hurt you if you have armor.",
 	
 	"Improved with a nuclear reactor. Does 36 - 60 on hit and 10 - 30 explosion damage in a 48 unit radius.",
 	"Turel Cannon fires highly ionized particles doing 125 damage ripping through everything. Continuous fire is less accurate and does 80 damage. Has a range of 768 units.",
@@ -1458,9 +1504,10 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_RIOTSHELL,
 		SHOP_AMMO_ACID,
 		SHOP_AMMO_FUSION,
+		SHOP_AMMO_INCINERATOR,
 		SHOP_AMMO_DESOLATOR,
 		SHOP_AMMO_EBONY,
-		SHOP_AMMO_EBONYX
+		SHOP_AMMO_EBONYX,
 	},
 	// category 2
 	{
@@ -1470,6 +1517,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_PCAN,
 		SHOP_AMMO_NITROGEN,
 		SHOP_AMMO_DEMONBLOOD,
+		SHOP_AMMO_CHARON,
 		SHOP_AMMO_HADES,
 		SHOP_AMMO_FLAYER,
 		SHOP_AMMO_EXPSHELL,
@@ -1484,6 +1532,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_GRAVDIS,
 		SHOP_AMMO_GL,
 		SHOP_AMMO_MIS,
+		SHOP_AMMO_SEDRIN,
 		-1
 	},
 	// category 4
@@ -1497,7 +1546,8 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_BASILISK,
 		SHOP_AMMO_ION,
 		SHOP_AMMO_THUNDER,
-		SHOP_AMMO_GAUSS
+		SHOP_AMMO_GAUSS,
+		-1
 	},
 	// category 5 (not buyable -- souls etc)
 	{
@@ -1546,6 +1596,9 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEAVYGRENADE		},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLAYER			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_GRAVDIS			},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SEDRIN			},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_CHARON			},
+	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_INCINERATOR		},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1599,7 +1652,11 @@ int AmmoCounts[MAXSHOPAMMOS] = {
 	5,
 	5,
 	5,
+	6,
+	10,
+	8,
 	
+	// special
 	8,
 	8,
 	8,
@@ -1651,6 +1708,9 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"heavy grenades for Heavy Grenade Launcher.",
 	"silver bolts for Flayer Crossbow.",
 	"anti-gravity modules for Gravdis 5000.",
+	"Sedrin crystals for Sedrin Staff.",
+	"batteries for Charon Blaster.",
+	"incinerator shells for Incinerator Shotgun.",
 	
 	"flechette shells.",
 	"magnum shells.",
@@ -1875,6 +1935,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SLOT3UPG3, 8278, 60
 		},
 		{
+			RES_SLOT3UPG4, 8619, 65
+		},
+		{
 			RES_SLOT3SSGUPG1, 7995, 50
 		},
 		{
@@ -1896,7 +1959,10 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SLOT4UPG3, 8763, 55
 		},
 		{
-			RES_SLOT4UPG4, 	8277, 60
+			RES_SLOT4UPG4, 8277, 60
+		},
+		{
+			RES_SLOT4UPG5, 8419, 65
 		},
 		{
 			RES_SLOT5UPG1, 8433, 50
@@ -1909,6 +1975,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			RES_SLOT5UPG4, 8519, 65
+		},
+		{
+			RES_SLOT5UPG5, 9135, 60
 		},
 		{
 			RES_SLOT5GL, 8216, 10
@@ -2108,6 +2177,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			"A strange artifact designed to inflict unimaginable torment on demons. Unlocks Wheel of Torment (3)."
 		},
 		{
+			"RESBAK60",
+			"Claimed from the now desolate planet Charon, this powerful blaster harnesses elements in ways we have never seen before. Unlocks Charon Blaster (3)."
+		},
+		{
 			"RESBAK20",
 			"Our scientists were obsessed with creating energy in fixed bursts and now they can! Unlocks Plasma Cannon (3)."
 		},
@@ -2140,6 +2213,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			"We can produce small scale fusion reactions at will to produce super powered energy blasts. Unlocks Fusion Blaster (4)."
 		},
 		{
+			"RESBAK61",
+			"Through improved cooling and combustion techniques, we can deliver far more powerful fire blasts to your enemies. Unlocks Incinerator (4)."
+		},
+		{
 			"RESBAK22",
 			"Using energies of demons we can now create meteors at will and so can you! Unlocks Meteor Launcher (5)."
 		},
@@ -2154,6 +2231,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK58",
 			"Ultimate in gravity manipulation, we present you a behemoth of a weapon. Slam dunk! Unlocks Gravdis 5000 (5)."
+		},
+		{
+			"RESBAK59",
+			"Nothing is safe from the void... Except you, thanks to the special harness we created. Unlocks Void Cannon (5)."
 		},
 		{
 			"RESBAK23",
@@ -2199,11 +2280,11 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			"RESBAK14",
-			"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Desolator Cannon, Minigun and Ebony Cannon (4)."
+			"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Desolator Cannon, Minigun, Ebony Cannon and Multi-Phase Photon Blaster (4)."
 		},
 		{
 			"RESBAK15",
-			"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL and Heavy Missile Launcher (5)."
+			"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL, Heavy Missile Launcher and Sedrin Staff (5)."
 		},
 		{
 			"RESBAK16",

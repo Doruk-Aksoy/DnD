@@ -4,7 +4,7 @@
 #include "DnD_EliteInfo.h"
 
 #define DND_CUSTOMMONSTER_ID 65536
-#define DND_MONSTERMASS_SCALE 10 // 10% per level
+#define DND_MONSTERMASS_SCALE 20 // 20% per level
 
 typedef struct {
 	int basehp;
@@ -642,7 +642,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 1000, 		DND_MTYPE_DEMON_POW 									},//DND_BLOODSEEKER,
 	{ 900, 			DND_MTYPE_MAGICAL_POW 									},//DND_SHADOWWIZARD,
 	{ 1650, 		DND_MTYPE_DEMON_POW 									},//DND_KJAROCH,
-	{ 1500, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_CYBRUISER,
+	{ 1500, 		DND_MTYPE_ROBOTIC_POW 									},//DND_CYBRUISER,
 	{ 1500, 		DND_MTYPE_DEMON_POW 									},//DND_BRUISERDEMON,
 	{ 900, 			DND_MTYPE_DEMON_POW 									},//DND_MAGMASERPENT,
 	{ 900, 			DND_MTYPE_UNDEAD_POW 									},//DND_DREADKNIGHT,
@@ -652,7 +652,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	// Fatso
 	{ 850, 			DND_MTYPE_DEMON_POW 									},//DND_CORPULENT,
 	{ 850, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_DAEDABUS,
-	{ 775, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_PALADIN,
+	{ 775, 			DND_MTYPE_ROBOTIC_POW 									},//DND_PALADIN,
 	{ 875, 			DND_MTYPE_MAGICAL_POW 									},//DND_GAMON,
 	{ 900, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_MEPHISTO,
 	{ 1100, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_MAFIBUS,
@@ -751,6 +751,10 @@ bool IsActorMagicOrUndead(int i) {
 
 bool IsRobotic() {
 	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_ROBOTIC_POW;
+}
+
+bool IsActorFullRobotic(int tid) {
+	return MonsterData[MonsterProperties[tid - DND_MONSTERTID_BEGIN].id].flags == DND_MTYPE_ROBOTIC_POW;
 }
 
 bool IsLostSoul() {

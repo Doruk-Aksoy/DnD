@@ -250,13 +250,13 @@ void AddOrbBonusData(int pnum, int bonus, int extra, int val) {
 
 // percentages
 /*
-15
+12
 5
 10
 2.5
 1.5
 8
-13.5
+12
 9
 9
 5
@@ -264,28 +264,28 @@ void AddOrbBonusData(int pnum, int bonus, int extra, int val) {
 2.5
 2.5
 2.5
+5
+5
 3.5
-3.5
-2
 */
 
 int OrbDropWeights[MAX_ORBS] = {
-	150,
-	200,
-	300,
-	325,
-	340,
-	420,
-	555,
-	645,
-	735,
-	785,
-	835,
-	860,
-	885,
-	910,
-	945,
-	980,
+	120,
+	170,
+	270,
+	295,
+	310,
+	390,
+	510,
+	600,
+	690,
+	740,
+	790,
+	815,
+	840,
+	865,
+	915,
+	965,
 	1000
 };
 

@@ -1300,6 +1300,17 @@ statusbar normal, fullscreenoffsets {
 
   drawselectedinventory alternateonempty, center, NCNormalFont, -23, -106, -8, -100, NCWhiteC {}
   else { drawimage "ARTIBOX", -42, -125; }
+  
+  // berserker display
+  InInventory Berserker_DamageTracker {
+	drawbar "BERSICO1", "BERSICB1", Berserker_DamageTimer, vertical, -152, -200;
+	drawnumber 2, NCNormalFont, NCWhiteC, Berserker_DamageTracker, alignment(center), -122, -144;
+  }
+  
+  InInventory Berserker_HitTracker {
+	drawbar "BERSICO2", "BERSICB2", Berserker_HitTimer, vertical, -88, -200;
+	drawnumber 2, NCNormalFont, NCWhiteC, Berserker_HitTracker, alignment(center), -58, -144;
+  }
 }
 
 statusbar automap { }

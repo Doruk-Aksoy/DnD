@@ -125,7 +125,7 @@ enum {
 	INV_EX_ALLSTATS,
 	INV_EX_CHANCE_HEALMISSINGONPAIN,
 	INV_EX_DMGINCREASE_LIGHTNING,
-	INV_EX_ALWAYSCRIT_LIGHTNING,
+	INV_EX_MORECRIT_LIGHTNING,
 	INV_EX_DMGINCREASE_SHOTGUNS,
 	INV_EX_DOUBLE_HEALTHCAP,
 	INV_EX_DAMAGEPER_FLATHEALTH, // only 1%
@@ -185,11 +185,11 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_SpeedBonus", 									"% Speed" },
 	{ "IATTR_MagazineIncrease", 							"% magazine size" },
 	
-	{ "IATTR_FlatDamageBonus_Physical", 					" physical damage to such attacks" },
-	{ "IATTR_FlatDamageBonus_Energy", 						" energy damage to such attacks" },
-	{ "IATTR_FlatDamageBonus_Explosive", 					" explosive damage to such attacks" },
-	{ "IATTR_FlatDamageBonus_Magic", 						" magic damage to such attacks" },
-	{ "IATTR_FlatDamageBonus_Elemental", 					" elemental damage to such attacks" },
+	{ "IATTR_FlatDamageBonus_Physical", 					" to physical damage" },
+	{ "IATTR_FlatDamageBonus_Energy", 						" to energy damage" },
+	{ "IATTR_FlatDamageBonus_Explosive", 					" to explosive damage" },
+	{ "IATTR_FlatDamageBonus_Magic", 						" to magic damage" },
+	{ "IATTR_FlatDamageBonus_Elemental", 					" to elemental damage" },
 	
 	{ "IATTR_PercentDamageBonus_Physical", 					"% increased physical damage" },
 	{ "IATTR_PercentDamageBonus_Energy", 					"% increased  energy damage" },
@@ -218,7 +218,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	
 	{ "IATTR_RegenCap", 									" regeneration cap" },
 	
-	{ "IATTR_CritChance", 									"% crit chance" },
+	{ "IATTR_CritChance", 									"% to crit chance" },
 	{ "IATTR_CritChancePercent", 							"% increased crit chance" },
 	{ "IATTR_CritDamage", 									"% additional crit damage" },
 	
@@ -279,7 +279,7 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "", 													" to all attributes" },
 	{ "IATTR_HealMissingHealthOnPain", 						"be healed for " },
 	{ "IATTR_DamageIncrease_Lightning", 					"% increased lightning damage" },
-	{ "IATTR_StatusBuffs_1", 								"Lightning damage always crits" },
+	{ "IATTR_IncreasedCritLightning", 						"% increased crit chance to lightning attacks" },
 	{ "IATTR_DamageIncrease_Shotguns", 						"% increased damage to shotguns" },
 	{ "IATTR_HPPercent", 									"Double Health Cap" },
 	{ "IATTR_DamagePerFlatHP", 								"Gain 1% damage increase every " },
@@ -454,6 +454,10 @@ str ExoticAttributeString(int attr, int val1, int val2) {
 		
 		case INV_EX_CRITIGNORERESCHANCE:
 		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CRITIGNORERESCHANCE)][INVATTR_TEXT], d:val1, s:"% chance to ignore enemy resistances");
+		
+		// float factor stuff
+		case INV_EX_MORECRIT_LIGHTNING:
+		return StrParam(s:"+ ", f:ftrunc(val1 * 100), s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_MORECRIT_LIGHTNING)][INVATTR_TEXT]);
 		
 		default:
 			if(val1)

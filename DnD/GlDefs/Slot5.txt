@@ -192,3 +192,151 @@ object FlakProjectileExplosion3 {
 object FlakProjectileExplosion4 {
 	frame DXP4 { light INQSHOT_X8 }
 }
+
+flickerlight SedrinLight1
+{
+    color 0.125 1.0 0.125
+    size 40
+    secondarySize 56
+    chance 0.375
+}
+
+flickerlight SedrinLight1S
+{
+    color 0.125 1.0 0.125
+    size 30
+    secondarySize 40
+    chance 0.375
+}
+
+pointlight SedrinLight2
+{
+    color 0.125 1.0 0.125
+    size 64
+}
+
+pointlight SedrinLight3
+{
+    color 0.125 1.0 0.125
+    size 80
+}
+
+pointlight SedrinLight4
+{
+    color 0.125 1.0 0.125
+    size 48
+}
+
+pointlight SedrinLight5
+{
+    color 0.125 1.0 0.125
+    size 32
+}
+
+pointlight SedrinLight6
+{
+    color 0.125 1.0 0.125
+    size 18
+}
+
+pointlight SedrinLight7
+{
+    color 0.125 1.0 0.125
+    size 48
+}
+
+pointlight SedrinLight8
+{
+    color 0.125 1.0 0.125
+    size 40
+}
+
+object SedrinProjectile {
+	frame ACID { light SedrinLight1 }
+	
+	frame BPLOA { light SedrinLight2 }
+	frame BPLOB { light SedrinLight2 }
+	frame BPLOC { light SedrinLight3 }
+	frame BPLOD { light SedrinLight3 }
+	frame BPLOE { light SedrinLight4 }
+	frame BPLOF { light SedrinLight4 }
+	frame BPLOG { light SedrinLight5 }
+	frame BPLOH { light SedrinLight6 }
+}
+
+object SedrinSplitProjectile {
+	frame ACID { light SedrinLight1S }
+	
+	frame BPLOA { light SedrinLight7 }
+	frame BPLOB { light SedrinLight7 }
+	frame BPLOC { light SedrinLight2 }
+	frame BPLOD { light SedrinLight2 }
+	frame BPLOE { light SedrinLight8 }
+	frame BPLOF { light SedrinLight8 }
+	frame BPLOG { light SedrinLight5 }
+	frame BPLOH { light SedrinLight6 }
+}
+
+pointlight VoidMissileLight1 {
+	color 1.0 1.0 1.0
+	size 80
+}
+
+pointlight VoidMissileLight2 {
+	color 0.8 0.8 0.8
+	size 70
+}
+
+pointlight VoidMissileLight3 {
+	color 0.5 0.5 0.5
+	size 50
+}
+
+pointlight VoidMissileLight4 {
+	color 0.25 0.25 0.25
+	size 32
+}
+
+pointlight VoidMissileLight5 {
+	color 1.0 1.0 1.0
+	size 80
+	subtractive 1
+}
+
+pointlight VoidMissileLight6 {
+	color 0.25 0.25 0.25
+	size 70
+	subtractive 1
+}
+
+pointlight VoidMissileLight7 {
+	color 0.5 0.5 0.5
+	size 50
+	subtractive 1
+}
+
+pointlight VoidMissileLight8 {
+	color 0.8 0.8 0.8
+	size 32
+	subtractive 1
+}
+
+flickerlight VoidMissileLight9 {
+	color 0.875 0.875 0.875
+	size 48
+	secondarySize 64
+	chance 0.33
+}
+
+object VoidMissile {
+	frame R044J { light VoidMissileLight3 }
+	frame R044K { light VoidMissileLight4 }
+	frame R044L { light VoidMissileLight5 }
+	frame R044M { light VoidMissileLight6 }
+	frame R044N { light VoidMissileLight7 }
+	frame R044O { light VoidMissileLight8 }
+	frame R044P { light VoidMissileLight1 }
+	frame R044Q { light VoidMissileLight2 }
+	
+	frame R045 { light VoidMissileLight9 }
+}

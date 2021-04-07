@@ -18,7 +18,7 @@ enum {
 };
 
 #define MAX_SLOTS DND_AMMOSLOT_SOULS + 1
-#define MAX_AMMOTYPES_PER_SLOT 10
+#define MAX_AMMOTYPES_PER_SLOT 11
 
 enum {
 	DND_AMMO_SECONDARYISCLIP = 1
@@ -33,6 +33,7 @@ enum {
 	AMMO_RIOT,
 	AMMO_ACID,
 	AMMO_FUSIONCELL,
+	AMMO_INCINERATOR,
 	AMMO_DESOLATOR,
 	AMMO_EBONY1,
 	AMMO_EBONY2,
@@ -44,6 +45,7 @@ enum {
 	AMMO_PCANNON,
 	AMMO_NITROGENCANISTER,
 	AMMO_DEMONBLOOD,
+	AMMO_CHARON,
 	AMMO_HADES,
 	AMMO_FLAYER,
 	AMMO_EXSHELL,
@@ -57,6 +59,7 @@ enum {
 	AMMO_GRAVDIS,
 	AMMO_GRENADE,
 	AMMO_HMISSILE,
+	AMMO_SEDRIN,
 	
 	// category 5
 	AMMO_CELL = 0,
@@ -73,6 +76,19 @@ enum {
 	// category 6 (soul weapons -- only 1 ammo type here)
 	AMMO_SOUL = 0
 };
+
+#define AMMOSLOT_CLIP_BEGIN AMMO_CLIP
+#define AMMOSLOT_CLIP_END AMMO_EBONY1
+#define AMMOSLOT_CLIP2_BEGIN AMMO_EBONY2
+#define AMMOSLOT_CLIP2_END AMMO_EBONY2
+#define AMMOSLOT_SHELL_BEGIN AMMO_SHELL
+#define AMMOSLOT_SHELL_END AMMO_EXSHELL
+#define AMMOSLOT_SHELL2_BEGIN AMMO_SLAYER
+#define AMMOSLOT_SHELL2_END AMMO_SLAYER
+#define AMMOSLOT_ROCKET_BEGIN AMMO_ROCKET
+#define AMMOSLOT_ROCKET_END AMMO_SEDRIN
+#define AMMOSLOT_CELL_BEGIN AMMO_CELL
+#define AMMOSLOT_CELL_END AMMO_GAUSS
 
 // don't make tables with strings and ints... weird fuckups happen
 typedef struct {
@@ -92,6 +108,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"RIOTJ0",			"RiotgunShell"			},
 		{		"D97AA0",			"AcidAmmo"				},
 		{		"FBATA0",			"FusionCell"			},
+		{		"INCRAMMO",			"IncineratorAmmo"		},
 		{		"DES4Y0",			"DesolatorAmmo"			},
 		{		"EBOPA0",			"EbonyAmmo"				},
 		{		"EBOPE0",			"EbonyAmmoX"			}
@@ -104,6 +121,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"PCNIC1",			"PCanAmmo"				},
 		{		"D97A1",			"NitrogenCanister"		},
 		{		"DBLUD1",			"DemonBlood"			},
+		{		"CHARAMMO",			"CharonAmmo"			},
 		{		"STRGY0",			"HadesAmmo"				},
 		{		"CBWAA0",			"FlayerAmmo"			},
 		{		"ESHAA0",			"ExplodingShell"		},
@@ -118,6 +136,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"GRAVD0",			"GravdisAmmo"			},
 		{		"GBUNA0",			"Grenades"				},
 		{		"AHRLA0",			"MISAmmo"				},
+		{ 		"SEDCRY",			"SedrinAmmo"			},
 		{		"",					"",						}
 	},
 	// category 4 -- cell box
@@ -131,7 +150,8 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"BASIA01",			"BasiliskAmmo"			},
 		{		"IONAMM1",			"IonAmmo"				},
 		{		"D95AA0",			"ThunderAmmo"			},
-		{		"GAUSICO",			"GaussRound"			}
+		{		"GAUSICO",			"GaussRound"			},
+		{		"",					""						}
 	},
 	// category 5 -- soul ammo
 	{
@@ -150,7 +170,8 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		160, 		40		},
 		{ 		160,		40		},
 		{ 		240,		48		},
-		{ 		75,			42		},
+		{ 		72,			18		},
+		{ 		75,			25		},
 		{ 		60,			12		},
 		{ 		30,			6		}
 	},
@@ -162,6 +183,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		35,			15		},
 		{ 		40,			15		},
 		{ 		60,			25		},
+		{		60,			25		},
 		{ 		32,			8		},
 		{ 		36,			9		},
 		{ 		40,			15		},
@@ -176,6 +198,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		25,			2		},
 		{  		50,			5		},
 		{ 		80,			6		},
+		{ 		60,			3		},
 		{ 		-1,			0		}
 	},
 	// category 4 -- cell box
@@ -189,7 +212,8 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		250,		16		},
 		{ 		180,		60		},
 		{ 		200,		66		},
-		{ 		75,			10		}
+		{ 		75,			10		},
+		{		-1,			0		}
 	},
 	// category 5 -- soul ammo
 	{

@@ -159,7 +159,7 @@ Script 701 OPEN CLIENTSIDE {
 			if(GetCVar("sv_weapondrop"))
 				Log(s:"\cgWARNING:\c- Please deactivate '\cdsv_weapondrop\c-'. It breaks mod rules!");
 		}
-		Delay(35);
+		Delay(const:TICRATE);
 	}
 }
 
@@ -390,6 +390,8 @@ Script "DnD Critical Input Handler" ENTER {
 					GiveInventory("TorpedoTimer", 1);
 					ActivatorSound("Torpedo/Beep", 108);
 				}
+				if(CheckWeapon("ResRL5"))
+					GiveInventory("VoidDetonation", 1);
 			}
 		}
 		else {
@@ -449,14 +451,14 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 Script "DnD Killing Spree Timer" (void) {
 	while(CheckInventory("DnD_SpreeTimer")) {
 		TakeInventory("DnD_SpreeTimer", 1);
-		Delay(1);
+		Delay(const:1);
 	}
 	// countdown over, reset spree xp and handle spree stuff
 	TakeInventory("DnD_SpreeCountdownRunning", 1);
 	
 	if(CheckInventory("DnD_MultikillCounter")) {
 		while(CheckInventory("DnD_SpreeTimer"))
-			Delay(1);
+			Delay(const:1);
 		if(CheckInventory("DnD_MultikillCounter") >= DND_SPREE_TRIGGER && isAlive()) {
 			int spree = CheckInventory("DnD_MultiKillCounter") + 1, mult = 0, reward = 0, temp;
 			SetInventory("DnD_MultiKillCounter", 0);
@@ -946,10 +948,9 @@ Script 832 (void) {
 }
 
 // Weapon pickup checks, bulkiness armor check and agamotto check
-Script 891 ENTER {
+Script "DnD Periodic Checks" ENTER {
 	int temp;
-	int pnum = PlayerNumber();
-	while(PlayerInGame(pnum)) {
+	while(isAlive()) {
 		// Bulkiness
 		if(CheckInventory("Armor")) {
 			temp = GetBulkiness();
@@ -958,110 +959,118 @@ Script 891 ENTER {
 				temp = Clamp_Between(temp, 1, DND_STAT_FULLMAX);
 				if(temp > 100) {
 					temp -= 100;
-					SetActorProperty(0, APROP_DAMAGEFACTOR, 1.0 - DND_BULKINESS_GAIN * 100 - DND_BULKINESS_GAIN_AFTER100 * temp);
+					SetActorProperty(
+						0, 
+						APROP_DAMAGEFACTOR, 
+						Clamp_Between(1.0 - DND_BULKINESS_GAIN * 100 - DND_BULKINESS_GAIN_AFTER100 * temp - CheckInventory("Berserker_DamageTracker") * DND_BERSERKER_PERK25_REDUCTION, DND_MIN_DAMAGEREDUCTION, 1.0)
+					);
 				}
 				else
-					SetActorProperty(0, APROP_DAMAGEFACTOR, 1.0 - DND_BULKINESS_GAIN * temp);
+					SetActorProperty(
+						0, 
+						APROP_DAMAGEFACTOR, 
+						Clamp_Between(1.0 - DND_BULKINESS_GAIN * temp - CheckInventory("Berserker_DamageTracker") * DND_BERSERKER_PERK25_REDUCTION, DND_MIN_DAMAGEREDUCTION, 1.0)
+					);
 				// adjust player knockback resist by modifying their mass
 				UpdatePlayerKnockbackResist();
 			}
 		}
 		else
-			SetActorProperty(0, APROP_DAMAGEFACTOR, 1.0);
+			SetActorProperty(0, APROP_DAMAGEFACTOR, 1.0 - CheckInventory("Berserker_DamageTracker") * DND_BERSERKER_PERK25_REDUCTION);
 		
-		if(isAlive()) {
-			// Agamotto check
-			if(CheckInventory("AgamottoCheck")) {
-				int input = GetPlayerInput(-1, INPUT_BUTTONS);
-				if(input & (BT_FORWARD | BT_BACK | BT_MOVELEFT | BT_MOVERIGHT)) {
-					if(!CheckInventory("AgamottoDefense")) {
-						GiveInventory("AgamottoDefense", 1);
-						TakeInventory("AgamottoOffense", 1);
-					}
-				}
-				else if(!CheckInventory("AgamottoOffense")) {
-					TakeInventory("AgamottoDefense", 1);
-					GiveInventory("AgamottoOffense", 1);
+		// Agamotto check
+		if(CheckInventory("AgamottoCheck")) {
+			int input = GetPlayerInput(-1, INPUT_BUTTONS);
+			if(input & (BT_FORWARD | BT_BACK | BT_MOVELEFT | BT_MOVERIGHT)) {
+				if(!CheckInventory("AgamottoDefense")) {
+					GiveInventory("AgamottoDefense", 1);
+					TakeInventory("AgamottoOffense", 1);
 				}
 			}
-			else {
+			else if(!CheckInventory("AgamottoOffense")) {
 				TakeInventory("AgamottoDefense", 1);
-				TakeInventory("AgamottoOffense", 1);
+				GiveInventory("AgamottoOffense", 1);
 			}
-			
-			// Sigil Check
-			if(CheckInventory("SigilCheck")) {
-				// give item only if there is no sigil powerup currently on player
-				if(HasNoSigilPower()) {
-					switch(CheckInventory("SigilCheck")) {
-						case 1: // fire
-							GiveInventory("ElementPower_Fire", 1);
-						break;
-						case 2:
-							GiveInventory("ElementPower_Ice", 1);
-						break;
-						case 3:
-							GiveInventory("ElementPower_Lightning", 1);
-						break;
-						case 4:
-							GiveInventory("ElementPower_Earth", 1);
-						break;
-					}
-					SetInventory("SigilCheck", (CheckInventory("SigilCheck") % 4) + 1);
-				}
-			}
-			
-			if(GetArmorType("KnightArmor", PlayerNumber()) && IsUsingMeleeWeapon())
-				GiveInventory("KnightProtection", 1);
-			else
-				TakeInventory("KnightProtection", 1);
-			
-			// for cautious quest
-			if(GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
-				GiveInventory("DnD_HealthLess50", 1);
-			
-			// weapon quests
-			if(GetPlayerInput(-1, INPUT_BUTTONS) & (BT_ATTACK | BT_ALTATTACK)) {
-				// Simple Minded quest check
-				if(PlayerWeaponUsed[PlayerNumber()] == -1)
-					PlayerWeaponUsed[PlayerNumber()] = CheckInventory("DnD_WeaponID");
-				else if(!CheckInventory("DnD_WeaponFiredOther") && PlayerWeaponUsed[PlayerNumber()] != CheckInventory("DnD_WeaponID"))
-					GiveInventory(Quest_Checkers[QUEST_ONLYONEWEAPON], 1);
-
-				// only slot 2 quest check
-				if(
-					active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS]) &&
-					!IsQuestComplete(ActivatorTID(), QUEST_ONLYPISTOLWEAPONS) && !CheckInventory("H_WeaponSlot2")
-				  )
-					GiveInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS], 1);
-				
-				// only boomstick quest check
-				if(
-					active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_Checkers[QUEST_NOSHOTGUNS]) && 
-					!IsQuestComplete(ActivatorTID(), QUEST_NOSHOTGUNS) && 
-					((CheckInventory("H_WeaponSlot3") && CheckInventory("DnD_WeaponID") != DND_WEAPON_SLAYER) || CheckInventory("H_WeaponSlot3X"))
-				  )
-					GiveInventory(Quest_Checkers[QUEST_NOSHOTGUNS], 1);
-				
-				// no superweapon quest check
-				if(
-					active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS]) &&
-					!IsQuestComplete(ActivatorTID(), QUEST_NOSUPERWEAPONS) &&
-					(CheckInventory("H_WeaponSlot7") || CheckInventory("H_WeaponSlot8"))
-				  )
-					GiveInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS], 1);
-					
-				// only energy quest check
-				if(
-					active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_Checkers[QUEST_ONLYENERGY])
-				  )
-					GiveInventory(Quest_Checkers[QUEST_ONLYENERGY], 1);
-			}
-	
-			if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
-				CompleteQuest(ActivatorTID(), QUEST_SPEND25K);
 		}
-		Delay(const:7);
+		else {
+			TakeInventory("AgamottoDefense", 1);
+			TakeInventory("AgamottoOffense", 1);
+		}
+		
+		// Sigil Check
+		if(CheckInventory("SigilCheck")) {
+			// give item only if there is no sigil powerup currently on player
+			if(HasNoSigilPower()) {
+				switch(CheckInventory("SigilCheck")) {
+					case 1: // fire
+						GiveInventory("ElementPower_Fire", 1);
+					break;
+					case 2:
+						GiveInventory("ElementPower_Ice", 1);
+					break;
+					case 3:
+						GiveInventory("ElementPower_Lightning", 1);
+					break;
+					case 4:
+						GiveInventory("ElementPower_Earth", 1);
+					break;
+				}
+				SetInventory("SigilCheck", (CheckInventory("SigilCheck") % 4) + 1);
+			}
+		}
+		
+		if(GetArmorType("KnightArmor", PlayerNumber()) && IsUsingMeleeWeapon())
+			GiveInventory("KnightProtection", 1);
+		else
+			TakeInventory("KnightProtection", 1);
+		
+		// for cautious quest
+		if(GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
+			GiveInventory("DnD_HealthLess50", 1);
+		
+		// weapon quests
+		if(GetPlayerInput(-1, INPUT_BUTTONS) & (BT_ATTACK | BT_ALTATTACK)) {
+			// Simple Minded quest check
+			if(PlayerWeaponUsed[PlayerNumber()] == -1)
+				PlayerWeaponUsed[PlayerNumber()] = CheckInventory("DnD_WeaponID");
+			else if(!CheckInventory("DnD_WeaponFiredOther") && PlayerWeaponUsed[PlayerNumber()] != CheckInventory("DnD_WeaponID"))
+				GiveInventory(Quest_Checkers[QUEST_ONLYONEWEAPON], 1);
+
+			// only slot 2 quest check
+			if(
+				active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS]) &&
+				!IsQuestComplete(ActivatorTID(), QUEST_ONLYPISTOLWEAPONS) && !CheckInventory("H_WeaponSlot2")
+			  )
+				GiveInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS], 1);
+			
+			// only boomstick quest check
+			if(
+				active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_Checkers[QUEST_NOSHOTGUNS]) && 
+				!IsQuestComplete(ActivatorTID(), QUEST_NOSHOTGUNS) && 
+				((CheckInventory("H_WeaponSlot3") && CheckInventory("DnD_WeaponID") != DND_WEAPON_SLAYER) || CheckInventory("H_WeaponSlot3X"))
+			  )
+				GiveInventory(Quest_Checkers[QUEST_NOSHOTGUNS], 1);
+			
+			// no superweapon quest check
+			if(
+				active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS]) &&
+				!IsQuestComplete(ActivatorTID(), QUEST_NOSUPERWEAPONS) &&
+				(CheckInventory("H_WeaponSlot7") || CheckInventory("H_WeaponSlot8"))
+			  )
+				GiveInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS], 1);
+				
+			// only energy quest check
+			if(
+				active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_Checkers[QUEST_ONLYENERGY])
+			  )
+				GiveInventory(Quest_Checkers[QUEST_ONLYENERGY], 1);
+		}
+
+		if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
+			CompleteQuest(ActivatorTID(), QUEST_SPEND25K);
+		
+		// this used to be 7, but I reduced frequency, hopefully nothing was too dependant on this
+		Delay(const:10);
 	}
 }
 
@@ -1565,7 +1574,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
 		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
-			Delay(3);
+			Delay(const:3);
 		if(!pcount)
 			pcount = 1;
 		maxhp = ScaleMonster(pcount, realhp);
@@ -2351,6 +2360,11 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("LevelCredit", 0);
 	SetInventory("AllMapOnlyOnce", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
+	SetInventory("Berserker_DamageTracker", 0);
+	SetInventory("Berserker_DamageTimer", 0);
+	SetInventory("Berserker_HitTracker", 0);
+	SetInventory("Berserker_HitTimer", 0);
+	
 	// now everyone has this, no need to buy
 	GiveInventory("Ability_MonsterInfo", 1);
 	CleanPetStuff();
@@ -2748,9 +2762,11 @@ Script "DnD Player On Hit" (int power) {
 		
 	if(CheckInventory("HateCheck")) {
 		this = ActivatorTID();
+		// restore activator
 		SetActivator(0, AAPTR_TARGET);
 		if(ActivatorTID() != this)
 			GiveInventory("HateWeakness", 1);
+		SetActivator(this);
 	}
 	// necro chance
 	if(GetArmorType("NecroArmor", PlayerNumber()) && !CheckInventory("NecroSpikeCooldown") && !random(0, 2)) {
@@ -2783,6 +2799,76 @@ Script "DnD Player On Hit" (int power) {
 	// marine is unaffected by curses at lvl 50
 	if(MonsterProperties[temp - DND_MONSTERTID_BEGIN].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE && !CheckInventory("Marine_Perk50"))
 		ApplyRandomCurse();
+		
+	// check perk25 for berserker with cooldown
+	if(CheckInventory("Berserker_Perk25") && !CheckInventory("Berserker_Perk25_CD")) {
+		// basically make sure only one instance of this runs
+		if(!CheckInventory("Berserker_DamageTimer"))
+			ACS_NamedExecuteAlways("DnD Berserker Perk25", 0);
+			
+		SetInventory("Berserker_DamageTimer", DND_BERSERKER_DAMAGETRACKTIME);
+		GiveInventory("Berserker_Perk25_CD", 1);
+		if(CheckInventory("Berserker_DamageTracker") < DND_BERSERKER_PERK25_MAXSTACKS)
+			GiveInventory("Berserker_DamageTracker", 1);
+	}
+}
+
+Script "DnD Berserker Perk25" (void) {
+	while(CheckInventory("Berserker_DamageTimer")) {
+		delay(const:7);
+		TakeInventory("Berserker_DamageTimer", 1);
+	}
+	
+	// heal for max hp 10% if was at full stack
+	if(isAlive() && CheckInventory("Berserker_DamageTracker") == DND_BERSERKER_PERK25_MAXSTACKS) {
+		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_BERSERKER_PERK25_HEALPERCENT);
+	
+		// fx
+		GiveInventory("DarkHealEffectSpawner", 1);
+		LocalAmbientSound("Berserker/Heal", 127);
+	}
+	SetInventory("Berserker_DamageTracker", 0);
+}
+
+Script "DnD Berserker Perk50 Timer" (int this) {
+	SetActivator(this);
+	// will simply count these by one while we have them, per the berserker timer
+	while(CheckInventory("Berserker_HitTracker")) {
+		while(CheckInventory("Berserker_HitTimer")) {
+			if(!isAlive()) {
+				SetInventory("Berserker_HitTracker", 0);
+				SetInventory("Berserker_HitTimer", 0);
+				Terminate;
+			}
+		
+			TakeInventory("Berserker_HitTimer", 1);
+			delay(const:5);
+		}
+		TakeInventory("Berserker_Perk50_Speed", 1);
+		TakeInventory("Berserker_HitTracker", 1);
+		TakeInventory("Berserker_NoRoar", 1);
+		SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+	}
+	SetInventory("Berserker_HitTimer", 0);
+}
+
+Script "DnD Berserker Roar" (int this) CLIENTSIDE {
+	SetActivator(this);
+	
+	PlaySound(0, "Berserker/Berserk", CHAN_6, 1.0);
+	PlaySound(0, "Berserker/GoMad", CHAN_7, 1.0);
+	GiveInventory("Berserker_ThunderFX_Spawner", 1);
+	
+	if(aspect_ratio == ASPECT_16_9 || aspect_ratio == ASPECT_16_10) {
+		SetFont("BERSERKW");
+		SetHudSize(1024, 768, 0);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, 90, -1, 512.0, 384.0, 0.25, 0.3, 0.3, 0.8);
+	}
+	else {
+		SetFont("BERSERK");
+		SetHudSize(640, 480, 0);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, 90, -1, 320.0, 240.0, 0.25, 0.3, 0.3, 0.8);
+	}
 }
 
 // Backpack / Research script
@@ -2921,7 +3007,7 @@ Script 998 (int wepnum, int side, int extra) {
 	}
 }
 
-// Regeneration
+// Regeneration and other infrequent periodic checks
 Script "DnD Periodic Regeneration" ENTER {
 	int cur, amt, lim, pnum = PlayerNumber(), this = ActivatorTID();
 	while(PlayerInGame(pnum)) {
@@ -2976,7 +3062,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					CompleteQuest(this, QUEST_10SPREES);
 			}
 		}
-		Delay(35);
+		Delay(const:35);
 	}
 }
 
@@ -3275,7 +3361,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + temp) / 100;
 		
 	// finally crit chance
-	if(CheckCritChance(-1)) {
+	if(CheckCritChance(-1, false, -1)) {
 		dmg = dmg * GetCritModifier() / 100;
 		HandleHunterTalisman();
 	}
@@ -3414,6 +3500,74 @@ Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
 			Spawn(DnD_TrailDef[actortype].actor, bX, bY, bZ, 0, VectorAngle(-vX, -vY) >> 8);
         }
     }
+}
+
+Script "DnD Dark Lance Shooter" (int amt, int dist, int spd, int lvl) {
+	// get direction vector
+	// cos p * cos a, cos p * sin a, -sin p
+	int a = GetActorAngle(0);
+	int p = GetActorPitch(0);
+	int vx = FixedMul(cos(p), cos(a));
+	int vy = FixedMul(cos(p), sin(a));
+	int vz = -sin(p);
+	int pnum = PlayerNumber();
+	int this = ActivatorTID();
+	
+	int x = GetActorX(0);
+	int y = GetActorY(0);
+	int z = GetActorZ(0);
+	
+	for(int i = 0; i < amt; ++i)
+		SpawnDarkLanceProjectile(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, i * dist, spd); 
+	
+	// side projectiles
+	if(lvl > 0) {
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 3, -16, 3, spd);
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 11, -30, 11, spd);
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 3, 16, 3, spd);
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 11, 30, 11, spd);
+	}
+	
+	// more side projectiles
+	if(lvl > 1) {
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 20, -39, 20, spd);
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 28, -45, 28, spd);
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 20, 39, 20, spd);
+		SpawnDarkLanceProjectile_Side(this, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 28, 45, 28, spd);
+	}
+	
+	SetResultValue(0);
+}
+
+Script "DnD Dark Lance Aligner" (int xd, int yd, int zd, int tics) CLIENTSIDE {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	
+	for(int i = 0; i < tics; ++i) {
+		// get direction vector from owner constantly
+		int a = GetActorAngle(owner);
+		int p = GetActorPitch(owner);
+		int vx = FixedMul(cos(p), cos(a));
+		int vy = FixedMul(cos(p), sin(a));
+		int vz = -sin(p);
+		
+		int x = GetActorX(owner);
+		int y = GetActorY(owner);
+		int z = GetActorZ(owner);
+				
+		SetActorPosition(0, x + vx * xd + vy * yd, y + vy * xd - vx * yd, z + 32.0 + vz * zd, 0);
+		Delay(const:1);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Lance Stack Buffer" (void) {
+	SetInventory("LanceBuffer", CheckInventory("LanceStacks"));
+	SetInventory("LanceStacks", 0);
+	SetResultValue(0);
+}
+
+Script "DnD Dark Lance Shred" (int dmg) {
+	SetResultValue(0);
 }
 
 // currently does 90 degree scan from players fov
@@ -4301,13 +4455,16 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 // after 16th bit there can be extra info
 // never put AMMO_CLIP as 16 bit onwards
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
-	// ammo gain triggering means we made an attack
-	ACS_NamedExecuteWithResult("DnD On Attack", 0);
+	bool isSpecial = false;
+	int extra = -1;
 	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
 		if(slot != DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
-		else if(slot != DND_AMMOSLOT_SPECIAL)
+		else if(slot != DND_AMMOSLOT_SPECIAL) {
 			GiveInventory(ClipAmmoTypes[ammo], amount);
+			isSpecial = true;
+			extra = ammo;
+		}
 		else if(slot != DND_AMMOSLOT_TEMPORARY)
 			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
 		else {
@@ -4316,6 +4473,17 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 				GiveInventory("BladeCharge", 100);
 		}
 	}
+	
+	// ammo gain triggering means we made an attack
+	ACS_NamedExecuteWithResult("DnD On Attack", isSpecial, extra);
+}
+
+Script "DnD Charon Stack Gain Chance" (void) {
+	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE))
+		GiveInventory("CharonStacks", 1);
+	
+	// ammo gain triggering means we made an attack
+	ACS_NamedExecuteWithResult("DnD On Attack", 0, -1);
 }
 
 // in here because dnd_mons.bcs can't access values of the variables used below
@@ -4515,7 +4683,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * (100 + temp) / 100;
 		
 	// finally crit chance
-	if(CheckCritChance(-1)) {
+	if(CheckCritChance(-1, false, -1)) {
 		res = res * GetCritModifier() / 100;
 		HandleHunterTalisman();
 	}
@@ -4572,7 +4740,7 @@ Script "DnD Give Soul Ammo" (int amt) {
 
 // called whenever player makes an attack, melee weapons or weapon attacks that use no ammo need to call this explicitly
 // reason is this is embedded in ammo gain chance script for ease
-Script "DnD On Attack" (void) {
+Script "DnD On Attack" (int isSpecial, int extra) {
 	// elemental bulwark check
 	if(CheckInventory("IATTR_ChanceToCastElementalSpell") >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
 		GiveInventory("RandomElementalSpellCooldown", 1);
@@ -4580,7 +4748,7 @@ Script "DnD On Attack" (void) {
 	}
 	
 	// roll a crit for this attack, and every projectile etc. to come out of it will use this pre-calculated crit chance here
-	CheckCritChance(CheckInventory("DnD_WeaponID"));
+	CheckCritChance(CheckInventory("DnD_WeaponID"), isSpecial, extra);
 	
 	SetResultValue(0);
 }
@@ -5012,6 +5180,38 @@ Script "DnD Rejuvenation" (void) {
 	}
 }
 
+Script "DnD Berserker Perk5 Check" (void) {
+	// berserker perk5 fail-safe checks for super weapons
+	if(CheckInventory("Berserker_Perk5")) {
+		for(int i = DND_WEAPON_BFG32768; i <= DND_WEAPON_SOULREAVER; ++i) {
+			if(CheckInventory(Weapons[i][WEAPON_NAME])) {
+				TakeInventory(Weapons[i][WEAPON_NAME], 1);
+				TakeInventory("H_WeaponSlot7", 1);
+				break;
+			}
+		}
+	}
+}
+
+Script "DnD Berserker Perk5 Check (Melee)" (void) {
+	// berserker perk5 fail-safe checks for class change from berserker to any other
+	bool has_melee = false;
+	if(!CheckInventory("Berserker_Perk5")) {
+		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= DND_WEAPON_SICKLE; ++i) {
+			if(CheckInventory(Weapons[i][WEAPON_NAME])) {
+				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
+				if(has_melee) {
+					TakeInventory(Weapons[i][WEAPON_NAME], 1);
+					TakeInventory("H_WeaponSlot1", 1);
+					GiveInventory(Weapons[DND_WEAPON_CHAINSAW][WEAPON_NAME], 1);
+				}
+				
+				has_melee = true;
+			}
+		}
+	}
+}
+
 Script 69 (void) NET {
 	SetInventory("Level", 98);
 	SetInventory("Exp", GetExpLimit() / 2);
@@ -5020,7 +5220,7 @@ Script 69 (void) NET {
 }
 
 Script 70 (void) NET {
-	GiveInventory("Exp", 10000);
+	GiveInventory("Exp", 200000);
 	GiveInventory("LevelUpChecker", 1);
 	CalculateExpRatio();
 }
@@ -5028,4 +5228,16 @@ Script 70 (void) NET {
 Script "Print Loc" (void) {
 	printbold(f:GetActorX(0), s: " ", f:GetActorY(0), s: " ", f:GetActorZ(0));
 	SetResultValue(0);
+}
+
+Script 68 (int x) NET {
+	if(x < MAX_RESEARCHES)
+		GiveResearch(x, true);
+	else {
+		int c = CreateItemSpot();
+		int i;
+		i = UITEM_DEATHSPARK;
+		ConstructUniqueOnField(c, i, DND_ITEM_CHARM);
+		SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
+	}
 }

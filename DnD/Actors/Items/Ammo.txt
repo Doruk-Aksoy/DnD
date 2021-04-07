@@ -18,6 +18,7 @@ enum {
 	AMMO_RIOT,
 	AMMO_ACID,
 	AMMO_FUSIONCELL,
+	AMMO_INCINERATOR,
 	AMMO_DESOLATOR,
 	AMMO_EBONY1,
 	AMMO_EBONY2,
@@ -29,6 +30,7 @@ enum {
 	AMMO_PCANNON,
 	AMMO_NITROGENCANISTER,
 	AMMO_DEMONBLOOD,
+	AMMO_CHARON,
 	AMMO_HADES,
 	AMMO_FLAYER,
 	AMMO_EXSHELL,
@@ -42,6 +44,7 @@ enum {
 	AMMO_GRAVDIS,
 	AMMO_NGRENADE,
 	AMMO_HMISSILE,
+	AMMO_SEDRIN,
 	
 	// category 5
 	AMMO_CELL = 0,
@@ -957,7 +960,35 @@ Actor HeavyGrenades : Ammo
 	inventory.maxamount 50
 	inventory.icon "HEGRA0"
 	ammo.backpackamount 3
-	ammo.backpackmaxamount 100
+	ammo.backpackmaxamount 50
+	+IGNORESKILL
+}
+
+Actor SedrinAmmo : Ammo
+{
+	inventory.amount 2
+	inventory.maxamount 60
+	inventory.icon "SEDCRY"
+	ammo.backpackamount 2
+	ammo.backpackmaxamount 60
+	+IGNORESKILL
+}
+
+Actor CharonAmmo : Ammo {
+	inventory.amount 5
+	inventory.maxamount 60
+	inventory.icon "CHARAMMO"
+	ammo.backpackamount 5
+	ammo.backpackmaxamount 60
+	+IGNORESKILL
+}
+
+Actor IncineratorAmmo : Ammo {
+	inventory.amount 8
+	inventory.maxamount 72
+	inventory.icon "INCRAMMO"
+	ammo.backpackamount 8
+	ammo.backpackmaxamount 72
 	+IGNORESKILL
 }
 

@@ -7,6 +7,15 @@
 #define MAX_RIPPER_HITS_STORED 128
 #define DND_CROSSBOW_EXPLOSIONTID 54100
 
+#define DND_WEPID_USERVARIABLE "user_wepid"
+
+#define DND_BERSERKER_DAMAGETRACKTIME 17 // 3 is base, x 5 -- +2 for 0.5 second of buffer inclusion
+#define DND_BERSERKER_PERK25_MAXSTACKS 15
+#define DND_BERSERKER_PERK25_HEALPERCENT 15
+#define DND_BERSERKER_PERK25_REDUCTION 0.02 // 2% per stack
+#define DND_BERSERKER_PERK50_TIMER 14 // 14 x 5 = 70 => 2 seconds
+#define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
+
 #define DND_CRIT_TOKEN 69
 
 enum {
@@ -85,7 +94,10 @@ enum {
 	DND_DAMAGEFLAG_ISHITSCAN			=			0b10000000000000,
 	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b100000000000000,
 	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b1000000000000000,
-	DND_DAMAGEFLAG_FOILINVUL			=			0b10000000000000000, // this particular one is not to be used with other flags, only when its sole -- or you get rid of it after passing it somewhere
+	
+	// below are special things that are cleared after a certain point in HandleImpactDamage function
+	DND_DAMAGEFLAG_FOILINVUL			=			0b10000000000000000,
+	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b100000000000000000,
 };
 
 enum {
@@ -94,6 +106,7 @@ enum {
 	DND_DAMAGETICFLAG_ICE				=			0b100,
 	DND_DAMAGETICFLAG_FIRE				=			0b1000,
 	DND_DAMAGETICFLAG_LIGHTNING			=			0b10000,
+	DND_DAMAGETICFLAG_CONSIDERMELEE		=			0b100000,
 };
 
 // These are actor inherited flags, like forcepain, foilinvul, painless etc.
@@ -104,6 +117,8 @@ enum {
 	DND_ACTORFLAG_PAINLESS				=			0b100,
 	DND_ACTORFLAG_NOPUSH				=			0b1000,
 	DND_ACTORFLAG_CONFIRMEDCRIT			=			0b10000,
+	DND_ACTORFLAG_COUNTSASMELEE			=			0b100000,
+	DND_ACTORFLAG_THRUGHOST				=			0b1000000,
 };
 
 enum {
@@ -224,6 +239,8 @@ int ScanActorFlags() {
 		res |= DND_ACTORFLAG_PAINLESS;
 	if(CheckFlag(0, "NODAMAGETHRUST"))
 		res |= DND_ACTORFLAG_NOPUSH;
+	if(CheckFlag(0, "THRUGHOST"))
+		res |= DND_ACTORFLAG_THRUGHOST;
 	return res;
 }
 
@@ -461,10 +478,6 @@ int HandleWeaponCrit(int dmg, int wepid, int pnum, int dmgid, bool isSpecial) {
 	if(PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid])
 		return dmg;
 	// if weapon id is a lightning type, it will always crit with the necessary charm attribute on
-	if((IsWeaponLightningType(wepid, dmgid, isSpecial) && IsSet(GetPlayerAttributeValue(pnum, INV_EX_ALWAYSCRIT_LIGHTNING), DND_STATBUFF_ALWAYSCRITLIGHTNING))) {
-		dmg = dmg * GetCritModifier() / 100;
-		HandleHunterTalisman();
-	}
 	return dmg;
 }
 
@@ -672,13 +685,17 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 			dmg = (dmg * pen) / 100;
 	}
 	
+	// addition of pen here means if we ignored resists and immunities, we still give penetration a chance to weaken the defences further
 	// return early as we ignored resists and immunities
 	if(PlayerCritState[PlayerNumber()][DND_CRITSTATE_CONFIRMED][wepid] && CheckInventory("IATTR_CritIgnoreRes") >= random(1, 100))
-		return dmg;
+		return dmg * (100 + pen) / 100;
 		
 	// if we do forced full damage skip resists and immunities
-	if(forced_full)
+	if(forced_full) {
+		if(pen)
+			return dmg * (100 + pen) / 100;
 		return dmg;
+	}
 		
 	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
 	if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
@@ -710,7 +727,6 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 // This is strictly for player doing damage to other monsters!
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0) {
 	str s_damagetype = DamageTypeList[damage_type];
-	bool factor_resist = true;
 	bool forced_full = false;
 	bool no_ignite_stack = flags & DND_DAMAGEFLAG_NOIGNITESTACK;
 	int temp;
@@ -733,7 +749,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckActorInventory(source, "Hobo_Perk50"))
 	) 
 	{
-		s_damagetype = StrParam(s:s_damagetype, s:"Full");
+		// no need for this suffix anymore
+		//s_damagetype = StrParam(s:s_damagetype, s:"Full");
 		forced_full = true;
 	}
 
@@ -771,19 +788,17 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	}
 	
 	// handle resists and all that here
-	if(factor_resist) {
-		//printbold(s:"res calc");
-		temp = dmg;
-		dmg = FactorResists(source, victim, dmg, damage_type, forced_full, wepid);
-		// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
-		if(pnum != -1) {
-			if(dmg > temp)
-				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
-			else if(dmg < temp / 4)
-				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
-			else if(dmg < temp)
-				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
-		}
+	//printbold(s:"res calc");
+	temp = dmg;
+	dmg = FactorResists(source, victim, dmg, damage_type, forced_full, wepid);
+	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
+	if(pnum != -1) {
+		if(dmg > temp)
+			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
+		else if(dmg < temp / 4)
+			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+		else if(dmg < temp)
+			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
 	}
 	
 	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
@@ -851,6 +866,9 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		
 		if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 			flags |= DND_DAMAGETICFLAG_CRIT;
+			
+		if(actor_flags & DND_ACTORFLAG_COUNTSASMELEE)
+			flags |= DND_DAMAGETICFLAG_CONSIDERMELEE;
 		
 		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 		if(damage_type == DND_DAMAGETYPE_ICE)
@@ -871,6 +889,20 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	}
 	
 	Thing_Damage2(victim, dmg, s_damagetype);
+	
+	if(!isActorAlive(victim) && CheckActorInventory(source, "Berserker_Perk50")) {
+		SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+		if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+			GiveActorInventory(source, "Berserker_HitTracker", 1);
+			if(!temp)
+				ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, source);
+		}
+		if(temp + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+			if(!CheckActorInventory(source, "Berserker_RoarCD") && !CheckActorInventory(source, "Berserker_NoRoar"))
+				HandleBerserkerRoar(source);
+			GiveActorInventory(source, "Berserker_Perk50_Speed", 1);
+		}
+	}
 }
 
 int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, int ox, int oy, int oz, int proj_r) {
@@ -900,7 +932,7 @@ int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, in
 	return res;
 }
 
-void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damage_type) {
+void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damage_type, int wepid) {
 	int pnum = owner - P_TIDSTART;
 	// extract flags off damage type
 	int flags = damage_type >> 16;
@@ -927,8 +959,18 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		int mon_id = PlayerExplosionList[pnum].list[instance].monsters[i];
 
 		// first check if this monster is immune to splash damage (its an easy flag check and eases calculation later)
-		if(CheckFlag(mon_id, "NORADIUSDMG") && (!CheckActorInventory(owner, "NetherCheck") || !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG)) || !CheckFlag(mon_id, "SHOOTABLE"))
+		// if we have nethermask simply ignore all these checks anyways
+		if(!CheckFlag(mon_id, "SHOOTABLE"))
 			continue;
+			
+		if(!CheckActorInventory(owner, "NetherCheck")) {
+			if
+			(
+				(CheckFlag(mon_id, "NORADIUSDMG") && (!CheckActorInventory(owner, "Marine_Perk25") || !(flags & DND_DAMAGEFLAG_FORCERADIUSDMG))) ||
+				(wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(mon_id))
+			)
+				continue;
+		}
 		
 		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, px, py, pz, proj_r);
 		
@@ -947,13 +989,19 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	// finally check player, if we are close to our own explosion with self dmg flag, hurt us too
 	if(flags & DND_DAMAGEFLAG_BLASTSELF) {
 		// we are the owner here at this point, we can use 0 for ourselves
-		final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-		if(final_dmg != -1) {
-			// final dmg cant be negative -- apply penetration and self explosion resist here
-			final_dmg = final_dmg * (100 - CheckInventory("IATTR_ExplosionResist") + CheckInventory("IATTR_ExplosivePen")) / 100;
-			if(final_dmg < 0)
-				final_dmg = 0;
-			HandleDamageDeal(owner, owner, final_dmg, damage_type, flags, px, py, pz, actor_flags);
+		
+		// sedrin staff armor check
+		// if not sedrin staff, immediately check
+		// if sedrin staff and if we have armor, both are false so no damage to us
+		if(wepid != DND_WEAPON_SEDRINSTAFF || !CheckActorInventory(owner, "Armor")) {
+			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
+			if(final_dmg != -1) {
+				// final dmg cant be negative -- apply penetration and self explosion resist here
+				final_dmg = final_dmg * (100 - CheckInventory("IATTR_ExplosionResist") + CheckInventory("IATTR_ExplosivePen")) / 100;
+				if(final_dmg < 0)
+					final_dmg = 0;
+				HandleDamageDeal(owner, owner, final_dmg, damage_type, flags, px, py, pz, actor_flags);
+			}
 		}
 	}
 	
@@ -966,7 +1014,10 @@ Script "DnD Do Explosion Damage" (int dmg, int radius, int fullradius, int damag
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(!isPlayer(owner))
 		owner = GetActorProperty(0, APROP_SCORE);
-	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type);
+	
+	int wepid = GetUserVariable(0, DND_WEPID_USERVARIABLE);
+	
+	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type, wepid);
 	
 	SetResultValue(0);
 }
@@ -974,7 +1025,9 @@ Script "DnD Do Explosion Damage" (int dmg, int radius, int fullradius, int damag
 Script "DnD Do Explosion Damage (Pets)" (int dmg, int radius, int fullradius, int damage_type) {
 	// player information
 	int owner = CheckInventory("DnD_ProjPnum") + P_TIDSTART;
-	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type);
+	int wepid = GetUserVariable(0, DND_WEPID_USERVARIABLE);
+	
+	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type, wepid);
 	
 	SetResultValue(0);
 }
@@ -989,7 +1042,9 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 	SetResultValue(0);
 }
 
-void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid) {	
+void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid) {
+	int px, py, pz;
+
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
 		
@@ -1001,8 +1056,35 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	
 	if(wepid == -1)
 		wepid = CheckActorInventory(owner, "DnD_WeaponID");
+		
+	int actor_flags = ScanActorFlags();
+		
+	if(flags & DND_DAMAGEFLAG_FOILINVUL) {
+		actor_flags |= DND_ACTORFLAG_FOILINVUL;
+		flags ^= DND_DAMAGEFLAG_FOILINVUL;
+	}
 	
-	int px, py, pz;
+	if(flags & DND_DAMAGEFLAG_COUNTSASMELEE) {
+		actor_flags |= DND_ACTORFLAG_COUNTSASMELEE;
+		flags ^= DND_DAMAGEFLAG_COUNTSASMELEE;
+	}
+		
+	// berserker perk50 dmg increase portion
+	if((IsMeleeWeapon(wepid) || actor_flags & DND_ACTORFLAG_COUNTSASMELEE) && CheckActorInventory(owner, "Berserker_Perk50")) {
+		SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+		if((px = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+			GiveActorInventory(owner, "Berserker_HitTracker", 1);
+			if(!px)
+				ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
+		}
+		if(px + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+			if(!CheckActorInventory(owner, "Berserker_RoarCD") && !CheckActorInventory(owner, "Berserker_NoRoar"))
+				HandleBerserkerRoar(owner);
+			GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
+		}
+		dmg += dmg * (100 + (px + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
+	}
+	
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
 		if(!isActorAlive(victim)) {
 			// if actor died before the rest of the pellets can take effect, fire corresponding bullet attacks from behind this monster
@@ -1053,15 +1135,9 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	}
 	
 	// printbold(d:owner, s: " ", d:victim);
-	int actor_flags = ScanActorFlags();
 	if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
 		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
 		actor_flags |= (wepid << 16);
-	}
-	
-	if(flags & DND_DAMAGEFLAG_FOILINVUL) {
-		actor_flags |= DND_ACTORFLAG_FOILINVUL;
-		flags ^= DND_DAMAGEFLAG_FOILINVUL;
 	}
 	
 	// Flayer magic or undead check
@@ -1096,7 +1172,16 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 }
 
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
-	HandleImpactDamage(GetActorProperty(0, APROP_TARGETTID), GetActorProperty(0, APROP_TRACERTID), dmg, damage_type, flags, wepid);
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int victim = GetActorProperty(0, APROP_TRACERTID);
+	
+	// sedrin check
+	if(!CheckActorInventory(owner, "NetherCheck") && wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
+		SetActivator(owner);
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+	}
+	else
+		HandleImpactDamage(owner, victim, dmg, damage_type, flags, wepid);
 	
 	SetResultValue(0);
 }
@@ -1109,10 +1194,15 @@ Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int w
 	SetResultValue(0);
 }
 
-void HandleRipperHitSound(int tid, int wepid) {
+void HandleRipperHitSound(int tid, int owner, int wepid) {
 	switch(wepid) {
 		case DND_WEAPON_CROSSBOW:
 			PlaySound(tid, "Crossbow/Hit", 5, 1.0);
+		break;
+		case DND_WEAPON_DARKLANCE:
+			// stack building on kill
+			if(!isActorAlive(tid))
+				GiveActorInventory(owner, "LanceStacks", 1);
 		break;
 	}
 }
@@ -1120,16 +1210,17 @@ void HandleRipperHitSound(int tid, int wepid) {
 // to be used sparingly, it scans all monsters at all times since we dont have linetraces
 Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
-	int speed = GetActorProperty(0, APROP_SPEED);
 	int r = GetActorProperty(0, APROP_RADIUS) >> 16;
 	int h = GetActorProperty(0, APROP_HEIGHT);
 	int i = 0, m = 0, s = 0;
-	int steps = (speed / r) >> 16;
+	int actor_flags = ScanActorFlags();
 	
 	// increment id by 1 for each call, doesnt matter if it overflows
-	static int ripper_id = -1;
+	int ripper_id = -1;
+	static int ripper_count = -1;
 	static int ripper_hits[MAX_RIPPERS_ACTIVE][MAX_RIPPER_HITS_STORED];
-	ripper_id = (ripper_id + 1) % MAX_RIPPERS_ACTIVE;
+	ripper_count = (ripper_count + 1) % MAX_RIPPERS_ACTIVE;
+	ripper_id = ripper_count;
 	
 	// reset ripper hit array
 	for(i = 0; i < MAX_RIPPER_HITS_STORED; ++i)
@@ -1160,8 +1251,8 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	int a_x, a_y, a_r;
 	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
 
-	// for lower speeds we dont need predictive methods
-	while(!GetUserVariable(0, "user_hit")) {
+	// start target picking
+	while(GetActorVelX(0) || GetActorVelY(0) || GetActorVelZ(0)) {
 		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 			// dead, skip
 			if(!isActorAlive(i))
@@ -1169,9 +1260,18 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		
 			found = false;
 			a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
+			
+			int speed = GetActorProperty(0, APROP_SPEED);
+			int steps = Max(speed, a_r + (r << 16));
+			
+			//printbold(s:"spd: ", f:speed);
 		
-			if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > speed)
+			if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > steps || ((actor_flags & DND_ACTORFLAG_THRUGHOST) && CheckFlag(i, "GHOST")))
 				continue;
+				
+			steps = (speed / r) >> 16;
+			if(steps < 2)
+				steps = 2;
 			
 			for(s = 0; s < steps; ++s) {
 				// eliminate cases where it'd fail to touch
@@ -1191,10 +1291,10 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 				
 				//printbold(s:"x-y valid on: ", f:a_x, s: " ", f:a_y, s:" ", f:top_x + s * dir_x * r, s: " ", f:top_y + s * dir_y * r, s: " ", f:bot_x + s * dir_x * r, s: " ", f:bot_y + s * dir_y * r);
 				//printbold(s:"try z: ", f:GetActorZ(0) - h, s: " ", f:GetActorZ(0) + h, s: " ", f:GetActorZ(i), s: " ", f:GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT));
-				if(GetActorZ(0) - h > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h < GetActorZ(i) || !CheckSight(0, i, 0))
+				if(GetActorZ(0) - h / 2 > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h / 2 < GetActorZ(i) || !CheckSight(0, i, 0))
 					continue;
 				
-				//printbold(s:"IN BOX");
+				//printbold(s:"IN BOX ", d:ripper_id, s: " actor: ", d:i);
 				// insert into ripper hit list, and call impact damage script on this guy IF not in list
 				for(m = 0; m < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][m] != -1; ++m) {
 					if(ripper_hits[ripper_id][m] == i) {
@@ -1202,13 +1302,13 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 						break;
 					}
 				}
-				
+				//printbold(s:"found or max? ", d:found, s: " ", d:m < MAX_RIPPER_HITS_STORED);
 				// not in this list yet, insert it and do damage deal routine
 				if(!found && m < MAX_RIPPER_HITS_STORED) {
 					//printbold(s:"deal damage to ", d:i, s: " by ripper id ", d:ripper_id);
 					ripper_hits[ripper_id][m] = i;
 					ACS_NamedExecuteWithResult("DnD Do Impact Damage Ripper", dmg, damage_type | (i << DAMAGE_TYPE_SHIFT), flags, wepid);
-					HandleRipperHitSound(i, wepid);
+					HandleRipperHitSound(i, owner, wepid);
 				}
 				break;
 			}
@@ -1240,6 +1340,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid) {
 	int flags = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
 	
+	int temp;
 	int ox = PlayerDamageVector[pnum].x;
 	int oy = PlayerDamageVector[pnum].y;
 	int oz = PlayerDamageVector[pnum].z;
@@ -1256,11 +1357,14 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid) {
 	PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;
 	
 	// check if player has lifesteal, if they do reward some hp back
-	if(CheckInventory("IATTR_Lifesteal") && !MonsterProperties[victim_data].trait_list[DND_BLOODLESS]) {
-		// divide by 100 as its a percentage
-		int temp = ((PlayerDamageTicData[pnum][victim_data] * CheckInventory("IATTR_Lifesteal")) / 100) >> 16;
-		if(temp)
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
+	if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS]) {
+		temp = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
+		if(CheckInventory("IATTR_Lifesteal") || temp) {
+			// divide by 100 as its a percentage
+			temp = (PlayerDamageTicData[pnum][victim_data] * ((CheckInventory("IATTR_Lifesteal") + temp * DND_TALTOS_LIFESTEAL) / 100)) >> 16;
+			if(temp)
+				ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
+		}
 	}
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance

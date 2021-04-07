@@ -289,14 +289,14 @@ void DrawCornerText(int opt, int boxid) {
 	SetHudClipRect(0, 0, 0, 0);
 }
 
-void DrawDamageTypes(int opt, int posy, int req_id, int constraint, int flags) {
+void DrawDamageTypes(int req_id, int constraint, int flags) {
 	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + 3);
 	if(req_id == -1 || CheckItemRequirements(req_id, constraint, flags)) {
 		int j = 0;
 		for(int i = 0; i < MAX_DAMAGE_TYPES; ++i) {
 			if(IsSet(WeaponDamageTypes[req_id], i)) {
 				SetFont(DamageTypeIcons[i]);
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + (j++) * 30.0, 84.1, 0.0, 0.0);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + (j++) * 30.0, 84.1, 0.1, 0.0);
 			}
 		}
 		SetFont("SMALLFONT");
@@ -575,66 +575,67 @@ str GetWeaponShopIcon(int id) {
 	return Weapons[id][WEAPON_ICON];
 }
 
-int GetItemBeginIndex(int opt) {
-	if(opt >= MENU_SHOP_WEAPON1 && opt <= MENU_SHOP_WEAPON8)
-		return WeaponBeginIndexes[opt - MENU_SHOP_WEAPON1];
-	if(opt >= SHOP_FIRSTAMMO_PAGE && opt <= SHOP_LASTAMMO_PAGE)
-		return MenuAmmoIndexMap[opt - SHOP_FIRSTAMMO_PAGE][0];
-	if(opt == MENU_SHOP_ARMOR2)
-		return PAGE1_ARMOR_COUNT;
-	return 0;
-}
-
-void DrawHelpCorner (int opt, int boxid) {
+void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
 	str toshow = "";
-	int beginindex = 0;
 	
-	if(CheckInventory("ActiveMainBox") != MAINBOX_NONE || (opt == MENU_PERK)) {
-		DrawCornerText(opt, boxid);
-		return;
-	}
-	else
-		DeleteText(RPGMENUHELPCORNERIDMAIN);
-	if(boxid == MAINBOX_NONE) {
-		DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + 3);
-		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
-		return;
-	}
-	--boxid; // convert to 0 based
-	auto CurrentPane = GetPane();
-	if(boxid < CurrentPane.cursize) {
-		// some exceptions here
-		if(opt >= SHOP_FIRSTAMMO_PAGE && opt <= SHOP_LASTAMMO_PAGE) {
-			int shopindex = 0;
-			if(opt != MENU_SHOP_AMMO_SPECIAL1) {
-				shopindex = MenuAmmoIndexMap[opt - SHOP_FIRSTAMMO_PAGE][boxid] - SHOP_FIRSTAMMO_INDEX;
-				toshow = GetTextWithResearch(AmmoInfo_Str[opt - SHOP_FIRSTAMMO_PAGE][boxid + beginindex][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
-			}
-			else {
-				// skip ahead previous ammos
-				shopindex = MAXSHOPNORMALAMMOS + boxid;
-				toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
-			}
+	if(boxid != MAINBOX_NONE) {
+		if(isSpecial) {
+			ammoindex = MAXSHOPNORMALAMMOS + boxid - 1;
+			toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_ICON], "", AmmoDrawInfo[ammoindex].res_id, RES_KNOWN, AmmoDrawInfo[ammoindex].flags);
 		}
 		else {
-			beginindex = GetItemBeginIndex(opt);
-			if(opt >= MENU_SHOP_WEAPON1 && opt <= MENU_SHOP_WEAPON8) {
-				DrawDamageTypes(opt, boxid, boxid + beginindex, RES_KNOWN, WeaponDrawInfo[boxid + beginindex].flags); // draw damage types as well
-				toshow = GetTextWithResearch(GetWeaponShopIcon(boxid + beginindex), "", WeaponDrawInfo[boxid + beginindex].res_id, RES_KNOWN, WeaponDrawInfo[boxid + beginindex].flags);
-			}
-			else if(opt == MENU_SHOP_ARTIFACT)
-				toshow = GetTextWithResearch(ArtifactInfo[boxid][ARTI_ICON], "", ArtifactDrawInfo[boxid].res_id, RES_KNOWN, ArtifactDrawInfo[boxid].flags);
-			else if(opt >= MENU_SHOP_ARMOR1 && opt <= MENU_SHOP_ARMOR2)
-				toshow = GetTextWithResearch(ArmorImages[boxid + beginindex], "", ArmorDrawInfo[boxid + beginindex].res_id,  RES_KNOWN, ArmorDrawInfo[boxid + beginindex].flags);
+			int shopindex = MenuAmmoIndexMap[slot][ammoindex] - SHOP_FIRSTAMMO_INDEX;
+			toshow = GetTextWithResearch(AmmoInfo_Str[slot][ammoindex][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
 		}
 	}
-	else
-		toshow = "";
-	if(StrLen(toshow)) {
+
+	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
 		SetFont("SMALLFONT");
 	}
+	else
+		DeleteText(RPGMENUHELPCORNERID);
+}
+
+// the itemid as is works here because the first item list on menu is weapons in enum at dnd_menuconstants.h
+void DrawWeaponIconCorner(int boxid, int itemid) {
+	str toshow = GetTextWithResearch(GetWeaponShopIcon(itemid), "", WeaponDrawInfo[itemid].res_id, RES_KNOWN, WeaponDrawInfo[itemid].flags);
+
+	if(StrCmp(toshow, "")) {
+		SetFont(toshow);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
+		SetFont("SMALLFONT");
+	}
+	else
+		DeleteText(RPGMENUHELPCORNERID);
+
+	// draw damage types as well
+	DrawDamageTypes(itemid, RES_KNOWN, WeaponDrawInfo[itemid].flags);
+}
+
+void DrawArtifactIconCorner(int boxid) {
+	str toshow = GetTextWithResearch(ArtifactInfo[boxid][ARTI_ICON], "", ArtifactDrawInfo[boxid].res_id, RES_KNOWN, ArtifactDrawInfo[boxid].flags);
+
+	if(StrCmp(toshow, "")) {
+		SetFont(toshow);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
+		SetFont("SMALLFONT");
+	}
+	else
+		DeleteText(RPGMENUHELPCORNERID);
+}
+
+void DrawArmorIconCorner(int itemid) {
+	str toshow = GetTextWithResearch(ArmorImages[itemid], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
+
+	if(StrCmp(toshow, "")) {
+		SetFont(toshow);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
+		SetFont("SMALLFONT");
+	}
+	else
+		DeleteText(RPGMENUHELPCORNERID);
 }
 
 void ShowAccessoryIcon(int acc, int i) {
@@ -789,18 +790,23 @@ int CanTrade (int id, int tradeflag, int price) {
 			else
 				cond2 = !IsBackpackLimitReached();
 		}
-		else { // weapon
-			if(CheckInventory("Berserker_Perk5")) {
-				if(id <= SHOP_WEAPON_SLOT1END)
-					cond3 = true;
+		else { // weapon or ability
+			if(type == TYPE_WEAPON && CheckInventory("Berserker_Perk5")) {
+				if(id <= SHOP_WEAPON_SLOT1END) {
+					cond3 = !CheckInventory(item);
+					cond2 = cond3;
+				}
 				else if(id >= SHOP_WEP_BFG)
 					return POPUP_YOUARENTALLOWED;
-				else
+				else {
 					cond3 = !CheckInventory(item);
+					cond2 = cond3;
+				}
 			}
-			else
+			else {
 				cond3 = !CheckInventory(item);
-			cond2 = cond3 && !CheckInventory(wepcheck);
+				cond2 = cond3 && !CheckInventory(wepcheck);
+			}
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
 		
@@ -900,7 +906,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 						colorprefix = "\c[G8]";
 						toshow = "\c[G8]";
 					} // if I have options color others
-					else if( (objectflag & OBJ_HASCHOICE && CheckInventory(choicename) == choicecount) || 
+					else if( (objectflag & OBJ_HASCHOICE && !(CheckInventory("Berserker_Perk5") && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
 							 (itemid == SHOP_ARTI_BACKPACK && IsBackpackLimitReached()) ||
 							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX))
 						   ) 
@@ -949,6 +955,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				else
 					HudMessage(s:"* ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
+				
+				DrawWeaponIconCorner(curposy, itemid);
 			}
 			else if(objectflag & OBJ_AMMO) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
@@ -965,6 +973,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
 				HudMessage(s:"* ", s:ArtifactExplanation[curposy]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
+				
+				DrawArtifactIconCorner(curposy);
 			}
 			else if(objectflag & OBJ_TALENT) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
@@ -977,6 +987,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
 				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 48, CR_WHITE, 440.2, 216.1, 0.0, 0.0);
+			
+				DrawArmorIconCorner(itemid - SHOP_FIRSTARMOR_INDEX);
 			}
 			else if(objectflag & OBJ_ABILITY) {
 				SetHudClipRect(192, 208, 256, 64, 256, 1);
@@ -1275,66 +1287,59 @@ void DrawHighLightBar (int posy, int drawstate) {
 	SetFont("SMALLFONT");
 }
 
-void HandleAmmoPurchase(int slot, int boxid, int index_beg, bool givefull, bool isSpecialAmmo) {
-	int itemid;
-	// special ammo order is normal
-	if(!isSpecialAmmo)
-		itemid = MenuAmmoIndexMap[slot][boxid - 1];
-	else
-		itemid = index_beg + boxid - 1;
-	
-	if(!CheckItemRequirements(itemid, RES_DONE, GetItemFlags(itemid))) {
+void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, bool isSpecialAmmo) {
+	if(!CheckItemRequirements(shop_index, RES_DONE, GetItemFlags(shop_index))) {
 		// not done, so we can't give this
 		ShowNeedResearchPopup();
 	}
 	else {
-		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
-		int buystatus = CanTrade(itemid, TRADE_BUY, price);
+		int price = GetShopPrice(shop_index, PRICE_CHARISMAREDUCE);
+		int buystatus = CanTrade(shop_index, TRADE_BUY, price);
 		
 		if(!buystatus) {
-			int amt = GetAmmoToGive(index_beg), count = 1;
+			int amt = GetAmmoToGive(shop_index), count = 1;
 			
 			// if we are maxing the ammo
 			if(givefull) {
 				// count was overcounting before
 				--count;
 				if(slot != -1)
-					count += (GetAmmoCapacity(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME]) - CheckInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME])) / amt;
+					count += (GetAmmoCapacity(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME]) - CheckInventory(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME])) / amt;
 				else
-					count += (GetAmmoCapacity(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME]) - CheckInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME])) / amt;
+					count += (GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME])) / amt;
 				price = price * count;
 				if(price > CheckInventory("Credit")) {
-					count = CheckInventory("Credit") / GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
-					price = count * GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+					count = CheckInventory("Credit") / GetShopPrice(shop_index, PRICE_CHARISMAREDUCE);
+					price = count * GetShopPrice(shop_index, PRICE_CHARISMAREDUCE);
 					amt *= count;
 				}
 				else {
 					amt *= count;
 					// we can indeed afford to buy a complete fill, check for remainder ammo from bulk purchase -- like 28 shells, need 32 but each buy gives 10 so 2 remains
 					if(slot != -1)
-						buystatus = GetAmmoCapacity(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME]) - (CheckInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME]) + amt);
+						buystatus = GetAmmoCapacity(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME]) - (CheckInventory(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME]) + amt);
 					else
-						buystatus = GetAmmoCapacity(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME]) - (CheckInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME]) + amt);
+						buystatus = GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - (CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) + amt);
 					if(buystatus) {
 						amt += buystatus;
-						price += Max(buystatus * GetShopPrice(itemid, PRICE_CHARISMAREDUCE) / GetAmmoToGive(index_beg), 1);
+						price += Max(buystatus * GetShopPrice(shop_index, PRICE_CHARISMAREDUCE) / GetAmmoToGive(shop_index), 1);
 					}
 				}
 			}
-			if(amt > ShopStockRemaining[PlayerNumber()][itemid]) {
+			if(amt > ShopStockRemaining[PlayerNumber()][shop_index]) {
 				// rebalance the amount so we don't go in debt...
-				amt = ShopStockRemaining[PlayerNumber()][itemid];
-				price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE) * amt / GetAmmoToGive(index_beg);
+				amt = ShopStockRemaining[PlayerNumber()][shop_index];
+				price = GetShopPrice(shop_index, PRICE_CHARISMAREDUCE) * amt / GetAmmoToGive(shop_index);
 			}
 			
 			// we're OK now
 			TakeInventory("Credit", price);
 			if(slot != -1)
-				GiveInventory(AmmoInfo_Str[slot][boxid - 1][AMMOINFO_NAME], amt);
+				GiveInventory(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME], amt);
 			else
-				GiveInventory(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_NAME], amt);
-			ShopStockRemaining[PlayerNumber()][itemid] -= amt;
-			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, PlayerNumber(), itemid, ShopStockRemaining[PlayerNumber()][itemid]);
+				GiveInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME], amt);
+			ShopStockRemaining[PlayerNumber()][shop_index] -= amt;
+			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, PlayerNumber(), shop_index, ShopStockRemaining[PlayerNumber()][shop_index]);
 			GiveInventory("DnD_MoneySpentQuest", price);
 			LocalAmbientSound("items/ammo", 127);
 		}
@@ -1583,32 +1588,32 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// loadout for accessories below
 		{
-			{ 226.0, 252.0, 102.0, 242.0 },
-			{ 224.0, 220.0, 107.0, 210.0 },
-			{ 210.0, 188.0, 119.0, 178.0 },
-			{ 240.0, 156.0, 87.0, 146.0 },
-			{ 216.0, 124.0, 113.0, 114.0 },
+			{ 226.0, 248.0, 102.0, 238.0 },
+			{ 224.0, 216.0, 107.0, 206.0 },
+			{ 210.0, 184.0, 119.0, 174.0 },
+			{ 240.0, 152.0, 87.0, 142.0 },
+			{ 216.0, 120.0, 113.0, 110.0 },
 			{ -1, -1, -1, -1 },
 		},
 		{
-			{ 240.0, 252.0, 90.0, 242.0 },
-			{ 213.0, 220.0, 116.0, 210.0 },
-			{ 208.0, 188.0, 120.0, 178.0 },
-			{ 207.0, 156.0, 120.0, 146.0 },
-			{ 226.0, 124.0, 102.0, 114.0 },
+			{ 240.0, 248.0, 90.0, 238.0 },
+			{ 213.0, 216.0, 116.0, 206.0 },
+			{ 208.0, 184.0, 120.0, 174.0 },
+			{ 207.0, 152.0, 120.0, 142.0 },
+			{ 226.0, 120.0, 102.0, 110.0 },
 			{ -1, -1, -1, -1 }
 		},
 		{
-			{ 242.0, 252.0, 86.0, 242.0 },
-			{ 220.0, 220.0, 108.0, 210.0 },
-			{ 197.0, 188.0, 131.0, 178.0 },
-			{ 232.0, 156.0, 97.0, 146.0 },
-			{ 226.0, 124.0, 106.0, 114.0 },
+			{ 242.0, 248.0, 86.0, 238.0 },
+			{ 220.0, 216.0, 108.0, 206.0 },
+			{ 197.0, 184.0, 131.0, 174.0 },
+			{ 232.0, 152.0, 97.0, 142.0 },
+			{ 226.0, 120.0, 106.0, 110.0 },
 			{ -1, -1, -1, -1 }
 		},
 		{
-			{ 244.0, 252.0, 86.0, 242.0 },
-			{ 236.0, 220.0, 96.0, 210.0 },
+			{ 244.0, 248.0, 86.0, 238.0 },
+			{ 236.0, 216.0, 96.0, 206.0 },
 			{ -1, -1, -1, -1 }
 		},
 		// trade 1
@@ -1695,6 +1700,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// wep 4 - 1
@@ -1706,6 +1712,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// wep 4 - 2
@@ -1713,6 +1720,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
+			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ -1, -1, -1, -1 }
 		},
 		// wep 5 - 1
@@ -1724,6 +1732,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// wep 5 - 2
@@ -1731,6 +1740,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
+			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ -1, -1, -1, -1 }
 		},
 		// wep 6 - 1
@@ -1794,6 +1804,11 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 101.0, 104.0, 95.0 }, // w10
 			{ -1, -1, -1, -1 }
 		},
+		// ammo 1 - 2
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
+			{ -1, -1, -1, -1 }
+		},
 		// ammo 2
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
@@ -1808,6 +1823,11 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 101.0, 104.0, 95.0 }, // w10
 			{ -1, -1, -1, -1 }
 		},
+		// ammo 2 - 2
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
+			{ -1, -1, -1, -1 }
+		},
 		// ammo 3
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
@@ -1817,6 +1837,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 4
@@ -2325,25 +2346,22 @@ void PushStack(int pnum, int val) {
 }
 
 void HandleButtonClick(int boxid) {
-	if(boxid >= FIRST_CLICKABLE_BOXID && boxid <= LAST_CLICKABLE_BOXID) {
-		if(!CheckInventory(ButtonTimers[boxid - FIRST_CLICKABLE_BOXID]))
-			SetInventory(ButtonTimers[boxid - FIRST_CLICKABLE_BOXID], 1); // kick starts the animation
-		
-		// all other boxes now have some other behavior
-		// flush stack if return is pressed
-		menu_stack_T? stack = GetMenuStack(PlayerNumber());
-		if(boxid == MAINBOX_RET) {
-			FlushStack(PlayerNumber());
-			ReturnToMain();
-		}
-		else if(boxid == MAINBOX_LARR) {
-			stack.stackptr = stack.stackptr > 0 ? stack.stackptr - 1 : 0;
-			UpdateMenuFromStack(stack.stack_elems[stack.stackptr]);
-		}
-		else if(boxid == MAINBOX_RARR) {
-			stack.stackptr = stack.stackptr < stack.cursize - 1 ? stack.stackptr + 1 : stack.cursize - 1;
-			UpdateMenuFromStack(stack.stack_elems[stack.stackptr]);
-		}
+	ACS_NamedExecuteWithResult("DnD Main Button Click Animation", boxid);
+
+	// all other boxes now have some other behavior
+	// flush stack if return is pressed
+	menu_stack_T? stack = GetMenuStack(PlayerNumber());
+	if(boxid == MAINBOX_RET) {
+		FlushStack(PlayerNumber());
+		ReturnToMain();
+	}
+	else if(boxid == MAINBOX_LARR) {
+		stack.stackptr = stack.stackptr > 0 ? stack.stackptr - 1 : 0;
+		UpdateMenuFromStack(stack.stack_elems[stack.stackptr]);
+	}
+	else if(boxid == MAINBOX_RARR) {
+		stack.stackptr = stack.stackptr < stack.cursize - 1 ? stack.stackptr + 1 : stack.cursize - 1;
+		UpdateMenuFromStack(stack.stack_elems[stack.stackptr]);
 	}
 }
 
@@ -2374,7 +2392,8 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
 }
 
-void HandleAmmoPageDraw(int boxid, int slot, int multipage, bool specialammo) {
+// These except ammo indexes, true ammo indexes (dnd_ammo.h) not menu relative
+void HandleAmmoPageDraw(int boxid, int slot, int multipage, int start_index, int end_index, bool specialammo) {
 	int shopindex = 0;
 	int i;
 	
@@ -2395,16 +2414,18 @@ void HandleAmmoPageDraw(int boxid, int slot, int multipage, bool specialammo) {
 	HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 
 	if(!specialammo) {
-		for(i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
+		for(i = start_index; i <= end_index; ++i) {
 			shopindex = MenuAmmoIndexMap[slot][i];
-			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[shopindex][SHOPNAME_CONDITION], 1, CR_RED);
+			DrawToggledImage(shopindex, boxid, i - start_index, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[shopindex][SHOPNAME_CONDITION], 1, CR_RED);
 		}
+		DrawAmmoIconCorner(slot, boxid, boxid + start_index - 1, false);
 	}
 	else {
 		for(i = 0; i < MAX_SPECIAL_AMMOS_FOR_SHOP; ++i) {
 			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
 			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
 		}
+		DrawAmmoIconCorner(-1, boxid, -1, true);
 	}
 }
 
@@ -2431,21 +2452,25 @@ void HandleWeaponPageInput(int pnum, int boxid, int wbegin, int wend, int pagepr
 	}
 }
 
-void HandleAmmoPageInput(int pnum, int slot, int boxid, int pageprev, int pagenext, bool IsSpecialAmmo) {
-	int beginindex = MenuAmmoIndexMap[slot][boxid - 1];
+void HandleAmmoPageInput(int pnum, int slot, int boxid, int begin_index, int pageprev, int pagenext, bool IsSpecialAmmo) {
+	int id = 0;
 	
 	if(IsSpecialAmmo) {
-		beginindex = SHOP_FIRSTAMMOSPECIAL_INDEX;
+		id = SHOP_FIRSTAMMOSPECIAL_INDEX + boxid - 1;
 		slot = -1;
 	}
+	else
+		id = MenuAmmoIndexMap[slot][boxid + begin_index - 1];
+		
+	// printbold(d:id, s: " ", d:boxid + begin_index - 1, s: " vs ", d:AMMO_SLAYER);
 	
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE)
-			HandleAmmoPurchase(slot, boxid, beginindex, false, IsSpecialAmmo);
+			HandleAmmoPurchase(slot, boxid + begin_index - 1, id, false, IsSpecialAmmo);
 		ClearPlayerInput(pnum, true);
 	} // ammos have alternate functionality for sell
 	else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
-		HandleAmmoPurchase(slot, boxid, beginindex, true, IsSpecialAmmo);
+		HandleAmmoPurchase(slot, boxid + begin_index - 1, id, true, IsSpecialAmmo);
 		ClearPlayerInput(pnum, true);
 	}
 	
@@ -2743,7 +2768,7 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 		my &= MMASK;
 		mx += 0.4;
 		my += 0.1;
-		SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 192, 256, 1);
+		SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 288, 256, 1);
 		DrawInventoryInfoText(topboxid, source, pn, mx, my, itype);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetHudSize(dimx, dimy, 1);
@@ -4257,7 +4282,7 @@ void DrawPlayerStats(int pnum) {
 		HudMessage(s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * val), s:"%\c- discount"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
 	// crit things
-	val = GetBaseCritChance(pnum);
+	val = GetCritChance(pnum, -1);
 	if(val)
 		HudMessage(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- global critical strike chance"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
