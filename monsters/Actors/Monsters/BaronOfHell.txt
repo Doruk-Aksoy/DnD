@@ -2430,6 +2430,7 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_WARMASTER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Warmaster Rage")
 		Goto SpawnSetup
 
 		Idle:
@@ -2480,7 +2481,7 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Recoil(-2.8)
 			BOSX G 5 Fast A_CustomComboAttack("WarmasterFireBall", 32, 10 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
 		Goto See
-		RageMissileState:
+		RageMissile:
 			BOSX E 6 Fast A_FaceTarget 
 			TNT1 A 0 A_PlaySound("Warmaster/Attack")
 			BOSX F 5 Fast A_FaceTarget 
@@ -2635,4 +2636,216 @@ Actor WarmasterRoarFX {
 			BOSX ST 5 Bright
 		Stop
 	}
+}
+
+actor Judicator : DnD_BaseHybridMonster {
+	obituary "%o was peppered by a Judicator's machine gun."
+	HitObituary "%o had %p head bashed in by a Judicator."
+	Health 0x7FFFFFFF
+	radius 24
+	height 64
+	mass 2048
+	speed 10
+	painchance 64
+	SeeSound "Robodude/See"
+	PainSound "Robodude/pain"
+	DeathSound "Robodude/die"
+	ActiveSound "Robodude/act"
+	meleerange 160
+	Tag "Judicator"
+	Species "HK"
+	const float thrust_vel = 24.0;
+	Scale 1.15
+	+ISMONSTER
+	+NOBLOOD
+	+DONTRIP
+	+DONTHURTSPECIES
+	+NODROPOFF
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_JUDICATOR)
+		Goto SpawnSetup
+	
+		Idle:
+			JUIC A 5 A_Look
+		loop
+		SeeState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
+		SeeStateLoop:
+			JUIC ABCD 4 Fast A_Chase
+			TNT1 A 0 A_Jump(128, "BlockMove")
+			JUIC ABCD 4 Fast A_Chase
+		Goto See
+		BlockMove:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
+		BlockMoveLoop:
+			JUIC O 4 Fast A_Chase("", "")
+			JUIC P 4 Fast A_Chase
+			JUIC Q 4 Fast A_Chase("", "")
+			JUIC R 4 Fast A_Chase
+			TNT1 A 0 A_Jump(192, "See")
+			JUIC O 4 Fast A_Chase("", "")
+			JUIC P 4 Fast A_Chase
+			JUIC Q 4 Fast A_Chase("", "")
+			JUIC R 4 Fast A_Chase
+		Loop
+		MeleeState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
+			TNT1 A 0 A_Jump(64, "MissileState")
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Fast
+			JUIC G 1 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Fast
+			JUIC G 1 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Fast
+			JUIC G 1 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Fast
+			JUIC G 1 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Bright Fast
+			JUIC G 1 Bright Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Bright Fast
+			JUIC G 1 Bright Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+			JUIC G 2
+			JUIC G 1 A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2
+			JUIC G 1 A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Bright Fast
+			JUIC G 1 Bright Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC G 2 Bright Fast
+			JUIC G 1 Bright Fast A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(thrust_vel * cos(angle), thrust_vel * sin(angle), velz, CVF_REPLACE)
+			JUIC OOO 1 Fast
+			TNT1 A 0 A_CustomMissile("JudicatorBash_Weak", 32, 0, 0, CMF_AIMDIRECTION, 0)
+			JUIC PPP 1 Fast
+			JUIC Q 1 Fast A_Quake(2, 17, 0, 512, "Judicator/Step")
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC Q 2 Fast A_FaceTarget(22.5)
+			JUIC R 3 Fast
+			JUIC R 1 Fast A_CustomMissile("JudicatorBash_Weak", 32, 0, 0, CMF_AIMDIRECTION, 0)
+			TNT1 A 0 A_ChangeVelocity(thrust_vel * cos(angle), thrust_vel * sin(angle), velz, CVF_REPLACE)
+			JUIC O 3 Fast A_FaceTarget(22.5)
+			TNT1 A 0 A_CustomMissile("JudicatorBash_Weak", 32, 0, 0, CMF_AIMDIRECTION, 0)
+			JUIC P 3 Fast
+			JUIC Q 1 Fast A_Quake(2, 17, 0, 512, "Judicator/Step")
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC Q 2 Fast
+			JUIC R 2 Fast A_FaceTarget(22.5)
+			JUIC R 1 Fast A_CustomMissile("JudicatorBash_Weak", 32, 0, 0, CMF_AIMDIRECTION, 0)
+			TNT1 A 0 A_ChangeVelocity(thrust_vel * cos(angle), thrust_vel * sin(angle), velz, CVF_REPLACE)
+			JUIC O 3 Fast A_CustomMissile("JudicatorBash_Weak", 32, 0, 0, CMF_AIMDIRECTION, 0)
+			JUIC P 3 Fast A_Quake(2, 17, 0, 512, "Judicator/Step")
+			JUIC Q 1 Fast
+			TNT1 A 0 A_JumpIfCloser(160, "ShieldBash")
+			JUIC Q 2 Fast
+			JUIC R 3 Fast A_CustomMissile("JudicatorBash_Weak", 32, 0, 0, CMF_AIMDIRECTION, 0)
+			TNT1 A 0 A_ScaleVelocity(0.15)
+			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+			JUIC G 2 Fast A_FaceTarget
+		Goto See
+		ShieldBash:
+			TNT1 A 0 A_JumpIfInventory("JudicatorBashCD", 1, "FireFast")
+			TNT1 A 0 A_GiveInventory("JudicatorBashCD", 1)
+			JUIC A 2 Fast A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(thrust_vel * cos(angle), thrust_vel * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_PlaySound("Judicator/Swing", CHAN_VOICE)
+			TNT1 A 0 A_CustomMissile("JudicatorBash", 32, 0, 0, CMF_AIMDIRECTION, 0)
+			JUIC G 6 Fast A_FaceTarget
+			TNT1 A 0 A_Jump(160, "FireFast")
+			JUIC G 1 Fast
+		Goto See
+		MissileState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
+			TNT1 A 0 A_Jump(96, "RepeatedAttack")
+			JUIC E 6 Fast
+		FireFast:
+			TNT1 A 0 A_FaceTarget
+			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
+			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
+			TNT1 A 0 A_FaceTarget
+			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
+			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
+			TNT1 A 0 A_FaceTarget
+			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
+			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
+			JUIC E 4 Fast
+			JUIC E 1 Fast A_Jump(64, "Firefast")
+		goto See
+		RepeatedAttack:
+			JUIC EEEE 4 Fast A_FaceTarget
+		RepeatedAttackLoop:
+			TNT1 A 0 A_FaceTarget
+			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
+			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
+			TNT1 A 0 A_FaceTarget
+			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
+			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
+			TNT1 A 0 A_FaceTarget
+			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
+			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
+			JUIC E 1 Fast A_MonsterRefire(160, "See")
+		Goto See
+		PainState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
+			JUIC G 4 Fast A_Pain
+			JUIC G 4 Fast
+			JUIC G 1 Fast A_Jump(128, "BlockMove")
+		goto See
+		XDeathState:
+		DeathState:
+			JUIC H 4 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
+			JUIC I 4 A_Scream
+			JUIC J 4
+			JUIC K 3
+			JUIC L 3 A_NoBlocking
+			JUIC M 3
+			JUIC N -1 A_KillMaster
+		stop
+		RaiseState:
+			JUIC NMLKJ 2
+			JUIC IH 3
+		Goto See
+	}
+}
+
+Actor JudicatorBashCD : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 52
+}
+
+actor JudicatorBash {
+	radius 5
+	height 5
+	speed 36
+	DamageType "Barons"
+	damage (20 * random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	deathsound "weapons/vblhit"
+	PROJECTILE
+	+SEEKERMISSILE
+	+DONTBLAST
+	States {
+		spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 AA 1 A_SeekerMissile(90, 90, SMF_PRECISE)
+		stop
+		death:
+			TNT1 A 0 A_Quake(4, 17, 0, 256)
+			TNT1 A 1 A_Blast(0, 4, 40, 28)
+			TNT1 A 1
+		stop
+	}
+}
+
+Actor JudicatorBash_Weak : JudicatorBash {
+	damage (8 * random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 }

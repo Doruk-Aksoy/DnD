@@ -1,6 +1,23 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Phantasm/Rise			PHNTRISE
+Phantasm/Act			PHNTACT
+Phantasm/Die			PHNTDIE
+Phantasm/Attack			PHNTATK
+
+Elite/FortifyCrack		FORTCRCK
+Elite/SubordinateSpawn	SUBORSPW
+Elite/CrippleFX			CRIPPLEF
+Elite/RuinationTrigger	RUINATN
+
+Elite/ShockerHit1		ESHCKHT1
+Elite/ShockerHit2		ESHCKHT2
+Elite/ShockerHit3		ESHCKHT3
+Elite/ShockerHit4		ESHCKHT4
+Elite/ShockerHit5		ESHCKHT5
+$random Elite/ShockerHit { Elite/ShockerHit1 Elite/ShockerHit2 Elite/ShockerHit3 Elite/ShockerHit4 Elite/ShockerHit5 }
+
 MPPhotonBlaster/fire1						MPPBFIR1
 MPPhotonBlaster/fire2						MPPBFIR2
 MPPhotonBlaster/fire3						MPPBFIR3

@@ -496,6 +496,8 @@ void SavePlayerData(int pnum, int char_id) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, Player_Elixir_Bonuses[pnum].damage_type_bonus[i]);
 	}
 	
+	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_NPC_Meet"));
+	
 	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
 }
 
@@ -606,6 +608,8 @@ void SavePlayerActivities(int pnum, int char_id) {
 	
 	// save player inventory state (might have been affected by an orb)
 	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
+	
+	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_NPC_Meet"));
 }
 
 void LoadPlayerStash(int pnum, str pacc) {
@@ -990,6 +994,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc);
 	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
 	SetInventory("StoredMedkit", temp);
+	
+	// load npc meet status
+	temp = GetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc);
+	SetInventory("DnD_NPC_Meet", temp);
 	
 	// Restoration steps
 	RestoreRPGStat(RES_PLAYERSPEED);

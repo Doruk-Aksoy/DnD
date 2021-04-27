@@ -1,0 +1,164 @@
+LIGHTNING
+---------
+ 
+* Charged Bolt
+ 
+	Launch a bolt that traverses randomly towards where you were facing. Deals 20 - 40 (+5/INT) damage. Lasts 3 seconds.
+	Cost: 4 mana.
+	Cooldown: 1.5 seconds.
+	Cast Time: 1 second.
+	Per Rank: Damage +15. At every even rank gains +1 to bolts summoned.
+	Rank 5: Duration increases to 5 seconds.
+	Rank 10: Bolts can bounce off walls.
+	Unlocks: Lightning Spear, Shock.
+	Synergy - Lightning Spear: 25% damage per rank of Charged Bolt.
+	Synergy - Chain Lightning: +1 bolt count per rank of Chain Lightning.
+ 
+* Spark
+ 
+	Zap a small area (96 units) in front of you for 10 (+2/INT) damage every 0.25 seconds for 1.5 seconds.
+	Cost: 6 mana.
+	Cooldown: 2 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: Damage +10.
+	Rank 5: Area of effect becomes 128.
+	Rank 10: Zap time becomes 3 seconds.
+	Unlocks: Telekinesis, Static Field.
+ 
+* Lightning Spear
+ 
+	Throw a spear of lightning that deals 60 - 90 (+3/INT) damage.
+	Bounces around for 6 times and deals 40 (+2/INT) damage per bounce in 72 unit radius.
+	If comes into contact with an enemy, will attempt to rip through it 3 (+1/25 INT) times.
+	Cost: 16 mana.
+	Cooldown: 5 seconds.
+	Cast Time: 1 second.
+	Per Rank: Damage +25. Every even rank gain +1 bounce.
+	Rank 5: Rip count +2.
+	Rank 10: Bounce damage also applies on rip attempts.
+	Unlocks: Forked Lightning.
+	Requires: Charged Bolt (Rank 2)
+	Synergy - Charged Bolt: 2.5% damage per rank of Charged Bolt.
+	Synergy - Forked Lightning: 5% damage per rank of Forked Lightning.
+	Synergy - Chain Lightning: +1 rip count per rank of Chain Lightning.
+ 
+* Shock
+ 
+	Electrocute a target enemy to increase the lightning damage they take by 25% for 5 seconds.
+	Cost: 24 mana.
+	Cooldown: 15 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Damage amp +2.5%.
+	Rank 5: Duration increases to 8 seconds.
+	Rank 10: Affects enemies in a 96 unit radius.
+	Unlocks: Blink:
+	Requires: Charged Bolt (Rank 3)
+ 
+* Telekinesis
+ 
+	Pushes a target enemy away from you using psychic power.
+	Cost: 18 mana.
+	Cooldown: 20 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: Push distance increases by 10%, cooldown -0.5 seconds.
+	Rank 5: Pushed enemy is stunned for 1 second.
+	Rank 10: Pushed enemy takes 10% of it's maximum health as lightning damage.
+	Unlocks: Blink.
+	Requires: Spark (Rank 2)
+ 
+* Static Field
+ 
+	PASSIVE SKILL - AURA SKILL
+	Create an aura around you that periodically zaps a random enemy in a 128 (+2/INT) unit radius for 75 (+5/INT) damage.
+	Zap period is 5 seconds.
+	Cost: 25% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: Damage +15, radius +16.
+	Rank 5: Zap period lowers to 2.5 seconds.
+	Rank 10: Zap applies Shock.
+	Unlocks: Oveercharge.
+	Requires: Spark (Rank 3)
+	Synergy - Spark: +8 radius per rank of Spark.
+ 
+* Forked Lightning
+ 
+	Create a lightning bolt to the enemy you're facing dealing 175 (+15/INT) damage. Forks to 5 (+1/15 INT) enemies behind initial target.
+	Cost: 25 mana.
+	Cooldown: 10 seconds.
+	Cast Time: 1 second.
+	Per Rank: Damage +75. At every even rank gains +1 fork.
+	Rank 5: Cooldown -3 seconds.
+	Rank 10: +5 fork.
+	Unlocks: Chain Lightning.
+	Requires: Lightning Spear (Rank 4)
+	Synergy - Charged Bolt: 5% more damage per rank of Charged Bolt.
+	Synergy - Chain Lightning: +1 fork per level of Chain Lightning.
+ 
+* Blink
+ 
+	Dash towards a 96 unit distance.
+	Cost: 30 mana.
+	Cooldown: 10 seconds.
+	Cast Time: 1 second.
+	Per Rank: -0.5 cooldown, +16 distance.
+	Rank 5: No cast time.
+	Rank 10: Free to cast.
+	Unlocks: Monsoon.
+	Requires: Shock (Rank 2), Telekinesis (Rank 2)
+ 
+* Overcharge
+ 
+	Initiate a charge up period of 3 seconds where you build up electric charge based on your speed.
+	After 3 seconds, charging will stop and your next attack will unleash it.
+	Deal 75 (+8/INT) damage per charge. Maximum 200 charges can be accumulated.
+	Cost: 32 mana.
+	Cooldown: 16 seconds.
+	Cast Time: NA.
+	Per Rank: +25 damage.
+	Rank 5: Charge generation speed +25%.
+	Rank 10: Charges can be accumulated for 2 more seconds.
+ 
+* Chain Lightning
+ 
+	Unleash a bolt of lightning that upon hitting an enemy, will travel to next nearest enemy.
+	Deals 300 (+25/INT) damage on the first enemy, lowered by 5% per hop for at most 75% reduction.
+	Hops 5 (+1/25 INT) times.
+	Cost: 60 mana.
+	Cooldown: 15 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +75 damage. At every even rank +1 hop.
+	Rank 5: +5 hops.
+	Rank 10: Applies Shock.
+	Requires: Forked Lightning (Rank 2).
+	Synergy - Charged Bolt: 5% more damage per rank of Charged Bolt.
+	Synergy - Forked Lightning: +1 hop per level of Forked Lightning.
+ 
+* Monsoon
+ 
+	After a second from casting, clouds gather to electrocute enemies in a 320 (+8/INT) unit radius.
+	Calls lightning down on enemies that deals 200 (+20/INT) damage in a 64 unit radius around the enemy struck.
+	Every 0.5 an enemy will be struck. Monsoon lasts 10 seconds.
+	Cost: 75 mana.
+	Cooldown: 40 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +100 damage.
+	Rank 5: Monsoon lasts 5 more seconds.
+	Rank 10: Monsoon applies Shock.
+	Requires: Blink (Rank 2).
+	Synergy - Static Field: +16 radius per rank of Static Field.
+	Synergy - Charged Bolt: 5% damage per rank of Charged Bolt.
+ 
+* Thunder Clap
+ 
+	Slam the ground to create an expanding ring of shockwave around you in 192 unit radius. Expands 3 times with 30% more radius each time.
+	Slam does 180 (+18/INT) damage. Each expansion of the ring adds 30% more damage.
+	Cost: 80 mana.
+	Cooldown: 25 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +90 damage.
+	Rank 5: Enemies affected by the clap are stunned for 1 second.
+	Rank 10: Clap releases 36 Charged Bolts around you.
+	Requires: Overcharge (Rank 2).
+	Synergy - Static Field: +16 radius per rank.
+	Synergy - Spark: 10% damage per rank.

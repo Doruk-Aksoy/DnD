@@ -15,19 +15,6 @@
 #define CHARISMA_REDUCE (CHARISMA_DIV / CHARISMA_PERCENT)
 #define CHARISMA_REDUCE_AFTER100 CHARISMA_REDUCE * 2
 
-#define X_MULTIPLIER (4800.0)
-#define Y_MULTIPLIER (3200.0)
-#define MMASK (-1.0)
-
-#define MOUSE_INPUT_X 1
-#define MOUSE_INPUT_Y 2
-
-// topleft corner 1:1 bottom right 0:0
-#define HUDMAX_X 480
-#define HUDMAX_Y 320
-#define HUDMAX_XF 480.0
-#define HUDMAX_YF 320.0
-
 #define DND_MENU_LOADOUTWEPITEMS 6
 #define DND_MENU_ACCESSORYITEMS 4
 
@@ -158,51 +145,11 @@
 
 #define DND_MENUFLOATYICON_TID 1664
 
-// MENU IDS
-// Moved here because of dependencies
-enum {
-	RPGMENUCURSORID = 100,
-	RPGMENUPOPUPID = 105,
-	RPGMENUTRADECOUNTDOWNID,
-	RPGMENUPAGEID,
-	RPGMENUHIGHLIGHTID,
-	RPGMENUID = 700,
-	RPGMENULARRID,
-	RPGMENURARRID,
-	RPGMENURETARRID,
-	RPGMENUITEMIDEND,
-	RPGMENUITEMID = 1000,
-	RPGMENUHELPCORNERID,
-	RPGMENUHELPCORNERIDMAIN,
-	RPGMENUNAMEID,
-	RPGMENUHELPID,
-	RPGMENUINFOID,
-	RPGMENUDAMAGETYPEID,
-	RPGMENULISTID = 1060,
-	RPGMENUWEAPONPANELID = 1100,
-	RPGMENUBACKGROUNDID = 1101
-};
-
 #define DND_MENU_ITEMSAVEBITS1 8
 #define DND_MENU_ITEMSAVEBITS1_MASK 0xFF
 #define DND_MENU_ITEMCLEARMASK1 0xFFF00FF
 #define DND_MENU_ITEMSAVEBITS2 16
 #define DND_MENU_ITEMCLEARMASK2 0x000FFFF
-
-#define DND_MENU_INPUTDELAYTICS 4
-#define DND_MENUINPUT 0
-#define DND_MENUINPUT_DELAY 1
-#define DND_MENUINPUT_PAYLOAD 2
-#define DND_MENUINPUT_PLAYERCRAFTCLICK 3
-#define DND_MENUINPUT_LRPOS 4
-int MenuInputData[MAXPLAYERS][5];
-
-enum {
-	DND_MENUINPUT_LCLICK = 1,
-	DND_MENUINPUT_RCLICK,
-	DND_MENUINPUT_PREVBUTTON,
-	DND_MENUINPUT_NEXTBUTTON
-};
 
 enum {
 	BOXLIT_STATE_OFF,
@@ -212,19 +159,6 @@ enum {
 
 #define MAXLITBOXES 3 * MAX_INVENTORY_BOXES
 int InventoryBoxLit[MAXLITBOXES];
-
-typedef struct rect {
-	int topleft_x;
-	int topleft_y;
-	int botright_x;
-	int botright_y;
-} rect_T;
-
-#define MAX_MENU_BOXES 20
-typedef struct mp {
-	rect_T MenuRectangles[MAX_MENU_BOXES];
-	int cursize;
-} menu_pane_T;
 
 typedef struct mi {
 	rect_T MenuRectangles[MAX_INVENTORY_BOXES];
@@ -453,6 +387,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 4800,  1,		1 },
         { 5250,  1,		1 },
 		{ 6000,  1,		1 },
+		{ 7500,	 1,		1 },
 		
 		// 6 - 2
 		{ 7000,  1,		1 },
@@ -675,6 +610,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT6UPG1, -1, -1 },
 		{ RES_SLOT6UPG2, -1, -1 },
 		{ RES_SLOT6UPG3, -1, -1 },
+		{ RES_SLOT6UPG4, -1, -1 },
 		
 	// wep slot 6 - 2
 		{ RES_SLOT6LUXURY, -1, -1 },
@@ -734,7 +670,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT3SSGUPG3, -1, -1 },
 		
 	// ammo 4
-		{ RES_SLOT3UPG3, -1, -1 },
+		{ RES_SLOT3UPG3, RES_SLOT6UPG4, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
@@ -899,6 +835,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "ResPlasma1",							"Flamethrower",						WEPCHECK_SLOT6,			"0"		    },
 	{ "ResPlasma2",                         "Lightning Gun",                    WEPCHECK_SLOT6,      	"0"         },
 	{ "ResPlasma3",							"Rebounder",						WEPCHECK_SLOT6,			"0"			},
+	{ "ResPlasma4",							"Dark Lance",						WEPCHECK_SLOT6,			"0"			},
 	
 	{ "RhinoRifle",							"Rhino AR",							WEPCHECK_SLOT6L,		"1"			},
 	{ "Nailgun",							"Nailgun",							WEPCHECK_SLOT6L,		"1"	        },
@@ -1117,6 +1054,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ELEMENTAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_ENERGY,
+	DTYPE_OCCULT,
 	
 	// 6 - 2
 	DTYPE_PHYSICAL,
@@ -1169,7 +1107,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_SHOTGUN,								SHOP_WEP_HSSG			},
 	
 	// 3 - 2
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_ERASUS			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_SHOTGUN,								SHOP_WEP_ERASUS			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_HELLSMAW		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG1		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG2		},
@@ -1212,11 +1150,12 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	
 	// 6 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_NUCLEARPL		},
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_TUREL			},
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_FROSTFANG		},
+	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_TUREL			},
+	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_FROSTFANG		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RESPL1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL2			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL3			},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL4			},
 	
 	// 6 - 2
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RHINO			},
@@ -1343,6 +1282,7 @@ int WeaponProperties[MAXSHOPWEAPONS] = {
 	WPROP_SELFDMG,
 	WPROP_NONE,
 	WPROP_OVERHEAT | WPROP_NOREFLECT,
+	WPROP_NOREFLECT | WPROP_IGNORESHIELD,
 	
 	// 6 - 2
 	WPROP_ALTAMMO,
@@ -1414,10 +1354,10 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
 	"Launches photon blasts in multiple phases all dealing 42 - 56 damage. Some can hit ghosts and can't be reflected, some can rip but can't hit ghosts and some deal only area damage in 80 unit radius but can be reflected.",
 	
-	"The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 128 unit radius. Altfire detonates the rocket midflight, dealing the impact damage in an area instead.",
+	"The Torpedo Launcher shoots fast torpedos each doing 300 - 400 damage on impact and 224 damage in a 128 unit radius. Altfire detonates the rocket midflight, dealing the impact damage in an area instead.",
 	"Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds.",
-	"Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to into scatter 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
-	"Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well.",
+	"Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to scatter into 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
+	"Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces into further smaller with half of the values each split.",
 	"Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Altfire loads more grenades in the chamber.",
 	"Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius.",
 	"Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground.",
@@ -1434,6 +1374,7 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.",
 	"UAC offers this shockingly deadly weapon that can shoot lightning doing 9-12 damage. Alt fire shoots forked lightning. Keep firing and damage increases by 4% per stack. Stacks additively.",
 	"Fires projectiles doing 25 damage. For every 24 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.",
+	"Summon lances that penetrate all targets dealing 120 base damage. The lance grows stronger at 4, 8, 13 and 20 kill thresholds. Altfire uses all stacks to curse an enemy, dealing 180 damage per stack over 3 seconds, \cfignoring shields\c-. If the monster is killed, this bounces to nearest enemy and grants ammo.",
 	
 	"Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 spread. Alt fire zooms, allowing for higher precision but loss of rapid fire. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
 	"Shoots nails which do 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.",
@@ -1589,7 +1530,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
 	
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DEMONBLOOD		},
+	{ OBJ_AMMO | OBJ_RESEARCH | OBJ_RESEARCH_ATLEASTONE,		SHOP_AMMO_DEMONBLOOD		},
 	{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
 	{ OBJ_AMMO,													SHOP_AMMO_HELLSMAW			},
 	{ OBJ_AMMO,													SHOP_AMMO_DEVASTATOR		},
@@ -1701,7 +1642,7 @@ str AmmoExplanation[MAXSHOPAMMOS] = {
 	"desolator rounds for the Desolator Cannon.",
 	"hades shells for the Hades Auto Shotgun.",
 	
-	"vials of demon blood for the Wheel of Torment.",
+	"vials of demon blood for the Wheel of Torment and Dark Lance.",
 	"emerald mana for the Emerald Wand.",
 	"hell fire canisters for the Hell's Maw.",
 	"rockets for the Devastator.",
@@ -1992,6 +1933,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SLOT6UPG3, 9104, 60
 		},
 		{
+			RES_SLOT6UPG4, 9464, 65
+		},
+		{
 			RES_SLOT7UPG1, 5395, 60
 		},
 		{
@@ -2251,6 +2195,10 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK43",
 			"Show your love for bouncing particles! Shoot to your hearts content with Rebounder (6)."
+		},
+		{
+			"RESBAK62",
+			"The exorcist's favorite weapon. Destroy all foes of yours with their own power. Unlocks Dark Lance (6)."
 		},
 		{
 			"RESBAK26",
@@ -2549,6 +2497,16 @@ str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
 	"Monster is immune to ignite.",
 	"Monster is immune to overloading.",
 	"Monster recovers 5% of it's health every second.",
+	
+	"Never infights with any other monster, and monsters do not target it for infights.",
+	"Monster attacks will briefly stop your movement.",
+	"Monster heals for 10% of its max health whenever it hurts you.",
+	"Monster has a third of its maximum health as a shield. The shield absorbs all damage until it depletes. Shield ignore effects bypass this.",
+	"Upon death, a monster of the same class with the highest rarity will spawn.",
+	"Monster pushes players away from it when they come close, once every 3 seconds.",
+	"Monster summons an invulnerable phantasm on death that slowly chases you for 20 seconds.",
+	"Monster has an aura that slows nearby players by 50%.",
+	"Monster hits build ruination stacks. At 7 stacks, lose all armor and 12.5% of max health or 33% of max health if wearing no armor. Stacks each last 3 seconds.",
 	
 	"Monster is unique."
 };

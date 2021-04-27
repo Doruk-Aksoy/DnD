@@ -154,7 +154,14 @@ typedef struct dist_tid_pair {
 #define GRAVDIS_HEIGHTADD_PER 64
 #define GRAVDIS_CIRCLE_PARTICLES 48
 
+#define CHARON_PARTICLE_DENSITY 8
+
 #define DARKLANCE_TID 2100
+#define DARKLANCE_SHREDDER 2200
+#define DARKLANCE_ALT_DURATION 15 // 3 x 5 ticks, so 7 tic duration per instance
+#define DARKLANCE_ALT_DURATION_TICS 105
+#define DARKLANCE_TICKS 7
+#define DARKLANCE_BOUNCE_DIST 224.0
 
 enum {
 	DND_SPECIAL_RESEARCH = 1,
@@ -238,10 +245,10 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Launches photon blasts in multiple phases all dealing 42 - 56 damage. Some can hit ghosts and can't be reflected, some can rip but can't hit ghosts and some deal only area damage in 80 unit radius but can be reflected.",
 	 
 	 "A true classic. Just don't blow yourself up. Can be \cdreplaced. Can't hit \cughosts.",
-	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 500 damage on impact and 224 damage in a 144 unit radius. Altfire detonates the rocket midflight, doing the same impact damage in an area instead. Can't hit \cughosts.",
+	 "The Torpedo Launcher shoots fast torpedos each doing 300 - 400 damage on impact and 224 damage in a 144 unit radius. Altfire detonates the rocket midflight, doing the same impact damage in an area instead. Can't hit \cughosts.",
 	 "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.",
 	 "Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to scatter into 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
-	 "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces as well. Main meteor \cfignores shields\c-.",
+	 "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces into further smaller with half of the values each split. Main meteor \cfignores shields\c-.",
 	 "Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Alt fire loads more grenades in the chamber. At most 3 additional grenades. Can't hit \cughosts.",
 	 "Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius. Can \cgoverheat\c-.",
 	 "Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields\c-.",
@@ -259,6 +266,7 @@ str WeaponPickupText[MAXWEPS] = {
 	 "Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.",
 	 "UAC offers this shockingly deadly weapon that can shoot lightning doing 9-12 damage. Alt fire shoots forked lightning. Keep firing and da- mage increases by 4% per stack. Stacks additively.",
 	 "Fires projectiles doing 25 damage. For every 24 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.",
+	 "Fire lances that penetrate all targets dealing 20 damage each. The lance grows stronger at certain kill thresholds, maximized at 20. Altfire uses all stacks to curse an enemy, dealing 180 damage per stack over 3 seconds.",
 	 
 	 "Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 spread. Alt fire zooms, allowing for higher precision but loss of rapid fire. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
 	 "An interesting demonic artifact shooting nails. Each nail does 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.\c- Can't hit \cughosts.",
@@ -402,6 +410,7 @@ int CheckLevelUp (void) {
 		if(!((GetStat(STAT_LVL) + 1) % 5)) { // multiples of 5 give perk
 			GiveInventory("PerkPoint", 1);
 			GiveInventory("PerkedUp", 1);
+			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
 		}
 		// talents are removed from game
 		/*if(!((GetStat(STAT_LVL) + 1) % DND_TALENTPOINT_MARK)) {
@@ -422,6 +431,7 @@ void HandleLevelup() {
 		LocalAmbientSound("RPG/LevelUp", 127);
 		GiveInventory("LevelUpEffectSpawner", 1);
 		GiveInventory("LeveledUp", 1);
+		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
 		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
 		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
 			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
@@ -642,13 +652,14 @@ void DistributeBonus(int bonustype) {
 	}
 	else if(bonustype == BONUS_BONUS) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
-			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
-				SetActivator(i + P_TIDSTART);
-				GiveInventory("DnD_BonusBonusShower", 1);
-				ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
+			temp = i + P_TIDSTART;
+			if(PlayerInGame(i) && isActorAlive(temp)) {
+				bval = GetSpawnHealth();
+				if(GetActorProperty(temp, APROP_HEALTH) < bval)
+					GiveInventory("HealthBonusX", bval - GetActorProperty(temp, APROP_HEALTH));
+				GiveActorInventory(temp, "DnD_BonusBonusShower", 1);
 			}
 		}
-		SetActivator(-1);
 	}
 }
 
@@ -1087,26 +1098,6 @@ void ApplyRandomCurse() {
 	}
 }
 
-// from which segment to return, 0-31, 32-63, 64-95 etc.
-// current amount of MAX_MONSTER_TRAITS is 60, we dont need seg 2 atm. we will when we reach 64...
-int GetMonsterTraits(int monster_id, int segment) {
-	int ret = 0;
-	int lim = (segment + 1) << 5;
-	for(int i = segment << 5; i < lim; ++i)
-		if(MonsterProperties[monster_id].trait_list[i])
-			ret |= (1 << i);
-	return ret;
-}
-
-int GetPetMonsterTraits(int monster_id, int segment) {
-	int ret = 0;
-	int lim = (segment + 1) << 5;
-	for(int i = segment << 5; i < lim; ++i)
-		if(PetMonsterProperties[monster_id].trait_list[i])
-			ret |= (1 << i);
-	return ret;
-}
-
 void DoWeaponTip(int curweap) {
 	if(!CheckInventory("TipBoxOpen")) {
 		ACS_ExecuteAlways(977, 0, 0, curweap);
@@ -1136,6 +1127,55 @@ void SpawnDarkLanceProjectile_Side(int this, int a, int proj_tid, int x, int y, 
 	SetActorProperty(0, APROP_SPEED, spd << 16);
 	Thing_ChangeTID(proj_tid, 0);
 	SetActivator(this);
+}
+
+void DoSlotWeaponQuestChecks(int wepid) {
+	int pnum = PlayerNumber();
+	// Simple Minded quest check
+	if(PlayerWeaponUsed[pnum] == -1)
+		PlayerWeaponUsed[pnum] = wepid;
+	else if(!CheckInventory("DnD_WeaponFiredOther") && PlayerWeaponUsed[pnum] != wepid)
+		GiveInventory(Quest_Checkers[QUEST_ONLYONEWEAPON], 1);
+
+	// only slot 2 quest check
+	if(
+		active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS]) &&
+		!IsQuestComplete(ActivatorTID(), QUEST_ONLYPISTOLWEAPONS) && !CheckInventory("H_WeaponSlot2")
+	  )
+		GiveInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS], 1);
+	
+	// only boomstick quest check
+	if(
+		active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_Checkers[QUEST_NOSHOTGUNS]) && 
+		!IsQuestComplete(ActivatorTID(), QUEST_NOSHOTGUNS) && IsBoomstick(wepid)
+	  )
+		GiveInventory(Quest_Checkers[QUEST_NOSHOTGUNS], 1);
+	
+	// no superweapon quest check
+	if(
+		active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS]) &&
+		!IsQuestComplete(ActivatorTID(), QUEST_NOSUPERWEAPONS) &&
+		(CheckInventory("H_WeaponSlot7") || CheckInventory("H_WeaponSlot8"))
+	  )
+		GiveInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS], 1);
+		
+	// only energy quest check
+	if(
+		active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_Checkers[QUEST_ONLYENERGY])
+	  )
+		GiveInventory(Quest_Checkers[QUEST_ONLYENERGY], 1);
+}
+
+void HandleRuination(int this, int target) {
+	if(CheckInventory("Armor")) {
+		SetInventory("Armor", 0);
+		ACS_NamedExecuteAlways("DnD Hurt Actor", 0, target, this, GetSpawnHealth() / 8);
+	}
+	else
+		ACS_NamedExecuteAlways("DnD Hurt Actor", 0, target, this, GetSpawnHealth() / 3);
+	TakeInventory("RuinationStacks", RUINATION_MAX_STACKS);
+	PlaySound(this, "Elite/RuinationTrigger", CHAN_5, 1.0);
+	GiveInventory("RuinBlend", 1);
 }
 
 #include "DnD_Damage.h"

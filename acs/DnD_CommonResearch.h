@@ -58,6 +58,7 @@ enum {
 	RES_SLOT6UPG1,
     RES_SLOT6UPG2,
 	RES_SLOT6UPG3,
+	RES_SLOT6UPG4,
 	
 	RES_SLOT7UPG1,
 	RES_SLOT7UPG2,
@@ -110,10 +111,10 @@ int CheckResearchStatus(int res_id) {
 }
 
 int CheckActorResearchStatus(int tid, int res_id) {
-	// if we go over 62, we need another check, refrain from using Strparam here as these are potentially called often
-	// Remember: Actor inventory max value is 31 bits (signed, and min is 0).
-	if(res_id > 30) {
-		res_id %= 31;
+	// if we go over 64, we need another check, refrain from using Strparam here as these are potentially called often
+	// Remember: Actor inventory max value is 32 bits
+	if(res_id > 31) {
+		res_id %= 32;
 		if(IsSet(CheckActorInventory(tid, "Research_Done_2"), res_id))
 			return RES_DONE;
 		if(IsSet(CheckActorInventory(tid, "Research_Discovered_2"), res_id))

@@ -1,5 +1,10 @@
 #include "DnD_MenuTables.h"
 
+int itemDragImg = -1;
+
+// x,y used for dimensions of item, z is used for topbox so its not drawn until itemDragImg is -1
+vec3_T itemDragInfo;
+
 void SetPage(int option, bool useSound) {
 	SetInventory("MenuUD", 0);
 	SetInventory("MenuOption", option);
@@ -1348,52 +1353,8 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 	}
 }
 
-int GetCursorPos(int input, int mt) {
-	int res = 0, speed, ds;
-	switch(mt) {
-		case MOUSE_INPUT_X:
-			res = CheckInventory("Mouse_X");
-			speed = FixedDiv(1.0, FixedMul(GetCVar("m_yaw"), GetCVar("mouse_sensitivity")));
-			speed = FixedMul(speed * 2, HUDMAX_XF) / (HUDMAX_X * 100);
-			ds = input * speed;
-			res = Clamp_Between(res + ds, 0, HUDMAX_XF);
-		break;
-		case MOUSE_INPUT_Y:
-			res = CheckInventory("Mouse_Y");
-			speed = FixedDiv(1.0, FixedMul(GetCVar("m_pitch"), GetCVar("mouse_sensitivity")));
-			speed = FixedMul(speed * 2, HUDMAX_YF) / (HUDMAX_X / 2 * 100);
-			if (GetCVar("invertmouse"))
-				speed *= -1;
-			ds = input * speed;
-			res = Clamp_Between(res + ds, 0, HUDMAX_YF);
-		break;
-	}
-	return res;
-}
-
-void DrawCursor() {
-	static int cursor_anim = 0;
-	if(cursor_anim < 8)
-		SetFont("DND_CUR5");
-	else
-		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
-	cursor_anim = (cursor_anim + 1) % 24;
-	//Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - ((CheckInventory("Mouse_X") & MMASK)) + 0.1, HUDMAX_YF - ((CheckInventory("Mouse_Y") & MMASK)) + 0.1, 0.2, 0.0);
-}
-
-// since we use top left corner as 1:1, directions are changed
-bool point_in_box(rect_T? box, int mx, int my, int yoffset) {
-	return (mx <= box.topleft_x && mx >= box.botright_x && my <= box.topleft_y - yoffset && my >= box.botright_y - yoffset);
-}
-
 bool point_in_inventory_box(rect_T? box, int mx, int my) {
 	return (mx <= box.topleft_x && mx >= box.botright_x && my <= box.topleft_y && my >= box.botright_y);
-}
-
-menu_pane_T& GetPane() {
-	static menu_pane_T pane;
-	return pane;
 }
 
 menu_inventory_T& GetInventoryPane() {
@@ -1457,22 +1418,6 @@ void AddBoxToInventory(menu_inventory_T? p, rect_T& box) {
 	}
 	else
 		Log(s:"Menu box limit exceeded.");
-}
-
-void AddBoxToPane_Points(menu_pane_T& p, int tx, int ty, int bx, int by) {
-	if(p.cursize < MAX_MENU_BOXES) {
-		p.MenuRectangles[p.cursize].topleft_x = tx;
-		p.MenuRectangles[p.cursize].topleft_y = ty;
-		p.MenuRectangles[p.cursize].botright_x = bx;
-		p.MenuRectangles[p.cursize].botright_y = by;
-		p.cursize++;
-	}
-	else
-		Log(s:"Menu box limit exceeded.");
-}
-
-void ResetPane(menu_pane_T& p) {
-	p.cursize = 0;
 }
 
 void ResetInventoryPane(menu_inventory_T& p) {
@@ -1751,6 +1696,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
+			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ -1, -1, -1, -1 }
 			
 		},
@@ -2212,26 +2158,6 @@ void LoadPane(menu_pane_T& p, int menu_page) {
 	}
 }
 
-int GetPageScrollOffset(int page) {
-	int base = 0;
-	switch (page) {
-		default:
-			base = 0;
-		break;
-	}
-	return ScrollPos * base;
-}
-
-int GetTriggeredBoxOnPane(menu_pane_T& p, int mx, int my, int curopt) {
-	if(mx >= 348.0 || my >= 270.0)
-		return MAINBOX_NONE;
-	for(int i = 0; i < p.cursize; ++i) {
-		if(point_in_box(p.MenuRectangles[i], mx, my, GetPageScrollOffset(curopt)))
-			return i + 1;
-	}
-	return MAINBOX_NONE;
-}
-
 int GetTriggeredBoxOnInventoryPane(menu_inventory_T& p, int mx, int my) {
 	if(mx >= 400.0 || my <= 64.0 || mx <= 82.0 || my >= 260.0)
 		return MAINBOX_NONE;
@@ -2645,7 +2571,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	int temp;
 	int img = GetItemSyncValue(DND_SYNC_ITEMIMAGE, bid, (pnum + 1) << 16, source);
 	// inventory icon
-	if(hasItem) {
+	if(hasItem && itemDragInfo.z != bid) {
 		offset = (GetItemSyncValue(DND_SYNC_ITEMHEIGHT, bid, (pnum + 1) << 16, source) - 1) * scale;
 		SetFont(Item_Images[img]);
 		if(scale == TRADEITEMOFFSETSCALE) {
@@ -2851,11 +2777,17 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 				for(s = 0; s < wt; ++s)
 					InventoryBoxLit[temp + offset + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CLICK;
 			}
+			itemDragImg = GetItemSyncValue(DND_SYNC_ITEMIMAGE, temp, (pnum + 1) << 16, source);
+			itemDragInfo.x = wt;
+			itemDragInfo.y = ht;
+			itemDragInfo.z = temp;
 		}
-		else {
-			if(((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_STASH && CheckInventory("DnD_PlayerPreviousPage") == CheckInventory("DnD_PlayerCurrentPage")) || (source & 0xFFFF) != DND_SYNC_ITEMSOURCE_STASH)
-				InventoryBoxLit[prevclick] = BOXLIT_STATE_CLICK;
-		}
+		else if(((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_STASH && CheckInventory("DnD_PlayerPreviousPage") == CheckInventory("DnD_PlayerCurrentPage")) || (source & 0xFFFF) != DND_SYNC_ITEMSOURCE_STASH)
+			InventoryBoxLit[prevclick] = BOXLIT_STATE_CLICK;
+	}
+	else {
+		itemDragImg = -1;
+		itemDragInfo.z = -1;
 	}
 	
 	// highlight checking
@@ -2866,6 +2798,7 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 			DrawInventoryInfo(topboxid, source, pnum, dimx, dimy);
 		}
 	}
+	
 	if(topboxid != -1) {
 		ht = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, topboxid, (pnum + 1) << 16, source);
 		wt = GetItemSyncValue(DND_SYNC_ITEMWIDTH, topboxid, (pnum + 1) << 16, source);
@@ -2876,6 +2809,7 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 		}
 	}
 	
+	// trade view or not, little hack to check dimensions
 	if(dimx == HUDMAX_X)
 		DrawInventoryBlock(bh, bw, bid, hasItem, basex, basey, skip, idbase, source, pnum, offset, 32.0, 32.0, 16.0);
 	else
@@ -2893,6 +2827,11 @@ void HandleInventoryView(int boxid) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerNumber(), HUDMAX_X, HUDMAX_Y);
 		}
 	}
+	
+	// check if theres a thing being dragged
+	if(itemDragImg != -1)
+		DrawDraggedItem();
+	
 	SetFont("SMALLFONT");
 }
 
@@ -3216,7 +3155,7 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 
 void HandleInventoryViewTrade(int boxid) {
 	SetFont("LDTSCRN");
-	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+	SetHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH, 1);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, 0.1, 120.0, 0.0, 0.0);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, 0.1, 360.0, 0.0, 0.0);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3, CR_WHITE, 364.1, 260.0, 0.0, 0.0);
@@ -3225,7 +3164,11 @@ void HandleInventoryViewTrade(int boxid) {
 	HudMessage(s:"\c[W3]Your Offering"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 160.4, 270.0, 0.0, 0.0);
 	HudMessage(s:"\c[W3]Your Inventory"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 6, CR_WHITE, 528.4, 170.0, 0.0, 0.0);
 	
-	HandleTradeBoxDraw(boxid, HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2);
+	// check if theres a thing being dragged
+	if(itemDragImg != -1)
+		DrawDraggedItem_Stash();
+	
+	HandleTradeBoxDraw(boxid, HUDMAX_X_STASH, HUDMAX_Y_STASH);
 	
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -3463,13 +3406,23 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 	}
 }
 
+void DrawDraggedItem() {
+	SetFont(Item_Images[itemDragImg]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) - 16.0 * itemDragInfo.x + 0.1, HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) - 8.0 * itemDragInfo.y + 0.1, 0.0, 0.0);
+}
+
+void DrawDraggedItem_Stash() {
+	SetFont(Item_Images[itemDragImg]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((CheckInventory("Mouse_X") * 3 / 2) & MMASK) - 16.0 * itemDragInfo.x + 0.1, HUDMAX_YF_STASH - ((CheckInventory("Mouse_Y") * 3 / 2) & MMASK) - 8.0 * itemDragInfo.y + 0.1, 0.0, 0.0);
+}
+
 void HandleStashView(int boxid) {
 	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
 	int pnum = PlayerNumber(), i, j;
 	int curpages = CheckInventory("DnD_PlayerCurrentPage") - 1;
 	int color;
 	SetFont("LDTSCRN");
-	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+	SetHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH, 1);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, 452.4, 120.0, 0.0, 0.0);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, 452.4, 360.0, 0.0, 0.0);
 	
@@ -3488,6 +3441,10 @@ void HandleStashView(int boxid) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHBOX_BASEX_UP, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, TRADE_RES_X, TRADE_RES_Y);
 		}
 	}
+	
+	// check if theres a thing being dragged
+	if(itemDragImg != -1)
+		DrawDraggedItem_Stash();
 	
 	// stash buttons
 	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
@@ -4170,32 +4127,6 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 	}
 	
 	return res;
-}
-
-bool HasPlayerClicked(int pnum) {
-	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK || MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
-}
-
-bool HasLeftClicked(int pnum) {
-	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_LCLICK;
-}
-
-bool HasRightClicked(int pnum) {
-	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
-}
-
-bool HasPressedLeft(int pnum) {
-	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_PREVBUTTON;
-}
-
-bool HasPressedRight(int pnum) {
-	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_NEXTBUTTON;
-}
-
-void ClearPlayerInput(int pnum, bool cleanLR) {
-	MenuInputData[pnum][DND_MENUINPUT] = 0;
-	if(cleanLR)
-		MenuInputData[pnum][DND_MENUINPUT_LRPOS] = 0;
 }
 
 void GetInputOnMenuPage(int opt) {

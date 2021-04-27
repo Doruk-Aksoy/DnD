@@ -150,6 +150,10 @@ object Mordecqai {
 	frame MORDF { light MordecqaiLight2 }
 }
 
+object MordecqaiFlame {
+	frame MOFX { light FlameLight }
+}
+
 flickerlight InqPulseLight1 {
 	color 0.25 0.8 0.25
 	size 30

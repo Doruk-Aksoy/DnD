@@ -168,7 +168,21 @@ typedef struct {
 	int attrib_low;
 	int attrib_high;
 	int attrib_level_modifier;
+	int tags;
 } inv_attrib_T;
+
+enum {
+	INV_ATTR_TAG_DAMAGE = 1,
+	INV_ATTR_TAG_ATTACK = 2,
+	INV_ATTR_TAG_LIFE = 4,
+	INV_ATTR_TAG_DEFENSE = 8,
+	INV_ATTR_TAG_UTILITY = 16,
+	INV_ATTR_TAG_ELEMENTAL = 32,
+	INV_ATTR_TAG_EXPLOSIVE = 64,
+	INV_ATTR_TAG_OCCULT = 128,
+	INV_ATTR_TAG_CRIT = 256,
+	INV_ATTR_TAG_STAT = 512
+};
 
 #define INVATTR_CHECKER 0
 #define INVATTR_TEXT 1
@@ -303,104 +317,104 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 };
 
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
-	{ 5, 20, 5 },
-	{ 5, 20, 5 },
-	{ 2, 6, 2 },
-	{ 2, 6, 2 },
-	{ 1, 10, 5 },
-	{ 1, 10, 5 },
-	{ 0.005, 0.015, 1 },
-	{ 0.025, 0.05, 2 },
-	{ 5, 15, 3 },
-	{ 0.01, 0.03, 1 },
-	{ 2, 4, 2 },
+	{ 	5, 		20, 		5,		INV_ATTR_TAG_LIFE 										},
+	{ 	5, 		20, 		5,		INV_ATTR_TAG_DEFENSE 									},
+	{ 	2, 		6, 			2,		INV_ATTR_TAG_LIFE										},
+	{ 	2, 		6, 			2,		INV_ATTR_TAG_DEFENSE									},
+	{ 	1, 		10, 		5,		INV_ATTR_TAG_UTILITY 									},
+	{ 	1, 		10, 		5, 		INV_ATTR_TAG_UTILITY									},
+	{ 	0.005, 	0.015, 		1, 		INV_ATTR_TAG_UTILITY									},
+	{ 	0.025, 	0.05, 		2, 		INV_ATTR_TAG_UTILITY									},
+	{ 	5, 		15, 		3, 		INV_ATTR_TAG_UTILITY									},
+	{ 	0.01, 	0.03, 		1,		INV_ATTR_TAG_UTILITY									},
+	{ 	2, 		4, 			2,		INV_ATTR_TAG_UTILITY									},
 
-	{ 1, 4, 1 },
-	{ 1, 4, 1 },
-	{ 1, 4, 1 },
-	{ 1, 4, 1 },
-	{ 1, 4, 1 },
+	{ 	1, 		4, 			1,		INV_ATTR_TAG_ATTACK 									},
+	{ 	1, 		4, 			1, 		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		4, 			1, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		4, 			1, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
+	{ 	1, 		4, 			1,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 2, 5, 8 },
-	{ 2, 5, 8 },
-	{ 2, 5, 8 },
-	{ 2, 5, 8 },
-	{ 2, 5, 8 },
+	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE										},
+	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE										},
+	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
+	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
-	{ 1, 8, 2 },
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE 									},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
 	
-	{ 3, 8, 2 },
+	{ 	3, 		8, 			2,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
 	
-	{ 1, 4, 4 },
-	{ 1, 5, 1 },
+	{ 	1, 		4, 			4,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
 	
-	{ 1, 5, 2 },
-	{ 1, 3, 2 },
-	{ 1, 10, 4 },
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		3, 			2,		INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		10, 		4,		INV_ATTR_TAG_UTILITY									},
 	
-	{ 1, 25, 5 },
+	{ 	1, 		25, 		5,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
 	
-	{ 1, 5, 1 },
-	{ 1, 5, 2 },
-	{ 1, 10, 2 },
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_CRIT										},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_CRIT										},
+	{ 	1, 		10, 		2,		INV_ATTR_TAG_CRIT										},
 	
-	{ 25, 100, 10 },
-	{ 1, 5, 2 },
-	{ 4, 125, 20 },
+	{ 	25, 	100, 		10,		INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_DAMAGE										},
+	{ 	4, 		125, 		20,		INV_ATTR_TAG_ATTACK										},
 	
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
-	{ 1, 5, 2 },
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
 	
-	{ 1, 2, 1 },
-	{ 1, 2, 1 },
-	{ 3, 10, 2 },
+	{ 	1, 		2, 			1,		INV_ATTR_TAG_DEFENSE									},
+	{ 	1, 		2, 			1,		INV_ATTR_TAG_DEFENSE									},
+	{ 	3, 		10, 		2,		INV_ATTR_TAG_DEFENSE									},
 	
-	{ 1, 5, 1 },
-	{ 1, 5, 1 },
-	{ 1, 5, 1 },
-	{ 1, 5, 1 },
-	{ 1, 5, 1 },
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
 	
-	{ 1, 3, 2 },
-	{ 1, 3, 2 },
-	{ 1, 3, 2 },
-	{ 1, 3, 2 },
+	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
 	// lifesteal
-	{ 0.05, 0.125, 1 },
+	{ 	0.05, 	0.125, 		1,		INV_ATTR_TAG_ATTACK										},
 	
-	{ 5, 10, 1 },
-	{ 5, 10, 1 },
-	{ 5, 10, 1 },
+	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 1, 15, 1 },
+	{ 	1, 		15, 		1,		INV_ATTR_TAG_DAMAGE										},
 
-	{ 1, 5, 1 },
-	{ 2, 5, 1 },
-	{ 1, 5, 1 },
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	2, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 1, 5, 1 },
-	{ 5, 15, 1 },
-	{ 2, 5, 2 },
+	{ 	1, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		15, 		1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	2, 		5, 			2,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 2, 5, 1 },
-	{ 1, 1, 1 },
-	{ 5, 10, 1 },
+	{ 	2, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 1, 1, 1 },
-	{ 1, 5, 2 }
+	{ 	1, 		1, 			1,		INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		5, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_UTILITY				}
 };
 
 str ItemAttributeString(int attr, int val) {

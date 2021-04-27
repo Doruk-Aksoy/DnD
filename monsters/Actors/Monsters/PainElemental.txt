@@ -606,7 +606,7 @@ ACTOR HS : DnD_BaseMeleeMonster {
 		Wait
 		DeathState:
 			HADE E 0 A_Noblocking
-			HADE E 0 A_CustomMissile("HSBoom",0,0,0,0)
+			TNT1 A 8 A_CustomMissile("HSBoom",0,0,0,0)
 		Stop
 		XDeathState:
 			HADE N 0 Bright A_Noblocking

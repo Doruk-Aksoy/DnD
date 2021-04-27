@@ -72,6 +72,7 @@ Script 900 (void) NET {
 			SetInventory("ShowingMenu", 1);
 			SetInventory("Mouse_X", HUDMAX_XF / 2);
 			SetInventory("Mouse_Y", HUDMAX_YF / 2);
+			TakeInventory("ShowingPrompt", 1);
 			LocalAmbientSound("RPG/MenuOpen", 127);
 			ClearPlayerInput(pnum, true);
 			DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
@@ -79,7 +80,6 @@ Script 900 (void) NET {
 			
 			ACS_NamedExecuteAlways("DND Menu Draw", 0);
 			ACS_NamedExecuteAlways("DND Menu Icon Spawner", 0);
-			//ACS_NamedExecuteAlways("DND Menu Input Handle", 0);
 		}
 		else {
 			SetHudSize(800, 600, 1);
@@ -139,8 +139,8 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 	int popupid, i = 0, j = 0, k = 0, mousex, mousey;
 	str toshow;
 	int curopt, curopt_prev = MENU_NULL;
+	int tics = 0;
 	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE + 1, mainboxid_prev = MAINBOX_NONE;
-	str dashstatus;
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
@@ -245,9 +245,11 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		// main drawing of texts, labels, icons etc.
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		DrawCursor();
+		
 		SetFont("SMALLFONT");
 		DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
 		DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);
+		DeleteText(RPGMENUCURSORID + 1);
 		
 		if(CheckInventory("DnD_InventoryView")) {
 			LoadInventoryView(InventoryPane);
@@ -401,7 +403,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			HudMessage(s:"--- Arrange a Trade ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			
-			if(CheckInventory("InTradeView"))
+			if(CheckInventory("InTradeView") && IsTrading(pnum))
 				HandleInventoryViewTrade(boxid);
 			else {
 				if(!k)
@@ -504,7 +506,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		else if(curopt == MENU_SHOP_WEAPON5_2)
 			HandleWeaponPageDraw(curopt, -2, 5, boxid, -24);
 		else if(curopt == MENU_SHOP_WEAPON6_1)
-			HandleWeaponPageDraw(curopt, 1, 6, boxid, -16);
+			HandleWeaponPageDraw(curopt, 1, 6, boxid, -40);
 		else if(curopt == MENU_SHOP_WEAPON6_2)
 			HandleWeaponPageDraw(curopt, -2, 6, boxid, -16);
 		else if(curopt == MENU_SHOP_WEAPON7)
@@ -627,13 +629,18 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]", s:ShopItemNames[SHOP_ABILITY1_BEGIN + i][SHOPNAME_TAG], s:": \c-", s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
 			}
 				
-			dashstatus = "\cgDisabled";
-			if(!CheckInventory("DashDisabled"))
-				dashstatus = "\cdEnabled";
-			if(boxid == MBOX_1)
-				HudMessage(s:"\c[B1]Dash: ", s:dashstatus; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[Y5]Dash: ", s:dashstatus; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+			if(boxid == MBOX_1) {
+				if(!CheckInventory("DashDisabled"))
+					HudMessage(s:"\c[B1]Dash: ", s:"\cdEnabled"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[B1]Dash: ", s:"\cgDisabled"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+			}
+			else {
+				if(!CheckInventory("DashDisabled"))
+					HudMessage(s:"\c[Y5]Dash: ", s:"\cdEnabled"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]Dash: ", s:"\cgDisabled"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+			}
 		}
 		else if(curopt == MENU_MAIN) {
 			ListenScroll(-32, 0);
@@ -863,6 +870,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 		// Handle all types of popups
 		HandleWeaponInfoPanel(curopt, animcounter, boxid);
+		
 		Delay(const:1);
 		
 		animcounter++;
@@ -877,7 +885,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 				GiveInventory("DND_ACKLoop", 1);
 				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
 				//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
+				ACS_NamedExecuteAlways("DnD Retry Sending Until ACK", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
 			}
 		}
 		else {
@@ -890,7 +898,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 	}
 }
 
-Script "DnD Retry Sending UntiL ACK" (int payload1, int payload2, int mainboxid) CLIENTSIDE {
+Script "DnD Retry Sending Until ACK" (int payload1, int payload2, int mainboxid) CLIENTSIDE {
 	if(!payload1 || CheckInventory("DND_ACKLoop"))
 		Terminate;
 	while(!CheckInventory("DnD_ACK")) {
@@ -1268,15 +1276,18 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				}
 			}
 			
-			if(HasPressedLeft(pnum)) {
-				if(curopt == MENU_FIRST_TRADE)
-					UpdateMenuPosition(MENU_LOAD);
-				else
-					UpdateMenuPosition(curopt - 1);
-			}
-			else if(HasPressedRight(pnum)) {
-				if(curopt != MENU_LAST_TRADE && PlayerCount() > MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1))
-					UpdateMenuPosition(curopt + 1);
+			// only allow these if we arent currently trading with anyone
+			if(!IsTrading(pnum)) {
+				if(HasPressedLeft(pnum)) {
+					if(curopt == MENU_FIRST_TRADE)
+						UpdateMenuPosition(MENU_LOAD);
+					else
+						UpdateMenuPosition(curopt - 1);
+				}
+				else if(HasPressedRight(pnum)) {
+					if(curopt != MENU_LAST_TRADE && PlayerCount() > MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1))
+						UpdateMenuPosition(curopt + 1);
+				}
 			}
 		}
 		else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {

@@ -1311,6 +1311,30 @@ statusbar normal, fullscreenoffsets {
 	drawbar "BERSICO2", "BERSICB2", Berserker_HitTimer, vertical, -88, -200;
 	drawnumber 2, NCNormalFont, NCWhiteC, Berserker_HitTracker, alignment(center), -58, -144;
   }
+  
+	InInventory RuinationStacks, 1 {
+		InInventory RuinationStacks, 2 {
+			InInventory RuinationStacks, 3 {
+				InInventory RuinationStacks, 4 {
+					InInventory RuinationStacks, 5 {
+						InInventory RuinationStacks, 6 {
+							drawimage "RUIN_6", -88, -264;
+						}
+						else
+							drawimage "RUIN_5", -88, -264;
+					}
+					else
+						drawimage "RUIN_4", -88, -264;
+				}
+				else
+					drawimage "RUIN_3", -88, -264;
+			}
+			else
+				drawimage "RUIN_2", -88, -264;
+		}
+		else
+			drawimage "RUIN_1", -88, -264;
+	}
 }
 
 statusbar automap { }

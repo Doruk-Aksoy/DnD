@@ -56,5 +56,11 @@ Actor BaronSpawner : DnD_MonsterSpawner replaces BaronOfHell {
 		Var12:
 			TNT1 A 0 A_SpawnItemEx("MagmaGolem", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER |SXF_TRANSFERSPECIAL)
 		Goto SpawnLoop
+		Var13:
+			TNT1 A 0 A_SpawnItemEx("Judicator", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER |SXF_TRANSFERSPECIAL)
+		Goto SpawnLoop
+		Var14:
+			TNT1 A 0 A_SpawnItemEx("Warmaster", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER |SXF_TRANSFERSPECIAL)
+		Goto SpawnLoop
 	}
 }

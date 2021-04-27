@@ -63,6 +63,7 @@ str Research_Label[MAX_RESEARCHES] = {
     "Flamethrower (6)",
     "Lightning Gun (6)",
 	"Rebounder (6)",
+	"Dark Lance (6)",
 	
     "Ion Cannon (7)",
 	"Thunder Staff (7)",
@@ -107,7 +108,7 @@ typedef struct {
 	int res_req_id;
 } res_req_info_T;
 
-res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
+res_req_info_T ResearchFlags[MAX_RESEARCHES] = { 
 	{ RESF_UNLOCKSOTHER, RES_REQID_SUPERARMOR },
 	{ RESF_NODROP, -1 },
 	{ 0, -1 },
@@ -132,15 +133,19 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
     { 0, -1 },
     { 0, -1 },
     
+	// slot 1
 	{ 0, -1 },
 	{ 0, -1 },
 	
+	// slot 2
     { 0, -1 },
 	{ 0, -1 },
 	
+	// slot 3
     { 0, -1 },
     { 0, -1 },
 	{ RESF_NODROP | RESF_HASREQUIREMENT, -1},
+	{ 0, -1 },
 	
 	// slot 3 ssg
     { 0, -1 },
@@ -153,6 +158,7 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
     { 0, -1 },
 	{ 0, -1 },
 	{ 0, -1 },
+	{ 0, -1 },
 	
 	// slot 5
     { 0, -1 },
@@ -162,10 +168,13 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ 0, -1 },
 	{ 0, -1 },
 	
+	// slot 6
     { 0, -1 },
     { 0, -1 },
 	{ 0, -1 },
+	{ 0, -1 },
 	
+	// slot 7
     { 0, -1 },
 	{ 0, -1 },
     
@@ -173,7 +182,7 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
     { 0, -1 },
     { 0, -1 },
     { 0, -1 },
-	
+
 	{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_BIO1 },
 	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_BIO2 },
 	{ RESF_NODROP, -1 },

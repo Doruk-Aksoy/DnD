@@ -76,6 +76,7 @@ enum {
 * 1664 - 1727 = Menu icon above people
 * 2000 - 2063 = Deathray marker TID for players
 * 2100 - 2163 = Dark Lance tids
+* 2200 - 2263 = Dark Lance Shredder FX
 * 3000 = Frozen FX Temporary TID
 * 3099 = Player shotgun puff removal tid
 * 3100 - 3163 = Player Shotgun Puff Temporary TID
@@ -94,6 +95,7 @@ enum {
 * 50000 = Destructible object tid start
 * 54000 - 54063 = Wanderer explosion tids
 * 54100 - 54163 = Crossbow explosion tids
+* 54165 = NPC TID
 * 55000 - 65999 = pet tids
 * Anything above 66000 => any monster tid
 */
@@ -106,6 +108,11 @@ enum {
 	DND_MAPINFO_MAPCHANGED,
 	DND_MAPINFO_HASDOOMGUY
 };
+
+typedef struct vec2 {
+	int x;
+	int y;
+} vec2_T;
 
 typedef struct vec3 {
 	int x;
@@ -165,6 +172,10 @@ void GivePetTID() {
 
 void GiveShootableTID() {
 	Thing_ChangeTID(0, DnD_TID_List[DND_TID_SHOOTABLE]++);
+}
+
+bool isEnemyTID(int tid) {
+	return tid >= DND_MONSTERTID_BEGIN;
 }
 
 enum {
@@ -498,13 +509,45 @@ void SpawnDropFacing(str actor, int zoffset, int thrust, int setspecial, int set
 	Thing_ChangeTID(DND_DROP_TID, 0);
 }
 
+int SpawnAreaTID(int stid, int maxdist, int degree_inc, str actortype, int newtid, int ang_begin, int forced) {
+	// tries to spawn an object in a circle around stid
+	// tries halving radius if a full circular attempt failed until radius becomes 1
+	int r = maxdist, tries = 0, circle_comp = 360 / (degree_inc >> 16), test = 0;
+	int sang = GetActorAngle(stid) + ang_begin;
+	bool finish = false;
+	// convert to byte angle for this part
+	degree_inc /= 360; 
+	degree_inc <<= 8;
+	while(r != 1.0 && !finish) {
+		// try to spawn at this one point
+		int cx = GetActorX(stid) + FixedMul(r, cos(sang + tries * degree_inc));
+		int cy = GetActorY(stid) + FixedMul(r, sin(sang + tries * degree_inc));
+		int cz = GetActorZ(stid);
+		if(forced)
+			test = SpawnForced(actortype, cx, cy, cz, newtid);
+		else
+			test = Spawn(actortype, cx, cy, cz, newtid);
+			
+		if(test)
+			finish = true;
+		else {
+			++tries;
+			if(tries == circle_comp) {
+				tries = 0;
+				r /= 2;
+			}
+		}
+	}
+	return finish;
+}
+
 void DeleteText(int textid) {
-	HudMessage(s:""; HUDMSG_PLAIN, textid, -1, 160.0, 100.0, 0.0, 0.0);
+	HudMessage(s:""; HUDMSG_PLAIN, textid, -1, 160.0, 100.0, 0.1, 0.1);
 }
 
 void DeleteTextRange(int r1, int r2) {
 	for(int i = 0; i < r2 - r1 + 1; i++)
-		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, 0.0, 0.0);
+		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, 0.1, 0.1);
 }
 
 int VectorPitch (Int t1, Int t2, int dx, int dy, int adj) {

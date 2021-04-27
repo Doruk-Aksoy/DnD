@@ -87,3 +87,5 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/MonsterClass.txt"
 #include "Actors/Monsters.txt"
 #include "Actors/Pets.txt"
+
+#include "Actors/DarkWanderer.txt"

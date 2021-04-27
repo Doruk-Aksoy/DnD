@@ -190,7 +190,7 @@ str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
 	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "Upgraded Super Shotgun3", "ResSSG1", "ResSSG2", "ResSSG3", "ResSSG4", "" },
 	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "ResMG5" },
 	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher3", "ResRL1", "ResRL2", "ResRL3", "ResRL4", "ResRL5" },
-	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "ResPlasma3", "" },
+	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "ResPlasma3", "ResPlasma4" },
 	{ "BFG 9000", "Upgraded BFG 9000", "Devastator", "MFG", "ResBFG1", "ResBFG2", "", "", "" },
 };
 
@@ -259,6 +259,26 @@ str GetWeaponAmmoType(int wepid, int which) {
 		return Weapons[wepid][WEAPON_AMMO1];
 	else
 		return Weapons[wepid][WEAPON_AMMO2];
+}
+
+bool IsBoomstick(int id) {
+	switch(id) {
+		case DND_WEAPON_SHOTGUN:
+		case DND_WEAPON_PURIFIER:
+		case DND_WEAPON_KILLSTORM:
+		case DND_WEAPON_DEADLOCK:
+		case DND_WEAPON_SUPERSHOTGUN:
+		case DND_WEAPON_HEAVYSUPERSHOTGUN:
+		case DND_WEAPON_ERASUS:
+		case DND_WEAPON_SHOCKER:
+		case DND_WEAPON_HADES:
+		case DND_WEAPON_SILVERGUN:
+		case DND_WEAPON_INCINERATOR:
+		case DND_WEAPON_VINDICATOR:
+		case DND_WEAPON_SAWEDOFF:
+		return true;
+	}
+	return false;
 }
 
 bool IsTemporaryWeapon(int id) {

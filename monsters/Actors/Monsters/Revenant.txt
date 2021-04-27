@@ -1631,7 +1631,7 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SpawnItemEx("SludgeGiantSplitFinal", 0, 16, 0, 0, 0, 0, 0, SXF_SETMASTER)
 			TNT1 A 0 A_SpawnItemEx("SludgeGiantSplitFinal", 0, -16, 0, 0, 0, 0, 0, SXF_SETMASTER)
 			SLDM H 1
-			TNT1 A 3
+			TNT1 A 5
 		Stop
 	}
 }
@@ -1737,6 +1737,7 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood_Green", random(-16, 16), random(-16, 16), random(12, 36), random(-4, 4), random(-4, 4), random(0, 6))
 			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood_Green", random(-16, 16), random(-16, 16), random(20, 36), random(-8, 8), random(-8, 8), random(2, 12))
 			SLDM H 1
+			TNT1 A 5
 		Stop
 	}
 }
@@ -2406,5 +2407,142 @@ Actor DraugrSeeker {
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 1 A_SpawnItem("DraugrSeekerBoomFX")
 			Stop
+	}
+}
+
+Actor CyborgSoldier : DnD_BaseHybridMonster {
+	OBITUARY "%o was shot down by a Cyborg Soldier."
+	Health 0x7FFFFFFF
+	Radius 20
+	Height 56
+	Mass 512
+	Speed 14
+	Painchance 40
+	Scale 1.2
+	SEESOUND "Monsters/NBSight"
+	ACTIVESOUND "Monsters/NBAct"
+	PAINSOUND "Monsters/NBPain"
+	DEATHSOUND "Monsters/NBDeath"
+	Bloodcolor "7F 3F 00"
+	Tag "Cyborg Soldier"
+	Species "Skeleton"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
+	+ISMONSTER
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_CYBORGSOLDIER)
+		Goto SpawnSetup
+	
+		Idle:
+			NLBG AB 10 A_Look
+		Loop
+		SeeState:
+			NLBG AA 4 A_Chase
+			NLBG A 0 A_PlaySound("Monsters/NBWalk")
+			NLBG BBCC 4 A_Chase
+			NLBG CC 0 A_PlaySound("Monsters/NBWalk")
+			NLBG DD 4 A_Chase
+		Goto See
+		MissileState:
+      		NLBG E 0 A_Jump(96, "Scattershot")
+		MissileFire:
+      		NLBG E 10 A_FaceTarget
+		KeepFiring:
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+      		NLBG E 2 BRIGHT
+			NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+      		NLBG E 2 BRIGHT A_FaceTarget
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+      		NLBG E 2 BRIGHT A_FaceTarget
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+      		NLBG E 2 BRIGHT A_FaceTarget
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+      		NLBG E 2 BRIGHT A_FaceTarget
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+      		NLBG E 2 BRIGHT A_FaceTarget
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+      		NLBG E 2 BRIGHT A_FaceTarget
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+			TNT1 A 0 A_JumpIfCloser(256, "KeepFiring")
+      		NLBG E 2 BRIGHT
+		Goto See
+		Scattershot:
+      		NLBG E 10 A_FaceTarget
+      		NLBG E 0 A_PlaySound("weapons/nailfire")
+      		NLBG F 4 A_CustomMissile("NailProjectileWeak", 40, 8, 9, 0, 1)
+      		NLBG F 0 A_CustomMissile("NailProjectileWeak", 40, 8, -9, 0, 1)
+      		NLBG F 0 A_CustomMissile("NailProjectileWeak", 40, 8, 4.5, 0, 1)
+      		NLBG F 0 A_CustomMissile("NailProjectileWeak", 40, 8, -4.5, 0, 1)
+      		NLBG F 0 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, 0, 0)
+      		NLBG E 15
+      	Goto See
+		MeleeState:
+      		TNT1 A 0 A_Jump(192, "Scattershot")
+      	Goto MissileFire
+		PainState:
+			NLBG G 3
+			NLBG G 3 A_Pain
+		Goto See
+		DeathState:
+			NLBG H 5
+			NLBG I 5 A_Scream
+			NLBG J 5 A_NoBlocking
+			NLBG J 0 A_PlaySound("Weapons/NailBomb")
+			NLBG K 5 A_CustomMissile("BorgNailBomb", 32)
+			NLBG L -1
+		Stop
+		XDeathState:
+			NLBG O 5
+			NLBG P 5 A_XScream
+			NLBG Q 5 A_NoBlocking
+			NLBG Q 0 A_PlaySound("Weapons/NailBomb")
+			NLBG RTUV 5 A_CustomMissile("BorgNailBomb", 32)
+			NLBG W -1
+		Stop
+		RaiseState:
+			NLBG KJIH 5
+		Goto See
+	}
+}
+
+Actor BorgNailBomb {
+	Radius 24
+	Height 24
+	Speed 0
+	SeeSound "GenericGL/FireAdd"
+	DEATHSOUND "Weapons/NailBombExp"
+	PROJECTILE
+	Gravity 0.8
+	+THRUACTORS
+	-NOGRAVITY
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(0, 0, 8, CVF_RELATIVE)
+		SpawnLoop:
+			NBMB AB 6
+		Loop
+		Death:
+			TNT1 AAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 40, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 80, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 120, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 160, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 200, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 240, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 280, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 320, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 350, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 15
+		Stop
 	}
 }

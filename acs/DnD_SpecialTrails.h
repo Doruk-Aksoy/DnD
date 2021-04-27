@@ -4,9 +4,12 @@
 enum {
 	DND_TRAILACTOR_RUBYFLAME,
 	DND_TRAILACTOR_THUNDERZAP,
-	DND_TRAILACTOR_OVERLOADZAP
+	DND_TRAILACTOR_OVERLOADZAP,
+	DND_TRAILACTOR_CHARON1,
+	DND_TRAILACTOR_CHARON2,
+	DND_TRAILACTOR_CHARON3
 };
-#define MAXTRAILACTORS DND_TRAILACTOR_OVERLOADZAP + 1
+#define MAXTRAILACTORS (DND_TRAILACTOR_CHARON3 + 1)
 
 typedef struct traildef {
 	str actor;
@@ -17,8 +20,11 @@ typedef struct traildef {
 
 traildef_T DnD_TrailDef[MAXTRAILACTORS] = {
 	{ "RubyFlameTrail", 2, 0, 0 },
-	{ "SmallZapPuff", 0, 16, 0 },
-	{ "OverloadZap", 0, 16, 32.0 }
+	{ "SmallZapPuff", 0, 16.0, 0 },
+	{ "OverloadZap", 0, 16.0, 32.0 },
+	{"CharonParticle_Orange", 0, 8.0, 4.0 },
+	{"CharonParticle_Blue", 0, 8.0, 4.0 },
+	{"CharonParticle_Green", 0, 8.0, 4.0 }
 };
 
 #define LIGHTNING_ATTACK_POINTS 24

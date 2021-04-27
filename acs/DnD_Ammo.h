@@ -253,10 +253,12 @@ enum {
 	DND_MAGAZINE_PCANCLIP,
 	DND_MAGAZINE_RIOTGUNCLIP,
 	DND_MAGAZINE_ACIDCLIP,
-	DND_MAGAZINE_HEAVYGLCOUNTER
+	DND_MAGAZINE_HEAVYGLCOUNTER,
+	DND_MAGAZINE_INCINERATOR, // not really a mag, just put here for db save
+	DND_MAGAZINE_DARKLANCE // not really a mag, just put here for db save
 };
 
-#define MAXCLIPAMMOTYPES DND_MAGAZINE_HEAVYGLCOUNTER + 1
+#define MAXCLIPAMMOTYPES (DND_MAGAZINE_DARKLANCE + 1)
 str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"SpecialAmmoMode_3",
 	"SpecialAmmoMode_3X",
@@ -288,7 +290,9 @@ str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"PCanClip",
 	"RiotgunClip",
 	"AcidClip",
-	"HeavyGLCounter"
+	"HeavyGLCounter",
+	"IncineratorStacks",
+	"LanceStacks"
 };
 
 // gets you the percentage to increase by

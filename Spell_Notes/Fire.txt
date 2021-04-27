@@ -1,0 +1,152 @@
+FIRE
+----
+ 
+* Blaze
+ 
+	Sets target enemy on fire. Enemy takes fire damage over 3 (+0.0125/INT) seconds for 8 (+2/INT) damage every 0.25 seconds.
+	Cost: 10 mana.
+	Cooldown: 5 seconds.
+	Cast Time: 1 second.
+	Per Rank:  Adds 5 damage to tics, cooldown drops by 0.25 seconds.
+	Rank 5: Adds 1 more second.
+	Rank 10: Blaze affects enemies in 96 unit radius of the primary target.
+	Unlocks: Infernal Strike, Warmth, Pyroblast.
+ 
+* Infernal Strike
+ 
+	Your next melee attack deals 50 (+5/INT) additional fire damage. Has 25 (+0.2/INT)% chance to affect a 128 unit radius.
+ 
+	Cooldown: 10 seconds.
+	Cast Time: Instant.
+	Per Rank: Adds 25 damage, cooldown drops by 0.75 seconds.
+	Rank 5: +25% chance to affect area.
+	Rank 10: Guarantees a crit.
+	Requires: Blaze (Rank 2)
+	Unlocks: Immolation.
+ 
+* Warmth
+ 
+	Increases mana regeneration by 30 (+2.5/INT)% for the next 5 seconds.
+	Cost: 8 mana.
+	Cooldown: 30 seconds.
+	Cast Time. 1 second.
+	Per Rank. +0.15 mana regen.
+	Rank 5: Duration becomes 10 seconds.
+	Rank 10: When cast, allies in a 192 unit radius are also affected.
+	Unlocks: Incinerate.
+	Requires: Blaze (Rank 4)
+ 
+* Incinerate
+ 
+	PASSIVE SKILL
+	Your fire damage has 30 (+0.75/INT)% chance to cause enemies to explode on death, doing 5 (+0.2/INT)% of their max health as damage around 128 unit radius.
+	Cost: NA.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: Explosion damage increases by 0.25%.
+	Rank 5: Radius increases to 192.
+	Rank 10: No longer does self damage.
+	Requires: Warmth (Rank 3)
+ 
+* Pyroblast
+ 
+	Hurl a ball of flame towards where you're facing. Deals 128 (+8/INT) damage on impact around 80(+4/INT) radius.
+	Cost: 12 mana.
+	Cooldown: 6 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Damage increases by 32.
+	Rank 5: No longer damages you.
+	Rank 10: Explosion causes additional, smaller fireballs to erupt. They do 1/8th damage of pyroblast.
+	Requires: Blaze (Rank 4)
+	Unlocks: Searing Bonds.
+	Synergy - Blaze: 5% more damage per Blaze rank.
+ 
+* Searing Bonds
+ 
+	Lash out a chain to immobilize an enemy. Does 75 (+5/INT) damage and snares enemy for 1 (+0.1/INT) seconds.
+	Cost: 18 mana.
+	Cooldown: 20 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +0.25 duration, +25 damage.
+	Rank 5: Duration increases by 2 seconds.
+	Rank 10: Also affects enemies in a 160 unit radius of the primary target.
+	Requires: Pyroblast (Rank 3)
+	Unlocks: Immolation.
+ 
+* Immolation
+ 
+	Create an aura of fire in 96 units around you that constantly deals 64 (+8/INT) fire damage every second.
+	Cost: 10 mana per second.
+	Cooldown: 8 seconds after turning off.
+	Cast Time: NA.
+	Per Rank: Damage increases by 16, damage radius by 8.
+	Rank 5: Mana cost reduced by 4.
+	Rank 10: Damage applies Blaze.
+	Requires: Infernal Strike, Searing Bonds.
+	Synergy - Infernal Strike: 5% more damage per Infernal Strike rank.
+ 
+* Flame Pillar
+ 
+	Creates a pillar of flame going forth 30 units per tic for 2 seconds. Does 24 (+4/INT) damage each tic for 12 tics in 96 unit radius.
+	Cost: 20 mana.
+	Cooldown: 12 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Damage goes up by 8.
+	Rank 5: Ignores shields.
+	Rank 10: Creates two pillars side by side instead of one.
+	Unlocks: Molten Boulder, Fire Demon.
+	Requires: 10 ranks spent in fire spells.
+	Synergy - Blaze: 2.5% more damage per Blaze rank.
+	Synergy - Pyroblast: 2.5% more damage per Pyroblast rank.
+ 
+* Fire Jet
+ 
+	Shoots jets of fire that spread sideways dealing 160 (+32/INT) on impact and 24(+4/INT) damage on sideways.
+	Cost: 15 mana.
+	Cooldown: 8 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: Direct hit damage +40, sideways damage +6.
+	Rank 5: Direct hit explodes around itself in a 128 unit radius for half its damage.
+	Rank 10: Sideways flames rip.
+	Requires: Warmth (Rank 3)
+	Synergy - Blaze: 2.5% more damage per Blaze rank.
+	Synergy - Pyroblast: 5% more damage per Pyroblast rank.
+ 
+* Summon: Fire Demon
+ 
+	Summons a fire demon to fight for you for 20 (+0.25/INT) seconds. Demon has 350 (+6/INT) health. Can shoot fireballs or set the ground on fire.
+	Cost: 40 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 1 second.
+	Per Rank: Health +50. Damage of monster +10%.
+	Rank 5: Lasts 10 more seconds.
+	Rank 10: Can cast flame pillar same level as your flame pillar.
+	Requires: Flame Pillar (Rank 3).
+	Synergy - Warmth: 2.5% more health per Warmth rank.
+ 
+* Molten Boulder
+ 
+	Calls down a giant meteor from the sky to crash on enemies. Boulder does 24 (+2/INT) damage as it travels and 256 (+16/INT) on impact.
+	It will shatter on impact of a wall or after 6 (+0.25/INT) seconds.
+	Cost: 60 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: Travel damage +6, impact +48.
+	Rank 5: Lasts 3 more seconds.
+	Rank 10: Sends 6 Pyroblasts around it after shattering.
+	Requires: Flame Pillar (Rank 2).
+	Synergy - Blaze: 2.5% more damage per Blaze rank.
+	Synergy - Pyroblast: 2.5% more damage per Pyroblast rank.
+ 
+* Annihilus
+ 
+	Channel for the cast time to create an immense explosion at target location, up to 512 units away. Can cast again to terminate early for less damage.
+	250 (+25/INT) damage in a 128 (+8/INT) radius per 0.5 seconds channeled.
+	Cost: 50 mana per 0.5 seconds channeled.
+	Cooldown: 90 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +25 damage per 0.5 seconds channeled.
+	Rank 5: No longer hurts the caster.
+	Rank 10: Max target range doubled to 1024.
+	Requires: Molten Boulder (Rank 4), 20 ranks spent in fire spells.
+	Synergy - Molten Boulder: 5% faster channel time per Molten Boulder rank.

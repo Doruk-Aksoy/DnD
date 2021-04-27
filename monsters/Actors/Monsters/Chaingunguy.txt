@@ -361,7 +361,7 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZS21 G 2 A_XScream
 			ZSP2 G 1 A_NoBlocking
-			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 5 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		Stop
 		RaiseState:
 			ZSP2 KJIH 5

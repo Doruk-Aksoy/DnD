@@ -1,8 +1,18 @@
 DarkLance/Charge		DLANCHR
 DarkLance/Fire1			DLANFIR1
+$limit DarkLance/Fire1 0
 DarkLance/Fire2			DLANFIR2
+$limit DarkLance/Fire2 0
 DarkLance/Fire3			DLANFIR3
+$limit DarkLance/Fire3 0
 $random DarkLance/Fire { DarkLance/Fire1 DarkLance/Fire2 DarkLance/Fire3 }
+DarkLance/Consume		DLANCONS
+$limit DarkLance/Consume 0
+Darklance/AltHit		DLANALTH
+DarkLance/AltCurse		DLANALTC
+Darklance/AltFire		DLANALTF
+Darklance/Affliction	DLANAFFL
+$limit Darklance/Affliction 0
 
 Incinerator/Fire		DRAGNFIR
 Incinerator/Spin		DRAGNSPN

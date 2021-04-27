@@ -1,0 +1,34 @@
+Stats affecting spells and skills:
+
+* Mana
+
+    All players have access to mana. Initially, they only have 0 mana.
+    Investing points in Intellect (INT) stat gives 5 mana per INT and 0.25 mana regen per 2 INT.
+    Mana is regenerated every second. The rate you have is how much mana you'll get every second.
+    Charms can give flat mana or mana regen rate bonuses.
+    
+* Cast Time
+
+    Some skills or spells require a certain time to use them. This can be reduced with inventory items or other methods.
+    Can't be reduced below 0.5 seconds, or 50% reduction.
+    
+* Cooldown
+
+    The time before you can use the skill or spell again. Can be reduced with inventory items or other methods, up to 60%.
+
+SKILLS
+--------
+
+* Most spells have a cast time. This can be reduced by stats.
+* Spells have a specific cooldown. This can go up by level. This can be reduced by stats, up to a maximum of 50% reduction.
+* Cooldown will be displayed on the skill icon if player is using that.
+* Spells have ranks. Player gets a spell or ranks them up using "Spell Points". These randomly drop from monsters, or you get one every 2 levels.
+* Max spell rank: 10.
+* Spells have additional bonuses at ranks 5 and 10.
+* There will be a spell allocation method. Player will get to allocate 3 spells of their choosing. Maximum of 6 spells. Wanderer gets a +1. (The other +2 can be from inventory items)
+* If a spell does damage, it's either Elemental or Occult. No other types.
+* Spells have scaling from INT. Higher INT -> more out of a spell.
+* Some spells have synergies. This is usually by spells that unlock each other. Leveling these spells improve another's performance.
+* There are passive skills. If you put a point in these, they work without having to allocate them. But these usually have plenty of requirements.
+* Display method: Skill tree or a list? Probably a tree.
+* Maximum skill ranks that can be invested: 100.

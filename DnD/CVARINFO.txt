@@ -67,6 +67,8 @@ server noarchive int dnd_elite_runedrop_chance = 15;
 server noarchive int dnd_legendary_chance = 1;
 server noarchive int dnd_limitedrespawn_amount = 2;
 
+server noarchive int dnd_npc_appear_level = 30;
+
 server noarchive int dnd_exp_scale = 1;
 server noarchive int dnd_credit_scale = 1;
 server noarchive int dnd_budget_scale = 2;

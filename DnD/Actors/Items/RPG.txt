@@ -5,6 +5,8 @@ Actor QuestWasPicked : DnD_Boolean { }
 // Holds character index of this logged in player
 Actor DnD_CharacterID : DnD_Info { }
 
+Actor DnD_NPC_Meet : DnD_Info { }
+
 Actor Exp : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -245,6 +247,7 @@ Actor MenuMainPosY : Inventory {
 
 Actor ShowingMenu : DnD_Boolean { }
 Actor ShowingMenu_CS : DnD_Boolean { }
+Actor ShowingPrompt : DnD_Boolean { }
 
 Actor DnD_SelectedCharmBox : Inventory {
 	inventory.maxamount 255

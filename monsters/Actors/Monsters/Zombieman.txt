@@ -418,7 +418,7 @@ ACTOR LOSZombieMan : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZSEX G 3 A_XScream
 			ZSEX G 1 A_NoBlocking
-			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 3 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		Stop
 		RaiseState:
 			ZSEX KJIH 5

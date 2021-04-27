@@ -823,7 +823,7 @@ Actor WoTShooter2 : DnD_Activator {
 Actor WoTShooter3 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "BloodDrainFX", 0, 84)
+			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "BloodDrainFX", 0, 84 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
 		Stop
 	}
 }
@@ -908,7 +908,7 @@ Actor BloodDrainFX : DnD_BasePuff {
 	Alpha 0.75
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_HASSTRSCALING | DND_ISSLOT3))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_MELEE, DND_USETARGET | DND_HASSTRSCALING | DND_ISSLOT3))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_OCCULT)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN | DND_DAMAGEFLAG_COUNTSASMELEE)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_WHEELOFTORMENT)
@@ -1168,9 +1168,10 @@ ACTOR CharonBall : DnD_BaseProjectile {
 	}
 }
 
-Actor CharonDamagingPuff_1 : DnD_BaseRailPuff {
+Actor CharonDamagingPuff_1 : DnD_BasePuff {
 	Scale 0.425
 	+FOILINVUL
+	+ALWAYSPUFF
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CHARONBLASTER << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISSLOT3))
@@ -1180,11 +1181,13 @@ Actor CharonDamagingPuff_1 : DnD_BaseRailPuff {
 		Goto DoDamage
 		
 		AfterDamage:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Charon Trail Spawner", x, y, z, (DND_TRAILACTOR_CHARON1 << 16) | ACS_NamedExecuteWithResult("DnD Get Target"))
 			CHBP C 1 Bright Light("CharonLightImpact1")
 			CHBP D 1 Bright Light("CharonLightImpact2")
 			CHBP E 1 Bright Light("CharonLightImpact3")
 			CHBP F 1 Bright Light("CharonLightImpact4")
 			CHBP G 1 Bright Light("CharonLightImpact5")
+			TNT1 A 5
 		Stop
 		Crash:
 		Melee:
@@ -1202,6 +1205,19 @@ Actor CharonDamagingPuff_2 : CharonDamagingPuff_1 {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_CHARONBLASTER)
 		Goto DoDamage
+		
+		AfterDamage:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Charon Trail Spawner", x, y, z, (DND_TRAILACTOR_CHARON2 << 16) | ACS_NamedExecuteWithResult("DnD Get Target"))
+			CHBP C 1 Bright Light("CharonLightImpact1")
+			CHBP D 1 Bright Light("CharonLightImpact2")
+			CHBP E 1 Bright Light("CharonLightImpact3")
+			CHBP F 1 Bright Light("CharonLightImpact4")
+			CHBP G 1 Bright Light("CharonLightImpact5")
+		Stop
+		Crash:
+		Melee:
+		HitNoBlood:
+		Goto AfterDamage
 	}
 }
 
@@ -1214,6 +1230,19 @@ Actor CharonDamagingPuff_3 : CharonDamagingPuff_1 {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_CHARONBLASTER)
 		Goto DoDamage
+		
+		AfterDamage:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Charon Trail Spawner", x, y, z, (DND_TRAILACTOR_CHARON3 << 16) | ACS_NamedExecuteWithResult("DnD Get Target"))
+			CHBP C 1 Bright Light("CharonLightImpact1")
+			CHBP D 1 Bright Light("CharonLightImpact2")
+			CHBP E 1 Bright Light("CharonLightImpact3")
+			CHBP F 1 Bright Light("CharonLightImpact4")
+			CHBP G 1 Bright Light("CharonLightImpact5")
+		Stop
+		Crash:
+		Melee:
+		HitNoBlood:
+		Goto AfterDamage
 	}
 }
 
@@ -1277,11 +1306,7 @@ Actor CharonShooter2 : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("CharonStacks", 1)
 		NoTake:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charon Stack Gain Chance", 0)
-			TNT1 A 0 A_RailAttack (0, 0, 1, "none", White, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "CharonDamagingPuff_1", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Green, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Purple, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Yellow, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Cyan, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
+			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CharonDamagingPuff_1", 0, 768)
 		Stop
 	}
 }
@@ -1290,11 +1315,7 @@ Actor CharonShooter3 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charon Stack Gain Chance", 0)
-			TNT1 A 0 A_RailAttack (0, 0, 1, "none", White, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "CharonDamagingPuff_2", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Green, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Purple, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Yellow, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Cyan, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
+			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CharonDamagingPuff_2", 0, 768)
 		Stop
 	}
 }
@@ -1303,11 +1324,41 @@ Actor CharonShooter4 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charon Stack Gain Chance", 0)
-			TNT1 A 0 A_RailAttack (0, 0, 1, "none", White, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "CharonDamagingPuff_3", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Green, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Purple, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Yellow, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
-			TNT1 A 0 A_RailAttack (0, 0, 0, "none", Cyan, RGF_SILENT | RGF_FULLBRIGHT | RGF_NOPIERCING, 25, "Charon_NoPainPuff", 0,0, 762, 1, 0.75, 0, "none", -2)
+			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CharonDamagingPuff_3", 0, 768)
 		Stop
+	}
+}
+
+Actor CharonParticle_Orange {
+	Renderstyle Add
+	Alpha 0.875
+	Scale 0.0475
+	Height 4
+	Radius 2
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			FLAR A 0
+		Goto SpawnWork
+		SpawnWork:
+			FLAR "#####" 1 Bright A_FadeOut(0.125)
+		Stop
+	}
+}
+
+Actor CharonParticle_Green : CharonParticle_Orange {
+	States {
+		Spawn:
+			FLAR C 0
+		Goto SpawnWork
+	}
+}
+
+Actor CharonParticle_Blue : CharonParticle_Orange {
+	States {
+		Spawn:
+			FLAR B 0
+		Goto SpawnWork
 	}
 }

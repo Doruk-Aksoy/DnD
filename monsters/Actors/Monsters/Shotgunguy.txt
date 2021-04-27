@@ -123,7 +123,7 @@ Actor ZSpecOpsShotgun : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZSP1 G 2 A_XScream
 			ZSP1 G 1 A_NoBlocking
-			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 5 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		Stop
 		RaiseState:
 			ZSP1 LKJIH 5
@@ -211,7 +211,7 @@ ACTOR LOSShotgunGuy : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZSGG G 2 A_XSCream
 			ZSGG G 1 A_NoBlocking
-			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 5 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		Stop
 		RaiseState:
 			ZSSG KJIH 5
@@ -293,7 +293,7 @@ ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			ZSS2 G 2 A_XSCream
 			ZSS2 G 1 A_NoBlocking
-			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 5 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		Stop 
 		RaiseState:
 			ZSS2 LKJIH 5

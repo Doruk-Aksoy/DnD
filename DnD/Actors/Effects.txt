@@ -1950,34 +1950,6 @@ ACTOR ScatterPShotTrail
     }
 }
 
-Actor EliteSpecialFX {
-	Height 1
-	Radius 1
-	Translation "112:127=%[0.00,0.00,0.00]:[1.79,1.88,0.02]"
-	Scale 0.3
-	Renderstyle Add
-	Alpha 0.66
-	Vspeed 2
-	+NOINTERACTION
-	+CLIENTSIDEONLY
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
-			TNT1 A 2
-		SpawnLoop:
-			SKFX A 1 Bright A_FadeOut(0.033)
-		Loop
-	}
-}
-
-Actor EliteFXSpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_SpawnItemEx("EliteSpecialFX", frandom(-radius, radius), frandom(-radius ,radius), frandom(0, height / 2), 0, 0, random(2, 4), 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
-		Stop
-	}
-}
-
 Actor ItemRespawnFX replaces ItemFog {
 	+NOBLOCKMAP
 	+NOGRAVITY

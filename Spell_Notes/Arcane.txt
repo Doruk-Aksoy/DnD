@@ -1,0 +1,496 @@
+ARCANE MAGIC
+------------
+ 
+* Arcane Bolt
+ 
+	Fire a bolt of arcane energy to the nearest enemy, dealing 30 (+3/INT) damage.
+	For the next 2.5 seconds, they take 15% increased damage from arcane spells.
+	Cost: 7 mana.
+	Cooldown: 3 seconds.
+	Cast Time: 1.5 second.
+	Per Rank: +25 damage.
+	Rank 5: Arcane spell damage debuff becomes 30%.
+	Rank 10: Debuff applies to enemies in a 84 unit radius of the target.
+	Unlocks: Power Globe, Spectral Blades.
+	Synergy - Arcane Barrage: +1 projectiles fired per rank of Arcane Barrage.
+ 
+* Holy Light
+ 
+	Fire a magical projectile. If it hits an ally, heal them for 25 (+2/INT). If it hits an undead, damage them for 75 (+5/INT).
+	Cost: 10 mana.
+	Cooldown: 6 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +15 heal, +50 undead damage.
+	Rank 5: Stuns undead hit for 2 seconds.
+	Rank 10: Heals for an additional 5% of your max health.
+	Unlocks: Death Seeker, Purify.
+	Synergy - Death Seeker: Undead damage increases by 10% per rank of Death Seeker.
+	Synergy - Purify: Heal increases by 10% per rank of Purify.
+	Synergy - Purge: Heal and damage increase by 5% per rank of Purge.
+ 
+* Blessing
+ 
+	Target an ally or yourself to heal them for 5 (+1/20INT)% of their missing health.
+	Cost: 20 mana.
+	Cooldown: 15 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: +1% heal.
+	Rank 5: Heals everyone in a 128 unit radius of the target.
+	Rank 10: Healing can overstack up to 25% of maximum health.
+	Unlocks: Invigorate, Might Aura.
+	Synergy - Holy Light: 2.5% increased healing per rank rank of Holy Light.
+ 
+* Power Globe
+ 
+	Hurl a globe of pure energy towards where you're facing. Cast again to detonate at will. It expires after 3 seconds.
+	Deals 100 (+10/INT) damage in a 160 unit radius if detonated.
+	Cost: 27 mana.
+	Cooldown: 24 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +75 damage.
+	Rank 5: Radius +8 units.
+	Rank 10: Sucks enemies into it before dealing the explosion damage. This affects enemies in 1.25 times the original radius.
+	Unlocks: Disintegrate, Shadow Split.
+	Requires: Arcane Bolt (Rank 1).
+	Synergy - Arcane Bolt: 5% damage per rank of Arcane Bolt.
+	Synergy - Arcane Barrage: 2.5% damage and +4 radius per rank of Arcane Barrage.
+ 
+* Spectral Blades
+ 
+	Summon six blades of energy in front of you to damage enemies. Blades do 10 (+2/INT) damage.
+	Cost: 25 mana.
+	Cooldown: 9 seconds.
+	Cast Time: 1 second.
+	Per Rank: +6 damage per blade. At every third rank, gain +1 blade.
+	Rank 5: Blades can travel 25% farther.
+	Rank 10: Blades become 20% wider.
+	Unlocks: Summon: Familiar, Arcane Trap.
+	Requires: Arcane Bolt (Rank 1).
+	Synergy - Ethereal Body: 10% damage per rank of Ethereal Body.
+ 
+* Death Seeker
+ 
+	Cast a homing bolt of light to hunt down undead. Deal 200 (+20/INT) damage to undead.
+	Cost: 20 mana.
+	Cooldown: 15 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +100 damage.
+	Rank 5: Undead have 25% chance to be silenced for 5 seconds.
+	Rank 10: Slain undead rest in peace.
+	Unlocks: Pierce Heavens, Purge.
+	Requires: Holy Light (Rank 1).
+	Synergy - Holy Light: 10% damage per rank of Holy Light.
+ 
+* Purify
+ 
+	Target an ally or a demon. If an ally is targeted, remove all negative effects from them. If a demon is targeted, deal 200 (+20/INT) damage.
+	Cost: 40 mana.
+	Cooldown: 24 seconds.
+	Cast Time: 1 second.
+	Per Rank: +100 damage.
+	Rank 5: Demons have 50% chance to be stunned for 2.5 seconds.
+	Rank 10: Allies gain 50% movement speed for 1.5 seconds.
+	Unlocks: Barrier, Purge.
+	Requires: Holy Light (Rank 1).
+ 
+* Invigorate
+ 
+	Increases a target allies or your health, armor and mana regen by 25% for 5 seconds.
+	Cost: NA.
+	Cooldown: 45 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +2.5% regen rate.
+	Rank 5: Duration +5 seconds.
+	Rank 10: Can affect players in 192 unit radius of the target.
+	Unlocks: Enchant Weapon, Divine Aura.
+	Requires: Blessing (Rank 1).
+ 
+* Might Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Increases damage of melee attacks of your team by 25% in a 256 unit radius.
+	Cost: 25% of mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: 2.5% more damage.
+	Rank 5: +128 unit radius.
+	Rank 10: Buff applies to all attacks from melee weapons.
+	Unlocks: Blessed Aim, Harness of Elements, Arcanery.
+	Requires: Blessing (Rank 1).
+ 
+* Disintegrate
+ 
+	Project a ray of destruction from your hands. Deal 45 (+9/INT) damage every 0.25 seconds in a 160 unit long line.
+	Cost: 5 mana per 0.25 seconds.
+	Cooldown: 8 seconds after letting go.
+	Cast Time: 2 seconds.
+	Per Rank: +60 damage, +4 unit length.
+	Rank 5: Damage dealt increases every second by 10% up to 100%.
+	Rank 10: Spend only half the mana cost while stationary.
+	Unlocks: Arcane Barrage.
+	Requires: Power Globe (Rank 1).
+	Synergy - Arcane Bolt: 10% damage per rank of Arcane Bolt.
+	Synergy - Arcane Trap: 5% damage and +8 unit length per rank of Arcane Trap.
+	Synergy - Arcane Barrage: +8 unit length per rank of Arcane Barrage.
+ 
+* Shadow Split
+ 
+	Project a shadow image of yourself that moves in random directions and taunts nearby enemies to attack it.
+	Clone has 200 (+25/INT) health and lasts 10 seconds.
+	Cost: 45 mana.
+	Cooldown: 35 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +150 clone health.
+	Rank 5: Duration +10 seconds.
+	Rank 10: Clone explodes after dying or expiring, dealing 25% of its max health as damage in a 192 unit radius.
+	Unlocks: Shadow Twin.
+	Requires: Power Globe (Rank 1).
+	Synergy - Shadow Twin: 5% more health per rank of Shadow Twin.
+ 
+* Summon: Familiar
+ 
+	Summon a familiar that will attack nearby enemies on its own. It can't be attacked by enemies.
+	Fires projectiles dealing 60 (+5/INT) damage in quick succession. Lasts 10 seconds.
+	Cost: 40 mana.
+	Cooldown: 50 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: +30 damage, +1 second duration.
+	Rank 5: Projectiles explode in a 64 unit radius for half damage.
+	Rank 10: Projectiles can't be deflected and ignores shields.
+	Unlocks: Energized Armor.
+	Requires: Spectral Blades (Rank 1).
+ 
+* Arcane Trap
+ 
+	Mark the ground you stand to place a magical trap. By itself, it acts as a proximity mine.
+	If there are other traps placed, they form links with each other. These links act as trip-wires.
+	If a trap explodes, they will all explode in unison. A trap alone deals 300 (+25/INT) damage in a 144 unit radius.
+	If there are multiple traps, as well as exploding, they also project a black hole in the center of all of them.
+	Black hole pulls enemies inwards and deals 150 (+45/INT) * Trap Count damage.
+	Black hole radius depends on the average of all distances between traps.
+	Traps won't link if they aren't at least 96 units apart. They won't link if they are 256 units apart.
+	Traps also consume three pet count. Traps last 30 seconds.
+	Cost: 45 mana.
+	Cooldown: 16 seconds.
+	Cast Time: 5 seconds.
+	Per Rank: +225 trap damage, +150 black hole damage.
+	Rank 5: +1 trap count.
+	Rank 10: Traps last an additional 15 seconds.
+	Unlocks: Ethereal Body.
+	Requires: Spectral Blades (Rank 1).
+	Synergy - Power Globe: +8 explosion radius and maximum trap link distance.
+ 
+* Pierce Heavens
+ 
+	Cast a bolt of holy lightning on a target location to deal 225 (+15/INT) damage in a 192 unit radius.
+	After a brief delay of it landing, unleash 8 Holy Light around.
+	Cost: 36 mana.
+	Cooldown: 12 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +125 damage.
+	Rank 5: Radius +64 units.
+	Rank 10: Holy lightning ignores immunities and shields.
+	Unlocks: Salvation.
+	Requires: Death Seeker (Rank 1).
+	Synergy - Death Seeker: 5% more damage per rank of Death Seeker.
+ 
+* Purge
+ 
+	Launch a magical tendril that damages all non-cybernetic enemies.
+	Tendril deals 150 (+10/INT) damage. If target is a demon, it's stunned for 2.5 seconds. If target is undead, it's silenced for 2.5 seconds.
+	Tendril will jump to three more targets before disappearing. Targets need to be within 160 unit radius.
+	Cost: 48 mana.
+	Cooldown: 18 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +100 damage. Every even rank gives +1 jump.
+	Rank 5: Every jump increases damage of tendril by 25%.
+	Rank 10: Jump radius increased to 224 units.
+	Unlocks: Salvation, Summon: Angel.
+	Requires: Death Seeker (Rank 1), Purify (Rank 1).
+	Synergy - Holy Light: 10% more damage per rank of Holy Light.
+ 
+* Barrier
+ 
+	Project a wall of holy energies 80 units in front of you. This wall will block enemy projectiles but allow yours to pass.
+	Wall has 500 (+25/INT) health and lasts 15 seconds.
+	Cost: 60 mana.
+	Cooldown: 35 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +300 health, +1 second duration.
+	Rank 5: Wall becomes 50% wider.
+	Rank 10: Wall will also block enemies from moving through.
+	Unlocks: Summon: Angel.
+	Requires: Purify (Rank 1).
+	Synergy - Salvation: 5% more health per rank of Salvation.
+ 
+* Enchant Weapon
+ 
+	Enchants your or a target ally's weapon. Weapon base damage increases by 30% for 8 seconds.
+	Cost: 25 mana.
+	Cooldown: 12 seconds.
+	Cast Time: 1 second.
+	Per Rank: +0.5 second duration.
+	Rank 5: +7 second duration.
+	Rank 10: Damage increase becomes 50%.
+	Unlocks: Holy Wrath.
+	Requires: Invigorate (Rank 1).
+ 
+* Divine Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Heal yourself or any ally (including pets) near a 320 unit radius by 10 (+2/INT) every second.
+	Healing anyone consumes 4 mana.
+	Cost: 25% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +5 heal.
+	Rank 5: Radius +64 units.
+	Rank 10: Mana cost for healing is halved.
+	Unlocks: Shielding Aura.
+	Requires: Invigorate (Rank 1).
+ 
+* Blessed Aim
+ 
+	Improves non-magical ranged attacks of allies, boosting damage they do by 20%. Also grants 10% additional accuracy rating.
+	Effect radius is 256 units.
+	Cost: 30% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +3% damage, +2% accuracy rating.
+	Rank 5: Radius becomes 384 units.
+	Rank 10: Accuracy rating bonus +10%.
+	Requires: Might Aura (Rank 1).
+ 
+* Harness of Elements
+ 
+	Improves elemental attacks of allies, boosting damage they do by 30%. Affects allies in a 192 (+2/INT) unit radius.
+	Cost: 30% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +1.5% damage.
+	Rank 5: Affects elemental spells as well.
+	Rank 10: Damage bonus +15%.
+	Requires: Might Aura (Rank 1).
+ 
+* Arcanery
+ 
+	Improves all magical attacks or spells of allies, increasing their values by 20% and reducing mana costs by 15%.
+	Effect radius is 200 units.
+	Cost: 30% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +16 unit radius.
+	Rank 5: Mana cost reduction increases to 30%.
+	Rank 10: Value boost increases to 40%.
+	Requires: Might Aura (Rank 1).
+ 
+* Arcane Barrage
+ 
+	Channel for a maximum of 5 seconds to unleash a barrage of magical bolts. Bolts travel upwards and then land on where you're pointing.
+	Bolts deal 100 (+10/INT) damage in a 80 unit radius. Average of five bolts every 0.3 seconds are fired.
+	Cost: 40 mana every 0.5 seconds.
+	Cooldown: 20 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +80 damage to each bolt.
+	Rank 5: Bolt explosion radius increases to 108 units.
+	Rank 10: Bolts can't be deflected and ignore shields.
+	Unlocks: Ascension.
+	Requires: Disintegrate (Rank 1).
+	Synergy - Arcane Bolt: +7.5% damage per rank of Arcane Bolt.
+	Synergy - Disintegrate: -2 mana cost per rank of Disintegrate.
+ 
+* Shadow Twin
+ 
+	Summon an identical twin of you made with your shadow. It shares the same life, armor and weapon as you.
+	The twin will attempt to fire the weapon you're currently holding every few seconds.
+	Twin repeatedly loses 2% of its health every second and will die out when it runs out of life.
+	Twin will do 50% less damage than you do.
+	Cost: 200 mana.
+	Cooldown: 180 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: -2 seconds cooldown.
+	Rank 5: Twin will instead lose 1.5% of its health instead.
+	Rank 10: Twin deals only 25% reduced damage and has a 20% chance to cast your allocated spells instead of attacking.
+	Unlocks: Ascension.
+	Requires: Shadow Split (Rank 1).
+	Synergy - Shadow Split: Loses 0.05% less health per rank of Shadow Split.
+ 
+* Energized Armor
+ 
+	Imbue the armor of a target ally or yourself to improve their armor. The armor will be 15% more efficient.
+	Lasts for 10 seconds. After the duration, it'll explode in a 192 unit radius to deal (2.5 * Armor of Target + 100 (+10/INT)) damage.
+	Cost: 175 mana.
+	Cooldown: 60 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +1.5% more efficiency.
+	Rank 5: Lasts 5 more seconds.
+	Rank 10: Also adds armor for 80 (+8/INT).
+	Unlocks: Summon: Avenger.
+	Requires: Summon: Familiar (Rank 1).
+ 
+* Ethereal Body
+ 
+	Temporarily turn yourself into a ghost, allowing many non-magical projectiles to pass through you.
+	Lasts 20 seconds.
+	Cost: 150 mana.
+	Cooldown: 75 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: +1.5 seconds duration.
+	Rank 5: Gain 150% mana regeneration bonus while active.
+	Rank 10: Gain +20% more speed while in this form.
+	Unlocks: Summon: Avenger.
+	Requires: Arcane Trap (Rank 1).
+ 
+* Salvation
+ 
+	A holy prayer is echoed to redeem corpses of enemies. Redeemed corpses heal you for 5% of your health and give armor for half the amount.
+	There's a 25% chance a corpse will be redeemed. Redemeed corpses disappear from the map. Maximum of 10 corpses can be redeemed.
+	Cost: 150 mana.
+	Cooldown: 90 seconds.
+	Cast Time: 5 seconds.
+	Per Rank: +1% chance to redeem a corpse.
+	Rank 5: +5 maximum corpses redeemed.
+	Rank 10: Redeeming corpses affect allies in a 192 unit radius as well.
+	Unlocks: Defiance.
+	Requires: Pierce Heavens (Rank 1), Purge (Rank 1).
+ 
+* Summon: Angel
+ 
+	Summon an angel to fight alongside you. Angel has 875 (+75/INT) health. Angel will attempt to cast Blesing to allies if they are injured.
+	Angel can also cast Death Seeker and Purge. It also has a melee attack that deals 100 (+5/INT) (+10/STR) damage.
+	Angel lasts indefinitely but suffers 1% of it's maximum health everytime you're hurt.
+	Angel requires four pet cap instead of the regular one cap.
+	Cost: 225 mana.
+	Cooldown: 180 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +250 angel health.
+	Rank 5: Can now fly.
+	Rank 10: Angel will apply a random aura you learned.
+	Unlocks: Defiance.
+	Requires: Purge (Rank 1), Barrier (Rank 1).
+ 
+* Holy Wrath
+ 
+	Immediately project an image of yourself to the target location that deals 250 (+35/INT) damage to all enemies near it.
+	The image then becomes a burst of light, blinding nearby enemies for 5 seconds.
+	Cost: 200 mana.
+	Cooldown: 45 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +175 damage.
+	Rank 5: Image moves slowly instead but deals the area damage continuously.
+	Rank 10: Image stuns instead of blinding.
+	Unlocks: Inspiration.
+	Requires: Enchant Weapon (Rank 1).
+	Synergy - Purify: 10% more damage per rank of Purify.
+ 
+* Shielding Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Shield every ally near you, reducing damage they take by 15% in a 160 unit radius.
+	Cost: 35% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +1% protection, +8 unit radius.
+	Rank 5: Radius +80.
+	Rank 10: Protection is doubled against melee attacks.
+	Unlocks: Haste Aura.
+	Requires: Divine Aura.
+ 
+* Thorns Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Any enemy that deals damage to you or your allies suffers 35 (+5/INT) damage back. Effect radius is 256 units.
+	Cost: 30% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +25 damage returned.
+	Rank 5: Harms enemies for 1% of their maximum health as well.
+	Rank 10: Damage has 15% chance to stun the enemy for 1.5 seconds.
+ 
+* Conviction
+ 
+	PASSIVE SKILL - AURA SKILL
+	Enemies in a 160 unit radius around you take 35% more damage.
+	Cost: 35% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +16 radius.
+	Rank 5: Enemy resistances are removed as long as they are affected.
+	Rank 10: Enemy immunities are removed as long as they are affected.
+	Unlocks: Retribution.
+ 
+* Ascension
+ 
+	Ascend to a purely arcane form. Become a being of pure magic, you can only be hurt from magical attacks.
+	Any spell you cast is 25% more potent and require 25% less mana. Ascended form lasts 10 seconds.
+	Cost: 300 mana.
+	Cooldown: 240 seconds.
+	Cast Time: 5 seconds.
+	Per Rank: +2.5 seconds duration.
+	Rank 5: Spell potency +15%, mana requirement -15%.
+	Rank 10: Ascension cooldown is reduced by 0.5 seconds per kill while in ascended form.
+	Requires: Arcane Barrage (Rank 1), Shadow Twin (Rank 1).
+ 
+* Summon: Avenger
+ 
+	Summon a holy spirit to fight alongside you. Has a shield that will block incoming attacks before breaking, absorbing 1500 (+175/INT) damage.
+	Avenger itself has 1000 (+100/INT) health, can melee for 300 (+9/INT) (+18/STR) damage and throws a ripping spear dealing 200 (+18/INT) (+9/STR) damage.
+	Avenger lasts 60 seconds. If any monster drops you below 50% health, Avenger will enrage and specifically target that enemy.
+	Killing the enemy avenger targeted will heal you for 15% of your missing health.
+	Cost: 350 mana.
+	Cooldown: 180 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +750 health, +150 melee damage, +100 ranged damage.
+	Requires: Energized Armor (Rank 1), Ethereal Body (Rank 1).
+	Synergy - Summon: Angel: +5% more health per rank of Summon: Angel.
+ 
+* Defiance
+ 
+	Damage you deal with your spells is stored, for a maximum of 2500 (+125/INT). Channel for 2.5 seconds to unleash all damage stored
+	around you as a nova of holy light and darkness combined. Create five holy and dark projectiles around you that travel for 3 seconds.
+	The projectiles themselves inherit 30% of the stored damage.
+	Cost: 450 mana.
+	Cooldown: 180 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +1000 damage stored.
+	Rank 5: Channel time reduced to 1 second.
+	Rank 10: Projectiles rip through enemies instead.
+	Requires: Salvation (Rank 1), Summon: Angel (Rank 1).
+	Synergy - Purge: +5% damage stored per rank of Purge.
+ 
+* Inspiration
+ 
+	Inspire nearby allies, increasing their INT and DEX stats by 30% for 18 seconds.
+	Effect radius is 256 units. Can't affect self.
+	Cost: 275 mana.
+	Cooldown: 120 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: Radius +16.
+	Rank 5: Stat increase becomes 75%.
+	Rank 10: Lasts 30 seconds instead.
+	Requires: Holy Wrath (Rank 1).
+ 
+* Haste Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	You and allies in a 192 unit radius around you are sped up by 20%.
+	Cost: 35% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +16 unit radius.
+	Rank 5: Slows enemies in the radius for the same amount.
+	Rank 10: Radius is doubled.
+	Requires: Shielding Aura.
+ 
+* Retribution
+ 
+	Store souls of enemies killed. Every five souls grant the ability to summon a holy hammer around you.
+	Hammers deal 200 (+16/INT) damage each, ripping through enemies. Maximum souls stored is 50.
+	Each hammer lasts 10 seconds. They'll orbit around you constantly.
+	Cost: 175 mana per hammer.
+	Cooldown: 30 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +100 hammer damage.
+	Rank 5: Soul capacity increased to 100.
+	Rank 10: Hammers last an additional 5 seconds.
+	Requires: Conviction (Rank 1).

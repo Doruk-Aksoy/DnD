@@ -70,7 +70,7 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	1
 };
 
-#define MAXDNDFLAGS 52
+#define MAXDNDFLAGS 53
 str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monsterbars",
 	"dnd_monsterscale",
@@ -118,6 +118,8 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_elite_runedrop_chance",
 	"dnd_legendary_chance",
 	"dnd_limitedrespawn_amount",
+	
+	"dnd_npc_appear_level",
 	
 	"dnd_exp_scale",
 	"dnd_credit_scale",
@@ -179,6 +181,8 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	15,
 	1,
 	2,
+	
+	30,
 	
 	1,
 	1,

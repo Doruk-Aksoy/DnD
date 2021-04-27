@@ -888,7 +888,19 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		PlayerDamageTicData[pnum][temp] += dmg;
 	}
 	
-	Thing_Damage2(victim, dmg, s_damagetype);
+	if((temp = CheckActorInventory(victim, "MonsterFortifyCount")) && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
+		if(temp <= dmg) {
+			temp = dmg;
+			PlaySound(victim, "Elite/FortifyCrack", CHAN_VOICE, 1.0);
+			// remove fortify modifier from monster
+			ACS_NamedExecuteWithResult("DnD Monster Trait Take Single", victim, DND_FORTIFIED);
+		}
+		SetActorInventory(victim, "MonsterFortifyCount", temp - dmg);
+		dmg -= temp;
+	}
+	
+	if(dmg > 0)
+		Thing_Damage2(victim, dmg, s_damagetype);
 	
 	if(!isActorAlive(victim) && CheckActorInventory(source, "Berserker_Perk50")) {
 		SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
@@ -1334,13 +1346,28 @@ Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
 	}
 }
 
+void HandleLifesteal(int wepid, int flags, int dmg) {
+	int taltos = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
+	int brune_1 = CheckInventory("FakeBloodPower");
+	int brune_2 = CheckInventory("FakeBloodPowerBetter");
+	if(CheckInventory("IATTR_Lifesteal") || taltos || brune_1 || brune_2) {
+		taltos = CheckInventory("IATTR_Lifesteal") + taltos * DND_TALTOS_LIFESTEAL + brune_1 * BLOODRUNE_LIFESTEAL_AMT + brune_2 * BLOODRUNE_LIFESTEAL_AMT2;
+		
+		// divide by 100 as its a percentage -- and >> 16 to make it int
+		taltos /= 100;
+		taltos *= dmg;
+		taltos >>= 16;
+		if(taltos)
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, taltos);
+	}
+}
+
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
 Script "DnD Damage Accumulate" (int victim_data, int wepid) {
 	int pnum = PlayerNumber();
 	int flags = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
-	
-	int temp;
+
 	int ox = PlayerDamageVector[pnum].x;
 	int oy = PlayerDamageVector[pnum].y;
 	int oz = PlayerDamageVector[pnum].z;
@@ -1357,15 +1384,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid) {
 	PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;
 	
 	// check if player has lifesteal, if they do reward some hp back
-	if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS]) {
-		temp = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
-		if(CheckInventory("IATTR_Lifesteal") || temp) {
-			// divide by 100 as its a percentage
-			temp = (PlayerDamageTicData[pnum][victim_data] * ((CheckInventory("IATTR_Lifesteal") + temp * DND_TALTOS_LIFESTEAL) / 100)) >> 16;
-			if(temp)
-				ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
-		}
-	}
+	if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS])
+		HandleLifesteal(wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance
 	// do these if only the actor was alive after the tic they received dmg

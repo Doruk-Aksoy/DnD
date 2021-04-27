@@ -1,0 +1,1796 @@
+Texture "FBR_1", 200, 18
+{
+	Patch "FILLCRIT", 0, 0
+}
+
+Texture "FBR_2", 200, 18
+{
+	Patch "FILLCRIT", 2, 0
+	Patch "FBR_1", 0, 0
+}
+
+Texture "FBR_3", 200, 18
+{
+	Patch "FILLCRIT", 4, 0
+	Patch "FBR_2", 0, 0
+}
+
+Texture "FBR_4", 200, 18
+{
+	Patch "FILLCRIT", 6, 0
+	Patch "FBR_3", 0, 0
+}
+
+Texture "FBR_5", 200, 18
+{
+	Patch "FILLCRIT", 8, 0
+	Patch "FBR_4", 0, 0
+}
+
+Texture "FBR_6", 200, 18
+{
+	Patch "FILLCRIT", 10, 0
+	Patch "FBR_5", 0, 0
+}
+
+Texture "FBR_7", 200, 18
+{
+	Patch "FILLCRIT", 12, 0
+	Patch "FBR_6", 0, 0
+}
+
+Texture "FBR_8", 200, 18
+{
+	Patch "FILLCRIT", 14, 0
+	Patch "FBR_7", 0, 0
+}
+
+Texture "FBR_9", 200, 18
+{
+	Patch "FILLCRIT", 16, 0
+	Patch "FBR_8", 0, 0
+}
+
+Texture "FBR_10", 200, 18
+{
+	Patch "FILLCRIT", 18, 0
+	Patch "FBR_9", 0, 0
+}
+
+Texture "FBR_11", 200, 18
+{
+	Patch "FILLCRIT", 20, 0
+	Patch "FBR_10", 0, 0
+}
+
+Texture "FBR_12", 200, 18
+{
+	Patch "FILLCRIT", 22, 0
+	Patch "FBR_11", 0, 0
+}
+
+Texture "FBR_13", 200, 18
+{
+	Patch "FILLCRIT", 24, 0
+	Patch "FBR_12", 0, 0
+}
+
+Texture "FBR_14", 200, 18
+{
+	Patch "FILLCRIT", 26, 0
+	Patch "FBR_13", 0, 0
+}
+
+Texture "FBR_15", 200, 18
+{
+	Patch "FILLCRIT", 28, 0
+	Patch "FBR_14", 0, 0
+}
+
+Texture "FBR_16", 200, 18
+{
+	Patch "FILLCRIT", 30, 0
+	Patch "FBR_15", 0, 0
+}
+
+Texture "FBR_17", 200, 18
+{
+	Patch "FILLCRIT", 32, 0
+	Patch "FBR_16", 0, 0
+}
+
+Texture "FBR_18", 200, 18
+{
+	Patch "FILLCRIT", 34, 0
+	Patch "FBR_17", 0, 0
+}
+
+Texture "FBR_19", 200, 18
+{
+	Patch "FILLCRIT", 36, 0
+	Patch "FBR_18", 0, 0
+}
+
+Texture "FBR_20", 200, 18
+{
+	Patch "FILLCRIT", 38, 0
+	Patch "FBR_19", 0, 0
+}
+
+Texture "FBR_21", 200, 18
+{
+	Patch "FILLCRIT", 40, 0
+	Patch "FBR_20", 0, 0
+}
+
+Texture "FBR_22", 200, 18
+{
+	Patch "FILLCRIT", 42, 0
+	Patch "FBR_21", 0, 0
+}
+
+Texture "FBR_23", 200, 18
+{
+	Patch "FILLCRIT", 44, 0
+	Patch "FBR_22", 0, 0
+}
+
+Texture "FBR_24", 200, 18
+{
+	Patch "FILLCRIT", 46, 0
+	Patch "FBR_23", 0, 0
+}
+
+Texture "FBR_25", 200, 18
+{
+	Patch "FILLCRIT", 48, 0
+	Patch "FBR_24", 0, 0
+}
+
+Texture "FBR_26", 200, 18
+{
+	Patch "FILLCRIT", 50, 0
+	Patch "FBR_25", 0, 0
+}
+
+Texture "FBR_27", 200, 18
+{
+	Patch "FILLCRIT", 52, 0
+	Patch "FBR_26", 0, 0
+}
+
+Texture "FBR_28", 200, 18
+{
+	Patch "FILLCRIT", 54, 0
+	Patch "FBR_27", 0, 0
+}
+
+Texture "FBR_29", 200, 18
+{
+	Patch "FILLCRIT", 56, 0
+	Patch "FBR_28", 0, 0
+}
+
+Texture "FBR_30", 200, 18
+{
+	Patch "FILLCRIT", 58, 0
+	Patch "FBR_29", 0, 0
+}
+
+Texture "FBR_31", 200, 18
+{
+	Patch "FILLCRIT", 60, 0
+	Patch "FBR_30", 0, 0
+}
+
+Texture "FBR_32", 200, 18
+{
+	Patch "FILLCRIT", 62, 0
+	Patch "FBR_31", 0, 0
+}
+
+Texture "FBR_33", 200, 18
+{
+	Patch "FILLCRIT", 64, 0
+	Patch "FBR_32", 0, 0
+}
+
+Texture "FBR_34", 200, 18
+{
+	Patch "FILLCRIT", 66, 0
+	Patch "FBR_33", 0, 0
+}
+
+Texture "FBR_35", 200, 18
+{
+	Patch "FILLCRIT", 68, 0
+	Patch "FBR_34", 0, 0
+}
+
+Texture "FBR_36", 200, 18
+{
+	Patch "FILLCRIT", 70, 0
+	Patch "FBR_35", 0, 0
+}
+
+Texture "FBR_37", 200, 18
+{
+	Patch "FILLCRIT", 72, 0
+	Patch "FBR_36", 0, 0
+}
+
+Texture "FBR_38", 200, 18
+{
+	Patch "FILLCRIT", 74, 0
+	Patch "FBR_37", 0, 0
+}
+
+Texture "FBR_39", 200, 18
+{
+	Patch "FILLCRIT", 76, 0
+	Patch "FBR_38", 0, 0
+}
+
+Texture "FBR_40", 200, 18
+{
+	Patch "FILLCRIT", 78, 0
+	Patch "FBR_39", 0, 0
+}
+
+Texture "FBR_41", 200, 18
+{
+	Patch "FILLCRIT", 80, 0
+	Patch "FBR_40", 0, 0
+}
+
+Texture "FBR_42", 200, 18
+{
+	Patch "FILLCRIT", 82, 0
+	Patch "FBR_41", 0, 0
+}
+
+Texture "FBR_43", 200, 18
+{
+	Patch "FILLCRIT", 84, 0
+	Patch "FBR_42", 0, 0
+}
+
+Texture "FBR_44", 200, 18
+{
+	Patch "FILLCRIT", 86, 0
+	Patch "FBR_43", 0, 0
+}
+
+Texture "FBR_45", 200, 18
+{
+	Patch "FILLCRIT", 88, 0
+	Patch "FBR_44", 0, 0
+}
+
+Texture "FBR_46", 200, 18
+{
+	Patch "FILLCRIT", 90, 0
+	Patch "FBR_45", 0, 0
+}
+
+Texture "FBR_47", 200, 18
+{
+	Patch "FILLCRIT", 92, 0
+	Patch "FBR_46", 0, 0
+}
+
+Texture "FBR_48", 200, 18
+{
+	Patch "FILLCRIT", 94, 0
+	Patch "FBR_47", 0, 0
+}
+
+Texture "FBR_49", 200, 18
+{
+	Patch "FILLCRIT", 96, 0
+	Patch "FBR_48", 0, 0
+}
+
+Texture "FBR_50", 200, 18
+{
+	Patch "FILLCRIT", 98, 0
+	Patch "FBR_49", 0, 0
+}
+
+Texture "FBR_51", 200, 18
+{
+	Patch "FILLCRIT", 100, 0
+	Patch "FBR_50", 0, 0
+}
+
+Texture "FBR_52", 200, 18
+{
+	Patch "FILLCRIT", 102, 0
+	Patch "FBR_51", 0, 0
+}
+
+Texture "FBR_53", 200, 18
+{
+	Patch "FILLCRIT", 104, 0
+	Patch "FBR_52", 0, 0
+}
+
+Texture "FBR_54", 200, 18
+{
+	Patch "FILLCRIT", 106, 0
+	Patch "FBR_53", 0, 0
+}
+
+Texture "FBR_55", 200, 18
+{
+	Patch "FILLCRIT", 108, 0
+	Patch "FBR_54", 0, 0
+}
+
+Texture "FBR_56", 200, 18
+{
+	Patch "FILLCRIT", 110, 0
+	Patch "FBR_55", 0, 0
+}
+
+Texture "FBR_57", 200, 18
+{
+	Patch "FILLCRIT", 112, 0
+	Patch "FBR_56", 0, 0
+}
+
+Texture "FBR_58", 200, 18
+{
+	Patch "FILLCRIT", 114, 0
+	Patch "FBR_57", 0, 0
+}
+
+Texture "FBR_59", 200, 18
+{
+	Patch "FILLCRIT", 116, 0
+	Patch "FBR_58", 0, 0
+}
+
+Texture "FBR_60", 200, 18
+{
+	Patch "FILLCRIT", 118, 0
+	Patch "FBR_59", 0, 0
+}
+
+Texture "FBR_61", 200, 18
+{
+	Patch "FILLCRIT", 120, 0
+	Patch "FBR_60", 0, 0
+}
+
+Texture "FBR_62", 200, 18
+{
+	Patch "FILLCRIT", 122, 0
+	Patch "FBR_61", 0, 0
+}
+
+Texture "FBR_63", 200, 18
+{
+	Patch "FILLCRIT", 124, 0
+	Patch "FBR_62", 0, 0
+}
+
+Texture "FBR_64", 200, 18
+{
+	Patch "FILLCRIT", 126, 0
+	Patch "FBR_63", 0, 0
+}
+
+Texture "FBR_65", 200, 18
+{
+	Patch "FILLCRIT", 128, 0
+	Patch "FBR_64", 0, 0
+}
+
+Texture "FBR_66", 200, 18
+{
+	Patch "FILLCRIT", 130, 0
+	Patch "FBR_65", 0, 0
+}
+
+Texture "FBR_67", 200, 18
+{
+	Patch "FILLCRIT", 132, 0
+	Patch "FBR_66", 0, 0
+}
+
+Texture "FBR_68", 200, 18
+{
+	Patch "FILLCRIT", 134, 0
+	Patch "FBR_67", 0, 0
+}
+
+Texture "FBR_69", 200, 18
+{
+	Patch "FILLCRIT", 136, 0
+	Patch "FBR_68", 0, 0
+}
+
+Texture "FBR_70", 200, 18
+{
+	Patch "FILLCRIT", 138, 0
+	Patch "FBR_69", 0, 0
+}
+
+Texture "FBR_71", 200, 18
+{
+	Patch "FILLCRIT", 140, 0
+	Patch "FBR_70", 0, 0
+}
+
+Texture "FBR_72", 200, 18
+{
+	Patch "FILLCRIT", 142, 0
+	Patch "FBR_71", 0, 0
+}
+
+Texture "FBR_73", 200, 18
+{
+	Patch "FILLCRIT", 144, 0
+	Patch "FBR_72", 0, 0
+}
+
+Texture "FBR_74", 200, 18
+{
+	Patch "FILLCRIT", 146, 0
+	Patch "FBR_73", 0, 0
+}
+
+Texture "FBR_75", 200, 18
+{
+	Patch "FILLCRIT", 148, 0
+	Patch "FBR_74", 0, 0
+}
+
+Texture "FBR_76", 200, 18
+{
+	Patch "FILLCRIT", 150, 0
+	Patch "FBR_75", 0, 0
+}
+
+Texture "FBR_77", 200, 18
+{
+	Patch "FILLCRIT", 152, 0
+	Patch "FBR_76", 0, 0
+}
+
+Texture "FBR_78", 200, 18
+{
+	Patch "FILLCRIT", 154, 0
+	Patch "FBR_77", 0, 0
+}
+
+Texture "FBR_79", 200, 18
+{
+	Patch "FILLCRIT", 156, 0
+	Patch "FBR_78", 0, 0
+}
+
+Texture "FBR_80", 200, 18
+{
+	Patch "FILLCRIT", 158, 0
+	Patch "FBR_79", 0, 0
+}
+
+Texture "FBR_81", 200, 18
+{
+	Patch "FILLCRIT", 160, 0
+	Patch "FBR_80", 0, 0
+}
+
+Texture "FBR_82", 200, 18
+{
+	Patch "FILLCRIT", 162, 0
+	Patch "FBR_81", 0, 0
+}
+
+Texture "FBR_83", 200, 18
+{
+	Patch "FILLCRIT", 164, 0
+	Patch "FBR_82", 0, 0
+}
+
+Texture "FBR_84", 200, 18
+{
+	Patch "FILLCRIT", 166, 0
+	Patch "FBR_83", 0, 0
+}
+
+Texture "FBR_85", 200, 18
+{
+	Patch "FILLCRIT", 168, 0
+	Patch "FBR_84", 0, 0
+}
+
+Texture "FBR_86", 200, 18
+{
+	Patch "FILLCRIT", 170, 0
+	Patch "FBR_85", 0, 0
+}
+
+Texture "FBR_87", 200, 18
+{
+	Patch "FILLCRIT", 172, 0
+	Patch "FBR_86", 0, 0
+}
+
+Texture "FBR_88", 200, 18
+{
+	Patch "FILLCRIT", 174, 0
+	Patch "FBR_87", 0, 0
+}
+
+Texture "FBR_89", 200, 18
+{
+	Patch "FILLCRIT", 176, 0
+	Patch "FBR_88", 0, 0
+}
+
+Texture "FBR_90", 200, 18
+{
+	Patch "FILLCRIT", 178, 0
+	Patch "FBR_89", 0, 0
+}
+
+Texture "FBR_91", 200, 18
+{
+	Patch "FILLCRIT", 180, 0
+	Patch "FBR_90", 0, 0
+}
+
+Texture "FBR_92", 200, 18
+{
+	Patch "FILLCRIT", 182, 0
+	Patch "FBR_91", 0, 0
+}
+
+Texture "FBR_93", 200, 18
+{
+	Patch "FILLCRIT", 184, 0
+	Patch "FBR_92", 0, 0
+}
+
+Texture "FBR_94", 200, 18
+{
+	Patch "FILLCRIT", 186, 0
+	Patch "FBR_93", 0, 0
+}
+
+Texture "FBR_95", 200, 18
+{
+	Patch "FILLCRIT", 188, 0
+	Patch "FBR_94", 0, 0
+}
+
+Texture "FBR_96", 200, 18
+{
+	Patch "FILLCRIT", 190, 0
+	Patch "FBR_95", 0, 0
+}
+
+Texture "FBR_97", 200, 18
+{
+	Patch "FILLCRIT", 192, 0
+	Patch "FBR_96", 0, 0
+}
+
+Texture "FBR_98", 200, 18
+{
+	Patch "FILLCRIT", 194, 0
+	Patch "FBR_97", 0, 0
+}
+
+Texture "FBR_99", 200, 18
+{
+	Patch "FILLCRIT", 196, 0
+	Patch "FBR_98", 0, 0
+}
+
+Texture "FBR_100", 200, 18
+{
+	Patch "FILLCRIT", 198, 0
+	Patch "FBR_99", 0, 0
+}
+
+Texture "FGR_1", 200, 18
+{
+	Patch "FILLNORM", 0, 0
+}
+
+Texture "FGR_2", 200, 18
+{
+	Patch "FILLNORM", 2, 0
+	Patch "FGR_1", 0, 0
+}
+
+Texture "FGR_3", 200, 18
+{
+	Patch "FILLNORM", 4, 0
+	Patch "FGR_2", 0, 0
+}
+
+Texture "FGR_4", 200, 18
+{
+	Patch "FILLNORM", 6, 0
+	Patch "FGR_3", 0, 0
+}
+
+Texture "FGR_5", 200, 18
+{
+	Patch "FILLNORM", 8, 0
+	Patch "FGR_4", 0, 0
+}
+
+Texture "FGR_6", 200, 18
+{
+	Patch "FILLNORM", 10, 0
+	Patch "FGR_5", 0, 0
+}
+
+Texture "FGR_7", 200, 18
+{
+	Patch "FILLNORM", 12, 0
+	Patch "FGR_6", 0, 0
+}
+
+Texture "FGR_8", 200, 18
+{
+	Patch "FILLNORM", 14, 0
+	Patch "FGR_7", 0, 0
+}
+
+Texture "FGR_9", 200, 18
+{
+	Patch "FILLNORM", 16, 0
+	Patch "FGR_8", 0, 0
+}
+
+Texture "FGR_10", 200, 18
+{
+	Patch "FILLNORM", 18, 0
+	Patch "FGR_9", 0, 0
+}
+
+Texture "FGR_11", 200, 18
+{
+	Patch "FILLNORM", 20, 0
+	Patch "FGR_10", 0, 0
+}
+
+Texture "FGR_12", 200, 18
+{
+	Patch "FILLNORM", 22, 0
+	Patch "FGR_11", 0, 0
+}
+
+Texture "FGR_13", 200, 18
+{
+	Patch "FILLNORM", 24, 0
+	Patch "FGR_12", 0, 0
+}
+
+Texture "FGR_14", 200, 18
+{
+	Patch "FILLNORM", 26, 0
+	Patch "FGR_13", 0, 0
+}
+
+Texture "FGR_15", 200, 18
+{
+	Patch "FILLNORM", 28, 0
+	Patch "FGR_14", 0, 0
+}
+
+Texture "FGR_16", 200, 18
+{
+	Patch "FILLNORM", 30, 0
+	Patch "FGR_15", 0, 0
+}
+
+Texture "FGR_17", 200, 18
+{
+	Patch "FILLNORM", 32, 0
+	Patch "FGR_16", 0, 0
+}
+
+Texture "FGR_18", 200, 18
+{
+	Patch "FILLNORM", 34, 0
+	Patch "FGR_17", 0, 0
+}
+
+Texture "FGR_19", 200, 18
+{
+	Patch "FILLNORM", 36, 0
+	Patch "FGR_18", 0, 0
+}
+
+Texture "FGR_20", 200, 18
+{
+	Patch "FILLNORM", 38, 0
+	Patch "FGR_19", 0, 0
+}
+
+Texture "FGR_21", 200, 18
+{
+	Patch "FILLNORM", 40, 0
+	Patch "FGR_20", 0, 0
+}
+
+Texture "FGR_22", 200, 18
+{
+	Patch "FILLNORM", 42, 0
+	Patch "FGR_21", 0, 0
+}
+
+Texture "FGR_23", 200, 18
+{
+	Patch "FILLNORM", 44, 0
+	Patch "FGR_22", 0, 0
+}
+
+Texture "FGR_24", 200, 18
+{
+	Patch "FILLNORM", 46, 0
+	Patch "FGR_23", 0, 0
+}
+
+Texture "FGR_25", 200, 18
+{
+	Patch "FILLNORM", 48, 0
+	Patch "FGR_24", 0, 0
+}
+
+Texture "FGR_26", 200, 18
+{
+	Patch "FILLNORM", 50, 0
+	Patch "FGR_25", 0, 0
+}
+
+Texture "FGR_27", 200, 18
+{
+	Patch "FILLNORM", 52, 0
+	Patch "FGR_26", 0, 0
+}
+
+Texture "FGR_28", 200, 18
+{
+	Patch "FILLNORM", 54, 0
+	Patch "FGR_27", 0, 0
+}
+
+Texture "FGR_29", 200, 18
+{
+	Patch "FILLNORM", 56, 0
+	Patch "FGR_28", 0, 0
+}
+
+Texture "FGR_30", 200, 18
+{
+	Patch "FILLNORM", 58, 0
+	Patch "FGR_29", 0, 0
+}
+
+Texture "FGR_31", 200, 18
+{
+	Patch "FILLNORM", 60, 0
+	Patch "FGR_30", 0, 0
+}
+
+Texture "FGR_32", 200, 18
+{
+	Patch "FILLNORM", 62, 0
+	Patch "FGR_31", 0, 0
+}
+
+Texture "FGR_33", 200, 18
+{
+	Patch "FILLNORM", 64, 0
+	Patch "FGR_32", 0, 0
+}
+
+Texture "FGR_34", 200, 18
+{
+	Patch "FILLNORM", 66, 0
+	Patch "FGR_33", 0, 0
+}
+
+Texture "FGR_35", 200, 18
+{
+	Patch "FILLNORM", 68, 0
+	Patch "FGR_34", 0, 0
+}
+
+Texture "FGR_36", 200, 18
+{
+	Patch "FILLNORM", 70, 0
+	Patch "FGR_35", 0, 0
+}
+
+Texture "FGR_37", 200, 18
+{
+	Patch "FILLNORM", 72, 0
+	Patch "FGR_36", 0, 0
+}
+
+Texture "FGR_38", 200, 18
+{
+	Patch "FILLNORM", 74, 0
+	Patch "FGR_37", 0, 0
+}
+
+Texture "FGR_39", 200, 18
+{
+	Patch "FILLNORM", 76, 0
+	Patch "FGR_38", 0, 0
+}
+
+Texture "FGR_40", 200, 18
+{
+	Patch "FILLNORM", 78, 0
+	Patch "FGR_39", 0, 0
+}
+
+Texture "FGR_41", 200, 18
+{
+	Patch "FILLNORM", 80, 0
+	Patch "FGR_40", 0, 0
+}
+
+Texture "FGR_42", 200, 18
+{
+	Patch "FILLNORM", 82, 0
+	Patch "FGR_41", 0, 0
+}
+
+Texture "FGR_43", 200, 18
+{
+	Patch "FILLNORM", 84, 0
+	Patch "FGR_42", 0, 0
+}
+
+Texture "FGR_44", 200, 18
+{
+	Patch "FILLNORM", 86, 0
+	Patch "FGR_43", 0, 0
+}
+
+Texture "FGR_45", 200, 18
+{
+	Patch "FILLNORM", 88, 0
+	Patch "FGR_44", 0, 0
+}
+
+Texture "FGR_46", 200, 18
+{
+	Patch "FILLNORM", 90, 0
+	Patch "FGR_45", 0, 0
+}
+
+Texture "FGR_47", 200, 18
+{
+	Patch "FILLNORM", 92, 0
+	Patch "FGR_46", 0, 0
+}
+
+Texture "FGR_48", 200, 18
+{
+	Patch "FILLNORM", 94, 0
+	Patch "FGR_47", 0, 0
+}
+
+Texture "FGR_49", 200, 18
+{
+	Patch "FILLNORM", 96, 0
+	Patch "FGR_48", 0, 0
+}
+
+Texture "FGR_50", 200, 18
+{
+	Patch "FILLNORM", 98, 0
+	Patch "FGR_49", 0, 0
+}
+
+Texture "FGR_51", 200, 18
+{
+	Patch "FILLNORM", 100, 0
+	Patch "FGR_50", 0, 0
+}
+
+Texture "FGR_52", 200, 18
+{
+	Patch "FILLNORM", 102, 0
+	Patch "FGR_51", 0, 0
+}
+
+Texture "FGR_53", 200, 18
+{
+	Patch "FILLNORM", 104, 0
+	Patch "FGR_52", 0, 0
+}
+
+Texture "FGR_54", 200, 18
+{
+	Patch "FILLNORM", 106, 0
+	Patch "FGR_53", 0, 0
+}
+
+Texture "FGR_55", 200, 18
+{
+	Patch "FILLNORM", 108, 0
+	Patch "FGR_54", 0, 0
+}
+
+Texture "FGR_56", 200, 18
+{
+	Patch "FILLNORM", 110, 0
+	Patch "FGR_55", 0, 0
+}
+
+Texture "FGR_57", 200, 18
+{
+	Patch "FILLNORM", 112, 0
+	Patch "FGR_56", 0, 0
+}
+
+Texture "FGR_58", 200, 18
+{
+	Patch "FILLNORM", 114, 0
+	Patch "FGR_57", 0, 0
+}
+
+Texture "FGR_59", 200, 18
+{
+	Patch "FILLNORM", 116, 0
+	Patch "FGR_58", 0, 0
+}
+
+Texture "FGR_60", 200, 18
+{
+	Patch "FILLNORM", 118, 0
+	Patch "FGR_59", 0, 0
+}
+
+Texture "FGR_61", 200, 18
+{
+	Patch "FILLNORM", 120, 0
+	Patch "FGR_60", 0, 0
+}
+
+Texture "FGR_62", 200, 18
+{
+	Patch "FILLNORM", 122, 0
+	Patch "FGR_61", 0, 0
+}
+
+Texture "FGR_63", 200, 18
+{
+	Patch "FILLNORM", 124, 0
+	Patch "FGR_62", 0, 0
+}
+
+Texture "FGR_64", 200, 18
+{
+	Patch "FILLNORM", 126, 0
+	Patch "FGR_63", 0, 0
+}
+
+Texture "FGR_65", 200, 18
+{
+	Patch "FILLNORM", 128, 0
+	Patch "FGR_64", 0, 0
+}
+
+Texture "FGR_66", 200, 18
+{
+	Patch "FILLNORM", 130, 0
+	Patch "FGR_65", 0, 0
+}
+
+Texture "FGR_67", 200, 18
+{
+	Patch "FILLNORM", 132, 0
+	Patch "FGR_66", 0, 0
+}
+
+Texture "FGR_68", 200, 18
+{
+	Patch "FILLNORM", 134, 0
+	Patch "FGR_67", 0, 0
+}
+
+Texture "FGR_69", 200, 18
+{
+	Patch "FILLNORM", 136, 0
+	Patch "FGR_68", 0, 0
+}
+
+Texture "FGR_70", 200, 18
+{
+	Patch "FILLNORM", 138, 0
+	Patch "FGR_69", 0, 0
+}
+
+Texture "FGR_71", 200, 18
+{
+	Patch "FILLNORM", 140, 0
+	Patch "FGR_70", 0, 0
+}
+
+Texture "FGR_72", 200, 18
+{
+	Patch "FILLNORM", 142, 0
+	Patch "FGR_71", 0, 0
+}
+
+Texture "FGR_73", 200, 18
+{
+	Patch "FILLNORM", 144, 0
+	Patch "FGR_72", 0, 0
+}
+
+Texture "FGR_74", 200, 18
+{
+	Patch "FILLNORM", 146, 0
+	Patch "FGR_73", 0, 0
+}
+
+Texture "FGR_75", 200, 18
+{
+	Patch "FILLNORM", 148, 0
+	Patch "FGR_74", 0, 0
+}
+
+Texture "FGR_76", 200, 18
+{
+	Patch "FILLNORM", 150, 0
+	Patch "FGR_75", 0, 0
+}
+
+Texture "FGR_77", 200, 18
+{
+	Patch "FILLNORM", 152, 0
+	Patch "FGR_76", 0, 0
+}
+
+Texture "FGR_78", 200, 18
+{
+	Patch "FILLNORM", 154, 0
+	Patch "FGR_77", 0, 0
+}
+
+Texture "FGR_79", 200, 18
+{
+	Patch "FILLNORM", 156, 0
+	Patch "FGR_78", 0, 0
+}
+
+Texture "FGR_80", 200, 18
+{
+	Patch "FILLNORM", 158, 0
+	Patch "FGR_79", 0, 0
+}
+
+Texture "FGR_81", 200, 18
+{
+	Patch "FILLNORM", 160, 0
+	Patch "FGR_80", 0, 0
+}
+
+Texture "FGR_82", 200, 18
+{
+	Patch "FILLNORM", 162, 0
+	Patch "FGR_81", 0, 0
+}
+
+Texture "FGR_83", 200, 18
+{
+	Patch "FILLNORM", 164, 0
+	Patch "FGR_82", 0, 0
+}
+
+Texture "FGR_84", 200, 18
+{
+	Patch "FILLNORM", 166, 0
+	Patch "FGR_83", 0, 0
+}
+
+Texture "FGR_85", 200, 18
+{
+	Patch "FILLNORM", 168, 0
+	Patch "FGR_84", 0, 0
+}
+
+Texture "FGR_86", 200, 18
+{
+	Patch "FILLNORM", 170, 0
+	Patch "FGR_85", 0, 0
+}
+
+Texture "FGR_87", 200, 18
+{
+	Patch "FILLNORM", 172, 0
+	Patch "FGR_86", 0, 0
+}
+
+Texture "FGR_88", 200, 18
+{
+	Patch "FILLNORM", 174, 0
+	Patch "FGR_87", 0, 0
+}
+
+Texture "FGR_89", 200, 18
+{
+	Patch "FILLNORM", 176, 0
+	Patch "FGR_88", 0, 0
+}
+
+Texture "FGR_90", 200, 18
+{
+	Patch "FILLNORM", 178, 0
+	Patch "FGR_89", 0, 0
+}
+
+Texture "FGR_91", 200, 18
+{
+	Patch "FILLNORM", 180, 0
+	Patch "FGR_90", 0, 0
+}
+
+Texture "FGR_92", 200, 18
+{
+	Patch "FILLNORM", 182, 0
+	Patch "FGR_91", 0, 0
+}
+
+Texture "FGR_93", 200, 18
+{
+	Patch "FILLNORM", 184, 0
+	Patch "FGR_92", 0, 0
+}
+
+Texture "FGR_94", 200, 18
+{
+	Patch "FILLNORM", 186, 0
+	Patch "FGR_93", 0, 0
+}
+
+Texture "FGR_95", 200, 18
+{
+	Patch "FILLNORM", 188, 0
+	Patch "FGR_94", 0, 0
+}
+
+Texture "FGR_96", 200, 18
+{
+	Patch "FILLNORM", 190, 0
+	Patch "FGR_95", 0, 0
+}
+
+Texture "FGR_97", 200, 18
+{
+	Patch "FILLNORM", 192, 0
+	Patch "FGR_96", 0, 0
+}
+
+Texture "FGR_98", 200, 18
+{
+	Patch "FILLNORM", 194, 0
+	Patch "FGR_97", 0, 0
+}
+
+Texture "FGR_99", 200, 18
+{
+	Patch "FILLNORM", 196, 0
+	Patch "FGR_98", 0, 0
+}
+
+Texture "FGR_100", 200, 18
+{
+	Patch "FILLNORM", 198, 0
+	Patch "FGR_99", 0, 0
+}
+
+Texture "FFR_1", 200, 18
+{
+	Patch "FILLFORT", 0, 0
+}
+
+Texture "FFR_2", 200, 18
+{
+	Patch "FILLFORT", 2, 0
+	Patch "FFR_1", 0, 0
+}
+
+Texture "FFR_3", 200, 18
+{
+	Patch "FILLFORT", 4, 0
+	Patch "FFR_2", 0, 0
+}
+
+Texture "FFR_4", 200, 18
+{
+	Patch "FILLFORT", 6, 0
+	Patch "FFR_3", 0, 0
+}
+
+Texture "FFR_5", 200, 18
+{
+	Patch "FILLFORT", 8, 0
+	Patch "FFR_4", 0, 0
+}
+
+Texture "FFR_6", 200, 18
+{
+	Patch "FILLFORT", 10, 0
+	Patch "FFR_5", 0, 0
+}
+
+Texture "FFR_7", 200, 18
+{
+	Patch "FILLFORT", 12, 0
+	Patch "FFR_6", 0, 0
+}
+
+Texture "FFR_8", 200, 18
+{
+	Patch "FILLFORT", 14, 0
+	Patch "FFR_7", 0, 0
+}
+
+Texture "FFR_9", 200, 18
+{
+	Patch "FILLFORT", 16, 0
+	Patch "FFR_8", 0, 0
+}
+
+Texture "FFR_10", 200, 18
+{
+	Patch "FILLFORT", 18, 0
+	Patch "FFR_9", 0, 0
+}
+
+Texture "FFR_11", 200, 18
+{
+	Patch "FILLFORT", 20, 0
+	Patch "FFR_10", 0, 0
+}
+
+Texture "FFR_12", 200, 18
+{
+	Patch "FILLFORT", 22, 0
+	Patch "FFR_11", 0, 0
+}
+
+Texture "FFR_13", 200, 18
+{
+	Patch "FILLFORT", 24, 0
+	Patch "FFR_12", 0, 0
+}
+
+Texture "FFR_14", 200, 18
+{
+	Patch "FILLFORT", 26, 0
+	Patch "FFR_13", 0, 0
+}
+
+Texture "FFR_15", 200, 18
+{
+	Patch "FILLFORT", 28, 0
+	Patch "FFR_14", 0, 0
+}
+
+Texture "FFR_16", 200, 18
+{
+	Patch "FILLFORT", 30, 0
+	Patch "FFR_15", 0, 0
+}
+
+Texture "FFR_17", 200, 18
+{
+	Patch "FILLFORT", 32, 0
+	Patch "FFR_16", 0, 0
+}
+
+Texture "FFR_18", 200, 18
+{
+	Patch "FILLFORT", 34, 0
+	Patch "FFR_17", 0, 0
+}
+
+Texture "FFR_19", 200, 18
+{
+	Patch "FILLFORT", 36, 0
+	Patch "FFR_18", 0, 0
+}
+
+Texture "FFR_20", 200, 18
+{
+	Patch "FILLFORT", 38, 0
+	Patch "FFR_19", 0, 0
+}
+
+Texture "FFR_21", 200, 18
+{
+	Patch "FILLFORT", 40, 0
+	Patch "FFR_20", 0, 0
+}
+
+Texture "FFR_22", 200, 18
+{
+	Patch "FILLFORT", 42, 0
+	Patch "FFR_21", 0, 0
+}
+
+Texture "FFR_23", 200, 18
+{
+	Patch "FILLFORT", 44, 0
+	Patch "FFR_22", 0, 0
+}
+
+Texture "FFR_24", 200, 18
+{
+	Patch "FILLFORT", 46, 0
+	Patch "FFR_23", 0, 0
+}
+
+Texture "FFR_25", 200, 18
+{
+	Patch "FILLFORT", 48, 0
+	Patch "FFR_24", 0, 0
+}
+
+Texture "FFR_26", 200, 18
+{
+	Patch "FILLFORT", 50, 0
+	Patch "FFR_25", 0, 0
+}
+
+Texture "FFR_27", 200, 18
+{
+	Patch "FILLFORT", 52, 0
+	Patch "FFR_26", 0, 0
+}
+
+Texture "FFR_28", 200, 18
+{
+	Patch "FILLFORT", 54, 0
+	Patch "FFR_27", 0, 0
+}
+
+Texture "FFR_29", 200, 18
+{
+	Patch "FILLFORT", 56, 0
+	Patch "FFR_28", 0, 0
+}
+
+Texture "FFR_30", 200, 18
+{
+	Patch "FILLFORT", 58, 0
+	Patch "FFR_29", 0, 0
+}
+
+Texture "FFR_31", 200, 18
+{
+	Patch "FILLFORT", 60, 0
+	Patch "FFR_30", 0, 0
+}
+
+Texture "FFR_32", 200, 18
+{
+	Patch "FILLFORT", 62, 0
+	Patch "FFR_31", 0, 0
+}
+
+Texture "FFR_33", 200, 18
+{
+	Patch "FILLFORT", 64, 0
+	Patch "FFR_32", 0, 0
+}
+
+Texture "FFR_34", 200, 18
+{
+	Patch "FILLFORT", 66, 0
+	Patch "FFR_33", 0, 0
+}
+
+Texture "FFR_35", 200, 18
+{
+	Patch "FILLFORT", 68, 0
+	Patch "FFR_34", 0, 0
+}
+
+Texture "FFR_36", 200, 18
+{
+	Patch "FILLFORT", 70, 0
+	Patch "FFR_35", 0, 0
+}
+
+Texture "FFR_37", 200, 18
+{
+	Patch "FILLFORT", 72, 0
+	Patch "FFR_36", 0, 0
+}
+
+Texture "FFR_38", 200, 18
+{
+	Patch "FILLFORT", 74, 0
+	Patch "FFR_37", 0, 0
+}
+
+Texture "FFR_39", 200, 18
+{
+	Patch "FILLFORT", 76, 0
+	Patch "FFR_38", 0, 0
+}
+
+Texture "FFR_40", 200, 18
+{
+	Patch "FILLFORT", 78, 0
+	Patch "FFR_39", 0, 0
+}
+
+Texture "FFR_41", 200, 18
+{
+	Patch "FILLFORT", 80, 0
+	Patch "FFR_40", 0, 0
+}
+
+Texture "FFR_42", 200, 18
+{
+	Patch "FILLFORT", 82, 0
+	Patch "FFR_41", 0, 0
+}
+
+Texture "FFR_43", 200, 18
+{
+	Patch "FILLFORT", 84, 0
+	Patch "FFR_42", 0, 0
+}
+
+Texture "FFR_44", 200, 18
+{
+	Patch "FILLFORT", 86, 0
+	Patch "FFR_43", 0, 0
+}
+
+Texture "FFR_45", 200, 18
+{
+	Patch "FILLFORT", 88, 0
+	Patch "FFR_44", 0, 0
+}
+
+Texture "FFR_46", 200, 18
+{
+	Patch "FILLFORT", 90, 0
+	Patch "FFR_45", 0, 0
+}
+
+Texture "FFR_47", 200, 18
+{
+	Patch "FILLFORT", 92, 0
+	Patch "FFR_46", 0, 0
+}
+
+Texture "FFR_48", 200, 18
+{
+	Patch "FILLFORT", 94, 0
+	Patch "FFR_47", 0, 0
+}
+
+Texture "FFR_49", 200, 18
+{
+	Patch "FILLFORT", 96, 0
+	Patch "FFR_48", 0, 0
+}
+
+Texture "FFR_50", 200, 18
+{
+	Patch "FILLFORT", 98, 0
+	Patch "FFR_49", 0, 0
+}
+
+Texture "FFR_51", 200, 18
+{
+	Patch "FILLFORT", 100, 0
+	Patch "FFR_50", 0, 0
+}
+
+Texture "FFR_52", 200, 18
+{
+	Patch "FILLFORT", 102, 0
+	Patch "FFR_51", 0, 0
+}
+
+Texture "FFR_53", 200, 18
+{
+	Patch "FILLFORT", 104, 0
+	Patch "FFR_52", 0, 0
+}
+
+Texture "FFR_54", 200, 18
+{
+	Patch "FILLFORT", 106, 0
+	Patch "FFR_53", 0, 0
+}
+
+Texture "FFR_55", 200, 18
+{
+	Patch "FILLFORT", 108, 0
+	Patch "FFR_54", 0, 0
+}
+
+Texture "FFR_56", 200, 18
+{
+	Patch "FILLFORT", 110, 0
+	Patch "FFR_55", 0, 0
+}
+
+Texture "FFR_57", 200, 18
+{
+	Patch "FILLFORT", 112, 0
+	Patch "FFR_56", 0, 0
+}
+
+Texture "FFR_58", 200, 18
+{
+	Patch "FILLFORT", 114, 0
+	Patch "FFR_57", 0, 0
+}
+
+Texture "FFR_59", 200, 18
+{
+	Patch "FILLFORT", 116, 0
+	Patch "FFR_58", 0, 0
+}
+
+Texture "FFR_60", 200, 18
+{
+	Patch "FILLFORT", 118, 0
+	Patch "FFR_59", 0, 0
+}
+
+Texture "FFR_61", 200, 18
+{
+	Patch "FILLFORT", 120, 0
+	Patch "FFR_60", 0, 0
+}
+
+Texture "FFR_62", 200, 18
+{
+	Patch "FILLFORT", 122, 0
+	Patch "FFR_61", 0, 0
+}
+
+Texture "FFR_63", 200, 18
+{
+	Patch "FILLFORT", 124, 0
+	Patch "FFR_62", 0, 0
+}
+
+Texture "FFR_64", 200, 18
+{
+	Patch "FILLFORT", 126, 0
+	Patch "FFR_63", 0, 0
+}
+
+Texture "FFR_65", 200, 18
+{
+	Patch "FILLFORT", 128, 0
+	Patch "FFR_64", 0, 0
+}
+
+Texture "FFR_66", 200, 18
+{
+	Patch "FILLFORT", 130, 0
+	Patch "FFR_65", 0, 0
+}
+
+Texture "FFR_67", 200, 18
+{
+	Patch "FILLFORT", 132, 0
+	Patch "FFR_66", 0, 0
+}
+
+Texture "FFR_68", 200, 18
+{
+	Patch "FILLFORT", 134, 0
+	Patch "FFR_67", 0, 0
+}
+
+Texture "FFR_69", 200, 18
+{
+	Patch "FILLFORT", 136, 0
+	Patch "FFR_68", 0, 0
+}
+
+Texture "FFR_70", 200, 18
+{
+	Patch "FILLFORT", 138, 0
+	Patch "FFR_69", 0, 0
+}
+
+Texture "FFR_71", 200, 18
+{
+	Patch "FILLFORT", 140, 0
+	Patch "FFR_70", 0, 0
+}
+
+Texture "FFR_72", 200, 18
+{
+	Patch "FILLFORT", 142, 0
+	Patch "FFR_71", 0, 0
+}
+
+Texture "FFR_73", 200, 18
+{
+	Patch "FILLFORT", 144, 0
+	Patch "FFR_72", 0, 0
+}
+
+Texture "FFR_74", 200, 18
+{
+	Patch "FILLFORT", 146, 0
+	Patch "FFR_73", 0, 0
+}
+
+Texture "FFR_75", 200, 18
+{
+	Patch "FILLFORT", 148, 0
+	Patch "FFR_74", 0, 0
+}
+
+Texture "FFR_76", 200, 18
+{
+	Patch "FILLFORT", 150, 0
+	Patch "FFR_75", 0, 0
+}
+
+Texture "FFR_77", 200, 18
+{
+	Patch "FILLFORT", 152, 0
+	Patch "FFR_76", 0, 0
+}
+
+Texture "FFR_78", 200, 18
+{
+	Patch "FILLFORT", 154, 0
+	Patch "FFR_77", 0, 0
+}
+
+Texture "FFR_79", 200, 18
+{
+	Patch "FILLFORT", 156, 0
+	Patch "FFR_78", 0, 0
+}
+
+Texture "FFR_80", 200, 18
+{
+	Patch "FILLFORT", 158, 0
+	Patch "FFR_79", 0, 0
+}
+
+Texture "FFR_81", 200, 18
+{
+	Patch "FILLFORT", 160, 0
+	Patch "FFR_80", 0, 0
+}
+
+Texture "FFR_82", 200, 18
+{
+	Patch "FILLFORT", 162, 0
+	Patch "FFR_81", 0, 0
+}
+
+Texture "FFR_83", 200, 18
+{
+	Patch "FILLFORT", 164, 0
+	Patch "FFR_82", 0, 0
+}
+
+Texture "FFR_84", 200, 18
+{
+	Patch "FILLFORT", 166, 0
+	Patch "FFR_83", 0, 0
+}
+
+Texture "FFR_85", 200, 18
+{
+	Patch "FILLFORT", 168, 0
+	Patch "FFR_84", 0, 0
+}
+
+Texture "FFR_86", 200, 18
+{
+	Patch "FILLFORT", 170, 0
+	Patch "FFR_85", 0, 0
+}
+
+Texture "FFR_87", 200, 18
+{
+	Patch "FILLFORT", 172, 0
+	Patch "FFR_86", 0, 0
+}
+
+Texture "FFR_88", 200, 18
+{
+	Patch "FILLFORT", 174, 0
+	Patch "FFR_87", 0, 0
+}
+
+Texture "FFR_89", 200, 18
+{
+	Patch "FILLFORT", 176, 0
+	Patch "FFR_88", 0, 0
+}
+
+Texture "FFR_90", 200, 18
+{
+	Patch "FILLFORT", 178, 0
+	Patch "FFR_89", 0, 0
+}
+
+Texture "FFR_91", 200, 18
+{
+	Patch "FILLFORT", 180, 0
+	Patch "FFR_90", 0, 0
+}
+
+Texture "FFR_92", 200, 18
+{
+	Patch "FILLFORT", 182, 0
+	Patch "FFR_91", 0, 0
+}
+
+Texture "FFR_93", 200, 18
+{
+	Patch "FILLFORT", 184, 0
+	Patch "FFR_92", 0, 0
+}
+
+Texture "FFR_94", 200, 18
+{
+	Patch "FILLFORT", 186, 0
+	Patch "FFR_93", 0, 0
+}
+
+Texture "FFR_95", 200, 18
+{
+	Patch "FILLFORT", 188, 0
+	Patch "FFR_94", 0, 0
+}
+
+Texture "FFR_96", 200, 18
+{
+	Patch "FILLFORT", 190, 0
+	Patch "FFR_95", 0, 0
+}
+
+Texture "FFR_97", 200, 18
+{
+	Patch "FILLFORT", 192, 0
+	Patch "FFR_96", 0, 0
+}
+
+Texture "FFR_98", 200, 18
+{
+	Patch "FILLFORT", 194, 0
+	Patch "FFR_97", 0, 0
+}
+
+Texture "FFR_99", 200, 18
+{
+	Patch "FILLFORT", 196, 0
+	Patch "FFR_98", 0, 0
+}
+
+Texture "FFR_100", 200, 18
+{
+	Patch "FILLFORT", 198, 0
+	Patch "FFR_99", 0, 0
+}

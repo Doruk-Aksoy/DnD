@@ -2,11 +2,10 @@ Actor TargetMaximumHealth : DnD_Info {}
 Actor TargetCurrentHealth : DnD_Info {}
 Actor TargetLevel : DnD_Info {}
 Actor TargetIsWhat : DnD_Info {}
+Actor TargetMonId : DnD_Info {}
 Actor TargetHealthBarColor : DnD_Info {}
-Actor TargetNameSkip : DnD_Info {}
-Actor TargetTag : DnD_Info {}
 Actor TargetIsElite : DnD_Boolean {}
-Actor TargetProperties : DnD_Info {}
+Actor TargetFortify : DnD_Info {}
 
 // Identification of the monster
 Actor MonsterID : DnD_Info {}
@@ -128,24 +127,94 @@ enum {
 	DND_STONECREATURE,
 	DND_EARTHCREATURE,
 	
+	DND_BLOODLESS,
+	DND_VIOLENTRETALIATION,
+	DND_THIEF,
+	DND_HEXFUSION,
+	DND_REBIRTH,
+	DND_VENOMANCER,
+	DND_FRIGID,
+	DND_SCORCHED,
+	DND_INSULATED,
+	DND_REJUVENATING,
+	
+	DND_HATRED,
+	DND_SHOCKER,
+	
 	DND_LEGENDARY
 };
 
 const int DND_FORCEDLEVEL = 7;
 const int DND_PASSLEVEL = 8;
 
-Actor RunEliteFXScript : DnD_Activator {
+Actor EliteSpecialFX {
+	Height 2
+	Radius 1
+	Translation "112:127=%[0.00,0.00,0.00]:[1.79,1.88,0.02]"
+	Scale 0.3
+	Renderstyle Add
+	Alpha 0.66
+	Speed 1
+	const float f = 0.0475;
+	+MISSILE
+	+NOGRAVITY
+	+NOCLIP
+	+CLIENTSIDEONLY
 	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Elite Special FX", 0)
+		Spawn:
+			TNT1 A 2 NoDelay ACS_NamedExecuteAlways("DnD Align Elite FX")
+		SpawnLoop:
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			TNT1 A 0 A_JumpIfInTargetInventory("Mo_Died", 1, "Fade")
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(f)
+			TNT1 A 0 A_JumpIfInTargetInventory("Mo_Died", 1, "Fade")
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			TNT1 A 0 A_JumpIfInTargetInventory("Mo_Died", 1, "Fade")
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			SKFX A 1 Bright A_Warp(AAPTR_TARGET, 32, 32, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(f)
+			TNT1 A 0 A_JumpIfInTargetInventory("Mo_Died", 1, "Fade")
+		Loop
+		Death:
+		Fade:
+			TNT1 A 1
 		Stop
 	}
 }
 
-Actor Rejuvenate_Script_Run : DnD_Activator {
+Actor EliteFXRunner : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Rejuvenation")
+			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 0, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 90, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 180, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 270, CMF_AIMDIRECTION)
 		Stop
 	}
 }

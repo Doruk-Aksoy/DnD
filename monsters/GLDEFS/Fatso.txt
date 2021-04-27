@@ -931,3 +931,149 @@ object AbominationShot2 {
 	
 	frame IMFX { light AbominationLight6 }
 }
+
+flickerlight CRSDRDTH1
+{
+    color 1.0 0.5 0.0
+    size 64
+    secondarySize 72
+    chance 0.3
+    offset 0 80 0
+}
+
+flickerlight CRSDRDTH2
+{
+    color 1.0 0.8 0.0
+    size 68
+    secondarySize 74
+    chance 0.3
+    offset 0 40 0
+}
+
+flickerlight CRSDRDTH3
+{
+    color 1.0 0.8 0.0
+    size 72
+    secondarySize 76
+    chance 0.3
+    offset 0 40 0
+}
+
+flickerlight CRSDRDTH4
+{
+    color 1.0 0.9 0.0
+    size 76
+    secondarySize 80
+    chance 0.3
+    offset 0 40 0
+}
+
+flickerlight CRSDRDTH5
+{
+    color 1.0 0.6 0.0
+    size 80
+    secondarySize 84
+    chance 0.3
+    offset 0 40 0
+}
+
+object Redeemer
+{
+    frame 13RFH { light CRSDRDTH1 }
+    frame 13RFI { light CRSDRDTH2 }
+    frame 13RFJ { light CRSDRDTH3 }
+    frame 13RFK { light CRSDRDTH4 }
+    frame 13RFL { light CRSDRDTH5 }
+    frame 13RFM { light CRSDRDTH4 }
+    frame 13RFN { light CRSDRDTH3 }
+    frame 13RFO { light CRSDRDTH2 }
+}
+
+pointlight MISSILE
+{
+    color 1.0 0.7 0.0
+    size 84
+    offset -40 0 0
+}
+
+flickerlight MISSILE_X1
+{
+    color 1.0 0.7 0.0
+    size 84
+    secondarySize 90
+    chance 0.3
+}
+
+flickerlight MISSILE_X2
+{
+    color 1.0 0.65 0.0
+    size 90
+    secondarySize 96
+    chance 0.3
+}
+
+flickerlight MISSILE_X3
+{
+    color 1.0 0.6 0.0
+    size 96
+    secondarySize 102
+    chance 0.3
+}
+
+flickerlight MISSILE_X4
+{
+    color 1.0 0.6 0.0
+    size 102
+    secondarySize 108
+    chance 0.3
+}
+
+flickerlight MISSILE_X5
+{
+    color 1.0 0.6 0.0
+    size 108
+    secondarySize 114
+    chance 0.3
+}
+
+flickerlight MISSILE_X6
+{
+    color 1.0 0.6 0.0
+    size 114
+    secondarySize 120
+    chance 0.3
+}
+
+flickerlight MISSILE_X7
+{
+    color 1.0 0.6 0.0
+    size 120
+    secondarySize 132
+    chance 0.3
+}
+
+object RedeemerRocket
+{
+    frame 12PFA { light MISSILE    }
+
+    frame 9PRFA { light MISSILE_X1 }
+    frame 9PRFB { light MISSILE_X2 }
+    frame 9PRFC { light MISSILE_X3 }
+    frame 9PRFD { light MISSILE_X4 }
+    frame 9PRFE { light MISSILE_X5 }
+    frame 9PRFF { light MISSILE_X6 }
+    frame 9PRFG { light MISSILE_X7 }
+}
+
+flickerlight FlameLight
+{
+	color 1.0 0.6 0.0
+	size 35
+	secondarySize 45
+	chance 0.30
+}
+
+object RedeemerFlame
+{
+	frame MOFX { light FlameLight }
+}

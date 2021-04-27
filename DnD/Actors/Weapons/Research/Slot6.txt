@@ -981,16 +981,16 @@ Actor "ResPlasma4" : Weapon {
 		Loop
 		Level4_Ready:
 			RW10 W 1 A_WeaponReady
-		Loop
+		Goto Ready
 		Level3_Ready:
-			RW10 V 8
-		Loop
+			RW10 V 1 A_WeaponReady
+		Goto Ready
 		Level2_Ready:
-			RW10 U 8
-		Loop
+			RW10 U 1 A_WeaponReady
+		Goto Ready
 		Level1_Ready:
-			RW10 T 8
-		Loop
+			RW10 T 1 A_WeaponReady
+		Goto Ready
 		
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
@@ -1075,7 +1075,12 @@ Actor "ResPlasma4" : Weapon {
 		
 		
 		FireEnd:
-			RW10 S 5
+			RW10 S 1 Offset(0, 40)
+			RW10 S 1 Offset(0, 42)
+			RW10 S 2 Offset(0, 43)
+			RW10 S 1 Offset(0, 40)
+			RW10 S 1 Offset(0, 36)
+			RW10 S 1 Offset(0, 32)
 			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_4, "Level4_End")
 			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_3, "Level3_End")
 			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_2, "Level2_End")
@@ -1101,11 +1106,17 @@ Actor "ResPlasma4" : Weapon {
 			"####" "#" 1 A_WeaponReady(WRF_NOFIRE)
 		Goto Ready
 		ContinueAlt:
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_TakeInventory("LanceBuffer", 0)
 			RW10 Q 5 Bright
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Lance Stack Buffer")
 			TNT1 A 0 A_GiveInventory("DarkLanceShooter6", 1)
-			RW10 R 5 Bright
+			RW10 R 1 Bright Offset(0, 40)
+			RW10 R 1 Bright Offset(0, 42)
+			RW10 R 2 Bright Offset(0, 43)
+			RW10 R 1 Bright Offset(0, 40)
+			RW10 R 1 Bright Offset(0, 36)
+			RW10 R 1 Bright Offset(0, 32)
 			RW10 S 6
 		Goto Ready
 	}
@@ -1116,12 +1127,18 @@ Actor DarkLanceHitMarker : PowerDamage {
 	powerup.duration 10
 }
 
+Actor GrayFlare_DarkLance : GrayFlare {
+	Scale 0.1
+}
+
 Actor DarkLanceShooter1 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_PlaySound("Darklance/Fire", CHAN_WEAPON)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("Darklance/Fire")
 			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 6, 18, 90)
 		Stop
 	}
@@ -1131,8 +1148,10 @@ Actor DarkLanceShooter2 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_PlaySound("Darklance/Fire", CHAN_WEAPON)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("Darklance/Fire")
 			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 8, 18, 90)
 		Stop
 	}
@@ -1142,8 +1161,10 @@ Actor DarkLanceShooter3 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_PlaySound("Darklance/Fire", CHAN_WEAPON)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("Darklance/Fire")
 			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 10, 18, 90)
 		Stop
 	}
@@ -1153,8 +1174,10 @@ Actor DarkLanceShooter4 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_PlaySound("Darklance/Fire", CHAN_WEAPON)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("Darklance/Fire")
 			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 10, 18, 90, 1)
 		Stop
 	}
@@ -1164,8 +1187,10 @@ Actor DarkLanceShooter5 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_PlaySound("Darklance/Fire", CHAN_WEAPON)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("Darklance/Fire")
 			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 12, 18, 90, 2)
 		Stop
 	}
@@ -1175,7 +1200,8 @@ Actor DarkLanceShooter6 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Attack", 0, -1, -1)
-			TNT1 A 0 A_PlaySound("Darklance/AltFire", CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("Darklance/AltFire", CHAN_5)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 A_FireCustomMissile("DarkLanceShredder", 0, 0)
 		Stop
 	}
@@ -1254,6 +1280,7 @@ Actor DarkLanceProjectile : DnD_BaseFastProjectile {
 	Radius 4
 	Renderstyle Add
 	Scale 0.275
+	DeathSound "weapons/firex5"
 	+THRUACTORS
 	States {
 		Spawn:
@@ -1278,7 +1305,7 @@ Actor DarkLanceShredder : DnD_BaseProjectile {
 	Height 32
 	Radius 16
 	RenderStyle Add
-	DeathSound "DarkLance/Shred"
+	DeathSound "DarkLance/AltHit"
 	+DONTREFLECT
 	States {
 		SpawnState:
@@ -1286,8 +1313,27 @@ Actor DarkLanceShredder : DnD_BaseProjectile {
 		Loop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shred", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DARKLANCE << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_PlaySound("DarkLance/Curse", CHAN_5)
+			SRV3 ABCD 4 Bright
+			SRV3 EFGHI 3 Bright
+		Stop
 		Death:
-			FX69 FFFFFFFF 1 A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_SetScale(1.25, 1.25)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_FadeOut(0.0875)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_FadeOut(0.0875)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_FadeOut(0.0875)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_FadeOut(0.0875)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_FadeOut(0.0875)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_FadeOut(0.0875)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
+			TNT1 A 0 A_FadeOut(0.0875)
+			FX69 F 1 Bright A_SetScale(scalex - 0.105, scaley - 0.105)
 		Stop
 	}
 }
@@ -1300,6 +1346,36 @@ Actor DarkLanceShredder_Trail {
 	States {
 		Spawn:
 			FX68 ABCDEF 2 Bright
+		Stop
+	}
+}
+
+Actor DarkLanceShredder_FX {
+	Renderstyle Add
+	Alpha 1.0
+	Scale 1.0
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			X122 AABBCCDDEEFFGGHH 1 Bright A_FadeOut(0.025)
+			X122 IIJJKKLLMMNNOOPP 1 Bright A_FadeIn(0.025)
+		Loop
+		Vanish:
+			"####" "#" 0 A_PlaySound("DarkLance/Consume")
+			"####" "####" 1 Bright A_FadeOut(0.2)
+		Stop
+	}
+}
+
+Actor DarkLanceConsumeFX {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SpawnItemEx("GrayFlare", 0, 0, 16)
+			TNT1 A 0 A_SpawnItemEx("WhiteParticleSpawner")
+			TNT1 A 2
 		Stop
 	}
 }

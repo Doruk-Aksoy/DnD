@@ -1772,3 +1772,80 @@ object Devil2Ball2
     frame DVB9L { light IMPBALL_X3 }
     frame DVB9M { light IMPBALL_X3 }
 }
+
+// Reaver
+flickerlight REAV_X1
+{
+    color 1.0 0.3 0.0
+    size 16
+    secondarySize 20
+    chance 0.3
+    offset 0 16 16
+}
+
+flickerlight REAV_X2
+{
+    color 1.0 0.2 0.0
+    size 32
+    secondarySize 40
+    chance 0.3
+    offset 0 32 -16
+}
+
+flickerlight REAV_X3
+{
+    color 1.0 0.6 0.0
+    size 40
+    secondarySize 44
+    chance 0.3
+    offset 0 12 16
+}
+
+flickerlight REAV_X4
+{
+    color 1.0 0.5 0.0
+    size 20
+    secondarySize 24
+    chance 0.3
+    offset 0 10 0
+}
+
+flickerlight REAV_X5
+{
+    color 1.0 0.8 0.0
+    size 28
+    secondarySize 32
+    chance 0.3
+    offset 0 18 0
+}
+
+flickerlight REAV_X6
+{
+    color 1.0 0.7 0.0
+    size 56
+    secondarySize 64
+    chance 0.3
+    offset 0 20 0
+}
+
+flickerlight REAV_X7
+{
+    color 0.5 0.05 0.0
+    size 52
+    secondarySize 56
+    chance 0.3
+    offset 0 20 0
+}
+
+object ReaverRobot
+{
+    frame 5TRFF { light ZOMBIEATK }
+
+    frame 5TRFK { light REAV_X1  }
+    frame 5TRFL { light REAV_X2  }
+    frame 5TRFM { light REAV_X3  }
+    frame 5TRFN { light REAV_X4  }
+    frame 5TRFO { light REAV_X5  }
+    frame 5TRFP { light REAV_X6  }
+    frame 5TRFQ { light REAV_X7  }
+}

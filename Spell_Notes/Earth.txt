@@ -1,0 +1,176 @@
+EARTH
+-----
+ 
+* Shrapnel
+ 
+	Unearth a shard of rock from the ground and throw it to penetrate the enemies.
+	Deals 16 (+2/INT) damage.
+	Cost: 9 mana.
+	Cooldown: 4 seconds.
+	Cast Time: 1 second.
+	Per Rank: +10 damage.
+	Rank 5: Rips through all enemies regardless of "Hardened Skin" modifier.
+	Rank 10: Shoots three shards instead of one.
+	Unlocks: Boulder Toss.
+	Synergy - Boulder Toss: 5% more damage per Boulder Toss rank.
+ 
+* Noxious Blast
+ 
+	Target a location to create a poisonous explosion after a short delay in a 96 unit radius. Enemies caught are poisoned for 3 seconds.
+	Deals 40 (+4/INT) damage per second.
+	Cost: 8 mana.
+	Cooldown: 3 seconds.
+	Cast Time: 1 second.
+	Per Rank: +20 damage.
+	Rank 5: Poison duration +1 second.
+	Rank 10: Radius increases to 160 units.
+	Unlocks: Toxic Trap, Poison Nova.
+	Synergy - Poison Nova: 5% damage per rank of Poison Nova.
+	Synergy - Toxic Trap: 5% damage per rank of Toxic Trap.
+ 
+* Boulder Toss
+ 
+	Form a massive boulder of rock from the ground and toss it forward with an arc.
+	Enemies hit are stunned for 1.5 seconds and take 200 (+15/INT) damage in a 128 unit radius.
+	Cost: 15 mana.
+	Cooldown: 12 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +75 damage, -0.5 second cooldown.
+	Rank 5: Boulder speed increases by 50%.
+	Rank 10: Radius increases to 180, stun duration to 2.5 seconds.
+	Unlocks: Rock Armor, Upheaval.
+	Requires: Shrapnel (3 ranks)
+	Synergy - Shrapnel: 5% damage per rank of Shrapnel.
+	Synergy - Rock Armor: +8 to radius per rank of Rock Armor.
+ 
+* Toxic Trap
+ 
+	Lay a proximity mine that activates when a monster comes into contact. Releases toxic gas clouds around.
+	Gas clouds do 32 (+2/INT) damage every 0.5 seconds in 72 unit radius and last 5 seconds.
+	Traps last 60 (+2/INT) seconds. Can have a maximum of 2 (+1/25 INT) traps active.
+	Cost: 18 mana.
+	Cooldown: 10 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +16 damage.
+	Rank 5: +2 max traps active.
+	Rank 10: Poison clouds move around slowly.
+	Unlocks: Vines of Torment.
+	Requires: Noxious Blast (Rank 3).
+	Synergy - Noxious Blast: 5% damage per rank of Noxious Blast.
+	Synergy - Poison Nova: Radius of gas clouds +8 per rank of Poison Nova.
+ 
+* Poison Nova
+ 
+	Create a nova of poison around you that deals damage around you.
+	Each projectile deals 20 (+5/INT) damage directly and 10 - 16 (+2/INT) damage over time.
+	Cost: 16 mana.
+	Cooldown: 8 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +16 direct hit damage, +8 damage over time.
+	Rank 5: +2 more projectiles created.
+	Rank 10: Projectiles travel 50% farther.
+	Unlocks: Corrupting Aura.
+	Requires: Noxious Blast (Rank 2).
+	Synergy - Noxious Blast: 5% damage per rank of Noxious Blast.
+ 
+* Rock Armor
+ 
+	Build an extra layer of armor on top of your current to protect you from attacks.
+	Completely absorbs all damage. Grants 40 (+8/INT) armor points. Lasts for 8 seconds.
+	Cost: 30 mana.
+	Cooldown: 20 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +40 armor points.
+	Rank 5: Lasts for 2 more seconds.
+	Rank 10: When the armor is shattered, launch Shrapnels around you.
+	Unlocks: Summon: Rock Golem.
+	Requires: Boulder Toss (Rank 1).
+	Synergy - Shrapnel: 5% more armor per rank of Shrapnel.
+	Synergy - Summon: Rock Golem: +1 to duration per rank of Summon: Rock Golem.
+ 
+* Upheaval
+ 
+	Unearth the ground at a target location to toss enemies up in the air, stunning them for 2 seconds.
+	The ground becomes unstable, dealing explosion damage after 2 seconds.
+	Initial throw causes 175 (+15/INT) damage. Deals 100 (+10/INT) explosion damage in 192 unit radius.
+	Cost: 45 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: +100 throw damage, +75 explosion damage. At every even rank radius for throw and explosion +8.
+	Rank 5: Thrown enemies are stunned for 3 seconds instead.
+	Rank 10: Explosion damage is dealt 3 times in 1 second intervals instead.
+	Unlocks: Crushing Rocks.
+	Requires: Boulder Toss (Rank 3).
+	Synergy - Boulder Toss: 2.5% more damage per rank of Boulder Toss.
+	Synergy - Shrapnel: 2.5% more damage per rank of Shrapnel.
+	Synergy - Crushing Rocks: 5% more damage per rank of Crushing Rocks.
+ 
+* Vines of Torment
+ 
+	Create a whiplash of vines from the ground to snare enemies caught in them.
+	Deals 100 (+10/INT) damage and snares enemies hit by 3 seconds.
+	Cost: 35 mana.
+	Cooldown: 24 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +25 damage. At every even rank, snare lasts +0.5 seconds.
+	Rank 5: Vine width increases by 25%.
+	Rank 10: Vines travel 50% farther.
+	Unlocks: Geyser.
+	Requires: Toxic Trap (Rank 1).
+	Synergy - Toxic Trap: +3% vine speed.
+ 
+* Corrupting Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Generate an aura of corruption around you that increases the damage enemies take from earth attacks by 25%.
+	Aura radius 192 unit radius.
+	Cost: 25% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: Radius +16.
+	Rank 5: Enemies affected are also slowed by 20%.
+	Rank 10: Enemies take 50% more damage instead.
+	Unlocks: Geyser.
+	Requires: Poison Nova (Rank 2).
+ 
+* Summon: Rock Golem
+ 
+	Summons a very durable rock golem to stand and fight for you.
+	Golem has 750 (+75/INT) health and does 100 (+20/INT) damage.
+	Cost: 75 mana.
+	Cooldown: 45 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +250 health, +25 damage.
+	Rank 5: Golem gains ability to cast Boulder Toss.
+	Rank 10: Golem becomes immune to elemental attacks and gains explosive resist.
+	Requires: Rock Armor (Rank 1).
+	Synergy - Rock Armor: +5% more health per rank of Rock Armor.
+ 
+* Crushing Rocks
+ 
+	Magically create two huge pieces of rock to the sides of a target enemy. The rocks will then attempt to crush the enemy.
+	Rocks do 150 (+20/INT) damage for each crushing attempt in a 80 unit radius. Total of 5 attempts.
+	Cost: 90 mana.
+	Cooldown: 60 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +75 damage.
+	Rank 5: Damage radius +48.
+	Rank 10: Crush attempt increases to 10.
+	Unlocks: Geyser.
+	Requires: Upheaval (Rank 1).
+	Synergy - Boulder Toss: 5% more damage per rank of Boulder Toss.
+ 
+* Geyser
+ 
+	Cause the ground in front of you to violently shake to unearth fissures from the ground, revealing geysers of acid.
+	Geysers spit acid for 5 secounds around them in random directions. Each acid particle deals 50 (+5/INT) damage in 48 unit radius.
+	Cost: 150 mana.
+	Cooldown: 90 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +25 damage per acid particle.
+	Rank 5: Acid damage radius is doubled.
+	Rank 10: Summons 50% more geysers.
+	Requires : Crushing Rocks (Rank 1), Vines of Torment (Rank 1), Corrupting Aura (Rank 1).
+	Synergy - Toxic Trap: 2.5% more damage per rank of Toxic Trap.
+	Synergy - Poison Nova: 2.5% more damage per rank of Poison Nova.
+	Synergy - Upheaval: For every 2 ranks, 1 additional geyser is summoned.

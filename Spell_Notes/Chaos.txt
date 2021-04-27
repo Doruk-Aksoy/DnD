@@ -1,0 +1,308 @@
+* Chaos Bolt
+ 
+	Project a bolt of unstable energy to deal 1 - 125 (+10/INT) damage.
+	Cost: 8 mana.
+	Cooldown: 5 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +75 max damage.
+	Rank 5: Bolt speed +50%.
+	Rank 10: Bolt will split into 8 smaller bolts on impact to deal 1/8th damage each.
+	Unlocks: Blades of Fury.
+	Synergy - Vortex: 5% more damage per rank of Vortex.
+	NOTE: Damage bonuses only affect maximum damage value.
+ 
+* Hand of Fate
+ 
+	Do a special effect based on chance. Let X = roll 1d6.
+	If targeted an ally: 
+		- X < 3 => Ally suffers (10 + (+5/INT) * Level of Caster) damage.
+		- X = 3 => Ally is healed for 25 + 5 * Level of Caster.
+		- X > 3 => Ally deals 50% more damage for 2 seconds.
+	If targeted an enemy:
+		- X < 3 => Enemy is granted 50% more damage for 2 seconds.
+		- X = 3 => Enemy is healed for 25 + 5 * Level of Caster.
+		- X > 3 => Enemy takes 50% more damage for 2 seconds.
+	Cost: 10 mana.
+	Cooldown: 12 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +1 second to buff and debuff duration.
+	Rank 5: Hand of Fate is guaranteed to deal (10 + (+5/INT) * Level of Caster) damage to enemies.
+	Rank 10: When a negative effect is rolled, a new roll will be attempted.
+	Unlocks: Seal of Chance.
+ 
+* Furious Charge
+ 
+	Charge towards where you were looking, completely berserk. Charge for 2 seconds.
+	You take 50% more damage during the charge. Charge deals 175 (+10/STR) damage to enemies that you come into contact.
+	Cost: 18 mana.
+	Cooldown: 16 seconds.
+	Cast Time: 1 second.
+	Per Rank: +125 damage.
+	Rank 5: During the charge, gain ability to deflect projectiles.
+	Rank 10: Charge damage debuff is reduced to 25%.
+	Unlocks: Frenzy, Instability.
+ 
+* Blades of Fury
+ 
+	Sharp blades of energy are summoned around you and then tossed to random enemies around you.
+	Each blade deals 150 (+15/INT) damage. 5 (+1/25 INT) blades are summoned. Maximum blade target range: 256 unit radius.
+	Cost: 25 mana.
+	Cooldown: 10 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +75 blade damage. At every even rank, +1 blade count.
+	Rank 5: Blade max target range +128 unit radius.
+	Rank 10: +5 blades.
+	Requires: Chaos Bolt (Rank 1).
+	Unlocks: Vortex.
+	Synergy - Violent Blows: +5% more damage per rank of Violent Blows.
+	Synergy - Chaos Bolt: +8 max target radius per rank of Chaos Bolt.
+ 
+* Wheel of Fortune
+ 
+	Roll the wheel of fortune. Let X = 1d10.
+		- X = 1 => Lose all ammo on current weapon.
+		- X = 2 => Gain 50% ammo for the current weapon.
+		- X = 3 => Take 75 (+5/INT) magical damage.
+		- X = 4 => Heal for 75 (+5/INT).
+		- X = 5 => Gain a 3 second invulnerability.
+		- X = 6 => Slowed down by 75% for 3 seconds.
+		- X = 7 => Gain speed boost by 30% for 6 seconds.
+		- X = 8 => Your weapons require no ammo for 5 seconds.
+		- X = 9 => You are silenced for 5 seconds.
+		- X = 10 => Mana costs of spells increased by 300% for 10 seconds.
+	Cost: NA.
+	Cooldown: 30 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: Cooldown -1 second.
+	Rank 5: Positive effects increased by 50%.
+	Rank 10: Negative effects reduced by 50%.
+	Unlocks: Turn of Tides.
+ 
+* Seal of Chance
+ 
+	Once cast, grant an ally or yourself a temporary resistance buff or debuff. Let X = roll 1d3.
+		- X = 1 => Fully restore armor.
+		- X = 2 => 25% more damage resist for 5 seconds.
+		- X = 3 => 50% more damage taken for 10 seconds.
+	Cost: 30 mana.
+	Cooldown: 25 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: Cooldown -1 second.
+	Rank 5: Debuff lasts 5 seconds instead.
+	Rank 10: Buff lasts 10 seconds instead.
+	Unlocks: Roll of Bones, Twist of Fate.
+	Requires: Hand of Fate (Rank 1).
+ 
+* Luck Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Increases luck of you and nearby allies by 10%. Effect radius is 256 units.
+	Cost: 35% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +1% to luck.
+	Rank 5: Affect radius +50%.
+	Rank 10: Allow a reroll on all chaos spells if a negative buff is picked.
+	Unlocks: Twist of Fate, Chaotic Presence.
+ 
+* Frenzy
+ 
+	Target you or an ally to make them move 30% faster and deal 50% more damage for 5 seconds.
+	Target suffers (5 + (+2/INT)) * Level of Caster damage every second.
+	Cost: 65 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: +1 second duration.
+	Rank 5: Increases melee damage by 100%, instead of 50%.
+	Rank 10: Damage taken from this spell is reduced by 50%.
+	Unlocks: Violent Blows.
+	Requires: Furious Charge (Rank 2).
+ 
+* Instability
+ 
+	Marks an enemy with the instability curse. When the enemy flinches, they explode to deal 1 - 90 (+9/INT) damage in a 72 unit radius.
+	Curse lasts 3 seconds.
+	Cost: 80 mana.
+	Cooldown: 40 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: +8 to radius, +45 damage.
+	Rank 5: Damage ignores resists.
+	Rank 10: Target's "No Pain" modifier is permanently removed.
+	Requires: Furious Charge (Rank 1), Blades of Fury (Rank 2).
+ 
+* Vortex
+ 
+	Launch two swirling balls of energy that travel in random directions but towards where you pointed at. Balls last 5 seconds.
+	Balls periodically deal 1 - 180 (+15/INT) damage. Once they expire, they violently explode to deal twice the periodic damage in 192 unit radius.
+	Cost: 75 mnaa.
+	Cooldown: 16 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +90 damage. Once every three ranks, gain +1 ball.
+	Rank 5: Balls last an additional 2 seconds.
+	Rank 10: Balls have 25% chance to inflict Instability on enemies.
+	Unlocks: Burst of Chaos.
+	Requires: Blades of Fury (Rank 1).
+	Synergy - Chaos Bolt: +7.5% more damage per rank of Chaos Bolt.
+	NOTE: Damage bonuses only affect maximum damage value.
+ 
+* Turn of Tides
+ 
+	Launch a slow moving but homing projectile. It will randomly pick a target to home in on.
+	Once hit, enemy's health will be swapped with yours. This works on a percentage scale.
+	Cost: 90 mana.
+	Cooldown: 72 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: -4 second cooldown.
+	Rank 5: Mana cost -45.
+	Rank 10: Enemy will be stunned for 2.5 seconds.
+	Unlocks: Mysticism.
+	Requires: Wheel of Fortune (Rank 1).
+ 
+* Roll of Bones
+ 
+	Roll the bones of chaotic energy. Launch a magical projectile towards where you're facing.
+	Does 1 - 300 (+25/INT) damage.
+	Once it hits ANYTHING, it will do one of three things with equal probability:
+		- Return back to you that can HURT you or your allies for the same damage.
+		- Explode violently in 192 unit radius for the same damage that can hurt you.
+		- Silence all enemies in a 256 unit radius.
+	Cost: 100 mana.
+	Cooldown: 50 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: +125 damage.
+	Rank 5: Projectile can no longer hit ghosts.
+	Rank 10: Radius on hit effects +50%.
+	Unlocks: Cerebral Stun.
+	Requires: Seal of Chance (Rank 1).
+	NOTE: Damage bonuses only affect maximum damage value.
+ 
+* Twist of Fate
+ 
+	Mark you or an ally for 5 seconds. The mark can do ne of three things:
+		- Once the mark ends, 25% chance to deal damage around you in a 256 unit radius for the same amount of damage you took during the mark.
+		- Once the mark ends, 65% chance to push all enemies around you.
+		- During the mark, 10% chance to be prevented from dying.
+	Cost: 150 mana.
+	Cooldown: 90 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: +0.5 seconds to duration of mark.
+	Rank 5: Cooldown -15 seconds.
+	Rank 10: Mana cost -50.
+	Requires: Seal of Chance (Rank 1), Luck Aura (Rank 1).
+ 
+* Chaotic Presence
+ 
+	PASSIVE SKILL
+	Your presence shakes the fabrics of the universe. One of five things can happen ONCE every map.
+		- Become a ghost for the map. 10%.
+		- Gain "Hardened Skin". 10%.
+		- Nothing. 60%.
+		- Slowed down by 25%. 10%.
+		- 25% increased chance to find elites. 10%.
+	Cost: NA.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: Chance for nothing to happen -2.5%.
+	Rank 5: Slow down effect only slows for 10%.
+	Rank 10: Chance for nothing to happen -25%.
+	Unlocks: Discord Aura.
+	Requires: Luck Aura (Rank 1).
+	NOTE: Reducing chance of nothing to happen affects other chances equally.
+ 
+* Violent Blows
+ 
+	Activate to make the next three melee attacks infused with chaotic energy.
+	The next two melee attacks do 1 - 100 * (Maximum of STR or INT) damage.
+	Your last melee attack does a different effect depending on if INT or STR is more than the other.
+		- If STR > INT, deal 10% of your maximum health as additional damage.
+		- If INT > STR, deal 20% of your maximum mana as additional damage.
+	Attack buff lasts 5 seconds.
+	Cost: 60 mana.
+	Cooldown: 20 seconds.
+	Cast Time: NA.
+	Per Rank: +10 maximum damage.
+	Rank 5: While Violent Blows is active, take 20% reduced damage.
+	Rank 10: Bonus damage at last blow also adds 20% of your current armor regardless of which stat is dominant.
+	Requires: Frenzy (Rank 1).
+	NOTE: Damage bonuses only affect maximum damage value.
+ 
+* Burst of Chaos
+ 
+	Mark an area for 2.5 seconds. After the delay, many random explosions appear in a cross shaped pattern.
+	Explosions do 250 (+15/INT) damage. There will be a total of 20 explosions. Explosions affect 64 unit radius.
+	Cost: 175 mana.
+	Cooldown: 75 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +50 damage to explosions, +4 unit radius to explosions.
+	Rank 5: Cross area grows by 30%.
+	Rank 10: Explosions appear 25% faster.
+	Unlocks: Entropy.
+	Requires: Vortex (Rank 1).
+	Synergy - Chaos Bolt: 5% more damage per rank of Chaos Bolt.
+	Synergy - Vortex: +4 unit radius to explosion radius.
+ 
+* Mysticism
+ 
+	PASSIVE SKILL
+	Channeling inner fire, you learn to calm the chaos. Aura skills reserve less mana.
+	Cost: NA.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: Aura skills reserve 2.5% less mana.
+	Rank 5 and 10: No bonus.
+	Requires: Turn of Tides (Rank 1).
+ 
+* Cerebral Stun
+ 
+	Target an enemy to immediately stun them, depending on the level difference between you and the target.
+	Does 1 - 100 (+10/INT) damage and stuns for 1 / 2 / 3 / 4 / 5 / 6 seconds for 5 level difference to no level difference.
+	Cost: 100 mana.
+	Cooldown: 50 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +75 damage.
+	Rank 5: Stun duration +25%.
+	Rank 10: Stun affects enemies in a 192 unit radius of the primary target.
+	Unlocks: Will of Ancients.
+	Requires: Roll of Bones (Rank 1).
+ 
+* Discord Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Enemies in a 192 unit radius around you have a chance to run away in fear from you for 3 seconds.
+	Chance to fear is 33%.
+	Cost: 35% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: +8 radius. Every even rank gives +0.5 fear duration.
+	Rank 5: Chance to fear becomes 50%.
+	Rank 10: Once afflicted with fear, there's a 50% chance they'll instead be affected by Delirium.
+	Requires: Chaotic Presence (Rank 1).
+ 
+* Entropy
+ 
+	Once activated, after a short delay, random areas around you periodically explode and unleash Chaos Bolts.
+	If your health is below 50%, explosions ignore all immunities and resists.
+	Otherwise, explosions can hurt you. Explosions deal 500 (+50/INT) damage in a 192 unit radius.
+	Cost: 250 mana.
+	Cooldown: 150 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: +375 damage.
+	Rank 5: Chaos Bolts also ignore immunities and resists.
+	Rank 10: Explosions have 50% chance to trigger one more time.
+	Requires: Burst of Chaos (Rank 1).
+	Synergy - Burst of Chaos: Explosion radius +8 units per rank of Burst of Chaos.
+ 
+* Will of Ancients
+ 
+	Unleash five tethers to five closest monsters. These monsters are then afflicted by Cerebral Stun.
+	After 4 seconds, the tethers trigger and the monsters will be drained of their lives.
+	Monsters lose 50% of their maximum health. You are healed for 5% of this per monster.
+	If all five of the monsters die, you are granted invulnerability for 5 seconds.
+	Tethers can break if distance between you and monsters is greater than 192 units.
+	Cost: 200 mana.
+	Cooldown: 180 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: Tether range +8 units.
+	Rank 5: Monsters instead lose 60% of their max health.
+	Rank 10: Invulnerability lasts 10 seconds.
+	Requires: Cerebral Stun.

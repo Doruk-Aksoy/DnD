@@ -7,158 +7,176 @@
 #include "DnD_Shared.h"
 #include "DnD_Orbs.h"
 #include "DnD.h"
+#include "DnD_Prompts.h"
 
 // this is here for convenience, tracks if a legendary monster was spawned
 bool MadeLegendary = 0;
 
-Script 700 ENTER CLIENTSIDE {
-	int hp, hpcomp, armor, armcomp, acomp, curammo;
+Script "DnD SBAR" ENTER CLIENTSIDE {
+	int item, itemcomp;
 	str ammo, ammoalt;
+	int wepid;
 	while(IsAlive()) {
-		if(GetCVar("dnd_killspree"))
-			GiveInventory("KillSpreeOn", 1);
-		hpcomp = GetSpawnHealth();
-		hp = GetActorProperty(0, APROP_HEALTH);
-		SetInventory("P_HealthCap", hpcomp);
-		if(hp > hpcomp) {
-			SetInventory("HPOverAmount", hp - hpcomp);
-			GiveInventory("HPOver100", 1);
-			TakeInventory("HPNormal", 1);
-			TakeInventory("HPBelow50", 1);
-			TakeInventory("HPBelow25", 1);
-		}
-		else if(hp > (hpcomp >> 1) - 1) {
-			SetInventory("HPOverAmount", 0);
-			TakeInventory("HPOver100", 1);
-			GiveInventory("HPNormal", 1);
-			TakeInventory("HPBelow50", 1);
-			TakeInventory("HPBelow25", 1);
-		}
-		else if(hp > (hpcomp >> 2) - 1) {
-			SetInventory("HPOverAmount", 0);
-			TakeInventory("HPOver100", 1);
-			TakeInventory("HPNormal", 1);
-			GiveInventory("HPBelow50", 1);
-			TakeInventory("HPBelow25", 1);
-		}
-		else {
-			SetInventory("HPOverAmount", 0);
-			TakeInventory("HPOver100", 1);
-			TakeInventory("HPNormal", 1);
-			TakeInventory("HPBelow50", 1);
-			GiveInventory("HPBelow25", 1);
-		}
-		
-		armor = CheckInventory("Armor");
-		armcomp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-		SetInventory("P_ArmorCap", armcomp);
-		if(armor > armcomp) { // can happen with armor bonuses
-			SetInventory("ARMOverAmount", armor - armcomp);
-			GiveInventory("ARMOver100", 1);
-			TakeInventory("ARMNormal", 1);
-			TakeInventory("ARMBelow50", 1);
-			TakeInventory("ARMBelow25", 1);
-		}
-		else if(armor >= armcomp >> 1) {
-			SetInventory("ARMOverAmount", 0);
-			TakeInventory("ARMOver100", 1);
-			GiveInventory("ARMNormal", 1);
-			TakeInventory("ARMBelow50", 1);
-			TakeInventory("ARMBelow25", 1);
-		}
-		else if(armor >= armcomp >> 2) {
-			SetInventory("ARMOverAmount", 0);
-			TakeInventory("ARMOver100", 1);
-			TakeInventory("ARMNormal", 1);
-			GiveInventory("ARMBelow50", 1);
-			TakeInventory("ARMBelow25", 1);
-		}
-		else {
-			SetInventory("ARMOverAmount", 0);
-			TakeInventory("ARMOver100", 1);
-			TakeInventory("ARMNormal", 1);
-			TakeInventory("ARMBelow50", 1);
-			GiveInventory("ARMBelow25", 1);
-		}
-			
-		if(((Timer() * 98) / (100 * TICRATE)) < GetLevelInfo(LEVELINFO_PAR_TIME))
-			GiveInventory("H_UnderPar", 1);
-		else
-			TakeInventory("H_UnderPar", 1);
-
-		if(GetLevelInfo(LEVELINFO_KILLED_MONSTERS) == GetLevelInfo(LEVELINFO_TOTAL_MONSTERS))
-			GiveInventory("H_KillsAchieved", 1);
-		else
-			TakeInventory("H_KillsAchieved", 1);
-
-		if(GetLevelInfo(LEVELINFO_FOUND_ITEMS) == GetLevelInfo(LEVELINFO_TOTAL_ITEMS))
-			GiveInventory("H_ItemsAchieved", 1);
-		else
-			TakeInventory("H_ItemsAchieved", 1);
-
-		if(GetLevelInfo(LEVELINFO_FOUND_SECRETS) == GetLevelInfo(LEVELINFO_TOTAL_SECRETS))
-			GiveInventory("H_SecretsAchieved", 1);
-		else
-			TakeInventory("H_SecretsAchieved", 1);
-			
-		if(GetCVar("sv_infiniteammo"))
-            GiveInventory("H_InfiniteAmmo", 1);
-        else
-            TakeInventory("H_InfiniteAmmo", 1);
-		
-		ammo = GetWeaponAmmoType(GetCurrentWeaponID(), 0);
-		if(StrCmp(" ", ammo)) { // if uses ammo
-			acomp = GetAmmoCapacity(ammo);
-			curammo = CheckInventory(ammo);
-			if(curammo > (acomp + 1) / 2) {
-				GiveInventory("H_PrimaryGreen", 1);
-				TakeInventory("H_PrimaryYellow", 1);
-				TakeInventory("H_PrimaryRed", 1);
+		if(!CheckInventory("ShowingMenu")) {
+			if(GetCVar("dnd_killspree"))
+				GiveInventory("KillSpreeOn", 1);
+			itemcomp = GetSpawnHealth();
+			item = GetActorProperty(0, APROP_HEALTH);
+			SetInventory("P_HealthCap", itemcomp);
+			if(item > itemcomp) {
+				SetInventory("HPOverAmount", item - itemcomp);
+				GiveInventory("HPOver100", 1);
+				TakeInventory("HPNormal", 1);
+				TakeInventory("HPBelow50", 1);
+				TakeInventory("HPBelow25", 1);
 			}
-			else if(curammo > Max(acomp / 4, 1)) {
-				TakeInventory("H_PrimaryGreen", 1);
-				GiveInventory("H_PrimaryYellow", 1);
-				TakeInventory("H_PrimaryRed", 1);	
+			else if(item > (itemcomp >> 1) - 1) {
+				SetInventory("HPOverAmount", 0);
+				TakeInventory("HPOver100", 1);
+				GiveInventory("HPNormal", 1);
+				TakeInventory("HPBelow50", 1);
+				TakeInventory("HPBelow25", 1);
+			}
+			else if(item > (itemcomp >> 2) - 1) {
+				SetInventory("HPOverAmount", 0);
+				TakeInventory("HPOver100", 1);
+				TakeInventory("HPNormal", 1);
+				GiveInventory("HPBelow50", 1);
+				TakeInventory("HPBelow25", 1);
 			}
 			else {
-				TakeInventory("H_PrimaryGreen", 1);
-				TakeInventory("H_PrimaryYellow", 1);
-				GiveInventory("H_PrimaryRed", 1);		
+				SetInventory("HPOverAmount", 0);
+				TakeInventory("HPOver100", 1);
+				TakeInventory("HPNormal", 1);
+				TakeInventory("HPBelow50", 1);
+				GiveInventory("HPBelow25", 1);
 			}
-		}
-		
-		ammoalt = GetWeaponAmmoType(GetCurrentWeaponID(), 1);
-		if(StrCmp(" ", ammoalt) && StrCmp(ammoalt, ammo)) { // if uses altammo and is not same as normal ammo
-			acomp = GetAmmoCapacity(ammoalt);
-			curammo = CheckInventory(ammoalt);
-			if(curammo > (acomp + 1) / 2) {
-				GiveInventory("H_SecondaryGreen", 1);
-				TakeInventory("H_SecondaryYellow", 1);
-				TakeInventory("H_SecondaryRed", 1);
+			
+			item = CheckInventory("Armor");
+			itemcomp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
+			SetInventory("P_ArmorCap", itemcomp);
+			if(item > itemcomp) { // can happen with armor bonuses
+				SetInventory("ARMOverAmount", item - itemcomp);
+				GiveInventory("ARMOver100", 1);
+				TakeInventory("ARMNormal", 1);
+				TakeInventory("ARMBelow50", 1);
+				TakeInventory("ARMBelow25", 1);
 			}
-			else if(curammo > Max(acomp / 4, 1)) {
-				TakeInventory("H_SecondaryGreen", 1);
-				GiveInventory("H_SecondaryYellow", 1);
-				TakeInventory("H_SecondaryRed", 1);	
+			else if(item >= itemcomp >> 1) {
+				SetInventory("ARMOverAmount", 0);
+				TakeInventory("ARMOver100", 1);
+				GiveInventory("ARMNormal", 1);
+				TakeInventory("ARMBelow50", 1);
+				TakeInventory("ARMBelow25", 1);
+			}
+			else if(item >= itemcomp >> 2) {
+				SetInventory("ARMOverAmount", 0);
+				TakeInventory("ARMOver100", 1);
+				TakeInventory("ARMNormal", 1);
+				GiveInventory("ARMBelow50", 1);
+				TakeInventory("ARMBelow25", 1);
 			}
 			else {
-				TakeInventory("H_SecondaryGreen", 1);
-				TakeInventory("H_SecondaryYellow", 1);
-				GiveInventory("H_SecondaryRed", 1);		
+				SetInventory("ARMOverAmount", 0);
+				TakeInventory("ARMOver100", 1);
+				TakeInventory("ARMNormal", 1);
+				TakeInventory("ARMBelow50", 1);
+				GiveInventory("ARMBelow25", 1);
+			}
+				
+			if(((Timer() * 98) / (100 * TICRATE)) < GetLevelInfo(LEVELINFO_PAR_TIME))
+				GiveInventory("H_UnderPar", 1);
+			else
+				TakeInventory("H_UnderPar", 1);
+
+			if(GetLevelInfo(LEVELINFO_KILLED_MONSTERS) == GetLevelInfo(LEVELINFO_TOTAL_MONSTERS))
+				GiveInventory("H_KillsAchieved", 1);
+			else
+				TakeInventory("H_KillsAchieved", 1);
+
+			if(GetLevelInfo(LEVELINFO_FOUND_ITEMS) == GetLevelInfo(LEVELINFO_TOTAL_ITEMS))
+				GiveInventory("H_ItemsAchieved", 1);
+			else
+				TakeInventory("H_ItemsAchieved", 1);
+
+			if(GetLevelInfo(LEVELINFO_FOUND_SECRETS) == GetLevelInfo(LEVELINFO_TOTAL_SECRETS))
+				GiveInventory("H_SecretsAchieved", 1);
+			else
+				TakeInventory("H_SecretsAchieved", 1);
+				
+			if(GetCVar("sv_infiniteammo"))
+				GiveInventory("H_InfiniteAmmo", 1);
+			else
+				TakeInventory("H_InfiniteAmmo", 1);
+			
+			// primary ammo
+			wepid = CheckInventory("DnD_WeaponID");
+			ammo = GetWeaponAmmoType(wepid, 0);
+			if(StrCmp(" ", ammo)) { // if uses ammo
+				itemcomp = GetAmmoCapacity(ammo);
+				item = CheckInventory(ammo);
+				if(item > (itemcomp + 1) / 2) {
+					GiveInventory("H_PrimaryGreen", 1);
+					TakeInventory("H_PrimaryYellow", 1);
+					TakeInventory("H_PrimaryRed", 1);
+				}
+				else if(item > Max(itemcomp / 4, 1)) {
+					TakeInventory("H_PrimaryGreen", 1);
+					GiveInventory("H_PrimaryYellow", 1);
+					TakeInventory("H_PrimaryRed", 1);	
+				}
+				else {
+					TakeInventory("H_PrimaryGreen", 1);
+					TakeInventory("H_PrimaryYellow", 1);
+					GiveInventory("H_PrimaryRed", 1);		
+				}
+			}
+			
+			// secondary ammo
+			ammoalt = GetWeaponAmmoType(wepid, 1);
+			if(StrCmp(" ", ammoalt) && ammo != ammoalt) { // if uses altammo and is not same as normal ammo
+				itemcomp = GetAmmoCapacity(ammoalt);
+				item = CheckInventory(ammoalt);
+				if(item > (itemcomp + 1) / 2) {
+					GiveInventory("H_SecondaryGreen", 1);
+					TakeInventory("H_SecondaryYellow", 1);
+					TakeInventory("H_SecondaryRed", 1);
+				}
+				else if(item > Max(itemcomp / 4, 1)) {
+					TakeInventory("H_SecondaryGreen", 1);
+					GiveInventory("H_SecondaryYellow", 1);
+					TakeInventory("H_SecondaryRed", 1);	
+				}
+				else {
+					TakeInventory("H_SecondaryGreen", 1);
+					TakeInventory("H_SecondaryYellow", 1);
+					GiveInventory("H_SecondaryRed", 1);		
+				}
 			}
 		}
-		Delay(const:1);
+		Delay(const:7);
 	}
 }
 
-Script 701 OPEN CLIENTSIDE {
-	while(1) {
+Script "DnD Clientside Open" OPEN CLIENTSIDE {
+	bool buttons = false;
+	bool wepdrop = false;
+	while(true) {
 		if(GameType() != GAME_SINGLE_PLAYER) {
 			if(!GetCVar("compat_clientssendfullbuttoninfo"))
 				Log(s:"\cgWARNING:\c- Please activate '\cdcompat_clientssendfullbuttoninfo\c-' in order to use the menu properly.");
+			else
+				buttons = true;
 			if(GetCVar("sv_weapondrop"))
 				Log(s:"\cgWARNING:\c- Please deactivate '\cdsv_weapondrop\c-'. It breaks mod rules!");
+			else
+				wepdrop = true;
+				
+			if(wepdrop && buttons)
+				break;
 		}
+		else
+			break;
 		Delay(const:TICRATE);
 	}
 }
@@ -177,13 +195,16 @@ Script "DnD On Map Load" OPEN {
 	// wait while total level is not initialized
 	while(!PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL])
 		Delay(const:TICRATE);
+	
 	Delay(const:TICRATE);
 	if (GetLevelInfo(LEVELINFO_LEVELNUM) != 99) //Prevents quests from firing on VR map (Lexicon) - compendium hubmap can't be detected this way unfortunately.
 		PickQuest();
+		
+	NPC_Setup();
 }
 
 Script "DND Check Hardcore Softcore" OPEN {
-	while(1) {
+	while(true) {
 		if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER))
 			HardcoreSet = CheckHardcoreSettings();
 		Delay(const:105);
@@ -296,12 +317,7 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 	}
 	
 	// map toast heal
-	if(isspecial == 4) {
-		if(GetActorProperty(0, APROP_HEALTH) < healthcap)
-			GiveInventory("HealthBonusX", healthcap - GetActorProperty(0, APROP_HEALTH));
-		Terminate;
-	}
-	else if(isspecial == 3) {
+	if(isspecial == 3) {
 		amt = healthcap - curhp;
 	    GiveInventory("HealthBonusX", amt);
 		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
@@ -347,59 +363,10 @@ Script "DnD Can Pick Health Item" (int type) {
 // Health kits end here
 
 Script "DnD Critical Input Handler" ENTER {
-	bool temp = false;
 	int pnum = PlayerNumber();
     while(PlayerInGame(pnum)) {
 		if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_USE)
 			GiveInventory("DnD_PressedUse", 1);
-			
-		// additional hack for the slayer/hells maw weapon's dynamic fire modes	
-		if(!CheckInventory("ShowingMenu")) {
-			// shit hacks to prevent some bug...
-			if(temp) {
-				GiveInventory("HellsMawSynthActive", 1);
-				GiveInventory("SynthFireFix", 1);
-				temp = false;
-			}
-			
-			if(CheckWeapon("Upgraded Super Shotgun3") && CheckInventory("HellsMawSynthActive")) {
-				if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK) 
-					GiveInventory("HellsMawSynthFireLeft", 1);
-				else 
-					TakeInventory("HellsMawSynthFireLeft", 1);
-				
-				if (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) 
-					GiveInventory("HellsMawSynthFireRight", 1);
-				else 
-					TakeInventory("HellsMawSynthFireRight", 1);
-					
-				if(isAlive() && (CheckInventory("HellsMawFiringRight") || CheckInventory("HellsMawFiringLeft")))
-					SetActorState(0, "Melee");
-			}
-			
-			if((GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK)) {
-				if(CheckWeapon("Slayer") && !CheckInventory("SlayerTimer"))
-					GiveInventory("SlayerBack", 1);
-				if(CheckWeapon("ResSSG3") && CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstTimer")) {
-					GiveInventory("MakeHadesBurst", 1);
-					GiveInventory("HadesBurstCooldown", 1);
-					TakeInventory("HadesBurstFired", 1);
-				}
-				if(CheckWeapon("Upgraded Rocket Launcher") && !CheckInventory("TorpedoTimer")) {
-					GiveInventory("TorpedoBoomSignal", 1);
-					GiveInventory("TorpedoTimer", 1);
-					ActivatorSound("Torpedo/Beep", 108);
-				}
-				if(CheckWeapon("ResRL5"))
-					GiveInventory("VoidDetonation", 1);
-			}
-		}
-		else {
-			if(!temp && CheckWeapon("Upgraded Super Shotgun3")) {
-				temp = true;
-				TakeInventory("HellsMawSynthActive", 1);
-			}
-		}
 		
         SetInventory("MedkitItem", CheckInventory("StoredMedKit"));
         SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_HEALTH));
@@ -411,8 +378,82 @@ Script "DnD Critical Input Handler" ENTER {
 		
         Delay(const:1);
     }
-	TakeInventory("HellsMawSynthFireLeft", 1);
-	TakeInventory("HellsMawSynthFireRight", 1);
+}
+
+Script "DnD Weapon Input Handler" (int wepid) {
+	bool temp = false;
+	int pnum = PlayerNumber();
+	switch(wepid) {
+		case DND_WEAPON_HELLSMAW:
+			while(PlayerInGame(pnum) && CheckInventory("DnD_WeaponID") == wepid) {
+				// additional hack for the slayer/hells maw weapon's dynamic fire modes	
+				if(!CheckInventory("ShowingMenu")) {
+					// shit hacks to prevent some bug...
+					if(temp) {
+						GiveInventory("HellsMawSynthActive", 1);
+						GiveInventory("SynthFireFix", 1);
+						temp = false;
+					}
+					
+					if(CheckInventory("HellsMawSynthActive")) {
+						if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK) 
+							GiveInventory("HellsMawSynthFireLeft", 1);
+						else 
+							TakeInventory("HellsMawSynthFireLeft", 1);
+						
+						if (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) 
+							GiveInventory("HellsMawSynthFireRight", 1);
+						else 
+							TakeInventory("HellsMawSynthFireRight", 1);
+							
+						if(isAlive() && (CheckInventory("HellsMawFiringRight") || CheckInventory("HellsMawFiringLeft")))
+							SetActorState(0, "Melee");
+					}
+				}
+				else if(!temp) {
+					temp = true;
+					TakeInventory("HellsMawSynthActive", 1);
+				}
+				Delay(const:1);
+			}
+			TakeInventory("HellsMawSynthFireLeft", 1);
+			TakeInventory("HellsMawSynthFireRight", 1);
+		break;
+		case DND_WEAPON_SLAYER:
+			while(PlayerInGame(pnum) && CheckInventory("DnD_WeaponID") == wepid) {
+				if(!CheckInventory("ShowingMenu") && (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) && !CheckInventory("SlayerTimer"))
+					GiveInventory("SlayerBack", 1);
+				Delay(const:1);
+			}
+		break;
+		case DND_WEAPON_HADES:
+			while(PlayerInGame(pnum) && CheckInventory("DnD_WeaponID") == wepid) {
+				if(!CheckInventory("ShowingMenu") && (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) && CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstTimer")) {
+					GiveInventory("MakeHadesBurst", 1);
+					GiveInventory("HadesBurstCooldown", 1);
+					TakeInventory("HadesBurstFired", 1);
+				}
+				Delay(const:1);
+			}
+		break;
+		case DND_WEAPON_TORPEDOLAUNCHER:
+			while(PlayerInGame(pnum) && CheckInventory("DnD_WeaponID") == wepid) {
+				if(!CheckInventory("ShowingMenu") && (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK) && !CheckInventory("TorpedoTimer")) {
+					GiveInventory("TorpedoBoomSignal", 1);
+					GiveInventory("TorpedoTimer", 1);
+					ActivatorSound("Torpedo/Beep", 108);
+				}
+				Delay(const:1);
+			}
+		break;
+		case DND_WEAPON_VOIDCANNON:
+			while(PlayerInGame(pnum) && CheckInventory("DnD_WeaponID") == wepid) {
+				if(!CheckInventory("ShowingMenu") && (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK))
+					GiveInventory("VoidDetonation", 1);
+				Delay(const:1);
+			}
+		break;
+	}
 }
 
 // from woc
@@ -517,27 +558,34 @@ Script "DND Mugshot Grin" (void) CLIENTSIDE {
 Script "DND On Revive" (void) {
 	TakeInventory("Mo_Died", 1);
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
-	int id = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	int this = ActivatorTID();
+	int id = this - DND_MONSTERTID_BEGIN;
 	if (MonsterProperties[id].maxhp) { //This could be skipped if all mobs have their Monster Scaling.
 		SetEliteFlag(DND_REVIVED); //Add "Revived" trait to mob. Also gives "Mo_Revived" item.
-		//Reapply the elite FX.
-		if (MonsterProperties[id].isElite && !CheckInventory("RunEliteFXScript"))
-			GiveInventory("RunEliteFXScript", 1);
-		//printbold(s:"Monster id: ",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
+		// Reapply the elite FX.
+		if (MonsterProperties[id].isElite)
+			ACS_NamedExecuteAlways("DND Elite Special FX", 0);
+		//printbold(s:"Monster id: ",d:MonsterProperties[id].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
 		int maxhp = MonsterProperties[id].maxhp;
 		int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 		SetActorProperty(0, APROP_HEALTH, maxhp);
 		Clamp_Between(dmg, 0, maxhp + 1);
-		Thing_Damage2(ActivatorTID(), dmg, "None");
+		Thing_Damage2(this, dmg, "None");
 		//Mob might actually be dead by this point.
 		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
-			Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
+			Thing_Damage2(this, GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
 			
 		if(MonsterProperties[id].trait_list[DND_REJUVENATING])
 			GiveInventory("Rejuvenate_Script_Run", 1);
+		if(MonsterProperties[id].trait_list[DND_FORTIFIED])
+			SetInventory("MonsterFortifyCount", MonsterProperties[id].maxhp * DND_FORTIFY_AMOUNT / 10);
+		if(MonsterProperties[id].trait_list[DND_REPEL])
+			GiveInventory("Repel_Script_Run", 1);
+		if(MonsterProperties[id].trait_list[DND_CRIPPLE])
+			GiveInventory("Cripple_Script_Run", 1);
 
-		HandleMonsterClassInnates(MonsterProperties[id].id);
+		HandleMonsterClassInnates(this, MonsterProperties[id].id);
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
@@ -550,6 +598,10 @@ Script "DnD On Revive CS" (void) CLIENTSIDE {
 
 // Make sure clients are aware too
 Script "DND On Kill CS" KILL CLIENTSIDE {
+	GiveInventory("Mo_Died", 1);
+}
+
+Script "DnD On Kill Forced CS" (void) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
 }
 
@@ -574,6 +626,7 @@ Script "DND On Kill" KILL {
 	// don't continue if monster is revived or summoned
 	if(HasTrait(m_id, DND_SUMMONED) || HasTrait(m_id, DND_REVIVED))
 		Terminate;
+	
 	int target = GetActorProperty(0, APROP_TARGETTID);
 	if(target < P_TIDSTART || target > P_TIDSTART + MAXPLAYERS - 1) // only work if you can determine target as a player
 		Terminate;
@@ -585,11 +638,17 @@ Script "DND On Kill" KILL {
 	SetInventory("DnD_ChillStacks", 0);
 	SetInventory("DnD_FreezeTimer", 0);
 	
-	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].trait_list[DND_REBIRTH]) {
+	if(MonsterProperties[m_id].trait_list[DND_REBIRTH]) {
 		GiveInventory("DnD_RebirthItem", 1);
-		MonsterProperties[this - DND_MONSTERTID_BEGIN].trait_list[DND_REBIRTH] = false;
+		MonsterProperties[m_id].trait_list[DND_REBIRTH] = false;
 	}
 	
+	if(MonsterProperties[m_id].trait_list[DND_SUBORDINATE])
+		HandleSubordinateSpawn(this, m_id);
+		
+	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
+		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+		
 	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime")) {
 		GiveInventory("DnD_OverloadZapGiver", 1);
 		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
@@ -891,15 +950,15 @@ Script "DND On Kill" KILL {
 	}
 }
 
-Script "DnD Monster RIP" (void) {
-	Delay(RIP_MONSTER_FADE_DELAY);
-	SetActorProperty(0, APROP_RENDERSTYLE, STYLE_Translucent);
-	int a = GetActorProperty(0, APROP_ALPHA);
+Script "DnD Monster RIP" (int tid) {
+	Delay(const:RIP_MONSTER_FADE_DELAY);
+	SetActorProperty(tid, APROP_RENDERSTYLE, STYLE_Translucent);
+	int a = GetActorProperty(tid, APROP_ALPHA);
 	for(int i = 1; i < RIP_FADE_TIMER; ++i) {
-		SetActorProperty(0, APROP_ALPHA, a - (i * 1.0) / RIP_FADE_TIMER);
-		Delay(1);
+		SetActorProperty(tid, APROP_ALPHA, a - (i * 1.0) / RIP_FADE_TIMER);
+		Delay(const:1);
 	}
-	Thing_Remove(0);
+	Thing_Remove(tid);
 }
 
 Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
@@ -928,7 +987,7 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	
 	PlayerScriptsCheck[DND_SCRIPT_EXPTRACKER][ConsolePlayerNumber()] = true;
 	while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
-		Delay(2);
+		Delay(const:2);
 	if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
 		Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
 	SetActorInventory(tid, "DnD_Exp_Counter", 0);
@@ -1027,68 +1086,344 @@ Script "DnD Periodic Checks" ENTER {
 		// for cautious quest
 		if(GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
 			GiveInventory("DnD_HealthLess50", 1);
-		
-		// weapon quests
-		if(GetPlayerInput(-1, INPUT_BUTTONS) & (BT_ATTACK | BT_ALTATTACK)) {
-			// Simple Minded quest check
-			if(PlayerWeaponUsed[PlayerNumber()] == -1)
-				PlayerWeaponUsed[PlayerNumber()] = CheckInventory("DnD_WeaponID");
-			else if(!CheckInventory("DnD_WeaponFiredOther") && PlayerWeaponUsed[PlayerNumber()] != CheckInventory("DnD_WeaponID"))
-				GiveInventory(Quest_Checkers[QUEST_ONLYONEWEAPON], 1);
-
-			// only slot 2 quest check
-			if(
-				active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS]) &&
-				!IsQuestComplete(ActivatorTID(), QUEST_ONLYPISTOLWEAPONS) && !CheckInventory("H_WeaponSlot2")
-			  )
-				GiveInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS], 1);
-			
-			// only boomstick quest check
-			if(
-				active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_Checkers[QUEST_NOSHOTGUNS]) && 
-				!IsQuestComplete(ActivatorTID(), QUEST_NOSHOTGUNS) && 
-				((CheckInventory("H_WeaponSlot3") && CheckInventory("DnD_WeaponID") != DND_WEAPON_SLAYER) || CheckInventory("H_WeaponSlot3X"))
-			  )
-				GiveInventory(Quest_Checkers[QUEST_NOSHOTGUNS], 1);
-			
-			// no superweapon quest check
-			if(
-				active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS]) &&
-				!IsQuestComplete(ActivatorTID(), QUEST_NOSUPERWEAPONS) &&
-				(CheckInventory("H_WeaponSlot7") || CheckInventory("H_WeaponSlot8"))
-			  )
-				GiveInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS], 1);
-				
-			// only energy quest check
-			if(
-				active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_Checkers[QUEST_ONLYENERGY])
-			  )
-				GiveInventory(Quest_Checkers[QUEST_ONLYENERGY], 1);
-		}
 
 		if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
 			CompleteQuest(ActivatorTID(), QUEST_SPEND25K);
 		
-		// this used to be 7, but I reduced frequency, hopefully nothing was too dependant on this
+		// this used to be 7, but I reduced frequency, hopefully nothing was too dependent on this
 		Delay(const:10);
 	}
 }
 
 // 894 is for database save
 
-Script 895 ENTER CLIENTSIDE {
-	int i;
-	NamedRequestScriptPuke("DnD User Dash Status Receive", GetCVar("dnd_dashstatus"));
-	while(isAlive()) {
-		i = 0;
-		if(CheckInventory("LeveledUp")) {
-			Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has leveled up to\c- \cv", d:CheckInventory("Level"), s:"\c-\c[Y5]!");
-			if(CheckInventory("PerkedUp"))
-				Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has gained a\c- \cjperk point\c-!");
-			TakeInventory("LeveledUp", 1);
+// Special Interaction script with NPCs
+Script 895 (int val, int this) {
+	if(!CheckInventory("ShowingMenu")) {
+		switch(val) {
+			case 0:
+				// dark wanderer engage script
+				if(!CheckInventory("ShowingPrompt")) {
+					// open
+					SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+					GiveInventory("P_Frozen", 1);
+					GiveInventory("ShowingPrompt", 1);
+					LocalAmbientSound("RPG/MenuClose", 127);
+					
+					// setup
+					SetInventory("Mouse_X", HUDMAX_XF / 2);
+					SetInventory("Mouse_Y", HUDMAX_YF / 2);
+					ClearPlayerInput(PlayerNumber(), true);
+					
+					bool first_time = false;
+					if(!HasMetNPC(DND_NPC_DARKWANDERER) || CheckInventory("DarkWandererFirstTime")) {
+						GiveInventory("DarkWandererFirstTime", 1);
+						first_time = true;
+					}
+					else {
+						// we met before, roll a specific dialog id that remains for the map
+						SetInventory("ReceivedDialogID", random(DW_GREET1, DW_GREET3));
+					}
+
+					ACS_NamedExecuteAlways("DnD Prompt Dark Wanderer", 0, this, first_time, NPC_States[DND_NPC_DARKWANDERER].offer);
+					
+					MarkNPCMet(DND_NPC_DARKWANDERER);
+				}
+				else {
+					// close
+					ClosePrompt();
+				}
+			break;
 		}
-		Delay(const:5);
 	}
+}
+
+Script "DnD Prompt Dark Wanderer" (int obj, int first_time, int offer_id) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+		
+	// draw the background once
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	SetFont("THORM1");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 400.0, 160.0, 0.0, 0.0);
+	SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+	SetFont("PROMPT");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 480.0, 320.0, 0.0, 0.0);
+
+	// draw greetings text
+	SetFont("SMALLFONT");
+	SetHudClipRect(160, 128, 532, 600, 532, 1);
+	
+	menu_pane_T& CurrentPane = GetPane();
+	ResetPane(CurrentPane);
+	
+	AddBoxToPane_Points(CurrentPane, 340.0, 132.0, 300.0, 124.0);
+	AddBoxToPane_Points(CurrentPane, 260.0, 132.0, 220.0, 124.0);
+	
+	int yOff = 384.0;
+	if(first_time) {
+		HudMessage(
+			s:PromptLines[DW_GREET_FIRST_TIME1], 
+			s:"\n\n", s:PromptLines[DW_GREET_FIRST_TIME2], 
+			s:"\n\n", s:PromptLines[DW_GREET_FIRST_TIME3],
+			s:"\n\n\c[Y5]---------------------------------------\n\n",
+			s:"\c[W3]CHALLENGE:\n\n", s:PromptLines[DW_CHALLENGE_BEGIN + offer_id - 1];
+			HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+		);
+	}
+	else {
+		HudMessage(
+			s:PromptLines[CheckInventory("ReceivedDialogID")],
+			s:"\n\n\c[Y5]---------------------------------------\n\n",
+			s:"\c[W3]CHALLENGE:\n\n", s:PromptLines[DW_CHALLENGE_BEGIN + offer_id - 1];
+			HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+		);
+		
+		yOff = 256.0;
+	}
+		
+	int mousex, mousey;
+	int boxid = MAINBOX_NONE, boxid_prev = MAINBOX_NONE;
+	int i;
+	int pnum = PlayerNumber();
+	bool sendInput = false;
+	while(CheckInventory("ShowingPrompt") && !CheckInventory("ShowingMenu")) {
+		// cursor handling
+		mousex = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
+		mousey = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
+		SetInventory("Mouse_X", mousex);
+		SetInventory("Mouse_Y", mousey);
+		
+		SetHudClipRect(0, 0, 0, 0);
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		DrawCursor();
+		SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+		
+		// button id recognition
+		boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, 0);
+		if(boxid != boxid_prev && boxid != MAINBOX_NONE)
+			LocalAmbientSound("RPG/MenuMove", 127);
+			
+		boxid_prev = boxid;
+		
+		// accept
+		SetFont("SMALLFONT");
+		if(CheckInventory("NPC_Offer_Accepted")) {
+			HudMessage(s:"Accept"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_GREEN, 320.4, yOff, 0.0, 0.0);
+			SetFont("TRADBTNC");
+		}
+		else if(boxid == MBOX_1) {
+			HudMessage(s:"\c[M3]Accept"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 320.4, yOff, 0.0, 0.0);
+			SetFont("TRADBTNH");
+		}
+		else {
+			HudMessage(s:"\c[Y5]Accept"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 320.4, yOff, 0.0, 0.0);
+			SetFont("TRADBTN");
+		}
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 320.4, yOff, 0.0, 0.0);
+		
+		// decline
+		SetFont("SMALLFONT");
+		if(CheckInventory("NPC_Offer_Declined")) {
+			HudMessage(s:"Decline"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_GREEN, 480.4, yOff, 0.0, 0.0);
+			SetFont("TRADBTNC");
+		}
+		else if(boxid == MBOX_2) {
+			HudMessage(s:"\c[M3]Decline"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 480.4, yOff, 0.0, 0.0);
+			SetFont("TRADBTNH");
+		}
+		else {
+			HudMessage(s:"\c[Y5]Decline"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 480.4, yOff, 0.0, 0.0);
+			SetFont("TRADBTN");
+		}
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 480.4, yOff, 0.0, 0.0);
+		
+		// check inputs
+		ListenNPCInput();
+		sendInput = CheckInventory("MenuInput") != 0;
+		if(sendInput) {
+			// server gets a few extra info in boxid
+			if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
+				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+			i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
+			// guarantee nonzero input
+			if(i) {
+				//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+				NamedRequestScriptPuke("DND Server Box Receive - NPC", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+			}
+		}
+		
+		// finally check if player is pressing use, if so discard this window -- required in case player got shot off of him and cant quit it
+		
+		Delay(const:1);
+		
+		// retry ack
+		if(!CheckInventory("DND_ACK")) {
+			if(sendInput) {
+				GiveInventory("DND_ACKLoop", 1);
+				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
+				//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK - NPC", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+			}
+		}
+		else {
+			sendInput = false;
+			SetInventory("MenuInput", 0);
+			//Log(s:"reset input data");
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
+		}
+	}
+}
+
+Script "DnD Retry Sending UntiL ACK - NPC" (int payload1, int payload2, int npc_id) CLIENTSIDE {
+	if(!payload1 || CheckInventory("DND_ACKLoop"))
+		Terminate;
+	while(!CheckInventory("DnD_ACK")) {
+		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
+		//Log(s:"trying to send prev item ", d:payload2 >> 16);
+		NamedRequestScriptPuke("DND Server Box Receive - NPC", payload1, payload2, npc_id);
+		Delay(const:1);
+	}
+	TakeInventory("DND_ACKLoop", 1);
+}
+
+Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
+	// don't let garbage data slip in
+	if(!pnum)
+		Terminate;
+	int temp = pnum >> 16;
+	pnum &= 0xFFFF;
+		
+	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
+		SetActivator(pnum + P_TIDSTART);
+		MenuInputData[pnum][DND_MENUINPUT_DELAY] = DND_MENU_INPUTDELAYTICS;
+		MenuInputData[pnum][DND_MENUINPUT] = temp;
+		GiveInventory("DND_ACK", 1);
+		
+		if(boxid != MAINBOX_NONE) {
+			if(boxid == MBOX_1) {
+				// in case of accept, declare a vote and wait majority or if only player in game, skip this phase
+				ACS_NamedExecuteWithResult("DnD NPC Vote Register", 1, npc_id, pnum);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				GiveInventory("NPC_Offer_Accepted", 1);
+				TakeInventory("NPC_Offer_Declined", 1);
+			}
+			else if(boxid == MBOX_2) {
+				// decline -- mark our vote as a no, wait for voting to conclude optionally
+				ACS_NamedExecuteWithResult("DnD NPC Vote Register", -1, npc_id, pnum);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				GiveInventory("NPC_Offer_Declined", 1);
+				TakeInventory("NPC_Offer_Accepted", 1);
+			}
+		}
+		
+		ClearPlayerInput(pnum, true);
+		
+		Delay(const:DND_MENU_INPUTDELAYTICS);
+		MenuInputData[pnum][DND_MENUINPUT_DELAY] = 0;
+	}
+}
+
+Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
+	if(!NPC_States[npc_id].voting) {
+		NPC_States[npc_id].voting = true;
+		NPC_States[npc_id].n_state = NPC_STATE_VOTE_ONGOING;
+		ACS_NamedExecuteWithResult("DnD NPC Voting", npc_id);
+	}
+	
+	// register vote
+	NPC_States[npc_id].vote_count += vote;
+	NPC_States[npc_id].voters[pnum] = vote;
+	
+	ACS_NamedExecuteWithResult("DnD NPC Vote Sync", pnum, vote, npc_id);
+		
+	// check if majority is met -- if our (yes vote count) - (current player count / 2) > 0 that means we can skip further checks, we have majority
+	int curr = NPC_States[npc_id].vote_count - PlayerCount() / 2;
+	if(curr > 0) {
+		// settle the vote as majority voting yes
+		SetFont("BIGFONT");
+		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
+		HudMessageBold(s:"Vote Passed!"; HUDMSG_FADEOUT, RPGMENUHELPCORNERID, CR_GREEN, 240.4, 16.0, 1.0, 1.0);
+		
+		// conclude voting
+		NPC_States[npc_id].voting = false;
+		NPC_States[npc_id].n_state = NPC_STATE_VOTE_ACCEPT;
+		TakeInventory("NPC_Offer_Accepted", 1);
+		TakeInventory("NPC_Offer_Declined", 1);
+		
+		// reset vote list if voting has concluded
+		ACS_NamedExecuteWithResult("DnD NPC Vote Sync", -1);
+		
+		// close prompts of players that had voted
+		NPC_States[npc_id].vote_count = 0;
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			if(NPC_States[npc_id].voters[i]) {
+				SetActivator(i + P_TIDSTART);
+				ClosePrompt();
+				NPC_States[npc_id].voters[i] = 0;
+			}
+		}
+	}
+}
+
+Script "DnD NPC Voting" (int npc_id) {
+	// this is the timer, when this runs out and a majority is not found, we auto decline
+	int time = DND_VOTE_TIME;
+	while(time > 0 && NPC_States[npc_id].voting == true) {
+		// display the timer to everyone for vote countdown
+		SetFont("BIGFONT");
+		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
+		HudMessageBold(d:time, s:" to vote!"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_WHITE, 240.4, 16.0, 1.0, 0.0);
+		
+		Delay(const:TICRATE);
+		--time;
+	}
+	
+	if(NPC_States[npc_id].n_state != NPC_STATE_VOTE_ACCEPT) {
+		SetFont("BIGFONT");
+		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
+		HudMessageBold(s:"Vote Failed!"; HUDMSG_FADEOUT, RPGMENUHELPCORNERID, CR_RED, 240.4, 16.0, 1.0, 1.0);
+		
+		// conclude voting
+		NPC_States[npc_id].n_state = NPC_STATE_VOTE_DECLINE;
+		NPC_States[npc_id].voting = false;
+		TakeInventory("NPC_Offer_Accepted", 1);
+		TakeInventory("NPC_Offer_Declined", 1);
+		
+		// reset vote list if voting has concluded
+		ACS_NamedExecuteWithResult("DnD NPC Vote Sync", -1);
+		
+		// close prompts of players that had voted
+		NPC_States[npc_id].vote_count = 0;
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			if(NPC_States[npc_id].voters[i]) {
+				SetActivator(i + P_TIDSTART);
+				ClosePrompt();
+				NPC_States[npc_id].voters[i] = 0;
+			}
+		}
+		
+		// npc is dark wanderer? he will go back to his portal after decline
+		if(npc_id == DND_NPC_DARKWANDERER) {
+			
+		}
+	}
+}
+
+Script "DnD NPC Vote Sync" (int pnum, int vote, int npc_id) CLIENTSIDE {
+	if(pnum == -1) {
+		// reset
+		NPC_States[npc_id].vote_count = 0;
+		for(int i = 0; i < MAXPLAYERS; ++i)
+			NPC_States[npc_id].voters[pnum] = 0;
+	}
+	else {
+		// update
+		NPC_States[npc_id].vote_count += vote;
+		NPC_States[npc_id].voters[pnum] = vote;
+	}
+	SetResultValue(0);
 }
 
 Script 896 (void) {
@@ -1192,20 +1527,20 @@ Script 905 (int mode) NET {
 
 // 906 to 914 reserved
 script "DnD Aspect Ratio Check ENTER" ENTER CLIENTSIDE {
-	aspect_ratio = GetAspectRatio();
-	if (aspect_ratio == ASPECT_5_4) {
+	ScreenResOffsets[SCREEN_ASPECT_RATIO] = GetAspectRatio();
+	if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_5_4) {
 		ScreenResOffsets[0] = 0.0;
 		ScreenResOffsets[1] = 0.0;
 		ScreenResOffsets[2] = 0.0;
 		ScreenResOffsets[3] = 0.0;
 	}
-	else if (aspect_ratio == ASPECT_4_3) {
+	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_4_3) {
 		ScreenResOffsets[0] = 0.0;
 		ScreenResOffsets[1] = 0.0;
 		ScreenResOffsets[2] = 80.0;
 		ScreenResOffsets[3] = 120.0;
 	}
-	else if (aspect_ratio == ASPECT_16_9) {
+	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_16_9) {
 		ScreenResOffsets[0] = 108.0;
 		ScreenResOffsets[1] = 110.0;
 		ScreenResOffsets[2] = 0.0;
@@ -1217,25 +1552,25 @@ script "DnD Aspect Ratio Check ENTER" ENTER CLIENTSIDE {
 		ScreenResOffsets[2] = 30.0;
 		ScreenResOffsets[3] = 45.0;
 	}
-	delay(const:70);
+	delay(const:105);
 	restart;
 }
 
 script "DnD Aspect Ratio Check RESPAWN" RESPAWN CLIENTSIDE {
-	aspect_ratio = GetAspectRatio();
-	if (aspect_ratio == ASPECT_5_4) {
+	ScreenResOffsets[SCREEN_ASPECT_RATIO] = GetAspectRatio();
+	if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_5_4) {
 		ScreenResOffsets[0] = 0.0;
 		ScreenResOffsets[1] = 0.0;
 		ScreenResOffsets[2] = 0.0;
 		ScreenResOffsets[3] = 0.0;
 	}
-	else if (aspect_ratio == ASPECT_4_3) {
+	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_4_3) {
 		ScreenResOffsets[0] = 0.0;
 		ScreenResOffsets[1] = 0.0;
 		ScreenResOffsets[2] = 80.0;
 		ScreenResOffsets[3] = 120.0;
 	}
-	else if (aspect_ratio == ASPECT_16_9) {
+	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_16_9) {
 		ScreenResOffsets[0] = 108.0;
 		ScreenResOffsets[1] = 110.0;
 		ScreenResOffsets[2] = 0.0;
@@ -1247,7 +1582,7 @@ script "DnD Aspect Ratio Check RESPAWN" RESPAWN CLIENTSIDE {
 		ScreenResOffsets[2] = 30.0;
 		ScreenResOffsets[3] = 45.0;
 	}
-	delay(const:70);
+	delay(const:105);
 	restart;
 }
 
@@ -1259,7 +1594,7 @@ Script 917 (int ammo_category, int weptype) {
 		if(ammo_category == AMMO_TYPE_SHELL || ammo_category == AMMO_TYPE_HEAVYSHELLS)
 			SetInventory(Weapons[GetCurrentWeaponID()][WEAPON_AMMO2], 0);
 		ActivatorSound("AmmoType/Switch", 127);
-		Delay(4);
+		Delay(const:4);
 	}
 	else
 		GiveInventory("NoAmmoMessage", 1);
@@ -1512,10 +1847,11 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		MonsterProperties[m_id].basehp = maxhp;
 		MonsterProperties[m_id].maxhp = maxhp;
 		MonsterProperties[m_id].level = 1;
-	}		
+	}
 	MonsterProperties[m_id].id = monsterid;
 
-	if(GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+	// phantasm should never be elite
+	if(m_id != MONSTER_PHANTASM && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 		MonsterProperties[m_id].isElite = true;
 		
 		//printbold(s:"(Before Elite bonuses) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
@@ -1540,6 +1876,15 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		}
 	}
 	
+	// sync the decided traits
+	ACS_NamedExecuteWithResult(
+		"DnD Sync Monster Trait CS", 
+		this, 
+		GetMonsterTraits(m_id, 0),
+		GetMonsterTraits(m_id, 1),
+		GetMonsterTraits(m_id, 2)
+	);
+	
 	//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
 	int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 	SetActorProperty(0, APROP_HEALTH, maxhp);
@@ -1556,7 +1901,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		GiveInventory("Doomguy_Perk25_Weakness", 1);
 	
 	// handle all innate resists, weaknesses etc.
-	HandleMonsterClassInnates(monsterid);
+	HandleMonsterClassInnates(m_id, monsterid);
 	
 	GiveInventory("DnD_MonsterSetupDone", 1);
 	
@@ -1587,7 +1932,6 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 	}
 
 	MonsterProperties[m_id].id = DND_CUSTOMMONSTER_ID;
-	MonsterProperties[m_id].properties = properties;
 
 	if(GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 		MonsterProperties[m_id].isElite = true;
@@ -1782,7 +2126,7 @@ Script 973 (int mode) { // Avatar tid / targeter
 			SetActorAngle(AVATAR_SOUL_TID, VectorAngle(dx, dy));
 			Thing_ChangeTID(AVATAR_SOUL_TID, 0);
 			SetActivator(owner);
-			Delay(12);
+			Delay(const:12);
 		}
 	}
 	else {
@@ -1825,7 +2169,7 @@ Script 975 (int tid, int pang, int radius) {
 	str tocheck = "VortexTimer";
 	if(CheckInventory("Ability_Arcanery"))
 		tocheck = "VortexTimer2";
-	while(1) {
+	while(true) {
 		if(!CheckActorInventory(tid, tocheck) || GetActorProperty(tid, APROP_HEALTH) <= 0) {
 			for(int m = 0; m < 16; ++m)
 				Thing_Remove(bladetid + m);
@@ -1865,10 +2209,49 @@ Script "DnD Monster Trait Take" (int flag1, int flag2, int flag3, int flag4) {
 		MonsterProperties[m_tid].trait_list[flag3] = false;
 	if(flag4 != -1)
 		MonsterProperties[m_tid].trait_list[flag4] = false;
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take CS", flag1, flag2, flag3, flag4);
+	SetResultValue(0);
+}
+
+Script "DnD Monster Trait Take Single" (int tid, int flag) {
+	int m_tid = tid - DND_MONSTERTID_BEGIN;
+	MonsterProperties[m_tid].trait_list[flag] = false;
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take Single CS", tid, flag);
+	SetResultValue(0);
+}
+
+Script "DnD Monster Trait Take Single CS" (int tid, int flag) CLIENTSIDE {
+	int m_tid = tid - DND_MONSTERTID_BEGIN;
+	MonsterProperties[m_tid].trait_list[flag] = false;
+	SetResultValue(0);
+}
+
+Script "DnD Monster Trait Take CS" (int flag1, int flag2, int flag3, int flag4) CLIENTSIDE {
+	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	MonsterProperties[m_tid].trait_list[flag1] = false;
+	if(flag2 != -1)
+		MonsterProperties[m_tid].trait_list[flag2] = false;
+	if(flag3 != -1)
+		MonsterProperties[m_tid].trait_list[flag3] = false;
+	if(flag4 != -1)
+		MonsterProperties[m_tid].trait_list[flag4] = false;
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
+	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	MonsterProperties[m_tid].trait_list[flag1] = true;
+	if(flag2 != -1)
+		MonsterProperties[m_tid].trait_list[flag2] = true;
+	if(flag3 != -1)
+		MonsterProperties[m_tid].trait_list[flag3] = true;
+	if(flag4 != -1)
+		MonsterProperties[m_tid].trait_list[flag4] = true;
+	ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", flag1, flag2, flag3, flag4);
+	SetResultValue(0);
+}
+
+Script "DnD Monster Trait Give CS" (int flag1, int flag2, int flag3, int flag4) CLIENTSIDE {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	MonsterProperties[m_tid].trait_list[flag1] = true;
 	if(flag2 != -1)
@@ -1882,8 +2265,9 @@ Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
 
 // Checks Ankh
 Script "DnD Ankh Checker" (void) {
-	while(1) {
-		if(PlayerInGame(PlayerNumber()) && !CheckInventory("ParsingData")) {
+	int pnum = PlayerNumber();
+	while(PlayerInGame(pnum)) {
+		if(!CheckInventory("ParsingData")) {
 			// ankh check
 			if(!CheckInventory("P_Invulnerable") && GetActorProperty(0, APROP_HEALTH) == 1 && !CheckInventory("Intervened") && IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH) && CheckInventory("CanIntervene")) {
 				GiveInventory("Intervention", 1);
@@ -1924,13 +2308,12 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 }
 
 // Checking for Bonuses
-Script "DnD Bonus Detect" (void) {
+Script "DnD Bonus Detect" OPEN {
 	int KillBonus, ItemBonus, SecretBonus, BonusBonus;
 	int curkills, curitems, cursecrets, bonusval;
-	SetActivator(-1);
 	Delay(const:35);
 
-	while(1) {
+	while(true) {
 		if(!GetCVar("dnd_disablelevelbonus")) {
 			curkills = GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
 			curitems = GetLevelInfo(LEVELINFO_FOUND_ITEMS);
@@ -1991,90 +2374,202 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 
 Script "DnD Monster Scanner Picker" ENTER {
 	int this = ActivatorTID();
-	int monhp, monlvl, monsterid, mmaxhp, healthbarcolor, nameskip, monprop;
-	bool monelite = false;
-	int tic = 0;
 	while(isActorAlive(this)) {
 		SetActivatorToTarget(this);
+		
 		int montid = ActivatorTID();
-		// clean-up later
-		if(!CheckInventory("EnemyInDisguise") && (CheckActorProperty(0, APROP_Friendly, 0) || CheckInventory("FriendlyInDisguise")))
-			healthbarcolor = 1;
-		else if(CheckActorProperty(0, APROP_Friendly, 1) || CheckInventory("EnemyInDisguise"))
-			healthbarcolor = 0;
-		if(ActivatorTID() == this || CheckInventory("EnemyInDisguise")) {
+		int m_id = 0;
+		int healthbarcolor = 0;
+		
+		if(montid == this || CheckInventory("EnemyInDisguise")) {
 			// player has no targets
 			SetActivator(this);
 			SetInventory("TargetMaximumHealth", 0);
 			SetInventory("TargetCurrentHealth", 0);
+			SetInventory("TargetHealthBarColor", 0);
 			SetInventory("TargetLevel", 0);
 			SetInventory("TargetIsWhat", 0);
 			SetInventory("TargetIsElite", 0);
-			SetInventory("TargetProperties", 0);
+			SetInventory("TargetFortify", 0);
 		}
 		else {
-			// this is known to us anyway
-			monhp = GetActorProperty (0, APROP_Health);
+			if(!CheckInventory("EnemyInDisguise") && (CheckActorProperty(0, APROP_Friendly, 0) || CheckInventory("FriendlyInDisguise")))
+				healthbarcolor = 1;
+			else if(CheckActorProperty(0, APROP_Friendly, 1) || CheckInventory("EnemyInDisguise"))
+				healthbarcolor = 0;
+			
+			// manipulate player stuff now
+			SetActivator(this);
+			
 			// this part retrieves data from server
 			// if not a pet
-			bool pet_state = false;
-			if(!IsPet(montid)) {
-				mmaxhp = MonsterProperties[montid - DND_MONSTERTID_BEGIN].maxhp;
-				monlvl = MonsterProperties[montid - DND_MONSTERTID_BEGIN].level;
-				monsterid = MonsterProperties[montid - DND_MONSTERTID_BEGIN].id;
-				nameskip = MonsterProperties[montid - DND_MONSTERTID_BEGIN].nameskip;
-				monelite = MonsterProperties[montid - DND_MONSTERTID_BEGIN].isElite;
-				monprop = MonsterProperties[montid - DND_MONSTERTID_BEGIN].properties;
+			bool pet_state = IsPet(montid);
+			if(!pet_state) {
+				// this part uses the inventory method to avoid having to constantly sync variables between clients
+				m_id = montid - DND_MONSTERTID_BEGIN;
+				SetInventory("TargetMaximumHealth", MonsterProperties[m_id].maxhp);
+				SetInventory("TargetLevel", MonsterProperties[m_id].level);
+				SetInventory("TargetIsWhat", MonsterProperties[m_id].id);
+				SetInventory("TargetIsElite", MonsterProperties[m_id].isElite);
+				SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
 			}
 			else {
-				mmaxhp = PetMonsterProperties[montid - DND_PETTID_BEGIN].maxhp;
-				monlvl = PetMonsterProperties[montid - DND_PETTID_BEGIN].level;
-				monsterid = PetMonsterProperties[montid - DND_PETTID_BEGIN].id;
-				nameskip = PetMonsterProperties[montid - DND_PETTID_BEGIN].nameskip;
-				monelite = PetMonsterProperties[montid - DND_PETTID_BEGIN].isElite;
-				monprop = PetMonsterProperties[montid - DND_PETTID_BEGIN].properties;
-				pet_state = true;
+				// this part uses the inventory method to avoid having to constantly sync variables between clients
+				m_id = montid - DND_PETTID_BEGIN;
+				SetInventory("TargetMaximumHealth", PetMonsterProperties[m_id].maxhp);
+				SetInventory("TargetLevel", PetMonsterProperties[m_id].level);
+				SetInventory("TargetIsWhat", PetMonsterProperties[m_id].id);
+				SetInventory("TargetIsElite", PetMonsterProperties[m_id].isElite);
+				SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
 			}
-			SetActivator(this);
-			// this part uses the inventory method to avoid having to constantly sync variables between clients
-			SetInventory("TargetMaximumHealth", mmaxhp);
-			SetInventory("TargetCurrentHealth", monhp);
+			SetInventory("TargetMonId", m_id);
 			SetInventory("TargetHealthBarColor", healthbarcolor);
-			SetInventory("TargetLevel", monlvl);
-			SetInventory("TargetIsWhat", monsterid);
-			SetInventory("TargetIsElite", monelite);
-			SetInventory("TargetProperties", monprop);
-			if(!(tic % 2)) {
-				// retrieve entire flaglist and sync it
-				// segment #2 is not needed right now, MAX_MONSTER_TRAITS is 60
-				if(!pet_state) {
-					ACS_NamedExecuteWithResult(
-						"DnD Sync Monster Trait CS", 
-						montid, 
-						GetMonsterTraits(montid - DND_MONSTERTID_BEGIN, 0),
-						GetMonsterTraits(montid - DND_MONSTERTID_BEGIN, 1),
-						0//GetMonsterTraits(montid - DND_MONSTERTID_BEGIN, 2)
-					);
-				}
-				else {
-					ACS_NamedExecuteWithResult(
-						"DnD Sync Monster Trait CS", 
-						montid, 
-						GetPetMonsterTraits(montid - DND_PETTID_BEGIN, 0),
-						GetPetMonsterTraits(montid - DND_PETTID_BEGIN, 1),
-						0//GetPetMonsterTraits(montid - DND_PETTID_BEGIN, 2)
-					);
-				}
-			}
+			SetInventory("TargetCurrentHealth", GetActorProperty (montid, APROP_Health));
+			
 			SetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber()), GetActorProperty(montid, APROP_NAMETAG));
-			tic = (tic + 1) % 2;
+			
+			// fixes initialization bug
+			SetActivator(this);
 		}
-		// fixes initialization bug
-		SetActivator(this);
-		Delay(const:1);
+		Delay(const:2);
 	}
 }
 
+// takes flag segments
+Script "DnD Sync Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
+	int m_id = id - DND_MONSTERTID_BEGIN;
+	
+	// get all of the flagsets now
+	int i;
+	if(v1) {
+		for(i = 0; i < 32; ++i)
+			MonsterProperties[m_id].trait_list[i] = IsSet(v1, i);
+		MonsterProperties[m_id].hasTrait = true;
+	}
+	
+	if(v2) {
+		for(i = 32; i < 64; ++i)
+			MonsterProperties[m_id].trait_list[i] = IsSet(v2, i - 32);
+		MonsterProperties[m_id].hasTrait = true;
+	}
+
+	if(v3) {
+		for(i = 64; i < MAX_MONSTER_TRAITS; ++i)
+			MonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
+		MonsterProperties[m_id].hasTrait = true;
+	}
+	
+	SetResultValue(0);
+}
+
+Script "DnD Monster Scanner" ENTER CLIENTSIDE {
+	int mmaxhp, monhp, monlevel, monid, m_id;
+	int hdisp, fortify_amt;
+	int hdisp_prev = -1, fortify_amt_prev = -1;	
+	str barGraphic = "";
+	str fortGraphic = "";
+	
+	while(isAlive()) {
+		// if we have any shared items in our player queue to turn, do turn them
+		mmaxhp = CheckInventory("TargetMaximumHealth");
+		if(mmaxhp && GetCVar("dnd_monsterbars")) {
+			monhp = CheckInventory("TargetCurrentHealth");
+			monlevel = CheckInventory("TargetLevel");
+			monid = CheckInventory("TargetIsWhat");
+			m_id = CheckInventory("TargetMonId");
+			hdisp = (monhp * 100 / mmaxhp);
+			fortify_amt = (CheckInventory("TargetFortify") * 100 / mmaxhp);
+			int i, j;
+			
+			SetHudSize(800, 600, 0);
+			if(!client_trait_list.list[DND_PET])
+				SetFont(MonsterTypeInfo[GetMonsterType(monid)][MONSTER_TYPE_INFO_ICON]);
+			else
+				SetFont(MonsterTypeInfo[GetPetMonsterType(monid)][MONSTER_TYPE_INFO_ICON]);
+				
+			HudMessage(s:"a"; 1, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, 1);
+			HudMessage(s:"a"; 1, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, 1);
+			// inner text
+			SetFont ("MONFONT");
+			HudMessage(s:"Lvl: ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; 1, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, 1);
+			str prefix = "";
+			if(CheckInventory("TargetIsElite"))
+				prefix = "\cfElite ";
+			if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
+				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_RED, 404.4, 10.0, 1);
+			else if(IsMonsterIdBoss(monid))
+				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, 1);
+			else
+				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, 1);
+			
+			// made this way to reduce variable dependancy and if statement use
+			if(CheckInventory("TargetHealthBarColor")) {
+				SetFont("MNRHPBAR");
+				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
+				
+				if(monhp) {
+					if(fortify_amt) {
+						if(fortify_amt_prev != fortify_amt)
+							fortGraphic = StrParam(s:"FFR_", d:fortify_amt);
+					
+						SetFont(fortGraphic);
+						HudMessage(s:"a"; 1, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, 1);
+						
+						if(hdisp_prev != hdisp)
+							barGraphic = StrParam(s:"FBR_", d:hdisp);
+						
+						SetFont(barGraphic);
+						HudMessage(s:"a"; 1, MONSTER_BARFILLID + 1, CR_GREEN, 305.1, 27.0, 1);
+					}
+					else {
+						if(hdisp_prev != hdisp)
+							barGraphic = StrParam(s:"FBR_", d:hdisp);
+
+						SetFont(barGraphic);
+						HudMessage(s:"a"; 1, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, 1);
+					}
+				}
+			}
+			else {
+				SetFont("MNGHPBAR");
+				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
+				
+				if(hdisp_prev != hdisp)
+					barGraphic = StrParam(s:"FGR_", d:hdisp);
+				
+				SetFont(barGraphic);
+				HudMessage(s:"a"; 1, MONSTER_BARFILLID + i, CR_GREEN, 305.1, 27.0, 1);
+			}
+
+			i = j = 0;
+			// show monster traits
+			// legendary monsters show no traits at all
+			if(MonsterProperties[m_id].trait_list[DND_LEGENDARY]) {
+				SetFont ("MONFONT");
+				HudMessage(s:"\c[D1]Legendary Monster"; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+			}
+			else if(MonsterProperties[m_id].hasTrait) {
+				SetFont ("MONFONT");
+				for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
+					if(MonsterProperties[m_id].trait_list[i]) {
+						HudMessage(s:GetTraitColorCode(i), s:MonsterTraits[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+						++j;
+					}
+				}
+			}
+		}
+		else {
+			hdisp = - 1;
+			fortify_amt = -1;
+		}
+		Delay(const:2);
+		
+		fortify_amt_prev = fortify_amt;
+		hdisp_prev = hdisp;
+	}
+}
+
+// This is mostly similar to zdoom source with some changes (I believe)
 Script "DnD Monster Kill Ice Chunks" (int r, int h) CLIENTSIDE {
 	int numChunks = Max(5, (r * h) / 32);
 	for(int i = Max(24, numChunks + Random(0, numChunks / 4 - 1)); i >= 0; --i) {
@@ -2088,117 +2583,6 @@ Script "DnD Monster Kill Ice Chunks" (int r, int h) CLIENTSIDE {
 	}
 
 	SetResultValue(0);
-}
-
-// takes flag segments
-Script "DnD Sync Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-	
-	// reset if this is not the same
-	client_trait_list.count = 0;
-	if(client_trait_list.tid != id)
-		client_trait_list.tid = id;
-
-	// set all of the flagsets now -- if non-zero
-	int i;
-	if(v1) {
-		for(i = 0; i < 32; ++i) {
-			client_trait_list.list[i] = IsSet(v1, i);
-			client_trait_list.count += client_trait_list.list[i];
-		}
-	}
-	
-	if(v2) {
-		for(i = 32; i < 63; ++i) {
-			client_trait_list.list[i] = IsSet(v2, i - 32);
-			client_trait_list.count += client_trait_list.list[i];
-		}
-	}
-	
-	if(v3) {
-		for(i = 64; i < 96; ++i) {
-			client_trait_list.list[i] = IsSet(v3, i - 64);
-			client_trait_list.count += client_trait_list.list[i];
-		}
-	}
-	
-	SetResultValue(0);
-}
-
-Script "DnD Monster Scanner" ENTER CLIENTSIDE {
-	int mmaxhp, hdisp, monhp, monlevel, monid;
-	bool isPet = false;
-	while(isAlive()) {
-		// if we have any shared items in our player queue to turn, do turn them
-		mmaxhp = CheckInventory("TargetMaximumHealth");
-		if(mmaxhp && GetCVar("dnd_monsterbars")) {
-			monhp = CheckInventory("TargetCurrentHealth");
-			monlevel = CheckInventory("TargetLevel");
-			monid = CheckInventory("TargetIsWhat");
-			isPet = client_trait_list.list[DND_PET];
-			hdisp = (monhp * 100 / mmaxhp);
-			int i, j = 0.0;
-			if(CheckInventory("TargetHealthBarColor"))
-				SetFont("MNRHPBAR");
-			else
-				SetFont("MNGHPBAR");
-			
-			SetHudSize(800, 600, 0);
-			HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
-			if(!isPet) {
-				if(!CheckInventory("TargetProperties"))
-					SetFont(MonsterTypeInfo[GetMonsterType(monid)][MOSNTER_TYPE_INFO_ICON]);
-				else
-					SetFont(MonsterTypeInfo[InferMonsterPower(CheckInventory("TargetProperties"))][MOSNTER_TYPE_INFO_ICON]);
-			}
-			else
-				SetFont(MonsterTypeInfo[GetPetMonsterType(monid)][MOSNTER_TYPE_INFO_ICON]);
-			HudMessage(s:"a"; 1, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, 1);
-			HudMessage(s:"a"; 1, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, 1);
-			// inner text
-			SetFont ("MONFONT");
-			HudMessage(s:"Lvl: ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; 1, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, 1);
-			str prefix = "";
-			if(CheckInventory("TargetIsElite"))
-				prefix = "\cfElite ";
-			if(client_trait_list.list[DND_LEGENDARY])
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_RED, 404.4, 10.0, 1);
-			else if(IsMonsterIdBoss(monid))
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, 1);
-			else
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, 1);
-				
-			for (i = 0; i <= hdisp && i <= 100; ++i) {
-				j = j + 2.0;
-				if(CheckInventory("TargetHealthBarColor"))
-					SetFont("FILLCRIT");
-				else
-					SetFont("FILLNORM");
-				if(monhp)
-					HudMessage(s:"a"; 1, MONSTER_BARFILLID + i, CR_GREEN, 303.0 + j, 27.0, 1);
-			}
-			i = j = 0;
-			// show monster traits
-			// legendary monsters show no traits at all
-			if(client_trait_list.list[DND_LEGENDARY]) {
-				SetFont ("MONFONT");
-				HudMessage(s:"\c[D1]Legendary Monster"; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
-			}
-			else {
-				if(client_trait_list.count) {
-					SetFont ("MONFONT");
-					for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
-						if(client_trait_list.list[i]) {
-							HudMessage(s:GetTraitColorCode(i), s:MonsterTraits[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
-							++j;
-						}
-					}
-				}
-			}
-		}
-		Delay(const:1);
-	}
 }
 
 // Calculate chance of item drop, drop if needed (out of 100)
@@ -2364,6 +2748,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("Berserker_DamageTimer", 0);
 	SetInventory("Berserker_HitTracker", 0);
 	SetInventory("Berserker_HitTimer", 0);
+	SetInventory("ReceivedDialogID", 0);
 	
 	// now everyone has this, no need to buy
 	GiveInventory("Ability_MonsterInfo", 1);
@@ -2466,6 +2851,7 @@ Script "DnD Player Setup" ENTER {
 		SetInventory("CanIntervene", 1);
 		TakeInventory("SetMyLives", 1);
 		SetInventory("ShowingMenu", 0);
+		SetInventory("ShowingPrompt", 0);
 		Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
 		StatListOpened[pnum] = 0;
 		GiveInventory(" Fists ", 1);
@@ -2494,7 +2880,6 @@ Script "DnD Player Setup" ENTER {
 	}
 	
 	// Load period is finished, now check for level stats
-	ACS_NamedExecute("DnD Bonus Detect", 0);
 	PlayerDied[pnum] = 0;
 	PlayerTransferred[pnum] = false;
 	TakeInventory("DnD_PDead", 1);
@@ -2589,6 +2974,8 @@ Script 992 (int t, int simple) {
 }
 
 Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
+	NamedRequestScriptPuke("DnD User Dash Status Receive", GetCVar("dnd_dashstatus"));
+
 	ResetPlayerScriptChecks();
 	if(ConsolePlayerNumber() != PlayerNumber()) 
 		Terminate;
@@ -2755,13 +3142,14 @@ Script "DnD Blood Rune" (void) {
 
 // Custom Powerup script
 Script "DnD Player On Hit" (int power) {
-	int this, temp;
+	int this, temp, target, hp;
 	
 	if(!CheckInventory("Armor"))
 		SetInventory("DnD_ArmorType", 0);
-		
+	
+	this = ActivatorTID();
+	
 	if(CheckInventory("HateCheck")) {
-		this = ActivatorTID();
 		// restore activator
 		SetActivator(0, AAPTR_TARGET);
 		if(ActivatorTID() != this)
@@ -2786,8 +3174,9 @@ Script "DnD Player On Hit" (int power) {
 	}
 	
 	// monster might be thief, check it
-	temp = GetActorProperty(0, APROP_TARGETTID);
-	if(MonsterProperties[temp - DND_MONSTERTID_BEGIN].trait_list[DND_THIEF]) {
+	target = GetActorProperty(0, APROP_TARGETTID);
+	temp = target - DND_MONSTERTID_BEGIN;
+	if(MonsterProperties[temp].trait_list[DND_THIEF]) {
 		// get current weapon's ammo and steal it
 		str cur_ammo = "";
 		do {
@@ -2795,9 +3184,40 @@ Script "DnD Player On Hit" (int power) {
 		} while(cur_ammo == " ");
 		TakeInventory(cur_ammo, CheckInventory(cur_ammo) * DND_ELITE_THIEFRATE / 100);
 	}
+	
+	// shocker check
+	if(MonsterProperties[temp].trait_list[DND_SHOCKER])
+		GiveInventory("PlayerStopper", 1);
+		
+	// vampirism check
+	if(MonsterProperties[temp].trait_list[DND_VAMPIRISM] && isActorAlive(target)) {
+		// 10%
+		hp = MonsterProperties[temp].maxhp / 10;
+		if(!hp)
+			hp = 1;
+		
+		// ignite effects prevent vampirism healing
+		if(!CheckActorInventory(target, "DnD_IgniteTimer")) {
+			if(GetActorProperty(target, APROP_HEALTH) < MonsterProperties[temp].maxhp - hp)
+				SetActorProperty(target, APROP_HEALTH, GetActorProperty(target, APROP_HEALTH) + hp);
+			else
+				SetActorProperty(target, APROP_HEALTH, MonsterProperties[temp].maxhp);
+			ACS_NamedExecuteAlways("DnD Vampirism FX CS", 0, target);
+		}
+	}
+	
+	// ruination check
+	if(MonsterProperties[temp].trait_list[DND_RUINATION]) {
+		if(!CheckInventory("RuinationStacks"))
+			ACS_NamedExecuteAlways("DnD Ruination Ticker", 0);
+		GiveInventory("RuinationStacks", 1);
+
+		if(CheckInventory("RuinationStacks") == RUINATION_MAX_STACKS)
+			HandleRuination(this, target);
+	}
 
 	// marine is unaffected by curses at lvl 50
-	if(MonsterProperties[temp - DND_MONSTERTID_BEGIN].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE && !CheckInventory("Marine_Perk50"))
+	if(MonsterProperties[temp].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE && !CheckInventory("Marine_Perk50"))
 		ApplyRandomCurse();
 		
 	// check perk25 for berserker with cooldown
@@ -2810,6 +3230,24 @@ Script "DnD Player On Hit" (int power) {
 		GiveInventory("Berserker_Perk25_CD", 1);
 		if(CheckInventory("Berserker_DamageTracker") < DND_BERSERKER_PERK25_MAXSTACKS)
 			GiveInventory("Berserker_DamageTracker", 1);
+	}
+}
+
+Script "DnD Vampirism FX CS" (int target) CLIENTSIDE {
+	GiveActorInventory(target, "DarkHealFX_Spawner", 1);
+}
+
+Script "DnD Ruination Ticker" (void) {
+	int count = 0;
+	while(isAlive() && CheckInventory("RuinationStacks")) {
+		Delay(const:RUINATION_TIC);
+		++count;
+		if(!(count % TICRATE) && CheckInventory("RuinationStacks") == RUINATION_MAX_STACKS)
+			break;
+		if(count == RUINATION_MAX_TICS) {
+			TakeInventory("RuinationStacks", 1);
+			count = 0;
+		}
 	}
 }
 
@@ -2859,7 +3297,7 @@ Script "DnD Berserker Roar" (int this) CLIENTSIDE {
 	PlaySound(0, "Berserker/GoMad", CHAN_7, 1.0);
 	GiveInventory("Berserker_ThunderFX_Spawner", 1);
 	
-	if(aspect_ratio == ASPECT_16_9 || aspect_ratio == ASPECT_16_10) {
+	if(ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_16_9 || ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_16_10) {
 		SetFont("BERSERKW");
 		SetHudSize(1024, 768, 0);
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, 90, -1, 512.0, 384.0, 0.25, 0.3, 0.3, 0.8);
@@ -3062,7 +3500,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					CompleteQuest(this, QUEST_10SPREES);
 			}
 		}
-		Delay(const:35);
+		Delay(const:TICRATE);
 	}
 }
 
@@ -3088,19 +3526,11 @@ Script "DND Riotgun Decide" (void) {
 }
 
 Script "DND Elite Special FX" (void) CLIENTSIDE {
-	int i, waitcounter = 0;
-	// to ensure things are synced properly between clients
-	while(IsAlive()) {
-		for(i = 0; i < DND_ELITE_FX_DENSITY; ++i) {
-			//printbold(s:"DND Elite Special FX - Density Effect: TID: ", d:ActivatorTID(), s:", i: ", d: i);
-			if (!IsAlive()) //Mob might actually die while this is running.
-				Terminate; //Could have used break but it's faster to just Terminate.
-			GiveInventory("EliteFXSpawner", 1);
-			Delay(1);
-		}
-		Delay(8);
-	}
-	Terminate;
+	GiveInventory("EliteFXRunner", 1);
+}
+
+Script "DnD Align Elite FX" (void) CLIENTSIDE {
+	SetActorProperty(0, APROP_MASS, GetActorProperty(GetActorProperty(0, APROP_TARGETTID), APROP_HEIGHT) >> 17);
 }
 
 Script 1000 (int isSoftcore) {
@@ -3135,6 +3565,13 @@ Script 1000 (int isSoftcore) {
 		}
 	}
 	ConsoleCommand("map map01");
+}
+
+Script "DnD Levelup Log" (int has_perk) CLIENTSIDE {
+	if(has_perk)
+		Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has gained a\c- \cjperk point\c-!");
+	else
+		Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has leveled up to\c- \cv", d:CheckInventory("Level"), s:"\c-\c[Y5]!");
 }
 
 Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
@@ -3451,6 +3888,7 @@ Script "DND Desolator Debuff FX" (int tracer) {
 
 Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
 	int ptid = !target ? GetActorProperty(0, APROP_TARGETTID) : target;
+	//printbold(s:GetActorClass(ptid), s: " ", s:GetActorClass(0));
 	if(DnD_TrailDef[actortype].waittime)
 		Delay(DnD_TrailDef[actortype].waittime);
 	
@@ -3492,9 +3930,60 @@ Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
 			bZ = (nZ * j) + plZ;
 			
 			if(maxdiff) {
-				bX += (random(0, 1) ? (random(-maxdiff, maxdiff) << 16) : 0);
-				bY += (random(0, 1) ? (random(-maxdiff, maxdiff) << 16) : 0);
-				bZ += (random(0, 1) ? (random(-maxdiff, maxdiff) << 16) : 0);
+				bX += (random(0, 1) ? random(-maxdiff, maxdiff) : 0);
+				bY += (random(0, 1) ? random(-maxdiff, maxdiff) : 0);
+				bZ += (random(0, 1) ? random(-maxdiff, maxdiff) : 0);
+			}
+
+			Spawn(DnD_TrailDef[actortype].actor, bX, bY, bZ, 0, VectorAngle(-vX, -vY) >> 8);
+        }
+    }
+}
+
+Script "DND Charon Trail Spawner" (int plX, int plY, int plZ, int target) CLIENTSIDE {
+	int actortype = target >> 16;
+	target &= 0xFFFF;
+	int ptid = !target ? GetActorProperty(0, APROP_TARGETTID) : target;
+	
+    int grX; int grY;  int grZ;
+    int vX;  int vY;   int vZ;
+    int nX;  int nY;   int nZ;
+    int bX;  int bY;   int bZ;
+    int magnitude;
+    int pointCount;
+    int pointOffset;
+ 
+	grX = GetActorX(ptid);
+	grY = GetActorY(ptid);
+	grZ = GetActorZ(ptid) + (GetActorProperty(ptid, APROP_HEIGHT) >> 1) + DnD_TrailDef[actortype].offset_z;
+	
+	plX <<= 16;
+	plY <<= 16;
+	plZ <<= 16;
+	
+    vX   = grX - plX;       vY   = grY - plY;       vZ   = grZ - plZ;
+
+    magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
+
+    pointCount  = magnitude / CHARON_PARTICLE_DENSITY;
+    pointOffset = magnitude - (pointCount * CHARON_PARTICLE_DENSITY);
+
+	int maxdiff = DnD_TrailDef[actortype].maxdiff;
+    if (magnitude != 0) {
+        nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
+
+        int i; int j;
+        for (i = 1; i < pointCount - 3; i++) {
+            j = (i * CHARON_PARTICLE_DENSITY) + pointOffset;
+
+			bX = (nX * j) + plX;
+			bY = (nY * j) + plY;
+			bZ = (nZ * j) + plZ;
+			
+			if(maxdiff) {
+				bX += (random(0, 1) ? random(-maxdiff, maxdiff) : 0);
+				bY += (random(0, 1) ? random(-maxdiff, maxdiff) : 0);
+				bZ += (random(0, 1) ? random(-maxdiff, maxdiff) : 0);
 			}
 
 			Spawn(DnD_TrailDef[actortype].actor, bX, bY, bZ, 0, VectorAngle(-vX, -vY) >> 8);
@@ -3566,7 +4055,92 @@ Script "DnD Lance Stack Buffer" (void) {
 	SetResultValue(0);
 }
 
-Script "DnD Dark Lance Shred" (int dmg) {
+Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
+	// first time engage
+	if(!victim)
+		victim = GetActorProperty(0, APROP_TRACERTID);
+	
+	if(isEnemyTID(victim)) {
+		// start procedure --- if owner is left blank that means this is initiated the first time from us
+		if(!owner)
+			owner = GetActorProperty(0, APROP_TARGETTID);
+			
+		SetActivator(owner);
+			
+		// special fx script
+		ACS_NamedExecuteWithResult("DnD Dark Lance Shred FX", victim, owner - P_TIDSTART);
+		
+		if(!stacks)
+			stacks = CheckInventory("LanceBuffer");
+			
+		PlaySound(victim, "Darklance/Affliction", CHAN_ITEM, 1.0);
+		
+		bool terminated = false;
+		int i;
+		for(i = 0; !terminated && i < DARKLANCE_ALT_DURATION; ++i) {
+			if(isActorAlive(victim))
+				HandleDamageDeal(owner, victim, dmg * stacks, DND_DAMAGETYPE_OCCULT, 0, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+			else
+				terminated = true;
+			
+			Delay(const:DARKLANCE_TICKS);
+		}
+		
+		// find nearest monster to bounce to
+		if(terminated) {
+			// phase out the previous victim
+			ACS_NamedExecuteAlways("DnD Monster RIP", 0, victim);
+			
+			GiveActorInventory(owner, "DemonBlood", 1);
+		
+			// find new victim
+			int dist = 0;
+			int prev_victim = victim;
+			int curr_dist = INT_MAX;
+			victim = -1;
+			
+			for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+				if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
+					dist = fdistance(prev_victim, i);
+					if(dist < DARKLANCE_BOUNCE_DIST && dist < curr_dist && CheckSight(prev_victim, i, CSF_NOBLOCKALL)) {
+						victim = i;
+						curr_dist = dist;
+					}
+				}
+			}
+			
+			// found a monster suitable for jump, so go to this one now
+			if(victim != -1)
+				ACS_NamedExecuteWithResult("DnD Dark Lance Shred", dmg, owner, stacks, victim);
+		}
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Dark Lance Shred FX" (int tid, int pnum) CLIENTSIDE {
+	SpawnForced("DarkLanceShredder_FX", GetActorX(tid), GetActorY(tid), GetActorZ(tid), DARKLANCE_SHREDDER + pnum);
+	SetActivator(DARKLANCE_SHREDDER + pnum);
+	Thing_ChangeTID(0, 0);
+	
+	SetActorProperty(0, APROP_SCALEX, (GetActorProperty(tid, APROP_RADIUS) + 32.0) / 128);
+	SetActorProperty(0, APROP_SCALEY, (GetActorProperty(tid, APROP_HEIGHT) + 32.0) / 128);
+	
+	int h = GetActorProperty(tid, APROP_HEIGHT);
+	
+	for(int i = 0; isActorAlive(tid) && i < DARKLANCE_ALT_DURATION_TICS; ++i) {
+		SetActorPosition(0, GetActorX(tid), GetActorY(tid), GetActorZ(tid) + h / 2, 0);
+		Delay(const:1);
+	}
+	
+	// if dead, vanish with special fx otherwise just remove
+	if(!isActorAlive(tid)) {
+		SetActorState(0, "Vanish", 0);
+		SpawnForced("DarkLanceConsumeFX", GetActorX(tid), GetActorY(tid), GetActorZ(tid) + h / 2, 0);
+	}
+	else
+		Thing_Remove(0);
+	
 	SetResultValue(0);
 }
 
@@ -4046,7 +4620,7 @@ Script "DnD Timed Monster" (int time, int isPet) {
 	if(!isPet)
 		SetActorState(0, "Remove");
 	else
-		Thing_Damage(0, 0x7FFFFFFF);
+		Thing_Damage(0, GetActorProperty(0, APROP_HEALTH) + 1);
 }
 
 Script "DnD Overheat Reduction" (int index, int rate) {
@@ -4230,24 +4804,14 @@ Script "DnD Drop Research" (void) {
 // From HardDoom v83
 Script "DnD Footstep Sound" ENTER CLIENTSIDE {
 	int DelayTime, StepVolume, x;
-	bool SoundPlayed = 0;
-	while(1) {
+	int pnum = PlayerNumber();
+	while(PlayerInGame(pnum)) {
 		Delay(const:1);
 		x = min(GetPVelocity(), 9);
 		DelayTime = 16 - GetPVelocity() / 2;
 		StepVolume = 7 * x;
-		if(GetActorZ(0) - GetActorFloorZ(0) == 0) {
-			// we don't have floor specific step sounds
-			/*for(i=0; i<MaxStepSounds; i++) {
-					if(CheckActorFloorTexture(0, StepSound[i][0])) {
-						ActivatorSound(StepSound[i][1], StepVolume);
-						SoundPlayed = 1;
-					}
-			}
-			if(SoundPlayed == 0)*/
-				ActivatorSound(DefStepSound, StepVolume);
-		}
-		SoundPlayed = 0;
+		if(GetActorZ(0) - GetActorFloorZ(0) == 0)
+			ActivatorSound(DefStepSound, StepVolume);
 		Delay(DelayTime);
 	}
 }
@@ -4507,7 +5071,7 @@ Script "DnD Warmaster Rage" (void) {
 			GiveInventory("WarmasterRage", 1);
 		else
 			TakeInventory("WarmasterRage", 1);
-		Delay(35);
+		Delay(const:TICRATE);
 	}
 }
 
@@ -4597,6 +5161,7 @@ Script "DnD Pet Monster Scale" (int petid) {
 	GivePetTID();
 	
 	int base, add, level, temp, master = GetActorProperty(0, APROP_MASTERTID), this = ActivatorTID();
+	int m_id = this - DND_PETTID_BEGIN;
 	base = GetActorProperty(0, APROP_HEALTH);
 	
 	add = 0, level = CheckActorInventory(master, "Level");
@@ -4629,10 +5194,18 @@ Script "DnD Pet Monster Scale" (int petid) {
 	}
 	SetActorProperty(0, APROP_HEALTH, base + add);
 	ScaleMonsterMass(level);
-	PetMonsterProperties[this - DND_PETTID_BEGIN].id = petid;
-	PetMonsterProperties[this - DND_PETTID_BEGIN].basehp = base;
-	PetMonsterProperties[this - DND_PETTID_BEGIN].maxhp = base + add;
-	PetMonsterProperties[this - DND_PETTID_BEGIN].level = level;
+	PetMonsterProperties[m_id].id = petid;
+	PetMonsterProperties[m_id].basehp = base;
+	PetMonsterProperties[m_id].maxhp = base + add;
+	PetMonsterProperties[m_id].level = level;
+	
+	ACS_NamedExecuteWithResult(
+		"DnD Sync Monster Trait CS", 
+		this, 
+		GetPetMonsterTraits(m_id, 0),
+		GetPetMonsterTraits(m_id, 1),
+		GetPetMonsterTraits(m_id, 2)
+	);
 }
 
 Script "DnD Master Skill Info" (int skill_id) {
@@ -4730,7 +5303,7 @@ Script "DnD Pet Distance Move" (void) {
 				GiveInventory("PetTargetClear", 1);
 			}
 		}
-		Delay(35);
+		Delay(const:TICRATE);
 	}
 }
 
@@ -4748,7 +5321,11 @@ Script "DnD On Attack" (int isSpecial, int extra) {
 	}
 	
 	// roll a crit for this attack, and every projectile etc. to come out of it will use this pre-calculated crit chance here
-	CheckCritChance(CheckInventory("DnD_WeaponID"), isSpecial, extra);
+	int wepid = CheckInventory("DnD_WeaponID");
+	CheckCritChance(wepid, isSpecial, extra);
+	
+	// do the quest checks for slot guns being used
+	DoSlotWeaponQuestChecks(wepid);
 	
 	SetResultValue(0);
 }
@@ -5171,13 +5748,67 @@ Script "DnD Rejuvenation" (void) {
 		Delay(const:TICRATE);
 		
 		// ignite effects prevent rejuvenation
-		if(!CheckInventory("DnD_IgniteTimer")) {
+		if(!CheckInventory("DnD_IgniteTimer") && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
 			if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[id].maxhp - hp_per)
 				SetActorProperty(0, APROP_HEALTH, GetActorProperty(0, APROP_HEALTH) + hp_per);
 			else
 				SetActorProperty(0, APROP_HEALTH, MonsterProperties[id].maxhp);
+				
+			ACS_NamedExecuteAlways("DnD Rejuvenation FX CS", 0);
 		}
 	}
+}
+
+Script "DnD Repel" (void) {
+	// player R = 16.0
+	int r = GetActorProperty(0, APROP_RADIUS) + 16.0;
+	int p_tid;
+	
+	while(isAlive()) {
+		Delay(const:REPEL_REFRESH_RATE);
+
+		// check all players to see if they are close to us
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			p_tid = i + P_TIDSTART;
+			if(PlayerInGame(i) && isActorAlive(p_tid)) {
+				// 16.0 is player radius
+				if(AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= REPEL_DISTANCE + r && CheckSight(p_tid, 0, CSF_NOBLOCKALL)) {
+					GiveInventory("RepelPulse", 1);
+					ACS_NamedExecuteAlways("DnD Repel FX", 0);
+					// repel will make it wait twice its duration for a total of 6 seconds
+					Delay(const:REPEL_COOLDOWN);
+					break;
+				}
+			}
+		}
+	}
+}
+
+Script "DnD Cripple" (void) {
+	int r = GetActorProperty(0, APROP_RADIUS) + 16.0;
+	int p_tid;
+	
+	while(isAlive()) {
+		Delay(const:CRIPPLE_REFRESH_RATE);
+
+		// check all players to see if they are close to us
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			p_tid = i + P_TIDSTART;
+			if(PlayerInGame(i) && isActorAlive(p_tid)) {
+				// 16.0 is player radius
+				if(AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= CRIPPLE_DISTANCE + r && CheckSight(p_tid, 0, CSF_NOBLOCKALL))
+					GiveActorInventory(p_tid, "CrippleSlower", 1);
+			}
+		}
+	}
+}
+
+Script "DnD Repel FX" (void) CLIENTSIDE {
+	GiveInventory("RepelPulseFXSpawner", 1);
+}
+
+Script "DnD Rejuvenation FX CS" (void) CLIENTSIDE {
+	GiveInventory("RejuvenationFX_Spawner", 1);
 }
 
 Script "DnD Berserker Perk5 Check" (void) {
@@ -5212,6 +5843,11 @@ Script "DnD Berserker Perk5 Check (Melee)" (void) {
 	}
 }
 
+Script "DnD Hurt Actor" (int hurter, int victim, int dmg) {
+	SetActivator(hurter);
+	Thing_Damage2(victim, dmg, "Normal");
+}
+
 Script 69 (void) NET {
 	SetInventory("Level", 98);
 	SetInventory("Exp", GetExpLimit() / 2);
@@ -5236,7 +5872,7 @@ Script 68 (int x) NET {
 	else {
 		int c = CreateItemSpot();
 		int i;
-		i = UITEM_DEATHSPARK;
+		i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
 		ConstructUniqueOnField(c, i, DND_ITEM_CHARM);
 		SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
 	}

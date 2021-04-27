@@ -121,14 +121,16 @@ Actor ShieldPowerupGiver2 : PowerInvulnerable
 	+INVENTORY.ADDITIVETIME
 }
 
-Actor FakeBloodPower : PowerDrain
+Actor FakeBloodPower : PowerProtection
 {
+	damagefactor "normal", 1.0
 	powerup.duration -30
 	Powerup.Color "192 5 5"
 }
 
-Actor FakeBloodPowerBetter : PowerDrain
+Actor FakeBloodPowerBetter : PowerProtection
 {
+	damagefactor "normal", 1.0
 	powerup.duration -45
 	Powerup.Color "192 5 5"
 }

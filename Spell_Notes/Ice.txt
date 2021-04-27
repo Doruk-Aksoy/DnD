@@ -1,0 +1,159 @@
+ICE
+------
+ 
+* Ice Bolt
+ 
+	Send a bolt of ice forward to deal 50 (+5/INT) damage. Slows enemies by 30% on impact.
+	Cost: 5 mana.
+	Cooldown: 3 seconds.
+	Cast Time: 1 second.
+	Per Rank: Damage increases by 15.
+	Rank 5: Slow becomes 75%.
+	Rank 10: Affects 96 unit radius area around impact.
+	Unlocks: Glacial Spike, Chilling Breath.
+	Synergy - Glacial Spike: 2.5% damage per rank of Glacial Spike.
+	Synergy - Frost Shards: 2.5% damage per rank of Frost Shards.
+	Synergy - Orb of Winter: 5% damage per rank of Orb of Winter.
+ 
+* Glacial Spike
+ 
+	Sends forth a sharp spike of ice that rips through enemies, dealing 20 (+2/INT) damage. At impact, shatters to freeze nearby enemies for 1 second.
+	Cost: 12 mana.
+	Cooldown: 5 seconds.
+	Cast Time: 1 second.
+	Per Rank: Damage increases by 5.
+	Rank 5: Freeze duration becomes 2 seconds.
+	Rank 10: Can rip through enemies with "Hardened Skin".
+	Requires: Ice Bolt (Rank 3).
+	Synergy - Ice Bolt: 5% damage per rank of Ice Bolt.
+ 
+ 
+* Chilling Breath
+ 
+	Breathe winds of cold in front of you to deal 30 (+5/INT) damage every 0.5 seconds in a cone in front of you. Channeled.
+	Cost: 4 mana every 0.5 seconds.
+	Cooldown: 2 seconds.
+	Cast Time: NA.
+	Per Rank: Damage increases by 6.
+	Rank 5: Slows enemies by 50%.
+	Rank 10: Cone becomes 30% wider.
+	Requires: Ice Bolt (Rank 5)
+	Synergy: Ice Bolt: 3% damage per rank.
+ 
+* Ice Shield:
+ 
+	Creates 8 ice barriers around you that constantly rotate and block enemy attacks.
+	75 (+5/INT, +10/Level) health per barrier, 5 second duration.
+	Cost: 20 mana.
+	Cooldown: 18 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +25 health, +0.5 sec duration.
+	Rank 5: +2.5 second duration.
+	Rank 10: Blocks ripper type attacks.
+ 
+* Frost Shards
+ 
+	Create 4 (+1/25 INT) frost shards every 0.5 seconds in front of you over 1.5 (+0.5/20 INT) seconds that deal 10 (+5/INT) damage each.
+	Cost: 20 mana.
+	Cooldown: 15 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +5 damage per shard.
+	Rank 5: 2 more shards launched every 0.5 seconds.
+	Rank 10: Shards rip through enemies.
+	Requires: Glacial Spike (Rank 2).
+	Synergy - Glacial Spike: 2.5% more damage per shard per rank of Glacial Spike.
+	Synergy - Ice Bolt: 2.5% more damage per shard per rank of Ice Bolt.
+ 
+* Gust of Frost
+ 
+	Unleash a chilling wind that pushes enemies away and slows them by 30%.
+	Cost: 18 mana.
+	Cooldown: 24 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: -1 cooldown.
+	Rank 5: Slow becomes 60%.
+	Rank 10: At the end of it's distance, tosses enemies aside. Enemies hitting walls take damage proportional to their mass.
+ 
+* Summon: Ice Golem
+ 
+	Summons a golem made of ice to fight along your side.
+	Has 500 (+10/INT) health and a melee attack that deals 30 (+5/INT) damage.
+	Cost: 25 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: Health +50, damage +5.
+	Rank 5: Melee attacks have 25% chance to freeze the enemy for 1 second.
+	Rank 10: Can cast Ice Bolt with same level as you.
+	Requires: Ice Shield (Rank 3)
+	Synergy - Ice Shield: 2% more health per rank of Ice Shield.
+	Synergy - Gust of Frost: 2% more speed per rank of Gust of Frost.
+ 
+* Cold Aura
+ 
+	PASSIVE SKILL - AURA SKILL
+	Generate an aura that increases you and nearby allies' cold damage by 15%. Radius is 256 units.
+	Cost: 30% mana reserved.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: Damage increases by 1.5%.
+	Rank 5: Radius is doubled.
+	Rank 10: Aura gives 10% additional crit chance to cold attacks.
+	Requires: Ice Shield (Rank 5)
+ 
+* Blizzard
+ 
+	Call the winds of the north to form a storm, raining ice in a location every second for 5 seconds.
+	Ice deals 90 (+18/INT) damage in a 64 unit radius. Blizzard has effect in 224 unit radius.
+	Cost: 60 mana.
+	Cooldown: 24 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +15 damage per ice.
+	Rank 5: Radius +96.
+	Rank 10: Rate of ice falling increases by 30%.
+	Requires: Frost Shards (Rank 3), Gust of Frost (Rank 2)
+	Synergy - Frost Shards: 5% more damage per rank of Frost Shards.
+	Synergy - Glacial Spike: 2.5% more damage per rank of Glacial Spike.
+	Synergy - Ice Bolt: +12 radius area of effect on main area per rank of Ice Bolt.
+ 
+* Orb of Winter
+ 
+	Release a slow moving orb that slows enemies by 30% for 0.75 seconds and throwing Ice Bolts as it travels in a circular pattern.
+	Orb deals 100 (+10/INT) damage as it travels. Ice Bolts scale from your Ice Bolt rank.
+	Cost: 80 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: Orb damage +50.
+	Rank 5: Orb freezes enemies it goes through instead for 0.75 seconds.
+	Rank 10: Orb also throws Frost Shards.
+	Requires: Gust of Frost (Rank 1), Summon: Ice Golem (Rank 2)
+	Synergy - Ice Bolt: 5% more damage for the Orb per rank of Ice Bolt.
+	Synergy - Frost Shards: 2.5% more damage for the Orb per rank of Frost Shards.
+	Synergy - Gust of Frost: Freeze duration increases by 0.2 per rank of Gust of Frost.
+ 
+* Shivering Armor
+ 
+	Enchant your or a target ally's armor to reduce damage taken by 15% for 5 seconds, and gives 60 (+3/INT) points of armor, defaulting to green armor.
+	Enemies that hit the enchanted armor have 20% chance to be frozen for 1 second.
+	Cost: 30 mana.
+	Cooldown: 15 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: Damage reduction +2.5%.
+	Rank 5: If you target an ally, grants effects to you. If you target nobody, grants effect to nearest ally.
+	Rank 10: Armor stops ripping attacks.
+	Requires: Cold Aura (Rank 1).
+	Synergy - Ice Shield: Armor points granted +25 per rank of Ice Shield.
+ 
+* Avalanche
+ 
+	After a brief delay, casts down enormous amounts of ice behind you towards your direction.
+	Ice deals 16 (+2/INT) damage. Total amount of ice thrown is 75 (+1/4 INT).
+	Cost: 120 mana.
+	Cooldown: 45 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Ice damage +3, +2 more ice thrown.
+	Rank 5: Ice thrown have 15% chance to freeze enemies for 1 second.
+	Rank 10: Ice gains 25% chance to rip through enemies.
+	Requires: Blizzard (Rank 1), Orb of Winter (Rank 1).
+	Synergy - Blizzard: 2.5% more damage per rank of Blizzard.
+	Synergy - Chilling Breath: 2.5% more damage per rank of Chilling Breath.
+	Synergy - Gust of Frost: 2.5% more damage per rank of Gust of Frost.

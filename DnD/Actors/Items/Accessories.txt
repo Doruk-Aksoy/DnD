@@ -591,12 +591,7 @@ Actor InterventionFX {
 	Alpha 0.9
 	Scale 0.25
 	Renderstyle Add
-	-SOLID
-	-SHOOTABLE
-	+NOGRAVITY
-	+RIPPER
-	+NOTELEPORT
-	+BLOODLESSIMPACT
+	+NOINTERACTION
 	+CLIENTSIDEONLY
 	States {
 		Spawn:

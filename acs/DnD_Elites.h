@@ -25,7 +25,7 @@
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 31
+#define MAX_ROLLABLE_TRAITS 39
 
 #include "DnD_EliteInfo.h"
 
@@ -65,7 +65,16 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 	DND_FRIGID,
 	DND_SCORCHED,
 	DND_INSULATED,
-	DND_REJUVENATING
+	DND_REJUVENATING,
+	
+	DND_HATRED,
+	DND_SHOCKER,
+	DND_VAMPIRISM,
+	DND_FORTIFIED,
+	DND_SUBORDINATE,
+	DND_REPEL,
+	DND_PHANTASM,
+	DND_CRIPPLE
 };
 
 int GetEliteBonusDamage() {
@@ -159,6 +168,18 @@ void SetEliteFlag(int f) {
 		case DND_REJUVENATING:
 			GiveInventory("Rejuvenate_Script_Run", 1);
 		break;
+		case DND_HATRED:
+			GiveInventory("MakeHatred", 1);
+		break;
+		case DND_FORTIFIED:
+			GiveInventory("MonsterFortifyCount", MonsterProperties[this].maxhp / DND_FORTIFY_AMOUNT);
+		break;
+		case DND_REPEL:
+			GiveInventory("Repel_Script_Run", 1);
+		break;
+		case DND_CRIPPLE:
+			GiveInventory("Cripple_Script_Run", 1);
+		break;
 	}
 	MonsterProperties[this].trait_list[f] = true;
 }
@@ -201,11 +222,30 @@ bool CheckImmunityFlagStatus(int try_trait) {
 	return !(IsImmunityFlag(try_trait) && HasMaxImmunes());
 }
 
+// from which segment to return, 0-31, 32-63, 64-95 etc.
+int GetMonsterTraits(int monster_id, int segment) {
+	int ret = 0;
+	int seg5 = segment << 5;
+	int lim = seg5 + 32;
+	for(int i = seg5; i < lim && i < MAX_MONSTER_TRAITS; ++i)
+		ret |= MonsterProperties[monster_id].trait_list[i] * (1 << (i - seg5));
+	return ret;
+}
+
+int GetPetMonsterTraits(int monster_id, int segment) {
+	int ret = 0;
+	int seg5 = segment << 5;
+	int lim = seg5 + 32;
+	for(int i = seg5; i < lim && i < MAX_MONSTER_TRAITS; ++i)
+		ret |= PetMonsterProperties[monster_id].trait_list[i] * (1 << (i - seg5));
+	return ret;
+}
+
 void DecideEliteTraits(int count) {
 	int tries = 0;
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	// Run the elite special fx script on this monster
-	GiveInventory("RunEliteFXScript", 1);
+	ACS_NamedExecuteAlways("DND Elite Special FX", 0);
 	while(tries < MAX_ELITE_TRIES && count) {
 		int try_trait = GetRandomEliteTrait();
 		if(!HasTrait(this, EliteTraitNumbers[try_trait])) {

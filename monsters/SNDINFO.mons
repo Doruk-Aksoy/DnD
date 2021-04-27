@@ -1,5 +1,49 @@
 weapons/smg DSSMG
 
+Putrefier/pain 				STPGRDPN
+Putrefier/death 			STPGRDTH
+Putrefier/active 			STPGRACT
+Putrefier/attack 			STPGRDAT
+Putrefier/Sight				STPGRSEE
+Putrefier/Cloak				TMPCLK
+Putrefier/Uncloak			TMPUCLK	
+
+Redeemer/death STRB2DTH
+Redeemer/sight STRB2SEE
+Redeemer/active STRB2ACT
+Redeemer/mislx STMISLHT
+Redeemer/misl STRLAUNC
+Redeemer/missileinflight STRFLITE
+
+reaver/pain 		STREAVPN
+reaver/death 		STREVDTH
+reaver/active 		STREVACT
+reaver/sight 		STREVSEE
+reaver/melee 		STREVMEL
+reaver/blade 		STREVBLD
+reaver/attack 		STREAVAT
+reaver/walk			STREVWLK
+Reaver/Explode		STREVEXP
+
+Judicator/Attack	JUDIATK
+Judicator/Swing		JUDISWNG
+Judicator/Step		JUDISTP
+
+$random Monsters/NBSight { Monsters/NBSit1 Monsters/NBSit2 Monsters/NBSit3 }
+Monsters/NBSit1		DSNBSIT1
+Monsters/NBSit2		DSNBSIT2
+Monsters/NBSit3		DSNBSIT3
+
+$random Monsters/NBDeath { Monsters/NBDth1 Monsters/NBDth2 Monsters/NBDth3 }
+Monsters/NBDth1		DSNBDTH1
+Monsters/NBDth1		DSNBDTH2
+Monsters/NBDth1		DSNBDTH3
+
+Monsters/NBPain		DSNBPAIN
+Monsters/NBAct		DSNBSACT
+Monsters/NBWalk		DSNBWALK
+Weapons/NailBombExp	DSNBBEXP
+
 Manticore/See					MANTISEE
 Manticore/Pain					MANTIPN
 Manticore/Death					MANTIDIE

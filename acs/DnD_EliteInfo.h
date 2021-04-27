@@ -1,6 +1,19 @@
 #ifndef DND_ELITEINFO_IN
 #define DND_ELITEINFO_IN
 
+#define DND_FORTIFY_AMOUNT 3 // 33%
+
+#define REPEL_REFRESH_RATE (3 * TICRATE / 2)
+#define REPEL_COOLDOWN (TICRATE * 3)
+#define REPEL_DISTANCE 160.0
+
+#define CRIPPLE_REFRESH_RATE (TICRATE / 2)
+#define CRIPPLE_DISTANCE 192.0
+
+#define RUINATION_MAX_STACKS 7
+#define RUINATION_TIC 7
+#define RUINATION_MAX_TICS 15
+
 enum {
 	// weaknesses
 	DND_ENERGY_WEAKNESS,
@@ -75,6 +88,16 @@ enum {
 	DND_SCORCHED,
 	DND_INSULATED,
 	DND_REJUVENATING,
+	
+	DND_HATRED,
+	DND_SHOCKER,
+	DND_VAMPIRISM,
+	DND_FORTIFIED,
+	DND_SUBORDINATE,
+	DND_REPEL,
+	DND_PHANTASM,
+	DND_CRIPPLE,
+	DND_RUINATION,
 	
 	DND_LEGENDARY
 };
@@ -161,6 +184,16 @@ str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Insulated",
 	"Rejuvenating",
 	
+	"Hatred",
+	"Shocker",
+	"Vampirism",
+	"Fortified",
+	"Subordinate",
+	"Repel",
+	"Phantasm",
+	"Cripple",
+	"Ruination",
+	
 	"Legendary"
 };
 
@@ -196,17 +229,33 @@ str GetTraitColorCode(int trait) {
 		case DND_ELEMENTAL_WEAKNESS:
 		return EliteTraitColorCode[DND_TRAITCODE_WEAKNESS];
 		
+		
 		case DND_EXPLOSIVE_RESIST:
 		case DND_ENERGY_RESIST:
 		case DND_MAGIC_RESIST:
 		case DND_ELEMENTAL_RESIST:
-		
 		case DND_EXPLOSIVE_IMMUNE:
 		case DND_BULLET_RESIST:
+		
+		case DND_FIRECREATURE:
+		case DND_ICECREATURE:
+		case DND_STONECREATURE:
+		case DND_EARTHCREATURE:
 		return EliteTraitColorCode[DND_TRAITCODE_RESIST];
 		
+		
+		case DND_BULLET_IMMUNE:
+		case DND_ENERGY_IMMUNE:
+		case DND_MAGIC_IMMUNE:
+		case DND_ELEMENTAL_IMMUNE:
 		case DND_EXPLOSIVE_NONE:
+		
+		case DND_SCORCHED:
+		case DND_VENOMANCER:
+		case DND_FRIGID:
+		case DND_INSULATED:
 		return EliteTraitColorCode[DND_TRAITCODE_IMMUNITY];
+		
 		
 		case DND_NOPAIN:
 		case DND_POISON:
@@ -217,9 +266,16 @@ str GetTraitColorCode(int trait) {
 		case DND_CURSE:
 		case DND_HEXFUSION:
 		case DND_THIEF:
+		case DND_PET:
+		case DND_REVIVED:
+		case DND_SUMMONED:
+		case DND_SHOCKER:
+		case DND_CRIPPLE:
 		return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
 		
+		
 		case DND_HEAL:
+		case DND_VITAL:
 		case DND_BLOCK:
 		case DND_DEATH:
 		case DND_SPLIT:
@@ -230,7 +286,12 @@ str GetTraitColorCode(int trait) {
 		case DND_ISBLOCKING:
 		case DND_BLOODLESS:
 		case DND_REJUVENATING:
+		case DND_FORTIFIED:
+		case DND_SUBORDINATE:
+		case DND_REPEL:
+		case DND_PHANTASM:
 		return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
+		
 		
 		case DND_HOMING:
 		case DND_RAGE:
@@ -239,37 +300,13 @@ str GetTraitColorCode(int trait) {
 		case DND_EXTRAFAST:
 		case DND_FASTREACTION:
 		case DND_VIOLENTRETALIATION:
-		return EliteTraitColorCode[DND_TRAITCODE_AGGRESSIVE];
-
-		return EliteTraitColorCode[DND_TRAITCODE_RESIST];
-		
-		case DND_BULLET_IMMUNE:
-		case DND_ENERGY_IMMUNE:
-		case DND_MAGIC_IMMUNE:
-		case DND_ELEMENTAL_IMMUNE:
-		case DND_SCORCHED:
-		case DND_VENOMANCER:
-		case DND_FRIGID:
-		case DND_INSULATED:
-		return EliteTraitColorCode[DND_TRAITCODE_IMMUNITY];
-		
 		case DND_EXTRASTRONG:
 		case DND_ARMORPEN:
+		case DND_HATRED:
+		case DND_VAMPIRISM:
+		case DND_RUINATION:
 		return EliteTraitColorCode[DND_TRAITCODE_AGGRESSIVE];
 		
-		case DND_VITAL:
-		return EliteTraitColorCode[DND_TRAITCODE_DEFENSIVE];
-		
-		case DND_PET:
-		case DND_REVIVED:
-		case DND_SUMMONED:
-		return EliteTraitColorCode[DND_TRAITCODE_UTILITY];
-		
-		case DND_FIRECREATURE:
-		case DND_ICECREATURE:
-		case DND_STONECREATURE:
-		case DND_EARTHCREATURE:
-		return EliteTraitColorCode[DND_TRAITCODE_RESIST];
 		
 		case DND_LEGENDARY:
 		return "\ci";

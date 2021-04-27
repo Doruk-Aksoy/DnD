@@ -36,6 +36,9 @@ Actor RevenantSpawner : DnD_MonsterSpawner replaces Revenant {
 			TNT1 A 0 A_SpawnItemEx("Crawler", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
 		Var10:
+			TNT1 A 0 A_SpawnItemEx("CyborgSoldier", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
+		Var11:
 			TNT1 A 0 A_SpawnItemEx("Draugr", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
 	}

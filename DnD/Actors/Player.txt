@@ -224,6 +224,12 @@ Actor TheDoomGuy : DnD_PlayerBase {
 		Pain.BaronsPoison:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
 		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
+		Goto PoisonContinue
 		Pain.Slime:
 		Pain.ArachnoGreen:
 		Pain.Poison:
@@ -583,6 +589,12 @@ Actor TheMarine : DnD_PlayerBase {
 		Pain.BaronsPoison:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
 		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
+		Goto PoisonContinue
 		Pain.Slime:
 		Pain.ArachnoGreen:
 		Pain.Poison:
@@ -933,6 +945,12 @@ Actor TheHobo : DnD_PlayerBase {
 		Goto PoisonContinue
 		Pain.BaronsPoison:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
+		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
 		Goto PoisonContinue
 		Pain.Slime:
 		Pain.ArachnoGreen:
@@ -1285,6 +1303,12 @@ Actor ThePunisher : DnD_PlayerBase {
 		Pain.BaronsPoison:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
 		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
+		Goto PoisonContinue
 		Pain.Slime:
 		Pain.ArachnoGreen:
 		Pain.Poison:
@@ -1635,6 +1659,12 @@ Actor TheWanderer : DnD_PlayerBase {
 		Goto PoisonContinue
 		Pain.BaronsPoison:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
+		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
 		Goto PoisonContinue
 		Pain.Slime:
 		Pain.ArachnoGreen:
@@ -1987,6 +2017,12 @@ Actor TheCyborg : DnD_PlayerBase {
 		Pain.BaronsPoison:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
 		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
+		Goto PoisonContinue
 		Pain.Slime:
 		Pain.ArachnoGreen:
 		Pain.Poison:
@@ -2317,6 +2353,12 @@ Actor TheBerserker : DnD_PlayerBase {
 		Goto PoisonContinue
 		Pain.BaronsPoison:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
+		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
 		Goto PoisonContinue
 		Pain.Slime:
 		Pain.ArachnoGreen:

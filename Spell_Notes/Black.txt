@@ -1,0 +1,395 @@
+BLACK MAGIC
+-----------
+ 
+* Plague
+ 
+	Unleash a plague on the target enemy that does 15 (+2/INT) damage every 0.5 seconds for 2.5 seconds.
+	If the target dies, the plague spreads to the nearest enemy with 10% more damage potency.
+	Cost: 10 mana.
+	Cooldown: 10 seconds.
+	Cast Time: 1 second.
+	Per Rank: +10 damage.
+	Rank 5: Spread potency becomes 30%.
+	Rank 10: Plague can spread to two enemies at once.
+	Unlocks: Dark Wind, Essence Theft.
+	Synergy - Implosion: 5% more damage per rank of Implosion.
+	Synergy - Finger of Death: 5% more damage per rank of Finger of Death.
+ 
+* Summon: Zombie
+ 
+	Summons a zombie to do your bidding. Has 125 (+2/INT) health, 8 - 16 (+1/INT) melee damage and last 8 (+0.25/INT) seconds.
+	Cost: 8 mana.
+	Cooldown: 1 second.
+	Cast Time: 1 second.
+	Per Rank: +35 health, +8 damage.
+	Rank 5: Zombies attack 50% faster.
+	Rank 10: +250 health, +32 damage.
+	Unlocks: Summon: Skeleton.
+ 
+* Nox
+ 
+	CURSE
+	When cast, all enemies in 128 (+1/INT) radius are blinded. They will be attacking in random directions instead of directly towards you.
+	Curse lasts 5 seconds.
+	Cost: 16 mana.
+	Cooldown: 20 seconds.
+	Cast Time: 1 second.
+	Per Rank: Duration +1 second.
+	Rank 5: Radius is doubled.
+	Rank 10: Duration +5 seconds.
+	Unlocks: Delirium.
+ 
+* Temporal Chains
+ 
+	CURSE
+	Slows down enemies in 160 unit radius area by 30% for 5 seconds.
+	Cost: 20 mana.
+	Cooldown: 25 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Duration +1 second.
+	Rank 5: Radius is doubled.
+	Rank 10: Slow becomes 50% and enemies in the area will be less likely to attack.
+ 
+* Dark Wind
+ 
+	Unleash a wind of darkness, doing 60 (+5/INT) damage as it travels every 0.15 seconds.
+	Lasts 3 seconds or until it hits a wall.
+	Cost: 15 mana.
+	Cooldown: 12 seconds.
+	Cast Time: 1 second.
+	Per Rank: +20 damage.
+	Rank 5: Width increases by 30%.
+	Rank 10: Bounces from walls.
+	Unlocks: Finger of Death.
+	Requires: Plague (Rank 2)
+	Synergy - Plague: 5% more damage per rank of Plague.
+	Synergy - Carrion Crows: 5% more damage per rank of Carrion Crows.
+ 
+* Essence Theft
+ 
+	Launch a really fast unholy missile that deals 100 (+10/INT) damage, and returns 25% of that as health on contact with an enemy.
+	Cost: 20 mana.
+	Cooldown: 25 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +50 damage.
+	Rank 5: Health ratio increased to 50%.
+	Rank 10: Enemy hit can't attack for 3 seconds.
+	Unlocks: Implosion.
+	Requires: Plague (Rank 3).
+	Synergy - Finger of Death: 10% more damage per rank of Finger of Death.
+ 
+* Summon: Skeleton
+ 
+	Summon an undead melee warrior to do your bidding. Skeletons have 250 (+10/INT) health and 20 - 32 (+4/INT) damage.
+	They last 12 (+0.25/INT) seconds.
+	Cost: 24 mana.
+	Cooldown: 4 seconds.
+	Cast Time: 1 second.
+	Per rank: +75 health, +12 damage.
+	Rank 5: Skeletons have 25% chance to block the next attack after being hurt.
+	Rank 10: Risen skeletons have 30% chance to become Skeleton Mages, doing the same damage but with ranged attacks instead.
+	Unlocks: Summon: Shadow, Summon: Dark Portal, Skeleton Mastery.
+	Requires: Summon: Zombie (Rank 3).
+ 
+* Skeleton Mastery
+ 
+	PASSIVE SKILL
+	Skeletons risen are more potent, they become more powerful with each rank.
+	Cost: NA.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: 5% more health, 10% more damage on skeletons.
+	Rank 5: Skeletons last 50% longer.
+	Rank 10: Skeleton Mages become able to cast a random tier 1 elemental spell you learned.
+	Requires: Summon: Skeleton (Rank 1).
+ 
+* Delirium
+ 
+	CURSE
+	Target enemy falls under the influence of psychosis, targeting a random enemy nearby.
+	Curse lasts 5 seconds.
+	Cost: 30 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Duration +1 second.
+	Rank 5: Duration +5 seconds.
+	Rank 10: Affected enemy gets 100% damage bonus for the duration.
+	Unlocks: Subjugate.
+	Requires: Nox (Rank 1).
+ 
+ 
+* Weaken
+ 
+	CURSE
+	Reduces the damage of enemies in 192 unit radius by 40%. Curse lasts 10 seconds.
+	Cost: 35 mana.
+	Cooldown: 40 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Duration +1 second.
+	Rank 5: Radius is doubled.
+	Rank 10: Damage reduction becomes 60%.
+	Unlocks: Pain Amp, Penetrate.
+	Requires: Temporal Chains (Rank 1).
+ 
+* Finger of Death
+ 
+	Project a deadly bolt of lightning towards where you're looking to deal 325 (+25/INT) damage.
+	Cost: 75 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: +175 damage.
+	Rank 5: Ignores enemy immunities.
+	Rank 10: Lightning projected damages all enemies in a line instead of only one enemy.
+	Unlocks: Soulstorm, Carrion Crows.
+	Requires: Dark Wind.
+	Synergy - Death and Decay: 5% more damage per rank of Death and Decay.
+	Synergy - Plague: 5% more damage per rank of Plague.
+ 
+* Implosion
+ 
+	Launches a sharp needle in front of you. Enemy that comes into contact with it immediately loses 10 (+1/10 INT)% of their current health.
+	Cost: 125 mana.
+	Cooldown: 40 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +1.5% health loss.
+	Rank 5: Needle travels 50% faster.
+	Rank 10: Needle heals for 10% of the damage dealt.
+	Unlocks: Carrion Crows, Nether Walk.
+	Requires: Essence Theft (Rank 1).
+	NOTE: Can't kill an enemy with this spell. It will leave the enemy with at least 1% of their max health.
+ 
+* Summon: Dark Portal
+ 
+	A portal to aid summoning actions. It will increase the potency of your summons created when you cast them near the portal.
+	Portal lasts 6 seconds. Portal has 150 (+15/INT) health.
+	Cost: 80 mana.
+	Cooldown: 120 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: Minions have +10% more health and damage.
+	Rank 5: Minions gain 25% extra movement speed while near the portal.
+	Rank 10: Portal grants nearby minions 75% explosive resist.
+	Unlocks: Summon Mastery.
+	Requires: Summon: Skeleton (Rank 1).
+ 
+* Summon: Shadow
+ 
+	Summons a ghost minion to cast Dark Wind for you at the same level as your rank. 
+	Can shoot maximum of two Dark Winds before having to wait 8 seconds.
+	Shadow takes two pet cap instead of the regular one cap.
+	Shadow has 75 (+10/INT) health.
+	Cost: 65 mana.
+	Cooldown: 40 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +100 health.
+	Rank 5: Shadow gains the ability to shift in and out of existence when hurt.
+	Rank 10: Shadow wait time between attacks reduced to 4 seconds.
+	Unlocks: Summon: Slayer.
+	Requires: Summon: Skeleton (Rank 1).
+ 
+* Subjugate
+ 
+	CURSE
+	Launch a ball to curse an enemy on impact, completely pacifying them. They will not retaliate for 8 seconds.
+	Cost: 80 mana.
+	Cooldown: 25 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Duration +1 second.
+	Rank 5: Affects 128 units around the target as well.
+	Rank 10: Has 50% to convert the affected enemies to your side for the duration.
+	Unlocks: Transmogrify.
+	Requires: Delirium (Rank 1).
+ 
+* Penetrate
+ 
+	CURSE
+	Allows one to magically penetrate imbued skin of monsters, allowing projectiles to rip through them.
+	Curse lasts 5 seconds. Affects enemies in a 160 unit radius.
+	Cost: 60 mana.
+	Cooldown: 25 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Duration +1 second.
+	Rank 5: Radius is doubled.
+	Rank 10: Enemy rippers do 75% less damage for the duration.
+	Unlocks: Remove Resist.
+	Requires: Weaken (Rank 1).
+ 
+* Pain Amp
+ 
+	CURSE
+	Curse enemies in a 128 unit radius to take 50% more damage for 4 seconds.
+	Cost: 90 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: Duration +1 second.
+	Rank 5: Radius is doubled.
+	Rank 10: Enemies take 100% damage instead.
+	Unlocks: Life Tap.
+	Requires: Weaken (Rank 1).
+ 
+* Soulstorm
+ 
+	After a brief delay, create a storm that deals 25 (+2/INT) damage per Soul Ammo you have every 0.5 seconds for 5 seconds.
+	Drains 15 soul ammo after dealing the damage. The storm travels towards you from the target location.
+	Damage is most in the center in a 160 unit radius, lowest at 320 unit radius.
+	Cost: 125 mana.
+	Cooldown: 75 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: +10 damage per soul.
+	Rank 5: Soulstorm area of effect increased by 50%.
+	Rank 10: Soulstorm ammo consumption reduced to 10.
+	Requires: Finger of Death (Rank 2).
+	Synergy - Dark Wind: +8 radius per rank of Dark Wind.
+ 
+* Carrion Crows
+ 
+	Summon a tornado of flesh eating undead crows around you that follow you around and tear your enemy to shreds.
+	Crows do 10 (+2/INT) damage in very short intervals.
+	Cost: 100 mana.
+	Cooldown: 40 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +10 damage.
+	Rank 5: Crow speed increased by 25%.
+	Rank 10: Crows heal you for 10% of the damage they do.
+	Requires: Finger of Death (Rank 1), Implosion (Rank 1).
+	Synergy - Dark Wind: +1 crow count per rank of Dark Wind.
+ 
+* Nether Walk
+ 
+	Travel towards where you're looking, becoming unhittable for the duration.
+	While moving through, deal 225 (+25/INT) damage to enemies.
+	Cost: 75 mana.
+	Cooldown: 20 seconds.
+	Cast Time: 1 second.
+	Per Rank: +125 damage.
+	Rank 5: Travel speed +30%.
+	Rank 10: Create an explosion for the same damage where you are at and where you'll end up at in a 256 unit radius.
+	Requires: Implosion (Rank 2).
+ 
+* Summon Mastery
+ 
+	PASSIVE SKILL
+	Your summons gain increased durability.
+	Cost: NA.
+	Cooldown: NA.
+	Cast Time: NA.
+	Per Rank: Duration +1 second, health +2.5%, damage +2.5% to all summons.
+	Rank 5: Maximum pet count +1.
+	Rank 10: Pets have "Hardened Skin" property.
+	Requires: Summon: Dark Portal.
+ 
+* Summon: Slayer
+ 
+	Summons an undead slayer knight to do your bidding. Slayer Knights have 1000 (+50/INT) health.
+	Slayer Knights have two attacks: Melee with 60 - 80 (+16/INT) damage or Ranged with spread of burning fire to deal 48 (+12/INT) damage per projectile.
+	Slayer Knights take three pet cap each instead of the regular one cap.
+	Cost: 100 mana.
+	Cooldown: 36 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: +275 health, +40 melee damage, +24 ranged damage.
+	Rank 5: Slayer Knights gain Counter Attack. (When hurt, immediate attack with short invulnerability period)
+	Rank 10: Slayer Knight melee becomes an AoE slashing attack.
+	Unlocks: Summon: Doomguard.
+	Requires: Summon: Shadow (Rank 1).
+ 
+* Transmogrify
+ 
+	CURSE
+	Launch a ball of curse to reduce any medium or light class monster to a random pickup.
+	Cost: 200 mana.
+	Cooldown: 90 seconds.
+	Cast Time: 1 second.
+	Per Rank: -5 mana cost, -3 second cooldown.
+	Rank 5: 25% increased chance to drop health pickups.
+	Rank 10: Has 10% chance to become an inventory item (charm, orb etc.) instead.
+	Unlocks: Banish.
+	Requires: Subjugate (Rank 1).
+ 
+* Remove Resist
+ 
+	CURSE
+	Target a nearby monster to remove any resists they have for 3 seconds.
+	Cost: 90 mana.
+	Cooldown: 30 seconds.
+	Cast Time: 1.5 seconds.
+	Per Rank: +1 duration.
+	Rank 5: Can affect enemies in a 128 unit radius of the primary target as well.
+	Rank 10: Curse also makes the monster take 25% extra damage from the damage types they have resistances to for the duration.
+	Unlocks: Break Immunity.
+	Requires: Penetrate.
+ 
+* Life Tap
+ 
+	CURSE
+	Launch a ball of curse to affect enemies in a 160 unit radius.
+	These enemies have a chance to heal you for 10 (+1/20 INT) when you hurt them.
+	They will heal for 2.5% of missing health when they die. Curse lasts 10 seconds.
+	Cost: 100 mana.
+	Cooldown: 60 seconds.
+	Cast Time: 1 second.
+	Per Rank: +20 heal on hit.
+	Rank 5: Heals for 5% of missing health instead.
+	Rank 10: Radius is doubled.
+	Unlocks: Silence.
+	Requires: Pain Amp (Rank 1).
+ 
+* Death and Decay
+ 
+	Channel for 10 seconds in a target location to create a zone of pure death.
+	Enemies inside lose 5% of their life every second.
+	Zone radius is 160 (+2/INT) unit radius.
+	Boss tier monsters take half damage.
+	Cost: 125 mana every second until the duration.
+	Cooldown: 150 seconds.
+	Cast Time: 1 second.
+	Per Rank: +0.35% more life lost.
+	Rank 5: Radius is doubled.
+	Rank 10: Bosses also take full damage.
+ 
+* Summon: Doomguard
+ 
+	Summon a mighty demon from the deepest pits of hell. Doomguard has 2000 (+30/INT) health.
+	Doomguard can melee for 250 (+25/INT) damage, has a ranged meteor attack for 150 (+10/INT) on hit and 200 (+5/INT) damage in a 160 unit radius.
+	Doomguard takes five pet cap instead of the regular one cap.
+	Cost: 275 mana.
+	Cooldown: 160 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: Health +750, melee damage +50, ranged damage +40.
+	Rank 5: Doomguard can cast War Stomp, stunning nearby enemies and dealing its melee damage to enemies around it.
+	Rank 10: Doomguard can cast a random curse you've learned once every 30 seconds.
+	Requires: Summon: Slayer (Rank 1).
+ 
+* Banish
+ 
+	CURSE
+	Fires a cursed ball which temporarily removes the enemy hit from this realm for 3 seconds.
+	Cost: 200 mana.
+	Cooldown: 60 seconds.
+	Cast Time: 1 second.
+	Per Rank: +1 duration.
+	Rank 5: Target is afflicted by a random curse you've learned once they reappear.
+	Rank 10: Gain a random attribute of the enemy (if applicable) when they reappear for half the duration.
+	Requires: Transmogrify (Rank 1).
+ 
+* Break Immunity
+ 
+	CURSE
+	Completely removes a random immunity from the target enemy, if applicable. Otherwise does nothing.
+	Cost: 300 mana.
+	Cooldown: 150 seconds.
+	Cast Time: 4 seconds.
+	Per Rank: -5 second cooldown.
+	Rank 5: Can affect enemies in a 192 unit radius.
+	Rank 10: Removes all immunities instead of a random one.
+	Requires: Remove Resist.
+ 
+* Silence
+ 
+	CURSE
+	Renders a target monster unable to use their special attacks, as well as their ranged attacks for 3 seconds.
+	Cost: 400 mana.
+	Cooldown: 180 seconds.
+	Cast Time: 3 seconds.
+	Per Rank: Duration +1 second, cooldown -6 seconds.
+	Rank 5: Mana cost -100.
+	Rank 10: Can affect enemies in a 256 unit radius.
+	Requires: Life Tap (Rank 1).

@@ -11,10 +11,10 @@ typedef struct {
 	int maxhp;
 	int level;
 	int id;
-	int nameskip;
-	int properties;
+	int class;								// monster class
 	bool isElite;
-	bool trait_list[MAX_MONSTER_TRAITS]; // 1 if that trait is on, 0 if not
+	bool hasTrait;							// used by clients mostly -- do we have traits
+	bool trait_list[MAX_MONSTER_TRAITS]; 	// 1 if that trait is on, 0 if not
 } mo_prop_T;
 
 // used for hp bar data
@@ -30,6 +30,26 @@ cs_trait_list_T client_trait_list;
 #define DND_MAX_PETS 1600 // 25 pets per player x 64 players
 mo_prop_T MonsterProperties[DND_MAX_MONSTERS];
 mo_prop_T PetMonsterProperties[DND_MAX_PETS];
+
+enum {
+	MONSTERCLASS_ZOMBIEMAN,
+	MONSTERCLASS_SHOTGUNGUY,
+	MONSTERCLASS_CHAINGUNGUY,
+	MONSTERCLASS_DEMON,
+	MONSTERCLASS_SPECTRE,
+	MONSTERCLASS_IMP,
+	MONSTERCLASS_CACODEMON,
+	MONSTERCLASS_PAINELEMENTAL,
+	MONSTERCLASS_LOSTSOUL,
+	MONSTERCLASS_REVENANT,
+	MONSTERCLASS_HELLKNIGHT,
+	MONSTERCLASS_BARON,
+	MONSTERCLASS_FATSO,
+	MONSTERCLASS_ARACHNOTRON,
+	MONSTERCLASS_ARCHVILE,
+	MONSTERCLASS_SPIDERMASTERMIND,
+	MONSTERCLASS_CYBERDEMON
+};
 
 enum {
 	// Classics
@@ -125,6 +145,7 @@ enum {
 	MONSTER_VULGAR,
 	MONSTER_UNDEADMAGE,
 	MONSTER_SHADOW,
+	MONSTER_REAVER,
 	MONSTER_ROACH,
 	
 	// Lost Soul
@@ -157,6 +178,7 @@ enum {
 	MONSTER_TORTUREDSOUL,
 	MONSTER_SHADOWDISCIPLE,
 	MONSTER_SENTINEL,
+	MONSTER_PHANTASM,
 	MONSTER_WRAITH, // add new ones above wraith
 	
 	// Revenant
@@ -171,8 +193,9 @@ enum {
 	MONSTER_CADAVER,
 	MONSTER_DARKSERVANT,
 	MONSTER_CRAWLER,
+	MONSTER_CYBORGSOLDIER,
 	MONSTER_DRAUGR,
-	
+
 	// Hell Knight
 	MONSTER_BLOODSATYR,
 	MONSTER_HELLWARRIOR,
@@ -186,6 +209,7 @@ enum {
 	MONSTER_CHAOSSERPENT,
 	MONSTER_MOONSATYR,
 	MONSTER_ICEGOLEM,
+	MONSTER_PUTREFIER,
 	MONSTER_GLADIATOR,
 
 	// Baron
@@ -201,6 +225,7 @@ enum {
 	MONSTER_MAGMASERPENT,
 	MONSTER_DREADKNIGHT,
 	MONSTER_MAGMAGOLEM,
+	MONSTER_JUDICATOR,
 	MONSTER_WARMASTER,
 	
 	// Fatso
@@ -212,6 +237,7 @@ enum {
 	MONSTER_MAFIBUS,
 	MONSTER_ICEFATSO,
 	MONSTER_ABOMINATION,
+	MONSTER_REDEEMER,
 	MONSTER_GOLDGOLEM,
 	
 	// Arachnotron
@@ -264,6 +290,15 @@ enum {
 	MONSTER_GODSLAYER,
 	MONSTER_GOLGOTH
 };
+	
+#define DND_CUSTOM_ZOMBIEMAN_BEGIN MONSTER_ZOMBIEMANGRAY
+#define DND_CUSTOM_ZOMBIEMAN_END MONSTER_ZOMBIEPROPHET
+
+#define DND_CUSTOM_SHOTGUNGUY_BEGIN MONSTER_SSGLOS
+#define DND_CUSTOM_SHOTGUNGUY_END MONSTER_ZOMBIESSG
+
+#define DND_CUSTOM_CHAINGUNGUY_BEGIN MONSTER_ZOMBIEQUAKE3
+#define DND_CUSTOM_CHAINGUNGUY_END MONSTER_BERSERKERGUY
 
 #define DND_CUSTOM_IMP_BEGIN MONSTER_DARKIMP1
 #define DND_CUSTOM_IMP_END MONSTER_ROACH
@@ -274,11 +309,14 @@ enum {
 #define DND_CUSTOM_SPECTRE_BEGIN MONSTER_LURKER
 #define DND_CUSTOM_SPECTRE_END MONSTER_NIGHTMAREDEMON
 
+#define DND_CUSTOM_LOSTSOUL_BEGIN MONSTER_BABYCACO
+#define DND_CUSTOM_LOSTSOUL_END MONSTER_DARKLICH_SPIRIT
+
 #define DND_CUSTOM_CACODEMON_BEGIN MONSTER_WEAKENER
 #define DND_CUSTOM_CACODEMON_END MONSTER_WICKED
 
 #define DND_CUSTOM_PAINE_BEGIN MONSTER_BLOODLICH
-#define DND_CUSTOM_PAINE_END MONSTER_SENTINEL
+#define DND_CUSTOM_PAINE_END MONSTER_WRAITH
 
 #define DND_CUSTOM_REVENANT_BEGIN MONSTER_INCARNATE
 #define DND_CUSTOM_REVENANT_END MONSTER_DRAUGR
@@ -321,30 +359,67 @@ void ScaleMonsterMass(int level) {
 
 // this is the single source that gives the monsters their proper class protections
 // or their weaknesses
-void HandleMonsterClassInnates(int id) {
-	int innate = MonsterData[id].flags;
-	if(id == MONSTER_IMP || (id >= DND_CUSTOM_IMP_BEGIN && id <= DND_CUSTOM_IMP_END))
+void HandleMonsterClassInnates(int mid, int id) {
+	if(id == MONSTER_ZOMBIEMAN || (id >= DND_CUSTOM_ZOMBIEMAN_BEGIN && id <= DND_CUSTOM_ZOMBIEMAN_END))
+		MonsterProperties[mid].class = MONSTERCLASS_ZOMBIEMAN;
+	else if(id == MONSTER_SHOTGUNNER || (id >= DND_CUSTOM_SHOTGUNGUY_BEGIN & id <= DND_CUSTOM_SHOTGUNGUY_END))
+		MonsterProperties[mid].class = MONSTERCLASS_SHOTGUNGUY;
+	else if(id == MONSTER_CHAINGUNNER || (id >= DND_CUSTOM_CHAINGUNGUY_BEGIN && id <= DND_CUSTOM_CHAINGUNGUY_END))
+		MonsterProperties[mid].class = MONSTERCLASS_CHAINGUNGUY;
+	else if(id == MONSTER_IMP || (id >= DND_CUSTOM_IMP_BEGIN && id <= DND_CUSTOM_IMP_END)) {
 		GiveInventory("ImpClassProtection", 1);
-	else if(id == MONSTER_DEMON || id == MONSTER_SPECTRE || (id >= DND_CUSTOM_DEMON_BEGIN && id <= DND_CUSTOM_SPECTRE_END))
+		MonsterProperties[mid].class = MONSTERCLASS_IMP;
+	}
+	else if(id == MONSTER_DEMON || (id >= DND_CUSTOM_DEMON_BEGIN && id <= DND_CUSTOM_DEMON_END)) {
 		GiveInventory("DemonClassProtection", 1);
-	else if(id == MONSTER_CACODEMON || (id >= DND_CUSTOM_CACODEMON_BEGIN && id <= DND_CUSTOM_CACODEMON_END))
+		MonsterProperties[mid].class = MONSTERCLASS_DEMON;
+	}
+	else if(id == MONSTER_SPECTRE || (id >= DND_CUSTOM_SPECTRE_BEGIN && id <= DND_CUSTOM_SPECTRE_END)) {
+		GiveInventory("DemonClassProtection", 1);
+		MonsterProperties[mid].class = MONSTERCLASS_SPECTRE;
+	}
+	else if(id == MONSTER_LOSTSOUL || (id >= DND_CUSTOM_LOSTSOUL_BEGIN && id <= DND_CUSTOM_LOSTSOUL_END))
+		MonsterProperties[mid].class = MONSTERCLASS_LOSTSOUL;
+	else if(id == MONSTER_CACODEMON || (id >= DND_CUSTOM_CACODEMON_BEGIN && id <= DND_CUSTOM_CACODEMON_END)) {
 		GiveInventory("CacoClassProtection", 1);
-	else if(id == MONSTER_PAINELEMENTAL || (id >= DND_CUSTOM_PAINE_BEGIN && id <= DND_CUSTOM_PAINE_END))
+		MonsterProperties[mid].class = MONSTERCLASS_CACODEMON;
+	}
+	else if(id == MONSTER_PAINELEMENTAL || (id >= DND_CUSTOM_PAINE_BEGIN && id <= DND_CUSTOM_PAINE_END)) {
 		GiveInventory("PaineClassProtection", 1);
-	else if(id == MONSTER_REVENANT || (id >= DND_CUSTOM_REVENANT_BEGIN && id <= DND_CUSTOM_REVENANT_END))
+		MonsterProperties[mid].class = MONSTERCLASS_PAINELEMENTAL;
+	}
+	else if(id == MONSTER_REVENANT || (id >= DND_CUSTOM_REVENANT_BEGIN && id <= DND_CUSTOM_REVENANT_END)) {
 		GiveInventory("RevenantClassProtection", 1);
-	else if(id == MONSTER_HELLKNIGHT || id == MONSTER_BARON || (id >= DND_CUSTOM_HK_BEGIN && id <= DND_CUSTOM_BARON_END))
+		MonsterProperties[mid].class = MONSTERCLASS_REVENANT;
+	}
+	else if(id == MONSTER_HELLKNIGHT || (id >= DND_CUSTOM_HK_BEGIN && id <= DND_CUSTOM_HK_END)) {
 		GiveInventory("HKClassProtection", 1);
-	else if(id == MONSTER_FATSO || (id >= DND_CUSTOM_FATSO_BEGIN && id <= DND_CUSTOM_FATSO_END))
+		MonsterProperties[mid].class = MONSTERCLASS_HELLKNIGHT;
+	}
+	else if(id == MONSTER_BARON || (id >= DND_CUSTOM_BARON_BEGIN && id <= DND_CUSTOM_BARON_END)) {
+		GiveInventory("HKClassProtection", 1);
+		MonsterProperties[mid].class = MONSTERCLASS_BARON;
+	}
+	else if(id == MONSTER_FATSO || (id >= DND_CUSTOM_FATSO_BEGIN && id <= DND_CUSTOM_FATSO_END)) {
 		GiveInventory("FatsoClassProtection", 1);
-	else if(id == MONSTER_SPIDER || (id >= DND_CUSTOM_ARACHNO_BEGIN && id <= DND_CUSTOM_ARACHNO_END))
+		MonsterProperties[mid].class = MONSTERCLASS_FATSO;
+	}
+	else if(id == MONSTER_SPIDER || (id >= DND_CUSTOM_ARACHNO_BEGIN && id <= DND_CUSTOM_ARACHNO_END)) {
 		GiveInventory("ArachnoClassProtection", 1);
-	else if(id == MONSTER_VILE || (id >= DND_CUSTOM_VILE_BEGIN && id <= DND_CUSTOM_VILE_END))
+		MonsterProperties[mid].class = MONSTERCLASS_ARACHNOTRON;
+	}
+	else if(id == MONSTER_VILE || (id >= DND_CUSTOM_VILE_BEGIN && id <= DND_CUSTOM_VILE_END)) {
 		GiveInventory("VileClassProtection", 1);
-	else if(id == MONSTER_MASTERMIND || (id >= DND_CUSTOM_SM_BEGIN && id <= DND_CUSTOM_SM_END))
+		MonsterProperties[mid].class = MONSTERCLASS_ARCHVILE;
+	}
+	else if(id == MONSTER_MASTERMIND || (id >= DND_CUSTOM_SM_BEGIN && id <= DND_CUSTOM_SM_END)) {
 		GiveInventory("SMClassProtection", 1);
-	else if(id == MONSTER_CYBERDEMON || (id >= DND_CUSTOM_CYBER_BEGIN && id <= LEGENDARY_END))
+		MonsterProperties[mid].class = MONSTERCLASS_SPIDERMASTERMIND;
+	}
+	else if(id == MONSTER_CYBERDEMON || (id >= DND_CUSTOM_CYBER_BEGIN && id <= LEGENDARY_END)) {
 		GiveInventory("CyberClassProtection", 1);
+		MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;
+	}
 }
 
 void LoadMonsterTraits(int m_id) {
@@ -426,7 +501,7 @@ enum {
 
 // first 4 above dictate the basic monster types
 #define MONSTER_TYPE_INFO_TAG 0
-#define MOSNTER_TYPE_INFO_ICON 1
+#define MONSTER_TYPE_INFO_ICON 1
 #define MAX_MONSTER_TYPES 4
 str MonsterTypeInfo[MAX_MONSTER_TYPES][2] = {
 	{ "MType_Demon", "DNDEDEM" },
@@ -571,6 +646,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
     { 70, 			DND_MTYPE_DEMON_POW										},//DND_VULGAR,
     { 80, 			DND_MTYPE_UNDEAD_POW									},//DND_UNDEADMAGE,
 	{ 85, 			DND_MTYPE_DEMON_POW										},//DND_SHADOW,
+	{ 90,			DND_MTYPE_ROBOTIC_POW									},//DND_REAVER
 	{ 80, 			DND_MTYPE_DEMON_POW										},//DND_ROACH,
 
 	// Lost Soul
@@ -603,6 +679,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 550, 			DND_MTYPE_DEMON_POW										},//DND_TORTUREDSOUL,
 	{ 500, 			DND_MTYPE_MAGICAL_POW									},//DND_SHADOWDISCIPLE,
 	{ 750, 			DND_MTYPE_MAGICAL_POW									},//DND_SENTINEL,
+	{ 200,			DND_MTYPE_MAGICAL_POW									},//DND_PHANTASM
 	{ 75, 			DND_MTYPE_UNDEAD_POW									},//DND_WRAITH,
 
 	// Revenant
@@ -617,6 +694,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 350, 			DND_MTYPE_UNDEAD_POW									},//DND_CADAVER,
 	{ 275, 			DND_MTYPE_MAGICAL_POW									},//DND_DARKSERVANT,
 	{ 325, 			DND_MTYPE_DEMON_POW										},//DND_CRAWLER,
+	{ 200, 			DND_MTYPE_ROBOTIC_POW									},//DND_CYBORGSOLDIER,
 	{ 350, 			DND_MTYPE_UNDEAD_POW									},//DND_DRAUGR,
 
 	// Hell Knight
@@ -632,6 +710,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 450, 			DND_MTYPE_DEMON_POW 									},//DND_CHAOSSERPENT,
 	{ 750, 			DND_MTYPE_DEMON_POW 									},//DND_MOONSATYR,
 	{ 400, 			DND_MTYPE_MAGICAL_POW 									},//DND_ICEGOLEM,
+	{ 500,			DND_MTYPE_ROBOTIC_POW									},//DND_PUTREFIER,
 	{ 450, 			DND_MTYPE_DEMON_POW 									},//DND_GLADIATOR,
 
 	// Baron
@@ -647,6 +726,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 900, 			DND_MTYPE_DEMON_POW 									},//DND_MAGMASERPENT,
 	{ 900, 			DND_MTYPE_UNDEAD_POW 									},//DND_DREADKNIGHT,
 	{ 900, 			DND_MTYPE_MAGICAL_POW 									},//DND_MAGMAGOLEM,
+	{ 800,			DND_MTYPE_ROBOTIC_POW									},//DND_JUDICATOR,
 	{ 1250, 		DND_MTYPE_DEMON_POW 									},//DND_WARMASTER,
 	
 	// Fatso
@@ -658,6 +738,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 1100, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_MAFIBUS,
 	{ 650, 			DND_MTYPE_DEMON_POW 									},//DND_ICEFATSO,
 	{ 775, 			DND_MTYPE_DEMON_POW 									},//DND_ABOMINATION,
+	{ 800,			DND_MTYPE_ROBOTIC_POW									},//DND_REDEEMER
 	{ 1000, 		DND_MTYPE_MAGICAL_POW 									},//DND_GOLDGOLEM,
 	
 	// Arachnotron
@@ -705,7 +786,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 6000, 		DND_MTYPE_DEMON_POW 									},//DND_CERBERUS,
 	
 	// Legendaries
-	{ 20000, 		DND_MTYPE_DEMON_POW 									}, //DND_DREAMER,
+	{ 20000, 		DND_MTYPE_DEMON_POW 									},//DND_DREAMER,
 	{ 16500, 		DND_MTYPE_DEMON_POW 									},//DND_TORRASQUE,
 	{ 18500, 		DND_MTYPE_DEMON_POW 									},//DND_MORDECQAI,
 	{ 13500, 		DND_MTYPE_ROBOTIC_POW 									},//DND_GODSLAYER,
@@ -796,14 +877,14 @@ enum {
 	DND_MWEIGHT_ENDMARKER = -1
 };
 
-#define MAX_MONSTER_CATEGORIES 17
-#define MAX_MONSTER_VARIATIONS 16
+#define MAX_MONSTER_CATEGORIES (MONSTERCLASS_CYBERDEMON + 1)
+#define MAX_MONSTER_VARIATIONS 17 // this includes vanilla
 int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
     // Zombieman
     { 
 		DND_MWEIGHT_COMMON, 
 		DND_MWEIGHT_COMMON, 
-		DND_MWEIGHT_RARE2, 
+		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_UNCOMMON, 
 		DND_MWEIGHT_RARE2, 
 		DND_MWEIGHT_RARE2,
@@ -868,10 +949,10 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_COMMON, 
 		DND_MWEIGHT_COMMON, 
 		DND_MWEIGHT_COMMON, 
+		DND_MWEIGHT_RARE1, 
 		DND_MWEIGHT_COMMON, 
-		DND_MWEIGHT_COMMON, 
-		DND_MWEIGHT_COMMON, 
-		DND_MWEIGHT_COMMON, 
+		DND_MWEIGHT_RARE1, 
+		DND_MWEIGHT_RARE2, 
 		DND_MWEIGHT_ENDMARKER
 	},
     // Imp
@@ -890,7 +971,8 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_RARE2, 
 		DND_MWEIGHT_RARE2, 
 		DND_MWEIGHT_RARE2, 
-		DND_MWEIGHT_RARE1, 
+		DND_MWEIGHT_RARE1,
+		DND_MWEIGHT_VERYRARE,
 		DND_MWEIGHT_RARE1 
 	},
     // Caco
@@ -943,6 +1025,7 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_RARE1,
 		DND_MWEIGHT_RARE1,
+		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_RARE1,
 		DND_MWEIGHT_ENDMARKER
 	},
@@ -962,6 +1045,7 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_VERYRARE,
 		DND_MWEIGHT_VERYRARE,
+		DND_MWEIGHT_VERYRARE,
 		DND_MWEIGHT_ENDMARKER
 	},
     // Baron
@@ -979,6 +1063,7 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_RARE1,
 		DND_MWEIGHT_VERYRARE,
 		DND_MWEIGHT_VERYRARE,
+		DND_MWEIGHT_VERYRARE,
 		DND_MWEIGHT_EPIC,
 		DND_MWEIGHT_ENDMARKER 
 	},
@@ -992,6 +1077,7 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_VERYRARE, 
 		DND_MWEIGHT_RARE1,
 		DND_MWEIGHT_COMMON,
+		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_VERYRARE,
 		DND_MWEIGHT_ENDMARKER
@@ -1053,6 +1139,165 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 	}
 };
 
+// these are filled by hand, finding the rarest monster of each class is needlessly complicated (find top classes, equal ones must be considered as sharing top spot etc.)
+// this requires frequent updates the more monsters are added, but is super fast
+void HandleSubordinateSpawn(int tid, int mid) {
+	int class = MonsterProperties[mid].class;
+	int rng;
+	str toSpawn = "";
+	switch(class) {
+		case MONSTERCLASS_ZOMBIEMAN:
+			rng = random(0, 3);
+			switch(rng) {
+				case 0:
+					toSpawn = "FormerRanger";
+				break;
+				case 1:
+					toSpawn = "RapidFireTrooper";
+				break;
+				case 2:
+					toSpawn = "ZombieMarine";
+				break;
+				case 3:
+					toSpawn = "LOSZombieMan";
+				break;
+			}
+		break;
+		case MONSTERCLASS_SHOTGUNGUY:
+			toSpawn = "SSGZombie";
+		break;
+		case MONSTERCLASS_CHAINGUNGUY:
+			toSpawn = "DoubleChaingunner";
+		break;
+		case MONSTERCLASS_DEMON:
+			toSpawn = "PurebredDemon";
+		break;
+		case MONSTERCLASS_SPECTRE:
+			toSpawn = "RavagerGhost";
+		break;
+		case MONSTERCLASS_IMP:
+			toSpawn = "ReaverRobot";
+		break;
+		case MONSTERCLASS_CACODEMON:
+			rng = random(0, 1);
+			switch(rng) {
+				case 0:
+					toSpawn = "CacoLich";
+				break;
+				case 1:
+					toSpawn = "EarthLich";
+				break;
+			}
+		break;
+		case MONSTERCLASS_PAINELEMENTAL:
+			rng = random(0, 1);
+			switch(rng) {
+				case 0:
+					toSpawn = "BloodLich";
+				break;
+				case 1:
+					toSpawn = "DESentinel";
+				break;
+			}
+		break;
+		case MONSTERCLASS_LOSTSOUL:
+			rng = random(0, 1);
+			switch(rng) {
+				case 0:
+					toSpawn = "ESoul";
+				break;
+				case 1:
+					toSpawn = "Watcher";
+				break;
+			}
+		break;
+		case MONSTERCLASS_REVENANT:
+			rng = random(0, 2);
+			switch(rng) {
+				case 0:
+					toSpawn = "WidowMaker";
+				break;
+				case 1:
+					toSpawn = "Cadaver";
+				break;
+				case 2:
+					toSpawn = "CyborgSoldier";
+				break;
+			}
+		break;
+		case MONSTERCLASS_HELLKNIGHT:
+			rng = random(0, 2);
+			switch(rng) {
+				case 0:
+					toSpawn = "IceGolem";
+				break;
+				case 1:
+					toSpawn = "Putrefier";
+				break;
+				case 2:
+					toSpawn = "Gladiator";
+				break;
+			}
+		break;
+		case MONSTERCLASS_BARON:
+			toSpawn = "Warmaster";
+		break;
+		case MONSTERCLASS_FATSO:
+			rng = random(0, 2);
+			switch(rng) {
+				case 0:
+					toSpawn = "Gamon";
+				break;
+				case 1:
+					toSpawn = "Mephisto";
+				break;
+				case 2:
+					toSpawn = "GoldGolem";
+				break;
+			}
+		break;
+		case MONSTERCLASS_ARACHNOTRON:
+			toSpawn = "Manticore";
+		break;
+		case MONSTERCLASS_ARCHVILE:
+			rng = random(0, 2);
+			switch(rng) {
+				case 0:
+					toSpawn = "UndeadPriest";
+				break;
+				case 1:
+					toSpawn = "Horshacker";
+				break;
+				case 2:
+					toSpawn = "FleshWizard";
+				break;
+			}
+		break;
+		case MONSTERCLASS_SPIDERMASTERMIND:
+			toSpawn = "GoldLich";
+		break;
+		case MONSTERCLASS_CYBERDEMON:
+			rng = random(0, 1);
+			switch(rng) {
+				case 0:
+					toSpawn = "Cerberus";
+				break;
+				case 1:
+					toSpawn = "Thanatos";
+				break;
+			}
+		break;
+	}
+	
+	// create some special fx
+	if(Spawn(toSpawn, GetActorX(tid), GetActorY(tid), GetActorZ(tid), 0, GetActorAngle(tid)))
+		ACS_NamedExecuteAlways("DnD Subordinate Spawn FX", 0, tid);
+}
+
+Script "DnD Subordinate Spawn FX" (int tid) CLIENTSIDE {
+	GiveActorInventory(tid, "SubordinateFXSpawner", 1);
+}
+
 str LegendaryMonsters[DND_MAX_LEGENDARY] = {
 	"DreamingGod",
 	"Torrasque",
@@ -1105,6 +1350,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_PYROIMP].trait_list[DND_DEATH] = true;
 	MonsterData[MONSTER_VULGAR].trait_list[DND_POISON] = true;
 	MonsterData[MONSTER_UNDEADMAGE].trait_list[DND_RESURRECT] = true;
+	MonsterData[MONSTER_REAVER].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_REAVER].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_ROACH].trait_list[DND_POISON] = true;
 	MonsterData[MONSTER_ROACH].trait_list[DND_HEAL] = true;
 	
@@ -1175,6 +1422,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_DARKSERVANT].trait_list[DND_PIERCE] = true;
 	MonsterData[MONSTER_CRAWLER].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_CRAWLER].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_CYBORGSOLDIER].trait_list[DND_DEATH] = true;
+	MonsterData[MONSTER_CYBORGSOLDIER].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_DRAUGR].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_DRAUGR].trait_list[DND_MOBILITY] = true;
 	
@@ -1198,6 +1447,10 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_ICEGOLEM].trait_list[DND_HEAL] = true;
 	MonsterData[MONSTER_ICEGOLEM].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_ICEGOLEM].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_PUTREFIER].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_PUTREFIER].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_PUTREFIER].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_PUTREFIER].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_GLADIATOR].trait_list[DND_RAGE] = true;
 	MonsterData[MONSTER_GLADIATOR].trait_list[DND_ICE_WEAKNESS] = true;
 	
@@ -1224,6 +1477,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_MAGMAGOLEM].trait_list[DND_FIRECREATURE] = true;
 	MonsterData[MONSTER_MAGMAGOLEM].trait_list[DND_DEATH] = true;
 	MonsterData[MONSTER_MAGMAGOLEM].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	MonsterData[MONSTER_JUDICATOR].trait_list[DND_BULLET_IMMUNE] = true;
 	MonsterData[MONSTER_WARMASTER].trait_list[DND_HEAL] = true;
 	MonsterData[MONSTER_WARMASTER].trait_list[DND_RAGE] = true;
 	MonsterData[MONSTER_WARMASTER].trait_list[DND_REFLECTIVE] = true;
@@ -1242,6 +1496,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_GAMON].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_MEPHISTO].trait_list[DND_EXPLOSIVE_RESIST] = true;
 	MonsterData[MONSTER_ABOMINATION].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_REDEEMER].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_REDEEMER].trait_list[DND_DEATH] = true;
 	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_PIERCE] = true;
 	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_ELEMENTAL_IMMUNE] = true;
 	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_MAGIC_RESIST] = true;
@@ -1312,6 +1568,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_TERMINATOR].trait_list[DND_ENERGY_RESIST] = true;
 	MonsterData[MONSTER_THAMUZ].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_THAMUZ].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_THAMUZ].trait_list[DND_POISON] = true;
 	MonsterData[MONSTER_AZAZEL].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_AZAZEL].trait_list[DND_BLOCK] = true;
 	MonsterData[MONSTER_AZAZEL].trait_list[DND_ELEMENTAL_RESIST] = true;

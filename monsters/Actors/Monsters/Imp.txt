@@ -1582,6 +1582,128 @@ ACTOR CultMysticShot {
 	}
 }
 
+Actor ReaverRobot : DnD_BaseHybridMonster {
+	Health 0x7FFFFFFF
+	Radius 20
+	Height 56
+	Mass 100
+	Speed 8
+	PainChance 128
+	SeeSound "Reaver/See"
+	PainSound "Reaver/Pain"
+	DeathSound "Reaver/Death"
+	ActiveSound "Reaver/Active"
+	Obituary "%o was shot by a Reaver."
+	HitObituary "%o was gutted by a Reaver."
+	Species "Imp"
+	Tag "Reaver"
+	+ISMONSTER
+	+DONTHURTSPECIES
+	+NOBLOOD
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_REAVER)
+		Goto SpawnSetup
+	
+		Idle:
+			5TRF A 7 A_Look
+		Loop
+		SeeState:
+			5TRF BBCC 3 Fast A_Chase
+			TNT1 A 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
+			5TRF DDEE 3 Fast A_Chase
+			TNT1 A 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
+			5TRF DDCC 3 Fast A_Chase
+			TNT1 A 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
+		Loop
+		MeleeState:
+			TNT1 A 0 A_PlaySound("reaver/melee", 5)
+			5TRF H 5 Fast A_FaceTarget
+			5TRF I 7 Fast A_CustomMeleeAttack(random(4, 8) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "reaver/blade")
+			5TRF H 5 Fast
+		Goto See
+		MissileState:
+			5TRF G 5 Fast Bright A_FaceTarget
+			TNT1 A 0 A_PlaySound("reaver/attack", CHAN_WEAPON)
+			TNT1 AAAA 0 A_CustomMissile("ReaverShot", 33, -3, frandom(-10, 10))
+			5TRF F 8 Fast A_FaceTarget
+			5TRF G 6 Fast Bright
+		Goto See
+		PainState:
+			5TRF A 2 Fast
+			5TRF A 2 Fast A_Pain
+		Goto See
+		DeathState:
+		XDeathState:
+			5TRF J 6
+			5TRF K 6 A_Scream
+			5TRF L 5
+			TNT1 A 0 A_SpawnItemEx("ReaverExplosion", frandom(-16, 16), frandom(-16, 16), frandom(20, 56), 0, 0, 0, SXF_NOCHECKPOSITION)
+			5TRF M 5 A_NoBlocking
+			5TRF NOP 5 A_SpawnItemEx("ReaverExplosion", frandom(-16, 16), frandom(-16, 16), frandom(20, 56), 0, 0, 0, SXF_NOCHECKPOSITION)
+			5TRF Q 6
+			5TRF R -1
+		Stop
+		RaiseState:
+			5TRF Q 6
+			5TRF PONML 5
+			5TRF KJ 6
+		Goto See
+	}
+}
+
+Actor ReaverShot {
+	Speed 32
+	Height 6
+	Radius 3
+	Projectile
+	Damage (random(5, 7) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Imp"
+	Scale 0.5
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnState:
+			MPUF A 1 Bright A_SpawnItemEx("ReaverShotTrail")
+		Loop
+		Death:
+			MPUF A 4 Bright
+			MPUF BCD 4
+		Stop
+	}
+}
+
+Actor ReaverShotTrail {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Scale 0.5
+	Renderstyle Translucent
+	States {
+		Spawn:
+			TNT1 A 1
+			MPUF A 1 A_FadeOut(0.0825)
+		Wait
+	}
+}
+
+Actor ReaverExplosion : BaseExplosionDamage {
+	Height 4
+	Radius 2
+	+THRUACTORS
+	+NOTONAUTOMAP
+	+FORCEXYBILLBOARD
+	SeeSound "Reaver/Explode"
+	Scale 0.75
+	Speed 0
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 A_Explode(5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			11PF ABCDE 5 Bright
+		Stop
+	}
+}
+
 ACTOR Shadow : DnD_BaseRangedMonster {
 	//$Category Monsters
 	Health 0x7FFFFFFF

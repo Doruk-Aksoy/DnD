@@ -38,6 +38,7 @@
 #define DND_DB_MISC "DnD_PlayerMiscallenous"
 #define DND_DB_KEYS "DnD_PlayerChestKeys"
 #define DND_DB_RESEARCHTRACKER "DnD_ResearchTracker"
+#define DND_DB_NPCTRACKER "DnD_NPCTracker"
 
 // Orb Stuff
 #define DND_DB_ORBFLATHPBONUS "DnD_Orb_FlatHPBonus"

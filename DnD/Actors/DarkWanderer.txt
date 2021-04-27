@@ -1,0 +1,54 @@
+Actor DarkWanderer {
+	Health 0x7FFFFFF
+	Radius 20
+	Height 56
+	Mass 0x7FFFFFF
+	MONSTER
+	Activation THINGSPEC_NoDeathSpecial|THINGSPEC_ThingTargets
+	Tag "Dark Wanderer"
+	Alpha 1.0
+	Renderstyle Translucent
+	Species "Player"
+	+THRUSPECIES
+	-COUNTKILL
+	-SHOOTABLE
+	-SOLID
+	+USESPECIAL
+	+FRIENDLY
+	+NODAMAGETHRUST
+	+DONTBLAST
+	+FLOORCLIP
+	+NOPAIN
+	+LOOKALLAROUND
+	+NOTARGET
+	States {
+		Spawn:
+			
+		Idle:
+			THOR M 10 A_Look
+		Loop
+		See:
+		Melee:
+		Missile:
+			THOR A 4 A_FaceTarget
+		Loop
+		Death:
+			TNT1 A 0 A_ChangeFlag("UseSpecial",0)
+			THOR MMMMMMMMMM 1 A_FadeOut(0.1)
+		Stop
+	}
+}
+
+Actor DarkWandererFirstTime : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
+}
+
+Actor NPC_Offer_Accepted : DnD_Boolean { }
+Actor NPC_Offer_Declined : DnD_Boolean { }
+
+Actor ReceivedDialogID : DnD_Info { }
+
+Actor DarkWanderer_Boss : DnD_BaseRangedMonster_NoRes {
+
+}

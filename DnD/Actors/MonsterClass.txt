@@ -55,6 +55,7 @@ Actor HKClassProtection : InfiniteProtectionBase {
 	DamageFactor "BaronYellow", 0.0
 	DamageFactor "BaronsMagic", 0.0
 	DamageFactor "BaronsMagicFire", 0.0
+	DamageFactor "Putrefier_Poison", 0.0
 }
 
 Actor FatsoClassProtection : InfiniteProtectionBase {
@@ -122,6 +123,7 @@ Actor CyberClassProtection : InfiniteProtectionBase {
 	DamageFactor "CyberGreen", 0.0
 	DamageFactor "CyberGreenExp", 0.0
 	DamageFactor "CyberOrangeMagic", 0.0
+	DamageFactor "ThamuzPoison", 0.0
 }
 
 Actor MakeExplosiveHighResist : DnD_Activator {
@@ -193,7 +195,17 @@ Actor MakePierce : DnD_Activator {
 Actor MakeNoPain : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_NOPAIN, -1, -1, -1)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
+		Stop
+	}
+}
+
+Actor MakeHatred : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOTARGET", 1)
+			TNT1 A 0 A_ChangeFlag("NOINFIGHTING", 1)
 		Stop
 	}
 }
@@ -201,6 +213,7 @@ Actor MakeNoPain : DnD_Activator {
 Actor TakeNoPain : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_NOPAIN, -1, -1, -1)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
 		Stop
 	}
@@ -269,6 +282,131 @@ Actor DnD_RebirthItem : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 AAAAA 0 A_SpawnItemEx("ReiverGhost_NoExp_NoSolid", 8, 0, height / 2, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+		Stop
+	}
+}
+
+Actor PlayerStopper : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_PlaySound("Elite/ShockerHit", CHAN_ITEM)
+		Stop
+	}
+}
+
+Actor RejuvenationFX_Spawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("RegenEffectSpawner", 0, 0, height / 4)
+		Stop
+	}
+}
+
+Actor DarkHealFX_Spawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("DarkHealEffectSpawner", 0, 0, height / 4)
+		Stop
+	}
+}
+
+Actor MonsterFortifyCount : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Rejuvenate_Script_Run : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Rejuvenation")
+		Stop
+	}
+}
+
+Actor SubordinateSpawnFX {
+	Renderstyle Add
+	Alpha 1.0
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Elite/SubordinateSpawn")
+			RW6A EF 3 Bright
+			TNT1 A 0 A_ChangeVelocity(0, 0, 2.0)
+			RW6A GHI 4 Bright
+			RW6A JJJJJJJJJJJ 2 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor SubordinateFXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("SubordinateSpawnFX", 0, 0, height / 2 + 12)
+			TNT1 A 0 A_SpawnItemEx("ExplosionFlare", 0, 0, height / 2 + 12)
+			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("InterventionFX", random(-8,8), random(-8,8), random(-8,8) + height / 2, random(-12,12), random(-12,12), random(-2,12))
+		Stop
+	}
+}
+
+Actor RepelPulse : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Blast(0, 4, 168, 24)
+		Stop
+	}
+}
+
+Actor RepelPulseFXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("TorrasqueDeflectFX", 0, 0, 32)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare", 0, 0, height / 2 + 8.0)
+		Stop
+	}
+}
+
+Actor Repel_Script_Run : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Repel")
+		Stop
+	}
+}
+
+Actor Cripple_Script_Run : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Cripple")
+		Stop
+	}
+}
+
+Actor CrippleSlower : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("CrippleSlowPower", 1, "SkipSound")
+			TNT1 A 0 A_PlaySound("Elite/CrippleFX")
+		SkipSound:
+			TNT1 A 0 A_GiveInventory("CrippleSlowPower", 1)
+		Stop
+	}
+}
+
+Actor CrippleSlowPower : PowerSpeed {
+	Speed 0.5
+	Powerup.Duration 35
+	Powerup.Color "99 66 00"
+}
+
+Actor RuinationStacks : Inventory {
+	inventory.maxamount 7
+}
+
+Actor RuinBlend : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("33 33 99", 1.0, 35)
 		Stop
 	}
 }

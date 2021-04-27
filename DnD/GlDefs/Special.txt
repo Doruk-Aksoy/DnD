@@ -10,3 +10,12 @@ Object ShockLighter
 {
 	frame TNT1A { light ShockLight }
 }
+
+object SubordinateSpawnFX {
+	frame RW6AE { light MeteorLauncherLight1 }
+	frame RW6AF { light MeteorLauncherLight2 }
+	frame RW6AG { light MeteorLauncherLight3 }
+	frame RW6AH { light MeteorLauncherLight3 }
+	frame RW6AI { light MeteorLauncherLight3 }
+	frame RW6AJ { light MeteorLauncherLight3 }
+}

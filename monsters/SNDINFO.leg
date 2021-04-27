@@ -29,6 +29,7 @@ Torrasque/Step1		TORSTEP1
 Torrasque/Step2		TORSTEP2
 Torrasque/Step3		TORSTEP3
 $random Torrasque/Step { Torrasque/Step1 Torrasque/Step2 Torrasque/Step3 }
+Torrasque/Deflect	TORDEFLT
 
 Mordecqai/FlameUp	MORFUP
 Mordecqai/FlameFire	MORFFIRE
