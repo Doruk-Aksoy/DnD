@@ -1,0 +1,130 @@
+object Gant_AcidShot {
+	frame ACID { light SedrinLight1 }
+	
+	frame BPLOA { light SedrinLight2 }
+	frame BPLOB { light SedrinLight2 }
+	frame BPLOC { light SedrinLight3 }
+	frame BPLOD { light SedrinLight3 }
+	frame BPLOE { light SedrinLight4 }
+	frame BPLOF { light SedrinLight4 }
+	frame BPLOG { light SedrinLight5 }
+	frame BPLOH { light SedrinLight6 }
+}
+
+object Bronn_AcidShot {
+	frame ACID { light SedrinLight1 }
+	
+	frame BPLOA { light SedrinLight2 }
+	frame BPLOB { light SedrinLight2 }
+	frame BPLOC { light SedrinLight3 }
+	frame BPLOD { light SedrinLight3 }
+	frame BPLOE { light SedrinLight4 }
+	frame BPLOF { light SedrinLight4 }
+	frame BPLOG { light SedrinLight5 }
+	frame BPLOH { light SedrinLight6 }
+}
+
+flickerlight VaajLight1 {
+	color 1.0 0.6 0.75
+	size 50
+	secondarysize 80
+	chance 0.4
+}
+
+pointlight VaajLight2 {
+	color 1.0 0.6 0.75
+	size 160
+}
+
+pointlight VaajLight3 {
+	color 1.0 0.6 0.75
+	size 144
+}
+
+pointlight VaajLight4 {
+	color 1.0 0.6 0.75
+	size 108
+}
+
+pointlight VaajLight5 {
+	color 1.0 0.6 0.75
+	size 64
+}
+
+pointlight VaajLight6 {
+	color 1.0 0.6 0.75
+	size 32
+}
+
+object VaajBigBall {
+	frame SUCP { light VaajLight1 }
+}
+
+object VaajBigBall_ExplodeFX {
+	frame BFOGA { light VaajLight2 }
+	frame BFOGB { light VaajLight3 }
+	frame BFOGC { light VaajLight4 }
+	frame BFOGD { light VaajLight5 }
+	frame BFOGE { light VaajLight6 }
+}
+
+flickerlight ELECSHINE1
+{
+    color 0.2 0.2 1.0
+    size 64
+    secondarySize 72
+    chance 0.4
+}
+
+flickerlight ELECSHINE2
+{
+    color 0.2 0.2 0.8
+    size 80
+    secondarySize 88
+    chance 0.4
+}
+
+flickerlight ELECSHINE3
+{
+    color 0.1 0.1 0.5
+    size 64
+    secondarySize 72
+    chance 0.4
+}
+
+flickerlight ELECSHINE4
+{
+    color 0.0 0.0 0.2
+    size 8
+    secondarySize 16
+    chance 0.4
+}
+
+object Remus {
+    frame UEA4A { light ELECSHINE1 }
+    frame UEA4B { light ELECSHINE1 }
+    frame UEA4C { light ELECSHINE1 }
+    frame UEA4D { light ELECSHINE1 }
+
+    frame UEB4A { light ELECSHINE2 }
+    frame UEB4B { light ELECSHINE2 }
+    frame UEB4C { light ELECSHINE2 }
+    frame UEB4D { light ELECSHINE2 }
+
+    frame UEC4A { light ELECSHINE3 }
+    frame UEC4B { light ELECSHINE3 }
+    frame UEC4C { light ELECSHINE3 }
+    frame UEC4D { light ELECSHINE3 }
+
+    frame UED4A { light ELECSHINE4 }
+    frame UED4B { light ELECSHINE4 }
+    frame UED4C { light ELECSHINE4 }
+    frame UED4D { light ELECSHINE4 }
+	
+	frame UE04R { light ELECSHINE1 }
+	frame UE04S { light ELECSHINE2 }
+	frame UE04T { light ELECSHINE3 }
+	frame UE04U { light ELECSHINE3 }
+	frame UE04V { light ELECSHINE2 }
+	frame UE04W { light ELECSHINE1 }
+}

@@ -48,6 +48,8 @@
 
 #define DREAMER_CORPSEEXPLOSION_DIST 512.0
 
+#define VAAJ_PULL_DIST 192.0
+
 typedef struct {
 	int time;
 	int growtime;

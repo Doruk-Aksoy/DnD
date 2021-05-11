@@ -99,6 +99,8 @@ enum {
 	DND_CRIPPLE,
 	DND_RUINATION,
 	
+	DND_MARKOFCHAOS,
+	
 	DND_LEGENDARY
 };
 #define MAX_MONSTER_TRAITS (DND_LEGENDARY + 1)
@@ -193,6 +195,8 @@ str MonsterTraits[MAX_MONSTER_TRAITS] = {
 	"Phantasm",
 	"Cripple",
 	"Ruination",
+	
+	"Mark of Chaos",
 	
 	"Legendary"
 };
@@ -309,6 +313,7 @@ str GetTraitColorCode(int trait) {
 		
 		
 		case DND_LEGENDARY:
+		case DND_MARKOFCHAOS:
 		return "\ci";
 	}
 	return EliteTraitColorCode[DND_TRAITCODE_NULL];

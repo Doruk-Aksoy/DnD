@@ -10,6 +10,5 @@ echo.
 %bcs% "dnd.bcs" "..\dnd\acs\dnd.lmp"
 %bcs% "dnd_database.bcs" "..\dnd\acs\dnd_db.lmp"
 %bcs% "dnd_menu.bcs" "..\dnd\acs\dnd_menu.lmp"
-%bcs% "dnd_shared.bcs" "..\dnd\acs\dnd_shrd.lmp"
 %bcs% "dnd_mons.bcs" "..\monsters\acs\dnd_mons.lmp"
 echo ----------------------------------------------------------------

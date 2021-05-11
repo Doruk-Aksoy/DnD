@@ -24,6 +24,7 @@ Actor NewInfrared : Infrared replaces Infrared {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+			TNT1 A 0 ACS_NamedExecuteAlways("Dnd Pickup Setup")
 		Goto Super::Spawn
 	}
 }
@@ -32,7 +33,7 @@ Actor NewBackPack : CustomInventory {
 	States {
 		Spawn:
 			BPAK A -1
-		Loop
+		Stop
 		Pickup: // check success cond moved below
 			TNT1 A 0 ACS_ExecuteAlways(996, 0, 0)
 		Stop
@@ -88,6 +89,7 @@ Actor NewAllMap : CustomInventory replaces Allmap {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+			TNT1 A 0 ACS_NamedExecuteAlways("Dnd Pickup Setup")
 		SpawnIdle:
 			PMAP AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("AllMapFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -119,6 +121,8 @@ Actor EvilSphere : Powerupgiver replaces BlurSphere
  States
  {
 	Spawn:
+		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+	SpawnLoop:
 		HELS AAAABBBBCCCCDDDD 1 Bright A_SpawnItemEx("EvilSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 	Loop
  }
@@ -134,6 +138,7 @@ ACTOR NewBerserk : CustomInventory replaces Berserk
   {
   Spawn:
     TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+	TNT1 A 0 ACS_NamedExecuteAlways("Dnd Pickup Setup")
   SpawnIdle:
     XNSR A 1 A_SpawnItemEx("AllMapFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
     Loop
@@ -156,6 +161,8 @@ Actor InvulnerabilitySphere2 : InvulnerabilitySphere replaces InvulnerabilitySph
 	
 	States {
 		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+		SpawnLoop:
 			PINV AAAAABBBBBCCCCCDDDDDEEEEEFFFFFEEEEEDDDDDCCCCCBBBBB 1 Bright A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 	}
@@ -168,6 +175,7 @@ ACTOR RadSuit2 : Radsuit replaces Radsuit
 	States {
 		Spawn:
 		    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+			TNT1 A 0 ACS_NamedExecuteAlways("Dnd Pickup Setup")
 		SpawnIdle:
 			SUIT A 1 Bright A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -184,6 +192,8 @@ Actor SoulSphere2 : CustomInventory replaces SoulSphere
     States
     {
 		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+		SpawnLoop:
 		    SOUL AAAAAABBBBBBCCCCCCDDDDDDCCCCCCBBBBBB 1 Bright A_SpawnItemEx("SoulSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		Pickup:
@@ -196,43 +206,43 @@ Actor SoulSphere2 : CustomInventory replaces SoulSphere
   }
 }
 
-Actor MegaSphere2 : CustomInventory
-{ 
+Actor MegaSphere2 : CustomInventory {
 	Inventory.PickupAnnouncerEntry ""
 	inventory.pickupsound "items/megasphere"
-    SpawnID 132
-    +COUNTITEM
-    +INVENTORY.ALWAYSPICKUP
-    inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Megasphere! 200 health and armor!\c-"
-    States
-    {
+	SpawnID 132
+	+COUNTITEM
+	+INVENTORY.ALWAYSPICKUP
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Megasphere! 200 health and armor!\c-"
+	States {
 		Spawn:
-		  MEGA AAAAAABBBBBBCCCCCCDDDDDD 1 Bright A_SpawnItemEx("MegaSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+		SpawnLoop:
+			MEGA AAAAAABBBBBBCCCCCCDDDDDD 1 Bright A_SpawnItemEx("MegaSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		Pickup:
-		  TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200)
-		  TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 200, 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 200, 2)
 		Stop
-  }	
+	}	
 }
 
-Actor UberSphere : CustomInventory
-{
-  inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Uber Sphere! 300 health and armor!\c-"
-  inventory.pickupsound "items/ubersphere"
-  +COUNTITEM
-  +INVENTORY.AUTOACTIVATE
-  +INVENTORY.ALWAYSPICKUP
-  states
-  {
-  Spawn:
-    CARN AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
-    loop
-  Pickup: 
-    TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300)
-    TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 300, 2)
-    stop
-  }
+Actor UberSphere : CustomInventory {
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Uber Sphere! 300 health and armor!\c-"
+	inventory.pickupsound "items/ubersphere"
+	+COUNTITEM
+	+INVENTORY.AUTOACTIVATE
+	+INVENTORY.ALWAYSPICKUP
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+		SpawnLoop:
+			CARN AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		loop
+		Pickup: 
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 300, 2)
+		stop
+	}
 }
 
 Actor Megaspherespawner : Randomspawner replaces MegaSphere

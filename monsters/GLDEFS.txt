@@ -12,3 +12,4 @@
 #include "GLDefs/SpiderM.txt"
 #include "GLDefs/Cyberdemon.txt"
 #include "GLDefs/Legendary.txt"
+#include "GLDefs/Uniques.txt"

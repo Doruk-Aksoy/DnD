@@ -192,6 +192,7 @@ Actor Chaingunguy2 : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("chainguy/attack", CHAN_WEAPON)
 			ZCCH E 4 Fast bright A_CustomMissile("ZombieBullet", 32, 0, frandom(-22.5, 22.5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			ZCCH F 1 A_CPosRefire
 		Goto MissileState + 1
 		PainState:
@@ -873,8 +874,10 @@ Actor Mancubus2 : DnD_BaseRangedMonster {
 			FATT G 20 A_FatRaise
 			FATT H 10 Bright A_FatAttack1
 			FATT IG 5 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			FATT H 10 Bright A_FatAttack2
 			FATT IG 5 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			FATT H 10 Bright A_FatAttack3
 			FATT IG 5 A_FaceTarget
 		Goto See
@@ -957,6 +960,7 @@ Actor Arachno2 : DnD_BaseRangedMonster {
 			BSPI A 20 Bright A_FaceTarget
 			BSPI G 4 Bright A_BspiAttack
 			BSPI H 4 Bright
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			BSPI H 1 Bright A_SpidRefire
 		Goto MissileState + 1
 		PainState:
@@ -1125,6 +1129,7 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss {
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 AA 0 A_CustomMissile("SpiderMBullet", 32, 0, frandom(-22.5, 22.5))
 			SPID H 3 Fast Bright A_CustomMissile("SpiderMBullet", 32, 0, frandom(-22.5, 22.5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			SPID H 1 Fast Bright A_MonsterRefire(24, "MissileFinish")
 		Loop
 		MissileFinish:
@@ -1240,8 +1245,10 @@ Actor Cyberdemon2 : DnD_BaseRangedBoss {
 			CYBR E 6 Fast A_FaceTarget
 			CYBR F 12 Fast A_CustomMissile("CyberdemonRocket",42,-28)
 			CYBR E 12 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CYBR F 12 Fast A_CustomMissile("CyberdemonRocket",42,-28)
 			CYBR E 12 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CYBR F 12 Fast A_CustomMissile("CyberdemonRocket",42,-28)
 		Goto See
 		PainState:

@@ -288,9 +288,44 @@ enum {
 	MONSTER_TORRASQUE,
 	MONSTER_MORDECQAI,
 	MONSTER_GODSLAYER,
-	MONSTER_GOLGOTH
-};
+	MONSTER_GOLGOTH,
 	
+	// zombieman uniques
+	MONSTER_TERON,
+	// shotgunner uniques
+	MONSTER_GANT,
+	// chaingunnner uniques
+	MONSTER_BRONN,
+	// imp uniques
+	MONSTER_VAAJ,
+	// demon uniques
+	MONSTER_REMUS,
+	// spectre uniques
+	MONSTER_SSRATH,
+	// lost soul uniques
+	MONSTER_HOLLOWSHELL,
+	// cacodemon uniques
+	MONSTER_OMNISIGHT,
+	// pain e. uniques
+	MONSTER_CHEGOVAX,
+	// rev uniques
+	MONSTER_ONIMUZ,
+	// hk uniques
+	MONSTER_HARKIMONDE,
+	// baron uniques
+	MONSTER_LESHRAC,
+	// manc uniques
+	MONSTER_KRULL,
+	// arachno uniques
+	MONSTER_THORAX,
+	// vile uniques
+	MONSTER_ZRAVOG,
+	// sm uniques
+	MONSTER_ERYXIA,
+	// cyber uniques
+	MONSTER_ABAXOTH,
+};
+
 #define DND_CUSTOM_ZOMBIEMAN_BEGIN MONSTER_ZOMBIEMANGRAY
 #define DND_CUSTOM_ZOMBIEMAN_END MONSTER_ZOMBIEPROPHET
 
@@ -342,11 +377,65 @@ enum {
 #define DND_CUSTOM_CYBER_BEGIN MONSTER_CARDINAL
 #define DND_CUSTOM_CYBER_END MONSTER_CERBERUS
 
+#define DND_UNIQUE_ZOMBIEMAN_BEGIN MONSTER_TERON
+#define DND_UNIQUE_ZOMBIEMAN_END MONSTER_TERON
+
+#define DND_UNIQUE_SHOTGUNGUY_BEGIN MONSTER_GANT
+#define DND_UNIQUE_SHOTGUNGUY_END MONSTER_GANT
+
+#define DND_UNIQUE_CHAINGUNGUY_BEGIN MONSTER_BRONN
+#define DND_UNIQUE_CHAINGUNGUY_END MONSTER_BRONN
+
+#define DND_UNIQUE_IMP_BEGIN MONSTER_VAAJ
+#define DND_UNIQUE_IMP_END MONSTER_VAAJ
+
+#define DND_UNIQUE_DEMON_BEGIN MONSTER_REMUS
+#define DND_UNIQUE_DEMON_END MONSTER_REMUS
+
+#define DND_UNIQUE_SPECTRE_BEGIN MONSTER_SSRATH
+#define DND_UNIQUE_SPECTRE_END MONSTER_SSRATH
+
+#define DND_UNIQUE_LOSTSOUL_BEGIN MONSTER_HOLLOWSHELL
+#define DND_UNIQUE_LOSTSOUL_END MONSTER_HOLLOWSHELL
+
+#define DND_UNIQUE_CACODEMON_BEGIN MONSTER_OMNISIGHT
+#define DND_UNIQUE_CACODEMON_END MONSTER_OMNISIGHT
+
+#define DND_UNIQUE_PAINE_BEGIN MONSTER_CHEGOVAX
+#define DND_UNIQUE_PAINE_END MONSTER_CHEGOVAX
+
+#define DND_UNIQUE_REVENANT_BEGIN MONSTER_ONIMUZ
+#define DND_UNIQUE_REVENANT_END MONSTER_ONIMUZ
+
+#define DND_UNIQUE_HK_BEGIN MONSTER_HARKIMONDE
+#define DND_UNIQUE_HK_END MONSTER_HARKIMONDE
+
+#define DND_UNIQUE_BARON_BEGIN MONSTER_LESHRAC
+#define DND_UNIQUE_BARON_END MONSTER_LESHRAC
+
+#define DND_UNIQUE_FATSO_BEGIN MONSTER_KRULL
+#define DND_UNIQUE_FATSO_END MONSTER_KRULL
+
+#define DND_UNIQUE_ARACHNO_BEGIN MONSTER_THORAX
+#define DND_UNIQUE_ARACHNO_END MONSTER_THORAX
+
+#define DND_UNIQUE_VILE_BEGIN MONSTER_ZRAVOG
+#define DND_UNIQUE_VILE_END MONSTER_ZRAVOG
+
+#define DND_UNIQUE_SM_BEGIN MONSTER_ERYXIA
+#define DND_UNIQUE_SM_END MONSTER_ERYXIA
+
+#define DND_UNIQUE_CYBER_BEGIN MONSTER_ABAXOTH
+#define DND_UNIQUE_CYBER_END MONSTER_ABAXOTH
+
+#define DND_UNIQUEMONSTER_BEGIN MONSTER_TERON
+#define DND_UNIQUEBOSS_BEGIN MONSTER_ERYXIA
+
 #define DND_BOSS_BEGIN MONSTER_DEMOLISHER
 #define LEGENDARY_START MONSTER_DREAMINGGOD
 #define LEGENDARY_END MONSTER_GOLGOTH
-#define DND_LASTMONSTER_INDEX MONSTER_GOLGOTH
-#define DND_MAX_LEGENDARY (DND_LASTMONSTER_INDEX - LEGENDARY_START + 1)
+#define DND_LASTMONSTER_INDEX MONSTER_ABAXOTH
+#define DND_MAX_LEGENDARY (LEGENDARY_END - LEGENDARY_START + 1)
 #define MONSTER_COUNT (DND_LASTMONSTER_INDEX + 50) // possible compatibility for other wads' monsters
 
 void ScaleMonsterMass(int level) {
@@ -357,66 +446,213 @@ void ScaleMonsterMass(int level) {
 		SetActorProperty(0, APROP_MASS, m);
 }
 
+enum {
+	DND_MONSTERSIZE_SMALL,
+	DND_MONSTERSIZE_MEDIUM,
+	DND_MONSTERSIZE_BIG
+};
+
+int GetMonsterSizeType(int id) {
+	switch(id) {
+		case MONSTER_ZOMBIEMAN:
+		case MONSTER_SHOTGUNNER:
+		case MONSTER_CHAINGUNNER:
+		case MONSTER_DEMON:
+		case MONSTER_SPECTRE:
+		case MONSTER_IMP:
+		case MONSTER_NAZI:
+		case MONSTER_LOSTSOUL:
+		return DND_MONSTERSIZE_SMALL;
+		
+		case MONSTER_CACODEMON:
+		case MONSTER_PAINELEMENTAL:
+		case MONSTER_REVENANT:
+		case MONSTER_HELLKNIGHT:
+		case MONSTER_VILE:
+		return DND_MONSTERSIZE_MEDIUM;
+		
+		case MONSTER_BARON:
+		case MONSTER_FATSO:
+		case MONSTER_SPIDER:
+		case MONSTER_MASTERMIND:
+		case MONSTER_CYBERDEMON:
+		return DND_MONSTERSIZE_BIG;
+		
+		default:
+		if(id <= DND_CUSTOM_LOSTSOUL_END)
+			return DND_MONSTERSIZE_SMALL;
+		if(id < DND_CUSTOM_BARON_BEGIN || (id >= DND_CUSTOM_VILE_BEGIN && id <= DND_CUSTOM_VILE_END))
+			return DND_MONSTERSIZE_MEDIUM;
+		return DND_MONSTERSIZE_BIG;
+	}
+}
+
 // this is the single source that gives the monsters their proper class protections
 // or their weaknesses
 void HandleMonsterClassInnates(int mid, int id) {
-	if(id == MONSTER_ZOMBIEMAN || (id >= DND_CUSTOM_ZOMBIEMAN_BEGIN && id <= DND_CUSTOM_ZOMBIEMAN_END))
+	if
+	(
+		id == MONSTER_ZOMBIEMAN || 
+		(id >= DND_CUSTOM_ZOMBIEMAN_BEGIN && id <= DND_CUSTOM_ZOMBIEMAN_END) ||
+		(id >= DND_UNIQUE_ZOMBIEMAN_BEGIN && id <= DND_UNIQUE_ZOMBIEMAN_END)
+	)
+	{
 		MonsterProperties[mid].class = MONSTERCLASS_ZOMBIEMAN;
-	else if(id == MONSTER_SHOTGUNNER || (id >= DND_CUSTOM_SHOTGUNGUY_BEGIN & id <= DND_CUSTOM_SHOTGUNGUY_END))
+	}
+	else if
+	(
+		id == MONSTER_SHOTGUNNER || 
+		(id >= DND_CUSTOM_SHOTGUNGUY_BEGIN & id <= DND_CUSTOM_SHOTGUNGUY_END) ||
+		(id >= DND_UNIQUE_SHOTGUNGUY_BEGIN & id <= DND_UNIQUE_SHOTGUNGUY_END)
+	)
+	{
 		MonsterProperties[mid].class = MONSTERCLASS_SHOTGUNGUY;
-	else if(id == MONSTER_CHAINGUNNER || (id >= DND_CUSTOM_CHAINGUNGUY_BEGIN && id <= DND_CUSTOM_CHAINGUNGUY_END))
+	}
+	else if
+	(
+		id == MONSTER_CHAINGUNNER || 
+		(id >= DND_CUSTOM_CHAINGUNGUY_BEGIN && id <= DND_CUSTOM_CHAINGUNGUY_END) ||
+		(id >= DND_UNIQUE_CHAINGUNGUY_BEGIN && id <= DND_UNIQUE_CHAINGUNGUY_END)
+	)
+	{
 		MonsterProperties[mid].class = MONSTERCLASS_CHAINGUNGUY;
-	else if(id == MONSTER_IMP || (id >= DND_CUSTOM_IMP_BEGIN && id <= DND_CUSTOM_IMP_END)) {
+	}
+	else if
+	(
+		id == MONSTER_IMP || 
+		(id >= DND_CUSTOM_IMP_BEGIN && id <= DND_CUSTOM_IMP_END) ||
+		(id >= DND_UNIQUE_IMP_BEGIN && id <= DND_UNIQUE_IMP_END)
+	)
+	{
 		GiveInventory("ImpClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_IMP;
 	}
-	else if(id == MONSTER_DEMON || (id >= DND_CUSTOM_DEMON_BEGIN && id <= DND_CUSTOM_DEMON_END)) {
+	else if
+	(
+		id == MONSTER_DEMON || 
+		(id >= DND_CUSTOM_DEMON_BEGIN && id <= DND_CUSTOM_DEMON_END) ||
+		(id >= DND_UNIQUE_DEMON_BEGIN && id <= DND_UNIQUE_DEMON_END)
+	)
+	{
 		GiveInventory("DemonClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_DEMON;
 	}
-	else if(id == MONSTER_SPECTRE || (id >= DND_CUSTOM_SPECTRE_BEGIN && id <= DND_CUSTOM_SPECTRE_END)) {
+	else if
+	(
+		id == MONSTER_SPECTRE || 
+		(id >= DND_CUSTOM_SPECTRE_BEGIN && id <= DND_CUSTOM_SPECTRE_END) ||
+		(id >= DND_UNIQUE_SPECTRE_BEGIN && id <= DND_UNIQUE_SPECTRE_END)
+	)
+	{
 		GiveInventory("DemonClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_SPECTRE;
 	}
-	else if(id == MONSTER_LOSTSOUL || (id >= DND_CUSTOM_LOSTSOUL_BEGIN && id <= DND_CUSTOM_LOSTSOUL_END))
+	else if
+	(
+		id == MONSTER_LOSTSOUL || 
+		(id >= DND_CUSTOM_LOSTSOUL_BEGIN && id <= DND_CUSTOM_LOSTSOUL_END) ||
+		(id >= DND_UNIQUE_LOSTSOUL_BEGIN && id <= DND_UNIQUE_LOSTSOUL_END)
+	)
+	{
 		MonsterProperties[mid].class = MONSTERCLASS_LOSTSOUL;
-	else if(id == MONSTER_CACODEMON || (id >= DND_CUSTOM_CACODEMON_BEGIN && id <= DND_CUSTOM_CACODEMON_END)) {
+	}
+	else if
+	(
+		id == MONSTER_CACODEMON || 
+		(id >= DND_CUSTOM_CACODEMON_BEGIN && id <= DND_CUSTOM_CACODEMON_END) ||
+		(id >= DND_UNIQUE_CACODEMON_BEGIN && id <= DND_UNIQUE_CACODEMON_END)
+	)
+	{
 		GiveInventory("CacoClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_CACODEMON;
 	}
-	else if(id == MONSTER_PAINELEMENTAL || (id >= DND_CUSTOM_PAINE_BEGIN && id <= DND_CUSTOM_PAINE_END)) {
+	else if
+	(
+		id == MONSTER_PAINELEMENTAL ||
+		(id >= DND_CUSTOM_PAINE_BEGIN && id <= DND_CUSTOM_PAINE_END) ||
+		(id >= DND_UNIQUE_PAINE_BEGIN && id <= DND_UNIQUE_PAINE_END)
+	)
+	{
 		GiveInventory("PaineClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_PAINELEMENTAL;
 	}
-	else if(id == MONSTER_REVENANT || (id >= DND_CUSTOM_REVENANT_BEGIN && id <= DND_CUSTOM_REVENANT_END)) {
+	else if
+	(
+		id == MONSTER_REVENANT ||
+		(id >= DND_CUSTOM_REVENANT_BEGIN && id <= DND_CUSTOM_REVENANT_END) ||
+		(id >= DND_UNIQUE_REVENANT_BEGIN && id <= DND_UNIQUE_REVENANT_END)
+	)
+	{
 		GiveInventory("RevenantClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_REVENANT;
 	}
-	else if(id == MONSTER_HELLKNIGHT || (id >= DND_CUSTOM_HK_BEGIN && id <= DND_CUSTOM_HK_END)) {
+	else if
+	(
+		id == MONSTER_HELLKNIGHT ||
+		(id >= DND_CUSTOM_HK_BEGIN && id <= DND_CUSTOM_HK_END) ||
+		(id >= DND_UNIQUE_HK_BEGIN && id <= DND_UNIQUE_HK_END)
+	)
+	{
 		GiveInventory("HKClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_HELLKNIGHT;
 	}
-	else if(id == MONSTER_BARON || (id >= DND_CUSTOM_BARON_BEGIN && id <= DND_CUSTOM_BARON_END)) {
+	else if
+	(
+		id == MONSTER_BARON ||
+		(id >= DND_CUSTOM_BARON_BEGIN && id <= DND_CUSTOM_BARON_END) ||
+		(id >= DND_UNIQUE_BARON_BEGIN && id <= DND_UNIQUE_BARON_END)
+	) 
+	{
 		GiveInventory("HKClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_BARON;
 	}
-	else if(id == MONSTER_FATSO || (id >= DND_CUSTOM_FATSO_BEGIN && id <= DND_CUSTOM_FATSO_END)) {
+	else if
+	(
+		id == MONSTER_FATSO || 
+		(id >= DND_CUSTOM_FATSO_BEGIN && id <= DND_CUSTOM_FATSO_END) ||
+		(id >= DND_UNIQUE_FATSO_BEGIN && id <= DND_UNIQUE_FATSO_END)
+	) 
+	{
 		GiveInventory("FatsoClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_FATSO;
 	}
-	else if(id == MONSTER_SPIDER || (id >= DND_CUSTOM_ARACHNO_BEGIN && id <= DND_CUSTOM_ARACHNO_END)) {
+	else if
+	(
+		id == MONSTER_SPIDER ||
+		(id >= DND_CUSTOM_ARACHNO_BEGIN && id <= DND_CUSTOM_ARACHNO_END) ||
+		(id >= DND_UNIQUE_ARACHNO_BEGIN && id <= DND_UNIQUE_ARACHNO_END)
+	)
+	{
 		GiveInventory("ArachnoClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_ARACHNOTRON;
 	}
-	else if(id == MONSTER_VILE || (id >= DND_CUSTOM_VILE_BEGIN && id <= DND_CUSTOM_VILE_END)) {
+	else if
+	(
+		id == MONSTER_VILE || 
+		(id >= DND_CUSTOM_VILE_BEGIN && id <= DND_CUSTOM_VILE_END) ||
+		(id >= DND_UNIQUE_VILE_BEGIN && id <= DND_UNIQUE_VILE_END)
+	)
+	{
 		GiveInventory("VileClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_ARCHVILE;
 	}
-	else if(id == MONSTER_MASTERMIND || (id >= DND_CUSTOM_SM_BEGIN && id <= DND_CUSTOM_SM_END)) {
+	else if
+	(
+		id == MONSTER_MASTERMIND ||
+		(id >= DND_CUSTOM_SM_BEGIN && id <= DND_CUSTOM_SM_END) ||
+		(id >= DND_UNIQUE_SM_BEGIN && id <= DND_UNIQUE_SM_END)
+	)
+	{
 		GiveInventory("SMClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_SPIDERMASTERMIND;
 	}
-	else if(id == MONSTER_CYBERDEMON || (id >= DND_CUSTOM_CYBER_BEGIN && id <= LEGENDARY_END)) {
+	else if
+	(
+		id == MONSTER_CYBERDEMON ||
+		(id >= DND_CUSTOM_CYBER_BEGIN && id <= LEGENDARY_END) ||
+		(id >= DND_UNIQUE_CYBER_BEGIN)
+	)
+	{
 		GiveInventory("CyberClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;
 	}
@@ -790,7 +1026,48 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 16500, 		DND_MTYPE_DEMON_POW 									},//DND_TORRASQUE,
 	{ 18500, 		DND_MTYPE_DEMON_POW 									},//DND_MORDECQAI,
 	{ 13500, 		DND_MTYPE_ROBOTIC_POW 									},//DND_GODSLAYER,
-	{ 17500, 		DND_MTYPE_DEMON_POW 									} //DND_GOLGOTH
+	{ 17500, 		DND_MTYPE_DEMON_POW 									},//DND_GOLGOTH,
+	
+	// uniques
+	{ 500,			DND_MTYPE_ZOMBIE_POW | DND_MTYPE_UNDEAD_POW				},//DND_TERON
+	{ 800,			DND_MTYPE_ZOMBIE_POW | DND_MTYPE_UNDEAD_POW				},//DND_GANT
+	{ 1200,			DND_MTYPE_ZOMBIE_POW | DND_MTYPE_UNDEAD_POW				},//DND_BRONN
+	{ 900,			DND_MTYPE_DEMON_POW										},//DND_VAAJ
+	{ 1500,			DND_MTYPE_ZOMBIE_POW | DND_MTYPE_UNDEAD_POW				},//DND_REMUS
+	{ 1250,			DND_MTYPE_DEMON_POW										},//DND_SSRATH
+	
+	/*
+	
+	// shotgunner uniques
+	// imp uniques
+	MONSTER_VAAJ,
+	// demon uniques
+	MONSTER_REMUS,
+	// spectre uniques
+	MONSTER_SSRATH,
+	// lost soul uniques
+	MONSTER_HOLLOWSHELL,
+	// cacodemon uniques
+	MONSTER_OMNISIGHT,
+	// pain e. uniques
+	MONSTER_CHEGOVAX,
+	// rev uniques
+	MONSTER_ONIMUZ,
+	// hk uniques
+	MONSTER_HARKIMONDE,
+	// baron uniques
+	MONSTER_LESHRAC,
+	// manc uniques
+	MONSTER_KRULL,
+	// arachno uniques
+	MONSTER_THORAX,
+	// vile uniques
+	MONSTER_ZRAVOG,
+	// sm uniques
+	MONSTER_ERYXIA,
+	// cyber uniques
+	MONSTER_ABAXOTH,
+	*/
 };
 
 int MonsterPetTypeList[MAX_PET_TYPES] = {
@@ -799,11 +1076,15 @@ int MonsterPetTypeList[MAX_PET_TYPES] = {
 
 bool IsBoss() {
 	int id = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
-	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id >= DND_BOSS_BEGIN;
+	return IsMonsterIdBoss(id);
 }
 
 bool IsMonsterIdBoss(int id) {
-	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id >= DND_BOSS_BEGIN;
+	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || id >= DND_UNIQUEBOSS_BEGIN;
+}
+
+bool IsUniqueMonster(int id) {
+	return id >= DND_UNIQUEMONSTER_BEGIN;
 }
 
 bool IsDemon() {
@@ -1136,7 +1417,7 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_RARE2, 
 		DND_MWEIGHT_EPIC,
 		DND_MWEIGHT_ENDMARKER 
-	}
+	},
 };
 
 // these are filled by hand, finding the rarest monster of each class is needlessly complicated (find top classes, equal ones must be considered as sharing top spot etc.)
@@ -1605,6 +1886,11 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_GOLGOTH].trait_list[DND_EXPLOSIVE_NONE] = true;
 	MonsterData[MONSTER_GOLGOTH].trait_list[DND_MAGIC_RESIST] = true;
 	MonsterData[MONSTER_GOLGOTH].trait_list[DND_LEGENDARY] = true;
+	
+	// unique monsters
+	// teron
+	// gant
+	// bronn
 }
 
 Script "DnD Setup Monster Data" OPEN {

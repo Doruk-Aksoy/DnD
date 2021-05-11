@@ -1,6 +1,15 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+DarkWanderer/ChallengeWin		DWCHWIN
+DarkWanderer/ChallengeFail		DWCHLOSS
+
+Items/NPCArtifactPick	NARTIPCK
+Items/NPCArtifactLoop	NARTILOO
+
+ChaosBolt/Fire			CHAOSFIR
+ChaosBolt/Hit			CHAOSHIT
+
 Phantasm/Rise			PHNTRISE
 Phantasm/Act			PHNTACT
 Phantasm/Die			PHNTDIE

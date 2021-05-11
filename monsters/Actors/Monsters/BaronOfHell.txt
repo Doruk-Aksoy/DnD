@@ -407,8 +407,10 @@ Actor Cybruiser : DnD_BaseHybridMonster {
 			CRUS E 8 Fast A_FaceTarget 
 			CRUS F 12 Fast Bright A_CustomMissile("BruiserMissile",38,15,0,0)
 			CRUS E 12 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CRUS F 12 Fast Bright A_CustomMissile("BruiserMissile",38,15,0,0)
 			CRUS E 12 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CRUS F 12 Fast Bright A_CustomMissile("BruiserMissile",38,15,0,0)
 		Goto See
 		Single:
@@ -1433,8 +1435,10 @@ Actor Barbatos : DnD_BaseHybridMonster {
 			CYBR E 6 Fast A_FaceTarget
 			CYBR F 12 Fast A_CustomMissile("CyberdemonRocketWeak",36,-24)
 			CYBR E 12 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CYBR F 12 Fast A_CustomMissile("CyberdemonRocketWeak",36,-24)
 			CYBR E 12 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CYBR F 12 Fast A_CustomMissile("CyberdemonRocketWeak",36,-24)
 		Goto See
 		PainState:
@@ -2787,9 +2791,11 @@ actor Judicator : DnD_BaseHybridMonster {
 			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
 			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
 			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
 			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
 			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
 			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
 			JUIC E 1 Fast A_MonsterRefire(160, "See")

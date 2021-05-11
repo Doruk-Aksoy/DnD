@@ -1577,6 +1577,7 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 			UNDP F 5 Fast bright A_CustomMissile("UndeadPriestBullet", 42, -9, frandom(-6.4, 6.4), 0, frandom(-5.2, 5.2))
 			UNDP F 0 bright A_PlaySoundEx ("UndeadPriest/Shoot","SoundSlot6")
 			UNDP E 2 Fast
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			TNT1 AAAA 0 A_CustomMissile("UndeadPriestBullet", 42, -9, frandom(-6.4, 6.4), 0, frandom(-5.2, 5.2))
 			UNDP F 5 Fast bright A_CustomMissile("UndeadPriestBullet", 42, -9, frandom(-6.4, 6.4), 0, frandom(-5.2, 5.2))
 			UNDP F 0 bright A_PlaySoundEx ("UndeadPriest/Shoot2","SoundSlot7")

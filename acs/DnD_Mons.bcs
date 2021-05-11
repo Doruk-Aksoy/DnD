@@ -314,7 +314,7 @@ Script "DND Flesh Wizard Torment" (int force) {
 					int ydiff = oY - tY;
 					
 					int velz = (oZ - tZ) >> 16;
-					velz /= 100; // player mass
+					velz /= GetActorProperty(curtarget, APROP_MASS); // player mass
 					ThrustThing(VectorAngle(xdiff, ydiff) >> 8, force, 1, curtarget);
 					ThrustThingZ(curtarget, velz * force, velz > 0, 0);
 					
@@ -728,5 +728,38 @@ Script "DnD Collision Checker" (int collision_id) {
 			res = Spawn("RevenantCollider", GetActorX(0), GetActorY(0), GetActorZ(0));
 		break;
 	}
+	SetResultValue(res);
+}
+
+Script "DnD Vaaj Pull" (void) {
+	while(GetActorVelX(0) || GetActorVelY(0) || GetActorVelZ(0)) {
+		int oX = GetActorX(0);
+		int oY = GetActorY(0);
+		int oZ = GetActorZ(0);
+		
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			int curtarget = i + P_TIDSTART;
+			if(AproxDistance(GetActorX(curtarget) - oX, GetActorY(curtarget) - oY) <= VAAJ_PULL_DIST) {
+				int tX = GetActorX(curtarget);
+				int tY = GetActorY(curtarget);
+				int tZ = GetActorZ(curtarget);
+				
+				int xdiff = oX - tX;
+				int ydiff = oY - tY;
+				
+				int velz = (oZ - tZ) >> 16;
+				velz /= GetActorProperty(curtarget, APROP_MASS); 
+				ThrustThing(VectorAngle(xdiff, ydiff) >> 8, 2, 1, curtarget);
+				ThrustThingZ(curtarget, velz * 2, velz > 0, 0);
+			}
+		}
+		Delay(const:1);
+	}
+}
+
+Script "DnD Monster Melee Loop" (int range) {
+	bool res = false;
+	int target = GetActorProperty(0, APROP_TARGETTID);
+	res = (AproxDistance(GetActorX(target) - GetActorX(0), GetActorY(target) - GetActorY(0)) >> 16) <= range && IsActorAlive(target) && CheckSight(0, target, CSF_NOBLOCKALL);
 	SetResultValue(res);
 }

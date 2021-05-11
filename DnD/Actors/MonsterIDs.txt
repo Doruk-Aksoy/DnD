@@ -216,7 +216,42 @@ enum {
 	DND_TORRASQUE,
 	DND_MORDECQAI,
 	DND_GODSLAYER,
-	DND_GOLGOTH
+	DND_GOLGOTH,
+	
+	// zombieman uniques
+	DND_TERON,
+	// shotgunner uniques
+	DND_GANT,
+	// chaingunnner uniques
+	DND_BRONN,
+	// imp uniques
+	DND_VAAJ,
+	// demon uniques
+	DND_REMUS,
+	// spectre uniques
+	DND_SSRATH,
+	// lost soul uniques
+	DND_HOLLOWSHELL,
+	// cacodemon uniques
+	DND_OMNISIGHT,
+	// pain e. uniques
+	DND_CHEGOVAX,
+	// rev uniques
+	DND_ONIMUZ,
+	// hk uniques
+	DND_HARKIMONDE,
+	// baron uniques
+	DND_LESHRAC,
+	// manc uniques
+	DND_KRULL,
+	// arachno uniques
+	DND_THORAX,
+	// vile uniques
+	DND_ZRAVOG,
+	// sm uniques
+	DND_ERYXIA,
+	// cyber uniques
+	DND_ABAXOTH,
 };
 
 enum {

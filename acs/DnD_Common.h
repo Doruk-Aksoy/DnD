@@ -14,10 +14,14 @@
 #define HALF_TICRATE 17
 
 #define DND_FROZENFX_TID 3000
+#define DND_CHAOSMARKFX_TID 3001
 
+#define SHARED_ITEM_TID_BEGIN 17000
+#define SHARED_ITEM_TYPE_TID_MAX 19048
 #define DND_DAMAGENUMBER_TID 30000
 #define DND_SHOOTABLETID_BEGIN 50000
 #define DND_PETTID_BEGIN 55000
+#define DND_PICKUPTID_BEGIN 56001
 #define DND_MONSTERTID_BEGIN 66000
 
 #define DND_BASE_HEALTH 100
@@ -78,6 +82,7 @@ enum {
 * 2100 - 2163 = Dark Lance tids
 * 2200 - 2263 = Dark Lance Shredder FX
 * 3000 = Frozen FX Temporary TID
+* 3001 = Chaos Mark FX Temporary TID
 * 3099 = Player shotgun puff removal tid
 * 3100 - 3163 = Player Shotgun Puff Temporary TID
 * 3564 = Dark Zealot Shield TID
@@ -96,7 +101,8 @@ enum {
 * 54000 - 54063 = Wanderer explosion tids
 * 54100 - 54163 = Crossbow explosion tids
 * 54165 = NPC TID
-* 55000 - 65999 = pet tids
+* 55000 - 56000 = pet tids
+* 56001 - 59001 = other pickup tids of importance -- soulspheres, megas, invis, invul, radsuit etc.
 * Anything above 66000 => any monster tid
 */
 
@@ -151,8 +157,10 @@ int active_quest_id = -1;
 #define DND_TID_MONSTER 0
 #define DND_TID_PET 1
 #define DND_TID_SHOOTABLE 2
+#define DND_TID_PICKUPS 3
+#define DND_TID_SHAREDITEMS 4
 // keeps at what tid we are left off
-int DnD_TID_List[3] = { DND_MONSTERTID_BEGIN, DND_PETTID_BEGIN, DND_SHOOTABLETID_BEGIN };
+int DnD_TID_List[5] = { DND_MONSTERTID_BEGIN, DND_PETTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
 
 #define PLAYERLEVELINFO_LEVEL 0
 #define PLAYERLEVELINFO_MINLEVEL 1
@@ -172,6 +180,10 @@ void GivePetTID() {
 
 void GiveShootableTID() {
 	Thing_ChangeTID(0, DnD_TID_List[DND_TID_SHOOTABLE]++);
+}
+
+void GivePickupTID() {
+	Thing_ChangeTID(0, DnD_TID_List[DND_TID_PICKUPS]++);
 }
 
 bool isEnemyTID(int tid) {

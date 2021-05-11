@@ -38,6 +38,7 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 32, 26, -4, 0, frandom(3.0, 5.0), random(-130, -110))
 			TNT1 A 0 A_CustomMissile("ZombieBullet", 32, 7, frandom(-22.5, 22.5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			DPOS E 4 Fast Bright A_CustomMissile("ZombieBullet", 32, 32, frandom(-22.5, 22.5))
 			DPOS F 1 A_CPosRefire
 		Goto MissileState + 1
@@ -110,6 +111,7 @@ Actor ChaingunMajor : DnD_BaseRangedMonster {
 			CPS2 F 3 Fast A_CustomMissile("MajorBullet", 32, 8, frandom(-22.5, 22.5))
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CPS2 E 3 Fast A_CustomMissile("MajorBullet", 32, 8, frandom(-22.5, 22.5))
 			CPS2 F 1 A_CPosRefire
 		Goto MissileState + 1
@@ -202,6 +204,7 @@ actor ZSec : DnD_BaseRangedMonster {
 			TNT1 A 0 A_PlaySound("zsec/attack", CHAN_WEAPON)
 			ZSEC F 2 Fast bright A_CustomMissile("SMGZombieBullet", 32, 0, frandom(-5.0, 5.0), 0, frandom(-5.0, 5.0))
 			ZSEC E 2 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 24, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("zsec/attack", CHAN_WEAPON)
 			ZSEC F 2 Fast bright A_CustomMissile("SMGZombieBullet", 32, 0, frandom(-5.0, 5.0), 0, frandom(-5.0, 5.0))
@@ -336,6 +339,7 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 24, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			ZSP2 F 2 Fast Bright A_CustomMissile("UndeadInitiateBullet", 32, 8, frandom(-11.0, 11.0), 0, frandom(-8.0, 8.0))
 			ZSP2 E 2 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			ZSP2 F 0 Bright A_PlayWeaponSound("ZSpecOps/MGun")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 24, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			ZSP2 F 2 Fast Bright A_CustomMissile("UndeadInitiateBullet", 32, 8, frandom(-11.0, 11.0), 0, frandom(-8.0, 8.0))
@@ -401,12 +405,14 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster {
 			QZOM E 6 Fast A_FaceTarget
 			TNT1 A 0 A_Jump(128, "Double")
 			TNT1 A 0 A_Playsound("Enforcer/Fire")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			QZOM F 4 Fast Bright A_CustomMissile("EnforcerPlasma2", 32, 6)
 			QZOM E 4 Fast
 			QZOM E 1 A_CPosRefire
 		Goto MissileState + 1
 		Double:
 			TNT1 A 0 A_Playsound("Enforcer/Fire")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			TNT1 A 0 A_CustomMissile("EnforcerPlasma2", 32, 6, -1)
 			QZOM F 4 Fast Bright A_CustomMissile("EnforcerPlasma2", 32, 6, 1)
 			QZOM E 4 Fast
@@ -500,6 +506,7 @@ actor UndeadInitiate : DnD_BaseHybridMonster {
 			TNT1 A 0 A_PlaySound ("UndeadInitiate/Shoot", 6)
 			1102 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 34, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			1102 Y 5 Fast bright A_CustomMissile("UndeadInitiateBullet", 32, 8, frandom(-3.0, 3.0), 0, frandom(-2.0, 2.0))
 			TNT1 A 0 A_PlaySound ("UndeadInitiate/Shoot", 6)
 			1102 E 5 Fast
@@ -693,6 +700,7 @@ Actor MachinegunGuy : DnD_BaseRangedMonster {
 			TNT1 A 0 A_PlaySound("Weapons/MGFireSoft")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			EASS F 3 Fast Bright A_CustomMissile("ZombieBullet", 32, 8, frandom(-22.5, 22.5), 0, frandom(-1.5, 1.5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			TNT1 A 0 A_PlaySound("Weapons/MGFireSoft")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			EASS E 3 Bright A_CustomMissile("ZombieBullet", 32, 8, frandom(-22.5, 22.5), 0, frandom(-1.5, 1.5))
@@ -761,6 +769,7 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster {
 			ZMAY E 5 Fast A_FaceTarget
 			ZMAY F 3 Fast A_CustomMissile("ZombiePlasma", 32, 4, frandom(-1.5, 1.5))
 			ZMAY E 5 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			ZMAY F 3 Fast A_CustomMissile("ZombiePlasma", 32, 4, frandom(-1.5, 1.5))
 			ZMAY E 5 Fast A_FaceTarget
 			ZMAY F 3 Fast A_CustomMissile("ZombiePlasma", 32, 4, frandom(-1.5, 1.5))

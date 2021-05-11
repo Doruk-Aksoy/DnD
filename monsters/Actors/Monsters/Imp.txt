@@ -1755,6 +1755,7 @@ ACTOR Shadow : DnD_BaseRangedMonster {
 			TROX E 30 Fast A_FaceTarget
 			TROX F 5  Fast
 			TROX G 5 Fast BRIGHT A_MissileAttack
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			TROX F 5 Fast
 			TROX E 20 Fast
 			TROX E 1 A_SpidRefire

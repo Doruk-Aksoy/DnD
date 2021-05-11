@@ -1,0 +1,73 @@
+Gant/Fire			GANTFIR
+Gant/Hit1			GANTHIT1
+Gant/Hit2			GANTHIT2
+Gant/Hit3			GANTHIT3
+$random Gant/Hit { Gant/Hit1 Gant/Hit2 Gant/Hit3 }
+
+Gant/See1			GANTSIT1
+Gant/See2			GANTSIT2
+Gant/See3			GANTSIT3
+Gant/See4			GANTSIT4
+$random Gant/See { Gant/See1 Gant/See2 Gant/See3 Gant/See4 }
+Gant/Die1			GANTDIE1
+Gant/Die2			GANTDIE2
+Gant/Die3			GANTDIE3
+Gant/Die4			GANTDIE4
+$random Gant/Die { Gant/Die1 Gant/Die2 Gant/Die3 Gant/Die4 }
+Gant/Pain1			GANTPN1
+Gant/Pain2			GANTPN2
+Gant/Pain3			GANTPN3
+Gant/Pain4			GANTPN4
+$random Gant/Pain { Gant/Pain1 Gant/Pain2 Gant/Pain3 Gant/Pain4 }
+Gant/Idle1			GANTI1
+Gant/Idle2			GANTI2
+Gant/Idle3			GANTI3
+Gant/Idle4			GANTI4
+$random Gant/Idle { Gant/Idle1 Gant/Idle2 Gant/Idle3 Gant/Idle4 }
+
+Bronn/See1			BRONNSE1
+Bronn/See2			BRONNSE2
+Bronn/See3			BRONNSE3
+Bronn/See4			BRONNSE4
+$random Bronn/See { Bronn/See1 Bronn/See2 Bronn/See3 Bronn/See4 }
+Bronn/Pain1			BRONNPN1
+Bronn/Pain2			BRONNPN2
+Bronn/Pain3			BRONNPN3
+Bronn/Pain4			BRONNPN4
+$random Bronn/Pain { Bronn/Pain1 Bronn/Pain2 Bronn/Pain3 Bronn/Pain4 }
+Bronn/Die1			BRONNDI1
+Bronn/Die2			BRONNDI2
+Bronn/Die3			BRONNDI3
+$random Bronn/Die { Bronn/Die1 Bronn/Die2 Bronn/Die3 }
+
+Vaaj/See			DSUCIT1
+Vaaj/Pain1			DSUCPN1
+Vaaj/Pain2			DSUCPN2
+Vaaj/Pain3			DSUCPN3
+Vaaj/Pain4			DSUCPN4
+Vaaj/Pain5			DSUCPN5
+Vaaj/Pain6			DSUCPN6
+$random Vaaj/Pain { Vaaj/Pain1 Vaaj/Pain2 Vaaj/Pain3 Vaaj/Pain4 Vaaj/Pain5 Vaaj/Pain6 }
+Vaaj/Die1			DSUCDTH1
+Vaaj/Die2			DSUCDTH2
+$random Vaaj/Die { Vaaj/Die1 Vaaj/Die2 }
+Vaaj/Attack			DSUCATK
+
+Remus/see         	REMUSITE
+Remus/Die			REMUDTH
+Remus/tele1			REMUTEL1
+Remus/tele2			REMUTEL2
+Remus/pain			REMUPAIN
+$random Remus/tele { Remus/tele1  Remus/tele2 }
+
+SSrath/See			SSRASEE
+SSrath/Active		SSRAACT
+SSrath/Die			SSRADIE
+SSrath/ScreamerGo	SSRASCRM
+SSrath/Attack		SSRAATK
+SSrath/Pain1		SSRAPAI1
+SSrath/Pain2		SSRAPAI2
+$random SSrath/Pain { SSrath/Pain1 SSrath/Pain2 }
+
+Omnisight/Shock		OMNISHCK
+Omnisight/Chaos		OMNICHAO

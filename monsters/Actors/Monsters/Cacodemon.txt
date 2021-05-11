@@ -39,7 +39,7 @@ ACTOR CacoLich : DnD_BaseHybridMonster {
 			CALI GFGFGFGFGFGFGFGFGF 1 A_CustomMissile("CacoLichFlameFar", 24, 0, 0)
 			CALI FE 5 Fast A_FaceTarget
 			CALI E 0
-		Goto See	
+		Goto See
 		MeleeState:
 			CALI E 8 Fast A_FaceTarget
 			CALI F 6 Fast A_FaceTarget
@@ -546,7 +546,7 @@ ACTOR Inferno : DnD_BaseHybridMonster {
 		SeeState: 
 			INFR BCD 3 Fast Bright A_Chase 
 		Loop
-		MissileState: 
+		MissileState:
 			INFR HI 5 Fast Bright A_FaceTarget 
 			INFR J 5 Fast Bright A_CustomMissile ("Lavaball",24,0,0,0)
 		Goto See
@@ -1080,10 +1080,12 @@ ACTOR Guardian : DnD_BaseRangedMonster {
 			GAR9 I 0 BRIGHT A_CustomMissile("GuardShot",32,4,0,1)
 			GAR9 I 4 Fast BRIGHT A_CustomMissile("GuardShot",32,-4,0,1)
 			GAR9 H 4 Fast Bright A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			GAR9 I 0 Bright A_PlaySound("weapons/magic1",0,2.0)
 			GAR9 I 0 BRIGHT A_CustomMissile("GuardShot",32,4,0,1)
 			GAR9 I 4 Fast BRIGHT A_CustomMissile("GuardShot",32,-4,0,1)
-			GAR9 H 4 Fast Bright A_FaceTarget 
+			GAR9 H 4 Fast Bright A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			GAR9 I 0 Bright A_PlaySound("weapons/magic1",0,2.0)
 			GAR9 I 0 BRIGHT A_CustomMissile("GuardShot",32,4,0,1)
 			GAR9 I 4 Fast BRIGHT A_CustomMissile("GuardShot",32,-4,0,1)

@@ -19,3 +19,73 @@ object SubordinateSpawnFX {
 	frame RW6AI { light MeteorLauncherLight3 }
 	frame RW6AJ { light MeteorLauncherLight3 }
 }
+
+flickerlight ChaosBoltLight1 {
+	color 1.0 0.175 0.175
+	size 24
+	secondarysize 40
+	chance 0.5
+}
+
+pointlight ChaosBoltLight2 {
+	color 1.0 0.25 0.25
+	size 40
+}
+
+pointlight ChaosBoltLight3 {
+	color 1.0 0.275 0.275
+	size 48
+}
+
+pointlight ChaosBoltLight4 {
+	color 1.0 0.3 0.3
+	size 56
+}
+
+pointlight ChaosBoltLight5 {
+	color 1.0 0.0 0.0
+	size 24
+}
+
+pointlight ChaosBoltLight6 {
+	color 1.0 0.0 0.0
+	size 12
+}
+
+object ChaosBolt {
+	frame CHAOA { light ChaosBoltLight1 }
+	frame CHAOB { light ChaosBoltLight1 }
+	frame CHAOC { light ChaosBoltLight1 }
+	frame CHAOD { light ChaosBoltLight1 }
+	
+	frame CHAOE { light ChaosBoltLight2 }
+	frame CHAOF { light ChaosBoltLight3 }
+	frame CHAOG { light ChaosBoltLight4 }
+	frame CHAOH { light ChaosBoltLight5 }
+	frame CHAOI { light ChaosBoltLight5 }
+}
+
+object ChaosBolt_Seeking {
+	frame CHAOA { light ChaosBoltLight1 }
+	frame CHAOB { light ChaosBoltLight1 }
+	frame CHAOC { light ChaosBoltLight1 }
+	frame CHAOD { light ChaosBoltLight1 }
+	
+	frame CHAOE { light ChaosBoltLight2 }
+	frame CHAOF { light ChaosBoltLight3 }
+	frame CHAOG { light ChaosBoltLight4 }
+	frame CHAOH { light ChaosBoltLight5 }
+	frame CHAOI { light ChaosBoltLight5 }
+}
+
+pulselight DarkWandererArtifactLight {
+	color 1.0 0.1 1.0
+    size 28
+    secondarySize 48
+    interval 0.5
+	offset 0 16 0
+}
+
+object DarkWanderer_Artifact {
+	frame NAR0A { light DarkWandererArtifactLight }
+}

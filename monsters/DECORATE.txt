@@ -18,6 +18,8 @@
 #include "Actors/Monsters/Legendary.txt"
 #include "Actors/Monsters/WolfenSS.txt"
 
+#include "Actors/Monsters/Uniques.txt"
+
 // Spawners
 #include "Actors/Spawners/Spawner.txt"
 #include "Actors/Spawners/ZombieManSpawner.txt"

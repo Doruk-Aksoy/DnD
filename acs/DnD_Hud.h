@@ -64,7 +64,8 @@ enum {
 	DND_MENUINPUT_LCLICK = 1,
 	DND_MENUINPUT_RCLICK,
 	DND_MENUINPUT_PREVBUTTON,
-	DND_MENUINPUT_NEXTBUTTON
+	DND_MENUINPUT_NEXTBUTTON,
+	DND_MENUINPUT_USEBUTTON
 };
 
 #define DND_MENU_INPUTDELAYTICS 4
@@ -196,6 +197,10 @@ void ListenNPCInput() {
 		else if(IsButtonPressed(bpress, obpress, BT_ALTATTACK)) {
 			GiveInventory("DnD_ClickTicker", 1);
 			SetInventory("MenuInput", DND_MENUINPUT_RCLICK);
+		}
+		else if(IsButtonPressed(bpress ,obpress, BT_USE)) {
+			GiveInventory("DnD_ClickTicker", 1);
+			SetInventory("MenuInput", DND_MENUINPUT_USEBUTTON);
 		}
 	}
 }

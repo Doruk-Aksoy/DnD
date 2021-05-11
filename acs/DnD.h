@@ -1178,4 +1178,16 @@ void HandleRuination(int this, int target) {
 	GiveInventory("RuinBlend", 1);
 }
 
+bool IsEliteException(int m_id) {
+	return m_id != MONSTER_PHANTASM && m_id != MONSTER_WRAITH;
+}
+
+void HandleUniqueDeath(int unique_id) {
+	switch(unique_id) {
+		case MONSTER_TERON:
+			// spawn lots of budget
+		break;
+	}
+}
+
 #include "DnD_Damage.h"
