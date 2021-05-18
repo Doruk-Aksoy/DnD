@@ -128,3 +128,57 @@ object Remus {
 	frame UE04V { light ELECSHINE2 }
 	frame UE04W { light ELECSHINE1 }
 }
+
+object OmniLightning {
+	frame LFX1X { light VoidRedLight2 }
+	frame LFX1Y { light VoidRedLight2 }
+	frame LFX1Z { light VoidRedLight2 }
+	
+	frame DLITD { light VoidRedLight2 }
+	frame DLITE { light VoidRedLight2 }
+	frame DLITF { light VoidRedLight2 }
+	frame DLITG { light VoidRedLight2 }
+	frame DLITH { light VoidRedLight2 }
+	frame DLITI { light VoidRedLight2 }
+	frame DLITJ { light VoidRedLight2 }
+	frame DLITK { light VoidRedLight2 }
+	frame DLITL { light VoidRedLight2 }
+	frame DLITM { light VoidRedLight2 }
+	frame DLITN { light VoidRedLight2 }
+	frame DLITO { light VoidRedLight2 }
+}
+
+Object OmniBall {
+	Frame UP06A { Light HadesBall1 }
+	Frame UP06B { Light HadesBall1 }
+	Frame UP06C { Light HadesBall1 }
+	Frame UP06D { Light HadesBall2 }
+	Frame UP06E { Light HadesBall3 }
+	Frame UP06F { Light HadesBall4 }
+	Frame UP06G { Light HadesBall5 }
+	Frame UP06H { Light HadesBall6 }
+	Frame UP06I { Light HadesBall7 }
+}
+
+Object HarkimondeFlameTracer
+{
+	Frame FTRAK { Light DiabloistTracer11 }
+	Frame FTRAL { Light DiabloistTracer12 }
+	Frame FTRAM { Light DiabloistTracer13 }
+	Frame FTRAN { Light DiabloistTracer14 }
+	Frame FTRAO { Light DiabloistTracer15 }
+}
+
+Object Harkimonde_BoomTrail
+{
+	Frame FTRAA { Light DiabloistTracer1 }
+	Frame FTRAB { Light DiabloistTracer2 }
+	Frame FTRAC { Light DiabloistTracer3 }
+	Frame FTRAD { Light DiabloistTracer4 }
+	Frame FTRAE { Light DiabloistTracer5 }
+	Frame FTRAF { Light DiabloistTracer6 }
+	Frame FTRAG { Light DiabloistTracer7 }
+	Frame FTRAH { Light DiabloistTracer8 }
+	Frame FTRAI { Light DiabloistTracer9 }
+	Frame FTRAJ { Light DiabloistTracer10 }
+}

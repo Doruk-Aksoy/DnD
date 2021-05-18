@@ -50,6 +50,8 @@
 
 #define VAAJ_PULL_DIST 192.0
 
+#define UNIQUE_MON_AUX_TID 2500
+
 typedef struct {
 	int time;
 	int growtime;

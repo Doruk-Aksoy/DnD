@@ -674,6 +674,11 @@ Script "DnD Sync Hack" (int x, int y, int z) CLIENTSIDE {
 	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
 }
 
+Script "DnD Sync Hack Immediate" (int x, int y, int z) CLIENTSIDE {
+	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
+	SetResultValue(0);
+}
+
 Script "DnD Golgoth Laser Trail" (int target) CLIENTSIDE {
 	GolgothLaserTrail(DND_GOLGOTH_YOFF1, DND_GOLGOTH_ZOFF1, target, false);
 	GolgothLaserTrail(DND_GOLGOTH_YOFF2, DND_GOLGOTH_ZOFF2, target, false);
@@ -762,4 +767,13 @@ Script "DnD Monster Melee Loop" (int range) {
 	int target = GetActorProperty(0, APROP_TARGETTID);
 	res = (AproxDistance(GetActorX(target) - GetActorX(0), GetActorY(target) - GetActorY(0)) >> 16) <= range && IsActorAlive(target) && CheckSight(0, target, CSF_NOBLOCKALL);
 	SetResultValue(res);
+}
+
+Script "DnD Onimuz Clone Spawn" (void) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	SpawnForced("OnimuzProjection", GetActorX(0), GetActorY(0), GetActorZ(0), UNIQUE_MON_AUX_TID);
+	SetActivator(UNIQUE_MON_AUX_TID);
+	SetActorProperty(0, APROP_MASTERTID, owner);
+	SetPointer(AAPTR_MASTER, owner);
+	Thing_ChangeTID(0, 0);
 }

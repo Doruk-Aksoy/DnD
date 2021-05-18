@@ -318,7 +318,7 @@ Actor DTracer {
 		SpawnLoop:
 			TNT1 A 1 Bright A_SeekerMissile(10, 15)
 			TNT1 A 0 Bright A_Countdown
-			TNT1 A 0 Bright A_SpawnItemEx("DTracerPuff", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 Bright A_SpawnItemEx("DTracerPuff", 0, 0, 0, 0, 0, 0, 0)
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)

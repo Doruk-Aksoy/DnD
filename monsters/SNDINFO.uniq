@@ -71,3 +71,15 @@ $random SSrath/Pain { SSrath/Pain1 SSrath/Pain2 }
 
 Omnisight/Shock		OMNISHCK
 Omnisight/Chaos		OMNICHAO
+Omnisight/See		OMNISEE
+Omnisight/Pain		OMNIPAIN
+Omnisight/Act		OMNIACT
+Omnisight/Die		OMNIDIE
+Omnisight/BigZap1	OMNIZAP1
+Omnisight/BigZap2	OMNIZAP2
+Omnisight/BigZap3	OMNIZAP3
+Omnisight/BigZap4	OMNIZAP4
+Omnisight/BigZap5	OMNIZAP5
+Omnisight/BigZap6	OMNIZAP6
+$random Omnisight/BigZap { Omnisight/BigZap1 Omnisight/BigZap2 Omnisight/BigZap3 Omnisight/BigZap4 Omnisight/BigZap5 Omnisight/BigZap6 }
+Omnisight/ZapLoop	OMNIZAPL

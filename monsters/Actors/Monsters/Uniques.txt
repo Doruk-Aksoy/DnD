@@ -8,11 +8,10 @@ Actor Teron : DnD_BaseRangedMonster_NoRes {
 	Height 56
 	Speed 10
 	PainChance 64
-	SeeSound "grunt/sight"
-	AttackSound "grunt/attack"
-	PainSound "grunt/pain"
-	DeathSound "grunt/death"
-	ActiveSound "grunt/active"
+	SeeSound "FancyZombie/sight"
+	PainSound "FancyZombie/pain"
+	DeathSound "FancyZombie/death"
+	ActiveSound "FancyZombie/idle"
 	Obituary "%o fell victim to Teron the Hoarder."
 	Mass 256
 	Tag "Teron the Hoarder"
@@ -391,11 +390,14 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes {
 	Obituary "%o fell victim to Vaaj the Temptress."
 	Mass 256
 	Tag "Vaaj the Temptress"
+	Species "Imp"
 	var int user_count;
 	Scale 1.1
 	+ISMONSTER
 	+NOTARGET
 	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_VAAJ)
@@ -585,10 +587,13 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 	Mass 1576
 	MaxTargetRange 384
 	Tag "Remus the Broken"
+	Species "Demon"
 	+ISMONSTER
 	+NODAMAGETHRUST
 	+NOTARGET
 	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_REMUS)
@@ -783,6 +788,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 	Obituary "%o fell victim to Ssrath the Unseen."
 	Mass 1024
 	Tag "Ssrath the Unseen"
+	Species "Demon"
 	MeleeRange 72
 	MaxTargetRange 320
 	Scale 1.1
@@ -791,6 +797,10 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 	var int user_ang;
 	+ISMONSTER
 	+NORADIUSDMG
+	+NOTARGET
+	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SSRATH)
@@ -1079,7 +1089,10 @@ Actor HollowShell : DnD_BaseRangedMonster_NoRes {
 	Mass 256
 	Tag "Hollowshell"
 	+ISMONSTER
-	
+	+NOTARGET
+	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_HOLLOWSHELL)
@@ -1092,23 +1105,27 @@ Actor HollowShell : DnD_BaseRangedMonster_NoRes {
 Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
-	Radius 32
-	Height 64
+	Radius 36
+	Height 80
 	Speed 8
 	PainChance 64
 	SeeSound "Omnisight/See"
 	PainSound "Omnisight/pain"
 	DeathSound "Omnisight/Die"
-	ActiveSound "Omnisight/active"
-	MeleeSound "ChaosSerpent/Melee"
+	ActiveSound "Omnisight/act"
 	Obituary "%o fell victim to Omnisight the Beholder."
 	Mass 2048
 	Tag "Omnisight the Beholder"
+	Species "Cacodemon"
 	MeleeRange 68
 	+ISMONSTER
 	+FLOAT
 	+NOGRAVITY
-	
+	+NORADIUSDMG
+	+NOTARGET
+	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_OMNISIGHT)
@@ -1129,6 +1146,7 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 			UE06 A 0 A_Jump(32, "Teleport")
 		Goto See
 		MeleeState:
+			TNT1 A 0 A_PlaySound("ChaosSerpent/Melee")
 			UE06 ADF 5 A_FaceTarget
 			UE06 E 5 A_CustomMeleeAttack(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 		Goto See
@@ -1170,12 +1188,13 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 			UE06 G 5 Bright A_FaceTarget
 		Goto See
 		PainState:
-			UE06 L 6
-			UE06 L 6 A_Pain
+			UE06 L 5
+			UE06 L 5 A_Pain
 			UE06 L 0 A_Jump(40, "Teleport")
 		Goto See
 		Teleport:
-			UE06 F 0 A_SetInvulnerable
+			TNT1 A 0 A_SetInvulnerable
+			TNT1 A 0 A_UnsetShootable
 			UE06 F 1 A_PlaySound("monster/heltel")
 			UE06 F 1 A_SetTranslucent(0.90)
 			UE06 F 1 A_SetTranslucent(0.80)
@@ -1186,10 +1205,11 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 			UE06 F 1 A_SetTranslucent(0.30)
 			UE06 F 1 A_SetTranslucent(0.20)
 			UE06 F 1 A_SetTranslucent(0.10)
-			UE06 F 0 A_Jump(128,25)
-			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_ExtChase(0,0,1,1)
-			TNT1 A 0 A_Jump(128,25)
-			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_ExtChase(0,0,1,1)
+			UE06 F 0 A_Jump(128, "TeleDelayed")
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_Chase("", "", CHF_NOPLAYACTIVE)
+		TeleDelayed:
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 1 A_GiveInventory("OmnisightTeleMove", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Sync Hack Immediate", x, y, z)
 			UE06 F 1 A_PlaySound("monster/heltel")
 			UE06 F 1 A_SetTranslucent(0.10)
 			UE06 F 1 A_SetTranslucent(0.20)
@@ -1201,28 +1221,40 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 			UE06 F 1 A_SetTranslucent(0.80)
 			UE06 F 1 A_SetTranslucent(0.90)
 			UE06 F 1 A_SetTranslucent(1.0)
+			UE06 F 0 A_SetShootable
 			UE06 F 0 A_UnSetInvulnerable
 		Goto See
 		XDeathState:
 		DeathState:
 		    TNT1 A 0 A_Facetarget
-			UE06 M 8 bright A_Scream
-			UE06 NO 8 bright
-			TNT1 AAAAA 0 bright A_CustomMissile("OmnisightFlesh1",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
-			TNT1 AAAAA 0 bright A_CustomMissile("OmnisightFlesh2",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
+			UE06 M 12 bright A_Scream
+			TNT1 A 0 A_Quake(7, 80, 0, 192)
+			UE06 NO 5 bright
+			TNT1 AAAAA 0 A_CustomMissile("OmnisightFlesh1",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
+			TNT1 AAAAA 0 A_CustomMissile("OmnisightFlesh2",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
 			TNT1 AAAAAAAAAA 0 A_CustomMissile("OmnisightFlesh3",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
 			TNT1 AAAAAAAAAA 0 A_CustomMissile("OmnisightFlesh4",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
 			TNT1 AAAAAAAAAA 0 A_CustomMissile("OmnisightFlesh5",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
 			TNT1 AAAAAAAAAA 0 A_CustomMissile("OmnisightFlesh6",random(0,90),random(0,40),random(-180,180),2,random(-15,15))
-			UE06 P 0 bright A_CustomMissile("OmnisightBigArm1",40,-40,-90,2,random(-1,1))
-			UE06 P 0 bright A_CustomMissile("OmnisightBigArm2",40,40,90,2,random(-1,1))
-			UE06 P 0 bright A_CustomMissile("OmnisightSmallArm1",100,-30,-90,2,random(-15,15))
-			UE06 P 0 bright A_CustomMissile("OmnisightSmallArm1",100,30,90,2,random(-15,15))
-			UE06 P 0 bright A_CustomMissile("OmnisightSmallArm2",100,-30,-90,2,random(-15,15))
-			UE06 P 0 bright A_CustomMissile("OmnisightSmallArm2",100,30,90,2,random(-15,15))
-			UE06 P 0 bright A_CustomMissile("OmnisightHorn1",110,-16,-90,2,random(-15,15))
-			UE06 P 0 bright A_CustomMissile("OmnisightHorn2",110,16,90,2,random(-15,15))
-			UE06 PQRSTUV 8 bright
+			TNT1 AAAA 0 A_SpawnItemEx("GenericGibber_Medium", frandom(-16, 16), frandom(-16, 16), frandom(18, 40), 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 0 A_CustomMissile("OmnisightBigArm1",40,-40,-90,2,random(-1,1))
+			TNT1 A 0 A_CustomMissile("OmnisightBigArm2",40,40,90,2,random(-1,1))
+			TNT1 A 0 A_CustomMissile("OmnisightSmallArm1",100,-30,-90,2,random(-15,15))
+			TNT1 A 0 A_CustomMissile("OmnisightSmallArm1",100,30,90,2,random(-15,15))
+			TNT1 A 0 A_CustomMissile("OmnisightSmallArm2",100,-30,-90,2,random(-15,15))
+			TNT1 A 0 A_CustomMissile("OmnisightSmallArm2",100,30,90,2,random(-15,15))
+			TNT1 A 0 A_CustomMissile("OmnisightHorn1",110,-16,-90,2,random(-15,15))
+			TNT1 A 0 A_CustomMissile("OmnisightHorn2",110,16,90,2,random(-15,15))
+			UE06 PQRSTUV 5 bright
+		Stop
+	}
+}
+
+Actor OmnisightTeleMove : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Chase("", "", CHF_NOPLAYACTIVE)
+			TNT1 AAAAA 0 A_SpawnItemEx("DarkServantTrail2", frandom(-36.0, 36.0), frandom(-36.0, 36.0), frandom(8.0, 56.0), 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 		Stop
 	}
 }
@@ -1230,6 +1262,93 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 Actor OmniSight_Cooldown : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -10
+}
+
+Actor OmniChaosBall_TrailA {
+	Renderstyle Add
+	Scale 1.15
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			UP07 A 0
+		Goto SpawnLoop
+		SpawnLoop:
+			UP07 "##########" 1 Bright A_FadeOut(0.0875)
+		Stop
+	}
+}
+
+Actor OmniChaosBall_TrailB : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 B 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailC : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 C 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailD : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 D 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailE : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 E 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailF : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 F 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailG : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 G 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailH : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 H 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailI : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 I 0
+		Goto SpawnLoop
+	}
+}
+
+Actor OmniChaosBall_TrailJ : OmniChaosBall_TrailA {
+	States {
+		Spawn:
+			UP07 J 0
+		Goto SpawnLoop
+	}
 }
 
 ACTOR OmnisightFlesh1 {
@@ -1244,11 +1363,10 @@ ACTOR OmnisightFlesh1 {
 	+CLIENTSIDEONLY
 	States {
 		Spawn:
-			UEA1 ACEGIKM 5
+			UP00 ACEGIKM 5
 		loop
 		Death:
-			UEA1 O 3
-			UEA1 Q -1
+			UP00 Q -1
 		stop
 	}
 }
@@ -1256,11 +1374,10 @@ ACTOR OmnisightFlesh1 {
 ACTOR OmnisightFlesh2 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA1 BDFHJLN 5
+			UP01 BDFHJLN 5
 		loop
 		Death:
-			UEA1 P 3
-			UEA1 R -1
+			UP01 R -1
 		stop
 	}
 }
@@ -1268,10 +1385,10 @@ ACTOR OmnisightFlesh2 : OmnisightFlesh1 {
 ACTOR OmnisightFlesh3 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA2 ACEG 5
+			UP01 ACEG 5
 		loop
 		Death:
-			UEA2 I -1
+			UP01 I -1
 		Stop
 	}
 }
@@ -1279,10 +1396,10 @@ ACTOR OmnisightFlesh3 : OmnisightFlesh1 {
 ACTOR OmnisightFlesh4 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA2 BDFH 5
+			UP01 BDFH 5
 		loop
 		Death:
-			UEA2 J -1
+			UP01 J -1
 		Stop
 	}
 }
@@ -1290,10 +1407,10 @@ ACTOR OmnisightFlesh4 : OmnisightFlesh1 {
 ACTOR OmnisightFlesh5 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA3 ACEGI 5
+			UP02 ACEGI 5
 		loop
 		Death:
-			UEA3 K -1
+			UP02 K -1
 		Stop
 	}
 }
@@ -1301,10 +1418,10 @@ ACTOR OmnisightFlesh5 : OmnisightFlesh1 {
 ACTOR OmnisightFlesh6 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA3 BDFHJ 5
+			UP02 BDFHJ 5
 		loop
 		Death:
-			UEA3 L -1
+			UP02 L -1
 		Stop
 	}
 }
@@ -1312,11 +1429,11 @@ ACTOR OmnisightFlesh6 : OmnisightFlesh1 {
 ACTOR OmnisightBigArm1 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA4 ACEGI 5
+			UP03 ACEGI 5
 		loop
 		Death:
-			UEA4 K 3
-			UEA4 M -1
+			UP03 K 3
+			UP03 M -1
 		stop
 	}
 }
@@ -1324,11 +1441,11 @@ ACTOR OmnisightBigArm1 : OmnisightFlesh1 {
 ACTOR OmnisightBigArm2 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA4 BDFHJ 5
+			UP03 BDFHJ 5
 		loop
 		Death:
-			UEA4 L 3
-			UEA4 N -1
+			UP03 L 3
+			UP03 N -1
 		stop
 	}
 }
@@ -1336,10 +1453,10 @@ ACTOR OmnisightBigArm2 : OmnisightFlesh1 {
 ACTOR OmnisightSmallArm1 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA5 ACEG 5
+			UP04 ACEG 5
 		loop
 		Death:
-			UEA5 I -1
+			UP04 I -1
 		stop
 	}
 }
@@ -1347,10 +1464,10 @@ ACTOR OmnisightSmallArm1 : OmnisightFlesh1 {
 ACTOR OmnisightSmallArm2 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA5 BDFH 5
+			UP04 BDFH 5
 		loop
 		Death:
-			UEA5 J -1
+			UP04 J -1
 		stop
 	}
 }
@@ -1358,10 +1475,10 @@ ACTOR OmnisightSmallArm2 : OmnisightFlesh1 {
 ACTOR OmnisightHorn1 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA6 ACEGI 5
+			UP05 ACEGI 5
 		loop
 		Death:
-			UEA6 K -1
+			UP05 K -1
 		stop
 	}
 }
@@ -1369,10 +1486,10 @@ ACTOR OmnisightHorn1 : OmnisightFlesh1 {
 ACTOR OmnisightHorn2 : OmnisightFlesh1 {
 	States {
 		Spawn:
-			UEA6 BDFHJ 5
+			UP05 BDFHJ 5
 		loop
 		Death:
-			UEA6 L -1
+			UP05 L -1
 		stop
 	}
 }
@@ -1380,7 +1497,7 @@ ACTOR OmnisightHorn2 : OmnisightFlesh1 {
 ACTOR OmniBall {
 	Radius 10
 	Height 20
-	Speed 20
+	Speed 24
 	Damage (8 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "Lightning"
 	PROJECTILE
@@ -1406,30 +1523,32 @@ ACTOR OmniBall {
 
 Actor OmniBigBall {
 	Projectile
-	Speed 30
+	Speed 28
 	Damage (random(55, 75) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Lightning"
 	Height 48
 	Radius 24
 	RENDERSTYLE ADD
-	Alpha 0.875
+	Alpha 1.0
 	DeathSound "DarkServant/LightningHit"
 	Decal "CacoScorch"
-	var int user_count
+	var int user_count;
+	const float ang_inc = 20.0;
 	+VISIBILITYPULSE
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 		SpawnLoop:
-			UP06 J 3 Bright A_CustomMissile("OmniLightning", 18, 0, user_count * 15, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			UP06 J 3 Bright A_CustomMissile("OmniLightning", 0, 0, user_count * ang_inc, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			UP06 J 0 A_SetUserVar("user_count", user_count + 1)
-			UP06 K 3 Bright A_CustomMissile("OmniLightning", 18, 0, user_count * 15, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			UP06 K 3 Bright A_CustomMissile("OmniLightning", 0, 0, user_count * ang_inc, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			UP06 K 0 A_SetUserVar("user_count", user_count + 1)
-			UP06 L 3 Bright A_CustomMissile("OmniLightning", 18, 0, user_count * 15, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			UP06 L 3 Bright A_CustomMissile("OmniLightning", 0, 0, user_count * ang_inc, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			UP06 L 0 A_SetUserVar("user_count", user_count + 1)
-			UP06 M 3 Bright A_CustomMissile("OmniLightning", 18, 0, user_count * 15, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			UP06 M 3 Bright A_CustomMissile("OmniLightning", 0, 0, user_count * ang_inc, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			UP06 M 0 A_SetUserVar("user_count", user_count + 1)
-			UP06 N 3 Bright A_CustomMissile("OmniLightning", 18, 0, user_count * 15, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			UP06 N 3 Bright A_CustomMissile("OmniLightning", 0, 0, user_count * ang_inc, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			UP06 N 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		Death:
@@ -1447,53 +1566,780 @@ Actor OmniLightning : DarkZealotLightning {
 	-PIERCEARMOR
 }
 
+Actor OmniChaosBall {
+	Height 32
+	Radius 16
+	PROJECTILE
+	Speed 18
+	Damage (100 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "Lightning"
+	Scale 1.15
+	Renderstyle Add
+	var int user_count;
+	const float r = 256.0;
+	const float s = 32.0;
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			UP07 A 3 Bright A_SpawnItemEx("OmniChaosBall_TrailA")
+			UP07 B 3 Bright A_SpawnItemEx("OmniChaosBall_TrailB")
+			UP07 C 3 Bright A_SpawnItemEx("OmniChaosBall_TrailC")
+			UP07 D 3 Bright A_SpawnItemEx("OmniChaosBall_TrailD")
+			UP07 E 3 Bright A_SpawnItemEx("OmniChaosBall_TrailE")
+			UP07 F 3 Bright A_SpawnItemEx("OmniChaosBall_TrailF")
+			UP07 G 3 Bright A_SpawnItemEx("OmniChaosBall_TrailG")
+			UP07 H 3 Bright A_SpawnItemEx("OmniChaosBall_TrailH")
+			UP07 I 3 Bright A_SpawnItemEx("OmniChaosBall_TrailI")
+			UP07 J 3 Bright A_SpawnItemEx("OmniChaosBall_TrailJ")
+		Loop
+		Death:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(0), s * sin(0))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(15), s * sin(15))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(30), s * sin(30))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(45), s * sin(45))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(60), s * sin(60))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(75), s * sin(75))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(90), s * sin(90))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(105), s * sin(105))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(120), s * sin(120))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(135), s * sin(135))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(150), s * sin(150))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(165), s * sin(165))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(180), s * sin(180))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(195), s * sin(195))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(210), s * sin(210))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(225), s * sin(225))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(240), s * sin(240))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(255), s * sin(255))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(270), s * sin(270))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(285), s * sin(285)) 
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(300), s * sin(300))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(315), s * sin(315))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(330), s * sin(330))
+			TNT1 A 0 A_SpawnItemEx("OmniChaosCircleFX", 0, 0, 16, s * cos(345), s * sin(345))
+			TNT1 A 32 A_SpawnItemEx("OmniChaosHitFX")
+			TNT1 A 0 A_PlaySound("Omnisight/ZapLoop", CHAN_VOICE, 1, true)
+		ZappingLoop:
+			TNT1 A 0 A_JumpIf(user_count >= 20, "ZapFinish")
+			TNT1 A 10 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r), frandom(-r, r))
+			TNT1 A 10 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r), frandom(-r, r))
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		ZapFinish:
+			TNT1 A 3 A_StopSound(CHAN_VOICE)
+		Stop
+	}
+}
+
+Actor OmniChaosHitFX {
+	Scale 1.15
+	Renderstyle Add
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			UP07 KLMNOPQRSTUVW 3 Bright
+		Stop
+	}
+}
+
+Actor OmniChaosCircleFX {
+	Renderstyle Add
+	Scale 2.0
+	+CLIENTSIDEONLY
+	+FLOORHUGGER
+	States {
+		Spawn:
+			// initial movement phase
+			TNT1 A 1
+			ZLTT HIHIHIHIHIHIHIHI 2 Bright
+			TNT1 A 0 A_Stop
+			ZLTT HIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHIHI 2 Bright // 400 tics
+			ZLTT JKL 3 Bright
+		Stop
+	}
+}
+
+Actor OmniLightningBlastFX {
+	Renderstyle Add
+	Alpha 0.01
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			LFX2 FFFFF 1 Bright A_FadeIn(0.2)
+			LFX2 GHIJ 2 Bright A_FadeOut(0.1875)
+		Stop
+	}
+}
+
+Actor OmniLightningBlast : BaseExplosionDamage {
+	DamageType "Lightning"
+	Obituary "%o fell victim to Omnisight the Beholder."
+	+FLOORHUGGER
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1
+			TNT1 A 4 A_SpawnItemEx("OmniLightningBlastFX")
+			TNT1 A 1 A_PlaySound("Omnisight/BigZap")
+			TNT1 A 0 A_Quake(5, 17, 0, 128)
+			TNT1 A 0 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1
+		Stop
+	}
+}
+
 Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
-	Radius 30
-	Height 56
+	Radius 36
+	Height 80
 	Speed 8
-	PainChance 64
-	SeeSound "grunt/sight"
-	AttackSound "grunt/attack"
-	PainSound "grunt/pain"
-	DeathSound "grunt/death"
-	ActiveSound "grunt/active"
+	PainChance 10
+	SeeSound "monster/cubsit"
+	PainSound "Lich/Pain"
+	DeathSound "monster/cubdth"
+	ActiveSound "Lich/Act"
 	Obituary "%o fell victim to Chegovax the Overseer."
-	Mass 256
+	Mass 2048
 	Tag "Chegovax the Overseer"
+	Species "PainElemental"
+	var int user_count;
+	const float f = 1.8;
+	const float pbase = -37.5;
+	DamageFactor "CacoMagic", 0 // immunity to guardians
 	+ISMONSTER
+	+LOOKALLAROUND
 	+FLOAT
 	+NOGRAVITY
-	
+	+NOBLOOD
+	+DONTRIP
+	+NORADIUSDMG
+	-DONTFALL
+	+NOTARGET
+	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_CHEGOVAX)
 		Goto SpawnSetup
+		
+		Idle:
+			UE07 A 3 A_Wander
+			TNT1 A 0 A_Look
+			UE07 B 3 A_Wander
+			TNT1 A 0 A_Look
+			UE07 C 3 A_Wander
+			TNT1 A 0 A_Look
+			UE07 D 3 A_Wander
+			TNT1 A 0 A_Look
+			UE07 E 3 A_Wander
+			TNT1 A 0 A_Look
+			UE07 F 3 A_Wander
+			TNT1 A 0 A_Look
+			UE07 G 3 A_Wander
+			TNT1 A 0 A_Look
+			UE07 H 3 A_Wander
+			TNT1 A 0 A_Look
+		Loop
+		SeeState:
+			UE07 ABCDEFGH 3 A_FastChase
+		Goto See
+		MissileState:
+			UE07 I 0 A_Jump(200, "Attacks")
+			UE07 LM 8 Bright A_FaceTarget
+			UE07 N 0 A_CustomMissile("GuardianSpawner",32,0,-120)	
+			UE07 N 0 A_CustomMissile("GuardianSpawner",32,0,120)	
+			UE07 N 10 Bright A_CustomMissile("GuardianSpawner",32,0,0)
+			UE07 I 2 Bright
+		Goto See
+		Attacks:
+			TNT1 A 0 A_Jump(108, "Meteor")
+		FlameLine:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			UE07 III 5 A_FaceTarget(0, 0)
+		FlameLoop:
+			TNT1 A 0 A_JumpIf(user_count > 20, "FlameFinish")
+			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
+			UE07 J 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
+			UE07 K 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		FlameFinish:
+			UE07 I 4
+		Goto See
+		Meteor:
+			UE07 LLL 4 Bright A_FaceTarget
+			UE07 MM 4 Bright A_FaceTarget
+			UE07 N 10 Bright A_CustomMissile("ChegovaxMeteor", 32)
+			UE07 ML 4 Bright A_FaceTarget
+		Goto See
+		PainState:
+		   UE07 A 3 
+		   UE07 I 3 A_Pain 
+		Goto See
+		XDeathState:
+		DeathState:
+			UE07 O 5 Bright A_NoBlocking
+		DeathStateFall:
+			UE07 P 5 Bright A_NoBlocking
+		Loop
+		Crash:
+			UE07 Q 6 Bright A_Scream
+			TNT1 A 0 A_SpawnItemEx("ChegovaxExp1")
+			UE07 R 5 Bright A_KillChildren
+			TNT1 A 0 A_SpawnItemEx("ChegovaxExp2")
+			UE07 S 5 Bright
+			TNT1 A 0 A_SpawnItemEx("ChegovaxExp3")
+			UE07 T 4 Bright
+			TNT1 A 0 A_SpawnItemEx("ChegovaxExp4")
+			UE07 UVWXYZ 4 Bright
+			UE07 [ -1
+		Stop
+	}
+}
+
+Actor ChegovaxMeteorMissileTrail : MeteorMissileTrail {
+	States {
+		Spawn:
+			TNT1 A 1
+			RW6F CDEFGH 2 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor ChegovaxMeteor {
+	PROJECTILE
+	Height 24
+	Radius 12
+	Speed 28
+	Damage (80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "PaineMagic"
+	SeeSound "MeteorLauncher/fire"
+	Deathsound "MeteorLauncher/Hit"
+	const float projvel = 13.5;
+	Scale 0.9
+	+FOILINVUL
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			RW6G AABBCCDD 2 A_SpawnItemEx("ChegovaxMeteorMissileTrail", -8)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 A 0 A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 0 A_SetScale(1.25)
+			RW6A EF 3 Bright
+			TNT1 AAAAA 0 A_SpawnItemEx("ChegovaxMeteorSplit_1", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_ChangeVelocity(0, 0, 2.0)
+			RW6A GHI 4 Bright
+			RW6A JJJJJJJJJJJ 2 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor ChegovaxMeteorSplit_1 : ChegovaxMeteor {
+	Height 14
+	Radius 7
+	Speed 24
+	BounceSound "MeteorLauncher/Bounce"
+	DeathSound "MeteorLauncher/HitSmall"
+	Damage (24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	BounceType Doom
+	BounceCount 4
+	Gravity 0.66
+	-NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 A_Jump(256, "1", "2", "3")
+		1:
+			RW6G E 1
+		Loop
+		2:
+			RW6G F 1
+		Loop
+		3:
+			RW6G G 1
+		Loop
+		Death:
+			TNT1 A 0 A_ChangeVelocity(0, 0, 0)
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 A 0 A_Explode(40 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("ChegovaxMeteorSplit_2", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
+			RW6F IJKL 3 Bright
+		Stop
+	}
+}
+
+Actor ChegovaxMeteorSplit_2 : ChegovaxMeteorSplit_1 {
+	Height 8
+	Radius 4
+	Speed 18
+	Damage (12 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 A_Jump(256, "1", "2")
+		1:
+			RW6G H 1
+		Loop
+		2:
+			RW6G I 1
+		Loop
+		Death:
+			TNT1 A 0 A_ChangeVelocity(0, 0, 0)
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+			TNT1 AA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 A 0 A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 40, 0)
+			TNT1 A 0 A_SetScale(0.75, 0.75)
+			RW6F IJKL 3 Bright
+		Stop
+	}
+}
+
+Actor ChegovaxFire {
+	Projectile
+	Height 16
+	Radius 8
+	Speed 35
+	Damage (18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "PaineFire"
+	SeeSound "weapons/magic1"
+	DeathSound "weapons/firex4"
+	RENDERSTYLE ADD
+	ALPHA 0.80
+	+DONTBLAST
+	+THRUGHOST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			BOLT A 2 Bright A_SpawnItem("RedPuff",0,0)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			HBAL EFHI 2 Bright
+		stop
+	}
+}
+
+ACTOR GuardianSpawner {
+	PROJECTILE
+	Radius 24
+	Height 56
+	Speed 25
+	Damage (random(6, 10) * 6 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Alpha 0.90
+	+THRUGHOST   
+	+FORCEXYBILLBOARD
+	+SEEKERMISSILE
+	+DONTBLAST
+	-NOGRAVITY
+	Seesound "weapons/smlbrn"
+	DeathSound "vile/firecrkl"
+	Translation "112:127 = 176:191"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			SEF2 ABCD 2 Bright
+		loop
+		Death:
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
+			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+			FIRR A 2 Bright A_Stop
+			TNT1 A 0 A_SpawnItemEX("Guardian_NoExp",0,0,0,0,0,0,0,SXF_SETMASTER)
+			FIRR BABCBCBCDCDCDEDEDEFEFEFGHGHGH 2 Bright 
+		stop
+	}
+}
+
+Actor Guardian_NoExp : Guardian {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_GUARDIAN)
+			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
+		Goto SpawnSetup
+	}
+}
+
+Actor ChegovaxExp1 : BaseExplosionDamage {
+	DamageType "PaineExp"
+	Obituary "%o fell victim to Chegovax the Overseer."
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 80, 0)
+		Stop
+	}
+}
+
+Actor ChegovaxExp2 : ChegovaxExp1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+		Stop
+	}
+}
+
+Actor ChegovaxExp3 : ChegovaxExp1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(144 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 144, 0)
+		Stop
+	}
+}
+
+Actor ChegovaxExp4 : ChegovaxExp1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(176 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 176, 0)
+		Stop
 	}
 }
 
 Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
-	Radius 30
-	Height 56
-	Speed 8
-	PainChance 64
-	SeeSound "grunt/sight"
-	AttackSound "grunt/attack"
-	PainSound "grunt/pain"
-	DeathSound "grunt/death"
-	ActiveSound "grunt/active"
+	Radius 20
+	Height 60
+	Speed 12
+	PainChance 48
+	Seesound "monster/horshacksee"
+	ActiveSound "monster/horshackact"
+	PainSound "monster/horshackpain"
+	DeathSound "monster/horshackdie"
 	Obituary "%o fell victim to Onimuz the Unbroken."
 	Mass 256
 	Tag "Onimuz the Unbroken"
+	Species "Skeleton"
 	+ISMONSTER
-	
+	+NOBLOOD
+	+NOTARGET
+	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_ONIMUZ)
 		Goto SpawnSetup
+		
+		Idle:
+			UE08 A 5 A_Wander
+			TNT1 A 0 A_Look
+			UE08 B 5 A_Wander
+			TNT1 A 0 A_Look
+			UE08 C 5 A_Wander
+			TNT1 A 0 A_Look
+			UE08 D 5 A_Wander
+			TNT1 A 0 A_Look
+		Loop
+		SeeState:
+			UE08 ABCD 3 Fast A_Chase
+		Goto See
+		MeleeState:
+			UE08 E 8 Fast A_FaceTarget
+			UE08 F 7 Fast A_FaceTarget
+			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			UE08 H 8 Fast A_FaceTarget
+			UE08 I 7 Fast A_FaceTarget
+			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+		Goto See
+		MissileState:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_Jump(192, "ThrowAxe")
+			TNT1 A 0 A_JumpIfInventory("ProjectionCooldown", 1, "ThrowAxe")
+			TNT1 A 0 A_JumpIfCloser(1024, "Projection")
+		Goto ThrowAxe
+		Projection:
+			TNT1 A 0 A_FaceTarget
+			UE08 G 5 Fast A_CustomMissile("OnimuzProjection_Missile")
+		ProjectionLoop:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "ProjectionFinish")
+			UE08 G 5 Fast A_FaceTarget
+		Loop
+		ProjectionFinish:
+			UE08 G 1 Fast
+		Goto See
+		ThrowAxe:
+			TNT1 A 0 A_Jump(128, "Multi_Left", "Multi_Right")
+			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "MoreAxe") 
+			UE08 E 7 Fast A_FaceTarget
+			UE08 F 6 Fast A_FaceTarget
+			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6)
+			UE08 H 7 Fast A_FaceTarget
+			UE08 I 6 Fast A_FaceTarget
+			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, 6)
+			UE08 J 1 Fast A_Jump(64, "ThrowAxe")
+		Goto See
+		Multi_Left:
+			UE08 EEEEE 5 Fast A_FaceTarget
+			UE08 F 5 Fast A_CustomMissile("RedAxe2", 32, -6, -20 + angle, CMF_ABSOLUTEANGLE)
+			UE08 F 5 Fast A_CustomMissile("RedAxe2", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
+			UE08 F 5 Fast A_CustomMissile("RedAxe2", 32, -6, -4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6, 4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
+		Goto See
+		Multi_Right:
+			UE08 HHHHH 5 Fast A_FaceTarget
+			UE08 I 5 Fast A_CustomMissile("RedAxe2", 32, -6, 20 + angle, CMF_ABSOLUTEANGLE)
+			UE08 I 5 Fast A_CustomMissile("RedAxe2", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
+			UE08 I 5 Fast A_CustomMissile("RedAxe2", 32, -6, 4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, -6, -4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
+		Goto See
+		MoreAxe:
+			UE08 E 7 Fast A_FaceTarget
+			UE08 F 6 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMissile("RedAxe2", 32, -6, -9)
+			TNT1 A 0 A_CustomMissile("RedAxe2", 32, -6, 9)
+			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6)
+			UE08 H 7 Fast A_FaceTarget
+			UE08 I 6 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMissile("RedAxe2", 32, 6, -9)
+			TNT1 A 0 A_CustomMissile("RedAxe2", 32, 6, 9)
+			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, 6)
+			UE08 J 1 Fast A_Jump(64, "ThrowAxe")
+		Goto See
+		PainState:
+			UE08 K 3 Fast A_GiveInventory("DnD_Boolean", 1)
+			UE08 K 3 Fast A_Pain
+		Goto See
+		XDeathState:
+		DeathState:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			UE08 L 5 A_CustomMissile("OnimuzDeathFX", 0, 0, 0, CMF_AIMDIRECTION, 90)
+			TNT1 A 0 A_Scream
+			UE08 MMM 2 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			TNT1 A 0 A_NoBlocking
+			UE08 NNN 2 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			UE08 OPQ 5
+			UE08 R -1
+		Stop
+	}
+}
+
+Actor ProjectionCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 15
+}
+
+Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
+	Health 0x7FFFFFFF
+	Radius 20
+	Height 56
+	Speed 12
+	SeeSound ""
+	DeathSound ""
+	ActiveSound ""
+	Obituary "%o fell victim to Onimuz the Unbroken."
+	Mass 0x7FFFFFFF
+	Tag "Onimuz Projection"
+	Renderstyle Add
+	Alpha 0.875
+	+ISMONSTER
+	-SHOOTABLE
+	-SOLID
+	-COUNTKILL
+	+NOTARGET
+	+NOGRAVITY
+	+FLOAT
+	+NOINFIGHTING
+	+MISSILEMORE
+	+LOOKALLAROUND
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(0, DND_PHANTASM) // so it doesnt become elite
+		Goto SpawnSetup
+		
+		Idle:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "IdleLoop")
+			TNT1 A 0 A_UnsetShootable
+			TNT1 A 0 A_UnsetSolid
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Timed Monster", 0, 20, 0)
+			UE08 A 2
+		IdleLoop:
+			UE08 A 2 A_Look
+		Loop
+		
+		SeeState:
+			TNT1 A 0 A_Chase
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 A 3 Fast A_SpawnItemEx("OnimuzProjection_TrailA")
+			TNT1 A 0 A_Chase
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 B 3 Fast A_SpawnItemEx("OnimuzProjection_TrailB")
+			TNT1 A 0 A_Chase
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 C 3 Fast A_SpawnItemEx("OnimuzProjection_TrailC")
+			TNT1 A 0 A_Chase
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 D 3 Fast A_SpawnItemEx("OnimuzProjection_TrailD")
+		Goto See
+
+		MeleeState:
+			UE08 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 F 3 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 F 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 H 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 H 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 I 3 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 I 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+		Goto See
+		MissileState:
+			UE08 E 6 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 F 5 Fast A_FaceTarget
+			UE08 G 4 Fast A_CustomMissile("RedAxe2", 32, -6)
+			UE08 H 6 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 I 5 Fast A_FaceTarget
+			UE08 J 4 Fast A_CustomMissile("RedAxe2", 32, 6)
+			UE08 J 1 Fast A_Jump(64, "MissileState")
+		Goto See
+
+		DeathState:
+		XDeathState:
+		Remove:
+			TNT1 A 0 A_GiveInventory("Mo_Died", 1)
+			TNT1 A 0 A_SpawnItemEx("DissipationEffect")
+			TNT1 A 0 A_GiveInventory("ProjectionCooldown", 1, AAPTR_MASTER)
+			TNT1 A 0 A_Scream
+			UE08 LLLLLLL 2 A_FadeOut(0.1125)
+		Stop
+	}
+}
+
+Actor OnimuzProjection_Missile {
+	Projectile
+	Height 30
+	Radius 20
+	Damage (0)
+	Renderstyle Add
+	Alpha 1.0
+	Speed 24
+	SeeSound "Phantasm/Attack"
+	Deathsound "Phantasm/Rise"
+	+SEEKERMISSILE
+	+LOOKALLAROUND
+	+DONTBLAST
+	States {
+		Spawn:
+			UE08 AA 2 A_SpawnItemEx("OnimuzProjection_TrailA")
+			TNT1 A 0 A_SeekerMissile(75, 75)
+			UE08 BB 2 A_SpawnItemEx("OnimuzProjection_TrailB")
+			TNT1 A 0 A_SeekerMissile(75, 75)
+			UE08 CC 2 A_SpawnItemEx("OnimuzProjection_TrailC")
+			TNT1 A 0 A_SeekerMissile(75, 75)
+			UE08 DD 2 A_SpawnItemEx("OnimuzProjection_TrailD")
+			TNT1 A 0 A_SeekerMissile(75, 75)
+		Loop
+		Death:
+			TNT1 A 8 ACS_NamedExecuteWithResult("DnD Onimuz Clone Spawn")
+		Stop
+	}
+}
+
+Actor OnimuzProjection_TrailA {
+	RenderStyle Add
+	Alpha 1.0
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			UE08 A 1 A_FadeOut(0.0875)
+		Wait
+	}
+}
+
+Actor OnimuzProjection_TrailB : OnimuzProjection_TrailA {
+	States {
+		Spawn:
+			UE08 B 1 A_FadeOut(0.0875)
+		Wait
+	}
+}
+
+Actor OnimuzProjection_TrailC : OnimuzProjection_TrailA{
+	States {
+		Spawn:
+			UE08 C 1 A_FadeOut(0.0875)
+		Wait
+	}
+}
+
+Actor OnimuzProjection_TrailD : OnimuzProjection_TrailA {
+	States {
+		Spawn:
+			UE08 D 1 A_FadeOut(0.0875)
+		Wait
+	}
+}
+
+Actor OnimuzDeathFX {
+	PROJECTILE
+	Radius 10
+	Height 40
+	Renderstyle Add
+	Alpha 0.65
+	+THRUACTORS
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 A_SpawnItem("OnimuzDeathFX_Trail")
+			TNT1 A 0 ThrustThingZ(0, 16, 0, 0)
+			TNT1 A 0 ThrustThing(angle * 256 / 360, 4, 0, 0)
+			UE08 K 3 A_SetAngle(angle + 15)
+			TNT1 A 0 A_Stop
+		Loop
+	}
+}
+
+Actor OnimuzDeathFX_Trail {
+	Renderstyle Add
+	Alpha 0.65
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			UE08 K 1 A_FadeOut(0.05)
+		Loop
 	}
 }
 
@@ -1501,23 +2347,275 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 30
-	Height 56
-	Speed 8
-	PainChance 64
-	SeeSound "grunt/sight"
-	AttackSound "grunt/attack"
-	PainSound "grunt/pain"
-	DeathSound "grunt/death"
-	ActiveSound "grunt/active"
+	Height 64
+	Speed 14
+	PainChance 56
+	SeeSound "Harkimonde/See"
+	PainSound "Harkimonde/pain"
+	DeathSound "Harkimonde/Die"
+	ActiveSound "Harkimonde/Act"
 	Obituary "%o fell victim to Harkimonde the Tormentor."
-	Mass 256
+	MeleeRange 288
+	Mass 2048
 	Tag "Harkimonde the Tormentor"
+	Species "HK"
 	+ISMONSTER
-	
+	+NOTARGET
+	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_HARKIMONDE)
 		Goto SpawnSetup
+		
+		Idle:
+			UE09 A 5 A_Wander
+			TNT1 A 0 A_Look
+			UE09 B 5 A_Wander
+			TNT1 A 0 A_Look
+			UE09 C 5 A_Wander
+			TNT1 A 0 A_Look
+			UE09 D 5 A_Wander
+			TNT1 A 0 A_Look
+		Loop
+		SeeState:
+			TNT1 A 0 A_TakeInventory("DND_Boolean", 1)
+			UE09 ABCD 4 Fast A_Chase
+		Goto See
+		MeleeState:
+			TNT1 A 0 A_TakeInventory("DND_Boolean", 1)
+			TNT1 A 0 A_JumpIfCloser(96, "ShieldBash")
+		IgnoreBash:
+			UE09 H 5 A_FaceTarget
+			UE09 I 4 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("HarkimondeSlash", 32)
+			UE09 J 7 A_JumpIfCloser(80, "ConfirmedMelee")
+		Goto See
+		ConfirmedMelee:
+			UE09 J 7 A_CustomMeleeAttack(random(40, 65) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+		Goto See
+		MissileState:
+			TNT1 A 0 A_GiveInventory("DND_Boolean", 1)
+			TNT1 A 0 A_CustomMissile("HarkimondeBlocker", 32)
+			UE09 EE 4 Fast A_FaceTarget
+			UE09 F 10 Fast Bright A_CustomMissile("HarkimondeFlameTracer", 32)
+			TNT1 A 0 A_Jump(128, "OneMore")
+			TNT1 A 0 A_TakeInventory("DND_Boolean", 1)
+			UE09 E 1 Fast A_FaceTarget
+		Goto See
+		OneMore:
+			UE09 EE 4 Fast A_FaceTarget
+			UE09 F 10 Fast Bright A_CustomMissile("HarkimondeFlameTracer", 32)
+			UE09 F 0 A_TakeInventory("DND_Boolean", 1)
+		Goto See
+		ShieldBash:
+			TNT1 A 0 A_Jump(128, "IgnoreBash")
+			UE09 E 5 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMissile("HarkimondeBlocker", 32)
+			UE09 F 7 Fast Bright A_CustomMissile("HarkimondeBash", 32)
+			UE09 F 0 A_TakeInventory("DND_Boolean", 1)
+		Goto See
+		PainState:
+			TNT1 A 0 A_GiveInventory("DND_Boolean", 1)
+			UE09 G 12 Fast A_Pain
+			TNT1 A 0 A_CustomMissile("HarkimondeBlocker", 32)
+			UE09 EEEEE 7 A_FaceTarget
+			UE09 E 0 A_TakeInventory("DND_Boolean", 1)
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 32, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			TNT1 A 0 A_TakeInventory("DND_Boolean", 1)
+			UE09 L 4 A_Scream
+			UE09 MN 4
+			UE09 O 4 A_NoBlocking
+			UE09 PQRS 4
+			UP09 T -1
+		Stop
+	}
+}
+
+actor HarkimondeBash : PaladinBash {
+	DamageType "Melee"
+	damage (4 * random(2, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	deathsound "weapons/vblhit"
+	States {
+		spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 AA 1 A_SeekerMissile(90, 90, SMF_PRECISE)
+		stop
+		death:
+			TNT1 A 0 A_Quake(4, 17, 0, 256)
+			TNT1 A 1 A_Blast(0, 4, 36, 18)
+			TNT1 A 1
+		stop
+	}
+}
+
+Actor HarkimondeSlash_Damager {
+	PROJECTILE
+	Speed 0
+	Damage (4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Radius 8
+	Height 16
+	+THRUSPECIES
+	+DONTBLAST
+	+NODAMAGETHRUST
+	States {
+		Spawn:
+			TNT1 A 1
+		Stop
+		XDeath:
+			TNT1 A 1 A_PlaySound("jpcpfist/hit")
+		Stop
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}
+
+ACTOR HarkimondeSlash {
+	PROJECTILE
+	Radius 4
+	Height 8
+	Speed 25
+	Damage 0
+	RENDERSTYLE ADD
+	ALPHA 0.75
+	XScale 0.175
+	YScale 0.35
+	+RIPPER
+	+EXTREMEDEATH
+	+DONTBLAST
+	+DONTREFLECT
+	var int user_exprad;
+	ReactionTime 20
+	States {
+		Spawn:
+			VFX4 A 1 Bright A_SpawnItem("HarkimondeSlashTrail",0,0)
+			VFX4 A 0 A_CustomMissile("HarkimondeSlash_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			VFX4 A 0 A_CustomMissile("HarkimondeSlash_Damager", 16, -16, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			VFX4 A 0 A_CustomMissile("HarkimondeSlash_Damager", -16, 16, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			VFX4 A 0 A_Countdown
+		Loop
+		XDeath:
+			"####" "#" 1 Bright A_FadeOut(0.0875)
+		Wait
+		Death:
+			"####" "#" 0 A_Stop
+			"####" "#" 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+			"####" "#" 1 Bright A_FadeOut(0.0875)
+		Wait
+	}
+}
+
+ACTOR HarkimondeSlashTrail {
+	Radius 3
+	Height 3
+	RENDERSTYLE ADD
+	ALPHA 0.80
+	XScale 0.175
+	YScale 0.35
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1
+			VFX4 A 2 Bright A_FadeOut(0.10)
+		Goto Spawn + 1
+	}
+}
+
+Actor HarkimondeFlameTracer {
+	Radius 5
+	Height 16
+	Speed 16
+	ReactionTime 96
+	Damage (4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsFire"
+	RenderStyle Add
+	Alpha 0.67
+	Projectile
+	MaxStepHeight 32
+	+FLOORHUGGER
+	+SeekerMissile
+	+STEPMISSILE
+	+ThruGhost
+	+DONTBLAST
+	-NoGravity
+	Obituary "%o fell victim to Harkimonde the Tormentor."
+	Seesound "weapons/diasht"
+	DeathSound "weapons/firex3"   
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			TNT1 A 1 Bright A_SeekerMissile(12, 12)
+			TNT1 A 0 A_Countdown
+			TNT1 A 1 Bright A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 1 Bright A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			FTRA K 4 Bright
+			FTRA L 4 Bright A_SpawnItem("DiabloExp6")
+			FTRA MNO 3 Bright
+		Stop
+	}
+}
+
+Actor Harkimonde_BoomTrail {
+	Projectile
+	var int user_count;
+	Speed 0
+	Radius 5
+	Height 16
+	Damage ((16 - user_count) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	DamageType "BaronsFire"
+	RenderStyle Add
+	Alpha 0.67
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+			FTRA AB 3 Bright
+			FTRA CDEFGHIJ 3 Bright A_SetUserVar("user_count", user_count + 2)
+		stop
+		Death:
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			FTRA K 4 Bright A_SpawnItem("HarkimondeExp2")
+			FTRA L 4 Bright
+			FTRA MNO 3 Bright
+		Stop
+	}
+}
+
+Actor HarkimondeExp1 : BaseExplosionDamage {
+	DamageType "BaronsFire"
+	Obituary "%o fell victim to Harkimonde the Tormentor."
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+		Stop
+	}
+}
+
+Actor HarkimondeExp2 : BaseExplosionDamage {
+	DamageType "BaronsFire"
+	Obituary "%o fell victim to Harkimonde the Tormentor."
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+		Stop
 	}
 }
 

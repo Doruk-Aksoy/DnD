@@ -1035,26 +1035,12 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 900,			DND_MTYPE_DEMON_POW										},//DND_VAAJ
 	{ 1500,			DND_MTYPE_ZOMBIE_POW | DND_MTYPE_UNDEAD_POW				},//DND_REMUS
 	{ 1250,			DND_MTYPE_DEMON_POW										},//DND_SSRATH
-	
+	{ 600,			DND_MTYPE_UNDEAD_POW									},//DND_HOLLOWSHELL
+	{ 1500,			DND_MTYPE_DEMON_POW										},//DND_OMNISIGHT
+	{ 1000,			DND_MTYPE_MAGICAL_POW									},//DND_CHEGOVAX
+	{ 900,			DND_MTYPE_UNDEAD_POW									},//DND_ONIMUZ
+	{ 1750,			DND_MTYPE_DEMON_POW										},//DND_HARKIMONDE
 	/*
-	
-	// shotgunner uniques
-	// imp uniques
-	MONSTER_VAAJ,
-	// demon uniques
-	MONSTER_REMUS,
-	// spectre uniques
-	MONSTER_SSRATH,
-	// lost soul uniques
-	MONSTER_HOLLOWSHELL,
-	// cacodemon uniques
-	MONSTER_OMNISIGHT,
-	// pain e. uniques
-	MONSTER_CHEGOVAX,
-	// rev uniques
-	MONSTER_ONIMUZ,
-	// hk uniques
-	MONSTER_HARKIMONDE,
 	// baron uniques
 	MONSTER_LESHRAC,
 	// manc uniques
