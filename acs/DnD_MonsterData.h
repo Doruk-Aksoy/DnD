@@ -314,6 +314,7 @@ enum {
 	MONSTER_HARKIMONDE,
 	// baron uniques
 	MONSTER_LESHRAC,
+	MONSTER_LESHRACPOD,
 	// manc uniques
 	MONSTER_KRULL,
 	// arachno uniques
@@ -1040,20 +1041,13 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 1000,			DND_MTYPE_MAGICAL_POW									},//DND_CHEGOVAX
 	{ 900,			DND_MTYPE_UNDEAD_POW									},//DND_ONIMUZ
 	{ 1750,			DND_MTYPE_DEMON_POW										},//DND_HARKIMONDE
-	/*
-	// baron uniques
-	MONSTER_LESHRAC,
-	// manc uniques
-	MONSTER_KRULL,
-	// arachno uniques
-	MONSTER_THORAX,
-	// vile uniques
-	MONSTER_ZRAVOG,
-	// sm uniques
-	MONSTER_ERYXIA,
-	// cyber uniques
-	MONSTER_ABAXOTH,
-	*/
+	{ 2250,			DND_MTYPE_DEMON_POW										},//DND_LESHRAC
+	{ 200,			DND_MTYPE_MAGICAL_POW									},//DND_LESHRACPOD
+	{ 2000,			DND_MTYPE_DEMON_POW										},//DND_KRULL manc
+	{ 1750,			DND_MTYPE_ROBOTIC_POW									},//DND_THORAX arach
+	{ 1800,			DND_MTYPE_DEMON_POW										},//DND_ZRAVOG vile
+	{ 7500,			DND_MTYPE_DEMON_POW										},//DND_ERYXIA
+	{ 8500,			DND_MTYPE_DEMON_POW										}//DND_ABAXOTH
 };
 
 int MonsterPetTypeList[MAX_PET_TYPES] = {

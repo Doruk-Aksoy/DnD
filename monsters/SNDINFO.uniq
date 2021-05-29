@@ -83,3 +83,19 @@ Omnisight/BigZap5	OMNIZAP5
 Omnisight/BigZap6	OMNIZAP6
 $random Omnisight/BigZap { Omnisight/BigZap1 Omnisight/BigZap2 Omnisight/BigZap3 Omnisight/BigZap4 Omnisight/BigZap5 Omnisight/BigZap6 }
 Omnisight/ZapLoop	OMNIZAPL
+
+Harkimonde/See		HARKSEE
+Harkimonde/Pain		HARKPAIN
+Harkimonde/Act		HARKACT
+Harkimonde/Die		HARKDIE
+Harkimonde/Leap		HARKLEAP
+
+Leshrac/See			LESHSEE
+Leshrac/Pain		LESHPAIN
+Leshrac/Act			LESHACT
+Leshrac/Die			LESHDIE
+Leshrac/BigMineExp	LESHMINX
+Leshrac/Mine1		LESHMIN1
+Leshrac/Mine2		LESHMIN2
+Leshrac/Mine3		LESHMIN3
+$random Leshrac/Mine { Leshrac/Mine1 Leshrac/Mine2 Leshrac/Mine3 }

@@ -242,6 +242,7 @@ enum {
 	DND_HARKIMONDE,
 	// baron uniques
 	DND_LESHRAC,
+	DND_LESHRACPOD,
 	// manc uniques
 	DND_KRULL,
 	// arachno uniques

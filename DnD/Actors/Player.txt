@@ -222,6 +222,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
 		Goto PoisonContinue
 		Pain.BaronsPoison:
+		Pain.BaronsPoisonPod:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
 		Goto PoisonContinue
 		Pain.Putrefier_Poison:

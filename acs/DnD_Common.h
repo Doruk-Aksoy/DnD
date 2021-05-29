@@ -72,6 +72,7 @@ enum {
 ////////////////
 
 * 700 = Draugr Temporary FX
+* 701 = Leshrac temporary tid
 * 1000 - 1063 = Players
 * 1100 - 1163 = Emerald Death Actors
 * 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)

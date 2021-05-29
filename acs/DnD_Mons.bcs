@@ -78,7 +78,7 @@ Script 960 (int type) {
 	}
 }
 
-Script 965 (void) {
+Script "DnD Monster Leap" (void) {
 	int montid = ActivatorTID();
 	int monang = GetActorAngle(0);
 	SetActivatorToTarget(montid);
@@ -89,16 +89,16 @@ Script 965 (void) {
 	int y = (GetActorY(montid) - GetActorY(targtid)) >> 16;
 	int distance = sqrt((x*x) + (y*y));
 	
-	ThrustThingZ(montid, (distance >> 6) + 24, 0, 1);
+	ThrustThingZ(montid, (distance >> 5) + 18, 0, 1);
 	Delay(3);
 	ThrustThing(monang >> 8, (distance >> 5) + 15, 1, montid);
 }
 
-Script 966 () {
+Script "DnD Monster Leap Finish" () {
 	int t = 0;
 	while(t < WAIT_MAX) {
 		if(GetActorZ(0) - GetActorFloorZ(0) < 4.0) {
-			GiveInventory("Landed", 1);
+			GiveInventory("DemonLanded", 1);
 			break;
 		}
 		GiveInventory("DemonFlightDamager", 1);
@@ -776,4 +776,83 @@ Script "DnD Onimuz Clone Spawn" (void) {
 	SetActorProperty(0, APROP_MASTERTID, owner);
 	SetPointer(AAPTR_MASTER, owner);
 	Thing_ChangeTID(0, 0);
+}
+
+Script "DnD On Solid Surface" (int monster_id) {
+	Delay(const:10);
+	// while actor is above ground, wait
+	// no change for 2 tics can imply the unit landed somewhere and is no longer moving
+	int prev_z;
+	bool landed = false;
+	do {
+		prev_z = GetActorZ(0);
+		Delay(const:2);
+		landed = prev_z == GetActorZ(0) || prev_z - GetActorFloorZ(0) <= 4.0;
+	} while(!landed);
+	GiveInventory("MonsterLeapFinish", 1);
+	
+	if(monster_id == 1)
+		GiveInventory("HarkimondeLand", 1);
+	
+	SetResultValue(1);
+}
+
+Script "DnD Harkimonde Smoke FX" (void) CLIENTSIDE {
+	GiveInventory("HarkimondeSmokeFXSpawner", 1);
+}
+
+Script "DnD Random Shake" (int iter, int wait, int esc_factor) {
+	int escalation = 0.0;
+	for(int i = 0; i < iter; ++i) {
+		SetActorPosition(0, GetActorX(0) + random(-1.0 - escalation, 1.0 + escalation), GetActorY(0) + random(-1.0 - escalation, 1.0 + escalation), GetActorZ(0) + random(-0.33 - escalation / 3, 0.33 + escalation / 3), 0);
+		escalation += FixedMul(0.01, sin(0.25 / iter * (i + 1)) * esc_factor);
+		Delay(wait);
+	}
+}
+
+Script "DnD Leshrac Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+	
+	for(int i = 0; i < LESHRAC_SALVO; ++i) {
+		if(CheckInventory("LeshracInterrupt"))
+			break;
+		int rand_angle = random(-LESHRAC_RANDOM_ANG, LESHRAC_RANDOM_ANG);
+		int dist_var = 0;
+		int ang = GetActorAngle(0);
+		int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+		
+		dist_var = LESHRAC_DIST_VAR_FACTOR * random(-LESHRAC_DIST_VAR / 2, LESHRAC_DIST_VAR);
+		if(dist + dist_var < LESHRAC_MIN_DIST && dist_var < 0)
+			dist_var = 0;
+		
+		int velz = ((z_diff + 0.5 * LESHRAC_T * LESHRAC_T) / LESHRAC_T) >> 16;
+		
+		int px = GetActorX(0);
+		int py = GetActorY(0);
+		int spd = 8 * (dist + dist_var) / LESHRAC_T;
+		if(spd > LESHRAC_PROJ_SPEEDLIM)
+			spd = LESHRAC_PROJ_SPEEDLIM;
+			
+		// Shoot the projectile
+		// nx = xoff * cos + yoff * sin
+		// ny = xoff * sin - yoff * cos
+		SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+		SpawnProjectile(0, "Leshrac_LobbedMine", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, LESHRAC_PROJ_TID);
+		// modify z of this, sometimes actors are too tall
+		SetActorPosition(LESHRAC_PROJ_TID, GetActorX(LESHRAC_PROJ_TID), GetActorY(LESHRAC_PROJ_TID), GetActorZ(0) + zoffset, 0);
+		SetActorPosition(0, px, py, GetActorZ(0), 0);
+		SetActivator(LESHRAC_PROJ_TID);
+		// Keep target as owner
+		SetPointer(AAPTR_TARGET, curtid);
+		Thing_ChangeTID(LESHRAC_PROJ_TID, 0);
+		SetActivator(curtid);
+		Delay(const:LESHRAC_SALVO_DELAY);
+	}
+	SetResultValue(0);
 }

@@ -1,3 +1,13 @@
+Actor NoBloodFX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 AAAA 1
+		Stop
+	}
+}
+
 Actor GrenadeSmoke
 {
 	renderstyle translucent

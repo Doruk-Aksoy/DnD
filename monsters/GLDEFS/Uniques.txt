@@ -182,3 +182,94 @@ Object Harkimonde_BoomTrail
 	Frame FTRAI { Light DiabloistTracer9 }
 	Frame FTRAJ { Light DiabloistTracer10 }
 }
+
+object Leshrac_LobbedMine {
+	frame BNADA { light VenomLight2 }
+	frame BNADB { light VenomLight2 }
+	frame BNADC { light VenomLight2 }
+	frame BNADD { light VenomLight2 }
+	
+	frame BNADE { light VenomLight3 }
+	frame BNADF { light VenomLight4 }
+	frame BNADG { light VenomLight5 }
+	frame BNADH { light VenomLight6 }
+	frame BNADI { light VenomLight7 }
+	frame BNADJ { light VenomLight8 }
+}
+
+object Leshrac_LobbedMineGround {
+	frame BNADA { light VenomLight2 }
+	frame BNADB { light VenomLight2 }
+	frame BNADC { light VenomLight2 }
+	frame BNADD { light VenomLight2 }
+	
+	frame BNADE { light VenomLight3 }
+	frame BNADF { light VenomLight4 }
+	frame BNADG { light VenomLight5 }
+	frame BNADH { light VenomLight6 }
+	frame BNADI { light VenomLight7 }
+	frame BNADJ { light VenomLight8 }
+}
+
+Object Leshrac_Ball {
+	Frame BDP2A { Light SBeastBall11 }
+	Frame BDP2B { Light SBeastBall11 }
+	Frame BDP2C { Light SBeastBall11 }
+	Frame BDP2D { Light SBeastBall12 }
+	Frame BDP2E { Light SBeastBall13 }
+	Frame BDP2F { Light SBeastBall14 }
+	Frame BDP2G { Light SBeastBall15 }
+	Frame BDP2H { Light SBeastBall16 }
+}
+
+pointlight LeshracMineLight {
+	color 0.2 1.0 0.175
+	size 56
+	offset 0 20 0
+}
+
+pointlight LeshracMineLight2 {
+	color 0.2 1.0 0.175
+	size 38
+	offset 0 20 0
+}
+
+pointlight LeshracMineLight3 {
+	color 0.2 1.0 0.175
+	size 40
+	offset 0 20 0
+}
+
+pointlight LeshracMineLight4 {
+	color 0.2 1.0 0.175
+	size 60
+	offset 0 20 0
+}
+
+pointlight LeshracMineLight5 {
+	color 0.2 1.0 0.175
+	size 72
+	offset 0 20 0
+}
+
+pointlight LeshracMineLight6 {
+	color 0.2 1.0 0.175
+	size 36
+	offset 0 20 0
+}
+
+pointlight LeshracMineLight_Red {
+	color 1.0 0.175 0.175
+	size 56
+	offset 0 20 0
+}
+
+object LeshracPoisonMine {
+	frame UP11A { light LeshracMineLight }
+	frame UP11B { light LeshracMineLight2 }
+	frame UP11C { light LeshracMineLight3 }
+	frame UP11D { light LeshracMineLight4 }
+	frame UP11E { light LeshracMineLight5 }
+	frame UP11F { light LeshracMineLight6 }
+	frame UP11Q { light LeshracMineLight_Red }
+}
