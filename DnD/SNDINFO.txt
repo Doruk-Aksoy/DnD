@@ -1,6 +1,8 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+MagicExplosion			MAGCEX
+
 DarkWanderer/ChallengeWin		DWCHWIN
 DarkWanderer/ChallengeFail		DWCHLOSS
 

@@ -106,3 +106,9 @@ Actor LegendarySlow : PowerupGiver {
     Powerup.Type "PowerGolgothSlow"
     Powerup.Duration 8
 }
+
+Actor EryxiaSlower : PowerSpeed {
+	Speed 0.66
+	powerup.duration 52
+	powerup.color "15 15 88"
+}

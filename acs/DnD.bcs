@@ -5803,6 +5803,10 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		Log(s:"\cgERROR: \cjPlayer isn't currently playing!");
 }
 
+Script "DnD Heal Monster Direct" (int amount) {
+	HealMonster(ActivatorTID() - DND_MONSTERTID_BEGIN, amount);
+}
+
 Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
 	// how many periods will be waited for this to end?
 	int duration = style >> 16;

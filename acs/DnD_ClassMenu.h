@@ -130,6 +130,8 @@ str DnD_ClassInfo[MAXPLAYERCLASSES][DND_MAXPLAYERCLASS_INFO] = {
 		"+ L25: Cybernetic enhancements are 30% more effective.",
 		"+ L50: Energy weapons do irreducible damage."
 	},
+	
+	// Berserker
 	{
 		"TheBerserker",
 		"The Berserker",

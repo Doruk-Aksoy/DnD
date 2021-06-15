@@ -165,6 +165,8 @@ Actor TheDoomGuy : DnD_PlayerBase {
 			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
 		Goto PainAnim
 		// Ice category
+		Pain.EryxiaSlow:
+			TNT1 A 0 A_GiveInventory("EryxiaSlower", 1)
 		Pain.RevIce:
 		Pain.FattyIce:
 		Pain.CyberIce:
@@ -189,6 +191,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 		Pain.DemonFire:
 		Pain.CacoFire:
 		Pain.FattyFire:
+		Pain.ArachnoFire:
 		Pain.PaineFire:
 		Pain.BaronsFire:
 		Pain.VileFire:
@@ -295,6 +298,10 @@ Actor TheDoomGuy : DnD_PlayerBase {
 		Goto PainAnim
 		Pain.SSrath_Stunner:
 			TNT1 A 0 A_GiveInventory("SSrath_Stun", 1)
+		Goto PainAnim
+		Pain.VileArcane:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
+			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		Goto PainAnim
 		Pain.ArcaneSoul:
 			TNT1 A 0 A_SetBlend("Gray", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
@@ -540,6 +547,8 @@ Actor TheMarine : DnD_PlayerBase {
 			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
 		Goto PainAnim
 		// Ice category
+		Pain.EryxiaSlow:
+			TNT1 A 0 A_GiveInventory("EryxiaSlower", 1)
 		Pain.RevIce:
 		Pain.FattyIce:
 		Pain.CyberIce:

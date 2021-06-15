@@ -169,3 +169,70 @@ object EmeraldRain {
     frame JADEH { light EmeraldRainLight4 }
     frame JADEI { light EmeraldRainLight5 }
 }
+
+pointlight HellsmawLight1
+{
+	color 1.0 0.7 0.4
+	size 64
+}
+
+flickerlight HellsmawLight2
+{
+	color 0.7 0.4 0.25
+	size 80
+	secondarySize 90
+	chance 0.25
+}
+
+flickerlight HellsmawLight3
+{
+	color 0.4 0.2 0.1
+	size 96
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight HellsmawLight4
+{
+	color 0.2 0.1 0.0
+	size 120
+	secondarySize 132
+	chance 0.25
+}
+
+object HellsMawRocket
+{
+	frame HLMLA { light HellsmawLight1    }
+	frame HLMLB { light HellsmawLight1    }
+	frame HLMLC { light HellsmawLight1    }
+
+	frame HLMLD { light HellsmawLight2 }
+	frame HLMLE { light HellsmawLight3 }
+	frame HLMLF { light HellsmawLight4 }
+}
+
+object HellsMawMiniRocket
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}
+
+object HellsMawMiniRocket_Split
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}

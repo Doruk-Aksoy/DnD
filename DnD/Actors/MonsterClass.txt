@@ -93,6 +93,7 @@ Actor VileClassProtection : InfiniteProtectionBase {
 	DamageFactor "VileSlow", 0.0
 	DamageFactor "VileSnare", 0.0
 	DamageFactor "VileMagic", 0.0
+	DamageFactor "VileArcane", 0.0
 }
 
 Actor SMClassProtection : InfiniteProtectionBase {
@@ -108,6 +109,7 @@ Actor SMClassProtection : InfiniteProtectionBase {
 	DamageFactor "BigSpiderYellow", 0
 	DamageFactor "BigSpiderDark", 0
 	DamageFactor "VisionDimmer", 0
+	DamageFactor "EryxiaSlow", 0
 }
 
 Actor CyberClassProtection : InfiniteProtectionBase {

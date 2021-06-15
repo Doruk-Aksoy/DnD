@@ -69,6 +69,10 @@ SSrath/Pain1		SSRAPAI1
 SSrath/Pain2		SSRAPAI2
 $random SSrath/Pain { SSrath/Pain1 SSrath/Pain2 }
 
+Hollowshell/See		HLLWSEE
+Hollowshell/Act		HLLWACT
+Hollowshell/Die		HLLWDIE
+
 Omnisight/Shock		OMNISHCK
 Omnisight/Chaos		OMNICHAO
 Omnisight/See		OMNISEE
@@ -99,3 +103,43 @@ Leshrac/Mine1		LESHMIN1
 Leshrac/Mine2		LESHMIN2
 Leshrac/Mine3		LESHMIN3
 $random Leshrac/Mine { Leshrac/Mine1 Leshrac/Mine2 Leshrac/Mine3 }
+
+Krull/See			KRULSEE
+Krull/Pain			KRULPAIN
+Krull/Act			KRULACT
+Krull/Die			KRULDIE
+Krull/Attack		KRULATK
+
+Thorax/See			THRXSEE
+Thorax/Act1			THRXACT1
+Thorax/Act2			THRXACT2
+$random Thorax/Act { Thorax/Act1 Thorax/Act2 }
+Thorax/Pain1		THRXPAI1
+Thorax/Pain2		THRXPAI2
+Thorax/Pain3		THRXPAI3
+$random Thorax/Pain { Thorax/Pain1 Thorax/Pain2 Thorax/Pain3 }
+Thorax/Die			THRXDIE
+
+Zravog/See			ZRAVSEE
+Zravog/Pain			ZRAVPAIN
+Zravog/Act			ZRAVACT
+Zravog/Die			ZRAVDIE
+Zravog/SpellBegin	ZRAVSPLS
+Zravog/SpellHit		ZRAVSPLH
+
+Eryxia/See			ERYXSEE
+Eryxia/Pain			ERYXPAIN
+Eryxia/Die			ERYXDIE
+Eryxia/Walk			ERYXWALK
+Eryxia/Act			ERYXACT
+Eryxia/Retaliate	ERYXRETA
+
+Abaxoth/See			ABAXSEE
+Abaxoth/Pain		ABAXPAIN
+Abaxoth/Act			ABAXACT
+Abaxoth/Die			ABAXDIE
+
+Abaxoth/TectonicExp1		ABAXEXP2
+$limit Abaxoth/TectonicExp1 16
+Abaxoth/TectonicExp2		ABAXEXP1
+$limit Abaxoth/TectonicExp2 16

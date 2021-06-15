@@ -1205,6 +1205,7 @@ Actor ExplosionFXMagic : ExplosionFX {
 			TNT1 A 0
 			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
 			TNT1 A 1
+			TNT1 A 0 A_PlaySound("MagicExplosion")
 			D2FX GHI 4
 			D2FX JK 3
 			D2FX L 2
@@ -1220,6 +1221,7 @@ Actor ExplosionFXMagicBlue : ExplosionFXMagic
 		TNT1 A 0
 		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
 		TNT1 A 1
+		TNT1 A 0 A_PlaySound("MagicExplosion")
 	   D3FX GHI 4
 	   D3FX JK 3
 	   D3FX L 2
@@ -1235,6 +1237,7 @@ Actor ExplosionFXMagicYellow : ExplosionFXMagic
 		TNT1 A 0
 		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
 		TNT1 A 1
+		TNT1 A 0 A_PlaySound("MagicExplosion")
 	   D4FX GHI 4
 	   D4FX JK 3
 	   D4FX L 2
@@ -1251,6 +1254,7 @@ Actor ExplosionFXMagicOrange : ExplosionFXMagic
 		TNT1 A 0
 		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
 		TNT1 A 1
+		TNT1 A 0 A_PlaySound("MagicExplosion")
 	   D5FX GHI 4
 	   D5FX JK 3
 	   D5FX L 2
@@ -1266,6 +1270,7 @@ Actor ExplosionFXMagicGreen : ExplosionFXMagic
 		TNT1 A 0
 		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
 		TNT1 A 1
+		TNT1 A 0 A_PlaySound("MagicExplosion")
 	   D5FX GHI 4
 	   D5FX JK 3
 	   D5FX L 2
@@ -1845,6 +1850,10 @@ Actor CyberneticEffectSpawner : SoulEffectSpawner {
 
 Actor DarkHealEffectSpawner : SoulEffectSpawner {
 	Translation "80:111=32:47", "5:5=47:47"
+}
+
+actor PurpleSparkSpawner : SoulEffectSpawner {
+	translation "80:111=%[0.00,0.00,0.00]:[1.17,0.10,1.87]"
 }
 
 Actor SoulEffectSpawnerLarge : SoulEffectSpawner

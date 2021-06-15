@@ -273,3 +273,309 @@ object LeshracPoisonMine {
 	frame UP11F { light LeshracMineLight6 }
 	frame UP11Q { light LeshracMineLight_Red }
 }
+
+object KrullRocket
+{
+	frame HLMLA { light HellsmawLight1    }
+	frame HLMLB { light HellsmawLight1    }
+	frame HLMLC { light HellsmawLight1    }
+
+	frame HLMLD { light HellsmawLight2 }
+	frame HLMLE { light HellsmawLight3 }
+	frame HLMLF { light HellsmawLight4 }
+}
+
+object KrullMiniRocket
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}
+
+object KrullMiniRocket_Split
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}
+
+flickerlight KrullLight1 {
+	color 1.0 0.75 0.2
+	size 48
+	secondarysize 56
+	offset 0 48 0
+	chance 0.5
+}
+
+flickerlight KrullLight2 {
+	color 1.0 0.8 0.3
+	size 72
+	secondarysize 96
+	offset 0 44 0
+	chance 0.5
+}
+
+flickerlight KrullLight3 {
+	color 1.0 0.82 0.375
+	size 96
+	secondarysize 112
+	offset 0 32 0
+	chance 0.5
+}
+
+pointlight KrullLight4 {
+	color 0.8 0.6 0.1
+	size 72
+	offset 0 16 0
+}
+
+pointlight KrullLight5 {
+	color 0.6 0.4 0.075
+	size 40
+}
+
+pointlight KrullLight6 {
+	color 0.4 0.2 0.0
+	size 30
+}
+
+object Krull {
+	frame UE12H { light KrullLight4 }
+	frame UE12L { light KrullLight1 }
+	frame UE12M { light KrullLight2 }
+	frame UE12N { light KrullLight2 }
+	frame UE12O { light KrullLight3 }
+	frame UE12P { light KrullLight3 }
+	frame UE12Q { light KrullLight4 }
+	frame UE12R { light KrullLight5 }
+	frame UE12S { light KrullLight6 }
+}
+
+object ThoraxMissile {
+	frame HMISA { light ROCKET }
+	frame MACXA { light ROCKET_X1 }
+	frame MACXB { light ROCKET_X1 }
+	frame MACXC { light ROCKET_X1 }
+	frame MACXD { light ROCKET_X2 }
+	frame MACXE { light ROCKET_X2 }
+	frame MACXF { light ROCKET_X2 }
+	frame MACXG { light ROCKET_X2 }
+	frame MACXH { light ROCKET_X3 }
+	frame MACXI { light ROCKET_X3 }
+	frame MACXJ { light ROCKET_X3 }
+}
+
+object ThoraxMissile_Homing {
+	frame HMISA { light ROCKET }
+	frame MACXA { light ROCKET_X1 }
+	frame MACXB { light ROCKET_X1 }
+	frame MACXC { light ROCKET_X1 }
+	frame MACXD { light ROCKET_X2 }
+	frame MACXE { light ROCKET_X2 }
+	frame MACXF { light ROCKET_X2 }
+	frame MACXG { light ROCKET_X2 }
+	frame MACXH { light ROCKET_X3 }
+	frame MACXI { light ROCKET_X3 }
+	frame MACXJ { light ROCKET_X3 }
+}
+
+flickerlight ThoraxFireLight1 {
+	color 1.0 0.7 0.4
+	size 48
+	secondarysize 72
+	chance 0.33
+}
+
+pointlight ThoraxFireLight2 {
+	color 1.0 0.7 0.4
+	size 64
+}
+
+pointlight ThoraxFireLight3 {
+	color 1.0 0.6 0.3
+	size 80
+}
+
+pointlight ThoraxFireLight4 {
+	color 1.0 0.5 0.25
+	size 48
+}
+
+pointlight ThoraxFireLight5 {
+	color 1.0 0.4 0.2
+	size 32
+}
+
+object ThoraxFireBall {
+	frame UP12A { light ThoraxFireLight1 }
+	frame UP12B { light ThoraxFireLight1 }
+	frame UP12C { light ThoraxFireLight1 }
+	frame UP12D { light ThoraxFireLight1 }
+	frame UP12E { light ThoraxFireLight1 }
+	
+	frame UP12Q { light ThoraxFireLight2 }
+	frame UP12R { light ThoraxFireLight3 }
+	frame UP12S { light ThoraxFireLight4 }
+	frame UP12T { light ThoraxFireLight5 }
+}
+
+object HollowshellGas {
+	Frame DB58A { Light CacolichFlame1 }
+	Frame DB58B { Light CacolichFlame2 }
+	Frame DB58C { Light CacolichFlame3 }
+	Frame DB58D { Light CacolichFlame4 }
+	Frame DB58E { Light CacolichFlame4 }
+	Frame DB58F { Light CacolichFlame4 }
+	Frame DB58G { Light CacolichFlame5 }
+	Frame DB58H { Light CacolichFlame5 }
+	Frame DB58I { Light CacolichFlame5 }
+	Frame DB58J { Light CacolichFlame6 }
+	Frame DB58K { Light CacolichFlame6 }
+	Frame DB58L { Light CacolichFlame6 }
+	Frame DB58M { Light CacolichFlame7 }
+	Frame DB58N { Light CacolichFlame7 }
+	Frame DB58O { Light CacolichFlame7 }
+	Frame DB58P { Light CacolichFlame8 }
+	Frame DB58Q { Light CacolichFlame8 }
+	Frame DB58R { Light CacolichFlame8 }
+	Frame DB58S { Light CacolichFlame9 }
+	Frame DB58T { Light CacolichFlame9 }
+	Frame DB58U { Light CacolichFlame10 }
+	Frame DB58V { Light CacolichFlame11 }
+	Frame DB58W { Light CacolichFlame12 }
+	Frame DB58X { Light CacolichFlame13 }
+	Frame DB58Y { Light CacolichFlame14 }
+	Frame DB58Z { Light CacolichFlame15 }
+}
+
+Object HollowShellComet
+{
+	Frame ARCBA { Light ArchonComet1 }
+	Frame ARCBB { Light ArchonComet1 }
+	Frame ARCBC { Light ArchonComet1 }
+	Frame ARCBJ { Light ArchonComet2 }
+	Frame ARCBK { Light ArchonComet3 }
+	Frame ARCBL { Light ArchonComet4 }
+	Frame ARCBM { Light ArchonComet5 }
+	Frame ARCBN { Light ArchonComet6 }
+}
+
+flickerlight HollowShellLight1 {
+	color 0.33 1.0 0.4
+	size 38
+	secondarysize 48
+	chance 0.333
+}
+
+pointlight HollowShellLight2 {
+	color 0.33 1.0 0.4
+	size 40
+}
+
+pointlight HollowShellLight3 {
+	color 0.33 1.0 0.4
+	size 48
+}
+
+pointlight HollowShellLight4 {
+	color 0.33 1.0 0.4
+	size 60
+}
+
+pointlight HollowShellLight5 {
+	color 0.33 1.0 0.4
+	size 30
+}
+
+pointlight HollowShellLight6 {
+	color 0.33 1.0 0.4
+	size 24
+}
+
+object Hollowshell {
+	frame UE10A { light HollowshellLight1 }
+	frame UE10B { light HollowshellLight1 }
+	frame UE10C { light HollowshellLight1 }
+	frame UE10F { light HollowshellLight2 }
+	frame UE10G { light HollowshellLight3 }
+	frame UE10H { light HollowshellLight4 }
+	frame UE10I { light HollowshellLight5 }
+	frame UE10J { light HollowshellLight6 }
+}
+
+object ZravogHomingBall {
+	frame BSBSF { light DISCIPLEBALL    }
+	frame BSBSG { light DISCIPLEBALL    }
+	frame BSBSH { light DISCIPLEBALL    }
+	frame BSBSI { light DISCIPLEBALL_X1 }
+	frame BSBSJ { light DISCIPLEBALL_X1 }
+	frame BSBSK { light DISCIPLEBALL_X1 }
+	frame BSBSL { light DISCIPLEBALL_X2 }
+	frame BSBSM { light DISCIPLEBALL_X2 }
+}
+
+object ZravogMissile
+{
+    frame UP22A { light DISCIPLEBALL }
+    frame UP22B { light DISCIPLEBALL }
+    frame UP22C { light DISCIPLEBALL }
+
+    frame UP22D { light DISCIPLEBALL    }
+    frame UP22E { light DISCIPLEBALL    }
+    frame UP22F { light DISCIPLEBALL_X1 }
+    frame UP22G { light DISCIPLEBALL_X2 }
+}
+
+object AbaxothRocket {
+	frame MICM { light ROCKET }
+	frame MACXA { light ROCKET_X1 }
+	frame MACXB { light ROCKET_X1 }
+	frame MACXC { light ROCKET_X1 }
+	frame MACXD { light ROCKET_X2 }
+	frame MACXE { light ROCKET_X2 }
+	frame MACXF { light ROCKET_X2 }
+	frame MACXG { light ROCKET_X2 }
+	frame MACXH { light ROCKET_X3 }
+	frame MACXI { light ROCKET_X3 }
+	frame MACXJ { light ROCKET_X3 }
+}
+
+object AbaxothRocketL {
+	frame MICM { light ROCKET }
+	frame MACXA { light ROCKET_X1 }
+	frame MACXB { light ROCKET_X1 }
+	frame MACXC { light ROCKET_X1 }
+	frame MACXD { light ROCKET_X2 }
+	frame MACXE { light ROCKET_X2 }
+	frame MACXF { light ROCKET_X2 }
+	frame MACXG { light ROCKET_X2 }
+	frame MACXH { light ROCKET_X3 }
+	frame MACXI { light ROCKET_X3 }
+	frame MACXJ { light ROCKET_X3 }
+}
+
+pointlight AbaxothLightning1
+{
+    color 0.33 0.33 1.0
+    size 56
+}
+
+flickerlight AbaxothLightning2
+{
+    color 0.4 0.4 1.0
+    size 20
+    secondarySize 28
+    chance 0.3
+}

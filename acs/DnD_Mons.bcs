@@ -669,6 +669,24 @@ Script "DnD Bloodseeker Transform Sync" (int mode) CLIENTSIDE {
 		TakeInventory("BloodseekerTransform", 1);
 }
 
+// necessary so we sync between serverside and clientside checks
+Script "DnD Boolean Sync" (int take) {
+	if(take)
+		TakeInventory("DnD_Boolean", 1);
+	else
+		GiveInventory("DnD_Boolean", 1);
+	ACS_NamedExecuteWithResult("DnD Boolean Sync - CS", take);
+	SetResultValue(0);
+}
+
+Script "DnD Boolean Sync - CS" (int take) CLIENTSIDE {
+	if(take)
+		TakeInventory("DnD_Boolean", 1);
+	else
+		GiveInventory("DnD_Boolean", 1);
+	SetResultValue(0);
+}
+
 // syncs desynced projectiles or anything really
 Script "DnD Sync Hack" (int x, int y, int z) CLIENTSIDE {
 	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
@@ -853,6 +871,293 @@ Script "DnD Leshrac Lob" (int yoffset, int zoffset) {
 		Thing_ChangeTID(LESHRAC_PROJ_TID, 0);
 		SetActivator(curtid);
 		Delay(const:LESHRAC_SALVO_DELAY);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Thorax Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+
+	int ang = GetActorAngle(0);
+	int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+	int time = THORAX_T;
+	
+	if(dist > 256)
+		time += (dist / THORAX_DIST_FACTOR);
+	
+	int velz = ((z_diff + 0.5 * time * time) / time) >> 16;
+	
+	int px = GetActorX(0);
+	int py = GetActorY(0);
+	int spd = 8 * dist / time;
+	if(spd > THORAX_PROJ_SPEEDLIM)
+		spd = THORAX_PROJ_SPEEDLIM;
+		
+	int proj_angle = AngleToFace(0, targtid);
+		
+	// Shoot the projectile
+	// nx = xoff * cos + yoff * sin
+	// ny = xoff * sin - yoff * cos
+	SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+	SpawnProjectile(0, "ThoraxFireBall", proj_angle >> 8, spd, velz * 8, 800, THORAX_PROJ_TID);
+	// modify z of this, sometimes actors are too tall
+	SetActorPosition(THORAX_PROJ_TID, GetActorX(THORAX_PROJ_TID), GetActorY(THORAX_PROJ_TID), GetActorZ(0) + zoffset, 0);
+	SetActorPosition(0, px, py, GetActorZ(0), 0);
+	SetActivator(THORAX_PROJ_TID);
+	// Keep target as owner
+	SetPointer(AAPTR_TARGET, curtid);
+	Thing_ChangeTID(THORAX_PROJ_TID, 0);
+	SetActivator(curtid);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Eryxia Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+	
+	for(int i = 0; i < ERYXIA_SALVO; ++i) {
+		if(CheckInventory("EryxiaInterrupt"))
+			break;
+		int rand_angle = random(-ERYXIA_RANDOM_ANG, ERYXIA_RANDOM_ANG);
+		int dist_var = 0;
+		int ang = GetActorAngle(0);
+		int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+		
+		dist_var = LESHRAC_DIST_VAR_FACTOR * random(-LESHRAC_DIST_VAR / 2, LESHRAC_DIST_VAR);
+		if(dist + dist_var < LESHRAC_MIN_DIST && dist_var < 0)
+			dist_var = 0;
+		
+		int velz = ((z_diff + 0.5 * ERYXIA_T * ERYXIA_T) / ERYXIA_T) >> 16;
+		
+		int px = GetActorX(0);
+		int py = GetActorY(0);
+		int spd = 8 * (dist + dist_var) / ERYXIA_T;
+		if(spd > ERYXIA_PROJ_SPEEDLIM)
+			spd = ERYXIA_PROJ_SPEEDLIM;
+			
+		// Shoot the projectile
+		// nx = xoff * cos + yoff * sin
+		// ny = xoff * sin - yoff * cos
+		SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+		SpawnProjectile(0, "EryxiaLob", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, ERYXIA_PROJ_TID);
+		// modify z of this, sometimes actors are too tall
+		SetActorPosition(ERYXIA_PROJ_TID, GetActorX(ERYXIA_PROJ_TID), GetActorY(ERYXIA_PROJ_TID), GetActorZ(0) + zoffset, 0);
+		SetActorPosition(0, px, py, GetActorZ(0), 0);
+		SetActivator(ERYXIA_PROJ_TID);
+		// Keep target as owner
+		SetPointer(AAPTR_TARGET, curtid);
+		Thing_ChangeTID(ERYXIA_PROJ_TID, 0);
+		SetActivator(curtid);
+		Delay(const:ERYXIA_SALVO_DELAY);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Krull Angle" (int yoff) {
+	int ang = 0;
+	int prev_x = GetActorX(0);
+	int prev_y = GetActorY(0);
+	int prev_z = GetActorZ(0);
+	int curr_angle = GetActorAngle(0);
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	SetActorPosition(0, prev_x + yoff * sin(curr_angle), prev_y - yoff * cos(curr_angle), prev_z, 0);
+	ang = AngleToFace(0, target);
+	SetActorPosition(0, prev_x, prev_y, prev_z, 0);
+	
+	SetResultValue((ang * 360) >> 16);
+}
+
+// creates a circle that hovers above the player, after dtime tics it'll slam the player and steal 50% of their ammo on current weapon
+Script "DnD Zravog Slam" (int dtime) {
+	int target = GetActorProperty(0, APROP_TARGETTID);
+	ACS_NamedExecuteWithResult("DnD Zravog Slam FX", target, dtime);
+	int count = 0;
+	bool noslam = false;
+	while(count < dtime) {
+		++count;
+		noslam = CheckInventory("DnD_Boolean");
+		Delay(const:TICRATE);
+	}
+	if(!noslam) {
+		int tx = GetActorX(target);
+		int ty = GetActorY(target);
+		int tz = GetActorZ(target);
+		// proceed with slam damage
+		Delay(const:(ZRAVOG_SLAM_RELIEF + ZRAVOG_SLAM_SHAKE));
+		SpawnForced("ZravogSlamDamager", tx, ty, tz, 0);
+		SpawnForced("ZravogSlamHitSoundPlayer", tx, ty, tz, 0);
+	}
+}
+
+Script "DnD Zravog Slam FX" (int target, int dtime) CLIENTSIDE {
+	int i, z, a, count = 0;
+	bool abort = false;
+	dtime *= TICRATE;
+	
+	// there is a guarantee that only one of the unique monsters will be in a map at a time, so this is fine
+	SpawnForced("ZravogSlamSoundPlayer", GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, ZRAVOG_SOUNDTID);
+	
+	while(count < dtime && !abort) {
+		// create fx and align them
+		for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i) {
+			a = (1.0 / ZRAVOG_SLAM_FXCOUNT) * i;
+			z = GetActorZ(target) + 192.0;
+			if(z > GetActorCeilingZ(target))
+				z = GetActorCeilingZ(target) - 16.0;
+			SpawnForced("ZravogSlamParticle", GetActorX(target) + ZRAVOG_SLAM_RADIUS * cos(a), GetActorY(target) + ZRAVOG_SLAM_RADIUS * sin(a), z, 0);
+		}
+		
+		if(!(count % 4))
+			SpawnForced("PurpleSparkSpawner", GetActorX(target), GetActorY(target), z, 0);
+		
+		Delay(const:1);
+		++count;
+		
+		abort = CheckInventory("DnD_Boolean");
+		SetActorPosition(ZRAVOG_SOUNDTID, GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, 0);
+	}
+	
+	if(abort) {
+		Thing_Remove(ZRAVOG_SOUNDTID);
+		Terminate;
+	}
+	
+	int tx = GetActorX(target);
+	int ty = GetActorY(target);
+	int tz = GetActorZ(target) + 8.0;
+	int nz = 0;
+	int nr = 0;
+	
+	// final z that we'll descend from
+	z = tz + 192.0;
+	if(z > GetActorCeilingZ(target))
+		z = GetActorCeilingZ(target) - 16.0;
+		
+	count = 0;
+		
+	while(count < ZRAVOG_SLAM_SHAKE) {
+		// shake the particles
+		nz = random(-10.0, 10.0);
+		nr = random(-10.0, 10.0);
+		for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i) {
+			a = (1.0 / ZRAVOG_SLAM_FXCOUNT) * i;
+			SpawnForced("ZravogSlamParticle", tx + ZRAVOG_SLAM_RADIUS * cos(a) + nz, ty + ZRAVOG_SLAM_RADIUS * sin(a) + nr, z, 0);
+		}
+		
+		if(!(count % 4))
+			SpawnForced("PurpleSparkSpawner", tx, ty, tz, 0);
+		
+		Delay(const:1);
+		++count;
+		
+		abort = CheckInventory("DnD_Boolean");
+		SetActorPosition(ZRAVOG_SOUNDTID, tx, ty, tz + 64.0, 0);
+	}
+	
+	if(abort) {
+		Thing_Remove(ZRAVOG_SOUNDTID);
+		Terminate;
+	}
+	
+	nz = 0;
+	count = 0;
+	
+	while(count < ZRAVOG_SLAM_RELIEF) {
+		// create fx and drag them down
+		nz = z - ((z - tz) >> 16) * sin(0.25 * (count + 1) / ZRAVOG_SLAM_RELIEF);
+		for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i) {
+			a = (1.0 / ZRAVOG_SLAM_FXCOUNT) * i;
+			SpawnForced("ZravogSlamParticle", tx + ZRAVOG_SLAM_RADIUS * cos(a), ty + ZRAVOG_SLAM_RADIUS * sin(a), nz, 0);
+		}
+		
+		if(!(count % 4))
+			SpawnForced("PurpleSparkSpawner", tx, ty, tz, 0);
+		
+		Delay(const:1);
+		++count;
+		
+		abort = CheckInventory("DnD_Boolean");
+		SetActorPosition(ZRAVOG_SOUNDTID, tx, ty, tz + 64.0, 0);
+	}
+	
+	if(abort)
+		Terminate;
+		
+	Thing_Remove(ZRAVOG_SOUNDTID);
+	// hit smoke
+	for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i)
+		SpawnForced("ZravogSlamSmoke", tx + random(-16.0, 16.0), ty + random(-16.0, 16.0), nz, 0);
+}
+
+// same thing as Krull's except this updates angle from here
+Script "DnD Abaxoth Laser Adjust" (int yoff) {
+	int ang = 0;
+	int prev_x = GetActorX(0);
+	int prev_y = GetActorY(0);
+	int prev_z = GetActorZ(0);
+	int curr_angle = GetActorAngle(0);
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	SetActorPosition(0, prev_x + yoff * sin(curr_angle), prev_y - yoff * cos(curr_angle), prev_z, 0);
+	ang = AngleToFace(0, target) + random(-0.0075, 0.0075);
+	SetActorPitch(0, PitchToFace_Height(0, target));
+	SetActorPosition(0, prev_x, prev_y, prev_z, 0);
+	SetActorAngle(0, ang);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunderbolt" (void) {
+	// for a while we cast thunder fx on his hammer, and we heal while doing so
+	// after the fx is over we project a thunderbolt towards player
+	ACS_NamedExecuteWithResult("DnD Abaxoth Thunderbolt FX");
+	
+	// we delegated fx part to CS script, now do healing
+	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	for(int i = 0; i < ABAXOTH_THUNDER_HEALCOUNT && !CheckInventory("DnD_Boolean"); ++i) {
+		if(!CheckInventory("MonsterRegenPause"))
+			ACS_NamedExecuteAlways("DnD Heal Monster Direct", 0, ABAXOTH_THUNDER_HEAL);
+		GiveInventory("AbaxothThunderExploder", 1);
+		Delay(const:ABAXOTH_THUNDER_HEALFREQ);	
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunderbolt FX" (void) CLIENTSIDE {
+	int count = 0;
+	bool abort = false;
+	while(!abort && count < ABAXOTH_THUNDER_TIME) {
+		// create the lightning fx every few tics
+		if(!(count % 4))
+			abort = CheckInventory("DnD_Boolean");
+			
+		if(!(count % ABAXOTH_THUNDER_HEALFREQ)) {
+			// scale appropriately
+			SpawnForced("AbaxothThunderFX", GetActorX(0), GetActorY(0), GetActorZ(0), ABAXOTH_THUNDERFXTID);
+			
+			int zdiff = GetActorCeilingZ(0) - GetActorZ(0);
+			if(zdiff >= ABAXOTH_THUNDER_Y) {
+				zdiff = FixedDiv(zdiff, ABAXOTH_THUNDER_Y);
+				SetActorProperty(ABAXOTH_THUNDERFXTID, APROP_SCALEY, zdiff);
+				Thing_ChangeTID(ABAXOTH_THUNDERFXTID, 0);
+			}
+		}
+			
+		Delay(const:1);
+		++count;
 	}
 	SetResultValue(0);
 }

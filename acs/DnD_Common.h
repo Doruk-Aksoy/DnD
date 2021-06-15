@@ -72,7 +72,7 @@ enum {
 ////////////////
 
 * 700 = Draugr Temporary FX
-* 701 = Leshrac temporary tid
+* 701 - 999 = Projectile temporary tid
 * 1000 - 1063 = Players
 * 1100 - 1163 = Emerald Death Actors
 * 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
@@ -339,6 +339,12 @@ int LinearMap(int val, int o_min, int o_max, int n_min, int n_max) {
 
 int LinearMap_Fixed(int val, int o_min, int o_max, int n_min, int n_max) {
 	return FixedDiv(FixedMul(val - o_min, n_max - n_min), o_max - o_min) + n_min;
+}
+
+void HealMonster(int mid, int amount) {
+	int hp = GetActorProperty(0, APROP_HEALTH);
+	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
+	SetActorProperty(0, APROP_HEALTH, hp + amount);
 }
 
 int PitchToFace(int m1, int m2) {
