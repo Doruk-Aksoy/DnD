@@ -511,6 +511,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 15000, 1,			1 },
 		{ 17000, 1,			1 },
 		{ 12000, 1,			1 },
+		{ 19000, 1,			1 },
 		
 		// Account
 		{ 1500000, MAX_EXTRA_INVENTORY_PAGES,		5 },
@@ -728,6 +729,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_RAREARMOR, -1, -1 },
 		{ RES_RAREARMOR, -1, -1 },
 		{ RES_RAREARMOR, -1, -1 },
+		{ RES_SYNTHMETALARMOR, -1, -1},
 		
 	// account
 		{ RES_STASHTAB, -1, -1 },
@@ -942,6 +944,7 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "NecroArmor",							"Necro Armor",						"",						"0"		    },
 	{ "KnightArmor",						"Knight Armor",						"",						"0"		    },
 	{ "RavagerArmor",						"Ravager Armor",					"",						"0"		    },
+	{ "SynthmetalArmor",					"Synth-metal Armor",				"",						"0"			},
 	
 	{ "DnD_PlayerInventoryPages",			"Extra Stash Tab",					"",						"0"			},
 
@@ -1680,7 +1683,8 @@ str ArmorImages[MAXARMORS] = {
 	"ARM5A0",
 	"ARM6A0",
 	"ARM7A0",
-	"ARM8A0"
+	"ARM8A0",
+	"AR15B0"
 };
 
 str ArmorExplanation[MAXARMORS] = {
@@ -1701,6 +1705,7 @@ str ArmorExplanation[MAXARMORS] = {
 	"55% protection, 400 armor. 33% chance on hit to release spikes. Melee talent and bulkiness increase the damage.",
 	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed.",
 	"33% protection, 250 armor. On a kill spree, gain x2 extra damage and 25% damage reduction. If a killing spree is met restore armor completely.",
+	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks."
 };
 
 struct draw_info ArmorDrawInfo[MAXARMORS] = {
@@ -1719,7 +1724,8 @@ struct draw_info ArmorDrawInfo[MAXARMORS] = {
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_DUELIST	 							},
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_NECRO		 						},
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_KNIGHT	 							},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_RAVAGER		 						}
+	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_RAVAGER		 						},
+	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_SYNTHMETAL		 					}
 };
 
 // +1 because dash toggle is an exception
@@ -1728,7 +1734,7 @@ str AbilityHelpText[MAXABILITIES + 1] = {
 	"You reload twice as fast.",
 	"Gain dodge moves (tap the move keys to dash).",
 	"Artifact power increases by 50%.",
-	"\c[R5]CYBERNETIC \cj- Gain 50% poison resistance.",
+	"\c[R5]CYBERNETIC \cj- Gain 33% poison resistance.",
 	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.",
 	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.",
 	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.",
@@ -1982,6 +1988,12 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		},
 		{
 			RES_SUPERARMOR, 4300, 80
+		},
+		{
+			RES_SYNTHMETALARMOR, 4675, 75
+		},
+		{
+			RES_SYNTHMASK, 4713, 50
 		},
 		{
 			RES_MEDKITSTORE, 3531, 55
@@ -2259,6 +2271,14 @@ res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		{
 			"RESBAK2",
 			"With this breakthrough technology, we can start distributing state of the art armors to the marines, blocking 100% of the damage. Unlocks Monolith Armor."
+		},
+		{
+			"RESBAK63",
+			"Findings on the dropped special armor from the zombie you killed shows that it may have been just like you, a corporate backed marine, once. We can now mass produce his armor through synthesis. Unlocks Synth-metal Armor."
+		},
+		{
+			"RESBAK64",
+			"The mask you've found is certainly very exquisite. This will protect your sight from vision impairing effects when hurt."
 		},
 		{
 			"RESBAK3",

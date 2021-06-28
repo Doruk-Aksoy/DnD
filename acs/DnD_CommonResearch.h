@@ -1,6 +1,10 @@
 #ifndef DND_COMMONRESEARCH_IN
 #define DND_COMMONRESEARCH_IN
 
+#define DND_RESEARCH_BITMOD 31
+#define DND_RESEARCH_MAXBITS1 30
+#define DND_RESEARCH_MAXBITS2 61 // 61 - 31 + 1 = 31 bits
+
 enum {
 	RES_RAREARMOR,
 	RES_SUPERARMOR,
@@ -78,13 +82,16 @@ enum {
 	RES_IMP2,
 	RES_IMP3,
 	
+	RES_SYNTHMETALARMOR,
+	RES_SYNTHMASK,
+	
 	RES_STASHTAB
 };
 
 #define DND_RESEARCH_BEGIN RES_RAREARMOR
 #define DND_RESEARCH_END RES_STASHTAB
 #define MAX_RESEARCHES (DND_RESEARCH_END + 1)
-#define RESEARCH_BITSETS ((MAX_RESEARCHES / 31) + 1) //Remember: use 31 bits (zand uses signed numbers only, and min inv amount min is 0)
+#define RESEARCH_BITSETS ((MAX_RESEARCHES / 31) + 1) // Remember: use 31 bits (zand uses signed numbers only, and min inv amount min is 0)
 
 enum {
 	RES_NA = 0,
@@ -94,8 +101,15 @@ enum {
 
 // 0 for NA, 1 for found, 2 for researched
 int CheckResearchStatus(int res_id) {
-	if(res_id > 30) {
-		res_id %= 31;
+	if(res_id > DND_RESEARCH_MAXBITS2) {
+		res_id %= DND_RESEARCH_BITMOD;
+		if(IsSet(CheckInventory("Research_Done_3"), res_id))
+			return RES_DONE;
+		if(IsSet(CheckInventory("Research_Discovered_3"), res_id))
+			return RES_KNOWN;
+	}
+	else if(res_id > DND_RESEARCH_MAXBITS1) {
+		res_id %= DND_RESEARCH_BITMOD;
 		if(IsSet(CheckInventory("Research_Done_2"), res_id))
 			return RES_DONE;
 		if(IsSet(CheckInventory("Research_Discovered_2"), res_id))
@@ -111,10 +125,17 @@ int CheckResearchStatus(int res_id) {
 }
 
 int CheckActorResearchStatus(int tid, int res_id) {
-	// if we go over 64, we need another check, refrain from using Strparam here as these are potentially called often
-	// Remember: Actor inventory max value is 32 bits
-	if(res_id > 31) {
-		res_id %= 32;
+	// Remember: Actor inventory max value is 31 bits
+	// refrain from using strparam here as these may be called often
+	if(res_id > DND_RESEARCH_MAXBITS2) {
+		res_id %= DND_RESEARCH_BITMOD;
+		if(IsSet(CheckActorInventory(tid, "Research_Done_3"), res_id))
+			return RES_DONE;
+		if(IsSet(CheckActorInventory(tid, "Research_Discovered_3"), res_id))
+			return RES_KNOWN;
+	}
+	else if(res_id > DND_RESEARCH_MAXBITS1) {
+		res_id %= DND_RESEARCH_BITMOD;
 		if(IsSet(CheckActorInventory(tid, "Research_Done_2"), res_id))
 			return RES_DONE;
 		if(IsSet(CheckActorInventory(tid, "Research_Discovered_2"), res_id))

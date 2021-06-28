@@ -1468,6 +1468,16 @@ Frame GBALF { Light CubeShot5 }
 Frame GBALG { Light CubeShot6 }
 }
 
+Object Guardian {
+	frame GARDK { light LOSTSOUL_X1 }
+	frame GARDL { light LOSTSOUL_X2 }
+	frame GARDM { light LOSTSOUL_X3 }
+	frame GARDN { light LOSTSOUL_X4 }
+	frame GARDO { light LOSTSOUL_X4 }
+	frame GARDP { light LOSTSOUL_X4 }
+	frame GARDQ { light LOSTSOUL_X4 }
+}
+
 Object EnhancedCacoBall_1 {
     frame BAL2A { light CACOBALL }
     frame BAL2B { light CACOBALL }

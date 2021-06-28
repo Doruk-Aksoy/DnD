@@ -13,12 +13,224 @@ Actor DnD_PlayerBase : PlayerPawn {
 	damagefactor "SoulTypeExp", 0.0
 	damagefactor "SoulTypeExpFull", 0.0
 	DamageFactor "Magic", 0.0
+	
 	Player.DamageScreenColor "Black", 0
+	Player.ColorRange 112, 127
+	
+	+NOSKIN
 	+QUICKTORETALIATE
 	+NODAMAGETHRUST
 	+NOICEDEATH
 	-FLOORCLIP // no view sink on liquid floors
 	+THRUSPECIES
+	
+	States {
+	    Pain:
+		Pain.VileRedLightning:
+		Pain.PaineLightning:
+			// unspecified damage types
+			"####" "#" 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		PainCont:
+			"####" "#" 0 A_GiveInventory("P_Damaged", 1)
+			"####" "#" 0 A_GiveInventory("RegenStopper", 1)
+			"####" "#" 0 A_GiveInventory("PendantEffect", 1)
+			"####" "#" 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainOnCD")
+			"####" "#" 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
+		PainOnCD:
+			"####" "#" 0 A_Jump(256, "PainAnim")
+			"####" "#" 35
+		Wait
+		
+		
+		// Damage blends
+		Pain.VileGhost:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
+			"####" "#" 0 A_SetBlend("66 90 66", 0.8 / ACS_NamedExecuteWithResult("DnD Synth Mask Acquired"), 60)
+		Goto PainCont
+		Pain.BigSpiderPercent:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
+		Goto PainCont
+		Pain.BigSpiderTornado:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
+		Goto PainCont
+		Pain.PaineCurse:
+			"####" "#" 0 A_GiveInventory("DnD_Curse_RedLich", 1)
+		Goto PainCont
+		Pain.VileCurse:
+			"####" "#" 0 A_GiveInventory("DnD_Curse_Hierophant", 1)
+		Goto PainCont
+		Pain.VilePacify:
+			"####" "#" 0 A_GiveInventory("DnD_Curse_Guru",1)
+		Goto PainCont
+		Pain.VisionDimmer:
+			"####" "#" 0 A_GiveInventory("DnD_Curse_VisionDim", 1)
+		Goto PainCont
+		Pain.FatsoCorrupt:
+			"####" "#" 0 A_GiveInventory("DnD_Curse_Paladin", 1)
+		Goto PainCont
+		Pain.CyberSlow:
+			"####" "#" 0 A_GiveInventory("Stomp_Slower", 1)
+		Goto PainCont
+		
+		
+		// Ice category
+		Pain.EryxiaSlow:
+			"####" "#" 0 A_GiveInventory("EryxiaSlower", 1)
+		Pain.RevIce:
+		Pain.FattyIce:
+		Pain.CyberIce:
+		Pain.BigSpiderIce:
+			"####" "#" 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		// Black Category
+		Pain.BigSpiderDark:
+			"####" "#" 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		// Dark Blue
+		Pain.VileBlueFire:
+			"####" "#" 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		// Less dark blue
+		Pain.VileBlue:
+			"####" "#" 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		
+		
+		// Fire category
+		Pain.Fire:
+		Pain.ImpFire:
+		Pain.DemonFire:
+		Pain.CacoFire:
+		Pain.FattyFire:
+		Pain.ArachnoFire:
+		Pain.PaineFire:
+		Pain.BaronsFire:
+		Pain.VileFire:
+		Pain.BigSpiderFire:
+		Pain.CacoMagicOrange:
+		Pain.PaineMagicFire:
+		Pain.BaronsMagicFire:
+		Pain.CyberOrangeMagic:
+			"####" "#" 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		
+		
+		// Poison (or generic green) Category
+		Pain.ImpPoison_Roach:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
+		Goto PoisonContinue
+		Pain.ImpPoison_Vulgar:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
+		Goto PoisonContinue
+		Pain.DemonPoison_EarthGolem:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
+		Goto PoisonContinue
+		Pain.RevSludge:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
+		Goto PoisonContinue
+		Pain.RevPoison_Crawler:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
+		Goto PoisonContinue
+		Pain.CacoPoison:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
+		Goto PoisonContinue
+		Pain.PainePoison:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
+		Goto PoisonContinue
+		Pain.BaronsPoison:
+		Pain.BaronsPoisonPod:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
+		Goto PoisonContinue
+		Pain.Putrefier_Poison:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
+		Goto PoisonContinue
+		Pain.ThamuzPoison:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
+		Goto PoisonContinue
+		Pain.GantPoison:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (2 << 8) | (3 << 16), 4)
+		Goto PainCont
+		
+		Pain.Slime:
+		Pain.ArachnoGreen:
+		Pain.Poison:
+		PoisonContinue:
+			"####" "#" 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		
+		
+		// Yellow stuff
+		Pain.ArachnoYellow:
+			"####" "#" 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		// Other Yellow
+		Pain.BaronYellow:
+		Pain.BigSpiderYellow:
+			"####" "#" 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		// Energy (Blue)
+		Pain.BaronPlasma:
+		Pain.RevLightning:
+			"####" "#" 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		// Baron Green
+		Pain.BaronGreen:
+		Pain.BaronGreenFire:
+		Pain.CyberGreen:
+		Pain.CyberGreenExp:
+		Pain.BigSpiderGreen:
+			"####" "#" 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		
+		
+		// mostly black, sometimes purple
+		// Void Category
+		Pain.ImpVoid:
+		Pain.ArachnoVoid:
+		Pain.FattyVoidFire:
+		Pain.BaronVoid:
+		Pain.BigSpiderVoid:
+			"####" "#" 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		Pain.VileSlow:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
+			"####" "#" 0 A_GiveInventory("FleshWizardSlow1", 1)
+		Goto Pain
+		Pain.VileLeash:
+			"####" "#" 0 A_GiveInventory("FleshWizardSlow2", 1)
+			"####" "#" 0 A_GiveInventory("FleshWizardWeaken", 1)
+		Goto Pain
+		Pain.VileSnare:
+			"####" "#" 0 A_GiveInventory("DnD_Curse_Ensnare", 1)
+		Goto Pain
+		Pain.DreamerBurner:
+			"####" "#" 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
+		Goto Pain
+		Pain.LegendaryPhysicalSnare:
+			"####" "#" 0 A_Stop
+			"####" "#" 0 A_GiveInventory("TorrasqueSnare", 1)
+		Goto Pain
+		Pain.LegendaryWeaken75:
+			"####" "#" 0 A_GiveInventory("LegendaryWeaken", 1)
+		Goto PainCont
+		Pain.LegendarySlow50:
+			"####" "#" 0 A_GiveInventory("LegendarySlow", 1)
+		Goto PainCont
+		Pain.SSrath_Stunner:
+			"####" "#" 0 A_GiveInventory("DnD_Curse_SSrath", 1)
+		Goto PainCont
+		
+		
+		// Arcane - Purple and pink hues
+		Pain.VileArcane:
+			"####" "#" 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
+			"####" "#" 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+		Pain.ArcaneSoul:
+			"####" "#" 0 A_SetBlend("Gray", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+		Goto PainCont
+	}
 }
 
 Actor DnD_PDead : DnD_Boolean { }
@@ -27,8 +239,6 @@ Actor TheDoomGuy : DnD_PlayerBase {
 	Player.StartItem "DnD_Character", 1
 	Player.Face "STF"
 	Player.DisplayName "Doomguy"
-	Player.ColorRange 112, 127
-	+NOSKIN
 	
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
@@ -116,196 +326,10 @@ Actor TheDoomGuy : DnD_PlayerBase {
 			DPLP E 6 Bright
 		Goto Missile
 		
-		
-	    Pain:
-			// unspecified damage types
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		PainAnim:
-			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
-			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
-			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainCont")
-			TNT1 A 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainCont:
-			DPLY G 4 
+			DPLY G 4
 			DPLY G 4 A_Pain
 		Goto SpawnGo
-		Pain.VileGhost:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
-			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
-		Goto PainAnim
-		Pain.BigSpiderPercent:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
-		Goto PainAnim
-		Pain.BigSpiderTornado:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
-		Goto PainAnim
-		Pain.PaineCurse:
-			TNT1 A 0 A_GiveInventory("Cursed",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VileCurse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
-			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VilePacify:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
-		Goto PainAnim
-		Pain.VisionDimmer:
-			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
-		Goto PainAnim
-		Pain.FatsoCorrupt:
-			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
-			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
-		Goto PainAnim
-		Pain.CyberSlow:
-			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
-		Goto PainAnim
-		// Ice category
-		Pain.EryxiaSlow:
-			TNT1 A 0 A_GiveInventory("EryxiaSlower", 1)
-		Pain.RevIce:
-		Pain.FattyIce:
-		Pain.CyberIce:
-		Pain.BigSpiderIce:
-			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Black Category
-		Pain.BigSpiderDark:
-			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Dark Blue
-		Pain.VileBlueFire:
-			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Less dark blue
-		Pain.VileBlue:
-			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Fire category
-		Pain.Fire:
-		Pain.ImpFire:
-		Pain.DemonFire:
-		Pain.CacoFire:
-		Pain.FattyFire:
-		Pain.ArachnoFire:
-		Pain.PaineFire:
-		Pain.BaronsFire:
-		Pain.VileFire:
-		Pain.BigSpiderFire:
-		Pain.CacoMagicOrange:
-		Pain.PaineMagicFire:
-		Pain.BaronsMagicFire:
-		Pain.CyberOrangeMagic:
-			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Poison (or generic green) Category
-		Pain.ImpPoison_Roach:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
-		Goto PoisonContinue
-		Pain.ImpPoison_Vulgar:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
-		Goto PoisonContinue
-		Pain.DemonPoison_EarthGolem:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.RevSludge:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
-		Goto PoisonContinue
-		Pain.RevPoison_Crawler:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
-		Goto PoisonContinue
-		Pain.CacoPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
-		Goto PoisonContinue
-		Pain.PainePoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.BaronsPoison:
-		Pain.BaronsPoisonPod:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
-		Goto PoisonContinue
-		Pain.Putrefier_Poison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
-		Goto PoisonContinue
-		Pain.ThamuzPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
-		Goto PoisonContinue
-		Pain.Slime:
-		Pain.ArachnoGreen:
-		Pain.Poison:
-		PoisonContinue:
-			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.GantPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (2 << 8) | (3 << 16), 4)
-		Goto PainAnim
-		// Yellow stuff
-		Pain.ArachnoYellow:
-			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Other Yellow
-		Pain.BaronYellow:
-		Pain.BigSpiderYellow:
-			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Energy (Blue)
-		Pain.BaronPlasma:
-			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Baron Green
-		Pain.BaronGreen:
-		Pain.BaronGreenFire:
-		Pain.CyberGreen:
-		Pain.CyberGreenExp:
-		Pain.BigSpiderGreen:
-			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Void Category
-		Pain.ImpVoid:
-		Pain.ArachnoVoid:
-		Pain.FattyVoidFire:
-		Pain.BaronVoid:
-		Pain.BigSpiderVoid:
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.VileSlow:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
-		Goto Pain
-		Pain.VileLeash:
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
-			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
-		Goto Pain
-		Pain.VileSnare:
-			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
-		Goto Pain
-		Pain.DreamerBurner:
-			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
-		Goto Pain
-		Pain.LegendaryPhysicalSnare:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
-		Goto Pain
-		Pain.LegendaryWeaken75:
-			TNT1 A 0 A_GiveInventory("LegendaryWeaken", 1)
-		Goto PainAnim
-		Pain.LegendarySlow50:
-			TNT1 A 0 A_GiveInventory("LegendarySlow", 1)
-		Goto PainAnim
-		Pain.SSrath_Stunner:
-			TNT1 A 0 A_GiveInventory("SSrath_Stun", 1)
-		Goto PainAnim
-		Pain.VileArcane:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.ArcaneSoul:
-			TNT1 A 0 A_SetBlend("Gray", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
 		
 		Death:
 			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
@@ -371,6 +395,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
 			BLAN A -1
 		Stop
+		
 		Death.CyberIce:
 		Death.RevIce:
 		Death.FattyIce:
@@ -409,8 +434,6 @@ Actor TheMarine : DnD_PlayerBase {
 	Player.Face "MAR"
 	Player.DisplayName "Space Marine"
 	Player.SoundClass "TheMarine"
-	Player.ColorRange 112, 127
-	+NOSKIN
 	
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
@@ -498,181 +521,10 @@ Actor TheMarine : DnD_PlayerBase {
 			PLYP E 6 Bright
 		Goto Missile
 		
-		
-	    Pain:
-			// unspecified damage types
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		PainAnim:
-			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
-			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
-			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainCont")
-			TNT1 A 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainCont:
 			PLAY G 4 
 			PLAY G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
-		Pain.VileGhost:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
-			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
-		Goto PainAnim
-		Pain.BigSpiderPercent:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
-		Goto PainAnim
-		Pain.BigSpiderTornado:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
-		Goto PainAnim
-		Pain.PaineCurse:
-			TNT1 A 0 A_GiveInventory("Cursed",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VileCurse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
-			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VilePacify:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
-		Goto PainAnim
-		Pain.VisionDimmer:
-			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
-		Goto PainAnim
-		Pain.FatsoCorrupt:
-			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
-			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
-		Goto PainAnim
-		Pain.CyberSlow:
-			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
-		Goto PainAnim
-		// Ice category
-		Pain.EryxiaSlow:
-			TNT1 A 0 A_GiveInventory("EryxiaSlower", 1)
-		Pain.RevIce:
-		Pain.FattyIce:
-		Pain.CyberIce:
-		Pain.BigSpiderIce:
-			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Black Category
-		Pain.BigSpiderDark:
-			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Dark Blue
-		Pain.VileBlueFire:
-			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Less dark blue
-		Pain.VileBlue:
-			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Fire category
-		Pain.Fire:
-		Pain.ImpFire:
-		Pain.DemonFire:
-		Pain.CacoFire:
-		Pain.FattyFire:
-		Pain.PaineFire:
-		Pain.BaronsFire:
-		Pain.VileFire:
-		Pain.BigSpiderFire:
-		Pain.CacoMagicOrange:
-		Pain.PaineMagicFire:
-		Pain.CyberOrangeMagic:
-			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Poison (or generic green) Category
-		Pain.ImpPoison_Roach:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
-		Goto PoisonContinue
-		Pain.ImpPoison_Vulgar:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
-		Goto PoisonContinue
-		Pain.DemonPoison_EarthGolem:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.RevSludge:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
-		Goto PoisonContinue
-		Pain.RevPoison_Crawler:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
-		Goto PoisonContinue
-		Pain.CacoPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
-		Goto PoisonContinue
-		Pain.PainePoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.BaronsPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
-		Goto PoisonContinue
-		Pain.Putrefier_Poison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
-		Goto PoisonContinue
-		Pain.ThamuzPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
-		Goto PoisonContinue
-		Pain.Slime:
-		Pain.ArachnoGreen:
-		Pain.Poison:
-		PoisonContinue:
-			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Yellow stuff
-		Pain.ArachnoYellow:
-			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Other Yellow
-		Pain.BaronYellow:
-		Pain.BigSpiderYellow:
-			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Energy (Blue)
-		Pain.BaronPlasma:
-			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Baron Green
-		Pain.BaronGreen:
-		Pain.BaronGreenFire:
-		Pain.CyberGreen:
-		Pain.CyberGreenExp:
-		Pain.BigSpiderGreen:
-			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Void Category
-		Pain.ImpVoid:
-		Pain.ArachnoVoid:
-		Pain.FattyVoidFire:
-		Pain.BaronVoid:
-		Pain.BigSpiderVoid:
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.VileSlow:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
-		Goto Pain
-		Pain.VileLeash:
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
-			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
-		Goto Pain
-		Pain.VileSnare:
-			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
-		Goto Pain
-		Pain.DreamerBurner:
-			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
-		Goto Pain
-		Pain.LegendaryPhysicalSnare:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
-		Goto Pain
-		Pain.LegendaryWeaken75:
-			TNT1 A 0 A_GiveInventory("LegendaryWeaken", 1)
-		Goto PainAnim
-		Pain.LegendarySlow50:
-			TNT1 A 0 A_GiveInventory("LegendarySlow", 1)
-		Goto PainAnim
-		
 		
 		Death:
 			TNT1 A 0 A_StopSound(7)
@@ -768,8 +620,6 @@ Actor TheHobo : DnD_PlayerBase {
 	Player.Face "REN"
 	Player.SoundClass "TheHobo"
 	Player.DisplayName "Hobo"
-	Player.ColorRange 112, 127
-	+NOSKIN
 	
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
@@ -857,179 +707,10 @@ Actor TheHobo : DnD_PlayerBase {
 			PRNP E 6 Bright
 		Goto Missile
 		
-		
-	    Pain:
-			// unspecified damage types
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		PainAnim:
-			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
-			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
-			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainCont")
-			TNT1 A 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainCont:
 			PREN G 4 
 			PREN G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
-		Pain.VileGhost:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
-			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
-		Goto PainAnim
-		Pain.BigSpiderPercent:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
-		Goto PainAnim
-		Pain.BigSpiderTornado:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
-		Goto PainAnim
-		Pain.PaineCurse:
-			TNT1 A 0 A_GiveInventory("Cursed",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VileCurse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
-			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VilePacify:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
-		Goto PainAnim
-		Pain.VisionDimmer:
-			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
-		Goto PainAnim
-		Pain.FatsoCorrupt:
-			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
-			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
-		Goto PainAnim
-		Pain.CyberSlow:
-			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
-		Goto PainAnim
-		// Ice category
-		Pain.RevIce:
-		Pain.FattyIce:
-		Pain.CyberIce:
-		Pain.BigSpiderIce:
-			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Black Category
-		Pain.BigSpiderDark:
-			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Dark Blue
-		Pain.VileBlueFire:
-			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Less dark blue
-		Pain.VileBlue:
-			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Fire category
-		Pain.Fire:
-		Pain.ImpFire:
-		Pain.DemonFire:
-		Pain.CacoFire:
-		Pain.FattyFire:
-		Pain.PaineFire:
-		Pain.BaronsFire:
-		Pain.VileFire:
-		Pain.BigSpiderFire:
-		Pain.CacoMagicOrange:
-		Pain.PaineMagicFire:
-		Pain.CyberOrangeMagic:
-			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Poison (or generic green) Category
-		Pain.ImpPoison_Roach:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
-		Goto PoisonContinue
-		Pain.ImpPoison_Vulgar:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
-		Goto PoisonContinue
-		Pain.DemonPoison_EarthGolem:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.RevSludge:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
-		Goto PoisonContinue
-		Pain.RevPoison_Crawler:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
-		Goto PoisonContinue
-		Pain.CacoPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
-		Goto PoisonContinue
-		Pain.PainePoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.BaronsPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
-		Goto PoisonContinue
-		Pain.Putrefier_Poison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
-		Goto PoisonContinue
-		Pain.ThamuzPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
-		Goto PoisonContinue
-		Pain.Slime:
-		Pain.ArachnoGreen:
-		Pain.Poison:
-		PoisonContinue:
-			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Yellow stuff
-		Pain.ArachnoYellow:
-			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Other Yellow
-		Pain.BaronYellow:
-		Pain.BigSpiderYellow:
-			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Energy (Blue)
-		Pain.BaronPlasma:
-			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Baron Green
-		Pain.BaronGreen:
-		Pain.BaronGreenFire:
-		Pain.CyberGreen:
-		Pain.CyberGreenExp:
-		Pain.BigSpiderGreen:
-			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Void Category
-		Pain.ImpVoid:
-		Pain.ArachnoVoid:
-		Pain.FattyVoidFire:
-		Pain.BaronVoid:
-		Pain.BigSpiderVoid:
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.VileSlow:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
-		Goto Pain
-		Pain.VileLeash:
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
-			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
-		Goto Pain
-		Pain.VileSnare:
-			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
-		Goto Pain
-		Pain.DreamerBurner:
-			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
-		Goto Pain
-		Pain.LegendaryPhysicalSnare:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
-		Goto Pain
-		Pain.LegendaryWeaken75:
-			TNT1 A 0 A_GiveInventory("LegendaryWeaken", 1)
-		Goto PainAnim
-		Pain.LegendarySlow50:
-			TNT1 A 0 A_GiveInventory("LegendarySlow", 1)
-		Goto PainAnim
-		
 		
 		Death:
 			TNT1 A 0 A_StopSound(7)
@@ -1125,8 +806,6 @@ Actor ThePunisher : DnD_PlayerBase {
 	Player.Face "BAD"
 	Player.DisplayName "Punisher"
 	Player.SoundClass "Punisher"
-	Player.ColorRange 112, 127
-	+NOSKIN
 	
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
@@ -1214,179 +893,10 @@ Actor ThePunisher : DnD_PlayerBase {
 			PPUN E 6 Bright
 		Goto Missile
 		
-		
-	    Pain:
-			// unspecified damage types
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		PainAnim:
-			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
-			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
-			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainCont")
-			TNT1 A 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainCont:
 			BLAZ G 4 
 			BLAZ G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
-		Pain.VileGhost:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
-			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
-		Goto PainAnim
-		Pain.BigSpiderPercent:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
-		Goto PainAnim
-		Pain.BigSpiderTornado:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
-		Goto PainAnim
-		Pain.PaineCurse:
-			TNT1 A 0 A_GiveInventory("Cursed",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VileCurse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
-			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VilePacify:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
-		Goto PainAnim
-		Pain.VisionDimmer:
-			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
-		Goto PainAnim
-		Pain.FatsoCorrupt:
-			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
-			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
-		Goto PainAnim
-		Pain.CyberSlow:
-			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
-		Goto PainAnim
-		// Ice category
-		Pain.RevIce:
-		Pain.FattyIce:
-		Pain.CyberIce:
-		Pain.BigSpiderIce:
-			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Black Category
-		Pain.BigSpiderDark:
-			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Dark Blue
-		Pain.VileBlueFire:
-			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Less dark blue
-		Pain.VileBlue:
-			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Fire category
-		Pain.Fire:
-		Pain.ImpFire:
-		Pain.DemonFire:
-		Pain.CacoFire:
-		Pain.FattyFire:
-		Pain.PaineFire:
-		Pain.BaronsFire:
-		Pain.VileFire:
-		Pain.BigSpiderFire:
-		Pain.CacoMagicOrange:
-		Pain.PaineMagicFire:
-		Pain.CyberOrangeMagic:
-			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Poison (or generic green) Category
-		Pain.ImpPoison_Roach:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
-		Goto PoisonContinue
-		Pain.ImpPoison_Vulgar:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
-		Goto PoisonContinue
-		Pain.DemonPoison_EarthGolem:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.RevSludge:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
-		Goto PoisonContinue
-		Pain.RevPoison_Crawler:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
-		Goto PoisonContinue
-		Pain.CacoPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
-		Goto PoisonContinue
-		Pain.PainePoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.BaronsPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
-		Goto PoisonContinue
-		Pain.Putrefier_Poison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
-		Goto PoisonContinue
-		Pain.ThamuzPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
-		Goto PoisonContinue
-		Pain.Slime:
-		Pain.ArachnoGreen:
-		Pain.Poison:
-		PoisonContinue:
-			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Yellow stuff
-		Pain.ArachnoYellow:
-			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Other Yellow
-		Pain.BaronYellow:
-		Pain.BigSpiderYellow:
-			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Energy (Blue)
-		Pain.BaronPlasma:
-			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Baron Green
-		Pain.BaronGreen:
-		Pain.BaronGreenFire:
-		Pain.CyberGreen:
-		Pain.CyberGreenExp:
-		Pain.BigSpiderGreen:
-			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Void Category
-		Pain.ImpVoid:
-		Pain.ArachnoVoid:
-		Pain.FattyVoidFire:
-		Pain.BaronVoid:
-		Pain.BigSpiderVoid:
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.VileSlow:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
-		Goto Pain
-		Pain.VileLeash:
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
-			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
-		Goto Pain
-		Pain.VileSnare:
-			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
-		Goto Pain
-		Pain.DreamerBurner:
-			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
-		Goto Pain
-		Pain.LegendaryPhysicalSnare:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
-		Goto Pain
-		Pain.LegendaryWeaken75:
-			TNT1 A 0 A_GiveInventory("LegendaryWeaken", 1)
-		Goto PainAnim
-		Pain.LegendarySlow50:
-			TNT1 A 0 A_GiveInventory("LegendarySlow", 1)
-		Goto PainAnim
-		
 		
 		Death:
 			TNT1 A 0 A_StopSound(7)
@@ -1482,8 +992,6 @@ Actor TheWanderer : DnD_PlayerBase {
 	Player.Face "CRV"
 	Player.DisplayName "Wanderer"
 	Player.SoundClass "Wanderer"
-	Player.ColorRange 112, 127
-	+NOSKIN
 	
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
@@ -1571,179 +1079,10 @@ Actor TheWanderer : DnD_PlayerBase {
 			MNKP E 6 Bright
 		Goto Missile
 		
-		
-	    Pain:
-			// unspecified damage types
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		PainAnim:
-			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
-			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
-			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainCont")
-			TNT1 A 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainCont:
 			MNK1 G 4 
 			MNK1 G 4 A_Pain
 		Goto SpawnGo
-		Pain.VileGhost:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
-			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
-		Goto PainAnim
-		Pain.BigSpiderPercent:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
-		Goto PainAnim
-		Pain.BigSpiderTornado:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
-		Goto PainAnim
-		Pain.PaineCurse:
-			TNT1 A 0 A_GiveInventory("Cursed",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VileCurse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
-			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VilePacify:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
-		Goto PainAnim
-		Pain.VisionDimmer:
-			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
-		Goto PainAnim
-		Pain.FatsoCorrupt:
-			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
-			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
-		Goto PainAnim
-		Pain.CyberSlow:
-			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
-		Goto PainAnim
-		// Ice category
-		Pain.RevIce:
-		Pain.FattyIce:
-		Pain.CyberIce:
-		Pain.BigSpiderIce:
-			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Black Category
-		Pain.BigSpiderDark:
-			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Dark Blue
-		Pain.VileBlueFire:
-			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Less dark blue
-		Pain.VileBlue:
-			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Fire category
-		Pain.Fire:
-		Pain.ImpFire:
-		Pain.DemonFire:
-		Pain.CacoFire:
-		Pain.FattyFire:
-		Pain.PaineFire:
-		Pain.BaronsFire:
-		Pain.VileFire:
-		Pain.BigSpiderFire:
-		Pain.CacoMagicOrange:
-		Pain.PaineMagicFire:
-		Pain.CyberOrangeMagic:
-			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Poison (or generic green) Category
-		Pain.ImpPoison_Roach:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
-		Goto PoisonContinue
-		Pain.ImpPoison_Vulgar:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
-		Goto PoisonContinue
-		Pain.DemonPoison_EarthGolem:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.RevSludge:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
-		Goto PoisonContinue
-		Pain.RevPoison_Crawler:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
-		Goto PoisonContinue
-		Pain.CacoPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
-		Goto PoisonContinue
-		Pain.PainePoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.BaronsPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
-		Goto PoisonContinue
-		Pain.Putrefier_Poison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
-		Goto PoisonContinue
-		Pain.ThamuzPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
-		Goto PoisonContinue
-		Pain.Slime:
-		Pain.ArachnoGreen:
-		Pain.Poison:
-		PoisonContinue:
-			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Yellow stuff
-		Pain.ArachnoYellow:
-			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Other Yellow
-		Pain.BaronYellow:
-		Pain.BigSpiderYellow:
-			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Energy (Blue)
-		Pain.BaronPlasma:
-			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Baron Green
-		Pain.BaronGreen:
-		Pain.BaronGreenFire:
-		Pain.CyberGreen:
-		Pain.CyberGreenExp:
-		Pain.BigSpiderGreen:
-			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Void Category
-		Pain.ImpVoid:
-		Pain.ArachnoVoid:
-		Pain.FattyVoidFire:
-		Pain.BaronVoid:
-		Pain.BigSpiderVoid:
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.VileSlow:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
-		Goto Pain
-		Pain.VileLeash:
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
-			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
-		Goto Pain
-		Pain.VileSnare:
-			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
-		Goto Pain
-		Pain.DreamerBurner:
-			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
-		Goto Pain
-		Pain.LegendaryPhysicalSnare:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
-		Goto Pain
-		Pain.LegendaryWeaken75:
-			TNT1 A 0 A_GiveInventory("LegendaryWeaken", 1)
-		Goto PainAnim
-		Pain.LegendarySlow50:
-			TNT1 A 0 A_GiveInventory("LegendarySlow", 1)
-		Goto PainAnim
-		
 		
 		Death:
 			TNT1 A 0 A_StopSound(7)
@@ -1839,8 +1178,6 @@ Actor TheCyborg : DnD_PlayerBase {
 	Player.Face "CYG"
 	Player.DisplayName "Cyborg"
 	Player.SoundClass "TheCyborg"
-	Player.ColorRange 112, 127
-	+NOSKIN
 	
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
@@ -1928,179 +1265,10 @@ Actor TheCyborg : DnD_PlayerBase {
 			PLZ6 E 6 Bright
 		Goto Missile
 		
-		
-	    Pain:
-			// unspecified damage types
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		PainAnim:
-			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
-			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
-			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainCont")
-			TNT1 A 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainCont:
 			PLY6 G 4 
 			PLY6 G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
-		Pain.VileGhost:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
-			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
-		Goto PainAnim
-		Pain.BigSpiderPercent:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
-		Goto PainAnim
-		Pain.BigSpiderTornado:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
-		Goto PainAnim
-		Pain.PaineCurse:
-			TNT1 A 0 A_GiveInventory("Cursed",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VileCurse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
-			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VilePacify:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
-		Goto PainAnim
-		Pain.VisionDimmer:
-			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
-		Goto PainAnim
-		Pain.FatsoCorrupt:
-			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
-			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
-		Goto PainAnim
-		Pain.CyberSlow:
-			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
-		Goto PainAnim
-		// Ice category
-		Pain.RevIce:
-		Pain.FattyIce:
-		Pain.CyberIce:
-		Pain.BigSpiderIce:
-			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Black Category
-		Pain.BigSpiderDark:
-			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Dark Blue
-		Pain.VileBlueFire:
-			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Less dark blue
-		Pain.VileBlue:
-			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Fire category
-		Pain.Fire:
-		Pain.ImpFire:
-		Pain.DemonFire:
-		Pain.CacoFire:
-		Pain.FattyFire:
-		Pain.PaineFire:
-		Pain.BaronsFire:
-		Pain.VileFire:
-		Pain.BigSpiderFire:
-		Pain.CacoMagicOrange:
-		Pain.PaineMagicFire:
-		Pain.CyberOrangeMagic:
-			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Poison (or generic green) Category
-		Pain.ImpPoison_Roach:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
-		Goto PoisonContinue
-		Pain.ImpPoison_Vulgar:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
-		Goto PoisonContinue
-		Pain.DemonPoison_EarthGolem:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.RevSludge:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
-		Goto PoisonContinue
-		Pain.RevPoison_Crawler:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
-		Goto PoisonContinue
-		Pain.CacoPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
-		Goto PoisonContinue
-		Pain.PainePoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.BaronsPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
-		Goto PoisonContinue
-		Pain.Putrefier_Poison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
-		Goto PoisonContinue
-		Pain.ThamuzPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
-		Goto PoisonContinue
-		Pain.Slime:
-		Pain.ArachnoGreen:
-		Pain.Poison:
-		PoisonContinue:
-			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Yellow stuff
-		Pain.ArachnoYellow:
-			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Other Yellow
-		Pain.BaronYellow:
-		Pain.BigSpiderYellow:
-			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Energy (Blue)
-		Pain.BaronPlasma:
-			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Baron Green
-		Pain.BaronGreen:
-		Pain.BaronGreenFire:
-		Pain.CyberGreen:
-		Pain.CyberGreenExp:
-		Pain.BigSpiderGreen:
-			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Void Category
-		Pain.ImpVoid:
-		Pain.ArachnoVoid:
-		Pain.FattyVoidFire:
-		Pain.BaronVoid:
-		Pain.BigSpiderVoid:
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.VileSlow:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
-		Goto Pain
-		Pain.VileLeash:
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
-			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
-		Goto Pain
-		Pain.VileSnare:
-			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
-		Goto Pain
-		Pain.DreamerBurner:
-			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
-		Goto Pain
-		Pain.LegendaryPhysicalSnare:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
-		Goto Pain
-		Pain.LegendaryWeaken75:
-			TNT1 A 0 A_GiveInventory("LegendaryWeaken", 1)
-		Goto PainAnim
-		Pain.LegendarySlow50:
-			TNT1 A 0 A_GiveInventory("LegendarySlow", 1)
-		Goto PainAnim
-		
 		
 		Death:
 			TNT1 A 0 A_StopSound(7)
@@ -2196,8 +1364,6 @@ Actor TheBerserker : DnD_PlayerBase {
 	Player.Face "BER"
 	Player.DisplayName "Berserker"
 	Player.SoundClass "TheBerserker"
-	Player.ColorRange 112, 127
-	+NOSKIN
 	
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
@@ -2265,180 +1431,11 @@ Actor TheBerserker : DnD_PlayerBase {
 			BERP F 6 BRIGHT
 		Goto Missile
 		
-		
-	    Pain:
-			// unspecified damage types
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		PainAnim:
-			TNT1 A 0 A_GiveInventory("P_Damaged", 1)
-			TNT1 A 0 A_GiveInventory("RegenStopper", 1)
-			TNT1 A 0 A_GiveInventory("PendantEffect", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainCont")
-			TNT1 A 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainCont:
 			BERP G 4 
 			BERP G 4 A_Pain
 		Goto SpawnGo
-		Pain.VileGhost:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0)
-			TNT1 A 0 A_SetBlend("66 90 66", 0.8, 60)
-		Goto PainAnim
-		Pain.BigSpiderPercent:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 1)
-		Goto PainAnim
-		Pain.BigSpiderTornado:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
-		Goto PainAnim
-		Pain.PaineCurse:
-			TNT1 A 0 A_GiveInventory("Cursed",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VileCurse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
-			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
-			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Goto PainAnim
-		Pain.VilePacify:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
-		Goto PainAnim
-		Pain.VisionDimmer:
-			TNT1 A 0 A_SetBlend("11 23 58", 0.9, 70)
-		Goto PainAnim
-		Pain.FatsoCorrupt:
-			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
-			TNT1 A 0 A_SetBlend("75 15 15", 0.5, 17)
-		Goto PainAnim
-		Pain.CyberSlow:
-			TNT1 A 0 A_GiveInventory("Stomp_Slower", 1)
-		Goto PainAnim
-		// Ice category
-		Pain.RevIce:
-		Pain.FattyIce:
-		Pain.CyberIce:
-		Pain.BigSpiderIce:
-			TNT1 A 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Black Category
-		Pain.BigSpiderDark:
-			TNT1 A 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Dark Blue
-		Pain.VileBlueFire:
-			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Less dark blue
-		Pain.VileBlue:
-			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Fire category
-		Pain.Fire:
-		Pain.ImpFire:
-		Pain.DemonFire:
-		Pain.CacoFire:
-		Pain.FattyFire:
-		Pain.PaineFire:
-		Pain.BaronsFire:
-		Pain.VileFire:
-		Pain.BigSpiderFire:
-		Pain.CacoMagicOrange:
-		Pain.PaineMagicFire:
-		Pain.CyberOrangeMagic:
-			TNT1 A 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Poison (or generic green) Category
-		Pain.ImpPoison_Roach:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 3)
-		Goto PoisonContinue
-		Pain.ImpPoison_Vulgar:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4, 2)
-		Goto PoisonContinue
-		Pain.DemonPoison_EarthGolem:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.RevSludge:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 4 | (1 << 8) | (2 << 16), 4)
-		Goto PoisonContinue
-		Pain.RevPoison_Crawler:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 2, 7)
-		Goto PoisonContinue
-		Pain.CacoPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5, 2)
-		Goto PoisonContinue
-		Pain.PainePoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3, 3)
-		Goto PoisonContinue
-		Pain.BaronsPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 6, 4)
-		Goto PoisonContinue
-		Pain.Putrefier_Poison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 5 | (1 << 8) | (3 << 16), 3)
-		Goto PoisonContinue
-		Pain.ThamuzPoison:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Poison Damage Register", 0, 3 | (1 << 8) | (2 << 16), 5)
-		Goto PoisonContinue
-		Pain.Slime:
-		Pain.ArachnoGreen:
-		Pain.Poison:
-		PoisonContinue:
-			TNT1 A 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Yellow stuff
-		Pain.ArachnoYellow:
-			TNT1 A 0 A_SetBlend("GreenYellow", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Other Yellow
-		Pain.BaronYellow:
-		Pain.BigSpiderYellow:
-			TNT1 A 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Energy (Blue)
-		Pain.BaronPlasma:
-			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Baron Green
-		Pain.BaronGreen:
-		Pain.BaronGreenFire:
-		Pain.CyberGreen:
-		Pain.CyberGreenExp:
-		Pain.BigSpiderGreen:
-			TNT1 A 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		// Void Category
-		Pain.ImpVoid:
-		Pain.ArachnoVoid:
-		Pain.FattyVoidFire:
-		Pain.BaronVoid:
-		Pain.BigSpiderVoid:
-			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
-		Goto PainAnim
-		Pain.VileSlow:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Special Player Hurt", 0, 2, 10)
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1)
-		Goto Pain
-		Pain.VileLeash:
-			TNT1 A 0 A_GiveInventory("FleshWizardSlow2", 1)
-			TNT1 A 0 A_GiveInventory("FleshWizardWeaken", 1)
-		Goto Pain
-		Pain.VileSnare:
-			TNT1 A 0 A_GiveInventory("FleshWizardSnare", 1)
-		Goto Pain
-		Pain.DreamerBurner:
-			TNT1 A 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
-		Goto Pain
-		Pain.LegendaryPhysicalSnare:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_GiveInventory("TorrasqueSnare", 1)
-		Goto Pain
-		Pain.LegendaryWeaken75:
-			TNT1 A 0 A_GiveInventory("LegendaryWeaken", 1)
-		Goto PainAnim
-		Pain.LegendarySlow50:
-			TNT1 A 0 A_GiveInventory("LegendarySlow", 1)
-		Goto PainAnim
-		
-		
+
 		Death:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)

@@ -771,6 +771,18 @@ void SpawnTalentCapsule() {
 		SpawnDrop("TalentCapsule_SP", 0, 0, 1, 1);
 }
 
+void SpawnResearchId(int id) {
+	if(GameType() != GAME_SINGLE_PLAYER) {
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			// spawn this only if this isn't already found by the player
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(id))
+				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, id);
+		}
+	}
+	else if(!CheckResearchStatus(id)) // 1 before id is player (0 + 1)
+		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, id);
+}
+
 void SpawnResearch() {
 	// spawn copies of this research
 	int temp = 0;
@@ -1075,7 +1087,7 @@ void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
 
 void ApplyRandomCurse() {
 	// nasty rushed code here, clean up later with improved curse system
-	int curse_id = random(0, 5);
+	int curse_id = random(0, 7);
 	switch(curse_id) {
 		case 0:
 			GiveInventory("DnD_Curse_RedLich", 1);
@@ -1087,13 +1099,19 @@ void ApplyRandomCurse() {
 			GiveInventory("DnD_Curse_Guru", 1);
 		break;
 		case 3:
-			GiveInventory("LichVisionDim", 1);
+			GiveInventory("DnD_Curse_LichVisionDim", 1);
 		break;
 		case 4:
-			GiveInventory("LichSlow", 1);
+			GiveInventory("DnD_Curse_LichSlow", 1);
 		break;
 		case 5:
-			GiveInventory("LichPoison", 1);
+			GiveInventory("DnD_Curse_LichPoison", 1);
+		break;
+		case 6:
+			GiveInventory("DnD_Curse_Ensnare", 1);
+		break;
+		case 7:
+			GiveInventory("DnD_Curse_Paladin", 1);
 		break;
 	}
 }
@@ -1185,7 +1203,71 @@ bool IsEliteException(int m_id) {
 void HandleUniqueDeath(int unique_id) {
 	switch(unique_id) {
 		case MONSTER_TERON:
-			// spawn lots of budget
+			// spawn some budget
+			Spawn("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
+			Spawn("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
+			Spawn("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
+		break;
+		case MONSTER_GANT:
+			if(GameType() != GAME_SINGLE_PLAYER)
+				SpawnDrop("SynthMetalPickup_MP", 24.0, 16, 0, 0);
+			else
+				SpawnDrop("SynthMetal_SP", 24.0, 16, 0, 0);
+		break;
+		case MONSTER_BRONN:
+			SpawnResearchId(RES_SYNTHMASK);
+		break;
+		case MONSTER_VAAJ:
+			// drops vaaj influenced charm: explosives ignore resists mod guaranteed
+			SpawnCharmWithMods_ForAll(INV_ESS_VAAJ);
+		break;
+		case MONSTER_REMUS:
+			// drops armor and gives research for it: lightning coil - super lightning protection, 300, 40% damage reduction. When hurt fires lightning bolts.
+		break;
+		case MONSTER_SSRATH:
+			// ssrath influence: soul type weapons penetrate % magic resistance
+			SpawnCharmWithMods_ForAll(INV_ESS_SSRATH);
+		break;
+		case MONSTER_HOLLOWSHELL:
+			// hollow orb: adds an extra mod to a non-unique charm even if it's at its limit (at most +1 of its current limit)
+		break;
+		case MONSTER_OMNISIGHT:
+			// omnisight influence: large accuracy, % increased accuracy rating
+			SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
+		break;
+		case MONSTER_CHEGOVAX:
+			// chegovax influence: Ignite damage on enemies increases every tic %
+			SpawnCharmWithMods_ForAll(INV_ESS_CHEGOVAX);
+		break;
+		case MONSTER_ONIMUZ:
+			// Phantasmal Orb: grants used weapon ability to hit ghosts.
+		break;
+		case MONSTER_HARKIMONDE:
+			// harkimonde influence: Attacks have chance to ignore shields.
+			SpawnCharmWithMods_ForAll(INV_ESS_HARKIMONDE);
+		break;
+		case MONSTER_LESHRAC:
+			// leshrac influence: reduced poison damage taken, poison damage tics twice as fast
+			SpawnCharmWithMods_ForAll(INV_ESS_LESHRAC, INV_ESS_LESHRAC2);
+		break;
+		case MONSTER_KRULL:
+			// krull influence: % chance explosives trigger a second time
+			SpawnCharmWithMods_ForAll(INV_ESS_KRULL);
+		break;
+		case MONSTER_THORAX:
+			// thorax influence: Homing projectiles can't be reflected.
+			SpawnCharmWithMods_ForAll(INV_ESS_THORAX);
+		break;
+		case MONSTER_ZRAVOG:
+			// zravog influence: Occult attacks reduce enemy magic resistance by 2-5% per hit for 3 seconds, up to 5 stacks.
+			SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
+		break;
+		case MONSTER_ERYXIA:
+			// eryxia influence: Frozen enemies take % increased ice damage.
+			SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);
+		break;
+		case MONSTER_ABAXOTH:
+			// Assimilation Orb: Assimilates a chosen charm into another, merging them unpredictably, randomly taking modifiers from both charms. Can have up to 1 additional modifier.
 		break;
 	}
 }

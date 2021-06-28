@@ -107,6 +107,12 @@ Actor LegendarySlow : PowerupGiver {
     Powerup.Duration 8
 }
 
+Actor SSrath_Stun : PowerSpeed {
+	Speed 0
+	Powerup.duration 17
+	powerup.color "70 70 15"
+}
+
 Actor EryxiaSlower : PowerSpeed {
 	Speed 0.66
 	powerup.duration 52

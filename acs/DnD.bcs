@@ -458,21 +458,31 @@ Script "DnD Weapon Input Handler" (int wepid) {
 
 // from woc
 Script 826 (int opt) {
-    int intensity, maxhp = GetSpawnHealth();
-    int diff = FixedDiv((100 * (CheckInventory("DnD_PrevHealth") - GetActorProperty(0, APROP_Health)) << 16), maxhp << 16);
-    if(CheckInventory("FadeIntensity"))
-        intensity = (CheckInventory("FadeIntensity") << 16) + diff;
-    else
-        intensity = diff;
-    intensity >>= 16;
-    if(!opt) {
-        if(intensity > 75)
-            SetInventory("FadeIntensity", 75);
-        else
-            SetInventory("FadeIntensity", intensity);
-    }
-    SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_Health));
-    SetResultValue(CheckInventory("FadeIntensity"));
+	int intensity, maxhp = GetSpawnHealth();
+	int diff = FixedDiv((100 * (CheckInventory("DnD_PrevHealth") - GetActorProperty(0, APROP_Health)) << 16), maxhp << 16);
+	
+	bool hasMask = CheckInventory("SynthMaskToken");
+	
+	if(CheckInventory("FadeIntensity"))
+		intensity = (CheckInventory("FadeIntensity") << 16) + diff;
+	else
+		intensity = diff;
+	intensity >>= 16;
+	if(!opt) {
+		if(hasMask)
+			intensity /= DND_SYNTHMASK_EFFECT;
+		if(intensity > 75)
+			SetInventory("FadeIntensity", 75);
+		else
+			SetInventory("FadeIntensity", intensity);
+	}
+	SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_Health));
+	SetResultValue(CheckInventory("FadeIntensity"));
+}
+
+Script "DnD Synth Mask Acquired" (void) {
+	int res = CheckInventory("SynthMaskToken") ? DND_SYNTHMASK_EFFECT : 1;
+	SetResultValue(res);
 }
 
 Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
@@ -576,16 +586,8 @@ Script "DND On Revive" (void) {
 		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
 			Thing_Damage2(this, GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
 			
-		if(MonsterProperties[id].trait_list[DND_REJUVENATING])
-			GiveInventory("Rejuvenate_Script_Run", 1);
-		if(MonsterProperties[id].trait_list[DND_FORTIFIED])
-			SetInventory("MonsterFortifyCount", MonsterProperties[id].maxhp * DND_FORTIFY_AMOUNT / 10);
-		if(MonsterProperties[id].trait_list[DND_REPEL])
-			GiveInventory("Repel_Script_Run", 1);
-		if(MonsterProperties[id].trait_list[DND_CRIPPLE])
-			GiveInventory("Cripple_Script_Run", 1);
-
 		HandleMonsterClassInnates(this, MonsterProperties[id].id);
+		HandleSpecialTraits(this, MonsterProperties[id].id);
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
@@ -1909,7 +1911,12 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	MonsterProperties[m_id].id = monsterid;
 
 	// phantasm should never be elite
-	if(!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+	if(
+		!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
+		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")	&&
+		!IsUniqueMonster(monsterid)
+	)
+	{
 		MonsterProperties[m_id].isElite = true;
 		
 		//printbold(s:"(Before Elite bonuses) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
@@ -1960,6 +1967,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	
 	// handle all innate resists, weaknesses etc.
 	HandleMonsterClassInnates(m_id, monsterid);
+	
+	// handle things that should be given specifically to certain traits
+	HandleSpecialTraits(m_id, monsterid);
 	
 	GiveInventory("DnD_MonsterSetupDone", 1);
 	
@@ -3327,8 +3337,8 @@ Script "DnD Player On Hit" (int power) {
 			HandleRuination(this, target);
 	}
 
-	// marine is unaffected by curses at lvl 50
-	if(MonsterProperties[temp].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE && !CheckInventory("Marine_Perk50"))
+	// the curse is applied if the player is not immune, the checks are delegated to curse items
+	if(MonsterProperties[temp].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
 		ApplyRandomCurse();
 		
 	// check perk25 for berserker with cooldown
@@ -4864,6 +4874,13 @@ Script "DnD Give Research" (int sp) {
 	GiveResearch(sp >> 16, false);
 }
 
+Script "DnD Give Research - Regular" (int res_id, int fancy) {
+	if(CheckResearchStatus(res_id) == RES_NA) {
+		GiveInventory("ResearchSoundPlayer", 1);
+		GiveResearch(res_id, fancy);
+	}
+}
+
 Script "DnD Orb Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
@@ -5803,8 +5820,12 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		Log(s:"\cgERROR: \cjPlayer isn't currently playing!");
 }
 
-Script "DnD Heal Monster Direct" (int amount) {
-	HealMonster(ActivatorTID() - DND_MONSTERTID_BEGIN, amount);
+Script "DnD Heal Monster Direct" (int amount, int isPercent) {
+	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	if(!isPercent)
+		HealMonster(mid, amount);
+	else
+		HealMonster(mid, MonsterProperties[mid].maxhp * isPercent / 100);
 }
 
 Script "DnD Monster Health Regen Script" (int style, int amount, int period) {

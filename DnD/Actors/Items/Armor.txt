@@ -16,7 +16,9 @@ enum {
 	DND_ARMOR_DUELIST,
 	DND_ARMOR_NECRO,
 	DND_ARMOR_KNIGHT,
-	DND_ARMOR_RAVAGER
+	DND_ARMOR_RAVAGER,
+	
+	DND_ARMOR_SYNTHMETAL
 };
 
 const int DND_BASE_ARMORCAP = 300;
@@ -255,6 +257,52 @@ Actor RedArmorMsg : CustomInventory {
 	}
 }
 
+Actor SynthMetalPickup_MP : DnD_SharedItem {
+	Scale 0.6
+	States {
+		Spawn:
+			// the delay is needed for the tid to initialize
+			AR15 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_SYNTHMETALARMOR)
+			AR15 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
+		Idle:
+			AR15 A 10
+		Loop
+		IdlePicked:
+			AR15 A -1
+		Stop
+	}
+}
+
+Actor SynthMetal_SP : GreenArmor_SP {
+	Scale 0.6
+	inventory.pickupsound "Items/armor"
+	inventory.pickupmessage "\ccArmor pickup  : \c[Y5]Synth-metal Armor 65%\c-"
+	States
+	{
+		Spawn:
+			AR15 A 10
+		Loop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 400, DND_ARMOR_SYNTHMETAL), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_SYNTHMETAL, 400)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Research - Regular", 0, RES_SYNTHMETALARMOR, 1)
+		Stop
+	}
+}
+
+Actor SynthMetalArmorMsg : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 3, SHI_SYNTHMETALARMOR)
+			TNT1 A 0 A_PlaySound("Items/armor", 6)
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
 Actor GreenArmorSpawner : Randomspawner replaces GreenArmor {
 	DropItem "GreenArmorPickup_MP", 255, 16
 	DropItem "YellowArmorPickup_MP", 255, 8
@@ -431,34 +479,42 @@ Actor ElementalArmor : BasicArmorPickup {
 	
 	DamageFactor "LightningExp", 0.25
 	DamageFactor "LightningExpFull", 0.25
+	DamageFactor "CyberLightning", 0.25
+	DamageFactor "CacoLightning", 0.25
+	DamageFactor "VileRedLightning", 0.25
+	
 	DamageFactor "MagicFireExp", 0.25
 	DamageFactor "MagicFireExpFull", 0.25
 	DamageFactor "DemonFire", 0.25
 	DamageFactor "ImpFire", 0.25
 	DamageFactor "CacoFire", 0.25
-	DamageFactor "CacoPoison", 0.25
-	DamageFactor "ImpPoison_Vulgar", 0.25
-	DamageFactor "ImpPoison_Roach", 0.25
 	DamageFactor "PaineFire", 0.25
-	DamageFactor "PainePoison", 0.25
-	DamageFactor "RevIce", 0.25
-	DamageFactor "RevSludge", 0.25
-	DamageFactor "RevPoison_Crawler", 0.25
-    DamageFactor "BaronsPoison", 0.25
+
     DamageFactor "BaronsFire", 0.25
     DamageFactor "BaronGreen", 0.25
     DamageFactor "BaronGreenFire", 0.25
-    DamageFactor "FattyFire", 0.25
-    DamageFactor "FattyIce", 0.25
+	DamageFactor "FattyFire", 0.25
 	DamageFactor "ArachnoFire", 0.25
 	DamageFactor "VileFire", 0.25
     DamageFactor "VileBlue", 0.25
     DamageFactor "VileBlueFire", 0.25
 	DamageFactor "BigSpiderFire", 0.25
-	DamageFactor "BigSpiderIce", 0.25
 	DamageFactor "CyberFire", 0.25
-	DamageFactor "CyberLightning", 0.25
+	
+	DamageFactor "RevIce", 0.25
+	DamageFactor "FattyIce", 0.25
 	DamageFactor "CyberIce", 0.25
+	DamageFactor "BigSpiderIce", 0.25
+	
+	DamageFactor "CacoPoison", 0.25
+	DamageFactor "ImpPoison_Vulgar", 0.25
+	DamageFactor "ImpPoison_Roach", 0.25
+	DamageFactor "PainePoison", 0.25
+	DamageFactor "RevSludge", 0.25
+	DamageFactor "RevPoison_Crawler", 0.25
+    DamageFactor "BaronsPoison", 0.25
+	DamageFactor "GantPoison", 0.25
+	DamageFactor "ThamuzPoison", 0.25
 	
 	inventory.icon "AR14A0"
 }
@@ -633,4 +689,26 @@ Actor ElementalPower : PowerDamage {
 	damagefactor "EmeraldFull", 1.5
 	
 	powerup.duration 0x7FFFFFFF
+}
+
+Actor SynthMetalArmor : BasicArmorPickup {
+	Armor.SavePercent 65.0
+	Armor.SaveAmount 1
+	inventory.icon "AR15B0"
+	
+	DamageFactor "Bullet", 0.5
+	DamageFactor "FattyBullet", 0.5
+	DamageFactor "ArachnoBullet", 0.5
+	DamageFactor "FattyBullet", 0.5
+	DamageFactor "VileBullet", 0.5
+	DamageFactor "BigSpiderBullet", 0.5
+	DamageFactor "CyberBullet", 0.5
+	
+	DamageFactor "CacoLightning", 1.5
+	DamageFactor "VileRedLightning", 1.5
+	DamageFactor "RevLightning", 1.5
+	DamageFactor "PaineRedLightning", 1.5
+	DamageFactor "CyberLightning", 1.5
+	DamageFactor "LightningExp", 1.5
+	DamageFactor "LightningExpFull", 1.5
 }

@@ -214,6 +214,7 @@ Actor Gant_AcidCloud : TorturedSoulPoison {
     Speed 4 
     Damage (random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER))) 
 	DamageType "GantPoison"
+	BounceCount 6
 	BounceType Hexen
 }
 
@@ -301,17 +302,20 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 			UE02 E 10 Fast A_FaceTarget
 		MissileLoop:
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
-			TNT1 A 0 A_CustomMissile("Gant_AcidShot", 48, 12, frandom(-4, 4), CMF_OFFSETPITCH, frandom(-1.75, 1.75))
+			TNT1 A 0 A_CustomMissile("Gant_AcidShot", 48, 12, frandom(-3, 3), CMF_OFFSETPITCH, frandom(-1.75, 1.75))
 			UE02 F 4 Fast Bright A_FaceTarget
 			UE02 E 2 Fast Bright A_FaceTarget
 			TNT1 A 0 A_JumpIfCloser(144, "DashMelee")
-			UE02 G 10 Fast A_MonsterRefire(64, "See")
+			UE02 G 5 Fast A_MonsterRefire(64, "See")
 		Loop
 		Lobbed:
 			TNT1 A 0 A_JumpIfCloser(256, "ContinueLob")
 		Goto MissileGo
 		ContinueLob:
 			UE02 EEE 8 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			UE02 F 4 Fast Bright A_CustomMissile("Bronn_AcidShot", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(8, 15.0))
+			UE02 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
 			UE02 F 4 Fast Bright A_CustomMissile("Bronn_AcidShot", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(8, 15.0))
 			UE02 E 4 Fast A_FaceTarget
@@ -592,6 +596,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 	+NODAMAGETHRUST
 	+NOTARGET
 	+NOINFIGHTING
+	+NORADIUSDMG
 	+DONTHURTSPECIES
 	+DONTHARMSPECIES
 	States {
@@ -1012,12 +1017,6 @@ Actor SSrath_EyeBeamTrail {
 			"####" "#" 1 Bright A_FadeOut(0.0875)
 		Wait
 	}
-}
-
-Actor SSrath_Stun : PowerSpeed {
-	Speed 0
-	Powerup.duration 17
-	powerup.color "70 70 15"
 }
 
 Actor SSrath_Screamer {
@@ -1778,7 +1777,7 @@ ACTOR OmniBall {
 	Height 20
 	Speed 24
 	Damage (8 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "Lightning"
+	DamageType "CacoLightning"
 	PROJECTILE
 	RENDERSTYLE ADD
 	ALPHA 0.875
@@ -1804,7 +1803,7 @@ Actor OmniBigBall {
 	Projectile
 	Speed 28
 	Damage (random(55, 75) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "Lightning"
+	DamageType "CacoLightning"
 	Height 48
 	Radius 24
 	RENDERSTYLE ADD
@@ -1840,7 +1839,7 @@ Actor OmniBigBall {
 }
 
 Actor OmniLightning : DarkZealotLightning {
-	DamageType "Lightning"
+	DamageType "CacoLightning"
 	Damage (5 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	-PIERCEARMOR
 }
@@ -1851,7 +1850,7 @@ Actor OmniChaosBall {
 	PROJECTILE
 	Speed 18
 	Damage (100 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "Lightning"
+	DamageType "CacoLightning"
 	Scale 1.15
 	Renderstyle Add
 	var int user_count;
@@ -1955,7 +1954,7 @@ Actor OmniLightningBlastFX {
 }
 
 Actor OmniLightningBlast : BaseExplosionDamage {
-	DamageType "Lightning"
+	DamageType "CacoLightning"
 	Obituary "%o fell victim to Omnisight the Beholder."
 	+FLOORHUGGER
 	States {
@@ -4106,6 +4105,8 @@ Actor Eryxia : DnD_BaseRangedBoss {
 	const float fr_max = 14;
 	const float fr_min = 3;
 	+ISMONSTER
+	+NOINFIGHTING
+	+NOTARGET
 	-FLOORCLIP
 	+NOFEAR
 	States {
@@ -4618,6 +4619,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 	Height 140
 	Speed 16
 	PainChance 8
+	PainThreshold 200
 	SeeSound "Abaxoth/See"
 	PainSound "Abaxoth/pain"
 	DeathSound "Abaxoth/Die"
@@ -4625,7 +4627,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	Mass 3200
 	Tag "Abaxoth the End of All That Is"
-	MeleeRange 108
+	MeleeRange 128
 	Species "Cyber"
 	const float r_a = 9.0;
 	const float vel_charge = 28.0;
@@ -4635,10 +4637,12 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 	+ISMONSTER
 	+MISSILEMORE
 	+MISSILEEVENMORE
+	+QUICKTORETALIATE
 	+BOSS
 	+BOSSDEATH
 	+NOFEAR
 	+NODROPOFF
+	+NOTARGET
 	+NOINFIGHTING
 	-FLOORCLIP
 	States {
@@ -4659,54 +4663,57 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 		SeeState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			UE16 A 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("cyber/hoof")
+			TNT1 A 0 A_PlaySound("Abaxoth/Walk")
 			UE16 A 3 Fast A_Chase
 			UE16 BB 3 Fast A_Chase
 			UE16 C 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("cyber/hoof")
+			TNT1 A 0 A_PlaySound("Abaxoth/Walk")
 			UE16 C 3 Fast A_Chase
 			UE16 DD 3 Fast A_Chase
 		Goto See
 		MeleeState:
-			TNT1 A 0 A_Jump(128, "Fissures", "TectonicSlam")
-			TNT1 A 0 A_PlaySound("Abaxoth/Melee")
+			TNT1 A 0 A_Jump(144, "Fissures", "TectonicSlam")
+			TNT1 A 0 A_PlaySound("Abaxoth/MeleeEffort")
 			UE16 L 5 Fast A_FaceTarget
-			UE16 M 5 Fast A_FaceTarget
-			UE16 N 9 Fast A_CustomMeleeAttack(10 * random(12, 18) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Abaxoth/hit", "Abaxoth/miss")
+			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
+			UE16 M 4 Fast A_FaceTarget
+			TNT1 A 0 A_SpawnItem("AbaxothChargeExp")
+			UE16 N 8 Fast A_CustomMeleeAttack(10 * random(16, 22) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Abaxoth/MeleeHit", "")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_JumpIfCloser(288, "DecideCloseRange")
 			TNT1 A 0 A_Jump(128, "Charge", "Thunderbolt")
-			TNT1 A 0 A_Jump(108, "Laser")
+			TNT1 A 0 A_Jump(108, "Laser", "Fissures")
 			// homing rockets
-			UE16 EEEEEE 4 Fast A_FaceTarget
+		Rockets:
+			UE16 EEEEE 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 140, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 120, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 140, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 120, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			UE16 F 4 Fast Bright
-			UE16 G 5 Fast A_FaceTarget
+			UE16 G 4 Fast A_FaceTarget
 			UE16 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 140, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 120, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 140, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 120, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			UE16 F 4 Fast Bright
-			UE16 G 5 Fast A_FaceTarget
+			UE16 G 4 Fast A_FaceTarget
 			UE16 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 140, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 120, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 140, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 120, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			UE16 F 4 Fast Bright
-			UE16 G 5 Fast A_FaceTarget
+			UE16 G 4 Fast A_FaceTarget
 			UE16 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 140, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 120, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 140, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocket", 120, 32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			UE16 F 4 Fast Bright
-			UE16 G 5 Fast A_FaceTarget
+			UE16 G 4 Fast A_FaceTarget
 			UE16 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 140, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 120, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
@@ -4718,38 +4725,60 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			UE16 E 16 A_FaceTarget
 		Goto See
 		DecideRanged:
-			UE16 E 16 A_Jump(128, "Thunderbolt", "Laser", "Charge")
+			UE16 E 16 A_Jump(128, "Thunderbolt", "Laser", "Charge", "Rockets")
+		Goto See
+		DecideRange_NoThunder:
+			UE16 E 16 A_Jump(128, "Rockets", "Laser", "Charge")
 		Goto See
 		DecideCloseRange:
 			TNT1 A 0 A_Jump(128, "TectonicSlam", "Charge")
 		Goto Fissures
 		Thunderbolt:
+			TNT1 A 0 A_JumpIfInventory("AbaxothThunderCooldown", 1, "DecideRange_NoThunder")
+			TNT1 A 0 A_GiveInventory("AbaxothThunderCooldown", 1)
+			UE16 L 1 Light("AbaxothThunderLight") A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Boolean Sync", true)
-			UE16 L 7 A_FaceTarget
-			UE16 L 87 Bright ACS_NamedExecuteWithResult("DnD Abaxoth Thunderbolt")
+			UE16 L 7 Light("AbaxothThunderLight") A_FaceTarget
+			UE16 L 87 Light("AbaxothThunderLight") Bright ACS_NamedExecuteWithResult("DnD Abaxoth Thunderbolt")
 			TNT1 A 0 A_FaceTarget
-			UE16 M 4 Bright A_CustomMissile("AbaxothThunderbolt", 104, 30)
-			UE16 MMMMM 4 Bright A_CustomMissile("AbaxothThunderbolt", 104, 30, frandom(-12, 12), CMF_OFFSETPITCH, frandom(-5, 5))
+			TNT1 A 0 A_PlaySound("Abaxoth/ThunderGo", CHAN_WEAPON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Abaxoth Thunder Shield")
+			UE16 M 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30)
+			UE16 MM 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30, frandom(-12, 12), CMF_OFFSETPITCH, frandom(-5, 5))
+			TNT1 A 0 A_FaceTarget
+			UE16 M 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30)
+			UE16 MM 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30, frandom(-12, 12), CMF_OFFSETPITCH, frandom(-5, 5))
+			TNT1 A 0 A_FaceTarget
+			UE16 M 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30)
+			UE16 MM 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30, frandom(-12, 12), CMF_OFFSETPITCH, frandom(-5, 5))
+			TNT1 A 0 A_FaceTarget
+			UE16 M 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30)
+			UE16 MM 4 Light("AbaxothThunderLight2") Bright A_CustomMissile("AbaxothThunderbolt", 104, 30, frandom(-12, 12), CMF_OFFSETPITCH, frandom(-5, 5))
 		Goto See
 		Laser:
 			UE16 I 1 ACS_NamedExecuteWithResult("DnD Boolean Sync", true)
+			TNT1 A 0 A_PlaySound("Abaxoth/LaserBegin", CHAN_WEAPON)
 			TNT1 A 0 A_CustomMissile("AbaxothLaserMarker", 88, -28)
-			UE16 IIIIIIIIIIIIIIII 4 Fast A_FaceTarget
+			UE16 IIIIIIIIIIIIIII 4 Fast A_FaceTarget
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			TNT1 A 0 A_SetUserVar("user_raildmg", 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 			TNT1 A 0 A_SpawnItemEx("ExplosionFlare", 16, -28, 90)
+			TNT1 A 0 A_PlaySound("Abaxoth/LaserLoop", CHAN_WEAPON, 1.0, true)
 		LaserLoop:
 			TNT1 A 0 A_JumpIf(user_count == laser_t, "LaserFinish")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Abaxoth Laser Adjust", -24)
-			UE16 J 2 Bright Fast A_CustomRailgun(user_raildmg, -24, none, none, RGF_SILENT | RGF_NOPIERCING, 0, 0, "AbaxothRailPuff", 0, 0, 4096, 0, 2.5, 0, "AbaxothRailTrail", 10)
+			UE16 J 2 Bright Fast A_CustomRailgun(user_raildmg, -24, none, none, RGF_SILENT | RGF_NOPIERCING, 0, 2, "AbaxothRailPuff", 0, 0, 4096, 0, 2.5, 0, "AbaxothRailTrail", 10)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		LaserFinish:
-			UE16 J 2 Bright Fast
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			UE16 J 2 Bright Fast A_PlaySound("Abaxoth/LaserEnd", CHAN_WEAPON)
 			UE16 K 8 Fast
 		Goto See
 		Charge:
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+			TNT1 A 0 A_PlaySound("Abaxoth/Bullrush")
+			TNT1 A 0 A_SetUserVar("user_count", 0)
 			UE16 H 2 Fast ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
 			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
@@ -4757,116 +4786,49 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
 			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
+		ChargeLoop:
+			UE16 H 3 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
 			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
 			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
 			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
 			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
-			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
-			TNT1 A 0 A_SpawnItemEx("AbaxothChargeAfterImage", -20)
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, 32, 0, frandom(-0.5, -2), frandom(1, 2.5), frandom(0.5, 2))
-			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
-			TNT1 A 0 A_FaceTarget
-			UE16 H 4 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_JumpIf(user_count == 16, "FinishCharge")
+			UE16 H 1 Fast A_JumpIfTargetInLOS("ChargeLoop")
+		Goto FinishCharge
+		FinishCharge:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			TNT1 A 0 A_Stop
 			UE16 D 6 Fast A_ChangeVelocity(0, 0, velz, CVF_REPLACE)
-			TNT1 A 0 A_JumpIfCloser(256, "DecideCloseRange")
+			UE16 D 0 A_JumpIfCloser(256, "DecideCloseRange")
 			UE16 D 2 Fast A_Jump(128, "DecideRanged")
 		Goto See
 		TectonicSlam:
 			UE16 L 5 Fast A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Boolean Sync", true)
+			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
 			UE16 M 5 Fast A_FaceTarget
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp")
-			TNT1 A 0 A_CustomMissile("AbaxothTectonicSpawner", 0, 0, 0, CMF_AIMDIRECTION)
-			TNT1 AAAAA 0 A_SpawnItemEx("AbaxothSlamSmoke", frandom(-8, 8), frandom(-8, 8), frandom(4, 16), frandom(-2, 2), frandom(-2, 2), frandom(0, 2))
+			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", 50)
+			TNT1 A 0 A_SpawnItem("AbaxothTectonicSpawner", 32)
+			TNT1 AAAAA 0 A_SpawnItemEx("AbaxothSlamSmoke", 50 + frandom(-8, 8), frandom(-8, 8), frandom(4, 16), frandom(-2, 2), frandom(-2, 2), frandom(0, 2))
 			TNT1 A 0 A_Quake(6, 17, 0, 256)
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam1", CHAN_6)
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam2", CHAN_7)
+			TNT1 A 0 A_SpawnItemEx("AbaxothSlamFX", 50)
+			TNT1 A 0 A_SpawnItemEx("ExplosionFlare", 24)
 			UE16 N 8 Fast A_SpawnItemEx("AbaxothSlamFXSpawner", 24)
+			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
 			UE16 ML 3 Fast
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp")
-			TNT1 AAAAA 0 A_SpawnItemEx("AbaxothSlamSmoke", frandom(-8, 8), frandom(-8, 8), frandom(4, 16), frandom(-2, 2), frandom(-2, 2), frandom(0, 2))
+			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", 50)
+			TNT1 AAAAA 0 A_SpawnItemEx("AbaxothSlamSmoke", 50 + frandom(-8, 8), frandom(-8, 8), frandom(4, 16), frandom(-2, 2), frandom(-2, 2), frandom(0, 2))
 			TNT1 A 0 A_Quake(6, 17, 0, 288)
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam1", CHAN_6)
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam2", CHAN_7)
+			TNT1 A 0 A_SpawnItemEx("AbaxothSlamFX", 50)
+			TNT1 A 0 A_SpawnItemEx("ExplosionFlare", 24)
 			UE16 N 8 Fast
 			UE16 M 5 Fast
 			UE16 L 4 Bright Fast
@@ -4874,9 +4836,15 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			UE16 L 4 Bright Fast
 			UE16 L 4 Fast
 			UE16 L 4 Bright Fast
-			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("AbaxothSlamSmoke", frandom(-8, 8), frandom(-8, 8), frandom(4, 16), frandom(-2, 2), frandom(-2, 2), frandom(0, 2))
-			TNT1 A 0 A_SpawnItem("AbaxothChargeExp")
+			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
+			UE16 M 3 Fast
+			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("AbaxothSlamSmoke", 50 + frandom(-8, 8), frandom(-8, 8), frandom(4, 16), frandom(-2, 2), frandom(-2, 2), frandom(0, 2))
+			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", 50)
 			TNT1 A 0 A_Quake(6, 35, 0, 384)
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam1", CHAN_6)
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam2", CHAN_7)
+			TNT1 A 0 A_SpawnItemEx("AbaxothSlamFX", 50)
+			TNT1 A 0 A_SpawnItemEx("ExplosionFlare", 24)
 			UE16 N 8 Fast
 			UE16 M 3 Fast
 			UE16 L 9 Fast
@@ -4884,33 +4852,300 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 		Fissures:
 			TNT1 A 0 A_JumpIfInventory("AbaxothFissureCD", 1, "TectonicSlam")
 			TNT1 A 0 A_GiveInventory("AbaxothFissureCD", 1)
+			TNT1 A 0 A_PlaySound("Abaxoth/MeleeEffort")
 			UE16 L 5 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
 			UE16 M 5 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam1", CHAN_6)
+			TNT1 A 0 A_PlaySound("Abaxoth/Slam2", CHAN_7)
+			TNT1 A 0 A_SpawnItemEx("ExplosionFlare", 24)
+			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", 50)
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("AbaxothSlamSmoke", 24 + frandom(-8, 8), frandom(-8, 8), frandom(4, 16), frandom(-2, 2), frandom(-2, 2), frandom(0, 2))
 			UE16 N 35 Fast A_CustomMissile("AbaxothFissureSpawner", 0, 30, 0, CMF_AIMDIRECTION)
 		Goto See
 		PainState:
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			UE16 O 4 Fast ACS_NamedExecuteWithResult("DnD Boolean Sync", false)
 			UE16 O 5 Fast A_Pain
 		Goto See
 		XDeathState:
 		DeathState:
-			UP23 A 8 Bright 
+			UP23 A 8 Bright A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx("AbaxothHammer", 50, 50, 110, 2, 2, 0, 25)
 			UP23 B 8 Bright A_Scream
 			UP23 C 8 Bright A_KillChildren
-			UP23 D 8 Bright A_NoBlocking    
-			UP23 EFGHIFGHIFGHIFGHJKLMNO 8 Bright
+			UP23 D 8 Bright A_NoBlocking
+			TNT1 A 0 A_SpawnItemEx("AbaxothSlamFXSpawner", 0, 0, 40)
+			UP23 EFGHIFGH 4 Bright A_SpawnItemEx("AbaxothTectonicBoom_Small", frandom(-48, 48), frandom(-48, 48), frandom(20, 72))
+			TNT1 A 0 A_SpawnItemEx("AbaxothSlamFXSpawner", 0, 0, 40)
+			UP23 IFGHIFIF 4 Bright A_SpawnItemEx("AbaxothTectonicBoom_Small", frandom(-48, 48), frandom(-48, 48), frandom(20, 72))
+			TNT1 A 0 A_SpawnItemEx("AbaxothSlamFXSpawner", 0, 0, 40)
+			UP23 HIFGHFHI 4 Bright A_SpawnItemEx("AbaxothTectonicBoom_Small", frandom(-48, 48), frandom(-48, 48), frandom(20, 72))
+			TNT1 A 0 A_SpawnItemEx("AbaxothSlamFXSpawner", 0, 0, 40)
+			UP23 GHIGHJKL 4 Bright
+			UP23 M 4 Bright A_PlaySound("Abaxoth/DeathBody")
+			UP23 NO 4 Bright
 			UP23 PQRS 8 
 			UP23 T -1  A_BossDeath
 		Stop
 	}
 }
 
+Actor AbaxothThunderShieldProc_CD : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 10
+}
+
+Actor AbaxothThunderRetaliation : FastProjectile {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.30,1.95]"
+	PROJECTILE
+	Speed 80
+	Height 20
+	Radius 8
+	Damage (5 * random(32, 40) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	DamageType "CyberLightning"
+	Scale 0.9
+	+RIPPER
+	+PIERCEARMOR
+	+BLOODLESSIMPACT
+	+NODAMAGETHRUST
+	SeeSound "weapons/gaussbegin"
+	DeathSound "DarkServant/LightningHit"
+	Renderstyle Add
+	Alpha 0.9
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			HSPL ABCDEFGHIJ 2 Bright A_FadeOut(0.05)
+		Loop
+		Death:
+			HSP2 "#" 1 Bright A_FadeOut(0.075)
+		Loop
+	}
+}
+
+Actor AbaxothThunderShieldProc : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("AbaxothThunderShieldProc_CD", 1)
+			TNT1 A 0 A_CustomMissile("AbaxothThunderRetaliation", frandom(48, 72), frandom(-16 ,16), 0)
+			TNT1 AAA 0 A_CustomMissile("AbaxothThunderRetaliation", frandom(48, 72), frandom(-16 ,16), frandom(-16, 16), CMF_OFFSETPITCH, frandom(-9, 9))
+			TNT1 A 0 A_PlaySound("Abaxoth/ThunderProc", CHAN_5)
+		Stop
+	}
+}
+
+Actor AbaxothThunderProcFlare : PlasmaFlare {
+	XScale 0.8
+	YScale 0.4
+}
+
+Actor AbaxothThunderSparks : ElectDrSpark {
+	Scale 0.4
+}
+
+Actor AbaxothThunderProcFX_Spawner {
+	Height 2
+	Radius 1
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("AbaxothThunderSparks", frandom(-32, 32), frandom(-32, 32), frandom(40, 80), frandom(-8, 8), frandom(-8, 8), frandom(-8, 8), 0, SXF_CLIENTSIDE)
+			TNT1 A 10 A_SpawnItemEx("AbaxothThunderProcFlare", 16, 0, 72, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Stop
+	}
+}
+
+Actor AbaxothShieldFXTrail {
+	Scale 0.75
+	Renderstyle Add
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			DB21 AAAAAAAAAA 1 A_FadeOut(0.0875)
+		Stop
+	}
+}
+
+Actor AbaxothThunderShieldFX_1 {
+	Renderstyle Add
+	Height 4
+	Radius 2
+	Scale 0.75
+	+FORCEXYBILLBOARD
+	+NOINTERACTION
+	+NOCLIP
+	+CLIENTSIDEONLY
+	const float r = 40.0;
+	const float w = 48.0;
+	const float h_b = 80.0;
+	const int lim = 7 * 35; // 7 seconds
+	var int user_count;
+	
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count == lim, "Finish")
+			DB21 A 1 A_Warp(AAPTR_TARGET, w, -w, h_b + r * sin((user_count * 4) % 360), 8, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_SpawnItemEx("AbaxothShieldFXTrail")
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			DB21 A 1 A_FadeOut(0.2)
+		Stop
+	}
+}
+
+Actor AbaxothThunderShieldFX_2 : AbaxothThunderShieldFX_1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count == lim, "Finish")
+			DB21 A 1 A_Warp(AAPTR_TARGET, w, w, h_b + r * sin((user_count * 4) % 360), 8, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_SpawnItemEx("AbaxothShieldFXTrail")
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+	}
+}
+
+Actor AbaxothThunderShieldFX_3 : AbaxothThunderShieldFX_1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count == lim, "Finish")
+			DB21 A 1 A_Warp(AAPTR_TARGET, -w, 0, h_b + r * sin((user_count * 4) % 360), 8, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_SpawnItemEx("AbaxothShieldFXTrail")
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+	}
+}
+
+Actor AbaxothThunderProcFX {
+	Renderstyle Add
+	Height 4
+	Radius 2
+	Scale 1.0
+	+FORCEXYBILLBOARD
+	+NOINTERACTION
+	+NOCLIP
+	+CLIENTSIDEONLY
+	+RANDOMIZE
+	
+	States {
+		Spawn:
+			TXP1 ABCDEFGHIJKLMNOP 1 A_Warp(AAPTR_TARGET, 8, 0, 72, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+		Stop
+	}
+}
+
+Actor AbaxothSpike {
+	PROJECTILE
+	Health 1
+	Speed 0
+	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Height 64
+	Radius 18
+	Scale 0.75
+	Species "Cyber"
+	+THRUSPECIES
+	+RIPPER
+	+FLOORHUGGER
+	+NOBLOOD
+	+THRUACTORS
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 1
+		Cont:
+			UP28 C 2 A_ChangeFlag("THRUACTORS", 0)
+			TNT1 A 0 A_PlaySound("ThrustSpikeLower")
+			UP28 RQPONMLKJI 2
+			TNT1 A 0 A_SpawnItemEx("AbaxothSpikeHitbox", 0, 0, 0)
+			UP28 H 3
+			UP28 G 4
+			UP28 F 5
+			UP28 E 6
+			UP28 D 7
+			UP28 A 105
+			UP28 D 7 A_PlaySound("ThrustSpikeRaise")
+			UP28 E 6
+			UP28 F 5
+			UP28 G 4
+			UP28 H 3
+			UP28 IJKLMNOPQR 2
+		Stop
+	}
+}
+
+Actor AbaxothSpikeHitbox {
+	Height 64
+	Radius 20
+	Species "Cyber"
+	+SOLID
+	+SHOOTABLE
+	+INVULNERABLE
+	+DONTBLAST
+	+THRUSPECIES
+	States {
+		Spawn:
+			TNT1 A 142
+		Stop
+	}
+}
+
+Actor AbaxothSpikeSpawner_R {
+	Radius 16
+	Height 64
+	Speed 32
+	Damage 0
+	PROJECTILE
+	const float v = 32.0;
+	const float rate = 8;
+	const int lim = 25;
+	var int user_a;
+	+THRUACTORS
+	+FLOORHUGGER
+	+NOCLIP
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 A_JumpIf(user_a == lim, "Finish")
+			TNT1 A 2 A_CustomMissile("AbaxothSpike", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_SetUserVar("user_a", user_a + 1)
+			TNT1 A 0 A_ChangeVelocity(v * cos(angle + user_a * rate), v * sin(angle + user_a * rate), velz, CVF_REPLACE)
+		Loop
+		Finish:
+			TNT1 A 1
+		Stop
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor AbaxothSpikeSpawner_L : AbaxothSpikeSpawner_R {
+	States {
+		Spawn:
+			TNT1 A 0 A_JumpIf(user_a == lim, "Finish")
+			TNT1 A 2 A_CustomMissile("AbaxothSpike", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_SetUserVar("user_a", user_a + 1)
+			TNT1 A 0 A_ChangeVelocity(v * cos(angle - user_a * rate), v * sin(angle - user_a * rate), velz, CVF_REPLACE)
+		Loop
+	}
+}
+
 Actor AbaxothFissureCD : PowerDamage {
 	damagefactor "normal", 1.0
-	powerup.duration -6
+	powerup.duration -4
 }
 
 Actor AbaxothSlamFX {
@@ -4977,10 +5212,13 @@ Actor AbaxothTectonicSpawner {
 	Height 2
 	Radius 1
 	Speed 0
+	+STEPMISSILE
+	+NOCLIP
+	+DONTBLAST
 	+THRUACTORS
 	States {
 		Spawn:
-			TNT1 A 50
+			TNT1 AAAAAAAAAA 5 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Failed")
 			TNT1 A 0 A_CustomMissile("AbaxothTectonicBoom_Small", 12, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("AbaxothTectonicBoom_Small", 12, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("AbaxothTectonicBoom_Small", 12, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -5034,6 +5272,7 @@ Actor AbaxothTectonicSpawner {
 			TNT1 A 0 A_CustomMissile("AbaxothTectonicBoom_Big2", 32, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("AbaxothTectonicBoom_Big2", 32, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("AbaxothTectonicBoom_Big2", 32, 0, 315, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Failed:
 			TNT1 A 5
 		Stop
 	}
@@ -5046,7 +5285,9 @@ Actor AbaxothTectonicBoom_Small : BaseExplosionDamage {
 	const float v = 2.5;
 	Scale 0.375
 	Speed 60
+	MaxStepHeight 64
 	+THRUACTORS
+	+STEPMISSILE
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -5141,18 +5382,28 @@ Actor AbaxothFissureSpawner {
 	Radius 16
 	Height 28
 	Speed 32
-	MaxStepHeight 48
+	MaxStepHeight 128
 	Damage 0
 	PROJECTILE
 	+THRUACTORS
-	+FLOORHUGGER
+	+DONTBLAST
+	+STEPMISSILE
 	States {
 		Spawn:
 			TNT1 A 1
-			TNT1 AAAAAAAAAA 5 A_CustomMissile("AbaxothFissure", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 AAAAAAAAA 4 A_CustomMissile("AbaxothFissure", floorz - z, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItem("AbaxothSpike", 36)
+			TNT1 A 0 A_CustomMissile("AbaxothFissure", floorz - z, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("AbaxothSpikeSpawner_L", 0, 0, -60, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 10 A_CustomMissile("AbaxothSpikeSpawner_R", 0, 0, 60, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		Stop
 		Death:
-			TNT1 A 10 A_CustomMissile("AbaxothFissure", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_SpawnItem("AbaxothSpike", 36)
+			TNT1 A 0 A_CustomMissile("AbaxothFissure", floorz - z, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("AbaxothSpikeSpawner_L", 0, 0, -60, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 10 A_CustomMissile("AbaxothSpikeSpawner_R", 0, 0, 60, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		Stop
 	}
 }
@@ -5162,10 +5413,15 @@ Actor AbaxothFissure {
 	Height 28
 	Scale 1.25
 	Speed 0
-	ReactionTime 8
+	ReactionTime 12
+	SeeSound "ThrustSpikeLower"
+	// hack to make these spawn properly on changing floor heights while the spawner itself can climb steps
+	BounceType "Hexen"
+	BounceFactor 0
 	+MISSILE
 	+THRUACTORS
 	+DONTBLAST
+	+FLOORHUGGER
 	States {
 		Spawn:
 			UP26 FGH 5
@@ -5177,7 +5433,7 @@ Actor AbaxothFissure {
 			TNT1 A 0 A_Jump(128, "Two", "Three")
 			UP26 E 9 Bright A_CustomMissile("AbaxothLavaBall", 44, 0, frandom(0, 360), CMF_TRACKOWNER)
 		ContinueCount:
-			UP26 A 35 A_CountDown
+			UP26 A 24 A_CountDown
 		Goto SpawnLoop
 		Two:
 			TNT1 A 0 A_CustomMissile("AbaxothLavaBall", 44, 0, frandom(0, 360), CMF_TRACKOWNER)
@@ -5188,6 +5444,7 @@ Actor AbaxothFissure {
 			UP26 E 9 Bright A_CustomMissile("AbaxothLavaBall", 44, 0, frandom(0, 360), CMF_TRACKOWNER)
 		Goto ContinueCount
 		Death:
+			TNT1 A 0 A_PlaySound("ThrustSpikeRaise")
 			UP26 HGF 5
 		Stop
 	}
@@ -5197,6 +5454,8 @@ Actor AbaxothLavaBall {
 	PROJECTILE
 	Damage (25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "CyberFire"
+	SeeSound "RubyWand/Fire"
+	DeathSound "weapons/phoenixhit"
 	Speed 9
 	Height 16
 	Radius 8
@@ -5231,6 +5490,11 @@ Actor AbaxothLavaBallExp : BaseExplosionDamage {
 	}
 }
 
+Actor AbaxothThunderCooldown : PowerDamage {
+	powerup.duration -11
+	damagefactor "normal", 1.0
+}
+
 Actor AbaxothThunderFX {
 	Renderstyle Add
 	Alpha 0.01
@@ -5246,6 +5510,35 @@ Actor AbaxothThunderFX {
 			THND B 0
 		Goto Anim
 		Anim:
+			"####" "#" 0 A_PlaySound("Abaxoth/Thunder")
+			"####" "####" 1 A_FadeIn(0.25)
+			"####" "########" 1 A_FadeOut(0.125)
+		Stop
+	}
+}
+
+Actor AbaxothThunderFX_Thin : AbaxothThunderFX {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(128, "B", "C", "D", "E", "F")
+			UP27 A 0
+		Goto Anim
+		B:
+			UP27 B 0
+		Goto Anim
+		C:
+			UP27 C 0
+		Goto Anim
+		D:
+			UP27 D 0
+		Goto Anim
+		E:
+			UP27 E 0
+		Goto Anim
+		F:
+			UP27 F 0
+		Goto Anim
+		Anim:
 			"####" "####" 1 A_FadeIn(0.25)
 			"####" "########" 1 A_FadeOut(0.125)
 		Stop
@@ -5256,7 +5549,8 @@ Actor AbaxothThunderbolt {
 	PROJECTILE
 	damage (250 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "CyberLightning"
-	DeathSound "Abaxoth/LightningHit"
+	SeeSound "Spell/LightningSpearCast"
+	DeathSound "Spell/LightningSpearBounce"
 	Radius 12
 	Height 24
 	Species "Cyber"
@@ -5381,7 +5675,7 @@ Actor AbaxothChargeExp : BaseExplosionDamage {
 Actor AbaxothLaserMarker {
 	Renderstyle Add
 	Translation "0:255=%[0.00,0.00,0.00]:[1.76,0.00,0.00]"
-	const int t = 16;
+	const int t = 15;
 	const float s = 1.0 / 32;
 	var int user_count;
 	+NOINTERACTION
@@ -5441,7 +5735,7 @@ Actor AbaxothRocketExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 3 A_Explode(18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0, 0, 16)
+			TNT1 A 3 A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0, 0, 16)
 		Stop
 	}
 }
@@ -5449,12 +5743,15 @@ Actor AbaxothRocketExp : BaseExplosionDamage {
 Actor AbaxothRocket {
 	PROJECTILE
 	Speed 20
-	Damage (18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "CyberExp"
+	SeeSound "weapons/tp_fire"
+	DeathSound "weapons/heavyrlexp"
 	Height 10
 	Radius 5
 	WeaveIndexXY 32
 	+SEEKERMISSILE
+	+THRUGHOST
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -5475,12 +5772,12 @@ Actor AbaxothRocketL : AbaxothRocket {
 }
 
 ACTOR AbaxothHammer : CacodemonBall { 
-	Damage (20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
 	DamageType "Melee"
 	Speed 0
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	SeeSound ""
-	DeathSound "Abaxoth/miss"
+	DeathSound "Abaxoth/Walk"
 	Renderstyle Normal
 	+RIPPER
 	-NOGRAVITY

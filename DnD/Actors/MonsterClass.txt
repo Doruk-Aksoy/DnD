@@ -17,6 +17,7 @@ Actor ImpClassProtection : InfiniteProtectionBase {
 Actor CacoClassProtection : InfiniteProtectionBase {
 	DamageFactor "Caco", 0.0
 	DamageFactor "CacoMagic", 0.0
+	DamageFactor "CacoLightning", 0.0
 	DamageFactor "CacoMagicOrange", 0.0
 	DamageFactor "CacoExp", 0.0
 	DamageFactor "CacoFire", 0.0
@@ -31,6 +32,7 @@ Actor PaineClassProtection : InfiniteProtectionBase {
 	DamageFactor "PainePoison", 0.0
 	DamageFactor "PaineMagic", 0.0
 	DamageFactor "PaineMagicFire", 0.0
+	DamageFactor "PaineRedLightning", 0.0
 }
 
 Actor RevenantClassProtection : InfiniteProtectionBase {
@@ -41,6 +43,7 @@ Actor RevenantClassProtection : InfiniteProtectionBase {
 	DamageFactor "RevSludge", 0.0
 	DamageFactor "RevPoison_Crawler", 0.0
 	DamageFactor "RevIce", 0.0
+	DamageFactor "RevLightning", 0.0
 }
 
 Actor HKClassProtection : InfiniteProtectionBase {
@@ -94,6 +97,7 @@ Actor VileClassProtection : InfiniteProtectionBase {
 	DamageFactor "VileSnare", 0.0
 	DamageFactor "VileMagic", 0.0
 	DamageFactor "VileArcane", 0.0
+	DamageFactor "VileRedLightning", 0.0
 }
 
 Actor SMClassProtection : InfiniteProtectionBase {

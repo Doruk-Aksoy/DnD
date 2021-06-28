@@ -52,6 +52,30 @@ Actor StatbuffCounter_LuckyCrit : Ammo {
 	+IGNORESKILL
 }
 
+Actor StatbuffCounter_CurseImmunity : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_ExplosiveResistIgnore : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_PoisonTicTwiceFast : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor StatbuffCounter_HomingDontReflect : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
 /********************
  EXTRA NEEDED STUFF 
 ********************/

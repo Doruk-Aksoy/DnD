@@ -10,7 +10,7 @@
 #define DND_ACCURACY_CAP 80000
 #define DND_ATTRIBUTEBONUS_CAP 1024
 
-#define MAX_ATTRIB_MODIFIER 0xFF
+//#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF
 
 #define FACTOR_SMALLCHARM_RESOLUTION 1000
 
@@ -115,6 +115,20 @@ enum {
 	INV_CYBERNETIC,
 	INV_MELEERANGE,
 	
+	// essence attributes (only via. specific means)
+	INV_ESS_VAAJ,
+	INV_ESS_SSRATH,
+	INV_ESS_OMNISIGHT,
+	INV_ESS_OMNISIGHT2,
+	INV_ESS_CHEGOVAX,
+	INV_ESS_HARKIMONDE,
+	INV_ESS_LESHRAC,
+	INV_ESS_LESHRAC2,	// this is a two part bonus
+	INV_ESS_KRULL,
+	INV_ESS_THORAX,
+	INV_ESS_ZRAVOG,
+	INV_ESS_ERYXIA,
+	
 	// add new attributes above here, below the last normal item attributes to avoid weird problems regarding database saves
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
@@ -145,22 +159,28 @@ enum {
 	INV_EX_FLATDOT,
 	INV_EX_DOTDURATION,
 	INV_EX_ABILITY_LUCKYCRIT,
-	INV_EX_CRITIGNORERESCHANCE
+	INV_EX_CRITIGNORERESCHANCE,
+	INV_EX_CURSEIMMUNITY,
 	// add new unique attributes here
 };
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
 #define LAST_INV_ATTRIBUTE INV_MELEERANGE
+#define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
-#define UNIQUE_ATTRIB_END INV_EX_CRITIGNORERESCHANCE
-#define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
+#define UNIQUE_ATTRIB_END INV_EX_CURSEIMMUNITY
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
-#define MAX_INV_ATTRIBUTE_TYPES (LAST_INV_ATTRIBUTE + 1)
-#define MAX_TOTAL_ATTRIBUTES (UNIQUE_ATTRIB_COUNT + NORMAL_ATTRIBUTE_COUNT)
-#define UNIQUE_ATTRIB_MAPPER (LAST_INV_ATTRIBUTE - UNIQUE_ATTRIB_ID_BEGIN + 1) // maps the array indices proper
+
+#define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
+#define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
+#define ESSENCE_ATTRIBUTE_COUNT (LAST_ESSENCE_ATTRIBUTE - FIRST_ESSENCE_ATTRIBUTE + 1)
+
+#define MAX_INV_ATTRIBUTE_TYPES (NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT)
+#define MAX_TOTAL_ATTRIBUTES (UNIQUE_ATTRIB_COUNT + NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT)
+#define UNIQUE_ATTRIB_MAPPER (LAST_ESSENCE_ATTRIBUTE - UNIQUE_ATTRIB_ID_BEGIN + 1) // maps the array indices proper
 
 #define UNIQUE_MAP_MACRO(X) ((X) +  UNIQUE_ATTRIB_MAPPER)
 
@@ -172,6 +192,7 @@ typedef struct {
 } inv_attrib_T;
 
 enum {
+	INV_ATTR_TAG_NONE,
 	INV_ATTR_TAG_DAMAGE = 1,
 	INV_ATTR_TAG_ATTACK = 2,
 	INV_ATTR_TAG_LIFE = 4,
@@ -184,9 +205,8 @@ enum {
 	INV_ATTR_TAG_STAT = 512
 };
 
-#define INVATTR_CHECKER 0
-#define INVATTR_TEXT 1
-str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
+// I'll keep these here none the less to help me add stuff in the future
+/*str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_FlatHP", 										" Health" },
 	{ "IATTR_FlatArmor", 									" Armor" },
 	{ "IATTR_HPPercent", 									"% Health" },
@@ -202,13 +222,13 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_FlatDamageBonus_Physical", 					" to physical damage" },
 	{ "IATTR_FlatDamageBonus_Energy", 						" to energy damage" },
 	{ "IATTR_FlatDamageBonus_Explosive", 					" to explosive damage" },
-	{ "IATTR_FlatDamageBonus_Magic", 						" to magic damage" },
+	{ "IATTR_FlatDamageBonus_Magic", 						" to occult damage" },
 	{ "IATTR_FlatDamageBonus_Elemental", 					" to elemental damage" },
 	
 	{ "IATTR_PercentDamageBonus_Physical", 					"% increased physical damage" },
 	{ "IATTR_PercentDamageBonus_Energy", 					"% increased  energy damage" },
 	{ "IATTR_PercentDamageBonus_Explosive", 				"% increased explosive damage" },
-	{ "IATTR_PercentDamageBonus_Magic", 					"% increased magic damage" },
+	{ "IATTR_PercentDamageBonus_Magic", 					"% increased occult damage" },
 	{ "IATTR_PercentDamageBonus_Elemental", 				"% increased elemental damage" },
 	
 	{ "IATTR_SlotDamageBonus_1", 							"% slot 1 weapon damage" },
@@ -285,6 +305,20 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "",													"\c[R5]CYBERNETIC\c-" },
 	{ "IATTR_MeleeRange",									"% increased melee range" },
 	
+	// essences
+	{ "IATTR_StatusBuffs_1",								"Explosion damage ignores enemy resistances" },
+	{ "IATTR_SoulPenetration",								"Soul weapons penetrate " },
+	{ "IATTR_Accuracy",										" to accuracy rating" },
+	{ "IATTR_AccuracyPercent",								"% increased accuracy rating" },
+	{ "IATTR_IgniteDamageEachTic",							"Ignite damage increases for each tic by "},
+	{ "IATTR_ChanceIgnoreShield",							"% chance for attacks to ignore shields" },
+	{ "IATTR_ReducedPoisonTaken",							"% reduced poison damage taken" },
+	{ "IATTR_StatusBuffs_1",								"Poison damage tics twice as fast" },
+	{ "IATTR_ExplosionAgainChance",							"% chance for explosions to trigger again" },
+	{ "IATTR_StatusBuffs_1",								"Homing projectiles can't be reflected" },
+	{ "IATTR_OccultReducePer",								"Magical attacks reduce enemy magic resistance by " },
+	{ "IATTR_FrozenDamage",									"Frozen enemies take " },
+	
 	// exotic ones
 	{ "", 													"% chance to " },
 	{ "IATTR_ChanceToCastElementalSpell", 					"% chance to cast random elemental spell on attack" },
@@ -313,131 +347,195 @@ str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
 	{ "IATTR_FlatDotDamage", 								" to damage over time" },
 	{ "IATTR_DotDuration", 									"% increased damage over time duration" },
 	{ "IATTR_StatusBuffs_1", 								"Critical strike chance is lucky" },
-	{ "IATTR_CritIgnoreRes",								"Critical strikes have " }
-};
+	{ "IATTR_CritIgnoreRes",								"Critical strikes have " },
+	{ "IATTR_StatusBuffs_1",								"Curse Immunity" }
+};*/
 
+// if 3rd argument is 0 that means simply use the difference + 1 as increment
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
-	{ 	5, 		20, 		5,		INV_ATTR_TAG_LIFE 										},
-	{ 	5, 		20, 		5,		INV_ATTR_TAG_DEFENSE 									},
-	{ 	2, 		6, 			2,		INV_ATTR_TAG_LIFE										},
-	{ 	2, 		6, 			2,		INV_ATTR_TAG_DEFENSE									},
-	{ 	1, 		10, 		5,		INV_ATTR_TAG_UTILITY 									},
-	{ 	1, 		10, 		5, 		INV_ATTR_TAG_UTILITY									},
-	{ 	0.005, 	0.015, 		1, 		INV_ATTR_TAG_UTILITY									},
-	{ 	0.025, 	0.05, 		2, 		INV_ATTR_TAG_UTILITY									},
-	{ 	5, 		15, 		3, 		INV_ATTR_TAG_UTILITY									},
-	{ 	0.01, 	0.03, 		1,		INV_ATTR_TAG_UTILITY									},
-	{ 	2, 		4, 			2,		INV_ATTR_TAG_UTILITY									},
-
-	{ 	1, 		4, 			1,		INV_ATTR_TAG_ATTACK 									},
-	{ 	1, 		4, 			1, 		INV_ATTR_TAG_ATTACK										},
-	{ 	1, 		4, 			1, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		4, 			1, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
-	{ 	1, 		4, 			1,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	5, 		19, 		0,		INV_ATTR_TAG_LIFE 										},
+	{ 	5, 		19, 		0,		INV_ATTR_TAG_DEFENSE 									},
+	{ 	1, 		6, 			0,		INV_ATTR_TAG_LIFE										},
+	{ 	1, 		6, 			0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	5, 		9, 			7,		INV_ATTR_TAG_UTILITY 									},
+	{ 	5, 		9, 			7, 		INV_ATTR_TAG_UTILITY									},
+	{ 	0.005, 	0.015, 		0, 		INV_ATTR_TAG_UTILITY									},
+	{ 	0.025, 	0.05, 		0, 		INV_ATTR_TAG_UTILITY									},
+	{ 	5, 		14, 		0, 		INV_ATTR_TAG_UTILITY									},
+	{ 	0.01, 	0.03, 		0.04,	INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		9, 			0,		INV_ATTR_TAG_UTILITY									},
 	
-	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE										},
-	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE										},
-	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
-	{ 	2, 		5, 			8,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK 									},
+	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE 									},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	1, 		8, 			2,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 	3, 		8, 			2,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE 									},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
 	
-	{ 	1, 		4, 			4,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
+	{ 	5, 		10, 		10,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
 	
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_UTILITY									},
-	{ 	1, 		3, 			2,		INV_ATTR_TAG_UTILITY									},
-	{ 	1, 		10, 		4,		INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
 	
-	{ 	1, 		25, 		5,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
+	{ 	4, 		8, 			0,		INV_ATTR_TAG_UTILITY									},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		10, 		0,		INV_ATTR_TAG_UTILITY									},
 	
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_CRIT										},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_CRIT										},
-	{ 	1, 		10, 		2,		INV_ATTR_TAG_CRIT										},
+	{ 	10, 	24, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
 	
-	{ 	25, 	100, 		10,		INV_ATTR_TAG_UTILITY									},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_DAMAGE										},
-	{ 	4, 		125, 		20,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_CRIT										},
+	{ 	1, 		10, 		0,		INV_ATTR_TAG_CRIT										},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_CRIT										},
 	
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_STAT										},
+	{ 	50, 	100, 		100,	INV_ATTR_TAG_UTILITY									},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	25, 	124, 		0,		INV_ATTR_TAG_ATTACK										},
 	
-	{ 	1, 		2, 			1,		INV_ATTR_TAG_DEFENSE									},
-	{ 	1, 		2, 			1,		INV_ATTR_TAG_DEFENSE									},
-	{ 	3, 		10, 		2,		INV_ATTR_TAG_DEFENSE									},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
 	
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	1, 		9, 			0,		INV_ATTR_TAG_DEFENSE									},
 	
-	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		3, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
 	// lifesteal
-	{ 	0.05, 	0.125, 		1,		INV_ATTR_TAG_ATTACK										},
+	{ 	0.05, 	0.125, 		0,		INV_ATTR_TAG_ATTACK										},
 	
-	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 	1, 		15, 		1,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_DAMAGE										},
 
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	2, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	2, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 	1, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		15, 		1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	2, 		5, 			2,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	4, 		12, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 	2, 		5, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		10, 		1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		9, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_UTILITY									},
-	{ 	1, 		5, 			2,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_UTILITY				}
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_UTILITY				},
+	
+	// essences
+	{ 	1, 		1, 			1, 		INV_ATTR_TAG_NONE 										}, // vaaj
+	{ 	3,		5,			0,		INV_ATTR_TAG_NONE										}, // ssrath
+	{ 	1001,	1500,		0,		INV_ATTR_TAG_NONE										}, // omnisight 1
+	{ 	2,		5,			0,		INV_ATTR_TAG_NONE										}, // omnisight 2
+	{ 	1,		4,			0,		INV_ATTR_TAG_NONE										}, // chegovax
+	{ 	3,		6,			0,		INV_ATTR_TAG_NONE										}, // harkimonde
+	{ 	5,		9,			0,		INV_ATTR_TAG_NONE										}, // leshrac 1
+	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // leshrac 2
+	{ 	4,		8,			0,		INV_ATTR_TAG_NONE										}, // krull
+	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // thorax
+	{ 	1,		2,			0,		INV_ATTR_TAG_NONE										}, // zravog
+	{ 	8,		17,			0,		INV_ATTR_TAG_NONE										}  // eryxia
 };
 
+str GetInventoryAttributeText(int attr) {
+	if(attr <= LAST_INV_ATTRIBUTE)
+		return StrParam(s:"IATTR_T", d:attr);
+		
+	// essences are mapped to 1 again for language file
+	if(attr <= LAST_ESSENCE_ATTRIBUTE)
+		return StrParam(s:"IATTR_TE", d:attr + 1 - FIRST_ESSENCE_ATTRIBUTE);
+		
+	// only option left is unique exotic attributes
+	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr) - LAST_ESSENCE_ATTRIBUTE);
+}
+
+str GetInventoryAttributeChecker(int attr) {
+	if(attr <= LAST_INV_ATTRIBUTE)
+		return StrParam(s:"IATTR_", l:StrParam(s:"IATTR_L", d:attr));
+		
+	// essences are mapped to 1 again for language file
+	if(attr <= LAST_ESSENCE_ATTRIBUTE)
+		return StrParam(s:"IATTR_", l:StrParam(s:"IATTR_LE", d:attr + 1 - FIRST_ESSENCE_ATTRIBUTE));
+		
+	// only option left is unique exotic attributes
+	return StrParam(s:"IATTR_", l:StrParam(s:"IATTR_LX", d:UNIQUE_MAP_MACRO(attr) - LAST_ESSENCE_ATTRIBUTE));
+}
+
 str ItemAttributeString(int attr, int val) {
+	str text = GetInventoryAttributeText(attr);
+	
 	switch(attr) {
 		case INV_CYBERNETIC:
-			return StrParam(s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+			return StrParam(l:text);
 			
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
-			return StrParam(s:"+ ", f:ftrunc(val * 100), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+			return StrParam(s:"+ ", f:ftrunc(val * 100), l:text);
 		
 		case INV_DMGREDUCE_REFL:
-			return StrParam(s:"+ ", f:ftrunc(val * 0.1), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+			return StrParam(s:"+ ", f:ftrunc(val * 0.1), l:text);
 			
 		case INV_LIFESTEAL:
-			return StrParam(s:"+ ", f:ftrunc(val), s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+			return StrParam(s:"+ ", f:ftrunc(val), l:text);
+			
+		// essences with specific writing
+		case INV_ESS_SSRATH:
+			return StrParam(s:"\c[Q7]", l:text, s: "+ ", d:val, s: "% magic resistance");
+		case INV_ESS_CHEGOVAX:
+			return StrParam(s:"\c[Q7]", l:text, s: "+ ", d:val, s: "%");
+		case INV_ESS_ZRAVOG:
+			return StrParam(s:"\c[Q7]", l:text, d:val, s: "%");
+		case INV_ESS_ERYXIA:
+			return StrParam(s:"\c[Q7]", l:text, d:val, s: "% more damage");
+		// essence with no numeric values
+		case INV_ESS_VAAJ:
+		case INV_ESS_LESHRAC2:
+		case INV_ESS_THORAX:
+			return StrParam(s:"\c[Q7]", l:text);
+		// essences that are like regular mods, just have color code
+		case INV_ESS_HARKIMONDE:
+		case INV_ESS_KRULL:
+		case INV_ESS_OMNISIGHT:
+		case INV_ESS_OMNISIGHT2:
+		case INV_ESS_LESHRAC:
+			return StrParam(s:"\c[Q7]", s:"+ ", d:val, l:text);
 		
 		default:
 			if(val > 0)
-				return StrParam(s:"+ ", d:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+				return StrParam(s:"+ ", d:val, l:text);
 			else if(val < 0)
-				return StrParam(s:"- ", d:val, s:Inv_Attribute_Names[attr][INVATTR_TEXT]);
+				return StrParam(s:"- ", d:val, l:text);
 	}
 	return "";
 }
@@ -446,37 +544,39 @@ str ExoticAttributeString(int attr, int val1, int val2) {
 	// treat it as normal inv attribute range
 	if(attr <= LAST_INV_ATTRIBUTE)
 		return ItemAttributeString(attr, val1);
+		
 	// we must map all exotic ones with the proper macro
+	str text = GetInventoryAttributeText(attr);
 	switch(attr) {
 		case INV_EX_FACTOR_SMALLCHARM:
-		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_FACTOR_SMALLCHARM)][INVATTR_TEXT], f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
+		return StrParam(l:text, f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
 		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
-		return StrParam(d:val1, s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CHANCE)][INVATTR_TEXT], s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CHANCE_HEALMISSINGONPAIN)][INVATTR_TEXT], d:val2, s:"% missing health");
+		return StrParam(d:val1, l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, d:val2, s:"% missing health when hurt");
 		
 		case INV_EX_DAMAGEPER_FLATHEALTH:
-		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_DAMAGEPER_FLATHEALTH)][INVATTR_TEXT], d:val1, s:" maximum health");
+		return StrParam(l:text, d:val1, s:" maximum health");
 		
 		case INV_EX_ONKILL_HEALMISSING:
-		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_ONKILL_HEALMISSING)][INVATTR_TEXT], d:val1, s:"% missing health");
+		return StrParam(l:text, d:val1, s:"% missing health");
 		
 		case INV_EX_ABILITY_RALLY:
-		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_ABILITY_RALLY)][INVATTR_TEXT], d:val1, s:" Rally");
-		
-		case INV_EX_DOUBLE_HEALTHCAP:
-		return Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT];
+		return StrParam(l:text, d:val1, s:" Rally");
 		
 		case INV_EX_CRITIGNORERESCHANCE:
-		return StrParam(s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_CRITIGNORERESCHANCE)][INVATTR_TEXT], d:val1, s:"% chance to ignore enemy resistances");
+		return StrParam(l:text, d:val1, s:"% chance to ignore enemy resistances");
 		
 		// float factor stuff
 		case INV_EX_MORECRIT_LIGHTNING:
-		return StrParam(s:"+ ", f:ftrunc(val1 * 100), s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(INV_EX_MORECRIT_LIGHTNING)][INVATTR_TEXT]);
+		return StrParam(s:"+ ", f:ftrunc(val1 * 100), l:text);
+		
+		case INV_EX_DOUBLE_HEALTHCAP:
+		return StrParam(l:text);
 		
 		default:
 			if(val1)
-				return StrParam(s:"+ ", d:val1, s:Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT]);
-			return Inv_Attribute_Names[UNIQUE_MAP_MACRO(attr)][INVATTR_TEXT];
+				return StrParam(s:"+ ", d:val1, l:text);
+			return StrParam(l:text);
 	}
 	return "";
 }

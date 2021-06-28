@@ -2187,18 +2187,18 @@ Actor DarkServantTrail2 {
 }
 
 Actor HadesBoltExpZealot : BaseExplosionDamage {
-	DamageType "VileMagic"
+	DamageType "VileRedLightning"
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
 Actor HadesBoltExp2Zealot : BaseExplosionDamage {
-	DamageType "VileMagic"
+	DamageType "VileRedLightning"
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
 Actor HadesBoltZealot : HadesBolt {
 	Speed 15
-	Damagetype "VileMagic"
+	Damagetype "VileRedLightning"
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2223,7 +2223,7 @@ Actor HadesBoltZealot : HadesBolt {
 }
 
 Actor HadesBolt2Zealot : HadesBolt2 {
-	DamageType "VileMagic"
+	DamageType "VileRedLightning"
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2296,7 +2296,7 @@ Actor DarkZealotLightning {
 	Damage (5 * random(2, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	+PIERCEARMOR
 	+NODAMAGETHRUST
-	DamageType "VileMagic"
+	DamageType "VileRedLightning"
 	SeeSound "DarkServant/Lightning"
 	DeathSound "DarkServant/LightningHit"
 	States {
@@ -2319,7 +2319,7 @@ Actor DarkZealotPierce {
 	Height 14
 	Radius 8
 	Damage (random(8, 12) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
-	DamageType "VileMagic"
+	DamageType "VileRedLightning"
 	Scale 0.7
 	+RIPPER
 	+THRUGHOST

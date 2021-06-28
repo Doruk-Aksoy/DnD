@@ -1801,7 +1801,8 @@ void SpawnOrb(int pnum, bool sound) {
 void SpawnOrbForAll(int repeats) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
-			SpaWnOrb(j, false);
+			if(PlayerInGame(j) && !PlayerIsSpectator(j))
+				SpawnOrb(j, false);
 		}
 	}
 }

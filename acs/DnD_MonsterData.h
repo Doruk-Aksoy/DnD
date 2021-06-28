@@ -659,6 +659,21 @@ void HandleMonsterClassInnates(int mid, int id) {
 	}
 }
 
+void HandleSpecialTraits(int mid, int id) {
+	if(MonsterProperties[mid].trait_list[DND_REJUVENATING])
+		GiveInventory("Rejuvenate_Script_Run", 1);
+	if(MonsterProperties[mid].trait_list[DND_FORTIFIED]) {
+		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
+			SetInventory("MonsterFortifyCount", MonsterProperties[mid].maxhp * DND_FORTIFY_AMOUNT / 10);
+		else
+			SetInventory("MonsterFortifyCount", MonsterProperties[mid].maxhp);
+	}
+	if(MonsterProperties[mid].trait_list[DND_REPEL])
+		GiveInventory("Repel_Script_Run", 1);
+	if(MonsterProperties[mid].trait_list[DND_CRIPPLE])
+		GiveInventory("Cripple_Script_Run", 1);
+}
+
 void LoadMonsterTraits(int m_id) {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	
@@ -1047,7 +1062,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 1750,			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_THORAX arach
 	{ 1800,			DND_MTYPE_MAGICAL_POW									},//DND_ZRAVOG vile
 	{ 7500,			DND_MTYPE_DEMON_POW										},//DND_ERYXIA
-	{ 8500,			DND_MTYPE_DEMON_POW										}//DND_ABAXOTH
+	{ 8500,			DND_MTYPE_DEMON_POW										} //DND_ABAXOTH
 };
 
 int MonsterPetTypeList[MAX_PET_TYPES] = {
@@ -1868,9 +1883,57 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_GOLGOTH].trait_list[DND_LEGENDARY] = true;
 	
 	// unique monsters
-	// teron
-	// gant
-	// bronn
+	MonsterData[MONSTER_TERON].trait_list[DND_FORTIFIED] = true;
+	
+	MonsterData[MONSTER_GANT].trait_list[DND_FORTIFIED] = true;
+	
+	MonsterData[MONSTER_BRONN].trait_list[DND_FORTIFIED] = true;
+	
+	MonsterData[MONSTER_VAAJ].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_VAAJ].trait_list[DND_ARMORPEN] = true;
+	
+	MonsterData[MONSTER_REMUS].trait_list[DND_TELEPORT] = true;
+	
+	MonsterData[MONSTER_SSRATH].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_SSRATH].trait_list[DND_CURSE] = true;
+	
+	MonsterData[MONSTER_OMNISIGHT].trait_list[DND_TELEPORT] = true;
+	MonsterData[MONSTER_OMNISIGHT].trait_list[DND_MINIONS] = true;
+	
+	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_FORTIFIED] = true;
+	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_BULLET_IMMUNE] = true;
+	
+	MonsterData[MONSTER_ONIMUZ].trait_list[DND_BULLET_RESIST] = true;
+	MonsterData[MONSTER_ONIMUZ].trait_list[DND_HOMING] = true;
+	
+	MonsterData[MONSTER_HARKIMONDE].trait_list[DND_BLOCK] = true;
+	MonsterData[MONSTER_HARKIMONDE].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_HARKIMONDE].trait_list[DND_HOMING] = true;
+	
+	MonsterData[MONSTER_LESHRAC].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_LESHRAC].trait_list[DND_MINIONS] = true;
+	
+	MonsterData[MONSTER_KRULL].trait_list[DND_FORTIFIED] = true;
+	MonsterData[MONSTER_KRULL].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	
+	MonsterData[MONSTER_THORAX].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_THORAX].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_THORAX].trait_list[DND_EXPLOSIVE_RESIST] = true;
+	
+	MonsterData[MONSTER_ZRAVOG].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_ZRAVOG].trait_list[DND_CURSE] = true;
+	MonsterData[MONSTER_ZRAVOG].trait_list[DND_MAGIC_IMMUNE] = true;
+	
+	MonsterData[MONSTER_ERYXIA].trait_list[DND_CURSE] = true;
+	MonsterData[MONSTER_ERYXIA].trait_list[DND_FORTIFIED] = true;
+	MonsterData[MONSTER_ERYXIA].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_FORTIFIED] = true;
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_AGGRESSIVE] = true;
 }
 
 Script "DnD Setup Monster Data" OPEN {

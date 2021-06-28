@@ -135,11 +135,79 @@ Eryxia/Act			ERYXACT
 Eryxia/Retaliate	ERYXRETA
 
 Abaxoth/See			ABAXSEE
-Abaxoth/Pain		ABAXPAIN
-Abaxoth/Act			ABAXACT
+Abaxoth/Pain1		ABAXPAI1
+Abaxoth/Pain2		ABAXPAI2
+Abaxoth/Pain3		ABAXPAI3
+Abaxoth/Pain4		ABAXPAI4
+Abaxoth/Pain5		ABAXPAI5
+Abaxoth/Pain6		ABAXPAI6
+$random Abaxoth/Pain { Abaxoth/Pain1 Abaxoth/Pain2 Abaxoth/Pain3 Abaxoth/Pain4 Abaxoth/Pain5 Abaxoth/Pain6 }
+$rolloff Abaxoth/Pain1 320 1576
+$rolloff Abaxoth/Pain2 320 1576
+$rolloff Abaxoth/Pain3 320 1576
+$rolloff Abaxoth/Pain4 320 1576
+$rolloff Abaxoth/Pain5 320 1576
+$rolloff Abaxoth/Pain6 320 1576
+Abaxoth/Act1		ABAXACT1
+Abaxoth/Act2		ABAXACT2
+Abaxoth/Act3		ABAXACT3
+$random Abaxoth/Act { Abaxoth/Act1 Abaxoth/Act2 Abaxoth/Act3 }
+$rolloff Abaxoth/Act1 320 1576
+$rolloff Abaxoth/Act2 320 1576
+$rolloff Abaxoth/Act3 320 1576
 Abaxoth/Die			ABAXDIE
+$rolloff Abaxoth/Die 320 2048
+Abaxoth/Walk		ABAXWALK
+Abaxoth/DeathBody	ABAXDBOD
 
+Abaxoth/ThunderProc1	ABAXTHP1
+Abaxoth/ThunderProc2	ABAXTHP2
+Abaxoth/ThunderProc3	ABAXTHP3
+Abaxoth/ThunderProc4	ABAXTHP4
+$random Abaxoth/ThunderProc { Abaxoth/ThunderProc1 Abaxoth/ThunderProc2 Abaxoth/ThunderProc3 Abaxoth/ThunderProc4 }
+
+Abaxoth/Bullrush	ABAXBULL
+Abaxoth/MeleeEffort	ABAXMELE
+Abaxoth/LaserLoop	ABAXLAZL
+$rolloff Abaxoth/LaserLoop 400 2048
+Abaxoth/LaserBegin	ABAXLAZR
+$rolloff Abaxoth/LaserBegin 400 2048
+Abaxoth/LaserEnd	ABAXLAZE
+$rolloff Abaxoth/LaserEnd 400 2048
 Abaxoth/TectonicExp1		ABAXEXP2
 $limit Abaxoth/TectonicExp1 16
 Abaxoth/TectonicExp2		ABAXEXP1
 $limit Abaxoth/TectonicExp2 16
+Abaxoth/HammerSwing1		ABAXSWN1
+Abaxoth/HammerSwing2		ABAXSWN2
+Abaxoth/HammerSwing3		ABAXSWN3
+$random Abaxoth/HammerSwing { Abaxoth/HammerSwing1 Abaxoth/HammerSwing2 Abaxoth/HammerSwing3 }
+Abaxoth/MeleeHit1	ABAXHIT1
+Abaxoth/MeleeHit2	ABAXHIT2
+$random Abaxoth/MeleeHit { Abaxoth/MeleeHit1 Abaxoth/MeleeHit2 }
+Abaxoth/ThunderGo		ABAXTHNG
+Abaxoth/Slam1			ABAXSLM1
+$limit Abaxoth/Slam1 0
+Abaxoth/Slam2			ABAXSLM2
+$limit Abaxoth/Slam2 0
+
+Abaxoth/Thunder1	LGSPBNCE
+Abaxoth/Thunder2	LGSPCST1
+Abaxoth/Thunder3	LGSPCST2
+Abaxoth/Thunder4	LGSPCST3
+Abaxoth/Thunder5	ABAXTHNG
+Abaxoth/Thunder6	DREAMTHN
+$random Abaxoth/Thunder	{ Abaxoth/Thunder1 Abaxoth/Thunder2 Abaxoth/Thunder3 Abaxoth/Thunder4 Abaxoth/Thunder5 Abaxoth/Thunder6 }
+
+$limit Abaxoth/Thunder1 0
+$limit Abaxoth/Thunder2 0
+$limit Abaxoth/Thunder3 0
+$limit Abaxoth/Thunder4 0
+$limit Abaxoth/Thunder5 0
+$limit Abaxoth/Thunder6 0
+$rolloff Abaxoth/Thunder1 384 2048
+$rolloff Abaxoth/Thunder2 384 2048
+$rolloff Abaxoth/Thunder3 384 2048
+$rolloff Abaxoth/Thunder4 384 2048
+$rolloff Abaxoth/Thunder5 384 2048
+$rolloff Abaxoth/Thunder6 384 2048

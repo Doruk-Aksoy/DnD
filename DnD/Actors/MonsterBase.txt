@@ -412,6 +412,11 @@ Actor ChaosBolt_Trail {
 	}
 }
 
+Actor DnD_HurtToken : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
 enum {
 	DND_MHR_PERIODIC,
 	DND_MHR_DURATION

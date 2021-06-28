@@ -5123,11 +5123,11 @@ Sprite "NBFPD0", 128, 128
 	}
 }
 
-Sprite "X079A0", 128, 128
+/*Sprite "X079A0", 128, 128
 {
 	Offset 64, 64
 	Patch "X079A0", 0, 0
-}
+}*/
 
 Sprite "X079B0", 128, 128
 {
@@ -5190,6 +5190,13 @@ Sprite "X079H0", 128, 128
 	{
 		FlipX
 	}
+}
+
+Sprite "AR15B0", 49, 41
+{
+	XScale 0.600
+	YScale 0.600
+	Patch "AR15A0", 0, 0
 }
 
 // End of texture definitions

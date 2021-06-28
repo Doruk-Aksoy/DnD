@@ -83,6 +83,9 @@ str Research_Label[MAX_RESEARCHES] = {
 	"Impact Protection - II",
 	"Impact Protection - III",
 	
+	"Synth-metal Armor",
+	"Synth-metal Mask",
+	
 	"Increased Stash Tabs"
 };
 
@@ -193,6 +196,10 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_IMP2 },
 	{ RESF_NODROP, -1},
 	
+	// unique monster drops
+	{ RESF_NODROP, -1},
+	{ RESF_NODROP, -1},
+	
 	{ 0, -1 },
 };
 
@@ -231,8 +238,12 @@ str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
 void GiveResearch(int res_id, bool fancy) {
 	if(fancy)
 		ACS_NamedExecuteAlways("DnD Research Fancy Message", 0, res_id);
-	if(res_id > 30) {
-		res_id %= 31;
+	if(res_id > DND_RESEARCH_MAXBITS2) {
+		res_id %= DND_RESEARCH_BITMOD;
+		SetInventory("Research_Discovered_3", SetBit(CheckInventory("Research_Discovered_3"), res_id));
+	}
+	else if(res_id > DND_RESEARCH_MAXBITS1) {
+		res_id %= DND_RESEARCH_BITMOD;
 		SetInventory("Research_Discovered_2", SetBit(CheckInventory("Research_Discovered_2"), res_id));
 	}
 	else
@@ -259,8 +270,10 @@ void HandleDependentResearch(int res_id) {
 }
 
 void CompleteResearch(int res_id) {
-	// Remember: Actor inventory max value is 31 bits (signed, and min is 0).
-	if(res_id > 30)
+	// Remember: Actor inventory max value is 32 bits (signed, and min is 0).
+	if(res_id > DND_RESEARCH_MAXBITS2)
+		SetInventory("Research_Done_3", SetBit(CheckInventory("Research_Done_3"), res_id % 31));
+	else if(res_id > DND_RESEARCH_MAXBITS1)
 		SetInventory("Research_Done_2", SetBit(CheckInventory("Research_Done_2"), res_id % 31));
 	else
 		SetInventory("Research_Done_1", SetBit(CheckInventory("Research_Done_1"), res_id));
@@ -271,6 +284,8 @@ void CompleteResearch(int res_id) {
 		DoubleSpecialAmmoCapacity();
 	if(res_id == RES_MEDKITSTORE)
 		GiveInventory("MedkitItem", 1);
+	if(res_id == RES_SYNTHMASK)
+		GiveInventory("SynthMaskToken", 1);
 }
 
 bool HasIncompleteResearches() {

@@ -433,7 +433,7 @@ Actor Helemental : DnD_BaseHybridMonster {
 
 Actor HadesBall : CacodemonBall {
 	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "PaineMagic"  
+	DamageType "PaineRedLightning"  
 	Speed 15
 	Alpha 0.80
 	+ThruGhost
@@ -455,7 +455,7 @@ Actor HadesBall : CacodemonBall {
 }
 
 Actor HadesBoltExp : BaseExplosionDamage {
-	DamageType "PaineExp"
+	DamageType "PaineRedLightning"
 	Obituary "%o was electrocuted by a Hades-Elemental."
 	States {
 		Spawn:
@@ -466,7 +466,7 @@ Actor HadesBoltExp : BaseExplosionDamage {
 }
 
 Actor HadesBoltExp2 : BaseExplosionDamage {
-	DamageType "PaineExp"
+	DamageType "PaineRedLightning"
 	Obituary "%o was electrocuted by a Hades-Elemental."
 	States {
 		Spawn:
@@ -482,7 +482,7 @@ Actor HadesBolt {
 	Radius 8
 	Height 24
 	PROJECTILE
-	Damagetype "Paine"
+	Damagetype "PaineRedLightning"
 	SeeSound "weapons/none"
 	DeathSound "weapons/gntidl"
 	YScale 4.0
@@ -519,7 +519,7 @@ Actor HadesBolt2 : CacodemonBall {
 	Damage 0
 	Speed 184
 	RenderStyle None
-	DamageType "Paine"
+	DamageType "PaineRedLightning"
 	+ThruActors
 	SeeSound "Monster/hadtel"
 	DeathSound "Monster/hadsit"

@@ -82,6 +82,39 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 	
 	while(i < count) {
 		do {
+			roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		AddAttributeToCharm(charm_pos, roll);
+		++i;
+	}
+}
+
+void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3) {
+	// roll random attributes for the charm
+	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
+	int count = random(2, 2 * (charm_type + 1)) - 1 - (m2 != -1) - (m3 != -1);
+	int i = 0, roll;
+	Inventories_On_Field[charm_pos].item_level = charm_tier;
+	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack
+	Inventories_On_Field[charm_pos].item_type = DND_ITEM_CHARM;
+	Inventories_On_Field[charm_pos].item_subtype = charm_type;
+	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
+	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + charm_type;
+	switch(charm_type) {
+		case DND_CHARM_SMALL:
+			Inventories_On_Field[charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
+		break;
+		case DND_CHARM_MEDIUM:
+			Inventories_On_Field[charm_pos].item_image = random(DND_MEDIUMCHARM_IMAGEBEGIN, DND_MEDIUMCHARM_IMAGEEND);
+		break;
+		case DND_CHARM_LARGE:
+			Inventories_On_Field[charm_pos].item_image = random(DND_LARGECHARM_IMAGEBEGIN, DND_LARGECHARM_IMAGEEND);
+		break;
+	}
+	
+	// the guaranteed mods are subtracted from random rolls
+	while(i < count) {
+		do {
 			#ifdef ISDEBUGBUILD
 				roll = random(INV_POISON_TICRATE, LAST_INV_ATTRIBUTE);
 			#else
@@ -91,24 +124,62 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 		AddAttributeToCharm(charm_pos, roll);
 		++i;
 	}
+	
+	// add the guaranteed mods
+	AddAttributeToCharm(charm_pos, m1);
+	if(m2 != -1)
+		AddAttributeToCharm(charm_pos, m2);
+	if(m3 != -1)
+		AddAttributeToCharm(charm_pos, m3);
 }
 
 // can only add attributes to charms that are about to be created ie. on field dropped from monster
 void AddAttributeToCharm(int charm_pos, int attrib) {
 	if(Inventories_On_Field[charm_pos].attrib_count < Charm_MaxAffixes[Inventories_On_Field[charm_pos].item_subtype]) {
 		int temp = Inventories_On_Field[charm_pos].attrib_count++;
-		int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * Inventories_On_Field[charm_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, MAX_ATTRIB_MODIFIER);
+		int lvl = Inventories_On_Field[charm_pos].item_level;
+		
+		// 10% chance to roll a tier up or down
+		if(!random(0, 9))
+			++lvl;
+		else if(!random(0, 9))
+			--lvl;
+		
+		// force within bounds
+		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
+		
+		int val = (Inv_Attribute_Info[attrib].attrib_level_modifier * lvl) / CHARM_ATTRIBLEVEL_SEPERATOR;
+
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low * mod, Inv_Attribute_Info[attrib].attrib_high * mod);
+		
+		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low + val + (val != 0), Inv_Attribute_Info[attrib].attrib_high + val);
 	}
 }
 
 void AddAttributeToItem(int item_pos, int attrib) {
 	int pnum = PlayerNumber();
 	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
-	int mod = Clamp_Between((Inv_Attribute_Info[attrib].attrib_level_modifier * PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR, 1, MAX_ATTRIB_MODIFIER);
+	int lvl = PlayerInventoryList[pnum][item_pos].item_level;
+	
+	// 10% chance to roll a tier up or down
+	if(!random(0, 9))
+		++lvl;
+	else if(!random(0, 9))
+		--lvl;
+	
+	// force within bounds
+	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
+	
+	int val = 0;
+	
+	if(!Inv_Attribute_Info[attrib].attrib_level_modifier)
+		val = (Inv_Attribute_Info[attrib].attrib_high - Inv_Attribute_Info[attrib].attrib_low + 1) * lvl / CHARM_ATTRIBLEVEL_SEPERATOR;
+	else
+		val = (Inv_Attribute_Info[attrib].attrib_level_modifier * lvl) / CHARM_ATTRIBLEVEL_SEPERATOR;
+	
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
-	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low * mod, Inv_Attribute_Info[attrib].attrib_high * mod);
+	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low + val, Inv_Attribute_Info[attrib].attrib_high + val);
 }
 
 // monsters dropping charms
@@ -135,6 +206,24 @@ void SpawnCharm(int pnum, bool isElite) {
 		}
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+	}
+}
+
+// creates a charm with given mods as guaranteed
+void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		RollCharmInfoWithMods(c, RollItemLevel(), m1, m2, m3);
+		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+	}
+}
+
+void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && !PlayerIsSpectator(i))
+			SpawnCharmWithMods(i, m1, m2, m3);
 	}
 }
 

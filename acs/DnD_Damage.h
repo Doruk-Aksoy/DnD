@@ -585,6 +585,10 @@ bool IsBulletDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_PHYSICAL && damage_type <= DND_DAMAGETYPE_SILVERBULLET;
 }
 
+bool IsExplosionDamage(int damage_type) {
+	return damage_type == DND_DAMAGETYPE_ENERGYEXPLOSION || damage_type == DND_DAMAGETYPE_OCCULTEXPLOSION || damage_type == DND_DAMAGETYPE_EXPLOSIVES;
+}
+
 bool IsEnergyDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_ENERGY && damage_type <= DND_DAMAGETYPE_ENERGYEXPLOSION;
 }
@@ -630,6 +634,8 @@ int GetResistPenetration(int category) {
 		return CheckInventory("IATTR_OccultPen");
 		case DND_DAMAGECATEGORY_ELEMENTAL:
 		return CheckInventory("IATTR_ElementalPen");
+		case DND_DAMAGECATEGORY_SOUL:
+		return CheckInventory("IATTR_OccultPen") + CheckInventory("IATTR_SoulPenetration");
 	}
 	return 0;
 }
@@ -741,12 +747,13 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	
 	// for now, just add full suffix at the end, later we'll instead make them bypass resists properly with numbers
 	if(
-		CheckActorInventory(source, "NetherCheck") 																				|| 
-		(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																					||
-		(IsOccultDamage(damage_type) && CheckActorInventory(source, "DnD_QuestReward_DreamingGodBonus"))						||
-		(IsEnergyDamage(damage_type) && CheckActorInventory(source, "Cyborg_Perk50")) 											||
-		(damage_type == DND_DAMAGETYPE_SOUL && CheckActorInventory(source, "StatbuffCounter_SoulWepsDoFullDamage"))				||
-		((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckActorInventory(source, "Hobo_Perk50"))
+		CheckActorInventory(source, "NetherCheck") 																	|| 
+		(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
+		(IsOccultDamage(damage_type) && CheckInventory("DnD_QuestReward_DreamingGodBonus"))							||
+		(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
+		(IsExplosionDamage(damage_type) && CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))					||
+		(damage_type == DND_DAMAGETYPE_SOUL && CheckInventory("StatbuffCounter_SoulWepsDoFullDamage"))				||
+		((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"))
 	) 
 	{
 		// no need for this suffix anymore
@@ -756,9 +763,13 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 
 	// check blocking status of monster -- if they are and we dont have foilinvul on this, no penetration
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING] && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
-		if(pnum != -1)
-			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
-		return;
+		temp = CheckInventory("IATTR_ChanceIgnoreShield");
+		// we have 0 chance  or we have chance but it didn't roll in our favor
+		if(!temp || temp < random(1, 100)) {
+			if(pnum != -1)
+				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
+			return;
+		}
 	}
 	
 	// pain checks
@@ -1400,6 +1411,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid) {
 		// frozen monsters cant retaliate		
 		if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_FreezeTimer"))
 			GiveActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_ViolentRetaliationItem", 1);
+		GiveActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_HurtToken", 1);
 	}
 	
 	// printbold(s:"do dmg numbers: ", d:pnum);
@@ -1459,7 +1471,13 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 
 Script "DnD Do Poison Damage" (int victim, int dmg) {
 	int time_limit = DND_BASE_POISON_TIMER * (100 + CheckInventory("IATTR_PoisonDuration") + CheckInventory("IATTR_DotDuration")) / 100;
-	int counter = 0, tics = DND_BASE_POISON_TIC;
+	int trigger_tic = DND_BASE_POISON_TIC * (100 - CheckInventory("IATTR_PoisonTicrate")) / 100;
+	int tic_temp = trigger_tic;
+	int counter = 0;
+	
+	// divide trigger tic count by half to make it twice as fast -- if poison ticrate is 100% reduction we'll do poison damage at every 2 tics, which is the most one would need
+	if(CheckInventory("StatbuffCounter_PoisonTicTwiceFast"))
+		trigger_tic /= 2;
 
 	// scale received percentage of damage with flat bonuses
 	if(!dmg)
@@ -1468,12 +1486,14 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
-		if(counter >= tics) {
+		if(counter >= trigger_tic) {
 			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
-			tics += DND_BASE_POISON_TIC;
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
+			
+			// go up to the next threshold for next tic etc.
+			trigger_tic += tic_temp;
 		}
-		counter += 0.1 * (100 + CheckInventory("IATTR_PoisonTicrate")) / 100;
+		counter += 0.1;
 		Delay(const:2);
 	}
 	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
@@ -1572,6 +1592,7 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 
 Script "DnD Monster Ignite" (int victim) {
 	int dmg = (DND_BASE_IGNITEDMG + CheckInventory("IATTR_FlatFireDmg") + CheckInventory("IATTR_FlatDotDamage")) * (100 + CheckInventory("IATTR_IgniteDmg")) / 100;
+	int dmg_tic_buff = CheckInventory("IATTR_IgniteDamageEachTic");
 	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, TALENT_ELEMENTAL);
 	
 	while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim)) {
@@ -1582,6 +1603,8 @@ Script "DnD Monster Ignite" (int victim) {
 		HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH);
 		if(random(0, 1))
 			GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
+			
+		dmg += (dmg * dmg_tic_buff) / 100;
 	}
 	
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);

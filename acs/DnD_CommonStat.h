@@ -80,7 +80,7 @@ enum {
 
 #define PERK_MEDICBONUS 10 // percent
 #define PERK_MEDICSTOREBONUS 15
-#define PERK_DEADLINESS_BONUS 0.02
+#define PERK_DEADLINESS_BONUS 0.01 // 1%
 
 #define DND_BUL_KNOCKBACK_GAIN 25
 #define DND_STR_KNOCKBACK_GAIN 50
@@ -183,7 +183,11 @@ enum {
 	DND_STATBUFF_SOULWEPSFULLDAMAGE,
 	DND_STATBUFF_SPELLSDOFULLDAMAGE,
 	DND_STATBUFF_SLAINMONSTERSRIP,
-	DND_STATBUFF_LUCKYCRITS
+	DND_STATBUFF_LUCKYCRITS,
+	DND_STATBUFF_CURSEIMMUNITY,
+	DND_STATBUFF_EXPLOSIVEIGNORERES,
+	DND_STATBUFF_POISONTICTWICEFAST,
+	DND_STATBUFF_HOMINGDONTREFLECT
 };
 
 enum {
@@ -309,17 +313,24 @@ int GetSpawnHealth() {
 	return res;
 }
 
+void HandleCurseImmunityRemoval() {
+	// if not marine and level less than 50, take it
+	// we shouldnt immediately take it as there might be other ways the player has obtained curse immunity
+	bool isMarine = isPlayerClass(DND_PLAYER_MARINE);
+	if((!isMarine || CheckInventory("Level") < 50) && !CheckInventory("StatbuffCounter_CurseImmunity"))
+		TakeInventory("CurseImmunity", 1);
+}
+
 // Generic Player RPG Stat restore function
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
-
 	// perks
 	if((statflag & RES_PERK_SHARP) && CheckInventory("Perk_Sharpshooting"))
 		GiveInventory(StrParam(s:"Damage_Perk_", d:CheckInventory("Perk_Sharpshooting") * SHARPSHOOTING_DAMAGE), 1);
 	if((statflag & RES_PERK_ENDURANCE) && CheckInventory("Perk_Endurance"))
 		GiveInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * ENDURANCE_RESIST), 1);
-	if((statflag & RES_ACCURACY) && GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE))
-		SetActorProperty(0, APROP_ACCURACY, GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE));
+	if(statflag & RES_ACCURACY)
+		CalculatePlayerAccuracy(pnum);
 	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS))
 		SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS));
 	if(statflag & RES_PLAYERSPEED)
@@ -362,6 +373,7 @@ void RestoreRPGStat (int statflag) {
 	if(CheckInventory("GryphonCheck")) {
 		GiveInventory("GryphonSpeed", 1);
 		GiveInventory("CurseImmunity", 1);
+	}
 	if(CheckInventory("LichCheck"))
 		GiveInventory("LichPower", 1);
 	if(CheckInventory("CelestialCheck"))
@@ -372,7 +384,12 @@ void RestoreRPGStat (int statflag) {
 		GiveInventory("PoisonResist", 1);
 	if(CheckInventory("Ability_ExplosionMastery"))
 		GiveInventory("ExplosionResistAbility", 1);
-	}
+	
+	if(CheckResearchStatus(RES_SYNTHMASK) == RES_DONE)
+		GiveInventory("SynthMaskToken", 1);
+		
+	if(CheckInventory("StatbuffCounter_CurseImmunity"))
+		GiveInventory("CurseImmunity", 1);
 	
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
@@ -385,13 +402,20 @@ str GetPlayerAttributeString(int attrib) {
 	// there are sometimes those that directly invoke this, so we must add a failsafe for them too
 	if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return Inv_Attribute_Names[attrib][INVATTR_CHECKER];
+	return GetInventoryAttributeChecker(attrib);
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
 	if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return CheckActorInventory(pnum + P_TIDSTART, Inv_Attribute_Names[attrib][INVATTR_CHECKER]);
+	return CheckActorInventory(pnum + P_TIDSTART, GetInventoryAttributeChecker(attrib));
+}
+
+void CalculatePlayerAccuracy(int pnum) {
+	int acc = GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE);
+	// omnisight essence gives % increased accuracy
+	acc += (acc * GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT)) / 100;
+	SetActorProperty(0, APROP_ACCURACY, acc);
 }
 
 void HandleResearchBonuses() {

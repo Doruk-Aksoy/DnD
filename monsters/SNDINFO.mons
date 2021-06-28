@@ -1073,7 +1073,6 @@ widowmaker/pain         WDMKPAIN
 $random widowmaker/act {widowmaker/act1 widowmaker/act2 widowmaker/act3}
 widowmaker/act1 BDGACT1
 widowmaker/act2 BDGACT2
-weapons/tp_fire TP_FIRE
 sfx/psmallexplo	 PSMEXP
 sfx/cannonblast SLGBOOM
 shockgrunt/cycle        CHAINREL

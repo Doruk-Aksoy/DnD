@@ -31,6 +31,8 @@ bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
 #define BLOODRUNE_LIFESTEAL_AMT 30.0
 #define BLOODRUNE_LIFESTEAL_AMT2 45.0
 
+#define DND_SYNTHMASK_EFFECT 4
+
 enum {
 	DND_ANNOUNCER_QUEST,
 	DND_ANNOUNCER_ATTRIBPOINT,
@@ -112,9 +114,10 @@ enum {
 	DND_ARMOR_DUELIST,
 	DND_ARMOR_NECRO,
 	DND_ARMOR_KNIGHT,
-	DND_ARMOR_RAVAGER
+	DND_ARMOR_RAVAGER,
+	DND_ARMOR_SYNTHMETAL
 };
-#define MAXARMORS DND_ARMOR_RAVAGER + 1
+#define MAXARMORS (DND_ARMOR_SYNTHMETAL + 1)
 
 str ArmorTypes[MAXARMORS] = {
 	"ArmorBonus",
@@ -134,7 +137,8 @@ str ArmorTypes[MAXARMORS] = {
 	"DuelistArmor",
 	"NecroArmor",
 	"KnightArmor",
-	"RavagerArmor"
+	"RavagerArmor",
+	"SynthmetalArmor"
 };
 
 int ArmorBaseAmounts[MAXARMORS] = {
@@ -155,7 +159,8 @@ int ArmorBaseAmounts[MAXARMORS] = {
 	250,
 	400,
 	400,
-	250
+	250,
+	400
 };
 
 enum {
@@ -567,9 +572,7 @@ void DecideAccessories() {
 		UpdatePlayerKnockbackResist();
 	}
 	else {
-		// if not marine and level less than 50, take it
-		if(CheckInventory("DnD_Character") - 1 != DND_PLAYER_MARINE || CheckInventory("Level") < 50)
-			TakeInventory("CurseImmunity", 1);
+		HandleCurseImmunityRemoval();
 		TakeInventory("GryphonCheck", 1);
 		TakeInventory("GryphonSpeed", 1);
 	}

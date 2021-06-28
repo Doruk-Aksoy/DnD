@@ -19,10 +19,10 @@ enum {
 	SHI_BLUEARMOR,
 	SHI_REDARMOR,
 	SHI_BACKPACK,
-	SHI_TALENTCAP
+	SHI_SYNTHMETALARMOR
 };
 
-#define MAX_SHARED_ITEM_TYPES (SHI_TALENTCAP + 1)
+#define MAX_SHARED_ITEM_TYPES (SHI_SYNTHMETALARMOR + 1)
 str SharedItemMessage[MAX_SHARED_ITEM_TYPES] = { 
 	"\ccHealth pickup : \c[Y5]Stimpack x 10\c-",
 	"\ccHealth pickup : \c[Y5]Medikit x 25\c-",
@@ -31,7 +31,7 @@ str SharedItemMessage[MAX_SHARED_ITEM_TYPES] = {
 	"\ccArmor pickup  : \c[Y5]Blue Armor 50%\c-",
 	"\ccArmor Pickup  : \c[Y5]Red Armor 75%\c-",
 	"\ccItem Pickup   : \c[Y5]Backpack\c-",
-	"\ccBonus pickup  : \c[Y5]Talent Capsule\c-"
+	"\ccArmor Pickup  : \c[Y5]Synth-metal Armor 65%\c-"
 };
 
 str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
@@ -42,7 +42,7 @@ str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 	"BlueArmor_SP",
 	"RedArmor_SP",
 	"Backpack_SP",
-	"TalentCapsule_SP"
+	"Synthmetal_SP"
 };
 
 // these all can be grouped into a struct to save variable space
@@ -83,33 +83,41 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 					GiveInventory("RedArmorMsg", 1);
 					pickedup = true;
 				}
-				break;
+			break;
 			case SHI_BLUEARMOR:
 				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
 					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_BLUE, 200);
 					GiveInventory("BlueArmorMsg", 1);
 					pickedup = true;
 				}
-				break;
+			break;
 			case SHI_YELLOWARMOR:
 				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
 					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_YELLOW, 150);
 					GiveInventory("YellowArmorMsg", 1);
 					pickedup = true;
 				}
-				break;
+			break;
 			case SHI_GREENARMOR:
 				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
 					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_GREEN, 100);
 					GiveInventory("GreenArmorMsg", 1);
 					pickedup = true;
 				}
-				break;
+			break;
+			case SHI_SYNTHMETALARMOR:
+				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 400, DND_ARMOR_SYNTHMETAL)) {
+					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_SYNTHMETAL, 400);
+					GiveInventory("SynthmetalArmorMsg", 1);
+					ACS_NamedExecuteAlways("DnD Give Research - Regular", 0, RES_SYNTHMETALARMOR, 1);
+					pickedup = true;
+				}
+			break;
 			case SHI_BACKPACK:
 				GiveInventory("NewBackpack", 1);
 				GiveInventory("BackpackPickMSG", 1);
 				pickedup = true;
-				break;
+			break;
 			case SHI_STIMPACK:
 				//printBold(s:"before stimpack", d:closest);
 				if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
@@ -118,14 +126,14 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 					GiveInventory("StimpackMsg", 1);
 					pickedup = true;
 				}
-				break;
+			break;
 			case SHI_MEDKIT:
 				if(!CheckInventory("TaltosUp") && ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 0)) {
 					ACS_NamedExecuteWithResult("DnD Health Pickup", 25);
 					GiveInventory("MedikitMsg", 1);
 					pickedup = true;
 				}
-				break;
+			break;
 		}
 		if(pickedup) {
 			Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum] = 1;

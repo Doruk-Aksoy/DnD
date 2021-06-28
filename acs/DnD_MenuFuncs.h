@@ -275,10 +275,10 @@ void DrawCornerText(int opt, int boxid) {
 				toshow = "Increase Ammo Gain by 10%";
 			break;
 			case MBOX_7:
-				toshow = "Gives 2% Chance to Critical Strike";
+				toshow = "Gives 1% Chance to Critical Strike";
 			break;
             case MBOX_8:
-                toshow = "Gives 10% extra damage to your crits";
+                toshow = "Gives 10% Critical Strike Damage";
             break;
 			case MBOX_9:
 				toshow = "15% increased drop chance";
@@ -1864,6 +1864,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
+			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ -1, -1, -1, -1 }
 		},
 		// account

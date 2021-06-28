@@ -33,7 +33,7 @@ enum {
 	UITEM_DEADKINGBANNER,
 	// S - + 5 - 10 flat damage to damage over time effects, 50 - 100% increased damage over time duration
 	UITEM_PAINMASTER,
-	// M - Crit chance is lucky, Critical hits have 20 - 35% chancce to ignore all resists
+	// M - Crit chance is lucky, Critical hits have 20 - 35% chance to ignore all resists
 	UITEM_VOIDEMBLEM
 };
 

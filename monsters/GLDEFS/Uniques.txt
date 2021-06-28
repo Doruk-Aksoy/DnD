@@ -160,6 +160,18 @@ Object OmniBall {
 	Frame UP06I { Light HadesBall7 }
 }
 
+object Chegovax {
+	frame UE07R { light LOSTSOUL_X1 }
+	frame UE07S { light LOSTSOUL_X1 }
+	frame UE07T { light LOSTSOUL_X2 }
+	frame UE07U { light LOSTSOUL_X3 }
+	frame UE07V { light LOSTSOUL_X4 }
+	frame UE07W { light LOSTSOUL_X4 }
+	frame UE07X { light LOSTSOUL_X4 }
+	frame UE07Y { light LOSTSOUL_X4 }
+	frame UE07Z { light LOSTSOUL_X4 }
+}
+
 Object HarkimondeFlameTracer
 {
 	Frame FTRAK { Light DiabloistTracer11 }
@@ -578,4 +590,106 @@ flickerlight AbaxothLightning2
     size 20
     secondarySize 28
     chance 0.3
+}
+
+flickerlight AbaxothThunderLight {
+	color 0.55 0.55 1.0
+	size 120
+	secondarysize 160
+	chance 0.5
+}
+
+pointlight AbaxothThunderLight2 {
+	color 0.675 0.675 1.0
+	size 160
+}
+
+pointlight AbaxothRocketLight {
+	color 1.0 0.6 0.0
+	size 120
+	offset 0 60 0
+}
+
+flickerlight AbaxothLaserLight {
+	color 1.0 0.225 0.225
+	size 90
+	secondarySize 128
+	chance 0.33
+	offset 20 30 0
+}
+
+pointlight AbaxothBlueLight
+{
+	color 0.35 0.35 0.875
+	size 64
+}
+
+object AbaxothThunderRetaliation {
+	frame HSPL { light AbaxothBlueLight }
+	frame HSP2 { light AbaxothBlueLight }
+}
+
+pointlight AbaxothDeathLight1 {
+	color 1.0 0.6 0.0
+	size 40
+}
+
+pointlight AbaxothDeathLight2 {
+	color 1.0 0.6 0.0
+	size 56
+}
+
+flickerlight AbaxothDeathLight3 {
+	color 1.0 0.6 0.0
+	size 64
+	secondarysize 96
+	chance 0.33
+}
+
+pointlight AbaxothDeathLight4 {
+	color 1.0 0.6 0.0
+	size 96
+}
+
+pointlight AbaxothDeathLight5 {
+	color 1.0 0.6 0.0
+	size 128
+}
+
+pointlight AbaxothDeathLight6 {
+	color 1.0 0.6 0.0
+	size 160
+}
+
+pointlight AbaxothDeathLight7 {
+	color 1.0 0.6 0.0
+	size 112
+}
+
+pointlight AbaxothDeathLight8 {
+	color 1.0 0.6 0.0
+	size 72
+}
+
+pointlight AbaxothDeathLight9 {
+	color 1.0 0.6 0.0
+	size 48
+}
+
+object Abaxoth {
+	frame UE16F { light AbaxothRocketLight }
+	frame UE16J { light AbaxothLaserLight }
+	
+	frame UP23D { light AbaxothDeathLight1 }
+	frame UP23E { light AbaxothDeathLight2 }
+	frame UP23F { light AbaxothDeathLight3 }
+	frame UP23G { light AbaxothDeathLight3 }
+	frame UP23H { light AbaxothDeathLight3 }
+	frame UP23I { light AbaxothDeathLight3 }
+	frame UP23J { light AbaxothDeathLight4 }
+	frame UP23K { light AbaxothDeathLight5 }
+	frame UP23L { light AbaxothDeathLight6 }
+	frame UP23M { light AbaxothDeathLight7 }
+	frame UP23N { light AbaxothDeathLight8 }
+	frame UP23O { light AbaxothDeathLight9 }
 }

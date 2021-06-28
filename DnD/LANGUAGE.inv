@@ -1,0 +1,147 @@
+[enu default]
+
+IATTR_Prefix 	= "IATTR_"
+
+// inventory attribute table
+IATTR_L0 		= "FlatHP";									IATTR_T0 			= " Health";
+IATTR_L1 		= "FlatArmor"; 								IATTR_T1 			= " Armor";
+IATTR_L2 		= "HPPercent"; 								IATTR_T2 			= "% Health";
+IATTR_L3 		= "ArmorPercent"; 							IATTR_T3 			= "% Armor";
+IATTR_L4 		= "ExpBonus"; 								IATTR_T4 			= "% more exp gain";
+IATTR_L5 		= "CreditBonus"; 							IATTR_T5 			= "% more credit gain";
+IATTR_L6 		= "DropChanceBonus"; 						IATTR_T6 			= "% more loot";
+IATTR_L7 		= "LuckBonus"; 								IATTR_T7 			= "% increased chance of finding loot";
+IATTR_L8 		= "AmmoCapBonus"; 							IATTR_T8 			= "% increased ammo capacities";
+IATTR_L9 		= "SpeedBonus"; 							IATTR_T9 			= "% Speed";
+IATTR_L10 		= "MagazineIncrease"; 						IATTR_T10 			= "% magazine size";
+	
+IATTR_L11 		= "FlatDamageBonus_Physical"; 				IATTR_T11 			= " to physical damage";
+IATTR_L12 		= "FlatDamageBonus_Energy"; 				IATTR_T12 			= " to energy damage";
+IATTR_L13 		= "FlatDamageBonus_Explosive"; 				IATTR_T13 			= " to explosive damage";
+IATTR_L14 		= "FlatDamageBonus_Magic"; 					IATTR_T14 			= " to occult damage";
+IATTR_L15 		= "FlatDamageBonus_Elemental"; 				IATTR_T15 			= " to elemental damage";
+	
+IATTR_L16 		= "PercentDamageBonus_Physical"; 			IATTR_T16 			= "% increased physical damage";
+IATTR_L17 		= "PercentDamageBonus_Energy"; 				IATTR_T17 			= "% increased  energy damage";
+IATTR_L18 		= "PercentDamageBonus_Explosive"; 			IATTR_T18 			= "% increased explosive damage";
+IATTR_L19 		= "PercentDamageBonus_Magic"; 				IATTR_T19 			= "% increased occult damage";
+IATTR_L20 		= "PercentDamageBonus_Elemental"; 			IATTR_T20 			= "% increased elemental damage";
+	
+IATTR_L21 		= "SlotDamageBonus_1"; 						IATTR_T21 			= "% slot 1 weapon damage";
+IATTR_L22 		= "SlotDamageBonus_2"; 						IATTR_T22 			= "% slot 2 weapon damage";
+IATTR_L23 		= "SlotDamageBonus_3"; 						IATTR_T23 			= "% slot 3 weapon damage";
+IATTR_L24 		= "SlotDamageBonus_4"; 						IATTR_T24 			= "% slot 4 weapon damage";
+IATTR_L25 		= "SlotDamageBonus_5"; 						IATTR_T25 			= "% slot 5 weapon damage";
+IATTR_L26 		= "SlotDamageBonus_6"; 						IATTR_T26 			= "% slot 6 weapon damage";
+IATTR_L27 		= "SlotDamageBonus_7"; 						IATTR_T27 			= "% slot 7 weapon damage";
+IATTR_L28 		= "SlotDamageBonus_8"; 						IATTR_T28 			= "% slot 8 weapon damage";
+IATTR_L29 		= "SlotDamageBonus_9"; 						IATTR_T29 			= "% temporary weapon damage";
+	
+IATTR_L30 		= "PelletIncrease"; 						IATTR_T30 			= "% more pellets";
+	
+IATTR_L31 		= "ExplosionRadiusIncrease"; 				IATTR_T31 			= "% increased explosion radius";
+IATTR_L32 		= "ExplosionResist"; 						IATTR_T32 			= "% reduced self explosion damage";
+	
+IATTR_L33 		= "AmmoGainChance"; 						IATTR_T33 			= "% chance to gain ammo back on firing";
+IATTR_L34 		= "AmmoPickupIncrease"; 					IATTR_T34 			= "% ammo gain from pickups";
+IATTR_L35 		= "ShopStockIncrease"; 						IATTR_T35 			= "% increased shop stock";
+	
+IATTR_L36 		= "RegenCap"; 								IATTR_T36 			= " regeneration cap";
+	
+IATTR_L37 		= "CritChance"; 							IATTR_T37 			= "% to crit chance";
+IATTR_L38 		= "CritChancePercent"; 						IATTR_T38 			= "% increased crit chance";
+IATTR_L39 		= "CritDamage"; 							IATTR_T39 			= "% additional crit damage";
+	
+IATTR_L40 		= "KnockbackResist"; 						IATTR_T40 			= " to knockback resist";
+IATTR_L41 		= "DamagePercent"; 							IATTR_T41 			= "% increased damage";
+IATTR_L42 		= "Accuracy"; 								IATTR_T42 			= " to accuracy rating";
+	
+IATTR_L43 		= "StatBonus_STR"; 							IATTR_T43 			= " to strength";
+IATTR_L44 		= "StatBonus_DEX";							IATTR_T44 			= " to dexterity";
+IATTR_L45 		= "StatBonus_BUL"; 							IATTR_T45 			= " to bulkiness";
+IATTR_L46 		= "StatBonus_CHR"; 							IATTR_T46 			= " to charisma";
+IATTR_L47 		= "StatBonus_VIT"; 							IATTR_T47 			= " to vitality";
+IATTR_L48 		= "StatBonus_INT"; 							IATTR_T48 			= " to intellect";
+	
+IATTR_L49 		= "ElementalResist"; 						IATTR_T49 			= "% reduced elemental damage taken";
+IATTR_L50 		= "PhysicalResist"; 						IATTR_T50 			= "% reduced physical damage taken";
+IATTR_L51 		= "ReflectResist"; 							IATTR_T51 			= "% reduced reflected damage taken";
+	
+IATTR_L52 		= "PhysPen"; 								IATTR_T52 			= "% physical resist penetration";
+IATTR_L53		= "EnergyPen"; 								IATTR_T53 			= "% energy resist penetration";
+IATTR_L54 		= "ExplosivePen"; 							IATTR_T54 			= "% explosive resist penetration";
+IATTR_L55 		= "OccultPen"; 								IATTR_T55 			= "% occult resist penetration";
+IATTR_L56 		= "ElementalPen"; 							IATTR_T56 			= "% elemental resist penetration";
+	
+IATTR_L57 		= "FlatFireDmg"; 							IATTR_T57 			= " to fire damage";
+IATTR_L58 		= "FlatIceDmg";								IATTR_T58 			= " to ice damage";
+IATTR_L59 		= "FlatLightningDmg"; 						IATTR_T59 			= " to lightning damage";
+IATTR_L60 		= "FlatPoisonDmg"; 							IATTR_T60 			= " to poison damage";
+	
+IATTR_L61 		= "Lifesteal"; 								IATTR_T61 			= "% lifesteal";
+	
+IATTR_L62 		= "PoisonTicrate"; 							IATTR_T62 			= "% increased ticrate for poison";
+IATTR_L63 		= "PoisonDuration"; 						IATTR_T63 			= "% increased poison stack duration";
+IATTR_L64 		= "PoisonTicDmg"; 							IATTR_T64 			= "% increased damage per tic for poison";
+	
+IATTR_L65 		= "BlockDmg"; 								IATTR_T65 			= "% more damage against blocking enemies";
+	
+IATTR_L66 		= "FreezeChance"; 							IATTR_T66 			= "% increased chance to freeze for ice attacks";
+IATTR_L67 		= "SlowEffect"; 							IATTR_T67 			= "% increased chill effectiveness for ice attacks";
+IATTR_L68 		= "ChillThreshold"; 						IATTR_T68 			= "% reduced enemy chill threshold";
+	
+IATTR_L69 		= "IgniteChance"; 							IATTR_T69 			= "% increased chance to ignite for fire atttacks";
+IATTR_L70 		= "IgniteDmg"; 								IATTR_T70 			= "% increased ignite damage";
+IATTR_L71 		= "IgniteDuration"; 						IATTR_T71 			= "% increased ignite duration";
+	
+IATTR_L72 		= "OverloadChance"; 						IATTR_T72 			= "% increased chance to overload for lightning attacks";
+IATTR_L73 		= "OverloadZapCount"; 						IATTR_T73 			= " additional overload reflections on overload kills";
+IATTR_L74 		= "OverloadZapDmg"; 						IATTR_T74 			= "% increased overload reflection damage";
+	
+															IATTR_T75 			= "\c[R5]CYBERNETIC\c-";
+IATTR_L76 		= "MeleeRange";								IATTR_T76 			= "% increased melee range";
+	
+// essences
+IATTR_LE1 		= "StatusBuffs_1";							IATTR_TE1 			= "Explosion damage ignores enemy resistances";
+IATTR_LE2 		= "SoulPenetration";						IATTR_TE2 			= "Soul weapons penetrate ";
+IATTR_LE3 		= "Accuracy";								IATTR_TE3 			= " to accuracy rating";
+IATTR_LE4 		= "AccuracyPercent";						IATTR_TE4 			= "% increased accuracy rating";
+IATTR_LE5 		= "IgniteDamageEachTic";					IATTR_TE5 			= "Ignite damage increases for each tic by "};
+IATTR_LE6 		= "ChanceIgnoreShield";						IATTR_TE6 			= "% chance for attacks to ignore shields";
+IATTR_LE7 		= "ReducedPoisonTaken";						IATTR_TE7 			= "% reduced poison damage taken";
+IATTR_LE8 		= "StatusBuffs_1";							IATTR_TE8 			= "Poison damage tics twice as fast";
+IATTR_LE9 		= "ExplosionAgainChance";					IATTR_TE9 			= "% chance for explosions to trigger again";
+IATTR_LE10 		= "StatusBuffs_1";							IATTR_TE10 			= "Homing projectiles can't be reflected";
+IATTR_LE11 		= "OccultReducePer";						IATTR_TE11 			= "Magical attacks reduce enemy magic resistance by ";
+IATTR_LE12 		= "FrozenDamage";							IATTR_TE12 			= "Frozen enemies take ";
+	
+// exotic ones
+															IATTR_TX1 			= "% chance to ";
+IATTR_LX2 		= "ChanceToCastElementalSpell"; 			IATTR_TX2 			= "% chance to cast random elemental spell on attack";
+IATTR_LX3 		= "StatusBuffs_1"; 							IATTR_TX3 			= "Knockback Immunity";
+IATTR_LX4 		= "StatusBuffs_1"; 							IATTR_TX4 			= "Effects of small charms multiplied by ";
+															IATTR_TX5 			= " to all attributes";
+IATTR_LX6 		= "HealMissingHealthOnPain"; 				IATTR_TX6 			= "be healed for ";
+IATTR_LX7 		= "DamageIncrease_Lightning"; 				IATTR_TX7 			= "% increased lightning damage";
+IATTR_LX8 		= "IncreasedCritLightning"; 				IATTR_TX8 			= "% increased crit chance to lightning attacks";
+IATTR_LX9 		= "DamageIncrease_Shotguns"; 				IATTR_TX9 			= "% increased damage to shotguns";
+IATTR_LX10 		= "HPPercent"; 								IATTR_TX10 			= "Double Health Cap";
+IATTR_LX11 		= "DamagePerFlatHP"; 						IATTR_TX11 			= "Gain 1% damage increase every ";
+IATTR_LX12 		= "StatusBuffs_1"; 							IATTR_TX12 			= "Can't use armor";
+IATTR_LX13 		= "StatusBuffs_1"; 							IATTR_TX13 			= "Burst type attacks fire in a circle around you";
+															IATTR_TX14 			= "Burst type attacks also benefit from pellet bonuses";
+IATTR_LX15 		= "ChanceToRaiseZombieFromKills"; 			IATTR_TX15 			= "% chance to raise a zombie from slain enemies";
+IATTR_LX16 		= "StatusBuffs_1"; 							IATTR_TX16 			= "Damage taken is divided per each pet (Max 90% reduction)";
+IATTR_LX17 		= "IncreasedDamageTaken"; 					IATTR_TX17 			= "% increased damage taken";
+															IATTR_TX18 			= " flat damage to all attacks";
+IATTR_LX19 		= "HealOnKill"; 							IATTR_TX19 			= "Killing enemies heal for ";
+IATTR_LX20 		= "StatusBuffs_1"; 							IATTR_TX20 			= "Soul type weapons do irreducible damage";
+IATTR_LX21 		= "SoulAmmoIncrease"; 						IATTR_TX21 			= "% more ammo from soul pickups";
+IATTR_LX22 		= "CastRally"; 								IATTR_TX22 			= "Gain ability to cast level ";
+IATTR_LX23 		= "StatusBuffs_1"; 							IATTR_TX23 			= "Spell damage is irreducible";
+IATTR_LX24 		= "StatusBuffs_1"; 							IATTR_TX24 			= "Slain enemies rest in peace";
+IATTR_LX25 		= "FlatDotDamage"; 							IATTR_TX25 			= " to damage over time";
+IATTR_LX26 		= "DotDuration"; 							IATTR_TX26 			= "% increased damage over time duration";
+IATTR_LX27 		= "StatusBuffs_1"; 							IATTR_TX27 			= "Critical strike chance is lucky";
+IATTR_LX28 		= "CritIgnoreRes";							IATTR_TX28 			= "Critical strikes have ";
+IATTR_LX29 		= "StatusBuffs_1";							IATTR_TX29 			= "Curse Immunity";

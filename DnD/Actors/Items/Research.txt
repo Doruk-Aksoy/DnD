@@ -70,6 +70,8 @@ enum {
 	RES_IMP2,
 	RES_IMP3,
 	
+	RES_SYNTHMETALARMOR,
+	
 	RES_STASHTAB
 };
 
@@ -118,6 +120,10 @@ Actor Research_Discovered_2 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
+Actor Research_Discovered_3 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
 Actor Research_Done_1 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
@@ -125,6 +131,12 @@ Actor Research_Done_1 : Inventory {
 Actor Research_Done_2 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
+
+Actor Research_Done_3 : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor SynthMaskToken : DnD_Boolean { }
 
 // ****************************
 //		DEPENDENCY TRACKERS

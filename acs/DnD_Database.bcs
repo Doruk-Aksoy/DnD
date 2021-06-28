@@ -923,8 +923,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {
 		int k;
 		int res_on_cur_bitset = 31; //Each bitset fits 31-bits (Actor inventory can only use 31-bits).
-		if (i == RESEARCH_BITSETS-1) {
-			res_on_cur_bitset = MAX_RESEARCHES%31;
+		if (i == RESEARCH_BITSETS - 1) {
+			res_on_cur_bitset = MAX_RESEARCHES % 31;
 			if (res_on_cur_bitset == 0)
 				res_on_cur_bitset = 31; //Make sure having exactly 31/62/93... researches don't break this.
 		}

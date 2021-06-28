@@ -175,16 +175,16 @@ Script 972 (int type) { // script for Lich Slow
 	else if(type == 1) {
 		int temp = CheckInventory("ForcedMonsterLevel");
 		SetInventory("ForcedMonsterLevel", 0);
-		for(i = 0; !CheckInventory("CurseImmunity") && i < 5; i++) {
+		for(i = 0; i < 5; i++) {
 			Thing_Damage(0, 4 + 4 * ACS_ExecuteWithResult(994, 7, temp), MOD_POISON);
-			Delay(17);
+			Delay(const:17);
 		}
 	}
 	else if(type == 2) {
 		AmbientSound("Lich/VisionDim", 127);
 		for(i = 0; i < MAXPLAYERS; i++) {
 			if(GetActorProperty(P_TIDSTART + i, APROP_HEALTH) > 0)
-				GiveActorInventory(P_TIDSTART + i, "LichVisionDim", 1);
+				GiveActorInventory(P_TIDSTART + i, "DnD_Curse_LichVisionDim", 1);
 		}
 	}
 }
@@ -1126,7 +1126,6 @@ Script "DnD Abaxoth Thunderbolt" (void) {
 	ACS_NamedExecuteWithResult("DnD Abaxoth Thunderbolt FX");
 	
 	// we delegated fx part to CS script, now do healing
-	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	for(int i = 0; i < ABAXOTH_THUNDER_HEALCOUNT && !CheckInventory("DnD_Boolean"); ++i) {
 		if(!CheckInventory("MonsterRegenPause"))
 			ACS_NamedExecuteAlways("DnD Heal Monster Direct", 0, ABAXOTH_THUNDER_HEAL);
@@ -1139,6 +1138,7 @@ Script "DnD Abaxoth Thunderbolt" (void) {
 Script "DnD Abaxoth Thunderbolt FX" (void) CLIENTSIDE {
 	int count = 0;
 	bool abort = false;
+	int zdiff;
 	while(!abort && count < ABAXOTH_THUNDER_TIME) {
 		// create the lightning fx every few tics
 		if(!(count % 4))
@@ -1148,9 +1148,21 @@ Script "DnD Abaxoth Thunderbolt FX" (void) CLIENTSIDE {
 			// scale appropriately
 			SpawnForced("AbaxothThunderFX", GetActorX(0), GetActorY(0), GetActorZ(0), ABAXOTH_THUNDERFXTID);
 			
-			int zdiff = GetActorCeilingZ(0) - GetActorZ(0);
+			zdiff = GetActorCeilingZ(0) - GetActorZ(0);
 			if(zdiff >= ABAXOTH_THUNDER_Y) {
 				zdiff = FixedDiv(zdiff, ABAXOTH_THUNDER_Y);
+				SetActorProperty(ABAXOTH_THUNDERFXTID, APROP_SCALEY, zdiff);
+				Thing_ChangeTID(ABAXOTH_THUNDERFXTID, 0);
+			}
+		}
+		
+		if(count & 1) {
+			// scale appropriately
+			SpawnForced("AbaxothThunderFX_Thin", GetActorX(0) + random(-40.0, 40.0), GetActorY(0) + random(-40.0, 40.0), GetActorZ(0), ABAXOTH_THUNDERFXTID);
+			
+			zdiff = GetActorCeilingZ(0) - GetActorZ(0);
+			if(zdiff >= ABAXOTH_THUNDER_Y2) {
+				zdiff = FixedDiv(zdiff, ABAXOTH_THUNDER_Y2);
 				SetActorProperty(ABAXOTH_THUNDERFXTID, APROP_SCALEY, zdiff);
 				Thing_ChangeTID(ABAXOTH_THUNDERFXTID, 0);
 			}
@@ -1159,5 +1171,67 @@ Script "DnD Abaxoth Thunderbolt FX" (void) CLIENTSIDE {
 		Delay(const:1);
 		++count;
 	}
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunder Shield" (void) {
+	ACS_NamedExecuteWithResult("DnD Abaxoth Thunder Shield - CS");
+	
+	int count = 0;
+	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	while(count < ABAXOTH_SHIELD_DURATION) {
+		Delay(const:1);
+		
+		// we got hurt + not fortified + not in cd?
+		if(CheckInventory("DnD_HurtToken") && !CheckInventory("MonsterFortifyCount") && !CheckInventory("AbaxothThunderShieldProc_CD")) {
+			// gives cd, spawns the spark fx, and fires a lighting bolt towards player
+			GiveInventory("AbaxothThunderShieldProc", 1);
+			
+			// we'll give another item clientside to spawn the fx properly clientsided
+			ACS_NamedExecuteWithResult("DnD Abaxoth Thunder Shield Proc FX");
+			
+			if(!CheckInventory("MonsterRegenPause"))
+				ACS_NamedExecuteAlways("DnD Heal Monster Direct", 0, 0, ABAXOTH_THUNDER_HEALPERCENT);
+		}
+		
+		++count;
+	}
+	
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunder Shield Proc FX" (void) CLIENTSIDE {
+	int this = ActivatorTID();
+	
+	SpawnForced("AbaxothThunderProcFX_Spawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+	
+	SpawnForced("AbaxothThunderProcFX", GetActorX(0), GetActorY(0), GetActorZ(0) + 72.0, ABAXOTH_THUNDERFX3TID);
+	SetActivator(ABAXOTH_THUNDERFX3TID);
+	SetPointer(AAPTR_TARGET, this);
+	Thing_ChangeTID(ABAXOTH_THUNDERFX3TID, 0);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunder Shield - CS" (void) CLIENTSIDE {
+	int this = ActivatorTID();
+	
+	SpawnForced("AbaxothThunderShieldFX_1", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, ABAXOTH_THUNDERFX2TID);
+	SetActivator(ABAXOTH_THUNDERFX2TID);
+	SetPointer(AAPTR_TARGET, this);
+	Thing_ChangeTID(ABAXOTH_THUNDERFX2TID, 0);
+	
+	SetActivator(this);
+	
+	SpawnForced("AbaxothThunderShieldFX_2", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, ABAXOTH_THUNDERFX2TID);
+	SetActivator(ABAXOTH_THUNDERFX2TID);
+	SetPointer(AAPTR_TARGET, this);
+	Thing_ChangeTID(ABAXOTH_THUNDERFX2TID, 0);
+	
+	SpawnForced("AbaxothThunderShieldFX_3", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, ABAXOTH_THUNDERFX2TID);
+	SetActivator(ABAXOTH_THUNDERFX2TID);
+	SetPointer(AAPTR_TARGET, this);
+	Thing_ChangeTID(ABAXOTH_THUNDERFX2TID, 0);
+	
 	SetResultValue(0);
 }

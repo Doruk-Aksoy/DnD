@@ -1904,7 +1904,7 @@ Actor DarkServantTrail {
 
 Actor DarkServantMissile1 : DarkServantMissileSmall {
 	Damage (5 * random(2, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "RevMagic"
+	DamageType "RevLightning"
 	+THRUGHOST
 	States {
 		Spawn:
@@ -1920,7 +1920,7 @@ Actor DarkServantMissile1 : DarkServantMissileSmall {
 
 Actor DarkServantMissile2 : DarkServantMissileBig {
 	Damage (8 * random(1, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "RevMagic"
+	DamageType "RevLightning"
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
