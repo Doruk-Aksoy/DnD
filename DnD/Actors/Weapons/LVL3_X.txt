@@ -16,6 +16,7 @@ ACTOR " Super Shotgun " : Weapon
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.8
   +INVENTORY.UNDROPPABLE
+  Tag "$WEP_24_TAG"
   States
   {
   Ready:
@@ -156,7 +157,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon
   Inventory.PickupMessage "$GOTSHOTGUN2"
   Inventory.PickupSound "weapons/pickup"
   Obituary "$OB_MPSSHOTGUN"
-  Tag "Heavy Super Shotgun"
+  Tag "$WEP_25_TAG"
   Decal "BulletChip"
   +INVENTORY.UNDROPPABLE
   Weapon.BobStyle InverseSmooth
@@ -380,7 +381,7 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
   Inventory.PickupMessage "$GOTSHOTGUN2"
   Inventory.PickupSound "weapons/pickup"
   Obituary "$OB_MPSSHOTGUN"
-  Tag "Erasus"
+  Tag "$WEP_26_TAG"
   Decal "BulletChip"
   +INVENTORY.UNDROPPABLE
   Weapon.BobStyle InverseSmooth
@@ -636,7 +637,7 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.9
-	Tag "Hell's Maw"
+	Tag "$WEP_27_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -937,7 +938,7 @@ Actor "Silver Gun" : Weapon
   Weapon.BobSpeed 1.8
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.8
-  Tag "White Death"
+  Tag "$WEP_32_TAG"
   states
   {
   Spawn:
@@ -1121,6 +1122,7 @@ ACTOR Slayer : Weapon {
 	Weapon.BobSpeed 1.9
 	Weapon.BobRangeY 0.33
 	Weapon.BobRangeX 0.64
+	Tag "$WEP_33_TAG"
 	States {
 		Spawn:
 			SLYP A -1

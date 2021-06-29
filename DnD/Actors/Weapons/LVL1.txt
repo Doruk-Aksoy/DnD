@@ -9,7 +9,7 @@ Actor " Fists " : Fist
     Weapon.BobRangeY 0.4
     Weapon.BobRangeX 0.7
 	Weapon.SelectionOrder 99999
-	Tag "Fists"
+	Tag "$WEP_0_TAG"
 	States
 	{
 		Ready:
@@ -144,6 +144,7 @@ ACTOR " Chainsaw " : Chainsaw
   Inventory.PickupSound "weapons/pickup"
   Weapon.UpSound "weapons/sawup"
   Decal "ChainsawMark"
+  Tag "$WEP_1_TAG"
   States
   {
   Ready:
@@ -232,7 +233,7 @@ ACTOR "Upgraded Chainsaw" : Chainsaw
   Inventory.PickupMessage "$GOTCHAINSAW"
   Inventory.PickupSound "weapons/pickup"
   Obituary "$OB_MPCHAINSAW"
-  Tag "Dual Chainsaw"
+  Tag "$WEP_2_TAG"
   +WEAPON.MELEEWEAPON
   +INVENTORY.UNDROPPABLE
   Weapon.BobStyle InverseSmooth
@@ -310,7 +311,7 @@ ACTOR Sickle : Weapon {
 	Weapon.SlotNumber 1
 	+UNDROPPABLE
 	Weapon.SelectionOrder 88888
-	Tag "Sickle of the Necromancer"
+	Tag "$WEP_7_TAG"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.4
@@ -502,6 +503,7 @@ ACTOR Excalibat : Weapon {
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.4
     Weapon.BobRangeX 0.7
+	Tag "$WEP_4_TAG"
 	const int rate = 4;
     States {
 		Spawn:
@@ -785,7 +787,7 @@ ACTOR Katana : Weapon {
 	Weapon.SlotNumber 1
 	Weapon.SelectionOrder 6
 	Obituary "%o was eviscerated by %k."
-	Tag "Katana"
+	Tag "$WEP_3_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.5
 	Weapon.BobRangeX 0.2
@@ -1424,7 +1426,7 @@ Actor "Dusk Blade" : Weapon {
 	Weapon.AmmoUse2 0
 	Inventory.PickupMessage "You got the blade!!!11"
 	Obituary "%o was removed by %k's Dusk Blade."
-	Tag "Dusk Blade"
+	Tag "$WEP_6_TAG"
     +INVENTORY.UNDROPPABLE
 	+WEAPON.NOAUTOFIRE
     Weapon.BobStyle InverseSmooth

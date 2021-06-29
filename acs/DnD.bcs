@@ -164,11 +164,11 @@ Script "DnD Clientside Open" OPEN CLIENTSIDE {
 	while(true) {
 		if(GameType() != GAME_SINGLE_PLAYER) {
 			if(!GetCVar("compat_clientssendfullbuttoninfo"))
-				Log(s:"\cgWARNING:\c- Please activate '\cdcompat_clientssendfullbuttoninfo\c-' in order to use the menu properly.");
+				Log(l:"DND_WARN_COMPATBUTTONS");
 			else
 				buttons = true;
 			if(GetCVar("sv_weapondrop"))
-				Log(s:"\cgWARNING:\c- Please deactivate '\cdsv_weapondrop\c-'. It breaks mod rules!");
+				Log(l:"DND_WARN_WEAPONDROP");
 			else
 				wepdrop = true;
 				
@@ -495,7 +495,7 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 		Delay(3);
 	}
 	SetFont("MONFONT");
-	HudMessage(s:"\ci", s:SpreeText[Clamp_Between(mult - 1, 0, MAX_SPREE_TEXT - 1)], s:"!\c- \cix", f:mult * 0.25, s:"\c- bonus!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
+	HudMessage(s:"\ci", l:GetSpreeText(Clamp_Between(mult - 1, 0, MAX_SPREE_TEXT - 1)), s:"!\c- \cix", f:mult * 0.25, s:"\c- bonus!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
 	HudMessage(s:"Gained extra \cf", d:reward, s: "\c- exp!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT2ID, CR_WHITE, 240.4, 328.0, 2.0, 1.0, 1.0);
 }
 
@@ -1535,14 +1535,14 @@ Script 902 (int forceset, int id) CLIENTSIDE {
 		SetFont("BIGFONT");
 		HudMessage(s:"Now using ", s:SpecialAmmoNames[i][SPECIALAMMO_TAG], s:"!"; HUDMSG_PLAIN | HUDMSG_LOG, DND_SPECIALAMMO_TEXTID, CR_WHITE, 0.5, 0.1, 2.0);
 		// hack: update ammo table to trick hud
-		int pos = GetCurrentWeaponID();
-		Weapons[pos][WEAPON_AMMO1] = SpecialAmmoNames[i][SPECIALAMMO_NAME];
+		int pos = GetWeaponPosFromTable();
+		Weapons_Data[pos][WEAPON_AMMO1] = SpecialAmmoNames[i][SPECIALAMMO_NAME];
 	}
 }
 
 // Current weapon tip
 Script 903 (void) NET CLIENTSIDE {
-	DoWeaponTip(GetCurrentWeaponID());
+	DoWeaponTip(GetWeaponPosFromTable());
 }
 
 Script "DnD Weapon Tip Trigger" (int wepid, int targetToUse) CLIENTSIDE {
@@ -1562,7 +1562,7 @@ Script "DnD Weapon Tip Trigger" (int wepid, int targetToUse) CLIENTSIDE {
 // temporary drops
 Script 905 (int mode) NET {
 	if(!mode) {
-		int curweap = GetCurrentWeaponID() - TEMPBEGIN; // to put it in range of the temporary weapons
+		int curweap = GetWeaponPosFromTable() - TEMPBEGIN; // to put it in range of the temporary weapons
 		int amt;
 		// valid range, no drop spam and not able to while firing and has ammo to spare
 		// gross hax, fix later
@@ -1652,7 +1652,7 @@ Script 917 (int ammo_category, int weptype) {
 	if(HasSpecialAmmoForWeapon(ammo_category) != SpecialAmmoRanges[ammo_category][0]) {
 		SetSpecialAmmoMode(ammo_category, weptype);
 		if(ammo_category == AMMO_TYPE_SHELL || ammo_category == AMMO_TYPE_HEAVYSHELLS)
-			SetInventory(Weapons[GetCurrentWeaponID()][WEAPON_AMMO2], 0);
+			SetInventory(Weapons_Data[GetWeaponPosFromTable()][WEAPON_AMMO2], 0);
 		ActivatorSound("AmmoType/Switch", 127);
 		Delay(const:4);
 	}
@@ -2397,14 +2397,14 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 		SetHudSize(640, 480, 1);
 		SetFont("MSGBOX2");
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 515.0 + ScreenResOffsets[1], 120.0, 4.0, 1.0, 1.0);
-		SetFont(Weapons[itemnum][WEAPON_ICON]);
+		SetFont(Weapons_Data[itemnum][WEAPON_ICON]);
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEICO, CR_UNTRANSLATED, 537.1 + ScreenResOffsets[1], 80.0, 4.0, 1.0, 1.0);
 		SetFont("OBJFONT");
-		HudMessage(s:Weapons[itemnum][WEAPON_SLOT]; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, 416.0 + ScreenResOffsets[1], 68.0, 4.0, 1.0, 1.0);
+		HudMessage(d:GetGameSlotOfWeapon(itemnum); HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, 416.0 + ScreenResOffsets[1], 68.0, 4.0, 1.0, 1.0);
 
 		SetHudSize(960, 600, 1);
 		SetHudClipRect((632.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 96, 320, 128, 320, 1);
-		HudMessage(s:WeaponPickupText[itemnum]; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 632.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 4.0, 1.0, 1.0);
+		HudMessage(l:GetWeaponTipText(itemnum); HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 632.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 4.0, 1.0, 1.0);
 		SetHudClipRect(0, 0, 0, 0);
 	}
 }
@@ -2715,10 +2715,10 @@ Script "DnD Item Dropchance" (int basechance) {
 Script "DnD Message Logger" (int type, int id, int id_is_special) CLIENTSIDE {
 	if(PlayerNumber() != ConsolePlayerNumber()) Terminate;
 	if(!type)
-		Log(s:"\ccWeapon Pickup : \c[Y5]", s:TemporaryWeaponData[id - TEMPBEGIN][TEMPWEP_TAG], s:" - 9\c-");
+		Log(l:"DND_PICKUP_WEAPON", s:TemporaryWeaponData[id - TEMPBEGIN][TEMPWEP_TAG], s:" - 9\c-");
 	else if(type == 1) {
 		id = MapClassicWeaponToTableID(id);
-		Log(s:"\ccWeapon Pickup : \c[Y5]", s:Weapons[id][WEAPON_TAG], s:" - ", s:Weapons[id][WEAPON_SLOT], s:"\c-");
+		Log(l:"DND_PICKUP_WEAPON", l:GetWeaponTag(id), s:" - ", d:GetGameSlotOfWeapon(id), s:"\c-");
 	}
     else if(type == 2) {
 		if(id_is_special)
@@ -2729,7 +2729,7 @@ Script "DnD Message Logger" (int type, int id, int id_is_special) CLIENTSIDE {
 	else if(type == 3)
 		Log(s:SharedItemMessage[id]);
 	else if(type == 4)
-		Log(s:"\ccHealth pickup : \c[Y5]Demon Essence\c-");
+		Log(l:"DND_PICKUP_HEALTH", l:"DND_PICKUP_DEMONESSENCE");
 	else
 		Log(s:ChestKeyText[id]);
 }
@@ -2902,7 +2902,7 @@ Script "DnD Player Setup" ENTER {
 			// reset weapons
 			// take all weapons
 			for(i = 0; i < MAXWEPS; ++i)
-				TakeInventory(Weapons[i][WEAPON_NAME], 1);
+				TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
 			for(i = 1; i <= 9; ++i)
 				TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
 
@@ -3301,7 +3301,7 @@ Script "DnD Player On Hit" (int power) {
 		// get current weapon's ammo and steal it
 		str cur_ammo = "";
 		do {
-			cur_ammo = GetWeaponAmmoType(GetCurrentWeaponID(), random(0, 1));
+			cur_ammo = GetWeaponAmmoType(GetWeaponPosFromTable(), random(0, 1));
 		} while(cur_ammo == " ");
 		TakeInventory(cur_ammo, CheckInventory(cur_ammo) * DND_ELITE_THIEFRATE / 100);
 	}
@@ -5643,22 +5643,24 @@ Script "DnD Class Select Animated" (int doDelay) CLIENTSIDE {
 }
 
 Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
+	str cprefix = StrParam(s:"CLASS", d:ctype);
+
 	SetHUDSize(600, 450, 1);
 	SetFont("SMALLFONT");
 	SetHudClipRect(100, 84, 384, 384, 336, 1);
 	
-	HudMessage(s:"\c[J7]", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_TITLE]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
-	HudMessage(s:"\cj", s:DnD_ClassInfo[ctype][DND_CLASSTEXT_EXP]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 192.1, 0.0);
+	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
+	HudMessage(s:"\cj", l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT); HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 192.1, 0.0);
 	
 	// perks
-	HudMessage(s:DnD_ClassInfo[ctype][DND_CLASSTEXT_PERK_L5]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK5ID, CR_GREEN, 128.1, 256.1, 0.0);
-	HudMessage(s:DnD_ClassInfo[ctype][DND_CLASSTEXT_PERK_L25]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, CR_ORANGE, 128.1, 296.1, 0.0);
-	HudMessage(s:DnD_ClassInfo[ctype][DND_CLASSTEXT_PERK_L50]; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, CR_RED, 128.1, 336.1, 0.0);
+	HudMessage(s:"+ L5: ",  l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK5ID, CR_GREEN, 128.1, 256.1, 0.0);
+	HudMessage(s:"+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, CR_ORANGE, 128.1, 296.1, 0.0);
+	HudMessage(s:"+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, CR_RED, 128.1, 336.1, 0.0);
 	
 	SetHudClipRect(0, 0, 0, 0, 0, 0);
 	
-	// show the class images
-	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_MUG]);
+	// show the class images -- offsets aligned
+	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_MUGSHOT)));
 	if(ctype == DND_PLAYER_BERSERKER)
 		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 300.0, 112.1, 0.0);
 	else if(ctype == DND_PLAYER_MARINE)
@@ -5667,15 +5669,18 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 292.0, 116.1, 0.0);
 	else
 		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 288.0, 112.1, 0.0);
-	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_FRAMELEFT]);
+	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_LEFTIMG)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_LEFTIMG, -1, 80.4, 208.1, 0.0);
-	SetFont(DnD_ClassInfo[ctype][DND_CLASSTEXT_FRAMERIGHT]);
+	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_RIGHTIMG, -1, 512.4, 208.1, 0.0);
 	
 	// prev and next class images
-	SetFont(DnD_ClassInfo[(ctype - 1 < 0) ? MAXPLAYERCLASSES - 1 : ctype - 1][DND_CLASSTEXT_FRAMELEFT]);
+	cprefix = StrParam(s:"CLASS", d:(ctype - 1 < 0) ? MAXPLAYERCLASSES - 1 : ctype - 1);
+	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_LEFTIMG)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_PREVCLASS_IMGID, -1, 112.4, 96.1, 0.0);
-	SetFont(DnD_ClassInfo[(ctype + 1 > MAXPLAYERCLASSES - 1) ? 0 : ctype + 1][DND_CLASSTEXT_FRAMERIGHT]);
+	
+	cprefix = StrParam(s:"CLASS", d:(ctype + 1 > MAXPLAYERCLASSES - 1) ? 0 : ctype + 1);
+	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_NEXTCLASS_IMGID, -1, 480.4, 96.1, 0.0);
 }
 
@@ -5740,7 +5745,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		Log(s:"\n================================\n====== DnD Player Lookup ======\n================================\n");
 		SetActivator(tid);
 		Log(s:"\cdPlayer: \c-", n:pnum + 1, s:"\n\cdLevel: \c-", d:CheckInventory("Level"));
-		Log(s:"\cdClass: \c-", s:"\c[J7]", s:DnD_ClassInfo[CheckInventory("DnD_Character") - 1][DND_CLASSTEXT_TITLE]);
+		Log(s:"\cdClass: \c-", s:"\c[J7]", l:GetClassLabel(StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1), DND_CLASS_LABEL_NAME));
 		Log(s:"\cdHealth: \c-", d:GetActorProperty(0, APROP_HEALTH), s: " / ", d:GetSpawnHealth());
 		Log(s:"\cdArmor: \c-", d:CheckInventory("Armor"), s: " / ", d:GetArmorCap(true));
 		
@@ -5766,8 +5771,8 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 			
 		Log(s:"\n--------------------------------\n------- Weapons Owned -------\n--------------------------------\n");
 		for(i = 0; i < MAXWEPS; ++i)
-			if(CheckInventory(Weapons[i][WEAPON_NAME]))
-				Log(s:"\cd* \c[Y5]", s:Weapons[i][WEAPON_TAG], s:" - \cjSlot ", s:Weapons[i][WEAPON_SLOT]);
+			if(CheckInventory(Weapons_Data[i][WEAPON_NAME]))
+				Log(s:"\cd* \c[Y5]", l:GetWeaponTag(i), s:" - \cjSlot ", d:GetGameSlotOfWeapon(i));
 				
 		Log(s:"\n--------------------------------\n------- Charms Used -------\n--------------------------------\n");
 		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
@@ -5971,8 +5976,8 @@ Script "DnD Berserker Perk5 Check" (void) {
 	// berserker perk5 fail-safe checks for super weapons
 	if(CheckInventory("Berserker_Perk5")) {
 		for(int i = DND_WEAPON_BFG32768; i <= DND_WEAPON_SOULREAVER; ++i) {
-			if(CheckInventory(Weapons[i][WEAPON_NAME])) {
-				TakeInventory(Weapons[i][WEAPON_NAME], 1);
+			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
+				TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
 				TakeInventory("H_WeaponSlot7", 1);
 				break;
 			}
@@ -5985,12 +5990,12 @@ Script "DnD Berserker Perk5 Check (Melee)" (void) {
 	bool has_melee = false;
 	if(!CheckInventory("Berserker_Perk5")) {
 		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= DND_WEAPON_SICKLE; ++i) {
-			if(CheckInventory(Weapons[i][WEAPON_NAME])) {
+			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
 				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
 				if(has_melee) {
-					TakeInventory(Weapons[i][WEAPON_NAME], 1);
+					TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
 					TakeInventory("H_WeaponSlot1", 1);
-					GiveInventory(Weapons[DND_WEAPON_CHAINSAW][WEAPON_NAME], 1);
+					GiveInventory(Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME], 1);
 				}
 				
 				has_melee = true;

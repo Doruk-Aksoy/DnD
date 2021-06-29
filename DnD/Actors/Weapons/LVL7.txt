@@ -5,7 +5,7 @@ Actor "BFG 9000" : BFG9000
 	Weapon.SlotNumber 7
 	+INVENTORY.UNDROPPABLE
 	inventory.pickupmessage "\ccWeapon pickup: \c[Y5]BFG 6000"
-	Tag "BFG 6000"
+	Tag "$WEP_71_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
@@ -68,7 +68,7 @@ Actor "Upgraded BFG 9000" : BFG9000
 	inventory.pickupmessage "\ccWeapon pickup: \c[Y5]BFG 32768"
 	Weapon.SlotNumber 7
 	+INVENTORY.UNDROPPABLE
-	Tag "BFG 32768"
+	Tag "$WEP_72_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
@@ -298,7 +298,7 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 	Weapon.SelectionOrder 500
 	Weapon.AmmoType "DevastatorAmmo"
 	+INVENTORY.UNDROPPABLE
-	Tag "Devastator 5000"
+	Tag "$WEP_73_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.3
@@ -481,7 +481,7 @@ ACTOR MFG : BFG9000 {
 	Weapon.SlotNumber 7
 	Weapon.SelectionOrder 6500
 	Inventory.PickupMessage "You got the Destruction Generator!"
-	Tag "Destruction Generator"
+	Tag "$WEP_74_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.35
@@ -900,6 +900,7 @@ ACTOR "Rail Gun" : Weapon
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
+	Tag "$WEP_78_TAG"
    States
    {
    Spawn:
@@ -1182,7 +1183,7 @@ Actor "Gauss Rifle" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	
+	Tag "$WEP_77_TAG"
 	States {
 	   Ready:
 	        TNT1 A 0 A_JumpIfInventory("GaussZoom", 3, "Zoom3")
@@ -1696,6 +1697,7 @@ ACTOR "Death Ray" : Weapon
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.35
 	Weapon.BobRangeX 0.6
+	Tag "$WEP_79_TAG"
 	States {
 		Spawn:
 			ERWE X -1

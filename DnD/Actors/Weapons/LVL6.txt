@@ -9,6 +9,7 @@ Actor "Plasma Rifle" : PlasmaRifle
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Weapon.AmmoGive 0
+	Tag "$WEP_60_TAG"
    States
    {
    Spawn:
@@ -78,7 +79,7 @@ Actor "Plasma Rifle" : PlasmaRifle
 Actor "Upgraded Plasma Rifle" : PlasmaRifle {	
 	Weapon.Slotnumber 6
 	Weapon.AmmoType2 "PlasmaOverheat"
-	Tag "Nuclear Plasma Rifle"
+	Tag "$WEP_61_TAG"
 	+INVENTORY.UNDROPPABLE
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
@@ -536,7 +537,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 	Weapon.AmmoUse2 2
 	Weapon.AmmoType1 "Cell"
 	Weapon.AmmoType2 "Cell"
-	Tag "Turel Cannon"
+	Tag "$WEP_62_TAG"
 	States {
 		Spawn:
 			TURL X -1
@@ -696,6 +697,7 @@ Actor "Nailgun" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
+	Tag "$WEP_69_TAG"
 	States
 	{
 		Spawn:
@@ -953,6 +955,7 @@ ACTOR Basilisk : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
+	Tag "$WEP_70_TAG"
 	+ALT_AMMO_OPTIONAL
 	+NOALERT
 	States {
@@ -1198,7 +1201,7 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 	Weapon.AmmoGive 0
 	Weapon.AmmoUse 1
 	Weapon.AmmoType "EverIce"
-	Tag "Frost Fang"
+	Tag "$WEP_63_TAG"
 	States {
 		Ready:
 			FSTF B 0 A_Jump(1, "Glow")
@@ -1482,7 +1485,7 @@ Actor RhinoRifle : Weapon
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
 	+WEAPON.NOAUTOFIRE
-	Tag "Rhino Assault Rifle"
+	Tag "$WEP_68_TAG"
 	Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.9
     Weapon.BobRangeY 0.3

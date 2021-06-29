@@ -13,7 +13,7 @@ Actor ResMG1 : Chaingun {
 	+WEAPON.NOALERT
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Templar Machine Gun"
+	Tag "$WEP_38_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.4
@@ -205,9 +205,8 @@ actor ResMG2 : Weapon {
 	Radius 24
 	Height 16
 	Decal "BulletChip"
-	Tag "Riotgun"
 	const int riot_clip_max = 8;
-	Tag "Riot Cannon"
+	Tag "$WEP_39_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.4
@@ -1196,7 +1195,7 @@ Actor ResMG3 : Chaingun {
 	+WEAPON.NOALERT
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Acid Rifle"
+	Tag "$WEP_40_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.5
@@ -1566,7 +1565,7 @@ Actor ResMG4 : Weapon {
 	+WEAPON.NOALERT
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Fusion Blaster"
+	Tag "$WEP_41_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.5
@@ -1972,7 +1971,7 @@ ACTOR ResMG5 : Weapon {
 	Weapon.AmmoGive2 0
 	Weapon.SlotNumber 4
 	Obituary "%o was burned ablaze by %k's incinerator."
-	Tag "Incinerator Shotgun"
+	Tag "$WEP_42_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4

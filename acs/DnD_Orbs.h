@@ -1204,7 +1204,7 @@ int PickRandomOwnedWeapon() {
 	int res = 0;
 	do {
 		res = random(0, MAXWEPS - 1);
-	} while(!CheckInventory(Weapons[res][WEAPON_NAME]));
+	} while(!CheckInventory(Weapons_Data[res][WEAPON_NAME]));
 	return res;
 }
 
@@ -1254,10 +1254,10 @@ void DoSinOrbMessage(int val, int affluence) {
 				Log(s:temp, s:"and grants \cd", d:pts, s:" random perk!");
 		break;
 		case SINORB_CRIT:
-			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% crit chance to \cd", s:Weapons[val >> 11][WEAPON_TAG], s:"\c-!");
+			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% crit chance to \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
 		case SINORB_CRITDMG:
-			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITDMGGIVE * affluence * 100), s:"% crit damage to \cd", s:Weapons[val >> 11][WEAPON_TAG], s:"\c-!");
+			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITDMGGIVE * affluence * 100), s:"% crit damage to \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
 		/*case SINORB_RES:
 			pts = pow(2, CheckInventory("AffluenceCounter"));
@@ -1504,7 +1504,7 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cjOrb of Corruption \cgtakes away ", d:affluence, s:" of your backpacks!");
 		break;
 		case CORRUPTORB_TAKEDMG:
-			Log(s:"\cjOrb of Corruption takes \cg", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% damage\cj from \cv", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption takes \cg", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% damage\cj from \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
 			Log(s:"\cjOrb of Corruption \cgreduces your damage by 75%\cj for this map!");
@@ -1517,13 +1517,13 @@ void DoCorruptOrbMessage(int val, int affluence) {
 		break;
 		
 		case CORRUPTORB_ADDCRIT:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj increased crit chance to \cv", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj increased crit chance to \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDCRITDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj crit damage to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj crit damage to ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj increased damage to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj increased damage to ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDSPEED:
 			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * affluence * 100), s:"%\cj increased movement speed!");
@@ -1535,13 +1535,13 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", s:StatData[val >> 8][STAT_LABEL], s:"\cj points!");
 		break;
 		case CORRUPTORB_MOD_PERCENTDAMAGE:
-			Log(s:"\cjOrb of Corruption gives \cvpercent health damage on impact\cj to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cvpercent health damage on impact\cj to ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
-			Log(s:"\cjOrb of Corruption gives \cvpoison on hit\cj to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cvpoison on hit\cj to ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_MOD_FORCEPAINCHANCE:
-			Log(s:"\cjOrb of Corruption gives \cvchance to force pain\cj to ", s:Weapons[val >> 8][WEAPON_TAG], s:"\cj!");
+			Log(s:"\cjOrb of Corruption gives \cvchance to force pain\cj to ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 	}
 }
@@ -1626,7 +1626,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Enhancement improves \cd", s:Weapons[val][WEAPON_TAG], s:"\cv damage by \cd", d:affluence * ENHANCEORB_BONUS, s:"%\c-!");
+				Log(s:"\cjOrb of Enhancement improves \cd", l:GetWeaponTag(val), s:"\cv damage by \cd", d:affluence * ENHANCEORB_BONUS, s:"%\c-!");
 			else
 				Log(s:"\cgYou're maxed out on enhancements, Orb of Enhancement failed!");
 		break;

@@ -1,0 +1,40 @@
+[enu default]
+
+DND_PICKUP_HEALTH						= "\ccHealth pickup : \c[Y5]";
+DND_PICKUP_DEMONESSENCE					= "Demon Essence.";
+DND_PICKUP_WEAPON						= "\ccWeapon Pickup : \c[Y5]";
+
+DND_TEXT_MAXKILLS 						= "All monsters have been killed! ";
+DND_TEXT_MAXKILLREWARD 					= "% Exp bonus!";
+
+DND_TEXT_MAXITEMS						= "All items have been taken! ";
+DND_TEXT_MAXITEMREWARD					= "% Credit Bonus!";
+
+DND_TEXT_MAXSECRETS						= "All secrets have been found! ";
+DND_TEXT_MAXSECRETREWARD				= "K Budget!";
+
+DND_TEXT_MAPTOAST						= "The entire map is toast! You're fully healed!";
+
+DND_SPREETEXT1							= "Cruel";
+DND_SPREETEXT2							= "Merciless";
+DND_SPREETEXT3							= "Crushing";
+DND_SPREETEXT4							= "Sadistic";
+DND_SPREETEXT5							= "Vicious";
+DND_SPREETEXT6							= "Destructive";
+DND_SPREETEXT7							= "Terrifying";
+DND_SPREETEXT8							= "Terrorizing";
+DND_SPREETEXT9							= "Rampage";
+DND_SPREETEXT10							= "Unstoppable";
+DND_SPREETEXT11							= "Massacre";
+DND_SPREETEXT12							= "Bloodthirsty";
+DND_SPREETEXT13							= "Monstrous";
+DND_SPREETEXT14							= "Genocide";
+DND_SPREETEXT15							= "Holocaust";
+DND_SPREETEXT16							= "Diabolical";
+DND_SPREETEXT17							= "Epic";
+DND_SPREETEXT18							= "Legendary";
+DND_SPREETEXT19							= "Godlike";
+DND_SPREETEXT20							= "HOLY SHIT";
+
+DND_WARN_COMPATBUTTONS					= "\cgWARNING:\c- Please activate '\cdcompat_clientssendfullbuttoninfo\c-' in order to use the menu properly.";
+DND_WARN_WEAPONDROP						= "\cgWARNING:\c- Please deactivate '\cdsv_weapondrop\c-'. It breaks mod rules!";

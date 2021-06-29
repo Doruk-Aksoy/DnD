@@ -10,7 +10,7 @@ Actor ResRL1 : Weapon {
 	Decal "BulletChip"
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Meteor Launcher"
+	Tag "$WEP_51_TAG"
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.45
@@ -216,7 +216,7 @@ ACTOR ResRL2 : Weapon {
 	Weapon.AmmoType2 "HeavyGLCounter"
 	+WEAPON.NOAUTOAIM
 	Scale 0.75
-	Tag "Heavy Grenade Launcher"
+	Tag "$WEP_52_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.5
@@ -458,7 +458,7 @@ Actor ResRL3 : Weapon {
 	Weapon.SlotNumber 5
 	Inventory.PickupMessage "You got the Freezer Cannon!"
 	+INVENTORY.UNDROPPABLE
-	Tag "Freezer Cannon"
+	Tag "$WEP_53_TAG"
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.35
@@ -771,7 +771,7 @@ Actor ResRL4 : Weapon {
 	Weapon.AmmoGive 5
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Gravdis 5000"
+	Tag "$WEP_54_TAG"
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.45
@@ -1189,7 +1189,7 @@ Actor ResRL5 : Weapon {
 	Weapon.AmmoGive 15
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Void Cannon"
+	Tag "$WEP_55_TAG"
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.2
 	Weapon.BobRangeX 0.4

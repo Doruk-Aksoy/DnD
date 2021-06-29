@@ -4,7 +4,123 @@
 #include "DnD_WeaponDefs.h"
 
 #define MAX_WEAPON_STRINGS (WEAPON_ICON64 + 1)
-str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = { 		     
+str Weapons_Data[MAXWEPS][MAX_WEAPON_STRINGS] = { 		     
+	 { " Fists ",							" ",				" ",							"FISTICO",		"WEPICO1"	},
+	 { " Chainsaw ",						" ",				" ",							"CSAWA0",		"WEPICO2"	},
+	 
+	 { "Upgraded Chainsaw",					" ",				" ",							"CSW2A0",		"WEPICO3"	},
+	 { "Katana",							" ",				" ",							"JFISZ0",		"WEPICO4"	},
+	 { "Excalibat",							"BatCharge",		"Souls",						"EBATICO",		"WEPICO5"	},
+	 { "ResMelee1",							"Souls",			" ",							"INFSICO1",		"WEPICO6"	},
+	 { "Dusk Blade",						"SwordHitCharge",	"Souls",						"DUSKBICO",		"WEPICO7"	},
+     { "Sickle",							" ",				" ",							"SICKLICO",  	"WEPICO8"	},
+	 
+	 { " Pistol ",							"Clip",				" ",							"COLTICO",		"WEPICO9"	},
+	 { " Akimbo Pistols ",					"Clip",				" ",							"AKIMICO",		"WEPICO10"	},
+	 { "Magnum",							"Clip",				"BulletSize_6",			        "MAGNICO",		"WEPICO11"	},
+	 { "Laser Pistol",						"LPistolCharge",	" ",							"PBLTZ0", 		"WEPICO12"	},
+	 { "ResPistol1",						"Clip",				"MGClip5",					    "4AFLA0",		"WEPICO13"	},
+	 { "ResPistol2",						"ViperAmmo",		" ",							"VIPAZ0",		"WEPICO14"	},
+	 
+	 { "RubyWand",							"RubyAmmo",			" ",							"WANDF0",		"WEPICO15"	},
+	 { "ScatterGun",						"Clip",				" ",							"SPPPA0", 		"WEPICO16"	},
+	 
+	 { " Shotgun ",							"Shell",			"ShellSize_8N",			        "SGN1ICO",		"WEPICO17"	},
+	 { "Upgraded Shotgun",					"Shell",			"ShellSize_8",			    	"SGP2Z0",		"WEPICO18"	},
+	 { "Upgraded Shotgun2",					"Shell",			"ShellSize_10",			        "UASGICO",		"WEPICO19"	},
+	 { "Upgraded Shotgun3",					"EmeraldMana",		" ",							"JADEC0",		"WEPICO20"	},
+	 { "ResShotgun1",						"Shell",			"ShellSize_12",			        "RW01Z0",		"WEPICO21"	},
+	 { "ResShotgun2",                       "NitrogenCanister", " ",                            "WBOWA0",       "WEPICO22"	},
+	 { "ResShotgun3",						"DemonBlood",		" ",							"WWOPA0",		"WEPICO23"	},
+	 { "ResShotgun4",						"CharonAmmo",		"CharonStacks",					"RW08Z0",		"RW08Z0"	},
+	 
+	 { " Super Shotgun ",					"Shell",			" ",							"SHS1Z0",		"WEPICO24"	},
+	 { "Upgraded Super Shotgun",			"Shell",			" ",							"SSGPA0",		"WEPICO25"	},
+	 { "Upgraded Super Shotgun2",		    "Shell",			"ShellSize_2",			    	"ERASICO",		"WEPICO26"	},
+	 { "Upgraded Super Shotgun3",		    "HellsMawAmmo",		" ",			    			"HLMWX0",		"WEPICO27"	},
+	 { "ResSSG1",							"PCanAmmo",			"PCanClip",				    	"RW02]0",		"WEPICO28"	},
+     { "ResSSG2",							"Cell",				"IonOverheat",					"WSONC0",		"WEPICO29"	},
+	 { "ResSSG3",							"HadesAmmo",		"ShellSize_16",					"STRGX0",		"WEPICO30"	},
+	 { "ResSSG4",							"FlayerAmmo",		" ",							"CBOWZ0",		"WEPICO90"  },
+	 
+	 { "Silver Gun",						"ExplodingShell",	" ",							"EXSGX0",		"WEPICO31"	},
+	 { "Slayer",							"SlayerAmmo",		" ",							"SLYPA0",		"WEPICO32"	},
+	 
+	 { " Machine gun ", 					"Clip",				"MGClip",				    	"WASGA0",		"WEPICO33"	},
+	 { "Upgraded Machine Gun",			    "Clip",				"MGClip2",				    	"WSG2ICO", 		"WEPICO34"	},
+	 { "Upgraded Machine Gun2",			    "Clip",				"MGClip3",				    	"QWOPA0",		"WEPICO35"	},
+	 { "Upgraded Machine Gun3",			    "DsealAmmo",		" ",				    		"JPLAZ0",		"WEPICO36"	},
+	 { "ResMG1",							"Clip",				"MGClip4",				    	"RW03X0",		"WEPICO37"	},
+	 { "ResMG2",                            "RiotgunShell",     "RiotgunClip",                  "RIOTI0",       "WEPICO38"	},
+     { "ResMG3",							"AcidAmmo",			"AcidClip",						"RIF2Y0",		"WEPICO39"	},
+     { "ResMG4",							"FusionCell",		"MGClip6",						"FUSPA0",		"WEPICO40"	},
+	 { "ResMG5",							"IncineratorAmmo",	"IncineratorStacks",			"RW09Z0",		"RW09Z0"	},
+	 
+	 { "Desolator",							"DesolatorAmmo",	"DesolatorOverheat",			"DES4X0",		"WEPICO41"	},
+	 { " Minigun ",							"Clip",				" ",							"CHNGX0",		"WEPICO42"	},
+	 { "Ebony Cannon",						"EbonyAmmo",		"EbonyAmmoX",			        "EBONICO",		"WEPICO43"	},
+	 { "MPPB",								"Cell",				" ",							"MPPBZ0",		"MPPBZ0"	},
+	 
+	 { "Rocket Launcher",					"RocketAmmo",		" ",							"LAUNICO",		"WEPICO44"	},
+	 { "Upgraded Rocket Launcher",		    "RocketAmmo",		" ",							"WPPKG0",		"WEPICO45"	},
+	 { "Upgraded Rocket Launcher2",		    "RocketAmmo",		" ",							"MERCICO",		"WEPICO46"	},
+	 { "Upgraded Rocket Launcher3",			"FlakShell",		"ShellSize_18",					"VS9PA0",		"WEPICO47"	},
+	 { "ResRL1",							"MeteorAmmo",		" ",							"RW06X0",		"WEPICO48"	},
+	 { "ResRL2",							"HeavyGrenades",	"HeavyGLCounter",				"GLAUX0",		"WEPICO49"	},
+	 { "ResRL3",							"EverIce",			"FreezerOverheat",				"FRZCZ0",		"WEPICO50"	},
+	 { "ResRL4",							"GravdisAmmo",		" ",							"BRSGX0",		"WEPICO91"	},
+	 { "ResRL5",							"Cell",				" ",							"RW07X0",		"RW07X0"	},
+	 
+	 { "Grenade Launcher",					"Grenades",			" ",							"NGLPA0",		"WEPICO51"	},
+	 { "Upgraded Grenade Launcher",		    "Grenades",			" ",							"RTGLICO",		"WEPICO52"	},
+	 { "Heavy Missile Launcher",			"MISAmmo",			" ",							"WMLNA0",		"WEPICO53"	},
+	 { "Sedrin Staff",						"SedrinAmmo",		" ",							"SEDRX0",		"WEPICO92"	},
+	 
+	 { "Plasma Rifle",						"Cell",				" ",							"NRAIE0",		"WEPICO54"	},
+	 { "Upgraded Plasma Rifle",				"Cell",				"PlasmaOverheat",		        "QNPLX0",		"WEPICO55"	},
+	 { "Upgraded Plasma Rifle2",			"Cell",				" ",							"TURLX0",		"WEPICO56"	},
+	 { "Upgraded Plasma Rifle3",			"EverIce",			" ",							"FSTFICO",		"WEPICO57"	},
+	 { "ResPlasma1",						"Fuel",				"FuelClip",					    "RW05X0",		"WEPICO58"	},
+	 { "ResPlasma2",                        "LightningCell",    "LightningStacks",              "LTGSA0",       "WEPICO59"	},
+	 { "ResPlasma3",						"Cell",				"RebounderOverheat",			"DGAPA0",		"WEPICO60"	},
+	 { "ResPlasma4",						"DemonBlood",		"LanceStacks",					"RW10Z0",		"RW10Z0"	},
+	 
+	 { "RhinoRifle",						"Clip",				"MGClip7",						"MAXPA0",		"WEPICO61"	},
+	 { "Nailgun",							"NailgunAmmo",		" ",							"NAIGA0",		"WEPICO62"	},
+	 { "Basilisk",							"BasiliskAmmo",		"LoadedBasilisk",			    "BASICO",		"WEPICO63"	},
+	 
+	 { "BFG 9000",							"Cell",				" ",							"PRDCX0",		"WEPICO64"	},
+	 { "Upgraded BFG 9000",					"Cell",				" ",							"DEBFA0",		"WEPICO65"	},
+	 { "Devastator",						"DevastatorAmmo",	" ",							"DEVAZ0",		"WEPICO66"	},
+	 { "MFG",								"Cell",				" ",							"BFGPA0",		"WEPICO67"	},
+	 { "ResBFG1",							"IonAmmo",			"IonOverHeat",			        "RW04X0",		"WEPICO68"	},
+	 { "ResBFG2",							"ThunderAmmo",		"ThunderRangeCounter",			"APOPA0",		"WEPICO69"	},
+	 
+	 { "Gauss Rifle",						"GaussRound",		" ",							"GAUSZ0",		"WEPICO70"	},
+	 { "Rail gun",							"Cell",				" ",							"WRALA0",		"WEPICO71"	},
+	 { "Death Ray",							"IonAmmo",			"DeathrayOverheat",				"ERWEX0",		"WEPICO88"	},
+	 
+	 { "Death Staff",						"Souls",			"Souls",						"LICICO",		"WEPICO72"	},
+	 { "Razorfang",						    "Souls",			"Souls",						"WRAZA0",		"WEPICO73"	},
+	 { "Sun Staff",							"Souls",			"Souls",						"SUNICO",		"WEPICO74"	},
+	 { "Soul Reaver",						"Souls",			" ",							"REAVICO",		"WEPICO75"	},
+	 
+	 { "Sawedoff",							"SawedoffShell",	"SawedoffCounter",		        "SAWNICO",		"WEPICO76"	},
+	 { "Soul Render",						"BladeHits",		"BladeCharge",				    "SWOICO",		"WEPICO77"	},
+	 { "SMG",								"SMGAmmo",			" ",							"SMGICO",  		"WEPICO78"	},
+	 { "Hellforge Cannon",				    "IronBalls",		"IronBalls",					"WHFCA0",  		"WEPICO79"	},
+	 { "Bloodfiend Spine",				    "BloodAmmo",		"BloodAmmo",			        "WGORA0",  		"WEPICO80"	},
+	 { "Enforcer Rifle",					"LaserAmmo",		"LaserAmmo",			        "ENRPA0",  		"WEPICO81"	},
+	 { "Venom",								"VenomAmmo",		"VenomAmmo",			        "VENOICO", 		"WEPICO82"	},
+	 { "Demon Heart",						"HeartAmmo",		" ",							"HARTICO", 		"WEPICO83"	},
+	 { "DarkServantGloves",                 "DarkServantEnergy"," ",                            "DSGNTICO",     "WEPICO84"	},
+	 { "Nailgun2",                          "BigNail",          " ",                            "NLCGF0",       "WEPICO85"	},
+	 { "Berettas",                          "BerettaAmmo",      " ",                            "PAKMX0",       "WEPICO86"	},
+	 { "Plasma Bolter",						"PlasmaBolterAmmo",	" ",							"PBL9X0",		"WEPICO87"	},
+	 { "Ripper Cannon",						"RipperCannonAmmo",	" ",							"TWP0X0",		"WEPICO89"	},
+};
+
+/*str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = { 		     
 	 { " Fists ",							"Fist",						"1",		" ",				" ",							"FISTICO",		"WEPICO1"	},
 	 { " Chainsaw ",						"Chainsaw",					"1",		" ",				" ",							"CSAWA0",		"WEPICO2"	},
 	 
@@ -118,7 +234,7 @@ str Weapons[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "Berettas",                          "Akimbo Berettas",			"9",        "BerettaAmmo",      " ",                            "PAKMX0",       "WEPICO86"	},
 	 { "Plasma Bolter",						"Plasma Bolter",			"9",		"PlasmaBolterAmmo",	" ",							"PBL9X0",		"WEPICO87"	},
 	 { "Ripper Cannon",						"Ripper Cannon",			"9",		"RipperCannonAmmo",	" ",							"TWP0X0",		"WEPICO89"	},
-};
+};*/
 
 #define WEPCHECK_SLOT1 "P_Slot1Replaced"
 #define WEPCHECK_SLOT1L "P_Slot1Luxury"
@@ -228,7 +344,7 @@ int CheckSuperWeaponPickup(void) {
 	return 0;
 }
 
-int GetCurrentWeaponID(void) {
+/*int GetCurrentWeaponID(void) {
 	int res = 0;
 	for(int i = 0; i < MAXWEPS; ++i) {
 		if(CheckWeapon(Weapons[i][WEAPON_NAME])) {
@@ -237,14 +353,14 @@ int GetCurrentWeaponID(void) {
 		}
 	}
 	return res;
-}
+}*/
 
 int PickRandomOwnedWeaponID(void) {
 	int count = 0, i, pnum = PlayerNumber();
 	static int owned_weapons[MAXPLAYERS][MAXWEPS];
 	// setup the list
 	for(i = 0; i < MAXWEPS; ++i) {
-		if(CheckInventory(Weapons[i][WEAPON_NAME])) {
+		if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
 			owned_weapons[pnum][count] = i;
 			++count;
 		}
@@ -256,9 +372,8 @@ int PickRandomOwnedWeaponID(void) {
 
 str GetWeaponAmmoType(int wepid, int which) {
 	if(!which)
-		return Weapons[wepid][WEAPON_AMMO1];
-	else
-		return Weapons[wepid][WEAPON_AMMO2];
+		return Weapons_Data[wepid][WEAPON_AMMO1];
+	return Weapons_Data[wepid][WEAPON_AMMO2];
 }
 
 bool IsBoomstick(int id) {
@@ -288,7 +403,7 @@ bool IsTemporaryWeapon(int id) {
 int GetWeaponCount() {
 	int res = 0;
 	for(int i = 0; i < MAXWEPS; ++i)
-		if(CheckInventory(Weapons[i][WEAPON_NAME]))
+		if(CheckInventory(Weapons_Data[i][WEAPON_NAME]))
 			++res;
 	return res;
 }
@@ -347,6 +462,82 @@ bool IsMeleeWeapon(int wepid) {
 		return false;
 	}
 	return false;
+}
+
+void DoWeaponTip(int curweap) {
+	if(!CheckInventory("TipBoxOpen")) {
+		ACS_ExecuteAlways(977, 0, 0, curweap);
+		GiveInventory("TipBoxOpen", 1);
+	}
+}
+
+// This needs a better name for real, but it returns indexing of slot for tabular format, not in-game slot of weapons
+// this will never change so I dont want to waste an array spot for this
+int GetSlotOfWeapon(int wepid) {
+	if(wepid <= LAST_SLOT0_WEAPON)
+		return 0;
+	if(wepid <= LAST_SLOT1_WEAPON)
+		return 1;
+	if(wepid <= LAST_SLOT2_WEAPON)
+		return 2;
+	if(wepid <= LAST_SLOT3_WEAPON)
+		return 3;
+	if(wepid <= LAST_SLOT4_WEAPON)
+		return 4;
+	if(wepid <= LAST_SLOT5_WEAPON)
+		return 5;
+	if(wepid <= LAST_SLOT6_WEAPON)
+		return 6;
+	if(wepid <= LAST_SLOT7_WEAPON)
+		return 7;
+	if(wepid <= LAST_SLOT8_WEAPON)
+		return 8;
+	return 9;
+}
+
+// This gets the in-game slot of the weapon
+int GetGameSlotOfWeapon(int wepid) {
+	int slot = GetSlotOfWeapon(wepid);
+	// 0 is melee, 1 is pistols, 2 is shotguns, 3 is super shotguns and 3 and above is fine, we need to add +1 to things below 2
+	if(slot <= 2)
+		return slot + 1;
+	return slot;
+}
+
+int GetWeaponOrderSlot(int wepid, int slot) {
+	switch(slot) {
+		case 0:
+		return wepid - FIRST_SLOT0_WEAPON;
+		case 1:
+		return wepid - FIRST_SLOT1_WEAPON;
+		case 2:
+		return wepid - FIRST_SLOT2_WEAPON;
+		case 3:
+		return wepid - FIRST_SLOT3_WEAPON;
+		case 4:
+		return wepid - FIRST_SLOT4_WEAPON;
+		case 5:
+		return wepid - FIRST_SLOT5_WEAPON;
+		case 6:
+		return wepid - FIRST_SLOT6_WEAPON;
+		case 7:
+		return wepid - FIRST_SLOT7_WEAPON;
+		case 8:
+		return wepid - FIRST_SLOT8_WEAPON;
+		case 9:
+		return wepid - FIRST_SLOT9_WEAPON;
+	}
+	return 0;
+}
+
+str GetWeaponTipText(int wepid) {
+	int slot = GetSlotOfWeapon(wepid);
+	int subid = GetWeaponOrderSlot(wepid, slot);
+	return StrParam(s:"WEPTIP_", d:slot, s:"_", d:subid);
+}
+
+str GetWeaponTag(int wepid) {
+	return StrParam(s:"WEP_", d:wepid, s:"_TAG");
 }
 
 #endif

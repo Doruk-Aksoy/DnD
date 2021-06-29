@@ -21,6 +21,7 @@ Actor " Shotgun " : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
+	Tag "$WEP_16_TAG"
 	states {
 		Spawn:
 			SGN1 Z -1
@@ -314,7 +315,7 @@ Actor "Upgraded Shotgun" : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
 	Decal "BulletChip"
-	Tag "Purifier"
+	Tag "$WEP_17_TAG"
 	+INVENTORY.UNDROPPABLE
 	states {
 		Spawn:
@@ -587,7 +588,7 @@ ACTOR "Upgraded Shotgun2" : Weapon
   Inventory.PickupMessage "$GOTSHOTGUN2"
   Inventory.PickupSound "weapons/pickup"
   Obituary "$OB_MPSSHOTGUN"
-  Tag "Killstorm"
+  Tag "$WEP_18_TAG"
   Decal "BulletChip"
   +INVENTORY.UNDROPPABLE
   Weapon.BobStyle InverseSmooth
@@ -760,7 +761,7 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 	Weapon.AmmoUse 1
 	Weapon.KickBack 100
 	+UNDROPPABLE
-	Tag "Emerald Wand"
+	Tag "$WEP_19_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4

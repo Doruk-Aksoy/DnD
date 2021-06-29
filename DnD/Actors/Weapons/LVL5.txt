@@ -9,6 +9,7 @@ Actor "Rocket Launcher" : RocketLauncher
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.9
 	Weapon.AmmoGive 0
+	Tag "$WEP_47_TAG"
    States
    {
    Spawn:
@@ -63,7 +64,7 @@ Actor "Upgraded Rocket Launcher" : RocketLauncher {
 	Weapon.Slotnumber 5
 	Inventory.PickupSound "weapons/pickup"
 	+INVENTORY.UNDROPPABLE
-	Tag "Torpedo Launcher"
+	Tag "$WEP_48_TAG"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
@@ -241,7 +242,7 @@ Actor "Upgraded Rocket Launcher2" : RocketLauncher {
 	Weapon.Slotnumber 5
 	Inventory.PickupSound "weapons/pickup"
 	+INVENTORY.UNDROPPABLE
-	Tag "Mercury Launcher"
+	Tag "$WEP_49_TAG"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
@@ -383,7 +384,7 @@ ACTOR "Upgraded Rocket Launcher3" : Weapon {
 	Inventory.PickupMessage "$GOTSHOTGUN2"
 	Inventory.PickupSound "weapons/pickup"
 	Obituary "$OB_MPSSHOTGUN"
-	Tag "Vindicator"
+	Tag "$WEP_50_TAG"
 	Decal "BulletChip"
 	+INVENTORY.UNDROPPABLE
 	Weapon.BobStyle InverseSmooth
@@ -789,7 +790,7 @@ Actor "Grenade Launcher" : RocketLauncher {
 	Obituary "%o was blown away by %k's grenade launcher!"
 	+NOAUTOAIM
 	+INVENTORY.UNDROPPABLE
-	Tag "Grenade Launcher"
+	Tag "$WEP_56_TAG"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
@@ -874,7 +875,7 @@ Actor "Upgraded Grenade Launcher" : RocketLauncher
 	Obituary "%o was blown away by %k's grenade launcher!"
 	+NOAUTOAIM
 	+INVENTORY.UNDROPPABLE
-	Tag "Rotary Grenade Launcher"
+	Tag "$WEP_57_TAG"
 	Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
@@ -1025,6 +1026,7 @@ ACTOR "Heavy Missile Launcher" : Weapon
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.9
+	Tag "$WEP_58_TAG"
    States
    {
    Spawn:
@@ -1164,6 +1166,7 @@ ACTOR "Sedrin Staff" : Weapon {
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
+	Tag "$WEP_59_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:

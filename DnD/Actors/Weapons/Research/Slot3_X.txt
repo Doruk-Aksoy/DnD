@@ -21,7 +21,7 @@ Actor ResSSG1 : Weapon {
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.55
 	Weapon.BobRangeX 0.75
-	Tag "Plasma Cannon"
+	Tag "$WEP_28_TAG"
 	states {
 		Spawn:
 			//RW02 "\" -1
@@ -266,7 +266,7 @@ Actor ResSSG2 : Weapon {
 	Weapon.BobSpeed 1.7
 	Weapon.BobRangeY 0.6
 	Weapon.BobRangeX 0.9
-	Tag "Shocker"
+	Tag "$WEP_29_TAG"
 	states {
 		Spawn:
 			WSON C -1
@@ -566,7 +566,7 @@ Actor ResSSG3 : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.6
 	Weapon.BobRangeX 0.7
-	Tag "Hades Auto Shotgun"
+	Tag "$WEP_30_TAG"
 	states {
 		Spawn:
 			STRG X -1
@@ -1340,7 +1340,7 @@ Actor ResSSG4 : Weapon {
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.45
 	Weapon.BobRangeX 0.65
-	Tag "Flayer Crossbow"
+	Tag "$WEP_31_TAG"
 	states {
 		Spawn:
 			TNT1 A -1

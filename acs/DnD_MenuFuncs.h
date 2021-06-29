@@ -124,13 +124,6 @@ int CalculateGreedBonus(int pnum) {
 	return GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1) + CheckInventory("Perk_Greed") * BASE_WISDOM_GAIN;
 }
 
-str CurrentWeapon() {
-	for(int i = 0; i < MAXWEPS; ++i)
-		if(CheckWeapon(Weapons[i][WEAPON_TAG]))
-			return Weapons[i][WEAPON_TAG];
-	return " ";
-}
-
 int IsSpecialFixWeapon(int id) {
     for(int i = 0; i < MAX_SPECIALAMMOFIX_WEAPONS; ++i)
         if(SpecialAmmoFixWeapons[i][0] == id)
@@ -421,12 +414,8 @@ int GetWeaponEndIndexFromOption(int curopt) {
 	return 0;
 }
 
-int GetWeaponSlotFromWeaponID(int wepid) {
-	return ParseInt(Weapons[wepid][WEAPON_SLOT]);
-}
-
 str GetWeaponToTake(int wepid) {
-	int slot = GetWeaponSlotFromWeaponID(wepid);
+	int slot = GetGameSlotOfWeapon(wepid);
 	if(slot != 8) {
 		if(!ParseInt(ShopItemNames[wepid][SHOPNAME_TYPE])) {
 			if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
@@ -501,7 +490,7 @@ void HandleWeaponInfoPanel(int curopt, int animcounter, int boxid) {
 
 void ShowWeaponIcon(int wep, int i, int k) {
 	SetHudSize(640, 480, 1);
-	SetFont(Weapons[wep][WEAPON_ICON]);
+	SetFont(Weapons_Data[wep][WEAPON_ICON]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 5, CR_WHITE, 280.1, 126.1 + 72.0 * i + 24.0 * k + 6.0 * ScrollPos, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -577,7 +566,7 @@ int ShopTableIdToWeaponTableId(int id) {
 
 str GetWeaponShopIcon(int id) {
 	id = ShopTableIdToWeaponTableId(id);
-	return Weapons[id][WEAPON_ICON];
+	return Weapons_Data[id][WEAPON_ICON];
 }
 
 void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
@@ -3700,14 +3689,14 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 		}
 		// first count over the weapons we must skip
 		for(i = 0; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
-			if(CheckInventory(Weapons[i][WEAPON_NAME]))
+			if(CheckInventory(Weapons_Data[i][WEAPON_NAME]))
 				++j;
 		if(j)
 			++i;
 		j = 0;
 		// i will count onwards from here
 		for(; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES && j < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
-			if(CheckInventory(Weapons[i][WEAPON_NAME])) {
+			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
 				if(boxid - 1 == j) {
 					//Log(s:"update item boxlit ", d:i);
 					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
@@ -3727,7 +3716,7 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 				else
 					SetFont("CRFBX_N");
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
-				SetFont(Weapons[i][WEAPON_ICON64]);
+				SetFont(Weapons_Data[i][WEAPON_ICON64]);
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
 				++j;
 			}
@@ -3841,7 +3830,7 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	if(itype != DND_ITEM_WEAPON)
 		SetFont(Item_Images[PlayerInventoryList[pn][extra1].item_image]);
 	else
-		SetFont(Weapons[extra1][WEAPON_ICON64]);
+		SetFont(Weapons_Data[extra1][WEAPON_ICON64]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0, INVENTORY_INFO_ALPHA);
 	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 	mx *= 3; mx /= 2;
@@ -3876,7 +3865,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 	else if(itype == DND_ITEM_WEAPON) {
 		j = PlayerNumber();
 		i = 0;
-		HudMessage(s:"\c[R5]", s:Weapons[extra1][WEAPON_TAG], s:":\c- \c[Y5]Slot - ", s:Weapons[extra1][WEAPON_SLOT]; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]Slot - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 		temp = GetWeaponEnchantDisplay(j, extra1);
 		// make sure quality text isn't on the weapon name
 		++i;

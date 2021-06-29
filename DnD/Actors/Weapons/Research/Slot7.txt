@@ -10,7 +10,7 @@ Actor ResBFG1 : Weapon {
 	Decal "BaronScorch"
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Ion Cannon"
+	Tag "$WEP_75_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.75
 	Weapon.BobRangeY 0.5
@@ -298,7 +298,7 @@ Actor ResBFG2 : Weapon {
 	Weapon.AmmoType2 "ThunderRangeCounter"
 	Inventory.PickupMessage "you got the thunder staff!"
 	Weapon.SlotNumber 7
-	Tag "Thunder Staff"
+	Tag "$WEP_76_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.75
 	Weapon.BobRangeY 0.4

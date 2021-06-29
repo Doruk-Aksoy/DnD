@@ -13,7 +13,7 @@ Actor ResPistol1 : Weapon {
 	+WEAPON.NOALERT
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Assault Rifle"
+	Tag "$WEP_12_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.45
@@ -195,7 +195,7 @@ Actor ResPistol2 : Weapon {
 	Weapon.AmmoGive 0
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "Viper Staff"
+	Tag "$WEP_13_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.35

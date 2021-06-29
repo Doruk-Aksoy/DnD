@@ -22,6 +22,7 @@ Actor Sawedoff : Weapon
   Weapon.BobSpeed 2.1
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.7
+  Tag "$WEP_84_TAG"
   states
   {
   Remove:
@@ -321,6 +322,7 @@ ACTOR "Soul Render" : Weapon
     Weapon.BobSpeed 2.1
     Weapon.BobRangeY 0.4
     Weapon.BobRangeX 0.7
+	Tag "$WEP_85_TAG"
    States
    {
    Spawn:
@@ -931,6 +933,7 @@ actor "SMG" : Weapon
   Weapon.BobSpeed 2.0
   Weapon.BobRangeY 0.3
   Weapon.BobRangeX 0.6
+  Tag "$WEP_86_TAG"
   States
   {
   Remove:
@@ -1125,6 +1128,7 @@ ACTOR "Hellforge Cannon" : Weapon
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.9
+	Tag "$WEP_87_TAG"
    States
    {
   Remove:
@@ -1445,6 +1449,7 @@ ACTOR "Bloodfiend Spine" : Weapon
   Weapon.BobSpeed 1.6
   Weapon.BobRangeY 0.6
   Weapon.BobRangeX 0.9
+  Tag "$WEP_88_TAG"
    States
    {
   Remove:
@@ -1799,7 +1804,7 @@ actor "Enforcer Rifle" : Weapon
   Weapon.BobSpeed 2.1
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.7
-  Tag "Laser Rifle"
+  Tag "$WEP_89_TAG"
   States
   {
   Remove:
@@ -2043,6 +2048,7 @@ ACTOR Venom : Weapon
   Weapon.BobSpeed 1.6
   Weapon.BobRangeY 0.6
   Weapon.BobRangeX 0.9
+  Tag "$WEP_90_TAG"
    States
    {
   Remove:
@@ -2463,6 +2469,7 @@ ACTOR "Demon Heart" : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.5
+	Tag "$WEP_91_TAG"
 	States {
 		Spawn:
 			TNT1 A -1 Bright
@@ -2765,7 +2772,7 @@ Actor DarkServantGloves : Weapon {
 	weapon.ammouse2 0
 	weapon.ammogive 0
 	weapon.ammogive2 0
-	Tag "Dark Servant Gloves"
+	Tag "$WEP_92_TAG"
 	YScale 0.59
 	XScale 0.4
 	+INVENTORY.UNDROPPABLE
@@ -3081,7 +3088,7 @@ Actor Nailgun2 : Weapon {
 	Weapon.BobSpeed 2.3
 	Weapon.BobRangeY 0.45
 	Weapon.BobRangeX 0.75
-	Tag "Heavy Nailgun"
+	Tag "$WEP_93_TAG"
 	States {
 		Spawn:
 			NLCG F -1
@@ -3363,7 +3370,7 @@ Actor Berettas : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "Akimbo Berettas"
+	Tag "$WEP_94_TAG"
 	States {
 		Spawn:
 			PAKM X -1
@@ -3567,7 +3574,7 @@ actor "Plasma Bolter" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.6
-	Tag "Plasma Bolter"
+	Tag "$WEP_95_TAG"
 	States {
 		Remove:
 			PBL9 A 1 Offset(0, 40)
@@ -3905,6 +3912,7 @@ actor "Ripper Cannon" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.65
+	Tag "$WEP_96_TAG"
 	States {
 		Remove:
 			TWP0 A 1 Offset(0, 40)

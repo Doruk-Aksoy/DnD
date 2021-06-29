@@ -189,7 +189,7 @@ enum {
 	BONUS_SECRET_RATE = 3,
 };
 							
-str WeaponPickupText[MAXWEPS] = {
+/*str WeaponPickupText[MAXWEPS] = {
 	 "Time to get your hands dirty. Does 10 - 30 damage normally or 180 - 240 with berserk per hit.",
 	 "Open invitiation to the slaughterhouse! Can be \cdreplaced.",
 	 "Double the blade, double the fun! Twice as much damage, same firing rate. Forces pain.",
@@ -300,31 +300,14 @@ str WeaponPickupText[MAXWEPS] = {
 	 "True classic, in akimbo fashion too! Shoots bullets doing 10-30 damage each. \ceTemporary Weapon.",
 	 "Can blast foes with plasma doing 24-40 damage with 35 explosion damage. Alt fire can shoot a ripping version of this same plasma. \ceTemporary Weapon.",
 	 "Ripper fires penetrating rounds in a 14.2 and 7.6 spread each doing 25 damage. \ceTemporary Weapon."
-};					
+};*/			
 	
 #define MAX_SPREE_TEXT 20
-str SpreeText[MAX_SPREE_TEXT] = {
-	"Cruel",
-	"Merciless",
-	"Crushing",
-	"Sadistic",
-	"Vicious",
-	"Destructive",
-	"Terrifying",
-	"Terrorizing",
-	"Rampage",
-	"Unstoppable",
-	"Massacre",
-	"Bloodthirsty",
-	"Monstrous",
-	"Genocide",
-	"Holocaust",
-	"Diabolical",
-	"Epic",
-	"Legendary",
-	"Godlike",
-	"HOLY SHIT"
-};
+#define SPREE_TEXT_PREFIX "DND_SPREETEXT"
+
+str GetSpreeText(int spree_id) {
+	return StrParam(s:SPREE_TEXT_PREFIX, d:spree_id);
+}
 
 #define DND_GOLDCHESTKEY_DROPRATE 0.1
 #define DND_SILVERCHESTKEY_DROPRATE 0.25
@@ -596,25 +579,25 @@ int CalculateBonus(int bonustype, int mdifficulty) {
 }
 
 void ShowBonusMessage(int bonustype, int y) {
-	int bval = CalculateBonus(bonustype,CheckInventory("MapDifficultyClientside"));
+	int bval = CalculateBonus(bonustype, CheckInventory("MapDifficultyClientside"));
 	SetHudSize(800, 600, 1);
 	SetFont("BIGFONT");
 	switch(bonustype) {
 		case BONUS_KILL:
 			LocalAmbientSound("RPG/KillBonus", 127);
-			HudMessage(s:"All monsters have been killed! ", d:bval, s:"% Exp bonus!"; HUDMSG_FADEINOUT, KILLBONUSID, CR_RED, 400.4, y, 4.0, 1.0, 1.0);
+			HudMessage(l:"DND_TEXT_MAXKILLS", d:bval, l:"DND_TEXT_MAXKILLREWARD"; HUDMSG_FADEINOUT, KILLBONUSID, CR_RED, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 		case BONUS_ITEM:
 			LocalAmbientSound("RPG/ItemBonus", 127);
-			HudMessage(s:"All items have been taken! ", d:bval, s:"% Credit Bonus!"; HUDMSG_FADEINOUT, ITEMBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
+			HudMessage(l:"DND_TEXT_MAXITEMS", d:bval, l:"DND_TEXT_MAXITEMREWARD"; HUDMSG_FADEINOUT, ITEMBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 		case BONUS_SECRET:
 			LocalAmbientSound("RPG/SecretBonus", 127);
-			HudMessage(s:"All secrets have been found! ", d:bval, s:"k Budget!"; HUDMSG_FADEINOUT, SECRETBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
+			HudMessage(l:"DND_TEXT_MAXSECRETS", d:bval, l:"DND_TEXT_MAXSECRETREWARD"; HUDMSG_FADEINOUT, SECRETBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 		case BONUS_BONUS:
 			LocalAmbientSound("RPG/BonusBonus", 127);
-			HudMessage(s:"The entire map is toast! You're fully healed!"; HUDMSG_FADEINOUT, BONUSBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
+			HudMessage(l:"DND_TEXT_MAPTOAST"; HUDMSG_FADEINOUT, BONUSBONUSID, CR_GOLD, 400.4, y, 4.0, 1.0, 1.0);
 		break;
 	}
 }
@@ -1113,13 +1096,6 @@ void ApplyRandomCurse() {
 		case 7:
 			GiveInventory("DnD_Curse_Paladin", 1);
 		break;
-	}
-}
-
-void DoWeaponTip(int curweap) {
-	if(!CheckInventory("TipBoxOpen")) {
-		ACS_ExecuteAlways(977, 0, 0, curweap);
-		GiveInventory("TipBoxOpen", 1);
 	}
 }
 
