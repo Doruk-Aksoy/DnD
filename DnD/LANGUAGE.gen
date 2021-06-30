@@ -1,8 +1,9 @@
 [enu default]
 
-DND_PICKUP_HEALTH						= "\ccHealth pickup : \c[Y5]";
+DND_PICKUP_HEALTH						= "Health pickup : ";
 DND_PICKUP_DEMONESSENCE					= "Demon Essence.";
-DND_PICKUP_WEAPON						= "\ccWeapon Pickup : \c[Y5]";
+DND_PICKUP_WEAPON						= "Weapon Pickup : ";
+DND_PICKUP_RESEARCH						= "\ccResearch Item : \c[Y5]Discovered ";
 
 DND_TEXT_MAXKILLS 						= "All monsters have been killed! ";
 DND_TEXT_MAXKILLREWARD 					= "% Exp bonus!";

@@ -4,9 +4,7 @@
 #include "DnD_SpecialAmmo.h"
 #include "DnD_CommonResearch.h"
 
-str ResearchPrefix = "\ccResearch Item : \c[Y5]Discovered ";
-
-str Research_Label[MAX_RESEARCHES] = {
+/*str Research_Label[MAX_RESEARCHES] = {
     "Rare Armors",
     "Super Armor",
     "Medikit Storing",
@@ -87,7 +85,15 @@ str Research_Label[MAX_RESEARCHES] = {
 	"Synth-metal Mask",
 	
 	"Increased Stash Tabs"
-};
+};*/
+
+str GetResearchLabel(int res_id) {
+	return StrParam(s:"RES_LABEL", d:res_id);
+}
+
+str GetResearchDescription(int res_id) {
+	return StrParam(s:"RES_DESC", d:res_id);
+}
 
 enum {
 	RESF_NODROP = 1,

@@ -1,0 +1,98 @@
+[enu default]
+
+// color code is combined together here, as 100% of the time when we display these it is with color anyway and saves from looking it up
+
+/* color code list:
+	DND_TRAITCODE_WEAKNESS				----			"\cf"
+	DND_TRAITCODE_RESIST				----			"\cu"
+	DND_TRAITCODE_IMMUNITY				----			"\cm"
+	DND_TRAITCODE_AGGRESSIVE			----			"\cg"
+	DND_TRAITCODE_DEFENSIVE				----			"\cq"
+	DND_TRAITCODE_UTILITY				----			"\cv"
+
+	very special or rare ones (like legendary) are "\ci"
+*/
+
+DND_EMOD_ENERGYWEAKNESS			= "\cfEnergy Weakness\c-";
+DND_EMOD_SILVERWEAKNESS			= "\cfSilver Weakness\c-";
+DND_EMOD_FIREWEAKNESS			= "\cfFire Weakness\c-";
+DND_EMOD_ICEWEAKNESS			= "\cfIce Weakness\c-";
+DND_EMOD_MAGICWEAKNESS			= "\cfMagic Weakness\c-";
+DND_EMOD_ELEWEAKNESS			= "\cfElemental Weakness\c-";
+
+DND_EMOD_EXPRESIST				= "\cuExplosive Resist\c-";
+DND_EMOD_PHYSRESIST				= "\cuPhysical Resist\c-";
+DND_EMOD_ENERGYRESIST			= "\cuEnergy Resist\c-";
+DND_EMOD_MAGICRESIST			= "\cuMagic Resist\c-";
+DND_EMOD_ELERESIST				= "\cuElemental Resist\c-";
+
+DND_EMOD_HIGHEXPRESIST			= "\cmHigh Explosive Resist\c-";
+DND_EMOD_EXPIMMUNE				= "\cmExplosive Immune\c-";
+DND_EMOD_PHYSIMMUNE				= "\cmPhysical Immune\c-";
+DND_EMOD_ENERGYIMMUNE			= "\cmEnergy Immune\c-";
+DND_EMOD_MAGICIMMUNE			= "\cmMagic Immune\c-";
+DND_EMOD_ELEIMMUNE				= "\cmElemental Immune\c-";
+
+DND_EMOD_GHOST					= "\cqGhost\c-";
+DND_EMOD_HARDSKIN				= "\cqHardened Skin\c-";
+DND_EMOD_REFLECTIVE				= "\cqReflective\c-";
+DND_EMOD_SUMMONMINION			= "\cqSummon Minion\c-";
+DND_EMOD_CANCURSE				= "\cvCan Curse\c-";
+	
+DND_EMOD_CANHEAL				= "\cqCan Heal\c-";
+DND_EMOD_CANBLOCK				= "\cqCan Block\c-";
+DND_EMOD_CANSPLIT				= "\cqCan Split\c-";
+DND_EMOD_CANRAISE				= "\cvCan Raise\c-";
+DND_EMOD_CANTELEPORT			= "\cvCan Teleport\c-";
+	
+DND_EMOD_RESFALLEN				= "\cvResurrect Fallen\c-";
+DND_EMOD_MOBILITY				= "\cvMobility\c-";
+DND_EMOD_HOMING					= "\cgHoming\c-";
+DND_EMOD_POISONOUS				= "\cvPoisonous\c-";
+DND_EMOD_DEATHSURP				= "\cqDeath Surprise\c-";
+	
+DND_EMOD_RAGE					= "\cgRage\c-";
+DND_EMOD_PIERCEARMOR			= "\cgPierces Armor\c-";
+DND_EMOD_AGGRESSIVE				= "\cgAggressive\c-";
+DND_EMOD_EXTRAFAST				= "\cgExtra Fast\c-";
+DND_EMOD_FASTREACT				= "\cgFast Reaction\c-";
+
+DND_EMOD_NOPAIN					= "\cvNo Pain\c-";
+DND_EMOD_EXTRASTRONG			= "\cgExtra Strong\c-";
+DND_EMOD_VITAL					= "\cqVital\c-";
+DND_EMOD_ARMORPEN				= "\cgArmor Penetration\c-";
+DND_EMOD_PET					= "\cvPet Creature\c-";
+	
+DND_EMOD_ISBLOCKING				= "\cqBlocking Attacks\c-";
+	
+DND_EMOD_SUMMONED				= "\cvSummoned Creature\c-";
+DND_EMOD_REVIVED				= "\cvRevived\c-";
+DND_EMOD_ICECREATURE			= "\cuIce Creature\c-";
+DND_EMOD_FIRECREATURE			= "\cuFire Creature\c-";
+DND_EMOD_STONECREATURE			= "\cuStone Creature\c-";
+DND_EMOD_EARTHCREATURE			= "\cuEarth Creature\c-";
+	
+DND_EMOD_BLOODLESS				= "\cqBloodless\c-";
+DND_EMOD_VIOLENTRET				= "\cgViolent Retaliation\c-";
+DND_EMOD_THIEF					= "\cvThief\c-";
+DND_EMOD_HEXFUSION				= "\cvHexfusion\c-";
+DND_EMOD_REBIRTH				= "\cqRebirth\c-";
+DND_EMOD_VENOMANCER				= "\cmVenomancer\c-";
+DND_EMOD_FRIGID					= "\cmFrigid\c-";
+DND_EMOD_SCORCHED				= "\cmScorched\c-";
+DND_EMOD_INSULATED				= "\cmInsulated\c-";
+DND_EMOD_REJUVENATE				= "\cqRejuvenating\c-";
+	
+DND_EMOD_HATRED					= "\cgHatred\c-";
+DND_EMOD_SHOCKER				= "\cvShocker\c-";
+DND_EMOD_VAMPIRISM				= "\cgVampirism\c-";
+DND_EMOD_FORTIFIED				= "\cqFortified\c-";
+DND_EMOD_SUBORDINATE			= "\cqSubordinate\c-";
+DND_EMOD_REPEL					= "\cqRepel\c-";
+DND_EMOD_PHANTASM				= "\cqPhantasm\c-";
+DND_EMOD_CRIPPLE				= "\cvCripple\c-";
+DND_EMOD_RUINATION				= "\cgRuination\c-";
+	
+DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";
+	
+DND_EMOD_LEGENDARY				= "\ciLegendary\c-";

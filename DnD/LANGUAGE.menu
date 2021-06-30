@@ -1,0 +1,227 @@
+[enu default]
+
+DND_MENU_WELCOME		=	"Welcome to the DnD Menu";
+
+DND_MENU_BOBBY1			= 	"This is Doom's first interactive super cool UAC Menu, ran by none other than \c[Y5]Bobby\c- \cj\"\c-\cmCombine\cqb\cjo\crb\cmnt\c-\" \c[Y5]Sanchez\c-! "
+							"Through this interface, you're directly connected to the UAC Database! You can make your purchases of various goodies here.";
+
+DND_MENU_BOBBY2			=	"Use your mouse cursor and left click to do your selections. There are various pages with various items in them, so be sure "
+							"to explore all of it! If you wish to sell a weapon, use altfire key to do so.";
+							
+DND_MENU_BOBBY3			=	"I don't have all day, I have yet to finish my important projects such as \cdM\ctS\cfP\crD\c- so don't bother me for long! Buy your shit and leave!";
+
+DND_MENU_AVGMONLEVEL	=	"Average Monster Level";
+
+DND_MENU_MAPINFO		=	"Show Map Info: ";
+
+// basic words
+DND_MENU_ENABLED		=	"\cdEnabled";
+DND_MENU_DISABLED		=	"\cgDisabled";
+DND_MENU_ERROR			=	"ERRROR";
+DND_MENU_CONFIRM		=	"CONFIRM";
+
+DND_MENU_HEAD_HELP		=	"DnD Help";
+
+DND_MENU_HEAD_RESGUNS	=	"RESEARCH: GUNS";
+
+DND_MENU_RESEARCH		=	"Research!";
+
+DND_MENU_ITEMS			=	"Items";
+DND_MENU_INVENTORY		=	"Inventory";
+DND_MENU_STASH			=	"Stash";
+DND_MENU_CHARMS			=	"Charms";
+DND_MENU_CRAFTING		=	"Crafting";
+DND_MENU_ACCESSORIES	=	"Accessories";
+DND_MENU_TRADING		=	"Trading";
+DND_MENU_VIEWINV		=	"View Inventory";
+
+DND_MENU_WEAPONS		=	"Weapons Menu";
+DND_MENU_AMMO			=	"Ammunition Menu";
+DND_MENU_ABILITIES		=	"Abilities Menu";
+DND_MENU_ARTIFACTS		=	"Artifacts Menu";
+DND_MENU_ARMORS			=	"Armors Menu";
+DND_MENU_ACCOUNT		=	"Account Menu";
+
+DND_MENU_AMMOCATEGORY	=	"Ammo Category";
+DND_MENU_SPECIALAMMO	=	"Special Ammo";
+
+DND_MENU_WEPCRAFT		=	"Weapons Crafting";
+DND_MENU_INVCRAFT		=	"Inventory Crafting";
+
+DND_RESMENU_BODY		=	"Research Category: Body";
+DND_RESMENU_AMMO		=	"Research Category: Ammo";
+DND_RESMENU_GUNS		=	"Research Category: Guns";
+DND_RESMENU_UTILITY		=	"Research Category: Utility";
+
+DND_RESMENU_SUBSLOT		=	"Sub Category: Slot Guns";
+DND_RESMENU_SUBLUX		=	"Sub Category: Luxury Bundles";
+
+DND_MENU_HELPTEXT1		=	"Character Loading Help";
+DND_MENU_HELPTEXT2		=	"Class Perk Help";
+DND_MENU_HELPTEXT3		=	"Weapon Property Help";
+DND_MENU_HELPTEXT4		=	"Research Help";
+DND_MENU_HELPTEXT5		=	"Damage Types Help";
+DND_MENU_HELPTEXT6		=	"Orbs Help";
+DND_MENU_HELPTEXT7		=	"Monster Modifiers Help";
+DND_MENU_HELPTEXT8		=	"Legendary Monster Codex";
+
+DND_MENU_MMOD_WEAK		=	"Weakness Modifiers";
+DND_MENU_MMOD_RESIST	=	"Resistance Modifiers";
+DND_MENU_MMOD_IMMUNE	=	"Immunity Modifiers";
+DND_MENU_MMOD_AGGRESS	=	"Agressive Modifiers";
+DND_MENU_MMOD_DEFENSE	=	"Defensive Modifiers";
+DND_MENU_MMOD_UTILITY	=	"Utility Modifiers";
+DND_MENU_MMOD_SPECIAL	=	"Special Modifiers";
+
+DND_MENU_BULLETTEXT		=	"\c[Y5]Bullet\n\nThe simplest of all types. You'll find this in many semi-auto or fully automatic weapons. Counts as \cuphysical\c- damage.";
+DND_MENU_SHELLTEXT		=	"\c[Y5]Shell\n\nAnother very common type. Mostly found in shotgun type weapons. Counts as \cuphysical\c- damage.";
+DND_MENU_MELEETEXT		=	"\c[Y5]Melee\n\nFound specifically in close combat weapons. Magical weapons deal \cvmagic\c- damage with their melee, but otherwise counts as \cuphysical\c- damage. Only found in \c[Y5]Slot 1\c-.";
+DND_MENU_OCCULTTEXT		=	"\c[Y5]Occult\n\nDemonic or holy weapons utilize this damage type. The most dominant weapons of this type are \c[Y5]Slot 8\c- weapons. Magical and undead monsters take extra damage from this type.";
+DND_MENU_EXPLOTEXT		=	"\c[Y5]Explosive\n\nMany weapons that feature explosions use this damage type. Mostly found in \c[Y5]Slot 5\c- weapons.";
+DND_MENU_ENERGYTEXT		=	"\c[Y5]Energy\n\nGeneral category of the plasma type weapons. Mostly found in \c[Y5]Slot 6\c- and \c[Y5]7\c- weapons. Mechanical enemies take extra damage from this type.";
+DND_MENU_ELEMENTTEXT	=	"\c[Y5]Elemental\n\nThis damage type is found in weapons that utilize any of the four elements in their attacks. This type is generally spread out in the weapon slots.";
+
+DND_MENU_WEPHELPTEXT1	=	"\c[Y5]Through Ghost\n\nCan't hit enemies with the \cughost\c- modifier.";
+DND_MENU_WEPHELPTEXT2	=	"\c[Y5]Self Damage\n\nWeapon can inflict \ciself damage\c-.";
+DND_MENU_WEPHELPTEXT3	=	"\c[Y5]Overheat\n\nWeapon will \cgoverheat\c- on continuous use.";
+DND_MENU_WEPHELPTEXT4	=	"\c[Y5]Ignores Shields\n\nWeapon can \cfignore shields\c- or any kind of \cfinvulnerability\c- on monsters.";
+DND_MENU_WEPHELPTEXT5	=	"\c[Y5]Alternate Ammo\n\nWeapon supports usage of \cvalternate ammo\c- through altfire.";
+DND_MENU_WEPHELPTEXT6	=	"\c[Y5]Ripper\n\nWeapon has attacks that rip through enemies unless they have the \"Hardened Skin\" modifier.";
+DND_MENU_WEPHELPTEXT7	=	"\c[Y5]Irreducable\n\nWeapon has attacks that can't be mitigated by any resistance.";
+
+DND_MENU_RESHELPTEXT1	=	"Researches help you unlock parts of the menu or certain abilities of your character. These can be weapons, abilities, artifacts, accessories and more!";
+DND_MENU_RESHELPTEXT2	=	"All researches require a research document. These documents contain top secret information that was discovered by UAC from the remains of your enemies.";
+DND_MENU_RESHELPTEXT3	=	"Through the information found in the research documents, you can have researches conducted and discover new features. The features use their own resource called \cv\"Budget\"\c-.";
+DND_MENU_RESHELPTEXT4	=	"\cvBudget\c- can only be gained by finishing maps. Upon completion of a map, you get \cvbudget\c- depending on the difficulty of the map. The harder the map the more budget you get.";
+DND_MENU_RESHELPTEXT5	=	"Once you obtain the required amount of \cvbudget\c-, you can go ahead and finish your research. When the research is concluded, you can use the feature the research enables.";
+
+DND_MENU_CHARHELPTEXT1	=	"Character loading is a feature only available in servers with \cvSoftcore\c- or \cgHardcore\c- modes enabled. You can do this using \c[Y5]\"sethardcore\"\c- or \c[Y5]\"setsoftcore\"\c- command or setting appropriate flags.";
+DND_MENU_CHARHELPTEXT2	=	"There are numerous flags that require to be set in order for the above modes to work properly. A full list of them can be found on our discord at: https://discord.gg/Gffvznu";
+DND_MENU_CHARHELPTEXT3	=	"You can skip the loading phase using \cf\"skipload\"\c- command in case you are starting a fresh character, or simply don't want to load.";
+DND_MENU_CHARHELPTEXT4	=	"You should in general use the \cf\"setchar X\"\c- command to set your character slot if you are starting fresh.";
+DND_MENU_CHARHELPTEXT5	=	"Avoid slot 1 as it's the default one, it can cause overwrites. Try to prefer slots 2 to 4 as much as possible.";
+DND_MENU_CHARHELPTEXT6	=	"You can have a maximum of 4 characters total from slots 1 to 4. However, your selected character will be wiped out on death should you die in \cgHardcore\c- mode, so caution is advised!";
+DND_MENU_CHARHELPTEXT7	=	"You'll be given a set amount of time before the game starts so that you can load your character safely. There are no monsters during this period.";
+DND_MENU_CHARHELPTEXT8	=	"Loading procedure is as follows:\n1. Open Console\n2.Login using \"login username password\".\n3. Type \cf\"loadme X\"\c- where 'X' is your character slot number.\n3. Wait for others to load.";
+
+DND_MENU_LEGHELPTEXT1	=	"\c[Y5]The Dreaming God\nThe evil entity known only as the \"Dreaming God\" wanders realms unknown to many for as long as the universe, or at least that's what we think. Research shows this creature is immune to any magical or elemental attack.";
+DND_MENU_LEGHELPTEXT2	=	"\c[Y5]Torrasque\nThis unwavering creature appears to be magically created by an immensely powerful wizard, long ago. Now it chose this realm to feast upon. We found that the creature is highly resistant to physical, energy and explosive attacks.";
+DND_MENU_LEGHELPTEXT3	=	"\c[Y5]Mordecqai\nOnce the great ruler of the \"Realm of Suffering\", now a wanderer to consume and gain powers of whatever creature comes its way. It seems to be completely immune to fire and explosive attacks.";
+DND_MENU_LEGHELPTEXT4	=	"\c[Y5]God Slayer\nA fearsome mech built by UAC to destroy the demonic menace, gone rogue by the evil powers of Hell. The robot will target only humans and has some interesting AI... Seems to be impervious to bullets. Explosives seem to do little, too.";
+DND_MENU_LEGHELPTEXT5	=	"\c[Y5]Golgoth\nAncient as time, this malignant being seeks only to torture the living to empower its domain. Seems to have manifested itself on Earth this time... Research shows it's explosive immune and magic resistant.";
+
+// popup text
+DND_POPUP_NOFUNDS							=	"Insufficient funds.";
+DND_POPUP_CANTBUY							=	"You can't buy this item.";
+DND_POPUP_ALREADYOWN						=	"You already own this\nitem!";
+DND_POPUP_DONTOWN							=	"You don't own this item.";
+DND_POPUP_NEEDRESEARCH						=	"You need to research\nthis item!";
+DND_POPUP_NOBUDGET							=	"Insufficient budget!";
+DND_POPUP_NEEDDISCOVER						=	"You need to discover\nthis research!";
+DND_POPUP_ALREADYRESEARCHED					=	"You already did this\nresearch!";
+DND_POPUP_MAXACCESSORYEQUIPPED				=	"Unequip some accesso-\nries first!";
+DND_POPUP_NOTALENTPOINT						=	"You need to acquire\ntalent points!";
+DND_POPUP_ACCESSORYNOTFOUND					=	"You don't have this\naccessory yet!";
+DND_POPUP_CHARMMISMATCH						=	"Mismatching charm\ntype!";
+DND_POPUP_NOITEMTHERE						=	"No item selected!";
+DND_POPUP_TARGETISTRADING					=	"Selected player is\ntrading with someone\nelse!";
+DND_POPUP_YOUARETRADING						=	"You can't trade while\nalready in a trade!";
+DND_POPUP_NOSPACEFORTRADE					=	"Not enough space for\ntrade offerings!";
+DND_POPUP_YOUAREMUTED						=	"Targeted player has\nmuted you from\ntrading!";
+DND_POPUP_ITEMNEEDSTARGET					=	"Material requires\nanother item to\nbe used on!";
+DND_POPUP_MATERIALCANTUSE					=	"Conditions for the\nmaterial not met!";
+DND_POPUP_ITEMTYPEMISMATCH					=	"Mismatching item\ntype!";
+DND_POPUP_NOSPOTFORITEM						=	"No free spot to\nplace the item!";
+DND_POPUP_POINTLESSARMOR					=	"Can't replace armor\nwith same type! Try\nfill instead.";
+DND_POPUP_OUTOFSTOCK						=	"Out of stock! Wait\nnext map to restock.";
+DND_POPUP_NOARMORWORN						=	"You don't have an\narmor equipped!";
+DND_POPUP_ARMORISFULL						=	"Armor isn't damaged!";
+DND_POPUP_NOREPAIRTOKENS					=	"You don't have any\nrepair tokens!";
+DND_POPUP_YOUARENTALLOWED					=	"You aren't allowed\nto buy this item!";
+
+DND_MENU_SELLCONFIRM						=	"Are you sure you\nwant to sell your";
+
+// monster mod explanations
+// weakness group
+DND_MENU_MMOD_WEAK1		=	"Monster takes 25% more damage from energy attacks.";
+DND_MENU_MMOD_WEAK2		=	"Monster takes 300% more damage from silver bullets.";
+DND_MENU_MMOD_WEAK3		=	"Monster takes 50% more damage from fire attacks.";
+DND_MENU_MMOD_WEAK4		=	"Monster takes 50% more damage from ice attacks.";
+DND_MENU_MMOD_WEAK5		=	"Monster takes 25% more damage from occult attacks.";
+DND_MENU_MMOD_WEAK6		=	"Monster takes 50% more damage from elemental attacks.";
+
+// resistance group
+DND_MENU_MMOD_RES1		=	"Monster takes 50% reduced damage from explosives.";
+DND_MENU_MMOD_RES2		=	"Monster takes 50% reduced damage from melee and ballistic attacks.";
+DND_MENU_MMOD_RES3		=	"Monster takes 50% reduced damage from energy attacks.";
+DND_MENU_MMOD_RES4		=	"Monster takes 50% reduced damage from occult attacks.";
+DND_MENU_MMOD_RES5		=	"Monster takes 50% reduced damage from elemental attacks.";
+DND_MENU_MMOD_RES6		=	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.";
+DND_MENU_MMOD_RES7		=	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.";
+DND_MENU_MMOD_RES8		=	"Monster is a being of stone, has ice weakness, fire resist, immunity to earth and lightning, and Hardened Skin.";
+DND_MENU_MMOD_RES9		=	"Monster is a being of earth, takes 50% more damage from lightning, but immune to earth attacks.";
+
+// immunity group
+DND_MENU_MMOD_IMM1		=	"Monster is immune to area damage.";
+DND_MENU_MMOD_IMM2		=	"Monster is immune to explosives.";
+DND_MENU_MMOD_IMM3		=	"Monster is immune to any kind of melee or ballistic attack.";
+DND_MENU_MMOD_IMM4		=	"Monster is immune to energy attacks.";
+DND_MENU_MMOD_IMM5		=	"Monster is immune to occult attacks.";
+DND_MENU_MMOD_IMM6		=	"Monster is immune to elemental attacks.";
+DND_MENU_MMOD_IMM7		=	"Monster is immune to poison effects.";
+DND_MENU_MMOD_IMM8		=	"Monster is immune to chill and freeze.";
+DND_MENU_MMOD_IMM9		=	"Monster is immune to ignite.";
+DND_MENU_MMOD_IMM10		=	"Monster is immune to overloading.";
+
+// agressive group
+DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";
+DND_MENU_MMOD_AGG2		=	"Monster has attacks that ignores armor.";
+DND_MENU_MMOD_AGG3		=	"Monster is extra aggressive.";
+DND_MENU_MMOD_AGG4		=	"Monster is twice as fast.";
+DND_MENU_MMOD_AGG5		=	"Monster reacts to whoever hits it immediately.";
+DND_MENU_MMOD_AGG6		=	"Monster deals twice as much damage.";
+DND_MENU_MMOD_AGG7		=	"Monster ignores armor of player with every attack.";
+DND_MENU_MMOD_AGG8		=	"Monster has 50% chance to throw explosive projectiles when hurt.";
+DND_MENU_MMOD_AGG9		=	"Never infights with any other monster, and monsters do not target it for infights.";
+DND_MENU_MMOD_AGG10		=	"Monster heals for 10% of its max health whenever it hurts you.";
+DND_MENU_MMOD_AGG11		=	"Monster hits build ruination stacks. At 7 stacks, lose all armor and 12.5% of max health or 33% of max health if wearing no armor. Stacks each last 3 seconds.";
+
+// defensive group
+DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";
+DND_MENU_MMOD_DEF2		=	"Monster is impervious to ripping attacks.";
+DND_MENU_MMOD_DEF3		=	"Monster reflects certain projectiles on hit.";
+DND_MENU_MMOD_DEF4		=	"Monster can summon minions.";
+DND_MENU_MMOD_DEF5		=	"Monster can heal nearby monsters.";
+DND_MENU_MMOD_DEF6		=	"Monster has means to block attacks from players. Weapons that \cfignore shields\c- are effective.";
+DND_MENU_MMOD_DEF7		=	"Monster can split into other monsters.";
+DND_MENU_MMOD_DEF8		=	"Monster has a death activated ability.";
+DND_MENU_MMOD_DEF9		=	"Monster has 75% more health.";
+DND_MENU_MMOD_DEF10		=	"Monster is currently blocking attacks. Receives no damage unless attacks \cfignore shields\c-.";
+DND_MENU_MMOD_DEF11		=	"You can't leech life from this the monster.";
+DND_MENU_MMOD_DEF12		=	"Monster spawns 5 wraiths on death.";
+DND_MENU_MMOD_DEF13		=	"Monster recovers 5% of it's health every second.";
+DND_MENU_MMOD_DEF14		=	"Monster has a third of its maximum health as a shield. The shield absorbs all damage until it depletes. Shield ignore effects bypass this.";
+DND_MENU_MMOD_DEF15		=	"Upon death, a monster of the same class with the highest rarity will spawn.";
+DND_MENU_MMOD_DEF16		=	"Monster pushes players away from it when they come close, once every 3 seconds.";
+DND_MENU_MMOD_DEF17		=	"Monster summons an invulnerable phantasm on death that slowly chases you for 20 seconds.";
+	
+// utility group
+
+DND_MENU_MMOD_UTI1		=	"Monster can curse the player.";
+DND_MENU_MMOD_UTI2		=	"Monster has a chance to raise from the dead.";
+DND_MENU_MMOD_UTI3		=	"Monster has means to teleport around.";
+DND_MENU_MMOD_UTI4		=	"Monster can resurrect other dead monsters.";
+DND_MENU_MMOD_UTI5		=	"Monster is capable of covering distances fast.";
+DND_MENU_MMOD_UTI6		=	"Monster has homing attacks.";
+DND_MENU_MMOD_UTI7		=	"Monster poisons player with certain attacks.";
+DND_MENU_MMOD_UTI8		=	"Monster feels no pain.";
+DND_MENU_MMOD_UTI9		=	"Monster belongs to a player and is friendly.";
+DND_MENU_MMOD_UTI10		=	"Monster is summoned by another and gives nothing on kill.";
+DND_MENU_MMOD_UTI11		=	"Monster is resurrected and doesn't give anything on kill.";
+DND_MENU_MMOD_UTI12		=	"Monster has 33% chance to steal 15% of current weapon's ammo from you with attacks.";
+DND_MENU_MMOD_UTI13		=	"Monster attacks have 33% chance to inflict a random curse.";
+DND_MENU_MMOD_UTI14		=	"Monster attacks will briefly stop your movement.";
+DND_MENU_MMOD_UTI15		=	"Monster has an aura that slows nearby players by 50%.";
+
+DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
+DND_MENU_MMOD_LEG		=	"Monster is unique.";

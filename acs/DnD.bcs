@@ -2670,7 +2670,7 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 				SetFont ("MONFONT");
 				for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
 					if(MonsterProperties[m_id].trait_list[i]) {
-						HudMessage(s:GetTraitColorCode(i), s:MonsterTraits[i]; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+						HudMessage(l:GetMonsterTraitLabel(i); 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
 						++j;
 					}
 				}
@@ -2715,21 +2715,21 @@ Script "DnD Item Dropchance" (int basechance) {
 Script "DnD Message Logger" (int type, int id, int id_is_special) CLIENTSIDE {
 	if(PlayerNumber() != ConsolePlayerNumber()) Terminate;
 	if(!type)
-		Log(l:"DND_PICKUP_WEAPON", s:TemporaryWeaponData[id - TEMPBEGIN][TEMPWEP_TAG], s:" - 9\c-");
+		Log(s:"\cc", l:"DND_PICKUP_WEAPON", s:"\c[Y5]", s:TemporaryWeaponData[id - TEMPBEGIN][TEMPWEP_TAG], s:" - 9\c-");
 	else if(type == 1) {
 		id = MapClassicWeaponToTableID(id);
-		Log(l:"DND_PICKUP_WEAPON", l:GetWeaponTag(id), s:" - ", d:GetGameSlotOfWeapon(id), s:"\c-");
+		Log(s:"\cc", l:"DND_PICKUP_WEAPON", s:"\c[Y5]", l:GetWeaponTag(id), s:" - ", d:GetGameSlotOfWeapon(id), s:"\c-");
 	}
     else if(type == 2) {
 		if(id_is_special)
-			Log(s:ResearchPrefix, s:Research_Label[id >> 16], s:"!");
+			Log(l:"DND_PICKUP_RESEARCH", l:GetResearchLabel(id >> 16), s:"!");
 		else
-			Log(s:ResearchPrefix, s:Research_Label[id], s:"!");
+			Log(l:"DND_PICKUP_RESEARCH", l:GetResearchLabel(id), s:"!");
 	}
 	else if(type == 3)
 		Log(s:SharedItemMessage[id]);
 	else if(type == 4)
-		Log(l:"DND_PICKUP_HEALTH", l:"DND_PICKUP_DEMONESSENCE");
+		Log(s:"\cc", l:"DND_PICKUP_HEALTH", s:"\c[Y5]", l:"DND_PICKUP_DEMONESSENCE");
 	else
 		Log(s:ChestKeyText[id]);
 }
@@ -3722,7 +3722,7 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	else if(num == DND_ANNOUNCER_LEGENDARYMONSTER) // this one is called from the monster spawner and thus must be hudmessagebold
 		HudMessageBold(s:"A legendary monster now walks\nthis land... Be wary.\c-"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
-		HudMessage(s:"You have discovered the following\nresearch: \cd", s:Research_Label[extra], s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(s:"You have discovered the following\nresearch: \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_TRADEREQUEST) {
 		LocalAmbientSound("TradeRequest", 127);
 		HudMessage(s:"You have a trade request from:\n", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
@@ -4992,7 +4992,7 @@ Script "DnD Player Pain Sound" (void) CLIENTSIDE {
 Script "DnD Research Fancy Message" (int res_id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:ResearchPrefix, s:Research_Label[res_id], s:"!");
+	Log(l:"DND_PICKUP_RESEARCH", l:GetResearchLabel(res_id), s:"!");
 	LocalAmbientSound("items/research", 127);
 	ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_RESEARCHDISCOVER, res_id);
 }

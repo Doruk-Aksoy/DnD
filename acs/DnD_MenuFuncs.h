@@ -499,7 +499,7 @@ void ShowWeaponIcon(int wep, int i, int k) {
 void ShowDamageTypeIcon(int dmg) {
 	SetHudSize(640, 480, 1);
 	SetFont(DamageTypeIcons[dmg]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_HELPTEXT_DAMAGETYPES - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_DAMAGE_TYPES - 1 - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -518,6 +518,8 @@ void ShowWeaponPropertyIcon(int id) {
 		offset = -8.0;
 	
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos, 0.0, 0.0);
+	SetHudClipRect(0, 0, 0, 0);
+	
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -1943,9 +1945,40 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// help monster mods
 		{
+			{ 289.0, 229.0, 144.0, 222.0 }, // weakness
+			{ 289.0, 213.0, 144.0, 206.0 }, // res
+			{ 289.0, 197.0, 144.0, 190.0 }, // imm
+			{ 289.0, 181.0, 144.0, 174.0 }, // agg
+			{ 289.0, 165.0, 144.0, 158.0 }, // def
+			{ 289.0, 149.0, 144.0, 142.0 }, // uti
+			{ 289.0, 133.0, 144.0, 126.0 }, // special
 			{ -1, -1, -1, -1 }
 		},
 		// help leg
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help mmod weakness
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help mmod resist
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help mmod immunity
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help mmod aggressive
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help mmod defensive
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help mmod utility
 		{
 			{ -1, -1, -1, -1 }
 		},
@@ -2199,11 +2232,19 @@ int GetTriggeredBoxOnMainPane(int mx, int my) {
 	return MAINBOX_NONE;
 }
 
-void DrawBoxText(str msg, int boxid, int thisboxid, int id, int x, int y, str hcolor, str lcolor) {
-	if(boxid == thisboxid)
-		HudMessage(s:hcolor, s:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
-	else
-		HudMessage(s:lcolor, s:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
+void DrawBoxText(str msg, bool language_lookup, int boxid, int thisboxid, int id, int x, int y, str hcolor, str lcolor) {
+	if(language_lookup) {
+		if(boxid == thisboxid)
+			HudMessage(s:hcolor, l:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
+		else
+			HudMessage(s:lcolor, l:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
+	}
+	else {
+		if(boxid == thisboxid)
+			HudMessage(s:hcolor, s:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
+		else
+			HudMessage(s:lcolor, s:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
+	}
 }
 
 void DrawClickableButton(str image, int boxid, int thisboxid, int id, int x, int y, str hoverimage, str clickimage) {
@@ -2439,17 +2480,17 @@ void HandleResearchPageDraw(int page, int boxid) {
 	if(status == RES_NA)
 		SetFont("RESNONE");
 	else
-		SetFont(ResearchStringInfo[page][posx].res_icon);
+		SetFont(ResearchIcons[page][posx]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
 
 	SetFont("SMALLFONT");
 	if(status != RES_NA) {
 		SetHudClipRect(192, 144, 256, 96, 256, 1);
-		HudMessage(s:ResearchStringInfo[page][posx].res_desc; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
+		HudMessage(l:GetResearchDescription(ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
 
-	DrawBoxText("Research!", boxid, MBOX_1, RPGMENUITEMIDEND + 2, 316.0, 240.0, "\c[B1]", "\c[Y5]");
+	DrawBoxText("DND_MENU_RESEARCH", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMIDEND + 2, 316.0, 240.0, "\c[B1]", "\c[Y5]");
 }
 
 void HandleResearchPageInput(int pnum, int page, int boxid) {
@@ -3656,13 +3697,13 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 			if(page) {
 				// remember to send -1 of the actual box here
 				EnableBoxWithPoints(p, MATERIALARROW_ID - 1, CRAFTING_LARR_X, CRAFTING_LARR_Y, CRAFTING_LARR_X - CRAFTING_ARROW_X_SKIP, CRAFTING_LARR_Y - CRAFTING_ARROW_Y_SKIP);
-				DrawBoxText("<=", boxid, MATERIALARROW_ID, RPGMENUID - MATERIALARROW_HUDID - 1, 388.0, 284.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MATERIALARROW_ID, RPGMENUID - MATERIALARROW_HUDID - 1, 388.0, 284.0, "\c[B1]", "\c[Y5]");
 			}
 			else
 				DisableBoxInPane(p, MATERIALARROW_ID - 1);
 			if(mcount - MAX_CRAFTING_MATERIALBOXES * (page + 1) > 0) {
 				EnableBoxWithPoints(p, MATERIALARROW_ID, CRAFTING_RARR_X, CRAFTING_LARR_Y, CRAFTING_RARR_X - CRAFTING_ARROW_X_SKIP, CRAFTING_LARR_Y - CRAFTING_ARROW_Y_SKIP);
-				DrawBoxText("=>", boxid, MATERIALARROW_ID + 1, RPGMENUID - MATERIALARROW_HUDID, 464.0, 284.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("=>", DND_NOLOOKUP, boxid, MATERIALARROW_ID + 1, RPGMENUID - MATERIALARROW_HUDID, 464.0, 284.0, "\c[B1]", "\c[Y5]");
 			}
 			else
 				DisableBoxInPane(p, MATERIALARROW_ID);
@@ -3726,7 +3767,7 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 		if(mcount > MAX_CRAFTING_ITEMBOXES) {
 			if(mcount - MAX_CRAFTING_ITEMBOXES * (page + 1) > 0) {
 				EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID, CRAFTING_PAGEARROWR_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWR_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
-				DrawBoxText("=>", boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("=>", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
 			}
 			else
 				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID);
@@ -3790,7 +3831,7 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 		if(mcount > MAX_CRAFTING_ITEMBOXES) {
 			if(mcount - MAX_CRAFTING_ITEMBOXES * (page + 1) > 0) {
 				EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID, CRAFTING_PAGEARROWR_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWR_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
-				DrawBoxText("=>", boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("=>", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
 			}
 			else
 				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID);
@@ -3962,19 +4003,19 @@ void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
 	CleanInventoryInfo();
 	HandleMaterialDraw(p, boxid, curopt, k);
 	if(curopt == MENU_LOAD_CRAFTING) {
-		DrawBoxText("Weapons Crafting", boxid, CRAFTING_WEAPON_BOXID + 1, RPGMENUID - 3, 24.1, 32.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("Inventory Crafting", boxid, CRAFTING_INVENTORY_BOXID + 1, RPGMENUID - 4, 24.1, 48.0, "\c[B1]", "\c[Y5]");
+		DrawBoxText("DND_MENU_WEPCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_WEAPON_BOXID + 1, RPGMENUID - 3, 24.1, 32.0, "\c[B1]", "\c[Y5]");
+		DrawBoxText("DND_MENU_INVCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_INVENTORY_BOXID + 1, RPGMENUID - 4, 24.1, 48.0, "\c[B1]", "\c[Y5]");
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
 		if(!k || CheckInventory("DnD_RefreshPane"))
 			EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
-		DrawBoxText("<=", boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		HandleCraftingWeaponDraw(p, boxid, k);
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
 		if(!k || CheckInventory("DnD_RefreshPane"))
 			EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
-		DrawBoxText("<=", boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		HandleCraftingInventoryDraw(p, boxid, k);
 	}
 	SetFont("SMALLFONT");
@@ -4420,4 +4461,41 @@ void DrawPlayerStats(int pnum) {
 	
 	if(k > 12)
 		ListenScroll(-k * 4, 0);
+}
+
+void DrawMonsterModCategory(int category) {
+	int i;
+	SetHudClipRect(192, 52, 256, 384, 256, 1);
+	switch(category) {
+		case DND_TRAITCODE_WEAKNESS:
+			for(i = 0; i < MAX_WEAKNESS_MODS; ++i)
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_WEAK", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+		break;
+		case DND_TRAITCODE_RESIST:
+			for(i = 0; i < MAX_RESIST_MODS; ++i)
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + RESMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_RES", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+		break;
+		case DND_TRAITCODE_IMMUNITY:
+			for(i = 0; i < MAX_IMMUNITY_MODS; ++i)
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + IMMMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_IMM", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+		break;
+		case DND_TRAITCODE_AGGRESSIVE:
+			for(i = 0; i < MAX_AGGRESSIVE_MODS; ++i)
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + AGGMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_AGG", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+		break;
+		case DND_TRAITCODE_DEFENSIVE:
+			for(i = 0; i < MAX_DEFENSE_MODS; ++i)
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + DEFMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_DEF", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+		break;
+		case DND_TRAITCODE_UTILITY:
+			for(i = 0; i < MAX_UTILITY_MODS; ++i)
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + UTIMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_UTI", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+		break;
+		case -1:
+			// since these are very few we can put these here for now
+			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 2]), s:"\n", l:"DND_MENU_MMOD_CHAOS"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.1 + 4.0 * ScrollPos, 0.0, 0.0);
+			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 1]), s:"\n", l:"DND_MENU_MMOD_LEG"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 132.1 + 4.0 * ScrollPos, 0.0, 0.0);
+		break;
+	}
+	SetHudClipRect(0, 0, 0, 0);
 }

@@ -972,6 +972,7 @@ enum {
 #define MAX_DAMAGE_TYPES 7 // 64
 str DamageTypeIcons[MAX_DAMAGE_TYPES] = { 
 	"DT_PHYS",
+	"DT_PHYS",
 	"DT_MELE",
 	"DT_OCCU",
 	"DT_EXPL",
@@ -1774,11 +1775,6 @@ typedef struct {
 	int res_cost;
 } res_info_T;
 
-typedef struct {
-	str res_icon;
-	str res_desc;
-} res_info_str_T;
-
 enum {
 	RESPAGE_BODY,
 	RESPAGE_AMMO,
@@ -2013,292 +2009,100 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	}
 };
 
-res_info_str_T ResearchStringInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
+str ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	// body
 	{
-		{
-			"RESBAK29",
-			"Nano-technology is finally here! Unlocks cybernetic abilities."
-		},
-		{
-			"RESBAK27",
-			"With this groundbreaking research, we can now utilize powers of the demons to empower ourselves! Unlocks certain abilities."
-		},
-		{
-			"RESBAK45",
-			"\c[R5]CYBERNETIC \cj- UAC has new bionic enhancements to allow you to withstand more punishment. Increases health capacity by 5%."
-		},		
-		{
-			"RESBAK46",
-			"\c[R5]CYBERNETIC \cj- Second enhancement to your body, with improved bionic elements. Increases health capacity by a further 6%."
-		},
-		{
-			"RESBAK47",
-			"\c[R5]CYBERNETIC \cj- Top notch bionic material with super-soldier injections to make you even stronger. Increases health capacity by a further 9%."
-		},
-		{
-			"RESBAK48",
-			"\c[R5]CYBERNETIC \cj- UAC can now field their soldiers with exoskeletons, making your armors better. Increases armor capacity by 5%."
-		},
-		{
-			"RESBAK49",
-			"\c[R5]CYBERNETIC \cj- Exoskeleton material is improved to be made even more durable. Increases armor capacity by a further 6%."
-		},
-		{
-			"RESBAK50",
-			"\c[R5]CYBERNETIC \cj- UAC found the ultimate material to create exoskeletons with. Increases armor capacity by a further 9%."
-		},
-		{
-			"RESBAK51",
-			"\c[R5]CYBERNETIC \cj- After studying the hide of several Cyberdemons you have sent, we can improve your body to make you take 10% less damage from your explosive attacks."
-		},
-		{
-			"RESBAK52",
-			"\c[R5]CYBERNETIC \cj- Studying further, we can now improve the previous enhancement to make you take 25% less damage from explosive attacks instead."
-		},
-		{
-			"RESBAK53",
-			"\c[R5]CYBERNETIC \cj- Superior impact protection. Improves previous enhancement to make you take 40% less damage from your explosive attacks instead."
-		},
-		{
-			"", ""
-		}
+		"RESBAK29",
+		"RESBAK27",
+		"RESBAK45",		
+		"RESBAK46",
+		"RESBAK47",
+		"RESBAK48",
+		"RESBAK49",
+		"RESBAK50",
+		"RESBAK51",
+		"RESBAK52",
+		"RESBAK53"
 	},
 	// special ammo types
 	{
-		{
-			"RESBAK5",
-			"Our scientists managed to create a highly ballistic shell that can scatter around and pierce targets, \cfignoring shields\c-."
-		},
-		{
-			"RESBAK6",
-			"We can now utilize the same bullets used by magnum handguns on shotguns. Magnum shells penetrate any target."
-		},
-		{
-			"RESBAK7",
-			"When you need some extra zap to go with your shell burst, we can use these now. They constantly lock enemies in their pain state and \cfignore shields\c-."
-		},
-		{
-			"RESBAK33",
-			"Always nice to greet your adversaries with some ice. Allows Riot Cannon to use Nitrogen Shells."
-		},
-		{
-			"RESBAK54",
-			"You can treat your shotgun like a sniper rifle now. Allows Deadlock to use Slug Shells, which can \cfignore shields\c-."
-		},
-		{
-			"RESBAK9",
-			"Sometimes it is not raw power you need, but some sustained damage. Unlocks Sonic Grenades."
-		},
-		{
-			"RESBAK8",
-			"For when normal grenades are insufficient, try a Heavy Explosive one. Unlocks HE Grenades."
-		},
-		{
-			"RESBAK10",
-			"New generation backpacks are super lightweight, marines can carry these to double the capacity of their special ammo types."
-		},
-		{
-			"", ""
-		}
+		"RESBAK5",
+		"RESBAK6",
+		"RESBAK7",
+		"RESBAK33",
+		"RESBAK54",
+		"RESBAK9",
+		"RESBAK8",
+		"RESBAK10"
 	},
 	// slot guns
 	{
-		{
-			"RESBAK34",
-			"A fine discovery buried in hell. Dusk blade hits real hard and lets its user experience the dusk mode. Unlocks Dusk Blade (1)."
-		},
-		{
-			"RESBAK35",
-			"Buried deep in the bowels of the earth, inferno sword is everything a pyromaniac would want! Shoot flames, cut enemies down! Unlocks Inferno Sword (1)."
-		},
-		{
-			"RESBAK18",
-			"Some of the zombies were using quite improved versions of your weaponry. Now we can utilize this for your slot 2 weapons. Unlocks Assault Rifle (2)."
-		},
-		{
-			"RESBAK41",
-			"An intriguing weapon, capable of summoning mobile snake traps or just shoot them directly! Unlocks Viper Staff (2)."
-		},
-		{
-			"RESBAK19",
-			"Through many investments we can now utilize better shotgun mechanics. Unlocks Deadlock (3)."
-		},
-		{
-			"RESBAK31",
-			"Sometimes it's better to just cool things down when things get heated up. Unlocks Nitrogen Crossbow (3)."
-		},
-		{
-			"RESBAK55",
-			"A strange artifact designed to inflict unimaginable torment on demons. Unlocks Wheel of Torment (3)."
-		},
-		{
-			"RESBAK60",
-			"Claimed from the now desolate planet Charon, this powerful blaster harnesses elements in ways we have never seen before. Unlocks Charon Blaster (3)."
-		},
-		{
-			"RESBAK20",
-			"Our scientists were obsessed with creating energy in fixed bursts and now they can! Unlocks Plasma Cannon (3)."
-		},
-		{
-			"RESBAK37",
-			"Destroy your enemies with a good style. Put holes in them and burn them after with heat! Unlocks Shocker (3)."
-		},
-		{
-			"RESBAK44",
-			"Hades... the god of underworld. Or so they say. His powers are now yours to command! Unlocks Hades Auto Shotgun (3)."
-		},
-		{
-			"RESBAK57",
-			"Ever wanted to feel like Van Helsing? Now you can with this bad boy, equipped with silver bolts. Unlocks Flayer Crossbow (3)."
-		},
-		{
-			"RESBAK21",
-			"Finally an answer to the undead menace, this silver bullet shooting machine gun will make quick work of undeads and magical creatures alike! Unlocks Templar MG (4)."
-		},
-		{
-			"RESBAK32",
-			"A combination of chaingun and shotgun, this fierce weapon is going to make demon paste. Can also use alternate shells. Unlocks Riot Cannon (4)."
-		},
-		{
-			"RESBAK36",
-			"We now have perfect material to contain powerful acid to use against demons! A very potent rifle. Unlocks Acid Rifle (4)."
-		},
-		{
-			"RESBAK42",
-			"We can produce small scale fusion reactions at will to produce super powered energy blasts. Unlocks Fusion Blaster (4)."
-		},
-		{
-			"RESBAK61",
-			"Through improved cooling and combustion techniques, we can deliver far more powerful fire blasts to your enemies. Unlocks Incinerator (4)."
-		},
-		{
-			"RESBAK22",
-			"Using energies of demons we can now create meteors at will and so can you! Unlocks Meteor Launcher (5)."
-		},
-		{
-			"RESBAK39",
-			"A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher (5)."
-		},
-		{
-			"RESBAK40",
-			"When you're desperate to get some ice for your drink, there's always a solution! Unlocks Freezer Cannon (5)."
-		},
-		{
-			"RESBAK58",
-			"Ultimate in gravity manipulation, we present you a behemoth of a weapon. Slam dunk! Unlocks Gravdis 5000 (5)."
-		},
-		{
-			"RESBAK59",
-			"Nothing is safe from the void... Except you, thanks to the special harness we created. Unlocks Void Cannon (5)."
-		},
-		{
-			"RESBAK23",
-			"It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both (5)."
-		},
-		{
-			"RESBAK24",
-			"Burning enemies to crisps is never boring! Unlocks Flame Thrower (6)."
-		},
-		{
-			"RESBAK25",
-			"For when you want to make a shocking entrance. Unlocks Lightning Gun (6)."
-		},
-		{
-			"RESBAK43",
-			"Show your love for bouncing particles! Shoot to your hearts content with Rebounder (6)."
-		},
-		{
-			"RESBAK62",
-			"The exorcist's favorite weapon. Destroy all foes of yours with their own power. Unlocks Dark Lance (6)."
-		},
-		{
-			"RESBAK26",
-			"We have miniguns, laser cannons and other various toys but not an Ion Cannon (7)... Now we do!"
-		},
-		{
-			"RESBAK38",
-			"An ominous staff, capable of electrocuting large groups of enemies at once. Unlocks Thunder Staff (7)."
-		},
-		{
-			"", ""
-		}
+		// slot 1
+		"RESBAK34",
+		"RESBAK35",
+		
+		// slot 2
+		"RESBAK18",
+		"RESBAK41",
+		
+		// slot 3 -- sg
+		"RESBAK19",
+		"RESBAK31",
+		"RESBAK55",
+		"RESBAK60",
+		
+		// slot 3 -- ssg
+		"RESBAK20",
+		"RESBAK37",
+		"RESBAK44",
+		"RESBAK57",
+		
+		// slot 4
+		"RESBAK21",
+		"RESBAK32",
+		"RESBAK36",
+		"RESBAK42",
+		"RESBAK61",
+		
+		// slot 5
+		"RESBAK22",
+		"RESBAK39",
+		"RESBAK40",
+		"RESBAK58",
+		"RESBAK59",
+		"RESBAK23",
+		
+		// slot 6
+		"RESBAK24",
+		"RESBAK25",
+		"RESBAK43",
+		"RESBAK62",
+		
+		// slot 7
+		"RESBAK26",
+		"RESBAK38"
 	},
 	// luxury guns
 	{
-		{
-			"RESBAK11",
-			"Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe (1)."
-		},
-		{
-			"RESBAK12",
-			"Some can say pistols are useless but we beg to differ. Some pistols can be quite potent. Unlocks Scatter Pistol and Ruby Wand (2)."
-		},
-		{
-			"RESBAK13",
-			"Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks Silver Gun and Slayer (3)."
-		},
-		{
-			"RESBAK14",
-			"Ever wanted to use more dangerous machineguns? Now you can! Unlocks Desolator Cannon, Minigun, Ebony Cannon and Multi-Phase Photon Blaster (4)."
-		},
-		{
-			"RESBAK15",
-			"Our scientists never cease to amaze us! We have new toys to blow things up with! Unlocks Rotary GL, Heavy Missile Launcher and Sedrin Staff (5)."
-		},
-		{
-			"RESBAK16",
-			"Destroying things has never been this fun! Demons sure know how to kill things... Unlocks Rhino AR, Nailgun and Basilisk (6)."
-		},
-		{
-			"RESBAK17",
-			"If you think you need a bit of sniping, try these! Unlocks Railgun, Gauss Rifle and Death Ray (7)."
-		},
-		{
-			"RESBAK28",
-			"Powerful demons can teach us a lot of things. Now we can utilize their immense power for even better weapons! Unlocks slot 8 weapons."
-		},
-		{
-			"", ""
-		}
+		"RESBAK11",
+		"RESBAK12",
+		"RESBAK13",
+		"RESBAK14",
+		"RESBAK15",
+		"RESBAK16",
+		"RESBAK17",
+		"RESBAK28"
 	},
 	// utility
 	{
-		{
-			"RESBAK1",
-			"By using parts from fallen enemies, we can manufacture armors of varying properties."
-		},
-		{
-			"RESBAK2",
-			"With this breakthrough technology, we can start distributing state of the art armors to the marines, blocking 100% of the damage. Unlocks Monolith Armor."
-		},
-		{
-			"RESBAK63",
-			"Findings on the dropped special armor from the zombie you killed shows that it may have been just like you, a corporate backed marine, once. We can now mass produce his armor through synthesis. Unlocks Synth-metal Armor."
-		},
-		{
-			"RESBAK64",
-			"The mask you've found is certainly very exquisite. This will protect your sight from vision impairing effects when hurt."
-		},
-		{
-			"RESBAK3",
-			"Instead of wasting medikits, by using this new technology we can allow marines to store the medikits picked up permanently. \cgMedic\c- perk increases the cap by 15% each."
-		},
-		{
-			"RESBAK4",
-			"Unlocking the occult secrets of demonic energy, we can allow marines to use ancient trophies they come across. Allows use of accessories."
-		},
-		{
-			"RESBAK30",
-			"Artifacts have always been an elusive aspect. However with demon technology we can harness even more! Unlocks certain artifacts."
-		},
-		{
-			"RESBAK56",
-			"UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs."
-		},
-		{
-			"", ""
-		}
+		"RESBAK1",
+		"RESBAK2",
+		"RESBAK63",
+		"RESBAK64",
+		"RESBAK3",
+		"RESBAK4",
+		"RESBAK30",
+		"RESBAK56"
 	}
 };
 
@@ -2344,95 +2148,69 @@ enum {
 };
 
 #define MAX_POPUPS (POPUP_YOUARENTALLOWED + 1)
-str PopupText[MAX_POPUPS] = {
-	"",
-	"Insufficient funds.",
-	"You can't buy this item.",
-	"You already own this\nitem!",
-	"You don't own this item.",
-	"You need to research\nthis item!",
-	"Insufficient budget!",
-	"You need to discover\nthis research!",
-	"You already did this\nresearch!",
-	"Unequip some accesso-\nries first!",
-	"You need to acquire\ntalent points!",
-	"You don't have this\naccessory yet!",
-	"Mismatching charm\ntype!",
-	"No item selected!",
-	"Selected player is\ntrading with someone\nelse!",
-	"You can't trade while\nalready in a trade!",
-	"Not enough space for\ntrade offerings!",
-	"Targeted player has\nmuted you from\ntrading!",
-	"Material requires\nanother item to\nbe used on!",
-	"Conditions for the\nmaterial not met!",
-	"Mismatching item\ntype!",
-	"No free spot to\nplace the item!",
-	"Can't replace armor\nwith same type! Try\nfill instead.",
-	"Out of stock! Wait\nnext map to restock.",
-	"You don't have an\narmor equipped!",
-	"Armor isn't damaged!",
-	"You don't have any\nrepair tokens!",
-	"You aren't allowed\nto buy this item!"
-};
 
-#define MAX_HELPTEXT_RESEARCH 5
-str HelpText_Research[MAX_HELPTEXT_RESEARCH] = {
-	"Researches help you unlock parts of the menu or certain abilities of your character. These can be weapons, abilities, artifacts, accessories and more!",
-	"All researches require a research document. These documents contain top secret information that was discovered by UAC from the remains of your enemies.",
-	"Through the information found in the research documents, you can have researches conducted and discover new features. The features use their own resource called \cv\"Budget\"\c-.",
-	"\cvBudget\c- can only be gained by finishing maps. Upon completion of a map, you get \cvbudget\c- depending on the difficulty of the map. The harder the map the more budget you get.",
-	"Once you obtain the required amount of \cvbudget\c-, you can go ahead and finish your research. When the research is concluded, you can use the feature the research enables."
-};
-
-#define MAX_HELPTEXT_CHARACTER 8
-str HelpText_Character[MAX_HELPTEXT_CHARACTER] = {
-	"Character loading is a feature only available in servers with \cvSoftcore\c- or \cgHardcore\c- modes enabled. You can do this using \c[Y5]\"sethardcore\"\c- or \c[Y5]\"setsoftcore\"\c- command or setting appropriate flags.",
-	"There are numerous flags that require to be set in order for the above modes to work properly. A full list of them can be found on our discord at: https://discord.gg/Gffvznu",
-	"You can skip the loading phase using \cf\"skipload\"\c- command in case you are starting a fresh character, or simply don't want to load.",
-	"You should in general use the \cf\"setchar X\"\c- command to set your character slot if you are starting fresh.",
-	"Avoid slot 1 as it's the default one, it can cause overwrites. Try to prefer slots 2 to 4 as much as possible.",
-	"You can have a maximum of 4 characters total from slots 1 to 4. However, your selected character will be wiped out on death should you die in \cgHardcore\c- mode, so caution is advised!",
-	"You'll be given a set amount of time before the game starts so that you can load your character safely. There are no monsters during this period.",
-	"Loading procedure is as follows:\n1. Open Console\n2.Login using \"login username password\".\n3. Type \cf\"loadme X\"\c- where 'X' is your character slot number.\n3. Wait for others to load."
-};
-
-#define MAX_HELPTEXT_DAMAGETYPES MAX_DAMAGE_TYPES
-str HelpText_DamageTypes[MAX_HELPTEXT_DAMAGETYPES] = {
-	"\c[Y5]Bullet\n\nThe simplest of all types. You'll find this in many semi-auto or fully automatic weapons. Counts as \cuphysical\c- damage.",
-	"\c[Y5]Shell\n\nAnother very common type. Mostly found in shotgun type weapons. Counts as \cuphysical\c- damage.",
-	"\c[Y5]Melee\n\nFound specifically in close combat weapons. Magical weapons deal \cvmagic\c- damage with their melee, but otherwise counts as \cuphysical\c- damage. Only found in \c[Y5]Slot 1\c-.",
-	"\c[Y5]Occult\n\nDemonic or holy weapons utilize this damage type. The most dominant weapons of this type are \c[Y5]Slot 8\c- weapons. Magical and undead monsters take extra damage from this type.",
-	"\c[Y5]Explosive\n\nMany weapons that feature explosions use this damage type. Mostly found in \c[Y5]Slot 5\c- weapons.",
-	"\c[Y5]Energy\n\nGeneral category of the plasma type weapons. Mostly found in \c[Y5]Slot 6\c- and \c[Y5]7\c- weapons. Mechanical enemies take extra damage from this type.",
-	"\c[Y5]Elemental\n\nThis damage type is found in weapons that utilize any of the four elements in their attacks. This type is generally spread out in the weapon slots."
-};
-
-str HelpText_WeaponProp[MAX_WEAPON_PROPERTIES] = {
-	"\c[Y5]Through Ghost\n\nCan't hit enemies with the \cughost\c- modifier.",
-	"\c[Y5]Self Damage\n\nWeapon can inflict \ciself damage\c-.",
-	"\c[Y5]Overheat\n\nWeapon will \cgoverheat\c- on continuous use.",
-	"\c[Y5]Ignores Shields\n\nWeapon can \cfignore shields\c- or any kind of \cfinvulnerability\c- on monsters.",
-	"\c[Y5]Alternate Ammo\n\nWeapon supports usage of \cvalternate ammo\c- through altfire.",
-	"\c[Y5]Ripper\n\nWeapon has attacks that rip through enemies unless they have the \"Hardened Skin\" modifier.",
-	"\c[Y5]Irreducable\n\nWeapon has attacks that can't be mitigated by any resistance.",
-};
-
-#define MAX_HELPTEXT_MAIN 3
-str HelpText_Main[MAX_HELPTEXT_MAIN] = {
-	"This is Doom's first interactive super cool UAC Menu, ran by none other than \c[Y5]Bobby\c- \cj\"\c-\cmCombine\cqb\cjo\crb\cmnt\c-\" \c[Y5]Sanchez\c-! Through this interface, you're directly connected to the UAC Database! You can make your purchases of various goodies here.",
-	"Use your mouse cursor and left click to do your selections. There are various pages with various items in them, so be sure to explore all of it! If you wish to sell a weapon, use altfire key to do so.",
-	"I don't have all day, I have yet to finish my important projects such as \cdM\ctS\cfP\crD\c- so don't bother me for long! Buy your shit and leave!"
-};
+str GetPopupText(int id) {
+	switch(id) {
+		case POPUP_NOFUNDS:
+		return "DND_POPUP_NOFUNDS";
+		case POPUP_CANTBUY:
+		return "DND_POPUP_CANTBUY";
+		case POPUP_ALREADYOWN:
+		return "DND_POPUP_ALREADYOWN";
+		case POPUP_DONTOWN:
+		return "DND_POPUP_DONTOWN";
+		case POPUP_NEEDRESEARCH:
+		return "DND_POPUP_NEEDRESEARCH";
+		case POPUP_NOBUDGET:
+		return "DND_POPUP_NOBUDGET";
+		case POPUP_NEEDDISCOVER:
+		return "DND_POPUP_NEEDDISCOVER";
+		case POPUP_ALREADYRESEARCHED:
+		return "DND_POPUP_ALREADYRESEARCHED";
+		case POPUP_MAXACCESSORYEQUIPPED:
+		return "DND_POPUP_MAXACCESSORYEQUIPPED";
+		case POPUP_NOTALENTPOINT:
+		return "DND_POPUP_NOTALENTPOINT";
+		case POPUP_ACCESSORYNOTFOUND:
+		return "DND_POPUP_ACCESSORYNOTFOUND";
+		case POPUP_CHARMMISMATCH:
+		return "DND_POPUP_CHARMMISMATCH";
+		case POPUP_NOITEMTHERE:
+		return "DND_POPUP_NOITEMTHERE";
+		case POPUP_TARGETISTRADING:
+		return "DND_POPUP_TARGETISTRADING";
+		case POPUP_YOUARETRADING:
+		return "DND_POPUP_YOUARETRADING";
+		case POPUP_NOSPACEFORTRADE:
+		return "DND_POPUP_NOSPACEFORTRADE";
+		case POPUP_YOUAREMUTED:
+		return "DND_POPUP_YOUAREMUTED";
+		case POPUP_ITEMNEEDSTARGET:
+		return "DND_POPUP_ITEMNEEDSTARGET";
+		case POPUP_MATERIALCANTUSE:
+		return "DND_POPUP_MATERIALCANTUSE";
+		case POPUP_ITEMTYPEMISMATCH:
+		return "DND_POPUP_ITEMTYPEMISMATCH";
+		case POPUP_NOSPOTFORITEM:
+		return "DND_POPUP_NOSPOTFORITEM";
+		case POPUP_POINTLESSARMOR:
+		return "DND_POPUP_POINTLESSARMOR";
+		case POPUP_OUTOFSTOCK:
+		return "DND_POPUP_OUTOFSTOCK";
+		case POPUP_NOARMORWORN:
+		return "DND_POPUP_NOARMORWORN";
+		case POPUP_ARMORISFULL:
+		return "DND_POPUP_ARMORISFULL";
+		case POPUP_NOREPAIRTOKENS:
+		return "DND_POPUP_NOREPAIRTOKENS";
+		case POPUP_YOUARENTALLOWED:
+		return "DND_POPUP_YOUARENTALLOWED";
+	}
+	return "";
+}
 
 // LegendaryKills
 #define MAX_LEGMONS_TEXT 5
-str LegendaryMonsterText[MAX_LEGMONS_TEXT] = {
-	"\c[Y5]The Dreaming God\nThe evil entity known only as the \"Dreaming God\" wanders realms unknown to many for as long as the universe, or at least that's what we think. Research shows this creature is immune to any magical or elemental attack.",
-	"\c[Y5]Torrasque\nThis unwavering creature appears to be magically created by an immensely powerful wizard, long ago. Now it chose this realm to feast upon. We found that the creature is highly resistant to physical, energy and explosive attacks.",
-	"\c[Y5]Mordecqai\nOnce the great ruler of the \"Realm of Suffering\", now a wanderer to consume and gain powers of whatever creature comes its way. It seems to be completely immune to fire and explosive attacks.",
-	"\c[Y5]God Slayer\nA fearsome mech built by UAC to destroy the demonic menace, gone rogue by the evil powers of Hell. The robot will target only humans and has some interesting AI... Seems to be impervious to bullets. Explosives seem to do little, too.",
-	"\c[Y5]Golgoth\nAncient as time, this malignant being seeks only to torture living beings to empower it's domain. Seems to have manifested itself on Earth this time... Research shows it's explosive immune and magic resistant."
-};
 
 str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 	"LEG_DRMR",
@@ -2444,91 +2222,111 @@ str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 
 #define DND_TRAIT_STARTSHOW FIRST_MONSTER_TRAIT // first trait to show
 #define DND_TRAIT_LASTSHOW LAST_MONSTER_TRAIT
-
 #define MAX_MONSTER_MODS (DND_TRAIT_LASTSHOW - DND_TRAIT_STARTSHOW + 1)
-str Help_EliteModExplanation[MAX_MONSTER_MODS] = {
-	"Monster takes 25% more damage from energy attacks.",
-	"Monster takes 300% more damage from silver bullets.",
-	"Monster takes 50% more damage from fire attacks.",
-	"Monster takes 50% more damage from ice attacks.",
-	"Monster takes 25% more damage from occult attacks.",
-	"Monster takes 50% more damage from elemental attacks.",
+
+// NOTE: UPDATE THESE VALUES WHEN ADDING NEW MODS
+#define MAX_WEAKNESS_MODS 6
+
+#define MAX_RESIST_MODS 9
+#define RESMODOFFSET MAX_WEAKNESS_MODS
+
+#define MAX_IMMUNITY_MODS 10
+#define IMMMODOFFSET (RESMODOFFSET + MAX_RESIST_MODS)
+
+#define MAX_AGGRESSIVE_MODS 11
+#define AGGMODOFFSET (IMMMODOFFSET + MAX_IMMUNITY_MODS)
+
+#define MAX_DEFENSE_MODS 17
+#define DEFMODOFFSET (AGGMODOFFSET + MAX_AGGRESSIVE_MODS)
+
+#define MAX_UTILITY_MODS 15
+#define UTIMODOFFSET (DEFMODOFFSET + MAX_DEFENSE_MODS)
+
+// input is menu based index, returns corresponding label index for the mod
+int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
+	// weaknesses
+	DND_ENERGY_WEAKNESS,
+	DND_SILVER_WEAKNESS,
+	DND_FIRE_WEAKNESS,
+	DND_ICE_WEAKNESS,
+	DND_MAGIC_WEAKNESS,
+	DND_ELEMENTAL_WEAKNESS,
 	
+	// resists
+	DND_EXPLOSIVE_RESIST,
+	DND_BULLET_RESIST,
+	DND_ENERGY_RESIST,
+	DND_MAGIC_RESIST,
+	DND_ELEMENTAL_RESIST,
+	DND_ICECREATURE,
+	DND_FIRECREATURE,
+	DND_STONECREATURE,
+	DND_EARTHCREATURE,
 	
-	"Monster takes 50% reduced damage from explosives.",
-	"Monster takes 50% reduced damage from melee and ballistic attacks.",
-	"Monster takes 50% reduced damage from energy attacks.",
-	"Monster takes 50% reduced damage from occult attacks.",
-	"Monster takes 50% reduced damage from elemental attacks.",
+	// immune
+	DND_EXPLOSIVE_IMMUNE,
+	DND_EXPLOSIVE_NONE,
+	DND_BULLET_IMMUNE,
+	DND_ENERGY_IMMUNE,
+	DND_MAGIC_IMMUNE,
+	DND_ELEMENTAL_IMMUNE,
+	DND_VENOMANCER,
+	DND_FRIGID,
+	DND_SCORCHED,
+	DND_INSULATED,
 	
-	"Monster is immune to area damage.",
-	"Monster is immune to explosives.",
-	"Monster is immune to any kind of melee or ballistic attack.",
-	"Monster is immune to energy attacks.",
-	"Monster is immune to occult attacks.",
-	"Monster is immune to elemental attacks.",
+	// aggression
+	DND_RAGE,
+	DND_PIERCE,
+	DND_AGGRESSIVE,
+	DND_EXTRAFAST,
+	DND_FASTREACTION,
+	DND_EXTRASTRONG,
+	DND_ARMORPEN,
+	DND_VIOLENTRETALIATION,
+	DND_HATRED,
+	DND_VAMPIRISM,
+	DND_RUINATION,
 	
-	"Monster is ghostly, most of the non-magical projectiles will go through the monster.",
-	"Monster is impervious to ripping attacks.",
-	"Monster reflects certain projectiles on hit.",
-	"Monster can summon minions.",
-	"Monster can curse the player.",
+	// defense
+	DND_GHOST,
+	DND_HARDENED_SKIN,
+	DND_REFLECTIVE,
+	DND_MINIONS,
+	DND_HEAL,
+	DND_BLOCK,
+	DND_SPLIT,
+	DND_DEATH,
+	DND_VITAL,
+	DND_ISBLOCKING,
+	DND_BLOODLESS,
+	DND_REBIRTH,
+	DND_REJUVENATING,
+	DND_FORTIFIED,
+	DND_SUBORDINATE,
+	DND_REPEL,
+	DND_PHANTASM,
 	
-	"Monster can heal nearby monsters.",
-	"Monster has means to block attacks from players. Weapons that \cfignore shields\c- are effective.",
-	"Monster can split into other monsters.",
-	"Monster has a chance to raise from the dead.",
-	"Monster has means to teleport around.",
+	// utility
+	DND_CURSE,
+	DND_RAISE,
+	DND_TELEPORT,
+	DND_RESURRECT,
+	DND_MOBILITY,
+	DND_HOMING,
+	DND_POISON,
+	DND_NOPAIN,
+	DND_PET,
+	DND_SUMMONED,
+	DND_REVIVED,
+	DND_THIEF,
+	DND_HEXFUSION,
+	DND_SHOCKER,
+	DND_CRIPPLE,
 	
-	"Monster can resurrect other dead monsters.",
-	"Monster is capable of covering distances fast.",
-	"Monster has homing attacks.",
-	"Monster poisons player with certain attacks.",
-	"Monster has a death activated ability.",
+	DND_MARKOFCHAOS,
 	
-	"Monster can enter rage mode under certain conditions.",
-	"Monster has attacks that ignores armor.",
-	"Monster is extra aggressive.",
-	"Monster is twice as fast.",
-	"Monster reacts to whoever hits it immediately.",
-	
-	"Monster feels no pain.",
-	"Monster deals twice as much damage.",
-	"Monster has 75% more health.",
-	"Monster ignores armor of player with every attack.",
-	"Monster belongs to a player and is friendly.",
-	
-	"Monster is currently blocking attacks. Receives no damage unless attacks \cfignore shields\c-.",
-	
-	"Monster is summoned by another and gives nothing on kill.",
-	"Monster is resurrected and doesn't give anything on kill.",
-	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.",
-	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.",
-	"Monster is a being of stone, has ice weakness, fire resist, immunity to earth and lightning, and Hardened Skin.",
-	"Monster is a being of earth, takes 50% more damage from lightning, but immune to earth attacks.",
-	
-	"You can't leech life from this the monster.",
-	"Monster has 50% chance to throw explosive projectiles when hurt.",
-	"Monster has 33% chance to steal 15% of current weapon's ammo from you with attacks.",
-	"Monster attacks have 33% chance to inflict a random curse.",
-	"Monster spawns 5 wraiths on death.",
-	"Monster is immune to poison effects.",
-	"Monster is immune to chill and freeze.",
-	"Monster is immune to ignite.",
-	"Monster is immune to overloading.",
-	"Monster recovers 5% of it's health every second.",
-	
-	"Never infights with any other monster, and monsters do not target it for infights.",
-	"Monster attacks will briefly stop your movement.",
-	"Monster heals for 10% of its max health whenever it hurts you.",
-	"Monster has a third of its maximum health as a shield. The shield absorbs all damage until it depletes. Shield ignore effects bypass this.",
-	"Upon death, a monster of the same class with the highest rarity will spawn.",
-	"Monster pushes players away from it when they come close, once every 3 seconds.",
-	"Monster summons an invulnerable phantasm on death that slowly chases you for 20 seconds.",
-	"Monster has an aura that slows nearby players by 50%.",
-	"Monster hits build ruination stacks. At 7 stacks, lose all armor and 12.5% of max health or 33% of max health if wearing no armor. Stacks each last 3 seconds.",
-	
-	"Monster is unique."
+	DND_LEGENDARY
 };
 
 str CharmBoxLabels[MAX_CHARM_TYPES][2] = {
