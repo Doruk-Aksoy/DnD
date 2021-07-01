@@ -89,6 +89,119 @@ DND_MENU_WEPHELPTEXT5	=	"\c[Y5]Alternate Ammo\n\nWeapon supports usage of \cvalt
 DND_MENU_WEPHELPTEXT6	=	"\c[Y5]Ripper\n\nWeapon has attacks that rip through enemies unless they have the \"Hardened Skin\" modifier.";
 DND_MENU_WEPHELPTEXT7	=	"\c[Y5]Irreducable\n\nWeapon has attacks that can't be mitigated by any resistance.";
 
+// yeah numbers here aren't the smartest because hypothetically if a balance change were to happen then all languages would need a change but it's too cumbersome to add numbers in between text \_(*__*)_/
+DND_MENU_ATTRTEXT1		=	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.";
+DND_MENU_ATTRTEXT2		=	"\c[INT]Dexterity\c-\nIncreases \cfNon-Magical Ranged Damage\c- by 3%.";
+DND_MENU_ATTRTEXT3		=	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.";
+DND_MENU_ATTRTEXT4		=	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, increases \cishop stock\c- by 1% and \ckpet\c- cap by 1 for every 20 points.";
+DND_MENU_ATTRTEXT5		=	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.";
+DND_MENU_ATTRTEXT6		=	"\c[INT]Intellect\c-\nIncreases \cmOccult Ranged Damage\c- by 3% and improves spells.";
+
+// ammo text
+DND_MENU_FOR			=	"for ";
+DND_MENU_AND			=	" and ";
+DND_MENU_GIVES			=	"Gives";
+
+DND_MENU_AMMOTEXT1		=	"clips.";
+DND_MENU_AMMOTEXT2		=	"shells.";
+DND_MENU_AMMOTEXT3		=	"rockets.";
+DND_MENU_AMMOTEXT4		=	"cells.";
+
+DND_MENU_AMMOTEXT5		=	"explosive shells";
+DND_MENU_AMMOTEXT6		=	"cannon balls";
+DND_MENU_AMMOTEXT7		=	"shrapnel balls";
+DND_MENU_AMMOTEXT8		=	"heavy missiles";
+DND_MENU_AMMOTEXT9		=	"grenades";
+DND_MENU_AMMOTEXT10		=	"nails";
+	
+DND_MENU_AMMOTEXT11		=	"lava ammo";
+DND_MENU_AMMOTEXT12		=	"gauss rounds";
+DND_MENU_AMMOTEXT13		=	"slayer essences";
+DND_MENU_AMMOTEXT14		=	"ruby crystals";
+DND_MENU_AMMOTEXT15		=	"plasma charge";
+DND_MENU_AMMOTEXT16		=	"riot shells";
+DND_MENU_AMMOTEXT17		=	"meteors";
+DND_MENU_AMMOTEXT18		=	"fuel";
+DND_MENU_AMMOTEXT19		=	"lightning cells";
+DND_MENU_AMMOTEXT20		=	"nitrogen canisters";
+	
+DND_MENU_AMMOTEXT21		=	"ion cells";
+DND_MENU_AMMOTEXT22		=	"acid clips";
+DND_MENU_AMMOTEXT23		=	"ever ice";
+DND_MENU_AMMOTEXT24		=	"viper essence";
+DND_MENU_AMMOTEXT25		=	"thunder mana";
+DND_MENU_AMMOTEXT26		=	"dark seals";
+DND_MENU_AMMOTEXT27		=	"fusion cells";
+DND_MENU_AMMOTEXT28		=	"flak shells";
+DND_MENU_AMMOTEXT29		=	"desolator rounds";
+DND_MENU_AMMOTEXT30		=	"hades shells";
+	
+DND_MENU_AMMOTEXT31		=	"vials of demon blood";
+DND_MENU_AMMOTEXT32		=	"emerald mana";
+DND_MENU_AMMOTEXT33		=	"hell fire canisters";
+DND_MENU_AMMOTEXT34		=	"rockets";
+DND_MENU_AMMOTEXT35		=	"heavy grenades";
+DND_MENU_AMMOTEXT36		=	"silver bolts";
+DND_MENU_AMMOTEXT37		=	"anti-gravity modules";
+DND_MENU_AMMOTEXT38		=	"Sedrin crystals";
+DND_MENU_AMMOTEXT39		=	"batteries";
+DND_MENU_AMMOTEXT40		=	"incinerator shells";
+	
+DND_MENU_AMMOTEXT41		=	"flechette shells.";
+DND_MENU_AMMOTEXT42		=	"magnum shells.";
+DND_MENU_AMMOTEXT43		=	"electric shells.";
+DND_MENU_AMMOTEXT44		=	"nitrogen shells.";
+DND_MENU_AMMOTEXT45		=	"slug shells.";
+	
+DND_MENU_AMMOTEXT46		=	"sonic grenades.";
+DND_MENU_AMMOTEXT47		=	"high-ex grenades.";
+
+// armor text
+DND_MENU_ARMTEXT1		=	"33% protection, 100 armor.";
+DND_MENU_ARMTEXT2		=	"41.6% protection, 150 armor.";
+DND_MENU_ARMTEXT3		=	"50% protection, 200 armor.";
+DND_MENU_ARMTEXT4		=	"75% protection, 300 armor.";
+
+DND_MENU_ARMTEXT5		=	"33% protection, 200 armor. Extra 50% hitscan damage, 75% hitscan protection.";
+DND_MENU_ARMTEXT6		=	"33% protection, 200 armor. Extra 50% magic damage, 75% magic protection.";
+DND_MENU_ARMTEXT7		=	"33% protection, 200 armor. Extra 50% explosives damage, 75% explosive protection.";
+DND_MENU_ARMTEXT8		=	"33% protection, 200 armor. Extra 50% energy damage, 75% energy protection.";
+DND_MENU_ARMTEXT9		=	"33% protection, 200 armor. Extra 50% elemental damage, 75% elemental protection.";
+
+DND_MENU_ARMTEXT10		=	"100% protection, 400 armor.";
+DND_MENU_ARMTEXT11		=	"45% protection, 300 armor. If not damaged for 3 seconds, restores armor slowly.";
+DND_MENU_ARMTEXT12		=	"33% protection, 250 armor. Extra 100% hitscan resist.";
+DND_MENU_ARMTEXT13		=	"55% protection, 400 armor. 33% chance on hit to release spikes. Melee buffs and bulkiness increase the damage.";
+DND_MENU_ARMTEXT14		=	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed.";
+DND_MENU_ARMTEXT15		=	"33% protection, 250 armor. On a kill spree, gain x2 extra damage and 25% damage reduction. If a killing spree is met restore armor completely.";
+DND_MENU_ARMTEXT16		=	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks.";
+// armors end
+
+DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";
+DND_MENU_ARTHELPTEXT2	=	"Teleports you to start, heals for 100 health.";
+DND_MENU_ARTHELPTEXT3	=	"Invulnerability on use for 5 seconds. Duration stacks.";
+DND_MENU_ARTHELPTEXT4	=	"Steal life from damage done for 30 seconds.";
+DND_MENU_ARTHELPTEXT5	=	"Triples damage dealt for 15 seconds.";
+DND_MENU_ARTHELPTEXT6	=	"Creates a ring of blades for 20 seconds, granting 50% damage resistance. Blades damage on collision.";
+DND_MENU_ARTHELPTEXT7	=	"Unleashes power of the dead, granting souls for demon kills.";
+DND_MENU_ARTHELPTEXT8	=	"Reveals the current map to you.";
+DND_MENU_ARTHELPTEXT9	=	"Increases ammo capacity.";
+DND_MENU_ARTHELPTEXT10	=	"Resets your stats back to zero. You can reassign.";
+
+DND_MENU_ABLHELPTEXT1	=	"Melee weapons gain altfires.";
+DND_MENU_ABLHELPTEXT2	=	"You reload twice as fast.";
+DND_MENU_ABLHELPTEXT3	=	"Gain dodge moves (tap the move keys to dash).";
+DND_MENU_ABLHELPTEXT4	=	"Artifact power increases by 50%.";
+DND_MENU_ABLHELPTEXT5	=	"\c[R5]CYBERNETIC \cj- Gain 33% poison resistance.";
+DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.";
+DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.";
+DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.";
+DND_MENU_ABLHELPTEXT9	=	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";
+DND_MENU_ABLHELPTEXT10	=	"Demons drop souls when killed with an occult weapon.";
+DND_MENU_ABLHELPTEXT11	=	"Toggles dashing.";
+
+DND_MENU_ACCITEMTEXT1	=	"Adds an extra stash tab to your account.";
+
 DND_MENU_RESHELPTEXT1	=	"Researches help you unlock parts of the menu or certain abilities of your character. These can be weapons, abilities, artifacts, accessories and more!";
 DND_MENU_RESHELPTEXT2	=	"All researches require a research document. These documents contain top secret information that was discovered by UAC from the remains of your enemies.";
 DND_MENU_RESHELPTEXT3	=	"Through the information found in the research documents, you can have researches conducted and discover new features. The features use their own resource called \cv\"Budget\"\c-.";

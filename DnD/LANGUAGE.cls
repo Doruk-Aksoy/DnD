@@ -1,5 +1,7 @@
 [enu default]
 
+// little note: leftimg rightimg and mugshot dont need translating, i know, but at least this way I know they are in memory and not on stack
+
 // Doomguy
 
 CLASS0_ACTOR 			= "TheDoomguy";

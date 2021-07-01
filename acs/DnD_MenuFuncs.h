@@ -419,26 +419,26 @@ str GetWeaponToTake(int wepid) {
 	if(slot != 8) {
 		if(!ParseInt(ShopItemNames[wepid][SHOPNAME_TYPE])) {
 			if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
-				return ShopWeaponTake[0];
+				return Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME];
 			else if(wepid >= SHOP_WEAPON2PISTOL_BEGIN && wepid <= SHOP_WEAPON2PISTOL_END)
-				return ShopWeaponTake[1];
+				return Weapons_Data[DND_WEAPON_PISTOL][WEAPON_NAME];
 			else if(wepid >= SHOP_WEAPON3SG_BEGIN && wepid <= SHOP_WEAPON3SG_END) {
 				// little hack here to fix special ammos after refunding weapon
 				SetInventory("SpecialAmmoMode_3", AMMO_BASICSHELL);
-				return ShopWeaponTake[2];
+				return Weapons_Data[DND_WEAPON_SHOTGUN][WEAPON_NAME];
 			}
 			else if(wepid >= SHOP_WEAPON3SSG_BEGIN && wepid <= SHOP_WEAPON3SSG_END)
-				return ShopWeaponTake[3];
+				return Weapons_Data[DND_WEAPON_SUPERSHOTGUN][WEAPON_NAME];
 			else if(wepid >= SHOP_WEAPON4CG_BEGIN && wepid <= SHOP_WEAPON4CG_END) {
 				SetInventory("SpecialAmmoMode_4", AMMO_BULLET);
-				return ShopWeaponTake[4];
+				return Weapons_Data[DND_WEAPON_MACHINEGUN][WEAPON_NAME];
 			}
 			else if(wepid >= SHOP_WEAPON5RL_BEGIN && wepid <= SHOP_WEAPON5RL_END)
-				return ShopWeaponTake[5];
+				return Weapons_Data[DND_WEAPON_ROCKETLAUNCHER][WEAPON_NAME];
 			else if(wepid >= SHOP_WEAPON6PL_BEGIN && wepid <= SHOP_WEAPON6PL_END)
-				return ShopWeaponTake[6];
+				return Weapons_Data[DND_WEAPON_PLASMARIFLE][WEAPON_NAME];
 			else if(wepid >= SHOP_WEAPON7BFG_BEGIN && wepid <= SHOP_WEAPON7BFG_END)
-				return ShopWeaponTake[7];
+				return Weapons_Data[DND_WEAPON_BFG6000][WEAPON_NAME];
 		}
 		return "";
 	}
@@ -849,7 +849,7 @@ void DrawToggledLabel(str label, int afterlabel, int boxid, int boxcheck, int dr
 }
 
 int GetAmmoToGive(int index) {
-	return AmmoCounts[index - SHOP_FIRSTAMMO_INDEX] * GetAmmoGainFactor() / 100;
+	return AmmoCounts[index - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] * GetAmmoGainFactor() / 100;
 }
 
 // Draws a toggled image that changes color depending on given scenarios
@@ -947,16 +947,16 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"* ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
 				else
-					HudMessage(s:"* ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
 				DrawWeaponIconCorner(curposy, itemid);
 			}
 			else if(objectflag & OBJ_AMMO) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"* ", s:"Gives \cf", d:GetAmmoToGive(itemid), s:"\c- ", s:AmmoExplanation[itemid - SHOP_FIRSTAMMO_INDEX]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
+				DrawAmmoExplanation(itemid);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
 				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 232.1, 0.0, 0.0);
@@ -967,19 +967,19 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			}
 			else if(objectflag & OBJ_ARTI) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"* ", s:ArtifactExplanation[curposy]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"\cd*\c- ", l:GetArtifactText(curposy); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
 				DrawArtifactIconCorner(curposy);
 			}
 			else if(objectflag & OBJ_TALENT) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"* ", s:"Increases damage of ", s:TalentNames[onposy][TALENT_NAME], s:" damage weapons by \cf", f:GetMenuTalentBonus(onposy), s:"%\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"\cd*\c- ", s:"Increases damage of ", s:TalentNames[onposy][TALENT_NAME], s:" damage weapons by \cf", f:GetMenuTalentBonus(onposy), s:"%\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(objectflag & OBJ_ARMOR) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"* ", s:ArmorExplanation[itemid - SHOP_FIRSTARMOR_INDEX]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"\cd*\c- ", l:GetArmorExplanation(itemid - SHOP_FIRSTARMOR_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
 				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 48, CR_WHITE, 440.2, 216.1, 0.0, 0.0);
@@ -989,17 +989,17 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			else if(objectflag & OBJ_ABILITY) {
 				SetHudClipRect(192, 208, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"* ", s:AbilityHelpText[itemid - SHOP_ABILITY1_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos, 0.0, 0.0);
 				else
-					HudMessage(s:"* ", s:AbilityHelpText[itemid - SHOP_ABILITY1_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(objectflag & OBJ_ACCOUNT) {
 				SetHudClipRect(192, 208, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"* ", s:AccountPurchaseExplanation[itemid - SHOP_ACCOUNT_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAccountPurchaseText(itemid - SHOP_ACCOUNT_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos, 0.0, 0.0);
 				else
-					HudMessage(s:"* ", s:AccountPurchaseExplanation[itemid - SHOP_ACCOUNT_BEGIN]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAccountPurchaseText(itemid - SHOP_ACCOUNT_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			HudMessage(s:weptype, s:"\c[B1]", s:ShopItemNames[itemid][SHOPNAME_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
@@ -1729,16 +1729,16 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// ammo 1
 		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
-			{ 289.0, 117.0, 120.0, 111.0 }, // w9
-			{ 289.0, 101.0, 104.0, 95.0 }, // w10
+			{ 289.0, 245.0, 96.0, 237.0 }, // w1
+			{ 289.0, 229.0, 96.0, 221.0 }, // w2
+			{ 289.0, 213.0, 96.0, 205.0 }, // w3
+			{ 289.0, 197.0, 96.0, 189.0 }, // w4
+			{ 289.0, 181.0, 96.0, 173.0 }, // w5
+			{ 289.0, 165.0, 96.0, 157.0 }, // w6
+			{ 289.0, 149.0, 96.0, 141.0 }, // w7
+			{ 289.0, 133.0, 96.0, 125.0 }, // w8
+			{ 289.0, 117.0, 96.0, 109.0 }, // w9
+			{ 289.0, 101.0, 96.0, 93.0 }, // w10
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 1 - 2
@@ -1748,16 +1748,16 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// ammo 2
 		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
-			{ 289.0, 117.0, 120.0, 111.0 }, // w9
-			{ 289.0, 101.0, 104.0, 95.0 }, // w10
+			{ 289.0, 245.0, 96.0, 237.0 }, // w1
+			{ 289.0, 229.0, 96.0, 221.0 }, // w2
+			{ 289.0, 213.0, 96.0, 205.0 }, // w3
+			{ 289.0, 197.0, 96.0, 189.0 }, // w4
+			{ 289.0, 181.0, 96.0, 173.0 }, // w5
+			{ 289.0, 165.0, 96.0, 157.0 }, // w6
+			{ 289.0, 149.0, 96.0, 141.0 }, // w7
+			{ 289.0, 133.0, 96.0, 125.0 }, // w8
+			{ 289.0, 117.0, 96.0, 109.0 }, // w9
+			{ 289.0, 101.0, 96.0, 93.0 }, // w10
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 2 - 2
@@ -1767,39 +1767,39 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// ammo 3
 		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 289.0, 245.0, 96.0, 237.0 }, // w1
+			{ 289.0, 229.0, 96.0, 221.0 }, // w2
+			{ 289.0, 213.0, 96.0, 205.0 }, // w3
+			{ 289.0, 197.0, 96.0, 189.0 }, // w4
+			{ 289.0, 181.0, 96.0, 173.0 }, // w5
+			{ 289.0, 165.0, 96.0, 157.0 }, // w6
+			{ 289.0, 149.0, 96.0, 141.0 }, // w7
+			{ 289.0, 133.0, 96.0, 125.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 4
 		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
-			{ 289.0, 117.0, 120.0, 111.0 }, // w9
-			{ 289.0, 101.0, 104.0, 95.0 }, // w10
+			{ 289.0, 245.0, 96.0, 237.0 }, // w1
+			{ 289.0, 229.0, 96.0, 221.0 }, // w2
+			{ 289.0, 213.0, 96.0, 205.0 }, // w3
+			{ 289.0, 197.0, 96.0, 189.0 }, // w4
+			{ 289.0, 181.0, 96.0, 173.0 }, // w5
+			{ 289.0, 165.0, 96.0, 157.0 }, // w6
+			{ 289.0, 149.0, 96.0, 141.0 }, // w7
+			{ 289.0, 133.0, 96.0, 125.0 }, // w8
+			{ 289.0, 117.0, 96.0, 109.0 }, // w9
+			{ 289.0, 101.0, 96.0, 93.0 }, // w10
 			{ -1, -1, -1, -1 }
 		},
 		// ammo special
 		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 245.0, 96.0, 237.0 }, // w1
+			{ 289.0, 229.0, 96.0, 221.0 }, // w2
+			{ 289.0, 213.0, 96.0, 205.0 }, // w3
+			{ 289.0, 197.0, 96.0, 189.0 }, // w4
+			{ 289.0, 181.0, 96.0, 173.0 }, // w5
+			{ 289.0, 165.0, 96.0, 157.0 }, // w6
+			{ 289.0, 149.0, 96.0, 141.0 }, // w7
 			{ -1, -1, -1, -1 }
 		},
 		// ability shop - 1
@@ -4196,9 +4196,9 @@ void ResetShopStock(int pnum) {
 		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX)
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX] / 100) * ammo_bonus / 500;
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100) * ammo_bonus / 500;
 			else
-				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX]) / 100) * ammo_bonus / 500;
+				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
 		}
 		else
 			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;

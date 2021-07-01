@@ -1399,31 +1399,17 @@ str WeaponExplanation[MAXSHOPWEAPONS] = {
 	"Creates portals that lead to hungry ghosts to devour your enemies. Hold to gain a deflective shield."
 };
 
-str AttributeExplanation[DND_MAX_ATTRIBUTES] = {
-	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.",
-	"\c[INT]Dexterity\c-\nIncreases \cfNon-Magical Ranged Damage\c- by 3%.",
-	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.",
-	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, increases \cishop stock\c- by 1% and \ckpet\c- cap by 1 for every 20 points.",
-	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.",
-	"\c[INT]Intellect\c-\nIncreases \cmOccult Ranged Damage\c- by 3% and improves spells."
-};
-							
-str ArtifactExplanation[MAXARTIFACTS] = {
-	"Portable medikits, can carry 3.",
-	"Teleports you to start, heals for 100 health.",
-	"Invulnerability on use for 5 seconds. Duration stacks.",
-	"Steal life from damage done for 30 seconds.",
-	"Triples damage dealt for 15 seconds.",
-	"Creates a ring of blades for 20 seconds, granting 50% damage resistance. Blades damage on collision.",
-	"Unleashes power of the dead, granting souls for demon kills.",
-	"Reveals the current map to you.",
-	"Increases ammo capacity.",
-	"Resets your stats back to zero. You can reassign."
-};
+str GetAttributeText(int id) {
+	return StrParam(s:"DND_MENU_ATTRTEXT", d:id + 1);
+}
 
-str AccountPurchaseExplanation[MAXACCOUNTITEMS] = {
-	"Adds an extra stash tab to your account."
-};
+str GetArtifactText(int id) {
+	return StrParam(s:"DND_MENU_ARTHELPTEXT", d:id + 1);
+}
+
+str GetAccountPurchaseText(int id) {
+	return StrParam(s:"DND_MENU_ACCITEMTEXT", d:id + 1);
+}
 
 struct draw_info ArtifactDrawInfo[MAXARTIFACTS] = {
 	{ OBJ_ARTI | OBJ_HASCHOICE, 					        -1 										    },
@@ -1555,117 +1541,86 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SONICGRENADE		},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEGRENADE			}
 };
-								
-int AmmoCounts[MAXSHOPAMMOS] = {
-	25,
-	10,
-	5,
-	40,
-	8,
-	8,
-	4,
-	4,
-	5,
-	15,
+
+#define AMMOID_COUNT 0
+#define AMMOID_WEPREF 1			
+int AmmoCounts[MAXSHOPAMMOS][2] = {
+	{ 25, -1 },
+	{ 10, -1 },
+	{ 5, -1 },
+	{ 40, -1 },
 	
-	20,
-	5,
-	6,
-	17,
-    4,
-    8,
-    5,
-    30,
-    25,
-    8,
+	{ 8, DND_WEAPON_SILVERGUN },
+	{ 8, DND_WEAPON_EBONYCANNON },
+	{ 4, DND_WEAPON_EBONYCANNON },
+	{ 4, DND_WEAPON_HEAVYMISSILELAUNCHER },
+	{ 5, DND_WEAPON_GRENADELAUNCHER },
+	{ 15, DND_WEAPON_NAILGUN },
 	
-    18,
-	16,
-	25,
-	4,
-	10,
-	25,
-	30,
-	5,
-	20,
-	6,
+	{ 20, DND_WEAPON_BASILISK },
+	{ 5, DND_WEAPON_GAUSSRIFLE },
+	{ 6, DND_WEAPON_SLAYER },
+	{ 17, DND_WEAPON_RUBYWAND },
+    { 4, DND_WEAPON_PLASMACANNON },
+    { 8, DND_WEAPON_RIOTCANNON },
+    { 5, DND_WEAPON_METEORLAUNCHER },
+    { 30, DND_WEAPON_FLAMETHROWER },
+    { 25, DND_WEAPON_LIGHTNINGGUN },
+    { 8, DND_WEAPON_NITROGENCROSSBOW },
 	
-	12,
-	18,
-	10,
-	33,
-	5,
-	5,
-	5,
-	6,
-	10,
-	8,
+    { 18, DND_WEAPON_IONCANNON },
+	{ 16, DND_WEAPON_ACIDRIFLE },
+	{ 25, DND_WEAPON_FROSTFANG | (DND_WEAPON_FREEZER << 16) },
+	{ 4, DND_WEAPON_VIPERSTAFF },
+	{ 10, DND_WEAPON_THUNDERSTAFF },
+	{ 25, DND_WEAPON_DEMONSEALER },
+	{ 30, DND_WEAPON_FUSIONBLASTER },
+	{ 5, DND_WEAPON_VINDICATOR },
+	{ 20, DND_WEAPON_DESOLATOR },
+	{ 6, DND_WEAPON_HADES },
+	
+	{ 12, DND_WEAPON_WHEELOFTORMENT | (DND_WEAPON_DARKLANCE << 16) },
+	{ 18, DND_WEAPON_EMERALDWAND },
+	{ 10, DND_WEAPON_HELLSMAW },
+	{ 33, DND_WEAPON_DEVASTATOR },
+	{ 5, DND_WEAPON_HEAVYGL },
+	{ 5, DND_WEAPON_CROSSBOW },
+	{ 5, DND_WEAPON_GRAVDIS },
+	{ 6, DND_WEAPON_SEDRINSTAFF },
+	{ 10, DND_WEAPON_CHARONBLASTER },
+	{ 8, DND_WEAPON_INCINERATOR },
 	
 	// special
-	8,
-	8,
-	8,
-    8,
-	8,
+	{ 8, -1 },
+	{ 8, -1 },
+	{ 8, -1 },
+    { 8, -1 },
+	{ 8, -1 },
 	
-	5,
-	5
+	{ 5, -1 },
+	{ 5, -1 }
 };
-					
-str AmmoExplanation[MAXSHOPAMMOS] = {
-	"clips.",
-	"shells.",
-	"rockets.",
-	"cells.",
-	"explosive shells for the Silver Gun.",
-	"cannon balls for the Ebony Cannon.",
-	"shrapnel balls for the Ebony Cannon.",
-	"heavy missiles for the Heavy Missile Launcher.",
-	"grenades for the Grenade Launcher.",
-	"nails for the Nail Gun.",
+
+void DrawAmmoExplanation(int itemid) {
+	int ammo_id = itemid - SHOP_FIRSTAMMO_INDEX;
+	int ammo_ref = AmmoCounts[ammo_id][AMMOID_WEPREF];
 	
-	"lava ammo for the Basilisk.",
-	"gauss rounds for the Gauss Rifle.",
-	"slayer essences for the Slayer.",
-	"ruby crystals for the Ruby Wand.",
-	"plasma charge for the Plasma Cannon.",
-	"riot shells for the Riot Cannon.",
-	"meteors for the Meteor Launcher.",
-	"fuel for the Flame Thrower.",
-	"lightning cells for the Lightning Gun.",
-	"nitrogen canisters for the Nitrogen Crossbow.",
-	
-	"ion cells for the Ion Cannon.",
-	"acid clips for the Acid Rifle.",
-	"ever ice for the Frost Fang and Freezer Cannon.",
-	"viper essence for the Viper Staff.",
-	"thunder mana for the Thunder Staff.",
-	"dark seals for the Demon Sealer.",
-	"fusion cells for the Fusion Blaster.",
-	"flak shells for the Vindicator.",
-	"desolator rounds for the Desolator Cannon.",
-	"hades shells for the Hades Auto Shotgun.",
-	
-	"vials of demon blood for the Wheel of Torment and Dark Lance.",
-	"emerald mana for the Emerald Wand.",
-	"hell fire canisters for the Hell's Maw.",
-	"rockets for the Devastator.",
-	"heavy grenades for Heavy Grenade Launcher.",
-	"silver bolts for Flayer Crossbow.",
-	"anti-gravity modules for Gravdis 5000.",
-	"Sedrin crystals for Sedrin Staff.",
-	"batteries for Charon Blaster.",
-	"incinerator shells for Incinerator Shotgun.",
-	
-	"flechette shells.",
-	"magnum shells.",
-	"electric shells.",
-	"nitrogen shells.",
-	"slug shells.",
-	
-	"sonic grenades.",
-	"high-ex grenades."
-};
+	// has 2 weapons -- we can extend this further in the future maybe with an array or something
+	if(ammo_ref < 65536) {
+		// exception for "no weapon specified"
+		if(itemid <= SHOP_AMMO_CELL || itemid >= SHOP_AMMO_FLECHETTE)
+			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
+		else
+			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref), s:"."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
+	}
+	else
+		HudMessage(
+			s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ",
+			l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", 
+			l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref & 0xFFFF), s:"\c-", l:"DND_MENU_AND", s:"\cd", l:GetWeaponTag(ammo_ref >> 16), s:"\c-."; 
+			HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0
+		);
+}
 									
 str ArmorImages[MAXARMORS] = { 
 	"ARM1A0", 
@@ -1688,26 +1643,9 @@ str ArmorImages[MAXARMORS] = {
 	"AR15B0"
 };
 
-str ArmorExplanation[MAXARMORS] = {
-	"33% protection, 100 armor.",
-	"41.6% protection, 150 armor.",
-	"50% protection, 200 armor.",
-	"75% protection, 300 armor.",
-	
-	"33% protection, 200 armor. Extra 50% hitscan damage, 75% hitscan protection.",
-	"33% protection, 200 armor. Extra 50% magic damage, 75% magic protection.",
-	"33% protection, 200 armor. Extra 50% explosives damage, 75% explosive protection.",
-	"33% protection, 200 armor. Extra 50% energy damage, 75% energy protection.",
-    "33% protection, 200 armor. Extra 50% elemental damage, 75% elemental protection.",
-    
-    "100% protection, 400 armor.",
-	"45% protection, 300 armor. If not damaged for 3 seconds, restores armor slowly.",
-	"33% protection, 250 armor. Extra 100% hitscan resist.",
-	"55% protection, 400 armor. 33% chance on hit to release spikes. Melee talent and bulkiness increase the damage.",
-	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed.",
-	"33% protection, 250 armor. On a kill spree, gain x2 extra damage and 25% damage reduction. If a killing spree is met restore armor completely.",
-	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks."
-};
+str GetArmorExplanation(int id) {
+	return StrParam(s:"DND_MENU_ARMTEXT", d:id + 1);
+}
 
 struct draw_info ArmorDrawInfo[MAXARMORS] = {
 	{ OBJ_ARMOR, 								-1 										},
@@ -1729,20 +1667,9 @@ struct draw_info ArmorDrawInfo[MAXARMORS] = {
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_SYNTHMETAL		 					}
 };
 
-// +1 because dash toggle is an exception
-str AbilityHelpText[MAXABILITIES + 1] = {
-	"Melee weapons gain altfires.",
-	"You reload twice as fast.",
-	"Gain dodge moves (tap the move keys to dash).",
-	"Artifact power increases by 50%.",
-	"\c[R5]CYBERNETIC \cj- Gain 33% poison resistance.",
-	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.",
-	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.",
-	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.",
-	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.",
-	"Demons drop souls when killed with an occult weapon.",
-	"Toggles dashing."
-};
+str GetAbilityHelpText(int id) {
+	return StrParam(s:"DND_MENU_ABLHELPTEXT", d:id + 1);
+}
 
 struct draw_info AbilityDrawInfo[MAXABILITIES] = {
 	{ OBJ_ABILITY, 								SHOP_ABILITY_KICK 								},
@@ -1755,18 +1682,6 @@ struct draw_info AbilityDrawInfo[MAXABILITIES] = {
     { OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_REGEN                           	},
     { OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_TEMPORAL                           },
 	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_SOUL		 						}
-};
-						
-// max 8 slots						
-str ShopWeaponTake[MAXNORMALWEPSLOTS] = {
-	" Chainsaw ",
-	" Pistol ",
-	" Shotgun ",
-	" Super Shotgun ",
-	" Machine Gun ",
-	"Rocket Launcher",
-	"Plasma Rifle",
-	"BFG 9000"
 };
 
 typedef struct {
