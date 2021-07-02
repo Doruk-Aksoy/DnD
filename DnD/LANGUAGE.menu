@@ -81,13 +81,15 @@ DND_MENU_EXPLOTEXT		=	"\c[Y5]Explosive\n\nMany weapons that feature explosions u
 DND_MENU_ENERGYTEXT		=	"\c[Y5]Energy\n\nGeneral category of the plasma type weapons. Mostly found in \c[Y5]Slot 6\c- and \c[Y5]7\c- weapons. Mechanical enemies take extra damage from this type.";
 DND_MENU_ELEMENTTEXT	=	"\c[Y5]Elemental\n\nThis damage type is found in weapons that utilize any of the four elements in their attacks. This type is generally spread out in the weapon slots.";
 
-DND_MENU_WEPHELPTEXT1	=	"\c[Y5]Through Ghost\n\nCan't hit enemies with the \cughost\c- modifier.";
-DND_MENU_WEPHELPTEXT2	=	"\c[Y5]Self Damage\n\nWeapon can inflict \ciself damage\c-.";
-DND_MENU_WEPHELPTEXT3	=	"\c[Y5]Overheat\n\nWeapon will \cgoverheat\c- on continuous use.";
-DND_MENU_WEPHELPTEXT4	=	"\c[Y5]Ignores Shields\n\nWeapon can \cfignore shields\c- or any kind of \cfinvulnerability\c- on monsters.";
-DND_MENU_WEPHELPTEXT5	=	"\c[Y5]Alternate Ammo\n\nWeapon supports usage of \cvalternate ammo\c- through altfire.";
-DND_MENU_WEPHELPTEXT6	=	"\c[Y5]Ripper\n\nWeapon has attacks that rip through enemies unless they have the \"Hardened Skin\" modifier.";
-DND_MENU_WEPHELPTEXT7	=	"\c[Y5]Irreducable\n\nWeapon has attacks that can't be mitigated by any resistance.";
+DND_MENU_WEPHELPTEXT1	=	"Can't hit enemies with the \cughost\c- modifier.";
+DND_MENU_WEPHELPTEXT2	=	"Weapon can inflict \ciself damage\c-.";
+DND_MENU_WEPHELPTEXT3	=	"Weapon will \cgoverheat\c- on continuous use.";
+DND_MENU_WEPHELPTEXT4	=	"Weapon can \cfignore shields\c- or any kind of \cfinvulnerability\c- on monsters.";
+DND_MENU_WEPHELPTEXT5	=	"Weapon supports usage of \cvalternate ammo\c- through altfire.";
+DND_MENU_WEPHELPTEXT6	=	"Weapon has attacks that rip through enemies unless they have the \"Hardened Skin\" modifier.";
+DND_MENU_WEPHELPTEXT7	=	"Weapon has attacks that can't be mitigated by any resistance.";
+DND_MENU_WEPHELPTEXT8	=	"Projectiles fired from this weapon can't be \cureflected\c-.";
+DND_MENU_WEPHELPTEXT9	=	"Damage from the weapon can \cqinflict poison\c- on enemies.";
 
 // yeah numbers here aren't the smartest because hypothetically if a balance change were to happen then all languages would need a change but it's too cumbersome to add numbers in between text \_(*__*)_/
 DND_MENU_ATTRTEXT1		=	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.";
@@ -293,11 +295,12 @@ DND_MENU_MMOD_AGG3		=	"Monster is extra aggressive.";
 DND_MENU_MMOD_AGG4		=	"Monster is twice as fast.";
 DND_MENU_MMOD_AGG5		=	"Monster reacts to whoever hits it immediately.";
 DND_MENU_MMOD_AGG6		=	"Monster deals twice as much damage.";
-DND_MENU_MMOD_AGG7		=	"Monster ignores armor of player with every attack.";
-DND_MENU_MMOD_AGG8		=	"Monster has 50% chance to throw explosive projectiles when hurt.";
-DND_MENU_MMOD_AGG9		=	"Never infights with any other monster, and monsters do not target it for infights.";
-DND_MENU_MMOD_AGG10		=	"Monster heals for 10% of its max health whenever it hurts you.";
-DND_MENU_MMOD_AGG11		=	"Monster hits build ruination stacks. At 7 stacks, lose all armor and 12.5% of max health or 33% of max health if wearing no armor. Stacks each last 3 seconds.";
+DND_MENU_MMOD_AGG7		=	"Monster has homing attacks.";
+DND_MENU_MMOD_AGG8		=	"Monster ignores armor of player with every attack.";
+DND_MENU_MMOD_AGG9		=	"Monster has 50% chance to throw explosive projectiles when hurt.";
+DND_MENU_MMOD_AGG10		=	"Never infights with any other monster, and monsters do not target it for infights.";
+DND_MENU_MMOD_AGG11		=	"Monster heals for 10% of its max health whenever it hurts you.";
+DND_MENU_MMOD_AGG12		=	"Monster hits build ruination stacks. At 7 stacks, lose all armor and 12.5% of max health or 33% of max health if wearing no armor. Stacks each last 3 seconds.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";
@@ -325,16 +328,15 @@ DND_MENU_MMOD_UTI2		=	"Monster has a chance to raise from the dead.";
 DND_MENU_MMOD_UTI3		=	"Monster has means to teleport around.";
 DND_MENU_MMOD_UTI4		=	"Monster can resurrect other dead monsters.";
 DND_MENU_MMOD_UTI5		=	"Monster is capable of covering distances fast.";
-DND_MENU_MMOD_UTI6		=	"Monster has homing attacks.";
-DND_MENU_MMOD_UTI7		=	"Monster poisons player with certain attacks.";
-DND_MENU_MMOD_UTI8		=	"Monster feels no pain.";
-DND_MENU_MMOD_UTI9		=	"Monster belongs to a player and is friendly.";
-DND_MENU_MMOD_UTI10		=	"Monster is summoned by another and gives nothing on kill.";
-DND_MENU_MMOD_UTI11		=	"Monster is resurrected and doesn't give anything on kill.";
-DND_MENU_MMOD_UTI12		=	"Monster has 33% chance to steal 15% of current weapon's ammo from you with attacks.";
-DND_MENU_MMOD_UTI13		=	"Monster attacks have 33% chance to inflict a random curse.";
-DND_MENU_MMOD_UTI14		=	"Monster attacks will briefly stop your movement.";
-DND_MENU_MMOD_UTI15		=	"Monster has an aura that slows nearby players by 50%.";
+DND_MENU_MMOD_UTI6		=	"Monster poisons player with certain attacks.";
+DND_MENU_MMOD_UTI7		=	"Monster feels no pain.";
+DND_MENU_MMOD_UTI8		=	"Monster belongs to a player and is friendly.";
+DND_MENU_MMOD_UTI9		=	"Monster is summoned by another and gives nothing on kill.";
+DND_MENU_MMOD_UTI10		=	"Monster is resurrected and doesn't give anything on kill.";
+DND_MENU_MMOD_UTI11		=	"Monster has 33% chance to steal 15% of current weapon's ammo from you with attacks.";
+DND_MENU_MMOD_UTI12		=	"Monster attacks have 33% chance to inflict a random curse.";
+DND_MENU_MMOD_UTI13		=	"Monster attacks will briefly stop your movement.";
+DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";

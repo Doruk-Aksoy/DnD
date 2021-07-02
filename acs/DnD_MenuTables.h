@@ -969,9 +969,8 @@ enum {
 	DTYPE_ELEMENTAL = 32
 };
 
-#define MAX_DAMAGE_TYPES 7 // 64
+#define MAX_DAMAGE_TYPES 6 // 64
 str DamageTypeIcons[MAX_DAMAGE_TYPES] = { 
-	"DT_PHYS",
 	"DT_PHYS",
 	"DT_MELE",
 	"DT_OCCU",
@@ -1181,222 +1180,6 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_RAZOR			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_SUN			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_REAVER			}
-};
-
-// Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
-enum {
-	WPROP_NONE,
-	WPROP_CANTHITGHOST = 1,
-	WPROP_SELFDMG = 2,
-	WPROP_OVERHEAT = 4,
-	WPROP_IGNORESHIELD = 8,
-	WPROP_ALTAMMO = 16,
-	WPROP_RIPPER = 32,
-	WPROP_IRREDUCIBLE = 64,
-	WPROP_NOREFLECT = 128
-};
-#define MAX_WEAPON_PROPERTIES 8
-
-str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
-	"WNOGHST",
-	"WSLFDMG",
-	"WOHEAT",
-	"WOSHLD",
-	"WOALT",
-	"WORIP",
-	"WOFULL",
-	"WNOREFL"
-};
-
-// holds can hit ghost etc. kind of information
-int WeaponProperties[MAXSHOPWEAPONS] = {
-	// 1
-	WPROP_NONE,
-	WPROP_NONE,
-	WPROP_IGNORESHIELD,
-	WPROP_CANTHITGHOST,
-	WPROP_NONE,
-	WPROP_IRREDUCIBLE,
-	
-	// 2
-	WPROP_NONE,
-	WPROP_IGNORESHIELD,
-	WPROP_IGNORESHIELD,
-	WPROP_NONE,
-	WPROP_IGNORESHIELD,
-	WPROP_CANTHITGHOST,
-	WPROP_IGNORESHIELD | WPROP_IRREDUCIBLE,
-	
-	// 3 - 1
-	WPROP_ALTAMMO,
-	WPROP_NONE,
-	WPROP_CANTHITGHOST,
-	WPROP_ALTAMMO,
-	WPROP_NONE,
-	WPROP_NONE,
-	WPROP_IGNORESHIELD,
-	WPROP_RIPPER,
-	
-	// 3 - 2
-	WPROP_NONE,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG,
-	WPROP_IGNORESHIELD | WPROP_NOREFLECT,
-	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
-	WPROP_RIPPER | WPROP_CANTHITGHOST,
-	WPROP_RIPPER | WPROP_NOREFLECT,
-	WPROP_SELFDMG | WPROP_IGNORESHIELD,
-	WPROP_SELFDMG | WPROP_CANTHITGHOST | WPROP_RIPPER,
-	
-	// 4 - 1
-	WPROP_NONE,
-	WPROP_NONE,
-	WPROP_NONE,
-	WPROP_ALTAMMO,
-	WPROP_ALTAMMO,
-	WPROP_NONE,
-	WPROP_IGNORESHIELD | WPROP_RIPPER,
-	WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_SELFDMG | WPROP_NOREFLECT,
-	
-	// 4 - 2
-	WPROP_OVERHEAT,
-	WPROP_CANTHITGHOST,
-	WPROP_IGNORESHIELD,
-	WPROP_RIPPER | WPROP_NOREFLECT | WPROP_CANTHITGHOST,
-	
-	// 5 - 1
-	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_NOREFLECT,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG,
-	WPROP_IGNORESHIELD | WPROP_SELFDMG,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER,
-	WPROP_RIPPER | WPROP_OVERHEAT,
-	WPROP_IGNORESHIELD | WPROP_NOREFLECT,
-	WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_NOREFLECT,
-	
-	// 5 - 2
-	WPROP_CANTHITGHOST | WPROP_ALTAMMO | WPROP_SELFDMG,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG,
-	WPROP_SELFDMG,
-	
-	// 6 - 1
-	WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_SELFDMG,
-	WPROP_RIPPER,
-	WPROP_RIPPER | WPROP_CANTHITGHOST,
-	WPROP_SELFDMG,
-	WPROP_NONE,
-	WPROP_OVERHEAT | WPROP_NOREFLECT,
-	WPROP_NOREFLECT | WPROP_IGNORESHIELD,
-	
-	// 6 - 2
-	WPROP_ALTAMMO,
-	WPROP_RIPPER | WPROP_CANTHITGHOST | WPROP_NOREFLECT,
-	WPROP_IGNORESHIELD,
-	
-	// 7
-	WPROP_IGNORESHIELD | WPROP_NOREFLECT,
-	WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST,
-	WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_NOREFLECT,
-	WPROP_OVERHEAT | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST,
-	WPROP_SELFDMG | WPROP_IGNORESHIELD,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_IGNORESHIELD,
-	WPROP_IGNORESHIELD | WPROP_RIPPER,
-	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
-	
-	// 8
-	WPROP_IGNORESHIELD | WPROP_SELFDMG,
-	WPROP_RIPPER,
-	WPROP_IGNORESHIELD | WPROP_RIPPER,
-	WPROP_IGNORESHIELD | WPROP_RIPPER
-};
-						 
-str WeaponExplanation[MAXSHOPWEAPONS] = {
-	"Double the blade, double the fun! Twice as much damage, same firing rate. Forces pain.",
-	"Unsheathing does 140 damage, normal firing does 84. Altfire allows swinging combos to do massive damage. Normal swings block projectiles. Altfire requires Melee Expertise ability.",
-	"Does 80 - 120 damage per swing. Melee does triple damage against undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability.",
-	"60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire shoots 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Alt fire requires Melee Expertise ability.",
-	"Does 100 - 400 damage per hit depending on charge . Alt fire makes you shoot a wave doing 24 damage in a 104 unit radius, run 15% faster but can't change weapons. Alt fire requires Melee Expertise ability.",
-	"Sickle steals life from enemies on hit. Does 40 - 60 damage 3 times. Alt fire swings for irreducable 75 - 90 damage 3 times. Altfire requires Melee Expertise ability.",
-	
-	"Akimbo longslides. Does 35 damage per shot in a 1.25 by 0.5 spread.",
-	"Magnum is a true classic. Each bullet does 150 - 225 damage. Has a capacity of 6. Alt fire reloads.",
-	"Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo.",
-	"Assault Rifle does 25 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.",
-	"Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage. Inflicts \cqpoison.",
-	"Casts 3 flames doing 15-30 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 32 units.",
-	"Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pellets scatter to 6 tiny pellets doing 6 - 12 damage. Alt fire shoots one pellet.",
-	
-	"Purifier shoots 15 pellets each doing 15 damage in a 3.6 by 3.6 and a shell capacity of 8.",
-	"Killstorm is an automatic shotgun, shooting 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Has a shell capacity of 10.",
-	"Creates 5 blasts doing 20 damage each in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, and releases an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius. Inflicts \cqpoison.",
-	"Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.",
-	"Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of gas streams doing 5 damage.",
-	"An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.",
-	"Emits three fireballs each doing 60-72 damage on hit, burning enemies. They start homing after travelling a bit. If they hit any target, they build charges for altfire, that fires a ray of 10-16 damage and applying ignite, poison or chill. The ray \cfignores shields\c-.",
-	"Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.",
-	
-	"Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.",
-	"Shoots a missile and 3 mini missiles. Missile does 60, mini missiles do 25 and explode for 20 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter after travelling a bit. If it hits an object, explodes for 25 in 64 unit radius. Altfire fires the other side.",
-	"Fires 12 plasma balls in a circular fashion, each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.",
-	"Shoots 18 particles each doing 15 damage and forcing pain. Altfire releases heat, dealing 192-240 damage in 108 unit radius.",
-	"Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage, ripping through enemies. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage. Embers can't hit \cughosts\c-.",
-	"Equipped with silver bolts which deal 300 damage on hit. Altfire increases tension, allowing shots to rip and gain 50% more damage per increase, but instead start from base of 200 damage. Magical or undead enemies hit causes a 150 damage explosion in 128 unit radius.",
-	"White Death fires 9 pellets each doing 15 on hit. Each pellet also does 32 - 48 explosion damage in a small area. Does self damage.",
-	"Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius. Blades return to you after travelling a bit.",
-	
-	"Finest machine guns UAC has to offer. Bullets do 25 damage in a 1.6 by 0.8 spread. Has a clip size of 60. Can zoom.",
-	"Lead Spitter is a super sonic bullet shooter shooting 2 bullets doing 18 damage in a 6.4 by 4.8 spread. Clip size is 75.",
-	"Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 15 damage, reduce monster damage and resistance by 50%. If the monster is below 10% health, culls the monster.",
-	"Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40.",
-	"Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Reload when full to use other ammo.",
-	"Fires acid rounds doing 18 damage on hit and 5-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius. Inflicts \cqpoison.",
-	"Fires in bursts of 5 each doing 30 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 200 damage and releasing rippers doing 6 damage around. Attacks do more damage with more distance.",
-	"This shotgun burns enemies with 12 projectiles each dealing 16 damage going through enemies and in a 48 unit radius on impact. Every four shots two lava balls are fired dealing 80-90 damage on impact and 80 damage in 96 unit radius. Lava balls \cfignore shields\c-.",
-
-	"Desolator fires highly toxic rounds doing 30 damage. Every subsequent hit to a target makes them take 10% more damage from elemental attacks, stacks maximum 5 times. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius. Inflicts \cqpoison.",
-	"Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin.",
-	"The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs.",
-	"Launches photon blasts in multiple phases all dealing 42 - 56 damage. Some can hit ghosts and can't be reflected, some can rip but can't hit ghosts and some deal only area damage in 80 unit radius but can be reflected.",
-	
-	"The Torpedo Launcher shoots fast torpedos each doing 300 - 400 damage on impact and 224 damage in a 128 unit radius. Altfire detonates the rocket midflight, dealing the impact damage in an area instead.",
-	"Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds.",
-	"Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to scatter into 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.",
-	"Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces into further smaller with half of the values each split.",
-	"Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Altfire loads more grenades in the chamber.",
-	"Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius.",
-	"Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground.",
-	"Creates a black hole doing 100 damage when it goes through enemies. On impact with a surface, hardened skin enemy or alt fire press, the projectile is detonated for 300 damage. Does 180 damage afterwards over time. Drags enemies towards it at all times.",
-	
-	"Useful for when you can't reach around corners. Does 80 damage on impact and 128 damage in a 144 unit radius.",
-	"The Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts",
-	"Top of the food chain for rockets. Shoots two homing rockets each doing 192 damage both on impact and explosion.",
-	"This artifact fires irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls of half effectiveness. Explosions inflict \cqpoison\c-. Deals no damage to fully cybernetic enemies. Doesn't hurt you if you have armor.",
-	
-	"Improved with a nuclear reactor. Does 36 - 60 on hit and 10 - 30 explosion damage in a 48 unit radius.",
-	"Turel Cannon fires highly ionized particles doing 125 damage ripping through everything. Continuous fire is less accurate and does 80 damage. Has a range of 768 units.",
-	"Launches 5 ice shards doing 15 - 30 damage in a 7.5 by 7.5 spread. Alt fire launches a glacial orb launching ice shards all around with itself doing 6-9 damage and rips through enemies.",
-	"Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.",
-	"UAC offers this shockingly deadly weapon that can shoot lightning doing 9-12 damage. Alt fire shoots forked lightning. Keep firing and damage increases by 4% per stack. Stacks additively.",
-	"Fires projectiles doing 25 damage. For every 24 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.",
-	"Summon lances that penetrate all targets dealing 120 base damage. The lance grows stronger at 4, 8, 13 and 20 kill thresholds. Altfire uses all stacks to curse an enemy, dealing 180 damage per stack over 3 seconds, \cfignoring shields\c-. If the monster is killed, this bounces to nearest enemy and grants ammo.",
-	
-	"Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 spread. Alt fire zooms, allowing for higher precision but loss of rapid fire. Can use \cialternate\c- ammo. Reload when full to use other ammo.",
-	"Shoots nails which do 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.",
-	"Shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage.",
-	
-	"The newest BFG model 32768 devastates with 600 - 900 damage on impact and 384 damage in a 160 unit radius. Shoots 64 tracers.",
-	"Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units.",
-	"Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage in a 256 unit radius.",
-	"Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60.",
-	"Launches a ball of lightning that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in a large radius.",
-	"Gauss Rifle fires a magnetic pulse dealing 200 on hit and 96 radius damage in a 128 unit radius. Alt fire zooms, amplifying the damage for each zoom.",
-	"This baby can rip through concrete with ease. Each shot does multiples of 400 damage. Alt fire charges up the next shot, up to 2 times.",
-	"Fires energy particles doing 450 damage on impact and 150 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 400 damage both on impact and in a 160 unit radius.",
-	
-	"Fires meteors of magic bursting on impact. Alt fire fires three columns of fire on the floor and ceiling that travel and explode in flames.",
-	"Fires magical bone shards that rip through. Alt fire switches the mode to shoot three demon shredders that seek demons.",
-	"Fires sun beams to burn enemies. Alt fire channels the very essence of sun causing a massive meltdown.",
-	"Creates portals that lead to hungry ghosts to devour your enemies. Hold to gain a deflective shield."
 };
 
 str GetAttributeText(int id) {
@@ -2148,13 +1931,13 @@ str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 #define MAX_IMMUNITY_MODS 10
 #define IMMMODOFFSET (RESMODOFFSET + MAX_RESIST_MODS)
 
-#define MAX_AGGRESSIVE_MODS 11
+#define MAX_AGGRESSIVE_MODS 12
 #define AGGMODOFFSET (IMMMODOFFSET + MAX_IMMUNITY_MODS)
 
 #define MAX_DEFENSE_MODS 17
 #define DEFMODOFFSET (AGGMODOFFSET + MAX_AGGRESSIVE_MODS)
 
-#define MAX_UTILITY_MODS 15
+#define MAX_UTILITY_MODS 14
 #define UTIMODOFFSET (DEFMODOFFSET + MAX_DEFENSE_MODS)
 
 // input is menu based index, returns corresponding label index for the mod
@@ -2197,6 +1980,7 @@ int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
 	DND_EXTRAFAST,
 	DND_FASTREACTION,
 	DND_EXTRASTRONG,
+	DND_HOMING,
 	DND_ARMORPEN,
 	DND_VIOLENTRETALIATION,
 	DND_HATRED,
@@ -2228,7 +2012,6 @@ int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
 	DND_TELEPORT,
 	DND_RESURRECT,
 	DND_MOBILITY,
-	DND_HOMING,
 	DND_POISON,
 	DND_NOPAIN,
 	DND_PET,

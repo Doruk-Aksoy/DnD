@@ -116,31 +116,41 @@ WEP_94_TAG 			= 			"Akimbo Berettas";
 WEP_95_TAG 			= 			"Plasma Bolter";
 WEP_96_TAG 			= 			"Ripper Cannon";
 
+DND_WEPPROP_THRUGHOST	=	"Through Ghost";
+DND_WEPPROP_SELFDMG		=	"Self Damage";
+DND_WEPPROP_OVERHEAT	=	"Overheat";
+DND_WEPPROP_IGNOREINV	=	"Ignores Shields";
+DND_WEPPROP_ALTAMMO		=	"Alternate Ammo";
+DND_WEPPROP_RIPPER		=	"Ripper";
+DND_WEPPROP_FULLDMG		=	"Irreducable";
+DND_WEPPROP_NOREFLECT	=	"No reflect";
+DND_WEPPROP_POISON		=	"Inflicts Poison";
+
 // TIPS
 
 WEPTIP_0_0 		= "Time to get your hands dirty. Does 10 - 30 damage normally or 180 - 240 with berserk per hit.";
 WEPTIP_0_1 		= "Open invitiation to the slaughterhouse! Can be \cdreplaced.";
 WEPTIP_0_2 		= "Double the blade, double the fun! Twice as much damage, same firing rate. Forces pain.";
 WEPTIP_0_3 		= "Unsheathing does 140 damage, normal firing does 84. Altfire allows swinging combos to do massive damage. Normal swings block projectiles. Altfire requires Melee Expertise ability.";
-WEPTIP_0_4 		= "Does 80 - 120 damage per swing, x3 to undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability. \cfIgnores shields.\c- Can't hit \cughosts.";
-WEPTIP_0_5 		= "60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire shoots 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Alt fire requires Melee Expertise ability. Can't hit \cughosts.";
+WEPTIP_0_4 		= "Does 80 - 120 damage per swing. Melee does triple damage against undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability.";
+WEPTIP_0_5 		= "60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire shoots 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Alt fire requires Melee Expertise ability.";
 WEPTIP_0_6 		= "Does 100 - 400 damage per swing depending on how long you hold. Alt fire makes you shoot ripping slashes doing 24 damage in a 104 unit radius, run 15% faster but can't change weapons. Alt fire requires Melee Expertise ability.";
 WEPTIP_0_7 		= "Sickle steals life from enemies on hit. Does 40 - 60 damage 3 times. Alt fire swings for irreducable 75 - 90 damage 3 times. Altfire requires Melee Expertise ability.";
 	 
 WEPTIP_1_0 		= "Your trustworthy Colt45, been with you since the start. Does 15 damage in a 0.5 spread. Can be \cdreplaced.";
 WEPTIP_1_1 		= "Akimbo longslides. Does 35 damage per shot in a 3.5 by 2.5 spread.";
-WEPTIP_1_2 		= "Magnum is a true classic, shooting bullets each doing 150 - 225 damage. Has a capacity of 6. 50 damage from bullet rip through enemies. Alt fire reloads. \cfIgnores shields.";
-WEPTIP_1_3 		= "Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo. \cfIgnores shields.";
+WEPTIP_1_2 		= "Magnum is a true classic, shooting bullets each doing 150 - 225 damage. Has a capacity of 6. 50 damage from bullet rip through enemies. Alt fire reloads.";
+WEPTIP_1_3 		= "Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo.";
 WEPTIP_1_4 		= "Assault Rifle does 30 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.";
-WEPTIP_1_5 		= "Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage, \cfignoring shields\c-. Inflicts \cqpoison.";
-WEPTIP_1_6 		= "Casts 3 flames doing 10-40 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 24 units. Can't hit \cughosts.";
-WEPTIP_1_7 		= "Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pellets scatter to 6 tiny pellets doing 6 - 12 damage. Alt fire shoots one pellet. \cfIgnores shields.\c-";
+WEPTIP_1_5 		= "Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage, \cfignoring shields\c-.";
+WEPTIP_1_6 		= "Casts 3 flames doing 10-40 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 24 units.";
+WEPTIP_1_7 		= "Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pellets scatter to 6 tiny pellets doing 6 - 12 damage. Alt fire shoots one pellet.";
 	 
 WEPTIP_2_0 		= "Typical boomstick, now spreads vertically too. 10 pellets, each doing 10-15 damage. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.";
-WEPTIP_2_1 		= "The purifier shotgun, spread's with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads. Can use \cialternate\c- ammo.";
+WEPTIP_2_1 		= "The purifier shotgun, spreads with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads.";
 WEPTIP_2_2 		= "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Alt fire reloads.";
-WEPTIP_2_3 		= "Fires 5 blasts doing 20 damage in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, releasing an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius. Inflicts \cqpoison.";
-WEPTIP_2_4 		= "Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12. Can use \cialternate\c- ammo.";
+WEPTIP_2_3 		= "Fires 5 blasts doing 20 damage in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, releasing an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.";
+WEPTIP_2_4 		= "Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.";
 WEPTIP_2_5 		= "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.";
 WEPTIP_2_6 		= "An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.";
 WEPTIP_2_7 		= "Emits three fireballs each doing 60-72 damage on hit, burning enemies. They start homing after a bit. If they hit a target, they build charges for altfire. It fires a ray of 10-16 damage and applying ignite, poison or chill. The ray \cfignores shields\c-.";
@@ -200,21 +210,21 @@ WEPTIP_6_8 		= "Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 sp
 WEPTIP_6_9 		= "An interesting demonic artifact shooting nails. Each nail does 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.\c- Can't hit \cughosts.";
 WEPTIP_6_10 	= "Basilisk is said to be the ancient weapon of hell's most elite warriors. If not loaded, shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage. \cf Ignores shields.";
 	 
-WEPTIP_7_0 		= "BFG 6000, an older model but still capable. Can be \cdreplaced.\cf Ignores shields.";
+WEPTIP_7_0 		= "BFG 6000, an older model but still capable. Can be \cdreplaced. \cfIgnores shields.";
 WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on impact and 384 damage in a 160 unit radius. Also shoots 64 tracers instead of 40.";
-WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units. Can't hit \cughosts. \c-\cfIgnores shields.";
+WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units.";
 WEPTIP_7_3 		= "Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields.";
-WEPTIP_7_4 		= "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 in 80 and 53 in 60. Can \cgoverheat\c-. \cfIngores shields\c-. Can't hit \cughosts\c-.";
+WEPTIP_7_4 		= "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, then 80 damage in 80 unit radius and 53 damage in 60 unit radius.";
 WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 500 on impact and 250 in 256 units, \cfignoring shields.";
 
-WEPTIP_7_6 		= "Gauss Rifle fires a magnetic pulse dealing 200 direct hit damage and 96 radius damage in a 128 unit radius. Alt fire zooms and amplifies the damage for each zoom. Can't hit \cughosts.\c- \cfIgnores shields.";
-WEPTIP_7_7 		= "This baby can rip through concrete with ease. Each shot does multiples of 400. Alt fire charges up the next shot up to 2 times. \cfIgnores shields.";
-WEPTIP_7_8 		= "Fires energy particles doing 450 damage on impact and 150 area damage in 96 unit radius. Using altfire while particles are flying causes a laser to be fired, doing 400 damage on impact and in a 160 unit radius, \cfignoring shields.\c-";
+WEPTIP_7_6 		= "Gauss Rifle fires a magnetic pulse dealing 200 direct hit damage and 96 radius damage in a 128 unit radius. Alt fire zooms, amplifying the damage for each zoom.";
+WEPTIP_7_7 		= "This baby can rip through concrete with ease. Each shot does multiples of 400. Alt fire charges up the next shot up to 2 times.";
+WEPTIP_7_8 		= "Fires energy particles doing 450 damage on impact and 150 area damage in 96 unit radius. Using altfire while particles are midflight causes a laser to be emitted to target area, doing 400 damage both on impact and in a 160 unit radius, \cfignoring shields.\c-";
 	 
-WEPTIP_8_0 		= "A magical staff, using demon souls as energy. Fires meteors of magic, bursting on impact. Alt fire fires 3 columns of fire both on floor and ceiling that travel and explode in flames. \cfIgnores shields.";
+WEPTIP_8_0 		= "A magical staff, using demon souls as energy. Fires meteors of magic, bursting on impact. Alt fire fires 3 columns of fire both on floor and ceiling that travel and explode in flames.";
 WEPTIP_8_1 		= "This once was the ribcage of a powerful demon. Fires magical bone shards that rip through. Alt fire switches the mode to shoot three demon shredders that seek demons.";
-WEPTIP_8_2 		= "This holy relic was lost in ancient battles. Fires sun beams to burn anything. Alt fire channels the very essence of sun causing a massive meltdown. \cfIgnores shields\c-.";
-WEPTIP_8_3 		= "Soul Reaver creates portals that lead to hungry ghosts that devour their enemies. Hold to gain a deflective shield. \cfIgnores shields.";
+WEPTIP_8_2 		= "This holy relic was lost in ancient battles. Fires sun beams to burn anything. Alt fire channels the very essence of sun causing a massive meltdown.";
+WEPTIP_8_3 		= "Soul Reaver creates portals that lead to hungry ghosts that devour their enemies. Hold to gain a deflective shield.";
 	 
 WEPTIP_9_0 		= "The sawedoff is a western classic. Fires 16 pellets each doing 15 damage. \ceTemporary Weapon.";
 WEPTIP_9_1 		= "Soul Render is an unholy melee weapon. Each hit makes the weapon become less durable. Alt fire toggles life drain mode. \ceTemporary Weapon.";

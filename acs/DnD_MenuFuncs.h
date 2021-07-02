@@ -449,11 +449,13 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 	int wid = GetWeaponBeginIndexFromOption(curopt);
 	int imgcount = 0;
 	wid += boxid - 1;
-	DeleteTextRange(RPGMENUWEAPONPANELID - 8, RPGMENUWEAPONPANELID - 1);
+	int real_wid = ShopTableIdToWeaponTableId(wid);
+	
+	DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
 	if(CheckItemRequirements(wid, RES_KNOWN, WeaponDrawInfo[wid - SHOP_WEAPON_BEGIN].flags)) {
 		SetHudSize(HUDMAX_X * 2, HUDMAX_Y * 2, 1);
 		for(int i = 0; i < MAX_WEAPON_PROPERTIES; ++i) {
-			if(IsSet(WeaponProperties[wid], i)) {
+			if(IsSet(WeaponProperties[real_wid], i)) {
 				SetFont(WeaponPropertyImages[i]);
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID - i - 1, -1, -64.0 + (imgcount & 1) * 64.0, -160.0 + ypos * 8.0 + (imgcount / 2) * 40.0, 0.0, 0.0);
 				++imgcount;
@@ -483,7 +485,7 @@ void HandleWeaponInfoPanel(int curopt, int animcounter, int boxid) {
 	if(boxid != MAINBOX_NONE)
 		HandleWeaponPropertyImages(curopt, boxid, ypos);
 	else
-		DeleteTextRange(RPGMENUWEAPONPANELID - 8, RPGMENUWEAPONPANELID - 1);
+		DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
 	
 	SetFont("SMALLFONT");
 }
@@ -512,12 +514,12 @@ void ShowWeaponPropertyIcon(int id) {
 	
 	if(id == 2)
 		offset = -24.0;
-	else if(id == 3)
+	else if(id == 3 || id == 7)
 		offset = -16.0;
-	else if(id == 6)
+	else if(id == 6 || id == 9)
 		offset = -8.0;
 	
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id - 1, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos, 0.0, 0.0);
 	SetHudClipRect(0, 0, 0, 0);
 	
 	SetFont("SMALLFONT");
@@ -569,6 +571,11 @@ int ShopTableIdToWeaponTableId(int id) {
 str GetWeaponShopIcon(int id) {
 	id = ShopTableIdToWeaponTableId(id);
 	return Weapons_Data[id][WEAPON_ICON];
+}
+
+str GetWeaponExplanation(int id) {
+	int real_id = ShopTableIdToWeaponTableId(id);
+	return GetWeaponTipText(real_id);
 }
 
 void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
@@ -947,9 +954,9 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"\cd*\c- ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
 				else
-					HudMessage(s:"\cd*\c- ", s:WeaponExplanation[itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
 				DrawWeaponIconCorner(curposy, itemid);
