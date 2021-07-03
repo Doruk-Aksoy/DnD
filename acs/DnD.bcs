@@ -2393,18 +2393,36 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 	    Terminate;
 	if(!type && !CheckInventory("ParsingData")) { // weapon tip
+		str text = GetWeaponTipText(itemnum);
+		int len = StrLen(StrParam(l:text));
+		
 		LocalAmbientSound("Weapon/Popup", 127);
 		SetHudSize(640, 480, 1);
-		SetFont("MSGBOX2");
-		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 515.0 + ScreenResOffsets[1], 120.0, 4.0, 1.0, 1.0);
+		
+		log(d:len);
+		
+		if(len < 120) {
+			SetFont("MSGBOXX");
+			len = 0;
+		}
+		else if(len < 240) {
+			SetFont("MSGBOX2");
+			len = 0;
+		}
+		else {
+			SetFont("MSGBOX3");
+			len = 64;
+		}
+		
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 515.0 + ScreenResOffsets[1], 48.1, 4.0, 1.0, 1.0);
 		SetFont(Weapons_Data[itemnum][WEAPON_ICON]);
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEICO, CR_UNTRANSLATED, 537.1 + ScreenResOffsets[1], 80.0, 4.0, 1.0, 1.0);
 		SetFont("OBJFONT");
-		HudMessage(d:GetGameSlotOfWeapon(itemnum); HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, 416.0 + ScreenResOffsets[1], 68.0, 4.0, 1.0, 1.0);
+		HudMessage(d:GetGameSlotOfWeapon(itemnum); HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, 416.0 + ScreenResOffsets[1], 70.0, 4.0, 1.0, 1.0);
 
 		SetHudSize(960, 600, 1);
-		SetHudClipRect((632.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 96, 320, 128, 320, 1);
-		HudMessage(l:GetWeaponTipText(itemnum); HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 632.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 4.0, 1.0, 1.0);
+		SetHudClipRect((632.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 96, 320, 128 + len, 320, 1);
+		HudMessage(l:text; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 632.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 4.0, 1.0, 1.0);
 		SetHudClipRect(0, 0, 0, 0);
 	}
 }
@@ -5755,7 +5773,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		
 		Log(s:"\n--------------------------------\n------- Perk Allocation -------\n--------------------------------\n");
 		for(i = 0; i < DND_MAX_PERKS; ++i)
-			Log(s:"\c[Y5]", s:StatData[DND_PERK_BEGIN + i][STAT_LABEL], s:": \c-", d:CheckInventory(StatData[DND_PERK_BEGIN + i][STAT_NAME]));
+			Log(s:"\c[Y5]", l:GetStatLabel(DND_PERK_BEGIN + i), s:": \c-", d:GetStat(DND_PERK_BEGIN + i));
 		
 		Log(s:"\n--------------------------------\n------- Accessories -------\n--------------------------------\n");
 		for(j = 0, i = 0; i < MAX_ACCESSORY && j < 2; ++i) {

@@ -846,13 +846,21 @@ int CanTrade (int id, int tradeflag, int price) {
 	return res;
 }
 
-void DrawToggledLabel(str label, int afterlabel, int boxid, int boxcheck, int drawid, str color, str activecolor, int hudx, int hudy) {
+void DrawToggledLabel(str label, bool language_lookup, int afterlabel, int boxid, int boxcheck, int drawid, str color, str activecolor, int hudx, int hudy) {
 	if(boxid == boxcheck)
 		color = activecolor;
-	if(afterlabel != -1)
-		HudMessage(s:color, s:label, s:": \c-", d:afterlabel; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
-	else
-		HudMessage(s:color, s:label, s:": "; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	if(afterlabel != -1) {
+		if(language_lookup)
+			HudMessage(s:color, l:label, s:": \c-", d:afterlabel; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		else
+			HudMessage(s:color, s:label, s:": \c-", d:afterlabel; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	}
+	else {
+		if(language_lookup)
+			HudMessage(s:color, s:label, s:": "; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		else
+			HudMessage(s:color, l:label, s:": "; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	}
 }
 
 int GetAmmoToGive(int index) {

@@ -20,10 +20,14 @@ DND_MENU_DISABLED		=	"\cgDisabled";
 DND_MENU_ERROR			=	"ERRROR";
 DND_MENU_CONFIRM		=	"CONFIRM";
 
+DND_MENU_HEAD_STATS		=	"Player Stats";
+DND_MENU_HEAD_GAINS		=	"Current Gains";
+DND_MENU_HEAD_QUESTBON	=	"Quest Bonuses";
+DND_MENU_HEAD_PERKS		=	"Player Perks";
 DND_MENU_HEAD_HELP		=	"DnD Help";
-
 DND_MENU_HEAD_RESGUNS	=	"RESEARCH: GUNS";
 
+DND_MENU_PERKSAVAIL		=	"Perks Available";
 DND_MENU_RESEARCH		=	"Research!";
 
 DND_MENU_ITEMS			=	"Items";

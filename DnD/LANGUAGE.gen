@@ -16,6 +16,31 @@ DND_TEXT_MAXSECRETREWARD				= "K Budget!";
 
 DND_TEXT_MAPTOAST						= "The entire map is toast! You're fully healed!";
 
+DND_ATTRIBUTEPTS						= "Attribute Points";
+
+DND_STAT1								= "Strength";
+DND_STAT2								= "Dexterity";
+DND_STAT3								= "Bulkiness";
+DND_STAT4								= "Charisma";
+DND_STAT5								= "Vitality";
+DND_STAT6								= "Intellect";
+	
+DND_STAT7								= "Sharpshooting";
+DND_STAT8								= "Endurance";
+DND_STAT9								= "Wisdom";
+DND_STAT10								= "Greed";
+DND_STAT11								= "Medic";
+DND_STAT12								= "Munitionist";
+DND_STAT13								= "Deadliness";
+DND_STAT14								= "Savagery";
+DND_STAT15								= "Luck";
+	
+DND_STAT16								= "Experience";
+DND_STAT17								= "Level Experience";
+DND_STAT18								= "Level";
+DND_STAT19								= "Credit";
+DND_STAT20								= "Level Credit";
+
 DND_SPREETEXT1							= "Cruel";
 DND_SPREETEXT2							= "Merciless";
 DND_SPREETEXT3							= "Crushing";

@@ -370,7 +370,7 @@ void Reset_RPGInfo (int resetflags) {
 		
 	if(resetflags & RESET_STATS) {
 		for(i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
-			SetInventory(StatData[i][STAT_NAME], 0);
+			SetInventory(StatData[i], 0);
 		SetActorProperty(0, APROP_HEALTH, DND_BASE_HEALTH);
 	}
 	
@@ -380,7 +380,7 @@ void Reset_RPGInfo (int resetflags) {
 		if(CheckInventory("Perk_Endurance"))
 			TakeInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * 5), 1);
 		for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-			SetInventory(StatData[i][STAT_NAME], 0);
+			SetInventory(StatData[i], 0);
 		SetAmmoCapacity("StoredMedkit", DND_BASE_HEALTH);
 	}
 }

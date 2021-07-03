@@ -271,20 +271,20 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		}
 		
 		if(curopt == MENU_STAT1) {
-			HudMessage(s:"--- Player Stats ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			HudMessage(s:"--- ", l:"DND_MENU_HEAD_STATS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			SetHudClipRect(192, 56, 256, 144, 256, 1);
-			HudMessage(s:"\c[Y5]Level: \c-", d:CheckInventory("Level"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
-			HudMessage(s:"\c[Y5]Experience: \c-", d:CheckInventory("Exp"), s:" / ", d:LevelCurve[CheckInventory("Level") - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
-			HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
-			HudMessage(s:"\c[Y5]Attribute Points: \c-", d:CheckInventory("AttributePoint"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_STAT18", s:": \c-", d:CheckInventory("Level"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_STAT16", s:": \c-", d:CheckInventory("Exp"), s:" / ", d:LevelCurve[CheckInventory("Level") - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_STAT19", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_ATTRIBUTEPTS", s:": \c-", d:CheckInventory("AttributePoint"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
 			
-			DrawToggledLabel("STR", -1, boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 128.0);
-			DrawToggledLabel("DEX", -1, boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 192.1, 144.0);
-			DrawToggledLabel("BUL", -1, boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 160.0);
-			DrawToggledLabel("CHR", -1, boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 176.0);
-			DrawToggledLabel("VIT", -1, boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 192.0);
-			DrawToggledLabel("INT", -1, boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 192.1, 208.0);
+			DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 128.0);
+			DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 192.1, 144.0);
+			DrawToggledLabel("BUL", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 160.0);
+			DrawToggledLabel("CHR", DND_NOLOOKUP, -1, boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 176.0);
+			DrawToggledLabel("VIT", DND_NOLOOKUP, -1, boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 192.0);
+			DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 192.1, 208.0);
 			// draw values seperately so they align
 			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Strength"); HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 256.1, 128.0, 0.0);
 			HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 256.1, 144.0, 0.0);
@@ -310,7 +310,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		}
 		else if(curopt == MENU_STAT2) {
 			// put before hud clip rect in the future, wasn't showing before!
-			HudMessage(s:"--- Current Gains ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			HudMessage(s:"--- ", l:"DND_MENU_HEAD_GAINS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			
 			DrawPlayerStats(pnum);
 			
@@ -322,7 +322,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		
 			toshow = "";
 			j = 0;
-			HudMessage(s:"--- Quest Bonuses ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			HudMessage(s:"--- ", l:"DND_MENU_HEAD_QUESTBON", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			for(i = 0; i < MAX_QUESTS; ++i) {
 				if(IsQuestComplete(0, i)) {
 					toshow = StrParam(s:toshow, s:"\cf*\c- ", s:Quest_Description[i][QUEST_REW], s:"\n\n");
@@ -336,12 +336,12 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 		}
 		else if(curopt == MENU_PERK) {
-			HudMessage(s:"--- Player Perks ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+			HudMessage(s:"--- ", l:"DND_MENU_HEAD_PERKS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 			
-			HudMessage(s:"\c[Y5]Perks Available: \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_PERKSAVAIL", s:": \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
 			
 			for(i = 0; i < DND_PERKS; ++i)
-				DrawToggledLabel(StatData[DND_PERK_BEGIN + i][STAT_LABEL], CheckInventory(StatData[DND_PERK_BEGIN + i][STAT_NAME]), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
+				DrawToggledLabel(GetStatLabel(DND_PERK_BEGIN + i), DND_LANGUAGE_LOOKUP, GetStat(DND_PERK_BEGIN + i), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
 			DrawCornerText(MENU_PERK, boxid);
 		}
 		else if(curopt == MENU_LOAD) {
@@ -1052,7 +1052,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					if(HasLeftClicked(pnum))
 						temp = 1;
 					else
-						temp = Min(CheckInventory("AttributePoint"), cur_stat_max - CheckInventory(StatData[boxid - 1 + DND_ATTRIB_BEGIN][STAT_NAME]));
+						temp = Min(CheckInventory("AttributePoint"), cur_stat_max - GetStat(boxid - 1 + DND_ATTRIB_BEGIN));
 				
 					if(boxid == MBOX_1 && CheckInventory("PSTAT_Strength") < cur_stat_max) { // str
 						ConsumeAttributePointOn(STAT_STR, temp);
@@ -1111,7 +1111,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					if(HasLeftClicked(pnum))
 						temp = 1;
 					else
-						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - CheckInventory(StatData[boxid - 1 + DND_PERK_BEGIN][STAT_NAME]));
+						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - GetStat(boxid - 1 + DND_PERK_BEGIN));
 				
 					if(boxid == MBOX_1 && CheckInventory("Perk_Sharpshooting") < DND_PERK_MAX) { // sharp
 						ConsumePerkPointOn(STAT_SHRP, temp);

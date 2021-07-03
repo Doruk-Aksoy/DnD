@@ -69,31 +69,29 @@ str TalentNames[MAX_TALENTS][2] = {
 };
 
 #define DND_PERKS DND_PERK_END - DND_PERK_BEGIN + 1
-#define STAT_NAME 0
-#define STAT_LABEL 1
-str StatData[STAT_LVLCRED + 1][2] = {
-	{ "PSTAT_Strength", "Strength" },
-	{ "PSTAT_Dexterity", "Dexterity" },
-	{ "PSTAT_Bulkiness", "Bulkiness" },
-	{ "PSTAT_Charisma", "Charisma" },
-	{ "PSTAT_Vitality", "Vitality" },
-	{ "PSTAT_Intellect", "Intellect" },
+str StatData[STAT_LVLCRED + 1] = {
+	"PSTAT_Strength",
+	"PSTAT_Dexterity",
+	"PSTAT_Bulkiness",
+	"PSTAT_Charisma",
+	"PSTAT_Vitality",
+	"PSTAT_Intellect",
 	
-	{ "Perk_Sharpshooting", "Sharpshooting" },
-	{ "Perk_Endurance", "Endurance" },
-	{ "Perk_Wisdom", "Wisdom" },
-	{ "Perk_Greed", "Greed" },
-	{ "Perk_Medic", "Medic" },
-	{ "Perk_Munitionist", "Munitionist" },
-	{ "Perk_Deadliness", "Deadliness" },
-	{ "Perk_Savagery", "Savagery" },
-	{ "Perk_Luck", "Luck" },
+	"Perk_Sharpshooting",
+	"Perk_Endurance",
+	"Perk_Wisdom",
+	"Perk_Greed",
+	"Perk_Medic",
+	"Perk_Munitionist",
+	"Perk_Deadliness",
+	"Perk_Savagery",
+	"Perk_Luck",
 	
-	{ "Exp", "Experience" },
-	{ "LevelExp", "Level Experience" },
-	{ "Level", "Level" },
-	{ "Credit", "Credit" },
-	{ "LevelCredit", "Level Credit" }
+	"Exp",
+	"LevelExp",
+	"Level",
+	"Credit",
+	"LevelCredit",
 };
 
 enum {
@@ -177,18 +175,22 @@ str ChestKeyTypes[MAX_CHEST_KEYS] = {
 };
 
 int GetStat(int stat_id) {
-	return CheckInventory(StatData[stat_id][STAT_NAME]);
+	return CheckInventory(StatData[stat_id]);
+}
+
+str GetStatLabel(int id) {
+	return StrParam(s:"DND_STAT", d:id + 1);
 }
 
 int GetActorStat(int tid, int stat_id) {
-	return CheckActorInventory(tid, StatData[stat_id][STAT_NAME]);
+	return CheckActorInventory(tid, StatData[stat_id]);
 }
 
 void GiveStat(int stat_id, int amt) {
 	// get cap
 	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
-	amt = Clamp_Between(CheckInventory(StatData[stat_id][STAT_NAME]) + amt, 0, lim) - CheckInventory(StatData[stat_id][STAT_NAME]);
-	GiveInventory(StatData[stat_id][STAT_NAME], amt);
+	amt = Clamp_Between(CheckInventory(StatData[stat_id]) + amt, 0, lim) - CheckInventory(StatData[stat_id]);
+	GiveInventory(StatData[stat_id], amt);
 	
 	if(lim == DND_STAT_FULLMAX)
 		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
@@ -199,8 +201,8 @@ void GiveStat(int stat_id, int amt) {
 void GiveActorStat(int tid, int stat_id, int amt) {
 	// get cap
 	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
-	amt = Clamp_Between(CheckActorInventory(tid, StatData[stat_id][STAT_NAME]) + amt, 0, lim) - CheckActorInventory(tid, StatData[stat_id][STAT_NAME]);
-	GiveActorInventory(tid, StatData[stat_id][STAT_NAME], amt);
+	amt = Clamp_Between(CheckActorInventory(tid, StatData[stat_id]) + amt, 0, lim) - CheckActorInventory(tid, StatData[stat_id]);
+	GiveActorInventory(tid, StatData[stat_id], amt);
 	
 	if(lim == DND_STAT_FULLMAX)
 		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
@@ -261,13 +263,13 @@ void GiveActorCredit(int tid, int amt) {
 }
 
 void ConsumeAttributePointOn(int stat, int amt) {
-	GiveInventory(StatData[stat][STAT_NAME], amt);
+	GiveInventory(StatData[stat], amt);
 	TakeInventory("AttributePoint", amt);
 }
 
 void ConsumePerkPointOn(int perk, int amt) {
 	// map it into 0 range
-	GiveInventory(StatData[perk][STAT_NAME], amt);
+	GiveInventory(StatData[perk], amt);
 	TakeInventory("PerkPoint", amt);
 }
 
@@ -441,14 +443,14 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 int Calculate_Stats() {
 	int res = 0;
 	for(int i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
-		res += CheckInventory(StatData[i][STAT_NAME]);
+		res += CheckInventory(StatData[i]);
 	return res;
 }
 
 int Calculate_Perks() {
 	int res = 0;
 	for(int i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		res += CheckInventory(StatData[i][STAT_NAME]);
+		res += CheckInventory(StatData[i]);
 	return res;
 }
 
@@ -624,7 +626,7 @@ bool HasNoSigilPower() {
 
 // Takes a stat from the player, also removing effects of it
 void TakeStat(int stat_id, int amt) {
-	TakeInventory(StatData[stat_id][STAT_NAME], amt);
+	TakeInventory(StatData[stat_id], amt);
 	if(stat_id <= DND_ATTRIB_END)
 		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
 	else if(stat_id <= DND_PERK_END)

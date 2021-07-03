@@ -1532,7 +1532,7 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cjOrb of Corruption increases your drop chance by \cv", f:ftrunc(CORRUPTORB_DROPCHANCEGIVE * affluence * 100), s:"%\cj!");
 		break;
 		case CORRUPTORB_GIVESTAT:
-			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", s:StatData[val >> 8][STAT_LABEL], s:"\cj points!");
+			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", l:GetStatLabel(val >> 8), s:"\cj points!");
 		break;
 		case CORRUPTORB_MOD_PERCENTDAMAGE:
 			Log(s:"\cjOrb of Corruption gives \cvpercent health damage on impact\cj to ", l:GetWeaponTag(val >> 8), s:"\cj!");
@@ -1635,7 +1635,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_SPIRIT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Spirit grants you with \cv", d:affluence, s:" \cd", s:StatData[val][STAT_LABEL], s:"\cv!");
+				Log(s:"\cjOrb of Spirit grants you with \cv", d:affluence, s:" \cd", l:GetStatLabel(val), s:"\cv!");
 			else
 				Log(s:"\cgYou're maxed out on stats, Orb of Spirit failed!");
 		break;
