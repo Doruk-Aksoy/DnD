@@ -1,0 +1,78 @@
+[enu default]
+
+DND_ARMOR1			=	"Green Armor";
+DND_ARMOR2			=	"Yellow Armor";
+DND_ARMOR3			=	"Blue Armor";
+DND_ARMOR4			=	"Red Armor";
+
+DND_ARMOR5			=	"Gunslinger Armor";
+DND_ARMOR6			=	"Occult Armor";
+DND_ARMOR7			=	"Demo Armor";
+DND_ARMOR8			=	"Energy Armor";
+DND_ARMOR9			=	"Elemental Armor";
+
+DND_ARMOR10			=	"Monolith Armor";
+DND_ARMOR11			=	"Cybernetic Armor";
+DND_ARMOR12			=	"Duelist Armor";
+DND_ARMOR13			=	"Necro Armor";
+DND_ARMOR14			=	"Knight Armor";
+DND_ARMOR15			=	"Ravager Armor";
+DND_ARMOR16			=	"Synth-metal Armor";
+
+// these follow category _ id order from dnd_ammo.h
+DND_AMMO_0_0		=	"Bullets";
+DND_AMMO_0_1		=	"Ruby Crystal";
+DND_AMMO_0_2		=	"Viper Mana";
+DND_AMMO_0_3		=	"Dark Seals";
+DND_AMMO_0_4		=	"Riot Cannon Shell";
+DND_AMMO_0_5		=	"Acid Rounds";
+DND_AMMO_0_6		=	"Fusion Cells";
+DND_AMMO_0_7		=	"Incinerator Shells";
+DND_AMMO_0_8		=	"Desolator Rounds";
+DND_AMMO_0_9		=	"Cannon Balls";
+DND_AMMO_0_10		=	"Shrapnel Balls";
+
+DND_AMMO_1_0		=	"Shells";
+DND_AMMO_1_1		=	"Emerald Mana";
+DND_AMMO_1_2		=	"Hellfire Fuel";
+DND_AMMO_1_3		=	"Plasma Batteries";
+DND_AMMO_1_4		=	"Nitrogen Canisters";
+DND_AMMO_1_5		=	"Vials of Demon Blood";
+DND_AMMO_1_6		=	"Charon Batteries";
+DND_AMMO_1_7		=	"Hades Shells";
+DND_AMMO_1_8		=	"Flayer Bolts";
+DND_AMMO_1_9		=	"Explosive Shells";
+DND_AMMO_1_10		=	"Slayer Essence";
+
+DND_AMMO_2_0		=	"Rockets";
+DND_AMMO_2_1		=	"Flak Shells";
+DND_AMMO_2_2		=	"Meteor Spheres";
+DND_AMMO_2_3		=	"Heavy Grenades";
+DND_AMMO_2_4		=	"Gravity Modules";
+DND_AMMO_2_5		=	"Grenades";
+DND_AMMO_2_6		=	"Charon Batteries";
+DND_AMMO_2_7		=	"Heavy Missiles";
+DND_AMMO_2_8		=	"Sedrin Crystals";
+
+DND_AMMO_3_0		=	"Cells";
+DND_AMMO_3_1		=	"Devastator Rockets";
+DND_AMMO_3_2		=	"Ever Ice";
+DND_AMMO_3_3		=	"Fuel Tank";
+DND_AMMO_3_4		=	"Lightning Cells";
+DND_AMMO_3_5		=	"Nails";
+DND_AMMO_3_6		=	"Lava Cells";
+DND_AMMO_3_7		=	"Ion Cell";
+DND_AMMO_3_8		=	"Thunder Mana";
+DND_AMMO_3_9		=	"Explosive Shells";
+DND_AMMO_3_10		=	"Gauss Rounds";
+
+DND_AMMO_SOULS		=	"Souls";
+
+DND_AMMOSPECIAL1	=	"Flechette Shells";
+DND_AMMOSPECIAL2	=	"Magnum Shells";
+DND_AMMOSPECIAL3	=	"Shock Shells";
+DND_AMMOSPECIAL4	=	"Nitrogen Shells";
+DND_AMMOSPECIAL5	=	"Slug Shells";
+
+DND_AMMOSPECIALG1	=	"Sonic Grenades";
+DND_AMMOSPECIALG2	=	"HE Grenades";

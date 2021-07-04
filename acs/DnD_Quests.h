@@ -32,121 +32,23 @@ quest_T Quest_List[MAX_QUESTS] = {
 		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_GolgothBonus"			}
 };
 
-#define QUEST_NAME 0
-#define QUEST_REQ 1
-#define QUEST_REW 2
-str Quest_Description[MAX_QUESTS][3] = {
-		{ 
-			"Cautious",
-			"Keep health over 50% at all times.",			
-			"Regeneration life cap increases to one half your cap."
-		},
-		{ 
-			"Simple Minded",
-			"Only fire one weapon for the entirety of the map.",
-			"15% extra damage on all weapons."
-		},
-		{ 
-			"Precious Life",
-			"End a map with nobody dying even once.",
-			"+100 health capacity."
-		},
-		{ 
-			"Berserker",
-			"Get 10 killing sprees in a map.",
-			"All killing sprees grant additional 15% more experience."
-		},
-		{
-			"Master Healer",
-			"Heal for at least 500 health.",
-			"Healing received increases by 25%."
-		},
-		{
-			"Demon Bane",
-			"Kill 20 boss level monsters.",
-			"Bosses deal 15% less damage."
-		},
-		{
-			"Elite Slayer",
-			"Kill 50 elite monsters.",
-			"Elites have extra 25% chance of rare drops."
-		},
-		{
-			"Power Overwhelming",
-			"Use no artifacts.",
-			"When using artifacts, gain extra 25% damage for 15 seconds."
-		},
-		{
-			"Overdrive",
-			"Use only energy weapons.",
-			"Energy weapon damage increases by 30%."
-		},
-		{
-			"Skin O' My Teeth",
-			"Use or pick no healing items.",
-			"Health capacity increases by +100, healing received increases by 25%."
-		},
-		{
-			"Gunslinger",
-			"Use only Slot 2 weapons.",
-			"Slot 2 weapon damage increases by 50%."
-		},
-		{
-			"No Boomstick",
-			"Use no shotgun weapons.",
-			"Shotgun damage increases by 50%."
-		},
-		{
-			"Thick Skin",
-			"Pick or buy no armors.",
-			"Armor capacity increases by 150."
-		},
-		{
-			"Let them Rot",
-			"Spare all zombies.",
-			"Weapons effective against undead and magical monsters do 30% more damage."
-		},
-		{
-			"Casual Weaponry",
-			"Use no super weapons. (Slot 7 and 8)",
-			"Super Weapons do 25% more damage."
-		},
-		{
-			"Specialist",
-			"Use only special ammo types.",
-			"Special ammo damage increases by 50%."
-		},
-		{
-			"Money Maker",
-			"Spend 25k credits.",
-			"Credit amount from monsters increases by 15%."
-		},
-		{
-			"The Dreaming God",
-			"Find and kill the Dreaming God.",
-			"Seal of the Dreaming God. (All occult weapons do full damage and hit ghosts regardless of enemy mods)"
-		},
-		{
-			"Torrasque",
-			"Find and kill Torrasque.",
-			"Seal of Torrasque. (15% increased health and armor capacity)"
-		},
-		{
-			"Mordecqai",
-			"Find and kill Mordecqai.",
-			"Seal of Mordecqai. (Elemental attacks do x2 more damage)"
-		},
-		{
-			"GodSlayer",
-			"Find and kill GodSlayer.",
-			"Seal of GodSlayer. (Weapons never overheat)"
-		},
-		{
-			"Golgoth",
-			"Find and kill Golgoth.",
-			"Seal of Golgoth. (15% reduced damage from all explosives)"
-		}
+enum {
+	QUEST_NAME,
+	QUEST_REQ,
+	QUEST_REW
 };
+
+str GetQuestLabel(int id, int which) {
+	switch(which) {
+		case QUEST_NAME:
+		return StrParam(s:"DND_QUESTLABEL", d:id + 1);
+		case QUEST_REQ:
+		return StrParam(s:"DND_QUESTREQ", d:id + 1);
+		case QUEST_REW:
+		return StrParam(s:"DND_QUESTREWARD", d:id + 1);
+	}
+	return "";
+}
 
 str Quest_Checkers[MAX_QUESTS] = {
 	"DnD_HealthLess50",

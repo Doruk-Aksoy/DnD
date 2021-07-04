@@ -3763,21 +3763,21 @@ Script 1002 (void) NET CLIENTSIDE {
 		SetFont("OBJFONT");
 		HudMessage
 		(
-			s:"\cf", s:Quest_Description[qid][QUEST_NAME];
+			s:"\cf", l:GetQuestLabel(qid, QUEST_NAME);
 			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 576.1 + 3 * ScreenResOffsets[1] / 2, 112.1, 4.0, 1.0, 1.0
 		);
 		// requirement
 		SetHudClipRect((576.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 128, 384, 64, 384, 1);
 		HudMessage
 		(
-			s:"\c-\c[Y5]REQ: \c-", s:Quest_Description[qid][QUEST_REQ];
+			s:"\c-\c[Y5]REQ: \c-", l:GetQuestLabel(qid, QUEST_REQ);
 			HUDMSG_FADEINOUT, UPGRADETEXTID, CR_WHITE, 576.1 + 3 * ScreenResOffsets[1] / 2, 136.1, 4.0, 1.0, 1.0
 		);
 		// reward
 		SetHudClipRect((576.0 + 3 * ScreenResOffsets[1] / 2) >> 16, 176, 384, 64, 384, 1);
 		HudMessage
 		(
-			s:"\c-\cdREW: \c-", s:Quest_Description[qid][QUEST_REW];
+			s:"\c-\cdREW: \c-", l:GetQuestLabel(qid, QUEST_REW);
 			HUDMSG_FADEINOUT, SURVIVEICO, CR_WHITE, 576.1 + 3 * ScreenResOffsets[1] / 2, 184.1, 4.0, 1.0, 1.0
 		);
 		SetHudClipRect(0, 0, 0, 0, 0);
@@ -3831,7 +3831,7 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 		LocalAmbientSound("Quest/Done", 127);
 		HudMessage
 		(
-			s:"\cf", s:Quest_Description[qid][QUEST_NAME],
+			s:"\cf", l:GetQuestLabel(qid, QUEST_NAME),
 			s:"\c-\n\c[Y5]Quest completed!";
 			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 624.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 3.0, 1.0, 1.0
 		);
@@ -3840,7 +3840,7 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 		LocalAmbientSound("Quest/Fail", 127);
 		HudMessage
 		(
-			s:"\cf", s:Quest_Description[qid][QUEST_NAME],
+			s:"\cf", l:GetQuestLabel(qid, QUEST_NAME),
 			s:"\c-\n\c[B1]Quest failed!";
 			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 624.1 + 3 * ScreenResOffsets[1] / 2, 104.1, 3.0, 1.0, 1.0
 		);

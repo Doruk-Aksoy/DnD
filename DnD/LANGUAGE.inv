@@ -1,5 +1,16 @@
 [enu default]
 
+DND_ARTI1			=	"Field Kit";
+DND_ARTI2			=	"Salvation Sphere";
+DND_ARTI3			=	"Portable Shield";
+DND_ARTI4			=	"Blood Rune";
+DND_ARTI5			=	"Triple Damage";
+DND_ARTI6			=	"Blade Vortex";
+DND_ARTI7			=	"Book of the Dead";
+DND_ARTI8			=	"Auto Map";
+DND_ARTI9			=	"Backpack";
+DND_ARTI10			=	"Stat Reset";
+
 IATTR_Prefix 	= "IATTR_"
 
 // inventory attribute table

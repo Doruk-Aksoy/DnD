@@ -1,0 +1,89 @@
+[enu default]
+
+DND_QUESTLABEL1				=	"Cautious";
+DND_QUESTREQ1				=	"Keep health over 50% at all times.";
+DND_QUESTREWARD1			=	"Regeneration life cap increases to one half your cap.";
+
+DND_QUESTLABEL2				=	"Simple Minded";
+DND_QUESTREQ2				=	"Only fire one weapon for the entirety of the map.";
+DND_QUESTREWARD2			=	"15% extra damage on all weapons.";
+
+DND_QUESTLABEL3				=	"Precious Life";
+DND_QUESTREQ3				=	"End a map with nobody dying even once.";
+DND_QUESTREWARD3			=	"+100 health capacity.";
+
+DND_QUESTLABEL4				=	"Berserker";
+DND_QUESTREQ4				=	"Get 10 killing sprees in a map.";
+DND_QUESTREWARD4			=	"All killing sprees grant additional 15% more experience.";
+
+DND_QUESTLABEL5				=	"Master Healer";
+DND_QUESTREQ5				=	"Heal for at least 500 health.";
+DND_QUESTREWARD5			=	"Healing received increases by 25%.";
+
+DND_QUESTLABEL6				=	"Demon Bane";
+DND_QUESTREQ6				=	"Kill 20 boss level monsters.";
+DND_QUESTREWARD6			=	"Bosses deal 15% less damage.";
+
+DND_QUESTLABEL7				=	"Elite Slayer";
+DND_QUESTREQ7				=	"Kill 50 elite monsters.";
+DND_QUESTREWARD7			=	"Elites have extra 25% chance of rare drops.";
+
+DND_QUESTLABEL8				=	"Power Overwhelming";
+DND_QUESTREQ8				=	"Use no artifacts.";
+DND_QUESTREWARD8			=	"When using artifacts, gain extra 25% damage for 15 seconds.";
+
+DND_QUESTLABEL9				=	"Overdrive";
+DND_QUESTREQ9				=	"Use only energy weapons.";
+DND_QUESTREWARD9			=	"Energy weapon damage increases by 30%.";
+
+DND_QUESTLABEL10			=	"Skin O' My Teeth";
+DND_QUESTREQ10				=	"Use or pick no healing items.";
+DND_QUESTREWARD10			=	"Health capacity increases by +100, healing received increases by 25%.";
+
+DND_QUESTLABEL11			=	"Gunslinger";
+DND_QUESTREQ11				=	"Use only Slot 2 weapons.";
+DND_QUESTREWARD11			=	"Slot 2 weapon damage increases by 50%.";
+
+DND_QUESTLABEL12			=	"No Boomstick";
+DND_QUESTREQ12				=	"Use no shotgun weapons.";
+DND_QUESTREWARD12			=	"Shotgun damage increases by 50%.";
+
+DND_QUESTLABEL13			=	"Thick Skin";
+DND_QUESTREQ13				=	"Pick or buy no armors.";
+DND_QUESTREWARD13			=	"Armor capacity increases by 150.";
+
+DND_QUESTLABEL14			=	"Let them Rot";
+DND_QUESTREQ14				=	"Spare all zombies.";
+DND_QUESTREWARD14			=	"Weapons effective against undead and magical monsters do 30% more damage.";
+
+DND_QUESTLABEL15			=	"Casual Weaponry";
+DND_QUESTREQ15				=	"Use no super weapons. (Slot 7 and 8)";
+DND_QUESTREWARD15			=	"Super Weapons do 25% more damage.";
+
+DND_QUESTLABEL16			=	"Specialist";
+DND_QUESTREQ16				=	"Use only special ammo types.";
+DND_QUESTREWARD16			=	"Special ammo damage increases by 50%.";
+
+DND_QUESTLABEL17			=	"Money Maker";
+DND_QUESTREQ17				=	"Spend 25k credits.";
+DND_QUESTREWARD17			=	"Credit amount from monsters increases by 15%.";
+
+DND_QUESTLABEL18			=	"The Dreaming God";
+DND_QUESTREQ18				=	"Find and kill the Dreaming God.";
+DND_QUESTREWARD18			=	"Seal of the Dreaming God. (All occult weapons do full damage and hit ghosts regardless of enemy mods)";
+
+DND_QUESTLABEL19			=	"Torrasque";
+DND_QUESTREQ19				=	"Find and kill Torrasque.";
+DND_QUESTREWARD19			=	"Seal of Torrasque. (15% increased health and armor capacity)";
+			
+DND_QUESTLABEL20			=	"Mordecqai";
+DND_QUESTREQ20				=	"Find and kill Mordecqai.";
+DND_QUESTREWARD20			=	"Seal of Mordecqai. (Elemental attacks do x2 more damage)";
+
+DND_QUESTLABEL21			=	"GodSlayer";
+DND_QUESTREQ21				=	"Find and kill GodSlayer.";
+DND_QUESTREWARD21			=	"Seal of GodSlayer. (Weapons never overheat)";
+
+DND_QUESTLABEL22			=	"Golgoth";
+DND_QUESTREQ22				=	"Find and kill Golgoth.";
+DND_QUESTREWARD22			=	"Seal of Golgoth. (15% reduced damage from all explosives)";

@@ -19,16 +19,48 @@ DND_MENU_ENABLED		=	"\cdEnabled";
 DND_MENU_DISABLED		=	"\cgDisabled";
 DND_MENU_ERROR			=	"ERRROR";
 DND_MENU_CONFIRM		=	"CONFIRM";
+DND_MENU_DASH			=	"Dash";
+
+DND_MENU_SIDE_STATS		=	"Stats";
+DND_MENU_SIDE_PERKS		=	"Perks";
+DND_MENU_SIDE_LOADOUT	=	"Loadout";
 
 DND_MENU_HEAD_STATS		=	"Player Stats";
 DND_MENU_HEAD_GAINS		=	"Current Gains";
 DND_MENU_HEAD_QUESTBON	=	"Quest Bonuses";
 DND_MENU_HEAD_PERKS		=	"Player Perks";
+DND_MENU_HEAD_LOADOUT	=	"Loadout Selection";
+DND_MENU_HEAD_ITEMS		=	"Items Acquired";
+DND_MENU_HEAD_STASH		=	"Stash";
+DND_MENU_HEAD_CHARMS	=	"Charms Equipped";
+DND_MENU_HEAD_TRADE		=	"Arrange a Trade";
+DND_MENU_HEAD_ACCESSORY	=	"Current Accessories";
+DND_MENU_HEAD_SHOP		=	"Shop";
+DND_MENU_HEAD_WEAPONS	=	"Weapons";
+DND_MENU_HEAD_AMMO		=	"Ammunitions";
+DND_MENU_HEAD_ABILITIES =	"Abilities";
+DND_MENU_HEAD_ARTIFACTS	=	"Artifacts";
+DND_MENU_HEAD_ARMORS	=	"Armors";
+DND_MENU_HEAD_ACCOUNT 	=	"Account";
+DND_MENU_HEAD_RESCAT	=	"Research Categories";
+DND_MENU_HEAD_ABILEARNED = 	"Abilities Learned";
 DND_MENU_HEAD_HELP		=	"DnD Help";
 DND_MENU_HEAD_RESGUNS	=	"RESEARCH: GUNS";
 
 DND_MENU_PERKSAVAIL		=	"Perks Available";
-DND_MENU_RESEARCH		=	"Research!";
+DND_MENU_RESEARCH		=	"Research";
+DND_MENU_CREDITS		=	"Credits";
+DND_MENU_LEGEND			=	"LEGEND";
+DND_MENU_REPLACESWEP	=	"Replaces slot weapon";
+DND_MENU_LUXURYWEP		=	"Luxury weapon";
+DND_MENU_CARRYLIMIT		=	"Can carry at most 1";
+DND_MENU_FILLPRICE		=	"Fill Price";
+DND_MENU_LEARNED		=	"Learned";
+DND_MENU_HELP			=	"Help";
+DND_MENU_LASTED			=	"Lasted";
+DND_MENU_STOCK			=	"Stock";
+DND_MENU_SELLSFOR		=	"Sells for";
+DND_MENU_INBULK			=	"In bulk";
 
 DND_MENU_ITEMS			=	"Items";
 DND_MENU_INVENTORY		=	"Inventory";
@@ -102,6 +134,16 @@ DND_MENU_ATTRTEXT3		=	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 
 DND_MENU_ATTRTEXT4		=	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, increases \cishop stock\c- by 1% and \ckpet\c- cap by 1 for every 20 points.";
 DND_MENU_ATTRTEXT5		=	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.";
 DND_MENU_ATTRTEXT6		=	"\c[INT]Intellect\c-\nIncreases \cmOccult Ranged Damage\c- by 3% and improves spells.";
+
+DND_MENU_PERKTEXT1		=	"increased damage.";
+DND_MENU_PERKTEXT2		=	"reduced damage taken.";
+DND_MENU_PERKTEXT3		=	"increased exp gain.";
+DND_MENU_PERKTEXT4		=	"increased credit gain.";
+DND_MENU_PERKTEXT5		=	"increased effect of healing.";
+DND_MENU_PERKTEXT6		=	"increased ammo gain.";
+DND_MENU_PERKTEXT7		=	"to critical strike chance.";
+DND_MENU_PERKTEXT8		=	"to critical strike damage.";
+DND_MENU_PERKTEXT9		=	"increased drop chance.";
 
 // ammo text
 DND_MENU_FOR			=	"for ";
@@ -183,6 +225,7 @@ DND_MENU_ARMTEXT15		=	"33% protection, 250 armor. On a kill spree, gain x2 extra
 DND_MENU_ARMTEXT16		=	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks.";
 // armors end
 
+// artifacts
 DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";
 DND_MENU_ARTHELPTEXT2	=	"Teleports you to start, heals for 100 health.";
 DND_MENU_ARTHELPTEXT3	=	"Invulnerability on use for 5 seconds. Duration stacks.";
@@ -194,20 +237,45 @@ DND_MENU_ARTHELPTEXT8	=	"Reveals the current map to you.";
 DND_MENU_ARTHELPTEXT9	=	"Increases ammo capacity.";
 DND_MENU_ARTHELPTEXT10	=	"Resets your stats back to zero. You can reassign.";
 
+// abilities
+DND_MENU_ABLTAG1		=	"Melee Expertise";
 DND_MENU_ABLHELPTEXT1	=	"Melee weapons gain altfires.";
+
+DND_MENU_ABLTAG2		=	"Fast Reloading";
 DND_MENU_ABLHELPTEXT2	=	"You reload twice as fast.";
+
+DND_MENU_ABLTAG3		=	"Mobility";
 DND_MENU_ABLHELPTEXT3	=	"Gain dodge moves (tap the move keys to dash).";
+
+DND_MENU_ABLTAG4		=	"Arcanery";
 DND_MENU_ABLHELPTEXT4	=	"Artifact power increases by 50%.";
+
+DND_MENU_ABLTAG5		=	"Toxicology";
 DND_MENU_ABLHELPTEXT5	=	"\c[R5]CYBERNETIC \cj- Gain 33% poison resistance.";
+
+DND_MENU_ABLTAG6		=	"Demolitions";
 DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.";
+
+DND_MENU_ABLTAG7		=	"Heart Seeking";
 DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.";
+
+DND_MENU_ABLTAG8		=	"Regeneration";
 DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.";
+
+DND_MENU_ABLTAG9		=	"Temporal Mastery";
 DND_MENU_ABLHELPTEXT9	=	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";
+
+DND_MENU_ABLTAG10		=	"Soul Stealing";
 DND_MENU_ABLHELPTEXT10	=	"Demons drop souls when killed with an occult weapon.";
+
+
 DND_MENU_ABLHELPTEXT11	=	"Toggles dashing.";
 
+// account things
+DND_MENU_ACCITEMTAG1	=	"Extra Stash Tab";
 DND_MENU_ACCITEMTEXT1	=	"Adds an extra stash tab to your account.";
 
+// other help stuff
 DND_MENU_RESHELPTEXT1	=	"Researches help you unlock parts of the menu or certain abilities of your character. These can be weapons, abilities, artifacts, accessories and more!";
 DND_MENU_RESHELPTEXT2	=	"All researches require a research document. These documents contain top secret information that was discovered by UAC from the remains of your enemies.";
 DND_MENU_RESHELPTEXT3	=	"Through the information found in the research documents, you can have researches conducted and discover new features. The features use their own resource called \cv\"Budget\"\c-.";
@@ -326,7 +394,6 @@ DND_MENU_MMOD_DEF16		=	"Monster pushes players away from it when they come close
 DND_MENU_MMOD_DEF17		=	"Monster summons an invulnerable phantasm on death that slowly chases you for 20 seconds.";
 	
 // utility group
-
 DND_MENU_MMOD_UTI1		=	"Monster can curse the player.";
 DND_MENU_MMOD_UTI2		=	"Monster has a chance to raise from the dead.";
 DND_MENU_MMOD_UTI3		=	"Monster has means to teleport around.";

@@ -199,21 +199,6 @@ str ButtonTimers[MAX_TIMED_BUTTONS] = {
 };
 
 int ButtonFrameCounts[MAX_TIMED_BUTTONS] = { 3, 3, 3 };
-
-str MainBoxTexts[LAST_CLICKABLE_BOXID + 1] = {
-	"",
-	"Stat\nScreen",
-	"Perk\nScreen",
-	"Current\nItems",
-	"The\nShop",
-	"Research\nScreen",
-	"Abilities\nLearned",
-	"Extra\nHelp",
-	"Previous\nPage",
-	"Main\nMenu",
-	"Next\nPage"
-};
-
 // Box enums end
 
 #define SHOP_MAXWEAPON_PAGES (MENU_SHOP_WEAPON8 - MENU_SHOP_WEAPON1 + 1)
@@ -252,7 +237,6 @@ enum {
    OBJ_AMMO = 2,
    OBJ_ABILITY = 4,
    OBJ_ARTI = 8,
-   OBJ_TALENT = 16,
    OBJ_ARMOR = 32, // color those that can only be had 1 in a category as a different color
    OBJ_HASCHOICE = 64,
    OBJ_RESEARCH = 128, // requires some research to be available,
@@ -270,7 +254,6 @@ enum {
 	TRADE_AMMO = 8,
 	TRADE_ABILITY = 16,
 	TRADE_ARTIFACT = 32,
-	TRADE_TALENT = 64,
 	TRADE_ARMOR = 128,
 	TRADE_ARMOR_REPLACE = 256,
 	TRADE_ACCOUNT = 512
@@ -288,7 +271,6 @@ enum {
 	TYPE_WEAPON,
 	TYPE_AMMO,
 	TYPE_ABILITY,
-	TYPE_TALENT,
 	TYPE_ARTI,
 	TYPE_ARMOR,
 	TYPE_ACCOUNT
@@ -484,14 +466,6 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		// Abilities - 2
 		{ 14000,  1,		1 },
 		{ 19500,  1,		1 },
-		
-		// Talent costs
-		{ 1500,	 1,			1 },
-		{ 1500,	 1,			1 },
-		{ 1500,	 1,			1 },
-		{ 1500,	 1,			1 },
-		{ 1500,	 1,			1 },
-		{ 1500,	 1,			1 },
 		
 		// Armor costs
 		{ 4500,	 1,			1 },
@@ -703,14 +677,6 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_OCCULTABILITY, -1, -1 },
 		{ RES_OCCULTABILITY, -1, -1 },
 		
-	// talents
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		
 	// armor 1
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
@@ -746,9 +712,6 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 }
 };
-
-#define TALENT_COST_INCREASE 1000
-#define TALENT_SCALE_DOUBLER_MARK 25
 
 #define DND_ARTI_BUYONCE_END ARTI_BOOK
 enum {
@@ -857,108 +820,188 @@ str ShopItemNames[MAXSHOPITEMS][4] = {
 	{ "Sun Staff",							"Sun Staff",						WEPCHECK_SLOT8L,		"1"     	},
 	{ "Soul Reaver",						"Soul Reaver",						WEPCHECK_SLOT8L,		"1"     	},
 	
-	{ "Clip",								"Bullets",							"",						"0"		    },
-	{ "Shell",								"Shells",							"",						"0"		    },
-	{ "RocketAmmo",							"Rockets",							"",						"0"		    },
-	{ "Cell",								"Cells",							"",						"0"		    },
-	{ "ExplodingShell",						"Explosive Shells",					"",						"0"	        },
-	{ "EbonyAmmo",							"Cannon Balls",						"",						"0"	        },
-	{ "EbonyAmmoX",							"Shrapnel Balls",					"",						"0"	        },
-	{ "MISAmmo",							"Heavy Missile",					"",						"0"	        },
-	{ "Grenades",							"Grenades",							"",						"0"	        },
-	{ "NailgunAmmo",						"Nails",							"",						"0"	        },
+	{ "Clip",								"",							"",						"0"		    },
+	{ "Shell",								"",							"",						"0"		    },
+	{ "RocketAmmo",							"",							"",						"0"		    },
+	{ "Cell",								"",							"",						"0"		    },
+	{ "ExplodingShell",						"",					"",						"0"	        },
+	{ "EbonyAmmo",							"",						"",						"0"	        },
+	{ "EbonyAmmoX",							"",					"",						"0"	        },
+	{ "MISAmmo",							"",					"",						"0"	        },
+	{ "Grenades",							"",							"",						"0"	        },
+	{ "NailgunAmmo",						"",							"",						"0"	        },
 	
-	{ "BasiliskAmmo",						"Lava Cell",						"",						"0"	        },
-	{ "GaussRound",							"Gauss Rounds",						"",						"0"	        },
-	{ "SlayerAmmo",							"Slayer Essence",					"",						"0"		    },
-	{ "RubyAmmo",							"Ruby Crystal",						"",						"0"			},
-	{ "PCanAmmo",                           "Plasma Battery",                   "",                     "0"         },
-	{ "RiotgunShell",                       "Riot Cannon Shell",                "",                     "0"         },
-	{ "MeteorAmmo",                         "Meteor Sphere",                    "",                     "0"         },
-	{ "Fuel",                               "Fuel Tank",                        "",                     "0"         },
-	{ "LightningCell",                      "Lightning Cell",                   "",                     "0"         },
-	{ "NitrogenCanister",                   "Nitrogen Canister",                "",                     "0"         },
+	{ "BasiliskAmmo",						"",						"",						"0"	        },
+	{ "GaussRound",							"",						"",						"0"	        },
+	{ "SlayerAmmo",							"",					"",						"0"		    },
+	{ "RubyAmmo",							"",						"",						"0"			},
+	{ "PCanAmmo",                           "",                   "",                     "0"         },
+	{ "RiotgunShell",                       "",                "",                     "0"         },
+	{ "MeteorAmmo",                         "",                    "",                     "0"         },
+	{ "Fuel",                               "",                        "",                     "0"         },
+	{ "LightningCell",                      "",                   "",                     "0"         },
+	{ "NitrogenCanister",                   "",                "",                     "0"         },
 	
-	{ "IonAmmo",                            "Ion Cell",                         "",                     "0"         },
-	{ "AcidAmmo",							"Acid Ammo",						"",						"0"			},
-	{ "EverIce",							"Ever Ice",							"",						"0"			},
-	{ "ViperAmmo",							"Viper Mana",						"",						"0"		 	},
-	{ "ThunderAmmo",						"Thunder Mana",						"",						"0"			},
-	{ "DSealAmmo",							"Dark Seals",						"",						"0"			},
-	{ "FusionCell",							"Fusion Cell",						"",						"0"			},
-	{ "FlakShell",							"Flak Shell",						"",						"0"			},
-	{ "DesolatorAmmo",						"Desolator Rounds",					"",						"0"			},
-	{ "HadesAmmo",							"Hades Shells",						"",						"0"			},
+	{ "IonAmmo",                            "",                         "",                     "0"         },
+	{ "AcidAmmo",							"",						"",						"0"			},
+	{ "EverIce",							"",							"",						"0"			},
+	{ "ViperAmmo",							"",						"",						"0"		 	},
+	{ "ThunderAmmo",						"",						"",						"0"			},
+	{ "DSealAmmo",							"",						"",						"0"			},
+	{ "FusionCell",							"",						"",						"0"			},
+	{ "FlakShell",							"",						"",						"0"			},
+	{ "DesolatorAmmo",						"",					"",						"0"			},
+	{ "HadesAmmo",							"",						"",						"0"			},
 	
-	{ "DemonBlood",							"Vial of Demon Blood",				"",						"0"			},
-	{ "EmeraldMana",						"Emerald Mana",						"",						"0"			},
-	{ "HellsMawAmmo",						"Hell Fire",						"",						"0"			},
-	{ "DevastatorAmmo",						"Devastator Ammo",					"",						"0"			},
-	{ "HeavyGrenades",						"Heavy Grenades",					"",						"0"			},
-	{ "FlayerAmmo",							"Flayer Bolts",						"",						"0"			},
-	{ "GravdisAmmo",						"Gravity Modules",					"",						"0"			},
-	{ "SedrinAmmo",							"Sedrin Crystals",					"",						"0"			},
-	{ "CharonAmmo",							"Charon Batteries",					"",						"0"			},
-	{ "IncineratorAmmo",					"Incinerator Shells",				"",						"0"			},
+	{ "DemonBlood",							"",				"",						"0"			},
+	{ "EmeraldMana",						"",						"",						"0"			},
+	{ "HellsMawAmmo",						"",						"",						"0"			},
+	{ "DevastatorAmmo",						"",					"",						"0"			},
+	{ "HeavyGrenades",						"",					"",						"0"			},
+	{ "FlayerAmmo",							"",						"",						"0"			},
+	{ "GravdisAmmo",						"",					"",						"0"			},
+	{ "SedrinAmmo",							"",					"",						"0"			},
+	{ "CharonAmmo",							"",					"",						"0"			},
+	{ "IncineratorAmmo",					"",				"",						"0"			},
 	
-	{ "FlechetteShell",					    "Flechette Shells",					"",						"0"		    },
-	{ "PiercingShell",						"Magnum Shells",					"",						"0"		    },
-	{ "ElectricShell",						"Shock Shells",						"",						"0"		    },
-	{ "NitroShell",                         "Nitrogen Shells",                  "",                     "0"         },
-	{ "SlugShell",							"Slug Shells",						"",						"0"			},
+	{ "FlechetteShell",					    "",					"",						"0"		    },
+	{ "PiercingShell",						"",					"",						"0"		    },
+	{ "ElectricShell",						"",						"",						"0"		    },
+	{ "NitroShell",                         "",                  "",                     "0"         },
+	{ "SlugShell",							"",						"",						"0"			},
 	
-	{ "A40mmSonicGrenade",				    "Sonic Grenades",					"",						"0"		    },
-	{ "A40mmHEGrenade",					    "HE Grenades",						"",						"0"		    },
+	{ "A40mmSonicGrenade",				    "",					"",						"0"		    },
+	{ "A40mmHEGrenade",					    "",						"",						"0"		    },
 	
-	{ "Ability_Kick",						"Melee Expertise",				    "",						"0"	        },
-	{ "Ability_Reloader",					"Fast Reloading",					"",						"0"	        },
-	{ "Ability_Dash",						"Mobility",							"",						"0"	        },
-	{ "Ability_Arcanery",					"Arcanery",							"",						"0"	        },
-	{ "Ability_AntiPoison",					"Toxicology",						"",						"0"	        },
-	{ "Ability_ExplosionMastery",			"Demolitions",						"",						"0"	        },
-	{ "Ability_HeartSeeker",				"Heart Seeking",			   		"",						"0"	        },
-	{ "Ability_Regeneration",				"Regeneration",			    		"",						"0"	        },
-	{ "Ability_Temporal",					"Temporal Mastery",				    "",						"0"	        },
-	{ "Ability_SoulStealer",				"Soul Stealing",				    "",						"0"	        },
+	{ "Ability_Kick",						"",				    "",						"0"	        },
+	{ "Ability_Reloader",					"",					"",						"0"	        },
+	{ "Ability_Dash",						"",							"",						"0"	        },
+	{ "Ability_Arcanery",					"",							"",						"0"	        },
+	{ "Ability_AntiPoison",					"",						"",						"0"	        },
+	{ "Ability_ExplosionMastery",			"",						"",						"0"	        },
+	{ "Ability_HeartSeeker",				"",			   		"",						"0"	        },
+	{ "Ability_Regeneration",				"",			    		"",						"0"	        },
+	{ "Ability_Temporal",					"",				    "",						"0"	        },
+	{ "Ability_SoulStealer",				"",				    "",						"0"	        },
 	
-	{ "Talent_Ballistic",					"Ballistic Talent",					"",						"0"		    },
-	{ "Talent_Melee",						"Melee Talent",						"",						"0"		    },
-	{ "Talent_Energy",						"Energy Talent",					"",						"0"		    },
-	{ "Talent_Explosive",					"Explosive Talent",					"",						"0"		    },
-	{ "Talent_Occult",						"Occult Talent",					"",						"0"		    },
-	{ "Talent_Elemental",                   "Elemental Talent",                 "",                     "0"         },
+	{ "NewGreenArmor",						"",						"",						"0"		    },
+	{ "YellowArmor",						"",						"",						"0"		    },
+	{ "NewBlueArmor",					    "",						"",						"0"		    },
+	{ "TheRedArmor",						"",						"",						"0"		    },
+	{ "GunSlingerArmor",					"",				    "",						"0"		    },
+	{ "OccultArmor",						"",						"",						"0"		    },
+	{ "DemoArmor",							"",						"",						"0"		    },
+	{ "EnergyArmor",						"",						"",						"0"		    },
+	{ "ElementalArmor",                     "",                  "",                     "0"         },
 	
-	{ "NewGreenArmor",						"Green Armor",						"",						"0"		    },
-	{ "YellowArmor",						"Yellow Armor",						"",						"0"		    },
-	{ "NewBlueArmor",					    "Blue Armor",						"",						"0"		    },
-	{ "TheRedArmor",						"Red Armor",						"",						"0"		    },
-	{ "GunSlingerArmor",					"Gunslinger Armor",				    "",						"0"		    },
-	{ "OccultArmor",						"Occult Armor",						"",						"0"		    },
-	{ "DemoArmor",							"Demo Armor",						"",						"0"		    },
-	{ "EnergyArmor",						"Energy Armor",						"",						"0"		    },
-	{ "ElementalArmor",                     "Elemental Armor",                  "",                     "0"         },
+	{ "SuperArmor",                         "",                   "",                     "0"         },
+	{ "CyberneticArmor",					"",				    "",						"0"		    },
+	{ "DuelistArmor",						"",					"",						"0"		    },
+	{ "NecroArmor",							"",						"",						"0"		    },
+	{ "KnightArmor",						"",						"",						"0"		    },
+	{ "RavagerArmor",						"",					"",						"0"		    },
+	{ "SynthmetalArmor",					"",				"",						"0"			},
 	
-	{ "SuperArmor",                         "Monolith Armor",                   "",                     "0"         },
-	{ "CyberneticArmor",					"Cybernetic Armor",				    "",						"0"		    },
-	{ "DuelistArmor",						"Duelist Armor",					"",						"0"		    },
-	{ "NecroArmor",							"Necro Armor",						"",						"0"		    },
-	{ "KnightArmor",						"Knight Armor",						"",						"0"		    },
-	{ "RavagerArmor",						"Ravager Armor",					"",						"0"		    },
-	{ "SynthmetalArmor",					"Synth-metal Armor",				"",						"0"			},
-	
-	{ "DnD_PlayerInventoryPages",			"Extra Stash Tab",					"",						"0"			},
+	{ "DnD_PlayerInventoryPages",			"",					"",						"0"			},
 
-	{ "FieldKit",							"Field Kit",						"",						"0"		    },
-	{ "SalvationSphere",					"Salvation Sphere",					"",						"0"		    },
-	{ "PortableShield",						"Portable Shield",					"",						"0"		    },
-	{ "BloodRune",							"Blood Rune",						"",						"0"		    },
-	{ "TripleDamage",						"Triple Damage",					"",						"0"    	    },
-	{ "BladeVortex",						"Blade Vortex",						"",						"0"		    },
-	{ "BookOfTheDead",						"Book of the Dead",				    "",						"0"		    },
-	{ "AllmapGiver",						"Auto Map",							"",						"0"		    },
-	{ "NewBackPack",						"Back Pack",						"",						"0"		    },
-	{ "StatReset",							"Stat Reset",						"",						"0"		    }
+	{ "FieldKit",							"",						"",						"0"		    },
+	{ "SalvationSphere",					"",						"",						"0"		    },
+	{ "PortableShield",						"",						"",						"0"		    },
+	{ "BloodRune",							"",						"",						"0"		    },
+	{ "TripleDamage",						"",						"",						"0"    	    },
+	{ "BladeVortex",						"",						"",						"0"		    },
+	{ "BookOfTheDead",						"",				    	"",						"0"		    },
+	{ "AllmapGiver",						"",						"",						"0"		    },
+	{ "NewBackPack",						"",						"",						"0"		    },
+	{ "StatReset",							"",						"",						"0"		    }
 };
+
+int ShopTableIdToWeaponTableId(int id) {
+	// skip classic weapons
+	int skip = 0;
+	if(id >= SHOP_WEAPON1_BEGIN)
+		skip += 2; // fist & chainsaw
+	if(id >= SHOP_WEAPON2_BEGIN)
+		skip += 1;
+	if(id >= SHOP_WEAPON31_BEGIN)
+		skip += 1;
+	if(id >= SHOP_WEAPON3SSG_BEGIN)
+		skip += 1;
+	if(id >= SHOP_WEAPON41_BEGIN)
+		skip += 1;
+	if(id >= SHOP_WEAPON51_BEGIN)
+		skip += 1;
+	if(id >= SHOP_WEAPON61_BEGIN)
+		skip += 1;
+	if(id >= SHOP_WEAPON7_BEGIN)
+		skip += 1;
+	return id + skip;
+}
+
+// I could probably make these much finer with one function and multiple checks in it or better yet an array to look up the strings themselves
+// well, later on I probably should but I like this more as each has their unique purpose and its immediately obvious
+str GetArmorTag(int id) {
+	return StrParam(s:"DND_ARMOR", d:id + 1);
+}
+
+str GetArmorExplanation(int id) {
+	return StrParam(s:"DND_MENU_ARMTEXT", d:id + 1);
+}
+
+// regular ammo, then special shells then special grenades
+str GetAmmoTag(int id) {
+	if(id < SHOP_FIRSTAMMOSPECIAL_INDEX) {
+		int temp = ShopAmmoIndexToRegularAmmoIndex(id - SHOP_FIRSTAMMO_INDEX);
+		return StrParam(s:"DND_AMMO_", d:temp >> 16, s:"_", d:temp & 0xFFFF);
+	}
+	if(id < SHOP_FIRSTAMMOSPECIAL_GRENADE_INDEX)
+		return StrParam(s:"DND_AMMOSPECIAL", d:id - SHOP_FIRSTAMMOSPECIAL_INDEX + 1);
+	return StrParam(s:"DND_AMMOSPECIALG", d:id - SHOP_FIRSTAMMOSPECIAL_GRENADE_INDEX + 1);
+}
+
+str GetAbilityTag(int id) {
+	return StrParam(s:"DND_MENU_ABLTAG", d:id + 1);
+}
+
+str GetAbilityHelpText(int id) {
+	return StrParam(s:"DND_MENU_ABLHELPTEXT", d:id + 1);
+}
+
+str GetArtifactTag(int id) {
+	return StrParam(s:"DND_ARTI", d:id + 1);
+}
+
+str GetArtifactText(int id) {
+	return StrParam(s:"DND_MENU_ARTHELPTEXT", d:id + 1);
+}
+
+str GetAttributeText(int id) {
+	return StrParam(s:"DND_MENU_ATTRTEXT", d:id + 1);
+}
+
+str GetAccountPurchaseTag(int id) {
+	return StrParam(s:"DND_MENU_ACCITEMTAG", d:id + 1);
+}
+
+str GetAccountPurchaseText(int id) {
+	return StrParam(s:"DND_MENU_ACCITEMTEXT", d:id + 1);
+}
+
+str GetShopItemTag(int id, int objflag) {
+	if(objflag & TRADE_WEAPON)
+		return GetWeaponTag(ShopTableIdToWeaponTableId(id));
+	else if(objflag & TRADE_AMMO)
+		return GetAmmoTag(id);
+	else if(objflag & TRADE_ABILITY)
+		return GetAbilityTag(id - SHOP_ABILITY1_BEGIN);
+	else if(objflag & TRADE_ARTIFACT)
+		return GetArtifactTag(id - SHOP_FIRSTARTI_INDEX);
+	else if(objflag & TRADE_ARMOR)
+		return GetArmorTag(id - SHOP_FIRSTARMOR_INDEX);
+	else if(objflag & TRADE_ACCOUNT)
+		return GetAccountPurchaseTag(id);
+	return "";
+}
 
 enum {
 	DTYPE_PHYSICAL = 1,
@@ -1182,18 +1225,6 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_REAVER			}
 };
 
-str GetAttributeText(int id) {
-	return StrParam(s:"DND_MENU_ATTRTEXT", d:id + 1);
-}
-
-str GetArtifactText(int id) {
-	return StrParam(s:"DND_MENU_ARTHELPTEXT", d:id + 1);
-}
-
-str GetAccountPurchaseText(int id) {
-	return StrParam(s:"DND_MENU_ACCITEMTEXT", d:id + 1);
-}
-
 struct draw_info ArtifactDrawInfo[MAXARTIFACTS] = {
 	{ OBJ_ARTI | OBJ_HASCHOICE, 					        -1 										    },
 	{ OBJ_ARTI | OBJ_HASCHOICE | OBJ_RESEARCH, 		        SHOP_ARTI_SALVATE				            },
@@ -1268,6 +1299,17 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		-1
 	}
 };
+
+int ShopAmmoIndexToRegularAmmoIndex(int id) {
+	// we exclude soul ammo types
+	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT; ++j) {
+			if(MenuAmmoIndexMap[i][j] == id)
+				return MenuAmmoIndexMap[i][j] | (i << 16);
+		}
+	}
+	return -1;
+}
 
 struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO,													SHOP_AMMO_CLIP 				},
@@ -1426,10 +1468,6 @@ str ArmorImages[MAXARMORS] = {
 	"AR15B0"
 };
 
-str GetArmorExplanation(int id) {
-	return StrParam(s:"DND_MENU_ARMTEXT", d:id + 1);
-}
-
 struct draw_info ArmorDrawInfo[MAXARMORS] = {
 	{ OBJ_ARMOR, 								-1 										},
 	{ OBJ_ARMOR, 								-1										},
@@ -1449,10 +1487,6 @@ struct draw_info ArmorDrawInfo[MAXARMORS] = {
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_RAVAGER		 						},
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_SYNTHMETAL		 					}
 };
-
-str GetAbilityHelpText(int id) {
-	return StrParam(s:"DND_MENU_ABLHELPTEXT", d:id + 1);
-}
 
 struct draw_info AbilityDrawInfo[MAXABILITIES] = {
 	{ OBJ_ABILITY, 								SHOP_ABILITY_KICK 								},

@@ -18,6 +18,8 @@ DND_TEXT_MAPTOAST						= "The entire map is toast! You're fully healed!";
 
 DND_ATTRIBUTEPTS						= "Attribute Points";
 
+DND_INVENTORY							= "Inventory";
+
 DND_STAT1								= "Strength";
 DND_STAT2								= "Dexterity";
 DND_STAT3								= "Bulkiness";

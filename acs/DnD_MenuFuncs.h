@@ -243,48 +243,48 @@ void ShowNeedResearchPopup() {
 	ShowPopup(POPUP_NEEDRESEARCH, false, 0);
 }
 
-void DrawCornerText(int opt, int boxid) {
-	str toshow = "";
-	if(CheckInventory("ActiveMainBox") != MAINBOX_NONE)
-		toshow = MainBoxTexts[CheckInventory("ActiveMainBox")];
-	else if(opt == MENU_PERK) {
-		switch (boxid) {
-			case MBOX_1:
-				toshow = "Increase Damage by 5%";
+str GetPerkText(int id) {
+	return StrParam(s:"DND_MENU_PERKTEXT", d:id + 1);
+}
+
+// yeah this is ugly, but it is what it is
+void DrawPerkText(int boxid) {
+	if(boxid != MAINBOX_NONE) {
+		SetHudClipRect(184, 208, 256, 64, 256, 1);
+		
+		// order follows perk definition order at the enum in DND_CommonStat.h
+		switch(boxid) {
+			case 1:
+				HudMessage(s:"\cd* \ci+", d:SHARPSHOOTING_DAMAGE, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-			case MBOX_2:
-				toshow = "Reduce Damage Taken by 3.5%";
+			case 2:
+				HudMessage(s:"\cd* \ci+", f:ftrunc(ENDURANCE_RES_INC * 100), s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-			case MBOX_3:
-				toshow = "Increase exp gain by 10%";
+			case 3:
+				HudMessage(s:"\cd* \ci+", d:BASE_WISDOM_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-			case MBOX_4:
-				toshow = "Increase credit gain by 10%";
+			case 4:
+				HudMessage(s:"\cd* \ci+", d:BASE_GREED_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-			case MBOX_5:
-				toshow = "Increase Healing by 10%";
+			case 5:
+				HudMessage(s:"\cd* \ci+", d:PERK_MEDICBONUS, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-			case MBOX_6:
-				toshow = "Increase Ammo Gain by 10%";
+			case 6:
+				HudMessage(s:"\cd* \ci+", d:DND_MUNITION_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-			case MBOX_7:
-				toshow = "Gives 1% Chance to Critical Strike";
+			case 7:
+				HudMessage(s:"\cd* \ci+", f:ftrunc(PERK_DEADLINESS_BONUS * 100), s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-            case MBOX_8:
-                toshow = "Gives 10% Critical Strike Damage";
-            break;
-			case MBOX_9:
-				toshow = "15% increased drop chance";
+			case 8:
+				HudMessage(s:"\cd* \ci+", d:DND_SAVAGERY_BONUS, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
-			default:
-				toshow = "";
+			case 9:
+				HudMessage(s:"\cd* \ci+", f:ftrunc(DND_LUCK_GAIN * 100), s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 			break;
 		}
+		
+		SetHudClipRect(0, 0, 0, 0, 0);
 	}
-	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + 3);
-	SetHudClipRect(62, 24, 72, 96, 72, 1);
-	HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 62.1, 32.1, 0.0, 0.0);
-	SetHudClipRect(0, 0, 0, 0);
 }
 
 void DrawDamageTypes(int req_id, int constraint, int flags) {
@@ -546,28 +546,6 @@ void ShowBobby() {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
-int ShopTableIdToWeaponTableId(int id) {
-	// skip classic weapons
-	int skip = 0;
-	if(id >= SHOP_WEAPON1_BEGIN)
-		skip += 2; // fist & chainsaw
-	if(id >= SHOP_WEAPON2_BEGIN)
-		skip += 1;
-	if(id >= SHOP_WEAPON31_BEGIN)
-		skip += 1;
-	if(id >= SHOP_WEAPON3SSG_BEGIN)
-		skip += 1;
-	if(id >= SHOP_WEAPON41_BEGIN)
-		skip += 1;
-	if(id >= SHOP_WEAPON51_BEGIN)
-		skip += 1;
-	if(id >= SHOP_WEAPON61_BEGIN)
-		skip += 1;
-	if(id >= SHOP_WEAPON7_BEGIN)
-		skip += 1;
-	return id + skip;
-}
-
 str GetWeaponShopIcon(int id) {
 	id = ShopTableIdToWeaponTableId(id);
 	return Weapons_Data[id][WEAPON_ICON];
@@ -661,8 +639,6 @@ int GetItemType(int id) {
 		return TYPE_AMMO;
 	else if(id <= SHOP_LASTABILITY_INDEX)
 		return TYPE_ABILITY;
-	else if(id <= SHOP_LASTTALENT_INDEX)
-		return TYPE_TALENT;
 	else if(id <= SHOP_LASTARMOR_INDEX)
 		return TYPE_ARMOR;
 	else if(id <= SHOP_ACCOUNT_END)
@@ -681,8 +657,6 @@ int ShopScale(int amount, int id) {
 		return amount * Clamp_Between(GetCVar("dnd_shop_ammo_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_ABILITY:
 		return amount * Clamp_Between(GetCVar("dnd_shop_ability_scale"), 1, SHOP_SCALE_MAX);
-		case TYPE_TALENT:
-		return amount * Clamp_Between(GetCVar("dnd_shop_talent_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_ARTI:
 		return amount * Clamp_Between(GetCVar("dnd_shop_artifact_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_ARMOR:
@@ -698,11 +672,6 @@ int GetShopPrice (int id, int priceflag) {
 	if(id < MAXSHOPITEMS)
 		res = ShopInfo[id][SHOPINFO_PRICE] * shop_scale;
 	res = ShopScale(res, id);
-	if(GetItemType(id) == TYPE_TALENT) {
-		res += TALENT_COST_INCREASE * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_TAG]) * shop_scale;
-		if(CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_TAG]) >= TALENT_SCALE_DOUBLER_MARK)
-			res *= 2 * CheckInventory(TalentNames[id - SHOP_TALENT_BEGIN][TALENT_TAG]) / TALENT_SCALE_DOUBLER_MARK;
-	}
 	if(priceflag & PRICE_CHARISMAREDUCE) {
 		chr = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
 		if(chr > 100)
@@ -718,12 +687,6 @@ int GetShopPrice (int id, int priceflag) {
 	}
 	
 	return res;
-}
-
-int GetMenuTalentBonus(int posy) {
-	if(posy != TALENT_OCCULT)
-		return DND_TALENT_INCREASE + DND_DEX_GAIN * CheckInventory("PSTAT_Dexterity");
-	return DND_TALENT_INCREASE + DND_INT_GAIN * CheckInventory("PSTAT_Intellect");
 }
 
 // returns 0 for buy being possible
@@ -762,8 +725,6 @@ int CanTrade (int id, int tradeflag, int price) {
 	
 	if(type == TYPE_ARTI)
 		item = ArtifactInfo[id - SHOP_FIRSTARTI_INDEX][ARTI_NAME]; // put it in the artifact info range
-	else if(type == TYPE_TALENT)
-		item = ShopItemNames[id][SHOPNAME_ITEM];
 	else if(type == TYPE_ARMOR)
 		item = "Armor";
 	else {
@@ -776,8 +737,6 @@ int CanTrade (int id, int tradeflag, int price) {
 			cond2 = (CheckInventory(item) < GetAmmoCapacity(item));
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
-		else if(type == TYPE_TALENT) // talent
-			cond2 = CheckInventory(item) < TALENT_CAP && CheckInventory("TalentPoint");
 		else if(type == TYPE_ARMOR) { // armor
 			if (!(tradeflag & TRADE_ARMOR_REPLACE))
 				cond2 = CheckInventory(item) < GetArmorSpecificCap(ArmorBaseAmounts[id - SHOP_FIRSTARMOR_INDEX + 1]);
@@ -819,10 +778,7 @@ int CanTrade (int id, int tradeflag, int price) {
 			if(!cond3)
 				res = POPUP_ALREADYOWN;
 			else if(!cond2) { // got credit but maxed
-				if(type == TYPE_TALENT && CheckInventory(item) < TALENT_CAP) // we don't have the points
-					res = POPUP_NOTALENTPOINT;
-				else
-					res = POPUP_CANTBUY;
+				res = POPUP_CANTBUY;
 			}
 		}
 		else {
@@ -861,6 +817,10 @@ void DrawToggledLabel(str label, bool language_lookup, int afterlabel, int boxid
 		else
 			HudMessage(s:color, l:label, s:": "; HUDMSG_PLAIN, drawid, CR_WHITE, hudx, hudy, 0.0, 0.0);
 	}
+}
+
+void DrawCredits() {
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 }
 
 int GetAmmoToGive(int index) {
@@ -903,7 +863,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		}
 		else {
 			// if not ammo, talent or armor
-			if(!(objectflag & (OBJ_AMMO | OBJ_TALENT | OBJ_ARMOR))) {
+			if(!(objectflag & (OBJ_AMMO | OBJ_ARMOR))) {
 				// if not artifact and owning it (basically has weapon)
 				if(!(objectflag & (OBJ_ARTI | OBJ_ACCOUNT)) && CheckInventory(ShopItemNames[itemid][SHOPNAME_ITEM])) {
 					color = oncolor;
@@ -929,8 +889,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					}
 				}
 			}
-			else { // ammo, talent or armor
-				if(price_vs_credit || nostock || (objectflag & OBJ_TALENT && !CheckInventory("TalentPoint"))) {
+			else { // ammo or armor
+				if(price_vs_credit || nostock) {
 					color = CR_BLACK;
 					colorprefix = "\c[G8]";
 					toshow = "\c[G8]";
@@ -957,9 +917,9 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			// this part could be grouped into just deciding on a string to use, but I want to keep variable amount low here (already a lot)
 			if(objectflag & OBJ_WEP) {
 				if(sellstate)
-					HudMessage(s:"\c[M1]--> Sells for:\c- $", d:GetShopPrice(itemid, 0) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
+					HudMessage(s:"\c[M1]--> ", l:"DND_MENU_SELLSFOR", s:":\c- $", d:GetShopPrice(itemid, 0) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
 				// stock
-				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
+				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
 					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
@@ -974,11 +934,11 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				DrawAmmoExplanation(itemid);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
-				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 232.1, 0.0, 0.0);
+				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 232.1, 0.0, 0.0);
 				// bulk price -- res_state isn't used from below here
 				res_state = GetBulkPriceForAmmo(itemid);
 				if(res_state)
-					HudMessage(s:toshow, s:"In Bulk:\c- ", s:colorprefix, d:res_state; HUDMSG_PLAIN, RPGMENUITEMID - 43, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+					HudMessage(s:toshow, l:"DND_MENU_INBULK", s:":\c- ", s:colorprefix, d:res_state; HUDMSG_PLAIN, RPGMENUITEMID - 43, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 			}
 			else if(objectflag & OBJ_ARTI) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
@@ -987,17 +947,12 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				
 				DrawArtifactIconCorner(curposy);
 			}
-			else if(objectflag & OBJ_TALENT) {
-				SetHudClipRect(192, 224, 256, 64, 256, 1);
-				HudMessage(s:"\cd*\c- ", s:"Increases damage of ", s:TalentNames[onposy][TALENT_NAME], s:" damage weapons by \cf", f:GetMenuTalentBonus(onposy), s:"%\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
-				SetHudClipRect(0, 0, 0, 0, 0);
-			}
 			else if(objectflag & OBJ_ARMOR) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
 				HudMessage(s:"\cd*\c- ", l:GetArmorExplanation(itemid - SHOP_FIRSTARMOR_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
-				HudMessage(s:toshow, s:"Stock:\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 48, CR_WHITE, 440.2, 216.1, 0.0, 0.0);
+				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 48, CR_WHITE, 440.2, 216.1, 0.0, 0.0);
 			
 				DrawArmorIconCorner(itemid - SHOP_FIRSTARMOR_INDEX);
 			}
@@ -1198,11 +1153,6 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						}
 						if(tradeflag & TRADE_ARTIFACT)
 							SetInventory("DnD_Artifact_MapBits", SetBit(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX));
-						if(tradeflag & TRADE_TALENT) {
-							// set here the non-lowest possible talents (for quest)
-							SetInventory("DnD_NonLowestTalents", GetNonLowestTalents());
-							TakeInventory("TalentPoint", 1);
-						}
 						--ShopStockRemaining[pnum][itemid];
 					}
 				} while (givefull && !buystatus);
@@ -1215,7 +1165,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						LocalAmbientSound("weapons/pickup", 127);
 					else if(tradeflag & TRADE_AMMO)
 						LocalAmbientSound("items/ammo", 127);
-					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_TALENT | TRADE_ACCOUNT)) {
+					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_ACCOUNT)) {
 						LocalAmbientSound("Bonus/Received", 127);
 						if(itemid == SHOP_ACCOUNT_STASHTAB)
 							++PlayerActivities[pnum].stash_pages;
