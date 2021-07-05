@@ -290,7 +290,7 @@ int WeaponProperties[MAXWEPS] = {
 #define WEPCHECK_SLOT6L "P_Slot6Luxury"
 #define WEPCHECK_SLOT7 "P_Slot7Replaced"
 #define WEPCHECK_SLOT7L "P_Slot7Luxury"
-#define WEPCHECK_SLOT8L "P_Slot8Luxury"
+#define WEPCHECK_SLOT8 "P_Slot8Luxury"	// this says luxury here but theres really no point, they all share the same slot regardless and simplifies checking algorithm
 
 #define MAX_WEPCONDITION_CHECKERS 16
 str WeaponConditionCheckers[MAX_WEPCONDITION_CHECKERS] = {
@@ -309,7 +309,7 @@ str WeaponConditionCheckers[MAX_WEPCONDITION_CHECKERS] = {
 	WEPCHECK_SLOT6L,
 	WEPCHECK_SLOT7,
 	WEPCHECK_SLOT7L,
-	WEPCHECK_SLOT8L
+	WEPCHECK_SLOT8
 };
 
 enum {

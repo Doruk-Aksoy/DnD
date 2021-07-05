@@ -17,9 +17,14 @@ DND_MENU_MAPINFO		=	"Show Map Info: ";
 // basic words
 DND_MENU_ENABLED		=	"\cdEnabled";
 DND_MENU_DISABLED		=	"\cgDisabled";
-DND_MENU_ERROR			=	"ERRROR";
-DND_MENU_CONFIRM		=	"CONFIRM";
+DND_MENU_ERROR			=	"Error";
+DND_MENU_CONFIRM		=	"Confirm";
 DND_MENU_DASH			=	"Dash";
+
+DND_MENU_CANCEL			=	"Cancel";
+DND_MENU_YOUROFFERING	=	"Your Offering";
+DND_MENU_YOURINV		=	"Your Inventory";
+DND_MENU_THEIROFFER		=	"'s Offering";	// this is "X's offering" basically
 
 DND_MENU_SIDE_STATS		=	"Stats";
 DND_MENU_SIDE_PERKS		=	"Perks";
@@ -43,13 +48,19 @@ DND_MENU_HEAD_ARTIFACTS	=	"Artifacts";
 DND_MENU_HEAD_ARMORS	=	"Armors";
 DND_MENU_HEAD_ACCOUNT 	=	"Account";
 DND_MENU_HEAD_RESCAT	=	"Research Categories";
+DND_MENU_HEAD_RESPAN	=	"Research Panel";
 DND_MENU_HEAD_ABILEARNED = 	"Abilities Learned";
 DND_MENU_HEAD_HELP		=	"DnD Help";
-DND_MENU_HEAD_RESGUNS	=	"RESEARCH: GUNS";
+DND_MENU_HEAD_RESGUNS	=	"Research: Guns";
+
+DND_MENU_SLOT			=	"SLOT";
 
 DND_MENU_PERKSAVAIL		=	"Perks Available";
 DND_MENU_RESEARCH		=	"Research";
 DND_MENU_CREDITS		=	"Credits";
+DND_MENU_BUDGET			=	"Budget";
+DND_MENU_ENTRY			=	"Entry";
+DND_MENU_COST			=	"Cost";
 DND_MENU_LEGEND			=	"LEGEND";
 DND_MENU_REPLACESWEP	=	"Replaces slot weapon";
 DND_MENU_LUXURYWEP		=	"Luxury weapon";

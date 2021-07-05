@@ -171,74 +171,6 @@ str GetTextWithResearch(str success, str fail, int req_id, int constraint, int f
 	return fail;
 }
 
-int ParseInt(str InputString) {
-    int ReturnValue = 0;
-    int TempValue = 0;
-    int TempInt = 0;
-    int char = -65536;
-    
-    if(InputString == "") 
-		return 0;
-    
-    for(int i = 0; i < StrLen(InputString); ++i) {
-        char = GetChar(InputString, i);
-        if(char != '1' && char != '2' &&
-            char != '3' && char != '4' &&
-            char != '5' && char != '6' &&
-            char != '7' && char != '8' &&
-            char != '9' && char != '0')
-        { return 0; }
-        else {
-            switch(char) {
-                case '0':
-                    TempInt = 0;
-                break;
-                
-                case '1':
-                    TempInt = 1;
-                break;
-                
-                case '2':
-                    TempInt = 2;
-                break;
-                
-                case '3':
-                    TempInt = 3;
-                break;
-                
-                case '4':
-                    TempInt = 4;
-                break;
-                
-                case '5':
-                    TempInt = 5;
-                break;
-                
-                case '6':
-                    TempInt = 6;
-                break;
-                
-                case '7':
-                    TempInt = 7;
-                break;
-                
-                case '8':
-                    TempInt = 8;
-                break;
-                
-                case '9':
-                    TempInt = 9;
-                break;
-            }
-            
-            for(int x = ((StrLen(InputString) - 1) - i); x > 0; --x) { TempInt *= 10; }
-            TempValue += TempInt;
-        }
-    }
-    ReturnValue = TempValue;
-    return ReturnValue;
-}
-
 void ShowNeedResearchPopup() {
 	ShowPopup(POPUP_NEEDRESEARCH, false, 0);
 }
@@ -417,7 +349,7 @@ int GetWeaponEndIndexFromOption(int curopt) {
 str GetWeaponToTake(int wepid) {
 	int slot = GetGameSlotOfWeapon(wepid);
 	if(slot != 8) {
-		if(!ParseInt(ShopItemNames[wepid][SHOPNAME_TYPE])) {
+		if(!IsLuxuryWeapon(wepid)) {
 			if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
 				return Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME];
 			else if(wepid >= SHOP_WEAPON2PISTOL_BEGIN && wepid <= SHOP_WEAPON2PISTOL_END)
@@ -608,7 +540,7 @@ void DrawArtifactIconCorner(int boxid) {
 }
 
 void DrawArmorIconCorner(int itemid) {
-	str toshow = GetTextWithResearch(ArmorImages[itemid], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
+	str toshow = GetTextWithResearch(ArmorStrings[itemid][ARTI_ICON], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
 
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
@@ -629,23 +561,6 @@ void ShowAccessoryIcon(int acc, int i) {
 
 int CurrentAccessoryIndex () {
 	return CheckInventory("Accessory_Index");
-}
-
-// gets item type
-int GetItemType(int id) {
-	if(id <= SHOP_LASTWEP_INDEX)
-		return TYPE_WEAPON;
-	else if(id <= SHOP_LASTAMMO_SPECIALINDEX)
-		return TYPE_AMMO;
-	else if(id <= SHOP_LASTABILITY_INDEX)
-		return TYPE_ABILITY;
-	else if(id <= SHOP_LASTARMOR_INDEX)
-		return TYPE_ARMOR;
-	else if(id <= SHOP_ACCOUNT_END)
-		return TYPE_ACCOUNT;
-	else
-		return TYPE_ARTI;
-	return TYPE_WEAPON;
 }
 
 int ShopScale(int amount, int id) {
@@ -728,8 +643,8 @@ int CanTrade (int id, int tradeflag, int price) {
 	else if(type == TYPE_ARMOR)
 		item = "Armor";
 	else {
-		item = ShopItemNames[id][SHOPNAME_ITEM];
-		wepcheck = ShopItemNames[id][SHOPNAME_CONDITION];
+		item = GetItemName(id);
+		wepcheck = GetWeaponCondition(id);
 	}
 	
 	if(tradeflag & TRADE_BUY) {
@@ -827,6 +742,43 @@ int GetAmmoToGive(int index) {
 	return AmmoCounts[index - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] * GetAmmoGainFactor() / 100;
 }
 
+str GetShopWeaponTag(int id) {
+	str tag = StrParam(l:GetWeaponTag(ShopTableIdToWeaponTableId(id)));
+	if(StrLen(tag) > MAX_TAGCHARS_SHOWN) {
+		// we need to cut the longer text short
+		if(GetChar(tag, MAX_TAGCHARS_SHOWN) == ' ') {
+			tag = StrLeft(tag, MAX_TAGCHARS_SHOWN);
+		}
+		else
+			tag = StrParam(s:StrLeft(tag, MAX_TAGCHARS_SHOWN - 1), s:".");
+	}
+	return tag;
+}
+
+void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
+	str tag = "";
+	bool use_str = false;
+	if(objflag & OBJ_WEP) {
+		use_str = true;
+		tag = GetShopWeaponTag(id);
+	}
+	else if(objflag & OBJ_AMMO)
+		tag = GetAmmoTag(id);
+	else if(objflag & OBJ_ABILITY)
+		tag = GetAbilityTag(id - SHOP_ABILITY1_BEGIN);
+	else if(objflag & OBJ_ARTI)
+		tag = GetArtifactTag(id - SHOP_FIRSTARTI_INDEX);
+	else if(objflag & OBJ_ARMOR)
+		tag = GetArmorTag(id - SHOP_FIRSTARMOR_INDEX);
+	else if(objflag & OBJ_ACCOUNT)
+		tag = GetAccountPurchaseTag(id);
+	
+	if(!use_str)
+		HudMessage(s:weptype, s:toshow, l:tag; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
+	else
+		HudMessage(s:weptype, s:toshow, s:tag; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
+}
+
 // Draws a toggled image that changes color depending on given scenarios
 // By default, if insufficient credits occur, it will be gray. If credits are sufficient but objectflag has OBJ_HASCHOICE, that means you have to choose between one of the options
 // of it's kind. For example, there are 2 weapons that replace the shotgun. You can have only one, so you set this flag, and set choicename to P_Slot3Replaced. One of the two will be
@@ -865,7 +817,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			// if not ammo, talent or armor
 			if(!(objectflag & (OBJ_AMMO | OBJ_ARMOR))) {
 				// if not artifact and owning it (basically has weapon)
-				if(!(objectflag & (OBJ_ARTI | OBJ_ACCOUNT)) && CheckInventory(ShopItemNames[itemid][SHOPNAME_ITEM])) {
+				if(!(objectflag & (OBJ_ARTI | OBJ_ACCOUNT)) && CheckInventory(GetItemName(itemid))) {
 					color = oncolor;
 					colorprefix = "\c[M3]";
 					toshow = "\c[M3]";
@@ -907,7 +859,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		}
 		
 		if(objectflag & OBJ_WEP) {
-			if(!ParseInt(ShopItemNames[itemid][SHOPNAME_TYPE]))
+			if(IsLuxuryWeapon(itemid))
 				weptype = "\c[J7][\c[S7]R\c[J7]] ";
 			else
 				weptype = "\c[J7][\c[E3]L\c[J7]] ";
@@ -972,11 +924,11 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					HudMessage(s:"\cd*\c- ", l:GetAccountPurchaseText(itemid - SHOP_ACCOUNT_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
-			HudMessage(s:weptype, s:"\c[B1]", s:ShopItemNames[itemid][SHOPNAME_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
+			DrawShopItemTag(weptype, "\c[B1]", itemid, objectflag, onposy);
 			HudMessage(s:colorprefix, s:"--> $", d:price; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 2, color, 440.2, 80.0 + 16.0 * onposy, 0.0, 0.0);
 		}
 		else {
-			HudMessage(s:weptype, s:toshow, s:ShopItemNames[itemid][SHOPNAME_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
+			DrawShopItemTag(weptype, toshow, itemid, objectflag, onposy);
 			HudMessage(s:colorprefix, s:"$", d:price; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 2, color, 440.2, 80.0 + 16.0 * onposy, 0.0, 0.0);
 		}
 	}
@@ -1138,13 +1090,13 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorBaseAmounts[itemid - SHOP_FIRSTARMOR_INDEX + 1], !!(tradeflag & TRADE_ARMOR_REPLACE));
 						}
 						else
-							GiveInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
+							GiveInventory(GetItemName(itemid), 1);
 						if(tradeflag & TRADE_WEAPON) {
 							totake = GetWeaponToTake(itemid);
 							if(StrCmp(totake, ""))
 								TakeInventory(totake, 1);	
-							GiveInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
-							SetWeapon(ShopItemNames[itemid][SHOPNAME_ITEM]);
+							GiveInventory(GetWeaponCondition(itemid), 1);
+							SetWeapon(GetItemName(itemid));
 							// fix special ammo cursor
 							int fix = IsSpecialFixWeapon(itemid);
 							if(fix != -1) {
@@ -1212,8 +1164,8 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 					GiveInventory(totake, 1);
 				// this works on weapon table ids, so map it there to use
 				ResetWeaponStats(ShopTableIdToWeaponTableId(itemid));
-				TakeInventory(ShopItemNames[itemid][SHOPNAME_CONDITION], 1);
-				TakeInventory(ShopItemNames[itemid][SHOPNAME_ITEM], 1);
+				TakeInventory(GetWeaponCondition(itemid), 1);
+				TakeInventory(GetItemName(itemid), 1);
 				
 				// reset buffs of weapon
 				GiveInventory("Credit", price);
@@ -2305,13 +2257,13 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 		multipage = -multipage;
 
 	if(multipage)
-		HudMessage(s:"--- SLOT ", d:slotid, s:" (", d:multipage, s:") ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+		HudMessage(s:"--- ", l:"DND_MENU_SLOT", s:" ", d:slotid, s:" (", d:multipage, s:") ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 	else
-		HudMessage(s:"--- SLOT ", d:slotid, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-	HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+		HudMessage(s:"--- ", l:"DND_MENU_SLOT", s:" ", d:slotid, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 	
 	for(int i = begin; i <= end; ++i)
-		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, GetWeaponCondition(i), 1, CR_RED);
 }
 
 // These except ammo indexes, true ammo indexes (dnd_ammo.h) not menu relative
@@ -2329,23 +2281,23 @@ void HandleAmmoPageDraw(int boxid, int slot, int multipage, int start_index, int
 		multipage = -multipage;
 	
 	if(!specialammo)
-		HudMessage(s:"--- AMMO CATEGORY ", d:slot + 1, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+		HudMessage(s:"--- ", l:"DND_MENU_AMMOCATEGORY", s:" ", d:slot + 1, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 	else
-		HudMessage(s:"--- SPECIAL AMMO ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+		HudMessage(s:"--- ", l:"DND_MENU_SPECIALAMMO", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 	
-	HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 
 	if(!specialammo) {
 		for(i = start_index; i <= end_index; ++i) {
 			shopindex = MenuAmmoIndexMap[slot][i];
-			DrawToggledImage(shopindex, boxid, i - start_index, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[shopindex][SHOPNAME_CONDITION], 1, CR_RED);
+			DrawToggledImage(shopindex, boxid, i - start_index, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 		}
 		DrawAmmoIconCorner(slot, boxid, boxid + start_index - 1, false);
 	}
 	else {
 		for(i = 0; i < MAX_SPECIAL_AMMOS_FOR_SHOP; ++i) {
 			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
-			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, ShopItemNames[i][SHOPNAME_CONDITION], 1, CR_RED);
+			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 		}
 		DrawAmmoIconCorner(-1, boxid, -1, true);
 	}
@@ -2414,7 +2366,7 @@ void HandleResearchPageDraw(int page, int boxid) {
 	int status = CheckResearchStatus(ResearchInfo[page][posx].res_id);
 	int budget = CheckInventory("Budget");
 
-	HudMessage(s:"--- RESEARCH PANEL ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESPAN", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 
 	if(posx)
 		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
@@ -2426,15 +2378,15 @@ void HandleResearchPageDraw(int page, int boxid) {
 		DeleteText(RPGMENUPAGEID);
 
 	if(budget)
-		HudMessage(s:"\c[Y5]Budget: \c-", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
 	else
-		HudMessage(s:"\c[Y5]Budget: \c-0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
 
-	HudMessage(s:"\c[Y5]Entry\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 280.1, 80.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:"\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 280.1, 80.0, 0.0, 0.0);
 	if(status != RES_NA)
-		HudMessage(s:"\c[Y5]Cost: \cj$\c-", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj$\c-", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
 	else
-		HudMessage(s:"\c[Y5]Cost: ???\c-"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": ???\c-"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
 
 	if(status < RES_DONE)
 		SetFont("RESBLAK");
@@ -2721,7 +2673,7 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 		--itype;
 		// itype holds unique position, temp is the actual item type
 		HudMessage(s:"\c[A1]", s:UniqueItemNames[itype]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, pn, source)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, pn, source)], s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
@@ -3117,18 +3069,18 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	SetFont("SMALLFONT");
 	--boxid;
 	if(CheckInventory("DnD_Trade_ConfirmButtonPress"))
-		HudMessage(s:"\cdConfirm"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 10, CR_WHITE, 52.4, 160.0, 0.0, 0.0);
+		HudMessage(s:"\cd", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 10, CR_WHITE, 52.4, 160.0, 0.0, 0.0);
 	else if(boxid == TRADECONFIRM_BOXID)
-		HudMessage(s:"\c[M3]Confirm"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 10, CR_WHITE, 52.4, 160.0, 0.0, 0.0);
+		HudMessage(s:"\c[M3]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 10, CR_WHITE, 52.4, 160.0, 0.0, 0.0);
 	else
-		HudMessage(s:"Confirm"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 10, CR_WHITE, 52.4, 160.0, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 10, CR_WHITE, 52.4, 160.0, 0.0, 0.0);
 	
 	if(CheckInventory("DnD_Trade_CancelButtonPress"))
-		HudMessage(s:"\cdCancel"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 11, CR_WHITE, 168.4, 160.0, 0.0, 0.0);
+		HudMessage(s:"\cd", l:"DND_MENU_CANCEL"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 11, CR_WHITE, 168.4, 160.0, 0.0, 0.0);
 	else if(boxid == TRADECANCEL_BOXID)
-		HudMessage(s:"\c[M3]Cancel"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 11, CR_WHITE, 168.4, 160.0, 0.0, 0.0);
+		HudMessage(s:"\c[M3]", l:"DND_MENU_CANCEL"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 11, CR_WHITE, 168.4, 160.0, 0.0, 0.0);
 	else
-		HudMessage(s:"Cancel"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 11, CR_WHITE, 168.4, 160.0, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_CANCEL"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 11, CR_WHITE, 168.4, 160.0, 0.0, 0.0);
 	
 	if(CheckInventory("DnD_Trade_ConfirmButtonPress"))
 		SetFont("TRADBTNC");
@@ -3156,9 +3108,9 @@ void HandleInventoryViewTrade(int boxid) {
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, 0.1, 360.0, 0.0, 0.0);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3, CR_WHITE, 364.1, 260.0, 0.0, 0.0);
 	SetFont("SMALLFONT");
-	HudMessage(n:GetTradee() + 1, s:"\c[W3]'s Offering"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 4, CR_WHITE, 160.4, 30.0, 0.0, 0.0);
-	HudMessage(s:"\c[W3]Your Offering"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 160.4, 270.0, 0.0, 0.0);
-	HudMessage(s:"\c[W3]Your Inventory"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 6, CR_WHITE, 528.4, 170.0, 0.0, 0.0);
+	HudMessage(n:GetTradee() + 1, s:"\c[W3]", l:"DND_MENU_THEIROFFER"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 4, CR_WHITE, 160.4, 30.0, 0.0, 0.0);
+	HudMessage(s:"\c[W3]", l:"DND_MENU_YOUROFFERING"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 160.4, 270.0, 0.0, 0.0);
+	HudMessage(s:"\c[W3]", l:"DND_MENU_YOURINV"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 6, CR_WHITE, 528.4, 170.0, 0.0, 0.0);
 	
 	// check if theres a thing being dragged
 	if(itemDragImg != -1)
@@ -3462,8 +3414,8 @@ void HandleStashView(int boxid) {
 	}
 	
 	SetFont("SMALLFONT");
-	HudMessage(s:"\c[W3]Stash"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 2, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
-	HudMessage(s:"\c[W3]Inventory"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 3, CR_WHITE, 452.4, 270.0, 0.0, 0.0);
+	HudMessage(s:"\c[W3]", l:"DND_MENU_HEAD_STASH"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 2, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
+	HudMessage(s:"\c[W3]", l:"DND_MENU_INVENTORY"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 3, CR_WHITE, 452.4, 270.0, 0.0, 0.0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
@@ -3905,6 +3857,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 			"of damage dealt as additional poison on hits",
 			"chance to force pain on hits"
 		};
+		
 		// print weapon mods -- generalize later idc at this time about how neat it is
 		temp = Player_Weapon_Infos[j][extra1].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
 		if(temp) {
@@ -3928,7 +3881,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		--itype;
 		// itype holds unique position, temp is the actual item type
 		HudMessage(s:"\c[A1]", s:UniqueItemNames[itype]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)], s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;

@@ -11,6 +11,7 @@
 // Box definitions for clickables
 // 7 images on menu leftmost bar
 #define MAX_MAIN_BOXES 10
+#define MAX_TAGCHARS_SHOWN 17
 
 // Mainbox Labels
 enum {

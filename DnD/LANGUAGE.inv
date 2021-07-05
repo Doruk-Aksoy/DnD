@@ -13,6 +13,9 @@ DND_ARTI10			=	"Stat Reset";
 
 IATTR_Prefix 	= "IATTR_"
 
+DND_ITEM_UNIQUE		=	"Unique";
+DND_ITEM_CHARM		=	"Charm";
+
 // inventory attribute table
 IATTR_L0 		= "FlatHP";									IATTR_T0 			= " Health";
 IATTR_L1 		= "FlatArmor"; 								IATTR_T1 			= " Armor";

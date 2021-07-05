@@ -727,194 +727,115 @@ enum {
 	ARTI_RESET,
 };
 
-#define SHOPNAME_ITEM 0
-#define SHOPNAME_TAG 1
-#define SHOPNAME_CONDITION 2
-#define SHOPNAME_TYPE 3
-// rework these later reducing weapon names from two cols
-str ShopItemNames[MAXSHOPITEMS][4] = {
-	{ "Upgraded Chainsaw",					"Dual Chainsaw",					WEPCHECK_SLOT1,			"0"  	    },
-	{ "Katana",								"Katana",							WEPCHECK_SLOT1,			"0"			},
-	{ "Excalibat",							"Excalibat",						WEPCHECK_SLOT1,			"0"		    },
-	{ "ResMelee1",							"Inferno Sword",					WEPCHECK_SLOT1,			"0"			},
-	{ "Dusk Blade",							"Dusk Blade",						WEPCHECK_SLOT1L,		"1"			},
-	{ "Sickle",								"Necro's Sickle",					WEPCHECK_SLOT1L,		"1"		    },
+str ArmorStrings[MAXARMORS][2] = { 
+	{ "ARM1A0", "NewGreenArmor" },
+	{ "ARM3A0", "YellowArmor" },
+	{ "ARM2A0", "NewBlueArmor" },
+	{ "QRARA0", "TheRedArmor" },
 	
-	{ " Akimbo Pistols ",					"Akimbo Longslides",				WEPCHECK_SLOT2,			"0"  	    },
-	{ "Magnum", 							"Magnum",							WEPCHECK_SLOT2,			"0"  	    },
-	{ "Laser Pistol",						"Laser Pistol",						WEPCHECK_SLOT2,			"0"		    },
-	{ "ResPistol1",							"Assault Rifle",					WEPCHECK_SLOT2,			"0"		    },
-	{ "ResPistol2",							"Viper Staff",						WEPCHECK_SLOT2,			"0"			},
-	{ "RubyWand",							"Ruby Wand",						WEPCHECK_SLOT2L,		"1"			},
-	{ "ScatterGun",							"Scatter Pistol",					WEPCHECK_SLOT2L,		"1"		    },
-	
-	{ "Upgraded Shotgun",					"Purifier",							WEPCHECK_SLOT3,			"0"  		},
-	{ "Upgraded Shotgun2", 					"Killstorm",						WEPCHECK_SLOT3,			"0" 		},
-	{ "Upgraded Shotgun3", 					"Emerald Wand",						WEPCHECK_SLOT3,			"0" 		},
-	{ "ResShotgun1",						"Deadlock",							WEPCHECK_SLOT3,			"0"		    },
-	{ "ResShotgun2",                        "Nitrogen Crossbow",                WEPCHECK_SLOT3,     	"0"         },
-	{ "ResShotgun3",                        "Wheel of Torment",                	WEPCHECK_SLOT3,     	"0"         },
-	{ "ResShotgun4",						"Charon Blaster",					WEPCHECK_SLOT3,			"0"			},
-	{ "Upgraded Super Shotgun",			    "Heavy SSG",						WEPCHECK_SLOT3X,		"0" 		},
-	
-	{ "Upgraded Super Shotgun2",		    "Erasus",							WEPCHECK_SLOT3X,		"0" 		},
-	{ "Upgraded Super Shotgun3",		    "Hell's Maw",						WEPCHECK_SLOT3X,		"0" 		},
-	{ "ResSSG1",							"Plasma Cannon",					WEPCHECK_SLOT3X,		"0"		    },
-	{ "ResSSG2",							"Shocker",							WEPCHECK_SLOT3X,		"0"			},
-	{ "ResSSG3",							"Hades Shotgun",					WEPCHECK_SLOT3X,		"0"			},
-	{ "ResSSG4",							"Flayer Crossbow",					WEPCHECK_SLOT3X,		"0"			},
-	{ "Silver Gun",						    "White Death",						WEPCHECK_SLOT3L,		"1"	        },
-	{ "Slayer",								"Slayer",							WEPCHECK_SLOT3L,		"1"		    },
-		
-	{ "Upgraded Machine Gun",				"Heavy Machine Gun",				WEPCHECK_SLOT4,  		"0"     	},
-	{ "Upgraded Machine Gun2",			    "Lead Spitter",						WEPCHECK_SLOT4, 		"0"		    },
-	{ "Upgraded Machine Gun3",			    "Demon Sealer",						WEPCHECK_SLOT4, 		"0"		    },
-	{ "ResMG1",								"Templar MG",						WEPCHECK_SLOT4,			"0"		    },
-	{ "ResMG2",                             "Riot Cannon",                      WEPCHECK_SLOT4,      	"0"         },
-	{ "ResMG3",								"Acid Rifle",						WEPCHECK_SLOT4,			"0"			},
-	{ "ResMG4",								"Fusion Blaster",					WEPCHECK_SLOT4,			"0"			},
-	{ "ResMG5",								"Incinerator SG.",					WEPCHECK_SLOT4,			"0"			},
-	
-	{ "Desolator",							"Desolator Cannon",					WEPCHECK_SLOT4L,		"1"			},
-	{ " Minigun ",							"Minigun",							WEPCHECK_SLOT4L,   		"1"		    },
-	{ "Ebony Cannon",						"Ebony Cannon",						WEPCHECK_SLOT4L,   		"1"		    },
-	{ "MPPB",								"MP. Photon Blaster",				WEPCHECK_SLOT4L,		"1"			},
-	
-	{ "Upgraded Rocket Launcher",		    "Torpedo Launcher",				    WEPCHECK_SLOT5,  		"0"		    },
-	{ "Upgraded Rocket Launcher2",		    "Mercury Launcher",				    WEPCHECK_SLOT5,  		"0"		    },
-	{ "Upgraded Rocket Launcher3",		    "Vindicator",				    	WEPCHECK_SLOT5,  		"0"		    },
-	{ "ResRL1",								"Meteor Launcher",					WEPCHECK_SLOT5,			"0"		    },
-	{ "ResRL2",								"Heavy G. Launcher",				WEPCHECK_SLOT5,			"0"		    },
-	{ "ResRL3",								"Freezer Cannon",					WEPCHECK_SLOT5,			"0"		    },
-	{ "ResRL4",								"Gravdis 5000",						WEPCHECK_SLOT5,			"0"		    },
-	{ "ResRL5",								"Void Cannon",						WEPCHECK_SLOT5,			"0"			},
-	
-	{ "Grenade Launcher",					"Grenade Launcher",				    WEPCHECK_SLOT5L,    	"1"		    },
-	{ "Upgraded Grenade Launcher",		    "Rotary G. Launcher",				WEPCHECK_SLOT5L,  		"1"		    },
-	{ "Heavy Missile Launcher",				"H. Missile Launcher",				WEPCHECK_SLOT5L,   		"1"		    },
-	{ "Sedrin Staff",						"Sedrin Staff",						WEPCHECK_SLOT5L,		"1"			},
-	
-	{ "Upgraded Plasma Rifle",				"Nuclear P. R.",					WEPCHECK_SLOT6, 		"0"		    },
-	{ "Upgraded Plasma Rifle2",				"Turel Cannon",						WEPCHECK_SLOT6,			"0"		    },
-	{ "Upgraded Plasma Rifle3",				"Frost Fang",						WEPCHECK_SLOT6,			"0"		    },
-	{ "ResPlasma1",							"Flamethrower",						WEPCHECK_SLOT6,			"0"		    },
-	{ "ResPlasma2",                         "Lightning Gun",                    WEPCHECK_SLOT6,      	"0"         },
-	{ "ResPlasma3",							"Rebounder",						WEPCHECK_SLOT6,			"0"			},
-	{ "ResPlasma4",							"Dark Lance",						WEPCHECK_SLOT6,			"0"			},
-	
-	{ "RhinoRifle",							"Rhino AR",							WEPCHECK_SLOT6L,		"1"			},
-	{ "Nailgun",							"Nailgun",							WEPCHECK_SLOT6L,		"1"	        },
-	{ "Basilisk",							"Basilisk",							WEPCHECK_SLOT6L,		"1"	        },
-	
-	{ "Upgraded BFG 9000",					"BFG 32768",						WEPCHECK_SLOT7,			"0"		    },
-	{ "Devastator",							"Devastator 5000",					WEPCHECK_SLOT7,			"0"     	},
-	{ "MFG",								"Destr. Generator",					WEPCHECK_SLOT7,			"0"		    },
-	{ "ResBFG1",							"Ion Cannon",						WEPCHECK_SLOT7,			"0"		    },
-	{ "ResBFG2",							"Thunder Staff",					WEPCHECK_SLOT7,			"0"			},
-	{ "Gauss Rifle",						"Gauss Rifle",						WEPCHECK_SLOT7L,		"1"     	},
-	{ "Rail Gun",							"Railgun",							WEPCHECK_SLOT7L,		"1"     	},
-	{ "Death Ray",							"Death Ray",						WEPCHECK_SLOT7L,		"1"			},
-	
-	{ "Death Staff",						"Death Staff",						WEPCHECK_SLOT8L,		"1"		    },
-	{ "RazorFang",							"Razorfang",						WEPCHECK_SLOT8L,		"1"    	    },
-	{ "Sun Staff",							"Sun Staff",						WEPCHECK_SLOT8L,		"1"     	},
-	{ "Soul Reaver",						"Soul Reaver",						WEPCHECK_SLOT8L,		"1"     	},
-	
-	{ "Clip",								"",							"",						"0"		    },
-	{ "Shell",								"",							"",						"0"		    },
-	{ "RocketAmmo",							"",							"",						"0"		    },
-	{ "Cell",								"",							"",						"0"		    },
-	{ "ExplodingShell",						"",					"",						"0"	        },
-	{ "EbonyAmmo",							"",						"",						"0"	        },
-	{ "EbonyAmmoX",							"",					"",						"0"	        },
-	{ "MISAmmo",							"",					"",						"0"	        },
-	{ "Grenades",							"",							"",						"0"	        },
-	{ "NailgunAmmo",						"",							"",						"0"	        },
-	
-	{ "BasiliskAmmo",						"",						"",						"0"	        },
-	{ "GaussRound",							"",						"",						"0"	        },
-	{ "SlayerAmmo",							"",					"",						"0"		    },
-	{ "RubyAmmo",							"",						"",						"0"			},
-	{ "PCanAmmo",                           "",                   "",                     "0"         },
-	{ "RiotgunShell",                       "",                "",                     "0"         },
-	{ "MeteorAmmo",                         "",                    "",                     "0"         },
-	{ "Fuel",                               "",                        "",                     "0"         },
-	{ "LightningCell",                      "",                   "",                     "0"         },
-	{ "NitrogenCanister",                   "",                "",                     "0"         },
-	
-	{ "IonAmmo",                            "",                         "",                     "0"         },
-	{ "AcidAmmo",							"",						"",						"0"			},
-	{ "EverIce",							"",							"",						"0"			},
-	{ "ViperAmmo",							"",						"",						"0"		 	},
-	{ "ThunderAmmo",						"",						"",						"0"			},
-	{ "DSealAmmo",							"",						"",						"0"			},
-	{ "FusionCell",							"",						"",						"0"			},
-	{ "FlakShell",							"",						"",						"0"			},
-	{ "DesolatorAmmo",						"",					"",						"0"			},
-	{ "HadesAmmo",							"",						"",						"0"			},
-	
-	{ "DemonBlood",							"",				"",						"0"			},
-	{ "EmeraldMana",						"",						"",						"0"			},
-	{ "HellsMawAmmo",						"",						"",						"0"			},
-	{ "DevastatorAmmo",						"",					"",						"0"			},
-	{ "HeavyGrenades",						"",					"",						"0"			},
-	{ "FlayerAmmo",							"",						"",						"0"			},
-	{ "GravdisAmmo",						"",					"",						"0"			},
-	{ "SedrinAmmo",							"",					"",						"0"			},
-	{ "CharonAmmo",							"",					"",						"0"			},
-	{ "IncineratorAmmo",					"",				"",						"0"			},
-	
-	{ "FlechetteShell",					    "",					"",						"0"		    },
-	{ "PiercingShell",						"",					"",						"0"		    },
-	{ "ElectricShell",						"",						"",						"0"		    },
-	{ "NitroShell",                         "",                  "",                     "0"         },
-	{ "SlugShell",							"",						"",						"0"			},
-	
-	{ "A40mmSonicGrenade",				    "",					"",						"0"		    },
-	{ "A40mmHEGrenade",					    "",						"",						"0"		    },
-	
-	{ "Ability_Kick",						"",				    "",						"0"	        },
-	{ "Ability_Reloader",					"",					"",						"0"	        },
-	{ "Ability_Dash",						"",							"",						"0"	        },
-	{ "Ability_Arcanery",					"",							"",						"0"	        },
-	{ "Ability_AntiPoison",					"",						"",						"0"	        },
-	{ "Ability_ExplosionMastery",			"",						"",						"0"	        },
-	{ "Ability_HeartSeeker",				"",			   		"",						"0"	        },
-	{ "Ability_Regeneration",				"",			    		"",						"0"	        },
-	{ "Ability_Temporal",					"",				    "",						"0"	        },
-	{ "Ability_SoulStealer",				"",				    "",						"0"	        },
-	
-	{ "NewGreenArmor",						"",						"",						"0"		    },
-	{ "YellowArmor",						"",						"",						"0"		    },
-	{ "NewBlueArmor",					    "",						"",						"0"		    },
-	{ "TheRedArmor",						"",						"",						"0"		    },
-	{ "GunSlingerArmor",					"",				    "",						"0"		    },
-	{ "OccultArmor",						"",						"",						"0"		    },
-	{ "DemoArmor",							"",						"",						"0"		    },
-	{ "EnergyArmor",						"",						"",						"0"		    },
-	{ "ElementalArmor",                     "",                  "",                     "0"         },
-	
-	{ "SuperArmor",                         "",                   "",                     "0"         },
-	{ "CyberneticArmor",					"",				    "",						"0"		    },
-	{ "DuelistArmor",						"",					"",						"0"		    },
-	{ "NecroArmor",							"",						"",						"0"		    },
-	{ "KnightArmor",						"",						"",						"0"		    },
-	{ "RavagerArmor",						"",					"",						"0"		    },
-	{ "SynthmetalArmor",					"",				"",						"0"			},
-	
-	{ "DnD_PlayerInventoryPages",			"",					"",						"0"			},
-
-	{ "FieldKit",							"",						"",						"0"		    },
-	{ "SalvationSphere",					"",						"",						"0"		    },
-	{ "PortableShield",						"",						"",						"0"		    },
-	{ "BloodRune",							"",						"",						"0"		    },
-	{ "TripleDamage",						"",						"",						"0"    	    },
-	{ "BladeVortex",						"",						"",						"0"		    },
-	{ "BookOfTheDead",						"",				    	"",						"0"		    },
-	{ "AllmapGiver",						"",						"",						"0"		    },
-	{ "NewBackPack",						"",						"",						"0"		    },
-	{ "StatReset",							"",						"",						"0"		    }
+	{ "ARM9A0", "GunSlingerArmor" },
+	{ "AR10A0", "OccultArmor" },
+	{ "AR11A0", "DemoArmor" },
+	{ "AR12A1", "EnergyArmor" },
+    { "AR14A0", "ElementalArmor" },
+    
+    { "AR13A0", "SuperArmor" },
+	{ "ARM4A1", "CyberneticArmor" },
+	{ "ARM5A0", "DuelistArmor" },
+	{ "ARM6A0", "NecroArmor" },
+	{ "ARM7A0", "KnightArmor" },
+	{ "ARM8A0", "RavagerArmor" },
+	{ "AR15B0", "SynthmetalArmor" },
 };
+
+// gets item type
+int GetItemType(int id) {
+	if(id <= SHOP_LASTWEP_INDEX)
+		return TYPE_WEAPON;
+	else if(id <= SHOP_LASTAMMO_SPECIALINDEX)
+		return TYPE_AMMO;
+	else if(id <= SHOP_LASTABILITY_INDEX)
+		return TYPE_ABILITY;
+	else if(id <= SHOP_LASTARMOR_INDEX)
+		return TYPE_ARMOR;
+	else if(id <= SHOP_ACCOUNT_END)
+		return TYPE_ACCOUNT;
+	else
+		return TYPE_ARTI;
+	return TYPE_WEAPON;
+}
+
+str GetItemName(int id) {
+	int type = GetItemType(id);
+	str name = "";
+	
+	switch(type) {
+		case TYPE_WEAPON:
+			name = Weapons_Data[ShopTableIdToWeaponTableId(id)][WEAPON_NAME];
+		break;
+		case TYPE_AMMO:
+			if(id < SHOP_FIRSTAMMOSPECIAL_INDEX) {
+				type = ShopAmmoIndexToRegularAmmoIndex(id - SHOP_FIRSTAMMO_INDEX);
+				name = AmmoInfo_Str[type >> 16][type & 0xFFFF][AMMOINFO_NAME];
+			}
+			else
+				name = SpecialAmmoInfo_Str[id - SHOP_FIRSTAMMOSPECIAL_INDEX][AMMOINFO_NAME];
+		break; 
+		case TYPE_ABILITY:
+			name = AbilityInfo[id - SHOP_ABILITY1_BEGIN];
+		break;
+		case TYPE_ARMOR:
+			name = ArmorStrings[id - SHOP_FIRSTARMOR_INDEX][ARTI_NAME];
+		break;
+		case TYPE_ARTI:
+			name = ArtifactInfo[id - SHOP_FIRSTARTI_INDEX][ARTI_NAME];
+		break;
+		case TYPE_ACCOUNT:
+			// there's only one for now
+			name = "DnD_PlayerInventoryPages";
+		break;
+	}
+	return name;
+}
+
+// put them in this place if they are luxury weapons
+bool IsLuxuryWeapon(int id) {
+	switch(id) {
+		case SHOP_WEP_DUSKBLADE:
+		case SHOP_WEP_SICKLE:
+		
+		case SHOP_WEP_RUBYWAND:
+		case SHOP_WEP_SCATTERPISTOL:
+		
+		case SHOP_WEP_SILVER:
+		case SHOP_WEP_SLAYER:
+		
+		case SHOP_WEP_DESOLATOR:
+		case SHOP_WEP_MINIGUN:
+		case SHOP_WEP_EBONY:
+		case SHOP_WEP_MPPB:
+		
+		case SHOP_WEP_GRENADE:
+		case SHOP_WEP_ROTARYGL:
+		case SHOP_WEP_HEAVYML:
+		case SHOP_WEP_SEDRIN:
+		
+		case SHOP_WEP_RHINO:
+		case SHOP_WEP_NAIL:
+		case SHOP_WEP_BASILISK:
+		
+		case SHOP_WEP_GAUSS:
+		case SHOP_WEP_RAIL:
+		case SHOP_WEP_DEATHRAY:
+		
+		case SHOP_WEP_DEATHSTAFF:
+		case SHOP_WEP_RAZOR:
+		case SHOP_WEP_SUN:
+		case SHOP_WEP_REAVER:
+		return true;
+	}
+	return false;
+}
 
 int ShopTableIdToWeaponTableId(int id) {
 	// skip classic weapons
@@ -936,6 +857,19 @@ int ShopTableIdToWeaponTableId(int id) {
 	if(id >= SHOP_WEAPON7_BEGIN)
 		skip += 1;
 	return id + skip;
+}
+
+str GetWeaponCondition(int id) {
+	bool islux = IsLuxuryWeapon(id);
+	int real_id = ShopTableIdToWeaponTableId(id);
+	int slot = GetSlotOfWeapon(real_id);
+	
+	if(slot <= 1) 
+		return WeaponConditionCheckers[2 * slot + islux];
+	else if(slot == 2) // checker3, checker3x, checker3L so we skip 2 for lux check
+		return WeaponConditionCheckers[2 * slot + islux * 2];
+	// we have to count for the fact we have an extra checker at slot 3 so -1
+	return WeaponConditionCheckers[2 * slot + islux - 1];
 }
 
 // I could probably make these much finer with one function and multiple checks in it or better yet an array to look up the strings themselves
@@ -985,22 +919,6 @@ str GetAccountPurchaseTag(int id) {
 
 str GetAccountPurchaseText(int id) {
 	return StrParam(s:"DND_MENU_ACCITEMTEXT", d:id + 1);
-}
-
-str GetShopItemTag(int id, int objflag) {
-	if(objflag & TRADE_WEAPON)
-		return GetWeaponTag(ShopTableIdToWeaponTableId(id));
-	else if(objflag & TRADE_AMMO)
-		return GetAmmoTag(id);
-	else if(objflag & TRADE_ABILITY)
-		return GetAbilityTag(id - SHOP_ABILITY1_BEGIN);
-	else if(objflag & TRADE_ARTIFACT)
-		return GetArtifactTag(id - SHOP_FIRSTARTI_INDEX);
-	else if(objflag & TRADE_ARMOR)
-		return GetArmorTag(id - SHOP_FIRSTARMOR_INDEX);
-	else if(objflag & TRADE_ACCOUNT)
-		return GetAccountPurchaseTag(id);
-	return "";
 }
 
 enum {
@@ -1304,8 +1222,8 @@ int ShopAmmoIndexToRegularAmmoIndex(int id) {
 	// we exclude soul ammo types
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
 		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT; ++j) {
-			if(MenuAmmoIndexMap[i][j] == id)
-				return MenuAmmoIndexMap[i][j] | (i << 16);
+			if(MenuAmmoIndexMap[i][j] - SHOP_FIRSTAMMO_INDEX == id)
+				return j | (i << 16);
 		}
 	}
 	return -1;
@@ -1436,7 +1354,7 @@ void DrawAmmoExplanation(int itemid) {
 		if(itemid <= SHOP_AMMO_CELL || itemid >= SHOP_AMMO_FLECHETTE)
 			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
 		else
-			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref), s:"."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
+			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref), s:"\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
 	}
 	else
 		HudMessage(
@@ -1446,27 +1364,6 @@ void DrawAmmoExplanation(int itemid) {
 			HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0
 		);
 }
-									
-str ArmorImages[MAXARMORS] = { 
-	"ARM1A0", 
-	"ARM3A0", 
-	"ARM2A0", 
-	"QRARA0",
-	
-	"ARM9A0",
-	"AR10A0",
-	"AR11A0",
-	"AR12A1",
-    "AR14A0",
-    
-    "AR13A0",
-	"ARM4A1",
-	"ARM5A0",
-	"ARM6A0",
-	"ARM7A0",
-	"ARM8A0",
-	"AR15B0"
-};
 
 struct draw_info ArmorDrawInfo[MAXARMORS] = {
 	{ OBJ_ARMOR, 								-1 										},
