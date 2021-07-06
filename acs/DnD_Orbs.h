@@ -1641,7 +1641,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_REPENT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Repentance reverts the effects of \cv", s:InventoryInfo[val + ORBS_BEGIN][SITEM_TAG], s:"\cj!");
+				Log(s:"\cjOrb of Repentance reverts the effects of \cv", l:GetInventoryTag(val + ORBS_BEGIN), s:"\cj!");
 			else
 				Log(s:"\cgNo orb used or tried to revert effects of Orb of Repentance!");
 		break;
@@ -1653,7 +1653,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_CALAMITY:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Calamity turns your \ck", s:InventoryInfo[(val % 100) + ORBS_BEGIN][SITEM_TAG], s:"\cv to an \cd", s:InventoryInfo[(val / 100) + ORBS_BEGIN][SITEM_TAG], s:"\cv!");
+				Log(s:"\cjOrb of Calamity turns your \ck", l:GetInventoryTag((val % 100) + ORBS_BEGIN), s:"\cv to an \cd", l:GetInventoryTag((val / 100) + ORBS_BEGIN), s:"\cv!");
 			else
 				Log(s:"\cgNo other orb found to convert!");
 		break;
@@ -1683,7 +1683,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_VIOLENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", s:TalentNames[val][TALENT_NAME], s:" Damage\cv increase!");
+				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", l:GetTalentTag(val), s:" Damage\cv increase!");
 			else
 				Log(s:"\cgMax violence bonus reached! (\ck", d:VIOLENCEORB_MAX, s:"%\c-)");
 		break;
@@ -1792,7 +1792,7 @@ void SpawnOrb(int pnum, bool sound) {
 		// i = DND_ORB_CORRUPT;
 		RollOrbInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(InventoryInfo[i + ORBS_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
+		SpawnDrop(InventoryInfo[i + ORBS_BEGIN], 24.0, 16, pnum + 1, c);
 		if (sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
 	}

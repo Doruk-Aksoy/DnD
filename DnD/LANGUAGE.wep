@@ -1,7 +1,15 @@
 [enu default]
 
-// TAGS
+// MOD TEXTS
+WEPMOD_TEXT1		=		"Quality";
+WEPMOD_TEXT2		=		"Crit Chance";
+WEPMOD_TEXT3		=		"Crit Damage";
+WEPMOD_TEXT4		=		"Damage Bonus";
+WEPMOD_TEXT5		=		"monster health on hits";
+WEPMOD_TEXT6		=		"of damage dealt as additional poison on hits";
+WEPMOD_TEXT7		=		"chance to force pain on hits";
 
+// TAGS
 WEP_0_TAG 			= 			"Fists";
 WEP_1_TAG 			= 			"Chainsaw";
 	 

@@ -53,7 +53,9 @@ DND_MENU_HEAD_ABILEARNED = 	"Abilities Learned";
 DND_MENU_HEAD_HELP		=	"DnD Help";
 DND_MENU_HEAD_RESGUNS	=	"Research: Guns";
 
-DND_MENU_SLOT			=	"SLOT";
+DND_MENU_SLOT			=	"Slot";
+DND_MENU_MATERIALS		=	"Materials";
+DND_MENU_MAX			=	"(MAX)";
 
 DND_MENU_PERKSAVAIL		=	"Perks Available";
 DND_MENU_RESEARCH		=	"Research";
@@ -81,6 +83,9 @@ DND_MENU_CRAFTING		=	"Crafting";
 DND_MENU_ACCESSORIES	=	"Accessories";
 DND_MENU_TRADING		=	"Trading";
 DND_MENU_VIEWINV		=	"View Inventory";
+
+DND_MENU_MAPDIFF		=	"Map Difficulty";
+DND_MENU_LIVESLEFT		=	"Lives left";
 
 DND_MENU_WEAPONS		=	"Weapons Menu";
 DND_MENU_AMMO			=	"Ammunition Menu";
@@ -338,6 +343,18 @@ DND_POPUP_NOREPAIRTOKENS					=	"You don't have any\nrepair tokens!";
 DND_POPUP_YOUARENTALLOWED					=	"You aren't allowed\nto buy this item!";
 
 DND_MENU_SELLCONFIRM						=	"Are you sure you\nwant to sell your";
+
+// specific wording of this in player stat draw
+
+DND_MENU_ARMOREFF		=	"armor efficiency";
+DND_MENU_NONMAGICDMG	=	"non-magic damage";
+DND_MENU_MAGICDMG		=	"magic damage";
+DND_MENU_DISCOUNT		=	"discount";
+DND_MENU_GLOBALCRIT		=	"global critical strike chance";
+DND_MENU_GLOBALCRITMULT	=	"global critical strike multiplier";
+DND_MENU_DROPCHANCE		=	"drop chance";
+DND_MENU_AMMOCAPS		=	"increased ammo caps";
+DND_MENU_SLOTDMG		=	"damage bonus to slot";
 
 // monster mod explanations
 // weakness group

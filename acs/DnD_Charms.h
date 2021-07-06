@@ -17,13 +17,11 @@ enum {
 	DND_CHARM_MEDIUM,
 	DND_CHARM_LARGE
 };
-
 #define MAX_CHARM_TYPES DND_CHARM_LARGE + 1
-str Charm_TypeName[MAX_CHARM_TYPES] = {
-	"Small",
-	"Medium",
-	"Grand"
-};
+
+str GetCharmTypeName(int id) {
+	return StrParam(s:"DND_CHARMTYPE", d:id + 1);
+}
 
 int Charm_MaxAffixes[MAX_CHARM_TYPES] = {
 	2,
@@ -38,12 +36,12 @@ int Charm_MaxUsable[MAX_CHARM_TYPES] = {
 };
 
 // level 100 = perfect
-str Charm_Tiers[MAX_CHARM_AFFIXTIERS + 1] = {
-	"\c[C8]Whispering",
-	"\c[C3]Fine",
-	"\c[C1]Supreme",
-	"\c[C5]Majestic",
-	"\c[L7]Perfect"
+str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
+	{ "\c[C8]", "DND_CHARMTIER1" },
+	{ "\c[C3]", "DND_CHARMTIER2" },
+	{ "\c[C1]", "DND_CHARMTIER3" },
+	{ "\c[C5]", "DND_CHARMTIER4" },
+	{ "\c[L7]", "DND_CHARMTIER5" }
 };
 
 // holds indexes to charms used that are on players

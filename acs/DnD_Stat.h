@@ -53,17 +53,19 @@ int GetExpLimit_Level(int lvl) {
 	return LevelCurve[lvl - 1];
 }
 
-#define TALENT_NAME 0
-#define TALENT_TAG 1
-str TalentNames[MAX_TALENTS][2] = {
-	{ "Ballistic", 			"Talent_Ballistic" },
-	{ "Melee", 				"Talent_Melee" },
+str TalentNames[MAX_TALENTS] = {
+	"Talent_Ballistic",
+	"Talent_Melee",
 	
-	{ "Energy", 			"Talent_Energy" },
-	{ "Explosive", 			"Talent_Explosive" },
-	{ "Occult", 			"Talent_Occult" },
-    { "Elemental", 			"Talent_Elemental" }
+	"Talent_Energy",
+	"Talent_Explosive",
+	"Talent_Occult",
+    "Talent_Elemental"
 };
+
+str GetTalentTag(int id) {
+	return StrParam(s:"DND_TALENT", d:id + 1);
+}
 
 #define DND_PERKS DND_PERK_END - DND_PERK_BEGIN + 1
 str StatData[STAT_LVLCRED + 1] = {
@@ -882,7 +884,7 @@ int GetNonLowestTalents() {
 	int lowest_talent_amount = TALENT_CAP;
 	int lowest_talents = 0;
 	for(int i = 0; i < MAX_TALENTS; ++i) {
-		int talent_amount = CheckInventory(TalentNames[i][TALENT_TAG]);
+		int talent_amount = CheckInventory(TalentNames[i]);
 		if(talent_amount < lowest_talent_amount) {
 			lowest_talent_amount = talent_amount;
 			lowest_talents = (1 << i);

@@ -688,10 +688,6 @@ void ClearQuestCheckers() {
 		SetInventory(Quest_Checkers[i], 0);
 }
 
-int GetTalent(int talent_type) {
-	return CheckInventory(TalentNames[talent_type][TALENT_NAME]);
-}
-
 void CheckMapExitQuest(int pnum, int qid) {
 	int tid = pnum + P_TIDSTART;
 	bool cond = 0;

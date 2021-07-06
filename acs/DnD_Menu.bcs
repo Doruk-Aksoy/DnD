@@ -313,7 +313,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"--- ", l:"DND_MENU_HEAD_GAINS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			
 			DrawPlayerStats(pnum);
-			
+
 			HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 			HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 		}
@@ -484,9 +484,9 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			
 			for(i = 0; i < 8; ++i) {
 				if(boxid == MBOX_1 + i)
-					HudMessage(s:"\c[B1]Slot ", d:i + 1, s:"\c- <--"; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+					HudMessage(s:"\c[B1]", l:"DND_MENU_SLOT ", d:i + 1, s:"\c- <--"; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
 				else
-					HudMessage(s:"\c[Y5]Slot ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_SLOT ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
 			}
 
 			HudMessage(
@@ -552,7 +552,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 		}
 		else if(curopt == MENU_SHOP_ABILITY_2) {
 			HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILITIES", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-			HudMessage(s:"\c[Y5]Credits: \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+			DrawCredits();
 			
 			for(i = SHOP_ABILITY2_BEGIN; i <= SHOP_LASTABILITY_INDEX; ++i)
 				DrawToggledImage(i, boxid, i - SHOP_ABILITY2_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
@@ -595,9 +595,9 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			temp = GetArmorFillPrice();
 			if(temp > 0) {
 				if(CheckInventory("Credit") >= temp)
-					HudMessage(s:"\c[Y5]", l:"Fill Price", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
 				else
-					HudMessage(s:"\c[Y5]", l:"Fill Price", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
 			}
 		}
 		else if(curopt == MENU_SHOP_ACCOUNT) {
@@ -708,7 +708,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT2", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			
 			SetHudClipRect(192, 64, 256, 256, 256, 1);
-			HudMessage(s:"Class: \cj", l:GetClassLabel(toshow, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 80.0 + 4.0 * ScrollPos, 0.0, 0.0);
+			HudMessage(l:"DND_CLASS", s:": \cj", l:GetClassLabel(toshow, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 80.0 + 4.0 * ScrollPos, 0.0, 0.0);
 			
 			i = 0;
 			if(CheckInventory("Level") < 5)
@@ -787,7 +787,7 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			
 			SetHudClipRect(192, 60, 256, 384, 256, 1);
 			for(i = 0; i < MAX_ORBS; ++i) {
-				HudMessage(s:InventoryInfo[i + ORBS_BEGIN][SITEM_DESC]; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 96.0 * i + 8.0 * ScrollPos, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:GetInventoryTag(i + ORBS_BEGIN), s:"\n", l:GetInventoryText(i + ORBS_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 96.0 * i + 8.0 * ScrollPos, 0.0, 0.0);
 				ShowOrbIcon(i);
 			}
 			SetHudClipRect(0, 0, 0, 0);

@@ -20,6 +20,17 @@ DND_ATTRIBUTEPTS						= "Attribute Points";
 
 DND_INVENTORY							= "Inventory";
 
+DND_TALENT1								= "Ballistic";
+DND_TALENT2								= "Melee";
+DND_TALENT3								= "Energy";
+DND_TALENT4								= "Explosive";
+DND_TALENT5								= "Occult";
+DND_TALENT6								= "Elemental";
+
+DND_DAMAGEBONUS							= "damage bonus";
+DND_DAMAGE								= "damage";
+DND_CLASS								= "Class";
+
 DND_STAT1								= "Strength";
 DND_STAT2								= "Dexterity";
 DND_STAT3								= "Bulkiness";

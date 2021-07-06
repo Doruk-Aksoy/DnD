@@ -1401,27 +1401,29 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 	int val, temp;
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
-		HudMessage(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; 
+		// temp holds charm's tier id
+		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR;
+		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)), s:" ", l:"DND_ITEM_CHARM"; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx + ScreenResOffsets[3], by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
-			HudMessage(s:ItemAttributeString(temp, val); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(IsStackedItem(itype)) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
-		HudMessage(s:InventoryInfo[temp][SITEM_DESC]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 	else if(itype > UNIQUE_BEGIN) {
 		temp = itype & 0xFFFF;
 		itype >>= UNIQUE_BITS;
 		--itype;
 		// itype holds unique position, temp is the actual item type
-		HudMessage(s:"\c[A1]", s:UniqueItemNames[itype]; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx + ScreenResOffsets[3], by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)], s:" Charm"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx + ScreenResOffsets[3], by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
@@ -1433,17 +1435,17 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 				}
 				else
-					HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+					HudMessage(s: GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 			}
 			else if(!val) {
 				// unique item doesn't have numeric attribute to show
-				HudMessage(s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 			}
 			else
-				HudMessage(s:"- ", s:ExoticAttributeString(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 }
@@ -1481,13 +1483,13 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		if(itype > UNIQUE_BEGIN)
 			droptype = InventoryDropActors[DND_INVDROP_UNIQUECHARM];
 		else if(itype == DND_ITEM_ORB)
-			droptype = InventoryInfo[stype + ORBS_BEGIN][SITEM_NAME];
+			droptype = InventoryInfo[stype + ORBS_BEGIN];
 		else if(itype == DND_ITEM_CHESTKEY)
-			droptype = InventoryInfo[stype + CHESTKEY_BEGIN][SITEM_NAME];
+			droptype = InventoryInfo[stype + CHESTKEY_BEGIN];
 		else if(itype == DND_ITEM_ELIXIR)
-			droptype = InventoryInfo[stype + ELIXIR_BEGIN][SITEM_NAME];
+			droptype = InventoryInfo[stype + ELIXIR_BEGIN];
 		else if(itype == DND_ITEM_TOKEN)
-			droptype = InventoryInfo[stype + TOKEN_BEGIN][SITEM_NAME];
+			droptype = InventoryInfo[stype + TOKEN_BEGIN];
 		forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 	}
 }
@@ -1776,7 +1778,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_KnockbackImmunity", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_KnockbackImmunity"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
@@ -1786,7 +1788,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_EX_FACTOR_SMALLCHARM:
 			i = UNIQUE_MAP_MACRO(atype);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(!remove) {
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
@@ -1851,7 +1853,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_ForbidArmor", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_ForbidArmor")) {
 				SetInventory("DnD_ArmorType", 0);
@@ -1884,7 +1886,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_PelletsInCircle", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_PelletsInCircle"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_PELLETSINCIRCLE));
@@ -1895,7 +1897,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_PainSharedWithPets", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_PainSharedWithPets"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_PAINSHAREDWITHPETS));
@@ -1910,7 +1912,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_SoulWepsDoFullDamage", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_SoulWepsDoFullDamage"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_SOULWEPSFULLDAMAGE));
@@ -1928,7 +1930,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_SpellsFullDamage", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_SpellsFullDamage"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_SPELLSDOFULLDAMAGE));
@@ -1939,7 +1941,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_SlainMonstersRIP", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_SlainMonstersRIP"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
@@ -2021,7 +2023,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_LuckyCrit", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_LuckyCrit"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
@@ -2032,7 +2034,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_CurseImmunity", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_CurseImmunity")) {
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_CURSEIMMUNITY));
@@ -2049,7 +2051,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_ExplosiveResistIgnore", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_EXPLOSIVEIGNORERES));
@@ -2060,7 +2062,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_PoisonTicTwiceFast", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_PoisonTicTwiceFast"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_POISONTICTWICEFAST));
@@ -2071,7 +2073,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_HomingDontReflect", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, i);
-			inv = GetInventoryAttributeChecker(i);
+			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_HomingDontReflect"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_HOMINGDONTREFLECT));
@@ -2270,7 +2272,7 @@ void SpawnToken(int pnum, bool sound) {
 		int i = 0;
 		RollTokenInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(InventoryInfo[i + TOKEN_BEGIN][SITEM_NAME], 24.0, 16, pnum + 1, c);
+		SpawnDrop(InventoryInfo[i + TOKEN_BEGIN], 24.0, 16, pnum + 1, c);
 		if(sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
 	}

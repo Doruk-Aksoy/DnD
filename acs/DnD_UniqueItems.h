@@ -40,22 +40,9 @@ enum {
 #define LAST_UNIQUE_ITEM UITEM_VOIDEMBLEM
 #define MAX_UNIQUE_ITEMS LAST_UNIQUE_ITEM + 1
 
-str UniqueItemNames[MAX_UNIQUE_ITEMS] = {
-	"Elemental Bulwark",
-	"Ironbark",
-	"Well of Power",
-	"Ancient Gemstone",
-	"Deathspark",
-	"Shellshock",
-	"Oakheart",
-	"Pellet Storm",
-	"Grave Caller",
-	"Life Leech",
-	"Eye of the Beholder",
-	"Dead King's Banner",
-	"Pain Master",
-	"Void Emblem"
-};
+str GetUniqueItemName(int id) {
+	return StrParam(s:"DND_UNIQUE", d:id + 1);
+}
 
 #define MAX_UNIQUE_WEIGHT 1000
 // chances -- no longer valid -- need to come up with some weighted formula later

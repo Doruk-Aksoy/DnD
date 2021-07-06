@@ -402,13 +402,19 @@ str GetPlayerAttributeString(int attrib) {
 	// there are sometimes those that directly invoke this, so we must add a failsafe for them too
 	if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return GetInventoryAttributeChecker(attrib);
+	return Inv_Attribute_Checkers[attrib];
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
 	if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return CheckActorInventory(pnum + P_TIDSTART, GetInventoryAttributeChecker(attrib));
+	return CheckActorInventory(pnum + P_TIDSTART, Inv_Attribute_Checkers[attrib]);
+}
+
+int GetActorAttributeValue(int tid, int attrib) {
+	if(attrib >= UNIQUE_ATTRIB_BEGIN)
+		attrib = UNIQUE_MAP_MACRO(attrib);
+	return CheckActorInventory(tid, Inv_Attribute_Checkers[attrib]);
 }
 
 void CalculatePlayerAccuracy(int pnum) {

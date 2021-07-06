@@ -1695,7 +1695,7 @@ Script 918 (int type, int acc, int notarget) {
 	else if(type == 3) { // talents
 		if(notarget)
 			SetActivator(0, AAPTR_TARGET);
-		res = CheckInventory(TalentNames[acc][TALENT_TAG]);
+		res = CheckInventory(TalentNames[acc]);
 	}
 	else if(type == 4) { // dexterity
 		if(notarget)
@@ -3918,9 +3918,9 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetBulkiness()) / 100;
 	// talent bonus
 	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT || isSpell)
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type][TALENT_TAG])) / 100;
+		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type])) / 100;
 	else
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type][TALENT_TAG])) / 100;
+		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type])) / 100;
 	
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
@@ -3974,10 +3974,6 @@ Script "DND Armor Pickup Check" (int amount, int armor_type) {
 Script "DND Armor Give" (int armor_type, int amount) {
 	if(!CheckInventory("StatbuffCounter_ForbidArmor"))
 		HandleArmorPickup(armor_type, amount, 0);
-}
-
-Script "DND Get Talent" (int talent_type) {
-	SetResultValue(GetTalent(talent_type));
 }
 
 Script "DND Acid Rifle Bolt Stick" (int type) {
@@ -4902,21 +4898,21 @@ Script "DnD Give Research - Regular" (int res_id, int fancy) {
 Script "DnD Orb Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:StrParam(s:"\ccOrb pickup    : \c[Y5]", s:InventoryInfo[id + ORBS_BEGIN][SITEM_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccOrb pickup    : \c[Y5]", l:GetInventoryTag(id + ORBS_BEGIN), s:"!\c-"));
 }
 
 Script "DnD Elixir Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	ActivatorSound("Items/ElixirPick", 127);
-	Log(s:StrParam(s:"\ccElixir pickup : \c[Y5]", s:InventoryInfo[id + ELIXIR_BEGIN][SITEM_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccElixir pickup : \c[Y5]", l:GetInventoryTag(id + ELIXIR_BEGIN), s:"!\c-"));
 }
 
 Script "DnD Token Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	ActivatorSound("Items/TokenPick", 127);
-	Log(s:StrParam(s:"\ccToken pickup  : \c[Y5]", s:InventoryInfo[id + TOKEN_BEGIN][SITEM_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccToken pickup  : \c[Y5]", l:GetInventoryTag(id + TOKEN_BEGIN), s:"!\c-"));
 }
 
 Script "DnD Stacked Item Pickup" (int sp, int type) {
@@ -5049,7 +5045,7 @@ Script "DnD Emerald Death" (void) {
 Script "DnD Charm Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:StrParam(s:"\ccCharm pickup:   \c[Y5]", s:Charm_TypeName[id], s:"!\c-"));
+	Log(s:StrParam(s:"\ccCharm pickup  : \c[Y5]", l:GetCharmTypeName(id), s:"!\c-"));
 }
 
 Script "DnD Charm Pickup" (int sp) {
@@ -5117,7 +5113,7 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 Script "DnD Chestkey Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:StrParam(s:"\ccBonus pickup  : \c[Y5]", s:InventoryInfo[id + CHESTKEY_BEGIN][SITEM_TAG], s:"!\c-"));
+	Log(s:StrParam(s:"\ccBonus pickup  : \c[Y5]", l:GetInventoryTag(id + CHESTKEY_BEGIN), s:"!\c-"));
 }
 
 Script "DnD Try Open Chestkey" (int keytype) {
@@ -5229,7 +5225,7 @@ Script "DnD Elixir Use Message" (int eid) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	LocalAmbientSound("Items/ElixirPick", 127);
-	Log(s:InventoryInfo[eid + ELIXIR_BEGIN][SITEM_DESC]);
+	Log(l:GetInventoryText(eid + ELIXIR_BEGIN));
 }
 
 Script "DnD Elixir Use" (int eid) {
@@ -5387,7 +5383,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	res += MapTalentToFlatBonus(pnum, TALENT_OCCULT, flags);
 	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	// talent bonus
-	res = res * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[TALENT_OCCULT][TALENT_TAG])) / 100;
+	res = res * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[TALENT_OCCULT])) / 100;
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 	if(temp) {
 		temp = GetFlatHealthDamageFactor(temp);
@@ -5797,17 +5793,18 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 			itype = Charms_Used[pnum][i].item_type;
 			if(itype != DND_ITEM_NULL) {
 				if(itype == DND_ITEM_CHARM) {
-					Log(s:Charm_Tiers[GetItemSyncValue(DND_SYNC_ITEMLEVEL, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED) / CHARM_ATTRIBLEVEL_SEPERATOR], s: " ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)], s:" Charm");
+					temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
+					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
 					temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 					for(j = 0; j < temp; ++j)
-						Log(s:"    ", s:ItemAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
 				}
 				else if(itype > UNIQUE_BEGIN) {
 					temp = itype & 0xFFFF;
 					itype >>= UNIQUE_BITS;
 					--itype;
 					// itype holds unique position, temp is the actual item type
-					Log(s:"\c[A1]", s:UniqueItemNames[itype], s:"\c- - \c[D1]Unique ", s:Charm_TypeName[GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)], s:" Charm");
+					Log(s:"\c[A1]", l:GetUniqueItemName(itype), s:"\c- - \c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
 					cnt = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 					// itype will count the skipped properties (the helper attributes)
 					itype = 0;
@@ -5819,17 +5816,17 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 							if(temp == INV_EX_CHANCE) {
 								++j;
 								++itype;
-								Log(s:"    ", s:ExoticAttributeString(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+								Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
 							}
 							else
-								Log(s:"    ", s:ExoticAttributeString(temp, val, 0));
+								Log(s:"    ", s:GetItemAttributeText(temp, val, 0));
 						}
 						else if(!val) {
 							// unique item doesn't have numeric attribute to show
-							Log(s:"    ", s:ExoticAttributeString(temp, val, 0));
+							Log(s:"    ", s:GetItemAttributeText(temp, val, 0));
 						}
 						else
-							Log(s:"    - ", s:ExoticAttributeString(temp, val, 0));
+							Log(s:"    - ", s:GetItemAttributeText(temp, val, 0));
 					}
 				}
 			}

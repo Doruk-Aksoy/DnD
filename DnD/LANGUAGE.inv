@@ -11,151 +11,252 @@ DND_ARTI8			=	"Auto Map";
 DND_ARTI9			=	"Backpack";
 DND_ARTI10			=	"Stat Reset";
 
-IATTR_Prefix 	= "IATTR_"
+IATTR_Prefix 		= 	"IATTR_";
 
 DND_ITEM_UNIQUE		=	"Unique";
 DND_ITEM_CHARM		=	"Charm";
 
+DND_CHARMTYPE1		=	"Small";
+DND_CHARMTYPE2		=	"Medium";
+DND_CHARMTYPE3		=	"Grand";
+
+DND_CHARMTIER1		=	"Whispering";
+DND_CHARMTIER2		=	"Fine";
+DND_CHARMTIER3		=	"Supreme";
+DND_CHARMTIER4		=	"Majestic";
+DND_CHARMTIER5		=	"Perfect";
+
+// item names
+DND_CHESTKEY1		=	"Bronze Chest Key";
+DND_CHESTKEYTEXT1	=	"Opens a mysterious bronze chest.";
+DND_CHESTKEY2		=	"Silver Chest Key";
+DND_CHESTKEYTEXT2	=	"Opens a mysterious silver chest.";
+DND_CHESTKEY3		=	"Gold Chest Key";
+DND_CHESTKEYTEXT3	=	"Opens a mysterious gold chest.";
+	
+DND_ELIXIR1			=	"Elixir of Health";
+DND_ELIXIRTEXT1		=	"Adds 5 to your health cap.";
+DND_ELIXIR2			=	"Elixir of Armor";
+DND_ELIXIRTEXT2		=	"Adds 5 to your armor cap.";
+DND_ELIXIR3			=	"Elixir of Prosperity";
+DND_ELIXIRTEXT3		=	"Adds 5 to your health and armor caps.";
+DND_ELIXIR4			=	"Elixir of Life";
+DND_ELIXIRTEXT4		=	"Increases health cap by 1%.";
+DND_ELIXIR5			=	"Elixir of Strongness";
+DND_ELIXIRTEXT5		=	"Increases armor cap by 1%.";
+DND_ELIXIR6			=	"Elixir of Fortitude";
+DND_ELIXIRTEXT6		=	"Increases health and armor caps by 1%.";
+DND_ELIXIR7			=	"Elixir of Speed";
+DND_ELIXIRTEXT7		=	"Increases your speed by 1%.";
+DND_ELIXIR8			=	"Elixir of Damage";
+DND_ELIXIRTEXT8		=	"Adds 1% damage to all damage types.";
+DND_ELIXIR9			=	"Elixir of Luck";
+DND_ELIXIRTEXT9		=	"Gives 5% increased drop rate.";
+	
+DND_ORB1			=	"Orb of Enhancement";
+DND_ORBTEXT1		=	"Allows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg25%\c- total.";
+DND_ORB2			=	"Orb of Corruption";
+DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?";
+DND_ORB3			=	"Orb of Spirit";
+DND_ORBTEXT3		=	"Grants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight.";
+DND_ORB4			=	"Orb of Repentance";
+DND_ORBTEXT4		=	"Allows you to undo the effects of the most recently used orb. You can't undo the effects undone by this orb or the \c[Y5]Orb of Riches\c-.";
+DND_ORB5			=	"Orb of Affluence";
+DND_ORBTEXT5		=	"Doubles the effect of the next orb. This effect can stack with itself up to a multiplier of \cg16\c-.";
+DND_ORB6			=	"Orb of Calamity";
+DND_ORBTEXT6		=	"Turns a random orb into a random orb. It won't work if you have no other orbs or if you only have these orbs.";
+DND_ORB7			=	"Orb of Prosperity";
+DND_ORBTEXT7		=	"Increases health and armor caps by \cd1\c- up to a maximum of \cg500\c-.";
+DND_ORB8			=	"Orb of Wisdom";
+DND_ORBTEXT8		=	"Increases experience gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.";
+DND_ORB9			=	"Orb of Greed";
+DND_ORBTEXT9		=	"Increases credit gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.";
+DND_ORB10			=	"Orb of Violence";
+DND_ORBTEXT10		=	"Increases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category.";
+DND_ORB11			=	"Orb of Fortitude";
+DND_ORBTEXT11		=	"Increases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-.";
+DND_ORB12			=	"Orb of Sin";
+DND_ORBTEXT12		=	"A pact with the devil itself, trading anywhere from \cg1\c- to \cg8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!";
+DND_ORB13			=	"Orb of Riches";
+DND_ORBTEXT13		=	"Grants a random resource on use. Can grant experience, credit or budget. Can give \cd5%\c- of your current level's experience, \cd2000\c- or \cd5%\c- of current credits (whichever is greater) and \cd5k\c- respectively.";
+DND_ORB14			=	"Orb of Holding";
+DND_ORBTEXT14		=	"Increases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons.";
+DND_ORB15			=	"Orb of Refinement";
+DND_ORBTEXT15		=	"Rerolls the attribute values of the selected item.";
+DND_ORB16			=	"Orb of Sculpting";
+DND_ORBTEXT16		=	"Removes a random attribute entirely from the selected item.";
+DND_ORB17			=	"Orb of Elevation";
+DND_ORBTEXT17		=	"Adds a random attribute that's not already present to the selected item, if it has capacity.";
+
+DND_TOKEN1			=	"Repair Token";
+DND_TOKENTEXT1		=	"Allows repair of currently equipped armor via the shop.";
+
+// unique item names
+DND_UNIQUE1				=	"Elemental Bulwark";
+DND_UNIQUE2				=	"Ironbark";
+DND_UNIQUE3				=	"Well of Power";
+DND_UNIQUE4				=	"Ancient Gemstone";
+DND_UNIQUE5				=	"Deathspark";
+DND_UNIQUE6				=	"Shellshock";
+DND_UNIQUE7				=	"Oakheart";
+DND_UNIQUE8				=	"Pellet Storm";
+DND_UNIQUE9				=	"Grave Caller";
+DND_UNIQUE10			=	"Life Leech";
+DND_UNIQUE11			=	"Eye of the Beholder";
+DND_UNIQUE12			=	"Dead King's Banner";
+DND_UNIQUE13			=	"Pain Master";
+DND_UNIQUE14			=	"Void Emblem";
+
 // inventory attribute table
-IATTR_L0 		= "FlatHP";									IATTR_T0 			= " Health";
-IATTR_L1 		= "FlatArmor"; 								IATTR_T1 			= " Armor";
-IATTR_L2 		= "HPPercent"; 								IATTR_T2 			= "% Health";
-IATTR_L3 		= "ArmorPercent"; 							IATTR_T3 			= "% Armor";
-IATTR_L4 		= "ExpBonus"; 								IATTR_T4 			= "% more exp gain";
-IATTR_L5 		= "CreditBonus"; 							IATTR_T5 			= "% more credit gain";
-IATTR_L6 		= "DropChanceBonus"; 						IATTR_T6 			= "% more loot";
-IATTR_L7 		= "LuckBonus"; 								IATTR_T7 			= "% increased chance of finding loot";
-IATTR_L8 		= "AmmoCapBonus"; 							IATTR_T8 			= "% increased ammo capacities";
-IATTR_L9 		= "SpeedBonus"; 							IATTR_T9 			= "% Speed";
-IATTR_L10 		= "MagazineIncrease"; 						IATTR_T10 			= "% magazine size";
+IATTR_T0 			= "Health";
+IATTR_T1 			= "Armor";
+IATTR_T2 			= "Health";
+IATTR_T3 			= "Armor";
+IATTR_T4 			= "more exp gain";
+IATTR_T5 			= "more credit gain";
+IATTR_T6 			= "more loot";
+IATTR_T7 			= "increased chance of finding loot";
+IATTR_T8 			= "increased ammo capacities";
+IATTR_T9 			= "movement speed";
+IATTR_T10 			= "magazine size";
 	
-IATTR_L11 		= "FlatDamageBonus_Physical"; 				IATTR_T11 			= " to physical damage";
-IATTR_L12 		= "FlatDamageBonus_Energy"; 				IATTR_T12 			= " to energy damage";
-IATTR_L13 		= "FlatDamageBonus_Explosive"; 				IATTR_T13 			= " to explosive damage";
-IATTR_L14 		= "FlatDamageBonus_Magic"; 					IATTR_T14 			= " to occult damage";
-IATTR_L15 		= "FlatDamageBonus_Elemental"; 				IATTR_T15 			= " to elemental damage";
+IATTR_T11 			= "to physical damage";
+IATTR_T12 			= "to energy damage";
+IATTR_T13 			= "to explosive damage";
+IATTR_T14 			= "to occult damage";
+IATTR_T15 			= "to elemental damage";
 	
-IATTR_L16 		= "PercentDamageBonus_Physical"; 			IATTR_T16 			= "% increased physical damage";
-IATTR_L17 		= "PercentDamageBonus_Energy"; 				IATTR_T17 			= "% increased  energy damage";
-IATTR_L18 		= "PercentDamageBonus_Explosive"; 			IATTR_T18 			= "% increased explosive damage";
-IATTR_L19 		= "PercentDamageBonus_Magic"; 				IATTR_T19 			= "% increased occult damage";
-IATTR_L20 		= "PercentDamageBonus_Elemental"; 			IATTR_T20 			= "% increased elemental damage";
+IATTR_T16 			= "increased physical damage";
+IATTR_T17 			= "increased energy damage";
+IATTR_T18 			= "increased explosive damage";
+IATTR_T19 			= "increased occult damage";
+IATTR_T20 			= "increased elemental damage";
 	
-IATTR_L21 		= "SlotDamageBonus_1"; 						IATTR_T21 			= "% slot 1 weapon damage";
-IATTR_L22 		= "SlotDamageBonus_2"; 						IATTR_T22 			= "% slot 2 weapon damage";
-IATTR_L23 		= "SlotDamageBonus_3"; 						IATTR_T23 			= "% slot 3 weapon damage";
-IATTR_L24 		= "SlotDamageBonus_4"; 						IATTR_T24 			= "% slot 4 weapon damage";
-IATTR_L25 		= "SlotDamageBonus_5"; 						IATTR_T25 			= "% slot 5 weapon damage";
-IATTR_L26 		= "SlotDamageBonus_6"; 						IATTR_T26 			= "% slot 6 weapon damage";
-IATTR_L27 		= "SlotDamageBonus_7"; 						IATTR_T27 			= "% slot 7 weapon damage";
-IATTR_L28 		= "SlotDamageBonus_8"; 						IATTR_T28 			= "% slot 8 weapon damage";
-IATTR_L29 		= "SlotDamageBonus_9"; 						IATTR_T29 			= "% temporary weapon damage";
+IATTR_T21 			= "slot 1 weapon damage";
+IATTR_T22 			= "slot 2 weapon damage";
+IATTR_T23 			= "slot 3 weapon damage";
+IATTR_T24 			= "slot 4 weapon damage";
+IATTR_T25 			= "slot 5 weapon damage";
+IATTR_T26 			= "slot 6 weapon damage";
+IATTR_T27 			= "slot 7 weapon damage";
+IATTR_T28 			= "slot 8 weapon damage";
+IATTR_T29 			= "temporary weapon damage";
 	
-IATTR_L30 		= "PelletIncrease"; 						IATTR_T30 			= "% more pellets";
+IATTR_T30 			= "more pellets";
 	
-IATTR_L31 		= "ExplosionRadiusIncrease"; 				IATTR_T31 			= "% increased explosion radius";
-IATTR_L32 		= "ExplosionResist"; 						IATTR_T32 			= "% reduced self explosion damage";
+IATTR_T31 			= "increased explosion radius";
+IATTR_T32 			= "reduced self explosion damage";
 	
-IATTR_L33 		= "AmmoGainChance"; 						IATTR_T33 			= "% chance to gain ammo back on firing";
-IATTR_L34 		= "AmmoPickupIncrease"; 					IATTR_T34 			= "% ammo gain from pickups";
-IATTR_L35 		= "ShopStockIncrease"; 						IATTR_T35 			= "% increased shop stock";
+IATTR_T33 			= "chance to gain ammo back on firing";
+IATTR_T34 			= "more ammo from pickups";
+IATTR_T35 			= "increased shop stock";
 	
-IATTR_L36 		= "RegenCap"; 								IATTR_T36 			= " regeneration cap";
+IATTR_T36 			= "regeneration cap";
 	
-IATTR_L37 		= "CritChance"; 							IATTR_T37 			= "% to crit chance";
-IATTR_L38 		= "CritChancePercent"; 						IATTR_T38 			= "% increased crit chance";
-IATTR_L39 		= "CritDamage"; 							IATTR_T39 			= "% additional crit damage";
+IATTR_T37 			= "to crit chance";
+IATTR_T38 			= "increased crit chance";
+IATTR_T39 			= "additional crit damage";
 	
-IATTR_L40 		= "KnockbackResist"; 						IATTR_T40 			= " to knockback resist";
-IATTR_L41 		= "DamagePercent"; 							IATTR_T41 			= "% increased damage";
-IATTR_L42 		= "Accuracy"; 								IATTR_T42 			= " to accuracy rating";
+IATTR_T40 			= "knockback resist";
+IATTR_T41 			= "increased damage";
+IATTR_T42 			= "accuracy rating";
 	
-IATTR_L43 		= "StatBonus_STR"; 							IATTR_T43 			= " to strength";
-IATTR_L44 		= "StatBonus_DEX";							IATTR_T44 			= " to dexterity";
-IATTR_L45 		= "StatBonus_BUL"; 							IATTR_T45 			= " to bulkiness";
-IATTR_L46 		= "StatBonus_CHR"; 							IATTR_T46 			= " to charisma";
-IATTR_L47 		= "StatBonus_VIT"; 							IATTR_T47 			= " to vitality";
-IATTR_L48 		= "StatBonus_INT"; 							IATTR_T48 			= " to intellect";
+IATTR_T43 			= "strength";
+IATTR_T44 			= "dexterity";
+IATTR_T45 			= "bulkiness";
+IATTR_T46 			= "charisma";
+IATTR_T47 			= "vitality";
+IATTR_T48 			= "intellect";
 	
-IATTR_L49 		= "ElementalResist"; 						IATTR_T49 			= "% reduced elemental damage taken";
-IATTR_L50 		= "PhysicalResist"; 						IATTR_T50 			= "% reduced physical damage taken";
-IATTR_L51 		= "ReflectResist"; 							IATTR_T51 			= "% reduced reflected damage taken";
+IATTR_T49 			= "reduced elemental damage taken";
+IATTR_T50 			= "reduced physical damage taken";
+IATTR_T51 			= "reduced reflected damage taken";
 	
-IATTR_L52 		= "PhysPen"; 								IATTR_T52 			= "% physical resist penetration";
-IATTR_L53		= "EnergyPen"; 								IATTR_T53 			= "% energy resist penetration";
-IATTR_L54 		= "ExplosivePen"; 							IATTR_T54 			= "% explosive resist penetration";
-IATTR_L55 		= "OccultPen"; 								IATTR_T55 			= "% occult resist penetration";
-IATTR_L56 		= "ElementalPen"; 							IATTR_T56 			= "% elemental resist penetration";
+IATTR_T52 			= "physical resist penetration";
+IATTR_T53 			= "energy resist penetration";
+IATTR_T54 			= "explosive resist penetration";
+IATTR_T55 			= "occult resist penetration";
+IATTR_T56 			= "elemental resist penetration";
 	
-IATTR_L57 		= "FlatFireDmg"; 							IATTR_T57 			= " to fire damage";
-IATTR_L58 		= "FlatIceDmg";								IATTR_T58 			= " to ice damage";
-IATTR_L59 		= "FlatLightningDmg"; 						IATTR_T59 			= " to lightning damage";
-IATTR_L60 		= "FlatPoisonDmg"; 							IATTR_T60 			= " to poison damage";
+IATTR_T57 			= "to fire damage";
+IATTR_T58 			= "to ice damage";
+IATTR_T59 			= "to lightning damage";
+IATTR_T60 			= "to poison damage";
 	
-IATTR_L61 		= "Lifesteal"; 								IATTR_T61 			= "% lifesteal";
+IATTR_T61 			= "lifesteal";
 	
-IATTR_L62 		= "PoisonTicrate"; 							IATTR_T62 			= "% increased ticrate for poison";
-IATTR_L63 		= "PoisonDuration"; 						IATTR_T63 			= "% increased poison stack duration";
-IATTR_L64 		= "PoisonTicDmg"; 							IATTR_T64 			= "% increased damage per tic for poison";
+IATTR_T62 			= "increased ticrate for poison";
+IATTR_T63 			= "increased poison stack duration";
+IATTR_T64 			= "increased damage per tic for poison";
 	
-IATTR_L65 		= "BlockDmg"; 								IATTR_T65 			= "% more damage against blocking enemies";
+IATTR_T65 			= "more damage against blocking enemies";
 	
-IATTR_L66 		= "FreezeChance"; 							IATTR_T66 			= "% increased chance to freeze for ice attacks";
-IATTR_L67 		= "SlowEffect"; 							IATTR_T67 			= "% increased chill effectiveness for ice attacks";
-IATTR_L68 		= "ChillThreshold"; 						IATTR_T68 			= "% reduced enemy chill threshold";
+IATTR_T66 			= "increased chance to freeze for ice attacks";
+IATTR_T67 			= "increased chill effectiveness for ice attacks";
+IATTR_T68 			= "reduced enemy chill threshold";
 	
-IATTR_L69 		= "IgniteChance"; 							IATTR_T69 			= "% increased chance to ignite for fire atttacks";
-IATTR_L70 		= "IgniteDmg"; 								IATTR_T70 			= "% increased ignite damage";
-IATTR_L71 		= "IgniteDuration"; 						IATTR_T71 			= "% increased ignite duration";
+IATTR_T69 			= "increased chance to ignite for fire atttacks";
+IATTR_T70 			= "increased ignite damage";
+IATTR_T71 			= "increased ignite duration";
 	
-IATTR_L72 		= "OverloadChance"; 						IATTR_T72 			= "% increased chance to overload for lightning attacks";
-IATTR_L73 		= "OverloadZapCount"; 						IATTR_T73 			= " additional overload reflections on overload kills";
-IATTR_L74 		= "OverloadZapDmg"; 						IATTR_T74 			= "% increased overload reflection damage";
+IATTR_T72 			= "increased chance to overload for lightning attacks";
+IATTR_T73 			= "additional overload reflections on overload kills";
+IATTR_T74 			= "increased overload reflection damage";
 	
-															IATTR_T75 			= "\c[R5]CYBERNETIC\c-";
-IATTR_L76 		= "MeleeRange";								IATTR_T76 			= "% increased melee range";
+IATTR_T75 			= "\c[R5]CYBERNETIC\c-";
+IATTR_T76 			= "increased melee range";
+IATTR_T77			= "increased melee damage";
 	
 // essences
-IATTR_LE1 		= "StatusBuffs_1";							IATTR_TE1 			= "Explosion damage ignores enemy resistances";
-IATTR_LE2 		= "SoulPenetration";						IATTR_TE2 			= "Soul weapons penetrate ";
-IATTR_LE3 		= "Accuracy";								IATTR_TE3 			= " to accuracy rating";
-IATTR_LE4 		= "AccuracyPercent";						IATTR_TE4 			= "% increased accuracy rating";
-IATTR_LE5 		= "IgniteDamageEachTic";					IATTR_TE5 			= "Ignite damage increases for each tic by "};
-IATTR_LE6 		= "ChanceIgnoreShield";						IATTR_TE6 			= "% chance for attacks to ignore shields";
-IATTR_LE7 		= "ReducedPoisonTaken";						IATTR_TE7 			= "% reduced poison damage taken";
-IATTR_LE8 		= "StatusBuffs_1";							IATTR_TE8 			= "Poison damage tics twice as fast";
-IATTR_LE9 		= "ExplosionAgainChance";					IATTR_TE9 			= "% chance for explosions to trigger again";
-IATTR_LE10 		= "StatusBuffs_1";							IATTR_TE10 			= "Homing projectiles can't be reflected";
-IATTR_LE11 		= "OccultReducePer";						IATTR_TE11 			= "Magical attacks reduce enemy magic resistance by ";
-IATTR_LE12 		= "FrozenDamage";							IATTR_TE12 			= "Frozen enemies take ";
+IATTR_TE1 			= "Explosion damage ignores enemy resistances";
+IATTR_TE2 			= "Soul weapons penetrate ";
+IATTR_TE3 			= " to accuracy rating";
+IATTR_TE4 			= " increased accuracy rating";
+IATTR_TE5 			= "Ignite damage increases for each tic by "};
+IATTR_TE6 			= " chance for attacks to ignore shields";
+IATTR_TE7 			= " reduced poison damage taken";
+IATTR_TE8 			= "Poison damage tics twice as fast";
+IATTR_TE9 			= " chance for explosions to trigger again";
+IATTR_TE10 			= "Homing projectiles can't be reflected";
+IATTR_TE11 			= "Magical attacks reduce enemy magic resistance by ";
+IATTR_TE12 			= "Frozen enemies take ";
 	
 // exotic ones
-															IATTR_TX1 			= "% chance to ";
-IATTR_LX2 		= "ChanceToCastElementalSpell"; 			IATTR_TX2 			= "% chance to cast random elemental spell on attack";
-IATTR_LX3 		= "StatusBuffs_1"; 							IATTR_TX3 			= "Knockback Immunity";
-IATTR_LX4 		= "StatusBuffs_1"; 							IATTR_TX4 			= "Effects of small charms multiplied by ";
-															IATTR_TX5 			= " to all attributes";
-IATTR_LX6 		= "HealMissingHealthOnPain"; 				IATTR_TX6 			= "be healed for ";
-IATTR_LX7 		= "DamageIncrease_Lightning"; 				IATTR_TX7 			= "% increased lightning damage";
-IATTR_LX8 		= "IncreasedCritLightning"; 				IATTR_TX8 			= "% increased crit chance to lightning attacks";
-IATTR_LX9 		= "DamageIncrease_Shotguns"; 				IATTR_TX9 			= "% increased damage to shotguns";
-IATTR_LX10 		= "HPPercent"; 								IATTR_TX10 			= "Double Health Cap";
-IATTR_LX11 		= "DamagePerFlatHP"; 						IATTR_TX11 			= "Gain 1% damage increase every ";
-IATTR_LX12 		= "StatusBuffs_1"; 							IATTR_TX12 			= "Can't use armor";
-IATTR_LX13 		= "StatusBuffs_1"; 							IATTR_TX13 			= "Burst type attacks fire in a circle around you";
-															IATTR_TX14 			= "Burst type attacks also benefit from pellet bonuses";
-IATTR_LX15 		= "ChanceToRaiseZombieFromKills"; 			IATTR_TX15 			= "% chance to raise a zombie from slain enemies";
-IATTR_LX16 		= "StatusBuffs_1"; 							IATTR_TX16 			= "Damage taken is divided per each pet (Max 90% reduction)";
-IATTR_LX17 		= "IncreasedDamageTaken"; 					IATTR_TX17 			= "% increased damage taken";
-															IATTR_TX18 			= " flat damage to all attacks";
-IATTR_LX19 		= "HealOnKill"; 							IATTR_TX19 			= "Killing enemies heal for ";
-IATTR_LX20 		= "StatusBuffs_1"; 							IATTR_TX20 			= "Soul type weapons do irreducible damage";
-IATTR_LX21 		= "SoulAmmoIncrease"; 						IATTR_TX21 			= "% more ammo from soul pickups";
-IATTR_LX22 		= "CastRally"; 								IATTR_TX22 			= "Gain ability to cast level ";
-IATTR_LX23 		= "StatusBuffs_1"; 							IATTR_TX23 			= "Spell damage is irreducible";
-IATTR_LX24 		= "StatusBuffs_1"; 							IATTR_TX24 			= "Slain enemies rest in peace";
-IATTR_LX25 		= "FlatDotDamage"; 							IATTR_TX25 			= " to damage over time";
-IATTR_LX26 		= "DotDuration"; 							IATTR_TX26 			= "% increased damage over time duration";
-IATTR_LX27 		= "StatusBuffs_1"; 							IATTR_TX27 			= "Critical strike chance is lucky";
-IATTR_LX28 		= "CritIgnoreRes";							IATTR_TX28 			= "Critical strikes have ";
-IATTR_LX29 		= "StatusBuffs_1";							IATTR_TX29 			= "Curse Immunity";
+IATTR_TX1 			= "chance to ";
+IATTR_TX2 			= "chance to cast random elemental spell on attack";
+IATTR_TX3 			= "Knockback Immunity";
+IATTR_TX4 			= "Effects of small charms multiplied by ";
+IATTR_TX5 			= "to all attributes";
+IATTR_TX6 			= "be healed for ";
+IATTR_TX7 			= "increased lightning damage";
+IATTR_TX8 			= "increased crit chance to lightning attacks";
+IATTR_TX9 			= "increased damage to shotguns";
+IATTR_TX10 			= "Double Health Cap";
+IATTR_TX11 			= "Gain 1% damage increase every ";
+IATTR_TX12 			= "Can't use armor";
+IATTR_TX13 			= "Burst type attacks fire in a circle around you";
+IATTR_TX14 			= "Burst type attacks also benefit from pellet bonuses";
+IATTR_TX15 			= "chance to raise a zombie from slain enemies";
+IATTR_TX16 			= "Damage taken is divided per each pet (Max 90% reduction)";
+IATTR_TX17 			= "increased damage taken";
+IATTR_TX18 			= "flat damage to all attacks";
+IATTR_TX19 			= "Killing enemies heal for ";
+IATTR_TX20 			= "Soul type weapons do irreducible damage";
+IATTR_TX21 			= "more ammo from soul pickups";
+IATTR_TX22 			= "Gain ability to cast level ";
+IATTR_TX23 			= "Spell damage is irreducible";
+IATTR_TX24 			= "Slain enemies rest in peace";
+IATTR_TX25 			= "to damage over time";
+IATTR_TX26 			= "increased damage over time duration";
+IATTR_TX27 			= "Critical strike chance is lucky";
+IATTR_TX28 			= "Critical strikes have ";
+IATTR_TX29 			= "Curse Immunity";
+
+// exotic attribute strings
+IATTR_MAXHEALTH				= "maximum health";
+IATTR_RECOVERHPHURT			= "missing health when hurt";
+IATTR_PMISSHP				= "missing health";
+IATTR_RALLY					= "Rally";
+IATTR_CHANCEIGNORERES		= "chance to ignore enemy resistances";
+IATTR_MAGICRES				= "magic resistance";
+IATTR_MOREDMG				= "more damage";

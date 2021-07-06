@@ -1092,20 +1092,24 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		flags ^= DND_DAMAGEFLAG_COUNTSASMELEE;
 	}
 		
-	// berserker perk50 dmg increase portion
-	if((IsMeleeWeapon(wepid) || actor_flags & DND_ACTORFLAG_COUNTSASMELEE) && CheckActorInventory(owner, "Berserker_Perk50")) {
-		SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-		if((px = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
-			GiveActorInventory(owner, "Berserker_HitTracker", 1);
-			if(!px)
-				ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
+	// berserker perk50 dmg increase portion and other melee increases
+	if((IsMeleeWeapon(wepid) || actor_flags & DND_ACTORFLAG_COUNTSASMELEE)) {
+		if(CheckActorInventory(owner, "Berserker_Perk50")) {
+			SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+			if((px = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+				GiveActorInventory(owner, "Berserker_HitTracker", 1);
+				if(!px)
+					ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
+			}
+			if(px + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+				if(!CheckActorInventory(owner, "Berserker_RoarCD") && !CheckActorInventory(owner, "Berserker_NoRoar"))
+					HandleBerserkerRoar(owner);
+				GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
+			}
+			dmg += dmg * (100 + (px + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
 		}
-		if(px + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-			if(!CheckActorInventory(owner, "Berserker_RoarCD") && !CheckActorInventory(owner, "Berserker_NoRoar"))
-				HandleBerserkerRoar(owner);
-			GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
-		}
-		dmg += dmg * (100 + (px + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
+		
+		dmg += dmg * (100 + GetActorAttributeValue(owner, INV_MELEEDAMAGE)) / 100;
 	}
 	
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {

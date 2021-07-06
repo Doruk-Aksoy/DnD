@@ -114,6 +114,7 @@ enum {
 	
 	INV_CYBERNETIC,
 	INV_MELEERANGE,
+	INV_MELEEDAMAGE,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ,
@@ -166,7 +167,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_MELEERANGE
+#define LAST_INV_ATTRIBUTE INV_MELEEDAMAGE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -182,7 +183,7 @@ enum {
 #define MAX_TOTAL_ATTRIBUTES (UNIQUE_ATTRIB_COUNT + NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT)
 #define UNIQUE_ATTRIB_MAPPER (LAST_ESSENCE_ATTRIBUTE - UNIQUE_ATTRIB_ID_BEGIN + 1) // maps the array indices proper
 
-#define UNIQUE_MAP_MACRO(X) ((X) +  UNIQUE_ATTRIB_MAPPER)
+#define UNIQUE_MAP_MACRO(X) ((X) + UNIQUE_ATTRIB_MAPPER)
 
 typedef struct {
 	int attrib_low;
@@ -205,151 +206,164 @@ enum {
 	INV_ATTR_TAG_STAT = 512
 };
 
-// I'll keep these here none the less to help me add stuff in the future
-/*str Inv_Attribute_Names[MAX_TOTAL_ATTRIBUTES][2] = {
-	{ "IATTR_FlatHP", 										" Health" },
-	{ "IATTR_FlatArmor", 									" Armor" },
-	{ "IATTR_HPPercent", 									"% Health" },
-	{ "IATTR_ArmorPercent", 								"% Armor" },
-	{ "IATTR_ExpBonus", 									"% more exp gain" },
-	{ "IATTR_CreditBonus", 									"% more credit gain" },
-	{ "IATTR_DropChanceBonus", 								"% more loot" },
-	{ "IATTR_LuckBonus", 									"% increased chance of finding loot" },
-	{ "IATTR_AmmoCapBonus", 								"% increased ammo capacities" },
-	{ "IATTR_SpeedBonus", 									"% Speed" },
-	{ "IATTR_MagazineIncrease", 							"% magazine size" },
+global str 62: Inv_Attribute_Checkers[MAX_TOTAL_ATTRIBUTES];
+
+void SetupInventoryAttributeStrings() {
+	Inv_Attribute_Checkers[INV_HP_INCREASE] = "IATTR_FlatHP";
+	Inv_Attribute_Checkers[INV_ARMOR_INCREASE] = "IATTR_FlatArmor";
+	Inv_Attribute_Checkers[INV_HPPERCENT_INCREASE] = "IATTR_HPPercent";
+	Inv_Attribute_Checkers[INV_ARMORPERCENT_INCREASE] = "IATTR_ArmorPercent";
+	Inv_Attribute_Checkers[INV_EXPGAIN_INCREASE] = "IATTR_ExpBonus";
+	Inv_Attribute_Checkers[INV_CREDITGAIN_INCREASE] = "IATTR_CreditBonus";
+	Inv_Attribute_Checkers[INV_DROPCHANCE_INCREASE] = "IATTR_DropChanceBonus";
+	Inv_Attribute_Checkers[INV_LUCK_INCREASE] = "IATTR_LuckBonus";
+	Inv_Attribute_Checkers[INV_AMMOCAP_INCREASE] = "IATTR_AmmoCapBonus";
+	Inv_Attribute_Checkers[INV_SPEED_INCREASE] = "IATTR_SpeedBonus";
+	Inv_Attribute_Checkers[INV_MAGAZINE_INCREASE] = "IATTR_MagazineIncrease";
 	
-	{ "IATTR_FlatDamageBonus_Physical", 					" to physical damage" },
-	{ "IATTR_FlatDamageBonus_Energy", 						" to energy damage" },
-	{ "IATTR_FlatDamageBonus_Explosive", 					" to explosive damage" },
-	{ "IATTR_FlatDamageBonus_Magic", 						" to occult damage" },
-	{ "IATTR_FlatDamageBonus_Elemental", 					" to elemental damage" },
+	Inv_Attribute_Checkers[INV_FLATPHYS_DAMAGE] = "IATTR_FlatDamageBonus_Physical";
+	Inv_Attribute_Checkers[INV_FLATENERGY_DAMAGE] = "IATTR_FlatDamageBonus_Energy";
+	Inv_Attribute_Checkers[INV_FLATEXP_DAMAGE] = "IATTR_FlatDamageBonus_Explosive";
+	Inv_Attribute_Checkers[INV_FLATMAGIC_DAMAGE] = "IATTR_FlatDamageBonus_Magic";
+	Inv_Attribute_Checkers[INV_FLATELEM_DAMAGE] = "IATTR_FlatDamageBonus_Elemental";
 	
-	{ "IATTR_PercentDamageBonus_Physical", 					"% increased physical damage" },
-	{ "IATTR_PercentDamageBonus_Energy", 					"% increased  energy damage" },
-	{ "IATTR_PercentDamageBonus_Explosive", 				"% increased explosive damage" },
-	{ "IATTR_PercentDamageBonus_Magic", 					"% increased occult damage" },
-	{ "IATTR_PercentDamageBonus_Elemental", 				"% increased elemental damage" },
+	Inv_Attribute_Checkers[INV_PERCENTPHYS_DAMAGE] = "IATTR_PercentDamageBonus_Physical";
+	Inv_Attribute_Checkers[INV_PERCENTENERGY_DAMAGE] = "IATTR_PercentDamageBonus_Energy";
+	Inv_Attribute_Checkers[INV_PERCENTEXP_DAMAGE] = "IATTR_PercentDamageBonus_Explosive";
+	Inv_Attribute_Checkers[INV_PERCENTMAGIC_DAMAGE] = "IATTR_PercentDamageBonus_Magic";
+	Inv_Attribute_Checkers[INV_PERCENTELEM_DAMAGE] = "IATTR_PercentDamageBonus_Elemental";
 	
-	{ "IATTR_SlotDamageBonus_1", 							"% slot 1 weapon damage" },
-	{ "IATTR_SlotDamageBonus_2", 							"% slot 2 weapon damage" },
-	{ "IATTR_SlotDamageBonus_3", 							"% slot 3 weapon damage" },
-	{ "IATTR_SlotDamageBonus_4", 							"% slot 4 weapon damage" },
-	{ "IATTR_SlotDamageBonus_5", 							"% slot 5 weapon damage" },
-	{ "IATTR_SlotDamageBonus_6", 							"% slot 6 weapon damage" },
-	{ "IATTR_SlotDamageBonus_7", 							"% slot 7 weapon damage" },
-	{ "IATTR_SlotDamageBonus_8", 							"% slot 8 weapon damage" },
-	{ "IATTR_SlotDamageBonus_9", 							"% temporary weapon damage" },
+	Inv_Attribute_Checkers[INV_SLOT1_DAMAGE] = "IATTR_SlotDamageBonus_1";
+	Inv_Attribute_Checkers[INV_SLOT2_DAMAGE] = "IATTR_SlotDamageBonus_2";
+	Inv_Attribute_Checkers[INV_SLOT3_DAMAGE] = "IATTR_SlotDamageBonus_3";
+	Inv_Attribute_Checkers[INV_SLOT4_DAMAGE] = "IATTR_SlotDamageBonus_4";
+	Inv_Attribute_Checkers[INV_SLOT5_DAMAGE] = "IATTR_SlotDamageBonus_5";
+	Inv_Attribute_Checkers[INV_SLOT6_DAMAGE] = "IATTR_SlotDamageBonus_6";
+	Inv_Attribute_Checkers[INV_SLOT7_DAMAGE] = "IATTR_SlotDamageBonus_7";
+	Inv_Attribute_Checkers[INV_SLOT8_DAMAGE] = "IATTR_SlotDamageBonus_8";
+	Inv_Attribute_Checkers[INV_TEMPWEP_DAMAGE] = "IATTR_SlotDamageBonus_9";
 	
-	{ "IATTR_PelletIncrease", 								"% more pellets" },
+	Inv_Attribute_Checkers[INV_PELLET_INCREASE] = "IATTR_PelletIncrease";
 	
-	{ "IATTR_ExplosionRadiusIncrease", 						"% increased explosion radius" },
-	{ "IATTR_ExplosionResist", 								"% reduced self explosion damage" },
+	Inv_Attribute_Checkers[INV_EXPLOSION_RADIUS] = "IATTR_ExplosionRadiusIncrease";
+	Inv_Attribute_Checkers[INV_EXPLOSIVE_RESIST] = "IATTR_ExplosionResist";
+
+	Inv_Attribute_Checkers[INV_AMMOGAIN_CHANCE] = "IATTR_AmmoGainChance";
+	Inv_Attribute_Checkers[INV_AMMOGAIN_INCREASE] = "IATTR_AmmoPickupIncrease";
+	Inv_Attribute_Checkers[INV_SHOPSTOCK_INCREASE] = "IATTR_ShopStockIncrease";
 	
-	{ "IATTR_AmmoGainChance", 								"% chance to gain ammo back on firing" },
-	{ "IATTR_AmmoPickupIncrease", 							"% ammo gain from pickups" },
-	{ "IATTR_ShopStockIncrease", 							"% increased shop stock" },
+	Inv_Attribute_Checkers[INV_REGENCAP_INCREASE] = "IATTR_RegenCap";
 	
-	{ "IATTR_RegenCap", 									" regeneration cap" },
+	Inv_Attribute_Checkers[INV_CRITCHANCE_INCREASE] = "IATTR_CritChance";
+	Inv_Attribute_Checkers[INV_CRITPERCENT_INCREASE] = "IATTR_CritChancePercent";
+	Inv_Attribute_Checkers[INV_CRITDAMAGE_INCREASE] = "IATTR_CritDamage";
 	
-	{ "IATTR_CritChance", 									"% to crit chance" },
-	{ "IATTR_CritChancePercent", 							"% increased crit chance" },
-	{ "IATTR_CritDamage", 									"% additional crit damage" },
+	Inv_Attribute_Checkers[INV_KNOCKBACK_RESIST] = "IATTR_KnockbackResist";
+	Inv_Attribute_Checkers[INV_DAMAGEPERCENT_INCREASE] = "IATTR_DamagePercent";
+	Inv_Attribute_Checkers[INV_ACCURACY_INCREASE] = "IATTR_Accuracy";
 	
-	{ "IATTR_KnockbackResist", 								" to knockback resist" },
-	{ "IATTR_DamagePercent", 								"% increased damage" },
-	{ "IATTR_Accuracy", 									" to accuracy rating" },
+	Inv_Attribute_Checkers[INV_STAT_STRENGTH] = "IATTR_StatBonus_STR";
+	Inv_Attribute_Checkers[INV_STAT_DEXTERITY] = "IATTR_StatBonus_DEX";
+	Inv_Attribute_Checkers[INV_STAT_BULKINESS] = "IATTR_StatBonus_BUL";
+	Inv_Attribute_Checkers[INV_STAT_CHARISMA] = "IATTR_StatBonus_CHR";
+	Inv_Attribute_Checkers[INV_STAT_VITALITY] = "IATTR_StatBonus_VIT";
+	Inv_Attribute_Checkers[INV_STAT_INTELLECT] = "IATTR_StatBonus_INT";
 	
-	{ "IATTR_StatBonus_STR", 								" to strength" },
-	{ "IATTR_StatBonus_DEX",								" to dexterity" },
-	{ "IATTR_StatBonus_BUL", 								" to bulkiness" },
-	{ "IATTR_StatBonus_CHR", 								" to charisma" },
-	{ "IATTR_StatBonus_VIT", 								" to vitality" },
-	{ "IATTR_StatBonus_INT", 								" to intellect" },
+	Inv_Attribute_Checkers[INV_DMGREDUCE_ELEM] = "IATTR_ElementalResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_PHYS] = "IATTR_PhysicalResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_REFL] = "IATTR_ReflectResist";
 	
-	{ "IATTR_ElementalResist", 								"% reduced elemental damage taken" },
-	{ "IATTR_PhysicalResist", 								"% reduced physical damage taken" },
-	{ "IATTR_ReflectResist", 								"% reduced reflected damage taken" },
+	Inv_Attribute_Checkers[INV_PEN_PHYSICAL] = "IATTR_PhysPen";
+	Inv_Attribute_Checkers[INV_PEN_ENERGY] = "IATTR_EnergyPen";
+	Inv_Attribute_Checkers[INV_PEN_EXPLOSIVE] = "IATTR_ExplosivePen";
+	Inv_Attribute_Checkers[INV_PEN_OCCULT] = "IATTR_OccultPen";
+	Inv_Attribute_Checkers[INV_PEN_ELEMENTAL] = "IATTR_ElementalPen";
 	
-	{ "IATTR_PhysPen", 										"% physical resist penetration" },
-	{ "IATTR_EnergyPen", 									"% energy resist penetration" },
-	{ "IATTR_ExplosivePen", 								"% explosive resist penetration" },
-	{ "IATTR_OccultPen", 									"% occult resist penetration" },
-	{ "IATTR_ElementalPen", 								"% elemental resist penetration" },
+	Inv_Attribute_Checkers[INV_FLAT_FIREDMG] = "IATTR_FlatFireDmg";
+	Inv_Attribute_Checkers[INV_FLAT_ICEDMG] = "IATTR_FlatIceDmg";
+	Inv_Attribute_Checkers[INV_FLAT_LIGHTNINGDMG] = "IATTR_FlatLightningDmg";
+	Inv_Attribute_Checkers[INV_FLAT_POISONDMG] = "IATTR_FlatPoisonDmg";
 	
-	{ "IATTR_FlatFireDmg", 									" to fire damage" },
-	{ "IATTR_FlatIceDmg",									" to ice damage" },
-	{ "IATTR_FlatLightningDmg", 							" to lightning damage" },
-	{ "IATTR_FlatPoisonDmg", 								" to poison damage" },
+	Inv_Attribute_Checkers[INV_LIFESTEAL] = "IATTR_Lifesteal";
 	
-	{ "IATTR_Lifesteal", 									"% lifesteal" },
+	Inv_Attribute_Checkers[INV_POISON_TICRATE] = "IATTR_PoisonTicrate";
+	Inv_Attribute_Checkers[INV_POISON_DURATION] = "IATTR_PoisonDuration";
+	Inv_Attribute_Checkers[INV_POISON_TICDMG] = "IATTR_PoisonTicDmg";
 	
-	{ "IATTR_PoisonTicrate", 								"% increased ticrate for poison" },
-	{ "IATTR_PoisonDuration", 								"% increased poison stack duration" },
-	{ "IATTR_PoisonTicDmg", 								"% increased damage per tic for poison" },
+	Inv_Attribute_Checkers[INV_BLOCKERS_MOREDMG] = "IATTR_BlockDmg";
 	
-	{ "IATTR_BlockDmg", 									"% more damage against blocking enemies" },
+	Inv_Attribute_Checkers[INV_FREEZECHANCE] = "IATTR_FreezeChance";
+	Inv_Attribute_Checkers[INV_SLOWEFFECT] = "IATTR_SlowEffect";
+	Inv_Attribute_Checkers[INV_CHILLTHRESHOLD] = "IATTR_ChillThreshold";
 	
-	{ "IATTR_FreezeChance", 								"% increased chance to freeze for ice attacks" },
-	{ "IATTR_SlowEffect", 									"% increased chill effectiveness for ice attacks" },
-	{ "IATTR_ChillThreshold", 								"% reduced enemy chill threshold" },
+	Inv_Attribute_Checkers[INV_IGNITECHANCE] = "IATTR_IgniteChance";
+	Inv_Attribute_Checkers[INV_IGNITEDMG] = "IATTR_IgniteDmg";
+	Inv_Attribute_Checkers[INV_IGNITEDURATION] = "IATTR_IgniteDuration";
 	
-	{ "IATTR_IgniteChance", 								"% increased chance to ignite for fire atttacks" },
-	{ "IATTR_IgniteDmg", 									"% increased ignite damage" },
-	{ "IATTR_IgniteDuration", 								"% increased ignite duration" },
+	Inv_Attribute_Checkers[INV_OVERLOADCHANCE] = "IATTR_OverloadChance";
+	Inv_Attribute_Checkers[INV_OVERLOAD_ZAPCOUNT] = "IATTR_OverloadZapCount";
+	Inv_Attribute_Checkers[INV_OVERLOAD_DMGINCREASE] = "IATTR_OverloadZapDmg";
 	
-	{ "IATTR_OverloadChance", 								"% increased chance to overload for lightning attacks" },
-	{ "IATTR_OverloadZapCount", 							" additional overload reflections on overload kills" },
-	{ "IATTR_OverloadZapDmg", 								"% increased overload reflection damage" },
-	
-	{ "",													"\c[R5]CYBERNETIC\c-" },
-	{ "IATTR_MeleeRange",									"% increased melee range" },
+	Inv_Attribute_Checkers[INV_CYBERNETIC] = "";
+	Inv_Attribute_Checkers[INV_MELEERANGE] = "IATTR_MeleeRange";
+	Inv_Attribute_Checkers[INV_MELEEDAMAGE] = "IATTR_MeleeDamage";
 	
 	// essences
-	{ "IATTR_StatusBuffs_1",								"Explosion damage ignores enemy resistances" },
-	{ "IATTR_SoulPenetration",								"Soul weapons penetrate " },
-	{ "IATTR_Accuracy",										" to accuracy rating" },
-	{ "IATTR_AccuracyPercent",								"% increased accuracy rating" },
-	{ "IATTR_IgniteDamageEachTic",							"Ignite damage increases for each tic by "},
-	{ "IATTR_ChanceIgnoreShield",							"% chance for attacks to ignore shields" },
-	{ "IATTR_ReducedPoisonTaken",							"% reduced poison damage taken" },
-	{ "IATTR_StatusBuffs_1",								"Poison damage tics twice as fast" },
-	{ "IATTR_ExplosionAgainChance",							"% chance for explosions to trigger again" },
-	{ "IATTR_StatusBuffs_1",								"Homing projectiles can't be reflected" },
-	{ "IATTR_OccultReducePer",								"Magical attacks reduce enemy magic resistance by " },
-	{ "IATTR_FrozenDamage",									"Frozen enemies take " },
+	Inv_Attribute_Checkers[INV_ESS_VAAJ] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[INV_ESS_SSRATH] = "IATTR_SoulPenetration";
+	Inv_Attribute_Checkers[INV_ESS_OMNISIGHT] = "IATTR_Accuracy";
+	Inv_Attribute_Checkers[INV_ESS_OMNISIGHT2] = "IATTR_AccuracyPercent";
+	Inv_Attribute_Checkers[INV_ESS_CHEGOVAX] = "IATTR_IgniteDamageEachTic";
+	Inv_Attribute_Checkers[INV_ESS_HARKIMONDE] = "IATTR_ChanceIgnoreShield";
+	Inv_Attribute_Checkers[INV_ESS_LESHRAC] = "IATTR_ReducedPoisonTaken";
+	Inv_Attribute_Checkers[INV_ESS_LESHRAC2] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[INV_ESS_KRULL] = "IATTR_ExplosionAgainChance";
+	Inv_Attribute_Checkers[INV_ESS_THORAX] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[INV_ESS_ZRAVOG] = "IATTR_OccultReducePer";
+	Inv_Attribute_Checkers[INV_ESS_ERYXIA] = "IATTR_FrozenDamage";
 	
-	// exotic ones
-	{ "", 													"% chance to " },
-	{ "IATTR_ChanceToCastElementalSpell", 					"% chance to cast random elemental spell on attack" },
-	{ "IATTR_StatusBuffs_1", 								"Knockback Immunity" },
-	{ "IATTR_StatusBuffs_1", 								"Effects of small charms multiplied by " },
-	{ "", 													" to all attributes" },
-	{ "IATTR_HealMissingHealthOnPain", 						"be healed for " },
-	{ "IATTR_DamageIncrease_Lightning", 					"% increased lightning damage" },
-	{ "IATTR_IncreasedCritLightning", 						"% increased crit chance to lightning attacks" },
-	{ "IATTR_DamageIncrease_Shotguns", 						"% increased damage to shotguns" },
-	{ "IATTR_HPPercent", 									"Double Health Cap" },
-	{ "IATTR_DamagePerFlatHP", 								"Gain 1% damage increase every " },
-	{ "IATTR_StatusBuffs_1", 								"Can't use armor" },
-	{ "IATTR_StatusBuffs_1", 								"Burst type attacks fire in a circle around you" },
-	{ "", 													"Burst type attacks also benefit from pellet bonuses" },
-	{ "IATTR_ChanceToRaiseZombieFromKills", 				"% chance to raise a zombie from slain enemies" },
-	{ "IATTR_StatusBuffs_1", 								"Damage taken is divided per each pet (Max 90% reduction)" },
-	{ "IATTR_IncreasedDamageTaken", 						"% increased damage taken" },
-	{ "", 													" flat damage to all attacks" },
-	{ "IATTR_HealOnKill", 									"Killing enemies heal for " },
-	{ "IATTR_StatusBuffs_1", 								"Soul type weapons do irreducible damage" },
-	{ "IATTR_SoulAmmoIncrease", 							"% more ammo from soul pickups" },
-	{ "IATTR_CastRally", 									"Gain ability to cast level " },
-	{ "IATTR_StatusBuffs_1", 								"Spell damage is irreducible" },
-	{ "IATTR_StatusBuffs_1", 								"Slain enemies rest in peace" },
-	{ "IATTR_FlatDotDamage", 								" to damage over time" },
-	{ "IATTR_DotDuration", 									"% increased damage over time duration" },
-	{ "IATTR_StatusBuffs_1", 								"Critical strike chance is lucky" },
-	{ "IATTR_CritIgnoreRes",								"Critical strikes have " },
-	{ "IATTR_StatusBuffs_1",								"Curse Immunity" }
-};*/
+	// exotic stuff is handled differently here
+	int idmap = UNIQUE_MAP_MACRO(UNIQUE_ATTRIB_BEGIN);
+	
+	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_ChanceToCastElementalSpell";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_HealMissingHealthOnPain";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_DamageIncrease_Lightning";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_IncreasedCritLightning";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_DamageIncrease_Shotguns";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_HPPercent";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_DamagePerFlatHP";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_ChanceToRaiseZombieFromKills";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_IncreasedDamageTaken";
+	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_HealOnKill";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_SoulAmmoIncrease";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_CastRally";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_FlatDotDamage";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_DotDuration";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_CritIgnoreRes";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+}
+
+// These are necessary to sync the global variables
+Script "DnD Load Inventory Attributes" OPEN {
+	SetupInventoryAttributeStrings();
+}
+
+Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
+	SetupInventoryAttributeStrings();
+}
 
 // if 3rd argument is 0 that means simply use the difference + 1 as increment
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
@@ -479,18 +493,6 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr) - LAST_ESSENCE_ATTRIBUTE);
 }
 
-str GetInventoryAttributeChecker(int attr) {
-	if(attr <= LAST_INV_ATTRIBUTE)
-		return StrParam(s:"IATTR_", l:StrParam(s:"IATTR_L", d:attr));
-		
-	// essences are mapped to 1 again for language file
-	if(attr <= LAST_ESSENCE_ATTRIBUTE)
-		return StrParam(s:"IATTR_", l:StrParam(s:"IATTR_LE", d:attr + 1 - FIRST_ESSENCE_ATTRIBUTE));
-		
-	// only option left is unique exotic attributes
-	return StrParam(s:"IATTR_", l:StrParam(s:"IATTR_LX", d:UNIQUE_MAP_MACRO(attr) - LAST_ESSENCE_ATTRIBUTE));
-}
-
 str ItemAttributeString(int attr, int val) {
 	str text = GetInventoryAttributeText(attr);
 	
@@ -498,49 +500,79 @@ str ItemAttributeString(int attr, int val) {
 		case INV_CYBERNETIC:
 			return StrParam(l:text);
 			
-		case INV_DROPCHANCE_INCREASE:
-		case INV_LUCK_INCREASE:
-		case INV_SPEED_INCREASE:
-			return StrParam(s:"+ ", f:ftrunc(val * 100), l:text);
-		
-		case INV_DMGREDUCE_REFL:
-			return StrParam(s:"+ ", f:ftrunc(val * 0.1), l:text);
-			
-		case INV_LIFESTEAL:
-			return StrParam(s:"+ ", f:ftrunc(val), l:text);
-			
 		// essences with specific writing
 		case INV_ESS_SSRATH:
-			return StrParam(s:"\c[Q7]", l:text, s: "+ ", d:val, s: "% magic resistance");
+			return StrParam(s:"\c[Q7]", l:text, s:"+ ", d:val, s:"% ", l:"IATTR_MAGICRES");
 		case INV_ESS_CHEGOVAX:
-			return StrParam(s:"\c[Q7]", l:text, s: "+ ", d:val, s: "%");
+			return StrParam(s:"\c[Q7]", l:text, s:"+ ", d:val, s:"%");
 		case INV_ESS_ZRAVOG:
 			return StrParam(s:"\c[Q7]", l:text, d:val, s: "%");
 		case INV_ESS_ERYXIA:
-			return StrParam(s:"\c[Q7]", l:text, d:val, s: "% more damage");
+			return StrParam(s:"\c[Q7]", l:text, d:val, s:"% ", l:"IATTR_MOREDMG");
 		// essence with no numeric values
 		case INV_ESS_VAAJ:
 		case INV_ESS_LESHRAC2:
 		case INV_ESS_THORAX:
 			return StrParam(s:"\c[Q7]", l:text);
-		// essences that are like regular mods, just have color code
-		case INV_ESS_HARKIMONDE:
-		case INV_ESS_KRULL:
-		case INV_ESS_OMNISIGHT:
+		// essences with percentages in them
 		case INV_ESS_OMNISIGHT2:
 		case INV_ESS_LESHRAC:
+		case INV_ESS_HARKIMONDE:
+		case INV_ESS_KRULL:
+			return StrParam(s:"\c[Q7]", s:"+ ", d:val, s:"%", l:text);
+		// essences that are like regular mods, just have color code
+		case INV_ESS_OMNISIGHT:
 			return StrParam(s:"\c[Q7]", s:"+ ", d:val, l:text);
 		
+		// since percentages are handled in default case, we will handle all flat value attributes under here
+		case INV_HP_INCREASE:
+		case INV_ARMOR_INCREASE:
+		case INV_FLATPHYS_DAMAGE:
+		case INV_FLATENERGY_DAMAGE:
+		case INV_FLATEXP_DAMAGE:
+		case INV_FLATMAGIC_DAMAGE:
+		case INV_FLATELEM_DAMAGE:	
+		case INV_REGENCAP_INCREASE:
+		case INV_KNOCKBACK_RESIST:
+		case INV_ACCURACY_INCREASE:
+		case INV_STAT_STRENGTH:
+		case INV_STAT_DEXTERITY:
+		case INV_STAT_BULKINESS:
+		case INV_STAT_CHARISMA:
+		case INV_STAT_VITALITY:
+		case INV_STAT_INTELLECT:
+		case INV_FLAT_FIREDMG:
+		case INV_FLAT_ICEDMG:
+		case INV_FLAT_LIGHTNINGDMG:
+		case INV_FLAT_POISONDMG:
+		case INV_OVERLOAD_ZAPCOUNT:
+			if(val > 0)
+				return StrParam(s:"+ \c[Q9]", d:val, s:"\c- ", l:text);
+			else if(val < 0)
+				return StrParam(s:"- \cg", d:val, s:"\c- ", l:text);
+				
+		case INV_DROPCHANCE_INCREASE:
+		case INV_LUCK_INCREASE:
+		case INV_SPEED_INCREASE:
+			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);
+		
+		case INV_DMGREDUCE_REFL:
+			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 0.1), s:"%\c- ", l:text);
+			
+		case INV_LIFESTEAL:
+			return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:"%\c- ", l:text);
+		
+		// default takes percentage values
 		default:
 			if(val > 0)
-				return StrParam(s:"+ ", d:val, l:text);
+				return StrParam(s:"+ \c[Q9]", d:val, s:"%\c- ", l:text);
 			else if(val < 0)
-				return StrParam(s:"- ", d:val, l:text);
+				return StrParam(s:"- \cg", d:val, s:"%\- ", l:text);
 	}
 	return "";
 }
 
-str ExoticAttributeString(int attr, int val1, int val2) {
+str GetItemAttributeText(int attr, int val1, int val2 = -1) {
 	// treat it as normal inv attribute range
 	if(attr <= LAST_INV_ATTRIBUTE)
 		return ItemAttributeString(attr, val1);
@@ -549,33 +581,39 @@ str ExoticAttributeString(int attr, int val1, int val2) {
 	str text = GetInventoryAttributeText(attr);
 	switch(attr) {
 		case INV_EX_FACTOR_SMALLCHARM:
-		return StrParam(l:text, f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
+		return StrParam(l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"%");
 		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
-		return StrParam(d:val1, l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, d:val2, s:"% missing health when hurt");
+		return StrParam(s:"\c[Q9]", d:val1, s:"%\c-", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
 		
 		case INV_EX_DAMAGEPER_FLATHEALTH:
-		return StrParam(l:text, d:val1, s:" maximum health");
+		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_MAXHEALTH");
 		
 		case INV_EX_ONKILL_HEALMISSING:
-		return StrParam(l:text, d:val1, s:"% missing health");
+		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_PMISSHP");
 		
 		case INV_EX_ABILITY_RALLY:
-		return StrParam(l:text, d:val1, s:" Rally");
+		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_RALLY");
 		
 		case INV_EX_CRITIGNORERESCHANCE:
-		return StrParam(l:text, d:val1, s:"% chance to ignore enemy resistances");
+		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_CHANCEIGNORERES");
 		
 		// float factor stuff
 		case INV_EX_MORECRIT_LIGHTNING:
-		return StrParam(s:"+ ", f:ftrunc(val1 * 100), l:text);
+		return StrParam(s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:"%\c- ", l:text);
 		
 		case INV_EX_DOUBLE_HEALTHCAP:
 		return StrParam(l:text);
 		
+		case INV_EX_ALLSTATS:
+		case INV_EX_FLATDMG_ALL:
+		case INV_EX_FLATDOT:
+			return StrParam(s:"+ \c[Q9]", d:val1, s:"\c- ", l:text);
+		
+		// default are %
 		default:
 			if(val1)
-				return StrParam(s:"+ ", d:val1, l:text);
+				return StrParam(s:"+ \c[Q9]", d:val1, s:"%\c- ", l:text);
 			return StrParam(l:text);
 	}
 	return "";
