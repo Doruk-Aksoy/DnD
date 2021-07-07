@@ -727,27 +727,6 @@ enum {
 	ARTI_RESET,
 };
 
-str ArmorStrings[MAXARMORS][2] = { 
-	{ "ARM1A0", "NewGreenArmor" },
-	{ "ARM3A0", "YellowArmor" },
-	{ "ARM2A0", "NewBlueArmor" },
-	{ "QRARA0", "TheRedArmor" },
-	
-	{ "ARM9A0", "GunSlingerArmor" },
-	{ "AR10A0", "OccultArmor" },
-	{ "AR11A0", "DemoArmor" },
-	{ "AR12A1", "EnergyArmor" },
-    { "AR14A0", "ElementalArmor" },
-    
-    { "AR13A0", "SuperArmor" },
-	{ "ARM4A1", "CyberneticArmor" },
-	{ "ARM5A0", "DuelistArmor" },
-	{ "ARM6A0", "NecroArmor" },
-	{ "ARM7A0", "KnightArmor" },
-	{ "ARM8A0", "RavagerArmor" },
-	{ "AR15B0", "SynthmetalArmor" },
-};
-
 // gets item type
 int GetItemType(int id) {
 	if(id <= SHOP_LASTWEP_INDEX)

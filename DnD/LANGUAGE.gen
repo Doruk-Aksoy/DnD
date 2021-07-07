@@ -1,9 +1,20 @@
 [enu default]
 
-DND_PICKUP_HEALTH						= "Health pickup : ";
+DND_PICKUP_HEALTH						= "Health pickup";
 DND_PICKUP_DEMONESSENCE					= "Demon Essence.";
-DND_PICKUP_WEAPON						= "Weapon Pickup : ";
-DND_PICKUP_RESEARCH						= "\ccResearch Item : \c[Y5]Discovered ";
+DND_PICKUP_WEAPON						= "Weapon pickup";
+DND_PICKUP_RESEARCH						= "Research pickup";
+DND_PICKUP_DISCOVERED					= "Discovered";
+DND_PICKUP_ORB							= "Orb pickup";
+DND_PICKUP_ELIXIR						= "Elixir pickup";
+DND_PICKUP_TOKEN						= "Token pickup";
+DND_PICKUP_CHARM						= "Charm pickup";
+DND_PICKUP_BONUS						= "Bonus pickup";
+
+DND_OR									= "or";
+DND_KILL								= "Kill";
+DND_FORBUFF								= "for buff";
+DND_PLAYER								= "Player";
 
 DND_TEXT_MAXKILLS 						= "All monsters have been killed! ";
 DND_TEXT_MAXKILLREWARD 					= "% Exp bonus!";
@@ -13,6 +24,37 @@ DND_TEXT_MAXITEMREWARD					= "% Credit Bonus!";
 
 DND_TEXT_MAXSECRETS						= "All secrets have been found! ";
 DND_TEXT_MAXSECRETREWARD				= "K Budget!";
+
+DND_TEXT_GAINEDEXTRA					= "Gained extra";
+DND_TEXT_BONUS							= "bonus";
+
+DND_TEXT_UNSPENTPOINT					= "You have unspent attribute points!";
+DND_TEXT_SPENDINMENU					= "Spend them in \cvDnD Menu!";
+DND_TEXT_NEWPERK						= "New class perk unlocked! Go to\n\cvDnD Menu\c- help section for info!";
+DND_TEXT_LEGENDARYWALKS					= "A legendary monster now walks\nthis land... Be wary.\c-";
+DND_TEXT_DISCOVEREDRES					= "You have discovered the following\nresearch";
+DND_TEXT_TRADEREQUEST					= "You have a trade request from";
+
+DND_TEXT_NOACTIVEQUEST					= "No active quest found!";
+
+DND_TEXT_NOTIFICATION					= "NOTIFICATION";
+DND_TEXT_INVENTORYFULL					= "INVENTORY IS FULL";
+
+DND_TEXT_LOADINGMONS					= "Loading monsters...";
+DND_TEXT_WAITINGFOR						= "Waiting for";
+DND_TEXT_PLAYERTOLOAD					= "player to load character...";
+DND_TEXT_PLAYERSTOLOAD					= "players to load character...";
+
+DND_TEXT_YOUHAVE						= "You have";
+DND_TEXT_LOADCHARWARNING				= "seconds to load your character!\n\crIgnore or skip with \"\cjskipload\c-\cr\" command to load or create new auto-saved char (slot \cd0\c-\cr).\c-";
+DND_TEXT_LOADLOGINWARNING				= "seconds to login to load your character!\n\crIgnore or skip with \"\cjskipload\c-\cr\" command to use none.\c-\n\n\csAn auto-saved char will not be created until login!\c-";
+
+DND_TEXT_TIPBOXON						= "Weapon tip boxes on";
+DND_TEXT_TIPBOXOFF						= "Weapon tip boxes off";
+DND_TEXT_SFXON							= "Special Effects On";
+DND_TEXT_SFXOFF							= "Special Effects Off";
+
+DND_TEXT_NOWUSING						= "Now using";
 
 DND_TEXT_MAPTOAST						= "The entire map is toast! You're fully healed!";
 
@@ -50,7 +92,7 @@ DND_STAT15								= "Luck";
 	
 DND_STAT16								= "Experience";
 DND_STAT17								= "Level Experience";
-DND_STAT18								= "Level";
+DND_STAT18								= "Level";							DND_STAT18_SHORT = "Lvl";
 DND_STAT19								= "Credit";
 DND_STAT20								= "Level Credit";
 
@@ -77,3 +119,11 @@ DND_SPREETEXT20							= "HOLY SHIT";
 
 DND_WARN_COMPATBUTTONS					= "\cgWARNING:\c- Please activate '\cdcompat_clientssendfullbuttoninfo\c-' in order to use the menu properly.";
 DND_WARN_WEAPONDROP						= "\cgWARNING:\c- Please deactivate '\cdsv_weapondrop\c-'. It breaks mod rules!";
+
+DND_ACCESSORY							= "Accessory";
+
+DND_PLAYERLOOKUP						= "DnD Player Lookup";
+DND_STATALLOCATION						= "Stat Allocation";
+DND_PERKALLOCATION						= "Perk Allocation";
+DND_WEPSOWNED							= "Weapons Owned";
+DND_PLAYERNOTPLAYING					= "Player isn't currently playing";

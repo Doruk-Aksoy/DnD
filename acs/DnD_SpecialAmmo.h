@@ -112,24 +112,72 @@ int SpecialAmmoRanges[SPECIALAMMO_TYPE_MAX][SPECIALAMMO_PERWEAPON_MAX] = {
 
 #define MAXSPECIALAMMOCATEGORY 2
 #define MAXSPECIALAMMOTYPES (AMMO_SLUGSHELL + 1)
-#define SPECIALAMMO_NAME 0
-#define SPECIALAMMO_TAG 1
-str SpecialAmmoNames[MAXSPECIALAMMOTYPES][2] = {
-	{		"Shell",					"Normal Shells"						},
-	{ 		"FlechetteShell",			"\cdFlechette Shells"				},
-	{ 		"PiercingShell",			"\cfMagnum Shells"					},
-	{		"ElectricShell",			"\cvElectric Shells"				},
-	
-	{		"Clip",						"Bullets"							},
-	{		"Grenades",					"40mm Grenades"						},
-	{		"A40mmSonicGrenade",		"\cu40mm Sonic Grenades"			},
-	{		"A40mmHEGrenade",			"\cr40mm HEGrenades"				},
-    
-    {       "RiotgunShell",             "\cgRiot Shells"                    },
-    {       "NitroShell",               "\c[E3]Nitrogen Shells"             },
-    {       "ExplodingShell",           "\cuExplosive Shells"               },
-	{		"SlugShell",				"\crSlug Shells"					}
-};
+
+// yeah these are ugly I know, but so is this special ammo system, maybe one day I'll rewrite it if I think of a clean way to do it... maybe
+str GetSpecialAmmoString(int id, int which) {
+	switch(id) {
+		case AMMO_BASICSHELL:
+		return AmmoInfo_Str[DND_AMMOSLOT_SHELL][AMMO_SHELL][which];
+		case AMMO_FLECHETTE:
+		return SpecialAmmoInfo_Str[SSAM_FLECHETTE][which];
+		case AMMO_PIERCING:
+		return SpecialAmmoInfo_Str[SSAM_MAGNUM][which];
+		case AMMO_ELECTRIC:
+		return SpecialAmmoInfo_Str[SSAM_SHOCK][which];
+		
+		case AMMO_BULLET:
+		return AmmoInfo_Str[DND_AMMOSLOT_CLIP][AMMO_CLIP][which];
+		case AMMO_BASICGRENADE:
+		return AmmoInfo_Str[DND_AMMOSLOT_ROCKET][AMMO_GRENADE][which];
+		case AMMO_40MMSONIC:
+		return SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][which];
+		case AMMO_40MMHEGRENADE:
+		return SpecialAmmoInfo_Str[SSAM_40MMHE - 1][which];
+		
+		case AMMO_RIOTSHELL:
+		return AmmoInfo_Str[DND_AMMOSLOT_CLIP][AMMO_RIOT][which];
+		case AMMO_NITROGENSHELL:
+		return SpecialAmmoInfo_Str[SSAM_NITROSHELL][which];
+		case AMMO_EXPLOSIVESHELL:
+		return AmmoInfo_Str[DND_AMMOSLOT_SHELL][AMMO_EXSHELL][which];
+		case AMMO_SLUGSHELL:
+		return SpecialAmmoInfo_Str[SSAM_SLUG][which];
+	}
+	return "";
+}
+
+// colorful tag display
+str GetSpecialAmmoTag(int id) {
+	switch(id) {
+		case AMMO_BASICSHELL:
+		return StrParam(l:"DND_AMMO_1_0");
+		case AMMO_FLECHETTE:
+		return StrParam(s:"\cd", l:"DND_AMMOSPECIAL1");
+		case AMMO_PIERCING:
+		return StrParam(s:"\cf", l:"DND_AMMOSPECIAL2");
+		case AMMO_ELECTRIC:
+		return StrParam(s:"\cv", l:"DND_AMMOSPECIAL3");
+		
+		case AMMO_BULLET:
+		return StrParam(l:"DND_AMMO_0_0");
+		case AMMO_BASICGRENADE:
+		return StrParam(l:"DND_AMMO_2_5");
+		case AMMO_40MMSONIC:
+		return StrParam(s:"\cu", l:"DND_AMMOSPECIALG1");
+		case AMMO_40MMHEGRENADE:
+		return StrParam(s:"\cr", l:"DND_AMMOSPECIALG2");
+		
+		case AMMO_RIOTSHELL:
+		return StrParam(s:"\cg", l:"DND_AMMO_0_4");
+		case AMMO_NITROGENSHELL:
+		return StrParam(s:"\c[E3]", l:"DND_AMMOSPECIAL4");
+		case AMMO_EXPLOSIVESHELL:
+		return StrParam(s:"\cu", l:"DND_AMMO_1_9");
+		case AMMO_SLUGSHELL:
+		return StrParam(s:"\cr", l:"DND_AMMOSPECIAL5");
+	}
+	return "";
+}
 
 str GetSpecialAmmoSuffix(int weptype) {
 	str suffix = "";
@@ -156,12 +204,12 @@ bool HasAmmoOnMagazine(int wepid) {
 
 bool HasAmmoForSpecialMode(int mode, int ammo_category, int wepid) {
 	// if I have the right special ammo, or, in order to switch back, I got the magazine amount even if I dont have the ammo
-	return CheckInventory(SpecialAmmoNames[SpecialAmmoRanges[ammo_category][mode]][SPECIALAMMO_NAME]) || (!mode && HasAmmoOnMagazine(wepid));
+	return CheckInventory(GetSpecialAmmoString(SpecialAmmoRanges[ammo_category][mode], AMMOINFO_NAME)) || (!mode && HasAmmoOnMagazine(wepid));
 }
 
 int HasSpecialAmmoForWeapon(int ammo_category) {
 	for(int i = 1; i != -1 && i < SPECIALAMMO_PERWEAPON_MAX; ++i)
-		if(CheckInventory(SpecialAmmoNames[SpecialAmmoRanges[ammo_category][i]][SPECIALAMMO_NAME]))
+		if(CheckInventory(GetSpecialAmmoString(SpecialAmmoRanges[ammo_category][i], AMMOINFO_NAME)))
 			return i;
 	return SpecialAmmoRanges[ammo_category][0]; // return base if not found
 }

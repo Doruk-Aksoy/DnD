@@ -1,6 +1,10 @@
 [enu default]
 
-// little note: leftimg rightimg and mugshot dont need translating, i know, but at least this way I know they are in memory and not on stack
+// little note: leftimg, rightimg and mugshot DONT NEED TRANSLATING, i know, but at least this way I know they are in memory and not on stack
+
+CLASS_SELECT			= "SELECT YOUR CHARACTER";
+CLASS_TOSELECT			= "to select";
+CLASS_PRESS				= "Press";
 
 // Doomguy
 

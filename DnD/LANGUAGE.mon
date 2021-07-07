@@ -13,6 +13,8 @@
 	very special or rare ones (like legendary) are "\ci"
 */
 
+DND_ELITE						= "Elite";
+
 DND_EMOD_ENERGYWEAKNESS			= "\cfEnergy Weakness\c-";
 DND_EMOD_SILVERWEAKNESS			= "\cfSilver Weakness\c-";
 DND_EMOD_FIREWEAKNESS			= "\cfFire Weakness\c-";
@@ -93,6 +95,6 @@ DND_EMOD_PHANTASM				= "\cqPhantasm\c-";
 DND_EMOD_CRIPPLE				= "\cvCripple\c-";
 DND_EMOD_RUINATION				= "\cgRuination\c-";
 	
-DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";
+DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";			DND_EMOD_MARKOFCHAOS_NOCOL	= "Mark of Chaos";
 	
-DND_EMOD_LEGENDARY				= "\ciLegendary\c-";
+DND_EMOD_LEGENDARY				= "\ciLegendary\c-";				DND_EMOD_LEGENDARY_LONG		= "Legendary Monster";

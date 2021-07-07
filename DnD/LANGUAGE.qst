@@ -1,5 +1,13 @@
 [enu default]
 
+DND_REQ						=	"REQ";	// requirement
+DND_REW						=	"REW";	// reward
+DND_PROGRESS				=	"Progress";
+
+DND_NEWQUEST				=	"New Quest! Press \cvview quest\c- key!";
+DND_QUESTCOMPLETE			=	"Quest completed!";
+DND_QUESTFAILED				=	"Quest failed!";
+
 DND_QUESTLABEL1				=	"Cautious";
 DND_QUESTREQ1				=	"Keep health over 50% at all times.";
 DND_QUESTREWARD1			=	"Regeneration life cap increases to one half your cap.";

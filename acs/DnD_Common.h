@@ -3,6 +3,10 @@
 
 #define ISDEBUGBUILD
 
+// string tables should always follow icon + name if they have both
+#define STRING_ICON 0
+#define STRING_NAME 1
+
 #define DND_AFTER50_INCREMENT_DAMAGE 0.33
 
 #define MAXLEVELS 100

@@ -1,5 +1,13 @@
 [enu default]
 
+DND_HEALTHPICKUP	=	"Health pickup";
+DND_ARMORPICKUP		=	"Armor pickup";
+DND_ITEMPICKUP		=	"Item pickup";
+
+DND_STIMPACK		=	"Stimpack",
+DND_MEDIKIT			=	"Medikit",
+DND_BACKPACK		=	"Backpack",
+
 DND_ARMOR1			=	"Green Armor";
 DND_ARMOR2			=	"Yellow Armor";
 DND_ARMOR3			=	"Blue Armor";
@@ -24,7 +32,7 @@ DND_AMMO_0_0		=	"Bullets";
 DND_AMMO_0_1		=	"Ruby Crystal";
 DND_AMMO_0_2		=	"Viper Mana";
 DND_AMMO_0_3		=	"Dark Seals";
-DND_AMMO_0_4		=	"Riot Cannon Shell";
+DND_AMMO_0_4		=	"Riot Cannon Shells";
 DND_AMMO_0_5		=	"Acid Rounds";
 DND_AMMO_0_6		=	"Fusion Cells";
 DND_AMMO_0_7		=	"Incinerator Shells";

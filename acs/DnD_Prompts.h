@@ -96,18 +96,9 @@ void NPC_Setup() {
 	}
 }
 
-str PromptLines[MAX_PROMPTED_LINES] = {
-	"    Greetings warrior! You have many questions, yes? Amongst them, who I am or why I'm not trying to destroy you probably take precedence.",
-	"    Many can't see me, those that do see me only briefly. You, however, are different. I sense great power in you. I travel distant worlds, places unimaginable, trying to find the most interesting challenger.",
-	"    The talents you have put to display here, show promise and entice me. Henceforth, I'll make offers to you anytime I'm visible to you. The offers I make require a sacrifice. Sometimes in blood, sometimes in other ways. The choice is left to the powers which I serve.",
-	"    We meet once again, great warrior. Tell me, are you ready for another challenge?",
-	"    Random hand of fate guides me to you, yet again. This time, it may come to pass that you lose.",
-	"    My masters believe you are ready for another sacrifice. Let's see if you can live up to the challenge.",
-	"Several monsters have received the mark of my masters, making them immensely powerful. Slay them, and be blessed. Fail, and be cursed.",
-	"Objects of immense power have been deployed randomly across the land. Their return shall bring great wealth and power to you.",
-	"A certain very powerful monster roams the land. It has been given further cosmic powers to tip the scales. Destroy it and claim its possessions.",
-	"You have surpassed expectations. And so, your final challenge will be me. My masters are intrigued at this opportunity. What say you, great warrior? Are you ready?"
-};
+str GetPromptText(int id) {
+	return StrParam(s:"DND_PROMPT", d:id + 1);
+}
 
 void ClosePrompt() {
 	TakeInventory("NPC_Offer_Accepted", 1);

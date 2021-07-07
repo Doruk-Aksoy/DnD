@@ -21,18 +21,56 @@ enum {
 	SHI_BACKPACK,
 	SHI_SYNTHMETALARMOR
 };
-
 #define MAX_SHARED_ITEM_TYPES (SHI_SYNTHMETALARMOR + 1)
-str SharedItemMessage[MAX_SHARED_ITEM_TYPES] = { 
-	"\ccHealth pickup : \c[Y5]Stimpack x 10\c-",
-	"\ccHealth pickup : \c[Y5]Medikit x 25\c-",
-	"\ccArmor pickup  : \c[Y5]Green Armor 33%\c-",
-	"\ccArmor pickup  : \c[Y5]Yellow Armor 42%\c-",
-	"\ccArmor pickup  : \c[Y5]Blue Armor 50%\c-",
-	"\ccArmor Pickup  : \c[Y5]Red Armor 75%\c-",
-	"\ccItem Pickup   : \c[Y5]Backpack\c-",
-	"\ccArmor Pickup  : \c[Y5]Synth-metal Armor 65%\c-"
-};
+
+void HandleSharedItemPickupMessage(int id) {
+	str header = "";
+	str text = "";
+	str extra = "";
+	switch(id) {
+		case SHI_STIMPACK:
+			header = "DND_HEALTHPICKUP";
+			text = "DND_STIMPACK";
+			extra = " x 10%";
+		break;
+		case SHI_MEDKIT:
+			header = "DND_HEALTHPICKUP";
+			text = "DND_MEDIKIT";
+			extra = " x 25%";
+		break;
+		case SHI_GREENARMOR:
+			header = "DND_ARMORPICKUP";
+			text = "DND_ARMOR1";
+			extra = " 33%";
+		break;
+		case SHI_YELLOWARMOR:
+			header = "DND_ARMORPICKUP";
+			text = "DND_ARMOR2";
+			extra = " 42%";
+		break;
+		case SHI_BLUEARMOR:
+			header = "DND_ARMORPICKUP";
+			text = "DND_ARMOR3";
+			extra = " 50%";
+		break;
+		case SHI_REDARMOR:
+			header = "DND_ARMORPICKUP";
+			text = "DND_ARMOR4";
+			extra = " 75%";
+		break;
+		case SHI_BACKPACK:
+			header = "DND_ITEMPICKUP";
+			text = "DND_BACKPACK";
+		break;
+		case SHI_SYNTHMETALARMOR:
+			header = "DND_ARMORPICKUP";
+			text = "DND_ARMOR16";
+			extra = " 65%";
+		break;
+	}
+	
+	Log(s:"\cc", l:header, s:": \c[Y5]", l:text, s:extra);
+} 
 
 str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 	"Stimpack_SP",

@@ -306,13 +306,13 @@ void SavePlayerData(int pnum, int char_id) {
 	temp = 0;
 	for(i = 0; i < MAXARMORS; ++i) {
 		if(i >= 1 && i <= 4) { // green to red armor have variations that don't spawn
-			if(GetArmorType(ArmorTypes[i], pnum) || GetArmorType(StrParam(s:ArmorTypes[i], d:2), pnum)) {
+			if(GetArmorType(ArmorStrings[i][STRING_NAME], pnum) || GetArmorType(StrParam(s:ArmorStrings[i][STRING_NAME], d:2), pnum)) {
 				temp = SetBit(temp, i);
 				break;
 			}
 		}
 		else {
-			if(GetArmorType(ArmorTypes[i], pnum)) {
+			if(GetArmorType(ArmorStrings[i][STRING_NAME], pnum)) {
 				temp = SetBit(temp, i);
 				break;
 			}
@@ -824,7 +824,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc);
 	for(i = 0; i < MAXARMORS; ++i) {
 		if(IsSet(temp, i)) {
-			GiveInventory(ArmorTypes[i], 1);
+			GiveInventory(ArmorStrings[i][STRING_NAME], 1);
 			GiveInventory("DnD_ArmorBonus", armor - 1);
 			SetInventory("DnD_ArmorType", i + 1);
 			break;
