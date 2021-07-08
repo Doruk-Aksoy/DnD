@@ -2399,8 +2399,6 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 		LocalAmbientSound("Weapon/Popup", 127);
 		SetHudSize(640, 480, 1);
 		
-		log(d:len);
-		
 		if(len < 120) {
 			SetFont("MSGBOXX");
 			len = 0;
@@ -5834,7 +5832,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		SetActivator(this);
 	}
 	else
-		Log(s:"\cgERROR: \cj", l:"DND_PLAYERNOTPLAYING", s:"!");
+		Log(s:"\cg", l:"DND_MENU_ERROR", s:": \cj", l:"DND_PLAYERNOTPLAYING", s:"!");
 }
 
 Script "DnD Heal Monster Direct" (int amount, int isPercent) {

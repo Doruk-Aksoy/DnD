@@ -267,6 +267,9 @@ void AddOrbBonusData(int pnum, int bonus, int extra, int val) {
 5
 5
 3.5
+0 // drops only from specific monster
+0 // drops only from specific monster
+0 // drops only from specific monster
 */
 
 int OrbDropWeights[MAX_ORBS] = {
@@ -286,7 +289,11 @@ int OrbDropWeights[MAX_ORBS] = {
 	865,
 	915,
 	965,
-	1000
+	1000,
+	// drops only from specific monster
+	0,
+	0,
+	0
 };
 
 #define ENHANCEORB_BONUS 1
@@ -1238,37 +1245,27 @@ void DoSinOrbMessage(int val, int affluence) {
 	int pts = (val & 0x7F) * affluence;
 	str temp = "";
 	if(pts > 1)
-		temp = StrParam(s:"\cjOrb of Sin takes \cg", d:pts, s:"\cj random stat points ");
+		temp = StrParam(s:"\cj", l:"DND_ORBUSETEXT12A", s:" \cg", d:pts, s:"\cj ", l:"DND_ORBUSETEXT12B", s:" ");
 	else
-		temp = StrParam(s:"\cjOrb of Sin takes \cg", d:pts, s:"\cj random stat point ");
+		temp = StrParam(s:"\cj", l:"DND_ORBUSETEXT12A", s:" \cg", d:pts, s:"\cj ", l:"DND_ORBUSETEXT12C", s:" ");
 	//Log(s:"type ", d: (val >> 8) & 0x7);
 	switch((val >> 8) & 0x7) {
 		case SINORB_STAT:
-			Log(s:temp, s:"and grants \cd", d:(val >> 11) * affluence, s:" stat points!");
+			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:(val >> 11) * affluence, s:" ", l:"DND_ORB_STATPOINTS", s:"!");
 		break;
 		case SINORB_PERK:
 			pts = (val >> 11) * affluence;
 			if(pts > 1)
-				Log(s:temp, s:"and grants \cd", d:pts, s:" random perks!");
+				Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:pts, s:" ", l:"DND_ORB_RANDOMPERKS", s:"!");
 			else
-				Log(s:temp, s:"and grants \cd", d:pts, s:" random perk!");
+				Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:pts, s:" ", l:"DND_ORB_RANDOMPERK", s:"!");
 		break;
 		case SINORB_CRIT:
-			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% crit chance to \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
+			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% ", l:"DND_ORBUSETEXT2I", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
 		case SINORB_CRITDMG:
-			Log(s:temp, s:"and grants \cd", f:ftrunc(SINORB_CRITDMGGIVE * affluence * 100), s:"% crit damage to \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
+			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", f:ftrunc(SINORB_CRITDMGGIVE * affluence * 100), s:"% ", l:"DND_ORBUSETEXT2J", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
-		/*case SINORB_RES:
-			pts = pow(2, CheckInventory("AffluenceCounter"));
-			if(pts > 1)
-				Log(s:temp, s:"and shows \cd", d:pts, s:"\c- researches!");
-			else
-				Log(s:temp, s:"and shows \cd", d:pts, s:"\c- research!");
-		break;*/
-		/*case SINORB_CREDIT:
-			Log(s:temp, s: "and gives \cd", d:(val >> 11) * GetAffluenceBonus(), s: "\c- credits!");
-		break;*/
 	}
 }
 
@@ -1495,53 +1492,53 @@ void DoCorruptOrbMessage(int val, int affluence) {
 	// val just has the option, except for stat case which has which stat it is << 8
 	switch(val & 0xF) {
 		case CORRUPTORB_NOTHING:
-			Log(s:"\cjOrb of Corruption does \cgnothing!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2A");
 		break;
 		case CORRUPTORB_TAKEAMMO:
-			Log(s:"\cjOrb of Corruption \cgtakes away all your ammo!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2B");
 		break;
 		case CORRUPTORB_TAKEBACKPACK:
-			Log(s:"\cjOrb of Corruption \cgtakes away ", d:affluence, s:" of your backpacks!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2C", s:" ", d:affluence, s:" ", l:"DND_ORBUSETEXT2D");
 		break;
 		case CORRUPTORB_TAKEDMG:
-			Log(s:"\cjOrb of Corruption takes \cg", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% damage\cj from \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2C", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% ", l:"DND_DAMAGE", s:"\cj ", l:"DND_FROM", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
-			Log(s:"\cjOrb of Corruption \cgreduces your damage by 75%\cj for this map!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2E");
 		break;
 		case CORRUPTORB_TAKEHP:
-			Log(s:"\cjOrb of Corruption \cgreduces your life cap by ", d:CORRUPTORB_HPTAKE * affluence, s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2F", s:" ", d:CORRUPTORB_HPTAKE * affluence, s:"\cj!");
 		break;
 		case CORRUPTORB_TAKESPEED:
-			Log(s:"\cjOrb of Corruption \cgreduces your movement speed by ", f:ftrunc(CORRUPTORB_SPEEDTAKE * affluence * 100), s:"%\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2G", s:" ", f:ftrunc(CORRUPTORB_SPEEDTAKE * affluence * 100), s:"%\cj!");
 		break;
 		
 		case CORRUPTORB_ADDCRIT:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj increased crit chance to \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2I", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDCRITDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj crit damage to ", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2J", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDDMG:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj increased damage to ", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2K", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDSPEED:
-			Log(s:"\cjOrb of Corruption gives \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * affluence * 100), s:"%\cj increased movement speed!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2L", s:"!");
 		break;
 		case CORRUPTORB_DROPCHANCE:
-			Log(s:"\cjOrb of Corruption increases your drop chance by \cv", f:ftrunc(CORRUPTORB_DROPCHANCEGIVE * affluence * 100), s:"%\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2M", s:" \cv", f:ftrunc(CORRUPTORB_DROPCHANCEGIVE * affluence * 100), s:"%\cj!");
 		break;
 		case CORRUPTORB_GIVESTAT:
-			Log(s:"\cjOrb of Corruption grants you with \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", l:GetStatLabel(val >> 8), s:"\cj points!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2N", s:" \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", l:GetStatLabel(val >> 8), s:"\cj ", l:"DND_POINTS", s:"!");
 		break;
 		case CORRUPTORB_MOD_PERCENTDAMAGE:
-			Log(s:"\cjOrb of Corruption gives \cvpercent health damage on impact\cj to ", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2O", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
-			Log(s:"\cjOrb of Corruption gives \cvpoison on hit\cj to ", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2P", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_MOD_FORCEPAINCHANCE:
-			Log(s:"\cjOrb of Corruption gives \cvchance to force pain\cj to ", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2Q", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 	}
 }
@@ -1626,112 +1623,112 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Enhancement improves \cd", l:GetWeaponTag(val), s:"\cv damage by \cd", d:affluence * ENHANCEORB_BONUS, s:"%\c-!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT1A", s:" \cd", l:GetWeaponTag(val), s:"\cv ", l:"DND_ORBUSETEXT1B", s:" \cd", d:affluence * ENHANCEORB_BONUS, s:"%\c-!");
 			else
-				Log(s:"\cgYou're maxed out on enhancements, Orb of Enhancement failed!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL1");
 		break;
 		case DND_ORB_CORRUPT:
 			DoCorruptOrbMessage(val, affluence);
 		break;
 		case DND_ORB_SPIRIT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Spirit grants you with \cv", d:affluence, s:" \cd", l:GetStatLabel(val), s:"\cv!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT3", s:" \cv", d:affluence, s:" \cd", l:GetStatLabel(val), s:"\cv!");
 			else
-				Log(s:"\cgYou're maxed out on stats, Orb of Spirit failed!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL3");
 		break;
 		case DND_ORB_REPENT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Repentance reverts the effects of \cv", l:GetInventoryTag(val + ORBS_BEGIN), s:"\cj!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT4", s:" \cv", l:GetInventoryTag(val + ORBS_BEGIN), s:"\cj!");
 			else
-				Log(s:"\cgNo orb used or tried to revert effects of Orb of Repentance!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL4");
 		break;
 		case DND_ORB_AFFLUENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Affluence will improve the effect of the next orb used by \cd", d:affluence, s: "\c- times!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT5", s:" \cdx", d:affluence, s: "\c-!");
 			else
-				Log(s:"\cgYou've reachde max stacks of Orb of Affluence. (\ck", d:1 << AFFLUENCE_MAX, s:"\cg)");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL5", s:". (\ck", d:1 << AFFLUENCE_MAX, s:"\cg)");
 		break;
 		case DND_ORB_CALAMITY:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Calamity turns your \ck", l:GetInventoryTag((val % 100) + ORBS_BEGIN), s:"\cv to an \cd", l:GetInventoryTag((val / 100) + ORBS_BEGIN), s:"\cv!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT6", s:" \ck", l:GetInventoryTag((val % 100) + ORBS_BEGIN), s:"\c- ", s:"<====>", s:" \cd", l:GetInventoryTag((val / 100) + ORBS_BEGIN), s:"!");
 			else
-				Log(s:"\cgNo other orb found to convert!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL6");
 		break;
 		case DND_ORB_PROSPERITY:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Prosperity grants \cd", d:affluence, s:" armor and health cap\cv increase!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT7A", s:" \cd", d:affluence, s:" ", l:"DND_ORBUSETEXT7B");
 			else
-				Log(s:"\cgMax prosperity bonus reached! (\ck+", d:PROSPERITY_MAX, s:"\c-)");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL7", s:"! (\ck+", d:PROSPERITY_MAX, s:"\c-)");
 		break;
 		case DND_ORB_FORTITUDE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Fortitude grants \cd", d:affluence, s:"% armor and health cap\cv increase!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT8A", s:" \cd", d:affluence, s:"% ", l:"DND_ORBUSETEXT8B");
 			else
-				Log(s:"\cgMax fortitude bonus reached! (\ck", d:FORTITUDE_MAX, s:"%\c-)");
+				Log(s:"\cg", l:"", s:"! (\ck", d:FORTITUDE_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_WISDOM:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Wisdom grants \cd", d:affluence, s:"% experience gain\cv increase!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT9A", s:" \cd", d:affluence, s:"% ", l:"DND_ORBUSETEXT9B");
 			else
-				Log(s:"\cgMax wisdom bonus reached! (\ck", d:WISDOMORB_MAX, s:"%\c-)");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL9", s:"! (\ck", d:WISDOMORB_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_GREED:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Greed grants \cd", d:affluence, s:"% credit gain\cv increase!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT10A", s:" \cd", d:affluence, s:"% ", l:"DND_ORBUSETEXT10B");
 			else
-				Log(s:"\cgMax greed bonus reached! (\ck", d:GREEDORB_MAX, s:"%\c-)");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL10", s:"! (\ck", d:GREEDORB_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_VIOLENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Violence grants \cd", d:affluence, s:"% ", l:GetTalentTag(val), s:" Damage\cv increase!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT11A", s:" \cd", d:affluence, s:"% ", l:GetTalentTag(val), s:" ", l:"DND_ORBUSETEXT11B");
 			else
-				Log(s:"\cgMax violence bonus reached! (\ck", d:VIOLENCEORB_MAX, s:"%\c-)");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL11", s:"! (\ck", d:VIOLENCEORB_MAX, s:"%\c-)");
 		break;
 		case DND_ORB_SIN:
 			if(val != 0x7FFFFFFF)
 				DoSinOrbMessage(val, affluence);
 			else
-				Log(s:"\cgYou don't have enough allocated stat points! Need at least \ck", d:SINORB_MAX_TAKE * affluence, s:"\c-!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL12", s:" \ck", d:SINORB_MAX_TAKE * affluence, s:"\c-!");
 		break;
 		case DND_ORB_RICHES:
 			if(!(val >> 30)) // exp
-				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \ck% experience\c- points!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT13", s:" \cd", d:val & 0xFFFF, s:"\c- \ck% ", l:"DND_STAT16", s:"!");
 			else if((val >> 30) == 1)
-				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"\c- \cfcredits\c-!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT13", s:" \cd", d:val & 0xFFFF, s:"\c- \cf", l:"DND_STAT19", s:"\c-!");
 			else
-				Log(s:"\cjOrb of Riches gives you \cd", d:val & 0xFFFF, s:"k\c- \cubudget\c-!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT13", s:" \cd", d:val & 0xFFFF, s:"k\c- \cu", l:"DND_MENU_BUDGET", s:"\c-!");
 		break;
 		case DND_ORB_HOLDING:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Holding grants \cd", d:val, s:"% increased ammo capacity!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT14A", s:" \cd", d:val, s:"% ", l:"DND_ORBUSETEXT14B", s:"!");
 			else
-				Log(s:"\cgYou're maxed out on holding bonuses! (\ck", d:HOLDING_MAX, s:"\c-)!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL14", s:"! (\ck", d:HOLDING_MAX, s:"\c-)!");
 		break;
 		case DND_ORB_REFINEMENT:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cjOrb of Refinement rerolls attributes of your item ", d:affluence, s:" times!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT15A", s:" ", d:affluence, s:" ", l:"DND_ORB_TIMES", s:"!");
 			else
-				Log(s:"\cgOrb of Refinement couldn't be used\c-)!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL15", s:"\c-!");
 		break;
 		case DND_ORB_SCULPTING:
 			if(val != 0x7FFFFFFF) {
 				if(affluence > 1)
-					Log(s:"\cjOrb of Sculpting removes \cd", d:affluence, s:"\c- attributes!");
+					Log(s:"\cj", l:"DND_ORBUSETEXT16A", s:" \cd", d:affluence, s:"\c- ", l:"DND_ORB_ATTRIBUTES", s:"!");
 				else
-					Log(s:"\cjOrb of Sculpting removes \cd1\c- attribute!");
+					Log(s:"\cj", l:"DND_ORBUSETEXT16B");
 			}
 			else
-				Log(s:"\cgOrb of Sculpting couldn't be used, the item ran out of attributes to remove\c-)!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL16");
 		break;
 		case DND_ORB_ELEVATION:
 			if(val != 0x7FFFFFFF) {
 				if(affluence > 1)
-					Log(s:"\cjOrb of Elevation grants \cd", d:affluence, s:"\c- attributes!");
+					Log(s:"\cj", l:"DND_ORBUSETEXT17A", s:" \cd", d:affluence, s:"\c- ", l:"DND_ORB_ATTRIBUTES", s:"!");
 				else
-					Log(s:"\cjOrb of Elevation grants \cd1\c- attribute!");
+					Log(s:"\cj", l:"DND_ORBUSETEXT17B");
 			}
 			else
-				Log(s:"\cgOrb of Elevation couldn't be used, the item reached max attributes\c-!");
+				Log(s:"\cg", l:"DND_ORBUSEFAIL17");
 		break;
 	}
 }
@@ -1773,20 +1770,31 @@ void ResetOrbData(int pnum) {
 	}
 }
 
+bool IsOrbDropException(int orb_id) {
+	switch(orb_id) {
+		case DND_ORB_HOLLOW:
+		case DND_ORB_PHANTASMAL:
+		case DND_ORB_ASSIMILATION:
+		return true;
+	}
+	return false;
+}
+
 void SpawnOrb(int pnum, bool sound) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		int w = random(1, ORB_MAXWEIGHT), i = 0;
+		int i;
 		
 #ifdef ISDEBUGBUILD
 		i = random(0, MAX_ORBS - 1);
 #else
-		
+	do {
+		int w = random(1, ORB_MAXWEIGHT);
 		if(GetCVar("dnd_ignore_dropweights"))
 			i = random(0, MAX_ORBS - 1);
 		else
-			for(; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
-			
+			for(i = 0; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now
 		// i = DND_ORB_CORRUPT;
@@ -1803,6 +1811,26 @@ void SpawnOrbForAll(int repeats) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j))
 				SpawnOrb(j, false);
+		}
+	}
+}
+
+void SpawnSpecificOrb(int pnum, int id, bool sound) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		RollOrbInfo(c, id, true);
+		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SpawnDrop(InventoryInfo[id + ORBS_BEGIN], 24.0, 16, pnum + 1, c);
+		if (sound)
+			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
+	}
+}
+
+void SpawnSpecificOrbForAll(int id, int repeats) {
+	for(int k = 0; k < repeats; ++k) {
+		for(int j = 0; j < MAXPLAYERS; ++j) {
+			if(PlayerInGame(j) && !PlayerIsSpectator(j))
+				SpawnSpecificOrb(j, id, false);
 		}
 	}
 }

@@ -1274,43 +1274,43 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 		Terminate;
 	switch(msg_no) {
 		case DND_LOGIN_NOCHAR:
-			Log(s:"\cgLOAD CHAR ERROR: Loading failed due to non-existent character! Character slot number should be between 0 - ", d:DND_MAX_CHARS-1, s:" and must've been declared previously using \"setchar\" command.");
+			Log(s:"\cg", l:"DND_DBERR1A", s:" 0 - ", d:DND_MAX_CHARS-1, s:" ", l:"DND_DBERR1B");
 		break;
 		case DND_LOGIN_CREATECHAROK:
-			Log(s:"CREATE CHAR: Character successfully created on slot \cd", d:extra, s:"\c-.");
+			Log(l:"DND_DBERR2", s:" \cd", d:extra, s:"\c-.");
 		break;
 		case DND_LOGIN_CHARINUSE:
-			Log(s:"\cgCHAR ERROR: Can't do this while a character is already loaded!");
+			Log(s:"\cg", l:"DND_DBERR3");
 		break;
 		case DND_LOGIN_NOCHARINUSE:
-			Log(s:"\cgCHAR ERROR: Can't do this if no characters are loaded!");
+			Log(s:"\cg", l:"DND_DBERR4");
 		break;
 		case DND_LOGIN_NOTINGAME:
-			Log(s:"\cgCHAR ERROR: You have to be in game to use this!");
+			Log(s:"\cg", l:"DND_DBERR5");
 		break;
 		case DND_LOGIN_NOTHARDCORE:
-			Log(s:"\cgCHAR ERROR: Gamemode is either not set to hardcore or softcore, or server tried to set both!");
+			Log(s:"\cg", l:"DND_DBERR6");
 		break;
 		case DND_LOGIN_INCOUNTDOWN:
-			Log(s:"\cgCHAR ERROR: Can't do this during countdown!");
+			Log(s:"\cg", l:"DND_DBERR7");
 		break;
 		case DND_LOGIN_NOTLOGGED:
-			Log(s:"\cgCHAR ERROR: You have to be logged in for this to work!");
+			Log(s:"\cg", l:"DND_DBERR8");
 		break;
 		case DND_LOGIN_NOTIME:
-			Log(s:"\cgCHAR ERROR: The load time for this map is over!");
+			Log(s:"\cg", l:"DND_DBERR9");
 		break;
 		case DND_LOGIN_CHARNOTINRANGE:
-			Log(s:"\cgCHAR ERROR: Character slot number needs to be between 0 - ", d:DND_MAX_CHARS - 1, s:"!");
+			Log(s:"\cg", l:"DND_DBERR10", s:" 0 - ", d:DND_MAX_CHARS - 1, s:"!");
 		break;
 		case DND_LOGIN_TRANSFSAMESLOT:
-			Log(s:"TRANSFER CHAR: Character will remain at the current slot \cd", d:extra, s:"\c- on character save.");
+			Log(l:"TRANSFER CHAR: Character will remain at the current slot", s:" \cd", d:extra, s:"\c- ", l:"DND_DBERR11B");
 		break;
 		case DND_CHARLOADED:
-			Log(n:0, s:" has loaded a character (Level ", d:CheckActorInventory(P_TIDSTART + pnum, "Level"), s:")!");
+			Log(n:0, s:" ", l:"DND_DBERR12", s:" (", l:"DND_STAT18", s:" ", d:CheckActorInventory(P_TIDSTART + pnum, "Level"), s:")!");
 		break;
 		case DND_LOGIN_CHARTRANSFERRED:
-			Log(s:"TRANSFER CHAR: Character will be transferred to slot \cd", d:extra, s:"\c- on character save. Previous character on that slot will be deleted!");
+			Log(l:"DND_DBERR13A", s:" \cd", d:extra, s:"\c- ", l:"DND_DBERR13B");
 		break;
 	}
 }

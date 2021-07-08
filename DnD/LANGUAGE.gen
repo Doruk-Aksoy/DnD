@@ -15,6 +15,7 @@ DND_OR									= "or";
 DND_KILL								= "Kill";
 DND_FORBUFF								= "for buff";
 DND_PLAYER								= "Player";
+DND_POINTS								= "points";
 
 DND_TEXT_MAXKILLS 						= "All monsters have been killed! ";
 DND_TEXT_MAXKILLREWARD 					= "% Exp bonus!";
@@ -71,6 +72,7 @@ DND_TALENT6								= "Elemental";
 
 DND_DAMAGEBONUS							= "damage bonus";
 DND_DAMAGE								= "damage";
+DND_FROM								= "from";
 DND_CLASS								= "Class";
 
 DND_STAT1								= "Strength";
@@ -127,3 +129,22 @@ DND_STATALLOCATION						= "Stat Allocation";
 DND_PERKALLOCATION						= "Perk Allocation";
 DND_WEPSOWNED							= "Weapons Owned";
 DND_PLAYERNOTPLAYING					= "Player isn't currently playing";
+
+// database messages
+DND_DBERR1A		= "LOAD CHAR ERROR: Loading failed due to non-existent character! Character slot number should be between";
+DND_DBERR1B		= "and must've been declared previously using \"setchar\" command.";
+
+DND_DBERR2		= "CREATE CHAR: Character successfully created on slot";
+DND_DBERR3		= "CHAR ERROR: Can't do this while a character is already loaded!";
+DND_DBERR4		= "CHAR ERROR: Can't do this if no characters are loaded!";
+DND_DBERR5		= "CHAR ERROR: You have to be in game to use this!";
+DND_DBERR6		= "CHAR ERROR: Gamemode is either not set to hardcore or softcore, or server tried to set both!";
+DND_DBERR7		= "CHAR ERROR: Can't do this during countdown!";
+DND_DBERR8		= "CHAR ERROR: You have to be logged in for this to work!";
+DND_DBERR9		= "CHAR ERROR: The load time for this map is over!";
+DND_DBERR10		= "CHAR ERROR: Character slot number needs to be between";
+DND_DBERR11A	= "TRANSFER CHAR: Character will remain at the current slot";
+DND_DBERR11B	= "on character save.";
+DND_DBERR12		= "has loaded a character";
+DND_DBERR13A	= "TRANSFER CHAR: Character will be transferred to slot";
+DND_DBERR13B	= "on character save. Previous character on that slot will be deleted!";

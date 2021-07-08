@@ -103,11 +103,15 @@ enum {
 	DND_ORB_HOLDING,
 	DND_ORB_REFINEMENT,
 	DND_ORB_SCULPTING,
-	DND_ORB_ELEVATION
+	DND_ORB_ELEVATION,
+	DND_ORB_HOLLOW,
+	DND_ORB_PHANTASMAL,
+	DND_ORB_ASSIMILATION
 };
 
 enum {
-	DND_TOKEN_REPAIR
+	DND_TOKEN_REPAIR,
+	DND_TOKEN_SCOUR
 };
 
 // these are used for accessing common info table below
@@ -143,8 +147,12 @@ enum {
 	DND_ISUBT_ORB_REFINEMENT,
 	DND_ISUBT_ORB_SCULPTING,
 	DND_ISUBT_ORB_ELEVATION,
+	DND_ISUBT_ORB_HOLLOW,
+	DND_ISUBT_ORB_PHANTASMAL,
+	DND_ISUBT_ORB_ASSIMILATION,
 	
-	DND_ISUBT_TOKEN_REPAIR
+	DND_ISUBT_TOKEN_REPAIR,
+	DND_ISUBT_TOKEN_SCOUR
 };
 
 #define CHESTKEY_BEGIN DND_ISUBT_CHESTTYPE_BRONZE
@@ -154,15 +162,21 @@ enum {
 
 #define CHESTKEY_END DND_ISUBT_CHESTTYPE_GOLD
 #define ELIXIR_END DND_ISUBT_ELIXIR_LUCK
-#define ORBS_END DND_ISUBT_ORB_ELEVATION
-#define TOKEN_END DND_ISUBT_TOKEN_REPAIR
+#define ORBS_END DND_ISUBT_ORB_ASSIMILATION
+#define TOKEN_END DND_ISUBT_TOKEN_SCOUR
 
 #define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)
 #define MAX_ELIXIRS (ELIXIR_END - ELIXIR_BEGIN + 1)
 #define MAX_ORBS (ORBS_END - ORBS_BEGIN + 1)
 #define MAX_TOKENS (TOKEN_END - TOKEN_BEGIN + 1)
 
-#define MAX_COMMON_INVENTORY (DND_ISUBT_TOKEN_REPAIR + 1)
+int TokenWeights[MAX_TOKENS] = {
+	8,
+	10
+};
+#define MAX_TOKEN_WEIGHT 10
+
+#define MAX_COMMON_INVENTORY (TOKEN_END + 1)
 
 str InventoryInfo[MAX_COMMON_INVENTORY] = {
 	"BronzeChestKey",
@@ -196,8 +210,12 @@ str InventoryInfo[MAX_COMMON_INVENTORY] = {
 	"OrbofRefinement",
 	"OrbofSculpting",
 	"OrbofElevation",
+	"OrbofHollow",
+	"OrbofPhantasmal",
+	"OrbofAssimilation",
 
-	"RepairToken"
+	"RepairToken",
+	"ScouringToken"
 };
 
 // the below two are for when only text or tag are needed, 3rd is for the entire thing being needed (a tiny optimization)

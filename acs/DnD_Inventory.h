@@ -130,6 +130,9 @@ enum {
 	IIMG_ORB_15,
 	IIMG_ORB_16,
 	IIMG_ORB_17,
+	IIMG_ORB_18,
+	IIMG_ORB_19,
+	IIMG_ORB_20,
 	
 	IIMG_CKEY_1,
 	IIMG_CKEY_2,
@@ -145,7 +148,8 @@ enum {
 	IIMG_ELIX_DAMAGE,
 	IIMG_ELIX_LUCK,
 	
-	IIMG_TOKEN_REPAIR
+	IIMG_TOKEN_REPAIR,
+	IIMG_TOKEN_SCOUR
 };
 
 #define ITEM_IMAGE_ORB_BEGIN IIMG_ORB_1
@@ -153,7 +157,7 @@ enum {
 #define ITEM_IMAGE_ELIXIR_BEGIN IIMG_ELIX_HEALTH
 #define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_REPAIR
 
-#define MAX_ITEM_IMAGES IIMG_TOKEN_REPAIR + 1
+#define MAX_ITEM_IMAGES (IIMG_TOKEN_SCOUR + 1)
 str Item_Images[MAX_ITEM_IMAGES] = {
 	// charms
 	"SCHRM1",
@@ -202,6 +206,9 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	"ORB3K0",
 	"ORB3M0",
 	"ORB3O0",
+	"ORB3Q0",
+	"ORB3Z0",
+	"ORB3S0",
 	
 	"SBKGA0",
 	"SBKGB0",
@@ -217,7 +224,8 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	"ELIX08",
 	"ELIX09",
 	
-	"REPTOKN"
+	"REPTOKN",
+	"SCRTOKN"
 };
 
 #define IOFFSET_X 0
@@ -270,6 +278,9 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
 	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
+	{ 7.0, 7.0 },
 	
 	// chest keys
 	{ 7.0, 7.0 },
@@ -288,17 +299,8 @@ int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
 	{ 0.0, 10.0 },
 	
 	// tokens
+	{ 0.0, 0.0 },
 	{ 0.0, 0.0 }
-};
-
-enum {
-	DND_INVDROP_CHARM,
-	DND_INVDROP_UNIQUECHARM,
-};
-#define MAX_DND_INVDROPACTORS DND_INVDROP_UNIQUECHARM + 1
-str InventoryDropActors[MAX_DND_INVDROPACTORS] = {
-	"CharmDrop",
-	"UniqueCharmDrop"
 };
 
 #define ITEMLEVEL_VARIANCE_LOWER 15
@@ -1479,9 +1481,9 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		// copy now
 		CopyItemSource(c, player_index, pitem_index, source);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		str droptype = InventoryDropActors[DND_INVDROP_CHARM];
+		str droptype = "CharmDrop";
 		if(itype > UNIQUE_BEGIN)
-			droptype = InventoryDropActors[DND_INVDROP_UNIQUECHARM];
+			droptype = "UniqueCharmDrop";
 		else if(itype == DND_ITEM_ORB)
 			droptype = InventoryInfo[stype + ORBS_BEGIN];
 		else if(itype == DND_ITEM_CHESTKEY)
@@ -2269,7 +2271,10 @@ void SpawnToken(int pnum, bool sound) {
 	if(c != -1) {
 		// c is the index on the field now
 		// only current token is repair token, so just assume that instead
-		int i = 0;
+		int i = 0, w = random(1, MAX_TOKEN_WEIGHT);
+		
+		for(; i < MAX_TOKENS && TokenWeights[i] < w; ++i);
+		
 		RollTokenInfo(c, i, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[i + TOKEN_BEGIN], 24.0, 16, pnum + 1, c);

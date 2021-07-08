@@ -1,0 +1,126 @@
+[enu default]
+
+DND_ORB1			=	"Orb of Enhancement";
+DND_ORBTEXT1		=	"Allows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg25%\c- total.";
+DND_ORB2			=	"Orb of Corruption";
+DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?";
+DND_ORB3			=	"Orb of Spirit";
+DND_ORBTEXT3		=	"Grants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight.";
+DND_ORB4			=	"Orb of Repentance";
+DND_ORBTEXT4		=	"Allows you to undo the effects of the most recently used orb. You can't undo the effects undone by this orb or the \c[Y5]Orb of Riches\c-.";
+DND_ORB5			=	"Orb of Affluence";
+DND_ORBTEXT5		=	"Doubles the effect of the next orb. This effect can stack with itself up to a multiplier of \cg16\c-.";
+DND_ORB6			=	"Orb of Calamity";
+DND_ORBTEXT6		=	"Turns a random orb into a random orb. It won't work if you have no other orbs or if you only have these orbs.";
+DND_ORB7			=	"Orb of Prosperity";
+DND_ORBTEXT7		=	"Increases health and armor caps by \cd1\c- up to a maximum of \cg500\c-.";
+DND_ORB8			=	"Orb of Wisdom";
+DND_ORBTEXT8		=	"Increases experience gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.";
+DND_ORB9			=	"Orb of Greed";
+DND_ORBTEXT9		=	"Increases credit gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.";
+DND_ORB10			=	"Orb of Violence";
+DND_ORBTEXT10		=	"Increases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category.";
+DND_ORB11			=	"Orb of Fortitude";
+DND_ORBTEXT11		=	"Increases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-.";
+DND_ORB12			=	"Orb of Sin";
+DND_ORBTEXT12		=	"A pact with the devil itself, trading anywhere from \cg1\c- to \cg8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!";
+DND_ORB13			=	"Orb of Riches";
+DND_ORBTEXT13		=	"Grants a random resource on use. Can grant experience, credit or budget. Can give \cd5%\c- of your current level's experience, \cd2000\c- or \cd5%\c- of current credits (whichever is greater) and \cd5k\c- respectively.";
+DND_ORB14			=	"Orb of Holding";
+DND_ORBTEXT14		=	"Increases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons.";
+DND_ORB15			=	"Orb of Refinement";
+DND_ORBTEXT15		=	"Rerolls the attribute values of the selected item.";
+DND_ORB16			=	"Orb of Sculpting";
+DND_ORBTEXT16		=	"Removes a random attribute entirely from the selected item.";
+DND_ORB17			=	"Orb of Elevation";
+DND_ORBTEXT17		=	"Adds a random attribute that's not already present to the selected item, if it has capacity.";
+DND_ORB18			=	"Hollow Orb";
+DND_ORBTEXT18		=	"Adds an extra mod to a non-unique charm even if it's at its limit, adding at most one additional over limit.";
+DND_ORB19			=	"Phantasmal Orb";
+DND_ORBTEXT19		=	"Grants used weapon ability to hit ghosts but reduces overall damage by 33%.";
+DND_ORB20			=	"Assimilation Orb";
+DND_ORBTEXT20		=	"Assimilates a chosen charm into another merging them unpredictably, randomly taking modifiers from both charms. Can have up to \cd1 additional modifier\c-.";
+
+// random stuff + use texts
+DND_ORB_ANDGRANTS	=	"and grants";
+DND_ORB_STATPOINTS	=	"stat points";
+DND_ORB_RANDOMPERKS	=	"random perks";
+DND_ORB_RANDOMPERK	=	"random perk";
+DND_ORB_TIMES		=	"times";
+DND_ORB_ATTRIBUTES	=	"attributes";
+
+DND_ORBUSETEXT1A	=	"Orb of Enhancement improves";	
+DND_ORBUSETEXT1B	=	"damage by";
+DND_ORBUSEFAIL1		=	"You're maxed out on enhancements, Orb of Enhancement failed!";
+
+DND_ORBUSETEXT2A	=	"Orb of Corruption does \cgnothing!";
+DND_ORBUSETEXT2B	=	"Orb of Corruption \cgtakes away all your ammo!";
+DND_ORBUSETEXT2C	=	"Orb of Corruption \cgtakes";
+DND_ORBUSETEXT2D	=	"of your backpacks!";
+DND_ORBUSETEXT2E	=	"Orb of Corruption \cgreduces your damage by 75%\cj for this map!";
+DND_ORBUSETEXT2F	=	"Orb of Corruption \cgreduces your life cap by";
+DND_ORBUSETEXT2G	=	"Orb of Corruption \cgreduces your movement speed by";
+DND_ORBUSETEXT2H	=	"Orb of Corruption gives";
+DND_ORBUSETEXT2I	=	"crit chance to";
+DND_ORBUSETEXT2J	=	"crit damage to";
+DND_ORBUSETEXT2K	=	"increased damage to";
+DND_ORBUSETEXT2L	=	"increased movement speed";
+DND_ORBUSETEXT2M	=	"Orb of Corruption increases your drop chance by";
+DND_ORBUSETEXT2N	=	"Orb of Corruption grants you with";
+DND_ORBUSETEXT2O	=	"Orb of Corruption gives \cvpercent health damage on impact\cj to";
+DND_ORBUSETEXT2P	=	"Orb of Corruption gives \cvpoison on hit\cj to";
+DND_ORBUSETEXT2Q	=	"Orb of Corruption gives \cvchance to force pain\cj to";
+
+DND_ORBUSETEXT3		=	"Orb of Spirit grants you with";
+DND_ORBUSEFAIL3		=	"You're maxed out on stats, Orb of Spirit failed!";
+
+DND_ORBUSETEXT4		=	"Orb of Repentance reverts the effects of";
+DND_ORBUSEFAIL4		=	"No orb used or tried to revert effects of Orb of Repentance!";
+
+DND_ORBUSETEXT5		=	"Orb of Affluence will improve the effect of the next orb used by";
+DND_ORBUSEFAIL5		=	"You've reached max stacks of Orb of Affluence";
+
+DND_ORBUSETEXT6		=	"Orb of Calamity turns your";
+DND_ORBUSEFAIL6		=	"No other orb found to convert!";
+
+DND_ORBUSETEXT7A	=	"Orb of Prosperity grants";
+DND_ORBUSETEXT7B	=	"armor and health cap\cv increase!";
+DND_ORBUSEFAIL7		=	"Max prosperity bonus reached";
+
+DND_ORBUSETEXT8A	=	"Orb of Fortitude grants";
+DND_ORBUSETEXT8B	=	"armor and health cap\cv increase!";
+DND_ORBUSEFAIL8		=	"Max fortitude bonus reached";
+
+DND_ORBUSETEXT9A	=	"Orb of Wisdom grants";
+DND_ORBUSETEXT9B	=	"experience gain\cv increase!";
+DND_ORBUSEFAIL9		=	"Max wisdom bonus reached";
+
+DND_ORBUSETEXT10A	=	"Orb of Greed grants";
+DND_ORBUSETEXT10B	=	"credit gain\cv increase!";
+DND_ORBUSEFAIL10	=	"Max greed bonus reached";
+
+DND_ORBUSETEXT11A	=	"Orb of Violence grants";
+DND_ORBUSETEXT11B	=	"Damage\cv increase!";
+DND_ORBUSEFAIL11	=	"Max violence bonus reached";
+
+DND_ORBUSETEXT12A	=	"Orb of Sin takes";
+DND_ORBUSETEXT12B	=	"random stat points";
+DND_ORBUSETEXT12C	=	"random stat point";
+DND_ORBUSEFAIL12	=	"You don't have enough allocated stat points! Need at least";
+
+DND_ORBUSETEXT13	=	"Orb of Riches gives you";
+
+DND_ORBUSETEXT14A	=	"Orb of Holding grants";
+DND_ORBUSETEXT14B	=	"increased ammo capacity";
+DND_ORBUSEFAIL14	=	"You're maxed out on holding bonuses";
+
+DND_ORBUSETEXT15A	=	"Orb of Refinement rerolls attributes of your item";
+DND_ORBUSEFAIL15	=	"Orb of Refinement couldn't be used";
+
+DND_ORBUSETEXT16A	=	"Orb of Sculpting removes";
+DND_ORBUSETEXT16B	=	"Orb of Sculpting removes \cdan attribute\c-!";
+DND_ORBUSEFAIL16	=	"Orb of Sculpting couldn't be used, the item ran out of attributes to remove\c-!";
+
+DND_ORBUSETEXT17A	=	"Orb of Elevation grants";
+DND_ORBUSETEXT17B	=	"Orb of Elevation grants \cd an attribute\c-!";
+DND_ORBUSEFAIL17	=	"Orb of Elevation couldn't be used, the item reached max attributes\c-!";
