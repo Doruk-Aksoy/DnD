@@ -35,11 +35,11 @@ DND_ORBTEXT16		=	"Removes a random attribute entirely from the selected item.";
 DND_ORB17			=	"Orb of Elevation";
 DND_ORBTEXT17		=	"Adds a random attribute that's not already present to the selected item, if it has capacity.";
 DND_ORB18			=	"Hollow Orb";
-DND_ORBTEXT18		=	"Adds an extra mod to a non-unique charm even if it's at its limit, adding at most one additional over limit.";
+DND_ORBTEXT18		=	"Adds an extra random attribute to a non-unique charm even if it's at its limit, adding at most one additional over limit. The attribute is well-rolled.";
 DND_ORB19			=	"Phantasmal Orb";
 DND_ORBTEXT19		=	"Grants used weapon ability to hit ghosts but reduces overall damage by 33%.";
 DND_ORB20			=	"Assimilation Orb";
-DND_ORBTEXT20		=	"Assimilates a chosen charm into another merging them unpredictably, randomly taking modifiers from both charms. Can have up to \cd1 additional modifier\c-.";
+DND_ORBTEXT20		=	"Assimilates the initially selected non-unique charm into another non-unique charm, taking attributes from the two unpredictably. The resulting modifiers are well-rolled. Can have up to \cd1 additional modifier\c-.";
 
 // random stuff + use texts
 DND_ORB_ANDGRANTS	=	"and grants";
@@ -122,5 +122,9 @@ DND_ORBUSETEXT16B	=	"Orb of Sculpting removes \cdan attribute\c-!";
 DND_ORBUSEFAIL16	=	"Orb of Sculpting couldn't be used, the item ran out of attributes to remove\c-!";
 
 DND_ORBUSETEXT17A	=	"Orb of Elevation grants";
-DND_ORBUSETEXT17B	=	"Orb of Elevation grants \cd an attribute\c-!";
+DND_ORBUSETEXT17B	=	"Orb of Elevation grants \cdan attribute\c-!";
 DND_ORBUSEFAIL17	=	"Orb of Elevation couldn't be used, the item reached max attributes\c-!";
+
+DND_ORBUSETEXT18A	=	"Hollow Orb grants";
+DND_ORBUSETEXT18B	=	"Hollow Orb grants \cdan attribute\c-!";
+DND_ORBUSEFAIL18	=	"Hollow Orb couldn't be used, the item reached max attributes\c-!";

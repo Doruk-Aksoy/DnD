@@ -155,31 +155,6 @@ void AddAttributeToCharm(int charm_pos, int attrib) {
 	}
 }
 
-void AddAttributeToItem(int item_pos, int attrib) {
-	int pnum = PlayerNumber();
-	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
-	int lvl = PlayerInventoryList[pnum][item_pos].item_level;
-	
-	// 10% chance to roll a tier up or down
-	if(!random(0, 9))
-		++lvl;
-	else if(!random(0, 9))
-		--lvl;
-	
-	// force within bounds
-	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
-	
-	int val = 0;
-	
-	if(!Inv_Attribute_Info[attrib].attrib_level_modifier)
-		val = (Inv_Attribute_Info[attrib].attrib_high - Inv_Attribute_Info[attrib].attrib_low + 1) * lvl / CHARM_ATTRIBLEVEL_SEPERATOR;
-	else
-		val = (Inv_Attribute_Info[attrib].attrib_level_modifier * lvl) / CHARM_ATTRIBLEVEL_SEPERATOR;
-	
-	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
-	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low + val, Inv_Attribute_Info[attrib].attrib_high + val);
-}
-
 // monsters dropping charms
 void SpawnCharm(int pnum, bool isElite) {
 	int c = CreateItemSpot();

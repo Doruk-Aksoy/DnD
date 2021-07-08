@@ -1691,6 +1691,9 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 				case DND_ORB_REFINEMENT:
 				case DND_ORB_SCULPTING:
 				case DND_ORB_ELEVATION:
+				case DND_ORB_HOLLOW:
+				case DND_ORB_PHANTASMAL:
+				case DND_ORB_ASSIMILATION:
 				return false;
 			}
 		break;
@@ -2134,6 +2137,35 @@ int GetCraftableItemCount() {
 		if(IsCraftableItem(PlayerInventoryList[pnum][i].item_type) && PlayerInventoryList[pnum][i].height)
 			++res;
 	return res;
+}
+
+void AddAttributeToItem(int item_pos, int attrib, bool isWellRolled = false) {
+	int pnum = PlayerNumber();
+	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
+	int lvl = PlayerInventoryList[pnum][item_pos].item_level;
+	
+	// 10% chance to roll a tier up or down
+	if(!random(0, 9))
+		++lvl;
+	else if(!random(0, 9))
+		--lvl;
+	
+	// force within bounds
+	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
+	
+	int val = 0;
+	
+	if(!Inv_Attribute_Info[attrib].attrib_level_modifier)
+		val = (Inv_Attribute_Info[attrib].attrib_high - Inv_Attribute_Info[attrib].attrib_low + 1) * lvl / CHARM_ATTRIBLEVEL_SEPERATOR;
+	else
+		val = (Inv_Attribute_Info[attrib].attrib_level_modifier * lvl) / CHARM_ATTRIBLEVEL_SEPERATOR;
+	
+	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
+	
+	if(!isWellRolled)
+		PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low + val, Inv_Attribute_Info[attrib].attrib_high + val);
+	else
+		PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random((Inv_Attribute_Info[attrib].attrib_low + Inv_Attribute_Info[attrib].attrib_high) / 2 + val, Inv_Attribute_Info[attrib].attrib_high + val);
 }
 
 // this doesn't consider the item_type yet!

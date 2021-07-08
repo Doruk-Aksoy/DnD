@@ -291,9 +291,9 @@ int OrbDropWeights[MAX_ORBS] = {
 	965,
 	1000,
 	// drops only from specific monster
-	0,
-	0,
-	0
+	0xFFFFFF,
+	0xFFFFFF,
+	0xFFFFFF
 };
 
 #define ENHANCEORB_BONUS 1
@@ -401,20 +401,31 @@ enum {
 	RICHES_CREDIT,
 	RICHES_BUDGET
 };
-#define MAX_RICHES RICHES_BUDGET + 1
-
-int RichesAmount[MAX_RICHES] = {
-	5,
-	5,
-	5
-};
-
 #define MAX_RICHES_WEIGHT 10
-int RichesWeights[MAX_RICHES] = {
-	2,
-	9,
-	10
+#define MAX_RICHES (RICHES_BUDGET + 1)
+
+#define RICHES_AMOUNT 0
+#define RICHES_WEIGHTS 1
+int OrbRichesData[MAX_RICHES][2] = {
+	{ 5, 2 },
+	{ 5, 9 },
+	{ 5, 10 }
 };
+
+bool CanAddModToItem(int itemtype, int item_index, int add_lim) {
+	bool res = false;
+	int pnum = PlayerNumber();
+	if(IsUsableOnInventory(itemtype)) {
+		// this one depends on attribute counts of items it is used on
+		if(PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN)
+			res = false;
+		else if(itemtype == DND_ITEM_CHARM) {
+			// printbold(d:PlayerInventoryList[pnum][item_index].attrib_count, s: " < ", d:Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim);
+			res = PlayerInventoryList[pnum][item_index].attrib_count < Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;
+		}
+	}
+	return res;
+}
 
 // extra type holds the base item type, no extra information - this comes from the function that calls this
 bool CanUseOrb(int orbtype, int extra, int extratype) {
@@ -490,20 +501,42 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			}
 		break;
 		case DND_ORB_ELEVATION:
-			if(IsUsableOnInventory(extratype)) {
-				// this one depends on attribute counts of items it is used on
-				if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
-					res = 0;
-				else if(extratype == DND_ITEM_CHARM) {
-					//printbold(s:"image:",d:PlayerInventoryList[PlayerNumber()][extra].item_image,s:"attr_count:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count,s:", max_affixes:",d:Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype],s:", 1 < 2:",d:PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype]);
-					res = PlayerInventoryList[PlayerNumber()][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[PlayerNumber()][extra].item_subtype];
-				}
-			}
+			res = CanAddModToItem(extratype, extra, 0);
+		break;
+		case DND_ORB_HOLLOW:
+			// this one is basically an orb of elevation with a +1 additional attribute allowed
+			res = CanAddModToItem(extratype, extra, 1);
 		break;
 	}
 	if(!res)
 		SetInventory("OrbResult", 0x7FFFFFFF);
 	return res;
+}
+
+void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled) {
+	int i, temp;
+	bool finish = false;
+	// save
+	Player_MostRecent_Orb[pnum].p_tempwep = item_index + 1;
+	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_index].attrib_count;
+	for(i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
+		Player_MostRecent_Orb[pnum].values[2 * i + 1] = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
+		Player_MostRecent_Orb[pnum].values[2 * i + 2] = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
+	}
+	
+	for(int s = 0; s < GetAffluenceBonus() && !finish; ++s) {
+		i = PlayerInventoryList[PlayerNumber()][item_index].attrib_count;
+		// find an attribute that this item doesn't have
+		do {
+			temp = random(0, LAST_INV_ATTRIBUTE);
+		} while(CheckItemAttribute(item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
+		AddAttributeToItem(item_index, temp);
+		
+		if(PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHARM)
+			finish = PlayerInventoryList[pnum][item_index].attrib_count < Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;
+	}
+	SyncItemAttributes(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SetInventory("OrbResult", item_index);
 }
 
 void HandleOrbUse (int orbtype, int extra) {
@@ -647,13 +680,13 @@ void HandleOrbUse (int orbtype, int extra) {
 		case DND_ORB_RICHES:
 			do {
 				temp = random(1, MAX_RICHES_WEIGHT);
-				for(i = 0; i < MAX_RICHES && temp > RichesWeights[i]; ++i);
+				for(i = 0; i < MAX_RICHES && temp > OrbRichesData[i][RICHES_WEIGHTS]; ++i);
 			} while(
 				(i == 0 && CheckInventory("Level") == 100) ||
 				(i == 1 && CheckInventory("Credit") == 0x7fffffff) ||
 				(i == 2 && CheckInventory("Budget") == 1000));
 
-			res = GetAffluenceBonus() * RichesAmount[i];
+			res = GetAffluenceBonus() * OrbRichesData[i][RICHES_AMOUNT];
 			Player_MostRecent_Orb[pnum].values[0] = i;
 			Player_MostRecent_Orb[pnum].values[1] = res;
 			if(!i)
@@ -724,26 +757,10 @@ void HandleOrbUse (int orbtype, int extra) {
 			SetInventory("OrbResult", extra);
 		break;
 		case DND_ORB_ELEVATION:
-			// save
-			Player_MostRecent_Orb[pnum].p_tempwep = extra + 1;
-			Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][extra].attrib_count;
-			for(i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-				Player_MostRecent_Orb[pnum].values[2 * i + 1] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
-				Player_MostRecent_Orb[pnum].values[2 * i + 2] = PlayerInventoryList[pnum][extra].attributes[i].attrib_val;
-			}
-			for(s = 0; s < GetAffluenceBonus() && res; ++s) {
-				i = PlayerInventoryList[PlayerNumber()][extra].attrib_count;
-				// find an attribute that this item doesn't have
-				do {
-					temp = random(0, LAST_INV_ATTRIBUTE);
-				} while(CheckItemAttribute(extra, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY,i) != -1);
-				AddAttributeToItem(extra, temp);
-				
-				if(PlayerInventoryList[pnum][extra].item_type == DND_ITEM_CHARM)
-					res = PlayerInventoryList[pnum][extra].attrib_count < Charm_MaxAffixes[PlayerInventoryList[pnum][extra].item_subtype];
-			}
-			SyncItemAttributes(extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleAddRandomMod(pnum, extra, 0, false);
+		break;
+		case DND_ORB_HOLLOW:
+			HandleAddRandomMod(pnum, extra, 1, true);
 		break;
 	}
 	Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
@@ -973,21 +990,6 @@ int HandleSinOrbBonus(int type) {
 			}
 			//printbold(s:"ending vals - perks: ", d:Player_MostRecent_Orb[pnum].val4, s:", ", d:Player_MostRecent_Orb[pnum].val5);
 		return SINORB_PERKGIVE;
-		/*case SINORB_RES:
-			int s = 0;
-			temp =  GetAffluenceBonus();
-			for(i = 0; i < temp;) {
-				s = random(0, MAX_RESEARCHES - 1);
-				if(CheckResearchStatus(s) == RES_NA) {
-					GiveResearch(s);
-					++i;
-				}
-				else if(CheckResearchStatus(s) == RES_KNOWN) {
-					CompleteResearch(s);
-					++i;
-				}
-			}
-		return s;*/
 		case SINORB_CRIT:
 			do {
 				temp = PickRandomOwnedWeapon();
@@ -1011,10 +1013,6 @@ int HandleSinOrbBonus(int type) {
 			Player_MostRecent_Orb[pnum].values[3] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp);
 			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, temp);
 		return temp;
-		/*case SINORB_CREDIT:
-			temp = 10 * random(SINORB_CRED_MIN, SINORB_CRED_MAX) * GetAffluenceBonus();
-			GiveCredit(temp);
-		return temp;*/
 	}
 	return -1;
 }
@@ -1102,6 +1100,7 @@ void RevertLastOrbEffect() {
 			SyncItemAttributes(temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		break;
 		case DND_ORB_ELEVATION:
+		case DND_ORB_HOLLOW:
 			temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
 			PlayerInventoryList[pnum][temp].attrib_count = Player_MostRecent_Orb[pnum].values[0];
 			for(i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
@@ -1110,6 +1109,7 @@ void RevertLastOrbEffect() {
 			}
 			SyncItemAttributes(temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		break;
+		
 	}
 	SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 	ResetMostRecentOrb(pnum);
@@ -1174,7 +1174,11 @@ void UndoSinOrbEffect() {
 
 // picks a random orb
 int PickRandomOrb() {
-	return random(DND_ORB_ENHANCE, MAX_ORBS - 1);
+	int i;
+	do {
+		i = random(DND_ORB_ENHANCE, MAX_ORBS - 1);
+	} while(IsOrbDropException(i));
+	return i;
 }
 
 int PickRandomTalent() {
@@ -1729,6 +1733,16 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 			}
 			else
 				Log(s:"\cg", l:"DND_ORBUSEFAIL17");
+		break;
+		case DND_ORB_HOLLOW:
+			if(val != 0x7FFFFFFF) {
+				if(affluence > 1)
+					Log(s:"\cj", l:"DND_ORBUSETEXT18A", s:" \cd", d:affluence, s:"\c- ", l:"DND_ORB_ATTRIBUTES", s:"!");
+				else
+					Log(s:"\cj", l:"DND_ORBUSETEXT18B");
+			}
+			else
+				Log(s:"\cg", l:"DND_ORBUSEFAIL18");
 		break;
 	}
 }
