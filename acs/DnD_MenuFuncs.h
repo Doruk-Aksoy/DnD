@@ -234,28 +234,28 @@ void DrawDamageTypes(int req_id, int constraint, int flags) {
 }
 
 int GetWeaponEnchantDisplay(int pnum, int wep) {
-	return Player_Weapon_Infos[pnum][wep].wep_bonus.enchants + GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wep);
+	return Player_Weapon_Infos[pnum][wep].quality + GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wep);
 }
 
 int GetCritChanceDisplay(int pnum, int wep) {
-	int base = (100 * Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRIT]);
+	int base = (100 * Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRIT].val);
 	base += (100 * GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wep));
-	base += FixedMul(base, Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRITPERCENT]);
+	base += FixedMul(base, Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITPERCENT].val);
 	// truncate
 	return ftrunc(base);
 }
 
 bool HasCritDamageBonus(int pnum, int wep) {
-	return Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep);
+	return Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep);
 }
 
 int GetCritDamageDisplay(int pnum, int wep) {
-	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep));
+	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep));
 	return ftrunc(base);
 }
 
 int GetBonusDamageDisplay(int pnum, int wep) {
-	int base = 100 * Player_Weapon_Infos[PlayerNumber()][wep].wep_bonus.bonus_list[WEP_BONUS_DMG];
+	int base = 100 * Player_Weapon_Infos[PlayerNumber()][wep].wep_mods[WEP_MOD_DMG].val;
 	base += 100 * GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_DMG, wep);
 	return ftrunc(base);
 }
@@ -349,7 +349,7 @@ int GetWeaponEndIndexFromOption(int curopt) {
 str GetWeaponToTake(int wepid) {
 	int slot = GetGameSlotOfWeapon(wepid);
 	if(slot != 8) {
-		if(!IsLuxuryWeapon(wepid)) {
+		if(!IsLuxuryWeapon(ShopTableIdToWeaponTableId(wepid))) {
 			if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
 				return Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME];
 			else if(wepid >= SHOP_WEAPON2PISTOL_BEGIN && wepid <= SHOP_WEAPON2PISTOL_END)
@@ -859,7 +859,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		}
 		
 		if(objectflag & OBJ_WEP) {
-			if(IsLuxuryWeapon(itemid))
+			if(IsLuxuryWeapon(ShopTableIdToWeaponTableId(itemid)))
 				weptype = "\c[J7][\c[S7]R\c[J7]] ";
 			else
 				weptype = "\c[J7][\c[E3]L\c[J7]] ";
@@ -960,16 +960,12 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 
 void ResetWeaponStats(int wepid) {
 	int pnum = PlayerNumber();
-	Player_Weapon_Infos[pnum][wepid].wep_bonus.enchants = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRIT] = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRITDMG] = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_CRITPERCENT] = 0;
-	Player_Weapon_Infos[pnum][wepid].wep_bonus.bonus_list[WEP_BONUS_DMG] = 0;
-	SyncClientsideVariable_Orb(DND_SYNC_WEAPONENHANCE, wepid);
-	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRIT, wepid);
-	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, wepid);
-	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, wepid);
-	SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, wepid);
+	Player_Weapon_Infos[pnum][wepid].quality = 0;
+	
+	for(int i = 0; i < MAX_WEP_MODS; ++i) {
+		Player_Weapon_Infos[pnum][wepid].wep_mods[i].val = 0;
+		Player_Weapon_Infos[pnum][wepid].wep_mods[i].tier = 0;
+	}
 	SyncClientsideVariable_WeaponMods(pnum, wepid);
 }
 
@@ -4143,7 +4139,7 @@ void DrawPlayerStats(int pnum) {
 		HudMessage(s:GetItemAttributeText(INV_MELEEDAMAGE, val); HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
 	val = ftrunc(100 * DND_BULKINESS_GAIN * 100 + (GetBulkiness() - 100) * DND_BULKINESS_GAIN_AFTER100);
-	if(val > 100)
+	if(val > 100.0)
 		HudMessage(s:"+ \c[Q9]", f:val, s:"%\c- ", l:"DND_MENU_ARMOREFF"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 
 	val = DND_DEX_GAIN * GetDexterity();

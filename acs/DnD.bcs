@@ -6044,6 +6044,8 @@ Script "Print Loc" (void) {
 Script 68 (int x) NET {
 	if(x < MAX_RESEARCHES)
 		GiveResearch(x, true);
+	else if(x == 32768)
+		SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 1);
 	else {
 		int c = CreateItemSpot();
 		int i;

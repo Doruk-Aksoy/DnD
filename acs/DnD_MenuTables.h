@@ -777,45 +777,6 @@ str GetItemName(int id) {
 	return name;
 }
 
-// put them in this place if they are luxury weapons
-bool IsLuxuryWeapon(int id) {
-	switch(id) {
-		case SHOP_WEP_DUSKBLADE:
-		case SHOP_WEP_SICKLE:
-		
-		case SHOP_WEP_RUBYWAND:
-		case SHOP_WEP_SCATTERPISTOL:
-		
-		case SHOP_WEP_SILVER:
-		case SHOP_WEP_SLAYER:
-		
-		case SHOP_WEP_DESOLATOR:
-		case SHOP_WEP_MINIGUN:
-		case SHOP_WEP_EBONY:
-		case SHOP_WEP_MPPB:
-		
-		case SHOP_WEP_GRENADE:
-		case SHOP_WEP_ROTARYGL:
-		case SHOP_WEP_HEAVYML:
-		case SHOP_WEP_SEDRIN:
-		
-		case SHOP_WEP_RHINO:
-		case SHOP_WEP_NAIL:
-		case SHOP_WEP_BASILISK:
-		
-		case SHOP_WEP_GAUSS:
-		case SHOP_WEP_RAIL:
-		case SHOP_WEP_DEATHRAY:
-		
-		case SHOP_WEP_DEATHSTAFF:
-		case SHOP_WEP_RAZOR:
-		case SHOP_WEP_SUN:
-		case SHOP_WEP_REAVER:
-		return true;
-	}
-	return false;
-}
-
 int ShopTableIdToWeaponTableId(int id) {
 	// skip classic weapons
 	int skip = 0;

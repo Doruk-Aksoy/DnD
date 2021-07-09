@@ -59,7 +59,8 @@ enum {
 	OBI_WEAPON_CRIT,
 	OBI_WEAPON_CRITDMG,
 	OBI_WEAPON_CRITPERCENT,
-	OBI_WEAPON_DMG
+	OBI_WEAPON_DMG,
+	OBI_WEAPON_POWERSET1 // this particular one is used like a bitset of 32 bits
 };
 
 int GetDataFromOrbBonus(int pnum, int bonus, int extra) {
@@ -97,19 +98,22 @@ int GetDataFromOrbBonus(int pnum, int bonus, int extra) {
 		break;
 		
 		case OBI_WEAPON_ENCHANT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants;
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].quality;
 		break;
 		case OBI_WEAPON_CRIT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT];
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRIT].val;
 		break;
 		case OBI_WEAPON_CRITDMG:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG];
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITDMG].val;
 		break;
 		case OBI_WEAPON_CRITPERCENT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT];
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val;
 		break;
 		case OBI_WEAPON_DMG:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG];
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val;
+		break;
+		case OBI_WEAPON_POWERSET1:
+			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val;
 		break;
 		// weapon mods can come in the future for orbs that give those
 	}
@@ -161,30 +165,40 @@ void SetDataToOrbBonus(int pnum, int bonus, int extra, int val) {
 		break;
 		
 		case OBI_WEAPON_ENCHANT:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].quality;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].quality = val;
 		break;
 		case OBI_WEAPON_CRIT:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT];
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT] = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRIT].val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRIT].val = val;
 		break;
 		case OBI_WEAPON_CRITDMG:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG];
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG] = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITDMG].val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITDMG].val = val;
 		break;
 		case OBI_WEAPON_CRITPERCENT:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT];
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT] = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val = val;
 		break;
 		case OBI_WEAPON_DMG:
-			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG];
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG] = val;
+			base = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val = val;
+		break;
+		case OBI_WEAPON_POWERSET1:
+			// this is a bitset so it gets OR'd instead
+			if(val > 0)
+				Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val |= val;
+			else {
+				// negative means remove it, we want the negative state to be carried down to updateactivity so we wont modify it here
+				Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << (-val));
+			}
 		break;
 		// weapon mods can come in the future for orbs that give those
 	}
 	
 	// get difference to add
-	val -= base;
+	if(bonus != OBI_WEAPON_POWERSET1)
+		val -= base;
 	UpdateActivity(pnum, bonus + MAP_ORB_TO_ACTIVITY, val, extra);
 }
 
@@ -223,19 +237,22 @@ void SetDataToOrbBonus_NoActivity(int pnum, int bonus, int extra, int val) {
 		break;
 		
 		case OBI_WEAPON_ENCHANT:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].enchants = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].quality = val;
 		break;
 		case OBI_WEAPON_CRIT:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRIT] = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRIT].val = val;
 		break;
 		case OBI_WEAPON_CRITDMG:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITDMG] = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITDMG].val = val;
 		break;
 		case OBI_WEAPON_CRITPERCENT:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_CRITPERCENT] = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val = val;
 		break;
 		case OBI_WEAPON_DMG:
-			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].bonus_list[WEP_BONUS_DMG] = val;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val = val;
+		break;
+		case OBI_WEAPON_POWERSET1:
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val = val;
 		break;
 		// weapon mods can come in the future for orbs that give those
 	}
@@ -431,10 +448,12 @@ bool CanAddModToItem(int itemtype, int item_index, int add_lim) {
 bool CanUseOrb(int orbtype, int extra, int extratype) {
 	bool res = 0;
 	int temp = -1, i;
+	int pnum = PlayerNumber();
+	
 	SetInventory("OrbUseType", orbtype + 1);
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
-			if(extratype == DND_ITEM_WEAPON && GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_ENCHANT, extra) != ENHANCEORB_MAX)
+			if(extratype == DND_ITEM_WEAPON && GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra) != ENHANCEORB_MAX)
 				res = 1;
 		break;
 		case DND_ORB_CORRUPT:
@@ -447,12 +466,12 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = temp != -1;
 		break;
 		case DND_ORB_REPENT:
-			temp = Player_MostRecent_Orb[PlayerNumber()].orb_type;
+			temp = Player_MostRecent_Orb[pnum].orb_type;
 			if(temp) {
 				if(temp - 1 < DND_ORB_REFINEMENT)
-					res = Player_MostRecent_Orb[PlayerNumber()].orb_type - 1 != DND_ORB_REPENT && Player_MostRecent_Orb[PlayerNumber()].orb_type - 1 != DND_ORB_RICHES;
+					res = Player_MostRecent_Orb[pnum].orb_type - 1 != DND_ORB_REPENT && Player_MostRecent_Orb[pnum].orb_type - 1 != DND_ORB_RICHES;
 				else
-					res = Player_MostRecent_Orb[PlayerNumber()].p_tempwep;
+					res = Player_MostRecent_Orb[pnum].p_tempwep;
 			}
 		break;
 		case DND_ORB_AFFLUENCE:
@@ -462,20 +481,20 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = HasOrbsBesidesCalamity();
 		break;
 		case DND_ORB_PROSPERITY:
-			res = GetDataFromOrbBonus(PlayerNumber(), OBI_HPFLAT, -1) != PROSPERITY_MAX;
+			res = GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1) != PROSPERITY_MAX;
 		break;
 		case DND_ORB_FORTITUDE:
-			res = GetDataFromOrbBonus(PlayerNumber(), OBI_HPPERCENT, -1) != FORTITUDE_MAX;
+			res = GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1) != FORTITUDE_MAX;
 		break;
 		case DND_ORB_WISDOM:
-			res = GetDataFromOrbBonus(PlayerNumber(), OBI_WISDOMPERCENT, -1) != GREEDORB_MAX;
+			res = GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1) != GREEDORB_MAX;
 		break;
 		case DND_ORB_GREED:
-			res = GetDataFromOrbBonus(PlayerNumber(), OBI_GREEDPERCENT, -1) != GREEDORB_MAX;
+			res = GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1) != GREEDORB_MAX;
 		break;
 		case DND_ORB_VIOLENCE:
 			for(i = TALENT_BULLET; i < MAX_TALENTS && !res; ++i)
-				if(GetDataFromOrbBonus(PlayerNumber(), OBI_DAMAGETYPE, i) != VIOLENCEORB_MAX)
+				if(GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i) != VIOLENCEORB_MAX)
 					res = 1;
 		break;
 		case DND_ORB_SIN:
@@ -485,7 +504,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = !((CheckInventory("Level") == 100) && (CheckInventory("Credit") == 0x7fffffff) && (CheckInventory("Budget") == 1000));
 		break;
 		case DND_ORB_HOLDING:
-			res = GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1) != HOLDING_MAX;
+			res = GetDataFromOrbBonus(pnum, OBI_HOLDING, -1) != HOLDING_MAX;
 		break;
 		case DND_ORB_REFINEMENT:
 			if(IsUsableOnInventory(extratype))
@@ -494,10 +513,10 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_SCULPTING:
 			if(IsUsableOnInventory(extratype)) {
 				// don't let this be used on a unique
-				if(PlayerInventoryList[PlayerNumber()][extra].item_type > UNIQUE_BEGIN)
+				if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN)
 					res = 0;
 				else
-					res = PlayerInventoryList[PlayerNumber()][extra].attrib_count;
+					res = PlayerInventoryList[pnum][extra].attrib_count;
 			}
 		break;
 		case DND_ORB_ELEVATION:
@@ -506,6 +525,11 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_HOLLOW:
 			// this one is basically an orb of elevation with a +1 additional attribute allowed
 			res = CanAddModToItem(extratype, extra, 1);
+		break;
+		case DND_ORB_PHANTASMAL:
+			// if the weapon can't hit ghosts on its own or we didnt give it the ghost hit already
+			if(extratype == DND_ITEM_WEAPON && !HasWeaponPower(pnum, extra, WEP_POWER_GHOSTHIT) && !IsSet(GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, extra), WEP_POWER_GHOSTHIT))
+				res = 1;
 		break;
 	}
 	if(!res)
@@ -1000,7 +1024,7 @@ int HandleSinOrbBonus(int type) {
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, temp, Clamp_Between(i + SINORB_CRITGIVE * pow(2, CheckInventory("AffluenceCounter")), 0, SINORB_CRITMAX));
 			// get the difference, should be negative
 			Player_MostRecent_Orb[pnum].values[3] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, temp);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRIT, temp);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRIT, temp);
 		return temp;
 		case SINORB_CRITDMG:
 			do {
@@ -1011,7 +1035,7 @@ int HandleSinOrbBonus(int type) {
 			Player_MostRecent_Orb[pnum].values[3] = i;
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp, Clamp_Between(i + SINORB_CRITDMGGIVE * pow(2, CheckInventory("AffluenceCounter")), 0, SINORB_CRITDMGMAX));
 			Player_MostRecent_Orb[pnum].values[3] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, temp);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRITDMG, temp);
 		return temp;
 	}
 	return -1;
@@ -1161,13 +1185,13 @@ void UndoSinOrbEffect() {
 			UpdatePerkStuff();
 		break;
 		case SINORB_CRIT:
-			//printbold(d: Player_MostRecent_Orb[pnum].val5, s: " ", f:Player_Weapon_Infos[pnum][Player_MostRecent_Orb[pnum].val5].wep_bonuses[WEP_BONUS_CRIT].amt, s: " ", f:Player_MostRecent_Orb[pnum].val4);
+			//printbold(d: Player_MostRecent_Orb[pnum].val5, s: " ", f:Player_Weapon_Infos[pnum][Player_MostRecent_Orb[pnum].val5].WEP_MODes[WEP_MOD_CRIT].amt, s: " ", f:Player_MostRecent_Orb[pnum].val4);
 			AddOrbBonusData(pnum, OBI_WEAPON_CRIT, Player_MostRecent_Orb[pnum].values[4], Player_MostRecent_Orb[pnum].values[3]);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRIT, Player_MostRecent_Orb[pnum].values[4]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRIT, Player_MostRecent_Orb[pnum].values[4]);
 		break;
 		case SINORB_CRITDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_CRITDMG, Player_MostRecent_Orb[pnum].values[4], Player_MostRecent_Orb[pnum].values[3]);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[4]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRITDMG, Player_MostRecent_Orb[pnum].values[4]);
 		break;
 	}
 }
@@ -1379,7 +1403,7 @@ void HandleCorruptOrbUse(int type) {
 				SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, CORRUPTORB_MINDMG);
 			}
 			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_TAKEHP:
 			temp = CORRUPTORB_HPTAKE * GetAffluenceBonus();
@@ -1417,7 +1441,7 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i) + temp, 0, CORRUPTORB_MAXDMG));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
 			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 		case CORRUPTORB_ADDCRIT:
@@ -1427,7 +1451,7 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i) + temp, 0, CORRUPTORB_MAXCRITPERCENT));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
 			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 		case CORRUPTORB_ADDCRITDMG:
@@ -1437,7 +1461,7 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i) + temp, 0, CORRUPTORB_MAXCRITDMG));
 			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
 			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 		case CORRUPTORB_ADDSPEED:
@@ -1572,7 +1596,7 @@ void UndoCorruptOrbEffect() {
 		break;
 		case CORRUPTORB_TAKEDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_DMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_TAKESPEED:
 			AddOrbBonusData(pnum, OBI_SPEED, -1, Player_MostRecent_Orb[pnum].values[2]);
@@ -1586,15 +1610,15 @@ void UndoCorruptOrbEffect() {
 		case CORRUPTORB_ADDCRIT:
 			// since diff is meant to be negative, we now add it, not subtract it
 			AddOrbBonusData(pnum, OBI_WEAPON_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDCRITDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_CRITDMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDDMG:
 			AddOrbBonusData(pnum, OBI_WEAPON_DMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(DND_SYNC_WEPBONUS_DMG, Player_MostRecent_Orb[pnum].values[3]);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
 		break;
 		case CORRUPTORB_ADDSPEED:
 			AddOrbBonusData(pnum, OBI_SPEED, -1, Player_MostRecent_Orb[pnum].values[2]);
@@ -1777,10 +1801,12 @@ void ResetOrbData(int pnum) {
 	
 	// reset orb stats affecting players' weapons
 	for(i = 0; i < MAXWEPS; ++i) {
-		Player_Orb_Data[pnum].weapon_stat_bonuses[i].enchants = 0;
+		Player_Orb_Data[pnum].weapon_stat_bonuses[i].quality = 0;
 		// horrible naming convention here, clean up later?
-		for(j = 0; j < MAX_WEP_BONUSES; ++j)
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].bonus_list[j] = 0;
+		for(j = 0; j < MAX_WEP_MODS; ++j) {
+			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].val = 0;
+			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier = 0;
+		}
 	}
 }
 

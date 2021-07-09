@@ -28,10 +28,10 @@ enum {
 	DND_SYNC_DAMAGEENERGY,
 	DND_SYNC_DAMAGEELEMENTAL,
 	
-	DND_SYNC_WEPBONUS_CRIT,
-	DND_SYNC_WEPBONUS_CRITDMG,
-	DND_SYNC_WEPBONUS_CRITPERCENT,
-	DND_SYNC_WEPBONUS_DMG,
+	DND_SYNC_WEPMOD_CRIT,
+	DND_SYNC_WEPMOD_CRITDMG,
+	DND_SYNC_WEPMOD_CRITPERCENT,
+	DND_SYNC_WEPMOD_DMG,
 	
 	DND_SYNC_ITEMTOPLEFTBOX,
 	DND_SYNC_ITEMTYPE,
@@ -46,7 +46,8 @@ enum {
 	DND_SYNC_ITEMATTRIBUTES_VAL
 };
 
-#define MAX_SYNC_VARS DND_SYNC_WEPBONUS_DMG + 1
+#define FIRST_WEPMOD_SYNC (DND_SYNC_WEPMOD_CRIT)
+#define MAX_SYNC_VARS (DND_SYNC_WEPMOD_DMG + 1)
 
 enum {
 	DND_SYNC_ITEMSOURCE_CHARMUSED,
@@ -246,13 +247,13 @@ int GetPlayerSyncValue_Orb(int pos, int extra) {
 		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ELEMENTAL);
 		case DND_SYNC_DAMAGEOCCULT:
 		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT);
-		case DND_SYNC_WEPBONUS_CRIT:
+		case DND_SYNC_WEPMOD_CRIT:
 		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, extra);
-		case DND_SYNC_WEPBONUS_CRITDMG:
+		case DND_SYNC_WEPMOD_CRITDMG:
 		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra);
-		case DND_SYNC_WEPBONUS_CRITPERCENT:
+		case DND_SYNC_WEPMOD_CRITPERCENT:
 		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra);
-		case DND_SYNC_WEPBONUS_DMG:
+		case DND_SYNC_WEPMOD_DMG:
 		return GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, extra);
 	}
 	return 0;
@@ -537,16 +538,16 @@ void SetSyncValue_Orb(int pos, int val, int extra) {
 		case DND_SYNC_DAMAGEOCCULT:
 			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT, val);
 		break;
-		case DND_SYNC_WEPBONUS_CRIT:
+		case DND_SYNC_WEPMOD_CRIT:
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
 		break;
-		case DND_SYNC_WEPBONUS_CRITDMG:
+		case DND_SYNC_WEPMOD_CRITDMG:
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
 		break;
-		case DND_SYNC_WEPBONUS_CRITPERCENT:
+		case DND_SYNC_WEPMOD_CRITPERCENT:
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
 		break;
-		case DND_SYNC_WEPBONUS_DMG:
+		case DND_SYNC_WEPMOD_DMG:
 			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
 		break;
 	}
@@ -618,14 +619,14 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 }
 
 void SyncClientsideVariable_Orb(int var, int extra) {
-	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
+	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPMOD_CRIT && var <= DND_SYNC_WEPMOD_DMG))
 		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, extra), extra);
 	else
 		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, 0), 0);
 }
 
 void SyncClientsideVariable_Elixir(int var, int extra) {
-	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPBONUS_CRIT && var <= DND_SYNC_WEPBONUS_DMG))
+	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPMOD_CRIT && var <= DND_SYNC_WEPMOD_DMG))
 		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, extra), extra);
 	else
 		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, 0), 0);
@@ -885,7 +886,7 @@ void SyncAllClientsideVariables() {
 	int i, j;
 	// sync orbs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPBONUS_CRIT && i <= DND_SYNC_WEPBONUS_DMG)) {
+		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i <= DND_SYNC_WEPMOD_DMG)) {
 			for(j = 0; j < MAXWEPS; ++j)
 				ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue_Orb(i, j), j);
 		}
@@ -894,7 +895,7 @@ void SyncAllClientsideVariables() {
 	}
 	// sync elixirs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPBONUS_CRIT && i <= DND_SYNC_WEPBONUS_DMG)) {
+		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i <= DND_SYNC_WEPMOD_DMG)) {
 			for(j = 0; j < MAXWEPS; ++j)
 				ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, i, GetPlayerSyncValue_Elixir(i, j), j);
 		}

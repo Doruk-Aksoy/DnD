@@ -275,6 +275,45 @@ int WeaponProperties[MAXWEPS] = {
 	WPROP_RIPPER
 };
 
+// put them in this place if they are luxury weapons
+bool IsLuxuryWeapon(int id) {
+	switch(id) {
+		case DND_WEAPON_DUSKBLADE:
+		case DND_WEAPON_SICKLE:
+		
+		case DND_WEAPON_RUBYWAND:
+		case DND_WEAPON_SCATTERGUN:
+		
+		case DND_WEAPON_SILVERGUN:
+		case DND_WEAPON_SLAYER:
+		
+		case DND_WEAPON_DESOLATOR:
+		case DND_WEAPON_MINIGUN:
+		case DND_WEAPON_EBONYCANNON:
+		case DND_WEAPON_MPPB:
+		
+		case DND_WEAPON_GRENADELAUNCHER:
+		case DND_WEAPON_ROTARYGRENADELAUNCHER:
+		case DND_WEAPON_HEAVYMISSILELAUNCHER:
+		case DND_WEAPON_SEDRINSTAFF:
+			
+		case DND_WEAPON_RHINORIFLE:
+		case DND_WEAPON_NAILGUN:
+		case DND_WEAPON_BASILISK:
+			
+		case DND_WEAPON_GAUSSRIFLE:
+		case DND_WEAPON_RAILGUN:
+		case DND_WEAPON_DEATHRAY:
+			
+		case DND_WEAPON_DEATHSTAFF:
+		case DND_WEAPON_RAZORFANG:
+		case DND_WEAPON_SUNSTAFF:
+		case DND_WEAPON_SOULREAVER:
+		return true;
+	}
+	return false;
+}
+
 #define WEPCHECK_SLOT1 "P_Slot1Replaced"
 #define WEPCHECK_SLOT1L "P_Slot1Luxury"
 #define WEPCHECK_SLOT2 "P_Slot2Replaced"
@@ -336,40 +375,63 @@ str WeaponOverheatItems[MAXOVERHEATWEPS] = {
 // 32 overheat weapons supported
 int PlayerRunsOverheat[MAXPLAYERS] = { 0 };
 
-#define MAXWEPUPGRADES 9
-#define MAXNORMALWEPSLOTS 8
-str SlotWeapons[MAXNORMALWEPSLOTS][MAXWEPUPGRADES] = {
-	{ " Chainsaw ", "Upgraded Chainsaw", "Katana", "Excalibat", "ResMelee1", "", "", "", "" },
-	{ "Magnum", " Akimbo Pistols ", "Laser Pistol", "ResPistol1", "ResPistol2", "", "", "", "" },
-	{ " Shotgun ", "Upgraded Shotgun", "Upgraded Shotgun2", "Upgraded Shotgun3", "ResShotgun1", "ResShotgun2", "ResShotgun3", "ResShotgun4", "" },
-	{ " Super Shotgun ", "Upgraded Super Shotgun", "Upgraded Super Shotgun2", "Upgraded Super Shotgun3", "ResSSG1", "ResSSG2", "ResSSG3", "ResSSG4", "" },
-	{ " Machine Gun ", "Upgraded Machine Gun", "Upgraded Machine Gun2", "Upgraded Machine Gun3", "ResMG1", "ResMG2", "ResMG3", "ResMG4", "ResMG5" },
-	{ "Rocket Launcher", "Upgraded Rocket Launcher", "Upgraded Rocket Launcher2", "Upgraded Rocket Launcher3", "ResRL1", "ResRL2", "ResRL3", "ResRL4", "ResRL5" },
-	{ "Plasma Rifle", "Upgraded Plasma Rifle", "Upgraded Plasma Rifle2", "Upgraded Plasma Rifle3", "ResPlasma1", "ResPlasma2", "ResPlasma3", "ResPlasma4" },
-	{ "BFG 9000", "Upgraded BFG 9000", "Devastator", "MFG", "ResBFG1", "ResBFG2", "", "", "" },
-};
-
 void ResetWeaponMods(int pnum) {
 	int i, j;
 	for(j = 0; j < MAXWEPS; ++j) {
-		Player_Weapon_Infos[pnum][j].wep_bonus.enchants = 0;
+		Player_Weapon_Infos[pnum][j].quality = 0;
 		for(i = 0; i < MAX_WEP_MODS; ++i) {
 			Player_Weapon_Infos[pnum][j].wep_mods[i].tier = 0;
 			Player_Weapon_Infos[pnum][j].wep_mods[i].val = 0;
 		}
-		for(i = 0; i < MAX_WEP_BONUSES; ++i)
-			Player_Weapon_Infos[pnum][j].wep_bonus.bonus_list[i] = 0;
 	}
 }
 
-int CheckSlotWeapon(int slot) {
-	for(int i = 0; i < MAXWEPUPGRADES; ++i) {
-		if(!StrLen(SlotWeapons[slot - 1][i]))
-			return 0;
-		if(CheckInventory(SlotWeapons[slot - 1][i]))
-			return 1;
+// This basically checks eligibility of weapon pickups if we have that slot's weapon or not
+bool CheckSlotWeapon(int slot) {
+	int beg = 0, end = 0;
+	
+	switch(slot) {
+		case 0:
+			beg = DND_WEAPON_CHAINSAW;
+			end = LAST_SLOT0_WEAPON;
+		break;
+		case 1:
+			beg = FIRST_SLOT1_WEAPON;
+			end = LAST_SLOT1_WEAPON;
+		break;
+		case 2:
+			beg = FIRST_SLOT2_WEAPON;
+			end = LAST_SLOT2_WEAPON;
+		break;
+		case 3:
+			beg = FIRST_SLOT3_WEAPON;
+			end = LAST_SLOT3_WEAPON;
+		break;
+		case 4:
+			beg = FIRST_SLOT4_WEAPON;
+			end = LAST_SLOT4_WEAPON;
+		break;
+		case 5:
+			beg = FIRST_SLOT5_WEAPON;
+			end = LAST_SLOT5_WEAPON;
+		break;
+		case 6:
+			beg = FIRST_SLOT6_WEAPON;
+			end = LAST_SLOT6_WEAPON;
+		break;
+		case 7:
+			beg = FIRST_SLOT7_WEAPON;
+			end = LAST_SLOT7_WEAPON;
+		break;
 	}
-	return 0;
+	
+	for(int i = beg; i <= end; ++i) {
+		if(IsLuxuryWeapon(i))
+			return false;
+		if(CheckInventory(Weapons_Data[i][WEAPON_NAME]))
+			return true;
+	}
+	return false;
 }
 
 int GetWeaponPosFromTable() {

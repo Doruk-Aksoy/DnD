@@ -160,26 +160,17 @@ enum {
 	WEAPON_ICON64
 };
 
-enum {
-	WEP_BONUS_CRIT,
-	WEP_BONUS_CRITDMG,
-	WEP_BONUS_CRITPERCENT,
-	WEP_BONUS_DMG
-};
-#define MAX_WEP_BONUSES (WEP_BONUS_DMG + 1)
-
-typedef struct {
-	int enchants;
-	int bonus_list[MAX_WEP_BONUSES];
-} wep_bonus_T;
-
 // store players mods etc.
 typedef struct {
-	wep_bonus_T wep_bonus;
+	int quality;
 	wep_mod_T wep_mods[MAX_WEP_MODS];
 } wep_info_T;
 
 global wep_info_T 2: Player_Weapon_Infos[MAXPLAYERS][MAXWEPS];
+
+bool HasWeaponPower(int pnum, int wep, int power) {
+	return IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1].val, power);
+}
 
 // keep here for now for ammo save chance
 #define MAX_MAGAZINES 24
