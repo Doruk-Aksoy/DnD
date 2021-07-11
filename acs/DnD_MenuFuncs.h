@@ -237,26 +237,12 @@ int GetWeaponEnchantDisplay(int pnum, int wep) {
 	return Player_Weapon_Infos[pnum][wep].quality + GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wep);
 }
 
-int GetCritChanceDisplay(int pnum, int wep) {
-	int base = (100 * Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRIT].val);
-	base += (100 * GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wep));
-	base += FixedMul(base, Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITPERCENT].val);
-	// truncate
-	return ftrunc(base);
-}
-
 bool HasCritDamageBonus(int pnum, int wep) {
 	return Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep);
 }
 
 int GetCritDamageDisplay(int pnum, int wep) {
 	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep));
-	return ftrunc(base);
-}
-
-int GetBonusDamageDisplay(int pnum, int wep) {
-	int base = 100 * Player_Weapon_Infos[PlayerNumber()][wep].wep_mods[WEP_MOD_DMG].val;
-	base += 100 * GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_DMG, wep);
 	return ftrunc(base);
 }
 
@@ -3794,7 +3780,7 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	my &= MMASK;
 	mx += 0.4;
 	my += 0.1;
-	SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 192, 256, 1);
+	SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 256, 256, 1);
 	DrawCraftingInventoryText(itype, extra1, extra2, mx, my);
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -3826,45 +3812,58 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		// make sure quality text isn't on the weapon name
 		++i;
 		if(temp) {
-			if (temp == ENHANCEORB_MAX) //Add the "MAX" indicator.
+			if (temp == MAXWEPQUALITY) // Add the "MAX" indicator.
 				HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% ", l:"DND_MENU_MAX"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			else
 				HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
-		temp = GetCritChanceDisplay(j, extra1);
+		temp = GetCritChance(j, extra1);
 		if(temp) {
-			HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT2", s:": \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:GetWeaponModText(temp, WEP_MOD_CRIT); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
-		if(HasCritDamageBonus(j, extra1)) {
-			HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT3", s:": \c[Q9]", f:GetCritDamageDisplay(j, extra1), s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 6, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+		else {
+			// this is only triggered if we have % crit chance increases and the weapon itself shows no base crit chance
+			temp = GetPercentCritChanceIncrease(j, extra1);
+			if(temp)
+				HudMessage(s:GetWeaponModText(temp, WEP_MOD_CRITPERCENT); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
-		temp = GetBonusDamageDisplay(j, extra1);
+		
+		temp = GetBaseCritModifier(j, extra1);
+		if(temp != DND_BASE_CRITMODIFIER) {
+			HudMessage(s:GetWeaponModText(temp - DND_BASE_CRITMODIFIER, WEP_MOD_CRITDMG); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 6, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			++i;
+		}
+		temp = GetWeaponModValue(temp, extra1, WEP_MOD_DMG);
 		if(temp) {
-			if(temp > 0)
-				HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT4", s:": \c[Q9]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 7, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT4", s:": \c[Q2]", f:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 8, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:GetWeaponModText(temp, WEP_MOD_DMG); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 7, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
 		
 		// print weapon mods -- generalize later idc at this time about how neat it is
-		temp = Player_Weapon_Infos[j][extra1].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+		temp = GetWeaponModValue(j, extra1, WEP_MOD_PERCENTDAMAGE);
 		if(temp) {
-			HudMessage(s:"\c[Y5]* \c[Q9]", d:temp, s:"% \c[Y5]", l:"WEPMOD_TEXT5"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 9, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:GetWeaponModText(temp, WEP_MOD_PERCENTDAMAGE); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 9, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
-		temp = Player_Weapon_Infos[j][extra1].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
+		temp = GetWeaponModValue(j, extra1, WEP_MOD_POISONFORPERCENTDAMAGE);
 		if(temp) {
-			HudMessage(s:"\c[Y5]* \c[Q9]", d:temp, s:"% \c[Y5]", l:"WEPMOD_TEXT6"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 10, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:GetWeaponModText(temp, WEP_MOD_POISONFORPERCENTDAMAGE); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 10, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
 		}
-		temp = Player_Weapon_Infos[j][extra1].wep_mods[WEP_MOD_FORCEPAINCHANCE].val;
+		temp = GetWeaponModValue(j, extra1, WEP_MOD_FORCEPAINCHANCE);
 		if(temp) {
-			HudMessage(s:"\c[Y5]* \c[Q9]", d:temp, s:"% \c[Y5]", l:"WEPMOD_TEXT7"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 11, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+			HudMessage(s:GetWeaponModText(temp, WEP_MOD_FORCEPAINCHANCE); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 11, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
 			++i;
+		}
+		
+		for(temp = 0; temp < MAX_WEP_MOD_POWERSET1; ++temp) {
+			if(HasWeaponPower(j, extra1, temp)) {
+				HudMessage(s:GetWeaponModText(temp, WEP_MOD_POWERSET1, temp); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 12 - i, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+				++i;
+			}
 		}
 	}
 	else if(itype > UNIQUE_BEGIN) {
@@ -4159,7 +4158,7 @@ void DrawPlayerStats(int pnum) {
 	if(val)
 		HudMessage(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:"DND_MENU_GLOBALCRIT"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
-	val = GetBaseCritModifier(pnum);
+	val = GetIndependentCritModifier(pnum);
 	if(val != DND_BASE_CRITMODIFIER)
 		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	

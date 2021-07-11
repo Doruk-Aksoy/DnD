@@ -30,28 +30,31 @@ enum {
 enum {
 	WEP_POWER_GHOSTHIT
 };
+#define MAX_WEP_MOD_POWERSET1 (WEP_POWER_GHOSTHIT + 1)
 
 str GetWeaponModText(int val, int id, int extra_bit = 0) {
 	switch(id) {
 		case WEP_MOD_CRIT:
-		return StrParam(d:val, s:"% ", l:"IATTR_T37");
+			return StrParam(s:"\c[Y5]* \c[Q9]", f:ftrunc(val * 100), s:"% ", l:"IATTR_T37");
 		case WEP_MOD_CRITDMG:
-		return StrParam(d:val, s:"% ", l:"IATTR_T39");
+			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T39");
 		case WEP_MOD_CRITPERCENT:
-		return StrParam(d:val, s:"% ", l:"IATTR_T38");
+			return StrParam(s:"\c[Y5]* \c[Q9]", f:ftrunc(val * 100), s:"% ", l:"IATTR_T38");
 		case WEP_MOD_DMG:
-		return StrParam(d:val, s:"% ", l:"IATTR_T41");
+			if(val > 0)
+				return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T41");
+			return StrParam(s:"\c[Y5]* \c[Q2]", d:val, s:"% ", l:"IATTR_T41NEG");
 		case WEP_MOD_PERCENTDAMAGE:
-		return StrParam(d:val, s:"% ", l:"DND_WEPMOD_PERCENTDMG");
+			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"DND_WEPMOD_PERCENTDMG");
 		case WEP_MOD_POISONFORPERCENTDAMAGE:
-		return StrParam(d:val, s:"% ", l:"DND_WEPMOD_POISONHITS");
+			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"DND_WEPMOD_POISONHITS");
 		case WEP_MOD_FORCEPAINCHANCE:
-		return StrParam(d:val, s:"% ", l:"DND_WEPMOD_CHANCEFORCEPAIN");
+			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"DND_WEPMOD_CHANCEFORCEPAIN");
 		case WEP_MOD_POWERSET1:
 			// use extra_bit to check which sub mods we are after
 			switch(extra_bit) {
 				case WEP_POWER_GHOSTHIT:
-				return StrParam(l:"DND_WEPMOD_POW_GHOSTHIT");
+					return StrParam(s:"\c[Y5]* \c[Q9]", l:"DND_WEPMOD_POW_GHOSTHIT");
 			}
 		break;
 	}

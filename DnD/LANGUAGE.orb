@@ -128,3 +128,7 @@ DND_ORBUSEFAIL17	=	"Orb of Elevation couldn't be used, the item reached max attr
 DND_ORBUSETEXT18A	=	"Hollow Orb grants";
 DND_ORBUSETEXT18B	=	"Hollow Orb grants \cdan attribute\c-!";
 DND_ORBUSEFAIL18	=	"Hollow Orb couldn't be used, the item reached max attributes\c-!";
+
+DND_ORBUSETEXT19A	=	"Phantasmal Orb grants";
+DND_ORBUSETEXT19B	=	"ability to \cdhit ghosts\c-!";
+DND_ORBUSEFAIL19	=	"Phantasmal Orb can't be used because the weapon already hits ghosts!";

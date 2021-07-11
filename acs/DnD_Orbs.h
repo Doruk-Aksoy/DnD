@@ -39,88 +39,7 @@ typedef struct {
 // holds most recently used orb values
 global orb_info_T 3: Player_MostRecent_Orb[MAXPLAYERS];
 
-// orb bonus info
-enum {
-	OBI_HPFLAT,
-	OBI_ARMORFLAT,
-	
-	OBI_HPPERCENT,
-	OBI_ARMORPERCENT,
-	
-	OBI_GREEDPERCENT,
-	OBI_WISDOMPERCENT,
-
-	OBI_SPEED,
-	OBI_DROPCHANCE,
-	OBI_HOLDING,
-	OBI_DAMAGETYPE,
-	
-	OBI_WEAPON_ENCHANT,
-	OBI_WEAPON_CRIT,
-	OBI_WEAPON_CRITDMG,
-	OBI_WEAPON_CRITPERCENT,
-	OBI_WEAPON_DMG,
-	OBI_WEAPON_POWERSET1 // this particular one is used like a bitset of 32 bits
-};
-
-int GetDataFromOrbBonus(int pnum, int bonus, int extra) {
-	int res = 0;
-	switch(bonus) {
-		case OBI_HPFLAT:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.hp_flat_bonus;
-		break;
-		case OBI_ARMORFLAT:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.armor_flat_bonus;
-		break;
-		case OBI_HPPERCENT:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.hp_percent_bonus;
-		break;
-		case OBI_ARMORPERCENT:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.armor_percent_bonus;
-		break;
-		case OBI_WISDOMPERCENT:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.wisdom_percent_bonus;
-		break;
-		case OBI_GREEDPERCENT:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.greed_percent_bonus;
-		break;
-		case OBI_SPEED:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.speed_bonus;
-		break;
-		case OBI_DROPCHANCE:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.drop_chance;
-		break;
-		case OBI_HOLDING:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.holding;
-		break;
-		case OBI_DAMAGETYPE:
-			res = Player_Orb_Data[pnum].orb_stat_bonuses.damage_type_bonus[extra];
-		break;
-		
-		case OBI_WEAPON_ENCHANT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].quality;
-		break;
-		case OBI_WEAPON_CRIT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRIT].val;
-		break;
-		case OBI_WEAPON_CRITDMG:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITDMG].val;
-		break;
-		case OBI_WEAPON_CRITPERCENT:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val;
-		break;
-		case OBI_WEAPON_DMG:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val;
-		break;
-		case OBI_WEAPON_POWERSET1:
-			res = Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val;
-		break;
-		// weapon mods can come in the future for orbs that give those
-	}
-	return res;
-}
-
-void SetDataToOrbBonus(int pnum, int bonus, int extra, int val) {
+void SetDataToOrbBonus(int pnum, int bonus, int extra, int val, bool overwrite = false, bool removeBit = false) {
 	int base = 0;
 	switch(bonus) {
 		case OBI_HPFLAT:
@@ -185,12 +104,18 @@ void SetDataToOrbBonus(int pnum, int bonus, int extra, int val) {
 			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val = val;
 		break;
 		case OBI_WEAPON_POWERSET1:
-			// this is a bitset so it gets OR'd instead
-			if(val > 0)
-				Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val |= val;
+			if(!overwrite) {
+				// this is a bitset so it gets OR'd instead
+				if(!removeBit)
+					Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val |= (1 << val);
+				else {
+					// negative means remove it, we want the negative state to be carried down to updateactivity so we wont modify it here
+					Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << (-val));
+				}
+			}
 			else {
-				// negative means remove it, we want the negative state to be carried down to updateactivity so we wont modify it here
-				Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << (-val));
+				// simply update
+				Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val = val;
 			}
 		break;
 		// weapon mods can come in the future for orbs that give those
@@ -199,7 +124,7 @@ void SetDataToOrbBonus(int pnum, int bonus, int extra, int val) {
 	// get difference to add
 	if(bonus != OBI_WEAPON_POWERSET1)
 		val -= base;
-	UpdateActivity(pnum, bonus + MAP_ORB_TO_ACTIVITY, val, extra);
+	UpdateActivity(pnum, bonus + MAP_ORB_TO_ACTIVITY, val, extra, overwrite, removeBit);
 }
 
 // it's too cumbersome to edit all other function calls to exclude the activity update, plus the added if statements...
@@ -345,44 +270,83 @@ enum {
 
 #define CORRUPTORB_WEAPONMOD_BEGIN CORRUPTORB_MOD_PERCENTDAMAGE
 #define CORRUPTORB_MAXEFFECTS (CORRUPTORB_MOD_FORCEPAINCHANCE + 1)
-#define CORRUPTORB_MAXWEIGHT 300
+#define CORRUPTORB_MAXWEIGHT 1000
+
+/*
+chances
+50
+
+3
+3
+3
+3
+3
+3
+
+2
+2
+4
+5
+6
+6
+
+1
+3
+3
+*/
+
 int CorruptOrb_Weights[CORRUPTORB_MAXEFFECTS] = {
-	150,
+	1,
 	
-	165,
-	180,
-	195,
-	210,
-	225,
-	240,
+	2,
+	3,
+	4,
+	5,
+	6,
+	7,
 	
-	254,
-	258,
-	266,
-	274,
-	282,
-	290,
+	100,
+	250,
+	400,
+	550,
+	700,
+	850,
+	/*500,
 	
-	293,
-	296,
-	300
+	530,
+	560,
+	590,
+	620,
+	650,
+	680,
+	
+	700,
+	720,
+	760,
+	810,
+	870,
+	930,*/
+	
+	940,
+	970,
+	1000
 };
 
-#define CORRUPTORB_MINDMG -2.0
+#define CORRUPTORB_MINDMG -100
 #define CORRUPTORB_MINSPEED -0.5
 #define CORRUPTORB_MAXCRITPERCENT 1.0
-#define CORRUPTORB_MAXDMG 4.0
-#define CORRUPTORB_MAXCRITDMG 2.0
+#define CORRUPTORB_MAXDMG 100
+#define CORRUPTORB_MAXCRITDMG 200
 #define CORRUPTORB_MAXSPEED 0.5
 #define CORRUPTORB_MAXDROPCHANCE 0.5
 #define CORRUPTORB_MINHEALTH 100
 
-#define CORRUPTORB_DMGTAKE 0.1
+#define CORRUPTORB_DMGTAKE 5
 #define CORRUPTORB_HPTAKE 10
 #define CORRUPTORB_SPEEDTAKE 0.025
-#define CORRUPTORB_DMGGIVE 0.2
+#define CORRUPTORB_DMGGIVE 5
 #define CORRUPTORB_CRITGIVE 0.05
-#define CORRUPTORB_CRITDMGGIVE 0.25
+#define CORRUPTORB_CRITDMGGIVE 25
 #define CORRUPTORB_SPEEDGIVE 0.05
 #define CORRUPTORB_DROPCHANCEGIVE 0.025
 #define CORRUPTORB_STATGIVE 5
@@ -397,11 +361,11 @@ enum {
 #define SINORB_OPT_BEGIN SINORB_STAT
 #define SINORB_OPT_END SINORB_PERK
 #define SINORB_CRITMAX 0.2
-#define SINORB_CRITDMGMAX 1.0
+#define SINORB_CRITDMGMAX 100
 #define SINORB_CRED_MIN 50
 #define SINORB_CRED_MAX 500
 #define SINORB_CRITGIVE 0.01
-#define SINORB_CRITDMGGIVE 0.05
+#define SINORB_CRITDMGGIVE 5
 #define SINORB_STATSAVEBITS 8
 #define SINORB_STATSAVEMASK 0xFF
 
@@ -528,7 +492,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		break;
 		case DND_ORB_PHANTASMAL:
 			// if the weapon can't hit ghosts on its own or we didnt give it the ghost hit already
-			if(extratype == DND_ITEM_WEAPON && !HasWeaponPower(pnum, extra, WEP_POWER_GHOSTHIT) && !IsSet(GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, extra), WEP_POWER_GHOSTHIT))
+			if(extratype == DND_ITEM_WEAPON && !HasWeaponPower(pnum, extra, WEP_POWER_GHOSTHIT))
 				res = 1;
 		break;
 	}
@@ -785,6 +749,14 @@ void HandleOrbUse (int orbtype, int extra) {
 		break;
 		case DND_ORB_HOLLOW:
 			HandleAddRandomMod(pnum, extra, 1, true);
+		break;
+		case DND_ORB_PHANTASMAL:
+			res = extra;
+			SetDataToOrbBonus(pnum, OBI_WEAPON_POWERSET1, res, WEP_POWER_GHOSTHIT);
+			SetInventory("OrbResult", res);
+			Player_MostRecent_Orb[pnum].values[0] = res;
+			Player_MostRecent_Orb[pnum].values[1] = WEP_POWER_GHOSTHIT;
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_POWERSET1, res);
 		break;
 	}
 	Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
@@ -1133,6 +1105,11 @@ void RevertLastOrbEffect() {
 			}
 			SyncItemAttributes(temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		break;
+		case DND_ORB_PHANTASMAL:
+			temp = Player_MostRecent_Orb[pnum].values[0];
+			SetDataToOrbBonus(pnum, OBI_WEAPON_POWERSET1, temp, -WEP_POWER_GHOSTHIT);
+			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_POWERSET1, temp);
+		break;
 		
 	}
 	SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
@@ -1292,7 +1269,7 @@ void DoSinOrbMessage(int val, int affluence) {
 			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% ", l:"DND_ORBUSETEXT2I", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
 		case SINORB_CRITDMG:
-			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", f:ftrunc(SINORB_CRITDMGGIVE * affluence * 100), s:"% ", l:"DND_ORBUSETEXT2J", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
+			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:SINORB_CRITDMGGIVE * affluence, s:"% ", l:"DND_ORBUSETEXT2J", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
 	}
 }
@@ -1445,7 +1422,7 @@ void HandleCorruptOrbUse(int type) {
 			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
 		break;
 		case CORRUPTORB_ADDCRIT:
-			temp = CORRUPTORB_DMGGIVE * GetAffluenceBonus();
+			temp = CORRUPTORB_CRITGIVE * GetAffluenceBonus();
 			i = PickRandomOwnedWeaponID();
 			Player_MostRecent_Orb[pnum].values[3] = i;
 			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
@@ -1506,7 +1483,7 @@ void HandleCorruptOrbUse(int type) {
 			Player_MostRecent_Orb[pnum].values[4] = tier;
 			
 			// give the mod -- index to 0 base
-			type -= CORRUPTORB_MOD_PERCENTDAMAGE;
+			type = type + WEP_MOD_PERCENTDAMAGE - CORRUPTORB_MOD_PERCENTDAMAGE;
 			Player_Weapon_Infos[pnum][i].wep_mods[type].tier = tier;
 			Player_Weapon_Infos[pnum][i].wep_mods[type].val = temp;
 			
@@ -1529,7 +1506,7 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cj", l:"DND_ORBUSETEXT2C", s:" ", d:affluence, s:" ", l:"DND_ORBUSETEXT2D");
 		break;
 		case CORRUPTORB_TAKEDMG:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2C", f:ftrunc(CORRUPTORB_DMGTAKE * 100 * affluence), s:"% ", l:"DND_DAMAGE", s:"\cj ", l:"DND_FROM", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2C", d:CORRUPTORB_DMGTAKE * affluence, s:"% ", l:"DND_DAMAGE", s:"\cj ", l:"DND_FROM", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
 			Log(s:"\cj", l:"DND_ORBUSETEXT2E");
@@ -1545,10 +1522,10 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2I", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDCRITDMG:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_CRITDMGGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2J", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", d:CORRUPTORB_CRITDMGGIVE * affluence, s:"%\cj ", l:"DND_ORBUSETEXT2J", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDDMG:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_DMGGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2K", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", d:CORRUPTORB_DMGGIVE * affluence, s:"%\cj ", l:"DND_ORBUSETEXT2K", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDSPEED:
 			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2L", s:"!");
@@ -1635,7 +1612,7 @@ void UndoCorruptOrbEffect() {
 		case CORRUPTORB_MOD_PERCENTDAMAGE:
 		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
 		case CORRUPTORB_MOD_FORCEPAINCHANCE:
-			type -= CORRUPTORB_MOD_PERCENTDAMAGE;
+			type = type + WEP_MOD_PERCENTDAMAGE - CORRUPTORB_MOD_PERCENTDAMAGE;
 			i = Player_MostRecent_Orb[pnum].values[2];
 			// 2 is wep id, 3 is mod's value, 4 is tier
 			Player_Weapon_Infos[pnum][i].wep_mods[type].tier -= Player_MostRecent_Orb[pnum].values[4];
@@ -1767,6 +1744,12 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 			}
 			else
 				Log(s:"\cg", l:"DND_ORBUSEFAIL18");
+		break;
+		case DND_ORB_PHANTASMAL:
+			if(val != 0x7FFFFFFF)
+				Log(s:"\cj", l:"DND_ORBUSETEXT19A", s:" \cd", l:GetWeaponTag(val), s:"\cv ", l:"DND_ORBUSETEXT19B");
+			else
+				Log(s:"\cg", l:"DND_ORBUSEFAIL19");
 		break;
 	}
 }

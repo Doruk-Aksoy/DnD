@@ -3707,9 +3707,9 @@ Script 1000 (int isSoftcore) {
 
 Script "DnD Levelup Log" (int has_perk) CLIENTSIDE {
 	if(has_perk)
-		Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has gained a\c- \cjperk point\c-!");
+		Log(s:"\cc", l:"DND_ANNOUNCE", s:": \c-", n:0, s:" \c[Y5]", l:"DND_GOTPERK");
 	else
-		Log(s:"\ccAnnouncement  : \c-", n:0, s:" \c[Y5]has leveled up to\c- \cv", d:CheckInventory("Level"), s:"\c-\c[Y5]!");
+		Log(s:"\cc", l:"DND_ANNOUNCE", s:": \c-", n:0, s:" \c[Y5]", l:"DND_HASLEVELEDUP", s:"\cv ", d:CheckInventory("Level"), s:"\c[Y5]!");
 }
 
 Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
@@ -6044,8 +6044,11 @@ Script "Print Loc" (void) {
 Script 68 (int x) NET {
 	if(x < MAX_RESEARCHES)
 		GiveResearch(x, true);
-	else if(x == 32768)
+	else if(x == 32768) {
 		SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 1);
+		SpawnSpecificOrbForAll(DND_ORB_SIN, 1);
+		SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
+	}
 	else {
 		int c = CreateItemSpot();
 		int i;

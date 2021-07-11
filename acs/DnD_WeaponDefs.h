@@ -151,6 +151,7 @@ enum {
 #define DND_LIGHTNINGGUN_DMGPERSTACK 4
 #define DND_DUSKBLADE_DMGPERSTACK 3
 #define MAXWEPS (DND_WEAPON_RIPPERCANNON + 1)
+#define MAXWEPQUALITY 50
 
 enum {  
 	WEAPON_NAME,
@@ -167,10 +168,6 @@ typedef struct {
 } wep_info_T;
 
 global wep_info_T 2: Player_Weapon_Infos[MAXPLAYERS][MAXWEPS];
-
-bool HasWeaponPower(int pnum, int wep, int power) {
-	return IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1].val, power);
-}
 
 // keep here for now for ammo save chance
 #define MAX_MAGAZINES 24

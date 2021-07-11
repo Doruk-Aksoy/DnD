@@ -197,7 +197,7 @@ enum {
 int GetBonusPlayerSpeed(int pnum) {
 	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE);
 	// add other stuff here
-	res += Player_Orb_Data[pnum].orb_stat_bonuses.speed_bonus;
+	res += GetDataFromOrbBonus(pnum, OBI_SPEED);
 	res += Player_Elixir_Bonuses[pnum].speed_bonus;
 	return res;
 }
@@ -284,25 +284,26 @@ int GetMissingHealth() {
 	return GetSpawnHealth() - GetActorProperty(0, APROP_HEALTH);
 }
 
-int CalculateHealthCapBonuses() {
+int CalculateHealthCapBonuses(int pnum) {
 	// consider quest bonuses, charms, orb effects and elixirs
 	return CheckInventory("DnD_QuestReward_100BonusCap") * DND_QUEST_PRECIOUSLIFE_BONUS 			+
 		   CheckInventory("DnD_QuestReward_HealingAndCapIncrease") * DND_QUEST_SKINOTEETH_BONUS 	+
-		   GetPlayerAttributeValue(PlayerNumber(), INV_HP_INCREASE) 								+
-		   Player_Orb_Data[PlayerNumber()].orb_stat_bonuses.hp_flat_bonus 							+
-		   Player_Elixir_Bonuses[PlayerNumber()].hp_flat_bonus;
+		   GetPlayerAttributeValue(pnum, INV_HP_INCREASE)			 								+
+		   GetDataFromOrbBonus(pnum, OBI_HPFLAT)						 							+
+		   Player_Elixir_Bonuses[pnum].hp_flat_bonus;
 }
 
 int GetSpawnHealth() {
-	int res = CalculateHealthCapBonuses() + DND_BASE_HEALTH + DND_VIT_INCREASE * GetVitality();
+	int pnum = PlayerNumber();
+	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_VIT_INCREASE * GetVitality();
 	// consider percent bonuses from here on
-	int percent  = Player_Orb_Data[PlayerNumber()].orb_stat_bonuses.hp_percent_bonus 		+ 
+	int percent  = GetDataFromOrbBonus(pnum, OBI_HPPERCENT)							 		+ 
 				   DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus") 	+
 				   GetStrength() * DND_STR_CAPINCREASE 										+
 				   CheckInventory("CelestialCheck") * CELESTIAL_BOOST 						+
 				   GetResearchHealthBonuses() 												+
-				   Player_Elixir_Bonuses[PlayerNumber()].hp_percent_bonus 					+
-				   GetPlayerAttributeValue(PlayerNumber(), INV_HPPERCENT_INCREASE);
+				   Player_Elixir_Bonuses[pnum].hp_percent_bonus 							+
+				   GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
 	// player bonus + elixir + % research bonus
 	res += (res * percent) / 100;
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH))

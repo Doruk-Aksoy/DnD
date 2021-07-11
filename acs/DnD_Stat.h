@@ -328,13 +328,13 @@ int GetResearchArmorBonuses() {
 	return res;
 }
 
-int CalculateArmorCapBonuses() {
+int CalculateArmorCapBonuses(int pnum) {
 	int res = CheckInventory("DnD_QuestReward_ArmorCapIncrease") * DND_QUEST_ARMORBONUS;
 	
 	// consider orb effects
-	res += GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORFLAT, -1);
-	// elixir
-	res += Player_Elixir_Bonuses[PlayerNumber()].armor_flat_bonus;
+	res = 	GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1) + 
+			Player_Elixir_Bonuses[pnum].armor_flat_bonus + 
+			GetPlayerAttributeValue(pnum, INV_ARMOR_INCREASE);
 	return res;
 }
 
@@ -354,30 +354,34 @@ int CanPickHealthItem(int type) {
 // used for displaying to hud
 int GetArmorCap(bool useMenuShow) {
 	// see if this DND_BASE_ARMOR_SHOW breaks anything -- breaks armor shards
-	int res = CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * GetBulkiness();
+	int pnum = PlayerNumber();
+	int res = CalculateArmorCapBonuses(pnum) + DND_ARMOR_PER_BUL * GetBulkiness();
 	if(useMenuShow)
 		res += DND_BASE_ARMOR_SHOW;
 	else
 		res += DND_BASE_ARMOR;
-	res += res * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
 	res += (res * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
-	res += (res * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
-	res += (res * GetResearchArmorBonuses()) / 100;
-	res += (res * (Player_Elixir_Bonuses[PlayerNumber()].armor_percent_bonus + GetPlayerAttributeValue(PlayerNumber(), INV_ARMORPERCENT_INCREASE))) / 100;
+	
+	int percent = 	GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus") +
+					CheckInventory("CelestialCheck") * CELESTIAL_BOOST +
+					GetResearchArmorBonuses() +
+					Player_Elixir_Bonuses[pnum].armor_percent_bonus + GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE);
+	res += (res * percent) / 100;
 	return res;
 }
 
 // used for deciding armor pickup values
 int GetArmorSpecificCap(int amt) {
+	int pnum = PlayerNumber();
 	if(amt == 1)
-		amt = ArmorBaseAmounts[1]; //Current armor shard amount will be based off green armor = 100 atm.
+		amt = ArmorBaseAmounts[DND_ARMOR_GREEN]; // Current armor shard amount will be based off green armor = 100 atm.
 	// any other armor besides the armor bonuses
-	amt += CalculateArmorCapBonuses() + DND_ARMOR_PER_BUL * GetBulkiness();
-	amt += amt * (GetDataFromOrbBonus(PlayerNumber(), OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
+	amt += CalculateArmorCapBonuses(pnum) + DND_ARMOR_PER_BUL * GetBulkiness();
+	amt += amt * (GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
 	amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
-	amt += (amt * (Player_Elixir_Bonuses[PlayerNumber()].armor_percent_bonus + GetPlayerAttributeValue(PlayerNumber(), INV_ARMORPERCENT_INCREASE))) / 100;
+	amt += (amt * (Player_Elixir_Bonuses[pnum].armor_percent_bonus + GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE))) / 100;
 	return amt;
 }
 
@@ -705,6 +709,10 @@ int GetBaseCritChance(int pnum) {
 	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + (GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE) << 16) / 100;
 }
 
+int GetPercentCritChanceIncrease(int pnum, int wepid) {
+	return Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
+}
+
 int GetCritChance(int pnum, int wepid) {
 	int chance = GetBaseCritChance(pnum);
 	int temp = 0;
@@ -712,7 +720,7 @@ int GetCritChance(int pnum, int wepid) {
 	if(wepid != -1) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT].val;
 		chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
-		temp = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
+		temp = GetPercentCritChanceIncrease(pnum, wepid);
 	}
 	// add percent bonus
 	if(chance)
@@ -759,16 +767,21 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	return res;
 }
 
-int GetBaseCritModifier(int pnum) {
-	return DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
+// this one doesnt depend on a weapon, its used as it is in the menu etc.
+int GetIndependentCritModifier(int pnum) {
+	return DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + 
+			GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
+}
+
+int GetBaseCritModifier(int pnum, int wepid) {
+	return 	GetIndependentCritModifier(pnum) +
+			Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG].val +
+			GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid);
 }
 
 int GetCritModifier() {
 	int pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
-	int base = GetBaseCritModifier(pnum); // 200, which is x2 more damage
-	// weapon bonus
-	base += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG].val >> 16;
-	base += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid) >> 16;
+	int base = GetBaseCritModifier(pnum, wepid); // calculates the regular "base" bonuses
 	
 	// berserker perk50 check
 	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK50_MAXSTACKS) * DND_BERSERKER_PERK50_CRITBONUS;
@@ -788,6 +801,16 @@ int GetCritModifier() {
 		}
 	}
 	return base;
+}
+
+// common place of weapon and orb data
+int GetWeaponModValue(int pnum, int wep, int mod) {
+	return Player_Weapon_Infos[pnum][wep].wep_mods[mod].val + Player_Orb_Data[pnum].weapon_stat_bonuses[wep].wep_mods[mod].val;
+}
+
+bool HasWeaponPower(int pnum, int wep, int power) {
+	return 	IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1].val, power) || 
+			IsSet(GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, wep), power);
 }
 
 void RecalculatePlayerLevelInfo() {

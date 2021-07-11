@@ -17,6 +17,10 @@ DND_FORBUFF								= "for buff";
 DND_PLAYER								= "Player";
 DND_POINTS								= "points";
 
+DND_ANNOUNCE							= "Announcement";
+DND_GOTPERK								= "has gained a \cjperk point\c-!";
+DND_HASLEVELEDUP						= "has leveled up to";
+
 DND_TEXT_MAXKILLS 						= "All monsters have been killed! ";
 DND_TEXT_MAXKILLREWARD 					= "% Exp bonus!";
 

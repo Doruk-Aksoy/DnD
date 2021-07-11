@@ -484,9 +484,9 @@ Script "DND Menu Draw" (void) CLIENTSIDE {
 			
 			for(i = 0; i < 8; ++i) {
 				if(boxid == MBOX_1 + i)
-					HudMessage(s:"\c[B1]", l:"DND_MENU_SLOT ", d:i + 1, s:"\c- <--"; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+					HudMessage(s:"\c[B1]", l:"DND_MENU_SLOT", s:" ", d:i + 1, s:"\c- <--"; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
 				else
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_SLOT ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_SLOT", s:" ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
 			}
 
 			HudMessage(

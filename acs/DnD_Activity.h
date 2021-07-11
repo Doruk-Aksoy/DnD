@@ -74,7 +74,7 @@ enum {
 };
 #define MAP_ORB_TO_ACTIVITY (DND_ACTIVITY_ORB_HPFLAT - DND_ACTIVITY_EXP)
 
-void UpdateActivity(int pnum, int activity, int val, int extra) {
+void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite = false, bool removeBit = false) {
 	switch(activity) {
 		case DND_ACTIVITY_EXP:
 			if(val > 0)
@@ -154,12 +154,14 @@ void UpdateActivity(int pnum, int activity, int val, int extra) {
 			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val += val;
 		break;
 		case DND_ACTIVITY_ORB_WEAPONBONUS_POWERSET1:
-			if(val > 0)
-				PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val |= val;
-			else {
-				val = -val;
-				PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << val);
+			if(!overwrite) {
+				if(!removeBit)
+					PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val |= val;
+				else
+					PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << (-val));
 			}
+			else
+				PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val = val;
 		break;
 	}
 }

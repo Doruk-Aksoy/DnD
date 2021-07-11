@@ -393,8 +393,9 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			InsertCacheFactor(pnum, wepid, dmgid, temp);
 		}
 			
-		// finally apply damage type bonuses
+		// finally apply damage type or percentage bonuses
 		temp = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
+				GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, wepid) +
 				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) + 
 				MapTalentToPercentBonus(pnum, talent_type) +
 				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];

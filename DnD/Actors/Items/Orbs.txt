@@ -654,15 +654,15 @@ Actor OrbofPhantasmal : OrbDrop {
 		SpawnLoop:
 		Idle:
 			ORB3 TTTTTTTTTTTTTTTTTTTTTTTTT 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 UUU 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 VVV 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 WWW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 XXX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 UU 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 VV 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 WW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 XX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 			ORB3 YYYYYYYYY 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 XXX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 WWW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 VVV 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			ORB3 UUU 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 XX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 WW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 VV 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			ORB3 UU 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 		Loop
 		
 		See:

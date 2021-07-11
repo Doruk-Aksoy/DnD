@@ -123,7 +123,7 @@ IATTR_T38 			= "increased crit chance";
 IATTR_T39 			= "additional crit damage";
 	
 IATTR_T40 			= "knockback resist";
-IATTR_T41 			= "increased damage";
+IATTR_T41 			= "increased damage";									IATTR_T41NEG		= "reduced damage";	
 IATTR_T42 			= "accuracy rating";
 	
 IATTR_T43 			= "strength";

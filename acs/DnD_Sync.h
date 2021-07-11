@@ -32,6 +32,7 @@ enum {
 	DND_SYNC_WEPMOD_CRITDMG,
 	DND_SYNC_WEPMOD_CRITPERCENT,
 	DND_SYNC_WEPMOD_DMG,
+	DND_SYNC_WEPMOD_POWERSET1,
 	
 	DND_SYNC_ITEMTOPLEFTBOX,
 	DND_SYNC_ITEMTYPE,
@@ -47,7 +48,7 @@ enum {
 };
 
 #define FIRST_WEPMOD_SYNC (DND_SYNC_WEPMOD_CRIT)
-#define MAX_SYNC_VARS (DND_SYNC_WEPMOD_DMG + 1)
+#define MAX_SYNC_VARS (DND_SYNC_WEPMOD_POWERSET1 + 1)
 
 enum {
 	DND_SYNC_ITEMSOURCE_CHARMUSED,
@@ -255,6 +256,8 @@ int GetPlayerSyncValue_Orb(int pos, int extra) {
 		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra);
 		case DND_SYNC_WEPMOD_DMG:
 		return GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, extra);
+		case DND_SYNC_WEPMOD_POWERSET1:
+		return GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, extra);
 	}
 	return 0;
 }
@@ -550,6 +553,10 @@ void SetSyncValue_Orb(int pos, int val, int extra) {
 		case DND_SYNC_WEPMOD_DMG:
 			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
 		break;
+		case DND_SYNC_WEPMOD_POWERSET1:
+			// last param is a sign telling it to just overwrite it not bitset
+			SetDataToOrbBonus(pnum, OBI_WEAPON_POWERSET1, extra, val, true);
+		break;
 	}
 }
 
@@ -619,8 +626,10 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 }
 
 void SyncClientsideVariable_Orb(int var, int extra) {
-	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPMOD_CRIT && var <= DND_SYNC_WEPMOD_DMG))
+	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS)) {
+		//printbold(d:var, s: " ", d:GetPlayerSyncValue_Orb(var, extra), s: " ", d:extra);
 		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, extra), extra);
+	}
 	else
 		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, 0), 0);
 }
@@ -886,7 +895,7 @@ void SyncAllClientsideVariables() {
 	int i, j;
 	// sync orbs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i <= DND_SYNC_WEPMOD_DMG)) {
+		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i < MAX_WEP_MODS)) {
 			for(j = 0; j < MAXWEPS; ++j)
 				ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue_Orb(i, j), j);
 		}
