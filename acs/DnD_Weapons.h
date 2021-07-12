@@ -249,7 +249,8 @@ int WeaponProperties[MAXWEPS] = {
 	WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_NOREFLECT,
 	WPROP_OVERHEAT | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST,
 	WPROP_SELFDMG | WPROP_IGNORESHIELD,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_IGNORESHIELD,
+	
+	WPROP_SELFDMG | WPROP_IGNORESHIELD,
 	WPROP_IGNORESHIELD | WPROP_RIPPER,
 	WPROP_IGNORESHIELD | WPROP_OVERHEAT,
 	
@@ -436,6 +437,10 @@ bool CheckSlotWeapon(int slot) {
 
 int GetWeaponPosFromTable() {
 	return CheckInventory("DnD_WeaponID");
+}
+
+int GetActorWeaponID(int actor) {
+	return CheckActorInventory(actor, "DnD_WeaponID");
 }
 
 int PickRandomOwnedWeaponID(void) {

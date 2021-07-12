@@ -18,7 +18,8 @@ enum {
 	DND_ARMOR_KNIGHT,
 	DND_ARMOR_RAVAGER,
 	
-	DND_ARMOR_SYNTHMETAL
+	DND_ARMOR_SYNTHMETAL,
+	DND_ARMOR_LIGHTNINGCOIL
 };
 
 const int DND_BASE_ARMORCAP = 300;
@@ -303,6 +304,52 @@ Actor SynthMetalArmorMsg : CustomInventory {
 	}
 }
 
+Actor LightningCoilPickup_MP : DnD_SharedItem {
+	Scale 0.6
+	States {
+		Spawn:
+			// the delay is needed for the tid to initialize
+			AR16 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_LIGHTNINGCOIL)
+			AR16 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
+			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
+		Idle:
+			AR16 A 10
+		Loop
+		IdlePicked:
+			AR16 A -1
+		Stop
+	}
+}
+
+Actor LightningCoil_SP : GreenArmor_SP {
+	Scale 0.6
+	inventory.pickupsound "Items/armor"
+	inventory.pickupmessage "\ccArmor pickup: \c[Y5]Lightning Coil Armor 40%\c-"
+	States
+	{
+		Spawn:
+			AR16 A 10
+		Loop
+		Pickup:
+			TNT1 A 0 A_JumpIf(1 == ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_LIGHTNINGCOIL), "Success")
+		Fail
+		Success:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_LIGHTNINGCOIL, 300)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Research - Regular", 0, RES_LIGHTNINGCOIL, 1)
+		Stop
+	}
+}
+
+Actor LightningCoilMsg : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 3, SHI_LIGHTNINGCOIL)
+			TNT1 A 0 A_PlaySound("Items/armor", 6)
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
 Actor GreenArmorSpawner : Randomspawner replaces GreenArmor {
 	DropItem "GreenArmorPickup_MP", 255, 16
 	DropItem "YellowArmorPickup_MP", 255, 8
@@ -576,7 +623,7 @@ Actor NecroSpike : DnD_BaseProjectile {
 			WBON A 1
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Player Damage Scale", 8 * random(6, 8), TALENT_OCCULT, DND_USETARGET | DND_NECROBULK | DND_HASSTRSCALING), DND_DAMAGETYPE_OCCULT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Player Damage Scale", 8 * random(6, 8), TALENT_OCCULT, DND_USETARGET | DND_NECROBULK | DND_HASSTRSCALING), DND_DAMAGETYPE_OCCULT, 0, -1)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			HHPF ABCDEF 3
@@ -711,4 +758,82 @@ Actor SynthMetalArmor : BasicArmorPickup {
 	DamageFactor "CyberLightning", 1.5
 	DamageFactor "LightningExp", 1.5
 	DamageFactor "LightningExpFull", 1.5
+}
+
+Actor LightningCoilArmor : BasicArmorPickup {
+	Armor.SavePercent 40.0
+	Armor.SaveAmount 1
+	inventory.icon "AR16A0"
+	
+	DamageFactor "CacoLightning", 0.15
+	DamageFactor "VileRedLightning", 0.15
+	DamageFactor "RevLightning", 0.15
+	DamageFactor "PaineRedLightning", 0.15
+	DamageFactor "CyberLightning", 0.15
+	DamageFactor "LightningExp", 0.15
+	DamageFactor "LightningExpFull", 0.15
+}
+
+Actor LightningCoilShooter : DnD_Activator {
+	States {
+		Use:
+			TNT1 A 0 A_FireCustomMissile("LightningCoilBolt", 0, 0, 32)
+		Stop
+	}
+}
+
+Actor LightningCoilBolt : DnD_BaseProjectile {
+	Speed 50
+	Radius 8
+	Height 16
+	SeeSound "Spell/LightningSpearCast"
+	DeathSound "Spell/LightningSpearBounce"
+	Species "Player"
+	const float r = 12.0;
+	const float v = 2.0;
+	+THRUSPECIES
+	+FOILINVUL
+	+DONTREFLECT
+	+SEEKERMISSILE
+	States {
+		SpawnState:
+			UP25 A 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 A 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 A 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailA", -20)
+			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailA", -40)
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 B 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 B 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 B 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailB", -20)
+			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailB", -40)
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 C 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 C 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_LOOK)
+			UP25 C 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailC", -20)
+			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailC", -40)
+		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Player Damage Scale", 300, TALENT_ELEMENTAL, DND_USETARGET), DND_DAMAGETYPE_LIGHTNING, 0, -1)
+		Death:
+			MORZ AAA 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)
+			MORZ BBB 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)
+			MORZ CCC 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)
+			MORZ DDD 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)
+			MORZ EEE 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)
+		Stop
+	}
+}
+
+Actor LightningCoilCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 70
 }

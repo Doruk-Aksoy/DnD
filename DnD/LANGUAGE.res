@@ -190,5 +190,8 @@ RES_DESC61				= "Findings on the dropped special armor from the zombie you kille
 RES_LABEL62 			= "Synth-metal Mask";
 RES_DESC62				= "The mask you've found is certainly very exquisite. This will protect your sight from vision impairing effects when hurt.";
 	
-RES_LABEL63 			= "Increased Stash Tabs";
-RES_DESC63				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";
+RES_LABEL63 			= "Lightning Coil Armor";
+RES_DESC63 				= "The skin of Remus seems very... strange, to say the least. It's highly durable and is strangely non-conductive. Yet it can project lightning when enough pressure is applied. We can produce Lightning Coil Armor using this.";
+	
+RES_LABEL64 			= "Increased Stash Tabs";
+RES_DESC64				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";

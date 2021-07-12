@@ -1082,6 +1082,10 @@ void HandleUniqueDeath(int unique_id) {
 		break;
 		case MONSTER_REMUS:
 			// drops armor and gives research for it: lightning coil - super lightning protection, 300, 40% damage reduction. When hurt fires lightning bolts.
+			if(GameType() != GAME_SINGLE_PLAYER)
+				SpawnDrop("LightningCoilPickup_MP", 24.0, 16, 0, 0);
+			else
+				SpawnDrop("LightningCoil_SP", 24.0, 16, 0, 0);
 		break;
 		case MONSTER_SSRATH:
 			// ssrath influence: soul type weapons penetrate % magic resistance

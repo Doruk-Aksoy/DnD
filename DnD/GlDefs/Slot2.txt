@@ -45,6 +45,17 @@ Object RubyShot
 	Frame WBALG { Light DiabloistFlare6 }
 }
 
+Object RubyShot_GhostHitter
+{
+	Frame VBALA { Light DiabloistFlare1 }
+	Frame VBALB { Light DiabloistFlare1 }
+	Frame WBALC { Light DiabloistFlare2 }
+	Frame WBALD { Light DiabloistFlare3 }
+	Frame WBALE { Light DiabloistFlare4 }
+	Frame WBALF { Light DiabloistFlare5 }
+	Frame WBALG { Light DiabloistFlare6 }
+}
+
 FlickerLight DMissileTrail1
 {
 Color 1.0 0.4 0.0
@@ -108,7 +119,27 @@ Frame CFFXK { Light DMissileTrail5 }
 Frame CFFXL { Light DMissileTrail6 }
 }
 
+Object RubyFlameMissile_GhostHitter
+{
+Frame CFFXB { Light DMissileTrail2 }
+Frame CFFXC { Light DMissileTrail3 }
+Frame CFFXD { Light DMissileTrail3 }
+Frame CFFXE { Light DMissileTrail3 }
+Frame CFFXF { Light DMissileTrail3 }
+Frame CFFXG { Light DMissileTrail3 }
+Frame CFFXH { Light DMissileTrail3 }
+Frame CFFXI { Light DMissileTrail3 }
+Frame CFFXJ { Light DMissileTrail4 }
+Frame CFFXK { Light DMissileTrail5 }
+Frame CFFXL { Light DMissileTrail6 }
+}
+
 Object RubyCircleFlame
+{
+Frame CFFX { Light DMissileTrail1 }
+}
+
+Object RubyCircleFlame_GhostHitter
 {
 Frame CFFX { Light DMissileTrail1 }
 }

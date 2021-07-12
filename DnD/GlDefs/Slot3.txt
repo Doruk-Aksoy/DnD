@@ -130,6 +130,17 @@ object EmeraldRainer {
     frame JWPRG { light EmeraldRainerLight5 }
 }
 
+object EmeraldRainer_GhostHitter {
+    frame JWPRA { light EmeraldRainerLight1 }
+    frame JWPRB { light EmeraldRainerLight1 }
+    frame JWPRC { light EmeraldRainerLight1 }
+
+    frame JWPRD { light EmeraldRainerLight2 }
+    frame JWPRE { light EmeraldRainerLight3 }
+    frame JWPRF { light EmeraldRainerLight4 }
+    frame JWPRG { light EmeraldRainerLight5 }
+}
+
 pointlight EmeraldRainLight1
 {
     color 0.0 1.0 0.0
@@ -161,6 +172,16 @@ pointlight EmeraldRainLight5
 }
 
 object EmeraldRain {
+    frame JADED { light EmeraldRainLight1 }
+    frame JADEE { light EmeraldRainLight1 }
+
+    frame JADEF { light EmeraldRainLight2 }
+    frame JADEG { light EmeraldRainLight3 }
+    frame JADEH { light EmeraldRainLight4 }
+    frame JADEI { light EmeraldRainLight5 }
+}
+
+object EmeraldRain_GhostHitter {
     frame JADED { light EmeraldRainLight1 }
     frame JADEE { light EmeraldRainLight1 }
 
@@ -211,6 +232,17 @@ object HellsMawRocket
 	frame HLMLF { light HellsmawLight4 }
 }
 
+object HellsMawRocket_GhostHitter
+{
+	frame HLMLA { light HellsmawLight1    }
+	frame HLMLB { light HellsmawLight1    }
+	frame HLMLC { light HellsmawLight1    }
+
+	frame HLMLD { light HellsmawLight2 }
+	frame HLMLE { light HellsmawLight3 }
+	frame HLMLF { light HellsmawLight4 }
+}
+
 object HellsMawMiniRocket
 {
 	frame HLMLG { light HellsmawLight1    }
@@ -224,7 +256,33 @@ object HellsMawMiniRocket
 	frame HLMLR { light HellsmawLight4 }
 }
 
+object HellsMawMiniRocket_GhostHitter
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}
+
 object HellsMawMiniRocket_Split
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}
+
+object HellsMawMiniRocket_Split_GhostHitter
 {
 	frame HLMLG { light HellsmawLight1    }
 	frame HLMLL { light HellsmawLight1    }

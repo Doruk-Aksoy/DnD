@@ -1625,7 +1625,11 @@ Actor GoreShooter2 : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_BLOODAMMO, 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_BLOODFIENDSPINE, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("GoreShot1",0,1,0,0)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("GoreShot1_GhostHitter",0,1,0,0)
 		Stop
 	}
 }
@@ -1692,6 +1696,10 @@ ACTOR GoreShot1 : DnD_ExplosiveBase {
 			FGOR GHIJ 4 Bright
 		stop
 	}
+}
+
+Actor GoreShot1_GhostHitter : GoreShot1 {
+	-THRUGHOST
 }
 
 ACTOR GoreFX1
@@ -2208,13 +2216,19 @@ Actor VenomShooter1 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_VENOMAMMO, 1)
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VENOM, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("Barbshot",frandom(-8.2,8.2) * (1.0 - accuracy * accuracy_factor),1,0,random(-4,4) * (1.0 - accuracy * accuracy_factor))
 			TNT1 AAAAAAAAAAAAAAA 0 A_FireCustomMissile("Barbshot",frandom(-8.2,8.2) * (1.0 - accuracy * accuracy_factor),0,0,random(-5,5) * (1.0 - accuracy * accuracy_factor))
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("Barbshot_GhostHitter",frandom(-8.2,8.2) * (1.0 - accuracy * accuracy_factor),1,0,random(-4,4) * (1.0 - accuracy * accuracy_factor))
+			TNT1 AAAAAAAAAAAAAAA 0 A_FireCustomMissile("Barbshot_GhostHitter",frandom(-8.2,8.2) * (1.0 - accuracy * accuracy_factor),0,0,random(-5,5) * (1.0 - accuracy * accuracy_factor))
 		Stop
 		
 		FireCircle:
 			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 16))
 			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VENOM, DND_WEP_POWER_GHOSTHIT), "LoopStart_GhostHitter")
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
@@ -2225,6 +2239,14 @@ Actor VenomShooter1 : DnD_Activator {
 		Finish:
 			TNT1 A 0
 		Stop
+		
+		LoopStart_GhostHitter:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue_GhostHitter")
+		Goto Finish
+		LoopContinue_GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("Barbshot_GhostHitter", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart_GhostHitter
 	}
 }
 
@@ -2233,13 +2255,19 @@ Actor VenomShooter2 : DnD_Activator {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_VENOMAMMO, 3)
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VENOM, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("Acidshot",frandom(-8.2,8.2) * (1.0 - accuracy * accuracy_factor),1,0,random(-4,4) * (1.0 - accuracy * accuracy_factor))
 			TNT1 AAAAAAAAAAAAAAA 0 A_FireCustomMissile("Acidshot",frandom(-8.2,8.2),0,0,random(-5,5) * (1.0 - accuracy * accuracy_factor))
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("Acidshot_GhostHitter",frandom(-8.2,8.2) * (1.0 - accuracy * accuracy_factor),1,0,random(-4,4) * (1.0 - accuracy * accuracy_factor))
+			TNT1 AAAAAAAAAAAAAAA 0 A_FireCustomMissile("Acidshot_GhostHitter",frandom(-8.2,8.2),0,0,random(-5,5) * (1.0 - accuracy * accuracy_factor))
 		Stop
 		
 		FireCircle:
 			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 16))
 			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VENOM, DND_WEP_POWER_GHOSTHIT), "LoopStart_GhostHitter")
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
@@ -2250,6 +2278,14 @@ Actor VenomShooter2 : DnD_Activator {
 		Finish:
 			TNT1 A 0
 		Stop
+		
+		LoopStart_GhostHitter:
+			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue_GhostHitter")
+		Goto Finish
+		LoopContinue_GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("Acidshot_GhostHitter", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto LoopStart
 	}
 }
 
@@ -2284,6 +2320,7 @@ Actor Barbshot_Damager : DnD_BaseProjectile {
 	Radius 4
 	Height 8
 	Speed 30
+	+THRUGHOST
 	States {
 		SpawnState:
 			TNT1 A 1
@@ -2293,6 +2330,22 @@ Actor Barbshot_Damager : DnD_BaseProjectile {
 		Death:
 			TNT1 A 1
 		Stop
+	}
+}
+
+Actor Barbshot_Damager_GhostHitter : Barbshot_Damager {
+	-THRUGHOST
+}
+
+Actor Barbshot_GhostHitter : Barbshot {
+	-THRUGHOST
+	States {
+		SpawnState:
+			SBRD A 1 Bright A_SpawnItemEx("Barbtrail",0,0,0,0,0,0,0,8)
+			TNT1 A 0 A_CustomMissile("Barbshot_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_SpawnItemEx("BarbFX",0,0,0,0,0,0,0,8)
+			TNT1 A 0 A_CountDown
+		Loop
 	}
 }
 
@@ -2364,6 +2417,10 @@ ACTOR Acidshot : DnD_ExplosiveBase {
 			BNAD GHIJ 3 Bright
 		stop
 	}
+}
+
+Actor Acidshot_GhostHitter : Acidshot {
+	-THRUGHOST
 }
 
 ACTOR AcidFX

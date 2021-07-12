@@ -778,7 +778,11 @@ Actor NailShooter1 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, -6)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("NailProjectile_GhostHitter", 0, 1, -6)
 		Stop
 	}
 }
@@ -787,7 +791,11 @@ Actor NailShooter2 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, 6)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("NailProjectile_GhostHitter", 0, 1, 6)
 		Stop
 	}
 }
@@ -796,7 +804,11 @@ Actor NailShooter3 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 2)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, -6)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile_GhostHitter", 0, 1, -6)
 		Stop
 	}
 }
@@ -805,7 +817,11 @@ Actor NailShooter4 : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 2)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, 6)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile_GhostHitter", 0, 1, 6)
 		Stop
 	}
 }
@@ -853,6 +869,7 @@ Actor NailProj_Damager : DnD_BaseProjectile {
 	Species "Player"
 	+THRUSPECIES
 	+NODAMAGETHRUST
+	+THRUGHOST
 	States {
 		SpawnState:
 			TNT1 A 1
@@ -863,6 +880,27 @@ Actor NailProj_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor NailProjectile_GhostHitter : NailProjectile {
+	-THRUGHOST
+	States {
+		SpawnState:
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+		Loop
+	}
+}
+
+Actor NailProj_Damager_GhostHitter : NailProj_Damager {
+	-THRUGHOST
 }
 
 Actor NailExplosion : DnD_ExplosiveBase {
@@ -911,6 +949,27 @@ Actor LavaNailProjectile : NailProjectile {
 			NLPJ A 0 A_PlaySound("Weapons/NailRic")
 			NLPJ BCDEFG 2
 		Stop
+	}
+}
+
+Actor LavaNailProjectile_GhostHitter : LavaNailProjectile {
+	-THRUGHOST
+	States {
+		SpawnState:
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+		Loop
 	}
 }
 
@@ -1293,11 +1352,11 @@ Actor FrostFangShooter : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_FROSTFANG, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 1, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
 		Stop
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 0, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("FrostFangShard_GhostHitter", 0, 1, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
 		Stop
 	}
 }
@@ -1309,7 +1368,11 @@ Actor FrostFangShooter2 : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("EverIce", 30)
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_FROSTFANG, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("FrostFangBall", 0, 0)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("FrostFangBall_GhostHitter", 0, 0)
 		Stop
 	}
 }
@@ -1335,6 +1398,10 @@ Actor FrostFangShard : DnD_BaseProjectile {
 	}
 }
 
+Actor FrostFangShard_GhostHitter : FrostFangShard {
+	-THRUGHOST
+}
+
 Actor FrostFangShard_Glowing : FrostFangShard {
 	Speed 28
 	Renderstyle Add
@@ -1348,6 +1415,10 @@ Actor FrostFangShard_Glowing : FrostFangShard {
 			FX39 DEFG 3 Bright
 		Stop
 	}
+}
+
+Actor FrostFangShard_Glowing_GhostHitter : FrostFangShard_Glowing {
+	-THRUGHOST
 }
 
 Actor FrostFangBall : DnD_BaseProjectile {
@@ -1366,8 +1437,8 @@ Actor FrostFangBall : DnD_BaseProjectile {
 	ReactionTime 45
 	var int user_count;
 	states {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
 		SpawnLoop:
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
 			FX39 AAA 1 Bright A_CustomMissile("FrostFangBall_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -1424,6 +1495,7 @@ Actor FrostFangBall_Damager : DnD_BaseProjectile {
 	Species "Player"
 	+THRUSPECIES
 	+NOBLOOD
+	+THRUGHOST
 	States {
 		SpawnState:
 			TNT1 A 1
@@ -1434,6 +1506,59 @@ Actor FrostFangBall_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor FrostFangBall_GhostHitter : FrostFangBall {
+	-THRUGHOST
+	States {
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 AAA 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 BBB 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
+			FX39 CCC 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 90 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 135 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 180 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 225 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 270 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 335 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+	}
+}
+
+Actor FrostFangBall_Damager_GhostHitter : FrostFangBall_Damager {
+	-THRUGHOST
 }
 
 Actor FrostFangBallParticle {

@@ -75,6 +75,7 @@ Actor PistolShooter : DnD_Activator {
 }
 
 Actor PistolPuff : DnD_BasePuff {
+	+THRUGHOST
 	States {
 		Init:
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PISTOL << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
@@ -1190,7 +1191,11 @@ Actor RubyShooterSingle : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Attack", 0)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_RUBYWAND, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("RubyShot",0,0,0,0)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("RubyShot_GhostHitter",0,0,0,0)
 		Stop
 	}
 }
@@ -1199,9 +1204,15 @@ Actor RubyShooter : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CLIP, AMMO_RUBY, 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_RUBYWAND, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("RubyShot",0,1,0,0)
 			TNT1 A 0 A_FireCustomMissile("RubyShot",-3,0,0,0)
 			TNT1 A 0 A_FireCustomMissile("RubyShot",3,0,0,0)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("RubyShot_GhostHitter",0,1,0,0)
+			TNT1 A 0 A_FireCustomMissile("RubyShot_GhostHitter",-3,0,0,0)
+			TNT1 A 0 A_FireCustomMissile("RubyShot_GhostHitter",3,0,0,0)
 		Stop
 	}
 }
@@ -1211,12 +1222,12 @@ Actor RubyAltShooter : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("RubyAmmo", 7)
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "HitGhost")
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_RUBYWAND, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("RubyFlameMissile",0,0,0,0)
 		Stop
-		HitGhost:
-			TNT1 A 0 A_FireCustomMissile("RubyFlameMissile_FullDMG", 0, 0, 0, 0)
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("RubyFlameMissile_GhostHitter", 0, 0, 0, 0)
 		Stop
 	}
 }
@@ -1244,6 +1255,10 @@ Actor RubyShot : DnD_BaseProjectile {
 			WBAL FGHIJ 3 Bright
 		Stop
 	}
+}
+
+Actor RubyShot_GhostHitter : RubyShot {
+	-THRUGHOST
 }
 
 Actor RubyFiretrail {   
@@ -1330,6 +1345,7 @@ Actor RubyFlameMissile : DnD_BaseFastProjectile {
 	States {
 		Spawn:
 			TNT1 A 0
+			TNT1 A 0 A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
 			CFFX A 3 Bright ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_RUBYFLAME, 32, 0)
 			TNT1 A 0 A_ChangeFlag("INVISIBLE", 0)
 		Goto NoExplode
@@ -1363,6 +1379,39 @@ Actor RubyFlameMissile : DnD_BaseFastProjectile {
 	}
 }
 
-Actor RubyFlameMissile_FullDMG : RubyFlameMissile {
+Actor RubyFlameMissile_GhostHitter : RubyFlameMissile {
+	-THRUGHOST
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_RUBYWAND << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_RUBYWAND)
+		Death:
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 45, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 135, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 225, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RubyCircleFlame_GhostHitter", 0, 0, 335, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItem("RedParticleSpawner")
+		NoExplode:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeFlag("INVISIBLE", 0)
+			CFFX ABC 3 Bright
+			CFFX D 4 Bright
+			CFFX E 3 Bright
+			CFFX F 4 Bright
+			CFFX G 3 Bright
+			CFFX H 4 Bright
+			CFFX I 3 Bright
+			CFFX J 4 Bright
+			CFFX K 3 Bright
+			CFFX L 4 Bright
+			CFFX M 3 Bright
+		Stop
+	}
+}
+
+Actor RubyCircleFlame_GhostHitter : RubyCircleFlame {
 	-THRUGHOST
 }

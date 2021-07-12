@@ -19,9 +19,10 @@ enum {
 	SHI_BLUEARMOR,
 	SHI_REDARMOR,
 	SHI_BACKPACK,
-	SHI_SYNTHMETALARMOR
+	SHI_SYNTHMETALARMOR,
+	SHI_LIGHTNINGCOIL
 };
-#define MAX_SHARED_ITEM_TYPES (SHI_SYNTHMETALARMOR + 1)
+#define MAX_SHARED_ITEM_TYPES (SHI_LIGHTNINGCOIL + 1)
 
 void HandleSharedItemPickupMessage(int id) {
 	str header = "";
@@ -67,6 +68,11 @@ void HandleSharedItemPickupMessage(int id) {
 			text = "DND_ARMOR16";
 			extra = " 65%";
 		break;
+		case SHI_LIGHTNINGCOIL:
+			header = "DND_ARMORPICKUP";
+			text = "DND_ARMOR17";
+			extra = " 40%";
+		break;
 	}
 	
 	Log(s:"\cc", l:header, s:": \c[Y5]", l:text, s:extra);
@@ -80,7 +86,8 @@ str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 	"BlueArmor_SP",
 	"RedArmor_SP",
 	"Backpack_SP",
-	"Synthmetal_SP"
+	"Synthmetal_SP",
+	"LightningCoil_SP"
 };
 
 // these all can be grouped into a struct to save variable space
@@ -148,6 +155,14 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_SYNTHMETAL, 400);
 					GiveInventory("SynthmetalArmorMsg", 1);
 					ACS_NamedExecuteAlways("DnD Give Research - Regular", 0, RES_SYNTHMETALARMOR, 1);
+					pickedup = true;
+				}
+			break;
+			case SHI_LIGHTNINGCOIL:
+				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_LIGHTNINGCOIL)) {
+					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_LIGHTNINGCOIL, 300);
+					GiveInventory("LightningCoilMsg", 1);
+					ACS_NamedExecuteAlways("DnD Give Research - Regular", 0, RES_LIGHTNINGCOIL, 1);
 					pickedup = true;
 				}
 			break;

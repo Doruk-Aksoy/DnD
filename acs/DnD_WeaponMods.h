@@ -32,6 +32,8 @@ enum {
 };
 #define MAX_WEP_MOD_POWERSET1 (WEP_POWER_GHOSTHIT + 1)
 
+#define WEP_POWER_GHOSTHIT_REDUCE 33 // %
+
 str GetWeaponModText(int val, int id, int extra_bit = 0) {
 	switch(id) {
 		case WEP_MOD_CRIT:

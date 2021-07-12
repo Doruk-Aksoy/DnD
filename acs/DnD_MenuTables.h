@@ -486,6 +486,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 17000, 1,			1 },
 		{ 12000, 1,			1 },
 		{ 19000, 1,			1 },
+		{ 16500, 1,			1 },
 		
 		// Account
 		{ 1500000, MAX_EXTRA_INVENTORY_PAGES,		5 },
@@ -696,6 +697,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_RAREARMOR, -1, -1 },
 		{ RES_RAREARMOR, -1, -1 },
 		{ RES_SYNTHMETALARMOR, -1, -1},
+		{ RES_LIGHTNINGCOIL, -1, -1},
 		
 	// account
 		{ RES_STASHTAB, -1, -1 },
@@ -1322,7 +1324,8 @@ struct draw_info ArmorDrawInfo[MAXARMORS] = {
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_NECRO		 						},
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_KNIGHT	 							},
 	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_RAVAGER		 						},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_SYNTHMETAL		 					}
+	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_SYNTHMETAL		 					},
+	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_LIGHTNINGCOIL		 				}
 };
 
 struct draw_info AbilityDrawInfo[MAXABILITIES] = {
@@ -1558,6 +1561,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SYNTHMETALARMOR, 4675, 75
 		},
 		{
+			RES_LIGHTNINGCOIL, 4694, 70
+		},
+		{
 			RES_SYNTHMASK, 4713, 50
 		},
 		{
@@ -1667,6 +1673,7 @@ str ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		"RESBAK1",
 		"RESBAK2",
 		"RESBAK63",
+		"RESBAK65",
 		"RESBAK64",
 		"RESBAK3",
 		"RESBAK4",

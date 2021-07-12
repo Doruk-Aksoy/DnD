@@ -190,6 +190,11 @@ object Barbshot
 	frame SBRDA { light VenomLight1 }
 }
 
+object Barbshot_GhostHitter
+{
+	frame SBRDA { light VenomLight1 }
+}
+
 flickerlight2 VenomLight2
 {
     color 0.2 1.0 0.2
@@ -235,6 +240,21 @@ pointlight VenomLight8
 }
 
 object AcidShot
+{
+	frame BNADA { light VenomLight2 }
+	frame BNADB { light VenomLight2 }
+	frame BNADC { light VenomLight2 }
+	frame BNADD { light VenomLight2 }
+	
+	frame BNADE { light VenomLight3 }
+	frame BNADF { light VenomLight4 }
+	frame BNADG { light VenomLight5 }
+	frame BNADH { light VenomLight6 }
+	frame BNADI { light VenomLight7 }
+	frame BNADJ { light VenomLight8 }
+}
+
+object AcidShot_GhostHitter
 {
 	frame BNADA { light VenomLight2 }
 	frame BNADB { light VenomLight2 }

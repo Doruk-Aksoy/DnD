@@ -394,11 +394,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		}
 			
 		// finally apply damage type or percentage bonuses
-		temp = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
-				GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, wepid) +
-				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) + 
-				MapTalentToPercentBonus(pnum, talent_type) +
-				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
+		// last one is for ghost hit power, we reduce its power by a factor
+		temp = GetPlayerPercentDamage(pnum, wepid, talent_type);
 		if(temp) {
 			dmg = dmg * (100 + temp) / 100;
 			
@@ -641,7 +638,7 @@ int GetResistPenetration(int category) {
 	return 0;
 }
 
-int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_full, int wepid) {
+int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_full, int wepid, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int temp = GetDamageCategory(damage_type);
@@ -694,7 +691,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 	
 	// addition of pen here means if we ignored resists and immunities, we still give penetration a chance to weaken the defences further
 	// return early as we ignored resists and immunities
-	if(PlayerCritState[PlayerNumber()][DND_CRITSTATE_CONFIRMED][wepid] && CheckInventory("IATTR_CritIgnoreRes") >= random(1, 100))
+	if(!wep_neg && PlayerCritState[PlayerNumber()][DND_CRITSTATE_CONFIRMED][wepid] && CheckInventory("IATTR_CritIgnoreRes") >= random(1, 100))
 		return dmg * (100 + pen) / 100;
 		
 	// if we do forced full damage skip resists and immunities
@@ -732,7 +729,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters!
-void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0) {
+void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0, bool wep_neg = false) {
 	str s_damagetype = DamageTypeList[damage_type];
 	bool forced_full = false;
 	bool no_ignite_stack = flags & DND_DAMAGEFLAG_NOIGNITESTACK;
@@ -802,7 +799,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	// handle resists and all that here
 	//printbold(s:"res calc");
 	temp = dmg;
-	dmg = FactorResists(source, victim, dmg, damage_type, forced_full, wepid);
+	dmg = FactorResists(source, victim, dmg, damage_type, forced_full, wepid, wep_neg);
 	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
 	if(pnum != -1) {
 		if(dmg > temp)
@@ -895,7 +892,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			PlayerDamageVector[pnum].y = oy;
 			PlayerDamageVector[pnum].z = oz;
 			
-			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (flags << DND_DAMAGE_ACCUM_SHIFT), wepid);
+			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (flags << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg);
 		}
 		PlayerDamageTicData[pnum][temp] += dmg;
 	}
@@ -1077,9 +1074,6 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_STONECREATURE])
 			ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
 	}
-	
-	if(wepid == -1)
-		wepid = CheckActorInventory(owner, "DnD_WeaponID");
 		
 	int actor_flags = ScanActorFlags();
 		
@@ -1092,27 +1086,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		actor_flags |= DND_ACTORFLAG_COUNTSASMELEE;
 		flags ^= DND_DAMAGEFLAG_COUNTSASMELEE;
 	}
-		
-	// berserker perk50 dmg increase portion and other melee increases
-	if((IsMeleeWeapon(wepid) || actor_flags & DND_ACTORFLAG_COUNTSASMELEE)) {
-		if(CheckActorInventory(owner, "Berserker_Perk50")) {
-			SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-			if((px = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
-				GiveActorInventory(owner, "Berserker_HitTracker", 1);
-				if(!px)
-					ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
-			}
-			if(px + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-				if(!CheckActorInventory(owner, "Berserker_RoarCD") && !CheckActorInventory(owner, "Berserker_NoRoar"))
-					HandleBerserkerRoar(owner);
-				GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
-			}
-			dmg += dmg * (100 + (px + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
-		}
-		
-		dmg += dmg * (100 + GetActorAttributeValue(owner, INV_MELEEDAMAGE)) / 100;
-	}
-	
+
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
 		if(!isActorAlive(victim)) {
 			// if actor died before the rest of the pellets can take effect, fire corresponding bullet attacks from behind this monster
@@ -1162,41 +1136,73 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		pz = GetActorZ(0);
 	}
 	
-	// printbold(d:owner, s: " ", d:victim);
-	if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
-		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-		actor_flags |= (wepid << 16);
-	}
+	bool wep_neg = wepid == -1;
 	
-	// Flayer magic or undead check
-	if(wepid == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
-		ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, owner);
+	if(!wep_neg) {
+		// printbold(d:owner, s: " ", d:victim);
+		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
+			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			actor_flags |= (wepid << 16);
+		}
+		
+		printbold(s:"casdasd---- ", d:wepid);
+		// berserker perk50 dmg increase portion and other melee increases
+		if((IsMeleeWeapon(wepid) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
+			printbold(s:"wtf");
+			if(CheckActorInventory(owner, "Berserker_Perk50")) {
+				SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+				if((px = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+					GiveActorInventory(owner, "Berserker_HitTracker", 1);
+					if(!px)
+						ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
+				}
+				if(px + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+					if(!CheckActorInventory(owner, "Berserker_RoarCD") && !CheckActorInventory(owner, "Berserker_NoRoar"))
+						HandleBerserkerRoar(owner);
+					GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
+				}
+				dmg = dmg * (100 + (px + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
+			}
+			
+			dmg = dmg * (100 + GetActorAttributeValue(owner, INV_MELEEDAMAGE)) / 100;
+		}
+		
+		// Flayer magic or undead check
+		if(wepid == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
+			ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, owner);
+	}
 	
 	SetActivator(owner);
 	int pnum = PlayerNumber();
-	int extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+	int extra = 0;
+	int poison = 0;
 
-	// percent damage of monster if it exists
-	if(extra)
-		flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
+	if(!wep_neg) {
+		// chance to force pain
+		if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100)) {
+			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
+		}
 		
-	// chance to force pain
-	if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100)) {
-		actor_flags |= DND_ACTORFLAG_FORCEPAIN;
+		if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val)
+			flags |= DND_DAMAGEFLAG_INFLICTPOISON;
+			
+		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
+			// the wepid is stored as reference in the last 16 bits
+			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			actor_flags |= (wepid << 16);
+		}
+		
+		// percent damage of monster if it exists
+		extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+		if(extra)
+			flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
+		
+		poison = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
 	}
 	
-	if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val)
-		flags |= DND_DAMAGEFLAG_INFLICTPOISON;
-		
-	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
-		// the wepid is stored as reference in the last 16 bits
-		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-		actor_flags |= (wepid << 16);
-	}
-	
-	// printbold(d:dmg);
+	//printbold(d:dmg);
 	if(owner && victim)
-		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags, extra, Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val);
+		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags, extra, poison, wep_neg);
 }
 
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
@@ -1379,7 +1385,7 @@ void HandleLifesteal(int wepid, int flags, int dmg) {
 }
 
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
-Script "DnD Damage Accumulate" (int victim_data, int wepid) {
+Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 	int pnum = PlayerNumber();
 	int flags = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
@@ -1393,15 +1399,17 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid) {
 	// do the real pushing after 1 tic of dmg data has been accumulated and we have non-zero damage in effect
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
 		HandleDamagePush(PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN);
+	
+	if(!wep_neg) {
+		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || flags & DND_DAMAGETICFLAG_CRIT)
+			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
 		
-	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || flags & DND_DAMAGETICFLAG_CRIT)
-		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
-	
-	PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;
-	
-	// check if player has lifesteal, if they do reward some hp back
-	if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS])
-		HandleLifesteal(wepid, flags, PlayerDamageTicData[pnum][victim_data]);
+		PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;
+		
+		// check if player has lifesteal, if they do reward some hp back
+		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS])
+			HandleLifesteal(wepid, flags, PlayerDamageTicData[pnum][victim_data]);
+	}
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance
 	// do these if only the actor was alive after the tic they received dmg

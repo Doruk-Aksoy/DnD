@@ -884,7 +884,11 @@ Actor EmeraldShooter2 : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("EmeraldMana", 5)
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_EMERALDWAND, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("EmeraldRainer")
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("EmeraldRainer_GhostHitter")
 		Stop
 	}
 }
@@ -983,6 +987,41 @@ Actor EmeraldRain : DnD_BaseProjectile {
 			JADE EFGHI 3 Bright
 		Stop
 	}
+}
+
+Actor EmeraldRainer_GhostHitter : EmeraldRainer {
+	-THRUGHOST
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_EMERALDWAND << 16), TALENT_ELEMENTAL, DND_POISONDAMAGE | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_EMERALD, 0, DND_WEAPON_EMERALDWAND)
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_PlaySound("EmeraldWand/Rain")
+			JWPR DDDDD 1 Bright A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			JWPR EEEEEFFFFFGGGGG 1 Bright A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == raindrops, "Finish")
+			TNT1 AA 0 A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 1 A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			TNT1 A 50
+		Stop
+	}
+}
+
+Actor EmeraldRainDropper_GhostHitter : EmeraldRainDropper {
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 165 A_CustomMissile("EmeraldRain_GhostHitter", ceilingz - 16, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION, -90)
+		Stop
+	}
+}
+
+Actor EmeraldRain_GhostHitter : EmeraldRain {
+	-THRUGHOST
 }
 
 ACTOR JadeTrail {   

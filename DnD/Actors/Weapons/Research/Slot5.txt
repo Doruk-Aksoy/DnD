@@ -301,6 +301,7 @@ Actor HeavyGrenadeShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("HeavyGrenades", 1)
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_HEAVYGL, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("HeavyGrenade")
 			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop")
 		Stop
@@ -308,6 +309,18 @@ Actor HeavyGrenadeShooter : DnD_Activator {
 			TNT1 A 0 A_FireCustomMissile("HeavyGrenade", frandom(-4.8, 4.8), 0, 0, 0, 0, frandom(-2.0, 2.0))
 			TNT1 A 0 A_TakeInventory("HeavyGLCounter", 1)
 			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop")
+		Finish:
+			TNT1 A 0
+		Stop
+		
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("HeavyGrenade_GhostHitter")
+			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop_GhostHitter")
+		Stop
+		NormalLoop_GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("HeavyGrenade_GhostHitter", frandom(-4.8, 4.8), 0, 0, 0, 0, frandom(-2.0, 2.0))
+			TNT1 A 0 A_TakeInventory("HeavyGLCounter", 1)
+			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop_GhostHitter")
 		Finish:
 			TNT1 A 0
 		Stop
@@ -438,6 +451,7 @@ Actor HeavyGrenadeShrapnel_Damager : DnD_BaseProjectile {
 	Speed 20
 	Species "Player"
 	+THRUSPECIES
+	+THRUGHOST
 	States {
 		SpawnState:
 			TNT1 A 1
@@ -448,6 +462,37 @@ Actor HeavyGrenadeShrapnel_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor HeavyGrenade_GhostHitter : HeavyGrenade {
+	-THRUGHOST
+	States {
+		ContinueFromExplosion:
+		PelletLoop:
+			TNT1 A 0 A_JumpIf(user_count == steps, "Finish")
+			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter", 0, 0, user_count * stepsize, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			HGRN JKLMNOPQRST 2 Bright
+		Stop
+	}
+}
+
+Actor HeavyGrenadeShrapnel_GhostHitter : HeavyGrenadeShrapnel {
+	-THRUGHOST
+	States {
+		SpawnState:
+			SFRG ABCDABCDEFGHEFGH 1 Bright A_CustomMissile("HeavyGrenadeShrapnel_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER)
+		SpawnLoop:
+			SFRG IJKL 1 Bright A_CustomMissile("HeavyGrenadeShrapnel_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+		Loop
+	}
+}
+
+Actor HeavyGrenadeShrapnel_Damager_GhostHitter : HeavyGrenadeShrapnel_Damager {
+	-THRUGHOST
 }
 
 Actor ResRL3 : Weapon {

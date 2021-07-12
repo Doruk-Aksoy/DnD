@@ -3293,11 +3293,17 @@ Script "DnD Player On Hit" (int power) {
 			GiveInventory("HateWeakness", 1);
 		SetActivator(this);
 	}
-	// necro chance
+	// necro and lightning coil chance
 	if(GetArmorType("NecroArmor", PlayerNumber()) && !CheckInventory("NecroSpikeCooldown") && !random(0, 2)) {
 		GiveInventory("NecroSpikeShooter", 1);
 		GiveInventory("NecroSpikeCooldown", 1);
 	}
+	else if(GetArmorType("LightningCoilArmor", PlayerNumber()) && !CheckInventory("LightningCoilCooldown") && !random(0, 3)) {
+		// 25% chance
+		GiveInventory("LightningCoilShooter", 1);
+		GiveInventory("LightningCoilCooldown", 1);
+	}
+	
 	// player heal on hit check
 	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_CHANCE_HEALMISSINGONPAIN);
 	if(temp) {
@@ -3902,32 +3908,28 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	}
 	
 	dmg += MapTalentToFlatBonus(pnum, talent_type, flags);
-		
-	if(talent_type == TALENT_MELEE || flags & DND_WDMG_HASSTRSCALING)
+	
+	if(talent_type == TALENT_MELEE || (flags & DND_WDMG_HASSTRSCALING))
 		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
-	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
+	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
 		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	if(flags & DMG_WDMG_ISARTIFACT)
 		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckInventory("Ability_Arcanery")) / 100;
 	if(flags & DMG_WDMG_NECROBULK)
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetBulkiness()) / 100;
 	// talent bonus
-	if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT || isSpell)
+	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT || isSpell)
 		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type])) / 100;
 	else
 		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type])) / 100;
 	
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
-	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 	if(temp) {
 		temp = GetFlatHealthDamageFactor(temp);
 		dmg = dmg * (100 + temp) / 100;
 	}
-		
-	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) + 
-			GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
-			MapTalentToPercentBonus(pnum, talent_type) +
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
+	
+	temp =  GetPlayerPercentDamage(pnum, -1, talent_type);
 	if(temp)
 		dmg = dmg * (100 + temp) / 100;
 		
@@ -3938,7 +3940,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	}
 	
 	// final additions
-	if(flags & DMG_WDMG_ISARTIFACT && CheckInventory("DnD_QuestReward_ExtraArtiDmg"))
+	if((flags & DMG_WDMG_ISARTIFACT) && CheckInventory("DnD_QuestReward_ExtraArtiDmg"))
 		dmg = dmg * (100 + DND_QUEST_ARTIBONUS) / 100;
 	
 	if(isSpell) {
@@ -5001,7 +5003,7 @@ Script "DnD Player Pain Sound" (void) CLIENTSIDE {
 Script "DnD Research Fancy Message" (int res_id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(l:"DND_PICKUP_RESEARCH", l:GetResearchLabel(res_id), s:"!");
+	Log(s:"\cc", l:"DND_PICKUP_RESEARCH", s:":\c[Y5] ", l:GetResearchLabel(res_id), s:"!");
 	LocalAmbientSound("items/research", 127);
 	ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_RESEARCHDISCOVER, res_id);
 }
@@ -6021,6 +6023,14 @@ Script "DnD Hurt Actor" (int hurter, int victim, int dmg) {
 
 Script "Dnd Pickup Setup" (void) {
 	GivePickupTID();
+}
+
+Script "DnD Player WeaponPower Check" (int wepid, int power) {
+	SetResultValue(HasWeaponPower(PlayerNumber(), wepid, power));
+}
+
+Script "DnD Get Player WeaponID" (void) {
+	SetResultValue(GetWeaponPosFromTable());
 }
 
 Script 69 (void) NET {

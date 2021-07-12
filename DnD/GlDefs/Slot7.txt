@@ -39,6 +39,10 @@ object DevastatorRocket {
 	frame DEVM { light Devastator }
 }
 
+object DevastatorRocket_GhostHitter {
+	frame DEVM { light Devastator }
+}
+
 object DevastatorExplosion {
 	frame EXP6A { light EXPSHELL1 }
 	frame EXP6B { light EXPSHELL1 }
@@ -146,4 +150,38 @@ pointlight DNBFGFLIGHT2
 Object DNBFGBallSmall
 {
     frame NBFP { light DNBFGFLIGHT2 }
+}
+
+pointlight IonPuffLight1 {
+	color 1.0 0.7 0.1
+	size 48
+}
+
+pointlight IonPuffLight2 {
+	color 0.9 0.6 0.05
+	size 36
+}
+
+pointlight IonPuffLight3 {
+	color 0.8 0.5 0.0
+	size 20
+}
+
+pointlight IonPuffLight4 {
+	color 0.6 0.3 0.0
+	size 8
+}
+
+object IonPuff {
+	frame IOPFA { light IonPuffLight1 }
+	frame IOPFB { light IonPuffLight2 }
+	frame IOPFC { light IonPuffLight3 }
+	frame IOPFD { light IonPuffLight4 }
+}
+
+object IonPuff_GhostHitter {
+	frame IOPFA { light IonPuffLight1 }
+	frame IOPFB { light IonPuffLight2 }
+	frame IOPFC { light IonPuffLight3 }
+	frame IOPFD { light IonPuffLight4 }
 }

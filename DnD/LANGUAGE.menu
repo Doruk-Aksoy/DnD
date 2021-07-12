@@ -239,6 +239,7 @@ DND_MENU_ARMTEXT13		=	"55% protection, 400 armor. 33% chance on hit to release s
 DND_MENU_ARMTEXT14		=	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed.";
 DND_MENU_ARMTEXT15		=	"33% protection, 250 armor. On a kill spree, gain x2 extra damage and 25% damage reduction. If a killing spree is met restore armor completely.";
 DND_MENU_ARMTEXT16		=	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks.";
+DND_MENU_ARMTEXT17		=	"40% protection, 300 armor. All lightning damage taken reduced by 85%. When hurt, 25% chance to release a lightning bolt towards an enemy.";
 // armors end
 
 // artifacts

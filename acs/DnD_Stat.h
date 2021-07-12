@@ -112,11 +112,13 @@ enum {
 	DND_ARMOR_NECRO,
 	DND_ARMOR_KNIGHT,
 	DND_ARMOR_RAVAGER,
-	DND_ARMOR_SYNTHMETAL
+	DND_ARMOR_SYNTHMETAL,
+	DND_ARMOR_LIGHTNINGCOIL
 };
-#define MAXARMORS (DND_ARMOR_SYNTHMETAL + 1)
+#define MAXARMORS (DND_ARMOR_LIGHTNINGCOIL + 1)
 
-str ArmorStrings[MAXARMORS][2] = { 
+str ArmorStrings[MAXARMORS][2] = {
+	{ "BON2C0", "ArmorBonus" },
 	{ "ARM1A0", "NewGreenArmor" },
 	{ "ARM3A0", "YellowArmor" },
 	{ "ARM2A0", "NewBlueArmor" },
@@ -135,6 +137,7 @@ str ArmorStrings[MAXARMORS][2] = {
 	{ "ARM7A0", "KnightArmor" },
 	{ "ARM8A0", "RavagerArmor" },
 	{ "AR15B0", "SynthmetalArmor" },
+	{ "AR16A0",	"LightningCoilArmor" }
 };
 
 int ArmorBaseAmounts[MAXARMORS] = {
@@ -156,7 +159,8 @@ int ArmorBaseAmounts[MAXARMORS] = {
 	400,
 	400,
 	250,
-	400
+	400,
+	300
 };
 
 enum {
@@ -741,7 +745,7 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 		
 	//printbold(s:"running crit chance: ", f:chance);
 	
-	res = chance >= random(0, 1.0);
+	res = chance > random(0, 1.0);
 	
 	if(res && CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
 		GiveInventory("VeilMarkTimer", 1);
@@ -750,7 +754,7 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	
 	// reroll if bad luck and lucky crit is on
 	if(!res && CheckInventory("StatbuffCounter_LuckyCrit")) {
-		res = chance >= random(0, 1.0);
+		res = chance > random(0, 1.0);
 		
 		// recheck here
 		if(res && CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
@@ -760,7 +764,8 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	}
 	
 	if(res) {
-		PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
+		if(wepid != -1)
+			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
 		GiveInventory("DnD_CritToken", 1);
 	}
 	
@@ -812,6 +817,21 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 	return 	IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1].val, power) || 
 			IsSet(GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, wep), power);
 }
+
+int GetPlayerPercentDamage(int pnum, int wepid, int talent_type) {
+	// stuff that dont depend on a wepid
+	int res = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) +
+				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
+				MapTalentToPercentBonus(pnum, talent_type) +
+				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
+				
+	// stuff that do
+	if(wepid != -1)
+		res += 	GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, wepid) -
+				(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
+	return res;
+}
+
 
 void RecalculatePlayerLevelInfo() {
 	PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] = 0;

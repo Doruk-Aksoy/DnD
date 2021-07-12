@@ -196,7 +196,29 @@ Object FrostFangShard
 	Frame FFSDH { Light FrostFangShard6 }
 }
 
+Object FrostFangShard_GhostHitter
+{
+	Frame FFSDA { Light FrostFangShard1 }
+	Frame FFSDB { Light FrostFangShard1 }
+	Frame FFSDC { Light FrostFangShard1 }
+	Frame FFSDD { Light FrostFangShard2 }
+	Frame FFSDE { Light FrostFangShard3 }
+	Frame FFSDF { Light FrostFangShard4 }
+	Frame FFSDG { Light FrostFangShard5 }
+	Frame FFSDH { Light FrostFangShard6 }
+}
+
 Object FrostFangBall
+{
+	Frame TNT1 { Light FrostFangBall1 }
+	Frame FFBLC { Light FrostFangBall2 }
+	Frame FFBLD { Light FrostFangBall3 }
+	Frame FFBLE { Light FrostFangBall4 }
+	Frame FFBLF { Light FrostFangBall5 }
+	Frame FFBLG { Light FrostFangBall6 }
+}
+
+Object FrostFangBall_GhostHitter
 {
 	Frame TNT1 { Light FrostFangBall1 }
 	Frame FFBLC { Light FrostFangBall2 }

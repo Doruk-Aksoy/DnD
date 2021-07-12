@@ -143,3 +143,8 @@ enum {
 	DND_OVERHEAT_DESOLATOR,
 	DND_OVERHEAT_DEATHRAY
 };
+
+// powersets
+enum {
+	DND_WEP_POWER_GHOSTHIT
+};

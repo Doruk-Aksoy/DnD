@@ -466,7 +466,11 @@ Actor GrenadeShooterGeneric : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("Grenades", 1)
 		NoTake:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", ACS_NamedExecuteWithResult("DnD Get Player WeaponID"), DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special", 0, 0, 0, 4)
+		Goto CheckMode
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special_GhostHitter", 0, 0, 0, 4)
 		Goto CheckMode
 
 		CheckMode:
@@ -497,7 +501,11 @@ Actor GrenadeShooterGeneric_6 : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("Grenades", 1)
 		NoTake:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", ACS_NamedExecuteWithResult("DnD Get Player WeaponID"), DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special", 0, 0, 0, 4)
+		Goto CheckMode
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_Special_GhostHitter", 0, 0, 0, 4)
 		Goto CheckMode
 
 		CheckMode:
@@ -527,7 +535,11 @@ Actor GrenadeShooterGL : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("Grenades", 1)
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", ACS_NamedExecuteWithResult("DnD Get Player WeaponID"), DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("NormalGrenade", 0, 0, 0, 4)
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("NormalGrenade_GhostHitter", 0, 0, 0, 4)
 		Stop
 
 		Nothing:
@@ -549,7 +561,11 @@ Actor HEGrenadeShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("A40mmHEGrenade", 1)
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", ACS_NamedExecuteWithResult("DnD Get Player WeaponID"), DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("HEGrenadeX", 0, 0, 0, 4)
+		Goto CheckMode
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("HEGrenadeX_GhostHitter", 0, 0, 0, 4)
 		Goto CheckMode
 
 		CheckMode:
@@ -583,7 +599,11 @@ Actor SonicGrenadeShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("A40mmSonicGrenade", 1)
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", ACS_NamedExecuteWithResult("DnD Get Player WeaponID"), DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 A 0 A_FireCustomMissile("SonicGrenade", 0, 0, 0, 4)
+		Goto CheckMode
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("SonicGrenade_GhostHitter", 0, 0, 0, 4)
 		Goto CheckMode
 
 		CheckMode:
@@ -652,6 +672,10 @@ Actor NormalGrenade_Special : DnD_ExplosiveBase {
 	}
 }
 
+Actor NormalGrenade_Special_GhostHitter : NormalGrenade_Special {
+	-THRUGHOST
+}
+
 Actor HEGrenadeX : DnD_ExplosiveBase {
 	Speed 24
 	Radius 8
@@ -706,6 +730,10 @@ Actor HEGrenadeX : DnD_ExplosiveBase {
 			NGLP D 2
 		Stop
 	}
+}
+
+Actor HEGrenadeX_GhostHitter : HEGrenadeX {
+	-THRUGHOST
 }
 
 Actor HEGrenadeTrailsTrail {
@@ -798,6 +826,10 @@ Actor SonicGrenade : DnD_ExplosiveBase {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor SonicGrenade_GhostHitter : SonicGrenade {
+	-THRUGHOST
 }
 
 Actor SonicGrenadeExplosion : DnD_ExplosiveBase {

@@ -83,6 +83,7 @@
 	
 	"Synth-metal Armor",
 	"Synth-metal Mask",
+	"Lightning Coil",
 	
 	"Increased Stash Tabs"
 };*/
@@ -203,6 +204,7 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ RESF_NODROP, -1},
 	
 	// unique monster drops
+	{ RESF_NODROP, -1},
 	{ RESF_NODROP, -1},
 	{ RESF_NODROP, -1},
 	
