@@ -296,22 +296,7 @@ chances
 */
 
 int CorruptOrb_Weights[CORRUPTORB_MAXEFFECTS] = {
-	1,
-	
-	2,
-	3,
-	4,
-	5,
-	6,
-	7,
-	
-	100,
-	250,
-	400,
-	550,
-	700,
-	850,
-	/*500,
+	500,
 	
 	530,
 	560,
@@ -325,7 +310,7 @@ int CorruptOrb_Weights[CORRUPTORB_MAXEFFECTS] = {
 	760,
 	810,
 	870,
-	930,*/
+	930,
 	
 	940,
 	970,
@@ -418,10 +403,10 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
 			if(extratype == DND_ITEM_WEAPON && GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra) != ENHANCEORB_MAX)
-				res = 1;
+				res = true;
 		break;
 		case DND_ORB_CORRUPT:
-			res = 1; // can always use this, the orb will find a way to fuck you up in some way
+			res = true; // can always use this, the orb will find a way to fuck you up in some way
 		break;
 		case DND_ORB_SPIRIT:
 			for(i = 0; i <= DND_ATTRIB_END && temp == -1; ++i)
@@ -459,7 +444,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_VIOLENCE:
 			for(i = TALENT_BULLET; i < MAX_TALENTS && !res; ++i)
 				if(GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i) != VIOLENCEORB_MAX)
-					res = 1;
+					res = true;
 		break;
 		case DND_ORB_SIN:
 			res = Calculate_Stats() >= SINORB_MAX_TAKE * GetAffluenceBonus();
@@ -472,13 +457,13 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		break;
 		case DND_ORB_REFINEMENT:
 			if(IsUsableOnInventory(extratype))
-				res = 1;
+				res = true;
 		break;
 		case DND_ORB_SCULPTING:
 			if(IsUsableOnInventory(extratype)) {
 				// don't let this be used on a unique
 				if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN)
-					res = 0;
+					res = false;
 				else
 					res = PlayerInventoryList[pnum][extra].attrib_count;
 			}
@@ -493,7 +478,14 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_PHANTASMAL:
 			// if the weapon can't hit ghosts on its own or we didnt give it the ghost hit already
 			if(extratype == DND_ITEM_WEAPON && !HasWeaponPower(pnum, extra, WEP_POWER_GHOSTHIT))
-				res = 1;
+				res = true;
+		break;
+		case DND_ORB_ASSIMILATION:
+			// extra is itemid1, extratype is itemid2
+			// we must have matching item types, so charm x charm, Y x Y etc.
+			// and we have at least 1 total attribute to be taking
+			res = 	PlayerInventoryList[pnum][extra].item_type == PlayerInventoryList[pnum][extratype].item_type && 
+					(PlayerInventoryList[pnum][extra].attrib_count || PlayerInventoryList[pnum][extratype].attrib_count);
 		break;
 	}
 	if(!res)
@@ -527,7 +519,25 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 	SetInventory("OrbResult", item_index);
 }
 
-void HandleOrbUse (int orbtype, int extra) {
+// picks an item id from two weigted by their level x 10
+int PickWeightedFromTwoItems(int pnum, int item1, int item2) {
+	int lvl1 = PlayerInventoryList[pnum][item1].item_level * 10;
+	int lvl2 = PlayerInventoryList[pnum][item2].item_level * 10;
+	int res = random(1, lvl1 + lvl2);
+	
+	// pick from the weight which item index we are taking
+	if(res > lvl1)
+		res = item2;
+	else if(res < lvl1)
+		res = item1;
+	else {
+		// if they are both the same we randomly pick the one
+		res = random(0, 1) ? item1 : item2;
+	}
+	return res;
+}
+
+void HandleOrbUse (int orbtype, int extra, int extra2 = -1) {
 	int res = -1;
 	int pnum = PlayerNumber();
 	int temp;
@@ -757,6 +767,67 @@ void HandleOrbUse (int orbtype, int extra) {
 			Player_MostRecent_Orb[pnum].values[0] = res;
 			Player_MostRecent_Orb[pnum].values[1] = WEP_POWER_GHOSTHIT;
 			SyncClientsideVariable_Orb(DND_SYNC_WEPMOD_POWERSET1, res);
+		break;
+		case DND_ORB_ASSIMILATION:
+			// extra and extra2 are the item indexes in use, with extra being the one assimilated into extra2
+			// we will store the attributes in a temporary array, then copy them to extra2
+			int attrib_ids[MAX_ITEM_ATTRIBUTES];
+			int picked_mod;
+			bool fail_pick;
+			
+			// init the temp array to -1s
+			for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+				attrib_ids[i] = -1;
+			
+			// we determine when to stop, we either stop until max affixes or we have minimum of both attrib counts total
+			s = Min(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] + 1, PlayerInventoryList[pnum][extra].attrib_count + PlayerInventoryList[pnum][extra2].attrib_count);
+			temp = 0;
+			
+			do {
+				do {
+					fail_pick = false;
+					// choose which item has their attribute to be taken
+					// pick a random attribute from it
+					// confirm this is a real attribute and the charm isn't devoid of any attributes
+					res = PickWeightedFromTwoItems(pnum, extra, extra2);
+					picked_mod = random(0, PlayerInventoryList[pnum][res].attrib_count - 1);
+					log(s:"picked ", d: res, s:" from: ", d:extra, s: " - ", d:extra2, s: "\nmod: ", d:picked_mod);
+					
+					// if somehow this item has no attributes, pick from the other one
+					if(picked_mod == -1) {
+						res = extra2 + extra - res;
+						picked_mod = random(0, PlayerInventoryList[pnum][res].attrib_count - 1);
+					}
+					
+					// set this to be the actual attribute now instead of just an index in the item itself
+					picked_mod = PlayerInventoryList[pnum][res].attributes[picked_mod].attrib_id;
+					
+					// if its not in our array add it to it
+					for(i = 0; i < MAX_ITEM_ATTRIBUTES && attrib_ids[i] != -1; ++i) {
+						if(picked_mod == attrib_ids[i]) {
+							fail_pick = true;
+							break;
+						}
+					}
+				} while(fail_pick);
+				// confirmed addable attribute
+				++temp;
+				attrib_ids[i] = picked_mod;
+			} while(temp < s);
+
+			// we are going to assimilate the first one into second, so the first one is destroyed
+			// and make sure the extra2 item has no attributes left anymore
+			FreeItem_Player(extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
+			ResetPlayerItemAttributes(pnum, extra2);
+			
+			// copy the attributes into extra2
+			for(i = 0; i < MAX_ITEM_ATTRIBUTES && attrib_ids[i] != -1; ++i)
+				AddAttributeToItem(extra2, attrib_ids[i], true);
+			
+			// finally, sync it
+			SyncItemData_Player(extra2, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][extra2].width, PlayerInventoryList[pnum][extra2].height, pnum);
+		
+			SetInventory("OrbResult", 1);
 		break;
 	}
 	Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
@@ -1750,6 +1821,12 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 				Log(s:"\cj", l:"DND_ORBUSETEXT19A", s:" \cd", l:GetWeaponTag(val), s:"\cv ", l:"DND_ORBUSETEXT19B");
 			else
 				Log(s:"\cg", l:"DND_ORBUSEFAIL19");
+		break;
+		case DND_ORB_ASSIMILATION:
+			if(val != 0x7FFFFFFF)
+				Log(s:"\cj", l:"DND_ORBUSETEXT20");
+			else
+				Log(s:"\cg", l:"DND_ORBUSEFAIL20");
 		break;
 	}
 }

@@ -527,8 +527,11 @@ Actor ElementalArmor : BasicArmorPickup {
 	DamageFactor "LightningExp", 0.25
 	DamageFactor "LightningExpFull", 0.25
 	DamageFactor "CyberLightning", 0.25
+	DamageFactor "DemonLightning", 0.25
 	DamageFactor "CacoLightning", 0.25
 	DamageFactor "VileRedLightning", 0.25
+	DamageFactor "RevLightning", 0.25
+	DamageFactor "PaineRedLightning", 0.25
 	
 	DamageFactor "MagicFireExp", 0.25
 	DamageFactor "MagicFireExpFull", 0.25
@@ -751,6 +754,7 @@ Actor SynthMetalArmor : BasicArmorPickup {
 	DamageFactor "BigSpiderBullet", 0.5
 	DamageFactor "CyberBullet", 0.5
 	
+	DamageFactor "DemonLightning", 1.5
 	DamageFactor "CacoLightning", 1.5
 	DamageFactor "VileRedLightning", 1.5
 	DamageFactor "RevLightning", 1.5
@@ -765,6 +769,7 @@ Actor LightningCoilArmor : BasicArmorPickup {
 	Armor.SaveAmount 1
 	inventory.icon "AR16A0"
 	
+	DamageFactor "DemonLightning", 0.15
 	DamageFactor "CacoLightning", 0.15
 	DamageFactor "VileRedLightning", 0.15
 	DamageFactor "RevLightning", 0.15

@@ -3731,26 +3731,34 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	SetHudSize(640, 480, 1);
 	SetFont("QUESTPOP");
 	if(num != DND_ANNOUNCER_LEGENDARYMONSTER)
-		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 570.0 + ScreenResOffsets[1], 80.0, 4.0, 1.0, 1.0);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 72.0, 4.0, 1.0, 1.0);
 	else
-		HudMessageBold(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 570.0 + ScreenResOffsets[1], 80.0, 4.0, 1.0, 1.0);
+		HudMessageBold(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 72.0, 4.0, 1.0, 1.0);
+		
+	SetFont("NOTIFBAK");
+	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEBAKID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 96.0, 4.0, 1.0, 1.0);
+		
 	SetFont("OBJFONT");
 	SetHudSize(960, 600, 1);
-	// to do: hudcliprect here and auto clip instead of manual newlines
+	
+	int xoff = 3 * ScreenResOffsets[1] / 2;
+	
+	SetHudClipRect(710 + (xoff >> 16), 96, 240, 128, 240, 1);
 	if(num == DND_ANNOUNCER_QUEST)
-		HudMessage(l:"DND_NEWQUEST"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 740.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(l:"DND_NEWQUEST"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_ATTRIBPOINT)
-		HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:"\n    ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + 3 * ScreenResOffsets[1] / 2, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_NEWCLASSPERK)
-		HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_LEGENDARYMONSTER) // this one is called from the monster spawner and thus must be hudmessagebold
-		HudMessageBold(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessageBold(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
-		HudMessage(l:"DND_TEXT_DISCOVEREDRES", s:": \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(l:"DND_TEXT_DISCOVEREDRES", s:": \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_TRADEREQUEST) {
 		LocalAmbientSound("TradeRequest", 127);
-		HudMessage(l:"DND_TEXT_TRADEREQUEST", s:":\n", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 730.1 + 3 * ScreenResOffsets[1] / 2, 140.1, 4.0, 1.0, 1.0);
+		HudMessage(l:"DND_TEXT_TRADEREQUEST", s:": ", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	}
+	SetHudClipRect(0, 0, 0, 0, 0);
 }
 
 Script 1002 (void) NET CLIENTSIDE {
@@ -4735,12 +4743,12 @@ Script "DND Orb Use Message (Server)" (void) {
 	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
 }
 
-Script "DND Orb Use" (int orbtype, int extra) {
-	HandleOrbUse(orbtype, extra);
+Script "DND Orb Use" (int orbtype, int extra, int extra2) {
+	HandleOrbUse(orbtype, extra, extra2);
 	LocalAmbientSound("Items/OrbUse", 127);
 	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-	Delay(2);
+	Delay(const:2);
 	if(orbtype != DND_ORB_AFFLUENCE)
 		SetInventory("AffluenceCounter", 0);
 }
@@ -6055,9 +6063,9 @@ Script 68 (int x) NET {
 	if(x < MAX_RESEARCHES)
 		GiveResearch(x, true);
 	else if(x == 32768) {
-		SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 1);
-		SpawnSpecificOrbForAll(DND_ORB_SIN, 1);
+		SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
 		SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
+		SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 4);
 	}
 	else {
 		int c = CreateItemSpot();

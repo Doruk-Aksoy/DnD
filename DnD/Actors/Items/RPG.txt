@@ -257,6 +257,12 @@ Actor DnD_SelectedInventoryBox : Inventory {
 	inventory.maxamount 255
 }
 
+Actor DnD_SecondSelectedBox : Inventory {
+	inventory.maxamount 255
+}
+
+Actor DnD_UsedTwoItemRequirementMaterial : DnD_Boolean { }
+
 Actor Ability_Kick : DnD_Boolean { }
 Actor Ability_Reloader : DnD_Boolean { }
 Actor Ability_Dash : DnD_Boolean { }

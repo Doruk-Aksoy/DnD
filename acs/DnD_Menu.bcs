@@ -36,6 +36,7 @@ Script 900 (void) NET {
 		SetInventory("DnD_PopupId", 0);
 		SetInventory("DnD_SelectedCharmBox", 0);
 		SetInventory("DnD_SelectedInventoryBox", 0);
+		SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
 		SetInventory("DnD_Crafting_MaterialPage", 0);
 		SetInventory("DnD_Crafting_ItemPage", 0);
 		SetInventory("DnD_Trade_Confirmed", 0);

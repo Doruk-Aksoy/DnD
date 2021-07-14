@@ -1144,11 +1144,9 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
 			actor_flags |= (wepid << 16);
 		}
-		
-		printbold(s:"casdasd---- ", d:wepid);
+
 		// berserker perk50 dmg increase portion and other melee increases
 		if((IsMeleeWeapon(wepid) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
-			printbold(s:"wtf");
 			if(CheckActorInventory(owner, "Berserker_Perk50")) {
 				SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
 				if((px = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {

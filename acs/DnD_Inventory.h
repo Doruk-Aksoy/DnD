@@ -1504,12 +1504,17 @@ int HandleStackedPickup(int item_index) {
 	return porb_index;
 }
 
+// checks players inventory for the given item precisely with its subtype matching
 int CheckPlayerInventoryList(int pnum, int itemtype, int subtype) {
 	int i;
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
 		if(PlayerInventoryList[pnum][i].item_type == itemtype && PlayerInventoryList[pnum][i].item_subtype == subtype)
 			return i;
 	return -1;
+}
+
+bool IsTwoSelectionItem(int pnum, int item_index) {
+	return PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][item_index].item_subtype == DND_ORB_ASSIMILATION;
 }
 
 // can only use items in inventory
@@ -1693,7 +1698,6 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 				case DND_ORB_ELEVATION:
 				case DND_ORB_HOLLOW:
 				case DND_ORB_PHANTASMAL:
-				case DND_ORB_ASSIMILATION:
 				return false;
 			}
 		break;
@@ -2200,6 +2204,14 @@ void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type) {
 		// we must roll the value once dropped
 		Inventories_On_Field[fieldpos].attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
 	}
+}
+
+void ResetPlayerItemAttributes(int pnum, int itemid) {
+	for(int j = 0; j < PlayerInventoryList[pnum][itemid].attrib_count; ++j) {
+		PlayerInventoryList[pnum][itemid].attributes[j].attrib_id = 0;
+		PlayerInventoryList[pnum][itemid].attributes[j].attrib_val = 0;
+	}
+	PlayerInventoryList[pnum][itemid].attrib_count = 0;
 }
 
 void ResetPlayerInventory(int pnum) {

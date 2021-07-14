@@ -3708,7 +3708,7 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 					DrawCraftingInventoryInfo(PlayerInventoryList[bx][tx].item_type, tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 					//Log(s:"update cur item inv ", d:tx);
 					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
-					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS1;
+					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
 					//SetInventory("DnD_PlayerItemIndex", tx);
 					SetFont("CRFBX_H");
 				}
@@ -3807,65 +3807,54 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 	}
 	else if(itype == DND_ITEM_WEAPON) {
 		j = PlayerNumber();
-		i = 0;
 		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+		
+		str modText = "";
 		temp = GetWeaponEnchantDisplay(j, extra1);
 		// make sure quality text isn't on the weapon name
-		++i;
 		if(temp) {
 			if (temp == MAXWEPQUALITY) // Add the "MAX" indicator.
-				HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% ", l:"DND_MENU_MAX"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+				modText = StrParam(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% ", l:"DND_MENU_MAX", s:"\n");
 			else
-				HudMessage(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"%"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
+				modText = StrParam(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% \n");
 		}
 		temp = GetCritChance(j, extra1);
-		if(temp) {
-			HudMessage(s:GetWeaponModText(temp, WEP_MOD_CRIT); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
-		}
+		if(temp)
+			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_CRIT), s:"\n");
 		else {
 			// this is only triggered if we have % crit chance increases and the weapon itself shows no base crit chance
 			temp = GetPercentCritChanceIncrease(j, extra1);
 			if(temp)
-				HudMessage(s:GetWeaponModText(temp, WEP_MOD_CRITPERCENT); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
+				modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_CRITPERCENT), s:"\n");
 		}
 		
 		temp = GetBaseCritModifier(j, extra1);
-		if(temp != DND_BASE_CRITMODIFIER) {
-			HudMessage(s:GetWeaponModText(temp - DND_BASE_CRITMODIFIER, WEP_MOD_CRITDMG); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 6, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
-		}
+		if(temp != DND_BASE_CRITMODIFIER)
+			modText = StrParam(s:modText, s:GetWeaponModText(temp - DND_BASE_CRITMODIFIER, WEP_MOD_CRITDMG), s:"\n");
+			
 		temp = GetWeaponModValue(temp, extra1, WEP_MOD_DMG);
-		if(temp) {
-			HudMessage(s:GetWeaponModText(temp, WEP_MOD_DMG); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 7, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
-		}
+		if(temp)
+			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_DMG), s:"\n");
 		
 		// print weapon mods -- generalize later idc at this time about how neat it is
 		temp = GetWeaponModValue(j, extra1, WEP_MOD_PERCENTDAMAGE);
-		if(temp) {
-			HudMessage(s:GetWeaponModText(temp, WEP_MOD_PERCENTDAMAGE); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 9, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
-		}
+		if(temp)
+			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_PERCENTDAMAGE), s:"\n");
+		
 		temp = GetWeaponModValue(j, extra1, WEP_MOD_POISONFORPERCENTDAMAGE);
-		if(temp) {
-			HudMessage(s:GetWeaponModText(temp, WEP_MOD_POISONFORPERCENTDAMAGE); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 10, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
-		}
+		if(temp)
+			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_POISONFORPERCENTDAMAGE), s:"\n");
+		
 		temp = GetWeaponModValue(j, extra1, WEP_MOD_FORCEPAINCHANCE);
-		if(temp) {
-			HudMessage(s:GetWeaponModText(temp, WEP_MOD_FORCEPAINCHANCE); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 11, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-			++i;
-		}
+		if(temp)
+			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_FORCEPAINCHANCE), s:"\n");
 		
 		for(temp = 0; temp < MAX_WEP_MOD_POWERSET1; ++temp) {
-			if(HasWeaponPower(j, extra1, temp)) {
-				HudMessage(s:GetWeaponModText(temp, WEP_MOD_POWERSET1, temp); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 12 - i, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
-				++i;
-			}
+			if(HasWeaponPower(j, extra1, temp))
+				modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_POWERSET1, temp), s:"\n");
 		}
+		
+		HudMessage(s:modText; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 40.0, 0.0, 0.0);
 	}
 	else if(itype > UNIQUE_BEGIN) {
 		temp = itype & 0xFFFF;
@@ -3936,7 +3925,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 	int pnum = PlayerNumber();
 	int prevselect;
 	if(HasPlayerClicked(pnum)) {
-		int itemindex = ((boxid >> DND_MENU_ITEMSAVEBITS1) & DND_MENU_ITEMSAVEBITS1_MASK);
+		int curitemeindex = ((boxid >> DND_MENU_ITEMSAVEBITS1) & DND_MENU_ITEMSAVEBITS1_MASK);
 		int previtemindex = (boxid >> DND_MENU_ITEMSAVEBITS2);
 		//printbold(d:previtemindex, s: " ", d:boxid);
 		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
@@ -3980,7 +3969,6 @@ void HandleCraftingInputs(int boxid, int curopt) {
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
 				
-				
 				if(curopt == MENU_LOAD_CRAFTING) {
 					if(boxid == CRAFTING_WEAPON_BOXID + 1)
 						UpdateMenuPosition(MENU_LOAD_CRAFTING_WEAPON);
@@ -3994,8 +3982,22 @@ void HandleCraftingInputs(int boxid, int curopt) {
 					}
 				}
 				else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+					// inventory clicking
 					if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
-						SetInventory("DnD_SelectedInventoryBox", boxid);
+						if(CheckInventory("DnD_UsedTwoItemRequirementMaterial") && CheckInventory("DnD_SelectedInventoryBox")) {
+							if(!HandleTwoRequirementMaterialUse(pnum, previtemindex, curitemeindex))
+								ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
+							else {
+								// we managed to use it
+								UsePlayerItem(pnum, CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1);
+							}
+							SetInventory("DnD_SelectedInventoryBox", 0);
+							SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
+						}
+						else {
+							// printbold(s:"first click ", d:curitemeindex, s: " ", d:previtemindex, s:" ", d:boxid);
+							SetInventory("DnD_SelectedInventoryBox", boxid);
+						}
 						LocalAmbientSound("RPG/MenuChoose", 127);
 					}
 				}
@@ -4003,9 +4005,14 @@ void HandleCraftingInputs(int boxid, int curopt) {
 			else if(HasRightClicked(pnum)) {
 				// using an orb in material part
 				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
-					if(IsSelfUsableItem(PlayerInventoryList[pnum][itemindex].item_type, PlayerInventoryList[pnum][itemindex].item_subtype)) {
-						if(HandleMaterialUse(pnum, itemindex, 0, DND_ITEM_NULL))
-							UsePlayerItem(pnum, itemindex);
+					if(IsSelfUsableItem(PlayerInventoryList[pnum][curitemeindex].item_type, PlayerInventoryList[pnum][curitemeindex].item_subtype)) {
+						if(IsTwoSelectionItem(pnum, curitemeindex)) {
+							// start the display saying player needs to make two selections
+							// printbold(s:"right click on assim ", d:curitemeindex);
+							SetInventory("DnD_UsedTwoItemRequirementMaterial", curitemeindex + 1);
+						}
+						else if(HandleMaterialUse(pnum, curitemeindex, 0, DND_ITEM_NULL))
+							UsePlayerItem(pnum, curitemeindex);
 						else
 							ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 					}
@@ -4017,16 +4024,16 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						prevselect = CheckInventory("DnD_SelectedInventoryBox") - 1;
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
-								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_WEAPON))
-									UsePlayerItem(pnum, itemindex);
+								if(HandleMaterialUse(pnum, curitemeindex, previtemindex, DND_ITEM_WEAPON))
+									UsePlayerItem(pnum, curitemeindex);
 								else
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
 							else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
-								//printbold(d:previtemindex, s: " ", d:PlayerInventoryList[pnum][itemindex].item_type, s: " vs ", d:DND_ITEM_CHARM);
+								//printbold(d:previtemindex, s: " ", d:PlayerInventoryList[pnum][curitemeindex].item_type, s: " vs ", d:DND_ITEM_CHARM);
 								// is the index shown here not being the same as the one on inventory list causing the problem here?
-								if(HandleMaterialUse(pnum, itemindex, previtemindex, DND_ITEM_CHARM))
-									UsePlayerItem(pnum, itemindex);
+								if(HandleMaterialUse(pnum, curitemeindex, previtemindex, DND_ITEM_CHARM))
+									UsePlayerItem(pnum, curitemeindex);
 								else // this part can handle rest of the item types to come later on
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
@@ -4035,8 +4042,12 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				}
 			}
 		}
-		else
+		else {
 			SetInventory("DnD_SelectedInventoryBox", 0);
+			
+			// if player clicks nothing we reset the two item engagement
+			SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
+		}
 		ClearPlayerInput(pnum, true);
 	}
 }
@@ -4068,6 +4079,24 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 	}
 	
 	return res;
+}
+
+bool HandleTwoRequirementMaterialUse(int pnum, int item_index1, int item_index2) {
+	// preliminary check to see if these are items that can indeed be crafted on
+	if(!IsCraftableItem(PlayerInventoryList[pnum][item_index1].item_type) || !IsCraftableItem(PlayerInventoryList[pnum][item_index2].item_type))
+		return false;
+	int mat_index = CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1;
+	int type = PlayerInventoryList[pnum][mat_index].item_type;
+	int subtype = PlayerInventoryList[pnum][mat_index].item_subtype;
+	
+	// We check to specific types now and determine what needs to be done
+	if(type == DND_ITEM_ORB) {
+		if(CanUseOrb(subtype, item_index1, item_index2)) {
+			ACS_NamedExecuteAlways("DND Orb Use", 0, subtype, item_index1, item_index2);
+			return true;
+		}
+	}
+	return false;
 }
 
 void GetInputOnMenuPage(int opt) {

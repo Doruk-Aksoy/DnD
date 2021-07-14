@@ -7,7 +7,7 @@ DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. Mo
 DND_ORB3			=	"Orb of Spirit";
 DND_ORBTEXT3		=	"Grants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight.";
 DND_ORB4			=	"Orb of Repentance";
-DND_ORBTEXT4		=	"Allows you to undo the effects of the most recently used orb. You can't undo the effects undone by this orb or the \c[Y5]Orb of Riches\c-.";
+DND_ORBTEXT4		=	"Allows you to undo the effects of the most recently used orb.";
 DND_ORB5			=	"Orb of Affluence";
 DND_ORBTEXT5		=	"Doubles the effect of the next orb. This effect can stack with itself up to a multiplier of \cg16\c-.";
 DND_ORB6			=	"Orb of Calamity";
@@ -25,7 +25,7 @@ DND_ORBTEXT11		=	"Increases health and armor caps by \cd1%\c- up to a maximum of
 DND_ORB12			=	"Orb of Sin";
 DND_ORBTEXT12		=	"A pact with the devil itself, trading anywhere from \cg1\c- to \cg8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!";
 DND_ORB13			=	"Orb of Riches";
-DND_ORBTEXT13		=	"Grants a random resource on use. Can grant experience, credit or budget. Can give \cd5%\c- of your current level's experience, \cd2000\c- or \cd5%\c- of current credits (whichever is greater) and \cd5k\c- respectively.";
+DND_ORBTEXT13		=	"Grants a random resource on use. Can grant experience, credit or budget. Can give \cd5%\c- of your current level's experience, \cd2000\c- or \cd5%\c- of current credits (whichever is greater) and \cd5k\c- respectively. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
 DND_ORB14			=	"Orb of Holding";
 DND_ORBTEXT14		=	"Increases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons.";
 DND_ORB15			=	"Orb of Refinement";
@@ -39,7 +39,7 @@ DND_ORBTEXT18		=	"Adds an extra random attribute to a non-unique charm even if i
 DND_ORB19			=	"Phantasmal Orb";
 DND_ORBTEXT19		=	"Grants used weapon ability to hit ghosts but reduces overall damage by 33%.";
 DND_ORB20			=	"Assimilation Orb";
-DND_ORBTEXT20		=	"Assimilates the initially selected non-unique charm into another non-unique charm, taking attributes from the two unpredictably. The resulting modifiers are well-rolled. Can have up to \cd1 additional modifier\c-.";
+DND_ORBTEXT20		=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
 
 // random stuff + use texts
 DND_ORB_ANDGRANTS	=	"and grants";
@@ -132,3 +132,6 @@ DND_ORBUSEFAIL18	=	"Hollow Orb couldn't be used, the item reached max attributes
 DND_ORBUSETEXT19A	=	"Phantasmal Orb grants";
 DND_ORBUSETEXT19B	=	"ability to \cdhit ghosts\c-!";
 DND_ORBUSEFAIL19	=	"Phantasmal Orb can't be used because the weapon already hits ghosts!";
+
+DND_ORBUSETEXT20	=	"Assimilation Orb assimilates the selected items, and produces a new one.";
+DND_ORBUSEFAIL20	=	"Assimilation Orb couldn't be used.";

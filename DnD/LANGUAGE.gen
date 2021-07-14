@@ -35,9 +35,9 @@ DND_TEXT_BONUS							= "bonus";
 
 DND_TEXT_UNSPENTPOINT					= "You have unspent attribute points!";
 DND_TEXT_SPENDINMENU					= "Spend them in \cvDnD Menu!";
-DND_TEXT_NEWPERK						= "New class perk unlocked! Go to\n\cvDnD Menu\c- help section for info!";
-DND_TEXT_LEGENDARYWALKS					= "A legendary monster now walks\nthis land... Be wary.\c-";
-DND_TEXT_DISCOVEREDRES					= "You have discovered the following\nresearch";
+DND_TEXT_NEWPERK						= "New class perk unlocked! Go to \cvDnD Menu\c- help section for info!";
+DND_TEXT_LEGENDARYWALKS					= "A legendary monster now walks this land... Be wary.\c-";
+DND_TEXT_DISCOVEREDRES					= "You have discovered the following research";
 DND_TEXT_TRADEREQUEST					= "You have a trade request from";
 
 DND_TEXT_NOACTIVEQUEST					= "No active quest found!";

@@ -3,6 +3,7 @@ Actor DemonClassProtection : InfiniteProtectionBase {
 	DamageFactor "DemonPoison_EarthGolem", 0.0
 	DamageFactor "DemonFire", 0.0
 	DamageFactor "DemonMagic", 0.0
+	DamageFactor "DemonLightning", 0.0
 }
 
 Actor ImpClassProtection : InfiniteProtectionBase {
