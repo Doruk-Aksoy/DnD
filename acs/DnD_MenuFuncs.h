@@ -1,10 +1,5 @@
 #include "DnD_MenuTables.h"
 
-int itemDragImg = -1;
-
-// x,y used for dimensions of item, z is used for topbox so its not drawn until itemDragImg is -1
-vec3_T itemDragInfo;
-
 void SetPage(int option, bool useSound) {
 	SetInventory("MenuUD", 0);
 	SetInventory("MenuOption", option);
@@ -59,6 +54,12 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 					GiveInventory("Menu_LRCooldown", 1);
 				}
 				SetInventory("MenuInput", DND_MENUINPUT_PREVBUTTON);
+				
+				// reset these in page transitions
+				if(PlayerCursorData.itemDragged != -1)
+					ResetCursorDragData();
+				if(PlayerCursorData.itemHovered != -1)
+					ResetCursorHoverData();
 			}
 		}
 		if(listenflag & LISTEN_RIGHT) {
@@ -73,6 +74,12 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 					GiveInventory("Menu_LRCooldown", 1);
 				}
 				SetInventory("MenuInput", DND_MENUINPUT_NEXTBUTTON);
+				
+				// reset these in page transitions
+				if(PlayerCursorData.itemDragged != -1)
+					ResetCursorDragData();
+				if(PlayerCursorData.itemHovered != -1)
+					ResetCursorHoverData();
 			}
 		}
 	}
@@ -92,20 +99,54 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 }
 
 // Meant to be used entirely clientside only, for scrolling up and down (used when server doesnt need to know about this)
-void ListenScroll(int condx_min, int condx_max) {
+bool ListenScroll(int condx_min, int condx_max) {
+	bool redraw = false;
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	// up is 1, down is 2
 	// opposite buttons because view should go up
 	if(IsButtonHeld(bpress, settings[0][0])) {
-		if(ScrollPos < condx_max)
+		if(ScrollPos < condx_max) {
 			++ScrollPos;
+			redraw = true;
+		}
 		SetInventory("MenuUD", 1);
 	}
 	if(IsButtonHeld(bpress, settings[2][0])) {
-		if(ScrollPos > condx_min)
+		if(ScrollPos > condx_min) {
 			--ScrollPos;
+			redraw = true;
+		}
 		SetInventory("MenuUD", 2);
 	}
+	return redraw;
+}
+
+void ResetCursorDragData() {
+	PlayerCursorData.itemDragged = -1;
+	PlayerCursorData.itemDragInfo.z = -1;
+}
+
+void ResetCursorHoverData() {
+	// cleanup anything that is potentially shown by cursor hovering here
+	CleanInventoryInfo();
+
+	PlayerCursorData.itemHovered = -1;
+	PlayerCursorData.itemHoveredType = 0;
+	PlayerCursorData.itemHoveredSource = 0;
+	PlayerCursorData.itemHoveredDim.x = 0;
+	PlayerCursorData.itemHoveredDim.y = 0;
+	PlayerCursorData.hoverNeedsReset = false;
+}
+
+void UpdateCursorHoverData(int itemid, int source, int itemtype, int dimx = 0, int dimy = 0) {
+	if(PlayerCursorData.itemHovered != itemid)
+		CleanInventoryInfo();
+	
+	PlayerCursorData.itemHovered = itemid;
+	PlayerCursorData.itemHoveredSource = source;
+	PlayerCursorData.itemHoveredType = itemtype;
+	PlayerCursorData.itemHoveredDim.x = dimx;
+	PlayerCursorData.itemHoveredDim.y = dimy;
 }
 
 void ShowPopup(int popupid, bool isSell, int activebox) {
@@ -380,6 +421,55 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 			}
 		}
 	}
+}
+
+bool HandlePageListening(int curopt) {
+	bool redraw = false;
+	int temp, i;
+	switch(curopt) {
+		case MENU_MAIN:
+		case MENU_HELP_RESEARCHES:
+			redraw = ListenScroll(-32, 0);
+		break;
+		case MENU_STAT3:
+			redraw = ListenScroll(-128, 0);
+		break;
+		case MENU_HELP_CHARACTER:
+		case MENU_HELP_DAMAGETYPES:
+		case MENU_HELP_WEAPONPROPS:
+		case MENU_HELP_MMODS_RESIST:
+			redraw = ListenScroll(-96, 0);
+		break;
+		case MENU_HELP_CLASSPERKS:
+			if(isPlayerClass(DND_PLAYER_BERSERKER))
+				redraw = ListenScroll(-8, 0);
+		break;
+		case MENU_HELP_ORBS:
+		case MENU_HELP_MMODS_UTILITY:
+			redraw = ListenScroll(-192, 0);
+		break;
+		case MENU_HELP_LEGMONS:
+			temp = 0;
+			for(i = 0; i < MAX_LEGMONS_TEXT; ++i) {
+				if(HasKilledLegendary(i))
+					++temp;
+			}
+			redraw = ListenScroll(-64 * (temp / 2), 0);
+		break;
+		case MENU_HELP_MMODS_WEAKNESS:
+			redraw = ListenScroll(-48, 0);
+		break;
+		case MENU_HELP_MMODS_IMMUNITY:
+			redraw = ListenScroll(-112, 0);
+		break;
+		case MENU_HELP_MMODS_AGGRESSIVE:
+			redraw = ListenScroll(-144, 0);
+		break;
+		case MENU_HELP_MMODS_DEFENSIVE:
+			redraw = ListenScroll(-224, 0);
+		break;
+	}
+	return redraw;
 }
 
 void HandleWeaponInfoPanel(int curopt, int animcounter, int boxid) {
@@ -2417,6 +2507,7 @@ void ResetInventoryLitState() {
 }
 
 void CleanInventoryInfo() {
+	// log(s:"cleaning up!");
 	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 
@@ -2457,9 +2548,14 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 		SetFont(Item_Images[charmpic]);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx + GetUniqueCharmXOffsetForDisplay((Charms_Used[pnum][thisboxid - 1].item_type >> 16) - 1), hudy, 0.0, 0.0);
 		
-		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView")) {
-			CleanInventoryInfo();
-			DrawInventoryInfo(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, HUDMAX_X, HUDMAX_Y);
+		if(boxid == thisboxid) {
+			if(!CheckInventory("DnD_InventoryView"))
+				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 0, HUDMAX_X, HUDMAX_Y);
+		}
+		else {
+			if(PlayerCursorData.itemHovered != -1)
+				PlayerCursorData.hoverNeedsReset = true;
+			PlayerCursorData.itemHovered = -1;
 		}
 	}
 	SetFont(charmborderpic);
@@ -2502,7 +2598,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	int temp;
 	int img = GetItemSyncValue(DND_SYNC_ITEMIMAGE, bid, (pnum + 1) << 16, source);
 	// inventory icon
-	if(hasItem && itemDragInfo.z != bid) {
+	if(hasItem && PlayerCursorData.itemDragInfo.z != bid) {
 		offset = (GetItemSyncValue(DND_SYNC_ITEMHEIGHT, bid, (pnum + 1) << 16, source) - 1) * scale;
 		SetFont(Item_Images[img]);
 		if(scale == TRADEITEMOFFSETSCALE) {
@@ -2572,20 +2668,22 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - 1, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * skip, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * skip, 0.0, 0.0);
 }
 
-void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
+void DrawInventoryInfo(int pnum) {
 	int pn, mx, my, offset, stack = 0;
 	if(pnum == -1)
 		pn = (PlayerNumber() + 1) << 16;
 	else
 		pn = (pnum + 1) << 16;
+		
 	if(CheckInventory("DnD_SelectedCharmBox"))
 		DrawInventoryInfo_Field(CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 24.4, 0.1, true);
-	int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, pn, source);
-	if(GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, pn, source) != DND_ITEM_NULL) {
-		mx = HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) + 16.1 , my = HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) + 16.1;
+		
+	int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource);
+	if(GetItemSyncValue(DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource) != DND_ITEM_NULL) {
+		mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1 , my = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 16.1;
 		SetFont("LDTITINF");
 		// to force them to appear in window
-		if(dimx == HUDMAX_X) {
+		if(PlayerCursorData.itemHoveredDim.x == HUDMAX_X) {
 			if(mx > INVENTORYINFO_NORMALVIEW_WRAPX)
 				mx = INVENTORYINFO_NORMALVIEW_WRAPX + 0.1;
 			if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
@@ -2599,11 +2697,11 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 				my = INVENTORYINFO_TRADEVIEW_WRAPY + 0.1;
 		}
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, INVENTORY_INFO_ALPHA);
-		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, topboxid, pn, source);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0);
+		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource);
 		if(stack) {
 			SetFont("SMALLFONT");
-			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0);
 		}
 		mx += 64.0;
 		my += 40.0;
@@ -2616,8 +2714,8 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 			offset = 16.0;
 		else if(itype == DND_ITEM_CHESTKEY)
 			offset = 8.0;
-		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, topboxid, pn, source)]);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0, INVENTORY_INFO_ALPHA);
+		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource)]);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0);
 		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 		mx *= 3; mx /= 2;
 		my *= 3; my /= 2;
@@ -2626,9 +2724,9 @@ void DrawInventoryInfo(int topboxid, int source, int pnum, int dimx, int dimy) {
 		mx += 0.4;
 		my += 0.1;
 		SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 288, 256, 1);
-		DrawInventoryInfoText(topboxid, source, pn, mx, my, itype);
+		DrawInventoryInfoText(PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, pn, mx, my, itype);
 		SetHudClipRect(0, 0, 0, 0, 0);
-		SetHudSize(dimx, dimy, 1);
+		SetHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y, 1);
 	}
 }
 
@@ -2649,15 +2747,15 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR || itype == DND_ITEM_TOKEN) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
-		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, 0);
 	}
 	else if(itype > UNIQUE_BEGIN) {
 		temp = itype & 0xFFFF;
 		itype >>= UNIQUE_BITS;
 		--itype;
 		// itype holds unique position, temp is the actual item type
-		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, pn, source)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0);
+		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, pn, source)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
@@ -2669,17 +2767,17 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source)); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 				}
 				else
-					HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+					HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else if(!val) {
 				// unique item doesn't have numeric attribute to show
-				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else
-				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 		}
 	}
 }
@@ -2709,25 +2807,27 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 				for(s = 0; s < wt; ++s)
 					InventoryBoxLit[temp + offset + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CLICK;
 			}
-			itemDragImg = GetItemSyncValue(DND_SYNC_ITEMIMAGE, temp, (pnum + 1) << 16, source);
-			itemDragInfo.x = wt;
-			itemDragInfo.y = ht;
-			itemDragInfo.z = temp;
+			PlayerCursorData.itemDragged = GetItemSyncValue(DND_SYNC_ITEMIMAGE, temp, (pnum + 1) << 16, source);
+			PlayerCursorData.itemDragInfo.x = wt;
+			PlayerCursorData.itemDragInfo.y = ht;
+			PlayerCursorData.itemDragInfo.z = temp;
 		}
 		else if(((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_STASH && CheckInventory("DnD_PlayerPreviousPage") == CheckInventory("DnD_PlayerCurrentPage")) || (source & 0xFFFF) != DND_SYNC_ITEMSOURCE_STASH)
 			InventoryBoxLit[prevclick] = BOXLIT_STATE_CLICK;
 	}
-	else {
-		itemDragImg = -1;
-		itemDragInfo.z = -1;
-	}
+	else
+		ResetCursorDragData();
 	
 	// highlight checking
 	if(boxid - 1 == bid + offset) {
 		InventoryBoxLit[boxid - 1] = BOXLIT_STATE_CURSORON;
 		if(topboxid != -1) {
-			CleanInventoryInfo();
-			DrawInventoryInfo(topboxid, source, pnum, dimx, dimy);
+			UpdateCursorHoverData(topboxid, source, 0, dimx, dimy);
+		}
+		else {
+			if(PlayerCursorData.itemHovered != -1)
+				PlayerCursorData.hoverNeedsReset = true;
+			PlayerCursorData.itemHovered = -1;
 		}
 	}
 	
@@ -2752,17 +2852,18 @@ void HandleInventoryView(int boxid) {
 	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
 	SetFont("LDTSCRN");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID, CR_WHITE, HUDMAX_XF / 2, HUDMAX_YF / 2, 0.0, 0.0);
+	
+	PlayerCursorData.itemDraggedStashSize = false;
+	
 	ResetInventoryLitState();
-	CleanInventoryInfo();
+	
+	//CleanInventoryInfo();
+	
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerNumber(), HUDMAX_X, HUDMAX_Y);
 		}
 	}
-	
-	// check if theres a thing being dragged
-	if(itemDragImg != -1)
-		DrawDraggedItem();
 	
 	SetFont("SMALLFONT");
 }
@@ -3024,7 +3125,7 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	int pnum = PlayerNumber();
 	int i, j;
 	
-	CleanInventoryInfo();
+	// CleanInventoryInfo();
 	ResetInventoryLitState();
 	// draw other player offering up top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
@@ -3096,11 +3197,9 @@ void HandleInventoryViewTrade(int boxid) {
 	HudMessage(s:"\c[W3]", l:"DND_MENU_YOUROFFERING"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 160.4, 270.0, 0.0, 0.0);
 	HudMessage(s:"\c[W3]", l:"DND_MENU_YOURINV"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 6, CR_WHITE, 528.4, 170.0, 0.0, 0.0);
 	
-	// check if theres a thing being dragged
-	if(itemDragImg != -1)
-		DrawDraggedItem_Stash();
-	
 	HandleTradeBoxDraw(boxid, HUDMAX_X_STASH, HUDMAX_Y_STASH);
+	
+	PlayerCursorData.itemDraggedStashSize = true;
 	
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -3109,6 +3208,7 @@ void HandleInventoryViewTrade(int boxid) {
 // Just takes care of backend trade details
 void CancelTrade(int pnum) {
 	int tid = pnum + P_TIDSTART;
+	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
 	TakeActorInventory(tid, "InTradeView", 1);
 	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
 	TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
@@ -3130,7 +3230,7 @@ void CancelTradeRoutine(int tradee) {
 void ReturnTradeItems(int pnum) {
 	// from trade view of this player, move items to their new places
 	int bid;
-	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
+	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			bid = j + i * MAXINVENTORYBLOCKS_VERT;
 			if(TradeViewList[pnum][bid].item_type != DND_ITEM_NULL) {
@@ -3144,6 +3244,7 @@ void ReturnTradeItems(int pnum) {
 				}
 			}
 		}
+	}
 }
 
 void HandleTradeCountdown(int p1, int p2) {
@@ -3154,6 +3255,7 @@ void HandleTradeCountdown(int p1, int p2) {
 	ACS_NamedExecuteAlways("DnD Trade Counter", 0, p1, p2);
 }
 
+// serverside
 void HandleTradeViewButtonClicks(int pnum, int boxid) {
 	int bid = GetTradee();
 	int ioffset = 0, isource, soffset = 0, ssource;
@@ -3184,6 +3286,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 						// if we do, make our confirmation real
 						GiveInventory("DnD_Trade_Confirmed", 1);
 						GiveInventory("DnD_Trade_ConfirmButtonPress", 1);
+						GiveInventory("DnD_RefreshRequest", 1);
+						GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 						
 						// if other side's confirmation is set, transfer items
 						if(CheckActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed")) {
@@ -3196,11 +3300,15 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 						if(!ok_from_tradee) {
 							SetActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 0);
 							ShowActorPopup(bid, POPUP_NOSPACEFORTRADE, false, 0);
+							GiveInventory("DnD_RefreshRequest", 1);
+							GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 						}
 						else {
 							SetInventory("DnD_Trade_Confirmed", 0);
 							// show popup for not enough space
 							ShowPopup(POPUP_NOSPACEFORTRADE, false, 0);
+							GiveInventory("DnD_RefreshRequest", 1);
+							GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 						}
 					}
 				}
@@ -3208,8 +3316,10 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					// cancel confirmation
 					TakeInventory("DnD_Trade_Confirmed", 1);
 					TakeInventory("DnD_TradeSpaceFit", 1);
+					GiveInventory("DnD_RefreshRequest", 1);
 					TakeActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 1);
 					TakeActorInventory(bid + P_TIDSTART, "DnD_TradeSpaceFit", 1);
+					GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 				}
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
@@ -3339,13 +3449,14 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 }
 
 void DrawDraggedItem() {
-	SetFont(Item_Images[itemDragImg]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) - 16.0 * itemDragInfo.x + 0.1, HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) - 8.0 * itemDragInfo.y + 0.1, 0.0, 0.0);
-}
-
-void DrawDraggedItem_Stash() {
-	SetFont(Item_Images[itemDragImg]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((CheckInventory("Mouse_X") * 3 / 2) & MMASK) - 16.0 * itemDragInfo.x + 0.1, HUDMAX_YF_STASH - ((CheckInventory("Mouse_Y") * 3 / 2) & MMASK) - 8.0 * itemDragInfo.y + 0.1, 0.0, 0.0);
+	SetFont(Item_Images[PlayerCursorData.itemDragged]);
+	
+	if(PlayerCursorData.itemDraggedStashSize) {
+		SetHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH, 1);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((PlayerCursorData.posx * 3 / 2) & MMASK) - 16.0 * PlayerCursorData.itemDragInfo.x + 0.1, HUDMAX_YF_STASH - ((PlayerCursorData.posy * 3 / 2) & MMASK) - 8.0 * PlayerCursorData.itemDragInfo.y + 0.1, 0.0, 0.0);
+	}
+	else
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (PlayerCursorData.posx & MMASK) - 16.0 * PlayerCursorData.itemDragInfo.x + 0.1, HUDMAX_YF - (PlayerCursorData.posy & MMASK) - 8.0 * PlayerCursorData.itemDragInfo.y + 0.1, 0.0, 0.0);
 }
 
 void HandleStashView(int boxid) {
@@ -3358,8 +3469,10 @@ void HandleStashView(int boxid) {
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, 452.4, 120.0, 0.0, 0.0);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, 452.4, 360.0, 0.0, 0.0);
 	
+	PlayerCursorData.itemDraggedStashSize = true;
+	
 	ResetInventoryLitState();
-	CleanInventoryInfo();
+	// CleanInventoryInfo();
 	
 	// draw stash at top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
@@ -3373,10 +3486,6 @@ void HandleStashView(int boxid) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHBOX_BASEX_UP, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, TRADE_RES_X, TRADE_RES_Y);
 		}
 	}
-	
-	// check if theres a thing being dragged
-	if(itemDragImg != -1)
-		DrawDraggedItem_Stash();
 	
 	// stash buttons
 	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
@@ -3543,6 +3652,8 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 	int tx, ty, bx, by;
 	int page = CheckInventory("DnD_Crafting_MaterialPage");
 	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
+	int pnum = PlayerNumber();
+
 	if(mcount) {
 		if(!k || CheckInventory("DnD_RefreshPane")) {
 			// add predefined size boxes for use
@@ -3563,28 +3674,29 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 					bx = GetTotalStackOfMaterial(tx);
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
-						DrawCraftingInventoryInfo(PlayerInventoryList[PlayerNumber()][tx].item_type, tx, bx);
-						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
-						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
+						UpdateCursorHoverData(tx, bx, PlayerInventoryList[pnum][tx].item_type);
+
+						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
+						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
 						//SetInventory("DnD_PlayerItemIndex", tx);
 						SetFont("CRFBX_H2");
 					}
 					else if(prevclick == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update prev item in material ", d:tx);
 						//SetInventory("DnD_PlayerPrevItemIndex", tx);
-						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
-						MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
+						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
+						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
 						SetFont("CRFBX_H2");
 					}
 					else
 						SetFont("CRFBX_N2");
-					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
+					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
 					if(tx != -1) {
-						SetFont(Item_Images[PlayerInventoryList[PlayerNumber()][tx].item_image]);
-						HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0, 0.0);
+						SetFont(Item_Images[PlayerInventoryList[pnum][tx].item_image]);
+						HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
 						if(bx > 0) {
 							SetFont("SMALLFONT");
-							HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0, 0.0);
+							HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0);
 						}
 					}
 				}
@@ -3618,6 +3730,8 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 	int tx, ty, bx, by;
 	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
 	int page = CheckInventory("DnD_Crafting_ItemPage");
+	int pnum = PlayerNumber();
+	
 	if(mcount) {
 		if(!k || CheckInventory("DnD_RefreshPane")) {
 			// add predefined size boxes for use
@@ -3641,18 +3755,16 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
 				if(boxid - 1 == j) {
 					//Log(s:"update item boxlit ", d:i);
-					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
-					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS1;
-					// self note: don't use the piece of shit inventories in clientside...
-					//SetInventory("DnD_PlayerItemIndex", i);
-					DrawCraftingInventoryInfo(DND_ITEM_WEAPON, i, 0);
+					UpdateCursorHoverData(i, 0, DND_ITEM_WEAPON);
+					
+					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
+					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS1;
 					SetFont("CRFBX_H");
 				}
 				else if(prevclick == j) {
 					//Log(s:"update prev item ", d:i);
-					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
-					MenuInputData[PlayerNumber()][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS2;
-					//SetInventory("DnD_PlayerPrevItemIndex", i);
+					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
+					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS2;
 					SetFont("CRFBX_H");
 				}
 				else
@@ -3705,7 +3817,8 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 			tx = GetNextUniqueCraftableMaterial(i + MAX_CRAFTING_ITEMBOXES * page);
 			if(tx != -1) {
 				if(boxid - 1 == j) {
-					DrawCraftingInventoryInfo(PlayerInventoryList[bx][tx].item_type, tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+					UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[bx][tx].item_type);
+					
 					//Log(s:"update cur item inv ", d:tx);
 					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
@@ -3741,13 +3854,10 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 	SetFont("SMALLFONT");
 }
 
-// extra1 is used for item position in inventory list
-// extra1 is topboxid for items, extra2 works as source for inventory related things (used charms vs player inventory etc.)
-void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
+void DrawCraftingInventoryInfo(int pn) {
 	int offset, stack = 0;
-	int mx = HUDMAX_XF - (CheckInventory("Mouse_X") & MMASK) + 16.1; 
-	int my = HUDMAX_YF - (CheckInventory("Mouse_Y") & MMASK) + 16.1;
-	int pn = PlayerNumber();
+	int mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1; 
+	int my = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 16.1; 
 	SetFont("LDTITINF");
 	// to force them to appear in window
 	if(mx > INVENTORYINFO_NORMALVIEW_WRAPX)
@@ -3755,10 +3865,10 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
 		my = INVENTORYINFO_NORMALVIEW_WRAPY + 0.1;
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, INVENTORY_INFO_ALPHA);
-	if(GetStackValue(itype) && extra2) {
+	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0);
+	if(GetStackValue(PlayerCursorData.itemHoveredType) && PlayerCursorData.itemHoveredSource) {
 		SetFont("SMALLFONT");
-		HudMessage(d:extra2; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(d:PlayerCursorData.itemHoveredSource; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0.0);
 	}
 	mx += 64.0;
 	my += 40.0;
@@ -3767,13 +3877,13 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	mx += 0.4;
 	my += 0.1;
 	// show item details
-	if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR)
+	if(PlayerCursorData.itemHoveredType == DND_ITEM_ORB || PlayerCursorData.itemHoveredType == DND_ITEM_ELIXIR)
 		offset = 16.0;
-	if(itype != DND_ITEM_WEAPON)
-		SetFont(Item_Images[PlayerInventoryList[pn][extra1].item_image]);
+	if(PlayerCursorData.itemHoveredType != DND_ITEM_WEAPON)
+		SetFont(Item_Images[PlayerInventoryList[pn][PlayerCursorData.itemHovered].item_image]);
 	else
-		SetFont(Weapons_Data[extra1][WEAPON_ICON64]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0, INVENTORY_INFO_ALPHA);
+		SetFont(Weapons_Data[PlayerCursorData.itemHovered][WEAPON_ICON64]);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0);
 	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 	mx *= 3; mx /= 2;
 	my *= 3; my /= 2;
@@ -3782,28 +3892,29 @@ void DrawCraftingInventoryInfo(int itype, int extra1, int extra2) {
 	mx += 0.4;
 	my += 0.1;
 	SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 256, 256, 1);
-	DrawCraftingInventoryText(itype, extra1, extra2, mx, my);
+	DrawCraftingInventoryText(PlayerCursorData.itemHoveredType, PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, mx, my);
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
+// extra1 is topboxid for items, extra2 works as source for inventory related things (used charms vs player inventory etc.)
 void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my) {
 	int i, j, temp, val;
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, extra1, -1, extra2) / CHARM_ATTRIBLEVEL_SEPERATOR;
 		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)), s:" ", l:"DND_ITEM_CHARM"; 
-			HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0
 		);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
-			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);		}
+			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0);		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) + GetInventoryInfoOffset(itype);
-		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, 0);
 	}
 	else if(itype == DND_ITEM_WEAPON) {
 		j = PlayerNumber();
@@ -3861,8 +3972,8 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		itype >>= UNIQUE_BITS;
 		--itype;
 		// itype holds unique position, temp is the actual item type
-		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0);
+		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
@@ -3874,17 +3985,17 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2)); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 				}
 				else
-					HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+					HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else if(!val) {
 				// unique item doesn't have numeric attribute to show
-				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else
-				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 		}
 	}
 }
@@ -3899,7 +4010,7 @@ void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
 		LoadCraftingView(p);
 	}
 	
-	CleanInventoryInfo();
+	// CleanInventoryInfo();
 	HandleMaterialDraw(p, boxid, curopt, k);
 	if(curopt == MENU_LOAD_CRAFTING) {
 		DrawBoxText("DND_MENU_WEPCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_WEAPON_BOXID + 1, RPGMENUID - 3, 24.1, 32.0, "\c[B1]", "\c[Y5]");

@@ -16,23 +16,23 @@ enum {
 	RPGMENUCURSORID = 100,
 	RPGMENUPOPUPID = 105,
 	RPGMENUTRADECOUNTDOWNID,
-	RPGMENUPAGEID,
+	RPGMENUPAGEID = 120,
 	RPGMENUHIGHLIGHTID,
-	RPGMENUID = 700,
+	RPGMENUID = 1000,
 	RPGMENULARRID,
 	RPGMENURARRID,
 	RPGMENURETARRID,
 	RPGMENUITEMIDEND,
-	RPGMENUITEMID = 1000,
+	RPGMENUITEMID = 1300,
 	RPGMENUHELPCORNERID,
 	RPGMENUHELPCORNERIDMAIN,
 	RPGMENUNAMEID,
 	RPGMENUHELPID,
 	RPGMENUINFOID,
 	RPGMENUDAMAGETYPEID,
-	RPGMENULISTID = 1060,
-	RPGMENUWEAPONPANELID = 1100,
-	RPGMENUBACKGROUNDID = 1101
+	RPGMENULISTID = 1360,
+	RPGMENUWEAPONPANELID = 1400,
+	RPGMENUBACKGROUNDID = 1401
 };
 
 // topleft corner 1:1 bottom right 0:0
@@ -82,6 +82,20 @@ typedef struct rect {
 	int botright_x;
 	int botright_y;
 } rect_T;
+
+typedef struct cursor {
+	int posx;
+	int posy;
+	int itemHovered;			// spot of the item in player's inventory, or weapon's id
+	int itemHoveredType;		// is this an orb, etc. or a weapon
+	int itemHoveredSource;		// for inventory stuff, player inventory, stash etc.
+	vec2_T itemHoveredDim;		// dim for draving things
+	int itemDragged;			// this holds the image id, not the item id (We dont need it)
+	bool itemDraggedStashSize;	// draw resized to fit stash view
+	vec3_T itemDragInfo;		// x,y used for dimensions of item, z is used for topbox so its not drawn until itemDragged is -1
+	bool hoverNeedsReset;		// need reset on hover data
+} cursor_T;
+cursor_T PlayerCursorData;
 
 #define MAX_MENU_BOXES 20
 typedef struct mp {
@@ -155,14 +169,14 @@ int GetCursorPos(int input, int mt) {
 	int res = 0, speed, ds;
 	switch(mt) {
 		case MOUSE_INPUT_X:
-			res = CheckInventory("Mouse_X");
+			res = PlayerCursorData.posx;
 			speed = FixedDiv(1.0, FixedMul(GetCVar("m_yaw"), GetCVar("mouse_sensitivity")));
 			speed = FixedMul(speed * 2, HUDMAX_XF) / (HUDMAX_X * 100);
 			ds = input * speed;
 			res = Clamp_Between(res + ds, 0, HUDMAX_XF);
 		break;
 		case MOUSE_INPUT_Y:
-			res = CheckInventory("Mouse_Y");
+			res = PlayerCursorData.posy;
 			speed = FixedDiv(1.0, FixedMul(GetCVar("m_pitch"), GetCVar("mouse_sensitivity")));
 			speed = FixedMul(speed * 2, HUDMAX_YF) / (HUDMAX_X / 2 * 100);
 			if (GetCVar("invertmouse"))
@@ -182,7 +196,7 @@ void DrawCursor() {
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
 	//Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - ((CheckInventory("Mouse_X") & MMASK)) + 0.1, HUDMAX_YF - ((CheckInventory("Mouse_Y") & MMASK)) + 0.1, 0.2, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 0.1, HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }
 
 void ListenNPCInput() {

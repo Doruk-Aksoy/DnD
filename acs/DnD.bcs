@@ -241,7 +241,7 @@ Script "DnD On Death" DEATH {
 	TakeInventory("DnD_ShowSellPopup", 1);
 	TakeInventory("DnD_SellConfirm", 1);
 	//SetInventory("MenuPosY", 5);
-	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
+	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 	BreakTradesBetween(pnum);
 
 	if(GetCVar("Survival")) {
@@ -2993,7 +2993,7 @@ Script "DnD Player Setup" ENTER {
 		GiveInventory(" Pistol ", 1);
 		if(GetCVar("dnd_allresearchesfound"))
 			GiveAndDoAllResearch();
-		ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
+		ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 	}
 	
 	if(PlayerInGame(pnum)) {

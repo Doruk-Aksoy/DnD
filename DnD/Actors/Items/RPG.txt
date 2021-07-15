@@ -233,14 +233,6 @@ Actor ActivePopupBox : Inventory {
 	inventory.maxamount 255
 }
 
-Actor Mouse_X : Inventory {
-	inventory.maxamount 0x7FFFFFFF
-}
-
-Actor Mouse_Y : Inventory {
-	inventory.maxamount 0x7FFFFFFF
-}
-
 Actor MenuMainPosY : Inventory {
 	inventory.maxamount 255
 }
@@ -471,6 +463,11 @@ Actor PlayerIsLoggedIn : DnD_Boolean { }
 Actor DnD_TransfCharacterID : DnD_Info { }
 
 Actor DnD_RefreshPane : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor DnD_RefreshRequest : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration 3
 }

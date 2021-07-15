@@ -51,7 +51,7 @@ enum {
 // MENU IDS
 // Moved here because of dependencies
 enum {
-	RPGMENUINVENTORYID = 699,
+	RPGMENUINVENTORYID = 999,
 };
 
 typedef struct imove {

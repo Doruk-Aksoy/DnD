@@ -791,7 +791,7 @@ void HandleOrbUse (int orbtype, int extra, int extra2 = -1) {
 					// confirm this is a real attribute and the charm isn't devoid of any attributes
 					res = PickWeightedFromTwoItems(pnum, extra, extra2);
 					picked_mod = random(0, PlayerInventoryList[pnum][res].attrib_count - 1);
-					log(s:"picked ", d: res, s:" from: ", d:extra, s: " - ", d:extra2, s: "\nmod: ", d:picked_mod);
+					// log(s:"picked ", d: res, s:" from: ", d:extra, s: " - ", d:extra2, s: "\nmod: ", d:picked_mod);
 					
 					// if somehow this item has no attributes, pick from the other one
 					if(picked_mod == -1) {
