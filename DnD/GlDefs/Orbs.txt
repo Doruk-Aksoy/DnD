@@ -161,3 +161,60 @@ pointlight HOLDINGLIGHT {
 object OrbofHolding {
 	frame ORB3 { light HOLDINGLIGHT }
 }
+
+pointlight ORBHOLLOWLIGHT {
+	color 0.275 0.275 1.0
+	size 32
+}
+
+object OrbofHollow {
+	frame ORB3P { light ORBHOLLOWLIGHT }
+}
+
+ pointlight ORBPHANTASMLIGHT1 {
+	color 0.9 0.9 0.9
+	size 44
+}
+
+pointlight ORBPHANTASMLIGHT2 {
+	color 0.8 0.8 0.8
+	size 40
+}
+
+pointlight ORBPHANTASMLIGHT3 {
+	color 0.7 0.7 0.7
+	size 36
+}
+
+pointlight ORBPHANTASMLIGHT4 {
+	color 0.5 0.5 0.5
+	size 32
+}
+
+pointlight ORBPHANTASMLIGHT5 {
+	color 0.3 0.3 0.3
+	size 28
+}
+
+pointlight ORBPHANTASMLIGHT6 {
+	color 0.1 0.1 0.1
+	size 24
+}
+
+object OrbofPhantasmal {
+	frame ORB3T { light ORBPHANTASMLIGHT1 }
+	frame ORB3U { light ORBPHANTASMLIGHT2 }
+	frame ORB3V { light ORBPHANTASMLIGHT3 }
+	frame ORB3W { light ORBPHANTASMLIGHT4 }
+	frame ORB3X { light ORBPHANTASMLIGHT5 }
+	frame ORB3Y { light ORBPHANTASMLIGHT6 }
+}
+
+pointlight ORBASSIMLIGHT {
+	color 0.3 1.0 0.4
+	size 32
+}
+
+object OrbofAssimilation {
+	frame ORB3R { light ORBASSIMLIGHT }
+}

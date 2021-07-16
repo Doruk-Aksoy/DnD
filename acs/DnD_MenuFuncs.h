@@ -1247,7 +1247,56 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 	}
 }
 
-void DrawHighLightBar (int posy, int drawstate) {
+void DrawHighLightBar (int posy, int framecounter) {
+	int drawstate = 0;
+	SetFont("SMALLFONT");
+	if(
+		CheckInventory("AttributePoint") && 
+		//Don't flash if stats are already maxed
+	   !((CheckInventory("PSTAT_Strength") == DND_STAT_FULLMAX) &&
+		(CheckInventory("PSTAT_Dexterity") == DND_STAT_FULLMAX) &&
+		(CheckInventory("PSTAT_Bulkiness") == DND_STAT_FULLMAX) &&
+		(CheckInventory("PSTAT_Charisma") == DND_STAT_FULLMAX) &&
+		(CheckInventory("PSTAT_Vitality") == DND_STAT_FULLMAX) &&
+		(CheckInventory("PSTAT_Intellect") == DND_STAT_FULLMAX)) &&
+		!(framecounter % 2)
+	)
+	{
+		drawstate = posy == MAINBOX_STATS;
+		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+	}
+	else if(posy == MAINBOX_STATS)
+		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+	else
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+
+
+	
+	drawstate |= 2;
+	if(
+		CheckInventory("PerkPoint") && 
+	   !((CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Endurance") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Wisdom") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Greed") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Medic") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Munitionist") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Deadliness") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Savagery") == DND_PERK_MAX) &&
+		(CheckInventory("Perk_Luck") == DND_PERK_MAX)) &&
+		!(framecounter % 2)
+	)
+	{
+		drawstate |= (posy == MAINBOX_PERK) * 4;
+		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+	}
+	else
+		if(posy == MAINBOX_PERK)
+		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+	else
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+
+
 	if(posy == MAINBOX_NONE)
 		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0, 0.0);
 	else if(posy < FIRST_CLICKABLE_BOXID) {
@@ -1270,6 +1319,27 @@ void DrawHighLightBar (int posy, int drawstate) {
 	// restore default
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	SetFont("SMALLFONT");
+}
+
+void DrawFrequentRedrawItems(int pnum) {
+	// check if we have used an assimilation orb, if we did draw text under cursor
+	int i = CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1;
+	if(i != -1) {
+		// player used an assimilation orb, figure out if they made a choice or not
+		if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == DND_ORB_ASSIMILATION) {
+			int x = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.0;
+			int y = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 24.0;
+
+			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+			SetFont("SMALLFONT");
+			SetHudClipRect((x >> 16) - 8, (y >> 16) - 8, 96, 64, 96, 1);
+			if(!CheckInventory("DnD_SelectedInventoryBox"))
+				HudMessage(s:"\c[Q2]", l:"DND_MENU_ASSIMORB1"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, -1, x + 0.1, y + 0.1, 0.0);
+			else
+				HudMessage(s:"\c[Q2]", l:"DND_MENU_ASSIMORB2"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, -1, x + 0.1, y + 0.1, 0.0);
+			SetHudClipRect(0, 0, 0, 0, 0);
+		}
+	}
 }
 
 void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, bool isSpecialAmmo) {
@@ -2501,8 +2571,8 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 	}
 }
 
-void ResetInventoryLitState() {
-	for(int i = 0; i < MAXLITBOXES; ++i)
+void ResetInventoryLitState(int beg, int end) {
+	for(int i = beg; i < end; ++i)
 		InventoryBoxLit[i] = BOXLIT_STATE_OFF;
 }
 
@@ -2855,7 +2925,7 @@ void HandleInventoryView(int boxid) {
 	
 	PlayerCursorData.itemDraggedStashSize = false;
 	
-	ResetInventoryLitState();
+	ResetInventoryLitState(0, MAX_INVENTORY_BOXES);
 	
 	//CleanInventoryInfo();
 	
@@ -3126,21 +3196,21 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	int i, j;
 	
 	// CleanInventoryInfo();
-	ResetInventoryLitState();
+	ResetInventoryLitState(0, MAX_INVENTORY_BOXES);
 	// draw other player offering up top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEUP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_TRADEVIEW, GetTradee(), dimx, dimy);
 		}
 	}
-	ResetInventoryLitState();
+	ResetInventoryLitState(MAX_INVENTORY_BOXES, 2 * MAX_INVENTORY_BOXES);
 	// draw our offering below
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEDOWN, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_TRADEVIEW, pnum, dimx, dimy);
 		}
 	}
-	ResetInventoryLitState();
+	ResetInventoryLitState(2 * MAX_INVENTORY_BOXES, MAXLITBOXES);
 	// draw our inventory to the side
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -3471,7 +3541,7 @@ void HandleStashView(int boxid) {
 	
 	PlayerCursorData.itemDraggedStashSize = true;
 	
-	ResetInventoryLitState();
+	ResetInventoryLitState(0, 2 * MAX_INVENTORY_BOXES);
 	// CleanInventoryInfo();
 	
 	// draw stash at top

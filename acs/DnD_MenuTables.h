@@ -157,7 +157,7 @@ enum {
 	BOXLIT_STATE_CLICK
 };
 
-#define MAXLITBOXES 3 * MAX_INVENTORY_BOXES
+#define MAXLITBOXES (3 * MAX_INVENTORY_BOXES)
 int InventoryBoxLit[MAXLITBOXES];
 
 typedef struct mi {

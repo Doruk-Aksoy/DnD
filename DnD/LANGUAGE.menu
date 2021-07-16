@@ -314,6 +314,10 @@ DND_MENU_LEGHELPTEXT3	=	"\c[Y5]Mordecqai\nOnce the great ruler of the \"Realm of
 DND_MENU_LEGHELPTEXT4	=	"\c[Y5]God Slayer\nA fearsome mech built by UAC to destroy the demonic menace, gone rogue by the evil powers of Hell. The robot will target only humans and has some interesting AI... Seems to be impervious to bullets. Explosives seem to do little, too.";
 DND_MENU_LEGHELPTEXT5	=	"\c[Y5]Golgoth\nAncient as time, this malignant being seeks only to torture the living to empower its domain. Seems to have manifested itself on Earth this time... Research shows it's explosive immune and magic resistant.";
 
+// text that require certain conditions to be met
+DND_MENU_ASSIMORB1		=	"Select the victim item";
+DND_MENU_ASSIMORB2		=	"Select the host item";
+
 // popup text
 DND_POPUP_NOFUNDS							=	"Insufficient funds.";
 DND_POPUP_CANTBUY							=	"You can't buy this item.";

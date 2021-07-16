@@ -284,9 +284,17 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			DrawDraggedItem();
 			redraw = true;
 		}
-			
+		
+		// Side bar options with animations -- these require framecounter so they can be checked every tic
+		// this also draws "Stats" and "Perks" text, it looks tidier in here this way
+		DrawHighLightBar(mainboxid, framecounter);
+		
+		// draws items that need frequent redraw
+		DrawFrequentRedrawItems(pnum);
+		
 		Delay(const:1);
 		
+		// animation things
 		animcounter++;
 		if(animcounter == 17) {
 			animcounter = 0;
@@ -328,6 +336,8 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 	auto CurrentPane = GetPane();
 	auto InventoryPane = GetInventoryPane();
 	auto TradePane = GetTradePane();
+	
+	// Log(s:"drawing");
 
 	// draw background images
 	SetHudSize(384, 200, 1);
@@ -927,53 +937,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 		DrawMonsterModCategory(-1);
 	}
 	
-	// Main menu side bar
-	i = 0;
-	// Side bar options with animations
-	if(CheckInventory("AttributePoint") && 
-		//Don't flash if stats are already maxed
-	   !((CheckInventory("PSTAT_Strength") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Dexterity") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Bulkiness") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Charisma") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Vitality") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Intellect") == DND_STAT_FULLMAX))
-	/*   && !(framecounter % 2)*/) {
-		i = mainboxid == MAINBOX_STATS;
-		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
-	} 
-	else {
-		if(mainboxid == MAINBOX_STATS)
-			HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
-		else
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
-	}
-	
-	// the above is 0 or 1, this one is 2 or 4
-	// trick to make this light up when both stats and perks are up
-	i |= 2;
-	if(CheckInventory("PerkPoint") && 
-	   !((CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Endurance") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Wisdom") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Greed") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Medic") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Munitionist") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Deadliness") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Savagery") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Luck") == DND_PERK_MAX))
-	   /*&& !(framecounter % 2)*/) {
-		i |= (mainboxid == MAINBOX_PERK) * 4;
-		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
-	}
-	else {
-		if(mainboxid == MAINBOX_PERK)
-			HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
-		else
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
-	}
-	DrawHighLightBar(mainboxid, i);
-	
+	// Main menu side bar -- stats and perks are in the other looping script
 	// Rest of the side bar options
 	if(mainboxid == MAINBOX_LOAD)
 		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_LOADOUT"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0, 0.0);
@@ -1747,7 +1711,7 @@ Script "DnD Trade Window" (int pnum, int giveWindow) {
 	
 	int lim = 5 * Clamp_Between(GetCVar("dnd_trade_window"), 5, 20);
 	for(int i = 0; i < lim && !CheckInventory("InTradeView"); ++i)
-		Delay(7);
+		Delay(const:7);
 	
 	if(!CheckInventory("InTradeView")) {
 		BreakTradesBetween(pnum);

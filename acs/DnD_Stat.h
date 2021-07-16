@@ -688,11 +688,19 @@ void BreakTradesBetween(int pnum) {
 		if(PlayerInGame(j)) {
 			tid = j + P_TIDSTART;
 			if(pnum > 31) {
-				if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32)) 
+				if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32)) {
 					SetActorInventory(tid, "DnD_TradeEngaged_2", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32));
+					// fixes disconnect on trade having players name still there bug
+					GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+					TakeActorInventory(tid, "InTradeView", 1);
+				}
 			}
-			else if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum)) 
+			else if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum)) {
 				SetActorInventory(tid, "DnD_TradeEngaged_1", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum));
+				// fixes disconnect on trade having players name still there bug
+				GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+				TakeActorInventory(tid, "InTradeView", 1);
+			}
 		}
 	}
 }
