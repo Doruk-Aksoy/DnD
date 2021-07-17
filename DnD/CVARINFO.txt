@@ -11,6 +11,10 @@ user noarchive int dnd_playerclass = 0;
 user noarchive int dnd_classmenu_button = 0;
 user noarchive bool dnd_onclassmenu = false;
 
+// scoreboard settings
+server noarchive int dnd_diplomatic_exit = 0; // if this is non-zero, this will dictate how many people must reach an exit before map exits truly
+server noarchive int dnd_exit_monsterpercent = 0; // if this is non-zero, exiting requires killed monster percentage to be at least this
+
 server noarchive bool dnd_test = false;
 server noarchive bool dnd_monsterbars = true;
 server noarchive bool dnd_monsterscale = true;

@@ -151,4 +151,19 @@ int CheckActorResearchStatus(int tid, int res_id) {
 	return RES_NA;
 }
 
+void GiveResearch(int res_id, bool fancy) {
+	if(fancy)
+		ACS_NamedExecuteAlways("DnD Research Fancy Message", 0, res_id);
+	if(res_id > DND_RESEARCH_MAXBITS2) {
+		res_id %= DND_RESEARCH_BITMOD;
+		SetInventory("Research_Discovered_3", SetBit(CheckInventory("Research_Discovered_3"), res_id));
+	}
+	else if(res_id > DND_RESEARCH_MAXBITS1) {
+		res_id %= DND_RESEARCH_BITMOD;
+		SetInventory("Research_Discovered_2", SetBit(CheckInventory("Research_Discovered_2"), res_id));
+	}
+	else
+		SetInventory("Research_Discovered_1", SetBit(CheckInventory("Research_Discovered_1"), res_id));
+}
+
 #endif

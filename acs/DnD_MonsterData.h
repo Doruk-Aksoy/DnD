@@ -1,6 +1,7 @@
 #ifndef DND_MONSTERDATA_IN
 #define DND_MONSTERDATA_IN
 
+#include "DnD_Common.h"
 #include "DnD_EliteInfo.h"
 
 #define DND_CUSTOMMONSTER_ID 65536

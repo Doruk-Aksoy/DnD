@@ -876,10 +876,18 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT6", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 		
 		SetHudClipRect(192, 60, 256, 384, 256, 1);
+		
+		j = 0;
 		for(i = 0; i < MAX_ORBS; ++i) {
-			HudMessage(s:"\c[Y5]", l:GetInventoryTag(i + ORBS_BEGIN), s:"\n", l:GetInventoryText(i + ORBS_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 96.0 * i + 8.0 * ScrollPos, 0.0, 0.0);
-			ShowOrbIcon(i);
+			// maybe optimize this in the future to not use this many strparams but idk now -- storing these is not an option
+			toshow = StrParam(s:"\c[Y5]", l:GetInventoryTag(i + ORBS_BEGIN), s:"\n", l:GetInventoryText(i + ORBS_BEGIN));
+			HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 8.0 * ScrollPos + j, 0.0, 0.0);
+			ShowOrbIcon(i, j);
+			
+			k = StrLen(toshow);
+			j += Max((k / 18) * 10.0, 80.0);
 		}
+
 		SetHudClipRect(0, 0, 0, 0);
 	}
 	else if(curopt == MENU_HELP_LEGMONS) {

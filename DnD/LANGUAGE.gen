@@ -134,6 +134,12 @@ DND_PERKALLOCATION						= "Perk Allocation";
 DND_WEPSOWNED							= "Weapons Owned";
 DND_PLAYERNOTPLAYING					= "Player isn't currently playing";
 
+DND_MAPDIFF1							= "\cdVery Easy\c-";
+DND_MAPDIFF2							= "\cqEasy\c-";
+DND_MAPDIFF3							= "\cfMedium\c-";
+DND_MAPDIFF4							= "\ckHard\c-"; 
+DND_MAPDIFF5							= "\cgVery Hard\c-";
+
 // database messages
 DND_DBERR1A		= "LOAD CHAR ERROR: Loading failed due to non-existent character! Character slot number should be between";
 DND_DBERR1B		= "and must've been declared previously using \"setchar\" command.";

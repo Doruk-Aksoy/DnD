@@ -304,6 +304,40 @@ int BigNumberFormula(int dmg, int f) {
 	return dmg;
 }
 
+int GetDOTMulti() {
+	return GetPlayerAttributeValue(PlayerNumber(), INV_DOTMULTI);
+}
+
+int GetFireDOTDamage() {
+	// flat dmg
+	int dmg = (DND_BASE_IGNITEDMG + CheckInventory("IATTR_FlatFireDmg") + CheckInventory("IATTR_FlatDotDamage"));
+	
+	// percent increase
+	dmg *= (100 + CheckInventory("IATTR_IgniteDmg") + GetPlayerAttributeValue(PlayerNumber(), INV_INCREASEDDOT)) / 100;
+	
+	// dot multi;
+	dmg *= (100 + GetDOTMulti()) / 100;
+	
+	return dmg;
+}
+
+int GetPoisonDOTDamage(int base_poison) {
+	int dmg = base_poison;
+	if(!dmg)
+		dmg = 1;
+		
+	// flat dmg
+	dmg += CheckInventory("IATTR_FlatPoisonDmg") + CheckInventory("IATTR_FlatDotDamage");
+	
+	// percent increase
+	dmg *= (100 + CheckInventory("IATTR_PoisonTicDmg") + GetPlayerAttributeValue(PlayerNumber(), INV_INCREASEDDOT)) / 100;
+	
+	// dot multi
+	dmg *= (100 + GetDOTMulti()) / 100;
+	
+	return dmg;
+}
+
 int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags, bool isSpecial) {
 	// we don't cache special ammo damage
 	int dmg = 0;
@@ -1490,11 +1524,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 	if(CheckInventory("StatbuffCounter_PoisonTicTwiceFast"))
 		trigger_tic /= 2;
 
-	// scale received percentage of damage with flat bonuses
-	if(!dmg)
-		dmg = 1;
-	dmg += CheckInventory("IATTR_FlatPoisonDmg") + CheckInventory("IATTR_FlatDotDamage");
-	dmg = dmg * (100 + CheckInventory("IATTR_PoisonTicDmg")) / 100;
+	dmg = GetPoisonDOTDamage(dmg);
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
@@ -1602,8 +1632,9 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 }
 
 Script "DnD Monster Ignite" (int victim) {
-	int dmg = (DND_BASE_IGNITEDMG + CheckInventory("IATTR_FlatFireDmg") + CheckInventory("IATTR_FlatDotDamage")) * (100 + CheckInventory("IATTR_IgniteDmg")) / 100;
+	int dmg = GetFireDOTDamage();
 	int dmg_tic_buff = CheckInventory("IATTR_IgniteDamageEachTic");
+	
 	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, TALENT_ELEMENTAL);
 	
 	while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim)) {

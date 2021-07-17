@@ -540,6 +540,18 @@ Actor IATTR_MeleeDamage : Ammo {
 	+IGNORESKILL
 }
 
+Actor IATTR_DamageOverTimeMult : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_DamageOverTimeIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 // DND_STATBUFF_LUCKYCRITS is a statbuff
 
 Actor IATTR_CritIgnoreRes : Ammo {

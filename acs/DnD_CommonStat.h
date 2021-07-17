@@ -117,6 +117,51 @@ enum {
 #define DND_BERSERKER_PERK50_MAXSTACKS 30
 #define DND_BERSERKER_PERK50_CRITBONUS 50
 
+global int 1: StatListOpened[];
+
+#define MAX_MAP_DIFFICULTIES 5
+global int 4: MapDifficulty;
+
+str GetMapDifficultyLabel(int id) {
+	return StrParam(s:"DND_MAPDIFF", d:id + 1);
+}
+
+enum {
+	DND_MHR_PERIODIC,
+	DND_MHR_DURATION
+};
+
+int IsHardcore() {
+	return HardcoreSet;
+}
+
+#define MGNUMID 709
+#define BONUSBONUSID 708
+#define SECRETBONUSID 707
+#define ITEMBONUSID 706
+#define KILLBONUSID 705
+#define PERKID 704
+#define CASHSPLITID 703
+#define MENUUSEID 702
+
+#define MIN_CREDIT_GAIN 7
+#define MIN_EXP_GAIN 10
+#define ATTRIB_PER_LEVEL 3
+#define NANOCAP 350
+
+#define DND_MONSTERHP_PLAYERSCALE 25
+#define DND_MAX_PLAYERHPSCALE 16
+
+#define DND_HARDCORE_LOADTIME 10 // timer for hardcore load
+#define DND_HARDCORE_SCREENID 6
+
+enum {
+	RESET_LEVEL = 1,
+	RESET_CREDIT = 2,
+	RESET_STATS = 4,
+	RESET_PERKS = 8
+};
+
 enum {
 	// dont change order of these, add below the last!
 	STAT_STR,

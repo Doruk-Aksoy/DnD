@@ -243,19 +243,22 @@ str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
 	"Research_Body_Im_1_Tracker"
 };
 
-void GiveResearch(int res_id, bool fancy) {
-	if(fancy)
-		ACS_NamedExecuteAlways("DnD Research Fancy Message", 0, res_id);
-	if(res_id > DND_RESEARCH_MAXBITS2) {
-		res_id %= DND_RESEARCH_BITMOD;
-		SetInventory("Research_Discovered_3", SetBit(CheckInventory("Research_Discovered_3"), res_id));
+void SpawnResearch() {
+	// spawn copies of this research
+	int temp = 0;
+	// roll another if this has nodrop flag on it
+	do {
+		temp = random(0, MAX_RESEARCHES - 1);
+	} while(ResearchFlags[temp].res_flags & RESF_NODROP);
+	if(GameType() != GAME_SINGLE_PLAYER) {
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			// spawn this only if this isn't already found by the player
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(temp))
+				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp);
+		}
 	}
-	else if(res_id > DND_RESEARCH_MAXBITS1) {
-		res_id %= DND_RESEARCH_BITMOD;
-		SetInventory("Research_Discovered_2", SetBit(CheckInventory("Research_Discovered_2"), res_id));
-	}
-	else
-		SetInventory("Research_Discovered_1", SetBit(CheckInventory("Research_Discovered_1"), res_id));
+	else if(!CheckResearchStatus(temp)) // 1 before temp is player (0 + 1)
+		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp);
 }
 
 // This place handles researches that depend on others being researched

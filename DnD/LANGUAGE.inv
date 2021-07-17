@@ -171,7 +171,9 @@ IATTR_T74 			= "increased overload reflection damage";
 IATTR_T75 			= "\c[R5]CYBERNETIC\c-";
 IATTR_T76 			= "increased melee range";
 IATTR_T77			= "increased melee damage";
-	
+IATTR_T78			= "damage over time multiplier";
+IATTR_T79			= "increased damage over time";
+
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
 IATTR_TE2 			= "Soul weapons penetrate ";

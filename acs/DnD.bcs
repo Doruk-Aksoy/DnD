@@ -2,7 +2,6 @@
 #include "zcommon.h"
 #nocompact
 
-#include "DnD_Defs.h"
 #include "DnD_MonsterData.h"
 #include "DnD_Shared.h"
 #include "DnD_Orbs.h"
@@ -2834,6 +2833,9 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// things saved are in DnD_Activity.h
 	ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, pnum);
 	PlayerDied[pnum] = 0;
+	
+	ResetPlayerInventory(pnum);
+	ResetPlayerStash(pnum);
 }
 
 // End of level checks
@@ -5508,7 +5510,7 @@ Script "DnD Face Tracer" (void) {
 Script "DnD Class Select" (void) NET CLIENTSIDE {
 	// close the previous menu
 	ConsoleCommand("closemenu");
-	
+
 	int cpnum = ConsolePlayerNumber();
 	
 	// don't allow duplicates to be run

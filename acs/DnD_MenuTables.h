@@ -2,10 +2,10 @@
 #define DND_MENUTABLES_IN
 
 #include "DnD_MenuConstants.h"
-#include "DnD_Defs.h"
 #include "DnD_Orbs.h"
 #include "DnD_EliteInfo.h"
 #include "DnD_ClassMenu.h"
+#include "DnD_Research.h"
 
 #define PRICE_CHARISMAREDUCE 2
 #define SHOP_SCALE_MAX 10

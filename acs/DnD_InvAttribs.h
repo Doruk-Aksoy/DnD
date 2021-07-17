@@ -115,6 +115,8 @@ enum {
 	INV_CYBERNETIC,
 	INV_MELEERANGE,
 	INV_MELEEDAMAGE,
+	INV_DOTMULTI,
+	INV_INCREASEDDOT,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ,
@@ -167,7 +169,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_MELEEDAMAGE
+#define LAST_INV_ATTRIBUTE INV_INCREASEDDOT
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -307,6 +309,8 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[INV_CYBERNETIC] = "";
 	Inv_Attribute_Checkers[INV_MELEERANGE] = "IATTR_MeleeRange";
 	Inv_Attribute_Checkers[INV_MELEEDAMAGE] = "IATTR_MeleeDamage";
+	Inv_Attribute_Checkers[INV_DOTMULTI] = "IATTR_DamageOverTimeMult";
+	Inv_Attribute_Checkers[INV_INCREASEDDOT] = "IATTR_DamageOverTimeIncrease";
 	
 	// essences
 	Inv_Attribute_Checkers[INV_ESS_VAAJ] = "IATTR_StatusBuffs_1";
@@ -463,8 +467,12 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	5, 		9, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
+	// cybernetic
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_UTILITY									},
 	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_UTILITY				},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	1, 		8, 			0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
 	
 	// essences
 	{ 	1, 		1, 			1, 		INV_ATTR_TAG_NONE 										}, // vaaj

@@ -444,7 +444,6 @@ bool HandlePageListening(int curopt) {
 			if(isPlayerClass(DND_PLAYER_BERSERKER))
 				redraw = ListenScroll(-8, 0);
 		break;
-		case MENU_HELP_ORBS:
 		case MENU_HELP_MMODS_UTILITY:
 			redraw = ListenScroll(-192, 0);
 		break;
@@ -465,6 +464,7 @@ bool HandlePageListening(int curopt) {
 		case MENU_HELP_MMODS_AGGRESSIVE:
 			redraw = ListenScroll(-144, 0);
 		break;
+		case MENU_HELP_ORBS:
 		case MENU_HELP_MMODS_DEFENSIVE:
 			redraw = ListenScroll(-224, 0);
 		break;
@@ -534,9 +534,9 @@ void ShowWeaponPropertyIcon(int id) {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
-void ShowOrbIcon(int id) {
+void ShowOrbIcon(int id, int offset) {
 	SetFont(Item_Images[id + ITEM_IMAGE_ORB_BEGIN]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 96.0 * id + 8.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 8.0 * ScrollPos + offset, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
@@ -4574,10 +4574,10 @@ void DrawPlayerStats(int pnum) {
 	
 	if(GetCVar("survival")) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 60, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
 	}
 	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", s:MapDifficultyLabel[CheckInventory("MapDifficultyClientside")]; HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
 	SetHudClipRect(0, 0, 0, 0, 0, 0);
 	
 	if(k > 12)

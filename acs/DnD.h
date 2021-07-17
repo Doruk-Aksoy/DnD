@@ -13,6 +13,8 @@
 #include "DnD_ClassMenu.h"
 #include "DnD_Explosion.h"
 #include "DnD_Hud.h"
+#include "DnD_Research.h"
+#include "DnD_Scoreboard.h"
 
 // for now allocate slots for 10
 #define MAX_SCRIPT_TRACK 10
@@ -227,23 +229,6 @@ int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 int CurrentLevelReward[MAXPLAYERS];
 int CurrentStatReward[MAXPLAYERS];
-
-#define MAXCREDITDROPS 3
-#define CREDITDROP_NORMAL 0
-#define CREDITDROP_ELITE 1
-str CreditLabels[MAXCREDITDROPS][2] = {
-	{ "LargeCreditDropper", "LargeCreditDropper_Elite" },
-	{ "MediumCreditDropper", "MediumCreditDropper_Elite" },
-	{ "SmallCreditDropper", "SmallCreditDropper_Elite" }
-};
-
-#define CREDITDROP_THRESHOLD 0
-#define CREDITDROP_CHANCE 1
-int CreditDropValues[MAXCREDITDROPS][2] = {
-	{ 10000, 0.05 },
-	{ 5000, 0.15 },
-	{ 750, 0.3 }
-};
 
 void Reset_RPGInfo (int resetflags) {
 	int i;
@@ -596,6 +581,55 @@ void CheckMapExitQuest(int pnum, int qid) {
 	}
 }
 
+str GetCreditDropperName(int id, bool isElite) {
+	str res = "";
+	switch(res) {
+		case 0:
+			res = "LargeCreditDropper";
+		break;
+		case 1:
+			res = "MediumCreditDropper";
+		break;
+		case 2:
+			res = "SmallCreditDropper";
+		break;
+	}
+	
+	if(isElite)
+		return StrParam(s:res, s:"_Elite");
+	return res;
+}
+
+#define CREDITDROP_THRESHOLD 0
+#define CREDITDROP_CHANCE 1
+#define MAXCREDITDROPS 3
+int GetCreditDropData(int id, int which) {
+	int res = 0;
+	
+	switch(id) {
+		case 0:
+			if(!which)
+				res = 10000;
+			else
+				res = 0.05;
+		break;
+		case 1:
+			if(!which)
+				res = 5000;
+			else
+				res = 0.15;
+		break;
+		case 2:
+			if(!which)
+				res = 750;
+			else
+				res = 0.3;
+		break;
+	}
+	
+	return res;
+}
+
 void HandleCashDrops(int pnum, bool isElite) {
 	int basechance = 1.0;
 	int addedchance = (Clamp_Between(GetCVar("dnd_credit_droprateadd"), 0, 100) << 16) / 100;
@@ -607,13 +641,10 @@ void HandleCashDrops(int pnum, bool isElite) {
 	
 	basechance = random(0, basechance); // reduced max number implies increased chances of getting
 	for(int i = 0; i < MAXCREDITDROPS; ++i) {
-		if(CheckInventory("MonsterBaseHealth") >= CreditDropValues[i][CREDITDROP_THRESHOLD]) {
-			if(basechance - addedchance - luck > CreditDropValues[i][CREDITDROP_CHANCE])
+		if(CheckInventory("MonsterBaseHealth") >= GetCreditDropData(i, CREDITDROP_THRESHOLD)) {
+			if(basechance - addedchance - luck > GetCreditDropData(i, CREDITDROP_CHANCE))
 				continue;
-			if(isElite)
-				GiveInventory(CreditLabels[i][CREDITDROP_ELITE], 1);
-			else
-				GiveInventory(CreditLabels[i][CREDITDROP_NORMAL], 1);
+			GiveInventory(GetCreditDropperName(i, isElite), 1);
 			break;
 		}
 	}
@@ -648,24 +679,6 @@ void SpawnResearchId(int id) {
 	}
 	else if(!CheckResearchStatus(id)) // 1 before id is player (0 + 1)
 		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, id);
-}
-
-void SpawnResearch() {
-	// spawn copies of this research
-	int temp = 0;
-	// roll another if this has nodrop flag on it
-	do {
-		temp = random(0, MAX_RESEARCHES - 1);
-	} while(ResearchFlags[temp].res_flags & RESF_NODROP);
-	if(GameType() != GAME_SINGLE_PLAYER) {
-		for(int i = 0; i < MAXPLAYERS; ++i) {
-			// spawn this only if this isn't already found by the player
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(temp))
-				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp);
-		}
-	}
-	else if(!CheckResearchStatus(temp)) // 1 before temp is player (0 + 1)
-		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp);
 }
 
 void SpawnAccessory() {
