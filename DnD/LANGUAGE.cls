@@ -9,7 +9,7 @@ CLASS_PRESS				= "Press";
 // Doomguy
 
 CLASS0_ACTOR 			= "TheDoomguy";
-CLASS0_NAME				= "The Doomguy";
+CLASS0_NAME				= "Doomguy";
 CLASS0_LEFTIMG			= "P1_LIMG";
 CLASS0_RIGHTIMG			= "P1_RIMG";
 CLASS0_MUGSHOT			= "STFEVL0";
@@ -23,7 +23,7 @@ CLASS0_PERK3			= "Demons have 10% chance to drop healing orbs. Heal for 2% of en
 // Marine
 
 CLASS1_ACTOR 			= "TheMarine";
-CLASS1_NAME				= "The Marine";
+CLASS1_NAME				= "Marine";
 CLASS1_LEFTIMG			= "P2_LIMG";
 CLASS1_RIGHTIMG			= "P2_RIMG";
 CLASS1_MUGSHOT			= "MAREVL0";
@@ -37,7 +37,7 @@ CLASS1_PERK3			= "Poison and Curse immunity. Projectiles can't be reflected.";
 // Hobo
 
 CLASS2_ACTOR 			= "TheHobo";
-CLASS2_NAME				= "The Hobo";
+CLASS2_NAME				= "Hobo";
 CLASS2_LEFTIMG			= "P3_LIMG";
 CLASS2_RIGHTIMG			= "P3_RIMG";
 CLASS2_MUGSHOT			= "RENEVL0";
@@ -51,7 +51,7 @@ CLASS2_PERK3			= "Shotguns do irreducible damage, and have 50% more pellets.";
 // Punisher
 
 CLASS3_ACTOR 			= "ThePunisher";
-CLASS3_NAME				= "The Punisher";
+CLASS3_NAME				= "Punisher";
 CLASS3_LEFTIMG			= "P4_LIMG";
 CLASS3_RIGHTIMG			= "P4_RIMG";
 CLASS3_MUGSHOT			= "BADEVL0";
@@ -65,7 +65,7 @@ CLASS3_PERK3			= "Every 50 kills you get increases your damage by 4% for that ma
 // Wanderer
 
 CLASS4_ACTOR 			= "TheWanderer";
-CLASS4_NAME				= "The Wanderer";
+CLASS4_NAME				= "Wanderer";
 CLASS4_LEFTIMG			= "P5_LIMG";
 CLASS4_RIGHTIMG			= "P5_RIMG";
 CLASS4_MUGSHOT			= "CRVEVL0";
@@ -79,7 +79,7 @@ CLASS4_PERK3			= "Enemies killed by you explode for 10% of their maximum health 
 // Cyborg
 
 CLASS5_ACTOR 			= "TheCyborg";
-CLASS5_NAME				= "The Cyborg";
+CLASS5_NAME				= "Cyborg";
 CLASS5_LEFTIMG			= "P6_LIMG";
 CLASS5_RIGHTIMG			= "P6_RIMG";
 CLASS5_MUGSHOT			= "CYGEVL0";
@@ -93,7 +93,7 @@ CLASS5_PERK3			= "Energy weapons do irreducible damage.";
 // Berserker
 
 CLASS6_ACTOR 			= "TheBerserker";
-CLASS6_NAME				= "The Berserker";
+CLASS6_NAME				= "Berserker";
 CLASS6_LEFTIMG			= "P7_LIMG";
 CLASS6_RIGHTIMG			= "P7_RIMG";
 CLASS6_MUGSHOT			= "BEREVL0";

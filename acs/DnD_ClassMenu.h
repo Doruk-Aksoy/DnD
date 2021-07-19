@@ -76,6 +76,10 @@ str GetClassLabel(str class_prefix, int label) {
 	return "";
 }
 
+str GetClassName(int id) {
+	return StrParam(s:"CLASS", d:id, s:"_NAME");
+}
+
 void HandlePlayerPainSound(int pclass) {
 	int curhp = GetActorProperty(0, APROP_HEALTH);
 	int maxhp = GetSpawnHealth();

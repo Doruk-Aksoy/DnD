@@ -1,8 +1,8 @@
 include "xlat/doom.txt"
 
-11 = USE,		ACS_NamedExecuteAlways ("DnD Scoreboard")
-51 = USE,		ACS_NamedExecuteAlways ("DnD Scoreboard", 0, 1)
-52 = WALK,		ACS_NamedExecuteAlways ("DnD Scoreboard")
-124 = WALK,		ACS_NamedExecuteAlways ("DnD Scoreboard", 0, 1)
-197 = SHOOT,		ACS_NamedExecuteAlways ("DnD Scoreboard")
-198 = SHOOT,		ACS_NamedExecuteAlways ("DnD Scoreboard", 0, 1)
+11 = USE,		ACS_ExecuteAlways (1690)
+51 = USE,		ACS_ExecuteAlways (1690, 0, 1)
+52 = WALK,		ACS_ExecuteAlways (1690)
+124 = WALK,		ACS_ExecuteAlways (1690, 0, 1)
+197 = SHOOT,		ACS_ExecuteAlways (1690)
+198 = SHOOT,		ACS_ExecuteAlways (1690, 0, 1)

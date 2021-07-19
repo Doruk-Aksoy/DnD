@@ -1,0 +1,6 @@
+Actor MenuFreeze : PowerTimeFreezer {
+	powerup.duration -30
+}
+
+Actor Damage_Dealt : DnD_Info { }
+Actor Damage_Taken : DnD_Info { }

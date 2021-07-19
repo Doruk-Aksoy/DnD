@@ -11,6 +11,10 @@ DND_PICKUP_TOKEN						= "Token pickup";
 DND_PICKUP_CHARM						= "Charm pickup";
 DND_PICKUP_BONUS						= "Bonus pickup";
 
+DND_KILLS								= "Kills";
+DND_PLAYER								= "Player";
+DND_COMPLETED							= "COMPLETED";
+
 DND_OR									= "or";
 DND_KILL								= "Kill";
 DND_FORBUFF								= "for buff";

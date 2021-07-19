@@ -228,7 +228,7 @@ int ResetBits(int val, int begin, int end) {
 int getpow2 (int x) {
 	int res = 0;
 	while((x >>= 1))
-		res++;
+		++res;
 	return res;
 }
 
@@ -588,6 +588,10 @@ int VectorLength3d(int x, int y, int z) {
 
 bool isPlayerClass(int ctype) {
 	return CheckInventory("DnD_Character") - 1 == ctype;
+}
+
+int GetPlayerClass() {
+	return CheckInventory("DnD_Character") - 1;
 }
 
 #endif

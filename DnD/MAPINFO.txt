@@ -7,6 +7,10 @@ gameinfo {
 	AddPlayerClasses    = "TheCyborg"
 	AddPlayerClasses	= "TheBerserker"
 	norandomplayerclass = true
-	//translator = "XLAT.txt"
+	translator = "XLAT.txt"
 	intermissionmusic = "INTER1"
+}
+
+gamedefaults {
+	nointermission
 }

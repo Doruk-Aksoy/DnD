@@ -223,7 +223,8 @@ Script "DnD On Death" DEATH {
 			PlayerCanLoad[pnum] = 0;
 		}
 	}
-			
+	
+	UnmarkPlayerAsExited(pnum);
 	GiveInventory("DnD_PDead", 1);
 	Thing_ChangeTID(0, 0);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
@@ -2886,6 +2887,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("Berserker_HitTimer", 0);
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
+	SetInventory("DnD_Kills", 0);
 	
 	// now everyone has this, no need to buy
 	GiveInventory("Ability_MonsterInfo", 1);
