@@ -9,6 +9,7 @@
 #define MAX_SCREENRES_OFFSETS 5
 #define SCREEN_ASPECT_RATIO 4
 int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
+int ScrollPos = 0;
 
 // MENU IDS
 // Moved here because of dependencies
@@ -129,8 +130,12 @@ bool point_in_box(rect_T? box, int mx, int my, int yoffset) {
 	return (mx <= box.topleft_x && mx >= box.botright_x && my <= box.topleft_y - yoffset && my >= box.botright_y - yoffset);
 }
 
-int GetTriggeredBoxOnPane(menu_pane_T& p, int mx, int my, int curopt) {
-	if(mx >= 348.0 || my >= 270.0)
+bool point_in_points(int ux, int uy, int lx, int ly, int mx, int my, int yoffset) {
+	return (mx <= ux && mx >= lx && my <= uy - yoffset && my >= ly - yoffset);
+}
+
+int GetTriggeredBoxOnPane(menu_pane_T& p, int mx, int my, int xlim = 348.0, int ylim = 270.0) {
+	if(mx >= xlim || my >= ylim)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
 		if(point_in_box(p.MenuRectangles[i], mx, my, 0))
@@ -195,7 +200,7 @@ void DrawCursor() {
 	else
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
-	//Log(f:CheckInventory("Mouse_X"), s: " ", f:CheckInventory("Mouse_Y"));
+	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 0.1, HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }
 
@@ -264,6 +269,29 @@ int GetHudRight(int width) {
 
 int GetHudLeft(int width) {
     return width - GetHudRight(width);
+}
+
+// Meant to be used entirely clientside only, for scrolling up and down (used when server doesnt need to know about this)
+bool ListenScroll(int condx_min, int condx_max) {
+	bool redraw = false;
+	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
+	// up is 1, down is 2
+	// opposite buttons because view should go up
+	if(IsButtonHeld(bpress, settings[0][0])) {
+		if(ScrollPos < condx_max) {
+			++ScrollPos;
+			redraw = true;
+		}
+		SetInventory("MenuUD", 1);
+	}
+	if(IsButtonHeld(bpress, settings[2][0])) {
+		if(ScrollPos > condx_min) {
+			--ScrollPos;
+			redraw = true;
+		}
+		SetInventory("MenuUD", 2);
+	}
+	return redraw;
 }
 
 #endif

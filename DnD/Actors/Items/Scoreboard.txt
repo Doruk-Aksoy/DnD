@@ -3,4 +3,30 @@ Actor MenuFreeze : PowerTimeFreezer {
 }
 
 Actor Damage_Dealt : DnD_Info { }
+Actor Damage_Dealt_Millions : DnD_Info { }
+Actor Damage_Dealt_Billions : DnD_Info { }
+
 Actor Damage_Taken : DnD_Info { }
+Actor Damage_Taken_Millions : DnD_Info { }
+Actor Damage_Taken_Billions : DnD_Info { }
+
+Actor ScoreBoardSongPlayer {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	+NOTIMEFREEZE
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Scoreboard Sound Player")
+			TNT1 A -1
+		Stop
+	}
+}
+
+Actor ScoreBoardHoverSoundPlayer : ScoreBoardSongPlayer {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Scoreboard Sound Player", 1)
+			TNT1 A 35
+		Stop
+	}
+}

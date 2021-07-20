@@ -13,6 +13,8 @@ DND_PICKUP_BONUS						= "Bonus pickup";
 
 DND_KILLS								= "Kills";
 DND_PLAYER								= "Player";
+DND_DMGDEALT							= "Damage Dealt";
+DND_DMGTAKEN							= "Damage Taken";
 DND_COMPLETED							= "COMPLETED";
 
 DND_OR									= "or";

@@ -942,8 +942,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		dmg -= temp;
 	}
 	
-	if(dmg > 0)
+	if(dmg > 0) {
 		Thing_Damage2(victim, dmg, s_damagetype);
+		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, dmg, source);
+	}
 	
 	if(!isActorAlive(victim) && CheckActorInventory(source, "Berserker_Perk50")) {
 		SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);

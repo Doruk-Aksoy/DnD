@@ -516,6 +516,24 @@ int ftrunc2(int x) {
 	return (x + 0.005) & 0xFFFFFC00;
 }
 
+int GetActivePlayerCount() {
+	int res = 0;
+	
+	for(int i = 0; i < MAXPLAYERS; ++i)
+		res += PlayerInGame(i) && !PlayerIsSpectator(i);
+	
+	return res;
+}
+
+int GetPlayerCountAny() {
+	int res = 0;
+	
+	for(int i = 0; i < MAXPLAYERS; ++i)
+		res += PlayerInGame(i) || PlayerIsSpectator(i);
+	
+	return res;
+}
+
 // user must guarantee setspecial and setspecial2 are less than 65536
 void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
 	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0) + zoffset, DND_DROP_TID);
@@ -592,6 +610,10 @@ bool isPlayerClass(int ctype) {
 
 int GetPlayerClass() {
 	return CheckInventory("DnD_Character") - 1;
+}
+
+int GetActorPlayerClass(int tid) {
+	return CheckActorInventory(tid, "DnD_Character") - 1;
 }
 
 #endif

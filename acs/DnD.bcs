@@ -1250,7 +1250,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 		SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
 		
 		// button id recognition
-		boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey, 0);
+		boxid = GetTriggeredBoxOnPane(CurrentPane, mousex, mousey);
 		if(boxid != boxid_prev && boxid != MAINBOX_NONE)
 			LocalAmbientSound("RPG/MenuMove", 127);
 			
@@ -2887,7 +2887,10 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("Berserker_HitTimer", 0);
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
+	
+	// statistics reset
 	SetInventory("DnD_Kills", 0);
+	ResetStatistics();
 	
 	// now everyone has this, no need to buy
 	GiveInventory("Ability_MonsterInfo", 1);

@@ -98,29 +98,6 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 	}
 }
 
-// Meant to be used entirely clientside only, for scrolling up and down (used when server doesnt need to know about this)
-bool ListenScroll(int condx_min, int condx_max) {
-	bool redraw = false;
-	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
-	// up is 1, down is 2
-	// opposite buttons because view should go up
-	if(IsButtonHeld(bpress, settings[0][0])) {
-		if(ScrollPos < condx_max) {
-			++ScrollPos;
-			redraw = true;
-		}
-		SetInventory("MenuUD", 1);
-	}
-	if(IsButtonHeld(bpress, settings[2][0])) {
-		if(ScrollPos > condx_min) {
-			--ScrollPos;
-			redraw = true;
-		}
-		SetInventory("MenuUD", 2);
-	}
-	return redraw;
-}
-
 void ResetCursorDragData() {
 	PlayerCursorData.itemDragged = -1;
 	PlayerCursorData.itemDragInfo.z = -1;

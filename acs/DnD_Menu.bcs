@@ -192,7 +192,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		else {
 			if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
 				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView")) {
-					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, curopt);
+					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy);
 					mainboxid = GetTriggeredBoxOnMainPane(PlayerCursorData.posx, PlayerCursorData.posy);
 					if(showed_inv) {
 						clean_inv = true;
@@ -322,6 +322,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(redraw || CheckInventory("DnD_RefreshPane") || CheckInventory("DnD_RefreshRequest"))
 			ACS_NamedExecuteWithResult("DnD Menu Draw", curopt, boxid, mainboxid, clean_inv);
 	}
+	
+	ScrollPos = 0;
 }
 
 // whenever a redraw request is made this is called

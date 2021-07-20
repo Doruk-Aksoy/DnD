@@ -14,6 +14,7 @@
 #include "DnD_Explosion.h"
 #include "DnD_Hud.h"
 #include "DnD_Research.h"
+#include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
 
 // for now allocate slots for 10
