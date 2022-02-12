@@ -1684,7 +1684,7 @@ Actor RhinoRifle : Weapon
 			MARG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
-			TNT1 A 0 A_JumpIfInventory("MGClip7", 75, "ModeSwitch")
+			TNT1 A 0 A_JumpIfInventory("MGClip7", 0, "ModeSwitch")
 			TNT1 A 0 A_JumpIfInventory("MGClip7", 1, "NoCock")
 			TNT1 A 0 A_GiveInventory("HadFullEmptyClip", 1)
 		NoCock:

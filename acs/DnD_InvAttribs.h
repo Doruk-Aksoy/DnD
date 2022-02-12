@@ -592,7 +592,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1) {
 		return StrParam(l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"%");
 		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
-		return StrParam(s:"\c[Q9]", d:val1, s:"%\c-", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
+		return StrParam(s:"\c[Q9]", d:val1, s:"%\c- ", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
 		
 		case INV_EX_DAMAGEPER_FLATHEALTH:
 		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_MAXHEALTH");

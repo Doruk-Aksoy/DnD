@@ -269,17 +269,52 @@ ACTOR DFlare {
 	}
 }
 
-Actor DMissile : CFlameMissile {
+Actor DMissile : FastProjectile {
+	PROJECTILE
+	Speed 200
+	Height 8
+	Radius 14
+	Damage (24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "VileFire"
+	MissileType "DMissileTrail"
 	+ThruGhost
 	+DONTBLAST
+	+INVISIBLE
+	
+	const float r = 80.0;
+	
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-		Goto Super::Spawn
+			CFFX A 4 Bright
+			TNT1 A 0 A_PlaySound("ClericFlameExplode")
+			CFFX A 1 A_ChangeFlag("INVISIBLE", 0)
+		Goto DeathNoExp
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-		Goto Super::Death
+			TNT1 A 0 A_PlaySound("ClericFlameExplode")
+			CFFX A 1 Bright A_ChangeFlag("INVISIBLE", 0)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(0), r * sin(0), 16, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(45), r * sin(45), 16, 0, 0, 0, 45, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(90), r * sin(90), 16, 0, 0, 0, 90, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(135), r * sin(135), 16, 0, 0, 0, 135, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(180), r * sin(180), 16, 0, 0, 0, 180, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(225), r * sin(225), 16, 0, 0, 0, 225, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(270), r * sin(270), 16, 0, 0, 0, 270, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(315), r * sin(315), 16, 0, 0, 0, 315, SXF_TRANSFERPOINTERS)
+		DeathNoExp:
+			CFFX ABC 3 Bright
+			CFFX D 4 Bright
+			CFFX E 3 Bright
+			CFFX F 4 Bright
+			CFFX G 3 Bright
+			CFFX H 4 Bright
+			CFFX I 3 Bright
+			CFFX J 4 Bright
+			CFFX K 3 Bright
+			CFFX L 4 Bright
+			CFFX M 3 Bright
+		Stop
 	}
 }
 
@@ -378,10 +413,83 @@ Actor DMissileTrail : CFlameFloor {
 	+DONTBLAST
 }
 
-Actor DMissileCircle : CircleFlame {
+Actor DMissileCircle {
+	Radius 6
+	Height 20
+	Damage (12 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Projectile
+	-ACTIVATEIMPACT
+	-ACTIVATEPCROSS
+	RenderStyle "Add"
+	DeathSound "ClericFlameCircle"
 	DamageType "VileFire"
 	+ThruGhost
 	+DONTBLAST
+	
+	const float v = 8.0;
+	
+	States {
+		Spawn:
+			CFCF A 4 Bright NoDelay A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF B 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF B 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF C 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF C 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF D 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF E 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF E 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF F 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF F 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF G 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF H 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF H 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF I 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF I 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF J 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF K 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF K 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF L 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF L 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF L 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF M 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF M 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF M 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF N 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + 6.0)
+			CFCF N 1 Bright A_ChangeVelocity(cos(angle) * v, sin(angle) * v, 0, CVF_REPLACE)
+			CFCF O 3 Bright
+			CFCF P 2 Bright
+		Stop
+		Death:
+			CFCF QR 3 Bright
+			CFCF S 3 Bright A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 20, 0)
+			CFCF TUVWXYZ 3 Bright
+		Stop
+	}
 }
 
 ACTOR DeathVile : DnD_ArchVileBase {

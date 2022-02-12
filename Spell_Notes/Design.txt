@@ -24,6 +24,7 @@ SKILLS
 * Cooldown will be displayed on the skill icon if player is using that.
 * Spells have ranks. Player gets a spell or ranks them up using "Spell Points". These randomly drop from monsters, or you get one every 2 levels.
 * Max spell rank: 10.
+* Maximum Spell Points that can be allocated: 100.
 * Spells have additional bonuses at ranks 5 and 10.
 * There will be a spell allocation method. Player will get to allocate 3 spells of their choosing. Maximum of 6 spells. Wanderer gets a +1. (The other +2 can be from inventory items)
 * If a spell does damage, it's either Elemental or Occult. No other types.
@@ -32,3 +33,4 @@ SKILLS
 * There are passive skills. If you put a point in these, they work without having to allocate them. But these usually have plenty of requirements.
 * Display method: Skill tree or a list? Probably a tree.
 * Maximum skill ranks that can be invested: 100.
+* Luck affects outcome of spells based on chance. This is mainly important for Chaos Tree.

@@ -4,9 +4,9 @@ DND_HEALTHPICKUP	=	"Health pickup";
 DND_ARMORPICKUP		=	"Armor pickup";
 DND_ITEMPICKUP		=	"Item pickup";
 
-DND_STIMPACK		=	"Stimpack",
-DND_MEDIKIT			=	"Medikit",
-DND_BACKPACK		=	"Backpack",
+DND_STIMPACK		=	"Stimpack";
+DND_MEDIKIT			=	"Medikit";
+DND_BACKPACK		=	"Backpack";
 
 DND_ARMOR1			=	"Green Armor";
 DND_ARMOR2			=	"Yellow Armor";

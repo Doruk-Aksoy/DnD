@@ -10,7 +10,7 @@ BLACK MAGIC
 	Cast Time: 1 second.
 	Per Rank: +10 damage.
 	Rank 5: Spread potency becomes 30%.
-	Rank 10: Plague can spread to two enemies at once.
+	Rank 10: Plague can spread up to two enemies at once.
 	Unlocks: Dark Wind, Essence Theft.
 	Synergy - Implosion: 5% more damage per rank of Implosion.
 	Synergy - Finger of Death: 5% more damage per rank of Finger of Death.
@@ -195,7 +195,7 @@ BLACK MAGIC
 	Cast Time: 2 seconds.
 	Per Rank: Duration +1 second.
 	Rank 5: Affects 128 units around the target as well.
-	Rank 10: Has 50% to convert the affected enemies to your side for the duration.
+	Rank 10: Has 50% chance to convert the affected enemies to your side for the duration.
 	Unlocks: Transmogrify.
 	Requires: Delirium (Rank 1).
  
@@ -249,7 +249,7 @@ BLACK MAGIC
 	Cast Time: 3 seconds.
 	Per Rank: +10 damage.
 	Rank 5: Crow speed increased by 25%.
-	Rank 10: Crows heal you for 10% of the damage they do.
+	Rank 10: Crows heal you for 5% of the damage they do.
 	Requires: Finger of Death (Rank 1), Implosion (Rank 1).
 	Synergy - Dark Wind: +1 crow count per rank of Dark Wind.
  

@@ -120,7 +120,8 @@
  
 * Instability
  
-	Marks an enemy with the instability curse. When the enemy flinches, they explode to deal 1 - 90 (+9/INT) damage in a 72 unit radius.
+	CURSE
+	Marks an enemy with the instability curse. When the enemy flinches, they create an explosion to deal 1 - 90 (+9/INT) damage in a 72 unit radius.
 	Curse lasts 3 seconds.
 	Cost: 80 mana.
 	Cooldown: 40 seconds.
@@ -139,7 +140,7 @@
 	Cast Time: 3 seconds.
 	Per Rank: +90 damage. Once every three ranks, gain +1 ball.
 	Rank 5: Balls last an additional 2 seconds.
-	Rank 10: Balls have 25% chance to inflict Instability on enemies.
+	Rank 10: Balls have 25% chance to inflict Instability on enemies. (If learned)
 	Unlocks: Burst of Chaos.
 	Requires: Blades of Fury (Rank 1).
 	Synergy - Chaos Bolt: +7.5% more damage per rank of Chaos Bolt.
@@ -178,7 +179,7 @@
  
 * Twist of Fate
  
-	Mark you or an ally for 5 seconds. The mark can do ne of three things:
+	Mark you or an ally for 5 seconds. The mark can do one of three things:
 		- Once the mark ends, 25% chance to deal damage around you in a 256 unit radius for the same amount of damage you took during the mark.
 		- Once the mark ends, 65% chance to push all enemies around you.
 		- During the mark, 10% chance to be prevented from dying.
@@ -202,7 +203,7 @@
 	Cost: NA.
 	Cooldown: NA.
 	Cast Time: NA.
-	Per Rank: Chance for nothing to happen -2.5%.
+	Per Rank: Chance for nothing to happen -2.5%. (This adds +0.625% weight to rest while taking 2.5% from chance of nothing happening)
 	Rank 5: Slow down effect only slows for 10%.
 	Rank 10: Chance for nothing to happen -25%.
 	Unlocks: Discord Aura.
@@ -255,7 +256,7 @@
 * Cerebral Stun
  
 	Target an enemy to immediately stun them, depending on the level difference between you and the target.
-	Does 1 - 100 (+10/INT) damage and stuns for 1 / 2 / 3 / 4 / 5 / 6 seconds for 5 level difference to no level difference.
+	Does 1 - 100 (+10/INT) damage and stuns for 1 / 2 / 3 / 4 / 5 / 6 seconds from no level difference to 5 level difference.
 	Cost: 100 mana.
 	Cooldown: 50 seconds.
 	Cast Time: 1.5 seconds.

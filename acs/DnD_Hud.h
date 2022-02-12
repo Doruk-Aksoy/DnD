@@ -9,7 +9,20 @@
 #define MAX_SCREENRES_OFFSETS 5
 #define SCREEN_ASPECT_RATIO 4
 int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
-int ScrollPos = 0;
+
+#define INVENTORYINFO_NORMALVIEW_WRAPX 272.0
+#define INVENTORYINFO_NORMALVIEW_WRAPY 152.0
+
+#define INVENTORYINFO_TRADEVIEW_WRAPX 272.0
+#define INVENTORYINFO_TRADEVIEW_WRAPY 152.0
+
+typedef struct coord {
+	int x;
+	int y;
+} coord_T;
+
+// x is scroll current pos, y is scroll limit
+coord_T ScrollPos = { 0, 0 };
 
 // MENU IDS
 // Moved here because of dependencies
@@ -19,21 +32,21 @@ enum {
 	RPGMENUTRADECOUNTDOWNID,
 	RPGMENUPAGEID = 120,
 	RPGMENUHIGHLIGHTID,
-	RPGMENUID = 1000,
+	RPGMENUID = 1250,
 	RPGMENULARRID,
 	RPGMENURARRID,
 	RPGMENURETARRID,
 	RPGMENUITEMIDEND,
-	RPGMENUITEMID = 1300,
+	RPGMENUITEMID = 1550,
 	RPGMENUHELPCORNERID,
 	RPGMENUHELPCORNERIDMAIN,
 	RPGMENUNAMEID,
 	RPGMENUHELPID,
 	RPGMENUINFOID,
 	RPGMENUDAMAGETYPEID,
-	RPGMENULISTID = 1360,
-	RPGMENUWEAPONPANELID = 1400,
-	RPGMENUBACKGROUNDID = 1401
+	RPGMENULISTID = 1610,
+	RPGMENUWEAPONPANELID = 1650,
+	RPGMENUBACKGROUNDID = 1651
 };
 
 // topleft corner 1:1 bottom right 0:0
@@ -200,7 +213,11 @@ void DrawCursor() {
 	else
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
+	
+/*#ifdef ISDEBUGBUILD
 	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
+#endif*/
+
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 0.1, HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }
 
@@ -278,15 +295,15 @@ bool ListenScroll(int condx_min, int condx_max) {
 	// up is 1, down is 2
 	// opposite buttons because view should go up
 	if(IsButtonHeld(bpress, settings[0][0])) {
-		if(ScrollPos < condx_max) {
-			++ScrollPos;
+		if(ScrollPos.x < condx_max) {
+			++ScrollPos.x;
 			redraw = true;
 		}
 		SetInventory("MenuUD", 1);
 	}
 	if(IsButtonHeld(bpress, settings[2][0])) {
-		if(ScrollPos > condx_min) {
-			--ScrollPos;
+		if(ScrollPos.x > condx_min) {
+			--ScrollPos.x;
 			redraw = true;
 		}
 		SetInventory("MenuUD", 2);

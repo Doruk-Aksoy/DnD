@@ -5192,11 +5192,4 @@ Sprite "X079H0", 128, 128
 	}
 }
 
-Sprite "AR15B0", 49, 41
-{
-	XScale 0.600
-	YScale 0.600
-	Patch "AR15A0", 0, 0
-}
-
 // End of texture definitions

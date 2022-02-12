@@ -361,47 +361,14 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		dmg += temp;
 		
 		ClearCache(pnum, wepid, dmgid);
-		CachePlayerFlatDamage(pnum, temp, wepid, dmgid); 
-		
-		// quest or accessory bonuses
-		// is occult (add demon bane bonus)
-		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) {
-			temp = DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
-		}
-		
-		// gunslinger affected
-		if(flags & DND_WDMG_ISPISTOL) {
-			temp = DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
-		}
-		
-		// shotgun affected
-		if(flags & DND_WDMG_ISBOOMSTICK) {
-			temp = DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
-		}
-			
-		// super weapon affected
-		if(flags & DND_WDMG_ISSUPER) {
-			temp = DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
-		}
+		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
 		
 		// include the stat bonus
 		if(talent_type == TALENT_MELEE) {
 			temp = DND_STR_GAIN * GetStrength();
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		
 		// occult uses intellect
@@ -409,13 +376,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = DND_INT_GAIN * GetIntellect();
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		else if(talent_type != TALENT_MELEE) {
 			temp = DND_DEX_GAIN * GetDexterity();
 			dmg = dmg * (100 + temp) / 100;
 			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 
 		// include enhancement orb bonuses
@@ -424,7 +391,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp *= ENHANCEORB_BONUS;
 			dmg = dmg * (100 + temp) / 100;
 		
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 			
 		// finally apply damage type or percentage bonuses
@@ -432,22 +399,21 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		temp = GetPlayerPercentDamage(pnum, wepid, talent_type);
 		if(temp) {
 			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		
 		// slot damage bonuses
 		temp = GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + GetWeaponSlotFromFlag(flags));
 		if(temp) {
 			dmg = dmg * (100 + temp) / 100;
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		
 		// special damage increase attributes -- usually obtained by means of charms
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
 		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial)) {
 			dmg = dmg * (100 + temp) / 100;
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		
 		// shotgun damage bonus -- add hobos perk here too
@@ -457,7 +423,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			
 		if((flags & DND_WDMG_ISBOOMSTICK) && temp) {
 			dmg = dmg * (100 + temp) / 100;
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		// apply flat health to damage conversion if player has any
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
@@ -465,7 +431,41 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			temp = GetFlatHealthDamageFactor(temp);
 			dmg = dmg * (100 + temp) / 100;
 		
-			InsertCacheFactor(pnum, wepid, dmgid, temp);
+			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
+		}
+		
+		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW
+		// quest or accessory bonuses
+		// is occult (add demon bane bonus)
+		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) {
+			temp = DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE);
+			dmg = dmg * (100 + temp) / 100;
+			
+			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
+		}
+		
+		// gunslinger affected
+		if(flags & DND_WDMG_ISPISTOL) {
+			temp = DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward);
+			dmg = dmg * (100 + temp) / 100;
+			
+			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
+		}
+		
+		// shotgun affected
+		if(flags & DND_WDMG_ISBOOMSTICK) {
+			temp = DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward);
+			dmg = dmg * (100 + temp) / 100;
+			
+			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
+		}
+			
+		// super weapon affected
+		if(flags & DND_WDMG_ISSUPER) {
+			temp = DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward);
+			dmg = dmg * (100 + temp) / 100;
+			
+			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
 		}
 
 		MarkCachingComplete(pnum, wepid, dmgid);
@@ -874,8 +874,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			dmg /= 2;
 		// check our self damage reductions
 		temp = Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 0, MAX_EXPRESIST_VAL) + CheckActorInventory(source, "Marine_Perk5") * DND_MARINE_SELFRESIST;
-		if(temp)
-			dmg = dmg * (MAX_EXPRESIST_VAL - temp) / MAX_EXPRESIST_VAL;
+		if(temp) {
+			temp = Clamp_Between(MAX_EXPRESIST_VAL - temp, 0, MAX_EXPRESIST_VAL);
+			dmg = dmg * temp / MAX_EXPRESIST_VAL;
+		}
 	}
 	
 	// check blockers take more dmg modifier
@@ -1151,7 +1153,9 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			
 			// move past this monster along this angle
 			SetActorPosition(0, px + cos(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), py + sin(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), pz + pitch * (GetActorProperty(victim, APROP_RADIUS) >> 16), 0);
+			
 			LineAttack(0, ang, pitch, 0, puff, DamageTypeList[damage_type], 2048.0, FHF_NORANDOMPUFFZ, 0);
+			
 			SetActorPosition(0, px, py, pz, 0);
 			
 			// return to puff to early cancel, no need to do damage calculation for this particular pellet anymore

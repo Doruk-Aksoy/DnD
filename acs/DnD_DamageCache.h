@@ -55,17 +55,20 @@ void CachePlayerFlatDamage(int pnum, int dmg, int wepid, int dmgid) {
 		cache.flat_values[wepid][dmgid] = dmg;
 }
 
-void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor) {
+void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor, bool isAdditive) {
 	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
 	
-	// convert to fixed percentages -- these are 1 to 100 originally they need to get mapped to 0.01 to 1.0
-	factor = 1.0 + factor * 0.01;
-	
 	// if 0, replace otherwise fixed mul
-	if(cache.final_factor[wepid][dmgid])
-		cache.final_factor[wepid][dmgid] = FixedMul(cache.final_factor[wepid][dmgid], factor);
+	if(cache.final_factor[wepid][dmgid]) {
+		if(isAdditive)
+			cache.final_factor[wepid][dmgid] += factor * 0.01;
+		else {
+			// convert to fixed percentages -- these are 1 to 100 originally they need to get mapped to 0.01 to 1.0
+			cache.final_factor[wepid][dmgid] = FixedMul(cache.final_factor[wepid][dmgid], 1.0 + factor * 0.01);
+		}
+	}
 	else
-		cache.final_factor[wepid][dmgid] = factor;
+		cache.final_factor[wepid][dmgid] = 1.0 + factor * 0.01;
 }
 
 int GetCachedPlayerDamage(int pnum, int wepid, int dmgid) {

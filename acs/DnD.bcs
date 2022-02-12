@@ -198,8 +198,9 @@ Script "DnD On Map Load" OPEN {
 	Delay(const:TICRATE);
 	if (GetLevelInfo(LEVELINFO_LEVELNUM) != 99) //Prevents quests from firing on VR map (Lexicon) - compendium hubmap can't be detected this way unfortunately.
 		PickQuest();
-		
-	NPC_Setup();
+	
+	// commented out for now!
+	//NPC_Setup();
 }
 
 Script "DND Check Hardcore Softcore" OPEN {

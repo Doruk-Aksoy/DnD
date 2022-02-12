@@ -11,6 +11,47 @@ gameinfo {
 	intermissionmusic = "INTER1"
 }
 
+clearskills
+
+skill noob
+{
+   AmmoFactor = 2
+   Name = "Just Came Out the Crib"
+   SpawnFilter = 1
+   EasyBossBrain
+   Key = "J"
+}
+
+skill easy
+{
+   Name = "How Do I Shoot"
+   SpawnFilter = 2
+   Key = "H"
+}
+
+skill medium {
+   Name = "I Can Take Some Pain"
+   SpawnFilter = 3
+   Key = "I"
+}
+
+skill hard {
+   Name = "Ultra Destruction"
+   SpawnFilter = 4
+   Key = "U"
+}
+
+skill crazy
+{
+   AmmoFactor = 2
+   DamageFactor = 2.0
+   DisableCheats
+   Name = "Death and Decay"
+   SpawnFilter = 5
+   MustConfirm
+   Key = "D"
+}
+
 gamedefaults {
 	nointermission
 }

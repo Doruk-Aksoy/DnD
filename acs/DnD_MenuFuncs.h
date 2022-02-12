@@ -238,13 +238,13 @@ void DrawPerkText(int boxid) {
 }
 
 void DrawDamageTypes(int req_id, int constraint, int flags) {
-	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + 3);
+	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES - 1);
 	if(req_id == -1 || CheckItemRequirements(req_id, constraint, flags)) {
 		int j = 0;
 		for(int i = 0; i < MAX_DAMAGE_TYPES; ++i) {
 			if(IsSet(WeaponDamageTypes[req_id], i)) {
 				SetFont(DamageTypeIcons[i]);
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + (j++) * 30.0, 84.1, 0.1, 0.0);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + (j++) * 30.0, 84.1, 0.0, 0.0);
 			}
 		}
 		SetFont("SMALLFONT");
@@ -400,13 +400,16 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 	}
 }
 
-bool HandlePageListening(int curopt) {
+bool HandlePageListening(int curopt, int boxid) {
 	bool redraw = false;
 	int temp, i;
 	switch(curopt) {
 		case MENU_MAIN:
 		case MENU_HELP_RESEARCHES:
 			redraw = ListenScroll(-32, 0);
+		break;
+		case MENU_STAT2:
+			redraw = ListenScroll(ScrollPos.y, 0);
 		break;
 		case MENU_STAT3:
 			redraw = ListenScroll(-128, 0);
@@ -445,16 +448,107 @@ bool HandlePageListening(int curopt) {
 		case MENU_HELP_MMODS_DEFENSIVE:
 			redraw = ListenScroll(-224, 0);
 		break;
+		
+		// weapon pages -- this part is ugly I know, at this time I couldnt find a better solution :P
+		case MENU_SHOP_WEAPON1:
+		case MENU_SHOP_WEAPON3_1:
+		case MENU_SHOP_WEAPON3_2:
+		case MENU_SHOP_WEAPON4_2:
+		case MENU_SHOP_WEAPON5_1:
+			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+				redraw = ListenScroll(-32, 0);
+		break;
+		case MENU_SHOP_WEAPON2:
+		case MENU_SHOP_WEAPON6_2:
+		case MENU_SHOP_WEAPON7:
+			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+				redraw = ListenScroll(-16, 0);
+		break;
+		case MENU_SHOP_WEAPON4_1:
+		case MENU_SHOP_WEAPON5_2:
+			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+				redraw = ListenScroll(-24, 0);
+		break;
+		
+		case MENU_SHOP_WEAPON6_1:
+			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+				redraw = ListenScroll(-40, 0);
+		break;
 	}
 	return redraw;
 }
 
-void HandleWeaponInfoPanel(int curopt, int animcounter, int boxid) {
+void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
+	str toshow = "";
+	
+	if(boxid != MAINBOX_NONE) {
+		if(isSpecial) {
+			ammoindex = MAXSHOPNORMALAMMOS + boxid - 1;
+			toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_ICON], "", AmmoDrawInfo[ammoindex].res_id, RES_KNOWN, AmmoDrawInfo[ammoindex].flags);
+		}
+		else {
+			int shopindex = MenuAmmoIndexMap[slot][ammoindex] - SHOP_FIRSTAMMO_INDEX;
+			toshow = GetTextWithResearch(AmmoInfo_Str[slot][ammoindex][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
+		}
+	}
+
+	if(StrCmp(toshow, "")) {
+		SetFont(toshow);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
+		SetFont("SMALLFONT");
+	}
+	else
+		DeleteText(RPGMENUHELPCORNERID);
+}
+
+// the itemid as is works here because the first item list on menu is weapons in enum at dnd_menuconstants.h
+void DrawWeaponIconCorner(int itemid) {
+	str toshow = GetTextWithResearch(GetWeaponShopIcon(itemid), "", WeaponDrawInfo[itemid].res_id, RES_KNOWN, WeaponDrawInfo[itemid].flags);
+
+	if(StrCmp(toshow, "")) {
+		SetFont(toshow);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
+		SetFont("SMALLFONT");
+	}
+
+	// draw damage types as well
+	DrawDamageTypes(itemid, RES_KNOWN, WeaponDrawInfo[itemid].flags);
+}
+
+void DrawArtifactIconCorner(int boxid) {
+	str toshow = GetTextWithResearch(ArtifactInfo[boxid][ARTI_ICON], "", ArtifactDrawInfo[boxid].res_id, RES_KNOWN, ArtifactDrawInfo[boxid].flags);
+
+	if(StrCmp(toshow, "")) {
+		SetFont(toshow);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
+		SetFont("SMALLFONT");
+	}
+	else
+		DeleteText(RPGMENUHELPCORNERID);
+}
+
+void DrawArmorIconCorner(int itemid) {
+	str toshow = GetTextWithResearch(ArmorStrings[itemid + 1][ARTI_ICON], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
+
+	if(StrCmp(toshow, "")) {
+		SetFont(toshow);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
+		SetFont("SMALLFONT");
+	}
+	else
+		DeleteText(RPGMENUHELPCORNERID);
+}
+
+// curopt is the pageid
+void HandleItemInfoPanel(int curopt, int animcounter, int boxid, bool redraw) {
 	static int ypos = 0;
 	bool mode = 0;
 	// pull down = 1
-	if(curopt >= MENU_SHOP_WEAPON1 && curopt <= MENU_SHOP_WEAPON8)
+	if(IsWeaponPage(curopt))
 		mode = 1;
+	else if(redraw)
+		ClearInfoPanel();
+		
 	if(mode) {
 		if(ypos < 25)
 			++ypos;
@@ -469,16 +563,25 @@ void HandleWeaponInfoPanel(int curopt, int animcounter, int boxid) {
 	
 	if(boxid != MAINBOX_NONE)
 		HandleWeaponPropertyImages(curopt, boxid, ypos);
-	else
+	else {
+		if(redraw)
+			ClearInfoPanel();
+	
 		DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
+	}
 	
 	SetFont("SMALLFONT");
+}
+
+void ClearInfoPanel() {
+	DeleteText(RPGMENUHELPCORNERID);
+	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES - 1);
 }
 
 void ShowWeaponIcon(int wep, int i, int k) {
 	SetHudSize(640, 480, 1);
 	SetFont(Weapons_Data[wep][WEAPON_ICON]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 5, CR_WHITE, 280.1, 126.1 + 72.0 * i + 24.0 * k + 6.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 5, CR_WHITE, 280.1, 126.1 + 72.0 * i + 24.0 * k + 6.0 * ScrollPos.x, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -486,7 +589,7 @@ void ShowWeaponIcon(int wep, int i, int k) {
 void ShowDamageTypeIcon(int dmg) {
 	SetHudSize(640, 480, 1);
 	SetFont(DamageTypeIcons[dmg]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_DAMAGE_TYPES - 1 - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_DAMAGE_TYPES - 1 - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos.x, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -504,7 +607,7 @@ void ShowWeaponPropertyIcon(int id) {
 	else if(id == 6 || id == 9)
 		offset = -8.0;
 	
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id - 1, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id - 1, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos.x, 0.0, 0.0);
 	SetHudClipRect(0, 0, 0, 0);
 	
 	SetFont("SMALLFONT");
@@ -513,13 +616,13 @@ void ShowWeaponPropertyIcon(int id) {
 
 void ShowOrbIcon(int id, int offset) {
 	SetFont(Item_Images[id + ITEM_IMAGE_ORB_BEGIN]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 8.0 * ScrollPos + offset, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 8.0 * ScrollPos.x + offset, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
 void ShowLegendaryMonsterIcon(int id, int j) {
 	SetFont(LegendaryMonsterIcons[id]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * id - 1, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * id - 1, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos.x, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
@@ -539,69 +642,6 @@ str GetWeaponShopIcon(int id) {
 str GetWeaponExplanation(int id) {
 	int real_id = ShopTableIdToWeaponTableId(id);
 	return GetWeaponTipText(real_id);
-}
-
-void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
-	str toshow = "";
-	
-	if(boxid != MAINBOX_NONE) {
-		if(isSpecial) {
-			ammoindex = MAXSHOPNORMALAMMOS + boxid - 1;
-			toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_ICON], "", AmmoDrawInfo[ammoindex].res_id, RES_KNOWN, AmmoDrawInfo[ammoindex].flags);
-		}
-		else {
-			int shopindex = MenuAmmoIndexMap[slot][ammoindex] - SHOP_FIRSTAMMO_INDEX;
-			toshow = GetTextWithResearch(AmmoInfo_Str[slot][ammoindex][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
-		}
-	}
-
-	if(StrCmp(toshow, "")) {
-		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
-		SetFont("SMALLFONT");
-	}
-	else
-		DeleteText(RPGMENUHELPCORNERID);
-}
-
-// the itemid as is works here because the first item list on menu is weapons in enum at dnd_menuconstants.h
-void DrawWeaponIconCorner(int boxid, int itemid) {
-	str toshow = GetTextWithResearch(GetWeaponShopIcon(itemid), "", WeaponDrawInfo[itemid].res_id, RES_KNOWN, WeaponDrawInfo[itemid].flags);
-
-	if(StrCmp(toshow, "")) {
-		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
-		SetFont("SMALLFONT");
-	}
-	else
-		DeleteText(RPGMENUHELPCORNERID);
-
-	// draw damage types as well
-	DrawDamageTypes(itemid, RES_KNOWN, WeaponDrawInfo[itemid].flags);
-}
-
-void DrawArtifactIconCorner(int boxid) {
-	str toshow = GetTextWithResearch(ArtifactInfo[boxid][ARTI_ICON], "", ArtifactDrawInfo[boxid].res_id, RES_KNOWN, ArtifactDrawInfo[boxid].flags);
-
-	if(StrCmp(toshow, "")) {
-		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
-		SetFont("SMALLFONT");
-	}
-	else
-		DeleteText(RPGMENUHELPCORNERID);
-}
-
-void DrawArmorIconCorner(int itemid) {
-	str toshow = GetTextWithResearch(ArmorStrings[itemid][ARTI_ICON], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
-
-	if(StrCmp(toshow, "")) {
-		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.1, 0.0);
-		SetFont("SMALLFONT");
-	}
-	else
-		DeleteText(RPGMENUHELPCORNERID);
 }
 
 void ShowAccessoryIcon(int acc, int i) {
@@ -799,9 +839,10 @@ str GetShopWeaponTag(int id) {
 	str tag = StrParam(l:GetWeaponTag(ShopTableIdToWeaponTableId(id)));
 	if(StrLen(tag) > MAX_TAGCHARS_SHOWN) {
 		// we need to cut the longer text short
-		if(GetChar(tag, MAX_TAGCHARS_SHOWN) == ' ') {
+		if(GetChar(tag, MAX_TAGCHARS_SHOWN) == ' ')
 			tag = StrLeft(tag, MAX_TAGCHARS_SHOWN);
-		}
+		else if(GetChar(tag, MAX_TAGCHARS_SHOWN - 1) == ' ' || GetChar(tag, MAX_TAGCHARS_SHOWN - 2) == ' ')
+			tag = StrParam(s:StrLeft(tag, MAX_TAGCHARS_SHOWN), s:".");
 		else
 			tag = StrParam(s:StrLeft(tag, MAX_TAGCHARS_SHOWN - 1), s:".");
 	}
@@ -927,12 +968,13 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos.x, 0.0, 0.0);
 				else
 					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
-				DrawWeaponIconCorner(curposy, itemid);
+				// update corner panel info
+				DrawWeaponIconCorner(itemid);
 			}
 			else if(objectflag & OBJ_AMMO) {
 				SetHudClipRect(192, 224, 256, 64, 256, 1);
@@ -950,6 +992,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				HudMessage(s:"\cd*\c- ", l:GetArtifactText(curposy); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
+				// update corner panel info
 				DrawArtifactIconCorner(curposy);
 			}
 			else if(objectflag & OBJ_ARMOR) {
@@ -964,7 +1007,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			else if(objectflag & OBJ_ABILITY) {
 				SetHudClipRect(192, 208, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos.x, 0.0, 0.0);
 				else
 					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
@@ -972,7 +1015,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			else if(objectflag & OBJ_ACCOUNT) {
 				SetHudClipRect(192, 208, 256, 64, 256, 1);
 				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"\cd*\c- ", l:GetAccountPurchaseText(itemid - SHOP_ACCOUNT_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAccountPurchaseText(itemid - SHOP_ACCOUNT_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos.x, 0.0, 0.0);
 				else
 					HudMessage(s:"\cd*\c- ", l:GetAccountPurchaseText(itemid - SHOP_ACCOUNT_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
@@ -1227,6 +1270,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 void DrawHighLightBar (int posy, int framecounter) {
 	int drawstate = 0;
 	SetFont("SMALLFONT");
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	if(
 		CheckInventory("AttributePoint") && 
 		//Don't flash if stats are already maxed
@@ -1482,12 +1526,12 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// stat 1
 		{
-			{ 288.0, 196.0, 108.0, 188.0 }, // str
-			{ 288.0, 180.0, 108.0, 172.0 }, // dex
-			{ 288.0, 164.0, 108.0, 156.0 }, // bul
-			{ 288.0, 148.0, 108.0, 140.0 }, // chr
-			{ 288.0, 132.0, 108.0, 124.0 }, // vit
-			{ 288.0, 116.0, 108.0, 108.0 }, // int
+			{ 288.0, 180.0, 108.0, 172.0 }, // str
+			{ 288.0, 164.0, 108.0, 156.0 }, // dex
+			{ 288.0, 148.0, 108.0, 140.0 }, // bul
+			{ 288.0, 132.0, 108.0, 124.0 }, // chr
+			{ 288.0, 116.0, 108.0, 108.0 }, // vit
+			{ 288.0, 100.0, 108.0, 92.0 }, // int
 			{ -1, -1, -1, -1 }
 		},
 		// stat 2
@@ -2369,9 +2413,6 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 	if(multipage > 1 || multipage < 0)
 		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 	
-	if(boxid != -1 && WeaponDrawInfo[begin + boxid - 1].flags & OBJ_USESCROLL)
-		ListenScroll(scrollamt, 0);
-	
 	// negative indicates last page
 	if(multipage < 0)
 		multipage = -multipage;
@@ -2599,11 +2640,12 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 			if(!CheckInventory("DnD_InventoryView"))
 				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 0, HUDMAX_X, HUDMAX_Y);
 		}
-		else {
+		// breaks things (so far)
+		/*else {
 			if(PlayerCursorData.itemHovered != -1)
 				PlayerCursorData.hoverNeedsReset = true;
 			PlayerCursorData.itemHovered = -1;
-		}
+		}*/
 	}
 	SetFont(charmborderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
@@ -2761,8 +2803,8 @@ void DrawInventoryInfo(int pnum) {
 			offset = 16.0;
 		else if(itype == DND_ITEM_CHESTKEY)
 			offset = 8.0;
-		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource)]);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0);
+		//SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource)]);
+		//HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0);
 		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 		mx *= 3; mx /= 2;
 		my *= 3; my /= 2;
@@ -2789,12 +2831,12 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source);
-			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
+			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my - 20.0 + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR || itype == DND_ITEM_TOKEN) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
-		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, 0);
+		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 40.0, 0);
 	}
 	else if(itype > UNIQUE_BEGIN) {
 		temp = itype & 0xFFFF;
@@ -2838,7 +2880,7 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 	
 	if(boxid != MAINBOX_NONE)
 		topboxid = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, boxid - 1 - offset, (pnum + 1) << 16, source) - 1;
-	
+		
 	bool hasItem = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, (pnum + 1) << 16, source) - 1 == bid && GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, (pnum + 1) << 16, source) != DND_ITEM_NULL;
 	
 	// click coloring
@@ -3067,6 +3109,8 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		}
 		else {
 			// we clicked outside bounds
+			// clear previous selected charm box -- fixes issue of drawing the same charm on top left corner for comparison
+			SetInventory("DnD_SelectedCharmBox", 0);
 			if(CheckInventory("DnD_InventoryView")) {
 				// ok we are in inventory view
 				if(CheckInventory("DnD_SelectedInventoryBox")) {
@@ -4310,7 +4354,7 @@ void DrawPlayerStats(int pnum) {
 	SetHudClipRect(192, 56, 256, 224, 256, 1);
 	
 	int k = 0;
-	temp = 64.0 + 6.0 * ScrollPos;
+	temp = 64.0 + 6.0 * ScrollPos.x;
 	
 	// yea this is some terrible piece of code but idc, should be cleaned up with an array to lookup attribs and a switch-case for exceptions
 	val = GetSpawnHealth() - DND_BASE_HEALTH;
@@ -4558,7 +4602,7 @@ void DrawPlayerStats(int pnum) {
 	SetHudClipRect(0, 0, 0, 0, 0, 0);
 	
 	if(k > 12)
-		ListenScroll(-k * 4, 0);
+		ScrollPos.y = -k * 4;
 }
 
 void DrawMonsterModCategory(int category) {
@@ -4567,32 +4611,32 @@ void DrawMonsterModCategory(int category) {
 	switch(category) {
 		case DND_TRAITCODE_WEAKNESS:
 			for(i = 0; i < MAX_WEAKNESS_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_WEAK", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_WEAK", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 		case DND_TRAITCODE_RESIST:
 			for(i = 0; i < MAX_RESIST_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + RESMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_RES", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + RESMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_RES", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 		case DND_TRAITCODE_IMMUNITY:
 			for(i = 0; i < MAX_IMMUNITY_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + IMMMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_IMM", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + IMMMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_IMM", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 		case DND_TRAITCODE_AGGRESSIVE:
 			for(i = 0; i < MAX_AGGRESSIVE_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + AGGMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_AGG", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + AGGMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_AGG", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 		case DND_TRAITCODE_DEFENSIVE:
 			for(i = 0; i < MAX_DEFENSE_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + DEFMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_DEF", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + DEFMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_DEF", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 		case DND_TRAITCODE_UTILITY:
 			for(i = 0; i < MAX_UTILITY_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + UTIMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_UTI", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos, 0.0, 0.0);
+				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + UTIMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_UTI", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 80.1 + 64.0 * i + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 		case -1:
 			// since these are very few we can put these here for now
-			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 2]), s:"\n", l:"DND_MENU_MMOD_CHAOS"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.1 + 4.0 * ScrollPos, 0.0, 0.0);
-			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 1]), s:"\n", l:"DND_MENU_MMOD_LEG"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 132.1 + 4.0 * ScrollPos, 0.0, 0.0);
+			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 2]), s:"\n", l:"DND_MENU_MMOD_CHAOS"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 1]), s:"\n", l:"DND_MENU_MMOD_LEG"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 132.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 	}
 	SetHudClipRect(0, 0, 0, 0);

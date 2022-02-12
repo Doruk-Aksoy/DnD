@@ -27,7 +27,7 @@ ARCANE MAGIC
 	Synergy - Death Seeker: Undead damage increases by 10% per rank of Death Seeker.
 	Synergy - Purify: Heal increases by 10% per rank of Purify.
 	Synergy - Purge: Heal and damage increase by 5% per rank of Purge.
- 
+
 * Blessing
  
 	Target an ally or yourself to heal them for 5 (+1/20INT)% of their missing health.
@@ -48,7 +48,7 @@ ARCANE MAGIC
 	Cooldown: 24 seconds.
 	Cast Time: 1.5 seconds.
 	Per Rank: +75 damage.
-	Rank 5: Radius +8 units.
+	Rank 5: Radius +64 units.
 	Rank 10: Sucks enemies into it before dealing the explosion damage. This affects enemies in 1.25 times the original radius.
 	Unlocks: Disintegrate, Shadow Split.
 	Requires: Arcane Bolt (Rank 1).
@@ -80,7 +80,7 @@ ARCANE MAGIC
 	Unlocks: Pierce Heavens, Purge.
 	Requires: Holy Light (Rank 1).
 	Synergy - Holy Light: 10% damage per rank of Holy Light.
- 
+
 * Purify
  
 	Target an ally or a demon. If an ally is targeted, remove all negative effects from them. If a demon is targeted, deal 200 (+20/INT) damage.
@@ -121,10 +121,10 @@ ARCANE MAGIC
 * Disintegrate
  
 	Project a ray of destruction from your hands. Deal 45 (+9/INT) damage every 0.25 seconds in a 160 unit long line.
-	Cost: 5 mana per 0.25 seconds.
+	Cost: 4 mana per 0.25 seconds.
 	Cooldown: 8 seconds after letting go.
 	Cast Time: 2 seconds.
-	Per Rank: +60 damage, +4 unit length.
+	Per Rank: +60 damage, +8 unit length.
 	Rank 5: Damage dealt increases every second by 10% up to 100%.
 	Rank 10: Spend only half the mana cost while stationary.
 	Unlocks: Arcane Barrage.
@@ -251,6 +251,7 @@ ARCANE MAGIC
  
 * Blessed Aim
  
+	PASSIVE SKILL - AURA SKILL
 	Improves non-magical ranged attacks of allies, boosting damage they do by 20%. Also grants 10% additional accuracy rating.
 	Effect radius is 256 units.
 	Cost: 30% mana reserved.
@@ -263,6 +264,7 @@ ARCANE MAGIC
  
 * Harness of Elements
  
+	PASSIVE SKILL - AURA SKILL
 	Improves elemental attacks of allies, boosting damage they do by 30%. Affects allies in a 192 (+2/INT) unit radius.
 	Cost: 30% mana reserved.
 	Cooldown: NA.
@@ -274,14 +276,15 @@ ARCANE MAGIC
  
 * Arcanery
  
-	Improves all magical attacks or spells of allies, increasing their values by 20% and reducing mana costs by 15%.
+	PASSIVE SKILL - AURA SKILL
+	Improves all magical attacks or spells of allies, improving their potency by 20%, and reducing mana costs by 15%.
 	Effect radius is 200 units.
 	Cost: 30% mana reserved.
 	Cooldown: NA.
 	Cast Time: NA.
 	Per Rank: +16 unit radius.
 	Rank 5: Mana cost reduction increases to 30%.
-	Rank 10: Value boost increases to 40%.
+	Rank 10: Potency boost increases to 40%.
 	Requires: Might Aura (Rank 1).
  
 * Arcane Barrage
@@ -466,7 +469,7 @@ ARCANE MAGIC
 	Cooldown: 120 seconds.
 	Cast Time: 1.5 seconds.
 	Per Rank: Radius +16.
-	Rank 5: Stat increase becomes 75%.
+	Rank 5: Stat increase becomes 60%.
 	Rank 10: Lasts 30 seconds instead.
 	Requires: Holy Wrath (Rank 1).
  

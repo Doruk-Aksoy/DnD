@@ -147,7 +147,7 @@ DND_MENU_WEPHELPTEXT9	=	"Damage from the weapon can \cqinflict poison\c- on enem
 DND_MENU_ATTRTEXT1		=	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9%, \cdArmor\c- and \cgHealth\c- Caps by 0.5% and \cqKnockback Resist\c- by 50.";
 DND_MENU_ATTRTEXT2		=	"\c[INT]Dexterity\c-\nIncreases \cfNon-Magical Ranged Damage\c- by 3%.";
 DND_MENU_ATTRTEXT3		=	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.";
-DND_MENU_ATTRTEXT4		=	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, increases \cishop stock\c- by 1% and \ckpet\c- cap by 1 for every 20 points.";
+DND_MENU_ATTRTEXT4		=	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, increases \cishop stock\c- by 1% and \ckpet\c- cap by 1 every 20 points.";
 DND_MENU_ATTRTEXT5		=	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.";
 DND_MENU_ATTRTEXT6		=	"\c[INT]Intellect\c-\nIncreases \cmOccult Ranged Damage\c- by 3% and improves spells.";
 
