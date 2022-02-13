@@ -351,32 +351,30 @@ int GetWeaponEndIndexFromOption(int curopt) {
 }
 
 str GetWeaponToTake(int wepid) {
-	int slot = GetGameSlotOfWeapon(wepid);
-	if(slot != 8) {
-		if(!IsLuxuryWeapon(ShopTableIdToWeaponTableId(wepid))) {
-			if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
-				return Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME];
-			else if(wepid >= SHOP_WEAPON2PISTOL_BEGIN && wepid <= SHOP_WEAPON2PISTOL_END)
-				return Weapons_Data[DND_WEAPON_PISTOL][WEAPON_NAME];
-			else if(wepid >= SHOP_WEAPON3SG_BEGIN && wepid <= SHOP_WEAPON3SG_END) {
-				// little hack here to fix special ammos after refunding weapon
-				SetInventory("SpecialAmmoMode_3", AMMO_BASICSHELL);
-				return Weapons_Data[DND_WEAPON_SHOTGUN][WEAPON_NAME];
-			}
-			else if(wepid >= SHOP_WEAPON3SSG_BEGIN && wepid <= SHOP_WEAPON3SSG_END)
-				return Weapons_Data[DND_WEAPON_SUPERSHOTGUN][WEAPON_NAME];
-			else if(wepid >= SHOP_WEAPON4CG_BEGIN && wepid <= SHOP_WEAPON4CG_END) {
-				SetInventory("SpecialAmmoMode_4", AMMO_BULLET);
-				return Weapons_Data[DND_WEAPON_MACHINEGUN][WEAPON_NAME];
-			}
-			else if(wepid >= SHOP_WEAPON5RL_BEGIN && wepid <= SHOP_WEAPON5RL_END)
-				return Weapons_Data[DND_WEAPON_ROCKETLAUNCHER][WEAPON_NAME];
-			else if(wepid >= SHOP_WEAPON6PL_BEGIN && wepid <= SHOP_WEAPON6PL_END)
-				return Weapons_Data[DND_WEAPON_PLASMARIFLE][WEAPON_NAME];
-			else if(wepid >= SHOP_WEAPON7BFG_BEGIN && wepid <= SHOP_WEAPON7BFG_END)
-				return Weapons_Data[DND_WEAPON_BFG6000][WEAPON_NAME];
+	int real_id = ShopTableIdToWeaponTableId(wepid);
+	int slot = GetGameSlotOfWeapon(real_id);
+	if(slot != 8 && !IsLuxuryWeapon(real_id)) {
+		if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
+			return Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME];
+		else if(wepid >= SHOP_WEAPON2PISTOL_BEGIN && wepid <= SHOP_WEAPON2PISTOL_END)
+			return Weapons_Data[DND_WEAPON_PISTOL][WEAPON_NAME];
+		else if(wepid >= SHOP_WEAPON3SG_BEGIN && wepid <= SHOP_WEAPON3SG_END) {
+			// little hack here to fix special ammos after refunding weapon
+			SetInventory("SpecialAmmoMode_3", AMMO_BASICSHELL);
+			return Weapons_Data[DND_WEAPON_SHOTGUN][WEAPON_NAME];
 		}
-		return "";
+		else if(wepid >= SHOP_WEAPON3SSG_BEGIN && wepid <= SHOP_WEAPON3SSG_END)
+			return Weapons_Data[DND_WEAPON_SUPERSHOTGUN][WEAPON_NAME];
+		else if(wepid >= SHOP_WEAPON4CG_BEGIN && wepid <= SHOP_WEAPON4CG_END) {
+			SetInventory("SpecialAmmoMode_4", AMMO_BULLET);
+			return Weapons_Data[DND_WEAPON_MACHINEGUN][WEAPON_NAME];
+		}
+		else if(wepid >= SHOP_WEAPON5RL_BEGIN && wepid <= SHOP_WEAPON5RL_END)
+			return Weapons_Data[DND_WEAPON_ROCKETLAUNCHER][WEAPON_NAME];
+		else if(wepid >= SHOP_WEAPON6PL_BEGIN && wepid <= SHOP_WEAPON6PL_END)
+			return Weapons_Data[DND_WEAPON_PLASMARIFLE][WEAPON_NAME];
+		else if(wepid >= SHOP_WEAPON7BFG_BEGIN && wepid <= SHOP_WEAPON7BFG_END)
+			return Weapons_Data[DND_WEAPON_BFG6000][WEAPON_NAME];
 	}
 	return "";
 }
@@ -953,7 +951,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		}
 		
 		if(objectflag & OBJ_WEP) {
-			if(IsLuxuryWeapon(ShopTableIdToWeaponTableId(itemid)))
+			if(!IsLuxuryWeapon(ShopTableIdToWeaponTableId(itemid)))
 				weptype = "\c[J7][\c[S7]R\c[J7]] ";
 			else
 				weptype = "\c[J7][\c[E3]L\c[J7]] ";
@@ -1149,6 +1147,21 @@ void FillCurrentArmor(int pnum, int take_pos) {
 	ConsumePlayerItem(pnum, take_pos);
 }
 
+void HandleAbilityExceptions(int itemid) {
+	if(itemid == SHOP_ABILITY_POISON) {
+		if(!CheckInventory("Cyborg_Perk25"))
+			GiveInventory("PoisonResist", 1);
+		else
+			GiveInventory("PoisonResist_Cybernetic", 1);
+	}
+	else if(itemid == SHOP_ABILITY_EXPLOSION) {
+		if(!CheckInventory("Cyborg_Perk25"))
+			GiveInventory("ExplosionResistAbility", 1);
+		else
+			GiveInventory("ExplosionResistAbility_Cybernetic", 1);
+	}
+}
+
 // will process item selections depending on given valid range
 // support for selling other stuff is here, it's just a few extra lines in the serverside script to handle the process
 void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool givefull) {
@@ -1186,7 +1199,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						if(tradeflag & TRADE_WEAPON) {
 							totake = GetWeaponToTake(itemid);
 							if(StrCmp(totake, ""))
-								TakeInventory(totake, 1);	
+								TakeInventory(totake, 1);
 							GiveInventory(GetWeaponCondition(itemid), 1);
 							SetWeapon(GetItemName(itemid));
 							// fix special ammo cursor
@@ -1219,10 +1232,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						
 					if(tradeflag & TRADE_ABILITY) {
 						// make sure the appropriate stuff is given
-						if(itemid == SHOP_ABILITY_POISON)
-							GiveInventory("PoisonResist", 1);
-						else if(itemid == SHOP_ABILITY_EXPLOSION)
-							GiveInventory("ExplosionResistAbility", 1);
+						HandleAbilityExceptions(itemid);
 					}
 				}
 			}
@@ -4336,8 +4346,15 @@ void ResetShopStock(int pnum) {
 		// ammo has different stock method -- half of initial capacity
 		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
-			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX)
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100) * ammo_bonus / 500;
+			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
+				// overflow fix
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
+				int ovf_temp = INT_MAX / ammo_bonus;
+				if(ShopStockRemaining[pnum][j] > ovf_temp)
+					ShopStockRemaining[pnum][j] = ovf_temp;
+				else
+					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
+			}
 			else
 				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
 		}

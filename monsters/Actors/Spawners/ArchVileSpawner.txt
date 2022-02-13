@@ -35,5 +35,8 @@ Actor ArchVileSpawner : DnD_MonsterSpawner replaces ArchVile {
 		Var9:
 			TNT1 A 1 A_SpawnItemEx("FleshWizard", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Unique:
+			TNT1 A 1 A_SpawnItemEx("Zravog", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

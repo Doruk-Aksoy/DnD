@@ -70,7 +70,7 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	1
 };
 
-#define MAXDNDFLAGS 53
+#define MAXDNDFLAGS 54
 str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monsterbars",
 	"dnd_monsterscale",
@@ -129,6 +129,7 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monster_hpscalepercent",
 	"dnd_monster_rewardscalepercent",
 	"dnd_monster_dmgscalepercent",
+	"dnd_uniquemonster_spawnchance",
 	"dnd_researchdroprate",
 	
 	"dnd_ignore_dropweights"
@@ -192,6 +193,7 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	5,
 	5,
 	0.04,
+	0.05,
 	0.00249,
 	
 	0

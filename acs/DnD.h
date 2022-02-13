@@ -532,9 +532,13 @@ int IsUsingMeleeWeapon() {
 		   CheckWeapon("Soul Render");
 }
 
-// make these actually global sometime
-int Monster_VariationCounts[MAX_MONSTER_CATEGORIES] = { 0 };
-int Monster_CategoryWeightSum[MAX_MONSTER_CATEGORIES] = { 0 };
+enum {
+	MONSTERDATA_VARIATIONCOUNT,
+	MONSTERDATA_WEIGHTSUM
+};
+
+// MAX_MONSTER_CATEGORIES
+global int 21: MonsterCategoryData[][2];
 
 void HandleHunterTalisman() {
 	if(CheckInventory("HunterTalismanCheck") && !CheckInventory("HunterTalismanCooldown")) {
@@ -1151,6 +1155,10 @@ void HandleUniqueDeath(int unique_id) {
 			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
 		break;
 	}
+}
+
+int GetAveragePlayerLevel() {
+	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 }
 
 #include "DnD_Damage.h"

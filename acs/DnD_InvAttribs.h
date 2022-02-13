@@ -118,6 +118,8 @@ enum {
 	INV_DOTMULTI,
 	INV_INCREASEDDOT,
 	
+	// add new regular rollable attributes here (will require db reset otherwise desync)
+	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ,
 	INV_ESS_SSRATH,
@@ -132,7 +134,7 @@ enum {
 	INV_ESS_ZRAVOG,
 	INV_ESS_ERYXIA,
 	
-	// add new attributes above here, below the last normal item attributes to avoid weird problems regarding database saves
+	// add new essences here
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
 	INV_EX_CHANCE = UNIQUE_ATTRIB_ID_BEGIN, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
@@ -582,7 +584,8 @@ str ItemAttributeString(int attr, int val) {
 
 str GetItemAttributeText(int attr, int val1, int val2 = -1) {
 	// treat it as normal inv attribute range
-	if(attr <= LAST_INV_ATTRIBUTE)
+	// check last essence as its an all encompassing range except exotics
+	if(attr <= LAST_ESSENCE_ATTRIBUTE)
 		return ItemAttributeString(attr, val1);
 		
 	// we must map all exotic ones with the proper macro

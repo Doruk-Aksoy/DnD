@@ -32,5 +32,8 @@ Actor ShotgunguySpawner : DnD_MonsterSpawner replaces Shotgunguy {
 		Var8:
 			TNT1 A 1 A_SpawnItemEx("SSGZombie", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Unique:
+			TNT1 A 1 A_SpawnItemEx("Gant", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

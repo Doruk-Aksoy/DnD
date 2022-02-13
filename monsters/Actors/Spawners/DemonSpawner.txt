@@ -50,5 +50,8 @@ Actor DemonSpawner : DnD_MonsterSpawner replaces Demon {
 		Var14:
 			TNT1 A 1 A_SpawnItemEx("PurebredDemon", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Unique:
+			TNT1 A 1 A_SpawnItemEx("Remus", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

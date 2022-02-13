@@ -22,23 +22,22 @@ enum {
 };
 
 enum {
-	DND_DAMAGEFLAG_FORCERADIUSDMG = 1,
-	DND_DAMAGEFLAG_USEMASTER = 2,
-	DND_DAMAGEFLAG_ISSHOTGUN = 4,
-	DND_DAMAGEFLAG_CULL = 8,
-	DND_DAMAGEFLAG_SELFCULL = 16,
-	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE = 32,				// damage bonus stored in user_tics, added on top flat
-	DND_DAMAGEFLAG_NOPOISONSTACK = 64,
-	DND_DAMAGEFLAG_HALFDMGSELF = 128,						// explosion only deals half damage to user
-	DND_DAMAGEFLAG_INFLICTPOISON = 256,						// even if it doesnt have damage type of poison, it can inflict one
-	DND_DAMAGEFLAG_BLASTSELF = 512,							// explosion hurts self
-	DND_DAMAGEFLAG_SELFORIGIN = 1024,						// uses self as origin of scan attack
-	DND_DAMAGEFLAG_DOFULLDAMAGE = 2048,						// does forced full damage
-	DND_DAMAGEFLAG_EXTRATOUNDEAD = 4096,					// do additional x3 more damage to undead
-	DND_DAMAGEFLAG_ISHITSCAN = 8192,						// hitscan type attack
-	DND_DAMAGEFLAG_NOIGNITESTACK = 16384,					// ignites dont further ignite
-	DND_DAMAGEFLAG_PERCENTDAMAGE = 32768,					// does percent damage on impact
-	DND_DAMAGEFLAG_COUNTSASMELEE = 65536					// attack is considered melee
+	DND_DAMAGEFLAG_USEMASTER = 1,
+	DND_DAMAGEFLAG_ISSHOTGUN = 2,
+	DND_DAMAGEFLAG_CULL = 4,
+	DND_DAMAGEFLAG_SELFCULL = 8,
+	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE = 16,				// damage bonus stored in user_tics, added on top flat
+	DND_DAMAGEFLAG_NOPOISONSTACK = 32,
+	DND_DAMAGEFLAG_HALFDMGSELF = 64,						// explosion only deals half damage to user
+	DND_DAMAGEFLAG_INFLICTPOISON = 128,						// even if it doesnt have damage type of poison, it can inflict one
+	DND_DAMAGEFLAG_BLASTSELF = 256,							// explosion hurts self
+	DND_DAMAGEFLAG_SELFORIGIN = 512,						// uses self as origin of scan attack
+	DND_DAMAGEFLAG_DOFULLDAMAGE = 1024,						// does forced full damage
+	DND_DAMAGEFLAG_EXTRATOUNDEAD = 2048,					// do additional x3 more damage to undead
+	DND_DAMAGEFLAG_ISHITSCAN = 4096,						// hitscan type attack
+	DND_DAMAGEFLAG_NOIGNITESTACK = 8192,					// ignites dont further ignite
+	DND_DAMAGEFLAG_PERCENTDAMAGE = 16384,					// does percent damage on impact
+	DND_DAMAGEFLAG_COUNTSASMELEE = 32768					// attack is considered melee
 };
 
 enum {

@@ -56,5 +56,8 @@ Actor ImpSpawner : DnD_MonsterSpawner replaces DoomImp {
 		Var16:
 			TNT1 A 1 A_SpawnItemEx("Devil2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Unique:
+			TNT1 A 1 A_SpawnItemEx("Vaaj", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

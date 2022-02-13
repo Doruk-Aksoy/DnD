@@ -38,5 +38,8 @@ Actor CacoSpawner : DnD_MonsterSpawner replaces CacoDemon {
 		Var10:
 			TNT1 A 0 A_SpawnItemEx("Wicked", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Unique:
+			TNT1 A 0 A_SpawnItemEx("Omnisight", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

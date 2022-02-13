@@ -5,9 +5,12 @@ enum {
 	DND_SCBRD_PLAYEREXITED1,
 	DND_SCBRD_PLAYEREXITED2,
 	DND_SCBRD_PLAYEREXITCOUNT,
-	DND_SCBRD_TIMER
+	DND_SCBRD_TIMER,
+	DND_SCBRD_ALIVEPLAYERCOUNT,
+	DND_SCBRD_SPECPLAYERCOUNT,
+	DND_SCBRD_DEADPLAYERCOUNT,
 };
-#define MAX_SCOREBOARD_DATA (DND_SCBRD_TIMER + 1)
+#define MAX_SCOREBOARD_DATA (DND_SCBRD_DEADPLAYERCOUNT + 1)
 
 #define MAX_INTERMISSION_SONGS 4
 #define MAX_INTERMISSION_PLAYERS_SHOWN 29 // we can fit 29 players currently
@@ -36,10 +39,10 @@ global menu_inter_T 19: IntermissionPane;
 // this order is followed during display
 enum {
 	INTER_PSTATE_ALIVE,
-	INTER_PSTATE_DEAD,
-	INTER_PSTATE_SPECTATING
+	INTER_PSTATE_SPECTATING,
+	INTER_PSTATE_DEAD
 };
-global bool 20: PInterGroups[][MAXPLAYERS];
+global int 20: PInterGroups[][MAXPLAYERS];
 
 void ResetIntermissionPane() {
 	IntermissionPane.cursize = 0;
@@ -57,6 +60,7 @@ void AddBoxToInterPane_Points(int tx, int ty, int bx, int by) {
 		IntermissionPane.MenuRectangles[s].topleft_y = ty;
 		IntermissionPane.MenuRectangles[s].botright_x = bx;
 		IntermissionPane.MenuRectangles[s].botright_y = by;
+		//Log(s:"add box ", f:tx, s: " ", f:ty, s: " ", f:bx, s: " ", f:by);
 		++IntermissionPane.cursize;
 	}
 	else
@@ -186,7 +190,8 @@ Script 1690 (int isSecretExit, int forcedExit) {
 }
 
 enum {
-	DND_SCBRDID_HOVERBG_WHO = 1500,
+	DND_SCBRDID_HOVERBG_WHO = 1800,
+	DND_SCBRDID_HOVERBG_CLASS,
 	DND_SCBRDID_HOVER_LIFE,
 	DND_SCBRDID_HOVER_ARMOR,
 	DND_SCBRDID_HOVER_EXP,
@@ -204,7 +209,7 @@ enum {
 	DND_SCBRDID_DAMAGETAKENUNDERLINE,
 	DND_SCBRDID_PDATA,
 	
-	DND_SCBRDID_BG = 2500
+	DND_SCBRDID_BG = 2800
 };
 #define DND_SCBRD_PDATA_THINGS 5 // status, name, damage dealt, damage taken, kill pct
 
@@ -219,21 +224,29 @@ Script "DnD Scoreboard Sound Player" (int sound) CLIENTSIDE {
 
 // group players into categories
 void GroupScoreboardPlayers() {
-	int lim = MAXPLAYERS;//GetPlayerCountAny();
-	for(int i = 0; i < lim; ++i) {
-		// reset to 0
-		PInterGroups[INTER_PSTATE_ALIVE][i] = false;
-		PInterGroups[INTER_PSTATE_DEAD][i] = false;
-		PInterGroups[INTER_PSTATE_SPECTATING][i] = false;
-		
+	ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT] = 0;
+	ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT] = 0;
+	ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT] = 0;
+	
+	int i;
+	for(i = 0; i < MAXPLAYERS; ++i) {
+		// reset to -1
+		PInterGroups[INTER_PSTATE_ALIVE][i] = -1;
+		PInterGroups[INTER_PSTATE_DEAD][i] = -1;
+		PInterGroups[INTER_PSTATE_SPECTATING][i] = -1;
+	}
+
+	// grouping works on first come first serve in player id -- the index 0 may be player 13 for example on spectating players
+	int lim = GetPlayerCountAny();
+	for(i = 0; i < lim; ++i) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
-			PInterGroups[INTER_PSTATE_ALIVE][i] = true;
+			PInterGroups[INTER_PSTATE_ALIVE][ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]++] = i;
 		else {
 			int spec = PlayerIsSpectator(i);
-			if(spec == 2)
-				PInterGroups[INTER_PSTATE_DEAD][i] = true;
-			else if(spec == 1)
-				PInterGroups[INTER_PSTATE_SPECTATING][i] = true;
+			if(spec == INTER_PSTATE_DEAD)
+				PInterGroups[INTER_PSTATE_DEAD][ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]++] = i;
+			else if(spec == INTER_PSTATE_SPECTATING)
+				PInterGroups[INTER_PSTATE_SPECTATING][ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]++] = i;
 		}
 	}
 }
@@ -241,7 +254,31 @@ void GroupScoreboardPlayers() {
 void BuildScoreboardBoxes() {
 	ResetIntermissionPane();
 	
-	
+	// we will construct the boxes with priority order of:
+	// Alive first, Dead second and spectating last
+	int box_count = 0;
+	int i;
+	bool foundDead = false;
+	bool foundAlive = false;
+	int y_off = 0;
+	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_ALIVE][i] != -1; ++i) {
+		foundAlive = true;
+		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count);
+		++box_count;
+	}
+	y_off = foundAlive * 6.0;
+	// dead
+	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_DEAD][i] != -1; ++i) {
+		foundDead = true;
+		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off);
+		++box_count;
+	}
+	y_off += foundDead * 6.0;
+	// spec
+	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_SPECTATING][i] != -1; ++i) {
+		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off);
+		++box_count;
+	}
 }
 
 Script "DnD Scoreboard Display" (int time, int total_mons) CLIENTSIDE {
@@ -323,106 +360,72 @@ Script "DnD Scoreboard Display" (int time, int total_mons) CLIENTSIDE {
 		or forward/backward input
 	*/
 	
-	// build the boxes and group players into categories
-	GroupScoreboardPlayers();
-	BuildScoreboardBoxes();
-	
 	Delay(const:1);
 	ACS_NamedExecuteWithResult("DnD Scoreboard Loop", time, total_mons);
 	
 	SetResultValue(0);
 }
 
-void DrawScoreboard(int time, int ScrollPos, int total_mons, bool rebuild_boxes) {
+void DrawPlayerOnScoreboard(int interstate, int pnum, int draw_count, int total_mons, int p_highlight, int y_off) {
 	int temp, pct, col = CR_RED, tid, y;
 	bool triggered = false;
 	str text;
 	
-	SetHudSize(640, 480, 1);
+	triggered = false;
+	tid = pnum + P_TIDSTART;
+	y = 36.1 + 18.0 * draw_count + INTERMISSION_SCROLLFACTOR * ScrollPos.x + y_off;
+	col = CR_UNTRANSLATED;
 	
-	// map name in center of bg image --- make these fall into place here
-	SetFont("INTERFONT");
+	if(pnum == p_highlight) {
+		col = CR_GOLD;
+		triggered = true;
+	}
+
+	// icon
+	if(interstate == INTER_PSTATE_DEAD)
+		SetFont("DEADICO");
+	else if(interstate == INTER_PSTATE_SPECTATING)
+		SetFont("SPECICO");
+	else
+		SetFont("LIVEICO");
 	HudMessage(
-		s:"\cj", n:PRINTNAME_LEVEL, s:": \cf", n:PRINTNAME_LEVELNAME, s:"\n\n\c[M3]", l:"DND_COMPLETED";
-		HUDMSG_PLAIN, DND_SCBRDID_MAPCOMPLETE, CR_GOLD,
-		240.4, 360.1, 0
+		s:"A"; 
+		HUDMSG_PLAIN, DND_SCBRDID_PDATA + DND_SCBRD_PDATA_THINGS * draw_count, CR_UNTRANSLATED, 
+		16.1, y, 0
 	);
 	
-	// setup the clipping rectangle
+	SetFont("INTERFONT");
 	
-	// playerlist
-	SetHudSize(1024, 768, 1);
-	SetHudClipRect(0, 36, 1024, 520, 1024);
-	
-	if(rebuild_boxes)
-		ResetIntermissionPane();
-	
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		//if(!PlayerInGame(i))
-		//	continue;
-		
-		triggered = false;
-		tid = i + P_TIDSTART;
-		y = 36.1 + 18.0 * i + INTERMISSION_SCROLLFACTOR * ScrollPos;
-		col = CR_UNTRANSLATED;
-		
-		if(PlayerCursorData.itemHovered - INTERMISSION_INITIAL_BUTTONS - 1 == i) {
-			col = CR_GOLD;
-			triggered = true;
-		}
-	
-		// icon
-		temp = PlayerIsSpectator(i);
-		if(temp == 2)
-			SetFont("DEADICO");
-		else if(temp == 1)
-			SetFont("SPECICO");
-		else
-			SetFont("LIVEICO");
+	text = StrParam(n:pnum + 1);
+	temp = StrLen(text);
+	// don't clutter the intermission board
+	if(temp > MAX_INTERMISSION_PNAMELEN)
+		text = StrParam(s:StrLeft(text, MAX_INTERMISSION_PNAMELEN), s:"...");
+		temp = MAX_INTERMISSION_PNAMELEN + 3; // 3 for "..."
 		HudMessage(
-			s:"A"; 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + DND_SCBRD_PDATA_THINGS * i, CR_UNTRANSLATED, 
-			16.1, y, 0
+			s:text; 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 1), col, 
+			35.1, y, 0
 		);
-		
-		SetFont("INTERFONT");
-		
-		// name
-		/*if(!PlayerIsSpectator(i)) {
-			HudMessage(
-				n:(i + 1), s:" \c[Q9](Lvl ", d:GetActorStat(tid, STAT_LVL), s: " \cu", l:GetClassName(GetActorPlayerClass(tid)), s:"\c[Q9])"; 
-				HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * i + 1), CR_UNTRANSLATED, 
-				35.1, y, 0
-			);
-		}
-		else {*/
-		text = StrParam(n:i + 1);
-		temp = StrLen(text);
-		// don't clutter the intermission board
-		if(temp > MAX_INTERMISSION_PNAMELEN)
-			text = StrParam(s:StrLeft(text, MAX_INTERMISSION_PNAMELEN), s:"...");
-			temp = MAX_INTERMISSION_PNAMELEN + 3; // 3 for "..."
-			HudMessage(
-				s:text; 
-				HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * i + 1), col, 
-				35.1, y, 0
-			);
-			
-		// create the hoverable player name box
-		if(rebuild_boxes)
-			AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * i, 464.0 - temp * INTERMISSION_CHAR_SCALE, 300.0 - INTERMISSION_BOX_YCHANGE * i);
+	
+	if(interstate == INTER_PSTATE_ALIVE) {
+		// these stats use a special green color, so I check for this color availability and if so we recolor manually...
+		// could prob be written better honestly
+		str col_prefix = "";
+		if(col != CR_GOLD)
+			col_prefix = "\c[Q9]";
 		
 		// damage dealt
 		HudMessage(
-			s:"\c[Q9]", s:GetStatistic(DND_STATISTIC_DAMAGEDEALT, tid); 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * i + 2), col, 
+			s:col_prefix, s:GetStatistic(DND_STATISTIC_DAMAGEDEALT, tid); 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 2), col, 
 			468.4, y, 0
 		);
 		
 		// damage taken
 		HudMessage(
-			s:"\c[Q9]", s:GetStatistic(DND_STATISTIC_DAMAGETAKEN, tid); 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * i + 3), col, 
+			s:col_prefix, s:GetStatistic(DND_STATISTIC_DAMAGETAKEN, tid); 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 3), col, 
 			736.4, y, 0
 		);
 		
@@ -445,10 +448,55 @@ void DrawScoreboard(int time, int ScrollPos, int total_mons, bool rebuild_boxes)
 		
 		HudMessage(
 			d:temp, s: " (", d: pct, s:"%)"; 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * i + 4), col, 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 4), col, 
 			964.4, y, 0
 		);
 	}
+	else
+		DeleteTextRange(DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 2), DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 4));
+}
+
+void DrawScoreboard(int time, int ScrollPos, int total_mons, int p_highlight) {	
+	SetHudSize(640, 480, 1);
+	
+	// map name in center of bg image --- make these fall into place here
+	SetFont("INTERFONT");
+	HudMessage(
+		s:"\cj", n:PRINTNAME_LEVEL, s:": \cf", n:PRINTNAME_LEVELNAME, s:"\n\n\c[M3]", l:"DND_COMPLETED";
+		HUDMSG_PLAIN, DND_SCBRDID_MAPCOMPLETE, CR_GOLD,
+		240.4, 360.1, 0
+	);
+	
+	// setup the clipping rectangle
+	
+	// playerlist
+	SetHudSize(1024, 768, 1);
+	SetHudClipRect(0, 36, 1024, 520, 1024);
+	
+	// alive
+	int draw_count = 0;
+	int i;
+	int y_off = 0;
+	
+	bool foundAlive = false;
+	bool foundDead = false;
+	
+	for(i = 0; i < ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT] && PInterGroups[INTER_PSTATE_ALIVE][i] != -1; ++i) {
+		foundAlive = true;
+		DrawPlayerOnScoreboard(INTER_PSTATE_ALIVE, PInterGroups[INTER_PSTATE_ALIVE][i], draw_count++, total_mons, p_highlight, 0);
+	}
+	
+	// dead
+	y_off = foundAlive * 18.0;
+	for(i = 0; i < ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT] && PInterGroups[INTER_PSTATE_DEAD][i] != -1; ++i) {
+		foundDead = true;
+		DrawPlayerOnScoreboard(INTER_PSTATE_DEAD, PInterGroups[INTER_PSTATE_DEAD][i], draw_count++, total_mons, p_highlight, y_off);
+	}
+		
+	// spec
+	y_off += foundDead * 18.0;
+	for(i = 0; i < ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT] && PInterGroups[INTER_PSTATE_SPECTATING][i] != -1; ++i)
+		DrawPlayerOnScoreboard(INTER_PSTATE_SPECTATING, PInterGroups[INTER_PSTATE_SPECTATING][i], draw_count++, total_mons, p_highlight, y_off);
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
 }
@@ -459,14 +507,40 @@ bool HandleIntermissionInputs(int min_y) {
 	return res;
 }
 
-void DrawHoveredPlayerData() {
-	int pnum = PlayerCursorData.itemHovered - INTERMISSION_INITIAL_BUTTONS - 1;
+int DrawHoveredPlayerData() {
+	int boxid = PlayerCursorData.itemHovered - INTERMISSION_INITIAL_BUTTONS;
+	if(boxid <= MAINBOX_NONE)
+		return -1;
+	--boxid;
+	
+	int pnum = -1;
+	int spec_info = 0;
+	bool inGame = false;
+	// from the boxid, discover which player it is
+	if(boxid >= ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]) {
+		if(boxid >= ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT] + ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]) {
+			// spectating range
+			pnum = PInterGroups[INTER_PSTATE_SPECTATING][boxid - ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT] - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]];
+			spec_info = INTER_PSTATE_SPECTATING;
+		}
+		else {
+			// within dead player range
+			pnum = PInterGroups[DND_SCBRD_DEADPLAYERCOUNT][boxid - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]];
+			inGame = true;
+			spec_info = INTER_PSTATE_DEAD;
+		}
+	}
+	else {
+		// alive range
+		pnum = PInterGroups[INTER_PSTATE_ALIVE][boxid];
+		inGame = true;
+	}
+	
 	if(pnum >= 0 && pnum <= MAXPLAYERS) {
 		int tid = pnum + P_TIDSTART;
 		int y_wrap = SCOREBOARD_WRAPY;
+		
 		// draw the box
-		int spec_info = PlayerIsSpectator(pnum);
-		bool inGame = PlayerInGame(pnum);
 		if(!inGame || spec_info) {
 			y_wrap += 96.0;
 			SetFont("SCBRDSM");
@@ -481,7 +555,7 @@ void DrawHoveredPlayerData() {
 			mx = SCOREBOARD_WRAPX + 0.1;
 		if(my > y_wrap)
 			my = y_wrap + 0.1;
-		HudMessage(s:"A"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG, CR_WHITE, mx, my, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"A"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG, CR_WHITE, mx, my, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		
 		SetFont("SMALLFONT");
 		
@@ -492,14 +566,19 @@ void DrawHoveredPlayerData() {
 		mx &= MMASK;
 		my &= MMASK;
 		mx += 160.4;
-		my += 36.1;
+		my += 24.1;
 		
 		SetHudClipRect(-96 + (mx >> 16), -48 + (my >> 16), 256, 288, 256, 1);
 		
-		if(inGame) {
-			if(spec_info == 2) {
+		HudMessage(
+			n:pnum + 1;
+			HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_WHO, CR_WHITE, mx, my, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+		);
+		
+		if(spec_info != INTER_PSTATE_SPECTATING) {
+			if(spec_info == INTER_PSTATE_DEAD) {
 				// dead spectator
-				HudMessage(s:"\cgDEAD"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_WHO, CR_WHITE, mx, my, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"\cgDEAD"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 				DeleteTextRange(DND_SCBRDID_HOVER_LIFE, DND_SCBRDID_HOVER_CREDIT);
 			}
 			else {
@@ -507,43 +586,45 @@ void DrawHoveredPlayerData() {
 				HudMessage(
 					s:"\cd", l:"DND_STAT18", s:" \c-", d:CheckActorInventory(tid, "Level"),
 					s:"\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:CheckActorInventory(tid, "DnD_Character") - 1), DND_CLASS_LABEL_NAME);
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_WHO, CR_WHITE, mx, my, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 				
 				// life
 				HudMessage(
 					s:"\cd", l:"IATTR_T0", s:": \c-", d:GetActorProperty(tid, APROP_HEALTH);
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_LIFE, CR_WHITE, mx, my + 16.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_LIFE, CR_WHITE, mx, my + 32.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 				
 				// armor
 				HudMessage(
 					s:"\cd", l:"IATTR_T1", s:": \c-", d:CheckActorInventory(tid, "Armor");
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_ARMOR, CR_WHITE, mx, my + 32.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_ARMOR, CR_WHITE, mx, my + 48.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 				
 				// exp
 				HudMessage(
 					s:"\cd", l:"DND_STAT16", s:": \c-", d:GetActorStat(tid, STAT_EXP), s:" / ", d:LevelCurve[GetActorStat(tid, STAT_LVL) - 1];
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_EXP, CR_WHITE, mx, my + 48.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_EXP, CR_WHITE, mx, my + 64.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 
 				// credit
 				HudMessage(
 					s:"\cd", l:"DND_STAT19", s:": \c-", d:GetActorStat(tid, STAT_CRED);
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_CREDIT, CR_WHITE, mx, my + 64.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_CREDIT, CR_WHITE, mx, my + 80.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 			}
 		}
 		else {
 			// spectator
 			DeleteTextRange(DND_SCBRDID_HOVER_LIFE, DND_SCBRDID_HOVER_CREDIT);
-			HudMessage(s:"\SPECTATING"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_WHO, CR_WHITE, mx, my, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:"\SPECTATING"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	}
+	
+	return pnum;
 }
 
 Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
@@ -580,12 +661,26 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		DrawCursor();
 		
-		// initially always divisible by 5 (TICRATE) so we always enter here first
-		if(!(tics % 5)) {
-			temp = MAXPLAYERS;//GetPlayerCountAny();
+		// initially always divisible by 7 (TICRATE) so we always enter here first
+		if(!(tics % 7)) {
+			temp = GetPlayerCountAny();
+
+			int prev_alive = ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT];
+			int prev_dead = ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT];
+			int prev_spec = ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT];
+			
+			// check by grouping players to see if any category count changed
+			GroupScoreboardPlayers();
 			
 			// player count changed so we need to recreate box list
-			if(prevplayers != temp) {
+			if
+			(
+				prevplayers != temp ||
+				prev_alive != ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT] ||
+				prev_dead != ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT] ||
+				prev_spec != ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]
+			)
+			{
 				prevplayers = temp;
 				redraw = true;
 				rebuild_boxes = true;
@@ -597,7 +692,7 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 			}
 		}
 		
-		DrawHoveredPlayerData();
+		int p_highlight = DrawHoveredPlayerData();
 		
 		// check if we should redraw here
 		redraw |= HandleIntermissionInputs(min_y);
@@ -608,8 +703,13 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 		
 		prevmin_y = min_y;
 		
-		if(redraw)
-			DrawScoreboard(time, ScrollPos.x, total_mons, rebuild_boxes);
+		if(redraw) {
+			// build the boxes and group players into categories
+			if(rebuild_boxes)
+				BuildScoreboardBoxes();
+		
+			DrawScoreboard(time, ScrollPos.x, total_mons, p_highlight);
+		}
 		
 		prevhover = PlayerCursorData.itemHovered;
 	}

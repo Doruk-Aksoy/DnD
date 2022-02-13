@@ -12,6 +12,7 @@ actor pistolcasing
 	-ACTIVATEIMPACT
 	-NOGRAVITY
 	-NOBLOCKMAP
+	+MOVEWITHSECTOR
 	bouncefactor 0.6
 	scale 0.1
     Radius 3
@@ -47,6 +48,7 @@ actor revolvercasing {
 	-ACTIVATEIMPACT
 	-NOGRAVITY
 	-NOBLOCKMAP
+	+MOVEWITHSECTOR
 	bouncefactor 0.6
 	scale 0.25
     Radius 3
@@ -54,7 +56,6 @@ actor revolvercasing {
 	States {
 		Spawn:
 			PCSN ABCDEFGH 3
-			loop
 		Death:
 			TNT1 A 0
 			TNT1 A 0 A_Jump(255,"Death1","Death2","Death3","Death4")
@@ -88,6 +89,7 @@ actor shotguncasing
 	-ACTIVATEIMPACT
 	-NOGRAVITY
 	-NOBLOCKMAP
+	+MOVEWITHSECTOR
 	bouncefactor 0.6
 	scale 0.25
     Radius 3
@@ -767,6 +769,7 @@ ACTOR RhinoCasing {
 	-NOBLOCKMAP
 	+BOUNCEONACTORS
 	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
 	BounceType Doom
 	BounceSound "Weapons/bulletcasing"
 	BounceFactor 0.5
@@ -778,7 +781,6 @@ ACTOR RhinoCasing {
 	States {
 		Spawn:
 			8CS6 ABCDEFGH 2 A_SpawnItemEx("casingsmoke")
-		Loop
 		Death:
 			8CS6 A 0 A_Jump(256, "Death1", "Death2", "Death3")
 		Death1:

@@ -32,5 +32,8 @@ Actor SpectreSpawner : DnD_MonsterSpawner replaces Spectre {
 		Var8:
 			TNT1 A 1 A_SpawnItemEx("RavagerGhost", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Unique:
+			TNT1 A 1 A_SpawnItemEx("Ssrath", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

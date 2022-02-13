@@ -81,6 +81,7 @@ server noarchive int dnd_accessorylevel = 8;
 server noarchive int dnd_accessorymonsterlevel = 10;
 server noarchive int dnd_monster_hpscalepercent = 5;
 server noarchive int dnd_monster_rewardscalepercent = 5;
+server noarchive float dnd_uniquemonster_spawnchance = 0.05; // percent
 
 server noarchive float dnd_monster_variation_factor = 1.5;
 server noarchive float dnd_researchdroprate = 0.00249;

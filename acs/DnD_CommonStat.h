@@ -367,6 +367,23 @@ void HandleCurseImmunityRemoval() {
 		TakeInventory("CurseImmunity", 1);
 }
 
+void HandleAbilityRestore() {
+	if(CheckInventory("Ability_AntiPoison")) {
+		GiveInventory("PoisonResist", 1);
+		if(CheckInventory("Cyborg_Perk25")) {
+			TakeInventory("PoisonResist", 1);
+			GiveInventory("PoisonResist_Cybernetic", 1);
+		}
+	}
+	if(CheckInventory("Ability_ExplosionMastery")) {
+		GiveInventory("ExplosionResistAbility", 1);
+		if(CheckInventory("Cyborg_Perk25")) {
+			TakeInventory("ExplosionResistAbility", 1);
+			GiveInventory("ExplosionResistAbility_Cybernetic", 1);
+		}
+	}
+}
+
 // Generic Player RPG Stat restore function
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
@@ -426,10 +443,7 @@ void RestoreRPGStat (int statflag) {
 		GiveInventory("CelestialSlow", 1);
 	
 	// abilities
-	if(CheckInventory("Ability_AntiPoison"))
-		GiveInventory("PoisonResist", 1);
-	if(CheckInventory("Ability_ExplosionMastery"))
-		GiveInventory("ExplosionResistAbility", 1);
+	HandleAbilityRestore();
 	
 	if(CheckResearchStatus(RES_SYNTHMASK) == RES_DONE)
 		GiveInventory("SynthMaskToken", 1);
@@ -561,6 +575,9 @@ void HandleClassPerks() {
 				TakeInventory("Punisher_Perk5", 1);
 				TakeInventory("Wanderer_Perk5", 1);
 				TakeInventory("Berserker_Perk5", 1);
+				
+				// will immediately get benefits if you have purchased these abilities now
+				HandleAbilityRestore();
 			break;
 			case DND_PLAYER_BERSERKER:
 				GiveInventory("Berserker_Perk5", 1);

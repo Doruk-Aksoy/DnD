@@ -38,5 +38,8 @@ Actor ChaingunguySpawner : DnD_MonsterSpawner replaces Chaingunguy {
 		Var10:
 			TNT1 A 1 A_SpawnItemEx("BerserkerGuy", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
+		Unique:
+			TNT1 A 1 A_SpawnItemEx("Bronn", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
+		Stop
 	}
 }

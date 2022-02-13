@@ -843,7 +843,7 @@ Script "DND On Kill" KILL {
 	// accessory drops (accept only from cyber and spider masterminds)
 	if(IsBoss()) {
 		if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
-			if((PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART]) >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
+			if(GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
 				// we can drop the spawner
 				SpawnAccessory();
 			}
@@ -2044,12 +2044,12 @@ Script "DnD Monster Spawner" (int category) {
     // count and initialization
 	int i = 0;
     // add up total count and weight sum of category
-    if(!Monster_VariationCounts[category]) {
-        for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != DND_MWEIGHT_ENDMARKER; Monster_CategoryWeightSum[category] += Monster_Weights[category][i], ++i);
-		Monster_VariationCounts[category] = i;
+    if(!MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT]) {
+        for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != DND_MWEIGHT_ENDMARKER; MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM] += Monster_Weights[category][i], ++i);
+		MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT] = i;
 	}
 		
-    int sum = Monster_CategoryWeightSum[category];
+    int sum = MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM];
     bool picked = false;
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
@@ -2060,8 +2060,9 @@ Script "DnD Monster Spawner" (int category) {
 	if(GameType() != GAME_SINGLE_PLAYER)
 		Delay(17 * (random(0, DND_MAX_MONSTERDELAY) + 1)); //Added 1 second for player level to be accurate first (people might load at last second).
 	int roll, bin;
+	int avg_level = GetAveragePlayerLevel();
 	// roll legendary monster chance and do checks of it
-	if(!MadeLegendary && category == DND_CYBERDEMONID && random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] >= 25) {
+	if(!MadeLegendary && category == DND_CYBERDEMONID && random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && avg_level >= 25) {
 		MadeLegendary = 1;
 		// decide which legendary
 		roll = random(1, DND_MAX_LEGENDARY);
@@ -2069,13 +2070,20 @@ Script "DnD Monster Spawner" (int category) {
 		ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_LEGENDARYMONSTER);
 	}
 	else {
+		// check for unique possibility here
+		if(!UniqueMonsterAvailability[category] && avg_level >= 25 && random(0, 1.0) <= GetCVar("dnd_uniquemonster_spawnchance")) {
+			SetActorState(0, "Unique", true);
+			UniqueMonsterAvailability[category] = true;
+			Terminate;
+		}
+	
 		int factor = Clamp_Between(GetCVar("dnd_monster_variation_factor"), 1.0, 5.0);
 		while(!picked) {
 			roll = random(0, sum);
 			bin = 0;
 			// start i from 0 here, because bin starts from 0 the added weight should be consistent with where we started
 			// count is 1 more than the index allowed as is expected, so if it picked the next we must subtract 1 from bin
-			for(i = 0; bin < Monster_VariationCounts[category] && i < roll; ++bin)
+			for(i = 0; bin < MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT] && i < roll; ++bin)
 				i += Monster_Weights[category][bin];
 			--bin;
 			// go to vanilla if bin is 0
@@ -6015,9 +6023,10 @@ Script "DnD Berserker Perk5 Check" (void) {
 
 Script "DnD Berserker Perk5 Check (Melee)" (void) {
 	// berserker perk5 fail-safe checks for class change from berserker to any other
+	// do not include luxury weapons as part of this
 	bool has_melee = false;
 	if(!CheckInventory("Berserker_Perk5")) {
-		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= DND_WEAPON_SICKLE; ++i) {
+		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= LAST_SLOT0_NONLUXURYWEAPON; ++i) {
 			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
 				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
 				if(has_melee) {

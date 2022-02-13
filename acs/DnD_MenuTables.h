@@ -787,8 +787,8 @@ int ShopTableIdToWeaponTableId(int id) {
 }
 
 str GetWeaponCondition(int id) {
-	bool islux = IsLuxuryWeapon(id);
 	int real_id = ShopTableIdToWeaponTableId(id);
+	bool islux = IsLuxuryWeapon(real_id);
 	int slot = GetSlotOfWeapon(real_id);
 	
 	if(slot <= 1) 
