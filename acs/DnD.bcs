@@ -2615,22 +2615,22 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 			else
 				SetFont(MonsterTypeInfo[GetPetMonsterType(monid)][MONSTER_TYPE_INFO_ICON]);
 				
-			HudMessage(s:"a"; 1, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, 1);
-			HudMessage(s:"a"; 1, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, 1);
+			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
 			// inner text
 			SetFont ("MONFONT");
-			HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; 1, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, 1);
+			HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
 			str prefix = "";
 			if(CheckInventory("TargetIsElite"))
 				prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
 			if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_RED, 404.4, 10.0, 1);
+				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 			else if(is_unique)
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_RED, 404.4, 10.0, 1);
+				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 			else if(IsMonsterIdBoss(monid))
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, 1);
+				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 			else
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); 1, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, 1);
+				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 			
 			// made this way to reduce variable dependancy and if statement use
 			if(CheckInventory("TargetHealthBarColor")) {
@@ -2638,7 +2638,7 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 					SetFont("MNRHPBAR");
 				else
 					SetFont("MNUHPBAR");
-				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
+				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
 				
 				if(monhp) {
 					if(fortify_amt) {
@@ -2646,14 +2646,14 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 							fortGraphic = StrParam(s:"FFR_", d:fortify_amt);
 					
 						SetFont(fortGraphic);
-						HudMessage(s:"a"; 1, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, 1);
+						HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
 						
 						if(hdisp > 0) {
 							if(hdisp_prev != hdisp)
 								barGraphic = StrParam(s:"FBR_", d:hdisp);
 								
 							SetFont(barGraphic);
-							HudMessage(s:"a"; 1, MONSTER_BARFILLID + 1, CR_GREEN, 305.1, 27.0, 1);
+							HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID + 1, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
 						}
 					}
 					else {
@@ -2662,21 +2662,21 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 								barGraphic = StrParam(s:"FBR_", d:hdisp);
 
 							SetFont(barGraphic);
-							HudMessage(s:"a"; 1, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, 1);
+							HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
 						}
 					}
 				}
 			}
 			else {
 				SetFont("MNGHPBAR");
-				HudMessage(s:"a"; 1, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, 1);
+				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
 				
 				if(hdisp > 0) {
 					if(hdisp_prev != hdisp)
 						barGraphic = StrParam(s:"FGR_", d:hdisp);
 					
 					SetFont(barGraphic);
-					HudMessage(s:"a"; 1, MONSTER_BARFILLID + i, CR_GREEN, 305.1, 27.0, 1);
+					HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
 				}
 			}
 
@@ -2685,17 +2685,17 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 			// legendary monsters show no traits at all
 			if(MonsterProperties[m_id].trait_list[DND_LEGENDARY]) {
 				SetFont ("MONFONT");
-				HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+				HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 			}
 			else if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
 				SetFont ("MONFONT");
-				HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+				HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 			}
 			else if(MonsterProperties[m_id].hasTrait) {
 				SetFont ("MONFONT");
 				for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
 					if(MonsterProperties[m_id].trait_list[i]) {
-						HudMessage(l:GetMonsterTraitLabel(i); 1, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, 1);
+						HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 						++j;
 					}
 				}

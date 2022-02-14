@@ -113,16 +113,8 @@ enum {
 	DND_LEGENDARY
 };
 #define MAX_MONSTER_TRAITS (DND_LEGENDARY + 1)
-
-#define MONSTER_TRAITID 1403
-#define MONSTER_BARID (MONSTER_TRAITID + MAX_MONSTER_TRAITS + 1)
 #define FIRST_MONSTER_TRAIT DND_ENERGY_WEAKNESS
 #define LAST_MONSTER_TRAIT DND_LEGENDARY
-// up to 1102 is occupied by barfillid, 1102 included
-#define MONSTER_BARFILLID 1301
-#define MONSTER_TEXTID 1300
-#define MONSTER_NAMEID 1299
-#define MONSTER_TYPEICONID 1298
 
 str GetMonsterTraitLabel(int id) {
 	// this is faster than using strparam, and the places that'd call this would potentially call it often so we want to avoid strparam

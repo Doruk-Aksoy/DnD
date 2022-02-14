@@ -2677,7 +2677,7 @@ actor Judicator : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 		SeeStateLoop:
 			JUIC ABCD 4 Fast A_Chase
-			TNT1 A 0 A_Jump(128, "BlockMove")
+			TNT1 A 0 A_Jump(32, "BlockMove")
 			JUIC ABCD 4 Fast A_Chase
 		Goto See
 		BlockMove:
@@ -2782,7 +2782,7 @@ actor Judicator : DnD_BaseHybridMonster {
 			JUIC E 3 Fast A_PlaySound("Judicator/Attack", CHAN_WEAPON)
 			JUIC F 2 Bright Fast A_CustomMissile("RangerBullet", 44, 9, frandom(-14.5, 14.5))
 			JUIC E 4 Fast
-			JUIC E 1 Fast A_Jump(64, "Firefast")
+			JUIC E 1 Fast A_Jump(48, "Firefast")
 		goto See
 		RepeatedAttack:
 			JUIC EEEE 4 Fast A_FaceTarget
@@ -2804,7 +2804,7 @@ actor Judicator : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			JUIC G 4 Fast A_Pain
 			JUIC G 4 Fast
-			JUIC G 1 Fast A_Jump(128, "BlockMove")
+			JUIC G 1 Fast A_Jump(32, "BlockMove")
 		goto See
 		XDeathState:
 		DeathState:
