@@ -126,14 +126,6 @@ void UpdateCursorHoverData(int itemid, int source, int itemtype, int dimx = 0, i
 	PlayerCursorData.itemHoveredDim.y = dimy;
 }
 
-void ShowPopup(int popupid, bool isSell, int activebox) {
-	ACS_NamedExecuteAlways("DnD Menu Popup", 0, Playernumber() | (popupid << 16), isSell, activebox);
-}
-
-void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
-	ACS_NamedExecuteAlways("DnD Menu Popup", 0, pnum | (popupid << 16), isSell, activebox);
-}
-
 int CalculateWisdomBonus(int pnum) {
 	return GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1) + CheckInventory("Perk_Wisdom") * BASE_WISDOM_GAIN;
 }
@@ -826,7 +818,15 @@ void DrawToggledLabel(str label, bool language_lookup, int afterlabel, int boxid
 }
 
 void DrawCredits() {
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMSUBID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+}
+
+void DrawBudget() {
+	int budget = CheckInventory("Budget");
+	if(budget)
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:budget, s:"k"; HUDMSG_PLAIN, RPGMENUITEMSUBID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+	else
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:0; HUDMSG_PLAIN, RPGMENUITEMSUBID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 }
 
 int GetAmmoToGive(int index) {
@@ -2549,9 +2549,9 @@ void HandleResearchPageDraw(int page, int boxid) {
 		DeleteText(RPGMENUPAGEID);
 
 	if(budget)
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
 	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
 
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:"\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 280.1, 80.0, 0.0, 0.0);
 	if(status != RES_NA)
@@ -2607,6 +2607,12 @@ void ResetInventoryLitState(int beg, int end) {
 void CleanInventoryInfo() {
 	// log(s:"cleaning up!");
 	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+}
+
+// cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
+void CleanMaterialInfo(bool minus_bg) {
+	// -2 for the two arrows in the material page
+	DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES - 2, RPGMENUID - minus_bg);
 }
 
 int GetUniqueCharmXOffsetForDisplay(int charm_id) {
@@ -4139,6 +4145,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 	if(HasPlayerClicked(pnum)) {
 		int curitemeindex = ((boxid >> DND_MENU_ITEMSAVEBITS1) & DND_MENU_ITEMSAVEBITS1_MASK);
 		int previtemindex = (boxid >> DND_MENU_ITEMSAVEBITS2);
+		//Log(d:curitemeindex, s: " ", d:previtemindex);
 		//printbold(d:previtemindex, s: " ", d:boxid);
 		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
 		if(boxid != MAINBOX_NONE && boxid != CheckInventory("DnD_SelectedInventoryBox")) {
@@ -4217,6 +4224,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 			else if(HasRightClicked(pnum)) {
 				// using an orb in material part
 				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
+					//Log(s:"item type ", d:PlayerInventoryList[pnum][curitemeindex].item_type, s: " ", d:PlayerInventoryList[pnum][curitemeindex].item_subtype);
 					if(IsSelfUsableItem(PlayerInventoryList[pnum][curitemeindex].item_type, PlayerInventoryList[pnum][curitemeindex].item_subtype)) {
 						if(IsTwoSelectionItem(pnum, curitemeindex)) {
 							// start the display saying player needs to make two selections

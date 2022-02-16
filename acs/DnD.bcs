@@ -496,7 +496,7 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 		Delay(3);
 	}
 	SetFont("MONFONT");
-	HudMessage(s:"\ci", l:GetSpreeText(Clamp_Between(mult - 1, 0, MAX_SPREE_TEXT - 1)), s:"!\c- \cix", f:mult * 0.25, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
+	HudMessage(s:"\ci", l:GetSpreeText(Clamp_Between(mult - 1, 1, MAX_SPREE_TEXT)), s:"!\c- \cix", f:mult * 0.25, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
 	HudMessage(l:"DND_TEXT_GAINEDEXTRA", s:" \cf", d:reward, s: "\c- ", l:"DND_STAT16", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT2ID, CR_WHITE, 240.4, 328.0, 2.0, 1.0, 1.0);
 }
 
@@ -986,6 +986,7 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	
 	// calculate the exp and credit to be added for each monster killed
 	int tid = ConsolePlayerNumber() + P_TIDSTART;
+	
 	exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
 	exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
 	credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
@@ -1005,7 +1006,7 @@ Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
 	PlayerScriptsCheck[DND_SCRIPT_EXPTRACKER][ConsolePlayerNumber()] = true;
 	while(CheckActorInventory(tid, "DnD_ExpCredit_Timer"))
 		Delay(const:2);
-	if(CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter"))
+	if((CheckActorInventory(tid, "DnD_Exp_Counter") || CheckActorInventory(tid, "DnD_Credit_Counter")) && !CheckActorInventory(tid, "DnD_IntermissionState"))
 		Log(s:"\ccGains pickup  : \c[Y5]", d:CheckActorInventory(tid, "DnD_Exp_Counter"), s:" exp and ", d:CheckActorInventory(tid, "DnD_Credit_Counter"), s:" credits.");
 	SetActorInventory(tid, "DnD_Exp_Counter", 0);
 	SetActorInventory(tid, "DnD_Credit_Counter", 0);
@@ -2597,6 +2598,10 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 	str fortGraphic = "";
 	
 	while(isAlive()) {
+		// disable during intermission
+		if(CheckInventory("DnD_IntermissionState"))
+			break;
+	
 		// if we have any shared items in our player queue to turn, do turn them
 		mmaxhp = CheckInventory("TargetMaximumHealth");
 		if(mmaxhp && GetCVar("dnd_monsterbars")) {
@@ -2616,7 +2621,7 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 				SetFont(MonsterTypeInfo[GetPetMonsterType(monid)][MONSTER_TYPE_INFO_ICON]);
 				
 			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, MONSTERINFO_HOLDTIME);
-			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID - 1, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
 			// inner text
 			SetFont ("MONFONT");
 			HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
@@ -2653,7 +2658,7 @@ Script "DnD Monster Scanner" ENTER CLIENTSIDE {
 								barGraphic = StrParam(s:"FBR_", d:hdisp);
 								
 							SetFont(barGraphic);
-							HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID + 1, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+							HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
 						}
 					}
 					else {
@@ -3739,6 +3744,11 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 		SetActivator(to + P_TIDSTART - 1);
 	while(CheckInventory("TipBoxOpen"))
 		Delay(const:35);
+		
+	// dont proceed if we are in scoreboard
+	if(CheckInventory("DnD_IntermissionState"))
+		Terminate;
+		
 	GiveInventory("TipBoxOpen", 1); // just in case this wasn't given before
 	if(num != DND_ANNOUNCER_TRADEREQUEST)
 		LocalAmbientSound("Quest/Announce", 127);
@@ -5614,7 +5624,7 @@ Script "DnD Class Select Animated" (int doDelay) CLIENTSIDE {
 	int cpnum = ConsolePlayerNumber();
 	bool larr_inc = false, rarr_inc = false;
 	int larr_timer = 0, rarr_timer = 0;
-	int select_alpha = 0, select_alpha_val = 0;
+	int select_alpha = 0;
 	
 	while(GetUserCVar(cpnum, "dnd_onclassmenu")) {
 		// handle button press detection
@@ -5648,15 +5658,15 @@ Script "DnD Class Select Animated" (int doDelay) CLIENTSIDE {
 		SetFont("SMALLFONT");
 		
 		// display press w.e keys text
-		select_alpha_val = cos((select_alpha > 70 && select_alpha < 110 ? 70 : select_alpha) * 1.0 / 180);
-		if(select_alpha_val < 0)
-			select_alpha_val *= -1;
-		HudMessage(s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"CLASS_TOSELECT", s:"!"; HUDMSG_PLAIN | HUDMSG_ALPHA, DND_CLASSMENU_BOTTOMTEXTID, -1, 300.4, 376.1, 0.0, select_alpha_val);
+		HudMessage(
+			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"CLASS_TOSELECT", s:"!";
+			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_CLASSMENU_BOTTOMTEXTID, -1, 300.4, 376.1, 0.0, abs(sin(select_alpha * 1.0 / 360))
+		);
 		
 		Delay(const:1);
 		
 		// alpha increment
-		select_alpha = (select_alpha + 2) % 180;
+		select_alpha = (select_alpha + 4) % 360;
 
 		// button timers
 		if(larr_inc) {

@@ -304,7 +304,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(!CheckInventory("DND_ACK")) {
 			if(sendBox) {
 				redraw = true;
-				GiveInventory("DND_ACKLoop", 1);
 				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
 				//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
 				ACS_NamedExecuteAlways("DnD Retry Sending Until ACK", 0, pnum | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
@@ -316,6 +315,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			//Log(s:"reset input data");
 			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
 			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
+			
+			// this part is important because due to how the system is set up once the ACK is received, we may not update for next frames
+			// this causes the problem of "spam clicking" multiple stack craft materials and the inputs being reset above, with a redraw we
+			// force a recalculation basically so we obtain the values once again
+			redraw = true;
 		}
 		
 		bool req_redraw = redraw || CheckInventory("DnD_RefreshPane") || CheckInventory("DnD_RefreshRequest");
@@ -344,9 +348,9 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 	// draw background images
 	SetHudSize(384, 200, 1);
 	SetFont("DND_STAT");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 192.0, 100.0, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 192.0, 100.0, 0.0);
 	SetFont("DND_STAB");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 192.0, 100.0, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 192.0, 100.0, 0.0);
 	// the 3 buttons at bottom
 	DrawClickableButton("LARR", mainboxid, MAINBOX_LARR, RPGMENULARRID, 218.0, 184.0, "LARRO", "LARR_P");
 	DrawClickableButton("RETARR", mainboxid, MAINBOX_RET, RPGMENURETARRID, 251.0, 184.0, "RETARRO", "RETARR_P");
@@ -355,7 +359,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 	// main drawing of texts, labels, icons etc.
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	SetFont("SMALLFONT");
-	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
+	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
 	DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);
 	DeleteText(RPGMENUCURSORID + 1); // dragged item
 	
@@ -372,7 +376,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 	}
 	else if(clean_inv) {
 		DeleteTextRange(RPGMENUPOPUPID + 1, RPGMENUINVENTORYID);
-		DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES, RPGMENUID - 1);
+		CleanMaterialInfo(true);
 		CleanInventoryInfo();
 	}
 	
@@ -711,6 +715,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 	}
 	else if(curopt == MENU_RESEARCH) {
 		HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESCAT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+		DrawBudget();
 		
 		DrawBoxText("DND_RESMENU_BODY", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("DND_RESMENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
@@ -719,6 +724,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 	}
 	else if(curopt == MENU_RESEARCH_GUNS) {
 		HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESGUNS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+		DrawBudget();
 		
 		DrawBoxText("DND_RESMENU_SUBSLOT", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("DND_RESMENU_SUBLUX", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
@@ -983,6 +989,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 Script "DnD Retry Sending Until ACK" (int payload1, int payload2, int mainboxid) CLIENTSIDE {
 	if(!payload1 || CheckInventory("DND_ACKLoop"))
 		Terminate;
+	GiveInventory("DND_ACKLoop", 1);
 	while(!CheckInventory("DnD_ACK")) {
 		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
 		//Log(s:"trying to send prev item ", d:payload2 >> 16);
@@ -1639,7 +1646,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 Script "DND Menu Cleanup" (int pnum) CLIENTSIDE {
 	if(pnum != ConsolePlayerNumber())
 		Terminate;
-	DeleteTextRange(RPGMENUID - 60, RPGMENUID);
 	DeleteText(RPGMENUBACKGROUNDID);
 	DeleteText(RPGMENULARRID);
 	DeleteText(RPGMENURETARRID);
@@ -1656,11 +1662,12 @@ Script "DND Menu Cleanup" (int pnum) CLIENTSIDE {
 	
 	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
-	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMID);
+	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
 
 	// login screen for hardcore
 	DeleteText(DND_HARDCORE_SCREENID);
 	CleanInventoryInfo();
+	CleanMaterialInfo(false);
 }
 
 Script "DnD Toggle User Dash" (void) CLIENTSIDE {

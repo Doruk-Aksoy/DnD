@@ -423,6 +423,9 @@ void SavePlayerData(int pnum, int char_id) {
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, CheckActorInventory(tid, ResearchTrackers[i]));
 	
+	// save legendary monster kills
+	SetDBEntry(StrParam(s:GetCharField(DND_DB_LEGENDARYTRACKER, char_id), d:i + 1), pacc, CheckActorInventory(tid, "LegendaryKills"));
+	
 	// save budget
 	temp = CheckActorInventory(tid, "Budget");
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, temp);
@@ -962,6 +965,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read research trackers
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetInventory(ResearchTrackers[i], GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc));
+		
+	// read legendary monster kills
+	SetInventory("LegendaryKills", GetDBEntry(StrParam(s:GetCharField(DND_DB_LEGENDARYTRACKER, char_id), d:i + 1), pacc));
 	
 	// read budget
 	temp = GetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc);
@@ -1091,8 +1097,12 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc, 0);
 	
+	// reset researches
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, 0);
+	
+	// reset legendary kill track
+	SetDBEntry(StrParam(s:GetCharField(DND_DB_LEGENDARYTRACKER, char_id), d:i + 1), pacc, 0);
 
 	for(i = 0; i < MAXWEPS; ++i) {
 		// enhancement orbs used

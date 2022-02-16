@@ -109,6 +109,13 @@ void UnmarkPlayerAsExited(int pnum) {
 	--ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT];
 }
 
+bool PlayerHasClicked(int pnum) {
+	if(pnum > 31)
+		return IsSet(ScoreboardData[DND_SCBRD_PLAYEREXITED2], pnum - 32);
+	return IsSet(ScoreboardData[DND_SCBRD_PLAYEREXITED1], pnum);
+}
+
+// serverside
 Script 1690 (int isSecretExit, int forcedExit) {
 	// this player hasn't triggered the exit before
 	int this = ActivatorTID();
@@ -120,6 +127,7 @@ Script 1690 (int isSecretExit, int forcedExit) {
 		bool monpct_result = false;
 		int democracy = GetCVar("dnd_exit_democratic");
 		int monpct = GetCVar("dnd_exit_monsterpercent");
+		int active_pcount = GetActivePlayerCount();
 		
 		if(!forcedExit) {
 			if(democracy) {
@@ -129,17 +137,19 @@ Script 1690 (int isSecretExit, int forcedExit) {
 				// first 10 is used as a simple divisor, anything above is treated as an actual percentage
 				// so this allows things like "half the players" or "one third players" exited thing much simpler
 				if(democracy >= 1 && democracy <= 10) {
-					if(ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] >= GetActivePlayerCount() / democracy)
+					if(ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] >= active_pcount / democracy)
 						democracy_result = true;
 					else {
 						// error message
+						ShowPopup(POPUP_PLAYERCONDNOTMET, 0, 0);
 					}
 				}
 				else if(democracy > 10) {
-					if(ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] >= GetActivePlayerCount() * democracy / 100)
+					if(ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] >= active_pcount * democracy / 100)
 						democracy_result = true;
 					else {
 						// error message
+						ShowPopup(POPUP_PLAYERCONDNOTMET, 0, 0);
 					}
 				}
 			}
@@ -149,6 +159,7 @@ Script 1690 (int isSecretExit, int forcedExit) {
 					monpct_result = true;
 				else {
 					// error message
+					ShowPopup(POPUP_MONKILLCONDNOTMET, 0, 0);
 				}
 			}
 			
@@ -162,6 +173,7 @@ Script 1690 (int isSecretExit, int forcedExit) {
 			
 			// freeze monsters / players during this time
 			GiveInventory("MenuFreeze", 1);
+			GiveInventory("DnD_IntermissionState", 1);
 			SetPlayerProperty(1, 1, PROP_TOTALLYFROZEN);
 			SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
 			
@@ -174,10 +186,21 @@ Script 1690 (int isSecretExit, int forcedExit) {
 			
 			ACS_NamedExecuteWithResult("DnD Scoreboard Display", ScoreboardData[DND_SCBRD_TIMER], democracy);
 			
+			// clean up exit markers, we'll reuse them for click detection
+			ScoreboardData[DND_SCBRD_PLAYEREXITED1] = 0;
+			ScoreboardData[DND_SCBRD_PLAYEREXITED2] = 0;
+			ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] = 0;
+			
 			// timer
-			democracy = ScoreboardData[DND_SCBRD_TIMER];
+			democracy = ScoreboardData[DND_SCBRD_TIMER] * TICRATE;
 			while(democracy--) {
-				Delay(const:TICRATE);
+				if(!PlayerHasClicked(pnum) && (GetPlayerInput(pnum, INPUT_BUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK))) {
+					MarkPlayerAsExited(pnum);
+					// if everyone has clicked, we can skip this timer entirely
+					if(ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] >= GetActivePlayerCount())
+						break;
+				}
+				Delay(const:1);
 			}
 			
 			if(!isSecretExit)
@@ -199,6 +222,7 @@ enum {
 	DND_SCBRDID_HOVERBG,
 	DND_SCBRDID_MAPCOMPLETE,
 	DND_SCBRDID_STATUSICON,
+	DND_SCBRDID_CONTINUE,
 	DND_SCBRDID_PLAYER,
 	DND_SCBRDID_PLAYERUNDERLINE,
 	DND_SCBRDID_KILLS,
@@ -282,6 +306,9 @@ void BuildScoreboardBoxes() {
 }
 
 Script "DnD Scoreboard Display" (int time, int total_mons) CLIENTSIDE {
+	// we dont want scan info overlaid
+	ClearMonsterScanInfo();
+
 	SpawnForced("ScoreBoardSongPlayer", 0, 0, 0);
 	// hopefully to clear the chat
 	Log(s:"\n\n\n\n\n\n\n\n\n\n");
@@ -349,6 +376,15 @@ Script "DnD Scoreboard Display" (int time, int total_mons) CLIENTSIDE {
 		s:"A"; 
 		HUDMSG_PLAIN, DND_SCBRDID_KILLSUNDERLINE, CR_UNTRANSLATED, 
 		600.4, 16.1, 0
+	);
+	
+	// map complete
+	// map name in center of bg image --- make these fall into place here
+	SetFont("INTERFONT");
+	HudMessage(
+		s:"\cj", n:PRINTNAME_LEVEL, s:": \cf", n:PRINTNAME_LEVELNAME, s:"\n\n\c[M3]", l:"DND_COMPLETED";
+		HUDMSG_PLAIN, DND_SCBRDID_MAPCOMPLETE, CR_GOLD,
+		240.4, 360.1, 0
 	);
 	
 	/* 
@@ -456,17 +492,7 @@ void DrawPlayerOnScoreboard(int interstate, int pnum, int draw_count, int total_
 		DeleteTextRange(DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 2), DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 4));
 }
 
-void DrawScoreboard(int time, int ScrollPos, int total_mons, int p_highlight) {	
-	SetHudSize(640, 480, 1);
-	
-	// map name in center of bg image --- make these fall into place here
-	SetFont("INTERFONT");
-	HudMessage(
-		s:"\cj", n:PRINTNAME_LEVEL, s:": \cf", n:PRINTNAME_LEVELNAME, s:"\n\n\c[M3]", l:"DND_COMPLETED";
-		HUDMSG_PLAIN, DND_SCBRDID_MAPCOMPLETE, CR_GOLD,
-		240.4, 360.1, 0
-	);
-	
+void DrawScoreboard(int time, int ScrollPos, int total_mons, int p_highlight) {		
 	// setup the clipping rectangle
 	
 	// playerlist
@@ -635,6 +661,7 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 	int prevhover = MAINBOX_NONE;
 	int temp = 0, prevplayers = 0;
 	int cpn = ConsolePlayerNumber();
+	int alpha = 0;
 	
 	// initial draw and initialization steps
 	PlayerCursorData.posx = HUDMAX_XF / 2;
@@ -696,10 +723,21 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 		
 		// check if we should redraw here
 		redraw |= HandleIntermissionInputs(min_y);
+		
+		// display press key to continue text
+		SetFont("INTERFONT");
+		SetHudSize(640, 480, 1);
+		HudMessage(
+			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
+			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 416.1, 0.0, abs(sin(alpha * 1.0 / 360))
+		);
 
 		--tics;
 		
 		Delay(const:1);
+		
+		// alpha increment
+		alpha = (alpha + 4) % 360;
 		
 		prevmin_y = min_y;
 		

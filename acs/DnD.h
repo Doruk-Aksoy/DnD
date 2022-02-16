@@ -68,8 +68,8 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define DND_BUDGET_BASE 3
 #define DND_MAX_SHARE 4
 #define DND_SPREE_AMOUNT 4 * TICRATE // 4 * 35
-#define DND_SPREE_PER 15
-#define DND_SPREE_TRIGGER DND_SPREE_PER - 1 // -1 because current monster killed doesn't count
+#define DND_SPREE_PER 10
+#define DND_SPREE_TRIGGER (DND_SPREE_PER - 1) // -1 because current monster killed doesn't count
 #define DND_SPREE_BASE 4 // 1 / 4
 #define DND_SPECIALAMMO_TEXTID 6001
 #define DND_SPREE_BLOODID 6000
@@ -227,6 +227,7 @@ int DnD_StateChecker[MAX_STATES];
 // see if map changed or not
 
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
+bool UniqueMonsterAvailability[MAX_MONSTER_CATEGORIES] = { 0 };
 
 int CurrentLevelReward[MAXPLAYERS];
 int CurrentStatReward[MAXPLAYERS];
@@ -1082,9 +1083,9 @@ void HandleUniqueDeath(int unique_id) {
 	switch(unique_id) {
 		case MONSTER_TERON:
 			// spawn some budget
-			Spawn("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
-			Spawn("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
-			Spawn("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
+			SpawnForced("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
+			SpawnForced("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
+			SpawnForced("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
 		break;
 		case MONSTER_GANT:
 			if(GameType() != GAME_SINGLE_PLAYER)

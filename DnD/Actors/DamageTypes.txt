@@ -37,7 +37,8 @@ enum {
 	DND_DAMAGEFLAG_ISHITSCAN = 4096,						// hitscan type attack
 	DND_DAMAGEFLAG_NOIGNITESTACK = 8192,					// ignites dont further ignite
 	DND_DAMAGEFLAG_PERCENTDAMAGE = 16384,					// does percent damage on impact
-	DND_DAMAGEFLAG_COUNTSASMELEE = 32768					// attack is considered melee
+	DND_DAMAGEFLAG_COUNTSASMELEE = 32768,					// attack is considered melee
+	DND_DAMAGEFLAG_SIMULATERIPPER = 65536
 };
 
 enum {

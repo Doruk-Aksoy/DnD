@@ -101,5 +101,5 @@ CLASS6_TEXT				= "Hailing from the mountains, his courage, bravery... recklessne
 					      "After having lost his fellow townsfolk to a demon invasion, he volunteered to fight for UAC. It's time for demons to meet Ragnarok.";
 
 CLASS6_PERK1			= "Can carry unlimited melee weapons. Can't buy any super weapon.";
-CLASS6_PERK2			= "Gain 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.5 seconds. Heal for 15% of max health at the end at max stacks.";
+CLASS6_PERK2			= "Gain 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.3 seconds. Heal for 15% of max health at the end at max stacks.";
 CLASS6_PERK3			= "Melee hits or kills give 8% damage. Max 30 stacks. At max stacks, +30% movement speed and +50% crit damage. Lose a stack every 2 seconds off combat.";

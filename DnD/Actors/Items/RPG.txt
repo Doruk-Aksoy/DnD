@@ -539,3 +539,8 @@ Actor DnD_MenuPlayerIcon {
 		Stop
 	}
 }
+
+Actor DnD_IntermissionState : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -50
+}

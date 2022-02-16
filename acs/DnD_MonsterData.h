@@ -679,7 +679,8 @@ void LoadMonsterTraits(int m_id) {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	
 	// copy preset data to here now
-	memcpy(MonsterProperties[i].trait_list, MonsterData[m_id].trait_list);
+	for(int j = 0; j < MAX_MONSTER_TRAITS; ++j)
+		MonsterProperties[i].trait_list[j] = MonsterData[m_id].trait_list[j];
 		
 	// some of the flags are inherent in actor info, so do make use of that
 	if(CheckFlag(0, "GHOST"))
@@ -1156,8 +1157,6 @@ enum {
 
 #define MAX_MONSTER_CATEGORIES (MONSTERCLASS_CYBERDEMON + 1)
 #define MAX_MONSTER_VARIATIONS 17 // this includes vanilla
-
-bool UniqueMonsterAvailability[MAX_MONSTER_CATEGORIES] = { 0 };
 
 int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
     // Zombieman

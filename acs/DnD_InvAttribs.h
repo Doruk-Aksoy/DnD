@@ -435,7 +435,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
 	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE									},
-	{ 	1, 		9, 			0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	10, 	90, 		0,		INV_ATTR_TAG_DEFENSE									},
 	
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK										},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK										},

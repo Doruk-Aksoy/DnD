@@ -40,6 +40,7 @@
 #define DND_DB_KEYS "DnD_PlayerChestKeys"
 #define DND_DB_RESEARCHTRACKER "DnD_ResearchTracker"
 #define DND_DB_NPCTRACKER "DnD_NPCTracker"
+#define DND_DB_LEGENDARYTRACKER "DnD_LegendaryKills"
 
 // Orb Stuff
 #define DND_DB_ORBFLATHPBONUS "DnD_Orb_FlatHPBonus"

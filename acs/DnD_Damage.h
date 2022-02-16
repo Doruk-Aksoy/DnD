@@ -93,10 +93,11 @@ enum {
 	DND_DAMAGEFLAG_ISHITSCAN			=			0b1000000000000,
 	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b10000000000000,
 	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b100000000000000,
+	DND_DAMAGEFLAG_SIMULATERIPPER		=			0b1000000000000000,
 	
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
-	DND_DAMAGEFLAG_FOILINVUL			=			0b1000000000000000,
-	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b10000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b10000000000000000,
+	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b100000000000000000,
 };
 
 enum {
@@ -1284,8 +1285,18 @@ void HandleRipperHitSound(int tid, int owner, int wepid) {
 // to be used sparingly, it scans all monsters at all times since we dont have linetraces
 Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
-	int r = GetActorProperty(0, APROP_RADIUS) >> 16;
-	int h = GetActorProperty(0, APROP_HEIGHT);
+	
+	int r;
+	int h;
+	if(flags & DND_DAMAGEFLAG_SIMULATERIPPER) {
+		r = GetUserVariable(0, "user_r");
+		h = GetUserVariable(0, "user_h");
+	}
+	else {
+		r = GetActorProperty(0, APROP_RADIUS) >> 16;
+		h = GetActorProperty(0, APROP_HEIGHT);
+	}
+	
 	int i = 0, m = 0, s = 0;
 	int actor_flags = ScanActorFlags();
 	

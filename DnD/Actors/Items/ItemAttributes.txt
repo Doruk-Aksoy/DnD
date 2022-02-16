@@ -565,3 +565,9 @@ Actor IATTR_IncreasedCritLightning : Ammo {
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
+
+Actor IATTR_AccuracyPercent : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
