@@ -2057,10 +2057,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		
 		// essences
 		case INV_ESS_VAAJ:
-			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_ExplosiveResistIgnore", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			inv = Inv_Attribute_Checkers[i];
+			temp = GetPlayerAttributeValue(pnum, atype);
+			inv = Inv_Attribute_Checkers[atype];
 			
 			if(CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_EXPLOSIVEIGNORERES));
@@ -2068,10 +2067,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(inv, ClearBit(temp, DND_STATBUFF_EXPLOSIVEIGNORERES));
 		break;
 		case INV_ESS_LESHRAC2:
-			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_PoisonTicTwiceFast", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			inv = Inv_Attribute_Checkers[i];
+			temp = GetPlayerAttributeValue(pnum, atype);
+			inv = Inv_Attribute_Checkers[atype];
 			
 			if(CheckInventory("StatbuffCounter_PoisonTicTwiceFast"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_POISONTICTWICEFAST));
@@ -2079,10 +2077,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(inv, ClearBit(temp, DND_STATBUFF_POISONTICTWICEFAST));
 		break;
 		case INV_ESS_THORAX:
-			i = UNIQUE_MAP_MACRO(atype);
 			GiveOrTake("StatbuffCounter_HomingDontReflect", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			inv = Inv_Attribute_Checkers[i];
+			temp = GetPlayerAttributeValue(pnum, atype);
+			inv = Inv_Attribute_Checkers[atype];
 			
 			if(CheckInventory("StatbuffCounter_HomingDontReflect"))
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_HOMINGDONTREFLECT));

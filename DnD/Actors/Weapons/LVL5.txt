@@ -176,7 +176,7 @@ Actor RocketX : DnD_ExplosiveBase {
 			MISL B 8 Bright
 			MISL C 6 Bright
 			MISL D 4 Bright
-		Stop
+		Goto FinishExplosion
 	}	
 }
 
@@ -215,7 +215,7 @@ Actor NewRocket : RocketX {
 			MISL B 8 Bright
 			MISL C 6 Bright
 			MISL D 4 Bright
-		Stop
+		Goto FinishExplosion
 		
 		Boom:
 			TNT1 A 0 A_Stop
@@ -322,11 +322,12 @@ Actor MercurySmoke : RocketSmoke {
 Actor MercuryExplosion : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
+	const int max_exp = 8;
 	States {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 0 A_SetArg(0, 8)
+			TNT1 A 0 A_SetUserVar("user_count", 0)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MERCURYLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
@@ -335,9 +336,10 @@ Actor MercuryExplosion : DnD_ExplosiveBase {
 			TNT1 A 1 
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
-			TNT1 A 7 A_SetArg(0, Args[0] - 1)
-			TNT1 A 1 A_JumpIf(Args[0] > 0, "Again")
-		Stop
+			TNT1 A 7 A_SetUserVar("user_count", user_count + 1)
+			TNT1 AAAAAAAAAAAA 0 A_SpawnItemEx("MercurySmoke", 0, 0, 0, frandom(-4, 4), frandom(-4, 4), frandom(-4, 4))
+			TNT1 A 1 A_JumpIf(user_count < max_exp, "Again")
+		Goto FinishExplosion
 	}
 }
 
@@ -365,15 +367,12 @@ Actor MercuryRocket : RocketX {
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 180))
-			TNT1 AAAAAAAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_CustomMissile("MercuryExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			MISL B 8 Bright
-			TNT1 AAAAAAAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 360))
 			MISL C 7 Bright
-			TNT1 AAAAAAAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 360))
 			MISL D 6 Bright
 		Stop
 	}
@@ -785,7 +784,7 @@ Actor FlakProjectileExplosion1 : DnD_ExplosiveBase {
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DEXP ABCDEFGHIJK 2 Bright
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -793,7 +792,7 @@ Actor FlakProjectileExplosion2 : FlakProjectileExplosion1 {
 	States {
 		ContinueFromExplosion:
 			DXP2 ABCDEFGHIJKLMNOPQR 2 Bright
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -801,7 +800,7 @@ Actor FlakProjectileExplosion3 : FlakProjectileExplosion1 {
 	States {
 		ContinueFromExplosion:
 			DXP3 ABCDEFGHIJKLMNOP 2 Bright
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -809,7 +808,7 @@ Actor FlakProjectileExplosion4 : FlakProjectileExplosion1 {
 	States {
 		ContinueFromExplosion:
 			DXP4 ABCDEFGHIJKLMNOPQ 2 Bright
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -1030,7 +1029,7 @@ Actor NormalGrenade : DnD_ExplosiveBase {
 			MISL B 8 Bright
 			MISL C 6 Bright
 			MISL D 4 Bright	
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -1063,7 +1062,7 @@ Actor NewGrenade : NormalGrenade {
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1 A_SpawnItem("NewGrenadeExplosion")
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -1183,7 +1182,7 @@ ACTOR HomRocket1 : DnD_ExplosiveBase {
 		ContinueFromExplosion:
 			MACX A 2 Bright
 			MACX BCDEFGHIJ 2 Bright
-		stop
+		Goto FinishExplosion
 	}
 }
 
@@ -1435,7 +1434,7 @@ Actor SedrinProjectile : DnD_ExplosiveBase {
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 240, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 300, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			BPLO DEFGHIJKLM 2 Bright
-		Stop
+		Goto FinishExplosion
 	}
 }
 

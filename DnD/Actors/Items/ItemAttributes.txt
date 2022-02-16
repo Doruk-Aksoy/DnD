@@ -566,8 +566,53 @@ Actor IATTR_IncreasedCritLightning : Ammo {
 	+IGNORESKILL
 }
 
+// unique monster benefits
+
 Actor IATTR_AccuracyPercent : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
+
+Actor IATTR_SoulPenetration : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_IgniteDamageEachTic : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ChanceIgnoreShield : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ReducedPoisonTaken : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_OccultReducePer : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ExplosionAgainChance : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+// max 10 stacks
+Actor OccultWeaknessStack : Inventory {
+	inventory.maxamount 10
+}
+
+Actor DnD_ExplosionRepeated : DnD_Boolean { }

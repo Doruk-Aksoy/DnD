@@ -16,6 +16,8 @@
 #define DND_BERSERKER_PERK50_TIMER 14 // 14 x 5 = 70 => 2 seconds
 #define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
 
+#define OCCULT_WEAKEN_DURATION 3
+
 #define DND_CRIT_TOKEN 69
 
 enum {
@@ -675,11 +677,44 @@ int GetResistPenetration(int category) {
 	return 0;
 }
 
+Script "DnD Occult Weaken" (int victim) {
+	SetActivator(victim);
+	
+	int time = 0;
+	while(time < OCCULT_WEAKEN_DURATION) {
+		int prev = CheckInventory("OccultWeaknessStack");
+		Delay(const:TICRATE);
+		++time;
+		if(prev != CheckInventory("OccultWeaknessStack"))
+			time = 0;
+	}
+	
+	SetInventory("OccultWeaknessStack", 0);
+	
+	SetResultValue(0);
+}
+
 int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_full, int wepid, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int temp = GetDamageCategory(damage_type);
 	int pen = GetResistPenetration(temp);
+	
+	// if occult weakness exists, apply it checking monster's debuff
+	if(pen && (temp == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_MELEEOCCULT)) {
+		int occ_weak = CheckInventory("IATTR_OccultReducePer");
+		if(occ_weak) {
+			if(!CheckActorInventory(victim, "OccultWeaknessStack")) {
+				GiveActorInventory(victim, "OccultWeaknessStack", 1);
+				ACS_NamedExecuteWithResult("DnD Occult Weaken", victim);
+			}
+			else
+				GiveActorInventory(victim, "OccultWeaknessStack", 1);
+			
+			// percentage amplification of penetration per stack on victim
+			pen += (pen * occ_weak * CheckActorInventory(victim, "OccultWeaknessStack")) / 100;
+		}
+	}
 	
 	// weaknesses
 	if(MonsterProperties[mon_id].trait_list[DND_ENERGY_WEAKNESS] && temp == DND_DAMAGECATEGORY_ENERGY)
@@ -740,28 +775,29 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 		
 	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
 	if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_RESIST] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && temp == DND_DAMAGECATEGORY_ENERGY)
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
-		dmg = dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
 	// immunities
 	else if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_NONE] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_IMMUNE] && (temp == DND_DAMAGECATEGORY_BULLET || temp == DND_DAMAGECATEGORY_MELEE))
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && temp == DND_DAMAGECATEGORY_ENERGY)
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (temp == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
-		dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && temp == DND_DAMAGECATEGORY_ELEMENTAL)
-			dmg = dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	
-	return dmg;
+	// no special factors, process as is
+	return dmg = dmg * (100 + pen) / 100;
 }
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
@@ -900,6 +936,11 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		dmg += (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * extra) / 100;
 		// printbold(s:"% bonus: ", d:extra, s:" ", d:(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * extra) / 100);
 	}
+	
+	// additional damage vs frozen enemies modifier
+	temp = CheckInventory("IATTR_FrozenDamage");
+	if(CheckActorInventory(victim, "DnD_FreezeTimer") && temp)
+		dmg += dmg * (100 + temp) / 100;
 	
 	// damage number handling
 	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
@@ -1763,6 +1804,23 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 Script "DnD Spawn Bloodtype" (int type) CLIENTSIDE {
 	SpawnForced(SpecialBloodFX[type], GetActorX(0), GetActorY(0), GetActorZ(0), SPECIAL_FX_TID);
 	SetResultValue(0);
+}
+
+Script "DnD Check Explosion Repeat" (void) {
+	// player information
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(!isPlayer(owner))
+		owner = GetActorProperty(0, APROP_SCORE);
+
+	int res = 0;
+	
+	// if explosion did not repeat and we have chance for it to repeat, go for it
+	if(!CheckInventory("DnD_ExplosionRepeated") && random(1, 100) <= CheckActorInventory(owner, "IATTR_ExplosionAgainChance")) {
+		GiveInventory("DnD_ExplosionRepeated", 1);
+		res = 1;
+	}
+	
+	SetResultValue(res);
 }
 
 #endif

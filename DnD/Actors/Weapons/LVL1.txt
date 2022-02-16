@@ -772,7 +772,7 @@ Actor ExcalibatBall : DnD_ExplosiveBase {
 			TNT1 AA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 0 A_SetScale(0.625, 0.625)
 			D3BX ABCDEFG 2 Bright A_FadeOut(0.075)
-		Stop
+		Goto FinishExplosion
 	}
 }
 

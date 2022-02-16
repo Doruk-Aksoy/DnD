@@ -20,6 +20,7 @@ typedef struct poison_cache {
 poison_cache_T player_poison_damages[MAXPLAYERS];
 
 void DealPoisonDamage(int target, int dmg) {
+	// this is the player, target is monster
 	int this = ActivatorTID();
 	SetActivator(target);
 	if(dmg > (1 << 16)) // random component
@@ -27,13 +28,15 @@ void DealPoisonDamage(int target, int dmg) {
 	int res = (Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
 	if(CheckInventory("MonsterIsElite"))
 		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
-	if(MonsterProperties[this - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG])
+	if(MonsterProperties[target - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG])
 		res = FixedMul(res, 1.0 + DND_ELITE_EXTRASTRONG_BONUS);
 	if(CheckInventory("MonsterLevel") > 50)
 		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
 	//printbold(f:res);
 	dmg = ((dmg & 0xFF) * ((res / 2) + 1.0)) >> 16;
-	Thing_Damage2(this, dmg, "Poison");
+	dmg -= (dmg * CheckActorInventory(this, "IATTR_ReducedPoisonTaken")) / 100;
+	if(dmg > 0)
+		Thing_Damage2(this, dmg, "Poison");
 	SetActivator(this);
 }
 

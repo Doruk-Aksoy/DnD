@@ -2708,7 +2708,6 @@ Actor HeartAttackPuff : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
 	+FOILINVUL
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 1 A_SpawnItemEx("HearAttackPuff_FX")
@@ -2980,7 +2979,6 @@ Actor DarkServantMissile2Trail {
 Actor DarkServantMissile_Explosion : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 1
@@ -3771,7 +3769,6 @@ Actor PlasmaBolterProj : DnD_ExplosiveBase {
 	Scale 1.33
 	Speed 32
 	DeathSound "weapons/plasmax"
-	var int user_count;
 	const int dx = 15;
 	+DONTREFLECT
 	+FORCERADIUSDMG

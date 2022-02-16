@@ -668,7 +668,7 @@ Actor NormalGrenade_Special : DnD_ExplosiveBase {
 			MISL B 8 Bright
 			MISL C 6 Bright
 			MISL D 4 Bright	
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -687,8 +687,6 @@ Actor HEGrenadeX : DnD_ExplosiveBase {
 	BounceFactor 0.4
 	Gravity 0.66
 	BounceType Doom
-	const int iterations = 18;
-	var int user_count;
 	+THRUGHOST
 	+EXPLODEONWATER
 	States {
@@ -707,11 +705,6 @@ Actor HEGrenadeX : DnD_ExplosiveBase {
 		Death:
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			TNT1 A 0 A_SpawnItem("NewGrenadeExplosion")
-		DeathLoop:
-			TNT1 A 0 A_JumpIf(user_count == iterations, "ContinueExp")
-			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, user_count * 360.0 / iterations, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-		Loop
 		ContinueExp:
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
@@ -727,8 +720,28 @@ Actor HEGrenadeX : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 0.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 18.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 36.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 54.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 72.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 90.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 108.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 126.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 144.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 162.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 180.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 198.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 216.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 234.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 252.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 270.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 288.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 306.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 324.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 342.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NGLP D 2
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -784,7 +797,7 @@ Actor HEGrenadeTrails : DnD_ExplosiveBase {
 	}
 }
 
-Actor SonicGrenade : DnD_ExplosiveBase {
+Actor SonicGrenade : DnD_BaseProjectile {
 	Speed 32
 	Radius 8
 	Height 16
@@ -798,7 +811,6 @@ Actor SonicGrenade : DnD_ExplosiveBase {
 	-NOGRAVITY
 	+EXPLODEONWATER
 	const int lim = 4;
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_count", lim)
@@ -811,6 +823,7 @@ Actor SonicGrenade : DnD_ExplosiveBase {
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_SetScale(1.275, 1.275)
+		Booming:
 			CAPX D 1 A_CustomMissile("SonicGrenadeExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		ExplosionLoop:
 			TNT1 A 0 A_JumpIf(user_count == 0, "Finish")
@@ -823,9 +836,13 @@ Actor SonicGrenade : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_count", user_count - 1)
 		Loop
 		Finish:
-			TNT1 A 1
+			TNT1 A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Explosion Repeat"), "Booming")
 		Stop
 	}
+}
+
+Actor SonicGrenadeBoomer : DnD_ExplosiveBase {
+	
 }
 
 Actor SonicGrenade_GhostHitter : SonicGrenade {

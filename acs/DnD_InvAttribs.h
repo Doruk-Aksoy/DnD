@@ -485,10 +485,10 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	3,		6,			0,		INV_ATTR_TAG_NONE										}, // harkimonde
 	{ 	5,		9,			0,		INV_ATTR_TAG_NONE										}, // leshrac 1
 	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // leshrac 2
-	{ 	4,		8,			0,		INV_ATTR_TAG_NONE										}, // krull
+	{ 	5,		9,			0,		INV_ATTR_TAG_NONE										}, // krull
 	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // thorax
 	{ 	1,		2,			0,		INV_ATTR_TAG_NONE										}, // zravog
-	{ 	8,		17,			0,		INV_ATTR_TAG_NONE										}  // eryxia
+	{ 	10,		20,			0,		INV_ATTR_TAG_NONE										}  // eryxia
 };
 
 str GetInventoryAttributeText(int attr) {
