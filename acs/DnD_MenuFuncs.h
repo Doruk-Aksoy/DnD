@@ -849,11 +849,9 @@ str GetShopWeaponTag(int id) {
 
 void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 	str tag = "";
-	bool use_str = false;
-	if(objflag & OBJ_WEP) {
-		use_str = true;
+	bool use_str = objflag & OBJ_WEP;
+	if(objflag & OBJ_WEP)
 		tag = GetShopWeaponTag(id);
-	}
 	else if(objflag & OBJ_AMMO)
 		tag = GetAmmoTag(id);
 	else if(objflag & OBJ_ABILITY)
@@ -863,7 +861,7 @@ void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 	else if(objflag & OBJ_ARMOR)
 		tag = GetArmorTag(id - SHOP_FIRSTARMOR_INDEX);
 	else if(objflag & OBJ_ACCOUNT)
-		tag = GetAccountPurchaseTag(id);
+		tag = GetAccountPurchaseTag(id - SHOP_ACCOUNT_BEGIN);
 	
 	if(!use_str)
 		HudMessage(s:weptype, s:toshow, l:tag; HUDMSG_PLAIN, RPGMENUITEMID - 2 * onposy - 1, CR_WHITE, 192.1, 80.0 + 16.0 * onposy, 0.0, 0.0);
