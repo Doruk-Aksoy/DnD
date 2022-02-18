@@ -58,9 +58,9 @@ CLASS3_MUGSHOT			= "BADEVL0";
 CLASS3_TEXT				= "Was a chill guy, until the fateful day his wife died and his dog was murdered right before his very eyes... "
 						  "Ever since, he hasn't been the same, it's as if something ticked in him and he became the greatest murder machine...";
 
-CLASS3_PERK1			= "Being on at least the \ckCruel\c- killing spree gives 10% movement speed.";
+CLASS3_PERK1			= "Being on a killing spree gives 10% movement speed.";
 CLASS3_PERK2			= "At the end of at least the \ckMerciless\c- killing spree, heal and gain armor for 15% of your max caps.";
-CLASS3_PERK3			= "Every 50 kills you get increases your damage by 4% for that map. Caps at 400%.";
+CLASS3_PERK3			= "Every 10 kills you get increases your damage by 4% for that map. Caps at 400%.";
 
 // Wanderer
 

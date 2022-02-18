@@ -143,14 +143,7 @@ Actor SmallCreditSpawner {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", random(1, 6))
-		SpawnLoop:
-			TNT1 A 0 A_JumpIf(!user_count, "Done")
-			TNT1 A 0 A_SpawnItemEx("Credit_01", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
-			TNT1 A 1 A_SetUserVar("user_count", user_count - 1)
-		Loop
-		Done:
-			TNT1 A 0
+			TNT1 AAAA 0 NoDelay A_SpawnItemEx("Credit_01", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
 		Stop
 	}
 }
@@ -162,13 +155,7 @@ Actor SmallCreditSpawner_Elite {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", random(2, 12))
-		SpawnLoop:
-			TNT1 A 0 A_JumpIf(!user_count, "Done")
-			TNT1 A 0 A_SpawnItemEx("Credit_01", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
-			TNT1 A 1 A_SetUserVar("user_count", user_count - 1)
-		Loop
-		Done:
+			TNT1 AAAAAAA 0 NoDelay A_SpawnItemEx("Credit_01", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
 			TNT1 A 0 A_SpawnItemEx("Credit_04", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
 			TNT1 A 0 A_Jump(64, "ReallyDone")
 			TNT1 A 0 A_SpawnItemEx("Credit_04", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
@@ -216,14 +203,7 @@ Actor MediumCreditSpawner {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", random(1, 6))
-		SpawnLoop:
-			TNT1 A 0 A_JumpIf(!user_count, "Done")
-			TNT1 A 0 A_SpawnItemEx("CreditDropper_Medium")
-			TNT1 A 0 A_SetUserVar("user_count", user_count - 1)
-		Loop
-		Done:
-			TNT1 A 0
+			TNT1 AAAA 0 NoDelay A_SpawnItemEx("CreditDropper_Medium")
 		Stop
 	}
 }
@@ -235,13 +215,7 @@ Actor MediumCreditSpawner_Elite {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", random(2, 12))
-		SpawnLoop:
-			TNT1 A 0 A_JumpIf(!user_count, "Done")
-			TNT1 A 0 A_SpawnItemEx("CreditDropper_Medium")
-			TNT1 A 1 A_SetUserVar("user_count", user_count - 1)
-		Loop
-		Done:
+			TNT1 AAAAAA 0 NoDelay A_SpawnItemEx("CreditDropper_Medium")
 			TNT1 A 0 A_SpawnItemEx("Credit_05", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
 			TNT1 A 0 A_SpawnItemEx("Credit_06", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
 			TNT1 A 0 A_Jump(64, "ReallyDone")
@@ -294,14 +268,7 @@ Actor LargeCreditSpawner {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", random(3, 18))
-		SpawnLoop:
-			TNT1 A 0 A_JumpIf(!user_count, "Done")
-			TNT1 A 0 A_SpawnItemEx("CreditDropper_Large")
-			TNT1 A 1 A_SetUserVar("user_count", user_count - 1)
-		Loop
-		Done:
-			TNT1 A 0
+			TNT1 AAAAAAAAAA 0 NoDelay A_SpawnItemEx("CreditDropper_Large")
 		Stop
 	}
 }
@@ -313,13 +280,7 @@ Actor LargeCreditSpawner_Elite {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", random(12, 24))
-		SpawnLoop:
-			TNT1 A 0 A_JumpIf(!user_count, "Done")
-			TNT1 A 0 A_SpawnItemEx("CreditDropper_Large")
-			TNT1 A 1 A_SetUserVar("user_count", user_count - 1)
-		Loop
-		Done:
+			TNT1 AAAAAAAAAAAAAAAAAA 0 NoDelay A_SpawnItemEx("CreditDropper_Large")
 			TNT1 A 0 A_SpawnItemEx("Credit_06", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
 			TNT1 A 0 A_SpawnItemEx("Credit_07", 0, 0, 0, random(-4, 4), random(-4, 4), random(4, 12))
 			TNT1 A 0 A_Jump(32, "ReallyDone")

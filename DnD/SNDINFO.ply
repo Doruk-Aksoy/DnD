@@ -161,7 +161,6 @@ $playeralias			TheBerserker		Male		*pain75			BerserkerPlayer/Pain
 $playeralias			TheBerserker		Male		*pain50			BerserkerPlayer/Pain
 $playeralias			TheBerserker		Male		*pain25			BerserkerPlayer/Pain
 $playersound			TheBerserker		Male		*land			PLYLAND
-$playersound			TheBerserker		Male		*jump			PLYJUMP
 $playersound			TheBerserker		Male		*death			BERSDTH
 $playersound			TheBerserker		Male		*usefail		BERSUSE
 $playersound			TheBerserker		Male		*grunt			PLYLAND

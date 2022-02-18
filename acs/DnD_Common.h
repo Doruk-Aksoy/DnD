@@ -56,7 +56,7 @@ enum {
 
 #define DND_PUNISHER_PERK2_MULT 3
 #define DND_PUNISHER_PERK2_DIV 20
-#define DND_PUNISHER_PERK3_KILLCOUNT 50
+#define DND_PUNISHER_PERK3_KILLCOUNT 10
 #define DND_PUNISHER_PERK3_MAX 100
 #define PUNISHERPERKID1 7004
 #define PUNISHERPERKID2 7005
@@ -587,6 +587,7 @@ void DeleteText(int textid) {
 	HudMessage(s:""; HUDMSG_PLAIN, textid, -1, 160.0, 100.0, 0.1, 0.1);
 }
 
+// assumes r2 > r1
 void DeleteTextRange(int r1, int r2) {
 	for(int i = 0; i < r2 - r1 + 1; i++)
 		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, 0.1, 0.1);

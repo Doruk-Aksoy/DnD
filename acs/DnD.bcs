@@ -11,7 +11,7 @@
 // this is here for convenience, tracks if a legendary monster was spawned
 bool MadeLegendary = 0;
 
-Script "DnD SBAR" ENTER CLIENTSIDE {
+Script "DnD SBAR" (void) CLIENTSIDE {
 	int item, itemcomp;
 	str ammo, ammoalt;
 	int wepid;
@@ -153,7 +153,7 @@ Script "DnD SBAR" ENTER CLIENTSIDE {
 				}
 			}
 		}
-		Delay(const:7);
+		Delay(const:5);
 	}
 }
 
@@ -2500,7 +2500,7 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 	ShowBonusMessage(bonustype, y);
 }
 
-Script "DnD Monster Scanner Picker" ENTER {
+Script "DnD Monster Scanner Picker" (void) {
 	int this = ActivatorTID();
 	while(isActorAlive(this)) {
 		SetActivatorToTarget(this);
@@ -2561,6 +2561,7 @@ Script "DnD Monster Scanner Picker" ENTER {
 		}
 		Delay(const:2);
 	}
+	SetResultValue(0);
 }
 
 // takes flag segments
@@ -2795,6 +2796,11 @@ Script "DnD On Respawn" RESPAWN {
 	TakeInventory("DnD_PDead", 1);
 	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
+	
+	// run the monster scanner script again on respawn
+	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
+	ACS_NamedExecuteAlways("DnD SBAR", 0);
+	
 	// if game mode is coop, we don't want any sort of reset on death here! make sure it's not coop
 	/*if(GetCVar("Survival")) {
 		if(CheckInventory("CurrentLives"))
@@ -2881,7 +2887,6 @@ Script "DnD On Unloading" UNLOADING {
 // Enter level checks
 Script "DnD Player Setup" ENTER {
 	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
-	
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	SetInventory("SphereMade", 0);
 	SetInventory("OrbUseType", 0);
@@ -2919,6 +2924,10 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	GiveInventory("ParsingData", 1);
 	ResetAllSpellCooldowns(); // reset all leftover cooldowns
+	
+	// scanner runner
+	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
+	ACS_NamedExecuteAlways("DnD SBAR", 0);
 	
 	// begin hardcore countdown
 	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
@@ -4990,7 +4999,8 @@ Script "DnD Footstep Sound" ENTER CLIENTSIDE {
 }
 
 Script "DnD Weapon Can Switch Mode" (int ammo_category, int weptype) {
-	SetResultValue(CanSwitchMode(ammo_category, weptype));
+	// prevent switching while in menu
+	SetResultValue(!CheckInventory("ShowingMenu") && CanSwitchMode(ammo_category, weptype));
 }
 
 Script "DnD Get Target" (void) {

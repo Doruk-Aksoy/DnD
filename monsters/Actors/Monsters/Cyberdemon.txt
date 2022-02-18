@@ -2313,29 +2313,19 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 			AVAT EEEEEEEEEEEEEEEEEEEEEEEEEEEE 2 Fast Bright A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 8)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
-			AVAT F 1 Bright A_PlaySound ("MageLightningFire")
-			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,15,2,-45)
-			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,15,2,-45)
-			TNT1 A  0 A_CustomMissile ("RedLiteTop",0,0,0,2,45)
-			TNT1 A  0 A_CustomMissile ("RedLiteBot",0,0,0,2,-45)
-			TNT1 A  0 A_CustomMissile ("RedLiteTop",0,0,-15,2,45)
-			AVAT F 14 Fast Bright A_CustomMissile ("RedLiteBot",0,0,-15,2,-45)
 			TNT1 A 0 A_FaceTarget
-			AVAT F 1 Bright A_PlaySound ("MageLightningFire")
-			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,15,2,-45)
-			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,15,2,-45)
-			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,0,2,45)
-			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,0,2,-45)
-			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,-15,2,45)
-			AVAT F 14 Fast Bright A_CustomMissile ("RedLiteBot",0,0,-15,2,-45)
-			TNT1 A 0 A_FaceTarget
-			AVAT F 1 Bright A_PlaySound ("MageLightningFire")
-			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,15,2,-45)
-			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,15,2,-45)
-			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,0,2,45)
-			TNT1 A 0 A_CustomMissile ("RedLiteBot",0,0,0,2,-45)
-			TNT1 A 0 A_CustomMissile ("RedLiteTop",0,0,-15,2,45)
-			AVAT F 14 Fast Bright A_CustomMissile ("RedLiteBot",0,0,-15,2,-45)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot", 0, 0, 120, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop", 0, 0, 120, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot", 0, 0, 240, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop", 0, 0, 240, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot", 0, 0, 0, CMF_AIMDIRECTION)
+			AVAT F 16 Bright A_CustomMissile ("RedLiteTop", 0, 0, 0, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot", 0, 0, 60, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop", 0, 0, 60, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot", 0, 0, 180, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteTop", 0, 0, 180, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile ("RedLiteBot", 0, 0, 300, CMF_AIMDIRECTION)
+			AVAT F 8 Bright A_CustomMissile ("RedLiteTop", 0, 0, 300, CMF_AIMDIRECTION)
 			AVAT F 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 9)
 		Goto See
 		Missile2: // Blue Ball
@@ -2831,57 +2821,221 @@ Actor SorcBall3Projectile : SorcBallProjectileBase {
 	}
 }
 
-ACTOR RedLiteTop : LightningCeiling {
+Actor RedLiteInBetween {
+	Projectile
+	Radius 8
+	Height 24
+	Speed 0
+	Renderstyle Add
+	Damage (random(9, 16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "CyberLightning"
-	Species "Cyber"
-	+THRUSPECIES
-	+DONTBLAST
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-		SpawnLoop:
-			MLFX A 2 Bright A_LightningZap
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			MLFX B 2 Bright A_LightningClip
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			MLFX C 2 Bright A_LightningClip
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			MLFX D 2 Bright A_LightningClip
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-		Loop
-	}
-}
-
-Actor LightningZap2 : LightningZap replaces LightningZap {
-	Damage (random(6, 18) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
-	DamageType "CyberLightning"
-	Species "Cyber"
-	+THRUSPECIES
 	+THRUGHOST
+	+DONTBLAST
+	DeathSound "Avatar/BoltHit"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-		Goto Super::Spawn
+			MLFX IJKLM 3 Bright
+		Loop
+		Death:
+			MLFX OPQRSTU 3 Bright
+		Stop
 	}
 }
 
-ACTOR RedLiteBot : LightningFloor {
-	DamageType "CyberLightning"
-	Species "Cyber"
-	+THRUSPECIES
-	+DONTBLAST
+Actor RedLiteBot {
+	Projectile
+	Radius 16
+	Height 32
+	Speed 18
+	Renderstyle Add
+	const int pspd = 18;
+	const int boltspeed = 32;
+	const float turnang = 6;
+	ReactionTime 3
+	Seesound "Avatar/BoltFire"
+	BounceType Hexen
+	BounceFactor 0.125
+	+FLOORHUGGER
+	+THRUACTORS
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay A_PlaySound("Avatar/BoltLoop", 5, 1.0, 1)
 		SpawnLoop:
-			MLFX E 2 Bright A_LightningZap
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			MLFX F 2 Bright A_LightningClip
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			MLFX G 2 Bright A_LightningClip
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			MLFX H 2 Bright A_LightningClip
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			MLFX EFGHEFGH 4 Bright A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Hack", 0, x, y, z)
+			TNT1 A 0 A_ChangeVelocity(velx / 8, vely / 8, velz, CVF_REPLACE)
+			MLFX EFGHEFGHEFGH 4 Bright A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX E 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX F 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX G 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX H 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Hack", 0, x, y, z)
+			TNT1 A 0 A_ChangeVelocity(velx / 8, vely / 8, velz, CVF_REPLACE)
+			MLFX EFGHEFGHEFGH 4 Bright A_SpawnItemEx("RedLiteInBetween", 0, 0, 0, 0, 0, boltspeed)
+			TNT1 A 0 A_ChangeVelocity(pspd *cos(angle + 180) / 2, pspd *sin(angle + 180) / 2, velz, CVF_REPLACE)
+			TNT1 A 0 A_CountDown
+		Loop
+		Death:
+			"####" "#" 0 A_StopSound(5)
+			"####" "#" 1 A_FadeOut(0.0825)
+		Wait
+	}
+}
+
+Actor RedLiteTop : RedLiteBot {
+	-FLOORHUGGER
+	+CEILINGHUGGER
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Avatar/BoltLoop", 5, 1.0, 1)
+		SpawnLoop:
+			MLFX ABCDABCD 4 Bright A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Hack", 0, x, y, z)
+			TNT1 A 0 A_ChangeVelocity(velx / 8, vely / 8, velz, CVF_REPLACE)
+			MLFX ABCDABCDABCD 4 Bright A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX A 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX B 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX C 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_SetAngle(angle + turnang)
+			MLFX D 1 Bright A_ChangeVelocity(pspd *cos(angle), pspd *sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Hack", 0, x, y, z)
+			TNT1 A 0 A_ChangeVelocity(velx / 8, vely / 8, velz, CVF_REPLACE)
+			MLFX ABCDABCDABCD 4 Bright A_SpawnItemEx("RedLiteInBetween", 0, 0, -12, 0, 0, -boltspeed)
+			TNT1 A 0 A_ChangeVelocity(pspd *cos(angle + 180) / 2, pspd *sin(angle + 180) / 2, velz, CVF_REPLACE)
+			TNT1 A 0 A_CountDown
 		Loop
 	}
 }

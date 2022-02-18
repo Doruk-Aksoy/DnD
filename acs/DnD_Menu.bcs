@@ -300,16 +300,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			framecounter = (++framecounter) % 3;
 		}
 		
-		// retry ack
-		if(!CheckInventory("DND_ACK")) {
-			if(sendBox) {
-				redraw = true;
-				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
-				//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-				ACS_NamedExecuteAlways("DnD Retry Sending Until ACK", 0, pnum | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
-			}
-		}
-		else {
+		if(CheckInventory("DND_ACK")) {
 			sendBox = false;
 			SetInventory("MenuInput", 0);
 			//Log(s:"reset input data");

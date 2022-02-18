@@ -177,7 +177,16 @@ Script 1690 (int isSecretExit, int forcedExit) {
 			SetPlayerProperty(1, 1, PROP_TOTALLYFROZEN);
 			SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
 			
-			// set activator to world
+			// make all players run this input loop
+			for(int i = 0; i < MAXPLAYERS; ++i) {
+				if(PlayerInGame(i)) {
+					SetActivator(i + P_TIDSTART);
+					ACS_NamedExecuteWithResult("DnD Scoreboard Input Loop", i);
+				}
+			}
+			
+			// set activator to world --- CS draws etc. are all broadcasted from here on to all players, but server checks for making the decision to
+			// change the map
 			SetActivator(-1);
 			
 			// display
@@ -191,17 +200,10 @@ Script 1690 (int isSecretExit, int forcedExit) {
 			ScoreboardData[DND_SCBRD_PLAYEREXITED2] = 0;
 			ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] = 0;
 			
-			// timer
+			// timer -- waits until times up or everyones clicked
 			democracy = ScoreboardData[DND_SCBRD_TIMER] * TICRATE;
-			while(democracy--) {
-				if(!PlayerHasClicked(pnum) && (GetPlayerInput(pnum, INPUT_BUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK))) {
-					MarkPlayerAsExited(pnum);
-					// if everyone has clicked, we can skip this timer entirely
-					if(ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] >= GetActivePlayerCount())
-						break;
-				}
+			while(democracy-- && ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] < GetActivePlayerCount())
 				Delay(const:1);
-			}
 			
 			if(!isSecretExit)
 				Exit_Normal(0);
@@ -209,6 +211,22 @@ Script 1690 (int isSecretExit, int forcedExit) {
 				Exit_Secret(0);
 			Delay(1);
 		}
+	}
+}
+
+Script "DnD Scoreboard Input Loop" (int pnum) {
+	// this is fine because after map terminates so does this script
+	while(true) {
+		if(!PlayerHasClicked(pnum) && (GetPlayerInput(pnum, INPUT_BUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK))) {
+			MarkPlayerAsExited(pnum);
+			GiveInventory("DnD_ScoreboardTick", 1);
+			
+			// give every player the refresh token
+			for(int i = 0; i < MAXPLAYERS; ++i)
+				if(PlayerInGame(i))
+					GiveActorInventory(i + P_TIDSTART, "DnD_ScoreboardRefresher", 1);
+		}
+		Delay(const:1);
 	}
 }
 
@@ -222,6 +240,7 @@ enum {
 	DND_SCBRDID_HOVERBG,
 	DND_SCBRDID_MAPCOMPLETE,
 	DND_SCBRDID_STATUSICON,
+	DND_SCBRDID_TICKICON,
 	DND_SCBRDID_CONTINUE,
 	DND_SCBRDID_PLAYER,
 	DND_SCBRDID_PLAYERUNDERLINE,
@@ -235,7 +254,7 @@ enum {
 	
 	DND_SCBRDID_BG = 2800
 };
-#define DND_SCBRD_PDATA_THINGS 5 // status, name, damage dealt, damage taken, kill pct
+#define DND_SCBRD_PDATA_THINGS 6 // status, name, damage dealt, damage taken, kill pct, tick icon
 
 // ghetto af solution
 Script "DnD Scoreboard Sound Player" (int sound) CLIENTSIDE {
@@ -262,15 +281,22 @@ void GroupScoreboardPlayers() {
 
 	// grouping works on first come first serve in player id -- the index 0 may be player 13 for example on spectating players
 	int lim = GetPlayerCountAny();
-	for(i = 0; i < lim; ++i) {
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
+	int pcounter = 0;
+	for(i = 0; i < MAXPLAYERS && pcounter < lim; ++i) {
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			PInterGroups[INTER_PSTATE_ALIVE][ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]++] = i;
+			++pcounter;
+		}
 		else {
 			int spec = PlayerIsSpectator(i);
-			if(spec == INTER_PSTATE_DEAD)
+			if(spec == INTER_PSTATE_DEAD) {
 				PInterGroups[INTER_PSTATE_DEAD][ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]++] = i;
-			else if(spec == INTER_PSTATE_SPECTATING)
+				++pcounter;
+			}
+			else if(spec == INTER_PSTATE_SPECTATING) {
 				PInterGroups[INTER_PSTATE_SPECTATING][ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]++] = i;
+				++pcounter;
+			}
 		}
 	}
 }
@@ -290,14 +316,14 @@ void BuildScoreboardBoxes() {
 		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count);
 		++box_count;
 	}
-	y_off = foundAlive * 6.0;
+	y_off = foundAlive * 7.5;
 	// dead
 	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_DEAD][i] != -1; ++i) {
 		foundDead = true;
 		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off);
 		++box_count;
 	}
-	y_off += foundDead * 6.0;
+	y_off += foundDead * 7.5;
 	// spec
 	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_SPECTATING][i] != -1; ++i) {
 		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off);
@@ -430,17 +456,26 @@ void DrawPlayerOnScoreboard(int interstate, int pnum, int draw_count, int total_
 		16.1, y, 0
 	);
 	
+	if(interstate != INTER_PSTATE_SPECTATING && CheckActorInventory(pnum + P_TIDSTART, "DnD_ScoreboardTick")) {
+		SetFont("TICKED");
+		HudMessage(
+			s:"A"; 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + DND_SCBRD_PDATA_THINGS * draw_count + 1, CR_UNTRANSLATED, 
+			0.1, y, 0
+		);
+	}
+	
 	SetFont("INTERFONT");
 	
 	text = StrParam(n:pnum + 1);
-	temp = StrLen(text);
+	temp = GetPlayernameRawLength(text);
 	// don't clutter the intermission board
 	if(temp > MAX_INTERMISSION_PNAMELEN)
 		text = StrParam(s:StrLeft(text, MAX_INTERMISSION_PNAMELEN), s:"...");
 		temp = MAX_INTERMISSION_PNAMELEN + 3; // 3 for "..."
 		HudMessage(
 			s:text; 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 1), col, 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 2), col, 
 			35.1, y, 0
 		);
 	
@@ -454,14 +489,14 @@ void DrawPlayerOnScoreboard(int interstate, int pnum, int draw_count, int total_
 		// damage dealt
 		HudMessage(
 			s:col_prefix, s:GetStatistic(DND_STATISTIC_DAMAGEDEALT, tid); 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 2), col, 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 3), col, 
 			468.4, y, 0
 		);
 		
 		// damage taken
 		HudMessage(
 			s:col_prefix, s:GetStatistic(DND_STATISTIC_DAMAGETAKEN, tid); 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 3), col, 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 4), col, 
 			736.4, y, 0
 		);
 		
@@ -484,12 +519,16 @@ void DrawPlayerOnScoreboard(int interstate, int pnum, int draw_count, int total_
 		
 		HudMessage(
 			d:temp, s: " (", d: pct, s:"%)"; 
-			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 4), col, 
+			HUDMSG_PLAIN, DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 5), col, 
 			964.4, y, 0
 		);
 	}
-	else
-		DeleteTextRange(DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 2), DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 4));
+	else {
+		// 5 to 3
+		pct = DND_SCBRDID_PDATA + (DND_SCBRD_PDATA_THINGS * draw_count + 1);
+		DeleteText(pct);
+		DeleteTextRange(pct + 4, pct + 2);
+	}
 }
 
 void DrawScoreboard(int time, int ScrollPos, int total_mons, int p_highlight) {		
@@ -507,21 +546,24 @@ void DrawScoreboard(int time, int ScrollPos, int total_mons, int p_highlight) {
 	bool foundAlive = false;
 	bool foundDead = false;
 	
-	for(i = 0; i < ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT] && PInterGroups[INTER_PSTATE_ALIVE][i] != -1; ++i) {
+	// clear the potentially previously drawn things due to refresh
+	DeleteTextRange(DND_SCBRDID_PDATA, DND_SCBRDID_PDATA + DND_SCBRD_PDATA_THINGS * (MAXPLAYERS + 1));
+	
+	for(i = 0; PInterGroups[INTER_PSTATE_ALIVE][i] != -1; ++i) {
 		foundAlive = true;
 		DrawPlayerOnScoreboard(INTER_PSTATE_ALIVE, PInterGroups[INTER_PSTATE_ALIVE][i], draw_count++, total_mons, p_highlight, 0);
 	}
 	
 	// dead
 	y_off = foundAlive * 18.0;
-	for(i = 0; i < ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT] && PInterGroups[INTER_PSTATE_DEAD][i] != -1; ++i) {
+	for(i = 0; PInterGroups[INTER_PSTATE_DEAD][i] != -1; ++i) {
 		foundDead = true;
 		DrawPlayerOnScoreboard(INTER_PSTATE_DEAD, PInterGroups[INTER_PSTATE_DEAD][i], draw_count++, total_mons, p_highlight, y_off);
 	}
 		
 	// spec
 	y_off += foundDead * 18.0;
-	for(i = 0; i < ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT] && PInterGroups[INTER_PSTATE_SPECTATING][i] != -1; ++i)
+	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_SPECTATING][i] != -1; ++i)
 		DrawPlayerOnScoreboard(INTER_PSTATE_SPECTATING, PInterGroups[INTER_PSTATE_SPECTATING][i], draw_count++, total_mons, p_highlight, y_off);
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
@@ -608,12 +650,15 @@ int DrawHoveredPlayerData() {
 				DeleteTextRange(DND_SCBRDID_HOVER_LIFE, DND_SCBRDID_HOVER_CREDIT);
 			}
 			else {
+				int temp = CheckActorInventory(tid, "DnD_Character");
 				// alive and well
-				HudMessage(
-					s:"\cd", l:"DND_STAT18", s:" \c-", d:CheckActorInventory(tid, "Level"),
-					s:"\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:CheckActorInventory(tid, "DnD_Character") - 1), DND_CLASS_LABEL_NAME);
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-				);
+				if(temp) {
+					HudMessage(
+						s:"\cd", l:"DND_STAT18", s:" \c-", d:CheckActorInventory(tid, "Level"),
+						s:"\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:CheckActorInventory(tid, "DnD_Character") - 1), DND_CLASS_LABEL_NAME);
+						HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					);
+				}
 				
 				// life
 				HudMessage(
@@ -688,8 +733,8 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		DrawCursor();
 		
-		// initially always divisible by 7 (TICRATE) so we always enter here first
-		if(!(tics % 7)) {
+		// initially always divisible by 5 (TICRATE) so we always enter here first
+		if(!(tics % 5)) {
 			temp = GetPlayerCountAny();
 
 			int prev_alive = ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT];
@@ -721,15 +766,16 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 		
 		int p_highlight = DrawHoveredPlayerData();
 		
-		// check if we should redraw here
+		// check if we should redraw here -- we check for actor as the owner of the script is not a player, but the server
 		redraw |= HandleIntermissionInputs(min_y);
+		redraw |= CheckActorInventory(cpn + P_TIDSTART, "DnD_ScoreboardRefresher");
 		
 		// display press key to continue text
 		SetFont("INTERFONT");
 		SetHudSize(640, 480, 1);
 		HudMessage(
-			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
-			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 416.1, 0.0, abs(sin(alpha * 1.0 / 360))
+			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:"\c[L7], \ci", k:"+attack", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
+			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 424.1, 0.0, abs(sin(alpha * 1.0 / 360))
 		);
 
 		--tics;

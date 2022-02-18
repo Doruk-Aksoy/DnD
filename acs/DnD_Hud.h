@@ -340,9 +340,7 @@ void DrawCursor() {
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
 	
-/*#ifdef ISDEBUGBUILD
-	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
-#endif*/
+	//printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
 
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 0.1, HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }
@@ -435,6 +433,38 @@ bool ListenScroll(int condx_min, int condx_max) {
 		SetInventory("MenuUD", 2);
 	}
 	return redraw;
+}
+
+// we need this because the player name returned from acs functions currently includes color codes which may affect text length for trims
+int GetPlayernameRawLength(str name) {
+	int len = Strlen(name);
+	int real_len = 0;
+	int color_count = 0;
+	bool in_ccode = false;
+	bool in_bracketed_color = false;
+	
+	
+	for(int i = 0; i < len; ++i) {
+		int c = GetChar(name, i);
+		
+		// 28 is FS (File Seperator)
+		if(c == 28)
+			in_ccode = true;
+		else if(in_ccode) {
+			++color_count;
+			if(c == '[')
+				in_bracketed_color = true;
+			else if((!in_bracketed_color && color_count == 1) || (in_bracketed_color && c == ']')) {
+				// enter here if we counted the color character in zandro (\c + u into \cu example) or in newtextcolors bracket style (\c[M3] for example)
+				in_ccode = false;
+				in_bracketed_color = false;
+				color_count = 0;
+			}
+		}
+		else
+			++real_len;
+	}
+	return real_len;
 }
 
 #endif

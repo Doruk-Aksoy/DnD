@@ -1862,7 +1862,7 @@ Graphic "STFXDTH4", 28, 30
 	Patch "STFXDTH4", 0, 0
 }
 
-Graphic "RENDEAD0", 24, 33
+Graphic "RENDEAD0", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -1870,7 +1870,7 @@ Graphic "RENDEAD0", 24, 33
 	Patch "RENDEAD0", 0, 0
 }
 
-Graphic "RENEVL0", 24, 35
+Graphic "RENEVL0", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1878,7 +1878,7 @@ Graphic "RENEVL0", 24, 35
 	Patch "RENEVL0", 0, 0
 }
 
-Graphic "RENEVL1", 24, 35
+Graphic "RENEVL1", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1886,7 +1886,7 @@ Graphic "RENEVL1", 24, 35
 	Patch "RENEVL1", 0, 0
 }
 
-Graphic "RENEVL2", 24, 35
+Graphic "RENEVL2", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1894,7 +1894,7 @@ Graphic "RENEVL2", 24, 35
 	Patch "RENEVL2", 0, 0
 }
 
-Graphic "RENEVL3", 24, 35
+Graphic "RENEVL3", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1902,7 +1902,7 @@ Graphic "RENEVL3", 24, 35
 	Patch "RENEVL3", 0, 0
 }
 
-Graphic "RENEVL4", 24, 35
+Graphic "RENEVL4", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1910,7 +1910,7 @@ Graphic "RENEVL4", 24, 35
 	Patch "RENEVL4", 0, 0
 }
 
-Graphic "RENGOD0", 24, 33
+Graphic "RENGOD0", 26, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1918,7 +1918,23 @@ Graphic "RENGOD0", 24, 33
 	Patch "RENGOD0", 0, 0
 }
 
-Graphic "RENKILL0", 24, 35
+Graphic "RENGOD1", 26, 33
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, 1
+	Patch "RENGOD0", 0, 0
+}
+
+Graphic "RENGOD2", 26, 33
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, 1
+	Patch "RENGOD0", 0, 0
+}
+
+Graphic "RENKILL0", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1926,7 +1942,7 @@ Graphic "RENKILL0", 24, 35
 	Patch "RENKILL0", 0, 0
 }
 
-Graphic "RENKILL1", 24, 35
+Graphic "RENKILL1", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1934,7 +1950,7 @@ Graphic "RENKILL1", 24, 35
 	Patch "RENKILL1", 0, 0
 }
 
-Graphic "RENKILL2", 24, 35
+Graphic "RENKILL2", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1942,7 +1958,7 @@ Graphic "RENKILL2", 24, 35
 	Patch "RENKILL2", 0, 0
 }
 
-Graphic "RENKILL3", 24, 35
+Graphic "RENKILL3", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1950,7 +1966,7 @@ Graphic "RENKILL3", 24, 35
 	Patch "RENKILL3", 0, 0
 }
 
-Graphic "RENKILL4", 24, 35
+Graphic "RENKILL4", 24, 33
 {
 	XScale 0.500
 	YScale 0.500
@@ -1958,7 +1974,7 @@ Graphic "RENKILL4", 24, 35
 	Patch "RENKILL4", 0, 0
 }
 
-Graphic "RENOUCH0", 24, 36
+Graphic "RENOUCH0", 24, 34
 {
 	XScale 0.500
 	YScale 0.500
@@ -1966,7 +1982,7 @@ Graphic "RENOUCH0", 24, 36
 	Patch "RENOUCH0", 0, 0
 }
 
-Graphic "RENOUCH1", 24, 36
+Graphic "RENOUCH1", 24, 34
 {
 	XScale 0.500
 	YScale 0.500
@@ -1974,7 +1990,7 @@ Graphic "RENOUCH1", 24, 36
 	Patch "RENOUCH1", 0, 0
 }
 
-Graphic "RENOUCH2", 24, 36
+Graphic "RENOUCH2", 24, 34
 {
 	XScale 0.500
 	YScale 0.500
@@ -1982,7 +1998,7 @@ Graphic "RENOUCH2", 24, 36
 	Patch "RENOUCH2", 0, 0
 }
 
-Graphic "RENOUCH3", 24, 36
+Graphic "RENOUCH3", 24, 34
 {
 	XScale 0.500
 	YScale 0.500
@@ -1990,7 +2006,7 @@ Graphic "RENOUCH3", 24, 36
 	Patch "RENOUCH3", 0, 0
 }
 
-Graphic "RENOUCH4", 24, 36
+Graphic "RENOUCH4", 24, 34
 {
 	XScale 0.500
 	YScale 0.500
@@ -1998,7 +2014,7 @@ Graphic "RENOUCH4", 24, 36
 	Patch "RENOUCH4", 0, 0
 }
 
-Graphic "RENST00", 24, 33
+Graphic "RENST00", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2006,7 +2022,7 @@ Graphic "RENST00", 24, 33
 	Patch "RENST00", 0, 0
 }
 
-Graphic "RENST01", 24, 33
+Graphic "RENST01", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2014,7 +2030,7 @@ Graphic "RENST01", 24, 33
 	Patch "RENST01", 0, 0
 }
 
-Graphic "RENST02", 24, 33
+Graphic "RENST02", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2022,23 +2038,23 @@ Graphic "RENST02", 24, 33
 	Patch "RENST02", 0, 0
 }
 
-Graphic "RENST03", 24, 33
+Graphic "RENST03", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST03", 0, 0
+	Patch "RENST02", 0, 0
 }
 
-Graphic "RENST04", 24, 33
+Graphic "RENST04", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST04", 0, 0
+	Patch "RENST02", 0, 0
 }
 
-Graphic "RENST10", 24, 33
+Graphic "RENST10", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2046,7 +2062,7 @@ Graphic "RENST10", 24, 33
 	Patch "RENST10", 0, 0
 }
 
-Graphic "RENST11", 24, 33
+Graphic "RENST11", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2054,7 +2070,7 @@ Graphic "RENST11", 24, 33
 	Patch "RENST11", 0, 0
 }
 
-Graphic "RENST12", 24, 33
+Graphic "RENST12", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2062,23 +2078,23 @@ Graphic "RENST12", 24, 33
 	Patch "RENST12", 0, 0
 }
 
-Graphic "RENST13", 24, 33
+Graphic "RENST13", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST13", 0, 0
+	Patch "RENST12", 0, 0
 }
 
-Graphic "RENST14", 24, 33
+Graphic "RENST14", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST14", 0, 0
+	Patch "RENST12", 0, 0
 }
 
-Graphic "RENST20", 24, 33
+Graphic "RENST20", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2086,7 +2102,7 @@ Graphic "RENST20", 24, 33
 	Patch "RENST20", 0, 0
 }
 
-Graphic "RENST21", 24, 33
+Graphic "RENST21", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2094,7 +2110,7 @@ Graphic "RENST21", 24, 33
 	Patch "RENST21", 0, 0
 }
 
-Graphic "RENST22", 24, 33
+Graphic "RENST22", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2102,23 +2118,23 @@ Graphic "RENST22", 24, 33
 	Patch "RENST22", 0, 0
 }
 
-Graphic "RENST23", 24, 33
+Graphic "RENST23", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST23", 0, 0
+	Patch "RENST22", 0, 0
 }
 
-Graphic "RENST24", 24, 33
+Graphic "RENST24", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST24", 0, 0
+	Patch "RENST22", 0, 0
 }
 
-Graphic "RENST30", 24, 33
+Graphic "RENST30", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2126,7 +2142,7 @@ Graphic "RENST30", 24, 33
 	Patch "RENST30", 0, 0
 }
 
-Graphic "RENST31", 24, 33
+Graphic "RENST31", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2134,7 +2150,7 @@ Graphic "RENST31", 24, 33
 	Patch "RENST31", 0, 0
 }
 
-Graphic "RENST32", 24, 33
+Graphic "RENST32", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2142,23 +2158,23 @@ Graphic "RENST32", 24, 33
 	Patch "RENST32", 0, 0
 }
 
-Graphic "RENST33", 24, 33
+Graphic "RENST33", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST33", 0, 0
+	Patch "RENST32", 0, 0
 }
 
-Graphic "RENST34", 24, 33
+Graphic "RENST34", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST34", 0, 0
+	Patch "RENST32", 0, 0
 }
 
-Graphic "RENST40", 24, 33
+Graphic "RENST40", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2166,7 +2182,7 @@ Graphic "RENST40", 24, 33
 	Patch "RENST40", 0, 0
 }
 
-Graphic "RENST41", 24, 33
+Graphic "RENST41", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2174,7 +2190,7 @@ Graphic "RENST41", 24, 33
 	Patch "RENST41", 0, 0
 }
 
-Graphic "RENST42", 24, 33
+Graphic "RENST42", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
@@ -2182,23 +2198,23 @@ Graphic "RENST42", 24, 33
 	Patch "RENST42", 0, 0
 }
 
-Graphic "RENST43", 24, 33
+Graphic "RENST43", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST43", 0, 0
+	Patch "RENST42", 0, 0
 }
 
-Graphic "RENST44", 24, 33
+Graphic "RENST44", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENST44", 0, 0
+	Patch "RENST42", 0, 0
 }
 
-Graphic "RENTL00", 26, 33
+Graphic "RENTL00", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2206,7 +2222,7 @@ Graphic "RENTL00", 26, 33
 	Patch "RENTL00", 0, 0
 }
 
-Graphic "RENTL10", 26, 33
+Graphic "RENTL10", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2214,7 +2230,7 @@ Graphic "RENTL10", 26, 33
 	Patch "RENTL10", 0, 0
 }
 
-Graphic "RENTL20", 26, 33
+Graphic "RENTL20", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2222,7 +2238,7 @@ Graphic "RENTL20", 26, 33
 	Patch "RENTL20", 0, 0
 }
 
-Graphic "RENTL30", 26, 33
+Graphic "RENTL30", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2230,7 +2246,7 @@ Graphic "RENTL30", 26, 33
 	Patch "RENTL30", 0, 0
 }
 
-Graphic "RENTL40", 26, 33
+Graphic "RENTL40", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2238,7 +2254,7 @@ Graphic "RENTL40", 26, 33
 	Patch "RENTL40", 0, 0
 }
 
-Graphic "RENTR00", 26, 33
+Graphic "RENTR00", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2246,7 +2262,7 @@ Graphic "RENTR00", 26, 33
 	Patch "RENTR00", 0, 0
 }
 
-Graphic "RENTR10", 26, 33
+Graphic "RENTR10", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2254,7 +2270,7 @@ Graphic "RENTR10", 26, 33
 	Patch "RENTR10", 0, 0
 }
 
-Graphic "RENTR20", 26, 33
+Graphic "RENTR20", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2262,7 +2278,7 @@ Graphic "RENTR20", 26, 33
 	Patch "RENTR20", 0, 0
 }
 
-Graphic "RENTR30", 26, 33
+Graphic "RENTR30", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2270,7 +2286,7 @@ Graphic "RENTR30", 26, 33
 	Patch "RENTR30", 0, 0
 }
 
-Graphic "RENTR40", 26, 33
+Graphic "RENTR40", 26, 30
 {
 	XScale 0.500
 	YScale 0.500
@@ -2278,36 +2294,36 @@ Graphic "RENTR40", 26, 33
 	Patch "RENTR40", 0, 0
 }
 
-Graphic "RENXDTH0", 24, 30
+Graphic "RENXDTH0", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, -1
-	Patch "RENXDTH0", 0, 0
+	Patch "RENDEAD0", 0, 0
 }
 
-Graphic "RENXDTH1", 24, 30
+Graphic "RENXDTH1", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, -1
-	Patch "RENXDTH1", 0, 0
+	Patch "RENDEAD0", 0, 0
 }
 
-Graphic "RENXDTH2", 24, 30
+Graphic "RENXDTH2", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, -1
-	Patch "RENXDTH2", 0, 0
+	Patch "RENDEAD0", 0, 0
 }
 
-Graphic "RENXDTH3", 24, 30
+Graphic "RENXDTH3", 24, 31
 {
 	XScale 0.500
 	YScale 0.500
 	Offset -5, -1
-	Patch "RENXDTH3", 0, 0
+	Patch "RENDEAD0", 0, 0
 }
 
 Graphic "RENXDTH4", 24, 30
@@ -2315,7 +2331,7 @@ Graphic "RENXDTH4", 24, 30
 	XScale 0.500
 	YScale 0.500
 	Offset -5, -1
-	Patch "RENXDTH4", 0, 0
+	Patch "RENDEAD0", 0, 0
 }
 
 Graphic "MARDEAD0", 32, 32

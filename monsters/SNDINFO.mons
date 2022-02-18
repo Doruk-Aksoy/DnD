@@ -403,7 +403,11 @@ Avatar/IceJet	AVICJET
 Avatar/SoulFire	AVASFIR
 Avatar/SoulXP	AVASXPL
 Avatar/Bishop	AVABISH
-MageLightningFire dslight
+
+Avatar/BoltFire	AVATLIGH	
+Avatar/BoltLoop	AVATBOLL
+Avatar/BoltHit	AVATBOLH
+
 SorcererBallPop AVAPOP
 SorcererBallBounce AVABOU2
 SorcererBigBallExplode AVAEXPL

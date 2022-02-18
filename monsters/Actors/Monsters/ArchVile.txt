@@ -407,10 +407,20 @@ Actor DTracerPuff {
 	}
 }
 
-Actor DMissileTrail : CFlameFloor {
+Actor DMissileTrail {
+	RenderStyle Add
 	DamageType "Vile"
 	+ThruGhost
 	+DONTBLAST
+	+NOBLOCKMAP
+	+NOGRAVITY
+	States {
+		Spawn:
+			CFFX N 5 Bright
+			CFFX O 4 Bright
+			CFFX P 3 Bright
+		Stop
+	}
 }
 
 Actor DMissileCircle {
@@ -772,11 +782,16 @@ Actor HieroBall1 : BaronBall {
 	}
 }
 
-Actor HieroBall2 : BishopFX {
+Actor HieroBall2 {
 	Speed 16
+	Radius 10
+	Height 6
+	Renderstyle Add
 	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "VileFire"
+	PROJECTILE
 	+ThruGhost
+	+SEEKERMISSILE
 	+ForceXYBillBoard
 	+DONTBLAST
 	Seesound "weapons/firmfi"
@@ -786,7 +801,7 @@ Actor HieroBall2 : BishopFX {
 		Spawn: 
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 		SpawnLoop:
-			HIB2 ABCD 1 Bright A_BishopMissileWeave
+			HIB2 ABCD 1 Bright A_Weave(2, 2, 2.0, 1.0)
 			HIB2 A 0 Bright A_SeekerMissile(5, 6)
 		Loop
 		Death:

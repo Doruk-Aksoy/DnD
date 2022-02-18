@@ -544,3 +544,13 @@ Actor DnD_IntermissionState : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -50
 }
+
+Actor DnD_ScoreboardTick : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -50
+}
+
+Actor DnD_ScoreboardRefresher : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
