@@ -972,8 +972,12 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 	else
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_HELP"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0, 0.0);
 	
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:": \cj", d:CheckInventory("RoundsSurvived"); HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
-		
+	// hoping nobody lives more than 9999 maps --- find an adjustment for later ahh yes
+	temp = CheckInventory("RoundsSurvived");
+	if(temp <= 999)
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:": \cj", d:temp; HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
+	else
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:":\cj", d:temp; HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
 	SetResultValue(0);
 }
 

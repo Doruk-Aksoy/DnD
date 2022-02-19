@@ -160,6 +160,9 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 Script "DnD Clientside Open" OPEN CLIENTSIDE {
 	bool buttons = false;
 	bool wepdrop = false;
+	
+	SetUserCVar(ConsolePlayerNumber(), "dnd_onclassmenu", false);
+	
 	while(true) {
 		if(GameType() != GAME_SINGLE_PLAYER) {
 			if(!GetCVar("compat_clientssendfullbuttoninfo"))
@@ -5669,8 +5672,9 @@ Script "DnD Class Select Animated" (int doDelay) CLIENTSIDE {
 		
 		// display press w.e keys text
 		HudMessage(
-			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"CLASS_TOSELECT", s:"!";
-			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_CLASSMENU_BOTTOMTEXTID, -1, 300.4, 376.1, 0.0, abs(sin(select_alpha * 1.0 / 360))
+			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+attack", s: " \c[L7]", l:"CLASS_TOSELECT", s:"!",
+			s:"\n\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+altattack", s:" \c[L7]", l:"CLASS_TOCLOSE", s:"!";
+			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_CLASSMENU_BOTTOMTEXTID, -1, 300.4, 368.1, 0.0, abs(sin(select_alpha * 1.0 / 360))
 		);
 		
 		Delay(const:1);
@@ -5705,12 +5709,12 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	SetHudClipRect(100, 84, 384, 384, 336, 1);
 	
 	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
-	HudMessage(s:"\cj", l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT); HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 192.1, 0.0);
+	HudMessage(s:"\cj", l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT); HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 184.1, 0.0);
 	
 	// perks
-	HudMessage(s:"+ L5: ",  l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK5ID, CR_GREEN, 128.1, 256.1, 0.0);
-	HudMessage(s:"+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, CR_ORANGE, 128.1, 296.1, 0.0);
-	HudMessage(s:"+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, CR_RED, 128.1, 336.1, 0.0);
+	HudMessage(s:"+ L5: ",  l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK5ID, CR_GREEN, 128.1, 248.1, 0.0);
+	HudMessage(s:"+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, CR_ORANGE, 128.1, 288.1, 0.0);
+	HudMessage(s:"+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, CR_RED, 128.1, 328.1, 0.0);
 	
 	SetHudClipRect(0, 0, 0, 0, 0, 0);
 	

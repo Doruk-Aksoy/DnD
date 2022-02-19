@@ -1462,6 +1462,22 @@ Graphic "STFGOD0", 24, 29
 	Patch "STFGOD0", 0, 0
 }
 
+Graphic "STFGOD1", 24, 29
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, -2
+	Patch "STFGOD0", 0, 0
+}
+
+Graphic "STFGOD2", 24, 29
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, -2
+	Patch "STFGOD0", 0, 0
+}
+
 Graphic "STFKILL0", 24, 30
 {
 	XScale 0.500
@@ -1923,7 +1939,7 @@ Graphic "RENGOD1", 26, 33
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENGOD0", 0, 0
+	Patch "RENGOD1", 0, 0
 }
 
 Graphic "RENGOD2", 26, 33
@@ -1931,7 +1947,7 @@ Graphic "RENGOD2", 26, 33
 	XScale 0.500
 	YScale 0.500
 	Offset -5, 1
-	Patch "RENGOD0", 0, 0
+	Patch "RENGOD2", 0, 0
 }
 
 Graphic "RENKILL0", 24, 33
@@ -2383,6 +2399,22 @@ Graphic "MAREVL4", 32, 32
 }
 
 Graphic "MARGOD0", 32, 32
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -2, -1
+	Patch "MARGOD0", 0, 0
+}
+
+Graphic "MARGOD1", 32, 32
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -2, -1
+	Patch "MARGOD0", 0, 0
+}
+
+Graphic "MARGOD2", 32, 32
 {
 	XScale 0.500
 	YScale 0.500
@@ -2846,6 +2878,22 @@ Graphic "BADGOD0", 24, 33
 	Patch "BADGOD0", 0, 0
 }
 
+Graphic "BADGOD1", 24, 33
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, 1
+	Patch "BADGOD0", 0, 0
+}
+
+Graphic "BADGOD2", 24, 33
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, 1
+	Patch "BADGOD0", 0, 0
+}
+
 Graphic "BADKILL0", 24, 35
 {
 	XScale 0.500
@@ -3302,6 +3350,22 @@ Graphic "CRVGOD0", 34, 33
 	Patch "CRVGOD0", 0, 0
 }
 
+Graphic "CRVGOD1", 34, 33
+{
+	XScale 0.625
+	YScale 0.625
+	Offset -5, 1
+	Patch "CRVGOD0", 0, 0
+}
+
+Graphic "CRVGOD2", 34, 33
+{
+	XScale 0.625
+	YScale 0.625
+	Offset -5, 1
+	Patch "CRVGOD0", 0, 0
+}
+
 Graphic "CRVKILL0", 36, 35
 {
 	XScale 0.625
@@ -3751,6 +3815,22 @@ Graphic "CYGEVL4", 24, 30
 }
 
 Graphic "CYGGOD0", 24, 29
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, 1
+	Patch "CYGGOD0", 0, 0
+}
+
+Graphic "CYGGOD1", 24, 29
+{
+	XScale 0.500
+	YScale 0.500
+	Offset -5, 1
+	Patch "CYGGOD0", 0, 0
+}
+
+Graphic "CYGGOD2", 24, 29
 {
 	XScale 0.500
 	YScale 0.500
@@ -4247,6 +4327,22 @@ Graphic "BEROUCH4", 40, 40
 }
 
 Graphic "BERGOD0", 40, 40
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERGOD0", 0, 0
+}
+
+Graphic "BERGOD1", 40, 40
+{
+	XScale 0.625
+	YScale 0.625
+	Offset 0, 0
+	Patch "BERGOD0", 0, 0
+}
+
+Graphic "BERGOD2", 40, 40
 {
 	XScale 0.625
 	YScale 0.625

@@ -4,6 +4,7 @@
 
 CLASS_SELECT			= "SELECT YOUR CHARACTER";
 CLASS_TOSELECT			= "to select";
+CLASS_TOCLOSE			= "to close";
 CLASS_PRESS				= "Press";
 
 // Doomguy

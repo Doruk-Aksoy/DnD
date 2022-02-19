@@ -3,9 +3,6 @@ warp2 flat LAVA2
 warp2 flat LAVA3
 warp2 flat LAVA4
 
-texture RENGOD0
-	range RENGOD2 tics 4.0 oscillate
-
 texture BASIA01
 	range BASIA03 tics 4.0 oscillate
 

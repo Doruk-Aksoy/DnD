@@ -32,7 +32,7 @@ str Weapons_Data[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResShotgun1",						"Shell",			"ShellSize_12",			        "RW01Z0",		"WEPICO21"	},
 	 { "ResShotgun2",                       "NitrogenCanister", " ",                            "WBOWA0",       "WEPICO22"	},
 	 { "ResShotgun3",						"DemonBlood",		" ",							"WWOPA0",		"WEPICO23"	},
-	 { "ResShotgun4",						"CharonAmmo",		"CharonStacks",					"RW08Z0",		"RW08Z0"	},
+	 { "ResShotgun4",						"CharonAmmo",		"CharonStacks",					"RW08Z0",		"WEPICO93"	},
 	 
 	 { " Super Shotgun ",					"Shell",			" ",							"SHS1Z0",		"WEPICO24"	},
 	 { "Upgraded Super Shotgun",			"Shell",			" ",							"SSGPA0",		"WEPICO25"	},
@@ -54,12 +54,12 @@ str Weapons_Data[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResMG2",                            "RiotgunShell",     "RiotgunClip",                  "RIOTI0",       "WEPICO38"	},
      { "ResMG3",							"AcidAmmo",			"AcidClip",						"RIF2Y0",		"WEPICO39"	},
      { "ResMG4",							"FusionCell",		"MGClip6",						"FUSPA0",		"WEPICO40"	},
-	 { "ResMG5",							"IncineratorAmmo",	"IncineratorStacks",			"RW09Z0",		"RW09Z0"	},
+	 { "ResMG5",							"IncineratorAmmo",	"IncineratorStacks",			"RW09Z0",		"WEPICO94"	},
 	 
 	 { "Desolator",							"DesolatorAmmo",	"DesolatorOverheat",			"DES4X0",		"WEPICO41"	},
 	 { " Minigun ",							"Clip",				" ",							"CHNGX0",		"WEPICO42"	},
 	 { "Ebony Cannon",						"EbonyAmmo",		"EbonyAmmoX",			        "EBONICO",		"WEPICO43"	},
-	 { "MPPB",								"Cell",				" ",							"MPPBZ0",		"MPPBZ0"	},
+	 { "MPPB",								"Cell",				" ",							"MPPBZ0",		"WEPICO95"	},
 	 
 	 { "Rocket Launcher",					"RocketAmmo",		" ",							"LAUNICO",		"WEPICO44"	},
 	 { "Upgraded Rocket Launcher",		    "RocketAmmo",		" ",							"WPPKG0",		"WEPICO45"	},
@@ -69,7 +69,7 @@ str Weapons_Data[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResRL2",							"HeavyGrenades",	"HeavyGLCounter",				"GLAUX0",		"WEPICO49"	},
 	 { "ResRL3",							"EverIce",			"FreezerOverheat",				"FRZCZ0",		"WEPICO50"	},
 	 { "ResRL4",							"GravdisAmmo",		" ",							"BRSGX0",		"WEPICO91"	},
-	 { "ResRL5",							"Cell",				" ",							"RW07X0",		"RW07X0"	},
+	 { "ResRL5",							"Cell",				" ",							"RW07X0",		"WEPICO96"	},
 	 
 	 { "Grenade Launcher",					"Grenades",			" ",							"NGLPA0",		"WEPICO51"	},
 	 { "Upgraded Grenade Launcher",		    "Grenades",			" ",							"RTGLICO",		"WEPICO52"	},
@@ -83,7 +83,7 @@ str Weapons_Data[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResPlasma1",						"Fuel",				"FuelClip",					    "RW05X0",		"WEPICO58"	},
 	 { "ResPlasma2",                        "LightningCell",    "LightningStacks",              "LTGSA0",       "WEPICO59"	},
 	 { "ResPlasma3",						"Cell",				"RebounderOverheat",			"DGAPA0",		"WEPICO60"	},
-	 { "ResPlasma4",						"DemonBlood",		"LanceStacks",					"RW10Z0",		"RW10Z0"	},
+	 { "ResPlasma4",						"DemonBlood",		"LanceStacks",					"RW10Z0",		"WEPICO97"	},
 	 
 	 { "RhinoRifle",						"Clip",				"MGClip7",						"MAXPA0",		"WEPICO61"	},
 	 { "Nailgun",							"NailgunAmmo",		" ",							"NAIGA0",		"WEPICO62"	},

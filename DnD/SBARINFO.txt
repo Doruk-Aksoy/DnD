@@ -5,7 +5,7 @@ resolution 640, 400;
 // NC HUD
 statusbar normal, fullscreenoffsets {
   drawimage "H_BGLEFT", 5, -85; // Left background
-  drawmugshot "STF", 5, xdeathface, 6, -78; // Mugshot
+  drawmugshot "STF", 5, animatedgodmode, xdeathface, 6, -78; // Mugshot
   
 	// KillSpree Meter
 	InInventory KillSpreeOn {
@@ -1385,4 +1385,12 @@ mugshot "xdeath"
 	XDTH2 2;
 	XDTH3 2;
 	XDTH4 -1;
+}
+
+mugshot "GodAnimated"
+{
+	GOD0 40;
+	GOD1 3;
+	GOD2 6;
+	GOD1 3;
 }

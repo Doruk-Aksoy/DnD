@@ -80,7 +80,7 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 	
 	while(i < count) {
 		do {
-			roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+			roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE * 10) / 10;
 		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToCharm(charm_pos, roll);
 		++i;
@@ -111,12 +111,14 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	}
 	
 	// the guaranteed mods are subtracted from random rolls
+	// rolling logic is as follows:
+	// we extend the resolution of the range (the ends weren't being picked as evenly) example: range of 0 to 5 x 10 => 0 to 50, then we divide by 10. We extend possibility of picking the ends
 	while(i < count) {
 		do {
 			#ifdef ISDEBUGBUILD
 				roll = random(INV_POISON_TICRATE, LAST_INV_ATTRIBUTE);
 			#else
-				roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+				roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE * 10) / 10;
 			#endif
 		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToCharm(charm_pos, roll);
