@@ -303,6 +303,7 @@ Actor DMissile : FastProjectile {
 			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(270), r * sin(270), 16, 0, 0, 0, 270, SXF_TRANSFERPOINTERS)
 			TNT1 A 0 A_SpawnItemEx("DMissileCircle", r * cos(315), r * sin(315), 16, 0, 0, 0, 315, SXF_TRANSFERPOINTERS)
 		DeathNoExp:
+			TNT1 A 0 A_Stop
 			CFFX ABC 3 Bright
 			CFFX D 4 Bright
 			CFFX E 3 Bright

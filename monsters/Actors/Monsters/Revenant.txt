@@ -1902,10 +1902,19 @@ Actor DarkServantTrail {
 	}
 }
 
-Actor DarkServantMissile1 : DarkServantMissileSmall {
+Actor DarkServantMissile1 {
+	Speed 32
+	Height 8
+	Radius 4
+	SeeSound "Weapons/SmallLightning"
+	DeathSound "Weapons/SmallLightningH"
 	Damage (5 * random(2, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "RevLightning"
+	PROJECTILE
 	+THRUGHOST
+	Renderstyle Translucent
+	+PIERCEARMOR
+	+FORCEPAIN
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1918,9 +1927,18 @@ Actor DarkServantMissile1 : DarkServantMissileSmall {
 	}
 }
 
-Actor DarkServantMissile2 : DarkServantMissileBig {
+Actor DarkServantMissile2 {
+	Speed 28
+	Height 10
+	Radius 6
 	Damage (8 * random(1, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "RevLightning"
+	SeeSound "Weapons/BigLightning"
+	DeathSound "Weapons/BigLightningH"
+	PROJECTILE
+	+SEEKERMISSILE
+	+PIERCEARMOR
+	+FORCEPAIN
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

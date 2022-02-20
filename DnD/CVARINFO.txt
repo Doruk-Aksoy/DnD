@@ -30,7 +30,7 @@ server noarchive bool dnd_fullshare = true;
 server noarchive bool dnd_monsterlevel_behind = false;
 server noarchive bool dnd_credit_drops = true;
 server noarchive bool dnd_gainonlyinrange = false;
-server noarchive bool dnd_allresearchesfound = true;
+server noarchive bool dnd_allresearchesfound = false;
 server noarchive bool dnd_disablelevelbonus = false;
 server noarchive bool dnd_usesmartmonsterspawner = false;
 server noarchive bool dnd_enable_quests = true;
@@ -81,7 +81,7 @@ server noarchive int dnd_accessorylevel = 8;
 server noarchive int dnd_accessorymonsterlevel = 10;
 server noarchive int dnd_monster_hpscalepercent = 5;
 server noarchive int dnd_monster_rewardscalepercent = 5;
-server noarchive float dnd_uniquemonster_spawnchance = 0.05; // percent
+server noarchive float dnd_uniquemonster_spawnchance = 0.049; // percent
 
 server noarchive float dnd_monster_variation_factor = 1.5;
 server noarchive float dnd_researchdroprate = 0.00249;

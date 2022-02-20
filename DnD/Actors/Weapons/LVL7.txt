@@ -1113,6 +1113,7 @@ Actor RailgunPuff : DnD_BaseRailPuff {
 			TNT1 A 1
 		Stop
 		Crash:
+		HitNoBlood:
 		Melee:
 		Goto AfterDamage
 	}
@@ -1131,6 +1132,7 @@ Actor RailgunPuff_2 : DnD_BaseRailPuff {
 			TNT1 A 1
 		Stop
 		Crash:
+		HitNoBlood:
 		Melee:
 		Goto AfterDamage
 	}
@@ -1149,6 +1151,7 @@ Actor RailgunPuff_3 : DnD_BaseRailPuff {
 			TNT1 A 1
 		Stop
 		Crash:
+		HitNoBlood:
 		Melee:
 		Goto AfterDamage
 	}

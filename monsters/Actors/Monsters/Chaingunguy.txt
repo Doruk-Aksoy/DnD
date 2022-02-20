@@ -448,12 +448,24 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster {
 }
 
 Actor EnforcerPlasma2 : EnforcerPlasma {
+	Height 8
+	Radius 4
+	RenderStyle Add
 	Damage (2 * random(3,6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Alpha 0.8
+	Scale 0.25
 	Speed 40
+	DeathSound "Enforcer/Hit"
+	+FOILINVUL
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-		Goto Super::Spawn
+			TRAC A -1 Bright
+		Stop
+		Death:
+			TNT1 AAAAAA 0 A_SpawnItemEx("EnforcerFX", random(-4,4), random(-4,4), random(-2, 2), 0, 0, 0)
+			TNT1 A 2
+		Stop
 	}
 }
 
@@ -620,7 +632,7 @@ Actor MrRobot : DnD_BaseRangedMonster {
 	}
 }
 
-Actor EnforcerPlasma3 : EnforcerPlasma {
+Actor EnforcerPlasma3 : EnforcerPlasma2 {
 	Damage (random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "Energy"
 	Speed 48
@@ -804,14 +816,30 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster {
     }
 }
 
-Actor ZombiePlasma : PlasmaBallX {
+Actor ZombiePlasma : PlasmaBallX {	
+	Radius 8
+	Height 16
+	Speed 25
+	+RANDOMIZE
+	RenderStyle Add
+	Alpha 0.75
+	Decal "PlasmaScorchX"
 	Damage(15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
 	DamageType "Energy"
-	-MTHRUSPECIES
+	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.05,2.00]", "4:4=4:4", "224:229=224:229"
+	SeeSound "weapons/plasmaf"
+	DeathSound "weapons/plasmax"
+	
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-		Goto Super::Spawn
+		SpawnLoop:
+			PLSS AAABBB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			PLSE ABCDE 4 Bright
+		Stop
 	}
 }
 

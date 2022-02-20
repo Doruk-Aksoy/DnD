@@ -1131,7 +1131,7 @@ bool CanDropSoulAmmo() {
 	return (mid == MONSTER_BARON || (mid >= DND_CUSTOM_BARON_BEGIN && mid <= DND_CUSTOM_BARON_END) || 
 			mid == MONSTER_FATSO || (mid >= DND_CUSTOM_FATSO_BEGIN && mid <= DND_CUSTOM_FATSO_END) ||
 			mid == MONSTER_SPIDER || (mid >= DND_CUSTOM_ARACHNO_BEGIN && mid <= DND_CUSTOM_ARACHNO_END) ||
-			isBoss()) && MonsterData[mid].flags & DND_MTYPE_DEMON_POW;
+			isBoss()) && (MonsterData[mid].flags & DND_MTYPE_DEMON_POW);
 }
 
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX

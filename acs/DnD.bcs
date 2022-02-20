@@ -499,7 +499,7 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 		Delay(3);
 	}
 	SetFont("MONFONT");
-	HudMessage(s:"\ci", l:GetSpreeText(Clamp_Between(mult - 1, 1, MAX_SPREE_TEXT)), s:"!\c- \cix", f:mult * 0.25, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
+	HudMessage(s:"\ci", l:GetSpreeText(Clamp_Between(mult, 1, MAX_SPREE_TEXT)), s:"!\c- \cix", f:mult * 0.25, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
 	HudMessage(l:"DND_TEXT_GAINEDEXTRA", s:" \cf", d:reward, s: "\c- ", l:"DND_STAT16", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT2ID, CR_WHITE, 240.4, 328.0, 2.0, 1.0, 1.0);
 }
 
@@ -3722,6 +3722,7 @@ Script 1000 (int isSoftcore) {
 		ConsoleCommand("sv_coop_damagefactor 1.0");
 		ConsoleCommand("dnd_monster_dmgscalepercent 0.04");
 		ConsoleCommand("dnd_researchdroprate 0.00249");
+		ConsoleCommand("dnd_uniquemonster_spawnchance 0.0499");
 	}
 	if(isSoftcore < 2) {
 		if(isSoftcore) {
@@ -6080,6 +6081,13 @@ Script "DnD Player WeaponPower Check" (int wepid, int power) {
 
 Script "DnD Get Player WeaponID" (void) {
 	SetResultValue(GetWeaponPosFromTable());
+}
+
+Script "DnD Bloodfiend Heal" (void) {
+	SetActivatorToTarget(0);
+	
+	// 1% heal per pellet hitting
+	ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / 100);
 }
 
 Script 69 (void) NET {

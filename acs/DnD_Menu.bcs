@@ -1057,6 +1057,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			SetInventory("DnD_ShowSellPopup", 0);
 			SetInventory("DnD_PopupID", 0);
 			SetInventory("ActivePopupBox", 0);
+			boxid = MAINBOX_NONE;
 		}
 		
 		if(curopt == MENU_STAT1) { // stat screen

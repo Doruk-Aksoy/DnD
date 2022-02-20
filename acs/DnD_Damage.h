@@ -1605,7 +1605,7 @@ Script "DnD Spawn Poison FX" (int orig, int amt) CLIENTSIDE {
 	int r = GetActorProperty(orig, APROP_RADIUS);
 	int h = GetActorProperty(orig, APROP_HEIGHT);
 	for(int i = 0; i <= amt; ++i) {
-		SpawnForced("DnD_PoisonFX", GetActorX(orig) + random(-r, r), GetActorY(orig) + random(-r, r), GetActorZ(orig) + random(-h, h), 0);
+		SpawnForced("DnD_PoisonFX", GetActorX(orig) + random(-r, r), GetActorY(orig) + random(-r, r), GetActorZ(orig) + random(0, h), 0);
 		Delay(random(1, 3));
 	}
 }

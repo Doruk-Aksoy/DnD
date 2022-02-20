@@ -1327,16 +1327,15 @@ Actor HollowShellBone1 {
 	-NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 0
-			UP19 ABCDEFGH 4 A_GiveInventory("DnD_Info", 1)
-			TNT1 A 0 A_TakeInventory("DnD_Info", 0)
+			UP19 ABCDEFGH 4 NoDelay A_GiveInventory("DnD_Info", 1)
+			"####" "#" 0 A_TakeInventory("DnD_Info", 0)
 		Loop
 		Death:
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 7, "A")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 6, "E")
-			"####" "#" 0 A_JumpIfInventory("DnD_Info", 5, "Same")
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 5, "Fade")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 4, "E")
-			"####" "#" 0 A_JumpIfInventory("DnD_Info", 3, "Same")
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 3, "Fade")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 2, "C")
 		Fade:
 			"####" "#" 4 A_FadeOut(0.075)
@@ -1358,16 +1357,15 @@ Actor HollowShellBone2 : HollowShellBone1 {
 	Radius 10
 	States {
 		Spawn:
-			TNT1 A 0
-			UP09 ABCDEFGH 4 A_GiveInventory("DnD_Info", 1)
-			TNT1 A 0 A_TakeInventory("DnD_Info", 0)
+			UP09 ABCDEFGH 4 NoDelay A_GiveInventory("DnD_Info", 1)
+			"####" "#" 0 A_TakeInventory("DnD_Info", 0)
 		Loop
 		Death:
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 7, "A")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 6, "E")
-			"####" "#" 0 A_JumpIfInventory("DnD_Info", 5, "Same")
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 5, "Fade")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 4, "E")
-			"####" "#" 0 A_JumpIfInventory("DnD_Info", 3, "Same")
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 3, "Fade")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 2, "C")
 		Fade:
 			"####" "#" 4 A_FadeOut(0.075)
@@ -1389,16 +1387,15 @@ Actor HollowShellBone3 : HollowShellBone1 {
 	Radius 4
 	States {
 		Spawn:
-			TNT1 A 0
 			UP10 ABCDEFGH 4 A_GiveInventory("DnD_Info", 1)
-			TNT1 A 0 A_TakeInventory("DnD_Info", 0)
+			"####" "#" 0 A_TakeInventory("DnD_Info", 0)
 		Loop
 		Death:
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 7, "A")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 6, "E")
-			"####" "#" 0 A_JumpIfInventory("DnD_Info", 5, "Same")
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 5, "Fade")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 4, "E")
-			"####" "#" 0 A_JumpIfInventory("DnD_Info", 3, "Same")
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 3, "Fade")
 			"####" "#" 0 A_JumpIfInventory("DnD_Info", 2, "C")
 		Fade:
 			"####" "#" 4 A_FadeOut(0.075)
