@@ -368,25 +368,27 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		ClearCache(pnum, wepid, dmgid);
 		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
 		
+		int mult_factor = 0;
+		
 		// include the stat bonus
 		if(talent_type == TALENT_MELEE) {
 			temp = DND_STR_GAIN * GetStrength();
 			dmg = dmg * (100 + temp) / 100;
-			
+			mult_factor = GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		
 		// occult uses intellect
-		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) {
+		if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) {
 			temp = DND_INT_GAIN * GetIntellect();
 			dmg = dmg * (100 + temp) / 100;
-			
+			mult_factor = GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		else if(talent_type != TALENT_MELEE) {
 			temp = DND_DEX_GAIN * GetDexterity();
 			dmg = dmg * (100 + temp) / 100;
-			
+			mult_factor = GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 
@@ -425,11 +427,11 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
 		if(CheckInventory("Hobo_Perk25"))
 			temp += DND_HOBO_SHOTGUNBONUS;
-			
 		if((flags & DND_WDMG_ISBOOMSTICK) && temp) {
 			dmg = dmg * (100 + temp) / 100;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
+		
 		// apply flat health to damage conversion if player has any
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 		if(temp) {
@@ -472,6 +474,12 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			
 			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
 		}
+		
+		// perk multiplicative factors
+		if(mult_factor) {
+			dmg = dmg * (100 + mult_factor) / 100;
+			InsertCacheFactor(pnum, wepid, dmgid, mult_factor, false);
+		}
 
 		MarkCachingComplete(pnum, wepid, dmgid);
 		
@@ -493,7 +501,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			// beyond this point wepid doesnt matter so use that instead
 			dmg = BigNumberFormula(dmg, temp);
 		}
-		
+
 		// factor was stored as fixed, convert to int
 		//printbold(s:"from cache ", d:GetCachedPlayerFlatDamage(pnum, wepid, dmgid), s: " ", f:GetCachedPlayerFactor(pnum, wepid, dmgid));
 	}

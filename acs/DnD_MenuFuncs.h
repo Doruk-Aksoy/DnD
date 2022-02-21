@@ -195,36 +195,41 @@ void DrawPerkText(int boxid) {
 		SetHudClipRect(184, 208, 256, 64, 256, 1);
 		
 		// order follows perk definition order at the enum in DND_CommonStat.h
-		switch(boxid) {
-			case 1:
-				HudMessage(s:"\cd* \ci+", d:SHARPSHOOTING_DAMAGE, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+		int perk = boxid + DND_PERK_BEGIN - 1;
+		str toShow = "";
+		switch(perk) {
+			case STAT_SHRP:
+				toShow = StrParam(s:"\cd* \ci+", d:DND_PERK_SHARPSHOOTER_INC, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case 2:
-				HudMessage(s:"\cd* \ci+", f:ftrunc(ENDURANCE_RES_INC * 100), s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_BRUT:
+				toShow = StrParam(s:"\cd* \ci+", d:DND_PERK_BRUTALITY_DAMAGEINC, s:"%\c- ", l:GetPerkText(boxid - 1), l:"DND_MENU_AND", s:"\ci+", d:DND_PERK_BRUTALITY_RANGEINC, s:"%\c- ", l:"DND_MENU_PERKTEXT2_CONT");
 			break;
-			case 3:
-				HudMessage(s:"\cd* \ci+", d:BASE_WISDOM_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_END:
+				toShow = StrParam(s:"\cd* \ci+", f:ftrunc(ENDURANCE_RES_INC * 100), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case 4:
-				HudMessage(s:"\cd* \ci+", d:BASE_GREED_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_WIS:
+				toShow = StrParam(s:"\cd* \ci+", d:BASE_WISDOM_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case 5:
-				HudMessage(s:"\cd* \ci+", d:PERK_MEDICBONUS, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_GRE:
+				toShow = StrParam(s:"\cd* \ci+", d:BASE_GREED_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case 6:
-				HudMessage(s:"\cd* \ci+", d:DND_MUNITION_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_MED:
+				toShow = StrParam(s:"\cd* \ci+", d:PERK_MEDICBONUS, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case 7:
-				HudMessage(s:"\cd* \ci+", f:ftrunc(PERK_DEADLINESS_BONUS * 100), s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_MUN:
+				toShow = StrParam(s:"\cd* \ci+", d:DND_MUNITION_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case 8:
-				HudMessage(s:"\cd* \ci+", d:DND_SAVAGERY_BONUS, s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_DED:
+				toShow = StrParam(s:"\cd* \ci+", f:ftrunc(PERK_DEADLINESS_BONUS * 100), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case 9:
-				HudMessage(s:"\cd* \ci+", f:ftrunc(DND_LUCK_GAIN * 100), s:"%\c- ", l:GetPerkText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+			case STAT_SAV:
+				toShow = StrParam(s:"\cd* \ci+", d:DND_SAVAGERY_BONUS, s:"%\c- ", l:GetPerkText(boxid - 1));
+			break;
+			case STAT_LUCK:
+				toShow = StrParam(s:"\cd* \ci+", f:ftrunc(DND_LUCK_GAIN * 100), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 		}
-		
+		HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
 }
@@ -497,7 +502,7 @@ void DrawWeaponIconCorner(int itemid) {
 
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 96.4, 48.0, 0.0, 0.0);
 		SetFont("SMALLFONT");
 	}
 
@@ -1462,6 +1467,10 @@ void EnableBoxWithPoints(menu_inventory_T& p, int box, int tx, int ty, int bx, i
 	p.MenuRectangles[box].botright_y = by;
 }
 
+bool IsBoxEnabled(menu_inventory_T& p, int box) {
+	return p.MenuRectangles[box].topleft_x != -1;
+}
+
 // deepcopy to avoid accidental overriding
 void AddBoxToPane(menu_pane_T& p, rect_T& box) {
 	if(p.cursize < MAX_MENU_BOXES) {
@@ -1553,14 +1562,15 @@ rect_T& LoadRect(int menu_page, int id) {
 		// perk
 		{
 			{ 296.0, 245.0, 184.0, 237.0 }, // sharp
-			{ 296.0, 229.0, 214.0, 221.0 }, // end
-			{ 296.0, 213.0, 243.0, 205.0 }, // wis
-			{ 296.0, 197.0, 247.0, 189.0 }, // greed
-			{ 296.0, 181.0, 252.0, 173.0 }, // med
-			{ 296.0, 165.0, 211.0, 157.0 }, // mun
-			{ 296.0, 149.0, 209.0, 141.0 }, // ded
-			{ 296.0, 133.0, 209.0, 125.0 }, // sav
-			{ 296.0, 117.0, 209.0, 109.0 }, // luck
+			{ 296.0, 229.0, 214.0, 221.0 }, // brutality
+			{ 296.0, 213.0, 243.0, 205.0 }, // end
+			{ 296.0, 197.0, 247.0, 189.0 }, // wis
+			{ 296.0, 181.0, 252.0, 173.0 }, // greed
+			{ 296.0, 165.0, 211.0, 157.0 }, // med
+			{ 296.0, 149.0, 209.0, 141.0 }, // mun
+			{ 296.0, 133.0, 209.0, 125.0 }, // ded
+			{ 296.0, 117.0, 209.0, 109.0 }, // sav
+			{ 296.0, 101.0, 209.0, 93.0  }, // luck
 			{ -1, -1, -1, -1 }
 		},
 		// loadout
@@ -3840,7 +3850,7 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 	if(mcount) {
 		if(!k || CheckInventory("DnD_RefreshPane")) {
 			// add predefined size boxes for use
-			for(i = 0; i < MAX_CRAFTING_ITEMBOXES * (page + 1) && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
+			for(i = 0; i < MAX_CRAFTING_ITEMBOXES/* * (page + 1)*/ && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
 				tx = CRAFTING_ITEMBOX_X - (64.0 + CRAFTING_ITEMBOX_SKIPX) * (i % 4);
 				ty = CRAFTING_ITEMBOX_Y - (64.0 + CRAFTING_ITEMBOX_SKIPY) * (i / 4);
 				bx = tx - 64.0;
@@ -3852,8 +3862,8 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 		for(i = 0; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
 			if(CheckInventory(Weapons_Data[i][WEAPON_NAME]))
 				++j;
-		if(j)
-			++i;
+		//if(j)
+		//	++i;
 		j = 0;
 		// i will count onwards from here
 		for(; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES && j < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
@@ -3875,7 +3885,7 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 				else
 					SetFont("CRFBX_N");
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
-				SetFont(Weapons_Data[i][WEAPON_ICON64]);
+				SetFont(Weapons_Data[i][WEAPON_ICON]);
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
 				++j;
 			}
@@ -3888,7 +3898,7 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 				DrawBoxText("=>", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
 			}
 			else
-				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID);
+				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID + 1);
 		}
 	}
 	SetFont("SMALLFONT");
@@ -3902,7 +3912,7 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 	if(mcount) {
 		if(!k || CheckInventory("DnD_RefreshPane")) {
 			// add predefined size boxes for use
-			for(i = 0; i < MAX_CRAFTING_ITEMBOXES * (page + 1) && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
+			for(i = 0; i < MAX_CRAFTING_ITEMBOXES/* * (page + 1)*/ && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
 				tx = CRAFTING_ITEMBOX_X - (64.0 + CRAFTING_ITEMBOX_SKIPX) * (i % 4);
 				ty = CRAFTING_ITEMBOX_Y - (64.0 + CRAFTING_ITEMBOX_SKIPY) * (i / 4);
 				bx = tx - 64.0;
@@ -3915,8 +3925,8 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 		for(i = 0; i < MAX_INVENTORY_BOXES && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
 			if(IsCraftableItem(PlayerInventoryList[bx][i].item_type) && PlayerInventoryList[bx][i].height)
 				++j;
-		if(j)
-			++i;
+		/*if(j)
+			++i;*/
 		j = 0;
 		for(i = 0; i < MAX_CRAFTING_ITEMBOXES && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
 			tx = GetNextUniqueCraftableMaterial(i + MAX_CRAFTING_ITEMBOXES * page);
@@ -3960,7 +3970,7 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 }
 
 void DrawCraftingInventoryInfo(int pn) {
-	int offset, stack = 0;
+	int stack = 0;
 	int mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1; 
 	int my = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 16.1; 
 	SetFont("LDTITINF");
@@ -3981,14 +3991,17 @@ void DrawCraftingInventoryInfo(int pn) {
 	my &= MMASK;
 	mx += 0.4;
 	my += 0.1;
-	// show item details
-	if(PlayerCursorData.itemHoveredType == DND_ITEM_ORB || PlayerCursorData.itemHoveredType == DND_ITEM_ELIXIR)
-		offset = 16.0;
-	if(PlayerCursorData.itemHoveredType != DND_ITEM_WEAPON)
+	
+	// show item details -- dont draw charm icons (saves space)
+	if(PlayerCursorData.itemHoveredType == DND_ITEM_WEAPON) {
+		SetFont(Weapons_Data[PlayerCursorData.itemHovered][WEAPON_ICON]);	
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0, 0.0);
+	}
+	else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM) {
 		SetFont(Item_Images[PlayerInventoryList[pn][PlayerCursorData.itemHovered].item_image]);
-	else
-		SetFont(Weapons_Data[PlayerCursorData.itemHovered][WEAPON_ICON64]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0 + offset, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 16.0, 0.0);
+	}
+	
 	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 	mx *= 3; mx /= 2;
 	my *= 3; my /= 2;
@@ -4015,7 +4028,8 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
-			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my + 24.0 * j, 0.0);		}
+			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my - 16.0 + 24.0 * j, 0.0);
+		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) + GetInventoryInfoOffset(itype);
@@ -4267,6 +4281,29 @@ void HandleCraftingInputs(int boxid, int curopt) {
 			SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
 		}
 		ClearPlayerInput(pnum, true);
+	}
+	else if(HasPressedLeft(pnum)) {
+		if(CheckInventory("DnD_Crafting_ItemPage")) {
+			TakeInventory("DnD_Crafting_ItemPage", 1);
+			GiveInventory("DnD_RefreshPane", 1);
+			LocalAmbientSound("RPG/MenuChoose", 127);	
+		}
+		else if(curopt != MENU_LOAD_CRAFTING)
+			UpdateMenuPosition(MENU_LOAD_CRAFTING);
+		else
+			UpdateMenuPosition(MENU_LOAD);
+			
+		SetInventory("DnD_SelectedInventoryBox", 0);
+	}
+	else if(curopt != MENU_LOAD_CRAFTING && HasPressedRight(pnum)) {
+		// we dont want right page input to work on crafting selection
+		int mcount = curopt == MENU_LOAD_CRAFTING_WEAPON ? GetWeaponCount() : GetCraftableItemCount();
+		if(mcount - MAX_CRAFTING_ITEMBOXES * (CheckInventory("DnD_Crafting_ItemPage") + 1) > 0) {
+			GiveInventory("DnD_Crafting_ItemPage", 1);
+			GiveInventory("DnD_RefreshPane", 1);
+			SetInventory("DnD_SelectedInventoryBox", 0);
+			LocalAmbientSound("RPG/MenuChoose", 127);
+		}
 	}
 }
 
@@ -4663,4 +4700,16 @@ void DrawMonsterModCategory(int category) {
 		break;
 	}
 	SetHudClipRect(0, 0, 0, 0);
+}
+
+bool IsPageHoverDrawer(int curopt) {
+	switch(curopt) {
+		case MENU_LOAD_INVENTORY:
+		case MENU_LOAD_STASH:
+		case MENU_LOAD_CHARM:
+		case MENU_LOAD_CRAFTING_WEAPON:
+		case MENU_LOAD_CRAFTING_INVENTORY:
+		return true;
+	}
+	return false;
 }

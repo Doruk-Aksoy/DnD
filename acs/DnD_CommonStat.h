@@ -70,7 +70,6 @@ enum {
 
 #define BASE_PET_CAP 3
 
-#define SHARPSHOOTING_DAMAGE 5
 #define ENDURANCE_RESIST 5
 #define ENDURANCE_RES_INC 0.035 // 3.5%
 #define BASE_WISDOM_GAIN 10
@@ -173,6 +172,7 @@ enum {
 	
 	// same for these
 	STAT_SHRP,
+	STAT_BRUT,
 	STAT_END,
 	STAT_WIS,
 	STAT_GRE,
@@ -196,6 +196,11 @@ enum {
 #define DND_PERK_BEGIN STAT_SHRP
 #define DND_PERK_END STAT_LUCK
 #define DND_MAX_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
+
+
+#define DND_PERK_SHARPSHOOTER_INC 5 // 5%
+#define DND_PERK_BRUTALITY_DAMAGEINC 5 // 5%
+#define DND_PERK_BRUTALITY_RANGEINC 8 // 8%
 
 enum {	
 	RES_STAT_DEX = 1,
@@ -388,8 +393,6 @@ void HandleAbilityRestore() {
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
 	// perks
-	if((statflag & RES_PERK_SHARP) && CheckInventory("Perk_Sharpshooting"))
-		GiveInventory(StrParam(s:"Damage_Perk_", d:CheckInventory("Perk_Sharpshooting") * SHARPSHOOTING_DAMAGE), 1);
 	if((statflag & RES_PERK_ENDURANCE) && CheckInventory("Perk_Endurance"))
 		GiveInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * ENDURANCE_RESIST), 1);
 	if(statflag & RES_ACCURACY)

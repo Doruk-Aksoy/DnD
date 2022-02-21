@@ -446,9 +446,9 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster {
 			SOEA EEEE 3 Fast A_FaceTarget
 			TNT1 A 0 A_TakeInventory("DemonGoJump", 1)
 			TNT1 A 0 A_PlaySound("PurpleDemon/Jump")
-			TNT1 A 0 ACS_ExecuteAlways(965)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Leap")
 			SOEA F 3 Fast
-			SOEA F 4 Fast ACS_ExecuteAlways(966)
+			SOEA F 4 Fast ACS_NamedExecuteAlways("DnD Monster Leap Finish")
 		Goto See
 		PainState:
 			TNT1 A 0 A_TakeInventory("DemonGoJump", 1)

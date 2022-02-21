@@ -250,8 +250,6 @@ void Reset_RPGInfo (int resetflags) {
 	}
 	
 	if(resetflags & RESET_PERKS) {
-		if(CheckInventory("Perk_Sharpshooting"))
-			TakeInventory(StrParam(s:"Damage_Perk_", d:CheckInventory("Perk_Sharpshooting") * 5), 1);
 		if(CheckInventory("Perk_Endurance"))
 			TakeInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * 5), 1);
 		for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)

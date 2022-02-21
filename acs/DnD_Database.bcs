@@ -282,18 +282,19 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	// save perks (use 4 bits per perk, max is 10 for a perk)
 	temp = CheckActorInventory(tid, "Perk_Sharpshooting");
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Endurance")) << 4;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Wisdom")) << 8;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Greed")) << 12;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Medic")) << 16;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Munitionist")) << 20;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Deadliness")) << 24;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Savagery")) << 28;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Brutality")) << 4;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Endurance")) << 8;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Wisdom")) << 12;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Greed")) << 16;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Medic")) << 20;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Munitionist")) << 24;
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Deadliness")) << 28;
 	// send temp over
 	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, temp);
 	
 	// save perks - 2
-	temp = CheckActorInventory(tid, "Perk_Luck");
+	temp = CheckActorInventory(tid, "Perk_Savagery");
+	temp |= (0xF & CheckActorInventory(tid, "Perk_Luck")) << 4;
 	SetDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc, temp);
 	
 	// save health and armor
@@ -542,22 +543,29 @@ void SavePlayerActivities(int pnum, int char_id) {
 	temp += PlayerActivities[pnum].talent_point << 16;
 	IncrementDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
 	
-	// save perks (use 4 bits per perk, max is 10 for a perk)
+	// save perks (use 4 bits per perk, max is 10 for a perk so it saves the first 8 perks packed into 4 bits)
 	i = STAT_SHRP - DND_PERK_BEGIN;
 	temp = PlayerActivities[pnum].perk_change[i];
 	
 	for(j = 0; j < 7; ++j) {
 		vt = PlayerActivities[pnum].perk_change[++i];
 		if(vt < 0)
-			temp -= (-vt) << (j + 1) * 4;
+			temp -= (-vt) << ((j + 1) * 4);
 		else
-			temp += vt << (j + 1) * 4;
+			temp += vt << ((j + 1) * 4);
 	}
 	// send temp over
 	IncrementDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, temp);
 	
-	// save perks - 2
-	temp = PlayerActivities[pnum].perk_change[++i];
+	// save perks - 2 -- left over at perk 9 - 10
+	temp = PlayerActivities[pnum].perk_change[i];
+	for(j = 0; j < 1; ++j) {
+		vt = PlayerActivities[pnum].perk_change[++i];
+		if(vt < 0)
+			temp -= (-vt) << ((j + 1) * 4);
+		else
+			temp += vt << ((j + 1) * 4);
+	}
 	IncrementDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc, temp);
 	
 	// bonuses from orbs
@@ -807,6 +815,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc);
 	SetInventory("Perk_Sharpshooting", temp & 0xF);
 	temp >>= 4;
+	SetInventory("Perk_Brutality", temp & 0xF);
+	temp >>= 4;
 	SetInventory("Perk_Endurance", temp & 0xF);
 	temp >>= 4;
 	SetInventory("Perk_Wisdom", temp & 0xF);
@@ -818,11 +828,11 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("Perk_Munitionist", temp & 0xF);
 	temp >>= 4;
 	SetInventory("Perk_Deadliness", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Savagery", temp & 0xF);
 	
 	// read perks - 2
 	temp = GetDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc);
+	SetInventory("Perk_Savagery", temp & 0xF);
+	temp >>= 4;
 	SetInventory("Perk_Luck", temp & 0xF);
 	
 	// read health and armor

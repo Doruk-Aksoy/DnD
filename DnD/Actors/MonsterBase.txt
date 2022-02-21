@@ -165,9 +165,9 @@ Actor DnD_BaseMonster {
 			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
 			"####" "#######" 1 A_SetScale (scalex, scaley * 0.85)
 			"####" "#####" 1 A_SetScale (scalex, scaley * 0.74)
-			"####" "#####" 1 A_SetScale (scalex * 1.05, scaley * 0.62)
-			"####" "####" 1 A_SetScale (scalex * 1.06, scaley * 0.55)
-			"####" "####" 1 A_SetScale (scalex * 1.07, scaley * 0.54) // 42 tics
+			"####" "#####" 1 A_SetScale (scalex * 1.05, 0.028)
+			"####" "####" 1 A_SetScale (scalex * 1.06, 0.024)
+			"####" "####" 1 A_SetScale (scalex * 1.07, 0.02) // 42 tics
 			TNT1 A 6
 		Stop
 		Death.Ice:

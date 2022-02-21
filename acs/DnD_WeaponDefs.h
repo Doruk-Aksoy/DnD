@@ -159,8 +159,7 @@ enum {
 	WEAPON_NAME,
 	WEAPON_AMMO1,
 	WEAPON_AMMO2,
-	WEAPON_ICON,
-	WEAPON_ICON64
+	WEAPON_ICON
 };
 
 // store players mods etc.

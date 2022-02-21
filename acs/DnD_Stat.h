@@ -67,7 +67,7 @@ str GetTalentTag(int id) {
 	return StrParam(s:"DND_TALENT", d:id + 1);
 }
 
-#define DND_PERKS DND_PERK_END - DND_PERK_BEGIN + 1
+#define DND_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
 str StatData[STAT_LVLCRED + 1] = {
 	"PSTAT_Strength",
 	"PSTAT_Dexterity",
@@ -77,6 +77,7 @@ str StatData[STAT_LVLCRED + 1] = {
 	"PSTAT_Intellect",
 	
 	"Perk_Sharpshooting",
+	"Perk_Brutality",
 	"Perk_Endurance",
 	"Perk_Wisdom",
 	"Perk_Greed",
@@ -181,6 +182,8 @@ int GetStat(int stat_id) {
 }
 
 str GetStatLabel(int id) {
+	if(id >= DND_PERK_BEGIN && id <= DND_PERK_END)
+		return StrParam(s:"DND_PERK", d:id + 1 - DND_PERK_BEGIN);
 	return StrParam(s:"DND_STAT", d:id + 1);
 }
 
@@ -270,28 +273,21 @@ void ConsumeAttributePointOn(int stat, int amt) {
 }
 
 void ConsumePerkPointOn(int perk, int amt) {
-	// map it into 0 range
 	GiveInventory(StatData[perk], amt);
 	TakeInventory("PerkPoint", amt);
 }
 
-void CleanSharpEndPerks(int flags) {
+void CleanEndPerk() {
 	int i;
 	// Take previous perk stuff
-	if(flags & RES_PERK_SHARP && CheckInventory("Perk_SharpShooting") > 1) {
-		for(i = 0; i < DND_PERK_MAX; ++i)
-			TakeInventory(StrParam(s:"Damage_Perk_", d:(i + 1) * 5), 1);
-	}
-	if(flags & RES_PERK_ENDURANCE && CheckInventory("Perk_Endurance") > 1) {
+	if(CheckInventory("Perk_Endurance") > 1) {
 		for(i = 0; i < DND_PERK_MAX; ++i)
 			TakeInventory(StrParam(s:"Resist_Perk_", d:(i + 1) * 5), 1);
 	}
 }
 
-void UpdateSharpEndPerks(int flags) {
-	if((flags & RES_PERK_SHARP) && CheckInventory("Perk_Sharpshooting"))
-		GiveInventory(StrParam(s:"Damage_Perk_", d:CheckInventory("Perk_Sharpshooting") * SHARPSHOOTING_DAMAGE), 1);
-	if((flags & RES_PERK_ENDURANCE) && CheckInventory("Perk_Endurance"))
+void UpdateEndPerk() {
+	if(CheckInventory("Perk_Endurance"))
 		GiveInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * ENDURANCE_RESIST), 1);
 }
 
@@ -640,8 +636,8 @@ void TakeStat(int stat_id, int amt) {
 }
 
 void UpdatePerkStuff() {
-	CleanSharpEndPerks(RES_PERK_SHARP | RES_PERK_ENDURANCE);
-	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE);
+	CleanEndPerk();
+	RestoreRPGStat(RES_PERK_ENDURANCE);
 	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
 }
 

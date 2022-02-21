@@ -92,15 +92,16 @@ DND_STAT4								= "Charisma";
 DND_STAT5								= "Vitality";
 DND_STAT6								= "Intellect";
 	
-DND_STAT7								= "Sharpshooting";
-DND_STAT8								= "Endurance";
-DND_STAT9								= "Wisdom";
-DND_STAT10								= "Greed";
-DND_STAT11								= "Medic";
-DND_STAT12								= "Munitionist";
-DND_STAT13								= "Deadliness";
-DND_STAT14								= "Savagery";
-DND_STAT15								= "Luck";
+DND_PERK1								= "Sharpshooting";
+DND_PERK2								= "Brutality";
+DND_PERK3								= "Endurance";
+DND_PERK4								= "Wisdom";
+DND_PERK5								= "Greed";
+DND_PERK6								= "Medic";
+DND_PERK7								= "Munitionist";
+DND_PERK8								= "Deadliness";
+DND_PERK9								= "Savagery";
+DND_PERK10								= "Luck";
 	
 DND_STAT16								= "Experience";
 DND_STAT17								= "Level Experience";

@@ -61,7 +61,12 @@ Script 900 (void) NET {
 	}
 	else {
 		// a little extra check for singleplayer case
-		if((GameType() == GAME_SINGLE_PLAYER || (!PlayerIsSpectator(pnum) && (GetGameModeState() == GAMESTATE_INPROGRESS) && (!CheckInventory("CanLoad")))) && !CheckInventory("ParsingData")) {
+		if
+		(
+			GameType() == GAME_SINGLE_PLAYER ||
+			((!PlayerIsSpectator(pnum) && GetGameModeState() == GAMESTATE_INPROGRESS && (!CheckInventory("CanLoad"))) && !CheckInventory("ParsingData"))
+		)
+		{
 			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
 				TakeInventory("DnD_SyncMe", 1);
 				ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
@@ -83,7 +88,7 @@ Script 900 (void) NET {
 		}
 		else {
 			SetHudSize(800, 600, 1);
-			HudMessage(s: "You have to be in the game to use the menu"; HUDMSG_FADEINOUT, MENUUSEID, CR_GOLD, 400.4, 2.1, 4.0, 1.0, 1.0);
+			HudMessage(l:"DND_MENU_NOTINGAME"; HUDMSG_FADEINOUT, MENUUSEID, CR_GOLD, 400.4, 2.1, 4.0, 1.0, 1.0);
 		}
 	}
 }
@@ -172,6 +177,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
+			PlayerCursorData.hoverNeedsReset = true;
 			redraw = true;
 		}
 		
@@ -263,6 +269,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		DrawCursor();
 		
 		// hovered on or things that are otherwise redrawn over and over
+		
 		if(PlayerCursorData.itemHovered != -1) {
 			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
 				ResetCursorHoverData();
@@ -1133,61 +1140,21 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			if(HasPlayerClicked(pnum)) {
 				if(CheckInventory("PerkPoint") && boxid != MAINBOX_NONE) { // tried to level perk, so you must have some perk point
 					// same check as above
+					int stat_id = boxid - 1 + DND_PERK_BEGIN;
+					int stat_pt = GetStat(stat_id);
 					if(HasLeftClicked(pnum))
 						temp = 1;
 					else
-						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - GetStat(boxid - 1 + DND_PERK_BEGIN));
-				
-					if(boxid == MBOX_1 && CheckInventory("Perk_Sharpshooting") < DND_PERK_MAX) { // sharp
-						ConsumePerkPointOn(STAT_SHRP, temp);
-						CleanSharpEndPerks(RES_PERK_SHARP);
-						UpdateSharpEndPerks(RES_PERK_SHARP);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - stat_pt);
+							
+					ConsumePerkPointOn(stat_id, temp);
+					if(stat_id == STAT_END) {
+						CleanEndPerk();
+						UpdateEndPerk();
 					}
-					else if(boxid == MBOX_2 && CheckInventory("Perk_Endurance") < DND_PERK_MAX) { // end
-						ConsumePerkPointOn(STAT_END, temp);
-						CleanSharpEndPerks(RES_PERK_ENDURANCE);
-						UpdateSharpEndPerks(RES_PERK_ENDURANCE);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_3 && CheckInventory("Perk_Wisdom") < DND_PERK_MAX) { // wisdom
-						ConsumePerkPointOn(STAT_WIS, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_4 && CheckInventory("Perk_Greed") < DND_PERK_MAX) { // greed
-						ConsumePerkPointOn(STAT_GRE, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_5 && CheckInventory("Perk_Medic") < DND_PERK_MAX) { // medic
-						ConsumePerkPointOn(STAT_MED, temp);
-						SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_6 && CheckInventory("Perk_Munitionist") < DND_PERK_MAX) { // munitionist
-						ConsumePerkPointOn(STAT_MUN, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_7 && CheckInventory("Perk_Deadliness") < DND_PERK_MAX) { // deadliness
-						ConsumePerkPointOn(STAT_DED, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_8 && CheckInventory("Perk_Savagery") < DND_PERK_MAX) { // savagery
-						ConsumePerkPointOn(STAT_SAV, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_9 && CheckInventory("Perk_Luck") < DND_PERK_MAX) { // luck
-						ConsumePerkPointOn(STAT_LUCK, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
+
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());					
 				}
 			}
 			if(HasPressedLeft(pnum))
@@ -1273,24 +1240,12 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				UpdateMenuPosition(MENU_LOAD);
 			}
 		}
-		else if(curopt == MENU_LOAD_CRAFTING) {
+		else if(curopt == MENU_LOAD_CRAFTING)
 			HandleCraftingInputs(boxid, curopt);
-			if(HasPressedLeft(pnum)) {
-				UpdateMenuPosition(MENU_LOAD);
-			}
-		}
-		else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
+		else if(curopt == MENU_LOAD_CRAFTING_WEAPON)
 			HandleCraftingInputs(boxid, curopt);
-			if(HasPressedLeft(pnum)) {
-				UpdateMenuPosition(MENU_LOAD_CRAFTING);
-			}
-		}
-		else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+		else if(curopt == MENU_LOAD_CRAFTING_INVENTORY)
 			HandleCraftingInputs(boxid, curopt);
-			if(HasPressedLeft(pnum)) {
-				UpdateMenuPosition(MENU_LOAD_CRAFTING);
-			}
-		}
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			if(HasPlayerClicked(pnum)) {
 				if(boxid >= MBOX_1) {

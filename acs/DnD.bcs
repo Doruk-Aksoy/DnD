@@ -190,18 +190,19 @@ Script "DnD On Map Load" OPEN {
 	
 	// init vars
 	ResetSharedVariables();
-	
+
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
 	CalculateMapDifficulty();
+
 	// wait while total level is not initialized
 	while(!PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL])
 		Delay(const:TICRATE);
-	
+
 	Delay(const:TICRATE);
 	if (GetLevelInfo(LEVELINFO_LEVELNUM) != 99) //Prevents quests from firing on VR map (Lexicon) - compendium hubmap can't be detected this way unfortunately.
 		PickQuest();
-	
+
 	// commented out for now!
 	//NPC_Setup();
 }
@@ -2427,7 +2428,7 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 		
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, 515.0 + ScreenResOffsets[1], 48.1, 4.0, 1.0, 1.0);
 		SetFont(Weapons_Data[itemnum][WEAPON_ICON]);
-		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEICO, CR_UNTRANSLATED, 537.1 + ScreenResOffsets[1], 80.0, 4.0, 1.0, 1.0);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEICO, CR_UNTRANSLATED, 537.4 + ScreenResOffsets[1], 64.0, 4.0, 1.0, 1.0);
 		SetFont("OBJFONT");
 		HudMessage(d:GetGameSlotOfWeapon(itemnum); HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, 416.0 + ScreenResOffsets[1], 70.0, 4.0, 1.0, 1.0);
 
@@ -2797,7 +2798,7 @@ Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
-	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
+	RestoreRPGStat(RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	
 	// run the monster scanner script again on respawn
@@ -3038,7 +3039,6 @@ Script "DnD Player Setup" ENTER {
 		if(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] > curlvl)
 			PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = curlvl;
 	}
-	
 	ClearQuestCheckers();
 	
 	if(HardcoreSet) {
@@ -3076,7 +3076,7 @@ Script "DnD Player Setup" ENTER {
 	else
 		SetInventory("CurrentLives", GetCvar("sv_maxlives") - 1);
 	
-	RestoreRPGStat(RES_PERK_SHARP | RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
+	RestoreRPGStat(RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	
 	// a little hack to prevent ankh going off when finishing maps with 1 hp
 	if(GetActorProperty(0, APROP_HEALTH) == 1 && CheckInventory("CanIntervene"))
@@ -3088,16 +3088,16 @@ Script "DnD Player Setup" ENTER {
 	
 	if(CheckInventory("QuestCompletionToken"))
 		ACS_NamedExecuteAlways("DND Quest Complete", 0);
-
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
 		Delay(const:7);
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
+	
 	TakeInventory("QuestWasPicked", 1); // helps sync clientside variable Quest_Pick_Done
 	while(!Quest_Pick_Done)
 		Delay(const:10);
-	
+		
 	GiveInventory("QuestWasPicked", 1);
 	if(active_quest_id != -1) {
 		SetInventory("ActiveQuestID", active_quest_id + 1);
@@ -3110,9 +3110,10 @@ Script "DnD Player Setup" ENTER {
 	// just in case
 	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
 		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
-	
+		
 	while(CheckInventory("TipBoxOpen"))
 		Delay(const:17);
+		
 	// give some time for completion thing to get through
 	SetInventory("QuestCompletionToken", 0);
 	if(HardcoreSet && !CheckInventory("HardcoreDebuff"))
@@ -3937,7 +3938,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 Script "DnD Get Melee Range Increase" (int use_target) {
 	if(use_target)
 		SetActivatorToTarget(0);
-	SetResultValue(CheckInventory("IATTR_MeleeRange"));
+	SetResultValue(CheckInventory("IATTR_MeleeRange") + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC);
 }
 
 // Used mainly for non-weapons (like artifacts and so on)

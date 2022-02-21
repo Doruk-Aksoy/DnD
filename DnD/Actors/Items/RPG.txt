@@ -128,6 +128,12 @@ Actor Perk_Sharpshooting : Ammo {
 	+IGNORESKILL
 }
 
+Actor Perk_Brutality : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	+IGNORESKILL
+}
+
 Actor Perk_Endurance : Ammo {
 	inventory.amount 1
 	inventory.maxamount 10

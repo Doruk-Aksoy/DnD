@@ -1,5 +1,7 @@
 [enu default]
 
+DND_MENU_NOTINGAME		=	"You have to be in the game to use the menu";
+
 DND_MENU_WELCOME		=	"Welcome to the DnD Menu";
 
 DND_MENU_BOBBY1			= 	"This is Doom's first interactive super cool UAC Menu, ran by none other than \c[Y5]Bobby\c- \cj\"\c-\cmCombine\cqb\cjo\crb\cmnt\c-\" \c[Y5]Sanchez\c-! "
@@ -151,15 +153,16 @@ DND_MENU_ATTRTEXT4		=	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, in
 DND_MENU_ATTRTEXT5		=	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.";
 DND_MENU_ATTRTEXT6		=	"\c[INT]Intellect\c-\nIncreases \cmOccult Ranged Damage\c- by 3% and improves spells.";
 
-DND_MENU_PERKTEXT1		=	"increased damage.";
-DND_MENU_PERKTEXT2		=	"reduced damage taken.";
-DND_MENU_PERKTEXT3		=	"increased exp gain.";
-DND_MENU_PERKTEXT4		=	"increased credit gain.";
-DND_MENU_PERKTEXT5		=	"increased effect of healing.";
-DND_MENU_PERKTEXT6		=	"increased ammo gain.";
-DND_MENU_PERKTEXT7		=	"to critical strike chance.";
-DND_MENU_PERKTEXT8		=	"to critical strike damage.";
-DND_MENU_PERKTEXT9		=	"increased drop chance.";
+DND_MENU_PERKTEXT1		=	"more ranged damage.";
+DND_MENU_PERKTEXT2		=	"more melee damage";			DND_MENU_PERKTEXT2_CONT 	=	"increased melee range";
+DND_MENU_PERKTEXT3		=	"reduced damage taken.";
+DND_MENU_PERKTEXT4		=	"increased exp gain.";
+DND_MENU_PERKTEXT5		=	"increased credit gain.";
+DND_MENU_PERKTEXT6		=	"increased effect of healing.";
+DND_MENU_PERKTEXT7		=	"increased ammo gain.";
+DND_MENU_PERKTEXT8		=	"to critical strike chance.";
+DND_MENU_PERKTEXT9		=	"to critical strike damage.";
+DND_MENU_PERKTEXT10		=	"increased drop chance.";
 
 // ammo text
 DND_MENU_FOR			=	"for ";

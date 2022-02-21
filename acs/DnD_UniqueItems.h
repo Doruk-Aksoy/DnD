@@ -329,13 +329,16 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
 	UniqueItemList[id].item_level = 100;
 	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_count = 3;
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_FLATDOT;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_DOTDURATION;
+	UniqueItemList[id].attrib_id_list[2] = INV_DOTMULTI;
 	UniqueItemList[id].rolls[0].attrib_low = 5;
 	UniqueItemList[id].rolls[0].attrib_high = 10;
 	UniqueItemList[id].rolls[1].attrib_low = 50;
 	UniqueItemList[id].rolls[1].attrib_high = 100;
+	UniqueItemList[id].rolls[2].attrib_low = 6;
+	UniqueItemList[id].rolls[2].attrib_high = 15;
 	id = UITEM_VOIDEMBLEM;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
