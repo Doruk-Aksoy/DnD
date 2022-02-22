@@ -510,10 +510,13 @@ void DistributeBonus(int bonustype) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			temp = i + P_TIDSTART;
 			if(PlayerInGame(i) && isActorAlive(temp)) {
+				// getspawnhealth needs current activator, this wasn't using it
+				SetActivator(temp);
 				bval = GetSpawnHealth();
 				if(GetActorProperty(temp, APROP_HEALTH) < bval)
 					GiveInventory("HealthBonusX", bval - GetActorProperty(temp, APROP_HEALTH));
 				GiveActorInventory(temp, "DnD_BonusBonusShower", 1);
+				SetActivator(-1);
 			}
 		}
 	}

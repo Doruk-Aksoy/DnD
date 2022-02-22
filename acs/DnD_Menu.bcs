@@ -1013,6 +1013,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		Terminate;
 	int temp = pnum >> 16;
 	int tpos = 0;
+	int stat_id, stat_pt;
 	
 	//int dummy = pnum;
 	pnum &= 0xFFFF;
@@ -1085,37 +1086,18 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						temp = 1;
 					else
 						temp = Min(CheckInventory("AttributePoint"), cur_stat_max - GetStat(boxid - 1 + DND_ATTRIB_BEGIN));
+						
+					stat_id = boxid - 1 + DND_ATTRIB_BEGIN;
+					stat_pt = GetStat(stat_id);
 				
-					if(boxid == MBOX_1 && CheckInventory("PSTAT_Strength") < cur_stat_max) { // str
-						ConsumeAttributePointOn(STAT_STR, temp);
+					if(stat_pt < cur_stat_max) {
+						ConsumeAttributePointOn(stat_id, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
-						UpdatePlayerKnockbackResist();
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_2 && CheckInventory("PSTAT_Dexterity") < cur_stat_max) { // dex
-						ConsumeAttributePointOn(STAT_DEX, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_3 && CheckInventory("PSTAT_Bulkiness") < cur_stat_max) { // bul
-						ConsumeAttributePointOn(STAT_BUL, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_4 && CheckInventory("PSTAT_Charisma") < cur_stat_max) { // chr
-						ConsumeAttributePointOn(STAT_CHR, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_5 && CheckInventory("PSTAT_Vitality") < cur_stat_max) { // vit
-						ConsumeAttributePointOn(STAT_VIT, temp);
-						SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
-					else if(boxid == MBOX_6 && CheckInventory("PSTAT_Intellect") < cur_stat_max) { // int
-						ConsumeAttributePointOn(STAT_INT, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
+						
+						if(stat_id == STAT_STR)
+							UpdatePlayerKnockbackResist();
+						else if(stat_id == STAT_VIT)
+							SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}
 				}
@@ -1140,21 +1122,23 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			if(HasPlayerClicked(pnum)) {
 				if(CheckInventory("PerkPoint") && boxid != MAINBOX_NONE) { // tried to level perk, so you must have some perk point
 					// same check as above
-					int stat_id = boxid - 1 + DND_PERK_BEGIN;
-					int stat_pt = GetStat(stat_id);
+					stat_id = boxid - 1 + DND_PERK_BEGIN;
+					stat_pt = GetStat(stat_id);
 					if(HasLeftClicked(pnum))
 						temp = 1;
 					else
 						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - stat_pt);
-							
-					ConsumePerkPointOn(stat_id, temp);
-					if(stat_id == STAT_END) {
-						CleanEndPerk();
-						UpdateEndPerk();
-					}
+					
+					if(stat_pt < DND_PERK_MAX) {
+						ConsumePerkPointOn(stat_id, temp);
+						if(stat_id == STAT_END) {
+							CleanEndPerk();
+							UpdateEndPerk();
+						}
 
-					LocalAmbientSound("RPG/MenuChoose", 127);
-					ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());					
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+					}					
 				}
 			}
 			if(HasPressedLeft(pnum))

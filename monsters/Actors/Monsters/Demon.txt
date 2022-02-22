@@ -989,7 +989,6 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_NHUMCIGN)
-			TNT1 A 0 A_SetArg(1, DND_MOBILITY | DND_RAGE)
 		Goto SpawnSetup
 	
 		Idle:
