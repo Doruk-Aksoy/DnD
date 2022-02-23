@@ -511,21 +511,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	return dmg;
 }
 
-int ConfirmedCritFactor(int dmg) {
-	dmg = dmg * GetCritModifier() / 100;
-	HandleHunterTalisman();
-	return dmg;
-}
-
-// handles crit factor after a crit is confirmed
-int HandleWeaponCrit(int dmg, int wepid, int pnum, int dmgid, bool isSpecial) {
-	// skip crit calc
-	if(PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid])
-		return dmg;
-	// if weapon id is a lightning type, it will always crit with the necessary charm attribute on
-	return dmg;
-}
-
 void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim) {
 	// get push vector
 	int dx, dy, dz;
@@ -1829,6 +1814,61 @@ Script "DnD Check Explosion Repeat" (void) {
 	}
 	
 	SetResultValue(res);
+}
+
+Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
+	// arg1 contains damage, arg2 contains damage type as a string
+	if(type == GAMEEVENT_ACTOR_DAMAGED) {
+		bool isRipper = false;
+		
+		// damage inflictor (projectile etc.)
+		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		if(CheckFlag(0, "RIPPER"))
+			isRipper = true;
+	
+		// set activator to owner of this projectile for certain crediting
+		SetActivator(0, AAPTR_DAMAGE_SOURCE);
+		int shooter = ActivatorTID();
+
+		// set the activator to us now
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
+		int victim = ActivatorTID();
+		
+		// for monster damage scaling and player damage receive changes
+		if(IsPlayer(victim) && IsMonster(shooter)) {
+			int dmg = arg1;
+			int m_id = shooter - DND_MONSTERTID_BEGIN;
+			int factor = Clamp_Between(MonsterProperties[m_id].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
+		
+			if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
+				factor += DND_ELITE_EXTRASTRONG_BONUS;
+
+			if(MonsterProperties[m_id].level > 50)
+				factor += DND_AFTER50_INCREMENT_DAMAGE;
+				
+			dmg = dmg * (100 + factor) / 100;
+			
+			// elite damage bonus is multiplicative
+			factor = 100 + GetEliteBonusDamage();
+			if(dmg < INT_MAX / factor && MonsterProperties[m_id].isElite)
+				dmg = dmg * factor / 100;
+				
+			// chaos mark is multiplicative
+			factor = 100 + CHAOSMARK_DAMAGEBUFF;
+			if(dmg < INT_MAX / factor && MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
+				dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
+				
+			if(isRipper)
+				dmg >>= 1;
+
+			//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
+			
+			// add to player stat
+			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
+			
+			SetResultValue(dmg);
+		}
+	}
 }
 
 #endif

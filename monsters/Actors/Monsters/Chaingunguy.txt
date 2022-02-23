@@ -72,7 +72,7 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster {
 }
 
 Actor MajorBullet : ZombieBullet {
-	Damage (random(1, 5) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1, 5) * 4)
 }
 
 Actor ChaingunMajor : DnD_BaseRangedMonster {
@@ -274,7 +274,7 @@ Actor ZSecGrenade {
 	radius 6
 	height 8
 	speed 20
-	damage (10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (10)
 	DamageType "Explosive"
 	seesound "ZSec/bounce"
 	PROJECTILE
@@ -292,7 +292,7 @@ Actor ZSecGrenade {
 		Death:
 			MISL C 0 bright A_PlaySound("weapons/rocklx")
 			MISL C 0 bright A_ChangeFlag(NoGravity, 1)
-			MISL C 5 bright A_Explode(25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)),128,1)
+			MISL C 5 bright A_Explode(25,128,1)
 			MISL D 4 bright
 			MISL E 3 bright
 		stop
@@ -451,7 +451,7 @@ Actor EnforcerPlasma2 : EnforcerPlasma {
 	Height 8
 	Radius 4
 	RenderStyle Add
-	Damage (2 * random(3,6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (2 * random(3,6))
 	Alpha 0.8
 	Scale 0.25
 	Speed 40
@@ -633,7 +633,7 @@ Actor MrRobot : DnD_BaseRangedMonster {
 }
 
 Actor EnforcerPlasma3 : EnforcerPlasma2 {
-	Damage (random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(4, 8))
 	DamageType "Energy"
 	Speed 48
 	+PIERCEARMOR
@@ -824,7 +824,7 @@ Actor ZombiePlasma : PlasmaBallX {
 	RenderStyle Add
 	Alpha 0.75
 	Decal "PlasmaScorchX"
-	Damage(15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage(15)
 	DamageType "Energy"
 	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.05,2.00]", "4:4=4:4", "224:229=224:229"
 	SeeSound "weapons/plasmaf"

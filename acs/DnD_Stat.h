@@ -751,29 +751,37 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	
 	res = chance > random(0, 1.0);
 	
-	if(res && CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
-		GiveInventory("VeilMarkTimer", 1);
-		ActivatorSound("VeilOfAssassin/Active", 97);
-	}
-	
 	// reroll if bad luck and lucky crit is on
-	if(!res && CheckInventory("StatbuffCounter_LuckyCrit")) {
+	if(!res && CheckInventory("StatbuffCounter_LuckyCrit"))
 		res = chance > random(0, 1.0);
-		
-		// recheck here
-		if(res && CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
-			GiveInventory("VeilMarkTimer", 1);
-			ActivatorSound("VeilOfAssassin/Active", 97);
-		}
-	}
 	
 	if(res) {
 		if(wepid != -1)
 			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
 		GiveInventory("DnD_CritToken", 1);
+		
+		// veil check
+		if(CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
+			GiveInventory("VeilMarkTimer", 1);
+			ActivatorSound("VeilOfAssassin/Active", 97);
+		}
 	}
 	
 	return res;
+}
+
+void HandleHunterTalisman() {
+	if(CheckInventory("HunterTalismanCheck") && !CheckInventory("HunterTalismanCooldown")) {
+		ActivatorSound("HunterTalisman/Activate", 1.0);
+		GiveInventory("HunterTalismanCooldown", 1);
+		GiveInventory("HunterTalismanEffector", 1);
+	}
+}
+
+int ConfirmedCritFactor(int dmg) {
+	dmg = dmg * GetCritModifier() / 100;
+	HandleHunterTalisman();
+	return dmg;
 }
 
 // this one doesnt depend on a weapon, its used as it is in the menu etc.

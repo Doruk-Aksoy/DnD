@@ -2810,7 +2810,7 @@ void DrawInventoryInfo(int pnum) {
 				my = INVENTORYINFO_TRADEVIEW_WRAPY + 0.1;
 		}
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, 0.75);
 		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource);
 		if(stack) {
 			SetFont("SMALLFONT");
@@ -3980,7 +3980,7 @@ void DrawCraftingInventoryInfo(int pn) {
 	if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
 		my = INVENTORYINFO_NORMALVIEW_WRAPY + 0.1;
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, 0.75);
 	if(GetStackValue(PlayerCursorData.itemHoveredType) && PlayerCursorData.itemHoveredSource) {
 		SetFont("SMALLFONT");
 		HudMessage(d:PlayerCursorData.itemHoveredSource; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0.0);

@@ -1071,6 +1071,10 @@ int MonsterPetTypeList[MAX_PET_TYPES] = {
 	DND_MTYPE_UNDEAD_POW
 };
 
+bool IsMonster(int tid) {
+	return tid >= DND_MONSTERTID_BEGIN && tid < DnD_TID_List[DND_TID_MONSTER];
+}
+
 bool IsBoss() {
 	int id = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
 	return IsMonsterIdBoss(id);

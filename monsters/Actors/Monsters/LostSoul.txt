@@ -31,7 +31,7 @@ ACTOR BabyCaco : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			CACB AB 5 Fast A_FaceTarget
-			CACB C 5 Fast Bright A_CustomComboAttack("BabyCacoBall", 17, random(1,8) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "BabyCaco/Melee")
+			CACB C 5 Fast Bright A_CustomComboAttack("BabyCacoBall", 17, random(1,8) * 3, "BabyCaco/Melee")
 		Goto See
 		PainState:
 			CACB D 3 Fast
@@ -61,7 +61,7 @@ ACTOR BabyCacoBall {
 	Height 4
 	Speed 11
 	FastSpeed 10
-	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (2 * random(1, 8))
 	DamageType "Caco"
 	Projectile 
 	+DONTBLAST
@@ -92,7 +92,7 @@ Actor Fleshspawn : DnD_BaseRangedMonster {
 	Height 56
 	mass 80
 	speed 10
-	damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	damage (2 * random(1, 8))
 	DamageType "Melee"
 	painchance 224
 	missiletype "Fleshspawnball"
@@ -199,7 +199,7 @@ Actor FleshSpawnGibs {
 }
 
 Actor Fleshspawnball {
-	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (2 * random(1, 8))
 	Damagetype "Caco"
 	Speed 10
 	Radius 3
@@ -333,7 +333,7 @@ ACTOR ESoul : DnD_BaseRangedMonster {
 	Height 56
 	mass 400
 	speed 5
-	damage (5 * random(1,8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	damage (5 * random(1,8))
 	DamageType "Melee"
 	painchance 128
 	renderstyle Add
@@ -397,7 +397,7 @@ ACTOR ShadowBall {
 	Radius 6
 	Height 8
 	Speed 12
-	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (3 * random(1, 8))
 	DamageType "CacoMagic"
 	Projectile
 	+DONTBLAST
@@ -506,7 +506,7 @@ Actor CubeShot {
 	Radius 5
 	Height 5
 	Speed 15
-	Damage (1 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (1 * random(1, 8))
 	DamageType "CacoFire"
 	DamageType Fire
 	RenderStyle Add
@@ -552,7 +552,7 @@ Actor ForgottenOne : DnD_BaseRangedMonster {
 	PainSound "Forgotten/Pain"
 	DeathSound "Forgotten/Death"
 	ActiveSound "Forgotten/Active"
-	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	Damage (3 * random(1, 8))
 	DamageType "Melee"
 	Tag "Forgotten One"
 	+ISMONSTER
@@ -647,7 +647,7 @@ ACTOR Watcher : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			WATC BCD 5 Fast A_FaceTarget 
-			WATC A 5 Fast A_CustomMeleeAttack(4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			WATC A 5 Fast A_CustomMeleeAttack(4 * random(1, 8))
 		Goto See
 		PainState: 
 			WATC H 3 Fast 
@@ -673,7 +673,7 @@ ACTOR WatcherShot {
 	Radius 4
 	Height 8
 	Speed 20
-	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (3 * random(1, 8))
 	DamageType "CacoMagic"
 	RENDERSTYLE ADD
 	ALPHA 0.67

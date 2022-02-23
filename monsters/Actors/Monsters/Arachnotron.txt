@@ -74,7 +74,7 @@ ACTOR FusionShot {
 	Radius 10
 	Height 10
 	Speed 18
-	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))  
+	Damage (5 * random(1, 8))  
 	DamageType "ArachnoVoid"
 	Scale 1.0   
 	RENDERSTYLE Add
@@ -215,7 +215,7 @@ Actor HellForgeSpiderExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 A_Explode(16, 96, 0)
 		Stop
 	}
 }
@@ -224,7 +224,7 @@ ACTOR HFSpiderShot {
 	Radius 8
 	Height 10
 	Speed 36
-	Damage (random(15,30) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(15,30))
 	DamageType "ArachnoVoid"
 	Scale 1.0   
 	RENDERSTYLE Add
@@ -289,7 +289,7 @@ ACTOR RailArachnotron : DnD_BaseRangedMonster {
 			RSPI A 0 A_PlaySound ("baby/chargerailgun")
 			RSPI A 16 Fast A_FaceTarget
 			RSPI G 16 Fast A_FaceTarget
-			RSPI H 4 Fast A_CustomRailgun (25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 0, AA0000, FF0000, 0, 1, 0, "ArachnoPuff")
+			RSPI H 4 Fast A_CustomRailgun (25, 0, AA0000, FF0000, 0, 1, 0, "ArachnoPuff")
 			RSPI G 8 Fast
 		Goto See
 		PainState:
@@ -329,7 +329,7 @@ Actor ArachnoPuff : BulletPuff {
 }
 
 Actor ArachnoBullet : ZombieBullet {
-	Damage (random(1, 4) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1, 4) * 3)
 	DamageType "ArachnoBullet"
 }
 
@@ -503,7 +503,7 @@ ACTOR BabyDemoGhostF : BabyDemoGhostA {
 
 ACTOR BabyDemoBall : FusionShot {
 	Speed 25
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	DamageType "ArachnoGreen"
 	SeeSound "weapons/plasmaf"
 	DeathSound "weapons/plasmax"
@@ -619,7 +619,7 @@ Actor VoreExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 90)
+			TNT1 A 1 A_Explode(32, 90)
 		Stop
 	}
 }
@@ -629,7 +629,7 @@ Actor VoreFirepod {
 	Height 8
 	Speed 16
 	FastSpeed 24
-	Damage (Random(20, 40) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (Random(20, 40))
 	DamageType "ArachnoVoid"
 	Projectile
 	+SeekerMissile
@@ -695,7 +695,7 @@ Actor VoreFirepodTrail {
 }
 
 Actor CommandoBullet1 : ZombieBullet {
-	Damage (random(1, 5) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1, 5) * 3)
 	DamageType "ArachnoBullet"
 }
 
@@ -705,13 +705,13 @@ Actor CommandoExplosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(2 * random(4,5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 A_Explode(2 * random(4,5), 96, 0)
 		Stop
 	}
 }
 
 Actor CommandoBullet2 : ZombieBullet {
-	Damage (random(1, 5) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1, 5) * 4)
 	DamageType "ArachnoBullet"
 	States {
 		Death:
@@ -897,7 +897,7 @@ Actor ChaingunGeneral : DnD_BaseRangedMonster {
 }
 
 Actor NailProjectileWeak {
-	Damage (7 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (7)
 	Speed 36
 	DamageType "Arachno"
 	Radius 3
@@ -968,7 +968,7 @@ Actor Legionnaire : DnD_BaseHybridMonster {
 			LEGN H 5 Fast A_PlaySound("Weapons/KickSwing")
 			LEGN I 5 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("LegionnaireBash")
-			LEGN J 4 Fast A_CustomMeleeAttack(random(5, 10) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")), "weapons/vblhit", "", "Knockback")
+			LEGN J 4 Fast A_CustomMeleeAttack(random(5, 10) * 2, "weapons/vblhit", "", "Knockback")
 			LEGN IH 3 Fast
 			LEGN H 0 A_Jump(192, "Missile")
 		Goto See
@@ -1018,7 +1018,7 @@ Actor LegionnaireBash {
 	height 5
 	speed 28
 	DamageType "Arachno"
-	damage (5 * random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (5 * random(1, 2))
 	deathsound "weapons/vblhit"
 	PROJECTILE
 	+SEEKERMISSILE
@@ -1054,7 +1054,7 @@ Actor LegionnaireMissile {
 	Speed 30
 	Radius 6
 	Height 12
-	Damage (5 * random(2, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(2, 6))
 	DamageType "Arachno"
 	SeeSound "Legionnaire/Fire"
 	DeathSound "Legionnaire/Hit"
@@ -1202,7 +1202,7 @@ Actor ManticoreRocketSmoke {
 
 Actor ManticoreRocket {
 	PROJECTILE
-	Damage (4 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(4, 5))
 	DamageType "ArachnoExp"
 	SeeSound "weapons/devastatorfire"
 	Deathsound "Weapons/DevastatorExpl"
@@ -1233,7 +1233,7 @@ Actor ManticoreExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 A_Explode(20, 96, 0)
 		Stop
 	}
 }

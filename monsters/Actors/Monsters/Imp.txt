@@ -32,7 +32,7 @@ actor STDarkImp : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			DRKS EF 8 Fast A_FaceTarget
-			DRKS G 6 Fast A_CustomComboAttack("DarkFast", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			DRKS G 6 Fast A_CustomComboAttack("DarkFast", 32, 3 * random(1, 8), "imp/melee")
 		Goto See
 		PainState:
 			DRKS H 2 Fast
@@ -69,7 +69,7 @@ actor DarkFast {
     Radius 8
     Height 6
     Speed 18
-    Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (3 * random(1, 8))
 	DamageType "ImpVoid"
     PROJECTILE
 	+DONTBLAST
@@ -142,7 +142,7 @@ actor NamiDarkImp : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			DRKI EF 8 Fast A_FaceTarget
-			DRKI G 6 Fast A_CustomComboAttack("DarkSeeker", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			DRKI G 6 Fast A_CustomComboAttack("DarkSeeker", 32, 3 * random(1, 8), "imp/melee")
 		Goto See
 		PainState:
 			DRKI H 2 Fast
@@ -179,7 +179,7 @@ actor DarkSeeker {
     Radius 8
     Height 6
     Speed 9
-    Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (3 * random(1, 8))
 	DamageType "ImpVoid"
     +SEEKERMISSILE
 	+DONTBLAST
@@ -243,7 +243,7 @@ actor VoidDarkImp : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			DRKV EF 8 Fast A_FaceTarget
-			DRKV G 6 Fast A_CustomComboAttack("DarkNormal", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			DRKV G 6 Fast A_CustomComboAttack("DarkNormal", 32, 3 * random(1, 8), "imp/melee")
 		Goto See
 		MissileState:
 			DRKV E 0 A_Jump(64, "Attack2")
@@ -296,7 +296,7 @@ actor DarkNormal {
     Radius 8
     Height 6
     Speed 9
-    Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (3 * random(1, 8))
 	DamageType "ImpVoid"
     PROJECTILE
 	+DONTBLAST
@@ -324,7 +324,7 @@ actor DarkStrong {
     Radius 8
     Height 6
     Speed 9
-    Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (6 * random(1, 8))
 	DamageType "ImpVoid"
     PROJECTILE
 	+DONTBLAST
@@ -396,7 +396,7 @@ actor NetherDarkImp : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			DRKV IJ 8 Fast A_FaceTarget
-			DRKV K 6 Fast A_CustomComboAttack("InfernoBall", 32, 6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			DRKV K 6 Fast A_CustomComboAttack("InfernoBall", 32, 6 * random(1, 8), "imp/melee")
 		Goto See
 		MissileState:
 			DRKV E 1 A_Jump (255, "Attack1", "Attack2")
@@ -441,7 +441,7 @@ actor InfernoBall {
     Radius 8
     Height 6
     Speed 20
-    Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (6 * random(1, 8))
 	DamageType "Imp"
     PROJECTILE
 	+DONTBLAST
@@ -477,7 +477,7 @@ actor NetherLightning {
     Radius 8
     Height 6
     Speed 24
-    Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+    Damage (4 * random(1, 8))
 	DamageType "Imp"
     PROJECTILE
     +RIPPER
@@ -563,7 +563,7 @@ Actor ImpAbomination : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			TRO5 EF 8 Fast A_FaceTarget
-			TRO5 G 6 Fast A_CustomComboAttack("DoomImpBall",32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)),"imp/melee")
+			TRO5 G 6 Fast A_CustomComboAttack("DoomImpBall",32, 4 * random(1, 8),"imp/melee")
 		Goto See
 		PainState:
 			TRO5 H 2 Fast
@@ -628,7 +628,7 @@ Actor STImp : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			TRO3 EF 8 Fast A_FaceTarget
-			TRO3 G 6 Fast A_CustomComboAttack("SmallImpBall",32,2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)),"imp/melee")
+			TRO3 G 6 Fast A_CustomComboAttack("SmallImpBall",32,2 * random(1, 8),"imp/melee")
 		Goto See
 		PainState:
 			TRO3 H 2 Fast
@@ -666,7 +666,7 @@ Actor SmallImpBall {
     Height 6
     Speed 18
 	FastSpeed 20
-    Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (2 * random(1, 8))
 	DamageType "Imp"
     Scale .75
     PROJECTILE
@@ -727,7 +727,7 @@ Actor VoidImp : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Jump(128,2)
 			TRO4 G 6 Fast A_TroopAttack
 		Goto See
-			TRO4 G 6 Fast A_CustomComboAttack("LargeImpBall",32,3 * random(1,8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)),"imp/melee")
+			TRO4 G 6 Fast A_CustomComboAttack("LargeImpBall",32,3 * random(1,8),"imp/melee")
 		Goto See
 		PainState:
 			TRO4 H 2 Fast
@@ -766,7 +766,7 @@ Actor LargeImpBall {
     Height 8
     Speed 10
     FastSpeed 20
-    Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (5 * random(1, 8))
 	DamageType "Imp"
     PROJECTILE
 	+DONTBLAST
@@ -867,7 +867,7 @@ actor SoulHarvesterBall {
     Height 6
     Scale 0.4
     Speed 9
-    Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (2 * random(1, 8))
 	DamageType "ImpMagic"
     +SEEKERMISSILE
 	+DONTBLAST
@@ -949,7 +949,7 @@ actor PyroImp : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			PRIM EF 8 Fast A_FaceTarget
-			PRIM G 6 Fast A_CustomComboAttack("PyroImpBall", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			PRIM G 6 Fast A_CustomComboAttack("PyroImpBall", 32, 3 * random(1, 8), "imp/melee")
 		MissileState:
 			PRIM E 0 A_JumpIfCloser(256, "Missile1")
 			PRIM EF 8 Fast A_FaceTarget
@@ -989,7 +989,7 @@ Actor PyroImpExp1 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 56, 1)
+			TNT1 A 1 A_Explode(5, 56, 1)
 		Stop
 	}
 }
@@ -1066,7 +1066,7 @@ Actor PyroImpExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 56, 1)
+			TNT1 A 1 A_Explode(2, 56, 1)
 		Stop
 	}
 }
@@ -1108,7 +1108,7 @@ Actor PyroImpExp3 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(random(4, 16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 1)
+			TNT1 A 1 A_Explode(random(4, 16), 64, 1)
 		Stop
 	}
 }
@@ -1166,17 +1166,17 @@ actor Devil : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			TRO2 EF 6 Fast A_FaceTarget
-			TRO2 G 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO2 G 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8), "imp/melee")
 			TRO2 B 2 Fast
 			TRO2 VW 6 Fast A_FaceTarget
-			TRO2 X 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO2 X 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8), "imp/melee")
 			TRO2 E 0 A_Jump(160, "GiveUp")
 			TRO2 D 2 Fast
 			TRO2 EF 6 Fast A_FaceTarget
-			TRO2 G 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO2 G 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8), "imp/melee")
 			TRO2 B 2 Fast
 			TRO2 VW 6 Fast A_FaceTarget
-			TRO2 X 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO2 X 4 Fast A_CustomComboAttack("DoomImpBall", 32, 4 * random(1, 8), "imp/melee")
 		GiveUp:
 			TRO2 A 0
 		goto See
@@ -1246,26 +1246,26 @@ actor Devil2 : DnD_BaseHybridMonster {
 		MissileState:
 			TNT1 A 0 A_Jump(128, "Lob")
 			TRO6 EF 5 Fast A_FaceTarget
-			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8), "imp/melee")
 			TRO6 B 2 Fast
 			TRO6 HI 5 Fast A_FaceTarget
-			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8), "imp/melee")
 			TRO6 E 0 A_Jump(160, "GiveUp")
 			TRO6 B 2 Fast
 			TRO6 EF 5 Fast A_FaceTarget
-			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8), "imp/melee")
 			TRO6 B 2 Fast
 			TRO6 HI 5 Fast A_FaceTarget
-			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball", 32, 4 * random(1, 8), "imp/melee")
 		GiveUp:
 			TRO6 A 0
 		goto See
 		Lob:
 			TRO6 EF 5 Fast A_FaceTarget
-			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball2", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 G 3 Fast A_CustomComboAttack("Devil2Ball2", 32, 4 * random(1, 8), "imp/melee")
 			TRO6 B 2 Fast
 			TRO6 HI 5 Fast A_FaceTarget
-			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball2", 32, 4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			TRO6 J 3 Fast A_CustomComboAttack("Devil2Ball2", 32, 4 * random(1, 8), "imp/melee")
 		Goto See
 		PainState:
 			TRO6 K 3 Fast
@@ -1303,7 +1303,7 @@ actor Devil2Ball {
     Radius 8
     Height 6
     Speed 24
-    Damage (3 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (3 * random(4, 8))
 	DamageType "ImpFire"
     PROJECTILE
 	+DONTBLAST
@@ -1439,7 +1439,7 @@ ACTOR VulgarShot {
 	Radius 8
 	Height 16
 	Speed 10
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	DamageType "ImpPoison_Vulgar"
 	RENDERSTYLE ADD
 	ALPHA 0.67
@@ -1561,7 +1561,7 @@ ACTOR CultMysticShot {
 	Speed 20
 	Radius 4
 	Height 4
-	Damage (Random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (Random(4, 8))
 	DamageType "ImpMagic"
 	PROJECTILE
 	+NoDamageThrust
@@ -1619,7 +1619,7 @@ Actor ReaverRobot : DnD_BaseHybridMonster {
 		MeleeState:
 			TNT1 A 0 A_PlaySound("reaver/melee", 5)
 			5TRF H 5 Fast A_FaceTarget
-			5TRF I 7 Fast A_CustomMeleeAttack(random(4, 8) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "reaver/blade")
+			5TRF I 7 Fast A_CustomMeleeAttack(random(4, 8) * 3, "reaver/blade")
 			5TRF H 5 Fast
 		Goto See
 		MissileState:
@@ -1657,7 +1657,7 @@ Actor ReaverShot {
 	Height 6
 	Radius 3
 	Projectile
-	Damage (random(5, 7) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(5, 7))
 	DamageType "Imp"
 	Scale 0.5
 	States {
@@ -1698,7 +1698,7 @@ Actor ReaverExplosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 0 A_Explode(5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 A 0 A_Explode(5, 72, 0)
 			11PF ABCDE 5 Bright
 		Stop
 	}
@@ -1821,7 +1821,7 @@ ACTOR ShadowBallX {
 	Radius 6
 	Height 8
 	Speed 20
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	DamageType "Imp"
 	Projectile
 	+RANDOMIZE
@@ -1928,7 +1928,7 @@ Actor Roach : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 8)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 2), 8)
 			TNT1 A 0 A_SetArg(0, DND_ROACH)
 		Goto SpawnSetup
 
@@ -1970,7 +1970,7 @@ Actor Roach : DnD_BaseHybridMonster {
 			ROAC T -1
 		Stop
 		RaiseState:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 8)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 2), 8)
 			ROAC MLKJI 5
 		Goto See
 	}
@@ -1978,18 +1978,18 @@ Actor Roach : DnD_BaseHybridMonster {
 
 Actor RoachExp : BaseExplosionDamage {
 	Obituary "%o was poisoned by a Roach."
-	Damage (Random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (Random(5, 8))
 	DamageType "ImpPoison_Roach"
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 0 A_Explode(5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 32, 0)
+			TNT1 A 0 A_Explode(5, 32, 0)
 		Stop
 	}
 }
 
 Actor RoachBall : DoomImpBall {
-	Damage (Random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (Random(5, 8))
 	DamageType "ImpPoison_Roach"
 	Height 5
 	Radius 3

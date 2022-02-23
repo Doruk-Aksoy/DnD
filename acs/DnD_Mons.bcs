@@ -173,10 +173,8 @@ Script 972 (int type) { // script for Lich Slow
 		RestoreRPGStat(RES_PLAYERSPEED);
 	}
 	else if(type == 1) {
-		int temp = CheckInventory("ForcedMonsterLevel");
-		SetInventory("ForcedMonsterLevel", 0);
 		for(i = 0; i < 5; i++) {
-			Thing_Damage(0, 4 + 4 * ACS_ExecuteWithResult(994, 7, temp), MOD_POISON);
+			Thing_Damage(0, 4, MOD_POISON);
 			Delay(const:17);
 		}
 	}

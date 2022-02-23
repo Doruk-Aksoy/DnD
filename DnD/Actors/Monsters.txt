@@ -81,7 +81,7 @@ Actor ZombieMan2 : DnD_BaseRangedMonster {
 Actor ZombieMan3 : Zombieman2 replaces Zombieman { }
 
 Actor ZombieBullet : ProjBullet {
-	Damage (random(1,5) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1,5) * 3)
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -256,7 +256,7 @@ Actor Demon2x : DnD_BaseMeleeMonster {
 		Goto See
 		MeleeState:
 			SARG EF 8 Fast A_FaceTarget
-			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4, "", "")
 		goto See
 		PainState:
 			SARG H 2 Fast
@@ -328,7 +328,7 @@ Actor DoomImp2 : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			IMP0 EF 8 Fast A_FaceTarget
-			IMP0 G 6 Fast A_CustomComboAttack("DoomImpBall", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "imp/melee")
+			IMP0 G 6 Fast A_CustomComboAttack("DoomImpBall", 32, 3 * random(1, 8), "imp/melee")
 		Goto See
 		PainState:
 			IMP0 H 2 Fast
@@ -378,7 +378,7 @@ ACTOR ImpBallTrail {
 
 Actor DoomImpBall2 : DoomImpBall replaces DoomImpBall
 {
-	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (3 * random(1, 8))
 	DamageType "ImpFire"
 	+DONTBLAST
 	Decal "DoomImpScorch"
@@ -400,7 +400,7 @@ Actor DoomImpBall2 : DoomImpBall replaces DoomImpBall
 
 Actor LostSoul2 : DnD_BaseRangedMonster { 
 	Health 0x7FFFFFFF
-	Damage (3 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	Damage (3 * random(1, 10))
 	DamageType "Melee"
 	Tag "Lost Soul"
 	Radius 16
@@ -514,7 +514,7 @@ Actor CacoDemon2 : DnD_BaseHybridMonster {
 		MissileState:
 		MeleeState:
 			HEAD BC 5 Fast A_FaceTarget
-			HEAD D 5 Fast bright A_CustomComboAttack("CacoBall", 32, 10 * random(1, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+			HEAD D 5 Fast bright A_CustomComboAttack("CacoBall", 32, 10 * random(1, 6), "", "")
 		goto See
 		PainState:
 			HEAD E 3 Fast
@@ -539,7 +539,7 @@ Actor CacoDemon2 : DnD_BaseHybridMonster {
 }
 
 Actor CacoBall : Cacodemonball replaces Cacodemonball {
-	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(1, 8))
 	+DONTBLAST
 	DamageType "Caco"
 	States {
@@ -655,7 +655,7 @@ Actor Revenant2 : DnD_BaseHybridMonster {
 			TNT1 A 0 A_FaceTarget
 			SKEL G 6 Fast A_SkelWhoosh
 			SKEL H 6 Fast A_FaceTarget
-			SKEL I 6 Fast A_CustomMeleeAttack(6 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "skeleton/melee", "")
+			SKEL I 6 Fast A_CustomMeleeAttack(6 * random(1, 10), "skeleton/melee", "")
 		Goto See
 		MissileState:
 			SKEL J 0 Bright A_FaceTarget
@@ -683,7 +683,7 @@ Actor Revenant2 : DnD_BaseHybridMonster {
 actor RevenantTracerFixed : RevenantTracer replaces RevenantTracer {
   Decal RevenantScorch
   DamageType "Rev"
-  Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+  Damage (10 * random(1, 8))
   +DONTBLAST
   +THRUGHOST
   States {
@@ -743,7 +743,7 @@ Actor HellKnight2 : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			BOS2 EF 8 Fast A_FaceTarget
-			BOS2 G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS2 G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8), "baron/melee")
 		Goto See
 		PainState:
 			BOS2 H 2 Fast
@@ -768,7 +768,7 @@ Actor HellKnight2 : DnD_BaseHybridMonster {
 
 Actor Baronball2 : BaronBall replaces BaronBall
 {
-	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 8))
 	DamageType "BaronGreen"
 	Decal "BaronScorch"
 	+DONTBLAST
@@ -817,7 +817,7 @@ Actor BaronOfHell2 : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			BOSS EF 8 Fast A_FaceTarget
-			BOSS G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOSS G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8), "baron/melee")
 		Goto See
 		PainState:
 			BOSS H 2
@@ -906,7 +906,7 @@ Actor Mancubus2 : DnD_BaseRangedMonster {
 Actor Mancubus3 : Mancubus2 replaces Fatso { }
 
 Actor FatShot2 : Fatshot replaces Fatshot {
-	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 8))
 	DamageType "FattyFire"
 	+THRUGHOST
 	+DONTBLAST
@@ -986,7 +986,7 @@ Actor Arachno2 : DnD_BaseRangedMonster {
 
 Actor ArachnotronPlasma2 : ArachnotronPlasma replaces ArachnotronPlasma
 {
-	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(1, 8))
 	DamageType "ArachnoYellow"
 	+DONTBLAST
 	States {
@@ -1044,7 +1044,7 @@ Actor ArchVile2 : DnD_ArchVileBase {
 			VILE G 10 Fast BRIGHT A_FaceTarget
 			VILE H 8 Fast BRIGHT A_VileTarget
 			VILE IJKLMN 8 Fast BRIGHT A_FaceTarget
-			VILE O 8 Fast BRIGHT A_VileAttack("vile/stop", 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 70 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 70, 1.0, "VileFire")
+			VILE O 8 Fast BRIGHT A_VileAttack("vile/stop", 20, 70, 70, 1.0, "VileFire")
 			VILE P 20 Fast BRIGHT
 		Goto See
 		HealState:
@@ -1285,14 +1285,14 @@ Actor CyberdemonExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(128, 128, 0)
 		Stop
 	}
 }
 
 Actor CyberdemonRocket : Rocket {
 	Decal "Scorch"
-	Damage (20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (20 * random(1, 8))
 	DamageType "CyberExp"
 	Speed 24
 	+THRUGHOST
@@ -1548,7 +1548,7 @@ ACTOR ReiverGhostExplode {
 }
 
 ACTOR ReiverGhostFX : WraithFX1 {
-	Damage (5 * random(2,5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(2,5))
 	SeeSound "Beast/Attack"
     +MTHRUSPECIES
 	DamageType "PaineFire"
@@ -1650,7 +1650,7 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 			PHNT B 5 A_FaceTarget
 			PHNT C 4 Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("WraithAttack")
-			PHNT D 4 Bright A_CustomMeleeAttack(random(6, 10) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+			PHNT D 4 Bright A_CustomMeleeAttack(random(6, 10) * 3, "", "")
 		Goto See
 		
 		PainState:
@@ -1672,7 +1672,7 @@ Actor PhantomMissile {
 	Radius 6
 	Height 12
 	Speed 20
-	Damage (18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (18)
 	+DONTBLAST
 	RenderStyle Add
 	Alpha 1

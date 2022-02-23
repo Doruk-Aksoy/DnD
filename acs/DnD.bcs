@@ -3160,7 +3160,7 @@ Script "DND Monster Damage Scale" (int flags) {
 	if(flags & 1) // target
 		SetactivatorToTarget(0);
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	int res = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	int res = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 	if(MonsterProperties[this].isElite)
 		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
 	if(MonsterProperties[this].trait_list[DND_EXTRASTRONG])
@@ -3179,7 +3179,7 @@ Script "DND Monster Damage Scale2" (int dmg, int flags) {
 	if(flags & 1) // target
 		SetactivatorToTarget(0);
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	int res = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	int res = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 	if(MonsterProperties[this].isElite)
 		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
 	if(MonsterProperties[this].trait_list[DND_EXTRASTRONG])
@@ -3219,7 +3219,7 @@ Script 994 (int type, int extra, int wantNoAmmo) {
 			int bonus = 0;
 			if(type == 5) {
 				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
+				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
 				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
@@ -3227,14 +3227,14 @@ Script 994 (int type, int extra, int wantNoAmmo) {
 			else if(type == 6) {
 				SetActivatorToTarget(0);
 				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
+				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
 				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
 			}
 			else if(type == 7) {
 				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(extra, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
+				res = (Clamp_Between(extra, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
 				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
@@ -3721,7 +3721,6 @@ Script 1000 (int isSoftcore) {
 			ConsoleCommand(StrParam(s:DNDFlagCheckList[i], s: " ", d:DNDFlagAcceptedValues[i]));
 		// handle fixed point shit here because getcvar is stupid with them
 		ConsoleCommand("sv_coop_damagefactor 1.0");
-		ConsoleCommand("dnd_monster_dmgscalepercent 0.04");
 		ConsoleCommand("dnd_researchdroprate 0.00249");
 		ConsoleCommand("dnd_uniquemonster_spawnchance 0.0499");
 	}
@@ -3929,8 +3928,6 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	
 	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || proj_crit)
 		res = ConfirmedCritFactor(res);
-	else
-		res = HandleWeaponCrit(res, wepid, pnum, dmgid, isSpecial);
 	
 	SetResultValue(res);
 }
@@ -5412,7 +5409,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		SetactivatorToTarget(0);
 	int this = ActivatorTID();
 	int master = GetActorProperty(0, APROP_MASTERTID);
-	int res = 1.0 + Clamp_Between(PetMonsterProperties[this - DND_PETTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0);
+	int res = 1.0 + Clamp_Between(PetMonsterProperties[this - DND_PETTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 	if(PetMonsterProperties[this - DND_PETTID_BEGIN].level > 50)
 		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
 	if(flags & DND_WDMG_ISRIPPER)
@@ -5893,6 +5890,18 @@ Script "DnD Heal Monster Direct" (int amount, int isPercent) {
 		HealMonster(mid, amount);
 	else
 		HealMonster(mid, MonsterProperties[mid].maxhp * isPercent / 100);
+}
+
+Script "DnD Monster Heal Potency" (int base) {
+	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	int factor = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
+	
+	if(MonsterProperties[this].trait_list[DND_VITAL])
+		factor <<= 1;
+	
+	base = base * (100 + factor) / 100;
+	
+	SetResultValue(base);
 }
 
 Script "DnD Monster Health Regen Script" (int style, int amount, int period) {

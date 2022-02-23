@@ -23,6 +23,7 @@ Actor DnD_PlayerBase : PlayerPawn {
 	+NOICEDEATH
 	-FLOORCLIP // no view sink on liquid floors
 	+THRUSPECIES
+	+USEDAMAGEEVENTSCRIPT
 	
 	States {
 	    Pain:

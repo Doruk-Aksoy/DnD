@@ -33,7 +33,7 @@ Actor Lurker : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			SAR2 EF 8 Fast A_FaceTarget
-			SAR2 G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			SAR2 G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4)
 		Goto See
 		MissileState:
 			SAR2 GF 8 Fast A_FaceTarget
@@ -103,7 +103,7 @@ Actor FlameDemonGhost : FlameDemon {
 		Goto See
 		MeleeState:
 			SARG EF 8 Fast A_FaceTarget
-			SARG G 8 Fast A_CustomMeleeAttack(6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			SARG G 8 Fast A_CustomMeleeAttack(6 * random(1, 8))
 		Goto See
 		PainState:
 			SARG H 2 Fast
@@ -161,7 +161,7 @@ ACTOR NightmareSpectre : DnD_BaseMeleeMonster {
 		Goto See
 		MeleeState:
 			SARG EF 6 Fast A_FaceTarget
-			SARG G 6 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			SARG G 6 Fast A_CustomMeleeAttack(7 * random(1, 8))
 		Goto See
 		PainState:
 			SARG H 2 Fast
@@ -219,7 +219,7 @@ Actor Gravedigger : DnD_BaseMeleeMonster {
 		Goto See
 		MeleeState:
 			SARG EF 8 Fast A_FaceTarget
-			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4, "", "")
 		goto See
 		PainState:
 			SARG H 2 Fast
@@ -279,7 +279,7 @@ Actor Devourer : DnD_BaseMeleeMonster {
 		Goto See
 		MeleeState:
 			SARG EF 8 Fast A_FaceTarget
-			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+			SARG G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4, "", "")
 		goto See
 		PainState:
 			SARG H 2 Fast
@@ -339,7 +339,7 @@ Actor SoulEaterGhost : DnD_BaseHybridMonster {
 		MeleeState:
 			SOEA EF 8 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("SoulEaterProj",28)
-			SOEA G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			SOEA G 8 Fast A_CustomMeleeAttack(random(1, 10) * 4)
 		Goto See
 		MissileState:
 			SOEA EF 8 Fast A_FaceTarget
@@ -439,7 +439,7 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster {
 		MeleeState:
 			SOEA E 5 Fast A_FaceTarget
 			SOEA F 2 Fast A_FaceTarget
-			SOEA F 3 Fast A_CustomMeleeAttack(random(1, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			SOEA F 3 Fast A_CustomMeleeAttack(random(1, 10) * 4)
 			SOEA G 5 Fast
 		Goto See
 		MissileGo:
@@ -545,7 +545,7 @@ Actor RavagerGhost : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			SAR3 EF 6 Fast A_FaceTarget
-			SAR3 G 6 Fast A_CustomMeleeAttack(random(5, 10) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			SAR3 G 6 Fast A_CustomMeleeAttack(random(5, 10) * 4)
 		Goto See
 		PainState:
 			SAR3 H 2 Fast

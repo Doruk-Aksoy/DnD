@@ -27,7 +27,7 @@ Actor DreamingGod : DnD_BaseRangedBoss {
 	RadiusDamageFactor 0.5
 	states {
 		SetInfo:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Dreamer Burn", 0, dreamer_burn * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")))
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Dreamer Burn", 0, dreamer_burn)
 			TNT1 A 0 A_SetArg(0, DND_DREAMER)
 		Goto SpawnSetup
 			
@@ -165,7 +165,7 @@ actor TchernobogMissile {
 	YScale 0.675
 	speed 24
 	RENDERSTYLE ADD
-	damage (32 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (32 * random(4, 5))
 	PROJECTILE
 	+DONTSPLASH
 	+DONTBLAST
@@ -277,8 +277,8 @@ Actor TchernobogExplosion : BaseExplosionDamage {
 	DamageType "CyberExp"
 	States {
 		Spawn:
-			TNT1 A 8 NoDelay A_Explode(192 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0)
-			TNT1 AAAAAA 4 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0)
+			TNT1 A 8 NoDelay A_Explode(192, 160, 0)
+			TNT1 AAAAAA 4 A_Explode(32, 160, 0)
 		Stop
 	}
 }
@@ -298,7 +298,7 @@ Actor DreamerStomp {
     States {
 		Spawn:
 			TNT1 A 1
-			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(128, 128, 0)
 		Stop	
 	}
 }
@@ -336,7 +336,7 @@ Actor DreamerDamager {
 	+NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 36, 0, 0, 36)
+			TNT1 A 1 NoDelay A_Explode(2, 36, 0, 0, 36)
 		Stop
 	}
 }
@@ -390,20 +390,20 @@ Actor TchernoExplosion  {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 A_PlaySound("Cerberus/Explode")
-			TEX2 A 2 Bright A_Explode(24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 A 2 Bright A_Explode(24, 128, 0)
 			TNT1 A 0 A_SpawnItemEx("TFlyFX", 0, 32)
-			TEX2 A 2 Bright A_Explode(24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 A 2 Bright A_Explode(24, 128, 0)
 			TNT1 A 0 A_SpawnItemEx("TFlyFX", 0, 32)
-			TEX2 B 2 Bright A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 B 2 Bright A_Explode(48, 128, 0)
 			TNT1 A 0 A_SpawnItemEx("TFlyFX", 0, 32)
-			TEX2 B 2 Bright A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 B 2 Bright A_Explode(48, 128, 0)
 			TNT1 A 0 A_SpawnItemEx("TFlyFX", 0, 32)
-			TEX2 C 2 Bright A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 C 2 Bright A_Explode(96, 128, 0)
 			TNT1 A 0 A_SpawnItemEx("TFlyFX", 0, 32)
-			TEX2 C 2 Bright A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 C 2 Bright A_Explode(96, 128, 0)
 		Death:
 			TNT1 A 0 A_Stop
-			TEX2 DEFGHIJKL 3 Bright A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 DEFGHIJKL 3 Bright A_Explode(128, 128, 0)
 		Stop
 	}
 }
@@ -420,15 +420,15 @@ Actor TchernoCorpseExplosion : TchernoExplosion {
 			TEX2 HGFEDCBA 1
 			TNT1 A 13
 			TNT1 A 0 A_PlaySound("Cerberus/Explode")
-			TEX2 A 2 Bright A_Explode(24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
-			TEX2 A 2 Bright A_Explode(24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
-			TEX2 B 2 Bright A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
-			TEX2 B 2 Bright A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
-			TEX2 C 2 Bright A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
-			TEX2 C 2 Bright A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 A 2 Bright A_Explode(24, 128, 0)
+			TEX2 A 2 Bright A_Explode(24, 128, 0)
+			TEX2 B 2 Bright A_Explode(48, 128, 0)
+			TEX2 B 2 Bright A_Explode(48, 128, 0)
+			TEX2 C 2 Bright A_Explode(96, 128, 0)
+			TEX2 C 2 Bright A_Explode(96, 128, 0)
 		Death:
 			TNT1 A 0 A_Stop
-			TEX2 DEFGHIJKL 3 Bright A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TEX2 DEFGHIJKL 3 Bright A_Explode(128, 128, 0)
 		Stop
 	}
 }
@@ -532,7 +532,7 @@ Actor SplitParticleExplosion : BaseExplosionDamage {
 	DamageType "CyberMagic"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(36 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 NoDelay A_Explode(36, 96, 0)
 		Stop
 	}
 }
@@ -584,7 +584,7 @@ Actor SplitParticle1 {
 	Height 12
 	Radius 6
 	PROJECTILE
-	Damage (30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (30)
 	Speed 40
 	seesound "Dreamer/Blast"
 	deathsound "Dreamer/BlastExp"
@@ -649,7 +649,7 @@ Actor SplitParticle2 : SplitParticle1 {
 }
 
 Actor SplitParticle3 : SplitParticle1 {
-	Damage (10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (10)
 	States {
 		Spawn:
 			TNT1 AAAAAAAAAAAA 0 A_BishopMissileWeave
@@ -882,7 +882,7 @@ Actor TchernoSoul {
 	Renderstyle Add
 	Alpha 0.1
 	Speed 5
-	Damage (5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET))) 
+	Damage (5) 
 	DamageType "CyberMagic"
 	BounceType Hexen
 	BounceCount 6
@@ -930,7 +930,7 @@ Actor TchernoLightningExplosion : BaseExplosionDamage {
 	+FORCERADIUSDMG
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0, 0, 40)
+			TNT1 A 1 NoDelay A_Explode(48, 64, 0, 0, 40)
 		Stop
 	}
 }
@@ -1006,7 +1006,7 @@ Actor Torrasque : DnD_BaseHybridBoss {
 	var int user_wait;
 	var int user_charge;
 	const int wait_count = 8;
-	Damage (16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")))
+	Damage (16)
 	RadiusDamageFactor 0.5
 	+ISMONSTER
 	+NOBLOOD
@@ -1056,13 +1056,13 @@ Actor Torrasque : DnD_BaseHybridBoss {
 			TNT1 A 0 A_Recoil(-2.2)
 			DNB2 G 3 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-2.8)
-			TNT1 A 0 A_CustomMeleeAttack(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")), "Torrasque/Melee", "Torrasque/Miss")
+			TNT1 A 0 A_CustomMeleeAttack(80, "Torrasque/Melee", "Torrasque/Miss")
 			DNB2 H 6 Fast A_FaceTarget
 		Goto See
 		ShieldBash:
 			DNB2 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("TorrasqueBash")
-			DNB2 E 6 Fast A_CustomMeleeAttack(random(1, 10) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")), "weapons/vblhit", "weapons/vblswg", "Knockback")
+			DNB2 E 6 Fast A_CustomMeleeAttack(random(1, 10) * 3, "weapons/vblhit", "weapons/vblswg", "Knockback")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(160, "Charge", "Grab", "LotsofMace")
@@ -1099,7 +1099,7 @@ Actor Torrasque : DnD_BaseHybridBoss {
 			TNT1 A 0 A_Recoil(-2.2)
 			DNB2 G 3 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-2.8)
-			TNT1 A 0 A_CustomMeleeAttack(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale")), "Torrasque/Melee", "Torrasque/Miss")
+			TNT1 A 0 A_CustomMeleeAttack(80, "Torrasque/Melee", "Torrasque/Miss")
 			DNB2 H 6 Fast A_FaceTarget
 		Goto ShieldBash
 		Grab:
@@ -1185,7 +1185,7 @@ actor TorrasqueBash : PaladinBash {
 	height 5
 	speed 28
 	DamageType "Physical"
-	damage (12 * random(2, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (12 * random(2, 4))
 	deathsound "weapons/vblhit"
 	PROJECTILE
 	+SEEKERMISSILE
@@ -1317,7 +1317,7 @@ Actor TorrasqueShield {
 
 Actor TorrasqueMace {
 	PROJECTILE
-	Damage (50 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (50)
 	DamageType "Physical"
 	Speed 28
 	Height 10
@@ -1355,7 +1355,7 @@ Actor TorrasqueGrabber {
 	Height 14
 	Radius 10
 	PROJECTILE
-	Damage (9 * random(3, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (9 * random(3, 5))
 	MaxStepHeight 4
 	SeeSound "Torrasque/HookGo"
 	DamageType "LegendaryPhysicalSnare"
@@ -1562,7 +1562,7 @@ Actor MordecqaiStomp {
     States {
 		Spawn:
 			TNT1 A 1
-			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(128, 128, 0)
 		Stop	
 	}
 }
@@ -1572,7 +1572,7 @@ Actor MordecqaiFlameExplosion : BaseExplosionDamage {
 	+NODAMAGETHRUST
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0, 0, 96)
+			TNT1 A 1 NoDelay A_Explode(2, 128, 0, 0, 96)
 		Stop
 	}
 }
@@ -1610,7 +1610,7 @@ Actor MordecqaiFlame {
 
 Actor MordecqaiSeeker {
 	PROJECTILE
-	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (15)
 	DamageType "CyberMagic"
 	Speed 20
 	Height 12
@@ -1663,7 +1663,7 @@ Actor MordecqaiLightningExp : BaseExplosionDamage {
 	DamageType "CyberLightning"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0, 0, 64)
+			TNT1 A 1 NoDelay A_Explode(32, 96, 0, 0, 64)
 		Stop
 	}
 }
@@ -1747,7 +1747,7 @@ Actor MordecqaiSmallBall {
 	Radius 4
 	Height 8
 	Speed 12
-	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (15)
 	DamageType "CyberLightning"
 	PROJECTILE
 	-NOGRAVITY
@@ -2078,7 +2078,7 @@ Actor GodSlayerStomp {
     States {
 		Spawn:
 			TNT1 A 1
-			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(128, 128, 0)
 		Stop	
 	}
 }
@@ -2089,7 +2089,7 @@ Actor GodSlayerStomp2 : GodSlayerStomp {
 			TNT1 A 1
 			TNT1 AAAAAAA 0 A_SpawnItemEx("RocketSmoke", random(-32, 32), random(-32, 32), frandom(-4, 4), frandom(-4, 4), frandom(0.5, 4))
 			TNT1 A 0 A_Quake(6, 55, 0, 256, "")
-			TNT1 A 1 A_Explode(160 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0)
+			TNT1 A 1 A_Explode(160, 160, 0)
 		Stop
 	}
 }
@@ -2106,7 +2106,7 @@ Actor InquisitorExplosion : BaseExplosionDamage {
 	DamageType "CyberExp"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 NoDelay A_Explode(64, 128, 0)
 		Stop
 	}
 }
@@ -2115,7 +2115,7 @@ Actor InquisitorExplosion2 : BaseExplosionDamage {
 	DamageType "CyberExp"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192, 0, 1, 64)
+			TNT1 A 1 NoDelay A_Explode(128, 192, 0, 1, 64)
 		Stop
 	}
 }
@@ -2124,7 +2124,7 @@ Actor InquisitorExplosion3 : BaseExplosionDamage {
 	DamageType "CyberExp"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(192 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 256, 0, 1, 128)
+			TNT1 A 1 NoDelay A_Explode(192, 256, 0, 1, 128)
 		Stop
 	}
 }
@@ -2134,13 +2134,13 @@ Actor GodSlayerBulletExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(28 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 A_Explode(28, 96, 0)
 		Stop
 	}
 }
 
 Actor GodSlayerBullet : ZombieBullet {
-	Damage (random(3, 4) * 5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(3, 4) * 5)
 	DamageType "CyberBullet"
 	States {
 		Death:
@@ -2168,7 +2168,7 @@ Actor InquisitorCharge {
 	Radius 40
 	Height 96
 	Speed 20
-	Damage (5 * random(10, 20) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(10, 20))
 	DamageType "Physical"
 	MaxStepHeight 28
 	+BLOODLESSIMPACT
@@ -2199,7 +2199,7 @@ Actor InquisitorChargeSilent : InquisitorCharge {
 }
 
 Actor InquisitorShot2 : InquisitorShot {
-	Damage (75 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (75)
 	DamageType "CyberExp"
 	Speed 28
 	SeeSound "GodSlayer/Grenade"
@@ -2316,7 +2316,7 @@ Actor InquisitorPulseTrail {
 
 Actor InquisitorPulse : MaulerTorpedo {
 	Speed 48
-	Damage (50 * random(2,3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (50 * random(2,3))
 	+NODAMAGETHRUST
 	+DONTBLAST
 	var int user_counter;
@@ -2359,7 +2359,7 @@ Actor MaulerTorpedoWaveInq : MaulerTorpedoWave {
 	-STRIFEDAMAGE
 	+DONTSPLASH
 	+DONTBLAST
-	Damage (15 * random(2, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (15 * random(2, 3))
 	DamageType "CyberEnergy"
 	DeathSound "GodSlayer/PulseHit"
 }
@@ -2543,7 +2543,7 @@ Actor Golgoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_JumpIf(user_count == trace_count, "LanceShoot")
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_CustomBulletAttack(0, 0, 1, 0, "GolgothPuff_LaserFX", 1576)
-			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 1 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "GolgothPuff", 4096)
+			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 1, "GolgothPuff", 4096)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		FastLance:
@@ -2552,7 +2552,7 @@ Actor Golgoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_JumpIf(user_count == trace_count / 2, "LanceShoot")
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_CustomBulletAttack(0, 0, 1, 0, "GolgothPuff_LaserFX", 1576)
-			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 1 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "GolgothPuff", 4096)
+			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 1, "GolgothPuff", 4096)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		LanceShoot:
@@ -2560,7 +2560,7 @@ Actor Golgoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_PlaySound("Golgoth/Rail", 5)
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_CustomBulletAttack(0, 0, 1, 0, "GolgothPuff_LaserFX2", 1576)
-			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "GolgothPuff2", 4096)
+			MOMD G 1 Light("GOLGOTHPINKLIGHT2") A_CustomBulletAttack(0, 0, 1, 8, "GolgothPuff2", 4096)
 			MOMD G 8
 		Goto See
 		MeteorDash:
@@ -2744,7 +2744,7 @@ Actor GolgothMeteorExp : BaseExplosionDamage {
 	DamageType "CyberExp"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 144)
+			TNT1 A 1 NoDelay A_Explode(80, 144)
 		Stop
 	}
 }
@@ -2758,7 +2758,7 @@ Actor GolgothMeteor {
 	Speed 28
 	Height 16
 	Radius 8
-	Damage(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage(80)
 	DamageType "CyberExp"
 	seesound "lavdatk"
 	DeathSound "Golgoth/MeteorExplode"
@@ -2781,7 +2781,7 @@ Actor GolgothOrangeSoul {
 	Radius 10
 	Renderstyle Add
 	Alpha 1.0
-	Damage(100 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage(100)
 	DamageType "CyberOrangeMagic"
 	SeeSound "H2SkullWizard/Fire"
     DeathSound "H2SkullWizard/Hit"
@@ -2848,7 +2848,7 @@ Actor GolgothFireExp1 : BaseExplosionDamage {
 	Damagetype "CyberFire"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 16)
+			TNT1 A 1 NoDelay A_Explode(8, 16)
 		Stop
 	}
 }
@@ -2857,7 +2857,7 @@ Actor GolgothFireExp2 : BaseExplosionDamage {
 	Damagetype "CyberFire"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 28)
+			TNT1 A 1 NoDelay A_Explode(10, 28)
 		Stop
 	}
 }
@@ -2866,7 +2866,7 @@ Actor GolgothFireExp3 : BaseExplosionDamage {
 	Damagetype "CyberFire"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(12 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 40)
+			TNT1 A 1 NoDelay A_Explode(12, 40)
 		Stop
 	}
 }
@@ -2875,7 +2875,7 @@ Actor GolgothFireExp4 : BaseExplosionDamage {
 	Damagetype "CyberFire"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 52)
+			TNT1 A 1 NoDelay A_Explode(16, 52)
 		Stop
 	}
 }
@@ -2887,7 +2887,7 @@ Actor GolgothFlames {
 	Radius 6
 	Renderstyle Add
 	Alpha 1.0
-	Damage(4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage(4)
 	DamageType "CyberFire"
 	SeeSound "Flamethrower/Fire"
 	DeathSound "Flamethrower/Hit"
@@ -2916,7 +2916,7 @@ ACTOR GolgothFireBall {
 	Alpha 1
 	Radius 8
 	Height 16
-	Damage (16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (16)
 	DamageType "CyberFire"
 	SeeSound "weapons/basiliskfire2"
 	DeathSound "weapons/basiliskexpl2"

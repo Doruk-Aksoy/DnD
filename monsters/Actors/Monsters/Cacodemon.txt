@@ -158,7 +158,7 @@ ACTOR CacoLichBall {
     Radius 8
     Height 6
     Speed 12
-    Damage (7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (7 * random(1, 8))
 	DamageType "CacoPoison"
 	PROJECTILE
 	+SEEKERMISSILE
@@ -187,7 +187,7 @@ ACTOR CacoLichFlameFar {
 	Radius 4
 	Height 6
 	Speed 30
-	Damage (4 * random(1, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 4))
 	DamageType "CacoPoison"
 	PROJECTILE
 	+DONTBLAST
@@ -209,7 +209,7 @@ ACTOR CacoLichFlame {
 	Radius 4
 	Height 6
 	Speed 28
-	Damage (1 * random(1, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1, 4))
 	DamageType "CacoPoison"
 	PROJECTILE
 	+DONTBLAST
@@ -360,7 +360,7 @@ Actor EarthLichSpike {
 	+THRUGHOST
 	+DONTBLAST
 	Speed 28
-	Damage (random(8,12) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(8,12))
 	DamageType "Caco"
 	Radius 6
 	Height 10
@@ -387,7 +387,7 @@ Actor EarthLichExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 A 1 A_Explode(32, 72, 0)
 		Stop
 	}
 }
@@ -397,7 +397,7 @@ Actor EarthLichRock {
 	+THRUGHOST
 	+DONTBLAST
 	Speed 22
-	Damage (5*random(4,6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5*random(4,6))
 	DamageType "Caco"
 	Radius 10
 	Height 14
@@ -552,7 +552,7 @@ ACTOR Inferno : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState: 
 			INFR AFG 5 Fast Bright A_FaceTarget 
-			INFR E 5 Fast Bright A_CustomMeleeAttack(8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "", "")
+			INFR E 5 Fast Bright A_CustomMeleeAttack(8 * random(1, 8), "", "")
 		Goto See 
 		PainState: 
 			INFR K 6 Fast Bright A_Pain 
@@ -582,7 +582,7 @@ Actor InfernoExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96)
+			TNT1 A 1 A_Explode(32, 96)
 		Stop
 	}
 }
@@ -591,7 +591,7 @@ ACTOR Lavaball {
 	Radius 8
 	Height 8
 	Speed 15
-	Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (6 * random(1, 8))
 	DamageType "CacoFire"
 	SpawnID 250
 	Scale 1.0
@@ -685,7 +685,7 @@ ACTOR WeakenerBall {
 	Radius 6
 	Height 8
 	Speed 28
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	+DONTBLAST
 	DamageType "Caco"
 	Projectile
@@ -787,7 +787,7 @@ ACTOR GrellBall {
 	Radius 8
 	Height 16
 	Speed 20
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	+DONTBLAST
 	+THRUGHOST
 	DamageType "CacoPoison"
@@ -944,7 +944,7 @@ ACTOR AcolyteShot {
 	Radius 8
 	Height 16
 	Speed 10
-	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (2 * random(1, 8))
 	RENDERSTYLE ADD
 	ALPHA 0.72
 	Scale 0.85
@@ -1112,7 +1112,7 @@ ACTOR GuardShot : CacodemonBall {
 	Radius 6
 	Height 6
 	Speed 18
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	DamageType "CacoMagic"
 	ALPHA 0.85
 	+FORCEXYBILLBOARD
@@ -1247,7 +1247,7 @@ Actor WickedShot {
 	Radius 8
 	Height 8
 	Speed 10
-	Damage (8 * random(3, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(3, 5))
 	RenderStyle Add
 	DamageType "CacoMagicOrange"
 	Alpha 0.67

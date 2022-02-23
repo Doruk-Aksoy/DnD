@@ -85,7 +85,7 @@ server noarchive float dnd_uniquemonster_spawnchance = 0.049; // percent
 
 server noarchive float dnd_monster_variation_factor = 1.5;
 server noarchive float dnd_researchdroprate = 0.00249;
-server noarchive float dnd_monster_dmgscalepercent = 0.04;
+server noarchive int dnd_monster_dmgscalepercent = 4; // 4 percent
 
 // Used for monster names
 

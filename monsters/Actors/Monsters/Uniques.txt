@@ -166,7 +166,7 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 
 actor GantBash : PaladinBash {
 	DamageType "Melee"
-	damage (8 * random(2, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (8 * random(2, 3))
 	deathsound "weapons/vblhit"
 	States {
 		spawn:
@@ -184,7 +184,7 @@ actor GantBash : PaladinBash {
 
 Actor Gant_AcidShot {
 	PROJECTILE
-	Damage (random(7, 9) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(7, 9))
 	DamageType "GantPoison"
 	Deathsound "Gant/Hit"
 	Speed 30
@@ -212,7 +212,7 @@ Actor Gant_AcidCloud : TorturedSoulPoison {
     Radius 24 
     Height 6 
     Speed 4 
-    Damage (random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER))) 
+    Damage (random(1, 2)) 
 	DamageType "GantPoison"
 	BounceCount 6
 	BounceType Hexen
@@ -348,7 +348,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 
 actor BronnBash : GantBash {
 	DamageType "Melee"
-	damage (6 * random(4, 7) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (6 * random(4, 7))
 	States {
 		death:
 			TNT1 A 0 A_Quake(4, 17, 0, 256)
@@ -374,7 +374,7 @@ Actor Bronn_AcidShot : Gant_AcidShot {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ScaleVelocity(0)
 			TNT1 A 0 A_CustomMissile("Gant_AcidCloud", 0, 0, frandom(0, 360), CMF_ABSOLUTEANGLE | CMF_TRACKOWNER)
-			TNT1 A 0 A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 56, 0)
+			TNT1 A 0 A_Explode(16, 56, 0)
 			BPLO ABCDEFGHIJKLM 1 Bright
 		Stop
 	}
@@ -478,7 +478,7 @@ Actor Vaaj_ChargeFX {
 
 Actor VaajBigBall {
 	PROJECTILE
-	Damage (128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (128)
 	Speed 18
 	Height 40
 	Radius 20
@@ -496,7 +496,7 @@ Actor VaajBigBall {
 		Death:
 			TNT1 A 0 A_SpawnItemEx("VaajBigBall_ExplodeFX")
 			TNT1 A 0 A_Quake(5, 24, 0, 192)
-			TNT1 A 5 A_Explode(160 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192, 0)
+			TNT1 A 5 A_Explode(160, 192, 0)
 		Stop
 	}
 }
@@ -545,7 +545,7 @@ actor PinkBall {
 	radius 4
 	height 8
 	speed 30
-	damage (10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (10)
 	DamageType "ImpVoid"
 	renderstyle Add
 	deathsound "imp/shotx"
@@ -711,13 +711,13 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 180, CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 240, CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 300, CMF_AIMDIRECTION)
-			UE04 R 2 bright A_CustomMeleeAttack(random(2, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE04 R 2 bright A_CustomMeleeAttack(random(2, 5))
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
-			UE04 S 2 bright A_CustomMeleeAttack(random(2, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE04 S 2 bright A_CustomMeleeAttack(random(2, 5))
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
-			UE04 T 2 bright A_CustomMeleeAttack(random(2, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE04 T 2 bright A_CustomMeleeAttack(random(2, 5))
 			UE04 T 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 96), "MeleeFinish")
 			TNT1 A 0 A_PlaySound("Enforcer/Hit")
 			TNT1 A 0 A_CustomMissile("RemusZapper", 36)
@@ -729,13 +729,13 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 300, CMF_AIMDIRECTION)
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
-			UE04 U 2 bright A_CustomMeleeAttack(random(2, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE04 U 2 bright A_CustomMeleeAttack(random(2, 5))
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
-			UE04 V 2 bright A_CustomMeleeAttack(random(2, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE04 V 2 bright A_CustomMeleeAttack(random(2, 5))
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
-			UE04 W 2 bright A_CustomMeleeAttack(random(2, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE04 W 2 bright A_CustomMeleeAttack(random(2, 5))
 			UE04 W 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 96), "MeleeFinish")
 		Loop
 		MeleeFinish:
@@ -760,7 +760,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 
 Actor RemusZapProjectile {
 	Projectile
-	Damage (18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (18)
 	DamageType "DemonLightning"
 	Speed 28
 	Height 8
@@ -793,7 +793,7 @@ Actor RemusZapper {
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1
 		Death:
-			TNT1 A 1 A_Explode(random(9, 16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 108, 0)
+			TNT1 A 1 A_Explode(random(9, 16), 108, 0)
 		Stop	
 	}
 }
@@ -893,7 +893,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 			UE05 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("SSrath_EyeBeam", 42)
 			UE05 F 5 Fast A_FaceTarget
-			TNT1 A 0 A_CustomMeleeAttack(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			TNT1 A 0 A_CustomMeleeAttack(32)
 			UE05 G 7 Fast A_FaceTarget
 		Goto See
 		PainState:
@@ -1001,7 +1001,7 @@ Actor SSrath_EyeBeam {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			R075 A 3 Bright A_SpawnItemEx("SSrath_EyeBeamTrail", 0, 0, 0, velx, vely, velz, 0, SXF_ABSOLUTEVELOCITY)
-			R075 A 0 A_SetUserVar("user_dmg", (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+			R075 A 0 A_SetUserVar("user_dmg", 10)
 			R075 A 0 A_Explode(user_dmg * 1.5, 32, 0, 0, 32)
 			R075 B 3 Bright A_SpawnItemEx("SSrath_EyeBeamTrail", 0, 0, 0, velx, vely, velz, 0, SXF_ABSOLUTEVELOCITY)
 			R075 B 0 A_Explode(user_dmg * 1.625, 36, 0, 0, 36)
@@ -1055,7 +1055,7 @@ Actor SSrath_EyeBeamTrail {
 
 Actor SSrath_Screamer {
 	Projectile
-	Damage (50 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (50)
 	DamageType "ArcaneSoul"
 	SeeSound "SSrath/ScreamerGo"
 	DeathSound "Draugr/SeekerExplode"
@@ -1101,7 +1101,7 @@ Actor SSrath_SoulExplosion : BaseExplosionDamage {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			SRV3 A 4 Bright A_PlaySound("monster/dishht1")
-			SRV3 B 4 Bright A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+			SRV3 B 4 Bright A_Explode(32, 64, 0)
 			SRV3 CDEFGHI 3 Bright
 		Stop
 	}
@@ -1114,7 +1114,7 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 	Height 56
 	Speed 8
 	PainChance 80
-	Damage (5 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+	Damage (5 * random(4, 8))
 	SeeSound "HollowShell/See"
 	PainSound "demon/pain2"
 	DeathSound "HollowShell/Die"
@@ -1212,7 +1212,7 @@ Actor HollowShellGasExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0, 0, 36)
+			TNT1 A 1 A_Explode(4, 72, 0, 0, 36)
 		Stop
 	}
 }
@@ -1275,13 +1275,13 @@ Actor HollowShellExp : HollowShellGasExp {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(48, 128, 0)
 		Stop
 	}
 }
 
 Actor HollowShellComet : ArchonComet {
-	Damage (6 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (6 * random(4, 5))
 	DamageType "CacoPoison"
 	States {
 		Death:
@@ -1458,7 +1458,7 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 		MeleeState:
 			TNT1 A 0 A_PlaySound("ChaosSerpent/Melee")
 			UE06 ADF 5 A_FaceTarget
-			UE06 E 5 A_CustomMeleeAttack(48 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE06 E 5 A_CustomMeleeAttack(48)
 		Goto See
 		Redecide:
 			UE06 D 0 A_Jump(256, "Missile1", "Missile2", "Missile3")
@@ -1808,7 +1808,7 @@ ACTOR OmniBall {
 	Radius 10
 	Height 20
 	Speed 24
-	Damage (8 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(5, 8))
 	DamageType "CacoLightning"
 	PROJECTILE
 	RENDERSTYLE ADD
@@ -1825,7 +1825,7 @@ ACTOR OmniBall {
 			UP06 ABC 1 Bright
 		loop
 		Death:
-			UP06 DE 4 Bright A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+			UP06 DE 4 Bright A_Explode(32, 64, 0)
 			UP06 FGHI 4 bright
 		stop
 	}
@@ -1834,7 +1834,7 @@ ACTOR OmniBall {
 Actor OmniBigBall {
 	Projectile
 	Speed 28
-	Damage (random(55, 75) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(55, 75))
 	DamageType "CacoLightning"
 	Height 48
 	Radius 24
@@ -1862,7 +1862,7 @@ Actor OmniBigBall {
 			UP06 N 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		Death:
-			"####" "#" 0 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0)
+			"####" "#" 0 A_Explode(80, 160, 0)
 			"####" "#" 0 A_Quake(7, 55, 0, 160)
 			"####" "#" 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			"####" "##########" 1 A_SetScale(scalex - 0.1, scaley - 0.1)
@@ -1872,7 +1872,7 @@ Actor OmniBigBall {
 
 Actor OmniLightning : DarkZealotLightning {
 	DamageType "CacoLightning"
-	Damage (5 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(4, 5))
 	-PIERCEARMOR
 }
 
@@ -1881,7 +1881,7 @@ Actor OmniChaosBall {
 	Radius 16
 	PROJECTILE
 	Speed 18
-	Damage (100 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (100)
 	DamageType "CacoLightning"
 	Scale 1.15
 	Renderstyle Add
@@ -1996,7 +1996,7 @@ Actor OmniLightningBlast : BaseExplosionDamage {
 			TNT1 A 4 A_SpawnItemEx("OmniLightningBlastFX")
 			TNT1 A 1 A_PlaySound("Omnisight/BigZap")
 			TNT1 A 0 A_Quake(5, 17, 0, 128)
-			TNT1 A 0 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 0 A_Explode(80, 128, 0)
 			TNT1 A 1
 		Stop
 	}
@@ -2129,7 +2129,7 @@ Actor ChegovaxMeteor {
 	Height 24
 	Radius 12
 	Speed 28
-	Damage (80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (80)
 	DamageType "PaineMagic"
 	SeeSound "MeteorLauncher/fire"
 	Deathsound "MeteorLauncher/Hit"
@@ -2150,7 +2150,7 @@ Actor ChegovaxMeteor {
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
-			TNT1 A 0 A_Explode(96 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 0 A_Explode(96, 128, 0)
 			TNT1 A 0 A_SetScale(1.25)
 			RW6A EF 3 Bright
 			TNT1 AAAAA 0 A_SpawnItemEx("ChegovaxMeteorSplit_1", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
@@ -2167,7 +2167,7 @@ Actor ChegovaxMeteorSplit_1 : ChegovaxMeteor {
 	Speed 24
 	BounceSound "MeteorLauncher/Bounce"
 	DeathSound "MeteorLauncher/HitSmall"
-	Damage (24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (24)
 	BounceType Doom
 	BounceCount 4
 	Gravity 0.66
@@ -2190,7 +2190,7 @@ Actor ChegovaxMeteorSplit_1 : ChegovaxMeteor {
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
-			TNT1 A 0 A_Explode(40 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 A 0 A_Explode(40, 72, 0)
 			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("ChegovaxMeteorSplit_2", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
 			RW6F IJKL 3 Bright
 		Stop
@@ -2201,7 +2201,7 @@ Actor ChegovaxMeteorSplit_2 : ChegovaxMeteorSplit_1 {
 	Height 8
 	Radius 4
 	Speed 18
-	Damage (12 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (12)
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2217,7 +2217,7 @@ Actor ChegovaxMeteorSplit_2 : ChegovaxMeteorSplit_1 {
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
 			TNT1 AA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
-			TNT1 A 0 A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 40, 0)
+			TNT1 A 0 A_Explode(20, 40, 0)
 			TNT1 A 0 A_SetScale(0.75, 0.75)
 			RW6F IJKL 3 Bright
 		Stop
@@ -2229,7 +2229,7 @@ Actor ChegovaxFire {
 	Height 16
 	Radius 8
 	Speed 35
-	Damage (18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (18)
 	DamageType "PaineFire"
 	SeeSound "weapons/magic1"
 	DeathSound "weapons/firex4"
@@ -2257,7 +2257,7 @@ ACTOR GuardianSpawner {
 	Radius 24
 	Height 56
 	Speed 25
-	Damage (random(6, 10) * 6 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(6, 10) * 6)
 	Alpha 0.90
 	+THRUGHOST   
 	+FORCEXYBILLBOARD
@@ -2298,7 +2298,7 @@ Actor ChegovaxExp1 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 80, 0)
+			TNT1 A 1 A_Explode(80, 80, 0)
 		Stop
 	}
 }
@@ -2307,7 +2307,7 @@ Actor ChegovaxExp2 : ChegovaxExp1 {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(128, 128, 0)
 		Stop
 	}
 }
@@ -2316,7 +2316,7 @@ Actor ChegovaxExp3 : ChegovaxExp1 {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(144 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 144, 0)
+			TNT1 A 1 A_Explode(144, 144, 0)
 		Stop
 	}
 }
@@ -2325,7 +2325,7 @@ Actor ChegovaxExp4 : ChegovaxExp1 {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(176 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 176, 0)
+			TNT1 A 1 A_Explode(176, 176, 0)
 		Stop
 	}
 }
@@ -2372,10 +2372,10 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 		MeleeState:
 			UE08 E 8 Fast A_FaceTarget
 			UE08 F 7 Fast A_FaceTarget
-			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
 			UE08 H 8 Fast A_FaceTarget
 			UE08 I 7 Fast A_FaceTarget
-			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
@@ -2520,7 +2520,7 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 F 4 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
-			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 H 4 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
@@ -2530,7 +2530,7 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 I 4 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
-			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
 		Goto See
 		MissileState:
 			UE08 E 6 Fast A_FaceTarget
@@ -2706,7 +2706,7 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 			UE09 J 7 A_JumpIfCloser(80, "ConfirmedMelee")
 		Goto See
 		ConfirmedMelee:
-			UE09 J 7 A_CustomMeleeAttack(random(40, 65) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			UE09 J 7 A_CustomMeleeAttack(random(40, 65))
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(108, "Leap")
@@ -2803,7 +2803,7 @@ Actor HarkimondeFlightDamager : DnD_Activator {
 Actor HarkimondeFlightAtk : DemonFlightAtk {
 	Radius 8
 	Height 16
-	Damage (6 * random(4, 5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (6 * random(4, 5))
 	DamageType "HK"
 	Species "HK"
 	States {
@@ -2818,7 +2818,7 @@ Actor HarkimondeFlightAtk : DemonFlightAtk {
 
 actor HarkimondeBash : PaladinBash {
 	DamageType "Melee"
-	damage (4 * random(2, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (4 * random(2, 3))
 	deathsound "weapons/vblhit"
 	States {
 		spawn:
@@ -2837,7 +2837,7 @@ actor HarkimondeBash : PaladinBash {
 Actor HarkimondeSlash_Damager {
 	PROJECTILE
 	Speed 0
-	Damage (4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5)
 	Radius 8
 	Height 16
 	+THRUSPECIES
@@ -2913,7 +2913,7 @@ Actor HarkimondeFlameTracer {
 	Height 16
 	Speed 16
 	ReactionTime 96
-	Damage (4 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(5, 8))
 	DamageType "BaronsFire"
 	RenderStyle Add
 	Alpha 0.67
@@ -2957,7 +2957,7 @@ Actor Harkimonde_BoomTrail {
 	Speed 0
 	Radius 5
 	Height 16
-	Damage ((16 - user_count) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage ((16 - user_count))
 	DamageType "BaronsFire"
 	RenderStyle Add
 	Alpha 0.67
@@ -2983,7 +2983,7 @@ Actor HarkimondeExp1 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 A_Explode(64, 96, 0)
 		Stop
 	}
 }
@@ -2994,7 +2994,7 @@ Actor HarkimondeExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+			TNT1 A 1 A_Explode(32, 64, 0)
 		Stop
 	}
 }
@@ -3005,7 +3005,7 @@ Actor HarkimondeExp3 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(60 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 1 A_Explode(60, 96, 0)
 		Stop
 	}
 }
@@ -3111,7 +3111,7 @@ Actor LeshracInterrupt : PowerDamage {
 }
 
 actor LeshracPoisonMelee : TorturedSoulPoison { 
-    Damage (random(1, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER))) 
+    Damage (random(1, 3)) 
 	DamageType "BaronsPoison"
 	Speed 7
 }
@@ -3120,7 +3120,7 @@ ACTOR Leshrac_Ball : ShadowBeast_Ball1 {
 	Speed 22
 	Radius 10
 	Height 18
-	Damage (5 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(5, 8))
 	DamageType "BaronsPoison"
 }
 
@@ -3220,7 +3220,7 @@ Actor Leshrac_MineExplosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 5 A_Explode(160 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160)
+			TNT1 A 5 A_Explode(160, 160)
 		Stop
 	}
 }
@@ -3281,7 +3281,7 @@ Actor Leshrac_LobbedMineGround {
 			BNAD E 3 Bright A_SetTranslucent(0.75, 1)
 			TNT1 A 0 A_PlaySound("weapons/crabx2", CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner")
-			TNT1 A 0 A_Explode(36 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 80, 0)
+			TNT1 A 0 A_Explode(36, 80, 0)
 			BNAD F 3 Bright
 			BNAD GHIJ 3 Bright
 		Stop
@@ -3397,7 +3397,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 
 Actor KrullRocket {
 	PROJECTILE
-	Damage (5 * random(7, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(7, 8))
 	DamageType "FattyExp"
 	Speed 30
 	Radius 8
@@ -3443,13 +3443,13 @@ Actor KrullRocketExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 4 A_Explode(36 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 A 4 A_Explode(36, 72, 0)
 		Stop
 	}
 }
 
 Actor KrullMiniRocket : KrullRocket {
-	Damage (5 * random(2, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(2, 3))
 	ReactionTime 20
 	DamageType "FattyExp"
 	DeathSound "weapons/maceex"
@@ -3478,7 +3478,7 @@ Actor KrullMiniRocketExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 4 A_Explode(18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 36, 0)
+			TNT1 A 4 A_Explode(18, 36, 0)
 		Stop
 	}
 }
@@ -3623,7 +3623,7 @@ Actor ThoraxDashBlur {
 
 Actor ThoraxMissile {
 	Projectile
-	Damage (60 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (60)
 	DamageType "ArachnoExp"
 	Speed 28
 	Height 16
@@ -3672,7 +3672,7 @@ Actor ThoraxMissileExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			MACX A 2 Bright A_Explode(60 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 108, 0)
+			MACX A 2 Bright A_Explode(60, 108, 0)
 			MACX BCDEFGHIJ 2 Bright
 		Stop
 	}
@@ -3680,7 +3680,7 @@ Actor ThoraxMissileExp : BaseExplosionDamage {
 
 Actor ThoraxFireBall {
 	Projectile
-	Damage (25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (25)
 	DamageType "ArachnoFire"
 	BounceSound "WeaponGL/40MMHHit"
 	Deathsound "Weapons/grenadexpl2"
@@ -3741,7 +3741,7 @@ Actor ThoraxBigFireExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 5 A_Explode(80 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)
+			TNT1 A 5 A_Explode(80, 96, 0)
 		Stop
 	}
 }
@@ -3753,7 +3753,7 @@ Actor ThoraxFireTrail {
 	Speed 6
 	BounceType "Doom"
 	BounceCount 6
-	Damage (10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (10)
 	DamageType "ArachnoFire"
 	+PIERCEARMOR
 	States {
@@ -3784,7 +3784,7 @@ Actor ThoraxFireExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 5 A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 48, 0)
+			TNT1 A 5 A_Explode(20, 48, 0)
 		Stop
 	}
 }
@@ -4015,7 +4015,7 @@ Actor ZravogSlamDamager : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 4 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192, 0)
+			TNT1 A 4 A_Explode(128, 192, 0)
 		Stop
 	}
 }
@@ -4065,7 +4065,7 @@ Actor ZravogHomingBall : MageStaffFX2 {
 	SeeSound "MageStaffFire"
 	DeathSound "MageStaffExplode"
 	DamageType "VileArcane"
-	Damage (24 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (24)
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -4091,7 +4091,7 @@ Actor ZravogHomingBall : MageStaffFX2 {
 
 Actor ZravogMissile : WizardFX1 {
 	speed 27
-	damage (18 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (18)
 	DamageType "VileArcane"
 	seesound "weapons/boltfi"
 	deathsound "weapons/firex3"
@@ -4336,7 +4336,7 @@ Actor EryxiaWind {
 	Height 8
 	Scale 1.75
 	Alpha 0.9
-	Damage (4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4)
 	DamageType "EryxiaSlow"
 	Renderstyle Add
 	BounceType "Hexen"
@@ -4357,7 +4357,7 @@ Actor EryxiaWind {
 
 Actor EryxiaFreezer {
 	Projectile
-	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (15)
 	DamageType "BigSpiderIce"
 	SeeSound "Freezer/Particle"
 	DeathSound "Freezer/Hit"
@@ -4451,7 +4451,7 @@ Actor EryxiaBullet {
 	Projectile
 	var int user_count;
 	
-	Damage ((random(8, 9) - user_count) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage ((random(8, 9) - user_count))
 	DamageType "EryxiaSlow"
 	Deathsound "Weapons/NG2HitWall"
 	Speed 32
@@ -4484,7 +4484,7 @@ Actor EryxiaBullet {
 
 Actor EryxiaLob {
 	Projectile
-	Damage (25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (25)
 	DamageType "EryxiaSlow"
 	SeeSound "HFSpid/See"
 	DeathSound "Freezer/Hit"
@@ -4571,7 +4571,7 @@ Actor EryxiaCeilingIcicleSpawner : EryxiaFloorIcicleSpawner {
 
 Actor EryxiaFloorIcicle {
 	Projectile
-	Damage (10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (10)
 	DamageType "EryxiaSlow"
 	DeathSound "FrostFang/Hit1"
 	Speed 0
@@ -4665,7 +4665,6 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 	const float vel_charge = 28.0;
 	const int laser_t = 60;
 	var int user_count;
-	var int user_raildmg;
 	+ISMONSTER
 	+MISSILEMORE
 	+MISSILEEVENMORE
@@ -4710,7 +4709,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
 			UE16 M 4 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItem("AbaxothChargeExp")
-			UE16 N 8 Fast A_CustomMeleeAttack(10 * random(16, 22) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Abaxoth/MeleeHit", "")
+			UE16 N 8 Fast A_CustomMeleeAttack(10 * random(16, 22), "Abaxoth/MeleeHit", "")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_JumpIfCloser(288, "DecideCloseRange")
@@ -4793,13 +4792,12 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_CustomMissile("AbaxothLaserMarker", 88, -28)
 			UE16 IIIIIIIIIIIIIII 4 Fast A_FaceTarget
 			TNT1 A 0 A_SetUserVar("user_count", 0)
-			TNT1 A 0 A_SetUserVar("user_raildmg", 20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
 			TNT1 A 0 A_SpawnItemEx("ExplosionFlare", 16, -28, 90)
 			TNT1 A 0 A_PlaySound("Abaxoth/LaserLoop", CHAN_WEAPON, 1.0, true)
 		LaserLoop:
 			TNT1 A 0 A_JumpIf(user_count == laser_t, "LaserFinish")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Abaxoth Laser Adjust", -24)
-			UE16 J 2 Bright Fast A_CustomRailgun(user_raildmg, -24, none, none, RGF_SILENT | RGF_NOPIERCING, 0, 2, "AbaxothRailPuff", 0, 0, 4096, 0, 2.5, 0, "AbaxothRailTrail", 10)
+			UE16 J 2 Bright Fast A_CustomRailgun(random(20, 24), -24, none, none, RGF_SILENT | RGF_NOPIERCING, 0, 2, "AbaxothRailPuff", 0, 0, 4096, 0, 2.5, 0, "AbaxothRailTrail", 10)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		LaserFinish:
@@ -4936,7 +4934,7 @@ Actor AbaxothThunderRetaliation : FastProjectile {
 	Speed 80
 	Height 20
 	Radius 8
-	Damage (5 * random(32, 40) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (5 * random(32, 40))
 	DamageType "CyberLightning"
 	Scale 0.9
 	+RIPPER
@@ -5083,7 +5081,7 @@ Actor AbaxothSpike {
 	PROJECTILE
 	Health 1
 	Speed 0
-	Damage (15 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (15)
 	Height 64
 	Radius 18
 	Scale 0.75
@@ -5328,7 +5326,7 @@ Actor AbaxothTectonicBoom_Small : BaseExplosionDamage {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
 			RPGX B 2 Bright A_PlaySound("Abaxoth/TectonicExp1")
-			TNT1 A 0 A_Explode(72 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 80, 0, 0, 30)
+			TNT1 A 0 A_Explode(72, 80, 0, 0, 30)
 			RPGX CDEFGHIJKLMNOPQRSTUV 2 Bright
 		Stop
 	}
@@ -5343,7 +5341,7 @@ Actor AbaxothTectonicBoom_Small2 : AbaxothTectonicBoom_Small {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
 			RPGX B 2 Bright A_PlaySound("Abaxoth/TectonicExp1")
-			TNT1 A 0 A_Explode(72 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 80, 0, 0, 30)
+			TNT1 A 0 A_Explode(72, 80, 0, 0, 30)
 			RPGX CDEFGHIJKLMNOPQRSTUV 2 Bright
 		Stop
 	}
@@ -5359,7 +5357,7 @@ Actor AbaxothTectonicBoom_Medium : AbaxothTectonicBoom_Small {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
 			RPGX B 2 Bright A_PlaySound("Abaxoth/TectonicExp2")
-			TNT1 A 0 A_Explode(144 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 120, 0, 0, 60)
+			TNT1 A 0 A_Explode(144, 120, 0, 0, 60)
 			RPGX CDEFGHIJKLMNOPQRSTUV 2 Bright
 		Stop
 	}
@@ -5374,7 +5372,7 @@ Actor AbaxothTectonicBoom_Medium2 : AbaxothTectonicBoom_Medium {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
 			RPGX B 2 Bright A_PlaySound("Abaxoth/TectonicExp2")
-			TNT1 A 0 A_Explode(144 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 120, 0, 0, 60)
+			TNT1 A 0 A_Explode(144, 120, 0, 0, 60)
 			RPGX CDEFGHIJKLMNOPQRSTUV 2 Bright
 		Stop
 	}
@@ -5390,7 +5388,7 @@ Actor AbaxothTectonicBoom_Big : AbaxothTectonicBoom_Small {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
 			RPGX B 2 Bright A_PlaySound("Abaxoth/TectonicExp3")
-			TNT1 A 0 A_Explode(216 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0, 0, 90)
+			TNT1 A 0 A_Explode(216, 160, 0, 0, 90)
 			RPGX CDEFGHIJKLMNOPQRSTUV 2 Bright
 		Stop
 	}
@@ -5404,7 +5402,7 @@ Actor AbaxothTectonicBoom_Big2 : AbaxothTectonicBoom_Big {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
 			RPGX B 2 Bright A_PlaySound("Abaxoth/TectonicExp3")
-			TNT1 A 0 A_Explode(216 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0, 0, 90)
+			TNT1 A 0 A_Explode(216, 160, 0, 0, 90)
 			RPGX CDEFGHIJKLMNOPQRSTUV 2 Bright
 		Stop
 	}
@@ -5484,7 +5482,7 @@ Actor AbaxothFissure {
 
 Actor AbaxothLavaBall {
 	PROJECTILE
-	Damage (25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (25)
 	DamageType "CyberFire"
 	SeeSound "RubyWand/Fire"
 	DeathSound "weapons/phoenixhit"
@@ -5517,7 +5515,7 @@ Actor AbaxothLavaBallExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(40 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0, 0, 24)
+			TNT1 A 1 A_Explode(40, 72, 0, 0, 24)
 		Stop
 	}
 }
@@ -5579,7 +5577,7 @@ Actor AbaxothThunderFX_Thin : AbaxothThunderFX {
 
 Actor AbaxothThunderbolt {
 	PROJECTILE
-	damage (250 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (250)
 	DamageType "CyberLightning"
 	SeeSound "Spell/LightningSpearCast"
 	DeathSound "Spell/LightningSpearBounce"
@@ -5668,7 +5666,7 @@ Actor AbaxothThunderExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(200 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 192, 0, 0, 96)
+			TNT1 A 1 A_Explode(200, 192, 0, 0, 96)
 		Stop
 	}
 }
@@ -5698,7 +5696,7 @@ Actor AbaxothChargeExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0, 0, 80)
+			TNT1 A 1 A_Explode(128, 160, 0, 0, 80)
 		Stop
 	}
 }
@@ -5767,7 +5765,7 @@ Actor AbaxothRocketExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 3 A_Explode(20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0, 0, 16)
+			TNT1 A 3 A_Explode(20, 64, 0, 0, 16)
 		Stop
 	}
 }
@@ -5775,7 +5773,7 @@ Actor AbaxothRocketExp : BaseExplosionDamage {
 Actor AbaxothRocket {
 	PROJECTILE
 	Speed 20
-	Damage (20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (20)
 	DamageType "CyberExp"
 	SeeSound "weapons/tp_fire"
 	DeathSound "weapons/heavyrlexp"
@@ -5804,7 +5802,7 @@ Actor AbaxothRocketL : AbaxothRocket {
 }
 
 ACTOR AbaxothHammer : CacodemonBall { 
-	Damage (20 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (20)
 	DamageType "Melee"
 	Speed 0
 	Obituary "%o fell victim to Abaxoth the End of All That Is."

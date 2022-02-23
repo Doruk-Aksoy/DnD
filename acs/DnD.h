@@ -542,14 +542,6 @@ enum {
 // MAX_MONSTER_CATEGORIES
 global int 21: MonsterCategoryData[][2];
 
-void HandleHunterTalisman() {
-	if(CheckInventory("HunterTalismanCheck") && !CheckInventory("HunterTalismanCooldown")) {
-		ActivatorSound("HunterTalisman/Activate", 1.0);
-		GiveInventory("HunterTalismanCooldown", 1);
-		GiveInventory("HunterTalismanEffector", 1);
-	}
-}
-
 void PickQuest() {
 	if(GetCVar("dnd_enable_quests") && PlayerCount()) {
 		if(GetCVar("dnd_quest_avglevel") <= (PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerCount()) && random(1, 100) <= Clamp_Between(GetCVar("dnd_quest_chance"), 1, 100)) {

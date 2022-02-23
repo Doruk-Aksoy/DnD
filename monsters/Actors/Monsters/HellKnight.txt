@@ -40,7 +40,7 @@ actor BloodSatyr : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Recoil(-2.4)
 			STYR F 3 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-2.8)
-			STYR G 5 Fast A_CustomMeleeAttack(random(18, 36) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			STYR G 5 Fast A_CustomMeleeAttack(random(18, 36), "baron/melee")
 			TNT1 A 0 A_Stop
 			STYR P 2 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-1.6)
@@ -50,7 +50,7 @@ actor BloodSatyr : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Recoil(-2.4)
 			STYR Q 3 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-2.8)
-			STYR R 5 Fast A_CustomMeleeAttack(random(18, 36) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			STYR R 5 Fast A_CustomMeleeAttack(random(18, 36), "baron/melee")
 		Goto See
 		MissileState:
 			STYR EF 4 Fast A_FaceTarget
@@ -84,7 +84,7 @@ actor BloodSatyr : DnD_BaseHybridMonster {
 Actor BloodSatyrHeal : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (1 << 16), 25 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 7)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (1 << 16), ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 25), 7)
 		Stop
 	}
 }
@@ -123,7 +123,7 @@ Actor BloodSatyrMissile {
 	Speed 24
 	Radius 4
 	Height 8
-	Damage (random(2, 16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(2, 16))
 	+NODAMAGETHRUST
 	DamageType "BaronsMagic"
 	SeeSound "BloodSatyr/Fire"
@@ -162,7 +162,7 @@ Actor SatyrMissile : BaronBall {
 	Radius 8
 	Height 16
 	Speed 22
-	Damage (4*random(3,7) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4*random(3,7))
 	DamageType "BaronYellow"
 	Scale 0.75
 	RenderStyle Add
@@ -218,7 +218,7 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 		MissileState:
 			HWAR E 0 A_Jump(128, 4)
 			HWAR EF 8 Fast A_FaceTarget
-			HWAR G 8 Fast A_CustomComboAttack("HellWarriorBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HWAR G 8 Fast A_CustomComboAttack("HellWarriorBall", 32, 10 * random(1, 8), "baron/melee")
 		Goto See
 			HWAR H 0 A_Jump(128, 6)
 			HWAR H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
@@ -239,7 +239,7 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 		Goto See  
 		MeleeState: 
 			HWAR EF 8 Fast A_FaceTarget 
-			HWAR G 8 Fast A_CustomComboAttack("HellWarriorBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee") 
+			HWAR G 8 Fast A_CustomComboAttack("HellWarriorBall", 32, 10 * random(1, 8), "baron/melee") 
 		Goto See 
 		PainState:
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
@@ -271,7 +271,7 @@ Actor HellWarriorBall {
 	Radius 6
 	Height 8
 	Speed 14
-	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 8))
 	+DONTBLAST
 	DamageType "BaronYellow"
 	Projectile
@@ -314,7 +314,7 @@ Actor HellWarriorBall2 {
 	Radius 6
 	Height 8
 	Speed 8
-	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (2 * random(1, 8))
 	+DONTBLAST
 	DamageType "Barons"
 	Projectile
@@ -403,9 +403,9 @@ Actor HellsFury : DnD_BaseHybridMonster {
 		MissileState:
 			HFRY E 0 A_Jump(108, "Missile2")
 			HFRY EF 8 Fast A_FaceTarget
-			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 			HFRY RS 8 Fast A_FaceTarget
-			HFRY T 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HFRY T 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 		Goto See
 		Missile2:
 			HFRY P 8 Fast A_FaceTarget
@@ -416,17 +416,17 @@ Actor HellsFury : DnD_BaseHybridMonster {
 		Goto See
 		Combo:
 			HFRY EF 8 Fast A_FaceTarget
-			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 			HFRY RS 7 Fast A_FaceTarget
-			HFRY T 7 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HFRY T 7 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 			HFRY EF 6 Fast A_FaceTarget
-			HFRY G 6 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HFRY G 6 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 			HFRY RS 5 Fast A_FaceTarget
-			HFRY T 5 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HFRY T 5 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 		Goto See
 		MeleeState:
 			HFRY EF 8 Fast A_FaceTarget
-			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 		Goto See
 		PainState:
 			HFRY H 2 Fast
@@ -454,7 +454,7 @@ Actor HellsFuryBall {
 	Radius 6
 	Height 8
 	Speed 14
-	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 8))
 	+DONTBLAST
 	DamageType "Barons"
 	Projectile
@@ -569,17 +569,17 @@ Actor ArchonOfHell : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			BOS4 EF 8 Fast Bright A_FaceTarget 
-			BOS4 G 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS4 G 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8), "baron/melee")
 			BOS4 H 3 Fast Bright
 			BOS4 H 0 A_Jump(128,1)
 		Goto See
 			BOS4 IJ 8 Fast Bright A_FaceTarget 
-			BOS4 K 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS4 K 3 Fast Bright A_CustomMeleeAttack(10 * random(1, 8), "baron/melee")
 			BOS4 L 3 Fast Bright
 			BOS4 L 0 A_Jump(64,1)
 		Goto See
 			BOS4 MN 8 Fast Bright A_FaceTarget
-			BOS4 O 3 Fast Bright A_CustomMeleeAttack(20 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS4 O 3 Fast Bright A_CustomMeleeAttack(20 * random(1, 8), "baron/melee")
 			BOS4 P 3 Fast Bright
 		Goto See
 		PainState: 
@@ -608,7 +608,7 @@ Actor ArchonExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(32, 128, 0)
 		Stop
 	}
 }
@@ -617,7 +617,7 @@ Actor ArchonComet {
 	Radius 8
 	Height 12
 	Speed 24
-	Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (6 * random(1, 8))
 	Scale 1.0
 	Projectile
 	+ThruGhost
@@ -710,7 +710,7 @@ Actor WarlordOfHell : DnD_BaseHybridMonster {
 		MeleeState:
 			BOS2 E 6 Fast A_FaceTarget 
 			BOS2 F 6 Fast A_FaceTarget 
-			BOS2 G 6 Fast A_CustomComboAttack("WarlordOfHellBall", 32, 10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			BOS2 G 6 Fast A_CustomComboAttack("WarlordOfHellBall", 32, 10 * random(1, 8), "baron/melee")
 		Goto See
 		MissileState: 
 			BOS2 E 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 3, "Missile3") 
@@ -767,7 +767,7 @@ Actor WarlordOfHellBall {
 	Radius 6
 	Height 8
 	Speed 20
-	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 8))
 	Projectile
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
@@ -937,7 +937,7 @@ ACTOR ShadowBeast_BallFire {
 	Speed 15
 	Radius 10
 	Height 6
-	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (2 * random(1, 8))
 	DamageType "BaronGreenFire"
 	Projectile
 	+SPAWNSOUNDSOURCE
@@ -964,7 +964,7 @@ ACTOR ShadowBeast_Ball1 {
 	Speed 15
 	Radius 10
 	Height 6
-	Damage (5*random(2,5) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5*random(2,5))
 	DamageType "BaronGreenFire"
 	Projectile
 	+SPAWNSOUNDSOURCE
@@ -993,7 +993,7 @@ ACTOR ShadowBeast_Ball2 {
 	Renderstyle Add
 	Radius 8
 	Height 6
-	Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (2 * random(1, 8))
 	Damagetype "BaronGreenFire"
 	Speed 16
 	PROJECTILE
@@ -1021,7 +1021,7 @@ ACTOR ShadowBeast_Ball3 {
 	Renderstyle Add
 	Radius 8
 	Height 6
-	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(1, 8))
 	DamageType "BaronGreenFire"
 	Speed 20
 	PROJECTILE
@@ -1084,8 +1084,8 @@ actor BlackKnight : DnD_BaseHybridMonster {
 			KNGT F 2 Fast A_FaceTarget
 			KNGT F 0 A_PlaySound("dknight/swing")
 			KNGT GH 2 Fast
-			KNGT I 3 Fast A_CustomMeleeAttack(4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "dknight/melee")
-			KNGT J 4 Fast A_CustomMeleeAttack(4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "dknight/melee")
+			KNGT I 3 Fast A_CustomMeleeAttack(4 * random(1, 8), "dknight/melee")
+			KNGT J 4 Fast A_CustomMeleeAttack(4 * random(1, 8), "dknight/melee")
 			KNGT E 2 Fast
 		Goto See
 		MissileState:
@@ -1136,7 +1136,7 @@ ACTOR KFireBall {
 	Radius 8
 	Height 8
 	Speed 18
-	Damage (random(6, 16) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(6, 16))
 	DamageType "BaronsMagic"
 	PROJECTILE
 	SeeSound "monster/dkball"
@@ -1207,7 +1207,7 @@ Actor SkullWizard : DnD_BaseHybridMonster {
 		MeleeState:
 			SKWZ C 6 Fast Bright A_FaceTarget
 			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 A_CustomMeleeAttack(10 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), "", "")
+			TNT1 A 0 A_CustomMeleeAttack(10, "", "")
 			TNT1 A 0 A_CustomMissile("SkullWizardPush", 40)
 			SKWZ D 6 Fast Bright A_FaceTarget
 		Goto See
@@ -1280,7 +1280,7 @@ Actor SkullWizardPush {
 	height 5
 	speed 48
 	DamageType "BaronsMagic"
-	damage (random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (random(1, 2))
 	DeathSound "Wizard/Push"
 	PROJECTILE
 	+SEEKERMISSILE
@@ -1305,7 +1305,7 @@ Actor SkullWizardProjectile {
 	+DONTBLAST
 	Damagetype "BaronsMagicFire"
     Speed 16
-    Damage (random(3, 7) * 5 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (random(3, 7) * 5)
     Radius 6
     Height 8
     RenderStyle Add
@@ -1419,7 +1419,7 @@ Actor CyborgWarrior : DnD_BaseHybridMonster {
 		MeleeState:
 			TNT1 A 0 A_PlaySound("CyborgWarrior/Attack")
 			QQMN GH 8 Fast A_FaceTarget
-			QQMN I 8 Fast A_CustomMeleeAttack(40 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "weapons/vblhit", "")
+			QQMN I 8 Fast A_CustomMeleeAttack(40, "weapons/vblhit", "")
 			QQMN A 2 Fast
 		Goto See 
 		XDeathState:
@@ -1444,7 +1444,7 @@ Actor CyborgPlasma1 {
 	Radius 4
 	Renderstyle Add
 	Alpha 0.875
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	DamageType "BaronPlasma"
 	Speed 30
 	+FORCEXYBILLBOARD
@@ -1468,7 +1468,7 @@ Actor CyborgPlasma2 {
 	Radius 8
 	Height 10
 	Speed 24
-	Damage (5 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(5, 8))
 	DamageType "BaronVoid"
 	Scale 1.0
 	Alpha 0.9
@@ -1556,7 +1556,7 @@ ACTOR ChaosSerpent : DnD_BaseHybridMonster {
 		MeleeState:
 			DEMN E 6 Fast A_FaceTarget
 			DEMN F 8 Fast A_FaceTarget
-			DEMN G 6 Fast A_CustomMeleeAttack(random[DemonAttack1](8, 16) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			DEMN G 6 Fast A_CustomMeleeAttack(random[DemonAttack1](8, 16) * 2)
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(128, "Belch")
@@ -1604,7 +1604,7 @@ Actor ChaosSerpentFireball {
 	Height 8
 	Speed 24
 	PROJECTILE
-	Damage (5 * random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(4, 8))
 	DamageType "BaronsFire"
 	SeeSound "Beast/Attack"
 	DeathSound "weapons/phoenixhit"
@@ -1693,7 +1693,7 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Recoil(-2.4)
 			STYR F 3 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-2.8)
-			STYR G 5 Fast A_CustomMeleeAttack(random(26, 46) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			STYR G 5 Fast A_CustomMeleeAttack(random(26, 46), "baron/melee")
 			TNT1 A 0 A_Stop
 			STYR P 2 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-1.6)
@@ -1703,7 +1703,7 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Recoil(-2.4)
 			STYR Q 3 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-2.8)
-			STYR R 5 Fast A_CustomMeleeAttack(random(26, 46) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			STYR R 5 Fast A_CustomMeleeAttack(random(26, 46), "baron/melee")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(128, "Other")
@@ -1788,7 +1788,7 @@ Actor MoonSatyrMeteorExplosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(128 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 160, 0, 0, 72)
+			TNT1 A 1 A_Explode(128, 160, 0, 0, 72)
 		Stop
 	}
 }
@@ -1797,7 +1797,7 @@ Actor MoonSatyrMeteor {
 	PROJECTILE
 	Height 8
 	Radius 4
-	Damage (50 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (50)
 	DamageType "BaronsMagic"
 	+NODAMAGETHRUST
 	Deathsound "MoonSatyr/MeteorExplode"
@@ -1847,7 +1847,7 @@ Actor IceGolem : DnD_BaseHybridMonster {
     States { 
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Translucency Weave")
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 3), 2)
 			TNT1 A 0 A_SetArg(0, DND_ICEGOLEM)
 		Goto SpawnSetup
 			
@@ -1864,13 +1864,13 @@ Actor IceGolem : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Jump(128, "OtherMelee")
 			GOL3 E 6 Fast A_FaceTarget
 			GOL3 F 3 Fast A_FaceTarget
-			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
+			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10), "Golem/Hit")
 			GOL3 FG 5 Fast 
 		Goto See
 		OtherMelee:
 			GOL3 H 6 Fast A_FaceTarget
 			GOL3 I 3 Fast A_FaceTarget
-			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
+			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10), "Golem/Hit")
 			GOL3 IJ 5 Fast 
 		Goto See
 		MissileState:
@@ -1913,7 +1913,7 @@ Actor IceGolem : DnD_BaseHybridMonster {
 		Goto See
 		DashFinish:
 			GOL3 F 3 Fast A_FaceTarget
-			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "Golem/Hit")
+			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10), "Golem/Hit")
 			GOL3 F 3 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("CrystalGolemBash")
 			GOL3 E 5 Fast
@@ -1937,7 +1937,7 @@ Actor IceGolem : DnD_BaseHybridMonster {
 		   Stop
 		RaiseState: 
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 3), 2)
 			GOL3 L 1 A_SetScale(0.05, 0.05)
 			GOL3 L 1 A_SetScale(0.1, 0.1)
 			GOL3 L 1 A_SetScale(0.15, 0.15)
@@ -1976,7 +1976,7 @@ Actor CrystalSpike {
 	+THRUGHOST
 	+DONTBLAST
 	Speed 24
-	Damage (random(6, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(6, 10))
 	DamageType "Barons"
 	Radius 6
 	Height 10
@@ -2002,7 +2002,7 @@ Actor CrystalGolemBash {
 	height 5
 	speed 38
 	DamageType "Barons"
-	damage (15 * random(1, 2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (15 * random(1, 2))
 	deathsound "weapons/vblhit"
 	PROJECTILE
 	+SEEKERMISSILE
@@ -2058,13 +2058,13 @@ Actor Gladiator : DnD_BaseHybridMonster {
 			TNT1 A 0 A_JumpIfCloser(288, "FastMissile")
 			GLAD EF 8 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gladiator/Attack")
-			GLAD G 8 Fast A_CustomComboAttack("GladiatorFireBall_Explode", 32, 9 * random(4, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			GLAD G 8 Fast A_CustomComboAttack("GladiatorFireBall_Explode", 32, 9 * random(4, 6), "baron/melee")
 		Goto See
 		FastMissile:
 			GLAD EF 6 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gladiator/Attack")
 			GLAD G 1 Fast A_SetAngle(angle + frandom(-12.0, 12.0))
-			GLAD G 5 Fast A_CustomComboAttack("GladiatorFireBall_Explode", 32, 10 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			GLAD G 5 Fast A_CustomComboAttack("GladiatorFireBall_Explode", 32, 10 * random(5, 8), "baron/melee")
 		Goto See
 		MeleeState:
 			TNT1 A 0 A_PlaySound("Gladiator/Attack")
@@ -2076,7 +2076,7 @@ Actor Gladiator : DnD_BaseHybridMonster {
 			TNT1 A 0 A_Recoil(-2.4)
 			GLAD F 3 Fast A_FaceTarget
 			TNT1 A 0 A_Recoil(-2.8)
-			GLAD G 5 Fast A_CustomComboAttack("GladiatorFireBall", 32, 10 * random(5, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "baron/melee")
+			GLAD G 5 Fast A_CustomComboAttack("GladiatorFireBall", 32, 10 * random(5, 8), "baron/melee")
 		Goto See
 		PainState:
 			GLAD H 2 Fast
@@ -2104,7 +2104,7 @@ Actor GladiatorFireBall {
 	Height 10
 	Speed 24
 	PROJECTILE
-	Damage (5 * random(4, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(4, 6))
 	DamageType "BaronsFire"
 	DeathSound "weapons/phoenixhit"
 	Scale 0.85
@@ -2166,7 +2166,7 @@ Actor GladiatorExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(12 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 56)
+			TNT1 A 1 A_Explode(12, 56)
 		Stop
 	}
 }
@@ -2270,7 +2270,7 @@ Actor Putrefier : DnD_BaseHybridMonster {
 ACTOR PutrefierBullet : FastProjectile {
 	Radius 1
 	Height 2
-	Damage (random(6, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(6, 8))
 	DamageType "Putrefier_Poison"
 	Speed 128
 	Scale 0.1
@@ -2311,7 +2311,7 @@ Actor PutrefierExplosion : ReaverExplosion {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 0 A_Explode(6 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 72, 0)
+			TNT1 A 0 A_Explode(6, 72, 0)
 			11PF ABCDE 5 Bright
 		Stop
 	}

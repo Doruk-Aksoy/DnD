@@ -80,7 +80,7 @@ actor TorturedSoulBall {
     Radius 8 
     Height 6 
     Speed 20 
-    Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET))) 
+    Damage (5 * random(1, 8)) 
 	DamageType "PainePoison"
     PROJECTILE 
 	+DONTBLAST
@@ -103,7 +103,7 @@ actor TorturedSoulPoison {
     Radius 24 
     Height 6 
     Speed 5 
-    Damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER))) 
+    Damage (random(1, 8)) 
 	DamageType "PainePoison"
 	BounceType Hexen
 	+THRUGHOST
@@ -125,7 +125,7 @@ actor TorturedSoulPoison {
 }
 
 Actor TorturedSoulPoison_Weak : TorturedSoulPoison {
-	Damage (random(1, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET))) 
+	Damage (random(1, 4)) 
 }
 
 ACTOR Defiler : DnD_BaseRangedMonster {
@@ -223,7 +223,7 @@ ACTOR DefilerBall {
     Height 6
     Scale 0.5
     Speed 8
-    Damage (2 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (2 * random(1, 8))
 	DamageType "PaineMagic"
 	DeathSound "imp/shotx"
 	ReactionTime 35
@@ -254,7 +254,7 @@ ACTOR DefilerShot  {
     Radius 12
     Height 16
     Speed 16
-    Damage (10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (10 * random(1, 8))
 	DamageType "Paine"
 	+DONTBLAST
     PROJECTILE
@@ -404,7 +404,7 @@ Actor Helemental : DnD_BaseHybridMonster {
 		Goto See
 		MeleeState:
 			HELE ABD 5 Fast Bright A_Facetarget
-			HELE C 5 Fast Bright A_CustomMeleeAttack(10 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "caco/melee", "", "Melee")
+			HELE C 5 Fast Bright A_CustomMeleeAttack(10 * random(1, 8), "caco/melee", "", "Melee")
 		Goto See
 		PainState:
 			HELE H 3 Fast
@@ -432,7 +432,7 @@ Actor Helemental : DnD_BaseHybridMonster {
 }
 
 Actor HadesBall : CacodemonBall {
-	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 8))
 	DamageType "PaineRedLightning"  
 	Speed 15
 	Alpha 0.80
@@ -460,7 +460,7 @@ Actor HadesBoltExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+			TNT1 A 1 A_Explode(8, 64, 0)
 		Stop
 	}
 }
@@ -471,13 +471,13 @@ Actor HadesBoltExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+			TNT1 A 1 A_Explode(16, 64, 0)
 		Stop
 	}
 }
 
 Actor HadesBolt {
-	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (5 * random(1, 8))
 	Speed 5
 	Radius 8
 	Height 24
@@ -654,7 +654,7 @@ ACTOR HSBoom {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 AA 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			HADE M 4 Bright A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 112)
+			HADE M 4 Bright A_Explode(64, 112)
 			HADE NOPQ 5 Bright
 		Stop
 	}
@@ -750,7 +750,7 @@ actor DESentinel : DnD_BaseRangedMonster {
 }
 
 Actor CubeShotSentinel : CubeShot {
-	Damage (random(4, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(4, 8))
 	DamageType "PaineFire"
 	Obituary "%o got fried by a Sentinel."
 	Speed 24
@@ -760,7 +760,7 @@ ACTOR SentGmissile {
 	Radius 5
 	Height 5
 	Speed 24
-	Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (6 * random(1, 8))
 	DamageType "PainePoison"
 	RenderStyle ADD
 	Alpha 0.75
@@ -790,7 +790,7 @@ Actor SentinelExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(32 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 64, 0)
+			TNT1 A 1 A_Explode(32, 64, 0)
 		Stop
 	}
 }
@@ -799,7 +799,7 @@ ACTOR SentRmissile {
 	Radius 5
 	Height 5
 	Speed 20
-	Damage (15 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (15 * random(1, 8))
 	DamageType "PaineMagic"
 	RenderStyle ADD
 	Alpha 0.85
@@ -949,7 +949,7 @@ ACTOR FireBreath {
 	Radius 12
 	Height 8
 	Speed 12
-	Damage (3 * random(1,2) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (3 * random(1,2))
 	DamageType "PaineMagicFire"
 	Alpha 0.2
 	PROJECTILE
@@ -980,7 +980,7 @@ Actor BloodLichExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(16 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128, 0)
+			TNT1 A 1 A_Explode(16, 128, 0)
 		Stop
 	}
 }
@@ -988,7 +988,7 @@ Actor BloodLichExp : BaseExplosionDamage {
 ACTOR BloodLichFireball {
 	Speed 18
 	Height 8
-	Damage (4 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4 * random(1, 8))
 	PROJECTILE
 	DamageType "PaineMagicFire"
 	DeathSound "MageStaffExplode"
@@ -1017,7 +1017,7 @@ ACTOR CurseSpell {
 	+BLOODLESSIMPACT
 	+DONTBLAST
 	RenderStyle Add
-	Damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1, 8))
 	DamageType "PaineCurse"
 	Speed 15
 	Radius 10
@@ -1205,7 +1205,7 @@ ACTOR DiscipleShot1 {
 	Radius 8
 	Height 16
 	Speed 15
-	Damage (random(6, 12) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(6, 12))
 	DamageType "PaineMagic"
 	RENDERSTYLE ADD
 	ALPHA 0.67
@@ -1229,7 +1229,7 @@ ACTOR DiscipleShot2 {
 	Radius 8
 	Height 16
 	Speed 15
-	Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (6 * random(1, 8))
 	DamageType "PaineMagic"
 	RENDERSTYLE ADD
 	ALPHA 0.67
@@ -1386,7 +1386,7 @@ Actor ArbiterFireball {
 	Radius 6
 	Height 8
 	Speed 24
-	Damage (5 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(1, 8))
 	+DONTBLAST
 	DamageType "PaineFire"
 	Projectile
@@ -1432,7 +1432,7 @@ Actor ArbiterSeeker {
 	RenderStyle Add
 	Alpha 0.85
 	Scale 0.9
-	Damage (6 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (6 * random(1, 8))
 	DamageType "PaineFire"
 	Speed 24
 	SeeSound "Kjaroch/Missile2"
@@ -1513,7 +1513,7 @@ Actor ArbiterFlameExplosion : BaseExplosionDamage
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_PlaySound("weapons/hellex")
-			TNT1 A 1 A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0, 0, 48)
+			TNT1 A 1 A_Explode(64, 96, 0, 0, 48)
 		Stop
 	}
 }

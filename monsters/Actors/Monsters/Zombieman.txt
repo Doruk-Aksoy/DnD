@@ -64,7 +64,7 @@ Actor ZombieManGray : DnD_BaseRangedMonster {
 }
 
 Actor RangerBullet : ZombieBullet {
-	Damage (random(1,5) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1,5) * 2)
 }
 
 actor FormerRanger : DnD_BaseRangedMonster {
@@ -161,7 +161,7 @@ actor FormerRanger : DnD_BaseRangedMonster {
 }
 
 Actor SMGZombieBullet : ZombieBullet {
-	Damage (random(1,3) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1,3) * 2)
 }
 
 ACTOR SMGGuy : DnD_BaseRangedMonster {
@@ -231,7 +231,7 @@ ACTOR SMGGuy : DnD_BaseRangedMonster {
 }
 
 Actor RapidFireBullet : ZombieBullet {
-	Damage (random(1,3) * 3 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1,3) * 3)
 }
 
 ACTOR RapidFireTrooper : DnD_BaseRangedMonster {
@@ -569,7 +569,7 @@ ACTOR QuakeZombie : DnD_BaseRangedMonster {
 }
 
 Actor UndeadInitiateBullet : ZombieBullet {
-	Damage (random(1,3) * 4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1,3) * 4)
 }
 
 actor UndeadHunter : DnD_BaseHybridMonster {

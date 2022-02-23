@@ -36,23 +36,23 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 			INCA G 0 A_FaceTarget
 			INCA G 6 Fast A_SkelWhoosh
 			INCA H 6 Fast A_FaceTarget
-			INCA I 6 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
+			INCA I 6 Fast A_CustomMeleeAttack(7 * random(1, 8), "monster/inchit", "")
 		Goto See
 		DoubleMelee:
 			INCA R 0 A_FaceTarget
 			INCA R 5 Fast A_SkelWhoosh
 			INCA S 5 Fast A_FaceTarget
-			INCA T 5 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
+			INCA T 5 Fast A_CustomMeleeAttack(7 * random(1, 8), "monster/inchit", "")
 			INCA G 0 A_FaceTarget
 			INCA G 5 Fast A_SkelWhoosh
 			INCA H 5 Fast A_FaceTarget
-			INCA I 5 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
+			INCA I 5 Fast A_CustomMeleeAttack(7 * random(1, 8), "monster/inchit", "")
 		Goto See
 		MissileState:
 			INCA J 5 Fast A_FaceTarget
 		Again:
 			INCA J 5 Fast A_FaceTarget
-			INCA U 10 Fast Bright A_CustomBulletAttack(32,0,5, 3 * random(1, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "DIpuff", 512, CBAF_NORANDOM)
+			INCA U 10 Fast Bright A_CustomBulletAttack(32,0,5, 3 * random(1, 3), "DIpuff", 512, CBAF_NORANDOM)
 			INCA K 10 Fast A_Jump(96, "Again")
 		Goto See
 		PainState:
@@ -147,23 +147,23 @@ Actor Incarnate_Pretender : DnD_BaseHybridMonster_NoRes {
 			INCA G 0 A_FaceTarget
 			INCA G 6 Fast A_SkelWhoosh
 			INCA H 6 Fast A_FaceTarget
-			INCA I 6 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
+			INCA I 6 Fast A_CustomMeleeAttack(7 * random(1, 8), "monster/inchit", "")
 		Goto See
 		DoubleMelee:
 			INCA R 0 A_FaceTarget
 			INCA R 5 Fast A_SkelWhoosh
 			INCA S 5 Fast A_FaceTarget
-			INCA T 5 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
+			INCA T 5 Fast A_CustomMeleeAttack(7 * random(1, 8), "monster/inchit", "")
 			INCA G 0 A_FaceTarget
 			INCA G 5 Fast A_SkelWhoosh
 			INCA H 5 Fast A_FaceTarget
-			INCA I 5 Fast A_CustomMeleeAttack(7 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
+			INCA I 5 Fast A_CustomMeleeAttack(7 * random(1, 8), "monster/inchit", "")
 		Goto See
 		MissileState:
 			INCA J 5 Fast A_FaceTarget
 		Again:
 			INCA J 5 Fast A_FaceTarget
-			INCA U 10 Fast Bright A_CustomBulletAttack(32,0,5, 3 * random(1, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "DIpuff", 512, CBAF_NORANDOM)
+			INCA U 10 Fast Bright A_CustomBulletAttack(32,0,5, 3 * random(1, 3), "DIpuff", 512, CBAF_NORANDOM)
 			INCA K 10 Fast A_Jump(96, "Again")
 		Goto See
 		PainState:
@@ -243,7 +243,7 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster {
 			RASK G 1 A_FaceTarget
 			RASK G 6 Fast A_SkelWhoosh
 			RASK H 6 Fast A_FaceTarget
-			RASK I 6 Fast A_CustomMeleeAttack(6 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "skeleton/melee")
+			RASK I 6 Fast A_CustomMeleeAttack(6 * random(1, 10), "skeleton/melee")
 		Goto See
 		MissileState:
 			RASK J 1 Bright A_FaceTarget
@@ -276,7 +276,7 @@ ACTOR Revrailshot : FastProjectile {
 	radius 1
 	height 1
 	speed 100
-	damage (random(18,30) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	damage (random(18,30))
 	DamageType "RevEnergy"
 	renderstyle Add
 	decal RailScorchLower
@@ -363,7 +363,7 @@ ACTOR Cadaver : DnD_BaseHybridMonster {
 			TNT1 A 0 A_FaceTarget
 			RASK G 7 Fast A_SkelWhoosh
 			RASK H 6 Fast A_FaceTarget
-			RASK I 5 Fast A_CustomMeleeAttack(6 * random(1, 10) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "skeleton/melee")
+			RASK I 5 Fast A_CustomMeleeAttack(6 * random(1, 10), "skeleton/melee")
 		Goto See
 		MissileState:
 			RASK J 12 Fast Bright A_FaceTarget
@@ -407,14 +407,14 @@ Actor CadaverExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(30 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128)
+			TNT1 A 1 A_Explode(30, 128)
 		Stop
 	}
 }
 
 ACTOR CadaverRocket : HomRocket1 {
 	Speed 20
-	Damage (8 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 8))
 	DamageType "RevExp"
 	-THRUSPECIES
 	+SEEKERMISSILE
@@ -625,7 +625,7 @@ Actor WidowExplosion : BaseExplosionDamage {
 	DamageType "RevExp"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(40 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 128)
+			TNT1 A 1 NoDelay A_Explode(40, 128)
 		Stop
 	}
 }
@@ -813,7 +813,7 @@ Actor SlugExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96)
+			TNT1 A 1 A_Explode(8, 96)
 		Stop
 	}
 }
@@ -822,7 +822,7 @@ actor widowmaker_slugshot : FastProjectile {
     Radius 5
 	Height 5  
 	Mass 1
-	Damage ((10 + (5*random(0,3))) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage ((10 + (5*random(0,3))))
 	alpha 1
 	Speed 64
 	RenderStyle ADD
@@ -1056,7 +1056,7 @@ Actor SlugExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 48, 0)
+			TNT1 A 1 A_Explode(8, 48, 0)
 		Stop
 	}
 }
@@ -1067,7 +1067,7 @@ actor widowmaker_seekMissile {
 	Height 10
 	mass 200
 	Speed 24
-	Damage (random(12,18) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(12,18))
 	DamageType "Rev"
 	PROJECTILE
 	+THRUGHOST
@@ -1129,18 +1129,18 @@ ACTOR AxeKnight : DnD_BaseHybridMonster {
 		EtherealAxe:
 			XNIG E 10 Fast A_FaceTarget
 			XNIG F 8 Fast A_FaceTarget
-			XNIG G 8 Fast A_CustomComboAttack("KnightAxe2", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			XNIG G 8 Fast A_CustomComboAttack("KnightAxe2", 32, 3 * random(1, 8), "hknight/melee")
 			XNIG E 10 Fast A_FaceTarget
 			XNIG F 8 Fast A_FaceTarget
-			XNIG G 8 Fast A_CustomComboAttack("KnightAxe2", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			XNIG G 8 Fast A_CustomComboAttack("KnightAxe2", 32, 3 * random(1, 8), "hknight/melee")
 		Goto See
 		BloodAxe:
 			XNIG H 10 Fast A_FaceTarget
 			XNIG I 8 Fast A_FaceTarget
-			XNIG J 8 Fast A_CustomComboAttack("RedAxe2", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			XNIG J 8 Fast A_CustomComboAttack("RedAxe2", 32, 3 * random(1, 8), "hknight/melee")
 			XNIG H 10 Fast A_FaceTarget
 			XNIG I 8 Fast A_FaceTarget
-			XNIG J 8 Fast A_CustomComboAttack("RedAxe2", 32, 3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "hknight/melee")
+			XNIG J 8 Fast A_CustomComboAttack("RedAxe2", 32, 3 * random(1, 8), "hknight/melee")
 		Goto See
 		PainState:
 			XNIG K 3 Fast
@@ -1194,7 +1194,7 @@ Actor KnightAxeTrailC : KnightAxeTrailA {
 
 Actor KnightAxe2 : KnightAxe {
 	Speed 22
-	Damage (8*random(1, 3) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8*random(1, 3))
 	DamageType "RevMagic"
 	+DONTBLAST
 	States {
@@ -1222,7 +1222,7 @@ Actor KnightRedAxeTrail : KnightAxeTrailA {
 
 Actor RedAxe2 : RedAxe {
 	Speed 28
-	Damage (8*random(2, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8*random(2, 6))
 	DamageType "Rev"
 	States {
 		Spawn:
@@ -1375,7 +1375,7 @@ Actor YetiCheck : DnD_Activator {
 
 Actor YetiIce {
 	PROJECTILE
-	Damage (3 * random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (3 * random(1, 8))
 	DamageType "RevIce"
 	Speed 24
 	Alpha 0.8
@@ -1417,7 +1417,7 @@ Actor YetiIceWave {
 	Radius 10
 	Height 8
 	Speed 20
-	Damage (random(2, 6) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET | DND_ISRIPPER)))
+	Damage (random(2, 6))
 	DamageType "RevIce"
 	PROJECTILE
 	+RIPPER
@@ -1448,7 +1448,7 @@ ACTOR YetiIceShard {
 	Radius 12
 	Height 6
 	Speed 10
-	Damage (random(1, 8) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(1, 8))
 	DamageType "RevIce"
 	Scale 1.25
 	Projectile
@@ -1512,7 +1512,7 @@ Actor SludgeGiant : DnD_BaseHybridMonster {
 		MeleeState:
 			TNT1 A 0 A_PlaySound("SludgeGiant/Attack")
 			SLDM E 6 Fast A_FaceTarget
-			SLDM F 7 Fast A_CustomMeleeAttack(random(16, 24) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "SludgeGiant/Melee", "")
+			SLDM F 7 Fast A_CustomMeleeAttack(random(16, 24), "SludgeGiant/Melee", "")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_PlaySound("SludgeGiant/Attack")
@@ -1606,7 +1606,7 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster {
 		MeleeState:
 			TNT1 A 0 A_PlaySound("SludgeGiant/Attack")
 			SLDM E 6 Fast A_FaceTarget
-			SLDM F 7 Fast A_CustomMeleeAttack(random(8, 14) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "SludgeGiant/Melee", "")
+			SLDM F 7 Fast A_CustomMeleeAttack(random(8, 14), "SludgeGiant/Melee", "")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_PlaySound("SludgeGiant/Attack")
@@ -1652,7 +1652,7 @@ Actor SludgeMissile {
 	Radius 4
 	Height 8
 	Scale 0.65
-	Damage (8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8)
 	ProjectileKickBack 8
 	DamageType "RevSludge"
 	+THRUGHOST
@@ -1670,7 +1670,7 @@ Actor SludgeMissile {
 }
 
 Actor SludgeMissileWeak : SludgeMissile {
-	Damage (4 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (4)
 	Scale 0.4
 	Radius 4
 	Height 7
@@ -1714,7 +1714,7 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 		MeleeState:
 			TNT1 A 0 A_PlaySound("SludgeGiant/Attack")
 			SLDM E 3 Fast A_FaceTarget
-			SLDM F 5 Fast A_CustomMeleeAttack(random(4, 7) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "SludgeGiant/Melee", "")
+			SLDM F 5 Fast A_CustomMeleeAttack(random(4, 7), "SludgeGiant/Melee", "")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_PlaySound("SludgeGiant/Attack")
@@ -1743,7 +1743,7 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 }
 
 Actor SludgeMissileWeakFinal : SludgeMissile {
-	Damage (2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (2)
 	Scale 0.22
 	Radius 2
 	Height 4
@@ -1908,7 +1908,7 @@ Actor DarkServantMissile1 {
 	Radius 4
 	SeeSound "Weapons/SmallLightning"
 	DeathSound "Weapons/SmallLightningH"
-	Damage (5 * random(2, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (5 * random(2, 4))
 	DamageType "RevLightning"
 	PROJECTILE
 	+THRUGHOST
@@ -1931,7 +1931,7 @@ Actor DarkServantMissile2 {
 	Speed 28
 	Height 10
 	Radius 6
-	Damage (8 * random(1, 4) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8 * random(1, 4))
 	DamageType "RevLightning"
 	SeeSound "Weapons/BigLightning"
 	DeathSound "Weapons/BigLightningH"
@@ -2017,7 +2017,7 @@ Actor Crawler : DnD_BaseHybridMonster {
 		MeleeState:
 			GDMN E 5 Fast A_FaceTarget
 			GDMN F 7 Fast A_FaceTarget
-			GDMN G 5 Fast A_CustomMeleeAttack(random[DemonAttack1](4,16) * 2 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)))
+			GDMN G 5 Fast A_CustomMeleeAttack(random[DemonAttack1](4,16) * 2)
 		Goto See
 		XDeathState:
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
@@ -2050,7 +2050,7 @@ Actor CrawlerPoisonBall {
 	Speed 24
 	Radius 10
 	Height 16
-	Damage (8 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (8)
 	DamageType "RevPoison_Crawler"
 	Projectile
 	+SEEKERMISSILE
@@ -2079,7 +2079,7 @@ Actor CrawlerPoisonBall {
 actor CrawlerPoisonCloud : TorturedSoulPoison { 
     Height 10
     Speed 8 
-    Damage (1 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+    Damage (1)
 	DamageType "RevPoison_Crawler"
 }
 
@@ -2202,7 +2202,7 @@ ACTOR Draugr : DnD_BaseHybridMonster {
 			TNT1 A 0 A_FaceTarget
 			SKE2 J 6 Fast A_SkelWhoosh
 			SKE2 K 6 Fast A_FaceTarget
-			SKE2 L 6 Fast A_CustomMeleeAttack(random(26, 46) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_SELF)), "monster/inchit", "")
+			SKE2 L 6 Fast A_CustomMeleeAttack(random(26, 46), "monster/inchit", "")
 		Goto See
 		FadeAway:
 			TNT1 A 0 A_JumpIfInventory("DraugrFadeCooldown", 1, "MissileNoFade")
@@ -2393,7 +2393,7 @@ Actor DraugrSeekerBoomFX {
 
 Actor DraugrSeeker {
 	Speed 16
-	Damage (random(15, 30) * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)))
+	Damage (random(15, 30))
 	Radius 8
 	Height 6
 	Renderstyle Add
