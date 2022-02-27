@@ -120,7 +120,8 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes {
 }
 
 Actor DiabloExp1 : BaseExplosionDamage {
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was set ablaze by a Diabloist."
 	+NODAMAGETHRUST
 	States {
@@ -168,7 +169,8 @@ Actor DFire {
 	Height 1
 	Speed 0
 	RenderStyle Add
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
 	ALPHA 1.00
 	+NoGravity
@@ -248,7 +250,8 @@ ACTOR DFlare {
 	Speed 25
 	Damage (4 * random(1, 8))
 	RenderStyle Add
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Alpha 0.85
 	Projectile
 	+ThruGhost
@@ -275,7 +278,8 @@ Actor DMissile : FastProjectile {
 	Height 8
 	Radius 14
 	Damage (24)
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	MissileType "DMissileTrail"
 	+ThruGhost
 	+DONTBLAST
@@ -320,7 +324,8 @@ Actor DMissile : FastProjectile {
 }
 
 Actor DiabloExp6 : BaseExplosionDamage {
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was set ablaze by a Diabloist."
 	States {
 		Spawn:
@@ -336,7 +341,8 @@ Actor DTracer {
 	Speed 15
 	ReactionTime 96
 	Damage (4 * random(1, 8))
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	RenderStyle Add
 	Alpha 0.67
 	Projectile
@@ -380,7 +386,8 @@ Actor MFlareFX {
 }
 
 Actor DiabloExp7 : BaseExplosionDamage {
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was set ablaze by a Diabloist."
 	States {
 		Spawn:
@@ -395,7 +402,8 @@ Actor DTracerPuff {
 	Height 1
 	Speed 0
 	RenderStyle Add
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Alpha 0.67
 	Projectile
 	+FloorHugger
@@ -410,7 +418,8 @@ Actor DTracerPuff {
 
 Actor DMissileTrail {
 	RenderStyle Add
-	DamageType "Vile"
+	DamageType "MagicalFire"
+	Stamina 40
 	+ThruGhost
 	+DONTBLAST
 	+NOBLOCKMAP
@@ -433,7 +442,8 @@ Actor DMissileCircle {
 	-ACTIVATEPCROSS
 	RenderStyle "Add"
 	DeathSound "ClericFlameCircle"
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	+ThruGhost
 	+DONTBLAST
 	
@@ -585,7 +595,8 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 	Speed 10
 	PainChance 16
 	Scale 1.15
-	DamageType Normal
+	DamageType "Physical"
+	Stamina 1
 	Obituary "%o was hexed by a Hierophant."
 	HitObituary "%o got shredded by a Hierophant."
 	+ISMONSTER
@@ -748,7 +759,8 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 }
 
 Actor HieroExp : BaseExplosionDamage {
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was hexed by a Hierophant."
 	States {
 		Spawn:
@@ -761,7 +773,8 @@ Actor HieroExp : BaseExplosionDamage {
 Actor HieroBall1 : BaronBall {
 	Speed 20
 	Damage (6 * random(1, 8))
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	+ThruGhost
 	+ForceXYBillBoard
 	Decal RevenantScorch
@@ -789,7 +802,8 @@ Actor HieroBall2 {
 	Height 6
 	Renderstyle Add
 	Damage (4 * random(1, 8))
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	PROJECTILE
 	+ThruGhost
 	+SEEKERMISSILE
@@ -815,7 +829,8 @@ Actor HieroBall2 {
 }
 
 Actor HieroExp2 : BaseExplosionDamage {
-	DamageType "VileCurse"
+	DamageType "MagicalVoid"
+	Stamina 8
 	Obituary "%o was hexed by a Hierophant."
 	States {
 		Spawn:
@@ -830,8 +845,10 @@ Actor CurseBall : BaronBall {
 	Damage (random(1, 8))
 	Height 16
 	Radius 10
-	DamageType "VileCurse"
+	DamageType "MagicalVoid"
+	Stamina 8
 	+ThruGhost
+	+HITTRACER
 	+ForceXYBillBoard
 	+ForceRadiusDmg
 	+NoDamageThrust
@@ -854,6 +871,8 @@ Actor CurseBall : BaronBall {
 			HCRS D 2 Bright A_SpawnItemEx("CurseTrail",0,0,0,0,0,0,0,128,0)
 			TNT1 A 0 A_SeekerMissile(6, 7)        
 		Loop
+		XDeath:
+			TNT1 A 0 A_GiveInventory("DnD_Curse_Hierophant", 1, AAPTR_TRACER)
 		Death:
 			TNT1 A 0 A_SetTranslucent(0.80, 1)
 			TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -1042,7 +1061,8 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes {
 }
 
 Actor DKExp1 : BaseExplosionDamage {
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o thought he could kill a deathknight."
 	States {
 		Spawn:
@@ -1057,7 +1077,8 @@ ACTOR DKDart {
 	Height 12
 	Speed 24
 	Damage (random(15,25))
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	ExplosionDamage 32
 	ExplosionRadius 64
 	RENDERSTYLE ADD
@@ -1102,7 +1123,8 @@ ACTOR DKbolt {
 	PROJECTILE
 	RENDERSTYLE ADD
 	ALPHA 0.80
-	DamageType "VileMagic"
+	DamageType "Magical"
+	Stamina 8
 	+THRUGHOST
 	+DONTBLAST
 	SeeSound "Weapons/boltfi"
@@ -1128,7 +1150,8 @@ ACTOR DKBall {
 	Height 8
 	Speed 15
 	Damage (random(10,15))
-	DamageType "VileMagic"
+	DamageType "Magical"
+	Stamina 8
 	PROJECTILE
 	SeeSound "monster/dkball"
 	+DONTBLAST
@@ -1209,7 +1232,8 @@ ACTOR DKSword {
 }
 
 Actor DKExp2 : BaseExplosionDamage {
-	DamageType "Vile"
+	DamageType "Magical"
+	Stamina 8
 	Obituary "%o thought he could kill a deathknight."
 	States {
 		Spawn:
@@ -1224,7 +1248,8 @@ ACTOR DKFire {
 	Height 6
 	Speed 3
 	Damage 0
-	DamageType "Vile"
+	DamageType "Magical"
+	Stamina 8
 	ExplosionDamage 4
 	ExplosionRadius 8
 	RENDERSTYLE ADD
@@ -1389,7 +1414,8 @@ Actor HorshackerMelee {
 	Radius 4
 	Height 8
 	Damage (5 * random(5, 8))
-	DamageType "Vile"
+	DamageType "Physical"
+	Stamina 1
 	+DONTBLAST
 	+THRUSPECIES
 	Species "AV"
@@ -1407,7 +1433,8 @@ Actor HorshackerMelee {
 }
 
 Actor HorshackerExp1 : BaseExplosionDamage {
-	DamageType "VileBlue"
+	DamageType "MagicalBlue"
+	Stamina 8
 	Obituary "%o was horshacked by the Horshacker."
 	States {
 		Spawn:
@@ -1422,7 +1449,8 @@ ACTOR SwordSlash {
 	Height 16
 	Speed 16
 	Damage (random(4, 6))
-	DamageType "VileBlue"
+	DamageType "MagicalBlue"
+	Stamina 8
 	PROJECTILE
 	RenderStyle Add
 	Alpha 0.75
@@ -1486,7 +1514,8 @@ ACTOR SwordSlashTrail {
 }
 
 Actor HorshackerExp2 : BaseExplosionDamage {
-	DamageType "VileBlue"
+	DamageType "MagicalBlue"
+	Stamina 8
 	Obituary "%o was horshacked by the Horshacker."
 	States {
 		Spawn:
@@ -1501,7 +1530,8 @@ ACTOR DKDart2 : DKDart {
 	Height 12
 	Speed 20
 	Damage (16)
-	DamageType "VileBlue"
+	DamageType "MagicalBlue"
+	Stamina 8
 	RENDERSTYLE ADD
 	ALPHA 0.85
 	Scale 0.8
@@ -1553,7 +1583,8 @@ Actor DKDart2Right : DKDart2 {
 ACTOR DKBall2 : DKBall {
 	Speed 28
 	Damage (2 * random(4, 8))
-	DamageType "VileBlue"
+	DamageType "MagicalBlue"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1578,7 +1609,8 @@ ACTOR DKBallTrail2 : SwordFXRed {
 
 ACTOR DKbolt2 : DKBolt {
 	Damage (5 * random(2, 6))
-	DamageType "VileBlue"
+	DamageType "MagicalBlue"
+	Stamina 8
 	SeeSound "HFSpid/See"
 	DeathSound "HFSpid/Die"
 	Scale 0.8
@@ -1630,7 +1662,8 @@ actor DKBolt2Effect {
 
 Actor DKBolt2Homing : DKBolt2 {
 	Damage (5*random(2,3))
-	DamageType "VileBlue"
+	DamageType "MagicalBlue"
+	Stamina 8
 	+SEEKERMISSILE
 	ReactionTime 105
 	States {
@@ -1645,7 +1678,8 @@ Actor DKBolt2Homing : DKBolt2 {
 }
 
 Actor UndeadPriestBullet : RapidFireBullet {
-	DamageType "VileBullet"
+	DamageType "Physical"
+	Stamina 1
 }
 
 actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
@@ -1801,7 +1835,8 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 }
 
 Actor UndeadSpiritDamager : BaseExplosionDamage {
-	DamageType "VileGhost"
+	DamageType "MagicalGreen"
+	Stamina 520
 	Obituary "%o was spooked by an undead ghost."
 	States {
 		Spawn:
@@ -1957,7 +1992,8 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 }
 
 Actor GuruExplosion1 : BaseExplosionDamage {
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was incinerated by a Guru."
 	+NODAMAGETHRUST
 	States {
@@ -1984,15 +2020,19 @@ Actor GuruPacifier {
 	Speed 24
 	Renderstyle Add
 	Damage (3 * random(1, 8))
-	DamageType "VilePacify"
+	DamageType "MagicalFire"
+	Stamina 40
 	SeeSound "Guru/Fire"
 	DeathSound "imp/shotx"
+	+HITTRACER
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 		SpawnLoop:
 			GURP AB 3 Bright A_SpawnItem("GuruExplosion1")
 		Loop
+		XDeath:
+			TNT1 A 0 A_GiveInventory("DnD_Curse_Guru", 1, AAPTR_TRACER)
 		Death:
 			GURP CDEF 4 Bright
 		Stop
@@ -2137,7 +2177,8 @@ ACTOR FireWallAttackTrail {
 Actor FireVileDamage : DnD_FakeDamager {
 	Radius 32
 	Height 64
-	DamageType "VileFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Damage (random(1,8))
 	Speed 32
 	+FLOORHUGGER
@@ -2311,18 +2352,21 @@ Actor DarkServantTrail2 {
 }
 
 Actor HadesBoltExpZealot : BaseExplosionDamage {
-	DamageType "VileRedLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
 Actor HadesBoltExp2Zealot : BaseExplosionDamage {
-	DamageType "VileRedLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
 Actor HadesBoltZealot : HadesBolt {
 	Speed 15
-	Damagetype "VileRedLightning"
+	Damagetype "LightningRed"
+	Stamina 256
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2347,7 +2391,8 @@ Actor HadesBoltZealot : HadesBolt {
 }
 
 Actor HadesBolt2Zealot : HadesBolt2 {
-	DamageType "VileRedLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2420,7 +2465,8 @@ Actor DarkZealotLightning {
 	Damage (5 * random(2, 3))
 	+PIERCEARMOR
 	+NODAMAGETHRUST
-	DamageType "VileRedLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	SeeSound "DarkServant/Lightning"
 	DeathSound "DarkServant/LightningHit"
 	States {
@@ -2443,7 +2489,8 @@ Actor DarkZealotPierce {
 	Height 14
 	Radius 8
 	Damage (random(8, 12))
-	DamageType "VileRedLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	Scale 0.7
 	+RIPPER
 	+THRUGHOST
@@ -2479,6 +2526,7 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes {
 	deathsound "FleshWizard/die"
 	Tag "Flesh Wizard"
 	Species "AV"
+	Stamina 520
 	+ISMONSTER
 	+QUICKTORETALIATE
 	+NOINFIGHTING
@@ -2596,7 +2644,8 @@ Actor FleshWizardMissileTrail {
 }
 
 Actor FleshWizardExp : BaseExplosionDamage {
-	DamageType "VileSlow"
+	DamageType "MagicalRed"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2606,7 +2655,8 @@ Actor FleshWizardExp : BaseExplosionDamage {
 }
 
 Actor FleshWizardCorpseDamage : BaseExplosionDamage {
-	DamageType "VileSnare"
+	DamageType "MagicalSnare"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2621,11 +2671,13 @@ Actor FleshWizardMissile {
 	Radius 6
 	Speed 16
 	Damage (5 * random(2, 3))
-	DamageType "VileSlow"
+	DamageType "MagicalRed"
+	Stamina 520
 	Translation "0:255=%[0.00,0.00,0.00]:[1.39,0.03,0.00]"
 	SeeSound "redballbsee"
 	DeathSound "redballbdeth"
 	Scale 0.75
+	+HITTRACER
 	+SEEKERMISSILE
 	+NODAMAGETHRUST
 	States {
@@ -2641,6 +2693,8 @@ Actor FleshWizardMissile {
 			ANFB C 2 Bright A_SpawnItem("FleshWizardMissileTrail")
 			TNT1 A 0 A_SeekerMissile(4, 8)
 		Loop
+		XDeath:
+			TNT1 A 0 A_GiveInventory("FleshWizardSlow1", 1, AAPTR_TRACER)
 		Death:
 			ANFB D 3 Bright
 			TNT1 AAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood", random(-16, 16), random(-16, 16), random(12, 36), random(-4, 4), random(-4, 4), random(0, 6), 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)

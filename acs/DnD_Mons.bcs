@@ -319,7 +319,7 @@ Script "DND Flesh Wizard Torment" (int force) {
 					int damage = FLESHWIZARD_PERCENT * GetHealthMaxActor(curtarget) / 100;
 					damage = FixedMul(damage << 16, 1.0 + bonus);
 					damage >>= 16;
-					Thing_Damage2(curtarget, damage, "VileLeash");
+					Thing_Damage2(curtarget, damage, "MagicalRedLeash");
 					Spawn("FleshWizardDebuffFX", tX, tY, tZ + 32.0);
 					GiveActorInventory(curtarget, "FleshWizardDamageSoundPlayer", 1);
 					ACS_NamedExecuteAlways("DND Flesh Wizard Leash Trail", 0, 16, curtarget);

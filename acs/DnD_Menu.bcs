@@ -61,6 +61,9 @@ Script 900 (void) NET {
 	}
 	else {
 		// a little extra check for singleplayer case
+		if(CheckInventory("DnD_IntermissionState"))
+			Terminate;
+		
 		if
 		(
 			GameType() == GAME_SINGLE_PLAYER ||
@@ -1131,11 +1134,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					
 					if(stat_pt < DND_PERK_MAX) {
 						ConsumePerkPointOn(stat_id, temp);
-						if(stat_id == STAT_END) {
-							CleanEndPerk();
-							UpdateEndPerk();
-						}
-
+						UpdatePerkStuff();
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 					}					
@@ -1581,28 +1580,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 Script "DND Menu Cleanup" (int pnum) CLIENTSIDE {
 	if(pnum != ConsolePlayerNumber())
 		Terminate;
-	DeleteText(RPGMENUBACKGROUNDID);
-	DeleteText(RPGMENULARRID);
-	DeleteText(RPGMENURETARRID);
-	DeleteText(RPGMENURARRID);
-	DeleteText(RPGMENUHELPID);
-	DeleteText(RPGMENUNAMEID);
-	DeleteText(RPGMENUHELPCORNERID);
-	DeleteText(RPGMENUHELPCORNERIDMAIN);
-	DeleteText(RPGMENUPAGEID);
-	DeleteText(RPGMENUPAGEID - 1);
-	DeleteText(RPGMENUHIGHLIGHTID);
-	DeleteText(PUNISHERPERKID1);
-	DeleteText(PUNISHERPERKID2);
-	
-	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
-	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
-	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
-
-	// login screen for hardcore
-	DeleteText(DND_HARDCORE_SCREENID);
-	CleanInventoryInfo();
-	CleanMaterialInfo(false);
+	ClearMenuDisplay();
 }
 
 Script "DnD Toggle User Dash" (void) CLIENTSIDE {

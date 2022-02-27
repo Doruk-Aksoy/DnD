@@ -90,7 +90,8 @@ Actor Corpulent : DnD_BaseRangedMonster {
 }
 
 Actor CorpulentExp : BaseExplosionDamage {
-	DamageType "FattyExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o was cremated by a Corpulent."
 	States {
 		Spawn:
@@ -105,7 +106,8 @@ ACTOR Ripper1Corpulent : Ripper1 {
 	Height 8
 	Speed 28
 	Damage (8*random(2,4))
-	DamageType "Fatty"
+	DamageType "Physical"
+	Stamina 1
 	PROJECTILE
 	+FORCEXYBILLBOARD
 	+FORCERADIUSDMG
@@ -139,7 +141,8 @@ ACTOR Ripper2Corpulent {
 	Speed 24
 	Damage (2)
 	DeathSound "weapons/firex2"
-	DamageType "Fatty"
+	DamageType "Physical"
+	Stamina 1
 	PROJECTILE
 	+RIPPER
 	+FORCEXYBILLBOARD
@@ -231,7 +234,8 @@ Actor Daedabus : DnD_BaseRangedMonster {
 }
 
 Actor DaedExp : BaseExplosionDamage {
-	DamageType "FattyFire"
+	DamageType "Fire"
+	Stamina 32
 	Obituary "%o was torched by a Daedabus."
 	States {
 		Spawn:
@@ -244,7 +248,8 @@ Actor DaedExp : BaseExplosionDamage {
 ACTOR DaedFire : FatShot {
 	Speed 22
 	Damage (random(48, 96))
-	DamageType "FattyFire"
+	DamageType "Fire"
+	Stamina 32
 	PROJECTILE
 	RENDERSTYLE ADD
 	ALPHA 0.96
@@ -356,7 +361,8 @@ actor IceFatBall {
 	Damage (random(30,60))
 	+DONTBLAST
 	+THRUGHOST
-	DamageType "FattyIce"
+	DamageType "Ice"
+	Stamina 64
 	RenderStyle Add
 	Alpha 1
 	Projectile
@@ -513,7 +519,8 @@ Actor MafibusBall {
 	Projectile
 	DeathSound "Mafibus/Hit"
 	Decal Scorch
-	damagetype "Fatty"
+	damagetype "Fire"
+	Stamina 32
 	+DONTBLAST
 	States {
 		Spawn:
@@ -682,7 +689,8 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 }
 
 Actor PaladinExplosion : BaseExplosionDamage {
-	DamageType "FattyExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "A Paladin blew %o away."
 	States {
 		Spawn:
@@ -759,7 +767,8 @@ ACTOR PaladinBall {
 	Height 8
 	Speed 18
 	Damage (8 * random(2, 4))
-	DamageType "FatsoCorrupt"
+	DamageType "MagicalArmorCorrupt"
+	Stamina 8
 	Projectile
 	RenderStyle Add
 	Alpha 0.67
@@ -791,7 +800,8 @@ actor PaladinBash {
 	radius 5
 	height 5
 	speed 28
-	DamageType "Fatso"
+	DamageType "Physical"
+	Stamina 1
 	damage (5 * random(1, 2))
 	deathsound "weapons/vblhit"
 	PROJECTILE
@@ -979,7 +989,8 @@ actor GamonBolt {
 	Height 16
 	Speed 20
 	Damage (4 * random(3, 5))
-	DamageType "FattyMagic"
+	DamageType "MagicalBlue"
+	Stamina 264
 	RenderStyle Add
 	Alpha 0.9
 	DeathSound "Veste/Hit"
@@ -1009,7 +1020,8 @@ Actor GamonBoltFast : GamonBolt {
 }
 
 Actor GamonPuff : BlasterPuff {
-	DamageType "Fatty"
+	DamageType "MagicalBlue"
+	Stamina 264
     +CLIENTSIDEONLY
     +ALWAYSPUFF
 	States {
@@ -1033,7 +1045,6 @@ ACTOR Sorcerer2FXSpark2 : Sorcerer2FXSpark {
 
 Actor MephistoBullet : ZombieBullet {
 	Damage (random(3,5) * 2)
-	DamageType "FattyBullet"
 }
 
 Actor Mephisto : DnD_BaseRangedMonster {
@@ -1125,12 +1136,9 @@ Actor Mephisto : DnD_BaseRangedMonster {
 	}
 }
 
-Actor MephistoPuff : NewBulletPuff {
-	DamageType "FattyBullet"
-}
-
 Actor MephistoExp1 : BaseExplosionDamage {
-	DamageType "Fatty"
+	DamageType "Energy"
+	Stamina 16
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1147,7 +1155,8 @@ Actor MephistoPlasma {
 	Renderstyle Add
 	Alpha 0.9
 	Damage (6 * random(1, 8))
-	DamageType "FattyPlasma"
+	DamageType "Energy"
+	Stamina 16
 	Scale 0.9
 	DeathSound "Mephisto/PlasmaHit"
 	States {
@@ -1297,7 +1306,8 @@ Actor Abomination : DnD_BaseRangedMonster {
 }
 
 Actor AbominationExp : BaseExplosionDamage {
-	DamageType "FattyVoidFire"
+	DamageType "MagicalVoid"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1314,7 +1324,8 @@ Actor AbominationShot1 {
 	Radius 5
 	Height 10
 	Damage (5 * random(4, 6))
-	DamageType "FattyVoidFire"
+	DamageType "MagicalVoid"
+	Stamina 8
 	DeathSound "weapons/basiliskexpl3"
 	+DONTBLAST
 	+PIERCEARMOR
@@ -1342,7 +1353,8 @@ ACTOR AbominationShot2 {
 	Speed 36
 	Damage (5 * random(1, 2))
 	RenderStyle ADD
-	Damagetype "FattyVoidFire"
+	Damagetype "MagicalVoid"
+	Stamina 8
 	PROJECTILE
 	+PIERCEARMOR
 	+THRUGHOST
@@ -1512,7 +1524,8 @@ Actor GoldGolemLaser {
 	+Ripper
 	+DONTBLAST
 	+NODAMAGETHRUST
-	Damagetype "Fatty"
+	Damagetype "MagicalGreen"
+	Stamina 8
 	States {
 		Spawn:
 			G3PJ A 0
@@ -1740,7 +1753,8 @@ ACTOR RedeemerFlame {
 	radius 4
 	height 6
 	speed 25
-	damagetype "FattyFire"
+	damagetype "Fire"
+	Stamina 32
 	decal "FlameScorch"
 	states {
 		Spawn:
@@ -1759,7 +1773,8 @@ ACTOR RedeemerFlame {
 }
 
 Actor RedeemerFlameExplosion : BaseExplosionDamage {
-	DamageType "FattyFire"
+	DamageType "Fire"
+	Stamina 32
 	+NODAMAGETHRUST
 	States {
 		Spawn:

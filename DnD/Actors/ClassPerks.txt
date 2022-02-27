@@ -1,22 +1,4 @@
-Actor Doomguy_Perk5 : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-
-	DamageFactor "MagicFireExp", 0.9
-	DamageFactor "MagicFireExpFull", 0.9
-	DamageFactor "DemonFire", 0.9
-	DamageFactor "ImpFire", 0.9
-	DamageFactor "CacoFire", 0.9
-	DamageFactor "PaineFire", 0.9
-    DamageFactor "BaronsFire", 0.9
-    DamageFactor "BaronGreenFire", 0.9
-    DamageFactor "FattyFire", 0.9
-	DamageFactor "ArachnoFire", 0.9
-	DamageFactor "VileFire", 0.9
-    DamageFactor "VileBlueFire", 0.9
-	DamageFactor "BigSpiderFire", 0.9
-	DamageFactor "CyberFire", 0.9
-}
+Actor Doomguy_Perk5 : DnD_Boolean { }
 
 Actor Doomguy_Perk25 : DnD_Boolean { }
 
@@ -65,21 +47,7 @@ Actor Doomguy_DemonSoul_PickMsg : CustomInventory {
 
 Actor Marine_Perk5 : DnD_Boolean { }
 
-Actor Marine_Perk25 : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-	
-	DamageFactor "Explosive", 0.66667
-	DamageFactor "CacoExp", 0.66667
-	DamageFactor "PaineExp", 0.66667
-	DamageFactor "RevExp", 0.66667
-	DamageFactor "BaronsExp", 0.66667
-	DamageFactor "FattyExp", 0.66667
-	DamageFactor "ArachnoExp", 0.66667
-	DamageFactor "BigSpiderExp", 0.66667
-	DamageFactor "CyberExp", 0.66667
-	DamageFactor "CyberGreenExp", 0.66667
-}
+Actor Marine_Perk25 : DnD_Boolean { }
 
 Actor Marine_Perk50 : CurseImmunity {
 	damagefactor "ImpPoison_Roach", 0.0
@@ -722,25 +690,7 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 	}
 }
 
-Actor Cyborg_Perk5 : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-	
-	DamageFactor "Energy", 0.85
-	DamageFactor "EnergyExp", 0.85
-	DamageFactor "EnergyExpFull", 0.85
-	DamageFactor "Caco", 0.85
-	DamageFactor "BaronPlasma", 0.85
-	DamageFactor "FattyPlasma", 0.8
-	DamageFactor "Arachno", 0.85
-	DamageFactor "ArachnoGreen", 0.85
-	DamageFactor "ArachnoYellow", 0.85
-	DamageFactor "BigSpiderGreen", 0.85
-	DamageFactor "BigSpiderYellow", 0.85
-	DamageFactor "CyberGreen", 0.85
-	DamageFactor "CyberEnergy", 0.85
-}
-
+Actor Cyborg_Perk5 : DnD_Boolean { }
 Actor Cyborg_Perk25 : DnD_Boolean { }
 Actor Cyborg_Perk50 : DnD_Boolean { }
 
@@ -768,11 +718,6 @@ Actor Berserker_Perk50_Speed : PowerSpeed {
 }
 
 Actor Berserker_NoRoar : DnD_Boolean { }
-
-Actor Berserker_RoarCD : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration -5
-}
 
 Actor Berserker_ThunderSpark : WhiteMagicSpark {
 	Scale 0.125

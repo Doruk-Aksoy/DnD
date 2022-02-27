@@ -66,6 +66,54 @@ void ClearMonsterScanInfo() {
 	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + MAX_MONSTER_TRAITS);
 }
 
+#define HUD_DII_MULT 14
+#define MAXINVENTORYBLOCKS_HORIZ 5
+#define MAXINVENTORYBLOCKS_VERT 9
+
+#define MAX_INVENTORY_BOXES (MAXINVENTORYBLOCKS_HORIZ * MAXINVENTORYBLOCKS_VERT)
+
+#define MAX_CRAFTING_ITEMBOXES 16
+#define CRAFTING_IMAGE_COUNT 4
+#define MATERIALBOX_OFFSET (MAX_CRAFTING_ITEMBOXES * CRAFTING_IMAGE_COUNT - 7)
+
+#define MAX_CRAFTING_MATERIALBOXES 12
+
+void CleanInventoryInfo() {
+	// log(s:"cleaning up!");
+	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+}
+
+// cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
+void CleanMaterialInfo(bool minus_bg) {
+	// -2 for the two arrows in the material page
+	DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES - 2, RPGMENUID - minus_bg);
+}
+
+void ClearMenuDisplay() {
+	DeleteText(RPGMENUBACKGROUNDID);
+	DeleteText(RPGMENULARRID);
+	DeleteText(RPGMENURETARRID);
+	DeleteText(RPGMENURARRID);
+	DeleteText(RPGMENUHELPID);
+	DeleteText(RPGMENUNAMEID);
+	DeleteText(RPGMENUHELPCORNERID);
+	DeleteText(RPGMENUHELPCORNERIDMAIN);
+	DeleteText(RPGMENUPAGEID);
+	DeleteText(RPGMENUPAGEID - 1);
+	DeleteText(RPGMENUHIGHLIGHTID);
+	DeleteText(PUNISHERPERKID1);
+	DeleteText(PUNISHERPERKID2);
+	
+	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
+	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
+	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
+
+	// login screen for hardcore
+	DeleteText(DND_HARDCORE_SCREENID);
+	CleanInventoryInfo();
+	CleanMaterialInfo(false);
+}
+
 enum {
 	POPUP_NONE,
 	POPUP_NOFUNDS,

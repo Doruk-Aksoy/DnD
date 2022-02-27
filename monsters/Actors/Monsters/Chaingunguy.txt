@@ -276,6 +276,7 @@ Actor ZSecGrenade {
 	speed 20
 	damage (10)
 	DamageType "Explosive"
+	Stamina 4
 	seesound "ZSec/bounce"
 	PROJECTILE
 	+DONTBLAST
@@ -635,6 +636,7 @@ Actor MrRobot : DnD_BaseRangedMonster {
 Actor EnforcerPlasma3 : EnforcerPlasma2 {
 	Damage (random(4, 8))
 	DamageType "Energy"
+	Stamina 16
 	Speed 48
 	+PIERCEARMOR
 }
@@ -826,6 +828,7 @@ Actor ZombiePlasma : PlasmaBallX {
 	Decal "PlasmaScorchX"
 	Damage(15)
 	DamageType "Energy"
+	Stamina 16
 	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.05,2.00]", "4:4=4:4", "224:229=224:229"
 	SeeSound "weapons/plasmaf"
 	DeathSound "weapons/plasmax"

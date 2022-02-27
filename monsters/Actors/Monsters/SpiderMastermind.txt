@@ -105,7 +105,8 @@ Actor Demolisher : DnD_BaseRangedBoss {
 }
 
 Actor BigSpiderBullet : ZombieBullet {
-	DamageType "BigSpiderBullet"
+	DamageType "Physical"
+	Stamina 3
 }
 
 Actor BFGBallDemolisher : BFGBall2 {
@@ -116,7 +117,8 @@ Actor BFGBallDemolisher : BFGBall2 {
 	Alpha 0.75
 	Projectile
 	Damage (100 * random(1, 8))
-	DamageType "BigSpider"
+	DamageType "EnergyGreen"
+	Stamina 16
 	DeathSound "weapons/bfgx"
 	+RANDOMIZE
 	+DONTREFLECT
@@ -138,7 +140,8 @@ Actor BFGBallDemolisher : BFGBall2 {
 }
 
 Actor BFGExtraDemolisher : BFGExtra {
-	DamageType "BigSpider"
+	DamageType "EnergyGreen"
+	Stamina 16
 }
 
 ACTOR Arachnophyte : DnD_BaseRangedBoss {
@@ -212,7 +215,8 @@ ACTOR Arachnophyte : DnD_BaseRangedBoss {
 
 Actor PhyteBullet : ZombieBullet {
 	Damage (random(2, 3) * 4)
-	DamageType "BigSpiderBullet"
+	DamageType "Physical"
+	Stamina 3
 	States {
 		Death:
 		XDeath:
@@ -235,7 +239,8 @@ Actor PhyteBullet : ZombieBullet {
 }
 
 Actor ArachnophyteExp1 : BaseExplosionDamage {
-	DamageType "BigSpiderExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -387,7 +392,8 @@ actor QueenPlasmaBlast {
 	Height 8
 	Speed 28
 	Damage (6 * random(1, 8))
-	DamageType "BigSpiderGreen"
+	DamageType "EnergyGreen"
+	Stamina 16
 	Projectile
 	scale 0.75
 	+BLOODLESSIMPACT
@@ -436,7 +442,8 @@ actor QueenPainPlasmaBlast : QueenPlasmaBlast {
 }
 
 Actor PsionicQueenExp1 : BaseExplosionDamage {
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -450,7 +457,8 @@ ACTOR QueenBFG {
 	Height 12
 	Speed 20
 	Damage (15 * random(1, 8))
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 8
 	PROJECTILE
 	+SEEKERMISSILE
 	+DONTBLAST
@@ -600,7 +608,8 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 }
 
 Actor AngelOfDeathExp1 : BaseExplosionDamage {
-	DamageType "BigSpiderExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -614,7 +623,8 @@ ACTOR PipeBomb {
 	Height 10
 	Speed 32
 	Damage (6 * random(1, 8))
-	DamageType "BigSpider"
+	DamageType "Physical"
+	Stamina 1
 	Scale 1.25
 	Seesound "pipebomb/fire"
 	Deathsound "pipebomb/explode"
@@ -655,7 +665,8 @@ ACTOR BulletPierce {
 	height 8
 	speed 44
 	damage (3 * random(1, 8))
-	DamageType "BigSpider"
+	DamageType "Physical"
+	Stamina 1
 	Scale 1.15
 	seesound "angeltracer/explode"
 	deathsound "angeltracer/explode"
@@ -693,7 +704,7 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 	Obituary "%o was annihilated by the goldlich's power."
 	Speed 8
 	DamageFactor "Painless_Sun", 1.3
-	Species "GoldLich"
+	Species "Spider2"
 	MinMissileChance 32
 	Tag "Gold Lich"
 	+ISMONSTER
@@ -877,7 +888,8 @@ ACTOR GoldLichMiniExplodes {
 }
 
 Actor GoldLichExp1 : BaseExplosionDamage {
-	DamageType "BigSpiderDark"
+	DamageType "MagicalDark"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -891,7 +903,8 @@ ACTOR GoldLichBounce {
 	Height 12
 	Speed 22
 	Damage (5 * random(2,4))
-	DamageType "BigSpiderDark"
+	DamageType "MagicalDark"
+	Stamina 8
 	Projectile
 	+NOGRAVITY
 	+WINDTHRUST  
@@ -904,7 +917,7 @@ ACTOR GoldLichBounce {
 	+DOOMBOUNCE
 	+DONTBLAST
 	+THRUSPECIES
-	Species "GoldLich"
+	Species "Spider2"
 	BounceCount 4
 	States {
 		Spawn:
@@ -952,7 +965,8 @@ ACTOR GoldLichFire {
 	Height 12
 	Speed 16
 	Damage (5 * random(1, 8))
-	DamageType "BigSpiderFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Projectile
 	Alpha 0.85
 	DeathSound "weapons/phoenixhit"
@@ -964,7 +978,7 @@ ACTOR GoldLichFire {
 	+SEEKERMISSILE
 	+DONTBLAST
 	+THRUSPECIES
-	Species "GoldLich"
+	Species "Spider2"
 	RenderStyle Add
 	States {
 		Spawn:
@@ -1001,7 +1015,7 @@ ACTOR FakeGoldlich : Goldlich {
 	Speed 8
 	Painchance 8
 	Health 0x7FFFFFFF
-	Species "GoldLich"
+	Species "Spider2"
 	Tag "Fake Gold Lich"
 	-BOSSDEATH
 	States {
@@ -1035,7 +1049,7 @@ ACTOR FakeGoldlich : Goldlich {
 
 ACTOR ReiverGhostGoldLich : ReiverGhost_NoExp {
 	Scale 0.8
-	Species "GoldLich"
+	Species "Spider2"
 	+THRUSPECIES
 	+DONTHURTSPECIES
 }
@@ -1053,7 +1067,7 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 	ActiveSound "Lich/act"
 	Obituary "%o was mesmerized by the gaze of an Iron Lich."
 	Speed 8
-	Species "IronLich"
+	Species "Spider2"
 	Tag "Iron Lich"
 	+ISMONSTER
 	+BOSS
@@ -1184,11 +1198,13 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 Actor IronLichGreenAttack : SentGmissile {
 	Speed 36
 	Damage (8 * random(1, 8))
-	DamageType "BigSpiderGreen"
+	DamageType "MagicalGreen"
+	Stamina 8
 }
 
 Actor VolcanoTBlast2Lich : VolcanoTBlast2 {
-	DamageType "BigSpiderFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1199,7 +1215,8 @@ Actor VolcanoTBlast2Lich : VolcanoTBlast2 {
 Actor IronLichFireAttack : beastball2 {
 	Speed 28
 	Damage (12 * random(1, 8))
-	DamageType "BigSpiderFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Scale 1.25
 	States {
 		Spawn:
@@ -1240,7 +1257,8 @@ Actor IronLichFireAttack : beastball2 {
 Actor IronLichIceAttack {
 	PROJECTILE
 	Damage (8 * random(1, 8))
-	DamageType "BigSpiderIce"
+	DamageType "Ice"
+	Stamina 64
 	Speed 32
 	Alpha 0.8
 	Scale 1.25
@@ -1278,7 +1296,8 @@ ACTOR IronLichIceShard {
 	Height 6
 	Speed 10
 	Damage (3 * random(1, 8))
-	DamageType "BigSpiderIce"
+	DamageType "Ice"
+	Stamina 64
 	Scale 1.25
 	Projectile
 	Gravity 0.3
@@ -1350,7 +1369,8 @@ ACTOR GroundSpikeExt {
 	Radius 8
 	Height 12
 	Damage (random(6, 14))
-	DamageType "BigSpider"
+	DamageType "Physical"
+	Stamina 1
 	+FLOORHUGGER
 	+RIPPER
 	+THRUGHOST
@@ -1371,7 +1391,8 @@ ACTOR GroundSpikeExt {
 Actor IronLichDarkness {
 	Speed 40
 	Damage (20)
-	DamageType "VisionDimmer"
+	DamageType "MagicalVisionDimmer"
+	Stamina 8
 	SeeSound "monster/curse1"
 	Deathsound "Lich/VisionDim"
 	Height 8
@@ -1416,7 +1437,8 @@ Actor IronLichDarknessTrail {
 Actor IronLichEnergyAttack {
 	PROJECTILE
 	Damage (6 * random(1, 8))
-	DamageType "BigSpider"
+	DamageType "EnergyYellow"
+	Stamina 16
 	Height 12
 	Radius 6
 	+DOOMBOUNCE
@@ -1453,7 +1475,8 @@ Actor IronLichSmallEnergy {
 	Renderstyle Add
 	Alpha 0.75
 	Damage (2 * random(1, 8))
-	DamageType "BigSpider"
+	DamageType "EnergyYellow"
+	Stamina 16
 	Speed 8
 	+DONTBLAST
 	States {
@@ -1524,9 +1547,10 @@ Actor IronLichSmallEnergy2 {
 	Renderstyle Add
 	Alpha 0.75
 	Damage (4 * random(1, 8))
-	DamageType "BigSpiderYellow"
+	DamageType "EnergyYellow"
+	Stamina 16
 	Speed 32
-	Species "IronLich"
+	Species "Spider2"
 	+THRUSPECIES
 	+DONTBLAST
 	+PIERCEARMOR
@@ -1693,7 +1717,8 @@ Actor SpiderOverlord : DnD_BaseRangedBoss {
 
 ACTOR SpiderOverlordMissile : SentGmissile {
 	Speed 20
-	DamageType "BigSpiderGreen"
+	DamageType "MagicalGreen"
+	Stamina 8
 	Damage (4 * random(1, 8))
 	Scale 0.5
 	+SEEKERMISSILE
@@ -1719,7 +1744,7 @@ actor DarkLich : DnD_BaseRangedBoss {
 	PainSound "Lich/pain"
 	DeathSound "monster/cubdth"
 	ActiveSound "Lich/act"
-	Species "DarkLich"
+	Species "Spider2"
 	+ISMONSTER
 	+NOBLOOD
 	+DONTRIP
@@ -1852,12 +1877,13 @@ Actor DarkSpiritAttack {
 	Height 8
 	Radius 6
 	Damage (1)
-	DamageType "BigSpiderPercent"
+	DamageType "MagicalDark"
+	Stamina 520
 	Speed 18
 	RENDERSTYLE ADD
 	ALPHA 0.66
 	ReactionTime 7
-	Species "DarkLich"
+	Species "Spider2"
 	Scale 1.1
 	+THRUSPECIES
 	-NOBLOCKMAP
@@ -1897,7 +1923,8 @@ Actor DarkSpiritAttack {
 }
 
 Actor DarkLichWarpDamager : BaseExplosionDamage {
-	DamageType "BigSpiderTornado"
+	DamageType "PhysicalTornado"
+	Stamina 1
 	+NODAMAGETHRUST
 	+PIERCEARMOR
 	+FORCEPAIN
@@ -1913,7 +1940,8 @@ Actor DarkLichWarp {
 	Radius 16
 	Height 56
 	Damage (1)
-	DamageType "BigSpiderTornado"
+	DamageType "PhysicalTornado"
+	Stamina 1
 	ReactionTime 7
 	BounceFactor 0.8
 	WallBounceFactor 0.8
@@ -1921,7 +1949,7 @@ Actor DarkLichWarp {
 	Renderstyle Add
 	Alpha 0.75
 	MaxStepHeight 48
-	Species "DarkLich"
+	Species "Spider2"
 	+PIERCEARMOR
 	-NOGRAVITY
 	+FORCEPAIN
@@ -1974,7 +2002,8 @@ Actor DarkLichWarp {
 }
 
 Actor DarkLichVortexExp1 : BaseExplosionDamage {
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 520
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1984,7 +2013,8 @@ Actor DarkLichVortexExp1 : BaseExplosionDamage {
 }
 
 Actor DarkLichVortexExp2 : BaseExplosionDamage {
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 520
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1994,7 +2024,8 @@ Actor DarkLichVortexExp2 : BaseExplosionDamage {
 }
 
 Actor DarkLichVortexExp3 : BaseExplosionDamage {
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 520
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2004,7 +2035,8 @@ Actor DarkLichVortexExp3 : BaseExplosionDamage {
 }
 
 Actor DarkLichVortexExp4 : BaseExplosionDamage {
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 520
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2014,7 +2046,8 @@ Actor DarkLichVortexExp4 : BaseExplosionDamage {
 }
 
 Actor DarkLichVortexExp5 : BaseExplosionDamage {
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 520
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2029,10 +2062,11 @@ Actor DarkLichVortex {
 	Radius 6
 	Speed 20
 	Damage (80)
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 520
 	SeeSound "redballbsee"
 	DeathSound "DarkLich/VortexHit"
-	Species "DarkLich"
+	Species "Spider2"
 	+BLOODLESSIMPACT
 	+NODAMAGETHRUST
 	States {
@@ -2083,7 +2117,8 @@ actor ArchWSpark {
 }
 
 Actor DarkLichHomingBallExp : BaseExplosionDamage {
-	DamageType "DarkLichVortex"
+	DamageType "MagicalVoid"
+	Stamina 520
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2099,9 +2134,10 @@ ACTOR DarkLichHomingBall {
 	Radius 10
 	SeeSound "MageStaffFire"
 	DeathSound "MageStaffExplode"
-	DamageType "BigSpiderVoid"
+	DamageType "MagicalVoid"
+	Stamina 520
 	Damage (random(15, 30))
-	Species "DarkLich"
+	Species "Spider2"
 	+NODAMAGETHRUST
 	+SEEKERMISSILE
 	+SCREENSEEKER

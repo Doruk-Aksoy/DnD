@@ -70,7 +70,7 @@ enum {
 
 #define BASE_PET_CAP 3
 
-#define ENDURANCE_RESIST 5
+#define ENDURANCE_RES_INTEGER 35 // 35 will be divided by 1000 to get 3.5%
 #define ENDURANCE_RES_INC 0.035 // 3.5%
 #define BASE_WISDOM_GAIN 10
 #define BASE_GREED_GAIN 10
@@ -392,9 +392,6 @@ void HandleAbilityRestore() {
 // Generic Player RPG Stat restore function
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
-	// perks
-	if((statflag & RES_PERK_ENDURANCE) && CheckInventory("Perk_Endurance"))
-		GiveInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * ENDURANCE_RESIST), 1);
 	if(statflag & RES_ACCURACY)
 		CalculatePlayerAccuracy(pnum);
 	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS))
@@ -403,12 +400,8 @@ void RestoreRPGStat (int statflag) {
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		
 	// resists from items
-	if((statflag & RES_ELEMRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM))
-		GiveInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM), 1, MAX_ELEMRESIST_VAL)), 1);
 	if((statflag & RES_PHYSRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS))
 		GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_PHYSRESIST_VAL)), 1);
-	if((statflag & RES_REFLRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL))
-		GiveInventory(StrParam(s:"Reflect_Resist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_REFLRESIST_VAL)), 1);
 	
 	// accessories
 	// can only intervene once per map
@@ -735,7 +728,6 @@ void HandleClassPerks() {
 
 void HandleBerserkerRoar(int tid) {
 	GiveActorInventory(tid, "Berserker_NoRoar", 1);
-	GiveActorInventory(tid, "Berserker_RoarCD", 1);
 	ACS_NamedExecuteAlways("DnD Berserker Roar", 0, tid);
 }
 

@@ -197,7 +197,8 @@ ACTOR DIPuff {
 	+PUFFONACTORS
 	+PUFFGETSOWNER
 	RENDERSTYLE Add
-	DamageType "RevMagic"
+	DamageType "Magical"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -277,7 +278,8 @@ ACTOR Revrailshot : FastProjectile {
 	height 1
 	speed 100
 	damage (random(18,30))
-	DamageType "RevEnergy"
+	DamageType "Energy"
+	Stamina 16
 	renderstyle Add
 	decal RailScorchLower
 	seesound "weapons/newrailfire"
@@ -402,7 +404,8 @@ ACTOR Cadaver : DnD_BaseHybridMonster {
 }
 
 Actor CadaverExp : BaseExplosionDamage {
-	DamageType "RevExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o was blown to shit by a Cadaver."
 	States {
 		Spawn:
@@ -415,7 +418,8 @@ Actor CadaverExp : BaseExplosionDamage {
 ACTOR CadaverRocket : HomRocket1 {
 	Speed 20
 	Damage (8 * random(1, 8))
-	DamageType "RevExp"
+	DamageType "Explosive"
+	Stamina 4
 	-THRUSPECIES
 	+SEEKERMISSILE
 	+THRUGHOST
@@ -622,7 +626,8 @@ actor Widowmaker : DnD_BaseHybridMonster  {
 }
 
 Actor WidowExplosion : BaseExplosionDamage {
-	DamageType "RevExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(40, 128)
@@ -808,7 +813,8 @@ actor cslugtrail {
 }
 
 Actor SlugExp : BaseExplosionDamage {
-	DamageType "RevExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o was forced to become a widow thanks to a Widowmaker."
 	States {
 		Spawn:
@@ -827,7 +833,8 @@ actor widowmaker_slugshot : FastProjectile {
 	Speed 64
 	RenderStyle ADD
 	Scale 0.275
-	DamageType "Rev"
+	DamageType "Physical"
+	Stamina 1
 	Decal "Scorch"
 	MissileHeight 8
 	PROJECTILE
@@ -1051,7 +1058,8 @@ ACTOR widowseekertrail {
 }
 
 Actor SlugExp2 : BaseExplosionDamage {
-	DamageType "RevExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o was forced to become a widow thanks to a Widowmaker."
 	States {
 		Spawn:
@@ -1068,7 +1076,8 @@ actor widowmaker_seekMissile {
 	mass 200
 	Speed 24
 	Damage (random(12,18))
-	DamageType "Rev"
+	DamageType "Explosive"
+	Stamina 4
 	PROJECTILE
 	+THRUGHOST
 	+SEEKERMISSILE
@@ -1195,7 +1204,8 @@ Actor KnightAxeTrailC : KnightAxeTrailA {
 Actor KnightAxe2 : KnightAxe {
 	Speed 22
 	Damage (8*random(1, 3))
-	DamageType "RevMagic"
+	DamageType "Magical"
+	Stamina 8
 	+DONTBLAST
 	States {
 		Spawn:
@@ -1223,7 +1233,8 @@ Actor KnightRedAxeTrail : KnightAxeTrailA {
 Actor RedAxe2 : RedAxe {
 	Speed 28
 	Damage (8*random(2, 6))
-	DamageType "Rev"
+	DamageType "Physical"
+	Stamina 1
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1376,7 +1387,8 @@ Actor YetiCheck : DnD_Activator {
 Actor YetiIce {
 	PROJECTILE
 	Damage (3 * random(1, 8))
-	DamageType "RevIce"
+	DamageType "Ice"
+	Stamina 64
 	Speed 24
 	Alpha 0.8
 	Scale 1.25
@@ -1418,7 +1430,8 @@ Actor YetiIceWave {
 	Height 8
 	Speed 20
 	Damage (random(2, 6))
-	DamageType "RevIce"
+	DamageType "Ice"
+	Stamina 64
 	PROJECTILE
 	+RIPPER
 	+BLOODLESSIMPACT
@@ -1449,7 +1462,8 @@ ACTOR YetiIceShard {
 	Height 6
 	Speed 10
 	Damage (random(1, 8))
-	DamageType "RevIce"
+	DamageType "Ice"
+	Stamina 64
 	Scale 1.25
 	Projectile
 	Gravity 0.3
@@ -1654,7 +1668,8 @@ Actor SludgeMissile {
 	Scale 0.65
 	Damage (8)
 	ProjectileKickBack 8
-	DamageType "RevSludge"
+	DamageType "Poison"
+	Stamina 128
 	+THRUGHOST
 	-NOGRAVITY
 	+DONTBLAST
@@ -1909,7 +1924,8 @@ Actor DarkServantMissile1 {
 	SeeSound "Weapons/SmallLightning"
 	DeathSound "Weapons/SmallLightningH"
 	Damage (5 * random(2, 4))
-	DamageType "RevLightning"
+	DamageType "Lightning"
+	Stamina 256
 	PROJECTILE
 	+THRUGHOST
 	Renderstyle Translucent
@@ -1932,7 +1948,8 @@ Actor DarkServantMissile2 {
 	Height 10
 	Radius 6
 	Damage (8 * random(1, 4))
-	DamageType "RevLightning"
+	DamageType "Lightning"
+	Stamina 256
 	SeeSound "Weapons/BigLightning"
 	DeathSound "Weapons/BigLightningH"
 	PROJECTILE
@@ -2051,7 +2068,8 @@ Actor CrawlerPoisonBall {
 	Radius 10
 	Height 16
 	Damage (8)
-	DamageType "RevPoison_Crawler"
+	DamageType "Poison"
+	Stamina 128
 	Projectile
 	+SEEKERMISSILE
 	+THRUGHOST
@@ -2080,7 +2098,8 @@ actor CrawlerPoisonCloud : TorturedSoulPoison {
     Height 10
     Speed 8 
     Damage (1)
-	DamageType "RevPoison_Crawler"
+	DamageType "Poison"
+	Stamina 128
 }
 
 ACTOR CrawlerChunk1 : DemonChunk {
@@ -2399,7 +2418,8 @@ Actor DraugrSeeker {
 	Renderstyle Add
 	Scale 0.45
 	PROJECTILE
-	DamageType "RevMagic"
+	DamageType "Magical"
+	Stamina 8
 	+SEEKERMISSILE
 	+DOOMBOUNCE
 	+NODAMAGETHRUST

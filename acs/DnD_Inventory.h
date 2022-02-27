@@ -5,11 +5,6 @@
 #include "DnD_UniqueItems.h"
 #include "DnD_Hud.h"
 
-#define MAXINVENTORYBLOCKS_HORIZ 5
-#define MAXINVENTORYBLOCKS_VERT 9
-
-#define MAX_INVENTORY_BOXES (MAXINVENTORYBLOCKS_HORIZ * MAXINVENTORYBLOCKS_VERT)
-
 #define MAX_ITEM_LEVEL 100
 #define MAX_ITEM_AFFIXTIERS 4
 #define ITEM_TIER_SEPERATOR (100 / MAX_ITEM_AFFIXTIERS)
@@ -1748,23 +1743,11 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
 		break;*/
-		case INV_DMGREDUCE_ELEM:
-			TakeInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_ELEMRESIST_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(GetPlayerAttributeValue(pnum, atype))
-				GiveInventory(StrParam(s:"ElementalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_ELEMRESIST_VAL)), 1);
-		break;
 		case INV_DMGREDUCE_PHYS:
 			TakeInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			if(GetPlayerAttributeValue(pnum, atype))
 				GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
-		break;
-		case INV_DMGREDUCE_REFL:
-			TakeInventory(StrParam(s:"Reflect_Resist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_REFLRESIST_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(GetPlayerAttributeValue(pnum, atype))
-				GiveInventory(StrParam(s:"Reflect_Resist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_REFLRESIST_VAL)), 1);
 		break;
 		case INV_EX_DMGINCREASE_TAKEN:
 			TakeInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);

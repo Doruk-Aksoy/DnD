@@ -170,7 +170,8 @@ actor TchernobogMissile {
 	+DONTSPLASH
 	+DONTBLAST
 	+DONTREFLECT
-	DamageType "CyberExp"
+	DamageType "MagicalBlue"
+	Stamina 8
 	deathsound "Cerberus/Explode"
     alpha 0.75
 	states {
@@ -274,7 +275,8 @@ Actor TFlyFX {
 }
 
 Actor TchernobogExplosion : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "MagicalBlue"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 8 NoDelay A_Explode(192, 160, 0)
@@ -294,6 +296,7 @@ Actor DreamerStomp {
 	Height 1
 	Damage 0
 	DamageType "Physical"
+	Stamina 1
 	Obituary "%o got too close to The Dreaming God."
     States {
 		Spawn:
@@ -332,7 +335,8 @@ Actor TFireTrail2 : TFireTrail {
 Actor DreamerDamager {
 	Height 1
 	Radius 1
-	DamageType "DreamerBurner"
+	DamageType "FireDreamer"
+	Stamina 32
 	+NOGRAVITY
 	States {
 		Spawn:
@@ -384,7 +388,8 @@ Actor TchernoExplosion  {
 	+FLOORHUGGER
 	+BLOODLESSIMPACT
 	+FORCERADIUSDMG
-	DamageType "CyberExp"
+	DamageType "MagicalBlue"
+	Stamina 8
 	Obituary "%o was disemboweled by The Dreaming God."
 	States {
 		Spawn:
@@ -529,7 +534,8 @@ actor SplitParticleAfterLight {
 }
 
 Actor SplitParticleExplosion : BaseExplosionDamage {
-	DamageType "CyberMagic"
+	DamageType "MagicalBlue"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(36, 96, 0)
@@ -588,7 +594,8 @@ Actor SplitParticle1 {
 	Speed 40
 	seesound "Dreamer/Blast"
 	deathsound "Dreamer/BlastExp"
-	DamageType "CyberMagic"
+	DamageType "MagicalBlue"
+	Stamina 8
 	Obituary "%o couldn't stand against the power of The Dreaming God."
 	RenderStyle Add
 	Alpha 0.8
@@ -883,7 +890,8 @@ Actor TchernoSoul {
 	Alpha 0.1
 	Speed 5
 	Damage (5) 
-	DamageType "CyberMagic"
+	DamageType "MagicalBlue"
+	Stamina 8
 	BounceType Hexen
 	BounceCount 6
 	BounceFactor 0.9
@@ -926,7 +934,8 @@ Actor TchernoPortalCooldown : PowerDamage {
 }
 
 Actor TchernoLightningExplosion : BaseExplosionDamage {
-	DamageType "CyberLightning"
+	DamageType "Lightning"
+	Stamina 256
 	+FORCERADIUSDMG
 	States {
 		Spawn:
@@ -1002,7 +1011,7 @@ Actor Torrasque : DnD_BaseHybridBoss {
 	meleerange 90
 	Tag "Torrasque"
 	Scale 1.35
-	Species "HK"
+	Species "Cyber"
 	var int user_wait;
 	var int user_charge;
 	const int wait_count = 8;
@@ -1185,6 +1194,7 @@ actor TorrasqueBash : PaladinBash {
 	height 5
 	speed 28
 	DamageType "Physical"
+	Stamina 1
 	damage (12 * random(2, 4))
 	deathsound "weapons/vblhit"
 	PROJECTILE
@@ -1319,6 +1329,7 @@ Actor TorrasqueMace {
 	PROJECTILE
 	Damage (50)
 	DamageType "Physical"
+	Stamina 1
 	Speed 28
 	Height 10
 	Radius 5
@@ -1358,7 +1369,8 @@ Actor TorrasqueGrabber {
 	Damage (9 * random(3, 5))
 	MaxStepHeight 4
 	SeeSound "Torrasque/HookGo"
-	DamageType "LegendaryPhysicalSnare"
+	DamageType "PhysicalSnare"
+	Stamina 1
 	States {
 		Spawn:
 			OCLW A 1 
@@ -1557,7 +1569,8 @@ Actor MordecqaiStomp {
 	Radius 1
 	Height 1
 	Damage 0
-	DamageType "LegendaryPhysical"
+	DamageType "Physical"
+	Stamina 1
 	Obituary "%o got too close to Mordecqai."
     States {
 		Spawn:
@@ -1568,7 +1581,8 @@ Actor MordecqaiStomp {
 }
 
 Actor MordecqaiFlameExplosion : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "Fire"
+	Stamina 32
 	+NODAMAGETHRUST
 	States {
 		Spawn:
@@ -1590,7 +1604,8 @@ Actor MordecqaiFlame {
 	radius 4
 	height 6
 	speed 38
-	damagetype "CyberFire"
+	damagetype "Fire"
+	Stamina 32
 	decal "FlameScorch"
 	states {
 		Spawn:
@@ -1611,7 +1626,8 @@ Actor MordecqaiFlame {
 Actor MordecqaiSeeker {
 	PROJECTILE
 	Damage (15)
-	DamageType "CyberMagic"
+	DamageType "MagicalGray"
+	Stamina 8
 	Speed 20
 	Height 12
 	Radius 6
@@ -1660,7 +1676,8 @@ Actor MordecqaiSeekerTrail {
 }
 
 Actor MordecqaiLightningExp : BaseExplosionDamage {
-	DamageType "CyberLightning"
+	DamageType "Lightning"
+	Stamina 256
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(32, 96, 0, 0, 64)
@@ -1671,7 +1688,8 @@ Actor MordecqaiLightningExp : BaseExplosionDamage {
 Actor MordecqaiLightning {
 	Projectile
 	Damage (0)
-	DamageType "CyberLightning"
+	DamageType "Lightning"
+	Stamina 256
 	Speed 32
 	Height 16
 	Radius 8
@@ -1748,7 +1766,8 @@ Actor MordecqaiSmallBall {
 	Height 8
 	Speed 12
 	Damage (15)
-	DamageType "CyberLightning"
+	DamageType "Lightning"
+	Stamina 256
 	PROJECTILE
 	-NOGRAVITY
 	+DONTBLAST
@@ -2074,6 +2093,7 @@ Actor GodSlayerStomp {
 	Height 1
 	Damage 0
 	DamageType "Physical"
+	Stamina 1
 	Obituary "%o got too close to God Slayer."
     States {
 		Spawn:
@@ -2103,7 +2123,8 @@ Actor GodSlayerLandStomper : DnD_Activator {
 }
 
 Actor InquisitorExplosion : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(64, 128, 0)
@@ -2112,7 +2133,8 @@ Actor InquisitorExplosion : BaseExplosionDamage {
 }
 
 Actor InquisitorExplosion2 : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(128, 192, 0, 1, 64)
@@ -2121,7 +2143,8 @@ Actor InquisitorExplosion2 : BaseExplosionDamage {
 }
 
 Actor InquisitorExplosion3 : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(192, 256, 0, 1, 128)
@@ -2130,7 +2153,8 @@ Actor InquisitorExplosion3 : BaseExplosionDamage {
 }
 
 Actor GodSlayerBulletExp : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2141,7 +2165,8 @@ Actor GodSlayerBulletExp : BaseExplosionDamage {
 
 Actor GodSlayerBullet : ZombieBullet {
 	Damage (random(3, 4) * 5)
-	DamageType "CyberBullet"
+	DamageType "PhysicalBullet"
+	Stamina 1
 	States {
 		Death:
 		XDeath:
@@ -2170,6 +2195,7 @@ Actor InquisitorCharge {
 	Speed 20
 	Damage (5 * random(10, 20))
 	DamageType "Physical"
+	Stamina 1
 	MaxStepHeight 28
 	+BLOODLESSIMPACT
 	+DONTBLAST
@@ -2200,7 +2226,8 @@ Actor InquisitorChargeSilent : InquisitorCharge {
 
 Actor InquisitorShot2 : InquisitorShot {
 	Damage (75)
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	Speed 28
 	SeeSound "GodSlayer/Grenade"
 	DeathSound "GodSlayer/GrenadeExp"
@@ -2320,7 +2347,8 @@ Actor InquisitorPulse : MaulerTorpedo {
 	+NODAMAGETHRUST
 	+DONTBLAST
 	var int user_counter;
-	DamageType "CyberEnergy"
+	DamageType "EnergyGreen"
+	Stamina 16
 	DeathSound "GodSlayer/Torpedo"
 	States {
 		Spawn:
@@ -2360,7 +2388,8 @@ Actor MaulerTorpedoWaveInq : MaulerTorpedoWave {
 	+DONTSPLASH
 	+DONTBLAST
 	Damage (15 * random(2, 3))
-	DamageType "CyberEnergy"
+	DamageType "EnergyGreen"
+	Stamina 16
 	DeathSound "GodSlayer/PulseHit"
 }
 
@@ -2683,7 +2712,8 @@ Actor GolgothPuff {
 	+PUFFONACTORS
 	+NOGRAVITY
 	+NOBLOCKMAP
-	DamageType "LegendarySlow50"
+	DamageType "MagicalSlow50"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 4
@@ -2701,7 +2731,8 @@ Actor GolgothPuff_LaserFX : GolgothPuff {
 }
 
 Actor GolgothPuff2 : GolgothPuff {
-	DamageType "LegendaryWeaken75"
+	DamageType "MagicalWeaken75"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 4
@@ -2741,7 +2772,8 @@ Actor GolgothDashTrail_Right : GolgothDashTrail_Left {
 }
 
 Actor GolgothMeteorExp : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(80, 144)
@@ -2759,7 +2791,8 @@ Actor GolgothMeteor {
 	Height 16
 	Radius 8
 	Damage(80)
-	DamageType "CyberExp"
+	DamageType "Fire"
+	Stamina 32
 	seesound "lavdatk"
 	DeathSound "Golgoth/MeteorExplode"
 	+DONTBLAST
@@ -2782,7 +2815,8 @@ Actor GolgothOrangeSoul {
 	Renderstyle Add
 	Alpha 1.0
 	Damage(100)
-	DamageType "CyberOrangeMagic"
+	DamageType "MagicalOrange"
+	Stamina 8
 	SeeSound "H2SkullWizard/Fire"
     DeathSound "H2SkullWizard/Hit"
 	const int fspeed = 20;
@@ -2845,7 +2879,8 @@ Actor GolgothOrangeSoulTrail {
 }
 
 Actor GolgothFireExp1 : BaseExplosionDamage {
-	Damagetype "CyberFire"
+	Damagetype "Fire"
+	Stamina 32
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(8, 16)
@@ -2854,7 +2889,8 @@ Actor GolgothFireExp1 : BaseExplosionDamage {
 }
 
 Actor GolgothFireExp2 : BaseExplosionDamage {
-	Damagetype "CyberFire"
+	Damagetype "Fire"
+	Stamina 32
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(10, 28)
@@ -2863,7 +2899,8 @@ Actor GolgothFireExp2 : BaseExplosionDamage {
 }
 
 Actor GolgothFireExp3 : BaseExplosionDamage {
-	Damagetype "CyberFire"
+	Damagetype "Fire"
+	Stamina 32
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(12, 40)
@@ -2872,7 +2909,8 @@ Actor GolgothFireExp3 : BaseExplosionDamage {
 }
 
 Actor GolgothFireExp4 : BaseExplosionDamage {
-	Damagetype "CyberFire"
+	Damagetype "Fire"
+	Stamina 32
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(16, 52)
@@ -2888,7 +2926,8 @@ Actor GolgothFlames {
 	Renderstyle Add
 	Alpha 1.0
 	Damage(4)
-	DamageType "CyberFire"
+	DamageType "Fire"
+	Stamina 32
 	SeeSound "Flamethrower/Fire"
 	DeathSound "Flamethrower/Hit"
 	+RIPPER
@@ -2917,7 +2956,8 @@ ACTOR GolgothFireBall {
 	Radius 8
 	Height 16
 	Damage (16)
-	DamageType "CyberFire"
+	DamageType "Fire"
+	Stamina 32
 	SeeSound "weapons/basiliskfire2"
 	DeathSound "weapons/basiliskexpl2"
 	Species "Player"

@@ -147,7 +147,8 @@ Actor Bloodshot {
 	Height 3
 	Speed 20
 	Damage (2 * random(1, 6))
-	DamageType "Demon"
+	DamageType "Physical"
+	Stamina 1
 	Projectile
 	RenderStyle Translucent
 	Alpha 0.80
@@ -379,7 +380,8 @@ ACTOR Puke1 {
 	Height 8
 	Speed 16
 	Damage (3 * random(1, 8))
-	DamageType "Demon"
+	DamageType "Physical"
+	Stamina 1
 	bouncefactor 0.8 
 	bouncecount 8 
 	+DOOMBOUNCE
@@ -682,7 +684,8 @@ actor StoneDemonBoulder {
 	Speed 20
 	VSpeed 3
 	Damage (random(6,12))
-	DamageType "Demon"
+	DamageType "Physical"
+	Stamina 1
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -763,7 +766,8 @@ Actor SoulEater : DnD_BaseHybridMonster {
 
 Actor SoulEaterProj : MummyFX1 {
 	Damage (random(8, 24))
-	DamageType "DemonMagic"
+	DamageType "MagicalYellow"
+	Stamina 8
 	Speed 12
 	
 	States {
@@ -844,6 +848,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 
 Actor BruteExplosion1 : BaseExplosionDamage {
 	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -856,6 +861,7 @@ Actor BruteExplosion1 : BaseExplosionDamage {
 
 Actor BruteExplosion2 : BaseExplosionDamage {
 	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -943,7 +949,8 @@ Actor ScavengerBall {
 	Projectile
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
-	Damagetype "DemonFire"
+	Damagetype "FireBlue"
+	Stamina 4
 	Decal BaronScorch
 	Translation "111:123=197:207", "124:127=242:245"
 	+DONTBLAST
@@ -1072,7 +1079,8 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 }
 
 Actor DemonLand : BaseExplosionDamage {
-	DamageType "Demon"
+	DamageType "Physical"
+	Stamina 1
 	Obituary "%o was traumatized by a Nhumcign."
 	States {
 		Spawn:
@@ -1189,7 +1197,8 @@ Actor DemonFlightAtk {
 	Radius 6
 	Height 12
 	Damage (3 * random(2, 5))
-	DamageType "Demon"
+	DamageType "Physical"
+	Stamina 1
 	+DONTBLAST
 	+THRUSPECIES
 	Species "Demon"
@@ -1353,7 +1362,8 @@ Actor EarthGolem : DnD_BaseHybridMonster {
 Actor EarthGolemShot : VulgarShot {
 	Speed 18
 	Damage (5 * random(2, 4))
-	DamageType "DemonPoison_EarthGolem"
+	DamageType "Poison"
+	Stamina 128
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1370,7 +1380,8 @@ Actor EarthGolemShot : VulgarShot {
 
 Actor EarthGolemPieces {
 	Damage (1)
-	DamageType "DemonPoison_EarthGolem"
+	DamageType "Poison"
+	Stamina 128
 	PROJECTILE
 	Speed 16
 	Height 8
@@ -1528,7 +1539,8 @@ ACTOR PurebredDemonArm {
 
 Actor PurebredChargeExp : BaseExplosionDamage {
 	Obituary "%o was charged by a Purebred Demon."
-	DamageType "Demon"
+	DamageType "Physical"
+	Stamina 1
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

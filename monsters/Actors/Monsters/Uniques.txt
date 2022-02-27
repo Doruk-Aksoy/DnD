@@ -166,6 +166,7 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 
 actor GantBash : PaladinBash {
 	DamageType "Melee"
+	Stamina 1
 	damage (8 * random(2, 3))
 	deathsound "weapons/vblhit"
 	States {
@@ -185,7 +186,8 @@ actor GantBash : PaladinBash {
 Actor Gant_AcidShot {
 	PROJECTILE
 	Damage (random(7, 9))
-	DamageType "GantPoison"
+	DamageType "Poison"
+	Stamina 128
 	Deathsound "Gant/Hit"
 	Speed 30
 	Height 16
@@ -213,7 +215,8 @@ Actor Gant_AcidCloud : TorturedSoulPoison {
     Height 6 
     Speed 4 
     Damage (random(1, 2)) 
-	DamageType "GantPoison"
+	DamageType "Poison"
+	Stamina 128
 	BounceCount 6
 	BounceType Hexen
 }
@@ -348,6 +351,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 
 actor BronnBash : GantBash {
 	DamageType "Melee"
+	Stamina 1
 	damage (6 * random(4, 7))
 	States {
 		death:
@@ -546,7 +550,8 @@ actor PinkBall {
 	height 8
 	speed 30
 	damage (10)
-	DamageType "ImpVoid"
+	DamageType "MagicalVoid"
+	Stamina 8
 	renderstyle Add
 	deathsound "imp/shotx"
 	PROJECTILE
@@ -761,7 +766,8 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 Actor RemusZapProjectile {
 	Projectile
 	Damage (18)
-	DamageType "DemonLightning"
+	DamageType "Lightning"
+	Stamina 256
 	Speed 28
 	Height 8
 	Radius 4
@@ -785,7 +791,8 @@ Actor RemusZapper {
 	Speed 0
 	Height 2
 	Radius 1
-	DamageType "DemonLightning"
+	DamageType "Lightning"
+	Stamina 256
 	+NODAMAGETHRUST
 	+DONTBLAST
     States {
@@ -989,7 +996,8 @@ Actor SSrath_EyeBeam {
 	Radius 16
 	Speed 16
 	Damage (0)
-	DamageType "SSrath_Stunner"
+	DamageType "Magical_SSrath"
+	Stamina 8
 	Translation "0:255=%[0.00,0.00,0.00]:[1.73,1.76,0.41]"
 	Renderstyle Add
 	Scale 0.75
@@ -1056,7 +1064,8 @@ Actor SSrath_EyeBeamTrail {
 Actor SSrath_Screamer {
 	Projectile
 	Damage (50)
-	DamageType "ArcaneSoul"
+	DamageType "MagicalGray"
+	Stamina 8
 	SeeSound "SSrath/ScreamerGo"
 	DeathSound "Draugr/SeekerExplode"
 	Speed 20
@@ -1093,7 +1102,8 @@ Actor SSrath_ScreamerExp {
 }
 
 Actor SSrath_SoulExplosion : BaseExplosionDamage {
-	DamageType "ArcaneSoul"
+	DamageType "MagicalGray"
+	Stamina 8
 	Obituary "%o fell victim to Ssrath the Unseen."
 	Renderstyle Add
 	Scale 0.5
@@ -1206,7 +1216,8 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 }
 
 Actor HollowShellGasExp : BaseExplosionDamage {
-	DamageType "CacoPoison"
+	DamageType "Poison"
+	Stamina 128
 	Obituary "%o fell victim to Hollowshell the Lost."
 	+NODAMAGETHRUST
 	States {
@@ -1220,7 +1231,8 @@ Actor HollowShellGasExp : BaseExplosionDamage {
 Actor HollowShellGas {
 	Projectile
 	Damage 0
-	DamageType "CacoPoison"
+	DamageType "Poison"
+	Stamina 128
 	Height 20
 	Radius 10
 	Renderstyle Add
@@ -1282,7 +1294,8 @@ Actor HollowShellExp : HollowShellGasExp {
 
 Actor HollowShellComet : ArchonComet {
 	Damage (6 * random(4, 5))
-	DamageType "CacoPoison"
+	DamageType "Poison"
+	Stamina 128
 	States {
 		Death:
 			TNT1 AA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -1809,7 +1822,8 @@ ACTOR OmniBall {
 	Height 20
 	Speed 24
 	Damage (8 * random(5, 8))
-	DamageType "CacoLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	PROJECTILE
 	RENDERSTYLE ADD
 	ALPHA 0.875
@@ -1835,7 +1849,8 @@ Actor OmniBigBall {
 	Projectile
 	Speed 28
 	Damage (random(55, 75))
-	DamageType "CacoLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	Height 48
 	Radius 24
 	RENDERSTYLE ADD
@@ -1871,7 +1886,8 @@ Actor OmniBigBall {
 }
 
 Actor OmniLightning : DarkZealotLightning {
-	DamageType "CacoLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	Damage (5 * random(4, 5))
 	-PIERCEARMOR
 }
@@ -1882,7 +1898,8 @@ Actor OmniChaosBall {
 	PROJECTILE
 	Speed 18
 	Damage (100)
-	DamageType "CacoLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	Scale 1.15
 	Renderstyle Add
 	var int user_count;
@@ -1986,7 +2003,8 @@ Actor OmniLightningBlastFX {
 }
 
 Actor OmniLightningBlast : BaseExplosionDamage {
-	DamageType "CacoLightning"
+	DamageType "LightningRed"
+	Stamina 256
 	Obituary "%o fell victim to Omnisight the Beholder."
 	+FLOORHUGGER
 	States {
@@ -2130,7 +2148,8 @@ Actor ChegovaxMeteor {
 	Radius 12
 	Speed 28
 	Damage (80)
-	DamageType "PaineMagic"
+	DamageType "Magical"
+	Stamina 8
 	SeeSound "MeteorLauncher/fire"
 	Deathsound "MeteorLauncher/Hit"
 	const float projvel = 13.5;
@@ -2230,7 +2249,8 @@ Actor ChegovaxFire {
 	Radius 8
 	Speed 35
 	Damage (18)
-	DamageType "PaineFire"
+	DamageType "MagicalFire"
+	Stamina 40 // magic + fire
 	SeeSound "weapons/magic1"
 	DeathSound "weapons/firex4"
 	RENDERSTYLE ADD
@@ -2293,7 +2313,8 @@ Actor Guardian_NoExp : Guardian {
 }
 
 Actor ChegovaxExp1 : BaseExplosionDamage {
-	DamageType "PaineExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o fell victim to Chegovax the Overseer."
 	States {
 		Spawn:
@@ -2804,7 +2825,8 @@ Actor HarkimondeFlightAtk : DemonFlightAtk {
 	Radius 8
 	Height 16
 	Damage (6 * random(4, 5))
-	DamageType "HK"
+	DamageType "Melee"
+	Stamina 1
 	Species "HK"
 	States {
 		Spawn:
@@ -2818,6 +2840,7 @@ Actor HarkimondeFlightAtk : DemonFlightAtk {
 
 actor HarkimondeBash : PaladinBash {
 	DamageType "Melee"
+	Stamina 1
 	damage (4 * random(2, 3))
 	deathsound "weapons/vblhit"
 	States {
@@ -2914,7 +2937,8 @@ Actor HarkimondeFlameTracer {
 	Speed 16
 	ReactionTime 96
 	Damage (4 * random(5, 8))
-	DamageType "BaronsFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	RenderStyle Add
 	Alpha 0.67
 	Projectile
@@ -2958,7 +2982,8 @@ Actor Harkimonde_BoomTrail {
 	Radius 5
 	Height 16
 	Damage ((16 - user_count))
-	DamageType "BaronsFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	RenderStyle Add
 	Alpha 0.67
 	+DONTBLAST
@@ -2978,7 +3003,8 @@ Actor Harkimonde_BoomTrail {
 }
 
 Actor HarkimondeExp1 : BaseExplosionDamage {
-	DamageType "BaronsFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o fell victim to Harkimonde the Tormentor."
 	States {
 		Spawn:
@@ -2989,7 +3015,8 @@ Actor HarkimondeExp1 : BaseExplosionDamage {
 }
 
 Actor HarkimondeExp2 : BaseExplosionDamage {
-	DamageType "BaronsFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o fell victim to Harkimonde the Tormentor."
 	States {
 		Spawn:
@@ -3000,7 +3027,8 @@ Actor HarkimondeExp2 : BaseExplosionDamage {
 }
 
 Actor HarkimondeExp3 : BaseExplosionDamage {
-	DamageType "Barons"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o fell victim to Harkimonde the Tormentor."
 	States {
 		Spawn:
@@ -3100,7 +3128,7 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 			UE11 S 4 A_NoBlocking
 			UE11 T 5
 			UE11 UVWXY 5
-			UE11 Z -1
+			UE11 Z -1 A_KillMaster
 		Stop
 	}
 }
@@ -3112,7 +3140,8 @@ Actor LeshracInterrupt : PowerDamage {
 
 actor LeshracPoisonMelee : TorturedSoulPoison { 
     Damage (random(1, 3)) 
-	DamageType "BaronsPoison"
+	DamageType "Poison"
+	Stamina 128
 	Speed 7
 }
 
@@ -3121,7 +3150,8 @@ ACTOR Leshrac_Ball : ShadowBeast_Ball1 {
 	Radius 10
 	Height 18
 	Damage (5 * random(5, 8))
-	DamageType "BaronsPoison"
+	DamageType "Poison"
+	Stamina 128
 }
 
 Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
@@ -3152,8 +3182,9 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 	+NOTARGET
 	+QUICKTORETALIATE
 	DeathSound "Leshrac/BigMineExp"
-	DamageType "BaronsPoisonPod"
-	DamageFactor "BaronsPoisonPod", 3.0
+	DamageType "PoisonPod"
+	Stamina 128
+	DamageFactor "PoisonPod", 3.0
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_LESHRACPOD)
@@ -3215,7 +3246,8 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 }
 
 Actor Leshrac_MineExplosion : BaseExplosionDamage {
-	DamageType "BaronsPoisonPod"
+	DamageType "PoisonPod"
+	Stamina 128
 	Obituary "%o fell victim to Leshrac the Vile."
 	States {
 		Spawn:
@@ -3242,7 +3274,8 @@ Actor LeshracMine_Goo : PodGoo {
 ACTOR Leshrac_LobbedMine {
 	PROJECTILE
 	Damage (0)
-	DamageType "BaronsPoison"
+	DamageType "Poison"
+	Stamina 128
 	Radius 4
 	Height 8
 	Speed 28
@@ -3267,7 +3300,8 @@ ACTOR Leshrac_LobbedMine {
 
 Actor Leshrac_LobbedMineGround {
 	PROJECTILE
-	DamageType "BaronsPoison"
+	DamageType "Poison"
+	Stamina 128
 	Alpha 0.8
 	Speed 0
 	Radius 1
@@ -3390,7 +3424,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 			UE12 L 8 Bright A_Scream
 			UE12 M 8 Bright A_NoBlocking
 			UE12 NOPQRS 8 Bright
-			UE12 T -1
+			UE12 T -1 A_KillMaster
 		Stop
 	}
 }
@@ -3398,7 +3432,8 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 Actor KrullRocket {
 	PROJECTILE
 	Damage (5 * random(7, 8))
-	DamageType "FattyExp"
+	DamageType "Explosive"
+	Stamina 4
 	Speed 30
 	Radius 8
 	Height 16
@@ -3438,7 +3473,8 @@ Actor KrullRocket {
 }
 
 Actor KrullRocketExp : BaseExplosionDamage {
-	DamageType "FattyExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o fell victim to Krull the Vicious."
 	States {
 		Spawn:
@@ -3451,7 +3487,8 @@ Actor KrullRocketExp : BaseExplosionDamage {
 Actor KrullMiniRocket : KrullRocket {
 	Damage (5 * random(2, 3))
 	ReactionTime 20
-	DamageType "FattyExp"
+	DamageType "Explosive"
+	Stamina 4
 	DeathSound "weapons/maceex"
 	+THRUGHOST
 	States {
@@ -3473,7 +3510,8 @@ Actor KrullMiniRocket : KrullRocket {
 }
 
 Actor KrullMiniRocketExp : BaseExplosionDamage {
-	DamageType "FattyExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o fell victim to Krull the Vicious."
 	States {
 		Spawn:
@@ -3604,7 +3642,7 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes {
 			UE14 J 6 A_NoBlocking
 			UE14 K 5 A_Scream
 			UE14 LMNO 5
-			UE14 P -1
+			UE14 P -1 A_KillMaster
 		Stop
 	}
 }
@@ -3624,7 +3662,8 @@ Actor ThoraxDashBlur {
 Actor ThoraxMissile {
 	Projectile
 	Damage (60)
-	DamageType "ArachnoExp"
+	DamageType "Explosive"
+	Stamina 4
 	Speed 28
 	Height 16
 	Radius 8
@@ -3665,7 +3704,8 @@ Actor ThoraxMissile_Homing : ThoraxMissile {
 }
 
 Actor ThoraxMissileExp : BaseExplosionDamage {
-	DamageType "ArachnoExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o fell victim to Thorax the Constrictor."
 	Alpha 0.875
 	Renderstyle Add
@@ -3681,7 +3721,8 @@ Actor ThoraxMissileExp : BaseExplosionDamage {
 Actor ThoraxFireBall {
 	Projectile
 	Damage (25)
-	DamageType "ArachnoFire"
+	DamageType "Fire"
+	Stamina 32
 	BounceSound "WeaponGL/40MMHHit"
 	Deathsound "Weapons/grenadexpl2"
 	Speed 32
@@ -3737,7 +3778,8 @@ Actor ThoraxFireBall {
 
 Actor ThoraxBigFireExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Thorax the Constrictor."
-	DamageType "ArachnoFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3754,7 +3796,8 @@ Actor ThoraxFireTrail {
 	BounceType "Doom"
 	BounceCount 6
 	Damage (10)
-	DamageType "ArachnoFire"
+	DamageType "Fire"
+	Stamina 4
 	+PIERCEARMOR
 	States {
 		Spawn:
@@ -3780,7 +3823,8 @@ Actor ThoraxFireTrail {
 
 Actor ThoraxFireExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Thorax the Constrictor."
-	DamageType "ArachnoFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -4011,7 +4055,8 @@ Actor ZravogSlamSmoke {
 
 Actor ZravogSlamDamager : BaseExplosionDamage {
 	Obituary "%o fell victim to Zravog the Archbishop."
-	DamageType "VileArcane"
+	DamageType "MagicalVoid"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -4064,7 +4109,8 @@ Actor ZravogHomingBall : MageStaffFX2 {
 	Speed 20
 	SeeSound "MageStaffFire"
 	DeathSound "MageStaffExplode"
-	DamageType "VileArcane"
+	DamageType "MagicalVoid"
+	Stamina 8
 	Damage (24)
 	States {
 		Spawn:
@@ -4092,7 +4138,8 @@ Actor ZravogHomingBall : MageStaffFX2 {
 Actor ZravogMissile : WizardFX1 {
 	speed 27
 	damage (18)
-	DamageType "VileArcane"
+	DamageType "MagicalVoid"
+	Stamina 8
 	seesound "weapons/boltfi"
 	deathsound "weapons/firex3"
 	Renderstyle Add
@@ -4314,7 +4361,7 @@ Actor Eryxia : DnD_BaseRangedBoss {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			UE13 QQQ 2 Bright A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			UE13 R 5 Bright
-			UE13 S -1
+			UE13 S -1 A_KillMaster
 		Stop
 	}
 }
@@ -4337,11 +4384,13 @@ Actor EryxiaWind {
 	Scale 1.75
 	Alpha 0.9
 	Damage (4)
-	DamageType "EryxiaSlow"
+	DamageType "Ice"
+	Stamina 64
 	Renderstyle Add
 	BounceType "Hexen"
 	+BLOODLESSIMPACT
 	+CANBOUNCEWATER
+	+HITTRACER
 	+NODAMAGETHRUST
 	States {
 		Spawn:
@@ -4349,6 +4398,8 @@ Actor EryxiaWind {
 		SpawnLoop:
 			RF34 JKLMNOPQRSTUVWX 5 A_FadeOut(0.05)
 		Loop
+		XDeath:
+			TNT1 A 0 A_GiveInventory("EryxiaSlower", 1, AAPTR_TRACER)
 		Death:
 			TNT1 A 1
 		Stop
@@ -4358,7 +4409,8 @@ Actor EryxiaWind {
 Actor EryxiaFreezer {
 	Projectile
 	Damage (15)
-	DamageType "BigSpiderIce"
+	DamageType "Ice"
+	Stamina 64
 	SeeSound "Freezer/Particle"
 	DeathSound "Freezer/Hit"
 	Height 20
@@ -4452,7 +4504,8 @@ Actor EryxiaBullet {
 	var int user_count;
 	
 	Damage ((random(8, 9) - user_count))
-	DamageType "EryxiaSlow"
+	DamageType "IceEryxia"
+	Stamina 64
 	Deathsound "Weapons/NG2HitWall"
 	Speed 32
 	Height 12
@@ -4472,7 +4525,7 @@ Actor EryxiaBullet {
 			TNT1 A 0 A_SetUserVar("user_count", 1)
 			UP13 MNOP 3 Bright
 			TNT1 A 0 A_SetUserVar("user_count", 1)
-			TNT1 A 0 A_SetDamageType("BigSpiderIce")
+			TNT1 A 0 A_SetDamageType("Ice")
 		SpawnLoop:
 			UP13 QRST 3 Bright
 		Loop
@@ -4485,7 +4538,8 @@ Actor EryxiaBullet {
 Actor EryxiaLob {
 	Projectile
 	Damage (25)
-	DamageType "EryxiaSlow"
+	DamageType "IceEryxia"
+	Stamina 64
 	SeeSound "HFSpid/See"
 	DeathSound "Freezer/Hit"
 	Radius 12
@@ -4572,7 +4626,8 @@ Actor EryxiaCeilingIcicleSpawner : EryxiaFloorIcicleSpawner {
 Actor EryxiaFloorIcicle {
 	Projectile
 	Damage (10)
-	DamageType "EryxiaSlow"
+	DamageType "IceEryxia"
+	Stamina 64
 	DeathSound "FrostFang/Hit1"
 	Speed 0
 	Radius 4
@@ -4918,7 +4973,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			UP23 M 4 Bright A_PlaySound("Abaxoth/DeathBody")
 			UP23 NO 4 Bright
 			UP23 PQRS 8 
-			UP23 T -1  A_BossDeath
+			UP23 T -1  A_KillMaster
 		Stop
 	}
 }
@@ -4935,7 +4990,8 @@ Actor AbaxothThunderRetaliation : FastProjectile {
 	Height 20
 	Radius 8
 	Damage (5 * random(32, 40))
-	DamageType "CyberLightning"
+	DamageType "Lightning"
+	Stamina 256
 	Scale 0.9
 	+RIPPER
 	+PIERCEARMOR
@@ -5310,7 +5366,8 @@ Actor AbaxothTectonicSpawner {
 
 Actor AbaxothTectonicBoom_Small : BaseExplosionDamage {
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	Renderstyle Add
 	const float v = 2.5;
 	Scale 0.375
@@ -5483,7 +5540,8 @@ Actor AbaxothFissure {
 Actor AbaxothLavaBall {
 	PROJECTILE
 	Damage (25)
-	DamageType "CyberFire"
+	DamageType "Fire"
+	Stamina 32
 	SeeSound "RubyWand/Fire"
 	DeathSound "weapons/phoenixhit"
 	Speed 9
@@ -5511,7 +5569,8 @@ Actor AbaxothLavaBall {
 
 Actor AbaxothLavaBallExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
-	DamageType "CyberExp"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -5578,7 +5637,8 @@ Actor AbaxothThunderFX_Thin : AbaxothThunderFX {
 Actor AbaxothThunderbolt {
 	PROJECTILE
 	damage (250)
-	DamageType "CyberLightning"
+	DamageType "Lightning"
+	Stamina 256
 	SeeSound "Spell/LightningSpearCast"
 	DeathSound "Spell/LightningSpearBounce"
 	Radius 12
@@ -5660,7 +5720,8 @@ Actor AbaxothThunderSparkle {
 }
 
 Actor AbaxothThunderExp : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "ExplosiveLightning"
+	Stamina 260
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	+PIERCEARMOR
 	States {
@@ -5692,7 +5753,8 @@ Actor AbaxothChargeAfterImage {
 
 Actor AbaxothChargeExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
-	DamageType "Cyber"
+	DamageType "Physical"
+	Stamina 1
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -5735,7 +5797,8 @@ Actor AbaxothRailPuff {
 	Renderstyle Add
 	Alpha 0.875
 	Scale 0.0875
-	DamageType "CyberEnergy"
+	DamageType "Energy"
+	Stamina 16
 	+ALWAYSPUFF
 	+PUFFONACTORS
 	States {
@@ -5760,7 +5823,8 @@ Actor AbaxothRailTrail {
 }
 
 Actor AbaxothRocketExp : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	States {
 		Spawn:
@@ -5774,7 +5838,8 @@ Actor AbaxothRocket {
 	PROJECTILE
 	Speed 20
 	Damage (20)
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	SeeSound "weapons/tp_fire"
 	DeathSound "weapons/heavyrlexp"
 	Height 10
@@ -5804,6 +5869,7 @@ Actor AbaxothRocketL : AbaxothRocket {
 ACTOR AbaxothHammer : CacodemonBall { 
 	Damage (20)
 	DamageType "Melee"
+	Stamina 1
 	Speed 0
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	SeeSound ""

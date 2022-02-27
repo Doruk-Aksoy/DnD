@@ -447,8 +447,10 @@ Actor DnD_PopupID : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
-Actor DnD_Character : Inventory {
+Actor DnD_Character : Ammo {
+	inventory.amount 1
 	inventory.maxamount 0xFF
+	+IGNORESKILL
 }
 
 Actor DnD_Crafting_MaterialPage : Inventory {

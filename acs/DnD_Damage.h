@@ -42,6 +42,21 @@ enum {
 	
 	DND_DAMAGETYPE_SOUL
 };
+
+// monster flag encoding
+enum {
+	DND_DAMAGETYPEFLAG_PHYSICAL = 1,
+	DND_DAMAGETYPEFLAG_HITSCAN = 2,
+	DND_DAMAGETYPEFLAG_EXPLOSIVE = 4,
+	DND_DAMAGETYPEFLAG_MAGICAL = 8,
+	DND_DAMAGETYPEFLAG_ENERGY = 16,
+	DND_DAMAGETYPEFLAG_FIRE = 32,
+	DND_DAMAGETYPEFLAG_ICE = 64,
+	DND_DAMAGETYPEFLAG_POISON = 128,
+	DND_DAMAGETYPEFLAG_LIGHTNING = 256,
+	DND_DAMAGETYPEFLAG_PERCENTHP = 512
+};
+
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
 #define DAMAGE_TYPE_SHIFT 5
 #define DAMAGE_TYPE_MASK 0x1F
@@ -219,6 +234,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
 #define DND_BASE_POISON_TIC 0.5
+#define DND_POISON_TICCHECK 3 // increments ticker every 3 tics
 
 #define DND_EXTRAUNDEADDMG_MULTIPLIER 3
 
@@ -986,7 +1002,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, dmg, source);
 	}
 	
-	if(!isActorAlive(victim) && CheckActorInventory(source, "Berserker_Perk50")) {
+	if(!isActorAlive(victim) && CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
 		SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
 		if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
 			GiveActorInventory(source, "Berserker_HitTracker", 1);
@@ -994,7 +1010,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 				ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, source);
 		}
 		if(temp + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-			if(!CheckActorInventory(source, "Berserker_RoarCD") && !CheckActorInventory(source, "Berserker_NoRoar"))
+			if(!CheckActorInventory(source, "Berserker_NoRoar"))
 				HandleBerserkerRoar(source);
 			GiveActorInventory(source, "Berserker_Perk50_Speed", 1);
 		}
@@ -1232,7 +1248,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 						ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
 				}
 				if(px + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-					if(!CheckActorInventory(owner, "Berserker_RoarCD") && !CheckActorInventory(owner, "Berserker_NoRoar"))
+					if(!CheckActorInventory(owner, "Berserker_NoRoar"))
 						HandleBerserkerRoar(owner);
 					GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
 				}
@@ -1588,7 +1604,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 			trigger_tic += tic_temp;
 		}
 		counter += 0.1;
-		Delay(const:2);
+		Delay(const:DND_POISON_TICCHECK);
 	}
 	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
 	SetResultValue(0);
@@ -1816,13 +1832,46 @@ Script "DnD Check Explosion Repeat" (void) {
 	SetResultValue(res);
 }
 
+// contains overflow checks
+int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
+	if(dmg < INT_MAX / factor)
+		return dmg * factor / div;
+	return (dmg / div) * factor;
+}
+
+// dmg data encapsulates the information about what damage types this attack involved
+int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data) {
+	// first check if this is present in our map
+	int dmg_type = -1;
+
+	
+	/*if(LookupTester[class_name % MAX_DAMAGE_TYPE_ACTORS] != class_name)
+		Log(s:"bad hash for ", s:class_name);*/
+	
+		/*if(CheckInventory("Doomguy_Perk5") && IsFireDamage(arg2))
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_FIREPERCENT);
+		else if(CheckInventory("Marine_Perk25") && IsEnemyExplosionDamage(arg2))
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_EXPLOSIVEREDUCTION);
+		else if(CheckInventory("Cyborg_Perk5") && IsEnemyEnergyDamage(arg2))
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_CYBORG_ENERGYREDUCE);
+		else if(IsReflectedDamage(arg2))
+			dmg = ApplyDamageFactor_Safe(dmg, 1000 - GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL), 1000);
+			
+		// other factors (charms etc)
+		GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);*/
+	
+	return dmg;
+}
+
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
+	int temp;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
 		
 		// damage inflictor (projectile etc.)
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		if(CheckFlag(0, "RIPPER"))
 			isRipper = true;
 	
@@ -1834,39 +1883,77 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		int victim = ActivatorTID();
 		
-		// for monster damage scaling and player damage receive changes
-		if(IsPlayer(victim) && IsMonster(shooter)) {
+		if(IsPlayer(victim)) {
 			int dmg = arg1;
-			int m_id = shooter - DND_MONSTERTID_BEGIN;
-			int factor = Clamp_Between(MonsterProperties[m_id].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
-		
-			if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
-				factor += DND_ELITE_EXTRASTRONG_BONUS;
+			
+			// all things monster related
+			if(IsMonster(shooter)) {
+				int m_id = shooter - DND_MONSTERTID_BEGIN;
+				int factor = Clamp_Between(MonsterProperties[m_id].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
+				int pnum = victim - P_TIDSTART;
+			
+				if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
+					factor += DND_ELITE_EXTRASTRONG_BONUS;
 
-			if(MonsterProperties[m_id].level > 50)
-				factor += DND_AFTER50_INCREMENT_DAMAGE;
+				if(MonsterProperties[m_id].level > 50)
+					factor += DND_AFTER50_INCREMENT_DAMAGE;
+					
+				dmg = dmg * (100 + factor) / 100;
 				
-			dmg = dmg * (100 + factor) / 100;
-			
-			// elite damage bonus is multiplicative
-			factor = 100 + GetEliteBonusDamage();
-			if(dmg < INT_MAX / factor && MonsterProperties[m_id].isElite)
-				dmg = dmg * factor / 100;
-				
-			// chaos mark is multiplicative
-			factor = 100 + CHAOSMARK_DAMAGEBUFF;
-			if(dmg < INT_MAX / factor && MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
-				dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
-				
-			if(isRipper)
-				dmg >>= 1;
+				// elite damage bonus is multiplicative
+				factor = 100 + GetEliteBonusDamage();
+				if(dmg < INT_MAX / factor && MonsterProperties[m_id].isElite)
+					dmg = dmg * factor / 100;
+					
+				// chaos mark is multiplicative
+				factor = 100 + CHAOSMARK_DAMAGEBUFF;
+				if(dmg < INT_MAX / factor && MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
+					dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
+					
+				if(isRipper)
+					dmg >>= 1;
+					
+				// % damage effects
+				/*
+					list of actors with % hp damage
+						DarkSpiritAttack
+						UndeadSpiritDamager
+						FleshWizardMissile
+				*/
 
-			//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
-			
-			// add to player stat
-			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
-			
-			SetResultValue(dmg);
+				// resists of player now will factor in after we've calculated the damage accurately
+				temp = CheckInventory("Perk_Endurance");
+				if(temp) {
+					// 1000 because integer factor is 35 => to make 3.5% we scale by 10
+					if(dmg < INT_MAX / 1000)
+						dmg = dmg * (1000 - temp * ENDURANCE_RES_INTEGER) / 1000;
+					else
+						dmg = (dmg / 1000) * (1000 - temp * ENDURANCE_RES_INTEGER);
+				}
+				
+				// check for special reduced damage factors
+				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data);
+				
+				// minimum of 1 dmg will always be sent regardless
+				if(!dmg)
+					dmg = 1;
+				
+				// add to player stat
+				IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
+				
+				//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
+				SetResultValue(dmg);
+			}
+			else if(IsPlayer(shooter) && victim == shooter) {
+				// self damage controls
+			}
+		}
+		else if(IsMonster(victim) && IsMonster(shooter)) {
+			if(victim != shooter) {
+				// no damage dealt from same species, makes damage things much easier to keep track of
+				if(GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES))
+					SetResultValue(0);
+			}
 		}
 	}
 }

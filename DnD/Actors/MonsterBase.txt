@@ -10,6 +10,7 @@ Actor DnD_BaseMonster {
 	+CANPASS
 	-SHOOTABLE
 	-SOLID
+	+USEDAMAGEEVENTSCRIPT
 	
 	// NoPain versions
 	Painchance "Melee_NoPain", 0

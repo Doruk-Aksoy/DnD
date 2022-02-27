@@ -48,9 +48,12 @@ enum {
 
 #define MAXPLAYERCLASSES (DND_PLAYER_BERSERKER + 1)
 
+#define DND_DOOMGUY_FIREPERCENT 10
 #define DND_DOOMGUY_DROPCHANCE 0.1
 #define DND_DOOMGUY_HEALDIV 50
 #define DND_DOOMGUY_MAXHEAL 10000
+
+#define DND_MARINE_EXPLOSIVEREDUCTION 33
 
 #define DND_HOBO_SHOTGUNBONUS 30
 #define DND_HOBO_SHOTGUNPELLETBONUS 50
@@ -65,6 +68,7 @@ enum {
 #define DND_WANDERER_SPELLEFFICIENCY 4
 #define DND_WANDERER_COOLDOWNBONUS 4
 
+#define DND_CYBORG_ENERGYREDUCE 15
 #define DND_CYBORG_CYBER_MULT 3
 #define DND_CYBORG_CYBER_DIV 10
 
@@ -243,6 +247,28 @@ int abs (int x) {
 	if(x < 0)
 		return -x;
 	return x;
+}
+
+// naive search -- assumes lowercase key
+bool StringContains(str s, str key) {
+	int len = StrLen(s);
+	int key_len = StrLen(key);
+	
+	int match_id = 0;
+	for(int i = 0; i < len; ++i) {
+		// force lowercase
+		int c = GetChar(s, i);
+		if(c < 'a')
+			c += 32;
+		if(c == GetChar(key, match_id)) {
+			++match_id;
+			if(match_id == key_len)
+				return true;
+		}
+		else
+			match_id = 0;
+	}
+	return false;
 }
 
 // INT_MAX has 10 digits

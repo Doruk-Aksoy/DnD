@@ -250,8 +250,6 @@ void Reset_RPGInfo (int resetflags) {
 	}
 	
 	if(resetflags & RESET_PERKS) {
-		if(CheckInventory("Perk_Endurance"))
-			TakeInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * 5), 1);
 		for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
 			SetInventory(StatData[i], 0);
 		SetAmmoCapacity("StoredMedkit", DND_BASE_HEALTH);
@@ -1152,7 +1150,10 @@ void HandleUniqueDeath(int unique_id) {
 }
 
 int GetAveragePlayerLevel() {
-	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+	int temp = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+	if(temp < 1)
+		temp = 1;
+	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / temp;
 }
 
 #include "DnD_Damage.h"

@@ -159,7 +159,8 @@ ACTOR CacoLichBall {
     Height 6
     Speed 12
     Damage (7 * random(1, 8))
-	DamageType "CacoPoison"
+	DamageType "Poison"
+	Stamina 128
 	PROJECTILE
 	+SEEKERMISSILE
 	+DONTBLAST
@@ -188,7 +189,8 @@ ACTOR CacoLichFlameFar {
 	Height 6
 	Speed 30
 	Damage (4 * random(1, 4))
-	DamageType "CacoPoison"
+	DamageType "Poison"
+	Stamina 128
 	PROJECTILE
 	+DONTBLAST
 	RENDERSTYLE ADD
@@ -210,7 +212,8 @@ ACTOR CacoLichFlame {
 	Height 6
 	Speed 28
 	Damage (random(1, 4))
-	DamageType "CacoPoison"
+	DamageType "Poison"
+	Stamina 128
 	PROJECTILE
 	+DONTBLAST
 	RENDERSTYLE ADD
@@ -361,7 +364,8 @@ Actor EarthLichSpike {
 	+DONTBLAST
 	Speed 28
 	Damage (random(8,12))
-	DamageType "Caco"
+	DamageType "Physical"
+	Stamina 1
 	Radius 6
 	Height 10
 	Alpha 0.8
@@ -382,7 +386,8 @@ Actor EarthLichSpike {
 }
 
 Actor EarthLichExp : BaseExplosionDamage {
-	DamageType "CacoExp"
+	DamageType "Physical"
+	Stamina 1
     Obituary "%o was eliminated by an Earth Lich."
 	States {
 		Spawn:
@@ -398,7 +403,8 @@ Actor EarthLichRock {
 	+DONTBLAST
 	Speed 22
 	Damage (5*random(4,6))
-	DamageType "Caco"
+	DamageType "Physical"
+	Stamina 1
 	Radius 10
 	Height 14
 	Alpha 0.8
@@ -577,7 +583,8 @@ ACTOR Inferno : DnD_BaseHybridMonster {
 }
 
 Actor InfernoExp : BaseExplosionDamage {
-	DamageType "CacoFire"
+	DamageType "Fire"
+	Stamina 32
 	Obituary "%o got incinerated by an inferno."
 	States {
 		Spawn:
@@ -592,7 +599,8 @@ ACTOR Lavaball {
 	Height 8
 	Speed 15
 	Damage (6 * random(1, 8))
-	DamageType "CacoFire"
+	DamageType "Fire"
+	Stamina 32
 	SpawnID 250
 	Scale 1.0
 	PROJECTILE
@@ -687,7 +695,8 @@ ACTOR WeakenerBall {
 	Speed 28
 	Damage (4 * random(1, 8))
 	+DONTBLAST
-	DamageType "Caco"
+	DamageType "Magical"
+	Stamina 8
 	Projectile
 	RenderStyle Add
 	Alpha 0.8
@@ -734,7 +743,7 @@ actor Grell : DnD_BaseRangedMonster {
 	painsound "grell/pain"
 	deathsound "grell/death"
 	activesound "grell/active"
-	Species "CacoDemon"
+	Species "Cacodemon"
 	Tag "Grell"
 	+ISMONSTER
 	+NOGRAVITY
@@ -790,7 +799,8 @@ ACTOR GrellBall {
 	Damage (4 * random(1, 8))
 	+DONTBLAST
 	+THRUGHOST
-	DamageType "CacoPoison"
+	DamageType "Poison"
+	Stamina 128
 	Renderstyle Add
 	Alpha 0.67
 	Projectile
@@ -951,7 +961,8 @@ ACTOR AcolyteShot {
 	PROJECTILE
 	+DONTBLAST
 	+SEEKERMISSILE
-	DamageType "CacoMagic"
+	DamageType "Magical"
+	Stamina 8
 	SeeSound "monster/acosht"
 	DeathSound "monster/acohit"
 	Decal "BishopScorch"
@@ -999,6 +1010,7 @@ ACTOR AcolFX1 {
 }
 
 Actor ShadowPriest2 : ShadowPriest {
+	Species "Cyber"
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_SHADOWPRIEST)
@@ -1032,7 +1044,8 @@ Actor ShadowPriest2 : ShadowPriest {
 }
 
 Actor AcolyteShot2 : AcolyteShot {
-	DamageType "Cyber"
+	DamageType "Magical"
+	Stamina 8
 }
 
 ACTOR Guardian : DnD_BaseRangedMonster { 
@@ -1113,7 +1126,8 @@ ACTOR GuardShot : CacodemonBall {
 	Height 6
 	Speed 18
 	Damage (4 * random(1, 8))
-	DamageType "CacoMagic"
+	DamageType "Magical"
+	Stamina 8
 	ALPHA 0.85
 	+FORCEXYBILLBOARD
 	Seesound "none"
@@ -1249,7 +1263,8 @@ Actor WickedShot {
 	Speed 10
 	Damage (8 * random(3, 5))
 	RenderStyle Add
-	DamageType "CacoMagicOrange"
+	DamageType "MagicalFire"
+	Stamina 40
 	Alpha 0.67
 	Projectile
 	+ThruGhost

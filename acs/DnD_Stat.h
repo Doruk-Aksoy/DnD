@@ -277,20 +277,6 @@ void ConsumePerkPointOn(int perk, int amt) {
 	TakeInventory("PerkPoint", amt);
 }
 
-void CleanEndPerk() {
-	int i;
-	// Take previous perk stuff
-	if(CheckInventory("Perk_Endurance") > 1) {
-		for(i = 0; i < DND_PERK_MAX; ++i)
-			TakeInventory(StrParam(s:"Resist_Perk_", d:(i + 1) * 5), 1);
-	}
-}
-
-void UpdateEndPerk() {
-	if(CheckInventory("Perk_Endurance"))
-		GiveInventory(StrParam(s:"Resist_Perk_", d:CheckInventory("Perk_Endurance") * ENDURANCE_RESIST), 1);
-}
-
 bool ReachedAccessoryLimit() {
 	// consider accessory limit enhancement here
 	int baselimit = DND_ACCESSORY_BASELIMIT;
@@ -636,8 +622,6 @@ void TakeStat(int stat_id, int amt) {
 }
 
 void UpdatePerkStuff() {
-	CleanEndPerk();
-	RestoreRPGStat(RES_PERK_ENDURANCE);
 	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
 }
 

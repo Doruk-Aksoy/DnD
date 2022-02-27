@@ -231,7 +231,6 @@ Script "DnD On Death" DEATH {
 	
 	UnmarkPlayerAsExited(pnum);
 	GiveInventory("DnD_PDead", 1);
-	Thing_ChangeTID(0, 0);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
 	StatListOpened[pnum] = 0;
@@ -285,6 +284,7 @@ Script "DnD On Death" DEATH {
 	}
 	
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
+	Thing_ChangeTID(0, 0);
 }
 
 Script "DnD Portable Kit Script" (void) {
@@ -2595,7 +2595,7 @@ Script "DnD Sync Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
 	SetResultValue(0);
 }
 
-Script "DnD Monster Scanner" ENTER CLIENTSIDE {
+Script "DnD Monster Scanner" (void) CLIENTSIDE {
 	int mmaxhp, monhp, monlevel, monid, m_id;
 	int hdisp, fortify_amt;
 	int hdisp_prev = -1, fortify_amt_prev = -1;	
@@ -2798,11 +2798,13 @@ Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
-	RestoreRPGStat(RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
+	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	
 	// run the monster scanner script again on respawn
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
+	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
+	
 	ACS_NamedExecuteAlways("DnD SBAR", 0);
 	
 	// if game mode is coop, we don't want any sort of reset on death here! make sure it's not coop
@@ -2908,6 +2910,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("Berserker_DamageTimer", 0);
 	SetInventory("Berserker_HitTracker", 0);
 	SetInventory("Berserker_HitTimer", 0);
+	SetInventory("Berserker_NoRoar", 0);
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
 	
@@ -2931,6 +2934,7 @@ Script "DnD Player Setup" ENTER {
 	
 	// scanner runner
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
+	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
 	ACS_NamedExecuteAlways("DnD SBAR", 0);
 	
 	// begin hardcore countdown
@@ -3076,7 +3080,7 @@ Script "DnD Player Setup" ENTER {
 	else
 		SetInventory("CurrentLives", GetCvar("sv_maxlives") - 1);
 	
-	RestoreRPGStat(RES_PERK_ENDURANCE | RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
+	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	
 	// a little hack to prevent ankh going off when finishing maps with 1 hp
 	if(GetActorProperty(0, APROP_HEALTH) == 1 && CheckInventory("CanIntervene"))
@@ -3461,9 +3465,10 @@ Script "DnD Berserker Perk50 Timer" (int this) {
 		}
 		TakeInventory("Berserker_Perk50_Speed", 1);
 		TakeInventory("Berserker_HitTracker", 1);
-		TakeInventory("Berserker_NoRoar", 1);
 		SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
 	}
+	// get rid of no roar at end of timer
+	TakeInventory("Berserker_NoRoar", 1);
 	SetInventory("Berserker_HitTimer", 0);
 }
 

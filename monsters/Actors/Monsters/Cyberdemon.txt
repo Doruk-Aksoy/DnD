@@ -178,7 +178,8 @@ Actor CardinalImage {
 }
 
 Actor CardinalExp1 : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "ExplosiveGreen"
+	Stamina 4
 	Obituary "%o was blessed by the dark cardinal."
 	States {
 		Spawn:
@@ -193,7 +194,8 @@ ACTOR Cardinal_Rocket {
 	Height 8
 	Speed 28
 	Damage (20 * random(1, 8))
-	DamageType "Cyber"
+	DamageType "ExplosiveGreen"
+	Stamina 4
 	Projectile
 	+DONTBLAST
 	+RANDOMIZE
@@ -220,7 +222,8 @@ ACTOR Cardinal_Rocket {
 }
 //====================
 Actor CardinalExp2 : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "ExplosiveGreen"
+	Stamina 4
 	Obituary "%o was blessed by the dark cardinal."
 	States {
 		Spawn:
@@ -236,7 +239,8 @@ ACTOR FireT {
 	+NOGRAVITY
 	+DONTBLAST
 	RenderStyle Add
-	DamageType "Cyber"
+	DamageType "MagicalGreen"
+	Stamina 8
     Alpha 0.9
 	States {
 		Spawn:
@@ -247,7 +251,8 @@ ACTOR FireT {
 //====================
 actor DeathBall : BaronBall2 {
 	Damage (8 * random(1, 8))
-	DamageType "CyberGreen"
+	DamageType "MagicalGreen"
+	Stamina 8
 	+SEEKERMISSILE 
 	scale .7
 	Speed 32
@@ -289,7 +294,8 @@ ACTOR CardinalPlasma {
 	Height 8
 	Speed 24
 	Damage (10 * random(1, 8))
-	DamageType "CyberGreen"
+	DamageType "MagicalGreen"
+	Stamina 8
 	Projectile
 	+FLOATBOB
 	+DONTBLAST
@@ -431,7 +437,8 @@ ACTOR TerminatorX : DnD_BaseRangedBoss {
 }
 
 Actor TerminatorExp1 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o was liquidated by a Terminator."
 	States {
 		Spawn:
@@ -446,7 +453,8 @@ ACTOR TerminatorBlaster {
 	Height 12
 	Speed 28
 	Damage (15 * random(4, 8))
-	DamageType "CyberFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	PROJECTILE
 	RENDERSTYLE ADD
 	alpha 0.85
@@ -477,7 +485,8 @@ actor Redstar {
     Height 20
     Speed 16
     Damage (10 * random(6, 8))
-	DamageType "CyberEnergy"
+	DamageType "EnergyRed"
+	Stamina 16
     Scale 0.6
     +SEEKERMISSILE
 	+DONTBLAST
@@ -506,7 +515,8 @@ actor Redgrenade {
     Height 12
     Speed 24
     Damage (5 * random(1, 8))
-	DamageType "CyberEnergy"
+	DamageType "EnergyRed"
+	Stamina 16
     PROJECTILE
     +DoomBounce
     -NoGravity
@@ -566,7 +576,8 @@ actor Grenadeblast {
     Height 12
     Speed 5
     Damage (random(1, 2))
-	DamageType "CyberEnergy"
+	DamageType "EnergyRed"
+	Stamina 16
     PROJECTILE
     RENDERSTYLE ADD
     +Ripper
@@ -583,7 +594,8 @@ actor Grenadeblast {
 }
 
 Actor TerminatorBullet : UndeadInitiateBullet {
-	DamageType "CyberBullet"
+	DamageType "Physical"
+	Stamina 1
 	Damage (15)
 	States {
 		Death:
@@ -866,7 +878,8 @@ Actor DarkCyberGhostD : DarkCyberGhostA {
 }
 
 Actor ThamuzExp1 : BaseExplosionDamage  {
-	DamageType "CyberGreenExp"
+	DamageType "ExplosiveGreen"
+	Stamina 4
 	Obituary "%o fell before Thamuz."
 	States {
 		Spawn:
@@ -881,7 +894,8 @@ Actor DCBMiss1 {
 	Height 12
 	Speed 16
 	Damage (16 * random(4, 8))
-	DamageType "ThamuzPoison"
+	DamageType "MagicalPoison"
+	Stamina 136
 	Projectile
 	+SeekerMissile
 	+ExtremeDeath
@@ -977,7 +991,8 @@ Actor DCBMiss2 {
 	Speed 28
 	Damage (12 * random(3, 8)) 
 	+DONTBLAST
-	DamageType "ThamuzPoison"
+	DamageType "MagicalPoison"
+	Stamina 136
 	RenderStyle Add
 	Projectile
 	SeeSound "q2weapon/rocketlauncherfire"
@@ -1003,7 +1018,8 @@ Actor DCBMiss3 {
 	Health 5
 	Speed 8
 	Damage 0
-	DamageType "ThamuzPoison"
+	DamageType "MagicalPoison"
+	Stamina 136
 	Scale 2
 	RenderStyle Add
 	+BloodLessImpact
@@ -1024,7 +1040,8 @@ Actor DCBMiss3 {
 }
 
 Actor ThamuzExp2 : BaseExplosionDamage {
-	DamageType "CyberGreenExp"
+	DamageType "MagicalGreen"
+	Stamina 8
 	Obituary "%o fell before Thamuz."
 	States {
 		Spawn:
@@ -1039,7 +1056,8 @@ Actor DCBMiss3M {
 	Height 10
 	Speed 28
 	Damage (15 * random(4, 8))
-	DamageType "ThamuzPoison"
+	DamageType "MagicalPoison"
+	Stamina 136
 	Scale 1.3
 	+FloorHugger
 	+DONTBLAST
@@ -1235,7 +1253,8 @@ Actor AzazelBoom : msxBarrelboom1 {
 //*************************************************
 //*************************************************
 Actor AzazelExp1 : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Magical"
+	Stamina 8
 	Obituary "%o was slaughtered by Azazel"
 	States {
 		Spawn:
@@ -1255,7 +1274,8 @@ actor SLGroundFire {
 	+DONTBLAST
 	SeeSound "groundfirestart"
 	RenderStyle Add
-	DamageType "Cyber"
+	DamageType "Magical"
+	Stamina 8
 	Alpha 0.9
 	Decal Scorch
 	States {
@@ -1356,7 +1376,8 @@ Actor SatyrLordMissile1 {
 	Height 16
 	Speed 24
 	Damage (19 * random(1, 8))
-	DamageType "Cyber"
+	DamageType "MagicalRed"
+	Stamina 8
 	Scale 0.65
 	RenderStyle Add
 	SeeSound "redballbsee"
@@ -1385,7 +1406,6 @@ Actor SLM1Trail {
 	Gravity 0.4
 	+NOCLIP
 	Damage 0
-	DamageType "Cyber"
 	RenderStyle Add
 	Alpha 0.8
 	Scale 0.5
@@ -1411,7 +1431,8 @@ Actor SatyrLordMissile2 {
 	RENDERSTYLE ADD
 	Alpha 0.75
 	PROJECTILE
-	DamageType "Cyber"
+	DamageType "MagicalGray"
+	Stamina 8
 	+SEEKERMISSILE
 	+DONTBLAST
 	seesound "whiteballbsee"
@@ -1490,7 +1511,8 @@ Actor SatyrLordMissileDual1Real {
 	Scale 0.34
 	RenderStyle Add
 	Damage (12 * random(4, 8))
-	DamageType "Cyber"
+	DamageType "MagicalRed"
+	Stamina 8
 	Radius 6
 	height 12
 	SeeSound "redballssee"
@@ -1575,7 +1597,8 @@ Actor SatyrLordMissileDual2Real {
 	Speed 24
 	Radius 6
 	Damage (16 * random(4, 8))
-	DamageType "Cyber"
+	DamageType "MagicalGray"
+	Stamina 8
 	Scale 0.8
 	RenderStyle Add
 	Alpha 0.75
@@ -1824,7 +1847,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss {
 
 Actor HellSmithChargeExp : BaseExplosionDamage {
 	Obituary "%o was trampled by a Hellsmith."
-	DamageType "Cyber"
+	DamageType "Physical"
+	Stamina 1
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1911,7 +1935,8 @@ ACTOR PentaLine2 {
 }
 
 Actor SmithExplosion1 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
@@ -1922,7 +1947,8 @@ Actor SmithExplosion1 : BaseExplosionDamage {
 }
 
 Actor SmithExplosion2 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
@@ -1936,7 +1962,8 @@ ACTOR PentaFire {
 	Radius 0
 	Height 32
 	Speed 0
-    DamageType "CyberFire"
+    DamageType "MagicalFire"
+	Stamina 40
     RenderStyle Add
 	Alpha 0.85
     ReactionTime 2
@@ -1988,7 +2015,8 @@ ACTOR SmithDeathFire {
 	Damage 0
 	PROJECTILE
 	RENDERSTYLE ADD
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	ALPHA 0.67
 	Scale 2.75
 	SeeSound "weapons/bigbrn"
@@ -2071,7 +2099,8 @@ ACTOR PentaFire2 {
 }
 
 Actor SmithExplosion3 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
@@ -2087,7 +2116,8 @@ ACTOR STracer {
 	Speed 15
 	Damage (10 * random(4, 8))
 	RenderStyle ADD
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Alpha 0.67
 	PROJECTILE
 	+FLOORHUGGER
@@ -2113,7 +2143,8 @@ ACTOR STracer {
 }
 
 Actor SmithExplosion4 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
@@ -2128,7 +2159,8 @@ ACTOR STracerPuff {
 	Height 1
 	Speed 0
 	RENDERSTYLE ADD
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	ALPHA 0.67
 	PROJECTILE
 	+FLOORHUGGER
@@ -2166,7 +2198,8 @@ ACTOR SmithHammer {
 }
 
 Actor SmithExplosion5 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was blown up by a Hell Smith."
 	States {
 		Spawn:
@@ -2183,7 +2216,8 @@ ACTOR Hellshot2 {
 	Damage (10 * random(6, 10))
 	PROJECTILE
 	RENDERSTYLE ADD
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	ALPHA 0.95
 	DeathSound "weapons/hellex"
 	DONTHURTSHOOTER
@@ -2234,7 +2268,8 @@ ACTOR HellBoom {
 }
 
 Actor SmithExplosion6 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was turned to crisps by a Bloodseeker."
 	States {
 		Spawn:
@@ -2251,7 +2286,8 @@ ACTOR HellFX {
 	Damage 0
 	PROJECTILE
 	RENDERSTYLE ADD
-	Damagetype "CyberFire"
+	Damagetype "MagicalFire"
+	Stamina 40
 	ALPHA 0.80
 	SeeSound "weapons/firex3"
 	+DONTSPLASH
@@ -2767,7 +2803,8 @@ Actor SorcBallProjectileBase {
 	BounceCount 5
 	BounceSound "SorcererBallBounce"
     DeathSound "SorcererBigBallExplode"
-	DamageType "CyberMagic"
+	DamageType "Magical"
+	Stamina 8
 }
 
 Actor SorcBall1Projectile : SorcBallProjectileBase {
@@ -2828,7 +2865,8 @@ Actor RedLiteInBetween {
 	Speed 0
 	Renderstyle Add
 	Damage (random(9, 16))
-	DamageType "CyberLightning"
+	DamageType "MagicalLightningRed"
+	Stamina 264
 	+THRUGHOST
 	+DONTBLAST
 	DeathSound "Avatar/BoltHit"
@@ -3045,7 +3083,8 @@ ACTOR AvaFireBall {
 	Height 18
 	Speed 24
 	Damage (7 * random(1, 8))
-	DamageType "CyberFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	ExplosionDamage 12
 	ExplosionRadius 40
 	PROJECTILE
@@ -3077,7 +3116,8 @@ Actor AvatarIceJet {
 	Height 12
 	Speed 20
 	Damage (random(8, 16))
-	DamageType "CyberIce"
+	DamageType "MagicalIce"
+	Stamina 72
 	PROJECTILE
 	+RIPPER
 	+BLOODLESSIMPACT
@@ -3106,7 +3146,8 @@ ACTOR HolyMissile2 {
 	Height 4
 	Speed 22
 	Damage (5 * random(8, 12))
-	DamageType "CyberMagic"
+	DamageType "MagicalGray"
+	Stamina 8
 	PROJECTILE
 	Species "ThruDecor"
 	+SEEKERMISSILE
@@ -3346,7 +3387,8 @@ Actor Thanatos : DnD_BaseRangedBoss {
 }
 
 Actor ThanatosExp1 : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3360,7 +3402,8 @@ ACTOR ThanatosRocket {
 	Height 11
 	Speed 20
 	Damage (100)
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	PROJECTILE
 	DeathSound "weapons/heavyrlexp"
 	+SeekerMissile
@@ -3406,7 +3449,8 @@ Actor CyberdemonRocket2 : CyberdemonRocket {
 }
 
 Actor CyberdemonStomper : BaseExplosionDamage {
-	DamageType "CyberSlow"
+	DamageType "PhysicalSlow"
+	Stamina 1
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3507,7 +3551,8 @@ Actor StompFX {
 }
 
 Actor ThanatosExp2 : BaseExplosionDamage {
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3520,7 +3565,8 @@ Actor ThanatosMiniRocket {
 	PROJECTILE
 	Speed 22
 	Damage (32)
-	DamageType "CyberExp"
+	DamageType "Explosive"
+	Stamina 4
 	SeeSound "weapons/devastatorfire"
 	DeathSound "Weapons/DevastatorExpl"
 	Height 8
@@ -3747,7 +3793,8 @@ actor Cerberus : DnD_BaseRangedBoss {
 }
 
 Actor CerberusExp1 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
@@ -3758,7 +3805,8 @@ Actor CerberusExp1 : BaseExplosionDamage {
 }
 
 Actor CerberusExp2 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
@@ -3769,7 +3817,8 @@ Actor CerberusExp2 : BaseExplosionDamage {
 }
 
 Actor CerberusExp3 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
@@ -3780,7 +3829,8 @@ Actor CerberusExp3 : BaseExplosionDamage {
 }
 
 Actor CerberusExp4 : BaseExplosionDamage {
-	DamageType "CyberFire"
+	DamageType "ExplosiveFire"
+	Stamina 36
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
@@ -3796,7 +3846,8 @@ actor CerberusShot {
 	height 16
 	speed 24
 	damage (10 * random(8, 10))
-	DamageType "CyberFire"
+	DamageType "Fire"
+	Stamina 32
 	renderstyle Add
 	Scale 0.75
 	seesound "Cerberus/Fire"

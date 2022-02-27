@@ -125,7 +125,8 @@ Actor LavaDemonSmoke : msxgen_smoke {
 actor phoenixFX3 {
 	seesound "weapons/phoenixpowshoot"
 	damage (random(1, 8))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Speed 20
 	Projectile
 	Radius 6
@@ -153,7 +154,8 @@ Actor VolcanoBlast2 {
 	Height 8
 	Speed 2
 	Damage (2 * random(1, 8))
-	Damagetype "BaronsFire"
+	Damagetype "Fire"
+	Stamina 32
 	Gravity 0.125
 	PROJECTILE
 	+NOBLOCKMAP
@@ -185,7 +187,8 @@ Actor VolcanoTBlast2 {
 	Height 6
 	Speed 3
 	Damage (random(1, 8))
-	Damagetype "BaronsFire"
+	Damagetype "Fire"
+	Stamina 32
 	Gravity 0.125
 	PROJECTILE
 	-NOGRAVITY
@@ -206,7 +209,8 @@ Actor VolcanoTBlast2 {
 }
 
 Actor VolcanoExp : BaseExplosionDamage {
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Obituary "%o was charred by a lavademon."
 	States
 	{
@@ -224,7 +228,8 @@ actor BeastBall2 : Volcanoblast2 {
 	damage (5 * random(1, 8))
 	seesound "lavdatk"
 	deathsound "weapons/phoenixhit"
-	damagetype "BaronsFire"
+	damagetype "Fire"
+	Stamina 32
 	Projectile
 	states {
 		Spawn:
@@ -485,7 +490,8 @@ Actor Cybruiser : DnD_BaseHybridMonster {
 }
 
 Actor CybrusExp : BaseExplosionDamage {
-	DamageType "BaronsExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o was blown away by a Cybruiser."
 	States {
 		Spawn:
@@ -500,7 +506,8 @@ Actor BruiserMissile {
 	Height 12
 	Speed 28
 	Damage (10 * random(1, 8))
-	DamageType "Barons"
+	DamageType "Explosive"
+	Stamina 4
 	Scale 1.0
 	SpawnID 251
 	Projectile
@@ -648,7 +655,8 @@ Actor BruiserBall {
 	Height 16
 	Speed 18
 	Damage (10 * random(1, 8))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Projectile
 	+Randomize
 	+DONTBLAST
@@ -677,7 +685,8 @@ Actor BruiserBall2 {
 	Height 8
 	Speed 10
 	Damage (6 * random(1, 8))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Projectile
 	+Randomize
 	+DONTBLAST
@@ -738,7 +747,8 @@ Actor BruiserBallTrail {
 }
 
 Actor BruiserExp : BaseExplosionDamage {
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Obituary "%o was slaughtered by a Bruiserdemon."
 	States {
 		Spawn:
@@ -753,7 +763,8 @@ Actor BruiserFire {
 	Height 1
 	Speed 0
 	Damage (12 * random(1, 8))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Projectile
 	RenderStyle Add
 	Alpha 0.9
@@ -808,7 +819,7 @@ ACTOR Bormereth : DnD_BaseHybridMonster {
 	+ISMONSTER
     +MISSILEEVENMORE
 	+DONTHURTSPECIES
-	Species "Barons"
+	Species "HK"
     SeeSound "Bormereth/See"
     PainSound "Bormereth/Pain"
     ActiveSound "Bormereth/Act"
@@ -939,7 +950,8 @@ Actor WraithFX12 {
 	Height 6
 	Mass 5
 	Damage (6 * random(1, 8))
-	DamageType "BaronsFire"
+	DamageType "MagicalFire"
+	Stamina 40
 	Projectile
 	+FLOORCLIP
 	SeeSound "WraithMissileFire"
@@ -1019,7 +1031,8 @@ Actor PossEttFakeFireBall {
 }
 
 Actor BormerethExp : BaseExplosionDamage {
-	DamageType "Barons"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was incinerated by the rage of Bormereth."
 	States {
 		Spawn:
@@ -1030,7 +1043,8 @@ Actor BormerethExp : BaseExplosionDamage {
 }
 
 Actor BormerethPainExp : BaseExplosionDamage {
-	DamageType "BaronsMagic"
+	DamageType "MagicalFire"
+	Stamina 40
 	Obituary "%o was incinerated by the rage of Bormereth."
 	States
 	{
@@ -1058,7 +1072,8 @@ Actor PossEttFireBall {
 	+FLOORCLIP
 	SeeSound "bormereth/missile2fired"
 	DeathSound "bormereth/missile2death"
-	DamageType "BaronsMagic"
+	DamageType "MagicalFire"
+	Stamina 40
 	Decal DoomImpScorch
 	States {
 		Spawn:
@@ -1401,7 +1416,8 @@ Actor BeastFireBall {
 	Speed 24
 	PROJECTILE
 	Damage (5*random(4, 8))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	DeathSound "weapons/phoenixhit"
 	+DONTBLAST
 	States {
@@ -1421,7 +1437,8 @@ Actor BeastFireBall {
 }
 
 Actor BeastExp1 : BaseExplosionDamage {
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Obituary "%o was turned to crisps by a Bloodseeker."
 	States
 	{
@@ -1449,7 +1466,8 @@ Actor BeastFlame {
 	PROJECTILE
 	Scale 0.75
 	Damage (5*random(1,2))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	DeathSound "weapons/phoenixhit"
 	+DONTBLAST
 	States {
@@ -1534,7 +1552,8 @@ Actor Barbatos : DnD_BaseHybridMonster {
 }
 
 Actor CyberdemonRocketWeakExplosion : BaseExplosionDamage {
-	DamageType "BaronsExp"
+	DamageType "Explosive"
+	Stamina 4
 	Obituary "%o was sent to the pits of hell by a Barbatos."
 	States {
 		Spawn:
@@ -1545,7 +1564,8 @@ Actor CyberdemonRocketWeakExplosion : BaseExplosionDamage {
 }
 
 Actor CyberdemonRocketWeak : CyberdemonRocket {
-	DamageType "Barons"
+	DamageType "Explosive"
+	Stamina 4
 	Damage (6 * random(5, 8))
 	Obituary "%o was sent to the pits of hell by a Barbatos."
 	Scale 0.85
@@ -1787,7 +1807,8 @@ Actor KjarochBall1Trail {
 
 Actor KjarochBall1 : BaronBall2 {
 	Damage (5 * random(4, 6))
-	DamageType "BaronsPoison"
+	DamageType "Poison"
+	Stamina 128
 	Decal "BaronScorch"
 	States {
 		Spawn:
@@ -1837,7 +1858,8 @@ Actor KjarochBall2Trail {
 }
 
 Actor KjarochBall2Explosion : BaseExplosionDamage {
-	DamageType "Barons"
+	DamageType "Poison"
+	Stamina 128
 	Obituary  "%o was burned by the infernal flames of a Kjaroch."
 	States {
 		Spawn:
@@ -1849,7 +1871,8 @@ Actor KjarochBall2Explosion : BaseExplosionDamage {
 
 Actor KjarochBall2Pieces {
 	Damage (2)
-	DamageType "BaronsPoison"
+	DamageType "Poison"
+	Stamina 128
 	PROJECTILE
 	Speed 16
 	Height 8
@@ -1872,7 +1895,8 @@ Actor KjarochGroundFlames {
 	Height 10
 	Speed 20
 	Damage (4 * random(3, 6))
-	DamageType "BaronsPoison"
+	DamageType "Poison"
+	Stamina 128
 	Scale 1.3
 	+FloorHugger
 	+DONTBLAST
@@ -1897,7 +1921,8 @@ Actor KjarochGroundFlames {
 }
 
 Actor KjarochGroundFlamesExplosion : BaseExplosionDamage {
-	DamageType "Barons"
+	DamageType "Poison"
+	Stamina 128
 	Obituary  "%o was burned by the infernal flames of a Kjaroch."
 	States {
 		Spawn:
@@ -2125,7 +2150,8 @@ Actor DreadKnight : DnD_BaseHybridMonster {
 	PainSound "DreadKnight/pain"
 	DeathSound "DreadKnight/Die"
 	MeleeSound "dknight/melee"
-	DamageType "Barons"
+	DamageType "Melee"
+	Stamina 1
 	Renderstyle Translucent
 	+ISMONSTER
 	+NOFEAR
@@ -2250,7 +2276,8 @@ Actor KnightTimer : Inventory {
 Actor DreadSkull {
 	PROJECTILE
 	Damage (12)
-	DamageType "BaronsMagicFire"
+	DamageType "MagicalFire"
+	Stamina 8
 	+NODAMAGETHRUST
 	+PIERCEARMOR
 	+DONTBLAST
@@ -2367,7 +2394,8 @@ Actor MagmaGolem : DnD_BaseHybridMonster {
 }
 
 Actor MagmaGolemExp : BaseExplosionDamage {
-	DamageType "BaronsMagicFire"
+	DamageType "Fire"
+	Stamina 32
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(32, 96, 0)
@@ -2394,7 +2422,8 @@ Actor MagmaGolemExp_3 : MagmaGolemExp {
 Actor MagmaGolemNade {
 	PROJECTILE
 	Damage (25)
-	DamageType "BaronsMagicFire"
+	DamageType "Fire"
+	Stamina 32
 	Speed 20
 	Height 18
 	Radius 9
@@ -2902,7 +2931,8 @@ actor JudicatorBash {
 	radius 5
 	height 5
 	speed 36
-	DamageType "Barons"
+	DamageType "Melee"
+	Stamina 1
 	damage (20 * random(1, 2))
 	deathsound "weapons/vblhit"
 	PROJECTILE

@@ -13,6 +13,7 @@ ACTOR BabyCaco : DnD_BaseHybridMonster {
 	Obituary "%o underestimated a Baby Cacodemon."
 	HitObituary "%o was nibbled to death by a Baby Cacodemon."
 	Tag "Baby Cacodemon"
+	Species "Cacodemon"
 	+ISMONSTER
 	+NOGRAVITY
 	+FLOAT 
@@ -62,7 +63,8 @@ ACTOR BabyCacoBall {
 	Speed 11
 	FastSpeed 10
 	Damage (2 * random(1, 8))
-	DamageType "Caco"
+	DamageType "Energy"
+	Stamina 16
 	Projectile 
 	+DONTBLAST
 	+RANDOMIZE
@@ -94,6 +96,7 @@ Actor Fleshspawn : DnD_BaseRangedMonster {
 	speed 10
 	damage (2 * random(1, 8))
 	DamageType "Melee"
+	Stamina 1
 	painchance 224
 	missiletype "Fleshspawnball"
 	bloodcolor "blue"
@@ -200,7 +203,8 @@ Actor FleshSpawnGibs {
 
 Actor Fleshspawnball {
 	Damage (2 * random(1, 8))
-	Damagetype "Caco"
+	Damagetype "Energy"
+	Stamina 16
 	Speed 10
 	Radius 3
 	Height 5
@@ -335,6 +339,7 @@ ACTOR ESoul : DnD_BaseRangedMonster {
 	speed 5
 	damage (5 * random(1,8))
 	DamageType "Melee"
+	Stamina 1
 	painchance 128
 	renderstyle Add
 	Alpha 0.4
@@ -398,7 +403,8 @@ ACTOR ShadowBall {
 	Height 8
 	Speed 12
 	Damage (3 * random(1, 8))
-	DamageType "CacoMagic"
+	DamageType "Magical"
+	Stamina 8
 	Projectile
 	+DONTBLAST
 	+RANDOMIZE
@@ -507,8 +513,8 @@ Actor CubeShot {
 	Height 5
 	Speed 15
 	Damage (1 * random(1, 8))
-	DamageType "CacoFire"
-	DamageType Fire
+	DamageType "MagicalFire"
+	Stamina 40
 	RenderStyle Add
 	Alpha 0.85
 	Projectile
@@ -554,6 +560,7 @@ Actor ForgottenOne : DnD_BaseRangedMonster {
 	ActiveSound "Forgotten/Active"
 	Damage (3 * random(1, 8))
 	DamageType "Melee"
+	Stamina 1
 	Tag "Forgotten One"
 	+ISMONSTER
 	+Float
@@ -674,7 +681,8 @@ ACTOR WatcherShot {
 	Height 8
 	Speed 20
 	Damage (3 * random(1, 8))
-	DamageType "CacoMagic"
+	DamageType "Magical"
+	Stamina 8
 	RENDERSTYLE ADD
 	ALPHA 0.67
 	PROJECTILE

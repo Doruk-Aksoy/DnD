@@ -2612,17 +2612,6 @@ void ResetInventoryLitState(int beg, int end) {
 		InventoryBoxLit[i] = BOXLIT_STATE_OFF;
 }
 
-void CleanInventoryInfo() {
-	// log(s:"cleaning up!");
-	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
-}
-
-// cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
-void CleanMaterialInfo(bool minus_bg) {
-	// -2 for the two arrows in the material page
-	DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES - 2, RPGMENUID - minus_bg);
-}
-
 int GetUniqueCharmXOffsetForDisplay(int charm_id) {
 	switch(charm_id) {
 		case UITEM_ELEMENTALBULWARK:

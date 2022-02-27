@@ -125,7 +125,8 @@ Actor BloodSatyrMissile {
 	Height 8
 	Damage (random(2, 16))
 	+NODAMAGETHRUST
-	DamageType "BaronsMagic"
+	DamageType "MagicalRed"
+	Stamina 8
 	SeeSound "BloodSatyr/Fire"
 	DeathSound "ClericCStaffHitThing"
 	Obituary "%o was drained of all life by a blood satyr."
@@ -163,7 +164,8 @@ Actor SatyrMissile : BaronBall {
 	Height 16
 	Speed 22
 	Damage (4*random(3,7))
-	DamageType "BaronYellow"
+	DamageType "MagicalYellow"
+	Stamina 8
 	Scale 0.75
 	RenderStyle Add
 	Translation "193:201=160:167", "202:208=165:168"
@@ -273,7 +275,8 @@ Actor HellWarriorBall {
 	Speed 14
 	Damage (8 * random(1, 8))
 	+DONTBLAST
-	DamageType "BaronYellow"
+	DamageType "MagicalYellow"
+	Stamina 8
 	Projectile
 	RenderStyle Add
 	Alpha 0.7
@@ -316,7 +319,8 @@ Actor HellWarriorBall2 {
 	Speed 8
 	Damage (2 * random(1, 8))
 	+DONTBLAST
-	DamageType "Barons"
+	DamageType "MagicalYellow"
+	Stamina 8
 	Projectile
 	RenderStyle Add
 	+Randomize
@@ -456,7 +460,8 @@ Actor HellsFuryBall {
 	Speed 14
 	Damage (8 * random(1, 8))
 	+DONTBLAST
-	DamageType "Barons"
+	DamageType "MagicalRed"
+	Stamina 8
 	Projectile
 	RenderStyle Add
 	Alpha 0.7
@@ -603,7 +608,8 @@ Actor ArchonOfHell : DnD_BaseHybridMonster {
 }
 
 Actor ArchonExp : BaseExplosionDamage {
-	DamageType "BaronGreen"
+	DamageType "MagicalGreen"
+	Stamina 8
 	Obituary "%o was no match for an archon of hell."
 	States {
 		Spawn:
@@ -618,6 +624,8 @@ Actor ArchonComet {
 	Height 12
 	Speed 24
 	Damage (6 * random(1, 8))
+	DamageType "MagicalGreen"
+	Stamina 8
 	Scale 1.0
 	Projectile
 	+ThruGhost
@@ -625,7 +633,6 @@ Actor ArchonComet {
 	SeeSound "weapons/firbfi"
 	DeathSound "weapons/hellex"
 	DontHurtShooter
-	DamageType "BaronGreen"
 	States {
 		Spawn: 
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -686,7 +693,7 @@ Actor WarlordOfHell : DnD_BaseHybridMonster {
 	Scale 1.1
 	Mass 1000
 	BloodColor "39 59 9F"
-	Species "Barons"
+	Species "HK"
 	+ISMONSTER
 	+NoRadiusDmg
 	Obituary "%o was extingished by the warlord of hell." 
@@ -771,7 +778,8 @@ Actor WarlordOfHellBall {
 	Projectile
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
-	Damagetype "Barons"
+	Damagetype "FireBlue"
+	Stamina 8
 	Decal BaronScorch
 	Translation "111:123=197:207", "124:127=242:245"
 	+DONTBLAST
@@ -938,7 +946,8 @@ ACTOR ShadowBeast_BallFire {
 	Radius 10
 	Height 6
 	Damage (2 * random(1, 8))
-	DamageType "BaronGreenFire"
+	DamageType "FireGreen"
+	Stamina 8
 	Projectile
 	+SPAWNSOUNDSOURCE
 	+RIPPER
@@ -965,7 +974,8 @@ ACTOR ShadowBeast_Ball1 {
 	Radius 10
 	Height 6
 	Damage (5*random(2,5))
-	DamageType "BaronGreenFire"
+	DamageType "FireGreen"
+	Stamina 8
 	Projectile
 	+SPAWNSOUNDSOURCE
 	+DONTBLAST
@@ -994,7 +1004,8 @@ ACTOR ShadowBeast_Ball2 {
 	Radius 8
 	Height 6
 	Damage (2 * random(1, 8))
-	Damagetype "BaronGreenFire"
+	Damagetype "FireGreen"
+	Stamina 8
 	Speed 16
 	PROJECTILE
 	+Randomize
@@ -1022,7 +1033,8 @@ ACTOR ShadowBeast_Ball3 {
 	Radius 8
 	Height 6
 	Damage (5 * random(1, 8))
-	DamageType "BaronGreenFire"
+	DamageType "FireGreen"
+	Stamina 8
 	Speed 20
 	PROJECTILE
 	+DONTBLAST
@@ -1137,7 +1149,8 @@ ACTOR KFireBall {
 	Height 8
 	Speed 18
 	Damage (random(6, 16))
-	DamageType "BaronsMagic"
+	DamageType "MagicalFire"
+	Stamina 40
 	PROJECTILE
 	SeeSound "monster/dkball"
 	+DONTBLAST
@@ -1279,7 +1292,8 @@ Actor SkullWizardPush {
 	radius 5
 	height 5
 	speed 48
-	DamageType "BaronsMagic"
+	DamageType "Magical"
+	Stamina 8
 	damage (random(1, 2))
 	DeathSound "Wizard/Push"
 	PROJECTILE
@@ -1303,7 +1317,8 @@ Actor SkullWizardProjectile {
     +SEEKERMISSILE
 	+NoDamageThrust
 	+DONTBLAST
-	Damagetype "BaronsMagicFire"
+	Damagetype "MagicalFire"
+	Stamina 40
     Speed 16
     Damage (random(3, 7) * 5)
     Radius 6
@@ -1445,7 +1460,8 @@ Actor CyborgPlasma1 {
 	Renderstyle Add
 	Alpha 0.875
 	Damage (4 * random(1, 8))
-	DamageType "BaronPlasma"
+	DamageType "EnergyCyan"
+	Stamina 16
 	Speed 30
 	+FORCEXYBILLBOARD
 	+DONTBLAST
@@ -1469,7 +1485,8 @@ Actor CyborgPlasma2 {
 	Height 10
 	Speed 24
 	Damage (5 * random(5, 8))
-	DamageType "BaronVoid"
+	DamageType "EnergyVoid"
+	Stamina 16
 	Scale 1.0
 	Alpha 0.9
 	RENDERSTYLE Add
@@ -1605,7 +1622,8 @@ Actor ChaosSerpentFireball {
 	Speed 24
 	PROJECTILE
 	Damage (5 * random(4, 8))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	SeeSound "Beast/Attack"
 	DeathSound "weapons/phoenixhit"
 	+DONTBLAST
@@ -1784,7 +1802,8 @@ Actor MoonSatyrMeteorSpawner : BulletPuff {
 }
 
 Actor MoonSatyrMeteorExplosion : BaseExplosionDamage {
-	DamageType "BaronsMagic"
+	DamageType "Magical"
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1798,7 +1817,8 @@ Actor MoonSatyrMeteor {
 	Height 8
 	Radius 4
 	Damage (50)
-	DamageType "BaronsMagic"
+	DamageType "Magical"
+	Stamina 8
 	+NODAMAGETHRUST
 	Deathsound "MoonSatyr/MeteorExplode"
 	Scale 1.75
@@ -1977,7 +1997,8 @@ Actor CrystalSpike {
 	+DONTBLAST
 	Speed 24
 	Damage (random(6, 10))
-	DamageType "Barons"
+	DamageType "Ice"
+	Stamina 64
 	Radius 6
 	Height 10
 	Alpha 0.8
@@ -2001,7 +2022,8 @@ Actor CrystalGolemBash {
 	radius 5
 	height 5
 	speed 38
-	DamageType "Barons"
+	DamageType "Physical"
+	Stamina 1
 	damage (15 * random(1, 2))
 	deathsound "weapons/vblhit"
 	PROJECTILE
@@ -2105,7 +2127,8 @@ Actor GladiatorFireBall {
 	Speed 24
 	PROJECTILE
 	Damage (5 * random(4, 6))
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	DeathSound "weapons/phoenixhit"
 	Scale 0.85
 	+DONTBLAST
@@ -2161,7 +2184,8 @@ Actor GladiatorExplosionFX {
 }
 
 Actor GladiatorExp : BaseExplosionDamage {
-	DamageType "BaronsFire"
+	DamageType "Fire"
+	Stamina 32
 	Obituary "%o didn't expect trickery from a Gladiator."
 	States {
 		Spawn:
@@ -2271,7 +2295,8 @@ ACTOR PutrefierBullet : FastProjectile {
 	Radius 1
 	Height 2
 	Damage (random(6, 8))
-	DamageType "Putrefier_Poison"
+	DamageType "Poison"
+	Stamina 128
 	Speed 128
 	Scale 0.1
 	RenderStyle Add

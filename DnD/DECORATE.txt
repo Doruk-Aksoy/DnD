@@ -1,5 +1,6 @@
 const int SPECIAL_FX_TID = 32768;
 
+#include "Actors/DamageTypes.txt"
 #include "Actors/Items/Base.txt"
 #include "Actors/Items/Keys.txt"
 #include "Actors/Items/UniqueStatBuffs.txt"
@@ -7,7 +8,6 @@ const int SPECIAL_FX_TID = 32768;
 
 #include "Actors/Items/Scoreboard.txt"
 
-#include "Actors/DamageTypes.txt"
 #include "Actors/ProjectileBase.txt"
 
 #include "Actors/WeaponIDs.txt"
@@ -24,7 +24,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/RPG.txt"
 #include "Actors/Items/Sync.txt"
 #include "Actors/Items/Numbers.txt"
-#include "Actors/Items/Perks.txt"
 #include "Actors/Items/MonsterInfo.txt"
 #include "Actors/Items/BudgetDrops.txt"
 #include "Actors/Items/Buttons.txt"
@@ -40,7 +39,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Resists/ElemResist.txt"
 #include "Actors/Items/Resists/PhysResist.txt"
 #include "Actors/Items/Resists/Weaken.txt"
-#include "Actors/Items/Resists/ReflectResist.txt"
 
 // Spells
 #include "Actors/Spells/Common.txt"

@@ -116,7 +116,9 @@ bool PlayerHasClicked(int pnum) {
 }
 
 // serverside
-Script 1690 (int isSecretExit, int forcedExit) {
+Script 1690 (int isSecretExit, int forcedExit, int isBossBrain) {
+	if(isBossBrain)
+		SetActivatorToTarget(0);
 	// this player hasn't triggered the exit before
 	int this = ActivatorTID();
 	int pnum = this - P_TIDSTART;
@@ -130,7 +132,7 @@ Script 1690 (int isSecretExit, int forcedExit) {
 		int active_pcount = GetActivePlayerCount();
 		
 		if(!forcedExit) {
-			if(democracy) {
+			if(democracy && !isBossBrain) {
 				// mark this player as already exited
 				MarkPlayerAsExited(pnum);
 				
@@ -173,7 +175,6 @@ Script 1690 (int isSecretExit, int forcedExit) {
 			
 			// freeze monsters / players during this time
 			GiveInventory("MenuFreeze", 1);
-			GiveInventory("DnD_IntermissionState", 1);
 			SetPlayerProperty(1, 1, PROP_TOTALLYFROZEN);
 			SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
 			
@@ -181,6 +182,8 @@ Script 1690 (int isSecretExit, int forcedExit) {
 			for(int i = 0; i < MAXPLAYERS; ++i) {
 				if(PlayerInGame(i)) {
 					SetActivator(i + P_TIDSTART);
+					TakeInventory("ShowingMenu", 1);
+					GiveInventory("DnD_IntermissionState", 1);
 					ACS_NamedExecuteWithResult("DnD Scoreboard Input Loop", i);
 				}
 			}
@@ -231,7 +234,7 @@ Script "DnD Scoreboard Input Loop" (int pnum) {
 }
 
 enum {
-	DND_SCBRDID_HOVERBG_WHO = 1800,
+	DND_SCBRDID_HOVERBG_WHO = 2000,
 	DND_SCBRDID_HOVERBG_CLASS,
 	DND_SCBRDID_HOVER_LIFE,
 	DND_SCBRDID_HOVER_ARMOR,
@@ -252,7 +255,7 @@ enum {
 	DND_SCBRDID_DAMAGETAKENUNDERLINE,
 	DND_SCBRDID_PDATA,
 	
-	DND_SCBRDID_BG = 2800
+	DND_SCBRDID_BG = 3000
 };
 #define DND_SCBRD_PDATA_THINGS 6 // status, name, damage dealt, damage taken, kill pct, tick icon
 
@@ -283,20 +286,18 @@ void GroupScoreboardPlayers() {
 	int lim = GetPlayerCountAny();
 	int pcounter = 0;
 	for(i = 0; i < MAXPLAYERS && pcounter < lim; ++i) {
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+		int spec = PlayerIsSpectator(i);
+		if(PlayerInGame(i) && spec != INTER_PSTATE_DEAD) {
 			PInterGroups[INTER_PSTATE_ALIVE][ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]++] = i;
 			++pcounter;
 		}
+		else if(spec == INTER_PSTATE_DEAD) {
+			PInterGroups[INTER_PSTATE_DEAD][ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]++] = i;
+			++pcounter;
+		}
 		else {
-			int spec = PlayerIsSpectator(i);
-			if(spec == INTER_PSTATE_DEAD) {
-				PInterGroups[INTER_PSTATE_DEAD][ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]++] = i;
-				++pcounter;
-			}
-			else if(spec == INTER_PSTATE_SPECTATING) {
-				PInterGroups[INTER_PSTATE_SPECTATING][ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]++] = i;
-				++pcounter;
-			}
+			PInterGroups[INTER_PSTATE_SPECTATING][ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]++] = i;
+			++pcounter;
 		}
 	}
 }
@@ -334,6 +335,7 @@ void BuildScoreboardBoxes() {
 Script "DnD Scoreboard Display" (int time, int total_mons) CLIENTSIDE {
 	// we dont want scan info overlaid
 	ClearMonsterScanInfo();
+	ClearMenuDisplay();
 
 	SpawnForced("ScoreBoardSongPlayer", 0, 0, 0);
 	// hopefully to clear the chat
@@ -593,7 +595,7 @@ int DrawHoveredPlayerData() {
 		}
 		else {
 			// within dead player range
-			pnum = PInterGroups[DND_SCBRD_DEADPLAYERCOUNT][boxid - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]];
+			pnum = PInterGroups[INTER_PSTATE_DEAD][boxid - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]];
 			inGame = true;
 			spec_info = INTER_PSTATE_DEAD;
 		}
@@ -649,16 +651,12 @@ int DrawHoveredPlayerData() {
 				HudMessage(s:"\cgDEAD"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 				DeleteTextRange(DND_SCBRDID_HOVER_LIFE, DND_SCBRDID_HOVER_CREDIT);
 			}
-			else {
-				int temp = CheckActorInventory(tid, "DnD_Character");
-				// alive and well
-				if(temp) {
-					HudMessage(
-						s:"\cd", l:"DND_STAT18", s:" \c-", d:CheckActorInventory(tid, "Level"),
-						s:"\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:CheckActorInventory(tid, "DnD_Character") - 1), DND_CLASS_LABEL_NAME);
-						HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-					);
-				}
+			else {				
+				HudMessage(
+					s:"\cd", l:"DND_STAT18", s:" \c-", d:CheckActorInventory(tid, "Level"),
+					s:"\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:CheckActorInventory(tid, "DnD_Character") - 1), DND_CLASS_LABEL_NAME);
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG_CLASS, CR_WHITE, mx, my + 16.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				);
 				
 				// life
 				HudMessage(
