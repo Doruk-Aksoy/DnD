@@ -438,7 +438,6 @@ Actor SicklePuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_MELEE)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SICKLE)
-			TNT1 A 0 A_GiveToTarget("SickleHealer", 1)
 		Goto DoDamage
 		AfterDamage:
 		Crash:
@@ -459,16 +458,8 @@ Actor SicklePuff_X : SicklePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_MELEEOCCULT)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN | DND_DAMAGEFLAG_DOFULLDAMAGE)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SICKLE)
-			TNT1 A 0 A_GiveToTarget("SickleHealer", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 2, 0, 1)
 		Goto DoDamage
-	}
-}
-
-Actor SickleHealer : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 HealThing(2)
-		Stop
 	}
 }
 
@@ -851,13 +842,13 @@ ACTOR Katana : Weapon {
 			JIA1 AB 1
 		IaiSlashNormal:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JIA1 C 1 A_GiveInventory("KatanaShooter1", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JIA1 D 1 A_GiveInventory("KatanaShooter2", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JIA1 E 1 A_GiveInventory("KatanaShooter3", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter4", 1)
 			
 		Goto IaiSlashFinish
@@ -873,12 +864,12 @@ ACTOR Katana : Weapon {
 			TNT1 A 0 A_PlaySound("jpcpfist/sheathe", CHAN_WEAPON, 1.0, 0, 1.5)
 			JIA1 HIJ 2
 			JIA1 K 3
-			TNT1 A 0 A_JumpIfInventory("Ability_Kick", 1, "ForcedSheatheQuick")
-			JIA1 L 8
+			JIA1 L 8 A_JumpIfInventory("Ability_Kick", 1, "ForcedSheatheQuick")
 			JIA1 MN 2
 		Goto Ready
 		ForcedSheatheQuick:
-			JIA1 LLLLLLLL 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOBOB | WRF_NOSWITCH)
+			JIA1 L 1 A_WeaponReady(WRF_NOFIRE | WRF_NOBOB | WRF_NOSWITCH)
+			JIA1 LLLLLLL 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOBOB | WRF_NOSWITCH)
 			JIA1 MMNN 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOBOB | WRF_NOSWITCH)
 		Goto Ready
 
@@ -895,13 +886,13 @@ ACTOR Katana : Weapon {
 			JFIS G 1
 		LeftSlashNormal:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
 		Goto LeftSlashFinish
 		LeftSlashFinish:
@@ -924,13 +915,13 @@ ACTOR Katana : Weapon {
 			JFIS L 1
 		RightSlashNormal:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
 		Goto RightSlashFinish
 		RightSlashFinish:
@@ -967,46 +958,46 @@ ACTOR Katana : Weapon {
 			TNT1 A 0 A_GiveInventory("KatanaShooter4", 1)
 			TNT1 AAAA 1
 			JFIS L 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
 			JFIS P 1
 			TNT1 A 2
 			JFIS G 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
 			JFIS K 1
 			TNT1 A 2
 			JFIS L 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
 			JFIS P 1
 			TNT1 A 2
 			JFIS G 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
 			JFIS K 1
 			TNT1 A 2
@@ -1031,23 +1022,23 @@ ACTOR Katana : Weapon {
 			JFIS BA 1
 			TNT1 A 1
 			JFIS L 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS M 1 A_GiveInventory("KatanaShooter9", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS N 1 A_GiveInventory("KatanaShooter10", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS O 1 A_GiveInventory("KatanaShooter11", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter12", 1)
 			JFIS P 1
 			JFIS G 1 A_PlaySound("jpcpfist/swing", CHAN_WEAPON, 1.0, 0, 1.5)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS H 1 A_GiveInventory("KatanaShooter5", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS I 1 A_GiveInventory("KatanaShooter6", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			JFIS J 1 A_GiveInventory("KatanaShooter7", 1)
-			TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
+			//TNT1 A 0 A_FireCustomMissile ("KatanaProjectileSlash", 0, 0)
 			TNT1 A 0 A_GiveInventory("KatanaShooter8", 1)
 			JFIS K 1
 			TNT1 A 0 A_PlaySound("jpcpfist/iai2", CHAN_WEAPON, 1.0, 0, 1.5)

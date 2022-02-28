@@ -1435,7 +1435,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		else if(curopt == MENU_SHOP_AMMO_4)
 			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL_BEGIN, -1, -1, false);
 		else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
-			HandleAmmoPageInput(pnum, -1, boxid, -1, -1, -1, true);
+			HandleAmmoPageInput(pnum, -1, boxid, 0, -1, -1, true);
 		else if(curopt == MENU_SHOP_ABILITY_1) {
 			if(HasLeftClicked(pnum)) {
 				if(boxid != MAINBOX_NONE)

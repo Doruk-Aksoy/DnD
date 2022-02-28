@@ -160,6 +160,9 @@ typedef struct dist_tid_pair {
 
 #define CHARON_PARTICLE_DENSITY 8
 
+#define KANJI_TRAP_TID 2300
+#define KANJI_TRAPEXP_TID 2400
+
 #define DARKLANCE_TID 2100
 #define DARKLANCE_SHREDDER 2200
 #define DARKLANCE_ALT_DURATION 15 // 3 x 5 ticks, so 7 tic duration per instance

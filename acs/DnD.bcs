@@ -630,6 +630,7 @@ Script "DND On Kill" KILL {
 	int this = ActivatorTID();
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	GiveInventory("Mo_Died", 1);
+	TakeInventory("DnD_CullSuccess", 1);
 	// don't continue if monster is revived or summoned
 	if(HasTrait(m_id, DND_SUMMONED) || HasTrait(m_id, DND_REVIVED))
 		Terminate;
@@ -1917,10 +1918,10 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	MonsterProperties[m_id].id = monsterid;
 
 	// phantasm should never be elite
-	if(
-		!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
+	if(1
+		/*!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")	&&
-		!IsUniqueMonster(monsterid)
+		!IsUniqueMonster(monsterid)*/
 	)
 	{
 		MonsterProperties[m_id].isElite = true;
@@ -3727,7 +3728,7 @@ Script 1000 (int isSoftcore) {
 		// handle fixed point shit here because getcvar is stupid with them
 		ConsoleCommand("sv_coop_damagefactor 1.0");
 		ConsoleCommand("dnd_researchdroprate 0.00249");
-		ConsoleCommand("dnd_uniquemonster_spawnchance 0.0499");
+		ConsoleCommand("dnd_uniquemonster_spawnchance 0.02499");
 	}
 	if(isSoftcore < 2) {
 		if(isSoftcore) {
@@ -6103,6 +6104,51 @@ Script "DnD Bloodfiend Heal" (void) {
 	
 	// 1% heal per pellet hitting
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / 100);
+}
+
+Script "DnD Kanji Detect" (void) {
+	SetActivator(0, AAPTR_TARGET);
+	GiveInventory("DnD_Boolean", 1);
+	SetResultValue(0);
+}
+
+Script "DnD Kanji Explosion" (int x, int y, int z) {
+	x <<= 16;
+	y <<= 16;
+	z <<= 16;
+	SetActivator(0, AAPTR_TARGET);
+	
+	int owner = ActivatorTID();
+	int tid = KANJI_TRAPEXP_TID + PlayerNumber();
+	
+	SpawnForced("DemonSealExplosion", x, y, z, tid);
+	SetActivator(tid);
+	Thing_ChangeTID(0, 0);
+	SetActorProperty(0, APROP_TARGETTID, owner);
+	SetPointer(AAPTR_TARGET, owner);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Create Kanji Trap" (void) {
+	int a = GetActorAngle(0);
+	int p = GetActorPitch(0);
+	int tid = KANJI_TRAP_TID + PlayerNumber();
+	int owner = ActivatorTID();
+	
+	SpawnForced("DemonSealTrap", GetActorX(0), GetActorY(0), GetActorZ(0), tid);
+	SetActivator(tid);
+	Thing_ChangeTID(0, 0);
+	SetActorProperty(0, APROP_TARGETTID, owner);
+	SetPointer(AAPTR_TARGET, owner);
+	SetActorVelocity(0, FixedMul(64 * cos(a), cos(p)), FixedMul(64 * sin(a), cos(p)), -64 * sin(p), 0, 0);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
+	SetActorState(0, "Remove", 0);
+	SetResultValue(0);
 }
 
 Script 69 (void) NET {

@@ -91,6 +91,8 @@ enum {
 * 2000 - 2063 = Deathray marker TID for players
 * 2100 - 2163 = Dark Lance tids
 * 2200 - 2263 = Dark Lance Shredder FX
+* 2300 - 2363 = Kanji Trap tids
+* 2400 - 2463 = Kanji Trap Explosion tid
 * 2500 = Auxiliary unique monster tid
 * 3000 = Frozen FX Temporary TID
 * 3001 = Chaos Mark FX Temporary TID

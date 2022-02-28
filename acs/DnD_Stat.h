@@ -346,7 +346,7 @@ int GetArmorCap(bool useMenuShow) {
 		res += DND_BASE_ARMOR_SHOW;
 	else
 		res += DND_BASE_ARMOR;
-	res += (res * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
+	//res += (res * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	
 	int percent = 	GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus") +
 					CheckInventory("CelestialCheck") * CELESTIAL_BOOST +

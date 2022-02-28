@@ -31,6 +31,7 @@ enum {
 	DND_DAMAGETYPE_OCCULT,
 	DND_DAMAGETYPE_OCCULTFIRE,
 	DND_DAMAGETYPE_OCCULTEXPLOSION,
+	DND_DAMAGETYPE_MAGICSEAL,
 
 	// elemental types
 	DND_DAMAGETYPE_FIRE,
@@ -82,6 +83,7 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Magic",
 	"MagicFire",
 	"Explosives_Magic",
+	"MagicSealing",
 	
 	// elemental
 	"Fire",
@@ -210,7 +212,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 	{ "HitBeep/Invulnerable",  	"InvulBeepTimer"		}
 };
 
-#define DND_CULL_BASEPERCENT 10 // 1 / 10
+#define DND_CULL_BASEPERCENT 15 // percent
 #define DND_DESOLATOR_DMG_GAIN 10 // 10%
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
 
@@ -247,6 +249,13 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
 #define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
 int PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
+
+// contains overflow checks
+int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
+	if(dmg < INT_MAX / factor)
+		return dmg * factor / div;
+	return (dmg / div) * factor;
+}
 
 int ScanActorFlags() {
 	int res = 0;
@@ -527,16 +536,23 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	return dmg;
 }
 
-void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim) {
+void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeRipperHack = false) {
 	// get push vector
 	int dx, dy, dz;
 	int m = GetActorProperty(victim, APROP_MASS) / 2;
 	if(!m)
 		m = 1;
 	
-	dx =  GetActorX(victim) - ox;
-	dy =  GetActorY(victim) - oy;
-	dz =  GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0 - oz;
+	if(!oneTimeRipperHack) {
+		dx =  GetActorX(victim) - ox;
+		dy =  GetActorY(victim) - oy;
+		dz =  GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0 - oz;
+	}
+	else {
+		dx = ox;
+		dy = oy;
+		dz = oz;
+	}
 	
 	int len = magnitudeThree(dx >> 16, dy >> 16, dz >> 16);
 	if(!len)
@@ -560,7 +576,7 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim) {
 
 // there may be things that add + to cull % later
 bool CheckCullRange(int source, int victim, int dmg) {
-	return GetActorProperty(victim, APROP_HEALTH) - dmg <= MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / DND_CULL_BASEPERCENT;
+	return GetActorProperty(victim, APROP_HEALTH) - dmg <= ApplyDamageFactor_Safe(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, DND_CULL_BASEPERCENT);
 }
 
 void HandleChillEffects(int victim) {
@@ -811,7 +827,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters!
-void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0, bool wep_neg = false) {
+void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0, bool wep_neg = false, bool oneTimeRipperHack = false) {
 	str s_damagetype = DamageTypeList[damage_type];
 	bool forced_full = false;
 	bool no_ignite_stack = flags & DND_DAMAGEFLAG_NOIGNITESTACK;
@@ -892,12 +908,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
 	}
 	
-	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
-		GiveActorInventory(victim, "DnD_CullSuccess", 1);
-		
-		if(flags & DND_DAMAGEFLAG_SELFCULL)
-			Thing_Destroy(victim, false, 0);
-	}
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
 	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && !MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_VENOMANCER]) {
@@ -950,38 +960,43 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	temp = CheckInventory("IATTR_FrozenDamage");
 	if(CheckActorInventory(victim, "DnD_FreezeTimer") && temp)
 		dmg += dmg * (100 + temp) / 100;
+		
+	// 50% more damage taken, so dmg * 3 / 2
+	if(CheckActorInventory(victim, "DemonSealResistDebuff"))
+		dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
 	
 	// damage number handling
+	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
 	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
 	if(pnum != -1) {
 		// this part handles damage pushing
 		temp = victim - DND_MONSTERTID_BEGIN;
 		
-		// flags represent the flag list of damageticflag
-		flags = 0;
+		// extra represent the flag list of damageticflag
+		extra = 0;
 		if(!(actor_flags & DND_ACTORFLAG_NOPUSH))
-			flags |= DND_DAMAGETICFLAG_PUSH;
+			extra |= DND_DAMAGETICFLAG_PUSH;
 		
 		if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
-			flags |= DND_DAMAGETICFLAG_CRIT;
+			extra |= DND_DAMAGETICFLAG_CRIT;
 			
 		if(actor_flags & DND_ACTORFLAG_COUNTSASMELEE)
-			flags |= DND_DAMAGETICFLAG_CONSIDERMELEE;
+			extra |= DND_DAMAGETICFLAG_CONSIDERMELEE;
 		
 		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 		if(damage_type == DND_DAMAGETYPE_ICE)
-			flags |= DND_DAMAGETICFLAG_ICE;
+			extra |= DND_DAMAGETICFLAG_ICE;
 		else if(damage_type == DND_DAMAGETYPE_FIRE && !no_ignite_stack)
-			flags |= DND_DAMAGETICFLAG_FIRE;
+			extra |= DND_DAMAGETICFLAG_FIRE;
 		else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
-			flags |= DND_DAMAGETICFLAG_LIGHTNING;
+			extra |= DND_DAMAGETICFLAG_LIGHTNING;
 
 		if(!PlayerDamageTicData[pnum][temp]) {
 			PlayerDamageVector[pnum].x = ox;
 			PlayerDamageVector[pnum].y = oy;
 			PlayerDamageVector[pnum].z = oz;
 			
-			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (flags << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg);
+			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (extra << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg | (oneTimeRipperHack << 1));
 		}
 		PlayerDamageTicData[pnum][temp] += dmg;
 	}
@@ -995,6 +1010,16 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		}
 		SetActorInventory(victim, "MonsterFortifyCount", temp - dmg);
 		dmg -= temp;
+	}
+	
+	// cull checks
+	if((flags & (DND_DAMAGEFLAG_CULL | DND_DAMAGEFLAG_SELFCULL)) && CheckCullRange(source, victim, dmg)) {
+		GiveActorInventory(victim, "DnD_CullSuccess", 1);
+		
+		// if self cull is in effect simply destroy it otherwise return from here, let the actor who is doing the culling handle it from here
+		if(flags & DND_DAMAGEFLAG_SELFCULL)
+			Thing_Damage2(victim, GetActorProperty(victim, APROP_HEALTH) * 2, s_damagetype);
+		return;
 	}
 	
 	if(dmg > 0) {
@@ -1101,19 +1126,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	// finally check player, if we are close to our own explosion with self dmg flag, hurt us too
 	if(flags & DND_DAMAGEFLAG_BLASTSELF) {
 		// we are the owner here at this point, we can use 0 for ourselves
-		
 		// sedrin staff armor check
 		// if not sedrin staff, immediately check
 		// if sedrin staff and if we have armor, both are false so no damage to us
 		if(wepid != DND_WEAPON_SEDRINSTAFF || !CheckActorInventory(owner, "Armor")) {
 			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-			if(final_dmg != -1) {
-				// final dmg cant be negative -- apply penetration and self explosion resist here
-				final_dmg = final_dmg * (100 - CheckInventory("IATTR_ExplosionResist") + CheckInventory("IATTR_ExplosivePen")) / 100;
-				if(final_dmg < 0)
-					final_dmg = 0;
-				HandleDamageDeal(owner, owner, final_dmg, damage_type, flags, px, py, pz, actor_flags);
-			}
+			if(final_dmg > 0)
+				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
 		}
 	}
 	
@@ -1154,7 +1173,7 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 	SetResultValue(0);
 }
 
-void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid) {
+void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false) {
 	int px, py, pz;
 
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
@@ -1224,9 +1243,16 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		}
 	}
 	else {
-		px = GetActorX(0);
-		py = GetActorY(0);
-		pz = GetActorZ(0);
+		if(!oneTimeRipperHack) {
+			px = GetActorX(0);
+			py = GetActorY(0);
+			pz = GetActorZ(0);
+		}
+		else {
+			px = GetActorVelX(0);
+			py = GetActorVelY(0);
+			pz = GetActorVelZ(0);
+		}
 	}
 	
 	bool wep_neg = wepid == -1;
@@ -1293,7 +1319,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	
 	//printbold(d:dmg);
 	if(owner && victim)
-		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags, extra, poison, wep_neg);
+		HandleDamageDeal(owner, victim, dmg, damage_type, flags, px, py, pz, actor_flags, extra, poison, wep_neg, oneTimeRipperHack);
 }
 
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
@@ -1314,7 +1340,7 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 // has embedded data
 Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	//printbold(s:"FUCKING HURT ", d:damage_type >> DAMAGE_TYPE_SHIFT);
-	HandleImpactDamage(GetActorProperty(0, APROP_TARGETTID), damage_type >> DAMAGE_TYPE_SHIFT, dmg, damage_type & DAMAGE_TYPE_MASK, flags, wepid);
+	HandleImpactDamage(GetActorProperty(0, APROP_TARGETTID), damage_type >> DAMAGE_TYPE_SHIFT, dmg, damage_type & DAMAGE_TYPE_MASK, flags, wepid, true);
 	
 	SetResultValue(0);
 }
@@ -1326,8 +1352,7 @@ void HandleRipperHitSound(int tid, int owner, int wepid) {
 		break;
 		case DND_WEAPON_DARKLANCE:
 			// stack building on kill
-			if(!isActorAlive(tid))
-				GiveActorInventory(owner, "LanceStacks", 1);
+			GiveActorInventory(owner, "LanceStacks", 1);
 		break;
 	}
 }
@@ -1499,9 +1524,9 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 
 	// do the real pushing after 1 tic of dmg data has been accumulated and we have non-zero damage in effect
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
-		HandleDamagePush(PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN);
+		HandleDamagePush(PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN, wep_neg & 2);
 	
-	if(!wep_neg) {
+	if(!(wep_neg & 1)) {
 		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || flags & DND_DAMAGETICFLAG_CRIT)
 			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
 		
@@ -1832,13 +1857,6 @@ Script "DnD Check Explosion Repeat" (void) {
 	SetResultValue(res);
 }
 
-// contains overflow checks
-int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
-	if(dmg < INT_MAX / factor)
-		return dmg * factor / div;
-	return (dmg / div) * factor;
-}
-
 // dmg data encapsulates the information about what damage types this attack involved
 int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data) {
 	// first check if this is present in our map
@@ -1913,6 +1931,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(isRipper)
 					dmg >>= 1;
 					
+				// halved by demon sealer effect if any
+				if(CheckInventory("DemonSealDamageDebuff"))
+					dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
+					
 				// % damage effects
 				/*
 					list of actors with % hp damage
@@ -1946,6 +1968,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 			else if(IsPlayer(shooter) && victim == shooter) {
 				// self damage controls
+				// printbold(s:"Self damaged for ", d:arg1, s: " dmg type: ", s:arg2);
 			}
 		}
 		else if(IsMonster(victim) && IsMonster(shooter)) {

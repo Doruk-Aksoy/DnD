@@ -349,7 +349,7 @@ int GetSpawnHealth() {
 	// consider percent bonuses from here on
 	int percent  = GetDataFromOrbBonus(pnum, OBI_HPPERCENT)							 		+ 
 				   DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus") 	+
-				   GetStrength() * DND_STR_CAPINCREASE 										+
+				   // GetStrength() * DND_STR_CAPINCREASE 										+
 				   CheckInventory("CelestialCheck") * CELESTIAL_BOOST 						+
 				   GetResearchHealthBonuses() 												+
 				   Player_Elixir_Bonuses[pnum].hp_percent_bonus 							+

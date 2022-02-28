@@ -212,6 +212,9 @@ Actor EliteSpecialFX {
 		Loop
 		Death:
 		Fade:
+			TNT1 A 3 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+		Stop
+		Remove:
 			TNT1 A 1
 		Stop
 	}
