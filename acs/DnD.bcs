@@ -823,13 +823,12 @@ Script "DND On Kill" KILL {
 		// make it less likely to drop
 		// addone is the chance here (reusing old variables)
 		addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-		#ifdef ISDEBUGBUILD
+		/*#ifdef ISDEBUGBUILD
 			SpawnResearch();
-		#endif
-		#ifndef ISDEBUGBUILD
+		#else*/
 			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
 				SpawnResearch();
-		#endif
+		//#endif
 	}
 	
 	// Talent Capsule Drop
@@ -882,10 +881,10 @@ Script "DND On Kill" KILL {
 	}
 	
 	#ifdef ISDEBUGBUILD
-		SpawnElixir(0);
+		//SpawnElixir(0);
 		SpawnCharm(0, true);
-		SpawnOrb(0, true);
-		SpawnToken(0, true);
+		//SpawnOrb(0, true);
+		//SpawnToken(0, true);
 	#endif
 	HandleCharmLootDrop(pnum);
 	
@@ -1918,10 +1917,10 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	MonsterProperties[m_id].id = monsterid;
 
 	// phantasm should never be elite
-	if(1
-		/*!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
+	if(
+		!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")	&&
-		!IsUniqueMonster(monsterid)*/
+		!IsUniqueMonster(monsterid)
 	)
 	{
 		MonsterProperties[m_id].isElite = true;
@@ -2068,7 +2067,7 @@ Script "DnD Monster Spawner" (int category) {
 	int roll, bin;
 	int avg_level = GetAveragePlayerLevel();
 	// roll legendary monster chance and do checks of it
-	if(!MadeLegendary && category == DND_CYBERDEMONID && random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && avg_level >= 25) {
+	if(!MadeLegendary && category == DND_CYBERDEMONID /*&& random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && avg_level >= 25*/) {
 		MadeLegendary = 1;
 		// decide which legendary
 		roll = random(1, DND_MAX_LEGENDARY);
@@ -3148,13 +3147,16 @@ Script 992 (int t, int simple) {
 }
 
 Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
-	NamedRequestScriptPuke("DnD User Dash Status Receive", GetCVar("dnd_dashstatus"));
+	int status = GetCVar("dnd_dashstatus");
+	NamedRequestScriptPuke("DnD User CVAR Status Receive", status);
 
 	ResetPlayerScriptChecks();
 	if(ConsolePlayerNumber() != PlayerNumber()) 
 		Terminate;
 	if(GetCVar("dnd_showmapinfo"))
 		SetInventory("ShowMapInfo", 1);
+	if(GetCVar("dnd_detailedmods"))
+		SetInventory("ShowModTiers", 1);
 		
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	// Set the ammo capacity
@@ -3775,24 +3777,28 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 		AmbientSound("LegendaryHere", 127);
 	SetHudSize(640, 480, 1);
 	SetFont("QUESTPOP");
-	if(num != DND_ANNOUNCER_LEGENDARYMONSTER)
+	if(num != DND_ANNOUNCER_LEGENDARYMONSTER) {
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 72.0, 4.0, 1.0, 1.0);
-	else
+		SetFont("NOTIFBAK");
+		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEBAKID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 96.0, 4.0, 1.0, 1.0);
+	}
+	else {
 		HudMessageBold(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 72.0, 4.0, 1.0, 1.0);
-		
-	SetFont("NOTIFBAK");
-	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEBAKID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 96.0, 4.0, 1.0, 1.0);
+		SetFont("NOTIFBAK");
+		HudMessageBold(s:"A"; HUDMSG_FADEINOUT, SURVIVEBAKID, CR_UNTRANSLATED, 560.0 + ScreenResOffsets[1], 96.0, 4.0, 1.0, 1.0);
+	}
 		
 	SetFont("OBJFONT");
 	SetHudSize(960, 600, 1);
 	
 	int xoff = 3 * ScreenResOffsets[1] / 2;
+	int wrap_x = 240 - 16 * (num == DND_ANNOUNCER_LEGENDARYMONSTER);
 	
-	SetHudClipRect(710 + (xoff >> 16), 96, 240, 128, 240, 1);
+	SetHudClipRect(710 + (xoff >> 16), 96, wrap_x, 128, wrap_x, 1);
 	if(num == DND_ANNOUNCER_QUEST)
 		HudMessage(l:"DND_NEWQUEST"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_ATTRIBPOINT)
-		HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + 3 * ScreenResOffsets[1] / 2, 126.1, 4.0, 1.0, 1.0);
+		HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_NEWCLASSPERK)
 		HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, 728.1 + xoff, 126.1, 4.0, 1.0, 1.0);
 	else if(num == DND_ANNOUNCER_LEGENDARYMONSTER) // this one is called from the monster spawner and thus must be hudmessagebold
@@ -4877,8 +4883,10 @@ Script 1004 (void) NET {
 	}
 }
 
-Script "DnD User Dash Status Receive" (int status) NET {
-	SetActorInventory(ActivatorTID(), "DashDisabled", !status);
+// receive user settings from client => server
+Script "DnD User CVAR Status Receive" (int bits) NET {
+	int tid = ActivatorTID();
+	SetActorInventory(tid, "DashDisabled", bits & 1);
 }
 
 Script "DnD Drop Orb" (void) {
@@ -6181,7 +6189,21 @@ Script 68 (int x) NET {
 		int c = CreateItemSpot();
 		int i;
 		i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
-		ConstructUniqueOnField(c, i, DND_ITEM_CHARM);
+		ConstructUniqueOnField(c, i, DND_ITEM_CHARM, 0);
 		SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
 	}
 }
+
+// experiment to check how evenly distributed the random attributes are
+/*Script "Experiment" ENTER {
+	int i;
+	static int attr_bins[NORMAL_ATTRIBUTE_COUNT];
+	for(i = 0; i < NORMAL_ATTRIBUTE_COUNT; ++i)
+		attr_bins[i] = 0;
+	
+	for(i = 0; i < 10000; ++i)
+		++attr_bins[random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE * 100 + 99) / 100];
+		
+	for(i = 0; i < NORMAL_ATTRIBUTE_COUNT; ++i)
+		Log(s:"attr ", d:i, s:": ", d:attr_bins[i]);
+}*/

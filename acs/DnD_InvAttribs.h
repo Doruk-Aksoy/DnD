@@ -1,6 +1,29 @@
 #ifndef DND_INV_ATTRIBS_IN
 #define DND_INV_ATTRIBS_IN
 
+#include "DnD_InvInfo.h"
+
+#define MAX_CHARM_AFFIXTIERS 10
+#define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is...
+
+#define CHARMSTR_COLORCODE 0
+#define CHARMSTR_TIERTAG 1
+
+// level 100 = perfect
+str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
+	{ "\c[C8]", "DND_CHARMTIER1" },
+	{ "\c[D5]", "DND_CHARMTIER2" },
+	{ "\c[A3]", "DND_CHARMTIER3" },
+	{ "\c[C3]", "DND_CHARMTIER4" },
+	{ "\c[E9]", "DND_CHARMTIER5" },
+	{ "\c[K9]", "DND_CHARMTIER6" },
+	{ "\c[E2]", "DND_CHARMTIER7" },
+	{ "\c[C5]", "DND_CHARMTIER8" },
+	{ "\c[W9]", "DND_CHARMTIER9" },
+	{ "\c[Y9]", "DND_CHARMTIER10" },
+	{ "\c[L7]", "DND_CHARMTIER11" },
+};
+
 // formula for accuracy:
 // every 10 points contribute 0.01%
 // applied as follows: X = spread of weapon, X * (1.0 - accuracy * factor_per_point), capped at 80 000 accuracy (80%)
@@ -362,15 +385,6 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 }
 
-// These are necessary to sync the global variables
-Script "DnD Load Inventory Attributes" OPEN {
-	SetupInventoryAttributeStrings();
-}
-
-Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
-	SetupInventoryAttributeStrings();
-}
-
 // if 3rd argument is 0 that means simply use the difference + 1 as increment
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	5, 		19, 		0,		INV_ATTR_TAG_LIFE 										},
@@ -491,6 +505,100 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	10,		20,			0,		INV_ATTR_TAG_NONE										}  // eryxia
 };
 
+// returns the amount to skip over the base range to map it into its appropriate tier
+int GetModTierRangeMapper(int attr, int lvl) {
+	int val = 0;
+	if(!Inv_Attribute_Info[attr].attrib_level_modifier)
+		val = (Inv_Attribute_Info[attr].attrib_high - Inv_Attribute_Info[attr].attrib_low + 1) * lvl;
+	else
+		val = (Inv_Attribute_Info[attr].attrib_level_modifier * lvl);
+	return val;
+}
+
+#define ITEM_MODRANGE_LOW 0
+#define ITEM_MODRANGE_HIGH 1
+
+// this uses a precalculated tier mapping to save time
+int GetModRangeWithTier(int attr, int tier_mapping, bool which) {
+	if(!which)
+		return Inv_Attribute_Info[attr].attrib_low + tier_mapping + (tier_mapping != 0);
+	return Inv_Attribute_Info[attr].attrib_high + tier_mapping;
+}
+
+// this calculates the tier mapping for itself based on supplied level
+int GetModRange(int attr, int tier, bool which) {
+	return GetModRangeWithTier(attr, GetModTierRangeMapper(attr, tier), which);
+}
+
+// rolls an attribute's value depending on specified parameters
+int RollAttributeValue(int attr, int tier, bool isWellRolled) {
+	int tier_mapping = GetModTierRangeMapper(attr, tier);
+
+	if(!isWellRolled)
+		return random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH));
+	int high = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH);
+	return random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + high) / 2, high);
+}
+
+int PickRandomAttribute() {
+	int bias = Timer();
+	int val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
+	// this is a last resort random here, in case there was an overflow... shouldn't, but might
+	// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
+	if(val < 0)
+		val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+	return val;
+}
+
+str GetDetailedModText(int attr, int tier, int trunc_factor = 0, int extra = -1) {
+	if(extra != -1)
+		return GetDetailedModText_Unique(attr, tier, trunc_factor, extra);
+
+	str col_tag = Charm_Strings[tier][CHARMSTR_COLORCODE];
+	int tier_mapping = GetModTierRangeMapper(attr, tier);
+	if(!trunc_factor) {
+		return StrParam(
+			s:col_tag, l:"DND_TIERLETTER", d:tier, s: "\c- (",
+			s:col_tag, d:GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW),
+			s:"\c- - ",
+			s:col_tag, d:GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH), s:"\c-)"
+		);
+	}
+	return StrParam(
+		s:col_tag, l:"DND_TIERLETTER", d:tier, s: "\c- (",
+		s:col_tag, f:ftrunc(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) * trunc_factor),
+		s:"\c- - ",
+		s:col_tag, f:ftrunc(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH) * trunc_factor), s:"\c-)"
+	);
+}
+
+str GetDetailedModText_Unique(int attr, int unique_id, int trunc_factor = 0, int unique_roll_id = 0) {
+	if(!trunc_factor) {
+		return StrParam(
+			s:"\c[D1]", l:"DND_UNIQUELETTER", s: "\c- (",
+			s:"\c[D1]", d:UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low,
+			s:"\c- - ",
+			s:"\c[D1]", d:UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high, s:"\c-)"
+		);
+	}
+	
+	if(unique_id != UITEM_WELLOFPOWER) {
+		return StrParam(
+			s:"\c[D1]", l:"DND_UNIQUELETTER", s: "\c- (",
+			s:"\c[D1]", f:ftrunc(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low * trunc_factor),
+			s:"\c- - ",
+			s:"\c[D1]", f:ftrunc(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high * trunc_factor), s:"\c-)"
+		);
+	}
+	// this item is a little odd, so we need to treat it as such
+	return StrParam(
+		s:"\c[D1]", l:"DND_UNIQUELETTER", s: "\c- (",
+		s:"\c[D1]", f:ftrunc((UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low << 16) / FACTOR_SMALLCHARM_RESOLUTION),
+		s:"\c- - ",
+		s:"\c[D1]", f:ftrunc((UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"\c-)"
+	);
+}
+
 str GetInventoryAttributeText(int attr) {
 	if(attr <= LAST_INV_ATTRIBUTE)
 		return StrParam(s:"IATTR_T", d:attr);
@@ -503,7 +611,7 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr) - LAST_ESSENCE_ATTRIBUTE);
 }
 
-str ItemAttributeString(int attr, int val) {
+str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods = false, int extra = -1) {
 	str text = GetInventoryAttributeText(attr);
 	
 	switch(attr) {
@@ -512,26 +620,68 @@ str ItemAttributeString(int attr, int val) {
 			
 		// essences with specific writing
 		case INV_ESS_SSRATH:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", l:text, s:"+ ", d:val, s:"% ", l:"IATTR_MAGICRES",
+					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
+				);
+			}
 			return StrParam(s:"\c[Q7]", l:text, s:"+ ", d:val, s:"% ", l:"IATTR_MAGICRES");
+			
 		case INV_ESS_CHEGOVAX:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", l:text, s:"+ ", d:val, s:"%",
+					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
+				);
+			}
 			return StrParam(s:"\c[Q7]", l:text, s:"+ ", d:val, s:"%");
+			
 		case INV_ESS_ZRAVOG:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", l:text, d:val, s: "%",
+					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
+				);
+			}
 			return StrParam(s:"\c[Q7]", l:text, d:val, s: "%");
+
 		case INV_ESS_ERYXIA:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", l:text, d:val, s:"% ", l:"IATTR_MOREDMG",
+					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
+				);
+			}
 			return StrParam(s:"\c[Q7]", l:text, d:val, s:"% ", l:"IATTR_MOREDMG");
+
 		// essence with no numeric values
 		case INV_ESS_VAAJ:
 		case INV_ESS_LESHRAC2:
 		case INV_ESS_THORAX:
 			return StrParam(s:"\c[Q7]", l:text);
+			
 		// essences with percentages in them
 		case INV_ESS_OMNISIGHT2:
 		case INV_ESS_LESHRAC:
 		case INV_ESS_HARKIMONDE:
 		case INV_ESS_KRULL:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", s:"+ ", d:val, s:"%", l:text,
+					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
+				);
+			}
 			return StrParam(s:"\c[Q7]", s:"+ ", d:val, s:"%", l:text);
+			
 		// essences that are like regular mods, just have color code
 		case INV_ESS_OMNISIGHT:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", s:"+ ", d:val, l:text,
+					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
+				);
+			}
 			return StrParam(s:"\c[Q7]", s:"+ ", d:val, l:text);
 		
 		// since percentages are handled in default case, we will handle all flat value attributes under here
@@ -556,62 +706,141 @@ str ItemAttributeString(int attr, int val) {
 		case INV_FLAT_LIGHTNINGDMG:
 		case INV_FLAT_POISONDMG:
 		case INV_OVERLOAD_ZAPCOUNT:
-			if(val > 0)
+			if(val > 0) {
+				if(showDetailedMods) {
+					return StrParam(
+						s:"+ \c[Q9]", d:val, s:"\c- ", l:text,
+						s:" - ", s:GetDetailedModText(attr, tier, 0, extra)
+					);
+				}
 				return StrParam(s:"+ \c[Q9]", d:val, s:"\c- ", l:text);
+			}
 			else if(val < 0)
 				return StrParam(s:"- \cg", d:val, s:"\c- ", l:text);
 				
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
+			if(showDetailedMods) {
+				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text,
+					s:" - ", s:GetDetailedModText(attr, tier, 100, extra)
+				);
+			}
 			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);
 		
 		case INV_DMGREDUCE_REFL:
+			if(showDetailedMods) {
+				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 0.1), s:"%\c- ", l:text,
+					s:" - ", s:GetDetailedModText(attr, tier, 0.1, extra)
+				);
+			}
 			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 0.1), s:"%\c- ", l:text);
 			
 		case INV_LIFESTEAL:
+			if(showDetailedMods) {
+				return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:"%\c- ", l:text,
+					s:" - ", s:GetDetailedModText(attr, tier, 1, extra)
+				);
+			}
 			return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:"%\c- ", l:text);
 		
 		// default takes percentage values
 		default:
-			if(val > 0)
+			if(val > 0) {
+				if(showDetailedMods) {
+					return StrParam(
+						s:"+ \c[Q9]", d:val, s:"%\c- ", l:text,
+						s:" - ", s:GetDetailedModText(attr, tier, 0, extra)
+					);
+				}
 				return StrParam(s:"+ \c[Q9]", d:val, s:"%\c- ", l:text);
-			else if(val < 0)
-				return StrParam(s:"- \cg", d:val, s:"%\- ", l:text);
+			}
+			else if(val < 0) {
+				if(showDetailedMods) {
+					return StrParam(
+						s:"- \c[Q9]", d:val, s:"%\c- ", l:text,
+						s:" - ", s:GetDetailedModText(attr, tier, 0, extra)
+					);
+				}
+				return StrParam(s:"- \cg", d:val, s:"%\c- ", l:text);
+			}
 	}
 	return "";
 }
 
-str GetItemAttributeText(int attr, int val1, int val2 = -1) {
+str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1) {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
 	if(attr <= LAST_ESSENCE_ATTRIBUTE)
-		return ItemAttributeString(attr, val1);
+		return ItemAttributeString(attr, val1, tier, showDetailedMods, extra);
 		
 	// we must map all exotic ones with the proper macro
+	// if the item is unique extra is not -1
 	str text = GetInventoryAttributeText(attr);
 	switch(attr) {
 		case INV_EX_FACTOR_SMALLCHARM:
-		return StrParam(l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"%");
+			if(showDetailedMods) {
+				return StrParam(
+					l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"%\c-",
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, FACTOR_SMALLCHARM_RESOLUTION, extra)
+				);
+			}
+			return StrParam(l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"%");
 		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
-		return StrParam(s:"\c[Q9]", d:val1, s:"%\c- ", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q9]", d:val1, s:"%\c- ", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT",
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, 0, extra)
+				);
+			}
+			return StrParam(s:"\c[Q9]", d:val1, s:"%\c- ", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
 		
 		case INV_EX_DAMAGEPER_FLATHEALTH:
-		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_MAXHEALTH");
+			if(showDetailedMods) {
+				return StrParam(
+					l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_MAXHEALTH",
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, 0, extra)
+				);
+			}
+			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_MAXHEALTH");
 		
 		case INV_EX_ONKILL_HEALMISSING:
-		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_PMISSHP");
+			if(showDetailedMods) {
+				return StrParam(
+					l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_PMISSHP",
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, 0, extra)
+				);
+			}
+			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_PMISSHP");
 		
 		case INV_EX_ABILITY_RALLY:
-		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_RALLY");
+			if(showDetailedMods) {
+				return StrParam(
+					l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_RALLY",
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, 0, extra)
+				);
+			}
+			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_RALLY");
 		
 		case INV_EX_CRITIGNORERESCHANCE:
-		return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_CHANCEIGNORERES");
+			if(showDetailedMods) {
+				return StrParam(
+					l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_CHANCEIGNORERES",
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, 0, extra)
+				);
+			}
+			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_CHANCEIGNORERES");
 		
 		// float factor stuff
 		case INV_EX_MORECRIT_LIGHTNING:
-		return StrParam(s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:"%\c- ", l:text);
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:"%\c- ", l:text,
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, 100, extra)
+				);
+			}
+			return StrParam(s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:"%\c- ", l:text);
 		
 		case INV_EX_DOUBLE_HEALTHCAP:
 		return StrParam(l:text);
@@ -619,12 +848,25 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1) {
 		case INV_EX_ALLSTATS:
 		case INV_EX_FLATDMG_ALL:
 		case INV_EX_FLATDOT:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+ \c[Q9]", d:val1, s:"\c- ", l:text,
+					s:" - ", s:GetDetailedModText_Unique(attr, tier, 0, extra)
+				);
+			}
 			return StrParam(s:"+ \c[Q9]", d:val1, s:"\c- ", l:text);
 		
 		// default are %
 		default:
-			if(val1)
+			if(val1) {
+				if(showDetailedMods) {
+					return StrParam(
+						s:"+ \c[Q9]", d:val1, s:"%\c- ", l:text,
+						s:" - ", s:GetDetailedModText_Unique(attr, tier, 0, extra)
+					);
+				}
 				return StrParam(s:"+ \c[Q9]", d:val1, s:"%\c- ", l:text);
+			}
 			return StrParam(l:text);
 	}
 	return "";

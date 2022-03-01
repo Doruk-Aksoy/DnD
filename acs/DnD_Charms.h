@@ -35,15 +35,6 @@ int Charm_MaxUsable[MAX_CHARM_TYPES] = {
 	1
 };
 
-// level 100 = perfect
-str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
-	{ "\c[C8]", "DND_CHARMTIER1" },
-	{ "\c[C3]", "DND_CHARMTIER2" },
-	{ "\c[C1]", "DND_CHARMTIER3" },
-	{ "\c[C5]", "DND_CHARMTIER4" },
-	{ "\c[L7]", "DND_CHARMTIER5" }
-};
-
 // holds indexes to charms used that are on players
 global inventory_T 12: Charms_Used[MAXPLAYERS][MAX_CHARMS_EQUIPPABLE];
 
@@ -55,17 +46,29 @@ void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
 	CopyItem(true, field_index, player_index, pos);
 }
 
-void RollCharmInfo(int charm_pos, int charm_tier) {
-	// roll random attributes for the charm
-	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
-	int count = random(2, 2 * (charm_type + 1));
-	int i = 0, roll;
+// returns type of charm as result
+int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
+	int res = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 	Inventories_On_Field[charm_pos].item_level = charm_tier;
 	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack
 	Inventories_On_Field[charm_pos].item_type = DND_ITEM_CHARM;
-	Inventories_On_Field[charm_pos].item_subtype = charm_type;
+	Inventories_On_Field[charm_pos].item_subtype = res;
 	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
-	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + charm_type;
+	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + res;
+	
+	Inventories_On_Field[charm_pos].attrib_count = 0;
+	for(int i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+		Inventories_On_Field[charm_pos].attributes[i].attrib_id = -1;
+		
+	return res;
+}
+
+void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
+	// roll random attributes for the charm
+	int i = 0, roll;
+	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
+	int count = random(2, 2 * (charm_type + 1));
+	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
 			Inventories_On_Field[charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
@@ -80,24 +83,19 @@ void RollCharmInfo(int charm_pos, int charm_tier) {
 	
 	while(i < count) {
 		do {
-			roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE * 10) / 10;
+			roll = PickRandomAttribute();
 		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
-		AddAttributeToCharm(charm_pos, roll);
+		AddAttributeToCharm(charm_pos, roll, pnum);
 		++i;
 	}
 }
 
-void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3) {
+void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3, int pnum) {
 	// roll random attributes for the charm
-	int charm_type = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
-	int count = random(2, 2 * (charm_type + 1)) - 1 - (m2 != -1) - (m3 != -1);
 	int i = 0, roll;
-	Inventories_On_Field[charm_pos].item_level = charm_tier;
-	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack
-	Inventories_On_Field[charm_pos].item_type = DND_ITEM_CHARM;
-	Inventories_On_Field[charm_pos].item_subtype = charm_type;
-	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
-	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + charm_type;
+	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
+	int count = random(2, 2 * (charm_type + 1)) - 1 - (m2 != -1) - (m3 != -1);
+	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
 			Inventories_On_Field[charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
@@ -115,45 +113,38 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	// we extend the resolution of the range (the ends weren't being picked as evenly) example: range of 0 to 5 x 10 => 0 to 50, then we divide by 10. We extend possibility of picking the ends
 	while(i < count) {
 		do {
-			#ifdef ISDEBUGBUILD
-				roll = random(INV_POISON_TICRATE, LAST_INV_ATTRIBUTE);
-			#else
-				roll = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE * 10) / 10;
-			#endif
+			roll = PickRandomAttribute();
 		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
-		AddAttributeToCharm(charm_pos, roll);
+		AddAttributeToCharm(charm_pos, roll, pnum);
 		++i;
 	}
 	
 	// add the guaranteed mods
-	AddAttributeToCharm(charm_pos, m1);
+	AddAttributeToCharm(charm_pos, m1, pnum);
 	if(m2 != -1)
-		AddAttributeToCharm(charm_pos, m2);
+		AddAttributeToCharm(charm_pos, m2, pnum);
 	if(m3 != -1)
-		AddAttributeToCharm(charm_pos, m3);
+		AddAttributeToCharm(charm_pos, m3, pnum);
 }
 
 // can only add attributes to charms that are about to be created ie. on field dropped from monster
-void AddAttributeToCharm(int charm_pos, int attrib) {
+void AddAttributeToCharm(int charm_pos, int attrib, int pnum) {
 	if(Inventories_On_Field[charm_pos].attrib_count < Charm_MaxAffixes[Inventories_On_Field[charm_pos].item_subtype]) {
 		int temp = Inventories_On_Field[charm_pos].attrib_count++;
-		int lvl = Inventories_On_Field[charm_pos].item_level;
+		int lvl = Inventories_On_Field[charm_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
 		
-		// 10% chance to roll a tier up or down
-		if(!random(0, 9))
-			++lvl;
-		else if(!random(0, 9))
-			--lvl;
+		bool makeWellRolled = CheckWellRolled(pnum);
+		
+		lvl = GetItemTierRoll(lvl, makeWellRolled);
 		
 		// force within bounds
 		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
-		
-		int val = (Inv_Attribute_Info[attrib].attrib_level_modifier * lvl) / CHARM_ATTRIBLEVEL_SEPERATOR;
-
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_tier = lvl;
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
-		
+
 		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low + val + (val != 0), Inv_Attribute_Info[attrib].attrib_high + val);
+		// luck adds a small chance for a charm to have well rolled modifier on it -- luck gain is 0.15, 0.05 x 10 = 0.5 max rank thats 50% chance for well rolled mods
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = RollAttributeValue(attrib, lvl, makeWellRolled);
 	}
 }
 
@@ -172,11 +163,11 @@ void SpawnCharm(int pnum, bool isElite) {
 			if(random(0,1))
 		#endif
 		{
-			MakeUnique(c, DND_ITEM_CHARM);
+			MakeUnique(c, DND_ITEM_CHARM, pnum);
 			SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c);
 		}
 		else {
-			RollCharmInfo(c, RollItemLevel());
+			RollCharmInfo(c, RollItemLevel(), pnum);
 			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		}
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
@@ -188,7 +179,7 @@ void SpawnCharm(int pnum, bool isElite) {
 void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		RollCharmInfoWithMods(c, RollItemLevel(), m1, m2, m3);
+		RollCharmInfoWithMods(c, RollItemLevel(), m1, m2, m3, pnum);
 		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
@@ -239,6 +230,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			for(i = 0; i < Charms_Used[pnum][use_id].attrib_count; ++i) {
 				Charms_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
 				Charms_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
+				Charms_Used[pnum][use_id].attributes[i].attrib_tier = PlayerInventoryList[pnum][item_index].attributes[i].attrib_tier;
 			}
 
 			// the leftover spot is a null charm
@@ -269,6 +261,7 @@ void ResetPlayerCharmsUsed(int pnum) {
 		for(int j = 0; j < Charms_Used[pnum][i].attrib_count; ++j) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = 0;
 			Charms_Used[pnum][i].attributes[j].attrib_val = 0;
+			Charms_Used[pnum][i].attributes[j].attrib_tier = 0;
 		}
 		Charms_Used[pnum][i].attrib_count = 0;
 	}

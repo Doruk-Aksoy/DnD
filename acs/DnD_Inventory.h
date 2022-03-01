@@ -16,9 +16,6 @@
 #define INVENTORY_HOLDTIME 0.5
 #define INVENTORY_FADETIME 0.5
 
-#define MAX_CHARM_AFFIXTIERS 4
-#define CHARM_ATTRIBLEVEL_SEPERATOR 25 // just leave this as is...
-
 #define MAX_EXTRA_INVENTORY_PAGES 10
 
 #define MAXSTACKS_ORB 128
@@ -339,6 +336,7 @@ void RemoveItemFromWorld(int fieldpos) {
 	for(int k = 0; k < Inventories_On_Field[fieldpos].attrib_count; ++k) {
 		Inventories_On_Field[fieldpos].attributes[k].attrib_id = 0;
 		Inventories_On_Field[fieldpos].attributes[k].attrib_val = 0;
+		Inventories_On_Field[fieldpos].attributes[k].attrib_tier = 0;
 	}
 	Inventories_On_Field[fieldpos].attrib_count = 0;
 }
@@ -691,8 +689,7 @@ int RollItemLevel() {
 	int pavg = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 	if(pavg > 2 * ITEMLEVEL_VARIANCE_LOWER) {
 		res = pavg + random(-ITEMLEVEL_VARIANCE_LOWER, ITEMLEVEL_VARIANCE_HIGHER);
-		if(res > MAX_ITEM_LEVEL)
-			res = MAX_ITEM_LEVEL;
+		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
 		return res;
 	}
 	return pavg + random((-pavg + 1) / 2, ITEMLEVEL_VARIANCE_HIGHER);
@@ -743,6 +740,7 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 		for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
 			Inventories_On_Field[fieldpos].attributes[i].attrib_id = PlayerInventoryList[player_index][wtemp].attributes[i].attrib_id;
 			Inventories_On_Field[fieldpos].attributes[i].attrib_val = PlayerInventoryList[player_index][wtemp].attributes[i].attrib_val;
+			Inventories_On_Field[fieldpos].attributes[i].attrib_tier = PlayerInventoryList[player_index][wtemp].attributes[i].attrib_tier;
 		}
 
 		// the leftover spot is a null charm
@@ -775,6 +773,7 @@ void CopyItem(bool fieldToPlayer, int fieldpos, int player_index, int item_index
 			for(k = 0; k < PlayerInventoryList[player_index][item_index].attrib_count; ++k) {
 				PlayerInventoryList[player_index][item_index].attributes[k].attrib_id = Inventories_On_Field[fieldpos].attributes[k].attrib_id;
 				PlayerInventoryList[player_index][item_index].attributes[k].attrib_val = Inventories_On_Field[fieldpos].attributes[k].attrib_val;
+				PlayerInventoryList[player_index][item_index].attributes[k].attrib_tier = Inventories_On_Field[fieldpos].attributes[k].attrib_tier;
 			}
 			for(i = 0; i < htemp; ++i)
 				for(j = 0; j < wtemp; ++j) {
@@ -1177,6 +1176,7 @@ void MoveItem(int itempos, int emptypos) {
 	for(i = 0; i < PlayerInventoryList[pnum][temp].attrib_count; ++i) {
 		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = PlayerInventoryList[pnum][tb].attributes[i].attrib_id;
 		PlayerInventoryList[pnum][temp].attributes[i].attrib_val = PlayerInventoryList[pnum][tb].attributes[i].attrib_val;
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_tier = PlayerInventoryList[pnum][tb].attributes[i].attrib_tier;
 	}
 	for(i = 0; i < h; ++i)
 		for(j = 0; j < w; ++j) {
@@ -1370,6 +1370,7 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 			SetFont("SMALLFONT");
 			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, bx + ScreenResOffsets[2] + 96.2, by + 6.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
+		// resize to keep ratios
 		SetHudSize(720, 480, 1);
 		bx *= 3; by *= 3;
 		bx /= 2; by /= 2;
@@ -1382,9 +1383,9 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 			offset = -64;
 			by -= 8.0;
 		}
-		if (GetAspectRatio() == ASPECT_4_3) // +72
+		if (GetAspectRatio() == ASPECT_4_3) // -96 + 72
 			SetHudClipRect(-96 + 72, 80 + offset, 336, 288, 336, 1);
-		else if (GetAspectRatio() == ASPECT_16_10)
+		else if (GetAspectRatio() == ASPECT_16_10) // -96 + 45
 			SetHudClipRect(-96 + 45, 80 + offset, 264, 288, 264, 1);
 		else
 			SetHudClipRect(-96, 80 + offset, 264, 288, 264, 1);
@@ -1395,7 +1396,8 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 
 void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype) {
 	int i, j;
-	int val, temp;
+	int val, temp, lvl;
+	bool showModTiers = CheckInventory("ShowModTiers");
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		// temp holds charm's tier id
@@ -1407,7 +1409,9 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
-			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0 + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			lvl = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, topboxid, j, source);
+			
+			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0 + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(IsStackedItem(itype)) {
@@ -1418,7 +1422,8 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 		temp = itype & 0xFFFF;
 		itype >>= UNIQUE_BITS;
 		--itype;
-		// itype holds unique position, temp is the actual item type
+		// itype holds unique position, temp is the actual item type -- so does lvl
+		lvl = itype;
 		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx + ScreenResOffsets[3], by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
@@ -1432,17 +1437,17 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source)); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source), lvl, showModTiers, j); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 				}
 				else
-					HudMessage(s: GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+					HudMessage(s: GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 			}
 			else if(!val) {
 				// unique item doesn't have numeric attribute to show
 				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 			}
 			else
-				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 }
@@ -1462,6 +1467,7 @@ void CopyItemSource(int fieldpos, int player_index, int item_index, int source) 
 	for(i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
 		Inventories_On_Field[fieldpos].attributes[i].attrib_id = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, wtemp, i, source);
 		Inventories_On_Field[fieldpos].attributes[i].attrib_val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, wtemp, i, source);
+		Inventories_On_Field[fieldpos].attributes[i].attrib_tier = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, wtemp, i, source);
 	}
 
 	// the leftover spot is a null item
@@ -2123,37 +2129,34 @@ int GetCraftableItemCount() {
 	return res;
 }
 
+int GetItemTierRoll(int lvl, bool isWellRolled) {
+	// 10% chance to roll a tier up or down -- if well rolled 20%
+	if(!random(0, 9 - 5 * isWellRolled))
+		++lvl;
+	else if(!random(0, 9 - 5 * isWellRolled))
+		--lvl;
+	return lvl;
+}
+
 void AddAttributeToItem(int item_pos, int attrib, bool isWellRolled = false) {
 	int pnum = PlayerNumber();
 	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
-	int lvl = PlayerInventoryList[pnum][item_pos].item_level;
+	int lvl = PlayerInventoryList[pnum][item_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
 	
-	// 10% chance to roll a tier up or down
-	if(!random(0, 9))
-		++lvl;
-	else if(!random(0, 9))
-		--lvl;
+	// 10% chance to roll a tier up or down for the modifier on the charm
+	lvl = GetItemTierRoll(lvl, isWellRolled);
 	
 	// force within bounds
 	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
-	
-	int val = 0;
-	
-	if(!Inv_Attribute_Info[attrib].attrib_level_modifier)
-		val = (Inv_Attribute_Info[attrib].attrib_high - Inv_Attribute_Info[attrib].attrib_low + 1) * lvl / CHARM_ATTRIBLEVEL_SEPERATOR;
-	else
-		val = (Inv_Attribute_Info[attrib].attrib_level_modifier * lvl) / CHARM_ATTRIBLEVEL_SEPERATOR;
-	
+	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_tier = lvl;
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
 	
-	if(!isWellRolled)
-		PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random(Inv_Attribute_Info[attrib].attrib_low + val, Inv_Attribute_Info[attrib].attrib_high + val);
-	else
-		PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = random((Inv_Attribute_Info[attrib].attrib_low + Inv_Attribute_Info[attrib].attrib_high) / 2 + val, Inv_Attribute_Info[attrib].attrib_high + val);
+	// roll the attribute
+	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val = RollAttributeValue(attrib, lvl, isWellRolled);
 }
 
 // this doesn't consider the item_type yet!
-void MakeUnique(int item_pos, int item_type) {
+void MakeUnique(int item_pos, int item_type, int pnum) {
 	int i;
 	if(GetCVar("dnd_ignore_dropweights"))
 		i = random(0, MAX_UNIQUE_ITEMS - 1);
@@ -2165,11 +2168,11 @@ void MakeUnique(int item_pos, int item_type) {
 	i = i = random(0, MAX_UNIQUE_ITEMS - 1);
 	#endif
 	// i is the unique id
-	ConstructUniqueOnField(item_pos, i, item_type);
+	ConstructUniqueOnField(item_pos, i, item_type, pnum);
 }
 
 // this too
-void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type) {
+void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type, int pnum) {
 	Inventories_On_Field[fieldpos].width = UniqueItemList[unique_id].width;
 	Inventories_On_Field[fieldpos].height = UniqueItemList[unique_id].height;
 	Inventories_On_Field[fieldpos].item_type = UniqueItemList[unique_id].item_type;
@@ -2181,8 +2184,13 @@ void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type) {
 	Inventories_On_Field[fieldpos].topleftboxid = 0;
 	for(int i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
 		Inventories_On_Field[fieldpos].attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
+		
 		// we must roll the value once dropped
-		Inventories_On_Field[fieldpos].attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
+		bool makeWellRolled = CheckWellRolled(pnum);
+		if(!makeWellRolled)
+			Inventories_On_Field[fieldpos].attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
+		else
+			Inventories_On_Field[fieldpos].attributes[i].attrib_val = random((UniqueItemList[unique_id].rolls[i].attrib_low + UniqueItemList[unique_id].rolls[i].attrib_high) / 2, UniqueItemList[unique_id].rolls[i].attrib_high);
 	}
 }
 
@@ -2190,6 +2198,7 @@ void ResetPlayerItemAttributes(int pnum, int itemid) {
 	for(int j = 0; j < PlayerInventoryList[pnum][itemid].attrib_count; ++j) {
 		PlayerInventoryList[pnum][itemid].attributes[j].attrib_id = 0;
 		PlayerInventoryList[pnum][itemid].attributes[j].attrib_val = 0;
+		PlayerInventoryList[pnum][itemid].attributes[j].attrib_tier = 0;
 	}
 	PlayerInventoryList[pnum][itemid].attrib_count = 0;
 }
@@ -2210,6 +2219,7 @@ void ResetPlayerInventory(int pnum) {
 		for(int j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 			PlayerInventoryList[pnum][i].attributes[j].attrib_id = 0;
 			PlayerInventoryList[pnum][i].attributes[j].attrib_val = 0;
+			PlayerInventoryList[pnum][i].attributes[j].attrib_tier = 0;
 		}
 		PlayerInventoryList[pnum][i].attrib_count = 0;
 	}
@@ -2231,6 +2241,7 @@ void ResetTradeViewList(int pnum) {
 		for(int j = 0; j < TradeViewList[pnum][i].attrib_count; ++j) {
 			TradeViewList[pnum][i].attributes[j].attrib_id = 0;
 			TradeViewList[pnum][i].attributes[j].attrib_val = 0;
+			TradeViewList[pnum][i].attributes[j].attrib_tier = 0;
 		}
 		TradeViewList[pnum][i].attrib_count = 0;
 	}
@@ -2250,6 +2261,7 @@ void ResetFieldInventory() {
 		for(int j = 0; j < Inventories_On_Field[i].attrib_count; ++j) {
 			Inventories_On_Field[i].attributes[j].attrib_id = 0;
 			Inventories_On_Field[i].attributes[j].attrib_val = 0;
+			Inventories_On_Field[i].attributes[j].attrib_tier = 0;
 		}
 		Inventories_On_Field[i].attrib_count = 0;
 	}
@@ -2272,6 +2284,7 @@ void ResetPlayerStash(int pnum) {
 			for(int j = 0; j < PlayerStashList[pnum][p][i].attrib_count; ++j) {
 				PlayerStashList[pnum][p][i].attributes[j].attrib_id = 0;
 				PlayerStashList[pnum][p][i].attributes[j].attrib_val = 0;
+				PlayerStashList[pnum][p][i].attributes[j].attrib_tier = 0;
 			}
 			PlayerStashList[pnum][p][i].attrib_count = 0;
 		}

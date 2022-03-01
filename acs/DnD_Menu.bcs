@@ -785,6 +785,16 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 			SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
 			SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
 		}
+		
+		// draw mod tier text
+		mapinfo = "DND_MENU_DISABLED";
+		if(CheckInventory("ShowModTiers"))
+			mapinfo = "DND_MENU_ENABLED";
+		DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 260.0, "\c[B1]", "\c[Y5]");
+		if(CheckInventory("SetModTierInfo")) {
+			SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
+			SetInventory("ShowModTiers", !CheckInventory("ShowModTiers"));
+		}
 	}
 	else if(curopt == MENU_HELP_CHARACTER) {
 		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT1", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1548,8 +1558,13 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			if(HasLeftClicked(pnum)) {
 				if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
 					temp = MENU_HELP_BEGIN + boxid - 1;
-				else if(boxid > MENU_HELP_END - MENU_HELP_BEGIN + 1) {
+				else if(boxid == MBOX_9) {
 					GiveInventory("SetMapInfo", 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					temp = -1;
+				}
+				else if(boxid == MBOX_10) {
+					GiveInventory("SetModTierInfo", 1);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					temp = -1;
 				}

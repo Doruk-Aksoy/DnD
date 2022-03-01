@@ -215,6 +215,10 @@ void GiveActorStat(int tid, int stat_id, int amt) {
 		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_PERK, amt, stat_id);
 }
 
+bool CheckWellRolled(int pnum) {
+	return random(0, 1.0) <= DND_LUCK_GAIN * GetActorStat(pnum + P_TIDSTART, STAT_LUCK) / 3;
+}
+
 void CalculateExpRatio() {
 	int lvl = CheckInventory("Level");
 	int cap = GetExpLimit_Level(lvl);

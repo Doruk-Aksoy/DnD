@@ -15,6 +15,7 @@ DND_MENU_BOBBY3			=	"I don't have all day, I have yet to finish my important pro
 DND_MENU_AVGMONLEVEL	=	"Average Monster Level";
 
 DND_MENU_MAPINFO		=	"Show Map Info: ";
+DND_MENU_MODTIERS		=	"Show Item Mod Tiers: ";
 
 // basic words
 DND_MENU_ENABLED		=	"\cdEnabled";
@@ -162,7 +163,7 @@ DND_MENU_PERKTEXT6		=	"increased effect of healing.";
 DND_MENU_PERKTEXT7		=	"increased ammo gain.";
 DND_MENU_PERKTEXT8		=	"to critical strike chance.";
 DND_MENU_PERKTEXT9		=	"to critical strike damage.";
-DND_MENU_PERKTEXT10		=	"increased drop chance.";
+DND_MENU_PERKTEXT10		=	"increased drop chance and 5% chance to have better rolls.";
 
 // ammo text
 DND_MENU_FOR			=	"for ";

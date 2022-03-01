@@ -26,7 +26,13 @@ Actor SetDashInfo : PowerDamage {
 	powerup.duration 1
 }
 
+Actor SetModTierInfo : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 1
+}
+
 Actor ShowMapInfo : DnD_Boolean { }
+Actor ShowModTiers : DnD_Boolean { }
 Actor H_UnderPar : DnD_Boolean { }
 Actor H_KillsAchieved : DnD_Boolean { }
 Actor H_ItemsAchieved : DnD_Boolean { }

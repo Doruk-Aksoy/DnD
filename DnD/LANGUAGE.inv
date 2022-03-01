@@ -19,10 +19,19 @@ DND_CHARMTYPE2		=	"Medium";
 DND_CHARMTYPE3		=	"Grand";
 
 DND_CHARMTIER1		=	"Whispering";
-DND_CHARMTIER2		=	"Fine";
-DND_CHARMTIER3		=	"Supreme";
-DND_CHARMTIER4		=	"Majestic";
-DND_CHARMTIER5		=	"Perfect";
+DND_CHARMTIER2		=	"Muttering";
+DND_CHARMTIER3		=	"Wailing";
+DND_CHARMTIER4		=	"Fine";
+DND_CHARMTIER5		=	"Blessed";
+DND_CHARMTIER6		=	"Enchanted";
+DND_CHARMTIER7		=	"Supreme";
+DND_CHARMTIER8		=	"Sublime";
+DND_CHARMTIER9		=	"Majestic";
+DND_CHARMTIER10		=	"Regal";
+DND_CHARMTIER11		=	"Perfect";
+
+DND_TIERLETTER		=	"T";		// stands for >T<ier
+DND_UNIQUELETTER	=	"U";		// stands for >U<nique
 
 // item names
 DND_CHESTKEY1		=	"Bronze Chest Key";

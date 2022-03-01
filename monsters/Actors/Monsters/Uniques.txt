@@ -4703,7 +4703,8 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 42
-	Height 140
+	Height 110
+	ProjectilePassHeight 140
 	Speed 16
 	PainChance 8
 	PainThreshold 200

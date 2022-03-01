@@ -510,7 +510,9 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 		do {
 			temp = random(0, LAST_INV_ATTRIBUTE);
 		} while(CheckItemAttribute(item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
-		AddAttributeToItem(item_index, temp);
+		
+		// if not well rolled by default, run the chance (orbs may force it, but sometimes they may not)
+		AddAttributeToItem(item_index, temp, !isWellRolled ? CheckWellRolled(pnum) : isWellRolled);
 		
 		if(PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHARM)
 			finish = PlayerInventoryList[pnum][item_index].attrib_count < Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;

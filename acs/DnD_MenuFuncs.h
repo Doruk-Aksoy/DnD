@@ -2016,6 +2016,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 133.0, 182.0, 126.0 }, // mods
 			{ 289.0, 117.0, 179.0, 110.0 }, // leg
 			{ 296.0, 81.0, 182.0, 73.0 }, // show info
+			{ 296.0, 65.0, 142.0, 57.0 }, // show mod tiers
 			{ -1, -1, -1, -1 }
 		},
 		// help char
@@ -2078,6 +2079,10 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ -1, -1, -1, -1 }
 		},
 		// help mmod utility
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help special
 		{
 			{ -1, -1, -1, -1 }
 		},
@@ -2833,7 +2838,8 @@ void DrawInventoryInfo(int pnum) {
 }
 
 void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int itype) {
-	int i, j, temp, val;
+	int i, j, temp, val, lvl;
+	bool showModTiers = CheckInventory("ShowModTiers");
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source) / CHARM_ATTRIBLEVEL_SEPERATOR;
@@ -2844,7 +2850,9 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source);
-			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my - 20.0 + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
+			lvl = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, topboxid, j | pn, source);
+			
+			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my - 20.0 + 24.0 * j, 0.0, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_CHESTKEY || itype == DND_ITEM_ELIXIR || itype == DND_ITEM_TOKEN) {

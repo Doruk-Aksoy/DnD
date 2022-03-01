@@ -491,7 +491,6 @@ int GetPlayernameRawLength(str name) {
 	bool in_ccode = false;
 	bool in_bracketed_color = false;
 	
-	
 	for(int i = 0; i < len; ++i) {
 		int c = GetChar(name, i);
 		

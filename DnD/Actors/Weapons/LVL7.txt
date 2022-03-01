@@ -74,6 +74,7 @@ Actor "Upgraded BFG 9000" : BFG9000
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Weapon.AmmoGive 0
+	Weapon.AmmoUse 60
 	States
 	{
 		Ready:
@@ -285,7 +286,7 @@ Actor BfgExplosion : DnD_ExplosiveBase {
 Actor BFGShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 40)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 60)
 			TNT1 A 0 A_FireCustomMissile("BFGBallUpgraded")
 		Stop
 	}

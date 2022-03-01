@@ -31,7 +31,7 @@ Actor CooldownCounter : Inventory {
 
 Actor RandomElementalSpellCooldown : PowerDamage {
 	damagefactor "normal", 1.0
-	powerup.duration 52
+	powerup.duration -5
 }
 
 Actor Hittable_Spell_Object {

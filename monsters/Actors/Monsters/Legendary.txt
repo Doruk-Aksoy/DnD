@@ -1695,6 +1695,8 @@ Actor MordecqaiLightning {
 	Radius 8
 	Renderstyle Add
 	Alpha 0.875
+	BounceType "Hexen"
+	BounceCount 5
 	+THRUACTORS
 	+NODAMAGETHRUST
 	+DONTBLAST
@@ -2346,7 +2348,6 @@ Actor InquisitorPulse : MaulerTorpedo {
 	Damage (50 * random(2,3))
 	+NODAMAGETHRUST
 	+DONTBLAST
-	var int user_counter;
 	DamageType "EnergyGreen"
 	Stamina 16
 	DeathSound "GodSlayer/Torpedo"
@@ -2362,19 +2363,131 @@ Actor InquisitorPulse : MaulerTorpedo {
 			TNT1 AAAAA 0 A_SpawnDebris("BFGParticles")
 		Loop
 		Death:
-			TNT1 A 0 A_SetUserVar("user_counter", 0)
 			TWAV AB 8 Bright
-		Iterate:
 			TNT1 A 0 A_JumpIf(ceilingz - z < 16, "MakeLower") // Ensure ring spawns even on ceiling hits
-			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, user_counter  * 3.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-		Skip:
-			TNT1 A 0 A_SetUserVar("user_counter", user_counter + 1)
-			TNT1 A 0 A_JumpIf(user_counter == 120, "Continue")
-		Goto Iterate
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 6, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 12, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 18, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 24, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 30, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 36, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 42, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 48, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 54, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 60, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 66, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 72, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 78, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 84, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 90, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 96, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 102, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 108, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 114, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 120, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 126, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 132, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 138, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 144, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 150, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 156, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 162, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 168, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 174, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 180, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 186, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 192, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 198, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 204, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 210, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 216, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 222, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 228, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 234, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 240, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 246, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 252, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 258, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 264, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 270, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 276, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 282, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 288, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 294, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 300, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 306, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 312, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 318, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 324, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 330, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 336, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 342, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 348, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", 0, 0, 354, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+		Goto Cont
 		MakeLower:
-			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, user_counter  * 3.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-		Goto Skip
-		Continue:
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 6, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 12, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 18, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 24, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 30, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 36, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 42, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 48, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 54, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 60, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 66, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 72, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 78, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 84, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 90, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 96, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 102, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 108, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 114, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 120, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 126, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 132, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 138, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 144, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 150, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 156, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 162, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 168, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 174, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 180, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 186, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 192, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 198, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 204, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 210, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 216, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 222, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 228, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 234, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 240, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 246, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 252, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 258, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 264, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 270, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 276, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 282, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 288, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 294, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 300, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 306, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 312, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 318, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 324, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 330, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 336, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 342, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 348, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("MaulerTorpedoWaveInq", -16, 0, 354, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+		Cont:
 			TNT1 A 0 A_SpawnItem("BFGShockWave")
 			TWAV BC 8 Bright
 		Stop

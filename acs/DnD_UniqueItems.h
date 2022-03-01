@@ -5,41 +5,6 @@
 #define UNIQUE_BITS 16
 #define UNIQUE_BEGIN 65535
 
-// s, m and g indicate charm type
-enum {
-	// M - 50% increased armor cap, 10-25% reduced elemental damage taken, 2-5% chance of casting a random elemental spell while firing
-	UITEM_ELEMENTALBULWARK,
-	// G - 5-30 flat physical damage, 10-25 bulkiness, 10-25% reduced physical damage taken, 75-200 regen cap, knockback immunity
-	UITEM_IRONBARK,
-	// G - Doubles effects of all small charms
-	UITEM_WELLOFPOWER,
-	// S - 5-10 to all stats, 3-5% chance to be healed for 6-10% of your missing health on being hit
-	UITEM_ANCIENTGEMSTONE,
-	// S - 5-45% increased lightning damage, Lightning type attacks always crit
-	UITEM_DEATHSPARK,
-	// S - 25-50% increased pellets, Shotgun type weapons deal 40-75% more damage
-	UITEM_SHELLSHOCK,
-	// M - Your health cap is doubled, Can't use armor, Gain 1% damage increase every 75 - 50 max health
-	UITEM_OAKHEART,
-	// M - 50-100% more pellets, 150-250% slot 3 damage, Pellets fire in a circle around you regardless of accuracy
-	UITEM_PELLETSTORM,
-	// G - 15-25 Intellect, Slain enemies have 5-15% chance to raise a zombie (Max 5, Lasts 8 + INT / 10 seconds), Damage taken is shared between all summoned creatures, Take 50-25% more damage
-	UITEM_GRAVECALLER,
-	// M - 6-12% speed, 3-10 flat damage to all attacks, Killing enemies heals for 1-5% missing health 
-	UITEM_LIFELEECH,
-	// S - Soul type weapons do full damage and can hit ghosts, Soul pickups give 50-100% more ammo, Spells do irreducible damage
-	UITEM_EYEBEHOLDER,
-	// G - 250-425 health cap, 250-425 armor cap, 4 - 15 to all stats, Gives item that grants 35-75% damage and 8-18% speed for 8 seconds (20 sec cd, stats depend on level), Slain enemies rest in peace
-	UITEM_DEADKINGBANNER,
-	// S - + 5 - 10 flat damage to damage over time effects, 50 - 100% increased damage over time duration
-	UITEM_PAINMASTER,
-	// M - Crit chance is lucky, Critical hits have 20 - 35% chance to ignore all resists
-	UITEM_VOIDEMBLEM
-};
-
-#define LAST_UNIQUE_ITEM UITEM_VOIDEMBLEM
-#define MAX_UNIQUE_ITEMS LAST_UNIQUE_ITEM + 1
-
 str GetUniqueItemName(int id) {
 	return StrParam(s:"DND_UNIQUE", d:id + 1);
 }
@@ -77,24 +42,8 @@ int UniqueItemDropWeight[MAX_UNIQUE_ITEMS] = {
 	1000
 };
 
-// this is used to construct items
-typedef struct it_con {
-	int width;										// width in inventory space
-	int height;										// height in inventory space
-	int item_image;									// image of item from image list
-	int item_type;									// what type of item it is (>65535 implies this item is a unique, >> 16 - 1 gives unique id)
-	int item_subtype;								// subtype for items that have it (charms etc)
-	int item_level;									// what level this item is
-	int item_stack;									// the stack of the item (if applicable)
-	int attrib_count;								// count of attributes
-	int attrib_id_list[MAX_ITEM_ATTRIBUTES];		// contains id list of corresponding attributes
-	inv_attrib_T rolls[MAX_ITEM_ATTRIBUTES];		// contains roll information of the attributes (level modifier isn't used here)
-} inventory_constructor_T;
-
-global inventory_constructor_T 63: UniqueItemList[MAX_UNIQUE_ITEMS];
-
 // initializes all uniques
-Script "DnD Load Uniques" OPEN {
+void SetupUniqueItems() {
 	// construct unique list to copy from
 	int id = UITEM_ELEMENTALBULWARK;
 	UniqueItemList[id].width = 1;
@@ -108,7 +57,7 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].attrib_id_list[0] = INV_ARMORPERCENT_INCREASE;
 	UniqueItemList[id].attrib_id_list[1] = INV_DMGREDUCE_ELEM;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_CHANCE_CASTELEMSPELLONATK;
-	UniqueItemList[id].rolls[0].attrib_low = 50;
+	UniqueItemList[id].rolls[0].attrib_low = 25;
 	UniqueItemList[id].rolls[0].attrib_high = 50;
 	UniqueItemList[id].rolls[1].attrib_low = 10;
 	UniqueItemList[id].rolls[1].attrib_high = 25;
@@ -354,6 +303,17 @@ Script "DnD Load Uniques" OPEN {
 	UniqueItemList[id].rolls[0].attrib_high = 0;
 	UniqueItemList[id].rolls[1].attrib_low = 20;
 	UniqueItemList[id].rolls[1].attrib_high = 35;
+}
+
+// These are necessary to sync the global variables + unique data
+Script "DnD Load Inventory Attributes" OPEN {
+	SetupInventoryAttributeStrings();
+	SetupUniqueItems();
+}
+
+Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
+	SetupInventoryAttributeStrings();
+	SetupUniqueItems();
 }
 
 #endif

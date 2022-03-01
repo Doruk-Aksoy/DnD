@@ -44,7 +44,8 @@ enum {
 	DND_SYNC_ITEMSTACK,
 	DND_SYNC_ITEMSATTRIBCOUNT,
 	DND_SYNC_ITEMATTRIBUTES_ID,
-	DND_SYNC_ITEMATTRIBUTES_VAL
+	DND_SYNC_ITEMATTRIBUTES_VAL,
+	DND_SYNC_ITEMATTRIBUTES_TIER
 };
 
 #define FIRST_WEPMOD_SYNC (DND_SYNC_WEPMOD_CRIT)
@@ -96,6 +97,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return Charms_Used[pnum][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 			return Charms_Used[pnum][extra].attributes[sub].attrib_val;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+			return Charms_Used[pnum][extra].attributes[sub].attrib_tier;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_FIELD){
@@ -124,6 +127,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return Inventories_On_Field[extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 			return Inventories_On_Field[extra].attributes[sub].attrib_val;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+			return Inventories_On_Field[extra].attributes[sub].attrib_tier;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
@@ -152,6 +157,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_val;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_tier;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW){
@@ -180,6 +187,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return TradeViewList[pnum][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 			return TradeViewList[pnum][extra].attributes[sub].attrib_val;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+			return TradeViewList[pnum][extra].attributes[sub].attrib_tier;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_STASH){
@@ -208,6 +217,8 @@ int GetItemSyncValue(int which, int extra, int sub, int source) {
 			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_val;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_tier;
 		}
 	}
 	return 0;
@@ -338,6 +349,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 				Charms_Used[pnum][extra].attributes[sub].attrib_val = val;
 			break;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+				Charms_Used[pnum][extra].attributes[sub].attrib_tier = val;
+			break;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_FIELD) {
@@ -374,6 +388,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 				Inventories_On_Field[extra].attributes[sub].attrib_val = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+				Inventories_On_Field[extra].attributes[sub].attrib_tier = val;
 			break;
 		}
 	}
@@ -412,6 +429,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 				PlayerInventoryList[pnum][extra].attributes[sub].attrib_val = val;
 			break;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+				PlayerInventoryList[pnum][extra].attributes[sub].attrib_tier = val;
+			break;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW) {
@@ -449,6 +469,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 				TradeViewList[pnum][extra].attributes[sub].attrib_val = val;
 			break;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+				TradeViewList[pnum][extra].attributes[sub].attrib_tier = val;
+			break;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_STASH) {
@@ -485,6 +508,9 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
 				PlayerStashList[pnum][page][extra].attributes[sub].attrib_val = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_TIER:
+				PlayerStashList[pnum][page][extra].attributes[sub].attrib_tier = val;
 			break;
 		}
 	}
@@ -682,7 +708,7 @@ void SyncItemData(int itemid, int source, int wprev, int hprev) {
 	
 	h = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < h; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_VAL; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
 			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, j | payload, GetItemSyncValue(j, itemid, i, source), itemid | (i << 16));
 	}
 }
@@ -731,7 +757,7 @@ void SyncItemData_Player(int itemid, int source, int wprev, int hprev, int pnum)
 	
 	h = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, (pnum + 1) << 16, source);
 	for(i = 0; i < h; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_VAL; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
 			ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, j | payload, GetItemSyncValue(j, itemid, i | ((pnum + 1) << 16), source), itemid | (i << 16));
 	}
 }
@@ -856,7 +882,7 @@ void SyncItemAttributes(int itemid, int source) {
 	
 	temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < temp; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_VAL; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
 			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, j | payload, GetItemSyncValue(j, itemid, i, source), itemid | (i << 16));
 	}
 }
