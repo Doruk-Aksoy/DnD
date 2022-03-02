@@ -1207,6 +1207,7 @@ void MoveItem(int itempos, int emptypos) {
 }
 
 // this is made specifically for trade view, the one above is optimized for normal inventory
+// also used for moving items from one source to another, ie. inventory to stash etc.
 void MoveItemTrade(int itempos, int emptypos, int itemsource, int emptysource) {
 	int tb = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itempos, -1, itemsource) - 1;
 	int offset = tb - itempos;

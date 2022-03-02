@@ -278,9 +278,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				ResetCursorHoverData();
 			else {
 				if(PlayerCursorData.itemHoveredDim.x)
-					DrawInventoryInfo(pnum);
+					DrawInventoryInfo(PlayerCursorData.owner_pnum);
 				else
-					DrawCraftingInventoryInfo(pnum);
+					DrawCraftingInventoryInfo(PlayerCursorData.owner_pnum);
 			}
 		}
 		else if(PlayerCursorData.hoverNeedsReset)
@@ -333,7 +333,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 // whenever a redraw request is made this is called
 Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
+	// players might X out of menu while holding scroll key, dont redraw then
+	if(ConsolePlayerNumber() != PlayerNumber() || !CheckInventory("ShowingMenu"))
 		Terminate;
 		
 	int i = 0, j = 0, k = 0, temp;
@@ -1229,8 +1230,11 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		else if(curopt == MENU_LOAD_CHARM) {
 			HandleItemPageInputs(pnum, boxid);
 			if(HasPressedLeft(pnum)) {
-				TakeInventory("DnD_InventoryView", 1);
-				UpdateMenuPosition(MENU_LOAD);
+				// skip the view if there was, otherwise move page back
+				if(CheckInventory("DnD_InventoryView"))
+					TakeInventory("DnD_InventoryView", 1);
+				else
+					UpdateMenuPosition(MENU_LOAD);
 			}
 		}
 		else if(curopt == MENU_LOAD_CRAFTING)

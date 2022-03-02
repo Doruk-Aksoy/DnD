@@ -1297,6 +1297,7 @@ Actor DemonSealTrap {
 	Scale 1.1
 	ReactionTime 40
 	+NOGRAVITY
+	+FLOATBOB
 	-TELESTOMP
 	+DONTSPLASH
 	+BLOODLESSIMPACT

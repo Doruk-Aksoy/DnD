@@ -112,10 +112,11 @@ void ResetCursorHoverData() {
 	PlayerCursorData.itemHoveredSource = 0;
 	PlayerCursorData.itemHoveredDim.x = 0;
 	PlayerCursorData.itemHoveredDim.y = 0;
+	PlayerCursorData.owner_pnum = -1;
 	PlayerCursorData.hoverNeedsReset = false;
 }
 
-void UpdateCursorHoverData(int itemid, int source, int itemtype, int dimx = 0, int dimy = 0) {
+void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, int dimx = 0, int dimy = 0) {
 	if(PlayerCursorData.itemHovered != itemid)
 		CleanInventoryInfo();
 	
@@ -124,6 +125,7 @@ void UpdateCursorHoverData(int itemid, int source, int itemtype, int dimx = 0, i
 	PlayerCursorData.itemHoveredType = itemtype;
 	PlayerCursorData.itemHoveredDim.x = dimx;
 	PlayerCursorData.itemHoveredDim.y = dimy;
+	PlayerCursorData.owner_pnum = owner_p;
 }
 
 int CalculateWisdomBonus(int pnum) {
@@ -2656,7 +2658,7 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 		
 		if(boxid == thisboxid) {
 			if(!CheckInventory("DnD_InventoryView"))
-				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 0, HUDMAX_X, HUDMAX_Y);
+				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
 		}
 		// breaks things (so far)
 		/*else {
@@ -2777,13 +2779,14 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 
 void DrawInventoryInfo(int pnum) {
 	int pn, mx, my, offset, stack = 0;
+		
+	if(CheckInventory("DnD_SelectedCharmBox"))
+		DrawInventoryInfo_Field(CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 24.4, 0.1, true);
+	
 	if(pnum == -1)
 		pn = (PlayerNumber() + 1) << 16;
 	else
 		pn = (pnum + 1) << 16;
-		
-	if(CheckInventory("DnD_SelectedCharmBox"))
-		DrawInventoryInfo_Field(CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 24.4, 0.1, true);
 		
 	int itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource);
 	if(GetItemSyncValue(DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, pn, PlayerCursorData.itemHoveredSource) != DND_ITEM_NULL) {
@@ -2864,6 +2867,7 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 		itype >>= UNIQUE_BITS;
 		--itype;
 		// itype holds unique position, temp is the actual item type
+		lvl = itype;
 		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0);
 		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, pn, source)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
@@ -2877,17 +2881,17 @@ void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source)); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
+					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pn, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pn, source), lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 				}
 				else
-					HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
+					HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else if(!val) {
 				// unique item doesn't have numeric attribute to show
 				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else
-				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
+				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 		}
 	}
 }
@@ -2932,7 +2936,7 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 	if(boxid - 1 == bid + offset) {
 		InventoryBoxLit[boxid - 1] = BOXLIT_STATE_CURSORON;
 		if(topboxid != -1) {
-			UpdateCursorHoverData(topboxid, source, 0, dimx, dimy);
+			UpdateCursorHoverData(topboxid, source, 0, pnum, dimx, dimy);
 		}
 		else {
 			if(PlayerCursorData.itemHovered != -1)
@@ -3484,11 +3488,15 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 								soffset = ioffset;
 								ioffset = temp;
 								*/
-								if(IsFreeSpot_Trade(ipos - ioffset, epos - soffset, isource, ssource))
+								if(IsFreeSpot_Trade(ipos - ioffset, epos - soffset, isource, ssource)) {
 									MoveItemTrade(ipos - ioffset, epos - soffset, isource, ssource);
+									GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshPane", 1);
+								}
 							}
-							else
+							else {
 								SwapItems(boxid - 1 - ioffset, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, isource, ssource, false);
+								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshPane", 1);
+							}
 						}
 						else {
 							// find which one has an item, and move it
@@ -3511,6 +3519,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							// make sure we aren't both empty slots
 							if((boxidon || prevselecton) && IsFreeSpot_Trade(ipos - ioffset, epos - soffset, isource, ssource)) {
 								MoveItemTrade(ipos - ioffset, epos - soffset, isource, ssource);
+								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshPane", 1);
 							}
 						}
 						SetInventory("DnD_SelectedInventoryBox", 0);
@@ -3786,7 +3795,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 					bx = GetTotalStackOfMaterial(tx);
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
-						UpdateCursorHoverData(tx, bx, PlayerInventoryList[pnum][tx].item_type);
+						UpdateCursorHoverData(tx, bx, PlayerInventoryList[pnum][tx].item_type, pnum);
 
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
@@ -3867,7 +3876,7 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
 				if(boxid - 1 == j) {
 					//Log(s:"update item boxlit ", d:i);
-					UpdateCursorHoverData(i, 0, DND_ITEM_WEAPON);
+					UpdateCursorHoverData(i, 0, DND_ITEM_WEAPON, pnum);
 					
 					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS1;
@@ -3929,7 +3938,7 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 			tx = GetNextUniqueCraftableMaterial(i + MAX_CRAFTING_ITEMBOXES * page);
 			if(tx != -1) {
 				if(boxid - 1 == j) {
-					UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[bx][tx].item_type);
+					UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[bx][tx].item_type, bx);
 					
 					//Log(s:"update cur item inv ", d:tx);
 					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;

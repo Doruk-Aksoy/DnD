@@ -151,7 +151,7 @@ typedef struct dist_tid_pair {
 #define DND_MAXSCANTRACER 256
 
 #define MAX_GRAVDIS_COUNT 512
-#define GRAVDIS_DELAY_TIME 20 // 4 seconds is total time, 4 x 35 / 7 = 20
+#define GRAVDIS_DELAY_TIME 15 // 3 seconds is total time, 3 x (35 / 7) = 15
 #define GRAVDIS_CHECK_PERIOD 7
 #define GRAVDIS_FLING_FACTOR 128
 #define GRAVDIS_HEIGHT_FACTOR 15

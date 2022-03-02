@@ -866,9 +866,9 @@ Actor HeavyGLCounter : Ammo {
 
 Actor ViperAmmo : Ammo {
 	Inventory.Amount 1
-	inventory.maxamount 80
+	inventory.maxamount 50
 	Ammo.BackpackAmount 0
-	Ammo.BackpackMaxAmount 80
+	Ammo.BackpackMaxAmount 50
 	inventory.icon "C_H2A1"
 	+IGNORESKILL
 }

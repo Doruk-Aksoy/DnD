@@ -165,7 +165,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 	{
 		{ 		200,		50 		},
 		{ 		175,		43		},
-		{ 		80,			20		},
+		{ 		50,			12		},
 		{ 		200,		50		},
 		{ 		160, 		40		},
 		{ 		160,		40		},

@@ -1858,10 +1858,12 @@ Script "DnD Check Explosion Repeat" (void) {
 }
 
 // dmg data encapsulates the information about what damage types this attack involved
+// uses DND_DAMAGETYPEFLAG enums
 int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data) {
-	// first check if this is present in our map
-	int dmg_type = -1;
-
+	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
+		// get all possible sources of reduction
+		//dmg = ApplyDamageFactor_Safe(dmg, 100 - 
+	}
 	
 	/*if(LookupTester[class_name % MAX_DAMAGE_TYPE_ACTORS] != class_name)
 		Log(s:"bad hash for ", s:class_name);*/

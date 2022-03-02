@@ -622,20 +622,20 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_ESS_SSRATH:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, s:"+ ", d:val, s:"% ", l:"IATTR_MAGICRES",
+					s:"\c[Q7]", l:text, d:val, s:"% ", l:"IATTR_MAGICRES",
 					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, s:"+ ", d:val, s:"% ", l:"IATTR_MAGICRES");
+			return StrParam(s:"\c[Q7]", l:text, d:val, s:"% ", l:"IATTR_MAGICRES");
 			
 		case INV_ESS_CHEGOVAX:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, s:"+ ", d:val, s:"%",
+					s:"\c[Q7]", l:text, d:val, s:"%",
 					s:"\c- - ", s:GetDetailedModText(attr, tier, 0, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, s:"+ ", d:val, s:"%");
+			return StrParam(s:"\c[Q7]", l:text, d:val, s:"%");
 			
 		case INV_ESS_ZRAVOG:
 			if(showDetailedMods) {

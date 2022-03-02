@@ -274,6 +274,7 @@ typedef struct rect {
 typedef struct cursor {
 	int posx;
 	int posy;
+	int owner_pnum;				// player number of the owner of the item being hovered on -- This doesnt necessarily have to be us! It can be another player (trade case)
 	int itemHovered;			// spot of the item in player's inventory, or weapon's id
 	int itemHoveredType;		// is this an orb, etc. or a weapon
 	int itemHoveredSource;		// for inventory stuff, player inventory, stash etc.

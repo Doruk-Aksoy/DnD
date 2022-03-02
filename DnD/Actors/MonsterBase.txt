@@ -86,7 +86,12 @@ Actor DnD_BaseMonster {
 		Goto See
 		
 		GravdisFling:
+			// looping sounds should be stopped
 			"####" "#" 0 A_Pain
+			"####" "#" 0 A_StopSound(CHAN_WEAPON)
+			"####" "#" 0 A_StopSound(5)
+			"####" "#" 0 A_StopSound(6)
+			"####" "#" 0 A_StopSound(7)
 			"####" "#" 0 A_ChangeFlag("NOPAIN", 1)
 		GravdisLoopStart:
 			"####" "#" 1 A_JumpIfInventory("GravdisDebuff", 1, "GravdisLoop")

@@ -2067,7 +2067,7 @@ Script "DnD Monster Spawner" (int category) {
 	int roll, bin;
 	int avg_level = GetAveragePlayerLevel();
 	// roll legendary monster chance and do checks of it
-	if(!MadeLegendary && category == DND_CYBERDEMONID /*&& random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && avg_level >= 25*/) {
+	if(!MadeLegendary && category == DND_CYBERDEMONID && random(1, 100) <= Clamp_Between(GetCVar("dnd_legendary_chance"), 1, 100) && avg_level >= 25) {
 		MadeLegendary = 1;
 		// decide which legendary
 		roll = random(1, DND_MAX_LEGENDARY);
@@ -4636,7 +4636,7 @@ Script "DND HeavyGL Check" (int x, int y, int z) {
 
 Script "DnD Gravdis Debuff" (int base_dmg) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
-	int i;
+	int i, m_id;
 		
 	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GRAVDIS << 16), TALENT_BULLET, DND_WDMG_USETARGET | DND_WDMG_ISSLOT5);
 	bool got_one = false;
@@ -4644,18 +4644,22 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		// to be affected by gravdis debuff
 		if(CheckActorInventory(i, "GravdisToken") && IsActorAlive(i)) {
-			// dont affect teleporting / unshootable things
-			if(!CheckFlag(i, "SHOOTABLE")) {
-				TakeActorInventory(i, "GravdisToken", 1);
-				continue;
-			}
 			TakeActorInventory(i, "GravdisToken", 1);
+			// dont affect teleporting / unshootable things
+			if(!CheckFlag(i, "SHOOTABLE"))
+				continue;
 			// this allows other people or even the same player to elevate monsters higher and keep stunning them for longer for more damage potential
 			if(!CheckActorInventory(i, "GravdisDebuff"))
 				ACS_NamedExecuteWithResult("DnD Gravdis Flinger", i, owner, dmg, base_dmg);
 			else
 				ACS_NamedExecuteWithResult("DnD Gravdis Elevate", i, dmg, base_dmg);
-			SetActorInventory(i, "GravdisDebuff", GRAVDIS_DELAY_TIME);
+				
+			// bosses arent as affected by this
+			m_id = MonsterProperties[i - DND_MONSTERTID_BEGIN].id;
+			if(!IsMonsterIdBoss(m_id))
+				SetActorInventory(i, "GravdisDebuff", GRAVDIS_DELAY_TIME);
+			else
+				SetActorInventory(i, "GravdisDebuff", GRAVDIS_DELAY_TIME / 5);
 			SetActorState(i, "GravdisFling", 0);
 			PlaySound(i, "Gravdis/Grab", 7, 1.0);
 			got_one = true;
