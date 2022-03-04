@@ -298,7 +298,7 @@ $Limit SPRPIMPT	0
 NDLSHOT NDLSHOT
 $Limit NDLSHOT	0
 
-$volume Weapons/SawScreech 0.45
+$volume Weapons/SawScreech 0.33
 $random Weapons/SawScreech { chainsaw/hitwall1 chainsaw/hitwall2 chainsaw/hitwall3 chainsaw/hitwall4 }
 chainsaw/hitwall1	DSSAWAL1
 chainsaw/hitwall2	DSSAWAL2

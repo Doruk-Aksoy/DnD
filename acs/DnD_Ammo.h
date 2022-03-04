@@ -137,7 +137,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"GBUNA0",			"Grenades"				},
 		{		"AHRLA0",			"MISAmmo"				},
 		{ 		"SEDCRY",			"SedrinAmmo"			},
-		{		"",					"",						}
+		{		"",					""						}
 	},
 	// category 4 -- cell box
 	{
@@ -198,7 +198,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		25,			2		},
 		{  		50,			5		},
 		{ 		80,			6		},
-		{ 		60,			3		},
+		{ 		45,			3		},
 		{ 		-1,			0		}
 	},
 	// category 4 -- cell box
@@ -302,7 +302,7 @@ int GetAmmoCapIncrease() {
 }
 
 bool IsBackpackLimitReached() {
-	return CheckInventory("DND_MAX_BACKPACK") >= DND_MAX_BACKPACK;
+	return CheckInventory("BackpackCounter") >= DND_MAX_BACKPACK;
 }
 
 void SetAllAmmoCapacities() {

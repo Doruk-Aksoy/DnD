@@ -492,7 +492,7 @@ Actor ViperProxyProjectile : DnD_ExplosiveBase_ForPets {
 	Radius 1
 	+THRUACTORS
 	States {
-		Spawn:
+		SpawnState:
 			TNT1 A 1
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_VIPERSTAFF << 16), TALENT_OCCULT, DND_USETARGETSMASTER | DND_ISPISTOL | DND_ISSLOT2))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGETSMASTER) * exprad_factor))

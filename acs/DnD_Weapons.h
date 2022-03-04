@@ -63,7 +63,7 @@ str Weapons_Data[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 
 	 { "Rocket Launcher",					"RocketAmmo",		" ",							"WEPICO44"	},
 	 { "Upgraded Rocket Launcher",		    "RocketAmmo",		" ",							"WEPICO45"	},
-	 { "Upgraded Rocket Launcher2",		    "RocketAmmo",		" ",							"WEPICO46"	},
+	 { "Grenade Launcher",					"Grenades",			" ",							"WEPICO51"	},
 	 { "Upgraded Rocket Launcher3",			"FlakShell",		"ShellSize_18",					"WEPICO47"	},
 	 { "ResRL1",							"MeteorAmmo",		" ",							"WEPICO48"	},
 	 { "ResRL2",							"HeavyGrenades",	"HeavyGLCounter",				"WEPICO49"	},
@@ -71,7 +71,7 @@ str Weapons_Data[MAXWEPS][MAX_WEAPON_STRINGS] = {
 	 { "ResRL4",							"GravdisAmmo",		" ",							"WEPICO91"	},
 	 { "ResRL5",							"Cell",				" ",							"WEPICO96"	},
 	 
-	 { "Grenade Launcher",					"Grenades",			" ",							"WEPICO51"	},
+	 { "Upgraded Rocket Launcher2",		    "RocketAmmo",		" ",							"WEPICO46"	},
 	 { "Upgraded Grenade Launcher",		    "Grenades",			" ",							"WEPICO52"	},
 	 { "Heavy Missile Launcher",			"MISAmmo",			" ",							"WEPICO53"	},
 	 { "Sedrin Staff",						"SedrinAmmo",		" ",							"WEPICO92"	},
@@ -213,7 +213,7 @@ int WeaponProperties[MAXWEPS] = {
 	// 5 - 1
 	WPROP_NONE,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_NOREFLECT,
-	WPROP_CANTHITGHOST | WPROP_SELFDMG,
+	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_ALTAMMO,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_IGNORESHIELD | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER,
@@ -222,7 +222,7 @@ int WeaponProperties[MAXWEPS] = {
 	WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_NOREFLECT,
 	
 	// 5 - 2
-	WPROP_CANTHITGHOST | WPROP_ALTAMMO | WPROP_SELFDMG,
+	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_CANTHITGHOST | WPROP_SELFDMG,
 	WPROP_SELFDMG | WPROP_POISON,
@@ -293,7 +293,6 @@ bool IsLuxuryWeapon(int id) {
 		case DND_WEAPON_EBONYCANNON:
 		case DND_WEAPON_MPPB:
 		
-		case DND_WEAPON_GRENADELAUNCHER:
 		case DND_WEAPON_ROTARYGRENADELAUNCHER:
 		case DND_WEAPON_HEAVYMISSILELAUNCHER:
 		case DND_WEAPON_SEDRINSTAFF:

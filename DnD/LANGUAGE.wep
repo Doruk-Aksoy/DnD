@@ -68,7 +68,7 @@ WEP_46_TAG 			= 			"MP. Photon Blaster";					WEP_46_TAG_ALT = "Multi-Phase Photo
 	 
 WEP_47_TAG 			= 			"Rocket Launcher";
 WEP_48_TAG 			= 			"Torpedo Launcher";
-WEP_49_TAG 			= 			"Mercury Launcher";
+WEP_49_TAG 			= 			"Grenade Launcher";
 WEP_50_TAG 			= 			"Vindicator";
 WEP_51_TAG 			= 			"Meteor Launcher";
 WEP_52_TAG 			= 			"Heavy Grenade Launcher";
@@ -76,7 +76,7 @@ WEP_53_TAG 			= 			"Freezer Cannon";
 WEP_54_TAG 			= 			"Gravdis 5000";
 WEP_55_TAG 			= 			"Void Cannon";
 	 
-WEP_56_TAG 			= 			"Grenade Launcher";
+WEP_56_TAG 			= 			"Mercury Launcher";
 WEP_57_TAG 			= 			"Rotary Grenade Launcher";
 WEP_58_TAG 			= 			"Heavy Missile Launcher";
 WEP_59_TAG 			= 			"Sedrin Staff";
@@ -192,7 +192,7 @@ WEPTIP_4_12 	= "Launches photon blasts in multiple phases all dealing 42 - 56 da
 	 
 WEPTIP_5_0 		= "A true classic. Just don't blow yourself up. Can be \cdreplaced. Can't hit \cughosts.";
 WEPTIP_5_1 		= "The Torpedo Launcher shoots fast torpedos each doing 300 - 400 damage on impact and 224 damage in a 144 unit radius. Altfire detonates the rocket midflight, doing the same impact damage in an area instead. Can't hit \cughosts.";
-WEPTIP_5_2 		= "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.";
+WEPTIP_5_2 		= "Useful for when you can't reach around corners. Does 80 damage on impact and 128 damage in a 144 unit radius. Can't hit \cughosts\c-. Can use \cialternate\c- ammo.";
 WEPTIP_5_3 		= "Shoots 10 flak shells in 10.4 by 7.8 doing 5 impact damage and 20 explosion damage in 96 unit radius. The shells explode 320 units ahead to scatter into 3 explosive particles each doing 16 damage in 96 unit radius. Alt fire can zoom to improve accuracy by 50%.";
 WEPTIP_5_4 		= "Fires a meteor doing 200 on impact and 192 in a 192 unit radius. The meteor then splits into smaller pieces, and those pieces into further smaller with half of the values each split. Main meteor \cfignores shields\c-.";
 WEPTIP_5_5 		= "Fires grenades doing 128 on impact and 128 in a 128 unit radius. The grenade explodes into shrapnels ripping through doing 6-18 damage. Alt fire loads more grenades in the chamber. At most 3 additional grenades. Can't hit \cughosts.";
@@ -200,7 +200,7 @@ WEPTIP_5_6 		= "Launches a ball of ice that does 150 damage on impact. After som
 WEPTIP_5_7 		= "Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields\c-.";
 WEPTIP_5_8 		= "Creates a black hole doing 100 damage when it goes through enemies. On impact with a surface, hardened skin enemy or alt fire press, the projectile is detonated for 300 damage. Does 180 damage afterwards over time. Drags enemies towards it at all times. \cfIgnores shields\c-.";
 	 
-WEPTIP_5_9 		= "Useful for when you can't reach around corners. Does 80 damage on impact and 128 damage in a 144 unit radius. Can be \cdreplaced\c-. Can't hit \cughosts\c-. Can use \cialternate\c- ammo.";
+WEPTIP_5_9 		= "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.";
 WEPTIP_5_10 	= "The UAC Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts";
 WEPTIP_5_11 	= "Top of the food chain for rockets. Shoots two homing rockets each doing 192 damage both on impact and explosion. Can't hit \cughosts.";
 WEPTIP_5_12 	= "This artifact fires irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls exploding for half damage in half the radius. Ineffective versus robotic enemies. Explosions inflict \cqpoison\c-.";

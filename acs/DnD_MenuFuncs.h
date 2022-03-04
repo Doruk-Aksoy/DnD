@@ -1107,16 +1107,17 @@ int GetArmorFillPrice() {
 	if(armor_type > 0) {
 		res = ShopInfo[SHOP_FIRSTARMOR_INDEX + armor_type][SHOPINFO_PRICE] / DND_ARMORFILL_FACTOR;
 		res *= Clamp_Between(GetCVar("dnd_shop_scale"), 1, SHOP_SCALE_MAX);
-		armor_type = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
-		if(armor_type > 100)
-			res -= res / 2 + (res * (armor_type - 100)) / (100 * CHARISMA_REDUCE_AFTER100);
+		int ch_factor = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
+		if(ch_factor > 100)
+			res -= res / 2 + (res * (ch_factor - 100)) / (100 * CHARISMA_REDUCE_AFTER100);
 		else
-			res -= (res * armor_type) / (100 * CHARISMA_REDUCE);
+			res -= (res * ch_factor) / (100 * CHARISMA_REDUCE);
 		// just in case, a minimum price is there
 		if(!res)
 			res = 1;
 		// get missing armor
-		res = res * (GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]) - CheckInventory("Armor"));
+		//printbold(d:GetArmorSpecificCap(ArmorBaseAmounts[armor_type]), s:" vs ", d:CheckInventory("Armor"), s: " with base amt: ", d:ArmorBaseAmounts[armor_type], s: " and type: ", d:armor_type);
+		res = res * (GetArmorSpecificCap(ArmorBaseAmounts[armor_type]) - CheckInventory("Armor"));
 	}
 	return res;
 }

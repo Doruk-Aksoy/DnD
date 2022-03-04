@@ -111,8 +111,8 @@ RES_DESC35				= "Through improved cooling and combustion techniques, we can deli
 RES_LABEL36 			= "Meteor Launcher (5)";
 RES_DESC36				= "Using energies of powerful demons we can now create meteors at will and so can you! Unlocks Meteor Launcher (5).";
 
-RES_LABEL37 			= "Grenade Launcher (5)";
-RES_DESC37				= "It always occured to us, why don't we have a Grenade Launcher when we have a Rocket Launcher? Yeah, now we have both (5).";
+RES_LABEL37 			= "Mercury Launcher (5)";
+RES_DESC37				= "Mercury can be pretty devastating if combined with right pressure and temperature. We bring you this heat-seeking special missile launcher. Unlocks Mercury Launcher (5).";
 
 RES_LABEL38 			= "Heavy Grenade Launcher (5)";
 RES_DESC38				= "A grenade launcher on steroids! Shoots shrapnel filled grenades! Unlocks Heavy Grenade Launcher (5).";

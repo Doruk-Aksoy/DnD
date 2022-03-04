@@ -1349,9 +1349,14 @@ int GetInventoryInfoOffset(int itype) {
 
 // outside source implies this was called from the menu, not in the game
 void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOutsideSource) {
+	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
+	
+	// dont draw in custom intermission
+	if(CheckInventory("DnD_IntermissionState"))
+		return;
+	
 	int pnum = PlayerNumber();
 	int stack, itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source), offset = 0.0;
-	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
 	if(topboxid != -1 && itype != DND_ITEM_NULL) {
 		SetHudSize(480, 320, 1);
 		SetFont("LDTITINF");

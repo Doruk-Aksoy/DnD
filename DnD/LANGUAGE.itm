@@ -59,9 +59,8 @@ DND_AMMO_2_2		=	"Meteor Spheres";
 DND_AMMO_2_3		=	"Heavy Grenades";
 DND_AMMO_2_4		=	"Gravity Modules";
 DND_AMMO_2_5		=	"Grenades";
-DND_AMMO_2_6		=	"Charon Batteries";
-DND_AMMO_2_7		=	"Heavy Missiles";
-DND_AMMO_2_8		=	"Sedrin Crystals";
+DND_AMMO_2_6		=	"Heavy Missiles";
+DND_AMMO_2_7		=	"Sedrin Crystals";
 
 DND_AMMO_3_0		=	"Cells";
 DND_AMMO_3_1		=	"Devastator Rockets";

@@ -5975,14 +5975,43 @@ Script "DnD Item Linger Check" (int sp) {
 	Thing_Remove(0);
 }
 
-Script "DnD Store Projectile Owner" (void) {
-	int target = GetActorProperty(0, APROP_TARGETTID);
+// this is also no longer in use
+/*Script "DnD Store Projectile Owner" (int isPet) {
+	int target = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
 	SetActorProperty(0, APROP_SCORE, target);
 	
 	// hack for crit store on burst fire projectiles
 	if(CheckActorInventory(target, "DnD_CritToken"))
 		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
 
+	SetResultValue(0);
+*/
+
+Script "DnD Projectile Checks" (int isPet) {
+	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
+	//printbold(s:"owner is ", d:owner);
+	// store owner
+	SetActorProperty(0, APROP_SCORE, owner);
+	
+	// hack for crit store on burst fire projectiles
+	if(CheckActorInventory(owner, "DnD_CritToken"))
+		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
+	
+	if(CheckActorInventory(owner, "NetherCheck"))
+		GiveInventory("ApplyNetherMaskBuff", 1);
+
+	if
+	(
+		CheckActorInventory(owner, "Marine_Perk50") || 
+		CheckActorInventory(owner, "StatbuffCounter_HomingDontReflect") && (CheckFlag(0, "SEEKERMISSILE") || CheckFlag(0, "SCREENSEEKER"))
+	)
+	{
+		GiveInventory("ApplyNoReflect", 1);
+	}
+	
+	if(CheckActorInventory(owner, "StatbuffCounter_ExplosiveResistIgnore"))
+		GiveInventory("ApplyForceRadiusDMG", 1);
+		
 	SetResultValue(0);
 }
 

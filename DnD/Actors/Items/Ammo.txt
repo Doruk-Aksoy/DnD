@@ -967,10 +967,10 @@ Actor HeavyGrenades : Ammo
 Actor SedrinAmmo : Ammo
 {
 	inventory.amount 2
-	inventory.maxamount 60
+	inventory.maxamount 40
 	inventory.icon "SEDCRY"
 	ammo.backpackamount 2
-	ammo.backpackmaxamount 60
+	ammo.backpackmaxamount 40
 	+IGNORESKILL
 }
 

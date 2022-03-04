@@ -328,7 +328,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		
 		// 5 - 1
 		{ 3500,  1,		1 },
-		{ 4800,  1,		1 },
+		{ 2500,  1,		1 },
 		{ 6750,  1,		1 },
 		{ 5500,  1,		1 },
 		{ 5750,  1,		1 },
@@ -337,7 +337,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 6250,  1,		1 },
 		
 		// 5 - 2
-		{ 1750,  1,		1 },
+		{ 6800,  1,		1 },
 		{ 4000,  1,		1 },
 		{ 5000,  1,		1 },
 		{ 5500,	 1,		1 },
@@ -554,7 +554,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT5UPG5, -1, -1 },
 		
 	// wep slot 5 - 2
-		{ RES_SLOT5GL, -1, -1 },
+		{ RES_SLOT5MERC, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
@@ -598,7 +598,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
-		{ RES_SLOT5GL, RES_SLOT5UPG2, -1 },
+		{ RES_SLOT5MERC, -1, -1 },
 		{ RES_SLOT6LUXURY, -1, -1 },
 		
 	// ammo 2
@@ -1020,7 +1020,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	
 	// 5 - 1
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL,								SHOP_WEP_TORPEDO		},
-	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_MERC			},
+	{ OBJ_WEP | OBJ_HASCHOICE,												SHOP_WEP_GRENADE		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_VINDICATOR		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL1			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL2			},
@@ -1029,7 +1029,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL5			},
 	
 	// 5 - 2
-	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_GRENADE		},
+	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_MERC			},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_ROTARYGL		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH,								SHOP_WEP_HEAVYML		},
 	{ OBJ_WEP | OBJ_HASCHOICE | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SEDRIN			},
@@ -1143,7 +1143,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 int ShopAmmoIndexToRegularAmmoIndex(int id) {
 	// we exclude soul ammo types
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT; ++j) {
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && MenuAmmoIndexMap[i][j] != -1; ++j) {
 			if(MenuAmmoIndexMap[i][j] - SHOP_FIRSTAMMO_INDEX == id)
 				return j | (i << 16);
 		}
@@ -1251,7 +1251,7 @@ int AmmoCounts[MAXSHOPAMMOS][2] = {
 	{ 5, DND_WEAPON_HEAVYGL },
 	{ 5, DND_WEAPON_CROSSBOW },
 	{ 5, DND_WEAPON_GRAVDIS },
-	{ 6, DND_WEAPON_SEDRINSTAFF },
+	{ 5, DND_WEAPON_SEDRINSTAFF },
 	{ 10, DND_WEAPON_CHARONBLASTER },
 	{ 8, DND_WEAPON_INCINERATOR },
 	
@@ -1475,7 +1475,7 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SLOT5UPG5, 9135, 60
 		},
 		{
-			RES_SLOT5GL, 8216, 10
+			RES_SLOT5MERC, 8216, 65
 		},
 		{
 			RES_SLOT6UPG1, 4811, 50

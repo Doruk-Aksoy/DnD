@@ -262,7 +262,8 @@ void Reset_RPGInfo (int resetflags) {
 int CheckLevelUp (void) {
 	int curlevel = GetStat(STAT_LVL), exptemp;
 	// -1 because initial level is 1
-	while(curlevel < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[GetStat(STAT_LVL) - 1]) {
+	// we need to check for the current up-to-date level, not previous level here!!
+	while(GetStat(STAT_LVL) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[GetStat(STAT_LVL) - 1]) {
 		exptemp = GetStat(STAT_EXP) - LevelCurve[GetStat(STAT_LVL) - 1];
 		if(!((GetStat(STAT_LVL) + 1) % 5)) { // multiples of 5 give perk
 			GiveInventory("PerkPoint", 1);

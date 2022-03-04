@@ -253,149 +253,6 @@ Actor RocketShooter2 : DnD_Activator {
 	}
 }
 
-// Sprites by Eriance
-Actor "Upgraded Rocket Launcher2" : RocketLauncher {	
-	Weapon.Slotnumber 5
-	Inventory.PickupSound "weapons/pickup"
-	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_49_TAG"
-    Weapon.BobStyle InverseSmooth
-    Weapon.BobSpeed 1.6
-    Weapon.BobRangeY 0.5
-    Weapon.BobRangeX 0.8
-	-NOAUTOFIRE
-	States {
-		Spawn:
-			MERC X -1
-		Stop
-		Ready:
-			MERC A 1 A_WeaponReady
-		Loop
-		Deselect:
-			TNT1 A 0 A_StopSound(CHAN_WEAPON)
-			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
-			MERC A 1 A_Lower
-			TNT1 A 0 A_Lower
-		Loop
-		Select:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_MERCURYLAUNCHER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 16, 16 | (20 << 16), DND_WEAPON_MERCURYLAUNCHER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 24, 0, DND_WEAPON_MERCURYLAUNCHER)
-	    SelectLoop:
-			MERC A 1 A_Raise
-			TNT1 A 0 A_Raise
-		Loop
-		Fire:
-			MERC A 1 A_CheckReload
-			MERC B 1 Bright A_Gunflash
-			MERC BC 1 Bright
-			TNT1 A 0 A_PlayWeaponSound("weapons/mercuryfire")
-			TNT1 A 0 Radius_Quake(4,3,0,1,0)
-			MERC C 1 Bright A_GiveInventory("RocketShooter3", 1)
-			MERC DEFGHI 1 Bright
-			MERC JKLMN 3
-			MERC A 15
-			MERC A 6 A_Refire
-		Goto Ready
-		Flash:
-			TNT1 A 3 A_Light1
-			TNT1 A 4 A_Light2
-			TNT1 A 3 A_Light1
-			TNT1 A 2 A_Light0
-		stop
-	}
-}
-
-Actor MercurySmoke : RocketSmoke {
-	Renderstyle Add
-	Alpha 0.85
-	
-	States {
-		Spawn:
-			OBSK ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Bright A_FadeOut(0.03)
-		Stop
-	}
-}
-
-Actor MercuryExplosion : DnD_ExplosiveBase {
-	Speed 0
-	+THRUACTORS
-	const int max_exp = 8;
-	States {
-		SpawnState:
-			TNT1 A 0
-		Death:
-			TNT1 A 0 A_SetUserVar("user_count", 0)
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MERCURYLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5))
-			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
-			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
-		Again:
-			TNT1 A 1 
-		Goto DoExplosionDamage
-		ContinueFromExplosion:
-			TNT1 A 7 A_SetUserVar("user_count", user_count + 1)
-			TNT1 AAAAAAAAAAAA 0 A_SpawnItemEx("MercurySmoke", 0, 0, 0, frandom(-4, 4), frandom(-4, 4), frandom(-4, 4))
-			TNT1 A 1 A_JumpIf(user_count < max_exp, "Again")
-		Goto FinishExplosion
-	}
-}
-
-Actor MercuryRocket : RocketX {
-	Speed 16
-	SeeSound ""
-	Decal "Scorch"
-	Scale 1.1
-	+LOOKALLAROUND
-	+SCREENSEEKER
-	+THRUGHOST
-	+SEEKERMISSILE
-	States {
-		SpawnState:
-			HMMS C 12
-			TNT1 A 0 A_ChangeVelocity(velx * 2.75, vely * 2.75, velz * 2.75, CVF_REPLACE)
-		SpawnLoop:
-			HMMS A 2 Bright A_SeekerMissile(45, 15, SMF_LOOK | SMF_PRECISE | SMF_CURSPEED)
-			TNT1 A 0 A_CustomMissile("MercurySmoke", 0, 0, random(225, 315), 2, random(0, 360))
-			HMMS B 2 Bright A_SeekerMissile(45, 15, SMF_LOOK | SMF_PRECISE | SMF_CURSPEED)
-			TNT1 A 0 A_CustomMissile("MercurySmoke", 0, 0, random(225, 315), 2, random(0, 360))
-		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MERCURYLAUNCHER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT5), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_MERCURYLAUNCHER)
-		Death:
-			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
-			TNT1 AAAAAAA 0 A_CustomMissile("MercurySmoke", 0, 0, random(0, 360), 2, random(0, 180))
-			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
-			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
-			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
-			TNT1 A 0 A_CustomMissile("MercuryExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			MISL B 8 Bright
-			MISL C 7 Bright
-			MISL D 6 Bright
-		Stop
-	}
-}
-
-Actor MercuryRocket_GhostHitter : MercuryRocket {
-	-THRUGHOST
-}
-
-Actor RocketShooter3 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_MERCURYLAUNCHER, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("MercuryRocket", 1, 1, 0, 0)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("MercuryRocket_GhostHitter", 1, 1, 0, 0)
-		Stop
-	}
-}
-
 ACTOR "Upgraded Rocket Launcher3" : Weapon {
 	Weapon.SelectionOrder 600
 	Weapon.AmmoUse1 0
@@ -736,9 +593,8 @@ ACTOR FlakProjectile : DnD_BaseFastProjectile {
 	+THRUACTORS
 	+THRUGHOST
 	States {
-		Spawn:
-			TNT1 A 1 NoDelay A_ScaleVelocity(0.1)
-			TNT1 A 0 A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
+		SpawnState:
+			TNT1 A 1 A_ScaleVelocity(0.1)
 			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
 			TNT1 A 0 A_ScaleVelocity(1.0)
 		SpawnLoop:
@@ -840,7 +696,7 @@ Actor "Grenade Launcher" : RocketLauncher {
 	Obituary "%o was blown away by %k's grenade launcher!"
 	+NOAUTOAIM
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_56_TAG"
+	Tag "$WEP_49_TAG"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5

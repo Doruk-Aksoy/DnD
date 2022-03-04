@@ -1818,10 +1818,9 @@ Actor FusionBlasterProjectile : DnD_BaseFastProjectile {
 	const int dmg_rate = 3;
 	var int user_tics;
 	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_tics", 0)
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_tics", 0)
 			FUS9 A 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)
-			TNT1 A 0 A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
 		SpawnLoop:
 			FUS9 A 1 Bright A_SetScale(scalex + inc_rate * user_tics, scaley + inc_rate * user_tics)
 			FUS9 B 1 Bright A_SetUserVar("user_tics", user_tics + dmg_rate)

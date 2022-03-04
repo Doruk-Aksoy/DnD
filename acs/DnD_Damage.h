@@ -385,10 +385,11 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	else // no rng, so just set it to temp
 		dmg = temp;
 
+	// only store scaling factors here for later use, no modifying damage in this block
+	// damage modifications are done at the end
 	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid) || isSpecial) {
 		// add flat damage bonus mapping talent name to flat bonus type
 		temp = MapTalentToFlatBonus(pnum, talent_type, flags);
-		dmg += temp;
 		
 		ClearCache(pnum, wepid, dmgid);
 		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
@@ -398,7 +399,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		// include the stat bonus
 		if(talent_type == TALENT_MELEE) {
 			temp = DND_STR_GAIN * GetStrength();
-			dmg = dmg * (100 + temp) / 100;
 			mult_factor = GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
@@ -406,13 +406,11 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		// occult uses intellect
 		if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) {
 			temp = DND_INT_GAIN * GetIntellect();
-			dmg = dmg * (100 + temp) / 100;
 			mult_factor = GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		else if(talent_type != TALENT_MELEE) {
 			temp = DND_DEX_GAIN * GetDexterity();
-			dmg = dmg * (100 + temp) / 100;
 			mult_factor = GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
@@ -421,114 +419,96 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		temp = GetPlayerWeaponEnchant(pnum, wepid);
 		if(temp) {
 			temp *= ENHANCEORB_BONUS;
-			dmg = dmg * (100 + temp) / 100;
-		
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 			
 		// finally apply damage type or percentage bonuses
 		// last one is for ghost hit power, we reduce its power by a factor
 		temp = GetPlayerPercentDamage(pnum, wepid, talent_type);
-		if(temp) {
-			dmg = dmg * (100 + temp) / 100;
+		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
 		
 		// slot damage bonuses
 		temp = GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + GetWeaponSlotFromFlag(flags));
-		if(temp) {
-			dmg = dmg * (100 + temp) / 100;
+		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
 		
 		// special damage increase attributes -- usually obtained by means of charms
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
-		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial)) {
-			dmg = dmg * (100 + temp) / 100;
+		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial))
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
 		
 		// shotgun damage bonus -- add hobos perk here too
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
 		if(CheckInventory("Hobo_Perk25"))
 			temp += DND_HOBO_SHOTGUNBONUS;
-		if((flags & DND_WDMG_ISBOOMSTICK) && temp) {
-			dmg = dmg * (100 + temp) / 100;
+		if((flags & DND_WDMG_ISBOOMSTICK) && temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
 		
 		// apply flat health to damage conversion if player has any
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
-		if(temp) {
-			temp = GetFlatHealthDamageFactor(temp);
-			dmg = dmg * (100 + temp) / 100;
-		
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
+		if(temp)
+			InsertCacheFactor(pnum, wepid, dmgid, GetFlatHealthDamageFactor(temp), true);
 		
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW
 		// quest or accessory bonuses
 		// is occult (add demon bane bonus)
-		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT) {
-			temp = DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
-		}
+		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
+			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE), false);
 		
 		// gunslinger affected
-		if(flags & DND_WDMG_ISPISTOL) {
-			temp = DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
-		}
+		if(flags & DND_WDMG_ISPISTOL)
+			InsertCacheFactor(pnum, wepid, dmgid, DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward), false);
 		
 		// shotgun affected
-		if(flags & DND_WDMG_ISBOOMSTICK) {
-			temp = DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
-		}
+		if(flags & DND_WDMG_ISBOOMSTICK)
+			InsertCacheFactor(pnum, wepid, dmgid, DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward), false);
 			
 		// super weapon affected
-		if(flags & DND_WDMG_ISSUPER) {
-			temp = DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward);
-			dmg = dmg * (100 + temp) / 100;
-			
-			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
-		}
+		if(flags & DND_WDMG_ISSUPER)
+			InsertCacheFactor(pnum, wepid, dmgid, DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward), false);
 		
 		// perk multiplicative factors
-		if(mult_factor) {
-			dmg = dmg * (100 + mult_factor) / 100;
+		if(mult_factor)
 			InsertCacheFactor(pnum, wepid, dmgid, mult_factor, false);
-		}
 
 		MarkCachingComplete(pnum, wepid, dmgid);
 		
 		//printbold(s:"pre-scale: ", d:temp);
 	}
+	
+	// Get the cached flat dmg and factor and apply them both
+	temp = GetCachedPlayerFlatDamage(pnum, wepid, dmgid);
+	
+	// isSpecial isn't used or kept track of below here, so re-use
+	// 66% effectiveness of damage scaling on tracer -- dmgid is 1 on tracers
+	isSpecial = (flags & DND_WDMG_ISSUPER) && (wepid == DND_WEAPON_BFG32768 || DND_WEAPON_BFG6000) && dmgid == 1;
+	if(isSpecial) {
+		temp *= 2;
+		temp /= 3;
+	}
+	
+	// add flat bonus here
+	dmg += temp;
+	
+	// if there would be an overflow with dmg x temp (temp in [1.0, 65536.0], fixed)
+	temp = GetCachedPlayerFactor(pnum, wepid, dmgid);
+	if(isSpecial) {
+		temp *= 2;
+		temp /= 3;
+	}
+	
+	// if we had a factor of 0, dont bother here
+	if(!temp)
+		return dmg;
+	
+	if(dmg < INT_MAX / temp) {
+		dmg *= temp;
+		dmg >>= 16;
+	}
 	else {
-		// Get the cached flat dmg and factor and apply them both
-		dmg += GetCachedPlayerFlatDamage(pnum, wepid, dmgid);
-		
-		// if there would be an overflow with dmg x temp (temp in [1.0, 65536.0], fixed)
-		// scale each part individually then add it up to form the new number -- 1000 seems to be a nice value for doom ranges
-		// but in general, the best result comes from an evenly split value
-		temp = GetCachedPlayerFactor(pnum, wepid, dmgid);
-		if(dmg < INT_MAX / temp) {
-			dmg *= temp;
-			dmg >>= 16;
-		}
-		else {
-			// beyond this point wepid doesnt matter so use that instead
-			dmg = BigNumberFormula(dmg, temp);
-		}
-
-		// factor was stored as fixed, convert to int
-		//printbold(s:"from cache ", d:GetCachedPlayerFlatDamage(pnum, wepid, dmgid), s: " ", f:GetCachedPlayerFactor(pnum, wepid, dmgid));
+		// beyond this point wepid doesnt matter so use that instead
+		dmg = BigNumberFormula(dmg, temp);
 	}
 	
 	//printbold(d:dmg);
