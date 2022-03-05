@@ -124,12 +124,12 @@ ACTOR Ripper1Corpulent : Ripper1 {
 		Death:
 			RIP1 D 0 Bright A_SetTranslucent (0.75,1)
 			RIP1 D 1 Bright A_SpawnItem("CorpulentExp")
-			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,0,0,0)
-			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,60,0,0)
-			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,120,0,0)
-			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,180,0,0)
-			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,240,0,0)
-			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,300,0,0)
+			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,0,SXF_TRANSFERPOINTERS,0)
+			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,60,SXF_TRANSFERPOINTERS,0)
+			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,120,SXF_TRANSFERPOINTERS,0)
+			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,180,SXF_TRANSFERPOINTERS,0)
+			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,240,SXF_TRANSFERPOINTERS,0)
+			RIP1 D 0 Bright A_SpawnItemEx("Ripper2Corpulent",0,0,0,32,0,0,300,SXF_TRANSFERPOINTERS,0)
 			RIP1 DEFGH 3 Bright
 		stop
 	}

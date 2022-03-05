@@ -83,7 +83,7 @@ WEP_59_TAG 			= 			"Sedrin Staff";
 	 
 WEP_60_TAG 			= 			"Plasma Rifle";
 WEP_61_TAG 			= 			"Nuclear Plasma Rifle";
-WEP_62_TAG 			= 			"Turel Cannon";
+WEP_62_TAG 			= 			"Particle Cannon";
 WEP_63_TAG 			= 			"Frost Fang";
 WEP_64_TAG 			= 			"Flamethrower";
 WEP_65_TAG 			= 			"Lightning Gun";
@@ -157,7 +157,7 @@ WEPTIP_1_7 		= "Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pelle
 WEPTIP_2_0 		= "Typical boomstick, now spreads vertically too. 10 pellets, each doing 10-15 damage. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.";
 WEPTIP_2_1 		= "The purifier shotgun, spreads with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads.";
 WEPTIP_2_2 		= "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Alt fire reloads.";
-WEPTIP_2_3 		= "Fires 5 blasts doing 20 damage in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, releasing an acid rain, doing 8-32 damage each. These can't hit \cughosts\c-. Victims explode on death doing 100 damage in 96 unit radius.";
+WEPTIP_2_3 		= "Fires 5 blasts doing 20 damage in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, releasing an acid rain, doing 8-32 damage each. Can't hit \cughosts\c-. Victims explode on death doing 85 damage in 96 unit radius.";
 WEPTIP_2_4 		= "Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.";
 WEPTIP_2_5 		= "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.";
 WEPTIP_2_6 		= "An artifact that does 160 damage up to 1024 units, sending a healing bolt. If a \cgdemon\c- was hit, does an explosion in 160 unit radius doing 192 damage. Altfire does 10-20 melee damage. If a \cgdemon\c- is hit, gives 1 ammo.";
@@ -207,7 +207,7 @@ WEPTIP_5_12 	= "This artifact fires irradiating energy balls dealing 75-100 dama
 	 
 WEPTIP_6_0 		= "Best friend of the trigger happy. Can be \cdreplaced.";
 WEPTIP_6_1 		= "Improved with a nuclear reactor, does 36 - 60 on hit and 10 - 30 explosion damage in a 48 unit radius. Can \cgoverheat\c-. Does self damage.";
-WEPTIP_6_2 		= "Turel Cannon fires highly ionized particles doing 125 damage ripping through everything. Continuous fire is less accurate and does 80 damage. Has a range of 768 units. Altfire fires focused shots.";
+WEPTIP_6_2 		= "Particle Cannon fires highly ionized particles doing 125 damage ripping through everything. Continuous fire is less accurate and does 80 damage. Has a range of 768 units. Altfire fires focused shots.";
 WEPTIP_6_3 		= "Launches 5 ice shards doing 15 - 30 damage in a 7.5 by 7.5 spread. Alt fire launches a glacial orb launching ice shards all around with itself doing 6-9 damage and rips through enemies. Can't hit \cughosts.";
 WEPTIP_6_4 		= "Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.";
 WEPTIP_6_5 		= "UAC offers this shockingly deadly weapon that can shoot lightning doing 9-12 damage. Alt fire shoots forked lightning. Keep firing and da- mage increases by 4% per stack. Stacks additively.";
@@ -219,7 +219,7 @@ WEPTIP_6_9 		= "An interesting demonic artifact shooting nails. Each nail does 1
 WEPTIP_6_10 	= "Basilisk is said to be the ancient weapon of hell's most elite warriors. If not loaded, shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage. \cf Ignores shields.";
 	 
 WEPTIP_7_0 		= "BFG 6000, an older model but still capable. Can be \cdreplaced. \cfIgnores shields.";
-WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on impact and 384 damage in a 160 unit radius. Also shoots 64 tracers instead of 40.";
+WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on impact and 224 damage in a 160 unit radius.";
 WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units.";
 WEPTIP_7_3 		= "Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields.";
 WEPTIP_7_4 		= "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, halving over two more explosions in both radius and damage.";

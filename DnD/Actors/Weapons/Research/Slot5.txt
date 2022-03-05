@@ -8,6 +8,7 @@ Actor "Upgraded Rocket Launcher2" : RocketLauncher {
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.8
+	+WEAPON.NOAUTOAIM
 	-NOAUTOFIRE
 	States {
 		Spawn:
@@ -158,6 +159,7 @@ Actor ResRL1 : Weapon {
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.45
 	Weapon.BobStyle InverseSmooth
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			RW06 X -1
@@ -357,13 +359,13 @@ ACTOR ResRL2 : Weapon {
 	Weapon.SlotNumber 5
 	Weapon.AmmoType1 "HeavyGrenades"
 	Weapon.AmmoType2 "HeavyGLCounter"
-	+WEAPON.NOAUTOAIM
 	Scale 0.75
 	Tag "$WEP_52_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.5
 	Weapon.BobRangeX 0.75
+	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
 			GLAU A 1 A_WeaponReady
@@ -654,6 +656,7 @@ Actor ResRL3 : Weapon {
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.35
 	Weapon.BobStyle InverseSmooth
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			FRZC Z -1
@@ -967,6 +970,7 @@ Actor ResRL4 : Weapon {
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.45
 	Weapon.BobStyle InverseSmooth
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			BRSG X -1
@@ -1104,7 +1108,7 @@ Actor GravdisProjectile : DnD_BaseProjectile {
 		Loop
 		Death:
 			TNT1 A 0 A_SetUserVar("user_rad", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
-			TNT1 A 0 A_SetUserVar("user_f", -1000 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GRAVDIS << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT5) / 400)
+			TNT1 A 0 A_SetUserVar("user_f", 1000 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GRAVDIS << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT5) / 400)
 			TNT1 A 0 A_RadiusGive("GravdisToken", user_rad, RGF_MONSTERS, 1)
 			VORX A 1 Bright
 			// base damage is input here from weapon -- pulls things toward its center scaling with weapon damage in force
@@ -1114,42 +1118,42 @@ Actor GravdisProjectile : DnD_BaseProjectile {
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(105), r * sin(105), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(195), r * sin(195), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(285), r * sin(285), 0, 0, 0, 2)
-			VORX B 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX B 2 Bright ACS_NamedExecuteWithResult("DnD Gravdis Thrust", 8, user_f)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(30), r * sin(30), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(120), r * sin(120), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(210), r * sin(210), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(300), r * sin(300), 0, 0, 0, 2)
-			VORX C 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX C 2 Bright
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(45), r * sin(45), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(135), r * sin(135), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(225), r * sin(225), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(315), r * sin(315), 0, 0, 0, 2)
-			VORX D 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX D 2 Bright
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(60), r * sin(60), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(150), r * sin(150), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(285), r * sin(285), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(330), r * sin(330), 0, 0, 0, 2)
-			VORX E 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX E 2 Bright
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(75), r * sin(75), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(165), r * sin(165), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(255), r * sin(255), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(345), r * sin(345), 0, 0, 0, 2)
-			VORX F 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX F 2 Bright
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(90), r * sin(90), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(180), r * sin(180), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(270), r * sin(270), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(0), r * sin(0), 0, 0, 0, 2)
-			VORX G 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX G 2 Bright
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(105), r * sin(105), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(195), r * sin(195), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(285), r * sin(285), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(15), r * sin(15), 0, 0, 0, 2)
-			VORX H 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX H 2 Bright
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(120), r * sin(120), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(210), r * sin(210), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(300), r * sin(300), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(30), r * sin(30), 0, 0, 0, 2)
-			VORX I 2 Bright A_RadiusThrust(user_f, user_rad, RTF_NOIMPACTDAMAGE)
+			VORX I 2 Bright
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(135), r * sin(135), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(225), r * sin(225), 0, 0, 0, 2)
 			TNT1 A 0 A_SpawnItemEx("GravdisSpinnyParticle", r * cos(315), r * sin(315), 0, 0, 0, 2)
@@ -1385,7 +1389,7 @@ Actor ResRL5 : Weapon {
 	Weapon.BobRangeY 0.2
 	Weapon.BobRangeX 0.4
 	Weapon.BobStyle InverseSmooth
-	
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			RW07 X -1

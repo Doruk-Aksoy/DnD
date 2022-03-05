@@ -22,6 +22,7 @@ Actor IceShield_Barrier : Hittable_Spell_Object {
 	Alpha 0.01
 	+NOGRAVITY
 	+NOBLOOD
+	+CANTSEEK
 	Scale 0.475
 	var int user_angle;
 	const int tspeed = 9;

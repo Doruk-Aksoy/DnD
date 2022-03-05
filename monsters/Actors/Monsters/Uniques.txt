@@ -2470,6 +2470,16 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 			UE08 OPQ 5
 			UE08 R -1
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_GiveInventory("DnD_Boolean", 1)
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_GiveInventory("DnD_Boolean", 1)
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_GiveInventory("DnD_Boolean", 1)
+		Goto Super::Death.P_Ice
 	}
 }
 

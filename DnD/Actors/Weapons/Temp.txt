@@ -23,6 +23,7 @@ Actor Sawedoff : Weapon
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.7
   Tag "$WEP_84_TAG"
+  +WEAPON.NOAUTOAIM
   states
   {
   Remove:
@@ -323,6 +324,7 @@ ACTOR "Soul Render" : Weapon
     Weapon.BobRangeY 0.4
     Weapon.BobRangeX 0.7
 	Tag "$WEP_85_TAG"
+	+WEAPON.NOAUTOAIM
    States
    {
    Spawn:
@@ -935,6 +937,7 @@ actor "SMG" : Weapon
   Weapon.BobRangeY 0.3
   Weapon.BobRangeX 0.6
   Tag "$WEP_86_TAG"
+  +WEAPON.NOAUTOAIM
   States
   {
   Remove:
@@ -1130,6 +1133,7 @@ ACTOR "Hellforge Cannon" : Weapon
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.9
 	Tag "$WEP_87_TAG"
+	+WEAPON.NOAUTOAIM
    States
    {
   Remove:
@@ -1451,6 +1455,7 @@ ACTOR "Bloodfiend Spine" : Weapon
   Weapon.BobRangeY 0.6
   Weapon.BobRangeX 0.9
   Tag "$WEP_88_TAG"
+  +WEAPON.NOAUTOAIM
    States
    {
   Remove:
@@ -1816,6 +1821,7 @@ actor "Enforcer Rifle" : Weapon
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.7
   Tag "$WEP_89_TAG"
+  +WEAPON.NOAUTOAIM
   States
   {
   Remove:
@@ -2060,6 +2066,7 @@ ACTOR Venom : Weapon
   Weapon.BobRangeY 0.6
   Weapon.BobRangeX 0.9
   Tag "$WEP_90_TAG"
+  +WEAPON.NOAUTOAIM
    States
    {
   Remove:
@@ -2530,6 +2537,7 @@ ACTOR "Demon Heart" : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.5
 	Tag "$WEP_91_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			TNT1 A -1 Bright
@@ -2839,6 +2847,7 @@ Actor DarkServantGloves : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
+	+WEAPON.NOAUTOAIM
 	states {
 		Remove:
 			GAU3 A 1 Offset(0, 40)
@@ -3146,6 +3155,7 @@ Actor Nailgun2 : Weapon {
 	Weapon.BobRangeY 0.45
 	Weapon.BobRangeX 0.75
 	Tag "$WEP_93_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			NLCG F -1
@@ -3428,6 +3438,7 @@ Actor Berettas : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Tag "$WEP_94_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			PAKM X -1
@@ -3632,6 +3643,7 @@ actor "Plasma Bolter" : Weapon {
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.6
 	Tag "$WEP_95_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Remove:
 			PBL9 A 1 Offset(0, 40)
@@ -3970,6 +3982,7 @@ actor "Ripper Cannon" : Weapon {
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.65
 	Tag "$WEP_96_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Remove:
 			TWP0 A 1 Offset(0, 40)

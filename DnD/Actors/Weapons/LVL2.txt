@@ -11,6 +11,7 @@ Actor " Pistol " : Pistol
     Weapon.BobRangeY 0.3
     Weapon.BobRangeX 0.6
 	Tag "$WEP_8_TAG"
+	+WEAPON.NOAUTOAIM
 	States
 	{
 	  Ready:
@@ -107,6 +108,7 @@ Actor " Akimbo Pistols " : Pistol {
 	+INVENTORY.UNDROPPABLE
 	+AMMO_OPTIONAL
 	+ALT_AMMO_OPTIONAL
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			NPIS F -1
@@ -395,6 +397,7 @@ Actor Magnum : Weapon {
     Weapon.BobRangeY 0.3
     Weapon.BobRangeX 0.7
 	const int magnum_clip = 6;
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			REVP A -1
@@ -571,6 +574,7 @@ Actor "Laser Pistol" : Weapon {
     Weapon.BobSpeed 1.8
     Weapon.BobRangeY 0.2
     Weapon.BobRangeX 0.6
+	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
 			PBLT A 1 A_WeaponReady
@@ -916,6 +920,7 @@ ACTOR ScatterGun : Weapon
    Weapon.BobRangeY 0.3
    Weapon.BobRangeX 0.6
    Weapon.SlotNumber 2
+   +WEAPON.NOAUTOAIM
    States
    {
    Spawn:
@@ -1093,6 +1098,7 @@ Actor RubyWand : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
 	Tag "$WEP_14_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			WAND F -1 Bright

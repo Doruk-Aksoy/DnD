@@ -155,7 +155,7 @@ int GetItemFlags(int itemid) {
 		case TYPE_ABILITY:
 		return AbilityDrawInfo[itemid - SHOP_ABILITY1_BEGIN].flags;
 		case TYPE_ACCOUNT:
-		return OBJ_HASCHOICE | OBJ_RESEARCH;
+		return OBJ_RESEARCH;
 	}
 	return 0;
 }
@@ -877,7 +877,7 @@ void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 }
 
 // Draws a toggled image that changes color depending on given scenarios
-// By default, if insufficient credits occur, it will be gray. If credits are sufficient but objectflag has OBJ_HASCHOICE, that means you have to choose between one of the options
+// By default, if insufficient credits occur, it will be gray.
 // of it's kind. For example, there are 2 weapons that replace the shotgun. You can have only one, so you set this flag, and set choicename to P_Slot3Replaced. One of the two will be
 // red if the other is bought. The item that is bought will be green.
 void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int offcolor, int oncolor, str choicename, int choicecount, int choicecolor) {
@@ -926,7 +926,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 						colorprefix = "\c[G8]";
 						toshow = "\c[G8]";
 					} // if I have options color others
-					else if( (objectflag & OBJ_HASCHOICE && !(CheckInventory("Berserker_Perk5") && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
+					else if( (!(CheckInventory("Berserker_Perk5") && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
 							 (itemid == SHOP_ARTI_BACKPACK && IsBackpackLimitReached()) ||
 							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX))
 						   ) 

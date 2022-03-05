@@ -4363,7 +4363,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
 		projection_angle = GetActorAngle(0);
 	
-	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
+	// printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
 	// pick tracer_count closest enemies
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
@@ -4632,6 +4632,29 @@ Script "DND HeavyGL Check" (int x, int y, int z) {
 	if (!(GetActorZ(0) - GetActorFloorZ(0) > 4.0))
 		res = sqrt(x*x + y*y + z*z);
 	SetResultValue(res);
+}
+
+Script "DnD Gravdis Thrust" (int pull_count, int force) {
+	int x = GetActorX(0);
+	int y = GetActorY(0);
+	int z = GetActorZ(0);
+	
+	int j = pull_count;
+	while(j) {
+		for(int i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+			if(CheckActorInventory(i, "GravdisDebuff") && isActorAlive(i)) {
+				// get angle to face and thrust it towards this
+				int fx = x - GetActorX(i);
+				int fy = y - GetActorY(i);
+				int mforce = force / (2 * GetActorProperty(i, APROP_MASS));
+				if(mforce)
+					ThrustThing(VectorAngle(fx, fy) >> 8, mforce, 1, i);
+			}
+		}
+		Delay(const:2);
+		--j;
+	}
+	SetResultValue(0);
 }
 
 Script "DnD Gravdis Debuff" (int base_dmg) {

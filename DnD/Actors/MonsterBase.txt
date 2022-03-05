@@ -302,18 +302,21 @@ Actor DnD_ArchVileHybridBase : DnD_BaseHybridMonster_NoRes {
 Actor DnD_BaseMeleeBoss : DnD_BaseMeleeMonster_NoRes {
 	GibHealth -500
 	+NEVERRESPAWN
+	+NOFEAR
 }
 
 // inherit ranged if monster can ONLY do ranged and is a boss
 Actor DnD_BaseRangedBoss : DnD_BaseRangedMonster_NoRes {
 	GibHealth -200
 	+NEVERRESPAWN
+	+NOFEAR
 }
 
 // inherit this if the monster is supposed to have both attack types, melee and ranged!
 Actor DnD_BaseHybridBoss : DnD_BaseHybridMonster_NoRes {
 	GibHealth -200
 	+NEVERRESPAWN
+	+NOFEAR
 }
 
 Actor DnD_MonsterSetupDone : DnD_Activator {

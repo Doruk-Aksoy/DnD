@@ -10,6 +10,7 @@ Actor "Rocket Launcher" : RocketLauncher
     Weapon.BobRangeX 0.9
 	Weapon.AmmoGive 0
 	Tag "$WEP_47_TAG"
+	+WEAPON.NOAUTOAIM
    States
    {
    Spawn:
@@ -271,6 +272,7 @@ ACTOR "Upgraded Rocket Launcher3" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.7
 	Weapon.BobRangeX 0.8
+	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
 			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "ZoomReady")
@@ -945,6 +947,7 @@ ACTOR "Heavy Missile Launcher" : Weapon
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.9
 	Tag "$WEP_58_TAG"
+	+WEAPON.NOAUTOAIM
    States
    {
    Spawn:

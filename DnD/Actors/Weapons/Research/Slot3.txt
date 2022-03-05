@@ -23,6 +23,7 @@ Actor ResShotgun1 : Weapon {
 	Weapon.BobRangeY 0.6
 	Weapon.BobRangeX 0.9
 	Tag "$WEP_20_TAG"
+	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
 			RW01 Z -1
@@ -348,6 +349,7 @@ Actor ResShotgun2 : Weapon {
 	Weapon.BobRangeY 0.55
 	Weapon.BobRangeX 0.8
 	Decal "PlasmaScorchLower"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			WBOW A -1
@@ -754,6 +756,7 @@ Actor ResShotgun3 : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.5
 	Weapon.BobRangeX 0.8
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			WWOP A -1 
@@ -1036,6 +1039,7 @@ ACTOR ResShotgun4 : Weapon {
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.45
 	Weapon.BobRangeX 0.6
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			TNT1 A 1

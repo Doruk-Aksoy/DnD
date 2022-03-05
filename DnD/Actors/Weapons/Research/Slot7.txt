@@ -15,6 +15,7 @@ Actor ResBFG1 : Weapon {
 	Weapon.BobSpeed 1.75
 	Weapon.BobRangeY 0.5
 	Weapon.BobRangeX 0.8
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			RW04 X -1
@@ -311,6 +312,7 @@ Actor ResBFG2 : Weapon {
 	Weapon.BobSpeed 1.75
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.6
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			APOP A -1

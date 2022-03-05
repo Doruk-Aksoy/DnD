@@ -17,6 +17,7 @@ Actor ResPlasma1 : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.5
 	Weapon.BobRangeX 0.8
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			RW05 X -1
@@ -369,7 +370,6 @@ Actor ResPlasma2 : Weapon {
 	Weapon.AmmoUse2 0
 	Weapon.AmmoUse1 1
 	Weapon.AmmoGive1 60
-	+WEAPON.NOAUTOAIM
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
 	Tag "$WEP_65_TAG"
@@ -377,6 +377,7 @@ Actor ResPlasma2 : Weapon {
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.5
 	Weapon.BobRangeX 0.8
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			LTGS A -1
@@ -638,6 +639,7 @@ Actor ResPlasma3 : Weapon {
 	Weapon.AmmoUse1 1
 	Weapon.AmmoUse2 0
 	Tag "$WEP_66_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			DGAP A -1

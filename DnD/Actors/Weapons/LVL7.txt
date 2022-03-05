@@ -11,6 +11,8 @@ Actor "BFG 9000" : BFG9000
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Weapon.AmmoGive 0
+	Weapon.AmmoUse 50
+	+WEAPON.NOAUTOAIM
 	States
 	{
 		Ready:
@@ -46,7 +48,7 @@ Actor "BFG 9000" : BFG9000
 			TNT1 A 0 A_GiveInventory("BFGShooter", 1)
 			PRDC J 3 Bright
 			PRDC KLMN 3 Bright 
-			PRDC A 5 A_ReFire
+			PRDC A 18 A_ReFire
 			Goto Ready	
 		Flash:
 			TNT1 A 5 Bright A_Light1
@@ -74,7 +76,7 @@ Actor "Upgraded BFG 9000" : BFG9000
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Weapon.AmmoGive 0
-	Weapon.AmmoUse 60
+	Weapon.AmmoUse 75
 	States
 	{
 		Ready:
@@ -95,7 +97,7 @@ Actor "Upgraded BFG 9000" : BFG9000
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_BFG32768)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 150, 4 | (6 << 16), DND_WEAPON_BFG32768)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 384, 0, DND_WEAPON_BFG32768)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 224, 0, DND_WEAPON_BFG32768)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 2500, 0, DND_WEAPON_BFG32768)
 	    SelectLoop:
 			DBFG A 1 A_Raise
@@ -112,7 +114,7 @@ Actor "Upgraded BFG 9000" : BFG9000
 			DBFF A 2 Bright A_GiveInventory("BFGShooter2", 1)
 			DBFF B 2 Bright 
 			DBFG CDA 2 Bright
-			DBFG A 20 A_ReFire
+			DBFG A 38 A_ReFire
 			Goto Ready			
 		Flash:
 			TNT1 A 5 Bright A_Light1
@@ -130,8 +132,8 @@ Actor "Upgraded BFG 9000" : BFG9000
 Actor BFGShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 40)
-			TNT1 A 0 A_FireBFG
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 50)
+			TNT1 A 0 A_FireCustomMissile("BFGBall2")
 		Stop
 	}
 }
@@ -258,7 +260,7 @@ Actor BFGBallUpgraded : BFGBall2 {
 			TNT1 A 0 A_SpawnItem("BFGShockWave")
 			BFE1 B 8 Bright
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_SpawnDebris("BFGParticles")
-			BFE1 C 8 Bright ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BFG32768 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 64 | (DND_SCANNER_BFGUPGRADED << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
+			BFE1 C 8 Bright ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BFG32768 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 40 | (DND_SCANNER_BFGUPGRADED << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 			BFE1 DEF 8 Bright
 		Stop
 	}
@@ -286,7 +288,7 @@ Actor BfgExplosion : DnD_ExplosiveBase {
 Actor BFGShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 60)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 75)
 			TNT1 A 0 A_FireCustomMissile("BFGBallUpgraded")
 		Stop
 	}
@@ -519,6 +521,7 @@ ACTOR MFG : BFG9000 {
 	Weapon.BobRangeX 0.6
 	Weapon.AmmoUse 60
 	Weapon.AmmoGive 0
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			BFGP A -1
@@ -932,6 +935,7 @@ ACTOR "Rail Gun" : Weapon
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Tag "$WEP_78_TAG"
+	+WEAPON.NOAUTOAIM
    States
    {
    Spawn:
@@ -1218,6 +1222,7 @@ Actor "Gauss Rifle" : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Tag "$WEP_77_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 	   Ready:
 	        TNT1 A 0 A_JumpIfInventory("GaussZoom", 3, "Zoom3")
@@ -1732,6 +1737,7 @@ ACTOR "Death Ray" : Weapon
 	Weapon.BobRangeY 0.35
 	Weapon.BobRangeX 0.6
 	Tag "$WEP_79_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			ERWE X -1

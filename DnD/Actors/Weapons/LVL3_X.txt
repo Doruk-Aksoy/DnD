@@ -17,6 +17,7 @@ ACTOR " Super Shotgun " : Weapon
   Weapon.BobRangeX 0.8
   +INVENTORY.UNDROPPABLE
   Tag "$WEP_24_TAG"
+  +WEAPON.NOAUTOAIM
   States
   {
   Ready:
@@ -162,6 +163,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon
   Weapon.BobSpeed 1.8
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.8
+  +WEAPON.NOAUTOAIM
   States
   {
   Ready:
@@ -386,6 +388,7 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
   Weapon.BobSpeed 1.2
   Weapon.BobRangeY 0.5
   Weapon.BobRangeX 0.9
+  +WEAPON.NOAUTOAIM
   States
   {
   Ready:
@@ -967,6 +970,7 @@ Actor "Silver Gun" : Weapon
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.8
   Tag "$WEP_32_TAG"
+  +WEAPON.NOAUTOAIM
   states
   {
   Spawn:
@@ -1153,6 +1157,7 @@ ACTOR Slayer : Weapon {
 	Weapon.BobRangeY 0.33
 	Weapon.BobRangeX 0.64
 	Tag "$WEP_33_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			SLYP A -1

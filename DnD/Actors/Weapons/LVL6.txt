@@ -10,6 +10,7 @@ Actor "Plasma Rifle" : PlasmaRifle
 	Weapon.BobRangeX 0.7
 	Weapon.AmmoGive 0
 	Tag "$WEP_60_TAG"
+	+WEAPON.NOAUTOAIM
    States
    {
    Spawn:
@@ -75,7 +76,7 @@ Actor "Plasma Rifle" : PlasmaRifle
    }
 }
 
-// Sprites by Eriance
+// Sprites by Eriance -- edited version taken from Yholl's Doom RPG Arsenal
 Actor "Upgraded Plasma Rifle" : PlasmaRifle {	
 	Weapon.Slotnumber 6
 	Weapon.AmmoType2 "PlasmaOverheat"
@@ -92,7 +93,7 @@ Actor "Upgraded Plasma Rifle" : PlasmaRifle {
 		Stop
 		Ready:
 			TNT1 A 0 A_GunFlash("FlashC", GFF_NOEXTCHANGE)
-			QNPL A 1 A_WeaponReady(WRF_NOSWITCH)
+			QNPL A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		ReadyLoop:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_NUCLEARPR, 1 | (1 << 16))
@@ -136,6 +137,7 @@ Actor "Upgraded Plasma Rifle" : PlasmaRifle {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireCont")
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheatCooldown", 1, "Cooldown")
 			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 0, "Beep")
 		FireCont:
 			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
@@ -171,7 +173,7 @@ Actor "Upgraded Plasma Rifle" : PlasmaRifle {
 		Beep:
 			TNT1 A 0 A_PlaySound("weapons/plasmabeep", 5)
 		Cooldown:
-			QNPL A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+			QNPL A 2 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto Ready
 		Flash:
 			TNT1 A 0 A_Light0
@@ -406,6 +408,11 @@ Actor "Upgraded Plasma Rifle" : PlasmaRifle {
 	}
 }
 
+Actor PlasmaOverheatCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}
+
 Actor PlasmaBallX : DnD_BaseProjectile {
 	Radius 8
 	Height 16
@@ -520,6 +527,10 @@ Actor PlasmaShooter2 : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 		NoTake:
 			TNT1 A 0 A_FireCustomMissile("NewPlasmaBall")
+			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 0, "Give")
+		Stop
+		Give:
+			TNT1 A 0 A_GiveInventory("PlasmaOverheatCooldown", 1)
 		Stop
 	}
 }
@@ -538,6 +549,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 	Weapon.AmmoType1 "Cell"
 	Weapon.AmmoType2 "Cell"
 	Tag "$WEP_62_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			TURL X -1
@@ -698,6 +710,7 @@ Actor "Nailgun" : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Tag "$WEP_69_TAG"
+	+WEAPON.NOAUTOAIM
 	States
 	{
 		Spawn:
@@ -1016,6 +1029,7 @@ ACTOR Basilisk : Weapon {
 	Weapon.BobRangeX 0.7
 	Tag "$WEP_70_TAG"
 	+ALT_AMMO_OPTIONAL
+	+WEAPON.NOAUTOAIM
 	+NOALERT
 	States {
 		Spawn:
@@ -1260,6 +1274,7 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 	Weapon.AmmoUse 1
 	Weapon.AmmoType "EverIce"
 	Tag "$WEP_63_TAG"
+	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
 			FSTF B 0 A_Jump(1, "Glow")
@@ -1614,6 +1629,7 @@ Actor RhinoRifle : Weapon
     Weapon.BobSpeed 1.9
     Weapon.BobRangeY 0.3
     Weapon.BobRangeX 0.6
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			MAXP A -1

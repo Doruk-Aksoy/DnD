@@ -18,6 +18,7 @@ Actor ResPistol1 : Weapon {
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.45
 	Weapon.BobRangeX 0.75
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			4AFL A -1
@@ -200,6 +201,7 @@ Actor ResPistol2 : Weapon {
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.35
 	Weapon.BobRangeX 0.55
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			VIPA Z -1

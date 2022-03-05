@@ -22,6 +22,7 @@ Actor " Shotgun " : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
 	Tag "$WEP_16_TAG"
+	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
 			SGN1 Z -1
@@ -317,6 +318,7 @@ Actor "Upgraded Shotgun" : Weapon {
 	Decal "BulletChip"
 	Tag "$WEP_17_TAG"
 	+INVENTORY.UNDROPPABLE
+	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
 			SGP2 Z -1
@@ -595,6 +597,7 @@ ACTOR "Upgraded Shotgun2" : Weapon
   Weapon.BobSpeed 1.5
   Weapon.BobRangeY 0.6
   Weapon.BobRangeX 0.7
+  +WEAPON.NOAUTOAIM
   States
   {
   Ready:
@@ -766,6 +769,7 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
+	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			JADE C -1 Bright
@@ -788,7 +792,7 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 20, 0, DND_WEAPON_EMERALDWAND)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 150, 0, DND_WEAPON_EMERALDWAND)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 8, 1 | (4 << 16), DND_WEAPON_EMERALDWAND)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 100, 0, DND_WEAPON_EMERALDWAND)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 85, 0, DND_WEAPON_EMERALDWAND)
 		SelectLoop:
 			JADE A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -896,6 +900,7 @@ Actor EmeraldShooter2 : DnD_Activator {
 Actor EmeraldPuff : DnD_BasePuff {
 	renderstyle "Add"
 	Scale 0.5
+	+THRUGHOST
 	+BLOODLESSIMPACT
 	States {
 		Init:
@@ -925,7 +930,6 @@ Actor EmeraldRainer : DnD_BaseProjectile {
 	RENDERSTYLE "Add"
 	var int user_count;
 	const int raindrops = 84;
-	const int r = 128;
 	States {
 		SpawnState:
 			JWPR AAAAAABBBBBBCCCCCC 1 Bright A_SpawnItemEx("JadeTrail")
@@ -935,12 +939,14 @@ Actor EmeraldRainer : DnD_BaseProjectile {
 		Death:
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_PlaySound("EmeraldWand/Rain")
-			JWPR DDDDD 1 Bright A_SpawnItemEx("EmeraldRainDropper", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
-			JWPR EEEEEFFFFFGGGGG 1 Bright A_SpawnItemEx("EmeraldRainDropper", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			JWPR DDDDD 1 Bright A_CustomMissile("EmeraldRainDropper", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			JWPR EEEEEFFFFFGGGGG 1 Bright A_CustomMissile("EmeraldRainDropper", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			/*JWPR DDDDD 1 Bright A_SpawnItemEx("EmeraldRainDropper", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			JWPR EEEEEFFFFFGGGGG 1 Bright A_SpawnItemEx("EmeraldRainDropper", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)*/
 		DeathLoop:
 			TNT1 A 0 A_JumpIf(user_count == raindrops, "Finish")
-			TNT1 AA 0 A_SpawnItemEx("EmeraldRainDropper", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
-			TNT1 A 1 A_SpawnItemEx("EmeraldRainDropper", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 AA 0 A_CustomMissile("EmeraldRainDropper", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 1 A_CustomMissile("EmeraldRainDropper", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		Finish:
@@ -950,6 +956,25 @@ Actor EmeraldRainer : DnD_BaseProjectile {
 }
 
 Actor EmeraldRainDropper {
+	PROJECTILE
+	Height 4
+	Radius 2
+	//Scale 0.25
+	var int user_spd;
+	+CEILINGHUGGER
+	States {
+		Spawn:
+		Death:
+			TNT1 A 0 NoDelay A_SetUserVar("user_spd", random(4, 48))
+			TNT1 A 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), 0, CVF_REPLACE)
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeFlag("CEILINGHUGGER", 0)
+			TNT1 A 165 A_CustomMissile("EmeraldRain", ceilingz - 16, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION, -90)
+		Stop
+	}
+}
+
+/*Actor EmeraldRainDropper {
 	+MISSILE
 	+NOCLIP
 	+CEILINGHUGGER
@@ -960,11 +985,11 @@ Actor EmeraldRainDropper {
 			TNT1 A 165 A_CustomMissile("EmeraldRain", ceilingz - 16, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION, -90)
 		Stop
 	}
-}
+}*/
 
 Actor EmeraldRain : DnD_BaseProjectile {
-	Radius 5
-	Height 10
+	Radius 3
+	Height 4
 	Speed 40
 	Damage (1) // for some reason this +1 is needed, otherwise the game wont think this can hurt things for some reason
 	Renderstyle "Add"
@@ -973,9 +998,12 @@ Actor EmeraldRain : DnD_BaseProjectile {
 	+NODAMAGETHRUST
 	+THRUGHOST
 	+DONTBLAST
+	+CEILINGHUGGER
 	+NOCLIP
 	States {
 		SpawnState:
+			JADE D 1
+			TNT1 A 0 A_ChangeFlag("CEILINGHUGGER", 0)
 			TNT1 A 0 A_ChangeFlag("NOCLIP", 0)
 		SpawnLoop:
 			JADE D 1 Bright A_Countdown
@@ -997,12 +1025,12 @@ Actor EmeraldRainer_GhostHitter : EmeraldRainer {
 		Death:
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_PlaySound("EmeraldWand/Rain")
-			JWPR DDDDD 1 Bright A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
-			JWPR EEEEEFFFFFGGGGG 1 Bright A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			JWPR DDDDD 1 Bright A_CustomMissile("EmeraldRainDropper_GhostHitter", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			JWPR EEEEEFFFFFGGGGG 1 Bright A_CustomMissile("EmeraldRainDropper_GhostHitter", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 		DeathLoop:
 			TNT1 A 0 A_JumpIf(user_count == raindrops, "Finish")
-			TNT1 AA 0 A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
-			TNT1 A 1 A_SpawnItemEx("EmeraldRainDropper_GhostHitter", frandom(-r, r), frandom(-r, r), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 AA 0 A_CustomMissile("EmeraldRainDropper_GhostHitter", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 1 A_CustomMissile("EmeraldRainDropper_GhostHitter", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		Finish:
@@ -1014,7 +1042,11 @@ Actor EmeraldRainer_GhostHitter : EmeraldRainer {
 Actor EmeraldRainDropper_GhostHitter : EmeraldRainDropper {
 	States {
 		Spawn:
-			TNT1 A 1
+		Death:
+			TNT1 A 0 NoDelay A_SetUserVar("user_spd", random(4, 48))
+			TNT1 A 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), 0, CVF_REPLACE)
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_ChangeFlag("CEILINGHUGGER", 0)
 			TNT1 A 165 A_CustomMissile("EmeraldRain_GhostHitter", ceilingz - 16, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION, -90)
 		Stop
 	}

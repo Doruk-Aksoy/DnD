@@ -10,6 +10,7 @@ Actor " Fists " : Fist
     Weapon.BobRangeX 0.7
 	Weapon.SelectionOrder 99999
 	Tag "$WEP_0_TAG"
+	+WEAPON.NOAUTOAIM
 	States
 	{
 		Ready:
@@ -145,6 +146,7 @@ ACTOR " Chainsaw " : Chainsaw
   Weapon.UpSound "weapons/sawup"
   Decal "ChainsawMark"
   Tag "$WEP_1_TAG"
+  +WEAPON.NOAUTOAIM
   States
   {
   Ready:
@@ -241,6 +243,7 @@ ACTOR "Upgraded Chainsaw" : Chainsaw
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.7
   Decal "ChainsawMark"
+  +WEAPON.NOAUTOAIM
   States
   {
   Ready:
@@ -316,6 +319,7 @@ ACTOR Sickle : Weapon {
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.4
     Weapon.BobRangeX 0.7
+	+WEAPON.NOAUTOAIM
     States {
 		Spawn:
 			TNT1 A 1
@@ -495,7 +499,8 @@ ACTOR Excalibat : Weapon {
     Weapon.BobRangeX 0.7
 	Tag "$WEP_4_TAG"
 	const int rate = 4;
-    States {
+    +WEAPON.NOAUTOAIM
+	States {
 		Spawn:
 			EBAT A -1
 		Stop
