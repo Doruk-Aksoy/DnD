@@ -6012,7 +6012,6 @@ Script "DnD Item Linger Check" (int sp) {
 
 Script "DnD Projectile Checks" (int isPet) {
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
-	//printbold(s:"owner is ", d:owner);
 	// store owner
 	SetActorProperty(0, APROP_SCORE, owner);
 	

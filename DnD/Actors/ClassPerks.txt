@@ -587,21 +587,7 @@ Actor Punisher_Perk50_Damage_100 : Punisher_Perk50_DamageBase {
 	damagefactor "normal", 5
 }
 
-Actor Wanderer_Perk5 : PowerProtection { 
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-	
-	damagefactor "ImpPoison_Roach", 0.25
-	damagefactor "ImpPoison_Vulgar", 0.25
-	damagefactor "DemonPoison_EarthGolem", 0.25
-	damagefactor "RevSludge", 0.25
-	damagefactor "RevPoison_Crawler", 0.25
-	damagefactor "CacoPoison", 0.25
-	damagefactor "PainePoison", 0.25
-	damagefactor "BaronsPoison", 0.25
-	damagefactor "Slime", 0.25
-	damagefactor "Poison", 0.25
-}
+Actor Wanderer_Perk5 : DnD_Boolean { }
 
 Actor Wanderer_Perk25 : PowerDamage { 
 	damagefactor "normal", 1.0

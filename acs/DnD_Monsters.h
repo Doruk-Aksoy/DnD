@@ -161,14 +161,6 @@ int DP_AnglesGeneric[5] = {
 	0.80
 };
 
-int GetHealthMaxActor(int t) {
-	int caller = ActivatorTID();
-	SetActivator(t);
-	int cap = GetSpawnHealth();
-	SetActivator(caller);
-    return cap;
-}
-
 #define MAX_DND_COLLIDERS 1
 str Colliders[MAX_DND_COLLIDERS] = {
 	"GodSlayerCollider"

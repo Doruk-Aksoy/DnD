@@ -316,7 +316,7 @@ Script "DND Flesh Wizard Torment" (int force) {
 					ThrustThing(VectorAngle(xdiff, ydiff) >> 8, force, 1, curtarget);
 					ThrustThingZ(curtarget, velz * force, velz > 0, 0);
 					
-					int damage = FLESHWIZARD_PERCENT * GetHealthMaxActor(curtarget) / 100;
+					int damage = FLESHWIZARD_PERCENT * GetActorSpawnHealth(curtarget) / 100;
 					damage = FixedMul(damage << 16, 1.0 + bonus);
 					damage >>= 16;
 					Thing_Damage2(curtarget, damage, "MagicalRedLeash");

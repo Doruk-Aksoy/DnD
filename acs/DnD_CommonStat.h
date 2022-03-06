@@ -364,6 +364,14 @@ int GetSpawnHealth() {
 	return res;
 }
 
+int GetActorSpawnHealth(int t) {
+	int caller = ActivatorTID();
+	SetActivator(t);
+	int cap = GetSpawnHealth();
+	SetActivator(caller);
+    return cap;
+}
+
 void HandleCurseImmunityRemoval() {
 	// if not marine and level less than 50, take it
 	// we shouldnt immediately take it as there might be other ways the player has obtained curse immunity

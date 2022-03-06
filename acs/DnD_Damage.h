@@ -16,6 +16,8 @@
 #define DND_BERSERKER_PERK50_TIMER 14 // 14 x 5 = 70 => 2 seconds
 #define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
 
+#define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
+
 #define OCCULT_WEAKEN_DURATION 3
 
 #define DND_CRIT_TOKEN 69
@@ -254,7 +256,7 @@ int PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
 int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
 	if(dmg < INT_MAX / factor)
 		return dmg * factor / div;
-	return (dmg / div) * factor;
+	return INT_MAX;
 }
 
 int ScanActorFlags() {
@@ -1839,25 +1841,71 @@ Script "DnD Check Explosion Repeat" (void) {
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
 int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data) {
-	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
-		// get all possible sources of reduction
-		//dmg = ApplyDamageFactor_Safe(dmg, 100 - 
+	int temp;
+	
+	// reflection becomes its own thing not affected by other damage type functions, so we can immediately return here
+	if(dmg_string == "Reflection") {
+		dmg = ApplyDamageFactor_Safe(dmg, 1000 - GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL), 1000);
+		return dmg;
 	}
 	
-	/*if(LookupTester[class_name % MAX_DAMAGE_TYPE_ACTORS] != class_name)
-		Log(s:"bad hash for ", s:class_name);*/
+	temp = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS);
+	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) {
+		if(temp)
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+	}
 	
-		/*if(CheckInventory("Doomguy_Perk5") && IsFireDamage(arg2))
+	if(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) {
+	
+	}
+	
+	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
+	
+	}
+	
+	// ELEMENTAL DAMAGE BLOCK BEGINS
+	// get generic elemental damage reduction
+	temp = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
+	
+	// fire damage sources
+	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
+		// doomguy perk
+		if(CheckInventory("Doomguy_Perk5"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_FIREPERCENT);
-		else if(CheckInventory("Marine_Perk25") && IsEnemyExplosionDamage(arg2))
+		if(temp)
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+	}
+	
+	if(dmg_data & DND_DAMAGETYPEFLAG_POISON) {
+		// wanderer perk
+		if(CheckInventory("Wanderer_Perk5"))
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_WANDERER_POISONPERCENT);
+		if(temp)
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+	}
+	
+	if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
+		if(temp)
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+	}
+	
+	if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
+		if(temp)
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+	}
+	// ELEMENTAL DAMAGE BLOCK ENDS
+	
+	// explosion sources
+	if(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) {
+		if(CheckInventory("Marine_Perk25"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_EXPLOSIVEREDUCTION);
-		else if(CheckInventory("Cyborg_Perk5") && IsEnemyEnergyDamage(arg2))
+	}
+	
+	// energy sources
+	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
+		if(CheckInventory("Cyborg_Perk5"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_CYBORG_ENERGYREDUCE);
-		else if(IsReflectedDamage(arg2))
-			dmg = ApplyDamageFactor_Safe(dmg, 1000 - GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL), 1000);
-			
-		// other factors (charms etc)
-		GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);*/
+	}
 	
 	return dmg;
 }
@@ -1868,22 +1916,31 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
 		
-		// damage inflictor (projectile etc.)
-		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		int dmg_data = GetActorProperty(0, APROP_STAMINA);
-		if(CheckFlag(0, "RIPPER"))
-			isRipper = true;
-	
 		// set activator to owner of this projectile for certain crediting
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
 		int shooter = ActivatorTID();
+		
+		// damage inflictor (projectile etc.)
+		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		temp = GetActorProperty(0, APROP_SCORE);
+		printbold(s:"fired from ", d:temp);
+		bool isReflected = temp && temp != shooter;
+		int dmg_data = GetActorProperty(0, APROP_STAMINA);
+		if(CheckFlag(0, "RIPPER"))
+			isRipper = true;
 
 		// set the activator to us now
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		int victim = ActivatorTID();
 		
+		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
+		
 		if(IsPlayer(victim)) {
+			if(isReflected)
+				printbold(s:"Self damaged for ", d:arg1, s: " dmg type: ", s:arg2);
+			// PLAYER RECEIVES DAMAGE
 			int dmg = arg1;
+			int dmg_prev;
 			
 			// all things monster related
 			if(IsMonster(shooter)) {
@@ -1913,16 +1970,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg >>= 1;
 					
 				// halved by demon sealer effect if any
-				if(CheckInventory("DemonSealDamageDebuff"))
+				if(CheckActorInventory(shooter, "DemonSealDamageDebuff"))
 					dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
 					
-				// % damage effects
-				/*
-					list of actors with % hp damage
-						DarkSpiritAttack
-						UndeadSpiritDamager
-						FleshWizardMissile
-				*/
+				// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
+				if(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP)
+					dmg += (GetSpawnHealth() * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
 
 				// resists of player now will factor in after we've calculated the damage accurately
 				temp = CheckInventory("Perk_Endurance");
@@ -1935,6 +1988,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 				
 				// check for special reduced damage factors
+				// store damage before reductions to apply to armor later
+				dmg_prev = dmg;
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data);
 				
 				// minimum of 1 dmg will always be sent regardless
@@ -1953,6 +2008,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 		}
 		else if(IsMonster(victim) && IsMonster(shooter)) {
+			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
 			if(victim != shooter) {
 				// no damage dealt from same species, makes damage things much easier to keep track of
 				if(GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES))
