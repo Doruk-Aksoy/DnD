@@ -824,7 +824,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 32
-	Height 58
+	Height 56
 	Speed 16
 	PainChance 96
 	SeeSound "Ssrath/See"

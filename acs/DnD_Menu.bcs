@@ -879,12 +879,11 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 		SetHudClipRect(192, 64, 256, 384, 256, 1);
 		
 		HudMessage(l:"DND_MENU_BULLETTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_SHELLTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 144.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_MELEETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 224.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_OCCULTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 304.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_EXPLOTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 384.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_ENERGYTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_ELEMENTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 544.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_MELEETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 144.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_OCCULTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 224.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_EXPLOTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 304.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_ENERGYTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 384.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_ELEMENTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 		
 		SetHudClipRect(192, 88, 320, 384, 320, 1);
 		

@@ -1916,7 +1916,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	}
 	MonsterProperties[m_id].id = monsterid;
 
-	// phantasm should never be elite
+	// run elite checks
 	if(
 		!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")	&&

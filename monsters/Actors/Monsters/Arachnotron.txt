@@ -77,7 +77,7 @@ ACTOR FusionShot {
 	Damage (5 * random(1, 8))  
 	DamageType "EnergyVoid"
 	Stamina 16
-	Scale 1.0   
+	Scale 1.0
 	RENDERSTYLE Add
 	SEESOUND "fusionspid/see" 
 	DEATHSOUND "Enforcer/Hit"

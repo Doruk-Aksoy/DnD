@@ -145,11 +145,7 @@ ACTOR NewBerserk : CustomInventory replaces Berserk
   Pickup:
     TNT1 A 0 A_GiveInventory("PowerStrength")
     TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 0, 3)
-	TNT1 A 0 A_JumpIfInventory(" Fists ", 1, "FistUp")
   Stop
-  FistUp:
-    TNT1 A 0 A_SelectWeapon(" Fists ")
-    Stop
   }
 }
 

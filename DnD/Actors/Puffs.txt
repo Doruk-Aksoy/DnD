@@ -17,3 +17,13 @@ Actor NewBulletPuff : BulletPuff {
 		Stop
 	}
 }
+
+Actor NoPuff {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1
+		Stop
+	}
+}

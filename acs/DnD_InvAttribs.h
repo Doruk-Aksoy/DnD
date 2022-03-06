@@ -230,7 +230,10 @@ enum {
 	INV_ATTR_TAG_EXPLOSIVE = 64,
 	INV_ATTR_TAG_OCCULT = 128,
 	INV_ATTR_TAG_CRIT = 256,
-	INV_ATTR_TAG_STAT = 512
+	INV_ATTR_TAG_STAT = 512,
+	INV_ATTR_TAG_PHYSICAL = 1024,
+	INV_ATTR_TAG_ENERGY = 2048,
+	INV_ATTR_TAG_MELEE = 4096
 };
 
 global str 62: Inv_Attribute_Checkers[MAX_TOTAL_ATTRIBUTES];
@@ -399,8 +402,8 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	0.01, 	0.03, 		0.04,	INV_ATTR_TAG_UTILITY									},
 	{ 	1, 		9, 			0,		INV_ATTR_TAG_UTILITY									},
 	
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK 									},
-	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL				},
+	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
 	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE			},
 	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
 	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
@@ -448,11 +451,11 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
 	
 	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL			},
 	{ 	10, 	90, 		0,		INV_ATTR_TAG_DEFENSE									},
 	
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK										},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL				},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE			},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
@@ -463,7 +466,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
 	// lifesteal
-	{ 	0.05, 	0.125, 		0,		INV_ATTR_TAG_ATTACK										},
+	{ 	0.05, 	0.125, 		0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_LIFE					},
 	
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
@@ -485,8 +488,8 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	// cybernetic
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_UTILITY									},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_UTILITY				},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_MELEE				},
+	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_MELEE				},
 	{ 	1, 		8, 			0,		INV_ATTR_TAG_DAMAGE										},
 	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
 	

@@ -975,7 +975,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			PlayerDamageVector[pnum].x = ox;
 			PlayerDamageVector[pnum].y = oy;
 			PlayerDamageVector[pnum].z = oz;
-			
 			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (extra << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg | (oneTimeRipperHack << 1));
 		}
 		PlayerDamageTicData[pnum][temp] += dmg;

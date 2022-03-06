@@ -984,12 +984,18 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("Budget", temp);
 	
 	// load quest states and give rewards accordingly
-	// for now only load state 1 because quest amount < 32
 	temp = GetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc);
 	SetInventory("DnD_QuestState1", temp);
 	for(i = 0; i < MAX_QUESTS; ++i)
 		if(IsSet(temp, i))
 			GiveInventory(Quest_List[i].qreward, 1);
+	
+	// quest count is < 32 so only 1 variable is enough atm
+	/*temp = GetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc);
+	SetInventory("DnD_QuestState2", temp);
+	for(i = 0; i < MAX_QUESTS; ++i)
+		if(IsSet(temp, i))
+			GiveInventory(Quest_List[i].qreward, 1);*/
 		
 	if(!CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);

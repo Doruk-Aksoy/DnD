@@ -73,6 +73,7 @@ Actor DnD_BasePuff {
 }
 
 Actor DnD_BaseRailPuff {
+	Species "Player"
 	+ALWAYSPUFF
 	+PUFFGETSOWNER
 	+PUFFONACTORS
