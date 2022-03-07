@@ -525,7 +525,7 @@ void DrawArtifactIconCorner(int boxid) {
 }
 
 void DrawArmorIconCorner(int itemid) {
-	str toshow = GetTextWithResearch(ArmorStrings[itemid + 1][ARTI_ICON], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
+	str toshow = GetTextWithResearch(ArmorIcons[itemid + 1], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
 
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
@@ -731,7 +731,7 @@ int CanTrade (int id, int tradeflag, int price) {
 	if(type == TYPE_ARTI)
 		item = ArtifactInfo[id - SHOP_FIRSTARTI_INDEX][ARTI_NAME]; // put it in the artifact info range
 	else if(type == TYPE_ARMOR)
-		item = "Armor";
+		item = "ArmorAmount";
 	else {
 		item = GetItemName(id);
 		wepcheck = GetWeaponCondition(id);
@@ -744,7 +744,7 @@ int CanTrade (int id, int tradeflag, int price) {
 		}
 		else if(type == TYPE_ARMOR) { // armor
 			if (!(tradeflag & TRADE_ARMOR_REPLACE))
-				cond2 = CheckInventory(item) < GetArmorSpecificCap(ArmorBaseAmounts[id - SHOP_FIRSTARMOR_INDEX + 1]);
+				cond2 = CheckInventory(item) < GetArmorCapFromID(id - SHOP_FIRSTARMOR_INDEX + 1);
 			else
 				cond2 = true; //replacement should always be possible.
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
@@ -1102,7 +1102,7 @@ int GetBulkPriceForAmmo(int itemid) {
 
 int GetArmorFillPrice() {
 	int res = 0;
-	int armor_type = CheckInventory("DnD_ArmorType") - 1;
+	int armor_type = GetArmorID();
 	// not shards
 	if(armor_type > 0) {
 		res = ShopInfo[SHOP_FIRSTARMOR_INDEX + armor_type][SHOPINFO_PRICE] / DND_ARMORFILL_FACTOR;
@@ -1117,7 +1117,7 @@ int GetArmorFillPrice() {
 			res = 1;
 		// get missing armor
 		//printbold(d:GetArmorSpecificCap(ArmorBaseAmounts[armor_type]), s:" vs ", d:CheckInventory("Armor"), s: " with base amt: ", d:ArmorBaseAmounts[armor_type], s: " and type: ", d:armor_type);
-		res = res * (GetArmorSpecificCap(ArmorBaseAmounts[armor_type]) - CheckInventory("Armor"));
+		res = res * (GetArmorCapFromID(armor_type) - GetArmorAmount());
 	}
 	return res;
 }
@@ -1129,7 +1129,7 @@ int CanFillArmor(int pnum) {
 		return -POPUP_NOFUNDS;
 	if(CheckInventory("DnD_ArmorType") < 1)
 		return -POPUP_NOARMORWORN;
-	if(CheckInventory("Armor") == GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]))
+	if(GetArmorAmount() == GetArmorCapFromID(GetArmorID()))
 		return -POPUP_ARMORISFULL;
 		
 	// discover where the player may have a repair token, and return that as position
@@ -1144,7 +1144,7 @@ void FillCurrentArmor(int pnum, int take_pos) {
 	int price = GetArmorFillPrice();
 	// fill armor
 	LocalAmbientSound("items/armorbonus", 127);
-	GiveInventory("DnD_ArmorBonus", GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]) - CheckInventory("Armor"));
+	AddArmorAmount(GetArmorCapFromID(GetArmorID()) - GetArmorAmount());
 	// take money
 	TakeInventory("Credit", price);
 	GiveInventory("DnD_MoneySpentQuest", price);
@@ -1198,7 +1198,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						// for money quest
 						GiveInventory("DnD_MoneySpentQuest", price);
 						if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
-							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorBaseAmounts[itemid - SHOP_FIRSTARMOR_INDEX + 1], !!(tradeflag & TRADE_ARMOR_REPLACE));
+							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorData[itemid - SHOP_FIRSTARMOR_INDEX + 1][ARMORDATA_BASEAMOUNT], !!(tradeflag & TRADE_ARMOR_REPLACE));
 						}
 						else
 							GiveInventory(GetItemName(itemid), 1);
@@ -4491,7 +4491,7 @@ void DrawPlayerStats(int pnum) {
 	if(val)
 		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T31"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
-	val = GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST);
+	val = GetPlayerAttributeValue(pnum, INV_SELFEXPLOSIVE_RESIST);
 	if(val)
 		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T32"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	

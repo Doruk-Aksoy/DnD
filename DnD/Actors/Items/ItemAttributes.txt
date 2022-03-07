@@ -192,7 +192,7 @@ Actor IATTR_ExplosionRadiusIncrease : Ammo {
 	+IGNORESKILL
 }
 
-Actor IATTR_ExplosionResist : Ammo {
+Actor IATTR_SelfExplosionResist : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL

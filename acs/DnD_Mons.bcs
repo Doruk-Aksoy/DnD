@@ -195,39 +195,34 @@ Script "DND Poison Damage Register" (int damage, int duration) {
 
 Script "DND Poison Damage Checker" ENTER {
 	int tic = 0, pnum = PlayerNumber();
-	while(!CheckInventory("Ability_AntiPoison")) {
-		if(isAlive()) {
-			// check each poison element
-			for(int i = 0; i < MAX_POISON_DAMAGES; ++i) {
-				// setup the start time
-				if(player_poison_damages[pnum].poison_list[i].duration) {
-					if(!player_poison_damages[pnum].poison_list[i].stime)
-						player_poison_damages[pnum].poison_list[i].stime = tic;
-					
-					// if tics is stime, do damage and drop duration
-					if(tic == player_poison_damages[pnum].poison_list[i].stime) {
-						DealPoisonDamage(player_poison_damages[pnum].poison_list[i].owner, player_poison_damages[pnum].poison_list[i].dmg);
-						--player_poison_damages[pnum].poison_list[i].duration;
-					}
-				}
+	while(isAlive()) {
+		// check each poison element
+		for(int i = 0; i < MAX_POISON_DAMAGES; ++i) {
+			// setup the start time
+			if(player_poison_damages[pnum].poison_list[i].duration) {
+				if(!player_poison_damages[pnum].poison_list[i].stime)
+					player_poison_damages[pnum].poison_list[i].stime = tic;
 				
-				// if duration is 0, remove (set start time to 0) -- duration = 0 means it's marked as removed
-				// do this only if there actually are poison effects
-				if(!player_poison_damages[pnum].poison_list[i].duration && player_poison_damages[pnum].poison_list[i].state) {
-					player_poison_damages[pnum].poison_list[i].stime = 0;
-					player_poison_damages[pnum].poison_list[i].state = 0;
-					--player_poison_damages[pnum].cursize;
+				// if tics is stime, do damage and drop duration
+				if(tic == player_poison_damages[pnum].poison_list[i].stime) {
+					DealPoisonDamage(player_poison_damages[pnum].poison_list[i].owner, player_poison_damages[pnum].poison_list[i].dmg);
+					--player_poison_damages[pnum].poison_list[i].duration;
 				}
 			}
-		}
-		else {
-			ClearPoisonDamages();
-			break;
+			
+			// if duration is 0, remove (set start time to 0) -- duration = 0 means it's marked as removed
+			// do this only if there actually are poison effects
+			if(!player_poison_damages[pnum].poison_list[i].duration && player_poison_damages[pnum].poison_list[i].state) {
+				player_poison_damages[pnum].poison_list[i].stime = 0;
+				player_poison_damages[pnum].poison_list[i].state = 0;
+				--player_poison_damages[pnum].cursize;
+			}
 		}
 		
 		tic = (tic + 1) % TICRATE;
 		Delay(1);
 	}
+	ClearPoisonDamages();
 }
 
 Script "DND Dark Lich Warp Shake" (void) {

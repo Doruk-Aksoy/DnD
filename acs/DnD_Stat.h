@@ -118,51 +118,129 @@ enum {
 };
 #define MAXARMORS (DND_ARMOR_LIGHTNINGCOIL + 1)
 
-str ArmorStrings[MAXARMORS][2] = {
-	{ "BON2C0", "ArmorBonus" },
-	{ "ARM1A0", "NewGreenArmor" },
-	{ "ARM3A0", "YellowArmor" },
-	{ "ARM2A0", "NewBlueArmor" },
-	{ "QRARA0", "TheRedArmor" },
+#define DND_SPECIALTYARMOR_REDUCE 75
+#define DND_SPECIALTYARMOR_BUFF 50
+#define DND_KNIGHT_MELEEREDUCE 50
+#define DND_KNIGHTARMOR_MELEEWEP_BONUS 0.4
+#define DND_SYNTHMETAL_HITSCANBUFF 50 // 50%
+#define DND_SYNTHMETAL_LIGHTNINGNERF 50
+#define DND_LIGHTNINGCOIL_SPECIAL 85 // 85%
+
+bool IsWearingSpecialtyArmor() {
+	int armor_id = GetArmorID();
+	switch(armor_id) {
+		case DND_ARMOR_GUNSLINGER:
+		case DND_ARMOR_OCCULT:
+		case DND_ARMOR_DEMO:
+		case DND_ARMOR_ENERGY:
+		case DND_ARMOR_ELEMENTAL:
+		return true;
+	}
+	return false;
+}
+
+str ArmorIcons[MAXARMORS] = {
+	"BON2C0",
+	"ARM1A0",
+	"ARM3A0",
+	"ARM2A0",
+	"QRARA0",
 	
-	{ "ARM9A0", "GunSlingerArmor" },
-	{ "AR10A0", "OccultArmor" },
-	{ "AR11A0", "DemoArmor" },
-	{ "AR12A1", "EnergyArmor" },
-    { "AR14A0", "ElementalArmor" },
+	"ARM9A0",
+	"AR10A0",
+	"AR11A0",
+	"AR12A1",
+    "AR14A0",
     
-    { "AR13A0", "SuperArmor" },
-	{ "ARM4A1", "CyberneticArmor" },
-	{ "ARM5A0", "DuelistArmor" },
-	{ "ARM6A0", "NecroArmor" },
-	{ "ARM7A0", "KnightArmor" },
-	{ "ARM8A0", "RavagerArmor" },
-	{ "AR15B0", "SynthmetalArmor" },
-	{ "AR16A0",	"LightningCoilArmor" }
+    "AR13A0",
+	"ARM4A1",
+	"ARM5A0",
+	"ARM6A0",
+	"ARM7A0",
+	"ARM8A0",
+	"AR15B0",
+	"AR16A0"
 };
 
-int ArmorBaseAmounts[MAXARMORS] = {
-	1,
-	100,
-	150,
-	200,
-	300,
+#define ARMOR_INTEGER_FACTOR 1000
+#define ARMORDATA_BASEAMOUNT 0
+#define ARMORDATA_PROTECTIONFACTOR 1
+int ArmorData[MAXARMORS][2] = {
+	{	100,	0.33	},
+	{	100,	0.33	},
+	{	150,	0.417	},
+	{	200,	0.5		},
+	{	300,	0.75	},
 	
-	200,
-	200,
-	200,
-	200,
-	200,
+	{	200,	0.33	},
+	{	200,	0.33	},
+	{	200,	0.33	},
+	{	200,	0.33	},
+	{	200,	0.33	},
 	
-	400,
-	300,
-	250,
-	400,
-	400,
-	250,
-	400,
-	300
+	{	400,	1.0		},
+	{	300,	0.45	},
+	{	250,	0.33	},
+	{	400,	0.55	},
+	{	400,	0.35	},
+	{	250,	0.25	},
+	{	400,	0.65	},
+	{	300,	0.4		}
 };
+
+int GetArmorAmount() {
+	return CheckInventory("ArmorAmount");
+}
+
+int GetArmorID() {
+	return CheckInventory("DnD_ArmorType") - 1;
+}
+
+int GetActorArmorID(int tid) {
+	return CheckActorInventory(tid, "DnD_ArmorType") - 1;
+}
+
+void SetArmorAmount(int amt) {
+	SetInventory("ArmorAmount", amt);
+	SetInventory("ArmorAmountVisual", amt);
+}
+
+void AddArmorAmount(int amt) {
+	GiveInventory("ArmorAmount", amt);
+	GiveInventory("ArmorAmountVisual", amt);
+}
+
+void TakeArmorAmount(int amt) {
+	TakeInventory("ArmorAmount", amt);
+	TakeInventory("ArmorAmountVisual", amt);
+	
+	// no armor left, remove it
+	if(!CheckInventory("ArmorAmount"))
+		SetInventory("DnD_ArmorType", 0);
+}
+
+// we always add +1, as 0 is no armor
+void SetArmorType(int id) {
+	SetInventory("DnD_ArmorType", id + 1);
+	SetAmmoCapacity("ArmorAmountVisual", GetArmorCapFromID(id));
+}
+
+void RemoveAllArmor() {
+	SetInventory("DnD_ArmorType", 0);
+	SetArmorAmount(0);
+}
+
+int GetArmorEfficiency() {
+	int temp = Clamp_Between(GetBulkiness(), 0, DND_STAT_FULLMAX);
+	if(!temp)
+		return 0;
+	
+	if(temp > 100) {
+		temp -= 100;
+		return Clamp_Between(1.0 - DND_BULKINESS_GAIN * 100 - DND_BULKINESS_GAIN_AFTER100 * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
+	}
+	return Clamp_Between(1.0 - DND_BULKINESS_GAIN * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
+}
 
 enum {
 	DND_CKEY_BRONZE,
@@ -361,14 +439,14 @@ int GetArmorCap(bool useMenuShow) {
 }
 
 // used for deciding armor pickup values
-int GetArmorSpecificCap(int amt) {
+int GetArmorCapFromID(int armor_id) {
+	int amt = ArmorData[armor_id][ARMORDATA_BASEAMOUNT];
 	int pnum = PlayerNumber();
-	if(amt == 1)
-		amt = ArmorBaseAmounts[DND_ARMOR_GREEN]; // Current armor shard amount will be based off green armor = 100 atm.
+	
 	// any other armor besides the armor bonuses
 	amt += CalculateArmorCapBonuses(pnum) + DND_ARMOR_PER_BUL * GetBulkiness();
 	amt += amt * (GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
-	amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
+	//amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
 	amt += (amt * (Player_Elixir_Bonuses[pnum].armor_percent_bonus + GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE))) / 100;
@@ -380,56 +458,51 @@ int GetArmorSpecificCap(int amt) {
 bool IsArmorTierHigher(int t1, int t2) {
 	if(t1 < 0 || t2 < 0)
 		return true;
-	return ArmorBaseAmounts[t1] > ArmorBaseAmounts[t2] && t1 > t2;
+	return ArmorData[t1][ARMORDATA_BASEAMOUNT] > ArmorData[t2][ARMORDATA_BASEAMOUNT] && t1 > t2;
 }
 
 void HandleArmorPickup(int armor_type, int amount, bool replace) {
-	int armor = CheckInventory("Armor"), cap = 0;
+	int armor = GetArmorAmount(), cap = 0, curr_armor_id = GetArmorID();
 	GiveInventory("DnD_BoughtArmor", 1);
-
+	//printbold(s:"init ", d:armor, s: " ", d:armor_type, s: " ", d:amount, s: " ", d:curr_armor_id);
 	// this will prevent -1 array index operations
 	// make sure if there's no armor, despite lingering DnD_ArmorType, force replace
-	if(!CheckInventory("DnD_ArmorType") || !armor)
+	if(!curr_armor_id || !armor)
 		replace = true;
-	else
-		cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
 
-	bool highertier = IsArmorTierHigher(armor_type, CheckInventory("DnD_ArmorType") - 1);
-	bool samearmor = armor_type == CheckInventory("DnD_ArmorType") - 1;
-	//Give new armor type only if it's a higher tier, or is a replacement
+	bool highertier = IsArmorTierHigher(armor_type, curr_armor_id);
+	// Give new armor type only if it's a higher tier, or is a replacement
 	if(replace || highertier) {
-		//Completely reset armor
-		SetInventory("Armor", 0);
-		if(armor_type != DND_ARMOR_BONUS) //Armor shard will be given later
-			GiveInventory(ArmorStrings[armor_type][STRING_NAME], 1);
-		//Set new type
-		SetInventory("DnD_ArmorType", armor_type + 1);
-		//Respect the cap of new armor
-		cap = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-		if(armor_type != DND_ARMOR_BONUS) //Prevents shards from adding up to cap at once.
-			SetInventory("DnD_ArmorBonus", Min(armor, cap)); //Make sure player loses any armor above new cap, to prevent player from buying high tier armor and replacing with lower just to get extra armor.
-		
-		armor = CheckInventory("Armor");
-		
-		// fix downgrade replace giving +1 armor over your cap
-		if(!highertier && !samearmor && replace)
-			TakeInventory("Armor", 1);
+		// Set new type
+		SetArmorType(armor_type);
 	}
 	
 	// adapt armor count to whatever stats makes it be
-	//print(s:"cur armor: ",d:armor, s:", amount: ",d:amount, s:", cap: ",d:cap, s:", armor base amount: ",d:ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1], s:", new armor amount: ",d:((cap * amount) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]));
-
-	if((CheckInventory("DnD_ArmorType") - 1) == DND_ARMOR_BONUS)
-		amount = (amount * cap) / ArmorBaseAmounts[1]; //Current armor shard amount will be based off green armor = 100 atm.
-	else
-		amount = (amount * cap) / ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1];
-	if(armor_type == DND_ARMOR_BONUS)
-		cap *= 3; //Shards can make armor go up to 3x of whatever current armor cap is (with just armor shard, can go up to 300).
+	// update
+	curr_armor_id = GetArmorID();
+	cap = GetArmorCapFromID(curr_armor_id);
 	
-	SetInventory("DnD_ArmorBonus", Min(armor + amount, cap) - armor);
-	GiveInventory("Research_Body_Ar_1_Tracker", Min(armor + amount, cap) - armor); //Trackers should only be additive, so this is more complicated.
+	// only do update if my armor is less than cap
+	int check_cap = cap;
+	int base_amt = ArmorData[curr_armor_id][ARMORDATA_BASEAMOUNT];
 	
-	HandleArmorDependencyCheck();
+	// shards can make armor go up to 3x of whatever current armor cap is (with just armor shard, can go up to 300).
+	if(armor_type == DND_ARMOR_BONUS) {
+		check_cap *= 3;
+		base_amt = ArmorData[DND_ARMOR_GREEN][ARMORDATA_BASEAMOUNT];
+	}
+	
+	if(armor < check_cap) {
+		amount = (amount * cap) / base_amt;
+		
+		// printbold(s:"want to add ", d:Min(armor + amount, cap), s: " with armor, amt, cap = ", d:armor, s: " ", d:amount, s: " ", d:cap);
+		SetArmorAmount(Min(armor + amount, check_cap));
+		GiveInventory("Research_Body_Ar_1_Tracker", Min(armor + amount, check_cap) - armor); //Trackers should only be additive, so this is more complicated.
+		
+		HandleArmorDependencyCheck();
+	}
+	else // hack to sync
+		SetInventory("ArmorAmountVisual", armor);
 }
 
 int Calculate_Stats() {
@@ -627,16 +700,6 @@ void TakeStat(int stat_id, int amt) {
 
 void UpdatePerkStuff() {
 	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
-}
-
-void UpdatePlayerKnockbackResist() {
-	int bul = GetBulkiness();
-	int strgth = GetStrength();
-	
-	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS) || CheckInventory("StatbuffCounter_KnockbackImmunity"))
-		SetActorProperty(0, APROP_MASS, INT_MAX);
-	else
-		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + bul * DND_BUL_KNOCKBACK_GAIN + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
 }
 
 bool HasKilledLegendary(int id) {

@@ -116,6 +116,10 @@ enum {
 #define DND_BERSERKER_PERK50_MAXSTACKS 30
 #define DND_BERSERKER_PERK50_CRITBONUS 50
 
+#define DND_EXP_RES_ABILITY_BONUS 50
+
+#define DND_MIN_ARMOR_EFFICIENCY 0.1
+
 global int 1: StatListOpened[];
 
 #define MAX_MAP_DIFFICULTIES 5
@@ -271,6 +275,7 @@ void SlowPlayer(int amt, int mode, int pnum) {
 		SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, GetPlayerSpeed(pnum) - amt);
 }
 
+// These getters must be used when doing calculations based on benefit of these stats
 int GetDexterity() {
 	return CheckInventory("PSTAT_Dexterity") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_DEXTERITY);
 }
@@ -397,6 +402,16 @@ void HandleAbilityRestore() {
 	}
 }
 
+void UpdatePlayerKnockbackResist() {
+	int bul = GetBulkiness();
+	int strgth = GetStrength();
+	
+	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS) || CheckInventory("StatbuffCounter_KnockbackImmunity"))
+		SetActorProperty(0, APROP_MASS, INT_MAX);
+	else
+		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + bul * DND_BUL_KNOCKBACK_GAIN + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
+}
+
 // Generic Player RPG Stat restore function
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
@@ -407,9 +422,7 @@ void RestoreRPGStat (int statflag) {
 	if(statflag & RES_PLAYERSPEED)
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		
-	// resists from items
-	if((statflag & RES_PHYSRESIST) && GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS))
-		GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, INV_EXPLOSIVE_RESIST), 1, MAX_PHYSRESIST_VAL)), 1);
+	UpdatePlayerKnockbackResist();
 	
 	// accessories
 	// can only intervene once per map

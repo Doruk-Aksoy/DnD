@@ -1717,6 +1717,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	int aval = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int asubtype = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
 	int i, temp;
+	int cap;
 	
 	str inv;
 	
@@ -1748,18 +1749,6 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
-		break;
-		/*case INV_EXPLOSIVE_RESIST:
-			TakeInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(GetPlayerAttributeValue(pnum, atype))
-				GiveInventory(StrParam(s:"ExplosionResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_EXPRESIST_VAL)), 1);
-		break;*/
-		case INV_DMGREDUCE_PHYS:
-			TakeInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(GetPlayerAttributeValue(pnum, atype))
-				GiveInventory(StrParam(s:"PhysicalResist_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_PHYSRESIST_VAL)), 1);
 		break;
 		case INV_EX_DMGINCREASE_TAKEN:
 			TakeInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
@@ -1823,6 +1812,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
 				GiveOrTake(GetPlayerAttributeString(i), aval, remove);
+			UpdatePlayerKnockbackResist();
 		break;
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			// -1 of aindex is used to retrieve chance
@@ -1860,8 +1850,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			inv = Inv_Attribute_Checkers[i];
 			
 			if(CheckInventory("StatbuffCounter_ForbidArmor")) {
-				SetInventory("DnD_ArmorType", 0);
-				SetInventory("Armor", 0);
+				RemoveAllArmor();
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_FORBIDARMOR));
 			}
 			else
@@ -1968,48 +1957,25 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				}
 			}
 		break;
+		
+		case INV_STAT_BULKINESS:
+			UpdatePlayerKnockbackResist();
+			// intentional fall through
 		case INV_ARMOR_INCREASE:
 		case INV_ARMORPERCENT_INCREASE:
-		case INV_STAT_BULKINESS:
-				GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(CheckInventory("Armor")) {
-				i = CheckInventory("Armor") - GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-				if(remove) {
-					temp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-					if(CheckInventory("Armor") > temp) {
-						// set health to new cap, add the extra to player
-						if(i > 0)
-							SetInventory("Armor", temp + i);
-						else
-							SetInventory("Armor", temp);
-					}
-				}
-			}
-		break;
-		case INV_STAT_STRENGTH:
-			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(remove) {
-				temp = GetSpawnHealth();
-				if(GetActorProperty(0, APROP_HEALTH) > temp) {
-					// set health to new cap, add the extra to player
-					if(i > 0)
-						SetActorProperty(0, APROP_HEALTH, temp + i);
-					else
-						SetActorProperty(0, APROP_HEALTH, temp);
-				}
-			}
-			if(CheckInventory("Armor")) {
-				i = CheckInventory("Armor") - GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-				GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			i = GetArmorAmount();
+			if(i) {
+				cap = GetArmorCapFromID(GetArmorID());
+				i = i - cap;
 				if(remove) {
-					temp = GetArmorSpecificCap(ArmorBaseAmounts[CheckInventory("DnD_ArmorType") - 1]);
-					if(CheckInventory("Armor") > temp) {
+					temp = cap;
+					if(GetArmorAmount() > temp) {
 						// set health to new cap, add the extra to player
 						if(i > 0)
-							SetInventory("Armor", temp + i);
+							SetArmorAmount(temp + i);
 						else
-							SetInventory("Armor", temp);
+							SetArmorAmount(temp);
 					}
 				}
 			}
@@ -2080,6 +2046,10 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_HOMINGDONTREFLECT));
 			else
 				SetInventory(inv, ClearBit(temp, DND_STATBUFF_HOMINGDONTREFLECT));
+		break;
+		case INV_STAT_STRENGTH:
+			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			UpdatePlayerKnockbackResist();
 		break;
 		
 		// anything that fits our generic formula

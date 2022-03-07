@@ -745,7 +745,7 @@ str GetItemName(int id) {
 			name = AbilityInfo[id - SHOP_ABILITY1_BEGIN];
 		break;
 		case TYPE_ARMOR:
-			name = ArmorStrings[id - SHOP_FIRSTARMOR_INDEX][ARTI_NAME];
+			// we handle uses of armor differently
 		break;
 		case TYPE_ARTI:
 			name = ArtifactInfo[id - SHOP_FIRSTARTI_INDEX][ARTI_NAME];

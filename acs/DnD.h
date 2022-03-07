@@ -83,8 +83,6 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define DND_CYBERNETICARMOR_AMOUNT 300
 #define DND_RAVAGERARMOR_AMOUNT 250
 
-#define DND_MIN_DAMAGEREDUCTION 0.1
-
 #define DND_HEALTHEXPSCALE 5
 #define DND_HEALTHCREDITSCALE 10
 #define DND_HEALTHCREDITAFTER50SCALE 5
@@ -898,7 +896,7 @@ void ActivateKillingSpree() {
 	// spree count was given, so a possible spree may be in reach
 	if(CheckInventory("DnD_SpreeTimer")) {
 		GiveInventory("DnD_MultikillCounter", 1);
-		if(GetArmorType("RavagerArmor", PlayerNumber())) {
+		if(GetArmorID() == DND_ARMOR_RAVAGER) {
 			GiveInventory("RavagerPower", 1);
 			GiveInventory("RavagerPowerDefense", 1);
 		}
@@ -1059,8 +1057,8 @@ void DoSlotWeaponQuestChecks(int wepid) {
 }
 
 void HandleRuination(int this, int target) {
-	if(CheckInventory("Armor")) {
-		SetInventory("Armor", 0);
+	if(GetArmorAmount()) {
+		RemoveAllArmor();
 		ACS_NamedExecuteAlways("DnD Hurt Actor", 0, target, this, GetSpawnHealth() / 8);
 	}
 	else

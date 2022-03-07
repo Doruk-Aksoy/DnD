@@ -747,7 +747,7 @@ Actor HellKnight2 : DnD_BaseHybridMonster {
 		MeleeState:
 		MissileState:
 			BOS2 EF 8 Fast A_FaceTarget
-			BOS2 G 8 Fast A_CustomComboAttack("BaronBall", 32, 10 * random(1, 8), "baron/melee")
+			BOS2 G 8 Fast A_CustomComboAttack("Baronball2", 32, 10 * random(1, 8), "baron/melee")
 		Goto See
 		PainState:
 			BOS2 H 2 Fast

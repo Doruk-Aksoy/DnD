@@ -6,13 +6,6 @@ Actor DnD_PlayerBase : PlayerPawn {
 	Mass 100
 	PainChance 255
 	Species "Player"
-	DamageFactor "P_Rail", 0.0
-	DamageFactor "P_RailFull", 0.0
-	DamageFactor "SoulType", 0.0
-	damagefactor "SoulTypeFull", 0.0
-	damagefactor "SoulTypeExp", 0.0
-	damagefactor "SoulTypeExpFull", 0.0
-	DamageFactor "Magic", 0.0
 	
 	Player.DamageScreenColor "Black", 0
 	Player.ColorRange 112, 127

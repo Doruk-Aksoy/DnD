@@ -305,10 +305,11 @@ bool IsLuxuryWeapon(int id) {
 		case DND_WEAPON_RAILGUN:
 		case DND_WEAPON_DEATHRAY:
 			
-		case DND_WEAPON_DEATHSTAFF:
+		// these shouldnt be luxury weapons, there are no regular weapons for this slot anyway!
+		/*case DND_WEAPON_DEATHSTAFF:
 		case DND_WEAPON_RAZORFANG:
 		case DND_WEAPON_SUNSTAFF:
-		case DND_WEAPON_SOULREAVER:
+		case DND_WEAPON_SOULREAVER:*/
 		return true;
 	}
 	return false;

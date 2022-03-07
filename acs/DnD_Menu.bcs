@@ -67,7 +67,7 @@ Script 900 (void) NET {
 		if
 		(
 			GameType() == GAME_SINGLE_PLAYER ||
-			((!PlayerIsSpectator(pnum) && GetGameModeState() == GAMESTATE_INPROGRESS && (!CheckInventory("CanLoad"))) && !CheckInventory("ParsingData"))
+			(!PlayerIsSpectator(pnum) && GetGameModeState() == GAMESTATE_INPROGRESS && !CheckInventory("CanLoad") && !CheckInventory("ParsingData"))
 		)
 		{
 			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
@@ -198,32 +198,31 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				boxid = CheckInventory("ActivePopupBox");
 			mainboxid = MAINBOX_NONE;
 		}
-		else {
-			if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
-				if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView")) {
-					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy);
-					mainboxid = GetTriggeredBoxOnMainPane(PlayerCursorData.posx, PlayerCursorData.posy);
-					if(showed_inv) {
-						clean_inv = true;
-						showed_inv = false;
-					}
-				}
-				else {
-					showed_inv = true;
-					if(CheckInventory("DnD_InventoryView"))
-						boxid = GetTriggeredBoxOnInventoryPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
-					else if(CheckInventory("InTradeView"))
-						boxid = GetTriggeredBoxOnTradePane(TradePane, PlayerCursorData.posx, PlayerCursorData.posy);
-					else if(CheckInventory("DnD_StashView")) // I used the trade pane variable to hold the stash content
-						boxid = GetTriggeredBoxOnStashPane(TradePane, PlayerCursorData.posx, PlayerCursorData.posy);
+		else if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
+			if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView")) {
+				boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy);
+				mainboxid = GetTriggeredBoxOnMainPane(PlayerCursorData.posx, PlayerCursorData.posy);
+				if(showed_inv) {
+					clean_inv = true;
+					showed_inv = false;
 				}
 			}
 			else {
-				boxid = GetTriggeredBoxOnCraftingPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
-				if(CheckInventory("DnD_InventoryView") || CheckInventory("InTradeView") || CheckInventory("DnD_StashView"))
-					mainboxid = MAINBOX_NONE;
+				showed_inv = true;
+				if(CheckInventory("DnD_InventoryView"))
+					boxid = GetTriggeredBoxOnInventoryPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
+				else if(CheckInventory("InTradeView"))
+					boxid = GetTriggeredBoxOnTradePane(TradePane, PlayerCursorData.posx, PlayerCursorData.posy);
+				else if(CheckInventory("DnD_StashView")) // I used the trade pane variable to hold the stash content
+					boxid = GetTriggeredBoxOnStashPane(TradePane, PlayerCursorData.posx, PlayerCursorData.posy);
 			}
 		}
+		else {
+			boxid = GetTriggeredBoxOnCraftingPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
+			if(CheckInventory("DnD_InventoryView") || CheckInventory("InTradeView") || CheckInventory("DnD_StashView"))
+				mainboxid = MAINBOX_NONE;
+		}
+		
 		// play sound if box changed
 		if(boxid != boxid_prev) {
 			if(boxid != MAINBOX_NONE) {
@@ -272,7 +271,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		DrawCursor();
 		
 		// hovered on or things that are otherwise redrawn over and over
-		
 		if(PlayerCursorData.itemHovered != -1) {
 			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
 				ResetCursorHoverData();
@@ -679,7 +677,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 		DrawCredits();
 		
 		for(i  = 0; i < PAGE1_ARMOR_COUNT; ++i)
-			DrawToggledImage(SHOP_ARMOR_GREEN + i, boxid, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "Armor", ArmorBaseAmounts[i + 1], CR_RED);
+			DrawToggledImage(SHOP_ARMOR_GREEN + i, boxid, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + 1][ARMORDATA_BASEAMOUNT], CR_RED);
 	
 		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 	
@@ -696,7 +694,7 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 		DrawCredits();
 		
 		for(i  = 0; i < PAGE2_ARMOR_COUNT; ++i)
-			DrawToggledImage(SHOP_FIRSTARMOR2_INDEX + i, boxid, i, ArmorDrawInfo[PAGE1_ARMOR_COUNT + i].flags, CR_WHITE, CR_GREEN, "Armor", ArmorBaseAmounts[i + PAGE1_ARMOR_COUNT + 1], CR_RED);
+			DrawToggledImage(SHOP_FIRSTARMOR2_INDEX + i, boxid, i, ArmorDrawInfo[PAGE1_ARMOR_COUNT + i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + PAGE1_ARMOR_COUNT + 1][ARMORDATA_BASEAMOUNT], CR_RED);
 
 		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 	
@@ -1107,7 +1105,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						ConsumeAttributePointOn(stat_id, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						
-						if(stat_id == STAT_STR)
+						if(stat_id == STAT_STR || stat_id == STAT_BUL)
 							UpdatePlayerKnockbackResist();
 						else if(stat_id == STAT_VIT)
 							SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());

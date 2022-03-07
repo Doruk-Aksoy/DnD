@@ -36,7 +36,7 @@ void DealPoisonDamage(int target, int dmg) {
 	dmg = ((dmg & 0xFF) * ((res / 2) + 1.0)) >> 16;
 	dmg -= (dmg * CheckActorInventory(this, "IATTR_ReducedPoisonTaken")) / 100;
 	if(dmg > 0)
-		Thing_Damage2(this, dmg, "Poison");
+		Thing_Damage2(this, dmg, "PoisonDOT");
 	SetActivator(this);
 }
 
