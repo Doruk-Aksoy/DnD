@@ -772,7 +772,7 @@ void BreakAllTrades() {
 }
 
 int GetBaseCritChance(int pnum) {
-	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + (GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE) << 16) / 100;
+	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE);
 }
 
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
@@ -790,7 +790,7 @@ int GetCritChance(int pnum, int wepid) {
 	}
 	// add percent bonus
 	if(chance)
-		chance = FixedMul(chance, 1.0 + temp + (GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) << 16) / 100);
+		chance = FixedMul(chance, 1.0 + temp + GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE));
 	return chance;
 }
 

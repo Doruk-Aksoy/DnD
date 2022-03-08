@@ -59,8 +59,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_CHANCE_CASTELEMSPELLONATK;
 	UniqueItemList[id].rolls[0].attrib_low = 25;
 	UniqueItemList[id].rolls[0].attrib_high = 50;
-	UniqueItemList[id].rolls[1].attrib_low = 10;
-	UniqueItemList[id].rolls[1].attrib_high = 25;
+	UniqueItemList[id].rolls[1].attrib_low = 10.0;
+	UniqueItemList[id].rolls[1].attrib_high = 25.0;
 	UniqueItemList[id].rolls[2].attrib_low = 2;
 	UniqueItemList[id].rolls[2].attrib_high = 5;
 	id = UITEM_IRONBARK;

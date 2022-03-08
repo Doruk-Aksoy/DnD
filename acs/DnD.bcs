@@ -373,7 +373,6 @@ Script "DnD Critical Input Handler" ENTER {
 			GiveInventory("DnD_PressedUse", 1);
 		
         SetInventory("MedkitItem", CheckInventory("StoredMedKit"));
-        SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_HEALTH));
         TakeInventory("FadeIntensity", 1);
 		
 		// had enough of armor fucking up
@@ -381,6 +380,9 @@ Script "DnD Critical Input Handler" ENTER {
 			SetInventory("DnD_ArmorType", 0);*/
 		
         Delay(const:1);
+
+		// we can flash again now
+		PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = true;
     }
 }
 
@@ -460,28 +462,104 @@ Script "DnD Weapon Input Handler" (int wepid) {
 	}
 }
 
-// from woc
-Script 826 (int opt) {
-	int intensity, maxhp = GetSpawnHealth();
-	int diff = FixedDiv((100 * (CheckInventory("DnD_PrevHealth") - GetActorProperty(0, APROP_Health)) << 16), maxhp << 16);
+// blend scripts, for some reason they seem to be running twice...
+Script "DnD Get Pain Alpha" (void) CLIENTSIDE {
+	int dmg_received = CheckInventory("DnD_DamageFade");
+	if(CheckInventory("SynthMaskToken"))
+		dmg_received /= DND_SYNTHMASK_EFFECT;
+		
+	// max 75% alpha on really hard hits
+	// we get the relative weight of this damage compared to our health cap
+	int cap = CheckInventory("PlayerHealthCap");
+	if(!cap)
+		cap = GetSpawnHealth();
+	// return min 10% of alpha at any damage regardless, it looks too weak to notice otherwise
+	dmg_received = Min(DND_PAINBLEND_MAXALPHA, 10 + dmg_received * 100 / cap);
 	
-	bool hasMask = CheckInventory("SynthMaskToken");
+	SetResultValue(dmg_received);
+}
+
+Script "DnD Get Pain Tics" (void) CLIENTSIDE {
+	int dmg_received = CheckInventory("DnD_DamageFade");
+	if(CheckInventory("SynthMaskToken"))
+		dmg_received /= DND_SYNTHMASK_EFFECT;
+		
+	// dont go too overboard with this, cap it
+	int cap = CheckInventory("PlayerHealthCap");
+	if(!cap)
+		cap = GetSpawnHealth();
 	
-	if(CheckInventory("FadeIntensity"))
-		intensity = (CheckInventory("FadeIntensity") << 16) + diff;
-	else
-		intensity = diff;
-	intensity >>= 16;
-	if(!opt) {
-		if(hasMask)
-			intensity /= DND_SYNTHMASK_EFFECT;
-		if(intensity > 75)
-			SetInventory("FadeIntensity", 75);
-		else
-			SetInventory("FadeIntensity", intensity);
+	dmg_received = Clamp_Between(dmg_received * DND_PAINBLEND_MAXTICS / cap, DND_PAINBLEND_MINTICS, DND_PAINBLEND_MAXTICS);
+
+	SetResultValue(dmg_received);
+}
+
+// made this clientside as its easier on server for load
+Script "DnD Blend Start" (int blend_id) CLIENTSIDE {
+	switch(blend_id) {
+		case PAINBLEND_RED:
+			GiveInventory("PainBlend_Red", 1);
+		break;
+		case PAINBLEND_GREEN:
+			GiveInventory("PainBlend_Green", 1);
+		break;
+		case PAINBLEND_DARKSLATEGRAY:
+			GiveInventory("PainBlend_DarkSlateGray", 1);
+		break;
+		case PAINBLEND_MIDNIGHTBLUE:
+			GiveInventory("PainBlend_MidnightBlue", 1);
+		break;		
+		case PAINBLEND_DARKSLATEBLUE:
+			GiveInventory("PainBlend_DarkSlateBlue", 1);
+		break;
+		case PAINBLEND_ORANGE:
+			GiveInventory("PainBlend_Orange", 1);
+		break;
+		case PAINBLEND_LIGHTGREEN:
+			GiveInventory("PainBlend_LightGreen", 1);
+		break;
+		case PAINBLEND_DARKGOLDENROD:
+			GiveInventory("PainBlend_DarkGoldenRod", 1);
+		break;
+		case PAINBLEND_LIGHTBLUE:
+			GiveInventory("PainBlend_LightBlue", 1);
+		break;
+		case PAINBLEND_LIGHTSLATEBLUE:
+			GiveInventory("PainBlend_LightSlateBlue", 1);
+		break;
+		case PAINBLEND_MEDIUMPURPLE:
+			GiveInventory("PainBlend_MediumPurple", 1);
+		break;
+		case PAINBLEND_BLUE:
+			GiveInventory("PainBlend_Blue", 1);
+		break;
+		case PAINBLEND_GRAY:
+			GiveInventory("PainBlend_Gray", 1);
+		break;
 	}
-	SetInventory("DnD_PrevHealth", GetActorProperty(0, APROP_Health));
-	SetResultValue(CheckInventory("FadeIntensity"));
+	SetResultValue(0);
+}
+
+Script "DnD Hit Blend" (int blend_id) {
+	int pnum = PlayerNumber();
+	
+	// player got hurt, but wait till we get OK for next tic to have accumulated the damage
+	while(!PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum])
+		Delay(const:1);
+	
+	int amt = CheckInventory("DnD_DamageReceived");
+	if(!amt)
+		Terminate;
+		
+	// and since blend scripts run twice, this had to be done... pass along the accumulated data and overwrite for next use
+	SetInventory("DnD_DamageFade", amt);
+	SetInventory("DnD_DamageReceived", 0);
+	
+	PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
+	
+	ACS_NamedExecuteWithResult("DnD Blend Start", blend_id);
+
+	SetResultValue(0);
 }
 
 Script "DnD Synth Mask Acquired" (void) {
@@ -3886,7 +3964,7 @@ Script "DnD Get Melee Range Increase" (int use_target) {
 	SetResultValue(CheckInventory("IATTR_MeleeRange") + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC);
 }
 
-// Used mainly for non-weapons (like artifacts and so on)
+// Used mainly for non-weapons (like artifacts, spells and so on)
 Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	int temp, temp2;
 	
@@ -3912,9 +3990,9 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetBulkiness()) / 100;
 	// talent bonus
 	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT || isSpell)
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[talent_type])) / 100;
+		dmg = dmg * (100 + DND_INT_GAIN * GetIntellect()) / 100;
 	else
-		dmg = dmg * (100 + (TALENT_INCREASE + TALENT_PER_DEX * GetDexterity()) * CheckInventory(TalentNames[talent_type])) / 100;
+		dmg = dmg * (100 + DND_DEX_GAIN * GetDexterity()) / 100;
 	
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 	if(temp) {
@@ -5405,7 +5483,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	res += MapTalentToFlatBonus(pnum, TALENT_OCCULT, flags);
 	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	// talent bonus
-	res = res * (100 + (TALENT_INCREASE + TALENT_PER_INT * GetIntellect()) * CheckInventory(TalentNames[TALENT_OCCULT])) / 100;
+	res = res * (100 + DND_INT_GAIN * GetIntellect()) / 100;
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 	if(temp) {
 		temp = GetFlatHealthDamageFactor(temp);

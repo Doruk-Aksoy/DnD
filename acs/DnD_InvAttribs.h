@@ -410,8 +410,8 @@ void SetupInventoryAttributeStrings() {
 
 // if 3rd argument is 0 that means simply use the difference + 1 as increment
 Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
-	{ 	5, 		19, 		0,		INV_ATTR_TAG_LIFE 										},
-	{ 	5, 		19, 		0,		INV_ATTR_TAG_DEFENSE 									},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_LIFE 										},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_DEFENSE 									},
 	{ 	1, 		6, 			0,		INV_ATTR_TAG_LIFE										},
 	{ 	1, 		6, 			0,		INV_ATTR_TAG_DEFENSE									},
 	{ 	5, 		9, 			7,		INV_ATTR_TAG_UTILITY 									},
@@ -422,14 +422,14 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	0.01, 	0.03, 		0.04,	INV_ATTR_TAG_UTILITY									},
 	{ 	1, 		9, 			0,		INV_ATTR_TAG_UTILITY									},
 	
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL				},
-	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
-	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		4, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL				},
+	{ 	1, 		3, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
+	{ 	1, 		3, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		3, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
+	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL				},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_ENERGY				},
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_EXPLOSIVE			},
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL			},
@@ -444,7 +444,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
 	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
 	
-	{ 	5, 		10, 		10,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
+	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
 	
 	{ 	1, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
@@ -453,37 +453,37 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY									},
 	{ 	1, 		10, 		0,		INV_ATTR_TAG_UTILITY									},
 	
-	{ 	10, 	24, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
 	
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_CRIT										},
-	{ 	1, 		10, 		0,		INV_ATTR_TAG_CRIT										},
+	{ 	0.005, 	0.01, 		0.006,	INV_ATTR_TAG_CRIT										},
+	{ 	0.01, 	0.1, 		0.1,	INV_ATTR_TAG_CRIT										},
 	{ 	5, 		14, 		0,		INV_ATTR_TAG_CRIT										},
 	
 	{ 	50, 	100, 		100,	INV_ATTR_TAG_UTILITY									},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_DAMAGE										},
 	{ 	25, 	124, 		0,		INV_ATTR_TAG_ATTACK										},
 	
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
 	
 	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
 	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL			},
 	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE									},
 	
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL				},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL				},
+	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
+	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
+	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
 	// lifesteal
 	{ 	0.05, 	0.125, 		0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_LIFE					},
@@ -529,7 +529,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	// essences
 	{ 	1, 		1, 			1, 		INV_ATTR_TAG_NONE 										}, // vaaj
 	{ 	3,		5,			0,		INV_ATTR_TAG_NONE										}, // ssrath
-	{ 	1001,	1500,		0,		INV_ATTR_TAG_NONE										}, // omnisight 1
+	{ 	500,	1000,		0,		INV_ATTR_TAG_NONE										}, // omnisight 1
 	{ 	2,		5,			0,		INV_ATTR_TAG_NONE										}, // omnisight 2
 	{ 	1,		4,			0,		INV_ATTR_TAG_NONE										}, // chegovax
 	{ 	3,		6,			0,		INV_ATTR_TAG_NONE										}, // harkimonde
@@ -761,6 +761,8 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
+		case INV_CRITCHANCE_INCREASE:
+		case INV_CRITPERCENT_INCREASE:
 			if(showDetailedMods) {
 				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
@@ -768,25 +770,6 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 			}
 			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);
 		
-		
-		/*case INV_DMGREDUCE_ELEM:
-		case INV_DMGREDUCE_PHYS:
-		case INV_DMGREDUCE_REFL:
-		case INV_DMGREDUCE_ENERGY:
-		case INV_DMGREDUCE_EXPLOSION:
-		case INV_DMGREDUCE_HITSCAN:
-		case INV_DMGREDUCE_MAGIC:
-		case INV_DMGREDUCE_FIRE:
-		case INV_DMGREDUCE_LIGHTNING:
-		case INV_DMGREDUCE_ICE:
-		case INV_DMGREDUCE_POISON:
-		case INV_ADDEDMAXRESIST:
-			if(showDetailedMods) {
-				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 0, extra), s:"%\c- ", l:text,
-					s:" - ", s:GetModTierText(tier, extra)
-				);
-			}
-			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);*/
 		// damage reduction attributes are shown as they are
 		case INV_DMGREDUCE_ELEM:
 		case INV_DMGREDUCE_PHYS:

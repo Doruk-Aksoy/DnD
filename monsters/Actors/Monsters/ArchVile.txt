@@ -527,6 +527,7 @@ ACTOR DeathVile : DnD_ArchVileBase {
 	Radius 20
 	Height 56
 	Mass 500
+	Stamina 32
 	+ISMONSTER
 	+QUICKTORETALIATE
 	+NOTARGET
@@ -549,7 +550,7 @@ ACTOR DeathVile : DnD_ArchVileBase {
 			WILE G 8 Fast Bright A_FaceTarget
 			WILE H 6 Fast Bright A_VileTarget("DarkFlame")
 			WILE IJKLMN 6 Fast Bright A_FaceTarget
-			WILE O 6 Fast Bright A_VileAttack("vile/stop", 20, 70, 70, 1.0, "VileBlueFire")
+			WILE O 6 Fast Bright A_VileAttack("vile/stop", 20, 70, 70, 1.0, "FireBlue")
 			WILE P 14 Fast Bright
 		Goto See
 		HealState:
@@ -572,6 +573,7 @@ ACTOR DeathVile : DnD_ArchVileBase {
 }
 
 Actor DarkFlame : ArchVileFire {
+	Stamina 32
 	States {
 		Spawn:
 			WFRE A 2 Bright A_StartFire

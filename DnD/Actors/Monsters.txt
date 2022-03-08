@@ -1021,6 +1021,7 @@ Actor ArchVile2 : DnD_ArchVileBase {
 	PainChance 10
 	+ISMONSTER
 	MaxTargetRange 896
+	Stamina 32
 	+QUICKTORETALIATE
 	+NOTARGET
 	+DONTHURTSPECIES
@@ -1044,9 +1045,9 @@ Actor ArchVile2 : DnD_ArchVileBase {
 		MissileState:
 			VILE G 0 BRIGHT A_VileStart
 			VILE G 10 Fast BRIGHT A_FaceTarget
-			VILE H 8 Fast BRIGHT A_VileTarget
+			VILE H 8 Fast BRIGHT A_VileTarget("ArchVileFlame")
 			VILE IJKLMN 8 Fast BRIGHT A_FaceTarget
-			VILE O 8 Fast BRIGHT A_VileAttack("vile/stop", 20, 70, 70, 1.0, "VileFire")
+			VILE O 8 Fast BRIGHT A_VileAttack("vile/stop", 20, 70, 70, 1.0, "ExplosiveFire")
 			VILE P 20 Fast BRIGHT
 		Goto See
 		HealState:
@@ -1066,6 +1067,10 @@ Actor ArchVile2 : DnD_ArchVileBase {
 			VILE Z -1
 		Stop
 	}
+}
+
+Actor ArchVileFlame : ArchVileFire {
+	Stamina 32
 }
 
 Actor ArchVile3 : ArchVile2 replaces ArchVile { }

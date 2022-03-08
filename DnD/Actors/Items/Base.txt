@@ -183,13 +183,13 @@ Actor BaseExplosionDamage // this is necessary, calling A_Explode in actor can c
 	}
 }
 
-Actor DnD_PrevHealth : Inventory {
-	inventory.maxamount 8192
+Actor DnD_DamageReceived : Inventory {
+	inventory.maxamount 0x7FFFFFFF
 }
 
-Actor FadeIntensity : Inventory {
+Actor DnD_DamageFade : Inventory {
 	+INVENTORY.UNDROPPABLE
-	Inventory.MaxAmount 100
+	inventory.maxamount 0x7FFFFFFF
 }
 
 Actor ReloadSignal : PowerDamage {

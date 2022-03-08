@@ -1,3 +1,19 @@
+enum {
+	PAINBLEND_RED,
+	PAINBLEND_GREEN,
+	PAINBLEND_DARKSLATEGRAY,
+	PAINBLEND_MIDNIGHTBLUE,
+	PAINBLEND_DARKSLATEBLUE,
+	PAINBLEND_ORANGE,
+	PAINBLEND_LIGHTGREEN,
+	PAINBLEND_DARKGOLDENROD,
+	PAINBLEND_LIGHTBLUE,
+	PAINBLEND_LIGHTSLATEBLUE,
+	PAINBLEND_MEDIUMPURPLE,
+	PAINBLEND_BLUE,
+	PAINBLEND_GRAY
+};
+
 Actor DnD_PlayerBase : PlayerPawn {
 	Speed 1
 	Health 100
@@ -25,7 +41,7 @@ Actor DnD_PlayerBase : PlayerPawn {
 		Pain.MagicalRed:
 		Pain.MagicalLightningRed:
 			// unspecified / red (default) damage types
-			"####" "#" 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_RED)
 		PainCont:
 			"####" "#" 0 A_GiveInventory("P_Damaged", 1)
 			"####" "#" 0 A_GiveInventory("RegenStopper", 1)
@@ -58,22 +74,22 @@ Actor DnD_PlayerBase : PlayerPawn {
 			"####" "#" 0 A_GiveInventory("EryxiaSlower", 1)
 		Pain.Ice:
 		Pain.MagicalIce:
-			"####" "#" 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_BLUE)
 		Goto PainCont
 		
 		// Black Category
 		Pain.MagicalDark:
-			"####" "#" 0 A_SetBlend("DarkSlateGrey", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_DARKSLATEGRAY)
 		Goto PainCont
 		
 		// Dark Blue
 		Pain.MagicalBlue:
-			"####" "#" 0 A_SetBlend("MidnightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_MIDNIGHTBLUE)
 		Goto PainCont
 		
 		// Less dark blue
 		Pain.FireBlue:
-			"####" "#" 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_DARKSLATEBLUE)
 		Goto PainCont
 		
 		// Fire category
@@ -81,7 +97,7 @@ Actor DnD_PlayerBase : PlayerPawn {
 		Pain.MagicalOrange:
 		Pain.ExplosiveFire:
 		Pain.MagicalFire:
-			"####" "#" 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_ORANGE)
 		Goto PainCont
 		
 		// Green Category
@@ -89,39 +105,39 @@ Actor DnD_PlayerBase : PlayerPawn {
 		Pain.ExplosiveGreen:
 		Pain.FireGreen:
 		Pain.EnergyGreen:
-			"####" "#" 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_LIGHTGREEN)
 		Goto PainCont
 		
 		// Poison Category
 		Pain.Poison:
 		Pain.MagicalPoison:
-			"####" "#" 0 A_SetBlend("Green", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_GREEN)
 		Goto PainCont
 		
 		// Yellow Category
 		Pain.EnergyYellow:
 		Pain.LightningYellow:
 		Pain.MagicalYellow:
-			"####" "#" 0 A_SetBlend("DarkGoldenrod", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_DARKGOLDENROD)
 		Goto PainCont
 		
 		// Energy / Blue Category
 		Pain.Energy:
 		Pain.Lightning:
 		Pain.ExplosiveLightning:
-			"####" "#" 0 A_SetBlend("LightBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_LIGHTBLUE)
 		Goto PainCont
 		
 		// Energy (Cyan) Category
 		Pain.EnergyCyan:
-			"####" "#" 0 A_SetBlend("LightSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_LIGHTSLATEBLUE)
 		Goto PainCont
 		
 		// mostly black, sometimes purple
 		// Void Category
 		Pain.MagicalVoid:
 		Pain.EnergyVoid:
-			"####" "#" 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_MEDIUMPURPLE)
 		Goto PainCont
 		Pain.MagicalRedLeash:
 			"####" "#" 0 A_GiveInventory("FleshWizardSlow2", 1)
@@ -150,13 +166,19 @@ Actor DnD_PlayerBase : PlayerPawn {
 		
 		// Arcane - Purple and pink hues
 		Pain.MagicalGray:
-			"####" "#" 0 A_SetBlend("Gray", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_GRAY)
 		Goto PainCont
 		
 		// death colors
+		Death:
+			"####" "#" 0 A_SetBlend("Red", 0.5, 25)
+			"####" "#" 0 A_Jump(256, "DeathAnim")
+			"####" "#" 35
+		Wait
+		
 		Death.MagicalVoid:
 		Death.EnergyVoid:
-			"####" "#" 0 A_SetBlend("MediumPurple1", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 A_SetBlend("MediumPurple1", 0.5, 25)
 			"####" "#" 0 A_Jump(256, "DeathAnim")
 			"####" "#" 35
 		Wait
@@ -166,13 +188,13 @@ Actor DnD_PlayerBase : PlayerPawn {
 		Death.MagicalOrange:
 		Death.ExplosiveFire:
 		Death.MagicalFire:
-			"####" "#" 0 A_SetBlend("Orange", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 A_SetBlend("Orange", 0.5, 25)
 		Goto DoBurn
 		Death.FireBlue:
-			"####" "#" 0 A_SetBlend("DarkSlateBlue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 A_SetBlend("DarkSlateBlue", 0.5, 25)
 		Goto DoBurn
 		Death.FireGreen:
-			"####" "#" 0 A_SetBlend("LightGreen", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 A_SetBlend("LightGreen", 0.5, 25)
 		Goto DoBurn
 		DoBurn:
 			"####" "#" 0 A_Jump(256, "PlayerBurn")
@@ -183,7 +205,7 @@ Actor DnD_PlayerBase : PlayerPawn {
 		Death.Explosives:
 		Death.ExplosiveGreen:
 		Death.ExplosiveLightning:
-			"####" "#" 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 A_SetBlend("Red", 0.5, 25)
 			"####" "#" 0 A_Jump(256, "XDeath")
 			"####" "#" 35
 		Wait
@@ -191,10 +213,114 @@ Actor DnD_PlayerBase : PlayerPawn {
 		Death.Ice:
 		Death.IceEryxia:
 		Death.MagicalIce:
-			"####" "#" 0 A_SetBlend("Blue", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
+			"####" "#" 0 A_SetBlend("Blue", 0.5, 25)
 			"####" "#" 0 A_Jump(256, "IceDeath")
 			"####" "#" 35
 		Wait
+	}
+}
+
+Actor PainBlend_Red : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("Red", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_Green : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("Green", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_MidnightBlue : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("MidnightBlue", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_DarkGoldenRod : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("DarkGoldenRod", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_DarkSlateGray : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("DarkSlateGray", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_DarkSlateBlue : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("DarkSlateBlue", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_Orange : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("Orange", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_LightGreen : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("LightGreen", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_LightBlue : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("LightBlue", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_LightSlateBlue : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("LightSlateBlue", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_MediumPurple : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("MediumPurple1", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_Blue : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("Blue", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
+	}
+}
+
+Actor PainBlend_Gray : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetBlend("Gray", ACS_NamedExecuteWithResult("DnD Get Pain Alpha") / 100.0, ACS_NamedExecuteWithResult("DnD Get Pain Tics"))
+		Stop
 	}
 }
 
@@ -296,8 +422,6 @@ Actor TheDoomGuy : DnD_PlayerBase {
 			DPLY G 4 A_Pain
 		Goto SpawnGo
 		
-		Death:
-			TNT1 A 0 A_SetBlend("Red", ACS_ExecuteWithResult(826, 0) / 100.0, ACS_ExecuteWithResult(826, 1))
 		DeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
@@ -461,7 +585,7 @@ Actor TheMarine : DnD_PlayerBase {
 			PLAY G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
 		
-		Death:
+		DeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			PLAY H 10
@@ -624,7 +748,7 @@ Actor TheHobo : DnD_PlayerBase {
 			PREN G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
 		
-		Death:
+		DeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			PREN H 10
@@ -787,7 +911,7 @@ Actor ThePunisher : DnD_PlayerBase {
 			BLAZ G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
 		
-		Death:
+		DeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			BLAZ H 10
@@ -950,7 +1074,7 @@ Actor TheWanderer : DnD_PlayerBase {
 			MNK1 G 4 A_Pain
 		Goto SpawnGo
 		
-		Death:
+		DeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			MNK1 H 5
@@ -1113,7 +1237,7 @@ Actor TheCyborg : DnD_PlayerBase {
 			PLY6 G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto SpawnGo
 		
-		Death:
+		DeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			PLY6 H 10
@@ -1256,7 +1380,7 @@ Actor TheBerserker : DnD_PlayerBase {
 			BERP G 4 A_Pain
 		Goto SpawnGo
 
-		Death:
+		DeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			BERP H 8

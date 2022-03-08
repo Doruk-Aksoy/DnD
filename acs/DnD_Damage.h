@@ -163,10 +163,11 @@ enum {
 	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b10000000000000,
 	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b100000000000000,
 	DND_DAMAGEFLAG_SIMULATERIPPER		=			0b1000000000000000,
+	DND_DAMAGEFLAG_ISSPELL				=			0b10000000000000000,
 	
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
-	DND_DAMAGEFLAG_FOILINVUL			=			0b10000000000000000,
-	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b100000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b100000000000000000,
+	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b1000000000000000000,
 };
 
 enum {
@@ -2112,6 +2113,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 		// printbold(s:GetactorClass(0), s:" inflicts damage id ", d:GetActorProperty(0, APROP_DAMAGE));
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
+		// printbold(s:"dmg flag: ", d:dmg_data);
 		bool isReflected = GetActorClass(0) == "None" && arg2 != "PoisonDOT";
 		if(CheckFlag(0, "RIPPER"))
 			isRipper = true;
@@ -2201,6 +2203,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
 				
 				//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
+				GiveInventory("DnD_DamageReceived", dmg);
+				PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
+				
 				SetResultValue(dmg);
 			}
 			else if(IsPlayer(shooter) && shooter != victim) {
