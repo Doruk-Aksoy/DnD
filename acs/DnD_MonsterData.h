@@ -526,7 +526,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_IMP_BEGIN && id <= DND_UNIQUE_IMP_END)
 	)
 	{
-		GiveInventory("ImpClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_IMP;
 	}
 	else if
@@ -536,7 +535,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_DEMON_BEGIN && id <= DND_UNIQUE_DEMON_END)
 	)
 	{
-		GiveInventory("DemonClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_DEMON;
 	}
 	else if
@@ -546,7 +544,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_SPECTRE_BEGIN && id <= DND_UNIQUE_SPECTRE_END)
 	)
 	{
-		GiveInventory("DemonClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_SPECTRE;
 	}
 	else if
@@ -565,7 +562,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_CACODEMON_BEGIN && id <= DND_UNIQUE_CACODEMON_END)
 	)
 	{
-		GiveInventory("CacoClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_CACODEMON;
 	}
 	else if
@@ -575,7 +571,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_PAINE_BEGIN && id <= DND_UNIQUE_PAINE_END)
 	)
 	{
-		GiveInventory("PaineClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_PAINELEMENTAL;
 	}
 	else if
@@ -585,7 +580,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_REVENANT_BEGIN && id <= DND_UNIQUE_REVENANT_END)
 	)
 	{
-		GiveInventory("RevenantClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_REVENANT;
 	}
 	else if
@@ -595,7 +589,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_HK_BEGIN && id <= DND_UNIQUE_HK_END)
 	)
 	{
-		GiveInventory("HKClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_HELLKNIGHT;
 	}
 	else if
@@ -605,7 +598,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_BARON_BEGIN && id <= DND_UNIQUE_BARON_END)
 	) 
 	{
-		GiveInventory("HKClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_BARON;
 	}
 	else if
@@ -615,7 +607,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_FATSO_BEGIN && id <= DND_UNIQUE_FATSO_END)
 	) 
 	{
-		GiveInventory("FatsoClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_FATSO;
 	}
 	else if
@@ -625,7 +616,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_ARACHNO_BEGIN && id <= DND_UNIQUE_ARACHNO_END)
 	)
 	{
-		GiveInventory("ArachnoClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_ARACHNOTRON;
 	}
 	else if
@@ -635,7 +625,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_VILE_BEGIN && id <= DND_UNIQUE_VILE_END)
 	)
 	{
-		GiveInventory("VileClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_ARCHVILE;
 	}
 	else if
@@ -645,7 +634,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_SM_BEGIN && id <= DND_UNIQUE_SM_END)
 	)
 	{
-		GiveInventory("SMClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_SPIDERMASTERMIND;
 	}
 	else if
@@ -655,7 +643,6 @@ void HandleMonsterClassInnates(int mid, int id) {
 		(id >= DND_UNIQUE_CYBER_BEGIN)
 	)
 	{
-		GiveInventory("CyberClassProtection", 1);
 		MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;
 	}
 }

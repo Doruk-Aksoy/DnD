@@ -592,12 +592,6 @@ Actor IATTR_ChanceIgnoreShield : Ammo {
 	+IGNORESKILL
 }
 
-Actor IATTR_ReducedPoisonTaken : Ammo {
-	inventory.amount 1
-	inventory.maxamount 0x7FFFFFFF
-	+IGNORESKILL
-}
-
 Actor IATTR_OccultReducePer : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -605,6 +599,60 @@ Actor IATTR_OccultReducePer : Ammo {
 }
 
 Actor IATTR_ExplosionAgainChance : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_HitscanResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_EnergyResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_ExplosionResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_MagicResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_FireResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_IceResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_LightningResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_PoisonResist : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_MaxResistCap : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL

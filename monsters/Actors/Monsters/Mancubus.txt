@@ -96,7 +96,7 @@ Actor CorpulentExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(12, 84)
+			TNT1 A 1 A_Explode(12, 84, 0)
 		Stop
 	}
 }

@@ -12,7 +12,7 @@ Actor FleshWizardSlow2 : PowerSpeed {
 
 Actor FleshWizardWeaken : PowerDamage {
 	powerup.duration 52
-	damagefactor "normal", 0.75
+	damagefactor "normal", 1.0
 }
 
 Actor FleshWizardSnare : PowerSpeed {
@@ -28,7 +28,7 @@ Actor TorrasqueSnare : PowerSpeed {
 }
 
 ACTOR PowerHalfProtection : PowerProtection {
-    DamageFactor "Normal", 1.5
+    DamageFactor "Normal", 1.0
 }
 
 ACTOR PowerHalfSpeed : PowerSpeed {
@@ -36,7 +36,7 @@ ACTOR PowerHalfSpeed : PowerSpeed {
 }
 
 Actor PowerLessDamage : PowerDamage {
-	DamageFactor "Normal", 0.3
+	DamageFactor "Normal", 1.0
 }
 
 Actor Stomp_Slower : PowerSpeed {
@@ -46,7 +46,7 @@ Actor Stomp_Slower : PowerSpeed {
 }
 
 ACTOR PowerWeaken75 : PowerProtection {
-    DamageFactor "Normal", 1.75
+    DamageFactor "Normal", 1.0
 	powerup.color "60 15 45"
 }
 

@@ -307,6 +307,24 @@ int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
 	return INT_MAX;
 }
 
+// All resists uniformly follow same factors
+int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
+	int temp = GetPlayerAttributeValue(pnum, res_attribute);
+	if(!temp)
+		return dmg;
+	
+	// cap the cap...
+	int cap = GetPlayerAttributeValue(pnum, INV_ADDEDMAXRESIST) + DND_BASE_DAMAGERESISTCAP;
+	if(cap > DND_MAX_DAMAGERESISTCAP)
+		cap = DND_MAX_DAMAGERESISTCAP;
+	
+	// these are in fixed point, so we gotta convert them later
+	temp = Clamp_Between(temp, 0, cap);
+	//return ApplyDamageFactor_Safe(dmg, DND_DAMAGERESIST_FACTOR - ((temp * 100) >> 16), DND_DAMAGERESIST_FACTOR);
+	// roll damage up
+	return (((dmg * (100.0 - temp)) / 100) + 0.5) >> 16;
+}
+
 int ScanActorFlags() {
 	int res = 0;
 	if(CheckFlag(0, "FOILINVUL"))
@@ -824,6 +842,19 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 	return dmg = dmg * (100 + pen) / 100;
 }
 
+// This function is responsible for handling all curse effects player has that affect their damage some way
+int HandleCursePlayerDamageEffects(int dmg) {
+	// 25% reduction, so 3 / 4
+	if(CheckInventory("FleshWizardWeaken"))
+		dmg = ApplyDamageFactor_Safe(dmg, 3, 4);
+	
+	// 70% reduction, so 3 / 10
+	if(CheckInventory("PowerLessDamage"))
+		dmg = ApplyDamageFactor_Safe(dmg, 3, 10);
+	
+	return dmg;
+}
+
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters!
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flags, int ox, int oy, int oz, int actor_flags, int extra = 0, int poison_factor = 0, bool wep_neg = false, bool oneTimeRipperHack = false) {
@@ -951,6 +982,9 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	// 50% more damage taken, so dmg * 3 / 2
 	if(CheckActorInventory(victim, "DemonSealResistDebuff"))
 		dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
+		
+	// CURSE EFFECTS
+	dmg = HandleCursePlayerDamageEffects(dmg);
 	
 	// damage number handling
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
@@ -1115,13 +1149,10 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// sedrin staff armor check
 		// if not sedrin staff, immediately check
 		// if sedrin staff and if we have armor, both are false so no damage to us
-		printbold(s:"self dmg");
 		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetArmorAmount()) {
 			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-			printbold(s:"do dmg ", d:final_dmg);
 			// handle player's self explosion resists here
 			final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type);
-			printbold(s:"after res dmg ", d:final_dmg);
 			if(final_dmg > 0)
 				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
 		}
@@ -1856,13 +1887,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type) {
 			if(CheckInventory("Marine_Perk5"))
 				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_SELFEXPLOSIVEREDUCE);
 			
-			int temp = GetPlayerAttributeValue(pnum, INV_SELFEXPLOSIVE_RESIST);
-			if(temp) {
-				temp = 100 - temp;
-				if(temp < 0)
-					temp = 0;
-				dmg = ApplyDamageFactor_Safe(dmg, temp);
-			}
+			dmg = ApplyPlayerResist(pnum, dmg, INV_SELFEXPLOSIVE_RESIST);
 			
 			// properly include this ability's benefit here, including cyborg check
 			if(CheckInventory("Ability_ExplosionMastery")) {
@@ -1871,8 +1896,23 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type) {
 				else
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
 			}
+			
+			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
 		break;
 	}
+	return dmg;
+}
+
+// This function is responsible for handling all curse effects player has that affect their resistance in some way
+int HandleCursePlayerResistEffects(int dmg) {
+	// 50% amp, so 3 / 2
+	if(CheckInventory("PowerHalfProtection"))
+		dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
+	
+	// 75% amp, so 7 / 4
+	if(CheckInventory("PowerWeaken75"))
+		dmg = ApplyDamageFactor_Safe(dmg, 7, 4);
+	
 	return dmg;
 }
 
@@ -1882,72 +1922,74 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	int temp;
 	int dot_temp;
 	
+	dmg = HandleCursePlayerResistEffects(dmg);
+	
 	// reflection becomes its own thing not affected by other damage type functions, so we can immediately return here
-	if(isReflected) {
-		dmg = ApplyDamageFactor_Safe(dmg, 1000 - GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL), 1000);
-		return dmg;
-	}
+	if(isReflected)
+		return ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_REFL);
 	
-	temp = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS);
-	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) {
-		if(temp)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
-	}
+	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_PHYS);
+
+	if(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_HITSCAN);
 	
-	if(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) {
-	
-	}
-	
-	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
-	
-	}
+	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_MAGIC);
 	
 	// ELEMENTAL DAMAGE BLOCK BEGINS
-	// get generic elemental damage reduction
-	temp = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
-	
-	// fire damage sources
 	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
 		// doomguy perk
 		if(CheckInventory("Doomguy_Perk5"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_FIREPERCENT);
-		if(temp)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+			
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_FIRE);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
 	}
 	
 	if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
-		if(temp)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ICE);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
 	}
 	
 	if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
-		if(temp)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_LIGHTNING);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
 	}
 	
 	// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
 	if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
-		// wanderer perk
-		if(CheckInventory("Wanderer_Perk5"))
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_WANDERER_POISONPERCENT);
-		if(temp)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
-		
-		// reduced poison damage taken
-		temp = GetPlayerAttributeValue(pnum, INV_ESS_LESHRAC);
-		if(temp)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - temp);
+		// marine 50 perk
+		if(!CheckInventory("Marine_Perk50")) {
+			// wanderer perk
+			if(CheckInventory("Wanderer_Perk5"))
+				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_WANDERER_POISONPERCENT);
 			
-		// check if we should apply poison here
-		// do not register more instances on poison dots
-		if(dmg && (dmg_data & DND_DAMAGETYPEFLAG_POISON)) {
-			dot_temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
-			if(!dot_temp)
-				dot_temp = 1;
-			// apply poison damage for 3 to 9 seconds worth 10% of the damage received from this hit
-			// random damage of 10% to 12% of it is applied below
-			ACS_NamedExecuteAlways("DND Poison Damage Register", 0, random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME));
+			// reduced poison damage taken
+			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_POISON);
+			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
+			
+			// toxicology ability
+			if(CheckInventory("Ability_AntiPoison")) {
+				if(!CheckInventory("Cyborg_Perk25"))
+					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_TOXICOLOGY_REDUCE);
+				else
+					dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_TOXICOLOGY_REDUCE + DND_TOXICOLOGY_REDUCE * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
+			}
+			
+			// check if we should apply poison here
+			// do not register more instances on poison dots
+			if(dmg && (dmg_data & DND_DAMAGETYPEFLAG_POISON)) {
+				dot_temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
+				if(!dot_temp)
+					dot_temp = 1;
+				// apply poison damage for 3 to 9 seconds worth 10% of the damage received from this hit
+				// random damage of 10% to 12% of it is applied below
+				ACS_NamedExecuteAlways("DND Poison Damage Register", 0, random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME));
+			}
 		}
+		else // marine perk50 gives immunity to poison, so reduce it to 1%
+			dmg /= 100;
 	}
 	// ELEMENTAL DAMAGE BLOCK ENDS
 	
@@ -1955,13 +1997,22 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	if(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) {
 		if(CheckInventory("Marine_Perk25"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_EXPLOSIVEREDUCTION);
+			
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
 	}
 	
 	// energy sources
 	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
 		if(CheckInventory("Cyborg_Perk5"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_CYBORG_ENERGYREDUCE);
+
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ENERGY);
 	}
+	
+	// ALL DAMAGE AMPLIFYING EFFECTS COME LAST!
+	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
+	if(temp)
+		dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
 	
 	return dmg;
 }
@@ -2073,7 +2124,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		
 		if(IsPlayer(victim)) {
 			// PLAYER RECEIVES DAMAGE
+			int pnum = victim - P_TIDSTART;
 			dmg = arg1;
+			
+			// damage amplifications
+			temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
+			if(temp)
+				dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
 			
 			// all things monster related
 			if(IsMonster(shooter)) {
@@ -2082,7 +2139,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			
 				int m_id = shooter - DND_MONSTERTID_BEGIN;
 				int factor = Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
-				int pnum = victim - P_TIDSTART;
+				
 			
 				if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
 					factor += DND_ELITE_EXTRASTRONG_BONUS;
@@ -2127,7 +2184,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// store damage before reductions to apply to armor later
 				dmg_prev = dmg;
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected);
-
+				
 				// finally apply player armor
 				dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data);
 
@@ -2155,6 +2212,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
 			if(victim != shooter) {
 				// no damage dealt from same species, makes damage things much easier to keep track of
+				// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
 				if(GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES))
 					SetResultValue(0);
 			}

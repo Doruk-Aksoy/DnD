@@ -35,9 +35,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Tokens.txt"
 #include "Actors/Items/ItemAttributes.txt"
 
-// Resists
-#include "Actors/Items/Resists/Weaken.txt"
-
 // Spells
 #include "Actors/Spells/Common.txt"
 #include "Actors/Spells/Rally.txt"

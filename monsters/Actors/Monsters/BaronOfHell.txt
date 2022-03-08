@@ -216,7 +216,7 @@ Actor VolcanoExp : BaseExplosionDamage {
 	{
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(25, 32)
+			TNT1 A 1 A_Explode(25, 32, 0)
 		Stop
 	}
 }
@@ -1037,7 +1037,7 @@ Actor BormerethExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(48, 80)
+			TNT1 A 1 A_Explode(48, 80, 0)
 		Stop
 	}
 }
@@ -1291,6 +1291,7 @@ ACTOR BloodSeeker : DnD_BaseHybridMonster {
 	PAINSOUND "Beast/pain"
 	DEATHSOUND "Beast/die"
 	ACTIVESOUND "Beast/Act"
+	Species "HK"
 	Tag "Blood Seeker"
 	+ISMONSTER
 	states {
@@ -1444,7 +1445,7 @@ Actor BeastExp1 : BaseExplosionDamage {
 	{
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(2, 48)
+			TNT1 A 1 A_Explode(2, 48, 0)
 		Stop
 	}
 }
@@ -1454,7 +1455,7 @@ Actor BeastExp2 : BeastExp1 {
 	{
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(4, 48)
+			TNT1 A 1 A_Explode(4, 48, 0)
 		Stop
 	}
 }
@@ -1558,7 +1559,7 @@ Actor CyberdemonRocketWeakExplosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(48, 96)
+			TNT1 A 1 A_Explode(48, 96, 0)
 		Stop
 	}
 }
@@ -1864,7 +1865,7 @@ Actor KjarochBall2Explosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(18, 96)
+			TNT1 A 1 A_Explode(18, 96, 0)
 		Stop
 	}
 }
@@ -1927,7 +1928,7 @@ Actor KjarochGroundFlamesExplosion : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(36, 96)
+			TNT1 A 1 A_Explode(36, 96, 0)
 		Stop
 	}
 }

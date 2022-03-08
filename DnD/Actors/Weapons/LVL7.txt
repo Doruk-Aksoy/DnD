@@ -1387,19 +1387,19 @@ Actor "Gauss Rifle" : Weapon {
 			TNT1 A 0 A_PlayWeaponSound("Weapons/GaussZoom")
 			TNT1 A 0 A_SetCrossHair(8)
 		    TNT1 A 0 A_GiveInventory("GaussZoom", 1)
-			TNT1 A 0 A_ZoomFactor(2.0, ZOOM_NOSCALETURNING)
+			TNT1 A 0 A_ZoomFactor(2.0)
 		    GAUS Y 1 A_WeaponReady(WRF_NOBOB)
 		    Goto Ready
 	   SecondZoom:
 		    TNT1 A 0 A_PlayWeaponSound("Weapons/GaussZoom")
 		    TNT1 A 0 A_GiveInventory("GaussZoom", 1)
-			TNT1 A 0 A_ZoomFactor(3.0, ZOOM_NOSCALETURNING)
+			TNT1 A 0 A_ZoomFactor(3.0)
 		    GAUS X 1 A_WeaponReady(WRF_NOBOB)
 		    Goto Ready
 	   LastZoom:
 			TNT1 A 0 A_PlayWeaponSound("Weapons/GaussZoom")
 		    TNT1 A 0 A_GiveInventory("GaussZoom", 1)
-			TNT1 A 0 A_ZoomFactor(4.0, ZOOM_NOSCALETURNING)
+			TNT1 A 0 A_ZoomFactor(4.0)
 		    GAUS W 1 A_WeaponReady(WRF_NOBOB)
 		    Goto Ready
 	   EndZoom:

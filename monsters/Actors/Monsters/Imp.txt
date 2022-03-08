@@ -999,7 +999,7 @@ Actor PyroImpExp1 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(5, 56, 1)
+			TNT1 A 1 A_Explode(5, 56, 0)
 		Stop
 	}
 }
@@ -1078,7 +1078,7 @@ Actor PyroImpExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(2, 56, 1)
+			TNT1 A 1 A_Explode(2, 56, 0)
 		Stop
 	}
 }
@@ -1122,7 +1122,7 @@ Actor PyroImpExp3 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(random(4, 16), 64, 1)
+			TNT1 A 1 A_Explode(random(4, 16), 64, 0)
 		Stop
 	}
 }

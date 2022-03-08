@@ -2190,7 +2190,7 @@ Actor GladiatorExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(12, 56)
+			TNT1 A 1 A_Explode(12, 56, 0)
 		Stop
 	}
 }

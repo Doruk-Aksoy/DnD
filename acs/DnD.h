@@ -1125,8 +1125,8 @@ void HandleUniqueDeath(int unique_id) {
 			SpawnCharmWithMods_ForAll(INV_ESS_HARKIMONDE);
 		break;
 		case MONSTER_LESHRAC:
-			// leshrac influence: reduced poison damage taken, poison damage tics twice as fast
-			SpawnCharmWithMods_ForAll(INV_ESS_LESHRAC, INV_ESS_LESHRAC2);
+			// leshrac influence: poison damage tics twice as fast
+			SpawnCharmWithMods_ForAll(INV_ESS_LESHRAC);
 		break;
 		case MONSTER_KRULL:
 			// krull influence: % chance explosives trigger a second time

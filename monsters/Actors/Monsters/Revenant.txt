@@ -410,7 +410,7 @@ Actor CadaverExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(30, 128)
+			TNT1 A 1 A_Explode(30, 128, 0)
 		Stop
 	}
 }
@@ -630,7 +630,7 @@ Actor WidowExplosion : BaseExplosionDamage {
 	Stamina 4
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(40, 128)
+			TNT1 A 1 NoDelay A_Explode(40, 128, 0)
 		Stop
 	}
 }
@@ -819,7 +819,7 @@ Actor SlugExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(8, 96)
+			TNT1 A 1 A_Explode(8, 96, 0)
 		Stop
 	}
 }

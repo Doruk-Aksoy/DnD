@@ -141,6 +141,17 @@ enum {
 	INV_DOTMULTI,
 	INV_INCREASEDDOT,
 	
+	INV_DMGREDUCE_HITSCAN,
+	INV_DMGREDUCE_ENERGY,
+	INV_DMGREDUCE_EXPLOSION,
+	INV_DMGREDUCE_MAGIC,
+	INV_DMGREDUCE_FIRE,
+	INV_DMGREDUCE_ICE,
+	INV_DMGREDUCE_LIGHTNING,
+	INV_DMGREDUCE_POISON,
+	
+	INV_ADDEDMAXRESIST,
+	
 	// add new regular rollable attributes here (will require db reset otherwise desync)
 	
 	// essence attributes (only via. specific means)
@@ -151,7 +162,6 @@ enum {
 	INV_ESS_CHEGOVAX,
 	INV_ESS_HARKIMONDE,
 	INV_ESS_LESHRAC,
-	INV_ESS_LESHRAC2,	// this is a two part bonus
 	INV_ESS_KRULL,
 	INV_ESS_THORAX,
 	INV_ESS_ZRAVOG,
@@ -194,7 +204,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_INCREASEDDOT
+#define LAST_INV_ATTRIBUTE INV_ADDEDMAXRESIST
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -340,6 +350,17 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[INV_DOTMULTI] = "IATTR_DamageOverTimeMult";
 	Inv_Attribute_Checkers[INV_INCREASEDDOT] = "IATTR_DamageOverTimeIncrease";
 	
+	Inv_Attribute_Checkers[INV_DMGREDUCE_HITSCAN] = "IATTR_HitscanResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_ENERGY] = "IATTR_EnergyResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_EXPLOSION] = "IATTR_ExplosionResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_MAGIC] = "IATTR_MagicResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_FIRE] = "IATTR_FireResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_ICE] = "IATTR_IceResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_LIGHTNING] = "IATTR_LightningResist";
+	Inv_Attribute_Checkers[INV_DMGREDUCE_POISON] = "IATTR_PoisonResist";
+	
+	Inv_Attribute_Checkers[INV_ADDEDMAXRESIST] = "IATTR_MaxResistCap";
+	
 	// essences
 	Inv_Attribute_Checkers[INV_ESS_VAAJ] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[INV_ESS_SSRATH] = "IATTR_SoulPenetration";
@@ -347,8 +368,7 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[INV_ESS_OMNISIGHT2] = "IATTR_AccuracyPercent";
 	Inv_Attribute_Checkers[INV_ESS_CHEGOVAX] = "IATTR_IgniteDamageEachTic";
 	Inv_Attribute_Checkers[INV_ESS_HARKIMONDE] = "IATTR_ChanceIgnoreShield";
-	Inv_Attribute_Checkers[INV_ESS_LESHRAC] = "IATTR_ReducedPoisonTaken";
-	Inv_Attribute_Checkers[INV_ESS_LESHRAC2] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[INV_ESS_LESHRAC] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[INV_ESS_KRULL] = "IATTR_ExplosionAgainChance";
 	Inv_Attribute_Checkers[INV_ESS_THORAX] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[INV_ESS_ZRAVOG] = "IATTR_OccultReducePer";
@@ -450,9 +470,9 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
 	{ 	2, 		6, 			0,		INV_ATTR_TAG_STAT										},
 	
-	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		2, 			0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL			},
-	{ 	10, 	90, 		0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL			},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE									},
 	
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL				},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
@@ -493,6 +513,19 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	1, 		8, 			0,		INV_ATTR_TAG_DAMAGE										},
 	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
 	
+	// bunch of resists
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY				},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT				},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	
+	// resist cap
+	{ 	0.25, 	0.5, 		0,		INV_ATTR_TAG_DEFENSE									},
+	
 	// essences
 	{ 	1, 		1, 			1, 		INV_ATTR_TAG_NONE 										}, // vaaj
 	{ 	3,		5,			0,		INV_ATTR_TAG_NONE										}, // ssrath
@@ -500,8 +533,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	2,		5,			0,		INV_ATTR_TAG_NONE										}, // omnisight 2
 	{ 	1,		4,			0,		INV_ATTR_TAG_NONE										}, // chegovax
 	{ 	3,		6,			0,		INV_ATTR_TAG_NONE										}, // harkimonde
-	{ 	5,		9,			0,		INV_ATTR_TAG_NONE										}, // leshrac 1
-	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // leshrac 2
+	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // leshrac
 	{ 	5,		9,			0,		INV_ATTR_TAG_NONE										}, // krull
 	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // thorax
 	{ 	1,		2,			0,		INV_ATTR_TAG_NONE										}, // zravog
@@ -512,7 +544,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 int GetModTierRangeMapper(int attr, int lvl) {
 	int val = 0;
 	if(!Inv_Attribute_Info[attr].attrib_level_modifier)
-		val = (Inv_Attribute_Info[attr].attrib_high - Inv_Attribute_Info[attr].attrib_low + 1) * lvl;
+		val = (Inv_Attribute_Info[attr].attrib_high - Inv_Attribute_Info[attr].attrib_low) * lvl;
 	else
 		val = (Inv_Attribute_Info[attr].attrib_level_modifier * lvl);
 	return val;
@@ -525,7 +557,7 @@ int GetModTierRangeMapper(int attr, int lvl) {
 int GetModRangeWithTier(int attr, int tier_mapping, bool which) {
 	if(!which)
 		return Inv_Attribute_Info[attr].attrib_low + tier_mapping + (tier_mapping != 0);
-	return Inv_Attribute_Info[attr].attrib_high + tier_mapping;
+	return Inv_Attribute_Info[attr].attrib_high + tier_mapping + (tier_mapping != 0);
 }
 
 // this calculates the tier mapping for itself based on supplied level
@@ -666,13 +698,12 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 
 		// essence with no numeric values
 		case INV_ESS_VAAJ:
-		case INV_ESS_LESHRAC2:
+		case INV_ESS_LESHRAC:
 		case INV_ESS_THORAX:
 			return StrParam(s:"\c[Q7]", l:text);
 			
 		// essences with percentages in them
 		case INV_ESS_OMNISIGHT2:
-		case INV_ESS_LESHRAC:
 		case INV_ESS_HARKIMONDE:
 		case INV_ESS_KRULL:
 			if(showDetailedMods) {
@@ -737,17 +768,41 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 			}
 			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);
 		
+		
+		/*case INV_DMGREDUCE_ELEM:
+		case INV_DMGREDUCE_PHYS:
 		case INV_DMGREDUCE_REFL:
+		case INV_DMGREDUCE_ENERGY:
+		case INV_DMGREDUCE_EXPLOSION:
+		case INV_DMGREDUCE_HITSCAN:
+		case INV_DMGREDUCE_MAGIC:
+		case INV_DMGREDUCE_FIRE:
+		case INV_DMGREDUCE_LIGHTNING:
+		case INV_DMGREDUCE_ICE:
+		case INV_DMGREDUCE_POISON:
+		case INV_ADDEDMAXRESIST:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 0.1), s:GetDetailedModRange(attr, tier, 0, extra), s:"%\c- ", l:text,
+				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 0, extra), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 0.1), s:"%\c- ", l:text);
-			
+			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);*/
+		// damage reduction attributes are shown as they are
+		case INV_DMGREDUCE_ELEM:
+		case INV_DMGREDUCE_PHYS:
+		case INV_DMGREDUCE_REFL:
+		case INV_DMGREDUCE_ENERGY:
+		case INV_DMGREDUCE_EXPLOSION:
+		case INV_DMGREDUCE_HITSCAN:
+		case INV_DMGREDUCE_MAGIC:
+		case INV_DMGREDUCE_FIRE:
+		case INV_DMGREDUCE_LIGHTNING:
+		case INV_DMGREDUCE_ICE:
+		case INV_DMGREDUCE_POISON:
+		case INV_ADDEDMAXRESIST:
 		case INV_LIFESTEAL:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:GetDetailedModRange(attr, tier, 0, extra), s:"%\c- ", l:text,
+				return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:GetDetailedModRange(attr, tier, 1, extra), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}

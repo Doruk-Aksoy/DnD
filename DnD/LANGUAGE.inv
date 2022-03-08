@@ -183,6 +183,17 @@ IATTR_T77			= "increased melee damage";
 IATTR_T78			= "damage over time multiplier";
 IATTR_T79			= "increased damage over time";
 
+IATTR_T80			= "reduced hitscan damage taken";
+IATTR_T81			= "reduced energy damage taken";
+IATTR_T82			= "reduced explosion damage taken";
+IATTR_T83			= "reduced magic damage taken";
+IATTR_T84			= "reduced fire damage taken";
+IATTR_T85			= "reduced ice damage taken";
+IATTR_T86			= "reduced lightning damage taken";
+IATTR_T87			= "reduced poison damage taken";
+
+IATTR_T88			= "to maximum damage resist cap";
+
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
 IATTR_TE2 			= "Soul weapons penetrate ";

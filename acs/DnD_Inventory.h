@@ -1750,12 +1750,6 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
-		case INV_EX_DMGINCREASE_TAKEN:
-			TakeInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(GetPlayerAttributeValue(pnum, atype))
-				GiveInventory(StrParam(s:"DamageTakenIncrease_", d:Clamp_Between(GetPlayerAttributeValue(pnum, atype), 1, MAX_WEAKEN_VAL)), 1);
-		break;
 		case INV_ACCURACY_INCREASE:
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
@@ -2027,7 +2021,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			else
 				SetInventory(inv, ClearBit(temp, DND_STATBUFF_EXPLOSIVEIGNORERES));
 		break;
-		case INV_ESS_LESHRAC2:
+		case INV_ESS_LESHRAC:
 			GiveOrTake("StatbuffCounter_PoisonTicTwiceFast", 1, remove);
 			temp = GetPlayerAttributeValue(pnum, atype);
 			inv = Inv_Attribute_Checkers[atype];

@@ -81,8 +81,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_high = 30;
 	UniqueItemList[id].rolls[1].attrib_low = 10;
 	UniqueItemList[id].rolls[1].attrib_high = 25;
-	UniqueItemList[id].rolls[2].attrib_low = 10;
-	UniqueItemList[id].rolls[2].attrib_high = 25;
+	UniqueItemList[id].rolls[2].attrib_low = 10.0;
+	UniqueItemList[id].rolls[2].attrib_high = 25.0;
 	UniqueItemList[id].rolls[3].attrib_low = 75;
 	UniqueItemList[id].rolls[3].attrib_high = 200;
 	UniqueItemList[id].rolls[4].attrib_low = 0;

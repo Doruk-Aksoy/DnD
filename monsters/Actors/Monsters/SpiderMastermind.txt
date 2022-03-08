@@ -447,7 +447,7 @@ Actor PsionicQueenExp1 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(160, 192)
+			TNT1 A 1 A_Explode(160, 192, 0)
 		Stop
 	}
 }
@@ -2007,7 +2007,7 @@ Actor DarkLichVortexExp1 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(24, 160,0)
+			TNT1 A 1 A_Explode(24, 160, 0)
 		Stop
 	}
 }
@@ -2018,7 +2018,7 @@ Actor DarkLichVortexExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(36, 192,0)
+			TNT1 A 1 A_Explode(36, 192, 0)
 		Stop
 	}
 }

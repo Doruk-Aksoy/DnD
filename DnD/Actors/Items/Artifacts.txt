@@ -305,13 +305,13 @@ Actor BladeVortex : CustomInventory
 
 Actor VortexTimer : PowerProtection
 {
-	damagefactor "normal", 0.5
+	damagefactor "normal", 1.0
 	powerup.duration -20
 }
 
 Actor VortexTimer2 : PowerProtection
 {
-	damagefactor "normal", 0.25
+	damagefactor "normal", 1.0
 	powerup.duration -30
 }
 
