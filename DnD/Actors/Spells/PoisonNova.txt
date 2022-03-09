@@ -12,18 +12,8 @@ Actor PoisonNovaCaster : DnD_Activator {
 Actor PoisonNovaSpawner : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "SetupCircle")
-		Goto SkipSetup
-		SetupCircle:
-			TNT1 A 0 A_SetArg(0, ACS_NamedExecuteWithResult("DnD Pellet Count", 9))
-			TNT1 A 0 A_SetArg(1, Args[0])
-		Goto SetupFinish
-		SkipSetup:
-			// no scaling unless pelletstorm is equipped
 			TNT1 A 0 A_SetArg(0, 9)
 			TNT1 A 0 A_SetArg(1, 9)
-		SetupFinish:
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_SpellsFullDamage", 1, "FullLoopStart")
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[1], "LoopContinue")
 		Goto Finish
@@ -34,97 +24,35 @@ Actor PoisonNovaSpawner : DnD_Activator {
 		Finish:
 			TNT1 A 0
 		Stop
-		
-		FullLoopStart:
-			TNT1 A 0 A_JumpIf(Args[1], "FullLoopContinue")
-		Goto Finish
-		FullLoopContinue:
-			TNT1 A 0 A_FireCustomMissile("PoisonNovaProjectile", (360.0 / Args[0]) * Args[1], 0)
-			TNT1 A 0 A_SetArg(1, Args[1] - 1)
-		Goto FullLoopStart
-		Finish:
-			TNT1 A 0
-		Stop
 	}
 }
 
-Actor PoisonNovaProjectile {
-	PROJECTILE
-	Speed 30
-	Height 20
-	Radius 10
-	Damage (ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_POISONNOVA, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
+Actor PoisonNovaProjectile : DnD_BaseProjectile {
+	Speed 36
+	Height 12
+	Radius 6
 	DamageType "AcidRifle"
 	RenderStyle Add
 	Alpha 1.0
 	DeathSound "imp/shotx"
-	+RIPPER
+	var int user_r;
+	var int user_h;
 	+BLOODLESSIMPACT
+	+DONTREFLECT
+	+THRUACTORS
 	States {
-		Spawn:
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_r", 16)
+			TNT1 A 0 A_SetUserVar("user_h", 32)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_POISONNOVA, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL), DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_INFLICTPOISON | DND_DAMAGEFLAG_SIMULATERIPPER, DND_SPELL_POISONNOVA)
+		SpawnLoop:
 			S001 AAA 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_SpawnItem("PoisonNovaDamager")
 			S001 BBB 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_SpawnItem("PoisonNovaDamager")
 		Loop
 		Death:
 			S001 CDE 3 Bright
 		Stop
 	}
-}
-
-Actor PoisonNovaProjectile_FullDMG : PoisonNovaProjectile {
-	DamageType "AcidRifleFull"
-	+THRUACTORS
-	States {
-		Spawn:
-			S001 A 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_CustomMissile("PoisonNova_RipperDamager", 0, 0, 0, CMF_TRACKOWNER)
-			S001 A 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_CustomMissile("PoisonNova_RipperDamager", 0, 0, 0, CMF_TRACKOWNER)
-			S001 A 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_CustomMissile("PoisonNova_RipperDamager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_SpawnItem("PoisonNovaDamager_FullDMG")
-			S001 B 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_CustomMissile("PoisonNova_RipperDamager", 0, 0, 0, CMF_TRACKOWNER)
-			S001 B 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_CustomMissile("PoisonNova_RipperDamager", 0, 0, 0, CMF_TRACKOWNER)
-			S001 B 1 Bright A_SpawnItem("PoisonNovaTrail")
-			TNT1 A 0 A_CustomMissile("PoisonNova_RipperDamager", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_SpawnItem("PoisonNovaDamager_FullDMG")
-		Loop
-	}
-}
-
-Actor PoisonNova_RipperDamager : DnD_FakeDamager {
-	Radius 10
-	Height 20
-	Damage (ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_POISONNOVA, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
-	DamageType "AcidRifleFull"
-	Speed 32
-}
-
-Actor PoisonNovaDamager : BaseExplosionDamage {
-	DamageType "AcidRifle"
-	var int user_dmg;
-	var int user_exprad;
-	const int r = 88;
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_POISONNOVADOT, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
-			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
-			TNT1 A 35 A_Explode(user_dmg, r * (1.0 + user_exprad * exprad_factor), 0)
-			TNT1 A 35 A_Explode(user_dmg / 2, r * (1.0 + user_exprad * exprad_factor), 0)
-			TNT1 A 35 A_Explode(user_dmg / 3, r * (1.0 + user_exprad * exprad_factor), 0)
-			TNT1 A 35 A_Explode(user_dmg / 4, r * (1.0 + user_exprad * exprad_factor), 0)
-			TNT1 A 35 A_Explode(user_dmg / 5, r * (1.0 + user_exprad * exprad_factor), 0)
-			TNT1 A 35 A_Explode(user_dmg / 6, r * (1.0 + user_exprad * exprad_factor), 0)
-		Stop
-	}
-}
-Actor PoisonNovaDamager_FullDMG : PoisonNovaDamager {
-	DamageType "AcidRifleFull"
-	+FORCERADIUSDMG
 }
 
 Actor PoisonNovaTrail {

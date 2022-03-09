@@ -890,7 +890,7 @@ Actor WoTExploder : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_WHEELOFTORMENT << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT3))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius * 0.6)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT | (DND_WEAPON_WHEELOFTORMENT << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 5

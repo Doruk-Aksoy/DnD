@@ -1,13 +1,13 @@
 #ifndef DND_DAMAGE_IN
 #define DND_DAMAGE_IN
 
-#define DND_DMGPUSH_CAP 96.0
+#define DND_DMGPUSH_CAP 72.0
 #define DND_PLAYER_HITSCAN_Z 38.0
 #define MAX_RIPPERS_ACTIVE 256
 #define MAX_RIPPER_HITS_STORED 128
 #define DND_CROSSBOW_EXPLOSIONTID 54100
 
-#define DND_WEPID_USERVARIABLE "user_wepid"
+#define DND_EXPLOSION_FLAGVARIABLE "user_flags"
 
 #define DND_BERSERKER_DAMAGETRACKTIME 17 // 3 is base, x 5 -- +2 for 0.5 second of buffer inclusion
 #define DND_BERSERKER_PERK25_MAXSTACKS 15
@@ -164,10 +164,11 @@ enum {
 	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b100000000000000,
 	DND_DAMAGEFLAG_SIMULATERIPPER		=			0b1000000000000000,
 	DND_DAMAGEFLAG_ISSPELL				=			0b10000000000000000,
+	DND_DAMAGEFLAG_ISSPECIALAMMO		=			0b100000000000000000,
 	
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
-	DND_DAMAGEFLAG_FOILINVUL			=			0b100000000000000000,
-	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b1000000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b1000000000000000000,
+	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b10000000000000000000,
 };
 
 enum {
@@ -876,6 +877,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	if(
 		CheckActorInventory(source, "NetherCheck") 																	|| 
 		(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
+		((flags & DND_DAMAGEFLAG_ISSPELL) && CheckInventory("StatbuffCounter_SpellsFullDamage"))					||
 		(IsOccultDamage(damage_type) && CheckInventory("DnD_QuestReward_DreamingGodBonus"))							||
 		(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
 		(IsExplosionDamage(damage_type) && CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))					||
@@ -1090,12 +1092,8 @@ int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, in
 	return res;
 }
 
-void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damage_type, int wepid) {
+void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damage_type, int wepid, int flags) {
 	int pnum = owner - P_TIDSTART;
-	// extract flags off damage type
-	int flags = damage_type >> 16;
-	damage_type &= 0xFFFF;
-	
 	int instance = PlayerExplosionList[pnum].curr_instance;
 	int lim = PlayerExplosionList[pnum].list[instance].amt;
 		
@@ -1154,8 +1152,11 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
 			// handle player's self explosion resists here
 			final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type);
-			if(final_dmg > 0)
+			if(final_dmg > 0) {
+				// push with some greater force
+				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
 				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
+			}
 		}
 	}
 	
@@ -1164,24 +1165,26 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 }
 
 Script "DnD Do Explosion Damage" (int dmg, int radius, int fullradius, int damage_type) {
+	int flags = GetUserVariable(0, DND_EXPLOSION_FLAGVARIABLE);
+
 	// player information
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(!isPlayer(owner))
 		owner = GetActorProperty(0, APROP_SCORE);
 	
-	int wepid = GetUserVariable(0, DND_WEPID_USERVARIABLE);
-	
-	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type, wepid);
+	// we embed weapon id into damage_type << 16
+	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type & 0xFFFF, damage_type >> 16, flags);
 	
 	SetResultValue(0);
 }
 
 Script "DnD Do Explosion Damage (Pets)" (int dmg, int radius, int fullradius, int damage_type) {
+	int flags = GetUserVariable(0, DND_EXPLOSION_FLAGVARIABLE);
+
 	// player information
 	int owner = CheckInventory("DnD_ProjPnum") + P_TIDSTART;
-	int wepid = GetUserVariable(0, DND_WEPID_USERVARIABLE);
 	
-	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type, wepid);
+	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type & 0xFFFF, damage_type >> 16, flags);
 	
 	SetResultValue(0);
 }
@@ -1278,7 +1281,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		}
 	}
 	
-	bool wep_neg = wepid == -1;
+	bool wep_neg = wepid < 0 || (flags & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO));
 	
 	if(!wep_neg) {
 		// printbold(d:owner, s: " ", d:victim);
@@ -1339,6 +1342,10 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		
 		poison = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
 	}
+	else if(flags & DND_DAMAGEFLAG_ISSPELL) {
+		// check if it has any poison factor on the spell
+		poison = GetSpellPoisonFactor(wepid);
+	}
 	
 	//printbold(d:dmg);
 	if(owner && victim)
@@ -1348,6 +1355,10 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int victim = GetActorProperty(0, APROP_TRACERTID);
+	
+	// add 1 flip sign, damage functions require wepid to be non-negative, if they are we will know they need to use spell index
+	if(flags & DND_DAMAGEFLAG_ISSPELL)
+		wepid = -(wepid + 1);
 	
 	// sedrin check
 	if(!CheckActorInventory(owner, "NetherCheck") && wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
@@ -1546,8 +1557,9 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 	Delay(const:1);
 
 	// do the real pushing after 1 tic of dmg data has been accumulated and we have non-zero damage in effect
+	// wep_neg here contains 2 bits: was it negative at 1st bit and was it a one time ripper in 2nd bit
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
-		HandleDamagePush(PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN, wep_neg & 2);
+		HandleDamagePush(2 * PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN, wep_neg & 2);
 	
 	if(!(wep_neg & 1)) {
 		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || flags & DND_DAMAGETICFLAG_CRIT)
@@ -2212,6 +2224,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// if victim is a player, and shooter is also a player and its not us, make sure they take no damage! YOU NEVER KNOW!!
 				SetResultValue(0);
 			}
+			else // hurt self
+				GiveInventory("DnD_DamageReceived", dmg);
 		}
 		else if(IsMonster(victim) && IsMonster(shooter)) {
 			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE

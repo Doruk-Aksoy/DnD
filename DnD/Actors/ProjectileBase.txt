@@ -257,7 +257,6 @@ Actor DnD_ExplosiveBase {
 	var int user_fullexpradius;
 	var int user_damagetype;
 	var int user_flags;
-	var int user_wepid;
 	
 	const int r_f = 8;
 	
@@ -553,7 +552,6 @@ Actor DnD_ExplosiveBase_ForPets {
 	var int user_fullexpradius;
 	var int user_damagetype;
 	var int user_flags;
-	var int user_wepid;
 	
 	const int r_f = 8;
 	

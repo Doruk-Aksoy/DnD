@@ -824,9 +824,9 @@ Actor AcidAmmo : Ammo {
 
 Actor AcidClip : Ammo {
 	inventory.amount 1
-	inventory.maxamount 28
+	inventory.maxamount 32
 	ammo.backpackamount 0
-	ammo.backpackmaxamount 28
+	ammo.backpackmaxamount 32
 	+IGNORESKILL
 }
 

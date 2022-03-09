@@ -1414,7 +1414,7 @@ Actor AcidPuffExplosion : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_ACIDRIFLE << 16), TALENT_ELEMENTAL, DND_POISONDAMAGE | DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetUserVar("user_expradius", 48 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_POISON)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_POISON | (DND_WEAPON_ACIDRIFLE << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1
@@ -1427,7 +1427,7 @@ Actor AcidRifleCloudFX {
 	+CLIENTSIDEONLY
 	RENDERSTYLE "Add"
 	ALPHA 0.66
-	Scale 0.1
+	Scale 0.15
 	ReactionTime 6
 	States {
 		Spawn:
@@ -1448,10 +1448,10 @@ Actor AcidRiflePoisonCloud : DnD_ExplosiveBase {
     Height 6 
 	+THRUACTORS
 	+DONTSPLASH
-	+THRUACTORS
+	+FORCERADIUSDMG
 	RENDERSTYLE "Add"
 	ALPHA 0.66
-	Scale 0.1
+	Scale 0.15
 	States {
 		SpawnState: 
 			DB58 ABCDEFGHIJKLMNOP 1 A_SetScale(scalex + 0.04, scaley + 0.04)
@@ -1460,7 +1460,8 @@ Actor AcidRiflePoisonCloud : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_ACIDRIFLE << 16), TALENT_ELEMENTAL, DND_POISONDAMAGE | DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_POISON)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_INFLICTPOISON)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_POISON | (DND_WEAPON_ACIDRIFLE << 16))
 			TNT1 A 0 A_SpawnItemEx("AcidRifleCloudFX")
 			TNT1 A 0 A_SetArg(0, 78)
 		ExplosionLoop:
@@ -1484,7 +1485,7 @@ Actor AcidBoltExploder : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_ACIDRIFLE << 16), TALENT_ELEMENTAL, DND_POISONDAMAGE | DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_POISON)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_POISON | (DND_WEAPON_ACIDRIFLE << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1
@@ -1494,7 +1495,7 @@ Actor AcidBoltExploder : DnD_ExplosiveBase {
 
 Actor AcidBolt : DnD_BaseProjectile {
 	DeathSound "AcidRifle/BoltHit"
-	Speed 40
+	Speed 56
 	Radius 6
 	Height 12
 	Scale 0.65
@@ -1538,7 +1539,7 @@ Actor AcidBolt : DnD_BaseProjectile {
 			TNT1 A 6 A_PlaySound("AcidRifle/BoltCloud", 7)
 		ExplodeLoop:
 			TNT1 A 0 A_JumpIf(user_count == user_height, "ExplodeFinish") 
-		    TNT1 A 1 A_SpawnItemEx("AcidRiflePoisonCloud", 0, 0, 16, frandom(-6, 6), frandom(-6, 6), frandom(-2, 2), frandom(-180, 180), SXF_NOCHECKPOSITION | SXF_TRANSFERPOINTERS)
+		    TNT1 A 1 A_SpawnItemEx("AcidRiflePoisonCloud", 0, 0, 16, frandom(-10, 10), frandom(-10, 10), frandom(-2, 2), frandom(-180, 180), SXF_NOCHECKPOSITION | SXF_TRANSFERPOINTERS)
 			TNT1 A 0 A_setUserVar("user_count", user_count + 1)
 		Loop
 		ExplodeFinish:
@@ -2139,7 +2140,8 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", user_tmp)
 			TNT1 A 0 A_SetUserVar("user_expradius", 48 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_INCINERATOR << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DRGP E 3 Bright
@@ -2189,7 +2191,8 @@ Actor IncineratorProjectile2 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_INCINERATOR << 16), TALENT_ELEMENTAL, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_INCINERATOR << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			XPL1 ABCD 4 Bright

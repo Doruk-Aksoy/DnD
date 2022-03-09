@@ -104,10 +104,10 @@ int SpellData[MAX_SPELLS][4] = {
 	{ 0, 					DND_SPELLFLAG_ELEMENTAL }
 };
 
-
+// the 2 numbers at the end are scaling factors picked randomly, so range is dmg * random(low, high)
 pdmg_T SpellDamageTable[MAX_DAMAGING_SPELLS] = {
-	{ 20, 0, 0 },
-	{ 2, 5, 8 },
+	{ 120, 0, 0 },
+	{ 20, 5, 8 },
 	
 	{ 24, 0, 0 },
 	{ 256, 0, 0 },
@@ -133,5 +133,11 @@ str SpellInfo[MAX_SPELLS][3] = {
 #define ZOMBIE_INT_TIMER_FACTOR 10
 #define ZOMBIE_INT_DAMAGE_FACTOR 0.125
 #define DND_MAX_PETPAINSHARE 9
+
+int GetSpellPoisonFactor(int spell_id) {
+	if(spell_id == DND_SPELL_POISONNOVA)
+		return SpellDamageTable[DND_SPELLDAMAGE_POISONNOVADOT].dmg * random(SpellDamageTable[DND_SPELLDAMAGE_POISONNOVADOT].dmg_low, SpellDamageTable[DND_SPELLDAMAGE_POISONNOVADOT].dmg_high);
+	return 0;
+}
 
 #endif

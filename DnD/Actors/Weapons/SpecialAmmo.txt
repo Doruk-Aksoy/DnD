@@ -369,6 +369,7 @@ Actor ShockDamager : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_SHOCK | (1 << 16), TALENT_ELEMENTAL, DND_LIGHTNINGDAMAGE | DND_ISSPECIALAMMO | DND_USETARGET | DND_ISBOOMSTICK))
 			TNT1 A 0 A_SetUserVar("user_expradius", 48 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISSPECIALAMMO)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_LIGHTNING)
 		ExplosionLoop:
 			TNT1 AAAA 0 A_SpawnItemEx("ShockShellFX", 0, 0, frandom(-4, 4), frandom(-4, 4), frandom(-4, 4), frandom(-2.4, 2.4), 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
@@ -661,7 +662,8 @@ Actor NormalGrenade_Special : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MM | (1 << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSPECIALAMMO))
 			TNT1 A 0 A_SetUserVar("user_expradius", 144 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISSPECIALAMMO)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			MISL B 8 Bright
@@ -787,7 +789,8 @@ Actor HEGrenadeTrails : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMHE | (2 << 16), TALENT_EXPLOSIVE, DND_ISSPECIALAMMO | DND_USETARGET))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISSPECIALAMMO)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 		    TNT1 A 0 A_PlaySound("WeaponGL/40MMHHit")
@@ -841,10 +844,6 @@ Actor SonicGrenade : DnD_BaseProjectile {
 	}
 }
 
-Actor SonicGrenadeBoomer : DnD_ExplosiveBase {
-	
-}
-
 Actor SonicGrenade_GhostHitter : SonicGrenade {
 	-THRUGHOST
 }
@@ -862,6 +861,7 @@ Actor SonicGrenadeExplosion : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", 0.5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", SSAM_40MMSONIC, TALENT_ENERGY, DND_ISSPECIALAMMO | DND_USETARGET))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISSPECIALAMMO)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION)
 		ExplosionLoop:
 			TNT1 A 3

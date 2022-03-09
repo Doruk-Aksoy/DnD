@@ -354,7 +354,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 	Player.StartItem "MGClip5", 31
 	Player.StartItem "MGClip6", 40
 	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 28
+	Player.StartItem "AcidClip", 32
 	
 	Player.StartItem "AkimboClipLeft", 12
 	Player.StartItem "AkimboClipRight", 12
@@ -517,7 +517,7 @@ Actor TheMarine : DnD_PlayerBase {
 	Player.StartItem "MGClip5", 31
 	Player.StartItem "MGClip6", 40
 	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 28
+	Player.StartItem "AcidClip", 32
 	
 	Player.StartItem "AkimboClipLeft", 12
 	Player.StartItem "AkimboClipRight", 12
@@ -680,7 +680,7 @@ Actor TheHobo : DnD_PlayerBase {
 	Player.StartItem "MGClip5", 31
 	Player.StartItem "MGClip6", 40
 	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 28
+	Player.StartItem "AcidClip", 32
 	
 	Player.StartItem "AkimboClipLeft", 12
 	Player.StartItem "AkimboClipRight", 12
@@ -843,7 +843,7 @@ Actor ThePunisher : DnD_PlayerBase {
 	Player.StartItem "MGClip5", 31
 	Player.StartItem "MGClip6", 40
 	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 28
+	Player.StartItem "AcidClip", 32
 	
 	Player.StartItem "AkimboClipLeft", 12
 	Player.StartItem "AkimboClipRight", 12
@@ -1006,7 +1006,7 @@ Actor TheWanderer : DnD_PlayerBase {
 	Player.StartItem "MGClip5", 31
 	Player.StartItem "MGClip6", 40
 	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 28
+	Player.StartItem "AcidClip", 32
 	
 	Player.StartItem "AkimboClipLeft", 12
 	Player.StartItem "AkimboClipRight", 12
@@ -1169,7 +1169,7 @@ Actor TheCyborg : DnD_PlayerBase {
 	Player.StartItem "MGClip5", 31
 	Player.StartItem "MGClip6", 40
 	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 28
+	Player.StartItem "AcidClip", 32
 	
 	Player.StartItem "AkimboClipLeft", 12
 	Player.StartItem "AkimboClipRight", 12
@@ -1332,7 +1332,7 @@ Actor TheBerserker : DnD_PlayerBase {
 	Player.StartItem "MGClip5", 31
 	Player.StartItem "MGClip6", 40
 	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 28
+	Player.StartItem "AcidClip", 32
 	
 	Player.StartItem "AkimboClipLeft", 12
 	Player.StartItem "AkimboClipRight", 12

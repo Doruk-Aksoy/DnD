@@ -844,7 +844,8 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HELLSMAW << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_HELLSMAW << 16))
 		Goto DoExplosionDamage
 		Split:
 			TNT1 A 0 A_PlaySound("weapons/grenadexpl")
@@ -859,10 +860,11 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			
+			TNT1 A 0 A_SetUserVar("user_flags", 0)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HELLSMAW << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_HELLSMAW << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			HLML B 3 Bright 
@@ -1132,7 +1134,8 @@ Actor ExplodingPuff : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SILVERGUN << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | ((DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF) << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_WEAPON_SILVERGUN << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DKSX M 1
@@ -1361,7 +1364,8 @@ Actor SlayerHook : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SLAYER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
 			TNT1 A 0 A_SetUserVar("user_expradius", 108 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_SLAYER << 16))
 			TNT1 A 1
 		Goto DoExplosionDamage
 		ContinueFromExplosion:

@@ -3982,13 +3982,17 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	
 	if(talent_type == TALENT_MELEE || (flags & DND_WDMG_HASSTRSCALING))
 		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
+		
 	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
 		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+		
 	if(flags & DMG_WDMG_ISARTIFACT)
 		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckInventory("Ability_Arcanery")) / 100;
+		
 	if(flags & DMG_WDMG_NECROBULK)
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetBulkiness()) / 100;
-	// talent bonus
+		
+	// attribute bonus
 	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT || isSpell)
 		dmg = dmg * (100 + DND_INT_GAIN * GetIntellect()) / 100;
 	else
@@ -4005,7 +4009,8 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + temp) / 100;
 		
 	// finally crit chance
-	if(CheckCritChance(-1, false, -1)) {
+	// spells will have their own crit source compared to attacks
+	if(!isSpell && CheckCritChance(-1, false, -1)) {
 		dmg = dmg * GetCritModifier() / 100;
 		HandleHunterTalisman();
 	}

@@ -277,7 +277,7 @@ Actor BfgExplosion : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BFG32768 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 192 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_BFG32768 << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1
@@ -395,7 +395,8 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEVASTATOR << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_WEAPON_DEVASTATOR << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1 A_SpawnItem("DevastatorExplosion")
@@ -648,7 +649,8 @@ Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 448 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | ((DND_DAMAGEFLAG_BLASTSELF) << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_MFG << 16))
 		ExplosionLoop:
 			TNT1 A 0
 		Goto DoExplosionDamage
@@ -661,7 +663,6 @@ Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", 9 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", user_expradius * 1.7145) // 768 ~= 448 x 1.7145
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 2 * user_expradius / 3) // 512
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION)
 		Goto ExplosionLoop
 	}
 }
@@ -679,7 +680,8 @@ Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7) / 2)
 			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 3 * user_expradius / 4)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | ((DND_DAMAGEFLAG_BLASTSELF) << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_MFG << 16))
 		ExplosionLoop:
 			TNT1 A 0
 		Goto DoExplosionDamage
@@ -690,7 +692,6 @@ Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 		Stop
 		Recalc:
 			TNT1 A 0 A_SetUserVar("user_expdmg", user_expdmg * 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION)
 		Goto ExplosionLoop
 	}
 }
@@ -1594,7 +1595,8 @@ Actor GaussExplosion1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | ((DND_DAMAGEFLAG_BLASTSELF) << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_GAUSSRIFLE << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1
@@ -1868,7 +1870,7 @@ Actor DeathRayProjectile : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEATHRAY << 16), TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_DEATHRAY << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1
@@ -1944,7 +1946,7 @@ Actor DeathRayExp : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_DEATHRAY << 16), TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_DEATHRAY << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1

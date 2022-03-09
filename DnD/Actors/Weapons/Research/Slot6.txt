@@ -136,7 +136,8 @@ Actor FTExplosion1 : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 23)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
 		ExplosionLoop:
 			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		Goto DoExplosionDamage
@@ -201,7 +202,8 @@ Actor FTExplosion2 : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 70)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
 			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		ExplosionLoop:
 			TNT1 A 1
@@ -921,7 +923,7 @@ Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 			
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_REBOUNDER << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGY)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGY | (DND_WEAPON_REBOUNDER << 16))
 			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		ExplosionLoop:
 			TNT1 A 1

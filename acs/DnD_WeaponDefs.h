@@ -222,7 +222,7 @@ int WeaponMagazineCaps[MAX_MAGAZINES] = {
 	10,
 	5,
 	8,
-	28,
+	32,
 	3,
 	75
 };
