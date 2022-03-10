@@ -685,6 +685,10 @@ int GetShopPrice (int id, int priceflag) {
 			res -= (res * chr) / (100 * CHARISMA_REDUCE);
 	}
 	
+	if(priceflag & PRICE_INCREASE_STOCK_LOW) {
+	
+	}
+	
 	if(GetItemFlags(id) & OBJ_SHOTGUN && CheckInventory("Hobo_Perk5")) {
 		res -= res / 5;
 		if(res < 0)
@@ -901,7 +905,14 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		res_state = CheckItemRequirements(itemid, RES_DONE, objectflag); // check if it is actually done
 		int color = offcolor;
 		str toshow = "\c[Y5]", colorprefix = "\cj", weptype = ""; // textcolor colors don't work for some reason
-		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+		
+		int price = 0;
+		
+		if(!(objectflag & OBJ_AMMO))
+			price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+		else
+			price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
+		
 		bool sellstate = false;
 		bool price_vs_credit = price > CheckInventory("Credit");
 		bool nostock = ShopStockRemaining[PlayerNumber()][itemid] <= 0;
@@ -1087,7 +1098,7 @@ int GetBulkPriceForAmmo(int itemid) {
 	int temp = 0, count = 0;
 	str ammo = AmmoInfo_Str[id & 0xFFFF][id >> 16][AMMOINFO_NAME];
 	if(CheckInventory(ammo) < GetAmmoCapacity(ammo)) {
-		int price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+		int price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
 		temp = GetAmmoToGive(itemid);
 		count = (GetAmmoCapacity(ammo) - CheckInventory(ammo)) / temp;
 		id = price * count;
@@ -1189,8 +1200,13 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				// loop 
 				do {
 					loopnumber++;
+					
 					// now consider money and other things as factors
-					price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+					if(!(tradeflag & TRADE_AMMO))
+						price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+					else
+						price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
+						
 					buystatus = CanTrade(itemid, tradeflag, price);
 					if(!buystatus) {
 						// consider researches before handing out
@@ -1385,7 +1401,7 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 		ShowNeedResearchPopup();
 	}
 	else {
-		int price = GetShopPrice(shop_index, PRICE_CHARISMAREDUCE);
+		int price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
 		int buystatus = CanTrade(shop_index, TRADE_BUY, price);
 		
 		if(!buystatus) {
@@ -1401,8 +1417,8 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 					count += (GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME])) / amt;
 				price = price * count;
 				if(price > CheckInventory("Credit")) {
-					count = CheckInventory("Credit") / GetShopPrice(shop_index, PRICE_CHARISMAREDUCE);
-					price = count * GetShopPrice(shop_index, PRICE_CHARISMAREDUCE);
+					count = CheckInventory("Credit") / GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
+					price = count * GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
 					amt *= count;
 				}
 				else {
@@ -1414,14 +1430,14 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 						buystatus = GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - (CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) + amt);
 					if(buystatus) {
 						amt += buystatus;
-						price += Max(buystatus * GetShopPrice(shop_index, PRICE_CHARISMAREDUCE) / GetAmmoToGive(shop_index), 1);
+						price += Max(buystatus * GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE) / GetAmmoToGive(shop_index), 1);
 					}
 				}
 			}
 			if(amt > ShopStockRemaining[PlayerNumber()][shop_index]) {
 				// rebalance the amount so we don't go in debt...
 				amt = ShopStockRemaining[PlayerNumber()][shop_index];
-				price = GetShopPrice(shop_index, PRICE_CHARISMAREDUCE) * amt / GetAmmoToGive(shop_index);
+				price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE) * amt / GetAmmoToGive(shop_index);
 			}
 			
 			// we're OK now
@@ -2843,7 +2859,7 @@ void DrawInventoryInfo(int pnum) {
 
 void DrawInventoryInfoText(int topboxid, int source, int pn, int mx, int my, int itype) {
 	int i, j, temp, val, lvl;
-	bool showModTiers = CheckInventory("ShowModTiers");
+	bool showModTiers = GetCVar("dnd_detailedmods");
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source) / CHARM_ATTRIBLEVEL_SEPERATOR;

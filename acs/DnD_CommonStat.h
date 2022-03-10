@@ -118,8 +118,6 @@ enum {
 
 #define DND_EXP_RES_ABILITY_BONUS 50
 
-#define DND_MIN_ARMOR_EFFICIENCY 0.1
-
 global int 1: StatListOpened[];
 
 #define MAX_MAP_DIFFICULTIES 5

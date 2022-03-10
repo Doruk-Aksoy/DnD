@@ -787,13 +787,11 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 		
 		// draw mod tier text
 		mapinfo = "DND_MENU_DISABLED";
-		if(CheckInventory("ShowModTiers"))
+		if(GetCVar("dnd_detailedmods"))
 			mapinfo = "DND_MENU_ENABLED";
 		DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 260.0, "\c[B1]", "\c[Y5]");
-		if(CheckInventory("SetModTierInfo")) {
+		if(CheckInventory("SetModTierInfo"))
 			SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
-			SetInventory("ShowModTiers", !CheckInventory("ShowModTiers"));
-		}
 	}
 	else if(curopt == MENU_HELP_CHARACTER) {
 		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT1", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);

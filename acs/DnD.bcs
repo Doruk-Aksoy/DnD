@@ -705,6 +705,12 @@ Script "DnD Wanderer Explosions" (int this, int target) {
 	Thing_ChangeTID(exptid, 0);
 }
 
+Script "DnD Check Elite Clear" (void) CLIENTSIDE {
+	SetActivatorToTarget(0);
+	//printbold(d:ActivatorTID());
+	SetResultValue(!ActivatorTID() || CheckInventory("Mo_Died"));
+}
+
 // Used for exp and credit calculations
 Script "DND On Kill" KILL {
 	int this = ActivatorTID();
@@ -1935,7 +1941,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 
 	// run elite checks
 	if(
-		!IsEliteException(m_id) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
+		!IsEliteException(monsterid) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")	&&
 		!IsUniqueMonster(monsterid)
 	)
@@ -3172,8 +3178,6 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 		Terminate;
 	if(GetCVar("dnd_showmapinfo"))
 		SetInventory("ShowMapInfo", 1);
-	if(GetCVar("dnd_detailedmods"))
-		SetInventory("ShowModTiers", 1);
 		
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	// Set the ammo capacity
@@ -3387,23 +3391,6 @@ Script "DnD Player On Hit" (int power) {
 	// shocker check
 	if(MonsterProperties[temp].trait_list[DND_SHOCKER])
 		GiveInventory("PlayerStopper", 1);
-		
-	// vampirism check
-	if(MonsterProperties[temp].trait_list[DND_VAMPIRISM] && isActorAlive(target)) {
-		// 10%
-		hp = MonsterProperties[temp].maxhp / 10;
-		if(!hp)
-			hp = 1;
-		
-		// ignite effects prevent vampirism healing
-		if(!CheckActorInventory(target, "DnD_IgniteTimer")) {
-			if(GetActorProperty(target, APROP_HEALTH) < MonsterProperties[temp].maxhp - hp)
-				SetActorProperty(target, APROP_HEALTH, GetActorProperty(target, APROP_HEALTH) + hp);
-			else
-				SetActorProperty(target, APROP_HEALTH, MonsterProperties[temp].maxhp);
-			ACS_NamedExecuteAlways("DnD Vampirism FX CS", 0, target);
-		}
-	}
 	
 	// ruination check
 	if(MonsterProperties[temp].trait_list[DND_RUINATION]) {
@@ -3461,7 +3448,7 @@ Script "DnD Berserker Perk25" (void) {
 		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_BERSERKER_PERK25_HEALPERCENT);
 	
 		// fx
-		GiveInventory("DarkHealEffectSpawner", 1);
+		Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 		LocalAmbientSound("Berserker/Heal", 127);
 	}
 	SetInventory("Berserker_DamageTracker", 0);
@@ -3740,18 +3727,18 @@ Script 1000 (int isSoftcore) {
 		for(i = 0; i < MAXFLAGS; ++i)
 			ConsoleCommand(StrParam(s:FlagCheckList[i], s: " ", d:FlagAcceptedValues[i]));
 		for(i = 0; i < MAXDNDFLAGS; ++i)
-			ConsoleCommand(StrParam(s:DNDFlagCheckList[i], s: " ", d:DNDFlagAcceptedValues[i]));
+			SetCVar(DNDFlagCheckList[i], DNDFlagAcceptedValues[i]);
 		// handle fixed point shit here because getcvar is stupid with them
 		ConsoleCommand("sv_coop_damagefactor 1.0");
-		ConsoleCommand("dnd_researchdroprate 0.00249");
-		ConsoleCommand("dnd_uniquemonster_spawnchance 0.02499");
+		/*SetCVar("dnd_researchdroprate", 0.0025);
+		SetCVar("dnd_uniquemonster_spawnchance", 0.025);*/
 	}
 	if(isSoftcore < 2) {
 		if(isSoftcore) {
-			ConsoleCommand("dnd_mode 1"); //Softcore
+			SetCVar("dnd_mode", 1); //Softcore
 		}
 		else {
-			ConsoleCommand("dnd_mode 2"); //Hardcore
+			SetCVar("dnd_mode", 2); //Hardcore
 		}
 		ConsoleCommand("authhostname auth.zandronum.com:16666");
 	}
@@ -3760,8 +3747,8 @@ Script 1000 (int isSoftcore) {
 		// beginner mode, force smart monster spawner
 		// 4 or 5 are simulated softcore / hardcore for singleplayer or local servers -- no database but ruleset is the same
 		if(isSoftcore == 3) {
-			ConsoleCommand("dnd_allresearchesfound 0");
-			ConsoleCommand("dnd_usesmartmonsterspawner 1");
+			SetCVar("dnd_allresearchesfound", 0);
+			SetCVar("dnd_usesmartmonsterspawner", 1);
 		}
 	}
 	ConsoleCommand("map map01");
@@ -4039,7 +4026,7 @@ Script "DND Armor Pickup Check" (int amount, int armor_type) {
 		SetResultValue(
 			!CheckInventory("StatbuffCounter_ForbidArmor") && 
 				(
-					(armor_id && GetArmorAmount() < GetArmorCapFromID(armor_id)) || 
+					(armor_id != -1 && GetArmorAmount() < GetArmorCapFromID(armor_id)) || 
 					IsArmorTierHigher(armor_type, armor_id)
 				)
 		);
@@ -6233,6 +6220,13 @@ Script "DnD Create Kanji Trap" (void) {
 Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
 	SetActorState(0, "Remove", 0);
 	SetResultValue(0);
+}
+
+Script 1007 (void) NET CLIENTSIDE {
+	SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
+	
+	// so the toggle is changed on the menu if you press it while in help page for some reason... you are weird if you do this!
+	GiveInventory("DnD_RefreshPane", 1);
 }
 
 Script 69 (void) NET {

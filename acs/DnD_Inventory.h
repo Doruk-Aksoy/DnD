@@ -1403,7 +1403,7 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype) {
 	int i, j;
 	int val, temp, lvl;
-	bool showModTiers = CheckInventory("ShowModTiers");
+	bool showModTiers = GetCVar("dnd_detailedmods");
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		// temp holds charm's tier id

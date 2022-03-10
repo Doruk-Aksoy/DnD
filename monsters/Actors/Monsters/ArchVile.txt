@@ -7,6 +7,7 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes {
 	Speed 15 
 	PainChance 10
 	BloodColor "08 08 08"
+	MaxTargetRange 1024
 	+NoTarget
 	+MissileMore
 	Species "AV"

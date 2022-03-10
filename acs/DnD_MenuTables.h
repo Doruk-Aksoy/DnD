@@ -7,7 +7,11 @@
 #include "DnD_ClassMenu.h"
 #include "DnD_Research.h"
 
-#define PRICE_CHARISMAREDUCE 2
+enum {
+	PRICE_INCREASE_STOCK_LOW = 1,
+	PRICE_CHARISMAREDUCE = 2
+};
+
 #define SHOP_SCALE_MAX 10
 
 #define CHARISMA_PERCENT 5 // percentage

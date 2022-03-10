@@ -111,6 +111,7 @@ Actor DnD_PlayerBase : PlayerPawn {
 		// Poison Category
 		Pain.Poison:
 		Pain.MagicalPoison:
+		Pain.PoisonDOT:
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_GREEN)
 		Goto PainCont
 		

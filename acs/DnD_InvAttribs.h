@@ -152,6 +152,8 @@ enum {
 	
 	INV_ADDEDMAXRESIST,
 	
+	INV_OVERLOAD_DURATION,
+	
 	// add new regular rollable attributes here (will require db reset otherwise desync)
 	
 	// essence attributes (only via. specific means)
@@ -204,7 +206,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_ADDEDMAXRESIST
+#define LAST_INV_ATTRIBUTE INV_OVERLOAD_DURATION
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -504,7 +506,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		9, 			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
 	// cybernetic
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_UTILITY									},
@@ -525,6 +527,9 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	// resist cap
 	{ 	0.25, 	0.5, 		0,		INV_ATTR_TAG_DEFENSE									},
+	
+	// overload duration
+	{ 	0.1,	0.5,		0,		INV_ATTR_TAG_ELEMENTAL									},
 	
 	// essences
 	{ 	1, 		1, 			1, 		INV_ATTR_TAG_NONE 										}, // vaaj
@@ -784,6 +789,7 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_DMGREDUCE_POISON:
 		case INV_ADDEDMAXRESIST:
 		case INV_LIFESTEAL:
+		case INV_OVERLOAD_DURATION:
 			if(showDetailedMods) {
 				return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:GetDetailedModRange(attr, tier, 1, extra), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)

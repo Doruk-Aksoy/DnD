@@ -237,6 +237,7 @@ void RemoveAllArmor() {
 	SetArmorAmount(0);
 }
 
+#define DND_MIN_ARMOR_EFFICIENCY 0.1
 int GetArmorEfficiency() {
 	int temp = Clamp_Between(GetBulkiness(), 0, DND_STAT_FULLMAX);
 	if(!temp)
@@ -244,9 +245,9 @@ int GetArmorEfficiency() {
 	
 	if(temp > 100) {
 		temp -= 100;
-		return Clamp_Between(1.0 - DND_BULKINESS_GAIN * 100 - DND_BULKINESS_GAIN_AFTER100 * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
+		return Clamp_Between(DND_BULKINESS_GAIN * 100 + DND_BULKINESS_GAIN_AFTER100 * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
 	}
-	return Clamp_Between(1.0 - DND_BULKINESS_GAIN * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
+	return Clamp_Between(DND_BULKINESS_GAIN * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
 }
 
 enum {
@@ -1005,6 +1006,12 @@ int GetNonLowestTalents() {
 		}
 	}
 	return 0xFF ^ lowest_talents; // To get non-lowest talents, do a ~ (for some reason ~ bugs here, so I just used 0xFF ^ and it works).
+}
+
+#define DND_BASE_OVERLOADTICK 5
+#define DND_BASE_OVERLOADTIME (105 / DND_BASE_OVERLOADTICK) // 3 seconds -- 105 / 5
+int GetOverloadTime(int pnum) {
+	return (DND_BASE_OVERLOADTIME + ((GetPlayerAttributeValue(pnum, INV_OVERLOAD_DURATION) * TICRATE) >> 16)) / DND_BASE_OVERLOADTICK;
 }
 
 #endif

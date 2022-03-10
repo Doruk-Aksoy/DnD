@@ -32,7 +32,6 @@ Actor SetModTierInfo : PowerDamage {
 }
 
 Actor ShowMapInfo : DnD_Boolean { }
-Actor ShowModTiers : DnD_Boolean { }
 Actor H_UnderPar : DnD_Boolean { }
 Actor H_KillsAchieved : DnD_Boolean { }
 Actor H_ItemsAchieved : DnD_Boolean { }

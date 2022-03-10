@@ -1308,6 +1308,7 @@ Actor Abomination : DnD_BaseRangedMonster {
 Actor AbominationExp : BaseExplosionDamage {
 	DamageType "MagicalVoid"
 	Stamina 8
+	+PIERCEARMOR
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

@@ -378,7 +378,7 @@ DND_MENU_MMOD_AGG7		=	"Monster has homing attacks.";
 DND_MENU_MMOD_AGG8		=	"Monster ignores armor of player with every attack.";
 DND_MENU_MMOD_AGG9		=	"Monster has 50% chance to throw explosive projectiles when hurt.";
 DND_MENU_MMOD_AGG10		=	"Never infights with any other monster, and monsters do not target it for infights.";
-DND_MENU_MMOD_AGG11		=	"Monster heals for 10% of its max health whenever it hurts you.";
+DND_MENU_MMOD_AGG11		=	"Monster heals for 10% of the damage it deals to you.";
 DND_MENU_MMOD_AGG12		=	"Monster hits build ruination stacks. At 7 stacks, lose all armor and 12.5% of max health or 33% of max health if wearing no armor. Stacks each last 3 seconds.";
 
 // defensive group

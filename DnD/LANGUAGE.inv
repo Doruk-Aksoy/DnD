@@ -175,7 +175,7 @@ IATTR_T71 			= "increased ignite duration";
 	
 IATTR_T72 			= "increased chance to overload for lightning attacks";
 IATTR_T73 			= "additional overload reflections on overload kills";
-IATTR_T74 			= "increased overload reflection damage";
+IATTR_T74 			= "more damage amplification for overload";
 	
 IATTR_T75 			= "\c[R5]CYBERNETIC\c-";
 IATTR_T76 			= "increased melee range";
@@ -193,6 +193,8 @@ IATTR_T86			= "reduced lightning damage taken";
 IATTR_T87			= "reduced poison damage taken";
 
 IATTR_T88			= "to maximum damage resist cap";
+
+IATTR_T89			= "seconds to overload duration";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

@@ -12,15 +12,15 @@
 #define DND_BERSERKER_DAMAGETRACKTIME 17 // 3 is base, x 5 -- +2 for 0.5 second of buffer inclusion
 #define DND_BERSERKER_PERK25_MAXSTACKS 15
 #define DND_BERSERKER_PERK25_HEALPERCENT 15
-#define DND_BERSERKER_PERK25_REDUCTION 0.02 // 2% per stack
+#define DND_BERSERKER_PERK25_REDUCTION 2 // 2% per stack
 #define DND_BERSERKER_PERK50_TIMER 14 // 14 x 5 = 70 => 2 seconds
 #define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
 
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
 
-#define DND_MONSTER_POISONPERCENT 15 // 15% of damage taken from a hit is dealt as poison damage again
-#define DND_MONSTER_POISONDOT_MINTIME 3
-#define DND_MONSTER_POISONDOT_MAXTIME 9
+#define DND_MONSTER_POISONPERCENT 10 // 10% of damage taken from a hit is dealt as poison damage again
+#define DND_MONSTER_POISONDOT_MINTIME 2
+#define DND_MONSTER_POISONDOT_MAXTIME 5
 
 #define OCCULT_WEAKEN_DURATION 3
 
@@ -279,9 +279,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_IGNITECHANCE 15
 
 #define DND_BASE_OVERLOADCHANCE 5
-#define DND_BASE_OVERLOADBUFF 30 // 30%
-#define DND_BASE_OVERLOADTICK 5
-#define DND_BASE_OVERLOADTIME (105 / DND_BASE_OVERLOADTICK) // 3 seconds -- 105 / 5
+#define DND_BASE_OVERLOADBUFF 20 // 20%
 #define DND_MAX_OVERLOADTARGETS 128 // up to 128 allowed
 #define DND_BASE_OVERLOADZAPDELAY 3 // 3 tics
 
@@ -691,14 +689,16 @@ void HandleIgniteEffects(int victim) {
 	}
 }
 
-void HandleOverloadEffects(int victim) {
+
+
+void HandleOverloadEffects(int pnum, int victim) {
 	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_INSULATED] && random(1, 100) <= DND_BASE_OVERLOADCHANCE * (100 + CheckInventory("IATTR_OverloadChance")) / 100 && IsActorAlive(victim)) {
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
-			SetActorInventory(victim, "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
 			ACS_NamedExecuteWithResult("DnD Monster Overload", victim);
 		}
 		else
-			SetActorInventory(victim, "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
 	}
 }
 
@@ -968,8 +968,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	
 	if(CheckActorInventory(victim, "DnD_OverloadTimer")) {
 		if(damage_type != DND_DAMAGETYPE_LIGHTNING)
-			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF) / 100;
-		GiveActorInventory(victim, "DnD_OverloadDamage", dmg);
+			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF + GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE)) / 100;
+		//GiveActorInventory(victim, "DnD_OverloadDamage", dmg);
 	}
 	
 	if(flags & DND_DAMAGEFLAG_PERCENTHEALTH) {
@@ -1580,7 +1580,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		else if(flags & DND_DAMAGETICFLAG_FIRE)
 			HandleIgniteEffects(victim_data + DND_MONSTERTID_BEGIN);
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
-			HandleOverloadEffects(victim_data + DND_MONSTERTID_BEGIN);
+			HandleOverloadEffects(pnum, victim_data + DND_MONSTERTID_BEGIN);
 		
 		// frozen monsters cant retaliate		
 		if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_FreezeTimer"))
@@ -1821,12 +1821,13 @@ Script "DnD Monster Overload Particles" (void) CLIENTSIDE {
 
 }
 
+// this simply distributes the overload debuff, no more zapping special fx!!
 Script "DnD Monster Overload Zap" (int this, int killer) {
 	if(!isPlayer(killer))
 		Terminate;
 	
 	ActivatorSound("Overload/ZapBegin", 127);
-	SpawnForced("OverloadZap_Source", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) + 16.0, 0);
+	//SpawnForced("OverloadZap_Source", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) + 16.0, 0);
 	
 	// first look up potential targets and then store them, we'll zap later with some delay
 	int pnum = killer - P_TIDSTART;
@@ -1838,7 +1839,8 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	for(i = 0; i < zap_count; ++i)
 		zap_tids[pnum][i] = 0;
 	
-	int dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", CheckInventory("DnD_OverloadDamage") * (100 + CheckActorInventory(killer, "IATTR_OverloadZapDmg")) / 100, TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
+	// we dont deal damage now just apply debuff!
+	//int dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", CheckInventory("DnD_OverloadDamage") * (100 + CheckActorInventory(killer, "IATTR_OverloadZapDmg")) / 100, TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER] && zap_count; ++i) {
 		// if currently alive and received the checker item
 		if(CheckActorInventory(i, "DnD_OverloadZapCandidate") && isActorAlive(i) && i != this)
@@ -1846,22 +1848,24 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	}
 	
 	for(i = 0; i < cur_count; ++i) {
-		ACS_NamedExecuteAlways("DnD Overload Zap FX", 0, this, zap_tids[pnum][i]);
+		// no more zap fx
+		// ACS_NamedExecuteAlways("DnD Overload Zap FX", 0, this, zap_tids[pnum][i]);
 		
 		// do damage, give credit to killer
 		SetActivator(killer);
 		
-		HandleDamageDeal(killer, zap_tids[pnum][i], dmg, DND_DAMAGETYPE_LIGHTNING, 0, GetActorX(this), GetActorY(this), GetActorZ(this), DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_FORCEPAIN);
+		// no more damage
+		// HandleDamageDeal(killer, zap_tids[pnum][i], dmg, DND_DAMAGETYPE_LIGHTNING, 0, GetActorX(this), GetActorY(this), GetActorZ(this), DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_FORCEPAIN);
 		ActivatorSound("Overload/Zap", 127);
 		
 		// overload this monster if its still alive
 		if(isActorAlive(zap_tids[pnum][i])) {
 			if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
-				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 				ACS_NamedExecuteWithResult("DnD Monster Overload", zap_tids[pnum][i]);
 			}
 			else
-				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", DND_BASE_OVERLOADTIME);
+				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 			GiveActorInventory(zap_tids[pnum][i], "DnD_OverloadLockTime", 1);
 		}
 		SetActivator(this);
@@ -1996,7 +2000,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 				dot_temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
 				if(!dot_temp)
 					dot_temp = 1;
-				// apply poison damage for 3 to 9 seconds worth 10% of the damage received from this hit
+				// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
 				// random damage of 10% to 12% of it is applied below
 				ACS_NamedExecuteAlways("DND Poison Damage Register", 0, random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME));
 			}
@@ -2110,9 +2114,30 @@ int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data) {
 	return dmg;
 }
 
+void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim) {
+	// vampirism check
+	if(MonsterProperties[m_id].trait_list[DND_VAMPIRISM] && isActorAlive(monster_tid)) {
+		// if this monster is trying to leech off of a bloodless monster, do not allow (we cant have all rules be against players... right?)
+		if(IsMonster(victim) && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BLOODLESS])
+			return;
+	
+		// 10% or 10 flat healing per hit, minimum
+		int hp = Max(MonsterProperties[m_id].maxhp / 10, 10);
+		
+		// ignite effects prevent vampirism healing
+		if(!CheckActorInventory(monster_tid, "DnD_IgniteTimer")) {
+			if(GetActorProperty(monster_tid, APROP_HEALTH) < MonsterProperties[m_id].maxhp - hp)
+				SetActorProperty(monster_tid, APROP_HEALTH, GetActorProperty(monster_tid, APROP_HEALTH) + hp);
+			else
+				SetActorProperty(monster_tid, APROP_HEALTH, MonsterProperties[m_id].maxhp);
+			ACS_NamedExecuteAlways("DnD Vampirism FX CS", 0, monster_tid);
+		}
+	}
+}
+
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
-	int temp, dmg, dmg_prev;
+	int temp, dmg, dmg_prev, m_id;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
 		
@@ -2127,6 +2152,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
 		bool isReflected = GetActorClass(0) == "None" && arg2 != "PoisonDOT";
+		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR") || CheckFlag(shooter, "PIERCEARMOR");
 		if(CheckFlag(0, "RIPPER"))
 			isRipper = true;
 
@@ -2151,9 +2177,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				/*if(isReflected)
 					printbold(s:"Self damaged for ", d:arg1, s: " dmg type: ", s:arg2);*/
 			
-				int m_id = shooter - DND_MONSTERTID_BEGIN;
+				m_id = shooter - DND_MONSTERTID_BEGIN;
 				int factor = Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
-				
 			
 				if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
 					factor += DND_ELITE_EXTRASTRONG_BONUS;
@@ -2199,8 +2224,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg_prev = dmg;
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected);
 				
-				// finally apply player armor
-				dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data);
+				// finally apply player armor only if its not an armor piercing attack
+				if(!isArmorPiercing)
+					dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data);
 
 				// berserker damage reduction
 				temp = CheckInventory("Berserker_DamageTracker");
@@ -2213,6 +2239,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				
 				// add to player stat
 				IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
+				
+				HandleMonsterDamageModChecks(m_id, shooter, victim);
 				
 				//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
 				GiveInventory("DnD_DamageReceived", dmg);
@@ -2234,6 +2262,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
 				if(GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES))
 					SetResultValue(0);
+				else {
+					// monster infighting
+					m_id = shooter - DND_MONSTERTID_BEGIN;
+					HandleMonsterDamageModChecks(m_id, shooter, victim);
+				}
 			}
 		}
 	}

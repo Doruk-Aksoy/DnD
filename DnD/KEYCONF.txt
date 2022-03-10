@@ -36,6 +36,8 @@ AddKeySection "DnD Keys" DNDKEYS
 	Alias fx "Puke -919"
 	AddMenuKey "View Current Quest" quest
 	Alias quest "Puke -1002"
+	AddMenuKey "Toggle Item Mod Range" item_mods
+	Alias item_mods "Puke -1007"
 	
 AddKeySection "DnD Hard/Softcore Keys" DNDKEYS2
 	AddMenuKey "Skip character loading" sl
