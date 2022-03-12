@@ -771,7 +771,7 @@ int CanTrade (int id, int tradeflag, int price) {
 					return POPUP_YOUARENTALLOWED;
 				else {
 					cond3 = !CheckInventory(item);
-					cond2 = cond3;
+					cond2 = cond3 && !CheckInventory(wepcheck);
 				}
 			}
 			else {
@@ -4040,7 +4040,8 @@ void DrawCraftingInventoryInfo(int pn) {
 
 // extra1 is topboxid for items, extra2 works as source for inventory related things (used charms vs player inventory etc.)
 void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my) {
-	int i, j, temp, val;
+	int i, j, temp, val, lvl;
+	bool showModTiers = GetCVar("dnd_detailedmods");
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, extra1, -1, extra2) / CHARM_ATTRIBLEVEL_SEPERATOR;
@@ -4051,7 +4052,9 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
-			HudMessage(s:GetItemAttributeText(temp, val); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my - 16.0 + 24.0 * j, 0.0);
+			lvl = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, extra1, j, extra2);
+			
+			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my - 16.0 + 24.0 * j, 0.0);
 		}
 	}
 	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR) {
@@ -4113,7 +4116,8 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 		temp = itype & 0xFFFF;
 		itype >>= UNIQUE_BITS;
 		--itype;
-		// itype holds unique position, temp is the actual item type
+		// itype holds unique position, temp is the actual item type -- so does lvl
+		lvl = itype;
 		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0);
 		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
@@ -4127,17 +4131,17 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2)); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
+					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2), lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 				}
 				else
-					HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
+					HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else if(!val) {
 				// unique item doesn't have numeric attribute to show
 				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 			}
 			else
-				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
+				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
 		}
 	}
 }

@@ -219,8 +219,10 @@ Script 1690 (int isSecretExit, int forcedExit, int isBossBrain) {
 
 Script "DnD Scoreboard Input Loop" (int pnum) {
 	// this is fine because after map terminates so does this script
+	// delay is needed because switch exits would be skipped
+	Delay(const:17);
 	while(true) {
-		if(!PlayerHasClicked(pnum) && (GetPlayerInput(pnum, INPUT_BUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK))) {
+		if(!PlayerHasClicked(pnum) && !(GetPlayerInput(pnum, INPUT_OLDBUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK)) && (GetPlayerInput(pnum, INPUT_BUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK))) {
 			MarkPlayerAsExited(pnum);
 			GiveInventory("DnD_ScoreboardTick", 1);
 			

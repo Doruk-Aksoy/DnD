@@ -1,162 +1,163 @@
-Actor Sawedoff : Weapon
-{
-  radius 20
-  height 16
-  Weapon.SlotNumber 9
-  weapon.selectionorder 6666
-  weapon.kickback 100
-  obituary "%o was wiped off the face of earth by %k's sawedoff."
-  Inventory.PickupSound "weapons/pickup"
-  inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Sawedoff - 9"
-  weapon.ammotype "SawedoffShell"
-  weapon.ammotype2 "SawedoffCounter"
-  weapon.ammouse 0
-  weapon.ammouse2 0
-  weapon.ammogive 0
-  weapon.ammogive2 0
-  Decal "BulletChip"
-  YScale 0.59
-  XScale 0.4
-  +INVENTORY.UNDROPPABLE
-  Weapon.BobStyle InverseSmooth
-  Weapon.BobSpeed 2.1
-  Weapon.BobRangeY 0.4
-  Weapon.BobRangeX 0.7
-  Tag "$WEP_84_TAG"
-  +WEAPON.NOAUTOAIM
-  states
-  {
-  Remove:
-    TSWN A 1 Offset(0, 40)
-	TSWN A 1 Offset(0, 48)
-	TSWN A 1 Offset(0, 56)
-	TSWN A 1 Offset(0, 64)
-	TSWN A 1 Offset(0, 72)
-	TSWN A 1 Offset(0, 80)
-	TSWN A 1 Offset(0, 88)
-	TNT1 A 0 A_JumpIfInventory("SawedoffShell", 1, "RiseBack")
-	TSWN A 1 Offset(0, 96)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-    TNT1 A 0 A_TakeInventory("SawedOffCounter", 0)
-	TNT1 A 0 A_TakeInventory("SawedoffShell", 0)
-	TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-	TNT1 A 0 A_TakeInventory("Sawedoff", 1)
-	TNT1 A 1
-  Stop
-  RiseBack:
-    TSWN A 1 Offset(0, 88)
-	TSWN A 1 Offset(0, 80)
-	TSWN A 1 Offset(0, 72)
-	TSWN A 1 Offset(0, 64)
-	TSWN A 1 Offset(0, 56)
-	TSWN A 1 Offset(0, 48)
-	TSWN A 1 Offset(0, 40)
-  Goto Ready
-  Spawn:
-    TSWP A -1
-    stop
-  Ready:
-	TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-    TNT1 A 0 A_JumpIfInventory("SawedoffShell", 1, "NoRemove")
-  Goto Remove
-  NoRemove:
-    TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-    TSWN A 1 A_WeaponReady(WRF_ALLOWRELOAD)
-    Goto Ready
-  Deselect: 
-	TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-    TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-  DeselectLoop:
-    TSWN A 1 A_Lower
-	TNT1 A 0 A_Lower
-    loop
-  Select:
-    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-    TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SAWEDOFF)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SAWEDOFF)
-SelectLoop:
-    TSWN A 1 A_Raise
-	TNT1 A 0 A_Raise
-    Loop
-  Fire:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 0, "FireEnd")
-      TNT1 A 0 A_JumpIfInventory("SawedoffShell", 1, "ContinueNorm")
-  Goto Remove
-  ContinueNorm:
-	  TSW1 A 1 Bright
-      TNT1 A 0 A_GunFlash
-      TSW1 B 1 Bright
-	  TNT1 A 0 A_PlayWeaponSound("Sawedoff/Fire1")
-	  TNT1 A 0 A_GiveInventory("SawedoffCounter", 1)
-	  TNT1 AAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
-	  TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 2, 32 * (1 + sin(-pitch)), 2, 0, 1)
-	  TNT1 A 0 A_GiveInventory("SawedOffShooter", 1)
-	  TNT1 A 0 A_SetPitch(pitch - 3.0)
-	  TSW1 CDEF 1 Bright A_SetPitch(pitch + 0.5)
-	  TSW1 GH 1 A_SetPitch(pitch + 0.5)
-	  TSW1 I 1
-	  TSWN A 2
-	  TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 0, "FireEnd")
-	  Goto Ready
-	FireEnd:
-	  TNT1 A 0 A_JumpIfInventory("SawedOffShell", 1, "Keep")
-	Goto Ready
-	Keep:
-	  TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
-	  TSWN KLM 2
-	  TNT1 A 0 A_TakeInventory("SawedoffCounter", 0)
-	  TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*36,8,26+(sin(-pitch)*36),cos(-pitch)*0,random(5, 8), random(0, 1),0,0,0)
-	  TSWN NOPQRS 1
-	  TNT1 A 0 A_PlaySound("Sawedoff/Load")
-	  TSWN TUVX 1
-	  TSWN MLK 2
-      TSWN A 1 A_ReFire	
-	  Goto Ready
-	ReloadFaster:
-	  TSWN KLM 1
-	  TNT1 A 0 A_TakeInventory("SawedoffCounter", 0)
-	  TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*36,8,26+(sin(-pitch)*36),cos(-pitch)*0,random(5, 8), random(0, 1),0,0,0)
-	  TSWN NPRS 1
-	  TNT1 A 0 A_PlaySound("Sawedoff/Load")
-	  TSWN TUVX 1
-	  TSWN MLK 1
-      TSWN A 1 A_ReFire	
-	  Goto Ready
-	Reload:
-	  TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "Keep")
-	  TSWN A 1
-	  Goto Ready
-	AltFire:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "Fire")
-	  TNT1 A 0 A_JumpIfInventory("SawedoffShell", 2, "Continue")
-	  TSWN A 1
-	Goto Fire
-	Continue:
-	  TSWN B 1 Bright
-      TNT1 A 0 A_GunFlash
-      TSWN C 1 Bright
-	  TNT1 A 0 A_PlayWeaponSound("Sawedoff/Fire2")
-	  TNT1 A 0 A_GiveInventory("SawedoffCounter", 2)
-	  TNT1 AAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
-	  TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 4, 32 * (1 + sin(-pitch)), 2, 0, 1)
-	  TNT1 A 0 A_GiveInventory("SawedoffAltShooter", 1)
-	  TNT1 A 0 A_SetPitch(pitch - 6.0)
-	  TSWN DEFG 1 Bright A_SetPitch(pitch + 0.6)
-	  TSWN HIJ 1 A_SetPitch(pitch + 0.6)
-	  TSWX ABC 1 A_SetPitch(pitch + 0.6)
-	  TSWN A 2
-	  Goto FireEnd
-	Flash:
-	  TNT1 A 4 bright A_Light1
-	  TNT1 A 3 bright A_Light2
-	  TNT1 A 0 bright A_Light0
-	  stop
-    }
+Actor Sawedoff : Weapon {
+	radius 20
+	height 16
+	Weapon.SlotNumber 9
+	weapon.selectionorder 6666
+	weapon.kickback 100
+	obituary "%o was wiped off the face of earth by %k's sawedoff."
+	Inventory.PickupSound "weapons/pickup"
+	inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Sawedoff - 9"
+	weapon.ammotype "SawedoffShell"
+	weapon.ammotype2 "SawedoffCounter"
+	weapon.ammouse 0
+	weapon.ammouse2 0
+	weapon.ammogive 0
+	weapon.ammogive2 0
+	Decal "BulletChip"
+	YScale 0.59
+	XScale 0.4
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.1
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.7
+	Tag "$WEP_84_TAG"
+	+WEAPON.NOAUTOAIM
+	States {
+		Remove:
+			TSWN A 1 Offset(0, 40)
+			TSWN A 1 Offset(0, 48)
+			TSWN A 1 Offset(0, 56)
+			TSWN A 1 Offset(0, 64)
+			TSWN A 1 Offset(0, 72)
+			TSWN A 1 Offset(0, 80)
+			TSWN A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("SawedoffShell", 1, "RiseBack")
+			TSWN A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			//TNT1 A 0 A_TakeInventory("SawedOffCounter", 0)
+			TNT1 A 0 A_TakeInventory("SawedoffShell", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("Sawedoff", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			TSWN A 1 Offset(0, 88)
+			TSWN A 1 Offset(0, 80)
+			TSWN A 1 Offset(0, 72)
+			TSWN A 1 Offset(0, 64)
+			TSWN A 1 Offset(0, 56)
+			TSWN A 1 Offset(0, 48)
+			TSWN A 1 Offset(0, 40)
+		Goto Ready
+		Spawn:
+			TSWP A -1
+		stop
+		Ready:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			TNT1 A 0 A_JumpIfInventory("SawedoffShell", 1, "NoRemove")
+			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "NoRemove")
+		Goto Remove
+		NoRemove:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			TSWN A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Goto Ready
+		Deselect: 
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+		DeselectLoop:
+			TSWN A 1 A_Lower
+			TNT1 A 0 A_Lower
+		loop
+		Select:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SAWEDOFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SAWEDOFF)
+		SelectLoop:
+			TSWN A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "ContinueNorm")
+			TSWN A 1 A_JumpIfInventory("SawedoffShell", 1, "Keep")
+		Goto Remove
+		ContinueNorm:
+			TSW1 A 1 Bright
+			TNT1 A 0 A_GunFlash
+			TSW1 B 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("Sawedoff/Fire1")
+			TNT1 A 0 A_TakeInventory("SawedoffCounter", 1)
+			TNT1 AAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 2, 32 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_GiveInventory("SawedOffShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 3.0)
+			TSW1 CDEF 1 Bright A_SetPitch(pitch + 0.5)
+			TSW1 GH 1 A_SetPitch(pitch + 0.5)
+			TSW1 I 1
+			TSWN A 2
+			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "Nothing")
+		FireEnd:
+			TNT1 A 0 A_JumpIfInventory("SawedOffShell", 1, "Keep")
+		Goto Ready
+		Keep:
+			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
+			TSWN KLM 2
+			TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*36,8,26+(sin(-pitch)*36),cos(-pitch)*0,random(5, 8), random(0, 1),0,0,0)
+			TSWN NOPQRS 1
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 8)
+			TNT1 A 0 A_PlaySound("Sawedoff/Load")
+			TSWN TUVX 1
+			TSWN MLK 2
+			TSWN A 1 A_ReFire	
+		Goto Ready
+		ReloadFaster:
+			TSWN KLM 1
+			TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*36,8,26+(sin(-pitch)*36),cos(-pitch)*0,random(5, 8), random(0, 1),0,0,0)
+			TSWN NPRS 1
+			TNT1 A 0 ACS_ExecuteAlways(998, 0, 8)
+			TNT1 A 0 A_PlaySound("Sawedoff/Load")
+			TSWN TUVX 1
+			TSWN MLK 1
+			TSWN A 1 A_ReFire	
+		Goto Ready
+		Reload:
+			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 2, "Nothing")
+			TSWN A 1
+		Goto Keep
+		Nothing:
+			TSWN A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 2, "Continue")
+			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "Fire")
+			TSWN A 1
+		Goto Fire
+		Continue:
+			TSWN B 1 Bright
+			TNT1 A 0 A_GunFlash
+			TSWN C 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("Sawedoff/Fire2")
+			TNT1 A 0 A_TakeInventory("SawedoffCounter", 2)
+			TNT1 AAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 4, 32 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 A_GiveInventory("SawedoffAltShooter", 1)
+			TNT1 A 0 A_SetPitch(pitch - 6.0)
+			TSWN DEFG 1 Bright A_SetPitch(pitch + 0.6)
+			TSWN HIJ 1 A_SetPitch(pitch + 0.6)
+			TSWX ABC 1 A_SetPitch(pitch + 0.6)
+		TSWN A 2
+		Goto FireEnd
+		Flash:
+			TNT1 A 4 bright A_Light1
+			TNT1 A 3 bright A_Light2
+			TNT1 A 0 bright A_Light0
+		stop
+	}
 }
 
 Actor SawedoffPuff : DnD_BasePuff {
@@ -179,7 +180,6 @@ Actor SawedOffShooter : DnD_Activator {
 	states {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_SAWEDOFFSHELL, 1)
-			TNT1 A 0 A_TakeInventory("SawedoffShell", 1)
 			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 10))
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_FireBullets (3.6 * (1.0 - accuracy * accuracy_factor), 2.8 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "SawedoffPuff", FBF_NORANDOM | FBF_USEAMMO)
@@ -205,7 +205,6 @@ Actor SawedOffAltShooter : DnD_Activator {
 	states {
 		Use:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_SAWEDOFFSHELL, 2)
-			TNT1 A 0 A_TakeInventory("SawedoffShell", 2)
 			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 20))
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
 			TNT1 A 0 A_FireBullets (7.2 * (1.0 - accuracy * accuracy_factor), 5.6 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "SawedoffPuff", FBF_NORANDOM | FBF_USEAMMO)
@@ -245,6 +244,7 @@ Actor SawedoffPickup : CustomInventory
 		Fail
 		Success:
 			TNT1 A 0 A_GiveInventory("Sawedoff", 1)
+			TNT1 A 0 A_GiveInventory("SawedOffCounter", 2)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_SAWEDOFF)
 			TNT1 A 0 A_GiveInventory("SawedoffShell", random(6, 16) + ACS_ExecuteWithResult(918, 0, 1, random(6, 16)))

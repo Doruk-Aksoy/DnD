@@ -969,7 +969,7 @@ Script "DND On Kill" KILL {
 	#ifdef ISDEBUGBUILD
 		//SpawnElixir(0);
 		SpawnCharm(0, true);
-		//SpawnOrb(0, true);
+		SpawnOrb(0, true);
 		//SpawnToken(0, true);
 	#endif
 	HandleCharmLootDrop(pnum);
@@ -1559,6 +1559,11 @@ Script 896 (void) {
 Script 897 (void) {
 	int i = random(0, MAXTEMPWEPS - 1);
 	GiveInventory(TemporaryWeaponData[i][TEMPWEP_AMMO], 999);
+	GiveInventory(TemporaryWeaponData[i][TEMPWEP_NAME], 1);
+	// sawedoff has clip
+	if(!i)
+		GiveInventory("SawedoffCounter", 2);
+		
 	SetWeapon(TemporaryWeaponData[i][TEMPWEP_NAME]);
 	LocalAmbientSound("weapons/pickup", 127);
 }
@@ -1622,12 +1627,19 @@ Script "DnD Weapon Tip Trigger" (int wepid, int targetToUse) CLIENTSIDE {
 // temporary drops
 Script 905 (int mode) NET {
 	if(!mode) {
-		int curweap = GetWeaponPosFromTable() - TEMPBEGIN; // to put it in range of the temporary weapons
+		int pos = GetWeaponPosFromTable();
+		int curweap = pos - TEMPBEGIN; // to put it in range of the temporary weapons
 		int amt;
 		// valid range, no drop spam and not able to while firing and has ammo to spare
 		// gross hax, fix later
 		if(curweap >= 0 && curweap < MAXTEMPWEPS && !CheckInventory("DropItemCooldown") && CheckInventory("TempWeaponReady")) {
 			amt = CheckInventory(TemporaryWeaponData[curweap][TEMPWEP_AMMO]);
+			
+			// put the clip in there as ammo
+			if(pos == DND_WEAPON_SAWEDOFF) {
+				amt += CheckInventory("SawedoffCounter");
+				SetInventory("SawedoffCounter", 0);
+			}
 			
 			if(amt) {
 				int temptid = ActivatorTID() + P_TEMPTID;
@@ -3619,6 +3631,11 @@ Script 998 (int wepnum, int side, int extra) {
 	else if(wepnum == 7) {
 		base = GetAmmoCapacity("MGClip7");
 		totake = "MGClip7";
+	}
+	else if(wepnum == 8) {
+		baseammo = "SawedoffShell";
+		base = 2;
+		totake = "SawedoffCounter";
 	}
 	
 	amt = base - CheckInventory(totake);

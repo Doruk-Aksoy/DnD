@@ -789,10 +789,10 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_EMERALDWAND)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 20, 0, DND_WEAPON_EMERALDWAND)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_EMERALDWAND)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 150, 0, DND_WEAPON_EMERALDWAND)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 8, 1 | (4 << 16), DND_WEAPON_EMERALDWAND)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 85, 0, DND_WEAPON_EMERALDWAND)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 50, 0, DND_WEAPON_EMERALDWAND)
 		SelectLoop:
 			JADE A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -812,13 +812,14 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 			JADE A 1 offset(0, 37)
 			JADE A 1 offset(0, 35)
 			JADE A 1 Offset(0, 33)
-			JADE A 1 Offset(0, 32)
+			JADE A 2 Offset(0, 32)
+			JADE A 1
 			TNT1 A 0 offset(0, 35) a_refire
 			JADE A 1 Offset(0, 33)
 		goto ready
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAlt")
-			TNT1 A 0 A_JumpIfInventory("EmeraldMana", 5, "ContinueAlt")
+			TNT1 A 0 A_JumpIfInventory("EmeraldMana", 8, "ContinueAlt")
 		Goto Nothing
 		ContinueAlt:
 			TNT1 A 0 A_JumpIfInventory("EmeraldRainCooldown", 1, "Nothing")
@@ -848,7 +849,7 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 
 Actor EmeraldRainCooldown : PowerDamage {
 	damagefactor "normal", 1.0
-	powerup.duration -5
+	powerup.duration -8
 }
 
 Actor EmeraldShooter : DnD_Activator {
@@ -884,7 +885,7 @@ Actor EmeraldShooter : DnD_Activator {
 Actor EmeraldShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_EMERALDMANA, 5)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_EMERALDMANA, 8)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("EmeraldMana", 5)
 		NoTake:

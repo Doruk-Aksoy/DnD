@@ -81,14 +81,6 @@ actor BloodSatyr : DnD_BaseHybridMonster {
     }
 }
 
-Actor BloodSatyrHeal : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (1 << 16), ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 25), 7)
-		Stop
-	}
-}
-
 Actor BloodSatyrMissileTrail {
 	+NOINTERACTION
 	+CLIENTSIDEONLY
@@ -148,8 +140,7 @@ Actor BloodSatyrMissile {
 			TNT1 AA 0 A_BishopMissileWeave
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Blood Satyr FX", 0)
-			FGOR G 3 A_GiveToTarget("BloodSatyrHeal", 1)
+			FGOR G 3
 			FGOR HIJ 3
 		Stop
 		Death:

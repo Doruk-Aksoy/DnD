@@ -1040,7 +1040,7 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
 			}
 			
-			IsSelected "Sawedoff", "ResPlasma3" {
+			IsSelected "ResPlasma3" {
 				drawimage "H_ARFW01", -185, -74;
 				drawbar "H_BRFILR", "H_BRFBGR", ammo2, horizontal, reverse, -182, -71;
 				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
@@ -1065,7 +1065,7 @@ statusbar normal, fullscreenoffsets {
 			}
 
 			IsSelected not "Upgraded Plasma Rifle" {
-				IsSelected not "SawedOff", "ResBfg1" {
+				IsSelected not "ResBfg1" {
 					IsSelected not "ResRL3", "ResPlasma3" {
 						IsSelected not "Desolator" {
 							IsSelected not " Machine Gun ", "ResMG1" {
@@ -1100,7 +1100,7 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
 			}
 			
-			IsSelected "Sawedoff", "ResPlasma3" {
+			IsSelected "ResPlasma3" {
 				drawimage "H_BRFRMX", -185, -74;
 				drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
 				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
@@ -1112,8 +1112,9 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
 			}
 			
+			// not inverse bar
 			IsSelected not "Upgraded Plasma Rifle" {
-				IsSelected not "SawedOff", "ResBfg1" {
+				IsSelected not "ResBfg1" {
 					IsSelected not "ResRL3", "ResPlasma3" {
 						IsSelected not "Desolator" {
 							drawimage "H_ARFW01", -185, -74;

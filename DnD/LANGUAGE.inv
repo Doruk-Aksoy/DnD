@@ -203,12 +203,11 @@ IATTR_TE3 			= " to accuracy rating";
 IATTR_TE4 			= " increased accuracy rating";
 IATTR_TE5 			= "Ignite damage increases for each tic by ";
 IATTR_TE6 			= " chance for attacks to ignore shields";
-IATTR_TE7 			= " reduced poison damage taken";
-IATTR_TE8 			= "Poison damage tics twice as fast";
-IATTR_TE9 			= " chance for explosive attacks to trigger again";
-IATTR_TE10 			= "Homing projectiles can't be reflected";
-IATTR_TE11 			= "Magical attacks reduce enemy magic resistance by ";
-IATTR_TE12 			= "Frozen enemies take ";
+IATTR_TE7 			= "Poison damage tics twice as fast";
+IATTR_TE8 			= " chance for explosive attacks to trigger again";
+IATTR_TE9 			= "Homing projectiles can't be reflected";
+IATTR_TE10 			= "Magical attacks reduce enemy magic resistance by ";
+IATTR_TE11 			= "Frozen enemies take ";
 	
 // exotic ones
 IATTR_TX1 			= "chance to ";

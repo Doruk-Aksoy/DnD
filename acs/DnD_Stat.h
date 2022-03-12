@@ -199,6 +199,10 @@ int GetArmorAmount() {
 	return CheckInventory("ArmorAmount");
 }
 
+int GetActorArmorAmount(int tid) {
+	return CheckActorInventory(tid, "ArmorAmount");
+}
+
 int GetArmorID() {
 	return CheckInventory("DnD_ArmorType") - 1;
 }

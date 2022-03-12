@@ -1,6 +1,8 @@
 #ifndef DND_DAMAGE_IN
 #define DND_DAMAGE_IN
 
+#include "DnD_Poison.h"
+
 #define DND_DMGPUSH_CAP 72.0
 #define DND_PLAYER_HITSCAN_Z 38.0
 #define MAX_RIPPERS_ACTIVE 256
@@ -18,7 +20,7 @@
 
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
 
-#define DND_MONSTER_POISONPERCENT 10 // 10% of damage taken from a hit is dealt as poison damage again
+#define DND_MONSTER_POISONPERCENT 20 // 20% of damage taken from a hit is dealt as poison damage again over the duration
 #define DND_MONSTER_POISONDOT_MINTIME 2
 #define DND_MONSTER_POISONDOT_MAXTIME 5
 
@@ -1935,7 +1937,7 @@ int HandleCursePlayerResistEffects(int dmg) {
 
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
-int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected) {
+int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected, str inflictor_clas) {
 	int temp;
 	int dot_temp;
 	
@@ -2002,7 +2004,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 					dot_temp = 1;
 				// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
 				// random damage of 10% to 12% of it is applied below
-				ACS_NamedExecuteAlways("DND Poison Damage Register", 0, random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME));
+				RegisterPoisonDamage(random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME), inflictor_clas);
 			}
 		}
 		else // marine perk50 gives immunity to poison, so reduce it to 1%
@@ -2141,20 +2143,26 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
 		
-		// set activator to owner of this projectile for certain crediting
-		SetActivator(0, AAPTR_DAMAGE_SOURCE);
-		int shooter = ActivatorTID();
-		
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 		// printbold(s:GetactorClass(0), s:" inflicts damage id ", d:GetActorProperty(0, APROP_DAMAGE));
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
-		bool isReflected = GetActorClass(0) == "None" && arg2 != "PoisonDOT";
-		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR") || CheckFlag(shooter, "PIERCEARMOR");
+		int inflictor_class = GetActorClass(0);
+		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT";
+		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		if(CheckFlag(0, "RIPPER"))
 			isRipper = true;
+		
+		// set activator to owner of this projectile for certain crediting
+		SetActivator(0, AAPTR_DAMAGE_SOURCE);
+		int shooter = ActivatorTID();
+		
+		// if the inflictor had no damage data for some reason, try to look it up from the monster
+		if(!dmg_data)
+			dmg_data = GetActorProperty(0, APROP_STAMINA);
+		isArmorPiercing |= CheckFlag(shooter, "PIERCEARMOR");
 
 		// set the activator to us now
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
@@ -2222,7 +2230,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later
 				dmg_prev = dmg;
-				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected);
+				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 				
 				// finally apply player armor only if its not an armor piercing attack
 				if(!isArmorPiercing)

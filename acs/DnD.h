@@ -1086,7 +1086,7 @@ void HandleRuination(int this, int target) {
 }
 
 bool IsEliteException(int m_id) {
-	return m_id == MONSTER_PHANTASM || m_id == MONSTER_WRAITH;
+	return m_id == MONSTER_PHANTASM || m_id == MONSTER_WRAITH || m_id == MONSTER_HADESSPHERE || m_id == MONSTER_UNDEADPRIESTGHOST;
 }
 
 void HandleUniqueDeath(int unique_id) {

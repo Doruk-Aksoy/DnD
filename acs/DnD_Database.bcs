@@ -300,7 +300,7 @@ void SavePlayerData(int pnum, int char_id) {
 	// save health and armor
 	temp = GetActorProperty(tid, APROP_HEALTH);
 	temp <<= 16;
-	temp |= CheckActorInventory(tid, "Armor");
+	temp |= GetActorArmorAmount(tid);
 	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, temp);
 	
 	// save armor type
@@ -837,8 +837,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	
 	// read armor type
 	// reset whatever armor might have been on the player at the time
-	SetInventory("Armor", 0);
-	SetInventory("DnD_ArmorType", 0);
+	RemoveAllArmor();
 	temp = GetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc);
 	for(i = 0; i < MAXARMORS; ++i) {
 		if(IsSet(temp, i)) {

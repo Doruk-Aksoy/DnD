@@ -1698,7 +1698,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_DRAUGR].trait_list[DND_MOBILITY] = true;
 	
 	// hk
-	MonsterData[MONSTER_BLOODSATYR].trait_list[DND_HEAL] = true;
+	MonsterData[MONSTER_BLOODSATYR].trait_list[DND_VAMPIRISM] = true;
 	MonsterData[MONSTER_HELLWARRIOR].trait_list[DND_BLOCK] = true;
 	MonsterData[MONSTER_HELLSFURY].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_WARLORD].trait_list[DND_RAGE] = true;

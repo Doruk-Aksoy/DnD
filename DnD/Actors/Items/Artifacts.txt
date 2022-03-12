@@ -18,6 +18,7 @@ Actor FieldKit : CustomInventory
 		TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 1), "Failed")
 		TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 25 + 13 * ACS_ExecuteWithResult(918, 2, 1))
 		TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+		TNT1 A 0 A_GiveInventory("RemoveAilments", 1)
 		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
 	Stop
 	GiveQuestDmg:
@@ -27,6 +28,11 @@ Actor FieldKit : CustomInventory
 		TNT1 A 1
 	Fail
   }
+}
+
+Actor RemoveAilments : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -1
 }
 
 actor Salvationsphere : CustomInventory

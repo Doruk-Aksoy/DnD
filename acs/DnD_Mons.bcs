@@ -3,7 +3,6 @@
 
 #include "DnD_Intercept.h"
 #include "DnD_Monsters.h"
-#include "DnD_Poison.h"
 
 // Monster stuff
 
@@ -187,44 +186,6 @@ Script 972 (int type) { // script for Lich Slow
 	}
 }
 
-Script "DND Poison Damage Register" (int damage, int duration) {
-	int this = PlayerNumber();
-	int target = GetActorProperty(0, APROP_TARGETTID);
-	RegisterPoisonDamage(this, damage, duration, target);
-}
-
-Script "DND Poison Damage Checker" ENTER {
-	int tic = 0, pnum = PlayerNumber();
-	while(isAlive()) {
-		// check each poison element
-		for(int i = 0; i < MAX_POISON_DAMAGES; ++i) {
-			// setup the start time
-			if(player_poison_damages[pnum].poison_list[i].duration) {
-				if(!player_poison_damages[pnum].poison_list[i].stime)
-					player_poison_damages[pnum].poison_list[i].stime = tic;
-				
-				// if tics is stime, do damage and drop duration
-				if(tic == player_poison_damages[pnum].poison_list[i].stime) {
-					DealPoisonDamage(player_poison_damages[pnum].poison_list[i].owner, player_poison_damages[pnum].poison_list[i].dmg);
-					--player_poison_damages[pnum].poison_list[i].duration;
-				}
-			}
-			
-			// if duration is 0, remove (set start time to 0) -- duration = 0 means it's marked as removed
-			// do this only if there actually are poison effects
-			if(!player_poison_damages[pnum].poison_list[i].duration && player_poison_damages[pnum].poison_list[i].state) {
-				player_poison_damages[pnum].poison_list[i].stime = 0;
-				player_poison_damages[pnum].poison_list[i].state = 0;
-				--player_poison_damages[pnum].cursize;
-			}
-		}
-		
-		tic = (tic + 1) % TICRATE;
-		Delay(1);
-	}
-	ClearPoisonDamages();
-}
-
 Script "DND Dark Lich Warp Shake" (void) {
 	if(!CheckInventory("DarkLichWarpDamageCooldown")) {
 		GiveInventory("DarkLichWarpDamageCooldown", 1);
@@ -287,8 +248,6 @@ Script "DND Flesh Wizard Torment" (int force) {
 		Terminate;
 	
 	int timecounter = 0;
-	int bonus = GetEliteBonusDamage();
-	
 	while(GetActorProperty(0, APROP_HEALTH) > 0 && !CheckInventory("StopLeash")) {
 		int oX = GetActorX(source);
 		int oY = GetActorY(source);
@@ -311,10 +270,8 @@ Script "DND Flesh Wizard Torment" (int force) {
 					ThrustThing(VectorAngle(xdiff, ydiff) >> 8, force, 1, curtarget);
 					ThrustThingZ(curtarget, velz * force, velz > 0, 0);
 					
-					int damage = FLESHWIZARD_PERCENT * GetActorSpawnHealth(curtarget) / 100;
-					damage = FixedMul(damage << 16, 1.0 + bonus);
-					damage >>= 16;
-					Thing_Damage2(curtarget, damage, "MagicalRedLeash");
+					// base 10 dmg
+					Thing_Damage2(curtarget, 10, "MagicalRedLeash");
 					Spawn("FleshWizardDebuffFX", tX, tY, tZ + 32.0);
 					GiveActorInventory(curtarget, "FleshWizardDamageSoundPlayer", 1);
 					ACS_NamedExecuteAlways("DND Flesh Wizard Leash Trail", 0, 16, curtarget);

@@ -840,7 +840,7 @@ bool HasOrbsBesidesCalamity() {
 	int pn = PlayerNumber();
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(PlayerInventoryList[pn][i].item_type == DND_ITEM_ORB) {
-			if(PlayerInventoryList[pn][i].item_subtype == DND_ORB_CALAMITY)
+			if(PlayerInventoryList[pn][i].item_subtype == DND_ORB_CALAMITY || IsOrbDropException(PlayerInventoryList[pn][i].item_subtype))
 				continue;
 			return true;
 		}

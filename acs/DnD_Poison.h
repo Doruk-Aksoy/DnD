@@ -1,14 +1,11 @@
 #ifndef DND_POISON_IN
 #define DND_POISON_IN
 
-#include "DnD_Elites.h"
-
 typedef struct poison_dmg {
 	int dmg;
 	int duration;
 	int owner;
-	int stime;
-	bool state; // 0 inactive, 1 active
+	int inflictor;
 } poison_T;
 
 #define MAX_POISON_DAMAGES 5
@@ -35,62 +32,96 @@ void DealPoisonDamage(int target, int dmg) {
 	//printbold(f:res);
 	dmg = ((dmg & 0xFF) * ((res / 2) + 1.0)) >> 16;
 	dmg -= (dmg * CheckActorInventory(this, "IATTR_ReducedPoisonTaken")) / 100;
-	if(dmg > 0)
+	if(dmg > 0) {
+		IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, this);
 		Thing_Damage2(this, dmg, "PoisonDOT");
+	}
 	SetActivator(this);
 }
 
-void RegisterPoisonDamage(int pnum, int dmg, int duration, int owner) {
-	int pos = -1, i;
-	bool sameSource = false;
-	// check if we have space first
-	if(player_poison_damages[pnum].cursize < MAX_POISON_DAMAGES) {
-		// if this was put by the same source, just find the one that's running out and replace that one instead
-		for(i = 0; i < MAX_POISON_DAMAGES; ++i) {
-			if(player_poison_damages[pnum].poison_list[i].owner == owner) {
-				pos = i;
-				sameSource = true;
-				break;
-			}
+void ClearPoisonInstance(int pnum, int id) {
+	player_poison_damages[pnum].poison_list[id].owner = 0;
+	player_poison_damages[pnum].poison_list[id].inflictor = 0;
+	player_poison_damages[pnum].poison_list[id].dmg = 0;
+	player_poison_damages[pnum].poison_list[id].duration = 0;
+	--player_poison_damages[pnum].cursize;
+}
+
+void RegisterPoisonDamage (int damage, int duration, str inflictor) {
+	int this = PlayerNumber();
+	int target = GetActorProperty(0, APROP_TARGETTID);
+	ACS_NamedExecuteWithResult("DnD Player Poisoned", damage | (this << 16), duration, target, inflictor);
+}
+
+Script "DnD Player Poisoned" (int pnum, int duration, int owner, int inflictor) {
+	// inflictor is a string
+	// unpack damage
+	int dmg = pnum & 0xFFFF;
+	pnum >>= 16;
+	
+	// check if player has a poison source of this script running already
+	int i;
+	for(i = 0; i < MAX_POISON_DAMAGES; ++i) {
+		// player already has a poison instance running from the owner that is also the very same actor
+		// simply replace its duration and damage, if its higher
+		if(player_poison_damages[pnum].poison_list[i].owner == owner && player_poison_damages[pnum].poison_list[i].inflictor == inflictor) {
+			player_poison_damages[pnum].poison_list[i].duration = duration;
+			if(player_poison_damages[pnum].poison_list[i].dmg < dmg)
+				player_poison_damages[pnum].poison_list[i].dmg = dmg;
+			Terminate;
 		}
-		// not replaced, check for free spots
-		if(pos == -1) {
-			// start and check from beginning, see which spot is free
-			for(i = 0; i < MAX_POISON_DAMAGES; ++i) {
-				if(!player_poison_damages[pnum].poison_list[i].state) {
-					pos = i;
-					break;
-				}
-			}
-		}
-		if(!sameSource)
-			++player_poison_damages[pnum].cursize;
-		player_poison_damages[pnum].poison_list[pos].dmg = dmg;
-		player_poison_damages[pnum].poison_list[pos].duration = duration;
-		player_poison_damages[pnum].poison_list[pos].owner = owner;
-		player_poison_damages[pnum].poison_list[pos].state = 1;
 	}
-	else {
-		// find one with lowest duration left
-		int min = INT_MAX;
-		for(i = 0; i < MAX_POISON_DAMAGES; ++i)
+	
+	// there was no instance of this before, insert it
+	// we have no space, find the one with least duration left and replace it
+	int min = INT_MAX;
+	int pos = 0;
+	if(player_poison_damages[pnum].cursize == MAX_POISON_DAMAGES) {
+		for(i = 0; i < MAX_POISON_DAMAGES; ++i) {
 			if(player_poison_damages[pnum].poison_list[i].duration < min) {
 				min = player_poison_damages[pnum].poison_list[i].duration;
 				pos = i;
 			}
-		// safety check if something stupid like all of them having equal times happens...
-		if(pos == -1)
-			pos = 0;
-		player_poison_damages[pnum].poison_list[pos].dmg = dmg;
+		}
+		
+		// found one with min duration, replace and terminate
 		player_poison_damages[pnum].poison_list[pos].duration = duration;
+		player_poison_damages[pnum].poison_list[pos].dmg = dmg;
 		player_poison_damages[pnum].poison_list[pos].owner = owner;
-		player_poison_damages[pnum].poison_list[pos].state = 1;
+		player_poison_damages[pnum].poison_list[pos].inflictor = inflictor;
+		Terminate;
 	}
-}
-
-void ClearPoisonDamages() {
-	for(int i = 0; i < MAX_POISON_DAMAGES; ++i)
-		player_poison_damages[PlayerNumber()].poison_list[i].state = 0;
+	else {
+		for(i = 0; i < MAX_POISON_DAMAGES; ++i) {
+			if(!player_poison_damages[pnum].poison_list[i].dmg) {
+				pos = i;
+				break;
+			}
+		}
+	}
+	
+	// pos is new position to be inserted --- will deal the percentage over the duration
+	player_poison_damages[pnum].poison_list[pos].dmg = Max(dmg / duration, 1);
+	player_poison_damages[pnum].poison_list[pos].duration = duration;
+	player_poison_damages[pnum].poison_list[pos].owner = owner;
+	player_poison_damages[pnum].poison_list[pos].inflictor = inflictor;
+	
+	// start the damaging process
+	int victim = P_TIDSTART + pnum;
+	while(IsActorAlive(victim)) {
+		Delay(const:TICRATE);
+		
+		if(!player_poison_damages[pnum].poison_list[pos].duration || CheckActorInventory(victim, "RemoveAilments")) {
+			ClearPoisonInstance(pnum, pos);
+			break;
+		}
+		
+		//printbold(s:"damage from ", s:inflictor, s:" owned by ", d:owner);
+		DealPoisonDamage(player_poison_damages[pnum].poison_list[pos].owner, player_poison_damages[pnum].poison_list[pos].dmg);
+		--player_poison_damages[pnum].poison_list[pos].duration;
+	}
+	
+	SetResultValue(0);
 }
 
 #endif
