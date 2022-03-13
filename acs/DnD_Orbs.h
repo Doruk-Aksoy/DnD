@@ -477,7 +477,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		break;
 		case DND_ORB_PHANTASMAL:
 			// if the weapon can't hit ghosts on its own or we didnt give it the ghost hit already
-			if(extratype == DND_ITEM_WEAPON && !HasWeaponPower(pnum, extra, WEP_POWER_GHOSTHIT))
+			if(extratype == DND_ITEM_WEAPON && !HasWeaponPower(pnum, extra, WEP_POWER_GHOSTHIT) && (WeaponProperties[extra] & WPROP_CANTHITGHOST))
 				res = true;
 		break;
 		case DND_ORB_ASSIMILATION:

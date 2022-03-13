@@ -1048,16 +1048,16 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 	int pos = id - ACCESSORY_PER_PAGE * (page - MENU_FIRST_ACCESSORY_PAGE);
 	if(CheckInventory(AccessoryInfo[id][ACCESSORY_NAME])) {
 		if(boxid == pos + 1) {
-			HudMessage(s:"\c[B1]", s:AccessoryInfo[id][ACCESSORY_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[B1]", l:GetAccessoryText(id, ACCESSORY_TAG); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 			
 			SetHudClipRect(192, 32, 256, 256, 256, 1);
-			HudMessage(s:StrParam(s:"+ ", s:AccessoryInfo[id][ACCESSORY_PRO], s:"\n\c[D4]- ", s:AccessoryInfo[id][ACCESSORY_CON]); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos - 1, CR_GREEN, 192.1, 212.1, 0.0, 0.0);
+			HudMessage(s:StrParam(s:"+ ", l:GetAccessoryText(id, ACCESSORY_PRO), s:"\n\c[D4]- ", l:GetAccessoryText(id, ACCESSORY_CON)); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos - 1, CR_GREEN, 192.1, 212.1, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0, 0);
 		}
 		else if(IsAccessoryEquipped(0, 1 << id))
-			HudMessage(s:"\c[C5]", s:AccessoryInfo[id][ACCESSORY_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[C5]", l:GetAccessoryText(id, ACCESSORY_TAG); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 		else
-			HudMessage(s:"\c[Y5]", s:AccessoryInfo[id][ACCESSORY_TAG]; HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:GetAccessoryText(id, ACCESSORY_TAG); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_WHITE, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 		ShowAccessoryIcon(id, pos);
 	}
 	else {

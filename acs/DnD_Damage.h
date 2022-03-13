@@ -90,12 +90,24 @@ bool IsOccultDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_OCCULTEXPLOSION;
 }
 
-bool IsElementalDamage(int damage_type) {
-	return damage_type >= DND_DAMAGETYPE_FIRE && damage_type <= DND_DAMAGETYPE_LIGHTNING;
+bool IsFireDamage(int damage_type) {
+	return damage_type == DND_DAMAGETYPE_OCCULTFIRE || damage_type == DND_DAMAGETYPE_FIRE;
+}
+
+bool IsIceDamage(int damage_type) {
+	return damage_type == DND_DAMAGETYPE_ICE;
 }
 
 bool IsPoisonDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_POISON && damage_type <= DND_DAMAGETYPE_EMERALD;
+}
+
+bool IsLightningDamage(int damage_type) {
+	return damage_type == DND_DAMAGETYPE_LIGHTNING;
+}
+
+bool IsElementalDamage(int damage_type) {
+	return damage_type >= DND_DAMAGETYPE_FIRE && damage_type <= DND_DAMAGETYPE_LIGHTNING;
 }
 
 int GetDamageCategory(int damage_type) {
@@ -846,6 +858,86 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 	return dmg = dmg * (100 + pen) / 100;
 }
 
+// for player hitting others damage
+int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int flags, int wepid) {
+	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
+		dmg /= DND_DEMONBANE_REDUCE;
+		
+	// amps fire damage, reduces ice damage
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
+		if(IsFireDamage(damage_type))
+			dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
+		else if(IsIceDamage(damage_type))
+			dmg /= DND_AMULETHELL_FACTOR;
+	}
+	
+	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
+		dmg /= DND_HATESHARD_FACTOR;
+	
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS))
+		dmg /= DND_ARTEMIS_REDUCE;
+		
+	if(CheckInventory("AgamottoOffense"))
+		dmg = ApplyDamageFactor_Safe(dmg, DND_AGAMOTTO_OFFENSE, DND_AGAMOTTO_OFFENSE_FACTOR);
+	
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_LICHARM)) {
+		if(IsSoulWeapon(wepid))
+			dmg = ApplyDamageFactor_Safe(dmg, DND_LICHARM_BUFF, DND_LICHARM_BUFF_DIV);
+		else
+			dmg /= DND_LICHARM_FACTOR;
+	}
+	
+	if(CheckInventory("ElementPower_Fire")) {
+		if(IsFireDamage(damage_type))
+			dmg *= DND_SIGIL_BUFF;
+		else if(IsElementalDamage(damage_type))
+			dmg /= DND_SIGIL_NERF;
+	}
+	else if(CheckInventory("ElementPower_Ice")) {
+		if(IsIceDamage(damage_type))
+			dmg *= DND_SIGIL_BUFF;
+		else if(IsElementalDamage(damage_type))
+			dmg /= DND_SIGIL_NERF;
+	}
+	else if(CheckInventory("ElementPower_Lightning")) {
+		if(IsLightningDamage(damage_type))
+			dmg *= DND_SIGIL_BUFF;
+		else if(IsElementalDamage(damage_type))
+			dmg /= DND_SIGIL_NERF;
+	}
+	else if(CheckInventory("ElementPower_Earth")) {
+		if(IsPoisonDamage(damage_type))
+			dmg *= DND_SIGIL_BUFF;
+		else if(IsElementalDamage(damage_type))
+			dmg /= DND_SIGIL_NERF;
+	}
+	
+	return dmg;
+}
+
+// for others hitting player damage
+int HandleAccessoryHitEffects(int p_tid, int enemy_tid, int dmg, int dmg_data, str arg2) {
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK))
+		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERMASK_AMP, DND_NETHERMASK_DIV);
+		
+	// amps ice damage taken, reduces fire damage
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
+		if((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || arg2 == "Slime")
+			dmg /= DND_AMULETHELL_FACTOR;
+		else if(dmg_data & DND_DAMAGETYPEFLAG_ICE)
+			dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
+	}
+	
+	// agamotto defense
+	if(CheckActorInventory(p_tid, "AgamottoDefense"))
+		dmg = ApplyDamageFactor_Safe(dmg, DND_AGAMOTTO_DEFENSE, DND_AGAMOTTO_DEFENSE_FACTOR);
+		
+	if(CheckActorInventory(enemy_tid, "HunterTalismanDebuff"))
+		dmg -= dmg / DND_HUNTERTALISMAN_NERF;
+	
+	return dmg;
+}
+
 // This function is responsible for handling all curse effects player has that affect their damage some way
 int HandleCursePlayerDamageEffects(int dmg) {
 	// 25% reduction, so 3 / 4
@@ -991,7 +1083,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	// CURSE EFFECTS
 	dmg = HandleCursePlayerDamageEffects(dmg);
 	
-	// damage number handling
+	// ACCESSORY EFFECTS
+	dmg = HandleAccessoryEffects(source, dmg, damage_type, flags, wepid);
+	
+	// damage number handling - NO MORE DAMAGE FIDDLING HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
 	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
 	if(pnum != -1) {
@@ -2186,7 +2281,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					printbold(s:"Self damaged for ", d:arg1, s: " dmg type: ", s:arg2);*/
 			
 				m_id = shooter - DND_MONSTERTID_BEGIN;
-				int factor = Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
+				int factor = 0;
+				
+				// dont scale reflected damage by this
+				if(!isReflected)
+					factor += Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 			
 				if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
 					factor += DND_ELITE_EXTRASTRONG_BONUS;
@@ -2240,6 +2339,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				temp = CheckInventory("Berserker_DamageTracker");
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
+					
+				dmg = HandleAccessoryHitEffects(victim, shooter, dmg, dmg_data, arg2);
 					
 				// minimum of 1 dmg will always be sent regardless
 				if(!dmg)

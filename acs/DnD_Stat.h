@@ -563,16 +563,10 @@ bool RunDropChance(int pnum, bool isElite, int basechance, int low, int high) {
 
 void DecideAccessories() {
 	int this = ActivatorTID();
-	if(IsAccessoryEquipped(this, DND_ACCESSORY_AMULETHELLFIRE)) {
-		GiveInventory("Accessory_FireProtection", 1);
-		GiveInventory("Accessory_FireBuff", 1);
+	if(IsAccessoryEquipped(this, DND_ACCESSORY_AMULETHELLFIRE))
 		GiveInventory("HellfireCheck", 1);
-	}
-	else {
-		TakeInventory("Accessory_FireProtection", 1);
-		TakeInventory("Accessory_FireBuff", 1);
+	else
 		TakeInventory("HellfireCheck", 1);
-	}
 		
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_ANGELICANKH)) {
 		if(!CheckInventory("Intervened")) {
@@ -585,28 +579,20 @@ void DecideAccessories() {
 		TakeInventory("CanIntervene", 1);
 	}
 	
-	if(IsAccessoryEquipped(this, DND_ACCESSORY_DEMONBANE)) {
+	if(IsAccessoryEquipped(this, DND_ACCESSORY_DEMONBANE))
 		GiveInventory("DemonBaneCheck", 1);
-		GiveInventory("DemonBaneReduction", 1);
-	}
-	else {
-		TakeInventory("DemonBaneReduction", 1);
+	else
 		TakeInventory("DemonBaneCheck", 1);
-	}
 	
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_PENDANTREFLECTION))
 		GiveInventory("CanDeflect", 1);
 	else
 		TakeInventory("CanDeflect", 1);
 		
-	if(IsAccessoryEquipped(this, DND_ACCESSORY_NETHERMASK)) {
+	if(IsAccessoryEquipped(this, DND_ACCESSORY_NETHERMASK))
 		GiveInventory("NetherCheck", 1);
-		GiveInventory("NetherWeaken", 1);
-	}
-	else {
+	else
 		TakeInventory("NetherCheck", 1);
-		TakeInventory("NetherWeaken", 1);
-	}
 		
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_TALTOSRING)) {
 		GiveInventory("TaltosEffect", 1);
@@ -620,23 +606,19 @@ void DecideAccessories() {
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_HATESHARD)) {
 		GiveInventory("HateCheck", 1);
 		GiveInventory("PowerReflection", 1);
-		GiveInventory("HateReduction", 1);
 	}
 	else {
 		TakeInventory("PowerReflection", 1);
 		TakeInventory("HateCheck", 1);
-		TakeInventory("HateReduction", 1);
 	}
 	
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_HANDARTEMIS)) {
 		GiveInventory("ArtemisPower", 1);
 		GiveInventory("ArtemisCheck", 1);
-		GiveInventory("ArtemisReduction", 1);
 	}
 	else {
 		TakeInventory("ArtemisPower", 1);
 		TakeInventory("ArtemisCheck", 1);
-		TakeInventory("ArtemisReduction", 1);
 	}
 	
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_AGAMOTTO))
@@ -658,12 +640,10 @@ void DecideAccessories() {
 	
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_LICHARM)) {
 		GiveInventory("LichCheck", 1);
-		GiveInventory("LichPower", 1);
 		SetAmmoCapacity("Souls", AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity * DND_LICH_SOULFACTOR);
 	}
 	else {
 		TakeInventory("LichCheck", 1);
-		TakeInventory("LichPower", 1);
 		int tmp = GetAmmoCapacity("Souls");
 		if(tmp > AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity) {
 			SetAmmoCapacity("Souls", tmp / 2);

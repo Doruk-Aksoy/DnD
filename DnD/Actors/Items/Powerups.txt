@@ -208,7 +208,7 @@ Actor MegaSphere2 : CustomInventory {
 	SpawnID 132
 	+COUNTITEM
 	+INVENTORY.ALWAYSPICKUP
-	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Megasphere! 200 health and armor!\c-"
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Megasphere! 200% health and armor!\c-"
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
@@ -223,7 +223,7 @@ Actor MegaSphere2 : CustomInventory {
 }
 
 Actor UberSphere : CustomInventory {
-	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Uber Sphere! 300 health and armor!\c-"
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Uber Sphere! 300% health and armor!\c-"
 	inventory.pickupsound "items/ubersphere"
 	+COUNTITEM
 	+INVENTORY.AUTOACTIVATE

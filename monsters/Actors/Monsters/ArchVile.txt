@@ -1935,7 +1935,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 		MissileState:
 			TNT1 A 0 A_Jump(256, "Wide", "SingleBurst", "Rush")
 		Wide:
-			GURU E 5 Fast A_FaceTarget
+			GURU E 11 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("GuruPacifier", 32, 0, -8)
 			TNT1 A 0 A_CustomMissile("GuruPacifier", 32, 0, -4)
 			TNT1 A 0 A_CustomMissile("GuruPacifier", 32, 0, 0)
@@ -1946,7 +1946,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 		Goto See
 		SingleBurst:
 			TNT1 A 0 A_SetUserVar("user_count", 0)
-			GURU E 6 Fast A_FaceTarget
+			GURU E 8 Fast A_FaceTarget
 		BurstLoop:
 			TNT1 A 0 A_JumpIf(user_count == 8, "FinishBurst")
 			TNT1 A 0 A_CustomMissile("GuruSmallProjectile", 32, -6, frandom(-2.5, 2.5))
@@ -1961,14 +1961,14 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 		Goto See
 		ContinueWall:
 			GURU E 8 Fast A_FaceTarget
-			GURU F 2 Fast Bright A_FaceTarget
+			GURU F 3 Fast Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("Guru/FireWall")
 			GURU F 5 Fast Bright A_CustomMissile("FireWallAttack", 0)
 			GURU G 5 Fast
 		Goto See
 		MeleeState:
-			GURU E 4 Fast A_FaceTarget 
-			GURU F 3 Fast Bright A_CustomMeleeAttack(5 * random(1, 8), "baron/melee")
+			GURU E 5 Fast A_FaceTarget 
+			GURU F 4 Fast Bright A_CustomMeleeAttack(5 * random(1, 8), "baron/melee")
 			GURU G 4 Fast
 		Goto See
 		PainState: 

@@ -318,112 +318,16 @@ Actor TaltosUp : DnD_Boolean {}
 const float DEMONBANE_GAIN = 1.0;
 
 Actor DemonBaneCheck : DnD_Boolean { }
-Actor DemonBaneReduction : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-	
-	DamageFactor "Melee", 0.25
-	
-	damagefactor "Bullet", 0.25
-	
-	damagefactor "Explosives", 0.25
-	
-	damagefactor "P_Rail", 0.25
-	damagefactor "Energy", 0.25
-	
-	damagefactor "Fire", 0.25
-	DamageFactor "Melee_Fire", 0.25
-	damagefactor "Lightning", 0.25
-	damagefactor "P_Ice", 0.25
-	damagefactor "AcidRifle", 0.25
-	damagefactor "Desolator", 0.25
-	damagefactor "Emerald", 0.25
-}
 
 Actor NetherCheck : DnD_Boolean {}
 Actor HateCheck : DnD_Boolean {}
-
-Actor NetherWeaken : PowerProtection {
-	damagefactor "normal", 1.5
-	powerup.duration 0x7FFFFFFF
-}
 
 Actor PowerHateShard : PowerupGiver {
 	powerup.duration 0x7FFFFFFF
 	powerup.type "PowerReflection"
 }
 
-Actor HateReduction : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-	
-	damagefactor "SoulType", 0.5
-	damagefactor "SoulTypeExp", 0.5
-	
-	damagefactor "Bullet", 0.5
-	
-	damagefactor "Explosives", 0.5
-	
-	damagefactor "P_Rail", 0.5
-	damagefactor "Energy", 0.5
-	damagefactor "EnergyExp", 0.5
-	
-	damagefactor "Fire", 0.5
-	DamageFactor "ExplosivesFire", 0.5
-	damagefactor "MagicFireExp", 0.5
-	damagefactor "FireExp", 0.5
-	
-	damagefactor "Lightning", 0.5
-	damagefactor "LightningExp", 0.5
-	
-	damagefactor "P_Ice", 0.5
-	
-	damagefactor "AcidRifle", 0.5
-	damagefactor "Desolator", 0.5
-	damagefactor "Emerald", 0.5
-	
-	damagefactor "Magic", 0.5
-	damagefactor "MagicExp", 0.5
-	damagefactor "Explosives_Magic", 0.5
-	damagefactor "MagicFire", 0.5
-}
-
 Actor HellfireCheck : DnD_Boolean { }
-Actor Accessory_FireProtection : PowerProtection {
-	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.0
-	
-	damagefactor "Fire", 0.25
-	DamageFactor "Melee_Fire", 0.25
-	
-	damagefactor "Slime", 0.25
-	DamageFactor "ImpFire", 0.25
-	DamageFactor "CacoFire", 0.25
-	DamageFactor "PaineFire", 0.25
-	DamageFactor "BaronsFire", 0.25
-	DamageFactor "FattyFire", 0.25
-	DamageFactor "ArachnoFire", 0.25
-	DamageFactor "VileFire", 0.25
-	DamageFactor "CyberFire", 0.25
-	DamageFactor "BigSpiderFire", 0.25
-	DamageFactor "LegendaryFire", 0.25
-	
-	DamageFactor "RevIce", 1.75
-	DamageFactor "FattyIce", 1.75
-	DamageFactor "CyberIce", 1.75
-	DamageFactor "BigSpiderIce", 1.75
-}
-
-Actor Accessory_FireBuff : PowerDamage {
-	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.0
-	
-	damagefactor "Fire", 1.5
-	DamageFactor "Melee_Fire", 1.5
-	damagefactor "FireExp", 1.5
-	
-	damagefactor "P_Ice", 0.5
-}
 
 Actor PendantPower : PowerDamage {
 	damagefactor "normal", 1.0
@@ -630,26 +534,9 @@ Actor ArtemisPower : PowerInfiniteAmmo {
 	powerup.duration 0x7FFFFFFF
 }
 
-Actor ArtemisReduction : PowerDamage {
-	-INVENTORY.INTERHUBSTRIP
-	damagefactor "normal", 0.333
-	powerup.duration 0x7FFFFFFF
-}
-
 Actor ArtemisCheck : DnD_Boolean { }
 
 Actor CurseImmunity : PowerProtection {
-	damagefactor "VileGhost", 0
-	damagefactor "PaineCurse", 0
-	damagefactor "VileCurse", 0
-	damagefactor "VilePacify", 0
-	DamageFactor "VileSnare", 0
-	DamageFactor "VileSlow", 0
-	damagefactor "visiondimmer", 0
-	damagefactor "CyberSlow", 0
-	damagefactor "FatsoCorrupt", 0
-	damagefactor "Falling", 0
-	DamageFactor "LegendaryPhysicalSnare", 0
 	damagefactor "normal", 1.0
 	powerup.duration 0x7FFFFFFF
 }
@@ -664,55 +551,16 @@ Actor GryphonCheck : DnD_Boolean { }
 Actor AgamottoCheck : Dnd_Boolean { }
 
 Actor AgamottoOffense : PowerDamage {
-	damagefactor "normal", 2.5
+	damagefactor "normal", 1.0
 	powerup.duration 0x7FFFFFFF
 }
 
 Actor AgamottoDefense : PowerProtection {
-	damagefactor "normal", 1.3
+	damagefactor "normal", 1.0
 	powerup.duration 0x7FFFFFFF
 }
 
 Actor LichCheck : DnD_Boolean { }
-
-Actor LichPower : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-
-	damagefactor "SoulType", 2.5
-	damagefactor "SoulTypeExp", 2.5
-	
-	DamageFactor "Melee", 0.1
-	DamageFactor "Melee_Magic", 0.1
-	
-	damagefactor "Bullet", 0.1
-	
-	damagefactor "Explosives", 0.1
-	
-	damagefactor "P_Rail", 0.1
-	damagefactor "Energy", 0.1
-	damagefactor "EnergyExp", 0.1
-	
-	damagefactor "Fire", 0.1
-	DamageFactor "Melee_Fire", 0.1
-	DamageFactor "ExplosivesFire", 0.1
-	damagefactor "MagicFireExp", 0.1
-	damagefactor "FireExp", 0.1
-	
-	damagefactor "Lightning", 0.1
-	damagefactor "LightningExp", 0.1
-	
-	damagefactor "P_Ice", 0.1
-	
-	damagefactor "AcidRifle", 0.1
-	damagefactor "Desolator", 0.1
-	damagefactor "Emerald", 0.1
-	
-	damagefactor "Magic", 0.1
-	damagefactor "MagicExp", 0.1
-	damagefactor "Explosives_Magic", 0.1
-	damagefactor "MagicFire", 0.1
-}
 
 Actor SigilCheck : Inventory {
 	inventory.maxamount 4
@@ -721,73 +569,21 @@ Actor SigilCheck : Inventory {
 Actor ElementPower_Fire : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -20
-	
-	damagefactor "Fire", 3.0
-	DamageFactor "Melee_Fire", 3.0
-	damagefactor "FireExp", 3.0
-	
-	damagefactor "Lightning", 0.5
-	damagefactor "LightningExp", 0.5
-	
-	damagefactor "P_Ice", 0.5
-	
-	damagefactor "AcidRifle", 0.5
-	damagefactor "Desolator", 0.5
-	damagefactor "Emerald", 0.5
 }
 
 Actor ElementPower_Ice : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -20
-	
-	damagefactor "P_Ice", 3.0
-	
-	damagefactor "Lightning", 0.5
-	damagefactor "LightningExp", 0.5
-	
-	damagefactor "Fire", 0.5
-	DamageFactor "Melee_Fire", 0.5
-	damagefactor "FireExp", 0.5
-	
-	damagefactor "AcidRifle", 0.5
-	damagefactor "Desolator", 0.5
-	damagefactor "Emerald", 0.5
 }
 
 Actor ElementPower_Lightning : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -20
-	
-	damagefactor "Lightning", 3.0
-	damagefactor "LightningExp", 3.0
-	
-	damagefactor "P_Ice", 0.5
-	
-	damagefactor "Fire", 0.5
-	DamageFactor "Melee_Fire", 0.5
-	damagefactor "FireExp", 0.5
-	
-	damagefactor "AcidRifle", 0.5
-	damagefactor "Desolator", 0.5
-	damagefactor "Emerald", 0.5
 }
 
 Actor ElementPower_Earth : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -20
-	
-	damagefactor "AcidRifle", 3.0
-	damagefactor "Desolator", 3.0
-	damagefactor "Emerald", 3.0
-	
-	damagefactor "Lightning", 0.5
-	damagefactor "LightningExp", 0.5
-	
-	damagefactor "P_Ice", 0.5
-	
-	damagefactor "Fire", 0.5
-	DamageFactor "Melee_Fire", 0.5
-	damagefactor "FireExp", 0.5
 }
 
 Actor CelestialCheck : DnD_Boolean { }
@@ -804,7 +600,7 @@ Actor HunterTalismanCooldown : PowerDamage {
 
 const int talisman_mark_timer = 10;
 Actor HunterTalismanDebuff : PowerDamage {
-	damagefactor "normal", 0.667
+	damagefactor "normal", 1.0
 	powerup.duration -10
 }
 
@@ -813,7 +609,6 @@ Actor HunterTalismanMarkBool : DnD_Boolean { }
 Actor HunterTalismanMarker : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_GiveInventory("HunterTalismanDebuff", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Talisman Mark Timer",0 , talisman_mark_timer)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Talisman Mark")
 		Stop

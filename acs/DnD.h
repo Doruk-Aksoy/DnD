@@ -99,6 +99,31 @@ enum {
 #define DND_MAX_MONSTERDELAY 8
 
 #define DND_DEMONBANE_GAIN 50
+#define DND_DEMONBANE_REDUCE 4 // 1 / 4 = 25% damage, 75% reduction
+
+#define DND_AMULETHELL_FACTOR 4 // 25% damage
+#define DND_AMULETHELL_AMP 7 // 7 / 4 = 75%
+
+#define DND_NETHERMASK_AMP 3 // 3 / 2 => 50%
+#define DND_NETHERMASK_DIV 2
+
+#define DND_HATESHARD_FACTOR 2 // 50%
+
+#define DND_ARTEMIS_REDUCE 3 // 1 / 3
+
+#define DND_AGAMOTTO_DEFENSE 13 // 13/10 is 1.3
+#define DND_AGAMOTTO_DEFENSE_FACTOR 10
+#define DND_AGAMOTTO_OFFENSE 25 // 150% more damage => 250%
+#define DND_AGAMOTTO_OFFENSE_FACTOR 10
+
+#define DND_LICHARM_FACTOR 10 // 1 / 10 => 90% reduced damage
+#define DND_LICHARM_BUFF 25 // x2.5 damage => 250%
+#define DND_LICHARM_BUFF_DIV 10
+
+#define DND_SIGIL_BUFF 3 // x3
+#define DND_SIGIL_NERF 4 // 1 / 4 => 25% dmg, 75% reduced
+
+#define DND_HUNTERTALISMAN_NERF 3 // 1 / 3 -- this is subtracted
 
 #define DND_CYBERNETICARMOR_AMOUNT 300
 #define DND_RAVAGERARMOR_AMOUNT 250

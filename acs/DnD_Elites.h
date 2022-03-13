@@ -182,6 +182,9 @@ void SetEliteFlag(int f) {
 		break;
 	}
 	MonsterProperties[this].trait_list[f] = true;
+	
+	// sync to client too
+	ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", f);
 }
 
 // check if the given flag conforms to the cvars we declared

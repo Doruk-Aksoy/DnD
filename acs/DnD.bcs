@@ -319,9 +319,8 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 		GiveInventory("Research_Body_Hp_1_Tracker", amt);
 		Terminate;
 	}
-	
-	// map toast heal
-	if(isspecial == 3) {
+	else if(isspecial == 3) {
+		// map toast heal
 		amt = healthcap - curhp;
 	    GiveInventory("HealthBonusX", amt);
 		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
@@ -655,8 +654,8 @@ Script "DND On Revive" (void) {
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
 	int this = ActivatorTID();
 	int id = this - DND_MONSTERTID_BEGIN;
-	if (MonsterProperties[id].maxhp) { //This could be skipped if all mobs have their Monster Scaling.
-		SetEliteFlag(DND_REVIVED); //Add "Revived" trait to mob. Also gives "Mo_Revived" item.
+	if (MonsterProperties[id].maxhp) { // This could be skipped if all mobs have their Monster Scaling.
+		SetEliteFlag(DND_REVIVED); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		// Reapply the elite FX.
 		if (MonsterProperties[id].isElite)
 			ACS_NamedExecuteAlways("DND Elite Special FX", 0);
@@ -708,7 +707,7 @@ Script "DnD Wanderer Explosions" (int this, int target) {
 Script "DnD Check Elite Clear" (void) CLIENTSIDE {
 	SetActivatorToTarget(0);
 	//printbold(d:ActivatorTID());
-	SetResultValue(!ActivatorTID() || CheckInventory("Mo_Died"));
+	SetResultValue(!ActivatorTID() || CheckInventory("Mo_Died") || GetActorProperty(0, APROP_HEALTH) <= 0);
 }
 
 // Used for exp and credit calculations
@@ -931,6 +930,9 @@ Script "DND On Kill" KILL {
 	}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
+	/*#ifdef ISDEBUGBUILD
+		SpawnAccessory();
+	#else*/
 	if(IsBoss()) {
 		if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
 			if(GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
@@ -939,6 +941,7 @@ Script "DND On Kill" KILL {
 			}
 		}
 	}
+	//#endif
 	
 	// Demon Bane check
 	if(active_quest_id == QUEST_KILL10BOSSES && IsBoss()) {

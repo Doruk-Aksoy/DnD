@@ -164,6 +164,75 @@ DND_MENU_PERKTEXT8		=	"to critical strike chance.";
 DND_MENU_PERKTEXT9		=	"to critical strike damage.";
 DND_MENU_PERKTEXT10		=	"increased drop chance and 5% chance to have better rolls.";
 
+// accessories
+ACCTX_T0				=	"Wisdom Talisman";
+ACCTX_P0				=	"Increases exp gain by 50%.";
+ACCTX_C0				=	"Reduces credit gain by 50%.";
+
+ACCTX_T1				=	"Greed Talisman";
+ACCTX_P1				=	"Increases credit gain by 50%.";
+ACCTX_C1				=	"Reduces experience gain by 50%.";
+
+ACCTX_T2				=	"Demon Bane";
+ACCTX_P2				=	"Increases damage of occult weapons by 100%.";
+ACCTX_C2				=	"Reduces other damage by 75%.";
+
+ACCTX_T3				=	"Amulet of Hellfire";
+ACCTX_P3				=	"Protects from all fire damage and hazards by 75%. Increases your fire damage by 50%.";
+ACCTX_C3				=	"Increases ice damage taken by 75% and reduces your ice damage by 50%.";
+
+ACCTX_T4				=	"Angelic Ankh";
+ACCTX_P4				=	"When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once very map.";
+ACCTX_C4				=	"Your health cap is halved. (Never below 100)";
+
+ACCTX_T5				=	"Reflection Pendant";
+ACCTX_P5				=	"When hit, 20% chance to go invulnerable and reflective for 5 seconds. Can happen only 5 times every map.";
+ACCTX_C5				=	"While active, move 25% slower.";
+
+ACCTX_T6				=	"Nether Mask";
+ACCTX_P6				=	"All your weapons can hit ghosts and do irreducable damage.";
+ACCTX_C6				=	"Take 50% more damage.";
+
+ACCTX_T7				=	"Taltos Ring";
+ACCTX_P7				=	"+25% lifesteal for melee attacks and become a ghost.";
+ACCTX_C7				=	"Health items are unpickable. Only Megasphere, Ubersphere or Berserk can be picked that give health.";
+
+ACCTX_T8				=	"Hate Shard";
+ACCTX_P8				=	"Reflect damage back to enemies. Attackers take x2 more damage for 5 seconds.";
+ACCTX_C8				=	"Non-melee damage reduced by 50%.";
+
+ACCTX_T9				=	"Hand of Artemis";
+ACCTX_P9				=	"Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.";
+ACCTX_C9				=	"Do 66% less damage.";
+
+ACCTX_T10				=	"Scroll of Agamotto";
+ACCTX_P10				=	"Do 150% more damage while standing.";
+ACCTX_C10				=	"Take 30% more damage while moving.";
+
+ACCTX_T11				=	"Gryphon Boots";
+ACCTX_P11				=	"Gives 25% movement speed, immunity to curses and fall damage, and knockback immunity.";
+ACCTX_C11				=	"Can't regenerate.";
+
+ACCTX_T12				=	"Lich Arm";
+ACCTX_P12				=	"Soul capacity becomes 150 and soul weapons do x2.5 damage.";
+ACCTX_C12				=	"Any other weapon does 90% reduced damage.";
+
+ACCTX_T13				=	"Sigil of Elements";
+ACCTX_P13				=	"Gives x3 elemental damage to a single element for 20 seconds. This works in a rotation.";
+ACCTX_C13				=	"Other elements do 75% less damage.";
+
+ACCTX_T14				=	"Celestial Relic";
+ACCTX_P14				=	"Gives 25% increased health and armor capacity.";
+ACCTX_C14				=	"Slows you down by 20%.";
+
+ACCTX_T15				=	"Veil of the Assassin";
+ACCTX_P15				=	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 15% of missing health. Lasts for 5 seconds or until you expend the crit.";
+ACCTX_C15				=	"On expending your doubled crit, never crit for 10 seconds.";
+
+ACCTX_T16				=	"Hunter's Talisman";
+ACCTX_P16				=	"Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill.";
+ACCTX_C16				=	"Your overall crit damage is halved.";
+
 // ammo text
 DND_MENU_FOR			=	"for ";
 DND_MENU_AND			=	" and ";

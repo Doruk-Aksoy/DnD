@@ -594,13 +594,10 @@ ACTOR FlakProjectile : DnD_BaseFastProjectile {
 	MissileType "FlakProjectileTrail"
 	MissileHeight 4
 	ReactionTime 8
-	+THRUACTORS
 	+THRUGHOST
 	States {
 		SpawnState:
-			TNT1 A 1 A_ScaleVelocity(0.1)
-			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
-			TNT1 A 0 A_ScaleVelocity(1.0)
+			TNT1 A 1
 		SpawnLoop:
 			TNT1 A 0 A_CountDown
 			DPTC A 1 Bright

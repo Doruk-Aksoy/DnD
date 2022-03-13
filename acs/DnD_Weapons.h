@@ -315,6 +315,20 @@ bool IsLuxuryWeapon(int id) {
 	return false;
 }
 
+bool IsSoulWeapon(int wepid) {
+	switch(wepid) {
+		case DND_WEAPON_DEATHSTAFF:
+		case DND_WEAPON_RAZORFANG:
+		case DND_WEAPON_SUNSTAFF:
+		case DND_WEAPON_SOULREAVER:
+		case DND_WEAPON_DUSKBLADE:
+		case DND_WEAPON_INFERNOSWORD:
+		return true;
+	}
+	return false;
+
+}
+
 #define WEPCHECK_SLOT1 "P_Slot1Replaced"
 #define WEPCHECK_SLOT1L "P_Slot1Luxury"
 #define WEPCHECK_SLOT2 "P_Slot2Replaced"
