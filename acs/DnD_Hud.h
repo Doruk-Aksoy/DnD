@@ -229,6 +229,16 @@ void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
 #define HUDMAX_XF 480.0
 #define HUDMAX_YF 320.0
 
+#define HUDTEXTMAX_X 720
+#define HUDTEXTMAX_Y 480
+#define HUDTEXTMAX_XF 720.0
+#define HUDTEXTMAX_YF 480.0
+
+#define HUD_ITEMBAK_X 209
+#define HUD_ITEMBAK_Y 168
+#define HUD_ITEMBAK_XF 209.0
+#define HUD_ITEMBAK_YF 168.0
+
 // stash hud
 #define HUDMAX_X_STASH (HUDMAX_X * 3 / 2)
 #define HUDMAX_Y_STASH (HUDMAX_Y * 3 / 2)
@@ -459,6 +469,34 @@ int GetHudRight(int width) {
 
 int GetHudLeft(int width) {
     return width - GetHudRight(width);
+}
+
+void SetupScreenOffsets() {
+	ScreenResOffsets[SCREEN_ASPECT_RATIO] = GetAspectRatio();
+	if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_5_4) {
+		ScreenResOffsets[0] = 0.0;
+		ScreenResOffsets[1] = 0.0;
+		ScreenResOffsets[2] = 0.0;
+		ScreenResOffsets[3] = 0.0;
+	}
+	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_4_3) {
+		ScreenResOffsets[0] = 0.0;
+		ScreenResOffsets[1] = 0.0;
+		ScreenResOffsets[2] = 80.0;
+		ScreenResOffsets[3] = 120.0;
+	}
+	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_16_9) {
+		ScreenResOffsets[0] = 108.0;
+		ScreenResOffsets[1] = 110.0;
+		ScreenResOffsets[2] = 0.0;
+		ScreenResOffsets[3] = 0.0;
+	}
+	else if (GetAspectRatio() == ASPECT_16_10) {
+		ScreenResOffsets[0] = 54.0;
+		ScreenResOffsets[1] = 66.0;
+		ScreenResOffsets[2] = 30.0;
+		ScreenResOffsets[3] = 45.0;
+	}
 }
 
 // Meant to be used entirely clientside only, for scrolling up and down (used when server doesnt need to know about this)

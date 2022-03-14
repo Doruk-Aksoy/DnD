@@ -1662,61 +1662,13 @@ Script 905 (int mode) NET {
 
 // 906 to 914 reserved
 script "DnD Aspect Ratio Check ENTER" ENTER CLIENTSIDE {
-	ScreenResOffsets[SCREEN_ASPECT_RATIO] = GetAspectRatio();
-	if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_5_4) {
-		ScreenResOffsets[0] = 0.0;
-		ScreenResOffsets[1] = 0.0;
-		ScreenResOffsets[2] = 0.0;
-		ScreenResOffsets[3] = 0.0;
-	}
-	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_4_3) {
-		ScreenResOffsets[0] = 0.0;
-		ScreenResOffsets[1] = 0.0;
-		ScreenResOffsets[2] = 80.0;
-		ScreenResOffsets[3] = 120.0;
-	}
-	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_16_9) {
-		ScreenResOffsets[0] = 108.0;
-		ScreenResOffsets[1] = 110.0;
-		ScreenResOffsets[2] = 0.0;
-		ScreenResOffsets[3] = 0.0;
-	}
-	else if (GetAspectRatio() == ASPECT_16_10) {
-		ScreenResOffsets[0] = 54.0;
-		ScreenResOffsets[1] = 66.0;
-		ScreenResOffsets[2] = 30.0;
-		ScreenResOffsets[3] = 45.0;
-	}
+	SetupScreenOffsets();
 	delay(const:105);
 	restart;
 }
 
 script "DnD Aspect Ratio Check RESPAWN" RESPAWN CLIENTSIDE {
-	ScreenResOffsets[SCREEN_ASPECT_RATIO] = GetAspectRatio();
-	if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_5_4) {
-		ScreenResOffsets[0] = 0.0;
-		ScreenResOffsets[1] = 0.0;
-		ScreenResOffsets[2] = 0.0;
-		ScreenResOffsets[3] = 0.0;
-	}
-	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_4_3) {
-		ScreenResOffsets[0] = 0.0;
-		ScreenResOffsets[1] = 0.0;
-		ScreenResOffsets[2] = 80.0;
-		ScreenResOffsets[3] = 120.0;
-	}
-	else if (ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_16_9) {
-		ScreenResOffsets[0] = 108.0;
-		ScreenResOffsets[1] = 110.0;
-		ScreenResOffsets[2] = 0.0;
-		ScreenResOffsets[3] = 0.0;
-	}
-	else if (GetAspectRatio() == ASPECT_16_10) {
-		ScreenResOffsets[0] = 54.0;
-		ScreenResOffsets[1] = 66.0;
-		ScreenResOffsets[2] = 30.0;
-		ScreenResOffsets[3] = 45.0;
-	}
+	SetupScreenOffsets();
 	delay(const:105);
 	restart;
 }
@@ -5222,7 +5174,7 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	int field_index = sp >> 16;
-	DrawInventoryInfo_Field(field_index, DND_SYNC_ITEMSOURCE_FIELD, 24.4, 80.1, false);
+	DrawInventoryInfo_Field(field_index, DND_SYNC_ITEMSOURCE_FIELD, 16.0, false);
 }
 
 Script "DnD Chestkey Message" (int id) CLIENTSIDE {

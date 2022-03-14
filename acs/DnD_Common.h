@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0
@@ -203,6 +203,10 @@ void GivePickupTID() {
 
 bool isEnemyTID(int tid) {
 	return tid >= DND_MONSTERTID_BEGIN;
+}
+
+int GetIntegerBits(int x) {
+	return x & 0xFFFF0000;
 }
 
 enum {

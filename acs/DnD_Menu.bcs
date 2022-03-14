@@ -488,15 +488,15 @@ Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLI
 		if(boxid == MAINBOX_NONE || (boxid == MBOX_8 && !CheckInventory("DnD_InventoryView")))
 			CleanInventoryInfo();
 		
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_1, 192.1, 216.0);
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_2, 256.1, 216.0);
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_3, 320.1, 216.0);
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_4, 384.1, 216.0);
+		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_1, 211.4, 216.0);
+		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_2, 275.4, 216.0);
+		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_3, 339.4, 216.0);
+		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_4, 403.4, 216.0);
 		
-		DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_5, 224.1, 152.0);
-		DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 352.1, 152.0);
+		DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_5, 243.4, 152.0);
+		DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 371.4, 152.0);
 		
-		DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 288.1, 96.0);
+		DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 307.4, 96.0);
 		
 		DrawBoxText("DND_MENU_VIEWINV", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID, 316.4, 248.0, "\c[B1]", "\c[Y5]");
 	}

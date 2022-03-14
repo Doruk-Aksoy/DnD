@@ -220,81 +220,6 @@ str Item_Images[MAX_ITEM_IMAGES] = {
 	"SCRTOKN"
 };
 
-#define IOFFSET_X 0
-#define IOFFSET_Y 1
-// this is used to properly adjust images of items that don't get fit in trade/stash views
-int Item_ImageOffsets[MAX_ITEM_IMAGES][2] = {
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	
-	// unique charms
-	{ 0.0, 8.0 },
-	{ 0.0, 3.0 },
-	{ 0.0, 5.0 },
-	{ 0.0, 5.0 },
-	{ 0.0, 3.0 },
-	{ 0.0, 3.0 },
-	{ 0.0, 8.0 },
-	{ 0.0, 5.0 },
-	{ 0.0, 6.0 },
-	{ 0.0, 8.0 },
-	{ 0.0, 4.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 },
-	
-	// orbs
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	
-	// chest keys
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	{ 7.0, 7.0 },
-	
-	// elixirs
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	{ 0.0, 10.0 },
-	
-	// tokens
-	{ 0.0, 0.0 },
-	{ 0.0, 0.0 }
-};
-
 #define ITEMLEVEL_VARIANCE_LOWER 15
 #define ITEMLEVEL_VARIANCE_HIGHER 7
 
@@ -1348,7 +1273,7 @@ int GetInventoryInfoOffset(int itype) {
 }
 
 // outside source implies this was called from the menu, not in the game
-void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOutsideSource) {
+void DrawInventoryInfo_Field(int topboxid, int source, int yoff, bool isOutsideSource) {
 	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
 	
 	// dont draw in custom intermission
@@ -1356,73 +1281,76 @@ void DrawInventoryInfo_Field(int topboxid, int source, int bx, int by, bool isOu
 		return;
 	
 	int pnum = PlayerNumber();
-	int stack, itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source), offset = 0.0;
+	int stack, itype = GetItemSyncValue(DND_SYNC_ITEMTYPE, topboxid, -1, source), left = 0;
 	if(topboxid != -1 && itype != DND_ITEM_NULL) {
-		SetHudSize(480, 320, 1);
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		
+		// adjust pos
+		left = GetHudLeft(HUDMAX_X) << 16;
+		int bx = GetIntegerBits(left) + 0.1;
+		int by = isOutsideSource ? 0.1 : GetIntegerBits(HUDMAX_YF / 2) - yoff;
+		
 		SetFont("LDTITINF");
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-		by += 10.0;
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		// center text by making it 0.4 and 0.1 on y
+		bx += GetIntegerBits(HUD_ITEMBAK_XF / 2) + 0.3;
+		
+		if(!isOutsideSource)
+			by = by - 70.9;
+		else
+			by += 16.0;
+		
+		int isubt = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
+		
 		// show item details
 		SetFont(Item_Images[GetItemSyncValue(DND_SYNC_ITEMIMAGE, topboxid, -1, source)]);
-		if(itype == DND_ITEM_ORB)
-			offset = 6.0;
-		else if(itype == DND_ITEM_CHESTKEY)
-			offset = 3.0;
-		else if(itype == DND_ITEM_ELIXIR)
-			offset = 8.0;
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, bx + ScreenResOffsets[2], by + offset, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		stack = GetItemSyncValue(DND_SYNC_ITEMSTACK, topboxid, -1, source);
 		if(stack) {
 			SetFont("SMALLFONT");
-			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, bx + ScreenResOffsets[2] + 96.2, by + 6.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, bx + GetIntegerBits(HUD_ITEMBAK_XF / 2) - 7.2, by + 3.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
+		
 		// resize to keep ratios
-		SetHudSize(720, 480, 1);
-		bx *= 3; by *= 3;
-		bx /= 2; by /= 2;
-		bx &= 0xFFFF0000;
-		by &= 0xFFFF0000;
-		bx += 0.4;
-		by += 48.1;
-		offset = 0;
-		if(isOutsideSource) {
-			offset = -64;
-			by -= 8.0;
-		}
-		if (GetAspectRatio() == ASPECT_4_3) // -96 + 72
-			SetHudClipRect(-96 + 72, 80 + offset, 336, 288, 336, 1);
-		else if (GetAspectRatio() == ASPECT_16_10) // -96 + 45
-			SetHudClipRect(-96 + 45, 80 + offset, 264, 288, 264, 1);
-		else
-			SetHudClipRect(-96, 80 + offset, 264, 288, 264, 1);
-		DrawInventoryText_Field(topboxid, source, bx, by, itype);
+		SetHudSize(HUDTEXTMAX_X, HUDTEXTMAX_Y, 1);
+		left = GetHudLeft(HUDTEXTMAX_X);
+		bx = ((left + (HUD_ITEMBAK_X * HUDTEXTMAX_X / (2 * HUDMAX_X))) << 16) + 0.4;
+		by = isOutsideSource ? 20.1 : GetIntegerBits(HUDTEXTMAX_YF / 2 - HUD_ITEMBAK_YF / 2 - yoff - 30.0) + 0.1;
+
+		SetHudClipRect(left + 15, (by >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9, 1);
+		DrawInventoryText(topboxid, source, 0, bx, by, itype, isubt, HUD_DII_FIELD_MULT);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
 }
 
-void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype) {
+void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int itype, int isubt, int id_mult) {
 	int i, j;
 	int val, temp, lvl;
 	bool showModTiers = GetCVar("dnd_detailedmods");
+	
+	// field display has no pnum
+	// problem is: GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source) requires -1 by default if its current player, but also will be OR'd and that can't work with -1
+	int pn = pnum != 0 ? pnum : -1;
+	
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		// temp holds charm's tier id
-		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, -1, source) / CHARM_ATTRIBLEVEL_SEPERATOR;
-		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)), s:" ", l:"DND_ITEM_CHARM"; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx + ScreenResOffsets[3], by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source) / CHARM_ATTRIBLEVEL_SEPERATOR;
+		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; 
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
-		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
 		for(j = 0; j < i; ++j) {
-			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
-			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
-			lvl = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, topboxid, j, source);
+			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pnum, source);
+			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pnum, source);
+			lvl = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, topboxid, j | pnum, source);
 			
-			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0 + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx, by + 16.0 + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(IsStackedItem(itype)) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source) + GetInventoryInfoOffset(itype);
-		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[2], by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		temp = isubt + GetInventoryInfoOffset(itype);
+		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n\n", l:GetInventoryText(temp); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 40.0 * !pnum, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 	else if(itype > UNIQUE_BEGIN) {
 		temp = itype & 0xFFFF;
@@ -1430,30 +1358,48 @@ void DrawInventoryText_Field(int topboxid, int source, int bx, int by, int itype
 		--itype;
 		// itype holds unique position, temp is the actual item type -- so does lvl
 		lvl = itype;
-		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx + ScreenResOffsets[3], by - 40.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, topboxid, -1, source)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx + ScreenResOffsets[3], by - 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, -1, source);
+		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
 		for(j = 0; j < i; ++j) {
-			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
-			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
+			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pnum, source);
+			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pnum, source);
 			if(val > 0) {
 				// dont show this, skip to next attribute's detail
 				if(temp == INV_EX_CHANCE) {
 					++j;
 					++itype;
-					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source), lvl, showModTiers, j); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+					HudMessage(
+						s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pnum, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pnum, source), lvl, showModTiers, j);
+						HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE,
+						bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					);
 				}
-				else
-					HudMessage(s: GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				else {
+					HudMessage(
+						s: GetItemAttributeText(temp, val, 0, lvl, showModTiers, j);
+						HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE,
+						bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					);
+				}
 			}
 			else if(!val) {
 				// unique item doesn't have numeric attribute to show
-				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+				HudMessage(
+					s:GetItemAttributeText(temp, val, 0);
+					HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE,
+					bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				);
 			}
-			else
-				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, bx + ScreenResOffsets[3], by + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			else {
+				HudMessage(
+					s:"- ", s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j);
+					HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE,
+					bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				);
+			}
 		}
 	}
 }
