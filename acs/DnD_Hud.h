@@ -16,6 +16,21 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define INVENTORYINFO_TRADEVIEW_WRAPX 272.0
 #define INVENTORYINFO_TRADEVIEW_WRAPY 152.0
 
+#define NOTIFBAK_X 160
+#define NOTIFBAK_Y 128
+#define NOTIFBAK_XF 160.0
+#define NOTIFBAK_YF 128.0
+
+#define QSTBOX_X 250
+#define QSTBOX_Y 150
+#define QSTBOX_XF 250.0
+#define QSTBOX_YF 150.0
+
+#define QSTBOX2_X 288
+#define QSTBOX2_Y 173
+#define QSTBOX2_XF 288.0
+#define QSTBOX2_YF 173.0
+
 #define MONSTERINFO_HOLDTIME 0.2
 
 typedef struct coord {
