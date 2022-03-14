@@ -236,6 +236,10 @@ void SetArmorType(int id) {
 	SetAmmoCapacity("ArmorAmountVisual", GetArmorCapFromID(id));
 }
 
+void UpdateArmorVisual() {
+	SetAmmoCapacity("ArmorAmountVisual", GetArmorCapFromID(GetArmorID()));
+}
+
 void RemoveAllArmor() {
 	SetInventory("DnD_ArmorType", 0);
 	SetArmorAmount(0);
@@ -291,9 +295,12 @@ void GiveStat(int stat_id, int amt) {
 		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
 	else if(lim == DND_PERK_MAX)
 		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id);
+		
+	UpdatePlayerKnockbackResist();
+	UpdateArmorVisual();
 }
 
-void GiveActorStat(int tid, int stat_id, int amt) {
+/*void GiveActorStat(int tid, int stat_id, int amt) {
 	// get cap
 	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
 	amt = Clamp_Between(CheckActorInventory(tid, StatData[stat_id]) + amt, 0, lim) - CheckActorInventory(tid, StatData[stat_id]);
@@ -303,7 +310,7 @@ void GiveActorStat(int tid, int stat_id, int amt) {
 		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
 	else if(lim == DND_PERK_MAX)
 		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_PERK, amt, stat_id);
-}
+}*/
 
 bool CheckWellRolled(int pnum) {
 	return random(0, 1.0) <= DND_LUCK_GAIN * GetActorStat(pnum + P_TIDSTART, STAT_LUCK) / 3;
@@ -688,6 +695,9 @@ void TakeStat(int stat_id, int amt) {
 		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
 	else if(stat_id <= DND_PERK_END)
 		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id);
+		
+	UpdateArmorVisual();
+	UpdatePlayerKnockbackResist();
 }
 
 void UpdatePerkStuff() {

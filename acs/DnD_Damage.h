@@ -1220,6 +1220,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 			if
 			(
 				(CheckFlag(mon_id, "NORADIUSDMG") && !CheckActorInventory(owner, "Marine_Perk25") && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG)) ||
+				(CheckFlag(mon_id, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))	||
 				(wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(mon_id))
 			)
 				continue;
@@ -2263,60 +2264,65 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		int victim = ActivatorTID();
 		
-		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
+		dmg = arg1;
 		
-		if(IsPlayer(victim)) {
-			// PLAYER RECEIVES DAMAGE
-			int pnum = victim - P_TIDSTART;
-			dmg = arg1;
-			
-			// damage amplifications
-			temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
-			if(temp)
-				dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
-			
-			// all things monster related
-			if(IsMonster(shooter)) {
-				/*if(isReflected)
-					printbold(s:"Self damaged for ", d:arg1, s: " dmg type: ", s:arg2);*/
-			
-				m_id = shooter - DND_MONSTERTID_BEGIN;
-				int factor = 0;
-				
-				// dont scale reflected damage by this
-				if(!isReflected)
-					factor += Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
-			
-				if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
-					factor += DND_ELITE_EXTRASTRONG_BONUS;
+		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
+		if(IsMonster(shooter)) {
+			m_id = shooter - DND_MONSTERTID_BEGIN;
+		
+			// if victim was a monster, check for infight situation
+			if(IsMonster(victim)) {
+				// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
+				if(victim != shooter) {
+					// no damage dealt from same species, makes damage things much easier to keep track of
+					// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
+					if(GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES)) {
+						SetResultValue(0);
+						Terminate;
+					}
+				}
+			}
 
-				if(MonsterProperties[m_id].level > 50)
-					factor += DND_AFTER50_INCREMENT_DAMAGE;
-					
-				dmg = dmg * (100 + factor) / 100;
-				
-				// elite damage bonus is multiplicative
-				factor = 100 + GetEliteBonusDamage();
-				if(dmg < INT_MAX / factor && MonsterProperties[m_id].isElite)
-					dmg = dmg * factor / 100;
-					
-				// chaos mark is multiplicative
-				factor = 100 + CHAOSMARK_DAMAGEBUFF;
-				if(dmg < INT_MAX / factor && MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
-					dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
-					
-				if(isRipper)
-					dmg >>= 1;
-					
-				// halved by demon sealer effect if any
-				if(CheckActorInventory(shooter, "DemonSealDamageDebuff"))
-					dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
-					
-				// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
-				if(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP)
-					dmg += (GetSpawnHealth() * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
+			int factor = 0;
+			
+			// dont scale reflected damage by this
+			if(!isReflected)
+				factor += Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
+		
+			if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
+				factor += DND_ELITE_EXTRASTRONG_BONUS;
 
-				// resists of player now will factor in after we've calculated the damage accurately
+			if(MonsterProperties[m_id].level > 50)
+				factor += DND_AFTER50_INCREMENT_DAMAGE;
+				
+			dmg = dmg * (100 + factor) / 100;
+			
+			// elite damage bonus is multiplicative
+			factor = 100 + GetEliteBonusDamage();
+			if(dmg < INT_MAX / factor && MonsterProperties[m_id].isElite)
+				dmg = dmg * factor / 100;
+				
+			// chaos mark is multiplicative
+			factor = 100 + CHAOSMARK_DAMAGEBUFF;
+			if(dmg < INT_MAX / factor && MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
+				dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
+				
+			if(isRipper)
+				dmg >>= 1;
+				
+			// halved by demon sealer effect if any
+			if(CheckActorInventory(shooter, "DemonSealDamageDebuff"))
+				dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
+				
+			// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
+			if(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP)
+				dmg += (GetSpawnHealth() * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
+
+			// if this was a player, factor their resists in
+			// resists of player now will factor in after we've calculated the damage accurately
+			if(IsPlayer(victim)) {
+				int pnum = victim - P_TIDSTART;
+				
 				temp = CheckInventory("Perk_Endurance");
 				if(temp) {
 					// 1000 because integer factor is 35 => to make 3.5% we scale by 10
@@ -2341,6 +2347,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
 					
 				dmg = HandleAccessoryHitEffects(victim, shooter, dmg, dmg_data, arg2);
+				
+				// damage amplifications
+				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
+				if(temp)
+					dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
 					
 				// minimum of 1 dmg will always be sent regardless
 				if(!dmg)
@@ -2348,35 +2359,23 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				
 				// add to player stat
 				IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
-				
-				HandleMonsterDamageModChecks(m_id, shooter, victim);
-				
-				//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
 				GiveInventory("DnD_DamageReceived", dmg);
 				PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
-				
-				SetResultValue(dmg);
 			}
-			else if(IsPlayer(shooter) && shooter != victim) {
-				// if victim is a player, and shooter is also a player and its not us, make sure they take no damage! YOU NEVER KNOW!!
-				SetResultValue(0);
-			}
-			else // hurt self
-				GiveInventory("DnD_DamageReceived", dmg);
+			
+			HandleMonsterDamageModChecks(m_id, shooter, victim);
+			
+			//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
+			SetResultValue(dmg);
 		}
-		else if(IsMonster(victim) && IsMonster(shooter)) {
-			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
-			if(victim != shooter) {
-				// no damage dealt from same species, makes damage things much easier to keep track of
-				// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
-				if(GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES))
-					SetResultValue(0);
-				else {
-					// monster infighting
-					m_id = shooter - DND_MONSTERTID_BEGIN;
-					HandleMonsterDamageModChecks(m_id, shooter, victim);
-				}
-			}
+		else if(IsPlayer(shooter) && IsPlayer(victim) && shooter != victim) {
+			// if victim is a player, and shooter is also a player and its not us, make sure they take no damage! YOU NEVER KNOW!!
+			SetResultValue(0);
+		}
+		else {
+			// hurt self
+			GiveInventory("DnD_DamageReceived", dmg);
+			SetResultValue(dmg);
 		}
 	}
 }

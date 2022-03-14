@@ -1771,6 +1771,8 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				SetInventory(inv, SetBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
 			else
 				SetInventory(inv, ClearBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
+				
+			UpdatePlayerKnockbackResist();
 		break;
 		case INV_EX_FACTOR_SMALLCHARM:
 			i = UNIQUE_MAP_MACRO(atype);
@@ -1807,6 +1809,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
 				GiveOrTake(GetPlayerAttributeString(i), aval, remove);
 			UpdatePlayerKnockbackResist();
+			UpdateArmorVisual();
 		break;
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			// -1 of aindex is used to retrieve chance
@@ -1954,6 +1957,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		
 		case INV_STAT_BULKINESS:
 			UpdatePlayerKnockbackResist();
+			UpdateArmorVisual();
 			// intentional fall through
 		case INV_ARMOR_INCREASE:
 		case INV_ARMORPERCENT_INCREASE:

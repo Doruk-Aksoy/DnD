@@ -3669,6 +3669,9 @@ Script "DnD Periodic Regeneration" ENTER {
 				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 				amt = lim * DND_REGEN_PERCENT / 100;
 				
+				if(!amt)
+					amt = 1;
+				
 				// cyborg perk
 				if(CheckInventory("Cyborg_Perk25")) {
 					amt *= DND_CYBORG_CYBER_MULT;
@@ -3676,7 +3679,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				}
 				
 				if(!CheckInventory("RegenStopper") && cur < lim) {
-					if(cur > lim - amt)
+					if(cur + amt < lim)
 						GiveInventory("HealthBonusX", amt);
 					else
 						GiveInventory("HealthBonusX", lim - cur);

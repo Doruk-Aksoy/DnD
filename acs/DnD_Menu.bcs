@@ -1103,8 +1103,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						ConsumeAttributePointOn(stat_id, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						
-						if(stat_id == STAT_STR || stat_id == STAT_BUL)
+						if(stat_id == STAT_STR || stat_id == STAT_BUL) {
 							UpdatePlayerKnockbackResist();
+							UpdateArmorVisual();
+						}
 						else if(stat_id == STAT_VIT)
 							SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());

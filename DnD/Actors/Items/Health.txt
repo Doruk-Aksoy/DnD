@@ -118,13 +118,13 @@ Actor NewHealthBonus : CustomInventory replaces HealthBonus {
 Actor MaxHealthBonusNew : Health
 {
 	inventory.amount 1
-	inventory.maxamount 32766 //65000
+	inventory.maxamount 65000 // 32767
 }
 
 Actor HealthBonusX : HealthBonus
 {
 	inventory.amount 1
-	inventory.maxamount 32766 //65000
+	inventory.maxamount 65000 // 32767
 	+IGNORESKILL
 }
 

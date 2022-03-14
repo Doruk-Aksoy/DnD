@@ -1630,6 +1630,7 @@ Actor DuskExplosion : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
 	+NODAMAGETHRUST
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -1637,6 +1638,7 @@ Actor DuskExplosion : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DUSKBLADE << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1))
 			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_COUNTSASMELEE)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_DUSKBLADE << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
