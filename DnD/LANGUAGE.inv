@@ -193,8 +193,14 @@ IATTR_T86			= "reduced lightning damage taken";
 IATTR_T87			= "reduced poison damage taken";
 
 IATTR_T88			= "to maximum damage resist cap";
+IATTR_T89			= "increased regeneration rate";
 
-IATTR_T89			= "seconds to overload duration";
+IATTR_T90			= "increased lifesteal rate";
+IATTR_T91			= "increased life recovery from lifesteal";
+IATTR_T92			= "increased lifesteal cap";
+IATTR_T93			= "more damage while lifestealing";
+
+IATTR_T94			= "seconds to overload duration";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

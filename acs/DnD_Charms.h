@@ -17,7 +17,7 @@ enum {
 	DND_CHARM_MEDIUM,
 	DND_CHARM_LARGE
 };
-#define MAX_CHARM_TYPES DND_CHARM_LARGE + 1
+#define MAX_CHARM_TYPES (DND_CHARM_LARGE + 1)
 
 str GetCharmTypeName(int id) {
 	return StrParam(s:"DND_CHARMTYPE", d:id + 1);
@@ -237,7 +237,7 @@ bool MakeCharmUsed(int use_id, int item_index, int target_type) {
 			int wtemp = PlayerInventoryList[pnum][item_index].width;
 			int htemp = PlayerInventoryList[pnum][item_index].height;
 			FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-			SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
+			//SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
 			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 		}

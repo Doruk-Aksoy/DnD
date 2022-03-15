@@ -192,6 +192,7 @@ enum {
 	DND_DAMAGETICFLAG_FIRE				=			0b1000,
 	DND_DAMAGETICFLAG_LIGHTNING			=			0b10000,
 	DND_DAMAGETICFLAG_CONSIDERMELEE		=			0b100000,
+	DND_DAMAGETICFLAG_DOT				=			0b1000000,
 };
 
 // These are actor inherited flags, like forcepain, foilinvul, painless etc.
@@ -205,6 +206,7 @@ enum {
 	DND_ACTORFLAG_COUNTSASMELEE			=			0b100000,
 	DND_ACTORFLAG_THRUGHOST				=			0b1000000,
 	DND_ACTORFLAG_FORCERADIUSDMG		=			0b10000000,
+	DND_ACTORFLAG_ISDAMAGEOVERTIME		=			0b100000000,
 };
 
 enum {
@@ -703,8 +705,6 @@ void HandleIgniteEffects(int victim) {
 	}
 }
 
-
-
 void HandleOverloadEffects(int pnum, int victim) {
 	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_INSULATED] && random(1, 100) <= DND_BASE_OVERLOADCHANCE * (100 + CheckInventory("IATTR_OverloadChance")) / 100 && IsActorAlive(victim)) {
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
@@ -752,7 +752,7 @@ Script "DnD Occult Weaken" (int victim) {
 	SetResultValue(0);
 }
 
-int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_full, int wepid, bool wep_neg = false) {
+int FactorResists(int source, int victim, int dmg, int damage_type, int flags, bool forced_full, int wepid, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type);
@@ -773,6 +773,9 @@ int FactorResists(int source, int victim, int dmg, int damage_type, bool forced_
 			pen += (pen * occ_weak * CheckActorInventory(victim, "OccultWeaknessStack")) / 100;
 		}
 	}
+	
+	// if doomguy perk 50 is there and this is a monster, ignore res
+	forced_full |= CheckInventory("Doomguy_Perk50") && !(flags & DND_DAMAGEFLAG_ISSPELL) && IsMonsterIdDemon(mon_id);
 	
 	// weaknesses
 	if(MonsterProperties[mon_id].trait_list[DND_ENERGY_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ENERGY)
@@ -938,8 +941,12 @@ int HandleAccessoryHitEffects(int p_tid, int enemy_tid, int dmg, int dmg_data, s
 	return dmg;
 }
 
-// This function is responsible for handling all curse effects player has that affect their damage some way
-int HandleCursePlayerDamageEffects(int dmg) {
+// This function is responsible for handling all damage effects player has that affect their damage some way
+// ex: curses etc.
+int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
+	if(CheckInventory("Doomguy_Perk25_Damage"))
+		dmg = ApplyDamageFactor_Safe(dmg, DND_DOOMGUY_DMGMULT, DND_DOOMGUY_DMGDIV);
+
 	// 25% reduction, so 3 / 4
 	if(CheckInventory("FleshWizardWeaken"))
 		dmg = ApplyDamageFactor_Safe(dmg, 3, 4);
@@ -947,6 +954,10 @@ int HandleCursePlayerDamageEffects(int dmg) {
 	// 70% reduction, so 3 / 10
 	if(CheckInventory("PowerLessDamage"))
 		dmg = ApplyDamageFactor_Safe(dmg, 3, 10);
+		
+	int temp;
+	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
+		dmg = ApplyDamageFactor_Safe(dmg, temp);
 	
 	return dmg;
 }
@@ -1024,7 +1035,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	// handle resists and all that here
 	//printbold(s:"res calc");
 	temp = dmg;
-	dmg = FactorResists(source, victim, dmg, damage_type, forced_full, wepid, wep_neg);
+	dmg = FactorResists(source, victim, dmg, damage_type, flags, forced_full, wepid, wep_neg);
 	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
 	if(pnum != -1) {
 		if(dmg > temp)
@@ -1081,7 +1092,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
 		
 	// CURSE EFFECTS
-	dmg = HandleCursePlayerDamageEffects(dmg);
+	dmg = HandleGenericPlayerDamageEffects(pnum, dmg);
 	
 	// ACCESSORY EFFECTS
 	dmg = HandleAccessoryEffects(source, dmg, damage_type, flags, wepid);
@@ -1111,6 +1122,9 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			extra |= DND_DAMAGETICFLAG_FIRE;
 		else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
 			extra |= DND_DAMAGETICFLAG_LIGHTNING;
+			
+		if(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME)
+			extra |= DND_DAMAGETICFLAG_DOT;
 
 		if(!PlayerDamageTicData[pnum][temp]) {
 			PlayerDamageVector[pnum].x = ox;
@@ -1626,19 +1640,38 @@ Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
 	}
 }
 
-void HandleLifesteal(int wepid, int flags, int dmg) {
+void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
+	// in order for this to work we must have less health than our cap
+	if(GetActorProperty(0, APROP_HEALTH) >= GetSpawnHealth())
+		return;
+		
 	int taltos = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
 	int brune_1 = CheckInventory("FakeBloodPower");
 	int brune_2 = CheckInventory("FakeBloodPowerBetter");
-	if(CheckInventory("IATTR_Lifesteal") || taltos || brune_1 || brune_2) {
-		taltos = CheckInventory("IATTR_Lifesteal") + taltos * DND_TALTOS_LIFESTEAL + brune_1 * BLOODRUNE_LIFESTEAL_AMT + brune_2 * BLOODRUNE_LIFESTEAL_AMT2;
+	int cap = CheckInventory("IATTR_Lifesteal");
+	if(cap || taltos || brune_1 || brune_2) {
+		taltos = cap + taltos * DND_TALTOS_LIFESTEAL + brune_1 * BLOODRUNE_LIFESTEAL_AMT + brune_2 * BLOODRUNE_LIFESTEAL_AMT2;
 		
 		// divide by 100 as its a percentage -- and >> 16 to make it int
 		taltos /= 100;
 		taltos *= dmg;
 		taltos >>= 16;
-		if(taltos)
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, taltos);
+		if(!taltos)
+			taltos = 1;
+		
+		// give up to the lifesteal limit
+		brune_1 = CheckInventory("LifeStealAmount");
+		cap = GetLifestealCap(pnum);
+		// if over the cap, make it so that it would only be gaining up to reach the cap
+		if(taltos + brune_1 > cap)
+			taltos = cap - brune_1;
+		
+		if(!brune_1) {
+			GiveInventory("LifeStealAmount", taltos);
+			ACS_NamedExecuteAlways("DnD Lifesteal Script", 0);
+		}
+		else
+			GiveInventory("LifeStealAmount", taltos);
 	}
 }
 
@@ -1666,8 +1699,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;
 		
 		// check if player has lifesteal, if they do reward some hp back
-		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS])
-			HandleLifesteal(wepid, flags, PlayerDamageTicData[pnum][victim_data]);
+		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS] && !(flags & DND_DAMAGETICFLAG_DOT))
+			HandleLifesteal(pnum, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 	}
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance
@@ -1755,7 +1788,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg) {
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
-			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME);
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
 			
 			// go up to the next threshold for next tic etc.
@@ -1869,7 +1902,7 @@ Script "DnD Monster Ignite" (int victim) {
 		Delay(const:7);
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
-		HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH);
+		HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_ISDAMAGEOVERTIME);
 		if(random(0, 1))
 			GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
 			
@@ -2054,10 +2087,6 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	
 	// ELEMENTAL DAMAGE BLOCK BEGINS
 	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
-		// doomguy perk
-		if(CheckInventory("Doomguy_Perk5"))
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_FIREPERCENT);
-			
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_FIRE);
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
 	}
@@ -2340,6 +2369,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// finally apply player armor only if its not an armor piercing attack
 				if(!isArmorPiercing)
 					dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data);
+					
+				// doomguy demon reduction
+				if(IsMonsterIdDemon(m_id) && CheckInventory("Doomguy_Perk5"))
+					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT);
 
 				// berserker damage reduction
 				temp = CheckInventory("Berserker_DamageTracker");

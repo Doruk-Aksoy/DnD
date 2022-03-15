@@ -484,3 +484,9 @@ Actor DnD_ScoreboardRefresher : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 5
 }
+
+Actor LifeStealAmount : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor PlayerIsLeeching : DnD_Boolean { }

@@ -14,12 +14,12 @@ CLASS0_NAME				= "Doomguy";
 CLASS0_LEFTIMG			= "P1_LIMG";
 CLASS0_RIGHTIMG			= "P1_RIMG";
 CLASS0_MUGSHOT			= "STFEVL0";
-CLASS0_TEXT				= "The classic experience. Mean, tough and ready to kick ass! "
+CLASS0_TEXT				= "The original hero. Mean, tough and ready to kick ass of the demon menace! "
 						  "Milennia of experience fighting demons has certainly taken its toll on him however...";
 
-CLASS0_PERK1			= "Enemy fire attacks deal 10% less damage.";
-CLASS0_PERK2			= "Demons take 20% more damage if Doomguy is present in the map.";
-CLASS0_PERK3			= "Demons have 10% chance to drop healing orbs. Heal for 2% of enemy max health.";
+CLASS0_PERK1			= "Damage taken from demons is reduced by 10%.";
+CLASS0_PERK2			= "Demons have 5% chance to drop their essence. Anyone can pick these to heal for 1% of enemy max health and gain 18% more damage for 5 seconds.";
+CLASS0_PERK3			= "Attacks ignore resists of demons.";
 
 // Marine
 

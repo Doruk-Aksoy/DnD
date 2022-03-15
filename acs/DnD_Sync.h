@@ -304,6 +304,11 @@ int GetPlayerSyncValue_Elixir(int pos, int extra) {
 	return 0;
 }
 
+// which = what property of item
+// extra = index in array
+// sub = attribute index of item
+// val = value to put
+// source = source of inventory item (inventory, used charms, field etc.)
 void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 	int pnum = PlayerNumber();
 	int page = 0;

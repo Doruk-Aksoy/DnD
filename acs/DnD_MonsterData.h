@@ -1079,6 +1079,10 @@ bool IsDemon() {
 	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_DEMON_POW;
 }
 
+bool IsMonsterIdDemon(int m_id) {
+	return MonsterData[MonsterProperties[m_id].id].flags & DND_MTYPE_DEMON_POW;
+}
+
 bool IsZombie() {
 	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_ZOMBIE_POW;
 }

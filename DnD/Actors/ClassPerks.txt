@@ -2,9 +2,10 @@ Actor Doomguy_Perk5 : DnD_Boolean { }
 
 Actor Doomguy_Perk25 : DnD_Boolean { }
 
-Actor Doomguy_Perk25_Weakness : PowerProtection {
-	damagefactor "normal", 1.2
-	powerup.duration 0x7FFFFFFF
+Actor Doomguy_Perk25_Damage : PowerDamage {
+	damagefactor "normal", 1.0
+	Powerup.Color "DF 11 11", 0.2
+	powerup.duration -5
 }
 
 Actor Doomguy_Perk50 : DnD_Boolean { }
@@ -29,6 +30,7 @@ Actor Doomguy_DemonSoul : DnD_DroppedItem {
 
 		Pickup:
 			TNT1 A 0 A_GiveToTarget("Doomguy_DemonSoul_PickMsg", 1)
+			TNT1 A 0 A_GiveToTarget("Doomguy_Perk25_Damage", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Doomguy Soul Pickup", 0, mass)
 			TNT1 A 3
 		stop

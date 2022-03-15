@@ -151,6 +151,12 @@ enum {
 	INV_DMGREDUCE_POISON,
 	
 	INV_ADDEDMAXRESIST,
+	INV_REGENRATE,
+	
+	INV_LIFESTEAL_RATE,
+	INV_LIFESTEAL_RECOVERY,
+	INV_LIFESTEAL_CAP,
+	INV_LIFESTEAL_DAMAGE,
 	
 	INV_OVERLOAD_DURATION,
 	
@@ -362,6 +368,14 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[INV_DMGREDUCE_POISON] = "IATTR_PoisonResist";
 	
 	Inv_Attribute_Checkers[INV_ADDEDMAXRESIST] = "IATTR_MaxResistCap";
+	Inv_Attribute_Checkers[INV_REGENRATE] = "IATTR_RegenRate";
+	
+	Inv_Attribute_Checkers[INV_LIFESTEAL_RATE] = "IATTR_LifestealRate";
+	Inv_Attribute_Checkers[INV_LIFESTEAL_RECOVERY] = "IATTR_LifestealRecovery";
+	Inv_Attribute_Checkers[INV_LIFESTEAL_CAP] = "IATTR_LifestealCap";
+	Inv_Attribute_Checkers[INV_LIFESTEAL_DAMAGE] = "IATTR_LifestealDamage";
+	
+	Inv_Attribute_Checkers[INV_OVERLOAD_DURATION] = "IATTR_OverloadDuration";
 	
 	// essences
 	Inv_Attribute_Checkers[INV_ESS_VAAJ] = "IATTR_StatusBuffs_1";
@@ -527,6 +541,13 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	// resist cap
 	{ 	0.25, 	0.5, 		0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	5,		10,			0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
+	
+	// lifesteal effects
+	{ 	4,		8,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
+	{ 	5,		10,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
+	{ 	5,		10,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
+	{   2,		8,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
 	
 	// overload duration
 	{ 	0.1,	0.5,		0,		INV_ATTR_TAG_ELEMENTAL									},

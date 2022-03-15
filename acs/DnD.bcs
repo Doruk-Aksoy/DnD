@@ -978,7 +978,7 @@ Script "DND On Kill" KILL {
 	HandleCharmLootDrop(pnum);
 	
 	// doomguy drop
-	if(CheckActorInventory(target, "Doomguy_Perk50") && RunDefaultDropChance(i, pnum, DND_DOOMGUY_DROPCHANCE)) {
+	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(i, pnum, DND_DOOMGUY_DROPCHANCE)) {
 		pnum = MonsterProperties[m_id].maxhp;
 		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pnum & 0xFFFF, pnum >> 16);
 	}
@@ -1956,10 +1956,6 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	//Mob might actually be dead by this point.
 	if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
 		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
-		
-	// doomguy thing
-	if(MapInfo[DND_MAPINFO_HASDOOMGUY] && isDemon())
-		GiveInventory("Doomguy_Perk25_Weakness", 1);
 	
 	// handle all innate resists, weaknesses etc.
 	HandleMonsterClassInnates(m_id, monsterid);
@@ -2028,10 +2024,6 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 	//Mob might actually be dead by this point.
 	if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
 		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
-		
-	// doomguy thing
-	if(MapInfo[DND_MAPINFO_HASDOOMGUY] && properties & DND_MTYPE_DEMON_POW)
-		GiveInventory("Doomguy_Perk25_Weakness", 1);
 }
 
 // Decide monster to spawn on a certain monster category given weight list
@@ -2790,6 +2782,7 @@ Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
+	SetInventory("PlayerIsLeeching", 0);
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	
@@ -2905,6 +2898,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("Berserker_NoRoar", 0);
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
+	SetInventory("PlayerIsLeeching", 0);
 	
 	// statistics reset
 	SetInventory("DnD_Kills", 0);
@@ -3115,8 +3109,8 @@ Script "DnD Player Setup" ENTER {
 	if(HardcoreSet && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 		
-	if(isPlayerClass(DND_PLAYER_DOOMGUY) && CheckInventory("Doomguy_Perk25"))
-		MapInfo[DND_MAPINFO_HASDOOMGUY] = true;
+	/*if(isPlayerClass(DND_PLAYER_DOOMGUY) && CheckInventory("Doomguy_Perk25"))
+		MapInfo[DND_MAPINFO_HASDOOMGUY] = true;*/
 	
 	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
 	// for zombie quest to work
@@ -3622,6 +3616,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					lim /= 3;
 				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 				amt = lim * DND_REGEN_PERCENT / 100;
+				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
 				
 				if(!amt)
 					amt = 1;
@@ -3646,6 +3641,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				lim = GetArmorCapFromID(DND_ARMOR_CYBERNETIC);
 				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 				amt = lim * DND_REGEN_PERCENT / 100;
+				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
 				lim >>= 1; // half limit for this armor
 				
 				// cyborg perk
@@ -3668,8 +3664,32 @@ Script "DnD Periodic Regeneration" ENTER {
 	}
 }
 
+Script "DnD Lifesteal Script" (void) {
+	GiveInventory("PlayerIsLeeching", 1);
+
+	int pnum = PlayerNumber();
+	int tics = Max(1, GetLifestealRate(pnum));
+	int amt, cap;
+	while(IsAlive() && CheckInventory("LifeStealAmount")) {
+		amt = GetLifestealLifeRecovery(pnum);
+		TakeInventory("LifeStealAmount", amt);
+		
+		cap = CheckInventory("PlayerHealthCap");
+		if(GetActorProperty(0, APROP_HEALTH) + amt < cap)
+			GiveInventory("HealthBonusX", amt);
+		else {
+			// we reached cap, stop
+			GiveInventory("HealthBonusX", cap - amt);
+			break;
+		}
+		Delay(tics);
+	}
+	
+	TakeInventory("PlayerIsLeeching", 1);
+}
+
 // for elites with pierce armor flag
-Script "DND Pierce Check" () {
+Script "DND Pierce Check" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(CheckFlag(owner, "PIERCEARMOR"))
 		SetActorFlag(0, "PIERCEARMOR", 1);

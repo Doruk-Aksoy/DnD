@@ -1008,4 +1008,28 @@ int GetOverloadTime(int pnum) {
 	return (DND_BASE_OVERLOADTIME + ((GetPlayerAttributeValue(pnum, INV_OVERLOAD_DURATION) * TICRATE) >> 16)) / DND_BASE_OVERLOADTICK;
 }
 
+#define DND_BASE_LIFESTEALCAP 20
+int GetLifestealCap(int pnum) {
+	// avoid recalculating over and over if possible
+	int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
+	return Clamp_Between(hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP)) / 100, 1, hp_cap);
+}
+
+#define DND_BASE_LIFESTEALRATE 20
+int GetLifestealRate(int pnum) {
+	return DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP)) / 100;
+}
+
+#define DND_BASE_LIFERECOVERY 1 // 1% of healthcap
+int GetLifestealLifeRecovery(int pnum) {
+	// avoid recalculating over and over if possible
+	int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
+	hp_cap = (hp_cap * DND_BASE_LIFERECOVERY / 100);
+	hp_cap = (hp_cap * (100 + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY)) / 100);
+	if(!hp_cap)
+		hp_cap = 1;
+	
+	return hp_cap;
+}
+
 #endif
