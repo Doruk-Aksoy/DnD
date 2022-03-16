@@ -6263,6 +6263,10 @@ Script 68 (int x) NET {
 		SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
 		SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 4);
 	}
+	else if(x == 420) {
+		SpawnCharm(0, true);
+		SpawnOrb(0, true);
+	}
 	else {
 		int c = CreateItemSpot();
 		int i;

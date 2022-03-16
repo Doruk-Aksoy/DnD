@@ -3802,8 +3802,19 @@ void HandleCraftingWeaponDraw(menu_inventory_T& p, int boxid, int k) {
 }
 
 void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
-	int i, j = 0, mcount = GetCraftableItemCount();
-	int tx, ty, bx, by;
+	int i, mcount = 0, pnum = PlayerNumber();
+	int tx, ty;
+	
+	// construct fast lookup array
+	static int craftable_materials[MAX_INVENTORY_BOXES];
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		// if this a craftable item, include in list
+		if(IsCraftableItem(PlayerInventoryList[pnum][i].item_type) && PlayerInventoryList[pnum][i].height) {
+			craftable_materials[mcount] = i;
+			++mcount;
+		}
+	}
+
 	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
 	int page = CheckInventory("DnD_Crafting_ItemPage");
 	if(mcount) {
@@ -3812,45 +3823,35 @@ void HandleCraftingInventoryDraw(menu_inventory_T& p, int boxid, int k) {
 			for(i = 0; i < MAX_CRAFTING_ITEMBOXES/* * (page + 1)*/ && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
 				tx = CRAFTING_ITEMBOX_X - (64.0 + CRAFTING_ITEMBOX_SKIPX) * (i % 4);
 				ty = CRAFTING_ITEMBOX_Y - (64.0 + CRAFTING_ITEMBOX_SKIPY) * (i / 4);
-				bx = tx - 64.0;
-				by = ty - 64.0;
-				EnableBoxWithPoints(p, i, tx, ty, bx, by);
+				EnableBoxWithPoints(p, i, tx, ty, tx - 64.0, ty - 64.0);
 			}
 		}
-		// first count over the items we must skip
-		bx = PlayerNumber();
-		for(i = 0; i < MAX_INVENTORY_BOXES && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
-			if(IsCraftableItem(PlayerInventoryList[bx][i].item_type) && PlayerInventoryList[bx][i].height)
-				++j;
-		/*if(j)
-			++i;*/
-		j = 0;
+		
+		// j holds how many craftable materials there are, and the value stored in that pos of array is itemid
 		for(i = 0; i < MAX_CRAFTING_ITEMBOXES && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
-			tx = GetNextUniqueCraftableMaterial(i + MAX_CRAFTING_ITEMBOXES * page);
-			if(tx != -1) {
-				if(boxid - 1 == j) {
-					UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[bx][tx].item_type, bx);
-					
-					//Log(s:"update cur item inv ", d:tx);
-					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
-					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
-					//SetInventory("DnD_PlayerItemIndex", tx);
-					SetFont("CRFBX_H");
-				}
-				else if(prevclick == j) {
-					//Log(s:"update prev item inv ", d:tx);
-					//SetInventory("DnD_PlayerPrevItemIndex", tx);
-					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
-					MenuInputData[bx][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
-					SetFont("CRFBX_H");
-				}
-				else
-					SetFont("CRFBX_N");
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
-				SetFont(Item_Images[PlayerInventoryList[bx][tx].item_image]);
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
-				++j;
+			// store id into this for ease -- move forward page x box times to skip
+			tx = craftable_materials[i + MAX_CRAFTING_ITEMBOXES * page];
+			if(boxid - 1 == i) {
+				UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum);
+				
+				//Log(s:"update cur item inv ", d:tx);
+				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
+				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
+				//SetInventory("DnD_PlayerItemIndex", tx);
+				SetFont("CRFBX_H");
 			}
+			else if(prevclick == i) {
+				//Log(s:"update prev item inv ", d:tx);
+				//SetInventory("DnD_PlayerPrevItemIndex", tx);
+				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
+				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
+				SetFont("CRFBX_H");
+			}
+			else
+				SetFont("CRFBX_N");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * i, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (i % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (i / 4), 0.0, 0.0);
+			SetFont(Item_Images[PlayerInventoryList[pnum][tx].item_image]);
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * i, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (i % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (i / 4), 0.0, 0.0);
 		}
 		SetFont("SMALLFONT");
 		// draw next page button and enable it for use

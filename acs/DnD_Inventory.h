@@ -1617,7 +1617,7 @@ int GetNextUniqueCraftingMaterial(int current) {
 	return -1;
 }
 
-int GetNextUniqueCraftableMaterial(int current) {
+/*int GetNextUniqueCraftableMaterial(int current) {
 	int pnum = PlayerNumber();
 	int res = 0, i;
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
@@ -1629,7 +1629,7 @@ int GetNextUniqueCraftableMaterial(int current) {
 		}
 	}
 	return -1;
-}
+}*/
 
 int GetTotalStackOfMaterial(int itemid) {
 	int pnum = PlayerNumber();
