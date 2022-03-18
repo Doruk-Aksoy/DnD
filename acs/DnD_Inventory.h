@@ -1335,17 +1335,24 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		// temp holds charm's tier id
-		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source) / CHARM_ATTRIBLEVEL_SEPERATOR;
+		lvl = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source);
+		temp = lvl / CHARM_ATTRIBLEVEL_SEPERATOR;
 		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
+		
+		val = GetStat(STAT_LVL) < lvl ? CR_RED : CR_WHITE;
+		HudMessage(l:"DND_LEVEL_HEADER", s:": ", d:lvl; 
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+		);
+		
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pnum, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pnum, source);
 			lvl = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, topboxid, j | pnum, source);
 			
-			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, bx, by + 16.0 + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 - j, CR_WHITE, bx, by + 16.0 + 24.0 * j, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 	}
 	else if(IsStackedItem(itype)) {
@@ -1356,11 +1363,19 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		temp = itype & 0xFFFF;
 		itype >>= UNIQUE_BITS;
 		--itype;
+		
+		lvl = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source);
+		val = GetStat(STAT_LVL) < lvl ? CR_RED : CR_WHITE;
+		HudMessage(l:"DND_LEVEL_HEADER", s:": ", d:lvl; 
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+		);
+		
 		// itype holds unique position, temp is the actual item type -- so does lvl
 		lvl = itype;
 		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
+		
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
 		for(j = 0; j < i; ++j) {
@@ -1373,14 +1388,14 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 					++itype;
 					HudMessage(
 						s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pnum, source), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pnum, source), lvl, showModTiers, j);
-						HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE,
+						HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 5 - (j - itype), CR_WHITE,
 						bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 					);
 				}
 				else {
 					HudMessage(
 						s: GetItemAttributeText(temp, val, 0, lvl, showModTiers, j);
-						HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE,
+						HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 5 - (j - itype), CR_WHITE,
 						bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 					);
 				}
@@ -1389,14 +1404,14 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 				// unique item doesn't have numeric attribute to show
 				HudMessage(
 					s:GetItemAttributeText(temp, val, 0);
-					HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 - (j - itype), CR_WHITE,
+					HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 5 - (j - itype), CR_WHITE,
 					bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 			}
 			else {
 				HudMessage(
 					s:"- ", s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j);
-					HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE,
+					HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 5 -  (j - itype), CR_WHITE,
 					bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 			}
@@ -1770,7 +1785,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				temp = ((temp & 0xFFFF) + aval) | (((temp >> 16) + i) << 16);
 			else
 				temp = ((temp & 0xFFFF) - aval) | (((temp >> 16) - i) << 16);
-			SetInventory(GetPlayerAttributeValue(pnum, atype), aval);
+			SetInventory(GetPlayerAttributeString(atype), temp);
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
@@ -2085,7 +2100,8 @@ void MakeUnique(int item_pos, int item_type, int pnum) {
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	}
 	#ifdef ISDEBUGBUILD
-	i = i = random(0, MAX_UNIQUE_ITEMS - 1);
+	i = random(0, MAX_UNIQUE_ITEMS - 1);
+	//i = UITEM_ANCIENTGEMSTONE;
 	#endif
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type, pnum);

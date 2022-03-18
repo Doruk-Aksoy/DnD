@@ -207,6 +207,7 @@ enum {
 	INV_EX_ABILITY_LUCKYCRIT,
 	INV_EX_CRITIGNORERESCHANCE,
 	INV_EX_CURSEIMMUNITY,
+	INV_EX_LIMITEDSMALLCHARMS
 	// add new unique attributes here
 };
 
@@ -217,7 +218,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
-#define UNIQUE_ATTRIB_END INV_EX_CURSEIMMUNITY
+#define UNIQUE_ATTRIB_END INV_EX_LIMITEDSMALLCHARMS
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
@@ -393,11 +394,11 @@ void SetupInventoryAttributeStrings() {
 	// exotic stuff is handled differently here
 	int idmap = UNIQUE_MAP_MACRO(UNIQUE_ATTRIB_BEGIN);
 	
-	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_ChanceToCastElementalSpell";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_HealMissingHealthOnPain";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_DamageIncrease_Lightning";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_IncreasedCritLightning";
@@ -406,11 +407,11 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[idmap++] = "IATTR_DamagePerFlatHP";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_ChanceToRaiseZombieFromKills";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_IncreasedDamageTaken";
-	Inv_Attribute_Checkers[idmap++] = "";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_HealOnKill";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_SoulAmmoIncrease";
@@ -422,6 +423,7 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_CritIgnoreRes";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_LimitedCharms";
 }
 
 // if 3rd argument is 0 that means simply use the difference + 1 as increment
@@ -601,6 +603,12 @@ int RollAttributeValue(int attr, int tier, bool isWellRolled) {
 	return random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + high) / 2, high);
 }
 
+int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
+	if(!isWellRolled)
+		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
+	return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
+}
+
 int PickRandomAttribute() {
 	int bias = Timer();
 	int val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
@@ -613,7 +621,7 @@ int PickRandomAttribute() {
 
 str GetDetailedModRange(int attr, int tier, int trunc_factor = 0, int extra = -1) {
 	if(extra != -1)
-		return GetDetailedModRange_Unique(attr, tier, trunc_factor, extra);
+		return GetDetailedModRange_Unique(tier, trunc_factor, extra);
 		
 	str col_tag = Charm_Strings[tier][CHARMSTR_COLORCODE];
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
@@ -633,7 +641,7 @@ str GetDetailedModRange(int attr, int tier, int trunc_factor = 0, int extra = -1
 	);
 }
 
-str GetDetailedModRange_Unique(int attr, int unique_id, int trunc_factor = 0, int unique_roll_id = 0) {
+str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_roll_id = 0) {
 	if(!trunc_factor) {
 		return StrParam(
 			s:"\c-(",
@@ -855,7 +863,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_FACTOR_SMALLCHARM:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:GetDetailedModRange_Unique(attr, tier, FACTOR_SMALLCHARM_RESOLUTION, extra), s:"%\c-",
+					l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:GetDetailedModRange_Unique(tier, FACTOR_SMALLCHARM_RESOLUTION, extra), s:"%\c-",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -864,7 +872,8 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(attr, tier, 0, extra), s:"%\c- ", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT",
+					s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra - 1), s:"%\c- ",
+					l:text, s:"\c[Q9]", d:val2, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_RECOVERHPHURT",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -873,7 +882,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_DAMAGEPER_FLATHEALTH:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(attr, tier, 0, extra), s:"\c- ", l:"IATTR_MAXHEALTH",
+					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_MAXHEALTH",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -882,7 +891,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_ONKILL_HEALMISSING:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(attr, tier, 0, extra), s:"%\c- ", l:"IATTR_PMISSHP",
+					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_PMISSHP",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -891,7 +900,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_ABILITY_RALLY:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(attr, tier, 0, extra), s:"\c- ", l:"IATTR_RALLY",
+					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_RALLY",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -900,7 +909,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_CRITIGNORERESCHANCE:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(attr, tier, 0, extra), s:"%\c- ", l:"IATTR_CHANCEIGNORERES",
+					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_CHANCEIGNORERES",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -910,7 +919,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_MORECRIT_LIGHTNING:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:GetDetailedModRange_Unique(attr, tier, 100, extra), s:"%\c- ", l:text,
+					s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:GetDetailedModRange_Unique(tier, 100, extra), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -919,12 +928,29 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_DOUBLE_HEALTHCAP:
 		return StrParam(l:text);
 		
+		case INV_EX_LIMITEDSMALLCHARMS:
+			if(showDetailedMods) {
+				// singular matters here
+				if(val1 > 1)
+					return StrParam(
+						l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX30_2",
+						s:" - ", s:GetModTierText(tier, extra)
+					);
+				return StrParam(
+					l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX30_2S",
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			if(val1 > 1)
+				return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX30_2");
+			return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX30_2S");
+		
 		case INV_EX_ALLSTATS:
 		case INV_EX_FLATDMG_ALL:
 		case INV_EX_FLATDOT:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(attr, tier, 0, extra), s:"\c- ", l:text,
+					s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -935,7 +961,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 			if(val1) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(attr, tier, 0, extra), s:"%\c- ", l:text,
+						s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}

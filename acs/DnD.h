@@ -64,7 +64,7 @@ enum {
 #define SD_DASHSTRONG		12.0		// And dash speed whilst grounded
 #define SD_SOUNDVOLUME		1.0			// How loud the dash sound is played
 
-#define CHANCE_HEART 0.1
+#define CHANCE_HEART 0.05
 
 #define UPGRADETEXTID 6999
 #define SURVIVEICO 7000

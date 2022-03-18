@@ -68,7 +68,7 @@ Actor OrbOfEnhancement : OrbDrop {
 
 Actor CorruptOrb_DamageReduction : PowerDamage {
 	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 0.25
+	damagefactor "normal", 1.0
 }
 
 Actor OrbofCorruption : OrbDrop {
@@ -85,29 +85,29 @@ Actor OrbofCorruption : OrbDrop {
 		SpawnLoop:
 		Idle:
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 0 A_SetTranslucent(0.75)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 0 A_SetTranslucent(0.675)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 0 A_SetTranslucent(0.6)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 0 A_SetTranslucent(0.525)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 0 A_SetTranslucent(0.45)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeOut(0.075)
+			"####" "#" 0 A_SetTranslucent(0.375)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 0 A_SetTranslucent(0.45)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 0 A_SetTranslucent(0.525)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 0 A_SetTranslucent(0.6)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 0 A_SetTranslucent(0.675)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 0 A_SetTranslucent(0.75)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
-			"####" "#" 0 A_FadeIn(0.075)
+			"####" "#" 0 A_SetTranslucent(0.825)
 		Loop
 		CheckPickup:
 			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")

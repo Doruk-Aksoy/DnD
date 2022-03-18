@@ -28,6 +28,8 @@
 
 #define DND_CRIT_TOKEN 69
 
+#define DND_CORRUPTORB_DIV 4 // /4 => 75% reduced dmg
+
 enum {
 	DND_DAMAGETYPE_MELEE,
 	DND_DAMAGETYPE_MELEEOCCULT,
@@ -233,8 +235,8 @@ typedef struct scan_data {
 scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
 	{ 1024.0, 			0.1875, 			24.0 },
 	{ 1024.0,		 	0.1875, 			24.0 },
-	{ 4096.0,		 	0.25, 				32.0 },
-	{ 2048.0,			0.25,				32.0 }
+	{ 2048.0,		 	0.16, 				32.0 },
+	{ 4096.0,			0.25,				32.0 }
 };
 
 vec3_T PlayerDamageVector[MAXPLAYERS];
@@ -958,6 +960,9 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
 		dmg = ApplyDamageFactor_Safe(dmg, temp);
+		
+	if(CheckInventory("CorruptOrb_DamageReduction"))
+		dmg /= DND_CORRUPTORB_DIV;
 	
 	return dmg;
 }

@@ -346,7 +346,7 @@ DND_MENU_ABLTAG6		=	"Demolitions";
 DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.";
 
 DND_MENU_ABLTAG7		=	"Heart Seeking";
-DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death 10% of the time. Can use as a temporary weapon.";
+DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death 5% of the time. Can use as a temporary weapon.";
 
 DND_MENU_ABLTAG8		=	"Regeneration";
 DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.";

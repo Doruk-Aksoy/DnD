@@ -245,6 +245,7 @@ IATTR_TX26 			= "increased damage over time duration";
 IATTR_TX27 			= "Critical strike chance is lucky";
 IATTR_TX28 			= "Critical strikes have ";
 IATTR_TX29 			= "Curse Immunity";
+IATTR_TX30			= "Can only use";					IATTR_TX30_2S		= "small charm";	IATTR_TX30_2		= "small charms";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

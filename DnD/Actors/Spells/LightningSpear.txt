@@ -46,6 +46,7 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 	BounceCount 6
 	BounceFactor 1.0
 	WallBounceFactor 1.0
+	ReactionTime 105
 	+FORCEXYBILLBOARD
 	+USEBOUNCESTATE
 	+FORCEPAIN
@@ -91,6 +92,7 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 		Move:
 			"####" "#" 0 A_SpawnItem("LightningSpearTrail")
 			"####" "#" 0 A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(-2.0, 2.0),frandom(-2.0, 2.0),frandom(-2.0, 2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION)
+			"####" "#" 0 A_Countdown
 			"####" "#" 1 Light("LightningSpearLight") Bright A_GiveInventory("LightningSpearFrameSetter", 1)
 			
 			// frame update

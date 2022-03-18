@@ -668,7 +668,7 @@ int DrawHoveredPlayerData() {
 				
 				// armor
 				HudMessage(
-					s:"\cd", l:"IATTR_T1", s:": \c-", d:CheckActorInventory(tid, "Armor");
+					s:"\cd", l:"IATTR_T1", s:": \c-", d:GetActorArmorAmount(tid);
 					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_ARMOR, CR_WHITE, mx, my + 48.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 				

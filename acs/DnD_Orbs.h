@@ -717,19 +717,21 @@ void HandleOrbUse (int orbtype, int extra, int extra2 = -1) {
 			Player_MostRecent_Orb[pnum].p_tempwep = extra + 1;
 			for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i)
 				Player_MostRecent_Orb[pnum].values[i] = PlayerInventoryList[pnum][extra].attributes[i].attrib_val;
+				
+			s = GetAffluenceBonus();
 			if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN) {
 				// handle unique random roll case
 				temp = (PlayerInventoryList[pnum][extra].item_type >> UNIQUE_BITS) - 1;
-				for(res = 0; res < GetAffluenceBonus(); ++res) {
+				for(res = 0; res < s; ++res) {
 					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i)
-						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = random(UniqueItemList[temp].rolls[i].attrib_low, UniqueItemList[temp].rolls[i].attrib_high);
+						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollUniqueAttributeValue(temp, i, CheckWellRolled(pnum));
 				}
 			}
 			else {
-				for(res = 0; res < GetAffluenceBonus(); ++res) {
+				for(res = 0; res < s; ++res) {
 					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
 						temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
-						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = random(Inv_Attribute_Info[temp].attrib_low, Inv_Attribute_Info[temp].attrib_high) * (1 + (Inv_Attribute_Info[temp].attrib_level_modifier * PlayerInventoryList[pnum][extra].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollAttributeValue(temp, PlayerInventoryList[pnum][extra].attributes[i].attrib_tier, CheckWellRolled(pnum));
 					}
 				}
 			}

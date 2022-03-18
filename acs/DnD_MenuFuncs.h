@@ -2726,8 +2726,13 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 		SetFont("LDTBOXCN");
 	else if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_CLICK)
 		SetFont("LDTBOXC");
-	else if(GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, (pnum + 1) << 16, source))
-		SetFont("LDTBOXO");
+	else if((temp = GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, (pnum + 1) << 16, source))) {
+		// if lvl requirement is satisfied draw them normal -- topbox is +1 of actual index
+		if(GetItemSyncValue(DND_SYNC_ITEMLEVEL, temp - 1, (pnum + 1) << 16, source) <= GetStat(STAT_LVL))
+			SetFont("LDTBOXO");
+		else
+			SetFont("LDTBOXR");
+	}
 	else
 		SetFont("LDTBOX");
 	HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - 1, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * skip, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * skip, 0.0, 0.0);
@@ -2978,6 +2983,7 @@ void HandleInventoryViewClicks(int boxid, int choice) {
 
 void HandleItemPageInputs(int pnum, int boxid) {
 	int charm_sel, charm_type, topboxid;
+	int temp;
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE) {
 			// we pressed a charm box or view inventory box
@@ -3001,13 +3007,15 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						charm_type = DND_CHARM_LARGE;
 					--charm_sel;
 					if(topboxid != -1 && (PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) == DND_ITEM_CHARM) {
-						if(MakeCharmUsed(charm_sel, topboxid, charm_type)) {
+						// this returns popupid to show, and -1 if it was ok
+						temp = MakeCharmUsed(charm_sel, topboxid, charm_type);
+						if(temp == -1) {
 							LocalAmbientSound("Items/CharmDrop", 127);
 							TakeInventory("DnD_InventoryView", 1);
 							SetInventory("DnD_SelectedCharmBox", 0);
 						}
 						else
-							ShowPopup(POPUP_CHARMMISMATCH, false, 0);
+							ShowPopup(temp, false, 0);
 					}
 					else {
 						if(topboxid == -1)
@@ -3883,62 +3891,44 @@ void DrawCraftingInventoryInfo(int pn) {
 		SetFont("SMALLFONT");
 		HudMessage(d:PlayerCursorData.itemHoveredSource; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0.0);
 	}
-	mx += 64.0;
-	my += 40.0;
-	mx &= MMASK;
-	my &= MMASK;
-	mx += 0.4;
-	my += 0.1;
+	
+	int prev_x = GetIntegerBits(mx + HUD_ITEMBAK_XF / 2) + 0.4;
+	int prev_y;
 	
 	// show item details -- dont draw charm icons (saves space)
 	if(PlayerCursorData.itemHoveredType == DND_ITEM_WEAPON) {
 		SetFont(Weapons_Data[PlayerCursorData.itemHovered][WEAPON_ICON]);	
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 32.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my, 0.0);
 	}
-	else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM) {
+	else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM && PlayerCursorData.itemHoveredType < UNIQUE_BEGIN) {
+		// dont draw charm images here
 		SetFont(Item_Images[PlayerInventoryList[pn][PlayerCursorData.itemHovered].item_image]);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, mx + 40.0, my - 16.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my + 16.0, 0.0);
 	}
 	
 	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
-	mx *= 3; mx /= 2;
-	my *= 3; my /= 2;
-	mx &= MMASK;
-	my &= MMASK;
-	mx += 0.4;
-	my += 0.1;
-	SetHudClipRect(-72 + (mx >> 16), -48 + (my >> 16), 256, 256, 256, 1);
-	DrawCraftingInventoryText(PlayerCursorData.itemHoveredType, PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, mx, my);
+	
+	prev_x = 3 * mx / 2;
+	prev_y = 3 * my / 2;
+	
+	mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
+	my = GetIntegerBits(3 * my / 2) + 20.1;
+	
+	SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9, 1);
+	DrawCraftingInventoryText(PlayerCursorData.itemHoveredType, PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, pn, mx, my);
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
 // extra1 is topboxid for items, extra2 works as source for inventory related things (used charms vs player inventory etc.)
-void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my) {
-	int i, j, temp, val, lvl;
-	bool showModTiers = GetCVar("dnd_detailedmods");
-	SetFont("SMALLFONT");
-	if(itype == DND_ITEM_CHARM) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, extra1, -1, extra2) / CHARM_ATTRIBLEVEL_SEPERATOR;
-		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)), s:" ", l:"DND_ITEM_CHARM"; 
-			HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0
-		);
-		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
-		for(j = 0; j < i; ++j) {
-			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
-			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
-			lvl = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_TIER, extra1, j, extra2);
-			
-			HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - j, CR_WHITE, mx + 56.0, my - 16.0 + 24.0 * j, 0.0);
-		}
-	}
-	else if(itype == DND_ITEM_ORB || itype == DND_ITEM_ELIXIR) {
-		temp = GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) + GetInventoryInfoOffset(itype);
-		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n", l:GetInventoryText(temp); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0, 0);
-	}
-	else if(itype == DND_ITEM_WEAPON) {
+void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int mx, int my) {
+	if(itype == DND_ITEM_WEAPON) {
+		int j, temp;
 		j = PlayerNumber();
-		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my + 24.0 + 16.0 * i, 0.0, 0.0);
+		my += 24.0;
+		
+		SetFont("SMALLFONT");
+		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx, my + 24.0, 0.0, 0.0);
 		
 		str modText = "";
 		temp = GetWeaponEnchantDisplay(j, extra1);
@@ -3985,40 +3975,10 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int mx, int my
 				modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_POWERSET1, temp), s:"\n");
 		}
 		
-		HudMessage(s:modText; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx + 56.0, my + 40.0, 0.0, 0.0);
+		HudMessage(s:modText; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx, my + 40.0, 0.0, 0.0);
 	}
-	else if(itype > UNIQUE_BEGIN) {
-		temp = itype & 0xFFFF;
-		itype >>= UNIQUE_BITS;
-		--itype;
-		// itype holds unique position, temp is the actual item type -- so does lvl
-		lvl = itype;
-		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 2, CR_WHITE, mx + 56.0, my - 36.1, 0.0);
-		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2)), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx + 56.0, my - 20.1, 0.0);
-		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, extra1, -1, extra2);
-		// itype will count the skipped properties (the helper attributes)
-		itype = 0;
-		for(j = 0; j < i; ++j) {
-			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2);
-			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2);
-			if(val > 0) {
-				// dont show this, skip to next attribute's detail
-				if(temp == INV_EX_CHANCE) {
-					++j;
-					++itype;
-					HudMessage(s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, extra1, j, extra2), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, extra1, j, extra2), lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
-				}
-				else
-					HudMessage(s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
-			}
-			else if(!val) {
-				// unique item doesn't have numeric attribute to show
-				HudMessage(s:GetItemAttributeText(temp, val, 0); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
-			}
-			else
-				HudMessage(s:"- ", s:GetItemAttributeText(temp, val, 0, lvl, showModTiers, j); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 -  (j - itype), CR_WHITE, mx + 56.0, my + 24.0 * (j - itype), 0.0);
-		}
-	}
+	else // draw using our established drawing routine
+		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), HUD_DII_MULT);
 }
 
 void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {

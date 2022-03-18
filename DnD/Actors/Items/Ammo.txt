@@ -1101,7 +1101,7 @@ Actor VenomAmmo : Ammo
 
 Actor HeartAmmo : Ammo {
 	inventory.amount 1
-	inventory.maxamount 5
+	inventory.maxamount 2
 	inventory.icon "HARTAMM"
 	+IGNORESKILL
 }

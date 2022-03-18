@@ -1,5 +1,11 @@
 const float m_range_factor = 0.01;
 
+Actor IATTR_Null : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 Actor IATTR_FlatHP : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -561,6 +567,12 @@ Actor IATTR_CritIgnoreRes : Ammo {
 }
 
 Actor IATTR_IncreasedCritLightning : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_LimitedCharms : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL

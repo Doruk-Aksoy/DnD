@@ -149,12 +149,17 @@ ACTOR NewBerserk : CustomInventory replaces Berserk
   }
 }
 
+Actor Invulnerable_Better : PowerInvulnerable {
+	Powerup.Duration -30
+}
+
 Actor InvulnerabilitySphere2 : InvulnerabilitySphere replaces InvulnerabilitySphere
 {
 	inventory.pickupsound "items/invul"
 	Inventory.PickupAnnouncerEntry ""
 	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Invulnerability!\c-"
-	
+	Powerup.Type "Invulnerable_Better"
+	Powerup.Color "2F 2F 2F", 0.475
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")

@@ -200,49 +200,70 @@ int HandleCharmPickup(int item_index) {
 	return pcharm_index;
 }
 
-bool MakeCharmUsed(int use_id, int item_index, int target_type) {
+int MakeCharmUsed(int use_id, int item_index, int target_type) {
 	int pnum = PlayerNumber();
 	int i, j;
-	if(target_type != PlayerInventoryList[pnum][item_index].item_subtype) {
-		// not matching, popup
-		return false;
+	
+	// type mismatch, popup
+	if(target_type != PlayerInventoryList[pnum][item_index].item_subtype)
+		return POPUP_CHARMMISMATCH;
+		
+	// too high level
+	if(PlayerInventoryList[pnum][item_index].item_level > GetStat(STAT_LVL))
+		return POPUP_ITEMLVLTOOHIGH;
+		
+	// no duplicate uniques
+	if(DoUniqueCheck(pnum, use_id, item_index, target_type))
+		return POPUP_ONLYONEUNIQUE;
+	
+	// tried to put well of power, but have too many small charms -- its always attribute id 2 on well of power
+	// we have to check for that specifically because technically its not equipped yet, so player has no tokens of it on them
+	if
+	(
+		PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN && 
+		(PlayerInventoryList[pnum][item_index].item_type >> UNIQUE_BITS) - 1 == UITEM_WELLOFPOWER &&
+		CountPlayerSmallCharms(pnum) > PlayerInventoryList[pnum][item_index].attributes[2].attrib_val
+	)
+		return POPUP_NOMORESMALLCHARMS;
+	
+	// or tried to put small charm when well of power is there and would exceed limit
+	if(target_type == DND_CHARM_SMALL && (i = GetPlayerAttributeValue(pnum, INV_EX_LIMITEDSMALLCHARMS)) && i == CountPlayerSmallCharms(pnum))
+		return POPUP_NOMORESMALLCHARMS;
+		
+	// request damage cache recalculation
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+	// this means we must swap charms
+	if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
+		RemoveItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	}
 	else {
-		// request damage cache recalculation
-		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-		// this means we must swap charms
-		if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
-			RemoveItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
-			SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		// just zero the stuff in inventory, and copy them into charms used
+		Charms_Used[pnum][use_id].width = PlayerInventoryList[pnum][item_index].width;
+		Charms_Used[pnum][use_id].height = PlayerInventoryList[pnum][item_index].height;
+		Charms_Used[pnum][use_id].item_type = PlayerInventoryList[pnum][item_index].item_type;
+		Charms_Used[pnum][use_id].item_subtype = PlayerInventoryList[pnum][item_index].item_subtype;
+		Charms_Used[pnum][use_id].item_image = PlayerInventoryList[pnum][item_index].item_image;
+		Charms_Used[pnum][use_id].item_level = PlayerInventoryList[pnum][item_index].item_level;
+		Charms_Used[pnum][use_id].item_stack = PlayerInventoryList[pnum][item_index].item_stack;
+		Charms_Used[pnum][use_id].attrib_count = PlayerInventoryList[pnum][item_index].attrib_count;
+		Charms_Used[pnum][use_id].topleftboxid = use_id + 1;
+		for(i = 0; i < Charms_Used[pnum][use_id].attrib_count; ++i) {
+			Charms_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
+			Charms_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
+			Charms_Used[pnum][use_id].attributes[i].attrib_tier = PlayerInventoryList[pnum][item_index].attributes[i].attrib_tier;
 		}
-		else {
-			// just zero the stuff in inventory, and copy them into charms used
-			Charms_Used[pnum][use_id].width = PlayerInventoryList[pnum][item_index].width;
-			Charms_Used[pnum][use_id].height = PlayerInventoryList[pnum][item_index].height;
-			Charms_Used[pnum][use_id].item_type = PlayerInventoryList[pnum][item_index].item_type;
-			Charms_Used[pnum][use_id].item_subtype = PlayerInventoryList[pnum][item_index].item_subtype;
-			Charms_Used[pnum][use_id].item_image = PlayerInventoryList[pnum][item_index].item_image;
-			Charms_Used[pnum][use_id].item_level = PlayerInventoryList[pnum][item_index].item_level;
-			Charms_Used[pnum][use_id].item_stack = PlayerInventoryList[pnum][item_index].item_stack;
-			Charms_Used[pnum][use_id].attrib_count = PlayerInventoryList[pnum][item_index].attrib_count;
-			Charms_Used[pnum][use_id].topleftboxid = use_id + 1;
-			for(i = 0; i < Charms_Used[pnum][use_id].attrib_count; ++i) {
-				Charms_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
-				Charms_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
-				Charms_Used[pnum][use_id].attributes[i].attrib_tier = PlayerInventoryList[pnum][item_index].attributes[i].attrib_tier;
-			}
 
-			// the leftover spot is a null charm
-			int wtemp = PlayerInventoryList[pnum][item_index].width;
-			int htemp = PlayerInventoryList[pnum][item_index].height;
-			FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-			//SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
-			SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
-			ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
-		}
-		return true;
+		// the leftover spot is a null charm
+		int wtemp = PlayerInventoryList[pnum][item_index].width;
+		int htemp = PlayerInventoryList[pnum][item_index].height;
+		FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		//SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
+		SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
+		ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	}
+	return -1;
 }
 
 void ResetPlayerCharmsUsed(int pnum) {
@@ -253,7 +274,6 @@ void ResetPlayerCharmsUsed(int pnum) {
 		Charms_Used[pnum][i].width = 0;
 		Charms_Used[pnum][i].height = 0;
 		Charms_Used[pnum][i].item_image = 0;
-		Charms_Used[pnum][i].item_type = 0;
 		Charms_Used[pnum][i].item_subtype = 0;
 		Charms_Used[pnum][i].item_level = 0;
 		Charms_Used[pnum][i].item_stack = 0;
@@ -265,6 +285,39 @@ void ResetPlayerCharmsUsed(int pnum) {
 		}
 		Charms_Used[pnum][i].attrib_count = 0;
 	}
+}
+
+int CountPlayerSmallCharms(int pnum) {
+	int res = 0;
+	
+	// first 4 boxes are for small charms, so id 0-3 are
+	for(int i = 0; i < MAX_SMALL_CHARMS_USED; ++i)
+		res += Charms_Used[pnum][i].item_type != DND_ITEM_NULL;
+	return res;
+}
+
+bool DoUniqueCheck(int pnum, int use_id, int item_index, int target_type) {
+	if(target_type == DND_CHARM_LARGE)
+		return false;
+	// 0 - 3 are small, 4-5 are medium and 6 is large
+	int id;
+	if(target_type == DND_CHARM_MEDIUM) {
+		// check opposite index -- if we are unique on other index, and other index's type is equal to ours literally, that must mean its a unique match
+		if(use_id == 4)
+			id = 5;
+		else
+			id = 4;
+		return Charms_Used[pnum][id].item_type > UNIQUE_BEGIN && PlayerInventoryList[pnum][item_index].item_type == Charms_Used[pnum][id].item_type;
+	}
+	
+	// small charm
+	for(int i = 0; i < MAX_SMALL_CHARMS_USED; ++i) {
+		if(i == use_id)
+			continue;
+		if(Charms_Used[pnum][i].item_type > UNIQUE_BEGIN && PlayerInventoryList[pnum][item_index].item_type == Charms_Used[pnum][i].item_type)
+			return true;
+	}
+	return false;
 }
 
 #endif

@@ -48,7 +48,8 @@ Actor "BFG 9000" : BFG9000
 			TNT1 A 0 A_GiveInventory("BFGShooter", 1)
 			PRDC J 3 Bright
 			PRDC KLMN 3 Bright 
-			PRDC A 18 A_ReFire
+			PRDC A 16
+			PRDC A 2 A_Refire
 			Goto Ready	
 		Flash:
 			TNT1 A 5 Bright A_Light1

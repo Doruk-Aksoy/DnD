@@ -76,6 +76,12 @@ Actor StatbuffCounter_HomingDontReflect : Ammo {
 	+IGNORESKILL
 }
 
+Actor StatbuffCounter_LimitedSmallCharms : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
 /********************
  EXTRA NEEDED STUFF 
 ********************/

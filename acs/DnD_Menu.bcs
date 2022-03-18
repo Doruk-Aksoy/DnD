@@ -1720,6 +1720,7 @@ Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
 		toshow = StrParam(l:"DND_MENU_SELLCONFIRM", s:"\n\cd", s:GetShopWeaponTag(CheckInventory("DnD_PopupID")), s:"\c- ?");
 	}
 
+	SetHudClipRect(220, 132, 184, 128, 184);
 	if(!isSell) {
 		HudMessage(s:"\c[Q2]", l:title; HUDMSG_FADEOUT, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0, 1.0);
 		HudMessage(l:toshow; HUDMSG_FADEOUT, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0, 1.0);
@@ -1728,6 +1729,7 @@ Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
 		HudMessage(s:"\c[Q2]", l:title; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 0.0);
 		HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 0.0);
 	}
+	SetHudClipRect(0, 0, 0, 0, 0);
 }
 
 Script "DnD Menu Sell Popup Clear" (void) CLIENTSIDE {

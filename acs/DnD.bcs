@@ -1163,7 +1163,7 @@ Script "DnD Periodic Checks" ENTER {
 		}
 		
 		// for cautious quest
-		if(GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
+		if(active_quest_id == QUEST_HPOVER50 && GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
 			GiveInventory("DnD_HealthLess50", 1);
 
 		if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
