@@ -498,6 +498,23 @@ bool IsBoomstick(int id) {
 	return false;
 }
 
+int CountShotgunWeaponsOwned() {
+	// optimized to not loop over all weapons, but newer shotguns must be added here
+	return 	CheckInventory(Weapons_Data[DND_WEAPON_SHOTGUN][WEAPON_NAME]) 					+
+			CheckInventory(Weapons_Data[DND_WEAPON_PURIFIER][WEAPON_NAME]) 					+
+			CheckInventory(Weapons_Data[DND_WEAPON_KILLSTORM][WEAPON_NAME]) 				+
+			CheckInventory(Weapons_Data[DND_WEAPON_DEADLOCK][WEAPON_NAME]) 					+
+			CheckInventory(Weapons_Data[DND_WEAPON_SUPERSHOTGUN][WEAPON_NAME]) 				+
+			CheckInventory(Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN][WEAPON_NAME]) 		+
+			CheckInventory(Weapons_Data[DND_WEAPON_ERASUS][WEAPON_NAME]) 					+
+			CheckInventory(Weapons_Data[DND_WEAPON_SHOCKER][WEAPON_NAME]) 					+
+			CheckInventory(Weapons_Data[DND_WEAPON_HADES][WEAPON_NAME]) 					+
+			CheckInventory(Weapons_Data[DND_WEAPON_SILVERGUN][WEAPON_NAME]) 				+
+			CheckInventory(Weapons_Data[DND_WEAPON_INCINERATOR][WEAPON_NAME]) 				+
+			CheckInventory(Weapons_Data[DND_WEAPON_VINDICATOR][WEAPON_NAME]) 				+
+			CheckInventory(Weapons_Data[DND_WEAPON_SAWEDOFF][WEAPON_NAME]);;
+}
+
 bool IsTemporaryWeapon(int id) {
 	return id >= DND_WEAPON_SAWEDOFF;
 }

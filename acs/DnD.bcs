@@ -613,7 +613,13 @@ Script "DnD Killing Spree Timer" (void) {
 			GiveInventory("LevelUpChecker", 1);
 			CalculateExpRatio();
 			SetInventory("SpreeXP", 0);
-			GiveInventory("DnD_BerserkQuest_SpreeCounter", 1);
+			
+			// check 10 kill spree quest
+			if(active_quest_id == QUEST_10SPREES && !IsQuestComplete(0, QUEST_10SPREES)) {
+				GiveInventory("DnD_BerserkQuest_SpreeCounter", 1);
+				if(CheckInventory("DnD_BerserkQuest_SpreeCounter") >= DND_QUEST_BERSERK_SPREEREQ)
+					CompleteQuest(ActivatorTID(), QUEST_10SPREES);
+			}
 			
 			// ravager armor add
 			int armor_id = GetArmorID();
@@ -627,10 +633,12 @@ Script "DnD Killing Spree Timer" (void) {
 				}
 			}
 			
-			// punisher perk 2 -- was at least merciless
-			if(CheckInventory("Punisher_Perk25") && spree >= 2) {
-				ACS_NamedExecuteAlways("DnD Health Pickup", 0, (GetSpawnHealth() * DND_PUNISHER_PERK2_MULT) / DND_PUNISHER_PERK2_DIV);
-				ACS_NamedExecuteAlways("DND Armor Give", 0, armor_id, GetArmorCapFromID(armor_id) * DND_PUNISHER_PERK2_MULT / DND_PUNISHER_PERK2_DIV);
+			// punisher perk 2 -- -2 means was at least merciless
+			temp = spree / DND_SPREE_PER;
+			if(CheckInventory("Punisher_Perk25") && temp >= 2) {
+				temp = DND_PUNISHER_SPREERECOVER + DND_PUNISHER_SPREEPERBONUS * (temp - 2);
+				ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
+				ACS_NamedExecuteAlways("DND Armor Give", 0, armor_id, temp);
 			}
 		}
 		else {
@@ -1018,7 +1026,6 @@ Script "DND On Kill" KILL {
 	
 	if(CheckInventory("Punisher_Perk50")) {
 		GiveInventory("Punisher_Perk50_Counter", 1);
-		CheckPunisherKillTally();
 		ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
 	}
 	
@@ -2889,16 +2896,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_MultikillCounter", 0);
 	SetInventory("LevelExp", 0);
 	SetInventory("LevelCredit", 0);
-	SetInventory("AllMapOnlyOnce", 0);
-	SetInventory("Punisher_Perk50_Counter", 0);
-	SetInventory("Berserker_DamageTracker", 0);
-	SetInventory("Berserker_DamageTimer", 0);
-	SetInventory("Berserker_HitTracker", 0);
-	SetInventory("Berserker_HitTimer", 0);
-	SetInventory("Berserker_NoRoar", 0);
-	SetInventory("ReceivedDialogID", 0);
-	SetInventory("DarkWanderer_Artifact", 0);
-	SetInventory("PlayerIsLeeching", 0);
+	
+	ClearLingeringBuffs();
 	
 	// statistics reset
 	SetInventory("DnD_Kills", 0);
@@ -3655,9 +3654,6 @@ Script "DnD Periodic Regeneration" ENTER {
 					GiveInventory("CyberneticEffect", 1);
 					LocalAmbientSound("items/armorbonus", 127);
 				}
-				
-				if(active_quest_id == QUEST_10SPREES && !IsQuestComplete(this, QUEST_10SPREES) && CheckInventory("DnD_BerserkQuest_SpreeCounter") >= DND_QUEST_BERSERK_SPREEREQ)
-					CompleteQuest(this, QUEST_10SPREES);
 			}
 		}
 		Delay(const:TICRATE);
@@ -3816,8 +3812,10 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 
 Script 1002 (void) NET CLIENTSIDE {
 	int qid = CheckInventory("ActiveQuestID") - 1;
-	if(qid < 0 || !CheckInventory("QuestWasPicked"))
+	if(qid < 0 || !CheckInventory("QuestWasPicked")) {
 		Log(l:"DND_TEXT_NOACTIVEQUEST");
+		Terminate;
+	}
 	else if(CheckInventory("TipBoxOpen"))
 		Terminate;
 			
@@ -5523,12 +5521,12 @@ Script "DnD Take Summon Check" (int monsterID) {
 
 Script "DnD On Pet Summon" (void) {
 	// check for damage shared buff
-	if(CheckInventory("StatbuffCounter_PainSharedWithPets")) {
+	/*if(CheckInventory("StatbuffCounter_PainSharedWithPets")) {
 		// a bit of delay to register the pet summoning
 		Delay(const:10);
 		if(CheckInventory("PetCounter"))
 			GiveInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
-	}
+	}*/
 }
 
 Script "DnD Pet Distance Move" (void) {
@@ -5840,13 +5838,13 @@ Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
 		SetFont("OBJFONT");
 		SetHudSize(900, 600, 1);
 		int x = (GetHudRight(900) << 16) - 5.8;
-		if(CheckInventory("DnD_Kills") >= DND_PUNISHER_KILLSPER) {
+		if(CheckInventory("Punisher_Perk50_Counter") >= DND_PUNISHER_PERK3_KILLCOUNT) {
 			if(!reset)
-				HudMessage(s:"\c[I7]", f:ftrunc(100 * (DND_PUNISHER_DMGINC * (CheckInventory("DnD_Kills") / DND_PUNISHER_KILLSPER))), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
+				HudMessage(s:"\c[I7]", f:ftrunc(100 * (DND_PUNISHER_DMGINCF * (CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT))), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 			else // clear because we died
 				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 		}
-		tmp = Clamp_Between(DND_PUNISHER_KILLSPER - CheckInventory("Punisher_Perk50_Counter"), 0, DND_PUNISHER_KILLSPER);
+		tmp = DND_PUNISHER_PERK3_KILLCOUNT - CheckInventory("Punisher_Perk50_Counter") % DND_PUNISHER_PERK3_KILLCOUNT;
 		HudMessage(l:"DND_KILL", s:" \c[I7]", d:tmp, s:"\c- ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
 	}
 }
@@ -6081,8 +6079,11 @@ Script "DnD Repel" (void) {
 	int r = GetActorProperty(0, APROP_RADIUS) + 16.0;
 	int p_tid;
 	
-	while(isAlive()) {
+	while(true) {
 		Delay(const:REPEL_REFRESH_RATE);
+		
+		if(!isAlive())
+			break;
 
 		// check all players to see if they are close to us
 		for(int i = 0; i < MAXPLAYERS; ++i) {

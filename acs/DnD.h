@@ -957,20 +957,6 @@ void ResetPlayerScriptChecks() {
 			PlayerScriptsCheck[i][j] = false;
 }
 
-// check if we reached a multiple of 50 yet
-void CheckPunisherKillTally() {
-	int count = CheckInventory("Punisher_Perk50_Counter");
-	if(count > DND_PUNISHER_PERK3_KILLCOUNT) {
-		// take all previous
-		for(int i = 0; i < DND_PUNISHER_PERK3_MAX; ++i)
-			TakeInventory(StrParam(s:"Punisher_Perk50_Damage_", d:(i + 1)), 1);
-		// give new based on total kill
-		GiveInventory(StrParam(s:"Punisher_Perk50_Damage_", d:CheckInventory("DnD_Kills") / 50), 1);
-		// clean current count
-		SetInventory("Punisher_Perk50_Counter", count % DND_PUNISHER_PERK3_KILLCOUNT);
-	}
-}
-
 void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
 	id = MonsterProperties[id].id;
 	switch(id) {
@@ -1111,7 +1097,7 @@ void HandleRuination(int this, int target) {
 }
 
 bool IsEliteException(int m_id) {
-	return m_id == MONSTER_PHANTASM || m_id == MONSTER_WRAITH || m_id == MONSTER_HADESSPHERE || m_id == MONSTER_UNDEADPRIESTGHOST;
+	return MonsterProperties[m_id].trait_list[DND_SUMMONED] || m_id == MONSTER_PHANTASM || m_id == MONSTER_WRAITH || m_id == MONSTER_HADESSPHERE || m_id == MONSTER_UNDEADPRIESTGHOST;
 }
 
 void HandleUniqueDeath(int unique_id) {
@@ -1198,6 +1184,23 @@ int GetAveragePlayerLevel() {
 	if(temp < 1)
 		temp = 1;
 	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / temp;
+}
+
+void ClearLingeringBuffs() {
+	SetInventory("AllMapOnlyOnce", 0);
+	SetInventory("Punisher_Perk50_Counter", 0);
+	SetInventory("Berserker_DamageTracker", 0);
+	SetInventory("Berserker_DamageTimer", 0);
+	SetInventory("Berserker_HitTracker", 0);
+	SetInventory("Berserker_HitTimer", 0);
+	SetInventory("Berserker_NoRoar", 0);
+	SetInventory("ReceivedDialogID", 0);
+	SetInventory("DarkWanderer_Artifact", 0);
+	SetInventory("PlayerIsLeeching", 0);
+	SetInventory("LifeStealAmount", 0);
+	
+	// some buffs from spells, that arent powerups
+	SetInventory("Rally_DamageBuff", 0);
 }
 
 #include "DnD_Damage.h"

@@ -25,7 +25,7 @@
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 39
+#define MAX_ROLLABLE_TRAITS 40
 
 #include "DnD_EliteInfo.h"
 
@@ -74,7 +74,8 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 	DND_SUBORDINATE,
 	DND_REPEL,
 	DND_PHANTASM,
-	DND_CRIPPLE
+	DND_CRIPPLE,
+	DND_RUINATION
 };
 
 int GetEliteBonusDamage() {

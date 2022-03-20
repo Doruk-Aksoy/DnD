@@ -207,7 +207,8 @@ enum {
 	INV_EX_ABILITY_LUCKYCRIT,
 	INV_EX_CRITIGNORERESCHANCE,
 	INV_EX_CURSEIMMUNITY,
-	INV_EX_LIMITEDSMALLCHARMS
+	INV_EX_LIMITEDSMALLCHARMS,
+	INV_EX_FLATPERSHOTGUNOWNED
 	// add new unique attributes here
 };
 
@@ -218,7 +219,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
-#define UNIQUE_ATTRIB_END INV_EX_LIMITEDSMALLCHARMS
+#define UNIQUE_ATTRIB_END INV_EX_FLATPERSHOTGUNOWNED
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
@@ -424,6 +425,7 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[idmap++] = "IATTR_CritIgnoreRes";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_LimitedCharms";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_FLatPerShotgunOwned";
 }
 
 // if 3rd argument is 0 that means simply use the difference + 1 as increment
@@ -948,6 +950,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_ALLSTATS:
 		case INV_EX_FLATDMG_ALL:
 		case INV_EX_FLATDOT:
+		case INV_EX_FLATPERSHOTGUNOWNED:
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,

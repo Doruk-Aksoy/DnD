@@ -94,6 +94,7 @@ DND_EMOD_REPEL					= "\cqRepel\c-";
 DND_EMOD_PHANTASM				= "\cqPhantasm\c-";
 DND_EMOD_CRIPPLE				= "\cvCripple\c-";
 DND_EMOD_RUINATION				= "\cgRuination\c-";
+DND_EMOD_ETHEREAL				= "\cuEthereal\c-";
 	
 DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";			DND_EMOD_MARKOFCHAOS_NOCOL	= "Mark of Chaos";
 	

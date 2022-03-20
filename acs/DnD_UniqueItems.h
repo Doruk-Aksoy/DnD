@@ -118,9 +118,9 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_CHANCE;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_CHANCE_HEALMISSINGONPAIN;
 	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 10;
+	UniqueItemList[id].rolls[0].attrib_high = 20;
 	UniqueItemList[id].rolls[1].attrib_low = 3; // chance to proc
-	UniqueItemList[id].rolls[1].attrib_high = 5;
+	UniqueItemList[id].rolls[1].attrib_high = 8;
 	UniqueItemList[id].rolls[2].attrib_low = 6; // heal %
 	UniqueItemList[id].rolls[2].attrib_high = 10;
 	id = UITEM_DEATHSPARK;
@@ -135,7 +135,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_DMGINCREASE_LIGHTNING;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_MORECRIT_LIGHTNING;
 	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 45;
+	UniqueItemList[id].rolls[0].attrib_high = 60;
 	UniqueItemList[id].rolls[1].attrib_low = 0.5;
 	UniqueItemList[id].rolls[1].attrib_high = 1.25;
 	id = UITEM_SHELLSHOCK;
@@ -146,13 +146,16 @@ void SetupUniqueItems() {
 	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
 	UniqueItemList[id].item_level = 20;
 	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_count = 3;
 	UniqueItemList[id].attrib_id_list[0] = INV_PELLET_INCREASE;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_DMGINCREASE_SHOTGUNS;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_FLATPERSHOTGUNOWNED;
 	UniqueItemList[id].rolls[0].attrib_low = 25;
 	UniqueItemList[id].rolls[0].attrib_high = 50;
 	UniqueItemList[id].rolls[1].attrib_low = 40;
 	UniqueItemList[id].rolls[1].attrib_high = 75;
+	UniqueItemList[id].rolls[2].attrib_low = 1;
+	UniqueItemList[id].rolls[2].attrib_high = 3;
 	id = UITEM_OAKHEART;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
@@ -169,8 +172,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_high = 100;
 	UniqueItemList[id].rolls[1].attrib_low = 0;
 	UniqueItemList[id].rolls[1].attrib_high = 0;
-	UniqueItemList[id].rolls[2].attrib_low = 50;
-	UniqueItemList[id].rolls[2].attrib_high = 75;
+	UniqueItemList[id].rolls[2].attrib_low = 40;
+	UniqueItemList[id].rolls[2].attrib_high = 65;
 	id = UITEM_PELLETSTORM;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
@@ -185,9 +188,9 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_PELLETSFIRECIRCLE;
 	UniqueItemList[id].attrib_id_list[3] = INV_EX_FORSHOW_BURSTGETSPELLETBONUS;
 	UniqueItemList[id].rolls[0].attrib_low = 50;
-	UniqueItemList[id].rolls[0].attrib_high = 100;
-	UniqueItemList[id].rolls[1].attrib_low = 150;
-	UniqueItemList[id].rolls[1].attrib_high = 250;
+	UniqueItemList[id].rolls[0].attrib_high = 125;
+	UniqueItemList[id].rolls[1].attrib_low = 180;
+	UniqueItemList[id].rolls[1].attrib_high = 300;
 	UniqueItemList[id].rolls[2].attrib_low = 0;
 	UniqueItemList[id].rolls[2].attrib_high = 0;
 	UniqueItemList[id].rolls[3].attrib_low = 0;
@@ -226,9 +229,9 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_FLATDMG_ALL;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_ONKILL_HEALMISSING;
 	UniqueItemList[id].rolls[0].attrib_low = 0.06;
-	UniqueItemList[id].rolls[0].attrib_high = 0.12;
+	UniqueItemList[id].rolls[0].attrib_high = 0.175;
 	UniqueItemList[id].rolls[1].attrib_low = 3;
-	UniqueItemList[id].rolls[1].attrib_high = 10;
+	UniqueItemList[id].rolls[1].attrib_high = 12;
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 5;
 	id = UITEM_EYEBEHOLDER;
@@ -285,12 +288,12 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_FLATDOT;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_DOTDURATION;
 	UniqueItemList[id].attrib_id_list[2] = INV_DOTMULTI;
-	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 10;
+	UniqueItemList[id].rolls[0].attrib_low = 6;
+	UniqueItemList[id].rolls[0].attrib_high = 15;
 	UniqueItemList[id].rolls[1].attrib_low = 50;
 	UniqueItemList[id].rolls[1].attrib_high = 100;
-	UniqueItemList[id].rolls[2].attrib_low = 6;
-	UniqueItemList[id].rolls[2].attrib_high = 15;
+	UniqueItemList[id].rolls[2].attrib_low = 10;
+	UniqueItemList[id].rolls[2].attrib_high = 25;
 	id = UITEM_VOIDEMBLEM;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
@@ -305,7 +308,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_low = 0;
 	UniqueItemList[id].rolls[0].attrib_high = 0;
 	UniqueItemList[id].rolls[1].attrib_low = 20;
-	UniqueItemList[id].rolls[1].attrib_high = 35;
+	UniqueItemList[id].rolls[1].attrib_high = 50;
 }
 
 // These are necessary to sync the global variables + unique data

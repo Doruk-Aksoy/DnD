@@ -37,6 +37,8 @@ bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
 
 #define DND_TOXICOLOGY_REDUCE 33
 
+#define DND_MAX_PET_DAMAGESHARE 9
+
 enum {
 	DND_ANNOUNCER_QUEST,
 	DND_ANNOUNCER_ATTRIBPOINT,
@@ -1012,7 +1014,7 @@ int GetOverloadTime(int pnum) {
 int GetLifestealCap(int pnum) {
 	// avoid recalculating over and over if possible
 	int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
-	return Clamp_Between(hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP)) / 100, 1, hp_cap);
+	return Clamp_Between((hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP))) / 100, 1, hp_cap);
 }
 
 #define DND_BASE_LIFESTEALRATE 20

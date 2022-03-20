@@ -54,10 +54,12 @@ enum {
 #define DND_HOBO_SHOTGUNBONUS 30
 #define DND_HOBO_SHOTGUNPELLETBONUS 50
 
-#define DND_PUNISHER_PERK2_MULT 3
-#define DND_PUNISHER_PERK2_DIV 20
+#define DND_PUNISHER_SPREERECOVER 30 // 30%
+#define DND_PUNISHER_SPREEPERBONUS 5
 #define DND_PUNISHER_PERK3_KILLCOUNT 10
 #define DND_PUNISHER_PERK3_MAX 100
+#define DND_PUNISHER_DMGINCF 0.04
+#define DND_PUNISHER_DMGINC 4 // 4%
 #define PUNISHERPERKID1 7010
 #define PUNISHERPERKID2 7011
 
@@ -113,8 +115,11 @@ enum {
 * 54165 = NPC TID
 * 55000 - 56000 = pet tids
 * 56001 - 59001 = other pickup tids of importance -- soulspheres, megas, invis, invul, radsuit etc.
+* 59002 = subordinate spawn temporary tid
 * Anything above 66000 => any monster tid
 */
+
+#define DND_SUBORDINATE_TEMPTID 59002
 
 #define DND_SHOTGUNPUFF_REMOVETID 3099
 #define DND_SHOTGUNPUFF_TID 3100

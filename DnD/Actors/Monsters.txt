@@ -1613,7 +1613,9 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 	-COUNTKILL
 	+NOTARGET
 	+NOGRAVITY
+	+NOBLOOD
 	+FLOAT
+	+GHOST
 	+NOINFIGHTING
 	+MISSILEMORE
 	+PIERCEARMOR
@@ -1624,7 +1626,6 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		Idle:
-			TNT1 A 0 A_UnsetShootable
 			TNT1 A 0 A_UnsetSolid
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "IdleLoop")
 			TNT1 A 0 A_PlaySound("Phantasm/Rise", CHAN_VOICE)

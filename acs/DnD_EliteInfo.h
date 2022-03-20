@@ -107,6 +107,7 @@ enum {
 	DND_PHANTASM,
 	DND_CRIPPLE,
 	DND_RUINATION,
+	DND_ETHEREAL,
 	
 	DND_MARKOFCHAOS,
 	
@@ -272,6 +273,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_CRIPPLE";
 		case DND_RUINATION:
 		return "DND_EMOD_RUINATION";
+		case DND_ETHEREAL:
+		return "DND_EMOD_ETHEREAL";
 		
 		case DND_MARKOFCHAOS:
 		return "DND_EMOD_MARKOFCHAOS";

@@ -79,15 +79,18 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 				bufftimer += bufftimer / DND_WANDERER_SPELLEFFICIENCY;
 			}
 			else {*/
-				sptr1 = StrParam(s:"Rally_Damage_Lvl", d:spell_level);
 				sptr2 = StrParam(s:"Rally_Speed_Lvl", d:spell_level);
 			//}
 
 			for(i = P_TIDSTART; i < P_TIDSTART + MAXPLAYERS; ++i) {
 				if(fdistance(this, i) <= temp) {
-					GiveActorInventory(i, sptr1, 1);
+					GiveActorInventory(i, "Rally_DamageBuff", spell_level);
 					GiveActorInventory(i, sptr2, 1);
 					ACS_NamedExecuteAlways("DnD Spell Effects", 0, DND_SPELL_RALLY, i);
+					
+					SetActivator(i);
+					ACS_NamedExecuteAlways("DnD Spell Buff Ticking", 0, DND_SPELL_RALLY, bufftimer, TICRATE);
+					SetActivator(this);
 				}
 			}
 			
@@ -204,6 +207,21 @@ Script "DnD Boulder Hit Check" (void) {
 Script "DnD LightningSpear Rip Retrieve" (void) {
 	int res = LIGHTNINGSPEAR_BASE_RIP + GetActorIntellect(GetActorProperty(0, APROP_TARGETTID)) / LIGHTNINGSPEAR_INT_FACTOR;
 	SetResultValue(res);
+}
+
+Script "DnD Spell Buff Ticking" (int spell_id, int time, int period) {
+	time /= period;
+	while(time && isAlive()) {
+		Delay(period);
+		--time;
+	}
+	
+	// times out, take away buffs
+	switch(spell_id) {
+		case DND_SPELL_RALLY:
+			SetInventory("Rally_DamageBuff", 0);
+		break;
+	}
 }
 
 #endif

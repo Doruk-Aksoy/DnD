@@ -474,8 +474,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	// only store scaling factors here for later use, no modifying damage in this block
 	// damage modifications are done at the end
 	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid) || isSpecial) {
+		// add potential shotgun flat damage
+		temp = GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED);
+		if(temp)
+			temp *= CountShotgunWeaponsOwned();
+		
 		// add flat damage bonus mapping talent name to flat bonus type
-		temp = MapTalentToFlatBonus(pnum, talent_type, flags);
+		temp += MapTalentToFlatBonus(pnum, talent_type, flags);
 		
 		ClearCache(pnum, wepid, dmgid);
 		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
@@ -854,11 +859,12 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ENERGY)
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_SOUL))
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	
+	else if(MonsterProperties[mon_id].trait_list[DND_ETHEREAL] && damage_category != DND_DAMAGECATEGORY_OCCULT && damage_type != DND_DAMAGETYPE_SOUL)
+		return 0;
 	// no special factors, process as is
 	return dmg = dmg * (100 + pen) / 100;
 }
@@ -946,6 +952,7 @@ int HandleAccessoryHitEffects(int p_tid, int enemy_tid, int dmg, int dmg_data, s
 // This function is responsible for handling all damage effects player has that affect their damage some way
 // ex: curses etc.
 int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
+	// little orbs he drops
 	if(CheckInventory("Doomguy_Perk25_Damage"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_DOOMGUY_DMGMULT, DND_DOOMGUY_DMGDIV);
 
@@ -959,10 +966,18 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 		
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
-		dmg = ApplyDamageFactor_Safe(dmg, temp);
+		dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
 		
 	if(CheckInventory("CorruptOrb_DamageReduction"))
 		dmg /= DND_CORRUPTORB_DIV;
+	
+	temp = CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT;
+	if(temp)
+		dmg = ApplyDamageFactor_Safe(dmg, 100 + temp * DND_PUNISHER_DMGINC);
+		
+	temp = CheckInventory("Rally_DamageBuff");
+	if(temp)
+		dmg = ApplyDamageFactor_Safe(dmg, 100 + RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL);
 	
 	return dmg;
 }
@@ -2156,6 +2171,16 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_CYBORG_ENERGYREDUCE);
 
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ENERGY);
+	}
+	
+	// gravecaller unique mod
+	if(CheckInventory("StatbuffCounter_PainSharedWithPets")) {
+		// damage is shared between you and pets, therefore if you have 1 pet you take half
+		// you have 2 you get 1/3rd, which is what this'll do
+		temp = CheckInventory("PetCounter") + 1;
+		if(temp > DND_MAX_PET_DAMAGESHARE)
+			temp = DND_MAX_PET_DAMAGESHARE;
+		dmg /= temp;
 	}
 	
 	// ALL DAMAGE AMPLIFYING EFFECTS COME LAST!

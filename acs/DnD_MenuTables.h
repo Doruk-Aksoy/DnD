@@ -1705,7 +1705,7 @@ str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
 #define MAX_DEFENSE_MODS 17
 #define DEFMODOFFSET (AGGMODOFFSET + MAX_AGGRESSIVE_MODS)
 
-#define MAX_UTILITY_MODS 14
+#define MAX_UTILITY_MODS 15
 #define UTIMODOFFSET (DEFMODOFFSET + MAX_DEFENSE_MODS)
 
 // input is menu based index, returns corresponding label index for the mod
@@ -1789,6 +1789,7 @@ int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
 	DND_HEXFUSION,
 	DND_SHOCKER,
 	DND_CRIPPLE,
+	DND_ETHEREAL,
 	
 	DND_MARKOFCHAOS,
 	

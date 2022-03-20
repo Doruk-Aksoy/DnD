@@ -484,6 +484,7 @@ DND_MENU_MMOD_UTI11		=	"Monster has 33% chance to steal 15% of current weapon's 
 DND_MENU_MMOD_UTI12		=	"Monster attacks have 33% chance to inflict a random curse.";
 DND_MENU_MMOD_UTI13		=	"Monster attacks will briefly stop your movement.";
 DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
+DND_MENU_MMOD_UTI15		=	"Monster can only be harmed by occult damage.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";

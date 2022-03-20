@@ -920,7 +920,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 550, 			DND_MTYPE_DEMON_POW										},//DND_TORTUREDSOUL,
 	{ 500, 			DND_MTYPE_MAGICAL_POW									},//DND_SHADOWDISCIPLE,
 	{ 750, 			DND_MTYPE_MAGICAL_POW									},//DND_SENTINEL,
-	{ 200,			DND_MTYPE_MAGICAL_POW									},//DND_PHANTASM
+	{ 300,			DND_MTYPE_MAGICAL_POW									},//DND_PHANTASM
 	{ 75, 			DND_MTYPE_UNDEAD_POW									},//DND_WRAITH,
 
 	// Revenant
@@ -1564,8 +1564,12 @@ void HandleSubordinateSpawn(int tid, int mid) {
 	}
 	
 	// create some special fx
-	if(Spawn(toSpawn, GetActorX(tid), GetActorY(tid), GetActorZ(tid), 0, GetActorAngle(tid)))
+	if(Spawn(toSpawn, GetActorX(tid), GetActorY(tid), GetActorZ(tid), DND_SUBORDINATE_TEMPTID, GetActorAngle(tid))) {
+		SetActorProperty(DND_SUBORDINATE_TEMPTID, APROP_TARGETTID, GetActorProperty(tid, APROP_TARGETTID));
+		Thing_Hate(DND_SUBORDINATE_TEMPTID, GetActorProperty(tid, APROP_TARGETTID), 4);
+		Thing_ChangeTID(DND_SUBORDINATE_TEMPTID, 0);
 		ACS_NamedExecuteAlways("DnD Subordinate Spawn FX", 0, tid);
+	}
 }
 
 Script "DnD Subordinate Spawn FX" (int tid) CLIENTSIDE {
@@ -1676,6 +1680,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_HELLARBITER].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_HELLARBITER].trait_list[DND_TELEPORT] = true;
 	MonsterData[MONSTER_HELLARBITER].trait_list[DND_FIRECREATURE] = true;
+	MonsterData[MONSTER_PHANTASM].trait_list[DND_SUMMONED] = true;
 	
 	// rev
 	MonsterData[MONSTER_INCARNATE].trait_list[DND_RAISE] = true;
@@ -1690,7 +1695,9 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_SLUDGEGIANT].trait_list[DND_POISON] = true;
 	MonsterData[MONSTER_SLUDGEGIANT2].trait_list[DND_SPLIT] = true;
 	MonsterData[MONSTER_SLUDGEGIANT2].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_SLUDGEGIANT2].trait_list[DND_SUMMONED] = true;
 	MonsterData[MONSTER_SLUDGEGIANT3].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_SLUDGEGIANT3].trait_list[DND_SUMMONED] = true;
 	MonsterData[MONSTER_DARKSERVANT].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_DARKSERVANT].trait_list[DND_TELEPORT] = true;
 	MonsterData[MONSTER_DARKSERVANT].trait_list[DND_PIERCE] = true;

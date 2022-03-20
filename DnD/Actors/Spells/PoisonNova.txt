@@ -18,7 +18,7 @@ Actor PoisonNovaSpawner : DnD_Activator {
 			TNT1 A 0 A_JumpIf(Args[1], "LoopContinue")
 		Goto Finish
 		LoopContinue:
-			TNT1 A 0 A_FireCustomMissile("PoisonNovaProjectile", (360.0 / Args[0]) * Args[1], 0)
+			TNT1 A 0 A_SpawnItemEx("PoisonNovaProjectile", 0, 0, 32, 36 * cos((360.0 / Args[0]) * Args[1]), 36 * sin((360.0 / Args[0]) * Args[1]), 0, (360.0 / Args[0]) * Args[1], SXF_ABSOLUTEVELOCITY | SXF_ABSOLUTEANGLE)
 			TNT1 A 0 A_SetArg(1, Args[1] - 1)
 		Goto LoopStart
 		Finish:
