@@ -18,17 +18,7 @@ typedef struct {
 	bool trait_list[MAX_MONSTER_TRAITS]; 	// 1 if that trait is on, 0 if not
 } mo_prop_T;
 
-// used for hp bar data
-typedef struct {
-	int count;
-	int tid;
-	bool list[MAX_MONSTER_TRAITS];
-} cs_trait_list_T;
-cs_trait_list_T client_trait_list;
-
 // allow a max of 8192 monsters' data to be held
-#define DND_MAX_MONSTERS 8192
-#define DND_MAX_PETS 1600 // 25 pets per player x 64 players
 mo_prop_T MonsterProperties[DND_MAX_MONSTERS];
 mo_prop_T PetMonsterProperties[DND_MAX_PETS];
 
@@ -775,21 +765,6 @@ int GetCustomMonsterType(int properties) {
 	return InferMonsterPower(properties & 0x1F);
 }
 
-int GetPetMonsterType(int monsterID) {
-	int mid = MonsterData[monsterID].flags;
-	if(mid & DND_MTYPE_ROBOTIC_POW) {
-		// give priority to demon on half demon half robots
-		if(mid & DND_MTYPE_DEMON_POW)
-			return DND_MTYPE_DEMON;
-		return DND_MTYPE_ROBOTIC;
-	}
-	if(mid & DND_MTYPE_MAGICAL_POW)
-		return DND_MTYPE_MAGICAL;
-	if(mid & DND_MTYPE_UNDEAD_POW)
-		return DND_MTYPE_UNDEAD;
-	return DND_MTYPE_DEMON;
-}
-
 typedef struct {
 	int health;
 	int flags;
@@ -1117,7 +1092,7 @@ bool IsLostSoul() {
 }
 
 bool isPet(int tid) {
-	return tid >= DND_PETTID_BEGIN && tid < DND_MONSTERTID_BEGIN;
+	return tid >= DND_PETTID_BEGIN && tid < DND_PETTID_END;
 }
 
 // all demon barons, fatsos or arachnos or bosses that are demons can drop a soul ammo

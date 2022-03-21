@@ -3820,7 +3820,8 @@ Actor PlasmaBolterProj : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_PLASMABOLTER << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT9))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | ((DND_DAMAGEFLAG_BLASTSELF) << 16))
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_PLASMABOLTER << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)

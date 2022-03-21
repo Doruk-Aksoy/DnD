@@ -6,6 +6,7 @@ Actor TargetMonId : DnD_Info {}
 Actor TargetHealthBarColor : DnD_Info {}
 Actor TargetIsElite : DnD_Boolean {}
 Actor TargetFortify : DnD_Info {}
+Actor TargetTID : DnD_Info {}
 
 // Identification of the monster
 Actor MonsterID : DnD_Info {}

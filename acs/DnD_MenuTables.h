@@ -330,7 +330,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 7000,  1,		1 },
 		
 		// 5 - 1
-		{ 3500,  1,		1 },
+		{ 4750,  1,		1 },
 		{ 2500,  1,		1 },
 		{ 6750,  1,		1 },
 		{ 5500,  1,		1 },
@@ -601,7 +601,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT4LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
-		{ RES_SLOT5MERC, -1, -1 },
+		{ -1, -1, -1 }, // gl requires no research
 		{ RES_SLOT6LUXURY, -1, -1 },
 		
 	// ammo 2
@@ -1163,7 +1163,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONY				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONYX			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_MIS				},
-	{ OBJ_AMMO | OBJ_RESEARCH | OBJ_RESEARCH_ATLEASTONE,		SHOP_AMMO_GL				},
+	{ OBJ_AMMO,													SHOP_AMMO_GL				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NAIL				},
 	
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_BASILISK			},

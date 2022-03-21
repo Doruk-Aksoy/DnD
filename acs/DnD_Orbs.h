@@ -1581,7 +1581,7 @@ void DoCorruptOrbMessage(int val, int affluence) {
 			Log(s:"\cj", l:"DND_ORBUSETEXT2C", s:" ", d:affluence, s:" ", l:"DND_ORBUSETEXT2D");
 		break;
 		case CORRUPTORB_TAKEDMG:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2C", d:CORRUPTORB_DMGTAKE * affluence, s:"% ", l:"DND_DAMAGE", s:"\cj ", l:"DND_FROM", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2C", s:" ", d:CORRUPTORB_DMGTAKE * affluence, s:"% ", l:"DND_DAMAGE", s:"\cj ", l:"DND_FROM", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_REDUCEDMGMAP:
 			Log(s:"\cj", l:"DND_ORBUSETEXT2E");

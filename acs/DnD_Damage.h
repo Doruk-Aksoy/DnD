@@ -716,6 +716,7 @@ void HandleOverloadEffects(int pnum, int victim) {
 	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_INSULATED] && random(1, 100) <= DND_BASE_OVERLOADCHANCE * (100 + CheckInventory("IATTR_OverloadChance")) / 100 && IsActorAlive(victim)) {
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
+			SetActorInventory(victim, "DnD_OverloadDamage", Max(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE), CheckActorInventory(victim, "DnD_OverloadDamage")));
 			ACS_NamedExecuteWithResult("DnD Monster Overload", victim);
 		}
 		else
@@ -1091,9 +1092,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			dmg = dmg * (100 + temp) / 100;
 	}
 	
+	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
 	if(CheckActorInventory(victim, "DnD_OverloadTimer")) {
 		if(damage_type != DND_DAMAGETYPE_LIGHTNING)
-			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF + GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE)) / 100;
+			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF + CheckActorInventory(victim, "DnD_OverloadDamage")) / 100;
 		//GiveActorInventory(victim, "DnD_OverloadDamage", dmg);
 	}
 	
@@ -1229,6 +1231,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	int lim = PlayerExplosionList[pnum].list[instance].amt;
 		
 	int actor_flags = ScanActorFlags();
+	bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 	
 	int px = GetActorX(0), py = GetActorY(0), pz = GetActorZ(0);
 	// printbold(s:"Explosion owner: ", d:owner);
@@ -1283,7 +1286,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetArmorAmount()) {
 			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
 			// handle player's self explosion resists here
-			final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type);
+			final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, isArmorPiercing);
 			if(final_dmg > 0) {
 				// push with some greater force
 				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
@@ -2013,6 +2016,8 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 		if(isActorAlive(zap_tids[pnum][i])) {
 			if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
 				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
+				// overload damage amp is set to maximum of whatever the monster might have had (from another player) or this new instance of overload
+				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage", Max(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE), CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage")));
 				ACS_NamedExecuteWithResult("DnD Monster Overload", zap_tids[pnum][i]);
 			}
 			else
@@ -2047,11 +2052,13 @@ Script "DnD Check Explosion Repeat" (void) {
 	SetResultValue(res);
 }
 
-int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type) {
+int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, bool isArmorPiercing) {
 	switch(dmg_type) {
 		case DND_DAMAGETYPE_ENERGYEXPLOSION:
 		case DND_DAMAGETYPE_EXPLOSIVES:
 		case DND_DAMAGETYPE_OCCULTEXPLOSION:
+			int dmg_prev = dmg;
+			
 			if(CheckInventory("Marine_Perk5"))
 				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_SELFEXPLOSIVEREDUCE);
 			
@@ -2064,6 +2071,10 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type) {
 				else
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
 			}
+			
+			// factor in players armor here!!!
+			if(!isArmorPiercing)
+				dmg = HandlePlayerArmor(dmg, dmg_prev, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE);
 			
 			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
 		break;
@@ -2434,6 +2445,17 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		else if(IsPlayer(shooter) && IsPlayer(victim) && shooter != victim) {
 			// if victim is a player, and shooter is also a player and its not us, make sure they take no damage! YOU NEVER KNOW!!
 			SetResultValue(0);
+		}
+		else if(IsPet(victim) && IsPlayer(shooter)) {
+			// players shouldnt hurt pets
+			SetResultValue(0);
+		}
+		else if(IsPet(shooter) && shooter != victim) {
+			// shooter is pet, it most likely attacked a monster, factor in things related to pets and put damage numbers!
+			// make sure activator is the player themselves now
+			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
+			ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, 0);
+			SetResultValue(dmg);
 		}
 		else {
 			// hurt self

@@ -49,12 +49,13 @@ enum {
 	RPGMENUTRADECOUNTDOWNID,
 	RPGMENUPAGEID = 120,
 	RPGMENUHIGHLIGHTID,
-	RPGMENUID = 1250,
+	RPGMENUINVENTORYID = 1449,
+	RPGMENUID = 1450,
 	RPGMENULARRID,
 	RPGMENURARRID,
 	RPGMENURETARRID,
 	RPGMENUITEMIDEND,
-	RPGMENUITEMID = 1550,
+	RPGMENUITEMID = 1750,
 	RPGMENUITEMSUBID,
 	RPGMENUHELPCORNERID,
 	RPGMENUHELPCORNERIDMAIN,
@@ -62,18 +63,18 @@ enum {
 	RPGMENUHELPID,
 	RPGMENUINFOID,
 	RPGMENUDAMAGETYPEID,
-	RPGMENULISTID = 1610,
-	RPGMENUWEAPONPANELID = 1650,
-	RPGMENUBACKGROUNDID = 1651,
+	RPGMENULISTID = 1810,
+	RPGMENUWEAPONPANELID = 1850,
+	RPGMENUBACKGROUNDID = 1851,
 	
 	// monster scanner hud id stuff
-	MONSTER_TYPEICONID = 1800,
+	MONSTER_TYPEICONID = 2000,
 	MONSTER_TYPEICONID_RIGHT,
 	MONSTER_NAMEID,
 	MONSTER_TEXTID,
 	MONSTER_BARFILLID,
 	MONSTER_BARFILLOVERLAY,
-	MONSTER_TRAITID = 1900
+	MONSTER_TRAITID = 2100
 };
 
 void ClearMonsterScanInfo() {
@@ -82,10 +83,17 @@ void ClearMonsterScanInfo() {
 }
 
 #define HUD_DII_MULT 14
-#define MAXINVENTORYBLOCKS_HORIZ 5
-#define MAXINVENTORYBLOCKS_VERT 9
-
+#define MAXINVENTORYBLOCKS_HORIZ 5 // from top to bottom, 5 heights
+#define MAXINVENTORYBLOCKS_VERT 9 // from left to right, 9 vertical slices
 #define MAX_INVENTORY_BOXES (MAXINVENTORYBLOCKS_HORIZ * MAXINVENTORYBLOCKS_VERT)
+
+/*
+0 	1	2	3	4	5	6	7	8
+9	10	11	12	13	14	15	16	17
+18	19	20	21	22	23	24	25	26
+27	28	29	30	31	32	33	34	35
+36	37	38	39	40	41	42	43	44
+*/
 
 #define MAX_CRAFTING_ITEMBOXES 16
 #define CRAFTING_IMAGE_COUNT 4
@@ -305,6 +313,14 @@ typedef struct rect {
 	int botright_y;
 } rect_T;
 
+typedef struct idragdata {
+	int size_x;
+	int size_y;
+	int topboxid;
+	int source;
+	int click_box;				// the box that we had clicked initially
+} idragdata_T;
+
 typedef struct cursor {
 	int posx;
 	int posy;
@@ -315,7 +331,7 @@ typedef struct cursor {
 	vec2_T itemHoveredDim;		// dim for draving things
 	int itemDragged;			// this holds the image id, not the item id (We dont need it)
 	bool itemDraggedStashSize;	// draw resized to fit stash view
-	vec3_T itemDragInfo;		// x,y used for dimensions of item, z is used for topbox so its not drawn until itemDragged is -1
+	idragdata_T itemDragInfo;	// x,y used for dimensions of item, z is used for topbox so its not drawn until itemDragged is -1
 	bool hoverNeedsReset;		// need reset on hover data
 } cursor_T;
 cursor_T PlayerCursorData;

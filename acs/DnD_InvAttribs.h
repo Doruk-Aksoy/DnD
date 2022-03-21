@@ -865,11 +865,11 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_FACTOR_SMALLCHARM:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:GetDetailedModRange_Unique(tier, FACTOR_SMALLCHARM_RESOLUTION, extra), s:"%\c-",
+					l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:GetDetailedModRange_Unique(tier, FACTOR_SMALLCHARM_RESOLUTION, extra), s:"\c-",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"%");
+			return StrParam(l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
 		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			if(showDetailedMods) {

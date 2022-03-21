@@ -40,12 +40,6 @@ enum {
 	IPROCESS_REMOVE
 };
 
-// MENU IDS
-// Moved here because of dependencies
-enum {
-	RPGMENUINVENTORYID = 999,
-};
-
 typedef struct imove {
 	int width;
 	int height;
@@ -1328,14 +1322,10 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	int val, temp, lvl;
 	bool showModTiers = GetCVar("dnd_detailedmods");
 	
-	// field display has no pnum
-	// problem is: GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source) requires -1 by default if its current player, but also will be OR'd and that can't work with -1
-	int pn = pnum != 0 ? pnum : -1;
-	
 	SetFont("SMALLFONT");
 	if(itype == DND_ITEM_CHARM) {
 		// temp holds charm's tier id
-		lvl = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source);
+		lvl = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pnum, source);
 		temp = lvl / CHARM_ATTRIBLEVEL_SEPERATOR;
 		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
@@ -1346,7 +1336,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 		
-		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pnum, source);
 		for(j = 0; j < i; ++j) {
 			temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j | pnum, source);
 			val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j | pnum, source);
@@ -1364,7 +1354,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		itype >>= UNIQUE_BITS;
 		--itype;
 		
-		lvl = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pn, source);
+		lvl = GetItemSyncValue(DND_SYNC_ITEMLEVEL, topboxid, pnum, source);
 		val = GetStat(STAT_LVL) < lvl ? CR_RED : CR_WHITE;
 		HudMessage(l:"DND_LEVEL_HEADER", s:": ", d:lvl; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 4, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
@@ -1374,7 +1364,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		lvl = itype;
 		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pn, source);
+		i = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, topboxid, pnum, source);
 		
 		// itype will count the skipped properties (the helper attributes)
 		itype = 0;
@@ -2101,7 +2091,7 @@ void MakeUnique(int item_pos, int item_type, int pnum) {
 	}
 	#ifdef ISDEBUGBUILD
 	//i = random(0, MAX_UNIQUE_ITEMS - 1);
-	i = UITEM_DEADKINGBANNER;
+	i = UITEM_GRAVECALLER;
 	#endif
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type, pnum);

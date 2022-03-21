@@ -721,6 +721,13 @@ Script "DnD Check Elite Clear" (void) CLIENTSIDE {
 // Used for exp and credit calculations
 Script "DND On Kill" KILL {
 	int this = ActivatorTID();
+	
+	// pet check -- pets dont have anything going for them beyond here
+	if(IsPet(this)) {
+		Thing_ChangeTID(0, 0);
+		Terminate;
+	}
+	
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
@@ -2545,6 +2552,7 @@ Script "DnD Monster Scanner Picker" (void) {
 				SetInventory("TargetIsElite", PetMonsterProperties[m_id].isElite);
 				SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
 			}
+			SetInventory("TargetTID", montid);
 			SetInventory("TargetMonId", m_id);
 			SetInventory("TargetHealthBarColor", healthbarcolor);
 			SetInventory("TargetCurrentHealth", GetActorProperty (montid, APROP_Health));
@@ -2586,12 +2594,39 @@ Script "DnD Sync Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+Script "DnD Sync Pet Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
+	int m_id = id - DND_PETTID_BEGIN;
+	
+	// get all of the flagsets now
+	int i;
+	if(v1) {
+		for(i = 0; i < 32; ++i)
+			PetMonsterProperties[m_id].trait_list[i] = IsSet(v1, i);
+		PetMonsterProperties[m_id].hasTrait = true;
+	}
+	
+	if(v2) {
+		for(i = 32; i < 64; ++i)
+			PetMonsterProperties[m_id].trait_list[i] = IsSet(v2, i - 32);
+		PetMonsterProperties[m_id].hasTrait = true;
+	}
+
+	if(v3) {
+		for(i = 64; i < MAX_MONSTER_TRAITS; ++i)
+			PetMonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
+		PetMonsterProperties[m_id].hasTrait = true;
+	}
+	
+	SetResultValue(0);
+}
+
 Script "DnD Monster Scanner" (void) CLIENTSIDE {
-	int mmaxhp, monhp, monlevel, monid, m_id;
+	int mmaxhp, monhp, monlevel, monid, mon_tid, m_id;
 	int hdisp, fortify_amt;
 	int hdisp_prev = -1, fortify_amt_prev = -1;	
 	str barGraphic = "";
 	str fortGraphic = "";
+	bool mon_isPet = false;
 	
 	while(isAlive()) {
 		// disable during intermission
@@ -2603,33 +2638,38 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 		if(mmaxhp && GetCVar("dnd_monsterbars")) {
 			monhp = CheckInventory("TargetCurrentHealth");
 			monlevel = CheckInventory("TargetLevel");
+			mon_tid = CheckInventory("TargetTID");
 			monid = CheckInventory("TargetIsWhat");
 			m_id = CheckInventory("TargetMonId");
 			hdisp = (monhp * 100 / mmaxhp);
 			fortify_amt = (CheckInventory("TargetFortify") * 100 / mmaxhp);
 			int i, j;
-			bool is_unique = IsUniqueMonster(monid);
 			
 			SetHudSize(800, 600, 0);
-			if(!client_trait_list.list[DND_PET])
-				SetFont(MonsterTypeInfo[GetMonsterType(monid)][MONSTER_TYPE_INFO_ICON]);
-			else
-				SetFont(MonsterTypeInfo[GetPetMonsterType(monid)][MONSTER_TYPE_INFO_ICON]);
-				
+			SetFont(MonsterTypeInfo[GetMonsterType(monid)][MONSTER_TYPE_INFO_ICON]);	
 			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, MONSTERINFO_HOLDTIME);
 			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
 			// inner text
 			SetFont ("MONFONT");
 			HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
-			str prefix = "";
-			if(CheckInventory("TargetIsElite"))
-				prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
-			if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
-			else if(is_unique)
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
-			else if(IsMonsterIdBoss(monid))
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			
+			bool is_unique = 0;
+			mon_isPet = IsPet(mon_tid);
+			
+			if(!mon_isPet) {
+				is_unique = IsUniqueMonster(monid);
+				str prefix = "";
+				if(CheckInventory("TargetIsElite"))
+					prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
+				if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
+					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+				else if(is_unique)
+					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+				else if(IsMonsterIdBoss(monid))
+					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+				else
+					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			}
 			else
 				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 			
@@ -2684,18 +2724,29 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 			i = j = 0;
 			// show monster traits
 			// legendary monsters show no traits at all
-			if(MonsterProperties[m_id].trait_list[DND_LEGENDARY]) {
-				SetFont ("MONFONT");
-				HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+			if(!mon_isPet) {
+				if(MonsterProperties[m_id].trait_list[DND_LEGENDARY]) {
+					SetFont ("MONFONT");
+					HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+				}
+				else if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
+					SetFont ("MONFONT");
+					HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+				}
+				else if(MonsterProperties[m_id].hasTrait) {
+					SetFont ("MONFONT");
+					for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
+						if(MonsterProperties[m_id].trait_list[i]) {
+							HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+							++j;
+						}
+					}
+				}
 			}
-			else if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
-				SetFont ("MONFONT");
-				HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-			}
-			else if(MonsterProperties[m_id].hasTrait) {
+			else if(PetMonsterProperties[m_id].hasTrait) {
 				SetFont ("MONFONT");
 				for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
-					if(MonsterProperties[m_id].trait_list[i]) {
+					if(PetMonsterProperties[m_id].trait_list[i]) {
 						HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 						++j;
 					}
@@ -5262,20 +5313,20 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	bool isSpecial = false;
 	int extra = -1;
 	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
-		if(slot != DND_AMMOSLOT_MAGAZINE)
-			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
-		else if(slot != DND_AMMOSLOT_SPECIAL) {
+		if(slot == DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(ClipAmmoTypes[ammo], amount);
+		else if(slot == DND_AMMOSLOT_SPECIAL) {
+			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
 			isSpecial = true;
 			extra = ammo;
 		}
-		else if(slot != DND_AMMOSLOT_TEMPORARY)
-			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
-		else {
+		else if(slot == DND_AMMOSLOT_TEMPORARY) {
 			GiveInventory(TemporaryWeaponData[ammo][TEMPWEP_AMMO], amount);
 			if(ammo == DND_TEMPWEP_SOULRENDER)
 				GiveInventory("BladeCharge", 100);
 		}
+		else
+			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
 	}
 	
 	// ammo gain triggering means we made an attack
@@ -5397,10 +5448,12 @@ Script "DnD Force Damage Cache Recalculation" (int pnum) {
 	ForcePlayerDamageCaching(pnum);
 }
 
-Script "DnD Pet Monster Scale" (int petid) {
-	GivePetTID();
+Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
+	int master = GetActorProperty(0, APROP_MASTERTID);
+
+	GivePetTID(master);
 	
-	int base, add, level, temp, master = GetActorProperty(0, APROP_MASTERTID), this = ActivatorTID();
+	int base, add, level, temp, this = ActivatorTID();
 	int m_id = this - DND_PETTID_BEGIN;
 	base = GetActorProperty(0, APROP_HEALTH);
 	
@@ -5438,9 +5491,16 @@ Script "DnD Pet Monster Scale" (int petid) {
 	PetMonsterProperties[m_id].basehp = base;
 	PetMonsterProperties[m_id].maxhp = base + add;
 	PetMonsterProperties[m_id].level = level;
+	PetMonsterProperties[m_id].trait_list[DND_PET] = true;
+	
+	// find a better way to transfer these
+	if(trait1 != -1)
+		PetMonsterProperties[m_id].trait_list[trait1] = true;
+	if(trait2 != -1)
+		PetMonsterProperties[m_id].trait_list[trait2] = true;
 	
 	ACS_NamedExecuteWithResult(
-		"DnD Sync Monster Trait CS", 
+		"DnD Sync Pet Monster Trait CS", 
 		this, 
 		GetPetMonsterTraits(m_id, 0),
 		GetPetMonsterTraits(m_id, 1),
@@ -5506,15 +5566,12 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	SetResultValue(res);
 }
 
-Script "DnD Take Summon Check" (int monsterID) {
+Script "DnD On Summon Death Check" (int monsterID) {
 	switch(monsterID) {
 		case MONSTER_PET_ZOMBIE:
 			SetActivator(0, AAPTR_MASTER);
-			TakeInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
 			TakeInventory("SummonedZombiePets", 1);
 			TakeInventory("PetCounter", 1);
-			if(CheckInventory("PetCounter"))
-				GiveInventory(StrParam(s:"PetDamageReduction_", d:CheckInventory("PetCounter")), 1);
 		break;
 	}
 }

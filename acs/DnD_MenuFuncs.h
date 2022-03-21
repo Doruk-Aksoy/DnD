@@ -100,7 +100,9 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 
 void ResetCursorDragData() {
 	PlayerCursorData.itemDragged = -1;
-	PlayerCursorData.itemDragInfo.z = -1;
+	PlayerCursorData.itemDragInfo.topboxid = -1;
+	PlayerCursorData.itemDragInfo.source = -1;
+	PlayerCursorData.itemDragInfo.click_box = -1;
 }
 
 void ResetCursorHoverData() {
@@ -2701,7 +2703,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	int temp;
 	int img = GetItemSyncValue(DND_SYNC_ITEMIMAGE, bid, (pnum + 1) << 16, source);
 	// inventory icon
-	if(hasItem && PlayerCursorData.itemDragInfo.z != bid) {
+	if(hasItem && (PlayerCursorData.itemDragInfo.topboxid != bid || PlayerCursorData.itemDragInfo.source != source)) {
 		// shift down tall items height - 1 times
 		temp = (GetItemSyncValue(DND_SYNC_ITEMHEIGHT, bid, (pnum + 1) << 16, source) - 1) * ITEMOFFSETSCALE;
 		SetFont(Item_Images[img]);
@@ -2795,6 +2797,28 @@ void DrawInventoryInfo(int pnum) {
 	}
 }
 
+// min is included max is excluded
+void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum) {
+	// update the area being hovered wrt item being dragged
+	int temp = PlayerCursorData.itemDragInfo.topboxid;
+	--boxid;
+	if(boxid == -1 || boxid >= max_box || boxid < min_box)
+		return;
+	
+	if(temp != -1) {
+		int idx;
+		// all boxes in range of this should be highlighted
+		for(int p = 0; p < PlayerCursorData.itemDragInfo.size_y; ++p) {
+			for(int s = 0; s < PlayerCursorData.itemDragInfo.size_x; ++s) {
+				idx = boxid + temp - PlayerCursorData.itemDragInfo.click_box + s + p * MAXINVENTORYBLOCKS_VERT;
+				Log(s:"set lit ", d:idx, s: " boxid: ", d:boxid, s: " diff: ", d:temp - PlayerCursorData.itemDragInfo.click_box);
+				if(idx >= min_box && idx < max_box)
+					InventoryBoxLit[idx] = BOXLIT_STATE_CURSORON;
+			}
+		}
+	}
+}
+
 void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int basey, int skip, int idbase, int offset, int source, int pnum, int dimx, int dimy) {
 	int topboxid = -1;
 	int bid = bh * MAXINVENTORYBLOCKS_VERT + bw;
@@ -2820,10 +2844,14 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 				for(s = 0; s < wt; ++s)
 					InventoryBoxLit[temp + offset + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CLICK;
 			}
-			PlayerCursorData.itemDragged = GetItemSyncValue(DND_SYNC_ITEMIMAGE, temp, (pnum + 1) << 16, source);
-			PlayerCursorData.itemDragInfo.x = wt;
-			PlayerCursorData.itemDragInfo.y = ht;
-			PlayerCursorData.itemDragInfo.z = temp;
+			if(PlayerCursorData.itemDragInfo.click_box == -1) {
+				PlayerCursorData.itemDragged = GetItemSyncValue(DND_SYNC_ITEMIMAGE, temp, (pnum + 1) << 16, source);
+				PlayerCursorData.itemDragInfo.size_x = wt;
+				PlayerCursorData.itemDragInfo.size_y = ht;
+				PlayerCursorData.itemDragInfo.topboxid = temp;
+				PlayerCursorData.itemDragInfo.source = source;
+				PlayerCursorData.itemDragInfo.click_box = boxid - 1 - offset;
+			}
 		}
 		else if(((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_STASH && CheckInventory("DnD_PlayerPreviousPage") == CheckInventory("DnD_PlayerCurrentPage")) || (source & 0xFFFF) != DND_SYNC_ITEMSOURCE_STASH)
 			InventoryBoxLit[prevclick] = BOXLIT_STATE_CLICK;
@@ -2833,10 +2861,10 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 	
 	// highlight checking
 	if(boxid - 1 == bid + offset) {
+		// highlight the current box we hovered on
 		InventoryBoxLit[boxid - 1] = BOXLIT_STATE_CURSORON;
-		if(topboxid != -1) {
+		if(topboxid != -1)
 			UpdateCursorHoverData(topboxid, source, 0, pnum, dimx, dimy);
-		}
 		else {
 			if(PlayerCursorData.itemHovered != -1)
 				PlayerCursorData.hoverNeedsReset = true;
@@ -2868,10 +2896,11 @@ void HandleInventoryView(int boxid) {
 	ResetInventoryLitState(0, MAX_INVENTORY_BOXES);
 	
 	//CleanInventoryInfo();
-	
+	int pnum = PlayerNumber();
+	UpdateDraggedItemLitBoxes(boxid, 0, MAX_INVENTORY_BOXES, pnum);
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerNumber(), HUDMAX_X, HUDMAX_Y);
+			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, HUDMAX_X, HUDMAX_Y);
 		}
 	}
 	
@@ -3140,22 +3169,21 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	int pnum = PlayerNumber();
 	int i, j;
 	
-	// CleanInventoryInfo();
-	ResetInventoryLitState(0, MAX_INVENTORY_BOXES);
 	// draw other player offering up top
+	ResetInventoryLitState(0, 3 * MAX_INVENTORY_BOXES);
+	UpdateDraggedItemLitBoxes(boxid, 0, 3 * MAX_INVENTORY_BOXES, pnum);
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEUP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_TRADEVIEW, GetTradee(), dimx, dimy);
 		}
 	}
-	ResetInventoryLitState(MAX_INVENTORY_BOXES, 2 * MAX_INVENTORY_BOXES);
+	
 	// draw our offering below
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEDOWN, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_TRADEVIEW, pnum, dimx, dimy);
 		}
 	}
-	ResetInventoryLitState(2 * MAX_INVENTORY_BOXES, MAXLITBOXES);
 	// draw our inventory to the side
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -3473,10 +3501,10 @@ void DrawDraggedItem() {
 	
 	if(PlayerCursorData.itemDraggedStashSize) {
 		SetHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH, 1);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((PlayerCursorData.posx * 3 / 2) & MMASK) - 16.0 * (PlayerCursorData.itemDragInfo.x - 1) + 0.4, HUDMAX_YF_STASH - ((PlayerCursorData.posy * 3 / 2) & MMASK) - 8.0 * (PlayerCursorData.itemDragInfo.y - 1), 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((PlayerCursorData.posx * 3 / 2) & MMASK) - 16.0 * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF_STASH - ((PlayerCursorData.posy * 3 / 2) & MMASK) - 8.0 * (PlayerCursorData.itemDragInfo.size_y - 1), 0.0, 0.0);
 	}
 	else
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (PlayerCursorData.posx & MMASK) - 16.0 * (PlayerCursorData.itemDragInfo.x - 1) + 0.4, HUDMAX_YF - (PlayerCursorData.posy & MMASK) - 8.0 * (PlayerCursorData.itemDragInfo.y - 1), 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (PlayerCursorData.posx & MMASK) - 16.0 * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF - (PlayerCursorData.posy & MMASK) - 8.0 * (PlayerCursorData.itemDragInfo.size_y - 1), 0.0, 0.0);
 }
 
 void HandleStashView(int boxid) {
@@ -3492,14 +3520,14 @@ void HandleStashView(int boxid) {
 	PlayerCursorData.itemDraggedStashSize = true;
 	
 	ResetInventoryLitState(0, 2 * MAX_INVENTORY_BOXES);
-	// CleanInventoryInfo();
-	
+	UpdateDraggedItemLitBoxes(boxid, 0, 2 * MAX_INVENTORY_BOXES, pnum);
 	// draw stash at top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHBOX_BASEX_UP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_STASH | (curpages << 16), pnum, TRADE_RES_X, TRADE_RES_Y);
 		}
 	}
+	
 	// draw our inventory below
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -3691,10 +3719,9 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
 				tx = GetNextUniqueCraftingMaterial(by + MAX_CRAFTING_MATERIALBOXES * page);
 				if(tx != -1) {
-					bx = GetTotalStackOfMaterial(tx);
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
-						UpdateCursorHoverData(tx, bx, PlayerInventoryList[pnum][tx].item_type, pnum);
+						UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum);
 
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
@@ -3714,6 +3741,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 					if(tx != -1) {
 						SetFont(Item_Images[PlayerInventoryList[pnum][tx].item_image]);
 						HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
+						bx = GetTotalStackOfMaterial(tx);
 						if(bx > 0) {
 							SetFont("SMALLFONT");
 							HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0);
@@ -3900,11 +3928,11 @@ void DrawCraftingInventoryInfo(int pn) {
 		SetFont(Weapons_Data[PlayerCursorData.itemHovered][WEAPON_ICON]);	
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my, 0.0);
 	}
-	else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM && PlayerCursorData.itemHoveredType < UNIQUE_BEGIN) {
+	/*else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM && PlayerCursorData.itemHoveredType < UNIQUE_BEGIN) {
 		// dont draw charm images here
 		SetFont(Item_Images[PlayerInventoryList[pn][PlayerCursorData.itemHovered].item_image]);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my + 16.0, 0.0);
-	}
+	}*/
 	
 	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 	
@@ -3915,7 +3943,7 @@ void DrawCraftingInventoryInfo(int pn) {
 	my = GetIntegerBits(3 * my / 2) + 20.1;
 	
 	SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9, 1);
-	DrawCraftingInventoryText(PlayerCursorData.itemHoveredType, PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, pn, mx, my);
+	DrawCraftingInventoryText(PlayerCursorData.itemHoveredType, PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, (pn + 1) << 16, mx, my);
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -3978,7 +4006,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		HudMessage(s:modText; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx, my + 40.0, 0.0, 0.0);
 	}
 	else // draw using our established drawing routine
-		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), HUD_DII_MULT);
+		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, extra1, pnum, extra2), HUD_DII_MULT);
 }
 
 void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {

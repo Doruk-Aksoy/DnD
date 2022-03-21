@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0
@@ -20,14 +20,6 @@
 
 #define DND_FROZENFX_TID 3000
 #define DND_CHAOSMARKFX_TID 3001
-
-#define SHARED_ITEM_TID_BEGIN 17000
-#define SHARED_ITEM_TYPE_TID_MAX 19048
-#define DND_DAMAGENUMBER_TID 30000
-#define DND_SHOOTABLETID_BEGIN 50000
-#define DND_PETTID_BEGIN 55000
-#define DND_PICKUPTID_BEGIN 56001
-#define DND_MONSTERTID_BEGIN 66000
 
 #define DND_BASE_HEALTH 100
 
@@ -113,13 +105,22 @@ enum {
 * 54000 - 54063 = Wanderer explosion tids
 * 54100 - 54163 = Crossbow explosion tids
 * 54165 = NPC TID
-* 55000 - 56000 = pet tids
-* 56001 - 59001 = other pickup tids of importance -- soulspheres, megas, invis, invul, radsuit etc.
-* 59002 = subordinate spawn temporary tid
-* Anything above 66000 => any monster tid
+* 55000 - 56600 = pet tids -- max of 1600 pets stored here because => 25 max pets per player x 64 = 1600
+* 65001 - 68001 = other pickup tids of importance -- soulspheres, megas, invis, invul, radsuit etc.
+* 68002 = subordinate spawn temporary tid
+* Anything above 71000 => any monster tid
 */
 
-#define DND_SUBORDINATE_TEMPTID 59002
+#define SHARED_ITEM_TID_BEGIN 17000
+#define SHARED_ITEM_TYPE_TID_MAX 19048
+#define DND_DAMAGENUMBER_TID 30000
+#define DND_SHOOTABLETID_BEGIN 50000
+#define DND_PETTID_BEGIN 55000
+#define DND_PETTID_END 56600
+#define DND_PICKUPTID_BEGIN 65001
+#define DND_MONSTERTID_BEGIN 71000
+
+#define DND_SUBORDINATE_TEMPTID 68002
 
 #define DND_SHOTGUNPUFF_REMOVETID 3099
 #define DND_SHOTGUNPUFF_TID 3100
@@ -169,13 +170,16 @@ int IsButtonHeld (int input, int mask) {
 
 int active_quest_id = -1;
 
+#define DND_MAX_MONSTERS 8192
+#define DND_MAX_PETS_PER_PLAYER 25
+#define DND_MAX_PETS (DND_MAX_PETS_PER_PLAYER * MAXPLAYERS) // 25 pets per player x 64 players
+
 #define DND_TID_MONSTER 0
-#define DND_TID_PET 1
-#define DND_TID_SHOOTABLE 2
-#define DND_TID_PICKUPS 3
-#define DND_TID_SHAREDITEMS 4
+#define DND_TID_SHOOTABLE 1
+#define DND_TID_PICKUPS 2
+#define DND_TID_SHAREDITEMS 3
 // keeps at what tid we are left off
-int DnD_TID_List[5] = { DND_MONSTERTID_BEGIN, DND_PETTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
+int DnD_TID_List[4] = { DND_MONSTERTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
 
 #define PLAYERLEVELINFO_LEVEL 0
 #define PLAYERLEVELINFO_MINLEVEL 1
@@ -189,8 +193,17 @@ void GiveMonsterTID () {
 	Thing_ChangeTID(0, DnD_TID_List[DND_TID_MONSTER]++);
 }
 
-void GivePetTID() {
-	Thing_ChangeTID(0, DnD_TID_List[DND_TID_PET]++);
+void GivePetTID(int master_tid) {
+	int master_pnum = master_tid - P_TIDSTART;
+	int i;
+	int pet_tid_beg = DND_PETTID_BEGIN + master_pnum * DND_MAX_PETS_PER_PLAYER;
+	
+	// check linearly while the pet tids are occupied, find one that isn't
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER && ThingCount(T_NONE, pet_tid_beg + i); ++i);
+	
+	// we haven't skipped over lim which is beginning of pet tid for that player + max pet cap + 1
+	if(i != pet_tid_beg + DND_MAX_PETS_PER_PLAYER + 1)
+		Thing_ChangeTID(0, pet_tid_beg + i);
 }
 
 void GiveShootableTID() {
