@@ -289,16 +289,22 @@ void GroupScoreboardPlayers() {
 	int pcounter = 0;
 	for(i = 0; i < MAXPLAYERS && pcounter < lim; ++i) {
 		int spec = PlayerIsSpectator(i);
-		if(PlayerInGame(i) && spec != INTER_PSTATE_DEAD) {
-			PInterGroups[INTER_PSTATE_ALIVE][ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]++] = i;
-			++pcounter;
-		}
-		else if(spec == INTER_PSTATE_DEAD) {
+		if(!PlayerInGame(i) && !spec)
+			continue;
+	
+		if(spec == INTER_PSTATE_DEAD) {
+			// dead, but in the game
 			PInterGroups[INTER_PSTATE_DEAD][ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]++] = i;
 			++pcounter;
 		}
-		else {
+		else if(spec == INTER_PSTATE_SPECTATING) {
+			// spectating
 			PInterGroups[INTER_PSTATE_SPECTATING][ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]++] = i;
+			++pcounter;
+		}
+		else {
+			// alive and well
+			PInterGroups[INTER_PSTATE_ALIVE][ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]++] = i;
 			++pcounter;
 		}
 	}

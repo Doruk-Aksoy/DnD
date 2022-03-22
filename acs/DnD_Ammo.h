@@ -3,7 +3,7 @@
 
 #include "DnD_Stat.h"
 
-#define DND_MAX_BACKPACK 55
+#define DND_MAX_BACKPACK 25
 #define DND_BACKPACK_RATIO 20
 
 enum {

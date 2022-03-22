@@ -344,20 +344,12 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
 }
 
 int ScanActorFlags() {
-	int res = 0;
-	if(CheckFlag(0, "FOILINVUL"))
-		res |= DND_ACTORFLAG_FOILINVUL;
-	if(CheckFlag(0, "FORCEPAIN"))
-		res |= DND_ACTORFLAG_FORCEPAIN;
-	if(CheckFlag(0, "PAINLESS"))
-		res |= DND_ACTORFLAG_PAINLESS;
-	if(CheckFlag(0, "NODAMAGETHRUST"))
-		res |= DND_ACTORFLAG_NOPUSH;
-	if(CheckFlag(0, "THRUGHOST"))
-		res |= DND_ACTORFLAG_THRUGHOST;
-	if(CheckFlag(0, "FORCERADIUSDMG"))
-		res |= DND_ACTORFLAG_FORCERADIUSDMG;
-	return res;
+	return 	CheckFlag(0, "FOILINVUL") * DND_ACTORFLAG_FOILINVUL				|
+			CheckFlag(0, "FORCEPAIN") * DND_ACTORFLAG_FORCEPAIN				|
+			CheckFlag(0, "PAINLESS") * DND_ACTORFLAG_PAINLESS				|
+			CheckFlag(0, "NODAMAGETHRUST") * DND_ACTORFLAG_NOPUSH			|
+			CheckFlag(0, "THRUGHOST") * DND_ACTORFLAG_THRUGHOST				|
+			CheckFlag(0, "FORCERADIUSDMG") * DND_ACTORFLAG_FORCERADIUSDMG;
 }
 
 void AdjustDamageRetrievePointers(int flags) {
@@ -560,16 +552,12 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
 			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE), false);
 		
-		// gunslinger affected
-		if(flags & DND_WDMG_ISPISTOL)
+		// these HOPEFULLY dont have anything in common... yet?
+		if(flags & DND_WDMG_ISPISTOL) // gunslinger affected
 			InsertCacheFactor(pnum, wepid, dmgid, DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward), false);
-		
-		// shotgun affected
-		if(flags & DND_WDMG_ISBOOMSTICK)
+		else if(flags & DND_WDMG_ISBOOMSTICK) // shotgun affected
 			InsertCacheFactor(pnum, wepid, dmgid, DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward), false);
-			
-		// super weapon affected
-		if(flags & DND_WDMG_ISSUPER)
+		else if(flags & DND_WDMG_ISSUPER) // super weapon affected
 			InsertCacheFactor(pnum, wepid, dmgid, DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward), false);
 		
 		// perk multiplicative factors
