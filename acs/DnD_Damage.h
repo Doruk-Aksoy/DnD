@@ -320,9 +320,11 @@ int PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
 
 // contains overflow checks
 int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
-	if(dmg < INT_MAX / factor)
+	// disabled overflow checks for now, see if there's any improvement in performance
+	// if this turns out to be necessary, I'll enable this
+	//if(dmg < INT_MAX / factor)
 		return dmg * factor / div;
-	return INT_MAX;
+	//return INT_MAX;
 }
 
 // All resists uniformly follow same factors
@@ -987,22 +989,15 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 	if(isPlayer(source))
 		pnum = source - P_TIDSTART;
 	
-	// for now, just add full suffix at the end, later we'll instead make them bypass resists properly with numbers
-	if(
-		CheckActorInventory(source, "NetherCheck") 																	|| 
-		(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
-		((flags & DND_DAMAGEFLAG_ISSPELL) && CheckInventory("StatbuffCounter_SpellsFullDamage"))					||
-		(IsOccultDamage(damage_type) && CheckInventory("DnD_QuestReward_DreamingGodBonus"))							||
-		(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
-		(IsExplosionDamage(damage_type) && CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))					||
-		(damage_type == DND_DAMAGETYPE_SOUL && CheckInventory("StatbuffCounter_SoulWepsDoFullDamage"))				||
-		((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"))
-	) 
-	{
-		// no need for this suffix anymore
-		//s_damagetype = StrParam(s:s_damagetype, s:"Full");
-		forced_full = true;
-	}
+	// check if the damage is to be dealt without any reductions from resistances or immunities
+	forced_full |= 	CheckActorInventory(source, "NetherCheck") 																	|| 
+					(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
+					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckInventory("StatbuffCounter_SpellsFullDamage"))					||
+					(IsOccultDamage(damage_type) && CheckInventory("DnD_QuestReward_DreamingGodBonus"))							||
+					(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
+					(IsExplosionDamage(damage_type) && CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))					||
+					(damage_type == DND_DAMAGETYPE_SOUL && CheckInventory("StatbuffCounter_SoulWepsDoFullDamage"))				||
+					((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"));
 
 	// check blocking status of monster -- if they are and we dont have foilinvul on this, no penetration
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING] && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
@@ -1038,7 +1033,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		temp = CheckActorInventory(victim, "DesolatorStackCounter");
 		// 10% increase from desolator
 		if(temp)
-			dmg = dmg * (100 + temp * DND_DESOLATOR_DMG_GAIN) / 100;
+			dmg = ApplyDamageFactor_Safe(dmg, 100 + temp * DND_DESOLATOR_DMG_GAIN);
 	}
 	
 	// handle resists and all that here
@@ -1115,15 +1110,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		temp = victim - DND_MONSTERTID_BEGIN;
 		
 		// extra represent the flag list of damageticflag
-		extra = 0;
-		if(!(actor_flags & DND_ACTORFLAG_NOPUSH))
-			extra |= DND_DAMAGETICFLAG_PUSH;
-		
-		if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
-			extra |= DND_DAMAGETICFLAG_CRIT;
-			
-		if(actor_flags & DND_ACTORFLAG_COUNTSASMELEE)
-			extra |= DND_DAMAGETICFLAG_CONSIDERMELEE;
+		extra = (!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 				|
+				(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT			|
+				(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE	|
+				(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT;
 		
 		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 		if(damage_type == DND_DAMAGETYPE_ICE)
@@ -1132,9 +1122,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 			extra |= DND_DAMAGETICFLAG_FIRE;
 		else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
 			extra |= DND_DAMAGETICFLAG_LIGHTNING;
-			
-		if(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME)
-			extra |= DND_DAMAGETICFLAG_DOT;
 
 		if(!PlayerDamageTicData[pnum][temp]) {
 			PlayerDamageVector[pnum].x = ox;
@@ -1404,6 +1391,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		}
 	}
 	
+	// true if wepid is negative (misc damage sources like armors etc.) or if we used a spell
 	bool wep_neg = wepid < 0 || (flags & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO));
 	
 	if(!wep_neg) {
@@ -1449,8 +1437,8 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
 		}
 		
-		if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val)
-			flags |= DND_DAMAGEFLAG_INFLICTPOISON;
+		poison = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
+		flags |= (!!poison) * DND_DAMAGEFLAG_INFLICTPOISON;
 			
 		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
 			// the wepid is stored as reference in the last 16 bits
@@ -1460,10 +1448,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		
 		// percent damage of monster if it exists
 		extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
-		if(extra)
-			flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
-		
-		poison = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
+		flags |= (!!extra) * DND_DAMAGEFLAG_PERCENTHEALTH;
 	}
 	else if(flags & DND_DAMAGEFLAG_ISSPELL) {
 		// check if it has any poison factor on the spell
@@ -2105,23 +2090,21 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_MAGIC);
 	
 	// ELEMENTAL DAMAGE BLOCK BEGINS
+	// we can only have 1 element attributed to one damage type at a time
 	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_FIRE);
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
 	}
-	
-	if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
+	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ICE);
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
 	}
-	
-	if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
+	else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_LIGHTNING);
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
 	}
-	
-	// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
-	if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
+	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
+		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
 		// marine 50 perk
 		if(!CheckInventory("Marine_Perk50")) {
 			// wanderer perk
@@ -2180,6 +2163,8 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 		if(temp > DND_MAX_PET_DAMAGESHARE)
 			temp = DND_MAX_PET_DAMAGESHARE;
 		dmg /= temp;
+		
+		// distribute this damage to other pets
 	}
 	
 	// ALL DAMAGE AMPLIFYING EFFECTS COME LAST!
@@ -2344,25 +2329,21 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			int factor = 0;
 			
 			// dont scale reflected damage by this
-			if(!isReflected)
-				factor += Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
-		
-			if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
-				factor += DND_ELITE_EXTRASTRONG_BONUS;
-
-			if(MonsterProperties[m_id].level > 50)
-				factor += DND_AFTER50_INCREMENT_DAMAGE;
+			// special bonuses
+			factor += 	!isReflected * (Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100)) +
+						(MonsterProperties[m_id].level > 50) * DND_AFTER50_INCREMENT_DAMAGE + 
+						MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
 				
 			dmg = dmg * (100 + factor) / 100;
 			
 			// elite damage bonus is multiplicative
 			factor = 100 + GetEliteBonusDamage();
-			if(dmg < INT_MAX / factor && MonsterProperties[m_id].isElite)
+			if(MonsterProperties[m_id].isElite && dmg < INT_MAX / factor)
 				dmg = dmg * factor / 100;
 				
 			// chaos mark is multiplicative
 			factor = 100 + CHAOSMARK_DAMAGEBUFF;
-			if(dmg < INT_MAX / factor && MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
+			if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS] && dmg < INT_MAX / factor)
 				dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
 				
 			if(isRipper)
@@ -2370,11 +2351,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				
 			// halved by demon sealer effect if any
 			if(CheckActorInventory(shooter, "DemonSealDamageDebuff"))
-				dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
+				dmg >>= 1;
 				
 			// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
-			if(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP)
-				dmg += (GetSpawnHealth() * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
+			dmg += (dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) * (GetSpawnHealth() * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
 
 			// if this was a player, factor their resists in
 			// resists of player now will factor in after we've calculated the damage accurately

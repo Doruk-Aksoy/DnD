@@ -170,7 +170,7 @@ WEPTIP_3_3 		= "Shoots a missile and 3 mini missiles. Missile does 75, mini miss
 WEPTIP_3_4 		= "Fires 12 plasma balls in a circular fashion each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.";
 WEPTIP_3_5 		= "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it, dealing 192-240 damage in 108 unit radius. \cfIgnores shields.";
 WEPTIP_3_6 		= "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.";
-WEPTIP_3_7 		= "Fires silver bolts dealing 300 damage. Altfire increases tension, allowing shots to rip and gain 50% more damage per increase, but instead start from base of 200 damage. Magical or undead enemies hit causes a 150 damage explosion in 128 unit radius.";
+WEPTIP_3_7 		= "Fires silver bolts dealing 400 damage. Altfire increases tension, allowing shots to rip and gain 50% more damage per increase. Magical or undead enemies hit causes a 200 damage explosion in 128 unit radius.";
 	 
 WEPTIP_3_8 		= "The explosive shotgun, the best there is. Fires 10 pellets, each doing 15 on hit. Each pellet does 32-48 damage in a small area. Does self damage. \cfIgnores shields.";
 WEPTIP_3_9 		= "Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius, \cfignoring \cfshields\c-. Blades return to you after travelling a bit. Can't hit \cughosts.";
