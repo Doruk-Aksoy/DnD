@@ -141,6 +141,8 @@ Actor DnD_BaseFastProjectile : FastProjectile {
 	}
 }
 
+Actor DnD_RippingBegan : DnD_Boolean { }
+
 // should be no longer in use, hopefully
 /*Actor DnD_Projectile_SpawnChecks : DnD_Activator {
 	States {

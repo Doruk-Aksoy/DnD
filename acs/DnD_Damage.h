@@ -1503,11 +1503,13 @@ void HandleRipperHitSound(int tid, int owner, int wepid) {
 Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	
+	GiveInventory("DnD_RippingBegan", 1);
+	
 	int r;
 	int h;
 	if(flags & DND_DAMAGEFLAG_SIMULATERIPPER) {
 		r = GetUserVariable(0, "user_r");
-		h = GetUserVariable(0, "user_h");
+		h = GetUserVariable(0, "user_h") << 16;
 	}
 	else {
 		r = GetActorProperty(0, APROP_RADIUS) >> 16;
@@ -1540,9 +1542,9 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	if(!len)
 		len = 1;
 	
-	dir_x /= len;
-	dir_y /= len;
-	dir_z /= len;
+	dir_x /= len;		dir_x *= r;
+	dir_y /= len;		dir_y *= r;
+	dir_z /= len;		dir_z *= r;
 	
 	// projectiles spawn speed units ahead of player, this is especially noticable in faster projectiles
 	// we must check backwards initially for point blank case
@@ -1552,7 +1554,6 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	bool first_tic = true;
 	int a_x, a_y, a_r;
 	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
-
 	// start target picking
 	while(GetActorVelX(0) || GetActorVelY(0) || GetActorVelZ(0)) {
 		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
@@ -1578,22 +1579,37 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 			for(s = 0; s < steps; ++s) {
 				// eliminate cases where it'd fail to touch
 				if(!first_tic) {
-					if(bot_x + s * dir_x * r < a_x - a_r || a_x + a_r < top_x + s * dir_x * r || bot_y + s * dir_y * r < a_y - a_r || a_y + a_r < top_y + s * dir_y * r)
+					if
+					(
+						top_x - s * dir_x > a_x + a_r ||
+						bot_x - s * dir_x < a_x - a_r ||
+						bot_y - s * dir_y > a_y + a_r ||
+						top_y - s * dir_y < a_y - a_r
+					)
 						continue;
 				}
-				else {
-					// check front and back on tic 0, because projectile spawns speed units farther
-					if(bot_x - s * dir_x * r < a_x - a_r || a_x + a_r < top_x - s * dir_x * r || bot_y - s * dir_y * r < a_y - a_r || a_y + a_r < top_y - s * dir_y * r) {
-						// if s == 0, we dont need to check this so leave asap
-						if(!s || bot_x + s * dir_x * r < a_x - a_r || a_x + a_r < top_x + s * dir_x * r || bot_y + s * dir_y * r < a_y - a_r || a_y + a_r < top_y + s * dir_y * r) {
-							continue;
-						}
-					}
-				}
+				else if // check front and back on tic 0, because projectile spawns speed units farther
+					(
+						(
+							top_x - s * dir_x > a_x + a_r ||
+							bot_x - s * dir_x < a_x - a_r ||
+							bot_y - s * dir_y > a_y + a_r ||
+							top_y - s * dir_y < a_y - a_r
+						)
+						&&
+						(
+							!s ||
+							top_x + s * dir_x > a_x + a_r ||
+							bot_x + s * dir_x < a_x - a_r ||
+							bot_y + s * dir_y > a_y + a_r ||
+							top_y + s * dir_y < a_y - a_r
+						)
+					)
+						continue;
 				
 				//printbold(s:"x-y valid on: ", f:a_x, s: " ", f:a_y, s:" ", f:top_x + s * dir_x * r, s: " ", f:top_y + s * dir_y * r, s: " ", f:bot_x + s * dir_x * r, s: " ", f:bot_y + s * dir_y * r);
 				//printbold(s:"try z: ", f:GetActorZ(0) - h, s: " ", f:GetActorZ(0) + h, s: " ", f:GetActorZ(i), s: " ", f:GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT));
-				if(GetActorZ(0) - h / 2 > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h / 2 < GetActorZ(i) || !CheckSight(0, i, 0))
+				if(GetActorZ(0) - h / 2 + s * dir_z > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h / 2 + s * dir_z < GetActorZ(i) || !CheckSight(0, i, 0))
 					continue;
 				
 				//printbold(s:"IN BOX ", d:ripper_id, s: " actor: ", d:i);
@@ -1621,6 +1637,139 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		
 		// update now, we updated at 0 tic case
 		top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
+	}
+	
+	SetResultValue(0);
+}
+
+// this particular version of the script runs ONCE, in corner cases where the above version did not get to run at all because of the following:
+// fast projectiles dont execute their scripts if they had expired in a distance <= their speed. So we abuse this script to get it to work regardless
+// when this executes they have no speed so we have no speed related checks
+// TO BE USED FOR EXTREME EDGE CASE PROJECTILES, SPEED > 100
+Script "DnD One Time Ripper Fix" (int dmg, int damage_type, int flags, int wepid) {
+	if(CheckInventory("DnD_RippingBegan"))
+		Terminate;
+
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	
+	int r;
+	int h;
+	if(flags & DND_DAMAGEFLAG_SIMULATERIPPER) {
+		r = GetUserVariable(0, "user_r");
+		h = GetUserVariable(0, "user_h") << 16;
+	}
+	else {
+		r = GetActorProperty(0, APROP_RADIUS) >> 16;
+		h = GetActorProperty(0, APROP_HEIGHT);
+	}
+	
+	int i = 0, m = 0;
+	int actor_flags = ScanActorFlags();
+	
+	// increment id by 1 for each call, doesnt matter if it overflows
+	int ripper_id = -1;
+	static int ripper_count = -1;
+	static int ripper_hits[MAX_RIPPERS_ACTIVE][MAX_RIPPER_HITS_STORED];
+	ripper_count = (ripper_count + 1) % MAX_RIPPERS_ACTIVE;
+	ripper_id = ripper_count;
+	
+	// reset ripper hit array
+	for(i = 0; i < MAX_RIPPER_HITS_STORED; ++i)
+		ripper_hits[ripper_id][i] = -1;
+	
+	// top left, bot right -- no need to be precise with rotation of bounding box here, the engine itself uses AABB anyway
+	int top_x, top_y, bot_x, bot_y;
+	
+	int dir_x = GetActorX(owner) - GetActorX(0);
+	int dir_y = GetActorY(owner) - GetActorY(0);
+	
+	// steps will be from owner to proj, in a vector created that points from projectile to player
+	// this is ok since if this script ever runs it means the initial ripper script did not, and we triggered this on very close dist
+	// steps will be calculated by dividing it by radius of proj
+	int steps = AproxDistance(dir_x, dir_y);
+	if(!steps)
+		steps = 1.0;
+	
+	dir_x = r * FixedDiv(dir_x, steps);
+	dir_y = r * FixedDiv(dir_y, steps);
+	
+	steps /= r;
+	steps >>= 16;
+	if(steps < 2)
+		steps = 2;
+	
+	// projectiles spawn speed units ahead of player, this is especially noticable in faster projectiles
+	// we must check backwards initially for point blank case
+	// find monsters in a rectangle from actor xyz, +-r * cos / sin and +-h on z
+	// simple rectanglular box check from rectangle sides
+	bool found = false;
+	int a_x, a_y, a_r;
+	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) + (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) - (r << 16);
+	// start target picking
+	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+		// dead, skip
+		if(!isActorAlive(i))
+			continue;
+
+		found = false;
+		a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
+		/*if(GetActorClass(i) == "DoomImp2")
+			printbold(s:"dist check ", f:AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y), s: " > ", f:5 * (a_r + (r << 16)));*/
+			
+		// give a more generous window here in case proj skipped way too much
+		if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > 5 * (a_r + (r << 16)) || ((actor_flags & DND_ACTORFLAG_THRUGHOST) && CheckFlag(i, "GHOST")))
+			continue;
+		
+		for(int s = 0; s < steps; ++s) {
+			// eliminate cases where it'd fail to touch
+			// check front and back on tic 0, because projectile spawns speed units farther
+			// top and bot are projectile's coords, a_x etc. are the actor in question
+			/*
+			y
+			|	top(x,y)
+			|		*-------
+			|		-------*
+			|				bot(x,y)
+			*-----------------------x
+			*/
+
+			/*printbold(
+				s:"actor vecs: ", f:a_x, s: " ", f:a_y, s: " ", f:a_r, s: " checking: ",
+				f:top_x + s * dir_x, s: " > ", f:a_x + a_r, s: " || ",
+				f:bot_x + s * dir_x, s: " < ", f:a_x - a_r, s: " || ",
+				f:bot_y + s * dir_y, s: " > ", f:a_y + a_r, s: " || ",
+				f:top_y + s * dir_y, s: " < ", f:a_y - a_r
+			);*/
+			if
+			(
+				top_x + s * dir_x > a_x + a_r ||
+				bot_x + s * dir_x < a_x - a_r ||
+				bot_y + s * dir_y > a_y + a_r ||
+				top_y + s * dir_y < a_y - a_r
+			)
+				continue;
+			
+			//printbold(s:"x-y valid on: ", f:a_x, s: " ", f:a_y, s:" ", f:top_x + s * dir_x * r, s: " ", f:top_y + s * dir_y * r, s: " ", f:bot_x + s * dir_x * r, s: " ", f:bot_y + s * dir_y * r);
+			//printbold(s:"try z: ", f:GetActorZ(0) - h / 2, s: " > ", f:GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT), s: " || ", f:GetActorZ(0) + h / 2, s: " < ", f:GetActorZ(i));
+			if(GetActorZ(0) > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h < GetActorZ(i) || !CheckSight(0, i, 0))
+				continue;
+			
+			//printbold(s:"IN BOX ", d:ripper_id, s: " actor: ", d:i);
+			// insert into ripper hit list, and call impact damage script on this guy IF not in list
+			for(m = 0; m < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][m] != -1; ++m) {
+				if(ripper_hits[ripper_id][m] == i) {
+					found = true;
+					break;
+				}
+			}
+			// not in this list yet, insert it and do damage deal routine
+			if(!found && m < MAX_RIPPER_HITS_STORED) {
+				//printbold(s:"deal damage to ", d:i, s: " by ripper id ", d:ripper_id);
+				ripper_hits[ripper_id][m] = i;
+				ACS_NamedExecuteWithResult("DnD Do Impact Damage Ripper", dmg, damage_type | (i << DAMAGE_TYPE_SHIFT), flags, wepid);
+				HandleRipperHitSound(i, owner, wepid);
+			}
+		}
 	}
 	
 	SetResultValue(0);
