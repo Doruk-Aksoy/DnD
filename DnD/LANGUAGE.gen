@@ -202,3 +202,6 @@ DND_POPUP_MONKILLCONDNOTMET					=	"More monsters need to be killed!";
 DND_POPUP_ITEMLVLTOOHIGH					=	"Item level is too high for use!";
 DND_POPUP_NOMORESMALLCHARMS					=	"You have reached your small charm limit!";
 DND_POPUP_ONLYONEUNIQUE						=	"You can't use another of the same unique!";
+DND_POPUP_ALREADYFOUND						=	"You already found this research!";
+DND_POPUP_MAXINVESTMENT						=	"You've invested enough!";
+DND_POPUP_NARESEARCH						=	"We know nothing about this so far.";

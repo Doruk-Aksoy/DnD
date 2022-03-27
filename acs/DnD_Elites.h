@@ -94,7 +94,7 @@ bool RollEliteChance() {
 	return random(1, DND_ELITE_RESOLUTION) <= Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * DND_ELITE_MIN_INCREMENT;
 }
 
-void SetEliteFlag(int f) {
+void SetEliteFlag(int f, bool updateCS) {
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	switch (f) {
 		case DND_EXPLOSIVE_IMMUNE:
@@ -185,7 +185,8 @@ void SetEliteFlag(int f) {
 	MonsterProperties[this].trait_list[f] = true;
 	
 	// sync to client too
-	ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", f);
+	if(updateCS)
+		ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", f, -1, -1, -1);
 }
 
 // check if the given flag conforms to the cvars we declared
@@ -255,7 +256,7 @@ void DecideEliteTraits(int count) {
 		if(!HasTrait(this, EliteTraitNumbers[try_trait])) {
 			// dont give explosive immunity with resist etc
 			if(!HasTraitExceptions(EliteTraitNumbers[try_trait]) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait])) {
-				SetEliteFlag(EliteTraitNumbers[try_trait]);
+				SetEliteFlag(EliteTraitNumbers[try_trait], false);
 				--count;
 			}
 		}

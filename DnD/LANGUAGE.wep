@@ -184,7 +184,7 @@ WEPTIP_4_5 		= "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire
 WEPTIP_4_6 		= "Fires acid rounds doing 18 damage on hit and 10-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 10-15 damage in 96 unit radius. Inflicts \cqpoison.";
 WEPTIP_4_7 		= "Fires in bursts of 5 each doing 30 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 200 damage and releasing rippers doing 6 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-";
 WEPTIP_4_8 		= "Burns enemies with 12 projectiles each dealing 16 damage going through enemies and in a 48 unit radius on impact. Every four shots two lava balls are fired dealing 80-90 damage on impact and 80 damage in 96 unit radius. Lava balls \cfignore shields\c-.";
-	 
+
 WEPTIP_4_9 		= "Desolator fires highly toxic rounds doing 30 damage. Subsequent hits make enemies take 10% more damage from elemental attacks, maximum 5 stacks. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius. Inflicts \cqpoison.";
 WEPTIP_4_10 	= "Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin. Can't hit \cughosts.";
 WEPTIP_4_11 	= "The ebony cannon shoots bouncing balls of death. 32 - 48 damage with 48 explosion damage in 64 units. Alt fire shoots scatter bombs. \cfIgnores shields.";

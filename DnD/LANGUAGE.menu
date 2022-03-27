@@ -60,6 +60,7 @@ DND_MENU_SLOT			=	"Slot";
 DND_MENU_MATERIALS		=	"Materials";
 DND_MENU_MAX			=	"(MAX)";
 
+DND_MENU_NA				=	"N/A";
 DND_MENU_PERKSAVAIL		=	"Perks Available";
 DND_MENU_RESEARCH		=	"Research";
 DND_MENU_CREDITS		=	"Credits";
@@ -404,6 +405,14 @@ DND_MENU_DROPCHANCE		=	"drop chance";
 DND_MENU_AMMOCAPS		=	"increased ammo caps";
 DND_MENU_SLOTDMG		=	"damage bonus to slot";
 
+DND_MENU_STATUS				=	"Status";
+DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";
+DND_MENU_RESEARCH_FOUND		=	"\cuPending Research";
+DND_MENU_RESEARCH_DONE		=	"\cdDiscovered";
+DND_MENU_INVEST				=	"Invest";
+DND_MENU_DISCOVERYCHANCE	=	"Chance";
+DND_INVESTMENT_EXPLANATION	=	"Investing increases odds of discovering that research by 1% per investment. Cost to invest increases the more you invest based on the initial budget requirement of the research.";
+
 // monster mod explanations
 // weakness group
 DND_MENU_MMOD_WEAK1		=	"Monster takes 25% more damage from energy attacks.";
@@ -435,6 +444,7 @@ DND_MENU_MMOD_IMM7		=	"Monster is immune to poison effects.";
 DND_MENU_MMOD_IMM8		=	"Monster is immune to chill and freeze.";
 DND_MENU_MMOD_IMM9		=	"Monster is immune to ignite.";
 DND_MENU_MMOD_IMM10		=	"Monster is immune to overloading.";
+DND_MENU_MMOD_IMM11		=	"Monster can only be harmed by occult damage.";
 
 // agressive group
 DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";
@@ -484,7 +494,6 @@ DND_MENU_MMOD_UTI11		=	"Monster has 33% chance to steal 15% of current weapon's 
 DND_MENU_MMOD_UTI12		=	"Monster attacks have 33% chance to inflict a random curse.";
 DND_MENU_MMOD_UTI13		=	"Monster attacks will briefly stop your movement.";
 DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
-DND_MENU_MMOD_UTI15		=	"Monster can only be harmed by occult damage.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";

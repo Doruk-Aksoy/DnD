@@ -641,6 +641,7 @@ void HandleSpecialTraits(int mid, int id) {
 	if(MonsterProperties[mid].trait_list[DND_REJUVENATING])
 		GiveInventory("Rejuvenate_Script_Run", 1);
 	if(MonsterProperties[mid].trait_list[DND_FORTIFIED]) {
+		// full fortify exceptions
 		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
 			SetInventory("MonsterFortifyCount", MonsterProperties[mid].maxhp * DND_FORTIFY_AMOUNT / 10);
 		else
@@ -660,21 +661,15 @@ void LoadMonsterTraits(int m_id) {
 		MonsterProperties[i].trait_list[j] = MonsterData[m_id].trait_list[j];
 		
 	// some of the flags are inherent in actor info, so do make use of that
-	if(CheckFlag(0, "GHOST"))
-		MonsterProperties[i].trait_list[DND_GHOST] = true;
-	if(CheckFlag(0, "NORADIUSDMG"))
-		MonsterProperties[i].trait_list[DND_EXPLOSIVE_IMMUNE] = true;
-	if(CheckFlag(0, "PIERCEARMOR"))
-		MonsterProperties[i].trait_list[DND_ARMORPEN] = true;
-	if(CheckFlag(0, "DONTRIP"))
-		MonsterProperties[i].trait_list[DND_HARDENED_SKIN] = true;
-	if(CheckFlag(0, "NOPAIN"))
-		MonsterProperties[i].trait_list[DND_NOPAIN] = true;
-	if(CheckFlag(0, "REFLECTIVE"))
-		MonsterProperties[i].trait_list[DND_REFLECTIVE] = true;
+	MonsterProperties[i].trait_list[DND_GHOST] 					|= CheckFlag(0, "GHOST");
+	MonsterProperties[i].trait_list[DND_EXPLOSIVE_IMMUNE] 		|= CheckFlag(0, "NORADIUSDMG");
+	MonsterProperties[i].trait_list[DND_ARMORPEN] 				|= CheckFlag(0, "PIERCEARMOR");
+	MonsterProperties[i].trait_list[DND_HARDENED_SKIN] 			|= CheckFlag(0, "DONTRIP");
+	MonsterProperties[i].trait_list[DND_NOPAIN] 				|= CheckFlag(0, "NOPAIN");
+	MonsterProperties[i].trait_list[DND_REFLECTIVE] 			|= CheckFlag(0, "REFLECTIVE");
 		
 	if(MonsterProperties[i].id >= LEGENDARY_START)
-		MonsterProperties[i].trait_list[DND_LEGENDARY] = true;
+		MonsterProperties[i].trait_list[DND_LEGENDARY] |= true;
 	
 	// check for weaknesses and monster not having any kind of resist to this type
 	// if magical or undead, give it silver weakness (this is common no exceptions)
@@ -1540,8 +1535,11 @@ void HandleSubordinateSpawn(int tid, int mid) {
 	
 	// create some special fx
 	if(Spawn(toSpawn, GetActorX(tid), GetActorY(tid), GetActorZ(tid), DND_SUBORDINATE_TEMPTID, GetActorAngle(tid))) {
-		SetActorProperty(DND_SUBORDINATE_TEMPTID, APROP_TARGETTID, GetActorProperty(tid, APROP_TARGETTID));
-		Thing_Hate(DND_SUBORDINATE_TEMPTID, GetActorProperty(tid, APROP_TARGETTID), 4);
+		rng = GetActorProperty(tid, APROP_TARGETTID);
+		SetActorProperty(DND_SUBORDINATE_TEMPTID, APROP_TARGETTID, rng);
+		Thing_Hate(DND_SUBORDINATE_TEMPTID, rng, 4);
+		SetActorAngle(DND_SUBORDINATE_TEMPTID, AngleToFace(DND_SUBORDINATE_TEMPTID, rng));
+		GiveActorInventory(DND_SUBORDINATE_TEMPTID, "DnD_EliteException", 1);
 		Thing_ChangeTID(DND_SUBORDINATE_TEMPTID, 0);
 		ACS_NamedExecuteAlways("DnD Subordinate Spawn FX", 0, tid);
 	}
@@ -1656,6 +1654,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_HELLARBITER].trait_list[DND_TELEPORT] = true;
 	MonsterData[MONSTER_HELLARBITER].trait_list[DND_FIRECREATURE] = true;
 	MonsterData[MONSTER_PHANTASM].trait_list[DND_SUMMONED] = true;
+	MonsterData[MONSTER_PHANTASM].trait_list[DND_ETHEREAL] = true;
 	
 	// rev
 	MonsterData[MONSTER_INCARNATE].trait_list[DND_RAISE] = true;
@@ -1917,10 +1916,6 @@ void SetupMonsterData() {
 }
 
 Script "DnD Setup Monster Data" OPEN {
-	SetupMonsterData();
-}
-
-Script "DnD Setup Monster Data CS" OPEN {
 	SetupMonsterData();
 }
 

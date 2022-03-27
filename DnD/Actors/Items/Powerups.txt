@@ -46,6 +46,7 @@ Actor Backpack_MP : DnD_SharedItem replaces Backpack {
 		Spawn:
 			// the delay is needed for the tid to initialize
 			BPAK A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BACKPACK)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 2)
 			BPAK A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
 			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
@@ -60,7 +61,7 @@ Actor Backpack_SP : CustomInventory {
 	inventory.pickupsound "Items/backpack"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 2)
 			BPAK A -1
 		Stop
 		IdlePicked:
@@ -122,6 +123,7 @@ Actor EvilSphere : Powerupgiver replaces BlurSphere
  {
 	Spawn:
 		TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
 	SpawnLoop:
 		HELS AAAABBBBCCCCDDDD 1 Bright A_SpawnItemEx("EvilSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 	Loop
@@ -194,6 +196,7 @@ Actor SoulSphere2 : CustomInventory replaces SoulSphere
     {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
 		SpawnLoop:
 		    SOUL AAAAAABBBBBBCCCCCCDDDDDDCCCCCCBBBBBB 1 Bright A_SpawnItemEx("SoulSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -217,6 +220,7 @@ Actor MegaSphere2 : CustomInventory {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
 		SpawnLoop:
 			MEGA AAAAAABBBBBBCCCCCCDDDDDD 1 Bright A_SpawnItemEx("MegaSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -236,6 +240,7 @@ Actor UberSphere : CustomInventory {
 	states {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
 		SpawnLoop:
 			CARN AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		loop

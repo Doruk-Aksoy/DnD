@@ -51,7 +51,6 @@ Script 900 (void) NET {
 		DecideAccessories();
 		//SetInventory("MenuPosY", 5);
 		LocalAmbientSound("RPG/MenuClose", 127);
-		ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 		
 		int tradee = GetTradee();
 		// cancel out of a trade if there is one
@@ -85,7 +84,6 @@ Script 900 (void) NET {
 			DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 			FlushStack(pnum);
 			
-			ACS_NamedExecuteWithResult("DnD Menu Draw", MENU_MAIN);
 			ACS_NamedExecuteAlways("DnD Menu Input Loop", 0);
 			ACS_NamedExecuteAlways("DND Menu Icon Spawner", 0);
 		}
@@ -142,13 +140,12 @@ Script "DND Menu Icon Spawner" (void) CLIENTSIDE {
 Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-		
-	bool sendBox = false;
+
 	bool redraw = false;
 	bool clean_inv = false;
 	bool showed_inv = false;
 	int animcounter = 0, framecounter = 0, pnum = PlayerNumber();
-	int popupid, i = 0, k = 0;
+	int i = 0;
 	int curopt, curopt_prev = MENU_NULL;
 	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE + 1, mainboxid_prev = MAINBOX_NONE;
 	auto CurrentPane = GetPane();
@@ -169,14 +166,12 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
 		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
 		curopt = CheckInventory("MenuOption");
-		popupid = CheckInventory("DnD_PopupId");
 		
 		// page changed
 		if(curopt != curopt_prev) {
 			ResetPane(CurrentPane);
 			LoadPane(CurrentPane, curopt);
 			ScrollPos.x = 0;
-			k = 0;
 			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
@@ -243,18 +238,16 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		SetInventory("MenuInput", 0);
 		// receives MenuInput
 		GetInputOnMenuPage(curopt);
-		sendBox = CheckInventory("MenuInput") != 0;
+		i = CheckInventory("MenuInput");
 		
-		if(sendBox) {
+		if(i) {
 			// server gets a few extra info in boxid
 			if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
 				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
-			i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
-			// guarantee nonzero input
-			if(i) {
-				//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-				NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
-			}
+			i <<= 16;
+			i |= PlayerNumber();
+			//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+			NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
 			redraw = true;
 		}
 		
@@ -289,6 +282,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			redraw = true;
 		}
 		
+		Delay(const:1);
+		
 		// Side bar options with animations -- these require framecounter so they can be checked every tic
 		// this also draws "Stats" and "Perks" text, it looks tidier in here this way
 		DrawHighLightBar(mainboxid, framecounter);
@@ -299,8 +294,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		// draws items that need frequent redraw
 		DrawFrequentRedrawItems(pnum);
 		
-		Delay(const:1);
-		
 		// animation things
 		animcounter++;
 		if(animcounter == 17) {
@@ -309,7 +302,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		}
 		
 		if(CheckInventory("DND_ACK")) {
-			sendBox = false;
 			SetInventory("MenuInput", 0);
 			//Log(s:"reset input data");
 			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
@@ -320,694 +312,666 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			// force a recalculation basically so we obtain the values once again
 			redraw = true;
 		}
-		
-		bool req_redraw = redraw || CheckInventory("DnD_RefreshPane") || CheckInventory("DnD_RefreshRequest");
-		if(req_redraw)
-			ACS_NamedExecuteWithResult("DnD Menu Draw", curopt, boxid, mainboxid, clean_inv);
+		//////////////////////////////////////////
+		// MENU DRAWING ROUTINE FROM HERE BELOW //
+		//////////////////////////////////////////
+		if(redraw || CheckInventory("DnD_RefreshPane") || CheckInventory("DnD_RefreshRequest")) {
+			str toshow = "";
+			int j = 0, k = 0, temp;
+			
+			SetHudSize(384, 200, 1);
+			SetFont("DND_STAT");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 192.0, 100.0, 0.0);
+			SetFont("DND_STAB");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 192.0, 100.0, 0.0);
+			// the 3 buttons at bottom
+			DrawClickableButton("LARR", mainboxid, MAINBOX_LARR, RPGMENULARRID, 218.0, 184.0, "LARRO", "LARR_P");
+			DrawClickableButton("RETARR", mainboxid, MAINBOX_RET, RPGMENURETARRID, 251.0, 184.0, "RETARRO", "RETARR_P");
+			DrawClickableButton("RARR", mainboxid, MAINBOX_RARR, RPGMENURARRID, 284.0, 184.0, "RARRO", "RARR_P");
+			
+			// main drawing of texts, labels, icons etc.
+			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+			SetFont("SMALLFONT");
+			DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
+			DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);
+			DeleteText(RPGMENUCURSORID + 1); // dragged item
+			
+			if(CheckInventory("DnD_InventoryView")) {
+				LoadInventoryView(InventoryPane);
+				HandleInventoryView(boxid);
+			}
+			else if(CheckInventory("DnD_StashView")) {
+				LoadStashView(TradePane);
+				HandleStashView(boxid);
+			}
+			else if(CheckInventory("InTradeView")) {
+				LoadTradeView(TradePane);
+			}
+			else if(clean_inv) {
+				DeleteTextRange(RPGMENUPOPUPID + 1, RPGMENUINVENTORYID);
+				CleanMaterialInfo(true);
+				CleanInventoryInfo();
+			}
+			
+			if(curopt == MENU_STAT1) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_STATS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				SetHudClipRect(192, 56, 256, 144, 256, 1);
+				HudMessage(s:"\c[Y5]", l:"DND_STAT18", s:": \c-", d:CheckInventory("Level"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_STAT16", s:": \c-", d:CheckInventory("Exp"), s:" / ", d:LevelCurve[CheckInventory("Level") - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_STAT19", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:CheckInventory("Budget"), s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 23, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_ATTRIBUTEPTS", s:": \c-", d:CheckInventory("AttributePoint"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 128.0, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0, 0);
+				
+				DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 144.0);
+				DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 192.1, 160.0);
+				DrawToggledLabel("BUL", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 176.0);
+				DrawToggledLabel("CHR", DND_NOLOOKUP, -1, boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 192.0);
+				DrawToggledLabel("VIT", DND_NOLOOKUP, -1, boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 208.0);
+				DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 192.1, 224.0);
+				// draw values seperately so they align
+				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Strength"); HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 256.1, 144.0, 0.0);
+				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 256.1, 160.0, 0.0);
+				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Bulkiness"); HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 256.1, 176.0, 0.0);
+				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Charisma"); HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 256.1, 192.0, 0.0);
+				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Vitality"); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 256.1, 208.0, 0.0);
+				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 256.1, 224.0, 0.0);
+				// draw bonus stat acquired
+				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_STR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 320.1, 144.0, 0.0);
+				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_DEX"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 320.1, 160.0, 0.0);
+				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_BUL"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 320.1, 176.0, 0.0);
+				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_CHR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 320.1, 192.0, 0.0);
+				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_VIT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 320.1, 208.0, 0.0);
+				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_INT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 22, CR_WHITE, 320.1, 224.0, 0.0);
+				
+				if(boxid != MAINBOX_NONE) {
+					SetHudClipRect(184, 208, 256, 64, 256, 1);
+					HudMessage(s:"\cd*\c- ", l:GetAttributeText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1, 0.0, 0.0);
+					SetHudClipRect(0, 0, 0, 0, 0);
+				}
+				
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_STAT2) {
+				// put before hud clip rect in the future, wasn't showing before!
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_GAINS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawPlayerStats(pnum);
+
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_STAT3) {
+				toshow = "";
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_QUESTBON", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				for(i = 0; i < MAX_QUESTS; ++i) {
+					if(IsQuestComplete(0, i))
+						toshow = StrParam(s:toshow, s:"\cf*\c- ", l:GetQuestLabel(i, QUEST_REW), s:"\n\n");
+				}
+				SetHudClipRect(192, 56, 256, 448, 256); // 48 because 64 is begin, text one line len is 16, 48 is max allowed lines, 16 x 3.
+				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 64.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0, 0);
+			
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_PERK) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_PERKS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_PERKSAVAIL", s:": \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
+				
+				for(i = 0; i < DND_PERKS; ++i)
+					DrawToggledLabel(GetStatLabel(DND_PERK_BEGIN + i), DND_LANGUAGE_LOOKUP, GetStat(DND_PERK_BEGIN + i), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 192.1, 80.0 + i * 16.0);
+			
+				DrawPerkText(boxid);
+			}
+			else if(curopt == MENU_LOAD) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_LOADOUT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawBoxText("DND_MENU_ITEMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_INVENTORY", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_STASH", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_CHARMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_CRAFTING", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ACCESSORIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_TRADING", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_LOAD1) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ITEMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				j = 0;
+				for(i = SHOP_FIRSTARTI_INDEX; i <= SHOP_LASTDRAWNARTI_INDEX; ++i) {
+					k = CheckInventory(GetItemName(i));
+					if(k) {
+						HudMessage(s:"\c[Y5]", l:GetArtifactTag(i - SHOP_FIRSTARTI_INDEX), s:": \cj", d:k; HUDMSG_PLAIN, RPGMENUITEMID - 1 - i + SHOP_FIRSTARTI_INDEX, CR_WHITE, 184.1, 64.0 + j, 0.0, 0.0);
+						j += 16.0;
+					}
+				}
+			}
+			else if(curopt == MENU_LOAD_INVENTORY) {
+				HudMessage(s:"--- ", l:"DND_INVENTORY", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_LOAD_STASH) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_STASH", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_LOAD_CHARM) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_CHARMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				if(boxid == MAINBOX_NONE || (boxid == MBOX_8 && !CheckInventory("DnD_InventoryView")))
+					CleanInventoryInfo();
+				
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_1, 218.4, 216.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_2, 282.4, 216.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_3, 346.4, 216.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_4, 410.4, 216.0);
+				
+				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_5, 250.4, 152.0);
+				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 378.4, 152.0);
+				
+				DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 314.4, 96.0);
+				
+				DrawBoxText("DND_MENU_VIEWINV", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID, 316.4, 248.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON) {
+				SetHudSize(384, 200, 1);
+				SetFont("CRFTVW");
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 164.0, 100.0, 0.0, 0.0);
+				SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+				SetFont("SMALLFONT");
+				HandleCraftingView(InventoryPane, boxid, curopt, k);
+			}
+			else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_TRADE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				if(CheckInventory("InTradeView") && IsTrading(pnum))
+					HandleInventoryViewTrade(boxid);
+				else {
+					if(!k)
+						ResetPane(CurrentPane);
+					
+					j = 0;
+					i = 0;
+					// how many we have to skip
+					temp = MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE);
+					for(; i < MAXPLAYERS && j < MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1); ++i) {
+						if(PlayerInGame(i) && i != pnum) {
+							if(j >= temp) {
+								// n:0 prints the current player regardless, must use i + 1
+								if(IsTradingWith(pnum, i))
+									toshow = StrParam(s:"\cd- \c-", n:i + 1, s: "\cv V");
+								else if(IsTrading(i))
+									toshow = StrParam(s:"\cd- \c-", n:i + 1, s: "\c[D4] X");
+								else
+									toshow = StrParam(s:"\cd- \c-", n:i + 1);
+								
+								if(TradeMuteStatus(pnum, i))
+									toshow = StrParam(s:toshow, s:" \cg M");
+								if(TradeMuteStatus(i, pnum))
+									toshow = StrParam(s:toshow, s:" \cm M");
+								// add this as a clickable box
+								if(!k) // don't keep adding boxes
+									AddBoxToPane_Points(CurrentPane, 277.0, 260.0 - 16.0 * (j - temp), 180.0, 252.0 - 16.0 * (j - temp));
+								if(boxid == MBOX_1 + j - temp)
+									HudMessage(s:"\c[B1] <=="; HUDMSG_PLAIN, RPGMENUITEMID - 2 * (j - temp) - 1, CR_CYAN, 420.0, 66.0 + 16.0 * (j - temp), 0.0, 0.0); 
+								DrawBoxText(toshow, DND_NOLOOKUP, boxid, MBOX_1 + (j - temp), RPGMENUITEMID - 2 * (j - temp), 192.1, 64.0 + 16.0 * (j - temp), "\c[B1]", "\c[Y5]");
+							}
+							++j;
+						}
+					}
+					
+					k = 1;
+				}
+				
+				if(curopt != MENU_LAST_TRADE && PlayerCount() > MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1))
+					HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUITEMID - 32, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				if(curopt != MENU_FIRST_TRADE)
+					HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUITEMID - 33, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
+				// if RES_ACCESSORY is not made, don't let player do anything here
+				if(CheckResearchStatus(RES_ACCESSORY) != RES_DONE)
+					HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				else {
+					HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCESSORY", s:" #", d:curopt - MENU_FIRST_ACCESSORY_PAGE + 1, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+					// init limits
+					i = ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE);
+					k = Min(i + ACCESSORY_PER_PAGE, MAX_ACCESSORY);
+					for(j = i; j < k; ++j)
+						DrawAccessory(j, boxid, curopt, CurrentPane);
+				}
+				
+				if(curopt != MENU_LAST_ACCESSORY_PAGE)
+					HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+				if(curopt != MENU_FIRST_ACCESSORY_PAGE)
+					HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_SHOP", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				DrawBoxText("DND_MENU_WEAPONS", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ABILITIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ARTIFACTS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ARMORS", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ACCOUNT", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_SHOP_WEAPON) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_WEAPONS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i = 0; i < 8; ++i) {
+					if(boxid == MBOX_1 + i)
+						HudMessage(s:"\c[B1]", l:"DND_MENU_SLOT", s:" ", d:i + 1, s:"\c- <--"; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+					else
+						HudMessage(s:"\c[Y5]", l:"DND_MENU_SLOT", s:" ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
+				}
+
+				HudMessage(
+					s:"\c[Y5]", l:"DND_MENU_LEGEND", s:"\n\cd*\c- \c[J7][\c[S7]R\c[J7]] - ", l:"DND_MENU_REPLACESWEP", 
+					s:".\n\cd*\c- \c[J7][\c[E3]L\c[J7]] - ", l:"DND_MENU_LUXURYWEP", s:".\n\c[J7]        ", l:"DND_MENU_CARRYLIMIT", s:".";
+					HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 192.1, 240.0, 0.0, 0.0
+				);
+			}
+			else if(curopt == MENU_SHOP_WEAPON1)
+				HandleWeaponPageDraw(curopt, 0, 1, boxid, -32);
+			else if(curopt == MENU_SHOP_WEAPON2)
+				HandleWeaponPageDraw(curopt, 0, 2, boxid, -16);
+			else if(curopt == MENU_SHOP_WEAPON3_1)
+				HandleWeaponPageDraw(curopt, 1, 3, boxid, -32);
+			else if(curopt == MENU_SHOP_WEAPON3_2)
+				HandleWeaponPageDraw(curopt, -2, 3, boxid, -32);
+			else if(curopt == MENU_SHOP_WEAPON4_1)
+				HandleWeaponPageDraw(curopt, 1, 4, boxid, -24);
+			else if(curopt == MENU_SHOP_WEAPON4_2)
+				HandleWeaponPageDraw(curopt, -2, 4, boxid, -32);
+			else if(curopt == MENU_SHOP_WEAPON5_1)
+				HandleWeaponPageDraw(curopt, 1, 5, boxid, -32);
+			else if(curopt == MENU_SHOP_WEAPON5_2)
+				HandleWeaponPageDraw(curopt, -2, 5, boxid, -24);
+			else if(curopt == MENU_SHOP_WEAPON6_1)
+				HandleWeaponPageDraw(curopt, 1, 6, boxid, -40);
+			else if(curopt == MENU_SHOP_WEAPON6_2)
+				HandleWeaponPageDraw(curopt, -2, 6, boxid, -16);
+			else if(curopt == MENU_SHOP_WEAPON7)
+				HandleWeaponPageDraw(curopt, 0, 7, boxid, -16);
+			else if(curopt == MENU_SHOP_WEAPON8)
+				HandleWeaponPageDraw(curopt, 0, 8, boxid, 0);
+			else if(curopt == MENU_SHOP_AMMOSELECT) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_AMMO", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i = 0; i < MAX_SLOTS - 1; ++i)
+					DrawBoxText(StrParam(l:"DND_MENU_AMMOCATEGORY", s:" - ", d: i + 1), DND_NOLOOKUP, boxid, MBOX_1 + i, RPGMENUITEMID - i - 1, 192.1, 96.0 + 16.0 * i, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_SPECIALAMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + i, RPGMENUITEMID - i - 1, 192.1, 96.0 + 16.0 * i, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_SHOP_AMMO_1)
+				HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CLIP, 1, AMMOSLOT_CLIP_BEGIN, AMMOSLOT_CLIP_END, false);
+			else if(curopt == MENU_SHOP_AMMO_1_2)
+				HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CLIP, -1, AMMOSLOT_CLIP2_BEGIN, AMMOSLOT_CLIP2_END, false);
+			else if(curopt == MENU_SHOP_AMMO_2)
+				HandleAmmoPageDraw(boxid, DND_AMMOSLOT_SHELL, 1, AMMOSLOT_SHELL_BEGIN, AMMOSLOT_SHELL_END, false);
+			else if(curopt == MENU_SHOP_AMMO_2_2)
+				HandleAmmoPageDraw(boxid, DND_AMMOSLOT_SHELL, -1, AMMOSLOT_SHELL2_BEGIN, AMMOSLOT_SHELL2_END, false);
+			else if(curopt == MENU_SHOP_AMMO_3)
+				HandleAmmoPageDraw(boxid, DND_AMMOSLOT_ROCKET, 0, AMMOSLOT_ROCKET_BEGIN, AMMOSLOT_ROCKET_END, false);
+			else if(curopt == MENU_SHOP_AMMO_4)
+				HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CELL, 0, AMMOSLOT_CELL_BEGIN, AMMOSLOT_CELL_END, false);
+			else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
+				HandleAmmoPageDraw(boxid, -1, 0, -1, -1, true);
+			else if(curopt == MENU_SHOP_ABILITY_1) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILITIES", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i = SHOP_ABILITY1_BEGIN; i <= SHOP_ABILITY1_END; ++i)
+					DrawToggledImage(i, boxid, i - SHOP_ABILITY1_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_ABILITY_2) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILITIES", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i = SHOP_ABILITY2_BEGIN; i <= SHOP_LASTABILITY_INDEX; ++i)
+					DrawToggledImage(i, boxid, i - SHOP_ABILITY2_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+			
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_SHOP_ARTIFACT) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i = 0; i < MAXARTIFACTS; ++i)
+					DrawToggledImage(SHOP_FIRSTARTI_INDEX + i, boxid, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI_INDEX + i][SHOPINFO_MAX], CR_RED);
+			}
+			else if(curopt == MENU_SHOP_ARMOR1) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i  = 0; i < PAGE1_ARMOR_COUNT; ++i)
+					DrawToggledImage(SHOP_ARMOR_GREEN + i, boxid, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + 1][ARMORDATA_BASEAMOUNT], CR_RED);
+			
+				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+			
+				temp = GetArmorFillPrice();
+				if(temp > 0) {
+					if(CheckInventory("Credit") >= temp)
+						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+					else
+						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+				}
+			}
+			else if(curopt == MENU_SHOP_ARMOR2) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i  = 0; i < PAGE2_ARMOR_COUNT; ++i)
+					DrawToggledImage(SHOP_FIRSTARMOR2_INDEX + i, boxid, i, ArmorDrawInfo[PAGE1_ARMOR_COUNT + i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + PAGE1_ARMOR_COUNT + 1][ARMORDATA_BASEAMOUNT], CR_RED);
+
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			
+				temp = GetArmorFillPrice();
+				if(temp > 0) {
+					if(CheckInventory("Credit") >= temp)
+						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+					else
+						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
+				}
+			}
+			else if(curopt == MENU_SHOP_ACCOUNT) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCOUNT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i  = 0; i < MAXACCOUNTITEMS; ++i)
+					DrawToggledImage(SHOP_ACCOUNT_BEGIN + i, boxid, i, OBJ_RESEARCH | OBJ_ACCOUNT, CR_WHITE, CR_GREEN, GetItemName(SHOP_ACCOUNT_BEGIN + i), ShopInfo[SHOP_ACCOUNT_BEGIN + i][SHOPINFO_MAX], CR_RED);
+			}
+			else if(curopt == MENU_RESEARCH) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESCAT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawBudget();
+				
+				DrawBoxText("DND_RESMENU_BODY", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_RESMENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_RESMENU_GUNS", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_RESMENU_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_RESEARCH_GUNS) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESGUNS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawBudget();
+				
+				DrawBoxText("DND_RESMENU_SUBSLOT", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_RESMENU_SUBLUX", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				
+				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END)
+				HandleResearchPageDraw(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
+			else if(curopt == MENU_ABILITY) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILEARNED", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				for(i = 0; i < MAXABILITIES; ++i) {
+					if(CheckInventory(GetItemName(SHOP_ABILITY1_BEGIN + i)))
+						HudMessage(s:"\c[Y5]", l:GetAbilityTag(i), s:": \cd", l:"DND_MENU_LEARNED"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
+					else
+						HudMessage(s:"\c[Y5]", l:GetAbilityTag(i), s:": \c-", s:"\c[G8]N/A"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
+				}
+					
+				if(boxid == MBOX_1) {
+					if(!CheckInventory("DashDisabled"))
+						HudMessage(s:"\c[B1]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_ENABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+					else
+						HudMessage(s:"\c[B1]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_DISABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+				}
+				else {
+					if(!CheckInventory("DashDisabled"))
+						HudMessage(s:"\c[Y5]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_ENABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+					else
+						HudMessage(s:"\c[Y5]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_DISABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
+				}
+			}
+			else if(curopt == MENU_MAIN) {
+				HudMessage(s:"--- ", l:"DND_MENU_WELCOME", s:"! ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				ShowBobby();
+				SetHudClipRect(192, 152, 256, 192, 256, 1);
+				HudMessage(s:"\cv*\c- ", l:"DND_MENU_BOBBY1", s:"\n\n\cv*\c- ", l:"DND_MENU_BOBBY2", s:"\n\n\cv*\c- ", l:"DND_MENU_BOBBY3"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 152.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_HELP", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
+				
+				DrawBoxText("DND_MENU_HELPTEXT1", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT2", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 1, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT3", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 2, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT4", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 3, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT5", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 4, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT6", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT7", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT8", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 208.0, "\c[B1]", "\c[Y5]");
+				
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_AVGMONLEVEL", s:": \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
+				str mapinfo = "DND_MENU_DISABLED";
+				if(CheckInventory("ShowMapInfo"))
+					mapinfo = "DND_MENU_ENABLED";
+				DrawBoxText(StrParam(l:"DND_MENU_MAPINFO", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_9, RPGMENUITEMID - 9, 192.1, 244.0, "\c[B1]", "\c[Y5]");
+				if(CheckInventory("SetMapInfo")) {
+					SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
+					SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
+				}
+				
+				// draw mod tier text
+				mapinfo = "DND_MENU_DISABLED";
+				if(GetCVar("dnd_detailedmods"))
+					mapinfo = "DND_MENU_ENABLED";
+				DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 260.0, "\c[B1]", "\c[Y5]");
+				if(CheckInventory("SetModTierInfo"))
+					SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
+			}
+			else if(curopt == MENU_HELP_CHARACTER) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT1", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				SetHudClipRect(192, 64, 256, 192, 256, 1);
+				
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT1"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT2"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 136.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT3"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 208.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT4"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 280.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT5"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 352.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT6"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 424.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT7"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 496.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT8"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 568.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_CLASSPERKS) {
+				if(isPlayerClass(DND_PLAYER_BERSERKER))
+					j = 16.0;
+				else
+					j = 0;
+				
+				toshow = StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1);
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT2", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 64, 256, 256, 256, 1);
+				HudMessage(l:"DND_CLASS", s:": \cj", l:GetClassLabel(toshow, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 80.0 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				
+				i = 0;
+				if(CheckInventory("Level") < 5)
+					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+				else
+					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_GREEN, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+				
+				if(CheckInventory("Level") < 25)
+					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+				else
+					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_ORANGE, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+
+				if(CheckInventory("Level") < 50)
+					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * i + 4.0 * ScrollPos.x, 0.0, 0.0);
+				else
+					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_RED, 192.1, 112.1 + (48.0 + j) * i + 4.0 * ScrollPos.x, 0.0, 0.0);
+				
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_WEAPONPROPS) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT3", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 56, 256, 384, 256, 1);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_THRUGHOST", s:"\n\n", l:"DND_MENU_WEPHELPTEXT1"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_SELFDMG", s:"\n\n", l:"DND_MENU_WEPHELPTEXT2"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 132.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_OVERHEAT", s:"\n\n", l:"DND_MENU_WEPHELPTEXT3"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 200.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_IGNOREINV", s:"\n\n", l:"DND_MENU_WEPHELPTEXT4"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 268.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_ALTAMMO", s:"\n\n", l:"DND_MENU_WEPHELPTEXT5"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 336.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_RIPPER", s:"\n\n", l:"DND_MENU_WEPHELPTEXT6"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 404.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_FULLDMG", s:"\n\n", l:"DND_MENU_WEPHELPTEXT7"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 472.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_NOREFLECT", s:"\n\n", l:"DND_MENU_WEPHELPTEXT8"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 540.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_POISON", s:"\n\n", l:"DND_MENU_WEPHELPTEXT9"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 608.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0);
+				
+				for(i = 0; i < MAX_WEAPON_PROPERTIES; ++i)
+					ShowWeaponPropertyIcon(i);
+			}
+			else if(curopt == MENU_HELP_RESEARCHES) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT4", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				SetHudClipRect(192, 64, 256, 192, 256, 1);
+				
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT1"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT2"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 128.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT3"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 192.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT4"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 256.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT5"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 320.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_DAMAGETYPES) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT5", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 64, 256, 384, 256, 1);
+				
+				HudMessage(l:"DND_MENU_BULLETTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_MELEETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 144.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_OCCULTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 224.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_EXPLOTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 304.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_ENERGYTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 384.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_ELEMENTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				
+				SetHudClipRect(192, 88, 320, 384, 320, 1);
+				
+				for(i = 0; i < MAX_DAMAGE_TYPES; ++i)
+					ShowDamageTypeIcon(i);
+					
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_ORBS) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT6", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 60, 256, 384, 256, 1);
+				
+				j = 0;
+				for(i = 0; i < MAX_ORBS; ++i) {
+					// maybe optimize this in the future to not use this many strparams but idk now -- storing these is not an option
+					toshow = StrParam(s:"\c[Y5]", l:GetInventoryTag(i + ORBS_BEGIN), s:"\n", l:GetInventoryText(i + ORBS_BEGIN));
+					HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 8.0 * ScrollPos.x + j, 0.0, 0.0);
+					ShowOrbIcon(i, j);
+					
+					k = StrLen(toshow);
+					j += Max((k / 18) * 10.0, 80.0);
+				}
+
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_LEGMONS) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT8", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 52, 256, 384, 256, 1);
+				j = 0;
+				for(i = 0; i < MAX_LEGMONS_TEXT; ++i) {
+					if(HasKilledLegendary(i)) {
+						HudMessage(l:StrParam(s:"DND_MENU_LEGHELPTEXT", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - 2 * i, CR_WHITE, 192.1, 112.1 + 144.0 * j + 4.0 * ScrollPos.x, 0.0, 0.0);
+						ShowLegendaryMonsterIcon(i, j);
+						++j;
+					}
+				}
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_MMODS) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT7", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawBoxText("DND_MENU_MMOD_WEAK", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_MMOD_RESIST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_MMOD_IMMUNE", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_MMOD_AGGRESS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_MMOD_DEFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_MMOD_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_MMOD_SPECIAL", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_HELP_MMODS_WEAKNESS) {
+				HudMessage(s:"--- ", l:"DND_MENU_MMOD_WEAK", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawMonsterModCategory(DND_TRAITCODE_WEAKNESS);
+			}
+			else if(curopt == MENU_HELP_MMODS_RESIST) {
+				HudMessage(s:"--- ", l:"DND_MENU_MMOD_RESIST", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawMonsterModCategory(DND_TRAITCODE_RESIST);
+			}
+			else if(curopt == MENU_HELP_MMODS_IMMUNITY) {
+				HudMessage(s:"--- ", l:"DND_MENU_MMOD_IMMUNE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawMonsterModCategory(DND_TRAITCODE_IMMUNITY);
+			}
+			else if(curopt == MENU_HELP_MMODS_AGGRESSIVE) {
+				HudMessage(s:"--- ", l:"DND_MENU_MMOD_AGGRESS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawMonsterModCategory(DND_TRAITCODE_AGGRESSIVE);
+			}
+			else if(curopt == MENU_HELP_MMODS_DEFENSIVE) {
+				HudMessage(s:"--- ", l:"DND_MENU_MMOD_DEFENSE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawMonsterModCategory(DND_TRAITCODE_DEFENSIVE);
+			}
+			else if(curopt == MENU_HELP_MMODS_UTILITY) {
+				HudMessage(s:"--- ", l:"DND_MENU_MMOD_UTILITY", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawMonsterModCategory(DND_TRAITCODE_UTILITY);
+			}
+			else if(curopt == MENU_HELP_MMODS_SPECIAL) {
+				HudMessage(s:"--- ", l:"DND_MENU_MMOD_SPECIAL", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				// -1 is for special stuff
+				DrawMonsterModCategory(-1);
+			}
+			
+			// Main menu side bar -- stats and perks are in the other looping script
+			if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_INVENTORY) {
+				if(mainboxid == MAINBOX_LOAD)
+					HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_LOADOUT"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_LOADOUT"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0, 0.0);
+				
+				if(mainboxid == MAINBOX_SHOP)
+					HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_SHOP"; HUDMSG_PLAIN, RPGMENULISTID - 3, -1, 96.0, 221.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_SHOP"; HUDMSG_PLAIN, RPGMENULISTID - 3, -1, 96.0, 221.0, 0.0, 0.0);
+				
+				if(mainboxid == MAINBOX_RESEARCH)
+					HudMessage(s:"\c[B1]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0, 0.0);
+				
+				if(mainboxid == MAINBOX_ABILITY)
+					HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_ABILITIES"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_ABILITIES"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0, 0.0);
+				
+				if(mainboxid == MAINBOX_HELP)
+					HudMessage(s:"\c[B1]", l:"DND_MENU_HELP"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_HELP"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0, 0.0);
+				
+				// hoping nobody lives more than 9999 maps --- find an adjustment for later ahh yes
+				temp = CheckInventory("RoundsSurvived");
+				if(temp <= 999)
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:": \cj", d:temp; HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:":\cj", d:temp; HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
+			}
+			///////////////////////////////
+			// MENU DRAWING ROUTINE ENDS //
+			///////////////////////////////
+		}
 	}
 	
 	ScrollPos.x = 0;
-}
-
-// whenever a redraw request is made this is called
-Script "DnD Menu Draw" (int curopt, int boxid, int mainboxid, int clean_inv) CLIENTSIDE {
-	// players might X out of menu while holding scroll key, dont redraw then
-	if(ConsolePlayerNumber() != PlayerNumber() || !CheckInventory("ShowingMenu"))
-		Terminate;
-		
-	int i = 0, j = 0, k = 0, temp;
-	int pnum = PlayerNumber();
-	str toshow = "";
-	
-	auto CurrentPane = GetPane();
-	auto InventoryPane = GetInventoryPane();
-	auto TradePane = GetTradePane();
-	
-	// Log(s:"drawing");
-
-	// draw background images
-	SetHudSize(384, 200, 1);
-	SetFont("DND_STAT");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 192.0, 100.0, 0.0);
-	SetFont("DND_STAB");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 192.0, 100.0, 0.0);
-	// the 3 buttons at bottom
-	DrawClickableButton("LARR", mainboxid, MAINBOX_LARR, RPGMENULARRID, 218.0, 184.0, "LARRO", "LARR_P");
-	DrawClickableButton("RETARR", mainboxid, MAINBOX_RET, RPGMENURETARRID, 251.0, 184.0, "RETARRO", "RETARR_P");
-	DrawClickableButton("RARR", mainboxid, MAINBOX_RARR, RPGMENURARRID, 284.0, 184.0, "RARRO", "RARR_P");
-	
-	// main drawing of texts, labels, icons etc.
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-	SetFont("SMALLFONT");
-	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
-	DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);
-	DeleteText(RPGMENUCURSORID + 1); // dragged item
-	
-	if(CheckInventory("DnD_InventoryView")) {
-		LoadInventoryView(InventoryPane);
-		HandleInventoryView(boxid);
-	}
-	else if(CheckInventory("DnD_StashView")) {
-		LoadStashView(TradePane);
-		HandleStashView(boxid);
-	}
-	else if(CheckInventory("InTradeView")) {
-		LoadTradeView(TradePane);
-	}
-	else if(clean_inv) {
-		DeleteTextRange(RPGMENUPOPUPID + 1, RPGMENUINVENTORYID);
-		CleanMaterialInfo(true);
-		CleanInventoryInfo();
-	}
-	
-	if(curopt == MENU_STAT1) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_STATS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		SetHudClipRect(192, 56, 256, 144, 256, 1);
-		HudMessage(s:"\c[Y5]", l:"DND_STAT18", s:": \c-", d:CheckInventory("Level"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_STAT16", s:": \c-", d:CheckInventory("Exp"), s:" / ", d:LevelCurve[CheckInventory("Level") - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_STAT19", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:CheckInventory("Budget"), s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 23, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_ATTRIBUTEPTS", s:": \c-", d:CheckInventory("AttributePoint"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 192.1, 128.0, 0.0, 0.0);
-		SetHudClipRect(0, 0, 0, 0, 0);
-		
-		DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 144.0);
-		DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 192.1, 160.0);
-		DrawToggledLabel("BUL", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 176.0);
-		DrawToggledLabel("CHR", DND_NOLOOKUP, -1, boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 192.0);
-		DrawToggledLabel("VIT", DND_NOLOOKUP, -1, boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 208.0);
-		DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 192.1, 224.0);
-		// draw values seperately so they align
-		HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Strength"); HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 256.1, 144.0, 0.0);
-		HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 256.1, 160.0, 0.0);
-		HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Bulkiness"); HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 256.1, 176.0, 0.0);
-		HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Charisma"); HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 256.1, 192.0, 0.0);
-		HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Vitality"); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 256.1, 208.0, 0.0);
-		HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 256.1, 224.0, 0.0);
-		// draw bonus stat acquired
-		HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_STR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 320.1, 144.0, 0.0);
-		HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_DEX"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 320.1, 160.0, 0.0);
-		HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_BUL"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 320.1, 176.0, 0.0);
-		HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_CHR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 320.1, 192.0, 0.0);
-		HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_VIT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 320.1, 208.0, 0.0);
-		HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_INT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 22, CR_WHITE, 320.1, 224.0, 0.0);
-		
-		if(boxid != MAINBOX_NONE) {
-			SetHudClipRect(184, 208, 256, 64, 256, 1);
-			HudMessage(s:"\cd*\c- ", l:GetAttributeText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1, 0.0, 0.0);
-			SetHudClipRect(0, 0, 0, 0, 0);
-		}
-		
-		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_STAT2) {
-		// put before hud clip rect in the future, wasn't showing before!
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_GAINS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		DrawPlayerStats(pnum);
-
-		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_STAT3) {
-		toshow = "";
-		j = 0;
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_QUESTBON", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		for(i = 0; i < MAX_QUESTS; ++i) {
-			if(IsQuestComplete(0, i)) {
-				toshow = StrParam(s:toshow, s:"\cf*\c- ", l:GetQuestLabel(i, QUEST_REW), s:"\n\n");
-				++j;
-			}
-		}
-		SetHudClipRect(192, 56, 256, 448, 256); // 48 because 64 is begin, text one line len is 16, 48 is max allowed lines, 16 x 3.
-		HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 64.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
-		SetHudClipRect(0, 0, 0, 0, 0);
-	
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_PERK) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_PERKS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-		
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_PERKSAVAIL", s:": \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
-		
-		for(i = 0; i < DND_PERKS; ++i)
-			DrawToggledLabel(GetStatLabel(DND_PERK_BEGIN + i), DND_LANGUAGE_LOOKUP, GetStat(DND_PERK_BEGIN + i), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 184.1, 80.0 + i * 16.0);
-	
-		DrawPerkText(boxid);
-	}
-	else if(curopt == MENU_LOAD) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_LOADOUT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		DrawBoxText("DND_MENU_ITEMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_INVENTORY", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_STASH", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_CHARMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_CRAFTING", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_ACCESSORIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_TRADING", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
-	}
-	else if(curopt == MENU_LOAD1) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ITEMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-		j = 0;
-		for(i = SHOP_FIRSTARTI_INDEX; i <= SHOP_LASTDRAWNARTI_INDEX; ++i) {
-			temp = CheckInventory(GetItemName(i));
-			if(temp) {
-				HudMessage(s:"\c[Y5]", l:GetArtifactTag(i - SHOP_FIRSTARTI_INDEX), s:": \cj", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 1 - i + SHOP_FIRSTARTI_INDEX, CR_WHITE, 184.1, 64.0 + j, 0.0, 0.0);
-				j += 16.0;
-			}
-		}
-	}
-	else if(curopt == MENU_LOAD_INVENTORY) {
-		HudMessage(s:"--- ", l:"DND_INVENTORY", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_LOAD_STASH) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_STASH", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_LOAD_CHARM) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_CHARMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		if(boxid == MAINBOX_NONE || (boxid == MBOX_8 && !CheckInventory("DnD_InventoryView")))
-			CleanInventoryInfo();
-		
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_1, 211.4, 216.0);
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_2, 275.4, 216.0);
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_3, 339.4, 216.0);
-		DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_4, 403.4, 216.0);
-		
-		DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_5, 243.4, 152.0);
-		DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 371.4, 152.0);
-		
-		DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 307.4, 96.0);
-		
-		DrawBoxText("DND_MENU_VIEWINV", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID, 316.4, 248.0, "\c[B1]", "\c[Y5]");
-	}
-	else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON) {
-		SetHudSize(384, 200, 1);
-		SetFont("CRFTVW");
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 164.0, 100.0, 0.0, 0.0);
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-		SetFont("SMALLFONT");
-		HandleCraftingView(InventoryPane, boxid, curopt, k);
-	}
-	else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_TRADE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		if(CheckInventory("InTradeView") && IsTrading(pnum))
-			HandleInventoryViewTrade(boxid);
-		else {
-			if(!k)
-				ResetPane(CurrentPane);
-			
-			j = 0;
-			i = 0;
-			// how many we have to skip
-			temp = MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE);
-			for(; i < MAXPLAYERS && j < MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1); ++i) {
-				if(PlayerInGame(i) && i != pnum) {
-					if(j >= temp) {
-						// n:0 prints the current player regardless, must use i + 1
-						if(IsTradingWith(pnum, i))
-							toshow = StrParam(s:"\cd- \c-", n:i + 1, s: "\cv V");
-						else if(IsTrading(i))
-							toshow = StrParam(s:"\cd- \c-", n:i + 1, s: "\c[D4] X");
-						else
-							toshow = StrParam(s:"\cd- \c-", n:i + 1);
-						
-						if(TradeMuteStatus(pnum, i))
-							toshow = StrParam(s:toshow, s:" \cg M");
-						if(TradeMuteStatus(i, pnum))
-							toshow = StrParam(s:toshow, s:" \cm M");
-						// add this as a clickable box
-						if(!k) // don't keep adding boxes
-							AddBoxToPane_Points(CurrentPane, 277.0, 260.0 - 16.0 * (j - temp), 180.0, 252.0 - 16.0 * (j - temp));
-						if(boxid == MBOX_1 + j - temp)
-							HudMessage(s:"\c[B1] <=="; HUDMSG_PLAIN, RPGMENUITEMID - 2 * (j - temp) - 1, CR_CYAN, 420.0, 66.0 + 16.0 * (j - temp), 0.0, 0.0); 
-						DrawBoxText(toshow, DND_NOLOOKUP, boxid, MBOX_1 + (j - temp), RPGMENUITEMID - 2 * (j - temp), 192.1, 64.0 + 16.0 * (j - temp), "\c[B1]", "\c[Y5]");
-					}
-					++j;
-				}
-			}
-			
-			k = 1;
-		}
-		
-		if(curopt != MENU_LAST_TRADE && PlayerCount() > MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1))
-			HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUITEMID - 32, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-		if(curopt != MENU_FIRST_TRADE)
-			HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUITEMID - 33, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
-		// if RES_ACCESSORY is not made, don't let player do anything here
-		if(CheckResearchStatus(RES_ACCESSORY) != RES_DONE)
-			HudMessage(s:"--- N / A ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-		else {
-			HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCESSORY", s:" #", d:curopt - MENU_FIRST_ACCESSORY_PAGE + 1, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-			// init limits
-			i = ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE);
-			k = Min(i + ACCESSORY_PER_PAGE, MAX_ACCESSORY);
-			for(j = i; j < k; ++j)
-				DrawAccessory(j, boxid, curopt, CurrentPane);
-		}
-		
-		if(curopt != MENU_LAST_ACCESSORY_PAGE)
-			HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-		if(curopt != MENU_FIRST_ACCESSORY_PAGE)
-			HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_SHOP) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_SHOP", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		DrawBoxText("DND_MENU_WEAPONS", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_ABILITIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_ARTIFACTS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_ARMORS", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_ACCOUNT", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-	}
-	else if(curopt == MENU_SHOP_WEAPON) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_WEAPONS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i = 0; i < 8; ++i) {
-			if(boxid == MBOX_1 + i)
-				HudMessage(s:"\c[B1]", l:"DND_MENU_SLOT", s:" ", d:i + 1, s:"\c- <--"; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_SLOT", s:" ", d:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, 192.1, 96.0 + 16.0 * i, 0.0, 0.0);
-		}
-
-		HudMessage(
-			s:"\c[Y5]", l:"DND_MENU_LEGEND", s:"\n\cd*\c- \c[J7][\c[S7]R\c[J7]] - ", l:"DND_MENU_REPLACESWEP", 
-			s:".\n\cd*\c- \c[J7][\c[E3]L\c[J7]] - ", l:"DND_MENU_LUXURYWEP", s:".\n\c[J7]        ", l:"DND_MENU_CARRYLIMIT", s:".";
-			HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 192.1, 240.0, 0.0, 0.0
-		);
-	}
-	else if(curopt == MENU_SHOP_WEAPON1)
-		HandleWeaponPageDraw(curopt, 0, 1, boxid, -32);
-	else if(curopt == MENU_SHOP_WEAPON2)
-		HandleWeaponPageDraw(curopt, 0, 2, boxid, -16);
-	else if(curopt == MENU_SHOP_WEAPON3_1)
-		HandleWeaponPageDraw(curopt, 1, 3, boxid, -32);
-	else if(curopt == MENU_SHOP_WEAPON3_2)
-		HandleWeaponPageDraw(curopt, -2, 3, boxid, -32);
-	else if(curopt == MENU_SHOP_WEAPON4_1)
-		HandleWeaponPageDraw(curopt, 1, 4, boxid, -24);
-	else if(curopt == MENU_SHOP_WEAPON4_2)
-		HandleWeaponPageDraw(curopt, -2, 4, boxid, -32);
-	else if(curopt == MENU_SHOP_WEAPON5_1)
-		HandleWeaponPageDraw(curopt, 1, 5, boxid, -32);
-	else if(curopt == MENU_SHOP_WEAPON5_2)
-		HandleWeaponPageDraw(curopt, -2, 5, boxid, -24);
-	else if(curopt == MENU_SHOP_WEAPON6_1)
-		HandleWeaponPageDraw(curopt, 1, 6, boxid, -40);
-	else if(curopt == MENU_SHOP_WEAPON6_2)
-		HandleWeaponPageDraw(curopt, -2, 6, boxid, -16);
-	else if(curopt == MENU_SHOP_WEAPON7)
-		HandleWeaponPageDraw(curopt, 0, 7, boxid, -16);
-	else if(curopt == MENU_SHOP_WEAPON8)
-		HandleWeaponPageDraw(curopt, 0, 8, boxid, 0);
-	else if(curopt == MENU_SHOP_AMMOSELECT) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_AMMO", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i = 0; i < MAX_SLOTS - 1; ++i)
-			DrawBoxText(StrParam(l:"DND_MENU_AMMOCATEGORY", s:" - ", d: i + 1), DND_NOLOOKUP, boxid, MBOX_1 + i, RPGMENUITEMID - i - 1, 192.1, 96.0 + 16.0 * i, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_SPECIALAMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + i, RPGMENUITEMID - i - 1, 192.1, 96.0 + 16.0 * i, "\c[B1]", "\c[Y5]");
-	}
-	else if(curopt == MENU_SHOP_AMMO_1)
-		HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CLIP, 1, AMMOSLOT_CLIP_BEGIN, AMMOSLOT_CLIP_END, false);
-	else if(curopt == MENU_SHOP_AMMO_1_2)
-		HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CLIP, -1, AMMOSLOT_CLIP2_BEGIN, AMMOSLOT_CLIP2_END, false);
-	else if(curopt == MENU_SHOP_AMMO_2)
-		HandleAmmoPageDraw(boxid, DND_AMMOSLOT_SHELL, 1, AMMOSLOT_SHELL_BEGIN, AMMOSLOT_SHELL_END, false);
-	else if(curopt == MENU_SHOP_AMMO_2_2)
-		HandleAmmoPageDraw(boxid, DND_AMMOSLOT_SHELL, -1, AMMOSLOT_SHELL2_BEGIN, AMMOSLOT_SHELL2_END, false);
-	else if(curopt == MENU_SHOP_AMMO_3)
-		HandleAmmoPageDraw(boxid, DND_AMMOSLOT_ROCKET, 0, AMMOSLOT_ROCKET_BEGIN, AMMOSLOT_ROCKET_END, false);
-	else if(curopt == MENU_SHOP_AMMO_4)
-		HandleAmmoPageDraw(boxid, DND_AMMOSLOT_CELL, 0, AMMOSLOT_CELL_BEGIN, AMMOSLOT_CELL_END, false);
-	else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
-		HandleAmmoPageDraw(boxid, -1, 0, -1, -1, true);
-	else if(curopt == MENU_SHOP_ABILITY_1) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILITIES", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i = SHOP_ABILITY1_BEGIN; i <= SHOP_ABILITY1_END; ++i)
-			DrawToggledImage(i, boxid, i - SHOP_ABILITY1_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
-	
-		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_SHOP_ABILITY_2) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILITIES", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i = SHOP_ABILITY2_BEGIN; i <= SHOP_LASTABILITY_INDEX; ++i)
-			DrawToggledImage(i, boxid, i - SHOP_ABILITY2_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
-	
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt == MENU_SHOP_ARTIFACT) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i = 0; i < MAXARTIFACTS; ++i)
-			DrawToggledImage(SHOP_FIRSTARTI_INDEX + i, boxid, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI_INDEX + i][SHOPINFO_MAX], CR_RED);
-	}
-	else if(curopt == MENU_SHOP_ARMOR1) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i  = 0; i < PAGE1_ARMOR_COUNT; ++i)
-			DrawToggledImage(SHOP_ARMOR_GREEN + i, boxid, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + 1][ARMORDATA_BASEAMOUNT], CR_RED);
-	
-		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-	
-		temp = GetArmorFillPrice();
-		if(temp > 0) {
-			if(CheckInventory("Credit") >= temp)
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-		}
-	}
-	else if(curopt == MENU_SHOP_ARMOR2) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i  = 0; i < PAGE2_ARMOR_COUNT; ++i)
-			DrawToggledImage(SHOP_FIRSTARMOR2_INDEX + i, boxid, i, ArmorDrawInfo[PAGE1_ARMOR_COUNT + i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + PAGE1_ARMOR_COUNT + 1][ARMORDATA_BASEAMOUNT], CR_RED);
-
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	
-		temp = GetArmorFillPrice();
-		if(temp > 0) {
-			if(CheckInventory("Credit") >= temp)
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-		}
-	}
-	else if(curopt == MENU_SHOP_ACCOUNT) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCOUNT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawCredits();
-		
-		for(i  = 0; i < MAXACCOUNTITEMS; ++i)
-			DrawToggledImage(SHOP_ACCOUNT_BEGIN + i, boxid, i, OBJ_RESEARCH | OBJ_ACCOUNT, CR_WHITE, CR_GREEN, GetItemName(SHOP_ACCOUNT_BEGIN + i), ShopInfo[SHOP_ACCOUNT_BEGIN + i][SHOPINFO_MAX], CR_RED);
-	}
-	else if(curopt == MENU_RESEARCH) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESCAT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawBudget();
-		
-		DrawBoxText("DND_RESMENU_BODY", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_RESMENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_RESMENU_GUNS", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_RESMENU_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-	}
-	else if(curopt == MENU_RESEARCH_GUNS) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESGUNS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawBudget();
-		
-		DrawBoxText("DND_RESMENU_SUBSLOT", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_RESMENU_SUBLUX", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-		
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	}
-	else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END)
-		HandleResearchPageDraw(curopt - SHOP_RESPAGE_BEGIN, boxid);
-	else if(curopt == MENU_ABILITY) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILEARNED", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		for(i = 0; i < MAXABILITIES; ++i) {
-			if(CheckInventory(GetItemName(SHOP_ABILITY1_BEGIN + i)))
-				HudMessage(s:"\c[Y5]", l:GetAbilityTag(i), s:": \cd", l:"DND_MENU_LEARNED"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[Y5]", l:GetAbilityTag(i), s:": \c-", s:"\c[G8]N/A"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
-		}
-			
-		if(boxid == MBOX_1) {
-			if(!CheckInventory("DashDisabled"))
-				HudMessage(s:"\c[B1]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_ENABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[B1]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_DISABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-		}
-		else {
-			if(!CheckInventory("DashDisabled"))
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_ENABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-			else
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_DISABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-		}
-	}
-	else if(curopt == MENU_MAIN) {
-		HudMessage(s:"--- ", l:"DND_MENU_WELCOME", s:"! ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-		ShowBobby();
-		SetHudClipRect(192, 152, 256, 192, 256, 1);
-		HudMessage(s:"\cv*\c- ", l:"DND_MENU_BOBBY1", s:"\n\n\cv*\c- ", l:"DND_MENU_BOBBY2", s:"\n\n\cv*\c- ", l:"DND_MENU_BOBBY3"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 152.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		SetHudClipRect(0, 0, 0, 0);
-	}
-	else if(curopt == MENU_HELP) {
-		HudMessage(s:"--- ", l:"DND_MENU_HEAD_HELP", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-		
-		DrawBoxText("DND_MENU_HELPTEXT1", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_HELPTEXT2", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 1, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_HELPTEXT3", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 2, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_HELPTEXT4", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 3, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_HELPTEXT5", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 4, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_HELPTEXT6", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_HELPTEXT7", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 192.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_HELPTEXT8", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 208.0, "\c[B1]", "\c[Y5]");
-		
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_AVGMONLEVEL", s:": \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
-		str mapinfo = "DND_MENU_DISABLED";
-		if(CheckInventory("ShowMapInfo"))
-			mapinfo = "DND_MENU_ENABLED";
-		DrawBoxText(StrParam(l:"DND_MENU_MAPINFO", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_9, RPGMENUITEMID - 9, 192.1, 244.0, "\c[B1]", "\c[Y5]");
-		if(CheckInventory("SetMapInfo")) {
-			SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
-			SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
-		}
-		
-		// draw mod tier text
-		mapinfo = "DND_MENU_DISABLED";
-		if(GetCVar("dnd_detailedmods"))
-			mapinfo = "DND_MENU_ENABLED";
-		DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 260.0, "\c[B1]", "\c[Y5]");
-		if(CheckInventory("SetModTierInfo"))
-			SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
-	}
-	else if(curopt == MENU_HELP_CHARACTER) {
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT1", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		SetHudClipRect(192, 64, 256, 192, 256, 1);
-		
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT1"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT2"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 136.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT3"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 208.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT4"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 280.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT5"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 352.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT6"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 424.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT7"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 496.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT8"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 568.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		
-		SetHudClipRect(0, 0, 0, 0);
-	}
-	else if(curopt == MENU_HELP_CLASSPERKS) {
-		if(isPlayerClass(DND_PLAYER_BERSERKER))
-			j = 16.0;
-		else
-			j = 0;
-		
-		temp = CheckInventory("DnD_Character") - 1;
-		toshow = StrParam(s:"CLASS", d:temp);
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT2", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		SetHudClipRect(192, 64, 256, 256, 256, 1);
-		HudMessage(l:"DND_CLASS", s:": \cj", l:GetClassLabel(toshow, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 80.0 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		
-		i = 0;
-		if(CheckInventory("Level") < 5)
-			HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
-		else
-			HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_GREEN, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
-		
-		if(CheckInventory("Level") < 25)
-			HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
-		else
-			HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_ORANGE, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
-
-		if(CheckInventory("Level") < 50)
-			HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * i + 4.0 * ScrollPos.x, 0.0, 0.0);
-		else
-			HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_RED, 192.1, 112.1 + (48.0 + j) * i + 4.0 * ScrollPos.x, 0.0, 0.0);
-		
-		SetHudClipRect(0, 0, 0, 0);
-	}
-	else if(curopt == MENU_HELP_WEAPONPROPS) {
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT3", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		SetHudClipRect(192, 56, 256, 384, 256, 1);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_THRUGHOST", s:"\n\n", l:"DND_MENU_WEPHELPTEXT1"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_SELFDMG", s:"\n\n", l:"DND_MENU_WEPHELPTEXT2"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 132.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_OVERHEAT", s:"\n\n", l:"DND_MENU_WEPHELPTEXT3"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 200.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_IGNOREINV", s:"\n\n", l:"DND_MENU_WEPHELPTEXT4"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 268.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_ALTAMMO", s:"\n\n", l:"DND_MENU_WEPHELPTEXT5"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 336.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_RIPPER", s:"\n\n", l:"DND_MENU_WEPHELPTEXT6"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 404.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_FULLDMG", s:"\n\n", l:"DND_MENU_WEPHELPTEXT7"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 472.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_NOREFLECT", s:"\n\n", l:"DND_MENU_WEPHELPTEXT8"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 540.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_WEPPROP_POISON", s:"\n\n", l:"DND_MENU_WEPHELPTEXT9"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 608.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		SetHudClipRect(0, 0, 0, 0);
-		
-		for(i = 0; i < MAX_WEAPON_PROPERTIES; ++i)
-			ShowWeaponPropertyIcon(i);
-	}
-	else if(curopt == MENU_HELP_RESEARCHES) {
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT4", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		SetHudClipRect(192, 64, 256, 192, 256, 1);
-		
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT1"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT2"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 128.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT3"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 192.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT4"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 256.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]* \c-", l:"DND_MENU_RESHELPTEXT5"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 320.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		
-		SetHudClipRect(0, 0, 0, 0);
-	}
-	else if(curopt == MENU_HELP_DAMAGETYPES) {
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT5", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		SetHudClipRect(192, 64, 256, 384, 256, 1);
-		
-		HudMessage(l:"DND_MENU_BULLETTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_MELEETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 144.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_OCCULTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 224.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_EXPLOTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 304.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_ENERGYTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 384.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		HudMessage(l:"DND_MENU_ELEMENTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-		
-		SetHudClipRect(192, 88, 320, 384, 320, 1);
-		
-		for(i = 0; i < MAX_DAMAGE_TYPES; ++i)
-			ShowDamageTypeIcon(i);
-			
-		SetHudClipRect(0, 0, 0, 0);
-	}
-	else if(curopt == MENU_HELP_ORBS) {
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT6", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		SetHudClipRect(192, 60, 256, 384, 256, 1);
-		
-		j = 0;
-		for(i = 0; i < MAX_ORBS; ++i) {
-			// maybe optimize this in the future to not use this many strparams but idk now -- storing these is not an option
-			toshow = StrParam(s:"\c[Y5]", l:GetInventoryTag(i + ORBS_BEGIN), s:"\n", l:GetInventoryText(i + ORBS_BEGIN));
-			HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 8.0 * ScrollPos.x + j, 0.0, 0.0);
-			ShowOrbIcon(i, j);
-			
-			k = StrLen(toshow);
-			j += Max((k / 18) * 10.0, 80.0);
-		}
-
-		SetHudClipRect(0, 0, 0, 0);
-	}
-	else if(curopt == MENU_HELP_LEGMONS) {
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT8", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		SetHudClipRect(192, 52, 256, 384, 256, 1);
-		k = 0;
-		for(i = 0; i < MAX_LEGMONS_TEXT; ++i) {
-			if(HasKilledLegendary(i)) {
-				HudMessage(l:StrParam(s:"DND_MENU_LEGHELPTEXT", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - 2 * i, CR_WHITE, 192.1, 112.1 + 144.0 * k + 4.0 * ScrollPos.x, 0.0, 0.0);
-				ShowLegendaryMonsterIcon(i, k);
-				++k;
-			}
-		}
-		SetHudClipRect(0, 0, 0, 0);
-	}
-	else if(curopt == MENU_HELP_MMODS) {
-		HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT7", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		
-		DrawBoxText("DND_MENU_MMOD_WEAK", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_MMOD_RESIST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_MMOD_IMMUNE", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_MMOD_AGGRESS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_MMOD_DEFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_MMOD_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-		DrawBoxText("DND_MENU_MMOD_SPECIAL", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
-	}
-	else if(curopt == MENU_HELP_MMODS_WEAKNESS) {
-		HudMessage(s:"--- ", l:"DND_MENU_MMOD_WEAK", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawMonsterModCategory(DND_TRAITCODE_WEAKNESS);
-	}
-	else if(curopt == MENU_HELP_MMODS_RESIST) {
-		HudMessage(s:"--- ", l:"DND_MENU_MMOD_RESIST", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawMonsterModCategory(DND_TRAITCODE_RESIST);
-	}
-	else if(curopt == MENU_HELP_MMODS_IMMUNITY) {
-		HudMessage(s:"--- ", l:"DND_MENU_MMOD_IMMUNE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawMonsterModCategory(DND_TRAITCODE_IMMUNITY);
-	}
-	else if(curopt == MENU_HELP_MMODS_AGGRESSIVE) {
-		HudMessage(s:"--- ", l:"DND_MENU_MMOD_AGGRESS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawMonsterModCategory(DND_TRAITCODE_AGGRESSIVE);
-	}
-	else if(curopt == MENU_HELP_MMODS_DEFENSIVE) {
-		HudMessage(s:"--- ", l:"DND_MENU_MMOD_DEFENSE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawMonsterModCategory(DND_TRAITCODE_DEFENSIVE);
-	}
-	else if(curopt == MENU_HELP_MMODS_UTILITY) {
-		HudMessage(s:"--- ", l:"DND_MENU_MMOD_UTILITY", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		DrawMonsterModCategory(DND_TRAITCODE_UTILITY);
-	}
-	else if(curopt == MENU_HELP_MMODS_SPECIAL) {
-		HudMessage(s:"--- ", l:"DND_MENU_MMOD_SPECIAL", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-		// -1 is for special stuff
-		DrawMonsterModCategory(-1);
-	}
-	
-	// Main menu side bar -- stats and perks are in the other looping script
-	// Rest of the side bar options
-	if(mainboxid == MAINBOX_LOAD)
-		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_LOADOUT"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_LOADOUT"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0, 0.0);
-	
-	if(mainboxid == MAINBOX_SHOP)
-		HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_SHOP"; HUDMSG_PLAIN, RPGMENULISTID - 3, -1, 96.0, 221.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_SHOP"; HUDMSG_PLAIN, RPGMENULISTID - 3, -1, 96.0, 221.0, 0.0, 0.0);
-	
-	if(mainboxid == MAINBOX_RESEARCH)
-		HudMessage(s:"\c[B1]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0, 0.0);
-	
-	if(mainboxid == MAINBOX_ABILITY)
-		HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_ABILITIES"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_ABILITIES"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0, 0.0);
-	
-	if(mainboxid == MAINBOX_HELP)
-		HudMessage(s:"\c[B1]", l:"DND_MENU_HELP"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_HELP"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0, 0.0);
-	
-	// hoping nobody lives more than 9999 maps --- find an adjustment for later ahh yes
-	temp = CheckInventory("RoundsSurvived");
-	if(temp <= 999)
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:": \cj", d:temp; HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:":\cj", d:temp; HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
-	SetResultValue(0);
-}
-
-Script "DnD Retry Sending Until ACK" (int payload1, int payload2, int mainboxid) CLIENTSIDE {
-	if(!payload1 || CheckInventory("DND_ACKLoop"))
-		Terminate;
-	GiveInventory("DND_ACKLoop", 1);
-	while(!CheckInventory("DnD_ACK")) {
-		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
-		//Log(s:"trying to send prev item ", d:payload2 >> 16);
-		NamedRequestScriptPuke("DND Server Box Receive", payload1, payload2, mainboxid);
-		Delay(const:1);
-	}
-	TakeInventory("DND_ACKLoop", 1);
+	ClearMenuDisplay();
 }
 
 Script "DnD Main Button Click Animation" (int boxid) CLIENTSIDE {
@@ -1720,7 +1684,7 @@ Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
 		toshow = StrParam(l:"DND_MENU_SELLCONFIRM", s:"\n\cd", s:GetShopWeaponTag(CheckInventory("DnD_PopupID")), s:"\c- ?");
 	}
 
-	SetHudClipRect(220, 132, 184, 128, 184);
+	SetHudClipRect(220, 132, 180, 128, 180);
 	if(!isSell) {
 		HudMessage(s:"\c[Q2]", l:title; HUDMSG_FADEOUT, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0, 1.0);
 		HudMessage(l:toshow; HUDMSG_FADEOUT, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0, 1.0);
@@ -1738,4 +1702,9 @@ Script "DnD Menu Sell Popup Clear" (void) CLIENTSIDE {
 	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID, -1, 316.4, 136.1, 1.0);
 	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0);
 	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0);
+}
+
+Script "DnD Menu Investment Sync" (int pnum, int resid, int val) CLIENTSIDE {
+	ResearchInvestments[pnum][resid] = val;
+	SetResultValue(0);
 }

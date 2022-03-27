@@ -25,6 +25,7 @@
 #define DND_DB_ARTIFACTS "DND_PlayerArtifacts"
 #define DND_DB_RESEARCH_DONE "DND_PlayerResearch_Done_"
 #define DND_DB_RESEARCH_DISCOVERED "DND_PlayerResearch_Discovered_"
+#define DND_DB_RESEARCH_INVESTED "DND_PlayerResearch_Invested_"
 #define DND_DB_BUDGET "DND_PlayerBudget"
 #define DND_DB_QUESTSTATE1 "DnD_PlayerQuest_1"
 #define DND_DB_QUESTSTATE2 "DnD_PlayerQuest_2"

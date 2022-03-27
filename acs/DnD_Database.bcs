@@ -412,6 +412,10 @@ void SavePlayerData(int pnum, int char_id) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DONE, char_id), d:i + 1), pacc, CheckActorInventory(tid, StrParam(s:"Research_Done_", d:i + 1)));
 	}
 	
+	// save research investment
+	for(i = 0; i < MAX_RESEARCHES; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_INVESTED, char_id), d:i + 1), pacc, ResearchInvestments[pnum][i]);
+	
 	// save research trackers
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, CheckActorInventory(tid, ResearchTrackers[i]));
@@ -960,6 +964,10 @@ void LoadPlayerData(int pnum, int char_id) {
 		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), k);
 	}
 	
+	// read research investment
+	for(i = 0; i < MAX_RESEARCHES; ++i)
+		ResearchInvestments[pnum][i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_INVESTED, char_id), d:i + 1), pacc);
+	
 	HandleResearchBonuses();
 	
 	// read research trackers
@@ -1084,6 +1092,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d:i + 1), pacc, 0);
 	}
 	
+	
 	// orbs
 	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, 0);
@@ -1106,6 +1115,10 @@ void WipeoutPlayerData(int pnum, int cid) {
 	// reset researches
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, 0);
+		
+	// reset investments
+	for(i = 0; i < MAX_RESEARCHES; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_INVESTED, char_id), d:i + 1), pacc, 0);
 	
 	// reset legendary kill track
 	SetDBEntry(StrParam(s:GetCharField(DND_DB_LEGENDARYTRACKER, char_id), d:i + 1), pacc, 0);

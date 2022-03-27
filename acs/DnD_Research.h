@@ -243,15 +243,45 @@ str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
 	"Research_Body_Im_1_Tracker"
 };
 
-void SpawnResearch() {
+void SpawnResearch(int pnum) {
 	// spawn copies of this research
-	int temp = 0;
+	int temp = -1;
+	int i;
+	
+	// first determine if we have some weight attached to any research
+	// idea: generate a random roll from 1 to 100. Assume the following is true for 4 researches: 10% - 10% - 40% - 30%.
+	// Case 1: Roll 15. Check 10% => Roll is 25. Check 20% (2nd res) => Roll is 35. Check 3rd, 35 < 40, we pick this one.
+	// Case 2: Roll 45. Check 10% => Roll is 55. Check 20%, roll is 65. Check 60, Roll is 105. Check 90. Failed all, because we aren't in any of their percentage ranges.
+	// This works with the percentages acting as their individual weights. It's not 100% fair, because if we roll 9, it'll pick leftmost id research.
+	// Most fair method would be putting equal chance researches into their bins. However putting multiple investments into different researches is a bad strategy.
+	// Therefore it's not important to worry about that kind of solution here.
+	int weight_acc = random(1, 100);
+	int invest_acc = 0;
+	for(i = 0; i < MAX_RESEARCHES; ++i) {
+		if(ResearchInvestments[pnum][i]) {
+			invest_acc += ResearchInvestments[pnum][i];
+			if(weight_acc <= invest_acc) {
+				temp = i;
+				// important! we must reset this now so as to not make this affect results again
+				ResearchInvestments[pnum][i] = 0;
+				ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, i, 0);
+				break;
+			}
+			else
+				weight_acc += ResearchInvestments[pnum][i];
+		}
+	}
+	
 	// roll another if this has nodrop flag on it
-	do {
-		temp = random(0, MAX_RESEARCHES - 1);
-	} while(ResearchFlags[temp].res_flags & RESF_NODROP);
+	// only attempt if we had no weights attached (temp would be -1)
+	if(temp == -1) {
+		do {
+			temp = random(0, MAX_RESEARCHES - 1);
+		} while(ResearchFlags[temp].res_flags & RESF_NODROP);
+	}
+	
 	if(GameType() != GAME_SINGLE_PLAYER) {
-		for(int i = 0; i < MAXPLAYERS; ++i) {
+		for(i = 0; i < MAXPLAYERS; ++i) {
 			// spawn this only if this isn't already found by the player
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(temp))
 				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp);

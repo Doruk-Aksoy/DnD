@@ -490,3 +490,4 @@ Actor LifeStealAmount : Inventory {
 }
 
 Actor PlayerIsLeeching : DnD_Boolean { }
+Actor DnD_EliteException : DnD_Boolean { }

@@ -585,7 +585,7 @@ int GetPlayerCountAny() {
 // user must guarantee setspecial and setspecial2 are less than 65536
 void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
 	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0) + zoffset, DND_DROP_TID);
-	ThrustThing(random(0, 255), random(2, 5), 0, DND_DROP_TID);
+	ThrustThing(random(0, 255), random(3, 6), 0, DND_DROP_TID);
 	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
 	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
 	Thing_ChangeTID(DND_DROP_TID, 0);

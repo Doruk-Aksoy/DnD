@@ -69,6 +69,7 @@ Actor GreenArmorPickup_MP : DnD_SharedItem {
 	States {
 		Spawn:
 			ARM1 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_GREENARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
 			ARM1 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
 			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
@@ -89,6 +90,8 @@ Actor GreenArmor_SP : CustomInventory {
 	States
 	{
 		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
+		SpawnLoop:
 			ARM1 AAAAAA 1 Light("GREENARMOR1") A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			ARM1 BBBBBBB 1 Light("GREENARMOR2") Bright A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -116,6 +119,7 @@ Actor BlueArmorPickup_MP : DnD_SharedItem {
 		Spawn:
 			// the delay is needed for the tid to initialize
 			ARM2 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BLUEARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
 			ARM2 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
 			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
@@ -134,6 +138,8 @@ Actor BlueArmor_SP : GreenArmor_SP {
 	States
 	{
 		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
+		SpawnLoop:
 			ARM2 AAAAAA 1 Light("BLUEARMOR1") A_SpawnItemEx("SoulSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			ARM2 BBBBBBB 1 Light("BLUEARMOR2") Bright A_SpawnItemEx("SoulSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -161,6 +167,7 @@ Actor YellowArmorPickup_MP : DnD_SharedItem {
 		Spawn:
 			// the delay is needed for the tid to initialize
 			ARM3 A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_YELLOWARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
 			ARM3 A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
 			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
@@ -179,6 +186,8 @@ Actor YellowArmor_SP : GreenArmor_SP {
 	States
 	{
 		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
+		SpawnLoop:
 			ARM3 AAAAAA 1 Light("YELLOWARMOR1")  A_SpawnItemEx("EvilSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			ARM3 BBBBBBB 1 Light("YELLOWARMOR2") Bright A_SpawnItemEx("EvilSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -205,6 +214,7 @@ Actor RedArmorPickup_MP : DnD_SharedItem {
 	States {
 		Spawn:
 			QRAR A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_REDARMOR)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
 			QRAR A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
 			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
 		Idle:
@@ -223,6 +233,8 @@ Actor RedArmor_SP : GreenArmor_SP {
 	States
 	{
 		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 10)
+		SpawnLoop:
 			QRAR AAAAAAA 1 Light("THEREDARMOR1") Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 			QRAR BBBBBB 1 Light("THEREDARMOR2") A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop

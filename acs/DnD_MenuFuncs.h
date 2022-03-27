@@ -411,6 +411,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(ScrollPos.y, 0);
 		break;
 		case MENU_STAT3:
+		case MENU_HELP_MMODS_IMMUNITY:
 			redraw = ListenScroll(-128, 0);
 		break;
 		case MENU_HELP_CHARACTER:
@@ -436,9 +437,6 @@ bool HandlePageListening(int curopt, int boxid) {
 		break;
 		case MENU_HELP_MMODS_WEAKNESS:
 			redraw = ListenScroll(-48, 0);
-		break;
-		case MENU_HELP_MMODS_IMMUNITY:
-			redraw = ListenScroll(-112, 0);
 		break;
 		case MENU_HELP_MMODS_AGGRESSIVE:
 			redraw = ListenScroll(-144, 0);
@@ -472,6 +470,14 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_SHOP_WEAPON6_1:
 			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
 				redraw = ListenScroll(-40, 0);
+		break;
+		case MENU_RESEARCH_BODY:
+		case MENU_RESEARCH_AMMO:
+		case MENU_RESEARCH_SLOTGUNS:
+		case MENU_RESEARCH_LUXURYGUNS:
+		case MENU_RESEARCH_UTILITY:
+			if(boxid == MBOX_2)
+				redraw = ListenScroll(-16, 0);
 		break;
 	}
 	return redraw;
@@ -830,8 +836,8 @@ void DrawToggledLabel(str label, bool language_lookup, int afterlabel, int boxid
 	}
 }
 
-void DrawCredits() {
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMSUBID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+void DrawCredits(int y_off = 0) {
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMSUBID, CR_WHITE, 264.1, 64.0 + y_off, 0.0, 0.0);
 }
 
 void DrawBudget() {
@@ -1307,14 +1313,14 @@ void DrawHighLightBar (int posy, int framecounter) {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	if(
 		CheckInventory("AttributePoint") && 
+		!(framecounter % 2)	&&
 		//Don't flash if stats are already maxed
 	   !((CheckInventory("PSTAT_Strength") == DND_STAT_FULLMAX) &&
 		(CheckInventory("PSTAT_Dexterity") == DND_STAT_FULLMAX) &&
 		(CheckInventory("PSTAT_Bulkiness") == DND_STAT_FULLMAX) &&
 		(CheckInventory("PSTAT_Charisma") == DND_STAT_FULLMAX) &&
 		(CheckInventory("PSTAT_Vitality") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Intellect") == DND_STAT_FULLMAX)) &&
-		!(framecounter % 2)
+		(CheckInventory("PSTAT_Intellect") == DND_STAT_FULLMAX))
 	)
 	{
 		drawstate = posy == MAINBOX_STATS;
@@ -1325,11 +1331,10 @@ void DrawHighLightBar (int posy, int framecounter) {
 	else
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
 
-
-	
 	drawstate |= 2;
 	if(
 		CheckInventory("PerkPoint") && 
+		!(framecounter % 2) &&
 	   !((CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
 		(CheckInventory("Perk_Endurance") == DND_PERK_MAX) &&
 		(CheckInventory("Perk_Wisdom") == DND_PERK_MAX) &&
@@ -1338,8 +1343,7 @@ void DrawHighLightBar (int posy, int framecounter) {
 		(CheckInventory("Perk_Munitionist") == DND_PERK_MAX) &&
 		(CheckInventory("Perk_Deadliness") == DND_PERK_MAX) &&
 		(CheckInventory("Perk_Savagery") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Luck") == DND_PERK_MAX)) &&
-		!(framecounter % 2)
+		(CheckInventory("Perk_Luck") == DND_PERK_MAX))
 	)
 	{
 		drawstate |= (posy == MAINBOX_PERK) * 4;
@@ -1494,39 +1498,39 @@ bool IsBoxEnabled(menu_inventory_T& p, int box) {
 
 // deepcopy to avoid accidental overriding
 void AddBoxToPane(menu_pane_T& p, rect_T& box) {
-	if(p.cursize < MAX_MENU_BOXES) {
+	//if(p.cursize < MAX_MENU_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
 		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
 		p.MenuRectangles[p.cursize].botright_x = box.botright_x;
 		p.MenuRectangles[p.cursize].botright_y = box.botright_y;
-		p.cursize++;
-	}
+		++p.cursize;
+	/*}
 	else
-		Log(s:"Menu box limit exceeded.");
+		Log(s:"Menu box limit exceeded.");*/
 }
 
 void AddBoxToTrade(menu_trade_T? p, rect_T& box) {
-	if(p.cursize < 3 * MAX_INVENTORY_BOXES + 2) {
+	//if(p.cursize < 3 * MAX_INVENTORY_BOXES + 2) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
 		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
 		p.MenuRectangles[p.cursize].botright_x = box.botright_x;
 		p.MenuRectangles[p.cursize].botright_y = box.botright_y;
-		p.cursize++;
-	}
+		++p.cursize;
+	/*}
 	else
-		Log(s:"Menu box limit exceeded.");
+		Log(s:"Menu box limit exceeded.");*/
 }
 
 void AddBoxToInventory(menu_inventory_T? p, rect_T& box) {
-	if(p.cursize < MAX_INVENTORY_BOXES) {
+	//if(p.cursize < MAX_INVENTORY_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
 		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
 		p.MenuRectangles[p.cursize].botright_x = box.botright_x;
 		p.MenuRectangles[p.cursize].botright_y = box.botright_y;
-		p.cursize++;
-	}
+		++p.cursize;
+	/*}
 	else
-		Log(s:"Menu box limit exceeded.");
+		Log(s:"Menu box limit exceeded.");*/
 }
 
 void ResetInventoryPane(menu_inventory_T& p) {
@@ -1539,14 +1543,14 @@ void SetPaneSize(menu_pane_T& p, int s) {
 
 rect_T& GetMainBox(int id) {
 	static rect_T MainBoxList[MAX_MAIN_BOXES] = { 
-		{ 419.0, 158.0, 348.0, 147.0 },
-		{ 419.0, 141.0, 348.0, 130.0 },
-		{ 419.0, 124.0, 348.0, 113.0 },
-		{ 419.0, 107.0, 348.0, 96.0  },
+		{ 419.0, 159.0, 348.0, 147.0 },
+		{ 419.0, 141.0, 348.0, 129.0 },
+		{ 419.0, 124.0, 348.0, 112.0 },
+		{ 419.0, 107.0, 348.0, 95.0  },
 		
-		{ 419.0, 75.0,  348.0, 64.0  },
-		{ 419.0, 58.0,  348.0, 47.0  },
-		{ 419.0, 41.0,  348.0, 30.0  },
+		{ 419.0, 76.0,  348.0, 64.0  },
+		{ 419.0, 59.0,  348.0, 47.0  },
+		{ 419.0, 42.0,  348.0, 30.0  },
 		
 		// buttons
 		{ 228.0, 35.0, 187.0, 16.0 },
@@ -1619,14 +1623,14 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// loadout for charms
 		{
-			{ 290.0, 125.0, 250.0, 87.0 },
-			{ 226.0, 125.0, 186.0, 87.0 },
-			{ 162.0, 125.0, 122.0, 87.0 },
-			{ 98.0, 125.0, 58.0, 87.0 },
-			{ 258.0, 197.0, 218.0, 143.0 },
-			{ 129.0, 197.0, 89.0, 143.0 },
-			{ 194.0, 268.0, 153.0, 184.0 },
-			{ 220.0, 76.0, 106.0, 68.0 },
+			{ 284.0, 125.0, 243.0, 87.0 },
+			{ 220.0, 125.0, 179.0, 87.0 },
+			{ 156.0, 125.0, 115.0, 87.0 },
+			{ 92.0, 125.0, 51.0, 87.0 },
+			{ 252.0, 197.0, 211.0, 143.0 },
+			{ 123.0, 197.0, 82.0, 143.0 },
+			{ 188.0, 268.0, 147.0, 184.0 },
+			{ 214.0, 76.0, 100.0, 68.0 },
 			{ -1, -1, -1, -1 }
 		},
 		// loadout for crafting
@@ -1648,7 +1652,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 210.0, 184.0, 119.0, 174.0 },
 			{ 240.0, 152.0, 87.0, 142.0 },
 			{ 216.0, 120.0, 113.0, 110.0 },
-			{ -1, -1, -1, -1 },
+			{ -1, -1, -1, -1 }
 		},
 		{
 			{ 240.0, 248.0, 90.0, 238.0 },
@@ -1808,7 +1812,6 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ -1, -1, -1, -1 }
-			
 		},
 		// wep 6 - 2
 		{
@@ -1999,27 +2002,32 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// research - body
 		{
-			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ 289.0, 92.0, 217.0, 84.0 }, // res
+			{ 92.0, 92.0, 32.0, 84.0 }, // invest
 			{ -1, -1, -1, -1 }
 		},
 		// research - ammo
 		{
-			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ 289.0, 92.0, 217.0, 84.0 }, // res
+			{ 92.0, 92.0, 32.0, 84.0 }, // invest
 			{ -1, -1, -1, -1 }
 		},
 		// research - slotguns
 		{
-			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ 289.0, 92.0, 217.0, 84.0 }, // res
+			{ 92.0, 92.0, 32.0, 84.0 }, // invest
 			{ -1, -1, -1, -1 }
 		},
 		// research - luxury guns
 		{
-			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ 289.0, 92.0, 217.0, 84.0 }, // res
+			{ 92.0, 92.0, 32.0, 84.0 }, // invest
 			{ -1, -1, -1, -1 }
 		},
 		// research - utility
 		{
-			{ 202.0, 84.0, 128.0, 76.0 }, // res
+			{ 289.0, 92.0, 217.0, 84.0 }, // res
+			{ 92.0, 92.0, 32.0, 84.0 }, // invest
 			{ -1, -1, -1, -1 }
 		},
 		// main
@@ -2240,6 +2248,8 @@ rect_T& LoadCraftingViewRect(int id) {
 		bp[CRAFTING_INVENTORY_BOXID].topleft_y = 276.0;
 		bp[CRAFTING_INVENTORY_BOXID].botright_x = 310.0;
 		bp[CRAFTING_INVENTORY_BOXID].botright_y = 269.0;
+		// back arrow
+		
 		PaneSetup = SetBit(PaneSetup, CRAFTING_SETUP_BIT);
 	}
 	return bp[id];
@@ -2566,12 +2576,14 @@ void HandleAmmoPageInput(int pnum, int slot, int boxid, int begin_index, int pag
 	}
 }
 
-void HandleResearchPageDraw(int page, int boxid) {
+void HandleResearchPageDraw(int pnum, int page, int boxid) {
 	int posx = CheckInventory("MenuPosX");
 	int status = CheckResearchStatus(ResearchInfo[page][posx].res_id);
 	int budget = CheckInventory("Budget");
 
 	HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESPAN", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	
+	DrawCredits(-8.0);
 
 	if(posx)
 		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
@@ -2583,36 +2595,106 @@ void HandleResearchPageDraw(int page, int boxid) {
 		DeleteText(RPGMENUPAGEID);
 
 	if(budget)
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 72.0, 0.0, 0.0);
 	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 280.1, 64.0, 0.0, 0.0);
-
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:"\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 280.1, 80.0, 0.0, 0.0);
-	if(status != RES_NA)
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj$\c-", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": ???\c-"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 280.1, 96.0, 0.0, 0.0);
-
-	if(status < RES_DONE)
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 72.0, 0.0, 0.0);
+	
+	// adjust x offset on 2nd hudmsg based on length of status for future language compat
+	if(status == RES_NA) {
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
+		SetHudClipRect(324, 108, 128, 32, 128, 1);
+		HudMessage(l:"DND_MENU_RESEARCH_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
+		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESBLAK");
-	else
+	}
+	else if(status == RES_KNOWN) {
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
+		SetHudClipRect(324, 108, 128, 32, 128, 1);
+		HudMessage(l:"DND_MENU_RESEARCH_FOUND"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
+		SetHudClipRect(0, 0, 0, 0, 0);
+		SetFont("RESFOUND");
+	}
+	else {
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
+		SetHudClipRect(324, 108, 128, 32, 128, 1);
+		HudMessage(l:"DND_MENU_RESEARCH_DONE"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
+		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESDONE");
+	}
+	
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
 
-	if(status == RES_NA)
+	bool no_drop = ResearchFlags[ResearchInfo[page][posx].res_id].res_flags & RESF_NODROP;
+	if(no_drop && status == RES_NA) {
 		SetFont("RESNONE");
-	else
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
+		
+		SetFont("SMALLFONT");
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 264.1, 88.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 264.1, 104.0, 0.0, 0.0);
+	}
+	else {
 		SetFont(ResearchIcons[page][posx]);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
-
-	SetFont("SMALLFONT");
-	if(status != RES_NA) {
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
+		
+		SetFont("SMALLFONT");
+		
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 264.1, 88.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- $", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 264.1, 104.0, 0.0, 0.0);
+		
 		SetHudClipRect(192, 144, 256, 96, 256, 1);
 		HudMessage(l:GetResearchDescription(ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
 
-	DrawBoxText("DND_MENU_RESEARCH", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMIDEND + 2, 316.0, 240.0, "\c[B1]", "\c[Y5]");
+	DrawBoxText("DND_MENU_RESEARCH", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMIDEND + 2, 192.1, 232.0, "\c[B1]", "\c[Y5]");
+
+	// if hovering on invest option, show the investment cost to the user
+	if(status == RES_NA) {
+		// no drop ones can't be clicked on either way so color them black
+		if(!no_drop) {
+			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[Y5]");
+		
+			// show the invested % chance to drop if it can drop
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", f:GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
+		}
+		else
+			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[G8]");
+			
+		if(boxid == MBOX_2) {
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj", d:GetInvestmentCost(pnum, page, posx, ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 440.2, 236.1, 0.0, 0.0);
+			SetHudClipRect(184, 244, 256, 64, 256, 1);
+			HudMessage(s:"\cd*\c- ", l:"DND_INVESTMENT_EXPLANATION"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 184.1, 248.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
+			SetHudClipRect(0, 0, 0, 0, 0);
+		}
+		else
+			DeleteTextRange(RPGMENUITEMID - 20, RPGMENUITEMID - 19);
+	}
+	else
+		DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[G8]");
+}
+
+int GetResearchDropRate(int pnum, int res_id) {
+	int temp = ResearchInvestments[pnum][res_id];
+	if(temp)
+		return ftrunc(temp * 1.0);
+	return ftrunc(1.0 / MAX_RESEARCHES);
+}
+
+int GetInvestmentCost(int pnum, int page, int menu_res_id, int res_id) {
+	// base budget cost's 15% + 5% is applied per investment on top of a base of 1k credits to the previous value
+	// let (5 + x / 10) = y
+	// c * (100 + k * (5 + x / 10)) / 100 -- replace c here with k - 1's value
+	// c * (100 + (k - 1) * (5 + x / 10)) / 100 * (100 + k * (5 + x / 10)) / 100
+	// c * (100 + (k - 1) * y) / 100 * (100 + k * y) / 100
+	int k = ResearchInvestments[pnum][res_id];
+	if(!k)
+		return BASE_INVESTMENT_COST;
+	else if(k == 1)
+		return BASE_INVESTMENT_COST * (105 + 3 * ResearchInfo[page][menu_res_id].res_cost / 20) / 100;
+		
+	int y = 5 + 3 * ResearchInfo[page][menu_res_id].res_cost / 20;
+	return (BASE_INVESTMENT_COST * (100 + (k - 1) * y) / 100) * (100 + k * y) / 100;
 }
 
 void HandleResearchPageInput(int pnum, int page, int boxid) {
@@ -2628,6 +2710,38 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 			}
 			else
 				ShowPopup(CheckInventory("DnD_PopupId"), false, 0);
+		}
+		else if(boxid == MBOX_2) {
+			// investment option
+			// check if it's not found already, no point investing into finding it if its there already
+			if(CheckResearchStatus(ResearchInfo[page][curposx].res_id) != RES_NA) {
+				// popup, you found this research already
+				ShowPopup(POPUP_ALREADYFOUND, false, 0);
+			}
+			else if(ResearchFlags[ResearchInfo[page][curposx].res_id].res_flags & RESF_NODROP) {
+				// popup, we dont know this one yet
+				ShowPopup(POPUP_NARESEARCH, false, 0);
+			}
+			else {
+				int resid = ResearchInfo[page][curposx].res_id;
+				int credit = CheckInventory("Credit");
+				int cost = GetInvestmentCost(pnum, page, curposx, resid);
+				if(credit < cost) {
+					// not enough credits
+					ShowPopup(POPUP_NOFUNDS, false, 0);
+				}
+				else if(ResearchInvestments[pnum][resid] >= DND_MAX_INVESTMENT) {
+					// you already (somehow) invested to make this appear 100%, no need!
+					ShowPopup(POPUP_MAXINVESTMENT, false, 0);
+				}
+				else {
+					// investment can proceed
+					++ResearchInvestments[pnum][resid];
+					TakeInventory("Credit", cost);
+					ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, resid, ResearchInvestments[pnum][resid]);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+			}
 		}
 		ClearPlayerInput(pnum, false);
 	}
@@ -2811,7 +2925,7 @@ void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum) {
 		for(int p = 0; p < PlayerCursorData.itemDragInfo.size_y; ++p) {
 			for(int s = 0; s < PlayerCursorData.itemDragInfo.size_x; ++s) {
 				idx = boxid + temp - PlayerCursorData.itemDragInfo.click_box + s + p * MAXINVENTORYBLOCKS_VERT;
-				Log(s:"set lit ", d:idx, s: " boxid: ", d:boxid, s: " diff: ", d:temp - PlayerCursorData.itemDragInfo.click_box);
+				//Log(s:"set lit ", d:idx, s: " boxid: ", d:boxid, s: " diff: ", d:temp - PlayerCursorData.itemDragInfo.click_box);
 				if(idx >= min_box && idx < max_box)
 					InventoryBoxLit[idx] = BOXLIT_STATE_CURSORON;
 			}
@@ -4017,23 +4131,21 @@ void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
 	if(!k || CheckInventory("DnD_RefreshPane")) {
 		ResetInventoryPane(p);
 		LoadCraftingView(p);
+		EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
 	}
 	
 	// CleanInventoryInfo();
 	HandleMaterialDraw(p, boxid, curopt, k);
 	if(curopt == MENU_LOAD_CRAFTING) {
+		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 5, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("DND_MENU_WEPCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_WEAPON_BOXID + 1, RPGMENUID - 3, 24.1, 32.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("DND_MENU_INVCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_INVENTORY_BOXID + 1, RPGMENUID - 4, 24.1, 48.0, "\c[B1]", "\c[Y5]");
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
-		if(!k || CheckInventory("DnD_RefreshPane"))
-			EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		HandleCraftingWeaponDraw(p, boxid, k);
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
-		if(!k || CheckInventory("DnD_RefreshPane"))
-			EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		HandleCraftingInventoryDraw(p, boxid, k);
 	}
@@ -4058,23 +4170,23 @@ void HandleCraftingInputs(int boxid, int curopt) {
 					GiveInventory("DnD_RefreshPane", 1);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
-				if(boxid == MATERIALARROW_ID + 1) {
+				else if(boxid == MATERIALARROW_ID + 1) {
 					GiveInventory("DnD_Crafting_MaterialPage", 1);
 					GiveInventory("DnD_RefreshPane", 1);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
-				
-				// marking a material in case they need something to be used on
-				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
+				else if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
+					// marking a material in case they need something to be used on
 					SetInventory("DnD_SelectedInventoryBox", boxid);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
-				
-				// bottom arrows for crafting
-				if(boxid == CRAFTING_PAGEARROW_ID) {
+				else if(boxid == CRAFTING_PAGEARROW_ID) {
+					// bottom arrows for crafting
 					if(!CheckInventory("DnD_Crafting_ItemPage")) {
 						if(curopt == MENU_LOAD_CRAFTING_WEAPON || curopt == MENU_LOAD_CRAFTING_INVENTORY)
 							UpdateMenuPosition(MENU_LOAD_CRAFTING);
+						else if(curopt == MENU_LOAD_CRAFTING)
+							UpdateMenuPosition(MENU_LOAD);
 					}
 					else {
 						TakeInventory("DnD_Crafting_ItemPage", 1);
@@ -4083,14 +4195,13 @@ void HandleCraftingInputs(int boxid, int curopt) {
 					}
 					SetInventory("DnD_SelectedInventoryBox", 0);
 				}
-				if(boxid == CRAFTING_PAGEARROW_ID + 1) {
+				else if(boxid == CRAFTING_PAGEARROW_ID + 1) {
 					GiveInventory("DnD_Crafting_ItemPage", 1);
 					GiveInventory("DnD_RefreshPane", 1);
 					SetInventory("DnD_SelectedInventoryBox", 0);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
-				
-				if(curopt == MENU_LOAD_CRAFTING) {
+				else if(curopt == MENU_LOAD_CRAFTING) {
 					if(boxid == CRAFTING_WEAPON_BOXID + 1)
 						UpdateMenuPosition(MENU_LOAD_CRAFTING_WEAPON);
 					else if(boxid == CRAFTING_INVENTORY_BOXID + 1)

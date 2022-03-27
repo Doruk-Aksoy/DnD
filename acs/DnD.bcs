@@ -192,7 +192,9 @@ Script "DnD On Map Load" OPEN {
 
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
+		
 	CalculateMapDifficulty();
+	UpdateLevelChestLimit();
 
 	// wait while total level is not initialized
 	while(!PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL])
@@ -663,7 +665,7 @@ Script "DND On Revive" (void) {
 	int this = ActivatorTID();
 	int id = this - DND_MONSTERTID_BEGIN;
 	if (MonsterProperties[id].maxhp) { // This could be skipped if all mobs have their Monster Scaling.
-		SetEliteFlag(DND_REVIVED); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
+		SetEliteFlag(DND_REVIVED, true); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		// Reapply the elite FX.
 		if (MonsterProperties[id].isElite)
 			ACS_NamedExecuteAlways("DND Elite Special FX", 0);
@@ -927,7 +929,7 @@ Script "DND On Kill" KILL {
 			SpawnResearch();
 		#else*/
 			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
-				SpawnResearch();
+				SpawnResearch(target - P_TIDSTART);
 		//#endif
 	}
 	
@@ -1922,8 +1924,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 
 	// run elite checks
 	if(
-		!IsEliteException(monsterid) && GetCVar("dnd_enable_elites") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] 		&& 
-		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")	&&
+		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																&& 
+		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
 		!IsUniqueMonster(monsterid)
 	)
 	{
@@ -1954,7 +1956,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
 		"DnD Sync Monster Trait CS", 
-		this, 
+		m_id, 
 		GetMonsterTraits(m_id, 0),
 		GetMonsterTraits(m_id, 1),
 		GetMonsterTraits(m_id, 2)
@@ -1968,8 +1970,13 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	Clamp_Between(dmg, 0, maxhp + 1);
 	Thing_Damage2(ActivatorTID(), dmg, "None");
 	//Mob might actually be dead by this point.
-	if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
-		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
+	if (GetActorProperty(0, APROP_Health) > maxhp) {
+		// In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
+		// Just kill it
+		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None");
+		SetResultValue(0);
+		Terminate;
+	}
 	
 	// handle all innate resists, weaknesses etc.
 	HandleMonsterClassInnates(m_id, monsterid);
@@ -2568,9 +2575,7 @@ Script "DnD Monster Scanner Picker" (void) {
 }
 
 // takes flag segments
-Script "DnD Sync Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
-	int m_id = id - DND_MONSTERTID_BEGIN;
-	
+Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE {
 	// get all of the flagsets now
 	int i;
 	if(v1) {
@@ -2590,7 +2595,6 @@ Script "DnD Sync Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
 			MonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
 		MonsterProperties[m_id].hasTrait = true;
 	}
-	
 	SetResultValue(0);
 }
 
@@ -2906,6 +2910,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	
 	ResetPlayerInventory(pnum);
 	ResetPlayerStash(pnum);
+	ResetInvestments(pnum);
 }
 
 // End of level checks
@@ -3672,10 +3677,8 @@ Script "DnD Periodic Regeneration" ENTER {
 					amt = 1;
 				
 				// cyborg perk
-				if(CheckInventory("Cyborg_Perk25")) {
-					amt *= DND_CYBORG_CYBER_MULT;
-					amt /= DND_CYBORG_CYBER_DIV;
-				}
+				if(CheckInventory("Cyborg_Perk25"))
+					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 				
 				if(!CheckInventory("RegenStopper") && cur < lim) {
 					if(cur + amt < lim)
@@ -3695,10 +3698,8 @@ Script "DnD Periodic Regeneration" ENTER {
 				lim >>= 1; // half limit for this armor
 				
 				// cyborg perk
-				if(CheckInventory("Cyborg_Perk25")) {
-					amt *= DND_CYBORG_CYBER_MULT;
-					amt /= DND_CYBORG_CYBER_DIV;
-				}
+				if(CheckInventory("Cyborg_Perk25"))
+					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 
 				if(cur < lim && !CheckInventory("P_Damaged")) {
 					AddArmorAmount(Min(amt, lim - cur));
@@ -5025,8 +5026,12 @@ Script "DnD Talisman Mark" (void) CLIENTSIDE {
 	Thing_ChangeTID(DND_TALISMAN_MARK, 0);
 }
 
-Script "DnD Chest Dropping Item" (void) {
-	HandleChestSpawn();
+Script "DnD Chest Dropping Item" (int chance_penalty) {
+	while(GetGameModeState() != GAMESTATE_INPROGRESS)
+		Delay(const:TICRATE);
+	// additional delay for the map difficulty calculator
+	Delay(const:TICRATE);
+	HandleChestSpawn(chance_penalty);
 }
 
 Script "DnD Give Research" (int sp) {
@@ -5088,7 +5093,9 @@ Script "DnD Stacked Item Pickup" (int sp, int type) {
 }
 
 Script "DnD Drop Research" (void) {
-	SpawnResearch();
+	// this guarantees the activator is the player that opened it
+	SetActivatorToTarget(0);
+	SpawnResearch(ActivatorTID() - P_TIDSTART);
 }
 
 // From HardDoom v83

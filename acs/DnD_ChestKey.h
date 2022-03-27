@@ -24,6 +24,10 @@ void RollChestkeyInfo(int item_pos, int keytype, bool onField) {
 }
 
 void HandleChestKeyDrop(bool isElite) {
+#ifdef ISDEBUGBUILD
+	SpawnChestKey(0, true);
+#endif
+
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_CHESTKEY_DROPRATE))))

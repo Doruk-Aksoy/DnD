@@ -246,9 +246,10 @@ str GetSpreeText(int spree_id) {
 #define DND_GOLDCHESTKEY_DROPRATE 0.1
 #define DND_SILVERCHESTKEY_DROPRATE 0.25
 
-#define CHEST_DROPWEIGHT 10
-#define SILVERCHEST_DROPWEIGHT 37
-#define GOLDCHEST_DROPWEIGHT 50
+#define MAX_BASE_CHESTCOUNT 10
+#define CHEST_DROPWEIGHT 0.1
+#define SILVERCHEST_DROPWEIGHT 0.37
+#define GOLDCHEST_DROPWEIGHT 0.50
 
 #define AMMODISPLAY_ID 1000
 
@@ -272,8 +273,10 @@ int DnD_StateChecker[MAX_STATES];
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 bool UniqueMonsterAvailability[MAX_MONSTER_CATEGORIES] = { 0 };
 
-int CurrentLevelReward[MAXPLAYERS];
-int CurrentStatReward[MAXPLAYERS];
+#define LEVELDATA_CHESTSPAWNED 0
+#define LEVELDATA_MAXCHESTS 1
+#define MAX_LEVEL_DATA_ITEMS 2
+int CurrentLevelData[MAX_LEVEL_DATA_ITEMS];
 
 void Reset_RPGInfo (int resetflags) {
 	int i;
@@ -734,18 +737,37 @@ void SpawnAccessory() {
 	SpawnDrop(StrParam(s:"Accessory_", d:id), 0, 0, 0, 0);
 }
 
-void HandleChestSpawn() {
-	int r = random(1, 100);
-	if(r >= CHEST_DROPWEIGHT) {
-		if(!SpawnedChests) {
-			r = random(0, 100);
-			if(r < SILVERCHEST_DROPWEIGHT)
-				SpawnDrop("DNDSilverChest", 0, 0, 0, 0);
-			else if(r < GOLDCHEST_DROPWEIGHT)
-				SpawnDrop("DNDGoldChest", 0, 0, 0, 0);
-			else
-				SpawnDrop("DNDBronzeChest", 0, 0, 0, 0);
-		}
+void UpdateLevelChestLimit() {
+	/* 	2^x + 5x/2 + base_amt (10)
+		a healthy range of values rewarding difficulty greatly
+		
+		Very Easy = 10
+		Easy = 13
+		Medium = 18
+		Hard = 24
+		Very Hard = 35
+	*/
+	CurrentLevelData[LEVELDATA_MAXCHESTS] = MAX_BASE_CHESTCOUNT + (1 << MapDifficulty) + 5 * MapDifficulty / 2;
+}
+
+void HandleChestSpawn(int chance_penalty) {
+	if(CurrentLevelData[LEVELDATA_CHESTSPAWNED] > CurrentLevelData[LEVELDATA_MAXCHESTS])
+		return;
+		
+	if(!chance_penalty)
+		chance_penalty = 1;
+
+	int r = random(0, 1.0);
+	if(r <= CHEST_DROPWEIGHT / chance_penalty) {
+		// chest will now spawn, determine type of it here
+		++CurrentLevelData[LEVELDATA_CHESTSPAWNED];
+		r = random(0, 1.0);
+		if(r < SILVERCHEST_DROPWEIGHT)
+			SpawnDrop("DNDSilverChest", 0, 0, 0, 0);
+		else if(r < GOLDCHEST_DROPWEIGHT)
+			SpawnDrop("DNDGoldChest", 0, 0, 0, 0);
+		else
+			SpawnDrop("DNDBronzeChest", 0, 0, 0, 0);
 	}
 }
 
@@ -1096,8 +1118,9 @@ void HandleRuination(int this, int target) {
 	GiveInventory("RuinBlend", 1);
 }
 
-bool IsEliteException(int m_id) {
-	return MonsterProperties[m_id].trait_list[DND_SUMMONED] || m_id == MONSTER_PHANTASM || m_id == MONSTER_WRAITH || m_id == MONSTER_HADESSPHERE || m_id == MONSTER_UNDEADPRIESTGHOST;
+bool IsEliteException(int m_id, int monster_type) {
+	return 	MonsterProperties[m_id].trait_list[DND_SUMMONED] || MonsterProperties[m_id].trait_list[DND_LEGENDARY] || CheckInventory("DnD_EliteException") ||
+			monster_type == MONSTER_PHANTASM || monster_type == MONSTER_WRAITH || monster_type == MONSTER_HADESSPHERE || monster_type == MONSTER_UNDEADPRIESTGHOST;
 }
 
 void HandleUniqueDeath(int unique_id) {

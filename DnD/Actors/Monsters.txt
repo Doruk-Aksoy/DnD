@@ -1656,7 +1656,7 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 			PHNT B 5 A_FaceTarget
 			PHNT C 4 Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("WraithAttack")
-			PHNT D 4 Bright A_CustomMeleeAttack(random(6, 10) * 3, "", "")
+			PHNT D 4 Bright A_CustomMeleeAttack(random(8, 10) * 2, "", "")
 		Goto See
 		
 		PainState:
