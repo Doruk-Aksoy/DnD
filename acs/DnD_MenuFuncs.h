@@ -420,10 +420,6 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_HELP_MMODS_RESIST:
 			redraw = ListenScroll(-96, 0);
 		break;
-		case MENU_HELP_CLASSPERKS:
-			if(isPlayerClass(DND_PLAYER_BERSERKER))
-				redraw = ListenScroll(-8, 0);
-		break;
 		case MENU_HELP_MMODS_UTILITY:
 			redraw = ListenScroll(-192, 0);
 		break;
@@ -1587,15 +1583,15 @@ rect_T& LoadRect(int menu_page, int id) {
 		// perk
 		{
 			{ 296.0, 245.0, 184.0, 237.0 }, // sharp
-			{ 296.0, 229.0, 214.0, 221.0 }, // brutality
-			{ 296.0, 213.0, 243.0, 205.0 }, // end
-			{ 296.0, 197.0, 247.0, 189.0 }, // wis
-			{ 296.0, 181.0, 252.0, 173.0 }, // greed
-			{ 296.0, 165.0, 211.0, 157.0 }, // med
-			{ 296.0, 149.0, 209.0, 141.0 }, // mun
-			{ 296.0, 133.0, 209.0, 125.0 }, // ded
-			{ 296.0, 117.0, 209.0, 109.0 }, // sav
-			{ 296.0, 101.0, 209.0, 93.0  }, // luck
+			{ 296.0, 229.0, 184.0, 221.0 }, // brutality
+			{ 296.0, 213.0, 184.0, 205.0 }, // end
+			{ 296.0, 197.0, 184.0, 189.0 }, // wis
+			{ 296.0, 181.0, 184.0, 173.0 }, // greed
+			{ 296.0, 165.0, 184.0, 157.0 }, // med
+			{ 296.0, 149.0, 184.0, 141.0 }, // mun
+			{ 296.0, 133.0, 184.0, 125.0 }, // ded
+			{ 296.0, 117.0, 184.0, 109.0 }, // sav
+			{ 296.0, 101.0, 184.0, 93.0  }, // luck
 			{ -1, -1, -1, -1 }
 		},
 		// loadout

@@ -109,6 +109,7 @@ void CleanInventoryInfo() {
 // cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
 void CleanMaterialInfo(bool minus_bg) {
 	// -2 for the two arrows in the material page
+	printbold(s:"yo clean dat ass");
 	DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES - 2, RPGMENUID - minus_bg);
 }
 

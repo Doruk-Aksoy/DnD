@@ -1778,7 +1778,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_HORSHACKER].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_UNDEADPRIEST].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_UNDEADPRIEST].trait_list[DND_HOMING] = true;
-	MonsterData[MONSTER_UNDEADPRIEST].trait_list[DND_HEAL] = true;
+	MonsterData[MONSTER_UNDEADPRIEST].trait_list[DND_RESURRECT] = true;
 	MonsterData[MONSTER_GURU].trait_list[DND_CURSE] = true;
 	MonsterData[MONSTER_GURU].trait_list[DND_ELEMENTAL_RESIST] = true;
 	MonsterData[MONSTER_DARKZEALOT].trait_list[DND_PIERCE] = true;

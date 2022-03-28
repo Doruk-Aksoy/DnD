@@ -179,10 +179,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			redraw = true;
 		}
 		
-		if(
-			(curopt_prev <= MENU_LOAD_CRAFTING_LAST && curopt_prev >= MENU_LOAD_CRAFTING) ||
-			(curopt_prev >= MENU_LOAD_INVENTORY && curopt_prev <= MENU_LOAD_CRAFTING_INVENTORY)
-		)
+		if(curopt_prev >= MENU_LOAD_INVENTORY && curopt_prev <= MENU_LOAD_CRAFTING_INVENTORY)
 			clean_inv = true;
 			
 		curopt_prev = curopt;
@@ -779,33 +776,30 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				SetHudClipRect(0, 0, 0, 0);
 			}
 			else if(curopt == MENU_HELP_CLASSPERKS) {
-				if(isPlayerClass(DND_PLAYER_BERSERKER))
-					j = 16.0;
-				else
-					j = 0;
+				j = StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1); 
 				
-				toshow = StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1);
+				toshow = "";
 				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT2", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				SetHudClipRect(192, 64, 256, 256, 256, 1);
-				HudMessage(l:"DND_CLASS", s:": \cj", l:GetClassLabel(toshow, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 80.0 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_CLASS", s:": \cj", l:GetClassLabel(j, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 72.1, 0.0, 0.0);
 				
-				i = 0;
 				if(CheckInventory("Level") < 5)
-					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+					toshow = StrParam(s:toshow, s:"\n\n\cm+ L5: ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK1));
 				else
-					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_GREEN, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+					toshow = StrParam(s:toshow, s:"\n\n\c[Y5]+ L5:\c- ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK1));
 				
 				if(CheckInventory("Level") < 25)
-					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+					toshow = StrParam(s:toshow, s:"\n\n\cm+ L25: ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK2));
 				else
-					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_ORANGE, 192.1, 112.1 + (48.0 + j) * (i++) + 4.0 * ScrollPos.x, 0.0, 0.0);
+					toshow = StrParam(s:toshow, s:"\n\n\c[Y5]+ L25:\c- ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK2));
 
 				if(CheckInventory("Level") < 50)
-					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_DARKGRAY, 192.1, 112.1 + (48.0 + j) * i + 4.0 * ScrollPos.x, 0.0, 0.0);
+					toshow = StrParam(s:toshow, s:"\n\n\cm+ L50: ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK3));
 				else
-					HudMessage(l:GetClassLabel(toshow, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, RPGMENUITEMID - i - 2 , CR_RED, 192.1, 112.1 + (48.0 + j) * i + 4.0 * ScrollPos.x, 0.0, 0.0);
-				
+					toshow = StrParam(s:toshow, s:"\n\n\c[Y5]+ L50:\c- ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK3));
+					
+				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_GREEN, 192.1, 88.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0);
 			}
 			else if(curopt == MENU_HELP_WEAPONPROPS) {

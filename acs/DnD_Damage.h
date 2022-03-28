@@ -2503,7 +2503,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg >>= 1;
 				
 			// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
-			dmg += (dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) * (GetSpawnHealth() * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
+			dmg += !!(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) * (GetSpawnHealth() * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
 
 			// if this was a player, factor their resists in
 			// resists of player now will factor in after we've calculated the damage accurately

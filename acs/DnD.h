@@ -1226,4 +1226,11 @@ void ClearLingeringBuffs() {
 	SetInventory("Rally_DamageBuff", 0);
 }
 
+void SyncResearchInvestments(int pnum) {
+	for(int i = 0; i < MAX_RESEARCHES; ++i) {
+		if(ResearchInvestments[pnum][i])
+			ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, i, ResearchInvestments[pnum][i]);
+	}
+}
+
 #include "DnD_Damage.h"

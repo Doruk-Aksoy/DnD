@@ -1851,24 +1851,32 @@ Actor UndeadSpiritDamager : BaseExplosionDamage {
 
 Actor UndeadSpiritAttack {
 	PROJECTILE
-	Height 6
-	Radius 4
+	Health 5
+	Species "AV"
+	Height 24
+	Radius 16
 	Damage 0
 	Speed 20
 	RENDERSTYLE ADD
 	ALPHA 0.66
 	ReactionTime 7
+	BounceType "Hexen"
+	DamageFactor "MagicalGreen", 0
+	RadiusDamageFactor 0
+	+CANBOUNCEWATER
+	+DONTSPLASH
 	+THRUACTORS
 	+SEEKERMISSILE
+	+SHOOTABLE
 	+DONTBLAST
-	+RIPPER
 	+NOBLOOD
-	+HEXENBOUNCE
+	-NOBLOCKMAP
 	SeeSound "UndeadSoul/See"
 	DeathSound "UndeadSoul/Die"
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Setup Shootable") // if random bugs regarding shootable objects start occuring, look here!
 		SpawnLoop:
 			BDSP A 5 A_SeekerMissile(90, 90, SMF_LOOK)
 			TNT1 A 0 A_JumpIfInTargetInventory("NoDrop", 1, "Death")

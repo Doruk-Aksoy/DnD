@@ -3103,6 +3103,9 @@ Script "DnD Player Setup" ENTER {
 	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
 	TakeInventory("P_Frozen", 1);
 	GiveInventory("DontAttackRemove", 1);
+	
+	// we can synchronize the research investments now, load period etc. all finished
+	SyncResearchInvestments(pnum);
 
 	// force sync client stuff
 	GiveInventory("DnD_SyncMe", 1);

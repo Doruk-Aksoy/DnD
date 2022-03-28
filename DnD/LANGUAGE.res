@@ -13,13 +13,13 @@ RES_LABEL3 				= "Accessory Tap";
 RES_DESC3				= "Unlocking the occult secrets of demonic energy, we can allow marines to use ancient trophies they come across. Allows use of accessories.";
    
 RES_LABEL4 				= "Flechette Shells";
-RES_DESC4				= "Our scientists managed to create a highly ballistic shell that can scatter around and pierce targets, \cfignoring shields\c-.";
+RES_DESC4				= "Our scientists managed to create a highly ballistic shell that can scatter around and pierce targets, \cfignoring shields\c-. Unlocks Flechette Shells.";
 
 RES_LABEL5 				= "Magnum Shells";
-RES_DESC5				= "We can now utilize the same bullets used by magnum handguns on pump-action shotguns. Magnum shells penetrate any target.";
+RES_DESC5				= "We can now utilize the same bullets used by magnum handguns on pump-action shotguns, penetrating any target.  Unlocks Magnum Shells.";
 
 RES_LABEL6 				= "Electric Shells";
-RES_DESC6				= "When you need some extra zap to go with your shell burst, we can use these now. They constantly lock enemies in their pain state and \cfignore shields\c-.";
+RES_DESC6				= "When you need some extra zap to go with your shell burst, we can use these now. They constantly lock enemies in their pain state and \cfignore shields\c-. Unlocks Electric Shells.";
 
 RES_LABEL7 				= "Nitrogen Shells";
 RES_DESC7				= "Always nice to greet your adversaries with some ice. Allows Riot Cannon to use Nitrogen Shells.";
