@@ -109,7 +109,6 @@ void CleanInventoryInfo() {
 // cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
 void CleanMaterialInfo(bool minus_bg) {
 	// -2 for the two arrows in the material page
-	printbold(s:"yo clean dat ass");
 	DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES - 2, RPGMENUID - minus_bg);
 }
 
@@ -381,7 +380,7 @@ bool point_in_points(int ux, int uy, int lx, int ly, int mx, int my, int yoffset
 	return (mx <= ux && mx >= lx && my <= uy - yoffset && my >= ly - yoffset);
 }
 
-int GetTriggeredBoxOnPane(menu_pane_T& p, int mx, int my, int xlim = 348.0, int ylim = 270.0) {
+int GetTriggeredBoxOnPane(menu_pane_T& p, int mx, int my, int xlim = 348.0, int ylim = 282.0) {
 	if(mx >= xlim || my >= ylim)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {

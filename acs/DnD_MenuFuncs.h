@@ -415,10 +415,12 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-128, 0);
 		break;
 		case MENU_HELP_CHARACTER:
-		case MENU_HELP_DAMAGETYPES:
 		case MENU_HELP_WEAPONPROPS:
 		case MENU_HELP_MMODS_RESIST:
 			redraw = ListenScroll(-96, 0);
+		break;
+		case MENU_HELP_DAMAGETYPES:
+			redraw = ListenScroll(-64, 0);
 		break;
 		case MENU_HELP_MMODS_UTILITY:
 			redraw = ListenScroll(-192, 0);
@@ -597,8 +599,6 @@ void ShowDamageTypeIcon(int dmg) {
 
 void ShowWeaponPropertyIcon(int id) {
 	int offset = 0.0;
-	SetHudSize(640, 480, 1);
-	SetHudClipRect(192, 72, 320, 384, 320, 1);
 	SetFont(WeaponPropertyImages[id]);
 	
 	if(id == 2)
@@ -609,10 +609,6 @@ void ShowWeaponPropertyIcon(int id) {
 		offset = -8.0;
 	
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id - 1, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos.x, 0.0, 0.0);
-	SetHudClipRect(0, 0, 0, 0);
-	
-	SetFont("SMALLFONT");
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
 void ShowOrbIcon(int id, int offset) {
@@ -1570,14 +1566,18 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 288.0, 132.0, 108.0, 124.0 }, // chr
 			{ 288.0, 116.0, 108.0, 108.0 }, // vit
 			{ 288.0, 100.0, 108.0, 92.0 }, // int
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// stat 2
 		{
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// stat 3
 		{
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// perk
@@ -1648,6 +1648,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 210.0, 184.0, 119.0, 174.0 },
 			{ 240.0, 152.0, 87.0, 142.0 },
 			{ 216.0, 120.0, 113.0, 110.0 },
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		{
@@ -1656,6 +1657,8 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 208.0, 184.0, 120.0, 174.0 },
 			{ 207.0, 152.0, 120.0, 142.0 },
 			{ 226.0, 120.0, 102.0, 110.0 },
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		{
@@ -1664,11 +1667,14 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 197.0, 184.0, 131.0, 174.0 },
 			{ 232.0, 152.0, 97.0, 142.0 },
 			{ 226.0, 120.0, 106.0, 110.0 },
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		{
 			{ 244.0, 248.0, 86.0, 238.0 },
 			{ 236.0, 216.0, 96.0, 206.0 },
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// trade 1
@@ -1744,6 +1750,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 3 - 2
@@ -1756,6 +1763,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 4 - 1
@@ -1768,6 +1776,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 4 - 2
@@ -1776,6 +1785,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 5 - 1
@@ -1788,6 +1798,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 5 - 2
@@ -1796,6 +1807,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 6 - 1
@@ -1807,6 +1819,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 6 - 2
@@ -1814,6 +1827,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// wep 7
@@ -2235,16 +2249,15 @@ rect_T& LoadCraftingViewRect(int id) {
 			bp[i].botright_y = -1;
 		}
 		// weapon crafting box
-		bp[CRAFTING_WEAPON_BOXID].topleft_x = 455.0;
-		bp[CRAFTING_WEAPON_BOXID].topleft_y = 292.0;
-		bp[CRAFTING_WEAPON_BOXID].botright_x = 321.0;
-		bp[CRAFTING_WEAPON_BOXID].botright_y = 285.0;
+		bp[CRAFTING_WEAPON_BOXID].topleft_x = -1;
+		bp[CRAFTING_WEAPON_BOXID].topleft_y = -1;
+		bp[CRAFTING_WEAPON_BOXID].botright_x = -1;
+		bp[CRAFTING_WEAPON_BOXID].botright_y = -1;
 		// inventory crafting box
-		bp[CRAFTING_INVENTORY_BOXID].topleft_x = 455.0;
-		bp[CRAFTING_INVENTORY_BOXID].topleft_y = 276.0;
-		bp[CRAFTING_INVENTORY_BOXID].botright_x = 310.0;
-		bp[CRAFTING_INVENTORY_BOXID].botright_y = 269.0;
-		// back arrow
+		bp[CRAFTING_INVENTORY_BOXID].topleft_x = -1;
+		bp[CRAFTING_INVENTORY_BOXID].topleft_y = -1;
+		bp[CRAFTING_INVENTORY_BOXID].botright_x = -1;
+		bp[CRAFTING_INVENTORY_BOXID].botright_y = -1;
 		
 		PaneSetup = SetBit(PaneSetup, CRAFTING_SETUP_BIT);
 	}
@@ -2454,15 +2467,15 @@ void HandleButtonClick(int boxid) {
 }
 
 // opt is menu page, multipage is for when one option can lead to multiple weapon pages
-void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scrollamt) {
+void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scrollamt, int total_boxes) {
 	int begin = GetWeaponBeginIndexFromOption(opt);
 	int end = GetWeaponEndIndexFromOption(opt);
 	
 	if(multipage > 0)
-		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
+		DrawBoxText("=>", DND_NOLOOKUP, boxid, total_boxes, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
 	if(multipage > 1 || multipage < 0)
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	
+		DrawBoxText("<=", DND_NOLOOKUP, boxid, total_boxes, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+
 	// negative indicates last page
 	if(multipage < 0)
 		multipage = -multipage;
@@ -2516,8 +2529,16 @@ void HandleAmmoPageDraw(int boxid, int slot, int multipage, int start_index, int
 
 void HandleWeaponPageInput(int pnum, int boxid, int wbegin, int wend, int pageprev, int pagenext) {
 	if(HasLeftClicked(pnum)) {
-		if(boxid != MAINBOX_NONE)
-			ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
+		if(boxid != MAINBOX_NONE) {
+			if(boxid - 1 == wend - wbegin + 1) {
+				if(pageprev != -1)
+					UpdateMenuPosition(pageprev);
+				else
+					UpdateMenuPosition(pagenext);
+			}
+			else
+				ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
+		}
 		ClearPlayerInput(pnum, true);
 	}
 	else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
@@ -2659,7 +2680,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 			
 		if(boxid == MBOX_2) {
 			HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj", d:GetInvestmentCost(pnum, page, posx, ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 440.2, 236.1, 0.0, 0.0);
-			SetHudClipRect(184, 244, 256, 64, 256, 1);
+			SetHudClipRect(184, 244, 256, 36, 256, 1);
 			HudMessage(s:"\cd*\c- ", l:"DND_INVESTMENT_EXPLANATION"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 184.1, 248.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
 		}
@@ -3192,6 +3213,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 					TakeInventory("DnD_InventoryView", 1);
 					LocalAmbientSound("RPG/MenuClose", 127);
 				}
+				GiveInventory("DnD_CleanInventoryRequest", 1);
 			}
 		}
 		ClearPlayerInput(pnum, true);
@@ -4128,6 +4150,17 @@ void HandleCraftingView(menu_inventory_T& p, int boxid, int curopt, int k) {
 		ResetInventoryPane(p);
 		LoadCraftingView(p);
 		EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
+	
+		// these were lingering
+		if(curopt != MENU_LOAD_CRAFTING)
+			DeleteTextRange(RPGMENUID - 4, RPGMENUID - 3);
+		else {
+			// enable these two only for crafting view
+			// weapon crafting box
+			EnableBoxWithPoints(p, CRAFTING_WEAPON_BOXID, 455.0, 292.0, 321.0, 285.0);
+			// inventory crafting box
+			EnableBoxWithPoints(p, CRAFTING_INVENTORY_BOXID, 455.0, 276.0, 310.0, 269.0);
+		}
 	}
 	
 	// CleanInventoryInfo();
@@ -4183,6 +4216,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 							UpdateMenuPosition(MENU_LOAD_CRAFTING);
 						else if(curopt == MENU_LOAD_CRAFTING)
 							UpdateMenuPosition(MENU_LOAD);
+						GiveInventory("DnD_CleanInventoryRequest", 1);
 					}
 					else {
 						TakeInventory("DnD_Crafting_ItemPage", 1);
@@ -4215,10 +4249,8 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						if(CheckInventory("DnD_UsedTwoItemRequirementMaterial") && CheckInventory("DnD_SelectedInventoryBox")) {
 							if(!HandleTwoRequirementMaterialUse(pnum, previtemindex, curitemeindex))
 								ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
-							else {
-								// we managed to use it
+							else // we managed to use it
 								UsePlayerItem(pnum, CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1);
-							}
 							SetInventory("DnD_SelectedInventoryBox", 0);
 							SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
 						}
@@ -4285,10 +4317,14 @@ void HandleCraftingInputs(int boxid, int curopt) {
 			GiveInventory("DnD_RefreshPane", 1);
 			LocalAmbientSound("RPG/MenuChoose", 127);	
 		}
-		else if(curopt != MENU_LOAD_CRAFTING)
+		else if(curopt != MENU_LOAD_CRAFTING) {
 			UpdateMenuPosition(MENU_LOAD_CRAFTING);
-		else
+			GiveInventory("DnD_CleanInventoryRequest", 1);
+		}
+		else {
 			UpdateMenuPosition(MENU_LOAD);
+			GiveInventory("DnD_CleanInventoryRequest", 1);
+		}
 			
 		SetInventory("DnD_SelectedInventoryBox", 0);
 	}
@@ -4664,7 +4700,7 @@ void DrawPlayerStats(int pnum) {
 
 void DrawMonsterModCategory(int category) {
 	int i;
-	SetHudClipRect(192, 52, 256, 384, 256, 1);
+	SetHudClipRect(192, 52, 256, 228, 256, 1);
 	switch(category) {
 		case DND_TRAITCODE_WEAKNESS:
 			for(i = 0; i < MAX_WEAKNESS_MODS; ++i)
@@ -4707,6 +4743,16 @@ bool IsPageHoverDrawer(int curopt) {
 		case MENU_LOAD_CRAFTING_WEAPON:
 		case MENU_LOAD_CRAFTING_INVENTORY:
 		return true;
+	}
+	return false;
+}
+
+bool IsBoxChangeException(int curopt, int boxid) {
+	// accessory page has some exceptions (dont randomly click "nothing")
+	if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
+		if(curopt != MENU_LAST_ACCESSORY_PAGE)
+			return CheckResearchStatus(RES_ACCESSORY) != RES_DONE && boxid < MBOX_6;
+		return CheckResearchStatus(RES_ACCESSORY) != RES_DONE && boxid < MBOX_3;
 	}
 	return false;
 }

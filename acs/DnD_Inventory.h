@@ -1476,20 +1476,24 @@ bool IsTwoSelectionItem(int pnum, int item_index) {
 }
 
 // can only use items in inventory
-void UsePlayerItem(int pnum, int item_index) {
+// returns true if item expired after use
+bool UsePlayerItem(int pnum, int item_index) {
 	if(IsUsableItem(PlayerInventoryList[pnum][item_index].item_type)) {
 		GiveInventory("DnD_RefreshPane", 1);
 		--PlayerInventoryList[pnum][item_index].item_stack;
-		if(PlayerInventoryList[pnum][item_index].item_stack)
+		if(PlayerInventoryList[pnum][item_index].item_stack) {
 			SyncItemStack(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-		else {
-			FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
-			// if this is freed, we might have to auto-adjust the player's page -- need exact equality here
-			int mcount = CountCraftingMaterials();
-			if(mcount == MAX_CRAFTING_MATERIALBOXES * CheckInventory("DnD_Crafting_MaterialPage"))
-				TakeInventory("DnD_Crafting_MaterialPage", 1);
+			return false;
 		}
+		FreeItem_Player(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, pnum);
+		GiveInventory("DnD_CleanInventoryRequest", 1);
+		// if this is freed, we might have to auto-adjust the player's page -- need exact equality here
+		int mcount = CountCraftingMaterials();
+		if(mcount == MAX_CRAFTING_MATERIALBOXES * CheckInventory("DnD_Crafting_MaterialPage"))
+			TakeInventory("DnD_Crafting_MaterialPage", 1);
+		return true;
 	}
+	return false;
 }
 
 // Consumes a stack off a stackable item
