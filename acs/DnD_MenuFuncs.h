@@ -196,8 +196,6 @@ str GetPerkText(int id) {
 // yeah this is ugly, but it is what it is
 void DrawPerkText(int boxid) {
 	if(boxid != MAINBOX_NONE) {
-		SetHudClipRect(184, 208, 256, 64, 256, 1);
-		
 		// order follows perk definition order at the enum in DND_CommonStat.h
 		int perk = boxid + DND_PERK_BEGIN - 1;
 		str toShow = "";
@@ -233,7 +231,12 @@ void DrawPerkText(int boxid) {
 				toShow = StrParam(s:"\cd* \ci+", f:ftrunc(DND_LUCK_GAIN * 100), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 		}
-		HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1, 0.0, 0.0);
+		if(GetStat(perk) == DND_PERK_MAX)
+			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:": \cd", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
+		else
+			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:" (", l:"DND_MENU_MASTERY_COND", s:"): \cu", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
+		SetHudClipRect(184, 232, 256, 48, 256, 1);
+		HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
 }
@@ -406,6 +409,9 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_MAIN:
 		case MENU_HELP_RESEARCHES:
 			redraw = ListenScroll(-32, 0);
+		break;
+		case MENU_PERK:
+			redraw = ListenScroll(-16, 0);
 		break;
 		case MENU_STAT2:
 			redraw = ListenScroll(ScrollPos.y, 0);
@@ -4466,7 +4472,7 @@ void DrawPlayerStats(int pnum) {
 	if(val > 100.0)
 		HudMessage(s:"+ \c[Q9]", f:val, s:"%\c- ", l:"DND_MENU_ARMOREFF"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 
-	val = DND_DEX_GAIN * GetDexterity();
+	val = GetBonusFromDexterity();
 	if(val)
 		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_NONMAGICDMG"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	

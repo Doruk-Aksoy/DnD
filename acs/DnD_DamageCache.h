@@ -27,7 +27,7 @@ bool PlayerDamageNeedsCaching(int pnum, int wepid, int dmgid) {
 void ClearCache(int pnum, int wepid, int dmgid) {
 	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
 	cache.flat_values[wepid][dmgid] = 0;
-	cache.final_factor[wepid][dmgid] = 0;
+	cache.final_factor[wepid][dmgid] = 1.0;
 }
 
 // this guy gets called last, so we mark recalc stuff here
@@ -94,7 +94,7 @@ void ForceClearCache(pdmg_cache_T& cache, int pnum) {
 	for(int i = 0; i < MAXWEPS; ++i) {
 		for(int j = 0; j < MAX_CACHE_ELEMENTS; ++j) {
 			cache.norecalculate[i][j] = false;
-			cache.final_factor[i][j] = 0;
+			cache.final_factor[i][j] = 1.0;
 			cache.flat_values[i][j] = 0;
 		}
 	}

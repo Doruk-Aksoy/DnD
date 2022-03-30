@@ -6298,6 +6298,14 @@ Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+// these are called by projectiles only
+Script "DnD Update Melee ReactionTime" (int base) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(IsPlayer(owner))
+		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + CheckActorInventory(owner, "IATTR_MeleeRange") + GetActorStat(owner, STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC) / 100);
+	SetResultValue(0);
+}
+
 Script 1007 (void) NET CLIENTSIDE {
 	SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
 	

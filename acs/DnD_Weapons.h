@@ -575,6 +575,7 @@ bool IsMeleeWeapon(int wepid) {
 		case DND_WEAPON_INFERNOSWORD:
 		case DND_WEAPON_DUSKBLADE:
 		case DND_WEAPON_SICKLE:
+		case DND_WEAPON_SOULRENDER:
 		return true;
 		
 		default:

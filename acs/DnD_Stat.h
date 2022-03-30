@@ -302,6 +302,18 @@ void GiveStat(int stat_id, int amt) {
 	UpdateArmorVisual();
 }
 
+int GetBonusFromDexterity() {
+	return (DND_DEX_GAIN + DND_SHARPSHOOTER_MASTERY_BONUS * (GetStat(STAT_SHRP) == DND_PERK_MAX)) * GetDexterity();
+}
+
+bool HasMasteredPerk(int stat) {
+	return GetStat(stat) == DND_PERK_MAX;
+}
+
+bool HasActorMasteredPerk(int tid, int stat) {
+	return GetActorStat(tid, stat) == DND_PERK_MAX;
+}
+
 /*void GiveActorStat(int tid, int stat_id, int amt) {
 	// get cap
 	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;

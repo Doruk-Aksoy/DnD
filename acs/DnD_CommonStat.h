@@ -79,7 +79,9 @@ enum {
 #define DND_SAVAGERY_BONUS 10 // percent
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
 #define DND_MUNITION_GAIN 10
-#define DND_LUCK_GAIN 0.15 // 15% multiplicative luck
+#define DND_LUCK_GAIN 0.15 // 15% multiplicative lucke
+
+#define DND_SHARPSHOOTER_MASTERY_BONUS 1
 
 #define DND_BUL_KNOCKBACK_GAIN 25
 #define DND_STR_KNOCKBACK_GAIN 50
@@ -206,10 +208,10 @@ enum {
 #define DND_PERK_END STAT_LUCK
 #define DND_MAX_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
 
-
 #define DND_PERK_SHARPSHOOTER_INC 5 // 5%
 #define DND_PERK_BRUTALITY_DAMAGEINC 5 // 5%
 #define DND_PERK_BRUTALITY_RANGEINC 8 // 8%
+#define DND_ENDURANCE_MASTERY_CHANCE 10 // 10%
 
 enum {	
 	RES_STAT_DEX = 1,

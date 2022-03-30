@@ -183,8 +183,8 @@ enum {
 	DND_DAMAGEFLAG_ISSPECIALAMMO		=			0b100000000000000000,
 	
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
-	DND_DAMAGEFLAG_FOILINVUL			=			0b1000000000000000000,
-	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b10000000000000000000,
+	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b1000000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b10000000000000000000,
 };
 
 enum {
@@ -465,13 +465,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	else // no rng, so just set it to temp
 		dmg = temp;
 
+	bool is_melee_mastery_exception = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && HasMasteredPerk(STAT_BRUT);
+
 	// only store scaling factors here for later use, no modifying damage in this block
 	// damage modifications are done at the end
 	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid) || isSpecial) {
 		// add potential shotgun flat damage
-		temp = GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED);
-		if(temp)
-			temp *= CountShotgunWeaponsOwned();
+		temp = (flags & DND_WDMG_ISBOOMSTICK) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
 		// add flat damage bonus mapping talent name to flat bonus type
 		temp += MapTalentToFlatBonus(pnum, talent_type, flags);
@@ -482,21 +482,21 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		int mult_factor = 0;
 		
 		// include the stat bonus
-		if(talent_type == TALENT_MELEE) {
+		if(talent_type == TALENT_MELEE || is_melee_mastery_exception) {
 			temp = DND_STR_GAIN * GetStrength();
-			mult_factor = GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC;
+			mult_factor += GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		
 		// occult uses intellect
 		if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) {
 			temp = DND_INT_GAIN * GetIntellect();
-			mult_factor = GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
+			mult_factor += GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		else if(talent_type != TALENT_MELEE) {
-			temp = DND_DEX_GAIN * GetDexterity();
-			mult_factor = GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
+			temp = GetBonusFromDexterity();
+			mult_factor += GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		}
 		
@@ -523,6 +523,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		// finally apply damage type or percentage bonuses
 		// last one is for ghost hit power, we reduce its power by a factor
 		temp = GetPlayerPercentDamage(pnum, wepid, talent_type);
+		if(talent_type != TALENT_MELEE && is_melee_mastery_exception)
+			temp += GetPlayerPercentDamage(pnum, wepid, TALENT_MELEE);
 		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
@@ -2398,7 +2400,9 @@ int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data) {
 			//printbold(s:"So extra damage dealt to player is ", d:dmg, s: " with difference ", d:armor_damage - armor_amt, s: " reduced from ", d:dmg_prev);
 		}
 		
-		TakeArmorAmount(armor_take);
+		// if not mastered take 100%, or mastered we have 10% chance to not take
+		if(!HasMasteredPerk(STAT_END) || DND_ENDURANCE_MASTERY_CHANCE <= random(1, 100))
+			TakeArmorAmount(armor_take);
 	}
 	
 	return dmg;
