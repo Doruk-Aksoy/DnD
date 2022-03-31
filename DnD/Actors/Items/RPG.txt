@@ -495,3 +495,41 @@ Actor DnD_CleanInventoryRequest : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 3
 }
+
+Actor DnD_AmmoToken : CustomInventory {
+	Renderstyle "Translucent"
+	inventory.pickupsound "items/ammo"
+	Radius 20
+	Height 16
+	+VISIBILITYPULSE
+	States {
+		Spawn:
+			ATOK A 525
+			TNT1 A 0 A_SetTranslucent(1.0)
+			ATOK A 1 A_ChangeFlag("VISIBILITYPULSE", 0)
+			ATOK AAAAA 5 A_FadeOut(0.175)
+			ATOK AAAAA 5 A_FadeIn(0.175)
+			ATOK AAAAA 5 A_FadeOut(0.175)
+			ATOK AAAAA 5 A_FadeIn(0.175)
+			ATOK AAAAA 4 A_FadeOut(0.175)
+			ATOK AAAAA 4 A_FadeIn(0.175)
+			ATOK AAAAA 4 A_FadeOut(0.175)
+			ATOK AAAAA 4 A_FadeIn(0.175)
+			ATOK AAAAA 3 A_FadeOut(0.175)
+			ATOK AAAAA 3 A_FadeIn(0.175)
+			ATOK AAAAA 3 A_FadeOut(0.175)
+			ATOK AAAAA 3 A_FadeIn(0.175)
+			ATOK AAAAA 2 A_FadeOut(0.175)
+			ATOK AAAAA 2 A_FadeIn(0.175)
+			ATOK AAAAA 2 A_FadeOut(0.175)
+			ATOK AAAAA 2 A_FadeIn(0.175)
+			ATOK AAAAA 1 A_FadeOut(0.175)
+			ATOK AAAAA 1 A_FadeIn(0.175)
+			ATOK AAAAA 1 A_FadeOut(0.175)
+			ATOK AAAAA 1 A_FadeIn(0.175)
+		Stop
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Token Pickup")
+		Stop
+	}
+}

@@ -1286,15 +1286,6 @@ int GetRandomSinStat() {
 	return s;
 }
 
-// pick a random weapon that the player currently owns
-int PickRandomOwnedWeapon() {
-	int res = 0;
-	do {
-		res = random(0, MAXWEPS - 1);
-	} while(!CheckInventory(Weapons_Data[res][WEAPON_NAME]));
-	return res;
-}
-
 void RecentOrb_SaveOldStats(int pnum) {
 	// 0 to 5, need 8 bits
 	for(int i = STAT_STR; i <= STAT_INT; ++i) {

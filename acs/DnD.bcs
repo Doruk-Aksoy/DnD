@@ -319,6 +319,8 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 		GiveInventory("HealthBonusX", amt);
 		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
 		GiveInventory("Research_Body_Hp_1_Tracker", amt);
+		if(HasMasteredPerk(STAT_MED) && amt / 10)
+			HandleArmorPickup(DND_ARMOR_BONUS, amt / 10, false);
 		Terminate;
 	}
 	else if(isspecial == 3) {
@@ -346,6 +348,9 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 			GiveInventory("HealthBonusX", toGive);
 			GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
 			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
+			
+			if(HasMasteredPerk(STAT_MED) && toGive / 10)
+				HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, false);
 		}
         if(toGive < amt)
             GiveInventory("StoredMedkit", Clamp_Between(amt - toGive, 1, base));
@@ -354,6 +359,9 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 		GiveInventory("HealthBonusX", toGive);
 		GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
 		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
+		
+		if(HasMasteredPerk(STAT_MED) && toGive / 10)
+			HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, false);
 	}
 	
 	HandleHealDependencyCheck();
@@ -738,11 +746,10 @@ Script "DND On Kill" KILL {
 		Terminate;
 	
 	int target = GetActorProperty(0, APROP_TARGETTID);
-	if(target < P_TIDSTART || target > P_TIDSTART + MAXPLAYERS - 1) // only work if you can determine target as a player
+	bool killerWasntPlayer = target < P_TIDSTART || target > P_TIDSTART + MAXPLAYERS - 1;
+	// only work if you can determine target as a player
+	if(killerWasntPlayer && !CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED])
 		Terminate;
-		
-	if(CheckActorInventory(target, "Wanderer_Perk50"))
-		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
 	// remove freeze and chill timers
 	SetInventory("DnD_ChillStacks", 0);
@@ -771,18 +778,9 @@ Script "DND On Kill" KILL {
 		
 	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
 		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
-		
-	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime")) {
-		GiveInventory("DnD_OverloadZapGiver", 1);
-		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
-	}
 	
-	SetInventory("DnD_OverloadTimer", 0);
-		
 	int expshare = GetCVar("dnd_sharexp");
 	int creditshare = GetCVar("dnd_sharecredit");
-	int haswisdom = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANWISDOM);
-	int hasgreed = IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANGREED);
 	
     // decide how exp/credit base is calculated
 	int exptemp = MonsterProperties[m_id].maxhp / DND_HEALTHEXPSCALE;
@@ -806,33 +804,12 @@ Script "DND On Kill" KILL {
 	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
 	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
 	int addone = 0;
-	int expprev, credprev;
 		
 	// add monster scale stuff
 	if(MonsterProperties[m_id].level > 1) {
 		exptemp += exptemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
 		credtemp += credtemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
 	}
-	
-	ACS_NamedExecuteAlways("DND Show Kill Digits", 0, exptemp * expscale, credtemp * creditscale); // show the numbers
-	
-	if(haswisdom) { // wisdom
-		exptemp *= 3;
-		if(exptemp % 2)
-			addone = 1;
-		exptemp >>= 1;
-		exptemp += addone;
-	}
-	addone = 0;
-	if(hasgreed) { // greed
-		credtemp *= 3;
-		if(credtemp % 2)
-			addone = 1;
-		credtemp >>= 1;
-		credtemp += addone;
-	}
-	
-	addone = GetCVar("dnd_gainonlyinrange");
 	
 	// if full share is on we won't divide by player count, but if it isn't we will
 	if(!GetCVar("dnd_fullshare")) {
@@ -843,73 +820,110 @@ Script "DND On Kill" KILL {
 		if(credtemp < MIN_CREDIT_GAIN)
 			credtemp = MIN_CREDIT_GAIN;
 	}
+	else {
+		exptemp *= expscale;
+		credtemp *= creditscale;
+	}
 	
-	if(expshare || creditshare) {
-		for(i = 0; i < MAXPLAYERS; ++i) {
-			expprev = exptemp;
-			credprev = credtemp;
-			pnum = P_TIDSTART + i;
-			if(IsActorAlive(pnum) && pnum != target) { // dont give twice
-				// check if range flag is on, if it is check the range
-				if(!addone || (addone && AproxDistance(GetActorX(target) - GetActorX(pnum), GetActorY(target) - GetActorY(pnum)) >> 16 <= GetCVar("dnd_gainrange"))) {
-					if(expshare) {
-						expprev += expprev * BASE_WISDOM_GAIN * CheckActorInventory(P_TIDSTART + i, "Perk_Wisdom") / 100;
-						if(IsAccessoryEquipped(pnum, DND_ACCESSORY_TALISMANGREED))
-							expprev >>= 1;
-						expprev += (expprev * GetPlayerWisdomBonus(pnum)) / 100;
-						GiveActorExp(pnum, expprev * expscale);
-					}
+	// from here on out the scale variables and pcount are useless
+	pcount = GetCVar("dnd_gainrange");
+	
+	// if player killed this, distribute exp and credit normally, otherwise scan for players who have mastered wisdom or greed for this
+	if(!killerWasntPlayer) {
+		// reuse old variable -- we dont need killerplayer w.e info
+		killerWasntPlayer = MonsterProperties[m_id].isElite;
+		HandleMonsterTemporaryWeaponDrop(m_id, target - P_TIDSTART, killerWasntPlayer, false);
+	
+		if(expshare || creditshare) {
+			for(i = 0; i < MAXPLAYERS; ++i) {
+				expscale = 0;
+				creditscale = 0;
+				pnum = P_TIDSTART + i;
+				if(IsActorAlive(pnum) && pnum != target) { // dont give twice
+					// check if range flag is on, if it is check the range
+					addone = AproxDistance(GetActorX(target) - GetActorX(pnum), GetActorY(target) - GetActorY(pnum)) >> 16 <= pcount;
+					if(expshare && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_WIS)))
+						expscale = RewardActorExp(pnum, exptemp);
+						
+					if(creditshare && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_GRE)))
+						creditscale = RewardActorCredit(pnum, credtemp);
 					
-					if(creditshare) {
-						credprev += credprev * BASE_GREED_GAIN * CheckActorInventory(P_TIDSTART + i, "Perk_Greed") / 100;
-						if(CheckActorInventory(P_TIDSTART + i, "DnD_QuestReward_MoreCredit"))
-							credprev += credprev * DND_QUEST_CREDITBONUS / 100;
-						if(IsAccessoryEquipped(pnum, DND_ACCESSORY_TALISMANWISDOM))
-							credprev >>= 1;
-						credprev += (credprev * GetPlayerGreedBonus(pnum)) / 100;
-						GiveActorCredit(pnum, credprev * creditscale);
+					// if something could be provided, show it to user
+					if(expscale || creditscale) {
+						SetActivator(pnum);
+						ACS_NamedExecuteWithResult("DND Show Kill Digits", pnum, expscale, creditscale);
 					}
 				}
 			}
 		}
+		
 		// now give target his stuff (if expshare or creditshare, one of them was not on the target would not receive it in the loop)
-		exptemp += exptemp * BASE_WISDOM_GAIN * CheckActorInventory(target, "Perk_Wisdom") / 100;
-		credtemp += credtemp * BASE_GREED_GAIN * CheckActorInventory(target, "Perk_Greed") / 100;
-		if(IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANWISDOM))
-			credtemp >>= 1;
-		if(IsAccessoryEquipped(target, DND_ACCESSORY_TALISMANGREED))
-			exptemp >>= 1;
-		exptemp += (exptemp * GetPlayerWisdomBonus(target - P_TIDSTART)) / 100;
-		credtemp += (credtemp * GetPlayerGreedBonus(target - P_TIDSTART)) / 100;
-		GiveActorExp(target, exptemp * expscale);
-		GiveActorCredit(target, credtemp * creditscale);
+		expscale = RewardActorExp(target, exptemp);
+		creditscale = RewardActorCredit(target, credtemp);
+		SetActivator(target);
+		ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
 	}
 	else {
-		// just give target his stuff
-		exptemp += exptemp * BASE_WISDOM_GAIN * CheckActorInventory(target, "Perk_Wisdom") / 100;
-		credtemp += credtemp * BASE_GREED_GAIN * CheckActorInventory(target, "Perk_Greed") / 100;
-		if(CheckActorInventory(target, "DnD_QuestReward_MoreCredit"))
-			credtemp += credtemp * DND_QUEST_CREDITBONUS / 100;
-		exptemp += (exptemp * GetPlayerWisdomBonus(target - P_TIDSTART)) / 100;
-		credtemp += (credtemp * GetPlayerGreedBonus(target - P_TIDSTART)) / 100;
-		GiveActorExp(target, exptemp * expscale);
-		GiveActorCredit(target, credtemp * creditscale);
+		expshare = 0;
+		creditshare = 0;
+		for(i = 0; i < MAXPLAYERS; ++i) {
+			expscale = 0;
+			creditscale = 0;
+			target = P_TIDSTART + i;
+			if(IsActorAlive(target)) {
+				if(HasActorMasteredPerk(target, STAT_WIS)) {
+					expscale = RewardActorExp(target, exptemp);
+					++expshare;
+				}
+				
+				if(HasActorMasteredPerk(target, STAT_GRE)) {
+					creditscale = RewardActorCredit(target, credtemp);
+					++creditshare;
+				}
+				
+				if(expscale || creditscale) {
+					SetActivator(target);
+					ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
+				}
+				
+				// quit early if we concluded all mastery players
+				if(expshare == CurrentLevelData[LEVELDATA_WISDOMMASTERED] && creditshare == CurrentLevelData[LEVELDATA_GREEDMASTERED])
+					break;
+			}
+		}
+		
+		// guaranteed temp weapon drop
+		HandleMonsterTemporaryWeaponDrop(m_id, 0, 0, true);
+		
+		// this is where we will cut off this script in case the monster wasn't killed by a player for perk masteries
+		Terminate;
 	}
 	
+	// from here on out, killerWasntPlayer stores if the monster is an elite or not
+	// set activator back to the monster
+	SetActivator(this);
+
+	if(CheckActorInventory(target, "Wanderer_Perk50"))
+		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
+		
+	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime")) {
+		GiveInventory("DnD_OverloadZapGiver", 1);
+		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
+	}
+	SetInventory("DnD_OverloadTimer", 0);
+	
 	// Handle Drops
-	// reuse old variable
-	pnum = MonsterProperties[m_id].isElite;
 	// drop coins if there should be
 	if(GetCVar("dnd_credit_drops")) {
 		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
-		HandleCashDrops(target - P_TIDSTART, pnum);
+		HandleCashDrops(target - P_TIDSTART, killerWasntPlayer);
+		
+		
 	}
-	
-	HandleMonsterTemporaryWeaponDrop(m_id, target - P_TIDSTART, pnum);
 
 	// soul ammo drop -- considers ability - soulstealer as well
 	if(
-		(CanDropSoulAmmo() && RunDefaultDropChance(target - P_TIDSTART, pnum, DND_SOULAMMO_DROPRATE)) ||
+		(CanDropSoulAmmo() && RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_SOULAMMO_DROPRATE)) ||
 		(IsDemon() && ((CheckInventory("BookCausedDeath") || (CheckActorInventory(target, "Ability_SoulStealer") && CheckInventory("MagicCausedDeath")))))
 	  )
 	{
@@ -928,20 +942,20 @@ Script "DND On Kill" KILL {
 		/*#ifdef ISDEBUGBUILD
 			SpawnResearch();
 		#else*/
-			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, pnum, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
+			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, killerWasntPlayer, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
 				SpawnResearch(target - P_TIDSTART);
 		//#endif
 	}
 	
 	// Talent Capsule Drop
-	//if(RunDefaultDropChance(target - P_TIDSTART, pnum, DND_TALENTCAPSULE_DROPRATE))
+	//if(RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_TALENTCAPSULE_DROPRATE))
 	//	SpawnTalentCapsule();
 	
 	// Chest Key
-	HandleChestKeyDrop(pnum);
+	HandleChestKeyDrop(killerWasntPlayer);
 	
 	// if elite, roll orb and equipment drops
-	if(GetCVar("dnd_ignore_dropweights") || pnum) {
+	if(GetCVar("dnd_ignore_dropweights") || killerWasntPlayer) {
 		// handle orb drops
 		HandleEliteDrops();
 	}
@@ -951,7 +965,7 @@ Script "DND On Kill" KILL {
 		SpawnAccessory();
 	#else*/
 	if(IsBoss()) {
-		if(RunDropChance(target - P_TIDSTART, pnum, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
+		if(RunDropChance(target - P_TIDSTART, killerWasntPlayer, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
 			if(GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
 				// we can drop the spawner
 				SpawnAccessory();
@@ -968,7 +982,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	// Elite Slayer check
-	if(active_quest_id == QUEST_KILL20ELITES && pnum) {
+	if(active_quest_id == QUEST_KILL20ELITES && killerWasntPlayer) {
 		GiveActorInventory(target, "DnD_EliteKillQuest_Counter", 1);
 		if(!IsQuestComplete(target, QUEST_KILL20ELITES) && CheckActorInventory(target, "DnD_EliteKillQuest_Counter") == DND_QUEST_ELITEKILLER_REQ)
 			CompleteQuest(target, QUEST_KILL20ELITES);
@@ -992,18 +1006,17 @@ Script "DND On Kill" KILL {
 		SpawnOrb(0, true);
 		//SpawnToken(0, true);
 	#endif
-	HandleCharmLootDrop(pnum);
+	
+	HandleCharmLootDrop(killerWasntPlayer);
 	
 	// doomguy drop
-	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(i, pnum, DND_DOOMGUY_DROPCHANCE)) {
-		pnum = MonsterProperties[m_id].maxhp;
-		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pnum & 0xFFFF, pnum >> 16);
+	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(i, killerWasntPlayer, DND_DOOMGUY_DROPCHANCE)) {
+		pcount = MonsterProperties[m_id].maxhp;
+		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pcount & 0xFFFF, pcount >> 16);
 	}
 	
 	// if marked by talisman
-	pnum = CheckInventory("HunterTalismanMarkBool");
-	haswisdom = isBoss();
-	hasgreed = isDemon();
+	pcount = CheckInventory("HunterTalismanMarkBool");
 	SetInventory("HunterTalismanMarkBool", 0);
 	
 	if(isZombie())
@@ -1026,7 +1039,6 @@ Script "DND On Kill" KILL {
 	// chaos marked monsters are removed on death, no ressing
 	if(CheckActorInventory(target, "StatbuffCounter_SlainMonstersRIP") || MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
-		
 	
 	SetActivator(target);
 	
@@ -1039,7 +1051,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	// research track
-	if(haswisdom && CheckResearchStatus(RES_IMP1) == RES_NA) {
+	if(isBoss() && CheckResearchStatus(RES_IMP1) == RES_NA) {
 		GiveInventory("Research_Body_Im_1_Tracker", 1);
 		if(CheckInventory("Research_Body_Im_1_Tracker") == GetAmmoCapacity("Research_Body_Im_1_Tracker")) {
 			GiveResearch(RES_IMP1, true);
@@ -1048,7 +1060,7 @@ Script "DND On Kill" KILL {
 		}
 	}
 	
-	if(hasgreed && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
+	if(isDemon() && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
 		if(CheckInventory("Research_Slot3Upgrade3_Tracker") == GetAmmoCapacity("Research_Slot3Upgrade3_Tracker")) {
 			GiveResearch(RES_SLOT3UPG3, true);
@@ -1061,17 +1073,17 @@ Script "DND On Kill" KILL {
 	if(GetCVar("dnd_killspree"))
 		ActivateKillingSpree();
 	// Hunter Talisman Heal
-	if(pnum) {
+	if(pcount) {
 		GiveInventory("HunterTalismanHealFXSpawner", 1);
 		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_HUNTERTALISMAN_HEALFACTOR);
 	}
 	
 	addone = CheckInventory("IATTR_HealOnKill");
 	if(addone) {
-		haswisdom = (GetMissingHealth() * addone) / 100;
-		if(haswisdom) {
+		addone = (GetMissingHealth() * addone) / 100;
+		if(addone) {
 			Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, haswisdom);
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, addone);
 		}
 	}
 }
@@ -1087,19 +1099,12 @@ Script "DnD Monster RIP" (int tid) {
 	Thing_Remove(tid);
 }
 
-Script "DND Show Kill Digits" (int exp, int credit) CLIENTSIDE {
+Script "DND Show Kill Digits" (int tid, int exp, int credit) CLIENTSIDE {
 	// spectators shouldn't see this
 	// for some reason exp and credit can be 0, no idea how, but this fixes it
-	if(!PlayerInGame(ConsolePlayerNumber()) || (!exp && !credit))
+	SetResultValue(0);
+	if(ConsolePlayerNumber() != PlayerNumber() || !PlayerInGame(ConsolePlayerNumber()) || (!exp && !credit))
 		Terminate;
-	
-	// calculate the exp and credit to be added for each monster killed
-	int tid = ConsolePlayerNumber() + P_TIDSTART;
-	
-	exp += (exp * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom")) / 100;
-	exp += (exp * GetPlayerWisdomBonus(ConsolePlayerNumber())) / 100;
-	credit += (credit * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed")) / 100;
-	credit += (credit * GetPlayerGreedBonus(ConsolePlayerNumber())) / 100;
 	GiveActorInventory(tid, "DnD_Exp_Counter", exp);
 	GiveActorInventory(tid, "DnD_Credit_Counter", credit);
 	GiveActorInventory(tid, "DnD_ExpCredit_Timer", 1);
@@ -3092,25 +3097,8 @@ Script "DnD Player Setup" ENTER {
 		Delay(17 * (DND_MAX_MONSTERDELAY + 1));
 	}
 	
-	// Load period is finished, now check for level stats
-	PlayerDied[pnum] = 0;
-	PlayerTransferred[pnum] = false;
-	TakeInventory("DnD_PDead", 1);
-	SpawnedChests = 1;
-	SetInventory("CanLoad", 0); //Usually it is 0 at this point, but make sure it is anyways.
-	PlayerCanLoad[pnum] = 0;
-	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
-	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
-	TakeInventory("P_Frozen", 1);
-	GiveInventory("DontAttackRemove", 1);
-	
-	// we can synchronize the research investments now, load period etc. all finished
-	SyncResearchInvestments(pnum);
+	PostPlayerLoadRoutine(pnum);
 
-	// force sync client stuff
-	GiveInventory("DnD_SyncMe", 1);
-	ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
-	
 	// if map changed, reset accessory stuff
 	if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
 		SetInventory("ReflectCount", 0);
@@ -6298,12 +6286,42 @@ Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
 	SetResultValue(0);
 }
 
-// these are called by projectiles only
+// this is called by projectiles only
 Script "DnD Update Melee ReactionTime" (int base) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(IsPlayer(owner))
 		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + CheckActorInventory(owner, "IATTR_MeleeRange") + GetActorStat(owner, STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC) / 100);
 	SetResultValue(0);
+}
+
+Script "DnD Ammo Token Pickup" (void) {
+	// get random owned weapon of player and give ammo to it
+	int id = 0;
+	do {
+		id = PickRandomOwnedWeapon();
+	} while(Weapons_Data[id][WEAPON_AMMO1] == " ");
+	
+	// give 10% ammo on this weapon -- soulrender has weapon condition as ammo1 so dont give if it is 
+	str ammo;
+	int cap;
+	
+	if(id != DND_WEAPON_SOULRENDER) {
+		ammo = Weapons_Data[id][WEAPON_AMMO1];
+		cap = GetAmmoCapacity(ammo);
+		GiveInventory(ammo, cap / 10);
+	}
+
+	ammo = Weapons_Data[id][WEAPON_AMMO2];
+	if(ammo != " ") {
+		cap = GetAmmoCapacity(ammo);
+		GiveInventory(ammo, cap / 10);
+	}
+	
+	ACS_NamedExecuteAlways("DnD Ammo Token Message", 0, id);
+}
+
+Script "DnD Ammo Token Message" (int wepid) CLIENTSIDE {
+	Log(s:"\ccAmmo pickup   : \c[Y5]+10% to ", s:GetWeaponTag(wepid));
 }
 
 Script 1007 (void) NET CLIENTSIDE {

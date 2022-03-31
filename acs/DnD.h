@@ -273,11 +273,6 @@ int DnD_StateChecker[MAX_STATES];
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 bool UniqueMonsterAvailability[MAX_MONSTER_CATEGORIES] = { 0 };
 
-#define LEVELDATA_CHESTSPAWNED 0
-#define LEVELDATA_MAXCHESTS 1
-#define MAX_LEVEL_DATA_ITEMS 2
-int CurrentLevelData[MAX_LEVEL_DATA_ITEMS];
-
 void Reset_RPGInfo (int resetflags) {
 	int i;
 	if(resetflags & RESET_LEVEL) {
@@ -979,37 +974,35 @@ void ResetPlayerScriptChecks() {
 			PlayerScriptsCheck[i][j] = false;
 }
 
-void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite) {
+void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite, bool guaranteed = false) {
 	id = MonsterProperties[id].id;
 	switch(id) {
 		case MONSTER_BLOODFIEND:
 		case MONSTER_RAVAGER:
 		case MONSTER_LURKER:
-			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
 				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_VULGAR:
-			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_VENOM_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_VENOM_DROPCHANCE))
 				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CHAINGUNGENERAL:
-			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_NAILGUN_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_NAILGUN_DROPCHANCE))
 				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DEATHKNIGHT:
 		case MONSTER_HORSHACKER:
-			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_SOULRENDER_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_SOULRENDER_DROPCHANCE))
 				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CORPULENT:
-			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_HFCANNON_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_HFCANNON_DROPCHANCE))
 				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DARKSERVANT:
-			if(RunDefaultDropChance(pnum, isElite, TEMPWEP_DARKGLOVES_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_DARKGLOVES_DROPCHANCE))
 				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
-		break;
-		default:
 		break;
 	}
 }
@@ -1231,6 +1224,32 @@ void SyncResearchInvestments(int pnum) {
 		if(ResearchInvestments[pnum][i])
 			ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, i, ResearchInvestments[pnum][i]);
 	}
+}
+
+void PostPlayerLoadRoutine(int pnum) {
+	// Load period is finished, now check for level stats
+	PlayerDied[pnum] = 0;
+	PlayerTransferred[pnum] = false;
+	TakeInventory("DnD_PDead", 1);
+	SpawnedChests = 1;
+	SetInventory("CanLoad", 0); //Usually it is 0 at this point, but make sure it is anyways.
+	PlayerCanLoad[pnum] = 0;
+	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
+	TakeInventory("P_Frozen", 1);
+	GiveInventory("DontAttackRemove", 1);
+	
+	// we can synchronize the research investments now, load period etc. all finished
+	SyncResearchInvestments(pnum);
+	
+	// force sync client stuff
+	GiveInventory("DnD_SyncMe", 1);
+	ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
+
+	if(HasMasteredPerk(STAT_WIS))
+		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
+	if(HasMasteredPerk(STAT_GRE))
+		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
 }
 
 #include "DnD_Damage.h"

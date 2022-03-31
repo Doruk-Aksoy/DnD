@@ -39,6 +39,13 @@ bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
 
 #define DND_MAX_PET_DAMAGESHARE 9
 
+#define LEVELDATA_CHESTSPAWNED 0
+#define LEVELDATA_MAXCHESTS 1
+#define LEVELDATA_WISDOMMASTERED 2 // counts of players who have mastered wisdom and greed perks
+#define LEVELDATA_GREEDMASTERED 3
+#define MAX_LEVEL_DATA_ITEMS 4
+int CurrentLevelData[MAX_LEVEL_DATA_ITEMS];
+
 enum {
 	DND_ANNOUNCER_QUEST,
 	DND_ANNOUNCER_ATTRIBPOINT,
@@ -364,6 +371,36 @@ void GiveActorExp(int tid, int amt) {
 	CalculatePlayerExpRatio(tid);
 }
 
+int RewardActorExp(int tid, int amt) {
+	amt += amt * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") / 100;
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
+		amt >>= 1;
+		
+	// 50% increase
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
+		amt = amt * 3 / 2;
+		
+	amt += (amt * GetPlayerWisdomBonus(tid - P_TIDSTART)) / 100;
+	GiveActorExp(tid, amt);
+	return amt;
+}
+
+int RewardActorCredit(int tid, int amt) {
+	amt += amt * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") / 100;
+	if(CheckActorInventory(tid, "DnD_QuestReward_MoreCredit"))
+		amt += amt * DND_QUEST_CREDITBONUS / 100;
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
+		amt >>= 1;
+	
+	// 50% increase
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
+		amt = amt * 3 / 2;
+	
+	amt += (amt * GetPlayerGreedBonus(tid - P_TIDSTART)) / 100;
+	GiveActorCredit(tid, amt);
+	return amt;
+}
+
 void GiveCredit(int amt) {
 	GiveInventory("Credit", amt);
 	GiveInventory("LevelCredit", amt);
@@ -390,6 +427,11 @@ void ConsumeAttributePointOn(int stat, int amt) {
 void ConsumePerkPointOn(int perk, int amt) {
 	GiveInventory(StatData[perk], amt);
 	TakeInventory("PerkPoint", amt);
+	
+	if(perk == STAT_WIS && CheckInventory(StatData[perk]) == DND_PERK_MAX)
+		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
+	else if(perk == STAT_GRE && CheckInventory(StatData[perk]) == DND_PERK_MAX)
+		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
 }
 
 bool ReachedAccessoryLimit() {
