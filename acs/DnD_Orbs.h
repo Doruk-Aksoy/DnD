@@ -1875,7 +1875,7 @@ bool IsOrbDropException(int orb_id) {
 	return false;
 }
 
-void SpawnOrb(int pnum, bool sound) {
+void SpawnOrb(int pnum, bool sound, bool noRepeat = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int i;
@@ -1898,6 +1898,10 @@ void SpawnOrb(int pnum, bool sound) {
 		SpawnDrop(InventoryInfo[i + ORBS_BEGIN], 24.0, 16, pnum + 1, c);
 		if (sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
+			
+		// force noRepeat
+		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnOrb(pnum, sound, true);
 	}
 }
 
@@ -1910,14 +1914,17 @@ void SpawnOrbForAll(int repeats) {
 	}
 }
 
-void SpawnSpecificOrb(int pnum, int id, bool sound) {
+void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		RollOrbInfo(c, id, true);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[id + ORBS_BEGIN], 24.0, 16, pnum + 1, c);
-		if (sound)
+		if(sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
+			
+		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnSpecificOrb(pnum, id, sound, true);
 	}
 }
 

@@ -533,3 +533,20 @@ Actor DnD_AmmoToken : CustomInventory {
 		Stop
 	}
 }
+
+Actor DnD_SavageryMasteryTimer : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+}
+
+// 7 hits
+Actor DnD_DeadlinessMasteryCounter : Inventory {
+	inventory.maxamount 7
+}
+
+Actor DnD_DeadlinessMasteryWindow : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -4
+}
+
+Actor DnD_GuaranteeCrit_FromDeadliness : DnD_Boolean { }

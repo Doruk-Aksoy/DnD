@@ -391,6 +391,22 @@ void AdjustDamageRetrievePointers(int flags) {
 	}
 }
 
+void HandleOnHitEffects(int owner) {
+	if(HasActorMasteredPerk(owner, STAT_DED)) {
+		if(!CheckActorInventory(owner, "DnD_DeadlinessMasteryWindow")) {
+			// didn't have before, reset (or had some, we dont care, it needs to be reset)
+			// reset to 1, as this is a hit by itself
+			SetActorInventory(owner, "DnD_DeadlinessMasteryCounter", 1);
+			GiveActorInventory(owner, "DnD_DeadlinessMasteryWindow", 1);
+		}
+		else {
+			GiveActorInventory(owner, "DnD_DeadlinessMasteryCounter", 1);
+			if(CheckActorInventory(owner, "DnD_DeadlinessMasteryCounter") == DND_MASTERY_DEADLINESSCOUNTER)
+				GiveActorInventory(owner, "DnD_GuaranteeCrit_FromDeadliness", 1);
+		}
+	}
+}
+
 int BigNumberFormula(int dmg, int f) {
 	int p = PowersOf10[(digitcount(dmg) + 1) / 2];
 	int wepid = dmg % p;
@@ -1112,10 +1128,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int flag
 		temp = victim - DND_MONSTERTID_BEGIN;
 		
 		// extra represent the flag list of damageticflag
-		extra = (!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 				|
-				(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT			|
-				(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE	|
-				(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT;
+		extra = (!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
+				(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
+				(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
+				(!!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT);
 		
 		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 		if(damage_type == DND_DAMAGETYPE_ICE)
@@ -1250,6 +1266,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 			final_dmg = 1;
 		
 		HandleDamageDeal(owner, mon_id, final_dmg, damage_type, flags, px, py, pz, actor_flags);
+		HandleOnHitEffects(owner);
 		
 		//printbold(s:"Dealing ", d: final_dmg, s: " damage to ", d:mon_id, s: " of type ", s:DamageTypeList[damage_type]);
 	}
@@ -1441,7 +1458,6 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		
 		poison = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
 		flags |= (!!poison) * DND_DAMAGEFLAG_INFLICTPOISON;
-			
 		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
 			// the wepid is stored as reference in the last 16 bits
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
@@ -1477,6 +1493,8 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	}
 	else
 		HandleImpactDamage(owner, victim, dmg, damage_type, flags, wepid);
+		
+	HandleOnHitEffects(owner);
 	
 	SetResultValue(0);
 }
@@ -1484,7 +1502,9 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 // has embedded data
 Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	//printbold(s:"FUCKING HURT ", d:damage_type >> DAMAGE_TYPE_SHIFT);
-	HandleImpactDamage(GetActorProperty(0, APROP_TARGETTID), damage_type >> DAMAGE_TYPE_SHIFT, dmg, damage_type & DAMAGE_TYPE_MASK, flags, wepid, true);
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	HandleImpactDamage(owner, damage_type >> DAMAGE_TYPE_SHIFT, dmg, damage_type & DAMAGE_TYPE_MASK, flags, wepid, true);
+	HandleOnHitEffects(owner);
 	
 	SetResultValue(0);
 }

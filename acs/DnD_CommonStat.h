@@ -212,7 +212,9 @@ enum {
 #define DND_PERK_BRUTALITY_DAMAGEINC 5 // 5%
 #define DND_PERK_BRUTALITY_RANGEINC 8 // 8%
 #define DND_ENDURANCE_MASTERY_CHANCE 10 // 10%
-#define DND_MUNITION_MASTERY_CHANCE 0.02 // 2%
+#define DND_MUNITION_MASTERY_CHANCE 0.03 // 3%
+#define DND_MASTERY_DEADLINESSCOUNTER 6 // 7th is the crit, we give crit token at 6th so the 7th will be one
+#define DND_MASTERY_LUCKCHANCE 0.25 // 25%
 
 enum {	
 	RES_STAT_DEX = 1,

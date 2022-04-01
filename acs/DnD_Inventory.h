@@ -2233,7 +2233,7 @@ void RollTokenInfo(int item_pos, int token_type, bool onField) {
 	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_TOKEN_BEGIN + token_type;
 }
 
-void SpawnToken(int pnum, bool sound) {
+void SpawnToken(int pnum, bool sound, bool noRepeat = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
@@ -2247,6 +2247,9 @@ void SpawnToken(int pnum, bool sound) {
 		SpawnDrop(InventoryInfo[i + TOKEN_BEGIN], 24.0, 16, pnum + 1, c);
 		if(sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
+		
+		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnToken(pnum, sound, true);
 	}
 }
 

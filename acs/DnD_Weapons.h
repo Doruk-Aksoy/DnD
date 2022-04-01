@@ -467,7 +467,6 @@ int PickRandomOwnedWeaponID(void) {
 			++count;
 		}
 	}
-	
 	// pick from random weapons owned
 	return owned_weapons[pnum][random(0, count - 1)];
 }

@@ -30,8 +30,13 @@ void HandleChestKeyDrop(bool isElite) {
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_CHESTKEY_DROPRATE))))
+		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_CHESTKEY_DROPRATE)))) {
 			SpawnChestKey(i, isElite);
+			
+			// check for luck mastery on players
+			if(HasActorMasteredPerk(i + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnChestKey(i, isElite);
+		}
 	}
 }
 

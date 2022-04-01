@@ -893,7 +893,7 @@ Script "DND On Kill" KILL {
 		}
 		
 		// guaranteed temp weapon drop
-		HandleMonsterTemporaryWeaponDrop(m_id, 0, 0, true);
+		HandleMonsterTemporaryWeaponDrop(m_id, -1, 0, true);
 		
 		// this is where we will cut off this script in case the monster wasn't killed by a player for perk masteries
 		Terminate;
@@ -916,9 +916,15 @@ Script "DND On Kill" KILL {
 	// drop coins if there should be
 	if(GetCVar("dnd_credit_drops")) {
 		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
-		HandleCashDrops(target - P_TIDSTART, killerWasntPlayer);
+		HandleCashDrops(m_id, target - P_TIDSTART, killerWasntPlayer);
 		
 		
+	}
+	
+	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_MUNITION_MASTERY_CHANCE)) {
+		SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
+		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
 	}
 
 	// soul ammo drop -- considers ability - soulstealer as well
@@ -927,10 +933,16 @@ Script "DND On Kill" KILL {
 		(IsDemon() && ((CheckInventory("BookCausedDeath") || (CheckActorInventory(target, "Ability_SoulStealer") && CheckInventory("MagicCausedDeath")))))
 	  )
 	{
-		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE || CheckInventory("BookCausedDeath"))
+		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE || CheckInventory("BookCausedDeath")) {
 			SpawnDrop("Souls", 24.0, 16, 0, 0);
-		else
+			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnDrop("Souls", 24.0, 16, 0, 0);
+		}
+		else {
 			SpawnDrop("LargeSouls", 24.0, 16, 0, 0);
+			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnDrop("LargeSouls", 24.0, 16, 0, 0);
+		}
 		TakeInventory("BookCausedDeath", 1);
 		TakeInventory("MagicCausedDeath", 1);
 	}
@@ -1013,6 +1025,8 @@ Script "DND On Kill" KILL {
 	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(i, killerWasntPlayer, DND_DOOMGUY_DROPCHANCE)) {
 		pcount = MonsterProperties[m_id].maxhp;
 		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pcount & 0xFFFF, pcount >> 16);
+		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pcount & 0xFFFF, pcount >> 16);
 	}
 	
 	// if marked by talisman
@@ -6298,8 +6312,8 @@ Script "DnD Ammo Token Pickup" (void) {
 	// get random owned weapon of player and give ammo to it
 	int id = 0;
 	do {
-		id = PickRandomOwnedWeapon();
-	} while(Weapons_Data[id][WEAPON_AMMO1] == " ");
+		id = PickRandomOwnedWeaponID();
+	} while(!StrCmp(Weapons_Data[id][WEAPON_AMMO1], " "));
 	
 	// give 10% ammo on this weapon -- soulrender has weapon condition as ammo1 so dont give if it is 
 	str ammo;
@@ -6321,7 +6335,7 @@ Script "DnD Ammo Token Pickup" (void) {
 }
 
 Script "DnD Ammo Token Message" (int wepid) CLIENTSIDE {
-	Log(s:"\ccAmmo pickup   : \c[Y5]+10% to ", s:GetWeaponTag(wepid));
+	Log(s:"\ccAmmo pickup   : \c[Y5]+10% to ", l:GetWeaponTag(wepid));
 }
 
 Script 1007 (void) NET CLIENTSIDE {

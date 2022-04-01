@@ -243,7 +243,7 @@ str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
 	"Research_Body_Im_1_Tracker"
 };
 
-void SpawnResearch(int pnum) {
+void SpawnResearch(int pnum, bool noRepeat = false) {
 	// spawn copies of this research
 	int temp = -1;
 	int i;
@@ -289,6 +289,10 @@ void SpawnResearch(int pnum) {
 	}
 	else if(!CheckResearchStatus(temp)) // 1 before temp is player (0 + 1)
 		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp);
+	
+	// input "noRepeat" as true so we don't call this again
+	if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+		SpawnResearch(pnum, true);
 }
 
 // This place handles researches that depend on others being researched

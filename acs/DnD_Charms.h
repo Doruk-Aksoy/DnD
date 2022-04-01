@@ -149,7 +149,7 @@ void AddAttributeToCharm(int charm_pos, int attrib, int pnum) {
 }
 
 // monsters dropping charms
-void SpawnCharm(int pnum, bool isElite) {
+void SpawnCharm(int pnum, bool isElite, bool noRepeat = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
@@ -172,17 +172,23 @@ void SpawnCharm(int pnum, bool isElite) {
 		}
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+		
+		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnCharm(pnum, isElite, true);
 	}
 }
 
 // creates a charm with given mods as guaranteed
-void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1) {
+void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		RollCharmInfoWithMods(c, RollItemLevel(), m1, m2, m3, pnum);
 		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+		
+		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnCharmWithMods(pnum, m1, m2, m3, true);
 	}
 }
 

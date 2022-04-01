@@ -176,7 +176,7 @@ DND_MENU_PERKMASTERY6	=	"Convert 10% of healing pickups to extra armor.";
 DND_MENU_PERKMASTERY7	=	"Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.";
 DND_MENU_PERKMASTERY8	=	"Every 7th hit you land within four seconds is a guaranteed critical strike.";
 DND_MENU_PERKMASTERY9	=	"100% to crit multiplier if you haven't dealt a critical strike in 5 seconds.";
-DND_MENU_PERKMASTERY10	=	"When an item drops there's a 50% chance to get an additional item drop of its type.";
+DND_MENU_PERKMASTERY10	=	"When an item drops there's a 25% chance to get an additional item drop of its type.";
 
 // accessories
 ACCTX_T0				=	"Wisdom Talisman";

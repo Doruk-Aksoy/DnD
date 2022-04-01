@@ -622,7 +622,7 @@ void CheckMapExitQuest(int pnum, int qid) {
 
 str GetCreditDropperName(int id, bool isElite) {
 	str res = "";
-	switch(res) {
+	switch(id) {
 		case 0:
 			res = "LargeCreditDropper";
 		break;
@@ -648,19 +648,19 @@ int GetCreditDropData(int id, int which) {
 	switch(id) {
 		case 0:
 			if(!which)
-				res = 10000;
+				res = 7500;
 			else
 				res = 0.05;
 		break;
 		case 1:
 			if(!which)
-				res = 5000;
+				res = 2500;
 			else
 				res = 0.15;
 		break;
 		case 2:
 			if(!which)
-				res = 750;
+				res = 1000;
 			else
 				res = 0.3;
 		break;
@@ -669,19 +669,13 @@ int GetCreditDropData(int id, int which) {
 	return res;
 }
 
-void HandleCashDrops(int pnum, bool isElite) {
-	int basechance = 1.0;
+void HandleCashDrops(int m_id, int pnum, bool isElite) {
 	int addedchance = (Clamp_Between(GetCVar("dnd_credit_droprateadd"), 0, 100) << 16) / 100;
-	int luck = GetDropChance(pnum, isElite);
-	if(isElite) {
-		basechance -= DND_ELITE_CREDITCHANCE_BONUS;
-		basechance -= GetDropChance(pnum, isElite);
-	}
-	
-	basechance = random(0, basechance); // reduced max number implies increased chances of getting
 	for(int i = 0; i < MAXCREDITDROPS; ++i) {
-		if(CheckInventory("MonsterBaseHealth") >= GetCreditDropData(i, CREDITDROP_THRESHOLD)) {
-			if(basechance - addedchance - luck > GetCreditDropData(i, CREDITDROP_CHANCE))
+		// apply simple monster hp scaling code here to scale threshold with player levels
+		int threshold = GetCreditDropData(i, CREDITDROP_THRESHOLD) * (100 + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
+		if(MonsterProperties[m_id].maxhp >= threshold) {
+			if(!RunDefaultDropChance(pnum, isElite, GetCreditDropData(i, CREDITDROP_CHANCE) + addedchance))
 				continue;
 			GiveInventory(GetCreditDropperName(i, isElite), 1);
 			break;
@@ -1005,6 +999,9 @@ void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite, bool guara
 				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 	}
+	
+	if(pnum != -1 && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+		HandleMonsterTemporaryWeaponDrop(id, -1, isElite, guaranteed);
 }
 
 void ApplyRandomCurse() {

@@ -13,6 +13,7 @@
 bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
 
 #define DND_BASE_CRITMODIFIER 200
+#define DND_SAVAGERY_MASTERYBONUS 100
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
 #define EXO_AR_ADD_1 5
@@ -845,6 +846,12 @@ int GetCritChance(int pnum, int wepid) {
 	return chance;
 }
 
+// for now this isn't very special but in the future it can be
+// if we have guaranteed crit from deadliness and we are within the window
+bool CheckGuaranteedCritCases() {
+	return CheckInventory("DnD_GuaranteeCrit_FromDeadliness") && CheckInventory("DnD_DeadlinessMasteryWindow");
+}
+
 bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	int pnum = PlayerNumber();
 	// veil disables crits for the cooldown period
@@ -864,10 +871,13 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	if(!res && CheckInventory("StatbuffCounter_LuckyCrit"))
 		res = chance > random(0, 1.0);
 	
-	if(res) {
+	// rolled crit or has source of a guaranteed crit
+	if(res || CheckGuaranteedCritCases()) {
 		if(wepid != -1)
 			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
 		GiveInventory("DnD_CritToken", 1);
+		
+		TakeInventory("DnD_GuaranteeCrit_FromDeadliness", 1);
 		
 		// veil check
 		if(CheckInventory("VeilCheck") && !CheckInventory("VeilCooldown") && !CheckInventory("VeilMarkTimer")) {
@@ -926,6 +936,12 @@ int GetCritModifier() {
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, (DND_VEIL_FACTORUP * GetMissingHealth()) / DND_VEIL_FACTOR);
 		}
 	}
+	
+	if(HasMasteredPerk(STAT_SAV) &&!CheckInventory("DnD_SavageryMasteryTimer")) {
+		base += DND_SAVAGERY_BONUS;
+		GiveInventory("DnD_SavageryMasteryTimer", 1);
+	}
+	
 	return base;
 }
 

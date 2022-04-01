@@ -98,8 +98,11 @@ void HandleElixirDrop(bool isChest) {
 	int chance = isChest ? DND_ELIXIR_CHESTDROPRATE : DND_ELIXIR_DROPRATE;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, false, chance))
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, false, chance)) {
 			SpawnElixir(i);
+			if(HasActorMasteredPerk(i + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnElixir(i);
+		}
 	}
 }
 
