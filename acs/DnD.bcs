@@ -262,13 +262,13 @@ Script "DnD On Death" DEATH {
 				ResetPlayerActivities(pnum, false);
 			}
 			else if(GetCVar("dnd_mode") == DND_MODE_SOFTCORE)
-				ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, pnum);
+				ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum);
 			else {
 				// get rid of these in local server or w.e situations if not hardcore or softcore
 				// remove whatever feature this player had on them prior to loading (just in case)
 				for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 						
 				ResetHardcoreStuff(pnum);
 			}
@@ -2910,7 +2910,6 @@ Script 988 (int wepslot, int type) {
 // Clear upon leaving
 Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	//Just to make sure a rare lvl 1 char load bug doesn't happen
-	PlayerLoaded[pnum] = 0;
 	PlayerWillBeSaved[pnum] = false;
 	PlayerTransferred[pnum] = false;
 
@@ -2924,19 +2923,16 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// if player was in middle of saving, don't accidently interfere if player leaves early
 	// save accumulated stats when player leaves
 	// things saved are in DnD_Activity.h
-	ACS_NamedExecuteAlways("DnD Save Player Orb and Stat Data", 0, pnum);
+	ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, true);
 	PlayerDied[pnum] = 0;
-	
-	ResetPlayerInventory(pnum);
-	ResetPlayerStash(pnum);
-	ResetInvestments(pnum);
 }
 
 // End of level checks
 Script "DnD On Unloading" UNLOADING {
 	int tid;
 	MapInfo[DND_MAPINFO_MAPCHANGED] = true;
-	//ResetFieldInventory(); //Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
+	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
+	//ResetFieldInventory();
 	BreakAllTrades();
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(!PlayerInGame(i))
@@ -3023,19 +3019,13 @@ Script "DnD Player Setup" ENTER {
 			// take all abilities
 			for(i = 0; i < MAXABILITIES; ++i)
 				SetInventory(AbilityInfo[i], 0);
-			
-			// reset currently acquired inventory
-			for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-				PlayerInventoryList[pnum][i].topleftboxid = 0;
-				PlayerInventoryList[pnum][i].item_type = DND_ITEM_NULL;
-			}
 
 			ResetPlayerInventory(pnum);
 			
 			// remove whatever feature this player had on them prior to loading (just in case)
 			for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
 				if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-					RemoveItemFeatures(i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+					RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			ResetPlayerCharmsUsed(pnum);
 			
 			ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
@@ -3181,10 +3171,11 @@ Script "DnD Player Setup" ENTER {
 }
 
 Script "Force Sync Player Global Data" (void) {
-	SyncAllItemData(DND_SYNC_ITEMSOURCE_CHARMUSED);
-	SyncAllItemData(DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-	SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
-	SyncAllClientsideVariables();
+	int pnum = PlayerNumber();
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
+	SyncAllClientsideVariables(pnum);
 }
 
 // Control for ammo capacity
@@ -4891,10 +4882,11 @@ Script "DND Orb Use Message (Server)" (void) {
 }
 
 Script "DND Orb Use" (int orbtype, int extra, int extra2) {
-	HandleOrbUse(orbtype, extra, extra2);
+	int pnum = PlayerNumber();
+	HandleOrbUse(pnum, orbtype, extra, extra2);
 	LocalAmbientSound("Items/OrbUse", 127);
 	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
-	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 	Delay(const:2);
 	if(orbtype != DND_ORB_AFFLUENCE)
 		SetInventory("AffluenceCounter", 0);
@@ -5268,7 +5260,7 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	int field_index = sp >> 16;
-	DrawInventoryInfo_Field(field_index, DND_SYNC_ITEMSOURCE_FIELD, 16.0, false);
+	DrawInventoryInfo_Field(PlayerNumber(), field_index, DND_SYNC_ITEMSOURCE_FIELD, 16.0, false);
 }
 
 Script "DnD Chestkey Message" (int id) CLIENTSIDE {
@@ -5453,7 +5445,7 @@ Script "DnD Deathray Laser Trail" (int density, int target) CLIENTSIDE {
 Script "DnD Force Sync Player Bonuses" (void) {
 	Delay(TICRATE * 5);
 	if(CheckInventory("DnD_SyncMe"))
-		SyncAllClientsideVariables();
+		SyncAllClientsideVariables(PlayerNumber());
 }
 
 Script "DnD Force Damage Cache Recalculation" (int pnum) {
@@ -5961,30 +5953,30 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 			itype = Charms_Used[pnum][i].item_type;
 			if(itype != DND_ITEM_NULL) {
 				if(itype == DND_ITEM_CHARM) {
-					temp = GetItemSyncValue(DND_SYNC_ITEMLEVEL, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
-					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
-					temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
+					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
+					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED);
 					for(j = 0; j < temp; ++j)
-						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
 				}
 				else if(itype > UNIQUE_BEGIN) {
 					temp = itype & 0xFFFF;
 					itype >>= UNIQUE_BITS;
 					--itype;
 					// itype holds unique position, temp is the actual item type
-					Log(s:"\c[A1]", l:GetUniqueItemName(itype), s:"\c- - \c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(DND_SYNC_ITEMSUBTYPE, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
-					cnt = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, i, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+					Log(s:"\c[A1]", l:GetUniqueItemName(itype), s:"\c- - \c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
+					cnt = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED);
 					// itype will count the skipped properties (the helper attributes)
 					itype = 0;
 					for(j = 0; j < cnt; ++j) {
-						temp = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
-						val = GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						val = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED);
 						if(val > 0) {
 							// dont show this, skip to next attribute's detail
 							if(temp == INV_EX_CHANCE) {
 								++j;
 								++itype;
-								Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_ID, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED), val, GetItemSyncValue(DND_SYNC_ITEMATTRIBUTES_VAL, i, j | pnum, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+								Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), val, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
 							}
 							else
 								Log(s:"    ", s:GetItemAttributeText(temp, val, 0));

@@ -38,14 +38,6 @@ int Charm_MaxUsable[MAX_CHARM_TYPES] = {
 // holds indexes to charms used that are on players
 global inventory_T 12: Charms_Used[MAXPLAYERS][MAX_CHARMS_EQUIPPABLE];
 
-void CopyCharmInfo_FieldToPlayer(int field_index, int player_index) {
-	int pos = GetFreeSpotForItem(field_index, player_index, DND_SYNC_ITEMSOURCE_FIELD);
-	if(pos == -1)
-		return;
-	// copy now
-	CopyItem(true, field_index, player_index, pos);
-}
-
 // returns type of charm as result
 int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	int res = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
@@ -84,7 +76,7 @@ void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
 	while(i < count) {
 		do {
 			roll = PickRandomAttribute();
-		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToCharm(charm_pos, roll, pnum);
 		++i;
 	}
@@ -114,7 +106,7 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	while(i < count) {
 		do {
 			roll = PickRandomAttribute();
-		} while(CheckItemAttribute(charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToCharm(charm_pos, roll, pnum);
 		++i;
 	}
@@ -170,7 +162,7 @@ void SpawnCharm(int pnum, bool isElite, bool noRepeat = false) {
 			RollCharmInfo(c, RollItemLevel(), pnum);
 			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		}
-		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
 		
 		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
@@ -184,7 +176,7 @@ void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepea
 	if(c != -1) {
 		RollCharmInfoWithMods(c, RollItemLevel(), m1, m2, m3, pnum);
 		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
-		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
 		
 		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
@@ -202,12 +194,11 @@ void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
 // move this from field to player's inventory
 int HandleCharmPickup(int item_index) {
 	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
-	CopyItem(true, item_index, PlayerNumber(), pcharm_index);
+	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), pcharm_index);
 	return pcharm_index;
 }
 
-int MakeCharmUsed(int use_id, int item_index, int target_type) {
-	int pnum = PlayerNumber();
+int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 	int i, j;
 	
 	// type mismatch, popup
@@ -240,9 +231,9 @@ int MakeCharmUsed(int use_id, int item_index, int target_type) {
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	// this means we must swap charms
 	if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
-		RemoveItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
-		SwapItems(use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-		ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		RemoveItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		SwapItems(pnum, use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	}
 	else {
 		// just zero the stuff in inventory, and copy them into charms used
@@ -264,10 +255,10 @@ int MakeCharmUsed(int use_id, int item_index, int target_type) {
 		// the leftover spot is a null charm
 		int wtemp = PlayerInventoryList[pnum][item_index].width;
 		int htemp = PlayerInventoryList[pnum][item_index].height;
-		FreeItem(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 		//SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
-		SyncItemData(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
-		ApplyItemFeatures(use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		SyncItemData(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, -1, -1);
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	}
 	return -1;
 }
@@ -275,7 +266,7 @@ int MakeCharmUsed(int use_id, int item_index, int target_type) {
 void ResetPlayerCharmsUsed(int pnum) {
 	for(int i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
 		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-			SyncItemData_Null(i, DND_SYNC_ITEMSOURCE_CHARMUSED, Charms_Used[pnum][i].width, Charms_Used[pnum][i].height);
+			SyncItemData_Null(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, Charms_Used[pnum][i].width, Charms_Used[pnum][i].height);
 		Charms_Used[pnum][i].item_type = DND_ITEM_NULL;
 		Charms_Used[pnum][i].width = 0;
 		Charms_Used[pnum][i].height = 0;

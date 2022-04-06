@@ -112,6 +112,14 @@ void CleanMaterialInfo(bool minus_bg) {
 	DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES - 2, RPGMENUID - minus_bg);
 }
 
+void CleanTradeInfo() {
+	DeleteTextRange(RPGMENUINVENTORYID - 12 * MAX_INVENTORY_BOXES - 12, RPGMENUINVENTORYID);
+}
+
+void CleanCraftingInfo() {
+	DeleteTextRange(RPGMENUID - MATERIALBOX_OFFSET - 3 * MAX_CRAFTING_MATERIALBOXES - 2, RPGMENUID);
+}
+
 void ClearMenuDisplay() {
 	DeleteText(RPGMENUBACKGROUNDID);
 	DeleteText(RPGMENULARRID);
@@ -172,10 +180,19 @@ enum {
 	POPUP_ONLYONEUNIQUE,
 	POPUP_ALREADYFOUND,
 	POPUP_MAXINVESTMENT,
-	POPUP_NARESEARCH
+	POPUP_NARESEARCH,
+	POPUP_NOTENOUGHSPACE,
+	
+	#ifdef ISAPRILFIRST
+	POPUP_OWNNFT
+	#endif
 };
 
-#define MAX_POPUPS (POPUP_NARESEARCH + 1)
+#ifndef ISAPRILFIRST
+	#define MAX_POPUPS (POPUP_NOTENOUGHSPACE + 1)
+#else
+	#define MAX_POPUPS (POPUP_OWNNFT + 1)
+#endif
 
 str GetPopupText(int id) {
 	switch(id) {
@@ -249,6 +266,13 @@ str GetPopupText(int id) {
 		return "DND_POPUP_MAXINVESTMENT";
 		case POPUP_NARESEARCH:
 		return "DND_POPUP_NARESEARCH";
+		case POPUP_NOTENOUGHSPACE:
+		return "DND_POPUP_NOTENOUGHSPACE";
+		
+		#ifdef ISAPRILFIRST
+		case POPUP_OWNNFT:
+		return "DND_POPUP_OWNNFT";
+		#endif
 	}
 	return "";
 }

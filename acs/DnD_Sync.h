@@ -42,10 +42,12 @@ enum {
 	DND_SYNC_ITEMIMAGE,
 	DND_SYNC_ITEMLEVEL,
 	DND_SYNC_ITEMSTACK,
+	// add non attribute related things from above attrib count
 	DND_SYNC_ITEMSATTRIBCOUNT,
 	DND_SYNC_ITEMATTRIBUTES_ID,
 	DND_SYNC_ITEMATTRIBUTES_VAL,
 	DND_SYNC_ITEMATTRIBUTES_TIER
+	// add attribute related things from below here
 };
 
 #define FIRST_WEPMOD_SYNC (DND_SYNC_WEPMOD_CRIT)
@@ -59,13 +61,8 @@ enum {
 	DND_SYNC_ITEMSOURCE_STASH
 };
 
-int GetItemSyncValue(int which, int extra, int sub, int source) {
-	int pnum = PlayerNumber();
+int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 	int page = 0;
-	if(sub > 65535) { // alternate use for sub
-		pnum = (sub >> 16) - 1;
-		sub &= 0xFFFF;
-	}
 	
 	if(source > 65535) {
 		page = source >> 16;
@@ -309,13 +306,8 @@ int GetPlayerSyncValue_Elixir(int pos, int extra) {
 // sub = attribute index of item
 // val = value to put
 // source = source of inventory item (inventory, used charms, field etc.)
-void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
-	int pnum = PlayerNumber();
+void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int source) {
 	int page = 0;
-	if(sub > 65535) {
-		pnum = (sub >> 16) - 1;
-		sub &= 0xFFFF;
-	}
 	
 	if(source > 65535) {
 		page = source >> 16;
@@ -521,8 +513,7 @@ void SetItemSyncValue(int which, int extra, int sub, int val, int source) {
 	}
 }
 
-void SetSyncValue_Orb(int pos, int val, int extra) {
-	int pnum = PlayerNumber();
+void SetSyncValue_Orb(int pnum, int pos, int val, int extra) {
 	switch(pos) {
 		case DND_SYNC_WEAPONENHANCE:
 			SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
@@ -591,8 +582,7 @@ void SetSyncValue_Orb(int pos, int val, int extra) {
 	}
 }
 
-void SetSyncValue_Elixir(int pos, int val, int extra) {
-	int pnum = PlayerNumber();
+void SetSyncValue_Elixir(int pnum, int pos, int val, int extra) {
 	switch(pos) {
 		case DND_SYNC_SPEED:
 			Player_Elixir_Bonuses[pnum].speed_bonus = val;
@@ -633,43 +623,65 @@ void SetSyncValue_Elixir(int pos, int val, int extra) {
 	}
 }
 
-Script "DND Clientside Orb Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetSyncValue_Orb(var, to, extra);
+Script "DND Clientside Orb Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
+	/*if(ConsolePlayerNumber() != pnum)
+		Terminate;*/
+	SetSyncValue_Orb(pnum, var, to, extra);
+	SetResultValue(0);
 }
 
-Script "DND Clientside Elixir Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetSyncValue_Elixir(var, to, extra);
+Script "DND Clientside Elixir Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
+	/*if(ConsolePlayerNumber() != pnum)
+		Terminate;*/
+	SetSyncValue_Elixir(pnum, var, to, extra);
+	SetResultValue(0);
 }
 
-Script "DND Clientside Item Syncer" (int var, int to, int extra) CLIENTSIDE {
-	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
+Script "DND Clientside Item Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
+	/*if(ConsolePlayerNumber() != pnum)
+		Terminate;*/
+	SetItemSyncValue(pnum, var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
+	SetResultValue(0);
 }
 
-Script "DND Clientside Item Syncer Player" (int var, int to, int extra) CLIENTSIDE {
-	SetItemSyncValue(var & 0xFF, extra & 0xFFFF, (extra >> 16) | ((var & 0xFF00) << 8), to, var >> 16);
+Script "DND Clientside Item Syncer Special" (int pnum, int var, int to, int extra) CLIENTSIDE {
+	/*if(ConsolePlayerNumber() != pnum)
+		Terminate;*/
+	Delay(1);
+	SetItemSyncValue(pnum, var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
+	SetResultValue(0);
+}
+
+Script "DND Clientside Item Syncer Field" (int var, int to, int extra) CLIENTSIDE {
+	SetItemSyncValue(-1, var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
+	SetResultValue(0);
 }
 
 Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) CLIENTSIDE {
 	int pnum = PlayerNumber();
+	
+	/*if(ConsolePlayerNumber() != pnum)
+		Terminate;*/
+	
 	Player_Weapon_Infos[pnum][wepid].wep_mods[mod].val = val;
 	Player_Weapon_Infos[pnum][wepid].wep_mods[mod].tier = tier;
 	SetResultValue(0);
 }
 
-void SyncClientsideVariable_Orb(int var, int extra) {
+void SyncClientsideVariable_Orb(int pnum, int var, int extra) {
 	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS)) {
 		//printbold(d:var, s: " ", d:GetPlayerSyncValue_Orb(var, extra), s: " ", d:extra);
-		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, extra), extra);
+		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, extra), extra);
 	}
 	else
-		ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, var, GetPlayerSyncValue_Orb(var, 0), 0);
+		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, 0), 0);
 }
 
-void SyncClientsideVariable_Elixir(int var, int extra) {
+void SyncClientsideVariable_Elixir(int pnum, int var, int extra) {
 	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPMOD_CRIT && var <= DND_SYNC_WEPMOD_DMG))
-		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, extra), extra);
+		ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, var, GetPlayerSyncValue_Elixir(var, extra), extra);
 	else
-		ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, var, GetPlayerSyncValue_Elixir(var, 0), 0);
+		ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, var, GetPlayerSyncValue_Elixir(var, 0), 0);
 }
 
 void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
@@ -677,7 +689,7 @@ void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
 		ACS_NamedExecuteWithResult("DND Clientside Weapon Mod Sync", wepid, i, Player_Weapon_Infos[pnum][wepid].wep_mods[i].val, Player_Weapon_Infos[pnum][wepid].wep_mods[i].tier);
 }
 
-void SyncItemData(int itemid, int source, int wprev, int hprev) {
+void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev) {
 	int i, j, h, bid;
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
@@ -689,85 +701,95 @@ void SyncItemData(int itemid, int source, int wprev, int hprev) {
 		if(wprev != -1)
 			w = wprev;
 		else
-			w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+			w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, itemid, -1, source);
 		if(hprev != -1)
 			h = hprev;
 		else
-			h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
-	
+			h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, itemid, -1, source);
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source), bid);
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, -1, source), bid);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
 			}
 	}
 	else {
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 	
 	// skip top left box and item type, we handled it
 	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, i | payload, GetItemSyncValue(i, itemid, -1, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 	
-	h = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
+	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < h; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
-			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, j | payload, GetItemSyncValue(j, itemid, i, source), itemid | (i << 16));
+			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 }
 
-void SyncItemStack(int itemid, int source) {
+void SyncItemData_Special(int pnum, int itemid, int source) {
+	int i, j, bid;
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
-	ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
-}
-
-// this runs a specialized way of sending the player number in the input as well
-void SyncItemData_Player(int itemid, int source, int wprev, int hprev, int pnum) {
-	int i, j, h, bid;
-	int page = source >> 16;
-	int raw_source = source & 0xFFFF;
-	int payload = ((pnum + 1) << 8) | (raw_source << 16) | (page << 24);
+	
+	int w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, itemid, -1, source);
+	int h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, itemid, -1, source);
+	
 	// synchronize the topleftboxid for all adjacent ones
 	if(IsSourceInventoryView(raw_source)) {
-		int w;
-		// we must know previous height/width for proper sync
-		if(wprev != -1)
-			w = wprev;
-		else
-			w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, (pnum + 1) << 16, source);
-		if(hprev != -1)
-			h = hprev;
-		else
-			h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, (pnum + 1) << 16, source);
-	
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, (pnum + 1) << 16, source), bid);
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, (pnum + 1) << 16, source), bid);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
 			}
 	}
 	else {
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, (pnum + 1) << 16, source), itemid);
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, itemid, (pnum + 1) << 16, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 	
 	// skip top left box and item type, we handled it
 	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, i | payload, GetItemSyncValue(i, itemid, (pnum + 1) << 16, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 	
-	h = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, (pnum + 1) << 16, source);
+	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < h; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
-			ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, j | payload, GetItemSyncValue(j, itemid, i | ((pnum + 1) << 16), source), itemid | (i << 16));
+			ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 }
 
-void SyncItemData_Null(int itemid, int source, int wprev, int hprev) {
+// this is a sync function that syncs data to all players
+void SyncItemData_Field(int itemid) {
+	int i, j, h;
+	int payload = (DND_SYNC_ITEMSOURCE_FIELD << 8);
+	// topleftboxid is 0 for field items, it doesnt make sense for them to have one
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid);
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(-1, DND_SYNC_ITEMTYPE, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
+	
+	// skip top left box and item type, we handled it
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", i | payload, GetItemSyncValue(-1, i, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
+	
+	h = GetItemSyncValue(-1, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD);
+	for(i = 0; i < h; ++i) {
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
+			ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", j | payload, GetItemSyncValue(-1, j, itemid, i, DND_SYNC_ITEMSOURCE_FIELD), itemid | (i << 16));
+	}
+}
+
+void SyncItemStack(int pnum, int itemid, int source) {
+	int page = source >> 16;
+	int raw_source = source & 0xFFFF;
+	int payload = (raw_source << 8) | (page << 16);
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
+}
+
+void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
@@ -776,47 +798,37 @@ void SyncItemData_Null(int itemid, int source, int wprev, int hprev) {
 		if(wprev != -1)
 			w = wprev;
 		else
-			w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+			w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, itemid, -1, source);
 		if(hprev != -1)
 			h = hprev;
 		else
-			h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
+			h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, itemid, -1, source);
 	
 		for(int i = 0; i < h; ++i)
 			for(int j = 0; j < w; ++j) {
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
 			}
 	}
 	else {
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid);
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid);
+	}
+	
+	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
+	
+	// skip top left box and item type, we handled it
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
+		
+	for(i = 0; i < h; ++i) {
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
+			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
 	}
 }
 
-void SyncItemData_Null_Player(int itemid, int source, int wprev, int hprev, int pnum) {
-	int h, w;
-	int page = source >> 16;
-	int raw_source = source & 0xFFFF;
-	int payload = ((pnum + 1) << 8) | (raw_source << 16) | (page << 24);
-	if(wprev != -1)
-		w = wprev;
-	else
-		w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, (pnum + 1) << 16, source);
-	if(hprev != -1)
-		h = hprev;
-	else
-		h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, (pnum + 1) << 16, source);
-	
-	for(int i = 0; i < h; ++i)
-		for(int j = 0; j < w; ++j) {
-			ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
-			ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
-		}
-}
-
 // a more efficient syncer for the server
-void SyncItemPointers(int itemid, int source, int wprev, int hprev) {
+void SyncItemPointers(int pnum, int itemid, int source, int wprev, int hprev) {
 	int i, j, bid;
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
@@ -828,123 +840,91 @@ void SyncItemPointers(int itemid, int source, int wprev, int hprev) {
 		if(wprev != -1)
 			w = wprev;
 		else
-			w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, -1, source);
+			w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, itemid, -1, source);
 		if(hprev != -1)
 			h = hprev;
 		else
-			h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, -1, source);
+			h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, itemid, -1, source);
 	
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source), bid);
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, -1, source), bid);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source), bid);
+				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source), bid);
 			}
 	}
 	else {
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 }
 
-// this runs a specialized way of sending the player number in the input as well
-void SyncItemPointers_Player(int itemid, int source, int wprev, int hprev, int pnum) {
-	int i, j, h, w, bid;
-	int page = source >> 16;
-	int raw_source = source & 0xFFFF;
-	int payload = ((pnum + 1) << 8) | (raw_source << 16) | (page << 24);
-	// we must know previous height/width for proper sync
-	if(wprev != -1)
-		w = wprev;
-	else
-		w = GetItemSyncValue(DND_SYNC_ITEMWIDTH, itemid, (pnum + 1) << 16, source);
-	if(hprev != -1)
-		h = hprev;
-	else
-		h = GetItemSyncValue(DND_SYNC_ITEMHEIGHT, itemid, (pnum + 1) << 16, source);
-		
-	// synchronize the topleftboxid for all adjacent ones
-	if(IsSourceInventoryView(raw_source)) {
-		for(i = 0; i < h; ++i)
-			for(j = 0; j < w; ++j) {
-				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, bid, (pnum + 1) << 16, source), bid);
-				ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, bid, (pnum + 1) << 16, source), bid);
-			}
-	}
-	else {
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(DND_SYNC_ITEMTOPLEFTBOX, itemid, (pnum + 1) << 16, source), itemid);
-		ACS_NamedExecuteAlways("DND Clientside Item Syncer Player", 0, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(DND_SYNC_ITEMTYPE, itemid, (pnum + 1) << 16, source), itemid);
-	}
-}
-
-void SyncItemAttributes(int itemid, int source) {
+void SyncItemAttributes(int pnum, int itemid, int source) {
 	int i, j, temp;
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
-	ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, DND_SYNC_ITEMSATTRIBCOUNT | payload, GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source), itemid);
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source), itemid);
 	
-	temp = GetItemSyncValue(DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
+	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < temp; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
-			ACS_NamedExecuteAlways("DND Clientside Item Syncer", 0, j | payload, GetItemSyncValue(j, itemid, i, source), itemid | (i << 16));
+			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 }
 
-void SyncAllItemData(int source) {
-	int i, j, pnum = PlayerNumber();
+void SyncAllItemData(int pnum, int source) {
+	int i, j;
 	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 		for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 			if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL)
-				SyncItemData(i, source, -1, -1);
+				SyncItemData(pnum, i, source, -1, -1);
 			else
-				SyncItemData_Null(i, source, 1, 1);
+				SyncItemData_Null(pnum, i, source, 1, 1);
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
 		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
 			if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-				SyncItemData(i, source, -1, -1);
+				SyncItemData(pnum, i, source, -1, -1);
 			else
-				SyncItemData_Null(i, source, 1, 1);
+				SyncItemData_Null(pnum, i, source, 1, 1);
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_STASH) {
 		for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
 			for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
 				if(PlayerStashList[pnum][i][j].item_type != DND_ITEM_NULL)
-					SyncItemData(j, source | (i << 16), -1, -1);
+					SyncItemData(pnum, j, source | (i << 16), -1, -1);
 				else
-					SyncItemData_Null(j, source | (i << 16), 1, 1);
+					SyncItemData_Null(pnum, j, source | (i << 16), 1, 1);
 			}
 		}
 	}
 }
 
-void SyncAllClientsideVariables() {
+void SyncAllClientsideVariables(int pnum) {
 	int i, j;
 	// sync orbs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
 		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i < MAX_WEP_MODS)) {
 			for(j = 0; j < MAXWEPS; ++j)
-				ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue_Orb(i, j), j);
+				ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, i, GetPlayerSyncValue_Orb(i, j), j);
 		}
 		else
-			ACS_NamedExecuteAlways("DND Clientside Orb Syncer", 0, i, GetPlayerSyncValue_Orb(i, 0), 0);
+			ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, i, GetPlayerSyncValue_Orb(i, 0), 0);
 	}
 	// sync elixirs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
 		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i <= DND_SYNC_WEPMOD_DMG)) {
 			for(j = 0; j < MAXWEPS; ++j)
-				ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, i, GetPlayerSyncValue_Elixir(i, j), j);
+				ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, i, GetPlayerSyncValue_Elixir(i, j), j);
 		}
 		else
-			ACS_NamedExecuteAlways("DND Clientside Elixir Syncer", 0, i, GetPlayerSyncValue_Elixir(i, 0), 0);
+			ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, i, GetPlayerSyncValue_Elixir(i, 0), 0);
 	}
 	
 	// sync weapon mods
-	int pnum = PlayerNumber();
 	for(i = 0; i < MAXWEPS; ++i)
 		SyncClientsideVariable_WeaponMods(pnum, i);
 }

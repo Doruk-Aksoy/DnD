@@ -55,6 +55,7 @@ DND_MENU_HEAD_RESPAN	=	"Research Panel";
 DND_MENU_HEAD_ABILEARNED = 	"Abilities Learned";
 DND_MENU_HEAD_HELP		=	"DnD Help";
 DND_MENU_HEAD_RESGUNS	=	"Research: Guns";
+DND_MENU_HEAD_NFT		=	"NFTs";
 
 DND_MENU_SLOT			=	"Slot";
 DND_MENU_MATERIALS		=	"Materials";
@@ -97,6 +98,7 @@ DND_MENU_ABILITIES		=	"Abilities Menu";
 DND_MENU_ARTIFACTS		=	"Artifacts Menu";
 DND_MENU_ARMORS			=	"Armors Menu";
 DND_MENU_ACCOUNT		=	"Account Menu";
+DND_MENU_NFT			=	"NFT Menu";
 
 DND_MENU_AMMOCATEGORY	=	"Ammo Category";
 DND_MENU_SPECIALAMMO	=	"Special Ammo";
@@ -510,3 +512,25 @@ DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";
+
+DND_NFT_INTRO			=	"Welcome to emporium of NFTs, the best place to obtain the top NFTs in Doom! All NFTs cost a million dollars. Please, do enjoy yourself!";
+DND_NFT_TAG0			=	"Cybape";
+DND_NFT_EXP0			=	"This beautiful monkey here was manifactured to be the ruler of cyborgs in an abandoned UAC facility. "
+							"Do not be fooled by his metallic appearance, he's very fashionable and will rain down his wrath upon those who do not appreciate his masterful form.";
+DND_NFT_TAG1			=	"The prison escapee";
+DND_NFT_EXP1			=	"The classic striped design. Chill and very relaxed, only giving out the good vibes.";
+DND_NFT_TAG2			=	"Weeping King";
+DND_NFT_EXP2			=	"The weeping king of the planet of the apes. His sorrow began shortly after his brother did nasty things to his girlfriend. "
+							"After the incident, his girlfriend only had one thing to say: \"His banana wasn't big enough for me.\"";
+DND_NFT_TAG3			=	"Mon-Key Missing";
+DND_NFT_EXP3			=	"Someone forgot to charge the batteries on this one, it's dead Jim...";
+DND_NFT_TAG4			=	"Captain Banana-Slip";
+DND_NFT_EXP4			=	"Welcome to his boat. The untold truth about the boat however is that... It is the Catholic Boat. The best place to find the hottest Christian action anywhere in the world.";
+DND_NFT_TAG5			=	"Sgt. Treehugger";
+DND_NFT_EXP5			=	"Sgt. Treehugger here! What you looking at!? Aren't you supposed to fetch me a cigar? What, monkey got your tongue, huh!?! WHAT YOU LOOKIN AT!!!???";
+DND_NFT_TAG6			=	"Evel Armstrong";
+DND_NFT_EXP6			=	"Hey there buddy! I see you have a knack for space and daring stunts! Let me introduce you to Evel Armstrong here. He loves taking big leaps of faith "
+							"and launching himself to space, completely out of nowhere. He is a nervous chap though.";
+DND_NFT_TAG7			=	"Banana County Chopper";
+DND_NFT_EXP7			=	"Yo man, I love my bike. You ever seen such a beauty anywhere? I had to sell my house and my wife and two kids but it was worth it. "
+							"Now there ain't no yappin' ape around ma head tellin' me to pick up my banana peels.";

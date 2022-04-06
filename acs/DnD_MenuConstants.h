@@ -139,7 +139,11 @@ enum {
 	MENU_HELP_MMODS_UTILITY,
 	MENU_HELP_MMODS_SPECIAL,
 
-	MENU_ABILITY
+	MENU_ABILITY,
+	
+	#ifdef ISAPRILFIRST
+	MENU_SHOP_NFT
+	#endif
 };
 
 enum {
@@ -511,5 +515,10 @@ bool IsArmorPage(int page) {
 bool IsAmmoPage(int page) {
 	return page >= SHOP_FIRSTAMMO_PAGE && page <= SHOP_LASTAMMO_PAGE;
 }
+
+#ifdef ISAPRILFIRST
+	#define MAX_NFTS 8
+	#define NFT_COST 1000000 // 1 million dollars!
+#endif
 
 #endif

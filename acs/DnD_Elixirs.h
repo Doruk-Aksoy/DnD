@@ -40,45 +40,45 @@ void HandleElixirUse(int eid) {
 	switch(eid) {
 		case DND_ELIXIR_HEALTH:
 			Player_Elixir_Bonuses[pnum].hp_flat_bonus += SIMPLE_ELIXIR_AMOUNT;
-			SyncClientsideVariable_Elixir(DND_SYNC_HPFLAT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_HPFLAT_BONUS, -1);
 		break;
 		case DND_ELIXIR_ARMOR:
 			Player_Elixir_Bonuses[pnum].armor_flat_bonus += SIMPLE_ELIXIR_AMOUNT;
-			SyncClientsideVariable_Elixir(DND_SYNC_ARMORFLAT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORFLAT_BONUS, -1);
 		break;
 		case DND_ELIXIR_HPARMOR:
 			Player_Elixir_Bonuses[pnum].hp_flat_bonus += SIMPLE_ELIXIR_AMOUNT;
 			Player_Elixir_Bonuses[pnum].armor_flat_bonus += SIMPLE_ELIXIR_AMOUNT;
-			SyncClientsideVariable_Elixir(DND_SYNC_HPFLAT_BONUS, -1);
-			SyncClientsideVariable_Elixir(DND_SYNC_ARMORFLAT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_HPFLAT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORFLAT_BONUS, -1);
 		break;
 		case DND_ELIXIR_HPPERCENT:
 			Player_Elixir_Bonuses[pnum].hp_percent_bonus += PERCENT_ELIXIR_AMOUNT;
-			SyncClientsideVariable_Elixir(DND_SYNC_HPPERCENT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_HPPERCENT_BONUS, -1);
 		break;
 		case DND_ELIXIR_ARMORPERCENT:
 			Player_Elixir_Bonuses[pnum].armor_percent_bonus += PERCENT_ELIXIR_AMOUNT;
-			SyncClientsideVariable_Elixir(DND_SYNC_ARMORPERCENT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORPERCENT_BONUS, -1);
 		break;
 		case DND_ELIXIR_HPARMORPERCENT:
 			Player_Elixir_Bonuses[pnum].hp_percent_bonus += PERCENT_ELIXIR_AMOUNT;
 			Player_Elixir_Bonuses[pnum].armor_percent_bonus += PERCENT_ELIXIR_AMOUNT;
-			SyncClientsideVariable_Elixir(DND_SYNC_HPPERCENT_BONUS, -1);
-			SyncClientsideVariable_Elixir(DND_SYNC_ARMORPERCENT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_HPPERCENT_BONUS, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORPERCENT_BONUS, -1);
 		break;
 		case DND_ELIXIR_SPEED:
 			Player_Elixir_Bonuses[pnum].speed_bonus += SIMPLE_ELIXIR_AMOUNT_F;
-			SyncClientsideVariable_Elixir(DND_SYNC_SPEED, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_SPEED, -1);
 		break;
 		case DND_ELIXIR_DAMAGE:
 			for(int i = 0; i < MAX_TALENTS; ++i) {
 				Player_Elixir_Bonuses[pnum].damage_type_bonus[i] += PERCENT_ELIXIR_AMOUNT;
-				SyncClientsideVariable_Elixir(DND_SYNC_DAMAGEBULLET + i, -1);
+				SyncClientsideVariable_Elixir(pnum, DND_SYNC_DAMAGEBULLET + i, -1);
 			}
 		break;
 		case DND_ELIXIR_LUCK:
 			Player_Elixir_Bonuses[pnum].luck += SIMPLE_ELIXIR_AMOUNT << 16;
-			SyncClientsideVariable_Elixir(DND_SYNC_LUCK, -1);
+			SyncClientsideVariable_Elixir(pnum, DND_SYNC_LUCK, -1);
 		break;
 	}
 }
@@ -89,7 +89,7 @@ void SpawnElixir(int pnum) {
 		int w = random(1, ELIXIR_MAXWEIGHT), i = 0;
 		for(; i < MAX_ELIXIRS && ElixirDropWeights[i] < w; ++i);
 		RollElixirInfo(c, i, true);
-		SyncItemData(c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[i + ELIXIR_BEGIN], 24.0, 16, pnum + 1, c);
 	}
 }

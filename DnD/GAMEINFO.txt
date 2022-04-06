@@ -1,2 +1,4 @@
+StartupType = Hexen
 StartupColors = "FFA500", "040404"
-StartupTitle = "Death and Decay"
+StartupTitle = "Creating custom dungeon..."
+StartUpSong = "INTER1"

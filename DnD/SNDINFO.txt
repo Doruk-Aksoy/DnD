@@ -803,3 +803,5 @@ SpiderMasterMind/MiniGunSpinEnd			DSSPIFST
 SpiderMasterMind/Pain1					DSSPIPN1
 SpiderMasterMind/Pain2					DSSPIPN2
 $random SpiderMasterMind/Pain { SpiderMasterMind/Pain1 SpiderMasterMind/Pain2 }
+
+CoolNFT									COOLNFT

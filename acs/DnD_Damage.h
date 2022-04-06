@@ -2420,8 +2420,9 @@ int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data) {
 			//printbold(s:"So extra damage dealt to player is ", d:dmg, s: " with difference ", d:armor_damage - armor_amt, s: " reduced from ", d:dmg_prev);
 		}
 		
+		// if invulnerable dont deduct
 		// if not mastered take 100%, or mastered we have 10% chance to not take
-		if(!HasMasteredPerk(STAT_END) || DND_ENDURANCE_MASTERY_CHANCE <= random(1, 100))
+		if(!GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable") && (!HasMasteredPerk(STAT_END) || DND_ENDURANCE_MASTERY_CHANCE <= random(1, 100)))
 			TakeArmorAmount(armor_take);
 	}
 	

@@ -1,7 +1,7 @@
 [enu default]
 
 DND_ORB1			=	"Orb of Enhancement";
-DND_ORBTEXT1		=	"Allows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg25%\c- total.";
+DND_ORBTEXT1		=	"Allows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg50%\c- total.";
 DND_ORB2			=	"Orb of Corruption";
 DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?";
 DND_ORB3			=	"Orb of Spirit";

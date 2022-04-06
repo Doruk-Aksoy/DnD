@@ -79,12 +79,15 @@
 #define DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT "AttributeCount"
 #define DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL "AttributeVal"
 #define DND_DB_PLAYERINVENTORYFIELD_ATTRIBID "AttributeID"
+#define DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER "AttributeTier"
 
 #define DND_DB_CHARMUSED "CharmsUsed_"
 
 #define DND_DB_STASHPAGE "StashPage_"
 #define DND_DB_STASH_PAGES "DnD_PlayerStashPages"
 
-global bool 6: PlayerLoaded[];
+#ifdef ISAPRILFIRST
+	#define DND_DB_NFT "NFT"
+#endif
 
 #endif

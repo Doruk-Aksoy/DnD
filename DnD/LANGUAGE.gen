@@ -205,3 +205,5 @@ DND_POPUP_ONLYONEUNIQUE						=	"You can't use another of the same unique!";
 DND_POPUP_ALREADYFOUND						=	"You already found this research!";
 DND_POPUP_MAXINVESTMENT						=	"You've invested enough!";
 DND_POPUP_NARESEARCH						=	"We know nothing about this so far.";
+DND_POPUP_NOTENOUGHSPACE					=	"You don't have enough space!";
+DND_POPUP_OWNNFT							=	"You already own this NFT... idiot.";

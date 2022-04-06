@@ -119,6 +119,8 @@ Script "DnD Sync Shop Stock" (int pnum, int itemid, int val) CLIENTSIDE {
 }
 
 Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 }
 
@@ -345,8 +347,19 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DeleteTextRange(RPGMENUPOPUPID + 1, RPGMENUINVENTORYID);
 				CleanMaterialInfo(true);
 				CleanInventoryInfo();
+				TakeInventory("DnD_CleanInventoryRequest", 1);
 			}
-			
+			else if(CheckInventory("DnD_CleanCraftingRequest")) {
+				CleanCraftingInfo();
+				CleanMaterialInfo(true);
+				// dont uncomment this from here... for some reason
+				//TakeInventory("DnD_CleanCraftingRequest", 1);
+			}
+			else if(CheckInventory("DnD_CleanTradeviewRequest")) {
+				CleanTradeInfo();
+				TakeInventory("DnD_CleanTradeviewRequest", 1);
+			}
+
 			if(curopt == MENU_STAT1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_STATS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				SetHudClipRect(192, 56, 256, 144, 256, 1);
@@ -470,7 +483,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 176.0, 100.0, 0.0, 0.0);
 				SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 				SetFont("SMALLFONT");
-				HandleCraftingView(InventoryPane, boxid, curopt, k);
+				HandleCraftingView(pnum, InventoryPane, boxid, curopt, k);
 			}
 			else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_TRADE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -547,6 +560,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_ARTIFACTS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_ARMORS", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_ACCOUNT", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+			
+				#ifdef ISAPRILFIRST
+					DrawBoxText("DND_MENU_NFT", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+				#endif
 			}
 			else if(curopt == MENU_SHOP_WEAPON) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_WEAPONS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -933,6 +950,21 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// -1 is for special stuff
 				DrawMonsterModCategory(-1);
 			}
+			#ifdef ISAPRILFIRST
+			else if(curopt == MENU_SHOP_NFT) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_NFT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.1, 0.0, 0.0);
+				DrawCredits();
+				
+				SetHudClipRect(184, 56, 264, 224, 264, 1);
+				
+				HudMessage(l:"DND_NFT_INTRO"; HUDMSG_PLAIN, RPGMENUITEMID - 69, CR_WHITE, 316.4, 72.1, 0.0, 0.0);
+				
+				// draw nft labels, with images
+				HandleNFTDrawing(boxid);
+				
+				SetHudClipRect(0, 0, 0, 0, 0, 0);
+			}
+			#endif
 			
 			// Main menu side bar -- stats and perks are in the other looping script
 			if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_INVENTORY) {
@@ -968,6 +1000,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				else
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_LASTED", s:":\cj", d:temp; HUDMSG_PLAIN, RPGMENUNAMEID, -1, 60.1, 140.0, 0.0, 0.0);
 			}
+			
+			// we've had redrawn, take these away now
+			TakeInventory("DnD_RefreshPane", 1);
+			TakeInventory("DnD_RefreshRequest", 1);
 			///////////////////////////////
 			// MENU DRAWING ROUTINE ENDS //
 			///////////////////////////////
@@ -1169,10 +1205,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						else
 							LocalAmbientSound("RPG/MenuClose", 127);
 					}
-					else if(GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)
+					else if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)
 						SetInventory("DnD_SelectedInventoryBox", 0);
 				}
-				HandleInventoryViewClicks(boxid, temp);
+				HandleInventoryViewClicks(pnum, boxid, temp);
 			}
 			if(HasPressedLeft(pnum)) {
 				TakeInventory("DnD_InventoryView", 1);
@@ -1195,11 +1231,11 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						else
 							LocalAmbientSound("RPG/MenuClose", 127);
 					}
-					else if (((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
-							 ((CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && (GetItemSyncValue(DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH) == DND_ITEM_NULL)))
+					else if (((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
+							 ((CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH) == DND_ITEM_NULL)))
 							SetInventory("DnD_SelectedInventoryBox", 0);
 				}
-				HandleStashViewClicks(boxid, temp);
+				HandleStashViewClicks(pnum, boxid, temp);
 			}
 			if(HasPressedLeft(pnum)) {
 				TakeInventory("DnD_StashView", 1);
@@ -1360,6 +1396,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					temp = MENU_SHOP_ARMOR1;
 				else if(boxid == MBOX_6)
 					temp = MENU_SHOP_ACCOUNT;
+				#ifdef ISAPRILFIRST
+				else if(boxid == MBOX_7)
+					temp = MENU_SHOP_NFT;
+				#endif
 				else
 					temp = -1;
 				if(boxid != MAINBOX_NONE && temp != -1)
@@ -1576,6 +1616,24 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_HELP_MMODS);
 		}
+		#ifdef ISAPRILFIRST
+		else if(curopt == MENU_SHOP_NFT) {
+			if(HasLeftClicked(pnum) && boxid != MAINBOX_NONE) {
+				// check if player has enough $$
+				if(CheckInventory("Credit") >= NFT_COST) {
+					if(!IsSet(CheckInventory("NFT_Token"), boxid - 1)) {
+						TakeInventory("Credit", NFT_COST);
+						SetInventory("NFT_Token", SetBit(CheckInventory("NFT_Token"), boxid - 1));
+						ACS_NamedExecuteAlways("DnD NFT Announce", 0, pnum, boxid - 1);
+					}
+					else
+						ShowPopup(POPUP_OWNNFT, false, 0);
+				}
+				else
+					ShowPopup(POPUP_NOFUNDS, false, 0);
+			}
+		}
+		#endif
 		
 		ClearPlayerInput(pnum, true);
 		
@@ -1634,6 +1692,8 @@ Script "DnD Trade Counter" (int p1, int p2) {
 		TakeActorInventory(p1 + P_TIDSTART, "DnD_Trade_Confirmed", 1);
 		TakeActorInventory(p2 + P_TIDSTART, "DnD_Trade_Confirmed", 1);
 		// finish trade view related stuff
+		GiveActorInventory(p1 + P_TIDSTART, "DnD_CleanTradeviewRequest", 1);
+		GiveActorInventory(p2 + P_TIDSTART, "DnD_CleanTradeviewRequest", 1);
 		GiveActorInventory(p1 + P_TIDSTART, "DnD_Trade_Cooldown", 1);
 		GiveActorInventory(p2 + P_TIDSTART, "DnD_Trade_Cooldown", 1);
 		CancelTrade(p1);
@@ -1735,3 +1795,33 @@ Script "DnD Menu Investment Sync" (int pnum, int resid, int val) CLIENTSIDE {
 	ResearchInvestments[pnum][resid] = val;
 	SetResultValue(0);
 }
+
+#ifdef ISAPRILFIRST
+Script "DnD NFT Announce" (int pnum, int id) CLIENTSIDE {
+	AmbientSound("CoolNFT", 127);
+	
+	int cnt = 10 * TICRATE + 17;
+	int u = 0;
+	int x = 640.0;
+	int y = 480.0;
+	
+	int r = 200;
+	
+	// only log first instance
+	int f = HUDMSG_LOG | HUDMSG_PLAIN | HUDMSG_ALPHA;
+	
+	while(cnt--) {
+		x = 640.0 - r * sin(u);
+		y = 480.0 - r * sin(u) * 4 / 3;
+		SetHudSize(x >> 16, y >> 16, 1);
+		SetFont("BIGFONT");
+		HudmessageBold(
+			n:pnum, s: " \cfHAS JUST BOUGHT THE \cv", l:StrParam(s:"DND_NFT_TAG", d:id), s: "\cf NFT!!!!";
+			f, 1, CR_GOLD, GetIntegerBits(x / 2) + 0.4, 0.1 + GetIntegerBits(y / 30), 0.1, 0.25 + Clamp_Between(FixedMul(0.75, sin(u)), 0, 0.75)
+		);
+		u = (u + 0.0075) % 1.0;
+		Delay(1);
+		f = HUDMSG_PLAIN | HUDMSG_ALPHA;
+	}
+}
+#endif

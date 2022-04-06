@@ -1,0 +1,531 @@
+==== DND 2022 APRIL 1ST EDITION v2.5 PATCH NOTES ====
+
+* Added NFTs. (See Shop)
+* Added new perk "Brutality".
+	- 5% increased melee damage and 8% increased melee range per rank.
+	- "Sharpshooting" no longer affects melee weaponry.
+* You gain a mastery when you allocate maximum points (10) to a perk!
+	- Sharpshooting: Dexterity gives 4% damage per point instead of 3%.
+	- Brutality: Melee damage and range increase also applies to projectiles fired from melee weapons.
+	- Endurance: Damage going to armor has 10% chance to be completely negated.
+	- Wisdom: Gain experience from kills regardless of the killer or the range limit.
+	- Greed: Gain credit from kills regardless of the killer or the range limit.
+	- Medic: Convert 10% of healing pickups to extra armor.
+	- Munitionist: Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.
+	- Deadliness: Every 7th hit you land within four seconds is a guaranteed critical strike.
+	- Savagery: 100% to crit multiplier if you haven't dealt a critical strike in 5 seconds.
+	- Luck: When an item drops there's a 25% chance to get an additional item drop of its type.
+* You can now invest into a research to increase its odds of dropping.
+	- All research icons, cost etc. are visible from the start, but you still can't research them without the blueprints.
+	- Until you get the blueprint, you can invest to add 1% chance to drop for a research per investment.
+	- Investment uses credits.
+	- You invest a base amount of 1000, and an additional 5% + 15% of the budget cost of that research per investment on top of your previous investment cost.
+		+ Formula basically becomes: 
+		+ Example: Research cost is 50k. You invest once, its 1000. The second time its 1125. Third time its 1406. ((1125 + (100 + (5 + 15*50/100) * 2)) / 100)
+		+ Please note that precision errors apply due to integer math, so expected values may vary to be lower than shown in this example.
+	- Maximum is (obviously) 100% drop chance.
+	- If you pick the blueprint, you can no longer invest as it's pointless.
+	- The drop chance is calculated on YOUR investment, other players' investments do not matter. This includes the hit that kills a monster or chests opened by players.
+	- You can't invest in research that is obtained from specific monsters, through their unique drops or otherwise.
+* Chests can now drop from the following items with the following chance:
+	- Stimpacks: 0.25%
+	- Medkit: 0.5%
+	- Armors: 1%
+	- SoulSphere, Megasphere: 10%
+* Chests have a maximum amount that can spawn in map now scaling with difficulty:
+	- Very Easy: 10
+	- Easy: 13
+	- Medium: 18
+	- Hard: 24
+	- Very Hard: 35
+* You can pick up to 25 backpacks now down from 55 to increase your ammo capacities.
+* "Demon Heart" nerfed.
+	- Ammo cap of 2 instead of 5.
+	- Damage reduced by 20%.
+	- Distance halved.
+	- Angle of scan reduced to 54 degrees from 90.
+	- Drop chance halved to 5% from 10%.
+* "Book of the Dead" range doubled.
+* Charms now have level requirements. You can't equip the charm unless your level matches the level shown on the top left corner of the box.
+* You can no longer use multiples of the same unique charms. Due to this, some charms a changed.
+* "Well of Power" charm now grants:
+	- Amplifies modifier values of small charms by 1.25 - 2.
+	- Increases damage taken by 15-30%.
+	- Can use maximum of 1-3 small charms.
+* "Ancient Gemstone" buffed:
+	- 5 - 20 all stats up from 5 - 8.
+	- Chance to heal 3 - 8 from 3 - 5.
+* "Deathspark" buffed:
+	- Increased lightning damage to 5 - 60 from 5 - 45.
+* "Oakheart" buffed:
+	- Damage per 65-40 health instead of 75-50 health.
+* "Pelletstorm" buffed:
+	- 50-125% more pellets from 50-100%.
+	- 180-300% slot3 damage from 180-250%.
+* "Lifeleech" buffed:
+	- 6-17.5% movespeed from 6-12%.
+	- 3-12 flat damage from 3-10.
+* "Shellshock" buffed:
+	- Now gives a new mod 1-3 damage to shotguns per shotgun owned.
+* "Rebounder" base damage increased to 30 from 25.
+* "Rebounder" primary fire gives 3 overheat instead of 4.
+* "Rebounder" altfire now uses 18 overheat down from 24.
+* "Rebounder" primary fire overheat thresholds lowered to 15 - 30 - 45 - 60 from 24 - 48 - 72 - 96.
+* "Rebounder" overheated shots have angle spread of 10 degrees starting from the 2nd threshold.
+* "Jade Wand" primary attack damage per pellet reduced to 15 from 20.
+* "Jade Wand" altfire cost increased to 8 from 5, and cooldown increased to 8 seconds from 5 seconds.
+* "Jade Wand" corpse explosion damage reduced to 50 from 100.
+* "Acid Rifle" magsize increased to 32 from 28.
+* "Acid Rifle" poison alt spreads more and inflicts poison.
+* "Acid Rifle" poison bolt speed increased to 56 from 40.
+* "Blade Vortex" no longer grants damage reduction.
+* Grenade Launcher and Mercury Launcher have swapped places. Now you need a research to obtain Mercury Launcher.
+* Price of Grenade Launcher is now 2500 credits. Mercury Launcher is at 6800. Research cost is 65k.
+* Charm modifier ranges can be toggled to be shown now from Menu "Help" section. You can also bind a key to do this without having to go to the menu, under "DnD Keys" section.
+* "Luck" perk now affects rolls on regular charms, with 5% chance per point.
+* "Strength" no longer gives health and armor cap bonuses.
+* Culling effects buffed to 15% from 10%.
+* Added a custom scoreboard that acts as a replacement for the end of level screen.
+* Removed "X players alive" and "Last Player Alive" text.
+* Hobo mugshot graphics updated.
+* "Bloodfiend Spine" altfire can heal you now for each pellet hit for 1% of your health cap.
+* Improved wording on Punisher level 5 perk. Buffed level 50 perk.
+	- Level 5 perk now says "Being on a killing spree" instead of "Being on at least cruel killing spree".
+	- Level 50 perk now gives 4% damage increase on that map per 10 kills instead of 50. (Caps at 400% still, so max 1000 kills required for max damage instead of 5000)
+* Killing sprees start triggering for every 10 monster killed instead of 15.
+* Your budget is now shown in the stat page.
+* Inventory items clicked on the menu will be dragged by the cursor now.
+* Doomguy's perks reworked.
+	+ Damage taken from demons is reduced by 10%.
+	+ Demons have 5% chance to drop their essence. Anyone can pick these to heal for 1% of enemy max health on pickup and gain 18% more damage for 5 seconds.
+	+ Attacks ignore resists of demons.
+* Buffed Marine perks numerically.
+	+ Marine Level 25 Perk also gives: Explosives ignore monsters' radius damage immunity.
+	+ Marine Level 50 perk also gives Poison Immunity and projectiles can't be reflected.
+	+ Marine Explosion Resist and Charm Explosion Resists stack additively now.
+* Buffed / Reworked Wanderer perks across the board.
+* Poison Mastery ability only reduces poison damage by 33% now down from 50%.
+* Monster scan is no longer needed to be bought, you start off with it.
+* Redone Elite special fx. There are now 4 particles orbiting around an elite monster instead of repeatedly spawning fx.
+* Buffed unique drop rate a tiny bit.
+* "Deadliness" perk critical strike chance nerfed to 1% per point from 2%.
+* Maximum damage reduction attainable is now 90%, from bulkiness or any other source added.
+* Repairing equipped armor now requires a "Repair Token". They are stackable items that can be traded, and drop from elites or chests.
+* Repairing armor now has error messages tied to it.
+* Removed damage type icons for bullet and shell, grouped them under "physical" instead with a new icon.
+* Added "No Reflect" icon for certain projectile weapons that can't be reflected back at you by reflective monsters.
+* Buffed Shell Shock and Pellet Storm uniques significantly.
+* The effect of "dnd_monsterlevel_high" in the first 10 levels is halved.
+* Only Fist is a silent melee weapon now. This means Sickle, Excalibat, Dusk Blade and Inferno Sword are no longer silent.
+* Viper Staff now inflicts poison.
+* Improved Viper Staff snake trail a little bit.
+* Viper Staff seeking snake AI improved.
+* Reduced Viper Staff ammo capacity to 50 from 80.
+* Rocket Launcher weapons that didn't have smoke trails have one now.
+* Sickle now heals on a percentage basis instead of flat.
+* Katana shockwave on combo attacks now uses the "one time ripper" method. They are no longer explosions. Instead they deal flat 80 damage when passing through enemies.
+* Katana combos no longer sheathe it back automatically, except the unsheating combo. You can force sheathe the weapon with Reload key now.
+* Katana no longer blocks projectiles.
+* Laser Pistol rail range increased by 64 per 25 charge up from 32.
+* Purifier shotgun can now early cancel into reload after pumping animation, if holding the reload button. It also early cancels when the clip is empty if fire button is held.
+* Emerald Wand rain projectiles do 1 more damage. (A forced change so the damage system works, seems like a Zandronum problem)
+* Emerald Wand now inflicts poison.
+* Erasus reload animation improved a bit, firing animation tiny offset change on burst fire.
+* Hell's Maw direct hit from big missiles increased to 60 from 45.
+* Hell's Maw small rocket hit damage increased to 25 from 15.
+* Reduced Hell's Maw split spread by 33%.
+* Updated Deadlock sprites.
+* Demon Sealer now deals 18 damage per card up from 15.
+* Demon Sealer has a new altfire: Can place Kanji Demon Traps. When enemies approach, will detonate for 150 damage in a 144 unit radius. Will cull.
+* Lead Spitter now benefits from pellet count increases. This also means it can benefit from Pellet Storm unique charm fully.
+* Lead Spitter no longer ignores shields.
+* Fusion Blaster main projectile base damage is now 30 from 28.
+* Fusion Blaster main projectile damage increase per tic is 3 from 2.
+* Fusion Blaster grenade projectile damage increased from 150 to 200.
+* Fusion Blaster grenade damage increase per tic increased to 8 from 5.
+* Fusion Blaster ripper damage increased to 6 from 5.
+* Desolator now inflicts poison.
+* Shocker explosion damage buffed to 192 - 240 from 105-180, radius increased to 108 from 96.
+* Fusion Blaster main projectile damage increased to 28 from 25.
+* Meteor Launcher readjusted to half damage and radius on each split from primary instead. Overall more impact damage but less radius on splits by a small amount.
+* Torpedo Launcher now has an altfire that explodes the rocket midflight instead.
+* Torpedo Launcher impact damage nerfed to 300-400 from 300-500.
+* Torpedo Launcher takes 4 tics longer to fire now.
+* Updated Meteor Launcher tooltip to reflect the smaller pieces are half as effective as the projectile that spawned them.
+* Fixed a bug where Meteor Launcher's first split dealt the same impact damage as the main projectile. It is now half, as it should be.
+* Railgun no longer deals explosion damage in a really wide radius. Instead it's fired in a little "wider" hitbox. Damage re-adjusted to be more than before overall against all targets, and penetrates everything now.
+* Gauss Rifle direct shots now do 200 from 150.
+* Death Ray altfire laser damage bumped up to 400 from 200.
+* Death Ray laser impact damage increased to 450 from 300, explosion to 150 from 75.
+* Death Ray uses 6 ammo per shot up from 3.
+* Razorfang skulls now seek new targets after successfully tearing their current one apart.
+* Razorfang skulls deal 64 explosion damage on expiring, up from 8.
+* Razorfang skulls deal 16 - 20 damage up from 8 - 16.
+* Soul Reaver ghost damage reduced to 24 - 36 from 32 - 48.
+* Soul Render puff effect on hitting a monster is now a blood splat instead of smoke.
+* Venom now inflicts poison.
+* Dark Servant Gloves altfire damage increased to 192 on hit from 120-180.
+* Dark Servant Gloves altfire explosion damage increased to 144 over 9 tics from 96.
+* Dark Servant Gloves altfire now uses 4 ammo up from 3.
+* Shock Shells now deal "Lightning" damage instead of "Energy" damage.
+* Special shotgun shells should no longer get interrupted by shotgun pumping sounds.
+* Most ammo prices have been doubled.
+* When you try to pick an inventory but you have no space, an error message is displayed and a sound is played.
+* Improved the "Current Gains" page in stats menu. It only shows things if they are non-zero now, so they won't clutter the menu.
+* Added base critical chance and multiplier to stat menu display.
+* Killing spree bar on hud only shows if you are on a spree now.
+* Deathspark unique charm no longer grants guaranteed crit to lightning attacks. It instead increases the crit chance of lightning attacks by 50% - 125%.
+* Most charm attributes have been re-adjusted completely. Overall it's a nerf to later stages of the game but a buff to earlier. The scale of attributes going up with tiers has been made linear.
+* Increased the chance to have an orb drop as a charm crafting one slightly. (Each got added 1.5%)
+* Improved wording on flat damage modifiers.
+* Updated the monster modifier help menu, grouped them into sub-categories.
+* Added a background image to announcements at the right side of the screen.
+* Damage type icons in DnD Menu are updated with better graphics!
+* Reflect Resist modifier in items are buffed by x10. The minimum range is 1% to 9% on weakest charms, scaling additively with charm level.
+* "Elemental Bulwark" can cast a random elemental spell once every 5 seconds now up from 1.5 seconds.
+* All sorts of "increased X damage" modifiers are now ADDITIVE instead of MULTIPLICATIVE. The only multiplicative instances of such damage left are:
+	- Weapon specific stacking properties (such as Lightning Gun's stacking damage over time)
+	- Sharpshooting and Brutality perks.
+	- Quest or Accessory bonuses. (Demon Bane etc.)
+	- Example: If you were to do 100 damage with two instances of 75% increased damage, now you'll do 250 damage instead of 306 (306.25 rounded down) damage.
+	- Damage over time multipliers. (It's in their name, duh)
+	- Critical strikes.
+* Improved weapon mod and stat descriptions in crafting menu.
+* Added "sp_softcore" and "sp_hardcore" commands. These set the game to you so that the rules are from softcore or hardcore but there are no database functions and no account loading stuff.
+	- This is best used in SP or Local Server where you are the only player.
+
+* Reworked how damage dealing works. This uses a completely new overhauled system that is untraditional, but allows for new features, such as:
+	- Determining who deals how much damage at any point in the game.
+	- Damage numbers without taxing the server.
+	- Lifesteal with custom % or conditions.
+	- Resistance penetration, ignoring, conditional penetration etc. on a much higher customization.
+	- The creation of the poison system!
+	- Hit beeps when hitting a resistant, immune or an invulnerable monster. Also beeps for hitting monsters that have a particular weakness. (Controlled by dnd_hitbeeps client cvar)
+	- Custom vector based push system on damage.
+	- Damage numbers! Can be turned off from clients' side with "dnd_dmgnum" CVar.
+
+* The above system fixed some issues, such as:
+	- Shotgun damage range is now outputting the intermediate values, not just each extreme. (Example: Shotgun used to only deal 100 or 150 damage. It can do intermediate values now)
+	- Damage scaling accuracy has increased significantly.
+	- Forced delay on exploding puff damage method. That is now gone completely.
+	- Taltos Ring not healing above a certain threshold of health.
+	- Blood Rune artifact not healing above a certain threshold of health.
+
+* As a consequence of the above system, some limitations arose. These are:
+	- Sun Staff no longer has a projectile and rail counterpart for FULL damage buffs. It always fires the rail counterpart, but with a little less damage to compensate. 64 damage per hit.
+	- Reflected projectiles do not deal any initial damage to reflecting monsters anymore. This requires a rework of how reflects occur and it's not a priority at the moment.
+	- Now that Taltos Ring heals you for your real health, it's percentage is reduced to 25% from 50%.
+	- Same with Taltos Ring, Blood Rune lifesteal percentage dropped to 30%. However the Arcanery ability now improves this percentage to 45%.
+
+* Reworked BFG attacks. The tracers now deal a known damage, and the formula is as follows:
+	- Damage scales from 100% of a tracer to 0% through the distance proportional to the square of the distance.
+	- Max distance of most BFG Scan style attacks is 1024. You deal the most damage the closer you are, and least the farther you are.
+	- No randomness anymore.
+	- As a result, certain BFG attacks have been re-adjusted. Overall reliability of the BFG type attacks have increased significantly.
+	- Damage scaling effectiveness of tracers is 66%.
+	- BFG weapons attack rate nerfed, and ammo use increased to 50 and 75 respectively for 6000 and 32768 versions of BFG. They also can hit at most 30 monsters at a time.
+	
+* Rewrote how Bulkiness works:
+	- Now armor efficiency no longer grants damage reduction behind the scenes.
+	- Instead it properly reduces the hit your armor specifically takes from damages.
+		+ Example: Taking a hit for 100 damage with an armor doing 50% reduction will take 50 armor off of you. If you have 20% armor efficiency, you only lose 40 armor instead.
+
+* Lifesteal now works as follows:
+	- It is not instant (unless special conditions apply).
+	- It has a buffer that is 20% of your maximum health capacity.
+	- Any damage that'd be stolen as life is instead filling this buffer.
+	- This buffer is periodically reduced by 1% of your maximum health cap to heal you.
+	- You can increase all these effects through item mods.
+* Monsters now take 50% less damage when they have "Physical Resist" mod instead of 25%. Melee is not changed.
+* All resist modifiers on monsters now imply 50% damage reduction, up from 25%.
+* Shotgun style weapons that rely on "pellet count" calculations have crit chance calculated as a whole, not just per pellet now.
+	- The above includes weapons like "Plasma Cannon" as well. Shots fired from this weapon, should a crit roll, all projectiles will be affected.
+
+* Added a new player inflicted poison system. Poison from players deal 2% of the overall poison damage dealt in the given hit to the monster every poison tic as additional damage.
+	- Base duration is 3 seconds.
+	- Poison damage tics every 0.5 seconds.
+	- Can stack up to 5 times on a given monster, regardless of player.
+	- If a monster has max stacks, no further stacks apply. Once a stack is done dealing its damage, then new stacks can be applied further.
+
+* All ice attacks can now apply "Chill" and "Freeze".
+	- Chill is inflicted per 10% missing health a monster has when hurt by ice attacks.
+	- Chill has a max stack of 5, each applying a 10% slow.
+	- Chill stacks last for a second. Monsters lose a stack every second.
+	- At any chill stack, a monster can be frozen if hit with ice attacks. Freeze chance is 2% per stack.
+	- Frozen monsters can't retaliate for 3 seconds. Bosses are only affected for one third of this effect.
+	
+* All fire attacks can now "Ignite".
+	- Ignite sets a monster on fire, dealing flat fire damage.
+	- Base chance to ignite is 15%.
+	- Base damage for all ignite tics is 10.
+	- Ignite tics over 4 seconds with 5 tics every second.
+	- New ignites refresh duration.
+	
+* All lightning attacks can now "Overload".
+	- Base chance to overload is 5%.
+	- Overloaded enemies take 20% more damage from any non-lightning based damage.
+	- If an overloaded enemy is killed, nearby enemies are overloaded within 512 units (up to 128 enemies).
+	- Overload effect lasts for 3 seconds.
+	- Bosses are affected for half the duration only.
+	
+* New item mods:
+	- Cybernetic.
+	- Melee range increase.
+	- Resist penetration for all damage categories.
+	- Lifesteal.
+	- Blocking enemies take % extra damage from attacks.
+	- Flat damage bonuses to fire, ice, poison and lightning.
+	- Increased effect of chill, increased chance to freeze enemies and reduced enemy chill threshold.
+	- Increased poison ticrate, damage per tic, duration.
+	- Increased chance to ignite, increased ignite damage, increased ignite duration.
+	- Increased chance to overload, increased overload reflection damage, additional overload reflections.
+	- Increased damage over time.
+	- Damage over time multiplier.
+	- Reduced hitscan damage taken.
+	- Reduced energy damage taken.
+	- Reduced explosion damage taken.
+	- Reduced magic damage taken.
+	- Reduced fire damage taken.
+	- Reduced ice damage taken.
+	- Reduced lightning damage taken.
+	- Reduced poison damage taken.
+	- Maximum damage resist cap.
+	- Increased regeneration rate.
+	- Increased lifesteal rate.
+	- Increased life recovery from lifesteal.
+	- Increased lifesteal cap.
+	- More damage while lifestealing.
+	- Added duration to overload.
+	
+* New elite properties:
+	- Bloodless: Can't leech life from it.
+	- Violent Retalation: When hurt, 50% chance to throw exploding magical projectiles.
+	- Thief: Monster attacks have 33% chance to steal 15% of current weapon's ammo on hit.
+	- Hexfusion: Monster attacks have 33% chance to inflict a random curse.
+	- Rebirth: Spawns 5 Wraiths on death that can resurrect enemies.
+	- Venomancer: Immune to poison.
+	- Frigid: Immune to chill.
+	- Scorched: Immune to ignite.
+	- Insulated: Immune to overload.
+	- Rejuvenating: Recovers 5% of its maximum health every second. Ignite temporarily stops this.
+	- Shocker: Monster attacks will briefly stop your movement.
+	- Fortified: Monster has a third of its maximum health as a shield. The shield absorbs all damage until it depletes. Shield ignore effects bypass this.
+	- Vampirism: Monster heals for 10% of the damage it deals to you.
+	- Hatred: Never infights with any other monster, and monsters do not target it for infights.
+	- Subordinate: Upon death, a monster of the same class with the highest rarity will spawn.
+	- Repel: Monster pushes players away from it when they come close, once every 3 seconds.
+	- Phantasm: Monster summons an invulnerable phantasm on death that slowly chases you for 20 seconds.
+	- Cripple Aura: Monster has an aura that slows nearby players by 50%.
+	- Ruination: Monster hits build up ruination stacks. At max stacks, lose all armor and 12.5% of max health. If wearing no armor, lose 33% of max health. Stacks each last 3 seconds.
+	
+* 2 new uniques:
+	- Pain Master
+		+ 6 - 15 flat damage to damage over time effects
+		+ 50 - 100% increased damage over time duration
+		+ 10 - 25% damage over time multiplier
+	- Void Emblem:
+		+ Crit chance is lucky. (If you didn't roll a crit, it rerolls)
+		+ Critical hits have 20 - 50% chance to ignore all resists
+
+* Corruption Orb can grant 3 new mods to weapons:
+	- Deal a percentage of a monster's health on hits.
+	- Deal a percentage of the damage dealt as poison on hits.
+	- Have a chance to force pain on a monster on hits. (Even on ones that have 'No Pain' modifier)
+	- For the above, on hit implies directly hitting things. As such, explosions are excluded, but their projectile impacts are included.
+	
+* New Armors:
+-------------
+	
+	- Synth-metal Armor (Drop only - Research Enabled on Drop)
+		65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks.
+		
+	- Lightning Coil Armor (Drop only - Research Enabled on Drop)
+		40% protection, 300 armor. All lightning damage taken reduced by 85%. When hurt, 25% chance to release a lightning bolt towards an enemy.
+
+* New Orbs:
+-----------
+
+	- Hollow Orb
+		Adds a new attribute to a charm with the power to go beyond the attribute limits by at most one.
+		Drops only from a specific monster or through other rewards.
+		
+	- Phantasmal Orb
+		Allows the infused weapon to hit ghosts with all attacks, but reduces overall damage by 33%.
+		Drops only from a specific monster or through other rewards.
+		
+	- Assimilation Orb
+		Assimilates a selected non-unique item into another non-unique item, randomly taking attributes from both. It can have an additional attribute beyond its limit.
+		Drops only from a specific monster or through other rewards.
+		
+
+* New player class: Berserker.
+
+Perks:
+------
+
+	L5: Can carry unlimited melee weapons. Can't buy any super weapon.
+	L25: Gain 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.3 seconds. Heal for 15% of max health at the end at max stacks.
+	L50: Melee hits or kills give 8% damage. Max 30 stacks. At max stacks, +30% movement speed and +50% crit damage. Lose a stack every 2 seconds off combat.
+	
+* New weapons: Charon Blaster (3), Flayer Crossbow (3), Incinerator Shotgun (4), Multi-Phase Photon Blaster (4L), Gravdis 5000 (5), Void Cannon (5), Sedrin Staff (5L), Dark Lance (6).
+
+==== BUG FIXES / TWEAKS ====
+
+* Fixed the extra gold coin dropping code, it wasn't working at all. This subsequently fixed some of the "ACS: I don't know what is" issues as well.
+* "Talisman of Wisdom" and "Talisman of Greed" now properly increase your gains from kills made by other players.
+* The back and forward arrows in stat, weapon and accessory pages are now clickable.
+* You can't click random boxes when they aren't draw in accessory page anymore.
+* Reloading mastery now lets "Basilisk" load faster.
+* "Assault Rifle" reload sound no longer cuts off the firing sound.
+* Fixed an issue with ammo gain chance and temporary weapons.
+* Fixed item images occupying same indexes disappearing in trade view once clicked.
+* Killing spree quest is no longer broken.
+* Poison Nova no longer aims up or down, it will always travel horizontally.
+* Punisher level 25 perk wasn't working as intended.
+	- Healing was way more than stated, it is now a proper 30% of your health and armor caps.
+	- Healing would trigger at any killing spree, rather than simply being at least on Merciless.
+	- However to compensate, you gain an additional 5% per killing spree above Merciless. Example, getting a Sadistic killing spree would give you 40%, as it is two tiers above Merciless spree with 20 kills.
+* Fixed a bug where Punisher level 50 perk would disappear when on menu until you took another kill.
+* Fixed an issue where "Heavy Machine Gun" wouldn't properly reload when magsize cap was higher than base.
+* Invulnerability Sphere now makes your screen darker gray instead of eye-gouging white.
+* Fixed "Ancient Gemstone" not updating the chance properly, and causing unknown actor issues.
+* Fixed an issue that could cause Orbs of Corruption to randomly disappear when walked up to.
+* Lightning Spear spell now lasts 3 seconds in addition to its 6 bounce count.
+* Fixed hud drawing methods, they are now correctly within screen bounds regardless of resolution.
+* Fixed regeneration ability using incorrect values.
+* Reflected damage no longer scales by monster's level.
+* "Lich Arm" accessory now states it works on soul weapons and not just ultimate weapons.
+* Megasphere and Ubersphere notify the players its percentage based now instead of flat.
+* Poisonous hits from monsters are registered depending on the actor that dealt the damage and the actor that owned the projectile now, as opposed to just the owner.
+* Field Kits can now cleanse ailments, such as poison but not curses.
+* Sawedoff now works on a proper clip basis like other shotguns.
+* Your own explosion damage can thrust you now.
+* Changed how damage blends work.
+	- The intensity of screen damage flash scales with how hard a hit you took compared to your maximum health.
+	- It's duration also scales in a similar fashion.
+	- There are new minimum values in place to ensure at least some feedback gets through on damage.
+	- You also get proper blend when you die instead of nothing.
+* Explosion resistance and self explosion resistance properly apply to your own explosives now.
+* Railgun now uses 8 cells up from 4 by default, and each charge also requires 8 more cells up from 3.
+* Berserk no longer force switches to Fists.
+* Removed autoaim from all weapons.
+* "Turel Cannon" renamed to "Particle Cannon".
+* "Jade Wand" acid rain can no longer go behind closed walls.
+* "Nuclear Plasma Rifle" overheat issue fixed.
+* Chainsaw wall hit sound volume lowered.
+* "Double Chainsaw" idle sound volume lowered.
+* Moving back on charm select page when the inventory is on simply closes the inventory view now instead of going back a page. You can go back a page if the view isn't there.
+* Fixed special ammo purchases giving wrong ammo types.
+* Crafting panel prev/next arrows can now be utilized with movement keys.
+* Fixed a bug where crafting panel prev/next arrows would sometimes be unclickable.
+* Normalized weapon icons across the board to use the same style of image.
+* Credit shows properly in subpages of the shop.
+* Budget is now drawn in subpages of the research menu.
+* Status bar color flashing on ammo now properly indicates halfway and critical points properly. (50% and 25%)
+* Removed constant loops for weapon tip boxes. You only get automatic tip box for classic weapons if you have it enabled. Or if you use the weapon tip bind yourself.
+* Mugshot grins when picking temporary weapons now.
+* Fixed button issues on the menu with previous, next and home buttons at the bottom.
+* "Chainsaw" and "Double Chainsaw" can now hit ghosts if "Nether Mask" is equipped.
+* "Katana" hit sound added.
+* Fixed "Katana" and "Excalibat" tooltips being reversed.
+* "Demon Sealer" now properly culls and plays the special animation if the card hit actually did the killing blow.
+* Fixed incorrect text on Ruby Wand M1 damage. It's changed to 15-30, was originally 10-20. Also increased explosion radius on alt to 32 from 24.
+* Fixed Dash toggle in abilities menu.
+* Fixed occasional unclickable bugs of crafting menu boxes after using a calamity orb, or using repent on them.
+* Fixed oddities in loadout menu.
+* Fixed a bug where you'd not level up from the experience gained off of a killing spree.
+* Fixed an issue where charms and other items would not be wiped off in local server modes when all lives were lost.
+* Fixed a bug where Melee attacks also scaled off of Dexterity despite stating otherwise.
+* Fixed a bug where with odd number of pellet counts for Heavy SSG, it'd fire one more than it should.
+* Fixed a bug with "Katana" where using primary fire repeatedly with Melee Upgrade would only play one animation.
+* Fixed a bug where "Hell's Maw" was really doing Explosive damage instead of Occult damage.
+* "Hell's Maw" has dynamic lights now.
+* "Hell's Maw" now properly does self damage. This also fixes reflections from this weapon not dealing any damage to players.
+* "Rhino AR" can change mode when over 75 clip and reload properly.
+* "Rhino AR" casings don't mess up on elevators now.
+* Fixed a typo in "Deadlock" help message.
+* Fixed "Plasma Cannon" incorrect in-game and menu tooltip texts.
+* Issues regarding weapon definitions of shotgun tier weapons is now sorted out.
+* "Cyborg" class now properly benefits from the "CYBERNETIC" tagged abilities, and will receive bonuses immediately on reaching level 25 if already purchased.
+* Fixed "Lead Spitter" full ammo reload frame issue.
+* Fixed a bug where "Ebony Cannon" pellets wouldn't benefit properly from "Full Damage" bonuses.
+* Fixed a bug where "Riotgun" fired "Hades Shotgun" puffs when used in conjunction with "Pellet Storm".
+* Fixed a bug where "Vindicator" wouldn't benefit from Hobo's level 50 perk properly when zoomed.
+* "Vindicator" no longer lets you pick and use regular rocket launcher alongside it.
+* Fixed flickering frame issue with "Vindicator" while firing under zoom with no ammo.
+* Fixed "Rotary Grenade Launcher" help text having reversed impact and explosion damages.
+* Fixed "Gauss Rifle" incorrect damage values.
+* Fixed a bug where "Ion Cannon" and "Thunderstaff" weren't counted as super weapons.
+* "Ion Cannon" has dynamic lights now.
+* Fixed "Death Staff" sound issues, and also made flame animation a little bit varied.
+* Fixed "Bloodfiend Spine" not scaling properly from "Dreaming God" quest if used with Pelletstorm.
+* "Soul Render" slash effect made CLIENTSIDEONLY.
+* "Demon Heart" no longer counts as a Slot 7 Super Weapon.
+* "Thunder Staff" no longer targets unshootable, teleporting enemies.
+* "Loading Monsters" message now prints in "Softcore" gamemode, and properly in subsequent maps in other modes.
+* Fixed charms getting more mods than they should after a while.
+* Readjusted accessory click box rectangles.
+* Hopefully fixed the shop stock numbers overflowing for ammo.
+* Experience bar should no longer desync.
+* Removed "Natural Talent" quest as it had no purpose anymore with removal of talents.
+* Aligned Punisher's level 50 perk to the right of the screen.
+* Orb of Corruption now properly picks a random owned weapon when rolling a weapon related modifier, instead of your currently selected weapon.
+* Fixed accessory equipping reducing soul ammo capacity incorrectly even if it's not involving Lich Arm.
+* Items with 6 and more mods will display correctly now.
+* Nether Mask accessory will properly allow explosion weapons to deal damage to enemies with "NORADIUSDMG" flag.
+* The "No Boomstick" quest now pays proper attention to all shotguns, not just slot 3 ones.
+* Fixed some bugs with trading that didn't break properly if people spectated, died or clicked weird keys.
+* Legendary monster spawn condition now checks for average player level rather than the maximum level player being above or equal to 25.
+
+==== MONSTER CHANGES ====
+
+* Summoned enemies can no longer be elites. These include but not limited to: Lost souls, Sludge Giant minions etc.
+* "Hades Sphere" and "Undead Spirit" can no longer roll as elites.
+* "Blood Satyr" now has "Vampirism" mod instead of "Can Heal".
+* "Brute" explosion damage increased to 36 and 72 in its death state up from 32 and 64.
+* Boss tier monsters (Spider Mastermind / Cyberdemon) are no longer frightened by Evil Sphere.
+* Removed decorative morphing stone imps.
+* Regular chaingunner rarity was swapped with double one. This is corrrected.
+* Fixed issues with "Blood Demon" and "Stone Demon" resurrections.
+* Fixed "Incarnate" resurrection causing monster count issues. It now uses a collision check to determine when to get up as well. Also no longer gives double exp / credit or rolls item drop if killed more than once.
+* Fixed "Yeti" frames having flickers.
+* Fixed "Yeti" not being able to fire downwards with its ice winds.
+* Fixed "Yeti" stuttering at max melee range sometimes.
+* Fixed "Bormereth" and "Warlord of Hell" having wrong species.
+* Fixed a grammar error in "Rail Revenant" obituary.
+* Fixed "Lavademon" melee lagging players.
+* Fixed a bug that prevented a "Warmaster" from spawning in Baron of Hell slot.
+* Fixed a bug that made "Ice Mancubus" and "Abomination" have reversed rarities.
+* "Ice Mancubus" blood color is red now (AS IT SHOULD HAVE BEEN!!!).
+* "Lavademon" melee range increased to 144 from 108.
+* "Paladin" is considered a robotic enemy now. (Previously demon + robotic)
+* "Cybruiser" is considered a robotic enemy now. (Previously demon + robotic)
+* "Bloodseeker" rage method and effect improved. Now it requires sight, low hp (tied to actual health cap) and distance. When enraged, it grows larger in size. (Only visual, no hitbox change)
+* "Diabloist" can no longer be resurrected by other monsters.
+* "Diabloist" fire attack should no longer cause crashes.
+* "Guru" attack rate slowed down a bit.
+* Fixed "Lavademon" frames having flickers.
+* "Pain Elemental" and "Hades Elemental" minions can't get stuck in walls anymore.
+* None of the ArchVile class monsters can be resurrected now.
+* "Paladin" armor stealing projectile effect now counts as a curse.
+* "Hades Elemental" attacks are now considered lightning.
+* "Dark Servant" attacks are now considered lightning.
+* "Dark Zealot" attacks are now considered lightning.
+* "Flesh Wizard" death snare now counts as a curse.
+* "Avatar of Chaos" should no longer be able to harm other Cyberdemon class monsters.
+* "Terminator" blaster impact min damage increased to 60 from 15.
+* "Terminator" blaster explosion damage increased to 50 from 40.
+* "Terminator" red star min damage increased to 60 from 10.
+* "Terminator" bullet damage increased to fixed 20 from (4, 12), and fires 3 at a time instead of 2.
+* "Thamuz" now applies poison on hit, 3-6 damage for 5 seconds.
+* "Spider Mastermind" minigun loop sound properly stops if hurt while using it.
+* "Mordecqai" lightning ball bounces around 5 times now.
+* New unique enemies added. These can appear after average player level is 25 or above with a low chance to spawn. They will replace a single monster with a vastly different monster with great rewards special to them only.
+
+* Added new monsters:
+
+- Cyborg Soldier (Revenant) -- Sprites by neoworm.
+- Judicator (Baron) -- Sprites by Megaherz.
+- Reaver (Imp) - Strife
+- Redeemer (Mancubus) - Strife, edited by IvanDobrovski.
+- Putrefier (Hell Knight) - Strife, edited by IvanDobrovski.

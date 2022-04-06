@@ -69,12 +69,15 @@ dnd_elite_spawnlevel 20
 dnd_elite_runedrop_chance 15
 dnd_legendary_chance 1
 dnd_limitedrespawn_amount 2
+dnd_npc_appear_level 30
 dnd_exp_scale 1
 dnd_credit_scale 1
+dnd_budget_scale 1
 dnd_accessorylevel 20
 dnd_accessorymonsterlevel 24
 dnd_monster_hpscalepercent 5
 dnd_monster_rewardscalepercent 5
-dnd_monster_dmgscalepercent 0.04
-dnd_researchdroprate 0.00249
+dnd_monster_dmgscalepercent 4
+dnd_uniquemonster_spawnchance 0.01
+dnd_researchdroprate 0.0025
 dnd_ignore_dropweights 0

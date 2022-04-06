@@ -1004,10 +1004,10 @@ void ResetHardcoreStuff(int pnum) {
 	BreakTradesBetween(pnum);
 	// may join later, sync everything
 	if(PlayerIsSpectator(pnum)) {
-		SyncAllClientsideVariables();
-		SyncAllItemData(DND_SYNC_ITEMSOURCE_CHARMUSED);
-		SyncAllItemData(DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-		SyncAllItemData(DND_SYNC_ITEMSOURCE_STASH);
+		SyncAllClientsideVariables(pnum);
+		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
 	}
 }
 

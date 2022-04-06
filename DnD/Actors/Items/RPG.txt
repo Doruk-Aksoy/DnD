@@ -496,6 +496,16 @@ Actor DnD_CleanInventoryRequest : PowerDamage {
 	powerup.duration 3
 }
 
+Actor DnD_CleanTradeviewRequest : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor DnD_CleanCraftingRequest : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
 Actor DnD_AmmoToken : CustomInventory {
 	Renderstyle "Translucent"
 	inventory.pickupsound "items/ammo"
@@ -550,3 +560,5 @@ Actor DnD_DeadlinessMasteryWindow : PowerDamage {
 }
 
 Actor DnD_GuaranteeCrit_FromDeadliness : DnD_Boolean { }
+
+Actor NFT_Token : DnD_Info { }

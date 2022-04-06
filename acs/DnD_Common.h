@@ -1,7 +1,8 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
+//#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0
@@ -145,6 +146,7 @@ typedef struct vec3 {
 // save for later
 global bool 0: MapInfo[32];
 global int 5: HardcoreSet;
+global bool 6: PlayerLoaded[MAXPLAYERS];
 global bool 7: PlayerDied[MAXPLAYERS];
 
 enum {

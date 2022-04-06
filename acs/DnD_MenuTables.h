@@ -147,7 +147,8 @@ enum {
 enum {
 	BOXLIT_STATE_OFF,
 	BOXLIT_STATE_CURSORON,
-	BOXLIT_STATE_CLICK
+	BOXLIT_STATE_CLICK,
+	BOXLIT_STATE_BAD
 };
 
 #define MAXLITBOXES (3 * MAX_INVENTORY_BOXES)
@@ -209,8 +210,13 @@ int WeaponBeginIndexes[SHOP_MAXWEAPON_PAGES] = {
 };
 
 // Holds the players' current maximum page visit indexes
-#define MENUMAXPAGES MENU_ABILITY + 1
-#define MAX_MENU_BOXPAGES MENU_ABILITY + 1
+#ifndef ISAPRILFIRST
+	#define MENUMAXPAGES (MENU_ABILITY + 1)
+	#define MAX_MENU_BOXPAGES (MENU_ABILITY + 1)
+#else
+	#define MENUMAXPAGES (MENU_SHOP_NFT + 1)
+	#define MAX_MENU_BOXPAGES (MENU_SHOP_NFT + 1)
+#endif
 
 // Input Listener Flags
 enum { 
