@@ -214,6 +214,10 @@ int CheckHardcoreSettings() {
 		}
 		for(i = 0; i < MAXDNDFLAGS; ++i) {
 			if(GetCVar(DNDFlagCheckList[i]) != DNDFlagAcceptedValues[i]) {
+				// exception for small values
+				if(GetCVar(DNDFlagCheckList[i]) < 1.0 && abs(DNDFlagAcceptedValues[i] - GetCVar(DNDFlagCheckList[i])) < 0.0005)
+					continue;
+				
 				Log(s:"\"", s:DNDFlagCheckList[i], s:"\" should be set to ", d:DNDFlagAcceptedValues[i], s:" for \cghardcore\c- or \cdsoftcore\c- modes to work! It is set to: ", d:GetCVar(DNDFlagCheckList[i]));
 				errno = DND_HARDCORE_INVALID;
 			}

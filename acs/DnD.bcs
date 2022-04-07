@@ -917,8 +917,6 @@ Script "DND On Kill" KILL {
 	if(GetCVar("dnd_credit_drops")) {
 		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
 		HandleCashDrops(m_id, target - P_TIDSTART, killerWasntPlayer);
-		
-		
 	}
 	
 	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_MUNITION_MASTERY_CHANCE)) {
@@ -1094,7 +1092,13 @@ Script "DND On Kill" KILL {
 	
 	addone = CheckInventory("IATTR_HealOnKill");
 	if(addone) {
-		addone = (GetMissingHealth() * addone) / 100;
+		pcount = GetMissingHealth();
+		addone = (pcount * addone) / 100;
+
+		// if player is missing some health, but our factor was 0, make it 1
+		if(!addone && pcount)
+			addone = 1;
+		
 		if(addone) {
 			Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, addone);
@@ -2665,6 +2669,9 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 			monid = CheckInventory("TargetIsWhat");
 			m_id = CheckInventory("TargetMonId");
 			hdisp = (monhp * 100 / mmaxhp);
+			// clamp to 100 on certain monsters' overheal abilities (Warmaster for example)
+			if(hdisp > 100)
+				hdisp = 100;
 			fortify_amt = (CheckInventory("TargetFortify") * 100 / mmaxhp);
 			int i, j;
 			
@@ -3035,7 +3042,9 @@ Script "DnD Player Setup" ENTER {
 		
 		// 0 means they are ready
 		int players_not_ready = PlayersNotReadyForHardcore();
-		while(players_not_ready && i < (DND_HARDCORE_LOADTIME << 1) && PlayerInGame(pnum)) {
+		i = 0;
+		temp = Clamp_Between(GetCVar("dnd_loadtime"), DND_HARDCORE_LOADTIME, 100) << 1;
+		while(players_not_ready && i < temp && PlayerInGame(pnum)) {
 			//Update logged in status to client as needed by hardcode timer.
 			if (CheckInventory("PlayerIsLoggedIn") != PlayerIsLoggedIn(pnum))
 				SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum));
@@ -3048,12 +3057,12 @@ Script "DnD Player Setup" ENTER {
 					ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0, players_not_ready);
 			}
 			++i;
-			if ((i == (DND_HARDCORE_LOADTIME << 1)) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad"))
+			if ((i == temp) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad"))
 				if (ACS_NamedExecuteWithResult("DnD Load Character Check", pnum, 0) == 11) //DND_CHARLOADED
 					ACS_ExecuteAlways(1001,0,0);
 				else if (ACS_NamedExecuteWithResult("DnD Create Character Check", pnum, 0) == 1) //DND_LOGIN_CREATECHAROK
 					ACS_ExecuteAlways(1003,0,0);
-			Delay(const:18);
+			Delay(const:TICRATE / 2);
 		}
 	}
 	
@@ -3095,14 +3104,16 @@ Script "DnD Player Setup" ENTER {
 	}
 	ClearQuestCheckers();
 	
+	PostPlayerLoadRoutine(pnum);
+	
 	if(HardcoreSet) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
-		Delay(17 * (DND_MAX_MONSTERDELAY + 1));
+		Delay(17 * (DND_MAX_MONSTERDELAY + 2));
 	}
 	
-	PostPlayerLoadRoutine(pnum);
-
+	UnfreezePlayer();
+	
 	// if map changed, reset accessory stuff
 	if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
 		SetInventory("ReflectCount", 0);
@@ -4922,13 +4933,14 @@ Script "DND Hardcore Timer" (void) CLIENTSIDE {
 		Terminate;
 	SetFont("BIGFONT");
 	SetHudSize(640, 480, 0);
-	for(int i = 0; i < DND_HARDCORE_LOADTIME << 1 && PlayerInGame(PlayerNumber()) && CheckInventory("CanLoad"); ++i) {
+	int lim = Clamp_Between(GetCVar("dnd_loadtime"), DND_HARDCORE_LOADTIME, 100) << 1;
+	for(int i = 0; i < lim && PlayerInGame(PlayerNumber()) && CheckInventory("CanLoad"); ++i) {
 		if (CheckInventory("PlayerIsLoggedIn"))
-			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- ", l:"DND_TEXT_LOADCHARWARNING"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:lim / 2 - i / 2, s:"\c- ", l:"DND_TEXT_LOADCHARWARNING"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
 		else
-			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:DND_HARDCORE_LOADTIME - i / 2, s:"\c- ", l:"DND_TEXT_LOADLOGINWARNING"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
+			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:lim / 2 - i / 2, s:"\c- ", l:"DND_TEXT_LOADLOGINWARNING"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
 
-		Delay(TICRATE / 2);
+		Delay(const:TICRATE / 2);
 	}
 }
 
@@ -5195,10 +5207,15 @@ Script "DnD Emerald Death" (void) {
 	Thing_ChangeTID(0, 0);
 }
 
-Script "DnD Charm Message" (int id) CLIENTSIDE {
+Script "DnD Charm Message" (int id, int type) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_CHARM", s:": \c[Y5]", l:GetCharmTypeName(id), s:"!\c-"));
+	if(type > UNIQUE_BEGIN) {
+		type = (type >> UNIQUE_BITS) - 1;
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_CHARM", s:": \c[Y5]", l:GetUniqueItemName(type), s:"!\c-"));
+	}
+	else
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_CHARM", s:": \c[Y5]", l:GetCharmTypeName(id), s:"!\c-"));
 }
 
 Script "DnD Charm Pickup" (int sp) {
@@ -5206,7 +5223,7 @@ Script "DnD Charm Pickup" (int sp) {
 		SetActivatorToTarget(0);
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Charm Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
+	ACS_NamedExecuteAlways("DnD Charm Message", 0, Inventories_On_Field[sp >> 16].item_subtype, Inventories_On_Field[sp >> 16].item_type);
 	GiveInventory("CharmSoundPlayer", 1);
 	HandleCharmPickup(sp >> 16);
 }

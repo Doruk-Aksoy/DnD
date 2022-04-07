@@ -2530,6 +2530,7 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
 		SeeState:
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
 			TNT1 A 0 A_UnSetReflectiveInvulnerable
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, DND_REFLECTIVE, -1, -1)
 			TNT1 A 0 A_GiveInventory("WarmasterActive", 1)
 		SeeLoop:
 			TNT1 A 0 A_JumpIfInventory("WarmasterRage", 1, "SeeRage")
@@ -2616,11 +2617,13 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx("WarmasterDeflectFX", 20, 0, 48)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, DND_REFLECTIVE, -1, -1)
 			BOSX H 5 Fast A_SetReflectiveInvulnerable
 			TNT1 A 0 A_SpawnItemEx("WarmasterDeflectFX", 20, 0, 48)
 			BOSX H 5 Fast A_Pain
 			BOSX H 0 A_ChangeFlag("NOBLOOD", 0)
 			BOSX H 0 A_UnSetReflectiveInvulnerable
+			BOSX H 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, DND_REFLECTIVE, -1, -1)
 		Goto See
 		XDeathState:
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
@@ -2633,7 +2636,9 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
 			BOSX LMN 3
 			BOSX O -1 A_KillMaster
 		Stop 
-		RaiseState: 
+		RaiseState:
+			BOSX O 0 A_UnSetReflectiveInvulnerable
+			BOSX O 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, DND_REFLECTIVE, -1, -1)
 			BOSX ONMLKJI 4 
 		Goto See 
     }

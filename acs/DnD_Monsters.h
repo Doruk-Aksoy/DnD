@@ -190,7 +190,8 @@ int DoCollisionCheck(int collider, int xoff, int yoff, int zoff) {
 
 // The following 3 are by ZZYZX
 void DrawPentagramPart(int fx, int fy, int fz, int size, int alpha, int ang1, int ang2, int fxID) {
-    int x1 = fx + size * cos(ang1);
+	// uncomment in the future when SpawnParticle gets added... rofl god knows when that'll happen
+    /*int x1 = fx + size * cos(ang1);
     int y1 = fy + size * sin(ang1);
     int x2 = fx + size * cos(ang2);
     int y2 = fy + size * sin(ang2);
@@ -218,7 +219,7 @@ void DrawPentagramPart(int fx, int fy, int fz, int size, int alpha, int ang1, in
 		if (!GetCVar("vid_renderer"))
 			partsize = 10;
         SpawnParticle((r << 16) | (g << 8) | b, true, 1, partsize, x1 + i * dx, y1 + i * dy, fz, 0, 0, 0, 0, 0, 0, alpha * rdstc / (dstmax / 2), 0);
-    }
+    }*/
 }
 
 void DrawPentagram(int fx, int fy, int fz, int size, int alpha, int angle, int fxID) {

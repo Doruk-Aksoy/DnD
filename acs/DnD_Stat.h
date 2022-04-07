@@ -1055,7 +1055,7 @@ int MapTalentToPercentBonus(int pnum, int talent) {
 }
 
 int GetFlatHealthDamageFactor(int factor) {
-	return GetSpawnHealth() / (100 * factor);
+	return GetSpawnHealth() / factor;
 }
 
 int GetNonLowestTalents() {

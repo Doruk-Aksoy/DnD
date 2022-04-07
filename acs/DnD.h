@@ -298,12 +298,13 @@ void Reset_RPGInfo (int resetflags) {
 }
 
 int CheckLevelUp (void) {
-	int curlevel = GetStat(STAT_LVL), exptemp;
+	int prevlvl = GetStat(STAT_LVL), exptemp;
+	int currlvl;
 	// -1 because initial level is 1
 	// we need to check for the current up-to-date level, not previous level here!!
-	while(GetStat(STAT_LVL) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[GetStat(STAT_LVL) - 1]) {
-		exptemp = GetStat(STAT_EXP) - LevelCurve[GetStat(STAT_LVL) - 1];
-		if(!((GetStat(STAT_LVL) + 1) % 5)) { // multiples of 5 give perk
+	while((currlvl = GetStat(STAT_LVL)) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[currlvl - 1]) {
+		exptemp = GetStat(STAT_EXP) - LevelCurve[currlvl - 1];
+		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
 			GiveInventory("PerkPoint", 1);
 			GiveInventory("PerkedUp", 1);
 			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
@@ -318,7 +319,7 @@ int CheckLevelUp (void) {
 		SetInventory("Exp", exptemp);
 		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
 	}
-	return GetStat(STAT_LVL) - curlevel;
+	return GetStat(STAT_LVL) - prevlvl;
 }
 
 void HandleLevelup() {
@@ -1231,10 +1232,6 @@ void PostPlayerLoadRoutine(int pnum) {
 	SpawnedChests = 1;
 	SetInventory("CanLoad", 0); //Usually it is 0 at this point, but make sure it is anyways.
 	PlayerCanLoad[pnum] = 0;
-	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
-	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
-	TakeInventory("P_Frozen", 1);
-	GiveInventory("DontAttackRemove", 1);
 	
 	// we can synchronize the research investments now, load period etc. all finished
 	SyncResearchInvestments(pnum);
@@ -1247,6 +1244,13 @@ void PostPlayerLoadRoutine(int pnum) {
 		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
 	if(HasMasteredPerk(STAT_GRE))
 		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
+}
+
+void UnfreezePlayer() {
+	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+	SetPlayerProperty(0, 0, PROP_INVULNERABILITY);
+	TakeInventory("P_Frozen", 1);
+	GiveInventory("DontAttackRemove", 1);
 }
 
 #include "DnD_Damage.h"

@@ -1304,9 +1304,11 @@ Script "DnD Create Character Check" (int pnum, int char_id) {
 Script 1003 (int char_id) NET {
 	int pnum = PlayerNumber();
 	int result = check_create_char(pnum, char_id);
-	if (result == DND_LOGIN_CREATECHAROK) create_char(pnum, char_id);
-	// load player stash
-	LoadPlayerStash(pnum, GetPlayerAccountName(pnum));
+	if (result == DND_LOGIN_CREATECHAROK) {
+		create_char(pnum, char_id);
+		// load player stash only if we could do it properly
+		LoadPlayerStash(pnum, GetPlayerAccountName(pnum));
+	}
 	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
 }
 

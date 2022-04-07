@@ -487,7 +487,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	// damage modifications are done at the end
 	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid) || isSpecial) {
 		// add potential shotgun flat damage
-		temp = (flags & DND_WDMG_ISBOOMSTICK) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
+		temp = (!!(flags & DND_WDMG_ISBOOMSTICK)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
 		// add flat damage bonus mapping talent name to flat bonus type
 		temp += MapTalentToFlatBonus(pnum, talent_type, flags);

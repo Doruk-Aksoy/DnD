@@ -827,38 +827,6 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev) {
 	}
 }
 
-// a more efficient syncer for the server
-void SyncItemPointers(int pnum, int itemid, int source, int wprev, int hprev) {
-	int i, j, bid;
-	int page = source >> 16;
-	int raw_source = source & 0xFFFF;
-	int payload = (raw_source << 8) | (page << 16);
-	// synchronize the topleftboxid for all adjacent ones
-	if(IsSourceInventoryView(raw_source)) {
-		int w, h;
-		// we must know previous height/width for proper sync
-		if(wprev != -1)
-			w = wprev;
-		else
-			w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, itemid, -1, source);
-		if(hprev != -1)
-			h = hprev;
-		else
-			h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, itemid, -1, source);
-	
-		for(i = 0; i < h; ++i)
-			for(j = 0; j < w; ++j) {
-				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source), bid);
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source), bid);
-			}
-	}
-	else {
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
-	}
-}
-
 void SyncItemAttributes(int pnum, int itemid, int source) {
 	int i, j, temp;
 	int page = source >> 16;

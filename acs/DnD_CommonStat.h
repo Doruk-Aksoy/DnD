@@ -162,7 +162,7 @@ int IsHardcore() {
 #define DND_MONSTERHP_PLAYERSCALE 25
 #define DND_MAX_PLAYERHPSCALE 16
 
-#define DND_HARDCORE_LOADTIME 10 // timer for hardcore load
+#define DND_HARDCORE_LOADTIME 5 // minimum time for hardcore load
 #define DND_HARDCORE_SCREENID 6
 
 enum {

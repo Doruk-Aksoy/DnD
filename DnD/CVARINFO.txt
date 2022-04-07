@@ -16,6 +16,8 @@ server noarchive int dnd_exit_democratic = 0; // if this is non-zero, this will 
 server noarchive int dnd_exit_monsterpercent = 0; // if this is non-zero, exiting requires killed monster percentage to be at least this
 server noarchive int dnd_exit_timer = 20; // 20 seconds of scoreboard showing or all players clicked
 
+server noarchive int dnd_loadtime = 10; // 10 seconds base loadtime for soft/hardcore modes
+
 server noarchive bool dnd_test = false;
 server noarchive bool dnd_monsterbars = true;
 server noarchive bool dnd_monsterscale = true;

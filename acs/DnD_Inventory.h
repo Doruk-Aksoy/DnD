@@ -223,6 +223,13 @@ global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 #define MAX_TEMP_INVENTORIES 4
 global inventory_T 23: TemporaryInventoryList[MAXPLAYERS][MAX_TEMP_INVENTORIES];
 
+enum {
+	PTR_FREEITEMWORLD
+};
+#define MAX_POINTERS (PTR_FREEITEMWORLD + 1)
+
+global int 24: PointerIndexTable[MAX_POINTERS];
+
 #define MAX_INVENTORIES_ON_FIELD 8192
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
 
@@ -232,20 +239,18 @@ global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MA
 #define INVSOURCE_PLAYER PlayerInventoryList
 #define INVSOURCE_CHARMUSED Charms_Used
 
-int last_created_inventory = 0;
-
 // Creates an item on the game field
 int CreateItemSpot() {
 	//Naive but very fast: Will just replace old item if index goes back to it - have a bigger array to prevent the negative effect.
 	//Just having a loop here creates an error so avoid looping at all costs.
 	//Remember, the floor gets cleared on a new map, so most likely the older items are useless for the players anyways, except on 4k mob slaugher maps.
-	if ((++last_created_inventory) >= MAX_INVENTORIES_ON_FIELD)
-		last_created_inventory = 0;
+	if ((++PointerIndexTable[PTR_FREEITEMWORLD]) >= MAX_INVENTORIES_ON_FIELD)
+		PointerIndexTable[PTR_FREEITEMWORLD] = 0;
 		
 	// clear properties of this item before creating it -- fixes garbage data leftovers
-	RemoveItemFromWorld(last_created_inventory);
+	RemoveItemFromWorld(PointerIndexTable[PTR_FREEITEMWORLD]);
 		
-	return last_created_inventory;
+	return PointerIndexTable[PTR_FREEITEMWORLD];
 }
 
 void RemoveItemFromWorld(int fieldpos) {
@@ -1916,8 +1921,8 @@ void MakeUnique(int item_pos, int item_type, int pnum) {
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	}
 	#ifdef ISDEBUGBUILD
-	//i = random(0, MAX_UNIQUE_ITEMS - 1);
-	i = UITEM_GRAVECALLER;
+	i = random(0, MAX_UNIQUE_ITEMS - 1);
+	//i = UITEM_LIFELEECH;
 	#endif
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type, pnum);
