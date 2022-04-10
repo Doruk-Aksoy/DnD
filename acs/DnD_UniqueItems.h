@@ -216,7 +216,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_high = 0;
 	UniqueItemList[id].rolls[3].attrib_low = 25;
 	UniqueItemList[id].rolls[3].attrib_high = 50;
-	id = UITEM_LIFELEECH;
+	id = UITEM_ESSENCEEATER;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_10;

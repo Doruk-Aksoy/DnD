@@ -43,6 +43,10 @@
 #define DND_DB_NPCTRACKER "DnD_NPCTracker"
 #define DND_DB_LEGENDARYTRACKER "DnD_LegendaryKills"
 
+#define DND_DB_KILLTRACKER "DnD_LifetimeKills"
+#define DND_DB_KILLTRACKER_MILLION "DnD_LifetimeKills_Mil"
+#define DND_DB_KILLTRACKER_BILLION "DnD_LifetimeKills_Bil"
+
 // Orb Stuff
 #define DND_DB_ORBFLATHPBONUS "DnD_Orb_FlatHPBonus"
 #define DND_DB_ORBFLATARMBONUS "DnD_Orb_FlatARMBonus"

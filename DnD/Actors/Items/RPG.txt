@@ -561,4 +561,22 @@ Actor DnD_DeadlinessMasteryWindow : PowerDamage {
 
 Actor DnD_GuaranteeCrit_FromDeadliness : DnD_Boolean { }
 
+Actor DnD_LifeTimeKills : Ammo {
+	inventory.amount 1
+	inventory.maxamount 999999
+	+IGNORESKILL
+}
+
+Actor DnD_LifeTimeKills_Millions : Ammo {
+	inventory.amount 1
+	inventory.maxamount 999
+	+IGNORESKILL
+}
+
+Actor DnD_LifeTimeKills_Billions : Ammo {
+	inventory.amount 1
+	inventory.maxamount 1000
+	+IGNORESKILL
+}
+
 Actor NFT_Token : DnD_Info { }

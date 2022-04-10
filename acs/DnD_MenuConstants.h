@@ -3,6 +3,8 @@
 
 #include "DnD_Ammo.h"
 #include "DnD_SpecialAmmo.h"
+#include "DnD_Artifacts.h"
+#include "DnD_Abilities.h"
 
 #define DND_QUICKBUY_POPUPID 0xFFFF
 #define DND_LANGUAGE_LOOKUP true
@@ -449,8 +451,6 @@ enum {
 #define MAXSHOPWEAPONS (SHOP_LASTWEP_INDEX - SHOP_WEAPON_BEGIN + 1)
 #define MAXSHOPNORMALAMMOS (SHOP_LASTAMMO_NORMALINDEX - SHOP_FIRSTAMMO_INDEX + 1)
 #define MAXSHOPAMMOS (SHOP_LASTAMMO_SPECIALINDEX - SHOP_FIRSTAMMO_INDEX + 1)
-#define MAXABILITIES (SHOP_LASTABILITY_INDEX - SHOP_ABILITY1_BEGIN + 1)
-#define MAXARTIFACTS (SHOP_LASTARTI_INDEX - SHOP_FIRSTARTI_INDEX + 1)
 
 #define MENU_HELP_BEGIN MENU_HELP_CHARACTER
 #define MENU_HELP_END MENU_HELP_LEGMONS
@@ -473,34 +473,6 @@ enum {
 #define MENU_LOAD_CRAFTING_LAST MENU_LOAD_CRAFTING_INVENTORY
 
 #define MAXACCOUNTITEMS (SHOP_ACCOUNT_END - SHOP_ACCOUNT_BEGIN + 1)
-
-str AbilityInfo[MAXABILITIES] = {
-	"Ability_Kick",
-	"Ability_Reloader",
-	"Ability_Dash",
-	"Ability_Arcanery",
-	"Ability_AntiPoison",
-	"Ability_ExplosionMastery",
-	"Ability_HeartSeeker",
-	"Ability_Regeneration",
-	"Ability_Temporal",
-	"Ability_SoulStealer"
-};
-
-#define ARTI_ICON 0
-#define ARTI_NAME 1
-str ArtifactInfo[MAXARTIFACTS][2] = { 
-	{ "FKITD0",				"FieldKit"				},	
-	{ "SALVRICO",			"SalvationSphere"		},
-	{ "SHIELICO",			"PortableShield"		},
-	{ "BRUNICO",			"BloodRune"				},
-	{ "DMGICO",			    "TripleDamage"			},
-	{ "SHRUA0",			    "BladeVortex"			},
-	{ "BOTDICO",		    "BookOfTheDead"		    },
-	{ "PMAPA0",			    "AllMapOnlyOnce"		},
-	{ "BPAKA0",			    "NewBackPack"			},
-	{ "RESETICO",           "StatReset"             }
-};
 
 #define MAX_ACCESSORIES (DND_ACCESSORY_LICHARM + 1)
 

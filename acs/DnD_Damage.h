@@ -1279,11 +1279,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// if sedrin staff and if we have armor, both are false so no damage to us
 		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetArmorAmount()) {
 			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-			// handle player's self explosion resists here
-			final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, isArmorPiercing);
 			if(final_dmg > 0) {
 				// push with some greater force
 				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
+				
+				// handle player's self explosion resists here
+				final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, isArmorPiercing);
+				
 				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
 			}
 		}
@@ -2601,6 +2603,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		}
 		else {
 			// hurt self
+			dmg_prev = dmg;
+			dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data);
 			GiveInventory("DnD_DamageReceived", dmg);
 			SetResultValue(dmg);
 		}

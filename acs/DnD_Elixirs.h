@@ -45,12 +45,14 @@ void HandleElixirUse(int eid) {
 		case DND_ELIXIR_ARMOR:
 			Player_Elixir_Bonuses[pnum].armor_flat_bonus += SIMPLE_ELIXIR_AMOUNT;
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORFLAT_BONUS, -1);
+			UpdateArmorVisual();
 		break;
 		case DND_ELIXIR_HPARMOR:
 			Player_Elixir_Bonuses[pnum].hp_flat_bonus += SIMPLE_ELIXIR_AMOUNT;
 			Player_Elixir_Bonuses[pnum].armor_flat_bonus += SIMPLE_ELIXIR_AMOUNT;
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_HPFLAT_BONUS, -1);
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORFLAT_BONUS, -1);
+			UpdateArmorVisual();
 		break;
 		case DND_ELIXIR_HPPERCENT:
 			Player_Elixir_Bonuses[pnum].hp_percent_bonus += PERCENT_ELIXIR_AMOUNT;
@@ -59,12 +61,14 @@ void HandleElixirUse(int eid) {
 		case DND_ELIXIR_ARMORPERCENT:
 			Player_Elixir_Bonuses[pnum].armor_percent_bonus += PERCENT_ELIXIR_AMOUNT;
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORPERCENT_BONUS, -1);
+			UpdateArmorVisual();
 		break;
 		case DND_ELIXIR_HPARMORPERCENT:
 			Player_Elixir_Bonuses[pnum].hp_percent_bonus += PERCENT_ELIXIR_AMOUNT;
 			Player_Elixir_Bonuses[pnum].armor_percent_bonus += PERCENT_ELIXIR_AMOUNT;
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_HPPERCENT_BONUS, -1);
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_ARMORPERCENT_BONUS, -1);
+			UpdateArmorVisual();
 		break;
 		case DND_ELIXIR_SPEED:
 			Player_Elixir_Bonuses[pnum].speed_bonus += SIMPLE_ELIXIR_AMOUNT_F;

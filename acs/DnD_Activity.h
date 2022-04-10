@@ -140,6 +140,8 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 		
 		case DND_ACTIVITY_ORB_WEAPONENCHANT:
 			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].quality += val;
+			if(extra == DND_WEAPON_PLASMARIFLE)
+				printbold(s:"update to activity: ", d:PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].quality, s: " +", d:val, s:" to wep: ", d:extra);
 		break;
 		case DND_ACTIVITY_ORB_WEAPONBONUS_DAMAGE:
 			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val += val;

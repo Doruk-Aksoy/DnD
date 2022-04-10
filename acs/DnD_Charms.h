@@ -265,8 +265,11 @@ int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 
 void ResetPlayerCharmsUsed(int pnum) {
 	for(int i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
-		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL) {
+			// if there's an item in use, remove its features and sync it null
+			RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			SyncItemData_Null(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, Charms_Used[pnum][i].width, Charms_Used[pnum][i].height);
+		}
 		Charms_Used[pnum][i].item_type = DND_ITEM_NULL;
 		Charms_Used[pnum][i].width = 0;
 		Charms_Used[pnum][i].height = 0;

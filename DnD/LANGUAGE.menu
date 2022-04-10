@@ -91,6 +91,7 @@ DND_MENU_VIEWINV		=	"View Inventory";
 
 DND_MENU_MAPDIFF		=	"Map Difficulty";
 DND_MENU_LIVESLEFT		=	"Lives left";
+DND_MENU_TOTALKILLS		=	"Total kills";
 
 DND_MENU_WEAPONS		=	"Weapons Menu";
 DND_MENU_AMMO			=	"Ammunition Menu";

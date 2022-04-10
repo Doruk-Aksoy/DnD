@@ -184,6 +184,8 @@ void SetDataToOrbBonus_NoActivity(int pnum, int bonus, int extra, int val) {
 }
 
 void AddOrbBonusData(int pnum, int bonus, int extra, int val) {
+	if(bonus == OBI_WEAPON_ENCHANT)
+		printbold(s:"add orb val: ", d: GetDataFromOrbBonus(pnum, bonus, extra) + val);
 	SetDataToOrbBonus(pnum, bonus, extra, GetDataFromOrbBonus(pnum, bonus, extra) + val);
 }
 
@@ -494,7 +496,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 }
 
 void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled) {
-	int i, temp;
+	int i, temp, aff = GetAffluenceBonus();
 	bool finish = false;
 	// save
 	Player_MostRecent_Orb[pnum].p_tempwep = item_index + 1;
@@ -504,8 +506,8 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 		Player_MostRecent_Orb[pnum].values[2 * i + 2] = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
 	}
 	
-	for(int s = 0; s < GetAffluenceBonus() && !finish; ++s) {
-		i = PlayerInventoryList[PlayerNumber()][item_index].attrib_count;
+	for(int s = 0; s < aff && !finish; ++s) {
+		i = PlayerInventoryList[pnum][item_index].attrib_count;
 		// find an attribute that this item doesn't have
 		do {
 			temp = random(0, LAST_INV_ATTRIBUTE);
@@ -513,9 +515,7 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 		
 		// if not well rolled by default, run the chance (orbs may force it, but sometimes they may not)
 		AddAttributeToItem(pnum, item_index, temp, !isWellRolled ? CheckWellRolled(pnum) : isWellRolled);
-		
-		if(PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHARM)
-			finish = PlayerInventoryList[pnum][item_index].attrib_count < Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;
+		finish = PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHARM && PlayerInventoryList[pnum][item_index].attrib_count >= Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;
 	}
 	SyncItemAttributes(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	SetInventory("OrbResult", item_index);
@@ -613,6 +613,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, PROSPERITY_MAX));
 			res = GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1);
 			SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, PROSPERITY_MAX));
+			UpdateArmorVisual();
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
 			SyncClientsideVariable_Orb(pnum, DND_SYNC_HPFLAT_BONUS, 0);
@@ -623,6 +624,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, FORTITUDE_MAX));
 			res = GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1);
 			SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, FORTITUDE_MAX));
+			UpdateArmorVisual();
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
 			SyncClientsideVariable_Orb(pnum, DND_SYNC_HPPERCENT_BONUS, 0);
@@ -693,11 +695,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			else if(i == 1) {
 				res = Max(2000, (CheckInventory("Credit") / 100) * res);
 				GiveCredit(res);
-				UpdateActivity(PlayerNumber(), DND_ACTIVITY_CREDIT, res, -1);
+				UpdateActivity(pnum, DND_ACTIVITY_CREDIT, res, -1);
 			}
 			else if(i == 2) {
 				GiveBudget(res);
-				UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, res, -1);
+				UpdateActivity(pnum, DND_ACTIVITY_BUDGET, res, -1);
 			}
 			res |= i << 30;
 			SetInventory("OrbResult", res);
@@ -829,7 +831,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			
 			// finally, sync it
 			SyncItemData(pnum, extra2, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][extra2].width, PlayerInventoryList[pnum][extra2].height);
-		
+			GiveInventory("DnD_CleanCraftingRequest", 1);
+			GiveInventory("DnD_RefreshPane", 1);
 			SetInventory("OrbResult", 1);
 		break;
 	}
@@ -1835,6 +1838,7 @@ void ResetMostRecentOrb(int pnum) {
 			Player_MostRecent_Orb[pnum].p_ammos[i][j] = 0;
 	Player_MostRecent_Orb[pnum].p_tempammo = 0;
 	Player_MostRecent_Orb[pnum].p_tempwep = 0;
+	UpdateArmorVisual();
 }
 
 void ResetOrbData(int pnum) {

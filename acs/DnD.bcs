@@ -262,7 +262,7 @@ Script "DnD On Death" DEATH {
 				ResetPlayerActivities(pnum, false);
 			}
 			else if(GetCVar("dnd_mode") == DND_MODE_SOFTCORE)
-				ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum);
+				ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, false);
 			else {
 				// get rid of these in local server or w.e situations if not hardcore or softcore
 				// remove whatever feature this player had on them prior to loading (just in case)
@@ -1055,7 +1055,7 @@ Script "DND On Kill" KILL {
 	SetActivator(target);
 	
 	// keep the kill tally
-	GiveInventory("DnD_Kills", 1);
+	IncrementPlayerLifetimeKills();
 	
 	if(CheckInventory("Punisher_Perk50")) {
 		GiveInventory("Punisher_Perk50_Counter", 1);
@@ -3015,25 +3015,10 @@ Script "DnD Player Setup" ENTER {
 			PlayerCanLoad[pnum] = 1;
 			SetInventory("CanLoad", 1);
 			
-			// Place resetting things from loading here, because char creation also needs them (otherwise new player gets stuff from loaded player that left game).
-			// reset weapons
-			// take all weapons
-			for(i = 0; i < MAXWEPS; ++i)
-				TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
-			for(i = 1; i <= 9; ++i)
-				TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
-
-			// take all abilities
-			for(i = 0; i < MAXABILITIES; ++i)
-				SetInventory(AbilityInfo[i], 0);
-
-			ResetPlayerInventory(pnum);
+			ResetPlayerItems(pnum);
 			
-			// remove whatever feature this player had on them prior to loading (just in case)
-			for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
-				if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-					RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-			ResetPlayerCharmsUsed(pnum);
+			// the above reset actual items of player, the below resets variables used to denote inventories and such
+			ResetPlayerInfo(pnum);
 			
 			ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
 		}
@@ -3102,6 +3087,7 @@ Script "DnD Player Setup" ENTER {
 		if(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] > curlvl)
 			PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = curlvl;
 	}
+	
 	ClearQuestCheckers();
 	
 	PostPlayerLoadRoutine(pnum);
@@ -6383,6 +6369,7 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrb(0, true);
+		//SpawnSpecificOrbForAll(DND_ORB_FORTITUDE, 50);
 	}
 	else {
 		int c = CreateItemSpot();

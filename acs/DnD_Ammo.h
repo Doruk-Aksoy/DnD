@@ -313,6 +313,13 @@ void SetAllAmmoCapacities() {
 			SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], (AmmoInfo[i][j].initial_capacity * factor) / 100); //Check backpack orbs.
 }
 
+void SetAllAmmoCapacitiesToDefault() {
+	// last slot is for souls, we don't increase it here
+	for(int i = 0; i < MAX_SLOTS - 1; ++i)
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+			SetAmmoCapacity(AmmoInfo_Str[i][j][AMMOINFO_NAME], AmmoInfo[i][j].initial_capacity);
+}
+
 bool CheckAmmoPickup(int slot, bool simple) {
 	bool res = CheckInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[slot][0][AMMOINFO_NAME]);
 	if(!simple) {

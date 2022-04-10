@@ -1253,4 +1253,17 @@ void UnfreezePlayer() {
 	GiveInventory("DontAttackRemove", 1);
 }
 
+void IncrementPlayerLifetimeKills() {
+	// this is the kills in level
+	GiveInventory("DnD_Kills", 1);
+	
+	// we store 3 variables: billions, millions and thousands
+	// for every million, we reduce thousands to 1 mil - X, and increment millions by 1, and similar or billions (we subtract 1000 instead from millions)
+	int ltk = CheckInventory("DnD_LifeTimeKills");
+	int ltk_m = CheckInventory("DnD_LifeTimeKills_Millions");
+	SetInventory("DnD_LifeTimeKills_Billions", CheckInventory("DnD_LifeTimeKills_Billions") + (ltk_m + 1) == 1000);
+	SetInventory("DnD_LifeTimeKills_Millions", (ltk_m + (ltk + 1 == 1000000)) % 1000);
+	SetInventory("DnD_LifeTimeKills", (ltk + 1) % 1000000);
+}
+
 #include "DnD_Damage.h"

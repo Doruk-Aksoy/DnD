@@ -6,6 +6,8 @@
 #include "DnD_Common.h"
 #include "DnD_Charms.h"
 #include "DnD_Elixirs.h"
+#include "DnD_Artifacts.h"
+#include "DnD_Abilities.h"
 #include "DnD_Activity.h"
 
 #define DND_CRITSTATE_NOCALC 0
@@ -989,7 +991,36 @@ void RecalculatePlayerLevelInfo() {
 	}
 }
 
-void ResetHardcoreStuff(int pnum) {
+// this is used to reset things player gathered that are actual items, not variables
+void ResetPlayerItems(int pnum) {
+	// reset weapons
+	// take all weapons
+	int i;
+	for(i = 0; i < MAXWEPS; ++i)
+		TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
+	for(i = 1; i <= 9; ++i)
+		TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
+		
+	SetAllAmmoCapacitiesToDefault();
+
+	// take all abilities
+	for(i = 0; i < MAXABILITIES; ++i)
+		SetInventory(AbilityInfo[i], 0);
+		
+	// take all researches, artifacts etc.
+	for(i = 0; i < RESEARCH_BITSETS; ++i) {
+		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), 0);
+		SetInventory(StrParam(s:"Research_Done_", d:i + 1), 0);
+	}
+	
+	SetInventory("BackpackCounter", 0);
+	
+	for(i = 0; i < MAXARTIFACTS; ++i)
+		SetInventory(ArtifactInfo[i][ARTI_NAME], 0);
+}				
+
+// resets all info (bearings, loadouts, etc.)
+void ResetPlayerInfo(int pnum) {
 	// reset player items
 	ResetPlayerInventory(pnum);
 	ResetPlayerCharmsUsed(pnum);
@@ -1000,6 +1031,10 @@ void ResetHardcoreStuff(int pnum) {
 	ResetWeaponMods(pnum);
 	ResetMostRecentOrb(pnum);
 	ResetOrbData(pnum);
+}
+
+void ResetHardcoreStuff(int pnum) {
+	ResetPlayerInfo(pnum);
 	RecalculatePlayerLevelInfo();
 	BreakTradesBetween(pnum);
 	// may join later, sync everything

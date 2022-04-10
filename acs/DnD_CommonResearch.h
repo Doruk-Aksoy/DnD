@@ -92,7 +92,7 @@ enum {
 #define DND_RESEARCH_BEGIN RES_RAREARMOR
 #define DND_RESEARCH_END RES_STASHTAB
 #define MAX_RESEARCHES (DND_RESEARCH_END + 1)
-#define RESEARCH_BITSETS ((MAX_RESEARCHES / 31) + 1) // Remember: use 31 bits (zand uses signed numbers only, and min inv amount min is 0)
+#define RESEARCH_BITSETS ((MAX_RESEARCHES / 32) + 1) // Remember: use 31 bits (zand uses signed numbers only, and min inv amount min is 0)
 
 #define DND_MAX_INVESTMENT 100
 #define BASE_INVESTMENT_COST 1000

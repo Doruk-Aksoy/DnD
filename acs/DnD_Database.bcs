@@ -68,7 +68,6 @@ enum {
 void RestoreResearchItems() {
 	if(CheckResearchStatus(RES_DOUBLESPECIALCAP) == RES_DONE)
 		DoubleSpecialAmmoCapacity();
-		
 }
 
 str GetCharField(str fname, int char_id) {
@@ -514,6 +513,10 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
 	
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills"));
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Millions"));
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Billions"));
+	
 	#ifdef ISAPRILFIRST
 		// save nft
 		SetDBEntry(GetCharField(DND_DB_NFT, char_id), pacc, CheckActorInventory(tid, "NFT_Token"));
@@ -606,6 +609,8 @@ void SavePlayerActivities(int pnum, int char_id) {
 		// enhancement orbs used
 		// orb bonus
 		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
+		if(i == DND_WEAPON_PLASMARIFLE)
+			printbold(s:"enhance: ", d:PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
@@ -647,9 +652,13 @@ void SavePlayerActivities(int pnum, int char_id) {
 	
 	// save player inventory state (might have been affected by an orb)
 	// save singular items that have their ids noted by activities instead in here
-	//SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
+	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
 	
 	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_NPC_Meet"));
+	
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills"));
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Millions"));
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Billions"));
 }
 
 void LoadPlayerStash(int pnum, str pacc) {
@@ -868,8 +877,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc);
 	for(i = 0; i < MAXARMORS; ++i) {
 		if(IsSet(temp, i)) {
-			SetArmorAmount(armor);
 			SetArmorType(i);
+			SetArmorAmount(armor);
 			break;
 		}
 	}
@@ -1032,6 +1041,7 @@ void LoadPlayerData(int pnum, int char_id) {
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc);
 		Player_Weapon_Infos[pnum][i].quality = temp & 0xFF;
 		SetDataToOrbBonus_NoActivity(pnum, OBI_WEAPON_ENCHANT, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc));
+		
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
 			Player_Weapon_Infos[pnum][i].wep_mods[j].tier = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc);
@@ -1061,6 +1071,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	// fixes some clientside things not being synced right on load
 	ACS_NamedExecuteAlways("DnD Menu Reset Forced", 0);
 	ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
+	
+	SetInventory("DnD_LifeTimeKills", GetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc));
+	SetInventory("DnD_LifeTimeKills_Millions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc));
+	SetInventory("DnD_LifeTimeKills_Billions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc));
 	
 	#ifdef ISAPRILFIRST
 		// load nft
@@ -1206,6 +1220,10 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	// we don't reset the stash, we're merciful xD
 	
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, 0);
+	
 	#ifdef ISAPRILFIRST
 		// load nft
 		SetDBEntry(GetCharField(DND_DB_NFT, char_id), pacc, 0);
@@ -1305,7 +1323,11 @@ Script 1003 (int char_id) NET {
 	int pnum = PlayerNumber();
 	int result = check_create_char(pnum, char_id);
 	if (result == DND_LOGIN_CREATECHAROK) {
+		// reset whatever gibberish the player might have had
+		BulkResetPlayerData(pnum);
+		
 		create_char(pnum, char_id);
+		
 		// load player stash only if we could do it properly
 		LoadPlayerStash(pnum, GetPlayerAccountName(pnum));
 	}
@@ -1396,6 +1418,13 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 	}
 }
 
+void BulkResetPlayerData(int pnum) {
+	ResetPlayerInventory(pnum);
+	ResetPlayerStash(pnum);
+	ResetInvestments(pnum);
+	ResetPlayerActivities(pnum, true);
+}
+
 // This is specifically called as a terminal script on a player's run, NEVER IN THE MIDDLE!
 // This is here to save player's activities in a level that should be saved regardless of end of map
 // examples: Orb usage, charm changes etc. --- basically things that should have some sort of consequence
@@ -1407,12 +1436,9 @@ Script "DnD Save Player Activities" (int pnum, int reset) {
 		EndDBTransaction();
 	}
 	
-	if(reset) {
-		ResetPlayerInventory(pnum);
-		ResetPlayerStash(pnum);
-		ResetInvestments(pnum);
-		ResetPlayerActivities(pnum, true);
-	}
+	// hard reset -- disconnected
+	if(reset)
+		BulkResetPlayerData(pnum);
 	
 	PlayerLoaded[pnum] = 0;
 	

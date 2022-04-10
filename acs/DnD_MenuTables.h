@@ -705,18 +705,6 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 };
 
 #define DND_ARTI_BUYONCE_END ARTI_BOOK
-enum {
-	ARTI_FIELDKIT = 1,
-	ARTI_SALVATION,
-	ARTI_SHIELD,
-	ARTI_BLOODRUNE,
-	ARTI_TRIPLE,
-	ARTI_BLADE,
-	ARTI_BOOK,
-	ARTI_MAP,
-	ARTI_BACKPACK,
-	ARTI_RESET,
-};
 
 // gets item type
 int GetItemType(int id) {

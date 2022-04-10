@@ -2828,36 +2828,6 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	SetFont("SMALLFONT");
 }
 
-int GetTradeViewItemOffset(int itype, int bid, int curoffset) {
-	// side bar has 2 * MAX_INVENTORY_BOXES start anything else is less
-	if(itype > UNIQUE_BEGIN) {
-		if(bid == TRADE_BOXOFFSET)
-			return curoffset + 4.0;
-		if((itype >> 16) - 1 == UITEM_LIFELEECH)
-			return curoffset;
-		else if((itype >> 16) - 1 == UITEM_IRONBARK)
-			return curoffset + 1.0;
-		else if((itype >> 16) - 1 == UITEM_ANCIENTGEMSTONE)
-			return curoffset - 4.0;
-		return curoffset - 4.0;
-	}
-	else if(bid == TRADE_BOXOFFSET) {
-		if(itype == DND_ITEM_CHARM)
-			return curoffset + 4.0;
-		else if(itype == DND_ITEM_ELIXIR)
-			return curoffset + 4.0;
-		else if(itype == DND_ITEM_ORB)
-			return curoffset + 10.0;
-		else if(itype == DND_ITEM_CHESTKEY)
-			return curoffset + 10.0;
-	}
-	else if(itype == DND_ITEM_ELIXIR)
-		return curoffset - 10.0;
-	else if(itype == DND_ITEM_CHESTKEY)
-		return curoffset - 6.0;
-	return curoffset;
-}
-
 void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int basey, int skip, int idbase, int source, int pnum, int boff, int itemskipx, int itemskipy) {
 	int temp;
 	int img = GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, bid, -1, source);
@@ -2933,7 +2903,7 @@ void DrawInventoryInfo(int pnum) {
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		if(stack) {
 			SetFont("SMALLFONT");
-			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + HUD_ITEMBAK_XF - 18.2, my + 16.0, 0);
+			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, GetIntegerBits(mx + HUD_ITEMBAK_XF - 9.0) + 0.2, my + 15.0, 0);
 		}
 		
 		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
@@ -4475,7 +4445,8 @@ void DrawPlayerStats(int pnum) {
 	int temp;
 	int val;
 	
-	SetHudClipRect(192, 56, 256, 224, 256, 1);
+	// sum of y and height should = 260
+	SetHudClipRect(192, 56, 256, 204, 256, 1);
 	
 	int k = 0;
 	temp = 64.0 + 6.0 * ScrollPos.x;
@@ -4717,16 +4688,79 @@ void DrawPlayerStats(int pnum) {
 	
 	++k;
 	
-	if(GetCVar("survival")) {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 60, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
-	}
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 61, CR_WHITE, 190.1, temp + 16.0 * (k++), 0.0, 0.0);
 	SetHudClipRect(0, 0, 0, 0, 0, 0);
 	
-	if(k > 12)
-		ScrollPos.y = -k * 4;
+	if(GetCVar("survival")) {
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 120, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 121, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 122, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
+	}
+	else {
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 121, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 122, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+	}
+	
+	/*if(k > 12)
+		ScrollPos.y = -k * 4;*/
+}
+
+str GetPlayerLifetimeKills() {
+	int temp = CheckInventory("DnD_LifeTimeKills_Billions");
+	str result = "";
+	bool have_commas = false;
+	
+	if(temp) {
+		result = StrParam(s:result, d:temp, s:", ");
+		have_commas = true;
+	}
+	
+	temp = CheckInventory("DnD_LifeTimeKills_Millions");
+	if(temp) {
+		if(have_commas) {
+			if(temp < 10)
+				result = StrParam(s:result, d:0, d:0, d:temp, s:", ");
+			else if(temp < 100)
+				result = StrParam(s:result, d:0, d:temp, s:", ");
+			else
+				result = StrParam(s:result, d:temp, s:", ");
+		}
+		else
+			result = StrParam(s:result, d:temp, s:", ");
+		have_commas = true;
+	}
+	else if(have_commas)
+		result = StrParam(s:result, s:"000, ");
+
+	temp = CheckInventory("DnD_LifeTimeKills") / 1000;
+	if(temp) {
+		if(have_commas) {
+			if(temp < 10)
+				result = StrParam(s:result, d:0, d:0, d:temp, s:", ");
+			else if(temp < 100)
+				result = StrParam(s:result, d:0, d:temp, s:", ");
+			else
+				result = StrParam(s:result, d:temp, s:", ");
+		}
+		else
+			result = StrParam(s:result, d:temp, s: ", ");
+		have_commas = true;
+	}
+	else if(have_commas)
+		result = StrParam(s:result, s:"000, ");
+	
+	temp = CheckInventory("DnD_LifeTimeKills") % 1000;
+	if(have_commas) {
+		if(temp < 10)
+			result = StrParam(s:result, d:0, d:0, d:temp);
+		else if(temp < 100)
+			result = StrParam(s:result, d:0, d:temp);
+		else
+			result = StrParam(s:result, d:temp);
+	}
+	else
+		result = StrParam(s:result, d:temp);
+	
+	return result;
 }
 
 void DrawMonsterModCategory(int category) {
