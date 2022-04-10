@@ -1,0 +1,86 @@
+enum {
+	DND_DAMAGETYPE_MELEE,
+	DND_DAMAGETYPE_MELEEOCCULT,
+	DND_DAMAGETYPE_PHYSICAL,
+	DND_DAMAGETYPE_SILVERBULLET,
+	DND_DAMAGETYPE_ENERGY,
+	DND_DAMAGETYPE_ENERGYEXPLOSION,
+	DND_DAMAGETYPE_EXPLOSIVES,
+	DND_DAMAGETYPE_OCCULT,
+	DND_DAMAGETYPE_OCCULTFIRE,
+	DND_DAMAGETYPE_OCCULTEXPLOSION,
+	DND_DAMAGETYPE_MAGICSEAL,
+	
+	// elemental types
+	DND_DAMAGETYPE_FIRE,
+	DND_DAMAGETYPE_ICE,
+	DND_DAMAGETYPE_POISON,
+	DND_DAMAGETYPE_DESOLATOR,
+	DND_DAMAGETYPE_EMERALD,
+	DND_DAMAGETYPE_LIGHTNING,
+	
+	DND_DAMAGETYPE_SOUL
+};
+
+// the following are used to encode hints on the damage type for projectiles with some special flags
+enum {
+	DND_DAMAGETYPEFLAG_PHYSICAL = 1,
+	DND_DAMAGETYPEFLAG_HITSCAN = 2,
+	DND_DAMAGETYPEFLAG_EXPLOSIVE = 4,
+	DND_DAMAGETYPEFLAG_MAGICAL = 8,
+	DND_DAMAGETYPEFLAG_ENERGY = 16,
+	DND_DAMAGETYPEFLAG_FIRE = 32,
+	DND_DAMAGETYPEFLAG_ICE = 64,
+	DND_DAMAGETYPEFLAG_POISON = 128,
+	DND_DAMAGETYPEFLAG_LIGHTNING = 256,
+	DND_DAMAGETYPEFLAG_PERCENTHP = 512
+};
+
+enum {
+	DND_DAMAGEFLAG_USEMASTER = 1,
+	DND_DAMAGEFLAG_ISSHOTGUN = 2,
+	DND_DAMAGEFLAG_CULL = 4,
+	DND_DAMAGEFLAG_SELFCULL = 8,
+	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE = 16,				// damage bonus stored in user_tics, added on top flat
+	DND_DAMAGEFLAG_NOPOISONSTACK = 32,
+	DND_DAMAGEFLAG_HALFDMGSELF = 64,						// explosion only deals half damage to user
+	DND_DAMAGEFLAG_INFLICTPOISON = 128,						// even if it doesnt have damage type of poison, it can inflict one
+	DND_DAMAGEFLAG_BLASTSELF = 256,							// explosion hurts self
+	DND_DAMAGEFLAG_SELFORIGIN = 512,						// uses self as origin of scan attack
+	DND_DAMAGEFLAG_DOFULLDAMAGE = 1024,						// does forced full damage
+	DND_DAMAGEFLAG_EXTRATOUNDEAD = 2048,					// do additional x3 more damage to undead
+	DND_DAMAGEFLAG_ISHITSCAN = 4096,						// hitscan type attack
+	DND_DAMAGEFLAG_NOIGNITESTACK = 8192,					// ignites dont further ignite
+	DND_DAMAGEFLAG_PERCENTDAMAGE = 16384,					// does percent damage on impact
+	DND_DAMAGEFLAG_SIMULATERIPPER = 32768,
+	DND_DAMAGEFLAG_ISSPELL = 65536,
+	DND_DAMAGEFLAG_ISSPECIALAMMO = 131072,
+	DND_DAMAGEFLAG_COUNTSASMELEE = 262144
+};
+
+enum {
+	DND_SCANNER_BFG,
+	DND_SCANNER_BFGUPGRADED,
+	DND_SCANNER_HEART,
+	DND_SCANNER_BOOK
+};
+
+Actor InvulBeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor HardBeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor BeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
+
+Actor WeaknessBeepTimer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
