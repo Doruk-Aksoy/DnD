@@ -243,14 +243,6 @@ str GetSpreeText(int spree_id) {
 	return StrParam(s:SPREE_TEXT_PREFIX, d:spree_id);
 }
 
-#define DND_GOLDCHESTKEY_DROPRATE 0.1
-#define DND_SILVERCHESTKEY_DROPRATE 0.25
-
-#define MAX_BASE_CHESTCOUNT 10
-#define CHEST_DROPWEIGHT 0.1
-#define SILVERCHEST_DROPWEIGHT 0.37
-#define GOLDCHEST_DROPWEIGHT 0.50
-
 #define AMMODISPLAY_ID 1000
 
 bool Quest_Pick_Done = 0;

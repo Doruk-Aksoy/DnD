@@ -1143,7 +1143,7 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		bx = ((left + (HUD_ITEMBAK_X * HUDTEXTMAX_X / (2 * HUDMAX_X))) << 16) + 0.4;
 		by = isOutsideSource ? 20.1 : GetIntegerBits(HUDTEXTMAX_YF / 2 - HUD_ITEMBAK_YF / 2 - yoff - 30.0) + 0.1;
 
-		SetHudClipRect(left + 15, (by >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9, 1);
+		SetHudClipRect(left + 15, (by >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9);
 		DrawInventoryText(topboxid, source, pnum, bx, by, itype, isubt, HUD_DII_FIELD_MULT);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}

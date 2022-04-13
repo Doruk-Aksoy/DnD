@@ -235,7 +235,7 @@ void DrawPerkText(int boxid) {
 			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:": \cd", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
 		else
 			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:" (", l:"DND_MENU_MASTERY_COND", s:"): \cu", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
-		SetHudClipRect(184, 232, 256, 48, 256, 1);
+		SetHudClipRect(184, 232, 256, 48, 256);
 		HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
@@ -991,7 +991,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					HudMessage(s:"\c[M1]--> ", l:"DND_MENU_SELLSFOR", s:":\c- $", d:GetShopPrice(itemid, 0) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
 				// stock
 				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
-				SetHudClipRect(184, 216, 256, 64, 256, 1);
+				SetHudClipRect(184, 216, 256, 64, 256);
 				if(objectflag & OBJ_USESCROLL)
 					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos.x, 0.0, 0.0);
 				else
@@ -1002,7 +1002,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				DrawWeaponIconCorner(itemid);
 			}
 			else if(objectflag & OBJ_AMMO) {
-				SetHudClipRect(192, 224, 256, 64, 256, 1);
+				SetHudClipRect(192, 224, 256, 64, 256);
 				DrawAmmoExplanation(itemid);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
@@ -1013,7 +1013,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					HudMessage(s:toshow, l:"DND_MENU_INBULK", s:":\c- ", s:colorprefix, d:res_state; HUDMSG_PLAIN, RPGMENUITEMID - 43, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 			}
 			else if(objectflag & OBJ_ARTI) {
-				SetHudClipRect(192, 224, 256, 64, 256, 1);
+				SetHudClipRect(192, 224, 256, 64, 256);
 				HudMessage(s:"\cd*\c- ", l:GetArtifactText(curposy); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
@@ -1021,7 +1021,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				DrawArtifactIconCorner(curposy);
 			}
 			else if(objectflag & OBJ_ARMOR) {
-				SetHudClipRect(192, 224, 256, 64, 256, 1);
+				SetHudClipRect(192, 224, 256, 64, 256);
 				HudMessage(s:"\cd*\c- ", l:GetArmorExplanation(itemid - SHOP_FIRSTARMOR_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
@@ -1030,7 +1030,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				DrawArmorIconCorner(itemid - SHOP_FIRSTARMOR_INDEX);
 			}
 			else if(objectflag & OBJ_ABILITY) {
-				SetHudClipRect(192, 208, 256, 64, 256, 1);
+				SetHudClipRect(192, 208, 256, 64, 256);
 				if(objectflag & OBJ_USESCROLL)
 					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos.x, 0.0, 0.0);
 				else
@@ -1038,7 +1038,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(objectflag & OBJ_ACCOUNT) {
-				SetHudClipRect(192, 208, 256, 64, 256, 1);
+				SetHudClipRect(192, 208, 256, 64, 256);
 				if(objectflag & OBJ_USESCROLL)
 					HudMessage(s:"\cd*\c- ", l:GetAccountPurchaseText(itemid - SHOP_ACCOUNT_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos.x, 0.0, 0.0);
 				else
@@ -1061,9 +1061,9 @@ void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
 		if(boxid == pos + 1) {
 			HudMessage(s:"\c[B1]", l:GetAccessoryText(id, ACCESSORY_TAG); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 			
-			SetHudClipRect(192, 32, 256, 256, 256, 1);
+			SetHudClipRect(192, 32, 256, 256, 256);
 			HudMessage(s:StrParam(s:"+ ", l:GetAccessoryText(id, ACCESSORY_PRO), s:"\n\c[D4]- ", l:GetAccessoryText(id, ACCESSORY_CON)); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos - 1, CR_GREEN, 192.1, 212.1, 0.0, 0.0);
-			SetHudClipRect(0, 0, 0, 0, 0, 0);
+			SetHudClipRect(0, 0, 0, 0, 0);
 		}
 		else if(IsAccessoryEquipped(0, 1 << id))
 			HudMessage(s:"\c[C5]", l:GetAccessoryText(id, ACCESSORY_TAG); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
@@ -1394,7 +1394,7 @@ void DrawFrequentRedrawItems(int pnum) {
 
 			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 			SetFont("SMALLFONT");
-			SetHudClipRect((x >> 16) - 8, (y >> 16) - 8, 96, 64, 96, 1);
+			SetHudClipRect((x >> 16) - 8, (y >> 16) - 8, 96, 64, 96);
 			if(!CheckInventory("DnD_SelectedInventoryBox"))
 				HudMessage(s:"\c[Q2]", l:"DND_MENU_ASSIMORB1"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, -1, x + 0.1, y + 0.1, 0.0);
 			else
@@ -2647,21 +2647,21 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 	// adjust x offset on 2nd hudmsg based on length of status for future language compat
 	if(status == RES_NA) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
-		SetHudClipRect(324, 108, 128, 32, 128, 1);
+		SetHudClipRect(324, 108, 128, 32, 128);
 		HudMessage(l:"DND_MENU_RESEARCH_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESBLAK");
 	}
 	else if(status == RES_KNOWN) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
-		SetHudClipRect(324, 108, 128, 32, 128, 1);
+		SetHudClipRect(324, 108, 128, 32, 128);
 		HudMessage(l:"DND_MENU_RESEARCH_FOUND"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESFOUND");
 	}
 	else {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
-		SetHudClipRect(324, 108, 128, 32, 128, 1);
+		SetHudClipRect(324, 108, 128, 32, 128);
 		HudMessage(l:"DND_MENU_RESEARCH_DONE"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESDONE");
@@ -2687,7 +2687,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 264.1, 88.0, 0.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- $", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 264.1, 104.0, 0.0, 0.0);
 		
-		SetHudClipRect(192, 144, 256, 96, 256, 1);
+		SetHudClipRect(192, 144, 256, 96, 256);
 		HudMessage(l:GetResearchDescription(ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
@@ -2708,7 +2708,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 			
 		if(boxid == MBOX_2) {
 			HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj", d:GetInvestmentCost(pnum, page, posx, ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 440.2, 236.1, 0.0, 0.0);
-			SetHudClipRect(184, 244, 256, 36, 256, 1);
+			SetHudClipRect(184, 244, 256, 36, 256);
 			HudMessage(s:"\cd*\c- ", l:"DND_INVESTMENT_EXPLANATION"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 184.1, 248.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
 		}
@@ -2914,7 +2914,7 @@ void DrawInventoryInfo(int pnum) {
 		mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
 		my = GetIntegerBits(3 * my / 2) + 20.1;
 		
-		SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9, 1);
+		SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9);
 		DrawInventoryText(PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, pnum, mx, my, itype, isubt, HUD_DII_MULT);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y, 1);
@@ -4070,7 +4070,7 @@ void DrawCraftingInventoryInfo(int pn) {
 	mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
 	my = GetIntegerBits(3 * my / 2) + 20.1;
 	
-	SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9, 1);
+	SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9);
 	DrawCraftingInventoryText(PlayerCursorData.itemHoveredType, PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, pn, mx, my);
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -4446,7 +4446,7 @@ void DrawPlayerStats(int pnum) {
 	int val;
 	
 	// sum of y and height should = 260
-	SetHudClipRect(192, 56, 256, 204, 256, 1);
+	SetHudClipRect(192, 56, 256, 204, 256);
 	
 	int k = 0;
 	temp = 64.0 + 6.0 * ScrollPos.x;
@@ -4688,7 +4688,7 @@ void DrawPlayerStats(int pnum) {
 	
 	++k;
 	
-	SetHudClipRect(0, 0, 0, 0, 0, 0);
+	SetHudClipRect(0, 0, 0, 0, 0);
 	
 	if(GetCVar("survival")) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 120, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
@@ -4765,7 +4765,7 @@ str GetPlayerLifetimeKills() {
 
 void DrawMonsterModCategory(int category) {
 	int i;
-	SetHudClipRect(192, 52, 256, 228, 256, 1);
+	SetHudClipRect(192, 52, 256, 228, 256);
 	switch(category) {
 		case DND_TRAITCODE_WEAKNESS:
 			for(i = 0; i < MAX_WEAKNESS_MODS; ++i)
@@ -4831,9 +4831,9 @@ void HandleNFTDrawing(int boxid) {
 		else
 			DrawBoxText(StrParam(s:"DND_NFT_TAG", d:i), DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, 192.1, 112.1 + 16.0 * i, "\c[B1]", "\c[G8]");
 		if(boxid == MBOX_1 + i) {
-			SetHudClipRect(192, 248, 256, 32, 256, 1);
+			SetHudClipRect(192, 248, 256, 32, 256);
 			HudMessage(l:StrParam(s:"DND_NFT_EXP", d:i); HUDMSG_PLAIN, RPGMENUITEMID - MAX_NFTS - 1 - i, CR_WHITE, 192.1, 248.1 + 1.0 * ScrollPos.x, 0.0, 0.0);
-			SetHudClipRect(0, 0, 0, 0, 0, 0);
+			SetHudClipRect(0, 0, 0, 0, 0);
 			
 			// draw the nft image in left corner
 			SetFont(StrParam(s:"NFT", d:i));
