@@ -555,7 +555,9 @@ ACTOR DeathVile : DnD_ArchVileBase {
 			WILE P 14 Fast Bright
 		Goto See
 		HealState:
-			WILE "[\]" 8 Fast Bright
+			WILE "[" 8 Fast Bright
+			WILY A 8 Fast Bright
+			WILE "]" 8 Fast Bright
 		Goto See
 		PainState:
 			WILE Q 5 Fast   
