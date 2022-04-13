@@ -609,8 +609,8 @@ void SavePlayerActivities(int pnum, int char_id) {
 		// enhancement orbs used
 		// orb bonus
 		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
-		if(i == DND_WEAPON_PLASMARIFLE)
-			printbold(s:"enhance: ", d:PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
+		//if(i == DND_WEAPON_PLASMARIFLE)
+		//	printbold(s:"enhance: ", d:PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
@@ -1070,7 +1070,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	RestoreResearchItems();
 	// fixes some clientside things not being synced right on load
 	ACS_NamedExecuteAlways("DnD Menu Reset Forced", 0);
-	ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
+	// this seems unnecessary, as it syncs the 3 item source datas (we already do that as soon as we finished loading them)
+	// and also the other clientside variables, which we do at the end of enter script...
+	//ACS_NamedExecuteAlways("DnD Force Sync Player Global Data", 0);
 	
 	SetInventory("DnD_LifeTimeKills", GetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc));
 	SetInventory("DnD_LifeTimeKills_Millions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc));
@@ -1080,6 +1082,8 @@ void LoadPlayerData(int pnum, int char_id) {
 		// load nft
 		SetInventory("NFT_Token", GetDBEntry(GetCharField(DND_DB_NFT, char_id), pacc));
 	#endif
+	
+	//printbold(s:"finish load");
 }
 
 // on Hardcore death, wipeout all data related to this player

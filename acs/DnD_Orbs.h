@@ -184,8 +184,8 @@ void SetDataToOrbBonus_NoActivity(int pnum, int bonus, int extra, int val) {
 }
 
 void AddOrbBonusData(int pnum, int bonus, int extra, int val) {
-	if(bonus == OBI_WEAPON_ENCHANT)
-		printbold(s:"add orb val: ", d: GetDataFromOrbBonus(pnum, bonus, extra) + val);
+	//if(bonus == OBI_WEAPON_ENCHANT)
+	//	printbold(s:"add orb val: ", d: GetDataFromOrbBonus(pnum, bonus, extra) + val);
 	SetDataToOrbBonus(pnum, bonus, extra, GetDataFromOrbBonus(pnum, bonus, extra) + val);
 }
 

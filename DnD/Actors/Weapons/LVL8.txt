@@ -407,11 +407,9 @@ Actor HellFireLinkF : DnD_ExplosiveBase {
 	Speed 24
 	Alpha 0.85
 	Renderstyle add
-	Species "Player"
 	Reactiontime 1
 	+NODAMAGETHRUST
 	+FOILINVUL
-	+THRUSPECIES
 	+FLOORHUGGER
 	+DONTSPLASH
 	States {
@@ -428,7 +426,7 @@ Actor HellFireLinkF : DnD_ExplosiveBase {
 			TNT1 A 0 A_SpawnItemEx ("DeathStaffFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_4 | (DND_WEAPON_DEATHSTAFF << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSUPER | DND_ISSLOT8))
-			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_SOUL | (DND_WEAPON_DEATHSTAFF << 16))
@@ -539,7 +537,6 @@ Actor HellFireTrailFExp : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 9)
 			TNT1 A 0 A_SetUserVar("user_expradius", 72 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_SOUL | (DND_WEAPON_DEATHSTAFF << 16))
 		
 		ExplosionLoop:		

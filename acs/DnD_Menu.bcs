@@ -71,7 +71,7 @@ Script 900 (void) NET {
 		{
 			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
 				TakeInventory("DnD_SyncMe", 1);
-				ACS_NamedExecuteAlways("Force Sync Player Global Data", 0);
+				ACS_NamedExecuteAlways("DnD Force Sync Player Global Data", 0);
 			}
 			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 			GiveInventory("P_Frozen", 1);

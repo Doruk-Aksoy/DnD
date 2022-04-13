@@ -3167,7 +3167,7 @@ Script "DnD Player Setup" ENTER {
 		ACS_NamedExecuteAlways("DnD Ankh Checker", 0);
 }
 
-Script "Force Sync Player Global Data" (void) {
+Script "DnD Force Sync Player Global Data" (void) {
 	int pnum = PlayerNumber();
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);

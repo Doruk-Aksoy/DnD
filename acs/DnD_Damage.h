@@ -554,21 +554,27 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial))
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
-		// shotgun damage bonus -- add hobos perk here too
+		// shotgun damage bonus
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
-		if(CheckInventory("Hobo_Perk25"))
-			temp += DND_HOBO_SHOTGUNBONUS;
-		if((flags & DND_WDMG_ISBOOMSTICK) && temp)
+		if(temp && (flags & DND_WDMG_ISBOOMSTICK))
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		
+			
 		// apply flat health to damage conversion if player has any
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
 		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, GetFlatHealthDamageFactor(temp), true);
 
-		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW
+		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses
 		// is occult (add demon bane bonus)
+		// apply wanderer perk if applicable
+		if((talent_type == TALENT_OCCULT || talent_type == TALENT_ELEMENTAL) && CheckInventory("Wanderer_Perk25"))
+			InsertCacheFactor(pnum, wepid, dmgid, DND_WANDERER_PERK25_BUFF, false);
+			
+		// hobo perk if applicable
+		if((flags & DND_WDMG_ISBOOMSTICK) && CheckInventory("Hobo_Perk25"))
+			InsertCacheFactor(pnum, wepid, dmgid, DND_HOBO_SHOTGUNBONUS, false);
+		
 		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
 			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE), false);
 		
@@ -1285,7 +1291,6 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				
 				// handle player's self explosion resists here
 				final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, isArmorPiercing);
-				
 				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
 			}
 		}
@@ -1557,19 +1562,6 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	// top left, bot right -- no need to be precise with rotation of bounding box here, the engine itself uses AABB anyway
 	int top_x, top_y, bot_x, bot_y;
 	
-	// get projectile dir, and imagine as if the projectile is stepping forwards from its location
-	// this is so faster projectiles are predicted -- we get dir, calculate just how many steps it'd take by speed / radius, then iterate the box over
-	int dir_x = GetActorVelX(0);
-	int dir_y = GetActorVelY(0);
-	int dir_z = GetActorVelZ(0);
-	int len = VectorLength3d(dir_x, dir_y, dir_z) >> 16;
-	if(!len)
-		len = 1;
-	
-	dir_x /= len;		dir_x *= r;
-	dir_y /= len;		dir_y *= r;
-	dir_z /= len;		dir_z *= r;
-	
 	// projectiles spawn speed units ahead of player, this is especially noticable in faster projectiles
 	// we must check backwards initially for point blank case
 	// find monsters in a rectangle from actor xyz, +-r * cos / sin and +-h on z
@@ -1577,9 +1569,28 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	bool found = false;
 	bool first_tic = true;
 	int a_x, a_y, a_r;
-	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
+	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) + (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) - (r << 16);
 	// start target picking
 	while(GetActorVelX(0) || GetActorVelY(0) || GetActorVelZ(0)) {
+		// get projectile dir, and imagine as if the projectile is stepping forwards from its location
+		// this is so faster projectiles are predicted -- we get dir, calculate just how many steps it'd take by speed / radius, then iterate the box over
+		int dir_x = GetActorVelX(0);
+		int dir_y = GetActorVelY(0);
+		int dir_z = GetActorVelZ(0);
+		int len = VectorLength3d(dir_x, dir_y, dir_z);
+		
+		// get most up-to-date speed (it could be slowing down via decorate)
+		int speed = len;
+		
+		// we need len as int here
+		len >>= 16;
+		if(!len)
+			len = 1;
+		
+		dir_x /= len;		dir_x *= r;
+		dir_y /= len;		dir_y *= r;
+		dir_z /= len;		dir_z *= r;
+		
 		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 			// dead, skip
 			if(!isActorAlive(i))
@@ -1587,22 +1598,28 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		
 			found = false;
 			a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
+			int steps = 3 * Max(speed, a_r + (r << 16)) / 2;
 			
-			int speed = GetActorProperty(0, APROP_SPEED);
-			int steps = Max(speed, a_r + (r << 16));
+			//if(GetActorClass(i) == "BaronOfHell2")
+			//	printbold(f:AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y), s: " > ", f:steps, s: " spd: ", f:speed);
 			
-			//printbold(s:"spd: ", f:speed);
-		
 			if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > steps || ((actor_flags & DND_ACTORFLAG_THRUGHOST) && CheckFlag(i, "GHOST")))
 				continue;
 				
 			steps = (speed / r) >> 16;
-			if(steps < 2)
-				steps = 2;
-			
+			if(steps < 3)
+				steps = 3;
 			for(s = 0; s < steps; ++s) {
 				// eliminate cases where it'd fail to touch
 				if(!first_tic) {
+					/*if(GetActorClass(i) == "BaronOfHell2")
+						printbold(
+							f:top_x - s * dir_x, s: " > ", f:a_x + a_r, s: " = ", d:top_x - s * dir_x > a_x + a_r, s: " ",
+							f:bot_x - s * dir_x, s: " < ", f:a_x - a_r, s: " = ", d:bot_x - s * dir_x < a_x - a_r, s: " ",
+							f:bot_y - s * dir_y, s: " > ", f:a_y + a_r, s: " = ", d:bot_y - s * dir_y > a_y + a_r, s: " ",
+							f:top_y - s * dir_y, s: " < ", f:a_y - a_r, s: " = ", d:top_y - s * dir_y < a_y - a_r
+						);
+					*/
 					if
 					(
 						top_x - s * dir_x > a_x + a_r ||
@@ -1660,7 +1677,7 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		first_tic = false;
 		
 		// update now, we updated at 0 tic case
-		top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) - (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) + (r << 16);
+		top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) + (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) - (r << 16);
 	}
 	
 	SetResultValue(0);

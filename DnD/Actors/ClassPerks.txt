@@ -591,49 +591,7 @@ Actor Punisher_Perk50_Damage_100 : Punisher_Perk50_DamageBase {
 
 Actor Wanderer_Perk5 : DnD_Boolean { }
 
-Actor Wanderer_Perk25 : PowerDamage { 
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-	
-	damagefactor "Melee_Magic", 1.25
-	damagefactor "Melee_MagicFull", 1.25
-	damagefactor "Magic", 1.25
-	damagefactor "MagicFull", 1.25
-	damagefactor "Explosives_Magic", 1.25
-	damagefactor "Explosives_MagicFull", 1.25
-	damagefactor "MagicFire", 1.25
-	damagefactor "MagicFireFull", 1.25
-	damagefactor "SoulType", 1.25
-	damagefactor "SoulTypeFull", 1.25
-	damagefactor "SoulTypeExp", 1.25
-	damagefactor "SoulTypeExpFull", 1.25
-	damagefactor "MagicExp", 1.25
-	damagefactor "MagicFireExp", 1.25
-	damagefactor "MagicExpFull", 1.25
-	damagefactor "MagicFireExpFull", 1.25
-	
-	damagefactor "Fire", 1.25
-	damagefactor "FireFull", 1.25
-	DamageFactor "Melee_Fire", 1.25
-	DamageFactor "Melee_FireFull", 1.25
-	damagefactor "FireExp", 1.25
-	damagefactor "FireExpFull", 1.25
-	
-	damagefactor "Lightning", 1.25
-	damagefactor "LightningFull", 1.25
-	damagefactor "FireExpFull", 1.25
-	damagefactor "LightningExpFull", 1.25
-	
-	damagefactor "P_Ice", 1.25
-	damagefactor "P_IceFull", 1.25
-	
-	damagefactor "AcidRifle", 1.25
-	damagefactor "AcidRifleFull", 1.25
-	damagefactor "Desolator", 1.25
-	damagefactor "DesolatorFull", 1.25
-	damagefactor "Emerald", 1.25
-	damagefactor "EmeraldFull", 1.25
-}
+Actor Wanderer_Perk25 : DnD_Boolean { }
 
 Actor Wanderer_Perk50 : DnD_Boolean { }
 

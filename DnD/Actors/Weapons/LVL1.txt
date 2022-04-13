@@ -1370,7 +1370,7 @@ Actor KatanaShockWave : DnD_BaseProjectile {
 	Alpha 0.875
 	Translation "0:255=%[0.00,0.00,0.00]:[0.94,1.04,1.06]"
 	Scale 1.625
-	ReactionTime 4
+	ReactionTime 10
 	var int user_tics;
 	var int user_r;
 	var int user_h;
