@@ -48,6 +48,14 @@ Actor MakeFaster : DnD_Activator {
 	}
 }
 
+Actor UnMakeFaster : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("ALWAYSFAST", 0)
+		Stop
+	}
+}
+
 Actor MakeRetaliate : DnD_Activator {
 	States {
 		Pickup:

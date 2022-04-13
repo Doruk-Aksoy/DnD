@@ -2000,9 +2000,9 @@ Script "DnD Monster Chill" (int victim) {
 	int cur_stacks;
 	int base_speed = GetActorProperty(victim, APROP_SPEED);
 	
-	//TODO: Fix this
-	//if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
-	//	SetActorFlag(victim, "ALWAYSFAST", 0);
+	// revoke monster's extra fast flag if it has it
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+		GiveInventory("UnMakeFaster", 1);
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
@@ -2015,9 +2015,8 @@ Script "DnD Monster Chill" (int victim) {
 	SetActorProperty(victim, APROP_SPEED, base_speed);
 	
 	// retain super fast property after chill ends
-	//TODO: Fix this
-	//if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
-	//	SetActorFlag(victim, "ALWAYSFAST", 1);
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+		GiveInventory("MakeFaster", 1);
 }
 
 Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {

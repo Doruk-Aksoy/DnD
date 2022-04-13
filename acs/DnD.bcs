@@ -3732,9 +3732,9 @@ Script "DnD Lifesteal Script" (void) {
 // for elites with pierce armor flag
 Script "DND Pierce Check" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
-	//TODO: Fix this
-	//if(CheckFlag(owner, "PIERCEARMOR"))
-	//	SetActorFlag(0, "PIERCEARMOR", 1);
+	// setactorflag isnt in zandro, so
+	if(CheckFlag(owner, "PIERCEARMOR"))
+		GiveInventory("MakePierce", 1);
 }
 
 Script "DND Riotgun Decide" (void) {
@@ -5876,16 +5876,14 @@ Script "DnD Doomguy Soul Pickup" (int val) {
 }
 
 Script "DnD Init Shared Translation" (void) {
-	//TODO: Fix this
-	//Thing_SetTranslation(0, TRANSLATION_ICE);
+	Thing_SetTranslation(0, TRANSLATION_ICE);
 	Delay(const:17);
 	Thing_SetTranslation(0, DND_NO_TRANSLATION);
 }
 
 Script "DnD Disable Pickup" (int tid) {
 	Thing_SetSpecial(tid, 0, 0, 0, 0);
-	//TODO: Fix this
-	//Thing_SetTranslation(tid, TRANSLATION_ICE);
+	Thing_SetTranslation(tid, TRANSLATION_ICE);
 	Delay(const:SHARED_ITEM_ACTIVITY_DELAY);
 	// these are hardcoded into the engine, won't ever change prob.
 	Thing_SetSpecial(tid, 226, DND_SHARED_ITEM_SCRIPT, 0, tid);
