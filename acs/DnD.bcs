@@ -1274,7 +1274,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 
 	// draw greetings text
 	SetFont("SMALLFONT");
-	SetHudClipRect(160, 128, 532, 600, 532, 1);
+	SetHudClipRect(160, 128, 532, 600, 532);
 	
 	menu_pane_T& CurrentPane = GetPane();
 	ResetPane(CurrentPane);
@@ -2461,7 +2461,7 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 
 		hud_pos = (GetHudRight(960) << 16) - 3 * QSTBOX_XF / 2 + 42.1;
 		SetHudSize(960, 600, 1);
-		SetHudClipRect(hud_pos >> 16, 96, 320, 128 + len, 320, 1);
+		SetHudClipRect(hud_pos >> 16, 96, 320, 128 + len, 320);
 		HudMessage(l:text; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 104.1, 4.0, 1.0, 1.0);
 		SetHudClipRect(0, 0, 0, 0);
 	}
@@ -3732,8 +3732,9 @@ Script "DnD Lifesteal Script" (void) {
 // for elites with pierce armor flag
 Script "DND Pierce Check" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
-	if(CheckFlag(owner, "PIERCEARMOR"))
-		SetActorFlag(0, "PIERCEARMOR", 1);
+	//TODO: Fix this
+	//if(CheckFlag(owner, "PIERCEARMOR"))
+	//	SetActorFlag(0, "PIERCEARMOR", 1);
 }
 
 Script "DND Riotgun Decide" (void) {
@@ -3884,14 +3885,14 @@ Script 1002 (void) NET CLIENTSIDE {
 		HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 112.1, 4.0, 1.0, 1.0
 	);
 	// requirement
-	SetHudClipRect(hud_pos >> 16, 128, 384, 64, 384, 1);
+	SetHudClipRect(hud_pos >> 16, 128, 384, 64, 384);
 	HudMessage
 	(
 		s:"\c-\c[Y5]", l:"DND_REQ", s:": \c-", l:GetQuestLabel(qid, QUEST_REQ);
 		HUDMSG_FADEINOUT, UPGRADETEXTID, CR_WHITE, hud_pos, 136.1, 4.0, 1.0, 1.0
 	);
 	// reward
-	SetHudClipRect(hud_pos >> 16, 176, 384, 64, 384, 1);
+	SetHudClipRect(hud_pos >> 16, 176, 384, 64, 384);
 	HudMessage
 	(
 		s:"\c-\cd", l:"DND_REW", s:": \c-", l:GetQuestLabel(qid, QUEST_REW);
@@ -5824,7 +5825,7 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 
 	SetHUDSize(600, 450, 1);
 	SetFont("SMALLFONT");
-	SetHudClipRect(100, 84, 384, 384, 336, 1);
+	SetHudClipRect(100, 84, 384, 384, 336);
 	
 	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
 	HudMessage(s:"\cj", l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT); HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 184.1, 0.0);
@@ -5834,7 +5835,7 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	HudMessage(s:"+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, CR_ORANGE, 128.1, 288.1, 0.0);
 	HudMessage(s:"+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, CR_RED, 128.1, 328.1, 0.0);
 	
-	SetHudClipRect(0, 0, 0, 0, 0, 0);
+	SetHudClipRect(0, 0, 0, 0, 0);
 	
 	// show the class images -- offsets aligned
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_MUGSHOT)));
@@ -5875,14 +5876,16 @@ Script "DnD Doomguy Soul Pickup" (int val) {
 }
 
 Script "DnD Init Shared Translation" (void) {
-	Thing_SetTranslation(0, TRANSLATION_ICE);
+	//TODO: Fix this
+	//Thing_SetTranslation(0, TRANSLATION_ICE);
 	Delay(const:17);
 	Thing_SetTranslation(0, DND_NO_TRANSLATION);
 }
 
 Script "DnD Disable Pickup" (int tid) {
 	Thing_SetSpecial(tid, 0, 0, 0, 0);
-	Thing_SetTranslation(tid, TRANSLATION_ICE);
+	//TODO: Fix this
+	//Thing_SetTranslation(tid, TRANSLATION_ICE);
 	Delay(const:SHARED_ITEM_ACTIVITY_DELAY);
 	// these are hardcoded into the engine, won't ever change prob.
 	Thing_SetSpecial(tid, 226, DND_SHARED_ITEM_SCRIPT, 0, tid);

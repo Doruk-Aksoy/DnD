@@ -646,7 +646,7 @@ int DrawHoveredPlayerData() {
 		mx += 160.4;
 		my += 24.1;
 		
-		SetHudClipRect(-96 + (mx >> 16), -48 + (my >> 16), 256, 288, 256, 1);
+		SetHudClipRect(-96 + (mx >> 16), -48 + (my >> 16), 256, 288, 256);
 		
 		HudMessage(
 			n:pnum + 1;

@@ -3,6 +3,14 @@
 
 #include "DnD_Inventory.h"
 
+#define DND_GOLDCHESTKEY_DROPRATE 0.1
+#define DND_SILVERCHESTKEY_DROPRATE 0.25
+
+#define MAX_BASE_CHESTCOUNT 10
+#define CHEST_DROPWEIGHT 0.1
+#define SILVERCHEST_DROPWEIGHT 0.37
+#define GOLDCHEST_DROPWEIGHT 0.50
+
 str ChestKeyText[MAX_CHESTKEYS] = {
 	"\ccNotice        : You need a \ceBronze\c- Chest Key to open this!",
 	"\ccNotice        : You need a \cuSilver\c- Chest Key to open this!",

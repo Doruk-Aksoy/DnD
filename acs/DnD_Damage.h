@@ -1383,7 +1383,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			// move past this monster along this angle
 			SetActorPosition(0, px + cos(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), py + sin(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), pz + pitch * (GetActorProperty(victim, APROP_RADIUS) >> 16), 0);
 			
-			LineAttack(0, ang, pitch, 0, puff, DamageTypeList[damage_type], 2048.0, FHF_NORANDOMPUFFZ, 0);
+			LineAttack(0, ang, pitch, 0, puff, DamageTypeList[damage_type], 2048.0, FHF_NORANDOMPUFFZ);
 			
 			SetActorPosition(0, px, py, pz, 0);
 			
@@ -1983,8 +1983,9 @@ Script "DnD Monster Chill" (int victim) {
 	int cur_stacks;
 	int base_speed = GetActorProperty(victim, APROP_SPEED);
 	
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
-		SetActorFlag(victim, "ALWAYSFAST", 0);
+	//TODO: Fix this
+	//if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+	//	SetActorFlag(victim, "ALWAYSFAST", 0);
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
@@ -1997,8 +1998,9 @@ Script "DnD Monster Chill" (int victim) {
 	SetActorProperty(victim, APROP_SPEED, base_speed);
 	
 	// retain super fast property after chill ends
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
-		SetActorFlag(victim, "ALWAYSFAST", 1);
+	//TODO: Fix this
+	//if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+	//	SetActorFlag(victim, "ALWAYSFAST", 1);
 }
 
 Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {
