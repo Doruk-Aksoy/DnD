@@ -1604,6 +1604,7 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 	Mass 0x7FFFFFFF
 	Tag "Phantasm"
 	Renderstyle Add
+	PainChance 256
 	Alpha 0.01
 	Translation "236:239=%[0.00,0.00,0.00]:[1.52,1.52,1.52]", "48:79=%[0.00,0.00,0.00]:[1.88,1.88,1.88]", "128:151=%[0.00,0.00,0.00]:[1.10,1.10,1.10]"
 	+ISMONSTER
@@ -1663,9 +1664,11 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 			PHNT E 3
 		Goto See
 		
+		Remove:
+			TNT1 A 0 A_UnsetShootable
+			TNT1 A 0 A_SetInvulnerable
 		DeathState:
 		XDeathState:
-		Remove:
 			TNT1 A 0 A_GiveInventory("Mo_Died", 1)
 			TNT1 A 0 A_SpawnItemEx("DissipationEffect")
 			TNT1 A 0 A_Scream

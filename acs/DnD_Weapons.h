@@ -576,9 +576,6 @@ bool IsMeleeWeapon(int wepid) {
 		case DND_WEAPON_SICKLE:
 		case DND_WEAPON_SOULRENDER:
 		return true;
-		
-		default:
-		return false;
 	}
 	return false;
 }

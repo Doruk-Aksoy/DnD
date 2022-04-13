@@ -126,7 +126,7 @@ Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 
 Script "DND Menu Icon Spawner" (void) CLIENTSIDE {
 	// dont draw it for the player who is on the menu
-	if(ConsolePlayerNumber() != PlayerNumber())
+	if(ConsolePlayerNumber() == PlayerNumber())
 		Terminate;
 		
 	int tid = DND_MENUFLOATYICON_TID + PlayerNumber();

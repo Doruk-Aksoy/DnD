@@ -493,11 +493,11 @@ Actor CryoBowPuff : DnD_BaseRailPuff {
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_NITROGENCROSSBOW)
 		Goto DoDamage
 		AfterDamage:
-			TNT1 A 1
-		Stop
 		Crash:
 		Melee:
-		Goto AfterDamage
+		HitNoBlood:
+			TNT1 A 1
+		Stop
 	}
 }
 
@@ -510,6 +510,7 @@ Actor CryoRailPuffAlt : DnD_BaseRailPuff {
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_NITROGENCROSSBOW)
 		Goto DoDamage
 		AfterDamage:
+		HitNoBlood:
 			TNT1 A 1
 		Stop
 	}
@@ -567,7 +568,7 @@ Actor CryoPuff_FX {
 
 Actor CryoPuffAlt : DnD_BasePuff {
 	Species "Player"
-	DamageType "P_Ice"
+	DamageType "Ice"
 	// no ice damage because it should shatter things
 	+NODAMAGETHRUST
 	+ALWAYSPUFF
@@ -730,6 +731,7 @@ Actor CryoWind : DnD_BaseProjectile {
 Actor CryoWind_Damager : DnD_BaseProjectile {
 	Radius 10
 	Height 20
+	DamageType "Ice"
 	Speed 1
 	+PAINLESS
 	+BLOODLESSIMPACT

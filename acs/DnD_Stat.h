@@ -949,7 +949,12 @@ int GetCritModifier() {
 
 // common place of weapon and orb data
 int GetWeaponModValue(int pnum, int wep, int mod) {
-	return Player_Weapon_Infos[pnum][wep].wep_mods[mod].val + Player_Orb_Data[pnum].weapon_stat_bonuses[wep].wep_mods[mod].val;
+	int orb_bonus = 0;
+	
+	// these have equivalents in orbs
+	if(mod >= WEP_MOD_CRIT && mod <= WEP_MOD_DMG)
+		orb_bonus = GetDataFromOrbBonus(pnum, mod - WEP_MOD_CRIT + OBI_WEAPON_CRIT, wep);
+	return Player_Weapon_Infos[pnum][wep].wep_mods[mod].val + orb_bonus;
 }
 
 bool HasWeaponPower(int pnum, int wep, int power) {
@@ -1124,19 +1129,18 @@ int GetLifestealCap(int pnum) {
 
 #define DND_BASE_LIFESTEALRATE 20
 int GetLifestealRate(int pnum) {
-	return DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP)) / 100;
+	return DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE)) / 100;
 }
 
 #define DND_BASE_LIFERECOVERY 1 // 1% of healthcap
-int GetLifestealLifeRecovery(int pnum) {
+int GetLifestealLifeRecovery(int pnum, int cap) {
 	// avoid recalculating over and over if possible
-	int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
-	hp_cap = (hp_cap * DND_BASE_LIFERECOVERY / 100);
-	hp_cap = (hp_cap * (100 + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY)) / 100);
-	if(!hp_cap)
-		hp_cap = 1;
+	cap = cap * DND_BASE_LIFERECOVERY / 100;
+	cap = cap * (100 + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY)) / 100;
+	if(!cap)
+		cap = 1;
 	
-	return hp_cap;
+	return cap;
 }
 
 #endif

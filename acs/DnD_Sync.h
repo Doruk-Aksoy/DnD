@@ -519,9 +519,9 @@ void SetSyncValue_Orb(int pnum, int pos, int val, int extra) {
 			SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
 		break;
 		case DND_SYNC_SPEED:
+			SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
 		break;
 		case DND_SYNC_DROPCHANCE:
-			SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
 			SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
 		break;
 		case DND_SYNC_HPFLAT_BONUS:
@@ -669,10 +669,8 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 }
 
 void SyncClientsideVariable_Orb(int pnum, int var, int extra) {
-	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS)) {
-		//printbold(d:var, s: " ", d:GetPlayerSyncValue_Orb(var, extra), s: " ", d:extra);
+	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS))
 		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, extra), extra);
-	}
 	else
 		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, 0), 0);
 }

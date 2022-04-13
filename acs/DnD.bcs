@@ -3710,22 +3710,23 @@ Script "DnD Lifesteal Script" (void) {
 
 	int pnum = PlayerNumber();
 	int tics = Max(1, GetLifestealRate(pnum));
-	int amt, cap;
+	int amt;
+	int cap = GetSpawnHealth();
+	// printbold(s:"health cap: ", d:cap, s: " tics: ", d:tics);
 	while(IsAlive() && CheckInventory("LifeStealAmount")) {
-		amt = GetLifestealLifeRecovery(pnum);
+		amt = GetLifestealLifeRecovery(pnum, cap);
 		TakeInventory("LifeStealAmount", amt);
 		
-		cap = CheckInventory("PlayerHealthCap");
 		if(GetActorProperty(0, APROP_HEALTH) + amt < cap)
 			GiveInventory("HealthBonusX", amt);
 		else {
-			// we reached cap, stop
-			GiveInventory("HealthBonusX", cap - amt);
+			// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
+			GiveInventory("HealthBonusX", cap - GetActorProperty(0, APROP_HEALTH));
 			break;
 		}
 		Delay(tics);
 	}
-	
+	SetInventory("LifeStealAmount", 0);
 	TakeInventory("PlayerIsLeeching", 1);
 }
 
@@ -4086,8 +4087,9 @@ Script "DND Armor Pickup Check" (int amount, int armor_type) {
 }
 
 Script "DND Armor Give" (int armor_type, int amount) {
-	if(!CheckInventory("StatbuffCounter_ForbidArmor"))
+	if(!CheckInventory("StatbuffCounter_ForbidArmor")) {
 		HandleArmorPickup(armor_type, amount, 0);
+	}
 }
 
 Script "DND Acid Rifle Bolt Stick" (int type) {
@@ -4328,7 +4330,7 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 		int i;
 		for(i = 0; !terminated && i < DARKLANCE_ALT_DURATION; ++i) {
 			if(isActorAlive(victim))
-				HandleDamageDeal(owner, victim, dmg * stacks, DND_DAMAGETYPE_OCCULT, 0, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+				HandleDamageDeal(owner, victim, dmg * stacks, DND_DAMAGETYPE_OCCULT, DND_WEAPON_DARKLANCE, 0, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
 			else
 				terminated = true;
 			
@@ -4468,17 +4470,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 		SetActivator(owner);
 		
 		// re-use this as poison damage mod value if any
-		scan_fov = 0;
-		int extra = 0;
 		int wepid = Scan_to_WeaponID(scan_id);
-		if(wepid != -1) {
-			scan_fov = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
-			extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
-			if(scan_fov)
-				flags |= DND_DAMAGEFLAG_INFLICTPOISON;
-			if(extra)
-				flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
-		}
 		
 		for(i = 0, j = 0; i < DND_MAXSCANTRACER; ++i) {
 			if(tlist[pnum][i].tid) {
@@ -4496,7 +4488,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 				else
 					temp = dmg;
 				
-				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags, extra, scan_fov);
+				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, wepid, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
 				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
 				
 				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
@@ -4577,26 +4569,9 @@ Script "DND Thunderstaff Bolts" (void) {
 		SetActivatorToTarget(0);
 		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
 		
-		// weapon mod checks
-		temp = Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
-		j = 0;
-		if(temp)
-			j |= DND_DAMAGEFLAG_PERCENTHEALTH;
-		
-		// force pain mod
-		if(
-			Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && 
-			Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100)
-		) {
-			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
-		}
-
-		if(Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val)
-			j |= DND_DAMAGEFLAG_INFLICTPOISON;
-		
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
-				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, j, px, py, pz, actor_flags, temp, Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val);
+				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, px, py, pz, actor_flags);
 		}
 	}
 }
@@ -4651,28 +4626,12 @@ Script "DND Thunderstaff Lightning" (void) {
 	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	int pnum = PlayerNumber();
 	
-	// force pain mod
-	if(
-		Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && 
-		Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100)
-	) {
-		actor_flags |= DND_ACTORFLAG_FORCEPAIN;
-	}
-	
-	int temp = Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val;
-	int extra = Player_Weapon_Infos[pnum][DND_WEAPON_THUNDERSTAFF].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
-	int flags = 0;
-	if(temp)
-		flags |= DND_DAMAGEFLAG_INFLICTPOISON;
-	if(extra)
-		flags |= DND_DAMAGEFLAG_PERCENTHEALTH;
-	
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
 			SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
 			
-			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, flags, 0, 0, 0, actor_flags, extra, temp);
+			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0, 0, 0, actor_flags);
 			
 			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
 			SetPointer(AAPTR_TARGET, this);
@@ -6370,8 +6329,10 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrb(0, true);
-		//SpawnSpecificOrbForAll(DND_ORB_FORTITUDE, 50);
+		SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 50);
 	}
+	else if(x == 421)
+		GiveInventory("IATTR_Lifesteal", 0.5);
 	else {
 		int c = CreateItemSpot();
 		int i;

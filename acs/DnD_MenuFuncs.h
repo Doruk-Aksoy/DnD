@@ -4109,7 +4109,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		if(temp != DND_BASE_CRITMODIFIER)
 			modText = StrParam(s:modText, s:GetWeaponModText(temp - DND_BASE_CRITMODIFIER, WEP_MOD_CRITDMG), s:"\n");
 			
-		temp = GetWeaponModValue(temp, extra1, WEP_MOD_DMG);
+		temp = GetWeaponModValue(j, extra1, WEP_MOD_DMG);
 		if(temp)
 			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_DMG), s:"\n");
 		
