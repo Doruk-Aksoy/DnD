@@ -57,7 +57,7 @@ int[]& GetMem_24() {
 }
 
 void bubblesort(int[]& list) {
-   int left = list.length();
+   int left = lengthof(list);
    while (left) {
       int i = 0;
       int k = left - 1;

@@ -24,8 +24,14 @@ bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
 
 #define TALENT_CAP 100
 
-#define EXP_SCALE_MAX 10
-#define CREDIT_SCALE_MAX 10
+#ifdef ISDEBUGBUILD
+	#define EXP_SCALE_MAX 100
+	#define CREDIT_SCALE_MAX 100
+#else
+	#define EXP_SCALE_MAX 10
+	#define CREDIT_SCALE_MAX 10
+#endif
+
 #define BUDGET_SCALE_MAX 10
 
 #define BLOODRUNE_LIFESTEAL_AMT 30.0

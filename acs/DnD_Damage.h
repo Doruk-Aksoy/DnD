@@ -91,7 +91,7 @@ bool IsEnergyDamage(int damage_type) {
 }
 
 bool IsOccultDamage(int damage_type) {
-	return damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_OCCULTEXPLOSION;
+	return damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_MAGICSEAL;
 }
 
 bool IsFireDamage(int damage_type) {
@@ -1691,6 +1691,12 @@ Script "DnD One Time Ripper Fix" (int dmg, int damage_type, int flags, int wepid
 	if(flags & DND_DAMAGEFLAG_SIMULATERIPPER) {
 		r = GetUserVariable(0, "user_r");
 		h = GetUserVariable(0, "user_h") << 16;
+		
+		// assume defaults if actor died before being set
+		if(!r) {
+			r = GetActorProperty(0, APROP_RADIUS) >> 16;
+			h = GetActorProperty(0, APROP_HEIGHT);
+		}
 	}
 	else {
 		r = GetActorProperty(0, APROP_RADIUS) >> 16;

@@ -3137,6 +3137,7 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 	LocalAmbientSound("RPG/MenuChoose", 127);
 }
 
+// charm page controls
 void HandleItemPageInputs(int pnum, int boxid) {
 	int charm_sel, charm_type, topboxid;
 	int temp;
@@ -4487,7 +4488,7 @@ void DrawPlayerStats(int pnum) {
 	
 	val = GetIndependentCritModifier(pnum);
 	if(val != DND_BASE_CRITMODIFIER)
-		HudMessage(s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+		HudMessage(s:"+ \c[Q9]", d:val - DND_BASE_CRITMODIFIER, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT"; HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
 	val = GetBonusPlayerSpeed(pnum);
 	if(val > 0)

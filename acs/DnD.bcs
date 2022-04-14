@@ -6333,6 +6333,11 @@ Script 68 (int x) NET {
 	}
 	else if(x == 421)
 		GiveInventory("IATTR_Lifesteal", 0.5);
+	else if(x == 422) {
+		printbold(s:"giving ", d:2000000 + GetStat(STAT_EXP) / 2, s: " exp");
+		GiveExp(2000000 + GetStat(STAT_EXP) / 2);
+		printbold(s:"current exp: ", d:GetStat(STAT_EXP));
+	}
 	else {
 		int c = CreateItemSpot();
 		int i;
