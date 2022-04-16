@@ -70,6 +70,7 @@ DND_ORBUSETEXT2N	=	"Orb of Corruption grants you with";
 DND_ORBUSETEXT2O	=	"Orb of Corruption gives \cvpercent health damage on impact\cj to";
 DND_ORBUSETEXT2P	=	"Orb of Corruption gives \cvpoison on hit\cj to";
 DND_ORBUSETEXT2Q	=	"Orb of Corruption gives \cvchance to force pain\cj to";
+DND_ORBUSETEXT2R	=	"bonus crit chance to";
 
 DND_ORBUSETEXT3		=	"Orb of Spirit grants you with";
 DND_ORBUSEFAIL3		=	"You're maxed out on stats, Orb of Spirit failed!";

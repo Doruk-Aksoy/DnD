@@ -842,10 +842,10 @@ Script "DND On Kill" KILL {
 				if(IsActorAlive(pnum) && pnum != target) { // dont give twice
 					// check if range flag is on, if it is check the range
 					addone = AproxDistance(GetActorX(target) - GetActorX(pnum), GetActorY(target) - GetActorY(pnum)) >> 16 <= pcount;
-					if(expshare && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_WIS)))
+					if(expshare && exptemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_WIS)))
 						expscale = RewardActorExp(pnum, exptemp);
 						
-					if(creditshare && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_GRE)))
+					if(creditshare && credtemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_GRE)))
 						creditscale = RewardActorCredit(pnum, credtemp);
 					
 					// if something could be provided, show it to user
@@ -6329,7 +6329,9 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrb(0, true);
-		SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 50);
+		SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
+		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
+		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
 	}
 	else if(x == 421)
 		GiveInventory("IATTR_Lifesteal", 0.5);

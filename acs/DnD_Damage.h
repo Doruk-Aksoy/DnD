@@ -1381,7 +1381,8 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	}
 
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
-		if(!isActorAlive(victim)) {
+		// prevents melee hits from acting like railguns!
+		if(!isActorAlive(victim) && !IsMeleeDamage(damage_type)) {
 			// if actor died before the rest of the pellets can take effect, fire corresponding bullet attacks from behind this monster
 			// calculate a pitch and angle to fire it from this guy
 			// get vector from player to puff

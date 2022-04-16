@@ -162,7 +162,7 @@ ACTOR " Chainsaw " : Chainsaw
   Select:
 	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_CHAINSAW)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 4, 1 | (10 << 16), DND_WEAPON_CHAINSAW)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 4, 5 | (10 << 16), DND_WEAPON_CHAINSAW)
   DeSelectLoop:
 	TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
     SAWG C 1 A_Raise
@@ -217,8 +217,10 @@ Actor ChainsawPuff_G : ChainsawPuff {
 Actor ChainsawShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_CHAINSAW, DND_WEP_POWER_GHOSTHIT), "GhostHit")
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
 			TNT1 A 0 A_Saw("weapons/sawfull", "weapons/sawhit", 0, "ChainsawPuff", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+		Stop
 		GhostHit:
 			TNT1 A 0 A_Saw("weapons/sawfull", "weapons/sawhit", 0, "ChainsawPuff_G", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
 		Stop
@@ -260,7 +262,7 @@ ACTOR "Upgraded Chainsaw" : Chainsaw
 	TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 	TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_DOUBLECHAINSAW)
 	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check (Melee)")
-	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 4, 1 | (10 << 16), DND_WEAPON_DOUBLECHAINSAW)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 4, 5 | (10 << 16), DND_WEAPON_DOUBLECHAINSAW)
   SelectLoop:
 	TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
     SAW2 C 1 A_Raise
@@ -300,8 +302,10 @@ Actor DChainsawPuff_G : DChainsawPuff {
 Actor DChainsawShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DOUBLECHAINSAW, DND_WEP_POWER_GHOSTHIT), "GhostHit")
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
 			TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", 0, "DChainsawPuff", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+		Stop
 		GhostHit:
 			TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", 0, "DChainsawPuff_G", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
 		Stop
@@ -645,6 +649,7 @@ ACTOR Excalibat : Weapon {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("Souls", 3)
 		NoTake:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_EXCALIBAT, DND_WEP_POWER_GHOSTHIT), "GhostHit")
 			EXCL U 1 Bright Offset(289, 9) A_FireCustomMissile("ExcalibatBall", -32, 0)
 			EXCL U 1 Bright Offset(263, 7) A_FireCustomMissile("ExcalibatBall", -28, 0)
 			EXCL U 1 Bright Offset(244, -3) A_FireCustomMissile("ExcalibatBall", -24, 0)
@@ -662,6 +667,26 @@ ACTOR Excalibat : Weapon {
 			EXCL X 1 Bright Offset(-168, 49) A_FireCustomMissile("ExcalibatBall", 24, 0)
 			EXCL X 1 Bright Offset(-218, 62) A_FireCustomMissile("ExcalibatBall", 28, 0)
 			TNT1 A 1 Offset(0, 32) A_FireCustomMissile("ExcalibatBall", 32, 0)
+		Goto Excalibat_Finish
+		GhostHit:
+			EXCL U 1 Bright Offset(289, 9) A_FireCustomMissile("ExcalibatBall_G", -32, 0)
+			EXCL U 1 Bright Offset(263, 7) A_FireCustomMissile("ExcalibatBall_G", -28, 0)
+			EXCL U 1 Bright Offset(244, -3) A_FireCustomMissile("ExcalibatBall_G", -24, 0)
+			EXCL U 1 Bright Offset(214, -4) A_FireCustomMissile("ExcalibatBall_G", -20, 0)
+			EXCL V 1 Bright Offset(204, -3) A_FireCustomMissile("ExcalibatBall_G", -16, 0)
+			EXCL V 1 Bright Offset(185, -2) A_FireCustomMissile("ExcalibatBall_G", -12, 0)
+			EXCL V 1 Bright Offset(141, 5) A_FireCustomMissile("ExcalibatBall_G", -8, 0)
+			EXCL V 1 Bright Offset(115, 9) A_FireCustomMissile("ExcalibatBall_G", -4, 0)
+			TNT1 A 0 A_FireCustomMissile("ExcalibatBall_G", 0, 0)
+			EXCL W 1 Bright Offset(103, -6) A_FireCustomMissile("ExcalibatBall_G", 4, 0)
+			EXCL W 1 Bright Offset(82, -11) A_FireCustomMissile("ExcalibatBall_G", 8, 0)
+			EXCL W 1 Bright Offset(39, -6) A_FireCustomMissile("ExcalibatBall_G", 12, 0)
+			EXCL X 1 Bright Offset(-93, 16) A_FireCustomMissile("ExcalibatBall_G", 16, 0)
+			EXCL X 1 Bright Offset(-127, 32) A_FireCustomMissile("ExcalibatBall_G", 20, 0)
+			EXCL X 1 Bright Offset(-168, 49) A_FireCustomMissile("ExcalibatBall_G", 24, 0)
+			EXCL X 1 Bright Offset(-218, 62) A_FireCustomMissile("ExcalibatBall_G", 28, 0)
+			TNT1 A 1 Offset(0, 32) A_FireCustomMissile("ExcalibatBall_G", 32, 0)
+		Excalibat_Finish:
 			TNT1 A 5 Offset(0, 32)
 			EXCL A 1 Offset(-1, 132)
 			EXCL A 1 Offset(-1, 112)
@@ -772,6 +797,10 @@ Actor ExcalibatBall : DnD_ExplosiveBase {
 			D3BX ABCDEFG 2 Bright A_FadeOut(0.075)
 		Goto FinishExplosion
 	}
+}
+
+Actor ExcalibatBall_G : ExcalibatBall {
+	-THRUGHOST
 }
 
 Actor KatanaUnsheated : DnD_Boolean { }

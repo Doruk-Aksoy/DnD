@@ -5,6 +5,9 @@
 #include "DnD_QuestDefs.h"
 #include "DnD_InvAttribs.h"
 
+#define DND_ACCURACY_CAP 100000
+						
+
 enum {
 	TALENT_BULLET = 0,
 	TALENT_MELEE,
@@ -489,6 +492,9 @@ void CalculatePlayerAccuracy(int pnum) {
 	int acc = GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE);
 	// omnisight essence gives % increased accuracy
 	acc += (acc * GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT)) / 100;
+	if(acc > DND_ACCURACY_CAP)
+		acc = DND_ACCURACY_CAP;
+	
 	SetActorProperty(0, APROP_ACCURACY, acc);
 }
 

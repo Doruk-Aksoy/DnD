@@ -90,7 +90,12 @@ Actor ResMelee1 : Weapon {
 Actor InfernoSwordShooter1 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_INFERNOSWORD, DND_WEP_POWER_GHOSTHIT), "GhostHit")
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
 			TNT1 A 0 A_FireBullets(-24.0, 0, -1, 0, "InfernoSwordPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
+		Stop
+		GhostHit:
+			TNT1 A 0 A_FireBullets(-24.0, 0, -1, 0, "InfernoSwordPuff_G", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
 		Stop
 	}
 }
@@ -98,7 +103,12 @@ Actor InfernoSwordShooter1 : DnD_Activator {
 Actor InfernoSwordShooter2 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_INFERNOSWORD, DND_WEP_POWER_GHOSTHIT), "GhostHit")
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
 			TNT1 A 0 A_FireBullets(-12.0, 0, -1, 0, "InfernoSwordPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
+		Stop
+		GhostHit:
+			TNT1 A 0 A_FireBullets(-12.0, 0, -1, 0, "InfernoSwordPuff_G", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
 		Stop
 	}
 }
@@ -106,7 +116,12 @@ Actor InfernoSwordShooter2 : DnD_Activator {
 Actor InfernoSwordShooter3 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_INFERNOSWORD, DND_WEP_POWER_GHOSTHIT), "GhostHit")
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
 			TNT1 A 0 A_FireBullets(0.0, 0, -1, 0, "InfernoSwordPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
+		Stop
+		GhostHit:
+			TNT1 A 0 A_FireBullets(0.0, 0, -1, 0, "InfernoSwordPuff_G", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
 		Stop
 	}
 }
@@ -114,7 +129,12 @@ Actor InfernoSwordShooter3 : DnD_Activator {
 Actor InfernoSwordShooter4 : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_INFERNOSWORD, DND_WEP_POWER_GHOSTHIT), "GhostHit")
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
 			TNT1 A 0 A_FireBullets(12.0, 0, -1, 0, "InfernoSwordPuff", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
+		Stop
+		GhostHit:
+			TNT1 A 0 A_FireBullets(12.0, 0, -1, 0, "InfernoSwordPuff_G", FBF_EXPLICITANGLE | FBF_NOFLASH | FBF_NORANDOM, 88)
 		Stop
 	}
 }
@@ -127,16 +147,27 @@ Actor InfernoSwordShooter5 : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("Souls", 5)
 		NoAmmo:
 			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_INFERNOSWORD, DND_WEP_POWER_GHOSTHIT), "GhostHit")
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_1", -11.5, 0, -10, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_2", -5.625, 0, -5, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_3", 0, 0, 0, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_4", 5.625, 0, 5, 0, 1)
 			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_5", 11.5, 0, 10, 0, 1)
 		Stop
+		GhostHit:
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_1_G", -11.5, 0, -10, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_2_G", -5.625, 0, -5, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_3_G", 0, 0, 0, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_4_G", 5.625, 0, 5, 0, 1)
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_5_G", 11.5, 0, 10, 0, 1)
+		Stop
 		
 		FireCircle:
 			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 5))
 			TNT1 A 0 A_SetArg(4, Args[2])
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_INFERNOSWORD, DND_WEP_POWER_GHOSTHIT), "GhostHit_LoopStart")
+			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit_LoopStart")
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish
@@ -147,6 +178,14 @@ Actor InfernoSwordShooter5 : DnD_Activator {
 		Finish:
 			TNT1 A 0
 		Stop
+		
+		GhostHit_LoopStart:
+			TNT1 A 0 A_JumpIf(Args[4], "Ghost_LoopContinue")
+		Goto Finish
+		Ghost_LoopContinue:
+			TNT1 A 0 A_FireCustomMissile("InfernoSwordMissile_1", (360.0 / Args[2]) * Args[4], 0)
+			TNT1 A 0 A_SetArg(4, Args[4] - 1)
+		Goto GhostHit_LoopStart
 	}
 }
 
@@ -199,6 +238,10 @@ Actor InfernoSwordPuff : DnD_BasePuff {
 			DKAT HIJKLM 2 Bright
 		Stop
 	}
+}
+
+Actor InfernoSwordPuff_G : InfernoSwordPuff {
+	-THRUGHOST
 }
 
 Actor InfernoProjExplosion2 : DnD_ExplosiveBase {
@@ -299,6 +342,26 @@ Actor InfernoSwordMissile_5 : InfernoSwordMissile_1 {
 			TNT1 A 0 A_ScaleVelocity(pvel)
 		Goto Super::SpawnState
 	}
+}
+
+Actor InfernoSwordMissile_1_G : InfernoSwordMissile_1 {
+	-THRUGHOST
+}
+
+Actor InfernoSwordMissile_2_G : InfernoSwordMissile_2 {
+	-THRUGHOST
+}
+
+Actor InfernoSwordMissile_3_G : InfernoSwordMissile_3 {
+	-THRUGHOST
+}
+
+Actor InfernoSwordMissile_4_G : InfernoSwordMissile_4 {
+	-THRUGHOST
+}
+
+Actor InfernoSwordMissile_5_G : InfernoSwordMissile_5 {
+	-THRUGHOST
 }
 
 Actor InfernoSwordMissileFX {

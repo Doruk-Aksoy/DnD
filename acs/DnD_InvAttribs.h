@@ -30,7 +30,6 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
 
 // chance to roll negative attribute: 40% - 10% * tier, perfect charms never roll negative attributes -- 0 based tier
 
-#define DND_ACCURACY_CAP 80000
 #define DND_ATTRIBUTEBONUS_CAP 1024
 
 //#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF

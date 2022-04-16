@@ -1334,7 +1334,7 @@ void DoSinOrbMessage(int val, int affluence) {
 				Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:pts, s:" ", l:"DND_ORB_RANDOMPERK", s:"!");
 		break;
 		case SINORB_CRIT:
-			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% ", l:"DND_ORBUSETEXT2I", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
+			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% ", l:"DND_ORBUSETEXT2R", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
 		case SINORB_CRITDMG:
 			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:SINORB_CRITDMGGIVE * affluence, s:"% ", l:"DND_ORBUSETEXT2J", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
