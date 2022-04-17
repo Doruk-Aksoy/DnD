@@ -579,4 +579,9 @@ Actor DnD_LifeTimeKills_Billions : Ammo {
 	+IGNORESKILL
 }
 
+Actor DnD_PercentDamageHalt : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 7
+}
+
 Actor NFT_Token : DnD_Info { }

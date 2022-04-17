@@ -217,12 +217,13 @@ Actor ChainsawPuff_G : ChainsawPuff {
 Actor ChainsawShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_PlayWeaponSound("weapons/sawfull")
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_CHAINSAW, DND_WEP_POWER_GHOSTHIT), "GhostHit")
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
-			TNT1 A 0 A_Saw("weapons/sawfull", "weapons/sawhit", 0, "ChainsawPuff", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+			TNT1 A 0 A_CustomPunch(0, 1, 0, "ChainsawPuff", 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
 		Stop
 		GhostHit:
-			TNT1 A 0 A_Saw("weapons/sawfull", "weapons/sawhit", 0, "ChainsawPuff_G", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+			TNT1 A 0 A_CustomPunch(0, 1, 0, "ChainsawPuff_G", 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
 		Stop
 	}
 }
@@ -295,19 +296,30 @@ Actor DChainsawPuff : ChainsawPuff {
 	}
 }
 
+Actor DChainsawPuff_NoSound : DChainsawPuff {
+	SeeSound ""
+}
+
 Actor DChainsawPuff_G : DChainsawPuff {
 	-THRUGHOST
+}
+
+Actor DChainsawPuff_NoSound_G : DChainsawPuff_G {
+	SeeSound ""
 }
 
 Actor DChainsawShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_PlayWeaponSound("weapons/sawfull2")
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DOUBLECHAINSAW, DND_WEP_POWER_GHOSTHIT), "GhostHit")
 			TNT1 A 0 A_JumpIFInventory("NetherCheck", 1, "GhostHit")
-			TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", 0, "DChainsawPuff", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+			TNT1 A 0 A_CustomPunch(0, 1, 0, "DChainsawPuff_NoSound", 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+			TNT1 A 0 A_CustomPunch(0, 1, 0, "DChainsawPuff", 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
 		Stop
 		GhostHit:
-			TNT1 AA 0 A_Saw("weapons/sawfull2", "weapons/sawhit2", 0, "DChainsawPuff_G", SF_NORANDOM, 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+			TNT1 A 0 A_CustomPunch(0, 1, 0, "DChainsawPuff_G", 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
+			TNT1 A 0 A_CustomPunch(0, 1, 0, "DChainsawPuff_NoSound_G", 65 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
 		Stop
 	}
 }

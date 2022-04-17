@@ -669,8 +669,12 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 }
 
 void SyncClientsideVariable_Orb(int pnum, int var, int extra) {
-	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS))
+	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS)) {
+		/*if(extra == DND_WEAPON_PISTOL || extra == DND_WEAPON_FIST) {
+			printbold(d:extra, s:". ", d:var, s:": ", d:GetPlayerSyncValue_Orb(var, extra));
+		}*/
 		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, extra), extra);
+	}
 	else
 		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, 0), 0);
 }
@@ -683,8 +687,9 @@ void SyncClientsideVariable_Elixir(int pnum, int var, int extra) {
 }
 
 void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
-	for(int i = 0; i < MAX_WEP_MODS; ++i)
+	for(int i = 0; i < MAX_WEP_MODS; ++i) {
 		ACS_NamedExecuteWithResult("DND Clientside Weapon Mod Sync", wepid, i, Player_Weapon_Infos[pnum][wepid].wep_mods[i].val, Player_Weapon_Infos[pnum][wepid].wep_mods[i].tier);
+	}
 }
 
 void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev) {
@@ -873,9 +878,13 @@ void SyncAllClientsideVariables(int pnum) {
 	int i, j;
 	// sync orbs
 	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i < MAX_WEP_MODS)) {
-			for(j = 0; j < MAXWEPS; ++j)
+		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i < MAX_SYNC_VARS)) {
+			for(j = 0; j < MAXWEPS; ++j) {
+				/*if(j == DND_WEAPON_PISTOL || j == DND_WEAPON_FIST) {
+					printbold(d:j, s:". ", d:i, s:": ", d:GetPlayerSyncValue_Orb(i, j));
+				}*/
 				ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, i, GetPlayerSyncValue_Orb(i, j), j);
+			}
 		}
 		else
 			ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, i, GetPlayerSyncValue_Orb(i, 0), 0);

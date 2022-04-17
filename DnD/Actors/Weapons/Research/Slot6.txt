@@ -967,7 +967,7 @@ Actor "ResPlasma4" : Weapon {
 	Weapon.AmmoType1 "DemonBlood"
 	Weapon.AmmoType2 "LanceStacks"
 	Weapon.AmmoUse2 0
-	Weapon.AmmoUse1 0
+	Weapon.AmmoUse1 1
 	Weapon.AmmoGive1 10
 	+INVENTORY.UNDROPPABLE
 	Tag "$WEP_67_TAG"
@@ -1143,10 +1143,12 @@ Actor GrayFlare_DarkLance : GrayFlare {
 Actor DarkLanceShooter1 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+		NoTake:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
 			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 6, 18, 90)
 		Stop
@@ -1156,10 +1158,12 @@ Actor DarkLanceShooter1 : DnD_Activator {
 Actor DarkLanceShooter2 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+		NoTake:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
 			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 8, 18, 90)
 		Stop
@@ -1169,10 +1173,12 @@ Actor DarkLanceShooter2 : DnD_Activator {
 Actor DarkLanceShooter3 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+		NoTake:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
 			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 10, 18, 90)
 		Stop
@@ -1182,10 +1188,12 @@ Actor DarkLanceShooter3 : DnD_Activator {
 Actor DarkLanceShooter4 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+		NoTake:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
 			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 12, 18, 90, 1)
 		Stop
@@ -1195,10 +1203,12 @@ Actor DarkLanceShooter4 : DnD_Activator {
 Actor DarkLanceShooter5 : DnD_Activator {
 	States {
 		Use:
+			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
+			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
+		NoTake:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
 			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 14, 18, 90, 2)
 		Stop

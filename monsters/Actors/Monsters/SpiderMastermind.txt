@@ -1732,7 +1732,7 @@ ACTOR SpiderOverlordMissile : SentGmissile {
 }
 
 actor DarkLich : DnD_BaseRangedBoss {
-	obituary "%o couldn't withstand the magic of a dark lich."
+	obituary "%o couldn't withstand the magic of a Dark Lich."
 	Health 0x7FFFFFFF
 	painchance 0
 	speed 7

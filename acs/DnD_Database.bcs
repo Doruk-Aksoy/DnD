@@ -474,8 +474,8 @@ void SavePlayerData(int pnum, int char_id) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 			
 			// orb stored wepmod data
-			temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier;
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
+			//temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier;
+			//SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 			temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].val;
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 		}
@@ -618,7 +618,7 @@ void SavePlayerActivities(int pnum, int char_id) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 			temp = Player_Weapon_Infos[pnum][i].wep_mods[j].val;
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
-		
+
 			// orb stored wepmod data
 			temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier;
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
@@ -994,8 +994,13 @@ void LoadPlayerData(int pnum, int char_id) {
 	}
 	
 	// read research investment
-	for(i = 0; i < MAX_RESEARCHES; ++i)
+	for(i = 0; i < MAX_RESEARCHES; ++i) {
 		ResearchInvestments[pnum][i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_INVESTED, char_id), d:i + 1), pacc);
+		
+		// if non-zero, run this. we don't want to run a bunch of these when most of these are most likely to be 0
+		if(ResearchInvestments[pnum][i])
+			ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, i, ResearchInvestments[pnum][i]);
+	}
 	
 	HandleResearchBonuses();
 	
@@ -1048,7 +1053,7 @@ void LoadPlayerData(int pnum, int char_id) {
 			Player_Weapon_Infos[pnum][i].wep_mods[j].val = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc);
 		
 			// orb stored wepmod data
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc);;
+			//Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc);;
 			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].val = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc);;
 		}
 	}
@@ -1177,7 +1182,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
 			
 			// orb stored wep mods
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
+			//SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
 		}
 	}

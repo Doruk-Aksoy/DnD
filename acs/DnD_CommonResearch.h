@@ -99,8 +99,10 @@ enum {
 global int 22: ResearchInvestments[MAXPLAYERS][MAX_RESEARCHES];
 
 void ResetInvestments(int pnum) {
-	for(int i = 0; i < MAX_RESEARCHES; ++i)
+	for(int i = 0; i < MAX_RESEARCHES; ++i) {
 		ResearchInvestments[pnum][i] = 0;
+		ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, i, 0);
+	}
 }
 
 enum {

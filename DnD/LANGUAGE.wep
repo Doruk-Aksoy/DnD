@@ -248,7 +248,7 @@ WEPTIP_9_10 	= "True classic, in akimbo fashion too! Shoots bullets doing 10-30 
 WEPTIP_9_11 	= "Can blast foes with plasma doing 24-40 damage with 35 explosion damage. Alt fire can shoot a ripping version of this same plasma. \ceTemporary Weapon.";
 WEPTIP_9_12 	= "Ripper fires penetrating rounds in a 14.2 and 7.6 spread each doing 25 damage. \ceTemporary Weapon.";
 
-DND_WEPMOD_PERCENTDMG		=	"monster health on hits";
+DND_WEPMOD_PERCENTDMG		=	"of monster health as damage on hits";
 DND_WEPMOD_POISONHITS		=	"of damage dealt on hits does additional poison damage";
 DND_WEPMOD_CHANCEFORCEPAIN	=	"chance to force pain on hits";
 DND_WEPMOD_POW_GHOSTHIT		=	"Weapon can hit ghosts, but deals 33% less damage.";

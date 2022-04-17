@@ -5279,7 +5279,8 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	bool isSpecial = false;
 	int extra = -1;
-	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
+	// if hand of artemis is equipped don't run this
+	if(!IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_HANDARTEMIS) && random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
 		if(slot == DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(ClipAmmoTypes[ammo], amount);
 		else if(slot == DND_AMMOSLOT_SPECIAL) {
