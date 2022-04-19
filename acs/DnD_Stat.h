@@ -1072,13 +1072,13 @@ int MapTalentToFlatBonus(int pnum, int talent, int flags) {
 		case TALENT_ELEMENTAL:
 			int bonus = 0;
 			if(flags & DND_WDMG_FIREDAMAGE)
-				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatFireDmg");
+				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
 			else if(flags & DND_WDMG_ICEDAMAGE)
-				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatIceDmg");
+				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
 			else if(flags & DND_WDMG_POISONDAMAGE)
-				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatPoisonDmg");
+				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
 			else if(flags & DND_WDMG_LIGHTNINGDAMAGE)
-				bonus += CheckActorInventory(pnum + P_TIDSTART, "IATTR_FlatLightningDmg");
+				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
 		return bonus + GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE);
 	}
 	return 0;
@@ -1125,6 +1125,41 @@ int GetNonLowestTalents() {
 #define DND_BASE_OVERLOADTIME (105 / DND_BASE_OVERLOADTICK) // 3 seconds -- 105 / 5
 int GetOverloadTime(int pnum) {
 	return (DND_BASE_OVERLOADTIME + ((GetPlayerAttributeValue(pnum, INV_OVERLOAD_DURATION) * TICRATE) >> 16)) / DND_BASE_OVERLOADTICK;
+}
+
+int GetPlayerMeleeRange(int pnum) {
+	return GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC;
+}
+
+#define DND_BASE_IGNITEDMG 10
+int GetFireDOTDamage(int pnum) {
+	// flat dmg
+	int dmg = (DND_BASE_IGNITEDMG + GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG) + GetPlayerAttributeValue(pnum, INV_EX_FLATDOT));
+	
+	// percent increase
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	
+	// dot multi;
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+	
+	return dmg;
+}
+
+int GetPoisonDOTDamage(int pnum, int base_poison) {
+	int dmg = base_poison;
+	if(!dmg)
+		dmg = 1;
+		
+	// flat dmg
+	dmg += GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG) + GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
+	
+	// percent increase
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	
+	// dot multi
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+	
+	return dmg;
 }
 
 #define DND_BASE_LIFESTEALCAP 20

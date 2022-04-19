@@ -67,7 +67,7 @@ enum {
 	DND_DAMAGETYPEFLAG_ICE = 64,
 	DND_DAMAGETYPEFLAG_POISON = 128,
 	DND_DAMAGETYPEFLAG_LIGHTNING = 256,
-	DND_DAMAGETYPEFLAG_PERCENTHP = 512
+	DND_DAMAGETYPEFLAG_PERCENTHP = 512,
 };
 
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
@@ -295,7 +295,6 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_CHILL_SLOW 10 // 10% per stack
 
 #define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
-#define DND_BASE_IGNITEDMG 10
 #define DND_BASE_IGNITECHANCE 15
 
 #define DND_BASE_OVERLOADCHANCE 5
@@ -432,40 +431,22 @@ int BigNumberFormula(int dmg, int f) {
 	return dmg;
 }
 
-int GetDOTMulti() {
-	return GetPlayerAttributeValue(PlayerNumber(), INV_DOTMULTI);
-}
+// Factors in generic DOT percentages to a base damage, use for weapons that do DOT on their own!
+int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
+	// flat portion
+	dmg += GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 
-int GetFireDOTDamage() {
-	// flat dmg
-	int dmg = (DND_BASE_IGNITEDMG + CheckInventory("IATTR_FlatFireDmg") + CheckInventory("IATTR_FlatDotDamage"));
-	
-	// percent increase
-	dmg *= (100 + CheckInventory("IATTR_IgniteDmg") + GetPlayerAttributeValue(PlayerNumber(), INV_INCREASEDDOT)) / 100;
-	
-	// dot multi;
-	dmg *= (100 + GetDOTMulti()) / 100;
-	
-	return dmg;
-}
-
-int GetPoisonDOTDamage(int base_poison) {
-	int dmg = base_poison;
-	if(!dmg)
-		dmg = 1;
+	// dot %
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT) + percent_increase) / 100;
 		
-	// flat dmg
-	dmg += CheckInventory("IATTR_FlatPoisonDmg") + CheckInventory("IATTR_FlatDotDamage");
-	
-	// percent increase
-	dmg *= (100 + CheckInventory("IATTR_PoisonTicDmg") + GetPlayerAttributeValue(PlayerNumber(), INV_INCREASEDDOT)) / 100;
-	
 	// dot multi
-	dmg *= (100 + GetDOTMulti()) / 100;
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
 	
 	return dmg;
 }
 
+// use only flags with DND_WDMG header here!!!
+// NOTE: DO NOT FACTOR ANY DOT MULTIPLIER IN HERE!
 int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags, bool isSpecial) {
 	// we don't cache special ammo damage
 	int dmg = 0;
@@ -483,7 +464,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	else // no rng, so just set it to temp
 		dmg = temp;
 
-	bool is_melee_mastery_exception = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && HasMasteredPerk(STAT_BRUT);
+	bool is_melee_mastery_exception = (IsMeleeWeapon(wepid) || (flags & DND_WDMG_ISMELEE)) && HasMasteredPerk(STAT_BRUT);
 
 	// only store scaling factors here for later use, no modifying damage in this block
 	// damage modifications are done at the end
@@ -495,6 +476,10 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		temp += MapTalentToFlatBonus(pnum, talent_type, flags);
 		
 		ClearCache(pnum, wepid, dmgid);
+		
+		if(flags & DND_WDMG_ISDOT)
+			temp += GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
+		
 		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
 		
 		int mult_factor = 0;
@@ -565,6 +550,10 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
 		if((talent_type == TALENT_MELEE || talent_type == TALENT_BULLET) && temp)
 			InsertCacheFactor(pnum, wepid, dmgid, GetFlatHealthDamageFactor(temp), true);
+			
+		// factor dot % increase if this is a dot attack
+		if(flags & DND_WDMG_ISDOT)
+			InsertCacheFactor(pnum, wepid, dmgid, GetPlayerAttributeValue(pnum, INV_INCREASEDDOT), true);
 
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses
@@ -1008,6 +997,7 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters!
+// All damage factors here are applied in the "more" method, ie. multiplicative
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid, int flags, int ox, int oy, int oz, int actor_flags, bool wep_neg = false, bool oneTimeRipperHack = false) {
 	str s_damagetype = DamageTypeList[damage_type];
 	bool forced_full = false;
@@ -1977,8 +1967,14 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 }
 
 Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
-	int time_limit = DND_BASE_POISON_TIMER * (100 + CheckInventory("IATTR_PoisonDuration") + CheckInventory("IATTR_DotDuration")) / 100;
-	int trigger_tic = DND_BASE_POISON_TIC * (100 - CheckInventory("IATTR_PoisonTicrate")) / 100;
+	int pnum = PlayerNumber();
+	int time_limit = DND_BASE_POISON_TIMER * (100 + GetPlayerAttributeValue(pnum, INV_POISON_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+	int trigger_tic = DND_BASE_POISON_TIC * (100 - GetPlayerAttributeValue(pnum, INV_POISON_TICRATE)) / 100;
+	
+	// keep min 1 tic
+	if(trigger_tic < 1)
+		trigger_tic = 1;
+	
 	int tic_temp = trigger_tic;
 	int counter = 0;
 	
@@ -1986,7 +1982,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 	if(CheckInventory("StatbuffCounter_PoisonTicTwiceFast"))
 		trigger_tic /= 2;
 
-	dmg = GetPoisonDOTDamage(dmg);
+	dmg = GetPoisonDOTDamage(pnum, dmg);
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
@@ -2095,21 +2091,26 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 }
 
 Script "DnD Monster Ignite" (int victim, int wepid) {
-	int dmg = GetFireDOTDamage();
-	int dmg_tic_buff = CheckInventory("IATTR_IgniteDamageEachTic");
+	int pnum = PlayerNumber();
+	int dmg = GetFireDOTDamage(pnum);
+	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 	
 	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, TALENT_ELEMENTAL);
+	
+	int next_dmg = dmg;
+	int inc_by = dmg * dmg_tic_buff / 100;
 	
 	while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim)) {
 		// x 5
 		Delay(const:7);
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
-		HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_ISDAMAGEOVERTIME);
+		HandleDamageDeal(ActivatorTID(), victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_ISDAMAGEOVERTIME);
 		if(random(0, 1))
 			GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
-			
-		dmg += (dmg * dmg_tic_buff) / 100;
+		
+		// add base damage's value, not previous
+		next_dmg += inc_by;
 	}
 	
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);
@@ -2509,9 +2510,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		// printbold(s:GetactorClass(0), s:" inflicts damage id ", d:GetActorProperty(0, APROP_DAMAGE));
+		//printbold(s:GetactorClass(0), s:" inflicts damage id ", d:GetActorProperty(0, APROP_DAMAGE));
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
-		// printbold(s:"dmg flag: ", d:dmg_data);
+		//printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
 		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT";
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");

@@ -22,7 +22,7 @@ enum {
 	DND_DAMAGETYPE_SOUL
 };
 
-// the following are used to encode hints on the damage type for projectiles with some special flags
+// the following are used to encode hints on the damage type for projectiles with some special flags using Stamina property
 enum {
 	DND_DAMAGETYPEFLAG_PHYSICAL = 1,
 	DND_DAMAGETYPEFLAG_HITSCAN = 2,
@@ -33,7 +33,7 @@ enum {
 	DND_DAMAGETYPEFLAG_ICE = 64,
 	DND_DAMAGETYPEFLAG_POISON = 128,
 	DND_DAMAGETYPEFLAG_LIGHTNING = 256,
-	DND_DAMAGETYPEFLAG_PERCENTHP = 512
+	DND_DAMAGETYPEFLAG_PERCENTHP = 512,
 };
 
 enum {
@@ -55,7 +55,7 @@ enum {
 	DND_DAMAGEFLAG_SIMULATERIPPER = 32768,
 	DND_DAMAGEFLAG_ISSPELL = 65536,
 	DND_DAMAGEFLAG_ISSPECIALAMMO = 131072,
-	DND_DAMAGEFLAG_COUNTSASMELEE = 262144
+	DND_DAMAGEFLAG_COUNTSASMELEE = 262144,
 };
 
 enum {

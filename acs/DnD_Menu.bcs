@@ -174,6 +174,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
+			PlayerStatText = ""; // reset stat block text
 			PlayerCursorData.hoverNeedsReset = true;
 			redraw = true;
 		}
@@ -400,15 +401,44 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("=>", DND_NOLOOKUP, boxid, MBOX_7, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2) {
-				// put before hud clip rect in the future, wasn't showing before!
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_GAINS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				
-				DrawPlayerStats(pnum);
 
-				DrawBoxText("=>", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_GAIN_OFFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_GAIN_DEFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_GAIN_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_GAIN_QUEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_5, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_STAT2_OFFENSE1) {
+				HudMessage(s:"--- ", l:"DND_MENU_GAIN_OFFENSE", s:" #1 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawPlayerStats(pnum, DRAW_STAT_OFFENSE1);
+
 				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
-			else if(curopt == MENU_STAT3) {
+			else if(curopt == MENU_STAT2_OFFENSE2) {
+				HudMessage(s:"--- ", l:"DND_MENU_GAIN_OFFENSE", s:" #2 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawPlayerStats(pnum, DRAW_STAT_OFFENSE2);
+
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_STAT2_DEFENSE) {
+				HudMessage(s:"--- ", l:"DND_MENU_GAIN_DEFENSE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawPlayerStats(pnum, DRAW_STAT_DEFENSE);
+
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_STAT2_UTILITY) {
+				HudMessage(s:"--- ", l:"DND_MENU_GAIN_UTILITY", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawPlayerStats(pnum, DRAW_STAT_UTILITY);
+
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_STAT2_QUESTBONUSES) {
 				toshow = "";
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_QUESTBON", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				for(i = 0; i < MAX_QUESTS; ++i) {
@@ -1126,23 +1156,27 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		}
 		else if(curopt == MENU_STAT2) {
 			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_STAT3);
-				else if(boxid == MBOX_2)
+				if(boxid == MBOX_5)
 					UpdateMenuPosition(MENU_STAT1);
+				else if(boxid == MBOX_1)
+					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+				else if(boxid != MAINBOX_NONE) // skip offense page 2
+					UpdateMenuPosition(boxid - MBOX_1 + MENU_STAT2 + 2);
 			}
 			else if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_STAT1);
-			else if(HasPressedRight(pnum))
-				UpdateMenuPosition(MENU_STAT3);
 		}
-		else if(curopt == MENU_STAT3) {
-			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_1)
+		else if(curopt >= MENU_STAT2_OFFENSE1 && curopt <= MENU_STAT2_QUESTBONUSES) {
+			if(HasPressedLeft(pnum)) {
+				if(curopt == MENU_STAT2_OFFENSE2)
+					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+				else
 					UpdateMenuPosition(MENU_STAT2);
 			}
-			else if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_STAT2);
+			else if(HasPressedRight(pnum)) {
+				if(curopt == MENU_STAT2_OFFENSE1)
+					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
+			}
 		}
 		else if(curopt == MENU_PERK) {
 			if(HasPlayerClicked(pnum)) {

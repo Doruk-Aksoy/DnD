@@ -208,7 +208,7 @@ enum {
 	INV_EX_CURSEIMMUNITY,
 	INV_EX_LIMITEDSMALLCHARMS,
 	INV_EX_FLATPERSHOTGUNOWNED,
-	INV_EX_REDUCEDHEALING
+	INV_EX_LESSHEALING
 	// add new unique attributes here
 };
 
@@ -219,7 +219,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
-#define UNIQUE_ATTRIB_END INV_EX_REDUCEDHEALING
+#define UNIQUE_ATTRIB_END INV_EX_LESSHEALING
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
@@ -426,7 +426,7 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_LimitedCharms";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_FLatPerShotgunOwned";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_ReducedHealing";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_LessHealing";
 }
 
 // if 3rd argument is 0 that means simply use the difference + 1 as increment
@@ -961,7 +961,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 			return StrParam(s:"+ \c[Q9]", d:val1, s:"\c- ", l:text);
 		
 		// negative %
-		case INV_EX_REDUCEDHEALING:
+		case INV_EX_LESSHEALING:
 			if(val1) {
 				if(showDetailedMods) {
 					return StrParam(

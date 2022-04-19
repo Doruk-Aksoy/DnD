@@ -33,6 +33,11 @@ DND_MENU_SIDE_STATS		=	"Stats";
 DND_MENU_SIDE_PERKS		=	"Perks";
 DND_MENU_SIDE_LOADOUT	=	"Loadout";
 
+DND_MENU_GAIN_OFFENSE	=	"Offensive Stats";
+DND_MENU_GAIN_DEFENSE	=	"Defensive Stats";
+DND_MENU_GAIN_UTILITY	=	"Utility Stats";
+DND_MENU_GAIN_QUEST		=	"Quest Bonuses";
+
 DND_MENU_HEAD_STATS		=	"Player Stats";
 DND_MENU_HEAD_GAINS		=	"Current Gains";
 DND_MENU_HEAD_QUESTBON	=	"Quest Bonuses";

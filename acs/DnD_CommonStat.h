@@ -32,7 +32,7 @@ enum {
 	DND_WDMG_USETRACER = 512,
 	DND_WDMG_ISRIPPER = 1024,
 	DMG_WDMG_NECROBULK = 2048,
-	DND_WDMG_HASSTRSCALING = 4096,
+	DND_WDMG_ISMELEE = 4096,
 	DND_WDMG_ISSLOT1 = 8192,
 	DND_WDMG_ISSLOT2 = 16384,
 	DND_WDMG_ISSLOT3 = 32768,
@@ -47,7 +47,8 @@ enum {
 	DND_WDMG_FIREDAMAGE = 16777216,
 	DND_WDMG_ICEDAMAGE = 33554432,
 	DND_WDMG_POISONDAMAGE = 67108864,
-	DND_WDMG_LIGHTNINGDAMAGE = 134217728
+	DND_WDMG_LIGHTNINGDAMAGE = 134217728,
+	DND_WDMG_ISDOT = 268435456
 };
 
 #include "DnD_OrbsDef.h"
@@ -332,7 +333,9 @@ int GetHealingBonuses(int pnum) {
 		bonus += DND_QUEST_MASTERHEALER_INCREASE;
 	if(CheckInventory("DnD_QuestReward_HealingAndCapIncrease"))
 		bonus += DND_QUEST_SKINOTEETH_INCREASE;
-	bonus -= GetPlayerAttributeValue(pnum, INV_EX_REDUCEDHEALING);
+	// doesn't make sense for it to go below 0
+	int less_mod = Clamp_Between(100 - GetPlayerAttributeValue(pnum, INV_EX_LESSHEALING), 0, 100);
+	bonus = bonus * less_mod / 100;
 	return bonus;
 }
 

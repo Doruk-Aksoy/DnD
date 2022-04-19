@@ -1014,7 +1014,7 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_DARKLANCE)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 25, 0, DND_WEAPON_DARKLANCE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 12, 0, DND_WEAPON_DARKLANCE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 50, 0, DND_WEAPON_DARKLANCE)
 	    SelectLoop:
 			RW10 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -1329,7 +1329,7 @@ Actor DarkLanceShredder : DnD_BaseProjectile {
 			FX69 AAABBBCCCDDDEEE 1 Bright A_SpawnItemEx("DarkLanceShredder_Trail")
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shred", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DARKLANCE << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shred", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DARKLANCE << 16), TALENT_OCCULT, DND_ISDOT | DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_PlaySound("DarkLance/Curse", CHAN_5)
 			SRV3 ABCD 4 Bright
 			SRV3 EFGHI 3 Bright
@@ -1369,14 +1369,16 @@ Actor DarkLanceShredder_Trail {
 
 Actor DarkLanceShredder_FX {
 	Renderstyle Add
-	Alpha 1.0
+	Alpha 0.4
 	Scale 1.0
 	+NOINTERACTION
 	+CLIENTSIDEONLY
 	States {
 		Spawn:
-			X122 AABBCCDDEEFFGGHH 1 Bright A_FadeOut(0.025)
-			X122 IIJJKKLLMMNNOOPP 1 Bright A_FadeIn(0.025)
+			TNT1 A 0
+		SpawnLoop:
+			X122 AABBCCDDEEFFGGHH 1 Bright A_FadeIn(0.0375)
+			X122 IIJJKKLLMMNNOOPP 1 Bright A_FadeOut(0.0375)
 		Loop
 		Vanish:
 			"####" "#" 0 A_PlaySound("DarkLance/Consume")

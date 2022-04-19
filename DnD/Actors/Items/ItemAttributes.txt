@@ -713,7 +713,7 @@ Actor IATTR_FLatPerShotgunOwned : Ammo {
 	+IGNORESKILL
 }
 
-Actor IATTR_ReducedHealing : Ammo {
+Actor IATTR_LessHealing : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL

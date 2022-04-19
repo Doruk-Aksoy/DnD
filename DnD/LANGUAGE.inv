@@ -247,7 +247,7 @@ IATTR_TX28 			= "Critical strikes have ";
 IATTR_TX29 			= "Curse Immunity";
 IATTR_TX30			= "Can only use";					IATTR_TX30_2S		= "small charm";	IATTR_TX30_2		= "small charms";
 IATTR_TX31			= "damage to shotguns per shotgun owned";
-IATTR_TX32			= "reduced effect of healing";
+IATTR_TX32			= "less effect of healing";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

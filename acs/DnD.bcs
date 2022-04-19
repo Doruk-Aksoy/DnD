@@ -3997,7 +3997,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 Script "DnD Get Melee Range Increase" (int use_target) {
 	if(use_target)
 		SetActivatorToTarget(0);
-	SetResultValue(CheckInventory("IATTR_MeleeRange") + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC);
+	SetResultValue(GetPlayerMeleeRange(PlayerNumber()));
 }
 
 // Used mainly for non-weapons (like artifacts, spells and so on)
@@ -4016,7 +4016,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	
 	dmg += MapTalentToFlatBonus(pnum, talent_type, flags);
 	
-	if(talent_type == TALENT_MELEE || (flags & DND_WDMG_HASSTRSCALING))
+	if(talent_type == TALENT_MELEE || (flags & DND_WDMG_ISMELEE))
 		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
 		
 	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
@@ -4313,20 +4313,30 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 			owner = GetActorProperty(0, APROP_TARGETTID);
 			
 		SetActivator(owner);
-			
-		// special fx script
-		ACS_NamedExecuteWithResult("DnD Dark Lance Shred FX", victim, owner - P_TIDSTART);
 		
+		int pnum = owner - P_TIDSTART;
+		
+		// special fx script -- since dot has duration it scales off of dot duration increase
+		int time_lim = DARKLANCE_ALT_DURATION_TICS * (100 + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+		ACS_NamedExecuteWithResult("DnD Dark Lance Shred FX", victim, pnum, time_lim);
+		time_lim /= DARKLANCE_TICKS;
+		
+		// the affliction does 15 ticks, each stack provides 1% more damage. 15 * (50 * (100 + stacks) / 100) = 1500 max damage default at max stacks 
 		if(!stacks)
 			stacks = CheckInventory("LanceBuffer");
+		
+		// apply stacks and dot multi
+		int calc_dmg = dmg * (100 + stacks) / 100;
+		calc_dmg = calc_dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
 			
 		PlaySound(victim, "Darklance/Affliction", CHAN_ITEM, 1.0);
 		
 		bool terminated = false;
 		int i;
-		for(i = 0; !terminated && i < DARKLANCE_ALT_DURATION; ++i) {
+		for(i = 0; !terminated && i < time_lim; ++i) {
+			// flat dot damage added after stacks are multiplied, because otherwise it's too overpowered...
 			if(isActorAlive(victim))
-				HandleDamageDeal(owner, victim, dmg * stacks, DND_DAMAGETYPE_OCCULT, DND_WEAPON_DARKLANCE, 0, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+				HandleDamageDeal(owner, victim, calc_dmg, DND_DAMAGETYPE_OCCULT, DND_WEAPON_DARKLANCE, 0, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
 			else
 				terminated = true;
 			
@@ -4365,7 +4375,7 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 	SetResultValue(0);
 }
 
-Script "DnD Dark Lance Shred FX" (int tid, int pnum) CLIENTSIDE {
+Script "DnD Dark Lance Shred FX" (int tid, int pnum, int time_lim) CLIENTSIDE {
 	SpawnForced("DarkLanceShredder_FX", GetActorX(tid), GetActorY(tid), GetActorZ(tid), DARKLANCE_SHREDDER + pnum);
 	SetActivator(DARKLANCE_SHREDDER + pnum);
 	Thing_ChangeTID(0, 0);
@@ -4375,7 +4385,7 @@ Script "DnD Dark Lance Shred FX" (int tid, int pnum) CLIENTSIDE {
 	
 	int h = GetActorProperty(tid, APROP_HEIGHT);
 	
-	for(int i = 0; isActorAlive(tid) && i < DARKLANCE_ALT_DURATION_TICS; ++i) {
+	for(int i = 0; isActorAlive(tid) && i < time_lim; ++i) {
 		SetActorPosition(0, GetActorX(tid), GetActorY(tid), GetActorZ(tid) + h / 2, 0);
 		Delay(const:1);
 	}
@@ -6329,6 +6339,7 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrb(0, true);
+		SpawnCharmWithMods_ForAll(INV_FLATMAGIC_DAMAGE, INV_PERCENTMAGIC_DAMAGE);
 		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
@@ -6343,9 +6354,13 @@ Script 68 (int x) NET {
 	else {
 		int c = CreateItemSpot();
 		int i;
-		i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
-		ConstructUniqueOnField(c, i, DND_ITEM_CHARM, 0);
+		//i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
+		i = UITEM_PAINMASTER;
+		MakeUnique(c, DND_ITEM_CHARM, 0);
 		SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
+		
+		SyncItemData(0, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, 0, DND_ITEM_CHARM);
 	}
 }
 

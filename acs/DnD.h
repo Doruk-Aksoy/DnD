@@ -205,7 +205,7 @@ typedef struct dist_tid_pair {
 
 #define DARKLANCE_TID 2100
 #define DARKLANCE_SHREDDER 2200
-#define DARKLANCE_ALT_DURATION 15 // 3 x 5 ticks, so 7 tic duration per instance
+#define DARKLANCE_ALT_DURATION 15 // 105 tic duration, 7 tic timer between damage instances => 105 / 7 = 15
 #define DARKLANCE_ALT_DURATION_TICS 105
 #define DARKLANCE_TICKS 7
 #define DARKLANCE_BOUNCE_DIST 224.0

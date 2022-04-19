@@ -1204,6 +1204,16 @@ ACTOR BlueRayTrail : RedRayTrail
 	}
 }
 
+ACTOR BlueRayTrail_Test : RedRayTrail
+{
+	States
+	{
+		Spawn:
+			NFX3 E 2 Bright
+		Stop
+	}
+}
+
 ACTOR YellowRayTrail : RedRayTrail
 {
 	States

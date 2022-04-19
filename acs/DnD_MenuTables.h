@@ -7,6 +7,8 @@
 #include "DnD_ClassMenu.h"
 #include "DnD_Research.h"
 
+global str 23: PlayerStatText;
+
 enum {
 	PRICE_INCREASE_STOCK_LOW = 1,
 	PRICE_CHARISMAREDUCE = 2
