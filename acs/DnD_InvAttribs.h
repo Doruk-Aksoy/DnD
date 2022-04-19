@@ -89,7 +89,7 @@ enum {
 	INV_CRITDAMAGE_INCREASE,
 	
 	INV_KNOCKBACK_RESIST,
-	INV_DAMAGEPERCENT_INCREASE,
+	INV_DAMAGEPERCENT_MORE,
 	INV_ACCURACY_INCREASE,
 	
 	INV_STAT_STRENGTH,
@@ -187,7 +187,7 @@ enum {
 	INV_EX_MORECRIT_LIGHTNING,
 	INV_EX_DMGINCREASE_SHOTGUNS,
 	INV_EX_DOUBLE_HEALTHCAP,
-	INV_EX_DAMAGEPER_FLATHEALTH, // only 1%
+	INV_EX_PHYSDAMAGEPER_FLATHEALTH, // only 1%
 	INV_EX_FORBID_ARMOR,
 	INV_EX_BEHAVIOR_PELLETSFIRECIRCLE,
 	INV_EX_FORSHOW_BURSTGETSPELLETBONUS,
@@ -207,7 +207,8 @@ enum {
 	INV_EX_CRITIGNORERESCHANCE,
 	INV_EX_CURSEIMMUNITY,
 	INV_EX_LIMITEDSMALLCHARMS,
-	INV_EX_FLATPERSHOTGUNOWNED
+	INV_EX_FLATPERSHOTGUNOWNED,
+	INV_EX_REDUCEDHEALING
 	// add new unique attributes here
 };
 
@@ -218,7 +219,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
-#define UNIQUE_ATTRIB_END INV_EX_FLATPERSHOTGUNOWNED
+#define UNIQUE_ATTRIB_END INV_EX_REDUCEDHEALING
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
@@ -308,7 +309,7 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[INV_CRITDAMAGE_INCREASE] = "IATTR_CritDamage";
 	
 	Inv_Attribute_Checkers[INV_KNOCKBACK_RESIST] = "IATTR_KnockbackResist";
-	Inv_Attribute_Checkers[INV_DAMAGEPERCENT_INCREASE] = "IATTR_DamagePercent";
+	Inv_Attribute_Checkers[INV_DAMAGEPERCENT_MORE] = "IATTR_DamagePercent";
 	Inv_Attribute_Checkers[INV_ACCURACY_INCREASE] = "IATTR_Accuracy";
 	
 	Inv_Attribute_Checkers[INV_STAT_STRENGTH] = "IATTR_StatBonus_STR";
@@ -425,6 +426,7 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_LimitedCharms";
 	Inv_Attribute_Checkers[idmap++] = "IATTR_FLatPerShotgunOwned";
+	Inv_Attribute_Checkers[idmap++] = "IATTR_ReducedHealing";
 }
 
 // if 3rd argument is 0 that means simply use the difference + 1 as increment
@@ -447,26 +449,26 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	1, 		3, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
 	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL				},
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_ENERGY				},
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL				},
+	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_ENERGY				},
+	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
+	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL			},
 	
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE 									},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE 									},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
+	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
 	
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
 	
 	{ 	1, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
+	{ 	1, 		8, 			0,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
 	
 	{ 	4, 		8, 			0,		INV_ATTR_TAG_UTILITY									},
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY									},
@@ -482,16 +484,16 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_DAMAGE										},
 	{ 	25, 	124, 		0,		INV_ATTR_TAG_ATTACK										},
 	
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
+	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
 	
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL			},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL			},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE									},
 	
 	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL				},
 	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
@@ -511,7 +513,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_DAMAGE										},
+	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
 
 	{ 	2, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	2, 		6, 			0,		INV_ATTR_TAG_ELEMENTAL									},
@@ -533,14 +535,14 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
 	
 	// bunch of resists
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE									},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY				},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT				},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	0.5, 	1.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE									},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY				},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT				},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
+	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
 	
 	// resist cap
 	{ 	0.25, 	0.5, 		0,		INV_ATTR_TAG_DEFENSE									},
@@ -880,7 +882,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 			}
 			return StrParam(s:"\c[Q9]", d:val1, s:"%\c- ", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
 		
-		case INV_EX_DAMAGEPER_FLATHEALTH:
+		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_MAXHEALTH",
@@ -957,6 +959,19 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 				);
 			}
 			return StrParam(s:"+ \c[Q9]", d:val1, s:"\c- ", l:text);
+		
+		// negative %
+		case INV_EX_REDUCEDHEALING:
+			if(val1) {
+				if(showDetailedMods) {
+					return StrParam(
+						s:"- \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text,
+						s:" - ", s:GetModTierText(tier, extra)
+					);
+				}
+				return StrParam(s:"- \c[Q9]", d:val1, s:"%\c- ", l:text);
+			}
+			return StrParam(l:text);
 		
 		// default are %
 		default:

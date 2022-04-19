@@ -324,7 +324,7 @@ DND_MENU_ARMTEXT9		=	"33% protection, 200 armor. Extra 50% elemental damage, 75%
 DND_MENU_ARMTEXT10		=	"100% protection, 400 armor.";
 DND_MENU_ARMTEXT11		=	"45% protection, 300 armor. If not damaged for 3 seconds, restores armor slowly.";
 DND_MENU_ARMTEXT12		=	"33% protection, 250 armor. Extra 100% hitscan resist.";
-DND_MENU_ARMTEXT13		=	"55% protection, 400 armor. 33% chance on hit to release spikes. Melee buffs and bulkiness increase the damage.";
+DND_MENU_ARMTEXT13		=	"50% protection, 300 armor. 33% chance on hit to release spikes. Melee buffs and bulkiness increase the damage.";
 DND_MENU_ARMTEXT14		=	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed.";
 DND_MENU_ARMTEXT15		=	"33% protection, 250 armor. On a kill spree, gain x2 extra damage and 25% damage reduction. If a killing spree is met restore armor completely.";
 DND_MENU_ARMTEXT16		=	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks.";
@@ -474,7 +474,7 @@ DND_MENU_MMOD_AGG8		=	"Monster ignores armor of player with every attack.";
 DND_MENU_MMOD_AGG9		=	"Monster has 50% chance to throw explosive projectiles when hurt.";
 DND_MENU_MMOD_AGG10		=	"Never infights with any other monster, and monsters do not target it for infights.";
 DND_MENU_MMOD_AGG11		=	"Monster heals for 10% of the damage it deals to you.";
-DND_MENU_MMOD_AGG12		=	"Monster hits build ruination stacks. At 7 stacks, lose all armor and 12.5% of max health or 33% of max health if wearing no armor. Stacks each last 3 seconds.";
+DND_MENU_MMOD_AGG12		=	"Monster hits build ruination stacks. At 7 stacks, lose 33% of max armor or 33% of max health if wearing no armor. Stacks each last 3 seconds.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";

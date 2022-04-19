@@ -4548,9 +4548,9 @@ void DrawPlayerStats(int pnum) {
 	if(val)
 		HudMessage(s:GetItemAttributeText(INV_KNOCKBACK_RESIST, val); HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
-	val = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE);
+	val = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
 	if(val)
-		HudMessage(s:GetItemAttributeText(INV_DAMAGEPERCENT_INCREASE, val); HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
+		HudMessage(s:GetItemAttributeText(INV_DAMAGEPERCENT_MORE, val); HUDMSG_PLAIN, RPGMENUITEMID - k - 1, CR_WHITE, 192.1, temp + 16.0 * (k++), 0.0, 0.0);
 	
 	val = GetActorProperty(0, APROP_ACCURACY);
 	if(val)

@@ -132,7 +132,7 @@ IATTR_T38 			= "increased crit chance";
 IATTR_T39 			= "additional crit damage";
 	
 IATTR_T40 			= "knockback resist";
-IATTR_T41 			= "increased damage";									IATTR_T41NEG		= "reduced damage";	
+IATTR_T41 			= "more damage";									IATTR_T41NEG		= "less damage";	
 IATTR_T42 			= "accuracy rating";
 	
 IATTR_T43 			= "strength";
@@ -226,13 +226,13 @@ IATTR_TX7 			= "increased lightning damage";
 IATTR_TX8 			= "increased crit chance to lightning attacks";
 IATTR_TX9 			= "increased damage to shotguns";
 IATTR_TX10 			= "Double Health Cap";
-IATTR_TX11 			= "Gain 1% damage increase every ";
+IATTR_TX11 			= "Gain 1% increased physical damage every ";
 IATTR_TX12 			= "Can't use armor";
 IATTR_TX13 			= "Burst type attacks fire in a circle around you";
 IATTR_TX14 			= "Burst type attacks also benefit from pellet bonuses";
 IATTR_TX15 			= "chance to raise a zombie from slain enemies";
 IATTR_TX16 			= "Damage taken is divided per each pet (Max 90% reduction)";
-IATTR_TX17 			= "increased damage taken";
+IATTR_TX17 			= "more damage taken";
 IATTR_TX18 			= "flat damage to all attacks";
 IATTR_TX19 			= "Killing enemies heal for ";
 IATTR_TX20 			= "Soul type weapons do irreducible damage";
@@ -247,6 +247,7 @@ IATTR_TX28 			= "Critical strikes have ";
 IATTR_TX29 			= "Curse Immunity";
 IATTR_TX30			= "Can only use";					IATTR_TX30_2S		= "small charm";	IATTR_TX30_2		= "small charms";
 IATTR_TX31			= "damage to shotguns per shotgun owned";
+IATTR_TX32			= "reduced effect of healing";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

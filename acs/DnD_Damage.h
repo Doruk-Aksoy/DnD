@@ -562,8 +562,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 			
 		// apply flat health to damage conversion if player has any
-		temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
-		if(temp)
+		temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
+		if((talent_type == TALENT_MELEE || talent_type == TALENT_BULLET) && temp)
 			InsertCacheFactor(pnum, wepid, dmgid, GetFlatHealthDamageFactor(temp), true);
 
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
@@ -587,6 +587,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			InsertCacheFactor(pnum, wepid, dmgid, DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward), false);
 		else if(flags & DND_WDMG_ISSUPER) // super weapon affected
 			InsertCacheFactor(pnum, wepid, dmgid, DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward), false);
+		
+		// add other multiplicative factors below
+		
+		// % more damage from charms
+		temp = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
+		if(temp)
+			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
 		
 		// perk multiplicative factors
 		if(mult_factor)
@@ -1305,6 +1312,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// if not sedrin staff, immediately check
 		// if sedrin staff and if we have armor, both are false so no damage to us
 		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetArmorAmount()) {
+			// if this flag is in place, do half damage within half radius
+			if(flags & DND_DAMAGEFLAG_HALFDMGSELF) {
+				dmg >>= 1;
+				radius >>= 1;
+				fullradius >>= 1;
+			}
+		
 			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
 			if(final_dmg > 0) {
 				// push with some greater force
@@ -2547,13 +2561,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			dmg = dmg * (100 + factor) / 100;
 			
 			// elite damage bonus is multiplicative
-			factor = 100 + GetEliteBonusDamage();
-			if(MonsterProperties[m_id].isElite && dmg < INT_MAX / factor)
+			factor = 100 + GetEliteBonusDamage(m_id);
+			if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
 				dmg = dmg * factor / 100;
 				
 			// chaos mark is multiplicative
 			factor = 100 + CHAOSMARK_DAMAGEBUFF;
-			if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS] && dmg < INT_MAX / factor)
+			if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]/* && dmg < INT_MAX / factor*/)
 				dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
 				
 			if(isRipper)
@@ -2574,10 +2588,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				temp = CheckInventory("Perk_Endurance");
 				if(temp) {
 					// 1000 because integer factor is 35 => to make 3.5% we scale by 10
-					if(dmg < INT_MAX / 1000)
+					//if(dmg < INT_MAX / 1000)
 						dmg = dmg * (1000 - temp * ENDURANCE_RES_INTEGER) / 1000;
-					else
-						dmg = (dmg / 1000) * (1000 - temp * ENDURANCE_RES_INTEGER);
+					/*else
+						dmg = (dmg / 1000) * (1000 - temp * ENDURANCE_RES_INTEGER);*/
 				}
 				
 				// check for special reduced damage factors

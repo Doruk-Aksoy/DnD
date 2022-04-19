@@ -326,12 +326,13 @@ int GetPetCap(int tid) {
 	return BASE_PET_CAP + GetActorCharisma(tid) / DND_PET_CHARISMA_FACTOR;
 }
 
-int GetHealingBonuses() {
+int GetHealingBonuses(int pnum) {
 	int bonus = PERK_MEDICBONUS * CheckInventory("Perk_Medic");
 	if(CheckInventory("DnD_QuestReward_HealingIncrease25"))
 		bonus += DND_QUEST_MASTERHEALER_INCREASE;
 	if(CheckInventory("DnD_QuestReward_HealingAndCapIncrease"))
 		bonus += DND_QUEST_SKINOTEETH_INCREASE;
+	bonus -= GetPlayerAttributeValue(pnum, INV_EX_REDUCEDHEALING);
 	return bonus;
 }
 

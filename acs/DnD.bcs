@@ -290,7 +290,7 @@ Script "DnD On Death" DEATH {
 
 Script "DnD Portable Kit Script" (void) {
 	int healthcap = GetSpawnHealth();
-	int bonus = GetHealingBonuses();
+	int bonus = GetHealingBonuses(PlayerNumber());
 	int amt = healthcap / 100;
 	amt = amt * (100 + bonus) / 100;
 	while(GetActorProperty(0, APROP_HEALTH) < healthcap && CheckInventory("StoredMedkit")) {
@@ -306,7 +306,7 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 		SetActivatorToTarget(0);
 	int curhp = GetActorProperty(0, APROP_HEALTH);
 	int healthcap = GetSpawnHealth();
-	int bonus = GetHealingBonuses();
+	int bonus = GetHealingBonuses(PlayerNumber());
 	// holds the old amt
 	int toGive = amt, base = amt;
 	// the percentage of spawn health is amt to be given
@@ -316,12 +316,8 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 	
 	// health bonus
 	if(isspecial == 5) {
-		GiveInventory("HealthBonusX", amt);
-		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
-		GiveInventory("Research_Body_Hp_1_Tracker", amt);
-		if(HasMasteredPerk(STAT_MED) && amt / 10)
-			HandleArmorPickup(DND_ARMOR_BONUS, amt / 10, false);
-		Terminate;
+		// fixed to always go up to x2 health cap
+		toGive = healthcap * 2 - curhp;
 	}
 	else if(isspecial == 3) {
 		// map toast heal
@@ -3201,7 +3197,7 @@ Script "DND Monster Damage Scale" (int flags) {
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	int res = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 	if(MonsterProperties[this].isElite)
-		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
+		res = FixedMul(res, 1.0 + GetEliteBonusDamage(this));
 	if(MonsterProperties[this].trait_list[DND_EXTRASTRONG])
 		res = FixedMul(res, 1.0 + DND_ELITE_EXTRASTRONG_BONUS);
 	if(MonsterProperties[this].trait_list[DND_MARKOFCHAOS])
@@ -3220,7 +3216,7 @@ Script "DND Monster Damage Scale2" (int dmg, int flags) {
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	int res = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 	if(MonsterProperties[this].isElite)
-		res = FixedMul(res, 1.0 + GetEliteBonusDamage());
+		res = FixedMul(res, 1.0 + GetEliteBonusDamage(this));
 	if(MonsterProperties[this].trait_list[DND_EXTRASTRONG])
 		res = FixedMul(res, 1.0 + DND_ELITE_EXTRASTRONG_BONUS);
 	if(MonsterProperties[this].level > 50)
@@ -4038,8 +4034,8 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	else
 		dmg = dmg * (100 + DND_DEX_GAIN * GetDexterity()) / 100;
 	
-	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
-	if(temp) {
+	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
+	if((talent_type == TALENT_MELEE || talent_type == TALENT_BULLET) && temp) {
 		temp = GetFlatHealthDamageFactor(temp);
 		dmg = dmg * (100 + temp) / 100;
 	}
@@ -4086,9 +4082,9 @@ Script "DND Armor Pickup Check" (int amount, int armor_type) {
 	}
 }
 
-Script "DND Armor Give" (int armor_type, int amount) {
+Script "DND Armor Give" (int armor_type, int amount, int overcap_factor) {
 	if(!CheckInventory("StatbuffCounter_ForbidArmor")) {
-		HandleArmorPickup(armor_type, amount, 0);
+		HandleArmorPickup(armor_type, amount, 0, overcap_factor);
 	}
 }
 
@@ -5510,14 +5506,15 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	// talent bonus
 	res = res * (100 + DND_INT_GAIN * GetIntellect()) / 100;
-	int temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGEPER_FLATHEALTH);
+	
+	// TODO: later check if damage is physical, improve this script
+	int temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
 	if(temp) {
 		temp = GetFlatHealthDamageFactor(temp);
 		res = res * (100 + temp) / 100;
 	}
 		
 	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT) + 
-			GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
 			MapTalentToPercentBonus(pnum, TALENT_OCCULT) +
 			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT];
 	if(temp)
@@ -6259,8 +6256,10 @@ Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
 // this is called by projectiles only
 Script "DnD Update Melee ReactionTime" (int base) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
-	if(IsPlayer(owner))
-		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + CheckActorInventory(owner, "IATTR_MeleeRange") + GetActorStat(owner, STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC) / 100);
+	if(IsPlayer(owner)) {
+		//printbold(d:base * (100 + GetMeleeRangeIncrease(owner)) / 100);
+		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + GetMeleeRangeIncrease(owner)) / 100);
+	}
 	SetResultValue(0);
 }
 
@@ -6330,9 +6329,9 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrb(0, true);
-		SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
+		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
-		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
+		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
 	}
 	else if(x == 421)
 		GiveInventory("IATTR_Lifesteal", 0.5);

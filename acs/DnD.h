@@ -1091,8 +1091,8 @@ void DoSlotWeaponQuestChecks(int wepid) {
 
 void HandleRuination(int this, int target) {
 	if(GetArmorAmount()) {
-		RemoveAllArmor();
-		ACS_NamedExecuteAlways("DnD Hurt Actor", 0, target, this, GetSpawnHealth() / 8);
+		// remove a third of armor
+		TakeArmorAmount(GetArmorCapFromID(GetArmorID()) / 3);
 	}
 	else
 		ACS_NamedExecuteAlways("DnD Hurt Actor", 0, target, this, GetSpawnHealth() / 3);

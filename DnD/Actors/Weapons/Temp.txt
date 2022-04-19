@@ -575,9 +575,10 @@ Actor BladeSlash_Explosion : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
+			// same thing as dusk blade
 			TNT1 A 4
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_SOULRENDER << 16), TALENT_MELEE, DND_ISOCCULT | DND_USETARGET | DND_ISSLOT9))
-			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 128/* * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor)*/)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT)
 		Goto DoExplosionDamage

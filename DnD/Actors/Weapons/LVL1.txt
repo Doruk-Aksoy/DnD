@@ -1557,7 +1557,6 @@ Actor "Dusk Blade" : Weapon {
 			VORP A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_SetBlend("60 00 60", 0.85, 9)
 			TNT1 A 0 A_GiveInventory("DuskMode", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 11)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FinishAlt")
 			VORP M 1
 			TNT1 A 0 A_TakeInventory("Souls", 11)
@@ -1750,8 +1749,9 @@ Actor DuskExplosion : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
+			// note: don't scale explosion on this, it's NOT intended, this is meant to simulate a slash hitbox
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DUSKBLADE << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1))
-			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 64/* * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor)*/)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_COUNTSASMELEE)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_DUSKBLADE << 16))

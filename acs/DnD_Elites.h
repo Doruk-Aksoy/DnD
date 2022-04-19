@@ -78,8 +78,8 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 	DND_RUINATION
 };
 
-int GetEliteBonusDamage() {
-	return DND_ELITE_DMGSCALE * MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level;
+int GetEliteBonusDamage(int m_id) {
+	return DND_ELITE_DMGSCALE * MonsterProperties[m_id].level;
 }
 
 bool HasTrait(int id, int trait_index) {

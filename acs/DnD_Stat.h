@@ -206,7 +206,7 @@ int ArmorData[MAXARMORS][2] = {
 	{	400,	1.0		},
 	{	300,	0.45	},
 	{	250,	0.33	},
-	{	400,	0.55	},
+	{	300,	0.40	},
 	{	400,	0.35	},
 	{	250,	0.25	},
 	{	400,	0.65	},
@@ -545,7 +545,7 @@ bool IsArmorTierHigher(int t1, int t2) {
 	return ArmorData[t1][ARMORDATA_BASEAMOUNT] > ArmorData[t2][ARMORDATA_BASEAMOUNT] && t1 > t2;
 }
 
-void HandleArmorPickup(int armor_type, int amount, bool replace) {
+void HandleArmorPickup(int armor_type, int amount, bool replace, int overcap_factor = 0) {
 	int armor = GetArmorAmount(), cap = 0, curr_armor_id = GetArmorID();
 	GiveInventory("DnD_BoughtArmor", 1);
 	//printbold(s:"init ", d:armor, s: " ", d:armor_type, s: " ", d:amount, s: " ", d:curr_armor_id);
@@ -570,11 +570,13 @@ void HandleArmorPickup(int armor_type, int amount, bool replace) {
 	int check_cap = cap;
 	int base_amt = ArmorData[curr_armor_id][ARMORDATA_BASEAMOUNT];
 	
-	// shards can make armor go up to 3x of whatever current armor cap is (with just armor shard, can go up to 300).
+	// shards can make armor go up to 2x of whatever current armor cap is (with just armor shard, can go up to 300).
 	if(armor_type == DND_ARMOR_BONUS) {
-		check_cap *= 3;
+		check_cap *= 2;
 		base_amt = ArmorData[DND_ARMOR_GREEN][ARMORDATA_BASEAMOUNT];
 	}
+	else if(overcap_factor)
+		check_cap *= overcap_factor;
 	
 	if(armor < check_cap) {
 		amount = (amount * cap) / base_amt;
@@ -971,7 +973,6 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 int GetPlayerPercentDamage(int pnum, int wepid, int talent_type) {
 	// stuff that dont depend on a wepid
 	int res = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) +
-				GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_INCREASE) +
 				MapTalentToPercentBonus(pnum, talent_type) +
 				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
 				
@@ -1147,6 +1148,11 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 		cap = 1;
 	
 	return cap;
+}
+
+int GetMeleeRangeIncrease(int tid) {
+	return 	GetPlayerAttributeValue(tid - P_TIDSTART, INV_MELEERANGE) +
+			GetActorStat(tid, STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC;
 }
 
 #endif

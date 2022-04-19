@@ -252,7 +252,7 @@ enum {
 	UITEM_DEATHSPARK,
 	// S - 25-50% increased pellets, Shotgun type weapons deal 40-75% more damage
 	UITEM_SHELLSHOCK,
-	// M - Your health cap is doubled, Can't use armor, Gain 1% damage increase every 75 - 50 max health
+	// M - Your health cap is doubled, Can't use armor, Gain 1% phys damage increase every 75 - 50 max health
 	UITEM_OAKHEART,
 	// M - 50-100% more pellets, 150-250% slot 3 damage, Pellets fire in a circle around you regardless of accuracy
 	UITEM_PELLETSTORM,

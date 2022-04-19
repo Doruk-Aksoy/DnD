@@ -3,6 +3,9 @@ warp2 flat LAVA2
 warp2 flat LAVA3
 warp2 flat LAVA4
 
+// warp on this one is horrible
+// warp texture PROMPT
+
 texture BASIA01
 	range BASIA03 tics 4.0 oscillate
 

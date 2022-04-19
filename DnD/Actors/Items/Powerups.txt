@@ -225,7 +225,7 @@ Actor MegaSphere2 : CustomInventory {
 			MEGA AAAAAABBBBBBCCCCCCDDDDDD 1 Bright A_SpawnItemEx("MegaSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BLUE, 200, 2)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 200, 2)
 		Stop
 	}	
@@ -245,7 +245,7 @@ Actor UberSphere : CustomInventory {
 			CARN AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		loop
 		Pickup: 
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300)
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RED, 300, 3)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 300, 2)
 		stop
 	}

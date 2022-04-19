@@ -713,6 +713,12 @@ Actor IATTR_FLatPerShotgunOwned : Ammo {
 	+IGNORESKILL
 }
 
+Actor IATTR_ReducedHealing : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 // max 10 stacks
 Actor OccultWeaknessStack : Inventory {
 	inventory.maxamount 10

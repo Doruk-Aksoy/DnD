@@ -1638,9 +1638,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			else
 				SetInventory(inv, ClearBit(temp, DND_STATBUFF_FORBIDARMOR));
 		break;
-		case INV_EX_DAMAGEPER_FLATHEALTH:
+		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			// first check all sources, see if they contain this and are lower than this source
-			temp = FindMinOnUsedCharmsForAttribute(pnum, INV_EX_DAMAGEPER_FLATHEALTH, item_index);
+			temp = FindMinOnUsedCharmsForAttribute(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH, item_index);
 			// we got a new min
 			if(temp != -1) {
 				// update to use the new min if our comparison is better
