@@ -186,7 +186,8 @@ enum {
 	
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
 	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b1000000000000000000,
-	DND_DAMAGEFLAG_FOILINVUL			=			0b10000000000000000000,
+	DND_DAMAGEFLAG_SOULATTACK			=			0b10000000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b100000000000000000000,
 };
 
 enum {
@@ -905,7 +906,7 @@ int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int flags, int w
 		dmg = ApplyDamageFactor_Safe(dmg, DND_AGAMOTTO_OFFENSE, DND_AGAMOTTO_OFFENSE_FACTOR);
 	
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_LICHARM)) {
-		if(IsSoulWeapon(wepid))
+		if(damage_type == DND_DAMAGETYPE_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK))
 			dmg = ApplyDamageFactor_Safe(dmg, DND_LICHARM_BUFF, DND_LICHARM_BUFF_DIV);
 		else
 			dmg /= DND_LICHARM_FACTOR;
@@ -2033,8 +2034,14 @@ Script "DnD Monster Chill" (int victim) {
 
 Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {
 	SetActivator(tid);
+	
 	for(int i = 0; i < 5; ++i) {
 		Delay(const:7);
+		
+		// don't continue if actor no longer exists -- returns 0 if thats the case
+		if(!ActivatorTID())
+			Terminate;
+		
 		if(random(0, 1))
 			GiveInventory("DnD_ChillWindSpawner", 1);
 	}
@@ -2100,18 +2107,19 @@ Script "DnD Monster Ignite" (int victim, int wepid) {
 	int next_dmg = dmg;
 	int inc_by = dmg * dmg_tic_buff / 100;
 	
-	while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim)) {
-		// x 5
-		Delay(const:7);
+	do {	
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
 		HandleDamageDeal(ActivatorTID(), victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_ISDAMAGEOVERTIME);
-		if(random(0, 1))
-			GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
+		//if(random(0, 1))
+		//	GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
 		
 		// add base damage's value, not previous
 		next_dmg += inc_by;
-	}
+		
+		// x 5
+		Delay(const:7);
+	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
 	
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);
 
@@ -2120,8 +2128,14 @@ Script "DnD Monster Ignite" (int victim, int wepid) {
 
 Script "DnD Monster Ignite FX" (int tid) CLIENTSIDE {
 	SetActivator(tid);
+	
 	for(int i = 0; i < 2; ++i) {
 		Delay(const:7);
+		
+		// if thing no longer exists, stop
+		if(!ActivatorTID())
+			Terminate;
+		
 		if(random(0, 1))
 			GiveInventory("DnD_IgniteFXSpawner", 1);
 	}
@@ -2130,9 +2144,13 @@ Script "DnD Monster Ignite FX" (int tid) CLIENTSIDE {
 Script "DnD Monster Overload" (int victim) {
 	// we dont have any player involvement here so
 	SetActivator(victim);
+	
 	PlaySound(0, "Overload/Loop", CHAN_ITEM, 1.0, true);
 	
 	while(CheckInventory("DnD_OverloadTimer")) {
+		if(!ActivatorTID())
+			Terminate;
+	
 		ACS_NamedExecuteWithResult("DnD Monster Overload Particles");
 		TakeInventory("DnD_OverloadTimer", 1);
 		Delay(const:DND_BASE_OVERLOADTICK);
@@ -2254,8 +2272,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, bool isArmorPiercing
 			}
 			
 			// factor in players armor here!!!
-			if(!isArmorPiercing)
-				dmg = HandlePlayerArmor(dmg, dmg_prev, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE);
+			dmg = HandlePlayerArmor(dmg, dmg_prev, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 			
 			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
 		break;
@@ -2383,7 +2400,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	return dmg;
 }
 
-int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data) {
+int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
 	if(armor_id != -1) {
 		// if we are affected by poison and we dont have a specialty armor providing res to ele dmg, skip this, poison DOT shouldn't be negated by armor
@@ -2433,14 +2450,19 @@ int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data) {
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_LIGHTNINGCOIL_SPECIAL);
 		
 		// bulkiness can lower damage the armor receives
-		int armor_damage = dmg_prev - dmg;
-		int armor_eff = GetArmorEfficiency();
-		if(armor_eff)
-			armor_damage = ApplyDamageFactor_Safe(armor_damage, ARMOR_INTEGER_FACTOR - ((armor_eff * 1000) >> 16), ARMOR_INTEGER_FACTOR);
+		int armor_damage = dmg_prev;
 		
-		// will always suffer at least 1 damage to armor
-		if(!armor_damage)
-			armor_damage = 1;
+		// do the reduction if its not armor piercing or we have armor that protects against it
+		if(!isArmorPiercing || IsArmorShredException(armor_id)) {
+			armor_damage -= dmg;
+			int armor_eff = GetArmorEfficiency();
+			if(armor_eff)
+				armor_damage = ApplyDamageFactor_Safe(armor_damage, ARMOR_INTEGER_FACTOR - ((armor_eff * 1000) >> 16), ARMOR_INTEGER_FACTOR);
+			
+			// will always suffer at least 1 damage to armor
+			if(!armor_damage)
+				armor_damage = 1;
+		}
 		
 		// easy case -- we are guaranteed to apply absorption to all of the dmg
 		if(armor_amt >= armor_damage) {
@@ -2600,9 +2622,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg_prev = dmg;
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 				
-				// finally apply player armor only if its not an armor piercing attack
-				if(!isArmorPiercing)
-					dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data);
+				// finally apply player armor
+				dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data, isArmorPiercing);
 					
 				// doomguy demon reduction
 				if(IsMonsterIdDemon(m_id) && CheckInventory("Doomguy_Perk5"))
@@ -2653,7 +2674,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		else {
 			// hurt self
 			dmg_prev = dmg;
-			dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data);
+			dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data, false);
 			GiveInventory("DnD_DamageReceived", dmg);
 			SetResultValue(dmg);
 		}

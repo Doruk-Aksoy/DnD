@@ -54,7 +54,7 @@ DND_EMOD_POISONOUS				= "\cvPoisonous\c-";
 DND_EMOD_DEATHSURP				= "\cqDeath Surprise\c-";
 	
 DND_EMOD_RAGE					= "\cgRage\c-";
-DND_EMOD_PIERCEARMOR			= "\cgPierces Armor\c-";
+DND_EMOD_PIERCEARMOR			= "\cgShredding Attacks\c-";
 DND_EMOD_AGGRESSIVE				= "\cgAggressive\c-";
 DND_EMOD_EXTRAFAST				= "\cgExtra Fast\c-";
 DND_EMOD_FASTREACT				= "\cgFast Reaction\c-";
@@ -62,7 +62,7 @@ DND_EMOD_FASTREACT				= "\cgFast Reaction\c-";
 DND_EMOD_NOPAIN					= "\cvNo Pain\c-";
 DND_EMOD_EXTRASTRONG			= "\cgExtra Strong\c-";
 DND_EMOD_VITAL					= "\cqVital\c-";
-DND_EMOD_ARMORPEN				= "\cgArmor Penetration\c-";
+DND_EMOD_ARMORPEN				= "\cgArmor Shredder\c-";
 DND_EMOD_PET					= "\cvPet Creature\c-";
 	
 DND_EMOD_ISBLOCKING				= "\cqBlocking Attacks\c-";

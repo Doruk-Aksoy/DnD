@@ -486,6 +486,10 @@ bool HandlePageListening(int curopt, int boxid) {
 			if(boxid == MBOX_2)
 				redraw = ListenScroll(-16, 0);
 		break;
+		case MENU_SHOP_ARMOR2:
+			if(boxid == MBOX_6) // ravager
+				redraw = ListenScroll(-8, 0);
+		break;
 		#ifdef ISAPRILFIRST
 		case MENU_SHOP_NFT:
 			redraw = ListenScroll(-48, 0);
@@ -1024,8 +1028,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				DrawArtifactIconCorner(curposy);
 			}
 			else if(objectflag & OBJ_ARMOR) {
-				SetHudClipRect(192, 224, 256, 64, 256);
-				HudMessage(s:"\cd*\c- ", l:GetArmorExplanation(itemid - SHOP_FIRSTARMOR_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				SetHudClipRect(192, 216, 256, 64, 256);
+				HudMessage(s:"\cd*\c- ", l:GetArmorExplanation(itemid - SHOP_FIRSTARMOR_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1 + 1.0 * ScrollPos.x, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
 				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 48, CR_WHITE, 440.2, 216.1, 0.0, 0.0);

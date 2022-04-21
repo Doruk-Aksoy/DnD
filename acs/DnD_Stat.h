@@ -143,6 +143,16 @@ enum {
 };
 #define MAXARMORS (DND_ARMOR_LIGHTNINGCOIL + 1)
 
+bool IsArmorShredException(int id) {
+	switch(id) {
+		case DND_ARMOR_SUPER:
+		case DND_ARMOR_KNIGHT:
+		case DND_ARMOR_RAVAGER:
+		return true;
+	}
+	return false;
+}
+
 #define DND_SPECIALTYARMOR_REDUCE 75
 #define DND_SPECIALTYARMOR_BUFF 50
 #define DND_KNIGHT_MELEEREDUCE 50

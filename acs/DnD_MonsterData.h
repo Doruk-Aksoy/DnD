@@ -19,8 +19,8 @@ typedef struct {
 } mo_prop_T;
 
 // allow a max of 8192 monsters' data to be held
-mo_prop_T MonsterProperties[DND_MAX_MONSTERS];
-mo_prop_T PetMonsterProperties[DND_MAX_PETS];
+global mo_prop_T 25: MonsterProperties[DND_MAX_MONSTERS];
+global mo_prop_T 26: PetMonsterProperties[DND_MAX_PETS];
 
 enum {
 	MONSTERCLASS_ZOMBIEMAN,

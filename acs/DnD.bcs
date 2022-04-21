@@ -3749,11 +3749,15 @@ Script "DND Riotgun Decide" (void) {
 }
 
 Script "DND Elite Special FX" (void) CLIENTSIDE {
-	GiveInventory("EliteFXRunner", 1);
+	// non-zero hopefully
+	if(ActivatorTID())
+		GiveInventory("EliteFXRunner", 1);
 }
 
 Script "DnD Align Elite FX" (void) CLIENTSIDE {
-	SetActorProperty(0, APROP_MASS, GetActorProperty(GetActorProperty(0, APROP_TARGETTID), APROP_HEIGHT) >> 17);
+	int tid = GetActorProperty(0, APROP_TARGETTID);
+	if(tid)
+		SetActorProperty(0, APROP_MASS, GetActorProperty(tid, APROP_HEIGHT) >> 17);
 }
 
 Script 1000 (int isSoftcore) {
@@ -6271,6 +6275,14 @@ Script "DnD Update Melee ReactionTime" (int base) {
 		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + GetMeleeRangeIncrease(owner)) / 100);
 	}
 	SetResultValue(0);
+}
+
+Script "DnD Pain Immune Toggle" (int secs) {
+	GiveInventory("MakeNoPain", 1);
+	ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_NOPAIN, -1, -1, -1);
+	Delay(TICRATE * secs);
+	GiveInventory("TakeNoPain", 1);
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_NOPAIN, -1, -1, -1);
 }
 
 Script "DnD Ammo Token Pickup" (void) {
