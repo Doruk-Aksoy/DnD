@@ -1200,4 +1200,10 @@ int GetMeleeRangeIncrease(int tid) {
 			GetActorStat(tid, STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC;
 }
 
+// returns true if monster isn't ailment immune, or we can bypass it
+bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
+	// is not immune or if it is, we rolled ailment ignore chance
+	return !MonsterProperties[m_id].trait_list[ailment_mod] || random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
+}
+
 #endif

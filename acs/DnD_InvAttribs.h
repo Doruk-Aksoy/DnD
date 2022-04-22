@@ -159,6 +159,7 @@ enum {
 	
 	INV_OVERLOAD_DURATION,
 	
+	INV_CHANCE_AILMENTIGNORE,
 	// add new regular rollable attributes here (will require db reset otherwise desync)
 	
 	// essence attributes (only via. specific means)
@@ -379,6 +380,8 @@ void SetupInventoryAttributeStrings() {
 	
 	Inv_Attribute_Checkers[INV_OVERLOAD_DURATION] = "IATTR_OverloadDuration";
 	
+	Inv_Attribute_Checkers[INV_CHANCE_AILMENTIGNORE] = "IATTR_AilmentIgnoreChance";
+	
 	// essences
 	Inv_Attribute_Checkers[INV_ESS_VAAJ] = "IATTR_StatusBuffs_1";
 	Inv_Attribute_Checkers[INV_ESS_SSRATH] = "IATTR_SoulPenetration";
@@ -556,6 +559,9 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	// overload duration
 	{ 	0.1,	0.5,		0,		INV_ATTR_TAG_ELEMENTAL									},
+	
+	// ailment ignore
+	{	5,		9,			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
 	// essences
 	{ 	1, 		1, 			1, 		INV_ATTR_TAG_NONE 										}, // vaaj

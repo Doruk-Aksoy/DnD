@@ -296,7 +296,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_CHILL_SLOW 10 // 10% per stack
 
 #define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
-#define DND_BASE_IGNITECHANCE 15
+#define DND_BASE_IGNITECHANCE 15 // 15%
 
 #define DND_BASE_OVERLOADCHANCE 5
 #define DND_BASE_OVERLOADBUFF 20 // 20%
@@ -677,7 +677,7 @@ bool CheckCullRange(int source, int victim, int dmg) {
 }
 
 void HandleChillEffects(int victim) {
-	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_FRIGID]) {
+	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FRIGID)) {
 		// check health thresholds --- get missing health
 		int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
 		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
@@ -713,9 +713,14 @@ void HandleChillEffects(int victim) {
 	}
 }
 
-void HandleIgniteEffects(int victim, int wepid) {
-	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_SCORCHED] && random(1, 100) <= DND_BASE_IGNITECHANCE * (100 + CheckInventory("IATTR_IgniteChance")) / 100) {
-		int amt = DND_BASE_IGNITETIMER * (100 + CheckInventory("IATTR_IgniteDuration") + CheckInventory("IATTR_DotDuration")) / 100;
+void HandleIgniteEffects(int pnum, int victim, int wepid) {
+	if
+	(
+		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_SCORCHED) &&
+		random(1, 100) <= DND_BASE_IGNITECHANCE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITECHANCE)) / 100
+	)
+	{
+		int amt = DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
 		if(!CheckActorInventory(victim, "DnD_IgniteTimer")) {
 			SetActorInventory(victim, "DnD_IgniteTimer", amt);
 			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim);
@@ -726,7 +731,12 @@ void HandleIgniteEffects(int victim, int wepid) {
 }
 
 void HandleOverloadEffects(int pnum, int victim) {
-	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_INSULATED] && random(1, 100) <= DND_BASE_OVERLOADCHANCE * (100 + CheckInventory("IATTR_OverloadChance")) / 100 && IsActorAlive(victim)) {
+	if
+	(
+		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_INSULATED) &&
+		random(1, 100) <= DND_BASE_OVERLOADCHANCE * (100 + GetPlayerAttributeValue(pnum, INV_OVERLOADCHANCE)) / 100 && IsActorAlive(victim)
+	)
+	{
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
 			SetActorInventory(victim, "DnD_OverloadDamage", Max(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE), CheckActorInventory(victim, "DnD_OverloadDamage")));
@@ -1099,7 +1109,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
-	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && !MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_VENOMANCER]) {
+	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_VENOMANCER)) {
 		// poison damage deals 10% of its damage per stack over 3 seconds
 		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
 			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
@@ -1902,7 +1912,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
 			HandleChillEffects(victim_data + DND_MONSTERTID_BEGIN);
 		else if(flags & DND_DAMAGETICFLAG_FIRE)
-			HandleIgniteEffects(victim_data + DND_MONSTERTID_BEGIN, wepid);
+			HandleIgniteEffects(pnum, victim_data + DND_MONSTERTID_BEGIN, wepid);
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
 			HandleOverloadEffects(pnum, victim_data + DND_MONSTERTID_BEGIN);
 		

@@ -558,6 +558,12 @@ Actor IATTR_DamageOverTimeIncrease : Ammo {
 	+IGNORESKILL
 }
 
+Actor IATTR_AilmentIgnoreChance : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 // DND_STATBUFF_LUCKYCRITS is a statbuff
 
 Actor IATTR_CritIgnoreRes : Ammo {

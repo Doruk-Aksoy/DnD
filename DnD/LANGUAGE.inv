@@ -202,6 +202,8 @@ IATTR_T93			= "more damage while lifestealing";
 
 IATTR_T94			= "seconds to overload duration";
 
+IATTR_T95			= "chance to ignore ailment immunities";
+
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
 IATTR_TE2 			= "Soul weapons penetrate ";
