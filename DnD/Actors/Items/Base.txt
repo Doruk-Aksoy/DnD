@@ -68,6 +68,7 @@ Actor InventoryBase : DnD_DroppedItem {
 		goto SpawnLoop
 		
 		Pickup:
+			"####" "#" 0 Bright A_JumpIfInventory("DnD_IntermissionState", 1, "PickupFail")
 			"####" "#" 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_CHARM), "PickupCheck2")
 		goto PickupFail
 

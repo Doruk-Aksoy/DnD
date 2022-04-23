@@ -159,6 +159,10 @@ enum {
 	
 	INV_OVERLOAD_DURATION,
 	
+	INV_IGNITE_PROLIFCHANCE,
+	INV_IGNITE_PROLIFCOUNT,
+	INV_IGNITE_PROLIFRANGE,
+	
 	INV_CHANCE_AILMENTIGNORE,
 	// add new regular rollable attributes here (will require db reset otherwise desync)
 	
@@ -215,7 +219,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_OVERLOAD_DURATION
+#define LAST_INV_ATTRIBUTE INV_CHANCE_AILMENTIGNORE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -380,6 +384,10 @@ void SetupInventoryAttributeStrings() {
 	
 	Inv_Attribute_Checkers[INV_OVERLOAD_DURATION] = "IATTR_OverloadDuration";
 	
+	Inv_Attribute_Checkers[INV_IGNITE_PROLIFCHANCE] = "IATTR_IgniteProlifChanceIncrease";
+	Inv_Attribute_Checkers[INV_IGNITE_PROLIFCOUNT] = "IATTR_IgniteProlifCountIncrease";
+	Inv_Attribute_Checkers[INV_IGNITE_PROLIFRANGE] = "IATTR_IgniteProlifRangeIncrease";
+	
 	Inv_Attribute_Checkers[INV_CHANCE_AILMENTIGNORE] = "IATTR_AilmentIgnoreChance";
 	
 	// essences
@@ -518,15 +526,15 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
 
-	{ 	2, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		9, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	2, 		6, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	4, 		12, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
 	{ 	1, 		4, 			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
@@ -559,6 +567,11 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	// overload duration
 	{ 	0.1,	0.5,		0,		INV_ATTR_TAG_ELEMENTAL									},
+	
+	// ignite prolif stuff -- chance, count, range
+	{ 5, 		14,			0,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
+	{ 5, 		14,			0,		INV_ATTR_TAG_ELEMENTAL									},
 	
 	// ailment ignore
 	{	5,		9,			0,		INV_ATTR_TAG_ELEMENTAL									},

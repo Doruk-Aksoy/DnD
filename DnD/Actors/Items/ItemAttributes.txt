@@ -558,6 +558,24 @@ Actor IATTR_DamageOverTimeIncrease : Ammo {
 	+IGNORESKILL
 }
 
+Actor IATTR_IgniteProlifChanceIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_IgniteProlifRangeIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor IATTR_IgniteProlifCountIncrease : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 Actor IATTR_AilmentIgnoreChance : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF

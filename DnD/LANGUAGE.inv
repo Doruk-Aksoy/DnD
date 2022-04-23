@@ -202,7 +202,11 @@ IATTR_T93			= "more damage while lifestealing";
 
 IATTR_T94			= "seconds to overload duration";
 
-IATTR_T95			= "chance to ignore ailment immunities";
+IATTR_T95			= "increased ignite proliferation chance";
+IATTR_T96			= "to max ignite proliferation";
+IATTR_T97			= "increased ignite proliferation range";
+
+IATTR_T98			= "chance to ignore ailment immunities";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

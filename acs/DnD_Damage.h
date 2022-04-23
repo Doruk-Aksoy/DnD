@@ -676,12 +676,12 @@ bool CheckCullRange(int source, int victim, int dmg) {
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= ApplyDamageFactor_Safe(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, DND_CULL_BASEPERCENT);
 }
 
-void HandleChillEffects(int victim) {
+void HandleChillEffects(int pnum, int victim) {
 	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FRIGID)) {
 		// check health thresholds --- get missing health
 		int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
 		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
-		if(hpdiff >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + CheckInventory("IATTR_ChillThreshold")) / 100)) * (stacks + 1)) {
+		if(hpdiff >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100)) * (stacks + 1)) {
 			// add a new stack of chill and check for freeze
 			if(!stacks) {
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
@@ -691,7 +691,7 @@ void HandleChillEffects(int victim) {
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
 			
 			// freeze checks --- added freeze chance % increase
-			hpdiff = DND_BASE_FREEZECHANCE_PERSTACK * CheckActorInventory(victim, "DnD_ChillStacks") * (100 + CheckInventory("IATTR_FreezeChance")) / 100;
+			hpdiff = DND_BASE_FREEZECHANCE_PERSTACK * CheckActorInventory(victim, "DnD_ChillStacks") * (100 + GetPlayerAttributeValue(pnum, INV_FREEZECHANCE)) / 100;
 			if(random(1, 100) <= hpdiff) {
 				if(GetActorProperty(victim, APROP_HEALTH) > 0) {
 					// is boss? half duration
@@ -721,12 +721,13 @@ void HandleIgniteEffects(int pnum, int victim, int wepid) {
 	)
 	{
 		int amt = DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
-		if(!CheckActorInventory(victim, "DnD_IgniteTimer")) {
+		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
+		if(!current_ign_time) {
 			SetActorInventory(victim, "DnD_IgniteTimer", amt);
-			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim);
+			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim, wepid, true);
 		}
-		else
-			SetActorInventory(victim, "DnD_IgniteTimer", amt);
+		else // only replace timer if this is higher
+			SetActorInventory(victim, "DnD_IgniteTimer", Max(amt, current_ign_time));
 	}
 }
 
@@ -1266,13 +1267,42 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	int final_dmg;
 	
 	bool wep_neg = wepid < 0 || (flags & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO));
-
-	// set activator to player for dmg registry
-	SetActivator(P_TIDSTART + pnum);
 	
 	// turn them to fixed
 	radius <<= 16;
 	fullradius <<= 16;
+	
+	// moved player self damage check here because we need this current projectile for sight checks
+	if(flags & DND_DAMAGEFLAG_BLASTSELF) {
+		// we are the owner here at this point, we can use 0 for ourselves
+		// sedrin staff armor check
+		// if not sedrin staff, immediately check
+		// if sedrin staff and if we have armor, both are false so no damage to us
+		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetArmorAmount()) {
+			// if this flag is in place, do half damage within half radius
+			if(flags & DND_DAMAGEFLAG_HALFDMGSELF)
+				final_dmg = ScaleExplosionToDistance(owner, dmg / 2, radius / 2, fullradius / 2, px, py, pz, proj_r);
+			else
+				final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
+		
+			// added sight check to fix explosives hurting behind walls bug
+			if(final_dmg > 0 && CheckSight(0, owner, CSF_NOBLOCKALL)) {
+				// set activator to us for damage credit -- we no longer need projectile itself here
+				SetActivator(owner);
+			
+				// push with some greater force
+				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
+				
+				// handle player's self explosion resists here
+				final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, isArmorPiercing);
+				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
+			}
+		}
+	}
+
+	// set activator to player for dmg registry
+	SetActivator(owner);
+	
 	for(int i = 0; i < lim; ++i) {
 		int mon_id = PlayerExplosionList[pnum].list[instance].monsters[i];
 
@@ -1304,32 +1334,6 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		HandleOnHitEffects(owner);
 		
 		//printbold(s:"Dealing ", d: final_dmg, s: " damage to ", d:mon_id, s: " of type ", s:DamageTypeList[damage_type]);
-	}
-	
-	// finally check player, if we are close to our own explosion with self dmg flag, hurt us too
-	if(flags & DND_DAMAGEFLAG_BLASTSELF) {
-		// we are the owner here at this point, we can use 0 for ourselves
-		// sedrin staff armor check
-		// if not sedrin staff, immediately check
-		// if sedrin staff and if we have armor, both are false so no damage to us
-		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetArmorAmount()) {
-			// if this flag is in place, do half damage within half radius
-			if(flags & DND_DAMAGEFLAG_HALFDMGSELF) {
-				dmg >>= 1;
-				radius >>= 1;
-				fullradius >>= 1;
-			}
-		
-			final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-			if(final_dmg > 0) {
-				// push with some greater force
-				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
-				
-				// handle player's self explosion resists here
-				final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, isArmorPiercing);
-				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
-			}
-		}
 	}
 	
 	// damage is dealt we are done with this instance, free it up
@@ -1910,7 +1914,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 	// do these if only the actor was alive after the tic they received dmg
 	if(IsActorAlive(victim_data + DND_MONSTERTID_BEGIN)) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
-			HandleChillEffects(victim_data + DND_MONSTERTID_BEGIN);
+			HandleChillEffects(pnum, victim_data + DND_MONSTERTID_BEGIN);
 		else if(flags & DND_DAMAGETICFLAG_FIRE)
 			HandleIgniteEffects(pnum, victim_data + DND_MONSTERTID_BEGIN, wepid);
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
@@ -2107,7 +2111,7 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 	SetResultValue(0);
 }
 
-Script "DnD Monster Ignite" (int victim, int wepid) {
+Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 	int pnum = PlayerNumber();
 	int dmg = GetFireDOTDamage(pnum);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
@@ -2116,6 +2120,9 @@ Script "DnD Monster Ignite" (int victim, int wepid) {
 	
 	int next_dmg = dmg;
 	int inc_by = dmg * dmg_tic_buff / 100;
+	
+	// this is the value we will use to set the ignite timers on proliferated targets, if any
+	int ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 	
 	do {	
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
@@ -2128,8 +2135,90 @@ Script "DnD Monster Ignite" (int victim, int wepid) {
 		next_dmg += inc_by;
 		
 		// x 5
-		Delay(const:7);
+		Delay(const:7);		
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
+	
+	// check ignite prolif
+	int owner = P_TIDSTART + pnum;
+	int prolif_dist = GetIgniteProlifRange(pnum);
+	int prolif_count = GetIgniteProlifCount(pnum);
+	
+	next_dmg = 0; // used as temp variable
+	inc_by = 0; // same as above
+	dmg_tic_buff = 0; // same as above...
+	
+	static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAX_IGNITEPROLIFS];
+	
+	// init list
+	int i;
+	for(i = 0; i < DND_MAX_IGNITEPROLIFS; ++i) {
+		tlist[pnum][i].tid = 0;
+		tlist[pnum][i].dist = prolif_dist;
+	}
+	
+	// find N closest targets to victim for igniting
+	if(canProlif && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
+		int j, k;
+		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
+				next_dmg = fdistance(owner, i);
+				if(next_dmg < prolif_dist && CheckSight(owner, i, CSF_NOBLOCKALL)) {
+					// insert sorted
+					inc_by = dmg_tic_buff;
+					// while our calc dist > alloc dist, keep going -- we add things to the end
+					// if we come by a point where we are smaller, shift things
+					for(j = 0; j < inc_by && next_dmg > tlist[pnum][j].dist; ++j);
+
+					// we know where to add, check if we must shift (if we should)
+					if(j < inc_by) {
+						// less, so that means we are in-between things
+						// push everything for insertion
+						// this is needed to move in 0 index shifts
+						if(inc_by == DND_MAX_IGNITEPROLIFS)
+							--inc_by;
+						
+						for(k = inc_by; k > j; --k) {
+							// slide data
+							tlist[pnum][k].dist = tlist[pnum][k - 1].dist;
+							tlist[pnum][k].tid = tlist[pnum][k - 1].tid;
+						}
+					}
+					
+					tlist[pnum][j].dist = next_dmg;
+					tlist[pnum][j].tid = i;
+					
+					if(dmg_tic_buff < prolif_count)
+						++dmg_tic_buff;
+				}
+			}
+		}
+		
+		// we have things to prolif to
+		if(dmg_tic_buff) {
+			//printbold(s:"begin prolif");
+			for(i = 0, j = 0; i < DND_MAX_IGNITEPROLIFS; ++i) {
+				if(tlist[pnum][i].tid) {
+					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
+					// check if target was ignited already, if not ignite if so replace timer
+					next_dmg = CheckActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer");
+					if(!next_dmg) {
+						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", ign_time);
+						
+						// we don't proliferate from the proliferated targets... that'd be busted
+						// note: WAIT AND SEE IF ITS OP!
+						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, true);
+					}
+					else
+						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", Max(ign_time, next_dmg));
+
+					// abort if we reached our count
+					++j;
+					if(j == dmg_tic_buff)
+						break;
+				}
+			}
+		}
+	}
 	
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);
 

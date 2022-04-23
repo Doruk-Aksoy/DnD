@@ -89,6 +89,11 @@ object EmeraldPuff
 	frame IDSE { light EmeraldLight }
 }
 
+object EmeraldPuff_G
+{
+	frame IDSE { light EmeraldLight }
+}
+
 pointlight EmeraldRainerLight1
 {
     color 0.4 1.0 0.4

@@ -1206,4 +1206,21 @@ bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 	return !MonsterProperties[m_id].trait_list[ailment_mod] || random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
 }
 
+#define DND_BASE_IGNITEPROLIFCHANCE 20 // 20% chance to prolif on monster death
+#define DND_BASE_IGNITEPROLIFRANGE 128.0
+#define DND_BASE_IGNITEPROLIFCOUNT 5 // max 5 enemies can be proliferated to
+#define DND_MAX_IGNITEPROLIFS 128 // max 128 enemies can be proliferated to from one target
+bool CheckIgniteProlifChance(int pnum) {
+	return random(1, 100) < DND_BASE_IGNITEPROLIFCHANCE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCHANCE)) / 100;
+}
+
+int GetIgniteProlifRange(int pnum) {
+	return DND_BASE_IGNITEPROLIFRANGE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFRANGE)) / 10;
+}
+
+int GetIgniteProlifCount(int pnum) {
+	// clamp between max prolifs
+	return Clamp_Between(DND_BASE_IGNITEPROLIFCOUNT + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCOUNT), 0, DND_MAX_IGNITEPROLIFS);
+}
+
 #endif
