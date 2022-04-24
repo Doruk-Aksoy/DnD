@@ -419,7 +419,8 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_REPENT:
 			temp = Player_MostRecent_Orb[pnum].orb_type;
 			if(temp) {
-				if(temp - 1 < DND_ORB_REFINEMENT)
+				--temp;
+				if(temp < DND_ORB_REFINEMENT || temp == DND_ORB_PHANTASMAL)
 					res = Player_MostRecent_Orb[pnum].orb_type - 1 != DND_ORB_REPENT && Player_MostRecent_Orb[pnum].orb_type - 1 != DND_ORB_RICHES;
 				else
 					res = Player_MostRecent_Orb[pnum].p_tempwep;
@@ -1184,7 +1185,7 @@ void RevertLastOrbEffect() {
 		break;
 		case DND_ORB_PHANTASMAL:
 			temp = Player_MostRecent_Orb[pnum].values[0];
-			SetDataToOrbBonus(pnum, OBI_WEAPON_POWERSET1, temp, -WEP_POWER_GHOSTHIT);
+			SetDataToOrbBonus(pnum, OBI_WEAPON_POWERSET1, temp, -WEP_POWER_GHOSTHIT, false, true);
 			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_POWERSET1, temp);
 		break;
 		

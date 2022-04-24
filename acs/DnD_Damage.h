@@ -895,7 +895,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 }
 
 // for player hitting others damage
-int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int flags, int wepid) {
+int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int wepid, int flags) {
 	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
 		dmg /= DND_DEMONBANE_REDUCE;
 		
@@ -1152,7 +1152,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	dmg = HandleGenericPlayerDamageEffects(pnum, dmg);
 	
 	// ACCESSORY EFFECTS
-	dmg = HandleAccessoryEffects(source, dmg, damage_type, flags, wepid);
+	dmg = HandleAccessoryEffects(source, dmg, damage_type, wepid, flags);
 	
 	// damage number handling - NO MORE DAMAGE FIDDLING HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
@@ -1294,7 +1294,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
 				
 				// handle player's self explosion resists here
-				final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, isArmorPiercing);
+				final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, wepid, flags, isArmorPiercing);
 				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
 			}
 		}
@@ -2350,7 +2350,7 @@ Script "DnD Check Explosion Repeat" (void) {
 	SetResultValue(res);
 }
 
-int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, bool isArmorPiercing) {
+int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags, bool isArmorPiercing) {
 	switch(dmg_type) {
 		case DND_DAMAGETYPE_ENERGYEXPLOSION:
 		case DND_DAMAGETYPE_EXPLOSIVES:
@@ -2369,6 +2369,9 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, bool isArmorPiercing
 				else
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
 			}
+			
+			// apply accessory and other sources of damage
+			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, dmg, dmg_type, wepid, flags);
 			
 			// factor in players armor here!!!
 			dmg = HandlePlayerArmor(dmg, dmg_prev, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
