@@ -26,9 +26,7 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
 
 // formula for accuracy:
 // every 10 points contribute 0.01%
-// applied as follows: X = spread of weapon, X * (1.0 - accuracy * factor_per_point), capped at 80 000 accuracy (80%)
-
-// chance to roll negative attribute: 40% - 10% * tier, perfect charms never roll negative attributes -- 0 based tier
+// applied as follows: X = spread of weapon, X * (1.0 - accuracy * factor_per_point), capped at 100 000 accuracy (100%)
 
 #define DND_ATTRIBUTEBONUS_CAP 1024
 

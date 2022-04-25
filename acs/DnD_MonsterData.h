@@ -966,7 +966,7 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	// ArchVile
 	{ 850, 			DND_MTYPE_DEMON_POW 									},//DND_DIABLOIST,
 	{ 800, 			DND_MTYPE_UNDEAD_POW 									},//DND_UNDEADPRIEST,
-	{ 100, 			DND_MTYPE_UNDEAD_POW 									},// DND_UNDEADPRIESTGHOST,
+	{ 100, 			DND_MTYPE_UNDEAD_POW 									},//DND_UNDEADPRIESTGHOST,
 	{ 800, 			DND_MTYPE_DEMON_POW 									},//DND_DEATHVILE,
 	{ 1250, 		DND_MTYPE_DEMON_POW 									},//DND_HIEROPHANT,
 	{ 800, 			DND_MTYPE_MAGICAL_POW 									},//DND_GURU,
@@ -1102,12 +1102,12 @@ bool CanDropSoulAmmo() {
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX
 /*
 	Monster rarities formulated:
-		- Common: 1000 weight. These are vanilla tier monsters. Either vanilla monsters, or monsters with similar behavior reside here.
-		- Uncommon: 750 weight. These are a monsters that are just a tad bit stronger than vanilla.
-		- Rare - 1: 600 weight. These guys are strong. You don't want to encounter them early on.
-		- Rare - 2: 500 weight. A variant of rare, a little more rare.
-		- Very Rare: 300 weight. These guys... You'd really not want to be against these but they are still better than seeing a Legendary monster.
-		- Epic: 250 weight. Truly dangerous. High threat monsters.
+		- Common: These are vanilla tier monsters. Either vanilla monsters, or monsters with similar behavior reside here.
+		- Uncommon: These are a monsters that are just a tad bit stronger than vanilla.
+		- Rare - 1: These guys are strong. You don't want to encounter them early on.
+		- Rare - 2: A variant of rare, a little more rare.
+		- Very Rare: These guys... You'd really not want to be against these but they are still better than seeing a Legendary monster.
+		- Epic: Truly dangerous. High threat monsters.
 */
 
 enum {
@@ -1115,8 +1115,8 @@ enum {
 	DND_MWEIGHT_UNCOMMON = 750,
 	DND_MWEIGHT_RARE1 = 600,
 	DND_MWEIGHT_RARE2 = 500,
-	DND_MWEIGHT_VERYRARE = 300,
-	DND_MWEIGHT_EPIC = 250,
+	DND_MWEIGHT_VERYRARE = 325,
+	DND_MWEIGHT_EPIC = 275,
 	DND_MWEIGHT_ENDMARKER = -1
 };
 
@@ -1362,9 +1362,8 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_UNCOMMON,
 		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_RARE1,
-		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_EPIC,
-		DND_MWEIGHT_RARE1,
+		DND_MWEIGHT_RARE2,
 		DND_MWEIGHT_VERYRARE,
 		DND_MWEIGHT_ENDMARKER 
 	},

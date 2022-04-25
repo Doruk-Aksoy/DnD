@@ -2082,7 +2082,7 @@ Script "DnD Monster Spawner" (int category) {
     // wait for the players to enter (returns 0 to imply everyone ready)
     while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersNotReadyForHardcore())
         Delay(const:10);
-	picked = false;
+
 	// throttle the spawns
 	if(GameType() != GAME_SINGLE_PLAYER)
 		Delay(17 * (random(0, DND_MAX_MONSTERDELAY) + 1)); //Added 1 second for player level to be accurate first (people might load at last second).
@@ -2106,7 +2106,7 @@ Script "DnD Monster Spawner" (int category) {
 	
 		int factor = Clamp_Between(GetCVar("dnd_monster_variation_factor"), 1.0, 5.0);
 		while(!picked) {
-			roll = random(0, sum);
+			roll = random(1, sum);
 			bin = 0;
 			// start i from 0 here, because bin starts from 0 the added weight should be consistent with where we started
 			// count is 1 more than the index allowed as is expected, so if it picked the next we must subtract 1 from bin
@@ -2117,6 +2117,7 @@ Script "DnD Monster Spawner" (int category) {
 			if(!bin) {
 				SetActorState(0, "Vanilla", true);
 				picked = true;
+				printbold(s:"picked vanilla");
 			}
 			else {
 				// dumb spawner, just check weight
@@ -2125,13 +2126,20 @@ Script "DnD Monster Spawner" (int category) {
 					picked = true;
 				}
 				else {
-					// investigate later if the bias is proper
+					/* 	formula:
+						ratio = f = VANILLA_WEIGHT / bin_weight;
+						bias = b (factor default = 1.5)
+						
+						f <= b + PMAXLVL / (5 * f)
+					*/
+					
 					int m_level = Monster_Weights[category][bin] << 16;
 					int ratio = FixedDiv(Monster_Weights[category][0] << 16, m_level);
 					int bias = random(factor / 5, factor);
 					if(ratio <= bias + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * FixedDiv(1.0, ratio) / 5) {
 						SetActorState(0, StrParam(s:"Var", d:bin), true);
 						picked = true;
+						printbold(s:"picked ", d:bin);
 					}
 				}
 			}
