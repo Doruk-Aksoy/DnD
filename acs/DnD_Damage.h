@@ -40,6 +40,8 @@ enum {
 	DND_DAMAGETYPE_ENERGY,
 	DND_DAMAGETYPE_ENERGYEXPLOSION,
 	DND_DAMAGETYPE_EXPLOSIVES,
+	
+	// occult
 	DND_DAMAGETYPE_OCCULT,
 	DND_DAMAGETYPE_OCCULTFIRE,
 	DND_DAMAGETYPE_OCCULTEXPLOSION,
@@ -91,7 +93,7 @@ bool IsEnergyDamage(int damage_type) {
 }
 
 bool IsOccultDamage(int damage_type) {
-	return damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_MAGICSEAL;
+	return (damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_MAGICSEAL) || damage_type == DND_DAMAGETYPE_SOUL;
 }
 
 bool IsFireDamage(int damage_type) {
@@ -448,15 +450,19 @@ int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
 
 // use only flags with DND_WDMG header here!!!
 // NOTE: DO NOT FACTOR ANY DOT MULTIPLIER IN HERE!
-int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags, bool isSpecial) {
+// isSpecial is id of the special ammo + 1
+// special ammo replaces dmgid 0 of the weapon in cache, so everytime we switch special ammo type we must force damage cache recalc
+int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags, int isSpecial) {
 	// we don't cache special ammo damage
 	int dmg = 0;
 	int temp;
 	// get the damage
 	if(!isSpecial)
 		temp = GetCachedPlayerDamage(pnum, wepid, dmgid);
-	else // special ammo damage
-		temp = GetSpecialAmmoDamage(dmgid, wepid);
+	else {
+		// special ammo damage
+		temp = GetSpecialAmmoDamage(isSpecial - 1, dmgid);
+	}
 		
 	// check if we have a random range cached -- special ammo types dont use this
 	int range = GetCachedPlayerRandomRange(pnum, wepid, dmgid);
@@ -469,7 +475,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 
 	// only store scaling factors here for later use, no modifying damage in this block
 	// damage modifications are done at the end
-	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid) || isSpecial) {
+	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid)) {
 		// add potential shotgun flat damage
 		temp = (!!(flags & DND_WDMG_ISBOOMSTICK)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
@@ -486,10 +492,12 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		int mult_factor = 0;
 		
 		// include the stat bonus
+		//printbold(d:talent_type == TALENT_MELEE, s: " ", d: IsMeleeWeapon(wepid), s: " ", d:(flags & DND_WDMG_ISMELEE));
 		if(talent_type == TALENT_MELEE || is_melee_mastery_exception) {
 			temp = DND_STR_GAIN * GetStrength();
 			mult_factor += GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC;
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
+			//printbold(s:"factor added ", d:temp);
 		}
 		
 		// occult uses intellect
@@ -539,7 +547,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		
 		// special damage increase attributes -- usually obtained by means of charms
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
-		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial))
+		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial - 1))
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
 		// shotgun damage bonus
@@ -568,7 +576,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			InsertCacheFactor(pnum, wepid, dmgid, DND_HOBO_SHOTGUNBONUS, false);
 		
 		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
-			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE), false);
+			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)), false);
 		
 		// these HOPEFULLY dont have anything in common... yet?
 		if(flags & DND_WDMG_ISPISTOL) // gunslinger affected
@@ -948,6 +956,10 @@ int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int wepid, int f
 			dmg /= DND_SIGIL_NERF;
 	}
 	
+	// 100% more damage taken => x2
+	if(CheckInventory("HateWeakness"))
+		dmg *= DND_HATESHARD_FACTOR;
+	
 	return dmg;
 }
 
@@ -1047,8 +1059,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// extra property checks moved here
 	if(!wep_neg) {
 		// crit check
-		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT))
+		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			printbold(s:"do crit");
+		}
 	
 		// chance to force pain
 		if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100))
@@ -1170,7 +1184,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 		if(damage_type == DND_DAMAGETYPE_ICE)
 			extra |= DND_DAMAGETICFLAG_ICE;
-		else if(damage_type == DND_DAMAGETYPE_FIRE && !no_ignite_stack)
+		else if(IsFireDamage(damage_type) && !no_ignite_stack)
 			extra |= DND_DAMAGETICFLAG_FIRE;
 		else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
 			extra |= DND_DAMAGETICFLAG_LIGHTNING;
@@ -1900,7 +1914,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		HandleDamagePush(2 * PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN, wep_neg & 2);
 	
 	if(!(wep_neg & 1)) {
-		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || flags & DND_DAMAGETICFLAG_CRIT)
+		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || (flags & DND_DAMAGETICFLAG_CRIT))
 			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
 		
 		PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;

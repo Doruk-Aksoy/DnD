@@ -759,6 +759,9 @@ void DecideAccessories() {
 	
 	SetInventory("HunterTalismanCheck", IsAccessoryEquipped(this, DND_ACCESSORY_HUNTERTALISMAN));
 	SetInventory("VeilCheck", IsAccessoryEquipped(this, DND_ACCESSORY_VEIL));
+	
+	// when deciding which accessory should be used, do a cache recalc request in any case
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 }
 
 bool HasNoSigilPower() {

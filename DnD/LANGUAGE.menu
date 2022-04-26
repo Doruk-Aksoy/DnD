@@ -196,7 +196,7 @@ ACCTX_P1				=	"Increases credit gain by 50%.";
 ACCTX_C1				=	"Reduces experience gain by 50%.";
 
 ACCTX_T2				=	"Demon Bane";
-ACCTX_P2				=	"Increases damage of occult weapons by 100%.";
+ACCTX_P2				=	"Increases damage of occult weapons by 50%.";
 ACCTX_C2				=	"Reduces other damage by 75%.";
 
 ACCTX_T3				=	"Amulet of Hellfire";
@@ -220,7 +220,7 @@ ACCTX_P7				=	"+25% lifesteal for melee attacks and become a ghost.";
 ACCTX_C7				=	"Health items are unpickable. Only Megasphere, Ubersphere or Berserk can be picked that give health.";
 
 ACCTX_T8				=	"Hate Shard";
-ACCTX_P8				=	"Reflect damage back to enemies. Attackers take x2 more damage for 5 seconds.";
+ACCTX_P8				=	"Reflect damage back to enemies. Attackers take 100% more damage for 5 seconds.";
 ACCTX_C8				=	"Non-melee damage reduced by 50%.";
 
 ACCTX_T9				=	"Hand of Artemis";

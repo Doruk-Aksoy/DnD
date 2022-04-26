@@ -1360,7 +1360,7 @@ Actor DemonSealExplosion : DnD_ExplosiveBase {
 			TNT1 A 1
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEMONSEALER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT4))
-			TNT1 A 0 A_SetUserVar("user_expradius", 144 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 144)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_SELFCULL)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_MAGICSEAL | (DND_WEAPON_DEMONSEALER << 16))
@@ -1724,7 +1724,7 @@ Actor DesolatorExplosion : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DESOLATOR << 16), TALENT_ELEMENTAL, DND_POISONDAMAGE | DND_USETARGET | DND_ISSLOT4))
-			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_DESOLATOR | (DND_WEAPON_DESOLATOR << 16))
 		Goto DoExplosionDamage
@@ -2805,7 +2805,7 @@ Actor MPPB_Projectile3 : DnD_ExplosiveBase {
 		Loop
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MPPB << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT4))
-			TNT1 A 0 A_SetUserVar("user_expradius", 80 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 80)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGY | (DND_WEAPON_MPPB << 16))
 		Goto DoExplosionDamage

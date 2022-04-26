@@ -203,7 +203,7 @@ WEPTIP_5_8 		= "Creates a black hole doing 100 damage when it goes through enemi
 WEPTIP_5_9 		= "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.";
 WEPTIP_5_10 	= "The UAC Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts";
 WEPTIP_5_11 	= "Top of the food chain for rockets. Shoots two homing rockets each doing 192 damage both on impact and explosion. Can't hit \cughosts.";
-WEPTIP_5_12 	= "This artifact fires irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls exploding for half damage in half the radius. Ineffective versus robotic enemies. Explosions inflict \cqpoison\c-.";
+WEPTIP_5_12 	= "Sends irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls exploding for half damage in half the radius. Ineffective versus robotic enemies. Does no self damage if you have armor. Explosions inflict \cqpoison\c-.";
 	 
 WEPTIP_6_0 		= "Best friend of the trigger happy. Can be \cdreplaced.";
 WEPTIP_6_1 		= "Improved with a nuclear reactor, does 36 - 60 on hit and 10 - 30 explosion damage in a 48 unit radius. Can \cgoverheat\c-. Does self damage.";

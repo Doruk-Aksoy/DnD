@@ -743,6 +743,7 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 			GLIC B 0 A_Jump(255, "Missile4")
 		Goto See
 		Missile1:
+			TNT1 A 0 A_JumpIfInventory("GoldLich_WraithCD", 1, "Missile3")
 			GLIC B 0 A_PlaySound("goldlich/attack3")
 			GLIC B 1 A_SpawnItemEx("ReiverGhostGoldLich", 56, 0, 0, 0, 0, 0, 0, SXF_SETMASTER)
 			GLIC B 2
@@ -763,6 +764,7 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 			GLIC B 1 A_SpawnItemEx("ReiverGhostGoldLich", 56, 0, 0, 0, 0, 0, 0, SXF_SETMASTER)
 		Goto See
 		Missile2:
+			TNT1 A 0 A_JumpIfInventory("GoldLich_SplitCD", 1, "Missile4")
 			GLIC BBBBBBBB 1 A_SpawnItemEx("GoldLichGlitter", random(-32,32), random(-32,32), random(8,104),0,0,0, 0,0, 0)
 			TNT1 A 0 A_SpawnItemEx("TeleportFog")
 			TNT1 AAAAAAAA 0 A_Wander
@@ -874,6 +876,16 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 			GLIC I -1 A_KillMaster
 		Stop
 	}
+}
+
+Actor GoldLich_SplitCD : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -8
+}
+
+Actor GoldLich_WraithCD : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -8
 }
 
 ACTOR GoldLichMiniExplodes {

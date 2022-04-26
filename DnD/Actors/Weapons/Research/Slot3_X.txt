@@ -489,7 +489,7 @@ Actor ShockerAreaDamager : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetArg(0, 6)
 		Again:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SHOCKER << 16), TALENT_ELEMENTAL, DND_LIGHTNINGDAMAGE | DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetUserVar("user_expradius", 108 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 108)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISSHOTGUN)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_SHOCKER << 16))
@@ -1818,7 +1818,7 @@ Actor Crossbow_Explosion : DnD_ExplosiveBase {
 		Death:
 			TNT1 A 1 A_PlaySound("Crossbow/Explode")
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT3))
-			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_EXTRATOUNDEAD)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT | (DND_WEAPON_CROSSBOW << 16))

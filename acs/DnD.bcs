@@ -1715,6 +1715,7 @@ Script 917 (int ammo_category, int weptype) {
 		SetSpecialAmmoMode(ammo_category, weptype);
 		if(ammo_category == AMMO_TYPE_SHELL || ammo_category == AMMO_TYPE_HEAVYSHELLS)
 			SetInventory(Weapons_Data[GetWeaponPosFromTable()][WEAPON_AMMO2], 0);
+		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 		ActivatorSound("AmmoType/Switch", 127);
 		Delay(const:4);
 	}
@@ -2117,7 +2118,6 @@ Script "DnD Monster Spawner" (int category) {
 			if(!bin) {
 				SetActorState(0, "Vanilla", true);
 				picked = true;
-				printbold(s:"picked vanilla");
 			}
 			else {
 				// dumb spawner, just check weight
@@ -2139,7 +2139,6 @@ Script "DnD Monster Spawner" (int category) {
 					if(ratio <= bias + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * FixedDiv(1.0, ratio) / 5) {
 						SetActorState(0, StrParam(s:"Var", d:bin), true);
 						picked = true;
-						printbold(s:"picked ", d:bin);
 					}
 				}
 			}
@@ -3981,7 +3980,7 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 }
 
 Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
-	bool isSpecial = flags & DND_WDMG_ISSPECIALAMMO;
+	int isSpecial = flags & DND_WDMG_ISSPECIALAMMO;
 	int wepid = dmgid >> 16;
 	dmgid &= 0xFFFF;
 	
@@ -3989,6 +3988,22 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 	bool proj_crit = !ActivatorTID() && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
 	
 	AdjustDamageRetrievePointers(flags);
+	
+	// if bad activator, stop
+	// note: for some reason I noticed hitscan type attacks print a bunch of -1 pnum, and 0 activator so this should prevent the load caused by those
+	// 		 not to mention it's bad (-1 pnum array access...)
+	if(!ActivatorTID()) {
+		SetResultValue(0);
+		Terminate;
+	}
+	
+	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
+	// add +1 because flechette is id 0
+	if(isSpecial) {
+		isSpecial = dmgid + 1;
+		dmgid = wepid;
+		wepid = CheckInventory("DnD_WeaponID");
+	}
 
 	int pnum = PlayerNumber();
 	int res = ScaleCachedDamage(wepid, pnum, dmgid, talent_type, flags, isSpecial);
@@ -5162,10 +5177,7 @@ Script "DnD Emerald Death" (void) {
 	int this = ActivatorTID();
 	SetActivatorToTarget(0);
 	int target = ActivatorTID();
-	if(CheckInventory("NetherCheck"))
-		Spawn("EmeraldDeathActor_FullDMG", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, target + DND_EMERALD_TIDADD);
-	else
-		Spawn("EmeraldDeathActor", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, target + DND_EMERALD_TIDADD);
+	Spawn("EmeraldDeathActor", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, target + DND_EMERALD_TIDADD);
 	SetActivator(target + DND_EMERALD_TIDADD);
 	SetPointer(AAPTR_TARGET, target);
 	Thing_ChangeTID(0, 0);
@@ -5302,6 +5314,9 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 		if(slot == DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(ClipAmmoTypes[ammo], amount);
 		else if(slot == DND_AMMOSLOT_SPECIAL) {
+			// subtract one if we are above slug, we have grenade for an exception
+			if(ammo > SSAM_SLUG)
+				--ammo;
 			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
 			isSpecial = true;
 			extra = ammo;
@@ -5431,6 +5446,9 @@ Script "DnD Force Sync Player Bonuses" (void) {
 }
 
 Script "DnD Force Damage Cache Recalculation" (int pnum) {
+	if(pnum == -1)
+		pnum = PlayerNumber();
+
 	ForcePlayerDamageCaching(pnum);
 }
 
@@ -6358,7 +6376,7 @@ Script 68 (int x) NET {
 	}
 	else if(x == 420) {
 		SpawnCharm(0, true);
-		SpawnOrb(0, true);
+		SpawnOrbForAll(1);
 		SpawnCharmWithMods_ForAll(INV_FLATMAGIC_DAMAGE, INV_PERCENTMAGIC_DAMAGE);
 		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);

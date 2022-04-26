@@ -1104,7 +1104,7 @@ Actor EmeraldDeathActor : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_EMERALDWAND << 16), TALENT_ELEMENTAL, DND_POISONDAMAGE | DND_USETARGET | DND_ISSLOT3))
-			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 96)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 2 * user_expradius / 3)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EMERALD | (DND_WEAPON_EMERALDWAND << 16))
 			TNT1 A 0 A_PlaySound("EmeraldWand/Explode")

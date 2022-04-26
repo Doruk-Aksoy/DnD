@@ -787,7 +787,6 @@ Actor ExcalibatBall : DnD_ExplosiveBase {
 	+FOILINVUL
 	+THRUGHOST
 	+NODAMAGETHRUST
-	var int user_exprad;
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Update Melee ReactionTime", 10)
@@ -797,9 +796,8 @@ Actor ExcalibatBall : DnD_ExplosiveBase {
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_EXCALIBAT << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1), DND_DAMAGETYPE_OCCULTEXPLOSION, DND_DAMAGEFLAG_SOULATTACK, DND_WEAPON_EXCALIBAT)
 		Death:
-			TNT1 A 0 A_SetUserVar("user_exprad", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET))
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_EXCALIBAT << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT1))
-			TNT1 A 0 A_SetUserVar("user_expradius", 128 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_SOULATTACK)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_EXCALIBAT << 16))

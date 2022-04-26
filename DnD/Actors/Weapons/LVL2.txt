@@ -1225,6 +1225,7 @@ Actor RubyShooter : DnD_Activator {
 Actor RubyAltShooter : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CLIP, AMMO_RUBY, 7)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("RubyAmmo", 7)
 		NoTake:
@@ -1328,7 +1329,7 @@ Actor RubyCircleFlame : DnD_ExplosiveBase {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_RUBYWAND << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_RUBYWAND)
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_RUBYWAND << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISPISTOL | DND_ISSLOT2))
-			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 32)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_RUBYWAND << 16))
 			CFCF QR 3 Bright

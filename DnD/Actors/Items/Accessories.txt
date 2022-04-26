@@ -525,7 +525,7 @@ Actor InterventionFXSpawner : DnD_Activator {
 }
 
 Actor HateWeakness : PowerProtection {
-	damagefactor "normal", 2.0
+	damagefactor "normal", 1.0
 	powerup.duration -5
 }
 
