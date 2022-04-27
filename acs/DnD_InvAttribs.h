@@ -74,7 +74,7 @@ enum {
 	INV_PELLET_INCREASE,
 	
 	INV_EXPLOSION_RADIUS,
-	INV_SELFEXPLOSIVE_RESIST,
+	INV_SELFDMG_RESIST,
 	
 	INV_AMMOGAIN_CHANCE,
 	INV_AMMOGAIN_INCREASE,
@@ -299,7 +299,7 @@ void SetupInventoryAttributeStrings() {
 	Inv_Attribute_Checkers[INV_PELLET_INCREASE] = "IATTR_PelletIncrease";
 	
 	Inv_Attribute_Checkers[INV_EXPLOSION_RADIUS] = "IATTR_ExplosionRadiusIncrease";
-	Inv_Attribute_Checkers[INV_SELFEXPLOSIVE_RESIST] = "IATTR_SelfExplosionResist";
+	Inv_Attribute_Checkers[INV_SELFDMG_RESIST] = "IATTR_SelfExplosionResist";
 
 	Inv_Attribute_Checkers[INV_AMMOGAIN_CHANCE] = "IATTR_AmmoGainChance";
 	Inv_Attribute_Checkers[INV_AMMOGAIN_INCREASE] = "IATTR_AmmoPickupIncrease";

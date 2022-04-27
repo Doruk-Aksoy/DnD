@@ -4004,6 +4004,8 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 		dmgid = wepid;
 		wepid = CheckInventory("DnD_WeaponID");
 	}
+	
+	//printbold(s:"retrieved acc ", d:GetActorProperty(0, APROP_ACCURACY));
 
 	int pnum = PlayerNumber();
 	int res = ScaleCachedDamage(wepid, pnum, dmgid, talent_type, flags, isSpecial);
@@ -4603,8 +4605,22 @@ Script "DND Thunderstaff Bolts" (void) {
 		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
 		
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
-			if(tlist[pnum][i].tid)
+			if(tlist[pnum][i].tid) {
+				// store damage in tcount, in case we crit we need to restore it afterwards
+				tcount = dist;
+				
+				// do not tokenize to not affect projectiles and clear crit flag after consumption
+				if(CheckCritChance(DND_WEAPON_THUNDERSTAFF, false, -1, true)) {
+					dist = ConfirmedCritFactor(dist);
+					actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+				}
+				else if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
+					actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
+				
 				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, px, py, pz, actor_flags);
+				
+				dist = tcount;
+			}
 		}
 	}
 }
@@ -6341,6 +6357,10 @@ Script "DnD Ammo Token Message" (int wepid) CLIENTSIDE {
 	Log(s:"\ccAmmo pickup   : \c[Y5]+10% to ", l:GetWeaponTag(wepid));
 }
 
+Script "DnD Sync Actor Property" (int p_tid, int prop, int val) CLIENTSIDE {
+	SetActorProperty(p_tid, prop, val);
+}
+
 Script 1007 (void) NET CLIENTSIDE {
 	SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
 	
@@ -6377,7 +6397,7 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrbForAll(1);
-		SpawnCharmWithMods_ForAll(INV_FLATMAGIC_DAMAGE, INV_PERCENTMAGIC_DAMAGE);
+		SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
 		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/

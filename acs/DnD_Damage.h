@@ -1015,6 +1015,10 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 	temp = CheckInventory("Rally_DamageBuff");
 	if(temp)
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL);
+		
+	// dmg is multiplied by 3/2 = 1.5, 50% more dmg
+	if(GetArmorID() == DND_ARMOR_RAVAGER && CheckInventory("RavagerPower"))
+		dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_DMGMUL, DND_RAVAGER_DMGDIV);
 	
 	return dmg;
 }
@@ -1061,7 +1065,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		// crit check
 		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-			printbold(s:"do crit");
+			// printbold(s:"do crit");
 		}
 	
 		// chance to force pain
@@ -1939,8 +1943,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 			GiveActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_ViolentRetaliationItem", 1);
 		GiveActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_HurtToken", 1);
 	}
-	
-	// printbold(s:"do dmg numbers: ", d:pnum);
+
 	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_data + DND_MONSTERTID_BEGIN, PlayerDamageTicData[pnum][victim_data], flags);
 	
 	// reset dmg counter on this mob
@@ -1954,6 +1957,8 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 		Terminate;
 	
 	// if dmg is more than 9999 show using K instead
+	int dmg_temp = dmg;
+	
 	bool show_k = dmg > 9999;
 	if(show_k)
 		dmg /= 1000;
@@ -2374,7 +2379,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			if(CheckInventory("Marine_Perk5"))
 				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_SELFEXPLOSIVEREDUCE);
 			
-			dmg = ApplyPlayerResist(pnum, dmg, INV_SELFEXPLOSIVE_RESIST);
+			dmg = ApplyPlayerResist(pnum, dmg, INV_SELFDMG_RESIST);
 			
 			// properly include this ability's benefit here, including cyborg check
 			if(CheckInventory("Ability_ExplosionMastery")) {
@@ -2539,8 +2544,13 @@ int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data, bool 
 		
 		factor *= ARMOR_INTEGER_FACTOR;
 		factor >>= 16;
+		
 		// armor reduced factor amount of damage, this is what the player will take as damage
 		dmg = ApplyDamageFactor_Safe(dmg, ARMOR_INTEGER_FACTOR - factor, ARMOR_INTEGER_FACTOR);
+		
+		// if we have ravager armor and on killing spree, reduce damage to 3/4 (25% reduced)
+		if(armor_id == DND_ARMOR_RAVAGER && CheckInventory("RavagerPower"))
+			dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_FACTOR, DND_RAVAGER_REDUCE);
 		
 		// apply special reductions offered by certain armors
 		if
@@ -2790,6 +2800,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		else {
 			// hurt self
 			dmg_prev = dmg;
+			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data, false);
 			GiveInventory("DnD_DamageReceived", dmg);
 			SetResultValue(dmg);

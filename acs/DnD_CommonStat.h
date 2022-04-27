@@ -493,13 +493,16 @@ int GetActorAttributeValue(int tid, int attrib) {
 }
 
 void CalculatePlayerAccuracy(int pnum) {
-	int acc = GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE);
+	int acc = GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE) + GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT);
 	// omnisight essence gives % increased accuracy
-	acc += (acc * GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT)) / 100;
+	acc += (acc * GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT2)) / 100;
 	if(acc > DND_ACCURACY_CAP)
 		acc = DND_ACCURACY_CAP;
-	
+	//printbold(s:"calc acc ", d:acc);
 	SetActorProperty(0, APROP_ACCURACY, acc);
+	
+	// sync to clients
+	ACS_NamedExecuteAlways("DnD Sync Actor Property", 0, ActivatorTID(), APROP_ACCURACY, acc);
 }
 
 void HandleResearchBonuses() {

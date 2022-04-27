@@ -1544,10 +1544,14 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
+		
+		// these are all accuracy mod groups
 		case INV_ACCURACY_INCREASE:
+		case INV_ESS_OMNISIGHT:
+		case INV_ESS_OMNISIGHT2:
 			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
-			SetActorProperty(0, APROP_ACCURACY, Clamp_Between(GetPlayerAttributeValue(pnum, atype), 0, DND_ACCURACY_CAP));
+			CalculatePlayerAccuracy(pnum);
 		break;
 		
 		// exotic stuff -- reason most of these dont have syncs is that they arent meant to be shown in stat menu page, so no need for client to be aware

@@ -942,10 +942,10 @@ void ActivateKillingSpree() {
 	// spree count was given, so a possible spree may be in reach
 	if(CheckInventory("DnD_SpreeTimer")) {
 		GiveInventory("DnD_MultikillCounter", 1);
-		if(GetArmorID() == DND_ARMOR_RAVAGER) {
+		
+		// screen tint
+		if(GetArmorID() == DND_ARMOR_RAVAGER)
 			GiveInventory("RavagerPower", 1);
-			GiveInventory("RavagerPowerDefense", 1);
-		}
 		
 		// punisher perk -- be on cruel or more
 		if(CheckInventory("Punisher_Perk5") && (CheckInventory("DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1)

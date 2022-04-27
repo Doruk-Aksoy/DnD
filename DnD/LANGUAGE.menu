@@ -34,6 +34,7 @@ DND_MENU_SIDE_PERKS		=	"Perks";
 DND_MENU_SIDE_LOADOUT	=	"Loadout";
 
 DND_MENU_GAIN_OFFENSE	=	"Offensive Stats";
+DND_MENU_GAIN_ELEMENT	=	"Elemental Stats";
 DND_MENU_GAIN_DEFENSE	=	"Defensive Stats";
 DND_MENU_GAIN_UTILITY	=	"Utility Stats";
 DND_MENU_GAIN_QUEST		=	"Quest Bonuses";
@@ -331,7 +332,7 @@ DND_MENU_ARMTEXT11		=	"45% protection, 300 armor. If not damaged for 3 seconds, 
 DND_MENU_ARMTEXT12		=	"33% protection, 250 armor. Extra 100% hitscan resist.";
 DND_MENU_ARMTEXT13		=	"50% protection, 300 armor. 33% chance on hit to release spikes. Melee buffs and bulkiness increase the damage.";
 DND_MENU_ARMTEXT14		=	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed. Can't be \cgshredded\c-.";
-DND_MENU_ARMTEXT15		=	"33% protection, 250 armor. On a killing spree, gain x2 extra damage and 25% damage reduction. Restore armor completely when a killing spree ends. Can't be \cgshredded\c-.";
+DND_MENU_ARMTEXT15		=	"33% protection, 250 armor. On a killing spree, gain 50% more damage and 25% damage reduction. Restore armor completely when a killing spree ends. Can't be \cgshredded\c-.";
 DND_MENU_ARMTEXT16		=	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks.";
 DND_MENU_ARMTEXT17		=	"40% protection, 300 armor. All lightning damage taken reduced by 85%. When hurt, 25% chance to release a lightning bolt towards an enemy.";
 // armors end

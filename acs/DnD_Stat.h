@@ -157,6 +157,12 @@ bool IsArmorShredException(int id) {
 #define DND_SPECIALTYARMOR_BUFF 50
 #define DND_KNIGHT_MELEEREDUCE 50
 #define DND_KNIGHTARMOR_MELEEWEP_BONUS 0.4
+
+#define DND_RAVAGER_FACTOR 3
+#define DND_RAVAGER_REDUCE 4
+#define DND_RAVAGER_DMGMUL 3
+#define DND_RAVAGER_DMGDIV 2
+
 #define DND_SYNTHMETAL_HITSCANBUFF 50 // 50%
 #define DND_SYNTHMETAL_LIGHTNINGNERF 50
 #define DND_LIGHTNINGCOIL_SPECIAL 85 // 85%
@@ -254,8 +260,12 @@ void TakeArmorAmount(int amt) {
 	TakeInventory("ArmorAmountVisual", amt);
 	
 	// no armor left, remove it
-	if(!CheckInventory("ArmorAmount"))
+	if(!CheckInventory("ArmorAmount")) {
 		SetInventory("DnD_ArmorType", 0);
+		
+		// do a recalc on cache in case player wore specialty armor
+		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+	}
 }
 
 // we always add +1, as 0 is no armor
@@ -875,7 +885,7 @@ bool CheckGuaranteedCritCases() {
 	return CheckInventory("DnD_GuaranteeCrit_FromDeadliness") && CheckInventory("DnD_DeadlinessMasteryWindow");
 }
 
-bool CheckCritChance(int wepid, bool isSpecial, int extra) {
+bool CheckCritChance(int wepid, bool isSpecial, int extra, bool noToken = false) {
 	int pnum = PlayerNumber();
 	// veil disables crits for the cooldown period
 	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
@@ -896,9 +906,11 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra) {
 	
 	// rolled crit or has source of a guaranteed crit
 	if(res || CheckGuaranteedCritCases()) {
-		if(wepid != -1)
-			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
-		GiveInventory("DnD_CritToken", 1);
+		if(!noToken) {
+			if(wepid != -1)
+				PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
+			GiveInventory("DnD_CritToken", 1);
+		}
 		
 		TakeInventory("DnD_GuaranteeCrit_FromDeadliness", 1);
 		
@@ -1213,12 +1225,18 @@ bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 #define DND_BASE_IGNITEPROLIFRANGE 128.0
 #define DND_BASE_IGNITEPROLIFCOUNT 5 // max 5 enemies can be proliferated to
 #define DND_MAX_IGNITEPROLIFS 128 // max 128 enemies can be proliferated to from one target
+
+// this is used solely for menu display, same shit as func below
+int GetIgniteProlifChance(int pnum) {
+	return DND_BASE_IGNITEPROLIFCHANCE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCHANCE)) / 100;
+}
+
 bool CheckIgniteProlifChance(int pnum) {
 	return random(1, 100) < DND_BASE_IGNITEPROLIFCHANCE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCHANCE)) / 100;
 }
 
 int GetIgniteProlifRange(int pnum) {
-	return DND_BASE_IGNITEPROLIFRANGE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFRANGE)) / 10;
+	return DND_BASE_IGNITEPROLIFRANGE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFRANGE)) / 100;
 }
 
 int GetIgniteProlifCount(int pnum) {

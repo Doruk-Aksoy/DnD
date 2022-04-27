@@ -210,3 +210,6 @@ DND_POPUP_OWNNFT							=	"You already own this NFT... idiot.";
 
 // exceptions for some character sheet text
 DND_IGNITEDAMAGE							=	"ignite damage";
+DND_IGNITEPROLIFCHANCE						=	"ignite proliferation chance";
+DND_IGNITEPROLIFRANGE						=	"ignite proliferation range";
+DND_IGNITEPROLIFCOUNT						=	"ignite proliferation count";

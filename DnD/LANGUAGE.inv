@@ -119,7 +119,7 @@ IATTR_T29 			= "temporary weapon damage";
 IATTR_T30 			= "more pellets";
 	
 IATTR_T31 			= "increased explosion radius";
-IATTR_T32 			= "reduced self explosion damage";
+IATTR_T32 			= "reduced self damage";
 	
 IATTR_T33 			= "chance to gain ammo back on firing";
 IATTR_T34 			= "more ammo from pickups";

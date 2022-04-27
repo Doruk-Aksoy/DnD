@@ -4600,8 +4600,8 @@ void DrawPlayerStats(int pnum, int category) {
 		else if(category == DRAW_STAT_OFFENSE2) {
 			// fire things
 			val = GetFireDOTDamage(pnum);
-			if(val != DND_BASE_IGNITEDMG) {
-				PlayerStatText = StrParam(s:"+ \c[Q9]", d:val - DND_BASE_IGNITEDMG, s:" ", l:"DND_IGNITEDAMAGE", s:"\n");
+			if(val) {
+				PlayerStatText = StrParam(s:"+ \c[Q9]", d:val - DND_BASE_IGNITEDMG, s:"\c- ", l:"DND_IGNITEDAMAGE", s:"\n");
 				++k;
 			}
 			
@@ -4620,6 +4620,24 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_IGNITEDURATION);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITEDURATION, val), s:"\n");
+				++k;
+			}
+			
+			val = GetIgniteProlifChance(pnum);
+			if(val) {
+				PlayerStatText = StrParam(s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCHANCE", s:"\n");
+				++k;
+			}
+			
+			val = GetIgniteProlifRange(pnum);
+			if(val) {
+				PlayerStatText = StrParam(s:"\c[Q9]", f:val, s:"\c- ", l:"DND_IGNITEPROLIFRANGE", s:"\n");
+				++k;
+			}
+			
+			val = GetIgniteProlifCount(pnum);
+			if(val) {
+				PlayerStatText = StrParam(s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCOUNT", s:"\n");
 				++k;
 			}
 			
@@ -4764,9 +4782,9 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_SELFEXPLOSIVE_RESIST);
+			val = GetPlayerAttributeValue(pnum, INV_SELFDMG_RESIST);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SELFEXPLOSIVE_RESIST, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SELFDMG_RESIST, val), s:"\n");
 				++k;
 			}
 			
