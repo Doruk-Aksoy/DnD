@@ -339,6 +339,7 @@ Actor ResBFG2 : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 50, 5 | (10 << 16), DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 115, 0, DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 250, 0, DND_WEAPON_THUNDERSTAFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 750, 0, DND_WEAPON_THUNDERSTAFF)
 		SelectLoop:
 			APOF A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -475,7 +476,7 @@ Actor ThunderShooter2 : DnD_Activator {
 	}
 }
 
-Actor ThunderstaffExp : DnD_ExplosiveBase {
+/*Actor ThunderstaffExp : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
 	+FOILINVUL
@@ -494,7 +495,7 @@ Actor ThunderstaffExp : DnD_ExplosiveBase {
 			TNT1 A 1
 		Stop
 	}
-}
+}*/
 
 Actor ThunderTarget : PowerProtection {
 	damagefactor "normal", 1.0

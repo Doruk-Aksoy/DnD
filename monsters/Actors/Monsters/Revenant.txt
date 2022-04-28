@@ -1354,6 +1354,7 @@ Actor IceBurst {
 	Radius 40
 	Height 80
 	-SOLID
+	+CLIENTSIDEONLY
 	+NOGRAVITY
 	States {
 		Spawn:

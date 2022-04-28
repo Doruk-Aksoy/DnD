@@ -4625,19 +4625,19 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = GetIgniteProlifChance(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCHANCE", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCHANCE", s:"\n");
 				++k;
 			}
 			
 			val = GetIgniteProlifRange(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:"\c[Q9]", f:val, s:"\c- ", l:"DND_IGNITEPROLIFRANGE", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", f:val, s:"\c- ", l:"DND_IGNITEPROLIFRANGE", s:"\n");
 				++k;
 			}
 			
 			val = GetIgniteProlifCount(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCOUNT", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCOUNT", s:"\n");
 				++k;
 			}
 			

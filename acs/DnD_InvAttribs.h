@@ -476,7 +476,7 @@ Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
 	
 	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
 	
-	{ 	1, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
+	{ 	1, 		8, 			0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
 	{ 	1, 		8, 			0,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
 	
 	{ 	4, 		8, 			0,		INV_ATTR_TAG_UTILITY									},

@@ -573,6 +573,10 @@ bool IsArmorTierHigher(int t1, int t2) {
 }
 
 void HandleArmorPickup(int armor_type, int amount, bool replace, int overcap_factor = 0) {
+	// ignore if armor is forbidden
+	if(CheckInventory("StatbuffCounter_ForbidArmor"))
+		return;
+
 	int armor = GetArmorAmount(), cap = 0, curr_armor_id = GetArmorID();
 	GiveInventory("DnD_BoughtArmor", 1);
 	//printbold(s:"init ", d:armor, s: " ", d:armor_type, s: " ", d:amount, s: " ", d:curr_armor_id);

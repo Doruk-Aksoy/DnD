@@ -1162,7 +1162,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// additional damage vs frozen enemies modifier
 	temp = CheckInventory("IATTR_FrozenDamage");
 	if(CheckActorInventory(victim, "DnD_FreezeTimer") && temp)
-		dmg += dmg * (100 + temp) / 100;
+		dmg = dmg * (100 + temp) / 100;
 		
 	// 50% more damage taken, so dmg * 3 / 2
 	if(CheckActorInventory(victim, "DemonSealResistDebuff"))
@@ -2508,9 +2508,10 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 		if(CheckInventory("Marine_Perk25"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_EXPLOSIVEREDUCTION);
 			
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
+		// apply impact protection research
+		dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());	
 		
-		// aply impact protection research
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
 	}
 	
 	// energy sources
@@ -2707,16 +2708,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			m_id = shooter - DND_MONSTERTID_BEGIN;
 		
 			// if victim was a monster, check for infight situation
-			if(IsMonster(victim)) {
-				// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
-				if(victim != shooter) {
-					// no damage dealt from same species, makes damage things much easier to keep track of
-					// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
-					if(GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES)) {
-						SetResultValue(0);
-						Terminate;
-					}
-				}
+			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
+			// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
+			if(IsMonster(victim) && victim != shooter && GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES)) {
+				// no damage dealt from same species, makes damage things much easier to keep track of	
+				SetResultValue(0);
+				Terminate;
 			}
 
 			int factor = 0;

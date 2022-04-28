@@ -345,6 +345,7 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 			GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
 			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 			
+			// check for oakheart
 			if(HasMasteredPerk(STAT_MED) && toGive / 10)
 				HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, false);
 		}
@@ -2005,6 +2006,10 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	// handle things that should be given specifically to certain traits
 	HandleSpecialTraits(m_id, monsterid);
 	
+	// set its true height user variable user_spawnheight
+	// printbold(s:"set spawn height to ", d:GetActorProperty(0, APROP_HEIGHT) >> 16);
+	SetUserVariable(0, "user_spawnheight", GetActorProperty(0, APROP_HEIGHT) >> 16);
+	
 	GiveInventory("DnD_MonsterSetupDone", 1);
 	
 	SetResultValue(0);
@@ -2800,15 +2805,25 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 
 // This is mostly similar to zdoom source with some changes (I believe)
 Script "DnD Monster Kill Ice Chunks" (int r, int h) CLIENTSIDE {
-	int numChunks = Max(5, (r * h) / 32);
-	for(int i = Max(24, numChunks + Random(0, numChunks / 4 - 1)); i >= 0; --i) {
-		int xo = GetActorX(0) + r * random(-1.0, 1.0);
-		int yo = GetActorY(0) + r * random(-1.0, 1.0);
-		int zo = GetActorZ(0) + h * random(0, 1.0);
+	int numChunks = Max(5, (r * h) / 256);
+	int i;
+	int xo, yo, zo;
+	for(i = Max(10, numChunks + Random(-numChunks / 4, numChunks / 4)); i >= 0; --i) {
+		xo = GetActorX(0) + r * random(-1.0, 1.0);
+		yo = GetActorY(0) + r * random(-1.0, 1.0);
+		zo = GetActorZ(0) + h * random(0, 1.0);
 
 		SpawnForced("IceChunkCS", xo, yo, zo, DND_ICECHUNK_TID);
-		SetActorVelocity(DND_ICECHUNK_TID, random(-1.0, 1.0), random(-1.0, 1.0), ((zo - GetActorZ(0)) / h) * 4, 0, 0);
+		SetActorVelocity(DND_ICECHUNK_TID, random(-1.875, 1.875), random(-1.875, 1.875), random(-1.25, 1.25), 0, 0);
 		Thing_ChangeTID(DND_ICECHUNK_TID, 0);
+	}
+	
+	// spawn ice smoke
+	for(i = 0; i < 5; ++i) {
+		xo = GetActorX(0) + r * random(-0.5, 0.5);
+		yo = GetActorY(0) + r * random(-0.5, 0.5);
+		zo = GetActorZ(0) + h * random(0.25, 0.875);
+		SpawnForced("ExplosionFX10", xo, yo, zo, DND_ICECHUNK_TID);
 	}
 
 	SetResultValue(0);
@@ -4113,9 +4128,7 @@ Script "DND Armor Pickup Check" (int amount, int armor_type) {
 }
 
 Script "DND Armor Give" (int armor_type, int amount, int overcap_factor) {
-	if(!CheckInventory("StatbuffCounter_ForbidArmor")) {
-		HandleArmorPickup(armor_type, amount, 0, overcap_factor);
-	}
+	HandleArmorPickup(armor_type, amount, 0, overcap_factor);
 }
 
 Script "DND Acid Rifle Bolt Stick" (int type) {
@@ -4672,14 +4685,14 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
-	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE) << 1;
+	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
 	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	int pnum = PlayerNumber();
 	
 	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
-			SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
+			//SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
 			
 			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0, 0, 0, actor_flags);
 			
@@ -6412,6 +6425,19 @@ Script "DnD Sync Actor Property" (int p_tid, int prop, int val) CLIENTSIDE {
 	SetActorProperty(p_tid, prop, val);
 }
 
+Script "DnD Check Corpse Landing" (void) {
+	int attempts = 0;
+	while(attempts < DND_MAX_CORPSELAND_ATTEMPTS) {
+		int mx = GetActorX(0), my = GetActorY(0), mz = GetActorZ(0);
+		Delay(1);
+		if(!isAlive() && abs(mz - GetActorZ(0)) <= DND_LAND_WINDOW) {
+			SetActorState(0, "CorpseLand");
+			break;
+		}
+		++attempts;
+	}
+}
+
 Script 1007 (void) NET CLIENTSIDE {
 	SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
 	
@@ -6448,7 +6474,7 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrbForAll(1);
-		SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
+		SpawnCharmWithMods_ForAll(INV_MAGAZINE_INCREASE);
 		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/

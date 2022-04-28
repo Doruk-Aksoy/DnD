@@ -150,21 +150,11 @@ Actor ExplosionSmokeFast : ExplosionSmoke {
 }
 
 Actor ExplosionFX1 {
-	Speed 3
-	Damage 0
 	Renderstyle Add
 	Alpha 0.75
-	PROJECTILE
-	+NOBLOCKMAP
-	+NOTELEPORT
-	+DONTSPLASH
-	+NOGRAVITY
-	+MISSILE
 	+FORCEXYBILLBOARD
 	+CLIENTSIDEONLY
 	+NOINTERACTION
-	+NOCLIP
-	+DONTBLAST
 	Scale 1.3
 	States {
 		Spawn:
@@ -177,12 +167,10 @@ Actor ExplosionFX1 {
 }
 
 Actor ExplosionFX2 : ExplosionFX1 {
-	Speed 1
 	Scale 0.45
 }
 
 Actor ExplosionFX3 : ExplosionFX1 {
-	Speed 1
 	Scale 0.45
 	States {
 		Spawn:
@@ -195,7 +183,6 @@ Actor ExplosionFX3 : ExplosionFX1 {
 }
 
 Actor ExplosionFX4 : ExplosionFX1 {
-	Speed 1
 	Scale 0.45
 	States {
 		Spawn:
@@ -219,7 +206,6 @@ Actor DesolatorExplosionFX : ExplosionFX4 {
 }
 
 Actor ExplosionFX5 : ExplosionFX1 {
-	Speed 1
 	Scale 0.45
 	States {
 		Spawn:
@@ -232,7 +218,6 @@ Actor ExplosionFX5 : ExplosionFX1 {
 }
 
 Actor ExplosionFX6 : ExplosionFX1 {
-	Speed 1
 	Scale 0.8
 }
 
@@ -241,7 +226,6 @@ Actor ExplosionFX7 : ExplosionFX4 {
 }
 
 Actor ExplosionFX8 : ExplosionFX1 {
-	Speed 1
 	Scale 0.45
 	States {
 		Spawn:
@@ -254,7 +238,6 @@ Actor ExplosionFX8 : ExplosionFX1 {
 }
 
 Actor ExplosionFX9 : ExplosionFX1 {
-	Speed 1
 	Scale 0.45
 	States {
 		Spawn:
@@ -267,8 +250,7 @@ Actor ExplosionFX9 : ExplosionFX1 {
 }
 
 Actor ExplosionFX10 : ExplosionFX1 {
-	Speed 1
-	Scale 0.45
+	Scale 0.5
 	States {
 		Spawn:
 			TNT1 A 0

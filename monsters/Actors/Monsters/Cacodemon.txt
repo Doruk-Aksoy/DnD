@@ -136,10 +136,11 @@ ACTOR CacoLich : DnD_BaseHybridMonster {
 			CALI J 0
 			CALI J 0 A_SetFloorClip
 			CALI J 6 A_Scream 
-			CALI K 6
-			CALI LMN 6
+			CALI KL 6
+			CALI M 6 ACS_NamedExecuteAlways("DnD Check Corpse Landing")
+			CALI N 6
 		Wait
-		Crash:
+		CorpseLand:
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			CALI O 6
 			CALI P 6
@@ -276,9 +277,10 @@ ACTOR DeathWhisperer : DnD_BaseRangedMonster {
 			DCAC J 0
 			DCAC J 0 A_SetFloorClip
 			DCAC F 6 A_Scream
-			DCAC GH 6
+			DCAC G 6 ACS_NamedExecuteAlways("DnD Check Corpse Landing")
+			DCAC H 6
 		Wait 
-		Crash:
+		CorpseLand:
 			DCAC I 6
 			DCAC J 6
 			DCAC K 6 A_NoBlocking
@@ -339,9 +341,10 @@ ACTOR EarthLich : DnD_BaseRangedMonster {
 			TNT1 A 0
 			TNT1 A 0 A_SetFloorClip
 			ELIC C 6 A_Scream
-			ELIC DE 6
+			ELIC D 6 ACS_NamedExecuteAlways("DnD Check Corpse Landing")
+			ELIC E 6
 		Wait	 
-		Crash:
+		CorpseLand:
 			ELIC F 6
 			ELIC G 6
 			ELIC H 6 A_NoBlocking
@@ -777,9 +780,10 @@ actor Grell : DnD_BaseRangedMonster {
 		DeathState:
 			GREL H 5
 			GREL I 0 A_NoBlocking
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Check Corpse Landing")
 			GREL I 4 A_Scream
 		Wait
-		Crash:
+		CorpseLand:
 			GREL J 4 A_PlaySound("grell/thud", CHAN_AUTO)
 			GREL K 4 A_NoBlocking
 			GREL LM 4 A_SetFloorClip
