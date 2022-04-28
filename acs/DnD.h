@@ -190,9 +190,16 @@ typedef struct dist_tid_pair {
 } dist_tid_pair_T;
 #define DND_MAXSCANTRACER 256
 
+#define DND_MAX_PULLFORCE 256.0
+enum {
+	DND_PULLF_CANPULLDEAD = 1,
+	DND_PULLF_REVERSEDIR = 2
+};
+
 #define MAX_GRAVDIS_COUNT 512
 #define GRAVDIS_DELAY_TIME 15 // 3 seconds is total time, 3 x (35 / 7) = 15
 #define GRAVDIS_CHECK_PERIOD 7
+#define GRAVIDS_MAXPULLVEL 32.0
 #define GRAVDIS_FLING_FACTOR 128
 #define GRAVDIS_HEIGHT_FACTOR 15
 #define GRAVDIS_HEIGHTADD_PER 64

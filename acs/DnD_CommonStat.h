@@ -105,6 +105,10 @@ enum {
 #define BIO_HP_ADD_2 6
 #define BIO_HP_ADD_3 9
 
+#define IMP_RES_ADD_1 10
+#define IMP_RES_ADD_2 15
+#define IMP_RES_ADD_3 15
+
 #define DND_TALENT_BEGIN TALENT_BULLET
 #define DND_TALENT_END TALENT_ELEMENTAL + 1
 

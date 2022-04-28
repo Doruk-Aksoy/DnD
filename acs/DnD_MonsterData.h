@@ -433,8 +433,11 @@ enum {
 void ScaleMonsterMass(int level) {
 	int m = GetActorProperty(0, APROP_MASS);
 	int new_m = m * (100 + level * DND_MONSTERMASS_SCALE) / 100;
+	
 	// overflow check
 	if(m < new_m)
+		SetActorProperty(0, APROP_MASS, new_m);
+	else if(m > new_m)
 		SetActorProperty(0, APROP_MASS, INT_MAX);
 }
 

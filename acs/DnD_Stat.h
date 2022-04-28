@@ -203,30 +203,37 @@ str ArmorIcons[MAXARMORS] = {
 	"AR16A0"
 };
 
+enum {
+	DND_ARMORTIER_REGULAR,
+	DND_ARMORTIER_SPECIALTY,
+	DND_ARMORTIER_SUPER
+};
+
 #define ARMOR_INTEGER_FACTOR 1000
 #define ARMORDATA_BASEAMOUNT 0
 #define ARMORDATA_PROTECTIONFACTOR 1
-int ArmorData[MAXARMORS][2] = {
-	{	100,	0.33	},
-	{	100,	0.33	},
-	{	150,	0.417	},
-	{	200,	0.5		},
-	{	300,	0.75	},
+#define ARMORDATA_TIER 2
+int ArmorData[MAXARMORS][3] = {
+	{	100,	0.33,	DND_ARMORTIER_REGULAR	},
+	{	100,	0.33,	DND_ARMORTIER_REGULAR	},
+	{	150,	0.417,	DND_ARMORTIER_REGULAR	},
+	{	200,	0.5,	DND_ARMORTIER_REGULAR	},
+	{	300,	0.75,	DND_ARMORTIER_REGULAR	},
 	
-	{	200,	0.33	},
-	{	200,	0.33	},
-	{	200,	0.33	},
-	{	200,	0.33	},
-	{	200,	0.33	},
+	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
+	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
+	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
+	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
+	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
 	
-	{	400,	1.0		},
-	{	300,	0.45	},
-	{	250,	0.33	},
-	{	300,	0.40	},
-	{	400,	0.35	},
-	{	250,	0.25	},
-	{	400,	0.65	},
-	{	300,	0.4		}
+	{	400,	1.0,	DND_ARMORTIER_SUPER	},
+	{	300,	0.45,	DND_ARMORTIER_SPECIALTY	},
+	{	250,	0.33,	DND_ARMORTIER_SPECIALTY	},
+	{	300,	0.40,	DND_ARMORTIER_SPECIALTY	},
+	{	400,	0.35,	DND_ARMORTIER_SPECIALTY	},
+	{	250,	0.25,	DND_ARMORTIER_SPECIALTY	},
+	{	400,	0.65,	DND_ARMORTIER_SPECIALTY	},
+	{	300,	0.4,	DND_ARMORTIER_SPECIALTY	}
 };
 
 int GetArmorAmount() {
@@ -558,11 +565,11 @@ int GetArmorCapFromID(int armor_id) {
 }
 
 // compare armor types t1 and t2, check if t1 is of higher tier than t2
-// if base armor of item greater and it is listed greater
+// changed: we check tier strictly now
 bool IsArmorTierHigher(int t1, int t2) {
 	if(t1 < 0 || t2 < 0)
 		return true;
-	return ArmorData[t1][ARMORDATA_BASEAMOUNT] > ArmorData[t2][ARMORDATA_BASEAMOUNT] && t1 > t2;
+	return ArmorData[t1][ARMORDATA_TIER] > ArmorData[t2][ARMORDATA_TIER];
 }
 
 void HandleArmorPickup(int armor_type, int amount, bool replace, int overcap_factor = 0) {

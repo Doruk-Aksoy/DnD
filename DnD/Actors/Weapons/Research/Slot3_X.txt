@@ -1145,7 +1145,7 @@ Actor HadesPellet_Damager : DnD_BaseProjectile {
 	+THRUGHOST
 	States {
 		SpawnState:
-			SARG A 1
+			TNT1 A 1
 		Stop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), TALENT_ELEMENTAL, DND_FIREDAMAGE | DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_HADES)

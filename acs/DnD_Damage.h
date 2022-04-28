@@ -320,7 +320,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_MAX_MONSTER_TICDATA 16383 // even this is a bit much but w.e
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
 #define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
-int PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
+global int 27: PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
 
 // contains overflow checks
 int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
@@ -689,7 +689,9 @@ void HandleChillEffects(int pnum, int victim) {
 		// check health thresholds --- get missing health
 		int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
 		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
-		if(hpdiff >= (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100)) * (stacks + 1)) {
+		int threshold = (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100)) * (stacks + 1);
+
+		if(hpdiff >= threshold) {
 			// add a new stack of chill and check for freeze
 			if(!stacks) {
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
@@ -702,7 +704,7 @@ void HandleChillEffects(int pnum, int victim) {
 			hpdiff = DND_BASE_FREEZECHANCE_PERSTACK * CheckActorInventory(victim, "DnD_ChillStacks") * (100 + GetPlayerAttributeValue(pnum, INV_FREEZECHANCE)) / 100;
 			if(random(1, 100) <= hpdiff) {
 				if(GetActorProperty(victim, APROP_HEALTH) > 0) {
-					// is boss? half duration
+					// is boss? reduce duration
 					if(CheckFlag(victim, "BOSS"))
 						stacks = DND_BASE_FREEZETIMER / 3;
 					else
@@ -2369,6 +2371,20 @@ Script "DnD Check Explosion Repeat" (void) {
 	SetResultValue(res);
 }
 
+int GetResearchResistBonuses() {
+	int res = IMP_RES_ADD_1 * (CheckResearchStatus(RES_IMP1) == RES_DONE);
+	res += IMP_RES_ADD_2 * (CheckResearchStatus(RES_IMP2) == RES_DONE);
+	res += IMP_RES_ADD_3 * (CheckResearchStatus(RES_IMP3) == RES_DONE);
+	
+	// cyborg's bonus
+	if(CheckInventory("Cyborg_Perk50")) {
+		res *= DND_CYBORG_CYBER_MULT;
+		res /= DND_CYBORG_CYBER_DIV;
+	}
+
+	return res;
+}
+
 int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags, bool isArmorPiercing) {
 	switch(dmg_type) {
 		case DND_DAMAGETYPE_ENERGYEXPLOSION:
@@ -2392,10 +2408,12 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			// apply accessory and other sources of damage
 			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, dmg, dmg_type, wepid, flags);
 			
+			// apply impact protection research
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());
+			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
+			
 			// factor in players armor here!!!
 			dmg = HandlePlayerArmor(dmg, dmg_prev, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
-			
-			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
 		break;
 	}
 	return dmg;
@@ -2491,6 +2509,8 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_EXPLOSIVEREDUCTION);
 			
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
+		
+		// aply impact protection research
 	}
 	
 	// energy sources
@@ -2798,7 +2818,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetResultValue(dmg);
 		}
 		else {
-			// hurt self
+			// hurt self -- handleplayerselfdamage is ran in explosion side of things
 			dmg_prev = dmg;
 			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data, false);

@@ -11,6 +11,11 @@ enum {
 	DND_ARG_SHOTGUNTEMP = 4
 };
 
+enum {
+	DND_PULLF_CANPULLDEAD = 1,
+	DND_PULLF_REVERSEDIR = 2
+};
+
 Actor DnD_ShotgunDamageHolder : DnD_Info { }
 Actor DnD_PoisonStacks : DnD_Info { }
 Actor DnD_ChillStacks: DnD_Info { }
