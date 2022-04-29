@@ -58,7 +58,7 @@ ACTOR TorturedSoul : DnD_BaseRangedMonster {
 			TORT H 8 
 			TORT I 8 A_Scream 
 			TORT JK 8 
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX7", 32, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX7", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			TORT L 0 A_CustomMissile("TorturedSoulPoison", 32, 0, 0) 
@@ -190,7 +190,7 @@ ACTOR Defiler : DnD_BaseRangedMonster {
 			PAIN J 7 A_NoBlocking
 			PAIN KL 7
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
-			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX8", 32, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX8", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			DEFI M 0 A_PlaySound("Defiler/Attack")
 			DEFI M 0 A_CustomMissile("DefilerBall", 20, 0, 0)
 			DEFI M 0 A_PlaySound("Defiler/Attack")
@@ -422,7 +422,7 @@ Actor Helemental : DnD_BaseHybridMonster {
 			HELE J 5 Bright
 			HELE KL 5 Bright
 			HELE M 5 Bright A_NoBlocking
-			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX8", 32, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX8", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			HELE M 0 Bright A_SpawnItemEx("HS",36,36, 0, 0, 0, 0, 0, SXF_SETMASTER)
 			HELE M 0 Bright A_SpawnItemEx("HS",-36,36, 0, 0, 0, 0, 0, SXF_SETMASTER)
@@ -789,7 +789,7 @@ ACTOR SentGmissile {
 		loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX4", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			CFX6 BCDE 4 Bright
 		Stop
@@ -830,7 +830,7 @@ ACTOR SentRmissile {
 		loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			SEF1 DEFG 5 Bright A_SpawnItem("SentinelExp")
 			SEF1 H 5 Bright
@@ -982,7 +982,7 @@ ACTOR FireBreath {
 			FX06 ABCABCABCABCABCABC 3 Bright
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			FX06 DEFG 3 Bright
 		Stop
@@ -1018,7 +1018,7 @@ ACTOR BloodLichFireball {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			MSP4 E 4 Bright A_SetTranslucent(1,1)
 			MSP4 F 5 Bright A_SpawnItem("BloodLichExp")
@@ -1427,7 +1427,7 @@ Actor ArbiterFireball {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			ARBM CDE 5 Bright
 		Stop
@@ -1480,7 +1480,7 @@ Actor ArbiterSeeker {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			HRFX ABCDE 3 Bright
 		Stop

@@ -2124,7 +2124,7 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 	+RIPPER
 	+BLOODLESSIMPACT
 	+DONTREFLECT
-	
+	+FORCERADIUSDMG
 	var int user_tmp;
 	
 	States {

@@ -1099,6 +1099,7 @@ Actor EmeraldDeathActor : DnD_ExplosiveBase {
 	Alpha 1.0
 	+THRUACTORS
 	+THRUGHOST
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0

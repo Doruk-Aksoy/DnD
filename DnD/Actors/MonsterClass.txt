@@ -337,7 +337,7 @@ Actor ViolentRetaliation_Proj {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			MFBL A 0 A_StopSoundEx("SoundSlot7")
 			TNT1 A 0 A_Explode(64 * (1.0 + ACS_NamedExecuteWithResult("DND Monster Damage Scale", DND_USETARGET)), 96, 0)

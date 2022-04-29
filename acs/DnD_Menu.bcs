@@ -817,7 +817,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT5", s:"\n\n",
 					s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT6", s:"\n\n",
 					s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT7", s:"\n\n",
-					s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT8";
+					s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT8", s:"\n\n",
+					s:"\c[Y5]* \c-", l:"DND_MENU_CHARHELPTEXT9", s:"\n\n";
 					HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0
 				);
 

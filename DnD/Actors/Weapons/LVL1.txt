@@ -787,6 +787,7 @@ Actor ExcalibatBall : DnD_ExplosiveBase {
 	+FOILINVUL
 	+THRUGHOST
 	+NODAMAGETHRUST
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Update Melee ReactionTime", 10)

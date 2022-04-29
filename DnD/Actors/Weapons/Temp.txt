@@ -1626,6 +1626,7 @@ ACTOR GoreShot1 : DnD_ExplosiveBase {
 	Alpha 0.85
 	+THRUGHOST
 	+FORCEXYBILLBOARD
+	+FORCERADIUSDMG
 	DeathSound "weapons/globex"
 	States {
 		SpawnState:
@@ -2356,6 +2357,7 @@ ACTOR Acidshot : DnD_ExplosiveBase {
 	-NOGRAVITY
 	+THRUGHOST
 	+FORCEXYBILLBOARD
+	+FORCERADIUSDMG
 	DeathSound "weapons/crabx2"
 	SeeSound "weapons/wiggl2"
 	States {
@@ -2668,6 +2670,7 @@ Actor HeartAttackPuff : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
 	+FOILINVUL
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 1 A_SpawnItemEx("HearAttackPuff_FX")
@@ -2940,6 +2943,7 @@ Actor DarkServantMissile2Trail {
 Actor DarkServantMissile_Explosion : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 1

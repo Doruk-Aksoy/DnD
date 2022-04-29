@@ -493,6 +493,7 @@ Actor ViperProxyProjectile : DnD_ExplosiveBase_ForPets {
 	Height 2
 	Radius 1
 	+THRUACTORS
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 1

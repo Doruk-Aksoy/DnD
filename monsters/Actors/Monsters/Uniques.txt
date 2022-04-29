@@ -1299,7 +1299,7 @@ Actor HollowShellComet : ArchonComet {
 	States {
 		Death:
 			TNT1 AA 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX4", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SetTranslucent (0.67,1)
 			ARCB J 3 Bright
@@ -2265,7 +2265,7 @@ Actor ChegovaxFire {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX8", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX8", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			HBAL EFHI 2 Bright
 		stop
@@ -2976,7 +2976,7 @@ Actor HarkimondeFlameTracer {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			FTRA K 4 Bright
 			FTRA L 4 Bright A_SpawnItem("DiabloExp6")
@@ -3004,7 +3004,7 @@ Actor Harkimonde_BoomTrail {
 			FTRA CDEFGHIJ 3 Bright A_SetUserVar("user_count", user_count + 2)
 		stop
 		Death:
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			FTRA K 4 Bright A_SpawnItem("HarkimondeExp2")
 			FTRA L 4 Bright
 			FTRA MNO 3 Bright

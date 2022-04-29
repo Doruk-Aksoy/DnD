@@ -178,7 +178,7 @@ ACTOR CacoLichBall {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX4", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			LBAL CDEFG 6 BRIGHT
 		Stop
@@ -621,7 +621,7 @@ ACTOR Lavaball {
 		loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			BAL3 C 5 Bright A_SpawnItem("InfernoExp")
 			BAL3 DE 5 Bright
@@ -713,7 +713,7 @@ ACTOR WeakenerBall {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX4", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			CMFB CDE 6 BRIGHT
 		Stop

@@ -267,7 +267,7 @@ ACTOR DaedFire : FatShot {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			DAEF C 8
 			DAEF D 6
@@ -531,7 +531,7 @@ Actor MafibusBall {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX2", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			MFBL A 0 A_StopSoundEx("SoundSlot7")
 			MFBL DE 4 Bright
@@ -1167,7 +1167,7 @@ Actor MephistoPlasma {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			CTFX BC 3 Bright
 			TNT1 A 0 A_SpawnItem("MephistoExp1")
@@ -1767,7 +1767,7 @@ ACTOR RedeemerFlame {
 		Death:
 			TNT1 AA 0 A_SpawnItem("RedeemerFlameExplosion")
 			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX1", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX1", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 1 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 		stop
 	}

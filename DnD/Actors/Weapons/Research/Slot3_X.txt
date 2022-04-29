@@ -484,6 +484,7 @@ Actor ShockerAreaDamager : DnD_ExplosiveBase {
 	Speed 16
 	+THRUACTORS
 	+FOILINVUL
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 1 A_SetArg(0, 6)
@@ -1809,7 +1810,7 @@ Actor Crossbow_Explosion : DnD_ExplosiveBase {
 	Radius 1
 	Speed 0
 	+THRUACTORS
-	
+	+FORCERADIUSDMG
 	var int user_dmg;
 	
 	States {

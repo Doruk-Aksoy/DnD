@@ -4,7 +4,7 @@
 #include "DnD_InvInfo.h"
 
 #define MAX_CHARM_AFFIXTIERS 10
-#define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is...
+#define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is... its basically every 10 levels a new tier is named for it
 
 #define CHARMSTR_COLORCODE 0
 #define CHARMSTR_TIERTAG 1
@@ -34,6 +34,9 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
 
 #define FACTOR_SMALLCHARM_RESOLUTION 1000
 
+// these two imply we have 1000 regular charm mods potentially, 1000 essence and unlimited unique mods
+// reason we have these generous ranges is so when a new mod is added, database resets do not need to happen
+#define ESSENCE_ATTRIB_ID_BEGIN 1000
 #define UNIQUE_ATTRIB_ID_BEGIN 2000
 // self note: all status_buffs_X modifiers are handled as exceptions
 enum {
@@ -162,10 +165,10 @@ enum {
 	INV_IGNITE_PROLIFRANGE,
 	
 	INV_CHANCE_AILMENTIGNORE,
-	// add new regular rollable attributes here (will require db reset otherwise desync)
+	// add new regular rollable attributes here
 	
 	// essence attributes (only via. specific means)
-	INV_ESS_VAAJ,
+	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
 	INV_ESS_SSRATH,
 	INV_ESS_OMNISIGHT,
 	INV_ESS_OMNISIGHT2,
@@ -228,12 +231,11 @@ enum {
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
 #define ESSENCE_ATTRIBUTE_COUNT (LAST_ESSENCE_ATTRIBUTE - FIRST_ESSENCE_ATTRIBUTE + 1)
+#define ESSENCE_MAP_MACRO(X) ((X) - FIRST_ESSENCE_ATTRIBUTE + 1)
 
 #define MAX_INV_ATTRIBUTE_TYPES (NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT)
-#define MAX_TOTAL_ATTRIBUTES (UNIQUE_ATTRIB_COUNT + NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT)
-#define UNIQUE_ATTRIB_MAPPER (LAST_ESSENCE_ATTRIBUTE - UNIQUE_ATTRIB_ID_BEGIN + 1) // maps the array indices proper
-
-#define UNIQUE_MAP_MACRO(X) ((X) + UNIQUE_ATTRIB_MAPPER)
+#define UNIQUE_MAP_MACRO(X) ((X) - UNIQUE_ATTRIB_ID_BEGIN + 1)
+#define MAX_TOTAL_ATTRIBUTES 3000 // 1000 for each of: regular, essence, unique mods.
 
 typedef struct {
 	int attrib_low;
@@ -259,342 +261,579 @@ enum {
 	INV_ATTR_TAG_MELEE = 4096
 };
 
-global str 62: Inv_Attribute_Checkers[MAX_TOTAL_ATTRIBUTES];
+// indexing on this one is done by checking ranges, and then mapping appropriately
+global int 61: PlayerModValues[MAX_TOTAL_ATTRIBUTES];
 
-void SetupInventoryAttributeStrings() {
-	Inv_Attribute_Checkers[INV_HP_INCREASE] = "IATTR_FlatHP";
-	Inv_Attribute_Checkers[INV_ARMOR_INCREASE] = "IATTR_FlatArmor";
-	Inv_Attribute_Checkers[INV_HPPERCENT_INCREASE] = "IATTR_HPPercent";
-	Inv_Attribute_Checkers[INV_ARMORPERCENT_INCREASE] = "IATTR_ArmorPercent";
-	Inv_Attribute_Checkers[INV_EXPGAIN_INCREASE] = "IATTR_ExpBonus";
-	Inv_Attribute_Checkers[INV_CREDITGAIN_INCREASE] = "IATTR_CreditBonus";
-	Inv_Attribute_Checkers[INV_DROPCHANCE_INCREASE] = "IATTR_DropChanceBonus";
-	Inv_Attribute_Checkers[INV_LUCK_INCREASE] = "IATTR_LuckBonus";
-	Inv_Attribute_Checkers[INV_AMMOCAP_INCREASE] = "IATTR_AmmoCapBonus";
-	Inv_Attribute_Checkers[INV_SPEED_INCREASE] = "IATTR_SpeedBonus";
-	Inv_Attribute_Checkers[INV_MAGAZINE_INCREASE] = "IATTR_MagazineIncrease";
-	
-	Inv_Attribute_Checkers[INV_FLATPHYS_DAMAGE] = "IATTR_FlatDamageBonus_Physical";
-	Inv_Attribute_Checkers[INV_FLATENERGY_DAMAGE] = "IATTR_FlatDamageBonus_Energy";
-	Inv_Attribute_Checkers[INV_FLATEXP_DAMAGE] = "IATTR_FlatDamageBonus_Explosive";
-	Inv_Attribute_Checkers[INV_FLATMAGIC_DAMAGE] = "IATTR_FlatDamageBonus_Magic";
-	Inv_Attribute_Checkers[INV_FLATELEM_DAMAGE] = "IATTR_FlatDamageBonus_Elemental";
-	
-	Inv_Attribute_Checkers[INV_PERCENTPHYS_DAMAGE] = "IATTR_PercentDamageBonus_Physical";
-	Inv_Attribute_Checkers[INV_PERCENTENERGY_DAMAGE] = "IATTR_PercentDamageBonus_Energy";
-	Inv_Attribute_Checkers[INV_PERCENTEXP_DAMAGE] = "IATTR_PercentDamageBonus_Explosive";
-	Inv_Attribute_Checkers[INV_PERCENTMAGIC_DAMAGE] = "IATTR_PercentDamageBonus_Magic";
-	Inv_Attribute_Checkers[INV_PERCENTELEM_DAMAGE] = "IATTR_PercentDamageBonus_Elemental";
-	
-	Inv_Attribute_Checkers[INV_SLOT1_DAMAGE] = "IATTR_SlotDamageBonus_1";
-	Inv_Attribute_Checkers[INV_SLOT2_DAMAGE] = "IATTR_SlotDamageBonus_2";
-	Inv_Attribute_Checkers[INV_SLOT3_DAMAGE] = "IATTR_SlotDamageBonus_3";
-	Inv_Attribute_Checkers[INV_SLOT4_DAMAGE] = "IATTR_SlotDamageBonus_4";
-	Inv_Attribute_Checkers[INV_SLOT5_DAMAGE] = "IATTR_SlotDamageBonus_5";
-	Inv_Attribute_Checkers[INV_SLOT6_DAMAGE] = "IATTR_SlotDamageBonus_6";
-	Inv_Attribute_Checkers[INV_SLOT7_DAMAGE] = "IATTR_SlotDamageBonus_7";
-	Inv_Attribute_Checkers[INV_SLOT8_DAMAGE] = "IATTR_SlotDamageBonus_8";
-	Inv_Attribute_Checkers[INV_TEMPWEP_DAMAGE] = "IATTR_SlotDamageBonus_9";
-	
-	Inv_Attribute_Checkers[INV_PELLET_INCREASE] = "IATTR_PelletIncrease";
-	
-	Inv_Attribute_Checkers[INV_EXPLOSION_RADIUS] = "IATTR_ExplosionRadiusIncrease";
-	Inv_Attribute_Checkers[INV_SELFDMG_RESIST] = "IATTR_SelfExplosionResist";
+// reason why this uses UNIQUE_ATTRIB_ID_BEGIN, it skips regular and essence mod indexes. This means, we have enough room without database reset for both regular
+// and essence mods. This is good for future compatibility as well.
+// Currently: 2000 mods, 0-1999
+global Inv_attrib_T 62: ItemModTable[UNIQUE_ATTRIB_ID_BEGIN];
 
-	Inv_Attribute_Checkers[INV_AMMOGAIN_CHANCE] = "IATTR_AmmoGainChance";
-	Inv_Attribute_Checkers[INV_AMMOGAIN_INCREASE] = "IATTR_AmmoPickupIncrease";
-	Inv_Attribute_Checkers[INV_SHOPSTOCK_INCREASE] = "IATTR_ShopStockIncrease";
+void SetupInventoryAttributeTable() {
+	// doing this so we populate the global arrays (acs wont allow just initializing them like local variables)
+	// and these are global so we move from stack to heap and also only initialize this once when server is launched
+	// and never again as opposed to start of every map with local variable method
+	ItemModTable[INV_HP_INCREASE].attrib_low = 5;
+	ItemModTable[INV_HP_INCREASE].attrib_high = 14;
+	ItemModTable[INV_HP_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_HP_INCREASE].tags = INV_ATTR_TAG_LIFE;
 	
-	Inv_Attribute_Checkers[INV_REGENCAP_INCREASE] = "IATTR_RegenCap";
+	ItemModTable[INV_ARMOR_INCREASE].attrib_low = 5;
+	ItemModTable[INV_ARMOR_INCREASE].attrib_high = 14;
+	ItemModTable[INV_ARMOR_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_ARMOR_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	
-	Inv_Attribute_Checkers[INV_CRITCHANCE_INCREASE] = "IATTR_CritChance";
-	Inv_Attribute_Checkers[INV_CRITPERCENT_INCREASE] = "IATTR_CritChancePercent";
-	Inv_Attribute_Checkers[INV_CRITDAMAGE_INCREASE] = "IATTR_CritDamage";
+	ItemModTable[INV_HPPERCENT_INCREASE].attrib_low = 1;
+	ItemModTable[INV_HPPERCENT_INCREASE].attrib_high = 6;
+	ItemModTable[INV_HPPERCENT_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_HPPERCENT_INCREASE].tags = INV_ATTR_TAG_LIFE;
 	
-	Inv_Attribute_Checkers[INV_KNOCKBACK_RESIST] = "IATTR_KnockbackResist";
-	Inv_Attribute_Checkers[INV_DAMAGEPERCENT_MORE] = "IATTR_DamagePercent";
-	Inv_Attribute_Checkers[INV_ACCURACY_INCREASE] = "IATTR_Accuracy";
+	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_low = 1;
+	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_high = 6;
+	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_ARMORPERCENT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	
-	Inv_Attribute_Checkers[INV_STAT_STRENGTH] = "IATTR_StatBonus_STR";
-	Inv_Attribute_Checkers[INV_STAT_DEXTERITY] = "IATTR_StatBonus_DEX";
-	Inv_Attribute_Checkers[INV_STAT_BULKINESS] = "IATTR_StatBonus_BUL";
-	Inv_Attribute_Checkers[INV_STAT_CHARISMA] = "IATTR_StatBonus_CHR";
-	Inv_Attribute_Checkers[INV_STAT_VITALITY] = "IATTR_StatBonus_VIT";
-	Inv_Attribute_Checkers[INV_STAT_INTELLECT] = "IATTR_StatBonus_INT";
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_low = 5;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_high = 9;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_level_modifier = 7;
+	ItemModTable[INV_EXPGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	Inv_Attribute_Checkers[INV_DMGREDUCE_ELEM] = "IATTR_ElementalResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_PHYS] = "IATTR_PhysicalResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_REFL] = "IATTR_ReflectResist";
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_low = 5;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_high = 9;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_level_modifier = 7;
+	ItemModTable[INV_CREDITGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	Inv_Attribute_Checkers[INV_PEN_PHYSICAL] = "IATTR_PhysPen";
-	Inv_Attribute_Checkers[INV_PEN_ENERGY] = "IATTR_EnergyPen";
-	Inv_Attribute_Checkers[INV_PEN_EXPLOSIVE] = "IATTR_ExplosivePen";
-	Inv_Attribute_Checkers[INV_PEN_OCCULT] = "IATTR_OccultPen";
-	Inv_Attribute_Checkers[INV_PEN_ELEMENTAL] = "IATTR_ElementalPen";
+	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_low = 0.005;
+	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_high = 0.015;
+	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_DROPCHANCE_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	Inv_Attribute_Checkers[INV_FLAT_FIREDMG] = "IATTR_FlatFireDmg";
-	Inv_Attribute_Checkers[INV_FLAT_ICEDMG] = "IATTR_FlatIceDmg";
-	Inv_Attribute_Checkers[INV_FLAT_LIGHTNINGDMG] = "IATTR_FlatLightningDmg";
-	Inv_Attribute_Checkers[INV_FLAT_POISONDMG] = "IATTR_FlatPoisonDmg";
+	ItemModTable[INV_LUCK_INCREASE].attrib_low = 0.025;
+	ItemModTable[INV_LUCK_INCREASE].attrib_high = 0.05;
+	ItemModTable[INV_LUCK_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_LUCK_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	Inv_Attribute_Checkers[INV_LIFESTEAL] = "IATTR_Lifesteal";
+	ItemModTable[INV_AMMOCAP_INCREASE].attrib_low = 5;
+	ItemModTable[INV_AMMOCAP_INCREASE].attrib_high = 14;
+	ItemModTable[INV_AMMOCAP_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_AMMOCAP_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	Inv_Attribute_Checkers[INV_POISON_TICRATE] = "IATTR_PoisonTicrate";
-	Inv_Attribute_Checkers[INV_POISON_DURATION] = "IATTR_PoisonDuration";
-	Inv_Attribute_Checkers[INV_POISON_TICDMG] = "IATTR_PoisonTicDmg";
+	ItemModTable[INV_SPEED_INCREASE].attrib_low = 0.01;
+	ItemModTable[INV_SPEED_INCREASE].attrib_high = 0.03;
+	ItemModTable[INV_SPEED_INCREASE].attrib_level_modifier = 0.03;
+	ItemModTable[INV_SPEED_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	Inv_Attribute_Checkers[INV_BLOCKERS_MOREDMG] = "IATTR_BlockDmg";
+	ItemModTable[INV_MAGAZINE_INCREASE].attrib_low = 1;
+	ItemModTable[INV_MAGAZINE_INCREASE].attrib_high = 9;
+	ItemModTable[INV_MAGAZINE_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_MAGAZINE_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	Inv_Attribute_Checkers[INV_FREEZECHANCE] = "IATTR_FreezeChance";
-	Inv_Attribute_Checkers[INV_SLOWEFFECT] = "IATTR_SlowEffect";
-	Inv_Attribute_Checkers[INV_CHILLTHRESHOLD] = "IATTR_ChillThreshold";
+	ItemModTable[INV_FLATPHYS_DAMAGE].attrib_low = 1;
+	ItemModTable[INV_FLATPHYS_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATPHYS_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLATPHYS_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL;
 	
-	Inv_Attribute_Checkers[INV_IGNITECHANCE] = "IATTR_IgniteChance";
-	Inv_Attribute_Checkers[INV_IGNITEDMG] = "IATTR_IgniteDmg";
-	Inv_Attribute_Checkers[INV_IGNITEDURATION] = "IATTR_IgniteDuration";
+	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_low = 1;
+	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLATENERGY_DAMAGE].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY;
 	
-	Inv_Attribute_Checkers[INV_OVERLOADCHANCE] = "IATTR_OverloadChance";
-	Inv_Attribute_Checkers[INV_OVERLOAD_ZAPCOUNT] = "IATTR_OverloadZapCount";
-	Inv_Attribute_Checkers[INV_OVERLOAD_DMGINCREASE] = "IATTR_OverloadZapDmg";
+	ItemModTable[INV_FLATEXP_DAMAGE].attrib_low = 1;
+	ItemModTable[INV_FLATEXP_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATEXP_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLATEXP_DAMAGE].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE;
 	
-	Inv_Attribute_Checkers[INV_CYBERNETIC] = "";
-	Inv_Attribute_Checkers[INV_MELEERANGE] = "IATTR_MeleeRange";
-	Inv_Attribute_Checkers[INV_MELEEDAMAGE] = "IATTR_MeleeDamage";
-	Inv_Attribute_Checkers[INV_DOTMULTI] = "IATTR_DamageOverTimeMult";
-	Inv_Attribute_Checkers[INV_INCREASEDDOT] = "IATTR_DamageOverTimeIncrease";
+	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_low = 1;
+	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLATMAGIC_DAMAGE].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT;
 	
-	Inv_Attribute_Checkers[INV_DMGREDUCE_HITSCAN] = "IATTR_HitscanResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_ENERGY] = "IATTR_EnergyResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_EXPLOSION] = "IATTR_ExplosionResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_MAGIC] = "IATTR_MagicResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_FIRE] = "IATTR_FireResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_ICE] = "IATTR_IceResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_LIGHTNING] = "IATTR_LightningResist";
-	Inv_Attribute_Checkers[INV_DMGREDUCE_POISON] = "IATTR_PoisonResist";
+	ItemModTable[INV_FLATELEM_DAMAGE].attrib_low = 1;
+	ItemModTable[INV_FLATELEM_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATELEM_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLATELEM_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 	
-	Inv_Attribute_Checkers[INV_ADDEDMAXRESIST] = "IATTR_MaxResistCap";
-	Inv_Attribute_Checkers[INV_REGENRATE] = "IATTR_RegenRate";
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL;
 	
-	Inv_Attribute_Checkers[INV_LIFESTEAL_RATE] = "IATTR_LifestealRate";
-	Inv_Attribute_Checkers[INV_LIFESTEAL_RECOVERY] = "IATTR_LifestealRecovery";
-	Inv_Attribute_Checkers[INV_LIFESTEAL_CAP] = "IATTR_LifestealCap";
-	Inv_Attribute_Checkers[INV_LIFESTEAL_DAMAGE] = "IATTR_LifestealDamage";
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ENERGY;
 	
-	Inv_Attribute_Checkers[INV_OVERLOAD_DURATION] = "IATTR_OverloadDuration";
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
 	
-	Inv_Attribute_Checkers[INV_IGNITE_PROLIFCHANCE] = "IATTR_IgniteProlifChanceIncrease";
-	Inv_Attribute_Checkers[INV_IGNITE_PROLIFCOUNT] = "IATTR_IgniteProlifCountIncrease";
-	Inv_Attribute_Checkers[INV_IGNITE_PROLIFRANGE] = "IATTR_IgniteProlifRangeIncrease";
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
 	
-	Inv_Attribute_Checkers[INV_CHANCE_AILMENTIGNORE] = "IATTR_AilmentIgnoreChance";
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_SLOT1_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT1_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT1_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT1_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
 	
-	// essences
-	Inv_Attribute_Checkers[INV_ESS_VAAJ] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[INV_ESS_SSRATH] = "IATTR_SoulPenetration";
-	Inv_Attribute_Checkers[INV_ESS_OMNISIGHT] = "IATTR_Accuracy";
-	Inv_Attribute_Checkers[INV_ESS_OMNISIGHT2] = "IATTR_AccuracyPercent";
-	Inv_Attribute_Checkers[INV_ESS_CHEGOVAX] = "IATTR_IgniteDamageEachTic";
-	Inv_Attribute_Checkers[INV_ESS_HARKIMONDE] = "IATTR_ChanceIgnoreShield";
-	Inv_Attribute_Checkers[INV_ESS_LESHRAC] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[INV_ESS_KRULL] = "IATTR_ExplosionAgainChance";
-	Inv_Attribute_Checkers[INV_ESS_THORAX] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[INV_ESS_ZRAVOG] = "IATTR_OccultReducePer";
-	Inv_Attribute_Checkers[INV_ESS_ERYXIA] = "IATTR_FrozenDamage";
+	ItemModTable[INV_SLOT2_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT2_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT2_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT2_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
 	
-	// exotic stuff is handled differently here
-	int idmap = UNIQUE_MAP_MACRO(UNIQUE_ATTRIB_BEGIN);
+	ItemModTable[INV_SLOT3_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT3_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT3_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT3_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
 	
-	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_ChanceToCastElementalSpell";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_HealMissingHealthOnPain";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_DamageIncrease_Lightning";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_IncreasedCritLightning";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_DamageIncrease_Shotguns";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_HPPercent";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_DamagePerFlatHP";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_ChanceToRaiseZombieFromKills";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_IncreasedDamageTaken";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_Null";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_HealOnKill";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_SoulAmmoIncrease";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_CastRally";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_FlatDotDamage";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_DotDuration";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_CritIgnoreRes";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_StatusBuffs_1";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_LimitedCharms";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_FLatPerShotgunOwned";
-	Inv_Attribute_Checkers[idmap++] = "IATTR_LessHealing";
+	ItemModTable[INV_SLOT4_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT4_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT4_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT4_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_SLOT5_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT5_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT5_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT5_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_SLOT6_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT6_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT6_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT6_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_SLOT7_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT7_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT7_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT7_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_SLOT8_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_SLOT8_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_SLOT8_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOT8_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
+	
+	ItemModTable[INV_TEMPWEP_DAMAGE].attrib_low = 5;
+	ItemModTable[INV_TEMPWEP_DAMAGE].attrib_high = 25;
+	ItemModTable[INV_TEMPWEP_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_TEMPWEP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_PELLET_INCREASE].attrib_low = 5;
+	ItemModTable[INV_PELLET_INCREASE].attrib_high = 10;
+	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_PELLET_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
+	
+	ItemModTable[INV_EXPLOSION_RADIUS].attrib_low = 1;
+	ItemModTable[INV_EXPLOSION_RADIUS].attrib_high = 8;
+	ItemModTable[INV_EXPLOSION_RADIUS].attrib_level_modifier = 0;
+	ItemModTable[INV_EXPLOSION_RADIUS].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE;
+	
+	ItemModTable[INV_SELFDMG_RESIST].attrib_low = 1;
+	ItemModTable[INV_SELFDMG_RESIST].attrib_high = 8;
+	ItemModTable[INV_SELFDMG_RESIST].attrib_level_modifier = 0;
+	ItemModTable[INV_SELFDMG_RESIST].tags = INV_ATTR_TAG_DEFENSE;
+	
+	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_low = 4;
+	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_high = 8;
+	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_AMMOGAIN_CHANCE].tags = INV_ATTR_TAG_UTILITY;
+	
+	ItemModTable[INV_AMMOGAIN_INCREASE].attrib_low = 5;
+	ItemModTable[INV_AMMOGAIN_INCREASE].attrib_high = 10;
+	ItemModTable[INV_AMMOGAIN_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_AMMOGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
+	
+	ItemModTable[INV_SHOPSTOCK_INCREASE].attrib_low = 1;
+	ItemModTable[INV_SHOPSTOCK_INCREASE].attrib_high = 10;
+	ItemModTable[INV_SHOPSTOCK_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_SHOPSTOCK_INCREASE].tags = INV_ATTR_TAG_UTILITY;
+	
+	ItemModTable[INV_REGENCAP_INCREASE].attrib_low = 5;
+	ItemModTable[INV_REGENCAP_INCREASE].attrib_high = 14;
+	ItemModTable[INV_REGENCAP_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_REGENCAP_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE;
+	
+	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_low = 0.005;
+	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_high = 0.01;
+	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_level_modifier = 0.006;
+	ItemModTable[INV_CRITCHANCE_INCREASE].tags = INV_ATTR_TAG_CRIT;
+	
+	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_low = 0.01;
+	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_high = 0.1;
+	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_level_modifier = 0.1;
+	ItemModTable[INV_CRITPERCENT_INCREASE].tags = INV_ATTR_TAG_CRIT;
+	
+	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_low = 5;
+	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_high = 14;
+	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_CRITDAMAGE_INCREASE].tags = INV_ATTR_TAG_CRIT;
+	
+	ItemModTable[INV_KNOCKBACK_RESIST].attrib_low = 50;
+	ItemModTable[INV_KNOCKBACK_RESIST].attrib_high = 100;
+	ItemModTable[INV_KNOCKBACK_RESIST].attrib_level_modifier = 100;
+	ItemModTable[INV_KNOCKBACK_RESIST].tags = INV_ATTR_TAG_UTILITY;
+	
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_low = 1;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_high = 5;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_level_modifier = 0;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_ACCURACY_INCREASE].attrib_low = 25;
+	ItemModTable[INV_ACCURACY_INCREASE].attrib_high = 124;
+	ItemModTable[INV_ACCURACY_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_ACCURACY_INCREASE].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_STAT_STRENGTH].attrib_low = 1;
+	ItemModTable[INV_STAT_STRENGTH].attrib_high = 4;
+	ItemModTable[INV_STAT_STRENGTH].attrib_level_modifier = 0;
+	ItemModTable[INV_STAT_STRENGTH].tags = INV_ATTR_TAG_STAT;
+	
+	ItemModTable[INV_STAT_DEXTERITY].attrib_low = 1;
+	ItemModTable[INV_STAT_DEXTERITY].attrib_high = 4;
+	ItemModTable[INV_STAT_DEXTERITY].attrib_level_modifier = 0;
+	ItemModTable[INV_STAT_DEXTERITY].tags = INV_ATTR_TAG_STAT;
+	
+	ItemModTable[INV_STAT_BULKINESS].attrib_low = 1;
+	ItemModTable[INV_STAT_BULKINESS].attrib_high = 4;
+	ItemModTable[INV_STAT_BULKINESS].attrib_level_modifier = 0;
+	ItemModTable[INV_STAT_BULKINESS].tags = INV_ATTR_TAG_STAT;
+	
+	ItemModTable[INV_STAT_CHARISMA].attrib_low = 1;
+	ItemModTable[INV_STAT_CHARISMA].attrib_high = 4;
+	ItemModTable[INV_STAT_CHARISMA].attrib_level_modifier = 0;
+	ItemModTable[INV_STAT_CHARISMA].tags = INV_ATTR_TAG_STAT;
+	
+	ItemModTable[INV_STAT_VITALITY].attrib_low = 1;
+	ItemModTable[INV_STAT_VITALITY].attrib_high = 4;
+	ItemModTable[INV_STAT_VITALITY].attrib_level_modifier = 0;
+	ItemModTable[INV_STAT_VITALITY].tags = INV_ATTR_TAG_STAT;
+	
+	ItemModTable[INV_STAT_INTELLECT].attrib_low = 1;
+	ItemModTable[INV_STAT_INTELLECT].attrib_high = 4;
+	ItemModTable[INV_STAT_INTELLECT].attrib_level_modifier = 0;
+	ItemModTable[INV_STAT_INTELLECT].tags = INV_ATTR_TAG_STAT;
+	
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	
+	
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL;
+	
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_REFL].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_PEN_PHYSICAL].attrib_low = 1;
+	ItemModTable[INV_PEN_PHYSICAL].attrib_high = 3;
+	ItemModTable[INV_PEN_PHYSICAL].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_PHYSICAL].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL;
+	
+	ItemModTable[INV_PEN_ENERGY].attrib_low = 1;
+	ItemModTable[INV_PEN_ENERGY].attrib_high = 3;
+	ItemModTable[INV_PEN_ENERGY].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_ENERGY].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY;
+	
+	ItemModTable[INV_PEN_EXPLOSIVE].attrib_low = 1;
+	ItemModTable[INV_PEN_EXPLOSIVE].attrib_high = 3;
+	ItemModTable[INV_PEN_EXPLOSIVE].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_EXPLOSIVE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
+	
+	ItemModTable[INV_PEN_OCCULT].attrib_low = 1;
+	ItemModTable[INV_PEN_OCCULT].attrib_high = 3;
+	ItemModTable[INV_PEN_OCCULT].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_OCCULT].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT;
+	
+	ItemModTable[INV_PEN_ELEMENTAL].attrib_low = 1;
+	ItemModTable[INV_PEN_ELEMENTAL].attrib_high = 3;
+	ItemModTable[INV_PEN_ELEMENTAL].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_ELEMENTAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_FLAT_FIREDMG].attrib_low = 1;
+	ItemModTable[INV_FLAT_FIREDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_FIREDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_FLAT_FIREDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_FLAT_ICEDMG].attrib_low = 1;
+	ItemModTable[INV_FLAT_ICEDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_ICEDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_FLAT_ICEDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_FLAT_LIGHTNINGDMG].attrib_low = 1;
+	ItemModTable[INV_FLAT_LIGHTNINGDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_LIGHTNINGDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_FLAT_LIGHTNINGDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_FLAT_POISONDMG].attrib_low = 1;
+	ItemModTable[INV_FLAT_POISONDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_POISONDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_FLAT_POISONDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_LIFESTEAL].attrib_low = 0.05;
+	ItemModTable[INV_LIFESTEAL].attrib_high = 0.125;
+	ItemModTable[INV_LIFESTEAL].attrib_level_modifier = 0;
+	ItemModTable[INV_LIFESTEAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
+	
+	ItemModTable[INV_POISON_TICRATE].attrib_low = 5;
+	ItemModTable[INV_POISON_TICRATE].attrib_high = 10;
+	ItemModTable[INV_POISON_TICRATE].attrib_level_modifier = 0;
+	ItemModTable[INV_POISON_TICRATE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_POISON_DURATION].attrib_low = 5;
+	ItemModTable[INV_POISON_DURATION].attrib_high = 14;
+	ItemModTable[INV_POISON_DURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_POISON_DURATION].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_POISON_TICDMG].attrib_low = 5;
+	ItemModTable[INV_POISON_TICDMG].attrib_high = 14;
+	ItemModTable[INV_POISON_TICDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_low = 5;
+	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_high = 19;
+	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_BLOCKERS_MOREDMG].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_FREEZECHANCE].attrib_low = 5;
+	ItemModTable[INV_FREEZECHANCE].attrib_high = 9;
+	ItemModTable[INV_FREEZECHANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_FREEZECHANCE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_SLOWEFFECT].attrib_low = 2;
+	ItemModTable[INV_SLOWEFFECT].attrib_high = 6;
+	ItemModTable[INV_SLOWEFFECT].attrib_level_modifier = 0;
+	ItemModTable[INV_SLOWEFFECT].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_CHILLTHRESHOLD].attrib_low = 1;
+	ItemModTable[INV_CHILLTHRESHOLD].attrib_high = 5;
+	ItemModTable[INV_CHILLTHRESHOLD].attrib_level_modifier = 0;
+	ItemModTable[INV_CHILLTHRESHOLD].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_IGNITECHANCE].attrib_low = 5;
+	ItemModTable[INV_IGNITECHANCE].attrib_high = 14;
+	ItemModTable[INV_IGNITECHANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_IGNITECHANCE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_IGNITEDMG].attrib_low = 5;
+	ItemModTable[INV_IGNITEDMG].attrib_high = 14;
+	ItemModTable[INV_IGNITEDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_IGNITEDMG].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_IGNITEDURATION].attrib_low = 4;
+	ItemModTable[INV_IGNITEDURATION].attrib_high = 12;
+	ItemModTable[INV_IGNITEDURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_IGNITEDURATION].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_OVERLOADCHANCE].attrib_low = 5;
+	ItemModTable[INV_OVERLOADCHANCE].attrib_high = 14;
+	ItemModTable[INV_OVERLOADCHANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_OVERLOADCHANCE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_OVERLOAD_ZAPCOUNT].attrib_low = 1;
+	ItemModTable[INV_OVERLOAD_ZAPCOUNT].attrib_high = 1;
+	ItemModTable[INV_OVERLOAD_ZAPCOUNT].attrib_level_modifier = 1;
+	ItemModTable[INV_OVERLOAD_ZAPCOUNT].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_low = 1;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_high = 4;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_CYBERNETIC].attrib_low = 1;
+	ItemModTable[INV_CYBERNETIC].attrib_high = 1;
+	ItemModTable[INV_CYBERNETIC].attrib_level_modifier = 1;
+	ItemModTable[INV_CYBERNETIC].tags = INV_ATTR_TAG_UTILITY;
+	
+	ItemModTable[INV_MELEERANGE].attrib_low = 2;
+	ItemModTable[INV_MELEERANGE].attrib_high = 6;
+	ItemModTable[INV_MELEERANGE].attrib_level_modifier = 0;
+	ItemModTable[INV_MELEERANGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_MELEE;
+	
+	ItemModTable[INV_MELEEDAMAGE].attrib_low = 5;
+	ItemModTable[INV_MELEEDAMAGE].attrib_high = 15;
+	ItemModTable[INV_MELEEDAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_MELEEDAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_MELEE;
+	
+	ItemModTable[INV_DOTMULTI].attrib_low = 1;
+	ItemModTable[INV_DOTMULTI].attrib_high = 8;
+	ItemModTable[INV_DOTMULTI].attrib_level_modifier = 0;
+	ItemModTable[INV_DOTMULTI].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_INCREASEDDOT].attrib_low = 5;
+	ItemModTable[INV_INCREASEDDOT].attrib_high = 19;
+	ItemModTable[INV_INCREASEDDOT].attrib_level_modifier = 0;
+	ItemModTable[INV_INCREASEDDOT].tags = INV_ATTR_TAG_DAMAGE;
+	
+	ItemModTable[INV_DMGREDUCE_HITSCAN].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_HITSCAN].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_HITSCAN].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_HITSCAN].tags = INV_ATTR_TAG_DEFENSE;
+	
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
+	
+	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_EXPLOSION].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_EXPLOSIVE;
+	
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT;
+	
+	ItemModTable[INV_DMGREDUCE_FIRE].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_FIRE].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_FIRE].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_FIRE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_DMGREDUCE_ICE].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_ICE].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_ICE].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_ICE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_high = 1.0;
+	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_LIGHTNING].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_DMGREDUCE_POISON].attrib_low = 1.0;
+	ItemModTable[INV_DMGREDUCE_POISON].attrib_high = 1.0;
+	ItemModTable[INV_DMGREDUCE_POISON].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_POISON].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_ADDEDMAXRESIST].attrib_low = 0.25;
+	ItemModTable[INV_ADDEDMAXRESIST].attrib_high = 0.5;
+	ItemModTable[INV_ADDEDMAXRESIST].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDEDMAXRESIST].tags = INV_ATTR_TAG_DEFENSE;
+	
+	ItemModTable[INV_REGENRATE].attrib_low = 5;
+	ItemModTable[INV_REGENRATE].attrib_high = 10;
+	ItemModTable[INV_REGENRATE].attrib_level_modifier = 0;
+	ItemModTable[INV_REGENRATE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE;
+	
+	ItemModTable[INV_LIFESTEAL_RATE].attrib_low = 4;
+	ItemModTable[INV_LIFESTEAL_RATE].attrib_high = 8;
+	ItemModTable[INV_LIFESTEAL_RATE].attrib_level_modifier = 0;
+	ItemModTable[INV_LIFESTEAL_RATE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
+	
+	ItemModTable[INV_LIFESTEAL_RECOVERY].attrib_low = 5;
+	ItemModTable[INV_LIFESTEAL_RECOVERY].attrib_high = 10;
+	ItemModTable[INV_LIFESTEAL_RECOVERY].attrib_level_modifier = 0;
+	ItemModTable[INV_LIFESTEAL_RECOVERY].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
+	
+	ItemModTable[INV_LIFESTEAL_CAP].attrib_low = 5;
+	ItemModTable[INV_LIFESTEAL_CAP].attrib_high = 10;
+	ItemModTable[INV_LIFESTEAL_CAP].attrib_level_modifier = 0;
+	ItemModTable[INV_LIFESTEAL_CAP].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
+	
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_low = 2;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_high = 8;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
+	
+	ItemModTable[INV_OVERLOAD_DURATION].attrib_low = 0.1;
+	ItemModTable[INV_OVERLOAD_DURATION].attrib_high = 0.5;
+	ItemModTable[INV_OVERLOAD_DURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_OVERLOAD_DURATION].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_IGNITE_PROLIFCHANCE].attrib_low = 5;
+	ItemModTable[INV_IGNITE_PROLIFCHANCE].attrib_high = 14;
+	ItemModTable[INV_IGNITE_PROLIFCHANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_IGNITE_PROLIFCHANCE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_IGNITE_PROLIFCOUNT].attrib_low = 1;
+	ItemModTable[INV_IGNITE_PROLIFCOUNT].attrib_high = 1;
+	ItemModTable[INV_IGNITE_PROLIFCOUNT].attrib_level_modifier = 1;
+	ItemModTable[INV_IGNITE_PROLIFCOUNT].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_low = 5;
+	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_high = 14;
+	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_level_modifier = 0;
+	ItemModTable[INV_IGNITE_PROLIFRANGE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_low = 5;
+	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_high = 9;
+	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_level_modifier = 0;
+	ItemModTable[INV_CHANCE_AILMENTIGNORE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	// essences from here on out
+
+	ItemModTable[INV_ESS_VAAJ].attrib_low = 1;
+	ItemModTable[INV_ESS_VAAJ].attrib_high = 1;
+	ItemModTable[INV_ESS_VAAJ].attrib_level_modifier = 1;
+	ItemModTable[INV_ESS_VAAJ].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_SSRATH].attrib_low = 3;
+	ItemModTable[INV_ESS_SSRATH].attrib_high = 5;
+	ItemModTable[INV_ESS_SSRATH].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_SSRATH].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_OMNISIGHT].attrib_low = 500;
+	ItemModTable[INV_ESS_OMNISIGHT].attrib_high = 1000;
+	ItemModTable[INV_ESS_OMNISIGHT].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_OMNISIGHT].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_OMNISIGHT2].attrib_low = 2;
+	ItemModTable[INV_ESS_OMNISIGHT2].attrib_high = 5;
+	ItemModTable[INV_ESS_OMNISIGHT2].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_OMNISIGHT2].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_CHEGOVAX].attrib_low = 1;
+	ItemModTable[INV_ESS_CHEGOVAX].attrib_high = 4;
+	ItemModTable[INV_ESS_CHEGOVAX].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_CHEGOVAX].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_HARKIMONDE].attrib_low = 3;
+	ItemModTable[INV_ESS_HARKIMONDE].attrib_high = 6;
+	ItemModTable[INV_ESS_HARKIMONDE].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_HARKIMONDE].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_LESHRAC].attrib_low = 1;
+	ItemModTable[INV_ESS_LESHRAC].attrib_high = 1;
+	ItemModTable[INV_ESS_LESHRAC].attrib_level_modifier = 1;
+	ItemModTable[INV_ESS_LESHRAC].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_KRULL].attrib_low = 5;
+	ItemModTable[INV_ESS_KRULL].attrib_high = 9;
+	ItemModTable[INV_ESS_KRULL].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_KRULL].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_THORAX].attrib_low = 1;
+	ItemModTable[INV_ESS_THORAX].attrib_high = 1;
+	ItemModTable[INV_ESS_THORAX].attrib_level_modifier = 1;
+	ItemModTable[INV_ESS_THORAX].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_ZRAVOG].attrib_low = 1;
+	ItemModTable[INV_ESS_ZRAVOG].attrib_high = 2;
+	ItemModTable[INV_ESS_ZRAVOG].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_ZRAVOG].tags = INV_ATTR_TAG_NONE;
+	
+	ItemModTable[INV_ESS_ERYXIA].attrib_low = 10;
+	ItemModTable[INV_ESS_ERYXIA].attrib_high = 20;
+	ItemModTable[INV_ESS_ERYXIA].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_ERYXIA].tags = INV_ATTR_TAG_NONE;
 }
-
-// if 3rd argument is 0 that means simply use the difference + 1 as increment
-Inv_attrib_T Inv_Attribute_Info[MAX_INV_ATTRIBUTE_TYPES] = {
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_LIFE 										},
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_DEFENSE 									},
-	{ 	1, 		6, 			0,		INV_ATTR_TAG_LIFE										},
-	{ 	1, 		6, 			0,		INV_ATTR_TAG_DEFENSE									},
-	{ 	5, 		9, 			7,		INV_ATTR_TAG_UTILITY 									},
-	{ 	5, 		9, 			7, 		INV_ATTR_TAG_UTILITY									},
-	{ 	0.005, 	0.015, 		0, 		INV_ATTR_TAG_UTILITY									},
-	{ 	0.025, 	0.05, 		0, 		INV_ATTR_TAG_UTILITY									},
-	{ 	5, 		14, 		0, 		INV_ATTR_TAG_UTILITY									},
-	{ 	0.01, 	0.03, 		0.04,	INV_ATTR_TAG_UTILITY									},
-	{ 	1, 		9, 			0,		INV_ATTR_TAG_UTILITY									},
-	
-	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL				},
-	{ 	1, 		3, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
-	{ 	1, 		3, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		3, 			0, 		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
-	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	
-	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL				},
-	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_ENERGY				},
-	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
-	{ 	5, 		20, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL			},
-	
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE 									},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE	| INV_ATTR_TAG_OCCULT				},
-	{ 	5, 		25, 		0,		INV_ATTR_TAG_DAMAGE										},
-	
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK				},
-	
-	{ 	1, 		8, 			0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		8, 			0,		INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ATTACK 			},
-	
-	{ 	4, 		8, 			0,		INV_ATTR_TAG_UTILITY									},
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_UTILITY									},
-	{ 	1, 		10, 		0,		INV_ATTR_TAG_UTILITY									},
-	
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
-	
-	{ 	0.005, 	0.01, 		0.006,	INV_ATTR_TAG_CRIT										},
-	{ 	0.01, 	0.1, 		0.1,	INV_ATTR_TAG_CRIT										},
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_CRIT										},
-	
-	{ 	50, 	100, 		100,	INV_ATTR_TAG_UTILITY									},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	25, 	124, 		0,		INV_ATTR_TAG_ATTACK										},
-	
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_STAT										},
-	
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL			},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE									},
-	
-	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL				},
-	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY				},
-	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT				},
-	{ 	1, 		3, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL			},
-	
-	// lifesteal
-	{ 	0.05, 	0.125, 		0,		INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_LIFE					},
-	
-	{ 	5, 		10, 		0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
-	
-	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
-
-	{ 	5, 		9, 			0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	1, 		5, 			0,		INV_ATTR_TAG_ELEMENTAL									},
-	
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	4, 		12, 		0,		INV_ATTR_TAG_ELEMENTAL									},
-	
-	{ 	5, 		14, 		0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 	1, 		4, 			0,		INV_ATTR_TAG_ELEMENTAL									},
-	
-	// cybernetic
-	{ 	1, 		1, 			1,		INV_ATTR_TAG_UTILITY									},
-	{ 	2, 		6, 			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_MELEE				},
-	{ 	5, 		15, 		0,		INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_MELEE				},
-	{ 	1, 		8, 			0,		INV_ATTR_TAG_DAMAGE										},
-	{ 	5, 		19, 		0,		INV_ATTR_TAG_DAMAGE										},
-	
-	// bunch of resists
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE									},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY				},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_EXPLOSIVE			},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT				},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	{ 	1.0, 	4.0, 		0,		INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL			},
-	
-	// resist cap
-	{ 	0.25, 	0.5, 		0,		INV_ATTR_TAG_DEFENSE									},
-	{ 	5,		10,			0,		INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE				},
-	
-	// lifesteal effects
-	{ 	4,		8,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
-	{ 	5,		10,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
-	{ 	5,		10,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
-	{   2,		8,			0,		INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE					},
-	
-	// overload duration
-	{ 	0.1,	0.5,		0,		INV_ATTR_TAG_ELEMENTAL									},
-	
-	// ignite prolif stuff -- chance, count, range
-	{ 5, 		14,			0,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 1, 		1, 			1,		INV_ATTR_TAG_ELEMENTAL									},
-	{ 5, 		14,			0,		INV_ATTR_TAG_ELEMENTAL									},
-	
-	// ailment ignore
-	{	5,		9,			0,		INV_ATTR_TAG_ELEMENTAL									},
-	
-	// essences
-	{ 	1, 		1, 			1, 		INV_ATTR_TAG_NONE 										}, // vaaj
-	{ 	3,		5,			0,		INV_ATTR_TAG_NONE										}, // ssrath
-	{ 	500,	1000,		0,		INV_ATTR_TAG_NONE										}, // omnisight 1
-	{ 	2,		5,			0,		INV_ATTR_TAG_NONE										}, // omnisight 2
-	{ 	1,		4,			0,		INV_ATTR_TAG_NONE										}, // chegovax
-	{ 	3,		6,			0,		INV_ATTR_TAG_NONE										}, // harkimonde
-	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // leshrac
-	{ 	5,		9,			0,		INV_ATTR_TAG_NONE										}, // krull
-	{ 	1,		1,			1,		INV_ATTR_TAG_NONE										}, // thorax
-	{ 	1,		2,			0,		INV_ATTR_TAG_NONE										}, // zravog
-	{ 	10,		20,			0,		INV_ATTR_TAG_NONE										}  // eryxia
-};
 
 // returns the amount to skip over the base range to map it into its appropriate tier
 int GetModTierRangeMapper(int attr, int lvl) {
 	int val = 0;
-	if(!Inv_Attribute_Info[attr].attrib_level_modifier)
-		val = (Inv_Attribute_Info[attr].attrib_high - Inv_Attribute_Info[attr].attrib_low) * lvl;
+	if(!ItemModTable[attr].attrib_level_modifier)
+		val = (ItemModTable[attr].attrib_high - ItemModTable[attr].attrib_low) * lvl;
 	else
-		val = (Inv_Attribute_Info[attr].attrib_level_modifier * lvl);
+		val = (ItemModTable[attr].attrib_level_modifier * lvl);
 	return val;
 }
 
@@ -604,8 +843,8 @@ int GetModTierRangeMapper(int attr, int lvl) {
 // this uses a precalculated tier mapping to save time
 int GetModRangeWithTier(int attr, int tier_mapping, bool which) {
 	if(!which)
-		return Inv_Attribute_Info[attr].attrib_low + tier_mapping + (tier_mapping != 0);
-	return Inv_Attribute_Info[attr].attrib_high + tier_mapping + (tier_mapping != 0);
+		return ItemModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0);
+	return ItemModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0);
 }
 
 // this calculates the tier mapping for itself based on supplied level
@@ -703,7 +942,7 @@ str GetInventoryAttributeText(int attr) {
 		return StrParam(s:"IATTR_TE", d:attr + 1 - FIRST_ESSENCE_ATTRIBUTE);
 		
 	// only option left is unique exotic attributes
-	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr) - LAST_ESSENCE_ATTRIBUTE);
+	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
 str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods = false, int extra = -1) {

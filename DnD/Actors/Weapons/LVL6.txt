@@ -450,6 +450,7 @@ Actor PlasmaShooter : DnD_Activator {
 Actor NewPlasmaExp : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NUCLEARPLASMARIFLE << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6))
@@ -921,6 +922,7 @@ Actor NailExplosion : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
 	+FOILINVUL
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -1014,7 +1016,7 @@ Actor NailBlur2 : NailBlur {
 	}
 }
 
-ACTOR Basilisk : Weapon {	
+ACTOR Basilisk : Weapon {
 	Inventory.PickupMessage "You got the basilisk!"
 	Obituary "%k toasted %o with the basilisk."
 	Weapon.AmmoType1 "BasiliskAmmo"
@@ -1249,6 +1251,7 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 	DeathSound "weapons/basiliskexpl3"
 	+THRUACTORS
 	+FOILINVUL
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			HIB1 A 3 Bright

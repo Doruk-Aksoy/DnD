@@ -1304,6 +1304,7 @@ Actor RubyCircleFlame : DnD_ExplosiveBase {
 	DeathSound "ClericFlameCircle"
 	const float rubyspeed = 5.0;
 	+THRUGHOST
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			CFCF A 4 Bright

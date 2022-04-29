@@ -1719,6 +1719,7 @@ Actor DesolatorPuff : DnD_BasePuff {
 
 Actor DesolatorExplosion : DnD_ExplosiveBase {
 	Speed 0
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0

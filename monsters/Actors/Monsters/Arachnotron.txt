@@ -93,7 +93,7 @@ ACTOR FusionShot {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX3", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			FPLS CDEFG 3 BRIGHT
 		Stop
@@ -245,7 +245,7 @@ ACTOR HFSpiderShot {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX3", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SpawnItem("HellForgeSpiderExp")
 			ESPJ CDEFGHI 2 Bright
@@ -521,7 +521,7 @@ ACTOR BabyDemoBall : FusionShot {
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX4", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX4", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SpawnDebris("GreenSparkFX")
 			CFX6 BCDE 3 Bright
@@ -675,7 +675,7 @@ Actor VoreFirepod {
 		Goto Spawn+5
 		Death:
 			TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 AAA 0 A_CustomMissile("ExplosionFX3", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX3", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SpawnItem("VoreExp")
 			VOBA DEFGHI 4 Bright

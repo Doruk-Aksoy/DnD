@@ -394,14 +394,15 @@ DND_MENU_RESHELPTEXT3	=	"Through the information found in the research documents
 DND_MENU_RESHELPTEXT4	=	"\cvBudget\c- can only be gained by finishing maps. Upon completion of a map, you get \cvbudget\c- depending on the difficulty of the map. The harder the map the more budget you get.";
 DND_MENU_RESHELPTEXT5	=	"Once you obtain the required amount of \cvbudget\c-, you can go ahead and finish your research. When the research is concluded, you can use the feature the research enables.";
 
-DND_MENU_CHARHELPTEXT1	=	"Character loading is a feature only available in servers with \cvSoftcore\c- or \cgHardcore\c- modes enabled. You can do this using \c[Y5]\"sethardcore\"\c- or \c[Y5]\"setsoftcore\"\c- command or setting appropriate flags.";
-DND_MENU_CHARHELPTEXT2	=	"There are numerous flags that require to be set in order for the above modes to work properly. A full list of them can be found on our discord at: https://discord.gg/Gffvznu";
-DND_MENU_CHARHELPTEXT3	=	"You can skip the loading phase using \cf\"skipload\"\c- command in case you are starting a fresh character, or simply don't want to load.";
-DND_MENU_CHARHELPTEXT4	=	"You should in general use the \cf\"setchar X\"\c- command to set your character slot if you are starting fresh.";
-DND_MENU_CHARHELPTEXT5	=	"Avoid slot 1 as it's the default one, it can cause overwrites. Try to prefer slots 2 to 4 as much as possible.";
-DND_MENU_CHARHELPTEXT6	=	"You can have a maximum of 4 characters total from slots 1 to 4. However, your selected character will be wiped out on death should you die in \cgHardcore\c- mode, so caution is advised!";
-DND_MENU_CHARHELPTEXT7	=	"You'll be given a set amount of time before the game starts so that you can load your character safely. There are no monsters during this period.";
-DND_MENU_CHARHELPTEXT8	=	"Loading procedure is as follows:\n1. Open Console\n2.Login using \"login username password\".\n3. Type \cf\"loadme X\"\c- where 'X' is your character slot number.\n3. Wait for others to load.";
+DND_MENU_CHARHELPTEXT1	=	"Character loading is a feature only available in servers with \cvSoftcore\c- or \cgHardcore\c- modes enabled. You can do this using \c[Y5]\"setsoftcore\"\c- or \c[Y5]\"sethardcore\"\c- command or setting appropriate flags.";
+DND_MENU_CHARHELPTEXT2	=	"There are numerous flags that require to be set in order for the above modes to work properly. A full list of them can be found on our discord at: https://discord.gg/dFnejF4hzm";
+DND_MENU_CHARHELPTEXT3	=	"You need to have made an account in auth.zandronum.com in order to be able to use the persistent character features. After you've done so, make sure you remember your username and password for later.";
+DND_MENU_CHARHELPTEXT4	=	"You can skip the loading phase using \cf\"skipload\"\c- command in case you are starting a fresh character, or simply don't want to load.";
+DND_MENU_CHARHELPTEXT5	=	"You should in general use the \cf\"setchar X\"\c- command to set your character slot if you are starting fresh.";
+DND_MENU_CHARHELPTEXT6	=	"Avoid slot 0 as it's the default one, it can cause overwrites. Try to prefer slots 1 to 4 as much as possible.";
+DND_MENU_CHARHELPTEXT7	=	"You can have a maximum of 5 characters total from slots 0 to 4. However, your selected character will be wiped out on death should you die in \cgHardcore\c- mode, so caution is advised!";
+DND_MENU_CHARHELPTEXT8	=	"You'll be given a set amount of time before the game starts so that you can load your character safely. There are no monsters during this period.";
+DND_MENU_CHARHELPTEXT9	=	"Loading procedure is as follows:\n1. Open Console\n2.Login using \"login username password\".\n3. Type \cf\"loadme X\"\c- where 'X' is your character slot number.\n3. Wait for others to load.";
 
 DND_MENU_LEGHELPTEXT1	=	"\c[Y5]The Dreaming God\nThe evil entity known only as the \"Dreaming God\" wanders realms unknown to many for as long as the universe, or at least that's what we think. Research shows this creature is immune to any magical or elemental attack.";
 DND_MENU_LEGHELPTEXT2	=	"\c[Y5]Torrasque\nThis unwavering creature appears to be magically created by an immensely powerful wizard, long ago. Now it chose this realm to feast upon. We found that the creature is highly resistant to physical, energy and explosive attacks.";

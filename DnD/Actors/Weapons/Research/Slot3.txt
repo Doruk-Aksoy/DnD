@@ -556,7 +556,7 @@ Actor CryoPuff_FX {
 	+ALWAYSPUFF
 	States {
 		Spawn:
-			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 1
 			TNT1 A 0 A_Explode(1, 128, 0, 0)
 			BXPL AAAAAAAA 0 A_SpawnItemEx("CryoPrimarySmoke", 0, 0, 0, random(10, 30)*0.1, 0, random(0, 10)*0.1, random(1,360), SXF_CLIENTSIDE|SXF_NOCHECKPOSITION)
@@ -578,7 +578,7 @@ Actor CryoPuffAlt : DnD_BasePuff {
 		Crash:
 		Death:
 			TNT1 A 0	
-			TNT1 AAAAA 0 A_CustomMissile("ExplosionFX5", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 1 A_Explode(1, 128, 0)
 			TNT1 A 0 A_PlaySound("weapons/cryobowalt", 5)
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -884,6 +884,7 @@ Actor BloodFX2A : DnD_BasePuff {
 Actor WoTExploder : DnD_ExplosiveBase {
 	Speed 0
 	+THRUACTORS
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			TNT1 A 0

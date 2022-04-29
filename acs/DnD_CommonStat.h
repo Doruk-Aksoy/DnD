@@ -479,21 +479,24 @@ void RestoreRPGStat (int statflag) {
 // Retrieves attributes from items that the player has on them
 str GetPlayerAttributeString(int attrib) {
 	// there are sometimes those that directly invoke this, so we must add a failsafe for them too
-	if(attrib >= UNIQUE_ATTRIB_BEGIN)
+	/*if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return Inv_Attribute_Checkers[attrib];
+	return Inv_Attribute_Checkers[attrib];*/
+	return "";
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
-	if(attrib >= UNIQUE_ATTRIB_BEGIN)
+	/*if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return CheckActorInventory(pnum + P_TIDSTART, Inv_Attribute_Checkers[attrib]);
+	return CheckActorInventory(pnum + P_TIDSTART, Inv_Attribute_Checkers[attrib]);*/
+	return 0;
 }
 
 int GetActorAttributeValue(int tid, int attrib) {
-	if(attrib >= UNIQUE_ATTRIB_BEGIN)
+	/*if(attrib >= UNIQUE_ATTRIB_BEGIN)
 		attrib = UNIQUE_MAP_MACRO(attrib);
-	return CheckActorInventory(tid, Inv_Attribute_Checkers[attrib]);
+	return CheckActorInventory(tid, Inv_Attribute_Checkers[attrib]);*/
+	return 0;
 }
 
 void CalculatePlayerAccuracy(int pnum) {

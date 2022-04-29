@@ -316,12 +316,12 @@ void SetupUniqueItems() {
 
 // These are necessary to sync the global variables + unique data
 Script "DnD Load Inventory Attributes" OPEN {
-	SetupInventoryAttributeStrings();
+	SetupInventoryAttributeTable();
 	SetupUniqueItems();
 }
 
 Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
-	SetupInventoryAttributeStrings();
+	SetupInventoryAttributeTable();
 	SetupUniqueItems();
 }
 

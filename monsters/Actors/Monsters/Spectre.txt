@@ -12,6 +12,7 @@ Actor Lurker : DnD_BaseHybridMonster {
 	Radius 30
 	Height 56
 	Mass 450
+	Species "Demon"
 	+LongMeleeRange
 	+DontHurtSpecies
 	SeeSound "Monster/sg2sit"
@@ -315,6 +316,7 @@ Actor SoulEaterGhost : DnD_BaseHybridMonster {
 	Radius 30
 	Height 56
 	Mass 450
+	Species "Demon"
 	+LongMeleeRange
 	+DontHurtSpecies
 	SeeSound "SoulEater/See"
@@ -487,6 +489,7 @@ Actor RavagerGhost : DnD_BaseHybridMonster {
 	DeathSound "demon/Death"
 	ActiveSound "demon/sg2act"
 	Tag "Ravager"
+	Species "Demon"
 	MaxTargetRange 264
 	Scale 1.15
 	Radius 30
