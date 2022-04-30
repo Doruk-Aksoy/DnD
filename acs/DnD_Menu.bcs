@@ -385,12 +385,12 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Vitality"); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 256.1, 208.0, 0.0);
 				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 256.1, 224.0, 0.0);
 				// draw bonus stat acquired
-				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_STR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 320.1, 144.0, 0.0);
-				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_DEX"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 320.1, 160.0, 0.0);
-				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_BUL"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 320.1, 176.0, 0.0);
-				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_CHR"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 320.1, 192.0, 0.0);
-				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_VIT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 320.1, 208.0, 0.0);
-				HudMessage(s:"(+ \cd", d:CheckInventory("IATTR_StatBonus_INT"), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 22, CR_WHITE, 320.1, 224.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 320.1, 144.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 320.1, 160.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_BULKINESS), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 320.1, 176.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_CHARISMA), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 320.1, 192.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_VITALITY), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 320.1, 208.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 22, CR_WHITE, 320.1, 224.0, 0.0);
 				
 				if(boxid != MAINBOX_NONE && boxid < MBOX_7) {
 					SetHudClipRect(184, 208, 256, 64, 256);

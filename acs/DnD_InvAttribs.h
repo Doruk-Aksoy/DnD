@@ -262,7 +262,17 @@ enum {
 };
 
 // indexing on this one is done by checking ranges, and then mapping appropriately
-global int 61: PlayerModValues[MAX_TOTAL_ATTRIBUTES];
+global int 61: PlayerModValues[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
+
+void SetPlayerModValue(int pnum, int mod, int val) {
+	PlayerModValues[pnum][mod] = val;
+	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+}
+
+void IncPlayerModValue(int pnum, int mod, int val) {
+	PlayerModValues[pnum][mod] += val;
+	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+}
 
 // reason why this uses UNIQUE_ATTRIB_ID_BEGIN, it skips regular and essence mod indexes. This means, we have enough room without database reset for both regular
 // and essence mods. This is good for future compatibility as well.

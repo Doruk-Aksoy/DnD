@@ -1039,7 +1039,7 @@ Script "DND On Kill" KILL {
 	
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
-		addone = CheckActorInventory(target, "IATTR_ChanceToRaiseZombieFromKills");
+		addone = GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_CHANCE_ONDEATH_RAISEZOMBIE);
 		if(HasRoomForPets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && addone >= random(1, 100)) {
 			// raise zombie
 			HandleZombieRaiseOnDeath(target);
@@ -1047,9 +1047,10 @@ Script "DND On Kill" KILL {
 	}
 	
 	// chaos marked monsters are removed on death, no ressing
-	if(CheckActorInventory(target, "StatbuffCounter_SlainMonstersRIP") || MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
+	if(CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
 	
+	// from here on out we are the player
 	SetActivator(target);
 	
 	// keep the kill tally
@@ -1088,7 +1089,7 @@ Script "DND On Kill" KILL {
 		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_HUNTERTALISMAN_HEALFACTOR);
 	}
 	
-	addone = CheckInventory("IATTR_HealOnKill");
+	addone = GetPlayerAttributeValue(PlayerNumber(), INV_EX_ONKILL_HEALMISSING);
 	if(addone) {
 		pcount = GetMissingHealth();
 		addone = (pcount * addone) / 100;
@@ -4118,7 +4119,7 @@ Script "DND Armor Pickup Check" (int amount, int armor_type) {
 		int armor_id = GetArmorID();
 		// decide if armor is higher tier if amount doesn't satisfy
 		SetResultValue(
-			!CheckInventory("StatbuffCounter_ForbidArmor") && 
+			!CheckUniquePropertyOnPlayer(PlayerNumber(), PUP_FORBIDARMOR) && 
 				(
 					(armor_id != -1 && GetArmorAmount() < GetArmorCapFromID(armor_id)) || 
 					IsArmorTierHigher(armor_type, armor_id)
@@ -5697,7 +5698,7 @@ Script "DnD Give Soul Ammo" (int amt) {
 // reason is this is embedded in ammo gain chance script for ease
 Script "DnD On Attack" (int isSpecial, int extra) {
 	// elemental bulwark check
-	if(CheckInventory("IATTR_ChanceToCastElementalSpell") >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
+	if(GetPlayerAttributeValue(PlayerNumber(), INV_EX_CHANCE_CASTELEMSPELLONATK) >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
 		GiveInventory("RandomElementalSpellCooldown", 1);
 		CastRandomElementalSpell();
 	}
@@ -6178,16 +6179,17 @@ Script "DnD Projectile Checks" (int isPet) {
 	if(CheckActorInventory(owner, "NetherCheck"))
 		GiveInventory("ApplyNetherMaskBuff", 1);
 
+	int pnum = owner - P_TIDSTART;
 	if
 	(
 		CheckActorInventory(owner, "Marine_Perk50") || 
-		CheckActorInventory(owner, "StatbuffCounter_HomingDontReflect") && (CheckFlag(0, "SEEKERMISSILE") || CheckFlag(0, "SCREENSEEKER"))
+		CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT) && (CheckFlag(0, "SEEKERMISSILE") || CheckFlag(0, "SCREENSEEKER"))
 	)
 	{
 		GiveInventory("ApplyNoReflect", 1);
 	}
 	
-	if(CheckActorInventory(owner, "StatbuffCounter_ExplosiveResistIgnore"))
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))
 		GiveInventory("ApplyForceRadiusDMG", 1);
 		
 	SetResultValue(0);
@@ -6445,7 +6447,7 @@ Script 1007 (void) NET CLIENTSIDE {
 	GiveInventory("DnD_RefreshPane", 1);
 }
 
-Script 69 (void) NET {
+/*Script 69 (void) NET {
 	SetInventory("Level", 98);
 	SetInventory("Exp", GetExpLimit() / 2);
 	SetInventory("LevelExpCap", GetExpLimit());
@@ -6456,7 +6458,7 @@ Script 70 (void) NET {
 	GiveInventory("Exp", 200000);
 	GiveInventory("LevelUpChecker", 1);
 	CalculateExpRatio();
-}
+}*/
 
 Script "Print Loc" (void) {
 	printbold(f:GetActorX(0), s: " ", f:GetActorY(0), s: " ", f:GetActorZ(0));
@@ -6464,6 +6466,7 @@ Script "Print Loc" (void) {
 }
 
 Script 68 (int x) NET {
+	#ifdef ISDEBUGBUILD
 	if(x < MAX_RESEARCHES)
 		GiveResearch(x, true);
 	else if(x == 32768) {
@@ -6479,8 +6482,6 @@ Script 68 (int x) NET {
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
 	}
-	else if(x == 421)
-		GiveInventory("IATTR_Lifesteal", 0.5);
 	else if(x == 422) {
 		printbold(s:"giving ", d:2000000 + GetStat(STAT_EXP) / 2, s: " exp");
 		GiveExp(2000000 + GetStat(STAT_EXP) / 2);
@@ -6497,6 +6498,7 @@ Script 68 (int x) NET {
 		SyncItemData(0, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, 0, DND_ITEM_CHARM);
 	}
+	#endif
 }
 
 // experiment to check how evenly distributed the random attributes are

@@ -904,4 +904,9 @@ void SyncAllClientsideVariables(int pnum) {
 		SyncClientsideVariable_WeaponMods(pnum, i);
 }
 
+Script "DnD Request Mod Sync" (int pnum, int mod, int val) CLIENTSIDE {
+	PlayerModValues[pnum][mod] = val;
+	SetResultValue(0);
+}
+
 #endif

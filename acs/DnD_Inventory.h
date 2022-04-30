@@ -1527,6 +1527,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		aval /= DND_CYBERNETIC_FACTOR_DIV;
 	}
 	
+	if(remove)
+		aval = -aval;
+	
 	switch(atype) {
 		// this is handled differently
 		case INV_CYBERNETIC:
@@ -1534,13 +1537,13 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	
 		// first cases with exceptions to our generic formula
 		case INV_MAGAZINE_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 			// add onto the base capacities, not current capacities
 			for(i = 0; i < MAX_MAGAZINES; ++i)
 				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + GetPlayerAttributeValue(pnum, atype))) / 100);
 		break;
 		case INV_EXPLOSION_RADIUS:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
@@ -1549,7 +1552,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_ACCURACY_INCREASE:
 		case INV_ESS_OMNISIGHT:
 		case INV_ESS_OMNISIGHT2:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			CalculatePlayerAccuracy(pnum);
 		break;
@@ -1560,43 +1563,33 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// by itself these do nothing
 		break;
 		case INV_EX_KNOCKBACK_IMMUNITY:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_KnockbackImmunity", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_KnockbackImmunity"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_KNOCKBACKIMMUNE));
-				
+			IncPlayerModValue(pnum, atype, aval);
 			UpdatePlayerKnockbackResist();
 		break;
 		case INV_EX_FACTOR_SMALLCHARM:
-			i = UNIQUE_MAP_MACRO(atype);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
 			if(!remove) {
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
 				// we now need to re-apply all other features of small charms we have equipped
 				// first 4 are small charms
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 						RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						
 				// now give the item and re-apply
-				GiveInventory("StatbuffCounter_DoubleSmallCharm", aval);
+				IncPlayerModValue(pnum, atype, aval);
+				
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			}
-			else if(CheckInventory("StatbuffCounter_DoubleSmallCharm")) {
+			else if(PlayerModValues[pnum][atype]) {
 				// just take the attribute off and remove features and reapply
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_DOUBLESMALLCHARM));
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 						RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-				SetInventory("StatbuffCounter_DoubleSmallCharm", 0);
+						
+				// little note: aval can be negative if we are removing, so just + is enough to subtract it
+				IncPlayerModValue(pnum, atype, aval);
+				
 				// reapply with this gone
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
@@ -1605,7 +1598,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
-				GiveOrTake(GetPlayerAttributeString(i), aval, remove);
+				IncPlayerModValue(pnum, i, aval);
 			UpdatePlayerKnockbackResist();
 			UpdateArmorVisual();
 		break;
@@ -1613,8 +1606,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// -1 of aindex is used to retrieve chance
 			// i will hold the chance of this to happen
 			i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex - 1, source);
-			if(IsSet(CheckInventory("IATTR_StatusBuffs_1"), DND_STATBUFF_DOUBLESMALLCHARM) && asubtype == DND_CHARM_SMALL) {
-				i *= CheckInventory("StatbuffCounter_DoubleSmallCharm");
+			temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
+			if(temp && asubtype == DND_CHARM_SMALL) {
+				i *= temp;
 				i /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
 			}
 			temp = GetPlayerAttributeValue(pnum, atype);
@@ -1622,11 +1616,11 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				temp = ((temp & 0xFFFF) + aval) | (((temp >> 16) + i) << 16);
 			else
 				temp = ((temp & 0xFFFF) - aval) | (((temp >> 16) - i) << 16);
-			SetInventory(GetPlayerAttributeString(atype), temp);
+			SetPlayerModValue(pnum, atype, temp);
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
+			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval);
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			GiveOrTake(GetPlayerAttributeString(INV_HPPERCENT_INCREASE), aval, remove);
 			if(remove) {
 				temp = GetSpawnHealth();
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
@@ -1638,109 +1632,39 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				}
 			}
 		break;
-		case INV_EX_FORBID_ARMOR:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_ForbidArmor", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_ForbidArmor")) {
-				RemoveAllArmor();
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_FORBIDARMOR));
-			}
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_FORBIDARMOR));
-		break;
 		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			// first check all sources, see if they contain this and are lower than this source
 			temp = FindMinOnUsedCharmsForAttribute(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH, item_index);
 			// we got a new min
 			if(temp != -1) {
-				// update to use the new min if our comparison is better
+				// update to use the new min if our comparison is better -- dont care otherwise
 				if(!remove)
-					SetInventory("IATTR_DamagePerFlatHP", Min(aval, CheckInventory("DamagePerFlatHPBuffer")));
-				else
-					SetInventory("IATTR_DamagePerFlatHP", CheckInventory("DamagePerFlatHPBuffer"));
+					SetPlayerModValue(pnum, atype, Min(aval, PlayerModValues[pnum][atype]));
 			}
 			else {
 				// no new min was found
 				if(remove)
-					SetInventory("IATTR_DamagePerFlatHP", 0);
+					SetPlayerModValue(pnum, atype, 0);
 				else
-					SetInventory("IATTR_DamagePerFlatHP", aval);
+					SetPlayerModValue(pnum, atype, aval);
 			}
-		break;
-		case INV_EX_BEHAVIOR_PELLETSFIRECIRCLE:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_PelletsInCircle", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_PelletsInCircle"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_PELLETSINCIRCLE));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_PELLETSINCIRCLE));
-		break;
-		case INV_EX_DMGREDUCE_SHAREWITHPETS:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_PainSharedWithPets", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_PainSharedWithPets"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_PAINSHAREDWITHPETS));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_PAINSHAREDWITHPETS));
 		break;
 		case INV_EX_FLATDMG_ALL:
 			for(i = INV_FLATPHYS_DAMAGE; i <= INV_FLATELEM_DAMAGE; ++i)
-				GiveOrTake(GetPlayerAttributeString(i), aval, remove);
-		break;
-		case INV_EX_SOULWEPS_FULLDAMAGE:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_SoulWepsDoFullDamage", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_SoulWepsDoFullDamage"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_SOULWEPSFULLDAMAGE));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_SOULWEPSFULLDAMAGE));
+				IncPlayerModValue(pnum, i, aval);
 		break;
 		case INV_EX_ABILITY_RALLY:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			if(GetPlayerAttributeValue(pnum, atype))
+			IncPlayerModValue(pnum, atype, aval);
+			if(PlayerModValues[pnum][atype])
 				GiveInventory("CastRally", 1);
 			else
 				TakeInventory("CastRally", 1);
-		break;
-		case INV_EX_BEHAVIOR_SPELLSFULLDAMAGE:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_SpellsFullDamage", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_SpellsFullDamage"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_SPELLSDOFULLDAMAGE));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_SPELLSDOFULLDAMAGE));
-		break;
-		case INV_EX_ABILITY_MONSTERSRIP:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_SlainMonstersRIP", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_SlainMonstersRIP"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
 		break;
 		case INV_HP_INCREASE:
 		case INV_HPPERCENT_INCREASE:
 		case INV_STAT_VITALITY:
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 			if(remove) {
 				temp = GetSpawnHealth();
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
@@ -1754,12 +1678,29 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		
 		case INV_STAT_BULKINESS:
+			IncPlayerModValue(pnum, atype, aval);
 			UpdatePlayerKnockbackResist();
 			UpdateArmorVisual();
-			// intentional fall through
+			
+			i = GetArmorAmount();
+			if(i) {
+				cap = GetArmorCapFromID(GetArmorID());
+				i = i - cap;
+				if(remove) {
+					temp = cap;
+					if(GetArmorAmount() > temp) {
+						// set health to new cap, add the extra to player
+						if(i > 0)
+							SetArmorAmount(temp + i);
+						else
+							SetArmorAmount(temp);
+					}
+				}
+			}
+		break;
 		case INV_ARMOR_INCREASE:
 		case INV_ARMORPERCENT_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 			i = GetArmorAmount();
 			if(i) {
 				cap = GetArmorCapFromID(GetArmorID());
@@ -1777,80 +1718,29 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			}
 		break;
 		case INV_SPEED_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
-			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
+			IncPlayerModValue(pnum, atype, aval);
+			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		break;
 		case INV_AMMOCAP_INCREASE:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 			// make sure to update ammo caps
 			SetAllAmmoCapacities();
 		break;
-		case INV_EX_ABILITY_LUCKYCRIT:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_LuckyCrit", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_LuckyCrit"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_SLAINMONSTERSRIP));
-		break;
 		case INV_EX_CURSEIMMUNITY:
-			i = UNIQUE_MAP_MACRO(atype);
-			GiveOrTake("StatbuffCounter_CurseImmunity", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, i);
-			//inv = Inv_Attribute_Checkers[i];
-			
-			if(CheckInventory("StatbuffCounter_CurseImmunity")) {
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_CURSEIMMUNITY));
+			IncPlayerModValue(pnum, atype, aval);
+			if(PlayerModValues[pnum][atype])
 				GiveInventory("CurseImmunity", 1);
-			}
-			else {
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_CURSEIMMUNITY));
+			else
 				HandleCurseImmunityRemoval();
-			}
-		break;
-		
-		// essences
-		case INV_ESS_VAAJ:
-			GiveOrTake("StatbuffCounter_ExplosiveResistIgnore", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, atype);
-			//inv = Inv_Attribute_Checkers[atype];
-			
-			if(CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_EXPLOSIVEIGNORERES));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_EXPLOSIVEIGNORERES));
-		break;
-		case INV_ESS_LESHRAC:
-			GiveOrTake("StatbuffCounter_PoisonTicTwiceFast", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, atype);
-			//inv = Inv_Attribute_Checkers[atype];
-			
-			if(CheckInventory("StatbuffCounter_PoisonTicTwiceFast"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_POISONTICTWICEFAST));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_POISONTICTWICEFAST));
-		break;
-		case INV_ESS_THORAX:
-			GiveOrTake("StatbuffCounter_HomingDontReflect", 1, remove);
-			temp = GetPlayerAttributeValue(pnum, atype);
-			//inv = Inv_Attribute_Checkers[atype];
-			
-			if(CheckInventory("StatbuffCounter_HomingDontReflect"))
-				SetInventory(inv, SetBit(temp, DND_STATBUFF_HOMINGDONTREFLECT));
-			else
-				SetInventory(inv, ClearBit(temp, DND_STATBUFF_HOMINGDONTREFLECT));
 		break;
 		case INV_STAT_STRENGTH:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 			UpdatePlayerKnockbackResist();
 		break;
 		
 		// anything that fits our generic formula
 		default:
-			GiveOrTake(GetPlayerAttributeString(atype), aval, remove);
+			IncPlayerModValue(pnum, atype, aval);
 		break;
 	}
 }

@@ -262,7 +262,7 @@ Actor DeadlockShooter : DnD_Activator {
 			TNT1 A 0 A_PlayWeaponSound("Deadlock/Fire")
 			
 			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 16))
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
 			TNT1 A 0 A_FireBullets (7.0 * (1.0 - accuracy * accuracy_factor), 5.2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "DeadlockPuff", FBF_NORANDOM | FBF_USEAMMO)  
 		Stop
 		Flechette:
@@ -378,7 +378,7 @@ Actor ResShotgun2 : Weapon {
 		Fire:
 			BOWG A 0 A_GunFlash
 			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_KnockbackImmunity", 1, "NoRecoil")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
 			BOWG A 0 A_Recoil(4.0)
 		NoRecoil:
 			BOWG A 0 A_PlaySound("weapons/cryobowshot")
@@ -411,8 +411,7 @@ Actor ResShotgun2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("CryoBowCooldown", 1, "Failed")
 			BOWG A 1
 			BOWG A 0 A_GunFlash
-			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoilAlt")
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_KnockbackImmunity", 1, "NoRecoil")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoilAlt")
 			BOWG A 0 A_Recoil(4.0)
 		NoRecoilAlt:
 			BOWG A 0 A_PlaySound("weapons/cryobowshot")
@@ -1299,7 +1298,7 @@ Actor CharonShooter : DnD_Activator {
 			TNT1 A 0 A_TakeInventory("CharonAmmo", 1)
 		NoTake:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_PelletsInCircle", 1, "FireCircle")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
 			TNT1 A 0 A_FireCustomMissile ("CharonBall", 0, 0)
 			TNT1 A 0 A_FireCustomMissile ("CharonBall", 12.5, 0)
 			TNT1 A 0 A_FireCustomMissile ("CharonBall", -12.5, 0)

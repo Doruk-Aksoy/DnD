@@ -120,6 +120,48 @@ str StatData[STAT_LVLCRED + 1] = {
 };
 
 enum {
+	PUP_HOMINGNOREFLECT,
+	PUP_EXPLOSIVEIGNORERESIST,
+	PUP_SLAINENEMIESRIP,
+	PUP_FORBIDARMOR,
+	PUP_LUCKYRCRITS,
+	PUP_PELLETSFIRECIRCLE,
+	PUP_KNOCKBACKIMMUNE
+};
+
+bool CheckUniquePropertyOnPlayer(int pnum, int prop) {
+	switch(prop) {
+		// homing not reflect can come from thorax or marine's perk50 (more generic, all proj cant be reflected)
+		case PUP_HOMINGNOREFLECT:
+		return GetPlayerAttributeValue(pnum, INV_ESS_THORAX) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
+		
+		// +FORCERADIUSDMG can come from vaaj or marine
+		case PUP_EXPLOSIVEIGNORERESIST:
+		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk25");
+		
+		case PUP_SLAINENEMIESRIP:
+		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP);
+		
+		case PUP_FORBIDARMOR:
+		return GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR);
+		
+		case PUP_LUCKYRCRITS:
+		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT);
+		
+		case PUP_PELLETSFIRECIRCLE:
+		return GetPlayerAttributeValue(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE);
+		
+		case PUP_KNOCKBACKIMMUNE:
+		return GetPlayerAttributeValue(pnum, INV_EX_KNOCKBACK_IMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "GryphonCheck");
+	}
+	return false;
+}
+
+Script "DnD Check Unique Player Property" (int prop) {
+	SetResultValue(CheckUniquePropertyOnPlayer(PlayerNumber(), prop);
+}
+
+enum {
 	DND_ARMOR_BONUS,
 	DND_ARMOR_GREEN,
 	DND_ARMOR_YELLOW,
@@ -574,7 +616,7 @@ bool IsArmorTierHigher(int t1, int t2) {
 
 void HandleArmorPickup(int armor_type, int amount, bool replace, int overcap_factor = 0) {
 	// ignore if armor is forbidden
-	if(CheckInventory("StatbuffCounter_ForbidArmor"))
+	if(CheckUniquePropertyOnPlayer(PlayerNumber(), PUP_FORBIDARMOR))
 		return;
 
 	int armor = GetArmorAmount(), cap = 0, curr_armor_id = GetArmorID();
@@ -912,7 +954,7 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra, bool noToken = false)
 	res = chance > random(0, 1.0);
 	
 	// reroll if bad luck and lucky crit is on
-	if(!res && CheckInventory("StatbuffCounter_LuckyCrit"))
+	if(!res && CheckUniquePropertyOnPlayer(pnum, PUP_LUCKYCRITS))
 		res = chance > random(0, 1.0);
 	
 	// rolled crit or has source of a guaranteed crit

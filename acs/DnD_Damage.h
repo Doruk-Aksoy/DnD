@@ -758,21 +758,21 @@ void HandleOverloadEffects(int pnum, int victim) {
 	}
 }
 
-int GetResistPenetration(int category) {
+int GetResistPenetration(int pnum, int category) {
 	switch(category) {
 		case DND_DAMAGECATEGORY_BULLET:
 		case DND_DAMAGECATEGORY_MELEE:
-		return CheckInventory("IATTR_PhysPen");
+		return GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
 		case DND_DAMAGECATEGORY_ENERGY:
-		return CheckInventory("IATTR_EnergyPen");
+		return GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
 		case DND_DAMAGECATEGORY_EXPLOSIVES:
-		return CheckInventory("IATTR_ExplosivePen");
+		return GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
 		case DND_DAMAGECATEGORY_OCCULT:
-		return CheckInventory("IATTR_OccultPen");
+		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
 		case DND_DAMAGECATEGORY_ELEMENTAL:
-		return CheckInventory("IATTR_ElementalPen");
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
 		case DND_DAMAGECATEGORY_SOUL:
-		return CheckInventory("IATTR_OccultPen") + CheckInventory("IATTR_SoulPenetration");
+		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
 	}
 	return 0;
 }
@@ -802,7 +802,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 	
 	// if occult weakness exists, apply it checking monster's debuff
 	if(pen && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_MELEEOCCULT)) {
-		int occ_weak = CheckInventory("IATTR_OccultReducePer");
+		int occ_weak = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
 		if(occ_weak) {
 			if(!CheckActorInventory(victim, "OccultWeaknessStack")) {
 				GiveActorInventory(victim, "OccultWeaknessStack", 1);
@@ -866,7 +866,8 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 	
 	// addition of pen here means if we ignored resists and immunities, we still give penetration a chance to weaken the defences further
 	// return early as we ignored resists and immunities
-	if(!wep_neg && PlayerCritState[PlayerNumber()][DND_CRITSTATE_CONFIRMED][wepid] && CheckInventory("IATTR_CritIgnoreRes") >= random(1, 100))
+	int pnum = PlayerNumber();
+	if(!wep_neg && PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100))
 		return dmg * (100 + pen) / 100;
 		
 	// if we do forced full damage skip resists and immunities
@@ -1050,7 +1051,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 
 	// check blocking status of monster -- if they are and we dont have foilinvul on this, no penetration
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING] && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
-		temp = CheckInventory("IATTR_ChanceIgnoreShield");
+		temp = GetPlayerAttributeValue(pnum, INV_ESS_HARKIMONDE);
 		// we have 0 chance  or we have chance but it didn't roll in our favor
 		if(!temp || temp < random(1, 100)) {
 			if(pnum != -1)
@@ -1147,7 +1148,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	
 	// check blockers take more dmg modifier
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING]) {
-		temp = CheckInventory("IATTR_BlockDmg");
+		temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
 		if(temp)
 			dmg = dmg * (100 + temp) / 100;
 	}
@@ -1160,7 +1161,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	}
 	
 	// additional damage vs frozen enemies modifier
-	temp = CheckInventory("IATTR_FrozenDamage");
+	temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA);
 	if(CheckActorInventory(victim, "DnD_FreezeTimer") && temp)
 		dmg = dmg * (100 + temp) / 100;
 		
@@ -1873,7 +1874,7 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	int taltos = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
 	int brune_1 = CheckInventory("FakeBloodPower");
 	int brune_2 = CheckInventory("FakeBloodPowerBetter");
-	int cap = CheckInventory("IATTR_Lifesteal");
+	int cap = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
 	if(cap || taltos || brune_1 || brune_2) {
 		taltos = cap + taltos * DND_TALTOS_LIFESTEAL + brune_1 * BLOODRUNE_LIFESTEAL_AMT + brune_2 * BLOODRUNE_LIFESTEAL_AMT2;
 		
@@ -2054,7 +2055,7 @@ Script "DnD Monster Chill" (int victim) {
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
-		SetActorProperty(victim, APROP_SPEED, (base_speed * (100 - cur_stacks * DND_BASE_CHILL_SLOW) / 100) * (100 + CheckInventory("IATTR_SlowEffect")) / 100);
+		SetActorProperty(victim, APROP_SPEED, (base_speed * (100 - cur_stacks * DND_BASE_CHILL_SLOW) / 100) * (100 + GetPlayerAttributeValue(pnum, INV_SLOWEFFECT)) / 100);
 		ACS_NamedExecuteAlways("DnD Monster Chill FX", 0, victim);
 		Delay(const:TICRATE);
 		TakeActorInventory(victim, "DnD_ChillStacks", 1);
@@ -2306,7 +2307,7 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	int pnum = killer - P_TIDSTART;
 	
 	int i;
-	int zap_count = CheckActorInventory(killer, "IATTR_OverloadZapCount") + 1;
+	int zap_count = GetPlayerAttributeValue(pnum, INV_OVERLOAD_ZAPCOUNT) + 1;
 	int cur_count = 0;
 	static int zap_tids[MAXPLAYERS][DND_MAX_OVERLOADTARGETS];
 	for(i = 0; i < zap_count; ++i)
@@ -2361,9 +2362,10 @@ Script "DnD Check Explosion Repeat" (void) {
 		owner = GetActorProperty(0, APROP_SCORE);
 
 	int res = 0;
+	int pnum = owner - P_TIDSTART;
 	
 	// if explosion did not repeat and we have chance for it to repeat, go for it
-	if(!CheckInventory("DnD_ExplosionRepeated") && random(1, 100) <= CheckActorInventory(owner, "IATTR_ExplosionAgainChance")) {
+	if(!CheckInventory("DnD_ExplosionRepeated") && random(1, 100) <= GetPlayerAttributeValue(pnum, INV_ESS_KRULL)) {
 		GiveInventory("DnD_ExplosionRepeated", 1);
 		res = 1;
 	}

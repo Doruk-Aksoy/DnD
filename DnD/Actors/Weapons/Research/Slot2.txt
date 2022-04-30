@@ -259,8 +259,7 @@ Actor ResPistol2 : Weapon {
 			TNT1 A 0 A_PlaySound("ViperStaff/Fire", CHAN_WEAPON)	
 			C_H_ E 2 Offset(0, 32) BRIGHT
 			C_H_ F 1 Offset(0, 32) BRIGHT A_GiveInventory("ViperShooter1", 1)
-			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoil")
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_KnockbackImmunity", 1, "NoRecoil")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
 			TNT1 A 0 A_Recoil(5)
 		NoRecoil:
 			TNT1 A 0 A_SpawnItemEx("GreenSmallFlash", 55, 0, 40, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
@@ -299,8 +298,7 @@ Actor ResPistol2 : Weapon {
 			TNT1 A 0 A_PlaySound("ViperStaff/Fire", CHAN_WEAPON)	
 			C_H_ E 2 Offset(0, 32) BRIGHT
 			C_H_ F 1 Offset(0, 32) BRIGHT A_GiveInventory("ViperShooter2", 1)
-			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "NoRecoilAlt")
-			TNT1 A 0 A_JumpIfInventory("StatbuffCounter_KnockbackImmunity", 1, "NoRecoil")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoilAlt")
 			TNT1 A 0 A_Recoil(5)
 		NoRecoilAlt:
 			TNT1 A 0 A_SpawnItemEx("GreenSmallFlash", 55, 0, 40, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
