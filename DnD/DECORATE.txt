@@ -3,7 +3,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/DamageTypes.txt"
 #include "Actors/Items/Base.txt"
 #include "Actors/Items/Keys.txt"
-#include "Actors/Items/UniqueStatBuffs.txt"
 #include "Actors/Items/Ammo.txt"
 
 #include "Actors/Items/Scoreboard.txt"
@@ -33,7 +32,6 @@ const int SPECIAL_FX_TID = 32768;
 #include "Actors/Items/Chest.txt"
 #include "Actors/Items/Elixir.txt"
 #include "Actors/Items/Tokens.txt"
-#include "Actors/Items/ItemAttributes.txt"
 
 // Spells
 #include "Actors/Spells/Common.txt"

@@ -695,7 +695,7 @@ void HandleChillEffects(int pnum, int victim) {
 			// add a new stack of chill and check for freeze
 			if(!stacks) {
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
-				ACS_NamedExecuteWithResult("DnD Monster Chill", victim);
+				ACS_NamedExecuteWithResult("DnD Monster Chill", victim, pnum);
 			}
 			else if(stacks < DND_BASE_CHILL_CAP)
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
@@ -798,7 +798,8 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type);
-	int pen = GetResistPenetration(damage_category);
+	int pnum = PlayerNumber();
+	int pen = GetResistPenetration(pnum, damage_category);
 	
 	// if occult weakness exists, apply it checking monster's debuff
 	if(pen && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_MELEEOCCULT)) {
@@ -866,7 +867,6 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 	
 	// addition of pen here means if we ignored resists and immunities, we still give penetration a chance to weaken the defences further
 	// return early as we ignored resists and immunities
-	int pnum = PlayerNumber();
 	if(!wep_neg && PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100))
 		return dmg * (100 + pen) / 100;
 		
@@ -2045,13 +2045,13 @@ Script "DnD Spawn Poison FX" (int orig, int amt) CLIENTSIDE {
 	}
 }
 
-Script "DnD Monster Chill" (int victim) {
+Script "DnD Monster Chill" (int victim, int pnum) {
 	int cur_stacks;
 	int base_speed = GetActorProperty(victim, APROP_SPEED);
 	
 	// revoke monster's extra fast flag if it has it
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
-		GiveInventory("UnMakeFaster", 1);
+		GiveActorInventory(victim, "UnMakeFaster", 1);
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
@@ -2065,7 +2065,7 @@ Script "DnD Monster Chill" (int victim) {
 	
 	// retain super fast property after chill ends
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
-		GiveInventory("MakeFaster", 1);
+		GiveActorInventory(victim, "MakeFaster", 1);
 }
 
 Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {

@@ -124,7 +124,7 @@ enum {
 	PUP_EXPLOSIVEIGNORERESIST,
 	PUP_SLAINENEMIESRIP,
 	PUP_FORBIDARMOR,
-	PUP_LUCKYRCRITS,
+	PUP_LUCKYCRITS,
 	PUP_PELLETSFIRECIRCLE,
 	PUP_KNOCKBACKIMMUNE
 };
@@ -145,7 +145,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop) {
 		case PUP_FORBIDARMOR:
 		return GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR);
 		
-		case PUP_LUCKYRCRITS:
+		case PUP_LUCKYCRITS:
 		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT);
 		
 		case PUP_PELLETSFIRECIRCLE:
@@ -158,7 +158,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop) {
 }
 
 Script "DnD Check Unique Player Property" (int prop) {
-	SetResultValue(CheckUniquePropertyOnPlayer(PlayerNumber(), prop);
+	SetResultValue(CheckUniquePropertyOnPlayer(PlayerNumber(), prop));
 }
 
 enum {

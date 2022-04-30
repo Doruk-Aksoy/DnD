@@ -1516,8 +1516,9 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	str inv;
 	
 	// Well of power factor
-	if(CheckInventory("StatbuffCounter_DoubleSmallCharm") && asubtype == DND_CHARM_SMALL) {
-		aval *= CheckInventory("StatbuffCounter_DoubleSmallCharm");
+	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
+	if(temp && asubtype == DND_CHARM_SMALL) {
+		aval *= temp;
 		aval /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
 	}
 	

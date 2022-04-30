@@ -1,9 +1,24 @@
+const float m_range_factor = 0.01;
+
+// max 10 stacks
+Actor OccultWeaknessStack : Inventory {
+	inventory.maxamount 10
+}
+
+Actor DnD_ExplosionRepeated : DnD_Boolean { }
+
+Actor DamagePerFlatHPBuffer : DnD_Info { }
+
+Actor SummonedZombiePets : Inventory {
+	inventory.maxamount 5
+}
+
 enum {
 	PUP_HOMINGNOREFLECT,
 	PUP_EXPLOSIVEIGNORERESIST,
 	PUP_SLAINENEMIESRIP,
 	PUP_FORBIDARMOR,
-	PUP_LUCKYRCRITS,
+	PUP_LUCKYCRITS,
 	PUP_PELLETSFIRECIRCLE,
 	PUP_KNOCKBACKIMMUNE
 };

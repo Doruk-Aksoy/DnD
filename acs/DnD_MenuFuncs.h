@@ -1211,7 +1211,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				ShowNeedResearchPopup();
 			}
 			else {
-				if(CheckInventory("StatbuffCounter_ForbidArmor") && (tradeflag & TRADE_ARMOR)) {
+				if(CheckUniquePropertyOnPlayer(pnum, PUP_FORBIDARMOR) && (tradeflag & TRADE_ARMOR)) {
 					ShowPopup(POPUP_CANTBUY, false, 0);
 					return;
 				}
