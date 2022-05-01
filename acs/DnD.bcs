@@ -227,6 +227,9 @@ Script "DnD On Death" DEATH {
 			PlayerWillBeSaved[pnum] = false;
 			PlayerTransferred[pnum] = false;
 			PlayerCanLoad[pnum] = 0;
+			
+			// no more lives left reset this array completely
+			ResetPlayerModList(pnum);
 		}
 	}
 	
@@ -6467,6 +6470,7 @@ Script "Print Loc" (void) {
 
 Script 68 (int x) NET {
 	#ifdef ISDEBUGBUILD
+	int i;
 	if(x < MAX_RESEARCHES)
 		GiveResearch(x, true);
 	else if(x == 32768) {
@@ -6487,11 +6491,14 @@ Script 68 (int x) NET {
 		GiveExp(2000000 + GetStat(STAT_EXP) / 2);
 		printbold(s:"current exp: ", d:GetStat(STAT_EXP));
 	}
+	else if(x == 500) {
+		for(i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+			IncPlayerModValue(PlayerNumber(), i, 5);
+	}
 	else {
 		int c = CreateItemSpot();
-		int i;
 		//i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
-		i = UITEM_PAINMASTER;
+		i = UITEM_PELLETSTORM;
 		MakeUnique(c, DND_ITEM_CHARM, 0);
 		SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
 		

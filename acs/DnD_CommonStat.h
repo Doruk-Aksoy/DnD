@@ -272,6 +272,7 @@ int GetBonusPlayerSpeed(int pnum) {
 	// add other stuff here
 	res += GetDataFromOrbBonus(pnum, OBI_SPEED);
 	res += Player_Elixir_Bonuses[pnum].speed_bonus;
+	res = res * (100 + CheckInventory("GryphonCheck") * DND_GRYPHON_MSPEED) / 100;
 	return res;
 }
 

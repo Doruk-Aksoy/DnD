@@ -1432,6 +1432,7 @@ void BulkResetPlayerData(int pnum) {
 	ResetPlayerStash(pnum);
 	ResetInvestments(pnum);
 	ResetPlayerActivities(pnum, true);
+	ResetPlayerModList(pnum);
 }
 
 // This is specifically called as a terminal script on a player's run, NEVER IN THE MIDDLE!

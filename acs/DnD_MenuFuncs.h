@@ -1598,6 +1598,8 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// stat off1
 		{
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// stat off2
@@ -4497,8 +4499,8 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_MAGICDMG", s:"\n");
 				++k;
 			}
-			
-			
+
+
 			// crit block begins
 			val = GetCritChance(pnum, -1);
 			if(val) {
@@ -4596,12 +4598,19 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_BLOCKERS_MOREDMG, val), s:"\n");
 				++k;
 			}
+			
+			// pellet count
+			val = GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T30", s:"\n");
+				++k;
+			}
 		}
 		else if(category == DRAW_STAT_OFFENSE2) {
 			// fire things
 			val = GetFireDOTDamage(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:"+ \c[Q9]", d:val - DND_BASE_IGNITEDMG, s:"\c- ", l:"DND_IGNITEDAMAGE", s:"\n");
+				PlayerStatText = StrParam(s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEDAMAGE", s:"\n");
 				++k;
 			}
 			
@@ -4648,21 +4657,21 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_FREEZECHANCE);
+			val = GetFreezeChance(pnum, 1);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FREEZECHANCE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s: "%\c- ", l:"DND_FREEZECHANCE", s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_SLOWEFFECT);
+			val = GetChillEffect(pnum, 1);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SLOWEFFECT, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_CHILLSLOWS", s: " \c[Q9]", f:ftrunc(val * 100), s:"%\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD);
+			val = GetChillThreshold(pnum, 1);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CHILLTHRESHOLD, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s: "%\c- ", l:"DND_CHILLTHRESHOLD", s:"\n");
 				++k;
 			}
 			
@@ -4698,9 +4707,9 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_POISON_TICRATE);
+			val = GetPoisonTicrate(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_TICRATE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_POISONTICRATE", s:"\c[Q9]", d:(FixedDiv(val, DND_POISON_CHECKRATE) * DND_POISON_TICCHECK) >> 16, s:"\c- ", l:"DND_TICS", s:"\n");
 				++k;
 			}
 			
@@ -4713,6 +4722,13 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_POISON_TICDMG);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_TICDMG, val), s:"\n");
+				++k;
+			}
+			
+			// ailment ignore chance
+			val = GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CHANCE_AILMENTIGNORE, val), s:"\n");
 				++k;
 			}
 		}
@@ -4734,6 +4750,13 @@ void DrawPlayerStats(int pnum, int category) {
 			val = ftrunc(100 * DND_BULKINESS_GAIN * 100 + (GetBulkiness() - 100) * DND_BULKINESS_GAIN_AFTER100);
 			if(val > 100.0) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", f:val, s:"%\c- ", l:"DND_MENU_ARMOREFF", s:"\n");
+				++k;
+			}
+			
+			// inc damage taken
+			val = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_EX_DMGINCREASE_TAKEN, val), s:"\n");
 				++k;
 			}
 			
@@ -4899,13 +4922,6 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_INCREASE, val), s:"\n");
-				++k;
-			}
-			
-			// pellet count
-			val = GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T30", s:"\n");
 				++k;
 			}
 			

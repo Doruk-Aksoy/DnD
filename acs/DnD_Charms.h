@@ -100,6 +100,13 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 		break;
 	}
 	
+	// add the guaranteed mods first, because rolling later will check for their presence if they are rolled
+	AddAttributeToCharm(charm_pos, m1, pnum);
+	if(m2 != -1)
+		AddAttributeToCharm(charm_pos, m2, pnum);
+	if(m3 != -1)
+		AddAttributeToCharm(charm_pos, m3, pnum);
+	
 	// the guaranteed mods are subtracted from random rolls
 	// rolling logic is as follows:
 	// we extend the resolution of the range (the ends weren't being picked as evenly) example: range of 0 to 5 x 10 => 0 to 50, then we divide by 10. We extend possibility of picking the ends
@@ -110,13 +117,6 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 		AddAttributeToCharm(charm_pos, roll, pnum);
 		++i;
 	}
-	
-	// add the guaranteed mods
-	AddAttributeToCharm(charm_pos, m1, pnum);
-	if(m2 != -1)
-		AddAttributeToCharm(charm_pos, m2, pnum);
-	if(m3 != -1)
-		AddAttributeToCharm(charm_pos, m3, pnum);
 }
 
 // can only add attributes to charms that are about to be created ie. on field dropped from monster

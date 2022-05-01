@@ -291,11 +291,8 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_DESOLATOR_DMG_GAIN 10 // 10%
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
 
-#define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
 #define DND_BASE_FREEZETIMER 21 // 3 seconds base time (21 x 5 = 105)
 #define DND_BASE_CHILL_CAP 5 // 50% health dealt in ice = maximum slow
-#define DND_BASE_CHILL_DAMAGETHRESHOLD 10 // 10% of the monster's health
-#define DND_BASE_CHILL_SLOW 10 // 10% per stack
 
 #define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
 #define DND_BASE_IGNITECHANCE 15 // 15%
@@ -307,8 +304,6 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 
 #define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
-#define DND_BASE_POISON_TIC 0.5
-#define DND_POISON_TICCHECK 3 // increments ticker every 3 tics
 
 #define DND_EXTRAUNDEADDMG_MULTIPLIER 3
 
@@ -689,7 +684,7 @@ void HandleChillEffects(int pnum, int victim) {
 		// check health thresholds --- get missing health
 		int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
 		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
-		int threshold = (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100)) * (stacks + 1);
+		int threshold = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * GetChillThreshold(pnum, stacks + 1) / 100;
 
 		if(hpdiff >= threshold) {
 			// add a new stack of chill and check for freeze
@@ -701,7 +696,7 @@ void HandleChillEffects(int pnum, int victim) {
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
 			
 			// freeze checks --- added freeze chance % increase
-			hpdiff = DND_BASE_FREEZECHANCE_PERSTACK * CheckActorInventory(victim, "DnD_ChillStacks") * (100 + GetPlayerAttributeValue(pnum, INV_FREEZECHANCE)) / 100;
+			hpdiff = GetFreezeChance(pnum, CheckActorInventory(victim, "DnD_ChillStacks"));
 			if(random(1, 100) <= hpdiff) {
 				if(GetActorProperty(victim, APROP_HEALTH) > 0) {
 					// is boss? reduce duration
@@ -2006,11 +2001,7 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 	int pnum = PlayerNumber();
 	int time_limit = DND_BASE_POISON_TIMER * (100 + GetPlayerAttributeValue(pnum, INV_POISON_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
-	int trigger_tic = DND_BASE_POISON_TIC * (100 - GetPlayerAttributeValue(pnum, INV_POISON_TICRATE)) / 100;
-	
-	// keep min 1 tic
-	if(trigger_tic < 1)
-		trigger_tic = 1;
+	int trigger_tic = GetPoisonTicrate(pnum);
 	
 	int tic_temp = trigger_tic;
 	int counter = 0;
@@ -2029,7 +2020,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 			// go up to the next threshold for next tic etc.
 			trigger_tic += tic_temp;
 		}
-		counter += 0.1;
+		counter += DND_POISON_CHECKRATE;
 		Delay(const:DND_POISON_TICCHECK);
 	}
 	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
@@ -2055,7 +2046,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
-		SetActorProperty(victim, APROP_SPEED, (base_speed * (100 - cur_stacks * DND_BASE_CHILL_SLOW) / 100) * (100 + GetPlayerAttributeValue(pnum, INV_SLOWEFFECT)) / 100);
+		SetActorProperty(victim, APROP_SPEED, FixedMul(base_speed, 1.0 - GetChillEffect(pnum, cur_stacks)));
 		ACS_NamedExecuteAlways("DnD Monster Chill FX", 0, victim);
 		Delay(const:TICRATE);
 		TakeActorInventory(victim, "DnD_ChillStacks", 1);

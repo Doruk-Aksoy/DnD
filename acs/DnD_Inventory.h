@@ -1597,6 +1597,11 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 			}
 		break;
+		case INV_EX_FORBID_ARMOR:
+			IncPlayerModValue(pnum, atype, aval);
+			if(!GetPlayerAttributeValue(pnum, atype))
+				RemoveAllArmor();
+		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
 				IncPlayerModValue(pnum, i, aval);

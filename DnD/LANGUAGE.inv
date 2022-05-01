@@ -159,14 +159,14 @@ IATTR_T60 			= "to poison damage";
 	
 IATTR_T61 			= "lifesteal";
 	
-IATTR_T62 			= "increased ticrate for poison";
+IATTR_T62 			= "faster poison ticrate";
 IATTR_T63 			= "increased poison stack duration";
 IATTR_T64 			= "increased damage per tic for poison";
 	
 IATTR_T65 			= "more damage against blocking enemies";
 	
 IATTR_T66 			= "increased chance to freeze for ice attacks";
-IATTR_T67 			= "increased chill effectiveness for ice attacks";
+IATTR_T67 			= "increased chill effectiveness";
 IATTR_T68 			= "reduced enemy chill threshold";
 	
 IATTR_T69 			= "increased chance to ignite for fire atttacks";

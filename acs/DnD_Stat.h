@@ -776,13 +776,13 @@ void DecideAccessories() {
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 		GiveInventory("CurseImmunity", 1);
 		GiveInventory("GryphonCheck", 1);
-		GiveInventory("GryphonSpeed", 1);
 		UpdatePlayerKnockbackResist();
+		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
 	}
 	else {
 		HandleCurseImmunityRemoval();
 		TakeInventory("GryphonCheck", 1);
-		TakeInventory("GryphonSpeed", 1);
+		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
 	}
 	
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_LICHARM)) {
@@ -1295,6 +1295,40 @@ int GetIgniteProlifRange(int pnum) {
 int GetIgniteProlifCount(int pnum) {
 	// clamp between max prolifs
 	return Clamp_Between(DND_BASE_IGNITEPROLIFCOUNT + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCOUNT), 0, DND_MAX_IGNITEPROLIFS);
+}
+
+#define DND_POISON_CHECKRATE 0.1
+#define DND_BASE_POISON_TIC 0.5
+#define DND_POISON_TICCHECK 3 // increments ticker every 3 tics
+int GetPoisonTicrate(int pnum) {
+	int ticrate = (DND_BASE_POISON_TIC * 100) / (100 + GetPlayerAttributeValue(pnum, INV_POISON_TICRATE));
+	
+	// keep min checkrate, there's no point for it to be lower it'll not go below minimum of 3 tics to trigger
+	if(ticrate < DND_POISON_CHECKRATE)
+		ticrate = DND_POISON_CHECKRATE;
+		
+	return ticrate;
+}
+
+#define DND_BASE_CHILL_SLOW 0.1 // 10% per stack
+#define DND_BASE_CHILL_DAMAGETHRESHOLD 10 // 10% of the monster's health
+#define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
+int GetChillEffect(int pnum, int stacks) {
+	// call with 1 stack to get "per stack" value
+	int chill = stacks * DND_BASE_CHILL_SLOW * (100 + GetPlayerAttributeValue(pnum, INV_SLOWEFFECT)) / 100;
+	
+	if(chill > 0.99)
+		chill = 0.99;
+	
+	return chill;
+}
+
+int GetChillThreshold(int pnum, int stacks) {
+	return (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100) * stacks;
+}
+
+int GetFreezeChance(int pnum, int stacks) {
+	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + GetPlayerAttributeValue(pnum, INV_FREEZECHANCE)) / 100;
 }
 
 #endif

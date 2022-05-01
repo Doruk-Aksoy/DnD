@@ -274,6 +274,18 @@ void IncPlayerModValue(int pnum, int mod, int val) {
 	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
 
+void ResetPlayerModList(int pnum) {
+	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+		PlayerModValues[pnum][i] = 0;
+	ACS_NamedExecuteWithResult("DnD Reset Player Mod List", pnum);
+}
+
+// resets things clientside for the array
+Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
+	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+		PlayerModValues[pnum][i] = 0;
+}
+
 // reason why this uses UNIQUE_ATTRIB_ID_BEGIN, it skips regular and essence mod indexes. This means, we have enough room without database reset for both regular
 // and essence mods. This is good for future compatibility as well.
 // Currently: 2000 mods, 0-1999
@@ -595,7 +607,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_LIFESTEAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_POISON_TICRATE].attrib_low = 5;
-	ItemModTable[INV_POISON_TICRATE].attrib_high = 10;
+	ItemModTable[INV_POISON_TICRATE].attrib_high = 14;
 	ItemModTable[INV_POISON_TICRATE].attrib_level_modifier = 0;
 	ItemModTable[INV_POISON_TICRATE].tags = INV_ATTR_TAG_ELEMENTAL;
 	
@@ -1049,6 +1061,7 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_FLAT_LIGHTNINGDMG:
 		case INV_FLAT_POISONDMG:
 		case INV_OVERLOAD_ZAPCOUNT:
+		case INV_IGNITE_PROLIFCOUNT:
 			if(val > 0) {
 				if(showDetailedMods) {
 					return StrParam(
@@ -1094,7 +1107,7 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 				);
 			}
 			return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:"%\c- ", l:text);
-		
+
 		// default takes percentage values
 		default:
 			if(val > 0) {
@@ -1124,8 +1137,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 	// check last essence as its an all encompassing range except exotics
 	if(attr <= LAST_ESSENCE_ATTRIBUTE)
 		return ItemAttributeString(attr, val1, tier, showDetailedMods, extra);
-		
-	// we must map all exotic ones with the proper macro
+
 	// if the item is unique extra is not -1
 	str text = GetInventoryAttributeText(attr);
 	switch(attr) {
@@ -1194,8 +1206,21 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 			}
 			return StrParam(s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:"%\c- ", l:text);
 		
+		// single text things, no mod ranges, just tier U
+		case INV_EX_KNOCKBACK_IMMUNITY:
 		case INV_EX_DOUBLE_HEALTHCAP:
-		return StrParam(l:text);
+		case INV_EX_BEHAVIOR_PELLETSFIRECIRCLE:
+		case INV_EX_FORSHOW_BURSTGETSPELLETBONUS:
+		case INV_EX_DMGREDUCE_SHAREWITHPETS:
+		case INV_EX_SOULWEPS_FULLDAMAGE:
+		case INV_EX_ABILITY_MONSTERSRIP:
+		case INV_EX_BEHAVIOR_SPELLSFULLDAMAGE:
+		case INV_EX_ABILITY_LUCKYCRIT:
+		case INV_EX_CURSEIMMUNITY:
+			if(showDetailedMods) {
+				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
+			}
+			return StrParam(l:text);
 		
 		case INV_EX_LIMITEDSMALLCHARMS:
 			if(showDetailedMods) {
@@ -1238,6 +1263,22 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 				return StrParam(s:"- \c[Q9]", d:val1, s:"%\c- ", l:text);
 			}
 			return StrParam(l:text);
+			
+		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
+		case INV_EX_DMGINCREASE_TAKEN:
+			if(showDetailedMods) {
+				return StrParam(s:"+ \c[D4]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:"+ \c[D4]", d:val1, s:"%\c[D4] ", l:text);
+			
+		// single text negative effects
+		case INV_EX_FORBID_ARMOR:
+			if(showDetailedMods) {
+				return StrParam(s:"\c[D4]", l:text, s:"\c- - ", s:GetModTierText(tier, extra));
+			}
+			return StrParam(s:"\c[D4]", l:text);
 		
 		// default are %
 		default:

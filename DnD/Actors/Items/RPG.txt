@@ -13,16 +13,6 @@ Actor SummonedZombiePets : Inventory {
 	inventory.maxamount 5
 }
 
-enum {
-	PUP_HOMINGNOREFLECT,
-	PUP_EXPLOSIVEIGNORERESIST,
-	PUP_SLAINENEMIESRIP,
-	PUP_FORBIDARMOR,
-	PUP_LUCKYCRITS,
-	PUP_PELLETSFIRECIRCLE,
-	PUP_KNOCKBACKIMMUNE
-};
-
 Actor Menu_Setup : DnD_Boolean { }
 
 Actor QuestWasPicked : DnD_Boolean { }

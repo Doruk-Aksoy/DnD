@@ -415,14 +415,15 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				DrawPlayerStats(pnum, DRAW_STAT_OFFENSE1);
 
-				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("=>", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2_OFFENSE2) {
 				HudMessage(s:"--- ", l:"DND_MENU_GAIN_OFFENSE", s:" #2 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				DrawPlayerStats(pnum, DRAW_STAT_OFFENSE2);
 
-				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2_DEFENSE) {
 				HudMessage(s:"--- ", l:"DND_MENU_GAIN_DEFENSE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
