@@ -1598,24 +1598,28 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// stat off1
 		{
-			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// stat off2
 		{
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// stat def
 		{
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// stat uti
 		{
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// stat quest
 		{
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// perk
@@ -4502,9 +4506,9 @@ void DrawPlayerStats(int pnum, int category) {
 
 
 			// crit block begins
-			val = GetCritChance(pnum, -1);
+			val = GetCritChance_Display(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
 				++k;
 			}
 			
@@ -4614,15 +4618,16 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_IGNITECHANCE);
+			// +flat fire damage
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITECHANCE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_FIREDMG, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_IGNITEDMG);
+			val = GetPlayerAttributeValue(pnum, INV_IGNITECHANCE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITEDMG, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITECHANCE, val), s:"\n");
 				++k;
 			}
 			
@@ -4734,18 +4739,18 @@ void DrawPlayerStats(int pnum, int category) {
 		}
 		else if(category == DRAW_STAT_DEFENSE) {
 			// hp cap
-			val = GetSpawnHealth() - DND_BASE_HEALTH;
-			if(val) {
-				PlayerStatText = StrParam(s:GetItemAttributeText(INV_HP_INCREASE, val), s:"\n");
-				++k;
-			}
+			val = GetSpawnHealth();
+			PlayerStatText = StrParam(l:"DND_HEALTHCAPIS", s:": \c[Q9]", d:val, s:"\n");
+			++k;
 			
 			// armor cap
-			val = GetArmorCap(true) - DND_BASE_ARMOR_SHOW;
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_ARMOR_INCREASE, val), s:"\n");
-				++k;
-			}
+			val = GetArmorID();
+			if(val < 0)
+				val = 0;
+			val = GetArmorCapFromID(val);
+			PlayerStatText = StrParam(s:PlayerStatText, l:"DND_ARMORCAPIS", s:": \c[Q9]", d:val, s:"\n");
+			++k;
+			
 			// armor efficiency
 			val = ftrunc(100 * DND_BULKINESS_GAIN * 100 + (GetBulkiness() - 100) * DND_BULKINESS_GAIN_AFTER100);
 			if(val > 100.0) {
@@ -4768,10 +4773,16 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// knockback
-			val = GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_KNOCKBACK_RESIST, val), s:"\n");
+			if(CheckUniquePropertyOnPlayer(pnum, PUP_KNOCKBACKIMMUNE)) {
+				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_KNOCKBACKIMMUNE", s:"\n");
 				++k;
+			}
+			else {
+				val = GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
+				if(val) {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_KNOCKBACK_RESIST, val), s:"\n");
+					++k;
+				}
 			}
 			
 			// dmg reduction block begins

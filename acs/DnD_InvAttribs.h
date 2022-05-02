@@ -265,11 +265,13 @@ enum {
 global int 61: PlayerModValues[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
 
 void SetPlayerModValue(int pnum, int mod, int val) {
+	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
 	PlayerModValues[pnum][mod] = val;
 	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
 
 void IncPlayerModValue(int pnum, int mod, int val) {
+	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val); 
 	PlayerModValues[pnum][mod] += val;
 	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
@@ -278,6 +280,14 @@ void ResetPlayerModList(int pnum) {
 	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
 		PlayerModValues[pnum][i] = 0;
 	ACS_NamedExecuteWithResult("DnD Reset Player Mod List", pnum);
+}
+
+// syncs clientside player mod variables on entering a new map...
+Script "DnD Sync Player Mods" ENTER {
+	int pnum = PlayerNumber();
+	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+		if(PlayerModValues[pnum][i])
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModValues[pnum][i]);
 }
 
 // resets things clientside for the array

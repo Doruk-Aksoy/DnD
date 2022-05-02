@@ -430,14 +430,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				DrawPlayerStats(pnum, DRAW_STAT_DEFENSE);
 
-				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2_UTILITY) {
 				HudMessage(s:"--- ", l:"DND_MENU_GAIN_UTILITY", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				DrawPlayerStats(pnum, DRAW_STAT_UTILITY);
 
-				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_2, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2_QUESTBONUSES) {
 				toshow = "";
@@ -1177,6 +1177,16 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			}
 			else if(HasPressedRight(pnum)) {
 				if(curopt == MENU_STAT2_OFFENSE1)
+					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
+			}
+			else if(HasPlayerClicked(pnum)) {
+				if(boxid == MBOX_1) {
+					if(curopt == MENU_STAT2_OFFENSE2)
+						UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+					else
+						UpdateMenuPosition(MENU_STAT2);
+				}
+				else if(curopt == MENU_STAT2_OFFENSE1 && boxid == MBOX_2)
 					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
 			}
 		}

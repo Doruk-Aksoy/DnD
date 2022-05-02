@@ -768,6 +768,8 @@ void LoadPlayerData(int pnum, int char_id) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
 			Charms_Used[pnum][i].attributes[j].attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc);
 		}
+		
+		// apply the loaded charm's features
 		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
 			ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	}

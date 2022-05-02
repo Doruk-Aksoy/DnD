@@ -218,3 +218,6 @@ DND_TICS									=	"tics";
 DND_CHILLSLOWS								=	"Chill stacks slow for";
 DND_FREEZECHANCE							=	"chance to freeze per chill";
 DND_CHILLTHRESHOLD							=	"chill threshold per chill";
+DND_HEALTHCAPIS								=	"Health cap is";
+DND_ARMORCAPIS								=	"Armor cap is";
+DND_KNOCKBACKIMMUNE							=	"Knockback Immune";

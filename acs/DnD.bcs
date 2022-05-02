@@ -266,15 +266,8 @@ Script "DnD On Death" DEATH {
 			}
 			else if(GetCVar("dnd_mode") == DND_MODE_SOFTCORE)
 				ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, false);
-			else {
-				// get rid of these in local server or w.e situations if not hardcore or softcore
-				// remove whatever feature this player had on them prior to loading (just in case)
-				for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i)
-					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-						
+			else
 				ResetHardcoreStuff(pnum);
-			}
 		}
 	}
 	
@@ -6006,7 +5999,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		Log(s:"\cd", l:"DND_PLAYER", s:": \c-", n:pnum + 1, s:"\n\cd", l:"DND_STAT18", s:": \c-", d:CheckInventory("Level"));
 		Log(s:"\cd", l:"DND_CLASS", s:": \c-", s:"\c[J7]", l:GetClassLabel(StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1), DND_CLASS_LABEL_NAME));
 		Log(s:"\cd", l:"IATTR_T0", s:": \c-", d:GetActorProperty(0, APROP_HEALTH), s: " / ", d:GetSpawnHealth());
-		Log(s:"\cd", l:"IATTR_T1", s:": \c-", d:GetArmorAmount(), s: " / ", d:GetArmorCap(true));
+		Log(s:"\cd", l:"IATTR_T1", s:": \c-", d:GetArmorAmount(), s: " / ", d:GetArmorCapFromID(GetArmorID()));
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_STATALLOCATION", s:" -------\n--------------------------------\n");
 		Log(s:"\c[Y5]", l:"DND_STAT1", s:": \c-", d:GetStrength(), s:"\n\c[Y5]", l:"DND_STAT2", s:": \c-", d:GetDexterity(), s:"\n\c[Y5]", l:"DND_STAT3", s:": \c-", d:GetBulkiness());

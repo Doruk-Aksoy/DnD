@@ -120,48 +120,6 @@ str StatData[STAT_LVLCRED + 1] = {
 };
 
 enum {
-	PUP_HOMINGNOREFLECT,
-	PUP_EXPLOSIVEIGNORERESIST,
-	PUP_SLAINENEMIESRIP,
-	PUP_FORBIDARMOR,
-	PUP_LUCKYCRITS,
-	PUP_PELLETSFIRECIRCLE,
-	PUP_KNOCKBACKIMMUNE
-};
-
-bool CheckUniquePropertyOnPlayer(int pnum, int prop) {
-	switch(prop) {
-		// homing not reflect can come from thorax or marine's perk50 (more generic, all proj cant be reflected)
-		case PUP_HOMINGNOREFLECT:
-		return GetPlayerAttributeValue(pnum, INV_ESS_THORAX) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
-		
-		// +FORCERADIUSDMG can come from vaaj or marine
-		case PUP_EXPLOSIVEIGNORERESIST:
-		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk25");
-		
-		case PUP_SLAINENEMIESRIP:
-		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP);
-		
-		case PUP_FORBIDARMOR:
-		return GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR);
-		
-		case PUP_LUCKYCRITS:
-		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT);
-		
-		case PUP_PELLETSFIRECIRCLE:
-		return GetPlayerAttributeValue(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE);
-		
-		case PUP_KNOCKBACKIMMUNE:
-		return GetPlayerAttributeValue(pnum, INV_EX_KNOCKBACK_IMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "GryphonCheck");
-	}
-	return false;
-}
-
-Script "DnD Check Unique Player Property" (int prop) {
-	SetResultValue(CheckUniquePropertyOnPlayer(PlayerNumber(), prop));
-}
-
-enum {
 	DND_ARMOR_BONUS,
 	DND_ARMOR_GREEN,
 	DND_ARMOR_YELLOW,
@@ -246,7 +204,11 @@ str ArmorIcons[MAXARMORS] = {
 };
 
 enum {
-	DND_ARMORTIER_REGULAR,
+	DND_ARMORTIER_REGULAR_BONUS,
+	DND_ARMORTIER_REGULAR_GREEN,
+	DND_ARMORTIER_REGULAR_YELLOW,
+	DND_ARMORTIER_REGULAR_BLUE,
+	DND_ARMORTIER_REGULAR_RED,
 	DND_ARMORTIER_SPECIALTY,
 	DND_ARMORTIER_SUPER
 };
@@ -256,11 +218,11 @@ enum {
 #define ARMORDATA_PROTECTIONFACTOR 1
 #define ARMORDATA_TIER 2
 int ArmorData[MAXARMORS][3] = {
-	{	100,	0.33,	DND_ARMORTIER_REGULAR	},
-	{	100,	0.33,	DND_ARMORTIER_REGULAR	},
-	{	150,	0.417,	DND_ARMORTIER_REGULAR	},
-	{	200,	0.5,	DND_ARMORTIER_REGULAR	},
-	{	300,	0.75,	DND_ARMORTIER_REGULAR	},
+	{	100,	0.33,	DND_ARMORTIER_REGULAR_BONUS		},
+	{	100,	0.33,	DND_ARMORTIER_REGULAR_GREEN		},
+	{	150,	0.417,	DND_ARMORTIER_REGULAR_YELLOW	},
+	{	200,	0.5,	DND_ARMORTIER_REGULAR_BLUE		},
+	{	300,	0.75,	DND_ARMORTIER_REGULAR_RED		},
 	
 	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
 	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
@@ -569,25 +531,6 @@ int CanPickHealthItem(int type) {
 	else // normal health pickup
 		res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth() || research_cond;
 		
-	return res;
-}
-
-// used for displaying to hud
-int GetArmorCap(bool useMenuShow) {
-	// see if this DND_BASE_ARMOR_SHOW breaks anything -- breaks armor shards
-	int pnum = PlayerNumber();
-	int res = CalculateArmorCapBonuses(pnum) + DND_ARMOR_PER_BUL * GetBulkiness();
-	if(useMenuShow)
-		res += DND_BASE_ARMOR_SHOW;
-	else
-		res += DND_BASE_ARMOR;
-	//res += (res * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
-	
-	int percent = 	GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus") +
-					CheckInventory("CelestialCheck") * CELESTIAL_BOOST +
-					GetResearchArmorBonuses() +
-					Player_Elixir_Bonuses[pnum].armor_percent_bonus + GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE);
-	res += (res * percent) / 100;
 	return res;
 }
 
@@ -1329,6 +1272,17 @@ int GetChillThreshold(int pnum, int stacks) {
 
 int GetFreezeChance(int pnum, int stacks) {
 	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + GetPlayerAttributeValue(pnum, INV_FREEZECHANCE)) / 100;
+}
+
+int GetCritChance_Display(int pnum) {
+	int base = GetCritChance(pnum, -1);
+	
+	// how it works: let crit chance be "p", you either get a crit, which is probability "p", or you don't and then you get it, which is p * (1 - p)
+	// add them both, we get: 2p - p^2, which is our theoretical crit chance if we are lucky
+	if(GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT))
+		base = 2 * base - FixedMul(base, base);
+	
+	return base;
 }
 
 #endif

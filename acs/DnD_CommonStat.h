@@ -154,6 +154,52 @@ int IsHardcore() {
 	return HardcoreSet;
 }
 
+enum {
+	PUP_HOMINGNOREFLECT,
+	PUP_EXPLOSIVEIGNORERESIST,
+	PUP_SLAINENEMIESRIP,
+	PUP_FORBIDARMOR,
+	PUP_LUCKYCRITS,
+	PUP_PELLETSFIRECIRCLE,
+	PUP_KNOCKBACKIMMUNE,
+	PUP_CURSEIMMUNITY
+};
+
+bool CheckUniquePropertyOnPlayer(int pnum, int prop) {
+	switch(prop) {
+		// homing not reflect can come from thorax or marine's perk50 (more generic, all proj cant be reflected)
+		case PUP_HOMINGNOREFLECT:
+		return GetPlayerAttributeValue(pnum, INV_ESS_THORAX) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
+		
+		// +FORCERADIUSDMG can come from vaaj or marine
+		case PUP_EXPLOSIVEIGNORERESIST:
+		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk25");
+		
+		case PUP_SLAINENEMIESRIP:
+		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP);
+		
+		case PUP_FORBIDARMOR:
+		return GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR);
+		
+		case PUP_LUCKYCRITS:
+		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT);
+		
+		case PUP_PELLETSFIRECIRCLE:
+		return GetPlayerAttributeValue(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE);
+		
+		case PUP_KNOCKBACKIMMUNE:
+		return GetPlayerAttributeValue(pnum, INV_EX_KNOCKBACK_IMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "GryphonCheck");
+		
+		case PUP_CURSEIMMUNITY:
+		return GetPlayerAttributeValue(pnum, INV_EX_CURSEIMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
+	}
+	return false;
+}
+
+Script "DnD Check Unique Player Property" (int prop) {
+	SetResultValue(CheckUniquePropertyOnPlayer(PlayerNumber(), prop));
+}
+
 #define MGNUMID 709
 #define BONUSBONUSID 708
 #define SECRETBONUSID 707
@@ -404,18 +450,18 @@ void HandleCurseImmunityRemoval() {
 	// if not marine and level less than 50, take it
 	// we shouldnt immediately take it as there might be other ways the player has obtained curse immunity
 	bool isMarine = isPlayerClass(DND_PLAYER_MARINE);
-	if((!isMarine || CheckInventory("Level") < 50) && !CheckInventory("StatbuffCounter_CurseImmunity"))
+	if((!isMarine || CheckInventory("Level") < 50) && !GetPlayerAttributeValue(PlayerNumber(), INV_EX_CURSEIMMUNITY))
 		TakeInventory("CurseImmunity", 1);
 }
 
 void UpdatePlayerKnockbackResist() {
-	int bul = GetBulkiness();
-	int strgth = GetStrength();
-	
-	if(IsAccessoryEquipped(0, DND_ACCESSORY_GRYPHONBOOTS) || CheckInventory("StatbuffCounter_KnockbackImmunity"))
+	if(CheckUniquePropertyOnPlayer(PlayerNumber(), PUP_KNOCKBACKIMMUNE))
 		SetActorProperty(0, APROP_MASS, INT_MAX);
-	else
+	else {
+		int bul = GetBulkiness();
+		int strgth = GetStrength();
 		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + bul * DND_BUL_KNOCKBACK_GAIN + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
+	}
 }
 
 // Generic Player RPG Stat restore function
@@ -468,7 +514,7 @@ void RestoreRPGStat (int statflag) {
 	if(CheckResearchStatus(RES_SYNTHMASK) == RES_DONE)
 		GiveInventory("SynthMaskToken", 1);
 		
-	if(CheckInventory("StatbuffCounter_CurseImmunity"))
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY))
 		GiveInventory("CurseImmunity", 1);
 	
 	// So the player respawns with his actual new max hp
