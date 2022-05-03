@@ -39,7 +39,8 @@ enum {
 	MONSTERCLASS_ARACHNOTRON,
 	MONSTERCLASS_ARCHVILE,
 	MONSTERCLASS_SPIDERMASTERMIND,
-	MONSTERCLASS_CYBERDEMON
+	MONSTERCLASS_CYBERDEMON,
+	MONSTERCLASS_WOLFENSS
 };
 
 enum {
@@ -638,6 +639,8 @@ void HandleMonsterClassInnates(int mid, int id) {
 	{
 		MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;
 	}
+	else if(id == MONSTER_NAZI)
+		MonsterProperties[mid].class = MONSTERCLASS_WOLFENSS;
 }
 
 void HandleSpecialTraits(int mid, int id) {
@@ -1123,7 +1126,7 @@ enum {
 	DND_MWEIGHT_ENDMARKER = -1
 };
 
-#define MAX_MONSTER_CATEGORIES (MONSTERCLASS_CYBERDEMON + 1)
+#define MAX_MONSTER_CATEGORIES (MONSTERCLASS_WOLFENSS + 1)
 #define MAX_MONSTER_VARIATIONS 17 // this includes vanilla
 
 int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
@@ -1383,6 +1386,22 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_EPIC,
 		DND_MWEIGHT_ENDMARKER 
 	},
+	// nazi -- all zombiemen + nazi
+	{
+		DND_MWEIGHT_UNCOMMON, 
+		DND_MWEIGHT_UNCOMMON, 
+		DND_MWEIGHT_VERYRARE,
+		DND_MWEIGHT_UNCOMMON, 
+		DND_MWEIGHT_VERYRARE, 
+		DND_MWEIGHT_VERYRARE,
+		DND_MWEIGHT_VERYRARE, 
+		DND_MWEIGHT_RARE2, 
+		DND_MWEIGHT_UNCOMMON, 
+		DND_MWEIGHT_UNCOMMON, 
+		DND_MWEIGHT_RARE2,
+		DND_MWEIGHT_COMMON,
+		DND_MWEIGHT_ENDMARKER
+	}
 };
 
 // these are filled by hand, finding the rarest monster of each class is needlessly complicated (find top classes, equal ones must be considered as sharing top spot etc.)
@@ -1408,6 +1427,9 @@ void HandleSubordinateSpawn(int tid, int mid) {
 					toSpawn = "LOSZombieMan";
 				break;
 			}
+		break;
+		case MONSTERCLASS_WOLFENSS:
+			toSpawn = "WolfensteinSS2";
 		break;
 		case MONSTERCLASS_SHOTGUNGUY:
 			toSpawn = "SSGZombie";

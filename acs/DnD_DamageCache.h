@@ -71,6 +71,20 @@ void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor, bool isAdditi
 		cache.final_factor[wepid][dmgid] = 1.0 + factor * 0.01;
 }
 
+// used for multiplicative item mods that are by default fixed point
+void InsertCacheFactor_Fixed(int pnum, int wepid, int dmgid, int factor) {
+	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	
+	// if 0, replace otherwise fixed mul
+	if(cache.final_factor[wepid][dmgid]) {
+		// since this is already fixed and multiplicative, and is of form (1.0 + more multiplier), we don't add anything here just do fixedmul
+		// notice no "isAdditive" check here, it's pointless
+		cache.final_factor[wepid][dmgid] = FixedMul(cache.final_factor[wepid][dmgid], 1.0 + factor);
+	}
+	else
+		cache.final_factor[wepid][dmgid] = 1.0 + factor;
+}
+
 int GetCachedPlayerDamage(int pnum, int wepid, int dmgid) {
 	return GetPlayerDamageCache(pnum).damage_cache[wepid][dmgid].dmg;
 }

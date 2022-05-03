@@ -150,8 +150,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[0] = INV_PELLET_INCREASE;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_DMGINCREASE_SHOTGUNS;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_FLATPERSHOTGUNOWNED;
-	UniqueItemList[id].rolls[0].attrib_low = 25;
-	UniqueItemList[id].rolls[0].attrib_high = 50;
+	UniqueItemList[id].rolls[0].attrib_low = 0.25;
+	UniqueItemList[id].rolls[0].attrib_high = 0.5;
 	UniqueItemList[id].rolls[1].attrib_low = 40;
 	UniqueItemList[id].rolls[1].attrib_high = 75;
 	UniqueItemList[id].rolls[2].attrib_low = 1;
@@ -190,8 +190,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[1] = INV_SLOT3_DAMAGE;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_PELLETSFIRECIRCLE;
 	UniqueItemList[id].attrib_id_list[3] = INV_EX_FORSHOW_BURSTGETSPELLETBONUS;
-	UniqueItemList[id].rolls[0].attrib_low = 50;
-	UniqueItemList[id].rolls[0].attrib_high = 125;
+	UniqueItemList[id].rolls[0].attrib_low = 0.5;
+	UniqueItemList[id].rolls[0].attrib_high = 1.25;
 	UniqueItemList[id].rolls[1].attrib_low = 180;
 	UniqueItemList[id].rolls[1].attrib_high = 300;
 	UniqueItemList[id].rolls[2].attrib_low = 1;

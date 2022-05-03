@@ -5354,17 +5354,9 @@ Script "DnD Try Open Chestkey" (int keytype) {
 Script "DnD Pellet Count" (int base, int flags) {
 	if(flags & DND_WDMG_USETARGET)
 		SetactivatorToTarget(0);
+	
 	int pnum = PlayerNumber();
-	int res = 100 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
-	
-	if(CheckInventory("Hobo_Perk50"))
-		res += DND_HOBO_SHOTGUNPELLETBONUS;
-		
-	// dummy crit call here to obtain crit status item
-	//HandleWeaponCrit(0, CheckInventory("DnD_WeaponID"), pnum, 0, false);
-	//PlayerCritState[pnum][DND_CRITSTATE_NOCALC] = true;
-	
-	SetResultValue(res * base / 100); 
+	SetResultValue(GetPelletCount(pnum, base)); 
 }
 
 Script "DnD Explosion Radius Retrieve" (int flags) {
@@ -6474,7 +6466,14 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrbForAll(1);
-		SpawnCharmWithMods_ForAll(INV_MAGAZINE_INCREASE);
+		SpawnCharmWithMods_ForAll(INV_EXPGAIN_INCREASE);
+		SpawnCharmWithMods_ForAll(INV_CREDITGAIN_INCREASE);
+		SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
+		SpawnCharmWithMods_ForAll(INV_BLOCKERS_MOREDMG);
+		SpawnCharmWithMods_ForAll(INV_OVERLOAD_DMGINCREASE);
+		SpawnCharmWithMods_ForAll(INV_LIFESTEAL_DAMAGE);
+		SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);
+		SpawnCharmWithMods_ForAll(INV_LUCK_INCREASE);
 		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/

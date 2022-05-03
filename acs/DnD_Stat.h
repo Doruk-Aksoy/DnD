@@ -419,8 +419,9 @@ int RewardActorExp(int tid, int amt) {
 	// 50% increase
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
 		amt = amt * 3 / 2;
-		
-	amt += (amt * GetPlayerWisdomBonus(tid - P_TIDSTART)) / 100;
+	
+	// if non-zero, already contains 100 in it as it's multiplicative
+	amt = ApplyFixedFactorToInt(amt, GetPlayerWisdomBonus(tid - P_TIDSTART));
 	GiveActorExp(tid, amt);
 	return amt;
 }
@@ -435,8 +436,8 @@ int RewardActorCredit(int tid, int amt) {
 	// 50% increase
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
 		amt = amt * 3 / 2;
-	
-	amt += (amt * GetPlayerGreedBonus(tid - P_TIDSTART)) / 100;
+
+	amt = ApplyFixedFactorToInt(amt, GetPlayerGreedBonus(tid - P_TIDSTART));
 	GiveActorCredit(tid, amt);
 	return amt;
 }
@@ -624,23 +625,29 @@ int Calculate_Perks() {
 int GetDropChance(int pnum, bool isElite) {
 	int base = 1.0; // base val
 	int temp = 0;
-	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1); // additive bonuses first
+	// additive bonuses first
+	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + 
+			GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1) +
+			DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
+	
 	if(isElite && CheckActorInventory(pnum + P_TIDSTART, "DnD_QuestReward_EliteDropBonus"))
 		base += DND_ELITEDROP_GAIN;
-	// luck benefits are multiplicative
-	temp = GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE) + Player_Elixir_Bonuses[pnum].luck;
-	base = FixedMul(base, 1.0 + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck") + temp);
+	
+	// more chance to find loot
+	temp = CombineMultiplicativeFactors(GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE), Player_Elixir_Bonuses[pnum].luck);
+	base = FixedMul(base, 1.0 + temp);
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 	return base;
 }
 
 int GetPlayerWisdomBonus(int pnum) {
-	return GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
+	// temporary -- this is fixed * integer (orb bonus is integer not fixed) orb crap will be removed later anyway
+	return GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE) * (100 + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1)) / 100;
 }
 
 int GetPlayerGreedBonus(int pnum) {
-	return GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
+	return GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE) * (100 + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1)) / 100;
 }
 
 bool RunDefaultDropChance(int pnum, bool isElite, int basechance) {
@@ -1155,10 +1162,13 @@ int GetPlayerMeleeRange(int pnum) {
 #define DND_BASE_IGNITEDMG 10
 int GetFireDOTDamage(int pnum) {
 	// flat dmg
-	int dmg = (DND_BASE_IGNITEDMG + GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG) + GetPlayerAttributeValue(pnum, INV_EX_FLATDOT));
+	int dmg = 	DND_BASE_IGNITEDMG + 
+				GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG) + 
+				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT) +
+				GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT) + GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE)) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
@@ -1166,13 +1176,15 @@ int GetFireDOTDamage(int pnum) {
 	return dmg;
 }
 
+// dont include flat ele dmg and percent damage here, as they are applied to the attacks that inflicted the poison already, no double application!
 int GetPoisonDOTDamage(int pnum, int base_poison) {
 	int dmg = base_poison;
 	if(!dmg)
 		dmg = 1;
 		
 	// flat dmg
-	dmg += GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG) + GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
+	dmg += 	GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG) + 
+			GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
@@ -1283,6 +1295,11 @@ int GetCritChance_Display(int pnum) {
 		base = 2 * base - FixedMul(base, base);
 	
 	return base;
+}
+
+int GetPelletCount(int pnum, int base) {
+	int factor = CombineMultiplicativeFactors(GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE), CheckInventory("Hobo_Perk50") * DND_HOBO_SHOTGUNPELLETBONUS);
+	return ApplyFixedFactorToInt(base, factor);
 }
 
 #endif

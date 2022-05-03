@@ -16,7 +16,6 @@
 #include "Actors/Monsters/Cyberdemon.txt"
 #include "Actors/Monsters/SpiderMastermind.txt"
 #include "Actors/Monsters/Legendary.txt"
-#include "Actors/Monsters/WolfenSS.txt"
 
 #include "Actors/Monsters/Uniques.txt"
 
@@ -39,3 +38,4 @@
 #include "Actors/Spawners/ArachnoSpawner.txt"
 #include "Actors/Spawners/SpiderBossSpawner.txt"
 #include "Actors/Spawners/CyberdemonSpawner.txt"
+#include "Actors/Spawners/WolfenSpawner.txt"

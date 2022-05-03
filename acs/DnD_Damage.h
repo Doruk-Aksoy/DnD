@@ -583,10 +583,10 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		
 		// add other multiplicative factors below
 		
-		// % more damage from charms
+		// % more damage from charms -- already contains 100 in it as it's a multiplicative mod
 		temp = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
 		if(temp)
-			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
+			InsertCacheFactor_Fixed(pnum, wepid, dmgid, temp);
 		
 		// perk multiplicative factors
 		if(mult_factor)
@@ -745,7 +745,7 @@ void HandleOverloadEffects(int pnum, int victim) {
 	{
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
-			SetActorInventory(victim, "DnD_OverloadDamage", Max(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE), CheckActorInventory(victim, "DnD_OverloadDamage")));
+			SetActorInventory(victim, "DnD_OverloadDamage", Max(ConvertFixedFactorToInt(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE)), CheckActorInventory(victim, "DnD_OverloadDamage")));
 			ACS_NamedExecuteWithResult("DnD Monster Overload", victim);
 		}
 		else
@@ -1001,7 +1001,7 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 		
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
-		dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
+		dmg = ApplyFixedFactorToInt(dmg, temp);
 		
 	if(CheckInventory("CorruptOrb_DamageReduction"))
 		dmg /= DND_CORRUPTORB_DIV;
@@ -1144,8 +1144,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// check blockers take more dmg modifier
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING]) {
 		temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
-		if(temp)
-			dmg = dmg * (100 + temp) / 100;
+		dmg = ApplyFixedFactorToInt(dmg, temp);
 	}
 	
 	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
@@ -1158,7 +1157,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// additional damage vs frozen enemies modifier
 	temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA);
 	if(CheckActorInventory(victim, "DnD_FreezeTimer") && temp)
-		dmg = dmg * (100 + temp) / 100;
+		dmg = ApplyFixedFactorToInt(dmg, temp);
 		
 	// 50% more damage taken, so dmg * 3 / 2
 	if(CheckActorInventory(victim, "DemonSealResistDebuff"))
@@ -2328,7 +2327,7 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 			if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
 				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 				// overload damage amp is set to maximum of whatever the monster might have had (from another player) or this new instance of overload
-				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage", Max(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE), CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage")));
+				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage", Max(ConvertFixedFactorToInt(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE)), CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage")));
 				ACS_NamedExecuteWithResult("DnD Monster Overload", zap_tids[pnum][i]);
 			}
 			else

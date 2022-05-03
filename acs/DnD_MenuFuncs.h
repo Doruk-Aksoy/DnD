@@ -4785,7 +4785,7 @@ void DrawPlayerStats(int pnum, int category) {
 				}
 			}
 			
-			// dmg reduction block begins
+			// dmg reduction block begins -- shown with their respective caps applied
 			val = GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ELEM, val), s:"\n");

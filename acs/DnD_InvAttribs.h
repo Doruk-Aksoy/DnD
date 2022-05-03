@@ -264,6 +264,23 @@ enum {
 // indexing on this one is done by checking ranges, and then mapping appropriately
 global int 61: PlayerModValues[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
 
+// More multiplier mods are multiplied amongst themselves in case of having more than one source, and are all "FIXED POINT" values, not integers
+bool IsMoreMultiplierMod(int mod) {
+	switch(mod) {
+		case INV_EXPGAIN_INCREASE:
+		case INV_CREDITGAIN_INCREASE:
+		case INV_LUCK_INCREASE:
+		case INV_PELLET_INCREASE:
+		case INV_DAMAGEPERCENT_MORE:
+		case INV_BLOCKERS_MOREDMG:
+		case INV_OVERLOAD_DMGINCREASE:
+		case INV_LIFESTEAL_DAMAGE:
+		case INV_ESS_ERYXIA:
+		return true;
+	}
+	return false;
+}
+
 void SetPlayerModValue(int pnum, int mod, int val) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
 	PlayerModValues[pnum][mod] = val;
@@ -271,8 +288,28 @@ void SetPlayerModValue(int pnum, int mod, int val) {
 }
 
 void IncPlayerModValue(int pnum, int mod, int val) {
-	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val); 
-	PlayerModValues[pnum][mod] += val;
+	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
+	// check if it's a "more" multiplier, they are multiplicative with each other
+	if(!IsMoreMultiplierMod(mod)) {
+		PlayerModValues[pnum][mod] += val;
+	}
+	else if(!PlayerModValues[pnum][mod]) {
+		// if we are zero, simply replace with val
+		PlayerModValues[pnum][mod] = val;
+	}
+	else if(val > 0) {
+		// non-zero, multiply case -- we store things like 0.2 etc. here, but while we amplify it we need to consider 1.0 + val
+		PlayerModValues[pnum][mod] = CombineMultiplicativeFactors(PlayerModValues[pnum][mod], val) - 1.0;
+	}
+	else if(val < 0) {
+		// if negative we divide
+		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
+		if(PlayerModValues[pnum][mod] == val)
+			PlayerModValues[pnum][mod] = 0;
+		else
+			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], val);
+	}
+	
 	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
 
@@ -325,14 +362,14 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	
-	ItemModTable[INV_EXPGAIN_INCREASE].attrib_low = 5;
-	ItemModTable[INV_EXPGAIN_INCREASE].attrib_high = 9;
-	ItemModTable[INV_EXPGAIN_INCREASE].attrib_level_modifier = 7;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_low = 0.05;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_high = 0.09;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_level_modifier = 0.05;
 	ItemModTable[INV_EXPGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_low = 5;
-	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_high = 9;
-	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_level_modifier = 7;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_low = 0.05;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_high = 0.09;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_level_modifier = 0.05;
 	ItemModTable[INV_CREDITGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_low = 0.005;
@@ -386,27 +423,27 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLATELEM_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 19;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 19;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 19;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 19;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 20;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 19;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
 
@@ -455,9 +492,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_TEMPWEP_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_TEMPWEP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
 	
-	ItemModTable[INV_PELLET_INCREASE].attrib_low = 5;
-	ItemModTable[INV_PELLET_INCREASE].attrib_high = 10;
-	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_PELLET_INCREASE].attrib_low = 0.05;
+	ItemModTable[INV_PELLET_INCREASE].attrib_high = 0.1;
+	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0.06;
 	ItemModTable[INV_PELLET_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_EXPLOSION_RADIUS].attrib_low = 1;
@@ -510,9 +547,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_KNOCKBACK_RESIST].attrib_level_modifier = 100;
 	ItemModTable[INV_KNOCKBACK_RESIST].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_low = 1;
-	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_high = 5;
-	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_level_modifier = 0;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_low = 0.01;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_high = 0.05;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_level_modifier = 0.05;
 	ItemModTable[INV_DAMAGEPERCENT_MORE].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_ACCURACY_INCREASE].attrib_low = 25;
@@ -554,7 +591,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 4.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 0;
 	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
-	
 	
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 4.0;
@@ -631,9 +667,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_POISON_TICDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL;
 	
-	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_low = 5;
-	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_high = 19;
-	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_low = 0.05;
+	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_high = 0.19;
+	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_level_modifier = 0.15;
 	ItemModTable[INV_BLOCKERS_MOREDMG].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_FREEZECHANCE].attrib_low = 5;
@@ -676,9 +712,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_OVERLOAD_ZAPCOUNT].attrib_level_modifier = 1;
 	ItemModTable[INV_OVERLOAD_ZAPCOUNT].tags = INV_ATTR_TAG_ELEMENTAL;
 	
-	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_low = 1;
-	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_high = 4;
-	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_low = 0.01;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_high = 0.04;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_level_modifier = 0.04;
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_CYBERNETIC].attrib_low = 1;
@@ -702,7 +738,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DOTMULTI].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_INCREASEDDOT].attrib_low = 5;
-	ItemModTable[INV_INCREASEDDOT].attrib_high = 19;
+	ItemModTable[INV_INCREASEDDOT].attrib_high = 21;
 	ItemModTable[INV_INCREASEDDOT].attrib_level_modifier = 0;
 	ItemModTable[INV_INCREASEDDOT].tags = INV_ATTR_TAG_DAMAGE;
 	
@@ -737,12 +773,12 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ICE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_high = 1.0;
+	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_high = 4.0;
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_level_modifier = 0;
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_POISON].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_POISON].attrib_high = 1.0;
+	ItemModTable[INV_DMGREDUCE_POISON].attrib_high = 4.0;
 	ItemModTable[INV_DMGREDUCE_POISON].attrib_level_modifier = 0;
 	ItemModTable[INV_DMGREDUCE_POISON].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
@@ -771,9 +807,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_LIFESTEAL_CAP].attrib_level_modifier = 0;
 	ItemModTable[INV_LIFESTEAL_CAP].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
-	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_low = 2;
-	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_high = 8;
-	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_low = 0.02;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_high = 0.08;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_level_modifier = 0.07;
 	ItemModTable[INV_LIFESTEAL_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_OVERLOAD_DURATION].attrib_low = 0.1;
@@ -853,9 +889,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ESS_ZRAVOG].attrib_level_modifier = 0;
 	ItemModTable[INV_ESS_ZRAVOG].tags = INV_ATTR_TAG_NONE;
 	
-	ItemModTable[INV_ESS_ERYXIA].attrib_low = 10;
-	ItemModTable[INV_ESS_ERYXIA].attrib_high = 20;
-	ItemModTable[INV_ESS_ERYXIA].attrib_level_modifier = 0;
+	ItemModTable[INV_ESS_ERYXIA].attrib_low = 0.05;
+	ItemModTable[INV_ESS_ERYXIA].attrib_high = 0.1;
+	ItemModTable[INV_ESS_ERYXIA].attrib_level_modifier = 0.06;
 	ItemModTable[INV_ESS_ERYXIA].tags = INV_ATTR_TAG_NONE;
 }
 
@@ -951,11 +987,15 @@ str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_r
 		);
 	}
 	// this item is a little odd, so we need to treat it as such
+	// since ACS can't round floats to shit (bad representation, w.e) we need to do a custom one for weird numbers like this
+	int low = ftrunc2(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low);
+	int hi = ftrunc2(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high);
+	
 	return StrParam(
 		s:"\c-(",
-		s:"\c[D1]", f:ftrunc((UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low << 16) / FACTOR_SMALLCHARM_RESOLUTION),
+		s:"\c[D1]", d:low / 1000, s:".", d:(low / 100) % 10, d:(low / 10) % 10,
 		s:"\c--",
-		s:"\c[D1]", f:ftrunc((UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:"\c-)"
+		s:"\c[D1]",  d:hi / 1000, s:".", d:(hi / 100) % 10, d:(hi / 10) % 10, s:"\c-)"
 	);
 }
 
@@ -1011,15 +1051,6 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 				);
 			}
 			return StrParam(s:"\c[Q7]", l:text, d:val, s: "%");
-
-		case INV_ESS_ERYXIA:
-			if(showDetailedMods) {
-				return StrParam(
-					s:"\c[Q7]", l:text, d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"\c[Q7]% ", l:"IATTR_MOREDMG",
-					s:"\c- - ", s:GetModTierText(tier, extra)
-				);
-			}
-			return StrParam(s:"\c[Q7]", l:text, d:val, s:"% ", l:"IATTR_MOREDMG");
 
 		// essence with no numeric values
 		case INV_ESS_VAAJ:
@@ -1084,17 +1115,35 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 			else if(val < 0)
 				return StrParam(s:"- \cg", d:val, s:"\c- ", l:text);
 				
+		// fixed point stuff
+		case INV_EXPGAIN_INCREASE:
+		case INV_CREDITGAIN_INCREASE:
 		case INV_DROPCHANCE_INCREASE:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
+		case INV_PELLET_INCREASE:
 		case INV_CRITCHANCE_INCREASE:
 		case INV_CRITPERCENT_INCREASE:
+		case INV_DAMAGEPERCENT_MORE:
+		case INV_BLOCKERS_MOREDMG:
+		case INV_OVERLOAD_DMGINCREASE:
+		case INV_LIFESTEAL_DAMAGE:
 			if(showDetailedMods) {
 				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
 			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);
+		
+		// this is also fixed but it uses different display
+		case INV_ESS_ERYXIA:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", l:text, f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"\c[Q7]% ", l:"IATTR_MOREDMG",
+					s:"\c- - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:"\c[Q7]", l:text, f:ftrunc(val * 100), s:"% ", l:"IATTR_MOREDMG");
 		
 		// damage reduction attributes are shown as they are
 		case INV_DMGREDUCE_ELEM:
@@ -1154,11 +1203,11 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_FACTOR_SMALLCHARM:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION), s:GetDetailedModRange_Unique(tier, FACTOR_SMALLCHARM_RESOLUTION, extra), s:"\c-",
+					l:text, s:"\c[Q9]", d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10, s:GetDetailedModRange_Unique(tier, FACTOR_SMALLCHARM_RESOLUTION, extra), s:"\c-",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9]", f:ftrunc2((val1 << 16) / FACTOR_SMALLCHARM_RESOLUTION));
+			return StrParam(l:text, s:"\c[Q9]", d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10);
 		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			if(showDetailedMods) {

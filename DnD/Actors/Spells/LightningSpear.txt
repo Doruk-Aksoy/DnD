@@ -112,7 +112,7 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 			"####" "#" 0 A_PlaySound("Spell/LightningSpearBounce")
 			
 			"####" "#" 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_LIGHTNINGSPEARBOUNCE, TALENT_ELEMENTAL, DND_USETARGET | DND_ISSPELL))
-			"####" "#" 0 A_SetUserVar("user_expradius", 72 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			"####" "#" 0 A_SetUserVar("user_expradius", 72)
 			"####" "#" 0 A_SetUserVar("user_fullexpradius", 0)
 			"####" "#" 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISSPELL)
 			"####" "#" 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_LIGHTNING | (DND_SPELL_LIGHTNINGSPEAR << 16))

@@ -711,6 +711,9 @@ Actor DNBFGBallSmall : DNBFGBall {
 	-FOILINVUL
 	-NOGRAVITY
 	States {
+		SpawnState:
+			NBFP ABCD 1 BRIGHT A_SpawnItemEx("DNBFGTrailSpawner")
+		Loop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_MFG)
 		Death:

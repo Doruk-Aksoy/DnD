@@ -45,7 +45,7 @@ enum {
 #define DND_MARINE_EXPLOSIVEREDUCTION 33
 
 #define DND_HOBO_SHOTGUNBONUS 30
-#define DND_HOBO_SHOTGUNPELLETBONUS 50
+#define DND_HOBO_SHOTGUNPELLETBONUS 0.5
 
 #define DND_PUNISHER_SPREERECOVER 30 // 30%
 #define DND_PUNISHER_SPREEPERBONUS 5
@@ -563,7 +563,25 @@ int ftrunc(int x) {
 }
 
 int ftrunc2(int x) {
-	return (x + 0.005) & 0xFFFFFC00;
+	return ((x * 100 + 50) / 100);
+}
+
+int CancelMultiplicativeFactors(int f1, int f2) {
+	return FixedDiv(1.0 + f1, 1.0 + f2);
+}
+
+int CombineMultiplicativeFactors(int f1, int f2) {
+	return FixedMul(1.0 + f1, 1.0 + f2);
+}
+
+// this is a fixed value and represents a percentage, so convert it into one
+int ApplyFixedFactorToInt(int val, int factor) {
+	return val * (((1.0 + factor) * 100) >> 16) / 100;
+}
+
+// converts a factor in fixed to a factor in int (equivalent)
+int ConvertFixedFactorToInt(int factor) {
+	return ((1.0 + factor) * 100) >> 16;
 }
 
 int GetActivePlayerCount() {
