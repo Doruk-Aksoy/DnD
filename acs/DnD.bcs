@@ -189,6 +189,12 @@ Script "DnD On Map Load" OPEN {
 	
 	// init vars
 	ResetSharedVariables();
+	
+	// check for players that are spectating, reset their playerloaded variable (fixes bug where people can leave during intermission and cant load character until they spec again)
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerIsSpectator(i) == INTER_PSTATE_SPECTATING)
+			PlayerLoaded[i] = false;
+	}
 
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
@@ -4056,7 +4062,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = SpellDamageTable[dmg].dmg;
 	}
 	
-	dmg += MapTalentToFlatBonus(pnum, talent_type, flags);
+	dmg += (!isSpell) * MapTalentToFlatBonus(pnum, talent_type, flags);
 	
 	if(talent_type == TALENT_MELEE || (flags & DND_WDMG_ISMELEE))
 		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
@@ -4074,7 +4080,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT || isSpell)
 		dmg = dmg * (100 + DND_INT_GAIN * GetIntellect()) / 100;
 	else
-		dmg = dmg * (100 + DND_DEX_GAIN * GetDexterity()) / 100;
+		dmg = dmg * (100 + GetBonusFromDexterity()) / 100;
 	
 	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
 	if((talent_type == TALENT_MELEE || talent_type == TALENT_BULLET) && temp) {
@@ -4083,7 +4089,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	}
 	
 	temp =  GetPlayerPercentDamage(pnum, -1, talent_type);
-	if(temp)
+	if(temp && !isSpell)
 		dmg = dmg * (100 + temp) / 100;
 		
 	// finally crit chance
@@ -6466,14 +6472,10 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrbForAll(1);
-		SpawnCharmWithMods_ForAll(INV_EXPGAIN_INCREASE);
-		SpawnCharmWithMods_ForAll(INV_CREDITGAIN_INCREASE);
+		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
-		SpawnCharmWithMods_ForAll(INV_BLOCKERS_MOREDMG);
-		SpawnCharmWithMods_ForAll(INV_OVERLOAD_DMGINCREASE);
 		SpawnCharmWithMods_ForAll(INV_LIFESTEAL_DAMAGE);
 		SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);
-		SpawnCharmWithMods_ForAll(INV_LUCK_INCREASE);
 		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/

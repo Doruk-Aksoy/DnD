@@ -486,9 +486,9 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_ASSIMILATION:
 			// extra is itemid1, extratype is itemid2
 			// we must have matching item types, so charm x charm, Y x Y etc.
-			// and we have at least 1 total attribute to be taking
+			// and we have at least an attribute on both to be taking
 			res = 	PlayerInventoryList[pnum][extra].item_type == PlayerInventoryList[pnum][extratype].item_type && 
-					(PlayerInventoryList[pnum][extra].attrib_count || PlayerInventoryList[pnum][extratype].attrib_count);
+					(PlayerInventoryList[pnum][extra].attrib_count && PlayerInventoryList[pnum][extratype].attrib_count);
 		break;
 	}
 	if(!res)

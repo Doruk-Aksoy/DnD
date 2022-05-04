@@ -629,13 +629,13 @@ int GetDropChance(int pnum, bool isElite) {
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + 
 			GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1) +
 			DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
-	
+			
 	if(isElite && CheckActorInventory(pnum + P_TIDSTART, "DnD_QuestReward_EliteDropBonus"))
 		base += DND_ELITEDROP_GAIN;
-	
+		
 	// more chance to find loot
 	temp = CombineMultiplicativeFactors(GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE), Player_Elixir_Bonuses[pnum].luck);
-	base = FixedMul(base, 1.0 + temp);
+	base = FixedMul(base, temp);
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 	return base;

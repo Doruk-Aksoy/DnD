@@ -276,6 +276,42 @@ bool IsMoreMultiplierMod(int mod) {
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL_DAMAGE:
 		case INV_ESS_ERYXIA:
+		case INV_EX_MORECRIT_LIGHTNING:
+		return true;
+	}
+	return false;
+}
+
+// returns true if the mod is stored and used as fixed
+bool IsFixedPointMod(int mod) {
+	switch(mod) {
+		case INV_EXPGAIN_INCREASE:
+		case INV_CREDITGAIN_INCREASE:
+		case INV_LUCK_INCREASE:
+		case INV_SPEED_INCREASE:
+		case INV_PELLET_INCREASE:
+		case INV_CRITCHANCE_INCREASE:
+		case INV_CRITPERCENT_INCREASE:
+		case INV_DAMAGEPERCENT_MORE:
+		case INV_BLOCKERS_MOREDMG:
+		case INV_DMGREDUCE_ELEM:
+		case INV_DMGREDUCE_ENERGY:
+		case INV_DMGREDUCE_EXPLOSION:
+		case INV_DMGREDUCE_HITSCAN:
+		case INV_DMGREDUCE_PHYS:
+		case INV_DMGREDUCE_MAGIC:
+		case INV_DMGREDUCE_FIRE:
+		case INV_DMGREDUCE_ICE:
+		case INV_DMGREDUCE_LIGHTNING:
+		case INV_DMGREDUCE_POISON:
+		case INV_DMGREDUCE_REFL:
+		case INV_ADDEDMAXRESIST:
+		case INV_OVERLOAD_DURATION:
+		case INV_OVERLOAD_DMGINCREASE:
+		case INV_LIFESTEAL:
+		case INV_LIFESTEAL_DAMAGE:
+		case INV_ESS_ERYXIA:
+		case INV_EX_MORECRIT_LIGHTNING:
 		return true;
 	}
 	return false;
@@ -921,18 +957,29 @@ int GetModRange(int attr, int tier, bool which) {
 }
 
 // rolls an attribute's value depending on specified parameters
+// if they are fixed, put the truncated value in to match (as closely as possible...) what the menu displays in stat gains
 int RollAttributeValue(int attr, int tier, bool isWellRolled) {
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 
-	if(!isWellRolled)
+	if(!isWellRolled) {
+		if(IsFixedPointMod(attr))
+			return ftrunc(random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH)) * 100) / 100;
 		return random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH));
+	}
 	int high = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH);
+	if(IsFixedPointMod(attr))
+		return ftrunc(random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + high) / 2, high) * 100) / 100;
 	return random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + high) / 2, high);
 }
 
 int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
-	if(!isWellRolled)
+	if(!isWellRolled) {
+		if(IsFixedPointMod(attr))
+			return ftrunc(random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high));
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
+	}
+	if(IsFixedPointMod(attr))
+		return ftrunc(random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high));
 	return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
 }
 
@@ -1139,11 +1186,11 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"\c[Q7]% ", l:"IATTR_MOREDMG",
+					s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"\c[Q7]% ", l:"IATTR_MOREDMG",
 					s:"\c- - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, f:ftrunc(val * 100), s:"% ", l:"IATTR_MOREDMG");
+			return StrParam(s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:"% ", l:"IATTR_MOREDMG");
 		
 		// damage reduction attributes are shown as they are
 		case INV_DMGREDUCE_ELEM:

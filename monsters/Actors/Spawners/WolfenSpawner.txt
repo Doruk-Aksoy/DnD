@@ -1,44 +1,11 @@
 Actor WolfenSS_Spawner : DnD_MonsterSpawner replaces WolfensteinSS {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_ZOMBIEMANID)
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_NAZIID)
 		SpawnLoop:
 			TNT1 A 1
 		Loop
 		Vanilla:
-			TNT1 A 1 A_SpawnItemEx("ZombieMan2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var1:
-			TNT1 A 1 A_SpawnItemEx("ZombiemanGray", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var2:
-			TNT1 A 1 A_SpawnItemEx("FormerRanger", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var3:
-			TNT1 A 1 A_SpawnItemEx("SMGGuy", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var4:
-			TNT1 A 1 A_SpawnItemEx("RapidFireTrooper", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var5:
-			TNT1 A 1 A_SpawnItemEx("ZombieMarine", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var6:
-			TNT1 A 1 A_SpawnItemEx("LosZombieman", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var7:
-			TNT1 A 1 A_SpawnItemEx("UndeadHunter", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var8:
-			TNT1 A 1 A_SpawnItemEx("PistolZombie", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var9:
-			TNT1 A 1 A_SpawnItemEx("Prophet", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var10:
-			TNT1 A 1 A_SpawnItemEx("QuakeZombie", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
-		Stop
-		Var11:
 			TNT1 A 1 A_SpawnItemEx("WolfensteinSS2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG)
 		Stop
 	}

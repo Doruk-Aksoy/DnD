@@ -557,9 +557,8 @@ int IsDigit(int c) {
 	return c >= '0' && c <= '9';
 }
 
-// improve sens as parameter later?
 int ftrunc(int x) {
-	return (x + 0.05) & 0xFFFFF000;
+	return (x + 0.005) & 0xFFFFE000;
 }
 
 int ftrunc2(int x) {

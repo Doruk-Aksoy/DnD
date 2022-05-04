@@ -10,6 +10,7 @@
 #include "DnD_TempWeps.h"
 #include "DnD_Stat.h"
 #include "DnD_Orbs.h"
+#include "DnD_ClassMenu.h"
 
 #define DND_MAX_CHARS 5
 
@@ -256,6 +257,10 @@ void SavePlayerData(int pnum, int char_id) {
 	int temp, tid = pnum + P_TIDSTART, i, j;
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS-1); // DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = GetPlayerAccountName(pnum);
+	
+	// save class id
+	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(tid, "DnD_Character"));
+	
 	// save weapons
 	for(i = 0; i < MAXWEPS; ++i) {
 		j = i / 32;
@@ -713,6 +718,14 @@ void LoadPlayerData(int pnum, int char_id) {
 	// assumes all checks have been performed before reaching this function
 	int i = 0, j = 0, h, w, temp;
 	str pacc = GetPlayerAccountName(pnum);
+	
+	// set player class to what they initially chose
+	/*int res = SetPlayerClass(
+		pnum, 
+		StrParam(l:GetClassLabel(StrParam(s:"CLASS", d:GetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc) - 1), DND_CLASS_LABEL_ACTOR)),
+		true
+	);
+	*/
 	
 	// make sure starting char code doesn't run
 	SetInventory("ReflectCount", 0);

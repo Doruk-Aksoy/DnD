@@ -1,6 +1,7 @@
 #ifndef DND_DATABASEROWS_IN
 #define DND_DATABASEROWS_IN
 
+#define DND_DB_CLASSID "DnD_ClassID_"
 #define DND_DB_WEAPONINT "DND_PlayerWeapons_"
 #define DND_DB_STATS_1 "DND_PlayerStats_1"
 #define DND_DB_STATS_2 "DND_PlayerStats_2"
