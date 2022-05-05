@@ -1004,10 +1004,9 @@ int GetPlayerPercentDamage(int pnum, int wepid, int talent_type) {
 				MapTalentToPercentBonus(pnum, talent_type) +
 				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
 				
-	// stuff that do
+	// stuff that do ---- removed orb bonus from here
 	if(wepid != -1)
-		res += 	GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, wepid) -
-				(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
+		res -= (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
 	return res;
 }
 
@@ -1071,6 +1070,9 @@ void ResetPlayerInfo(int pnum) {
 	ResetWeaponMods(pnum);
 	ResetMostRecentOrb(pnum);
 	ResetOrbData(pnum);
+	ResetPlayerModList(pnum);
+	ResetInvestments(pnum);
+	SyncAllClientsideVariables(pnum);
 }
 
 void ResetHardcoreStuff(int pnum) {
@@ -1298,8 +1300,12 @@ int GetCritChance_Display(int pnum) {
 }
 
 int GetPelletCount(int pnum, int base) {
-	int factor = CombineMultiplicativeFactors(GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE), CheckInventory("Hobo_Perk50") * DND_HOBO_SHOTGUNPELLETBONUS);
-	return ApplyFixedFactorToInt(base, factor);
+	// factor base is 1.0
+	int factor = CombineMultiplicativeFactors(
+		GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE),
+		CheckInventory("Hobo_Perk50") * DND_HOBO_SHOTGUNPELLETBONUS
+	);
+	return ApplyFixedFactorToInt(base, factor - 1.0);
 }
 
 #endif

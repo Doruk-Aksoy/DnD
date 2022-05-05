@@ -604,6 +604,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				temp = PickRandomOrb();
 			} while(temp == DND_ORB_CALAMITY);
 			ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, temp, i);
+			// store type of orb x100 away
 			res += temp * 100;
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
@@ -1111,7 +1112,8 @@ void RevertLastOrbEffect() {
 		case DND_ORB_CALAMITY:
 			// find out how many this player does really have left, and give back that many (will give none if you used up all!)
 			i = TakeOrbFromPlayer(Player_MostRecent_Orb[pnum].values[0] / 100, Player_MostRecent_Orb[pnum].values[1]);
-			ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, Player_MostRecent_Orb[pnum].values[0] % 100, i);
+			if(i)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, Player_MostRecent_Orb[pnum].values[0] % 100, i);
 		break;
 		case DND_ORB_PROSPERITY:
 			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, Player_MostRecent_Orb[pnum].values[0]);

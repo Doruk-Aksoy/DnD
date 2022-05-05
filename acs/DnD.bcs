@@ -974,6 +974,7 @@ Script "DND On Kill" KILL {
 		SpawnAccessory();
 	#else*/
 	expshare = IsBoss();
+	creditshare = IsDemon();
 	if(expshare) {
 		if(RunDropChance(target - P_TIDSTART, killerWasntPlayer, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
 			if(GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
@@ -1073,7 +1074,7 @@ Script "DND On Kill" KILL {
 		}
 	}
 	
-	if(isDemon() && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
+	if(creditshare && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
 		if(CheckInventory("Research_Slot3Upgrade3_Tracker") == GetAmmoCapacity("Research_Slot3Upgrade3_Tracker")) {
 			GiveResearch(RES_SLOT3UPG3, true);
@@ -3136,6 +3137,11 @@ Script "DnD Player Setup" ENTER {
 		SetInventory("CurrentLives", GetCvar("sv_maxlives") - 1);
 	
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
+	
+	// sync item mods
+	for(i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+		if(PlayerModValues[pnum][i])
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModValues[pnum][i]);
 	
 	// a little hack to prevent ankh going off when finishing maps with 1 hp
 	if(GetActorProperty(0, APROP_HEALTH) == 1 && CheckInventory("CanIntervene"))
@@ -6472,10 +6478,16 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrbForAll(1);
-		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
+		SpawnCharmWithMods_ForAll(INV_PERCENTELEM_DAMAGE);
+		SpawnCharmWithMods_ForAll(INV_AMMOGAIN_CHANCE);
+		/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+		SpawnCharmWithMods_ForAll(INV_CRITPERCENT_INCREASE);
 		SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
 		SpawnCharmWithMods_ForAll(INV_LIFESTEAL_DAMAGE);
-		SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);
+		SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);*/
 		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/

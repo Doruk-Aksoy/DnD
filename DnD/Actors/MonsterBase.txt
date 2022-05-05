@@ -82,7 +82,10 @@ Actor DnD_BaseMonster {
 		Wait
 		
 		Frozen:
+			// in case monster got frozen during a move that made it have one of the below
 			"####" "#" 0 A_UnsetReflectiveInvulnerable
+			"####" "#" 0 A_SetSolid
+			"####" "#" 0 A_SetShootable
 		FrozenLoop:
 			"####" "###" 4 A_SpawnItemEx("FreezeGlitter", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(10, height / 2))
 			"####" "###" 0 A_SpawnItemEx("ColdSmoke", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(24, height + 16) / 2, frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.75, 0.75))

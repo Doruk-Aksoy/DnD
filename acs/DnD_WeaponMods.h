@@ -45,7 +45,8 @@ str GetWeaponModText(int val, int id, int extra_bit = 0) {
 		case WEP_MOD_DMG:
 			if(val > 0)
 				return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T41");
-			return StrParam(s:"\c[Y5]* \c[Q2]", d:val, s:"% ", l:"IATTR_T41NEG");
+			// put - here because it already says "less", -x% less is weird
+			return StrParam(s:"\c[Y5]* \c[Q2]", d:-val, s:"% ", l:"IATTR_T41NEG");
 		case WEP_MOD_PERCENTDAMAGE:
 			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"DND_WEPMOD_PERCENTDMG");
 		case WEP_MOD_POISONFORPERCENTDAMAGE:

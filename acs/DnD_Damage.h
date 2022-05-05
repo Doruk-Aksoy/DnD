@@ -587,6 +587,11 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		temp = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
 		if(temp)
 			InsertCacheFactor_Fixed(pnum, wepid, dmgid, temp);
+			
+		// % more / less damage from wepmod or orbs
+		temp = GetWeaponModValue(pnum, wepid, WEP_MOD_DMG);
+		if(temp)
+			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
 		
 		// perk multiplicative factors
 		if(mult_factor)
@@ -919,7 +924,8 @@ int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int wepid, int f
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS))
 		dmg /= DND_ARTEMIS_REDUCE;
 		
-	if(CheckInventory("AgamottoOffense"))
+	// if there's poison stack that means it's a regular poison attack, but if there's not that means its a poison dot, do not include it again for that
+	if(CheckInventory("AgamottoOffense") && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_AGAMOTTO_OFFENSE, DND_AGAMOTTO_OFFENSE_FACTOR);
 	
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_LICHARM)) {

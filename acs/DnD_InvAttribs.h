@@ -355,14 +355,6 @@ void ResetPlayerModList(int pnum) {
 	ACS_NamedExecuteWithResult("DnD Reset Player Mod List", pnum);
 }
 
-// syncs clientside player mod variables on entering a new map...
-Script "DnD Sync Player Mods" ENTER {
-	int pnum = PlayerNumber();
-	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
-		if(PlayerModValues[pnum][i])
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModValues[pnum][i]);
-}
-
 // resets things clientside for the array
 Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
 	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
@@ -569,8 +561,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CRITCHANCE_INCREASE].tags = INV_ATTR_TAG_CRIT;
 	
 	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_low = 0.01;
-	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_high = 0.1;
-	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_level_modifier = 0.1;
+	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_high = 0.08;
+	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_level_modifier = 0.08;
 	ItemModTable[INV_CRITPERCENT_INCREASE].tags = INV_ATTR_TAG_CRIT;
 	
 	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_low = 5;
@@ -1186,11 +1178,11 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"\c[Q7]% ", l:"IATTR_MOREDMG",
+					s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"%\c[Q7] ", l:"IATTR_MOREDMG",
 					s:"\c- - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:"% ", l:"IATTR_MOREDMG");
+			return StrParam(s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:"%\c[Q7] ", l:"IATTR_MOREDMG");
 		
 		// damage reduction attributes are shown as they are
 		case INV_DMGREDUCE_ELEM:

@@ -4611,10 +4611,23 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 		}
 		else if(category == DRAW_STAT_OFFENSE2) {
+			// generic things like dot multi, dot %
+			val = GetPlayerAttributeValue(pnum, INV_DOTMULTI);
+			if(val) {
+				PlayerStatText = StrParam(s:GetItemAttributeText(INV_DOTMULTI, val), s:"\n");
+				++k;
+			}
+			
+			val = GetPlayerAttributeValue(pnum, INV_INCREASEDDOT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INCREASEDDOT, val), s:"\n");
+				++k;
+			}
+			
 			// fire things
 			val = GetFireDOTDamage(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEDAMAGE", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEDAMAGE", s:"\n");
 				++k;
 			}
 			
