@@ -129,7 +129,7 @@ IATTR_T36 			= "regeneration cap";
 	
 IATTR_T37 			= "to crit chance";
 IATTR_T38 			= "increased crit chance";
-IATTR_T39 			= "additional crit damage";
+IATTR_T39 			= "additional crit multiplier";
 	
 IATTR_T40 			= "knockback resist";
 IATTR_T41 			= "more damage with attacks";									IATTR_T41NEG		= "less damage with attacks";	

@@ -106,22 +106,26 @@ enum {
 
 #define DND_NETHERMASK_AMP 3 // 3 / 2 => 50%
 #define DND_NETHERMASK_DIV 2
+#define DND_NETHERGHOST_AMP 5 // 5 / 4 => 25%
+#define DND_NETHERGHOST_DIV 4
 
-#define DND_HATESHARD_FACTOR 2 // 50%
+#define DND_HATESHARD_FACTOR 3 // 50% more
+#define DND_HATESHARD_DIV 2
+#define DND_HATESHARD_REDUCTION 5 // 1 / 5 => you do 20% of your damage, which is 80% less
 
 #define DND_ARTEMIS_REDUCE 3 // 1 / 3
 
-#define DND_AGAMOTTO_DEFENSE 13 // 13/10 is 1.3
+#define DND_AGAMOTTO_DEFENSE 14 // 14/10 is 1.4 => 40% more damage
 #define DND_AGAMOTTO_DEFENSE_FACTOR 10
-#define DND_AGAMOTTO_OFFENSE 25 // 150% more damage => 250%
-#define DND_AGAMOTTO_OFFENSE_FACTOR 10
+#define DND_AGAMOTTO_OFFENSE 2 // 100% more damage => x2
+#define DND_AGAMOTTO_OFFENSE_FACTOR 1
 
 #define DND_LICHARM_FACTOR 10 // 1 / 10 => 90% reduced damage
-#define DND_LICHARM_BUFF 25 // x2.5 damage => 250%
-#define DND_LICHARM_BUFF_DIV 10
+#define DND_LICHARM_BUFF 5 // 5 / 4 => 25% more damage
+#define DND_LICHARM_BUFF_DIV 4
 
-#define DND_SIGIL_BUFF 3 // x3
-#define DND_SIGIL_NERF 4 // 1 / 4 => 25% dmg, 75% reduced
+#define DND_SIGIL_BUFF 2 // x2
+#define DND_SIGIL_NERF 0 // x0 => complete negation of damage
 
 #define DND_HUNTERTALISMAN_NERF 3 // 1 / 3 -- this is subtracted
 

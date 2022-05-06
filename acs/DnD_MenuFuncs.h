@@ -4513,8 +4513,8 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			val = GetIndependentCritModifier(pnum);
-			if(val != DND_BASE_CRITMODIFIER) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val - DND_BASE_CRITMODIFIER, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT", s:"\n");
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT", s:"\n");
 				++k;
 			}
 			// crit block ends
@@ -4603,10 +4603,10 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			// pellet count
-			val = GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
+			// pellet count -- 1.0 is base
+			val = GetPelletIncrease(pnum) - 1.0;
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T30", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:"IATTR_T30", s:"\n");
 				++k;
 			}
 		}

@@ -907,7 +907,6 @@ Actor RiotgunShooter2 : DnD_Activator {
 		FireCircle:
 			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
 			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIfInventory("NetherCheck", 1, "FullStart")
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
 		Goto Finish

@@ -1165,7 +1165,7 @@ Script "DnD Periodic Checks" ENTER {
 		// Agamotto check
 		if(CheckInventory("AgamottoCheck")) {
 			int input = GetPlayerInput(-1, INPUT_BUTTONS);
-			if(input & (BT_FORWARD | BT_BACK | BT_MOVELEFT | BT_MOVERIGHT)) {
+			if((input & (BT_FORWARD | BT_BACK | BT_MOVELEFT | BT_MOVERIGHT)) || abs(GetActorVelX(0)) > 1.0 || abs(GetActorVelY(0)) > 1.0 || abs(GetActorVelZ(0)) > 1.0) {
 				if(!CheckInventory("AgamottoDefense")) {
 					GiveInventory("AgamottoDefense", 1);
 					TakeInventory("AgamottoOffense", 1);
@@ -3153,11 +3153,21 @@ Script "DnD Player Setup" ENTER {
 	
 	if(CheckInventory("QuestCompletionToken"))
 		ACS_NamedExecuteAlways("DND Quest Complete", 0);
+		
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
 		Delay(const:7);
+		
+	// this is here as a precaution for taltos effect removal in case player has decided to remove it before a map ended
+	DecideAccessories();
+	
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
+	
+	// moved here to attempt to fix the reflect pendant issue
+	// just in case
+	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
+		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
 	
 	TakeInventory("QuestWasPicked", 1); // helps sync clientside variable Quest_Pick_Done
 	while(!Quest_Pick_Done)
@@ -3170,11 +3180,6 @@ Script "DnD Player Setup" ENTER {
 	}
 	else
 		SetInventory("ActiveQuestID", 0);
-		
-	// moved here to attempt to fix the reflect pendant issue
-	// just in case
-	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
-		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
 		
 	while(CheckInventory("TipBoxOpen"))
 		Delay(const:17);
@@ -6180,9 +6185,9 @@ Script "DnD Projectile Checks" (int isPet) {
 		GiveInventory("ApplyNetherMaskBuff", 1);
 
 	int pnum = owner - P_TIDSTART;
+	// this already checks marine perk 50
 	if
 	(
-		CheckActorInventory(owner, "Marine_Perk50") || 
 		CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT) && (CheckFlag(0, "SEEKERMISSILE") || CheckFlag(0, "SCREENSEEKER"))
 	)
 	{

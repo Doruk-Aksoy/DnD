@@ -690,12 +690,13 @@ void DecideAccessories() {
 		GiveInventory("NetherCheck", 1);
 	else
 		TakeInventory("NetherCheck", 1);
-		
+
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_TALTOSRING)) {
 		GiveInventory("TaltosEffect", 1);
 		GiveInventory("TaltosUp", 1);
 	}
-	else {
+	else if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
+		// only let player take these away if map has changed, so they have to commit
 		GiveInventory("TaltosUnsetEffect", 1);
 		TakeInventory("TaltosUp", 1);
 	}
@@ -1299,13 +1300,16 @@ int GetCritChance_Display(int pnum) {
 	return base;
 }
 
-int GetPelletCount(int pnum, int base) {
-	// factor base is 1.0
-	int factor = CombineMultiplicativeFactors(
+int GetPelletIncrease(int pnum) {
+	return CombineMultiplicativeFactors(
 		GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE),
 		CheckInventory("Hobo_Perk50") * DND_HOBO_SHOTGUNPELLETBONUS
 	);
-	return ApplyFixedFactorToInt(base, factor - 1.0);
+}
+
+int GetPelletCount(int pnum, int base) {
+	// factor base is 1.0
+	return ApplyFixedFactorToInt(base, GetPelletIncrease(pnum) - 1.0);
 }
 
 #endif

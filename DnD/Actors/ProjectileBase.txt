@@ -1362,8 +1362,8 @@ Actor ApplyNetherMaskBuff : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_ChangeFlag("THRUGHOST", 0)
-			TNT1 A 0 A_ChangeFlag("FORCERADIUSDMG", 1)
-			TNT1 A 0 A_CheckFlag("RIPPER", "FlipRipper")
+			//TNT1 A 0 A_ChangeFlag("FORCERADIUSDMG", 1)
+			//TNT1 A 0 A_CheckFlag("RIPPER", "FlipRipper")
 		Stop
 		FlipRipper:
 			TNT1 A 0 A_ChangeFlag("RIPPER", 0)

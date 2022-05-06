@@ -171,7 +171,7 @@ DND_MENU_PERKTEXT5		=	"increased credit gain.";
 DND_MENU_PERKTEXT6		=	"increased effect of healing.";
 DND_MENU_PERKTEXT7		=	"increased ammo gain.";
 DND_MENU_PERKTEXT8		=	"to critical strike chance.";
-DND_MENU_PERKTEXT9		=	"to critical strike damage.";
+DND_MENU_PERKTEXT9		=	"to critical strike multiplier.";
 DND_MENU_PERKTEXT10		=	"increased drop chance and 5% chance to have better rolls.";
 
 DND_MENU_MASTERY		=	"Mastery";
@@ -213,36 +213,36 @@ ACCTX_P5				=	"When hit, 20% chance to go invulnerable and reflective for 5 seco
 ACCTX_C5				=	"While active, move 25% slower.";
 
 ACCTX_T6				=	"Nether Mask";
-ACCTX_P6				=	"All your weapons can hit ghosts and do irreducable damage.";
-ACCTX_C6				=	"Take 50% more damage.";
+ACCTX_P6				=	"All your weapons can hit ghosts. Ghosts take 25% more damage";
+ACCTX_C6				=	"Take 50% more damage from non-ghost enemies.";
 
 ACCTX_T7				=	"Taltos Ring";
-ACCTX_P7				=	"+25% lifesteal for melee attacks and become a ghost.";
+ACCTX_P7				=	"+25% lifesteal for melee attacks and become a ghost. All effects last until map ends.";
 ACCTX_C7				=	"Health items are unpickable. Only Megasphere, Ubersphere or Berserk can be picked that give health.";
 
 ACCTX_T8				=	"Hate Shard";
-ACCTX_P8				=	"Reflect damage back to enemies. Attackers take 100% more damage for 5 seconds.";
-ACCTX_C8				=	"Non-melee damage reduced by 50%.";
+ACCTX_P8				=	"Reflect damage back to enemies. Attackers take 50% more damage for 5 seconds.";
+ACCTX_C8				=	"80% less non-melee damage.";
 
 ACCTX_T9				=	"Hand of Artemis";
 ACCTX_P9				=	"Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.";
 ACCTX_C9				=	"Do 66% less damage.";
 
 ACCTX_T10				=	"Scroll of Agamotto";
-ACCTX_P10				=	"Do 150% more damage while standing.";
-ACCTX_C10				=	"Take 30% more damage while moving.";
+ACCTX_P10				=	"Do 100% more damage while standing still.";
+ACCTX_C10				=	"Take 40% more damage while moving.";
 
 ACCTX_T11				=	"Gryphon Boots";
 ACCTX_P11				=	"Gives 25% movement speed, immunity to curses and fall damage, and knockback immunity.";
 ACCTX_C11				=	"Can't regenerate.";
 
 ACCTX_T12				=	"Lich Arm";
-ACCTX_P12				=	"Soul capacity becomes 150 and attacks that use souls do x2.5 damage.";
+ACCTX_P12				=	"Soul capacity becomes 150 and attacks that use souls do 25% more damage.";
 ACCTX_C12				=	"Any other attack does 90% less damage.";
 
 ACCTX_T13				=	"Sigil of Elements";
-ACCTX_P13				=	"Gives x3 elemental damage to a single element for 20 seconds. This works in a rotation.";
-ACCTX_C13				=	"Other elements do 75% less damage.";
+ACCTX_P13				=	"Gives 100% more elemental damage to a single element for 20 seconds. This works in a rotation.";
+ACCTX_C13				=	"Other elements do no damage.";
 
 ACCTX_T14				=	"Celestial Relic";
 ACCTX_P14				=	"Gives 25% increased health and armor capacity.";

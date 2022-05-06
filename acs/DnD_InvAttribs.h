@@ -340,10 +340,10 @@ void IncPlayerModValue(int pnum, int mod, int val) {
 	else if(val < 0) {
 		// if negative we divide
 		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
-		if(PlayerModValues[pnum][mod] == val)
+		if(PlayerModValues[pnum][mod] == -val)
 			PlayerModValues[pnum][mod] = 0;
 		else
-			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], val);
+			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], -val);
 	}
 	
 	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
@@ -451,27 +451,27 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLATELEM_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 19;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 19;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 19;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 19;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 19;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
 
@@ -520,9 +520,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_TEMPWEP_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_TEMPWEP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
 	
-	ItemModTable[INV_PELLET_INCREASE].attrib_low = 0.05;
-	ItemModTable[INV_PELLET_INCREASE].attrib_high = 0.1;
-	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0.06;
+	ItemModTable[INV_PELLET_INCREASE].attrib_low = 0.02;
+	ItemModTable[INV_PELLET_INCREASE].attrib_high = 0.05;
+	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0.03;
 	ItemModTable[INV_PELLET_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_EXPLOSION_RADIUS].attrib_low = 1;
@@ -576,8 +576,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_KNOCKBACK_RESIST].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_low = 0.01;
-	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_high = 0.05;
-	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_level_modifier = 0.05;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_high = 0.025;
+	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_level_modifier = 0.015;
 	ItemModTable[INV_DAMAGEPERCENT_MORE].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_ACCURACY_INCREASE].attrib_low = 25;
@@ -691,7 +691,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_POISON_DURATION].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_POISON_TICDMG].attrib_low = 5;
-	ItemModTable[INV_POISON_TICDMG].attrib_high = 14;
+	ItemModTable[INV_POISON_TICDMG].attrib_high = 20;
 	ItemModTable[INV_POISON_TICDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL;
 	
@@ -766,7 +766,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DOTMULTI].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_INCREASEDDOT].attrib_low = 5;
-	ItemModTable[INV_INCREASEDDOT].attrib_high = 21;
+	ItemModTable[INV_INCREASEDDOT].attrib_high = 15;
 	ItemModTable[INV_INCREASEDDOT].attrib_level_modifier = 0;
 	ItemModTable[INV_INCREASEDDOT].tags = INV_ATTR_TAG_DAMAGE;
 	
@@ -918,8 +918,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ESS_ZRAVOG].tags = INV_ATTR_TAG_NONE;
 	
 	ItemModTable[INV_ESS_ERYXIA].attrib_low = 0.05;
-	ItemModTable[INV_ESS_ERYXIA].attrib_high = 0.1;
-	ItemModTable[INV_ESS_ERYXIA].attrib_level_modifier = 0.06;
+	ItemModTable[INV_ESS_ERYXIA].attrib_high = 0.075;
+	ItemModTable[INV_ESS_ERYXIA].attrib_level_modifier = 0.025;
 	ItemModTable[INV_ESS_ERYXIA].tags = INV_ATTR_TAG_NONE;
 }
 

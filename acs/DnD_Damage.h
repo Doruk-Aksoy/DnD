@@ -906,9 +906,13 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 }
 
 // for player hitting others damage
-int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int wepid, int flags) {
+int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, int wepid, int flags) {
 	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
 		dmg /= DND_DEMONBANE_REDUCE;
+		
+	// ghost enemies take more damage if nether mask is equipped
+	if(CheckFlag(enemy_tid, "GHOST") && IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK))
+		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERGHOST_AMP, DND_NETHERGHOST_DIV);
 		
 	// amps fire damage, reduces ice damage
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
@@ -919,7 +923,7 @@ int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int wepid, int f
 	}
 	
 	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
-		dmg /= DND_HATESHARD_FACTOR;
+		dmg /= DND_HATESHARD_REDUCTION;
 	
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS))
 		dmg /= DND_ARTEMIS_REDUCE;
@@ -939,7 +943,7 @@ int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int wepid, int f
 		if(IsFireDamage(damage_type))
 			dmg *= DND_SIGIL_BUFF;
 		else if(IsElementalDamage(damage_type))
-			dmg /= DND_SIGIL_NERF;
+			dmg *= DND_SIGIL_NERF;
 	}
 	else if(CheckInventory("ElementPower_Ice")) {
 		if(IsIceDamage(damage_type))
@@ -960,16 +964,17 @@ int HandleAccessoryEffects(int p_tid, int dmg, int damage_type, int wepid, int f
 			dmg /= DND_SIGIL_NERF;
 	}
 	
-	// 100% more damage taken => x2
+	// 50% more damage taken
 	if(CheckInventory("HateWeakness"))
-		dmg *= DND_HATESHARD_FACTOR;
+		dmg = ApplyDamageFactor_Safe(dmg, DND_HATESHARD_FACTOR, DND_HATESHARD_DIV);
 	
 	return dmg;
 }
 
 // for others hitting player damage
 int HandleAccessoryHitEffects(int p_tid, int enemy_tid, int dmg, int dmg_data, str arg2) {
-	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK))
+	// take extra damage only if they aren't ghost
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK) && !CheckFlag("enemy_tid", "GHOST"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERMASK_AMP, DND_NETHERMASK_DIV);
 		
 	// amps ice damage taken, reduces fire damage
@@ -1041,13 +1046,12 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		pnum = source - P_TIDSTART;
 	
 	// check if the damage is to be dealt without any reductions from resistances or immunities
-	forced_full |= 	CheckActorInventory(source, "NetherCheck") 																	|| 
-					(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
-					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckInventory("StatbuffCounter_SpellsFullDamage"))					||
+	forced_full |= 	(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
+					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckUniquePropertyOnPlayer(pnum, PUP_SPELLSDOFULL))					||
 					(IsOccultDamage(damage_type) && CheckInventory("DnD_QuestReward_DreamingGodBonus"))							||
 					(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
-					(IsExplosionDamage(damage_type) && CheckInventory("StatbuffCounter_ExplosiveResistIgnore"))					||
-					(damage_type == DND_DAMAGETYPE_SOUL && CheckInventory("StatbuffCounter_SoulWepsDoFullDamage"))				||
+					(IsExplosionDamage(damage_type) && CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))			||
+					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL))				||
 					((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"));
 
 	// check blocking status of monster -- if they are and we dont have foilinvul on this, no penetration
@@ -1173,7 +1177,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	dmg = HandleGenericPlayerDamageEffects(pnum, dmg);
 	
 	// ACCESSORY EFFECTS
-	dmg = HandleAccessoryEffects(source, dmg, damage_type, wepid, flags);
+	dmg = HandleAccessoryEffects(source, victim, dmg, damage_type, wepid, flags);
 	
 	// damage number handling - NO MORE DAMAGE FIDDLING HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
@@ -1328,19 +1332,17 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		int mon_id = PlayerExplosionList[pnum].list[instance].monsters[i];
 
 		// first check if this monster is immune to splash damage (its an easy flag check and eases calculation later)
-		// if we have nethermask simply ignore all these checks anyways
 		if(!CheckFlag(mon_id, "SHOOTABLE"))
 			continue;
-			
-		if(!CheckActorInventory(owner, "NetherCheck")) {
-			if
-			(
-				(CheckFlag(mon_id, "NORADIUSDMG") && !CheckActorInventory(owner, "Marine_Perk25") && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG)) ||
-				(CheckFlag(mon_id, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))	||
-				(wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(mon_id))
-			)
-				continue;
-		}
+
+		// if enemy has NORADIUSDMG and we don't have resist ignore on explosives and we don't have forceradiusdmg on attack itself
+		if
+		(
+			(CheckFlag(mon_id, "NORADIUSDMG") && !CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG)) ||
+			(CheckFlag(mon_id, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))	||
+			(wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(mon_id))
+		)
+			continue;
 
 		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, px, py, pz, proj_r);
 		
@@ -1528,7 +1530,7 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 		wepid = -(wepid + 1);
 	
 	// sedrin check
-	if(!CheckActorInventory(owner, "NetherCheck") && wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
+	if(wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
 		SetActivator(owner);
 		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
 	}
@@ -2012,7 +2014,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 	int counter = 0;
 	
 	// divide trigger tic count by half to make it twice as fast -- if poison ticrate is 100% reduction we'll do poison damage at every 2 tics, which is the most one would need
-	if(CheckInventory("StatbuffCounter_PoisonTicTwiceFast"))
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_POISONTICSTWICE))
 		trigger_tic /= 2;
 
 	dmg = GetPoisonDOTDamage(pnum, dmg);
@@ -2404,7 +2406,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			}
 			
 			// apply accessory and other sources of damage
-			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, dmg, dmg_type, wepid, flags);
+			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags);
 			
 			// apply impact protection research
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());
@@ -2521,7 +2523,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	}
 	
 	// gravecaller unique mod
-	if(CheckInventory("StatbuffCounter_PainSharedWithPets")) {
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_PAINSHAREDWITHPETS)) {
 		// damage is shared between you and pets, therefore if you have 1 pet you take half
 		// you have 2 you get 1/3rd, which is what this'll do
 		temp = CheckInventory("PetCounter") + 1;

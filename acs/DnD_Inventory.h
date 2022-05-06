@@ -1518,8 +1518,15 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	// Well of power factor
 	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
 	if(temp && asubtype == DND_CHARM_SMALL) {
-		aval *= temp;
-		aval /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
+		// don't multiply first in case of fixed point attributes, these are big numbers
+		if(aval > 100 * FACTOR_SMALLCHARM_RESOLUTION) {
+			aval /= FACTOR_SMALLCHARM_RESOLUTION;
+			aval *= temp;
+		}
+		else {
+			aval *= temp;
+			aval /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
+		}
 	}
 	
 	// cybernetic check
