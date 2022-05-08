@@ -470,6 +470,7 @@ void SavePlayerData(int pnum, int char_id) {
 		// enhancement orbs used
 		temp = Player_Weapon_Infos[pnum][i].quality;
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, i));
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {

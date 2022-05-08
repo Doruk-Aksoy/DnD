@@ -32,8 +32,6 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
 
 //#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF
 
-#define FACTOR_SMALLCHARM_RESOLUTION 1000
-
 // these two imply we have 1000 regular charm mods potentially, 1000 essence and unlimited unique mods
 // reason we have these generous ranges is so when a new mod is added, database resets do not need to happen
 #define ESSENCE_ATTRIB_ID_BEGIN 1000
@@ -317,13 +315,15 @@ bool IsFixedPointMod(int mod) {
 	return false;
 }
 
-void SetPlayerModValue(int pnum, int mod, int val) {
+void SetPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
 	PlayerModValues[pnum][mod] = val;
-	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+	
+	if(!noSync)
+		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
 
-void IncPlayerModValue(int pnum, int mod, int val) {
+void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
@@ -340,19 +340,26 @@ void IncPlayerModValue(int pnum, int mod, int val) {
 	else if(val < 0) {
 		// if negative we divide
 		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
-		if(PlayerModValues[pnum][mod] == -val)
+		if(PlayerModValues[pnum][mod] + val < EPSILON)
 			PlayerModValues[pnum][mod] = 0;
 		else
-			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], -val);
+			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], -val) - 1.0;
 	}
 	
-	ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+	if(!noSync)
+		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
 
 void ResetPlayerModList(int pnum) {
 	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
 		PlayerModValues[pnum][i] = 0;
 	ACS_NamedExecuteWithResult("DnD Reset Player Mod List", pnum);
+}
+
+void SyncPlayerItemMods(int pnum) {
+	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+		if(PlayerModValues[pnum][i])
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModValues[pnum][i]);
 }
 
 // resets things clientside for the array
@@ -953,25 +960,15 @@ int GetModRange(int attr, int tier, bool which) {
 int RollAttributeValue(int attr, int tier, bool isWellRolled) {
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 
-	if(!isWellRolled) {
-		if(IsFixedPointMod(attr))
-			return ftrunc(random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH)) * 100) / 100;
+	if(!isWellRolled)
 		return random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH));
-	}
 	int high = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH);
-	if(IsFixedPointMod(attr))
-		return ftrunc(random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + high) / 2, high) * 100) / 100;
 	return random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + high) / 2, high);
 }
 
 int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
-	if(!isWellRolled) {
-		if(IsFixedPointMod(attr))
-			return ftrunc(random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high));
+	if(!isWellRolled)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
-	}
-	if(IsFixedPointMod(attr))
-		return ftrunc(random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high));
 	return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
 }
 
@@ -985,9 +982,28 @@ int PickRandomAttribute() {
 	return val;
 }
 
-str GetDetailedModRange(int attr, int tier, int trunc_factor = 0, int extra = -1) {
+Str GetFixedRepresentation(int val, bool isPercentage) {
+	val = ConvertFixedToPrecise(val);
+	
+	if(isPercentage)
+		val *= 100;
+	
+	if(val > 1000) {
+		if((val / 10) % 10)
+			return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
+		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
+	}
+		
+	if(val % 10)
+		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10, d:val % 10);
+	if((val / 10) % 10)
+		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
+	return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
+}
+
+str GetDetailedModRange(int attr, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
 	if(extra != -1)
-		return GetDetailedModRange_Unique(tier, trunc_factor, extra);
+		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
 		
 	str col_tag = Charm_Strings[tier][CHARMSTR_COLORCODE];
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
@@ -1001,13 +1017,13 @@ str GetDetailedModRange(int attr, int tier, int trunc_factor = 0, int extra = -1
 	}
 	return StrParam(
 		s:"\c-(",
-		s:col_tag, f:ftrunc(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) * trunc_factor),
+		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), isPercentage),
 		s:"\c--",
-		s:col_tag, f:ftrunc(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH) * trunc_factor), s:"\c-)"
+		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH), isPercentage), s:"\c-)"
 	);
 }
 
-str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_roll_id = 0) {
+str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_roll_id = 0, bool isPercentage = false) {
 	if(!trunc_factor) {
 		return StrParam(
 			s:"\c-(",
@@ -1020,21 +1036,22 @@ str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_r
 	if(unique_id != UITEM_WELLOFPOWER) {
 		return StrParam(
 			s:"\c-(",
-			s:"\c[D1]", f:ftrunc(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low * trunc_factor),
+			s:"\c[D1]", s:GetFixedRepresentation(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low, isPercentage),
 			s:"\c--",
-			s:"\c[D1]", f:ftrunc(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high * trunc_factor), s:"\c-)"
+			s:"\c[D1]", s:GetFixedRepresentation(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high, isPercentage), s:"\c-)"
 		);
 	}
+
 	// this item is a little odd, so we need to treat it as such
 	// since ACS can't round floats to shit (bad representation, w.e) we need to do a custom one for weird numbers like this
-	int low = ftrunc2(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low);
-	int hi = ftrunc2(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high);
+	int low = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low;
+	int hi = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high;
 	
 	return StrParam(
 		s:"\c-(",
 		s:"\c[D1]", d:low / 1000, s:".", d:(low / 100) % 10, d:(low / 10) % 10,
 		s:"\c--",
-		s:"\c[D1]",  d:hi / 1000, s:".", d:(hi / 100) % 10, d:(hi / 10) % 10, s:"\c-)"
+		s:"\c[D1]", d:hi / 1000, s:".", d:(hi / 100) % 10, d:(hi / 10) % 10, s:"\c-)"
 	);
 }
 
@@ -1167,22 +1184,13 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_BLOCKERS_MOREDMG:
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL_DAMAGE:
+		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"%\c- ", l:text,
+				return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:text);
-		
-		// this is also fixed but it uses different display
-		case INV_ESS_ERYXIA:
-			if(showDetailedMods) {
-				return StrParam(
-					s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:GetDetailedModRange(attr, tier, 100, extra), s:"%\c[Q7] ", l:"IATTR_MOREDMG",
-					s:"\c- - ", s:GetModTierText(tier, extra)
-				);
-			}
-			return StrParam(s:"\c[Q7]", l:text, s:"\c[Q9]", f:ftrunc(val * 100), s:"%\c[Q7] ", l:"IATTR_MOREDMG");
+			return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:text);
 		
 		// damage reduction attributes are shown as they are
 		case INV_DMGREDUCE_ELEM:
@@ -1197,14 +1205,14 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_DMGREDUCE_ICE:
 		case INV_DMGREDUCE_POISON:
 		case INV_ADDEDMAXRESIST:
-		case INV_LIFESTEAL:
 		case INV_OVERLOAD_DURATION:
+		case INV_LIFESTEAL:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:GetDetailedModRange(attr, tier, 1, extra), s:"%\c- ", l:text,
+				return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \c[Q9]", f:ftrunc(val), s:"%\c- ", l:text);
+			return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:"%\c- ", l:text);
 
 		// default takes percentage values
 		default:
@@ -1242,7 +1250,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_FACTOR_SMALLCHARM:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10, s:GetDetailedModRange_Unique(tier, FACTOR_SMALLCHARM_RESOLUTION, extra), s:"\c-",
+					l:text, s:"\c[Q9]", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c-",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
@@ -1298,11 +1306,11 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_MORECRIT_LIGHTNING:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:GetDetailedModRange_Unique(tier, 100, extra), s:"%\c- ", l:text,
+					s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:"\c[Q9]", f:ftrunc(val1 * 100), s:"%\c- ", l:text);
+			return StrParam(s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
 		
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:

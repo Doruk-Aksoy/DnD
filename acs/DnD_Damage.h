@@ -1303,7 +1303,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// sedrin staff armor check
 		// if not sedrin staff, immediately check
 		// if sedrin staff and if we have armor, both are false so no damage to us
-		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetArmorAmount()) {
+		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetActorArmorAmount(owner)) {
 			// if this flag is in place, do half damage within half radius
 			if(flags & DND_DAMAGEFLAG_HALFDMGSELF)
 				final_dmg = ScaleExplosionToDistance(owner, dmg / 2, radius / 2, fullradius / 2, px, py, pz, proj_r);
@@ -2784,14 +2784,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
 					
-				// minimum of 1 dmg will always be sent regardless
-				if(!dmg)
-					dmg = 1;
-				
-				// add to player stat
-				IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
-				GiveInventory("DnD_DamageReceived", dmg);
-				PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
+				if(dmg) {
+					// add to player stat
+					IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
+					GiveInventory("DnD_DamageReceived", dmg);
+					PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
+				}
 			}
 			
 			HandleMonsterDamageModChecks(m_id, shooter, victim);

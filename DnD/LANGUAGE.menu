@@ -205,7 +205,7 @@ ACCTX_P3				=	"Protects from all fire damage and hazards by 75%. Increases your 
 ACCTX_C3				=	"Increases ice damage taken by 75% and reduces your ice damage by 50%.";
 
 ACCTX_T4				=	"Angelic Ankh";
-ACCTX_P4				=	"When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once very map.";
+ACCTX_P4				=	"When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once every map.";
 ACCTX_C4				=	"Your health cap is halved. (Never below 100)";
 
 ACCTX_T5				=	"Reflection Pendant";
@@ -453,8 +453,8 @@ DND_MENU_MMOD_RES4		=	"Monster takes 50% reduced damage from occult attacks.";
 DND_MENU_MMOD_RES5		=	"Monster takes 50% reduced damage from elemental attacks.";
 DND_MENU_MMOD_RES6		=	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.";
 DND_MENU_MMOD_RES7		=	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.";
-DND_MENU_MMOD_RES8		=	"Monster is a being of stone, has ice weakness, fire resist, immunity to earth and lightning, and Hardened Skin.";
-DND_MENU_MMOD_RES9		=	"Monster is a being of earth, takes 50% more damage from lightning, but immune to earth attacks.";
+DND_MENU_MMOD_RES8		=	"Monster is a being of stone, has ice weakness, fire resist, immunity to poison and lightning, and Hardened Skin.";
+DND_MENU_MMOD_RES9		=	"Monster is a being of earth, takes 50% more damage from lightning, but immune to poison attacks.";
 
 // immunity group
 DND_MENU_MMOD_IMM1		=	"Monster is immune to area damage.";
@@ -471,13 +471,13 @@ DND_MENU_MMOD_IMM11		=	"Monster can only be harmed by occult damage.";
 
 // agressive group
 DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";
-DND_MENU_MMOD_AGG2		=	"Monster has attacks that ignores armor.";
-DND_MENU_MMOD_AGG3		=	"Monster is extra aggressive.";
+DND_MENU_MMOD_AGG2		=	"Monster has attacks that ignores armor efficiency.";
+DND_MENU_MMOD_AGG3		=	"Monster uses ranged attacks more often and is fearless.";
 DND_MENU_MMOD_AGG4		=	"Monster is twice as fast.";
 DND_MENU_MMOD_AGG5		=	"Monster reacts to whoever hits it immediately.";
-DND_MENU_MMOD_AGG6		=	"Monster deals twice as much damage.";
+DND_MENU_MMOD_AGG6		=	"Monster deals 35% increased damage.";
 DND_MENU_MMOD_AGG7		=	"Monster has homing attacks.";
-DND_MENU_MMOD_AGG8		=	"Monster ignores armor of player with every attack.";
+DND_MENU_MMOD_AGG8		=	"Monster ignores armor efficiency of player with every attack.";
 DND_MENU_MMOD_AGG9		=	"Monster has 50% chance to throw explosive projectiles when hurt.";
 DND_MENU_MMOD_AGG10		=	"Never infights with any other monster, and monsters do not target it for infights.";
 DND_MENU_MMOD_AGG11		=	"Monster heals for 10% of the damage it deals to you.";
@@ -492,7 +492,7 @@ DND_MENU_MMOD_DEF5		=	"Monster can heal nearby monsters.";
 DND_MENU_MMOD_DEF6		=	"Monster has means to block attacks from players. Weapons that \cfignore shields\c- are effective.";
 DND_MENU_MMOD_DEF7		=	"Monster can split into other monsters.";
 DND_MENU_MMOD_DEF8		=	"Monster has a death activated ability.";
-DND_MENU_MMOD_DEF9		=	"Monster has 75% more health.";
+DND_MENU_MMOD_DEF9		=	"Monster has 75% increased health.";
 DND_MENU_MMOD_DEF10		=	"Monster is currently blocking attacks. Receives no damage unless attacks \cfignore shields\c-.";
 DND_MENU_MMOD_DEF11		=	"You can't leech life from this the monster.";
 DND_MENU_MMOD_DEF12		=	"Monster spawns 5 wraiths on death.";

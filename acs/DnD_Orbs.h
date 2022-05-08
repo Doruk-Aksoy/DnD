@@ -12,7 +12,7 @@
 #define MAX_ITER 200
 
 #define ENHANCEORB_MAX 50 // 50% bonus
-#define PROSPERITY_MAX 1000 // 500 max
+#define PROSPERITY_MAX 500 // 500 max
 #define FORTITUDE_MAX 200 // 200% max
 #define WISDOMORB_MAX 250
 #define GREEDORB_MAX 250
@@ -1072,7 +1072,7 @@ int HandleSinOrbBonus(int type) {
 			i = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, temp);
 			Player_MostRecent_Orb[pnum].values[4] = temp;
 			Player_MostRecent_Orb[pnum].values[3] = i;
-			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, temp, Clamp_Between(i + SINORB_CRITGIVE * pow(2, CheckInventory("AffluenceCounter")), 0, SINORB_CRITMAX));
+			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, temp, Clamp_Between(i + SINORB_CRITGIVE * GetAffluenceBonus(), 0, SINORB_CRITMAX));
 			// get the difference, should be negative
 			Player_MostRecent_Orb[pnum].values[3] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, temp);
 			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_CRIT, temp);
@@ -1084,7 +1084,7 @@ int HandleSinOrbBonus(int type) {
 			i = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp);
 			Player_MostRecent_Orb[pnum].values[4] = temp;
 			Player_MostRecent_Orb[pnum].values[3] = i;
-			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp, Clamp_Between(i + SINORB_CRITDMGGIVE * pow(2, CheckInventory("AffluenceCounter")), 0, SINORB_CRITDMGMAX));
+			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp, Clamp_Between(i + SINORB_CRITDMGGIVE * GetAffluenceBonus(), 0, SINORB_CRITDMGMAX));
 			Player_MostRecent_Orb[pnum].values[3] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp);
 			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_CRITDMG, temp);
 		return temp;
@@ -1337,7 +1337,7 @@ void DoSinOrbMessage(int val, int affluence) {
 				Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:pts, s:" ", l:"DND_ORB_RANDOMPERK", s:"!");
 		break;
 		case SINORB_CRIT:
-			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", f:ftrunc(SINORB_CRITGIVE * affluence * 100), s:"% ", l:"DND_ORBUSETEXT2R", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
+			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", s:GetFixedRepresentation(SINORB_CRITGIVE * affluence, true), s:"% ", l:"DND_ORBUSETEXT2R", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
 		break;
 		case SINORB_CRITDMG:
 			Log(s:temp, l:"DND_ORB_ANDGRANTS", s:" \cd", d:SINORB_CRITDMGGIVE * affluence, s:"% ", l:"DND_ORBUSETEXT2J", s:" \cd", l:GetWeaponTag(val >> 11), s:"\c-!");
@@ -1590,7 +1590,7 @@ void DoCorruptOrbMessage(int val, int affluence) {
 		break;
 		
 		case CORRUPTORB_ADDCRIT:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_CRITGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2I", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", s:GetFixedRepresentation(CORRUPTORB_CRITGIVE * affluence, true), s:"%\cj ", l:"DND_ORBUSETEXT2I", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
 		break;
 		case CORRUPTORB_ADDCRITDMG:
 			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", d:CORRUPTORB_CRITDMGGIVE * affluence, s:"%\cj ", l:"DND_ORBUSETEXT2J", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");

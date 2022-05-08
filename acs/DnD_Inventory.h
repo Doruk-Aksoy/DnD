@@ -5,6 +5,9 @@
 #include "DnD_UniqueItems.h"
 #include "DnD_Hud.h"
 
+#define DND_ITEMMOD_ADD FALSE
+#define DND_ITEMMOD_REMOVE TRUE
+
 #define MAX_ITEM_LEVEL 100
 #define MAX_ITEM_AFFIXTIERS 4
 #define ITEM_TIER_SEPERATOR (100 / MAX_ITEM_AFFIXTIERS)
@@ -366,11 +369,11 @@ int FindInventoryOfType(int player_index, int item_type, int item_subtype) {
 }
 
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
-int GetFreeSpotForItem(int item_index, int player_index, int source) {
+int GetFreeSpotForItem(int item_index, int player_index, int item_source, int dest_source) {
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
-	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, source);
-	int h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, source);
+	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
+	int h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
 	bool unfit = false;
 
 	// try every line
@@ -381,31 +384,39 @@ int GetFreeSpotForItem(int item_index, int player_index, int source) {
 			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
 				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
 					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
+					if(bid >= MAX_INVENTORY_BOXES || GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, dest_source) != DND_ITEM_NULL)
 						unfit = true;
 				}
 			}
 			// we return top left corner box id
-			if(wcheck == w && hcheck == h && !unfit)
+			if(wcheck == w && hcheck == h && !unfit) {
+				//printbold(s:"found spot ", d:j * MAXINVENTORYBLOCKS_VERT + i);
 				return j * MAXINVENTORYBLOCKS_VERT + i;
+			}
 		}
 	}
+	//printbold(s:"found no spot");
 	return -1;
 }
 
-int GetFreeSpotForItemWithStack(int item_index, int player_index, int source) {
+int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_source, int dest_source) {
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
-	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, source);
-	int h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, source);
+	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
+	int h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
 	bool unfit = false;
 	
 	// first search for any spot on our inventory for a stack item of this type
-	int type = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, item_index, -1, source);
-	int sub = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, item_index, -1, source);
+	int type = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, item_index, -1, item_source);
+	int sub = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, item_index, -1, item_source);
 	int maxstack = GetStackValue(type);
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
-		if(PlayerInventoryList[player_index][i].item_type == type && PlayerInventoryList[player_index][i].item_subtype == sub && PlayerInventoryList[player_index][i].item_stack < maxstack)
+		if
+		(
+			GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, i, -1, dest_source) == type &&
+			GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, i, -1, dest_source) == sub &&
+			GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) < maxstack
+		)
 			return i;
 			
 	// didn't work, find new spot
@@ -417,7 +428,7 @@ int GetFreeSpotForItemWithStack(int item_index, int player_index, int source) {
 			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
 				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
 					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
+					if(bid >= MAX_INVENTORY_BOXES || GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, dest_source) != DND_ITEM_NULL)
 						unfit = true;
 				}
 			}
@@ -449,7 +460,7 @@ int GetFreeSpotForSingleSpotItem(int player_index, int type, int sub) {
 			for(hcheck = 0; !unfit && hcheck < 1 && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
 				for(wcheck = 0; !unfit && wcheck < 1 && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
 					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
+					if(bid >= MAX_INVENTORY_BOXES || PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL)
 						unfit = true;
 				}
 			}
@@ -476,37 +487,9 @@ int GetFreeSpotForItem_Trade(int item_index, int source_player, int player_index
 			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
 				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
 					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(PlayerInventoryList[player_index][bid].item_type != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES) {
+					if(bid >= MAX_INVENTORY_BOXES || GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, source) != DND_ITEM_NULL) {
 						unfit = true;
 					}
-				}
-			}
-			// we return top left corner box id
-			if(wcheck == w && hcheck == h && !unfit)
-				return j * MAXINVENTORYBLOCKS_VERT + i;
-		}
-	}
-	return -1;
-}
-
-// this actually checks for free spots in the given source
-int GetFreeSpotForItem_InPlace(int item_index, int player_index, int source) {
-	int i = 0, j = 0;
-	int bid = 0, wcheck = 0, hcheck = 0;
-	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, source);
-	int h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, source);
-	bool unfit = false;
-
-	// try every line
-	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
-		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
-			// if width matches, try height from here on then and if unfit, restart at a new coordinate
-			unfit = false;
-			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
-				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
-					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, source) != DND_ITEM_NULL || bid >= MAX_INVENTORY_BOXES)
-						unfit = true;
 				}
 			}
 			// we return top left corner box id
@@ -628,7 +611,7 @@ void CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index) {
 		PlayerInventoryList[player_index][item_index].item_stack < GetStackValue(Inventories_On_Field[fieldpos].item_type)
 	) {
 		// just add to the stack
-		++PlayerInventoryList[player_index][item_index].item_stack;
+		PlayerInventoryList[player_index][item_index].item_stack += Inventories_On_Field[fieldpos].item_stack;
 	}
 	else {
 		// no?
@@ -660,7 +643,7 @@ void CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index) {
 // clones an item on this player's inventory, if no spot is found it won't bother
 int CloneItem(int pnum, int item_index, int source, bool dontSync) {
 	int temp;
-	int c = GetFreeSpotForItem_InPlace(item_index, pnum, source);
+	int c = GetFreeSpotForItem(item_index, pnum, source, source);
 	if(c != -1) {
 		int wtemp = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, item_index, -1, source);
 		int htemp = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, item_index, -1, source);
@@ -756,7 +739,7 @@ bool CanSwapItems(int pnum, int ipos1, int ipos2, int offset1, int offset2, int 
 			bid = ipos1 + offset2 + j + i * MAXINVENTORYBLOCKS_VERT;
 			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
 				return false;
-			if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source1) - 1 != tb1 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source1))
+			if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source1) - 1 != tb1 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source1) != DND_ITEM_NULL)
 				return false;
 		}
 	}
@@ -859,6 +842,7 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 		}
 	}
 	else if(CanSwapItems(pnum, ipos1, ipos2, offset1, offset2, source1, source2)) {
+		//printbold(s:"can swap");
 		MoveItemToTemporary(pnum, ipos1 + offset1, 0, source1);
 		MoveItemToTemporary(pnum, ipos2 + offset2, 1, source2);
 		
@@ -1297,7 +1281,7 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 // move this from field to player's inventory
 int HandleStackedPickup(int item_index) {
 	// make sure this item actually gets placed on top of an item that has some stack, if any
-	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
+	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), porb_index);
 	return porb_index;
 }
@@ -1506,7 +1490,7 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return true;
 }
 
-void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic) {
+void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic, bool noSync = false) {
 	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
 	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int asubtype = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
@@ -1519,13 +1503,13 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
 	if(temp && asubtype == DND_CHARM_SMALL) {
 		// don't multiply first in case of fixed point attributes, these are big numbers
-		if(aval > 100 * FACTOR_SMALLCHARM_RESOLUTION) {
-			aval /= FACTOR_SMALLCHARM_RESOLUTION;
+		if(aval > 100 * FACTOR_FIXED_RESOLUTION) {
+			aval /= FACTOR_FIXED_RESOLUTION;
 			aval *= temp;
 		}
 		else {
 			aval *= temp;
-			aval /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
+			aval /= FACTOR_FIXED_RESOLUTION; // our scale to lower it down from integer mult
 		}
 	}
 	
@@ -1545,13 +1529,13 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	
 		// first cases with exceptions to our generic formula
 		case INV_MAGAZINE_INCREASE:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			// add onto the base capacities, not current capacities
 			for(i = 0; i < MAX_MAGAZINES; ++i)
 				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + GetPlayerAttributeValue(pnum, atype))) / 100);
 		break;
 		case INV_EXPLOSION_RADIUS:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
@@ -1560,7 +1544,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_ACCURACY_INCREASE:
 		case INV_ESS_OMNISIGHT:
 		case INV_ESS_OMNISIGHT2:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			CalculatePlayerAccuracy(pnum);
 		break;
@@ -1571,7 +1555,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			// by itself these do nothing
 		break;
 		case INV_EX_KNOCKBACK_IMMUNITY:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			UpdatePlayerKnockbackResist();
 		break;
 		case INV_EX_FACTOR_SMALLCHARM:
@@ -1580,38 +1564,44 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 				// first 4 are small charms
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-						
-				// now give the item and re-apply
-				IncPlayerModValue(pnum, atype, aval);
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE, true);
 				
+				// now give the item and re-apply
+				IncPlayerModValue(pnum, atype, aval, true);
+								
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_ADD, true);
+								
+				// sync all at once at the end here for well of power...
+				SyncPlayerItemMods(pnum);
 			}
 			else if(PlayerModValues[pnum][atype]) {
 				// just take the attribute off and remove features and reapply
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						RemoveItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
-						
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE, true);
+										
 				// little note: aval can be negative if we are removing, so just + is enough to subtract it
-				IncPlayerModValue(pnum, atype, aval);
-				
+				IncPlayerModValue(pnum, atype, aval, true);
+								
 				// reapply with this gone
 				for(i = 0; i < 4; ++i)
 					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_ADD, true);
+						
+				// sync all at once for well of power
+				SyncPlayerItemMods(pnum);
 			}
 		break;
 		case INV_EX_FORBID_ARMOR:
-			IncPlayerModValue(pnum, atype, aval);
-			if(!GetPlayerAttributeValue(pnum, atype))
+			IncPlayerModValue(pnum, atype, aval, noSync);
+			if(GetPlayerAttributeValue(pnum, atype))
 				RemoveAllArmor();
 		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
-				IncPlayerModValue(pnum, i, aval);
+				IncPlayerModValue(pnum, i, aval, noSync);
 			UpdatePlayerKnockbackResist();
 			UpdateArmorVisual();
 		break;
@@ -1622,17 +1612,17 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
 			if(temp && asubtype == DND_CHARM_SMALL) {
 				i *= temp;
-				i /= FACTOR_SMALLCHARM_RESOLUTION; // our scale to lower it down from integer mult
+				i /= FACTOR_FIXED_RESOLUTION; // our scale to lower it down from integer mult
 			}
 			temp = GetPlayerAttributeValue(pnum, atype);
 			if(!remove)
 				temp = ((temp & 0xFFFF) + aval) | (((temp >> 16) + i) << 16);
 			else
 				temp = ((temp & 0xFFFF) - aval) | (((temp >> 16) - i) << 16);
-			SetPlayerModValue(pnum, atype, temp);
+			SetPlayerModValue(pnum, atype, temp, noSync);
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
-			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval);
+			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval, noSync);
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
 			if(remove) {
 				temp = GetSpawnHealth();
@@ -1652,22 +1642,22 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			if(temp != -1) {
 				// update to use the new min if our comparison is better -- dont care otherwise
 				if(!remove)
-					SetPlayerModValue(pnum, atype, Min(aval, PlayerModValues[pnum][atype]));
+					SetPlayerModValue(pnum, atype, Min(aval, PlayerModValues[pnum][atype]), noSync);
 			}
 			else {
 				// no new min was found
 				if(remove)
-					SetPlayerModValue(pnum, atype, 0);
+					SetPlayerModValue(pnum, atype, 0, noSync);
 				else
-					SetPlayerModValue(pnum, atype, aval);
+					SetPlayerModValue(pnum, atype, aval, noSync);
 			}
 		break;
 		case INV_EX_FLATDMG_ALL:
 			for(i = INV_FLATPHYS_DAMAGE; i <= INV_FLATELEM_DAMAGE; ++i)
-				IncPlayerModValue(pnum, i, aval);
+				IncPlayerModValue(pnum, i, aval, noSync);
 		break;
 		case INV_EX_ABILITY_RALLY:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			if(PlayerModValues[pnum][atype])
 				GiveInventory("CastRally", 1);
 			else
@@ -1677,7 +1667,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_HPPERCENT_INCREASE:
 		case INV_STAT_VITALITY:
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			if(remove) {
 				temp = GetSpawnHealth();
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
@@ -1691,7 +1681,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		
 		case INV_STAT_BULKINESS:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			UpdatePlayerKnockbackResist();
 			UpdateArmorVisual();
 			
@@ -1713,7 +1703,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		case INV_ARMOR_INCREASE:
 		case INV_ARMORPERCENT_INCREASE:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			i = GetArmorAmount();
 			if(i) {
 				cap = GetArmorCapFromID(GetArmorID());
@@ -1731,35 +1721,35 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			}
 		break;
 		case INV_SPEED_INCREASE:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		break;
 		case INV_AMMOCAP_INCREASE:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			// make sure to update ammo caps
 			SetAllAmmoCapacities();
 		break;
 		case INV_EX_CURSEIMMUNITY:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			if(PlayerModValues[pnum][atype])
 				GiveInventory("CurseImmunity", 1);
 			else
 				HandleCurseImmunityRemoval();
 		break;
 		case INV_STAT_STRENGTH:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 			UpdatePlayerKnockbackResist();
 		break;
 		
 		// anything that fits our generic formula
 		default:
-			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModValue(pnum, atype, aval, noSync);
 		break;
 	}
 }
 
-// Applies item stats to player
-void ApplyItemFeatures(int pnum, int item_index, int source) {
+// Applies item stats to player -- can remove or add
+void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false, bool noSync = false) {
 	int ac = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	
 	// check cybernetic and put it as bool
@@ -1771,27 +1761,9 @@ void ApplyItemFeatures(int pnum, int item_index, int source) {
 			break;
 		}
 	}
-	
-	for(i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, false, has_cybernetic);
-}
 
-// Removes an applied list of item stats from player
-void RemoveItemFeatures(int pnum, int item_index, int source) {
-	int ac = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
-	
-	// check cybernetic and put it as bool
-	bool has_cybernetic = false;
-	int i = 0;
-	for(i = 0; i < ac; ++i) {
-		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, i, source) == INV_CYBERNETIC) {
-			has_cybernetic = true;
-			break;
-		}
-	}
-	
 	for(i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, true, has_cybernetic);
+		ProcessItemFeature(pnum, item_index, source, i, remove, has_cybernetic, noSync);
 }
 
 int GetCraftableItemCount() {

@@ -1420,6 +1420,7 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
 	MaxTargetRange 324
 	+DONTHURTSPECIES
 	+NOINFIGHTING
+	+ISMONSTER
 	Scale 1.1
 	damage (3 * random(1, 6))
     States { 

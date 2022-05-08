@@ -3139,9 +3139,7 @@ Script "DnD Player Setup" ENTER {
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
 	
 	// sync item mods
-	for(i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
-		if(PlayerModValues[pnum][i])
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModValues[pnum][i]);
+	SyncPlayerItemMods(pnum);
 	
 	// a little hack to prevent ankh going off when finishing maps with 1 hp
 	if(GetActorProperty(0, APROP_HEALTH) == 1 && CheckInventory("CanIntervene"))
@@ -5306,21 +5304,25 @@ Script "DnD Player Has Spot For Item" (int sp) {
 		else
 			SetActivator((sp & 0xFFFF) + P_TIDSTART);
 		//if (!CheckInventory("CanLoad")) { //BUG: This check is needed to prevent grabbing items before loading char, but had to comment because of extreme lag.
-			int pnum = PlayerNumber();
-			bool spot = false;
-			if(Inventories_On_Field[sp >> 16].item_stack)
-				spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
-			else
-				spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD) != -1;
 			bool res = CheckInventory("DnD_PressedUse") && !CheckInventory("DnD_WaitNextItemPick");
-			if(res)
+			if(res) {
 				GiveInventory("DnD_WaitNextItemPick", 1);
-			
-			if(!spot && res) {
-				// clientside warning sound and text
-				ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, pnum);
+
+				int pnum = PlayerNumber();
+				bool spot = false;
+				if(Inventories_On_Field[sp >> 16].item_stack)
+					spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != -1;
+				else
+					spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != -1;
+				
+				if(!spot && res) {
+					// clientside warning sound and text
+					ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, pnum);
+				}
+				SetResultValue(res && spot);
 			}
-			SetResultValue(res && spot);
+			else
+				SetResultValue(false);
 		//}
 	}
 	else
@@ -6483,8 +6485,11 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		SpawnCharm(0, true);
 		SpawnOrbForAll(1);
-		SpawnCharmWithMods_ForAll(INV_PERCENTELEM_DAMAGE);
-		SpawnCharmWithMods_ForAll(INV_AMMOGAIN_CHANCE);
+		SpawnCharmWithMods_ForAll(INV_BLOCKERS_MOREDMG);
+		SpawnCharmWithMods_ForAll(INV_LIFESTEAL);
+		SpawnCharmWithMods_ForAll(INV_DMGREDUCE_EXPLOSION);
+		SpawnCharmWithMods_ForAll(INV_EXPGAIN_INCREASE);
+		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

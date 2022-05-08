@@ -14,6 +14,8 @@
 #define MAXLEVELS 100
 #define DND_MAX_MONSTERLVL MAXLEVELS
 
+#define FACTOR_FIXED_RESOLUTION 1000
+
 #define MAXPLAYERS 64
 #define P_TIDSTART 1000
 #define TICRATE 35
@@ -26,6 +28,8 @@
 
 #define DND_DROP_TID 343 // some dumb number
 #define DND_EMERALD_TIDADD 100
+
+#define EPSILON 0.000001
 
 #define DND_VIEWCHECK_DENSITY 8
 
@@ -558,11 +562,12 @@ int IsDigit(int c) {
 }
 
 int ftrunc(int x) {
-	return (x + 0.005) & 0xFFFFE000;
+	return ((x * 100 + 50) / 100);
 }
 
-int ftrunc2(int x) {
-	return ((x * 100 + 50) / 100);
+int ConvertFixedToPrecise(int x) {
+	// 1000 = 1.0, but we are talking percentages so 0.01 = 1%
+	return ((x + 0.0005) * FACTOR_FIXED_RESOLUTION) >> 16;
 }
 
 int CancelMultiplicativeFactors(int f1, int f2) {
@@ -573,14 +578,14 @@ int CombineMultiplicativeFactors(int f1, int f2) {
 	return FixedMul(1.0 + f1, 1.0 + f2);
 }
 
+// converts a factor in fixed to a factor in int (equivalent) -- also used in below
+int ConvertFixedFactorToInt(int factor) {
+	return ((1.0 + factor) * 100) >> 16;
+}
+
 // this is a fixed value and represents a percentage, so convert it into one
 int ApplyFixedFactorToInt(int val, int factor) {
 	return val * (((1.0 + factor) * 100) >> 16) / 100;
-}
-
-// converts a factor in fixed to a factor in int (equivalent)
-int ConvertFixedFactorToInt(int factor) {
-	return ((1.0 + factor) * 100) >> 16;
 }
 
 int GetActivePlayerCount() {

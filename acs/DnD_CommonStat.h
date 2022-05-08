@@ -484,22 +484,17 @@ void RestoreRPGStat (int statflag) {
 		GiveInventory("Accessory_FireProtection", 1);
 		GiveInventory("Accessory_FireBuff", 1);
 	}
-	if(CheckInventory("ArtemisCheck")) {
+	if(CheckInventory("ArtemisCheck"))
 		GiveInventory("ArtemisPower", 1);
-		GiveInventory("ArtemisReduction", 1);
-	}
-	if(CheckInventory("DemonBaneCheck")) {
-		GiveInventory("DemonBaneReduction", 1);
-		GiveInventory("DemonBaneReduction", 1);
-	}
+		
 	if(CheckInventory("TaltosCheck"))
 		GiveInventory("TaltosUp", 1);
+		
 	if(CheckInventory("HateCheck")) {
 		GiveInventory("PowerReflection", 1);
 		GiveInventory("HateReduction", 1);
 	}
-	if(CheckInventory("NetherCheck"))
-		GiveInventory("NetherWeaken", 1);
+
 	if(CheckInventory("GryphonCheck")) {
 		GiveInventory("GryphonSpeed", 1);
 		GiveInventory("CurseImmunity", 1);

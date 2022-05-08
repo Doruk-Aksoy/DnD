@@ -81,7 +81,7 @@ void HandleElixirUse(int eid) {
 			}
 		break;
 		case DND_ELIXIR_LUCK:
-			Player_Elixir_Bonuses[pnum].luck += SIMPLE_ELIXIR_AMOUNT << 16;
+			Player_Elixir_Bonuses[pnum].luck += SIMPLE_ELIXIR_AMOUNT * 0.01; // 5% as it shows...
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_LUCK, -1);
 		break;
 	}

@@ -193,7 +193,7 @@ void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
 
 // move this from field to player's inventory
 int HandleCharmPickup(int item_index) {
-	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD);
+	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), pcharm_index);
 	return pcharm_index;
 }
@@ -231,7 +231,7 @@ int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	// this means we must swap charms
 	if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
-		RemoveItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE);
 		SwapItems(pnum, use_id, item_index, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	}

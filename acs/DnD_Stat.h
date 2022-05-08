@@ -628,14 +628,14 @@ int GetDropChance(int pnum, bool isElite) {
 	// additive bonuses first
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + 
 			GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1) +
+			Player_Elixir_Bonuses[pnum].luck +
 			DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
 			
 	if(isElite && CheckActorInventory(pnum + P_TIDSTART, "DnD_QuestReward_EliteDropBonus"))
 		base += DND_ELITEDROP_GAIN;
 		
 	// more chance to find loot
-	temp = CombineMultiplicativeFactors(GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE), Player_Elixir_Bonuses[pnum].luck);
-	base = FixedMul(base, temp);
+	base = FixedMul(base, GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE));
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 	return base;
@@ -865,7 +865,9 @@ int GetBaseCritChance(int pnum) {
 }
 
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
-	return Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid);
+	return 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT].val +
+			GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid) +
+			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE);
 }
 
 int GetCritChance(int pnum, int wepid) {
@@ -879,7 +881,7 @@ int GetCritChance(int pnum, int wepid) {
 	}
 	// add percent bonus
 	if(chance)
-		chance = FixedMul(chance, 1.0 + temp + GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE));
+		chance = FixedMul(chance, 1.0 + temp);
 	return chance;
 }
 
@@ -1297,7 +1299,7 @@ int GetCritChance_Display(int pnum) {
 	if(GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT))
 		base = 2 * base - FixedMul(base, base);
 	
-	return base;
+	return base * 100;
 }
 
 int GetPelletIncrease(int pnum) {

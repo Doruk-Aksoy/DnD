@@ -207,7 +207,7 @@ void DrawPerkText(int boxid) {
 				toShow = StrParam(s:"\cd* \ci+", d:DND_PERK_BRUTALITY_DAMAGEINC, s:"%\c- ", l:GetPerkText(boxid - 1), l:"DND_MENU_AND", s:"\ci+", d:DND_PERK_BRUTALITY_RANGEINC, s:"%\c- ", l:"DND_MENU_PERKTEXT2_CONT");
 			break;
 			case STAT_END:
-				toShow = StrParam(s:"\cd* \ci+", f:ftrunc(ENDURANCE_RES_INC * 100), s:"%\c- ", l:GetPerkText(boxid - 1));
+				toShow = StrParam(s:"\cd* \ci+", s:GetFixedRepresentation(ENDURANCE_RES_INC, true), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 			case STAT_WIS:
 				toShow = StrParam(s:"\cd* \ci+", d:BASE_WISDOM_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
@@ -222,13 +222,13 @@ void DrawPerkText(int boxid) {
 				toShow = StrParam(s:"\cd* \ci+", d:DND_MUNITION_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 			case STAT_DED:
-				toShow = StrParam(s:"\cd* \ci+", f:ftrunc(PERK_DEADLINESS_BONUS * 100), s:"%\c- ", l:GetPerkText(boxid - 1));
+				toShow = StrParam(s:"\cd* \ci+", s:GetFixedRepresentation(PERK_DEADLINESS_BONUS, true), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 			case STAT_SAV:
 				toShow = StrParam(s:"\cd* \ci+", d:DND_SAVAGERY_BONUS, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 			case STAT_LUCK:
-				toShow = StrParam(s:"\cd* \ci+", f:ftrunc(DND_LUCK_GAIN * 100), s:"%\c- ", l:GetPerkText(boxid - 1));
+				toShow = StrParam(s:"\cd* \ci+", s:GetFixedRepresentation(DND_LUCK_GAIN, true), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 		}
 		if(GetStat(perk) == DND_PERK_MAX)
@@ -265,7 +265,7 @@ bool HasCritDamageBonus(int pnum, int wep) {
 
 int GetCritDamageDisplay(int pnum, int wep) {
 	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep));
-	return ftrunc(base);
+	return base;
 }
 
 int GetDamageTypeBonus(int pnum, int dtype) {
@@ -2732,7 +2732,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[Y5]");
 		
 			// show the invested % chance to drop if it can drop
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", f:GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", s:GetFixedRepresentation(GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id), false), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
 		}
 		else
 			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[G8]");
@@ -2753,8 +2753,8 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 int GetResearchDropRate(int pnum, int res_id) {
 	int temp = ResearchInvestments[pnum][res_id];
 	if(temp)
-		return ftrunc(temp * 1.0);
-	return ftrunc(1.0 / MAX_RESEARCHES);
+		return temp * 1.0;
+	return 1.0 / MAX_RESEARCHES;
 }
 
 int GetInvestmentCost(int pnum, int page, int menu_res_id, int res_id) {
@@ -3074,7 +3074,8 @@ void HandleM2Inputs(int pnum, int boxid, int source, int seloffset, int prevsour
 	int istack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos, -1, source);
 	if(istack > 1) {
 		// check for item space left for a new possible stack, if there isn't abort and popup
-		if(GetFreeSpotForItem(ipos, pnum, source) == -1) {
+		//printbold(s:"slot for ", d:ipos, s: ": ", d:GetFreeSpotForItem(ipos, pnum, source, source));
+		if(GetFreeSpotForItem(ipos, pnum, source, source) == -1) {
 			ShowPopup(POPUP_NOTENOUGHSPACE, false, 0);
 			return;
 		}
@@ -3251,10 +3252,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		// mbox 8 is the view inventory button
 		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && boxid != MBOX_8 && Charms_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
 			// try to drop item
-			charm_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+			charm_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			if(charm_sel != -1) {
 				LocalAmbientSound("Items/CharmDrop", 127);
-				RemoveItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED);
+				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE);
 				MoveItemTrade(pnum, boxid - 1, charm_sel, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
 				ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
@@ -3438,7 +3439,7 @@ void ReturnTradeItems(int pnum) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			bid = j + i * MAXINVENTORYBLOCKS_VERT;
 			if(TradeViewList[pnum][bid].item_type != DND_ITEM_NULL) {
-				int pos = GetFreeSpotForItem(bid, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW);
+				int pos = GetFreeSpotForItem(bid, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				if(pos != -1)
 					MoveItemTrade(pnum, bid, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				else {
@@ -3780,8 +3781,10 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 						if(IsFreeSpot_Trade(pnum, ipos - ioffset, epos - soffset, isource, ssource))
 							MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
 					}
-					else
+					else {
+						//printbold(s:"swapping");
 						SwapItems(pnum, boxid - 1 - ioffset, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, isource, ssource, false);
+					}
 				}
 				else {
 					// find which one has an item, and move it
@@ -3849,6 +3852,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 			ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
 			soffset = MAX_INVENTORY_BOXES;
 		}
+		
 		HandleM2Inputs(pnum, boxid - ioffset, isource, soffset, ssource);
 		LocalAmbientSound("RPG/MenuChoose", 127);
 	}
@@ -4064,7 +4068,6 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 }
 
 void DrawCraftingInventoryInfo(int pn) {
-	int stack = 0;
 	int mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1; 
 	int my = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 16.1; 
 	SetFont("LDTITINF");
@@ -4077,7 +4080,7 @@ void DrawCraftingInventoryInfo(int pn) {
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, 0.75);
 	if(GetStackValue(PlayerCursorData.itemHoveredType) && PlayerCursorData.itemHoveredSource) {
 		SetFont("SMALLFONT");
-		HudMessage(d:PlayerCursorData.itemHoveredSource; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0.0);
+		HudMessage(d:GetItemSyncValue(pn, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource); HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0.0);
 	}
 	
 	int prev_x = GetIntegerBits(mx + HUD_ITEMBAK_XF / 2) + 0.4;
@@ -4508,7 +4511,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// crit block begins
 			val = GetCritChance_Display(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
 				++k;
 			}
 			
@@ -4606,7 +4609,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// pellet count -- 1.0 is base
 			val = GetPelletIncrease(pnum) - 1.0;
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", f:ftrunc(val * 100), s:"%\c- ", l:"IATTR_T30", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T30", s:"\n");
 				++k;
 			}
 		}
@@ -4683,7 +4686,7 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = GetChillEffect(pnum, 1);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_CHILLSLOWS", s: " \c[Q9]", f:ftrunc(val * 100), s:"%\n");
+				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_CHILLSLOWS", s: " \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\n");
 				++k;
 			}
 			
@@ -4765,9 +4768,9 @@ void DrawPlayerStats(int pnum, int category) {
 			++k;
 			
 			// armor efficiency
-			val = ftrunc(100 * DND_BULKINESS_GAIN * 100 + (GetBulkiness() - 100) * DND_BULKINESS_GAIN_AFTER100);
+			val = 100 * DND_BULKINESS_GAIN * 100 + (GetBulkiness() - 100) * DND_BULKINESS_GAIN_AFTER100;
 			if(val > 100.0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", f:val, s:"%\c- ", l:"DND_MENU_ARMOREFF", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_ARMOREFF", s:"\n");
 				++k;
 			}
 			
@@ -4875,9 +4878,9 @@ void DrawPlayerStats(int pnum, int category) {
 		else {
 			// utility
 			// drop chance
-			val = ftrunc(100 * (GetDropChance(pnum, 0) - 1.0));
+			val = 100 * (GetDropChance(pnum, 0) - 1.0);
 			if(val > 1.0) {
-				PlayerStatText = StrParam(s:"+ \c[Q9]", f:val, s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
+				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
 				++k;
 			}
 			
@@ -4952,25 +4955,25 @@ void DrawPlayerStats(int pnum, int category) {
 			// exp bonus
 			val = CalculateWisdomBonus(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T4", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T4", s:"\n");
 				++k;
 			}
 			
 			// credit bonus
 			val = CalculateGreedBonus(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T5", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T5", s:"\n");
 				++k;
 			}
 		
 			// movespeed
 			val = GetBonusPlayerSpeed(pnum);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", f:ftrunc(100 * val), s:"%\c- ", l:"IATTR_T9", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T9", s:"\n");
 				++k;
 			}
 			else if(val < 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"- \c[Q2]", f:ftrunc(100 * val), s:"%\c- ", l:"IATTR_T9", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"- \c[Q2]", s:GetFixedRepresentation(-val, true), s:"%\c- ", l:"IATTR_T9", s:"\n");
 				++k;
 			}
 			
@@ -4983,7 +4986,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// shop price reduction
 			val = CheckInventory("PSTAT_Charisma");
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", f:ftrunc(DND_CHR_GAIN * val), s:"%\c- ", l:"DND_MENU_DISCOUNT", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(DND_CHR_GAIN * val, false), s:"%\c- ", l:"DND_MENU_DISCOUNT", s:"\n");
 				++k;
 			}
 		}
