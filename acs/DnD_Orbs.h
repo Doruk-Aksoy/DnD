@@ -1881,7 +1881,7 @@ bool IsOrbDropException(int orb_id) {
 	return false;
 }
 
-void SpawnOrb(int pnum, bool sound, bool noRepeat = false) {
+void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int i;
@@ -1899,7 +1899,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false) {
 #endif
 		// c is the index on the field now
 		// i = DND_ORB_CORRUPT;
-		RollOrbInfo(c, i, true);
+		RollOrbInfo(c, i, true, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[i + ORBS_BEGIN], 24.0, 16, pnum + 1, c);
 		if (sound)
@@ -1911,11 +1911,11 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false) {
 	}
 }
 
-void SpawnOrbForAll(int repeats) {
+void SpawnOrbForAll(int repeats, int stack = 1) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j))
-				SpawnOrb(j, false);
+				SpawnOrb(j, false, false, stack);
 		}
 	}
 }
@@ -1943,10 +1943,10 @@ void SpawnSpecificOrbForAll(int id, int repeats) {
 	}
 }
 
-void RollOrbInfo(int item_pos, int orbtype, bool onField) {
+void RollOrbInfo(int item_pos, int orbtype, bool onField, int stack = 1) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = 1;
-	Inventories_On_Field[item_pos].item_stack = 1; // orbs have default stack of 1
+	Inventories_On_Field[item_pos].item_stack = stack; // orbs have default stack of 1
 	Inventories_On_Field[item_pos].item_type = DND_ITEM_ORB;
 	Inventories_On_Field[item_pos].item_subtype = orbtype;
 	Inventories_On_Field[item_pos].width = 1;

@@ -686,8 +686,7 @@ Script "DND On Revive" (void) {
 		//Mob might actually be dead by this point.
 		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
 			Thing_Damage2(this, GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
-			
-		HandleMonsterClassInnates(this, MonsterProperties[id].id);
+
 		HandleSpecialTraits(this, MonsterProperties[id].id);
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
@@ -2004,9 +2003,6 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		Terminate;
 	}
 	
-	// handle all innate resists, weaknesses etc.
-	HandleMonsterClassInnates(m_id, monsterid);
-	
 	// handle things that should be given specifically to certain traits
 	HandleSpecialTraits(m_id, monsterid);
 	
@@ -2619,11 +2615,19 @@ Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE
 			MonsterProperties[m_id].trait_list[i] = IsSet(v1, i);
 		MonsterProperties[m_id].hasTrait = true;
 	}
+	else {
+		for(i = 0; i < 32; ++i)
+			MonsterProperties[m_id].trait_list[i] = false;
+	}
 	
 	if(v2) {
 		for(i = 32; i < 64; ++i)
 			MonsterProperties[m_id].trait_list[i] = IsSet(v2, i - 32);
 		MonsterProperties[m_id].hasTrait = true;
+	}
+	else {
+		for(i = 32; i < 64; ++i)
+			MonsterProperties[m_id].trait_list[i] = false;
 	}
 
 	if(v3) {
@@ -2631,6 +2635,11 @@ Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE
 			MonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
 		MonsterProperties[m_id].hasTrait = true;
 	}
+	else {
+		for(i = 64; i < MAX_MONSTER_TRAITS; ++i)
+			MonsterProperties[m_id].trait_list[i] = false;
+	}
+	
 	SetResultValue(0);
 }
 
@@ -5153,23 +5162,7 @@ Script "DnD Stacked Item Pickup" (int sp, int type) {
 		SetActivatorToTarget(0);
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	if(type == DND_STACKEDITEM_ORB) {
-		ACS_NamedExecuteAlways("DnD Orb Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
-		GiveInventory("OrbSoundPlayer", 1);
-	}
-	else if(type == DND_STACKEDITEM_CHESTKEY) {
-		ACS_NamedExecuteAlways("DnD Chestkey Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
-		GiveInventory("ChestkeySoundPlayer", 1);
-	}
-	else if(type == DND_STACKEDITEM_ELIXIR) {
-		ACS_NamedExecuteAlways("DnD Elixir Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
-		GiveInventory("ElixirSoundPlayer", 1);
-	}
-	else if(type == DND_STACKEDITEM_TOKEN) {
-		ACS_NamedExecuteAlways("DnD Token Message", 0, Inventories_On_Field[sp >> 16].item_subtype);
-		GiveInventory("TokenSoundPlayer", 1);
-	}
-	HandleStackedPickup(sp >> 16);
+	SetResultValue(HandleStackedPickup(sp >> 16, type));
 }
 
 Script "DnD Drop Research" (void) {
@@ -5311,7 +5304,7 @@ Script "DnD Player Has Spot For Item" (int sp) {
 				int pnum = PlayerNumber();
 				bool spot = false;
 				if(Inventories_On_Field[sp >> 16].item_stack)
-					spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != -1;
+					spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false) != -1;
 				else
 					spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != -1;
 				
@@ -6484,7 +6477,7 @@ Script 68 (int x) NET {
 	}
 	else if(x == 420) {
 		SpawnCharm(0, true);
-		SpawnOrbForAll(1);
+		SpawnOrbForAll(1, random(40, 120));
 		SpawnCharmWithMods_ForAll(INV_BLOCKERS_MOREDMG);
 		SpawnCharmWithMods_ForAll(INV_LIFESTEAL);
 		SpawnCharmWithMods_ForAll(INV_DMGREDUCE_EXPLOSION);

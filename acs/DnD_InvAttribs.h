@@ -528,8 +528,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_TEMPWEP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_PELLET_INCREASE].attrib_low = 0.02;
-	ItemModTable[INV_PELLET_INCREASE].attrib_high = 0.05;
-	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0.03;
+	ItemModTable[INV_PELLET_INCREASE].attrib_high = 0.04;
+	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0.02;
 	ItemModTable[INV_PELLET_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_EXPLOSION_RADIUS].attrib_low = 1;
@@ -1250,7 +1250,7 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 		case INV_EX_FACTOR_SMALLCHARM:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c-",
+					l:text, s:"\c[Q9]", d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10, s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c-",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}

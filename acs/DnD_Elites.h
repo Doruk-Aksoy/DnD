@@ -232,8 +232,11 @@ int GetMonsterTraits(int monster_id, int segment) {
 	int ret = 0;
 	int seg5 = segment << 5;
 	int lim = seg5 + 32;
-	for(int i = seg5; i < lim && i < MAX_MONSTER_TRAITS; ++i)
+	for(int i = seg5; i < lim && i < MAX_MONSTER_TRAITS; ++i) {
+		//if(MonsterProperties[monster_id].class == MONSTERCLASS_IMP && MonsterProperties[monster_id].trait_list[i])
+		//	Log(s:"pack trait ", d:i, s: " for monster ", s:GetActorClass(ActivatorTID()), s: " <", d:monster_id, s: ">: ", d:MonsterProperties[monster_id].trait_list[i]);
 		ret |= MonsterProperties[monster_id].trait_list[i] * (1 << (i - seg5));
+	}
 	return ret;
 }
 

@@ -1081,8 +1081,9 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
 		
 		// poison on hit with % dmg
-		poison_factor = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val + (flags & DND_DAMAGEFLAG_INFLICTPOISON) * DND_BASE_POISON_FACTOR;
-		flags |= (!!poison_factor) * DND_DAMAGEFLAG_INFLICTPOISON;
+		poison_factor = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val +
+						(!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * DND_BASE_POISON_FACTOR;
+		//flags |= (!!poison_factor) * DND_DAMAGEFLAG_INFLICTPOISON;
 		
 		// percent damage of monster if it exists
 		extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;

@@ -399,7 +399,7 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 	return -1;
 }
 
-int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_source, int dest_source) {
+int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_source, int dest_source, bool check_stack = true) {
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
 	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
@@ -410,15 +410,19 @@ int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_sourc
 	int type = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, item_index, -1, item_source);
 	int sub = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, item_index, -1, item_source);
 	int maxstack = GetStackValue(type);
-	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if
 		(
 			GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, i, -1, dest_source) == type &&
 			GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, i, -1, dest_source) == sub &&
-			GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) < maxstack
+			(
+				(!check_stack && GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) != maxstack) || 
+				(GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) + GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, item_index, -1, item_source) < maxstack)
+			)
 		)
 			return i;
-			
+	}
+	
 	// didn't work, find new spot
 	// try every line
 	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
@@ -599,22 +603,41 @@ int FindMinOnUsedCharmsForAttribute(int pnum, int attrib_index, int basis) {
 	return res;
 }
 
-void CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index) {
+// returns false if it should not destroy item, true if it should
+bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, int stacked_item_type = -1) {
 	int i, j, k, wtemp, htemp;
 	// handle the box management
 	// is this a stack item and does it already contain an item of this type?
 	// ex type = orb, subtype = enhancement
+	int max_stack = GetStackValue(Inventories_On_Field[fieldpos].item_type);
 	if(
 		Inventories_On_Field[fieldpos].item_stack && 
 		Inventories_On_Field[fieldpos].item_type == PlayerInventoryList[player_index][item_index].item_type && 
 		Inventories_On_Field[fieldpos].item_subtype == PlayerInventoryList[player_index][item_index].item_subtype &&
-		PlayerInventoryList[player_index][item_index].item_stack < GetStackValue(Inventories_On_Field[fieldpos].item_type)
+		PlayerInventoryList[player_index][item_index].item_stack + Inventories_On_Field[fieldpos].item_stack <= max_stack
 	) {
 		// just add to the stack
 		PlayerInventoryList[player_index][item_index].item_stack += Inventories_On_Field[fieldpos].item_stack;
+		SyncItemData(player_index, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[player_index][item_index].width, PlayerInventoryList[player_index][item_index].height);
 	}
 	else {
-		// no?
+		// no? -- check to dump as much of the stack from this into the other item, and create new spot with leftover stack
+		if(PlayerInventoryList[player_index][item_index].item_stack != max_stack && PlayerInventoryList[player_index][item_index].item_stack + Inventories_On_Field[fieldpos].item_stack > max_stack) {
+			Inventories_On_Field[fieldpos].item_stack -= max_stack - PlayerInventoryList[player_index][item_index].item_stack;
+			PlayerInventoryList[player_index][item_index].item_stack = max_stack;
+			SyncItemData(player_index, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[player_index][item_index].width, PlayerInventoryList[player_index][item_index].height);
+			SyncItemData(player_index, fieldpos, DND_SYNC_ITEMSOURCE_FIELD, Inventories_On_Field[fieldpos].width, Inventories_On_Field[fieldpos].height);
+			
+			// create new item and place it, if can't find place to put it leave it on the ground with leftover stacks
+			int new_pos = GetFreeSpotForItemWithStack(fieldpos, player_index, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			if(new_pos != -1)
+				return CopyItemFromFieldToPlayer(fieldpos, player_index, new_pos);
+			
+			ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, player_index);
+			return false;
+		}
+
+		// look to place it
 		wtemp = Inventories_On_Field[fieldpos].width;
 		htemp = Inventories_On_Field[fieldpos].height;
 		PlayerInventoryList[player_index][item_index].width = wtemp;
@@ -634,10 +657,11 @@ void CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index) {
 				PlayerInventoryList[player_index][item_index + i * MAXINVENTORYBLOCKS_VERT + j].item_type = Inventories_On_Field[fieldpos].item_type;
 				PlayerInventoryList[player_index][item_index + i * MAXINVENTORYBLOCKS_VERT + j].topleftboxid = item_index + 1;
 			}
+		SyncItemData(player_index, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 	}
 	// the leftover spot is a null item
 	FreeItem(-1, fieldpos, DND_SYNC_ITEMSOURCE_FIELD, false);
-	SyncItemData(player_index, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
+	return true;
 }
 
 // clones an item on this player's inventory, if no spot is found it won't bother
@@ -1278,12 +1302,33 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 
+void StackedItemPickupCS(int item_index, int type) {
+	if(type == DND_STACKEDITEM_ORB) {
+		ACS_NamedExecuteAlways("DnD Orb Message", 0, Inventories_On_Field[item_index].item_subtype);
+		GiveInventory("OrbSoundPlayer", 1);
+	}
+	else if(type == DND_STACKEDITEM_CHESTKEY) {
+		ACS_NamedExecuteAlways("DnD Chestkey Message", 0, Inventories_On_Field[item_index].item_subtype);
+		GiveInventory("ChestkeySoundPlayer", 1);
+	}
+	else if(type == DND_STACKEDITEM_ELIXIR) {
+		ACS_NamedExecuteAlways("DnD Elixir Message", 0, Inventories_On_Field[item_index].item_subtype);
+		GiveInventory("ElixirSoundPlayer", 1);
+	}
+	else if(type == DND_STACKEDITEM_TOKEN) {
+		ACS_NamedExecuteAlways("DnD Token Message", 0, Inventories_On_Field[item_index].item_subtype);
+		GiveInventory("TokenSoundPlayer", 1);
+	}
+}
+
 // move this from field to player's inventory
-int HandleStackedPickup(int item_index) {
+int HandleStackedPickup(int item_index, int type) {
 	// make sure this item actually gets placed on top of an item that has some stack, if any
-	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), porb_index);
-	return porb_index;
+	// print message first, if its moved to inv it's gone from there
+	StackedItemPickupCS(item_index, type);
+	
+	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+	return CopyItemFromFieldToPlayer(item_index, PlayerNumber(), porb_index, type);
 }
 
 // checks players inventory for the given item precisely with its subtype matching

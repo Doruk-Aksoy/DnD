@@ -662,9 +662,14 @@ void HandleSpecialTraits(int mid, int id) {
 void LoadMonsterTraits(int m_id) {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	
+	HandleMonsterClassInnates(i, m_id);
+	
 	// copy preset data to here now
-	for(int j = 0; j < MAX_MONSTER_TRAITS; ++j)
+	for(int j = 0; j < MAX_MONSTER_TRAITS; ++j) {
+		//if(MonsterProperties[i].class == MONSTERCLASS_IMP && MonsterData[m_id].trait_list[j])
+		//	printbold(s:"loading trait ", d:j, s:" for ", s:GetActorclass(ActivatorTID()), s:" <" , d:i, s: "> == ", d:MonsterData[m_id].trait_list[j]);
 		MonsterProperties[i].trait_list[j] = MonsterData[m_id].trait_list[j];
+	}
 		
 	// some of the flags are inherent in actor info, so do make use of that
 	MonsterProperties[i].trait_list[DND_GHOST] 					|= CheckFlag(0, "GHOST");

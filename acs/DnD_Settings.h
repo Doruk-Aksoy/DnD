@@ -212,7 +212,13 @@ int CheckHardcoreSettings() {
 	// check all flags compare with default values
 	int i;
 	int errno = DND_HARDCORE_VALID;
+	
+	// only check this in debug builds...
+	#ifdef ISDEBUGBUILD
 	if (!GetCVar("dnd_test")) { //dnd_test true/1 skips the tests
+	#else
+	if(1) {
+	#endif
 		for(i = 0; i < MAXFLAGS; ++i) {
 			if(GetCVar(FlagCheckList[i]) != FlagAcceptedValues[i]) {
 				Log(s:"\"", s:FlagCheckList[i], s:"\" should be set to ", d:FlagAcceptedValues[i], s:" for \cghardcore\c- or \cdsoftcore\c- modes to work! It is set to: ", d:GetCVar(FlagCheckList[i]));

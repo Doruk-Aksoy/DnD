@@ -53,7 +53,7 @@ Actor OrbDrop : InventoryBase {
 	Alpha 0.0
 	States {		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -139,7 +139,7 @@ Actor OrbofCorruption : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -184,7 +184,7 @@ Actor OrbofSpirit : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -229,7 +229,7 @@ Actor OrbofRepentance : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -274,7 +274,7 @@ Actor OrbofAffluence : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -319,7 +319,7 @@ Actor OrbofCalamity : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -364,7 +364,7 @@ Actor OrbofProsperity : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -409,7 +409,7 @@ Actor OrbofWisdom : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -454,7 +454,7 @@ Actor OrbofGreed : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -499,7 +499,7 @@ Actor OrbofViolence : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -544,7 +544,7 @@ Actor OrbofFortitude : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -589,7 +589,7 @@ Actor OrbofSin : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
@@ -691,7 +691,7 @@ Actor OrbofPhantasmal : OrbDrop {
 		Goto PickupFail
 		
 		PickupSuccess:
-			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_ORB)
+			TNT1 A 8 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Stacked Item Pickup", mass - 1, DND_STACKEDITEM_ORB), "SpawnLoop")
 		stop
 	}
 }
