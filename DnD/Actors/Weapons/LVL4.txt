@@ -1142,7 +1142,7 @@ Actor DemonSealCard : DnD_BaseProjectile {
 			TNT1 AAA 1 A_JumpIfInventory ("DnD_CullSuccess", 1, "SEAL", AAPTR_TRACER)
 		Stop
 		SEAL:
-			TNT1 A 5 A_CustomMissile ("DemonSealingDamage", 0,0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER, 0)
+			TNT1 A 5 A_CustomMissile ("DemonSealingDamage", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER, 0)
 		Stop
 	}
 }
@@ -1181,6 +1181,8 @@ ACTOR DemonSealingDamage {
 	+HITTRACER
 	+NOEXTREMEDEATH
 	+FOILINVUL
+	+DONTREFLECT
+	+DONTBLAST
 	Projectile
 	Species "Player"
 	States {

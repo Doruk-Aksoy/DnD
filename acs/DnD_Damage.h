@@ -9,6 +9,8 @@
 #define MAX_RIPPER_HITS_STORED 128
 #define DND_CROSSBOW_EXPLOSIONTID 54100
 
+#define DND_HARDCORE_DEBUFF 15 // 15% more damage taken
+
 #define DND_BASE_POISON_FACTOR 2
 
 #define DND_EXPLOSION_FLAGVARIABLE "user_flags"
@@ -2438,6 +2440,9 @@ int HandleCursePlayerResistEffects(int dmg) {
 int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected, str inflictor_clas) {
 	int temp;
 	int dot_temp;
+	
+	if(HardcoreSet)
+		dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_HARDCORE_DEBUFF);
 	
 	dmg = HandleCursePlayerResistEffects(dmg);
 	

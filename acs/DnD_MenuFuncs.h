@@ -3079,6 +3079,9 @@ void HandleM2Inputs(int pnum, int boxid, int source, int seloffset, int prevsour
 			ShowPopup(POPUP_NOTENOUGHSPACE, false, 0);
 			return;
 		}
+		
+		// sound of something happening
+		LocalAmbientSound("RPG/MenuChoose", 127);
 	
 		// no previously selected box, just right click => halve a stack
 		if(CheckInventory("DnD_SelectedInventoryBox")) {
@@ -3106,6 +3109,7 @@ void HandleM2Inputs(int pnum, int boxid, int source, int seloffset, int prevsour
 		}
 		else {
 			// sync the whole item after freeing
+			printbold(s:"free stacked item");
 			FreeItem(pnum, ipos, source, false);
 		}
 	}
@@ -3155,6 +3159,7 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 			}
 			else
 				SetInventory("DnD_SelectedInventoryBox", 0);
+			LocalAmbientSound("RPG/MenuChoose", 127);
 		}
 		else if(CheckInventory("DnD_SelectedInventoryBox") && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
 			// drop selected item
@@ -3166,7 +3171,6 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 	}
 	else if(choice == DND_MENUINPUT_RCLICK)
 		HandleM2Inputs(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-	LocalAmbientSound("RPG/MenuChoose", 127);
 }
 
 // charm page controls
@@ -3414,6 +3418,7 @@ void HandleInventoryViewTrade(int boxid) {
 void CancelTrade(int pnum) {
 	int tid = pnum + P_TIDSTART;
 	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+	GiveActorInventory(tid, "DnD_CleanTradeviewRequest", 1);
 	TakeActorInventory(tid, "InTradeView", 1);
 	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
 	TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
@@ -3579,12 +3584,12 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 								*/
 								if(IsFreeSpot_Trade(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
 									MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
-									GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshPane", 1);
+									GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 								}
 							}
 							else {
 								SwapItems(pnum, boxid - 1 - ioffset, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, isource, ssource, false);
-								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshPane", 1);
+								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 							}
 						}
 						else {
@@ -3608,7 +3613,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							// make sure we aren't both empty slots
 							if((boxidon || prevselecton) && IsFreeSpot_Trade(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
 								MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
-								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshPane", 1);
+								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 							}
 						}
 						SetInventory("DnD_SelectedInventoryBox", 0);
@@ -3629,15 +3634,23 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
 						// drop selected item
 						DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
-						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, ssource);
+						
+						// check if commenting this causes any issues, we already save player inventories when they spectate
+						// ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, ssource);
+						
 						SetInventory("DnD_SelectedInventoryBox", 0);
 						ActivatorSound("Items/Drop", 127);
 					}
 				}
+
+				// make sure changes are reflected dynamically
+				GiveInventory("DnD_RefreshRequest", 1);
+				GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 			}
 		}
 	}
-	else if(HasRightClicked(pnum) && boxid <= 3 * MAX_INVENTORY_BOXES && boxid != MAINBOX_NONE) {
+	else if(HasRightClicked(pnum) && boxid <= 3 * MAX_INVENTORY_BOXES && boxid != MAINBOX_NONE && !CheckInventory("DnD_Trade_Confirmed")) {
+		// dont let player clutter up by spamming m2 while countdown is going
 		isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
 		ioffset = MAX_INVENTORY_BOXES;
 		ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
@@ -3654,7 +3667,6 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 			soffset = 2 * MAX_INVENTORY_BOXES;
 		}
 		HandleM2Inputs(pnum, boxid - ioffset, isource, soffset, ssource);
-		LocalAmbientSound("RPG/MenuChoose", 127);
 	}
 }
 
@@ -3854,7 +3866,6 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 		}
 		
 		HandleM2Inputs(pnum, boxid - ioffset, isource, soffset, ssource);
-		LocalAmbientSound("RPG/MenuChoose", 127);
 	}
 }
 

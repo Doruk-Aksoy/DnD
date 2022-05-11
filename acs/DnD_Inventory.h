@@ -46,6 +46,7 @@ enum {
 typedef struct imove {
 	int width;
 	int height;
+	int dest_pos;
 	bool state;
 } imove_T;
 
@@ -369,11 +370,21 @@ int FindInventoryOfType(int player_index, int item_type, int item_subtype) {
 }
 
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
-int GetFreeSpotForItem(int item_index, int player_index, int item_source, int dest_source) {
+int GetFreeSpotForItem(int item_index, int player_index, int item_source, int dest_source, int source_player = -1) {
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
-	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
-	int h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+	int w, h;
+	
+	// extended check for potential player source change
+	if(source_player == -1) {
+		w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
+		h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+	}
+	else {
+		w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
+		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+	}
+	
 	bool unfit = false;
 
 	// try every line
@@ -390,7 +401,6 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 			}
 			// we return top left corner box id
 			if(wcheck == w && hcheck == h && !unfit) {
-				//printbold(s:"found spot ", d:j * MAXINVENTORYBLOCKS_VERT + i);
 				return j * MAXINVENTORYBLOCKS_VERT + i;
 			}
 		}
@@ -399,12 +409,21 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 	return -1;
 }
 
-int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_source, int dest_source, bool check_stack = true) {
+int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_source, int dest_source, bool check_stack = true, int source_player = -1) {
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
-	int w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
-	int h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+	int w, h;
 	bool unfit = false;
+	
+	// extended check for potential player source change
+	if(source_player == -1) {
+		w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
+		h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+	}
+	else {
+		w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
+		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+	}
 	
 	// first search for any spot on our inventory for a stack item of this type
 	int type = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, item_index, -1, item_source);
@@ -477,31 +496,9 @@ int GetFreeSpotForSingleSpotItem(int player_index, int type, int sub) {
 }
 
 int GetFreeSpotForItem_Trade(int item_index, int source_player, int player_index, int source) {
-	int i = 0, j = 0;
-	int bid = 0, wcheck = 0, hcheck = 0;
-	int w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, item_index, -1, source);
-	int h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, item_index, -1, source);
-	bool unfit = false;
-
-	// try every line
-	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
-		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
-			// if width matches, try height from here on then and if unfit, restart at a new coordinate
-			unfit = false;
-			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
-				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
-					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(bid >= MAX_INVENTORY_BOXES || GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, source) != DND_ITEM_NULL) {
-						unfit = true;
-					}
-				}
-			}
-			// we return top left corner box id
-			if(wcheck == w && hcheck == h && !unfit)
-				return j * MAXINVENTORYBLOCKS_VERT + i;
-		}
-	}
-	return -1;
+	if(!IsStackedItem(GetItemSyncValue(source_player, DND_SYNC_ITEMTYPE, item_index, -1, source)))
+		return GetFreeSpotForItem(item_index, player_index, source, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, source_player);
+	return GetFreeSpotForItemWithStack(item_index, player_index, source, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, true, source_player);
 }
 
 // Check if we have enough space for all the items offered, in our inventory
@@ -521,20 +518,27 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 					wcomp = TradeViewList[tradee][bid].width;
 					for(h = 0; h < hcomp; ++h)
 						for(w = 0; w < wcomp; ++w) {
-							PlayerInventoryList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].item_type = DND_ITEM_TEMPORARY;
-							ItemMoveList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].state = true;
-							ItemMoveList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].width = wcomp;
-							ItemMoveList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].height = hcomp;
+							// hack to avoid finding the same spot as empty
+							if(PlayerInventoryList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].item_type == DND_ITEM_NULL)
+								PlayerInventoryList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].item_type = DND_ITEM_TEMPORARY;
+							ItemMoveList[pnum][bid + w + h * MAXINVENTORYBLOCKS_VERT].state = true;
+							ItemMoveList[pnum][bid + w + h * MAXINVENTORYBLOCKS_VERT].width = wcomp;
+							ItemMoveList[pnum][bid + w + h * MAXINVENTORYBLOCKS_VERT].height = hcomp;
 						}
+					ItemMoveList[pnum][bid].dest_pos = pos;
 				}
 				else {
-					// clean up whatever was used up until this point
-					bid = i * MAXINVENTORYBLOCKS_VERT + j;
-					for(pos = 0; pos < bid; ++pos) {
-						PlayerInventoryList[pnum][pos].item_type = DND_ITEM_NULL;
-						ItemMoveList[pnum][pos].state = false;
-						ItemMoveList[pnum][pos].width = 0;
-						ItemMoveList[pnum][pos].height = 0;
+					// clean up whatever was used up, we had no space
+					for(pos = 0; pos < MAX_INVENTORY_BOXES; ++pos) {
+						if(ItemMoveList[pnum][pos].state) {
+							// cleanup our hack
+							if(PlayerInventoryList[pnum][pos].item_type == DND_ITEM_TEMPORARY)
+								PlayerInventoryList[pnum][pos].item_type = DND_ITEM_NULL;
+							ItemMoveList[pnum][pos].state = false;
+							ItemMoveList[pnum][pos].width = 0;
+							ItemMoveList[pnum][pos].height = 0;
+							ItemMoveList[pnum][pos].dest_pos = -1;
+						}
 					}
 					return false;
 				}
@@ -543,20 +547,24 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 	}
 	
 	// unmark all marked spots as unoccupied (real marking happens when we move items)
+	// do not touch itemmovelist, we will use this as the place to move new items so we avoid checking again
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(ItemMoveList[pnum][i].state) {
 			// unmark as occupied
 			wcomp = ItemMoveList[pnum][i].width;
 			hcomp = ItemMoveList[pnum][i].height;
+			
+			// note that the itemmovelist contains "Item of Player in tradebox was to move to dest_pos in player inventory" info
+			pos = ItemMoveList[pnum][bid].dest_pos;
 			for(h = 0; h < hcomp; ++h)
 				for(w = 0; w < wcomp; ++w) {
-					PlayerInventoryList[pnum][i + w + h * MAXINVENTORYBLOCKS_VERT].item_type = DND_ITEM_NULL;
-					ItemMoveList[pnum][i + w + h * MAXINVENTORYBLOCKS_VERT].state = false;
-					ItemMoveList[pnum][i + w + h * MAXINVENTORYBLOCKS_VERT].width = 0;
-					ItemMoveList[pnum][i + w + h * MAXINVENTORYBLOCKS_VERT].height = 0;
+					// cleanup our hack
+					if(PlayerInventoryList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].item_type == DND_ITEM_TEMPORARY)
+						PlayerInventoryList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].item_type = DND_ITEM_NULL;
 				}
 		}
 	}
+	
 	
 	return true;
 }
@@ -1060,6 +1068,8 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 	
 	int temp = emptypos + offset;
 	
+	printbold(s:"carry item of player ", d:p_item, s: " to pos ", d:emptypos);
+	
 	SetItemSyncValue(p_empty, DND_SYNC_ITEMWIDTH, temp, -1, w, emptysource);
 	SetItemSyncValue(p_empty, DND_SYNC_ITEMHEIGHT, temp, -1, h, emptysource);
 	SetItemSyncValue(p_empty, DND_SYNC_ITEMSUBTYPE, temp, -1, GetItemSyncValue(p_item, DND_SYNC_ITEMSUBTYPE, tb, -1, itemsource), emptysource);
@@ -1078,14 +1088,14 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 		for(j = 0; j < w; ++j) {
 			SetItemSyncValue(p_empty, DND_SYNC_ITEMTYPE, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, bid, emptysource);
 			SetItemSyncValue(p_empty, DND_SYNC_ITEMTOPLEFTBOX, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, temp + 1, emptysource);
-		}
+		}	
 
 	FreeItem(p_item, tb, itemsource, false);
 	SyncItemData(p_empty, temp, emptysource, -1, -1);
 }
 
 void TransferTradeItems(int from, int to) {
-	int bid, pos;
+	int bid;
 	int i, j, h, w;
 	// for every possible item in the trade list of this player, get free position
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
@@ -1093,12 +1103,17 @@ void TransferTradeItems(int from, int to) {
 			bid = j + i * MAXINVENTORYBLOCKS_VERT;
 			// care about the items only once, so use topleftboxid == bid
 			if(TradeViewList[from][bid].topleftboxid - 1 == bid) {
-				pos = GetFreeSpotForItem_Trade(bid, from, to, DND_SYNC_ITEMSOURCE_TRADEVIEW);
-				if(pos != -1) {
-					CarryItemTo(bid, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, from, to);
-				}
+				printbold(s:"carry item to ", d:ItemMoveList[to][bid].dest_pos);
+				CarryItemTo(bid, ItemMoveList[to][bid].dest_pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, from, to);
 			}
 		}
+	}
+	
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		ItemMoveList[to][i].state = false;
+		ItemMoveList[to][i].width = 0;
+		ItemMoveList[to][i].height = 0;
+		ItemMoveList[to][i].dest_pos = -1;
 	}
 }
 
@@ -1328,6 +1343,7 @@ int HandleStackedPickup(int item_index, int type) {
 	StackedItemPickupCS(item_index, type);
 	
 	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+	GiveInventory("DnD_RefreshRequest", 1);
 	return CopyItemFromFieldToPlayer(item_index, PlayerNumber(), porb_index, type);
 }
 

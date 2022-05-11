@@ -1035,7 +1035,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			
 			// we've had redrawn, take these away now
 			TakeInventory("DnD_RefreshPane", 1);
-			TakeInventory("DnD_RefreshRequest", 1);
+			//TakeInventory("DnD_RefreshRequest", 1);
 			///////////////////////////////
 			// MENU DRAWING ROUTINE ENDS //
 			///////////////////////////////
@@ -1349,6 +1349,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 											// handle trade now, other party accepted
 											GiveInventory("InTradeView", 1);
 											GiveActorInventory(i + P_TIDSTART, "InTradeView", 1);
+											GiveInventory("DnD_RefreshRequest", 1);
+											GiveActorInventory(i + P_TIDSTART, "DnD_RefreshRequest", 1);
 											LocalAmbientSound("RPG/MenuChoose", 127);
 										}
 										else
@@ -1733,7 +1735,10 @@ Script "DnD Trade Counter" (int p1, int p2) {
 	if(count == lim) {
 		TransferTradeItems(p1, p2);
 		TransferTradeItems(p2, p1);
-		ACS_NamedExecuteAlways("DnD Save Player Inventory", 0, p1 | (CheckActorInventory(p1 + P_TIDSTART, "DnD_CharacterID") << 16), p2 | (CheckActorInventory(p2 + P_TIDSTART, "DnD_CharacterID") << 16));
+		
+		// check if commenting this causes any issues, we already save player inventories when they spectate
+		// ACS_NamedExecuteAlways("DnD Save Player Inventory", 0, p1 | (CheckActorInventory(p1 + P_TIDSTART, "DnD_CharacterID") << 16), p2 | (CheckActorInventory(p2 + P_TIDSTART, "DnD_CharacterID") << 16));
+		
 		// take away confirmation stuff
 		TakeActorInventory(p1 + P_TIDSTART, "DnD_Trade_Confirmed", 1);
 		TakeActorInventory(p2 + P_TIDSTART, "DnD_Trade_Confirmed", 1);

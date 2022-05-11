@@ -195,6 +195,7 @@ void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
 int HandleCharmPickup(int item_index) {
 	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), pcharm_index);
+	GiveInventory("DnD_RefreshRequest", 1);
 	return pcharm_index;
 }
 

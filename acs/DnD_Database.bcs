@@ -121,6 +121,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 		}
 	}
 	
+	// used charms
 	if(flags & DND_PINVFLAGS_CHARMUSED){
 		// save charms used
 		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
@@ -139,6 +140,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 			}
 		}
 	}
+	
 	if(flags & DND_PINVFLAGS_STASH) {
 		// save state of player's stash (this is shared between all accounts so no charfield)
 		SetDBEntry(DND_DB_STASH_PAGES, pacc, PlayerActivities[pnum].stash_pages);
@@ -565,7 +567,8 @@ void SavePlayerActivities(int pnum, int char_id) {
 	
 	// save intellect
 	temp = PlayerActivities[pnum].attribute_change[STAT_INT];
-	temp += PlayerActivities[pnum].talent_point << 16;
+	temp <<= 16;
+	temp += PlayerActivities[pnum].talent_point;
 	IncrementDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
 	
 	// save perks (use 4 bits per perk, max is 10 for a perk so it saves the first 8 perks packed into 4 bits)

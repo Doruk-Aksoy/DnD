@@ -445,19 +445,23 @@ int RewardActorCredit(int tid, int amt) {
 void GiveCredit(int amt) {
 	GiveInventory("Credit", amt);
 	GiveInventory("LevelCredit", amt);
+	GiveInventory("DnD_RefreshRequest", 1);
 }
 
 void GiveBudget(int amt) {
 	GiveInventory("Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
+	GiveInventory("DnD_RefreshRequest", 1);
 }
 
 void GiveActorBudget(int tid, int amt) {
 	GiveActorInventory(tid, "Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
+	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
 }
 
 void GiveActorCredit(int tid, int amt) {
 	GiveActorInventory(tid, "Credit", amt);
 	GiveActorInventory(tid, "LevelCredit", amt);
+	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
 }
 
 void ConsumeAttributePointOn(int stat, int amt) {
@@ -592,8 +596,10 @@ void HandleArmorPickup(int armor_type, int amount, bool replace, int overcap_fac
 		check_cap *= 2;
 		base_amt = ArmorData[DND_ARMOR_GREEN][ARMORDATA_BASEAMOUNT];
 	}
-	else if(overcap_factor)
+	else if(overcap_factor) {
 		check_cap *= overcap_factor;
+		amount *= overcap_factor;
+	}
 	
 	if(armor < check_cap) {
 		amount = (amount * cap) / base_amt;
@@ -624,7 +630,6 @@ int Calculate_Perks() {
 
 int GetDropChance(int pnum, bool isElite) {
 	int base = 1.0; // base val
-	int temp = 0;
 	// additive bonuses first
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + 
 			GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1) +
@@ -635,7 +640,7 @@ int GetDropChance(int pnum, bool isElite) {
 		base += DND_ELITEDROP_GAIN;
 		
 	// more chance to find loot
-	base = FixedMul(base, GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE));
+	base = FixedMul(base, 1.0 + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE));
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 	return base;

@@ -229,7 +229,6 @@ Script "DnD On Death" DEATH {
 	// put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
 	if(GetCVar("Survival")) {
 		if(!CheckInventory("CurrentLives")) {
-			PlayerLoaded[pnum] = 0;
 			PlayerWillBeSaved[pnum] = false;
 			PlayerTransferred[pnum] = false;
 			PlayerCanLoad[pnum] = 0;
@@ -265,12 +264,12 @@ Script "DnD On Death" DEATH {
 			// if player was in middle of saving, don't accidently interfere if player leaves early
 			// save accumulated stats when player leaves
 			// things saved are in DnD_Activity.h
-
-			if(GetCVar("dnd_mode") == DND_MODE_HARDCORE) {
+			i = GetCVar("dnd_mode");
+			if(i == DND_MODE_HARDCORE) {
 				ACS_NamedExecuteAlways("DND Database Reset On Death", 0, pnum);
 				ResetPlayerActivities(pnum, false);
 			}
-			else if(GetCVar("dnd_mode") == DND_MODE_SOFTCORE)
+			else if(i == DND_MODE_SOFTCORE)
 				ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, false);
 			else
 				ResetHardcoreStuff(pnum);
@@ -288,6 +287,9 @@ Script "DnD On Death" DEATH {
 	
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	Thing_ChangeTID(0, 0);
+	
+	Delay(const:5);
+	PlayerLoaded[pnum] = 0;
 }
 
 Script "DnD Portable Kit Script" (void) {
@@ -974,13 +976,14 @@ Script "DND On Kill" KILL {
 	#else*/
 	expshare = IsBoss();
 	creditshare = IsDemon();
-	if(expshare) {
-		if(RunDropChance(target - P_TIDSTART, killerWasntPlayer, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0)) {
-			if(GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)) {
-				// we can drop the spawner
-				SpawnAccessory();
-			}
-		}
+	if(
+		expshare && 
+		RunDropChance(target - P_TIDSTART, killerWasntPlayer, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0) &&
+		GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)
+	)
+	{
+		// we can drop the spawner
+		SpawnAccessory();
 	}
 	//#endif
 	
@@ -2420,7 +2423,15 @@ Script "DnD Ankh Checker" (void) {
 	while(PlayerInGame(pnum)) {
 		if(!CheckInventory("ParsingData")) {
 			// ankh check
-			if(!CheckInventory("P_Invulnerable") && GetActorProperty(0, APROP_HEALTH) == 1 && !CheckInventory("Intervened") && IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH) && CheckInventory("CanIntervene")) {
+			if
+			(
+				!CheckInventory("P_Invulnerable") &&
+				GetActorProperty(0, APROP_HEALTH) == 1 &&
+				!CheckInventory("Intervened") &&
+				IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH) && 
+				CheckInventory("CanIntervene")
+			)
+			{
 				GiveInventory("Intervention", 1);
 				GiveInventory("Intervened", 1);
 				TakeInventory("CanIntervene", 1);
@@ -3203,7 +3214,7 @@ Script "DnD Player Setup" ENTER {
 	// for zombie quest to work
 	TakeInventory("DnD_ShotUndead", 1);
 	TakeInventory("ParsingData", 1);
-	if(!(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)))
+	if(GetCVar("dnd_mode") <= DND_MODE_SOFTCORE)
 		ACS_NamedExecuteAlways("DnD Ankh Checker", 0);
 }
 
@@ -6208,12 +6219,12 @@ Script "DnD Rejuvenation" (void) {
 		
 		// ignite effects prevent rejuvenation
 		if(!CheckInventory("DnD_IgniteTimer") && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
-			if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[id].maxhp - hp_per)
+			if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[id].maxhp - hp_per) {
 				SetActorProperty(0, APROP_HEALTH, GetActorProperty(0, APROP_HEALTH) + hp_per);
+				ACS_NamedExecuteAlways("DnD Rejuvenation FX CS", 0);
+			}
 			else
 				SetActorProperty(0, APROP_HEALTH, MonsterProperties[id].maxhp);
-				
-			ACS_NamedExecuteAlways("DnD Rejuvenation FX CS", 0);
 		}
 	}
 }
@@ -6476,13 +6487,9 @@ Script 68 (int x) NET {
 		SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 4);
 	}
 	else if(x == 420) {
-		SpawnCharm(0, true);
+		//SpawnCharm(0, true);
 		SpawnOrbForAll(1, random(40, 120));
-		SpawnCharmWithMods_ForAll(INV_BLOCKERS_MOREDMG);
-		SpawnCharmWithMods_ForAll(INV_LIFESTEAL);
-		SpawnCharmWithMods_ForAll(INV_DMGREDUCE_EXPLOSION);
-		SpawnCharmWithMods_ForAll(INV_EXPGAIN_INCREASE);
-		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
+		SpawnCharmWithMods_ForAll(INV_FLATMAGIC_DAMAGE, INV_PERCENTMAGIC_DAMAGE);
 		/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

@@ -425,7 +425,7 @@ Actor DnD_MultikillCounter : Inventory {
 }
 
 Actor HardcoreDebuff : PowerProtection {
-	damagefactor "normal", 1.15
+	damagefactor "normal", 1.0
 	powerup.duration 0x7FFFFFFF
 }
 

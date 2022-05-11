@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -567,7 +567,9 @@ int ftrunc(int x) {
 
 int ConvertFixedToPrecise(int x) {
 	// 1000 = 1.0, but we are talking percentages so 0.01 = 1%
-	return ((x + 0.0005) * FACTOR_FIXED_RESOLUTION) >> 16;
+	// the first >> 4 is so we get rid of unimportant last 4 bits of precision and can multiply with 1000 without worrying
+	// essentially this increases maximum fixed we can clearly represent from 65.0 to 65.0 x 16 = 1024.0
+	return (((x + 0.0005) >> 4) * FACTOR_FIXED_RESOLUTION) >> 12;
 }
 
 int CancelMultiplicativeFactors(int f1, int f2) {

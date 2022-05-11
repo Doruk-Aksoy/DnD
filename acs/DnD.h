@@ -799,7 +799,11 @@ void HandleCharmLootDrop(bool isElite) {
 		addchance = DND_ELITE_BASEDROP / 2;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance))))
+		if
+		(
+			PlayerInGame(i) &&
+			(GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance)))
+		)
 			SpawnCharm(i, isElite);
 	}
 	//SpawnCharm(0, isElite);
@@ -918,7 +922,7 @@ int ScaleMonster(int pcount, int realhp) {
 		}
 		// add level factor to it
 		// first overflow check
-		if(add < (INT_MAX - base) / Max((level - 1),1)) {
+		if(add < (INT_MAX - base) / Max((level - 1), 1)) {
 			add *= level - 1;
 			if(GetCVar("dnd_playercount_scales_monsters")) {
 				if(add > 100) {
