@@ -49,13 +49,16 @@ enum {
 	RPGMENUTRADECOUNTDOWNID,
 	RPGMENUPAGEID = 120,
 	RPGMENUHIGHLIGHTID,
-	RPGMENUINVENTORYID = 1449,
-	RPGMENUID = 1450,
+	
+	RPGMENUCLICKEDID = 849,
+	
+	RPGMENUINVENTORYID = 1749,
+	RPGMENUID,
 	RPGMENULARRID,
 	RPGMENURARRID,
 	RPGMENURETARRID,
 	RPGMENUITEMIDEND,
-	RPGMENUITEMID = 1750,
+	RPGMENUITEMID = 2050,
 	RPGMENUITEMSUBID,
 	RPGMENUHELPCORNERID,
 	RPGMENUHELPCORNERIDMAIN,
@@ -63,18 +66,18 @@ enum {
 	RPGMENUHELPID,
 	RPGMENUINFOID,
 	RPGMENUDAMAGETYPEID,
-	RPGMENULISTID = 1810,
-	RPGMENUWEAPONPANELID = 1850,
-	RPGMENUBACKGROUNDID = 1851,
+	RPGMENULISTID = 2110,
+	RPGMENUWEAPONPANELID = 2150,
+	RPGMENUBACKGROUNDID = 2151,
 	
 	// monster scanner hud id stuff
-	MONSTER_TYPEICONID = 2000,
+	MONSTER_TYPEICONID = 2300,
 	MONSTER_TYPEICONID_RIGHT,
 	MONSTER_NAMEID,
 	MONSTER_TEXTID,
 	MONSTER_BARFILLID,
 	MONSTER_BARFILLOVERLAY,
-	MONSTER_TRAITID = 2100
+	MONSTER_TRAITID = 2400
 };
 
 void ClearMonsterScanInfo() {
@@ -101,9 +104,9 @@ void ClearMonsterScanInfo() {
 
 #define MAX_CRAFTING_MATERIALBOXES 12
 
-void CleanInventoryInfo() {
+void CleanInventoryInfo(int id_begin = RPGMENUINVENTORYID) {
 	// log(s:"cleaning up!");
-	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 
 // cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
@@ -357,14 +360,23 @@ typedef struct cursor {
 	int posx;
 	int posy;
 	int owner_pnum;				// player number of the owner of the item being hovered on -- This doesnt necessarily have to be us! It can be another player (trade case)
+	
 	int itemHovered;			// spot of the item in player's inventory, or weapon's id
 	int itemHoveredType;		// is this an orb, etc. or a weapon
 	int itemHoveredSource;		// for inventory stuff, player inventory, stash etc.
 	vec2_T itemHoveredDim;		// dim for draving things
+	bool hoverNeedsReset;		// need reset on hover data
+	
 	int itemDragged;			// this holds the image id, not the item id (We dont need it)
 	bool itemDraggedStashSize;	// draw resized to fit stash view
 	idragdata_T itemDragInfo;	// x,y used for dimensions of item, z is used for topbox so its not drawn until itemDragged is -1
-	bool hoverNeedsReset;		// need reset on hover data
+	
+	// just like hover but for items user had clicked previously
+	int itemClicked;
+	int itemClickedType;		// is this an orb, etc. or a weapon
+	int itemClickedSource;		// for inventory stuff, player inventory, stash etc.
+	vec2_T itemClickedPos;
+	bool clickNeedsReset;
 } cursor_T;
 cursor_T PlayerCursorData;
 

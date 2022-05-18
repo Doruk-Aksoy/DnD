@@ -86,6 +86,7 @@ Actor MercuryExplosion : DnD_ExplosiveBase {
 			TNT1 A 7 A_SetUserVar("user_count", user_count + 1)
 			TNT1 AAAAAAAAAAAA 0 A_SpawnItemEx("MercurySmoke", 0, 0, 0, frandom(-4, 4), frandom(-4, 4), frandom(-4, 4))
 			TNT1 A 1 A_JumpIf(user_count < max_exp, "Again")
+			TNT1 A 10
 		Goto FinishExplosion
 	}
 }

@@ -118,20 +118,21 @@ bool IsElementalDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_FIRE && damage_type <= DND_DAMAGETYPE_LIGHTNING;
 }
 
-int GetDamageCategory(int damage_type) {
+int GetDamageCategory(int damage_type, int flags) {
 	if(IsBulletDamage(damage_type))
 		return DND_DAMAGECATEGORY_BULLET;
-	else if(IsMeleeDamage(damage_type))
+	else if(IsMeleeDamage(damage_type) && damage_type != DND_DAMAGETYPE_MELEEOCCULT) // little note: while the weapon is melee and can benefit from melee bonuses, if it's occult damage type it'd be occult category
 		return DND_DAMAGECATEGORY_MELEE;
 	else if(damage_type == DND_DAMAGETYPE_EXPLOSIVES)
 		return DND_DAMAGECATEGORY_EXPLOSIVES;
 	else if(IsEnergyDamage(damage_type))
 		return DND_DAMAGECATEGORY_ENERGY;
-	else if(IsOccultDamage(damage_type))
-		return DND_DAMAGECATEGORY_OCCULT;
 	else if(IsElementalDamage(damage_type))
 		return DND_DAMAGECATEGORY_ELEMENTAL;
-	return DND_DAMAGECATEGORY_SOUL;
+	else if(damage_type == DND_DAMAGETYPE_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK))
+		return DND_DAMAGECATEGORY_SOUL;
+	// switched soul up because IsOccultDamage contains soul damage in it, and it'd return occult, absorbing other checks
+	return DND_DAMAGECATEGORY_OCCULT;
 }
 
 enum {
@@ -172,7 +173,7 @@ enum {
 	DND_DAMAGEFLAG_USEMASTER 			= 			0b1,
 	DND_DAMAGEFLAG_ISSHOTGUN 			= 			0b10,
 	DND_DAMAGEFLAG_CULL 				= 			0b100,
-	DND_DAMAGEFLAG_SELFCULL				=			0b1000,
+	// free spot here
 	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE	=			0b10000,
 	DND_DAMAGEFLAG_NOPOISONSTACK		=			0b100000,
 	DND_DAMAGEFLAG_HALFDMGSELF			=			0b1000000,
@@ -334,13 +335,8 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
 	if(!temp)
 		return dmg;
 	
-	// cap the cap...
-	int cap = GetPlayerAttributeValue(pnum, INV_ADDEDMAXRESIST) + DND_BASE_DAMAGERESISTCAP;
-	if(cap > DND_MAX_DAMAGERESISTCAP)
-		cap = DND_MAX_DAMAGERESISTCAP;
+	temp = ApplyResistCap(pnum, temp);
 	
-	// these are in fixed point, so we gotta convert them later
-	temp = Clamp_Between(temp, 0, cap);
 	//return ApplyDamageFactor_Safe(dmg, DND_DAMAGERESIST_FACTOR - ((temp * 100) >> 16), DND_DAMAGERESIST_FACTOR);
 	// roll damage up
 	return (((dmg * (100.0 - temp)) / 100) + 0.5) >> 16;
@@ -491,23 +487,15 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		// include the stat bonus
 		//printbold(d:talent_type == TALENT_MELEE, s: " ", d: IsMeleeWeapon(wepid), s: " ", d:(flags & DND_WDMG_ISMELEE));
 		if(talent_type == TALENT_MELEE || is_melee_mastery_exception) {
-			temp = DND_STR_GAIN * GetStrength();
-			mult_factor += GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC;
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
+			InsertCacheFactor(pnum, wepid, dmgid, GetMeleeDamage(pnum), true);
 			//printbold(s:"factor added ", d:temp);
 		}
 		
 		// occult uses intellect
-		if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) {
-			temp = DND_INT_GAIN * GetIntellect();
-			mult_factor += GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
-		else if(talent_type != TALENT_MELEE) {
-			temp = GetBonusFromDexterity();
-			mult_factor += GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC;
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
+		if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT)
+			InsertCacheFactor(pnum, wepid, dmgid, GetRangedBonus(pnum, true), true);
+		else if(talent_type != TALENT_MELEE)
+			InsertCacheFactor(pnum, wepid, dmgid, GetRangedBonus(pnum), true);
 		
 		// specialty armor bonuses
 		temp = GetArmorID();
@@ -774,7 +762,7 @@ int GetResistPenetration(int pnum, int category) {
 		case DND_DAMAGECATEGORY_ELEMENTAL:
 		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
 		case DND_DAMAGECATEGORY_SOUL:
-		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
+		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT) + GetPlayerAttributeValue(pnum, INV_EX_SOULWEPSPEN);
 	}
 	return 0;
 }
@@ -799,12 +787,12 @@ Script "DnD Occult Weaken" (int victim) {
 int FactorResists(int source, int victim, int dmg, int damage_type, int flags, bool forced_full, int wepid, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
-	int damage_category = GetDamageCategory(damage_type);
+	int damage_category = GetDamageCategory(damage_type, flags);
 	int pnum = PlayerNumber();
 	int pen = GetResistPenetration(pnum, damage_category);
 	
 	// if occult weakness exists, apply it checking monster's debuff
-	if(pen && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_MELEEOCCULT)) {
+	if(pen && (damage_category == DND_DAMAGECATEGORY_OCCULT || (flags & DND_DAMAGEFLAG_SOULATTACK))) {
 		int occ_weak = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
 		if(occ_weak) {
 			if(!CheckActorInventory(victim, "OccultWeaknessStack")) {
@@ -829,7 +817,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 		dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ICE_WEAKNESS] && damage_type == DND_DAMAGETYPE_ICE)
 		dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_WEAKNESS] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_MELEEOCCULT))
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_WEAKNESS] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
 		// if melee's sub type is occult then let it benefit from the pen
 		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
@@ -886,7 +874,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && damage_category == DND_DAMAGECATEGORY_ENERGY)
 		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (damage_category == DND_DAMAGECATEGORY_OCCULT ||damage_type == DND_DAMAGETYPE_SOUL))
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
 		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
 		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
@@ -897,14 +885,14 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ENERGY)
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_type == DND_DAMAGETYPE_SOUL))
+	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
 	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
 		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ETHEREAL] && damage_category != DND_DAMAGECATEGORY_OCCULT && damage_type != DND_DAMAGETYPE_SOUL)
+	else if(MonsterProperties[mon_id].trait_list[DND_ETHEREAL] && damage_category != DND_DAMAGECATEGORY_OCCULT && damage_category != DND_DAMAGECATEGORY_SOUL)
 		return 0;
 	// no special factors, process as is
-	return dmg = dmg * (100 + pen) / 100;
+	return dmg * (100 + pen) / 100;
 }
 
 // for player hitting others damage
@@ -1224,12 +1212,9 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	}
 	
 	// cull checks
-	if((flags & (DND_DAMAGEFLAG_CULL | DND_DAMAGEFLAG_SELFCULL)) && CheckCullRange(source, victim, dmg)) {
-		GiveActorInventory(victim, "DnD_CullSuccess", 1);
-		
-		// if self cull is in effect simply destroy it otherwise return from here, let the actor who is doing the culling handle it from here
-		if(flags & DND_DAMAGEFLAG_SELFCULL)
-			Thing_Damage2(victim, GetActorProperty(victim, APROP_HEALTH) * 2, s_damagetype);
+	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
+		// if self cull is in effect simply destroy it otherwise return from here
+		Thing_Damage2(victim, GetActorProperty(victim, APROP_HEALTH) * 2, s_damagetype);
 		return;
 	}
 	
@@ -1238,17 +1223,23 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, dmg, source);
 	}
 	
-	if(!isActorAlive(victim) && CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
-		SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-		if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
-			GiveActorInventory(source, "Berserker_HitTracker", 1);
-			if(!temp)
-				ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, source);
-		}
-		if(temp + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-			if(!CheckActorInventory(source, "Berserker_NoRoar"))
-				HandleBerserkerRoar(source);
-			GiveActorInventory(source, "Berserker_Perk50_Speed", 1);
+	if(!isActorAlive(victim)) {
+		// give this for non-magic seal weapons (seals their souls...)
+		if(damage_type != DND_DAMAGETYPE_MAGICSEAL && IsOccultDamage(damage_type))
+			GiveActorInventory(victim, "MagicCausedDeath", 1);
+	
+		if(CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
+			SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+			if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+				GiveActorInventory(source, "Berserker_HitTracker", 1);
+				if(!temp)
+					ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, source);
+			}
+			if(temp + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+				if(!CheckActorInventory(source, "Berserker_NoRoar"))
+					HandleBerserkerRoar(source);
+				GiveActorInventory(source, "Berserker_Perk50_Speed", 1);
+			}
 		}
 	}
 }
@@ -1274,7 +1265,7 @@ int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, in
 		// we will reduce damage if we are past fullradius and within radius
 		if(dist > fullradius && dist <= radius) {
 			// printbold(s:"dist ", f:dist, s:" factor ", f:FixedDiv(radius - dist, radius - fullradius));
-			res = (res * FixedDiv(radius - dist, radius - fullradius)) >> 16;
+			res = res * ((radius - dist) >> 16) / ((radius - fullradius) >> 16);
 		}
 	}
 	return res;
@@ -2366,7 +2357,7 @@ Script "DnD Check Explosion Repeat" (void) {
 	int pnum = owner - P_TIDSTART;
 	
 	// if explosion did not repeat and we have chance for it to repeat, go for it
-	if(!CheckInventory("DnD_ExplosionRepeated") && random(1, 100) <= GetPlayerAttributeValue(pnum, INV_ESS_KRULL)) {
+	if(!CheckInventory("DnD_ExplosionRepeated") && random(1, 100) <= GetExplosiveRepeatChance(pnum)) {
 		GiveInventory("DnD_ExplosionRepeated", 1);
 		res = 1;
 	}
@@ -2393,8 +2384,6 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 		case DND_DAMAGETYPE_ENERGYEXPLOSION:
 		case DND_DAMAGETYPE_EXPLOSIVES:
 		case DND_DAMAGETYPE_OCCULTEXPLOSION:
-			int dmg_prev = dmg;
-			
 			if(CheckInventory("Marine_Perk5"))
 				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_SELFEXPLOSIVEREDUCE);
 			
@@ -2416,7 +2405,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
 			
 			// factor in players armor here!!!
-			dmg = HandlePlayerArmor(dmg, dmg_prev, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
+			dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 		break;
 	}
 	return dmg;
@@ -2548,7 +2537,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	return dmg;
 }
 
-int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data, bool isArmorPiercing) {
+int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
 	if(armor_id != -1) {
 		// if we are affected by poison and we dont have a specialty armor providing res to ele dmg, skip this, poison DOT shouldn't be negated by armor
@@ -2558,6 +2547,7 @@ int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data, bool 
 		int armor_take = 0;
 		// apply percentage protection of armor as long as armor amount > dmg being received
 		int armor_amt = GetArmorAmount();
+		int armor_damage = dmg;
 		
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
 		// dmg here is the one to be dealt to the player's health pool
@@ -2603,8 +2593,6 @@ int HandlePlayerArmor(int dmg, int dmg_prev, str dmg_string, int dmg_data, bool 
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_LIGHTNINGCOIL_SPECIAL);
 		
 		// bulkiness can lower damage the armor receives
-		int armor_damage = dmg_prev;
-		
 		// do the reduction if its not armor piercing or we have armor that protects against it
 		if(!isArmorPiercing || IsArmorShredException(armor_id)) {
 			armor_damage -= dmg;
@@ -2678,7 +2666,7 @@ int HandlePercentDamageFromEnemy(int dmg, int dmg_data) {
 
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
-	int temp, dmg, dmg_prev, m_id;
+	int temp, dmg, m_id;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
 		
@@ -2768,11 +2756,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later
-				dmg_prev = dmg;
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 				
 				// finally apply player armor
-				dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data, isArmorPiercing);
+				dmg = HandlePlayerArmor(dmg, arg2, dmg_data, isArmorPiercing);
 					
 				// doomguy demon reduction
 				if(IsMonsterIdDemon(m_id) && CheckInventory("Doomguy_Perk5"))
@@ -2820,9 +2807,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		}
 		else {
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things
-			dmg_prev = dmg;
 			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
-			dmg = HandlePlayerArmor(dmg, dmg_prev, arg2, dmg_data, false);
+			dmg = HandlePlayerArmor(dmg, arg2, dmg_data, false);
 			GiveInventory("DnD_DamageReceived", dmg);
 			SetResultValue(dmg);
 		}

@@ -1299,7 +1299,7 @@ Actor DarkLanceProjectile : DnD_BaseFastProjectile {
 	Radius 4
 	Renderstyle Add
 	Scale 0.275
-	DeathSound "weapons/firex5"
+	DeathSound "weapons/firex5_l"
 	+THRUACTORS
 	States {
 		SpawnState:

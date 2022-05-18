@@ -787,7 +787,24 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				attrib_ids[i] = -1;
 			
 			// we determine when to stop, we either stop until max affixes or we have minimum of both attrib counts total
-			s = Min(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] + 1, PlayerInventoryList[pnum][extra].attrib_count + PlayerInventoryList[pnum][extra2].attrib_count);
+			// make the latter count unique attributes on both combined, not just total attribute count of both
+			// for that we assume base count on item 1, then we check item 2 for non-occuring attributes
+			temp = PlayerInventoryList[pnum][extra].attrib_count;
+			for(i = 0; i < PlayerInventoryList[pnum][extra2].attrib_count; ++i) {
+				fail_pick = false;
+				for(s = 0; s < PlayerInventoryList[pnum][extra].attrib_count; ++s) {
+					if(PlayerInventoryList[pnum][extra2].attributes[i].attrib_id == PlayerInventoryList[pnum][extra].attributes[s].attrib_id) {
+						fail_pick = true;
+						break;
+					}
+				}
+				temp += !fail_pick;
+			}
+			
+			// will pick anywhere from half of max affix count of a charm to max affix count + 1
+			s = random(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] / 2, Min(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] + 1, temp));
+			// printbold(s:"start picking ", d:s, s: " attribs with ", d:temp, s: " unique attributes");
+			
 			temp = 0;
 			
 			do {
@@ -798,13 +815,14 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					// confirm this is a real attribute and the charm isn't devoid of any attributes
 					res = PickWeightedFromTwoItems(pnum, extra, extra2);
 					picked_mod = random(0, PlayerInventoryList[pnum][res].attrib_count - 1);
-					// log(s:"picked ", d: res, s:" from: ", d:extra, s: " - ", d:extra2, s: "\nmod: ", d:picked_mod);
+					//log(s:"picked ", d: res, s:" from: ", d:extra, s: " - ", d:extra2, s: "\nmod: ", d:picked_mod);
 					
 					// if somehow this item has no attributes, pick from the other one
-					if(picked_mod == -1) {
+					// no longer needed, ass orb requires both items to have at least 1 attribute
+					/*if(picked_mod == -1) {
 						res = extra2 + extra - res;
 						picked_mod = random(0, PlayerInventoryList[pnum][res].attrib_count - 1);
-					}
+					}*/
 					
 					// set this to be the actual attribute now instead of just an index in the item itself
 					picked_mod = PlayerInventoryList[pnum][res].attributes[picked_mod].attrib_id;

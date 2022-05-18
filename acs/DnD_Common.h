@@ -572,6 +572,25 @@ int ConvertFixedToPrecise(int x) {
 	return (((x + 0.0005) >> 4) * FACTOR_FIXED_RESOLUTION) >> 12;
 }
 
+Str GetFixedRepresentation(int val, bool isPercentage) {
+	val = ConvertFixedToPrecise(val);
+	
+	if(isPercentage)
+		val *= 100;
+	
+	if(val > 1000) {
+		if((val / 10) % 10)
+			return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
+		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
+	}
+		
+	if(val % 10)
+		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10, d:val % 10);
+	if((val / 10) % 10)
+		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
+	return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
+}
+
 int CancelMultiplicativeFactors(int f1, int f2) {
 	return FixedDiv(1.0 + f1, 1.0 + f2);
 }

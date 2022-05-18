@@ -811,29 +811,24 @@ void HandleCharmLootDrop(bool isElite) {
 
 void HandleSoulDrop() {
 	if(IsDemon()) {
-		str drop = "Souls";
+		str drop = "SoulsDrop";
 		if(IsBoss())
-			drop = "LargeSouls";
+			drop = "LargeSoulsDrop";
 		SpawnDrop(drop, GetActorProperty(0, APROP_HEIGHT) / 2, 12, 0, 0);
 	}
 }
 
 void HandleOtherDrops(int target) {
+	int pnum = target - P_TIDSTART;
 	if(IsZombie())
 		GiveActorInventory(target, "DnD_ShotUndead", 1);
-	if(CheckInventory("MagicCausedDeath")) {
-		// Soul Stealer case
-		if(CheckActorInventory(target, "Ability_SoulStealer"))
-			HandleSoulDrop();
-		TakeInventory("MagicCausedDeath", 1);
-	}
-	else if(CheckInventory("BookofDeadCausedDeath")) {
-		GiveActorInventory(target, "Souls", 1 + DND_BOSS_SOULGIVE * IsBoss());
+	if(CheckInventory("BookofDeadCausedDeath")) {
+		GiveActorInventory(target, "Souls", (1 + DND_BOSS_SOULGIVE * IsBoss()) * (100 + GetPlayerAttributeValue(pnum, INV_EX_PICKUPS_MORESOUL)) / 100);
 		Spawn("SoulEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
 		TakeInventory("BookofDeadCausedDeath", 1);
 	}
 	
-	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(target - P_TIDSTART, CheckInventory("MonsterIsElite"), CHANCE_HEART))
+	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(pnum, CheckInventory("MonsterIsElite"), CHANCE_HEART))
 		SpawnDrop("DemonHeartPickup", 24.0, 16, 0, 0);
 }
 

@@ -212,7 +212,8 @@ enum {
 	INV_EX_CURSEIMMUNITY,
 	INV_EX_LIMITEDSMALLCHARMS,
 	INV_EX_FLATPERSHOTGUNOWNED,
-	INV_EX_LESSHEALING
+	INV_EX_LESSHEALING,
+	INV_EX_SOULWEPSPEN
 	// add new unique attributes here
 };
 
@@ -223,7 +224,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
-#define UNIQUE_ATTRIB_END INV_EX_LESSHEALING
+#define UNIQUE_ATTRIB_END INV_EX_SOULWEPSPEN
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
@@ -407,13 +408,13 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_level_modifier = 0.05;
 	ItemModTable[INV_CREDITGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_low = 0.005;
-	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_high = 0.015;
+	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_low = 0.025;
+	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_high = 0.05;
 	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_DROPCHANCE_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_LUCK_INCREASE].attrib_low = 0.025;
-	ItemModTable[INV_LUCK_INCREASE].attrib_high = 0.05;
+	ItemModTable[INV_LUCK_INCREASE].attrib_low = 0.005;
+	ItemModTable[INV_LUCK_INCREASE].attrib_high = 0.015;
 	ItemModTable[INV_LUCK_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_LUCK_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
@@ -563,13 +564,13 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_REGENCAP_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_low = 0.005;
-	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_high = 0.01;
-	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_level_modifier = 0.006;
+	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_high = 0.008;
+	ItemModTable[INV_CRITCHANCE_INCREASE].attrib_level_modifier = 0.004;
 	ItemModTable[INV_CRITCHANCE_INCREASE].tags = INV_ATTR_TAG_CRIT;
 	
 	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_low = 0.01;
-	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_high = 0.08;
-	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_level_modifier = 0.08;
+	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_high = 0.05;
+	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_level_modifier = 0.05;
 	ItemModTable[INV_CRITPERCENT_INCREASE].tags = INV_ATTR_TAG_CRIT;
 	
 	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_low = 5;
@@ -959,11 +960,24 @@ int GetModRange(int attr, int tier, bool which) {
 // if they are fixed, put the truncated value in to match (as closely as possible...) what the menu displays in stat gains
 int RollAttributeValue(int attr, int tier, bool isWellRolled) {
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
-
-	if(!isWellRolled)
-		return random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH));
-	int high = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH);
-	return random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + high) / 2, high);
+	int temp;
+	
+	// the + 0.0005 is so the edge rolls can be achieved
+	if(!isWellRolled) {
+		temp = random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH));
+		if(IsFixedPointMod(attr) && temp > 0.0005)
+			temp += 0.0005;
+		return temp;
+	}
+	
+	// well rolled case
+	temp = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH);
+	temp = random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + temp) / 2, temp);
+	
+	if(IsFixedPointMod(attr) && temp > 0.0005)
+		temp += 0.0005;
+	
+	return temp;
 }
 
 int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
@@ -980,25 +994,6 @@ int PickRandomAttribute() {
 	if(val < 0)
 		val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
 	return val;
-}
-
-Str GetFixedRepresentation(int val, bool isPercentage) {
-	val = ConvertFixedToPrecise(val);
-	
-	if(isPercentage)
-		val *= 100;
-	
-	if(val > 1000) {
-		if((val / 10) % 10)
-			return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
-	}
-		
-	if(val % 10)
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10, d:val % 10);
-	if((val / 10) % 10)
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
-	return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
 }
 
 str GetDetailedModRange(int attr, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
@@ -1184,13 +1179,21 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_BLOCKERS_MOREDMG:
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL_DAMAGE:
-		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
 				return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
 			return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:text);
+		
+		case INV_ESS_ERYXIA:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[Q7]", l:text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c[Q7] ", l:"IATTR_MOREDMG",
+					s:"\c- - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:"\c[Q7]", l:text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c[Q7] ", l:"IATTR_MOREDMG");
 		
 		// damage reduction attributes are shown as they are
 		case INV_DMGREDUCE_ELEM:
@@ -1311,6 +1314,15 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 				);
 			}
 			return StrParam(s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
+			
+		case INV_EX_SOULWEPSPEN:
+			if(showDetailedMods) {
+				return StrParam(
+					l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_MAGICRES",
+					s:"\c- - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(l:text, s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_MAGICRES");
 		
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:
@@ -1362,11 +1374,11 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 			if(val1) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"- \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text,
+						s:"- \c[D4]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"- \c[Q9]", d:val1, s:"%\c- ", l:text);
+				return StrParam(s:"- \c[D4]", d:val1, s:"%\c[D4] ", l:text);
 			}
 			return StrParam(l:text);
 			

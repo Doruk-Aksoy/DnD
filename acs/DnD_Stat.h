@@ -350,7 +350,11 @@ void GiveStat(int stat_id, int amt) {
 }
 
 int GetBonusFromDexterity() {
-	return (DND_DEX_GAIN + DND_SHARPSHOOTER_MASTERY_BONUS * (GetStat(STAT_SHRP) == DND_PERK_MAX)) * GetDexterity();
+	return (DND_DEX_GAIN + DND_SHARPSHOOTER_MASTERY_BONUS * HasMasteredPerk(STAT_SHRP)) * GetDexterity();
+}
+
+int GetBonusFromIntellect() {
+	return DND_INT_GAIN * GetIntellect();
 }
 
 bool HasMasteredPerk(int stat) {
@@ -562,22 +566,29 @@ bool IsArmorTierHigher(int t1, int t2) {
 	return ArmorData[t1][ARMORDATA_TIER] > ArmorData[t2][ARMORDATA_TIER];
 }
 
-void HandleArmorPickup(int armor_type, int amount, bool replace, int overcap_factor = 0) {
+enum {
+	ARMORGF_REPLACE = 1,
+	ARMORGF_NOPERCENT = 2,
+	ARMORGF_IGNOREIFNONE = 4
+};
+
+void HandleArmorPickup(int armor_type, int amount, int flags = 0, int overcap_factor = 0) {
 	// ignore if armor is forbidden
-	if(CheckUniquePropertyOnPlayer(PlayerNumber(), PUP_FORBIDARMOR))
+	int curr_armor_id = GetArmorID();
+	if(CheckUniquePropertyOnPlayer(PlayerNumber(), PUP_FORBIDARMOR) || ((flags & ARMORGF_IGNOREIFNONE) && curr_armor_id == -1))
 		return;
 
-	int armor = GetArmorAmount(), cap = 0, curr_armor_id = GetArmorID();
+	int armor = GetArmorAmount(), cap = 0;
 	GiveInventory("DnD_BoughtArmor", 1);
 	//printbold(s:"init ", d:armor, s: " ", d:armor_type, s: " ", d:amount, s: " ", d:curr_armor_id);
 	// this will prevent -1 array index operations
 	// make sure if there's no armor, despite lingering DnD_ArmorType, force replace
 	if(!curr_armor_id || !armor)
-		replace = true;
+		flags |= ARMORGF_REPLACE;
 
 	bool highertier = IsArmorTierHigher(armor_type, curr_armor_id);
 	// Give new armor type only if it's a higher tier, or is a replacement
-	if(replace || highertier) {
+	if((flags & ARMORGF_REPLACE) || highertier) {
 		// Set new type
 		SetArmorType(armor_type);
 	}
@@ -602,7 +613,9 @@ void HandleArmorPickup(int armor_type, int amount, bool replace, int overcap_fac
 	}
 	
 	if(armor < check_cap) {
-		amount = (amount * cap) / base_amt;
+		// if we don't want no percent, give it percentage based
+		if(!(flags & ARMORGF_NOPERCENT))
+			amount = (amount * cap) / base_amt;
 		
 		// printbold(s:"want to add ", d:Min(armor + amount, cap), s: " with armor, amt, cap = ", d:armor, s: " ", d:amount, s: " ", d:cap);
 		SetArmorAmount(Min(armor + amount, check_cap));
@@ -877,16 +890,14 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 
 int GetCritChance(int pnum, int wepid) {
 	int chance = GetBaseCritChance(pnum);
-	int temp = 0;
 	// add current weapon crit bonuses
 	if(wepid != -1) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT].val;
 		chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
-		temp = GetPercentCritChanceIncrease(pnum, wepid);
 	}
 	// add percent bonus
 	if(chance)
-		chance = FixedMul(chance, 1.0 + temp);
+		chance = FixedMul(chance, 1.0 + GetPercentCritChanceIncrease(pnum, wepid));
 	return chance;
 }
 
@@ -1174,8 +1185,7 @@ int GetFireDOTDamage(int pnum) {
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG + 
 				GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG) + 
-				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT) +
-				GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE);
+				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT) + GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE)) / 100;
@@ -1304,7 +1314,7 @@ int GetCritChance_Display(int pnum) {
 	if(GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT))
 		base = 2 * base - FixedMul(base, base);
 	
-	return base * 100;
+	return base;
 }
 
 int GetPelletIncrease(int pnum) {
@@ -1317,6 +1327,33 @@ int GetPelletIncrease(int pnum) {
 int GetPelletCount(int pnum, int base) {
 	// factor base is 1.0
 	return ApplyFixedFactorToInt(base, GetPelletIncrease(pnum) - 1.0);
+}
+
+// display only, inner workings of this depends on order of operations of other modifiers
+int GetMeleeDamage(int pnum) {
+	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
+	return (DND_STR_GAIN * GetStrength() + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) * (100 + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
+}
+
+int GetRangedBonus(int pnum, bool isOccult = false) {
+	// sharpshooting is a more multiplier
+	if(!isOccult)
+		return GetBonusFromDexterity() * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC) / 100;
+	return GetBonusFromIntellect() * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC) / 100;
+}
+
+int ApplyResistCap(int pnum, int res) {
+	// cap the cap...
+	int cap = GetPlayerAttributeValue(pnum, INV_ADDEDMAXRESIST) + DND_BASE_DAMAGERESISTCAP;
+	if(cap > DND_MAX_DAMAGERESISTCAP)
+		cap = DND_MAX_DAMAGERESISTCAP;
+	
+	// these are in fixed point, so we gotta convert them later
+	return Clamp_Between(res, 0, cap);
+}
+
+int GetExplosiveRepeatChance(int pnum) {
+	return GetPlayerAttributeValue(pnum, INV_ESS_KRULL);
 }
 
 #endif

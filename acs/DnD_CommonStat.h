@@ -300,12 +300,8 @@ enum {
 	RES_PLAYERSPEED = 512,
 	RES_ACCURACY = 1024,
 	RES_EXPLOSIONRADIUS = 2048,
-	RES_SELFEXPLOSIONRESIST = 4096,
-	RES_PHYSRESIST = 8192,
-	RES_ELEMRESIST = 16384,
-	RES_REFLRESIST = 32768,
+	RES_NOCLASSPERK = 4096
 };
-#define RES_ALLRESISTS (RES_SELFEXPLOSIONRESIST | RES_PHYSRESIST | RES_ELEMRESIST | RES_REFLRESIST)
 
 enum {
 	SF_FREEZE = 1
@@ -513,7 +509,9 @@ void RestoreRPGStat (int statflag) {
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 	HandleResearchBonuses();
-	HandleClassPerks();
+	
+	if(!(statflag & RES_NOCLASSPERK))
+		HandleClassPerks();
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {

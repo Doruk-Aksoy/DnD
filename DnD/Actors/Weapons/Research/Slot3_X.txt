@@ -25,6 +25,7 @@ Actor ResSSG1 : Weapon {
 	states {
 		Spawn:
 			//RW02 "\" -1
+			TNT1 A -1
 		stop
 		Ready:
 			RW02 X 1 A_WeaponReady(WRF_ALLOWRELOAD)

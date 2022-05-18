@@ -1022,6 +1022,9 @@ wile/flame				WILFLM
 wile/start				WILATK		
 
 weapons/firex5	dsfirex5
+weapons/firex5_l dsfirex5
+$limit weapons/firex5_l 3
+$volume weapons/firex5_l 0.5
 $limit weapons/firex5 0
 monster/hiesit	dshiesit
 monster/hieact	dshieact

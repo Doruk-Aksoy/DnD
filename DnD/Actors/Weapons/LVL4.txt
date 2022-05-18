@@ -1122,7 +1122,7 @@ Actor DemonSealCard : DnD_BaseProjectile {
 			OFUD A 1 Bright Light("FDOfudaGlow") A_SpawnItemEx("DemonSealTrail", 0,0,0, 0,0,0, 0, SXF_NOCHECKPOSITION)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEMONSEALER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT4), DND_DAMAGETYPE_OCCULT, DND_DAMAGEFLAG_CULL, DND_WEAPON_DEMONSEALER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEMONSEALER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT4), DND_DAMAGETYPE_MAGICSEAL, DND_DAMAGEFLAG_CULL, DND_WEAPON_DEMONSEALER)
 			TNT1 A 0 A_CheckFlag ("ISMONSTER", "TracerApplication", AAPTR_TRACER)
 		Death:
 			TNT1 A 1
@@ -1130,19 +1130,9 @@ Actor DemonSealCard : DnD_BaseProjectile {
 
 		TracerApplication:
 			TNT1 A 0 A_GiveInventory("DemonSealDebuffGiver", 1, AAPTR_TRACER)
-			TNT1 A 0 A_SpawnItemEx("DemonSealImpactFX", 0,0,0, 0,0,0, 0, SXF_NOCHECKPOSITION)
-		Goto CheckForOrder66
-
 		DeathAnimation:
-			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner3")
 			TNT1 A 0 A_SpawnItemEx("DemonSealImpactFX", 0,0,0, 0,0,0, 0, SXF_NOCHECKPOSITION)
-		Stop
-
-		CheckForOrder66:
-			TNT1 AAA 1 A_JumpIfInventory ("DnD_CullSuccess", 1, "SEAL", AAPTR_TRACER)
-		Stop
-		SEAL:
-			TNT1 A 5 A_CustomMissile ("DemonSealingDamage", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER, 0)
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner3")
 		Stop
 	}
 }
@@ -1164,33 +1154,6 @@ Actor DemonSealShooter2 : DnD_Activator {
 		SkipAmmo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CLIP, AMMO_DEMONSEAL, 10)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Create Kanji Trap")
-		Stop
-	}
-}
-
-ACTOR DemonSealingDamage {
-	Radius 8
-	Height 16
-	Speed 60
-	Damage (0x3FFFFFFF)
-	DamageType "MagicSealing"
-	+THRUSPECIES
-	+NODAMAGETHRUST
-	+BLOODLESSIMPACT
-	+EXPLODEONWATER
-	+HITTRACER
-	+NOEXTREMEDEATH
-	+FOILINVUL
-	+DONTREFLECT
-	+DONTBLAST
-	Projectile
-	Species "Player"
-	States {
-		Spawn:
-			TNT1 A 3
-		Stop
-		Death:
-			TNT1 A 1
 		Stop
 	}
 }
@@ -1363,7 +1326,7 @@ Actor DemonSealExplosion : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEMONSEALER << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetUserVar("user_expradius", 144)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_SELFCULL)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_CULL)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_MAGICSEAL | (DND_WEAPON_DEMONSEALER << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:

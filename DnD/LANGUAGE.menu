@@ -424,7 +424,7 @@ DND_MENU_MAGICDMG		=	"magic damage";
 DND_MENU_DISCOUNT		=	"discount";
 DND_MENU_GLOBALCRIT		=	"global critical strike chance";
 DND_MENU_GLOBALCRITMULT	=	"global critical strike multiplier";
-DND_MENU_DROPCHANCE		=	"drop chance";
+DND_MENU_DROPCHANCE		=	"increased drop chance";
 DND_MENU_AMMOCAPS		=	"increased ammo caps";
 DND_MENU_SLOTDMG		=	"damage bonus to slot";
 

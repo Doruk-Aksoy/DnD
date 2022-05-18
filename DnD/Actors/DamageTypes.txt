@@ -40,7 +40,6 @@ enum {
 	DND_DAMAGEFLAG_USEMASTER = 1,
 	DND_DAMAGEFLAG_ISSHOTGUN = 2,
 	DND_DAMAGEFLAG_CULL = 4,
-	DND_DAMAGEFLAG_SELFCULL = 8,
 	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE = 16,				// damage bonus stored in user_tics, added on top flat
 	DND_DAMAGEFLAG_NOPOISONSTACK = 32,
 	DND_DAMAGEFLAG_HALFDMGSELF = 64,						// explosion only deals half damage to user

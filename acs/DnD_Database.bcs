@@ -731,6 +731,24 @@ void LoadPlayerData(int pnum, int char_id) {
 	);
 	*/
 	
+	// read level -- moved here due to dependency on class perks
+	temp = GetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc);
+	if(!temp)
+		temp = 1;
+	SetInventory("Level", temp);
+	SetInventory("LevelExpCap", GetExpLimit_Level(temp));
+	
+	// read exp
+	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);
+	SetInventory("Exp", temp);
+	CalculateExpRatio();
+	
+	// read credits
+	SetInventory("Credit", GetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc));
+	
+	// load class perks
+	HandleClassPerks();
+	
 	// make sure starting char code doesn't run
 	SetInventory("ReflectCount", 0);
 	SetInventory("Intervened", 0);
@@ -944,21 +962,6 @@ void LoadPlayerData(int pnum, int char_id) {
 		SetInventory(TalentNames[i], temp & 0xFF);
 		temp >>= 8;
 	}
-
-	// read level
-	temp = GetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc);
-	if(!temp)
-		temp = 1;
-	SetInventory("Level", temp);
-	SetInventory("LevelExpCap", GetExpLimit_Level(temp));
-	
-	// read exp
-	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);
-	SetInventory("Exp", temp);
-	CalculateExpRatio();
-	
-	// read credits
-	SetInventory("Credit", GetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc));
 	
 	// read abilities
 	temp = GetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc);
@@ -1087,7 +1090,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("DnD_NPC_Meet", temp);
 	
 	// Restoration steps
-	RestoreRPGStat(RES_PLAYERSPEED);
+	RestoreRPGStat(RES_PLAYERSPEED | RES_NOCLASSPERK);
 	UpdatePlayerKnockbackResist();
 	
 	// Research stuff

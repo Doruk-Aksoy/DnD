@@ -39,7 +39,7 @@ DND_ORBTEXT18		=	"Adds an extra random attribute to a non-unique charm even if i
 DND_ORB19			=	"Phantasmal Orb";
 DND_ORBTEXT19		=	"Grants used weapon ability to hit ghosts but reduces overall damage by 33%.";
 DND_ORB20			=	"Assimilation Orb";
-DND_ORBTEXT20		=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
+DND_ORBTEXT20		=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled, but amount of mods may be less than sum of both. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
 
 // random stuff + use texts
 DND_ORB_ANDGRANTS	=	"and grants";
@@ -134,5 +134,5 @@ DND_ORBUSETEXT19A	=	"Phantasmal Orb grants";
 DND_ORBUSETEXT19B	=	"ability to \cdhit ghosts\c-!";
 DND_ORBUSEFAIL19	=	"Phantasmal Orb can't be used because the weapon already hits ghosts!";
 
-DND_ORBUSETEXT20	=	"Assimilation Orb assimilates the selected items, and produces a new one.";
+DND_ORBUSETEXT20	=	"Assimilation Orb consumes the selected items, and produces a new one.";
 DND_ORBUSEFAIL20	=	"Assimilation Orb couldn't be used.";

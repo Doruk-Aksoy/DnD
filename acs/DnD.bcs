@@ -348,10 +348,9 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 			GiveInventory("HealthBonusX", toGive);
 			GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
 			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
-			
-			// check for oakheart
+
 			if(HasMasteredPerk(STAT_MED) && toGive / 10)
-				HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, false);
+				HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, ARMORGF_NOPERCENT);
 		}
         if(toGive < amt)
             GiveInventory("StoredMedkit", Clamp_Between(amt - toGive, 1, base));
@@ -362,7 +361,7 @@ Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
 		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 		
 		if(HasMasteredPerk(STAT_MED) && toGive / 10)
-			HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, false);
+			HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, ARMORGF_NOPERCENT);
 	}
 	
 	HandleHealDependencyCheck();
@@ -635,21 +634,24 @@ Script "DnD Killing Spree Timer" (void) {
 			// ravager armor add
 			int armor_id = GetArmorID();
 			int armor_amt = GetArmorAmount();
-			if(armor_id == DND_ARMOR_RAVAGER && armor_amt) {
-				int cap = GetArmorCapFromID(armor_id);
-				if(armor_amt < cap) {
-					ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_RAVAGER, cap - armor_amt);
-					GiveInventory("RavagerEffect", 1);
-					LocalAmbientSound("items/armorbonus", 127);
-				}
+			int cap = GetArmorCapFromID(armor_id);
+			if(armor_id == DND_ARMOR_RAVAGER && armor_amt && armor_amt < cap) {
+				HandleArmorPickup(DND_ARMOR_RAVAGER, cap - armor_amt);
+				GiveInventory("RavagerEffect", 1);
+				LocalAmbientSound("items/armorbonus", 127);
 			}
 			
 			// punisher perk 2 -- -2 means was at least merciless
 			temp = spree / DND_SPREE_PER;
 			if(CheckInventory("Punisher_Perk25") && temp >= 2) {
 				temp = DND_PUNISHER_SPREERECOVER + DND_PUNISHER_SPREEPERBONUS * (temp - 2);
+				if(temp > 100)
+					temp = 100; // don't give more than 100% of armor
+				
 				ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
-				ACS_NamedExecuteAlways("DND Armor Give", 0, armor_id, temp);
+				
+				if(armor_amt < cap)
+					HandleArmorPickup(armor_id, temp, ARMORGF_IGNOREIFNONE);
 			}
 		}
 		else {
@@ -925,26 +927,6 @@ Script "DND On Kill" KILL {
 			SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
 	}
 
-	// soul ammo drop -- considers ability - soulstealer as well
-	if(
-		(CanDropSoulAmmo() && RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_SOULAMMO_DROPRATE)) ||
-		(IsDemon() && ((CheckInventory("BookCausedDeath") || (CheckActorInventory(target, "Ability_SoulStealer") && CheckInventory("MagicCausedDeath")))))
-	  )
-	{
-		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE || CheckInventory("BookCausedDeath")) {
-			SpawnDrop("Souls", 24.0, 16, 0, 0);
-			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-				SpawnDrop("Souls", 24.0, 16, 0, 0);
-		}
-		else {
-			SpawnDrop("LargeSouls", 24.0, 16, 0, 0);
-			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-				SpawnDrop("LargeSouls", 24.0, 16, 0, 0);
-		}
-		TakeInventory("BookCausedDeath", 1);
-		TakeInventory("MagicCausedDeath", 1);
-	}
-
 	if(!GetCVar("dnd_allresearchesfound")) {
 		// make it less likely to drop
 		// addone is the chance here (reusing old variables)
@@ -1039,6 +1021,25 @@ Script "DND On Kill" KILL {
 	
 	// required delay for transition from specific death state labels
 	Delay(const:1);
+	
+	// soul ammo drop -- considers ability - soulstealer as well
+	if(
+		(CanDropSoulAmmo() && RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_SOULAMMO_DROPRATE)) ||
+		(IsDemon() && (CheckActorInventory(target, "Ability_SoulStealer") && CheckInventory("MagicCausedDeath")))
+	  )
+	{
+		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE) {
+			SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
+			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
+		}
+		else {
+			SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
+			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
+		}
+		TakeInventory("MagicCausedDeath", 1);
+	}
 	
 	HandleOtherDrops(target);
 	
@@ -1927,6 +1928,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(!pcount)
 		pcount = 1;
 	
+	MonsterProperties[m_id].id = monsterid;
+	
 	LoadMonsterTraits(monsterid);
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
@@ -1948,7 +1951,6 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		MonsterProperties[m_id].maxhp = maxhp;
 		MonsterProperties[m_id].level = 1;
 	}
-	MonsterProperties[m_id].id = monsterid;
 
 	// run elite checks
 	if(
@@ -1980,6 +1982,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 			MonsterProperties[m_id].maxhp = maxhp;
 		}
 	}
+	else // important addition to prevent elite name from clogging up later, uncleaned
+		MonsterProperties[m_id].isElite = false;
 	
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
@@ -2007,7 +2011,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	}
 	
 	// handle things that should be given specifically to certain traits
-	HandleSpecialTraits(m_id, monsterid);
+	// commented out as we already did this in decidetraits, this is only relevant for reviving monsters
+	// HandleSpecialTraits(m_id, monsterid);
 	
 	// set its true height user variable user_spawnheight
 	// printbold(s:"set spawn height to ", d:GetActorProperty(0, APROP_HEIGHT) >> 16);
@@ -2914,7 +2919,7 @@ Script "DnD On Respawn" RESPAWN {
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
 	SetInventory("PlayerIsLeeching", 0);
-	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
+	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	
 	// run the monster scanner script again on respawn
@@ -3156,7 +3161,7 @@ Script "DnD Player Setup" ENTER {
 	else
 		SetInventory("CurrentLives", GetCvar("sv_maxlives") - 1);
 	
-	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS | RES_ALLRESISTS);
+	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	
 	// sync item mods
 	SyncPlayerItemMods(pnum);
@@ -5994,7 +5999,7 @@ Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
 		int x = (GetHudRight(900) << 16) - 5.8;
 		if(CheckInventory("Punisher_Perk50_Counter") >= DND_PUNISHER_PERK3_KILLCOUNT) {
 			if(!reset)
-				HudMessage(s:"\c[I7]", f:ftrunc(100 * (DND_PUNISHER_DMGINCF * (CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT))), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
+				HudMessage(s:"\c[I7]", s:GetFixedRepresentation(DND_PUNISHER_DMGINCF * (CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT), true), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 			else // clear because we died
 				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 		}
@@ -6489,8 +6494,11 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		//SpawnCharm(0, true);
 		SpawnOrbForAll(1, random(40, 120));
-		SpawnCharmWithMods_ForAll(INV_FLATMAGIC_DAMAGE, INV_PERCENTMAGIC_DAMAGE);
-		/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+		SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 5);
+		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
+		/*SpawnCharmWithMods_ForAll(INV_ESS_KRULL);
+		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
+		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

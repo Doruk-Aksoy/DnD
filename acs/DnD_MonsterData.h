@@ -679,7 +679,7 @@ void LoadMonsterTraits(int m_id) {
 	MonsterProperties[i].trait_list[DND_NOPAIN] 				|= CheckFlag(0, "NOPAIN");
 	MonsterProperties[i].trait_list[DND_REFLECTIVE] 			|= CheckFlag(0, "REFLECTIVE");
 		
-	if(MonsterProperties[i].id >= LEGENDARY_START)
+	if(m_id >= LEGENDARY_START)
 		MonsterProperties[i].trait_list[DND_LEGENDARY] |= true;
 	
 	// check for weaknesses and monster not having any kind of resist to this type

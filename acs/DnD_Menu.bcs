@@ -156,6 +156,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	// initialize cursor data
 	PlayerCursorData.itemHovered = -1;
 	PlayerCursorData.itemDragged = -1;
+	PlayerCursorData.itemClicked = -1;
 	PlayerCursorData.posx = HUDMAX_XF / 2;
 	PlayerCursorData.posy = HUDMAX_YF / 2;
 	
@@ -259,14 +260,43 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		DrawCursor();
 		
 		// hovered on or things that are otherwise redrawn over and over
-		if(PlayerCursorData.itemHovered != -1) {
+		if(PlayerCursorData.itemClicked != -1 && CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1 != PlayerCursorData.itemClicked) {
+			if(PlayerCursorData.clickNeedsReset)
+				ResetCursorClickData();
+			else {
+				// don't draw twice
+				if(PlayerCursorData.itemHovered == PlayerCursorData.itemClicked)
+					ResetCursorHoverData();
+			
+				DrawCraftingInventoryInfo(
+					pnum,
+					RPGMENUCLICKEDID,
+					PlayerCursorData.itemClickedPos.x,
+					PlayerCursorData.itemClickedPos.y,
+					PlayerCursorData.itemClicked,
+					PlayerCursorData.itemClickedType,
+					PlayerCursorData.itemClickedSource
+				);
+			}
+		}
+		
+		if(PlayerCursorData.itemHovered != -1 && (PlayerCursorData.itemClicked == -1 || CheckInventory("DnD_UsedTwoItemRequirementMaterial"))) {
 			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
 				ResetCursorHoverData();
 			else {
 				if(PlayerCursorData.itemHoveredDim.x)
 					DrawInventoryInfo(PlayerCursorData.owner_pnum);
-				else
-					DrawCraftingInventoryInfo(PlayerCursorData.owner_pnum);
+				else {
+					DrawCraftingInventoryInfo(
+						PlayerCursorData.owner_pnum,
+						RPGMENUINVENTORYID,
+						PlayerCursorData.posx,
+						PlayerCursorData.posy,
+						PlayerCursorData.itemHovered,
+						PlayerCursorData.itemHoveredType,
+						PlayerCursorData.itemHoveredSource
+					);
+				}
 			}
 		}
 		else if(PlayerCursorData.hoverNeedsReset)
@@ -330,7 +360,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			SetFont("SMALLFONT");
 			DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
 			DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);
-			DeleteText(RPGMENUCURSORID + 1); // dragged item
+			
+			if(PlayerCursorData.itemDragged != -1 || !CheckInventory("DnD_UsedTwoItemRequirementMaterial"))
+				DeleteText(RPGMENUCURSORID + 1); // dragged item
 			
 			if(CheckInventory("DnD_InventoryView")) {
 				LoadInventoryView(InventoryPane);
@@ -446,7 +478,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					if(IsQuestComplete(0, i))
 						toshow = StrParam(s:toshow, s:"\cf*\c- ", l:GetQuestLabel(i, QUEST_REW), s:"\n\n");
 				}
-				SetHudClipRect(192, 56, 256, 448, 256); // 48 because 64 is begin, text one line len is 16, 48 is max allowed lines, 16 x 3.
+				SetHudClipRect(192, 52, 256, 196, 256); // 48 because 64 is begin, text one line len is 16, 48 is max allowed lines, 16 x 3.
 				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 64.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			
@@ -1277,9 +1309,18 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						else
 							LocalAmbientSound("RPG/MenuClose", 127);
 					}
-					else if (((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
-							 ((CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH) == DND_ITEM_NULL)))
-							SetInventory("DnD_SelectedInventoryBox", 0);
+					else if
+					(
+						((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
+						(
+							(CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && 
+							(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerPreviousPage") - 1) << 16)) == DND_ITEM_NULL)
+						)
+					)
+					{
+						//printbold(s:"set to 0 before arrival on page ", d:CheckInventory("DnD_PlayerPreviousPage"));
+						SetInventory("DnD_SelectedInventoryBox", 0);
+					}
 				}
 				HandleStashViewClicks(pnum, boxid, temp);
 			}

@@ -363,7 +363,7 @@ void GiveAmmo(int amt, int slot, int t) {
 	if(slot != DND_AMMOSLOT_SOULS)
 		amt = amt * GetAmmoGainFactor() / 100;
 	else
-		amt = amt + (amt * CheckInventory("IATTR_SoulAmmoIncrease") / 100);
+		amt = amt * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_EX_PICKUPS_MORESOUL)) / 100;
 	GiveInventory(AmmoInfo_Str[slot][t][AMMOINFO_NAME], amt);
 }
 
