@@ -56,6 +56,7 @@ enum {
 #include "DnD_CommonResearch.h"
 
 #define DND_ELITE_BASEDROP 0.035
+#define DND_ELITE_BASEDROP_ORB 0.05
 
 #define DND_BASE_PLAYERSPEED 1.0
 #define DND_BULKINESS_GAIN 0.006

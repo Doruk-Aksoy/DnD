@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -57,6 +57,8 @@ enum {
 #define DND_PUNISHER_PERK3_MAX 100
 #define DND_PUNISHER_DMGINCF 0.04
 #define DND_PUNISHER_DMGINC 4 // 4%
+#define DND_PUNISHER_DMG_MAX 1000
+
 #define PUNISHERPERKID1 7010
 #define PUNISHERPERKID2 7011
 

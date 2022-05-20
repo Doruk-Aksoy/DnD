@@ -335,11 +335,11 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
 	if(!temp)
 		return dmg;
 	
-	temp = ApplyResistCap(pnum, temp);
+	// roll damage up
+	temp = ApplyResistCap(pnum, temp) + 0.05;
 	
 	//return ApplyDamageFactor_Safe(dmg, DND_DAMAGERESIST_FACTOR - ((temp * 100) >> 16), DND_DAMAGERESIST_FACTOR);
-	// roll damage up
-	return (((dmg * (100.0 - temp)) / 100) + 0.5) >> 16;
+	return dmg * ((100.0 - temp) >> 16) / 100;
 }
 
 int ScanActorFlags() {
@@ -1303,7 +1303,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				final_dmg = ScaleExplosionToDistance(owner, dmg / 2, radius / 2, fullradius / 2, px, py, pz, proj_r);
 			else
 				final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-		
+				
 			// added sight check to fix explosives hurting behind walls bug
 			if(final_dmg > 0 && CheckSight(0, owner, CSF_NOBLOCKALL)) {
 				// set activator to us for damage credit -- we no longer need projectile itself here
@@ -2388,7 +2388,6 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_SELFEXPLOSIVEREDUCE);
 			
 			dmg = ApplyPlayerResist(pnum, dmg, INV_SELFDMG_RESIST);
-			
 			// properly include this ability's benefit here, including cyborg check
 			if(CheckInventory("Ability_ExplosionMastery")) {
 				if(!CheckInventory("Cyborg_Perk25"))

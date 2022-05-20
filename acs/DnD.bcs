@@ -5997,14 +5997,19 @@ Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
 		SetFont("OBJFONT");
 		SetHudSize(900, 600, 1);
 		int x = (GetHudRight(900) << 16) - 5.8;
-		if(CheckInventory("Punisher_Perk50_Counter") >= DND_PUNISHER_PERK3_KILLCOUNT) {
+		tmp = CheckInventory("Punisher_Perk50_Counter");
+		if(tmp >= DND_PUNISHER_PERK3_KILLCOUNT) {
 			if(!reset)
-				HudMessage(s:"\c[I7]", s:GetFixedRepresentation(DND_PUNISHER_DMGINCF * (CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT), true), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
+				HudMessage(s:"\c[I7]", s:GetFixedRepresentation(DND_PUNISHER_DMGINCF * (tmp / DND_PUNISHER_PERK3_KILLCOUNT) + 0.0005, true), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 			else // clear because we died
 				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 		}
-		tmp = DND_PUNISHER_PERK3_KILLCOUNT - CheckInventory("Punisher_Perk50_Counter") % DND_PUNISHER_PERK3_KILLCOUNT;
-		HudMessage(l:"DND_KILL", s:" \c[I7]", d:tmp, s:"\c- ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
+		if(tmp < DND_PUNISHER_DMG_MAX) {
+			tmp = DND_PUNISHER_PERK3_KILLCOUNT - tmp % DND_PUNISHER_PERK3_KILLCOUNT;
+			HudMessage(l:"DND_KILL", s:" \c[I7]", d:tmp, s:"\c- ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
+		}
+		else
+			HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
 	}
 }
 
@@ -6491,13 +6496,17 @@ Script 68 (int x) NET {
 		SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
 		SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 4);
 	}
+	else if(x == 400) {
+		GiveInventory("Punisher_Perk50_Counter", 125);
+		ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
+	}
 	else if(x == 420) {
 		//SpawnCharm(0, true);
 		SpawnOrbForAll(1, random(40, 120));
-		SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 5);
-		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
-		/*SpawnCharmWithMods_ForAll(INV_ESS_KRULL);
-		SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
+		SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 1);
+		//SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
+		SpawnCharmWithMods_ForAll(INV_DMGREDUCE_EXPLOSION);
+		/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

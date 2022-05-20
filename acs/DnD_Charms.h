@@ -7,7 +7,7 @@
 
 #define NULL_CHARM -1
 
-#define DND_BASE_CHARMRATE 0.015
+#define DND_BASE_CHARMRATE 0.01
 
 #define DND_CHARM_BASEHEIGHT 1
 #define DND_CHARM_BASEWIDTH 1
@@ -150,7 +150,7 @@ void SpawnCharm(int pnum, bool isElite, bool noRepeat = false) {
 			addchance = DND_ELITE_BASEDROP / 2;
 
 		#ifndef ISDEBUGBUILD
-			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || (!GetCVar("dnd_ignore_dropweights") && RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance)))
+			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance))
 		#else
 			if(random(0,1))
 		#endif

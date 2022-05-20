@@ -82,7 +82,7 @@ Actor Punisher_Perk25 : DnD_Boolean { }
 Actor Punisher_Perk50 : DnD_Boolean { }
 
 Actor Punisher_Perk50_Counter : Inventory {
-	inventory.maxamount 5000
+	inventory.maxamount 1000
 }
 
 Actor Wanderer_Perk5 : DnD_Boolean { }

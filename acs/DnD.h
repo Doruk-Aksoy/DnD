@@ -784,7 +784,7 @@ void HandleEliteDrops() {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART)))) {
 			// for orbs
-			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP + addchance))
+			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP_ORB + addchance))
 				SpawnOrb(i, true);
 			// for tokens -- same likelihood to drop as orbs
 			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP + addchance))
