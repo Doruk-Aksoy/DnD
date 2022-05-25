@@ -207,6 +207,8 @@ IATTR_T96			= "to max ignite proliferation";
 IATTR_T97			= "increased ignite proliferation range";
 
 IATTR_T98			= "chance to ignore ailment immunities";
+IATTR_T99			= "to ignite chance";
+IATTR_T100			= "to ignite proliferation chance";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

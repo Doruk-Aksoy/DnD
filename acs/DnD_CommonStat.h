@@ -375,9 +375,9 @@ int GetPetCap(int tid) {
 
 int GetHealingBonuses(int pnum) {
 	int bonus = PERK_MEDICBONUS * CheckInventory("Perk_Medic");
-	if(CheckInventory("DnD_QuestReward_HealingIncrease25"))
+	if(IsQuestComplete(0, QUEST_HEALFOR500))
 		bonus += DND_QUEST_MASTERHEALER_INCREASE;
-	if(CheckInventory("DnD_QuestReward_HealingAndCapIncrease"))
+	if(IsQuestComplete(pnum + P_TIDSTART, QUEST_NOHEALINGPICKUP))
 		bonus += DND_QUEST_SKINOTEETH_INCREASE;
 	// doesn't make sense for it to go below 0
 	int less_mod = Clamp_Between(100 - GetPlayerAttributeValue(pnum, INV_EX_LESSHEALING), 0, 100);
@@ -405,8 +405,8 @@ int GetMissingHealth() {
 
 int CalculateHealthCapBonuses(int pnum) {
 	// consider quest bonuses, charms, orb effects and elixirs
-	return CheckInventory("DnD_QuestReward_100BonusCap") * DND_QUEST_PRECIOUSLIFE_BONUS 			+
-		   CheckInventory("DnD_QuestReward_HealingAndCapIncrease") * DND_QUEST_SKINOTEETH_BONUS 	+
+	return IsQuestComplete(pnum + P_TIDSTART, QUEST_NODYING) * DND_QUEST_PRECIOUSLIFE_BONUS 		+
+		   IsQuestComplete(pnum + P_TIDSTART, QUEST_NOHEALINGPICKUP) * DND_QUEST_SKINOTEETH_BONUS 	+
 		   GetPlayerAttributeValue(pnum, INV_HP_INCREASE)			 								+
 		   GetDataFromOrbBonus(pnum, OBI_HPFLAT)						 							+
 		   Player_Elixir_Bonuses[pnum].hp_flat_bonus;
@@ -417,7 +417,7 @@ int GetSpawnHealth() {
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_VIT_INCREASE * GetVitality();
 	// consider percent bonuses from here on
 	int percent  = GetDataFromOrbBonus(pnum, OBI_HPPERCENT)							 		+ 
-				   DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus") 	+
+				   DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
 				   // GetStrength() * DND_STR_CAPINCREASE 										+
 				   CheckInventory("CelestialCheck") * CELESTIAL_BOOST 						+
 				   GetResearchHealthBonuses() 												+

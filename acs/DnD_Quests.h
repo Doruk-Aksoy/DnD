@@ -8,28 +8,28 @@
 #define DND_QUEST_ARTIBONUS 25 // 25%
 
 quest_T Quest_List[MAX_QUESTS] = {
-		{ QTYPE_ATLEASTONE, 											"DnD_QuestReward_RegenCap" 				},
-		{ QTYPE_ATLEASTONE, 											"DnD_QuestReward_15PercentDamage"		},
-		{ QTYPE_EVERYONE, 												"DnD_QuestReward_100BonusCap"			},
-		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_QuestReward_KillingSpree15"		},
-		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_QuestReward_HealingIncrease25"		},
-		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_QuestReward_ReducedBossDmg"		},
-		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_QuestReward_EliteDropBonus"		},
-		{ QTYPE_ATLEASTONE, 											"DnD_QuestReward_ExtraArtiDmg"			},
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_EnergyDamage"			},
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_HealingAndCapIncrease" },
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_Slot2DmgIncrease"		},
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_ShotgunDmgIncrease"	},
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_ArmorCapIncrease"		},
-		{ QTYPE_EVERYONE,												"DnD_QuestReward_UndeadDamageIncrease"  },
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_SuperWeaponDamage"		},
-		{ QTYPE_ATLEASTONE,												"DnD_QuestReward_SpecialAmmoDamage"		},
-		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_QuestReward_MoreCredit"			},
-		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_DreamingGodBonus"		},
-		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_TorrasqueBonus"		},
-		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_MordecqaiBonus"		},
-		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_GodSlayerBonus"		},
-		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_QuestReward_GolgothBonus"			}
+		{ QTYPE_ATLEASTONE, 											"DnD_HealthLess50" 						},
+		{ QTYPE_ATLEASTONE, 											"DnD_WeaponFiredOther"					},
+		{ QTYPE_EVERYONE, 												"DnD_Boolean"							},
+		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_BerserkQuest_SpreeCounter"			},
+		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_MasterHealerQuest_HealAmount"		},
+		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_BossKillQuest_Counter"				},
+		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_EliteKillQuest_Counter"			},
+		{ QTYPE_ATLEASTONE, 											"DnD_UseNoArtifact"						},
+		{ QTYPE_ATLEASTONE,												"DnD_UsingEnergyFailed"					},
+		{ QTYPE_ATLEASTONE,												"DnD_UseNoHealth" 						},
+		{ QTYPE_ATLEASTONE,												"DnD_UseOnlyPistol"						},
+		{ QTYPE_ATLEASTONE,												"DnD_UseNoShotgun"						},
+		{ QTYPE_ATLEASTONE,												"DnD_BoughtArmor"						},
+		{ QTYPE_EVERYONE,												"DnD_ShotUndead"  						},
+		{ QTYPE_ATLEASTONE,												"DnD_UsedSuperWeapon"					},
+		{ QTYPE_ATLEASTONE,												"DnD_UsedNonSpecial"					},
+		{ QTYPE_ATLEASTONE | QTYPE_TRACKABLE | QTYPE_IMMEDIATE,			"DnD_MoneySpentQuest"					},
+		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_Boolean"							},
+		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_Boolean"							},
+		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_Boolean"							},
+		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_Boolean"							},
+		{ QTYPE_ATLEASTONE | QTYPE_IMMEDIATE,							"DnD_Boolean"							}
 };
 
 enum {
@@ -50,52 +50,16 @@ str GetQuestLabel(int id, int which) {
 	return "";
 }
 
-str Quest_Checkers[MAX_QUESTS] = {
-	"DnD_HealthLess50",
-	"DnD_WeaponFiredOther",
-	"DnD_Boolean",
-	"DnD_BerserkQuest_SpreeCounter",
-	"DnD_MasterHealerQuest_HealAmount",
-	"DnD_BossKillQuest_Counter",
-	"DnD_EliteKillQuest_Counter",
-	"DnD_UseNoArtifact",
-	"DnD_UsingEnergyFailed",
-	"DnD_UseNoHealth",
-	"DnD_UseOnlyPistol",
-	"DnD_UseNoShotgun",
-	"DnD_BoughtArmor",
-	"DnD_ShotUndead",
-	"DnD_UsedSuperWeapon",
-	"DnD_UsedNonSpecial",
-	"DnD_MoneySpentQuest",
-	"DnD_Boolean",
-	"DnD_Boolean",
-	"DnD_Boolean",
-	"DnD_Boolean",
-	"DnD_Boolean"
-};
-
 void CompleteQuest(int tid, int qid) {
 	str tocheck = "DnD_QuestState1";
 	if(qid > 30)
 		tocheck = "DnD_QuestState2";
 	qid %= 31; // for 2nd part
 	SetActorInventory(tid, tocheck, CheckActorInventory(tid, tocheck) | (1 << qid));
-	GiveActorInventory(tid, Quest_List[qid].qreward, 1);
 	SetActorInventory(tid, "QuestCompletionToken", active_quest_id + 1);
 	ACS_NamedExecuteAlways("DND Quest Complete", 0);
 	SetActorInventory(tid, "ActiveQuestID", 0);
 	FinishQuest(tid, qid);
-}
-
-bool IsQuestComplete(int tid, int qid) {
-	str tocheck = "DnD_QuestState1";
-	if(qid > 30)
-		tocheck = "DnD_QuestState2";
-	qid %= 31; // for 2nd part
-	if(!tid)
-		return IsSet(CheckInventory(tocheck), qid);
-	return IsSet(CheckActorInventory(tid, tocheck), qid);
 }
 
 void FailQuest(int tid) {
@@ -107,7 +71,7 @@ void FailQuest(int tid) {
 }
 
 void FinishQuest(int tid, int qid) {
-	SetActorInventory(tid, Quest_Checkers[qid], 0);
+	SetActorInventory(tid, Quest_List[qid].qchecker, 0);
 	// individual quests are who gets it done first, so if someone gets it remove this quest
 	if(!(Quest_List[qid].qflag & QTYPE_ATLEASTONE)) {
 		active_quest_id = -1;
@@ -148,6 +112,10 @@ bool IsValidQuest(int qid) {
 	if(qid >= QUEST_KILLDREAMINGGOD)
 		res = ThingCountName(LegendaryMonsters[qid - QUEST_KILLDREAMINGGOD], 0) == 1;
 	return res;
+}
+
+Script "DnD Quest Check" (int q_id) {
+	SetResultValue(IsQuestComplete(0, q_id));
 }
 
 #endif

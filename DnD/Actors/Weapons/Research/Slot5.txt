@@ -697,7 +697,7 @@ Actor ResRL3 : Weapon {
 			FRZC A 1 A_WeaponReady(WRF_NOFIRE)
 		Goto Ready
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireAmmoCheck")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "FireAmmoCheck")
 			TNT1 A 0 A_JumpIfInventory("FreezerCooldown", 1, "Nothing")
 			TNT1 A 0 A_JumpIfInventory("FreezerOverheat", 100, "Nothing")
 		FireAmmoCheck:
@@ -721,7 +721,7 @@ Actor ResRL3 : Weapon {
 			FRZC A 6 A_WeaponReady(WRF_NOFIRE)
 		Goto Ready
 		Hold:
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireAmmoCheckHold")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "FireAmmoCheckHold")
 			TNT1 A 0 A_JumpIfInventory("FreezerCooldown", 1, "Nothing")
 			TNT1 A 0 A_JumpIfInventory("FreezerOverheat", 100, "Nothing")
 		FireAmmoCheckHold:

@@ -71,7 +71,8 @@ enum {
 #define SURVIVETOPTEXTID 7001
 #define SURVIVETEXTID 7002
 #define SURVIVEID 7003
-#define SURVIVEBAKID 7004
+#define SURVIVETEXTID2 7004
+#define SURVIVEBAKID 7005
 
 #define VORTEXTIDSTART 10000
 #define P_TEMPTID 200
@@ -100,9 +101,6 @@ enum {
 
 #define DND_DEMONBANE_GAIN 50
 #define DND_DEMONBANE_REDUCE 4 // 1 / 4 = 25% damage, 75% reduction
-
-#define DND_AMULETHELL_FACTOR 4 // 25% damage
-#define DND_AMULETHELL_AMP 7 // 7 / 4 = 75%
 
 #define DND_NETHERMASK_AMP 3 // 3 / 2 => 50%
 #define DND_NETHERMASK_DIV 2
@@ -597,7 +595,7 @@ void PickQuest() {
 
 void ClearQuestCheckers() {
 	for(int i = 0; i < MAX_QUESTS; ++i)
-		SetInventory(Quest_Checkers[i], 0);
+		SetInventory(Quest_List[i].qchecker, 0);
 }
 
 void CheckMapExitQuest(int pnum, int qid) {
@@ -610,7 +608,7 @@ void CheckMapExitQuest(int pnum, int qid) {
 	if(qid == QUEST_NODYING)
 		cond = true; // it would fail if people died, if not it succeeded
 	else if(!QuestExitCheckException(qid)) // typical map exit quests
-		cond = !CheckActorInventory(tid, Quest_Checkers[qid]);
+		cond = !CheckActorInventory(tid, Quest_List[qid].qchecker);
 		
 	if(!IsQuestComplete(tid, qid)) {
 		if(cond)
@@ -868,7 +866,7 @@ int GetWeaponSlotFromFlag(int flags) {
 	return 0;
 }
 
-int ScaleMonster(int pcount, int realhp) {
+int ScaleMonster(int tid, int pcount, int realhp) {
 	int base = realhp;
 	int add = 0, level = 1, low, high, temp;
 	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount;
@@ -933,9 +931,9 @@ int ScaleMonster(int pcount, int realhp) {
 		else
 			add = INT_MAX - base;
 	}
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].basehp = base;
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp = base + add;
-	MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level = level;
+	MonsterProperties[tid - DND_MONSTERTID_BEGIN].basehp = base;
+	MonsterProperties[tid - DND_MONSTERTID_BEGIN].maxhp = base + add;
+	MonsterProperties[tid - DND_MONSTERTID_BEGIN].level = level;
 	return base + add;
 }
 
@@ -1064,35 +1062,35 @@ void DoSlotWeaponQuestChecks(int wepid) {
 	if(PlayerWeaponUsed[pnum] == -1)
 		PlayerWeaponUsed[pnum] = wepid;
 	else if(!CheckInventory("DnD_WeaponFiredOther") && PlayerWeaponUsed[pnum] != wepid)
-		GiveInventory(Quest_Checkers[QUEST_ONLYONEWEAPON], 1);
+		GiveInventory(Quest_List[QUEST_ONLYONEWEAPON].qchecker, 1);
 
 	// only slot 2 quest check
 	if(
-		active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS]) &&
+		active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qchecker) &&
 		!IsQuestComplete(ActivatorTID(), QUEST_ONLYPISTOLWEAPONS) && !CheckInventory("H_WeaponSlot2")
 	  )
-		GiveInventory(Quest_Checkers[QUEST_ONLYPISTOLWEAPONS], 1);
+		GiveInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qchecker, 1);
 	
 	// only boomstick quest check
 	if(
-		active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_Checkers[QUEST_NOSHOTGUNS]) && 
+		active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qchecker) && 
 		!IsQuestComplete(ActivatorTID(), QUEST_NOSHOTGUNS) && IsBoomstick(wepid)
 	  )
-		GiveInventory(Quest_Checkers[QUEST_NOSHOTGUNS], 1);
+		GiveInventory(Quest_List[QUEST_NOSHOTGUNS].qchecker, 1);
 	
 	// no superweapon quest check
 	if(
-		active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS]) &&
+		active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qchecker) &&
 		!IsQuestComplete(ActivatorTID(), QUEST_NOSUPERWEAPONS) &&
 		(CheckInventory("H_WeaponSlot7") || CheckInventory("H_WeaponSlot8"))
 	  )
-		GiveInventory(Quest_Checkers[QUEST_NOSUPERWEAPONS], 1);
+		GiveInventory(Quest_List[QUEST_NOSUPERWEAPONS].qchecker, 1);
 		
 	// only energy quest check
 	if(
-		active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_Checkers[QUEST_ONLYENERGY])
+		active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_List[QUEST_ONLYENERGY].qchecker)
 	  )
-		GiveInventory(Quest_Checkers[QUEST_ONLYENERGY], 1);
+		GiveInventory(Quest_List[QUEST_ONLYENERGY].qchecker, 1);
 }
 
 void HandleRuination(int this, int target) {

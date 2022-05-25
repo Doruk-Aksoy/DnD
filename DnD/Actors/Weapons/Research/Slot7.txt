@@ -49,7 +49,7 @@ Actor ResBFG1 : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireCont")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "FireCont")
 			TNT1 A 0 A_JumpIfInventory("IonCooldown", 1, "NoAction")
 			TNT1 A 0 A_JumpIfInventory("IonOverheat", 0, "NoAction")
 		FireCont:

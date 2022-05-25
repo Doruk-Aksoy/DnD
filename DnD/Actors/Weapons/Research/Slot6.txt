@@ -678,7 +678,7 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireContinue")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "FireContinue")
 			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
 			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 98, "Nothing")
 		FireContinue:
@@ -692,7 +692,7 @@ Actor ResPlasma3 : Weapon {
 			DGAF BCDEFG 1
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "AltFireAmmoCheck")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "AltFireAmmoCheck")
 			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
 			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 83, "Nothing")
 		AltFireAmmoCheck:

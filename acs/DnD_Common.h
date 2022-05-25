@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -444,6 +444,14 @@ bool player_pickup_cubes_intersect(int player_tid, int object_tid) {
 			((getactorz(player_tid) <= getactorz(object_tid)+16.0) && (getactorz(player_tid)+56.0 >= getactorz(object_tid)));
 }
 
+// contains overflow checks
+int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
+	// disabled overflow checks for now, see if there's any improvement in performance
+	// if this turns out to be necessary, I'll enable this
+	//if(dmg < INT_MAX / factor)
+		return dmg * factor / div;
+	//return INT_MAX;
+}
 
 // takes deltax and deltay as parameter for actor comparisons
 int AproxDistance (int dx, int dy) {

@@ -224,86 +224,68 @@ statusbar normal, fullscreenoffsets {
 		DND_ARMOR_LIGHTNINGCOIL	"AR16A0"
 	*/
 	
-	// sbarinfo fucking blows, terribly limited archaic ass dogshit
-	InInventory DnD_ArmorType, 1 {
-		InInventory DnD_ArmorType, 2 {
-			InInventory DnD_ArmorType, 3 {
-				InInventory DnD_ArmorType, 4 {
-					InInventory DnD_ArmorType, 5 {
-						InInventory DnD_ArmorType, 6 {
-							InInventory DnD_ArmorType, 7 {
-								InInventory DnD_ArmorType, 8 {
-									InInventory DnD_ArmorType, 9 {
-										InInventory DnD_ArmorType, 10 {
-											InInventory DnD_ArmorType, 11 {
-												InInventory DnD_ArmorType, 12 {
-													InInventory DnD_ArmorType, 13 {
-														InInventory DnD_ArmorType, 14 {
-															InInventory DnD_ArmorType, 15 {
-																InInventory DnD_ArmorType, 16 {
-																	InInventory DnD_ArmorType, 17 {
-																		InInventory DnD_ArmorType, 18 {
-																			drawimage "AR16A0", 80, -68, center, 18, 18;
-																		}
-																		else
-																			drawimage "AR15B0", 80, -68, center, 18, 18;
-																	}
-																	else
-																		drawimage "ARM8A0", 80, -68, center, 18, 18;
-																}
-																else
-																	drawimage "ARM7A0", 80, -68, center, 18, 18;
-															}
-															else
-																drawimage "ARM6A0", 80, -68, center, 18, 18;
-														}
-														else
-															drawimage "ARM5A0", 80, -68, center, 18, 18;
-													}
-													else
-														drawimage "ARM4A1", 80, -68, center, 18, 18;
-												}
-												else
-													drawimage "AR13A0", 80, -68, center, 18, 18;
-											}
-											else
-												drawimage "AR14A0", 80, -68, center, 18, 18;
-										}
-										else
-											drawimage "AR12A1", 80, -68, center, 18, 18;
-									}
-									else
-										drawimage "AR11A0", 80, -68, center, 18, 18;
-								}
-								else
-									drawimage "AR10A0", 80, -68, center, 18, 18;
-							}
-							else
-								drawimage "ARM9A0", 80, -68, center, 18, 18;
-						}
-						else
-							drawimage "QRARA0", 80, -68, center, 18, 18;
-					}
-					else
-						drawimage "ARM2A0", 80, -68, center, 18, 18;
-				}
-				else
-					drawimage "ARM3A0", 80, -68, center, 18, 18;
-			}
-			else
-				drawimage "ARM1A0", 80, -68, center, 18, 18;
-		}
-		else
-			drawimage "BON2C0", 80, -68, center, 18, 18;
+	InInventory DnD_ArmorType, 18 {
+		drawimage "AR16A0", 80, -68, center, 18, 18;
 	}
-    
+	else InInventory DnD_ArmorType, 17 {
+		drawimage "AR15B0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 16 {
+		drawimage "ARM8A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 15 {
+		drawimage "ARM7A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 14 {
+		drawimage "ARM6A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 13 {
+		drawimage "ARM5A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 12 {
+		drawimage "ARM4A1", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 11 {
+		drawimage "AR13A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 10 {
+		drawimage "AR14A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 9 {
+		drawimage "AR12A1", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 8 {
+		drawimage "AR11A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 7 {
+		drawimage "AR10A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 6 {
+		drawimage "ARM9A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 5 {
+		drawimage "QRARA0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 4 {
+		drawimage "ARM2A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 3 {
+		drawimage "ARM3A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 2 {
+		drawimage "ARM1A0", 80, -68, center, 18, 18;
+	}
+	else InInventory DnD_ArmorType, 1 {
+		drawimage "BON2C0", 80, -68, center, 18, 18;
+	}
 
     // If armor is above 100, draw the bar overlay and counter in blue color,
     // and the bar frame in "normal" color
     InInventory ARMOver100
     {
       drawimage "H_BRFRMX", 93, -74; // Bar frame
-      drawbar "H_BRFILG", "H_BRFBGG", ammo ArmorAmountVisual, horizontal, 96, -71; // Bar
+	  drawimage "H_BRFILG", 96, -71; // Bar green
+      //drawbar "H_BRFILG", "H_BRFBGG", ammo ArmorAmountVisual, horizontal, 96, -71; // Bar
       drawbar "H_BRFILB", "H_BRFBGB", ARMOverAmount, horizontal, 96, -71; // Bar (over 100)
       drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo ArmorAmount, alignment(left), 189, -73; // Counter
     }

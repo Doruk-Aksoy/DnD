@@ -33,6 +33,9 @@ enum {
 #define DND_HUNTERTALISMAN_HEALFACTOR 33
 #define DND_TALTOS_LIFESTEAL 25000 // 25%
 
+#define DND_AMULETHELL_FACTOR 4 // 25% damage
+#define DND_AMULETHELL_AMP 7 // 7 / 4 = 75%
+
 #define ACCESSORY_NAME 0
 #define ACCESSORY_ICON 1
 str AccessoryInfo[MAX_ACCESSORY][3] = { 

@@ -4,7 +4,7 @@ DND_REQ						=	"REQ";	// requirement
 DND_REW						=	"REW";	// reward
 DND_PROGRESS				=	"Progress";
 
-DND_NEWQUEST				=	"New Quest! Press \cvview quest\c- key!";
+DND_NEWQUEST				=	"New Quest!";
 DND_QUESTCOMPLETE			=	"Quest completed!";
 DND_QUESTFAILED				=	"Quest failed!";
 
@@ -50,11 +50,11 @@ DND_QUESTREWARD10			=	"Health capacity increases by +100, healing received incre
 
 DND_QUESTLABEL11			=	"Gunslinger";
 DND_QUESTREQ11				=	"Use only Slot 2 weapons.";
-DND_QUESTREWARD11			=	"Slot 2 weapon damage increases by 50%.";
+DND_QUESTREWARD11			=	"50% more damage with slot 2 weapons.";
 
 DND_QUESTLABEL12			=	"No Boomstick";
 DND_QUESTREQ12				=	"Use no shotgun weapons.";
-DND_QUESTREWARD12			=	"Shotgun damage increases by 50%.";
+DND_QUESTREWARD12			=	"50% more damage with slot 3 weapons.";
 
 DND_QUESTLABEL13			=	"Thick Skin";
 DND_QUESTREQ13				=	"Pick or buy no armors.";
@@ -86,7 +86,7 @@ DND_QUESTREWARD19			=	"Seal of Torrasque. (15% increased health and armor capaci
 			
 DND_QUESTLABEL20			=	"Mordecqai";
 DND_QUESTREQ20				=	"Find and kill Mordecqai.";
-DND_QUESTREWARD20			=	"Seal of Mordecqai. (Elemental attacks do x2 more damage)";
+DND_QUESTREWARD20			=	"Seal of Mordecqai. (Elemental attacks do 100% increased damage)";
 
 DND_QUESTLABEL21			=	"GodSlayer";
 DND_QUESTREQ21				=	"Find and kill GodSlayer.";

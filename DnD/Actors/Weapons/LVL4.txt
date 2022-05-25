@@ -1576,7 +1576,7 @@ Actor Desolator : Weapon {
 		Loop
 
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "FireContinue")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "FireContinue")
 			TNT1 A 0 A_JumpIfInventory("DesolatorCooldown", 1, "Nothing")
 		FireContinue:
 			DES4 C 1 A_TakeInventory("DnD_OverheatCanReduce", 1)
@@ -1592,7 +1592,7 @@ Actor Desolator : Weapon {
 			DES4 H 2
 			DES4 I 1
 		FireLoop:
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_GodSlayerBonus", 1, "HoldContinue")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "HoldContinue")
 			TNT1 A 0 A_JumpIfInventory("DesolatorOverheat", 100, "RevDown")
 			TNT1 A 0 A_JumpIfInventory("DesolatorCooldown", 1, "RevDown")
 		HoldContinue:

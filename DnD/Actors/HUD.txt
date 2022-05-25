@@ -12,8 +12,12 @@ Actor ARMNormal : DnD_Boolean { }
 Actor ARMBelow50 : DnD_Boolean { }
 Actor ARMBelow25 : DnD_Boolean { }
 
-Actor ARMOverAmount : Inventory {
+Actor ARMOverAmount : Ammo {
 	inventory.maxamount 100
+	inventory.amount 1
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
 }
 
 Actor SetMapInfo : PowerDamage { 

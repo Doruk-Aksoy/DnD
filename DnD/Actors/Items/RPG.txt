@@ -1,8 +1,15 @@
 const float m_range_factor = 0.01;
 
-// max 10 stacks
+Actor BossBrainProtection : PowerProtection {
+	damagefactor "normal", 1.0
+	damagefactor "BarrelExplosion", 0.0
+	damagefactor "Crush", 0.0
+	powerup.duration -3
+}
+
+// max 5 stacks
 Actor OccultWeaknessStack : Inventory {
-	inventory.maxamount 10
+	inventory.maxamount 5
 }
 
 Actor DnD_ExplosionRepeated : DnD_Boolean { }

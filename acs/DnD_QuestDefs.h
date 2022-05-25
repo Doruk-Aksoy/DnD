@@ -27,6 +27,16 @@ enum {
 };
 #define MAX_QUESTS QUEST_KILLGOLGOTH + 1
 
+#define DND_QUEST_ONEWEAPON_BONUS 15
+#define DND_QUEST_BOSSREDUCE 15
+#define DND_QUEST_NOARTIDMG 25 // 25%
+#define DND_QUEST_ENERGYBONUS 30
+#define DND_QUEST_SLOT2BONUS 50
+#define DND_QUEST_SLOT3BONUS 50
+#define DND_QUEST_UNDEADGAIN 30 // 30% more
+#define DND_QUEST_SUPERGAIN 25
+#define DND_QUEST_SPECIALGAIN 50
+
 #define DND_QUEST_CAUTIOUS_REGENBONUS 100
 #define DND_QUEST_PRECIOUSLIFE_BONUS 100
 #define DND_QUEST_BERSERK_SPREEREQ 10
@@ -43,15 +53,14 @@ enum {
 
 #define DND_LEGQUEST_START QUEST_KILLDREAMINGGOD
 #define DND_TORRASQUE_BOOST 15
+#define DND_MORDECQAI_BOOST 100
+#define DND_GOLGOTH_GAIN 15
 
-#define DND_GUNSLINGER_GAIN 50
-#define DND_BOOMSTICK_GAIN 50
-#define DND_SUPERWEAPON_GAIN 25
 #define DND_ELITEDROP_GAIN 0.25
 
 typedef struct quest {
 	int qflag;
-	str qreward;
+	str qchecker;
 } quest_T;
 
 enum {
@@ -62,5 +71,15 @@ enum {
 	QTYPE_IMMEDIATE = 16, // if conditions are met, doesn't wait till map ends to give
 	QTYPE_NOSAVE = 32 // for some reason this quests reward should not be saved
 };
+
+bool IsQuestComplete(int tid, int qid) {
+	str tocheck = "DnD_QuestState1";
+	if(qid > 30)
+		tocheck = "DnD_QuestState2";
+	qid %= 31; // for 2nd part
+	if(!tid)
+		return IsSet(CheckInventory(tocheck), qid);
+	return IsSet(CheckActorInventory(tid, tocheck), qid);
+}
 
 #endif

@@ -19,10 +19,7 @@ Actor FieldKit : CustomInventory
 		TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 25 + 13 * ACS_ExecuteWithResult(918, 2, 1))
 		TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 		TNT1 A 0 A_GiveInventory("RemoveAilments", 1)
-		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
-	Stop
-	GiveQuestDmg:
-		TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 	Stop
 	Failed:
 		TNT1 A 1
@@ -35,36 +32,31 @@ Actor RemoveAilments : PowerDamage {
 	powerup.duration -1
 }
 
-actor Salvationsphere : CustomInventory
-{
-  Inventory.PickupMessage "Salvationsphere!"
-  Inventory.Amount 1
-  Inventory.MaxAmount 1
-  Inventory.PickupSound "misc/p_pkup"
-  Inventory.UseSound "items/salvation"
-  Inventory.Icon "ARTISALV"
-  Renderstyle Add
-  +INVENTORY.FANCYPICKUPSOUND
-  +INVENTORY.UNDROPPABLE
-  +INVBAR
-  +COUNTITEM
-  +FLOATBOB
-  states
-  {
-  Spawn:
-	SALV ABCDE 3 Bright
-	loop
-  Use:
- 	TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100 + 50 * ACS_ExecuteWithResult(918, 2, 1), 1)
-	TNT1 A 0 A_GiveInventory("Salvate")
-	TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
-	TNT1 A 0 A_GiveInventory("SalvationEffectGiver")
-	TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
-	Stop
-	GiveQuestDmg:
-	TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
-	Stop
-  }
+actor Salvationsphere : CustomInventory {
+	Inventory.PickupMessage "Salvationsphere!"
+	Inventory.Amount 1
+	Inventory.MaxAmount 1
+	Inventory.PickupSound "misc/p_pkup"
+	Inventory.UseSound "items/salvation"
+	Inventory.Icon "ARTISALV"
+	Renderstyle Add
+	+INVENTORY.FANCYPICKUPSOUND
+	+INVENTORY.UNDROPPABLE
+	+INVBAR
+	+COUNTITEM
+	+FLOATBOB
+	states {
+		Spawn:
+			SALV ABCDE 3 Bright
+		loop
+		Use:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100 + 50 * ACS_ExecuteWithResult(918, 2, 1), 1)
+			TNT1 A 0 A_GiveInventory("Salvate")
+			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
+			TNT1 A 0 A_GiveInventory("SalvationEffectGiver")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
+		Stop
+	}
 }
 
 //Alternate Salvation
@@ -98,14 +90,10 @@ Actor PortableShield : CustomInventory
 		TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 		TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
 		TNT1 A 0 A_GiveInventory("ShieldPowerupGiver", 1)
-		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
-	Stop
-	GiveQuestDmg:
-		TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 	Stop
 	Better:
 		TNT1 A 0 A_GiveInventory("ShieldPowerupGiver2", 1)
-		TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
 	Stop
 	Failed:
 		TNT1 A 0
@@ -156,6 +144,7 @@ Actor BloodRune : CustomInventory
 		Use:
 			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 1 ACS_NamedExecuteAlways("DnD Blood Rune", 0, 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 		Stop
 	}
 }
@@ -177,21 +166,17 @@ Actor TripleDamage : CustomInventory
 			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
 			TNT1 A 0 A_GiveInventory("TripleDamagePower", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
-		Stop
-		GiveQuestDmg:
-			TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 		Stop
 		Better:
 			TNT1 A 0 A_GiveInventory("TripleDamagePower2", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
 		Stop
 	}
 }
 
 Actor TripleDamagePower : PowerDamage
 {
-	damagefactor "normal", 3.0
+	damagefactor "normal", 1.0
 	powerup.duration -15
 	Powerup.Color Redmap
 }
@@ -199,7 +184,7 @@ Actor TripleDamagePower : PowerDamage
 
 Actor TripleDamagePower2 : PowerDamage
 {
-	damagefactor "normal", 4.5
+	damagefactor "normal", 1.0
 	powerup.duration 787
 	Powerup.Color Redmap
 }
@@ -245,6 +230,7 @@ Actor BookofTheDead : CustomInventory
 			TNT1 A 0 A_AlertMonsters
 			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 0 A_SpawnItemEx("UndeadParticleFX2", 32, 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Player Damage Scale", 4000, TALENT_OCCULT, DND_ISARTIFACT), DND_DAMAGETYPE_OCCULT, 81 | (DND_SCANNER_BOOK << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE | DND_DAMAGEFLAG_SELFORIGIN)
 		Stop
 	}
@@ -296,15 +282,11 @@ Actor BladeVortex : CustomInventory
 			TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
 			TNT1 A 0 A_GiveInventory("VortexTimer", 1)
 			TNT1 A 0 ACS_ExecuteAlways(974, 0, 128)
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
-		Stop
-		GiveQuestDmg:
-			TNT1 A 0 A_GiveInventory("DnD_QuestReward_ArtiDmgPower", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 		Stop
 		Better:
 			TNT1 A 0 A_GiveInventory("VortexTimer2", 1)
 			TNT1 A 0 ACS_ExecuteAlways(974, 0, 128)
-			TNT1 A 0 A_JumpIfInventory("DnD_QuestReward_ExtraArtiDmg", 1, "GiveQuestDmg")
 		Stop
 	}
 }

@@ -376,9 +376,9 @@ Actor PendantEffect : DnD_Activator {
 Actor PendantFXSpawner : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_FireCustomMissile("ReflectionFX_1", 0)
-			TNT1 A 0 A_FireCustomMissile("ReflectionFX_2", 0)
-			TNT1 A 0 A_FireCustomMissile("ReflectionFX_3", 0)
+			TNT1 A 0 A_FireCustomMissile("ReflectionFX_1", 0, 0)
+			TNT1 A 0 A_FireCustomMissile("ReflectionFX_2", 0, 0)
+			TNT1 A 0 A_FireCustomMissile("ReflectionFX_3", 0, 0)
 		Stop
 	}
 }

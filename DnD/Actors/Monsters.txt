@@ -1385,6 +1385,7 @@ Actor WolfensteinSS2 : DnD_BaseRangedMonster {
 }
 
 Actor BossBrain_DnD : BossBrain replaces BossBrain {
+	DamageFactor "BarrelExplosion", 10.0
 	+ISMONSTER
 	-COUNTKILL
 	States {
@@ -1392,9 +1393,9 @@ Actor BossBrain_DnD : BossBrain replaces BossBrain {
 			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Setup Shootable")
 		Goto Super::Spawn
 		Death:
-			BBRN A 100 A_BrainScream
-			BBRN AA 10
-			BBRN A -1 ACS_ExecuteAlways(1690, 0, 0, 1, 1) // forced exit case + bossbrain
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Make Player Invuln")
+			BBRN A 100 ACS_ExecuteAlways(1690, 0, 0, 1, 1) // forced exit case + bossbrain
+			BBRN A -1
 		Stop
 	}
 }

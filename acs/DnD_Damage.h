@@ -28,7 +28,7 @@
 #define DND_MONSTER_POISONDOT_MINTIME 2
 #define DND_MONSTER_POISONDOT_MAXTIME 5
 
-#define OCCULT_WEAKEN_DURATION 3
+#define OCCULT_WEAKEN_DURATION 2
 
 #define DND_CRIT_TOKEN 69
 
@@ -95,7 +95,7 @@ bool IsEnergyDamage(int damage_type) {
 }
 
 bool IsOccultDamage(int damage_type) {
-	return (damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_MAGICSEAL) || damage_type == DND_DAMAGETYPE_SOUL;
+	return (damage_type >= DND_DAMAGETYPE_OCCULT && damage_type <= DND_DAMAGETYPE_MAGICSEAL) || damage_type == DND_DAMAGETYPE_MELEEOCCULT || damage_type == DND_DAMAGETYPE_SOUL;
 }
 
 bool IsFireDamage(int damage_type) {
@@ -298,7 +298,6 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_CHILL_CAP 5 // 50% health dealt in ice = maximum slow
 
 #define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
-#define DND_BASE_IGNITECHANCE 15 // 15%
 
 #define DND_BASE_OVERLOADCHANCE 5
 #define DND_BASE_OVERLOADBUFF 20 // 20%
@@ -319,15 +318,6 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
 #define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
 global int 27: PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
-
-// contains overflow checks
-int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
-	// disabled overflow checks for now, see if there's any improvement in performance
-	// if this turns out to be necessary, I'll enable this
-	//if(dmg < INT_MAX / factor)
-		return dmg * factor / div;
-	//return INT_MAX;
-}
 
 // All resists uniformly follow same factors
 int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
@@ -449,12 +439,17 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 	// we don't cache special ammo damage
 	int dmg = 0;
 	int temp;
+	int tid = pnum + P_TIDSTART;
 	// get the damage
 	if(!isSpecial)
 		temp = GetCachedPlayerDamage(pnum, wepid, dmgid);
 	else {
 		// special ammo damage
 		temp = GetSpecialAmmoDamage(isSpecial - 1, dmgid);
+		
+		// specialist quest bonus
+		if(IsQuestComplete(tid, QUEST_ONLYSPECIALAMMO))
+			temp += temp * DND_QUEST_SPECIALGAIN / 100;
 	}
 		
 	// check if we have a random range cached -- special ammo types dont use this
@@ -537,7 +532,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		
 		// shotgun damage bonus
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
-		if(temp && (flags & DND_WDMG_ISBOOMSTICK))
+		if(flags & DND_WDMG_ISBOOMSTICK)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 			
 		// apply flat health to damage conversion if player has any
@@ -548,9 +543,16 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		// factor dot % increase if this is a dot attack
 		if(flags & DND_WDMG_ISDOT)
 			InsertCacheFactor(pnum, wepid, dmgid, GetPlayerAttributeValue(pnum, INV_INCREASEDDOT), true);
+			
+		// check for quest % increases
+		if(IsQuestComplete(tid, QUEST_ONLYONEWEAPON))
+			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_ONEWEAPON_BONUS, true);
+			
+		if(talent_type == TALENT_ELEMENTAL && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
+			InsertCacheFactor(pnum, wepid, dmgid, DND_MORDECQAI_BOOST, true);
 
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
-		// quest or accessory bonuses
+		// quest or accessory bonuses	
 		// is occult (add demon bane bonus)
 		// apply wanderer perk if applicable
 		if((talent_type == TALENT_OCCULT || talent_type == TALENT_ELEMENTAL) && CheckInventory("Wanderer_Perk25"))
@@ -561,15 +563,15 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			InsertCacheFactor(pnum, wepid, dmgid, DND_HOBO_SHOTGUNBONUS, false);
 		
 		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
-			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)), false);
+			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE)), false);
 		
 		// these HOPEFULLY dont have anything in common... yet?
 		if(flags & DND_WDMG_ISPISTOL) // gunslinger affected
-			InsertCacheFactor(pnum, wepid, dmgid, DND_GUNSLINGER_GAIN * CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qreward), false);
+			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SLOT2BONUS * IsQuestComplete(tid, QUEST_ONLYPISTOLWEAPONS), false);
 		else if(flags & DND_WDMG_ISBOOMSTICK) // shotgun affected
-			InsertCacheFactor(pnum, wepid, dmgid, DND_BOOMSTICK_GAIN * CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qreward), false);
+			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SLOT3BONUS * IsQuestComplete(tid, QUEST_NOSHOTGUNS), false);
 		else if(flags & DND_WDMG_ISSUPER) // super weapon affected
-			InsertCacheFactor(pnum, wepid, dmgid, DND_SUPERWEAPON_GAIN * CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qreward), false);
+			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SUPERGAIN * IsQuestComplete(tid, QUEST_NOSUPERWEAPONS), false);
 		
 		// add other multiplicative factors below
 		
@@ -717,7 +719,7 @@ void HandleIgniteEffects(int pnum, int victim, int wepid) {
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_SCORCHED) &&
-		random(1, 100) <= DND_BASE_IGNITECHANCE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITECHANCE)) / 100
+		CheckIgniteChance(pnum)
 	)
 	{
 		int amt = DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
@@ -784,15 +786,9 @@ Script "DnD Occult Weaken" (int victim) {
 	SetResultValue(0);
 }
 
-int FactorResists(int source, int victim, int dmg, int damage_type, int flags, bool forced_full, int wepid, bool wep_neg = false) {
-	// check penetration stuff on source -- set it accordingly to damage type being checked down below
-	int mon_id = victim - DND_MONSTERTID_BEGIN;
-	int damage_category = GetDamageCategory(damage_type, flags);
-	int pnum = PlayerNumber();
-	int pen = GetResistPenetration(pnum, damage_category);
-	
+int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category, int flags, int resist, int pen) {
 	// if occult weakness exists, apply it checking monster's debuff
-	if(pen && (damage_category == DND_DAMAGECATEGORY_OCCULT || (flags & DND_DAMAGEFLAG_SOULATTACK))) {
+	if(damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK)) {
 		int occ_weak = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
 		if(occ_weak) {
 			if(!CheckActorInventory(victim, "OccultWeaknessStack")) {
@@ -803,100 +799,123 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 				GiveActorInventory(victim, "OccultWeaknessStack", 1);
 			
 			// percentage amplification of penetration per stack on victim
-			pen += (pen * occ_weak * CheckActorInventory(victim, "OccultWeaknessStack")) / 100;
+			resist = resist * (100 - occ_weak * CheckActorInventory(victim, "OccultWeaknessStack")) / 100;
 		}
 	}
+
+	// factor is the final resistance the monster will have against the attack
+	int factor = (100 - resist + pen);
+	if(factor <= 0)
+		return 0;
+	
+	// non-zero, we're good
+	return dmg * factor / 100;
+}
+
+int FactorResists(int source, int victim, int dmg, int damage_type, int flags, bool forced_full, int wepid, bool wep_neg = false) {
+	// check penetration stuff on source -- set it accordingly to damage type being checked down below
+	int mon_id = victim - DND_MONSTERTID_BEGIN;
+	int damage_category = GetDamageCategory(damage_type, flags);
+	int pnum = PlayerNumber();
+	int pen = GetResistPenetration(pnum, damage_category);
+	int resist = 0;
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
 	forced_full |= CheckInventory("Doomguy_Perk50") && !(flags & DND_DAMAGEFLAG_ISSPELL) && IsMonsterIdDemon(mon_id);
 	
 	// weaknesses
-	if(MonsterProperties[mon_id].trait_list[DND_ENERGY_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ENERGY)
-		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_FIRE_WEAKNESS] && damage_type == DND_DAMAGETYPE_FIRE)
-		dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ICE_WEAKNESS] && damage_type == DND_DAMAGETYPE_ICE)
-		dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_WEAKNESS] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
-		// if melee's sub type is occult then let it benefit from the pen
-		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
-		dmg = dmg * (100 + DND_WEAKNESS_FACTOR + pen) / 100;
+	if
+	(
+		(MonsterProperties[mon_id].trait_list[DND_ENERGY_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ENERGY) ||
+		(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL) ||
+		(MonsterProperties[mon_id].trait_list[DND_MAGIC_WEAKNESS] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
+	)
+	{
+		resist = -DND_WEAKNESS_FACTOR;
+	}
+	else if
+	(
+		(MonsterProperties[mon_id].trait_list[DND_FIRE_WEAKNESS] && damage_type == DND_DAMAGETYPE_FIRE) ||
+		(MonsterProperties[mon_id].trait_list[DND_ICE_WEAKNESS] && damage_type == DND_DAMAGETYPE_ICE)
+	)
+	{
+		resist = -DND_SPECIFICELEWEAKNESS_FACTOR;
+	}
 	
 	// special bonuses for certain creature types
 	if(MonsterProperties[mon_id].trait_list[DND_ICECREATURE]) {
 		// make sure to check ice and fire pen seperate
 		if(damage_type == DND_DAMAGETYPE_ICE)
-			dmg = dmg * (100 - DND_IMMUNITY_FACTOR * (!forced_full) + pen) / 100;
+			resist += DND_IMMUNITY_FACTOR * (!forced_full);
 		else if(damage_type == DND_DAMAGETYPE_FIRE)
-			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 	else if(MonsterProperties[mon_id].trait_list[DND_FIRECREATURE]) {
 		// make sure to check ice and fire pen seperate
 		if(damage_type == DND_DAMAGETYPE_FIRE)
-			dmg = dmg * (100 - DND_IMMUNITY_FACTOR * (!forced_full) + pen) / 100;
+			resist += DND_IMMUNITY_FACTOR * (!forced_full);
 		else if(damage_type == DND_DAMAGETYPE_ICE)
-			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 	else if(MonsterProperties[mon_id].trait_list[DND_STONECREATURE]) {
 		// make sure to check these seperate
 		if(damage_type == DND_DAMAGETYPE_FIRE)
-			dmg = dmg * (100 - DND_RESIST_FACTOR * (!forced_full) + pen) / 100;
+			resist += DND_RESIST_FACTOR * (!forced_full);
 		else if(damage_type == DND_DAMAGETYPE_ICE)
-			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
 		else if(damage_type == DND_DAMAGETYPE_LIGHTNING || damage_type == DND_DAMAGETYPE_POISON)
-			dmg = dmg * (100 - DND_IMMUNITY_FACTOR * (!forced_full) + pen) / 100;
+			resist += DND_IMMUNITY_FACTOR * (!forced_full);
 	}
 	else if(MonsterProperties[mon_id].trait_list[DND_EARTHCREATURE]) {
 		// make sure to check these seperate
 		if(damage_type == DND_DAMAGETYPE_LIGHTNING)
-			dmg = dmg * (100 + DND_SPECIFICELEWEAKNESS_FACTOR + pen) / 100;
+			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
 		else if(damage_type == DND_DAMAGETYPE_POISON)
-			dmg = dmg * (100 - DND_IMMUNITY_FACTOR * (!forced_full) + pen) / 100;
+			resist += -DND_IMMUNITY_FACTOR * (!forced_full);
 	}
 	
 	// addition of pen here means if we ignored resists and immunities, we still give penetration a chance to weaken the defences further
 	// return early as we ignored resists and immunities
 	if(!wep_neg && PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100))
-		return dmg * (100 + pen) / 100;
+		return ApplyPenetrationToDamage(pnum, victim, dmg, damage_category, flags, resist, pen);
 		
 	// if we do forced full damage skip resists and immunities
 	if(forced_full) {
 		if(pen)
-			return dmg * (100 + pen) / 100;
+			return ApplyPenetrationToDamage(pnum, victim, dmg, damage_category, flags, resist, pen);
 		return dmg;
 	}
 		
 	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
-	if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
-		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_RESIST] && (damage_category == DND_DAMAGECATEGORY_BULLET || damage_category == DND_DAMAGECATEGORY_MELEE))
-		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && damage_category == DND_DAMAGECATEGORY_ENERGY)
-		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
-		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
-		return dmg * (100 - DND_RESIST_FACTOR + pen) / 100;
+	if
+	(
+		(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES) ||
+		(MonsterProperties[mon_id].trait_list[DND_BULLET_RESIST] && (damage_category == DND_DAMAGECATEGORY_BULLET || damage_category == DND_DAMAGECATEGORY_MELEE)) ||
+		(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && damage_category == DND_DAMAGECATEGORY_ENERGY) ||
+		(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL)) ||
+		(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
+	)
+		resist += DND_RESIST_FACTOR;
 	// immunities
-	else if(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_NONE] && damage_type == DND_DAMAGETYPE_EXPLOSIVES)
-		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_BULLET_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_BULLET || damage_category == DND_DAMAGECATEGORY_MELEE))
-		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ENERGY)
-		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
-		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
-	else if(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
-		return dmg * (100 - DND_IMMUNITY_FACTOR + pen) / 100;
+	else if
+	(
+		(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_NONE] && damage_type == DND_DAMAGETYPE_EXPLOSIVES) ||
+		(MonsterProperties[mon_id].trait_list[DND_BULLET_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_BULLET || damage_category == DND_DAMAGECATEGORY_MELEE)) ||
+		(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ENERGY) ||
+		(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL)) ||
+		(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
+		
+	)
+		resist += DND_IMMUNITY_FACTOR;
 	else if(MonsterProperties[mon_id].trait_list[DND_ETHEREAL] && damage_category != DND_DAMAGECATEGORY_OCCULT && damage_category != DND_DAMAGECATEGORY_SOUL)
 		return 0;
+	
 	// no special factors, process as is
-	return dmg * (100 + pen) / 100;
+	return ApplyPenetrationToDamage(pnum, victim, dmg, damage_category, flags, resist, pen);
 }
 
 // for player hitting others damage
-int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, int wepid, int flags) {
+int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, int wepid, int flags, bool isIgnite) {
 	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
 		dmg /= DND_DEMONBANE_REDUCE;
 		
@@ -906,7 +925,8 @@ int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, i
 		
 	// amps fire damage, reduces ice damage
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
-		if(IsFireDamage(damage_type))
+		// we handle ignite damage buff in the dot calculation
+		if(IsFireDamage(damage_type) && !isIgnite)
 			dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
 		else if(IsIceDamage(damage_type))
 			dmg /= DND_AMULETHELL_FACTOR;
@@ -1018,6 +1038,15 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 	// dmg is multiplied by 3/2 = 1.5, 50% more dmg
 	if(GetArmorID() == DND_ARMOR_RAVAGER && CheckInventory("RavagerPower"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_DMGMUL, DND_RAVAGER_DMGDIV);
+		
+	// artifact things
+	if(CheckInventory("DnD_ArtiDmgPower"))
+		dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_QUEST_NOARTIDMG);
+		
+	if(CheckInventory("TripleDamagePower"))
+		dmg *= 3;
+	else if(CheckInventory("TripleDamagePower2"))
+		dmg = dmg * 9 / 2;
 	
 	return dmg;
 }
@@ -1038,7 +1067,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// check if the damage is to be dealt without any reductions from resistances or immunities
 	forced_full |= 	(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
 					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckUniquePropertyOnPlayer(pnum, PUP_SPELLSDOFULL))					||
-					(IsOccultDamage(damage_type) && CheckInventory("DnD_QuestReward_DreamingGodBonus"))							||
+					(IsOccultDamage(damage_type) && IsQuestComplete(0, QUEST_KILLDREAMINGGOD))									||
 					(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
 					(IsExplosionDamage(damage_type) && CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))			||
 					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL))				||
@@ -1139,8 +1168,12 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		}
 	}
 	
-	if((flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) && (MonsterData[MonsterProperties[victim - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW)))
+	if((flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) && (MonsterData[MonsterProperties[victim - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW))) {
 		dmg *= DND_EXTRAUNDEADDMG_MULTIPLIER;
+		
+		if(IsQuestComplete(0, QUEST_SPAREZOMBIES))
+			dmg += dmg * DND_QUEST_UNDEADGAIN / 100;
+	}
 	
 	// check blockers take more dmg modifier
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING]) {
@@ -1168,7 +1201,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	dmg = HandleGenericPlayerDamageEffects(pnum, dmg);
 	
 	// ACCESSORY EFFECTS
-	dmg = HandleAccessoryEffects(source, victim, dmg, damage_type, wepid, flags);
+	dmg = HandleAccessoryEffects(source, victim, dmg, damage_type, wepid, flags, no_ignite_stack);
 	
 	// damage number handling - NO MORE DAMAGE FIDDLING HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
@@ -1878,8 +1911,10 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 		taltos /= 100;
 		taltos *= dmg;
 		taltos >>= 16;
-		if(!taltos)
-			taltos = 1;
+		
+		// no longer accept 1 point of lifesteal
+		if(taltos <= 0)
+			return;
 		
 		// give up to the lifesteal limit
 		brune_1 = CheckInventory("LifeStealAmount");
@@ -2171,12 +2206,13 @@ Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 	}
 	
 	// find N closest targets to victim for igniting
+	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
 	if(canProlif && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
 		int j, k;
 		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
 			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
-				next_dmg = fdistance(owner, i);
-				if(next_dmg < prolif_dist && CheckSight(owner, i, CSF_NOBLOCKALL)) {
+				next_dmg = fdistance(victim, i);
+				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL)) {
 					// insert sorted
 					inc_by = dmg_tic_buff;
 					// while our calc dist > alloc dist, keep going -- we add things to the end
@@ -2207,6 +2243,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 			}
 		}
 		
+		//printbold(s:"check prolif ", d:dmg_tic_buff);
 		// we have things to prolif to
 		if(dmg_tic_buff) {
 			//printbold(s:"begin prolif");
@@ -2397,11 +2434,15 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			}
 			
 			// apply accessory and other sources of damage
-			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags);
+			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
 			
 			// apply impact protection research
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());
 			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
+			
+			// golgoth quest
+			if(IsQuestComplete(0, QUEST_KILLGOLGOTH))
+				dmg = dmg * (100 - DND_GOLGOTH_GAIN) / 100;
 			
 			// factor in players armor here!!!
 			dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
@@ -2646,7 +2687,7 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim) {
 				SetActorProperty(monster_tid, APROP_HEALTH, MonsterProperties[m_id].maxhp);
 			ACS_NamedExecuteAlways("DnD Vampirism FX CS", 0, monster_tid);
 		}
-	}
+	}	
 }
 
 int HandlePercentDamageFromEnemy(int dmg, int dmg_data) {
@@ -2661,6 +2702,12 @@ int HandlePercentDamageFromEnemy(int dmg, int dmg_data) {
 	SetActivator(0, AAPTR_DAMAGE_TARGET);
 	
 	return !!(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) * (GetActorProperty(0, APROP_HEALTH) * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
+}
+
+int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
+	if(IsMonsterIdBoss(MonsterProperties[m_id].id) && IsQuestComplete(victim, QUEST_KILL10BOSSES))
+		dmg = dmg * (100 - DND_QUEST_BOSSREDUCE) / 100;
+	return dmg;
 }
 
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
@@ -2775,6 +2822,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
+					
+				dmg = MonsterSpecificDamageChecks(m_id, victim, dmg);
 					
 				if(dmg) {
 					// add to player stat

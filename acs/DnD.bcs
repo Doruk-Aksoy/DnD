@@ -53,7 +53,9 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			
 			item = GetArmorAmount();
 			itemcomp = GetArmorCapFromID(GetArmorID());
-			if(item > itemcomp) { // can happen with armor bonuses
+			if(item > itemcomp) {
+				// can happen with armor bonuses -- up to maximum of x2 of cap (only fully reached with ubersphere)
+				SetAmmoCapacity("ARMOverAmount", itemcomp * 2);
 				SetInventory("ARMOverAmount", item - itemcomp);
 				GiveInventory("ARMOver100", 1);
 				TakeInventory("ARMNormal", 1);
@@ -62,6 +64,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			}
 			else if(item >= itemcomp >> 1) {
 				SetInventory("ARMOverAmount", 0);
+				SetAmmoCapacity("ARMOverAmount", itemcomp);
 				TakeInventory("ARMOver100", 1);
 				GiveInventory("ARMNormal", 1);
 				TakeInventory("ARMBelow50", 1);
@@ -69,6 +72,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			}
 			else if(item >= itemcomp >> 2) {
 				SetInventory("ARMOverAmount", 0);
+				SetAmmoCapacity("ARMOverAmount", itemcomp);
 				TakeInventory("ARMOver100", 1);
 				TakeInventory("ARMNormal", 1);
 				GiveInventory("ARMBelow50", 1);
@@ -76,6 +80,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			}
 			else {
 				SetInventory("ARMOverAmount", 0);
+				SetAmmoCapacity("ARMOverAmount", itemcomp);
 				TakeInventory("ARMOver100", 1);
 				TakeInventory("ARMNormal", 1);
 				TakeInventory("ARMBelow50", 1);
@@ -615,7 +620,7 @@ Script "DnD Killing Spree Timer" (void) {
 					reward += temp;
 				--mult;
 			}
-			if(CheckInventory("DnD_QuestReward_KillingSpree15"))
+			if(IsQuestComplete(0, QUEST_10SPREES))
 				reward += reward * DND_QUEST_BERSERK_SPREEBONUS / 100;
 			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, spree / DND_SPREE_PER, reward);
 			GiveInventory("Exp", reward);
@@ -636,7 +641,7 @@ Script "DnD Killing Spree Timer" (void) {
 			int armor_amt = GetArmorAmount();
 			int cap = GetArmorCapFromID(armor_id);
 			if(armor_id == DND_ARMOR_RAVAGER && armor_amt && armor_amt < cap) {
-				HandleArmorPickup(DND_ARMOR_RAVAGER, cap - armor_amt);
+				HandleArmorPickup(DND_ARMOR_RAVAGER, cap - armor_amt, ARMORGF_NOPERCENT);
 				GiveInventory("RavagerEffect", 1);
 				LocalAmbientSound("items/armorbonus", 127);
 			}
@@ -1780,19 +1785,13 @@ Script 918 (int type, int acc, int notarget) {
 		res = CheckInventory("PSTAT_Bulkiness");
 	}
 	else if(type == 6) { // gunslinger
-		if(notarget)
-			SetActivator(0, AAPTR_TARGET);
-		res = CheckInventory("DnD_QuestReward_Slot2DmgIncrease");
+		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 6");
 	}
 	else if(type == 7) { // boomsticks
-		if(notarget)
-			SetActivator(0, AAPTR_TARGET);
-		res = CheckInventory("DnD_QuestReward_ShotgunDmgIncrease");
+		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 7");
 	}
 	else if(type == 8) { // super weapons
-		if(notarget)
-			SetActivator(0, AAPTR_TARGET);
-		res = CheckInventory("DnD_QuestReward_SuperWeaponDamage");
+		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 8");
 	}
 	else if(type == 9)
 		res = GetActorProperty(0, APROP_TARGETTID);
@@ -1943,7 +1942,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 		if(!pcount)
 			pcount = 1;
-		maxhp = ScaleMonster(pcount, realhp);
+		maxhp = ScaleMonster(this, pcount, realhp);
 	}
 	else {
 		maxhp = realhp;
@@ -1995,17 +1994,18 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	);
 	
 	//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
-	int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
+	//int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 	SetActorProperty(0, APROP_HEALTH, maxhp);
 	
 	ScaleMonsterMass(MonsterProperties[m_id].level);
-	Clamp_Between(dmg, 0, maxhp + 1);
-	Thing_Damage2(ActivatorTID(), dmg, "None");
+	/*Clamp_Between(dmg, 0, maxhp + 1);
+	Thing_Damage2(this, dmg, "None");*/
 	//Mob might actually be dead by this point.
-	if (GetActorProperty(0, APROP_Health) > maxhp) {
+	if (GetActorProperty(0, APROP_Health) < realhp || GetActorProperty(0, APROP_Health) == INT_MAX) {
 		// In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
 		// Just kill it
-		Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None");
+		//Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None");
+		Thing_Remove(this);
 		SetResultValue(0);
 		Terminate;
 	}
@@ -2037,7 +2037,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2) {
 			Delay(const:3);
 		if(!pcount)
 			pcount = 1;
-		maxhp = ScaleMonster(pcount, realhp);
+		maxhp = ScaleMonster(this, pcount, realhp);
 	}
 	else {
 		maxhp = realhp;
@@ -3199,7 +3199,7 @@ Script "DnD Player Setup" ENTER {
 	GiveInventory("QuestWasPicked", 1);
 	if(active_quest_id != -1) {
 		SetInventory("ActiveQuestID", active_quest_id + 1);
-		ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_QUEST);
+		ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_QUEST, active_quest_id);
 	}
 	else
 		SetInventory("ActiveQuestID", 0);
@@ -3431,9 +3431,11 @@ Script "DnD Player On Hit" (int power) {
 		GiveInventory("LightningCoilCooldown", 1);
 	}
 	
-	// player heal on hit check
+	target = GetActorProperty(0, APROP_TARGETTID);
+	
+	// player heal on hit check -- target is 0 if we are the target, but the extra check in there is for safety
 	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_CHANCE_HEALMISSINGONPAIN);
-	if(temp) {
+	if(temp && target && target != this) {
 		// roll chance
 		// upper 16 bits hold the chance
 		if(random(1, 100) <= (temp >> 16)) {
@@ -3444,7 +3446,6 @@ Script "DnD Player On Hit" (int power) {
 	}
 	
 	// monster might be thief, check it
-	target = GetActorProperty(0, APROP_TARGETTID);
 	temp = target - DND_MONSTERTID_BEGIN;
 	if(MonsterProperties[temp].trait_list[DND_THIEF]) {
 		// get current weapon's ammo and steal it
@@ -3714,7 +3715,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				cur = GetActorProperty(0, APROP_HEALTH);
 				// if we got the quest, our lim is half our cap, otherwise 1/3rd the cap
 				lim = GetSpawnHealth();
-				if(CheckInventory("DnD_QuestReward_RegenCap"))
+				if(IsQuestComplete(this, QUEST_HPOVER50))
 					lim /= 2;
 				else
 					lim /= 3;
@@ -3877,15 +3878,18 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	if(num == DND_ANNOUNCER_LEGENDARYMONSTER)
 		AmbientSound("LegendaryHere", 127);
 	SetHudSize(640, 480, 1);
-	SetFont("QUESTPOP");
-	
+
 	int hud_pos = (GetHudRight(640) << 16) - NOTIFBAK_XF / 2 + 0.4;
 	if(num != DND_ANNOUNCER_LEGENDARYMONSTER) {
-		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, hud_pos, 72.0, 4.0, 1.0, 1.0);
+		if(num != DND_ANNOUNCER_QUEST) {
+			SetFont("QUESTPOP");
+			HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, hud_pos, 72.0, 4.0, 1.0, 1.0);
+		}
 		SetFont("NOTIFBAK");
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEBAKID, CR_UNTRANSLATED, hud_pos, 96.0, 4.0, 1.0, 1.0);
 	}
 	else {
+		SetFont("QUESTPOP");
 		HudMessageBold(s:"A"; HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_UNTRANSLATED, hud_pos, 72.0, 4.0, 1.0, 1.0);
 		SetFont("NOTIFBAK");
 		HudMessageBold(s:"A"; HUDMSG_FADEINOUT, SURVIVEBAKID, CR_UNTRANSLATED, hud_pos, 96.0, 4.0, 1.0, 1.0);
@@ -3895,24 +3899,38 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	SetHudSize(960, 600, 1);
 	
 	hud_pos = GetHudRight(960) - 3 * NOTIFBAK_X / 2 + 8;
-	SetHudClipRect(hud_pos, 96, 225, 128, 225);
-	
 	hud_pos <<= 16;
-	hud_pos += 0.1;
 	
-	if(num == DND_ANNOUNCER_QUEST)
-		HudMessage(l:"DND_NEWQUEST"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-	else if(num == DND_ANNOUNCER_ATTRIBPOINT)
-		HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-	else if(num == DND_ANNOUNCER_NEWCLASSPERK)
-		HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-	else if(num == DND_ANNOUNCER_LEGENDARYMONSTER) // this one is called from the monster spawner and thus must be hudmessagebold
-		HudMessageBold(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-	else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
-		HudMessage(l:"DND_TEXT_DISCOVEREDRES", s:": \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-	else if(num == DND_ANNOUNCER_TRADEREQUEST) {
-		LocalAmbientSound("TradeRequest", 127);
-		HudMessage(l:"DND_TEXT_TRADEREQUEST", s:": ", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+	if(num == DND_ANNOUNCER_QUEST) {
+		SetHudClipRect(hud_pos >> 16, 52, 225, 144, 225);
+		HudMessage(
+			l:"DND_NEWQUEST"; 
+			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_CYAN, GetIntegerBits(hud_pos + 2 * NOTIFBAK_XF / 3) + 0.4, 48.1, 4.0, 1.0, 1.0
+		);
+		
+		HudMessage(
+			s:"\cf", l:GetQuestLabel(extra, QUEST_NAME),
+			s:"\n\c[Y5]", l:"DND_REQ", s:": \c-", l:GetQuestLabel(extra, QUEST_REQ),
+			s:"\n\cd", l:"DND_REW", s:": \c-", l:GetQuestLabel(extra, QUEST_REW);
+			HUDMSG_FADEINOUT, SURVIVETEXTID2, CR_WHITE, hud_pos + 0.1, 72.1, 4.0, 1.0, 1.0
+		);
+	}
+	else {
+		SetHudClipRect(hud_pos >> 16, 96, 225, 128, 225);
+		hud_pos += 0.1;
+		
+		if(num == DND_ANNOUNCER_ATTRIBPOINT)
+			HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+		else if(num == DND_ANNOUNCER_NEWCLASSPERK)
+			HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+		else if(num == DND_ANNOUNCER_LEGENDARYMONSTER) // this one is called from the monster spawner and thus must be hudmessagebold
+			HudMessageBold(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+		else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
+			HudMessage(l:"DND_TEXT_DISCOVEREDRES", s:": \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+		else if(num == DND_ANNOUNCER_TRADEREQUEST) {
+			LocalAmbientSound("TradeRequest", 127);
+			HudMessage(l:"DND_TEXT_TRADEREQUEST", s:": ", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+		}
 	}
 	SetHudClipRect(0, 0, 0, 0, 0);
 }
@@ -3962,7 +3980,7 @@ Script 1002 (void) NET CLIENTSIDE {
 	SetHudClipRect(0, 0, 0, 0, 0);
 	// progress
 	if(Quest_List[qid].qflag & QTYPE_TRACKABLE) {
-		int progress = Clamp_Between((100 * CheckInventory(Quest_Checkers[qid])) / GetQuestProgressRequirement(qid), 0, 100);
+		int progress = Clamp_Between((100 * CheckInventory(Quest_List[qid].qchecker)) / GetQuestProgressRequirement(qid), 0, 100);
 		str color = "\cg";
 		if(progress == 100)
 			color = "\cd";
@@ -4134,7 +4152,7 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 	}
 	
 	// final additions
-	if((flags & DMG_WDMG_ISARTIFACT) && CheckInventory("DnD_QuestReward_ExtraArtiDmg"))
+	if((flags & DMG_WDMG_ISARTIFACT) && IsQuestcomplete(0, QUEST_USENOARTIFACT))
 		dmg = dmg * (100 + DND_QUEST_ARTIBONUS) / 100;
 	
 	if(isSpell) {
@@ -5013,7 +5031,7 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 	int d = (rate & 0xFFFF0000) >> 16;
 	rate &= 0x0000FFFF;
 	// prevent multiple copies, also dont keep this busy if we got no overheat bonus
-	if(!IsSet(PlayerRunsOverheat[PlayerNumber()], index) && !CheckInventory("DnD_QuestReward_GodSlayerBonus")) {
+	if(!IsSet(PlayerRunsOverheat[PlayerNumber()], index) && !IsQuestComplete(0, QUEST_KILLGODSLAYER)) {
 		PlayerRunsOverheat[PlayerNumber()] = SetBit(PlayerRunsOverheat[PlayerNumber()], index);
 		while(CheckInventory(WeaponOverheatItems[index])) {
 			if(CheckInventory("DnD_OverheatCanReduce"))
@@ -5727,6 +5745,11 @@ Script "DnD On Attack" (int isSpecial, int extra) {
 	DoSlotWeaponQuestChecks(wepid);
 	
 	SetResultValue(0);
+}
+
+Script "DnD On Artifact Use" (void) {
+	if(IsQuestComplete(0, QUEST_USENOARTIFACT))
+		GiveInventory("DnD_ArtiDmgPower", 1);
 }
 
 // This doesn't trigger when a monster is continuously attacking, their stuff is manually added unfortunately
@@ -6461,11 +6484,30 @@ Script "DnD Check Corpse Landing" (void) {
 	}
 }
 
+Script "DnD Make Player Invuln" (void) {
+	SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
+}
+
 Script 1007 (void) NET CLIENTSIDE {
 	SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
 	
 	// so the toggle is changed on the menu if you press it while in help page for some reason... you are weird if you do this!
 	GiveInventory("DnD_RefreshPane", 1);
+}
+
+Script 1691 (int tag, int mode) {
+	if(IsPlayer(ActivatorTID()))
+		GiveInventory("BossBrainProtection", 1);
+	
+	// 2 = line, 1 = nofog
+	if(mode == 3)
+		Teleport_Line (tag, tag, 1);
+	else if(mode == 2)
+		Teleport_Line (tag, tag, 0);
+	else if(mode == 1)
+		Teleport_NoFog(0, 0, tag, 1);
+	else
+		Teleport(0, tag);
 }
 
 /*Script 69 (void) NET {
@@ -6503,9 +6545,9 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		//SpawnCharm(0, true);
 		SpawnOrbForAll(1, random(40, 120));
-		SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 1);
+		SpawnSpecificOrbForAll(DND_ORB_SIN, 1);
 		//SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
-		SpawnCharmWithMods_ForAll(INV_DMGREDUCE_EXPLOSION);
+		SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 		/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

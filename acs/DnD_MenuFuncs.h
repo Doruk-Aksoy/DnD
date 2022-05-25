@@ -4728,9 +4728,9 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_IGNITECHANCE);
+			val = GetIgniteChance(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITECHANCE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"%\c- ", l:"DND_IGNITECHANCE", s:"\n");
 				++k;
 			}
 			
@@ -4742,7 +4742,7 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = GetIgniteProlifChance(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCHANCE", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"%\c- ", l:"DND_IGNITEPROLIFCHANCE", s:"\n");
 				++k;
 			}
 			

@@ -163,6 +163,8 @@ enum {
 	INV_IGNITE_PROLIFRANGE,
 	
 	INV_CHANCE_AILMENTIGNORE,
+	INV_CHANCE_FLATIGNITE,
+	INV_CHANCE_FLATPROLIF,
 	// add new regular rollable attributes here
 	
 	// essence attributes (only via. specific means)
@@ -219,7 +221,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_CHANCE_AILMENTIGNORE
+#define LAST_INV_ATTRIBUTE INV_CHANCE_FLATPROLIF
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -873,6 +875,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_level_modifier = 0;
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].tags = INV_ATTR_TAG_ELEMENTAL;
 	
+	ItemModTable[INV_CHANCE_FLATIGNITE].attrib_low = 1;
+	ItemModTable[INV_CHANCE_FLATIGNITE].attrib_high = 2;
+	ItemModTable[INV_CHANCE_FLATIGNITE].attrib_level_modifier = 0;
+	ItemModTable[INV_CHANCE_FLATIGNITE].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_CHANCE_FLATPROLIF].attrib_low = 1;
+	ItemModTable[INV_CHANCE_FLATPROLIF].attrib_high = 2;
+	ItemModTable[INV_CHANCE_FLATPROLIF].attrib_level_modifier = 0;
+	ItemModTable[INV_CHANCE_FLATPROLIF].tags = INV_ATTR_TAG_ELEMENTAL;
+
 	// essences from here on out
 
 	ItemModTable[INV_ESS_VAAJ].attrib_low = 1;

@@ -268,12 +268,15 @@ void AddArmorAmount(int amt) {
 
 void TakeArmorAmount(int amt) {
 	TakeInventory("ArmorAmount", amt);
-	TakeInventory("ArmorAmountVisual", amt);
+	int current_armor = CheckInventory("ArmorAmount");
+	
+	if(current_armor <= CheckInventory("ArmorAmountVisual"))
+		SetInventory("ArmorAmountVisual", current_armor);
 	
 	// no armor left, remove it
-	if(!CheckInventory("ArmorAmount")) {
+	if(!current_armor) {
 		SetInventory("DnD_ArmorType", 0);
-		
+		SetAmmoCapacity("ArmorAmountVisual", GetArmorCapFromID(0));
 		// do a recalc on cache in case player wore specialty armor
 		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	}
@@ -432,7 +435,7 @@ int RewardActorExp(int tid, int amt) {
 
 int RewardActorCredit(int tid, int amt) {
 	amt += amt * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") / 100;
-	if(CheckActorInventory(tid, "DnD_QuestReward_MoreCredit"))
+	if(IsQuestComplete(tid, QUEST_SPEND25K))
 		amt += amt * DND_QUEST_CREDITBONUS / 100;
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
 		amt >>= 1;
@@ -547,10 +550,16 @@ int CanPickHealthItem(int type) {
 int GetArmorCapFromID(int armor_id) {
 	int amt = ArmorData[armor_id][ARMORDATA_BASEAMOUNT];
 	int pnum = PlayerNumber();
+	int inc = 0;
 	
 	// any other armor besides the armor bonuses
 	amt += CalculateArmorCapBonuses(pnum) + DND_ARMOR_PER_BUL * GetBulkiness();
-	amt += amt * (GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + DND_TORRASQUE_BOOST * CheckInventory("DnD_QuestReward_TorrasqueBonus")) / 100;
+	
+	inc = 	GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + 
+			DND_QUEST_ARMORBONUS * IsQuestComplete(0, QUEST_NOARMORS);
+			DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE);
+	
+	amt += amt * inc / 100;
 	//amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
@@ -585,7 +594,8 @@ void HandleArmorPickup(int armor_type, int amount, int flags = 0, int overcap_fa
 	// make sure if there's no armor, despite lingering DnD_ArmorType, force replace
 	if(!curr_armor_id || !armor)
 		flags |= ARMORGF_REPLACE;
-
+	
+	int prev_cap = GetArmorCapFromID(curr_armor_id);
 	bool highertier = IsArmorTierHigher(armor_type, curr_armor_id);
 	// Give new armor type only if it's a higher tier, or is a replacement
 	if((flags & ARMORGF_REPLACE) || highertier) {
@@ -623,6 +633,8 @@ void HandleArmorPickup(int armor_type, int amount, int flags = 0, int overcap_fa
 		
 		HandleArmorDependencyCheck();
 	}
+	else if((flags & ARMORGF_REPLACE) && prev_cap > check_cap) // greater, we have less cap then before and we replaced it
+		SetArmorAmount(check_cap);
 	else // hack to sync
 		SetInventory("ArmorAmountVisual", armor);
 }
@@ -649,7 +661,7 @@ int GetDropChance(int pnum, bool isElite) {
 			Player_Elixir_Bonuses[pnum].luck +
 			DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
 			
-	if(isElite && CheckActorInventory(pnum + P_TIDSTART, "DnD_QuestReward_EliteDropBonus"))
+	if(isElite && IsQuestComplete(pnum + P_TIDSTART, QUEST_KILL20ELITES))
 		base += DND_ELITEDROP_GAIN;
 		
 	// more chance to find loot
@@ -804,9 +816,9 @@ bool HasNoSigilPower() {
 void TakeStat(int stat_id, int amt) {
 	TakeInventory(StatData[stat_id], amt);
 	if(stat_id <= DND_ATTRIB_END)
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, -amt, stat_id);
 	else if(stat_id <= DND_PERK_END)
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id);
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, -amt, stat_id);
 		
 	UpdateArmorVisual();
 	UpdatePlayerKnockbackResist();
@@ -834,8 +846,8 @@ void HandleArmorDependencyCheck() {
 		GiveResearch(RES_EXO1, true);
 
 	// check for thick skin quest
-	if(active_quest_id == QUEST_NOARMORS && !CheckInventory(Quest_Checkers[active_quest_id])) {
-		GiveInventory(Quest_Checkers[active_quest_id], 1);
+	if(active_quest_id == QUEST_NOARMORS && !CheckInventory(Quest_List[active_quest_id].qchecker)) {
+		GiveInventory(Quest_List[active_quest_id].qchecker, 1);
 		FailQuest(ActivatorTID());
 	}
 }
@@ -1023,6 +1035,9 @@ int GetPlayerPercentDamage(int pnum, int wepid, int talent_type) {
 				MapTalentToPercentBonus(pnum, talent_type) +
 				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
 				
+	if(talent_type == TALENT_ENERGY && IsQuestComplete(0, QUEST_ONLYENERGY))
+		res += DND_QUEST_ENERGYBONUS;
+				
 	// stuff that do ---- removed orb bonus from here
 	if(wepid != -1)
 		res -= (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
@@ -1188,10 +1203,14 @@ int GetFireDOTDamage(int pnum) {
 				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT) + GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE)) / 100;
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+	
+	// hellfire amulet -- moved here for ignite calculation specifically
+	if(IsAccessoryEquipped(pnum + P_TIDSTART, DND_ACCESSORY_AMULETHELLFIRE))
+		dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
 	
 	return dmg;
 }
@@ -1249,18 +1268,26 @@ bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 	return !MonsterProperties[m_id].trait_list[ailment_mod] || random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
 }
 
+#define DND_BASE_IGNITECHANCE 15 // 15%
 #define DND_BASE_IGNITEPROLIFCHANCE 20 // 20% chance to prolif on monster death
 #define DND_BASE_IGNITEPROLIFRANGE 128.0
 #define DND_BASE_IGNITEPROLIFCOUNT 5 // max 5 enemies can be proliferated to
 #define DND_MAX_IGNITEPROLIFS 128 // max 128 enemies can be proliferated to from one target
 
-// this is used solely for menu display, same shit as func below
+int GetIgniteChance(int pnum) {
+	return Clamp_Between((DND_BASE_IGNITECHANCE + GetPlayerAttributeValue(pnum, INV_CHANCE_FLATIGNITE)) * (100 + GetPlayerAttributeValue(pnum, INV_IGNITECHANCE)) / 100, 0, 100);
+}
+
+int CheckIgniteChance(int pnum) {
+	return random(1, 100) <= GetIgniteChance(pnum);
+}
+
 int GetIgniteProlifChance(int pnum) {
-	return DND_BASE_IGNITEPROLIFCHANCE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCHANCE)) / 100;
+	return Clamp_Between((DND_BASE_IGNITEPROLIFCHANCE + GetPlayerAttributeValue(pnum, INV_CHANCE_FLATPROLIF)) * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCHANCE)) / 100, 0, 100);
 }
 
 bool CheckIgniteProlifChance(int pnum) {
-	return random(1, 100) < DND_BASE_IGNITEPROLIFCHANCE * (100 + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCHANCE)) / 100;
+	return random(1, 100) < GetIgniteProlifChance(pnum);
 }
 
 int GetIgniteProlifRange(int pnum) {
@@ -1276,7 +1303,7 @@ int GetIgniteProlifCount(int pnum) {
 #define DND_BASE_POISON_TIC 0.5
 #define DND_POISON_TICCHECK 3 // increments ticker every 3 tics
 int GetPoisonTicrate(int pnum) {
-	int ticrate = (DND_BASE_POISON_TIC * 100) / (100 + GetPlayerAttributeValue(pnum, INV_POISON_TICRATE));
+	int ticrate = (DND_BASE_POISON_TIC * 100) / (100 + GetPlayerAttributeValue(pnum, INV_POISON_TICRATE) + (100 * !!GetPlayerAttributeValue(pnum, INV_ESS_LESHRAC)));
 	
 	// keep min checkrate, there's no point for it to be lower it'll not go below minimum of 3 tics to trigger
 	if(ticrate < DND_POISON_CHECKRATE)

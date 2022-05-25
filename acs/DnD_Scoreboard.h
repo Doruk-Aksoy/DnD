@@ -117,10 +117,22 @@ bool PlayerHasClicked(int pnum) {
 
 // serverside
 Script 1690 (int isSecretExit, int forcedExit, int isBossBrain) {
-	if(isBossBrain)
-		SetActivatorToTarget(0);
+	int this, i;
+	if(isBossBrain) {
+		AmbientSound("brain/death", 127);
+		// if it was boss brain, find a random person playing the game right now to ensure we can exit
+		for(i = 0; i < MAXPLAYERS; ++i) {
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+				this = i;
+				break;
+			}
+		}
+		SetActivator(this);
+	}
+	else
+		this = ActivatorTID();
+	
 	// this player hasn't triggered the exit before
-	int this = ActivatorTID();
 	int pnum = this - P_TIDSTART;
 	// timer didnt begin yet
 	if(!PlayerTriggeredExit(pnum) && !ScoreboardData[DND_SCBRD_TIMER]) {
@@ -167,7 +179,7 @@ Script 1690 (int isSecretExit, int forcedExit, int isBossBrain) {
 			
 			proceed = (!democracy || democracy_result) && (!monpct || monpct_result);
 		}
-		
+
 		// forcedExit is for romero head
 		if(proceed || forcedExit) {
 			// start the timer in the above function too, then after it expires / all players are ready we can exit
@@ -179,7 +191,7 @@ Script 1690 (int isSecretExit, int forcedExit, int isBossBrain) {
 			SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
 			
 			// make all players run this input loop
-			for(int i = 0; i < MAXPLAYERS; ++i) {
+			for(i = 0; i < MAXPLAYERS; ++i) {
 				if(PlayerInGame(i)) {
 					SetActivator(i + P_TIDSTART);
 					TakeInventory("ShowingMenu", 1);
