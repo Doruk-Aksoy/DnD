@@ -1453,7 +1453,7 @@ Actor SoulReaverDeflect {
 Actor SoulReaverShooter : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 15)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SOULS, AMMO_SOUL, 25)
 			TNT1 A 0 A_FireCustomMissile("SoulReaverSphere", 0, 1)
 		Stop
 	}
@@ -1467,6 +1467,7 @@ Actor SoulReaverSphere : DnD_BaseProjectile {
 	Alpha 0.05
 	Speed 40
 	+DOOMBOUNCE
+	+DONTSPLASH
 	+THRUACTORS
 	var int user_count;
 	States {

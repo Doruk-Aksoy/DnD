@@ -312,6 +312,7 @@ ACTOR EarthLich : DnD_BaseRangedMonster {
 	+DONTHURTSPECIES
 	+DONTRIP
 	+NOBLOOD
+	+NOPAIN
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(0, DND_EARTHLICH)

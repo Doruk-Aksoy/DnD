@@ -927,9 +927,9 @@ int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, i
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
 		// we handle ignite damage buff in the dot calculation
 		if(IsFireDamage(damage_type) && !isIgnite)
-			dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
+			dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_DAMAGE_MUL, DND_AMULETHELL_DAMAGE_DIV);
 		else if(IsIceDamage(damage_type))
-			dmg /= DND_AMULETHELL_FACTOR;
+			dmg /= DND_AMULETHELL_DAMAGE_DIV;
 	}
 	
 	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
@@ -2721,7 +2721,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 		//printbold(s:GetactorClass(0), s:" inflicts damage id ", d:GetActorProperty(0, APROP_DAMAGE));
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
-		//printbold(s:"dmg flag: ", d:dmg_data);
+		// printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
 		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT";
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
@@ -2742,6 +2742,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int victim = ActivatorTID();
 		
 		dmg = arg1;
+		
+		// printbold(s:"do dmg from inflictor class ", s:inflictor_class, s: " isReflected? ", d:isReflected, s: " ", d:dmg_data);
 		
 		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
 		if(IsMonster(shooter)) {
@@ -2790,6 +2792,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// resists of player now will factor in after we've calculated the damage accurately
 			if(IsPlayer(victim)) {
 				int pnum = victim - P_TIDSTART;
+				
+				// hate shard reflection
+				if(CheckActorInventory(victim, "HateCheck")) {
+					Thing_Damage2(shooter, dmg, "Reflection");
+					ACS_NamedExecuteWithResult("DnD Damage Numbers", shooter, dmg, 0);
+				}
 				
 				temp = CheckInventory("Perk_Endurance");
 				if(temp) {
@@ -2852,6 +2860,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
 			ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, 0);
 			SetResultValue(dmg);
+		}
+		else if(IsMonster(victim) && dmg_data) {
+			// last option, player hurt monster in here --- we normally don't handle this here but for reflection we can
+			// if we have dmg_data, currently it can only come from monster projectile
+			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
+			ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, 0);
+			SetResultValue(dmg);
+			Terminate;
 		}
 		else {
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things

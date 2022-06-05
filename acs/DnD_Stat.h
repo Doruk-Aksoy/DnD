@@ -418,33 +418,44 @@ void GiveActorExp(int tid, int amt) {
 	CalculatePlayerExpRatio(tid);
 }
 
-int RewardActorExp(int tid, int amt) {
-	amt += amt * BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") / 100;
+int GetPlayerWisdomBonus(int pnum, int tid) {
+	// the item modifier is fixed point and is a more multiplier
+	int base = 100 + BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
+	
+	// halved
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
-		amt >>= 1;
+		base >>= 1;
 		
 	// 50% increase
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
-		amt = amt * 3 / 2;
+		base = base * 3 / 2;
 	
-	// if non-zero, already contains 100 in it as it's multiplicative
-	amt = ApplyFixedFactorToInt(amt, GetPlayerWisdomBonus(tid - P_TIDSTART));
+	return ApplyFixedFactorToInt(base, GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE));
+}
+
+int GetPlayerGreedBonus(int pnum, int tid) {
+	// the item modifier is fixed point and is a more multiplier
+	int base = 100 + BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
+	
+	// halved
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
+		base >>= 1;
+		
+	// 50% increase
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
+		base = base * 3 / 2;
+	
+	return ApplyFixedFactorToInt(base, GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE));
+}
+
+int RewardActorExp(int tid, int amt) {
+	amt = amt * GetPlayerWisdomBonus(tid - P_TIDSTART, tid) / 100;
 	GiveActorExp(tid, amt);
 	return amt;
 }
 
 int RewardActorCredit(int tid, int amt) {
-	amt += amt * BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") / 100;
-	if(IsQuestComplete(tid, QUEST_SPEND25K))
-		amt += amt * DND_QUEST_CREDITBONUS / 100;
-	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
-		amt >>= 1;
-	
-	// 50% increase
-	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
-		amt = amt * 3 / 2;
-
-	amt = ApplyFixedFactorToInt(amt, GetPlayerGreedBonus(tid - P_TIDSTART));
+	amt = amt * GetPlayerGreedBonus(tid - P_TIDSTART, tid) / 100;
 	GiveActorCredit(tid, amt);
 	return amt;
 }
@@ -671,15 +682,6 @@ int GetDropChance(int pnum, bool isElite) {
 	return base;
 }
 
-int GetPlayerWisdomBonus(int pnum) {
-	// temporary -- this is fixed * integer (orb bonus is integer not fixed) orb crap will be removed later anyway
-	return GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE) * (100 + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1)) / 100;
-}
-
-int GetPlayerGreedBonus(int pnum) {
-	return GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE) * (100 + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1)) / 100;
-}
-
 bool RunDefaultDropChance(int pnum, bool isElite, int basechance) {
 	return RunDropChance(pnum, isElite, basechance, 0, 1.0);
 }
@@ -731,14 +733,10 @@ void DecideAccessories() {
 		TakeInventory("TaltosUp", 1);
 	}
 	
-	if(IsAccessoryEquipped(this, DND_ACCESSORY_HATESHARD)) {
+	if(IsAccessoryEquipped(this, DND_ACCESSORY_HATESHARD))
 		GiveInventory("HateCheck", 1);
-		GiveInventory("PowerReflection", 1);
-	}
-	else {
-		TakeInventory("PowerReflection", 1);
+	else
 		TakeInventory("HateCheck", 1);
-	}
 	
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_HANDARTEMIS)) {
 		GiveInventory("ArtemisPower", 1);
@@ -792,14 +790,10 @@ void DecideAccessories() {
 		TakeInventory("ElementPower_Lightning", 1);
 		TakeInventory("ElementPower_Earth", 1);
 	}
-	if(IsAccessoryEquipped(this, DND_ACCESSORY_CELESTIAL)) {
+	if(IsAccessoryEquipped(this, DND_ACCESSORY_CELESTIAL))
 		SetInventory("CelestialCheck", 1);
-		GiveInventory("CelestialSlow", 1);
-	}
-	else {
+	else
 		SetInventory("CelestialCheck", 0);
-		TakeInventory("CelestialSlow", 1);
-	}
 	
 	SetInventory("HunterTalismanCheck", IsAccessoryEquipped(this, DND_ACCESSORY_HUNTERTALISMAN));
 	SetInventory("VeilCheck", IsAccessoryEquipped(this, DND_ACCESSORY_VEIL));

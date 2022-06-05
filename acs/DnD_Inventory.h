@@ -1565,11 +1565,16 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return true;
 }
 
-void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic, bool noSync = false) {
+enum {
+	REQ_SYNC_ACC = 1
+};
+
+int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic, bool noSync = false) {
 	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
 	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int asubtype = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
 	int i, temp;
+	int sync_required = 0;
 	int cap;
 	
 	str inv;
@@ -1611,7 +1616,6 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		break;
 		case INV_EXPLOSION_RADIUS:
 			IncPlayerModValue(pnum, atype, aval, noSync);
-			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
 		
@@ -1620,8 +1624,8 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		case INV_ESS_OMNISIGHT:
 		case INV_ESS_OMNISIGHT2:
 			IncPlayerModValue(pnum, atype, aval, noSync);
-			// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
-			CalculatePlayerAccuracy(pnum);
+			
+			sync_required = REQ_SYNC_ACC;
 		break;
 		
 		// exotic stuff -- reason most of these dont have syncs is that they arent meant to be shown in stat menu page, so no need for client to be aware
@@ -1821,6 +1825,8 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 			IncPlayerModValue(pnum, atype, aval, noSync);
 		break;
 	}
+
+	return sync_required;
 }
 
 // Applies item stats to player -- can remove or add
@@ -1837,8 +1843,15 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 		}
 	}
 
+	int sync_required = 0;
 	for(i = 0; i < ac; ++i)
-		ProcessItemFeature(pnum, item_index, source, i, remove, has_cybernetic, noSync);
+		sync_required |= ProcessItemFeature(pnum, item_index, source, i, remove, has_cybernetic, noSync);
+		
+	// moved property sync here as when multiple attributes were in play order of sync was messing up
+	if(sync_required & REQ_SYNC_ACC) {
+		// accuracy is held in a 32bit integer (tested) so it adheres to the limits of it
+		CalculatePlayerAccuracy(pnum);
+	}
 }
 
 int GetCraftableItemCount() {

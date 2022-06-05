@@ -313,7 +313,7 @@ int GetBonusPlayerSpeed(int pnum) {
 	// add other stuff here
 	res += GetDataFromOrbBonus(pnum, OBI_SPEED);
 	res += Player_Elixir_Bonuses[pnum].speed_bonus;
-	res = res * (100 + CheckInventory("GryphonCheck") * DND_GRYPHON_MSPEED) / 100;
+	res = res * (100 + CheckInventory("GryphonCheck") * DND_GRYPHON_MSPEED + CheckInventory("CelestialCheck") * DND_CELESTIAL_MSPEED) / 100;
 	return res;
 }
 
@@ -477,10 +477,7 @@ void RestoreRPGStat (int statflag) {
 		GiveInventory("CanIntervene", 1);
 		SetPlayerProperty(0, 1, PROP_BUDDHA);
 	}
-	if(CheckInventory("HellfireCheck")) {
-		GiveInventory("Accessory_FireProtection", 1);
-		GiveInventory("Accessory_FireBuff", 1);
-	}
+
 	if(CheckInventory("ArtemisCheck"))
 		GiveInventory("ArtemisPower", 1);
 		
@@ -492,14 +489,8 @@ void RestoreRPGStat (int statflag) {
 		GiveInventory("HateReduction", 1);
 	}
 
-	if(CheckInventory("GryphonCheck")) {
-		GiveInventory("GryphonSpeed", 1);
+	if(CheckInventory("GryphonCheck"))
 		GiveInventory("CurseImmunity", 1);
-	}
-	if(CheckInventory("LichCheck"))
-		GiveInventory("LichPower", 1);
-	if(CheckInventory("CelestialCheck"))
-		GiveInventory("CelestialSlow", 1);
 	
 	if(CheckResearchStatus(RES_SYNTHMASK) == RES_DONE)
 		GiveInventory("SynthMaskToken", 1);

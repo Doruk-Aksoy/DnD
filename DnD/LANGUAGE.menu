@@ -201,8 +201,8 @@ ACCTX_P2				=	"Increases damage of occult weapons by 50%.";
 ACCTX_C2				=	"Reduces other damage by 75%.";
 
 ACCTX_T3				=	"Amulet of Hellfire";
-ACCTX_P3				=	"Protects from all fire damage and hazards by 75%. Increases your fire damage by 50%.";
-ACCTX_C3				=	"Increases ice damage taken by 75% and reduces your ice damage by 50%.";
+ACCTX_P3				=	"Protects from all fire damage and hazards by 75%. Deal 50% more fire damage.";
+ACCTX_C3				=	"Increases ice damage taken by 75%. Deal 50% less ice damage.";
 
 ACCTX_T4				=	"Angelic Ankh";
 ACCTX_P4				=	"When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once every map.";
@@ -233,7 +233,7 @@ ACCTX_P10				=	"Do 100% more damage while standing still.";
 ACCTX_C10				=	"Take 40% more damage while moving.";
 
 ACCTX_T11				=	"Gryphon Boots";
-ACCTX_P11				=	"Gives 25% movement speed, immunity to curses and fall damage, and knockback immunity.";
+ACCTX_P11				=	"25% increased movement speed, immunity to curses and fall damage, and knockback immunity.";
 ACCTX_C11				=	"Can't regenerate.";
 
 ACCTX_T12				=	"Lich Arm";
@@ -246,7 +246,7 @@ ACCTX_C13				=	"Other elements do no damage.";
 
 ACCTX_T14				=	"Celestial Relic";
 ACCTX_P14				=	"Gives 25% increased health and armor capacity.";
-ACCTX_C14				=	"Slows you down by 20%.";
+ACCTX_C14				=	"20% reduced movement speed.";
 
 ACCTX_T15				=	"Veil of the Assassin";
 ACCTX_P15				=	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 15% of missing health. Lasts for 5 seconds or until you expend the crit.";

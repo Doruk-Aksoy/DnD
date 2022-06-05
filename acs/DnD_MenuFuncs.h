@@ -151,14 +151,6 @@ void UpdateCursorClickData(int itemid, int source, int itemtype, int clickx = -1
 	}
 }
 
-int CalculateWisdomBonus(int pnum) {
-	return GetPlayerAttributeValue(pnum, INV_EXPGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1) + CheckInventory("Perk_Wisdom") * BASE_WISDOM_GAIN;
-}
-
-int CalculateGreedBonus(int pnum) {
-	return GetPlayerAttributeValue(pnum, INV_CREDITGAIN_INCREASE) + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1) + CheckInventory("Perk_Greed") * BASE_WISDOM_GAIN;
-}
-
 int IsSpecialFixWeapon(int id) {
     for(int i = 0; i < MAX_SPECIALAMMOFIX_WEAPONS; ++i)
         if(SpecialAmmoFixWeapons[i][0] == id)
@@ -1203,21 +1195,6 @@ void FillCurrentArmor(int pnum, int take_pos) {
 	ConsumePlayerItem(pnum, take_pos);
 }
 
-void HandleAbilityExceptions(int itemid) {
-	if(itemid == SHOP_ABILITY_POISON) {
-		if(!CheckInventory("Cyborg_Perk25"))
-			GiveInventory("PoisonResist", 1);
-		else
-			GiveInventory("PoisonResist_Cybernetic", 1);
-	}
-	else if(itemid == SHOP_ABILITY_EXPLOSION) {
-		if(!CheckInventory("Cyborg_Perk25"))
-			GiveInventory("ExplosionResistAbility", 1);
-		else
-			GiveInventory("ExplosionResistAbility_Cybernetic", 1);
-	}
-}
-
 // will process item selections depending on given valid range
 // support for selling other stuff is here, it's just a few extra lines in the serverside script to handle the process
 void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool givefull) {
@@ -1290,11 +1267,6 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 					}
 					else if(tradeflag & TRADE_ARMOR)
 						LocalAmbientSound("items/armor", 127);
-						
-					if(tradeflag & TRADE_ABILITY) {
-						// make sure the appropriate stuff is given
-						HandleAbilityExceptions(itemid);
-					}
 				}
 			}
 		}
@@ -4546,6 +4518,7 @@ void ResetShopStock(int pnum) {
 void DrawPlayerStats(int pnum, int category) {
 	int val;
 	int k = 0;
+	int tid = pnum + P_TIDSTART;
 	
 	// sum of y and height should = 248
 	SetHudClipRect(192, 52, 256, 196, 256);
@@ -5026,16 +4999,16 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// exp bonus
-			val = CalculateWisdomBonus(pnum);
+			val = GetPlayerWisdomBonus(pnum, tid);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T4", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_EXPERIENCEGAIN", s:"\n");
 				++k;
 			}
 			
 			// credit bonus
-			val = CalculateGreedBonus(pnum);
+			val = GetPlayerGreedBonus(pnum, tid);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T5", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_CREDITGAIN", s:"\n");
 				++k;
 			}
 		

@@ -3408,7 +3408,8 @@ Script "DnD Blood Rune" (void) {
 
 // Custom Powerup script
 Script "DnD Player On Hit" (int power) {
-	int this, temp, target, hp;
+	int this, m_id, target, hp;
+	int temp;
 	
 	this = ActivatorTID();
 	
@@ -3446,22 +3447,27 @@ Script "DnD Player On Hit" (int power) {
 	}
 	
 	// monster might be thief, check it
-	temp = target - DND_MONSTERTID_BEGIN;
-	if(MonsterProperties[temp].trait_list[DND_THIEF]) {
-		// get current weapon's ammo and steal it
-		str cur_ammo = "";
-		do {
-			cur_ammo = GetWeaponAmmoType(GetWeaponPosFromTable(), random(0, 1));
-		} while(cur_ammo == " ");
-		TakeInventory(cur_ammo, CheckInventory(cur_ammo) * DND_ELITE_THIEFRATE / 100);
+	m_id = target - DND_MONSTERTID_BEGIN;
+	if(MonsterProperties[m_id].trait_list[DND_THIEF]) {
+		// get current weapon's ammo and steal it if possible
+		temp = random(0, 1);
+		str cur_ammo = GetWeaponAmmoType(GetWeaponPosFromTable(), temp);
+		
+		// if we picked no ammo, flip to check the other one using negation
+		if(cur_ammo == " ")
+			cur_ammo = GetWeaponAmmoType(GetWeaponPosFromTable(), !temp);
+		
+		// if it's something we can take ammo from		
+		if(cur_ammo != " ")
+			TakeInventory(cur_ammo, CheckInventory(cur_ammo) * DND_ELITE_THIEFRATE / 100);
 	}
 	
 	// shocker check
-	if(MonsterProperties[temp].trait_list[DND_SHOCKER])
+	if(MonsterProperties[m_id].trait_list[DND_SHOCKER])
 		GiveInventory("PlayerStopper", 1);
 	
 	// ruination check
-	if(MonsterProperties[temp].trait_list[DND_RUINATION]) {
+	if(MonsterProperties[m_id].trait_list[DND_RUINATION]) {
 		if(!CheckInventory("RuinationStacks"))
 			ACS_NamedExecuteAlways("DnD Ruination Ticker", 0);
 		GiveInventory("RuinationStacks", 1);
@@ -3471,7 +3477,7 @@ Script "DnD Player On Hit" (int power) {
 	}
 
 	// the curse is applied if the player is not immune, the checks are delegated to curse items
-	if(MonsterProperties[temp].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
+	if(MonsterProperties[m_id].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
 		ApplyRandomCurse();
 		
 	// check perk25 for berserker with cooldown
@@ -6545,9 +6551,9 @@ Script 68 (int x) NET {
 	else if(x == 420) {
 		//SpawnCharm(0, true);
 		SpawnOrbForAll(1, random(40, 120));
-		SpawnSpecificOrbForAll(DND_ORB_SIN, 1);
+		SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 		//SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
-		SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
+		SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
 		/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

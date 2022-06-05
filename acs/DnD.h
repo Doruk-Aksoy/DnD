@@ -1211,6 +1211,9 @@ void ClearLingeringBuffs() {
 	
 	// some buffs from spells, that arent powerups
 	SetInventory("Rally_DamageBuff", 0);
+	
+	// debuffs
+	SetInventory("RuinationStacks", 0);
 }
 
 void SyncResearchInvestments(int pnum) {

@@ -322,11 +322,6 @@ Actor DemonBaneCheck : DnD_Boolean { }
 Actor NetherCheck : DnD_Boolean {}
 Actor HateCheck : DnD_Boolean {}
 
-Actor PowerHateShard : PowerupGiver {
-	powerup.duration 0x7FFFFFFF
-	powerup.type "PowerReflection"
-}
-
 Actor HellfireCheck : DnD_Boolean { }
 
 Actor PendantPower : PowerDamage {
@@ -582,10 +577,6 @@ Actor ElementPower_Earth : PowerDamage {
 }
 
 Actor CelestialCheck : DnD_Boolean { }
-Actor CelestialSlow : PowerSpeed {
-	powerup.duration 0x7FFFFFFF
-	Speed 0.8
-}
 
 Actor HunterTalismanCheck : DnD_Boolean { }
 Actor HunterTalismanCooldown : PowerDamage {

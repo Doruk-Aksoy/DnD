@@ -288,7 +288,7 @@ Actor HadesLightningCD : PowerDamage {
 	powerup.duration -5
 }
 
-Actor Helemental : DnD_BaseHybridMonster {
+Actor Helemental : DnD_BaseHybridMonster_NoRes {
 	Obituary "%o was electrocuted by a Hades-Elemental."
 	HitObituary "%o got chomped by a Hades-Elemental."
 	Health 0x7FFFFFFF
