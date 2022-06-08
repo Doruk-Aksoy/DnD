@@ -926,7 +926,7 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 	int h = PlayerInventoryList[pnum][tb].height;
 
 	// these two mark box ids that have been modified, ie. need updates
-	// if the boxes aren't in range of itempos, they will need to be nulled
+	// if the boxes aren't in range of itempos, they will need to be nulled because we no longer need to preserve the data in that spot
 	int set1 = 0;
 	int set2 = 0;
 	
@@ -934,12 +934,12 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 	
 	for(i = 0; i < h; ++i) 
 		for(j = 0; j < w; ++j) {
-			bid = temp + j + i * MAXINVENTORYBLOCKS_VERT;
-			if(!InventoryBoxContainsPoint(tb + j + i * MAXINVENTORYBLOCKS_VERT, temp, w, h)) {
-				if(tb + j + i * MAXINVENTORYBLOCKS_VERT < 32)
-					set1 |= 1 << (tb + j + i * MAXINVENTORYBLOCKS_VERT);
+			bid = tb + j + i * MAXINVENTORYBLOCKS_VERT;
+			if(!InventoryBoxContainsPoint(bid, temp, w, h)) {
+				if(bid < 32)
+					set1 |= 1 << bid;
 				else
-					set2 |= 1 << (tb + j + i * MAXINVENTORYBLOCKS_VERT);
+					set2 |= 1 << (bid - 32);
 			}
 		}
 	
@@ -963,18 +963,22 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 
 	if(set1 || set2) {
 		for(i = 0; i < 32; ++i)
-			if(IsSet(set1, i))
+			if(IsSet(set1, i)) {
+				printbold(s:"null req on ", d:i);
 				FreeSpot(pnum, i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			}
 				
 		for(i = 0; i < MAX_INVENTORY_BOXES - 32; ++i)
-			if(IsSet(set2, i))
+			if(IsSet(set2, i)) {
+				printbold(s:"null req on ", d:i+32);
 				FreeSpot(pnum, i + 32, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			}
 		SyncItemData_Null(pnum, tb, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, w, h);
 	}
-	else {
+	/*else {
 		// Simply null the leftover spot, no collision happened
 		FreeItem(pnum, tb, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-	}
+	}*/
 	
 	// update orb item pointer
 	if(Player_MostRecent_Orb[pnum].p_tempwep == itempos)
@@ -1006,12 +1010,12 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 	if(itemsource == emptysource) {
 		for(i = 0; i < h; ++i) 
 			for(j = 0; j < w; ++j) {
-				bid = temp + j + i * MAXINVENTORYBLOCKS_VERT;
-				if(!InventoryBoxContainsPoint(tb + j + i * MAXINVENTORYBLOCKS_VERT, temp, w, h)) {
+				bid = tb + j + i * MAXINVENTORYBLOCKS_VERT;
+				if(!InventoryBoxContainsPoint(bid, temp, w, h)) {
 					if(tb + j + i * MAXINVENTORYBLOCKS_VERT < 32)
-						set1 |= 1 << (tb + j + i * MAXINVENTORYBLOCKS_VERT);
+						set1 |= 1 << (bid);
 					else
-						set2 |= 1 << (tb + j + i * MAXINVENTORYBLOCKS_VERT);
+						set2 |= 1 << (bid - 32);
 				}
 			}
 	}

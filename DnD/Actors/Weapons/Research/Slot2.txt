@@ -399,6 +399,7 @@ Actor ViperCrawler {
 	+NOTELEPORT
 	+NOTARGET
 	+AMBUSH
+	+NOBLOCKMONST
 	Gravity 1.5
 	MaxStepHeight 32
 	Speed 12

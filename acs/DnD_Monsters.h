@@ -6,14 +6,11 @@
 #include "DnD_MonsterData.h"
 #include "DnD_SpecialTrails.h"
 
-#define AVATAR_SOUL_TID 3565
-#define AVATAR_CUBE_TID 6000
 #define AVATAR_SOUL_COUNT 10
 
 #define WAIT_MAX 18 // approx 2.5 seconds of flight max for jumping monsters (or lands on object and gets stuck, this is to unstuck it)
 
 #define ZEALOT_SHIELD_TIME 4 * 35
-#define ZEALOT_SHIELD_TID 3564 
 
 #define DARKLICH_WARP_RANDMAX 160
 #define DARKLICH_WARP_VELZMAX 12.0
@@ -60,7 +57,6 @@
 #define LESHRAC_SALVO 6
 #define LESHRAC_SALVO_DELAY 2
 #define LESHRAC_PROJ_SPEEDLIM (28 * 8)
-#define LESHRAC_PROJ_TID 701
 
 #define THORAX_T 12
 #define THORAX_DIST_FACTOR 64
@@ -92,8 +88,6 @@
 #define ABAXOTH_THUNDER_HEALPERCENT 10 // 10%
 #define ABAXOTH_THUNDERFX2TID 706
 #define ABAXOTH_THUNDERFX3TID 707
-
-#define UNIQUE_MON_AUX_TID 2500
 
 typedef struct {
 	int time;

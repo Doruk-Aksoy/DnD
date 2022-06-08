@@ -5,7 +5,7 @@
 
 #define DND_CHESTKEY_DROPRATE 0.00875 // overall chestkey droprate
 #define DND_GOLDCHESTKEY_DROPRATE 0.1
-#define DND_SILVERCHESTKEY_DROPRATE 0.25
+#define DND_SILVERCHESTKEY_DROPRATE 0.3
 
 #define MAX_BASE_CHESTCOUNT 10
 #define CHEST_DROPWEIGHT 0.1
@@ -53,9 +53,11 @@ void SpawnChestKey(int pnum, bool isElite) {
 	int res = 0;
 	int c = CreateItemSpot();
 	if(c != -1) {
-		if(RunDefaultDropChance(pnum, isElite, DND_GOLDCHESTKEY_DROPRATE))
+		// Todo: Item rarity / quant affecting this
+		int w = random(0, 1.0);
+		if(w < DND_GOLDCHESTKEY_DROPRATE)
 			res = DND_CHESTTYPE_GOLD;
-		else if(RunDefaultDropChance(pnum, isElite, DND_SILVERCHESTKEY_DROPRATE))
+		else if(w < DND_SILVERCHESTKEY_DROPRATE)
 			res = DND_CHESTTYPE_SILVER;
 		else
 			res = DND_CHESTTYPE_BRONZE;

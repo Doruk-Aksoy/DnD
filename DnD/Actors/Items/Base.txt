@@ -121,11 +121,9 @@ Actor DnD_SharedItem {
 }
 
 Actor DND_Activator : CustomInventory {
-	inventory.maxamount 999
+	inventory.maxamount 1
 	+INVENTORY.ALWAYSPICKUP
 	+INVENTORY.AUTOACTIVATE
-	+INVENTORY.IGNORESKILL
-	+INVENTORY.UNDROPPABLE
 }
 
 Actor DnD_Info : Inventory {
@@ -528,3 +526,5 @@ Actor DontAttackRemove : DnD_Activator {
 		Stop
 	}
 }
+
+Actor MonsterKilledByPlayer : DnD_Boolean { }

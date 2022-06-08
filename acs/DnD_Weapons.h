@@ -511,7 +511,7 @@ int CountShotgunWeaponsOwned() {
 			CheckInventory(Weapons_Data[DND_WEAPON_SILVERGUN][WEAPON_NAME]) 				+
 			CheckInventory(Weapons_Data[DND_WEAPON_INCINERATOR][WEAPON_NAME]) 				+
 			CheckInventory(Weapons_Data[DND_WEAPON_VINDICATOR][WEAPON_NAME]) 				+
-			CheckInventory(Weapons_Data[DND_WEAPON_SAWEDOFF][WEAPON_NAME]);;
+			CheckInventory(Weapons_Data[DND_WEAPON_SAWEDOFF][WEAPON_NAME]);
 }
 
 bool IsTemporaryWeapon(int id) {
@@ -655,15 +655,6 @@ str GetWeaponTipText(int wepid) {
 
 str GetWeaponTag(int wepid) {
 	return StrParam(s:"WEP_", d:wepid, s:"_TAG");
-}
-
-// pick a random weapon that the player currently owns
-int PickRandomOwnedWeapon() {
-	int res = 0;
-	do {
-		res = random(0, MAXWEPS - 1);
-	} while(!CheckInventory(Weapons_Data[res][WEAPON_NAME]));
-	return res;
 }
 
 #endif

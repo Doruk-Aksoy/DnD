@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -17,17 +17,12 @@
 #define FACTOR_FIXED_RESOLUTION 1000
 
 #define MAXPLAYERS 64
-#define P_TIDSTART 1000
 #define TICRATE 35
 #define HALF_TICRATE 17
-
-#define DND_FROZENFX_TID 3000
-#define DND_CHAOSMARKFX_TID 3001
 
 #define DND_BASE_HEALTH 100
 
 #define DND_DROP_TID 343 // some dumb number
-#define DND_EMERALD_TIDADD 100
 
 #define EPSILON 0.000001
 
@@ -73,65 +68,113 @@ enum {
 #define DND_EXP_HUDID_FILL 266
 #define DND_EXP_HUDID_BACK 267
 
-/*
-////////////////
-// TID RANGES //
-////////////////
+#define DND_MAX_MONSTERS 8192
 
-* 700 = Draugr Temporary FX
-* 701 - 999 = Projectile temporary tid
-* 1000 - 1063 = Players
-* 1100 - 1163 = Emerald Death Actors
-* 1200 - 1263 = Player temporary weapon drop ids (only at the moment of drop, cleared the next tic)
-* 1500 - 1563 = Temporary tid assignment of pets
-* 1600 - 1663 = Temporary tid assignment for spells
-* 1664 - 1727 = Menu icon above people
-* 2000 - 2063 = Deathray marker TID for players
-* 2100 - 2163 = Dark Lance tids
-* 2200 - 2263 = Dark Lance Shredder FX
-* 2300 - 2363 = Kanji Trap tids
-* 2400 - 2463 = Kanji Trap Explosion tid
-* 2500 = Auxiliary unique monster tid
-* 3000 = Frozen FX Temporary TID
-* 3001 = Chaos Mark FX Temporary TID
-* 3099 = Player shotgun puff removal tid
-* 3100 - 3163 = Player Shotgun Puff Temporary TID
-* 3564 = Dark Zealot Shield TID
-* 3565 = Avatar soul projectiles TID
-* 6000 - 12000 = Avatar Cubes TID
-* 15000+ = Zealot Shield TID
-* 17000 - 19048 = Shared item IDs
-* 19049 - 29049 = Limited Respawn Ammos
-* 30000 = Temporary tid for damage numbers
-* 32768 = Special FX TID
-* 32769 = Thunder Staff temporary damager tid
-* 32770 = Ice chunk TID
-* 40000 - 42048 = Thunder Staff Ring tid
-* 42049 - Talisman Mark tid
-* 50000 = Destructible object tid start
-* 54000 - 54063 = Wanderer explosion tids
-* 54100 - 54163 = Crossbow explosion tids
-* 54165 = NPC TID
-* 55000 - 56600 = pet tids -- max of 1600 pets stored here because => 25 max pets per player x 64 = 1600
-* 65001 - 68001 = other pickup tids of importance -- soulspheres, megas, invis, invul, radsuit etc.
-* 68002 = subordinate spawn temporary tid
-* Anything above 71000 => any monster tid
-*/
+#define DND_MAX_TEMP_PROJ 200
+#define DND_EMERALD_TIDADD 100
+#define DND_TEMPORARY_TIDADD 200
+#define DND_AVATAR_CUBESKIP 6000
 
-#define SHARED_ITEM_TID_BEGIN 17000
+#define MAX_SHARED_ITEMS 2048
 #define SHARED_ITEM_TYPE_TID_MAX 19048
-#define DND_DAMAGENUMBER_TID 30000
-#define DND_SHOOTABLETID_BEGIN 50000
-#define DND_PETTID_BEGIN 55000
-#define DND_PETTID_END 56600
-#define DND_PICKUPTID_BEGIN 65001
-#define DND_MONSTERTID_BEGIN 71000
 
-#define DND_SUBORDINATE_TEMPTID 68002
+#define LIMITED_RESPAWN_TID_END 29049
+#define LIMITED_RESPAWN_MAX 10000
 
-#define DND_SHOTGUNPUFF_REMOVETID 3099
-#define DND_SHOTGUNPUFF_TID 3100
-#define DND_ICECHUNK_TID 32770
+#define THUNDERSTAFF_RING_SKIP 2048 // this is calculated in spawner code, but basically 32 x 64 = 2048
+
+#define MAX_SHOOTABLE_TIDS 4000
+#define MAX_NPCS 512
+#define MAX_PETS 1600 // max of 1600 pets stored here because => 25 max pets per player x 64 = 1600
+#define MAX_PICKUPS 3000
+
+enum {
+	// from 1 to DND_MAX_MONSTERS + 1 is the amount of monsters we support -- we'll do tid - 1 to access array loc
+	DND_MONSTERTID_BEGIN = 1,
+	
+	// 8192 - 8245 player tid range
+	P_TIDSTART = DND_MONSTERTID_BEGIN + DND_MAX_MONSTERS,
+	// emerald death actors add +100 to here, temp weapons use +200
+	
+	// temporary proj tid for use with scripts firing custom proj
+	// also skips emerald death tid add
+	DND_TEMP_PROJTID = P_TIDSTART + MAXPLAYERS + DND_TEMPORARY_TIDADD,
+	
+	// draugr teleport fx
+	DRAUGR_TEMP_FX = DND_TEMP_PROJTID + DND_MAX_TEMP_PROJ,
+	
+	// 64 player temp tid range
+	TEMPORARY_PET_TID,
+	
+	// 64 player temp tid range
+	TEMPORARY_SPELL_TID = TEMPORARY_PET_TID + MAXPLAYERS,
+	
+	// 64 player temp tid range
+	DND_MENUFLOATYICON_TID = TEMPORARY_SPELL_TID + MAXPLAYERS,
+	
+	// 64 player temp tid range
+	DEATHRAY_MARKER_TID = DND_MENUFLOATYICON_TID + MAXPLAYERS,
+	
+	// 64 player temp tid range
+	DARKLANCE_TID = DEATHRAY_MARKER_TID + MAXPLAYERS,
+	DARKLANCE_SHREDDER = DARKLANCE_TID + MAXPLAYERS,
+	
+	// 64 player temp tid range
+	KANJI_TRAP_TID = DARKLANCE_SHREDDER + MAXPLAYERS,
+	KANJI_TRAPEXP_TID = KANJI_TRAP_TID + MAXPLAYERS,
+	
+	UNIQUE_MON_AUX_TID,
+	DND_FROZENFX_TID,
+	DND_CHAOSMARKFX_TID,
+	DND_SHOTGUNPUFF_REMOVETID,
+	
+	// 64 player temp tid range
+	DND_SHOTGUNPUFF_TID,
+	
+	ZEALOT_SHIELD_TID = DND_SHOTGUNPUFF_TID + MAXPLAYERS,
+	
+	AVATAR_SOUL_TID,
+	
+	// has 6000 skip here, supports max 2000 avatars x 3 = 6000
+	AVATAR_CUBE_TID,
+	
+	// max 2048
+	SHARED_ITEM_TID_BEGIN = AVATAR_CUBE_TID + DND_AVATAR_CUBESKIP,
+	
+	// limited respawn skips MAX_SHARED_ITEMS from above, and has 10k skip for next
+	LIMITED_RESPAWN_TID_BEGIN = SHARED_ITEM_TID_BEGIN + MAX_SHARED_ITEMS,
+	
+	DND_DAMAGENUMBER_TID = LIMITED_RESPAWN_TID_BEGIN + LIMITED_RESPAWN_MAX,
+	
+	DND_THUNDERSTAFF_DAMAGERTID,
+	DND_ICECHUNK_TID,
+	
+	DND_THUNDER_RING_TIDSTART,
+	
+	DND_TALISMAN_MARK = DND_THUNDER_RING_TIDSTART + THUNDERSTAFF_RING_SKIP,
+	
+	DND_SHOOTABLETID_BEGIN,
+	
+	// 64 player temp tid range
+	DND_WANDERER_EXP_TID = DND_SHOOTABLETID_BEGIN + MAX_SHOOTABLE_TIDS,
+	
+	// 64 player temp tid range
+	DND_CROSSBOW_EXPLOSIONTID = DND_WANDERER_EXP_TID + MAXPLAYERS,
+	
+	DND_NPC_TID = DND_CROSSBOW_EXPLOSIONTID + MAXPLAYERS,
+	
+	DND_PETTID_BEGIN = DND_NPC_TID + MAX_NPCS,
+	
+	DND_PICKUPTID_BEGIN = DND_PETTID_BEGIN + MAX_PETS,
+	
+	DND_SUBORDINATE_TEMPTID = DND_PICKUPTID_BEGIN + MAX_PICKUPS,
+	
+	
+	SPECIAL_FX_TID = INT_MAX
+};
+
+#define DND_LASTMONSTER_TID (DND_MAX_MONSTERS + DND_MONSTERTID_BEGIN)
+#define DND_PETTID_END (DND_PETTID_BEGIN + MAX_PETS)
 
 enum {
 	DND_MAPINFO_MAPCHANGED,
@@ -161,12 +204,31 @@ enum {
 	DND_MODE_HARDCORE
 };
 
-int settings[4][2] = {
-	{ BT_FORWARD,					0.00 	},
-	{ BT_MOVELEFT | BT_LEFT,		0.25	},
-	{ BT_BACK,						0.50	},
-	{ BT_MOVERIGHT | BT_RIGHT,	    0.75	}
+enum {
+	MVMT_BT_FORWARD,
+	MVMT_BT_LEFT,
+	MVMT_BT_BACK,
+	MVMT_BT_RIGHT
 };
+
+int GetMovementButton(int b) {
+	switch(b) {
+		case MVMT_BT_FORWARD:
+		return BT_FORWARD;
+		case MVMT_BT_LEFT:
+		return BT_MOVELEFT | BT_LEFT;
+		case MVMT_BT_BACK:
+		return BT_BACK;
+		case MVMT_BT_RIGHT:
+		return BT_MOVERIGHT | BT_RIGHT;
+	}
+	return BT_FORWARD;
+}
+
+// order follows above
+int GetMovementAngle(int b) {
+	return b * 0.25;
+}
 
 int IsButtonPressed (int input, int oldInput, int mask) {
 	return (input & ~oldInput) & mask;
@@ -178,7 +240,6 @@ int IsButtonHeld (int input, int mask) {
 
 int active_quest_id = -1;
 
-#define DND_MAX_MONSTERS 8192
 #define DND_MAX_PETS_PER_PLAYER 25
 #define DND_MAX_PETS (DND_MAX_PETS_PER_PLAYER * MAXPLAYERS) // 25 pets per player x 64 players
 
@@ -187,18 +248,36 @@ int active_quest_id = -1;
 #define DND_TID_PICKUPS 2
 #define DND_TID_SHAREDITEMS 3
 // keeps at what tid we are left off
-int DnD_TID_List[4] = { DND_MONSTERTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
+// { DND_MONSTERTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
+int DnD_TID_Counter[4] = { 0, 0, 0, 0 };
+
+// holds the monster tids that are in use -- arbitrary order
+int UsedMonsterTIDs[DND_MAX_MONSTERS];
 
 #define PLAYERLEVELINFO_LEVEL 0
 #define PLAYERLEVELINFO_MINLEVEL 1
 #define PLAYERLEVELINFO_MAXLEVEL 2
 #define PLAYERLEVELINFO_COUNTATSTART 3
-int PlayerInformationInLevel[4] = {
-	0, INT_MAX, INT_MIN, 0
+#define PLAYERLEVELINFO_TIDMONSTER 4
+int PlayerInformationInLevel[5] = {
+	0, INT_MAX, INT_MIN, 0, 0
 };
 
-void GiveMonsterTID () {
-	Thing_ChangeTID(0, DnD_TID_List[DND_TID_MONSTER]++);
+void GiveMonsterTID(int base_tid) {
+	if(!base_tid) {
+		int temp = DND_MONSTERTID_BEGIN + DnD_TID_Counter[DND_TID_MONSTER] + PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER];
+		
+		// we have to constantly check if we have run into a specific tid monster...
+		while(ThingCount(0, temp)) {
+			++temp;
+			++PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER];
+		}
+		
+		base_tid = DND_MONSTERTID_BEGIN + temp;
+		Thing_ChangeTID(0, base_tid);
+	}
+	
+	UsedMonsterTIDs[DnD_TID_Counter[DND_TID_MONSTER]++] = base_tid;
 }
 
 void GivePetTID(int master_tid) {
@@ -215,15 +294,18 @@ void GivePetTID(int master_tid) {
 }
 
 void GiveShootableTID() {
-	Thing_ChangeTID(0, DnD_TID_List[DND_TID_SHOOTABLE]++);
+	Thing_ChangeTID(0, DND_SHOOTABLETID_BEGIN + DnD_TID_Counter[DND_TID_SHOOTABLE]);
+	++DnD_TID_Counter[DND_TID_SHOOTABLE];
 }
 
 void GivePickupTID() {
-	Thing_ChangeTID(0, DnD_TID_List[DND_TID_PICKUPS]++);
+	Thing_ChangeTID(0, DND_PICKUPTID_BEGIN + DnD_TID_Counter[DND_TID_PICKUPS]);
+	++DnD_TID_Counter[DND_TID_PICKUPS];
 }
 
-bool isEnemyTID(int tid) {
-	return tid >= DND_MONSTERTID_BEGIN;
+void GiveSharedItemTID() {
+	Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + DnD_TID_Counter[DND_TID_SHAREDITEMS]);
+	++DnD_TID_Counter[DND_TID_SHAREDITEMS];
 }
 
 int GetIntegerBits(int x) {

@@ -4,12 +4,7 @@
 #include "DnD_Common.h"
 
 #define DND_SHARED_ITEM_SCRIPT 999
-#define DND_SHARED_ITEM_MAXCOUNT (SHARED_ITEM_TYPE_TID_MAX - SHARED_ITEM_TID_BEGIN)
 #define SHARED_ITEM_ACTIVITY_DELAY (TICRATE * 3)
-
-#define LIMITED_RESPAWN_TID_BEGIN 19049
-#define LIMITED_RESPAWN_TID_END 29049
-#define LIMITED_RESPAWN_MAX (LIMITED_RESPAWN_TID_END - LIMITED_RESPAWN_TID_BEGIN + 1)
 
 enum {
 	SHI_STIMPACK,
@@ -92,7 +87,7 @@ str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 
 // these all can be grouped into a struct to save variable space
 int shared_type_items_counter[MAX_SHARED_ITEM_TYPES] = {0,0,0,0,0,0,0,0};
-bool Shared_Item_pickup_state[DND_SHARED_ITEM_MAXCOUNT][MAXPLAYERS];
+bool Shared_Item_pickup_state[MAX_SHARED_ITEMS][MAXPLAYERS];
 
 int limitedrespawn_item_counter = 0;
 int LimitedItem_Respawns[LIMITED_RESPAWN_MAX];
@@ -103,7 +98,7 @@ int shared_item_clientside_queue[16];
 
 void ResetSharedVariables() {
 	int i, j;
-	for(i = 0; i < DND_SHARED_ITEM_MAXCOUNT; ++i)
+	for(i = 0; i < MAX_SHARED_ITEMS; ++i)
 		for(j = 0; j < MAXPLAYERS; ++j)
 			Shared_Item_pickup_state[i][j] = 0;
 				
@@ -198,8 +193,8 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 Script "DND Shared Item Init" (int type) {
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		// If it goes over limits, just ignore its existance.
-		if (DnD_TID_List[DND_TID_SHAREDITEMS] < SHARED_ITEM_TYPE_TID_MAX) {
-			Thing_ChangeTID(0, DnD_TID_List[DND_TID_SHAREDITEMS]++);
+		if (DnD_TID_Counter[DND_TID_SHAREDITEMS] < MAX_SHARED_ITEMS) {
+			GiveSharedItemTID();
 			SetActorProperty(0, APROP_MASS, type);
 		}
 	}

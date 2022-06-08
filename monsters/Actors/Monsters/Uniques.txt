@@ -22,7 +22,7 @@ Actor Teron : DnD_BaseRangedMonster_NoRes {
 	+NOINFIGHTING
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_TERON)
+			TNT1 A 0 A_SetArg(4, DND_TERON)
 		Goto SpawnSetup
 		
 		Idle:
@@ -112,7 +112,7 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 	+NOINFIGHTING
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_GANT)
+			TNT1 A 0 A_SetArg(4, DND_GANT)
 		Goto SpawnSetup
 		
 		Idle:
@@ -258,7 +258,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 	+NOINFIGHTING
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BRONN)
+			TNT1 A 0 A_SetArg(4, DND_BRONN)
 		Goto SpawnSetup
 		
 		Idle:
@@ -408,7 +408,7 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_VAAJ)
+			TNT1 A 0 A_SetArg(4, DND_VAAJ)
 		Goto SpawnSetup
 		
 		Idle:
@@ -606,7 +606,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_REMUS)
+			TNT1 A 0 A_SetArg(4, DND_REMUS)
 		Goto SpawnSetup
 		
 		Idle:
@@ -849,7 +849,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SSRATH)
+			TNT1 A 0 A_SetArg(4, DND_SSRATH)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1146,7 +1146,7 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 	+NOBLOOD
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_HOLLOWSHELL)
+			TNT1 A 0 A_SetArg(4, DND_HOLLOWSHELL)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1451,7 +1451,7 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_OMNISIGHT)
+			TNT1 A 0 A_SetArg(4, DND_OMNISIGHT)
 		Goto SpawnSetup
 		
 		Idle:
@@ -2053,7 +2053,7 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CHEGOVAX)
+			TNT1 A 0 A_SetArg(4, DND_CHEGOVAX)
 		Goto SpawnSetup
 		
 		Idle:
@@ -2306,7 +2306,7 @@ ACTOR GuardianSpawner {
 Actor Guardian_NoExp : Guardian {
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_GUARDIAN)
+			TNT1 A 0 A_SetArg(4, DND_GUARDIAN)
 			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
 		Goto SpawnSetup
 	}
@@ -2374,7 +2374,7 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ONIMUZ)
+			TNT1 A 0 A_SetArg(4, DND_ONIMUZ)
 		Goto SpawnSetup
 		
 		Idle:
@@ -2513,7 +2513,7 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 	+LOOKALLAROUND
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_PHANTASM) // so it doesnt become elite
+			TNT1 A 0 A_SetArg(4, DND_PHANTASM) // so it doesnt become elite
 		Goto SpawnSetup
 		
 		Idle:
@@ -2708,7 +2708,7 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_HARKIMONDE)
+			TNT1 A 0 A_SetArg(4, DND_HARKIMONDE)
 		Goto SpawnSetup
 		
 		Idle:
@@ -3072,7 +3072,7 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 	-FLOORCLIP
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_LESHRAC)
+			TNT1 A 0 A_SetArg(4, DND_LESHRAC)
 		Goto SpawnSetup
 		
 		Idle:
@@ -3197,7 +3197,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 	DamageFactor "PoisonPod", 3.0
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_LESHRACPOD)
+			TNT1 A 0 A_SetArg(4, DND_LESHRACPOD)
 			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 		Goto SpawnSetup
@@ -3355,7 +3355,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 	+NORADIUSDMG
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_KRULL)
+			TNT1 A 0 A_SetArg(4, DND_KRULL)
 		Goto SpawnSetup
 		
 		Idle:
@@ -3565,7 +3565,7 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes {
 	-FLOORCLIP
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_THORAX)
+			TNT1 A 0 A_SetArg(4, DND_THORAX)
 		Goto SpawnSetup
 		
 		Idle:
@@ -3868,7 +3868,7 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes {
 	+NOTARGET
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ZRAVOG)
+			TNT1 A 0 A_SetArg(4, DND_ZRAVOG)
 		Goto SpawnSetup
 		
 		Idle:
@@ -4200,7 +4200,7 @@ Actor Eryxia : DnD_BaseRangedBoss {
 	+NOFEAR
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ERYXIA)
+			TNT1 A 0 A_SetArg(4, DND_ERYXIA)
 		Goto SpawnSetup
 		
 		Idle:
@@ -4744,7 +4744,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 	-FLOORCLIP
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ABAXOTH)
+			TNT1 A 0 A_SetArg(4, DND_ABAXOTH)
 		Goto SpawnSetup
 		
 		Idle:

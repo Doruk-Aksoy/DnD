@@ -18,7 +18,7 @@ ACTOR SSGZombie : DnD_BaseRangedMonster {
 	+ISMONSTER
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ZOMBIESSG)
+			TNT1 A 0 A_SetArg(4, DND_ZOMBIESSG)
 		Goto SpawnSetup
 
 		Idle:
@@ -87,7 +87,7 @@ Actor ZSpecOpsShotgun : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ZSPECSG)
+			TNT1 A 0 A_SetArg(4, DND_ZSPECSG)
 		Goto SpawnSetup
 	
 		Idle:
@@ -151,7 +151,7 @@ ACTOR LOSShotgunGuy : DnD_BaseRangedMonster {
 	Speed 8
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SGLOS)
+			TNT1 A 0 A_SetArg(4, DND_SGLOS)
 		Goto SpawnSetup
 
 		Idle:
@@ -239,7 +239,7 @@ ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SSGLOS)
+			TNT1 A 0 A_SetArg(4, DND_SSGLOS)
 		Goto SpawnSetup
 
 		Idle:
@@ -321,7 +321,7 @@ actor SawedOffShotgunGuy : DnD_BaseRangedMonster {
 	+ISMONSTER
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SAWEDOFF1)
+			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -389,7 +389,7 @@ actor SawedOffShotgunGuy2 : DnD_BaseRangedMonster {
 	+ISMONSTER
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SAWEDOFF2)
+			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF2)
 		Goto SpawnSetup
 		
 		Idle:
@@ -453,7 +453,7 @@ Actor QuakeZombieShotgun : DnD_BaseRangedMonster {
 	+ISMONSTER
     States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ZOMBIEQUAKE2)
+			TNT1 A 0 A_SetArg(4, DND_ZOMBIEQUAKE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -521,7 +521,7 @@ actor UndeadRogue : DnD_BaseHybridMonster {
 	+NODROPOFF
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ROGUE)
+			TNT1 A 0 A_SetArg(4, DND_ROGUE)
 		Goto SpawnSetup
 
 		Idle:

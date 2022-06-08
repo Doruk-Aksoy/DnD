@@ -381,8 +381,12 @@ Actor PendantFXSpawner : DnD_Activator {
 Actor ChangeReflect : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 A_UnsetReflectiveInvulnerable
 			TNT1 A 0 A_PlaySound("Reflection/Off", 5)
+			TNT1 A 0 A_JumpIfInventory("Invulnerable_Better", 1, "JustUnreflect")
+			TNT1 A 0 A_UnsetReflectiveInvulnerable
+		Stop
+		JustUnreflect:
+			TNT1 A 0 A_UnsetReflective
 		Stop
 	}
 }
@@ -581,7 +585,7 @@ Actor CelestialCheck : DnD_Boolean { }
 Actor HunterTalismanCheck : DnD_Boolean { }
 Actor HunterTalismanCooldown : PowerDamage {
 	damagefactor "normal", 1.0
-	powerup.duration -20
+	powerup.duration -10
 }
 
 const int talisman_mark_timer = 10;
@@ -725,7 +729,7 @@ Actor VeilNextAttack : PowerProtection {
 
 Actor VeilCooldown : PowerProtection {
 	damagefactor "normal", 1.0
-	powerup.duration -10
+	powerup.duration -5
 }
 
 Actor VeilMarkTimer : PowerProtection {

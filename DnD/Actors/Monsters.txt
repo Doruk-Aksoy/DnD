@@ -17,7 +17,7 @@ Actor ZombieMan2 : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ZOMBIEMANID)
+			TNT1 A 0 A_SetArg(4, DND_ZOMBIEMANID)
 		Goto SpawnSetup
 		
 		Idle:
@@ -108,7 +108,7 @@ Actor Shotgunguy2 : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SHOTGUNNERID)
+			TNT1 A 0 A_SetArg(4, DND_SHOTGUNNERID)
 		Goto SpawnSetup
 
 		Idle:
@@ -175,7 +175,7 @@ Actor Chaingunguy2 : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CHAINGUNGUYID)
+			TNT1 A 0 A_SetArg(4, DND_CHAINGUNGUYID)
 		Goto SpawnSetup
 
 		Idle:
@@ -245,7 +245,7 @@ Actor Demon2x : DnD_BaseMeleeMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_DEMONID)
+			TNT1 A 0 A_SetArg(4, DND_DEMONID)
 		Goto SpawnSetup
 		
 		Idle:
@@ -290,7 +290,7 @@ Actor Spectre2 : Demon2x {
 	+SHADOW
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SPECTREID)
+			TNT1 A 0 A_SetArg(4, DND_SPECTREID)
 		Goto SpawnSetup
 	}
 }
@@ -316,7 +316,7 @@ Actor DoomImp2 : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_IMPID)
+			TNT1 A 0 A_SetArg(4, DND_IMPID)
 		Goto SpawnSetup
 
 		Idle:
@@ -424,7 +424,7 @@ Actor LostSoul2 : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			SKUL A 0 A_SetArg(0, DND_LOSTSOULID)
+			SKUL A 0 A_SetArg(4, DND_LOSTSOULID)
 		Goto SpawnSetup
 		
 		Idle:
@@ -463,7 +463,7 @@ Actor LostSoulNoExp : LostSoul2 {
 	+LOOKALLAROUND
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_LOSTSOULID)
+			TNT1 A 0 A_SetArg(4, DND_LOSTSOULID)
 			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Goto SpawnSetup
@@ -504,7 +504,7 @@ Actor CacoDemon2 : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CACODEMONID)
+			TNT1 A 0 A_SetArg(4, DND_CACODEMONID)
 		Goto SpawnSetup
 	 
 		Idle:
@@ -580,7 +580,7 @@ Actor PainElemental2 : DnD_BaseRangedMonster {
 	Tag "Pain Elemental"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_PAINELEMENTALID)
+			TNT1 A 0 A_SetArg(4, DND_PAINELEMENTALID)
 		Goto SpawnSetup
 
 		Idle:
@@ -640,7 +640,7 @@ Actor Revenant2 : DnD_BaseHybridMonster {
 	Tag "Revenant"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_REVENANTID)
+			TNT1 A 0 A_SetArg(4, DND_REVENANTID)
 		Goto SpawnSetup
 
 		Idle:
@@ -735,7 +735,7 @@ Actor HellKnight2 : DnD_BaseHybridMonster {
 	Tag "Hell Knight"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_HELLKNIGHTID)
+			TNT1 A 0 A_SetArg(4, DND_HELLKNIGHTID)
 		Goto SpawnSetup
 		
 		Idle:
@@ -810,7 +810,7 @@ Actor BaronOfHell2 : DnD_BaseHybridMonster {
 	Tag "Baron of Hell"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BARONID)
+			TNT1 A 0 A_SetArg(4, DND_BARONID)
 		Goto SpawnSetup
 
 		Idle:
@@ -866,7 +866,7 @@ Actor Mancubus2 : DnD_BaseRangedMonster {
 	Tag "Mancubus"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_FATSOID)
+			TNT1 A 0 A_SetArg(4, DND_FATSOID)
 		Goto SpawnSetup
 	
 		Idle:
@@ -947,7 +947,7 @@ Actor Arachno2 : DnD_BaseRangedMonster {
 	Tag "Arachnotron"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ARACHNOTRONID)
+			TNT1 A 0 A_SetArg(4, DND_ARACHNOTRONID)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1033,7 +1033,7 @@ Actor ArchVile2 : DnD_ArchVileBase {
 	Obituary "$OB_VILE"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ARCHVILEID)
+			TNT1 A 0 A_SetArg(4, DND_ARCHVILEID)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1099,7 +1099,7 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss {
 	Obituary "$OB_SPIDER"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SPIDERMASTERMINDID)
+			TNT1 A 0 A_SetArg(4, DND_SPIDERMASTERMINDID)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1235,7 +1235,7 @@ Actor Cyberdemon2 : DnD_BaseRangedBoss {
 	Tag "Cyberdemon"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CYBERDEMONID)
+			TNT1 A 0 A_SetArg(4, DND_CYBERDEMONID)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1338,7 +1338,7 @@ Actor WolfensteinSS2 : DnD_BaseRangedMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_NAZIID)
+			TNT1 A 0 A_SetArg(4, DND_NAZIID)
 		Goto SpawnSetup
 		
 
@@ -1438,7 +1438,7 @@ Actor ReiverGhost : DnD_ArchVileBase {
     States {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Afrit Bob", 0, 4, 8)
-			TNT1 A 0 A_SetArg(0, DND_WRAITH)
+			TNT1 A 0 A_SetArg(4, DND_WRAITH)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1508,7 +1508,7 @@ Actor AfritStopBob : DnD_Boolean { }
 Actor ReiverGhost_NoExp : ReiverGhost {
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_WRAITH)
+			TNT1 A 0 A_SetArg(4, DND_WRAITH)
 			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Goto SpawnSetup
@@ -1623,7 +1623,7 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 	+LOOKALLAROUND
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_PHANTASM)
+			TNT1 A 0 A_SetArg(4, DND_PHANTASM)
 		Goto SpawnSetup
 		
 		Idle:

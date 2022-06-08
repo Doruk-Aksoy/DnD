@@ -116,6 +116,7 @@ Actor EvilSphere : Powerupgiver replaces BlurSphere
  inventory.pickupsound "items/evilsphere"
  powerup.type "Frightener"
  powerup.duration 1400
+ Powerup.Color "53 53 2F", 0.325
  +AUTOACTIVATE
  +INVENTORY.ALWAYSPICKUP
  +COUNTITEM

@@ -250,10 +250,10 @@ ACCTX_C14				=	"20% reduced movement speed.";
 
 ACCTX_T15				=	"Veil of the Assassin";
 ACCTX_P15				=	"After a crit, your next crit's damage is doubled. Expend this crit to heal for 15% of missing health. Lasts for 5 seconds or until you expend the crit.";
-ACCTX_C15				=	"On expending your doubled crit, never crit for 10 seconds.";
+ACCTX_C15				=	"On expending your doubled crit, never crit for 5 seconds.";
 
 ACCTX_T16				=	"Hunter's Talisman";
-ACCTX_P16				=	"Your critical hits mark nearby monsters once every 20 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill.";
+ACCTX_P16				=	"Your critical hits mark nearby monsters once every 10 seconds, making them deal 33% less damage and they replenish 3% of your max health on kill.";
 ACCTX_C16				=	"Your overall crit damage is halved.";
 
 // ammo text
@@ -427,6 +427,7 @@ DND_MENU_GLOBALCRITMULT	=	"global critical strike multiplier";
 DND_MENU_DROPCHANCE		=	"increased drop chance";
 DND_MENU_AMMOCAPS		=	"increased ammo caps";
 DND_MENU_SLOTDMG		=	"damage bonus to slot";
+DND_MENU_SELFEXPDMG		=	"less damage taken from self damage";
 
 DND_MENU_STATUS				=	"Status";
 DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";

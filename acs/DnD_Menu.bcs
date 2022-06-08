@@ -70,6 +70,7 @@ Script 900 (void) NET {
 		)
 		{
 			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
+				// sync all player data the first time they open it
 				TakeInventory("DnD_SyncMe", 1);
 				ACS_NamedExecuteAlways("DnD Force Sync Player Global Data", 0);
 			}

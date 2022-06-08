@@ -1085,7 +1085,7 @@ int HandleSinOrbBonus(int type) {
 		return SINORB_PERKGIVE;
 		case SINORB_CRIT:
 			do {
-				temp = PickRandomOwnedWeapon();
+				temp = PickRandomOwnedWeaponID();
 			} while(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, temp) >= SINORB_CRITMAX && loop++ != MAX_ITER);
 			i = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, temp);
 			Player_MostRecent_Orb[pnum].values[4] = temp;
@@ -1097,7 +1097,7 @@ int HandleSinOrbBonus(int type) {
 		return temp;
 		case SINORB_CRITDMG:
 			do {
-				temp = PickRandomOwnedWeapon();
+				temp = PickRandomOwnedWeaponID();
 			} while(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp) >= SINORB_CRITDMGMAX && loop++ != MAX_ITER);
 			i = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, temp);
 			Player_MostRecent_Orb[pnum].values[4] = temp;

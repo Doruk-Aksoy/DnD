@@ -323,8 +323,22 @@ void SetAllAmmoCapacitiesToDefault() {
 bool CheckAmmoPickup(int slot, bool simple) {
 	bool res = CheckInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[slot][0][AMMOINFO_NAME]);
 	if(!simple) {
-		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
+		// start from 1, we already included 0 above
+		for(int i = 1; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
 			res = res && CheckInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[slot][i][AMMOINFO_NAME]);
+			
+		// we got a few exceptions -- everice is used in rocket slot, and cell slot has clip using weapon
+		// slot 6 has rhino ar which uses clip
+		// slot 3 has shocker which uses cell
+		if(slot == DND_AMMOSLOT_SHELL) {
+			res = res && CheckInventory(AmmoInfo_Str[DND_AMMOSLOT_CELL][AMMO_CELL][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[DND_AMMOSLOT_CELL][AMMO_CELL][AMMOINFO_NAME]);
+		}
+		else if(slot == DND_AMMOSLOT_CELL) {
+			res = res && CheckInventory(AmmoInfo_Str[DND_AMMOSLOT_CLIP][AMMO_CLIP][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[DND_AMMOSLOT_CLIP][AMMO_CLIP][AMMOINFO_NAME]);
+		}
+		else if(slot == DND_AMMOSLOT_ROCKET) {
+			res = res && CheckInventory(AmmoInfo_Str[DND_AMMOSLOT_CELL][AMMO_EVERICE][AMMOINFO_NAME]) >= GetAmmoCapacity(AmmoInfo_Str[DND_AMMOSLOT_CELL][AMMO_EVERICE][AMMOINFO_NAME]);
+		}
 	}
 	return res;
 }
@@ -334,27 +348,27 @@ int GetAmmoGainFactor() {
 }
 
 void HandleAmmoContainerPickup(int slot, int basic_kind) {
-	int amt = 0, factor = GetAmmoGainFactor();
+	int amt = 0;
 	if (basic_kind > 0) {
-			amt = AmmoInfo[slot][0].container_value; //large pack
-			if (basic_kind <= 2)
-				amt /= 5; //small pack
-			if (basic_kind == 1)
-				amt /= 2; //dropped pack (clip only)
+		amt = AmmoInfo[slot][0].container_value; // large pack
+		if (basic_kind <= 2)
+			amt /= 5; // small pack
+		if (basic_kind == 1)
+			amt /= 2; // dropped pack (clip only)
+		GiveAmmo(amt, slot, 0);
+	}
+	else {
+		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
+			GiveAmmo(AmmoInfo[slot][i].container_value, slot, i);
 		
-			amt = amt * factor / 100;
-			if(!amt)
-				amt = 1;
-
-			GiveInventory(AmmoInfo_Str[slot][0][AMMOINFO_NAME], amt);
-	} else {
-		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i) {
-			amt = AmmoInfo[slot][i].container_value;
-			amt = amt * factor / 100;
-			if(!amt)
-				amt = 1;
-
-			GiveInventory(AmmoInfo_Str[slot][i][AMMOINFO_NAME], amt);
+		if(slot == DND_AMMOSLOT_SHELL) {
+			GiveAmmo(AmmoInfo[DND_AMMOSLOT_CELL][AMMO_CELL].container_value / 2, DND_AMMOSLOT_CELL, AMMO_CELL);
+		}
+		else if(slot == DND_AMMOSLOT_CELL) {
+			GiveAmmo(AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_CLIP].container_value / 2, DND_AMMOSLOT_CLIP, AMMO_CLIP);
+		}
+		else if(slot == DND_AMMOSLOT_ROCKET) {
+			GiveAmmo(AmmoInfo[DND_AMMOSLOT_CELL][AMMO_EVERICE].container_value / 2, DND_AMMOSLOT_CELL, AMMO_EVERICE);
 		}
 	}
 }

@@ -727,10 +727,13 @@ void DecideAccessories() {
 		GiveInventory("TaltosEffect", 1);
 		GiveInventory("TaltosUp", 1);
 	}
-	else if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
-		// only let player take these away if map has changed, so they have to commit
+	else {
+		// take the ghost portion away as well if unequipped so people can't cheese and are stuck with no healing
 		GiveInventory("TaltosUnsetEffect", 1);
-		TakeInventory("TaltosUp", 1);
+		if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
+			// only let player take these away if map has changed, so they have to commit
+			TakeInventory("TaltosUp", 1);
+		}
 	}
 	
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_HATESHARD))
@@ -1375,6 +1378,64 @@ int ApplyResistCap(int pnum, int res) {
 
 int GetExplosiveRepeatChance(int pnum) {
 	return GetPlayerAttributeValue(pnum, INV_ESS_KRULL);
+}
+
+int GetResearchResistBonuses() {
+	int res = IMP_RES_ADD_1 * (CheckResearchStatus(RES_IMP1) == RES_DONE);
+	res += IMP_RES_ADD_2 * (CheckResearchStatus(RES_IMP2) == RES_DONE);
+	res += IMP_RES_ADD_3 * (CheckResearchStatus(RES_IMP3) == RES_DONE);
+	
+	// cyborg's bonus
+	if(CheckInventory("Cyborg_Perk50")) {
+		res *= DND_CYBORG_CYBER_MULT;
+		res /= DND_CYBORG_CYBER_DIV;
+	}
+
+	return res;
+}
+
+int GetSelfExplosiveResist(int pnum) {
+	int base = 1.0; // 100%
+	
+	if(CheckInventory("Marine_Perk5"))
+		base = FixedMul(base, (100 - DND_MARINE_SELFEXPLOSIVEREDUCE) * 1.0 / 100);
+	
+	// get player selfdmg res
+	int temp = (GetPlayerAttributeValue(pnum, INV_SELFDMG_RESIST) << 16) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION);
+
+	// roll damage up
+	if(temp) {
+		// temp ranges between 0-90.0 potentially, map it back into 1.0 range
+		temp = ApplyResistCap(pnum, temp);
+		base = FixedMul(base, 1.0 - temp / 100);
+	}
+	
+	// properly include this ability's benefit here, including cyborg check
+	if(CheckInventory("Ability_ExplosionMastery")) {
+		if(!CheckInventory("Cyborg_Perk25"))
+			base = FixedMul(base, (100 - DND_EXP_RES_ABILITY_BONUS) * 1.0 / 100);
+		else
+			base = FixedMul(base, (100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV)) * 1.0 / 100);
+	}
+	
+	// apply impact protection research
+	base = FixedMul(base, (100 - GetResearchResistBonuses()) * 1.0 / 100);
+	
+	// golgoth quest
+	if(IsQuestComplete(0, QUEST_KILLGOLGOTH))
+		base = FixedMul(base, (100 - DND_GOLGOTH_GAIN) * 1.0 / 100);
+		
+	// this is 75.0 or maximum 90.0, map it to 0-1.0 and reverse it
+	temp = GetPlayerAttributeValue(pnum, INV_ADDEDMAXRESIST) + DND_BASE_DAMAGERESISTCAP;
+	if(temp > DND_MAX_DAMAGERESISTCAP)
+		temp = DND_MAX_DAMAGERESISTCAP;
+	temp = 1.0 - temp / 100;
+	
+	// absolute minimum of 0.1 multiplier, taking 10% damage
+	if(base < temp)
+		base = temp;
+	
+	return base;
 }
 
 #endif

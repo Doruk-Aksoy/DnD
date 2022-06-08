@@ -317,6 +317,9 @@ enum {
 	MONSTER_ERYXIA,
 	// cyber uniques
 	MONSTER_ABAXOTH,
+	
+	MONSTER_CUSTOM,
+	MONSTER_CUSTOM_BOSS
 };
 
 #define DND_CUSTOM_ZOMBIEMAN_BEGIN MONSTER_ZOMBIEMANGRAY
@@ -659,40 +662,74 @@ void HandleSpecialTraits(int mid, int id) {
 		GiveInventory("Cripple_Script_Run", 1);
 }
 
-void LoadMonsterTraits(int m_id) {
-	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	
-	HandleMonsterClassInnates(i, m_id);
+void LoadMonsterTraits(int tid, int monsterid) {
+	HandleMonsterClassInnates(tid, monsterid);
 	
 	// copy preset data to here now
 	for(int j = 0; j < MAX_MONSTER_TRAITS; ++j) {
-		//if(MonsterProperties[i].class == MONSTERCLASS_IMP && MonsterData[m_id].trait_list[j])
-		//	printbold(s:"loading trait ", d:j, s:" for ", s:GetActorclass(ActivatorTID()), s:" <" , d:i, s: "> == ", d:MonsterData[m_id].trait_list[j]);
-		MonsterProperties[i].trait_list[j] = MonsterData[m_id].trait_list[j];
+		//if(MonsterProperties[tid].class == MONSTERCLASS_IMP && MonsterData[monsterid].trait_list[j])
+		//	printbold(s:"loading trait ", d:j, s:" for ", s:GetActorclass(ActivatorTID()), s:" <" , d:tid, s: "> == ", d:MonsterData[monsterid].trait_list[j]);
+		MonsterProperties[tid].trait_list[j] = MonsterData[monsterid].trait_list[j];
 	}
 		
 	// some of the flags are inherent in actor info, so do make use of that
-	MonsterProperties[i].trait_list[DND_GHOST] 					|= CheckFlag(0, "GHOST");
-	MonsterProperties[i].trait_list[DND_EXPLOSIVE_IMMUNE] 		|= CheckFlag(0, "NORADIUSDMG");
-	MonsterProperties[i].trait_list[DND_ARMORPEN] 				|= CheckFlag(0, "PIERCEARMOR");
-	MonsterProperties[i].trait_list[DND_HARDENED_SKIN] 			|= CheckFlag(0, "DONTRIP");
-	MonsterProperties[i].trait_list[DND_NOPAIN] 				|= CheckFlag(0, "NOPAIN");
-	MonsterProperties[i].trait_list[DND_REFLECTIVE] 			|= CheckFlag(0, "REFLECTIVE");
+	MonsterProperties[tid].trait_list[DND_GHOST] 					|= CheckFlag(0, "GHOST");
+	MonsterProperties[tid].trait_list[DND_EXPLOSIVE_IMMUNE] 		|= CheckFlag(0, "NORADIUSDMG");
+	MonsterProperties[tid].trait_list[DND_ARMORPEN] 				|= CheckFlag(0, "PIERCEARMOR");
+	MonsterProperties[tid].trait_list[DND_HARDENED_SKIN] 			|= CheckFlag(0, "DONTRIP");
+	MonsterProperties[tid].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
+	MonsterProperties[tid].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
 		
-	if(m_id >= LEGENDARY_START)
-		MonsterProperties[i].trait_list[DND_LEGENDARY] |= true;
+	if(monsterid >= LEGENDARY_START)
+		MonsterProperties[tid].trait_list[DND_LEGENDARY] |= true;
 	
 	// check for weaknesses and monster not having any kind of resist to this type
 	// if magical or undead, give it silver weakness (this is common no exceptions)
-	if(MonsterData[m_id].flags & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW))
-		MonsterProperties[i].trait_list[DND_SILVER_WEAKNESS] = true;
+	if(MonsterData[monsterid].flags & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW))
+		MonsterProperties[tid].trait_list[DND_SILVER_WEAKNESS] = true;
 		
 	// if robotic, give energy weakness
-	if((MonsterData[m_id].flags & DND_MTYPE_ROBOTIC_POW) && !MonsterProperties[i].trait_list[DND_ENERGY_RESIST] && !MonsterProperties[i].trait_list[DND_ENERGY_IMMUNE])
-		MonsterProperties[i].trait_list[DND_ENERGY_WEAKNESS] = true;
+	if((MonsterData[monsterid].flags & DND_MTYPE_ROBOTIC_POW) && !MonsterProperties[tid].trait_list[DND_ENERGY_RESIST] && !MonsterProperties[tid].trait_list[DND_ENERGY_IMMUNE])
+		MonsterProperties[tid].trait_list[DND_ENERGY_WEAKNESS] = true;
 	// if magical, give magic weakness
-	if((MonsterData[m_id].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[i].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[i].trait_list[DND_MAGIC_IMMUNE])
-		MonsterProperties[i].trait_list[DND_MAGIC_WEAKNESS] = true;
+	if((MonsterData[monsterid].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[tid].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[tid].trait_list[DND_MAGIC_IMMUNE])
+		MonsterProperties[tid].trait_list[DND_MAGIC_WEAKNESS] = true;
+}
+
+void LoadCustomMonsterTraits(int tid, int mon_type, int traits, int traits2, int traits3) {
+	// force reset everything
+	for(int j = 0; j < MAX_MONSTER_TRAITS; ++j) {
+		//if(MonsterProperties[tid].class == MONSTERCLASS_IMP && MonsterData[monsterid].trait_list[j])
+		//	printbold(s:"loading trait ", d:j, s:" for ", s:GetActorclass(ActivatorTID()), s:" <" , d:tid, s: "> == ", d:MonsterData[monsterid].trait_list[j]);
+		MonsterProperties[tid].trait_list[j] = false;
+	}
+
+	// some of the flags are inherent in actor info, so do make use of that
+	MonsterProperties[tid].trait_list[DND_GHOST] 					|= CheckFlag(0, "GHOST");
+	MonsterProperties[tid].trait_list[DND_EXPLOSIVE_IMMUNE] 		|= CheckFlag(0, "NORADIUSDMG");
+	MonsterProperties[tid].trait_list[DND_ARMORPEN] 				|= CheckFlag(0, "PIERCEARMOR");
+	MonsterProperties[tid].trait_list[DND_HARDENED_SKIN] 			|= CheckFlag(0, "DONTRIP");
+	MonsterProperties[tid].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
+	MonsterProperties[tid].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
+
+	if(traits != -1)
+		MonsterProperties[tid].trait_list[traits] = true;
+	if(traits2 != -1)
+		MonsterProperties[tid].trait_list[traits2] = true;
+	if(traits3 != -1)
+		MonsterProperties[tid].trait_list[traits3] = true;
+		
+	// check for weaknesses and monster not having any kind of resist to this type
+	// if magical or undead, give it silver weakness (this is common no exceptions)
+	if(mon_type & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW))
+		MonsterProperties[tid].trait_list[DND_SILVER_WEAKNESS] = true;
+		
+	// if robotic, give energy weakness
+	if((mon_type & DND_MTYPE_ROBOTIC_POW) && !MonsterProperties[tid].trait_list[DND_ENERGY_RESIST] && !MonsterProperties[tid].trait_list[DND_ENERGY_IMMUNE])
+		MonsterProperties[tid].trait_list[DND_ENERGY_WEAKNESS] = true;
+	// if magical, give magic weakness
+	if((mon_type & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[tid].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[tid].trait_list[DND_MAGIC_IMMUNE])
+		MonsterProperties[tid].trait_list[DND_MAGIC_WEAKNESS] = true;
 }
 
 enum {
@@ -761,14 +798,10 @@ int InferMonsterPower(int mid) {
 	return DND_MTYPE_DEMON;
 }
 
-int GetMonsterType(int monsterID) {
-	int mid = MonsterData[monsterID].flags;
-	return InferMonsterPower(mid);
-}
-
-int GetCustomMonsterType(int properties) {
-	// get the first 5 bits only
-	return InferMonsterPower(properties & 0x1F);
+int GetMonsterType(int monsterID, int monster_tid) {
+	if(monsterID < MONSTER_CUSTOM)
+		return InferMonsterPower(MonsterData[monsterID].flags);
+	return InferMonsterPower(CheckActorInventory(monster_tid, "MonsterTypeToken"));
 }
 
 typedef struct {
@@ -1040,7 +1073,7 @@ int MonsterPetTypeList[MAX_PET_TYPES] = {
 };
 
 bool IsMonster(int tid) {
-	return tid >= DND_MONSTERTID_BEGIN && tid < DnD_TID_List[DND_TID_MONSTER];
+	return tid >= DND_MONSTERTID_BEGIN && tid < P_TIDSTART;
 }
 
 bool IsBoss() {
@@ -1049,11 +1082,11 @@ bool IsBoss() {
 }
 
 bool IsMonsterIdBoss(int id) {
-	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || id >= DND_UNIQUEBOSS_BEGIN;
+	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id == MONSTER_CUSTOM_BOSS || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || id >= DND_UNIQUEBOSS_BEGIN;
 }
 
 bool IsUniqueMonster(int id) {
-	return id >= DND_UNIQUEMONSTER_BEGIN;
+	return id >= DND_UNIQUEMONSTER_BEGIN && id < MONSTER_CUSTOM;
 }
 
 bool IsDemon() {

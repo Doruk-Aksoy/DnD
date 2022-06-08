@@ -575,8 +575,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CRITPERCENT_INCREASE].attrib_level_modifier = 0.05;
 	ItemModTable[INV_CRITPERCENT_INCREASE].tags = INV_ATTR_TAG_CRIT;
 	
-	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_low = 5;
-	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_high = 14;
+	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_low = 4;
+	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_high = 9;
 	ItemModTable[INV_CRITDAMAGE_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_CRITDAMAGE_INCREASE].tags = INV_ATTR_TAG_CRIT;
 	

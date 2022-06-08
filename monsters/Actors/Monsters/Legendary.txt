@@ -28,7 +28,7 @@ Actor DreamingGod : DnD_BaseRangedBoss {
 	states {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Dreamer Burn", 0, dreamer_burn)
-			TNT1 A 0 A_SetArg(0, DND_DREAMER)
+			TNT1 A 0 A_SetArg(4, DND_DREAMER)
 		Goto SpawnSetup
 			
 		Idle:
@@ -1031,7 +1031,7 @@ Actor Torrasque : DnD_BaseHybridBoss {
 	+LOOKALLAROUND
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_TORRASQUE)
+			TNT1 A 0 A_SetArg(4, DND_TORRASQUE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1430,7 +1430,7 @@ Actor Mordecqai : DnD_BaseRangedBoss {
 	+BOSSDEATH
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_MORDECQAI)
+			TNT1 A 0 A_SetArg(4, DND_MORDECQAI)
 		Goto SpawnSetup
 
 		Idle:
@@ -1827,7 +1827,7 @@ Actor GodSlayer : DnD_BaseRangedBoss {
 	+LOOKALLAROUND
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_GODSLAYER)
+			TNT1 A 0 A_SetArg(4, DND_GODSLAYER)
 		Goto SpawnSetup
 	
 		Idle:
@@ -2644,7 +2644,7 @@ Actor Golgoth : DnD_BaseHybridBoss {
 		SetInfo:
 			TNT1 A 1
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Golgoth Health Check")
-			TNT1 A 0 A_SetArg(0, DND_GOLGOTH)
+			TNT1 A 0 A_SetArg(4, DND_GOLGOTH)
 		Goto SpawnSetup
 
 		Idle:

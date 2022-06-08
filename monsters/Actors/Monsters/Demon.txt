@@ -19,7 +19,7 @@ ACTOR BloodDemonClone : DnD_BaseMeleeMonster {
 	+DONTHURTSPECIES
     States { 
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BLOODDEMON)
+			TNT1 A 0 A_SetArg(4, DND_BLOODDEMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -97,7 +97,7 @@ Actor Bloodfiend : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BLOODFIEND)
+			TNT1 A 0 A_SetArg(4, DND_BLOODFIEND)
 		Goto SpawnSetup
 
 		Idle:
@@ -205,7 +205,7 @@ Actor Ravager : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_RAVAGER)
+			TNT1 A 0 A_SetArg(4, DND_RAVAGER)
 		Goto SpawnSetup
 	
 		Idle:
@@ -297,7 +297,7 @@ ACTOR CyberFiend : DnD_BaseHybridMonster {
 	+ISMONSTER
     States { 
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CYBERFIEND)
+			TNT1 A 0 A_SetArg(4, DND_CYBERFIEND)
 		Goto SpawnSetup
 
 		Idle:
@@ -514,7 +514,7 @@ ACTOR FlameDemon : DnD_BaseMeleeMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_FLAMEDEMON)
+			TNT1 A 0 A_SetArg(4, DND_FLAMEDEMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -569,7 +569,7 @@ ACTOR StoneImp : DnD_BaseMeleeMonster {
 	Tag "Stone Imp"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_STONEIMP)
+			TNT1 A 0 A_SetArg(4, DND_STONEIMP)
 		Goto SpawnSetup
 	
 		Idle:
@@ -627,7 +627,7 @@ actor StoneDemon : DnD_BaseHybridMonster {
 	Tag "Stone Demon"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_STONEDEMON)
+			TNT1 A 0 A_SetArg(4, DND_STONEDEMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -726,7 +726,7 @@ Actor SoulEater : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SOULEATER)
+			TNT1 A 0 A_SetArg(4, DND_SOULEATER)
 		Goto SpawnSetup
 	
 		Idle:
@@ -803,7 +803,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 	Tag "Big Bruty"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BRUTY)
+			TNT1 A 0 A_SetArg(4, DND_BRUTY)
 		Goto SpawnSetup
 
 		Idle:
@@ -894,7 +894,7 @@ actor Scavenger : DnD_ArchVileHybridBase {
 	+ISMONSTER
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SCAVENGER)
+			TNT1 A 0 A_SetArg(4, DND_SCAVENGER)
 		Goto SpawnSetup
 	
 		Idle:
@@ -995,7 +995,7 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 	+DONTHURTSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_NHUMCIGN)
+			TNT1 A 0 A_SetArg(4, DND_NHUMCIGN)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1234,7 +1234,7 @@ actor Satyr : DnD_BaseMeleeMonster {
 	+DONTHURTSPECIES	
     States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SATYR)
+			TNT1 A 0 A_SetArg(4, DND_SATYR)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1308,7 +1308,7 @@ Actor EarthGolem : DnD_BaseHybridMonster {
 	+DONTHURTSPECIES
     States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_EARTHGOLEM)
+			TNT1 A 0 A_SetArg(4, DND_EARTHGOLEM)
 		Goto SpawnSetup
 
 		Idle:
@@ -1425,7 +1425,7 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
 	damage (3 * random(1, 6))
     States { 
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_PUREBREDDEMON)
+			TNT1 A 0 A_SetArg(4, DND_PUREBREDDEMON)
 		Goto SpawnSetup
 
 		Idle:

@@ -7,7 +7,6 @@
 #define DND_PLAYER_HITSCAN_Z 38.0
 #define MAX_RIPPERS_ACTIVE 256
 #define MAX_RIPPER_HITS_STORED 128
-#define DND_CROSSBOW_EXPLOSIONTID 54100
 
 #define DND_HARDCORE_DEBUFF 15 // 15% more damage taken
 
@@ -1248,14 +1247,19 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
 		// if self cull is in effect simply destroy it otherwise return from here
 		Thing_Damage2(victim, GetActorProperty(victim, APROP_HEALTH) * 2, s_damagetype);
+		GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 		return;
 	}
 	
 	if(dmg > 0) {
+		// give this token early to prevent order of events getting mixed up
+		if(GetActorProperty(victim, APROP_HEALTH) <= dmg)
+			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 		Thing_Damage2(victim, dmg, s_damagetype);
 		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, dmg, source);
 	}
 	
+	// monster or w.e we shot at died
 	if(!isActorAlive(victim)) {
 		// give this for non-magic seal weapons (seals their souls...)
 		if(damage_type != DND_DAMAGETYPE_MAGICSEAL && IsOccultDamage(damage_type))
@@ -1654,11 +1658,13 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		dir_y /= len;		dir_y *= r;
 		dir_z /= len;		dir_z *= r;
 		
-		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
-			// dead, skip
-			if(!isActorAlive(i))
-				continue;
+		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+			i = UsedMonsterTIDs[mn];
 		
+			// dead, skip
+			if(!isActorAlive(i) || !IsMonster(i))
+				continue;
+			
 			found = false;
 			a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
 			int steps = 3 * Max(speed, a_r + (r << 16)) / 2;
@@ -1815,10 +1821,13 @@ Script "DnD One Time Ripper Fix" (int dmg, int damage_type, int flags, int wepid
 	bool found = false;
 	int a_x, a_y, a_r;
 	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) + (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) - (r << 16);
+	
 	// start target picking
-	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+		
 		// dead, skip
-		if(!isActorAlive(i))
+		if(!isActorAlive(i) || !IsMonster(i))
 			continue;
 
 		found = false;
@@ -2209,7 +2218,8 @@ Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
 	if(canProlif && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
 		int j, k;
-		for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER]; ++i) {
+		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+			i = UsedMonsterTIDs[mn];
 			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
 				next_dmg = fdistance(victim, i);
 				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL)) {
@@ -2344,9 +2354,10 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	
 	// we dont deal damage now just apply debuff!
 	//int dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", CheckInventory("DnD_OverloadDamage") * (100 + CheckActorInventory(killer, "IATTR_OverloadZapDmg")) / 100, TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
-	for(i = DND_MONSTERTID_BEGIN; i < DnD_TID_List[DND_TID_MONSTER] && zap_count; ++i) {
+	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER] && zap_count; ++mn) {
 		// if currently alive and received the checker item
-		if(CheckActorInventory(i, "DnD_OverloadZapCandidate") && isActorAlive(i) && i != this)
+		i = UsedMonsterTIDs[mn];
+		if(CheckActorInventory(i, "DnD_OverloadZapCandidate") && isActorAlive(i) && CheckFlag(i, "ISMONSTER") && i != this)
 			zap_tids[pnum][cur_count++] = i;
 	}
 	
@@ -2402,47 +2413,15 @@ Script "DnD Check Explosion Repeat" (void) {
 	SetResultValue(res);
 }
 
-int GetResearchResistBonuses() {
-	int res = IMP_RES_ADD_1 * (CheckResearchStatus(RES_IMP1) == RES_DONE);
-	res += IMP_RES_ADD_2 * (CheckResearchStatus(RES_IMP2) == RES_DONE);
-	res += IMP_RES_ADD_3 * (CheckResearchStatus(RES_IMP3) == RES_DONE);
-	
-	// cyborg's bonus
-	if(CheckInventory("Cyborg_Perk50")) {
-		res *= DND_CYBORG_CYBER_MULT;
-		res /= DND_CYBORG_CYBER_DIV;
-	}
-
-	return res;
-}
-
 int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags, bool isArmorPiercing) {
 	switch(dmg_type) {
 		case DND_DAMAGETYPE_ENERGYEXPLOSION:
 		case DND_DAMAGETYPE_EXPLOSIVES:
 		case DND_DAMAGETYPE_OCCULTEXPLOSION:
-			if(CheckInventory("Marine_Perk5"))
-				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_SELFEXPLOSIVEREDUCE);
-			
-			dmg = ApplyPlayerResist(pnum, dmg, INV_SELFDMG_RESIST);
-			// properly include this ability's benefit here, including cyborg check
-			if(CheckInventory("Ability_ExplosionMastery")) {
-				if(!CheckInventory("Cyborg_Perk25"))
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_EXP_RES_ABILITY_BONUS);
-				else
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
-			}
+			dmg = dmg * ((GetSelfExplosiveResist(pnum) * 100) >> 16) / 100;
 			
 			// apply accessory and other sources of damage
 			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
-			
-			// apply impact protection research
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());
-			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
-			
-			// golgoth quest
-			if(IsQuestComplete(0, QUEST_KILLGOLGOTH))
-				dmg = dmg * (100 - DND_GOLGOTH_GAIN) / 100;
 			
 			// factor in players armor here!!!
 			dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);

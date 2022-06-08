@@ -1,4 +1,4 @@
-const int SPECIAL_FX_TID = 32768;
+const int SPECIAL_FX_TID = 2147483647;
 
 #include "Actors/DamageTypes.txt"
 #include "Actors/Items/Base.txt"

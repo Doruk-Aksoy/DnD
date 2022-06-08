@@ -22,7 +22,7 @@ Actor Demolisher : DnD_BaseRangedBoss {
 	Tag "Demolisher"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_DEMOLISHER)
+			TNT1 A 0 A_SetArg(4, DND_DEMOLISHER)
 		Goto SpawnSetup
 
 		Idle:
@@ -170,7 +170,7 @@ ACTOR Arachnophyte : DnD_BaseRangedBoss {
     Decal Bulletchip
     states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ARACHNOPHYTE)
+			TNT1 A 0 A_SetArg(4, DND_ARACHNOPHYTE)
 		Goto SpawnSetup
 
 		Idle:
@@ -275,7 +275,7 @@ actor PsionicQueen : DnD_BaseHybridBoss {
 	Tag "Psionic Queen"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_PSIONICQUEEN)
+			TNT1 A 0 A_SetArg(4, DND_PSIONICQUEEN)
 		Goto SpawnSetup
 
 		Idle:
@@ -551,7 +551,7 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 	+NOFEAR
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ANGELOFDEATH)
+			TNT1 A 0 A_SetArg(4, DND_ANGELOFDEATH)
 		Goto SpawnSetup
 
 		Idle:
@@ -720,7 +720,7 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 	+NOFEAR
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_GOLDLICH)
+			TNT1 A 0 A_SetArg(4, DND_GOLDLICH)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1032,7 +1032,7 @@ ACTOR FakeGoldlich : Goldlich {
 	-BOSSDEATH
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_GOLDLICHFAKE)
+			TNT1 A 0 A_SetArg(4, DND_GOLDLICHFAKE)
 			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
 		Goto SpawnSetup
 	
@@ -1095,7 +1095,7 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 	var int user_count;
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_IRONLICH)
+			TNT1 A 0 A_SetArg(4, DND_IRONLICH)
 		Goto SpawnSetup
 
 		Idle:
@@ -1633,7 +1633,7 @@ Actor SpiderOverlord : DnD_BaseRangedBoss {
 	ActiveSound "spider/active"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SPIDEROVERLORD)
+			TNT1 A 0 A_SetArg(4, DND_SPIDEROVERLORD)
 		Goto SpawnSetup
 
 		Idle:
@@ -1777,7 +1777,7 @@ actor DarkLich : DnD_BaseRangedBoss {
 	Alpha 0.85
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_DARKLICH)
+			TNT1 A 0 A_SetArg(4, DND_DARKLICH)
 		Goto SpawnSetup
 
 		Idle:

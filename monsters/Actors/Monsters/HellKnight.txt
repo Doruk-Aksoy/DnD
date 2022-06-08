@@ -22,7 +22,7 @@ actor BloodSatyr : DnD_BaseHybridMonster {
 	+DONTHURTSPECIES	
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BLOODSATYR)
+			TNT1 A 0 A_SetArg(4, DND_BLOODSATYR)
 		Goto SpawnSetup
 
 		Idle:
@@ -198,7 +198,7 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 	Tag "Hell Warrior"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_HELLWARRIOR)
+			TNT1 A 0 A_SetArg(4, DND_HELLWARRIOR)
 		Goto SpawnSetup
 
 		Idle:
@@ -386,7 +386,7 @@ Actor HellsFury : DnD_BaseHybridMonster {
 	+DONTHURTSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_HELLSFURY)
+			TNT1 A 0 A_SetArg(4, DND_HELLSFURY)
 		Goto SpawnSetup
 
 		Idle:
@@ -526,7 +526,7 @@ Actor ArchonOfHell : DnD_BaseHybridMonster {
 	Tag "Archon of Hell"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_ARCHON)
+			TNT1 A 0 A_SetArg(4, DND_ARCHON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -696,7 +696,7 @@ Actor WarlordOfHell : DnD_BaseHybridMonster {
 	Tag "Warlord of Hell"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_WARLORD)
+			TNT1 A 0 A_SetArg(4, DND_WARLORD)
 		Goto SpawnSetup
 
 		Idle:
@@ -833,7 +833,7 @@ ACTOR ShadowBeast : DnD_BaseRangedMonster {
 	+DONTHURTSPECIES
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SHADOWBEAST)
+			TNT1 A 0 A_SetArg(4, DND_SHADOWBEAST)
 		Goto SpawnSetup
 
 		Idle:
@@ -1072,7 +1072,7 @@ actor BlackKnight : DnD_BaseHybridMonster {
 	Obituary "%o was burned from a black knight's dark magic."
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BLACKKNIGHT)
+			TNT1 A 0 A_SetArg(4, DND_BLACKKNIGHT)
 		Goto SpawnSetup
 
 		Idle:
@@ -1199,7 +1199,7 @@ Actor SkullWizard : DnD_BaseHybridMonster {
 	+MissileMore
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SKULLWIZARD)
+			TNT1 A 0 A_SetArg(4, DND_SKULLWIZARD)
 		Goto SpawnSetup
 
 		Idle:
@@ -1392,7 +1392,7 @@ Actor CyborgWarrior : DnD_BaseHybridMonster {
 	Tag "Cyborg Warrior"
 	States  { 
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CYBORGWARRIOR)
+			TNT1 A 0 A_SetArg(4, DND_CYBORGWARRIOR)
 		Goto SpawnSetup
 
 		Idle:
@@ -1548,7 +1548,7 @@ ACTOR ChaosSerpent : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CHAOSSERPENT)
+			TNT1 A 0 A_SetArg(4, DND_CHAOSSERPENT)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1684,7 +1684,7 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
     MeleeSound "baron/melee"
     States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_MOONSATYR)
+			TNT1 A 0 A_SetArg(4, DND_MOONSATYR)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1859,7 +1859,7 @@ Actor IceGolem : DnD_BaseHybridMonster {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Translucency Weave")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 3), 2)
-			TNT1 A 0 A_SetArg(0, DND_ICEGOLEM)
+			TNT1 A 0 A_SetArg(4, DND_ICEGOLEM)
 		Goto SpawnSetup
 			
 		Idle:
@@ -2054,7 +2054,7 @@ Actor Gladiator : DnD_BaseHybridMonster {
 	+DONTHURTSPECIES  
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_GLADIATOR)
+			TNT1 A 0 A_SetArg(4, DND_GLADIATOR)
 		Goto SpawnSetup
 
 		Idle:
@@ -2209,7 +2209,7 @@ Actor Putrefier : DnD_BaseHybridMonster {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_Putrefier)
+			TNT1 A 0 A_SetArg(4, DND_Putrefier)
 		Goto SpawnSetup
 	
 		Idle:

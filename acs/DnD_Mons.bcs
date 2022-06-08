@@ -811,14 +811,14 @@ Script "DnD Leshrac Lob" (int yoffset, int zoffset) {
 		// nx = xoff * cos + yoff * sin
 		// ny = xoff * sin - yoff * cos
 		SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
-		SpawnProjectile(0, "Leshrac_LobbedMine", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, LESHRAC_PROJ_TID);
+		SpawnProjectile(0, "Leshrac_LobbedMine", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, DND_TEMP_PROJTID);
 		// modify z of this, sometimes actors are too tall
-		SetActorPosition(LESHRAC_PROJ_TID, GetActorX(LESHRAC_PROJ_TID), GetActorY(LESHRAC_PROJ_TID), GetActorZ(0) + zoffset, 0);
+		SetActorPosition(DND_TEMP_PROJTID, GetActorX(DND_TEMP_PROJTID), GetActorY(DND_TEMP_PROJTID), GetActorZ(0) + zoffset, 0);
 		SetActorPosition(0, px, py, GetActorZ(0), 0);
-		SetActivator(LESHRAC_PROJ_TID);
+		SetActivator(DND_TEMP_PROJTID);
 		// Keep target as owner
 		SetPointer(AAPTR_TARGET, curtid);
-		Thing_ChangeTID(LESHRAC_PROJ_TID, 0);
+		Thing_ChangeTID(DND_TEMP_PROJTID, 0);
 		SetActivator(curtid);
 		Delay(const:LESHRAC_SALVO_DELAY);
 	}

@@ -3,7 +3,6 @@
 
 #define DND_MIN_ELITEMODS 2
 #define DND_MAX_ELITEMODS 4
-#define DND_ELITE_HPSCALE 15
 #define DND_ELITE_DMGSCALE 2
 #define DND_ELITE_EXTRASTRONG_BONUS 35
 #define DND_ELITE_VITAL_SCALE 75
@@ -13,6 +12,11 @@
 #define DND_ELITE_FX_DENSITY 8
 #define MAX_ELITE_FX_WAIT 60
 #define DND_ELITE_FX_TID 900
+
+// linear scale, returns the old 15% at level 40 and returns 25% at level 80. Returns 30% at level 100.
+int GetEliteHealthScale(int level) {
+	return level / 4 + 5;
+}
 
 #define DND_ELITE_RESOLUTION 10000
 #define DND_ELITE_MIN_INCREMENT 33 // per level add 0.33
@@ -78,8 +82,14 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
 	DND_RUINATION
 };
 
+// previously this was a linear scale of 2% per monster level, capped at 200% at monster level 100
+// now it'll be 250% at monster level 100, and 2% at monster level 1, but scale slowly at the earlier levels and reach the end faster towards later levels
+// it's less than 2xlevel percent until level 75, then it becomes more than 2% per level and reaches ultimate value of %250 at level 100 
+// now remember this is integer operations, so interim values are all going to be lost coming from fractions
+// equation is x^2 / 50 + 0.48 * x + 2
 int GetEliteBonusDamage(int m_id) {
-	return DND_ELITE_DMGSCALE * MonsterProperties[m_id].level;
+	// slower start at lower levels and peaking towards level 75
+	return DND_ELITE_DMGSCALE + MonsterProperties[m_id].level * MonsterProperties[m_id].level / 50 + MonsterProperties[m_id].level * 12 / 25;
 }
 
 bool HasTrait(int id, int trait_index) {

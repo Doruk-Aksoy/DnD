@@ -2386,7 +2386,7 @@ Actor MagmaGolemExp : BaseExplosionDamage {
 	Stamina 32
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(32, 96, 0)
+			TNT1 A 1 NoDelay A_Explode(28, 96, 0)
 		Stop
 	}
 }
@@ -2394,7 +2394,7 @@ Actor MagmaGolemExp : BaseExplosionDamage {
 Actor MagmaGolemExp_2 : MagmaGolemExp {
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(24, 64, 0)
+			TNT1 A 1 NoDelay A_Explode(20, 64, 0)
 		Stop
 	}
 }
@@ -2402,7 +2402,7 @@ Actor MagmaGolemExp_2 : MagmaGolemExp {
 Actor MagmaGolemExp_3 : MagmaGolemExp {
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(16, 48, 0)
+			TNT1 A 1 NoDelay A_Explode(12, 48, 0)
 		Stop
 	}
 }
@@ -2431,7 +2431,7 @@ Actor MagmaGolemNade {
 		Loop
 		Bounce.Wall:
 		Bounce.Floor:
-			 TNT1 AAAAA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
+			 TNT1 AAA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
 			 TNT1 AA 0 A_CustomMissile("MagmaGolemNade_2", 0, 0, 45 * random(0, 8), CMF_TRACKOWNER)
 		Death:
 			TNT1 A 0 A_Stop
@@ -2455,7 +2455,7 @@ Actor MagmaGolemNade_2 : MagmaGolemNade {
 	States {
 		Bounce.Wall:
 		Bounce.Floor:
-			 TNT1 AAA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
+			 TNT1 AA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
 			 TNT1 AAAA 0 A_CustomMissile("MagmaGolemNade_3", 0, 0, 45 * random(0, 8), CMF_TRACKOWNER)
 		Death:
 			TNT1 A 0 A_Stop
@@ -2480,7 +2480,7 @@ Actor MagmaGolemNade_3 : MagmaGolemNade {
 		Bounce.Wall:
 		Bounce.Floor:
 		Bounce.Ceiling:
-			 TNT1 AA 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
+			 TNT1 A 0 A_CustomMissile("VolcanoTBlast2", 8, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, 5 * random(-36, 36))
 		Goto Spawn
 		Death:
 			TNT1 A 0 A_Stop

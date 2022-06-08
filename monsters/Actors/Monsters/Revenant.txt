@@ -22,7 +22,7 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_INCARNATE)
+			TNT1 A 0 A_SetArg(4, DND_INCARNATE)
 		Goto SpawnSetup
 
 		Idle:
@@ -115,7 +115,7 @@ Actor Incarnate_Pretender : DnD_BaseHybridMonster_NoRes {
 	-COUNTKILL
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_INCARNATE)
+			TNT1 A 0 A_SetArg(4, DND_INCARNATE)
 		Goto SpawnSetup
 
 		Idle:
@@ -231,7 +231,7 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster {
 	Tag "Revenant"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BEAMREVENANT)
+			TNT1 A 0 A_SetArg(4, DND_BEAMREVENANT)
 		Goto SpawnSetup
 	
 		Idle:
@@ -352,7 +352,7 @@ ACTOR Cadaver : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CADAVER)
+			TNT1 A 0 A_SetArg(4, DND_CADAVER)
 		Goto SpawnSetup
 
 		Idle:
@@ -527,7 +527,7 @@ actor Widowmaker : DnD_BaseHybridMonster  {
 	+ISMONSTER
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_WIDOWMAKER)
+			TNT1 A 0 A_SetArg(4, DND_WIDOWMAKER)
 		Goto SpawnSetup
 
 		Idle:
@@ -1123,7 +1123,7 @@ ACTOR AxeKnight : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_AXEKNIGHT)
+			TNT1 A 0 A_SetArg(4, DND_AXEKNIGHT)
 		Goto SpawnSetup
 
 		Idle:
@@ -1274,7 +1274,7 @@ Actor Yeti : DnD_BaseHybridMonster {
 	+GHOST
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_YETI)
+			TNT1 A 0 A_SetArg(4, DND_YETI)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1413,14 +1413,14 @@ Actor YetiIce {
 			TNT1 AAA 0 A_CustomMissile("ExplosionFX10", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			FX39 D 5 Bright
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 0)
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 45)
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 90)
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 135)
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 180)
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 225)
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 270)
-			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 315)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 45, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 90, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 135, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 180, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 225, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 270, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("YetiIceShard", 0, 0, 315, CMF_TRACKOWNER)
 			FX39 EEEEFFFFGGGG 1 Bright A_FadeOut(0.025)
 		Stop
 	}
@@ -1514,7 +1514,7 @@ Actor SludgeGiant : DnD_BaseHybridMonster {
 	-FLOORCLIP
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT)
+			TNT1 A 0 A_SetArg(4, DND_SLUDGEGIANT)
 		Goto SpawnSetup
 
 		Idle:
@@ -1608,7 +1608,7 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster {
 	-FLOORCLIP
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT2)
+			TNT1 A 0 A_SetArg(4, DND_SLUDGEGIANT2)
 		Goto SpawnSetup
 
 		Idle:
@@ -1717,7 +1717,7 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 	-FLOORCLIP
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_SLUDGEGIANT3)
+			TNT1 A 0 A_SetArg(4, DND_SLUDGEGIANT3)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1789,7 +1789,7 @@ Actor DarkServant : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_DARKSERVANT)
+			TNT1 A 0 A_SetArg(4, DND_DARKSERVANT)
 		Goto SpawnSetup
 
 		Idle:
@@ -1997,7 +1997,7 @@ Actor Crawler : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CRAWLER)
+			TNT1 A 0 A_SetArg(4, DND_CRAWLER)
 		Goto SpawnSetup
 	
 		Idle:
@@ -2203,7 +2203,7 @@ ACTOR Draugr : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_DRAUGR)
+			TNT1 A 0 A_SetArg(4, DND_DRAUGR)
 		Goto SpawnSetup
 	
 		Idle:
@@ -2470,7 +2470,7 @@ Actor CyborgSoldier : DnD_BaseHybridMonster {
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CYBORGSOLDIER)
+			TNT1 A 0 A_SetArg(4, DND_CYBORGSOLDIER)
 		Goto SpawnSetup
 	
 		Idle:

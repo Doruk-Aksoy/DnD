@@ -46,7 +46,6 @@ enum {
 #define DND_PAINBLEND_MINTICS 8
 #define DND_PAINBLEND_MAXTICS 35
 #define DND_PAINBLEND_MAXALPHA 75 // 75%
-#define DEATHRAY_MARKER_TID_ADD 1000
 
 #define PERK_GAIN_RATE 5
 
@@ -75,10 +74,8 @@ enum {
 #define SURVIVEBAKID 7005
 
 #define VORTEXTIDSTART 10000
-#define P_TEMPTID 200
 #define RAILINITTID 2000
 #define RAILTIDADD 500
-#define SPECIAL_FX_TID 32768
 
 #define REFLECTFXTID 9000
 
@@ -147,8 +144,6 @@ enum {
 #define DND_RESEARCH_MAX_CHANCE 1.0
 #define DND_RESEARCH_DROPMULT 3
 
-#define DND_TALISMAN_MARK 42049
-
 #define DND_AFTER50_INCREMENT 200
 #define DND_AFTER75_INCREMENT 800
 
@@ -174,7 +169,6 @@ enum {
 #define DND_MARINE_SELFRESIST 25 // 25%
 
 #define DND_WANDERER_EXP_DAMAGE 10 // 1 / 10 = 10%
-#define DND_WANDERER_EXP_TID 54000
 
 // RPG ELEMENTS END
 
@@ -182,8 +176,6 @@ enum {
 
 // thunderstaff info things
 #define DND_THUNDERSTAFF_MAXTARGETS 5
-#define DND_THUNDERSTAFF_DAMAGERTID 32769
-#define DND_THUNDER_RING_TIDSTART 40000
 #define DND_THUNDER_RADIUSPERCOUNT 16
 #define DND_THUNDERSTAFF_BASERANGE 128
 typedef struct dist_tid_pair {
@@ -209,11 +201,6 @@ enum {
 
 #define CHARON_PARTICLE_DENSITY 8
 
-#define KANJI_TRAP_TID 2300
-#define KANJI_TRAPEXP_TID 2400
-
-#define DARKLANCE_TID 2100
-#define DARKLANCE_SHREDDER 2200
 #define DARKLANCE_ALT_DURATION 15 // 105 tic duration, 7 tic timer between damage instances => 105 / 7 = 15
 #define DARKLANCE_ALT_DURATION_TICS 105
 #define DARKLANCE_TICKS 7
@@ -895,40 +882,21 @@ int ScaleMonster(int tid, int pcount, int realhp) {
 		level = Clamp_Between(level, 1, DND_MAX_MONSTERLVL);
 	level = Clamp_Between(level, 1, GetCVar("dnd_maxmonsterlevel"));
 	if(level > 1) {
-		add = (base * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
-		if(level > 75)
-			temp = DND_AFTER75_INCREMENT;
-		else if(level > 50)
-			temp = DND_AFTER50_INCREMENT;
-		else
-			temp = 1;
-		// we are in boost range for hp
-		if(temp != 1) {
-			if(add > 100) {
-				add /= 100;
-				add *= 100 + temp;
-			}
-			else {
-				add *= 100 + temp;
-				add /= 100;
-			}
-		}
+		// new formula: x^2 * 0.033 + 5x, where x is level - 1. This yields a slow increase at earlier levels but sharper increase later, much smoother than before
+		// at level 2, we are looking at the old value of standard percent increase, we will be about the same until about level 14, which after that it increases more
+		// after level 97, we skip old limit of 800% added, and at level 100 monsters have 830% added health
+		// but due to this, dnd_monster_hpscalepercent is no longer in use
+		add = 33 * (level - 1) * (level - 1) / 1000 + 5 * (level - 1);
+		
+		// % increase per player adding
+		if(GetCVar("dnd_playercount_scales_monsters"))
+			add += DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
+		
+		add = base * add / 100;
+
 		// add level factor to it
 		// first overflow check
-		if(add < (INT_MAX - base) / Max((level - 1), 1)) {
-			add *= level - 1;
-			if(GetCVar("dnd_playercount_scales_monsters")) {
-				if(add > 100) {
-					add /= 100;
-					add *= 100 + DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
-				}
-				else {
-					add *= 100 + DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
-					add /= 100;
-				}
-			}
-		}
-		else
+		if(add > INT_MAX - base)
 			add = INT_MAX - base;
 	}
 	MonsterProperties[tid - DND_MONSTERTID_BEGIN].basehp = base;

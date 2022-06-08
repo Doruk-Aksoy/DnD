@@ -55,7 +55,7 @@ enum {
 #include "DnD_ElixirDef.h"
 #include "DnD_CommonResearch.h"
 
-#define DND_ELITE_BASEDROP 0.035
+#define DND_ELITE_BASEDROP 0.025
 #define DND_ELITE_BASEDROP_ORB 0.05
 
 #define DND_BASE_PLAYERSPEED 1.0
@@ -80,7 +80,7 @@ enum {
 #define BASE_GREED_GAIN 10
 #define PERK_MEDICBONUS 10 // percent
 #define PERK_MEDICSTOREBONUS 15
-#define DND_SAVAGERY_BONUS 10 // percent
+#define DND_SAVAGERY_BONUS 20 // percent
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
 #define DND_MUNITION_GAIN 10
 #define DND_LUCK_GAIN 0.15 // 15% multiplicative lucke
@@ -480,9 +480,6 @@ void RestoreRPGStat (int statflag) {
 
 	if(CheckInventory("ArtemisCheck"))
 		GiveInventory("ArtemisPower", 1);
-		
-	if(CheckInventory("TaltosCheck"))
-		GiveInventory("TaltosUp", 1);
 		
 	if(CheckInventory("HateCheck")) {
 		GiveInventory("PowerReflection", 1);

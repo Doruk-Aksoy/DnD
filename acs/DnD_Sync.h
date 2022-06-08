@@ -746,6 +746,7 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
+				printbold(s:"sync special loc ", d:bid);
 				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
 				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
 			}
@@ -796,6 +797,7 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
+	
 	if(IsSourceInventoryView(raw_source)) {
 		int h, w;
 		if(wprev != -1)
@@ -806,7 +808,7 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev) {
 			h = hprev;
 		else
 			h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, itemid, -1, source);
-	
+		
 		for(int i = 0; i < h; ++i)
 			for(int j = 0; j < w; ++j) {
 				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
@@ -849,7 +851,7 @@ void SyncAllItemData(int pnum, int source) {
 	if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 		for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 			if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL)
-				SyncItemData(pnum, i, source, -1, -1);
+				SyncItemData(pnum, i, source, 1, 1);
 			else
 				SyncItemData_Null(pnum, i, source, 1, 1);
 		}
@@ -857,7 +859,7 @@ void SyncAllItemData(int pnum, int source) {
 	else if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
 		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
 			if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-				SyncItemData(pnum, i, source, -1, -1);
+				SyncItemData(pnum, i, source, 1, 1);
 			else
 				SyncItemData_Null(pnum, i, source, 1, 1);
 		}
@@ -866,7 +868,7 @@ void SyncAllItemData(int pnum, int source) {
 		for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
 			for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
 				if(PlayerStashList[pnum][i][j].item_type != DND_ITEM_NULL)
-					SyncItemData(pnum, j, source | (i << 16), -1, -1);
+					SyncItemData(pnum, j, source | (i << 16), 1, 1);
 				else
 					SyncItemData_Null(pnum, j, source | (i << 16), 1, 1);
 			}

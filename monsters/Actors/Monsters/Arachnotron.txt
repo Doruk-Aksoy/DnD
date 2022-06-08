@@ -18,7 +18,7 @@ ACTOR FusionSpider : DnD_BaseRangedMonster {
 	+MissileEvenMore
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_FUSIONSPIDER)
+			TNT1 A 0 A_SetArg(4, DND_FUSIONSPIDER)
 		Goto SpawnSetup
 	
 		Idle:
@@ -142,7 +142,7 @@ ACTOR HellforgeSpider : DnD_BaseRangedMonster {
 	+QUICKTORETALIATE
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_HELLFORGESPIDER)
+			TNT1 A 0 A_SetArg(4, DND_HELLFORGESPIDER)
 		Goto SpawnSetup
 		
 		Idle:
@@ -273,7 +273,7 @@ ACTOR RailArachnotron : DnD_BaseRangedMonster {
 	Decal RedRailScorch
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_RAILARACHNOTRON)
+			TNT1 A 0 A_SetArg(4, DND_RAILARACHNOTRON)
 		Goto SpawnSetup
 		
 		Idle:
@@ -360,7 +360,7 @@ ACTOR BabyDemolisher : DnD_BaseRangedMonster {
 	Obituary "%o didn't expect demons to create this kind of a spider."
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_BABYDEMOLISHER)
+			TNT1 A 0 A_SetArg(4, DND_BABYDEMOLISHER)
 		Goto SpawnSetup
 
 		Idle:
@@ -576,7 +576,7 @@ Actor Vore : DnD_BaseHybridMonster {
 	+DONTHURTSPECIES
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_VORE)
+			TNT1 A 0 A_SetArg(4, DND_VORE)
 
 		Goto SpawnSetup
 		
@@ -769,7 +769,7 @@ Actor ChaingunCommando : DnD_BaseRangedMonster {
 	Mass 512
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CHAINGUNCOMMANDO)
+			TNT1 A 0 A_SetArg(4, DND_CHAINGUNCOMMANDO)
 		Goto SpawnSetup
 	
 		Idle:
@@ -860,7 +860,7 @@ Actor ChaingunGeneral : DnD_BaseRangedMonster {
 	Tag "Chaingun General"
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_CHAINGUNGENERAL)
+			TNT1 A 0 A_SetArg(4, DND_CHAINGUNGENERAL)
 		Goto SpawnSetup
 		
 		Idle:
@@ -962,7 +962,7 @@ Actor Legionnaire : DnD_BaseHybridMonster {
 	MeleeRange 84
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_LEGIONNAIRE)
+			TNT1 A 0 A_SetArg(4, DND_LEGIONNAIRE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1140,7 +1140,7 @@ ACTOR Manticore : DnD_BaseRangedMonster {
 	+DONTRIP
 	states {
 		SetInfo:
-			TNT1 A 0 A_SetArg(0, DND_MANTICORE)
+			TNT1 A 0 A_SetArg(4, DND_MANTICORE)
 		Goto SpawnSetup
 
 		Idle:

@@ -1,7 +1,7 @@
 #ifndef DND_PROMPT_IN
 #define DND_PROMPT_IN
 
-#define DND_NPC_TID 54165
+#include "DnD_Common.h"
 
 enum {
 	DW_GREET_FIRST_TIME1,
@@ -210,7 +210,7 @@ void HandleNPC(int npc_id) {
 			switch(NPC_States[DND_NPC_DARKWANDERER].offer) {
 				case NPC_OFFER_1:
 					// kill marked monsters -- min of 5, max of 50 -- scaling with map difficulty
-					mc = DnD_TID_List[DND_TID_MONSTER] - DND_MONSTERTID_BEGIN;
+					mc = DnD_TID_Counter[DND_TID_MONSTER];
 					temp = random(5 + 5 * MapDifficulty, 10 + 5 * MapDifficulty);
 
 					// we dont care about uniqueness
@@ -233,7 +233,7 @@ void HandleNPC(int npc_id) {
 				break;
 				case NPC_OFFER_2:
 					// retrieve artifacts -- place the artifacts
-					mc = DnD_TID_List[DND_TID_PICKUPS] - DND_PICKUPTID_BEGIN;
+					mc = DnD_TID_Counter[DND_TID_PICKUPS] - DND_PICKUPTID_BEGIN;
 					temp = random(2 + MapDifficulty, 2 + 2 * MapDifficulty);
 					NPC_States[DND_NPC_DARKWANDERER].offer_progress = temp;
 					
@@ -258,7 +258,7 @@ void HandleNPC(int npc_id) {
 					}
 					else if(mc) {
 						// we have some powerups, but not enough, so we'll most likely need shared items
-						count = DnD_TID_List[DND_TID_SHAREDITEMS];
+						count = DnD_TID_Counter[DND_TID_SHAREDITEMS];
 						do {
 							// 50% from shared items and the other from powerups
 							if(random(0, 1)) {
@@ -287,7 +287,7 @@ void HandleNPC(int npc_id) {
 					}
 					else {
 						// we have no powerups, simply loop through the shared items
-						count = DnD_TID_List[DND_TID_SHAREDITEMS];
+						count = DnD_TID_Counter[DND_TID_SHAREDITEMS];
 						do {
 							k = random(SHARED_ITEM_TID_BEGIN, count - 1);
 							for(j = 0; j < slot_count; ++j) {

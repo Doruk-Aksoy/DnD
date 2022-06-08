@@ -589,14 +589,14 @@ bool ListenScroll(int condx_min, int condx_max) {
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	// up is 1, down is 2
 	// opposite buttons because view should go up
-	if(IsButtonHeld(bpress, settings[0][0])) {
+	if(IsButtonHeld(bpress, BT_FORWARD)) {
 		if(ScrollPos.x < condx_max) {
 			++ScrollPos.x;
 			redraw = true;
 		}
 		SetInventory("MenuUD", 1);
 	}
-	if(IsButtonHeld(bpress, settings[2][0])) {
+	if(IsButtonHeld(bpress, BT_BACK)) {
 		if(ScrollPos.x > condx_min) {
 			--ScrollPos.x;
 			redraw = true;

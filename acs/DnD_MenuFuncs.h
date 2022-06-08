@@ -44,9 +44,9 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 	if(!CheckInventory("DnD_SellConfirm")) {
 		if(listenflag & LISTEN_LEFT) {
 			if(!(listenflag & LISTEN_FASTLR))
-				p = IsButtonPressed(bpress, obpress, settings[1][0]);
+				p = IsButtonPressed(bpress, obpress, GetMovementButton(MVMT_BT_LEFT));
 			else
-				p = IsButtonHeld(bpress, settings[1][0]) && !CheckInventory("Menu_LRCooldown");
+				p = IsButtonHeld(bpress, GetMovementButton(MVMT_BT_LEFT)) && !CheckInventory("Menu_LRCooldown");
 			if(p) {
 				if(curposx > condx_min) {
 					TakeInventory("MenuPosX", 1);
@@ -64,9 +64,9 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 		}
 		if(listenflag & LISTEN_RIGHT) {
 			if(!(listenflag & LISTEN_FASTLR))
-				p = IsButtonPressed(bpress, obpress, settings[3][0]);
+				p = IsButtonPressed(bpress, obpress, GetMovementButton(MVMT_BT_RIGHT));
 			else
-				p = IsButtonHeld(bpress, settings[3][0]) && !CheckInventory("Menu_LRCooldown");
+				p = IsButtonHeld(bpress, GetMovementButton(MVMT_BT_RIGHT)) && !CheckInventory("Menu_LRCooldown");
 			if(p) {
 				if(curposx < condx_max) {
 					GiveInventory("MenuPosX", 1);
@@ -4862,6 +4862,12 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// dmg reduction block begins -- shown with their respective caps applied
+			val = 1.0 - GetSelfExplosiveResist(pnum);
+			if(val != 0.0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_SELFEXPDMG", s:"\n");
+				++k;
+			}
+			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ELEM, val), s:"\n");
@@ -4889,12 +4895,6 @@ void DrawPlayerStats(int pnum, int category) {
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION));
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_EXPLOSION, val), s:"\n");
-				++k;
-			}
-			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_SELFDMG_RESIST));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SELFDMG_RESIST, val), s:"\n");
 				++k;
 			}
 			
