@@ -49,7 +49,6 @@ enum {
 * Save health and armor into one int. Health max can be around 65536, so assume 16 bits. Armor can be max around same so both can fit.
 * Save armor type as a new int with each bit as an armor type.
 * For every weapon ammo, safest way to go is use an int for each type. Their limits are dynamic and annoying to use bits with.
-* For Talents, each talent can go up to 100. 8 bits per talent. Store 4 talent per int. We need 2 ints because we got 6 talents.
 * For exp, level and credit use one int each.
 * For abilities use one int, each ability occupies one bit.
 * For researches, things are a bit tricky. A research can be 0 (NA), 1 (KNOWN) or 2 (DONE). We need 2 bits to state the value of a research.
@@ -257,7 +256,7 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 
 void SavePlayerData(int pnum, int char_id) {
 	int temp, tid = pnum + P_TIDSTART, i, j;
-	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS-1); // DnD_CharacterID defaults to 1 if no cmds are used.
+	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = GetPlayerAccountName(pnum);
 	
 	// save class id
@@ -297,8 +296,7 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	// save intellect
 	temp = CheckActorInventory(tid, "PSTAT_Intellect");
-	temp <<= 16;
-	temp |= CheckActorInventory(tid, "TalentPoint");
+
 	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
 	
 	// save perks (use 4 bits per perk, max is 10 for a perk)
@@ -355,18 +353,6 @@ void SavePlayerData(int pnum, int char_id) {
 		// send temp over
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:ClipAmmoTypes[i]), pacc, temp);
 	}
-	
-	// save talents (8 bits per talent, can save 4 talents in one int)
-	temp = 0;
-	for(i = 0; i < 4; ++i)
-		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i])) << (8 * i);
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc, temp);
-	
-	temp = 0;
-	for(i = 4; i < MAX_TALENTS; ++i)
-		temp |= (0xFF & CheckActorInventory(tid, TalentNames[i])) << (8 * (i - 4));
-	SetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc, temp);
 	
 	// save exp, credit and level (when loading give expvisual, amt = exp % levelcurve[level])
 	temp = CheckActorInventory(tid, "Exp");
@@ -512,7 +498,7 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].luck);
 	
 	// damage type bonuses
-	for(i = 0; i < MAX_TALENTS; ++i) {
+	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i));
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, Player_Elixir_Bonuses[pnum].damage_type_bonus[i]);
 	}
@@ -567,14 +553,11 @@ void SavePlayerActivities(int pnum, int char_id) {
 	
 	// save intellect
 	temp = PlayerActivities[pnum].attribute_change[STAT_INT];
-	temp <<= 16;
-	temp += PlayerActivities[pnum].talent_point;
 	IncrementDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
 	
 	// save perks (use 4 bits per perk, max is 10 for a perk so it saves the first 8 perks packed into 4 bits)
 	i = STAT_SHRP - DND_PERK_BEGIN;
 	temp = PlayerActivities[pnum].perk_change[i];
-	
 	for(j = 0; j < 7; ++j) {
 		vt = PlayerActivities[pnum].perk_change[++i];
 		if(vt < 0)
@@ -610,7 +593,7 @@ void SavePlayerActivities(int pnum, int char_id) {
 	IncrementDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.holding);
 	
 	// damage type bonuses
-	for(i = 0; i < MAX_TALENTS; ++i)
+	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
 		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.damage_type_bonus[i]);
 	
 	for(i = 0; i < MAXWEPS; ++i) {
@@ -647,6 +630,10 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// save budget
 	temp = PlayerActivities[pnum].budget;
 	IncrementDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, temp);
+	
+	// save exp
+	temp = PlayerActivities[pnum].exp;
+	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, temp);
 	
 	// save unspent attribute/perk points
 	temp = PlayerActivities[pnum].free_attributes;
@@ -723,10 +710,12 @@ void LoadPlayerData(int pnum, int char_id) {
 	int i = 0, j = 0, h, w, temp;
 	str pacc = GetPlayerAccountName(pnum);
 	
-	// set player class to what they initially chose
+	// set player class to what they initially chose -- CAREFUL ITS NOT CHARACTERID ITS CHARACTER!!! FORMER IS DATABASE ID
+	temp = GetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc);
+	SetInventory("DnD_Character", temp);
 	/*int res = SetPlayerClass(
 		pnum, 
-		StrParam(l:GetClassLabel(StrParam(s:"CLASS", d:GetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc) - 1), DND_CLASS_LABEL_ACTOR)),
+		StrParam(l:GetClassLabel(StrParam(s:"CLASS", d:temp - 1), DND_CLASS_LABEL_ACTOR)),
 		true
 	);
 	*/
@@ -742,6 +731,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);
 	SetInventory("Exp", temp);
 	CalculateExpRatio();
+	
+	// immediately update exp, because this is 0 initially and people could lose exp potentially
+	UpdateActivity(pnum, DND_ACTIVITY_EXP, temp, 0);
 	
 	// read credits
 	SetInventory("Credit", GetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc));
@@ -814,7 +806,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	LoadPlayerStash(pnum, pacc);
 	
 	// damage type bonuses
-	for(i = 0; i < MAX_TALENTS; ++i) {
+	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
 		Player_Elixir_Bonuses[pnum].damage_type_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc);
 		SetDataToOrbBonus_NoActivity(pnum, OBI_DAMAGETYPE, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc));
 	}
@@ -870,10 +862,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp >>= 8;
 	SetInventory("BackpackCounter", temp & 0xFF);
 	
-	// intellect + talent point
+	// intellect
 	temp = GetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc);
-	SetInventory("TalentPoint", temp & 0xFFFF);
-	temp >>= 16;
 	SetInventory("PSTAT_Intellect", temp & 0xFF);
 	
 	// read perks - 1
@@ -948,19 +938,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:ClipAmmoTypes[i]), pacc);
 		SetInventory(ClipAmmoTypes[i], temp);
-	}
-	
-	// read talents
-	temp = GetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc);
-	for(i = 0; i < 4; ++i) {
-		SetInventory(TalentNames[i], temp & 0xFF);
-		temp >>= 8;
-	}
-	
-	temp = GetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc);
-	for(i = 4; i < MAX_TALENTS; ++i) {
-		SetInventory(TalentNames[i], temp & 0xFF);
-		temp >>= 8;
 	}
 	
 	// read abilities
@@ -1136,8 +1113,6 @@ void WipeoutPlayerData(int pnum, int cid) {
 		SetDBEntry(amm, pacc, GetAmmoCapacity(amm));
 	}
 	
-	SetDBEntry(GetCharField(DND_DB_TALENT_1, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_TALENT_2, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, 1);
@@ -1204,7 +1179,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	}
 	
 	// damage type bonuses
-	for(i = 0; i < MAX_TALENTS; ++i) {
+	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
 	}
@@ -1487,4 +1462,48 @@ Script "DnD Save Player Inventory" (int pnc1, int pnc2) {
 		}
 		EndDBTransaction();
 	}
+}
+
+
+// shows when game asks user to load char
+Script "DnD Created Chars Display" (int pnum) {
+	if(PlayerIsLoggedIn(pnum)) {
+		str pacc = GetPlayerAccountName(pnum);
+		bool header = false;
+		// log to player how many characters they might have had
+		for(int i = 0; i < DND_MAX_CHARS; ++i) {
+			int class_id = GetDBEntry(GetCharField(DND_DB_CLASSID, i), pacc);
+			if(class_id) {
+				if(!header) {
+					ACS_NamedExecuteWithResult("DnD Show Occupied Char Header", pnum);
+					header = true;
+					Delay(2);
+				}
+			
+				ACS_NamedExecuteWithResult(
+					"DnD Show Occupied Char Slot Data",
+					pnum | (i << 16),
+					class_id - 1,
+					GetDBEntry(GetCharField(DND_DB_LEVEL, i), pacc)
+				);
+			}
+		}
+	}
+}
+
+Script "DnD Show Occupied Char Header" (int pnum) CLIENTSIDE {
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+		
+	Log(s:"\n\cd==============================================\n", l:"DND_DB_CHARLIST", s:":");
+}
+
+Script "DnD Show Occupied Char Slot Data" (int pnum, int class_id, int level) CLIENTSIDE {
+	int char_id = pnum >> 16;
+	pnum &= 0xFFFF;
+	
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+	
+	Log(s:"    ", d:char_id, s:". Level \cd", d:level, s: "\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:class_id), DND_CLASS_LABEL_NAME), s:".");
 }

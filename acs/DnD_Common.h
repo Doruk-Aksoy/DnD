@@ -238,6 +238,17 @@ int IsButtonHeld (int input, int mask) {
 	return input & mask;
 }
 
+// for now allocate slots for 10
+#define MAX_SCRIPT_TRACK 10
+
+enum {
+	DND_SCRIPT_EXPTRACKER,
+	DND_SCRIPT_BLEND,
+	DND_SCRIPT_DAMAGETAKENTIC
+};
+
+global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
+
 int active_quest_id = -1;
 
 #define DND_MAX_PETS_PER_PLAYER 25

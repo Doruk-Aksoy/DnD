@@ -197,9 +197,9 @@ Actor BaseExplosionDamage // this is necessary, calling A_Explode in actor can c
 	}
 }
 
-Actor DnD_DamageReceived : Inventory {
+/*Actor DnD_DamageReceived : Inventory {
 	inventory.maxamount 0x7FFFFFFF
-}
+}*/
 
 Actor DnD_DamageFade : Inventory {
 	+INVENTORY.UNDROPPABLE

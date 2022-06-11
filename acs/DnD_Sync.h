@@ -245,17 +245,17 @@ int GetPlayerSyncValue_Orb(int pos, int extra) {
 		case DND_SYNC_HOLDING:
 		return GetDataFromOrbBonus(pnum, OBI_HOLDING, -1);
 		case DND_SYNC_DAMAGEBULLET:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_BULLET);
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET);
 		case DND_SYNC_DAMAGEENERGY:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ENERGY);
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY);
 		case DND_SYNC_DAMAGEEXPLOSIVE:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_EXPLOSIVE);
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES);
 		case DND_SYNC_DAMAGEMELEE:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_MELEE);
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE);
 		case DND_SYNC_DAMAGEELEMENTAL:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ELEMENTAL);
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL);
 		case DND_SYNC_DAMAGEOCCULT:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT);
+		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT);
 		case DND_SYNC_WEPMOD_CRIT:
 		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, extra);
 		case DND_SYNC_WEPMOD_CRITDMG:
@@ -284,17 +284,17 @@ int GetPlayerSyncValue_Elixir(int pos, int extra) {
 		case DND_SYNC_ARMORPERCENT_BONUS:
 		return Player_Elixir_Bonuses[pnum].armor_percent_bonus;
 		case DND_SYNC_DAMAGEBULLET:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_BULLET];
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_BULLET];
 		case DND_SYNC_DAMAGEENERGY:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ENERGY];
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ENERGY];
 		case DND_SYNC_DAMAGEEXPLOSIVE:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_EXPLOSIVE];
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_EXPLOSIVES];
 		case DND_SYNC_DAMAGEMELEE:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_MELEE];
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_MELEE];
 		case DND_SYNC_DAMAGEELEMENTAL:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ELEMENTAL];
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ELEMENTAL];
 		case DND_SYNC_DAMAGEOCCULT:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT];
+		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_OCCULT];
 		case DND_SYNC_LUCK:
 		return Player_Elixir_Bonuses[pnum].luck = 0;
 	}
@@ -546,22 +546,22 @@ void SetSyncValue_Orb(int pnum, int pos, int val, int extra) {
 			SetDataToOrbBonus(pnum, OBI_HOLDING, -1, val);
 		break;
 		case DND_SYNC_DAMAGEBULLET:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_BULLET, val);
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET, val);
 		break;
 		case DND_SYNC_DAMAGEENERGY:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ENERGY, val);
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY, val);
 		break;
 		case DND_SYNC_DAMAGEEXPLOSIVE:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_EXPLOSIVE, val);
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES, val);
 		break;
 		case DND_SYNC_DAMAGEMELEE:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_MELEE, val);
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE, val);
 		break;
 		case DND_SYNC_DAMAGEELEMENTAL:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_ELEMENTAL, val);
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL, val);
 		break;
 		case DND_SYNC_DAMAGEOCCULT:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT, val);
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT, val);
 		break;
 		case DND_SYNC_WEPMOD_CRIT:
 			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
@@ -600,22 +600,22 @@ void SetSyncValue_Elixir(int pnum, int pos, int val, int extra) {
 			Player_Elixir_Bonuses[pnum].armor_percent_bonus = val;
 		break;
 		case DND_SYNC_DAMAGEBULLET:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_BULLET] = val;
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_BULLET] = val;
 		break;
 		case DND_SYNC_DAMAGEENERGY:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ENERGY] = val;
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ENERGY] = val;
 		break;
 		case DND_SYNC_DAMAGEEXPLOSIVE:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_EXPLOSIVE] = val;
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_EXPLOSIVES] = val;
 		break;
 		case DND_SYNC_DAMAGEMELEE:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_MELEE] = val;
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_MELEE] = val;
 		break;
 		case DND_SYNC_DAMAGEELEMENTAL:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_ELEMENTAL] = val;
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ELEMENTAL] = val;
 		break;
 		case DND_SYNC_DAMAGEOCCULT:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT] = val;
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_OCCULT] = val;
 		break;
 		case DND_SYNC_LUCK:
 			Player_Elixir_Bonuses[pnum].luck = val;
@@ -746,7 +746,6 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				printbold(s:"sync special loc ", d:bid);
 				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
 				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
 			}

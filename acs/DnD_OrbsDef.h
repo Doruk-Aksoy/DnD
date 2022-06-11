@@ -19,7 +19,7 @@ typedef struct {
 	int drop_chance;
 	int holding;
 	
-	int damage_type_bonus[MAX_TALENTS];
+	int damage_type_bonus[MAX_DAMAGE_CATEGORIES];
 } orb_stat_T;
 
 typedef struct {

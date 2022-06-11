@@ -169,6 +169,8 @@ DND_DBERR12		= "has loaded a character";
 DND_DBERR13A	= "TRANSFER CHAR: Character will be transferred to slot";
 DND_DBERR13B	= "on character save. Previous character on that slot will be deleted!";
 
+DND_DB_CHARLIST = "Character list";
+
 // popup text
 DND_POPUP_NOFUNDS							=	"Insufficient funds.";
 DND_POPUP_CANTBUY							=	"You can't buy this item.";

@@ -220,11 +220,11 @@ Actor BFGBall2 : DnD_BaseProjectile replaces BFGBall {
 			BFS1 AAAABBBB 1 Bright A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BFG6000 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_BFG6000)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BFG6000 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_BFG6000)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("BFGFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			BFE1 AB 8 Bright
-			BFE1 C 8 Bright ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BFG6000 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 30 | (DND_SCANNER_BFG << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
+			BFE1 C 8 Bright ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BFG6000 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 30 | (DND_SCANNER_BFG << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 			BFE1 DEF 8 Bright
 		Stop
 	}
@@ -253,7 +253,7 @@ Actor BFGBallUpgraded : BFGBall2 {
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BFG32768 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_BFG32768)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BFG32768 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_BFG32768)
 	    Death:
 			BFE1 A 8 Bright
 			TNT1 A 0 A_SpawnItemEx ("BFGFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
@@ -261,7 +261,7 @@ Actor BFGBallUpgraded : BFGBall2 {
 			TNT1 A 0 A_SpawnItem("BFGShockWave")
 			BFE1 B 8 Bright
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_SpawnDebris("BFGParticles")
-			BFE1 C 8 Bright ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BFG32768 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 30 | (DND_SCANNER_BFGUPGRADED << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
+			BFE1 C 8 Bright ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BFG32768 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 30 | (DND_SCANNER_BFGUPGRADED << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 			BFE1 DEF 8 Bright
 		Stop
 	}
@@ -276,7 +276,7 @@ Actor BfgExplosion : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BFG32768 << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BFG32768 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 192)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_BFG32768 << 16))
@@ -386,7 +386,7 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 			DEVM A 2 Bright A_SeekerMissile(2, 2)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEVASTATOR << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_DEVASTATOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEVASTATOR << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_DEVASTATOR)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("ExplosionFlareSmall", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 AA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
@@ -394,7 +394,7 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 			TNT1 AA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAA 0 A_CustomMissile("DevastatorSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEVASTATOR << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEVASTATOR << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
@@ -618,7 +618,7 @@ ACTOR DNBFGBall : DnD_BaseProjectile {
 			TNT1 A 0 A_Countdown
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_MFG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MFG << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_MFG)
 		Goto PostDeath
 		Death:
 			TNT1 A 0 A_JumpIf(reactiontime, "PostDeath")
@@ -654,7 +654,7 @@ Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 0 A_SetUserVar("user_count", 2)
-			TNT1 A 0 A_SetUserVar("user_expdmg", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_MFG << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 448 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
@@ -668,7 +668,7 @@ Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 			TNT1 A 3
 		Stop
 		Recalc:
-			TNT1 A 0 A_SetUserVar("user_expdmg", 9 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 9 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_MFG << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", user_expradius * 1.7145) // 768 ~= 448 x 1.7145
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 2 * user_expradius / 3) // 512
 		Goto ExplosionLoop
@@ -685,7 +685,7 @@ Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 0 A_SetUserVar("user_count", 2)
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7) / 2)
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_MFG << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7) / 2)
 			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 3 * user_expradius / 4)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
@@ -715,7 +715,7 @@ Actor DNBFGBallSmall : DNBFGBall {
 			NBFP ABCD 1 BRIGHT A_SpawnItemEx("DNBFGTrailSpawner")
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MFG << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_MFG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MFG << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_MFG)
 		Death:
 			NBFP A 0 A_PlaySound("Weapons/MFGExplode", CHAN_AUTO, 1.0)
 			TNT1 A 0 A_CustomMissile("DNBFGBallSmallExp1", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -1121,7 +1121,7 @@ Actor RailgunPuff : DnD_BaseRailPuff {
 	+FOILINVUL
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RAILGUN << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RAILGUN << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_RAILGUN)
@@ -1140,7 +1140,7 @@ Actor RailgunPuff_2 : DnD_BaseRailPuff {
 	+FOILINVUL
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_RAILGUN << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_RAILGUN << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_RAILGUN)
@@ -1159,7 +1159,7 @@ Actor RailgunPuff_3 : DnD_BaseRailPuff {
 	+FOILINVUL
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_RAILGUN << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_RAILGUN << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_RAILGUN)
@@ -1499,7 +1499,7 @@ Actor GaussPuff1 : DnD_BasePuff {
 	Scale 0.1
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_GAUSSRIFLE)
@@ -1526,7 +1526,7 @@ Actor GaussPuff2 : DnD_BasePuff {
 	+NODAMAGETHRUST
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_GAUSSRIFLE)
@@ -1553,7 +1553,7 @@ Actor GaussPuff3 : DnD_BasePuff {
 	+NODAMAGETHRUST
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_GAUSSRIFLE)
@@ -1580,7 +1580,7 @@ Actor GaussPuff4 : DnD_BasePuff {
 	+NODAMAGETHRUST
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_GAUSSRIFLE)
@@ -1613,7 +1613,7 @@ Actor GaussExplosion1 : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
@@ -1630,7 +1630,7 @@ Actor GaussExplosion2 : GaussExplosion1 {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | ((DND_DAMAGEFLAG_BLASTSELF) << 16))
@@ -1643,7 +1643,7 @@ Actor GaussExplosion3 : GaussExplosion1 {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | ((DND_DAMAGEFLAG_BLASTSELF) << 16))
@@ -1656,7 +1656,7 @@ Actor GaussExplosion4 : GaussExplosion1 {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_GAUSSRIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
 			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | ((DND_DAMAGEFLAG_BLASTSELF) << 16))
@@ -1884,11 +1884,11 @@ Actor DeathRayProjectile : DnD_ExplosiveBase {
 			TNT1 A 3 Light("DRayLight2") A_CustomMissile("DeathRayLaser", 0, 0, mass, CMF_TRACKOWNER | CMF_AIMDIRECTION, -pitch)
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEATHRAY << 16), TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_DEATHRAY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEATHRAY << 16), DND_DAMAGECATEGORY_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_DEATHRAY)
 		Death:
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX8", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEATHRAY << 16), TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DEATHRAY << 16), DND_DAMAGECATEGORY_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_DEATHRAY << 16))
@@ -1964,7 +1964,7 @@ Actor DeathRayExp : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 0
 		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_DEATHRAY << 16), TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_DEATHRAY << 16), DND_DAMAGECATEGORY_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET))
 			TNT1 A 0 A_SetUserVar("user_expradius", 160)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_DEATHRAY << 16))
@@ -1991,7 +1991,7 @@ ACTOR DeathRayLaser : DnD_BaseFastProjectile {
 			TNT1 A -1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_DEATHRAY << 16), TALENT_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_DEATHRAY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_DEATHRAY << 16), DND_DAMAGECATEGORY_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_DEATHRAY)
 		Death:
 			TNT1 A 0 A_PlaySound("Deathray/LaserExplode", 5)
 			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("DeathRayTrailSpark",frandom(19.0, -19.0), frandom(19.0, -19.0), frandom(19.0, -19.0))

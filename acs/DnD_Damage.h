@@ -134,16 +134,6 @@ int GetDamageCategory(int damage_type, int flags) {
 	return DND_DAMAGECATEGORY_OCCULT;
 }
 
-enum {
-	DND_DAMAGECATEGORY_MELEE,
-	DND_DAMAGECATEGORY_BULLET,
-	DND_DAMAGECATEGORY_ENERGY,
-	DND_DAMAGECATEGORY_EXPLOSIVES,
-	DND_DAMAGECATEGORY_OCCULT,
-	DND_DAMAGECATEGORY_ELEMENTAL,
-	DND_DAMAGECATEGORY_SOUL
-};
-
 str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"Melee",
 	"Melee_Magic",
@@ -312,6 +302,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_SPECIFICELEWEAKNESS_FACTOR 50 // 50% extra dmg taken from specific elemental dmg
 #define DND_RESIST_FACTOR 50 // 50% dmg taken
 #define DND_IMMUNITY_FACTOR 95 // 5% dmg taken
+#define DND_IMMUNITY_HARDCAP_FACTOR 99 // 1% damage taken
 
 #define DND_MAX_MONSTER_TICDATA 16383 // even this is a bit much but w.e
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
@@ -430,11 +421,38 @@ int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
 	return dmg;
 }
 
+// set pointers appropriately beforehand!
+int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial, bool proj_crit) {
+	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
+	// add +1 because flechette is id 0
+	if(isSpecial) {
+		isSpecial = dmgid + 1;
+		dmgid = wepid;
+		wepid = CheckInventory("DnD_WeaponID");
+	}
+	
+	//printbold(s:"retrieved acc ", d:GetActorProperty(0, APROP_ACCURACY));
+
+	int res = ScaleCachedDamage(wepid, pnum, dmgid, damage_category, flags, isSpecial);
+	
+	// special weapons checks -- these are added on top of everything else as the last thing, before crits
+	// they are also dynamic and cant be cached...
+	if(wepid == DND_WEAPON_LIGHTNINGGUN)
+		res = res * (100 + DND_LIGHTNINGGUN_DMGPERSTACK * CheckInventory("LightningStacks")) / 100;
+	else if(wepid == DND_WEAPON_DUSKBLADE)
+		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
+	
+	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || proj_crit)
+		res = ConfirmedCritFactor(res);
+		
+	return res;
+}
+
 // use only flags with DND_WDMG header here!!!
 // NOTE: DO NOT FACTOR ANY DOT MULTIPLIER IN HERE!
 // isSpecial is id of the special ammo + 1
 // special ammo replaces dmgid 0 of the weapon in cache, so everytime we switch special ammo type we must force damage cache recalc
-int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags, int isSpecial) {
+int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int flags, int isSpecial) {
 	// we don't cache special ammo damage
 	int dmg = 0;
 	int temp;
@@ -467,7 +485,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		temp = (!!(flags & DND_WDMG_ISBOOMSTICK)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
 		// add flat damage bonus mapping talent name to flat bonus type
-		temp += MapTalentToFlatBonus(pnum, talent_type, flags);
+		temp += MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
 		
 		ClearCache(pnum, wepid, dmgid);
 		
@@ -480,25 +498,25 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		
 		// include the stat bonus
 		//printbold(d:talent_type == TALENT_MELEE, s: " ", d: IsMeleeWeapon(wepid), s: " ", d:(flags & DND_WDMG_ISMELEE));
-		if(talent_type == TALENT_MELEE || is_melee_mastery_exception) {
+		if(damage_category == DND_DAMAGECATEGORY_MELEE || is_melee_mastery_exception) {
 			InsertCacheFactor(pnum, wepid, dmgid, GetMeleeDamage(pnum), true);
 			//printbold(s:"factor added ", d:temp);
 		}
 		
 		// occult uses intellect
-		if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT)
+		if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT)
 			InsertCacheFactor(pnum, wepid, dmgid, GetRangedBonus(pnum, true), true);
-		else if(talent_type != TALENT_MELEE)
+		else if(damage_category != DND_DAMAGECATEGORY_MELEE)
 			InsertCacheFactor(pnum, wepid, dmgid, GetRangedBonus(pnum), true);
 		
 		// specialty armor bonuses
 		temp = GetArmorID();
 		if(
-			(temp == DND_ARMOR_GUNSLINGER 	&& talent_type == TALENT_BULLET) 		||
-			(temp == DND_ARMOR_OCCULT 		&& talent_type == TALENT_OCCULT)		||
-			(temp == DND_ARMOR_DEMO 		&& talent_type == TALENT_EXPLOSIVE)		||
-			(temp == DND_ARMOR_ENERGY 		&& talent_type == TALENT_ENERGY)		||
-			(temp == DND_ARMOR_ELEMENTAL 	&& talent_type == TALENT_ELEMENTAL)
+			(temp == DND_ARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
+			(temp == DND_ARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
+			(temp == DND_ARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
+			(temp == DND_ARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
+			(temp == DND_ARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
 		)
 		{
 			InsertCacheFactor(pnum, wepid, dmgid, DND_SPECIALTYARMOR_BUFF, true);
@@ -513,9 +531,9 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			
 		// finally apply damage type or percentage bonuses
 		// last one is for ghost hit power, we reduce its power by a factor
-		temp = GetPlayerPercentDamage(pnum, wepid, talent_type);
-		if(talent_type != TALENT_MELEE && is_melee_mastery_exception)
-			temp += GetPlayerPercentDamage(pnum, wepid, TALENT_MELEE);
+		temp = GetPlayerPercentDamage(pnum, wepid, damage_category);
+		if(damage_category != DND_DAMAGECATEGORY_MELEE && is_melee_mastery_exception)
+			temp += GetPlayerPercentDamage(pnum, wepid, DND_DAMAGECATEGORY_MELEE);
 		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
@@ -536,7 +554,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 			
 		// apply flat health to damage conversion if player has any
 		temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
-		if((talent_type == TALENT_MELEE || talent_type == TALENT_BULLET) && temp)
+		if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
 			InsertCacheFactor(pnum, wepid, dmgid, GetFlatHealthDamageFactor(temp), true);
 			
 		// factor dot % increase if this is a dot attack
@@ -547,21 +565,21 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int talent_type, int flags
 		if(IsQuestComplete(tid, QUEST_ONLYONEWEAPON))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_ONEWEAPON_BONUS, true);
 			
-		if(talent_type == TALENT_ELEMENTAL && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
+		if(damage_category == DND_DAMAGECATEGORY_ELEMENTAL && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_MORDECQAI_BOOST, true);
 
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses	
 		// is occult (add demon bane bonus)
 		// apply wanderer perk if applicable
-		if((talent_type == TALENT_OCCULT || talent_type == TALENT_ELEMENTAL) && CheckInventory("Wanderer_Perk25"))
+		if((damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_ELEMENTAL) && CheckInventory("Wanderer_Perk25"))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_WANDERER_PERK25_BUFF, false);
 			
 		// hobo perk if applicable
 		if((flags & DND_WDMG_ISBOOMSTICK) && CheckInventory("Hobo_Perk25"))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_HOBO_SHOTGUNBONUS, false);
 		
-		if(flags & DND_WDMG_ISOCCULT || talent_type == TALENT_OCCULT)
+		if(flags & DND_WDMG_ISOCCULT || damage_category == DND_DAMAGECATEGORY_OCCULT)
 			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE)), false);
 		
 		// these HOPEFULLY dont have anything in common... yet?
@@ -907,7 +925,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 	)
 		resist += DND_IMMUNITY_FACTOR;
 	else if(MonsterProperties[mon_id].trait_list[DND_ETHEREAL] && damage_category != DND_DAMAGECATEGORY_OCCULT && damage_category != DND_DAMAGECATEGORY_SOUL)
-		return 0;
+		resist += DND_IMMUNITY_HARDCAP_FACTOR;
 	
 	// no special factors, process as is
 	return ApplyPenetrationToDamage(pnum, victim, dmg, damage_category, flags, resist, pen);
@@ -2174,7 +2192,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 	int dmg = GetFireDOTDamage(pnum);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 	
-	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, TALENT_ELEMENTAL);
+	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, DND_DAMAGECATEGORY_ELEMENTAL);
 	
 	int next_dmg = dmg;
 	int inc_by = dmg * dmg_tic_buff / 100;
@@ -2692,6 +2710,7 @@ int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
 	int temp, dmg, m_id;
+	int pnum;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
 		
@@ -2770,7 +2789,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// if this was a player, factor their resists in
 			// resists of player now will factor in after we've calculated the damage accurately
 			if(IsPlayer(victim)) {
-				int pnum = victim - P_TIDSTART;
+				pnum = victim - P_TIDSTART;
 				
 				// hate shard reflection
 				if(CheckActorInventory(victim, "HateCheck")) {
@@ -2815,7 +2834,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(dmg) {
 					// add to player stat
 					IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
-					GiveInventory("DnD_DamageReceived", dmg);
+					//GiveInventory("DnD_DamageReceived", dmg);
+					PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 					PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
 				}
 			}
@@ -2850,9 +2870,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		}
 		else {
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things
+			pnum = PlayerNumber();
 			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(dmg, arg2, dmg_data, false);
-			GiveInventory("DnD_DamageReceived", dmg);
+			//GiveInventory("DnD_DamageReceived", dmg);
+			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			SetResultValue(dmg);
 		}
 	}

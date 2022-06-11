@@ -282,7 +282,7 @@ int GetCritDamageDisplay(int pnum, int wep) {
 }
 
 int GetDamageTypeBonus(int pnum, int dtype) {
-	return MapTalentToPercentBonus(pnum, dtype) + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
+	return MapDamageCategoryToPercentBonus(pnum, dtype) + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
 }
 
 int GetWeaponPage(int boxid) {
@@ -1188,8 +1188,7 @@ void FillCurrentArmor(int pnum, int take_pos) {
 	LocalAmbientSound("items/armorbonus", 127);
 	AddArmorAmount(GetArmorCapFromID(GetArmorID()) - GetArmorAmount());
 	// take money
-	TakeInventory("Credit", price);
-	GiveInventory("DnD_MoneySpentQuest", price);
+	TakeCredit(price);
 	
 	// take a repair token away
 	ConsumePlayerItem(pnum, take_pos);
@@ -1226,9 +1225,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 					buystatus = CanTrade(itemid, tradeflag, price);
 					if(!buystatus) {
 						// consider researches before handing out
-						TakeInventory("Credit", price);
-						// for money quest
-						GiveInventory("DnD_MoneySpentQuest", price);
+						TakeCredit(price);
 						if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
 							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorData[itemid - SHOP_FIRSTARMOR_INDEX + 1][ARMORDATA_BASEAMOUNT], !!(tradeflag & TRADE_ARMOR_REPLACE));
 						}
@@ -1450,14 +1447,13 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 			}
 			
 			// we're OK now
-			TakeInventory("Credit", price);
+			TakeCredit(price);
 			if(slot != -1)
 				GiveInventory(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME], amt);
 			else
 				GiveInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME], amt);
 			ShopStockRemaining[PlayerNumber()][shop_index] -= amt;
 			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, PlayerNumber(), shop_index, ShopStockRemaining[PlayerNumber()][shop_index]);
-			GiveInventory("DnD_MoneySpentQuest", price);
 			LocalAmbientSound("items/ammo", 127);
 		}
 		else
@@ -2773,7 +2769,7 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 		if(boxid == MBOX_1) {
 			buystatus = CanResearch(page, curposx);
 			if(!buystatus) {
-				TakeInventory("Budget", ResearchInfo[page][curposx].res_cost);
+				TakeBudget(ResearchInfo[page][curposx].res_cost);
 				LocalAmbientSound("items/research", 127);
 				CompleteResearch(ResearchInfo[page][curposx].res_id);
 			}
@@ -2806,7 +2802,7 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 				else {
 					// investment can proceed
 					++ResearchInvestments[pnum][resid];
-					TakeInventory("Credit", cost);
+					TakeCredit(cost);
 					ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, resid, ResearchInvestments[pnum][resid]);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
@@ -4633,14 +4629,14 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			// flat and % dmg block
 			int i;
-			for(i = DND_TALENT_BEGIN; i < DND_TALENT_END; ++i) {
+			for(i = DND_DAMAGECATEGORY_BEGIN; i < DND_DAMAGECATEGORY_END; ++i) {
 				val = GetDamageTypeBonus(pnum, i);
 				if(val) {
 					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGEBONUS", s:"\n");
 					++k;
 				}
 				
-				val = MapTalentToFlatBonus(pnum, i, 0);
+				val = MapDamageCategoryToFlatBonus(pnum, i, 0);
 				if(val) {
 					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"\c- to ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGE", s:"\n");
 					++k;

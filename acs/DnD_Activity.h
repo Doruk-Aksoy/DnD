@@ -25,7 +25,6 @@ typedef struct {
 	int credit;
 	int budget;
 	int level;
-	int talent_point;
 	int perk_change[DND_MAX_PERKS];
 	int attribute_change[DND_MAX_ATTRIBUTES];
 	int free_perks;
@@ -77,10 +76,7 @@ enum {
 void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite = false, bool removeBit = false) {
 	switch(activity) {
 		case DND_ACTIVITY_EXP:
-			if(val > 0)
-				PlayerActivities[pnum].exp += val;
-			else
-				PlayerActivities[pnum].exp = -val;
+			PlayerActivities[pnum].exp = val;
 		break;
 		case DND_ACTIVITY_CREDIT:
 			PlayerActivities[pnum].credit += val;
@@ -91,14 +87,13 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 		case DND_ACTIVITY_LEVEL:
 			PlayerActivities[pnum].level += val;
 		break;
-		case DND_ACTIVITY_TALENT:
-			PlayerActivities[pnum].talent_point += val;
-		break;
 		case DND_ACTIVITY_PERK:
 			PlayerActivities[pnum].perk_change[extra] += val;
+			printbold(s:"activity for perk ", d:extra, s: " became ", d:PlayerActivities[pnum].perk_change[extra]);
 		break;
 		case DND_ACTIVITY_ATTRIBUTE:
 			PlayerActivities[pnum].attribute_change[extra] += val;
+			printbold(s:"activity for attribute ", d:extra, s: " became ", d:PlayerActivities[pnum].attribute_change[extra]);
 		break;
 		case DND_ACTIVITY_PERKPOINT:
 			PlayerActivities[pnum].free_perks += val;
@@ -174,7 +169,6 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 	PlayerActivities[pnum].credit = 0;
 	PlayerActivities[pnum].budget = 0;
 	PlayerActivities[pnum].level = 0;
-	PlayerActivities[pnum].talent_point = 0;
 	PlayerActivities[pnum].free_perks = 0;
 	PlayerActivities[pnum].free_attributes = 0;
 	
@@ -199,7 +193,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 	PlayerActivities[pnum].orb_change.orb_stat_bonuses.drop_chance = 0;
 	PlayerActivities[pnum].orb_change.orb_stat_bonuses.holding = 0;
 
-	for(i = 0; i < MAX_TALENTS; ++i)
+	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
 		PlayerActivities[pnum].orb_change.orb_stat_bonuses.damage_type_bonus[i] = 0;
 
 	for(i = 0; i < MAXWEPS; ++i) {

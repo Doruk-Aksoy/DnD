@@ -12,7 +12,7 @@ typedef struct {
 	
 	int luck; // this is in fixed!
 	
-	int damage_type_bonus[MAX_TALENTS];
+	int damage_type_bonus[MAX_DAMAGE_CATEGORIES];
 } elixir_stat_T;
 
 global elixir_stat_T 16: Player_Elixir_Bonuses[MAXPLAYERS];

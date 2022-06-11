@@ -274,8 +274,13 @@ Script "DnD On Death" DEATH {
 				ACS_NamedExecuteAlways("DND Database Reset On Death", 0, pnum);
 				ResetPlayerActivities(pnum, false);
 			}
-			else if(i == DND_MODE_SOFTCORE)
+			else if(i == DND_MODE_SOFTCORE) {
+				// decrease player gained exp
+				int exp = GetStat(STAT_EXP);
+				int lvl = GetStat(STAT_LVL);
+				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, INT_MAX), 0);
 				ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, false);
+			}
 			else
 				ResetHardcoreStuff(pnum);
 		}
@@ -561,13 +566,13 @@ Script "DnD Hit Blend" (int blend_id) {
 	while(!PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum])
 		Delay(const:1);
 	
-	int amt = CheckInventory("DnD_DamageReceived");
+	int amt = PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum];
 	if(!amt)
 		Terminate;
 		
 	// and since blend scripts run twice, this had to be done... pass along the accumulated data and overwrite for next use
 	SetInventory("DnD_DamageFade", amt);
-	SetInventory("DnD_DamageReceived", 0);
+	PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = 0;
 	
 	PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
 	
@@ -814,6 +819,10 @@ Script "DND On Kill" KILL {
 	if(MonsterProperties[m_id].level > 1) {
 		exptemp += exptemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
 		credtemp += credtemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
+		
+		// reduce by 18% every 15 levels up to level 75, its basically what we did but smoother
+		addone = Clamp_Between(MonsterProperties[m_id].level, 1, 75);
+		credtemp = credtemp * (100 - 18 * (addone / 15)) / 100;
 	}
 	
 	// if full share is on we won't divide by player count, but if it isn't we will
@@ -1157,11 +1166,16 @@ Script "DND Show Kill Digits" (int tid, int exp, int credit) CLIENTSIDE {
 Script 832 (void) {
 	int statpts = Calculate_Stats();
 	int perkpts = Calculate_Perks();
+	int pnum = PlayerNumber();
 	Reset_RPGInfo(RESET_STATS | RESET_PERKS);
-	StatListOpened[PlayerNumber()] = 0;
+	StatListOpened[pnum] = 0;
+	
 	// don't use set here, it removes unallocated pts
 	GiveInventory("AttributePoint", statpts);
 	GiveInventory("PerkPoint", perkpts);
+	
+	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, statpts, 0);
+	UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, perkpts, 0);
 }
 
 // Weapon pickup checks, bulkiness armor check and agamotto check
@@ -1768,9 +1782,7 @@ Script 918 (int type, int acc, int notarget) {
 		}
 	}
 	else if(type == 3) { // talents
-		if(notarget)
-			SetActivator(0, AAPTR_TARGET);
-		res = CheckInventory(TalentNames[acc]);
+		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 3");
 	}
 	else if(type == 4) { // dexterity
 		if(notarget)
@@ -2490,7 +2502,7 @@ Script "DnD Ankh Checker" (void) {
 }
 
 Script "DnD Player Levelup Check" (void) {
-	HandleLevelup();
+	HandleLevelup(PlayerNumber());
 }
 
 // Weapon tip display
@@ -3108,10 +3120,13 @@ Script "DnD Player Setup" ENTER {
 			// the above reset actual items of player, the below resets variables used to denote inventories and such
 			ResetPlayerInfo(pnum);
 			
+			ACS_NamedExecuteAlways("DnD Created Chars Display", 0, pnum);
 			ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
 		}
-		else
+		else {
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
+			UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
+		}
 		
 		// 0 means they are ready
 		int players_not_ready = PlayersNotReadyForHardcore();
@@ -4063,7 +4078,7 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 	SetResultValue(0);
 }
 
-Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
+Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) {
 	int isSpecial = flags & DND_WDMG_ISSPECIALAMMO;
 	int wepid = dmgid >> 16;
 	dmgid &= 0xFFFF;
@@ -4080,31 +4095,8 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int talent_type, int flags) {
 		SetResultValue(0);
 		Terminate;
 	}
-	
-	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
-	// add +1 because flechette is id 0
-	if(isSpecial) {
-		isSpecial = dmgid + 1;
-		dmgid = wepid;
-		wepid = CheckInventory("DnD_WeaponID");
-	}
-	
-	//printbold(s:"retrieved acc ", d:GetActorProperty(0, APROP_ACCURACY));
 
-	int pnum = PlayerNumber();
-	int res = ScaleCachedDamage(wepid, pnum, dmgid, talent_type, flags, isSpecial);
-	
-	// special weapons checks -- these are added on top of everything else as the last thing, before crits
-	// they are also dynamic and cant be cached...
-	if(wepid == DND_WEAPON_LIGHTNINGGUN)
-		res = res * (100 + DND_LIGHTNINGGUN_DMGPERSTACK * CheckInventory("LightningStacks")) / 100;
-	else if(wepid == DND_WEAPON_DUSKBLADE)
-		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
-	
-	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || proj_crit)
-		res = ConfirmedCritFactor(res);
-	
-	SetResultValue(res);
+	SetResultValue(RetrieveWeaponDamage(PlayerNumber(), wepid, dmgid, damage_category, flags, isSpecial, proj_crit));
 }
 
 Script "DnD Get Melee Range Increase" (int use_target) {
@@ -4114,7 +4106,7 @@ Script "DnD Get Melee Range Increase" (int use_target) {
 }
 
 // Used mainly for non-weapons (like artifacts, spells and so on)
-Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
+Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 	int temp, temp2;
 	
 	AdjustDamageRetrievePointers(flags);
@@ -4127,12 +4119,12 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = SpellDamageTable[dmg].dmg;
 	}
 	
-	dmg += (!isSpell) * MapTalentToFlatBonus(pnum, talent_type, flags);
+	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
 	
-	if(talent_type == TALENT_MELEE || (flags & DND_WDMG_ISMELEE))
+	if(damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE))
 		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
 		
-	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT) // is occult (add demon bane bonus)
+	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
 		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 		
 	if(flags & DMG_WDMG_ISARTIFACT)
@@ -4142,18 +4134,18 @@ Script "DND Player Damage Scale" (int dmg, int talent_type, int flags) {
 		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetBulkiness()) / 100;
 		
 	// attribute bonus
-	if((flags & DND_WDMG_ISOCCULT) || talent_type == TALENT_OCCULT || isSpell)
+	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
 		dmg = dmg * (100 + DND_INT_GAIN * GetIntellect()) / 100;
 	else
 		dmg = dmg * (100 + GetBonusFromDexterity()) / 100;
 	
 	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
-	if((talent_type == TALENT_MELEE || talent_type == TALENT_BULLET) && temp) {
+	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp) {
 		temp = GetFlatHealthDamageFactor(temp);
 		dmg = dmg * (100 + temp) / 100;
 	}
 	
-	temp =  GetPlayerPercentDamage(pnum, -1, talent_type);
+	temp =  GetPlayerPercentDamage(pnum, -1, damage_category);
 	if(temp && !isSpell)
 		dmg = dmg * (100 + temp) / 100;
 		
@@ -4687,8 +4679,8 @@ Script "DND Thunderstaff Bolts" (void) {
 		
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
-		
+		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE, 0, 0);
+
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid) {
 				// store damage in tcount, in case we crit we need to restore it afterwards
@@ -4756,9 +4748,9 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
-	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_THUNDERSTAFF << 16), TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
-	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	int pnum = PlayerNumber();
+	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE, 0, 0);
+	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	
 	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
@@ -4863,10 +4855,10 @@ Script "DnD Gravdis Thrust" (int pull_count, int force) {
 }
 
 Script "DnD Gravdis Debuff" (int base_dmg) {
+	bool proj_crit = !ActivatorTID() && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int i, m_id;
-		
-	int dmg = ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_GRAVDIS << 16), TALENT_BULLET, DND_WDMG_USETARGET | DND_WDMG_ISSLOT5);
+	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, DND_WDMG_USETARGET | DND_WDMG_ISSLOT5, 0, proj_crit);
 	bool got_one = false;
 	
 	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
@@ -5666,7 +5658,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	// now get player damage bonus stuff included
 	SetActivator(master);
 	int pnum = PlayerNumber();
-	res += MapTalentToFlatBonus(pnum, TALENT_OCCULT, flags);
+	res += MapDamageCategoryToFlatBonus(pnum, DND_DAMAGECATEGORY_OCCULT, flags);
 	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	// talent bonus
 	res = res * (100 + DND_INT_GAIN * GetIntellect()) / 100;
@@ -5678,9 +5670,9 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * (100 + temp) / 100;
 	}
 		
-	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, TALENT_OCCULT) + 
-			MapTalentToPercentBonus(pnum, TALENT_OCCULT) +
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[TALENT_OCCULT];
+	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT) + 
+			MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT) +
+			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_OCCULT];
 	if(temp)
 		res = res * (100 + temp) / 100;
 		
@@ -6553,11 +6545,11 @@ Script 68 (int x) NET {
 		ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
 	}
 	else if(x == 420) {
-		//SpawnCharm(0, true);
+		SpawnCharm(0, true);
 		SpawnOrbForAll(1, random(40, 120));
-		SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
+		//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 		//SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
-		SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
+		//SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
 		/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

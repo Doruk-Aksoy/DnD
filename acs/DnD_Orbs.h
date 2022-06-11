@@ -374,11 +374,27 @@ enum {
 
 #define RICHES_AMOUNT 0
 #define RICHES_WEIGHTS 1
-int OrbRichesData[MAX_RICHES][2] = {
+/*int OrbRichesData[MAX_RICHES][2] = {
 	{ 5, 2 },
 	{ 5, 9 },
 	{ 5, 10 }
-};
+};*/
+
+int GetOrbRichesData(int data, int id) {
+	if(!id)
+		return 5;
+	
+	switch(data) {
+		case RICHES_EXP:
+		return 2;
+		case RICHES_CREDIT:
+		return 9;
+		case RICHES_BUDGET:
+		return 10;
+	}
+	
+	return 0;
+}
 
 bool CanAddModToItem(int itemtype, int item_index, int add_lim) {
 	bool res = false;
@@ -445,7 +461,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1) != GREEDORB_MAX;
 		break;
 		case DND_ORB_VIOLENCE:
-			for(i = TALENT_BULLET; i < MAX_TALENTS && !res; ++i)
+			for(i = DND_DAMAGECATEGORY_MELEE; i < MAX_DAMAGE_CATEGORIES && !res; ++i)
 				if(GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i) != VIOLENCEORB_MAX)
 					res = true;
 		break;
@@ -672,7 +688,14 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			//res |= s;
 			// got from 0 to 5 in res
 			res |= temp;
-			temp = random(SINORB_OPT_BEGIN, SINORB_OPT_END);
+			temp = SINORB_PERK;
+			//temp = random(SINORB_OPT_BEGIN, SINORB_OPT_END);
+			// 6 4 2 1 2 4
+			// 1 deadli
+			// -----
+			// 3 4 2 0 1 1
+			// 1 brut 1 medic 1 dead
+			
 			Player_MostRecent_Orb[pnum].values[2] = s;
 			Player_MostRecent_Orb[pnum].values[2] |= temp << 5;
 			res |= temp << 8;
@@ -683,13 +706,13 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_RICHES:
 			do {
 				temp = random(1, MAX_RICHES_WEIGHT);
-				for(i = 0; i < MAX_RICHES && temp > OrbRichesData[i][RICHES_WEIGHTS]; ++i);
+				for(i = 0; i < MAX_RICHES && temp > GetOrbRichesData(i, RICHES_WEIGHTS); ++i);
 			} while(
 				(i == 0 && CheckInventory("Level") == 100) ||
 				(i == 1 && CheckInventory("Credit") == 0x7fffffff) ||
 				(i == 2 && CheckInventory("Budget") == 1000));
 
-			res = GetAffluenceBonus() * OrbRichesData[i][RICHES_AMOUNT];
+			res = GetAffluenceBonus() * GetOrbRichesData(i, RICHES_AMOUNT);
 			Player_MostRecent_Orb[pnum].values[0] = i;
 			Player_MostRecent_Orb[pnum].values[1] = res;
 			if(!i)
@@ -697,12 +720,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			else if(i == 1) {
 				res = Max(2000, (CheckInventory("Credit") / 100) * res);
 				GiveCredit(res);
-				UpdateActivity(pnum, DND_ACTIVITY_CREDIT, res, -1);
 			}
-			else if(i == 2) {
+			else if(i == 2)
 				GiveBudget(res);
-				UpdateActivity(pnum, DND_ACTIVITY_BUDGET, res, -1);
-			}
 			res |= i << 30;
 			SetInventory("OrbResult", res);
 		break;
@@ -802,8 +822,17 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			}
 			
 			// will pick anywhere from half of max affix count of a charm to max affix count + 1
-			s = random(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] / 2, Min(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] + 1, temp));
-			// printbold(s:"start picking ", d:s, s: " attribs with ", d:temp, s: " unique attributes");
+			// if we don't have at least half of affix count of item on total sum of mods, we'll pick between 1 and the sum instead
+			if(temp < Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] / 2)
+				s = random(1, temp);
+			else
+				s = random(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] / 2, Min(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] + 1, temp));
+			
+			/*printbold(
+				s:"start picking ", d:s, s: " attribs with ", d:temp, s: " unique attributes (random from ",
+				d:Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] / 2, s: " ", 
+				d:Min(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] + 1, temp)
+			);*/
 			
 			temp = 0;
 			
@@ -1009,48 +1038,45 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 }
 
 //WORKAROUND: Function arrays are not supported. See: tracker/view.php?id=2472&nbn=5)
-int perk_indexes[DND_PERKS];
-int stat_indexes[6];
+//int perk_indexes[DND_PERKS];
+//int stat_indexes[6];
 
 int HandleSinOrbBonus(int type) {
 	int temp, loop = 0, i;
 	int pnum = PlayerNumber();
 	switch(type) {
 		case SINORB_STAT:
-			// give random stat points
-			int stat_indexes_left = 6;
-			stat_indexes[0] = STAT_STR;
-			stat_indexes[1] = STAT_DEX;
-			stat_indexes[2] = STAT_BUL;
-			stat_indexes[3] = STAT_CHR;
-			stat_indexes[4] = STAT_VIT;
-			stat_indexes[5] = STAT_INT;
-			 //Make sure the full 32-bit range is used
+			loop = DND_MAX_ATTRIBUTES;
+			//Make sure the full 32-bit range is used
 			//printbold(s:"starting vals - stats: ", d:Player_MostRecent_Orb[pnum].values[3], s:", ", d:Player_MostRecent_Orb[pnum].values[4]);
 			for(i = 0; i < GetAffluenceBonus() * SINORB_STATGIVE; ++i) {
-				while(stat_indexes_left > 0) {
-					temp = random(0, stat_indexes_left-1);
-					if (GetStat(stat_indexes[temp]) < DND_STAT_FULLMAX)
+				while(loop > 0) {
+					temp = random(0, DND_MAX_ATTRIBUTES - 1);
+					if (GetStat(DND_ATTRIB_BEGIN + temp) < DND_STAT_FULLMAX)
 						break;
-					stat_indexes[temp] = stat_indexes[--stat_indexes_left];
+					--loop;
+					// what is this for?
+					// stat_indexes[temp] = stat_indexes[--loop];
 				}
-				if (stat_indexes_left > 0) {
-					GiveStat(stat_indexes[temp], 1);
+				if (loop > 0) {
+					GiveStat(DND_ATTRIB_BEGIN + temp, 1);
 					// 6 stats, can give max of 64 on 1 stat. 8 x 6 = 48 bits needed. 2 ints
-					if(stat_indexes[temp] < STAT_INT)
-						Player_MostRecent_Orb[pnum].values[3] += pow(65, stat_indexes[temp]);
+					if(DND_ATTRIB_BEGIN + temp < STAT_INT)
+						Player_MostRecent_Orb[pnum].values[3] += pow(65, DND_ATTRIB_BEGIN + temp);
 					else
 						Player_MostRecent_Orb[pnum].values[4] += 1;
 				}
 				else {
-					GiveInventory("StatPoint", 1);
+					GiveInventory("AttributePoint", 1);
+					UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, 1, -1);
 					Player_MostRecent_Orb[pnum].values[4] += 65;
 				}
 			}
 			//printbold(s:"ending vals - stats: ", d:Player_MostRecent_Orb[pnum].values[3], s:", ", d:Player_MostRecent_Orb[pnum].values[4]);
 		return SINORB_STATGIVE;
 		case SINORB_PERK:
-			int perk_indexes_left = DND_PERKS;
+			loop = DND_MAX_PERKS;
+			/*int perk_indexes_left = DND_PERKS;
 			perk_indexes[0] = STAT_SHRP;
 			perk_indexes[1] = STAT_END;
 			perk_indexes[2] = STAT_WIS;
@@ -1059,20 +1085,21 @@ int HandleSinOrbBonus(int type) {
 			perk_indexes[5] = STAT_MUN;
 			perk_indexes[6] = STAT_DED;
 			perk_indexes[7] = STAT_SAV;
-			perk_indexes[8] = STAT_LUCK;
+			perk_indexes[8] = STAT_LUCK;*/
 			for(i = 0; i < GetAffluenceBonus() * SINORB_PERKGIVE; ++i) {
-				while(perk_indexes_left > 0) {
-					temp = random(0, perk_indexes_left - 1);
+				while(loop > 0) {
+					temp = random(0, DND_MAX_PERKS - 1);
 					//printbold(s:"temp: ",d:temp,s:"perk: ",d:perk_indexes[temp],s:"left: ",d:perk_indexes_left);
-					if (GetStat(perk_indexes[temp]) < DND_PERK_MAX)
+					if (GetStat(DND_PERK_BEGIN + temp) < DND_PERK_MAX)
 						break;
-					perk_indexes[temp] = perk_indexes[--perk_indexes_left];
+					// perk_indexes[temp] = perk_indexes[--perk_indexes_left];
+					--loop;
 				}
-				if (perk_indexes_left > 0) {
-					GiveStat(perk_indexes[temp], 1);
+				if (loop > 0) {
+					GiveStat(DND_PERK_BEGIN + temp, 1);
 					// int_max is 10 digits, max give is 16
-					if (perk_indexes[temp] < STAT_LUCK)
-						Player_MostRecent_Orb[pnum].values[3] += pow(11, perk_indexes[temp] - DND_PERK_BEGIN);
+					if (DND_PERK_BEGIN + temp < STAT_LUCK)
+						Player_MostRecent_Orb[pnum].values[3] += pow(11, temp);
 					else
 						Player_MostRecent_Orb[pnum].values[4] += 1;
 				} else {
@@ -1228,13 +1255,14 @@ void UndoSinOrbEffect() {
 			Player_MostRecent_Orb[pnum].values[4] /= 65;
 			//Remove allocated stats randomly until enough perk points are available
 			//Unlike the orb of sin use, there's no way to have less stats then the ones being taken - thus loop can be simpler
-			
-			while (CheckInventory("StatPoint") < (Player_MostRecent_Orb[pnum].values[4] % 65)) {
+			while (CheckInventory("AttributePoint") < (Player_MostRecent_Orb[pnum].values[4] % 65)) {
 				temp = random(STAT_STR, STAT_INT);
 				if (GetStat(temp) > 0) {
 					TakeStat(temp, 1);
-					GiveInventory("StatPoint", 1); }}
-			TakeInventory("StatPoint", Player_MostRecent_Orb[pnum].values[4]);
+					GiveInventory("AttributePoint", 1);
+				}
+			}
+			TakeInventory("AttributePoint", Player_MostRecent_Orb[pnum].values[4]);
 		break;
 		case SINORB_PERK:
 			for(i = DND_PERK_BEGIN; i < STAT_LUCK-1; ++i) {
@@ -1256,8 +1284,6 @@ void UndoSinOrbEffect() {
 			}
 			TakeInventory("PerkPoint", Player_MostRecent_Orb[pnum].values[4]);
 			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, -Player_MostRecent_Orb[pnum].values[4], -1);
-			// after operation perk checks
-			UpdatePerkStuff();
 		break;
 		case SINORB_CRIT:
 			//printbold(d: Player_MostRecent_Orb[pnum].val5, s: " ", f:Player_Weapon_Infos[pnum][Player_MostRecent_Orb[pnum].val5].WEP_MODes[WEP_MOD_CRIT].amt, s: " ", f:Player_MostRecent_Orb[pnum].val4);
@@ -1281,7 +1307,8 @@ int PickRandomOrb() {
 }
 
 int PickRandomTalent() {
-	return random(TALENT_BULLET, MAX_TALENTS - 1);
+	// first to last
+	return random(DND_DAMAGECATEGORY_MELEE, DND_DAMAGECATEGORY_ELEMENTAL);
 }
 
 int PickRandomStat() {
@@ -1875,7 +1902,7 @@ void ResetOrbData(int pnum) {
 	Player_Orb_Data[pnum].orb_stat_bonuses.drop_chance = 0;
 	Player_Orb_Data[pnum].orb_stat_bonuses.holding = 0;
 	
-	for(i = 0; i < MAX_TALENTS; ++i)
+	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
 		Player_Orb_Data[pnum].orb_stat_bonuses.damage_type_bonus[i] = 0;
 	
 	// reset orb stats affecting players' weapons

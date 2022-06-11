@@ -430,7 +430,7 @@ Actor PlasmaBallX : DnD_BaseProjectile {
 			PLSS AAABBB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMARIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_PLASMARIFLE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMARIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_PLASMARIFLE)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			PLSE ABCDE 4 Bright
@@ -453,7 +453,7 @@ Actor NewPlasmaExp : DnD_ExplosiveBase {
 	+FORCERADIUSDMG
 	States {
 		SpawnState:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NUCLEARPLASMARIFLE << 16), TALENT_EXPLOSIVE, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NUCLEARPLASMARIFLE << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_expradius", 48)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
@@ -478,7 +478,7 @@ Actor NewPlasmaBall : PlasmaBallX {
 			BFLR AB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NUCLEARPLASMARIFLE << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_NUCLEARPLASMARIFLE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NUCLEARPLASMARIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_NUCLEARPLASMARIFLE)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 A 0 A_SpawnItem("NewPlasmaExplosion")
@@ -647,7 +647,7 @@ Actor TurelPuff1 : DnD_BaseRailPuff {
 	+FORCEXYBILLBOARD
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_TURELCANNON << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_TURELCANNON << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_TURELCANNON)
@@ -664,7 +664,7 @@ Actor TurelPuff1 : DnD_BaseRailPuff {
 Actor TurelPuff2 : TurelPuff1 {
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_TURELCANNON << 16), TALENT_ENERGY, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_TURELCANNON << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_TURELCANNON)
@@ -868,7 +868,7 @@ Actor NailProjectile : DnD_BaseProjectile {
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ A 0 A_PlaySound("Weapons/NailRic")
@@ -890,7 +890,7 @@ Actor NailProj_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
 		Death:
 			TNT1 A 1
 		Stop
@@ -928,7 +928,7 @@ Actor NailExplosion : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 1
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NAILGUN << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_expradius", 32)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTFIRE | (DND_WEAPON_NAILGUN << 16))
@@ -958,7 +958,7 @@ Actor LavaNailProjectile : NailProjectile {
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
 	    Death:
 			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1197,7 +1197,7 @@ ACTOR BasiliskBall : DnD_BaseFastProjectile {
 			BMIS A -1 Bright
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BASILISK << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			IMFX QRSTUVW 3 Bright
@@ -1219,14 +1219,14 @@ ACTOR BasiliskBall2 : DnD_ExplosiveBase {
 			BASF AB 3 Bright A_SpawnItemEx("BasiliskPuff",0,0,0,0,0,0,0,8)
 		loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BASILISK << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
 		Death:
 			TNT1 A 0 A_SetTranslucent(0.85, 1)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BASILISK << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_expradius", 96)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
@@ -1260,7 +1260,7 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 			HIB1 AB 3 Bright
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BASILISK << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
 		Death:
 			TNT1 A 0 A_SetTranslucent(0.75,1)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
@@ -1268,7 +1268,7 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 			TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 A 0 A_SetDamageType("MagicFireExp")
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_BASILISK << 16), TALENT_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_expradius", 32)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTFIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
@@ -1436,7 +1436,7 @@ Actor FrostFangShard : DnD_BaseProjectile {
 			FFSD AAABBBCCC 1 Bright A_SpawnItemEx("FrostFangFog", -(MomX/1.4), -(MomY/1.4), (MomZ/1.4*-1), (MomX/1.4), (MomY/1.4), (MomZ/1.4), -Angle, 138)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FFSD DEFGH 5 Bright
 		Stop
@@ -1455,7 +1455,7 @@ Actor FrostFangShard_Glowing : FrostFangShard {
 			FX39 HIJ 3 Bright
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FX39 DEFG 3 Bright
 		Stop
@@ -1526,7 +1526,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FFBL CDEFG 4 Bright
 		Stop
@@ -1546,7 +1546,7 @@ Actor FrostFangBall_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), TALENT_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			TNT1 A 1
 		Stop
@@ -1962,7 +1962,7 @@ Actor RhinoShooter2 : DnD_Activator {
 Actor RhinoPuff : DnD_BasePuff {
 	States {
 		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RHINORIFLE << 16), TALENT_BALLISTIC, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RHINORIFLE << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_RHINORIFLE)

@@ -78,16 +78,6 @@ int GetExpLimit_Level(int lvl) {
 	return LevelCurve[lvl - 1];
 }
 
-str TalentNames[MAX_TALENTS] = {
-	"Talent_Ballistic",
-	"Talent_Melee",
-	
-	"Talent_Energy",
-	"Talent_Explosive",
-	"Talent_Occult",
-    "Talent_Elemental"
-};
-
 str GetTalentTag(int id) {
 	return StrParam(s:"DND_TALENT", d:id + 1);
 }
@@ -345,11 +335,39 @@ void GiveStat(int stat_id, int amt) {
 	
 	if(lim == DND_STAT_FULLMAX)
 		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
-	else if(lim == DND_PERK_MAX)
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id);
+	else if(lim == DND_PERK_MAX) {
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id - DND_PERK_BEGIN);
+		UpdatePerkStuff(stat_id);
+	}
+
+	// visual updates
+	if(stat_id == STAT_STR || stat_id == STAT_BUL) {
+		UpdatePlayerKnockbackResist();
+		UpdateArmorVisual();
+	}
+	else if(stat_id == STAT_VIT)
+		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+}
+
+// Takes a stat from the player, also removing effects of it
+void TakeStat(int stat_id, int amt) {
+	printbold(s:"take stat ", d:stat_id, s: " amt: ", d:amt);
+	TakeInventory(StatData[stat_id], amt);
+	
+	if(stat_id <= DND_ATTRIB_END)
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, -amt, stat_id);
+	else if(stat_id <= DND_PERK_END) {
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, -amt, stat_id - DND_PERK_BEGIN);
+		UpdatePerkStuff(stat_id);
+	}
 		
-	UpdatePlayerKnockbackResist();
-	UpdateArmorVisual();
+	// visual updates
+	if(stat_id == STAT_STR || stat_id == STAT_BUL) {
+		UpdatePlayerKnockbackResist();
+		UpdateArmorVisual();
+	}
+	else if(stat_id == STAT_VIT)
+		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 }
 
 int GetBonusFromDexterity() {
@@ -464,11 +482,26 @@ void GiveCredit(int amt) {
 	GiveInventory("Credit", amt);
 	GiveInventory("LevelCredit", amt);
 	GiveInventory("DnD_RefreshRequest", 1);
+	GiveInventory("DnD_MoneySpentQuest", amt);
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_CREDIT, amt, 0);
+}
+
+void TakeCredit(int amt) {
+	TakeInventory("Credit", amt);
+	GiveInventory("DnD_RefreshRequest", 1);
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_CREDIT, -amt, 0);
 }
 
 void GiveBudget(int amt) {
 	GiveInventory("Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
 	GiveInventory("DnD_RefreshRequest", 1);
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, amt, 0);
+}
+
+void TakeBudget(int amt) {
+	TakeInventory("Budget", amt);
+	GiveInventory("DnD_RefreshRequest", 1);
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, -amt, 0);
 }
 
 void GiveActorBudget(int tid, int amt) {
@@ -483,18 +516,15 @@ void GiveActorCredit(int tid, int amt) {
 }
 
 void ConsumeAttributePointOn(int stat, int amt) {
-	GiveInventory(StatData[stat], amt);
+	GiveStat(stat, amt);
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, -amt, 0);
 	TakeInventory("AttributePoint", amt);
 }
 
 void ConsumePerkPointOn(int perk, int amt) {
-	GiveInventory(StatData[perk], amt);
+	GiveStat(perk, amt);
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERKPOINT, -amt, 0);
 	TakeInventory("PerkPoint", amt);
-	
-	if(perk == STAT_WIS && CheckInventory(StatData[perk]) == DND_PERK_MAX)
-		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
-	else if(perk == STAT_GRE && CheckInventory(StatData[perk]) == DND_PERK_MAX)
-		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
 }
 
 bool ReachedAccessoryLimit() {
@@ -809,20 +839,13 @@ bool HasNoSigilPower() {
 	return !CheckInventory("ElementPower_Fire") && !CheckInventory("ElementPower_Ice") && !CheckInventory("ElementPower_Lightning") && !CheckInventory("ElementPower_Earth");
 }
 
-// Takes a stat from the player, also removing effects of it
-void TakeStat(int stat_id, int amt) {
-	TakeInventory(StatData[stat_id], amt);
-	if(stat_id <= DND_ATTRIB_END)
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, -amt, stat_id);
-	else if(stat_id <= DND_PERK_END)
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, -amt, stat_id);
-		
-	UpdateArmorVisual();
-	UpdatePlayerKnockbackResist();
-}
-
-void UpdatePerkStuff() {
-	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
+void UpdatePerkStuff(int perk) {
+	if(perk == STAT_MED)
+		SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
+	else if(perk == STAT_WIS && CheckInventory(StatData[perk]) == DND_PERK_MAX)
+		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
+	else if(perk == STAT_GRE && CheckInventory(StatData[perk]) == DND_PERK_MAX)
+		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
 }
 
 bool HasKilledLegendary(int id) {
@@ -1026,13 +1049,13 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 			IsSet(GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, wep), power);
 }
 
-int GetPlayerPercentDamage(int pnum, int wepid, int talent_type) {
+int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
 	// stuff that dont depend on a wepid
-	int res = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, talent_type) +
-				MapTalentToPercentBonus(pnum, talent_type) +
-				Player_Elixir_Bonuses[pnum].damage_type_bonus[talent_type];
+	int res = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, damage_category) +
+				MapDamageCategoryToPercentBonus(pnum, damage_category) +
+				Player_Elixir_Bonuses[pnum].damage_type_bonus[damage_category];
 				
-	if(talent_type == TALENT_ENERGY && IsQuestComplete(0, QUEST_ONLYENERGY))
+	if(damage_category == DND_DAMAGECATEGORY_ENERGY && IsQuestComplete(0, QUEST_ONLYENERGY))
 		res += DND_QUEST_ENERGYBONUS;
 				
 	// stuff that do ---- removed orb bonus from here
@@ -1119,18 +1142,18 @@ void ResetHardcoreStuff(int pnum) {
 	}
 }
 
-int MapTalentToFlatBonus(int pnum, int talent, int flags) {
+int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
 	switch(talent) {
-		case TALENT_BULLET:
-		case TALENT_MELEE:
+		case DND_DAMAGECATEGORY_BULLET:
+		case DND_DAMAGECATEGORY_MELEE:
 		return GetPlayerAttributeValue(pnum, INV_FLATPHYS_DAMAGE);
-		case TALENT_OCCULT:
+		case DND_DAMAGECATEGORY_OCCULT:
 		return GetPlayerAttributeValue(pnum, INV_FLATMAGIC_DAMAGE);
-		case TALENT_EXPLOSIVE:
+		case DND_DAMAGECATEGORY_EXPLOSIVES:
 		return GetPlayerAttributeValue(pnum, INV_FLATEXP_DAMAGE);
-		case TALENT_ENERGY:
+		case DND_DAMAGECATEGORY_ENERGY:
 		return GetPlayerAttributeValue(pnum, INV_FLATENERGY_DAMAGE);
-		case TALENT_ELEMENTAL:
+		case DND_DAMAGECATEGORY_ELEMENTAL:
 			int bonus = 0;
 			if(flags & DND_WDMG_FIREDAMAGE)
 				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
@@ -1145,18 +1168,18 @@ int MapTalentToFlatBonus(int pnum, int talent, int flags) {
 	return 0;
 }
 
-int MapTalentToPercentBonus(int pnum, int talent) {
+int MapDamageCategoryToPercentBonus(int pnum, int talent) {
 	switch(talent) {
-		case TALENT_BULLET:
-		case TALENT_MELEE:
+		case DND_DAMAGECATEGORY_BULLET:
+		case DND_DAMAGECATEGORY_MELEE:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE);
-		case TALENT_OCCULT:
+		case DND_DAMAGECATEGORY_OCCULT:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTMAGIC_DAMAGE);
-		case TALENT_EXPLOSIVE:
+		case DND_DAMAGECATEGORY_EXPLOSIVES:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTEXP_DAMAGE);
-		case TALENT_ENERGY:
+		case DND_DAMAGECATEGORY_ENERGY:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTENERGY_DAMAGE);
-		case TALENT_ELEMENTAL:
+		case DND_DAMAGECATEGORY_ELEMENTAL:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE);
 	}
 	return 0;
@@ -1164,22 +1187,6 @@ int MapTalentToPercentBonus(int pnum, int talent) {
 
 int GetFlatHealthDamageFactor(int factor) {
 	return GetSpawnHealth() / factor;
-}
-
-int GetNonLowestTalents() {
-	// set here the lowest possible talents (for quest)
-	int lowest_talent_amount = TALENT_CAP;
-	int lowest_talents = 0;
-	for(int i = 0; i < MAX_TALENTS; ++i) {
-		int talent_amount = CheckInventory(TalentNames[i]);
-		if(talent_amount < lowest_talent_amount) {
-			lowest_talent_amount = talent_amount;
-			lowest_talents = (1 << i);
-		} else if(talent_amount == lowest_talent_amount) { // There can be more than 1 lowest talent (specially if char is new or OP).
-			lowest_talents |= (1 << i);
-		}
-	}
-	return 0xFF ^ lowest_talents; // To get non-lowest talents, do a ~ (for some reason ~ bugs here, so I just used 0xFF ^ and it works).
 }
 
 #define DND_BASE_OVERLOADTICK 5

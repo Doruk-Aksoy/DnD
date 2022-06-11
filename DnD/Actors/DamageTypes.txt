@@ -22,6 +22,16 @@ enum {
 	DND_DAMAGETYPE_SOUL
 };
 
+enum {
+	DND_DAMAGECATEGORY_MELEE,
+	DND_DAMAGECATEGORY_BULLET,
+	DND_DAMAGECATEGORY_ENERGY,
+	DND_DAMAGECATEGORY_EXPLOSIVES,
+	DND_DAMAGECATEGORY_OCCULT,
+	DND_DAMAGECATEGORY_ELEMENTAL,
+	DND_DAMAGECATEGORY_SOUL
+};
+
 // the following are used to encode hints on the damage type for projectiles with some special flags using Stamina property
 enum {
 	DND_DAMAGETYPEFLAG_PHYSICAL = 1,

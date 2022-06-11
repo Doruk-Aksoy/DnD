@@ -75,7 +75,7 @@ void HandleElixirUse(int eid) {
 			SyncClientsideVariable_Elixir(pnum, DND_SYNC_SPEED, -1);
 		break;
 		case DND_ELIXIR_DAMAGE:
-			for(int i = 0; i < MAX_TALENTS; ++i) {
+			for(int i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
 				Player_Elixir_Bonuses[pnum].damage_type_bonus[i] += PERCENT_ELIXIR_AMOUNT;
 				SyncClientsideVariable_Elixir(pnum, DND_SYNC_DAMAGEBULLET + i, -1);
 			}
@@ -129,7 +129,7 @@ void ResetPlayerElixirBonuses(int pnum) {
 	Player_Elixir_Bonuses[pnum].armor_percent_bonus = 0;
 	Player_Elixir_Bonuses[pnum].speed_bonus = 0;
 	Player_Elixir_Bonuses[pnum].luck = 0;
-	for(int i = 0; i < MAX_TALENTS; ++i)
+	for(int i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
 		Player_Elixir_Bonuses[pnum].damage_type_bonus[i] = 0;
 }
 

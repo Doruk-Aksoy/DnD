@@ -6,10 +6,11 @@
 
 enum {
 	DND_STATISTIC_DAMAGEDEALT,
-	DND_STATISTIC_DAMAGETAKEN,
+	DND_STATISTIC_DAMAGETAKEN
 };
 
 // returns the statistic in a properly formatted way respecting millions count
+// todo: make these use arrays and sync with clients when showing in scoreboard
 str GetStatistic(int stat, int tid = 0) {
 	if(!tid)
 		tid = ActivatorTID();

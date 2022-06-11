@@ -17,16 +17,6 @@
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
 
-// for now allocate slots for 10
-#define MAX_SCRIPT_TRACK 10
-
-enum {
-	DND_SCRIPT_EXPTRACKER,
-	DND_SCRIPT_BLEND
-};
-
-global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
-
 enum {
 	PAINBLEND_RED,
 	PAINBLEND_GREEN,
@@ -281,7 +271,7 @@ void Reset_RPGInfo (int resetflags) {
 	}
 }
 
-int CheckLevelUp (void) {
+int CheckLevelUp (int pnum) {
 	int prevlvl = GetStat(STAT_LVL), exptemp;
 	int currlvl;
 	// -1 because initial level is 1
@@ -290,6 +280,7 @@ int CheckLevelUp (void) {
 		exptemp = GetStat(STAT_EXP) - LevelCurve[currlvl - 1];
 		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
 			GiveInventory("PerkPoint", 1);
+			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
 			GiveInventory("PerkedUp", 1);
 			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
 		}
@@ -302,18 +293,21 @@ int CheckLevelUp (void) {
 		GiveInventory("Level", 1);
 		SetInventory("Exp", exptemp);
 		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
+		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
+		
+		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
+		UpdateActivity(pnum, DND_ACTIVITY_LEVEL, 1, 0);
 	}
 	return GetStat(STAT_LVL) - prevlvl;
 }
 
-void HandleLevelup() {
+void HandleLevelup(int pnum) {
 	int prevlvl = CheckInventory("Level");
-	if(CheckLevelUp()) {
+	if(CheckLevelUp(pnum)) {
 		LocalAmbientSound("RPG/LevelUp", 127);
 		GiveInventory("LevelUpEffectSpawner", 1);
 		GiveInventory("LeveledUp", 1);
 		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
-		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
 		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
 			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
 			
@@ -342,6 +336,8 @@ void HandleLevelup() {
 		else
 			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
 	}
+	
+	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
 }
 
 int DnD_BonusMessageY(int bonustype) {
