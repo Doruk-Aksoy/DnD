@@ -109,6 +109,82 @@ str StatData[STAT_LVLCRED + 1] = {
 	"LevelCredit",
 };
 
+void HandleHealDependencyCheck() {
+	// Research dependencies
+	if(CheckInventory("Research_Body_Hp_1_Tracker") == GetAmmoCapacity("Research_Body_Hp_1_Tracker") && CheckResearchStatus(RES_BIO1) == RES_NA)
+		GiveResearch(RES_BIO1, true);
+	
+	// Quest records
+	if(active_quest_id == QUEST_HEALFOR500 && !IsQuestComplete(ActivatorTID(), active_quest_id) && CheckInventory("DnD_MasterHealerQuest_HealAmount") >= DND_QUEST_MASTERHEALER_REQ)
+		CompleteQuest(ActivatorTID(), active_quest_id);
+	
+	// Skin O' My Teeth check
+	if(active_quest_id == QUEST_NOHEALINGPICKUP)
+		FailQuest(ActivatorTID());
+}
+
+void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
+	if(useTarget)
+		SetActivatorToTarget(0);
+	int curhp = GetActorProperty(0, APROP_HEALTH);
+	int healthcap = GetSpawnHealth();
+	int bonus = GetHealingBonuses(PlayerNumber());
+	// holds the old amt
+	int toGive = amt, base = amt;
+	// the percentage of spawn health is amt to be given
+	amt = healthcap * amt / 100;
+	// consider healing bonuses from quests
+	amt = amt * (100 + bonus) / 100;
+	
+	// health bonus
+	if(isspecial == 5) {
+		// fixed to always go up to x2 health cap
+		toGive = healthcap * 2 - curhp;
+	}
+	else if(isspecial == 3) {
+		// map toast heal
+		amt = healthcap - curhp;
+	    GiveInventory("HealthBonusX", amt);
+		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
+		GiveInventory("Research_Body_Hp_1_Tracker", amt);
+	    return;
+	}
+	else if(isspecial == 2) { // ubersphere / megasphere
+		toGive /= 100; // get the multiplier for mega / uber
+		toGive = healthcap * toGive - curhp;
+	}
+	else if(isspecial == 1)
+		toGive = amt + healthcap - curhp;
+	else // for anything else (stims, medkits etc)
+	    toGive = healthcap - curhp;
+	
+	if(toGive > amt)
+		toGive = amt;
+	
+	if(CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && !isspecial) {
+		if(curhp < healthcap) { // if my current curhp is less than max
+			GiveInventory("HealthBonusX", toGive);
+			GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
+			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
+
+			if(HasMasteredPerk(STAT_MED) && toGive / 10)
+				HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, ARMORGF_NOPERCENT);
+		}
+        if(toGive < amt)
+            GiveInventory("StoredMedkit", Clamp_Between(amt - toGive, 1, base));
+	}
+	else {
+		GiveInventory("HealthBonusX", toGive);
+		GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
+		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
+		
+		if(HasMasteredPerk(STAT_MED) && toGive / 10)
+			HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, ARMORGF_NOPERCENT);
+	}
+	
+	HandleHealDependencyCheck();
+}
+
 enum {
 	DND_ARMOR_BONUS,
 	DND_ARMOR_GREEN,

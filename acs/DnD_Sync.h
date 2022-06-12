@@ -648,6 +648,10 @@ Script "DND Clientside Item Syncer Special" (int pnum, int var, int to, int extr
 	/*if(ConsolePlayerNumber() != pnum)
 		Terminate;*/
 	Delay(1);
+	/*printbold(
+		s:"calling sync value for pnum ", d:pnum, s:" cpnum: ", d:ConsolePlayerNumber(),
+		s: " params: ", d:var & 0xFF, s: " ", d:extra & 0xFFFF, s: " ", d:extra >> 16, s:" ", d: to, s:" ", d: ((var & 0xFF00) >> 8) | (var & 0xFF0000)
+	);*/
 	SetItemSyncValue(pnum, var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
 	SetResultValue(0);
 }

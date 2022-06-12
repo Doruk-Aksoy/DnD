@@ -2707,6 +2707,95 @@ int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
 	return dmg;
 }
 
+void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
+	if(CheckActorInventory(this, "HateCheck") && target != this && isMonster)
+		GiveActorInventory(target, "HateWeakness", 1);
+	
+	// necro and lightning coil chance
+	int temp = GetActorArmorID(this);
+	if(temp == DND_ARMOR_NECRO && !CheckActorInventory(this, "NecroSpikeCooldown") && !random(0, 2)) {
+		GiveActorInventory(this, "NecroSpikeShooter", 1);
+		GiveActorInventory(this, "NecroSpikeCooldown", 1);
+	}
+	else if(temp == DND_ARMOR_LIGHTNINGCOIL && !CheckActorInventory(this, "LightningCoilCooldown") && !random(0, 3)) {
+		// 25% chance
+		GiveActorInventory(this, "LightningCoilShooter", 1);
+		GiveActorInventory(this, "LightningCoilCooldown", 1);
+	}
+	
+	// player heal on hit check -- target is 0 if we are the target, but the extra check in there is for safety
+	temp = GetPlayerAttributeValue(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN);
+	if(temp && target && target != this) {
+		// roll chance
+		// upper 16 bits hold the chance
+		if(random(1, 100) <= (temp >> 16)) {
+			// heal for missing health
+			GiveActorInventory(this, "VeilHealFXSpawner", 1); // use same fx as veil for now
+			
+			SetActivator(this);
+			HandleHealthPickup(((temp & 0xFFFF) * GetMissingHealth()) / 100, 0, 0);
+			// restore ptr
+			SetActivator(0, AAPTR_DAMAGE_TARGET);
+		}
+	}
+	
+	// check perk25 for berserker with cooldown
+	if(CheckActorInventory(this, "Berserker_Perk25") && !CheckActorInventory(this, "Berserker_Perk25_CD")) {
+		// basically make sure only one instance of this runs
+		if(!CheckActorInventory(this, "Berserker_DamageTimer"))
+			ACS_NamedExecuteAlways("DnD Berserker Perk25", 0);
+			
+		SetActorInventory(this, "Berserker_DamageTimer", DND_BERSERKER_DAMAGETRACKTIME);
+		GiveActorInventory(this, "Berserker_Perk25_CD", 1);
+		if(CheckActorInventory(this, "Berserker_DamageTracker") < DND_BERSERKER_PERK25_MAXSTACKS)
+			GiveActorInventory(this, "Berserker_DamageTracker", 1);
+	}
+	
+	// rest of the code doesn't work if we weren't hit by a monster
+	if(!isMonster)
+		return;
+	
+	// monster might be thief, check it
+	int m_id = target - DND_MONSTERTID_BEGIN;
+	if(MonsterProperties[m_id].trait_list[DND_THIEF]) {
+		// get current weapon's ammo and steal it if possible
+		temp = random(0, 1);
+		str cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), temp);
+		
+		// if we picked no ammo, flip to check the other one using negation
+		if(cur_ammo == " ")
+			cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), !temp);
+		
+		// if it's something we can take ammo from		
+		if(cur_ammo != " ")
+			TakeActorInventory(this, cur_ammo, CheckActorInventory(this, cur_ammo) * DND_ELITE_THIEFRATE / 100);
+	}
+	
+	// shocker check
+	if(MonsterProperties[m_id].trait_list[DND_SHOCKER])
+		GiveActorInventory(this, "PlayerStopper", 1);
+	
+	// ruination check
+	if(MonsterProperties[m_id].trait_list[DND_RUINATION]) {
+		if(!CheckActorInventory(this, "RuinationStacks")) {
+			SetActivator(this);
+			
+			ACS_NamedExecuteAlways("DnD Ruination Ticker", 0);
+			
+			// restore ptr
+			SetActivator(0, AAPTR_DAMAGE_TARGET);
+		}
+		GiveActorInventory(this, "RuinationStacks", 1);
+
+		if(CheckActorInventory(this, "RuinationStacks") == RUINATION_MAX_STACKS)
+			HandleRuination(this, target);
+	}
+
+	// the curse is applied if the player is not immune, the checks are delegated to curse items
+	if(MonsterProperties[m_id].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
+		ApplyRandomCurse(this);
+}
+
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
 	int temp, dmg, m_id;
@@ -2791,6 +2880,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			if(IsPlayer(victim)) {
 				pnum = victim - P_TIDSTART;
 				
+				if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
+					OnPlayerHit(victim, pnum, shooter, true);
+					GiveActorInventory(victim, "DnD_Hit_Cooldown", 1);
+				}
+				
 				// hate shard reflection
 				if(CheckActorInventory(victim, "HateCheck")) {
 					Thing_Damage2(shooter, dmg, "Reflection");
@@ -2871,6 +2965,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		else {
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things
 			pnum = PlayerNumber();
+			
+			if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
+				OnPlayerHit(victim, pnum, shooter, false);
+				GiveActorInventory(victim, "DnD_Hit_Cooldown", 1);
+			}
+			
 			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(dmg, arg2, dmg_data, false);
 			//GiveInventory("DnD_DamageReceived", dmg);

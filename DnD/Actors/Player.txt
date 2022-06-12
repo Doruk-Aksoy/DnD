@@ -46,10 +46,6 @@ Actor DnD_PlayerBase : PlayerPawn {
 			"####" "#" 0 A_GiveInventory("P_Damaged", 1)
 			"####" "#" 0 A_GiveInventory("RegenStopper", 1)
 			"####" "#" 0 A_GiveInventory("PendantEffect", 1)
-			"####" "#" 0 A_JumpIfInventory("DnD_Hit_Cooldown", 1, "PainOnCD")
-			"####" "#" 0 A_GiveInventory("DnD_Hit_Cooldown", 1)
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Player On Hit", 0)
-		PainOnCD:
 			"####" "#" 0 A_Jump(256, "PainAnim")
 			"####" "#" 35
 		Wait

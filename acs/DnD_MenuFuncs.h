@@ -3204,12 +3204,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						else
 							ShowPopup(temp, false, 0);
 					}
-					else {
-						if(topboxid == -1)
-							ShowPopup(POPUP_NOITEMTHERE, false, 0);
-						else
-							ShowPopup(POPUP_ITEMTYPEMISMATCH, false, 0);
-					}
+					else if(topboxid == -1)
+						ShowPopup(POPUP_NOITEMTHERE, false, 0);
+					else
+						ShowPopup(POPUP_ITEMTYPEMISMATCH, false, 0);
 				}
 				else {
 					// normal clicking functionality on inventory view

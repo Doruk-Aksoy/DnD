@@ -315,66 +315,8 @@ Script "DnD Portable Kit Script" (void) {
 }
 
 // Health Kits Script (Used by Portable Medikits as well, ported here)
-Script "DnD Health Pickup" (int amt, int isspecial, int useTarget) {
-	if(useTarget)
-		SetActivatorToTarget(0);
-	int curhp = GetActorProperty(0, APROP_HEALTH);
-	int healthcap = GetSpawnHealth();
-	int bonus = GetHealingBonuses(PlayerNumber());
-	// holds the old amt
-	int toGive = amt, base = amt;
-	// the percentage of spawn health is amt to be given
-	amt = healthcap * amt / 100;
-	// consider healing bonuses from quests
-	amt = amt * (100 + bonus) / 100;
-	
-	// health bonus
-	if(isspecial == 5) {
-		// fixed to always go up to x2 health cap
-		toGive = healthcap * 2 - curhp;
-	}
-	else if(isspecial == 3) {
-		// map toast heal
-		amt = healthcap - curhp;
-	    GiveInventory("HealthBonusX", amt);
-		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
-		GiveInventory("Research_Body_Hp_1_Tracker", amt);
-	    Terminate;
-	}
-	else if(isspecial == 2) { // ubersphere / megasphere
-		toGive /= 100; // get the multiplier for mega / uber
-		toGive = healthcap * toGive - curhp;
-	}
-	else if(isspecial == 1)
-		toGive = amt + healthcap - curhp;
-	else // for anything else (stims, medkits etc)
-	    toGive = healthcap - curhp;
-	
-	if(toGive > amt)
-		toGive = amt;
-	
-	if(CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && !isspecial) {
-		if(curhp < healthcap) { // if my current curhp is less than max
-			GiveInventory("HealthBonusX", toGive);
-			GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
-			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
-
-			if(HasMasteredPerk(STAT_MED) && toGive / 10)
-				HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, ARMORGF_NOPERCENT);
-		}
-        if(toGive < amt)
-            GiveInventory("StoredMedkit", Clamp_Between(amt - toGive, 1, base));
-	}
-	else {
-		GiveInventory("HealthBonusX", toGive);
-		GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
-		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
-		
-		if(HasMasteredPerk(STAT_MED) && toGive / 10)
-			HandleArmorPickup(DND_ARMOR_BONUS, toGive / 10, ARMORGF_NOPERCENT);
-	}
-	
-	HandleHealDependencyCheck();
+Script "DnD Health Pickup" (int amt, int isSpecial, int useTarget) {
+	HandleHealthPickup(amt, isSpecial, useTarget);
 }
 
 Script "DnD Can Pick Health Item" (int type) {
@@ -1993,6 +1935,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	else // important addition to prevent elite name from clogging up later, uncleaned
 		MonsterProperties[m_id].isElite = false;
 	
+	// debug
+	// MonsterProperties[m_id].trait_list[DND_RUINATION] = true;
+	
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
 		"DnD Sync Monster Trait CS", 
@@ -3426,93 +3371,6 @@ Script "DnD Blood Rune" (void) {
 		togive = "FakeBloodPowerBetter";
 	ActivatorSound("items/bloodrun", 127);
 	GiveInventory(togive, 1);
-}
-
-// Custom Powerup script
-Script "DnD Player On Hit" (int power) {
-	int this, m_id, target, hp;
-	int temp;
-	
-	this = ActivatorTID();
-	
-	if(CheckInventory("HateCheck")) {
-		// restore activator
-		SetActivator(0, AAPTR_TARGET);
-		if(ActivatorTID() != this)
-			GiveInventory("HateWeakness", 1);
-		SetActivator(this);
-	}
-	// necro and lightning coil chance
-	temp = GetArmorID();
-	if(temp == DND_ARMOR_NECRO && !CheckInventory("NecroSpikeCooldown") && !random(0, 2)) {
-		GiveInventory("NecroSpikeShooter", 1);
-		GiveInventory("NecroSpikeCooldown", 1);
-	}
-	else if(temp == DND_ARMOR_LIGHTNINGCOIL && !CheckInventory("LightningCoilCooldown") && !random(0, 3)) {
-		// 25% chance
-		GiveInventory("LightningCoilShooter", 1);
-		GiveInventory("LightningCoilCooldown", 1);
-	}
-	
-	target = GetActorProperty(0, APROP_TARGETTID);
-	
-	// player heal on hit check -- target is 0 if we are the target, but the extra check in there is for safety
-	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_CHANCE_HEALMISSINGONPAIN);
-	if(temp && target && target != this) {
-		// roll chance
-		// upper 16 bits hold the chance
-		if(random(1, 100) <= (temp >> 16)) {
-			// heal for missing health
-			GiveInventory("VeilHealFXSpawner", 1); // use same fx as veil for now
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, ((temp & 0xFFFF) * GetMissingHealth()) / 100);
-		}
-	}
-	
-	// monster might be thief, check it
-	m_id = target - DND_MONSTERTID_BEGIN;
-	if(MonsterProperties[m_id].trait_list[DND_THIEF]) {
-		// get current weapon's ammo and steal it if possible
-		temp = random(0, 1);
-		str cur_ammo = GetWeaponAmmoType(GetWeaponPosFromTable(), temp);
-		
-		// if we picked no ammo, flip to check the other one using negation
-		if(cur_ammo == " ")
-			cur_ammo = GetWeaponAmmoType(GetWeaponPosFromTable(), !temp);
-		
-		// if it's something we can take ammo from		
-		if(cur_ammo != " ")
-			TakeInventory(cur_ammo, CheckInventory(cur_ammo) * DND_ELITE_THIEFRATE / 100);
-	}
-	
-	// shocker check
-	if(MonsterProperties[m_id].trait_list[DND_SHOCKER])
-		GiveInventory("PlayerStopper", 1);
-	
-	// ruination check
-	if(MonsterProperties[m_id].trait_list[DND_RUINATION]) {
-		if(!CheckInventory("RuinationStacks"))
-			ACS_NamedExecuteAlways("DnD Ruination Ticker", 0);
-		GiveInventory("RuinationStacks", 1);
-
-		if(CheckInventory("RuinationStacks") == RUINATION_MAX_STACKS)
-			HandleRuination(this, target);
-	}
-
-	// the curse is applied if the player is not immune, the checks are delegated to curse items
-	if(MonsterProperties[m_id].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
-		ApplyRandomCurse();
-		
-	// check perk25 for berserker with cooldown
-	if(CheckInventory("Berserker_Perk25") && !CheckInventory("Berserker_Perk25_CD")) {
-		// basically make sure only one instance of this runs
-		if(!CheckInventory("Berserker_DamageTimer"))
-			ACS_NamedExecuteAlways("DnD Berserker Perk25", 0);
-			
-		SetInventory("Berserker_DamageTimer", DND_BERSERKER_DAMAGETRACKTIME);
-		GiveInventory("Berserker_Perk25_CD", 1);
-		if(CheckInventory("Berserker_DamageTracker") < DND_BERSERKER_PERK25_MAXSTACKS)
-			GiveInventory("Berserker_DamageTracker", 1);
-	}
 }
 
 Script "DnD Vampirism FX CS" (int target) CLIENTSIDE {

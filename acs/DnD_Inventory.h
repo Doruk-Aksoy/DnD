@@ -825,12 +825,18 @@ void CopyItemFromTemporary(int player_index, int item_index, int temp_pos, int s
 	SetItemSyncValue(player_index, DND_SYNC_ITEMLEVEL, item_index, -1, TemporaryInventoryList[player_index][temp_pos].item_level, source);
 	SetItemSyncValue(player_index, DND_SYNC_ITEMIMAGE, item_index, -1, TemporaryInventoryList[player_index][temp_pos].item_image, source);
 	
-	for(i = 0; i < h; ++i) {
-		for(int j = 0; j < w; ++j) {
-			int bid = item_index + j + i * MAXINVENTORYBLOCKS_VERT;
-			SetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, item_index + 1, source);
-			SetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, TemporaryInventoryList[player_index][temp_pos].item_type, source);
+	if(IsSourceInventoryView(source)) {
+		for(i = 0; i < h; ++i) {
+			for(int j = 0; j < w; ++j) {
+				int bid = item_index + j + i * MAXINVENTORYBLOCKS_VERT;
+				SetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, item_index + 1, source);
+				SetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, TemporaryInventoryList[player_index][temp_pos].item_type, source);
+			}
 		}
+	}
+	else {
+		SetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, item_index, -1, item_index + 1, source);
+		SetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, item_index, -1, TemporaryInventoryList[player_index][temp_pos].item_type, source);
 	}
 	
 	for(i = 0; i < TemporaryInventoryList[player_index][temp_pos].attrib_count; ++i) {
@@ -850,6 +856,8 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 		offset1 = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos1, -1, source1) - 1 - ipos1;
 	if(IsSourceInventoryView(source2))
 		offset2 = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos2, -1, source2) - 1 - ipos2;
+		
+	//printbold(s:"item positions: ", d:ipos1, s: ", ", d:ipos2, s:" -- offsets: ", d:offset1, s: ", ", d:offset2);
 		
 	// if both items are stack items and are of same types, add stack on top of the other
 	h1p = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, source1);
@@ -1192,7 +1200,7 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		bx = ((left + (HUD_ITEMBAK_X * HUDTEXTMAX_X / (2 * HUDMAX_X))) << 16) + 0.4;
 		by = isOutsideSource ? 20.1 : GetIntegerBits(HUDTEXTMAX_YF / 2 - HUD_ITEMBAK_YF / 2 - yoff - 30.0) + 0.1;
 		
-		if(attr_count < 4)
+		if(attr_count < 4 && !isOutsideSource)
 			by += 36.0;
 
 		SetHudClipRect(left + 15, (by >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9);

@@ -826,20 +826,6 @@ int GetPVelocity(void) {
 	return vel >> 16;
 }
 
-void HandleHealDependencyCheck() {
-	// Research dependencies
-	if(CheckInventory("Research_Body_Hp_1_Tracker") == GetAmmoCapacity("Research_Body_Hp_1_Tracker") && CheckResearchStatus(RES_BIO1) == RES_NA)
-		GiveResearch(RES_BIO1, true);
-	
-	// Quest records
-	if(active_quest_id == QUEST_HEALFOR500 && !IsQuestComplete(ActivatorTID(), active_quest_id) && CheckInventory("DnD_MasterHealerQuest_HealAmount") >= DND_QUEST_MASTERHEALER_REQ)
-		CompleteQuest(ActivatorTID(), active_quest_id);
-	
-	// Skin O' My Teeth check
-	if(active_quest_id == QUEST_NOHEALINGPICKUP)
-		FailQuest(ActivatorTID());
-}
-
 int GetWeaponSlotFromFlag(int flags) {
 	// the first 14 bits are unnecessary
 	flags >>= DND_SHIFTBITS_FOR_SLOTFROMFLAG;
@@ -965,33 +951,33 @@ void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite, bool guara
 		HandleMonsterTemporaryWeaponDrop(id, -1, isElite, guaranteed);
 }
 
-void ApplyRandomCurse() {
+void ApplyRandomCurse(int tid) {
 	// nasty rushed code here, clean up later with improved curse system
 	int curse_id = random(0, 7);
 	switch(curse_id) {
 		case 0:
-			GiveInventory("DnD_Curse_RedLich", 1);
+			GiveActorInventory(tid, "DnD_Curse_RedLich", 1);
 		break;
 		case 1:
-			GiveInventory("DnD_Curse_Hierophant", 1);
+			GiveActorInventory(tid, "DnD_Curse_Hierophant", 1);
 		break;
 		case 2:
-			GiveInventory("DnD_Curse_Guru", 1);
+			GiveActorInventory(tid, "DnD_Curse_Guru", 1);
 		break;
 		case 3:
-			GiveInventory("DnD_Curse_LichVisionDim", 1);
+			GiveActorInventory(tid, "DnD_Curse_LichVisionDim", 1);
 		break;
 		case 4:
-			GiveInventory("DnD_Curse_LichSlow", 1);
+			GiveActorInventory(tid, "DnD_Curse_LichSlow", 1);
 		break;
 		case 5:
-			GiveInventory("DnD_Curse_LichPoison", 1);
+			GiveActorInventory(tid, "DnD_Curse_LichPoison", 1);
 		break;
 		case 6:
-			GiveInventory("DnD_Curse_Ensnare", 1);
+			GiveActorInventory(tid, "DnD_Curse_Ensnare", 1);
 		break;
 		case 7:
-			GiveInventory("DnD_Curse_Paladin", 1);
+			GiveActorInventory(tid, "DnD_Curse_Paladin", 1);
 		break;
 	}
 }

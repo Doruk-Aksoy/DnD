@@ -230,6 +230,7 @@ int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 		
 	// request damage cache recalculation
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+	
 	// this means we must swap charms
 	if(Charms_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
 		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE);
