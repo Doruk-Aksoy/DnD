@@ -279,7 +279,8 @@ enum {
 	
 	// keep here
 	DND_CUSTOM_MONSTER,
-	DND_CUSTOM_BOSS
+	DND_CUSTOM_BOSS,
+	DND_CUSTOM_UNIQUEBOSS
 };
 
 enum {

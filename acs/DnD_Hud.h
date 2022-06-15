@@ -77,11 +77,14 @@ enum {
 	MONSTER_TEXTID,
 	MONSTER_BARFILLID,
 	MONSTER_BARFILLOVERLAY,
+	MONSTER_BARFILLOVERLAY2,
+	MONSTER_BARFILLOVERLAY3,
+	MONSTER_BARFILLOVERLAY4,
 	MONSTER_TRAITID = 2400
 };
 
 void ClearMonsterScanInfo() {
-	DeleteTextRange(MONSTER_TYPEICONID, MONSTER_BARFILLOVERLAY);
+	DeleteTextRange(MONSTER_TYPEICONID, MONSTER_BARFILLOVERLAY4);
 	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + MAX_MONSTER_TRAITS);
 }
 
@@ -635,6 +638,191 @@ int GetPlayernameRawLength(str name) {
 			++real_len;
 	}
 	return real_len;
+}
+
+// hp bar of monsters
+void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int monid, int m_id, int fortify_amt) {
+	str barGraphic = "";
+	str fortGraphic = "";
+	int i, j;
+	
+	SetHudSize(800, 600, 0);
+	SetFont(GetMonsterTypeIcon(GetMonsterType(monid, mon_tid)));	
+	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, MONSTERINFO_HOLDTIME);
+	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
+	// inner text
+	SetFont ("MONFONT");
+	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
+	
+	bool is_unique = 0;
+	bool mon_isPet = IsPet(mon_tid);
+	
+	if(!mon_isPet) {
+		is_unique = IsUniqueMonster(monid);
+		str prefix = "";
+		if(CheckInventory("TargetIsElite"))
+			prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
+		if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
+			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+		else if(is_unique)
+			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+		else if(IsMonsterIdBoss(monid))
+			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+		else
+			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+	}
+	else
+		HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+	
+	// made this way to reduce variable dependancy and if statement use
+	if(CheckInventory("TargetHealthBarColor")) {
+		if(!is_unique)
+			SetFont("MNRHPBAR");
+		else
+			SetFont("MNUHPBAR");
+		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
+		
+		if(monhp) {
+			// clamp to 100 on certain monsters' overheal abilities (Warmaster for example)
+			i = (monhp * 100 / mmaxhp);
+			if(i > 100)
+				i = 100;
+			i <<= 1;
+		
+			if(fortify_amt) {
+				j = (fortify_amt * 100) / mmaxhp;
+				j <<= 1;
+				
+				SetHudClipRect(305, 17, j, 18, j);
+				SetFont("FILLFORT");
+				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+				
+				if(i > 0) {
+					SetHudClipRect(305, 17, i, 18, i);
+					SetFont("FILLCRIT");
+					HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+				}
+				SetHudClipRect(0, 0, 0, 0, 0);
+			}
+			else if(i > 0) {
+				SetHudClipRect(305, 17, i, 18, i);
+				SetFont("FILLCRIT");
+				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+				SetHudClipRect(0, 0, 0, 0, 0);
+			}
+		}
+	}
+	else {
+		SetFont("MNGHPBAR");
+		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
+		
+		i = (monhp * 100 / mmaxhp);
+		if(i > 100)
+			i = 100;
+		
+		if(i > 0) {
+			SetHudClipRect(305, 17, i, 18, i);
+			SetFont("FILLNORM");
+			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+			SetHudClipRect(0, 0, 0, 0, 0);
+		}
+	}
+
+	i = j = 0;
+	// show monster traits
+	// legendary monsters show no traits at all
+	// this delete is added to keep support with new dungeon boss + regular monsters -- hoping a monster gets max 12 traits to show...
+	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + 12);
+	
+	if(!mon_isPet) {
+		if(MonsterProperties[m_id].trait_list[DND_LEGENDARY]) {
+			SetFont ("MONFONT");
+			HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+		}
+		else if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
+			SetFont ("MONFONT");
+			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+		}
+		else if(MonsterProperties[m_id].hasTrait) {
+			SetFont ("MONFONT");
+			for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
+				if(MonsterProperties[m_id].trait_list[i]) {
+					HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+					++j;
+				}
+			}
+		}
+	}
+	else if(PetMonsterProperties[m_id].hasTrait) {
+		SetFont ("MONFONT");
+		for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
+			if(PetMonsterProperties[m_id].trait_list[i]) {
+				HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+				++j;
+			}
+		}
+	}
+}
+
+void DrawBigBossHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int monid, int m_id, int fortify_amt) {
+	str barGraphic = "";
+	str fortGraphic = "";
+	
+	SetHudSize(800, 600, 0);
+	SetFont(GetMonsterTypeIcon(GetMonsterType(monid, mon_tid)));	
+	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 340.4, 24.0, MONSTERINFO_HOLDTIME);
+	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 453.4, 24.0, MONSTERINFO_HOLDTIME);
+	
+	// inner text
+	SetFont ("MONFONT");
+	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.4, 64.1, MONSTERINFO_HOLDTIME);
+	
+	HudMessage(s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 400.4, 45.1, MONSTERINFO_HOLDTIME);
+	
+	SetFont("MNBHPBAR");
+	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.4, 0.1, MONSTERINFO_HOLDTIME);
+	
+	// clamp to 100 on certain monsters' overheal abilities (Warmaster for example)
+	int hdisp = (monhp * 100 / MonsterProperties[m_id].maxhp);
+	if(hdisp > 100)
+		hdisp = 100;
+	hdisp = 450 * hdisp / 100;
+	
+	if(monhp) {
+		if(fortify_amt) {
+			int fortify_disp = (fortify_amt * 450 / MonsterProperties[m_id].maxhp);
+		
+			SetFont("FILLARBR");
+			SetHudClipRect(174, 60, fortify_disp, 18, fortify_disp);
+			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME);
+			
+			SetHudClipRect(174, 60, hdisp, 18, hdisp);
+			if(hdisp > 0) {
+				SetFont("FILLHPBR");
+				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY4, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME);
+				
+				SetFont("HPBARFX");
+				HudMessage(s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, MONSTER_BARFILLOVERLAY3, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, 0.5);
+			}
+			SetHudClipRect(0, 0, 0, 0, 0);
+		}
+		else {
+			SetFont("FILLHPBR");
+			SetHudClipRect(174, 60, hdisp, 18, hdisp);
+			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY2, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME);
+			
+			SetFont("HPBARFX");
+			HudMessage(s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, MONSTER_BARFILLOVERLAY, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, 0.5);
+			
+			SetHudClipRect(0, 0, 0, 0, 0);
+		}
+	}
+	
+	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + 12);
+
+	// legendary monsters show no traits at all
+	SetFont ("MONFONT");
+	HudMessage(s:"\c[D1]", l:"DND_EMOD_DUNGEONBOSS"; HUDMSG_FADEOUT, MONSTER_TRAITID, CR_WHITE, 400.4, 84.1, MONSTERINFO_HOLDTIME);
 }
 
 #endif

@@ -99,3 +99,4 @@ DND_EMOD_ETHEREAL				= "\cmEthereal\c-";
 DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";			DND_EMOD_MARKOFCHAOS_NOCOL	= "Mark of Chaos";
 	
 DND_EMOD_LEGENDARY				= "\ciLegendary\c-";				DND_EMOD_LEGENDARY_LONG		= "Legendary Monster";
+DND_EMOD_DUNGEONBOSS			= "\ciEpic Boss\c-";

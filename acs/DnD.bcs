@@ -688,7 +688,7 @@ Script "DND On Kill" KILL {
 	int this = ActivatorTID();
 	
 	// pet check -- pets dont have anything going for them beyond here
-	if(IsPet(this)) {
+	if(IsPet(this) || CheckFlag(0, "FRIENDLY")) {
 		Thing_ChangeTID(0, 0);
 		Terminate;
 	}
@@ -703,6 +703,12 @@ Script "DND On Kill" KILL {
 	int target = GetActorProperty(0, APROP_TARGETTID);
 	bool killerWasntPlayer = !CheckInventory("MonsterKilledByPlayer");
 	TakeInventory("MonsterKilledByPlayer", 1);
+	
+	// if this was a unique boss monster, since its dead now we can clear it to clients
+	if(isUniqueBossMonster(m_id)) {
+		DungeonBossData[BOSSDATA_TID] = 0;
+		ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
+	}
 	
 	// only work if you can determine target as a player
 	if(killerWasntPlayer && !CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED])
@@ -1934,6 +1940,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	}
 	else // important addition to prevent elite name from clogging up later, uncleaned
 		MonsterProperties[m_id].isElite = false;
+		
+	HandlePostInitTraits(m_id, monsterid);
 	
 	// debug
 	// MonsterProperties[m_id].trait_list[DND_RUINATION] = true;
@@ -2005,11 +2013,22 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	MonsterProperties[m_id].id = properties & 0x1FF;
 	MonsterProperties[m_id].class = (properties >> 9) & 0x1F;
 	
+	LoadCustomMonsterTraits(m_id, MonsterProperties[m_id].id, traits, traits2, traits3);
+	
 	properties >>= 14;
 	GiveInventory("MonsterTypeToken", properties);
 	ACS_NamedExecuteWithResult("DnD Sync Custom Monster Type", properties);
 
-	if(!MonsterProperties[m_id].trait_list[DND_LEGENDARY] && MonsterProperties[m_id].id != MONSTER_CUSTOM_BOSS && GetCVar("dnd_enable_elites") && RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+	// never roll elite status on FRIENDLY custom monsters / unique bosses
+	if
+	(
+		!CheckFlag(0, "FRIENDLY") &&
+		!MonsterProperties[m_id].trait_list[DND_LEGENDARY] && 
+		MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS && 
+		GetCVar("dnd_enable_elites") && 
+		RollEliteChance() && 
+		PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")
+	) {
 		MonsterProperties[m_id].isElite = true;
 
 		// Elite bonuses
@@ -2033,7 +2052,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	else // important addition to prevent elite name from clogging up later, uncleaned
 		MonsterProperties[m_id].isElite = false;
 		
-	LoadCustomMonsterTraits(m_id, properties, traits, traits2, traits3);
+	HandlePostInitTraits(m_id, MonsterProperties[m_id].id);
 
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
@@ -2068,6 +2087,8 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	// set its true height user variable user_spawnheight
 	// printbold(s:"set spawn height to ", d:GetActorProperty(0, APROP_HEIGHT) >> 16);
 	SetUserVariable(0, "user_spawnheight", GetActorProperty(0, APROP_HEIGHT) >> 16);
+	
+	CheckUniqueBossPossibility(this, m_id);
 	
 	GiveInventory("DnD_MonsterSetupDone", 1);
 	
@@ -2682,150 +2703,127 @@ Script "DnD Sync Pet Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSI
 	SetResultValue(0);
 }
 
+Script "DnD Constant Unique Boss Sync" (int tid) {
+	SetActivator(-1);
+	int lasthp = GetActorProperty(tid, APROP_HEALTH);
+	int lastfort = CheckActorInventory(tid, "MonsterFortifyCount");
+	bool hasFort = !!lastFort;
+	
+	// force sync on initial tic
+	ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, lasthp, BOSSDATA_HP, 0);
+	ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, lastfort, BOSSDATA_FORT, 0);
+	
+	while(isActorAlive(tid)) {
+		Delay(const:1);
+		
+		int hp = GetActorProperty(tid, APROP_HEALTH);
+		if(hp != lasthp) {
+			ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, hp, BOSSDATA_HP, lasthp - hp);
+			lasthp = hp;
+		}
+		
+		hp = hasFort * CheckActorInventory(tid, "MonsterFortifyCount");
+		if(hp != lastfort) {
+			ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, hp, BOSSDATA_FORT, lastfort - hp);
+			lastfort = hp;
+		}
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Unique Boss Property Sync" (int tid, int val, int prop, int diff) CLIENTSIDE {
+	// if non-zero that means this isn't an init step, this is an update request so we took damage
+	if(prop == BOSSDATA_HP && DungeonBossData[prop])
+		DungeonBossData[BOSSDATA_DMGTAKEN] = diff;
+	DungeonBossData[prop] = val;
+	SetResultValue(0);
+}
+
+Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
+	int m_id = tid - DND_MONSTERTID_BEGIN;
+	int counter = 0, alpha;
+	int hdisp, fdisp;
+	int draw_id = MONSTER_BARFILLID;
+	while(DungeonBossData[BOSSDATA_TID]) {
+		hdisp = (DungeonBossData[BOSSDATA_HP] * 100 / MonsterProperties[m_id].maxhp);
+		if(hdisp > 100)
+			hdisp = 100;
+		hdisp = 450 * hdisp / 100;
+		
+		fdisp = (DungeonBossData[BOSSDATA_FORT] * 450 / MonsterProperties[m_id].maxhp);
+		
+		SetHudSize(800, 600, 0);
+		SetHudClipRect(174, 60, hdisp, 18, hdisp);
+		SetFont("HPBARFXP");
+		
+		alpha = Clamp_Between(DungeonBossData[BOSSDATA_DMGTAKEN] * 0.01, 0.0, 1.0);
+		
+		if(!counter && DungeonBossData[BOSSDATA_DMGTAKEN])
+			counter = 25;
+			
+		if(fdisp)
+			draw_id = MONSTER_BARFILLOVERLAY2;
+		else
+			draw_id = MONSTER_BARFILLID;
+		
+		HudMessage(s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, draw_id, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, alpha);
+	
+		Delay(const:1);
+		
+		if(counter) {
+			--counter;
+			DungeonBossData[BOSSDATA_DMGTAKEN] = (DungeonBossData[BOSSDATA_DMGTAKEN] * SmoothStop3(counter * 1.0 / 25)) >> 16;
+		}
+	}
+	SetResultValue(0);
+}
+
 Script "DnD Monster Scanner" (void) CLIENTSIDE {
-	int mmaxhp, monhp, monlevel, monid, mon_tid, m_id;
-	int hdisp, fortify_amt;
-	int hdisp_prev = -1, fortify_amt_prev = -1;	
-	str barGraphic = "";
-	str fortGraphic = "";
-	bool mon_isPet = false;
+	int mmaxhp;
+	
+	Delay(const:TICRATE);
+	
+	int temp = DungeonBossData[BOSSDATA_TID];
+	int m_id = temp - DND_MONSTERTID_BEGIN;
+	
+	if(temp)
+		ACS_NamedExecuteWithResult("DnD Boss HP FX Overlay", temp);
 	
 	while(isAlive()) {
 		// disable during intermission
 		if(CheckInventory("DnD_IntermissionState"))
 			break;
-	
-		// if we have any shared items in our player queue to turn, do turn them
-		mmaxhp = CheckInventory("TargetMaximumHealth");
-		if(mmaxhp && GetCVar("dnd_monsterbars")) {
-			monhp = CheckInventory("TargetCurrentHealth");
-			monlevel = CheckInventory("TargetLevel");
-			mon_tid = CheckInventory("TargetTID");
-			monid = CheckInventory("TargetIsWhat");
-			m_id = CheckInventory("TargetMonId");
-			hdisp = (monhp * 100 / mmaxhp);
-			// clamp to 100 on certain monsters' overheal abilities (Warmaster for example)
-			if(hdisp > 100)
-				hdisp = 100;
-			fortify_amt = (CheckInventory("TargetFortify") * 100 / mmaxhp);
-			int i, j;
-			
-			SetHudSize(800, 600, 0);
-			SetFont(MonsterTypeInfo[GetMonsterType(monid, mon_tid)][MONSTER_TYPE_INFO_ICON]);	
-			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, MONSTERINFO_HOLDTIME);
-			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
-			// inner text
-			SetFont ("MONFONT");
-			HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
-			
-			bool is_unique = 0;
-			mon_isPet = IsPet(mon_tid);
-			
-			if(!mon_isPet) {
-				is_unique = IsUniqueMonster(monid);
-				str prefix = "";
-				if(CheckInventory("TargetIsElite"))
-					prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
-				if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
-					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
-				else if(is_unique)
-					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
-				else if(IsMonsterIdBoss(monid))
-					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
-				else
-					HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
-			}
-			else
-				HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
-			
-			// made this way to reduce variable dependancy and if statement use
-			if(CheckInventory("TargetHealthBarColor")) {
-				if(!is_unique)
-					SetFont("MNRHPBAR");
-				else
-					SetFont("MNUHPBAR");
-				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
-				
-				if(monhp) {
-					if(fortify_amt) {
-						if(fortify_amt_prev != fortify_amt)
-							fortGraphic = StrParam(s:"FFR_", d:fortify_amt);
-					
-						SetFont(fortGraphic);
-						HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
-						
-						if(hdisp > 0) {
-							if(hdisp_prev != hdisp)
-								barGraphic = StrParam(s:"FBR_", d:hdisp);
-								
-							SetFont(barGraphic);
-							HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
-						}
-					}
-					else {
-						if(hdisp > 0) {
-							if(hdisp_prev != hdisp)
-								barGraphic = StrParam(s:"FBR_", d:hdisp);
-
-							SetFont(barGraphic);
-							HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
-						}
-					}
-				}
-			}
-			else {
-				SetFont("MNGHPBAR");
-				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
-				
-				if(hdisp > 0) {
-					if(hdisp_prev != hdisp)
-						barGraphic = StrParam(s:"FGR_", d:hdisp);
-					
-					SetFont(barGraphic);
-					HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
-				}
-			}
-
-			i = j = 0;
-			// show monster traits
-			// legendary monsters show no traits at all
-			if(!mon_isPet) {
-				if(MonsterProperties[m_id].trait_list[DND_LEGENDARY]) {
-					SetFont ("MONFONT");
-					HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-				}
-				else if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
-					SetFont ("MONFONT");
-					HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-				}
-				else if(MonsterProperties[m_id].hasTrait) {
-					SetFont ("MONFONT");
-					for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
-						if(MonsterProperties[m_id].trait_list[i]) {
-							HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-							++j;
-						}
-					}
-				}
-			}
-			else if(PetMonsterProperties[m_id].hasTrait) {
-				SetFont ("MONFONT");
-				for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
-					if(PetMonsterProperties[m_id].trait_list[i]) {
-						HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-						++j;
-					}
-				}
-			}
-		}
-		else {
-			hdisp = -1;
-			fortify_amt = -1;
-		}
-		Delay(const:2);
 		
-		fortify_amt_prev = fortify_amt;
-		hdisp_prev = hdisp;
+		m_id = temp - DND_MONSTERTID_BEGIN;
+		if(temp) {
+			// draw permanently as soon as the boss monster wakes only replaced by looking at another monster (that's why it's below)
+			DrawBigBossHPBar(
+				temp,
+				MonsterProperties[m_id].maxhp,
+				DungeonBossData[BOSSDATA_HP],
+				MonsterProperties[m_id].level,
+				MonsterProperties[m_id].id,
+				m_id,
+				DungeonBossData[BOSSDATA_FORT]
+			);
+		}
+
+		// dont draw old style bar for unique bosses
+		mmaxhp = CheckInventory("TargetMaximumHealth");
+		m_id = CheckInventory("TargetIsWhat");
+		if(mmaxhp && !isUniqueBossMonster_Id(m_id) && GetCVar("dnd_monsterbars")) {
+			DrawMonsterHPBar(
+				CheckInventory("TargetTID"),
+				mmaxhp,
+				CheckInventory("TargetCurrentHealth"),
+				CheckInventory("TargetLevel"),
+				CheckInventory("TargetIsWhat"),
+				CheckInventory("TargetMonId"),
+				CheckInventory("TargetFortify")
+			);
+		}
+
+		Delay(const:2);
 	}
 }
 
@@ -2986,6 +2984,11 @@ Script "DnD On Unloading" UNLOADING {
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
 	BreakAllTrades();
+	
+	// reset if there was a unique boss tid set, map ended
+	DungeonBossData[BOSSDATA_TID] = 0;
+	ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
+	
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(!PlayerInGame(i))
 			continue;

@@ -89,11 +89,11 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 		break;
 		case DND_ACTIVITY_PERK:
 			PlayerActivities[pnum].perk_change[extra] += val;
-			printbold(s:"activity for perk ", d:extra, s: " became ", d:PlayerActivities[pnum].perk_change[extra]);
+			//printbold(s:"activity for perk ", d:extra, s: " became ", d:PlayerActivities[pnum].perk_change[extra]);
 		break;
 		case DND_ACTIVITY_ATTRIBUTE:
 			PlayerActivities[pnum].attribute_change[extra] += val;
-			printbold(s:"activity for attribute ", d:extra, s: " became ", d:PlayerActivities[pnum].attribute_change[extra]);
+			//printbold(s:"activity for attribute ", d:extra, s: " became ", d:PlayerActivities[pnum].attribute_change[extra]);
 		break;
 		case DND_ACTIVITY_PERKPOINT:
 			PlayerActivities[pnum].free_perks += val;

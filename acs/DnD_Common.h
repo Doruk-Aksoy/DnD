@@ -269,7 +269,7 @@ int UsedMonsterTIDs[DND_MAX_MONSTERS];
 #define PLAYERLEVELINFO_MINLEVEL 1
 #define PLAYERLEVELINFO_MAXLEVEL 2
 #define PLAYERLEVELINFO_COUNTATSTART 3
-#define PLAYERLEVELINFO_TIDMONSTER 4
+#define PLAYERLEVELINFO_TIDMONSTER 4 // how many monster tids were skipped, this can happen if mappers allocated tids of their own
 int PlayerInformationInLevel[5] = {
 	0, INT_MAX, INT_MIN, 0, 0
 };
@@ -283,8 +283,7 @@ void GiveMonsterTID(int base_tid) {
 			++temp;
 			++PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER];
 		}
-		
-		base_tid = DND_MONSTERTID_BEGIN + temp;
+		base_tid = temp;
 		Thing_ChangeTID(0, base_tid);
 	}
 	
@@ -811,6 +810,10 @@ int GetPlayerClass() {
 
 int GetActorPlayerClass(int tid) {
 	return CheckActorInventory(tid, "DnD_Character") - 1;
+}
+
+int SmoothStop3(int x) {
+	return 1.0 - FixedMul((1.0 - x), (1.0 - x));
 }
 
 #endif

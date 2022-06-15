@@ -266,12 +266,10 @@ void DecideEliteTraits(int count) {
 	ACS_NamedExecuteAlways("DND Elite Special FX", 0);
 	while(tries < MAX_ELITE_TRIES && count) {
 		int try_trait = GetRandomEliteTrait();
-		if(!HasTrait(this, EliteTraitNumbers[try_trait])) {
+		if(!HasTrait(this, EliteTraitNumbers[try_trait]) && !HasTraitExceptions(EliteTraitNumbers[try_trait]) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait])) {
 			// dont give explosive immunity with resist etc
-			if(!HasTraitExceptions(EliteTraitNumbers[try_trait]) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait])) {
-				SetEliteFlag(EliteTraitNumbers[try_trait], false);
-				--count;
-			}
+			SetEliteFlag(EliteTraitNumbers[try_trait], false);
+			--count;
 		}
 		++tries;
 	}

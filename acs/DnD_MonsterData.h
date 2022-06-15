@@ -319,7 +319,8 @@ enum {
 	MONSTER_ABAXOTH,
 	
 	MONSTER_CUSTOM,
-	MONSTER_CUSTOM_BOSS
+	MONSTER_CUSTOM_BOSS,
+	MONSTER_CUSTOM_UNIQUEBOSS
 };
 
 #define DND_CUSTOM_ZOMBIEMAN_BEGIN MONSTER_ZOMBIEMANGRAY
@@ -646,9 +647,18 @@ void HandleMonsterClassInnates(int mid, int id) {
 		MonsterProperties[mid].class = MONSTERCLASS_WOLFENSS;
 }
 
-void HandleSpecialTraits(int mid, int id) {
+// this has any special trait that requires a script to run BEFORE an elite status can apply to a monster
+void HandlePreInitTraits(int mid, int id) {
 	if(MonsterProperties[mid].trait_list[DND_REJUVENATING])
 		GiveInventory("Rejuvenate_Script_Run", 1);
+	if(MonsterProperties[mid].trait_list[DND_REPEL])
+		GiveInventory("Repel_Script_Run", 1);
+	if(MonsterProperties[mid].trait_list[DND_CRIPPLE])
+		GiveInventory("Cripple_Script_Run", 1);
+}
+
+// this is put as a seperate function because 
+void HandlePostInitTraits(int mid, int id) {
 	if(MonsterProperties[mid].trait_list[DND_FORTIFIED]) {
 		// full fortify exceptions
 		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
@@ -656,10 +666,12 @@ void HandleSpecialTraits(int mid, int id) {
 		else
 			SetInventory("MonsterFortifyCount", MonsterProperties[mid].maxhp);
 	}
-	if(MonsterProperties[mid].trait_list[DND_REPEL])
-		GiveInventory("Repel_Script_Run", 1);
-	if(MonsterProperties[mid].trait_list[DND_CRIPPLE])
-		GiveInventory("Cripple_Script_Run", 1);
+}
+
+// this is only used in revive of monsters by itself
+void HandleSpecialTraits(int mid, int id) {
+	HandlePreInitTraits(mid, id);
+	HandlePostInitTraits(mid, id);
 }
 
 void LoadMonsterTraits(int tid, int monsterid) {
@@ -694,6 +706,9 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	// if magical, give magic weakness
 	if((MonsterData[monsterid].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[tid].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[tid].trait_list[DND_MAGIC_IMMUNE])
 		MonsterProperties[tid].trait_list[DND_MAGIC_WEAKNESS] = true;
+	
+	// this is needed as some monsters have some of the properties in there that need to be applied without being elites
+	HandlePreInitTraits(tid, monsterid);
 }
 
 void LoadCustomMonsterTraits(int tid, int mon_type, int traits, int traits2, int traits3) {
@@ -730,6 +745,8 @@ void LoadCustomMonsterTraits(int tid, int mon_type, int traits, int traits2, int
 	// if magical, give magic weakness
 	if((mon_type & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[tid].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[tid].trait_list[DND_MAGIC_IMMUNE])
 		MonsterProperties[tid].trait_list[DND_MAGIC_WEAKNESS] = true;
+		
+	HandlePreInitTraits(tid, -1);
 }
 
 enum {
@@ -763,26 +780,35 @@ enum {
 	DND_MTYPE_UNDEAD_POW 				= 			0b10,
 	DND_MTYPE_MAGICAL_POW 				= 			0b100,
 	DND_MTYPE_ROBOTIC_POW 				= 			0b1000,
-	DND_MTYPE_ZOMBIE_POW 				= 			0b10000
+	DND_MTYPE_ZOMBIE_POW 				= 			0b10000,
+	DND_MTYPE_HUMAN_POW					=			0b100000,
 };
 
 enum {
 	DND_MTYPE_DEMON,
 	DND_MTYPE_UNDEAD,
 	DND_MTYPE_MAGICAL,
-	DND_MTYPE_ROBOTIC
+	DND_MTYPE_ROBOTIC,
+	DND_MTYPE_HUMAN
 };
 
-// first 4 above dictate the basic monster types
-#define MONSTER_TYPE_INFO_TAG 0
-#define MONSTER_TYPE_INFO_ICON 1
-#define MAX_MONSTER_TYPES 4
-str MonsterTypeInfo[MAX_MONSTER_TYPES][2] = {
-	{ "MType_Demon", "DNDEDEM" },
-	{ "MType_Undead", "DNDEUND" },
-	{ "MType_Magical", "DNDEMAG" },
-	{ "MType_Robotic", "DNDEROB" }
-};
+// first 5 above dictate the basic monster types
+#define MAX_MONSTER_TYPES 5
+str GetMonsterTypeIcon(int type) {
+	switch(type) {
+		case DND_MTYPE_DEMON:
+		return "DNDEDEM";
+		case DND_MTYPE_UNDEAD:
+		return "DNDEUND";
+		case DND_MTYPE_MAGICAL:
+		return "DNDEMAG";
+		case DND_MTYPE_ROBOTIC:
+		return "DNDEROB";
+		case DND_MTYPE_HUMAN:
+		return "DNDEHUM";
+	}
+	return "DNDEDEM";
+}
 
 int InferMonsterPower(int mid) {
 	if(mid & DND_MTYPE_ROBOTIC_POW) {
@@ -795,6 +821,8 @@ int InferMonsterPower(int mid) {
 		return DND_MTYPE_MAGICAL;
 	if(mid & DND_MTYPE_UNDEAD_POW)
 		return DND_MTYPE_UNDEAD;
+	if(mid & DND_MTYPE_HUMAN_POW)
+		return DND_MTYPE_HUMAN;
 	return DND_MTYPE_DEMON;
 }
 
@@ -1082,11 +1110,22 @@ bool IsBoss() {
 }
 
 bool IsMonsterIdBoss(int id) {
-	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id == MONSTER_CUSTOM_BOSS || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || id >= DND_UNIQUEBOSS_BEGIN;
+	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id == MONSTER_CUSTOM_BOSS || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || (id >= DND_UNIQUEBOSS_BEGIN && id < MONSTER_CUSTOM);
 }
 
 bool IsUniqueMonster(int id) {
 	return id >= DND_UNIQUEMONSTER_BEGIN && id < MONSTER_CUSTOM;
+}
+
+// to be specifically used as sole boss encounters, not randomly spawning boss monster to replace another enemy -- these have their own hp bar code
+// right now only the custom unique boss type exists, in the future we can allocate other monster ids here
+bool isUniqueBossMonster(int m_id) {
+	return MonsterProperties[m_id].id == MONSTER_CUSTOM_UNIQUEBOSS;
+}
+
+// used for when we have access to raw id value from clientside -- clients normally dont know the values of these
+bool isUniqueBossMonster_Id(int id) {
+	return id == MONSTER_CUSTOM_UNIQUEBOSS;
 }
 
 bool IsDemon() {

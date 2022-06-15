@@ -2,8 +2,8 @@
 #define DND_DAMAGE_IN
 
 #include "DnD_Poison.h"
+#include "DnD_Physics.h"
 
-#define DND_DMGPUSH_CAP 72.0
 #define DND_PLAYER_HITSCAN_Z 38.0
 #define MAX_RIPPERS_ACTIVE 256
 #define MAX_RIPPER_HITS_STORED 128
@@ -650,44 +650,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	return dmg;
 }
 
-void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeRipperHack = false) {
-	// get push vector
-	int dx, dy, dz;
-	int m = GetActorProperty(victim, APROP_MASS) / 2;
-	if(!m)
-		m = 1;
-	
-	if(!oneTimeRipperHack) {
-		dx =  GetActorX(victim) - ox;
-		dy =  GetActorY(victim) - oy;
-		dz =  GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0 - oz;
-	}
-	else {
-		dx = ox;
-		dy = oy;
-		dz = oz;
-	}
-	
-	int len = magnitudeThree(dx >> 16, dy >> 16, dz >> 16);
-	if(!len)
-		len = 1;
-		
-	dx /= len;
-	dy /= len;
-	dz /= len;
-	
-	dx *= dmg;		dx /= m;
-	dy *= dmg;		dy /= m;
-	dz *= dmg;		dz /= m;
-	
-	//printbold(s:"impulse: ", d:dmg, s:", force vector: ", f:dx, s:" ", f:dy, s: " ", f:dz);
-	dx = Clamp_Between(dx, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
-	dy = Clamp_Between(dy, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
-	dz = Clamp_Between(dz, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
-	
-	SetActorVelocity(victim, dx, dy, dz, true, false);
-}
-
 // there may be things that add + to cull % later
 bool CheckCullRange(int source, int victim, int dmg) {
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= ApplyDamageFactor_Safe(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, DND_CULL_BASEPERCENT);
@@ -1069,7 +1031,7 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 }
 
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
-// This is strictly for player doing damage to other monsters!
+// This is strictly for player doing damage to other monsters or shootables!
 // All damage factors here are applied in the "more" method, ie. multiplicative
 void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid, int flags, int ox, int oy, int oz, int actor_flags, bool wep_neg = false, bool oneTimeRipperHack = false) {
 	str s_damagetype = DamageTypeList[damage_type];
@@ -1449,15 +1411,14 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 
 void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false) {
 	int px, py, pz;
+	bool victim_IsMonster = IsMonster(victim);
 
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
 		
 	// spawn special blood particles attached to monsters
-	if((flags & DND_DAMAGEFLAG_ISHITSCAN) && CheckFlag(victim, "NOBLOOD")) {
-		if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_STONECREATURE])
-			ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
-	}
+	if((flags & DND_DAMAGEFLAG_ISHITSCAN) && CheckFlag(victim, "NOBLOOD") && victim_IsMonster && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_STONECREATURE])
+		ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
 		
 	int actor_flags = ScanActorFlags();
 		
@@ -1559,15 +1520,19 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		}
 		
 		// Flayer magic or undead check
-		if(wepid == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
+		if(wepid == DND_WEAPON_CROSSBOW && victim_IsMonster && IsActorMagicOrUndead(victim))
 			ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, owner);
 	}
 	
 	SetActivator(owner);
 	
-	//printbold(d:dmg);
-	if(owner && victim)
-		HandleDamageDeal(owner, victim, dmg, damage_type, wepid, flags, px, py, pz, actor_flags, wep_neg, oneTimeRipperHack);
+	//printbold(d:dmg, s: " to ", d:victim);
+	if(owner && victim) {
+		if(victim_IsMonster)
+			HandleDamageDeal(owner, victim, dmg, damage_type, wepid, flags, px, py, pz, actor_flags, wep_neg, oneTimeRipperHack);
+		else // just deal damage to the shootable
+			Thing_Damage2(victim, dmg, "Normal");
+	}
 }
 
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
@@ -1630,7 +1595,7 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		h = GetActorProperty(0, APROP_HEIGHT);
 	}
 	
-	int i = 0, m = 0, s = 0;
+	int i = 0, m = 0, s = 0, mn;
 	int actor_flags = ScanActorFlags();
 	
 	// increment id by 1 for each call, doesnt matter if it overflows
@@ -1654,6 +1619,7 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	bool found = false;
 	bool first_tic = true;
 	int a_x, a_y, a_r;
+	
 	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) + (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) - (r << 16);
 	// start target picking
 	while(GetActorVelX(0) || GetActorVelY(0) || GetActorVelZ(0)) {
@@ -1666,6 +1632,7 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		
 		// get most up-to-date speed (it could be slowing down via decorate)
 		int speed = len;
+		int steps = 0;
 		
 		// we need len as int here
 		len >>= 16;
@@ -1676,7 +1643,7 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 		dir_y /= len;		dir_y *= r;
 		dir_z /= len;		dir_z *= r;
 		
-		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+		for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 			i = UsedMonsterTIDs[mn];
 		
 			// dead, skip
@@ -1685,59 +1652,21 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 			
 			found = false;
 			a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
-			int steps = 3 * Max(speed, a_r + (r << 16)) / 2;
+			steps = 3 * Max(speed, a_r + (r << 16)) / 2;
 			
 			//if(GetActorClass(i) == "BaronOfHell2")
 			//	printbold(f:AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y), s: " > ", f:steps, s: " spd: ", f:speed);
 			
 			if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > steps || ((actor_flags & DND_ACTORFLAG_THRUGHOST) && CheckFlag(i, "GHOST")))
 				continue;
-				
+			
+			// i noticed in some cases where the projectile did not travel all the way to it's speed units distance, it fails to detect enemies
+			// so starting from -steps / 3 "kind of" solves it... there will probably still be some weird cases where the hit won't register, but this will never be perfect anyway
 			steps = (speed / r) >> 16;
 			if(steps < 3)
 				steps = 3;
-			for(s = 0; s < steps; ++s) {
-				// eliminate cases where it'd fail to touch
-				if(!first_tic) {
-					/*if(GetActorClass(i) == "BaronOfHell2")
-						printbold(
-							f:top_x - s * dir_x, s: " > ", f:a_x + a_r, s: " = ", d:top_x - s * dir_x > a_x + a_r, s: " ",
-							f:bot_x - s * dir_x, s: " < ", f:a_x - a_r, s: " = ", d:bot_x - s * dir_x < a_x - a_r, s: " ",
-							f:bot_y - s * dir_y, s: " > ", f:a_y + a_r, s: " = ", d:bot_y - s * dir_y > a_y + a_r, s: " ",
-							f:top_y - s * dir_y, s: " < ", f:a_y - a_r, s: " = ", d:top_y - s * dir_y < a_y - a_r
-						);
-					*/
-					if
-					(
-						top_x - s * dir_x > a_x + a_r ||
-						bot_x - s * dir_x < a_x - a_r ||
-						bot_y - s * dir_y > a_y + a_r ||
-						top_y - s * dir_y < a_y - a_r
-					)
-						continue;
-				}
-				else if // check front and back on tic 0, because projectile spawns speed units farther
-					(
-						(
-							top_x - s * dir_x > a_x + a_r ||
-							bot_x - s * dir_x < a_x - a_r ||
-							bot_y - s * dir_y > a_y + a_r ||
-							top_y - s * dir_y < a_y - a_r
-						)
-						&&
-						(
-							!s ||
-							top_x + s * dir_x > a_x + a_r ||
-							bot_x + s * dir_x < a_x - a_r ||
-							bot_y + s * dir_y > a_y + a_r ||
-							top_y + s * dir_y < a_y - a_r
-						)
-					)
-						continue;
-				
-				//printbold(s:"x-y valid on: ", f:a_x, s: " ", f:a_y, s:" ", f:top_x + s * dir_x * r, s: " ", f:top_y + s * dir_y * r, s: " ", f:bot_x + s * dir_x * r, s: " ", f:bot_y + s * dir_y * r);
-				//printbold(s:"try z: ", f:GetActorZ(0) - h, s: " ", f:GetActorZ(0) + h, s: " ", f:GetActorZ(i), s: " ", f:GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT));
-				if(GetActorZ(0) - h / 2 + s * dir_z > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h / 2 + s * dir_z < GetActorZ(i) || !CheckSight(0, i, 0))
+			for(s = -steps / 3; s < steps; ++s) {
+				if(CheckProjectileCollision(h, top_x, top_y, bot_x, bot_y, s * dir_x, s * dir_y, s * dir_z, a_x, a_y, a_r, i))
 					continue;
 				
 				//printbold(s:"IN BOX ", d:ripper_id, s: " actor: ", d:i);
@@ -1759,6 +1688,56 @@ Script "DnD One Time Ripper" (int dmg, int damage_type, int flags, int wepid) {
 				break;
 			}
 		}
+		
+		// check for shootables now -- same loop as above but for shootables
+		for(mn = 0; mn < DnD_TID_Counter[DND_TID_SHOOTABLE]; ++mn) {
+			i = mn + DND_SHOOTABLETID_BEGIN;
+			
+			// dead, skip -- no monster check here
+			if(!isActorAlive(i))
+				continue;
+			
+			found = false;
+			a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
+			steps = 3 * Max(speed, a_r + (r << 16)) / 2;
+			
+			//if(GetActorClass(i) == "BaronOfHell2")
+			//	printbold(f:AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y), s: " > ", f:steps, s: " spd: ", f:speed);
+			
+			// shootable decorative actors are most likely not ghosts...
+			if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > steps)
+				continue;
+			
+			// i noticed in some cases where the projectile did not travel all the way to it's speed units distance, it fails to detect enemies
+			// so starting from -steps / 3 "kind of" solves it... there will probably still be some weird cases where the hit won't register, but this will never be perfect anyway
+			steps = (speed / r) >> 16;
+			if(steps < 3)
+				steps = 3;
+			for(s = -steps / 4; s < steps; ++s) {
+				if(CheckProjectileCollision(h, top_x, top_y, bot_x, bot_y, s * dir_x, s * dir_y, s * dir_z, a_x, a_y, a_r, i))
+					continue;
+				
+				//printbold(s:"IN BOX ", d:ripper_id, s: " actor: ", d:i);
+				// insert into ripper hit list, and call impact damage script on this guy IF not in list
+				for(m = 0; m < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][m] != -1; ++m) {
+					if(ripper_hits[ripper_id][m] == i) {
+						found = true;
+						break;
+					}
+				}
+				//printbold(s:"found or max? ", d:found, s: " ", d:m < MAX_RIPPER_HITS_STORED);
+				// not in this list yet, insert it and do damage deal routine
+				if(!found && m < MAX_RIPPER_HITS_STORED) {
+					//printbold(s:"deal damage to ", d:i, s: " by ripper id ", d:ripper_id);
+					ripper_hits[ripper_id][m] = i;
+					ACS_NamedExecuteWithResult("DnD Do Impact Damage Ripper", dmg, damage_type | (i << DAMAGE_TYPE_SHIFT), flags, wepid);
+					HandleRipperHitSound(i, owner, wepid);
+				}
+				break;
+			}
+		}
+		
+		
 		//printbold(s:"running id ", d:ripper_id);
 		Delay(const:1);
 		first_tic = false;
@@ -1797,7 +1776,7 @@ Script "DnD One Time Ripper Fix" (int dmg, int damage_type, int flags, int wepid
 		h = GetActorProperty(0, APROP_HEIGHT);
 	}
 	
-	int i = 0, m = 0;
+	int i = 0, m = 0, s, mn;
 	int actor_flags = ScanActorFlags();
 	
 	// increment id by 1 for each call, doesnt matter if it overflows
@@ -1841,7 +1820,7 @@ Script "DnD One Time Ripper Fix" (int dmg, int damage_type, int flags, int wepid
 	top_x = GetActorX(0) - (r << 16), top_y = GetActorY(0) + (r << 16), bot_x = GetActorX(0) + (r << 16), bot_y = GetActorY(0) - (r << 16);
 	
 	// start target picking
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		
 		// dead, skip
@@ -1857,7 +1836,7 @@ Script "DnD One Time Ripper Fix" (int dmg, int damage_type, int flags, int wepid
 		if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > 5 * (a_r + (r << 16)) || ((actor_flags & DND_ACTORFLAG_THRUGHOST) && CheckFlag(i, "GHOST")))
 			continue;
 		
-		for(int s = 0; s < steps; ++s) {
+		for(s = 0; s < steps; ++s) {
 			// eliminate cases where it'd fail to touch
 			// check front and back on tic 0, because projectile spawns speed units farther
 			// top and bot are projectile's coords, a_x etc. are the actor in question
@@ -1869,26 +1848,59 @@ Script "DnD One Time Ripper Fix" (int dmg, int damage_type, int flags, int wepid
 			|				bot(x,y)
 			*-----------------------x
 			*/
-
-			/*printbold(
-				s:"actor vecs: ", f:a_x, s: " ", f:a_y, s: " ", f:a_r, s: " checking: ",
-				f:top_x + s * dir_x, s: " > ", f:a_x + a_r, s: " || ",
-				f:bot_x + s * dir_x, s: " < ", f:a_x - a_r, s: " || ",
-				f:bot_y + s * dir_y, s: " > ", f:a_y + a_r, s: " || ",
-				f:top_y + s * dir_y, s: " < ", f:a_y - a_r
-			);*/
-			if
-			(
-				top_x + s * dir_x > a_x + a_r ||
-				bot_x + s * dir_x < a_x - a_r ||
-				bot_y + s * dir_y > a_y + a_r ||
-				top_y + s * dir_y < a_y - a_r
-			)
+			
+			if(CheckProjectileCollision(h, top_x, top_y, bot_x, bot_y, -s * dir_x, -s * dir_y, 0, a_x, a_y, a_r, i))
 				continue;
 			
-			//printbold(s:"x-y valid on: ", f:a_x, s: " ", f:a_y, s:" ", f:top_x + s * dir_x * r, s: " ", f:top_y + s * dir_y * r, s: " ", f:bot_x + s * dir_x * r, s: " ", f:bot_y + s * dir_y * r);
-			//printbold(s:"try z: ", f:GetActorZ(0) - h / 2, s: " > ", f:GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT), s: " || ", f:GetActorZ(0) + h / 2, s: " < ", f:GetActorZ(i));
-			if(GetActorZ(0) > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) || GetActorZ(0) + h < GetActorZ(i) || !CheckSight(0, i, 0))
+			//printbold(s:"IN BOX ", d:ripper_id, s: " actor: ", d:i);
+			// insert into ripper hit list, and call impact damage script on this guy IF not in list
+			for(m = 0; m < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][m] != -1; ++m) {
+				if(ripper_hits[ripper_id][m] == i) {
+					found = true;
+					break;
+				}
+			}
+			// not in this list yet, insert it and do damage deal routine
+			if(!found && m < MAX_RIPPER_HITS_STORED) {
+				//printbold(s:"deal damage to ", d:i, s: " by ripper id ", d:ripper_id);
+				ripper_hits[ripper_id][m] = i;
+				ACS_NamedExecuteWithResult("DnD Do Impact Damage Ripper", dmg, damage_type | (i << DAMAGE_TYPE_SHIFT), flags, wepid);
+				HandleRipperHitSound(i, owner, wepid);
+			}
+		}
+	}
+	
+	// start target picking
+	for(mn = 0; mn < DnD_TID_Counter[DND_TID_SHOOTABLE]; ++mn) {
+		i = mn + DND_SHOOTABLETID_BEGIN;
+		
+		// dead, skip
+		if(!isActorAlive(i))
+			continue;
+
+		found = false;
+		a_x = GetActorX(i), a_y = GetActorY(i), a_r = GetActorProperty(i, APROP_RADIUS);
+		/*if(GetActorClass(i) == "DoomImp2")
+			printbold(s:"dist check ", f:AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y), s: " > ", f:5 * (a_r + (r << 16)));*/
+			
+		// give a more generous window here in case proj skipped way too much
+		if(AproxDistance(GetActorX(0) - a_x, GetActorY(0) - a_y) > 5 * (a_r + (r << 16)))
+			continue;
+		
+		for(s = 0; s < steps; ++s) {
+			// eliminate cases where it'd fail to touch
+			// check front and back on tic 0, because projectile spawns speed units farther
+			// top and bot are projectile's coords, a_x etc. are the actor in question
+			/*
+			y
+			|	top(x,y)
+			|		*-------
+			|		-------*
+			|				bot(x,y)
+			*-----------------------x
+			*/
+			
+			if(CheckProjectileCollision(h, top_x, top_y, bot_x, bot_y, -s * dir_x, -s * dir_y, 0, a_x, a_y, a_r, i))
 				continue;
 			
 			//printbold(s:"IN BOX ", d:ripper_id, s: " actor: ", d:i);
@@ -2806,7 +2818,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		//printbold(s:GetactorClass(0), s:" inflicts damage id ", d:GetActorProperty(0, APROP_DAMAGE));
+		// printbold(s:GetactorClass(0), s:" inflicts damage ", d:GetActorProperty(0, APROP_DAMAGE));
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
