@@ -41,6 +41,14 @@ typedef struct coord {
 // x is scroll current pos, y is scroll limit
 coord_T ScrollPos = { 0, 0 };
 
+#define BOSSDATA_TID 0 // unique boss tid, this is typically dungeon boss or one off boss encounters in maps
+#define BOSSDATA_HP 1 // unique boss hp, monster health isnt synced to clients
+#define BOSSDATA_FORT 2
+#define BOSSDATA_DMGTAKEN 3
+#define BOSSDATA_DMGTRIGGER 4
+#define BOSSDATA_AWAKENED 5
+int DungeonBossData[6] = { 0, 0, 0, 0, 0, 0 };
+
 // MENU IDS
 // Moved here because of dependencies
 enum {
@@ -663,18 +671,19 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 		if(CheckInventory("TargetIsElite"))
 			prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
 		if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
-			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 		else if(is_unique)
-			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 		else if(IsMonsterIdBoss(monid))
-			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 		else
-			HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 	}
 	else
-		HudMessage(s:prefix, s:GetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber())); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+		HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
 	
 	// made this way to reduce variable dependancy and if statement use
+	DeleteTextRange(MONSTER_BARFILLID, MONSTER_BARFILLOVERLAY4);
 	if(CheckInventory("TargetHealthBarColor")) {
 		if(!is_unique)
 			SetFont("MNRHPBAR");
@@ -823,6 +832,50 @@ void DrawBigBossHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	// legendary monsters show no traits at all
 	SetFont ("MONFONT");
 	HudMessage(s:"\c[D1]", l:"DND_EMOD_DUNGEONBOSS"; HUDMSG_FADEOUT, MONSTER_TRAITID, CR_WHITE, 400.4, 84.1, MONSTERINFO_HOLDTIME);
+}
+
+Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
+	int m_id = tid - DND_MONSTERTID_BEGIN;
+	int counter = 0, alpha;
+	int hdisp, fdisp;
+	int draw_id = MONSTER_BARFILLID;
+	while(DungeonBossData[BOSSDATA_TID]) {
+		hdisp = (DungeonBossData[BOSSDATA_HP] * 100 / MonsterProperties[m_id].maxhp);
+		if(hdisp > 100)
+			hdisp = 100;
+		hdisp = 450 * hdisp / 100;
+		
+		fdisp = (DungeonBossData[BOSSDATA_FORT] * 450 / MonsterProperties[m_id].maxhp);
+		
+		alpha = Clamp_Between(DungeonBossData[BOSSDATA_DMGTAKEN] * 0.01, 0.0, 1.0);
+		
+		if(!counter && DungeonBossData[BOSSDATA_DMGTRIGGER]) {
+			counter = 25;
+			DungeonBossData[BOSSDATA_DMGTRIGGER] = 0;
+		}
+		
+		if(!CheckInventory("TargetTID") || CheckInventory("TargetTID") == DungeonBossData[BOSSDATA_TID]) {
+			SetHudSize(800, 600, 0);
+			SetHudClipRect(174, 60, hdisp, 18, hdisp);
+			SetFont("HPBARFXP");
+				
+			if(fdisp)
+				draw_id = MONSTER_BARFILLOVERLAY2;
+			else
+				draw_id = MONSTER_BARFILLID;
+			
+			HudMessage(s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, draw_id, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, alpha);
+			SetHudClipRect(0, 0, 0, 0, 0);
+		}
+		
+		Delay(const:1);
+		
+		if(counter) {
+			--counter;
+			DungeonBossData[BOSSDATA_DMGTAKEN] = (DungeonBossData[BOSSDATA_DMGTAKEN] * SmoothStop3(counter * 1.0 / 25)) >> 16;
+		}
+	}
+	SetResultValue(0);
 }
 
 #endif

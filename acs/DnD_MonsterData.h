@@ -707,6 +707,9 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	if((MonsterData[monsterid].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[tid].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[tid].trait_list[DND_MAGIC_IMMUNE])
 		MonsterProperties[tid].trait_list[DND_MAGIC_WEAKNESS] = true;
 	
+	// debug
+	//MonsterProperties[tid].trait_list[DND_REPEL] = true;
+	
 	// this is needed as some monsters have some of the properties in there that need to be applied without being elites
 	HandlePreInitTraits(tid, monsterid);
 }

@@ -198,12 +198,13 @@ Actor DnD_PlayerBase : PlayerPawn {
 			"####" "#" 35
 		Wait
 		
+		XDeath:
 		Death.Explosive:
 		Death.Explosives:
 		Death.ExplosiveGreen:
 		Death.ExplosiveLightning:
 			"####" "#" 0 A_SetBlend("Red", 0.5, 25)
-			"####" "#" 0 A_Jump(256, "XDeath")
+			"####" "#" 0 A_Jump(256, "XdeathAnim")
 			"####" "#" 35
 		Wait
 		
@@ -428,7 +429,7 @@ Actor TheDoomGuy : DnD_PlayerBase {
 			DPLY K 10
 			DPLY L -1
 		Stop
-		Xdeath:
+		XdeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -591,7 +592,7 @@ Actor TheMarine : DnD_PlayerBase {
 			PLAY KLM 10
 			PLAY N -1
 		Stop
-		Xdeath:
+		XdeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -754,7 +755,7 @@ Actor TheHobo : DnD_PlayerBase {
 			PREN KLM 10
 			PREN N -1
 		Stop
-		Xdeath:
+		XdeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -917,7 +918,7 @@ Actor ThePunisher : DnD_PlayerBase {
 			BLAZ K 10
 			BLAZ L -1
 		Stop
-		Xdeath:
+		XdeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -1080,7 +1081,7 @@ Actor TheWanderer : DnD_PlayerBase {
 			MNK1 KLM 5
 			MNK1 N -1
 		Stop
-		Xdeath:
+		XdeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -1243,7 +1244,7 @@ Actor TheCyborg : DnD_PlayerBase {
 			PLY6 KLM 10
 			PLY6 N -1
 		Stop
-		Xdeath:
+		XdeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -1386,7 +1387,7 @@ Actor TheBerserker : DnD_PlayerBase {
 			BERP KLM 8
 			BERP N -1
 		Stop
-		Xdeath:
+		XdeathAnim:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)

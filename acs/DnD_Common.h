@@ -370,6 +370,10 @@ int abs (int x) {
 	return x;
 }
 
+int sign (int x) {
+	return (x > 0) - (x < 0);
+}
+
 // naive search -- assumes lowercase key
 bool StringContains(str s, str key) {
 	int len = StrLen(s);

@@ -1943,9 +1943,6 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		
 	HandlePostInitTraits(m_id, monsterid);
 	
-	// debug
-	// MonsterProperties[m_id].trait_list[DND_RUINATION] = true;
-	
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
 		"DnD Sync Monster Trait CS", 
@@ -2577,6 +2574,7 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 
 Script "DnD Monster Scanner Picker" (void) {
 	int this = ActivatorTID();
+	bool farPick = false;
 	while(isActorAlive(this)) {
 		SetActivatorToTarget(this);
 		
@@ -2584,16 +2582,25 @@ Script "DnD Monster Scanner Picker" (void) {
 		int m_id = 0;
 		int healthbarcolor = 0;
 		
-		if(montid == this || CheckInventory("EnemyInDisguise")) {
+		if(!montid || montid == this || CheckInventory("EnemyInDisguise")) {
 			// player has no targets
 			SetActivator(this);
-			SetInventory("TargetMaximumHealth", 0);
-			SetInventory("TargetCurrentHealth", 0);
-			SetInventory("TargetHealthBarColor", 0);
-			SetInventory("TargetLevel", 0);
-			SetInventory("TargetIsWhat", 0);
-			SetInventory("TargetIsElite", 0);
-			SetInventory("TargetFortify", 0);
+			
+			// if off cd or monster is dead, remove its data, we won't redraw it
+			if(!CheckInventory("TargetPickCooldown")) {
+				SetInventory("TargetMaximumHealth", 0);
+				SetInventory("TargetCurrentHealth", 0);
+				SetInventory("TargetHealthBarColor", 0);
+				SetInventory("TargetLevel", 0);
+				SetInventory("TargetIsWhat", 0);
+				SetInventory("TargetIsElite", 0);
+				SetInventory("TargetFortify", 0);
+				SetInventory("TargetTID", 0);
+			}
+			else {
+				montid = CheckActorInventory(this, "TargetTID");
+				SetActivator(montid);
+			}
 		}
 		else {
 			if(!CheckInventory("EnemyInDisguise") && (CheckActorProperty(0, APROP_Friendly, 0) || CheckInventory("FriendlyInDisguise")))
@@ -2603,6 +2610,18 @@ Script "DnD Monster Scanner Picker" (void) {
 			
 			// manipulate player stuff now
 			SetActivator(this);
+			
+			if(!isActorAlive(montid)) {
+				SetInventory("TargetMaximumHealth", 0);
+				SetInventory("TargetCurrentHealth", 0);
+				SetInventory("TargetHealthBarColor", 0);
+				SetInventory("TargetLevel", 0);
+				SetInventory("TargetIsWhat", 0);
+				SetInventory("TargetIsElite", 0);
+				SetInventory("TargetFortify", 0);
+				SetInventory("TargetTID", 0);
+				continue;
+			}
 			
 			// this part retrieves data from server
 			// if not a pet
@@ -2629,8 +2648,6 @@ Script "DnD Monster Scanner Picker" (void) {
 			SetInventory("TargetMonId", m_id);
 			SetInventory("TargetHealthBarColor", healthbarcolor);
 			SetInventory("TargetCurrentHealth", GetActorProperty (montid, APROP_Health));
-			
-			SetCVarString(Strparam(s:"DND_NAMETAGS", i:PlayerNumber()), GetActorProperty(montid, APROP_NAMETAG));
 			
 			// fixes initialization bug
 			SetActivator(this);
@@ -2708,6 +2725,7 @@ Script "DnD Constant Unique Boss Sync" (int tid) {
 	int lasthp = GetActorProperty(tid, APROP_HEALTH);
 	int lastfort = CheckActorInventory(tid, "MonsterFortifyCount");
 	bool hasFort = !!lastFort;
+	bool awakened = false;
 	
 	// force sync on initial tic
 	ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, lasthp, BOSSDATA_HP, 0);
@@ -2727,54 +2745,20 @@ Script "DnD Constant Unique Boss Sync" (int tid) {
 			ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, hp, BOSSDATA_FORT, lastfort - hp);
 			lastfort = hp;
 		}
+		
+		if(!awakened && GetActorProperty(tid, APROP_TARGETTID))
+			ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", 0, 1, BOSSDATA_AWAKENED);
 	}
 	SetResultValue(0);
 }
 
 Script "DnD Unique Boss Property Sync" (int tid, int val, int prop, int diff) CLIENTSIDE {
 	// if non-zero that means this isn't an init step, this is an update request so we took damage
-	if(prop == BOSSDATA_HP && DungeonBossData[prop])
+	if(prop == BOSSDATA_HP && DungeonBossData[prop]) {
 		DungeonBossData[BOSSDATA_DMGTAKEN] = diff;
-	DungeonBossData[prop] = val;
-	SetResultValue(0);
-}
-
-Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
-	int m_id = tid - DND_MONSTERTID_BEGIN;
-	int counter = 0, alpha;
-	int hdisp, fdisp;
-	int draw_id = MONSTER_BARFILLID;
-	while(DungeonBossData[BOSSDATA_TID]) {
-		hdisp = (DungeonBossData[BOSSDATA_HP] * 100 / MonsterProperties[m_id].maxhp);
-		if(hdisp > 100)
-			hdisp = 100;
-		hdisp = 450 * hdisp / 100;
-		
-		fdisp = (DungeonBossData[BOSSDATA_FORT] * 450 / MonsterProperties[m_id].maxhp);
-		
-		SetHudSize(800, 600, 0);
-		SetHudClipRect(174, 60, hdisp, 18, hdisp);
-		SetFont("HPBARFXP");
-		
-		alpha = Clamp_Between(DungeonBossData[BOSSDATA_DMGTAKEN] * 0.01, 0.0, 1.0);
-		
-		if(!counter && DungeonBossData[BOSSDATA_DMGTAKEN])
-			counter = 25;
-			
-		if(fdisp)
-			draw_id = MONSTER_BARFILLOVERLAY2;
-		else
-			draw_id = MONSTER_BARFILLID;
-		
-		HudMessage(s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, draw_id, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, alpha);
-	
-		Delay(const:1);
-		
-		if(counter) {
-			--counter;
-			DungeonBossData[BOSSDATA_DMGTAKEN] = (DungeonBossData[BOSSDATA_DMGTAKEN] * SmoothStop3(counter * 1.0 / 25)) >> 16;
-		}
+		DungeonBossData[BOSSDATA_DMGTRIGGER] = 1;
 	}
+	DungeonBossData[prop] = val;
 	SetResultValue(0);
 }
 
@@ -2785,17 +2769,41 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 	
 	int temp = DungeonBossData[BOSSDATA_TID];
 	int m_id = temp - DND_MONSTERTID_BEGIN;
-	
-	if(temp)
-		ACS_NamedExecuteWithResult("DnD Boss HP FX Overlay", temp);
+	bool hadTarget = false;
+	bool drawnOverlay = false;
 	
 	while(isAlive()) {
 		// disable during intermission
 		if(CheckInventory("DnD_IntermissionState"))
 			break;
+			
+		// dont draw old style bar for unique bosses
+		mmaxhp = CheckInventory("TargetMaximumHealth");
+		m_id = CheckInventory("TargetIsWhat");
+		if(mmaxhp && !isUniqueBossMonster_Id(m_id) && GetCVar("dnd_monsterbars")) {
+			hadTarget = true;
+			DrawMonsterHPBar(
+				CheckInventory("TargetTID"),
+				mmaxhp,
+				CheckInventory("TargetCurrentHealth"),
+				CheckInventory("TargetLevel"),
+				CheckInventory("TargetIsWhat"),
+				CheckInventory("TargetMonId"),
+				CheckInventory("TargetFortify")
+			);
+		}
+		else if(DungeonBossData[BOSSDATA_TID] && DungeonBossData[BOSSDATA_AWAKENED]) {
+			if(hadTarget) {
+				hadTarget = false;
+				DeleteTextRange(MONSTER_BARFILLID, MONSTER_BARFILLOVERLAY);
+			}
+			
+			if(!drawnOverlay) {
+				drawnOverlay = true;
+				ACS_NamedExecuteWithResult("DnD Boss HP FX Overlay", temp);
+			}
 		
-		m_id = temp - DND_MONSTERTID_BEGIN;
-		if(temp) {
+			m_id = temp - DND_MONSTERTID_BEGIN;
 			// draw permanently as soon as the boss monster wakes only replaced by looking at another monster (that's why it's below)
 			DrawBigBossHPBar(
 				temp,
@@ -2805,21 +2813,6 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 				MonsterProperties[m_id].id,
 				m_id,
 				DungeonBossData[BOSSDATA_FORT]
-			);
-		}
-
-		// dont draw old style bar for unique bosses
-		mmaxhp = CheckInventory("TargetMaximumHealth");
-		m_id = CheckInventory("TargetIsWhat");
-		if(mmaxhp && !isUniqueBossMonster_Id(m_id) && GetCVar("dnd_monsterbars")) {
-			DrawMonsterHPBar(
-				CheckInventory("TargetTID"),
-				mmaxhp,
-				CheckInventory("TargetCurrentHealth"),
-				CheckInventory("TargetLevel"),
-				CheckInventory("TargetIsWhat"),
-				CheckInventory("TargetMonId"),
-				CheckInventory("TargetFortify")
 			);
 		}
 
@@ -6129,6 +6122,7 @@ Script "DnD Repel" (void) {
 	// player R = 16.0
 	int r = GetActorProperty(0, APROP_RADIUS) + 16.0;
 	int p_tid;
+	int this = ActivatorTID();
 	
 	while(true) {
 		Delay(const:REPEL_REFRESH_RATE);
@@ -6139,15 +6133,21 @@ Script "DnD Repel" (void) {
 		// check all players to see if they are close to us
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			p_tid = i + P_TIDSTART;
-			if(PlayerInGame(i) && isActorAlive(p_tid)) {
-				// 16.0 is player radius
-				if(AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= REPEL_DISTANCE + r && CheckSight(p_tid, 0, CSF_NOBLOCKALL)) {
-					GiveInventory("RepelPulse", 1);
-					ACS_NamedExecuteAlways("DnD Repel FX", 0);
-					// repel will make it wait twice its duration for a total of 6 seconds
-					Delay(const:REPEL_COOLDOWN);
-					break;
-				}
+			// added check for knockback immunity
+			if
+			(
+				PlayerInGame(i) &&
+				isActorAlive(p_tid) &&
+				!CheckUniquePropertyOnPlayer(i, PUP_KNOCKBACKIMMUNE) &&
+				AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= REPEL_DISTANCE + r
+				&& CheckSight(p_tid, 0, CSF_NOBLOCKALL)
+			)
+			{
+				PushPlayerAway(p_tid, this, REPEL_FORCE, REPEL_FORCE / 2);
+				ACS_NamedExecuteAlways("DnD Repel FX", 0);
+				// repel will make it wait twice its duration for a total of 6 seconds
+				Delay(const:REPEL_COOLDOWN);
+				break;
 			}
 		}
 	}

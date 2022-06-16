@@ -41,6 +41,31 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeR
 	SetActorVelocity(victim, dx, dy, dz, true, false);
 }
 
+// player tid, monster tid, force on xy, force on z
+void PushPlayerAway(int tid, int mtid, int f_xy, int f_z, bool z_AlwaysUp = false) {
+	// angle to make monster face player
+	int a = AngleToFace(mtid, tid);
+	
+	// push power is scaled with monster level by 5% per level -- one would need at least 125 * 100 = 12,500 knockback resist to be immune to this vs a monster of lvl 1
+	// vs a monster of level 100 you'd need 125 * 500 = 725,000 knockback resist
+	int m = 100 + 4 * MonsterProperties[mtid - DND_MONSTERTID_BEGIN].level - GetActorProperty(tid, APROP_MASS) / 125;
+	if(m < 0)
+		m = 0;
+	
+	// z dir is determined simply by sign of z_diff -- f_z is int
+	int dz = z_AlwaysUp ? 1 : sign(GetActorZ(tid) + GetActorProperty(tid, APROP_HEIGHT) / 2 - GetActorZ(mtid) - GetActorProperty(mtid, APROP_HEIGHT) / 2);
+	f_z <<= 16;
+	
+	SetActorVelocity(
+		tid,
+		f_xy * cos(a) * m / 100,
+		f_xy * sin(a) * m / 100,
+		f_z * dz * m / 100,
+		true,
+		false
+	);
+}
+
 // height, bounding box top and bottom coords, dir vectors x,y,z, actor x,y,radius, actor tid
 bool CheckProjectileCollision(int h, int top_x, int top_y, int bot_x, int bot_y, int dir_x, int dir_y, int dir_z, int a_x, int a_y, int a_r, int i) {
 	// eliminate cases where it'd fail to touch

@@ -230,12 +230,6 @@ str GetSpreeText(int spree_id) {
 bool Quest_Pick_Done = 0;
 bool PlayerCanLoad[MAXPLAYERS] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
-#define BOSSDATA_TID 0 // unique boss tid, this is typically dungeon boss or one off boss encounters in maps
-#define BOSSDATA_HP 1 // unique boss hp, monster health isnt synced to clients
-#define BOSSDATA_FORT 2
-#define BOSSDATA_DMGTAKEN 3
-int DungeonBossData[4] = { 0, 0, 0, 0 };
-
 // various states are checked using this, such as bonus states or player joins
 // don't add in between, add below!
 enum {

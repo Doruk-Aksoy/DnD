@@ -8,6 +8,11 @@ Actor TargetIsElite : DnD_Boolean {}
 Actor TargetFortify : DnD_Info {}
 Actor TargetTID : DnD_Info {}
 
+Actor TargetPickCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
 // Identification of the monster
 Actor MonsterID : DnD_Info {}
 Actor MonsterLevel : DnD_Info {}

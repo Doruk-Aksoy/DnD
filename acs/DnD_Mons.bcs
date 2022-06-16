@@ -3,6 +3,7 @@
 
 #include "DnD_Intercept.h"
 #include "DnD_Monsters.h"
+#include "DnD_Physics.h"
 
 // Monster stuff
 
@@ -1183,5 +1184,39 @@ Script "DnD Abaxoth Thunder Shield - CS" (void) CLIENTSIDE {
 	SetPointer(AAPTR_TARGET, this);
 	Thing_ChangeTID(ABAXOTH_THUNDERFX2TID, 0);
 	
+	SetResultValue(0);
+}
+
+Script "DnD Projectile Push" (int f_xy) {
+	// tracer holds the actor we hit
+	int mon_tid = GetActorProperty(0, APROP_TARGETTID);
+	int target_tid = GetActorProperty(0, APROP_TRACERTID);
+	
+	// if not player => always push, if player and doesn't have knockback immune => also push
+	if(!isPlayer(target_tid) || !CheckUniquePropertyOnPlayer(target_tid - P_TIDSTART, PUP_KNOCKBACKIMMUNE))
+		PushPlayerAway(target_tid, mon_tid, f_xy, f_xy / 2, true);
+		
+	SetResultValue(0);
+}
+
+Script "DnD Monster Push All Players" (int dist, int f_xy) {
+	// check all players to see if they are close to us
+	int this = ActivatorTID();
+	dist <<= 16;
+	
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		int p_tid = i + P_TIDSTART;
+		int r = GetActorProperty(p_tid, APROP_RADIUS);
+		// added check for knockback immunity
+		if
+		(
+			PlayerInGame(i) &&
+			isActorAlive(p_tid) &&
+			!CheckUniquePropertyOnPlayer(i, PUP_KNOCKBACKIMMUNE) &&
+			AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= dist + r
+			&& CheckSight(p_tid, 0, CSF_NOBLOCKALL)
+		)
+			PushPlayerAway(p_tid, this, f_xy, f_xy / 2, true);
+	}
 	SetResultValue(0);
 }

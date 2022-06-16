@@ -1030,6 +1030,19 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 	return dmg;
 }
 
+void HandleTargetPicking(int montid) {
+	// off cd and we dont have a target, since we damaged it we can pick it for now
+	int curr_tid = CheckInventory("TargetTID");
+	if(!curr_tid) {
+		SetInventory("TargetTID", montid);
+		
+		if(!CheckInventory("TargetPickCooldown"))
+			GiveInventory("TargetPickCooldown", 1);
+	}
+	else if(montid == curr_tid) // attacking same monster, refresh cd
+		GiveInventory("TargetPickCooldown", 1);
+}
+
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters or shootables!
 // All damage factors here are applied in the "more" method, ie. multiplicative
@@ -1222,6 +1235,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		SetActorInventory(victim, "MonsterFortifyCount", temp - dmg);
 		dmg -= temp;
 	}
+	
+	HandleTargetPicking(victim);
 	
 	// cull checks
 	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
