@@ -154,6 +154,8 @@ enum {
 #define DND_SOULAMMO_DROPRATE 0.05 // 5% chance
 #define DND_SOULAMMO_SMALLCHANCE 75
 
+#define DND_BOSSCHEST_DROPRATE 0.33 // 33% chance
+
 #define DND_ITEM_LINGER_TIME 120
 
 #define DND_MARINE_SELFRESIST 25 // 25%
@@ -799,17 +801,108 @@ void HandleSoulDrop() {
 	}
 }
 
-void HandleOtherDrops(int target) {
+// loc_tid is a potential drop location
+void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1) {
+	if(!IsPlayer(target))
+		return;
+
+	int m_id = tid - DND_MONSTERTID_BEGIN;
 	int pnum = target - P_TIDSTART;
-	if(IsZombie())
-		GiveActorInventory(target, "DnD_ShotUndead", 1);
-	if(CheckInventory("BookofDeadCausedDeath")) {
-		GiveActorInventory(target, "Souls", (1 + DND_BOSS_SOULGIVE * IsBoss()) * (100 + GetPlayerAttributeValue(pnum, INV_EX_PICKUPS_MORESOUL)) / 100);
-		Spawn("SoulEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
-		TakeInventory("BookofDeadCausedDeath", 1);
+	int temp;
+
+	// Handle all drops here
+	// drop coins if there should be
+	if(GetCVar("dnd_credit_drops")) {
+		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
+		HandleCashDrops(m_id, pnum, isElite);
 	}
 	
-	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(pnum, CheckInventory("MonsterIsElite"), CHANCE_HEART))
+	// ammo specialty drop
+	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(pnum, isElite, DND_MUNITION_MASTERY_CHANCE)) {
+		SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
+		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
+	}
+	
+	// research drop
+	if(!GetCVar("dnd_allresearchesfound")) {
+		// make it less likely to drop
+		// addone is the chance here (reusing old variables)
+		temp = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
+		if(GetCVar("dnd_ignore_dropweights") || RunDropChance(pnum, isElite, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, temp))
+			SpawnResearch(pnum);
+	}
+	
+	// Chest Key
+	HandleChestKeyDrop(isElite);
+	
+	// if elite, roll orb and equipment drops
+	if(GetCVar("dnd_ignore_dropweights") || isElite) {
+		// handle orb drops
+		HandleEliteDrops();
+	}
+	
+	// accessory drops (accept only from cyber and spider masterminds)
+	/*#ifdef ISDEBUGBUILD
+		SpawnAccessory();
+	#else*/
+	if(
+		IsBossTID(tid) && 
+		RunDropChance(pnum, isElite, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0) &&
+		GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)
+	)
+	{
+		// we can drop the spawner
+		SpawnAccessory();
+	}
+	//#endif
+	
+	#ifdef ISDEBUGBUILD
+		//SpawnElixir(0);
+		SpawnCharm(0, true);
+		SpawnOrb(0, true);
+		//SpawnToken(0, true);
+	#endif
+	
+	HandleCharmLootDrop(isElite);
+	
+	// doomguy drop
+	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(pnum, isElite, DND_DOOMGUY_DROPCHANCE)) {
+		temp = MonsterProperties[m_id].maxhp;
+		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
+		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+			SpawnDrop("Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
+	}
+	
+	// soul ammo drop -- considers ability - soulstealer as well
+	if(
+		(CanDropSoulAmmoTID(tid) && RunDefaultDropChance(pnum, isElite, DND_SOULAMMO_DROPRATE)) ||
+		(IsMonsterIdDemon(m_id) && (CheckActorInventory(target, "Ability_SoulStealer") && CheckActorInventory(tid, "MagicCausedDeath")))
+	  )
+	{
+		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE) {
+			SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
+			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
+		}
+		else {
+			SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
+			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+				SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
+		}
+		TakeActorInventory(tid, "MagicCausedDeath", 1);
+	}
+	
+	if(IsMonsterIdZombie(m_id))
+		GiveActorInventory(target, "DnD_ShotUndead", 1);
+		
+	if(CheckActorInventory(tid, "BookofDeadCausedDeath")) {
+		GiveActorInventory(target, "Souls", (1 + DND_BOSS_SOULGIVE * IsBossTID(tid)) * (100 + GetPlayerAttributeValue(pnum, INV_EX_PICKUPS_MORESOUL)) / 100);
+		Spawn("SoulEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+		TakeActorInventory(tid, "BookofDeadCausedDeath", 1);
+	}
+	
+	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(pnum, isElite, CHANCE_HEART))
 		SpawnDrop("DemonHeartPickup", 24.0, 16, 0, 0);
 }
 
@@ -835,40 +928,37 @@ int GetWeaponSlotFromFlag(int flags) {
 	return 0;
 }
 
-int ScaleMonster(int tid, int pcount, int realhp) {
+int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 	int base = realhp;
 	int add = 0, level = 1, low, high, temp;
 	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount;
-	// ensure minions use master's level
-	if(GetActorProperty(0, APROP_MASTERTID)) {
+	// ensure minions use master's level -- do so only if its summoned, boss tier monsters have tids on the spawners that can mess this up during mapload!!!
+	if(GetActorProperty(0, APROP_MASTERTID) && isSummoned)
 		level = MonsterProperties[GetActorProperty(0, APROP_MASTERTID) - DND_MONSTERTID_BEGIN].level;
-	}
 	if(GetCVar("dnd_randomize_levels")) {
-		low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
-		high = Clamp_Between(GetCVar("dnd_monsterlevel_high"), 0, 50);
-		// first 10 levels the monsters shouldn't really get super high levels
-		if(level < 10)
-			high = Clamp_Between(high, 0, high / 2);
-		// give some sort of variety in the levels
-		// subtract level from avg half the time
-		if(random(0, 1)) {
-			temp = low;
-			low = -high;
-			high = -temp;
+		if(!IsUniqueBossMonster(m_id)) {
+			low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
+			high = Clamp_Between(GetCVar("dnd_monsterlevel_high"), 0, 50);
+			// first 10 levels the monsters shouldn't really get super high levels
+			if(level < 10)
+				high = Clamp_Between(high, 0, high / 2);
+			// give some sort of variety in the levels
+			// subtract level from avg half the time
+			if(random(0, 1)) {
+				temp = low;
+				low = -high;
+				high = -temp;
+			}
+			level += random(low, high);
 		}
-		level += random(low, high);
+		else // level of unique boss is always level of highest player
+			level = PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL];
 	}
 	if(GetCVar("dnd_monsterlevel_behind"))
 		level = Clamp_Between(level, 1, PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount);
-	else
-		level = Clamp_Between(level, 1, DND_MAX_MONSTERLVL);
 	level = Clamp_Between(level, 1, GetCVar("dnd_maxmonsterlevel"));
 	if(level > 1) {
-		// new formula: x^2 * 0.033 + 5x, where x is level - 1. This yields a slow increase at earlier levels but sharper increase later, much smoother than before
-		// at level 2, we are looking at the old value of standard percent increase, we will be about the same until about level 14, which after that it increases more
-		// after level 97, we skip old limit of 800% added, and at level 100 monsters have 830% added health
-		// but due to this, dnd_monster_hpscalepercent is no longer in use
-		add = 33 * (level - 1) * (level - 1) / 1000 + 5 * (level - 1);
+		add = GetMonsterHPScaling(m_id, level);
 		
 		// % increase per player adding
 		if(GetCVar("dnd_playercount_scales_monsters"))
@@ -881,9 +971,9 @@ int ScaleMonster(int tid, int pcount, int realhp) {
 		if(add > INT_MAX - base)
 			add = INT_MAX - base;
 	}
-	MonsterProperties[tid - DND_MONSTERTID_BEGIN].basehp = base;
-	MonsterProperties[tid - DND_MONSTERTID_BEGIN].maxhp = base + add;
-	MonsterProperties[tid - DND_MONSTERTID_BEGIN].level = level;
+	MonsterProperties[m_id].basehp = base;
+	MonsterProperties[m_id].maxhp = base + add;
+	MonsterProperties[m_id].level = level;
 	return base + add;
 }
 
@@ -922,28 +1012,28 @@ void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite, bool guara
 		case MONSTER_RAVAGER:
 		case MONSTER_LURKER:
 			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
-				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_VULGAR:
 			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_VENOM_DROPCHANCE))
-				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CHAINGUNGENERAL:
 			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_NAILGUN_DROPCHANCE))
-				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DEATHKNIGHT:
 		case MONSTER_HORSHACKER:
 			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_SOULRENDER_DROPCHANCE))
-				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CORPULENT:
 			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_HFCANNON_DROPCHANCE))
-				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DARKSERVANT:
 			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_DARKGLOVES_DROPCHANCE))
-				SpawnDrop(TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 	}
 	

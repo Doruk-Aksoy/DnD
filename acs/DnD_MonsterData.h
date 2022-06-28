@@ -7,6 +7,33 @@
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 20 // 20% per level
 
+int GetMonsterHPScaling(int m_id, int level) {
+	// new formula: x^2 * 0.033 + 5x, where x is level - 1. This yields a slow increase at earlier levels but sharper increase later, much smoother than before
+	// at level 2, we are looking at the old value of standard percent increase, we will be about the same until about level 14, which after that it increases more
+	// after level 97, we skip old limit of 800% added, and at level 100 monsters have 830% added health
+	// but due to this, dnd_monster_hpscalepercent is no longer in use
+	
+	// note: if this is too slow scaling, try x^2 / 20 + 5x later
+	int res = (33 * level * level) / 1000 + 5 * level;
+	
+	// big bosses have higher scaling than other monsters
+	if(IsUniqueBossMonster(m_id))
+		res *= (1 + (level / 10));
+		
+	return res;
+}
+
+int GetMonsterDMGScaling(int m_id, int level) {
+	// over the old formula of 4x, this provides 600% damage at lvl 100 instead of 400%
+	int res = level * level / 50 + level * 4;
+	
+	// unique bosses have additional damage multiplier per level -- x^2 * 0.01667 + x
+	if(IsUniqueBossMonster(m_id))
+		res = res * (100 + (level * level) / 60 + level) / 100;
+	
+	return res;
+}
+
 typedef struct {
 	int basehp;
 	int maxhp;
@@ -21,6 +48,13 @@ typedef struct {
 // allow a max of 8192 monsters' data to be held
 global mo_prop_T 25: MonsterProperties[DND_MAX_MONSTERS];
 global mo_prop_T 26: PetMonsterProperties[DND_MAX_PETS];
+
+enum {
+	DND_BOSS_LOWTIER,
+	DND_BOSS_MEDTIER,
+	DND_BOSS_HIGHTIER,
+	DND_BOSS_ENDGAME
+};
 
 enum {
 	MONSTERCLASS_ZOMBIEMAN,
@@ -1112,8 +1146,13 @@ bool IsBoss() {
 	return IsMonsterIdBoss(id);
 }
 
+bool IsBossTID(int tid) {
+	int id = MonsterProperties[tid - DND_MONSTERTID_BEGIN].id;
+	return IsMonsterIdBoss(id);
+}
+
 bool IsMonsterIdBoss(int id) {
-	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id == MONSTER_CUSTOM_BOSS || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || (id >= DND_UNIQUEBOSS_BEGIN && id < MONSTER_CUSTOM);
+	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id == MONSTER_CUSTOM_BOSS || isUniqueBossMonster_Id(id) || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || (id >= DND_UNIQUEBOSS_BEGIN && id < MONSTER_CUSTOM);
 }
 
 bool IsUniqueMonster(int id) {
@@ -1132,39 +1171,67 @@ bool isUniqueBossMonster_Id(int id) {
 }
 
 bool IsDemon() {
-	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_DEMON_POW;
+	return GetMonsterType(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id, ActivatorTID()) == DND_MTYPE_DEMON;
 }
 
 bool IsMonsterIdDemon(int m_id) {
-	return MonsterData[MonsterProperties[m_id].id].flags & DND_MTYPE_DEMON_POW;
+	return GetMonsterType(MonsterProperties[m_id].id, m_id + DND_MONSTERTID_BEGIN) == DND_MTYPE_DEMON;
 }
 
 bool IsZombie() {
-	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_ZOMBIE_POW;
+	int monsterID = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & DND_MTYPE_ZOMBIE_POW;
+	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_ZOMBIE_POW;
+}
+
+bool IsMonsterIdZombie(int m_id) {
+	int monsterID = MonsterProperties[m_id].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & DND_MTYPE_ZOMBIE_POW;
+	return CheckActorInventory(m_id + DND_MONSTERTID_BEGIN, "MonsterTypeToken") & DND_MTYPE_ZOMBIE_POW;
 }
 
 bool IsUndead() {
-	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_UNDEAD_POW;
+	int monsterID = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & DND_MTYPE_UNDEAD_POW;
+	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_UNDEAD_POW;
 }
 
 bool IsMagic() {
-	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_MAGICAL_POW;
+	int monsterID = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & DND_MTYPE_MAGICAL_POW;
+	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_MAGICAL_POW;
 }
 
 bool IsMagicOrUndead() {
-	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
+	int monsterID = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
+	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
 }
 
 bool IsActorMagicOrUndead(int i) {
-	return MonsterData[MonsterProperties[i - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
+	int monsterID = MonsterProperties[i - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
+	return CheckActorInventory(i, "MonsterTypeToken") & (DND_MTYPE_MAGICAL_POW | DND_MTYPE_UNDEAD_POW);
 }
 
 bool IsRobotic() {
-	return MonsterData[MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id].flags & DND_MTYPE_ROBOTIC_POW;
+	int monsterID = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & DND_MTYPE_ROBOTIC_POW;
+	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_ROBOTIC_POW;
 }
 
 bool IsActorFullRobotic(int tid) {
-	return MonsterData[MonsterProperties[tid - DND_MONSTERTID_BEGIN].id].flags == DND_MTYPE_ROBOTIC_POW;
+	int monsterID = MonsterProperties[tid - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags == DND_MTYPE_ROBOTIC_POW;
+	return CheckActorInventory(tid, "MonsterTypeToken") == DND_MTYPE_ROBOTIC_POW;
 }
 
 bool IsLostSoul() {
@@ -1177,12 +1244,16 @@ bool isPet(int tid) {
 }
 
 // all demon barons, fatsos or arachnos or bosses that are demons can drop a soul ammo
-bool CanDropSoulAmmo() {
-	int mid = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
+bool CanDropSoulAmmoTID(int tid) {
+	int mid = MonsterProperties[tid - DND_MONSTERTID_BEGIN].id;
 	return (mid == MONSTER_BARON || (mid >= DND_CUSTOM_BARON_BEGIN && mid <= DND_CUSTOM_BARON_END) || 
 			mid == MONSTER_FATSO || (mid >= DND_CUSTOM_FATSO_BEGIN && mid <= DND_CUSTOM_FATSO_END) ||
 			mid == MONSTER_SPIDER || (mid >= DND_CUSTOM_ARACHNO_BEGIN && mid <= DND_CUSTOM_ARACHNO_END) ||
 			isBoss()) && (MonsterData[mid].flags & DND_MTYPE_DEMON_POW);
+}
+
+bool CanDropSoulAmmo() {
+	return CanDropSoulAmmoTID(ActivatorTID());
 }
 
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX

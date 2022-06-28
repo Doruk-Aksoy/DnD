@@ -116,14 +116,14 @@ bool PlayerHasClicked(int pnum) {
 }
 
 // serverside
-Script 1690 (int isSecretExit, int forcedExit, int isBossBrain) {
+Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 	int this, i;
 	if(isBossBrain) {
 		AmbientSound("brain/death", 127);
 		// if it was boss brain, find a random person playing the game right now to ensure we can exit
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
-				this = i;
+				this = i + P_TIDSTART;
 				break;
 			}
 		}

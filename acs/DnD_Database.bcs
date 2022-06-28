@@ -1097,6 +1097,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, 0);
 	
 	// reset ammo counts
 	for(i = 0; i < MAX_SLOTS; ++i)
@@ -1425,7 +1426,6 @@ void BulkResetPlayerData(int pnum) {
 
 // This is specifically called as a terminal script on a player's run, NEVER IN THE MIDDLE!
 // This is here to save player's activities in a level that should be saved regardless of end of map
-// examples: Orb usage, charm changes etc. --- basically things that should have some sort of consequence
 Script "DnD Save Player Activities" (int pnum, int reset) {
 	// save player's activities only if they have loaded a character in a soft/hardcore mode
 	if(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE && PlayerLoaded[pnum]) {
@@ -1437,6 +1437,8 @@ Script "DnD Save Player Activities" (int pnum, int reset) {
 	// hard reset -- disconnected
 	if(reset)
 		BulkResetPlayerData(pnum);
+	else
+		ResetPlayerActivities(pnum, false);
 	
 	PlayerLoaded[pnum] = 0;
 	
@@ -1464,22 +1466,22 @@ Script "DnD Save Player Inventory" (int pnc1, int pnc2) {
 	}
 }
 
-
 // shows when game asks user to load char
 Script "DnD Created Chars Display" (int pnum) {
 	if(PlayerIsLoggedIn(pnum)) {
 		str pacc = GetPlayerAccountName(pnum);
-		bool header = false;
+		
+		bool hasClasses = false;
+		
+		// draw header as a seperate thing
+		ACS_NamedExecuteWithResult("DnD Show Occupied Char Header", pnum);
+		Delay(const:2);
+		
 		// log to player how many characters they might have had
 		for(int i = 0; i < DND_MAX_CHARS; ++i) {
 			int class_id = GetDBEntry(GetCharField(DND_DB_CLASSID, i), pacc);
 			if(class_id) {
-				if(!header) {
-					ACS_NamedExecuteWithResult("DnD Show Occupied Char Header", pnum);
-					header = true;
-					Delay(2);
-				}
-			
+				hasClasses = true;
 				ACS_NamedExecuteWithResult(
 					"DnD Show Occupied Char Slot Data",
 					pnum | (i << 16),
@@ -1488,14 +1490,21 @@ Script "DnD Created Chars Display" (int pnum) {
 				);
 			}
 		}
+		
+		// if has no characters, draw a seperate text
+		if(!hasClasses)
+			ACS_NamedExecuteWithResult("DnD Show Occupied Char Header", pnum, 1);
 	}
 }
 
-Script "DnD Show Occupied Char Header" (int pnum) CLIENTSIDE {
+Script "DnD Show Occupied Char Header" (int pnum, int hasNoClass) CLIENTSIDE {
 	if(pnum != ConsolePlayerNumber())
 		Terminate;
 		
-	Log(s:"\n\cd==============================================\n", l:"DND_DB_CHARLIST", s:":");
+	if(!hasNoClass)
+		Log(s:"\n\cd==============================================\n", l:"DND_DB_CHARLIST", s:":");
+	else
+		Log(s:"    No characters available.");
 }
 
 Script "DnD Show Occupied Char Slot Data" (int pnum, int class_id, int level) CLIENTSIDE {

@@ -73,8 +73,8 @@ DND_ATTRIBUTEPTS						= "Attribute Points";
 
 DND_INVENTORY							= "Inventory";
 
-DND_TALENT1								= "Ballistic";
-DND_TALENT2								= "Melee";
+DND_TALENT1								= "Melee";
+DND_TALENT2								= "Ballistic";
 DND_TALENT3								= "Energy";
 DND_TALENT4								= "Explosive";
 DND_TALENT5								= "Occult";
@@ -170,6 +170,8 @@ DND_DBERR13A	= "TRANSFER CHAR: Character will be transferred to slot";
 DND_DBERR13B	= "on character save. Previous character on that slot will be deleted!";
 
 DND_DB_CHARLIST = "Character list";
+
+DND_BOSS_LEVELENDSIN = "Level ends in";
 
 // popup text
 DND_POPUP_NOFUNDS							=	"Insufficient funds.";

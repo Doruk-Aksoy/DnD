@@ -20,18 +20,18 @@ void DealPoisonDamage(int target, int dmg) {
 	// this is the player, target is monster
 	int this = ActivatorTID();
 	SetActivator(target);
-	if(dmg > (1 << 16)) // random component
-		dmg *= random((dmg >> 8) & 0xFF, (dmg >> 16) & 0xFF);
-	int res = (Clamp_Between(CheckInventory("MonsterLevel"), 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 0.01, 1.0));
-	if(CheckInventory("MonsterIsElite"))
-		res = FixedMul(res, 1.0 + 1.0 * GetEliteBonusDamage(target - DND_MONSTERTID_BEGIN / 100));
-	if(MonsterProperties[target - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG])
-		res = FixedMul(res, 1.0 + 1.0 * DND_ELITE_EXTRASTRONG_BONUS / 100);
-	if(CheckInventory("MonsterLevel") > 50)
-		res = FixedMul(res, 1.0 + 1.0 * DND_AFTER50_INCREMENT_DAMAGE / 100);
-	//printbold(f:res);
-	dmg = ((dmg & 0xFF) * ((res / 2) + 1.0)) >> 16;
-	dmg -= (dmg * CheckActorInventory(this, "IATTR_ReducedPoisonTaken")) / 100;
+	
+	int m_id = target - DND_MONSTERTID_BEGIN;
+	
+	int factor = 	(MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + 
+					MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
+			
+	dmg = dmg * (100 + factor - CheckActorInventory(this, "IATTR_ReducedPoisonTaken")) / 100;
+			
+	// elite damage bonus is multiplicative
+	if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
+		dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
+		
 	if(dmg > 0) {
 		IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, this);
 		Thing_Damage2(this, dmg, "PoisonDOT");

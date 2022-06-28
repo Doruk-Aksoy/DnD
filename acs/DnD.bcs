@@ -159,6 +159,13 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 		}
 		Delay(const:5);
 	}
+	
+	// if we are dead update these to fix the "dead but still green numbers" bug
+	SetInventory("HPOverAmount", 0);
+	TakeInventory("HPOver100", 1);
+	TakeInventory("HPNormal", 1);
+	TakeInventory("HPBelow50", 1);
+	GiveInventory("HPBelow25", 1);
 }
 
 Script "DnD Clientside Open" OPEN CLIENTSIDE {
@@ -283,6 +290,9 @@ Script "DnD On Death" DEATH {
 			}
 			else
 				ResetHardcoreStuff(pnum);
+				
+			// no lives left, make sure the boss bar script keeps running for them (if there's a boss)
+			ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID], 1);
 		}
 	}
 	
@@ -873,62 +883,7 @@ Script "DND On Kill" KILL {
 		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
 	}
 	SetInventory("DnD_OverloadTimer", 0);
-	
-	// Handle Drops
-	// drop coins if there should be
-	if(GetCVar("dnd_credit_drops")) {
-		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
-		HandleCashDrops(m_id, target - P_TIDSTART, killerWasntPlayer);
-	}
-	
-	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_MUNITION_MASTERY_CHANCE)) {
-		SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
-		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
-	}
 
-	if(!GetCVar("dnd_allresearchesfound")) {
-		// make it less likely to drop
-		// addone is the chance here (reusing old variables)
-		addone = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-		/*#ifdef ISDEBUGBUILD
-			SpawnResearch();
-		#else*/
-			if(GetCVar("dnd_ignore_dropweights") || RunDropChance(target - P_TIDSTART, killerWasntPlayer, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, addone))
-				SpawnResearch(target - P_TIDSTART);
-		//#endif
-	}
-	
-	// Talent Capsule Drop
-	//if(RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_TALENTCAPSULE_DROPRATE))
-	//	SpawnTalentCapsule();
-	
-	// Chest Key
-	HandleChestKeyDrop(killerWasntPlayer);
-	
-	// if elite, roll orb and equipment drops
-	if(GetCVar("dnd_ignore_dropweights") || killerWasntPlayer) {
-		// handle orb drops
-		HandleEliteDrops();
-	}
-	
-	// accessory drops (accept only from cyber and spider masterminds)
-	/*#ifdef ISDEBUGBUILD
-		SpawnAccessory();
-	#else*/
-	expshare = IsBoss();
-	creditshare = IsDemon();
-	if(
-		expshare && 
-		RunDropChance(target - P_TIDSTART, killerWasntPlayer, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0) &&
-		GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)
-	)
-	{
-		// we can drop the spawner
-		SpawnAccessory();
-	}
-	//#endif
-	
 	// Demon Bane check
 	if(active_quest_id == QUEST_KILL10BOSSES && expshare) {
 		GiveActorInventory(target, "DnD_BossKillQuest_Counter", 1);
@@ -955,23 +910,6 @@ Script "DND On Kill" KILL {
 		}
 	}
 	
-	#ifdef ISDEBUGBUILD
-		//SpawnElixir(0);
-		SpawnCharm(0, true);
-		SpawnOrb(0, true);
-		//SpawnToken(0, true);
-	#endif
-	
-	HandleCharmLootDrop(killerWasntPlayer);
-	
-	// doomguy drop
-	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(i, killerWasntPlayer, DND_DOOMGUY_DROPCHANCE)) {
-		pcount = MonsterProperties[m_id].maxhp;
-		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pcount & 0xFFFF, pcount >> 16);
-		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnDrop("Doomguy_DemonSoul", 24.0, 16, pcount & 0xFFFF, pcount >> 16);
-	}
-	
 	// if marked by talisman
 	pcount = CheckInventory("HunterTalismanMarkBool");
 	SetInventory("HunterTalismanMarkBool", 0);
@@ -982,26 +920,9 @@ Script "DND On Kill" KILL {
 	// required delay for transition from specific death state labels
 	Delay(const:1);
 	
-	// soul ammo drop -- considers ability - soulstealer as well
-	if(
-		(CanDropSoulAmmo() && RunDefaultDropChance(target - P_TIDSTART, killerWasntPlayer, DND_SOULAMMO_DROPRATE)) ||
-		(IsDemon() && (CheckActorInventory(target, "Ability_SoulStealer") && CheckInventory("MagicCausedDeath")))
-	  )
-	{
-		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE) {
-			SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
-			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-				SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
-		}
-		else {
-			SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
-			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-				SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
-		}
-		TakeInventory("MagicCausedDeath", 1);
-	}
-	
-	HandleOtherDrops(target);
+	// if this isn't a dungeon boss --- we have special parameters that they themselves should call that can't be done from here!
+	if(!isUniqueBossMonster(m_id))
+		HandleLootDrops(this, target, killerWasntPlayer);
 	
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
@@ -1610,7 +1531,7 @@ Script 902 (int forceset, int id) CLIENTSIDE {
 		i = id;
 	if(!CheckInventory("NoAmmoMessage")) {
 		SetFont("BIGFONT");
-		HudMessage(l:"DND_TEXT_NOWUSING", s:" ", s:GetSpecialAmmoTag(i), s:"!"; HUDMSG_PLAIN | HUDMSG_LOG, DND_SPECIALAMMO_TEXTID, CR_WHITE, 0.5, 0.1, 2.0);
+		HudMessage(l:"DND_TEXT_NOWUSING", s:" ", s:GetSpecialAmmoTag(i), s:"!"; HUDMSG_PLAIN | HUDMSG_LOG, DND_SPECIALAMMO_TEXTID, CR_WHITE, 0.5, 0.9, 2.0);
 		// hack: update ammo table to trick hud
 		int pos = GetWeaponPosFromTable();
 		Weapons_Data[pos][WEAPON_AMMO1] = GetSpecialAmmoString(i, AMMOINFO_NAME);
@@ -1874,15 +1795,23 @@ Script "DnD Setup Shootable" (void) {
 		GiveShootableTID();
 }
 
+Script "DnD Update TID CS" (int tid) CLIENTSIDE {
+	Thing_ChangeTID(0, tid);
+}
+
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	GiveMonsterTID(ActivatorTID());
+	
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 	//Make sure mob gets to right amount of hp at this point
 	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	if(!pcount)
 		pcount = 1;
+		
+	// this is necessary to fix a bug
+	ACS_NamedExecuteWithResult("DnD Update TID CS", this);
 	
 	MonsterProperties[m_id].id = monsterid;
 	
@@ -1899,7 +1828,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 		if(!pcount)
 			pcount = 1;
-		maxhp = ScaleMonster(this, pcount, realhp);
+		maxhp = ScaleMonster(this, m_id, pcount, realhp, isSummoned);
 	}
 	else {
 		maxhp = realhp;
@@ -1992,13 +1921,17 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	if(!pcount)
 		pcount = 1;
 		
+	MonsterProperties[m_id].id = properties & 0x1FF;
+	MonsterProperties[m_id].class = (properties >> 9) & 0x1F;
+	properties >>= 14;
+		
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
 		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerCount())
 			Delay(const:3);
 		if(!pcount)
 			pcount = 1;
-		maxhp = ScaleMonster(this, pcount, realhp);
+		maxhp = ScaleMonster(this, m_id, pcount, realhp, MonsterProperties[m_id].trait_list[DND_SUMMONED]);
 	}
 	else {
 		maxhp = realhp;
@@ -2007,12 +1940,8 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 		MonsterProperties[m_id].level = 1;
 	}
 	
-	MonsterProperties[m_id].id = properties & 0x1FF;
-	MonsterProperties[m_id].class = (properties >> 9) & 0x1F;
+	LoadCustomMonsterTraits(m_id, properties, traits, traits2, traits3);
 	
-	LoadCustomMonsterTraits(m_id, MonsterProperties[m_id].id, traits, traits2, traits3);
-	
-	properties >>= 14;
 	GiveInventory("MonsterTypeToken", properties);
 	ACS_NamedExecuteWithResult("DnD Sync Custom Monster Type", properties);
 
@@ -2094,6 +2023,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 
 Script "DnD Sync Custom Monster Type" (int token) CLIENTSIDE {
 	GiveInventory("MonsterTypeToken", token);
+	SetResultValue(0);
 }
 
 // Decide monster to spawn on a certain monster category given weight list
@@ -2511,7 +2441,12 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 Script "DnD Bonus Detect" OPEN {
 	int KillBonus, ItemBonus, SecretBonus, BonusBonus;
 	int curkills, curitems, cursecrets, bonusval;
-	Delay(const:35);
+	
+	// this construct is necessary so maps that don't have any monster besides custom monsters dont act up... I've seen things, alright? I SAW MONSTER COUNT == -2 in this fucking loop, dont test me!
+	do {
+		Delay(const:TICRATE);
+	} while (HardcoreSet && PlayersNotReadyForHardcore());
+	Delay(const:17 * (DND_MAX_MONSTERDELAY + 2));
 
 	while(true) {
 		if(!GetCVar("dnd_disablelevelbonus")) {
@@ -2644,6 +2579,7 @@ Script "DnD Monster Scanner Picker" (void) {
 				SetInventory("TargetIsElite", PetMonsterProperties[m_id].isElite);
 				SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
 			}
+
 			SetInventory("TargetTID", montid);
 			SetInventory("TargetMonId", m_id);
 			SetInventory("TargetHealthBarColor", healthbarcolor);
@@ -2746,8 +2682,11 @@ Script "DnD Constant Unique Boss Sync" (int tid) {
 			lastfort = hp;
 		}
 		
-		if(!awakened && GetActorProperty(tid, APROP_TARGETTID))
+		if(!awakened && GetActorProperty(tid, APROP_TARGETTID)) {
 			ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", 0, 1, BOSSDATA_AWAKENED);
+			ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", tid);
+			awakened = true;
+		}
 	}
 	SetResultValue(0);
 }
@@ -2793,13 +2732,17 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 			);
 		}
 		else if(DungeonBossData[BOSSDATA_TID] && DungeonBossData[BOSSDATA_AWAKENED]) {
+			temp = DungeonBossData[BOSSDATA_TID];
+			
 			if(hadTarget) {
 				hadTarget = false;
 				DeleteTextRange(MONSTER_BARFILLID, MONSTER_BARFILLOVERLAY);
 			}
 			
 			if(!drawnOverlay) {
+				// this will draw it for everyone, no need to check spectators here but the overall boss bar needs to be drawn specifically for spectators
 				drawnOverlay = true;
+				//BossBarDrawnForPlayer[ConsolePlayerNumber()] = true;
 				ACS_NamedExecuteWithResult("DnD Boss HP FX Overlay", temp);
 			}
 		
@@ -2968,6 +2911,8 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// things saved are in DnD_Activity.h
 	ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, true);
 	PlayerDied[pnum] = 0;
+	
+	ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID]);
 }
 
 // End of level checks
@@ -4861,11 +4806,10 @@ Script "DnD Toggle NoPain" (void) {
 		GiveInventory("TakeNoPain", 1);
 }
 
-Script "DND Orb Use Message" (int affluence) CLIENTSIDE {
+Script "DND Orb Use Message" (int type, int result, int affluence) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	Delay(5);
-	HandleOrbUseMessage(CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence);
+	HandleOrbUseMessage(type, result, affluence);
 }
 
 Script "DND Orb Use Message (Server)" (void) {
@@ -4876,7 +4820,6 @@ Script "DND Orb Use" (int orbtype, int extra, int extra2) {
 	int pnum = PlayerNumber();
 	HandleOrbUse(pnum, orbtype, extra, extra2);
 	LocalAmbientSound("Items/OrbUse", 127);
-	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 	Delay(const:2);
 	if(orbtype != DND_ORB_AFFLUENCE)
@@ -5447,7 +5390,7 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	add = 0, level = CheckActorInventory(master, "Level");
 	if(level > 1) {
 		// our new scaling formula
-		add = 33 * (level - 1) * (level - 1) / 1000 + 5 * (level - 1);
+		add = GetMonsterHPScaling(m_id, level);
 		
 		add = base * add / 100;
 		
@@ -5499,8 +5442,6 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	int this = ActivatorTID();
 	int master = GetActorProperty(0, APROP_MASTERTID);
 	int res = 1.0 + Clamp_Between(PetMonsterProperties[this - DND_PETTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
-	if(PetMonsterProperties[this - DND_PETTID_BEGIN].level > 50)
-		res = FixedMul(res, 1.0 + DND_AFTER50_INCREMENT_DAMAGE);
 	if(flags & DND_WDMG_ISRIPPER)
 		res >>= 1;
 	res += GetPetDamageFactor(base, master);
@@ -6349,6 +6290,74 @@ Script "DnD Check Corpse Landing" (void) {
 
 Script "DnD Make Player Invuln" (void) {
 	SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
+}
+
+Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
+	int boss_tid = ActivatorTID();
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	if(!loc_tid)
+		loc_tid = ActivatorTID();
+		
+	SetActivator(loc_tid);
+	
+	// when referring to the boss itself use the boss_tid!
+	HandleLootDrops(boss_tid, target, false, loc_tid);
+
+	// tier starts from 0 to 3 --- 0 is low tier boss, 1 is medium, 2 is high, 3 is end game boss
+	SpawnOrbForAll(random(1 + tier / 2, tier + 1));
+	
+	if(tier >= 1) {
+		// guaranteed charm drop from anything above medium, and a potential chest drop
+		SpawnCharm_ForAll();
+		
+		// 33% chance to spawn a chest as well
+		if(RunDefaultDropChance(target - P_TIDSTART, false, DND_BOSSCHEST_DROPRATE)) {
+			if(tier == 3)
+				SpawnDropAtActor(loc_tid, "DNDGoldChest", 0, 0, 0, 0);
+			else if(tier == 2)
+				SpawnDropAtActor(loc_tid, "DNDSilverChest", 0, 0, 0, 0);
+			else
+				SpawnDropAtActor(loc_tid, "DNDBronzeChest", 0, 0, 0, 0);
+		}
+	}
+	
+	bool exit_when_done = !!time;
+	int start_time = time;
+	int col = CR_GREEN;
+	
+	// in seconds before the map ends
+	while(time) {
+		SetHudSize(640, 480, 0);
+		SetFont("BIGFONT");
+		
+		if(time < start_time / 4)
+			col = CR_RED;
+		else if(time < start_time / 2)
+			col = CR_ORANGE;
+		else if(time < (start_time * 3) / 4)
+			col = CR_YELLOW;
+		
+		HudMessageBold(s:"\cj", l:"DND_BOSS_LEVELENDSIN", s:":\c- ", d:time; HUDMSG_FADEOUT, MONSTER_TYPEICONID, col, 320.4, 0.1, EXIT_HOLDTIME);
+		--time;
+		Delay(const:TICRATE);
+	}
+	
+	// exit script -- forced exit
+	if(exit_when_done) {
+		// setup the activator -- this is the boss so it isnt aware of the player
+		int this;
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+				this = i + P_TIDSTART;
+				break;
+			}
+		}
+		
+		SetActivator(this);
+	
+		ACS_ExecuteAlways(255, 0, 0, 1);
+	}
 }
 
 Script 1007 (void) NET CLIENTSIDE {

@@ -1,14 +1,13 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0
 #define STRING_NAME 1
 
-#define DND_AFTER50_INCREMENT_DAMAGE 33
 #define CHAOSMARK_DAMAGEBUFF 50
 
 #define MAXLEVELS 100
@@ -736,6 +735,14 @@ int GetPlayerCountAny() {
 // user must guarantee setspecial and setspecial2 are less than 65536
 void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
 	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0) + zoffset, DND_DROP_TID);
+	ThrustThing(random(0, 255), random(3, 6), 0, DND_DROP_TID);
+	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
+	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
+	Thing_ChangeTID(DND_DROP_TID, 0);
+}
+
+void SpawnDropAtActor(int dest_tid, str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
+	SpawnForced(actor, GetActorX(dest_tid), GetActorY(dest_tid), GetActorZ(dest_tid) + zoffset, DND_DROP_TID);
 	ThrustThing(random(0, 255), random(3, 6), 0, DND_DROP_TID);
 	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
 	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));

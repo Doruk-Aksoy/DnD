@@ -656,6 +656,7 @@ bool CheckCullRange(int source, int victim, int dmg) {
 }
 
 void HandleChillEffects(int pnum, int victim) {
+	// not ailment immune
 	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FRIGID)) {
 		// check health thresholds --- get missing health
 		int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
@@ -671,11 +672,13 @@ void HandleChillEffects(int pnum, int victim) {
 			else if(stacks < DND_BASE_CHILL_CAP)
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
 			
-			// freeze checks --- added freeze chance % increase
+			// freeze checks --- added freeze chance % increase -- unique boss is immune to freeze
+			if(IsUniqueBossMonster(victim - DND_MONSTERTID_BEGIN))
+				return;
+			
 			hpdiff = GetFreezeChance(pnum, CheckActorInventory(victim, "DnD_ChillStacks"));
 			if(random(1, 100) <= hpdiff) {
 				if(GetActorProperty(victim, APROP_HEALTH) > 0) {
-					// is boss? reduce duration
 					if(CheckFlag(victim, "BOSS"))
 						stacks = DND_BASE_FREEZETIMER / 3;
 					else
@@ -1065,8 +1068,12 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL))				||
 					((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"));
 
-	// check blocking status of monster -- if they are and we dont have foilinvul on this, no penetration
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING] && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
+	// check blocking/invulnerable status of monster -- if they are and we dont have foilinvul on this, no penetration
+	if
+	(
+		(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING] || CheckFlag(victim, "INVULNERABLE")) && !(actor_flags & DND_ACTORFLAG_FOILINVUL)
+	)
+	{
 		temp = GetPlayerAttributeValue(pnum, INV_ESS_HARKIMONDE);
 		// we have 0 chance  or we have chance but it didn't roll in our favor
 		if(!temp || temp < random(1, 100)) {
@@ -2490,7 +2497,7 @@ int HandleCursePlayerResistEffects(int dmg) {
 
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
-int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected, str inflictor_clas) {
+int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected, str inflictor_class) {
 	int temp;
 	int dot_temp;
 	
@@ -2554,7 +2561,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 					dot_temp = 1;
 				// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
 				// random damage of 10% to 12% of it is applied below
-				RegisterPoisonDamage(random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME), inflictor_clas);
+				RegisterPoisonDamage(random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME), inflictor_class);
 			}
 		}
 		else // marine perk50 gives immunity to poison, so reduce it to 1%
@@ -2876,16 +2883,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			
 			// dont scale reflected damage by this
 			// special bonuses
-			factor += 	!isReflected * (Clamp_Between(MonsterProperties[m_id].level - 1, 0, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100)) +
-						(MonsterProperties[m_id].level > 50) * DND_AFTER50_INCREMENT_DAMAGE + 
+			factor += 	!isReflected * (MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) +
 						MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
 				
 			dmg = dmg * (100 + factor) / 100;
 			
 			// elite damage bonus is multiplicative
-			factor = 100 + GetEliteBonusDamage(m_id);
 			if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
-				dmg = dmg * factor / 100;
+				dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
 				
 			// chaos mark is multiplicative
 			factor = 100 + CHAOSMARK_DAMAGEBUFF;
@@ -2989,7 +2994,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetResultValue(dmg);
 			Terminate;
 		}
-		else {
+		else if(!IsMonster(victim)) {
+			// the above check was necessary
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things
 			pnum = PlayerNumber();
 			

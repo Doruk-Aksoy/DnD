@@ -427,7 +427,7 @@ void GiveStat(int stat_id, int amt) {
 
 // Takes a stat from the player, also removing effects of it
 void TakeStat(int stat_id, int amt) {
-	printbold(s:"take stat ", d:stat_id, s: " amt: ", d:amt);
+	// printbold(s:"take stat ", d:stat_id, s: " amt: ", d:amt);
 	TakeInventory(StatData[stat_id], amt);
 	
 	if(stat_id <= DND_ATTRIB_END)
@@ -583,12 +583,14 @@ void TakeBudget(int amt) {
 void GiveActorBudget(int tid, int amt) {
 	GiveActorInventory(tid, "Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
 	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+	UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_BUDGET, amt, 0);
 }
 
 void GiveActorCredit(int tid, int amt) {
 	GiveActorInventory(tid, "Credit", amt);
 	GiveActorInventory(tid, "LevelCredit", amt);
 	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+	UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_CREDIT, amt, 0);
 }
 
 void ConsumeAttributePointOn(int stat, int amt) {

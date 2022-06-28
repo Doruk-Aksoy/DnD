@@ -21,11 +21,11 @@ enum {
 	DND_SYNC_HOLDING,
 	DND_SYNC_LUCK,
 	
-	DND_SYNC_DAMAGEBULLET,
 	DND_SYNC_DAMAGEMELEE,
-	DND_SYNC_DAMAGEOCCULT,
-	DND_SYNC_DAMAGEEXPLOSIVE,
+	DND_SYNC_DAMAGEBULLET,
 	DND_SYNC_DAMAGEENERGY,
+	DND_SYNC_DAMAGEEXPLOSIVE,
+	DND_SYNC_DAMAGEOCCULT,
 	DND_SYNC_DAMAGEELEMENTAL,
 	
 	DND_SYNC_WEPMOD_CRIT,
@@ -513,67 +513,127 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 	}
 }
 
-void SetSyncValue_Orb(int pnum, int pos, int val, int extra) {
+void SetSyncValue_Orb(int pnum, int pos, int val, int extra, bool increment = false) {
 	switch(pos) {
 		case DND_SYNC_WEAPONENHANCE:
-			SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
 		break;
 		case DND_SYNC_SPEED:
-			SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_SPEED, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
 		break;
 		case DND_SYNC_DROPCHANCE:
-			SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
 		break;
 		case DND_SYNC_HPFLAT_BONUS:
-			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_HPFLAT, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, val);
 		break;
 		case DND_SYNC_ARMORFLAT_BONUS:
-			SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_ARMORFLAT, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, val);
 		break;
 		case DND_SYNC_HPPERCENT_BONUS:
-			SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_HPPERCENT, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, val);
 		break;
 		case DND_SYNC_ARMORPERCENT_BONUS:
-			SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_ARMORPERCENT, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, val);
 		break;
 		case DND_SYNC_GREEDPERCENT_BONUS:
-			SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_GREEDPERCENT, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, val);
 		break;
 		case DND_SYNC_WISDOMPERCENT_BONUS:
-			SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_WISDOMPERCENT, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, val);
 		break;
 		case DND_SYNC_HOLDING:
-			SetDataToOrbBonus(pnum, OBI_HOLDING, -1, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_HOLDING, -1, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_HOLDING, -1, val);
 		break;
 		case DND_SYNC_DAMAGEBULLET:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET, val);
 		break;
 		case DND_SYNC_DAMAGEENERGY:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY, val);
 		break;
 		case DND_SYNC_DAMAGEEXPLOSIVE:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES, val);
 		break;
 		case DND_SYNC_DAMAGEMELEE:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE, val);
 		break;
 		case DND_SYNC_DAMAGEELEMENTAL:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL, val);
 		break;
 		case DND_SYNC_DAMAGEOCCULT:
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT, val);
 		break;
 		case DND_SYNC_WEPMOD_CRIT:
-			SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
 		break;
 		case DND_SYNC_WEPMOD_CRITDMG:
-			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
 		break;
 		case DND_SYNC_WEPMOD_CRITPERCENT:
-			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
 		break;
 		case DND_SYNC_WEPMOD_DMG:
-			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
+			if(increment)
+				IncrementOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
+			else
+				SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
 		break;
 		case DND_SYNC_WEPMOD_POWERSET1:
 			// last param is a sign telling it to just overwrite it not bitset
@@ -626,7 +686,15 @@ void SetSyncValue_Elixir(int pnum, int pos, int val, int extra) {
 Script "DND Clientside Orb Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
 	/*if(ConsolePlayerNumber() != pnum)
 		Terminate;*/
-	SetSyncValue_Orb(pnum, var, to, extra);
+	SetSyncValue_Orb(pnum, var, to, extra, false);
+	SetResultValue(0);
+}
+
+// made this a seperate thing because we pass the value to increment by in this one compared to the above which is the value to set to, I ran out of params
+Script "DND Clientside Orb Syncer - Inc" (int pnum, int var, int to, int extra) CLIENTSIDE {
+	/*if(ConsolePlayerNumber() != pnum)
+		Terminate;*/
+	SetSyncValue_Orb(pnum, var, to, extra, true);
 	SetResultValue(0);
 }
 
@@ -672,13 +740,18 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 	SetResultValue(0);
 }
 
-void SyncClientsideVariable_Orb(int pnum, int var, int extra) {
+void SyncClientsideVariable_Orb(int pnum, int var, int extra, bool increment = false, int inc_by = 0) {
 	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS)) {
 		/*if(extra == DND_WEAPON_PISTOL || extra == DND_WEAPON_FIST) {
 			printbold(d:extra, s:". ", d:var, s:": ", d:GetPlayerSyncValue_Orb(var, extra));
 		}*/
-		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, extra), extra);
+		if(increment)
+			ACS_NamedExecuteWithResult("DND Clientside Orb Syncer - Inc", pnum, var, inc_by, extra);
+		else
+			ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, extra), extra);
 	}
+	else if(increment)
+		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer - Inc", pnum, var, inc_by, extra);
 	else
 		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, 0), 0);
 }

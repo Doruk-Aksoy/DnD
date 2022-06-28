@@ -72,14 +72,15 @@ enum {
 	QTYPE_NOSAVE = 32 // for some reason this quests reward should not be saved
 };
 
+// return !! just in case
 bool IsQuestComplete(int tid, int qid) {
 	str tocheck = "DnD_QuestState1";
 	if(qid > 30)
 		tocheck = "DnD_QuestState2";
 	qid %= 31; // for 2nd part
 	if(!tid)
-		return IsSet(CheckInventory(tocheck), qid);
-	return IsSet(CheckActorInventory(tid, tocheck), qid);
+		return !!IsSet(CheckInventory(tocheck), qid);
+	return !!IsSet(CheckActorInventory(tid, tocheck), qid);
 }
 
 #endif

@@ -191,6 +191,13 @@ void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
 	}
 }
 
+void SpawnCharm_ForAll() {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && !PlayerIsSpectator(i))
+			SpawnCharm(i, true, false);
+	}
+}
+
 // move this from field to player's inventory
 int HandleCharmPickup(int item_index) {
 	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);

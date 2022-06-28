@@ -3,6 +3,7 @@ warp2 flat LAVA2
 warp2 flat LAVA3
 warp2 flat LAVA4
 warp2 texture HPBARFX
+warp2 texture HPBARFXP
 
 // warp on this one is horrible
 // warp texture PROMPT

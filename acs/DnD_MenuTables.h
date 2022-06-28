@@ -482,14 +482,14 @@ int ShopInfo[MAXSHOPITEMS][3] =
 
 		// Artifacts, here for convenience. Index = MAXSHOPITEMS - MAXARTIFACTS
 		{ 1250,          FIELDKITMAX,				3   },
-		{ 18000,         SOLVEMAX,					1   },
-		{ 12000,         STASISMAX,					1   },
-		{ 20000,         BLOODRUNEMAX,				1 	},
-		{ 20000,         TRIPLEMAX,					1   },
-		{ 20000,         VORTEXMAX,					1   },
-		{ 17500,	     BOOKMAX,					1   },
+		{ 18000,         SOLVEMAX,					0   },
+		{ 12000,         STASISMAX,					0   },
+		{ 20000,         BLOODRUNEMAX,				0 	},
+		{ 20000,         TRIPLEMAX,					0   },
+		{ 20000,         VORTEXMAX,					0   },
+		{ 17500,	     BOOKMAX,					0   },
 		{ 27500,         1,							1	},
-		{ 50000,         1,							1	},
+		{ 50000,         1,							0	},
 		{ 10000,         RESETMAX,					1 	}
 };
 

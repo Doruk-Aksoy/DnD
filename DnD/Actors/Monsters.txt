@@ -1394,7 +1394,7 @@ Actor BossBrain_DnD : BossBrain replaces BossBrain {
 		Goto Super::Spawn
 		Death:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Make Player Invuln")
-			BBRN A 100 ACS_ExecuteAlways(1690, 0, 0, 1, 1) // forced exit case + bossbrain
+			BBRN A 100 ACS_ExecuteAlways(255, 0, 0, 1, 1) // forced exit case + bossbrain
 			BBRN A -1
 		Stop
 	}

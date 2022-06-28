@@ -972,13 +972,13 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 	if(set1 || set2) {
 		for(i = 0; i < 32; ++i)
 			if(IsSet(set1, i)) {
-				printbold(s:"null req on ", d:i);
+				//printbold(s:"null req on ", d:i);
 				FreeSpot(pnum, i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			}
 				
 		for(i = 0; i < MAX_INVENTORY_BOXES - 32; ++i)
 			if(IsSet(set2, i)) {
-				printbold(s:"null req on ", d:i+32);
+				//printbold(s:"null req on ", d:i+32);
 				FreeSpot(pnum, i + 32, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			}
 		SyncItemData_Null(pnum, tb, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, w, h);

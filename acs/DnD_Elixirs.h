@@ -88,18 +88,18 @@ void HandleElixirUse(int eid) {
 }
 
 void SpawnElixir(int pnum) {
-	int c = CreateItemSpot();
+	/*int c = CreateItemSpot();
 	if(c != -1) {
 		int w = random(1, ELIXIR_MAXWEIGHT), i = 0;
 		for(; i < MAX_ELIXIRS && ElixirDropWeights[i] < w; ++i);
 		RollElixirInfo(c, i, true);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(InventoryInfo[i + ELIXIR_BEGIN], 24.0, 16, pnum + 1, c);
-	}
+	}*/
 }
 
 void HandleElixirDrop(bool isChest) {
-	int chance = isChest ? DND_ELIXIR_CHESTDROPRATE : DND_ELIXIR_DROPRATE;
+	/*int chance = isChest ? DND_ELIXIR_CHESTDROPRATE : DND_ELIXIR_DROPRATE;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, false, chance)) {
@@ -107,7 +107,7 @@ void HandleElixirDrop(bool isChest) {
 			if(HasActorMasteredPerk(i + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
 				SpawnElixir(i);
 		}
-	}
+	}*/
 }
 
 void RollElixirInfo(int item_pos, int etype, bool onField) {

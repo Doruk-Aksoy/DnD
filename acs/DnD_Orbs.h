@@ -127,6 +127,77 @@ void SetDataToOrbBonus(int pnum, int bonus, int extra, int val, bool overwrite =
 	UpdateActivity(pnum, bonus + MAP_ORB_TO_ACTIVITY, val, extra, overwrite, removeBit);
 }
 
+void IncrementOrbBonus(int pnum, int bonus, int extra, int val) {
+	int base = 0;
+	switch(bonus) {
+		case OBI_HPFLAT:
+			Player_Orb_Data[pnum].orb_stat_bonuses.hp_flat_bonus += val;
+		break;
+		case OBI_ARMORFLAT:
+			Player_Orb_Data[pnum].orb_stat_bonuses.armor_flat_bonus += val;
+		break;
+		case OBI_HPPERCENT:
+			Player_Orb_Data[pnum].orb_stat_bonuses.hp_percent_bonus += val;
+		break;
+		case OBI_ARMORPERCENT:
+			Player_Orb_Data[pnum].orb_stat_bonuses.armor_percent_bonus += val;
+		break;
+		case OBI_WISDOMPERCENT:
+			Player_Orb_Data[pnum].orb_stat_bonuses.wisdom_percent_bonus += val;
+		break;
+		case OBI_GREEDPERCENT:
+			Player_Orb_Data[pnum].orb_stat_bonuses.greed_percent_bonus += val;
+		break;
+		case OBI_SPEED:
+			Player_Orb_Data[pnum].orb_stat_bonuses.speed_bonus += val;
+		break;
+		case OBI_DROPCHANCE:
+			Player_Orb_Data[pnum].orb_stat_bonuses.drop_chance += val;
+		break;
+		case OBI_HOLDING:
+			Player_Orb_Data[pnum].orb_stat_bonuses.holding += val;
+		break;
+		case OBI_DAMAGETYPE:
+			Player_Orb_Data[pnum].orb_stat_bonuses.damage_type_bonus[extra] += val;
+		break;
+		
+		case OBI_WEAPON_ENCHANT:
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].quality += val;
+		break;
+		case OBI_WEAPON_CRIT:
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRIT].val += val;
+		break;
+		case OBI_WEAPON_CRITDMG:
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITDMG].val += val;
+		break;
+		case OBI_WEAPON_CRITPERCENT:
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val += val;
+		break;
+		case OBI_WEAPON_DMG:
+			Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val += val;
+		break;
+		
+		// -- don't use this with increment!
+		/*case OBI_WEAPON_POWERSET1:
+			if(!overwrite) {
+				// this is a bitset so it gets OR'd instead
+				if(!removeBit)
+					Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val |= (1 << val);
+				else {
+					// negative means remove it, we want the negative state to be carried down to updateactivity so we wont modify it here
+					Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << (-val));
+				}
+			}
+			else {
+				// simply update
+				Player_Orb_Data[pnum].weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val = val;
+			}
+		break;*/
+		// weapon mods can come in the future for orbs that give those
+	}
+	UpdateActivity(pnum, bonus + MAP_ORB_TO_ACTIVITY, val, extra, false, false);
+}
+
 // it's too cumbersome to edit all other function calls to exclude the activity update, plus the added if statements...
 void SetDataToOrbBonus_NoActivity(int pnum, int bonus, int extra, int val) {
 	switch(bonus) {
@@ -559,7 +630,9 @@ int PickWeightedFromTwoItems(int pnum, int item1, int item2) {
 void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	int res = -1;
 	int temp;
+	int prev;
 	int i, s;
+	int affluence = GetAffluenceBonus();
 	SetInventory("OrbUseType", orbtype + 1);
 	// for any other orb, reset most recently used orb
 	if(orbtype != DND_ORB_REPENT)
@@ -567,11 +640,13 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
 			res = extra;
-			SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, res, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, res) + GetAffluenceBonus() * ENHANCEORB_BONUS, 0, ENHANCEORB_MAX));
+			prev = GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, res);
+			temp = Clamp_Between(prev + affluence * ENHANCEORB_BONUS, 0, ENHANCEORB_MAX);
+			SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, res, temp);
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
-			Player_MostRecent_Orb[pnum].values[1] = GetAffluenceBonus() * ENHANCEORB_BONUS;
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEAPONENHANCE, res);
+			Player_MostRecent_Orb[pnum].values[1] = temp;
+			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEAPONENHANCE, res, true, temp - prev);
 		break;
 		case DND_ORB_CORRUPT:
 			// roll what to do
@@ -583,7 +658,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// i has the effect to do now
 			SetInventory("OrbResult", i);
 			Player_MostRecent_Orb[pnum].values[0] = i;
-			Player_MostRecent_Orb[pnum].values[0] |= GetAffluenceBonus() << 8;
+			Player_MostRecent_Orb[pnum].values[0] |= affluence << 8;
 			HandleCorruptOrbUse(i);
 		break;
 		case DND_ORB_SPIRIT:
@@ -594,11 +669,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					if(temp <= SpiritOrb_StatDropWeights[i])
 						break;
 			} while(GetStat(i) == DND_STAT_FULLMAX);
-			GiveStat(i, GetAffluenceBonus());
+			GiveStat(i, affluence);
 			res = i;
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
-			Player_MostRecent_Orb[pnum].values[1] = GetAffluenceBonus();
+			Player_MostRecent_Orb[pnum].values[1] = affluence;
 		break;
 		case DND_ORB_REPENT:
 			RevertLastOrbEffect();
@@ -614,7 +689,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				temp = PickRandomOrb();
 			} while(temp == DND_ORB_CALAMITY || !HasOrbOfType(temp));
 			// take the orb, then roll another new orb
-			i = TakeOrbFromPlayer(temp, GetAffluenceBonus());
+			i = TakeOrbFromPlayer(temp, affluence);
 			res = temp;
 			do {
 				temp = PickRandomOrb();
@@ -628,9 +703,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		break;
 		case DND_ORB_PROSPERITY:
 			res = GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1);
-			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, PROSPERITY_MAX));
+			SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, Clamp_Between(res + affluence, 0, PROSPERITY_MAX));
 			res = GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1);
-			SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, PROSPERITY_MAX));
+			SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, Clamp_Between(res + affluence, 0, PROSPERITY_MAX));
 			UpdateArmorVisual();
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
@@ -639,9 +714,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		break;
 		case DND_ORB_FORTITUDE:
 			res = GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1);
-			SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, FORTITUDE_MAX));
+			SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, Clamp_Between(res + affluence, 0, FORTITUDE_MAX));
 			res = GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1);
-			SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, FORTITUDE_MAX));
+			SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, Clamp_Between(res + affluence, 0, FORTITUDE_MAX));
 			UpdateArmorVisual();
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
@@ -650,14 +725,14 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		break;
 		case DND_ORB_WISDOM:
 			res = GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
-			SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, WISDOMORB_MAX));
+			SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, Clamp_Between(res + affluence, 0, WISDOMORB_MAX));
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
 			SyncClientsideVariable_Orb(pnum, DND_SYNC_WISDOMPERCENT_BONUS, 0);
 		break;
 		case DND_ORB_GREED:
 			res = GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
-			SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, Clamp_Between(res + GetAffluenceBonus(), 0, GREEDORB_MAX));
+			SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, Clamp_Between(res + affluence, 0, GREEDORB_MAX));
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
 			SyncClientsideVariable_Orb(pnum, DND_SYNC_GREEDPERCENT_BONUS, 0);
@@ -669,14 +744,17 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			res = GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, temp);
 			Player_MostRecent_Orb[pnum].values[0] = temp;
 			Player_MostRecent_Orb[pnum].values[0] += 100 * res;
-			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, temp, Clamp_Between(res + GetAffluenceBonus(), 0, VIOLENCEORB_MAX));
+			prev = res;
+			res = Clamp_Between(prev + affluence, 0, VIOLENCEORB_MAX);
+			SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, temp, res);
 			SetInventory("OrbResult", temp);
+
 			// start from ballistic talent end with occult
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_DAMAGEBULLET + temp, 0);
+			SyncClientsideVariable_Orb(pnum, DND_SYNC_DAMAGEMELEE + temp, 0, true, res - prev);
 		break;
 		case DND_ORB_SIN:
 			// take away random stats
-			s = GetAffluenceBonus();
+			s = affluence;
 			temp = random(1, SINORB_MAX_TAKE);
 			res = 0;
 			// save each stat's previous values in 7 bits (it can take max 64), 6 stats = 42 bits needed => 2 ints. 3rd int can hold type of sin orb effect + affluence count
@@ -688,13 +766,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			//res |= s;
 			// got from 0 to 5 in res
 			res |= temp;
-			temp = SINORB_PERK;
-			//temp = random(SINORB_OPT_BEGIN, SINORB_OPT_END);
-			// 6 4 2 1 2 4
-			// 1 deadli
-			// -----
-			// 3 4 2 0 1 1
-			// 1 brut 1 medic 1 dead
+			//temp = SINORB_PERK;
+			temp = random(SINORB_OPT_BEGIN, SINORB_OPT_END);
 			
 			Player_MostRecent_Orb[pnum].values[2] = s;
 			Player_MostRecent_Orb[pnum].values[2] |= temp << 5;
@@ -712,7 +785,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				(i == 1 && CheckInventory("Credit") == 0x7fffffff) ||
 				(i == 2 && CheckInventory("Budget") == 1000));
 
-			res = GetAffluenceBonus() * GetOrbRichesData(i, RICHES_AMOUNT);
+			res = affluence * GetOrbRichesData(i, RICHES_AMOUNT);
 			Player_MostRecent_Orb[pnum].values[0] = i;
 			Player_MostRecent_Orb[pnum].values[1] = res;
 			if(!i)
@@ -727,7 +800,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", res);
 		break;
 		case DND_ORB_HOLDING:
-			res = GetAffluenceBonus() * HOLDINGORB_BONUS;
+			res = affluence * HOLDINGORB_BONUS;
 			temp = GetDataFromOrbBonus(pnum, OBI_HOLDING, -1);
 			SetDataToOrbBonus(pnum, OBI_HOLDING, -1, Clamp_Between(temp + res, 0, HOLDING_MAX));
 			Player_MostRecent_Orb[pnum].values[0] = GetDataFromOrbBonus(pnum, OBI_HOLDING, -1) - temp;
@@ -741,7 +814,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i)
 				Player_MostRecent_Orb[pnum].values[i] = PlayerInventoryList[pnum][extra].attributes[i].attrib_val;
 				
-			s = GetAffluenceBonus();
+			s = affluence;
 			if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN) {
 				// handle unique random roll case
 				temp = (PlayerInventoryList[pnum][extra].item_type >> UNIQUE_BITS) - 1;
@@ -769,7 +842,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				Player_MostRecent_Orb[pnum].values[2 * i + 1] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
 				Player_MostRecent_Orb[pnum].values[2 * i + 2] = PlayerInventoryList[pnum][extra].attributes[i].attrib_val;
 			}
-			for(s = 0; s < GetAffluenceBonus() && PlayerInventoryList[pnum][extra].attrib_count; ++s) {
+			for(s = 0; s < affluence && PlayerInventoryList[pnum][extra].attrib_count; ++s) {
 				res = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
 				// all attributes must be shifted left from the position of the deleted attribute now
 				for(i = res; i < PlayerInventoryList[pnum][extra].attrib_count - 1; ++i) {
@@ -886,6 +959,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		break;
 	}
 	Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
+	
+	// clientside msg
+	ACS_NamedExecuteAlways("DND Orb Use Message", 0, CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence);
 }
 
 // check if player has any orbs besides calamity

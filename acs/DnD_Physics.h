@@ -4,6 +4,10 @@
 #define DND_DMGPUSH_CAP 72.0
 
 void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeRipperHack = false) {
+	// if not to be pushed, ignore
+	if(CheckFlag(victim, "NODAMAGETHRUST"))
+		return;
+
 	// get push vector
 	int dx, dy, dz;
 	int m = GetActorProperty(victim, APROP_MASS) / 2;

@@ -1,11 +1,11 @@
 include "xlat/doom.txt"
 
-11 = USE,		ACS_ExecuteAlways (1690)
-51 = USE,		ACS_ExecuteAlways (1690, 0, 1)
-52 = WALK,		ACS_ExecuteAlways (1690)
-124 = WALK,		ACS_ExecuteAlways (1690, 0, 1)
-197 = SHOOT,		ACS_ExecuteAlways (1690)
-198 = SHOOT,		ACS_ExecuteAlways (1690, 0, 1)
+11 = USE,		ACS_ExecuteAlways (255)
+51 = USE,		ACS_ExecuteAlways (255, 0, 1)
+52 = WALK,		ACS_ExecuteAlways (255)
+124 = WALK,		ACS_ExecuteAlways (255, 0, 1)
+197 = SHOOT,		ACS_ExecuteAlways (255)
+198 = SHOOT,		ACS_ExecuteAlways (255, 0, 1)
 
 39 = WALK|MONST,					ACS_ExecuteAlways(1691, 0, tag)
 97 = WALK | REP | MONST,			ACS_ExecuteAlways(1691, 0, tag)

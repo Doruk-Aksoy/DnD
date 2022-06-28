@@ -32,6 +32,10 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define QSTBOX2_YF 173.0
 
 #define MONSTERINFO_HOLDTIME 0.2
+#define EXIT_HOLDTIME 0.5
+
+#define MILLION_MINUS_ONE 999999
+#define THOUSAND_MINUS_ONE 999
 
 typedef struct coord {
 	int x;
@@ -57,10 +61,10 @@ enum {
 	RPGMENUTRADECOUNTDOWNID,
 	RPGMENUPAGEID = 120,
 	RPGMENUHIGHLIGHTID,
+
+	RPGMENUINVENTORYID = 849,
 	
-	RPGMENUCLICKEDID = 849,
-	
-	RPGMENUINVENTORYID = 1749,
+	RPGMENUCLICKEDID = 1749,
 	RPGMENUID,
 	RPGMENULARRID,
 	RPGMENURARRID,
@@ -648,6 +652,57 @@ int GetPlayernameRawLength(str name) {
 	return real_len;
 }
 
+void HudMessageOnActor(int tid, int msgID, int hudX = 640, int hudY = 480, int xOffset = 0, int yOffset = 0, int range = 128, str sprite = "TNT1A0", str text = "Null", int holdTime = 0.1, int colour = CR_RED) {
+	int dist, angle, vang, pitch, x, y;
+
+	if(sprite != -1) {
+		SetFont(sprite);
+		text = "A";
+		//offset = 0.1;
+	}
+
+	SetHudSize(hudX, hudY, 1);
+	x = GetActorX(tid) - GetActorX(0);
+	y = GetActorY(tid) - GetActorY(0);
+
+	vang = VectorAngle(x,y);
+	angle = (vang - GetActorAngle(0) + 1.0) % 1.0;
+
+	if(((vang + 0.125) % 0.5) > 0.25)
+		dist = FixedDiv(y, sin(vang));
+	else
+		dist = FixedDiv(x, cos(vang));
+
+	if ((angle < 0.2 || angle > 0.8) && (dist >> 16) < range) {
+		if (GetActorPitch(0) >= -0.25 && GetActorPitch(0) <= 0.25) {
+
+			pitch = VectorAngle(dist, GetActorZ(tid) - (GetActorZ(0) + 41.0));
+			pitch = (pitch + GetActorPitch(0) + 1.0) % 1.0;
+
+			// Fixes divide by zero
+			if ((hudX / 2) * sin(angle) != 0 && cos(angle) != 0 && (hudX / 2) * sin(pitch) != 0 && cos(pitch) != 0) {
+				x = hudX / 2 - ((hudX / 2) * sin(angle) / cos(angle));
+				y = hudY / 2 - ((HUDX / 2) * sin(pitch) / cos(pitch));
+
+				x += xOffset;
+				y += yOffset;
+
+				HudMessage(s:text; HUDMSG_PLAIN, msgID, colour, (x << 16), (y << 16), holdTime);
+			}
+		}
+	}
+}
+
+// assumes 999, 999, 999 is total max amount to be shown
+str GetIntegerCommaView(int x) {
+	if(x > MILLION_MINUS_ONE) {
+		return StrParam(d:x / 1000000, s:", ", d:(x / 100000) % 10, d:(x / 10000) % 10, d:(x / 1000) % 10, s:", ", d:(x / 100) % 10, d:(x / 10) % 10, d:x % 10);
+	}
+	else if(x > THOUSAND_MINUS_ONE)
+		return StrParam(d:x / 1000, s:", ", d:(x / 100) % 10, d:(x / 10) % 10, d:x % 10);
+	return StrParam(d:x);
+}
+
 // hp bar of monsters
 void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int monid, int m_id, int fortify_amt) {
 	str barGraphic = "";
@@ -658,9 +713,12 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	SetFont(GetMonsterTypeIcon(GetMonsterType(monid, mon_tid)));	
 	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, MONSTERINFO_HOLDTIME);
 	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
+	
 	// inner text
 	SetFont ("MONFONT");
-	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
+	
+	// do the hp drawing in-place to save usage of strparam spam
+	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", s:GetIntegerCommaView(monhp), s:" / ", s:GetIntegerCommaView(mmaxhp); HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
 	
 	bool is_unique = 0;
 	bool mon_isPet = IsPet(mon_tid);
@@ -728,6 +786,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 		i = (monhp * 100 / mmaxhp);
 		if(i > 100)
 			i = 100;
+		i <<= 1;
 		
 		if(i > 0) {
 			SetHudClipRect(305, 17, i, 18, i);
@@ -784,7 +843,7 @@ void DrawBigBossHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	
 	// inner text
 	SetFont ("MONFONT");
-	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", i:monhp, s:"/", i:mmaxhp; HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.4, 64.1, MONSTERINFO_HOLDTIME);
+	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", s:GetIntegerCommaView(monhp), s:" / ", s:GetIntegerCommaView(mmaxhp); HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.4, 64.1, MONSTERINFO_HOLDTIME);
 	
 	HudMessage(s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 400.4, 45.1, MONSTERINFO_HOLDTIME);
 	
@@ -876,6 +935,33 @@ Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
 		}
 	}
 	SetResultValue(0);
+}
+
+// ran when the boss awakes and a player dies (so that the above script doesn't stop functioning on their death when the boss is still active)
+bool BossBarDrawnForPlayer[MAXPLAYERS];
+Script "DnD Unique Boss Bar Draw SpecOnly" (int tid, int diedNoLives) CLIENTSIDE {
+	int cpn = ConsolePlayerNumber();
+	if(!PlayerIsSpectator(cpn) && !diedNoLives)
+		Terminate;
+	
+	if(!BossBarDrawnForPlayer[cpn])
+		ACS_NamedExecuteWithResult("DnD Boss HP FX Overlay", tid);
+		
+	BossBarDrawnForPlayer[cpn] = true;
+
+	while(DungeonBossData[BOSSDATA_TID]) {
+		int m_id = DungeonBossData[BOSSDATA_TID] - DND_MONSTERTID_BEGIN;
+		DrawBigBossHPBar(
+			DungeonBossData[BOSSDATA_TID],
+			MonsterProperties[m_id].maxhp,
+			DungeonBossData[BOSSDATA_HP],
+			MonsterProperties[m_id].level,
+			MonsterProperties[m_id].id,
+			m_id,
+			DungeonBossData[BOSSDATA_FORT]
+		);
+		Delay(const:2);
+	}
 }
 
 #endif
