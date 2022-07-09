@@ -1,3 +1,6 @@
+// ACCURACY OF 69 MEANS ITS A CRIT!
+const int DND_CRITTOKEN = 69;
+
 /*
 // Copy to all monsters (until cleaner solution is found)
 		Death.Melee_Magic:

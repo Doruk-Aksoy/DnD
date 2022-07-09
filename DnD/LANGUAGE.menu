@@ -226,7 +226,7 @@ ACCTX_C8				=	"80% less non-melee damage.";
 
 ACCTX_T9				=	"Hand of Artemis";
 ACCTX_P9				=	"Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.";
-ACCTX_C9				=	"Do 66% less damage.";
+ACCTX_C9				=	"Regular weapons do 66% less damage. Super weapons do 90% less damage instead.";
 
 ACCTX_T10				=	"Scroll of Agamotto";
 ACCTX_P10				=	"Do 100% more damage while standing still.";

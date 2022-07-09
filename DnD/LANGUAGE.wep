@@ -147,7 +147,7 @@ WEPTIP_0_7 		= "Sickle steals life from enemies on hit. Does 40 - 60 damage 3 ti
 	 
 WEPTIP_1_0 		= "Your trustworthy Colt45, been with you since the start. Does 15 damage in a 0.5 spread. Can be \cdreplaced.";
 WEPTIP_1_1 		= "Akimbo longslides. Does 35 damage per shot in a 3.5 by 2.5 spread.";
-WEPTIP_1_2 		= "Magnum is a true classic, shooting bullets each doing 150 - 225 damage. Has a capacity of 6. 50 damage from bullet rip through enemies. Alt fire reloads.";
+WEPTIP_1_2 		= "Magnum is a true classic, shooting bullets each doing 150 - 225 damage. Has a capacity of 6. 50 damage from bullet rip through enemies.";
 WEPTIP_1_3 		= "Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo.";
 WEPTIP_1_4 		= "Assault Rifle does 30 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.";
 WEPTIP_1_5 		= "Summons mobile viper traps, jumping on enemies doing 120-200 damage in 128 unit radius. They expire after 12 seconds. Alt fire shoots slithering vipers doing 150-250 damage, \cfignoring shields\c-.";
@@ -223,7 +223,7 @@ WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on 
 WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units.";
 WEPTIP_7_3 		= "Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields\c- and has limited range.";
 WEPTIP_7_4 		= "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, halving over two more explosions in both radius and damage.";
-WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 115 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 750 damage, \cfignoring shields.";
+WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 100 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 750 damage, \cfignoring shields.";
 
 WEPTIP_7_6 		= "Gauss Rifle fires a magnetic pulse dealing 200 direct hit damage and 96 radius damage in a 128 unit radius. Alt fire zooms, amplifying the damage for each zoom.";
 WEPTIP_7_7 		= "This baby can rip through concrete with ease. Each shot does multiples of 400. Alt fire charges up the next shot up to 2 times.";
@@ -241,7 +241,7 @@ WEPTIP_9_3 		= "The arm-cannon of a Corpulent. Shoots metallic cannon balls that
 WEPTIP_9_4 		= "The spine of a Bloodfiend. Shoots tiny explosive pukes. Alt fire changes it to a limited range hitscan, and can heal on hit. Mainfire can't hit \cughosts\c-. \ceTemporary Weapon.";
 WEPTIP_9_5 		= "The laser rifle shoots a laser or two, if using alt fire, each doing 20-45 damage. \cfIgnores \cfshields. \ceTemporary Weapon.";
 WEPTIP_9_6 		= "The torso of a Vulgar. Shoots acidic bones. Alt fire shoots bouncing acid bombs. Can't hit \cughosts\c-. Inflicts \cqpoison. \ceTemporary Weapon.";
-WEPTIP_9_7 		= "A demon heart. Squeeze to damage all enemies  in an area.\cfIgnores shields. \ceTemporary Weapon.";
+WEPTIP_9_7 		= "A demon heart. Squeeze to damage all enemies in an area.\cfIgnores shields. \ceTemporary Weapon.";
 WEPTIP_9_8 		= "Gloves of a dark servant. Can shoot pain enforcing lightning bolts doing 60-90 damage. Alt fire shoots a homing explosive lightning ball doing 192 damage on hit and 144 area damage over 9 tics. \ceTemporary Weapon.";
 WEPTIP_9_9 		= "A nail-chaingun, quite useful for mass murder of demons. Shoots nails ripping for 16-32 damage. \ceTemporary Weapon.";
 WEPTIP_9_10 	= "True classic, in akimbo fashion too! Shoots bullets doing 10-30 damage each. \ceTemporary Weapon.";

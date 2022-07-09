@@ -248,6 +248,22 @@ object FlakProjectileExplosion4 {
 	frame DXP4 { light INQSHOT_X8 }
 }
 
+object FlakProjectileExplosion1_Crit {
+	frame DEXP { light INQSHOT_X8 }
+}
+
+object FlakProjectileExplosion2_Crit {
+	frame DXP2 { light INQSHOT_X8 }
+}
+
+object FlakProjectileExplosion3_Crit {
+	frame DXP3 { light INQSHOT_X8 }
+}
+
+object FlakProjectileExplosion4_Crit {
+	frame DXP4 { light INQSHOT_X8 }
+}
+
 flickerlight SedrinLight1
 {
     color 0.125 1.0 0.125
@@ -320,6 +336,19 @@ object SedrinProjectile {
 }
 
 object SedrinSplitProjectile {
+	frame ACID { light SedrinLight1S }
+	
+	frame BPLOA { light SedrinLight7 }
+	frame BPLOB { light SedrinLight7 }
+	frame BPLOC { light SedrinLight2 }
+	frame BPLOD { light SedrinLight2 }
+	frame BPLOE { light SedrinLight8 }
+	frame BPLOF { light SedrinLight8 }
+	frame BPLOG { light SedrinLight5 }
+	frame BPLOH { light SedrinLight6 }
+}
+
+object SedrinSplitProjectile_Crit {
 	frame ACID { light SedrinLight1S }
 	
 	frame BPLOA { light SedrinLight7 }

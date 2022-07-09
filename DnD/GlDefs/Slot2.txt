@@ -143,3 +143,13 @@ Object RubyCircleFlame_GhostHitter
 {
 Frame CFFX { Light DMissileTrail1 }
 }
+
+Object RubyCircleFlame_Crit
+{
+Frame CFFX { Light DMissileTrail1 }
+}
+
+Object RubyCircleFlame_GhostHitter_Crit
+{
+Frame CFFX { Light DMissileTrail1 }
+}

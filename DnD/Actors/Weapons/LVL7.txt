@@ -133,7 +133,8 @@ Actor "Upgraded BFG 9000" : BFG9000
 Actor BFGShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 50)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 50)
 			TNT1 A 0 A_FireCustomMissile("BFGBall2")
 		Stop
 	}
@@ -216,7 +217,7 @@ Actor BFGBall2 : DnD_BaseProjectile replaces BFGBall {
 	+FOILINVUL
 	+DONTBLAST
 	States {
-		Spawn:
+		SpawnState:
 			BFS1 AAAABBBB 1 Bright A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
 		XDeath:
@@ -230,9 +231,18 @@ Actor BFGBall2 : DnD_BaseProjectile replaces BFGBall {
 	}
 }
 
-Actor BFGBallUpgraded : BFGBall2 {
-	+FORCERADIUSDMG
+Actor BFGBallUpgraded : DnD_ExplosiveBase {
 	Decal "BFGLightning"
+	Radius 13
+	Height 8
+	Speed 25
+	Alpha 0.75
+	DeathSound "weapons/bfgx"
+	+RANDOMIZE
+	+DONTREFLECT
+	+FOILINVUL
+	+DONTBLAST
+	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			BFS1 A 1 Bright A_SpawnItem("BFGBallTrail")
@@ -257,8 +267,14 @@ Actor BFGBallUpgraded : BFGBall2 {
 	    Death:
 			BFE1 A 8 Bright
 			TNT1 A 0 A_SpawnItemEx ("BFGFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
-			TNT1 A 0 A_CustomMissile("BfgExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SpawnItem("BFGShockWave")
+			
+			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BFG32768 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
+			TNT1 A 0 A_SetUserVar("user_expradius", 192)
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_BFG32768 << 16))
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
 			BFE1 B 8 Bright
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_SpawnDebris("BFGParticles")
 			BFE1 C 8 Bright ACS_NamedExecuteWithResult("DnD Do Scan Attack", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BFG32768 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGY, 30 | (DND_SCANNER_BFGUPGRADED << 16), DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
@@ -267,30 +283,11 @@ Actor BFGBallUpgraded : BFGBall2 {
 	}
 }
 
-Actor BfgExplosion : DnD_ExplosiveBase {
-	Speed 0
-	+THRUACTORS
-	+FOILINVUL
-	+FORCERADIUSDMG
-	States {
-		SpawnState:
-			TNT1 A 0
-		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BFG32768 << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7))
-			TNT1 A 0 A_SetUserVar("user_expradius", 192)
-			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_BFG32768 << 16))
-		Goto DoExplosionDamage
-		ContinueFromExplosion:
-			TNT1 A 1
-		Stop
-	}
-}
-
 Actor BFGShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 75)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 75)
 			TNT1 A 0 A_FireCustomMissile("BFGBallUpgraded")
 		Stop
 	}
@@ -413,7 +410,8 @@ Actor DevastatorRocket_GhostHitter : DevastatorRocket {
 Actor DevastatorShooter1 : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 AAAAA 0 A_FireCustomMissile("DevastatorRocket", frandom(-4.8, 0.0) * (1.0 - accuracy * accuracy_factor), 1, -12, 0, 0, frandom(-2.8, 2.8) * (1.0 - accuracy * accuracy_factor))
@@ -450,7 +448,8 @@ Actor DevastatorShooter1 : DnD_Activator {
 Actor DevastatorShooter2 : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
 			TNT1 AAAAA 0 A_FireCustomMissile("DevastatorRocket", frandom(0.0, 4.8) * (1.0 - accuracy * accuracy_factor), 1, 12, 0, 0, frandom(-2.8, 2.8) * (1.0 - accuracy * accuracy_factor))
@@ -631,6 +630,7 @@ ACTOR DNBFGBall : DnD_BaseProjectile {
 			NBFP A 0 A_SpawnItemEx("DNBFGMiniblastSpammer")
 			NBFP A 0 A_SpawnItemEx("DNBFGGLDEFThingy")
 			NBFP A 0 A_Quake(3,15,0,768,"")
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("DNBFGBallExp1", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("DNBFGBallSmall", 32, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
 			TNT1 A 0 A_CustomMissile("DNBFGBallSmall", 32, 0, 60, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
@@ -638,9 +638,19 @@ ACTOR DNBFGBall : DnD_BaseProjectile {
 			TNT1 A 0 A_CustomMissile("DNBFGBallSmall", 32, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
 			TNT1 A 0 A_CustomMissile("DNBFGBallSmall", 32, 0, 240, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
 			TNT1 A 0 A_CustomMissile("DNBFGBallSmall", 32, 0, 300, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
+		FinishAnim:
 			TNT1 AAAAAA 1 A_SpawnItemEx("DNBFGParticleBlast")
 			TNT1 A 9
 		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("DNBFGBallExp1_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("DNBFGBallSmall_Crit", 32, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
+			TNT1 A 0 A_CustomMissile("DNBFGBallSmall_Crit", 32, 0, 60, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
+			TNT1 A 0 A_CustomMissile("DNBFGBallSmall_Crit", 32, 0, 120, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
+			TNT1 A 0 A_CustomMissile("DNBFGBallSmall_Crit", 32, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
+			TNT1 A 0 A_CustomMissile("DNBFGBallSmall_Crit", 32, 0, 240, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
+			TNT1 A 0 A_CustomMissile("DNBFGBallSmall_Crit", 32, 0, 300, CMF_TRACKOWNER | CMF_AIMDIRECTION, 120)
+		Goto FinishAnim
 	}
 }
 
@@ -675,6 +685,10 @@ Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 	}
 }
 
+Actor DNBFGBallExp1_Crit : DNBFGBallExp1 {
+	Accuracy 69
+}
+
 Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 	Speed 0
 	+FORCERADIUSDMG
@@ -704,6 +718,10 @@ Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 	}
 }
 
+Actor DNBFGBallSmallExp1_Crit : DNBFGBallSmallExp1 {
+	Accuracy 69
+}
+
 Actor DNBFGBallSmall : DNBFGBall {
 	Speed 24
 	Scale 0.6
@@ -728,11 +746,29 @@ Actor DNBFGBallSmall : DNBFGBall {
 	}
 }
 
+Actor DNBFGBallSmall_Crit : DNBFGBallSmall {
+	Accuracy 69
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_MFG << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7), DND_DAMAGETYPE_ENERGYEXPLOSION, 0, DND_WEAPON_MFG)
+		Death:
+			NBFP A 0 A_PlaySound("Weapons/MFGExplode", CHAN_AUTO, 1.0)
+			TNT1 A 0 A_CustomMissile("DNBFGBallSmallExp1_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NBFP A 0 A_SpawnItemEx("DNBFGInitBlast")
+			NBFP A 0 A_SpawnItemEx("DNBFGReverseBlast2")
+			NBFP A 0 A_Quake(2,11,0,192,"")
+			TNT1 AAAAAA 1
+			TNT1 A 9
+		Stop
+	}
+}
+
 Actor MFGShooter : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_PlaySound("Weapons/MFGFire", 6)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 60)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 60)
 			TNT1 A 0 A_FireCustomMissile("DNBFGBall", 0, 1)
 		Stop
 	}
@@ -1037,7 +1073,6 @@ ACTOR "Rail Gun" : Weapon
    ContinueCharge:
       TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
       RAIG T 2  A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-	  TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 8)
 	  TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 	  TNT1 A 0 A_TakeInventory("Cell", 8)
    NoTake:
@@ -1065,7 +1100,8 @@ const int railoffset = 12;
 Actor RailgunShooter1 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 8)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 8)
 			TNT1 A 0 A_TakeInventory("Railgun_Charge", 2)
 			// fire the 4 side rails to "extend" hitbox
 			TNT1 A 0 A_RailAttack(0, -railoffset, 0, none, none, RGF_SILENT, 0, "RailgunPuff", 0, 0, 0xFFF, 0, 5.0, 0, none, railoffset + 1)
@@ -1084,7 +1120,8 @@ Actor RailgunShooter1 : DnD_Activator {
 Actor RailgunShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 8)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 8)
 			TNT1 A 0 A_TakeInventory("Railgun_Charge", 2)
 			TNT1 A 0 A_RailAttack(0, -railoffset, 0, none, none, RGF_SILENT, 0, "RailgunPuff_2", 0, 0, 0xFFF, 0, 5.0, 0, none, railoffset + 1)
 			TNT1 A 0 A_RailAttack(0, -railoffset, 0, none, none, RGF_SILENT, 0, "RailgunPuff_2", 0, 0, 0xFFF, 0, 5.0, 0, none, -railoffset + 1)
@@ -1102,7 +1139,8 @@ Actor RailgunShooter2 : DnD_Activator {
 Actor RailgunShooter3 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 8)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 8)
 			TNT1 A 0 A_TakeInventory("Railgun_Charge", 2)
 			TNT1 A 0 A_RailAttack(0, -railoffset, 0, none, none, RGF_SILENT, 0, "RailgunPuff_3", 0, 0, 0xFFF, 0, 5.0, 0, none, railoffset + 1)
 			TNT1 A 0 A_RailAttack(0, -railoffset, 0, none, none, RGF_SILENT, 0, "RailgunPuff_3", 0, 0, 0xFFF, 0, 5.0, 0, none, -railoffset + 1)
@@ -1446,7 +1484,8 @@ Actor "Gauss Rifle" : Weapon {
 Actor GaussAmmoTaker : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_GAUSS, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_GAUSS, 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("GaussRound", 1)
 		Stop
@@ -1826,7 +1865,8 @@ Actor DeathRayTrigger : PowerProtection {
 Actor DeathRayShooter : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_ION, 6)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_ION, 6)
 			TNT1 A 0 A_PlaySound("DeathRay/Fire", 5)
 			TNT1 A 0 A_GiveInventory("DeathRayOverheat", 40)
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 36 * (1 + sin(-pitch)), 0, 0, 1)
@@ -1881,8 +1921,13 @@ Actor DeathRayProjectile : DnD_ExplosiveBase {
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX8", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("DeathRayTrailSpark", frandom(19.0, -19.0), frandom(19.0, -19.0), frandom(19.0, -19.0))
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Deathray Laser Trail", 0, 20, health)
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 3 Light("DRayLight2") A_CustomMissile("DeathRayLaser", 0, 0, mass, CMF_TRACKOWNER | CMF_AIMDIRECTION, -pitch)
 		Stop
+		Crit:
+			TNT1 A 3 Light("DRayLight2") A_CustomMissile("DeathRayLaser_Crit", 0, 0, mass, CMF_TRACKOWNER | CMF_AIMDIRECTION, -pitch)
+		Stop
+		
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DEATHRAY << 16), DND_DAMAGECATEGORY_ENERGY, DND_ISSUPER | DND_ISSLOT7 | DND_USETARGET), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_DEATHRAY)
 		Death:
@@ -2000,4 +2045,8 @@ ACTOR DeathRayLaser : DnD_BaseFastProjectile {
 			TNT1 BCD 4
 		stop
 	}
+}
+
+Actor DeathRayLaser_Crit : DeathRayLaser {
+	Accuracy 69
 }

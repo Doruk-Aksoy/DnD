@@ -1755,6 +1755,7 @@ Actor DuskSlash : DnD_BaseProjectile {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Update Melee ReactionTime", 11)
 			TNT1 A 0 A_PlaySound("Sword/SWave")
+			//TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			VFX4 I 1 Bright A_SpawnItem("DuskSlashTrail",0,0)
 			TNT1 A 0 A_CustomMissile("DuskSlash_Damager", -24, -64, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -1762,6 +1763,16 @@ Actor DuskSlash : DnD_BaseProjectile {
 			TNT1 A 0 A_CustomMissile("DuskSlash_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("DuskSlash_Damager", 12, 32, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("DuskSlash_Damager", 24, 64, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			TNT1 A 0 A_CountDown
+		Loop
+		Crit:
+			VFX4 I 1 Bright A_SpawnItem("DuskSlashTrail",0,0)
+			TNT1 A 0 A_CustomMissile("DuskSlash_Damager_Crit", -24, -64, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("DuskSlash_Damager_Crit", -12, -32, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("DuskSlash_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("DuskSlash_Damager_Crit", 12, 32, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("DuskSlash_Damager_Crit", 24, 64, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_FadeOut(0.05)
 			TNT1 A 0 A_CountDown
 		Loop
@@ -1786,6 +1797,10 @@ Actor DuskSlash_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor DuskSlash_Damager_Crit : DuskSlash_Damager {
+	Accuracy 69
 }
 
 Actor DuskSlashTrail {

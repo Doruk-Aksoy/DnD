@@ -121,7 +121,7 @@ IATTR_T30 			= "more pellets";
 IATTR_T31 			= "increased explosion radius";
 IATTR_T32 			= "reduced self damage";
 	
-IATTR_T33 			= "chance to gain ammo back on firing";
+IATTR_T33 			= "chance to recover ammo from basic weapon attacks";
 IATTR_T34 			= "more ammo from pickups";
 IATTR_T35 			= "increased shop stock";
 	

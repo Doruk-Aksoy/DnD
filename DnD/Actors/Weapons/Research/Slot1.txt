@@ -264,6 +264,10 @@ Actor InfernoProjExplosion2 : DnD_ExplosiveBase {
 	}
 }
 
+Actor InfernoProjExplosion2_Crit : InfernoProjExplosion2 {
+	Accuracy 69
+}
+
 Actor InfernoSwordMissile_1 : DnD_ExplosiveBase {
 	Speed 28
 	Height 16
@@ -297,12 +301,17 @@ Actor InfernoSwordMissile_1 : DnD_ExplosiveBase {
 			DKAT G 3 Bright
 			DKAT HIJK 2 Bright
 			TNT1 A 0 A_PlaySound("Weapons/glahit")
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("InfernoProjExplosion2", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		FinishAnim:
 			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFXMagicOrange", frandom(-16, 16), frandom(-16, 16), 0, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2), 0, SXF_NOCHECKPOSITION)
 			DKAT LM 2 Bright
 			TNT1 A 8 Light("InfernoPuffLight1")
 		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("InfernoProjExplosion2_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto FinishAnim
 	}
 }
 

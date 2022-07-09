@@ -196,6 +196,26 @@ object EmeraldRain_GhostHitter {
     frame JADEI { light EmeraldRainLight5 }
 }
 
+object EmeraldRain_Crit {
+    frame JADED { light EmeraldRainLight1 }
+    frame JADEE { light EmeraldRainLight1 }
+
+    frame JADEF { light EmeraldRainLight2 }
+    frame JADEG { light EmeraldRainLight3 }
+    frame JADEH { light EmeraldRainLight4 }
+    frame JADEI { light EmeraldRainLight5 }
+}
+
+object EmeraldRain_GhostHitter_Crit {
+    frame JADED { light EmeraldRainLight1 }
+    frame JADEE { light EmeraldRainLight1 }
+
+    frame JADEF { light EmeraldRainLight2 }
+    frame JADEG { light EmeraldRainLight3 }
+    frame JADEH { light EmeraldRainLight4 }
+    frame JADEI { light EmeraldRainLight5 }
+}
+
 pointlight HellsmawLight1
 {
 	color 1.0 0.7 0.4
@@ -288,6 +308,32 @@ object HellsMawMiniRocket_Split
 }
 
 object HellsMawMiniRocket_Split_GhostHitter
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}
+
+object HellsMawMiniRocket_Split_Crit
+{
+	frame HLMLG { light HellsmawLight1    }
+	frame HLMLL { light HellsmawLight1    }
+	frame HLMLM { light HellsmawLight1    }
+
+	frame HLMLN { light HellsmawLight2 }
+	frame HLMLO { light HellsmawLight3 }
+	frame HLMLP { light HellsmawLight4 }
+	frame HLMLQ { light HellsmawLight4 }
+	frame HLMLR { light HellsmawLight4 }
+}
+
+object HellsMawMiniRocket_Split_GhostHitter_Crit
 {
 	frame HLMLG { light HellsmawLight1    }
 	frame HLMLL { light HellsmawLight1    }

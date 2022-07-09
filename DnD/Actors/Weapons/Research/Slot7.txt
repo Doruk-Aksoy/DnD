@@ -223,7 +223,8 @@ Actor IonAttackCount : Inventory {
 Actor IonShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_ION, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_ION, 1)
 			TNT1 A 0 A_PlayWeaponSound("IonCannon/Fire")
 			TNT1 A 0 A_GiveInventory("IonOverheat", 2)
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 36 * (1 + sin(-pitch)), 0, 0, 1)
@@ -337,7 +338,7 @@ Actor ResBFG2 : Weapon {
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 50, 5 | (10 << 16), DND_WEAPON_THUNDERSTAFF)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 115, 0, DND_WEAPON_THUNDERSTAFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 100, 0, DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 250, 0, DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 750, 0, DND_WEAPON_THUNDERSTAFF)
 		SelectLoop:
@@ -445,16 +446,17 @@ Actor ThunderStopRing : DnD_Boolean { }
 
 Actor ThunderRangeCounter : Ammo {
 	inventory.amount 1
-	inventory.maxamount 105
+	inventory.maxamount 45
 	ammo.backpackamount 0
-	ammo.backpackmaxamount 105
+	ammo.backpackmaxamount 45
 	+IGNORESKILL
 }
 
 Actor ThunderShooter1 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_THUNDER, 15)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_THUNDER, 15)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ThunderAmmo", 15)
 		NoTake:
@@ -466,7 +468,8 @@ Actor ThunderShooter1 : DnD_Activator {
 Actor ThunderShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_THUNDER, 25)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_THUNDER, 25)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ThunderAmmo", 25)
 		NoTake:
@@ -519,8 +522,10 @@ Actor BallLightning : DnD_ExplosiveBase {
 			ZAP7 A 1 Bright A_JumpIf(WaterLevel > 2, "Submerged")
 			TNT1 AAA 0 A_SpawnItemEx("SmallZapPuff", 0, Random(-12, 12), Random(-12, 12), 0, 0, 0, 0, 160) 
 			ZAP7 B 1 Bright A_JumpIf(WaterLevel > 2, "Submerged")
-			ZAP7 BBB 0 Bright A_SpawnItemEx("SmallZapPuff", 0, Random(-12, 12), Random(-12, 12), 0, 0, 0, 0, 160)
+			TNT1 AAA 0 A_SpawnItemEx("SmallZapPuff", 0, Random(-12, 12), Random(-12, 12), 0, 0, 0, 0, 160)
 			ZAP7 B 1 Bright A_JumpIf(WaterLevel > 2, "Submerged")
+			TNT1 AAA 0 A_SpawnItemEx("SmallZapPuff", 0, Random(-12, 12), Random(-12, 12), 0, 0, 0, 0, 160) 
+			ZAP7 C 1 Bright A_JumpIf(WaterLevel > 2, "Submerged")
 			TNT1 AAA 0 A_SpawnItemEx("SmallZapPuff", 0, Random(-12, 12), Random(-12, 12), 0, 0, 0, 0, 160) 
 			ZAP7 C 1 Bright A_JumpIf(WaterLevel > 2, "Submerged")
 			TNT1 A 0 A_RadiusGive("ThunderTarget", thunderbolt_range, RGF_MONSTERS, 1)
@@ -536,6 +541,7 @@ Actor BallLightning : DnD_ExplosiveBase {
 			TNT1 AAA 0 A_SpawnItemEx("SmallZapPuff", 0, Random(-12, 12), Random(-12, 12), 0, 0, 0, 0, 160) 
 			ZAP7 E 1 Bright A_JumpIf(WaterLevel > 2, "Submerged")
 			TNT1 AAA 0 Bright A_SpawnItemEx("SmallZapPuff", 0, Random(-12, 12), Random(-12, 12), 0, 0, 0, 0, 160) 
+			ZAP7 E 1 Bright A_JumpIf(WaterLevel > 2, "Submerged")
 			TNT1 A 0 A_RadiusGive("ThunderTarget", thunderbolt_range, RGF_MONSTERS, 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Thunderstaff Bolts", 0)
 		Loop

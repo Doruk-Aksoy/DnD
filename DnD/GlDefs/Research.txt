@@ -404,6 +404,20 @@ object MeteorMissileSplit_2 {
 	frame RW6FL { light MeteorLauncherLight7 }
 }
 
+object MeteorMissileSplit_1_Crit {
+	frame RW6FI { light MeteorLauncherLight4 }
+	frame RW6FJ { light MeteorLauncherLight5 }
+	frame RW6FK { light MeteorLauncherLight6 }
+	frame RW6FL { light MeteorLauncherLight7 }
+}
+
+object MeteorMissileSplit_2_Crit {
+	frame RW6FI { light MeteorLauncherLight4 }
+	frame RW6FJ { light MeteorLauncherLight5 }
+	frame RW6FK { light MeteorLauncherLight6 }
+	frame RW6FL { light MeteorLauncherLight7 }
+}
+
 flickerlight AcidLight {
 	color 0.0 0.75 0.0
     size 24

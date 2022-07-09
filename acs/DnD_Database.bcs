@@ -1470,13 +1470,9 @@ Script "DnD Save Player Inventory" (int pnc1, int pnc2) {
 Script "DnD Created Chars Display" (int pnum) {
 	if(PlayerIsLoggedIn(pnum)) {
 		str pacc = GetPlayerAccountName(pnum);
-		
 		bool hasClasses = false;
-		
-		// draw header as a seperate thing
-		ACS_NamedExecuteWithResult("DnD Show Occupied Char Header", pnum);
-		Delay(const:2);
-		
+		bool draw_header = true;
+
 		// log to player how many characters they might have had
 		for(int i = 0; i < DND_MAX_CHARS; ++i) {
 			int class_id = GetDBEntry(GetCharField(DND_DB_CLASSID, i), pacc);
@@ -1485,10 +1481,12 @@ Script "DnD Created Chars Display" (int pnum) {
 				ACS_NamedExecuteWithResult(
 					"DnD Show Occupied Char Slot Data",
 					pnum | (i << 16),
-					class_id - 1,
+					(class_id - 1) | (draw_header << 5),
 					GetDBEntry(GetCharField(DND_DB_LEVEL, i), pacc)
 				);
+				draw_header = false;
 			}
+			Delay(const:1);
 		}
 		
 		// if has no characters, draw a seperate text
@@ -1497,22 +1495,19 @@ Script "DnD Created Chars Display" (int pnum) {
 	}
 }
 
-Script "DnD Show Occupied Char Header" (int pnum, int hasNoClass) CLIENTSIDE {
-	if(pnum != ConsolePlayerNumber())
-		Terminate;
-		
-	if(!hasNoClass)
-		Log(s:"\n\cd==============================================\n", l:"DND_DB_CHARLIST", s:":");
-	else
-		Log(s:"    No characters available.");
-}
-
 Script "DnD Show Occupied Char Slot Data" (int pnum, int class_id, int level) CLIENTSIDE {
 	int char_id = pnum >> 16;
 	pnum &= 0xFFFF;
 	
 	if(pnum != ConsolePlayerNumber())
 		Terminate;
+		
+	bool need_header = class_id >> 5;
+	class_id &= 0x1F;
+	
+	// as for why I need this weird construct, zandronum didn't like it when I put the header in a seperate clientside script even with some delay... so here it is
+	if(need_header)
+		Log(s:"\n\cd==============================================\n", l:"DND_DB_CHARLIST", s:":");
 	
 	Log(s:"    ", d:char_id, s:". Level \cd", d:level, s: "\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:class_id), DND_CLASS_LABEL_NAME), s:".");
 }

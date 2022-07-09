@@ -91,6 +91,10 @@ Actor MercuryExplosion : DnD_ExplosiveBase {
 	}
 }
 
+Actor MercuryExplosion_Crit : MercuryExplosion {
+	Accuracy 69
+}
+
 Actor MercuryRocket : RocketX {
 	Speed 16
 	SeeSound ""
@@ -118,11 +122,16 @@ Actor MercuryRocket : RocketX {
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
 			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("MercuryExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		FinishAnim:
 			MISL B 8 Bright
 			MISL C 7 Bright
 			MISL D 6 Bright
 		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("MercuryExplosion_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto FinishAnim
 	}
 }
 
@@ -271,6 +280,16 @@ Actor MeteorMissileSplit_1 : DnD_ExplosiveBase {
 	}
 }
 
+Actor MeteorMissileSplit_1_Crit : MeteorMissileSplit_1 {
+	Accuracy 69
+	States {
+		ContinueFromExplosion:
+			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("MeteorMissileSplit_2_Crit", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
+			RW6F IJKL 3 Bright
+		Stop
+	}
+}
+
 Actor MeteorMissileSplit_2 : MeteorMissileSplit_1 {
 	Height 8
 	Radius 4
@@ -305,6 +324,10 @@ Actor MeteorMissileSplit_2 : MeteorMissileSplit_1 {
 	}
 }
 
+Actor MeteorMissileSplit_2_Crit : MeteorMissileSplit_2 {
+	Accuracy 69
+}
+
 Actor MeteorMissile : DnD_ExplosiveBase {
 	Height 20
 	Radius 10
@@ -336,11 +359,16 @@ Actor MeteorMissile : DnD_ExplosiveBase {
 		ContinueFromExplosion:
 			TNT1 A 0 A_SetScale(1.25)
 			RW6A EF 3 Bright
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 AAAAA 0 A_SpawnItemEx("MeteorMissileSplit_1", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
+		FinishAnim:
 			TNT1 A 0 A_ChangeVelocity(0, 0, 2.0)
 			RW6A GHI 4 Bright
 			RW6A JJJJJJJJJJJ 2 Bright A_FadeOut(0.075)
 		Stop
+		Crit:
+			TNT1 AAAAA 0 A_SpawnItemEx("MeteorMissileSplit_1_Crit", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
+		Goto FinishAnim
 	}
 }
 
@@ -547,9 +575,15 @@ Actor HeavyGrenade : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_WEAPON_HEAVYGL << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		PelletLoop:
 			TNT1 A 0 A_JumpIf(user_boomcount == steps, "Finish")
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel", 0, 0, user_boomcount * stepsize, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
+			TNT1 A 0 A_SetUserVar("user_boomcount", user_boomcount + 1)
+		Loop
+		Crit:
+			TNT1 A 0 A_JumpIf(user_boomcount == steps, "Finish")
+			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_Crit", 0, 0, user_boomcount * stepsize, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_SetUserVar("user_boomcount", user_boomcount + 1)
 		Loop
 		Finish:
@@ -597,6 +631,18 @@ Actor HeavyGrenadeShrapnel : DnD_BaseProjectile {
 	}
 }
 
+Actor HeavyGrenadeShrapnel_Crit : HeavyGrenadeShrapnel {
+	Accuracy 69
+	States {
+		SpawnState:
+			SFRG ABCDABCDEFGHEFGH 1 Bright A_CustomMissile("HeavyGrenadeShrapnel_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+		SpawnLoop:
+			SFRG IJKL 1 Bright A_CustomMissile("HeavyGrenadeShrapnel_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+		Loop
+	}
+}
+
 Actor HeavyGrenadeShrapnel_Damager : DnD_BaseProjectile {
 	Radius 2
 	Height 4
@@ -616,13 +662,23 @@ Actor HeavyGrenadeShrapnel_Damager : DnD_BaseProjectile {
 	}
 }
 
+Actor HeavyGrenadeShrapnel_Damager_Crit : HeavyGrenadeShrapnel_Damager {
+	Accuracy 69
+}
+
 Actor HeavyGrenade_GhostHitter : HeavyGrenade {
 	-THRUGHOST
 	States {
 		ContinueFromExplosion:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		PelletLoop:
 			TNT1 A 0 A_JumpIf(user_boomcount == steps, "Finish")
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter", 0, 0, user_boomcount * stepsize, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
+			TNT1 A 0 A_SetUserVar("user_boomcount", user_boomcount + 1)
+		Loop
+		Crit:
+			TNT1 A 0 A_JumpIf(user_boomcount == steps, "Finish")
+			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter_Crit", 0, 0, user_boomcount * stepsize, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_SetUserVar("user_boomcount", user_boomcount + 1)
 		Loop
 		Finish:
@@ -644,8 +700,24 @@ Actor HeavyGrenadeShrapnel_GhostHitter : HeavyGrenadeShrapnel {
 	}
 }
 
+Actor HeavyGrenadeShrapnel_GhostHitter_Crit : HeavyGrenadeShrapnel_GhostHitter {
+	Accuracy 69
+	States {
+		SpawnState:
+			SFRG ABCDABCDEFGHEFGH 1 Bright A_CustomMissile("HeavyGrenadeShrapnel_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER)
+		SpawnLoop:
+			SFRG IJKL 1 Bright A_CustomMissile("HeavyGrenadeShrapnel_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+		Loop
+	}
+}
+
 Actor HeavyGrenadeShrapnel_Damager_GhostHitter : HeavyGrenadeShrapnel_Damager {
 	-THRUGHOST
+}
+
+Actor HeavyGrenadeShrapnel_Damager_GhostHitter_Crit : HeavyGrenadeShrapnel_Damager_GhostHitter {
+	Accuracy 69
 }
 
 Actor ResRL3 : Weapon {
@@ -874,6 +946,7 @@ Actor FreezeBall : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ICE | (DND_WEAPON_FREEZER << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_Explode(1, user_expradius, 0, 0, user_fullexpradius)
 			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
 			FRZX EEEE 1 Bright A_SetScale(scalex + 0.1, scaley + 0.1)
@@ -887,6 +960,23 @@ Actor FreezeBall : DnD_ExplosiveBase {
 			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
 			FRZX HHHH 1 Bright A_SetScale(scaley - 0.0875, scaley - 0.0875)
 			TNT1 AAAAAA 0 A_CustomMissile("FreezeBallSmall", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER, frandom(-180, 180))
+			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
+			FRZX III 1 Bright A_SetScale(scaley - 0.1, scaley - 0.1)
+		Stop
+		Crit:
+			TNT1 A 0 A_Explode(1, user_expradius, 0, 0, user_fullexpradius)
+			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
+			FRZX EEEE 1 Bright A_SetScale(scalex + 0.1, scaley + 0.1)
+			TNT1 AAAAAA 0 A_CustomMissile("FreezeBallSmall_Crit", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER, frandom(-180, 180))
+			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
+			FRZX FFFFF 1 Bright A_SetScale(scalex + 0.1, scaley + 0.1)
+			TNT1 AAAA 0 A_CustomMissile("FreezeBallSmall_Crit", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER, frandom(-180, 180))
+			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
+			FRZX GGGGG 1 Bright A_SetScale(scaley - 0.0875, scaley - 0.0875)
+			TNT1 AAAA 0 A_CustomMissile("FreezeBallSmall_Crit", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER, frandom(-180, 180))
+			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
+			FRZX HHHH 1 Bright A_SetScale(scaley - 0.0875, scaley - 0.0875)
+			TNT1 AAAAAA 0 A_CustomMissile("FreezeBallSmall_Crit", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER, frandom(-180, 180))
 			TNT1 AAAAAA 0 A_SpawnItemEx("FreezeSparklet", frandom(-72, 72), frandom(-72, 72), frandom(-72, 72))
 			FRZX III 1 Bright A_SetScale(scaley - 0.1, scaley - 0.1)
 		Stop
@@ -939,6 +1029,25 @@ Actor FreezeBallSmall : DnD_ExplosiveBase {
 	}
 }
 
+Actor FreezeBallSmall_Crit : FreezeBallSmall {
+	Accuracy 69
+	States {
+		SpawnState:
+			FRZX AAA 1 Bright A_CustomMissile("FreezeBallSmall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_ScaleVelocity(0.675)
+			FRZX BBB 1 Bright A_CustomMissile("FreezeBallSmall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_ScaleVelocity(0.675)
+			FRZX CCC 1 Bright A_CustomMissile("FreezeBallSmall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_ScaleVelocity(0.675)
+			FRZX AAA 1 Bright A_CustomMissile("FreezeBallSmall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_ScaleVelocity(0.675)
+			FRZX BBB 1 Bright A_CustomMissile("FreezeBallSmall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_ScaleVelocity(0.675)
+			FRZX CCC 1 Bright A_CustomMissile("FreezeBallSmall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+		Goto Death
+	}
+}
+
 Actor FreezeBallSmall_Damager : DnD_BaseProjectile {
 	Radius 3
 	Height 4
@@ -955,6 +1064,10 @@ Actor FreezeBallSmall_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor FreezeBallSmall_Damager_Crit : FreezeBallSmall_Damager {
+	Accuracy 69
 }
 
 Actor ResRL4 : Weapon {
@@ -1584,9 +1697,14 @@ Actor VoidMissile : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetScale(1.8, 1.8)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Pull Towards Self", user_f * 10, user_rad * 2, DND_PULLF_CANPULLDEAD | DND_PULLF_REVERSEDIR)
 			TNT1 A 0 A_SpawnItemEx("GrayFlare")
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("VoidMissileExploder", 0, 0, 0, CMF_TRACKOWNER)
+		FinishAnim:
 			R045 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright A_SetScale(scalex * 1.025, scaley * 1.025)
 		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("VoidMissileExploder_Crit", 0, 0, 0, CMF_TRACKOWNER)
+		Goto FinishAnim
 	}
 }
 
@@ -1616,6 +1734,10 @@ Actor VoidMissileExploder : DnD_ExplosiveBase {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor VoidMissileExploder_Crit : VoidMissileExploder {
+	Accuracy 69
 }
 
 Actor WhiteBallParticle_Void {

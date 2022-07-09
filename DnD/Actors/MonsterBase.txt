@@ -436,3 +436,65 @@ enum {
 	DND_MHR_PERIODIC,
 	DND_MHR_DURATION
 };
+
+// Stealth monster replacer
+
+ACTOR StealthArachnotron_DnD : RandomSpawner replaces StealthArachnotron
+{
+	Dropitem "Arachnotron"
+}
+
+ACTOR StealthArchvile_DnD : RandomSpawner replaces StealthArchvile
+{
+	Dropitem "Archvile"
+}
+
+ACTOR StealthBaron_DnD : RandomSpawner replaces StealthBaron
+{
+	Dropitem "BaronOfHell"
+}
+
+ACTOR StealthCacodemon_DnD : RandomSpawner replaces StealthCacodemon
+{
+	Dropitem "Cacodemon"
+}
+
+ACTOR StealthChaingunGuy_DnD : RandomSpawner replaces StealthChaingunGuy
+{
+	Dropitem "ChaingunGuy"
+}
+
+ACTOR StealthDemon_DnD : RandomSpawner replaces StealthDemon
+{
+	Dropitem "Demon"
+}
+
+ACTOR StealthHellKnight_DnD : RandomSpawner replaces StealthHellKnight
+{
+	Dropitem "HellKnight"
+}
+
+ACTOR StealthDoomImp_DnD : RandomSpawner replaces StealthDoomImp
+{
+	Dropitem "Doomimp"
+}
+
+ACTOR StealthFatso_DnD : RandomSpawner replaces StealthFatso
+{
+	Dropitem "Fatso"
+}
+
+ACTOR StealthRevenant_DnD : RandomSpawner replaces StealthRevenant
+{
+	Dropitem "Revenant"
+}
+
+ACTOR StealthShotgunGuy_DnD : RandomSpawner replaces StealthShotgunGuy
+{
+	Dropitem "ShotgunGuy"
+}
+
+ACTOR StealthZombieMan_DnD : RandomSpawner replaces StealthZombieMan
+{
+	Dropitem "ZombieMan"
+}

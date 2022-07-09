@@ -112,9 +112,16 @@ enum {
 	
 	DND_MARKOFCHAOS,
 	
-	DND_LEGENDARY
+	DND_LEGENDARY,
+	
+	DND_NODROPS
 };
-#define MAX_MONSTER_TRAITS (DND_LEGENDARY + 1)
+
+// +1 normally for array count, + 2 for NODROPS, we don't want to show this anywhere though
+// shown to players vs stored as data
+#define MAX_MONSTER_TRAITS_SHOWN (DND_LEGENDARY + 1)
+#define MAX_MONSTER_TRAITS_STORED (MAX_MONSTER_TRAITS_SHOWN + 1)
+
 #define FIRST_MONSTER_TRAIT DND_ENERGY_WEAKNESS
 #define LAST_MONSTER_TRAIT DND_LEGENDARY
 

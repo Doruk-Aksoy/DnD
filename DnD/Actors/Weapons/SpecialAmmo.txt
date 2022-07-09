@@ -101,11 +101,16 @@ Actor FlechettePuff : DnD_BasePuff {
 		AfterDamage:
 			PUFF A 0
 			TNT1 AAAAA 0 A_SpawnItemEx("OrangeBallParticle5", 0, 0, frandom(-2.4, 2.4), frandom(-4.8, 4.8), frandom(-4.8, 4.8), frandom(-4.8, 4.8), 0, 128)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_CritToken", 1, "Crit")
 			TNT1 AAA 0 A_CustomMissile("FlechetteShot", random(-4, 4), 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, random(-3, 3))
+		FinishAnim:
 			MPU9 A 4 A_PlaySound("Shells/FlechetteRic")
 			MPU9 B 4
 			MPU9 CDE 4
 		stop
+		Crit:
+			TNT1 AAA 0 A_CustomMissile("FlechetteShot_Crit", random(-4, 4), 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, random(-3, 3))
+		Goto FinishAnim
 		Crash:
 		HitNoBlood:
 		Goto AfterDamage
@@ -132,6 +137,22 @@ Actor FlechetteShot : DnD_BaseProjectile {
 		Death:
 			TNT1 A 0 A_SetScale(0.20)
 			TNT1 AA 0 A_CustomMissile("FlechetteSpark",0,0,random(0,360),CMF_TRACKOWNER | CMF_AIMDIRECTION,random(0,12))
+			TNT1 A 1 A_SpawnItem("FlechetteHitSpark")
+		Stop
+	}
+}
+
+Actor FlechetteShot_Crit : FlechetteShot {
+	Accuracy 69
+	States {
+		SpawnState:
+			SPPJ A 1 A_CustomMissile("FlechetteDamager_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_SpawnItemEx("ScatterPShotTrail", 0, 0, 8, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("ScatterShotGlow", 0, 0, 0, 0, 0, 0, 0, 32)
+		Loop
+		Death:
+			TNT1 A 0 A_SetScale(0.20)
+			TNT1 AA 0 A_CustomMissile("FlechetteSpark_Crit",0,0,random(0,360),CMF_TRACKOWNER | CMF_AIMDIRECTION,random(0,12))
 			TNT1 A 1 A_SpawnItem("FlechetteHitSpark")
 		Stop
 	}
@@ -176,6 +197,17 @@ ACTOR FlechetteSpark : DnD_BaseProjectile {
 	}
 }
 
+Actor FlechetteSpark_Crit : FlechetteSpark {
+	Accuracy 69
+	States {
+		SpawnState:
+			SPPJ A 1
+			TNT1 A 0 A_SpawnItemEx("ScatterShotGlowSmall", 0, 0, 0, 0, 0, 0, 0, 32)
+			TNT1 A 0 A_CustomMissile("FlechetteDamagerTiny_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Loop
+	}
+}
+
 Actor FlechetteDamager : DnD_BaseProjectile {
 	Radius 4
 	Height 4
@@ -194,6 +226,10 @@ Actor FlechetteDamager : DnD_BaseProjectile {
 	}
 }
 
+Actor FlechetteDamager_Crit : FlechetteDamager {
+	Accuracy 69
+}
+
 ACTOR FlechetteDamagerTiny : FlechetteDamager {
    +NODAMAGETHRUST
    +PAINLESS
@@ -204,6 +240,10 @@ ACTOR FlechetteDamagerTiny : FlechetteDamager {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor FlechetteDamagerTiny_Crit : FlechetteDamagerTiny {
+	Accuracy 69
 }
 
 Actor MagnumShellShooter : DnD_Activator {
@@ -344,11 +384,16 @@ Actor ShockShellPuff : DnD_BasePuff {
 		AfterDamage:
 			PUFF A 0
 			TNT1 AAAAA 0 A_SpawnItemEx("BlueParticle5", 0, 0, frandom(-2.4, 2.4), frandom(-4.8, 4.8), frandom(-4.8, 4.8), frandom(-4.8, 4.8), 0, 128)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_CritToken", 1, "Crit")
 			TNT1 A 0 A_CustomMissile("ShockDamager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		FinishAnim:
 			MPU9 A 4 A_PlaySound("puff/ric")
 			MPU9 B 4
 			MPU9 CDE 4
 		stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("ShockDamager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto FinishAnim
 		Crash:
 		HitNoBlood:
 		Goto AfterDamage
@@ -385,6 +430,10 @@ Actor ShockDamager : DnD_ExplosiveBase {
 			TNT1 A 15
 		Goto FinishExplosion
 	}
+}
+
+Actor ShockDamager_Crit : ShockDamager {
+	Accuracy 69
 }
 
 Actor SlugShellShooter : DnD_Activator {
@@ -729,6 +778,7 @@ Actor HEGrenadeX : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 0.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 18.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 36.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -749,6 +799,30 @@ Actor HEGrenadeX : DnD_ExplosiveBase {
 			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 306.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 324.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("HEGrenadeTrails", 8, 0, 342.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NGLP D 2
+			TNT1 A 15
+		Goto FinishExplosion
+		Crit:
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 0.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 18.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 36.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 54.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 72.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 90.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 108.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 126.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 144.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 162.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 180.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 198.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 216.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 234.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 252.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 270.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 288.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 306.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 324.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("HEGrenadeTrails_Crit", 8, 0, 342.0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NGLP D 2
 			TNT1 A 15
 		Goto FinishExplosion
@@ -808,6 +882,10 @@ Actor HEGrenadeTrails : DnD_ExplosiveBase {
 	}
 }
 
+Actor HEGrenadeTrails_Crit : HEGrenadeTrails {
+	Accuracy 69
+}
+
 Actor SonicGrenade : DnD_BaseProjectile {
 	Speed 32
 	Radius 8
@@ -836,6 +914,7 @@ Actor SonicGrenade : DnD_BaseProjectile {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_SetScale(1.275, 1.275)
 		Booming:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			CAPX D 1 A_CustomMissile("SonicGrenadeExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		ExplosionLoop:
 			TNT1 A 0 A_JumpIf(user_count == lim, "Finish")
@@ -850,6 +929,9 @@ Actor SonicGrenade : DnD_BaseProjectile {
 		Finish:
 			TNT1 A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Explosion Repeat"), "Booming")
 		Stop
+		Crit:
+			CAPX D 1 A_CustomMissile("SonicGrenadeExplosion_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto ExplosionLoop
 	}
 }
 
@@ -881,6 +963,10 @@ Actor SonicGrenadeExplosion : DnD_ExplosiveBase {
 			TNT1 A 15
 		Goto FinishExplosion
 	}
+}
+
+Actor SonicGrenadeExplosion_Crit : SonicGrenadeExplosion {
+	Accuracy 69
 }
 
 Actor ShockShellFX {
@@ -964,6 +1050,44 @@ Actor NitroWind : DnD_BaseProjectile {
 	}
 }
 
+Actor NitroWind_Crit : NitroWind {
+	Accuracy 69
+	States {
+		SpawnState:
+			RF34 J 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 K 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 L 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 M 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 N 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 O 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 P 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 Q 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 R 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 S 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 T 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 U 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 V 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 W 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+			RF34 X 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_FadeOut(0.05)
+		Loop
+	}
+}
+
 Actor NitroWind_Damager : DnD_BaseProjectile {
 	Radius 3
 	Height 4
@@ -981,6 +1105,10 @@ Actor NitroWind_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor NitroWind_Damager_Crit : NitroWind_Damager {
+	Accuracy 69
 }
 
 Actor SpecialAmmoMode_3 : Ammo {

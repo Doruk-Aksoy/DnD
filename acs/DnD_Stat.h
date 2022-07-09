@@ -10,6 +10,9 @@
 #include "DnD_Abilities.h"
 #include "DnD_Activity.h"
 
+// There's an underlying assumption here and it is that once an attack is concluded, ie. Another "DnD on Attack" script call is made
+// all projectiles that are meant to come from an attack have come out. This is so that projectiles and multi proj delayed attacks get their crit rolls properly
+// In short, we can't support methods where the attack comes way way later after the DnD On Attack call is made. We need to update crit roll immediately on the proj
 #define DND_CRITSTATE_NOCALC 0
 #define DND_CRITSTATE_CONFIRMED 1
 bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
@@ -1038,7 +1041,10 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra, bool noToken = false)
 	
 	// rolled crit or has source of a guaranteed crit
 	if(res || CheckGuaranteedCritCases()) {
+		// return true if we got in due to guaranteed case!
+		res = true;
 		if(!noToken) {
+			// this is still needed to embed data into attacks that are delayed
 			if(wepid != -1)
 				PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
 			GiveInventory("DnD_CritToken", 1);
@@ -1053,6 +1059,8 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra, bool noToken = false)
 		}
 	}
 	
+	//printbold(s:"roll crit ", d:res);
+	
 	return res;
 }
 
@@ -1064,8 +1072,8 @@ void HandleHunterTalisman() {
 	}
 }
 
-int ConfirmedCritFactor(int dmg) {
-	dmg = dmg * GetCritModifier() / 100;
+int ConfirmedCritFactor(int dmg, int wepid = -1) {
+	dmg = dmg * GetCritModifier(wepid) / 100;
 	HandleHunterTalisman();
 	return dmg;
 }
@@ -1077,13 +1085,13 @@ int GetIndependentCritModifier(int pnum) {
 }
 
 int GetBaseCritModifier(int pnum, int wepid) {
-	return 	GetIndependentCritModifier(pnum) +
-			Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG].val +
-			GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid);
+	int base = GetIndependentCritModifier(pnum);
+	int wep_bonus = (wepid != -1) * (Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid));
+	return base + wep_bonus;
 }
 
-int GetCritModifier() {
-	int pnum = PlayerNumber(), wepid = GetWeaponPosFromTable();
+int GetCritModifier(int wepid) {
+	int pnum = PlayerNumber();
 	int base = GetBaseCritModifier(pnum, wepid); // calculates the regular "base" bonuses
 	
 	// berserker perk50 check

@@ -1670,7 +1670,12 @@ Actor DesolatorPuff : DnD_BasePuff {
 			TNT1 A 1 A_JumpIfInventory("DesolatorStackCounter", 0, "Stack5", AAPTR_TRACER)
 		Stop
 		Stack5:
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_CritToken", 1, "Crit")
 			TNT1 A 0 A_CustomMissile("DesolatorExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItemEx("DesolatorExplosionFX")
+		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("DesolatorExplosion_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 1 A_SpawnItemEx("DesolatorExplosionFX")
 		Stop
 		Crash:
@@ -1697,6 +1702,10 @@ Actor DesolatorExplosion : DnD_ExplosiveBase {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor DesolatorExplosion_Crit : DesolatorExplosion {
+	Accuracy 69
 }
 
 Actor DesolatorPuff_FX {
@@ -2393,6 +2402,17 @@ Actor EbonyPellets : DnD_BaseProjectile {
 	}
 }
 
+Actor EbonyPellets_Crit : EbonyPellets {
+	States {
+		SpawnState:
+			TNT1 A 0 ThrustThingZ(0, 8 * random(2, 4), 0, 0)
+			MAPF AAA 1 Bright A_CustomMissile("EbonyPellet_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		SpawnLoop:
+			MAPF BBCC 1 Bright A_CustomMissile("EbonyPellet_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Loop
+	}
+}
+
 Actor EbonyPellet_Damager : DnD_BaseProjectile {
 	Radius 2
 	Height 4
@@ -2411,6 +2431,10 @@ Actor EbonyPellet_Damager : DnD_BaseProjectile {
 	}
 }
 
+Actor EbonyPellet_Damager_Crit : EbonyPellet_Damager {
+	Accuracy 69
+}
+
 Actor EbonyBalls2 : EbonyBalls {
 	States {
 		SpawnState:
@@ -2426,7 +2450,6 @@ Actor EbonyBalls2 : EbonyBalls {
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
 			BAXP A 6 Bright
-			TNT1 AAAAA 0 A_CustomMissile("EbonyPellets", 0, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_EBONYCANNON << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT4))
 			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
@@ -2434,8 +2457,14 @@ Actor EbonyBalls2 : EbonyBalls {
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
+			TNT1 AAAAA 0 A_CustomMissile("EbonyPellets", 0, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		FinishAnim:
 			BAXP BCDEF 2 Bright
-		Stop		
+		Stop
+		Crit:
+			TNT1 AAAAA 0 A_CustomMissile("EbonyPellets_Crit", 0, 0, random(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto FinishAnim
 	}
 }
 

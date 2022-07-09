@@ -110,6 +110,16 @@ object BasiliskBall3 {
 	frame HIB1G { light BasiliskLight5 }
 }
 
+object BasiliskBall3_Crit {
+    frame HIB1AB { light BasiliskLight1 }
+	
+	frame HIB1C { light BasiliskLight2 }
+	frame HIB1D { light BasiliskLight3 }
+	frame HIB1E { light BasiliskLight4 }
+	frame HIB1F { light BasiliskLight5 }
+	frame HIB1G { light BasiliskLight5 }
+}
+
 PulseLight FrostFangShard1
 {
 Color 0.0 0.0 0.4

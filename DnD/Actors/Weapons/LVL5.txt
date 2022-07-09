@@ -456,7 +456,7 @@ Actor VindicatorZoomed : DnD_Boolean { }
 Actor VindicatorShooter : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Ammo Gain Chance", DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
@@ -502,7 +502,7 @@ Actor VindicatorShooter : DnD_Activator {
 Actor VindicatorShooter2 : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Ammo Gain Chance", DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
 			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
@@ -564,7 +564,11 @@ Actor FlakShellPuff : DnD_BasePuff {
 		Crash:
 		Melee:
 		HitNoBlood:
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_CritToken", 1, "Crit")
 			TNT1 AAA 0 A_CustomMissile("FlakProjectile", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
+		Goto AfterDamage
+		Crit:
+			TNT1 AAA 0 A_CustomMissile("FlakProjectile_Crit", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
 		Goto AfterDamage
 	}
 }
@@ -574,7 +578,11 @@ Actor FlakShellPuff_GhostHitter : FlakShellPuff {
 		Crash:
 		Melee:
 		HitNoBlood:
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_CritToken", 1, "Crit")
 			TNT1 AAA 0 A_CustomMissile("FlakProjectile_GhostHitter", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
+		Goto AfterDamage
+		Crit:
+			TNT1 AAA 0 A_CustomMissile("FlakProjectile_GhostHitter_Crit", 0, 0, 180 + frandom(-3.6, 3.6), CMF_SAVEPITCH | CMF_OFFSETPITCH | CMF_TRACKOWNER, 180 + frandom(-2.4, 2.4))
 		Goto AfterDamage
 	}
 }
@@ -637,7 +645,35 @@ ACTOR FlakProjectile : DnD_BaseFastProjectile {
 	}
 }
 
+Actor FlakProjectile_Crit : FlakProjectile {
+	Accuracy 69
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_VINDICATOR << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT5), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_VINDICATOR)
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
+			TNT1 A 2 A_CustomMissile("FlakProjectileExplosion1_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Stop
+		2:
+			TNT1 A 2 A_CustomMissile("FlakProjectileExplosion2_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Stop
+		3:
+			TNT1 A 2 A_CustomMissile("FlakProjectileExplosion3_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Stop
+		4:
+			TNT1 A 2 A_CustomMissile("FlakProjectileExplosion4_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Stop
+	}
+}
+
 Actor FlakProjectile_GhostHitter : FlakProjectile {
+	-THRUGHOST
+}
+
+Actor FlakProjectile_GhostHitter_Crit : FlakProjectile_Crit {
+	Accuracy 69
 	-THRUGHOST
 }
 
@@ -661,12 +697,20 @@ Actor FlakProjectileExplosion1 : DnD_ExplosiveBase {
 	}
 }
 
+Actor FlakProjectileExplosion1_Crit : FlakProjectileExplosion1 {
+	Accuracy 69
+}
+
 Actor FlakProjectileExplosion2 : FlakProjectileExplosion1 {
 	States {
 		ContinueFromExplosion:
-			DXP2 ABCDEFGHIJKLMNOPQR 2 Bright
+			DXP2 ABCDEFGHIJKLMNPQR 2 Bright
 		Goto FinishExplosion
 	}
+}
+
+Actor FlakProjectileExplosion2_Crit : FlakProjectileExplosion2 {
+	Accuracy 69
 }
 
 Actor FlakProjectileExplosion3 : FlakProjectileExplosion1 {
@@ -677,12 +721,20 @@ Actor FlakProjectileExplosion3 : FlakProjectileExplosion1 {
 	}
 }
 
+Actor FlakProjectileExplosion3_Crit : FlakProjectileExplosion3 {
+	Accuracy 69
+}
+
 Actor FlakProjectileExplosion4 : FlakProjectileExplosion1 {
 	States {
 		ContinueFromExplosion:
 			DXP4 ABCDEFGHIJKLMNOPQ 2 Bright
 		Goto FinishExplosion
 	}
+}
+
+Actor FlakProjectileExplosion4_Crit : FlakProjectileExplosion4 {
+	Accuracy 69
 }
 
 Actor FlakProjectileTrail {
@@ -1304,14 +1356,24 @@ Actor SedrinProjectile : DnD_ExplosiveBase {
 		ContinueFromExplosion:
 			TNT1 A 0 A_SetScale(0.75, 0.75)
 			BPLO ABC 2 Bright
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 60, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 120, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 240, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile", 0, 0, 300, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		FinishAnim:
 			BPLO DEFGHIJKLM 2 Bright
 		Goto FinishExplosion
+		Crit:
+			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile_Crit", 0, 0, 60, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile_Crit", 0, 0, 120, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile_Crit", 0, 0, 180, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile_Crit", 0, 0, 240, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("SedrinSplitProjectile_Crit", 0, 0, 300, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto FinishAnim
 	}
 }
 
@@ -1361,6 +1423,10 @@ Actor SedrinSplitProjectile : SedrinProjectile {
 			ACID A 1 Bright
 		Goto Spawn2
 	}
+}
+
+Actor SedrinSplitProjectile_Crit : SedrinSplitProjectile {
+	Accuracy 69
 }
 
 Actor SedrinSmallExplosion {

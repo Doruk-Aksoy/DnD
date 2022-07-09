@@ -162,7 +162,7 @@ enum {
 	DND_DAMAGEFLAG_USEMASTER 			= 			0b1,
 	DND_DAMAGEFLAG_ISSHOTGUN 			= 			0b10,
 	DND_DAMAGEFLAG_CULL 				= 			0b100,
-	// free spot here
+	DND_DAMAGEFLAG_ISDAMAGEOVERTIME		=			0b1000,
 	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE	=			0b10000,
 	DND_DAMAGEFLAG_NOPOISONSTACK		=			0b100000,
 	DND_DAMAGEFLAG_HALFDMGSELF			=			0b1000000,
@@ -331,32 +331,59 @@ int ScanActorFlags() {
 			CheckFlag(0, "FORCERADIUSDMG") * DND_ACTORFLAG_FORCERADIUSDMG;
 }
 
-void AdjustDamageRetrievePointers(int flags) {
+bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid = -1) {
 	int temp;
+	bool res = false;
 	//printbold(s:"prev score? ", d:GetActorProperty(0, APROP_SCORE));
 	if(flags & DND_WDMG_USETARGET) { // use target
 		// hopefully no projectile uses score
 		if(!GetActorProperty(0, APROP_SCORE)) {
-			SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
+			temp = GetActorProperty(0, APROP_TARGETTID);
+			SetActorProperty(0, APROP_SCORE, temp);
+			
+			res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+			
 			SetActivator(0, AAPTR_TARGET);
 		}
 	}
 	else if(flags & DND_WDMG_USEMASTER) {
-		if(flags & DND_WDMG_SETMASTER) // this is a hack
-			SetPointer(AAPTR_TARGET, GetActorProperty(0, APROP_MASTERTID));
+		if(flags & DND_WDMG_SETMASTER) {
+			temp = GetActorProperty(0, APROP_MASTERTID);
+		
+			res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+		
+			// this is a hack
+			SetPointer(AAPTR_TARGET, temp);
+		}
 		if(!GetActorProperty(0, APROP_SCORE)) {
-			SetActorProperty(0, APROP_SCORE, GetActorProperty(0, APROP_TARGETTID));
+			temp = GetActorProperty(0, APROP_TARGETTID);
+		
+			SetActorProperty(0, APROP_SCORE, temp);
+			
+			res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+			
 			SetActivator(GetActorProperty(0, APROP_MASTERTID));
 		}
 	}
-	else if(flags & DND_WDMG_USETRACER)
+	else if(flags & DND_WDMG_USETRACER) {
+		temp = GetActorProperty(0, APROP_TRACERTID);
+		
+		res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+		SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+	
 		SetActivator(0, AAPTR_TRACER);
+	}
 	else if(flags & DND_WDMG_USETARGETSMASTER) {
 		temp = ACS_NamedExecuteWithResult("DnD Get Master of Target");
-		if(!GetActorProperty(0, APROP_SCORE)) {
+		if(!GetActorProperty(0, APROP_SCORE))
 			SetActorProperty(0, APROP_SCORE, temp);
-			SetActivator(temp);
-		}
+		
+		res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+		SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+		
 		SetActivator(temp);
 	}
 
@@ -366,6 +393,8 @@ void AdjustDamageRetrievePointers(int flags) {
 		GiveInventory("MarkAsReflected", 1);
 		SetActivator(GetActorProperty(0, APROP_SCORE));
 	}
+	
+	return res;
 }
 
 void HandleOnHitEffects(int owner) {
@@ -441,9 +470,6 @@ int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, in
 		res = res * (100 + DND_LIGHTNINGGUN_DMGPERSTACK * CheckInventory("LightningStacks")) / 100;
 	else if(wepid == DND_WEAPON_DUSKBLADE)
 		res = res * (100 + DND_DUSKBLADE_DMGPERSTACK * CheckInventory("SwordHitCharge")) / 100;
-	
-	if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || proj_crit)
-		res = ConfirmedCritFactor(res);
 		
 	return res;
 }
@@ -769,7 +795,7 @@ Script "DnD Occult Weaken" (int victim) {
 }
 
 int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category, int flags, int resist, int pen) {
-	// if occult weakness exists, apply it checking monster's debuff
+	// if occult weakness exists, apply it checking monster's debuff -- to be done as a resist reduction to affect all players later
 	if(damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK)) {
 		int occ_weak = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
 		if(occ_weak) {
@@ -794,7 +820,7 @@ int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category,
 	return dmg * factor / 100;
 }
 
-int FactorResists(int source, int victim, int dmg, int damage_type, int flags, bool forced_full, int wepid, bool wep_neg = false) {
+int FactorResists(int source, int victim, int dmg, int damage_type, int actor_flags, int flags, bool forced_full, int wepid, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type, flags);
@@ -803,7 +829,9 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 	int resist = 0;
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
-	forced_full |= CheckInventory("Doomguy_Perk50") && !(flags & DND_DAMAGEFLAG_ISSPELL) && IsMonsterIdDemon(mon_id);
+	// added crit ignore res modifier here from below
+	forced_full |= 	(CheckInventory("Doomguy_Perk50") && !(flags & DND_DAMAGEFLAG_ISSPELL) && IsMonsterIdDemon(mon_id)) || 
+					(!wep_neg && (actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100));
 	
 	// weaknesses
 	if
@@ -858,9 +886,6 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int flags, b
 	
 	// addition of pen here means if we ignored resists and immunities, we still give penetration a chance to weaken the defences further
 	// return early as we ignored resists and immunities
-	if(!wep_neg && PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100))
-		return ApplyPenetrationToDamage(pnum, victim, dmg, damage_category, flags, resist, pen);
-		
 	// if we do forced full damage skip resists and immunities
 	if(forced_full) {
 		if(pen)
@@ -917,8 +942,12 @@ int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, i
 	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
 		dmg /= DND_HATESHARD_REDUCTION;
 	
-	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS))
-		dmg /= DND_ARTEMIS_REDUCE;
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS)) {
+		if(IsSuperWeapon(wepid))
+			dmg /= DND_ARTEMIS_REDUCE_SUPER;
+		else
+			dmg /= DND_ARTEMIS_REDUCE;
+	}
 		
 	// if there's poison stack that means it's a regular poison attack, but if there's not that means its a poison dot, do not include it again for that
 	if(CheckInventory("AgamottoOffense") && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK))
@@ -1054,10 +1083,12 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	bool forced_full = false;
 	bool no_ignite_stack = flags & DND_DAMAGEFLAG_NOIGNITESTACK;
 	int temp;
-	int pnum = -1;
 	
-	if(isPlayer(source))
-		pnum = source - P_TIDSTART;
+	// if not player sourced, return
+	if(!isPlayer(source))
+		return;
+	
+	int pnum = source - P_TIDSTART;
 	
 	// check if the damage is to be dealt without any reductions from resistances or immunities
 	forced_full |= 	(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
@@ -1075,10 +1106,9 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	)
 	{
 		temp = GetPlayerAttributeValue(pnum, INV_ESS_HARKIMONDE);
-		// we have 0 chance  or we have chance but it didn't roll in our favor
+		// we have 0 chance or we have chance but it didn't roll in our favor
 		if(!temp || temp < random(1, 100)) {
-			if(pnum != -1)
-				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
+			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
 			return;
 		}
 	}
@@ -1088,12 +1118,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	
 	// extra property checks moved here
 	if(!wep_neg) {
-		// crit check
-		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] && !(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)) {
-			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-			// printbold(s:"do crit");
-		}
-	
 		// chance to force pain
 		if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100))
 			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
@@ -1142,16 +1166,14 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// handle resists and all that here
 	//printbold(s:"res calc");
 	temp = dmg;
-	dmg = FactorResists(source, victim, dmg, damage_type, flags, forced_full, wepid, wep_neg);
+	dmg = FactorResists(source, victim, dmg, damage_type, actor_flags, flags, forced_full, wepid, wep_neg);
 	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
-	if(pnum != -1) {
-		if(dmg > temp)
-			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
-		else if(dmg < temp / 4)
-			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
-		else if(dmg < temp)
-			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
-	}
+	if(dmg > temp)
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
+	else if(dmg < temp / 4)
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+	else if(dmg < temp)
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
@@ -1202,35 +1224,43 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// ACCESSORY EFFECTS
 	dmg = HandleAccessoryEffects(source, victim, dmg, damage_type, wepid, flags, no_ignite_stack);
 	
-	// damage number handling - NO MORE DAMAGE FIDDLING HERE
+	// finally the crit check if applicable
+	if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) {
+		//printbold(s:"confirmed crit with factor application: ", d:dmg, s: " => ", d: ConfirmedCritFactor(dmg, wepid));
+		// DOT doesn't crit
+		if((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME))
+			actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
+		else
+			dmg = ConfirmedCritFactor(dmg, wepid);
+	}
+	
+	// damage number handling - NO MORE DAMAGE FIDDLING FROM BELOW HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
 	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
-	if(pnum != -1) {
-		// this part handles damage pushing
-		temp = victim - DND_MONSTERTID_BEGIN;
-		
-		// extra represents the flag list of damageticflag
-		extra = (!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
-				(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
-				(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
-				(!!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT);
-		
-		// we send particular damage types in that can cause certain status effects like chill, freeze etc.
-		if(damage_type == DND_DAMAGETYPE_ICE)
-			extra |= DND_DAMAGETICFLAG_ICE;
-		else if(IsFireDamage(damage_type) && !no_ignite_stack)
-			extra |= DND_DAMAGETICFLAG_FIRE;
-		else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
-			extra |= DND_DAMAGETICFLAG_LIGHTNING;
+	// this part handles damage pushing
+	temp = victim - DND_MONSTERTID_BEGIN;
+	
+	// extra represents the flag list of damageticflag
+	extra = (!!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
+			(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
+			(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
+			(!!((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)) * DND_DAMAGETICFLAG_DOT);
+	
+	// we send particular damage types in that can cause certain status effects like chill, freeze etc.
+	if(damage_type == DND_DAMAGETYPE_ICE)
+		extra |= DND_DAMAGETICFLAG_ICE;
+	else if(IsFireDamage(damage_type) && !no_ignite_stack)
+		extra |= DND_DAMAGETICFLAG_FIRE;
+	else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
+		extra |= DND_DAMAGETICFLAG_LIGHTNING;
 
-		if(!PlayerDamageTicData[pnum][temp]) {
-			PlayerDamageVector[pnum].x = ox;
-			PlayerDamageVector[pnum].y = oy;
-			PlayerDamageVector[pnum].z = oz;
-			ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (extra << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg | (oneTimeRipperHack << 1));
-		}
-		PlayerDamageTicData[pnum][temp] += dmg;
+	if(!PlayerDamageTicData[pnum][temp]) {
+		PlayerDamageVector[pnum].x = ox;
+		PlayerDamageVector[pnum].y = oy;
+		PlayerDamageVector[pnum].z = oz;
+		ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (extra << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg | (oneTimeRipperHack << 1));
 	}
+	PlayerDamageTicData[pnum][temp] += dmg;
 	
 	if((temp = CheckActorInventory(victim, "MonsterFortifyCount")) && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
 		if(temp <= dmg) {
@@ -1326,6 +1356,9 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	
 	bool wep_neg = wepid < 0 || (flags & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO));
 	
+	// confirm the crit damage
+	actor_flags |= (GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) * DND_ACTORFLAG_CONFIRMEDCRIT;
+	
 	// turn them to fixed
 	radius <<= 16;
 	fullradius <<= 16;
@@ -1342,6 +1375,9 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				final_dmg = ScaleExplosionToDistance(owner, dmg / 2, radius / 2, fullradius / 2, px, py, pz, proj_r);
 			else
 				final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
+				
+			// crit check done explicitly here for player, player doesn't use HandleDamageDeal
+			final_dmg = ConfirmedCritFactor(final_dmg, wepid);
 				
 			// added sight check to fix explosives hurting behind walls bug
 			if(final_dmg > 0 && CheckSight(0, owner, CSF_NOBLOCKALL)) {
@@ -1431,7 +1467,7 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 	SetResultValue(0);
 }
 
-void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false) {
+void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false, bool wasCrit = false) {
 	int px, py, pz;
 	bool victim_IsMonster = IsMonster(victim);
 
@@ -1518,8 +1554,10 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	
 	if(!wep_neg) {
 		// printbold(d:owner, s: " ", d:victim);
-		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN)
+		if(wasCrit || GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			// printbold(s:"actor got crit confirm");
+		}
 
 		// berserker perk50 dmg increase portion and other melee increases
 		if((IsMeleeWeapon(wepid) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
@@ -1578,7 +1616,7 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	SetResultValue(0);
 }
 
-// has embedded data
+// has embedded data -- this needs to be a script because the script this gets called in can't have the activator pointer manipulated
 Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	//printbold(s:"FUCKING HURT ", d:damage_type >> DAMAGE_TYPE_SHIFT);
 	int owner = GetActorProperty(0, APROP_TARGETTID);
@@ -2013,11 +2051,6 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		HandleDamagePush(2 * PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN, wep_neg & 2);
 	
 	if(!(wep_neg & 1)) {
-		if(PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] || (flags & DND_DAMAGETICFLAG_CRIT))
-			PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
-		
-		PlayerCritState[pnum][DND_CRITSTATE_NOCALC][wepid] = false;
-		
 		// check if player has lifesteal, if they do reward some hp back
 		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS] && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleLifesteal(pnum, wepid, flags, PlayerDamageTicData[pnum][victim_data]);

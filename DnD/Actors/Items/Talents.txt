@@ -1,0 +1,82 @@
+Actor Talent_Ballistic : Inventory {
+	inventory.maxamount 100
+}
+
+Actor Talent_Melee : Talent_Ballistic {}
+Actor Talent_Occult : Talent_Ballistic {}
+Actor Talent_Explosive : Talent_Ballistic {}
+Actor Talent_Energy : Talent_Ballistic {}
+Actor Talent_Elemental : Talent_Ballistic {}
+
+enum {
+	TALENT_BALLISTIC,
+	TALENT_MELEE,
+	TALENT_ENERGY,
+	TALENT_EXPLOSIVE,
+	TALENT_OCCULT,
+	TALENT_ELEMENTAL
+};
+
+const float TALENT_INCREASE = 0.05;
+const float TALENT_PER_DEX = 0.001;
+
+Actor TalentCapsule : DND_DroppedItem {
+	Radius 16
+	Height 24
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_TALENTCAPSULE)
+			TCAP A 16
+		SpawnLoop:
+			TCAP A 1 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			TNT1 A 0 A_SpawnItemEx("TalentCapsuleFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+		
+		See:
+		CheckPickup:
+			TCAP A 1 A_JumpIfCloser(32, "Pickup")
+			TNT1 A 0 A_SpawnItemEx("TalentCapsuleFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		goto SpawnLoop
+
+		Pickup:
+			TCAP A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_TALENTCAPSULE), "PickupSuccess")
+			TNT1 A 0 A_SpawnItemEx("TalentCapsuleFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		goto PickupFail
+
+		PickupFail:
+			TCAP A 1
+			TNT1 A 0 A_SpawnItemEx("TalentCapsuleFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		goto SpawnLoop
+
+		PickupSuccess:
+			TNT1 A 0 A_GiveToTarget("TalentPoint", 1)
+			TNT1 A 0 A_GiveToTarget("TalentPickMsg", 1)
+		stop
+	}
+}
+
+Actor TalentPickMsg : CustomInventory {
+	States {
+		Pickup:
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 3, SHI_TALENTCAP)
+			TNT1 A 0 A_PlaySound("Items/TalentCapsule", 6)
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
+Actor TalentCapsule_SP : CustomInventory {
+	inventory.maxamount 1
+	inventory.pickupsound "Items/TalentCapsule"
+	inventory.pickupmessage "\ccBonus pickup  : \c[Y5]Talent Capsule\c-"
+	+ALWAYSPICKUP
+	States {
+		Spawn:
+			TCAP A 1 A_SpawnItemEx("TalentCapsuleFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+		Loop
+		Pickup:
+			TNT1 A 0 A_GiveInventory("TalentPoint", 1)
+		Stop
+	}
+}

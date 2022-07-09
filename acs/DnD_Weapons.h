@@ -326,7 +326,10 @@ bool IsSoulWeapon(int wepid) {
 		return true;
 	}
 	return false;
+}
 
+bool IsSuperWeapon(int wepid) {
+	return wepid >= FIRST_SLOT7_WEAPON && wepid <= LAST_SLOT8_WEAPON;
 }
 
 #define WEPCHECK_SLOT1 "P_Slot1Replaced"

@@ -99,6 +99,7 @@ enum {
 #define DND_HATESHARD_REDUCTION 5 // 1 / 5 => you do 20% of your damage, which is 80% less
 
 #define DND_ARTEMIS_REDUCE 3 // 1 / 3
+#define DND_ARTEMIS_REDUCE_SUPER 10 // 1/10
 
 #define DND_AGAMOTTO_DEFENSE 14 // 14/10 is 1.4 => 40% more damage
 #define DND_AGAMOTTO_DEFENSE_FACTOR 10
@@ -168,8 +169,9 @@ enum {
 
 // thunderstaff info things
 #define DND_THUNDERSTAFF_MAXTARGETS 5
-#define DND_THUNDER_RADIUSPERCOUNT 16
+#define DND_THUNDER_RADIUSPERCOUNT 18
 #define DND_THUNDERSTAFF_BASERANGE 128
+#define DND_THUNDERSTAFF_LIMIT 30
 typedef struct dist_tid_pair {
 	int dist;
 	int tid;
@@ -801,6 +803,169 @@ void HandleSoulDrop() {
 	}
 }
 
+void HandleCreditExp_Regular(int this, int target, int m_id) {
+	int expshare = GetCVar("dnd_sharexp");
+	int creditshare = GetCVar("dnd_sharecredit");
+	
+    // decide how exp/credit base is calculated
+	int exptemp = MonsterProperties[m_id].maxhp / DND_HEALTHEXPSCALE;
+	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[m_id].maxhp) / DND_HEALTHCREDITSCALE;
+    int pnum = 0, i = MonsterProperties[m_id].level;
+	
+	if(credtemp < DND_MIN_CREDIT)
+		credtemp = DND_MIN_CREDIT;
+	
+	if(MonsterProperties[m_id].isElite) {
+		exptemp += exptemp * DND_ELITE_EXP_BONUS / 100;
+		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
+	}
+	
+	int pcount = Clamp_Between(PlayerCount(), 1, DND_MAX_SHARE);
+	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
+	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
+	int addone = 0;
+		
+	// add monster scale stuff
+	if(MonsterProperties[m_id].level > 1) {
+		exptemp += exptemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
+		credtemp += credtemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
+		
+		// reduce by 18% every 15 levels up to level 75, its basically what we did but smoother
+		addone = Clamp_Between(MonsterProperties[m_id].level, 1, 75);
+		credtemp = credtemp * (100 - 18 * (addone / 15)) / 100;
+	}
+	
+	// if full share is on we won't divide by player count, but if it isn't we will
+	if(!GetCVar("dnd_fullshare")) {
+		exptemp = (exptemp * expscale) / pcount;
+		if(exptemp < MIN_EXP_GAIN)
+			exptemp = MIN_EXP_GAIN;
+		credtemp = (credtemp * creditscale) / pcount;
+		if(credtemp < MIN_CREDIT_GAIN)
+			credtemp = MIN_CREDIT_GAIN;
+	}
+	else {
+		exptemp *= expscale;
+		credtemp *= creditscale;
+	}
+	
+	// from here on out the scale variables and pcount are useless
+	pcount = GetCVar("dnd_gainrange");
+	
+	// reuse old variable -- we dont need killerplayer w.e info
+	HandleMonsterTemporaryWeaponDrop(m_id, target - P_TIDSTART, MonsterProperties[m_id].isElite, false);
+
+	if(expshare || creditshare) {
+		for(i = 0; i < MAXPLAYERS; ++i) {
+			expscale = 0;
+			creditscale = 0;
+			pnum = P_TIDSTART + i;
+			if(IsActorAlive(pnum) && pnum != target) { // dont give twice
+				// check if range flag is on, if it is check the range
+				addone = AproxDistance(GetActorX(target) - GetActorX(pnum), GetActorY(target) - GetActorY(pnum)) >> 16 <= pcount;
+				if(expshare && exptemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_WIS)))
+					expscale = RewardActorExp(pnum, exptemp);
+					
+				if(creditshare && credtemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_GRE)))
+					creditscale = RewardActorCredit(pnum, credtemp);
+				
+				// if something could be provided, show it to user
+				if(expscale || creditscale) {
+					SetActivator(pnum);
+					ACS_NamedExecuteWithResult("DND Show Kill Digits", pnum, expscale, creditscale);
+				}
+			}
+		}
+	}
+	
+	// now give target his stuff (if expshare or creditshare, one of them was not on the target would not receive it in the loop)
+	expscale = RewardActorExp(target, exptemp);
+	creditscale = RewardActorCredit(target, credtemp);
+	SetActivator(target);
+	ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
+}
+
+void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
+	int expshare = GetCVar("dnd_sharexp");
+	int creditshare = GetCVar("dnd_sharecredit");
+	
+    // decide how exp/credit base is calculated
+	int exptemp = MonsterProperties[m_id].maxhp / DND_HEALTHEXPSCALE;
+	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[m_id].maxhp) / DND_HEALTHCREDITSCALE;
+    int pnum = 0, i = MonsterProperties[m_id].level;
+	
+	if(credtemp < DND_MIN_CREDIT)
+		credtemp = DND_MIN_CREDIT;
+	
+	if(MonsterProperties[m_id].isElite) {
+		exptemp += exptemp * DND_ELITE_EXP_BONUS / 100;
+		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
+	}
+	
+	int pcount = Clamp_Between(PlayerCount(), 1, DND_MAX_SHARE);
+	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
+	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
+	int addone = 0;
+		
+	// add monster scale stuff
+	if(MonsterProperties[m_id].level > 1) {
+		exptemp += exptemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
+		credtemp += credtemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
+		
+		// reduce by 18% every 15 levels up to level 75, its basically what we did but smoother
+		addone = Clamp_Between(MonsterProperties[m_id].level, 1, 75);
+		credtemp = credtemp * (100 - 18 * (addone / 15)) / 100;
+	}
+	
+	// if full share is on we won't divide by player count, but if it isn't we will
+	if(!GetCVar("dnd_fullshare")) {
+		exptemp = (exptemp * expscale) / pcount;
+		if(exptemp < MIN_EXP_GAIN)
+			exptemp = MIN_EXP_GAIN;
+		credtemp = (credtemp * creditscale) / pcount;
+		if(credtemp < MIN_CREDIT_GAIN)
+			credtemp = MIN_CREDIT_GAIN;
+	}
+	else {
+		exptemp *= expscale;
+		credtemp *= creditscale;
+	}
+	
+	// from here on out the scale variables and pcount are useless
+	pcount = GetCVar("dnd_gainrange");
+	expshare = 0;
+	creditshare = 0;
+	
+	for(i = 0; i < MAXPLAYERS; ++i) {
+		expscale = 0;
+		creditscale = 0;
+		target = P_TIDSTART + i;
+		if(IsActorAlive(target)) {
+			if(HasActorMasteredPerk(target, STAT_WIS)) {
+				expscale = RewardActorExp(target, exptemp);
+				++expshare;
+			}
+			
+			if(HasActorMasteredPerk(target, STAT_GRE)) {
+				creditscale = RewardActorCredit(target, credtemp);
+				++creditshare;
+			}
+			
+			if(expscale || creditscale) {
+				SetActivator(target);
+				ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
+			}
+			
+			// quit early if we concluded all mastery players
+			if(expshare == CurrentLevelData[LEVELDATA_WISDOMMASTERED] && creditshare == CurrentLevelData[LEVELDATA_GREEDMASTERED])
+				break;
+		}
+	}
+	
+	// guaranteed temp weapon drop
+	HandleMonsterTemporaryWeaponDrop(m_id, -1, 0, true);
+}
+
 // loc_tid is a potential drop location
 void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1) {
 	if(!IsPlayer(target))
@@ -843,9 +1008,9 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
-	/*#ifdef ISDEBUGBUILD
-		SpawnAccessory();
-	#else*/
+	//#ifdef ISDEBUGBUILD
+	//	SpawnAccessory();
+	//#else
 	if(
 		IsBossTID(tid) && 
 		RunDropChance(pnum, isElite, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0) &&
@@ -926,6 +1091,26 @@ int GetWeaponSlotFromFlag(int flags) {
 		if(IsSet(flags, i))
 			return i;
 	return 0;
+}
+
+void HandleAttackEvent(int isSpecial, int extra) {
+	int pnum = PlayerNumber();
+	// elemental bulwark check
+	if(GetPlayerAttributeValue(pnum, INV_EX_CHANCE_CASTELEMSPELLONATK) >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
+		GiveInventory("RandomElementalSpellCooldown", 1);
+		CastRandomElementalSpell();
+	}
+	
+	// roll a crit for this attack, and every projectile etc. to come out of it will use this pre-calculated crit chance here
+	int wepid = CheckInventory("DnD_WeaponID");
+	
+	// reset crit roll before we check for crit on this attack again
+	PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
+	
+	CheckCritChance(wepid, isSpecial, extra);
+	
+	// do the quest checks for slot guns being used
+	DoSlotWeaponQuestChecks(wepid);
 }
 
 int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
@@ -1146,7 +1331,7 @@ void HandleRuination(int this, int target) {
 }
 
 bool IsEliteException(int m_id, int monster_type) {
-	return 	MonsterProperties[m_id].trait_list[DND_SUMMONED] || MonsterProperties[m_id].trait_list[DND_LEGENDARY] || CheckInventory("DnD_EliteException") ||
+	return 	CheckFlag(0, "FRIENDLY") || isUniqueBossMonster(m_id) || MonsterProperties[m_id].trait_list[DND_SUMMONED] || MonsterProperties[m_id].trait_list[DND_LEGENDARY] || CheckInventory("DnD_EliteException") ||
 			monster_type == MONSTER_PHANTASM || monster_type == MONSTER_WRAITH || monster_type == MONSTER_HADESSPHERE || monster_type == MONSTER_UNDEADPRIESTGHOST;
 }
 

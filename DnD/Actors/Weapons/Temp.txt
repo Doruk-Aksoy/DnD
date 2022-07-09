@@ -582,6 +582,10 @@ Actor BladeSlash_Damager : DnD_BaseProjectile {
 	}
 }
 
+Actor BladeSlash_Damager_Crit : BladeSlash_Damager {
+	Accuracy 69
+}
+
 ACTOR BladeSlash : DnD_BaseProjectile {
 	Radius 8
 	Height 16
@@ -597,6 +601,7 @@ ACTOR BladeSlash : DnD_BaseProjectile {
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Update Melee ReactionTime", 15)
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			VFX4 A 1 Bright A_SpawnItem("SlashTrail",0,0)
 			TNT1 A 0 A_CustomMissile("BladeSlash_Damager", -50, -160, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -610,6 +615,21 @@ ACTOR BladeSlash : DnD_BaseProjectile {
 			TNT1 A 0 A_CustomMissile("BladeSlash_Damager", 40, 128, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("BladeSlash_Damager", 50, 160, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("BladeSlash_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CountDown
+		Loop
+		Crit:
+			VFX4 A 1 Bright A_SpawnItem("SlashTrail",0,0)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", -50, -160, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", -40, -128, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", -30, -96, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", -20, -64, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", -10, -32, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", 10, 32, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", 20, 64, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", 30, 96, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", 40, 128, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", 50, 160, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BladeSlash_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CountDown
 		Loop
 		Death:
@@ -1231,6 +1251,7 @@ ACTOR Ripper1 : DnD_ExplosiveBase {
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			RIP1 D 1 Bright
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("Ripper2", 0, 0, 0, CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("Ripper2", 0, 0, 60, CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("Ripper2", 0, 0, 120, CMF_TRACKOWNER)
@@ -1239,6 +1260,15 @@ ACTOR Ripper1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_CustomMissile("Ripper2", 0, 0, 300, CMF_TRACKOWNER)
 			RIP1 DEFGH 3 Bright
 		stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("Ripper2_Crit", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("Ripper2_Crit", 0, 0, 60, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("Ripper2_Crit", 0, 0, 120, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("Ripper2_Crit", 0, 0, 180, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("Ripper2_Crit", 0, 0, 240, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("Ripper2_Crit", 0, 0, 300, CMF_TRACKOWNER)
+			RIP1 DEFGH 3 Bright
+		Stop
 	}
 }
 
@@ -1252,6 +1282,8 @@ ACTOR Ripper2 : DnD_BaseProjectile {
 	DeathSound "weapons/firex2"
 	States {
 		SpawnState:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
+		SpawnLoop:
 			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
 			TNT1 A 0 A_CustomMissile("Ripper2_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
@@ -1265,12 +1297,46 @@ ACTOR Ripper2 : DnD_BaseProjectile {
 			RIP2 B 1 Bright A_SpawnItemEx("Ripper2Trail")
 			TNT1 A 0 A_CustomMissile("Ripper2_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		loop
+		Crit:
+			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 B 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 B 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 B 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Loop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HELLFORGECANNON << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT9), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_HELLFORGECANNON)
 		Death:
 			RIP2 C 0 Bright A_SetTranslucent (0.67,1)
 			RIP2 CDEFG 3 Bright
 		stop
+	}
+}
+
+Actor Ripper2_Crit : Ripper2 {
+	Accuracy 69
+	States {
+		SpawnState:
+			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 A 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 B 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 B 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RIP2 B 1 Bright A_SpawnItemEx("Ripper2Trail")
+			TNT1 A 0 A_CustomMissile("Ripper2_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		loop
 	}
 }
 
@@ -1289,6 +1355,10 @@ Actor Ripper2_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor Ripper2_Damager_Crit : Ripper2_Damager {
+	Accuracy 69
 }
 
 ACTOR Ripper2Trail {
@@ -2263,8 +2333,16 @@ ACTOR Barbshot : DnD_BaseProjectile {
 	DeathSound "weapons/crabex"
 	States {
 		SpawnState:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
+		SpawnLoop:
 			SBRD A 1 Bright A_SpawnItemEx("Barbtrail",0,0,0,0,0,0,0,8)
 			TNT1 A 0 A_CustomMissile("Barbshot_Damager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_SpawnItemEx("BarbFX",0,0,0,0,0,0,0,8)
+			TNT1 A 0 A_CountDown
+		Loop
+		Crit:
+			SBRD A 1 Bright A_SpawnItemEx("Barbtrail",0,0,0,0,0,0,0,8)
+			TNT1 A 0 A_CustomMissile("Barbshot_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER)
 			TNT1 A 0 A_SpawnItemEx("BarbFX",0,0,0,0,0,0,0,8)
 			TNT1 A 0 A_CountDown
 		Loop
@@ -2294,16 +2372,32 @@ Actor Barbshot_Damager : DnD_BaseProjectile {
 	}
 }
 
+Actor Barbshot_Damager_Crit : Barbshot_Damager {
+	Accuracy 69
+}
+
 Actor Barbshot_Damager_GhostHitter : Barbshot_Damager {
 	-THRUGHOST
+}
+
+Actor Barbshot_Damager_GhostHitter_Crit : Barbshot_Damager_GhostHitter {
+	Accuracy 69
 }
 
 Actor Barbshot_GhostHitter : Barbshot {
 	-THRUGHOST
 	States {
 		SpawnState:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
+		SpawnLoop:
 			SBRD A 1 Bright A_SpawnItemEx("Barbtrail",0,0,0,0,0,0,0,8)
 			TNT1 A 0 A_CustomMissile("Barbshot_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_SpawnItemEx("BarbFX",0,0,0,0,0,0,0,8)
+			TNT1 A 0 A_CountDown
+		Loop
+		Crit:
+			SBRD A 1 Bright A_SpawnItemEx("Barbtrail",0,0,0,0,0,0,0,8)
+			TNT1 A 0 A_CustomMissile("Barbshot_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER)
 			TNT1 A 0 A_SpawnItemEx("BarbFX",0,0,0,0,0,0,0,8)
 			TNT1 A 0 A_CountDown
 		Loop
@@ -2609,8 +2703,8 @@ ACTOR "Demon Heart" : Weapon {
 		    TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_DEMONHEART)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 40, 30 | (40 << 16), DND_WEAPON_DEMONHEART)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 64, 0, DND_WEAPON_DEMONHEART)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 32, 28 | (36 << 16), DND_WEAPON_DEMONHEART)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_DEMONHEART)
 	    SelectLoop:
 			HRTG A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -2963,6 +3057,10 @@ Actor DarkServantMissile_Explosion : DnD_ExplosiveBase {
 	}
 }
 
+Actor DarkServantMissile_Explosion_Crit : DarkServantMissile_Explosion {
+	Accuracy 69
+}
+
 Actor DarkServantMissileBig : DnD_BaseProjectile {
 	Speed 28
 	Height 10
@@ -2982,7 +3080,14 @@ Actor DarkServantMissileBig : DnD_BaseProjectile {
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 4 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_DARKGLOVES << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT9), DND_DAMAGETYPE_LIGHTNING, 0, DND_WEAPON_DARKGLOVES)
 		Death:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("DarkServantMissile_Explosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner")
+			FX18 CDEFG 3 Bright
+		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("DarkServantMissile_Explosion_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner")
 			FX18 CDEFG 3 Bright
@@ -3262,8 +3367,15 @@ Actor BigNailProj : DnD_BaseProjectile {
 	Decal BulletChip
 	States {
 		SpawnState:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
+		SpawnLoop:
 			NLPJ A 1 A_SpawnItemEx("NailBigBlur", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("BigNailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
+		Loop
+		Crit:
+			NLPJ A 1 A_SpawnItemEx("NailBigBlur", 0, 0, 0, 1, 0, 0, 180, 128)
+			TNT1 A 0 A_CustomMissile("BigNailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		Crash:
@@ -3299,6 +3411,10 @@ Actor BigNailProj_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor BigNailProj_Damager_Crit : BigNailProj_Damager {
+	Accuracy 69
 }
 
 Actor Nailgun2Pickup : CustomInventory
@@ -3790,6 +3906,7 @@ Actor PlasmaBolterProj2 : PlasmaBolterProj {
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 a_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			PBL9 II 1 Bright A_CustomMissile("PlasmaBolterProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
@@ -3816,6 +3933,32 @@ Actor PlasmaBolterProj2 : PlasmaBolterProj {
 			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), -dx / 2 + dx * cos(user_count * 30))
 			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 12)
 		Loop
+		Crit:
+			PBL9 II 1 Bright A_CustomMissile("PlasmaBolterProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, -dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), -dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 12)
+			PBL9 II 1 Bright A_CustomMissile("PlasmaBolterProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, -dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), -dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 12)
+			PBL9 JJ 1 Bright A_CustomMissile("PlasmaBolterProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, -dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), -dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 12)
+			PBL9 JJ 1 Bright A_CustomMissile("PlasmaBolterProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, -dx / 2 + dx * sin(user_count * 30), dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish", 0, dx * sin(user_count * 30), -dx / 2 + dx * cos(user_count * 30))
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % 12)
+		Loop
 	}
 }
 
@@ -3833,6 +3976,10 @@ Actor PlasmaBolterProj_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 	}
+}
+
+Actor PlasmaBolterProj_Damager_Crit : PlasmaBolterProj_Damager {
+	Accuracy 69
 }
 
 Actor PlasmaBolterShockFX  {

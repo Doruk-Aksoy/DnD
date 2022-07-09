@@ -75,7 +75,7 @@ Script "DnD Register Explosion Instance (Pets)" (void) {
 	//printbold(s:"Register Explosion to ptid ", d:owner);
 	
 	PlayerExplosionList[pnum].curr_instance = Create_ExplosionInstance(pnum);
-	SetInventory("DnD_ProjPnum", pnum);
+	SetActorState(0, StrParam(s:"Exp", d:pnum), false); 
 	
 	SetResultValue(0);
 }

@@ -699,7 +699,7 @@ Script "DND On Kill" KILL {
 	
 	// pet check -- pets dont have anything going for them beyond here
 	if(IsPet(this) || CheckFlag(0, "FRIENDLY")) {
-		Thing_ChangeTID(0, 0);
+		Thing_ChangeTID(this, 0);
 		Terminate;
 	}
 	
@@ -752,130 +752,22 @@ Script "DND On Kill" KILL {
 	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
 		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 	
-	int expshare = GetCVar("dnd_sharexp");
-	int creditshare = GetCVar("dnd_sharecredit");
-	
-    // decide how exp/credit base is calculated
-	int exptemp = MonsterProperties[m_id].maxhp / DND_HEALTHEXPSCALE;
-	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[m_id].maxhp) / DND_HEALTHCREDITSCALE;
-    int pnum = 0, i = MonsterProperties[m_id].level;
-	
-	if(credtemp < DND_MIN_CREDIT)
-		credtemp = DND_MIN_CREDIT;
-	
-	if(MonsterProperties[m_id].isElite) {
-		exptemp += exptemp * DND_ELITE_EXP_BONUS / 100;
-		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
-	}
-	
-	int pcount = Clamp_Between(PlayerCount(), 1, DND_MAX_SHARE);
-	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
-	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
-	int addone = 0;
-		
-	// add monster scale stuff
-	if(MonsterProperties[m_id].level > 1) {
-		exptemp += exptemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
-		credtemp += credtemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
-		
-		// reduce by 18% every 15 levels up to level 75, its basically what we did but smoother
-		addone = Clamp_Between(MonsterProperties[m_id].level, 1, 75);
-		credtemp = credtemp * (100 - 18 * (addone / 15)) / 100;
-	}
-	
-	// if full share is on we won't divide by player count, but if it isn't we will
-	if(!GetCVar("dnd_fullshare")) {
-		exptemp = (exptemp * expscale) / pcount;
-		if(exptemp < MIN_EXP_GAIN)
-			exptemp = MIN_EXP_GAIN;
-		credtemp = (credtemp * creditscale) / pcount;
-		if(credtemp < MIN_CREDIT_GAIN)
-			credtemp = MIN_CREDIT_GAIN;
-	}
-	else {
-		exptemp *= expscale;
-		credtemp *= creditscale;
-	}
-	
-	// from here on out the scale variables and pcount are useless
-	pcount = GetCVar("dnd_gainrange");
-	
-	// if player killed this, distribute exp and credit normally, otherwise scan for players who have mastered wisdom or greed for this
-	if(!killerWasntPlayer) {
-		// reuse old variable -- we dont need killerplayer w.e info
-		killerWasntPlayer = MonsterProperties[m_id].isElite;
-		HandleMonsterTemporaryWeaponDrop(m_id, target - P_TIDSTART, killerWasntPlayer, false);
-	
-		if(expshare || creditshare) {
-			for(i = 0; i < MAXPLAYERS; ++i) {
-				expscale = 0;
-				creditscale = 0;
-				pnum = P_TIDSTART + i;
-				if(IsActorAlive(pnum) && pnum != target) { // dont give twice
-					// check if range flag is on, if it is check the range
-					addone = AproxDistance(GetActorX(target) - GetActorX(pnum), GetActorY(target) - GetActorY(pnum)) >> 16 <= pcount;
-					if(expshare && exptemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_WIS)))
-						expscale = RewardActorExp(pnum, exptemp);
-						
-					if(creditshare && credtemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_GRE)))
-						creditscale = RewardActorCredit(pnum, credtemp);
-					
-					// if something could be provided, show it to user
-					if(expscale || creditscale) {
-						SetActivator(pnum);
-						ACS_NamedExecuteWithResult("DND Show Kill Digits", pnum, expscale, creditscale);
-					}
-				}
-			}
+	// if nodrop is on don't bother with here
+	if(!MonsterProperties[m_id].trait_list[DND_NODROPS]) {
+		if(!killerWasntPlayer)
+			HandleCreditExp_Regular(this, target, m_id);
+		else {
+			HandleCreditExp_MasteryCheck(this, target, m_id);
+			Terminate;
 		}
-		
-		// now give target his stuff (if expshare or creditshare, one of them was not on the target would not receive it in the loop)
-		expscale = RewardActorExp(target, exptemp);
-		creditscale = RewardActorCredit(target, credtemp);
-		SetActivator(target);
-		ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
-	}
-	else {
-		expshare = 0;
-		creditshare = 0;
-		for(i = 0; i < MAXPLAYERS; ++i) {
-			expscale = 0;
-			creditscale = 0;
-			target = P_TIDSTART + i;
-			if(IsActorAlive(target)) {
-				if(HasActorMasteredPerk(target, STAT_WIS)) {
-					expscale = RewardActorExp(target, exptemp);
-					++expshare;
-				}
-				
-				if(HasActorMasteredPerk(target, STAT_GRE)) {
-					creditscale = RewardActorCredit(target, credtemp);
-					++creditshare;
-				}
-				
-				if(expscale || creditscale) {
-					SetActivator(target);
-					ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
-				}
-				
-				// quit early if we concluded all mastery players
-				if(expshare == CurrentLevelData[LEVELDATA_WISDOMMASTERED] && creditshare == CurrentLevelData[LEVELDATA_GREEDMASTERED])
-					break;
-			}
-		}
-		
-		// guaranteed temp weapon drop
-		HandleMonsterTemporaryWeaponDrop(m_id, -1, 0, true);
-		
-		// this is where we will cut off this script in case the monster wasn't killed by a player for perk masteries
-		Terminate;
 	}
 	
 	// from here on out, killerWasntPlayer stores if the monster is an elite or not
 	// set activator back to the monster
 	SetActivator(this);
-
-	if(CheckActorInventory(target, "Wanderer_Perk50"))
+	
+	// 25% chance to explode
+	if(!random(0, 3) && CheckActorInventory(target, "Wanderer_Perk50"))
 		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
 	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime")) {
@@ -885,7 +777,7 @@ Script "DND On Kill" KILL {
 	SetInventory("DnD_OverloadTimer", 0);
 
 	// Demon Bane check
-	if(active_quest_id == QUEST_KILL10BOSSES && expshare) {
+	if(active_quest_id == QUEST_KILL10BOSSES && IsDemon()) {
 		GiveActorInventory(target, "DnD_BossKillQuest_Counter", 1);
 		if(!IsQuestComplete(target, QUEST_KILL10BOSSES) && CheckActorInventory(target, "DnD_BossKillQuest_Counter") == DND_QUEST_BOSSKILLER_REQ)
 			CompleteQuest(target, QUEST_KILL10BOSSES);
@@ -899,6 +791,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	// Legendary Kill Item
+	int i, temp;
 	if(MonsterProperties[m_id].id >= LEGENDARY_START) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
@@ -911,7 +804,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	// if marked by talisman
-	pcount = CheckInventory("HunterTalismanMarkBool");
+	i = CheckInventory("HunterTalismanMarkBool");
 	SetInventory("HunterTalismanMarkBool", 0);
 	
 	if(isZombie())
@@ -926,8 +819,8 @@ Script "DND On Kill" KILL {
 	
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
-		addone = GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_CHANCE_ONDEATH_RAISEZOMBIE);
-		if(HasRoomForPets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && addone >= random(1, 100)) {
+		temp = GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_CHANCE_ONDEATH_RAISEZOMBIE);
+		if(HasRoomForPets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && temp >= random(1, 100)) {
 			// raise zombie
 			HandleZombieRaiseOnDeath(target);
 		}
@@ -949,7 +842,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	// research track
-	if(expshare && CheckResearchStatus(RES_IMP1) == RES_NA) {
+	if(IsBossTID(this) && CheckResearchStatus(RES_IMP1) == RES_NA) {
 		GiveInventory("Research_Body_Im_1_Tracker", 1);
 		if(CheckInventory("Research_Body_Im_1_Tracker") == GetAmmoCapacity("Research_Body_Im_1_Tracker")) {
 			GiveResearch(RES_IMP1, true);
@@ -958,7 +851,7 @@ Script "DND On Kill" KILL {
 		}
 	}
 	
-	if(creditshare && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
+	if(IsMonsterIdDemon(m_id) && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
 		if(CheckInventory("Research_Slot3Upgrade3_Tracker") == GetAmmoCapacity("Research_Slot3Upgrade3_Tracker")) {
 			GiveResearch(RES_SLOT3UPG3, true);
@@ -971,23 +864,23 @@ Script "DND On Kill" KILL {
 	if(GetCVar("dnd_killspree"))
 		ActivateKillingSpree();
 	// Hunter Talisman Heal
-	if(pcount) {
+	if(i) {
 		GiveInventory("HunterTalismanHealFXSpawner", 1);
 		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_HUNTERTALISMAN_HEALFACTOR);
 	}
 	
-	addone = GetPlayerAttributeValue(PlayerNumber(), INV_EX_ONKILL_HEALMISSING);
-	if(addone) {
-		pcount = GetMissingHealth();
-		addone = (pcount * addone) / 100;
+	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_ONKILL_HEALMISSING);
+	if(temp) {
+		i = GetMissingHealth();
+		temp = (i * temp) / 100;
 
 		// if player is missing some health, but our factor was 0, make it 1
-		if(!addone && pcount)
-			addone = 1;
+		if(!temp && i)
+			temp = 1;
 		
-		if(addone) {
+		if(temp) {
 			Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, addone);
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
 		}
 	}
 }
@@ -2054,7 +1947,7 @@ Script "DnD Monster Spawner" (int category) {
 		// decide which legendary
 		roll = random(1, DND_MAX_LEGENDARY);
 		SetActorState(0, StrParam(s:"Leg", d:roll), true);
-		ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_LEGENDARYMONSTER);
+		ACS_NamedExecuteAlways("DnD Legendary Announcer", 0);
 	}
 	else {
 		// check for unique possibility here
@@ -2509,7 +2402,6 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 
 Script "DnD Monster Scanner Picker" (void) {
 	int this = ActivatorTID();
-	bool farPick = false;
 	while(isActorAlive(this)) {
 		SetActivatorToTarget(this);
 		
@@ -2618,12 +2510,12 @@ Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE
 	}
 
 	if(v3) {
-		for(i = 64; i < MAX_MONSTER_TRAITS; ++i)
+		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
 			MonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
 		MonsterProperties[m_id].hasTrait = true;
 	}
 	else {
-		for(i = 64; i < MAX_MONSTER_TRAITS; ++i)
+		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
 			MonsterProperties[m_id].trait_list[i] = false;
 	}
 	
@@ -2648,7 +2540,7 @@ Script "DnD Sync Pet Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSI
 	}
 
 	if(v3) {
-		for(i = 64; i < MAX_MONSTER_TRAITS; ++i)
+		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
 			PetMonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
 		PetMonsterProperties[m_id].hasTrait = true;
 	}
@@ -2666,7 +2558,7 @@ Script "DnD Constant Unique Boss Sync" (int tid) {
 	// force sync on initial tic
 	ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, lasthp, BOSSDATA_HP, 0);
 	ACS_NamedExecuteWithResult("DnD Unique Boss Property Sync", tid, lastfort, BOSSDATA_FORT, 0);
-	
+
 	while(isActorAlive(tid)) {
 		Delay(const:1);
 		
@@ -2688,6 +2580,7 @@ Script "DnD Constant Unique Boss Sync" (int tid) {
 			awakened = true;
 		}
 	}
+
 	SetResultValue(0);
 }
 
@@ -2758,6 +2651,8 @@ Script "DnD Monster Scanner" (void) CLIENTSIDE {
 				DungeonBossData[BOSSDATA_FORT]
 			);
 		}
+		else if(DungeonBossData[BOSSDATA_AWAKENED] && !DungeonBossData[BOSSDATA_TID])
+			drawnOverlay = false;
 
 		Delay(const:2);
 	}
@@ -3689,9 +3584,20 @@ Script "DnD Levelup Log" (int has_perk) CLIENTSIDE {
 		Log(s:"\cc", l:"DND_ANNOUNCE", s:": \c-", n:0, s:" \c[Y5]", l:"DND_HASLEVELEDUP", s:"\cv ", d:CheckInventory("Level"), s:"\c[Y5]!");
 }
 
+// This redirection is needed because players receive inventory tokens, but the monster executed the script so players don't properly get the tokens
+Script "DnD Legendary Announcer" (void) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i)) {
+			SetActivator(i + P_TIDSTART);
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_LEGENDARYMONSTER);
+		}
+	}
+}
+
 Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	if(to)
 		SetActivator(to + P_TIDSTART - 1);
+		
 	while(CheckInventory("TipBoxOpen"))
 		Delay(const:35);
 		
@@ -3883,9 +3789,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 	dmgid &= 0xFFFF;
 	
 	// hack for crit guarantee on multi-proj attacks
-	bool proj_crit = !ActivatorTID() && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
-	
-	AdjustDamageRetrievePointers(flags);
+	bool proj_crit = AdjustDamageRetrievePointers(flags, true, wepid);
 	
 	// if bad activator, stop
 	// note: for some reason I noticed hitscan type attacks print a bunch of -1 pnum, and 0 activator so this should prevent the load caused by those
@@ -3908,7 +3812,7 @@ Script "DnD Get Melee Range Increase" (int use_target) {
 Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 	int temp, temp2;
 	
-	AdjustDamageRetrievePointers(flags);
+	AdjustDamageRetrievePointers(flags, true);
 	
 	int pnum = PlayerNumber();
 	bool isSpell = flags & DND_WDMG_ISSPELL;
@@ -3951,7 +3855,7 @@ Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 	// finally crit chance
 	// spells will have their own crit source compared to attacks
 	if(!isSpell && CheckCritChance(-1, false, -1)) {
-		dmg = dmg * GetCritModifier() / 100;
+		dmg = dmg * GetCritModifier(-1) / 100;
 		HandleHunterTalisman();
 	}
 	
@@ -4238,7 +4142,7 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 		for(i = 0; !terminated && i < time_lim; ++i) {
 			// flat dot damage added after stacks are multiplied, because otherwise it's too overpowered...
 			if(isActorAlive(victim))
-				HandleDamageDeal(owner, victim, calc_dmg, DND_DAMAGETYPE_OCCULT, DND_WEAPON_DARKLANCE, 0, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+				HandleDamageDeal(owner, victim, calc_dmg, DND_DAMAGETYPE_OCCULT, DND_WEAPON_DARKLANCE, DND_DAMAGEFLAG_ISDAMAGEOVERTIME, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
 			else
 				terminated = true;
 			
@@ -4375,6 +4279,8 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 	
 	if(tcount) {
 		int actor_flags = ScanActorFlags();
+		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN)
+			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
 		
 		// damage credit
 		SetActivator(owner);
@@ -4486,10 +4392,8 @@ Script "DND Thunderstaff Bolts" (void) {
 				tcount = dist;
 				
 				// do not tokenize to not affect projectiles and clear crit flag after consumption
-				if(CheckCritChance(DND_WEAPON_THUNDERSTAFF, false, -1, true)) {
-					dist = ConfirmedCritFactor(dist);
+				if(CheckCritChance(DND_WEAPON_THUNDERSTAFF, false, -1, true))
 					actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-				}
 				else if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 					actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
 				
@@ -4550,12 +4454,18 @@ Script "DND Thunderstaff Lightning" (void) {
 	int pnum = PlayerNumber();
 	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE, 0, 0);
 	int actor_flags = DND_ACTORFLAG_NOPUSH;
+	int scan_amt = 0;
 	
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(int mn = 0; scan_amt < DND_THUNDERSTAFF_LIMIT && mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
 			//SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
+			
+			if(CheckCritChance(DND_WEAPON_THUNDERSTAFF, false, -1, true))
+				actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			else if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
+				actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
 			
 			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0, 0, 0, actor_flags);
 			
@@ -4567,12 +4477,14 @@ Script "DND Thunderstaff Lightning" (void) {
 			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
 			Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
 			SetActivator(this);
+			
+			++scan_amt;
 		}
 	}
 }
 
 Script "DND Thunder Range" (void) {
-	// adding a +16 to match the center radius of the special fx
+	// adding a +18 to match the center radius of the special fx
 	SetResultValue(DND_THUNDERSTAFF_BASERANGE + DND_THUNDER_RADIUSPERCOUNT * CheckInventory("ThunderRangeCounter") + 16);
 }
 
@@ -4670,7 +4582,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 				continue;
 			// this allows other people or even the same player to elevate monsters higher and keep stunning them for longer for more damage potential
 			if(!CheckActorInventory(i, "GravdisDebuff"))
-				ACS_NamedExecuteWithResult("DnD Gravdis Flinger", i, owner, dmg, base_dmg);
+				ACS_NamedExecuteWithResult("DnD Gravdis Flinger", i, owner | (proj_crit << 17), dmg, base_dmg);
 			else
 				ACS_NamedExecuteWithResult("DnD Gravdis Elevate", i, dmg, base_dmg);
 				
@@ -4693,6 +4605,8 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 }
 
 Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_dmg) {
+	bool projcrit = victim >> 17;
+	victim &= 0xFFFF;
 	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS) / (4 * damage / base_dmg), 16, 4096);
 	bool was_flying = CheckFlag(victim, "NOGRAVITY");
 	
@@ -4755,7 +4669,7 @@ Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_d
 	// apply the damage
 	int height_factor = (GRAVDIS_HEIGHT_FACTOR * height / GRAVDIS_HEIGHTADD_PER) >> 16;
 	SetActivator(dmg_source);
-	HandleImpactDamage(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_DAMAGEFLAG_FOILINVUL, DND_WEAPON_GRAVDIS);
+	HandleImpactDamage(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_DAMAGEFLAG_FOILINVUL, DND_WEAPON_GRAVDIS, false, projcrit);
 	ACS_NamedExecuteWithResult("DnD Gravdis FX Spawner", victim, 1);
 	
 	SetResultValue(0);
@@ -5255,7 +5169,7 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	}
 	
 	// ammo gain triggering means we made an attack
-	ACS_NamedExecuteWithResult("DnD On Attack", isSpecial, extra);
+	HandleAttackEvent(isSpecial, extra);
 }
 
 Script "DnD Charon Stack Gain Chance" (void) {
@@ -5263,7 +5177,7 @@ Script "DnD Charon Stack Gain Chance" (void) {
 		GiveInventory("CharonStacks", 1);
 	
 	// ammo gain triggering means we made an attack
-	ACS_NamedExecuteWithResult("DnD On Attack", 0, -1);
+	HandleAttackEvent(0, -1);
 }
 
 // in here because dnd_mons.bcs can't access values of the variables used below
@@ -5473,7 +5387,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		
 	// finally crit chance
 	if(CheckCritChance(-1, false, -1)) {
-		res = res * GetCritModifier() / 100;
+		res = res * GetCritModifier(-1) / 100;
 		HandleHunterTalisman();
 	}
 	res *= random(rnd & 0xFFFF, rnd >> 16);
@@ -5526,19 +5440,9 @@ Script "DnD Give Soul Ammo" (int amt) {
 
 // called whenever player makes an attack, melee weapons or weapon attacks that use no ammo need to call this explicitly
 // reason is this is embedded in ammo gain chance script for ease
+// extra is special ammo type, isspecial is 1 or 0
 Script "DnD On Attack" (int isSpecial, int extra) {
-	// elemental bulwark check
-	if(GetPlayerAttributeValue(PlayerNumber(), INV_EX_CHANCE_CASTELEMSPELLONATK) >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
-		GiveInventory("RandomElementalSpellCooldown", 1);
-		CastRandomElementalSpell();
-	}
-	
-	// roll a crit for this attack, and every projectile etc. to come out of it will use this pre-calculated crit chance here
-	int wepid = CheckInventory("DnD_WeaponID");
-	CheckCritChance(wepid, isSpecial, extra);
-	
-	// do the quest checks for slot guns being used
-	DoSlotWeaponQuestChecks(wepid);
+	HandleAttackEvent(isSpecial, extra);
 	
 	SetResultValue(0);
 }
@@ -6008,19 +5912,73 @@ Script "DnD Item Linger Check" (int sp) {
 	SetResultValue(0);
 */
 
+/*Script "DnD Check Spawner Crit" (int isPlayer) {
+	int owner = 0;
+	int ptr = isPlayer ? AAPTR_MASTER : AAPTR_TARGET;
+	SetActivator(0, ptr);
+	
+	int crit_state = GetActorProperty(0, APROP_ACCURACY);
+	
+	if(!(test_shit % 4))
+		printbold(s:"Intermediary owner ", s:GetActorClass(0));
+	
+	SetActivator(0, AAPTR_TARGET);
+	
+	owner = ActivatorTID();
+	
+	if(!(test_shit % 4))
+		printbold(s:"Intermediary owner #2 ", s:GetActorClass(0), s: " ", d:owner);
+
+	SetResultValue(crit_state == DND_CRIT_TOKEN | (owner << 8));
+}
+
+Script "DnD Check Puff Crit" (void) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(owner && CheckActorInventory(owner, "DnD_CritToken")) {
+		if(!(test_shit % 4))
+			printbold(s:"update puff crit state ", d:DND_CRIT_TOKEN);
+		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
+	}
+}*/
+
 Script "DnD Projectile Checks" (int isPet) {
+	/*int temp;
+	bool hasCrit = GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
+	
+	++test_shit;
+	
+	// no crit state -- we must climb up some predecessors and obtain their values if possible
+	if(!hasCrit) {
+		temp = ACS_NamedExecuteWithResult("DnD Check Spawner Crit", GetActorProperty(0, APROP_TARGETTID));
+		hasCrit = !!(temp & 0xFF);
+		temp >>= 8;
+		
+		SetActorProperty(0, APROP_ACCURACY, hasCrit * DND_CRIT_TOKEN);
+		
+		// do owner correction
+		if(temp) {
+			SetPointer(AAPTR_TARGET, temp >> 8);
+			SetActorProperty(0, APROP_TARGETTID, temp >> 8);
+		}
+		
+		if(!(test_shit % 4))
+			printbold(s:GetActorClass(0), s:" Owned by ", d:GetActorProperty(0, APROP_TARGETTID), s: " crit: ", d:hasCrit, s: " ", d:GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN);
+	}*/
+
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
+	int pnum = owner - P_TIDSTART;
+	int wepid = CheckActorInventory(owner, "DnD_WeaponID");
+	
 	// store owner
 	SetActorProperty(0, APROP_SCORE, owner);
 	
-	// hack for crit store on burst fire projectiles
-	if(CheckActorInventory(owner, "DnD_CritToken"))
+	// hack for crit store on burst fire projectiles -- they call this on their initialization phase so at this point we should be able to check the wepid
+	if((wepid != -1 && PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid]) || CheckActorInventory(owner, "DnD_CritToken"))
 		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
 	
 	if(CheckActorInventory(owner, "NetherCheck"))
 		GiveInventory("ApplyNetherMaskBuff", 1);
 
-	int pnum = owner - P_TIDSTART;
 	// this already checks marine perk 50
 	if
 	(
@@ -6034,6 +5992,10 @@ Script "DnD Projectile Checks" (int isPet) {
 		GiveInventory("ApplyForceRadiusDMG", 1);
 		
 	SetResultValue(0);
+}
+
+Script "DnD Check Crit" (void) {
+	SetResultValue(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN);
 }
 
 Script "DnD Rejuvenation" (void) {
@@ -6214,6 +6176,9 @@ Script "DnD Create Kanji Trap" (void) {
 	SetActorProperty(0, APROP_TARGETTID, owner);
 	SetPointer(AAPTR_TARGET, owner);
 	SetActorVelocity(0, FixedMul(64 * cos(a), cos(p)), FixedMul(64 * sin(a), cos(p)), -64 * sin(p), 0, 0);
+	
+	if(CheckActorInventory(owner, "DnD_CritToken"))
+		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
 	
 	SetResultValue(0);
 }
@@ -6419,7 +6384,7 @@ Script 68 (int x) NET {
 		SpawnOrbForAll(1, random(40, 120));
 		//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 		//SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
-		//SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
+		//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);
 		/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

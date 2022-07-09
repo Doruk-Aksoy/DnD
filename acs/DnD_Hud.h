@@ -97,7 +97,7 @@ enum {
 
 void ClearMonsterScanInfo() {
 	DeleteTextRange(MONSTER_TYPEICONID, MONSTER_BARFILLOVERLAY4);
-	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + MAX_MONSTER_TRAITS);
+	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + MAX_MONSTER_TRAITS_SHOWN);
 }
 
 #define HUD_DII_MULT 14
@@ -159,6 +159,7 @@ void ClearMenuDisplay() {
 	// login screen for hardcore
 	DeleteText(DND_HARDCORE_SCREENID);
 	CleanInventoryInfo();
+	CleanInventoryInfo(RPGMENUCLICKEDID);
 	CleanMaterialInfo(false);
 }
 
@@ -303,7 +304,7 @@ void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
 	ACS_NamedExecuteAlways("DnD Menu Popup", 0, pnum | (popupid << 16), isSell, activebox);
 }
 
-#define MONSTER_BARID (MONSTER_TRAITID + MAX_MONSTER_TRAITS + 1)
+#define MONSTER_BARID (MONSTER_TRAITID + MAX_MONSTER_TRAITS_SHOWN + 1)
 
 // topleft corner 1:1 bottom right 0:0
 #define HUDMAX_X 480
@@ -813,7 +814,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 		}
 		else if(MonsterProperties[m_id].hasTrait) {
 			SetFont ("MONFONT");
-			for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
+			for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
 				if(MonsterProperties[m_id].trait_list[i]) {
 					HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 					++j;
@@ -823,7 +824,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	}
 	else if(PetMonsterProperties[m_id].hasTrait) {
 		SetFont ("MONFONT");
-		for(i = 0; i < MAX_MONSTER_TRAITS; ++i) {
+		for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
 			if(PetMonsterProperties[m_id].trait_list[i]) {
 				HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 				++j;
@@ -906,9 +907,9 @@ Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
 		
 		fdisp = (DungeonBossData[BOSSDATA_FORT] * 450 / MonsterProperties[m_id].maxhp);
 		
-		alpha = Clamp_Between(DungeonBossData[BOSSDATA_DMGTAKEN] * 0.01, 0.0, 1.0);
+		alpha = Clamp_Between(DungeonBossData[BOSSDATA_DMGTAKEN] * 0.008, 0.0, 1.0);
 		
-		if(!counter && DungeonBossData[BOSSDATA_DMGTRIGGER]) {
+		if(DungeonBossData[BOSSDATA_DMGTRIGGER]) {
 			counter = 25;
 			DungeonBossData[BOSSDATA_DMGTRIGGER] = 0;
 		}
@@ -962,6 +963,8 @@ Script "DnD Unique Boss Bar Draw SpecOnly" (int tid, int diedNoLives) CLIENTSIDE
 		);
 		Delay(const:2);
 	}
+	
+	BossBarDrawnForPlayer[cpn] = false;
 }
 
 #endif

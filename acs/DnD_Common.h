@@ -21,7 +21,8 @@
 
 #define DND_BASE_HEALTH 100
 
-#define DND_DROP_TID 343 // some dumb number
+// this dumb number wasted weeks of our time, fuck you dumb number!
+//#define DND_DROP_TID 343 // some dumb number
 
 #define EPSILON 0.000001
 
@@ -147,8 +148,10 @@ enum {
 	
 	DND_THUNDERSTAFF_DAMAGERTID,
 	DND_ICECHUNK_TID,
+	DND_TEMP_PLAYERPROJTID,
 	
-	DND_THUNDER_RING_TIDSTART,
+	// we allocate each player proj tid to their own pnum
+	DND_THUNDER_RING_TIDSTART = DND_TEMP_PLAYERPROJTID + MAXPLAYERS,
 	
 	DND_TALISMAN_MARK = DND_THUNDER_RING_TIDSTART + THUNDERSTAFF_RING_SKIP,
 	
@@ -168,8 +171,8 @@ enum {
 	
 	DND_SUBORDINATE_TEMPTID = DND_PICKUPTID_BEGIN + MAX_PICKUPS,
 	
-	
-	SPECIAL_FX_TID = INT_MAX
+	DND_DROP_TID = INT_MAX - 1,
+	SPECIAL_FX_TID
 };
 
 #define DND_LASTMONSTER_TID (DND_MAX_MONSTERS + DND_MONSTERTID_BEGIN)

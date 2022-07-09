@@ -152,6 +152,11 @@ Object DNBFGBallSmall
     frame NBFP { light DNBFGFLIGHT2 }
 }
 
+Object DNBFGBallSmall_Crit
+{
+    frame NBFP { light DNBFGFLIGHT2 }
+}
+
 pointlight IonPuffLight1 {
 	color 1.0 0.7 0.1
 	size 48

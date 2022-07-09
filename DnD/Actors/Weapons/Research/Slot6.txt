@@ -136,7 +136,7 @@ Actor FTExplosion1 : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 23)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
 		ExplosionLoop:
 			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
@@ -166,6 +166,7 @@ Actor FTExplosion1_NoSelf : FTExplosion1 {
 			TNT1 A 1 A_SetUserVar("user_count", 23)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE)
 		ExplosionLoop:
 			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
@@ -202,7 +203,7 @@ Actor FTExplosion2 : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 70)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_FIREDAMAGE | DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
 			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		ExplosionLoop:
@@ -793,13 +794,36 @@ Actor RebounderProjectile : DnD_BaseProjectile {
 	}
 }
 
+Actor RebounderProjectile_Crit : RebounderProjectile {
+	Accuracy 69
+}
+
 Actor RebounderProjectileB1 : RebounderProjectile {
 	States {
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectile", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectile", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("RebounderProjectile_Crit", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectile_Crit", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
+	}
+}
+
+Actor RebounderProjectileB1_Crit : RebounderProjectileB1 {
+	Accuracy 69
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectile_Crit", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectile_Crit", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 1 A_SpawnItem("RebounderHitFX")
 		Stop
 	}
@@ -810,8 +834,27 @@ Actor RebounderProjectileB2 : RebounderProjectile {
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB1", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB1", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_Crit", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_Crit", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
+	}
+}
+
+Actor RebounderProjectileB2_Crit : RebounderProjectileB2 {
+	Accuracy 69
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_Crit", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_Crit", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 1 A_SpawnItem("RebounderHitFX")
 		Stop
 	}
@@ -822,8 +865,27 @@ Actor RebounderProjectileB3 : RebounderProjectile {
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB2", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB2", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_Crit", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_Crit", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
+	}
+}
+
+Actor RebounderProjectileB3_Crit : RebounderProjectileB3 {
+	Accuracy 69
+	States {
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
+		Death:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_Crit", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_Crit", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 1 A_SpawnItem("RebounderHitFX")
 		Stop
 	}
@@ -834,8 +896,14 @@ Actor RebounderProjectileB4 : RebounderProjectile {
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB3", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB3", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 1 A_SpawnItem("RebounderHitFX")
+		Stop
+		Crit:
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB3_Crit", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RebounderProjectileB3_Crit", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 1 A_SpawnItem("RebounderHitFX")
 		Stop
 	}
