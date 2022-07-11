@@ -720,8 +720,13 @@ Script "DND On Kill" KILL {
 		ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
 	}
 	
-	// only work if you can determine target as a player
-	if(killerWasntPlayer && !CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED])
+	// only work if you can determine target as a player and if the player is alive
+	// if player has no level data don't process anything as it's somehow bad state to work with
+	if
+	(
+		(killerWasntPlayer && !CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED]) || 
+		!IsActorAlive(target) || !GetActorStat(target, STAT_LVL)
+	)
 		Terminate;
 		
 	// remove freeze and chill timers
@@ -751,7 +756,7 @@ Script "DND On Kill" KILL {
 		
 	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
 		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
-	
+
 	// if nodrop is on don't bother with here
 	if(!MonsterProperties[m_id].trait_list[DND_NODROPS]) {
 		if(!killerWasntPlayer)
@@ -929,13 +934,35 @@ Script 832 (void) {
 	int statpts = Calculate_Stats();
 	int perkpts = Calculate_Perks();
 	int pnum = PlayerNumber();
-	Reset_RPGInfo(RESET_STATS | RESET_PERKS);
 	StatListOpened[pnum] = 0;
 	
 	// don't use set here, it removes unallocated pts
 	GiveInventory("AttributePoint", statpts);
 	GiveInventory("PerkPoint", perkpts);
 	
+	// update activity for the taken stats! Fixes leftover stats bug
+	int i;
+	for(i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
+		TakeStat(i, GetStat(i));
+		
+	// for perks now
+	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
+		TakeStat(i, GetStat(i));
+		
+	// not sure why this is here but it was before so I'll keep it for now
+	SetAmmoCapacity("StoredMedkit", DND_BASE_HEALTH);
+			
+	// update health to new cap if higher
+	int temp = GetSpawnHealth();
+	if(GetActorProperty(0, APROP_HEALTH) > temp)
+		SetActorProperty(0, APROP_HEALTH, temp);
+		
+	// update armor to new cap if higher
+	temp = GetArmorCapFromID(GetArmorID());
+	if(GetArmorAmount() > temp)
+		SetArmorAmount(temp);
+	
+	// update activities for unspent attrib and perk points
 	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, statpts, 0);
 	UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, perkpts, 0);
 }
@@ -6402,6 +6429,14 @@ Script 68 (int x) NET {
 		printbold(s:"giving ", d:2000000 + GetStat(STAT_EXP) / 2, s: " exp");
 		GiveExp(2000000 + GetStat(STAT_EXP) / 2);
 		printbold(s:"current exp: ", d:GetStat(STAT_EXP));
+	}
+	else if(x == 450) {
+		GiveInventory("PerkPoint", 10);
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERKPOINT, 10, 0);
+		GiveInventory("PerkedUp", 1);
+
+		GiveInventory("AttributePoint", 25);
+		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, 25, 0);
 	}
 	else if(x == 500) {
 		for(i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)

@@ -558,8 +558,10 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// save perks (use 4 bits per perk, max is 10 for a perk so it saves the first 8 perks packed into 4 bits)
 	i = STAT_SHRP - DND_PERK_BEGIN;
 	temp = PlayerActivities[pnum].perk_change[i];
+	//printbold(s:"perk ", d:i, s: " change: ", d:temp);
 	for(j = 0; j < 7; ++j) {
 		vt = PlayerActivities[pnum].perk_change[++i];
+		//printbold(s:"perk ", d:i, s: " change: ", d:vt);
 		if(vt < 0)
 			temp -= (-vt) << ((j + 1) * 4);
 		else
@@ -571,9 +573,11 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// save perks - 2 -- send the leftovers, as long as we have <= 16 perks we're fine here
 	// -1 is because we always set the initial value to the previous one we left at, so the first batch saved 8 perks and is waiting at 9th
 	// 9th and 10th need to be saved, our initial is 9 we need 10th saved so max perks - 9 = 1, loop will run once for 10 perks
-	temp = PlayerActivities[pnum].perk_change[i];
+	temp = PlayerActivities[pnum].perk_change[++i];
+	//printbold(s:"2nd loop perk ", d:i, s: " change: ", d:temp);
 	for(j = 0; j < DND_MAX_PERKS - 9; ++j) {
 		vt = PlayerActivities[pnum].perk_change[++i];
+		//printbold(s:"perk ", d:i, s: " change: ", d:vt);
 		if(vt < 0)
 			temp -= (-vt) << ((j + 1) * 4);
 		else
@@ -637,8 +641,8 @@ void SavePlayerActivities(int pnum, int char_id) {
 	
 	// save unspent attribute/perk points
 	temp = PlayerActivities[pnum].free_attributes;
-	
 	vt = PlayerActivities[pnum].free_perks;
+	//printbold(s:"free attrib perk ", d:temp, s: " ", d:vt);
 	if(vt < 0)
 		temp -= (-vt) << 11;
 	else
@@ -948,11 +952,12 @@ void LoadPlayerData(int pnum, int char_id) {
 	}
 	
 	// read unspent attribute/perk points
+	// added: Update player activity to prevent it going from negative
 	temp = GetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc);
 	SetInventory("AttributePoint", temp & 0x7FF);
 	temp >>= 11;
 	SetInventory("PerkPoint", temp & 0x7FF);
-	
+
 	temp = GetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc);
 	// read artifacts
 	SetInventory("SalvationSphere", temp & 1);
@@ -1310,7 +1315,7 @@ int check_create_char(int pnum, int char_id) {
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
-	if(char_id < 0 || char_id > DND_MAX_CHARS-1) return DND_LOGIN_CHARNOTINRANGE;
+	if(char_id < 0 || char_id > DND_MAX_CHARS - 1) return DND_LOGIN_CHARNOTINRANGE;
 	if(PlayerLoaded[pnum]) return DND_LOGIN_CHARINUSE;
 	if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME; //For now, allow player to setchar until end of map manually. -- Uncommented to see if it prevents stashes being destroyed.
 	return DND_LOGIN_CREATECHAROK;
@@ -1325,7 +1330,19 @@ Script 1003 (int char_id) NET {
 	int result = check_create_char(pnum, char_id);
 	if (result == DND_LOGIN_CREATECHAROK) {
 		// reset whatever gibberish the player might have had
+		int tid = pnum + P_TIDSTART;
+		str pacc = GetPlayerAccountName(pnum);
+		
 		BulkResetPlayerData(pnum);
+
+		// wipeout the data for this character -- we do this to prevent overlap and stacking from death/spec related to player activity save on a pre-existing char
+		BeginDBTransaction();
+		WipeoutPlayerData(pnum, char_id);
+		
+		// make sure to transfer the class id
+		SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(tid, "DnD_Character"));
+		
+		EndDBTransaction();
 		
 		create_char(pnum, char_id);
 		

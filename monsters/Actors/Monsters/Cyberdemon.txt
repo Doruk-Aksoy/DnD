@@ -2320,6 +2320,7 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 	PainSound "monster/avapai" 
 	DeathSound "monster/avadth" 
 	ActiveSound "monster/avaact"
+	Species "Cyber"
 	Tag "Avatar of Chaos"
 	var int user_count;
 	States {

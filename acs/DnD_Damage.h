@@ -2952,6 +2952,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				
 				// hate shard reflection
 				if(CheckActorInventory(victim, "HateCheck")) {
+					// this is needed for kill credit
+					if(GetActorProperty(shooter, APROP_HEALTH) < dmg)
+						GiveActorInventory(shooter, "MonsterKilledByPlayer", 1);
 					Thing_Damage2(shooter, dmg, "Reflection");
 					ACS_NamedExecuteWithResult("DnD Damage Numbers", shooter, dmg, 0);
 				}

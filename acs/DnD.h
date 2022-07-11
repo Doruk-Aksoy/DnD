@@ -261,18 +261,6 @@ void Reset_RPGInfo (int resetflags) {
 	
 	if(resetflags & RESET_CREDIT)
 		SetInventory("Credit", 0);
-		
-	if(resetflags & RESET_STATS) {
-		for(i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
-			SetInventory(StatData[i], 0);
-		SetActorProperty(0, APROP_HEALTH, DND_BASE_HEALTH);
-	}
-	
-	if(resetflags & RESET_PERKS) {
-		for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-			SetInventory(StatData[i], 0);
-		SetAmmoCapacity("StoredMedkit", DND_BASE_HEALTH);
-	}
 }
 
 int CheckLevelUp (int pnum) {
@@ -746,21 +734,32 @@ void HandleChestSpawn(int chance_penalty) {
 }
 
 void HandleChestDrops(int ctype) {
+	// the tid of player who opened the chest
+	int tid = GetActorProperty(0, APROP_TARGETTID);
+	int pnum = tid - P_TIDSTART;
 	HandleElixirDrop(true);
 	if(ctype == DND_CHESTTYPE_BRONZE) {
+		/*RunDefaultDropChance(int pnum, bool isElite, int basechance)
+		RunDefaultDropChance(i, true, DND_ELITE_BASEDROP_ORB + addchance)*/
 		SpawnOrbForAll(1);
-		if(random(0, 1))
+		if(RunDefaultDropChance(pnum, false, 0.5))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_SILVER) {
 		SpawnOrbForAll(2);
-		if(random(0, 3))
+		if(RunDefaultDropChance(pnum, false, 0.75))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
 		SpawnOrbForAll(3);
 		SpawnTokenForAll(1);
 	}
+	
+	// common to all chests, an extra orb can drop with 25% chance and another with 10%
+	if(RunDefaultDropChance(pnum, false, 0.25))
+		SpawnOrbForAll(1);
+	if(RunDefaultDropChance(pnum, false, 0.1))
+		SpawnOrbForAll(1);
 }
 
 void HandleEliteDrops() {
@@ -834,7 +833,7 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 		addone = Clamp_Between(MonsterProperties[m_id].level, 1, 75);
 		credtemp = credtemp * (100 - 18 * (addone / 15)) / 100;
 	}
-	
+
 	// if full share is on we won't divide by player count, but if it isn't we will
 	if(!GetCVar("dnd_fullshare")) {
 		exptemp = (exptemp * expscale) / pcount;

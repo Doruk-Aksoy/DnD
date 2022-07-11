@@ -23,14 +23,8 @@ void DealPoisonDamage(int target, int dmg) {
 	
 	int m_id = target - DND_MONSTERTID_BEGIN;
 	
-	int factor = 	(MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + 
-					MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
-			
-	dmg = dmg * (100 + factor - CheckActorInventory(this, "IATTR_ReducedPoisonTaken")) / 100;
-			
-	// elite damage bonus is multiplicative
-	if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
-		dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
+	// removed factor stuff from here because the damage is already contributed
+	dmg = dmg * (100 - CheckActorInventory(this, "IATTR_ReducedPoisonTaken")) / 100;
 		
 	if(dmg > 0) {
 		IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, this);
